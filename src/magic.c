@@ -156,7 +156,7 @@ void say_spell(CHAR_DATA* ch, int sn)
         if (length == 0) length = 1;
     }
 
-    sprintf(buf2, "$n utters the words, '%s'.", buf);
+    sprintf(buf2, "$n utters the words, '%1.50s'.", buf);
     sprintf(buf, "$n utters the words, '%s'.", skill_table[sn].name);
 
     for (rch = ch->in_room->people; rch; rch = rch->next_in_room) {
@@ -542,13 +542,14 @@ void obj_cast_spell(int sn, int level, CHAR_DATA* ch, CHAR_DATA* victim,
         break;
 
     case TAR_OBJ_CHAR_OFF:
-        if (victim == NULL && obj == NULL)
+        if (victim == NULL && obj == NULL) {
             if (ch->fighting != NULL)
                 victim = ch->fighting;
             else {
                 send_to_char("You can't do that.\n\r", ch);
                 return;
             }
+        }
 
         if (victim != NULL) {
             if (is_safe_spell(ch, victim, FALSE) && ch != victim) {
@@ -1889,11 +1890,12 @@ void spell_earthquake(int sn, int level, CHAR_DATA* ch, void* vo, int target)
         vch_next = vch->next;
         if (vch->in_room == NULL) continue;
         if (vch->in_room == ch->in_room) {
-            if (vch != ch && !is_safe_spell(ch, vch, TRUE))
+            if (vch != ch && !is_safe_spell(ch, vch, TRUE)) {
                 if (IS_AFFECTED(vch, AFF_FLYING))
                     damage(ch, vch, 0, sn, DAM_BASH, TRUE);
                 else
                     damage(ch, vch, level + dice(2, 8), sn, DAM_BASH, TRUE);
+            }
             continue;
         }
 

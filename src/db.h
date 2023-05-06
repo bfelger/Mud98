@@ -25,6 +25,22 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+#pragma once
+#ifndef ROM__DB_H
+#define ROM__DB_H
+
+#include "merc.h"
+
+/* macro for flag swapping */
+#define GET_UNSET(flag1, flag2) (~(flag1) & ((flag1) | (flag2)))
+
+/* Magic number for memory allocation */
+#define MAGIC_NUM               52571214
+
+/* conversion from db.h */
+void convert_mob(MOB_INDEX_DATA* mob);
+void convert_obj(OBJ_INDEX_DATA* obj);
+
 /* vals from db.c */
 extern bool fBootDb;
 extern int newmobs;
@@ -40,12 +56,4 @@ extern AREA_DATA* area_first;
 /* from db2.c */
 extern int social_count;
 
-/* conversion from db.h */
-void convert_mob(MOB_INDEX_DATA* mob);
-void convert_obj(OBJ_INDEX_DATA* obj);
-
-/* macro for flag swapping */
-#define GET_UNSET(flag1, flag2) (~(flag1) & ((flag1) | (flag2)))
-
-/* Magic number for memory allocation */
-#define MAGIC_NUM               52571214
+#endif // !ROM__DB_H

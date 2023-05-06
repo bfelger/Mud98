@@ -25,10 +25,13 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-/* this is a listing of all the commands and command related data */
+#pragma once
+#ifndef ROM__INTERP_H
+#define ROM__INTERP_H
 
-/* wrapper function for safe command execution */
-void do_function args((CHAR_DATA * ch, DO_FUN* do_fun, char* argument));
+#include "merc.h"
+
+/* this is a listing of all the commands and command related data */
 
 /* for command types */
 #define ML         MAX_LEVEL /* implementor */
@@ -57,8 +60,8 @@ struct cmd_type {
     sh_int show;
 };
 
-/* the command table itself */
-extern const struct cmd_type cmd_table[];
+/* wrapper function for safe command execution */
+void do_function args((CHAR_DATA * ch, DO_FUN* do_fun, char* argument));
 
 /*
  * Command functions.
@@ -295,3 +298,8 @@ DECLARE_DO_FUN(do_worth);
 DECLARE_DO_FUN(do_yell);
 DECLARE_DO_FUN(do_zap);
 DECLARE_DO_FUN(do_zecho);
+
+/* the command table itself */
+extern const struct cmd_type cmd_table[];
+
+#endif // !ROM__INTERP_H

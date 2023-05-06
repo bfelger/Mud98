@@ -64,12 +64,9 @@ void disarm args((CHAR_DATA * ch, CHAR_DATA* victim));
 void violence_update(void)
 {
     CHAR_DATA* ch;
-    CHAR_DATA* ch_next;
     CHAR_DATA* victim;
 
     for (ch = char_list; ch != NULL; ch = ch->next) {
-        ch_next = ch->next;
-
         if ((victim = ch->fighting) == NULL || ch->in_room == NULL) continue;
 
         if (IS_AWAKE(ch) && ch->in_room == victim->in_room)
@@ -450,16 +447,18 @@ void one_hit(CHAR_DATA* ch, CHAR_DATA* victim, int dt)
      * Hit.
      * Calc damage.
      */
-    if (IS_NPC(ch) && (!ch->pIndexData->new_format || wield == NULL))
+    if (IS_NPC(ch) && (!ch->pIndexData->new_format || wield == NULL)) {
         if (!ch->pIndexData->new_format) {
             dam = number_range(ch->level / 2, ch->level * 3 / 2);
-            if (wield != NULL) dam += dam / 2;
+            if (wield != NULL)
+                dam += dam / 2;
         }
         else
             dam = dice(ch->damage[DICE_NUMBER], ch->damage[DICE_TYPE]);
-
+    }
     else {
-        if (sn != -1) check_improve(ch, sn, TRUE, 5);
+        if (sn != -1)
+            check_improve(ch, sn, TRUE, 5);
         if (wield != NULL) {
             if (wield->pIndexData->new_format)
                 dam = dice(wield->value[1], wield->value[2]) * skill / 100;
@@ -478,9 +477,10 @@ void one_hit(CHAR_DATA* ch, CHAR_DATA* victim, int dt)
                     dam = 2 * dam + (dam * 2 * percent / 100);
             }
         }
-        else
+        else {
             dam = number_range(1 + 4 * skill / 100,
                                2 * ch->level / 3 * skill / 100);
+        }
     }
 
     /*
@@ -499,15 +499,17 @@ void one_hit(CHAR_DATA* ch, CHAR_DATA* victim, int dt)
     else if (victim->position < POS_FIGHTING)
         dam = dam * 3 / 2;
 
-    if (dt == gsn_backstab && wield != NULL)
+    if (dt == gsn_backstab && wield != NULL) {
         if (wield->value[0] != 2)
             dam *= 2 + (ch->level / 10);
         else
             dam *= 2 + (ch->level / 8);
+    }
 
     dam += GET_DAMROLL(ch) * UMIN(100, skill) / 100;
 
-    if (dam <= 0) dam = 1;
+    if (dam <= 0) 
+        dam = 1;
 
     result = damage(ch, victim, dam, dt, dam_type, TRUE);
 
@@ -661,7 +663,8 @@ bool damage(CHAR_DATA* ch, CHAR_DATA* victim, int dam, int dt, int dam_type,
         && victim->pcdata->condition[COND_DRUNK] > 10)
         dam = 9 * dam / 10;
 
-    if (dam > 1 && IS_AFFECTED(victim, AFF_SANCTUARY)) dam /= 2;
+    if (dam > 1 && IS_AFFECTED(victim, AFF_SANCTUARY)) 
+        dam /= 2;
 
     if (dam > 1
         && ((IS_AFFECTED(victim, AFF_PROTECT_EVIL) && IS_EVIL(ch))
@@ -1467,7 +1470,6 @@ void group_gain(CHAR_DATA* ch, CHAR_DATA* victim)
 {
     char buf[MAX_STRING_LENGTH];
     CHAR_DATA* gch;
-    CHAR_DATA* lch;
     int xp;
     int members;
     int group_levels;
@@ -1493,8 +1495,6 @@ void group_gain(CHAR_DATA* ch, CHAR_DATA* victim)
         members = 1;
         group_levels = ch->level;
     }
-
-    lch = (ch->leader != NULL) ? ch->leader : ch;
 
     for (gch = ch->in_room->people; gch != NULL; gch = gch->next_in_room) {
         OBJ_DATA* obj;

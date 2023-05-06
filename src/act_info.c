@@ -42,6 +42,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+//#include <unistd.h>
 
 char* const where_name[] = {
     "<used as light>     ", "<worn on finger>    ", "<worn on finger>    ",
@@ -960,56 +961,65 @@ void do_look(CHAR_DATA* ch, char* argument)
     }
 
     for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
-        if (can_see_obj(ch, obj)) { /* player can see object */
+        if (can_see_obj(ch, obj)) { 
+            /* player can see object */
             pdesc = get_extra_descr(arg3, obj->extra_descr);
-            if (pdesc != NULL)
+            if (pdesc != NULL) {
                 if (++count == number) {
                     send_to_char(pdesc, ch);
                     return;
                 }
-                else
+                else {
                     continue;
+                }
+            }
 
             pdesc = get_extra_descr(arg3, obj->pIndexData->extra_descr);
-            if (pdesc != NULL)
+            if (pdesc != NULL) {
                 if (++count == number) {
                     send_to_char(pdesc, ch);
                     return;
                 }
-                else
+                else {
                     continue;
+                }
+            }
 
-            if (is_name(arg3, obj->name))
+            if (is_name(arg3, obj->name)) {
                 if (++count == number) {
                     send_to_char(obj->description, ch);
                     send_to_char("\n\r", ch);
                     return;
                 }
+            }
         }
     }
 
     for (obj = ch->in_room->contents; obj != NULL; obj = obj->next_content) {
         if (can_see_obj(ch, obj)) {
             pdesc = get_extra_descr(arg3, obj->extra_descr);
-            if (pdesc != NULL)
+            if (pdesc != NULL) {
                 if (++count == number) {
                     send_to_char(pdesc, ch);
                     return;
                 }
+            }
 
             pdesc = get_extra_descr(arg3, obj->pIndexData->extra_descr);
-            if (pdesc != NULL)
+            if (pdesc != NULL) {
                 if (++count == number) {
                     send_to_char(pdesc, ch);
                     return;
                 }
+            }
 
-            if (is_name(arg3, obj->name))
+            if (is_name(arg3, obj->name)) {
                 if (++count == number) {
                     send_to_char(obj->description, ch);
                     send_to_char("\n\r", ch);
                     return;
                 }
+            }
         }
     }
 
@@ -1436,13 +1446,14 @@ void do_affects(CHAR_DATA* ch, char* argument)
     if (ch->affected != NULL) {
         send_to_char("You are affected by the following spells:\n\r", ch);
         for (paf = ch->affected; paf != NULL; paf = paf->next) {
-            if (paf_last != NULL && paf->type == paf_last->type)
+            if (paf_last != NULL && paf->type == paf_last->type) {
                 if (ch->level >= 20)
                     sprintf(buf, "                      ");
                 else
                     continue;
-            else
+            } else {
                 sprintf(buf, "Spell: %-15s", skill_table[paf->type].name);
+            }
 
             send_to_char(buf, ch);
 
@@ -1461,8 +1472,9 @@ void do_affects(CHAR_DATA* ch, char* argument)
             paf_last = paf;
         }
     }
-    else
+    else {
         send_to_char("You are not affected by any spells.\n\r", ch);
+    }
 
     return;
 }
@@ -1555,7 +1567,8 @@ void do_help(CHAR_DATA* ch, char* argument)
     argall[0] = '\0';
     while (argument[0] != '\0') {
         argument = one_argument(argument, argone);
-        if (argall[0] != '\0') strcat(argall, " ");
+        if (argall[0] != '\0') 
+            strcat(argall, " ");
         strcat(argall, argone);
     }
 
@@ -1744,15 +1757,18 @@ void do_who(CHAR_DATA* ch, char* argument)
             /*
              * Look for classes to turn on.
              */
-            if (!str_prefix(arg, "immortals")) { fImmortalOnly = TRUE; }
+            if (!str_prefix(arg, "immortals")) { 
+                fImmortalOnly = TRUE; 
+            }
             else {
                 iClass = class_lookup(arg);
                 if (iClass == -1) {
                     iRace = race_lookup(arg);
 
                     if (iRace == 0 || iRace >= MAX_PC_RACE) {
-                        if (!str_prefix(arg, "clan"))
+                        if (!str_prefix(arg, "clan")) {
                             fClan = TRUE;
+                        }
                         else {
                             iClan = clan_lookup(arg);
                             if (iClan) {
@@ -1815,37 +1831,16 @@ void do_who(CHAR_DATA* ch, char* argument)
          */
         class = class_table[wch->class].who_name;
         switch (wch->level) {
-        default:
-            break;
-            {
-            case MAX_LEVEL - 0:
-                class = "IMP";
-                break;
-            case MAX_LEVEL - 1:
-                class = "CRE";
-                break;
-            case MAX_LEVEL - 2:
-                class = "SUP";
-                break;
-            case MAX_LEVEL - 3:
-                class = "DEI";
-                break;
-            case MAX_LEVEL - 4:
-                class = "GOD";
-                break;
-            case MAX_LEVEL - 5:
-                class = "IMM";
-                break;
-            case MAX_LEVEL - 6:
-                class = "DEM";
-                break;
-            case MAX_LEVEL - 7:
-                class = "ANG";
-                break;
-            case MAX_LEVEL - 8:
-                class = "AVA";
-                break;
-            }
+        case MAX_LEVEL - 0: class = "IMP"; break;
+        case MAX_LEVEL - 1: class = "CRE"; break;
+        case MAX_LEVEL - 2: class = "SUP"; break;
+        case MAX_LEVEL - 3: class = "DEI"; break;
+        case MAX_LEVEL - 4: class = "GOD"; break;
+        case MAX_LEVEL - 5: class = "IMM"; break;
+        case MAX_LEVEL - 6: class = "DEM"; break;
+        case MAX_LEVEL - 7: class = "ANG"; break;
+        case MAX_LEVEL - 8: class = "AVA"; break;
+        default: break;
         }
 
         /*
@@ -1879,18 +1874,23 @@ void do_count(CHAR_DATA* ch, char* argument)
 
     count = 0;
 
-    for (d = descriptor_list; d != NULL; d = d->next)
-        if (d->connected == CON_PLAYING && can_see(ch, d->character)) count++;
+    for (d = descriptor_list; d != NULL; d = d->next) {
+        if (d->connected == CON_PLAYING && can_see(ch, d->character))
+            count++;
+    }
 
     max_on = UMAX(count, max_on);
 
-    if (max_on == count)
-        sprintf(buf, "There are %d characters on, the most so far today.\n\r",
+    if (max_on == count) {
+        sprintf(buf,
+                "There are %d characters on, the most so far today.\n\r",
                 count);
-    else
+    }
+    else {
         sprintf(buf,
                 "There are %d characters on, the most on today was %d.\n\r",
                 count, max_on);
+    }
 
     send_to_char(buf, ch);
 }
@@ -1924,7 +1924,8 @@ void do_equipment(CHAR_DATA* ch, char* argument)
         found = TRUE;
     }
 
-    if (!found) send_to_char("Nothing.\n\r", ch);
+    if (!found)
+        send_to_char("Nothing.\n\r", ch);
 
     return;
 }
@@ -1964,7 +1965,6 @@ void do_compare(CHAR_DATA* ch, char* argument)
             return;
         }
     }
-
     else if ((obj2 = get_obj_carry(ch, arg2, ch)) == NULL) {
         send_to_char("You do not have that item.\n\r", ch);
         return;
@@ -1982,10 +1982,6 @@ void do_compare(CHAR_DATA* ch, char* argument)
     }
     else {
         switch (obj1->item_type) {
-        default:
-            msg = "You can't compare $p and $P.";
-            break;
-
         case ITEM_ARMOR:
             value1 = obj1->value[0] + obj1->value[1] + obj1->value[2];
             value2 = obj2->value[0] + obj2->value[1] + obj2->value[2];
@@ -2001,6 +1997,10 @@ void do_compare(CHAR_DATA* ch, char* argument)
                 value2 = (1 + obj2->value[2]) * obj2->value[1];
             else
                 value2 = obj2->value[1] + obj2->value[2];
+            break;
+            
+        default:
+            msg = "You can't compare $p and $P.";
             break;
         }
     }
@@ -2068,7 +2068,8 @@ void do_where(CHAR_DATA* ch, char* argument)
                 break;
             }
         }
-        if (!found) act("You didn't find any $T.", ch, NULL, arg, TO_CHAR);
+        if (!found) 
+            act("You didn't find any $T.", ch, NULL, arg, TO_CHAR);
     }
 
     return;
@@ -2179,13 +2180,14 @@ void do_description(CHAR_DATA* ch, char* argument)
 
             for (len = strlen(buf); len > 0; len--) {
                 if (buf[len] == '\r') {
-                    if (!found) /* back it up */
-                    {
-                        if (len > 0) len--;
+                    if (!found) {
+                        /* back it up */
+                        if (len > 0) 
+                            len--;
                         found = TRUE;
                     }
-                    else /* found the second one */
-                    {
+                    else  {
+                        /* found the second one */
                         buf[len + 1] = '\0';
                         free_string(ch->description);
                         ch->description = str_dup(buf);
@@ -2204,9 +2206,12 @@ void do_description(CHAR_DATA* ch, char* argument)
             return;
         }
         if (argument[0] == '+') {
-            if (ch->description != NULL) strcat(buf, ch->description);
+            if (ch->description != NULL) {
+                strcat(buf, ch->description);
+            }
             argument++;
-            while (isspace(*argument)) argument++;
+            while (isspace(*argument))
+                argument++;
         }
 
         if (strlen(buf) >= 1024) {
@@ -2256,7 +2261,8 @@ void do_practice(CHAR_DATA* ch, char* argument)
 
         col = 0;
         for (sn = 0; sn < MAX_SKILL; sn++) {
-            if (skill_table[sn].name == NULL) break;
+            if (skill_table[sn].name == NULL)
+                break;
             if (ch->level < skill_table[sn].skill_level[ch->class]
                 || ch->pcdata->learned[sn] < 1 /* skill is not known */)
                 continue;
@@ -2264,7 +2270,8 @@ void do_practice(CHAR_DATA* ch, char* argument)
             sprintf(buf, "%-18s %3d%%  ", skill_table[sn].name,
                     ch->pcdata->learned[sn]);
             send_to_char(buf, ch);
-            if (++col % 3 == 0) send_to_char("\n\r", ch);
+            if (++col % 3 == 0) 
+                send_to_char("\n\r", ch);
         }
 
         if (col % 3 != 0) send_to_char("\n\r", ch);
@@ -2282,7 +2289,8 @@ void do_practice(CHAR_DATA* ch, char* argument)
         }
 
         for (mob = ch->in_room->people; mob != NULL; mob = mob->next_in_room) {
-            if (IS_NPC(mob) && IS_SET(mob->act, ACT_PRACTICE)) break;
+            if (IS_NPC(mob) && IS_SET(mob->act, ACT_PRACTICE))
+                break;
         }
 
         if (mob == NULL) {
@@ -2375,17 +2383,20 @@ void do_password(CHAR_DATA* ch, char* argument)
     char* p;
     char cEnd;
 
-    if (IS_NPC(ch)) return;
+    if (IS_NPC(ch))
+        return;
 
     /*
      * Can't use one_argument here because it smashes case.
      * So we just steal all its code.  Bleagh.
      */
     pArg = arg1;
-    while (isspace(*argument)) argument++;
+    while (isspace(*argument))
+        argument++;
 
     cEnd = ' ';
-    if (*argument == '\'' || *argument == '"') cEnd = *argument++;
+    if (*argument == '\'' || *argument == '"')
+        cEnd = *argument++;
 
     while (*argument != '\0') {
         if (*argument == cEnd) {
@@ -2397,10 +2408,12 @@ void do_password(CHAR_DATA* ch, char* argument)
     *pArg = '\0';
 
     pArg = arg2;
-    while (isspace(*argument)) argument++;
+    while (isspace(*argument))
+        argument++;
 
     cEnd = ' ';
-    if (*argument == '\'' || *argument == '"') cEnd = *argument++;
+    if (*argument == '\'' || *argument == '"')
+        cEnd = *argument++;
 
     while (*argument != '\0') {
         if (*argument == cEnd) {

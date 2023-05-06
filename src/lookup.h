@@ -25,7 +25,15 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+#pragma once
+#ifndef ROM__LOOKUP_H
+#define ROM__LOOKUP_H
+
+#include "merc.h"
+
 int clan_lookup args((const char* name));
 int position_lookup args((const char* name));
 int sex_lookup args((const char* name));
 int size_lookup args((const char* name));
+
+#endif // !ROM__LOOKUP_H

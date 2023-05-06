@@ -73,14 +73,14 @@ HELP_DATA* help_last;
 SHOP_DATA* shop_first;
 SHOP_DATA* shop_last;
 
-NOTE_DATA* note_free;
+extern NOTE_DATA* note_free;
 
 char bug_buf[2 * MAX_INPUT_LENGTH];
 CHAR_DATA* char_list;
 char* help_greeting;
 char log_buf[2 * MAX_INPUT_LENGTH];
 KILL_DATA kill_table[MAX_LEVEL];
-NOTE_DATA* note_list;
+extern NOTE_DATA* note_list;
 OBJ_DATA* object_list;
 TIME_INFO_DATA time_info;
 WEATHER_DATA weather_info;
@@ -2553,7 +2553,7 @@ void do_dump(CHAR_DATA* ch, char* argument)
     aff_count = 0;
 
     /* mobile prototypes */
-    fprintf(fp, "MobProt	%4d (%8d bytes)\n", top_mob_index,
+    fprintf(fp, "MobProt    %4d (%8zu bytes)\n", top_mob_index,
             top_mob_index * (sizeof(*pMobIndex)));
 
     /* mobs */
@@ -2566,14 +2566,14 @@ void do_dump(CHAR_DATA* ch, char* argument)
     }
     for (fch = char_free; fch != NULL; fch = fch->next) count2++;
 
-    fprintf(fp, "Mobs	%4d (%8d bytes), %2d free (%d bytes)\n", count,
+    fprintf(fp, "Mobs   %4d (%8zu bytes), %2d free (%zu bytes)\n", count,
             count * (sizeof(*fch)), count2, count2 * (sizeof(*fch)));
 
     /* pcdata */
     count = 0;
     for (pc = pcdata_free; pc != NULL; pc = pc->next) count++;
 
-    fprintf(fp, "Pcdata	%4d (%8d bytes), %2d free (%d bytes)\n", num_pcs,
+    fprintf(fp, "Pcdata	%4d (%8zu bytes), %2d free (%zu bytes)\n", num_pcs,
             num_pcs * (sizeof(*pc)), count, count * (sizeof(*pc)));
 
     /* descriptors */
@@ -2582,7 +2582,7 @@ void do_dump(CHAR_DATA* ch, char* argument)
     for (d = descriptor_list; d != NULL; d = d->next) count++;
     for (d = descriptor_free; d != NULL; d = d->next) count2++;
 
-    fprintf(fp, "Descs	%4d (%8d bytes), %2d free (%d bytes)\n", count,
+    fprintf(fp, "Descs	%4d (%8zu bytes), %2d free (%zu bytes)\n", count,
             count * (sizeof(*d)), count2, count2 * (sizeof(*d)));
 
     /* object prototypes */
@@ -2593,7 +2593,7 @@ void do_dump(CHAR_DATA* ch, char* argument)
             nMatch++;
         }
 
-    fprintf(fp, "ObjProt	%4d (%8d bytes)\n", top_obj_index,
+    fprintf(fp, "ObjProt	%4d (%8zu bytes)\n", top_obj_index,
             top_obj_index * (sizeof(*pObjIndex)));
 
     /* objects */
@@ -2605,22 +2605,22 @@ void do_dump(CHAR_DATA* ch, char* argument)
     }
     for (obj = obj_free; obj != NULL; obj = obj->next) count2++;
 
-    fprintf(fp, "Objs	%4d (%8d bytes), %2d free (%d bytes)\n", count,
+    fprintf(fp, "Objs	%4d (%8zu bytes), %2d free (%zu bytes)\n", count,
             count * (sizeof(*obj)), count2, count2 * (sizeof(*obj)));
 
     /* affects */
     count = 0;
     for (af = affect_free; af != NULL; af = af->next) count++;
 
-    fprintf(fp, "Affects	%4d (%8d bytes), %2d free (%d bytes)\n", aff_count,
+    fprintf(fp, "Affects	%4d (%8zu bytes), %2d free (%zu bytes)\n", aff_count,
             aff_count * (sizeof(*af)), count, count * (sizeof(*af)));
 
     /* rooms */
-    fprintf(fp, "Rooms	%4d (%8d bytes)\n", top_room,
+    fprintf(fp, "Rooms	%4d (%8zu bytes)\n", top_room,
             top_room * (sizeof(*room)));
 
     /* exits */
-    fprintf(fp, "Exits	%4d (%8d bytes)\n", top_exit,
+    fprintf(fp, "Exits	%4d (%8zu bytes)\n", top_exit,
             top_exit * (sizeof(*exit)));
 
     fclose(fp);

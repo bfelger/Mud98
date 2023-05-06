@@ -582,15 +582,17 @@ void reset_char(CHAR_DATA* ch)
         ch->pcdata->perm_mana = ch->max_mana;
         ch->pcdata->perm_move = ch->max_move;
         ch->pcdata->last_level = ch->played / 3600;
-        if (ch->pcdata->true_sex < 0 || ch->pcdata->true_sex > 2)
+        if (ch->pcdata->true_sex < 0 || ch->pcdata->true_sex > 2) {
             if (ch->sex > 0 && ch->sex < 3)
                 ch->pcdata->true_sex = ch->sex;
             else
                 ch->pcdata->true_sex = 0;
+        }
     }
 
     /* now restore the character to his/her true condition */
-    for (stat = 0; stat < MAX_STATS; stat++) ch->mod_stat[stat] = 0;
+    for (stat = 0; stat < MAX_STATS; stat++)
+        ch->mod_stat[stat] = 0;
 
     if (ch->pcdata->true_sex < 0 || ch->pcdata->true_sex > 2)
         ch->pcdata->true_sex = 0;
@@ -599,7 +601,8 @@ void reset_char(CHAR_DATA* ch)
     ch->max_mana = ch->pcdata->perm_mana;
     ch->max_move = ch->pcdata->perm_move;
 
-    for (i = 0; i < 4; i++) ch->armor[i] = 100;
+    for (i = 0; i < 4; i++)
+        ch->armor[i] = 100;
 
     ch->hitroll = 0;
     ch->damroll = 0;
@@ -608,10 +611,12 @@ void reset_char(CHAR_DATA* ch)
     /* now start adding back the effects */
     for (loc = 0; loc < MAX_WEAR; loc++) {
         obj = get_eq_char(ch, loc);
-        if (obj == NULL) continue;
-        for (i = 0; i < 4; i++) ch->armor[i] -= apply_ac(obj, loc, i);
+        if (obj == NULL)
+            continue;
+        for (i = 0; i < 4; i++)
+            ch->armor[i] -= apply_ac(obj, loc, i);
 
-        if (!obj->enchanted)
+        if (!obj->enchanted) {
             for (af = obj->pIndexData->affected; af != NULL; af = af->next) {
                 mod = af->modifier;
                 switch (af->location) {
@@ -671,6 +676,7 @@ void reset_char(CHAR_DATA* ch)
                     break;
                 }
             }
+        }
 
         for (af = obj->affected; af != NULL; af = af->next) {
             mod = af->modifier;
@@ -795,7 +801,8 @@ void reset_char(CHAR_DATA* ch)
     }
 
     /* make sure sex is RIGHT!!!! */
-    if (ch->sex < 0 || ch->sex > 2) ch->sex = ch->pcdata->true_sex;
+    if (ch->sex < 0 || ch->sex > 2) 
+        ch->sex = ch->pcdata->true_sex;
 }
 
 /*
@@ -847,14 +854,16 @@ int get_max_train(CHAR_DATA* ch, int stat)
 {
     int max;
 
-    if (IS_NPC(ch) || ch->level > LEVEL_IMMORTAL) return 25;
+    if (IS_NPC(ch) || ch->level > LEVEL_IMMORTAL)
+        return 25;
 
     max = pc_race_table[ch->race].max_stats[stat];
-    if (class_table[ch->class].attr_prime == stat)
+    if (class_table[ch->class].attr_prime == stat) {
         if (ch->race == race_lookup("human"))
             max += 3;
         else
             max += 2;
+    }
 
     return UMIN(max, 25);
 }
@@ -864,9 +873,11 @@ int get_max_train(CHAR_DATA* ch, int stat)
  */
 int can_carry_n(CHAR_DATA* ch)
 {
-    if (!IS_NPC(ch) && ch->level >= LEVEL_IMMORTAL) return 1000;
+    if (!IS_NPC(ch) && ch->level >= LEVEL_IMMORTAL)
+        return 1000;
 
-    if (IS_NPC(ch) && IS_SET(ch->act, ACT_PET)) return 0;
+    if (IS_NPC(ch) && IS_SET(ch->act, ACT_PET))
+        return 0;
 
     return MAX_WEAR + 2 * get_curr_stat(ch, STAT_DEX) + ch->level;
 }
@@ -876,9 +887,11 @@ int can_carry_n(CHAR_DATA* ch)
  */
 int can_carry_w(CHAR_DATA* ch)
 {
-    if (!IS_NPC(ch) && ch->level >= LEVEL_IMMORTAL) return 10000000;
+    if (!IS_NPC(ch) && ch->level >= LEVEL_IMMORTAL)
+        return 10000000;
 
-    if (IS_NPC(ch) && IS_SET(ch->act, ACT_PET)) return 0;
+    if (IS_NPC(ch) && IS_SET(ch->act, ACT_PET))
+        return 0;
 
     return str_app[get_curr_stat(ch, STAT_STR)].carry * 10 + ch->level * 25;
 }
@@ -1355,12 +1368,12 @@ bool is_affected(CHAR_DATA* ch, int sn)
 void affect_join(CHAR_DATA* ch, AFFECT_DATA* paf)
 {
     AFFECT_DATA* paf_old;
-    bool found;
 
-    found = FALSE;
     for (paf_old = ch->affected; paf_old != NULL; paf_old = paf_old->next) {
         if (paf_old->type == paf->type) {
-            paf->level = (paf->level += paf_old->level) / 2;
+            // TODO: Don't just take the average; figure out how to increase
+            //       level the right way.
+            paf->level = (paf->level + paf_old->level) / 2;
             paf->duration += paf_old->duration;
             paf->modifier += paf_old->modifier;
             affect_remove(ch, paf_old);
@@ -1384,14 +1397,17 @@ void char_from_room(CHAR_DATA* ch)
         return;
     }
 
-    if (!IS_NPC(ch)) --ch->in_room->area->nplayer;
+    if (!IS_NPC(ch)) 
+        --ch->in_room->area->nplayer;
 
     if ((obj = get_eq_char(ch, WEAR_LIGHT)) != NULL
         && obj->item_type == ITEM_LIGHT && obj->value[2] != 0
         && ch->in_room->light > 0)
         --ch->in_room->light;
 
-    if (ch == ch->in_room->people) { ch->in_room->people = ch->next_in_room; }
+    if (ch == ch->in_room->people) { 
+        ch->in_room->people = ch->next_in_room; 
+    }
     else {
         CHAR_DATA* prev;
 
@@ -1652,8 +1668,8 @@ void unequip_char(CHAR_DATA* ch, OBJ_DATA* obj)
     for (i = 0; i < 4; i++) ch->armor[i] += apply_ac(obj, obj->wear_loc, i);
     obj->wear_loc = -1;
 
-    if (!obj->enchanted)
-        for (paf = obj->pIndexData->affected; paf != NULL; paf = paf->next)
+    if (!obj->enchanted) {
+        for (paf = obj->pIndexData->affected; paf != NULL; paf = paf->next) {
             if (paf->location == APPLY_SPELL_AFFECT) {
                 for (lpaf = ch->affected; lpaf != NULL; lpaf = lpaf_next) {
                     lpaf_next = lpaf->next;
@@ -1668,8 +1684,10 @@ void unequip_char(CHAR_DATA* ch, OBJ_DATA* obj)
                 affect_modify(ch, paf, FALSE);
                 affect_check(ch, paf->where, paf->bitvector);
             }
+        }
+    }
 
-    for (paf = obj->affected; paf != NULL; paf = paf->next)
+    for (paf = obj->affected; paf != NULL; paf = paf->next) {
         if (paf->location == APPLY_SPELL_AFFECT) {
             bug("Norm-Apply: %d", 0);
             for (lpaf = ch->affected; lpaf != NULL; lpaf = lpaf_next) {
@@ -1687,6 +1705,7 @@ void unequip_char(CHAR_DATA* ch, OBJ_DATA* obj)
             affect_modify(ch, paf, FALSE);
             affect_check(ch, paf->where, paf->bitvector);
         }
+    }
 
     if (obj->item_type == ITEM_LIGHT && obj->value[2] != 0
         && ch->in_room != NULL && ch->in_room->light > 0)
@@ -1727,7 +1746,9 @@ void obj_from_room(OBJ_DATA* obj)
     for (ch = in_room->people; ch != NULL; ch = ch->next_in_room)
         if (ch->on == obj) ch->on = NULL;
 
-    if (obj == in_room->contents) { in_room->contents = obj->next_content; }
+    if (obj == in_room->contents) { 
+        in_room->contents = obj->next_content; 
+    }
     else {
         OBJ_DATA* prev;
 
@@ -1797,7 +1818,9 @@ void obj_from_obj(OBJ_DATA* obj)
         return;
     }
 
-    if (obj == obj_from->contains) { obj_from->contains = obj->next_content; }
+    if (obj == obj_from->contains) { 
+        obj_from->contains = obj->next_content; 
+    }
     else {
         OBJ_DATA* prev;
 
@@ -1848,7 +1871,9 @@ void extract_obj(OBJ_DATA* obj)
         extract_obj(obj_content);
     }
 
-    if (object_list == obj) { object_list = obj->next; }
+    if (object_list == obj) { 
+        object_list = obj->next; 
+    }
     else {
         OBJ_DATA* prev;
 
@@ -1907,7 +1932,8 @@ void extract_char(CHAR_DATA* ch, bool fPull)
         return;
     }
 
-    if (IS_NPC(ch)) --ch->pIndexData->count;
+    if (IS_NPC(ch)) 
+        --ch->pIndexData->count;
 
     if (ch->desc != NULL && ch->desc->original != NULL) {
         do_function(ch, &do_return, "");
@@ -1915,10 +1941,13 @@ void extract_char(CHAR_DATA* ch, bool fPull)
     }
 
     for (wch = char_list; wch != NULL; wch = wch->next) {
-        if (wch->reply == ch) wch->reply = NULL;
+        if (wch->reply == ch) 
+            wch->reply = NULL;
     }
 
-    if (ch == char_list) { char_list = ch->next; }
+    if (ch == char_list) { 
+        char_list = ch->next; 
+    }
     else {
         CHAR_DATA* prev;
 
@@ -1935,7 +1964,8 @@ void extract_char(CHAR_DATA* ch, bool fPull)
         }
     }
 
-    if (ch->desc != NULL) ch->desc->character = NULL;
+    if (ch->desc != NULL) 
+        ch->desc->character = NULL;
     free_char(ch);
     return;
 }
@@ -2895,7 +2925,7 @@ void default_colour(CHAR_DATA* ch)
 
 void all_colour(CHAR_DATA* ch, char* argument)
 {
-    char buf[100];
+    char buf[132];
     char buf2[100];
     int colour;
     int bright;
