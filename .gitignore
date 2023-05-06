@@ -1,4 +1,6 @@
 .src*
 .area*
 .vs*
-
+*.o
+player/*
+src/rom

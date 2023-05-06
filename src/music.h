@@ -25,6 +25,12 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+#pragma once
+#ifndef ROM__MUSIC_H
+#define ROM__MUSIC_H
+
+#include "merc.h"
+
 #define MAX_SONGS  20
 #define MAX_LINES  100 /* this boils down to about 1k per song */
 #define MAX_GLOBAL 10 /* max songs the global jukebox can hold */
@@ -36,7 +42,9 @@ struct song_data {
     int lines;
 };
 
-extern struct song_data song_table[MAX_SONGS];
-
 void song_update args((void));
 void load_songs args((void));
+
+extern struct song_data song_table[MAX_SONGS];
+
+#endif // !ROM__MUSIC_H

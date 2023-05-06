@@ -25,9 +25,11 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-/* externs */
-extern char str_empty[1];
-extern int mobile_count;
+#pragma once
+#ifndef ROM__RECYCLE_H
+#define ROM__RECYCLE_H
+
+#include "merc.h"
 
 /* stuff for providing a crash-proof buffer */
 
@@ -109,3 +111,9 @@ void free_buf args((BUFFER * buffer));
 bool add_buf args((BUFFER * buffer, char* string));
 void clear_buf args((BUFFER * buffer));
 char* buf_string args((BUFFER * buffer));
+
+/* externs */
+extern char str_empty[1];
+extern int mobile_count;
+
+#endif // !ROM__RECYCLE_H

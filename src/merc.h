@@ -25,20 +25,26 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+#pragma once
+#ifndef ROM__MERC_H
+#define ROM__MERC_H
+
+#include <stdio.h>
+
 /*
  * Accommodate old non-Ansi compilers.
  */
 #if defined(TRADITIONAL)
 #define const
-#define args(list)             ()
-#define DECLARE_DO_FUN(fun)    void fun()
-#define DECLARE_SPEC_FUN(fun)  bool fun()
-#define DECLARE_SPELL_FUN(fun) void fun()
+#define args( list )             ( )
+#define DECLARE_DO_FUN( fun )    void fun( )
+#define DECLARE_SPEC_FUN( fun )  bool fun( )
+#define DECLARE_SPELL_FUN( fun ) void fun( )
 #else
-#define args(list)             list
-#define DECLARE_DO_FUN(fun)    DO_FUN fun
-#define DECLARE_SPEC_FUN(fun)  SPEC_FUN fun
-#define DECLARE_SPELL_FUN(fun) SPELL_FUN fun
+#define args( list )             list
+#define DECLARE_DO_FUN( fun )    DO_FUN fun
+#define DECLARE_SPEC_FUN( fun )  SPEC_FUN fun
+#define DECLARE_SPELL_FUN( fun ) SPELL_FUN fun
 #endif
 
 /* system calls */
@@ -2331,3 +2337,5 @@ void update_handler args((void));
 #undef RID
 #undef SF
 #undef AD
+
+#endif // !ROM__MERC_H

@@ -9,6 +9,7 @@
  * Definitions for the TELNET protocol.
  */
 
+#pragma once
 #ifndef _arpa_telnet_h
 #define _arpa_telnet_h
 

@@ -145,7 +145,7 @@ void ban_site(CHAR_DATA* ch, char* argument, bool fPerm)
             sprintf(buf2, "%s%s%s",
                     IS_SET(pban->ban_flags, BAN_PREFIX) ? "*" : "", pban->name,
                     IS_SET(pban->ban_flags, BAN_SUFFIX) ? "*" : "");
-            sprintf(buf, "%-12s    %-3d  %-7s  %s\n\r", buf2, pban->level,
+            sprintf(buf, "%-1.12s    %-3d  %-7s  %s\n\r", buf2, pban->level,
                     IS_SET(pban->ban_flags, BAN_NEWBIES)  ? "newbies"
                     : IS_SET(pban->ban_flags, BAN_PERMIT) ? "permit"
                     : IS_SET(pban->ban_flags, BAN_ALL)    ? "all"

@@ -60,6 +60,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 /*
  * Malloc debugging stuff.
@@ -148,28 +149,6 @@ int socket args((int domain, int type, int protocol));
 #if defined(interactive)
 #include <net/errno.h>
 #include <sys/fnctl.h>
-#endif
-
-#if defined(linux)
-/*
-    Linux shouldn't need these. If you have a problem compiling, try
-    uncommenting these functions.
-*/
-/*
-int	accept		args( ( int s, struct sockaddr *addr, int *addrlen ) );
-int	bind		args( ( int s, struct sockaddr *name, int namelen ) );
-int	getpeername	args( ( int s, struct sockaddr *name, int *namelen ) );
-int	getsockname	args( ( int s, struct sockaddr *name, int *namelen ) );
-int	listen		args( ( int s, int backlog ) );
-*/
-
-int close args((int fd));
-int gettimeofday args((struct timeval * tp, struct timezone* tzp));
-int read args((int fd, char* buf, int nbyte));
-int select args((int width, fd_set* readfds, fd_set* writefds,
-                 fd_set* exceptfds, struct timeval* timeout));
-int socket args((int domain, int type, int protocol));
-int write args((int fd, char* buf, int nbyte));
 #endif
 
 #if defined(macintosh)
@@ -778,7 +757,7 @@ void init_descriptor(int control)
     struct sockaddr_in sock;
     struct hostent* from;
     int desc;
-    int size;
+    socklen_t size;
 
     size = sizeof(sock);
     getsockname(control, (struct sockaddr*)&sock, &size);
@@ -2331,7 +2310,6 @@ void act_new(const char* format, CHAR_DATA* ch, const void* arg1,
     char buffer[MAX_STRING_LENGTH * 2];
     char buf[MAX_STRING_LENGTH];
     char fname[MAX_INPUT_LENGTH];
-    bool fColour = FALSE;
 
     /*
      * Discard null and zero-length messages.
@@ -2369,7 +2347,6 @@ void act_new(const char* format, CHAR_DATA* ch, const void* arg1,
                 continue;
             }
 
-            fColour = TRUE;
             ++str;
             i = " <@@@> ";
             if (!arg2 && *str >= 'A' && *str <= 'Z') {

@@ -358,12 +358,13 @@ void do_put(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        if (container->pIndexData->vnum == OBJ_VNUM_PIT
-            && !CAN_WEAR(container, ITEM_TAKE))
+        if (container->pIndexData->vnum == OBJ_VNUM_PIT && !CAN_WEAR(container,
+            ITEM_TAKE)) {
             if (obj->timer)
                 SET_BIT(obj->extra_flags, ITEM_HAD_TIMER);
             else
                 obj->timer = number_range(100, 200);
+        }
 
         obj_from_char(obj);
         obj_to_obj(obj, container);
@@ -389,12 +390,13 @@ void do_put(CHAR_DATA* ch, char* argument)
                 && get_obj_weight(obj) + get_true_weight(container)
                        <= (container->value[0] * 10)
                 && get_obj_weight(obj) < (container->value[3] * 10)) {
-                if (container->pIndexData->vnum == OBJ_VNUM_PIT
-                    && !CAN_WEAR(obj, ITEM_TAKE))
+                if (container->pIndexData->vnum == OBJ_VNUM_PIT && !CAN_WEAR(
+                    obj, ITEM_TAKE)) {
                     if (obj->timer)
                         SET_BIT(obj->extra_flags, ITEM_HAD_TIMER);
                     else
                         obj->timer = number_range(100, 200);
+                }
                 obj_from_char(obj);
                 obj_to_obj(obj, container);
 
@@ -2111,15 +2113,17 @@ int get_cost(CHAR_DATA* keeper, OBJ_DATA* obj, bool fBuy)
             }
         }
 
-        if (!IS_OBJ_STAT(obj, ITEM_SELL_EXTRACT))
+        if (!IS_OBJ_STAT(obj, ITEM_SELL_EXTRACT)) {
             for (obj2 = keeper->carrying; obj2; obj2 = obj2->next_content) {
-                if (obj->pIndexData == obj2->pIndexData
-                    && !str_cmp(obj->short_descr, obj2->short_descr))
+                if (obj->pIndexData == obj2->pIndexData 
+                && !str_cmp(obj->short_descr, obj2->short_descr)) {
                     if (IS_OBJ_STAT(obj2, ITEM_INVENTORY))
                         cost /= 2;
                     else
                         cost = cost * 3 / 4;
+                }
             }
+        }
     }
 
     if (obj->item_type == ITEM_STAFF || obj->item_type == ITEM_WAND) {

@@ -25,6 +25,12 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+#pragma once
+#ifndef ROM__MAGIC_H
+#define ROM__MAGIC_H
+
+#include "merc.h"
+
 /*
  * Spell functions.
  * Defined in magic.c.
@@ -127,3 +133,5 @@ DECLARE_SPELL_FUN(spell_gas_breath);
 DECLARE_SPELL_FUN(spell_lightning_breath);
 DECLARE_SPELL_FUN(spell_general_purpose);
 DECLARE_SPELL_FUN(spell_high_explosive);
+
+#endif // !ROM__MAGIC_H
