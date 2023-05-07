@@ -2442,7 +2442,6 @@ int colour(char type, CHAR_DATA* ch, char* string)
 {
     PC_DATA* col;
     char code[20];
-    char* p = '\0';
 
     if (IS_NPC(ch)) return (0);
 
@@ -2751,7 +2750,7 @@ int colour(char type, CHAR_DATA* ch, char* string)
         break;
     }
 
-    p = code;
+    char* p = code;
     while (*p != '\0') {
         *string = *p++;
         *++string = '\0';

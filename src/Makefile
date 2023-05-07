@@ -14,7 +14,7 @@ rom: $(O_FILES)
 	rm -f rom
 	$(CC) $(L_FLAGS) -o rom $(O_FILES) -lcrypt
 
-.c.o: merc.h
+.c.o:
 	$(CC) -c $(C_FLAGS) $<
 
 clean:
