@@ -25,16 +25,13 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#if defined(macintosh)
-#include <types.h>
-#else
-#include <sys/types.h>
-#endif
 #include "interp.h"
 #include "merc.h"
 #include "music.h"
+
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
 #include <time.h>
 
 /*
@@ -126,7 +123,7 @@ void gain_exp(CHAR_DATA* ch, int gain)
         log_string(buf);
         sprintf(buf, "$N has attained level %d!", ch->level);
         wiznet(buf, ch, NULL, WIZ_LEVELS, 0, 0);
-        advance_level(ch, FALSE);
+        advance_level(ch, false);
         save_char_obj(ch);
     }
 
@@ -168,7 +165,7 @@ int hit_gain(CHAR_DATA* ch)
         if (number < get_skill(ch, gsn_fast_healing)) {
             gain += number * gain / 100;
             if (ch->hit < ch->max_hit)
-                check_improve(ch, gsn_fast_healing, TRUE, 8);
+                check_improve(ch, gsn_fast_healing, true, 8);
         }
 
         switch (ch->position) {
@@ -235,7 +232,7 @@ int mana_gain(CHAR_DATA* ch)
         if (number < get_skill(ch, gsn_meditation)) {
             gain += number * gain / 100;
             if (ch->mana < ch->max_mana)
-                check_improve(ch, gsn_meditation, TRUE, 8);
+                check_improve(ch, gsn_meditation, true, 8);
         }
         if (!class_table[ch->class].fMana) gain /= 2;
 
@@ -413,7 +410,7 @@ void mobile_update(void)
                 || !IS_SET(pexit->u1.to_room->room_flags, ROOM_INDOORS))
             && (!IS_SET(ch->act, ACT_INDOORS)
                 || IS_SET(pexit->u1.to_room->room_flags, ROOM_INDOORS))) {
-            move_char(ch, door, FALSE);
+            move_char(ch, door, false);
         }
     }
 
@@ -575,7 +572,7 @@ void char_update(void)
                 && ch->desc == NULL && ch->fighting == NULL
                 && !IS_AFFECTED(ch, AFF_CHARM) && number_percent() < 5) {
                 act("$n wanders on home.", ch, NULL, NULL, TO_ROOM);
-                extract_char(ch, TRUE);
+                extract_char(ch, true);
                 continue;
             }
 
@@ -617,7 +614,7 @@ void char_update(void)
             if (++ch->timer >= 12) {
                 if (ch->was_in_room == NULL && ch->in_room != NULL) {
                     ch->was_in_room = ch->in_room;
-                    if (ch->fighting != NULL) stop_fighting(ch, TRUE);
+                    if (ch->fighting != NULL) stop_fighting(ch, true);
                     act("$n disappears into the void.", ch, NULL, NULL,
                         TO_ROOM);
                     send_to_char("You disappear into the void.\n\r", ch);
@@ -705,7 +702,7 @@ void char_update(void)
             dam = UMIN(ch->level, af->level / 5 + 1);
             ch->mana -= dam;
             ch->move -= dam;
-            damage(ch, ch, dam, gsn_plague, DAM_DISEASE, FALSE);
+            damage(ch, ch, dam, gsn_plague, DAM_DISEASE, false);
         }
         else if (IS_AFFECTED(ch, AFF_POISON) && ch != NULL
                  && !IS_AFFECTED(ch, AFF_SLOW))
@@ -719,15 +716,15 @@ void char_update(void)
                 act("$n shivers and suffers.", ch, NULL, NULL, TO_ROOM);
                 send_to_char("You shiver and suffer.\n\r", ch);
                 damage(ch, ch, poison->level / 10 + 1, gsn_poison, DAM_POISON,
-                       FALSE);
+                       false);
             }
         }
 
         else if (ch->position == POS_INCAP && number_range(0, 1) == 0) {
-            damage(ch, ch, 1, TYPE_UNDEFINED, DAM_NONE, FALSE);
+            damage(ch, ch, 1, TYPE_UNDEFINED, DAM_NONE, false);
         }
         else if (ch->position == POS_MORTAL) {
-            damage(ch, ch, 1, TYPE_UNDEFINED, DAM_NONE, FALSE);
+            damage(ch, ch, 1, TYPE_UNDEFINED, DAM_NONE, false);
         }
     }
 

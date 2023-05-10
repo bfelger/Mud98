@@ -25,12 +25,6 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#if defined(macintosh)
-#include <types.h>
-#else
-#include <sys/time.h>
-#include <sys/types.h>
-#endif
 #include "merc.h"
 #include "recycle.h"
 #include "strings.h"
@@ -40,12 +34,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
+#include <sys/types.h>
 #include <time.h>
 
 /* globals from db.c for load_notes */
-#if !defined(macintosh)
 extern int _filbuf args((FILE*));
-#endif
 extern FILE* fpArea;
 extern char strArea[MAX_INPUT_LENGTH];
 
@@ -75,36 +69,36 @@ void do_unread(CHAR_DATA* ch)
 {
     char buf[MAX_STRING_LENGTH];
     int count;
-    bool found = FALSE;
+    bool found = false;
 
     if (IS_NPC(ch)) return;
 
     if ((count = count_spool(ch, news_list)) > 0) {
-        found = TRUE;
+        found = true;
         sprintf(buf, "There %s %d new news article%s waiting.\n\r",
                 count > 1 ? "are" : "is", count, count > 1 ? "s" : "");
         send_to_char(buf, ch);
     }
     if ((count = count_spool(ch, changes_list)) > 0) {
-        found = TRUE;
+        found = true;
         sprintf(buf, "There %s %d change%s waiting to be read.\n\r",
                 count > 1 ? "are" : "is", count, count > 1 ? "s" : "");
         send_to_char(buf, ch);
     }
     if ((count = count_spool(ch, note_list)) > 0) {
-        found = TRUE;
+        found = true;
         sprintf(buf, "You have %d new note%s waiting.\n\r", count,
                 count > 1 ? "s" : "");
         send_to_char(buf, ch);
     }
     if ((count = count_spool(ch, idea_list)) > 0) {
-        found = TRUE;
+        found = true;
         sprintf(buf, "You have %d unread idea%s to peruse.\n\r", count,
                 count > 1 ? "s" : "");
         send_to_char(buf, ch);
     }
     if (IS_TRUSTED(ch, ANGEL) && (count = count_spool(ch, penalty_list)) > 0) {
-        found = TRUE;
+        found = true;
         sprintf(buf, "%d %s been added.\n\r", count,
                 count > 1 ? "penalties have" : "penalty has");
         send_to_char(buf, ch);
@@ -314,19 +308,19 @@ void append_note(NOTE_DATA* pnote)
 
 bool is_note_to(CHAR_DATA* ch, NOTE_DATA* pnote)
 {
-    if (!str_cmp(ch->name, pnote->sender)) return TRUE;
+    if (!str_cmp(ch->name, pnote->sender)) return true;
 
-    if (is_exact_name("all", pnote->to_list)) return TRUE;
+    if (is_exact_name("all", pnote->to_list)) return true;
 
     if (IS_IMMORTAL(ch) && is_exact_name("immortal", pnote->to_list))
-        return TRUE;
+        return true;
 
     if (ch->clan && is_exact_name(clan_table[ch->clan].name, pnote->to_list))
-        return TRUE;
+        return true;
 
-    if (is_exact_name(ch->name, pnote->to_list)) return TRUE;
+    if (is_exact_name(ch->name, pnote->to_list)) return true;
 
-    return FALSE;
+    return false;
 }
 
 void note_attach(CHAR_DATA* ch, int type)
@@ -422,11 +416,11 @@ bool hide_note(CHAR_DATA* ch, NOTE_DATA* pnote)
 {
     time_t last_read;
 
-    if (IS_NPC(ch)) return TRUE;
+    if (IS_NPC(ch)) return true;
 
     switch (pnote->type) {
     default:
-        return TRUE;
+        return true;
     case NOTE_NOTE:
         last_read = ch->pcdata->last_note;
         break;
@@ -444,13 +438,13 @@ bool hide_note(CHAR_DATA* ch, NOTE_DATA* pnote)
         break;
     }
 
-    if (pnote->date_stamp <= last_read) return TRUE;
+    if (pnote->date_stamp <= last_read) return true;
 
-    if (!str_cmp(ch->name, pnote->sender)) return TRUE;
+    if (!str_cmp(ch->name, pnote->sender)) return true;
 
-    if (!is_note_to(ch, pnote)) return TRUE;
+    if (!is_note_to(ch, pnote)) return true;
 
-    return FALSE;
+    return false;
 }
 
 void update_read(CHAR_DATA* ch, NOTE_DATA* pnote)
@@ -527,7 +521,7 @@ void parse_note(CHAR_DATA* ch, char* argument, int type)
         bool fAll;
 
         if (!str_cmp(argument, "all")) {
-            fAll = TRUE;
+            fAll = true;
             anum = 0;
         }
 
@@ -554,7 +548,7 @@ void parse_note(CHAR_DATA* ch, char* argument, int type)
         }
 
         else if (is_number(argument)) {
-            fAll = FALSE;
+            fAll = false;
             anum = atoi(argument);
         }
         else {
@@ -623,7 +617,7 @@ void parse_note(CHAR_DATA* ch, char* argument, int type)
         vnum = 0;
         for (pnote = *list; pnote != NULL; pnote = pnote->next) {
             if (is_note_to(ch, pnote) && vnum++ == anum) {
-                note_remove(ch, pnote, FALSE);
+                note_remove(ch, pnote, false);
                 send_to_char("Ok.\n\r", ch);
                 return;
             }
@@ -644,7 +638,7 @@ void parse_note(CHAR_DATA* ch, char* argument, int type)
         vnum = 0;
         for (pnote = *list; pnote != NULL; pnote = pnote->next) {
             if (is_note_to(ch, pnote) && vnum++ == anum) {
-                note_remove(ch, pnote, TRUE);
+                note_remove(ch, pnote, true);
                 send_to_char("Ok.\n\r", ch);
                 return;
             }
@@ -711,7 +705,7 @@ void parse_note(CHAR_DATA* ch, char* argument, int type)
 
     if (!str_cmp(arg, "-")) {
         int len;
-        bool found = FALSE;
+        bool found = false;
 
         note_attach(ch, type);
         if (ch->pnote->type != type) {
@@ -732,7 +726,7 @@ void parse_note(CHAR_DATA* ch, char* argument, int type)
                 if (!found) /* back it up */
                 {
                     if (len > 0) len--;
-                    found = TRUE;
+                    found = true;
                 }
                 else /* found the second one */
                 {

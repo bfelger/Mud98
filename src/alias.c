@@ -25,14 +25,11 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#if defined(macintosh)
-#include <types.h>
-#else
-#include <sys/types.h>
-#endif
 #include "merc.h"
+
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
 #include <time.h>
 
 /* does aliasing and other fun stuff */
@@ -189,7 +186,7 @@ void do_unalias(CHAR_DATA* ch, char* argument)
     CHAR_DATA* rch;
     char arg[MAX_INPUT_LENGTH];
     int pos;
-    bool found = FALSE;
+    bool found = false;
 
     if (ch->desc == NULL)
         rch = ch;
@@ -222,7 +219,7 @@ void do_unalias(CHAR_DATA* ch, char* argument)
             free_string(rch->pcdata->alias_sub[pos]);
             rch->pcdata->alias[pos] = NULL;
             rch->pcdata->alias_sub[pos] = NULL;
-            found = TRUE;
+            found = true;
         }
     }
 

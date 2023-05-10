@@ -25,20 +25,19 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#if defined(macintosh)
-#include <types.h>
-#else
-#include <sys/time.h>
-#include <sys/types.h>
-#endif
+
 #include "interp.h"
 #include "merc.h"
 #include "recycle.h"
 #include "tables.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
+#include <sys/types.h>
 #include <time.h>
+#include <unistd.h>
 
 /* RT code to delete yourself */
 
@@ -56,13 +55,13 @@ void do_delete(CHAR_DATA* ch, char* argument)
     if (ch->pcdata->confirm_delete) {
         if (argument[0] != '\0') {
             send_to_char("Delete status removed.\n\r", ch);
-            ch->pcdata->confirm_delete = FALSE;
+            ch->pcdata->confirm_delete = false;
             return;
         }
         else {
             sprintf(strsave, "%s%s", PLAYER_DIR, capitalize(ch->name));
             wiznet("$N turns $Mself into line noise.", ch, NULL, 0, 0, 0);
-            stop_fighting(ch, TRUE);
+            stop_fighting(ch, true);
             do_function(ch, &do_quit, "");
             unlink(strsave);
             return;
@@ -78,7 +77,7 @@ void do_delete(CHAR_DATA* ch, char* argument)
     send_to_char("WARNING: this command is irreversible.\n\r", ch);
     send_to_char("Typing delete with an argument will undo delete status.\n\r",
                  ch);
-    ch->pcdata->confirm_delete = TRUE;
+    ch->pcdata->confirm_delete = true;
     wiznet("$N is contemplating deletion.", ch, NULL, 0, 0, get_trust(ch));
 }
 
@@ -1171,7 +1170,7 @@ void do_quit(CHAR_DATA* ch, char* argument)
     save_char_obj(ch);
     id = ch->id;
     d = ch->desc;
-    extract_char(ch, TRUE);
+    extract_char(ch, true);
     if (d != NULL) close_socket(d);
 
     /* toast evil cheating bastards */
@@ -1181,7 +1180,7 @@ void do_quit(CHAR_DATA* ch, char* argument)
         d_next = d->next;
         tch = d->original ? d->original : d->character;
         if (tch && tch->id == id) {
-            extract_char(tch, TRUE);
+            extract_char(tch, true);
             close_socket(d);
         }
     }
@@ -1296,7 +1295,7 @@ void nuke_pets(CHAR_DATA* ch)
         stop_follower(pet);
         if (pet->in_room != NULL)
             act("$N slowly fades away.", ch, NULL, pet, TO_NOTVICT);
-        extract_char(pet, TRUE);
+        extract_char(pet, true);
     }
     ch->pet = NULL;
 
@@ -1351,11 +1350,11 @@ void do_order(CHAR_DATA* ch, char* argument)
     }
 
     if (!str_cmp(arg, "all")) {
-        fAll = TRUE;
+        fAll = true;
         victim = NULL;
     }
     else {
-        fAll = FALSE;
+        fAll = false;
         if ((victim = get_char_room(ch, arg)) == NULL) {
             send_to_char("They aren't here.\n\r", ch);
             return;
@@ -1373,13 +1372,13 @@ void do_order(CHAR_DATA* ch, char* argument)
         }
     }
 
-    found = FALSE;
+    found = false;
     for (och = ch->in_room->people; och != NULL; och = och_next) {
         och_next = och->next_in_room;
 
         if (IS_AFFECTED(och, AFF_CHARM) && och->master == ch
             && (fAll || och == victim)) {
-            found = TRUE;
+            found = true;
             sprintf(buf, "$n orders you to '%s'.", argument);
             act(buf, ch, NULL, och, TO_VICT);
             interpret(och, argument);
@@ -1609,7 +1608,7 @@ void do_gtell(CHAR_DATA* ch, char* argument)
  */
 bool is_same_group(CHAR_DATA* ach, CHAR_DATA* bch)
 {
-    if (ach == NULL || bch == NULL) return FALSE;
+    if (ach == NULL || bch == NULL) return false;
 
     if (ach->leader != NULL) ach = ach->leader;
     if (bch->leader != NULL) bch = bch->leader;

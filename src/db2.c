@@ -25,21 +25,17 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+#include "db.h"
+#include "lookup.h"
+#include "merc.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#if defined(macintosh)
-#include <types.h>
-#else
 #include <sys/time.h>
 #include <sys/types.h>
-#endif
-
-#include "db.h"
-#include "lookup.h"
-#include "merc.h"
 
 /* values for db2.c */
 struct social_type social_table[MAX_SOCIALS];
@@ -173,7 +169,7 @@ void load_mobiles(FILE* fp)
     MOB_INDEX_DATA* pMobIndex;
 
     for (;;) {
-        sh_int vnum;
+        int16_t vnum;
         char letter;
         int iHash;
 
@@ -186,16 +182,16 @@ void load_mobiles(FILE* fp)
         vnum = fread_number(fp);
         if (vnum == 0) break;
 
-        fBootDb = FALSE;
+        fBootDb = false;
         if (get_mob_index(vnum) != NULL) {
             bug("Load_mobiles: vnum %d duplicated.", vnum);
             exit(1);
         }
-        fBootDb = TRUE;
+        fBootDb = true;
 
         pMobIndex = alloc_perm(sizeof(*pMobIndex));
         pMobIndex->vnum = vnum;
-        pMobIndex->new_format = TRUE;
+        pMobIndex->new_format = true;
         newmobs++;
         pMobIndex->player_name = fread_string(fp);
         pMobIndex->short_descr = fread_string(fp);
@@ -320,7 +316,7 @@ void load_objects(FILE* fp)
     OBJ_INDEX_DATA* pObjIndex;
 
     for (;;) {
-        sh_int vnum;
+        int16_t vnum;
         char letter;
         int iHash;
 
@@ -333,16 +329,16 @@ void load_objects(FILE* fp)
         vnum = fread_number(fp);
         if (vnum == 0) break;
 
-        fBootDb = FALSE;
+        fBootDb = false;
         if (get_obj_index(vnum) != NULL) {
             bug("Load_objects: vnum %d duplicated.", vnum);
             exit(1);
         }
-        fBootDb = TRUE;
+        fBootDb = true;
 
         pObjIndex = alloc_perm(sizeof(*pObjIndex));
         pObjIndex->vnum = vnum;
-        pObjIndex->new_format = TRUE;
+        pObjIndex->new_format = true;
         pObjIndex->reset_num = 0;
         newobjs++;
         pObjIndex->name = fread_string(fp);

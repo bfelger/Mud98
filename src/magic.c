@@ -25,18 +25,15 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#if defined(macintosh)
-#include <types.h>
-#else
-#include <sys/types.h>
-#endif
 #include "interp.h"
 #include "magic.h"
 #include "merc.h"
 #include "recycle.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 #include <time.h>
 
 /*
@@ -181,7 +178,7 @@ bool saves_spell(int level, CHAR_DATA* victim, int dam_type)
 
     switch (check_immune(victim, dam_type)) {
     case IS_IMMUNE:
-        return TRUE;
+        return true;
     case IS_RESISTANT:
         save += 2;
         break;
@@ -225,14 +222,14 @@ bool check_dispel(int dis_level, CHAR_DATA* victim, int sn)
                         send_to_char(skill_table[sn].msg_off, victim);
                         send_to_char("\n\r", victim);
                     }
-                    return TRUE;
+                    return true;
                 }
                 else
                     af->level--;
             }
         }
     }
-    return FALSE;
+    return false;
 }
 
 /* for finding mana costs -- temporary version */
@@ -399,7 +396,7 @@ void do_cast(CHAR_DATA* ch, char* argument)
 
         if (target == TARGET_CHAR) /* check the sanity of the attack */
         {
-            if (is_safe_spell(ch, victim, FALSE) && victim != ch) {
+            if (is_safe_spell(ch, victim, false) && victim != ch) {
                 send_to_char("Not on that target.\n\r", ch);
                 return;
             }
@@ -454,7 +451,7 @@ void do_cast(CHAR_DATA* ch, char* argument)
 
     if (number_percent() > get_skill(ch, sn)) {
         send_to_char("You lost your concentration.\n\r", ch);
-        check_improve(ch, sn, FALSE, 1);
+        check_improve(ch, sn, false, 1);
         ch->mana -= mana / 2;
     }
     else {
@@ -463,7 +460,7 @@ void do_cast(CHAR_DATA* ch, char* argument)
             (*skill_table[sn].spell_fun)(sn, ch->level, ch, vo, target);
         else
             (*skill_table[sn].spell_fun)(sn, 3 * ch->level / 4, ch, vo, target);
-        check_improve(ch, sn, TRUE, 1);
+        check_improve(ch, sn, true, 1);
     }
 
     if ((skill_table[sn].target == TAR_CHAR_OFFENSIVE
@@ -552,7 +549,7 @@ void obj_cast_spell(int sn, int level, CHAR_DATA* ch, CHAR_DATA* victim,
         }
 
         if (victim != NULL) {
-            if (is_safe_spell(ch, victim, FALSE) && ch != victim) {
+            if (is_safe_spell(ch, victim, false) && ch != victim) {
                 send_to_char("Somehting isn't right...\n\r", ch);
                 return;
             }
@@ -616,7 +613,7 @@ void spell_acid_blast(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 
     dam = dice(level, 12);
     if (saves_spell(level, victim, DAM_ACID)) dam /= 2;
-    damage(ch, victim, dam, sn, DAM_ACID, TRUE);
+    damage(ch, victim, dam, sn, DAM_ACID, true);
     return;
 }
 
@@ -746,7 +743,7 @@ void spell_blindness(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 void spell_burning_hands(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 {
     CHAR_DATA* victim = (CHAR_DATA*)vo;
-    static const sh_int dam_each[]
+    static const int16_t dam_each[]
         = {0,  0,  0,  0,  0,  14, 17, 20, 23, 26, 29, 29, 29, 30, 30, 31, 31,
            32, 32, 33, 33, 34, 34, 35, 35, 36, 36, 37, 37, 38, 38, 39, 39, 40,
            40, 41, 41, 42, 42, 43, 43, 44, 44, 45, 45, 46, 46, 47, 47, 48, 48};
@@ -756,7 +753,7 @@ void spell_burning_hands(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     level = UMAX(0, level);
     dam = number_range(dam_each[level] / 2, dam_each[level] * 2);
     if (saves_spell(level, victim, DAM_FIRE)) dam /= 2;
-    damage(ch, victim, dam, sn, DAM_FIRE, TRUE);
+    damage(ch, victim, dam, sn, DAM_FIRE, true);
     return;
 }
 
@@ -790,7 +787,7 @@ void spell_call_lightning(int sn, int level, CHAR_DATA* ch, void* vo,
             if (vch != ch && (IS_NPC(ch) ? !IS_NPC(vch) : IS_NPC(vch)))
                 damage(ch, vch,
                        saves_spell(level, vch, DAM_LIGHTNING) ? dam / 2 : dam,
-                       sn, DAM_LIGHTNING, TRUE);
+                       sn, DAM_LIGHTNING, true);
             continue;
         }
 
@@ -846,7 +843,7 @@ void spell_calm(int sn, int level, CHAR_DATA* ch, void* vo, int target)
             send_to_char("A wave of calm passes over you.\n\r", vch);
 
             if (vch->fighting || vch->position == POS_FIGHTING)
-                stop_fighting(vch, FALSE);
+                stop_fighting(vch, false);
 
             af.where = TO_AFFECTS;
             af.type = sn;
@@ -869,7 +866,7 @@ void spell_calm(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 void spell_cancellation(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 {
     CHAR_DATA* victim = (CHAR_DATA*)vo;
-    bool found = FALSE;
+    bool found = false;
 
     level += 2;
 
@@ -884,121 +881,121 @@ void spell_cancellation(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 
     /* begin running through the spells */
 
-    if (check_dispel(level, victim, skill_lookup("armor"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("armor"))) found = true;
 
-    if (check_dispel(level, victim, skill_lookup("bless"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("bless"))) found = true;
 
     if (check_dispel(level, victim, skill_lookup("blindness"))) {
-        found = TRUE;
+        found = true;
         act("$n is no longer blinded.", victim, NULL, NULL, TO_ROOM);
     }
 
     if (check_dispel(level, victim, skill_lookup("calm"))) {
-        found = TRUE;
+        found = true;
         act("$n no longer looks so peaceful...", victim, NULL, NULL, TO_ROOM);
     }
 
     if (check_dispel(level, victim, skill_lookup("change sex"))) {
-        found = TRUE;
+        found = true;
         act("$n looks more like $mself again.", victim, NULL, NULL, TO_ROOM);
     }
 
     if (check_dispel(level, victim, skill_lookup("charm person"))) {
-        found = TRUE;
+        found = true;
         act("$n regains $s free will.", victim, NULL, NULL, TO_ROOM);
     }
 
     if (check_dispel(level, victim, skill_lookup("chill touch"))) {
-        found = TRUE;
+        found = true;
         act("$n looks warmer.", victim, NULL, NULL, TO_ROOM);
     }
 
-    if (check_dispel(level, victim, skill_lookup("curse"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("curse"))) found = true;
 
-    if (check_dispel(level, victim, skill_lookup("detect evil"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("detect evil"))) found = true;
 
-    if (check_dispel(level, victim, skill_lookup("detect good"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("detect good"))) found = true;
 
     if (check_dispel(level, victim, skill_lookup("detect hidden")))
-        found = TRUE;
+        found = true;
 
-    if (check_dispel(level, victim, skill_lookup("detect invis"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("detect invis"))) found = true;
 
-    if (check_dispel(level, victim, skill_lookup("detect magic"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("detect magic"))) found = true;
 
     if (check_dispel(level, victim, skill_lookup("faerie fire"))) {
         act("$n's outline fades.", victim, NULL, NULL, TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
     if (check_dispel(level, victim, skill_lookup("fly"))) {
         act("$n falls to the ground!", victim, NULL, NULL, TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
     if (check_dispel(level, victim, skill_lookup("frenzy"))) {
         act("$n no longer looks so wild.", victim, NULL, NULL, TO_ROOM);
         ;
-        found = TRUE;
+        found = true;
     }
 
     if (check_dispel(level, victim, skill_lookup("giant strength"))) {
         act("$n no longer looks so mighty.", victim, NULL, NULL, TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
     if (check_dispel(level, victim, skill_lookup("haste"))) {
         act("$n is no longer moving so quickly.", victim, NULL, NULL, TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
-    if (check_dispel(level, victim, skill_lookup("infravision"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("infravision"))) found = true;
 
     if (check_dispel(level, victim, skill_lookup("invis"))) {
         act("$n fades into existance.", victim, NULL, NULL, TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
     if (check_dispel(level, victim, skill_lookup("mass invis"))) {
         act("$n fades into existance.", victim, NULL, NULL, TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
-    if (check_dispel(level, victim, skill_lookup("pass door"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("pass door"))) found = true;
 
     if (check_dispel(level, victim, skill_lookup("protection evil")))
-        found = TRUE;
+        found = true;
 
     if (check_dispel(level, victim, skill_lookup("protection good")))
-        found = TRUE;
+        found = true;
 
     if (check_dispel(level, victim, skill_lookup("sanctuary"))) {
         act("The white aura around $n's body vanishes.", victim, NULL, NULL,
             TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
     if (check_dispel(level, victim, skill_lookup("shield"))) {
         act("The shield protecting $n vanishes.", victim, NULL, NULL, TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
-    if (check_dispel(level, victim, skill_lookup("sleep"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("sleep"))) found = true;
 
     if (check_dispel(level, victim, skill_lookup("slow"))) {
         act("$n is no longer moving so slowly.", victim, NULL, NULL, TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
     if (check_dispel(level, victim, skill_lookup("stone skin"))) {
         act("$n's skin regains its normal texture.", victim, NULL, NULL,
             TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
     if (check_dispel(level, victim, skill_lookup("weaken"))) {
         act("$n looks stronger.", victim, NULL, NULL, TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
     if (found)
@@ -1009,20 +1006,20 @@ void spell_cancellation(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 
 void spell_cause_light(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 {
-    damage(ch, (CHAR_DATA*)vo, dice(1, 8) + level / 3, sn, DAM_HARM, TRUE);
+    damage(ch, (CHAR_DATA*)vo, dice(1, 8) + level / 3, sn, DAM_HARM, true);
     return;
 }
 
 void spell_cause_critical(int sn, int level, CHAR_DATA* ch, void* vo,
                           int target)
 {
-    damage(ch, (CHAR_DATA*)vo, dice(3, 8) + level - 6, sn, DAM_HARM, TRUE);
+    damage(ch, (CHAR_DATA*)vo, dice(3, 8) + level - 6, sn, DAM_HARM, true);
     return;
 }
 
 void spell_cause_serious(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 {
-    damage(ch, (CHAR_DATA*)vo, dice(2, 8) + level / 2, sn, DAM_HARM, TRUE);
+    damage(ch, (CHAR_DATA*)vo, dice(2, 8) + level / 2, sn, DAM_HARM, true);
     return;
 }
 
@@ -1045,24 +1042,24 @@ void spell_chain_lightning(int sn, int level, CHAR_DATA* ch, void* vo,
 
     dam = dice(level, 6);
     if (saves_spell(level, victim, DAM_LIGHTNING)) dam /= 3;
-    damage(ch, victim, dam, sn, DAM_LIGHTNING, TRUE);
+    damage(ch, victim, dam, sn, DAM_LIGHTNING, true);
     last_vict = victim;
     level -= 4; /* decrement damage */
 
     /* new targets */
     while (level > 0) {
-        found = FALSE;
+        found = false;
         for (tmp_vict = ch->in_room->people; tmp_vict != NULL;
              tmp_vict = next_vict) {
             next_vict = tmp_vict->next_in_room;
-            if (!is_safe_spell(ch, tmp_vict, TRUE) && tmp_vict != last_vict) {
-                found = TRUE;
+            if (!is_safe_spell(ch, tmp_vict, true) && tmp_vict != last_vict) {
+                found = true;
                 last_vict = tmp_vict;
                 act("The bolt arcs to $n!", tmp_vict, NULL, NULL, TO_ROOM);
                 act("The bolt hits you!", tmp_vict, NULL, NULL, TO_CHAR);
                 dam = dice(level, 6);
                 if (saves_spell(level, tmp_vict, DAM_LIGHTNING)) dam /= 3;
-                damage(ch, tmp_vict, dam, sn, DAM_LIGHTNING, TRUE);
+                damage(ch, tmp_vict, dam, sn, DAM_LIGHTNING, true);
                 level -= 4; /* decrement damage */
             }
         } /* end target searching loop */
@@ -1085,7 +1082,7 @@ void spell_chain_lightning(int sn, int level, CHAR_DATA* ch, void* vo,
             send_to_char("You are struck by your own lightning!\n\r", ch);
             dam = dice(level, 6);
             if (saves_spell(level, ch, DAM_LIGHTNING)) dam /= 3;
-            damage(ch, ch, dam, sn, DAM_LIGHTNING, TRUE);
+            damage(ch, ch, dam, sn, DAM_LIGHTNING, true);
             level -= 4; /* decrement damage */
             if (ch == NULL) return;
         }
@@ -1166,7 +1163,7 @@ void spell_charm_person(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 void spell_chill_touch(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 {
     CHAR_DATA* victim = (CHAR_DATA*)vo;
-    static const sh_int dam_each[]
+    static const int16_t dam_each[]
         = {0,  0,  0,  6,  7,  8,  9,  12, 13, 13, 13, 14, 14, 14, 15, 15, 15,
            16, 16, 16, 17, 17, 17, 18, 18, 18, 19, 19, 19, 20, 20, 20, 21, 21,
            21, 22, 22, 22, 23, 23, 23, 24, 24, 24, 25, 25, 25, 26, 26, 26, 27};
@@ -1191,14 +1188,14 @@ void spell_chill_touch(int sn, int level, CHAR_DATA* ch, void* vo, int target)
         dam /= 2;
     }
 
-    damage(ch, victim, dam, sn, DAM_COLD, TRUE);
+    damage(ch, victim, dam, sn, DAM_COLD, true);
     return;
 }
 
 void spell_colour_spray(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 {
     CHAR_DATA* victim = (CHAR_DATA*)vo;
-    static const sh_int dam_each[]
+    static const int16_t dam_each[]
         = {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  30, 35, 40, 45, 50, 55,
            55, 55, 56, 57, 58, 58, 59, 60, 61, 61, 62, 63, 64, 64, 65, 66, 67,
            67, 68, 69, 70, 70, 71, 72, 73, 73, 74, 75, 76, 76, 77, 78, 79, 79};
@@ -1213,7 +1210,7 @@ void spell_colour_spray(int sn, int level, CHAR_DATA* ch, void* vo, int target)
         spell_blindness(skill_lookup("blindness"), level / 2, ch, (void*)victim,
                         TARGET_CHAR);
 
-    damage(ch, victim, dam, sn, DAM_LIGHT, TRUE);
+    damage(ch, victim, dam, sn, DAM_LIGHT, true);
     return;
 }
 
@@ -1528,7 +1525,7 @@ void spell_demonfire(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     }
     dam = dice(level, 10);
     if (saves_spell(level, victim, DAM_NEGATIVE)) dam /= 2;
-    damage(ch, victim, dam, sn, DAM_NEGATIVE, TRUE);
+    damage(ch, victim, dam, sn, DAM_NEGATIVE, true);
     spell_curse(gsn_curse, 3 * level / 4, ch, (void*)victim, TARGET_CHAR);
 }
 
@@ -1700,7 +1697,7 @@ void spell_dispel_evil(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     else
         dam = UMAX(victim->hit, dice(level, 4));
     if (saves_spell(level, victim, DAM_HOLY)) dam /= 2;
-    damage(ch, victim, dam, sn, DAM_HOLY, TRUE);
+    damage(ch, victim, dam, sn, DAM_HOLY, true);
     return;
 }
 
@@ -1726,7 +1723,7 @@ void spell_dispel_good(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     else
         dam = UMAX(victim->hit, dice(level, 4));
     if (saves_spell(level, victim, DAM_NEGATIVE)) dam /= 2;
-    damage(ch, victim, dam, sn, DAM_NEGATIVE, TRUE);
+    damage(ch, victim, dam, sn, DAM_NEGATIVE, true);
     return;
 }
 
@@ -1735,7 +1732,7 @@ void spell_dispel_good(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 void spell_dispel_magic(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 {
     CHAR_DATA* victim = (CHAR_DATA*)vo;
-    bool found = FALSE;
+    bool found = false;
 
     if (saves_spell(level, victim, DAM_OTHER)) {
         send_to_char("You feel a brief tingling sensation.\n\r", victim);
@@ -1745,98 +1742,98 @@ void spell_dispel_magic(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 
     /* begin running through the spells */
 
-    if (check_dispel(level, victim, skill_lookup("armor"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("armor"))) found = true;
 
-    if (check_dispel(level, victim, skill_lookup("bless"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("bless"))) found = true;
 
     if (check_dispel(level, victim, skill_lookup("blindness"))) {
-        found = TRUE;
+        found = true;
         act("$n is no longer blinded.", victim, NULL, NULL, TO_ROOM);
     }
 
     if (check_dispel(level, victim, skill_lookup("calm"))) {
-        found = TRUE;
+        found = true;
         act("$n no longer looks so peaceful...", victim, NULL, NULL, TO_ROOM);
     }
 
     if (check_dispel(level, victim, skill_lookup("change sex"))) {
-        found = TRUE;
+        found = true;
         act("$n looks more like $mself again.", victim, NULL, NULL, TO_ROOM);
     }
 
     if (check_dispel(level, victim, skill_lookup("charm person"))) {
-        found = TRUE;
+        found = true;
         act("$n regains $s free will.", victim, NULL, NULL, TO_ROOM);
     }
 
     if (check_dispel(level, victim, skill_lookup("chill touch"))) {
-        found = TRUE;
+        found = true;
         act("$n looks warmer.", victim, NULL, NULL, TO_ROOM);
     }
 
-    if (check_dispel(level, victim, skill_lookup("curse"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("curse"))) found = true;
 
-    if (check_dispel(level, victim, skill_lookup("detect evil"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("detect evil"))) found = true;
 
-    if (check_dispel(level, victim, skill_lookup("detect good"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("detect good"))) found = true;
 
     if (check_dispel(level, victim, skill_lookup("detect hidden")))
-        found = TRUE;
+        found = true;
 
-    if (check_dispel(level, victim, skill_lookup("detect invis"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("detect invis"))) found = true;
 
-    if (check_dispel(level, victim, skill_lookup("detect magic"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("detect magic"))) found = true;
 
     if (check_dispel(level, victim, skill_lookup("faerie fire"))) {
         act("$n's outline fades.", victim, NULL, NULL, TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
     if (check_dispel(level, victim, skill_lookup("fly"))) {
         act("$n falls to the ground!", victim, NULL, NULL, TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
     if (check_dispel(level, victim, skill_lookup("frenzy"))) {
         act("$n no longer looks so wild.", victim, NULL, NULL, TO_ROOM);
         ;
-        found = TRUE;
+        found = true;
     }
 
     if (check_dispel(level, victim, skill_lookup("giant strength"))) {
         act("$n no longer looks so mighty.", victim, NULL, NULL, TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
     if (check_dispel(level, victim, skill_lookup("haste"))) {
         act("$n is no longer moving so quickly.", victim, NULL, NULL, TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
-    if (check_dispel(level, victim, skill_lookup("infravision"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("infravision"))) found = true;
 
     if (check_dispel(level, victim, skill_lookup("invis"))) {
         act("$n fades into existance.", victim, NULL, NULL, TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
     if (check_dispel(level, victim, skill_lookup("mass invis"))) {
         act("$n fades into existance.", victim, NULL, NULL, TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
-    if (check_dispel(level, victim, skill_lookup("pass door"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("pass door"))) found = true;
 
     if (check_dispel(level, victim, skill_lookup("protection evil")))
-        found = TRUE;
+        found = true;
 
     if (check_dispel(level, victim, skill_lookup("protection good")))
-        found = TRUE;
+        found = true;
 
     if (check_dispel(level, victim, skill_lookup("sanctuary"))) {
         act("The white aura around $n's body vanishes.", victim, NULL, NULL,
             TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
     if (IS_AFFECTED(victim, AFF_SANCTUARY)
@@ -1845,30 +1842,30 @@ void spell_dispel_magic(int sn, int level, CHAR_DATA* ch, void* vo, int target)
         REMOVE_BIT(victim->affected_by, AFF_SANCTUARY);
         act("The white aura around $n's body vanishes.", victim, NULL, NULL,
             TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
     if (check_dispel(level, victim, skill_lookup("shield"))) {
         act("The shield protecting $n vanishes.", victim, NULL, NULL, TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
-    if (check_dispel(level, victim, skill_lookup("sleep"))) found = TRUE;
+    if (check_dispel(level, victim, skill_lookup("sleep"))) found = true;
 
     if (check_dispel(level, victim, skill_lookup("slow"))) {
         act("$n is no longer moving so slowly.", victim, NULL, NULL, TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
     if (check_dispel(level, victim, skill_lookup("stone skin"))) {
         act("$n's skin regains its normal texture.", victim, NULL, NULL,
             TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
     if (check_dispel(level, victim, skill_lookup("weaken"))) {
         act("$n looks stronger.", victim, NULL, NULL, TO_ROOM);
-        found = TRUE;
+        found = true;
     }
 
     if (found)
@@ -1890,11 +1887,11 @@ void spell_earthquake(int sn, int level, CHAR_DATA* ch, void* vo, int target)
         vch_next = vch->next;
         if (vch->in_room == NULL) continue;
         if (vch->in_room == ch->in_room) {
-            if (vch != ch && !is_safe_spell(ch, vch, TRUE)) {
+            if (vch != ch && !is_safe_spell(ch, vch, true)) {
                 if (IS_AFFECTED(vch, AFF_FLYING))
-                    damage(ch, vch, 0, sn, DAM_BASH, TRUE);
+                    damage(ch, vch, 0, sn, DAM_BASH, true);
                 else
-                    damage(ch, vch, level + dice(2, 8), sn, DAM_BASH, TRUE);
+                    damage(ch, vch, level + dice(2, 8), sn, DAM_BASH, true);
             }
             continue;
         }
@@ -1912,7 +1909,7 @@ void spell_enchant_armor(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     AFFECT_DATA* paf;
     int result, fail;
     int ac_bonus, added;
-    bool ac_found = FALSE;
+    bool ac_found = false;
 
     if (obj->item_type != ITEM_ARMOR) {
         send_to_char("That isn't an armor.\n\r", ch);
@@ -1934,7 +1931,7 @@ void spell_enchant_armor(int sn, int level, CHAR_DATA* ch, void* vo, int target)
         for (paf = obj->pIndexData->affected; paf != NULL; paf = paf->next) {
             if (paf->location == APPLY_AC) {
                 ac_bonus = paf->modifier;
-                ac_found = TRUE;
+                ac_found = true;
                 fail += 5 * (ac_bonus * ac_bonus);
             }
 
@@ -1945,7 +1942,7 @@ void spell_enchant_armor(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     for (paf = obj->affected; paf != NULL; paf = paf->next) {
         if (paf->location == APPLY_AC) {
             ac_bonus = paf->modifier;
-            ac_found = TRUE;
+            ac_found = true;
             fail += 5 * (ac_bonus * ac_bonus);
         }
 
@@ -1978,7 +1975,7 @@ void spell_enchant_armor(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 
         act("$p glows brightly, then fades...oops.", ch, obj, NULL, TO_CHAR);
         act("$p glows brightly, then fades.", ch, obj, NULL, TO_ROOM);
-        obj->enchanted = TRUE;
+        obj->enchanted = true;
 
         /* remove all affects */
         for (paf = obj->affected; paf != NULL; paf = paf_next) {
@@ -2001,7 +1998,7 @@ void spell_enchant_armor(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     /* okay, move all the old flags into new vectors if we have to */
     if (!obj->enchanted) {
         AFFECT_DATA* af_new;
-        obj->enchanted = TRUE;
+        obj->enchanted = true;
 
         for (paf = obj->pIndexData->affected; paf != NULL; paf = paf->next) {
             af_new = new_affect();
@@ -2073,7 +2070,7 @@ void spell_enchant_weapon(int sn, int level, CHAR_DATA* ch, void* vo,
     AFFECT_DATA* paf;
     int result, fail;
     int hit_bonus, dam_bonus, added;
-    bool hit_found = FALSE, dam_found = FALSE;
+    bool hit_found = false, dam_found = false;
 
     if (obj->item_type != ITEM_WEAPON) {
         send_to_char("That isn't a weapon.\n\r", ch);
@@ -2096,13 +2093,13 @@ void spell_enchant_weapon(int sn, int level, CHAR_DATA* ch, void* vo,
         for (paf = obj->pIndexData->affected; paf != NULL; paf = paf->next) {
             if (paf->location == APPLY_HITROLL) {
                 hit_bonus = paf->modifier;
-                hit_found = TRUE;
+                hit_found = true;
                 fail += 2 * (hit_bonus * hit_bonus);
             }
 
             else if (paf->location == APPLY_DAMROLL) {
                 dam_bonus = paf->modifier;
-                dam_found = TRUE;
+                dam_found = true;
                 fail += 2 * (dam_bonus * dam_bonus);
             }
 
@@ -2113,13 +2110,13 @@ void spell_enchant_weapon(int sn, int level, CHAR_DATA* ch, void* vo,
     for (paf = obj->affected; paf != NULL; paf = paf->next) {
         if (paf->location == APPLY_HITROLL) {
             hit_bonus = paf->modifier;
-            hit_found = TRUE;
+            hit_found = true;
             fail += 2 * (hit_bonus * hit_bonus);
         }
 
         else if (paf->location == APPLY_DAMROLL) {
             dam_bonus = paf->modifier;
-            dam_found = TRUE;
+            dam_found = true;
             fail += 2 * (dam_bonus * dam_bonus);
         }
 
@@ -2152,7 +2149,7 @@ void spell_enchant_weapon(int sn, int level, CHAR_DATA* ch, void* vo,
 
         act("$p glows brightly, then fades...oops.", ch, obj, NULL, TO_CHAR);
         act("$p glows brightly, then fades.", ch, obj, NULL, TO_ROOM);
-        obj->enchanted = TRUE;
+        obj->enchanted = true;
 
         /* remove all affects */
         for (paf = obj->affected; paf != NULL; paf = paf_next) {
@@ -2175,7 +2172,7 @@ void spell_enchant_weapon(int sn, int level, CHAR_DATA* ch, void* vo,
     /* okay, move all the old flags into new vectors if we have to */
     if (!obj->enchanted) {
         AFFECT_DATA* af_new;
-        obj->enchanted = TRUE;
+        obj->enchanted = true;
 
         for (paf = obj->pIndexData->affected; paf != NULL; paf = paf->next) {
             af_new = new_affect();
@@ -2292,7 +2289,7 @@ void spell_energy_drain(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 
     send_to_char("You feel your life slipping away!\n\r", victim);
     send_to_char("Wow....what a rush!\n\r", ch);
-    damage(ch, victim, dam, sn, DAM_NEGATIVE, TRUE);
+    damage(ch, victim, dam, sn, DAM_NEGATIVE, true);
 
     return;
 }
@@ -2300,7 +2297,7 @@ void spell_energy_drain(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 void spell_fireball(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 {
     CHAR_DATA* victim = (CHAR_DATA*)vo;
-    static const sh_int dam_each[]
+    static const int16_t dam_each[]
         = {0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
            0,   0,   30,  35,  40,  45,  50,  55,  60,  65,  70,  75,  80,
            82,  84,  86,  88,  90,  92,  94,  96,  98,  100, 102, 104, 106,
@@ -2311,7 +2308,7 @@ void spell_fireball(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     level = UMAX(0, level);
     dam = number_range(dam_each[level] / 2, dam_each[level] * 2);
     if (saves_spell(level, victim, DAM_FIRE)) dam /= 2;
-    damage(ch, victim, dam, sn, DAM_FIRE, TRUE);
+    damage(ch, victim, dam, sn, DAM_FIRE, true);
     return;
 }
 
@@ -2346,7 +2343,7 @@ void spell_flamestrike(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 
     dam = dice(6 + level / 2, 8);
     if (saves_spell(level, victim, DAM_FIRE)) dam /= 2;
-    damage(ch, victim, dam, sn, DAM_FIRE, TRUE);
+    damage(ch, victim, dam, sn, DAM_FIRE, true);
     return;
 }
 
@@ -2412,7 +2409,7 @@ void spell_floating_disc(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     act("$n has created a floating black disc.", ch, NULL, NULL, TO_ROOM);
     send_to_char("You create a floating disc.\n\r", ch);
     obj_to_char(disc, ch);
-    wear_obj(ch, disc, TRUE);
+    wear_obj(ch, disc, true);
     return;
 }
 
@@ -2516,9 +2513,9 @@ void spell_gate(int sn, int level, CHAR_DATA* ch, void* vo, int target)
         return;
     }
     if (ch->pet != NULL && ch->in_room == ch->pet->in_room)
-        gate_pet = TRUE;
+        gate_pet = true;
     else
-        gate_pet = FALSE;
+        gate_pet = false;
 
     act("$n steps through a gate and vanishes.", ch, NULL, NULL, TO_ROOM);
     send_to_char("You step through a gate and vanish.\n\r", ch);
@@ -2575,7 +2572,7 @@ void spell_harm(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     dam = UMAX(20, victim->hit - dice(1, 4));
     if (saves_spell(level, victim, DAM_HARM)) dam = UMIN(50, dam / 2);
     dam = UMIN(100, dam);
-    damage(ch, victim, dam, sn, DAM_HARM, TRUE);
+    damage(ch, victim, dam, sn, DAM_HARM, true);
     return;
 }
 
@@ -2638,7 +2635,7 @@ void spell_heat_metal(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     CHAR_DATA* victim = (CHAR_DATA*)vo;
     OBJ_DATA *obj_lose, *obj_next;
     int dam = 0;
-    bool fail = TRUE;
+    bool fail = true;
 
     if (!saves_spell(level + 2, victim, DAM_FIRE)
         && !IS_SET(victim->imm_flags, IMM_FIRE)) {
@@ -2656,7 +2653,7 @@ void spell_heat_metal(int sn, int level, CHAR_DATA* ch, void* vo, int target)
                         if (can_drop_obj(victim, obj_lose)
                             && (obj_lose->weight / 10) < number_range(
                                    1, 2 * get_curr_stat(victim, STAT_DEX))
-                            && remove_obj(victim, obj_lose->wear_loc, TRUE)) {
+                            && remove_obj(victim, obj_lose->wear_loc, true)) {
                             act("$n yelps and throws $p to the ground!", victim,
                                 obj_lose, NULL, TO_ROOM);
                             act("You remove and drop $p before it burns you.",
@@ -2664,14 +2661,14 @@ void spell_heat_metal(int sn, int level, CHAR_DATA* ch, void* vo, int target)
                             dam += (number_range(1, obj_lose->level) / 3);
                             obj_from_char(obj_lose);
                             obj_to_room(obj_lose, victim->in_room);
-                            fail = FALSE;
+                            fail = false;
                         }
                         else /* stuck on the body! ouch! */
                         {
                             act("Your skin is seared by $p!", victim, obj_lose,
                                 NULL, TO_CHAR);
                             dam += (number_range(1, obj_lose->level));
-                            fail = FALSE;
+                            fail = false;
                         }
                     }
                     else /* drop it if we can */
@@ -2684,14 +2681,14 @@ void spell_heat_metal(int sn, int level, CHAR_DATA* ch, void* vo, int target)
                             dam += (number_range(1, obj_lose->level) / 6);
                             obj_from_char(obj_lose);
                             obj_to_room(obj_lose, victim->in_room);
-                            fail = FALSE;
+                            fail = false;
                         }
                         else /* cannot drop */
                         {
                             act("Your skin is seared by $p!", victim, obj_lose,
                                 NULL, TO_CHAR);
                             dam += (number_range(1, obj_lose->level) / 2);
-                            fail = FALSE;
+                            fail = false;
                         }
                     }
                     break;
@@ -2701,7 +2698,7 @@ void spell_heat_metal(int sn, int level, CHAR_DATA* ch, void* vo, int target)
                         if (IS_WEAPON_STAT(obj_lose, WEAPON_FLAMING)) continue;
 
                         if (can_drop_obj(victim, obj_lose)
-                            && remove_obj(victim, obj_lose->wear_loc, TRUE)) {
+                            && remove_obj(victim, obj_lose->wear_loc, true)) {
                             act("$n is burned by $p, and throws it to the "
                                 "ground.",
                                 victim, obj_lose, NULL, TO_ROOM);
@@ -2711,14 +2708,14 @@ void spell_heat_metal(int sn, int level, CHAR_DATA* ch, void* vo, int target)
                             dam += 1;
                             obj_from_char(obj_lose);
                             obj_to_room(obj_lose, victim->in_room);
-                            fail = FALSE;
+                            fail = false;
                         }
                         else /* YOWCH! */
                         {
                             send_to_char("Your weapon sears your flesh!\n\r",
                                          victim);
                             dam += number_range(1, obj_lose->level);
-                            fail = FALSE;
+                            fail = false;
                         }
                     }
                     else /* drop it if we can */
@@ -2731,14 +2728,14 @@ void spell_heat_metal(int sn, int level, CHAR_DATA* ch, void* vo, int target)
                             dam += (number_range(1, obj_lose->level) / 6);
                             obj_from_char(obj_lose);
                             obj_to_room(obj_lose, victim->in_room);
-                            fail = FALSE;
+                            fail = false;
                         }
                         else /* cannot drop */
                         {
                             act("Your skin is seared by $p!", victim, obj_lose,
                                 NULL, TO_CHAR);
                             dam += (number_range(1, obj_lose->level) / 2);
-                            fail = FALSE;
+                            fail = false;
                         }
                     }
                     break;
@@ -2753,7 +2750,7 @@ void spell_heat_metal(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     else /* damage! */
     {
         if (saves_spell(level, victim, DAM_FIRE)) dam = 2 * dam / 3;
-        damage(ch, victim, dam, sn, DAM_FIRE, TRUE);
+        damage(ch, victim, dam, sn, DAM_FIRE, true);
     }
 }
 
@@ -2784,20 +2781,20 @@ void spell_holy_word(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 
         else if ((IS_GOOD(ch) && IS_EVIL(vch))
                  || (IS_EVIL(ch) && IS_GOOD(vch))) {
-            if (!is_safe_spell(ch, vch, TRUE)) {
+            if (!is_safe_spell(ch, vch, true)) {
                 spell_curse(curse_num, level, ch, (void*)vch, TARGET_CHAR);
                 send_to_char("You are struck down!\n\r", vch);
                 dam = dice(level, 6);
-                damage(ch, vch, dam, sn, DAM_ENERGY, TRUE);
+                damage(ch, vch, dam, sn, DAM_ENERGY, true);
             }
         }
 
         else if (IS_NEUTRAL(ch)) {
-            if (!is_safe_spell(ch, vch, TRUE)) {
+            if (!is_safe_spell(ch, vch, true)) {
                 spell_curse(curse_num, level / 2, ch, (void*)vch, TARGET_CHAR);
                 send_to_char("You are struck down!\n\r", vch);
                 dam = dice(level, 4);
-                damage(ch, vch, dam, sn, DAM_ENERGY, TRUE);
+                damage(ch, vch, dam, sn, DAM_ENERGY, true);
             }
         }
     }
@@ -3138,7 +3135,7 @@ void spell_lightning_bolt(int sn, int level, CHAR_DATA* ch, void* vo,
                           int target)
 {
     CHAR_DATA* victim = (CHAR_DATA*)vo;
-    static const sh_int dam_each[]
+    static const int16_t dam_each[]
         = {0,  0,  0,  0,  0,  0,  0,  0,  0,  25, 28, 31, 34, 37, 40, 40, 41,
            42, 42, 43, 44, 44, 45, 46, 46, 47, 48, 48, 49, 50, 50, 51, 52, 52,
            53, 54, 54, 55, 56, 56, 57, 58, 58, 59, 60, 60, 61, 62, 62, 63, 64};
@@ -3148,7 +3145,7 @@ void spell_lightning_bolt(int sn, int level, CHAR_DATA* ch, void* vo,
     level = UMAX(0, level);
     dam = number_range(dam_each[level] / 2, dam_each[level] * 2);
     if (saves_spell(level, victim, DAM_LIGHTNING)) dam /= 2;
-    damage(ch, victim, dam, sn, DAM_LIGHTNING, TRUE);
+    damage(ch, victim, dam, sn, DAM_LIGHTNING, true);
     return;
 }
 
@@ -3161,7 +3158,7 @@ void spell_locate_object(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     bool found;
     int number = 0, max_found;
 
-    found = FALSE;
+    found = false;
     number = 0;
     max_found = IS_IMMORTAL(ch) ? 200 : 2 * level;
 
@@ -3173,7 +3170,7 @@ void spell_locate_object(int sn, int level, CHAR_DATA* ch, void* vo, int target)
             || ch->level < obj->level)
             continue;
 
-        found = TRUE;
+        found = true;
         number++;
 
         for (in_obj = obj; in_obj->in_obj != NULL; in_obj = in_obj->in_obj)
@@ -3212,7 +3209,7 @@ void spell_locate_object(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 void spell_magic_missile(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 {
     CHAR_DATA* victim = (CHAR_DATA*)vo;
-    static const sh_int dam_each[]
+    static const int16_t dam_each[]
         = {0,  3,  3,  4,  4,  5,  6,  6,  6,  6,  6,  7,  7,  7,  7,  7,  8,
            8,  8,  8,  8,  9,  9,  9,  9,  9,  10, 10, 10, 10, 10, 11, 11, 11,
            11, 11, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14};
@@ -3222,7 +3219,7 @@ void spell_magic_missile(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     level = UMAX(0, level);
     dam = number_range(dam_each[level] / 2, dam_each[level] * 2);
     if (saves_spell(level, victim, DAM_ENERGY)) dam /= 2;
-    damage(ch, victim, dam, sn, DAM_ENERGY, TRUE);
+    damage(ch, victim, dam, sn, DAM_ENERGY, true);
     return;
 }
 
@@ -3501,7 +3498,7 @@ void spell_ray_of_truth(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 
     dam = (dam * align * align) / 1000000;
 
-    damage(ch, victim, dam, sn, DAM_HOLY, TRUE);
+    damage(ch, victim, dam, sn, DAM_HOLY, true);
     spell_blindness(gsn_blindness, 3 * level / 4, ch, (void*)victim,
                     TARGET_CHAR);
 }
@@ -3591,7 +3588,7 @@ void spell_remove_curse(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 {
     CHAR_DATA* victim;
     OBJ_DATA* obj;
-    bool found = FALSE;
+    bool found = false;
 
     /* do object cases first */
     if (target == TARGET_OBJ) {
@@ -3628,7 +3625,7 @@ void spell_remove_curse(int sn, int level, CHAR_DATA* ch, void* vo, int target)
             && !IS_OBJ_STAT(obj,
                             ITEM_NOUNCURSE)) { /* attempt to remove curse */
             if (!saves_dispel(level, obj->level, 0)) {
-                found = TRUE;
+                found = true;
                 REMOVE_BIT(obj->extra_flags, ITEM_NODROP);
                 REMOVE_BIT(obj->extra_flags, ITEM_NOREMOVE);
                 act("Your $p glows blue.", victim, obj, NULL, TO_CHAR);
@@ -3705,7 +3702,7 @@ void spell_shocking_grasp(int sn, int level, CHAR_DATA* ch, void* vo,
     level = UMAX(0, level);
     dam = number_range(dam_each[level] / 2, dam_each[level] * 2);
     if (saves_spell(level, victim, DAM_LIGHTNING)) dam /= 2;
-    damage(ch, victim, dam, sn, DAM_LIGHTNING, TRUE);
+    damage(ch, victim, dam, sn, DAM_LIGHTNING, true);
     return;
 }
 
@@ -3930,7 +3927,7 @@ void spell_word_of_recall(int sn, int level, CHAR_DATA* ch, void* vo,
         return;
     }
 
-    if (victim->fighting != NULL) stop_fighting(victim, TRUE);
+    if (victim->fighting != NULL) stop_fighting(victim, true);
 
     ch->move /= 2;
     act("$n disappears.", victim, NULL, NULL, TO_ROOM);
@@ -3961,11 +3958,11 @@ void spell_acid_breath(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 
     if (saves_spell(level, victim, DAM_ACID)) {
         acid_effect(victim, level / 2, dam / 4, TARGET_CHAR);
-        damage(ch, victim, dam / 2, sn, DAM_ACID, TRUE);
+        damage(ch, victim, dam / 2, sn, DAM_ACID, true);
     }
     else {
         acid_effect(victim, level, dam, TARGET_CHAR);
-        damage(ch, victim, dam, sn, DAM_ACID, TRUE);
+        damage(ch, victim, dam, sn, DAM_ACID, true);
     }
 }
 
@@ -3990,7 +3987,7 @@ void spell_fire_breath(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     for (vch = victim->in_room->people; vch != NULL; vch = vch_next) {
         vch_next = vch->next_in_room;
 
-        if (is_safe_spell(ch, vch, TRUE)
+        if (is_safe_spell(ch, vch, true)
             || (IS_NPC(vch) && IS_NPC(ch)
                 && (ch->fighting != vch || vch->fighting != ch)))
             continue;
@@ -3999,22 +3996,22 @@ void spell_fire_breath(int sn, int level, CHAR_DATA* ch, void* vo, int target)
         {
             if (saves_spell(level, vch, DAM_FIRE)) {
                 fire_effect(vch, level / 2, dam / 4, TARGET_CHAR);
-                damage(ch, vch, dam / 2, sn, DAM_FIRE, TRUE);
+                damage(ch, vch, dam / 2, sn, DAM_FIRE, true);
             }
             else {
                 fire_effect(vch, level, dam, TARGET_CHAR);
-                damage(ch, vch, dam, sn, DAM_FIRE, TRUE);
+                damage(ch, vch, dam, sn, DAM_FIRE, true);
             }
         }
         else /* partial damage */
         {
             if (saves_spell(level - 2, vch, DAM_FIRE)) {
                 fire_effect(vch, level / 4, dam / 8, TARGET_CHAR);
-                damage(ch, vch, dam / 4, sn, DAM_FIRE, TRUE);
+                damage(ch, vch, dam / 4, sn, DAM_FIRE, true);
             }
             else {
                 fire_effect(vch, level / 2, dam / 4, TARGET_CHAR);
-                damage(ch, vch, dam / 2, sn, DAM_FIRE, TRUE);
+                damage(ch, vch, dam / 2, sn, DAM_FIRE, true);
             }
         }
     }
@@ -4042,7 +4039,7 @@ void spell_frost_breath(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     for (vch = victim->in_room->people; vch != NULL; vch = vch_next) {
         vch_next = vch->next_in_room;
 
-        if (is_safe_spell(ch, vch, TRUE)
+        if (is_safe_spell(ch, vch, true)
             || (IS_NPC(vch) && IS_NPC(ch)
                 && (ch->fighting != vch || vch->fighting != ch)))
             continue;
@@ -4051,21 +4048,21 @@ void spell_frost_breath(int sn, int level, CHAR_DATA* ch, void* vo, int target)
         {
             if (saves_spell(level, vch, DAM_COLD)) {
                 cold_effect(vch, level / 2, dam / 4, TARGET_CHAR);
-                damage(ch, vch, dam / 2, sn, DAM_COLD, TRUE);
+                damage(ch, vch, dam / 2, sn, DAM_COLD, true);
             }
             else {
                 cold_effect(vch, level, dam, TARGET_CHAR);
-                damage(ch, vch, dam, sn, DAM_COLD, TRUE);
+                damage(ch, vch, dam, sn, DAM_COLD, true);
             }
         }
         else {
             if (saves_spell(level - 2, vch, DAM_COLD)) {
                 cold_effect(vch, level / 4, dam / 8, TARGET_CHAR);
-                damage(ch, vch, dam / 4, sn, DAM_COLD, TRUE);
+                damage(ch, vch, dam / 4, sn, DAM_COLD, true);
             }
             else {
                 cold_effect(vch, level / 2, dam / 4, TARGET_CHAR);
-                damage(ch, vch, dam / 2, sn, DAM_COLD, TRUE);
+                damage(ch, vch, dam / 2, sn, DAM_COLD, true);
             }
         }
     }
@@ -4090,18 +4087,18 @@ void spell_gas_breath(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     for (vch = ch->in_room->people; vch != NULL; vch = vch_next) {
         vch_next = vch->next_in_room;
 
-        if (is_safe_spell(ch, vch, TRUE)
+        if (is_safe_spell(ch, vch, true)
             || (IS_NPC(ch) && IS_NPC(vch)
                 && (ch->fighting == vch || vch->fighting == ch)))
             continue;
 
         if (saves_spell(level, vch, DAM_POISON)) {
             poison_effect(vch, level / 2, dam / 4, TARGET_CHAR);
-            damage(ch, vch, dam / 2, sn, DAM_POISON, TRUE);
+            damage(ch, vch, dam / 2, sn, DAM_POISON, true);
         }
         else {
             poison_effect(vch, level, dam, TARGET_CHAR);
-            damage(ch, vch, dam, sn, DAM_POISON, TRUE);
+            damage(ch, vch, dam, sn, DAM_POISON, true);
         }
     }
 }
@@ -4124,11 +4121,11 @@ void spell_lightning_breath(int sn, int level, CHAR_DATA* ch, void* vo,
 
     if (saves_spell(level, victim, DAM_LIGHTNING)) {
         shock_effect(victim, level / 2, dam / 4, TARGET_CHAR);
-        damage(ch, victim, dam / 2, sn, DAM_LIGHTNING, TRUE);
+        damage(ch, victim, dam / 2, sn, DAM_LIGHTNING, true);
     }
     else {
         shock_effect(victim, level, dam, TARGET_CHAR);
-        damage(ch, victim, dam, sn, DAM_LIGHTNING, TRUE);
+        damage(ch, victim, dam, sn, DAM_LIGHTNING, true);
     }
 }
 
@@ -4143,7 +4140,7 @@ void spell_general_purpose(int sn, int level, CHAR_DATA* ch, void* vo,
 
     dam = number_range(25, 100);
     if (saves_spell(level, victim, DAM_PIERCE)) dam /= 2;
-    damage(ch, victim, dam, sn, DAM_PIERCE, TRUE);
+    damage(ch, victim, dam, sn, DAM_PIERCE, true);
     return;
 }
 
@@ -4155,6 +4152,6 @@ void spell_high_explosive(int sn, int level, CHAR_DATA* ch, void* vo,
 
     dam = number_range(30, 120);
     if (saves_spell(level, victim, DAM_PIERCE)) dam /= 2;
-    damage(ch, victim, dam, sn, DAM_PIERCE, TRUE);
+    damage(ch, victim, dam, sn, DAM_PIERCE, true);
     return;
 }

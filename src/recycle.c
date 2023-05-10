@@ -25,18 +25,14 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#if defined(macintosh)
-#include <time.h>
-#include <types.h>
-#else
-#include <sys/time.h>
-#include <sys/types.h>
-#endif
 #include "merc.h"
 #include "recycle.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
+#include <sys/types.h>
 
 /* stuff for recyling notes */
 NOTE_DATA* note_free;
@@ -545,7 +541,7 @@ bool add_buf(BUFFER* buffer, char* string)
     oldsize = buffer->size;
 
     if (buffer->state == BUFFER_OVERFLOW) /* don't waste time on bad strings! */
-        return FALSE;
+        return false;
 
     len = strlen(buffer->string) + strlen(string) + 1;
 
@@ -558,7 +554,7 @@ bool add_buf(BUFFER* buffer, char* string)
                 buffer->size = oldsize;
                 buffer->state = BUFFER_OVERFLOW;
                 bug("buffer overflow past size %d", buffer->size);
-                return FALSE;
+                return false;
             }
         }
     }
@@ -571,7 +567,7 @@ bool add_buf(BUFFER* buffer, char* string)
     }
 
     strcat(buffer->string, string);
-    return TRUE;
+    return true;
 }
 
 void clear_buf(BUFFER* buffer)

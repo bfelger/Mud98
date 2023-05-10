@@ -43,13 +43,6 @@
  * -- Furey  26 Jan 1993
  */
 
-#if defined(macintosh)
-#include <types.h>
-#else
-#include <sys/time.h>
-#include <sys/types.h>
-#endif
-
 #include "interp.h"
 #include "merc.h"
 #include "recycle.h"
@@ -58,11 +51,24 @@
 
 #include <ctype.h>
 #include <errno.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
+#include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
+
+#include "telnet.h"
+#include <fcntl.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+
+const char echo_off_str[] = { IAC, WILL, TELOPT_ECHO, '\0' };
+const char echo_on_str[] = { IAC, WONT, TELOPT_ECHO, '\0' };
+const char go_ahead_str[] = { IAC, GA, '\0' };
 
 #ifdef __CYGWIN__
 #include <crypt.h>
@@ -71,198 +77,10 @@
 /*
  * Malloc debugging stuff.
  */
-#if defined(sun)
-#undef MALLOC_DEBUG
-#endif
-
 #if defined(MALLOC_DEBUG)
 #include <malloc.h>
 extern int malloc_debug args((int));
 extern int malloc_verify args((void));
-#endif
-
-/*
- * Signal handling.
- * Apollo has a problem with __attribute(atomic) in signal.h,
- *   I dance around it.
- */
-#if defined(apollo)
-#define __attribute(x)
-#endif
-
-#if defined(unix)
-#include <signal.h>
-#endif
-
-#if defined(apollo)
-#undef __attribute
-#endif
-
-/*
- * Socket and TCP/IP stuff.
- */
-#if defined(macintosh) || defined(MSDOS)
-const char echo_off_str[] = {'\0'};
-const char echo_on_str[] = {'\0'};
-const char go_ahead_str[] = {'\0'};
-#endif
-
-#if defined(unix)
-#include "telnet.h"
-#include <fcntl.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-const char echo_off_str[] = {IAC, WILL, TELOPT_ECHO, '\0'};
-const char echo_on_str[] = {IAC, WONT, TELOPT_ECHO, '\0'};
-const char go_ahead_str[] = {IAC, GA, '\0'};
-#endif
-
-/*
- * OS-dependent declarations.
- */
-#if defined(_AIX)
-#include <sys/select.h>
-int accept args((int s, struct sockaddr* addr, int* addrlen));
-int bind args((int s, struct sockaddr* name, int namelen));
-void bzero args((char* b, int length));
-int getpeername args((int s, struct sockaddr* name, int* namelen));
-int getsockname args((int s, struct sockaddr* name, int* namelen));
-int gettimeofday args((struct timeval * tp, struct timezone* tzp));
-int listen args((int s, int backlog));
-int setsockopt args((int s, int level, int optname, void* optval, int optlen));
-int socket args((int domain, int type, int protocol));
-#endif
-
-#if defined(apollo)
-#include <unistd.h>
-void bzero args((char* b, int length));
-#endif
-
-#if defined(__hpux)
-int accept args((int s, void* addr, int* addrlen));
-int bind args((int s, const void* addr, int addrlen));
-void bzero args((char* b, int length));
-int getpeername args((int s, void* addr, int* addrlen));
-int getsockname args((int s, void* name, int* addrlen));
-int gettimeofday args((struct timeval * tp, struct timezone* tzp));
-int listen args((int s, int backlog));
-int setsockopt args((int s, int level, int optname, const void* optval,
-                     int optlen));
-int socket args((int domain, int type, int protocol));
-#endif
-
-#if defined(interactive)
-#include <net/errno.h>
-#include <sys/fnctl.h>
-#endif
-
-#if defined(macintosh)
-#include <console.h>
-#include <fcntl.h>
-#include <unix.h>
-struct timeval {
-    time_t tv_sec;
-    time_t tv_usec;
-};
-#if !defined(isascii)
-#define isascii(c) ((c) < 0200)
-#endif
-static long theKeys[4];
-
-int gettimeofday args((struct timeval * tp, void* tzp));
-#endif
-
-#if defined(MIPS_OS)
-extern int errno;
-#endif
-
-#if defined(MSDOS)
-int gettimeofday args((struct timeval * tp, void* tzp));
-int kbhit args((void));
-#endif
-
-#if defined(NeXT)
-int close args((int fd));
-int fcntl args((int fd, int cmd, int arg));
-#if !defined(htons)
-u_short htons args((u_short hostshort));
-#endif
-#if !defined(ntohl)
-u_long ntohl args((u_long hostlong));
-#endif
-int read args((int fd, char* buf, int nbyte));
-int select args((int width, fd_set* readfds, fd_set* writefds,
-                 fd_set* exceptfds, struct timeval* timeout));
-int write args((int fd, char* buf, int nbyte));
-#endif
-
-#if defined(sequent)
-int accept args((int s, struct sockaddr* addr, int* addrlen));
-int bind args((int s, struct sockaddr* name, int namelen));
-int close args((int fd));
-int fcntl args((int fd, int cmd, int arg));
-int getpeername args((int s, struct sockaddr* name, int* namelen));
-int getsockname args((int s, struct sockaddr* name, int* namelen));
-int gettimeofday args((struct timeval * tp, struct timezone* tzp));
-#if !defined(htons)
-u_short htons args((u_short hostshort));
-#endif
-int listen args((int s, int backlog));
-#if !defined(ntohl)
-u_long ntohl args((u_long hostlong));
-#endif
-int read args((int fd, char* buf, int nbyte));
-int select args((int width, fd_set* readfds, fd_set* writefds,
-                 fd_set* exceptfds, struct timeval* timeout));
-int setsockopt args((int s, int level, int optname, caddr_t optval,
-                     int optlen));
-int socket args((int domain, int type, int protocol));
-int write args((int fd, char* buf, int nbyte));
-#endif
-
-/* This includes Solaris Sys V as well */
-#if defined(sun)
-int accept args((int s, struct sockaddr* addr, int* addrlen));
-int bind args((int s, struct sockaddr* name, int namelen));
-void bzero args((char* b, int length));
-int close args((int fd));
-int getpeername args((int s, struct sockaddr* name, int* namelen));
-int getsockname args((int s, struct sockaddr* name, int* namelen));
-int listen args((int s, int backlog));
-int read args((int fd, char* buf, int nbyte));
-int select args((int width, fd_set* readfds, fd_set* writefds,
-                 fd_set* exceptfds, struct timeval* timeout));
-
-#if !defined(__SVR4)
-int gettimeofday args((struct timeval * tp, struct timezone* tzp));
-
-#if defined(SYSV)
-int setsockopt args((int s, int level, int optname, const char* optval,
-                     int optlen));
-#else
-int setsockopt args((int s, int level, int optname, void* optval, int optlen));
-#endif
-#endif
-int socket args((int domain, int type, int protocol));
-int write args((int fd, char* buf, int nbyte));
-#endif
-
-#if defined(ultrix)
-int accept args((int s, struct sockaddr* addr, int* addrlen));
-int bind args((int s, struct sockaddr* name, int namelen));
-void bzero args((char* b, int length));
-int close args((int fd));
-int getpeername args((int s, struct sockaddr* name, int* namelen));
-int getsockname args((int s, struct sockaddr* name, int* namelen));
-int gettimeofday args((struct timeval * tp, struct timezone* tzp));
-int listen args((int s, int backlog));
-int read args((int fd, char* buf, int nbyte));
-int select args((int width, fd_set* readfds, fd_set* writefds,
-                 fd_set* exceptfds, struct timeval* timeout));
-int setsockopt args((int s, int level, int optname, void* optval, int optlen));
-int socket args((int domain, int type, int protocol));
-int write args((int fd, char* buf, int nbyte));
 #endif
 
 /*
@@ -278,44 +96,26 @@ bool newlock; /* Game is newlocked		*/
 char str_boot_time[MAX_INPUT_LENGTH];
 time_t current_time; /* time of this pulse */
 
-/*
- * OS-dependent local functions.
- */
-#if defined(macintosh) || defined(MSDOS)
-void game_loop_mac_msdos args((void));
-bool read_from_descriptor args((DESCRIPTOR_DATA * d));
-bool write_to_descriptor args((int desc, char* txt, int length));
-#endif
 
-#if defined(unix)
-void game_loop_unix args((int control));
-int init_socket args((int port));
-void init_descriptor args((int control));
-bool read_from_descriptor args((DESCRIPTOR_DATA * d));
-bool write_to_descriptor args((int desc, char* txt, int length));
-#endif
-
-/*
- * Other local functions (OS-independent).
- */
+void bust_a_prompt args((CHAR_DATA* ch));
 bool check_parse_name args((char* name));
-bool check_reconnect args((DESCRIPTOR_DATA * d, char* name, bool fConn));
-bool check_playing args((DESCRIPTOR_DATA * d, char* name));
-int main args((int argc, char** argv));
-void nanny args((DESCRIPTOR_DATA * d, char* argument));
-bool process_output args((DESCRIPTOR_DATA * d, bool fPrompt));
-void read_from_buffer args((DESCRIPTOR_DATA * d));
-void stop_idling args((CHAR_DATA * ch));
-void bust_a_prompt args((CHAR_DATA * ch));
+bool check_playing args((DESCRIPTOR_DATA* d, char* name));
+bool check_reconnect args((DESCRIPTOR_DATA* d, char* name, bool fConn));
+void game_loop args((int control));
+void init_descriptor args((int control));
+int init_socket args((int port));
+void nanny args((DESCRIPTOR_DATA* d, char* argument));
+bool process_output args((DESCRIPTOR_DATA* d, bool fPrompt));
+void read_from_buffer args((DESCRIPTOR_DATA* d));
+bool read_from_descriptor args((DESCRIPTOR_DATA * d));
+void stop_idling args((CHAR_DATA* ch));
+bool write_to_descriptor args((int desc, char* txt, int length));
 
 int main(int argc, char** argv)
 {
     struct timeval now_time;
     int port;
-
-#if defined(unix)
     int control;
-#endif
 
     /*
      * Memory debugging if needed.
@@ -330,16 +130,6 @@ int main(int argc, char** argv)
     gettimeofday(&now_time, NULL);
     current_time = (time_t)now_time.tv_sec;
     strcpy(str_boot_time, ctime(&current_time));
-
-    /*
-     * Macintosh console initialization.
-     */
-#if defined(macintosh)
-    console_options.nrows = 31;
-    cshow(stdout);
-    csetmode(C_RAW, stdin);
-    cecho2file("log file", 1, stderr);
-#endif
 
     /*
      * Reserve one channel for our use.
@@ -367,20 +157,12 @@ int main(int argc, char** argv)
     /*
      * Run the game.
      */
-#if defined(macintosh) || defined(MSDOS)
-    boot_db();
-    log_string("Merc is ready to rock.");
-    game_loop_mac_msdos();
-#endif
-
-#if defined(unix)
     control = init_socket(port);
     boot_db();
     sprintf(log_buf, "ROM is ready to rock on port %d.", port);
     log_string(log_buf);
-    game_loop_unix(control);
+    game_loop(control);
     close(control);
-#endif
 
     /*
      * That's all, folks.
@@ -390,7 +172,6 @@ int main(int argc, char** argv)
     return 0;
 }
 
-#if defined(unix)
 int init_socket(int port)
 {
     static struct sockaddr_in sa_zero;
@@ -409,7 +190,7 @@ int init_socket(int port)
         exit(1);
     }
 
-#if defined(SO_DONTLINGER) && !defined(SYSV)
+#ifdef SO_DONTLINGER
     {
         struct linger ld;
 
@@ -443,149 +224,8 @@ int init_socket(int port)
 
     return fd;
 }
-#endif
 
-#if defined(macintosh) || defined(MSDOS)
-void game_loop_mac_msdos(void)
-{
-    struct timeval last_time;
-    struct timeval now_time;
-    static DESCRIPTOR_DATA dcon;
-
-    gettimeofday(&last_time, NULL);
-    current_time = (time_t)last_time.tv_sec;
-
-    /*
-     * New_descriptor analogue.
-     */
-    dcon.descriptor = 0;
-    dcon.connected = CON_GET_NAME;
-    dcon.host = str_dup("localhost");
-    dcon.outsize = 2000;
-    dcon.outbuf = alloc_mem(dcon.outsize);
-    dcon.next = descriptor_list;
-    dcon.showstr_head = NULL;
-    dcon.showstr_point = NULL;
-    descriptor_list = &dcon;
-
-    /*
-     * Send the greeting.
-     */
-    {
-        extern char* help_greeting;
-        if (help_greeting[0] == '.')
-            write_to_buffer(&dcon, help_greeting + 1, 0);
-        else
-            write_to_buffer(&dcon, help_greeting, 0);
-    }
-
-    /* Main loop */
-    while (!merc_down) {
-        DESCRIPTOR_DATA* d;
-
-        /*
-         * Process input.
-         */
-        for (d = descriptor_list; d != NULL; d = d_next) {
-            d_next = d->next;
-            d->fcommand = FALSE;
-
-#if defined(MSDOS)
-            if (kbhit())
-#endif
-            {
-                if (d->character != NULL) d->character->timer = 0;
-                if (!read_from_descriptor(d)) {
-                    if (d->character != NULL && d->connected == CON_PLAYING)
-                        save_char_obj(d->character);
-                    d->outtop = 0;
-                    close_socket(d);
-                    continue;
-                }
-            }
-
-            if (d->character != NULL && d->character->daze > 0)
-                --d->character->daze;
-
-            if (d->character != NULL && d->character->wait > 0) {
-                --d->character->wait;
-                continue;
-            }
-
-            read_from_buffer(d);
-            if (d->incomm[0] != '\0') {
-                d->fcommand = TRUE;
-                stop_idling(d->character);
-
-                if (d->connected == CON_PLAYING)
-                    substitute_alias(d, d->incomm);
-                else
-                    nanny(d, d->incomm);
-
-                d->incomm[0] = '\0';
-            }
-        }
-
-        /*
-         * Autonomous game motion.
-         */
-        update_handler();
-
-        /*
-         * Output.
-         */
-        for (d = descriptor_list; d != NULL; d = d_next) {
-            d_next = d->next;
-
-            if ((d->fcommand || d->outtop > 0)) {
-                if (!process_output(d, TRUE)) {
-                    if (d->character != NULL && d->connected == CON_PLAYING)
-                        save_char_obj(d->character);
-                    d->outtop = 0;
-                    close_socket(d);
-                }
-            }
-        }
-
-        /*
-         * Synchronize to a clock.
-         * Busy wait (blargh).
-         */
-        now_time = last_time;
-        for (;;) {
-            int delta;
-
-#if defined(MSDOS)
-            if (kbhit())
-#endif
-            {
-                if (dcon.character != NULL) dcon.character->timer = 0;
-                if (!read_from_descriptor(&dcon)) {
-                    if (dcon.character != NULL && d->connected == CON_PLAYING)
-                        save_char_obj(d->character);
-                    dcon.outtop = 0;
-                    close_socket(&dcon);
-                }
-#if defined(MSDOS)
-                break;
-#endif
-            }
-
-            gettimeofday(&now_time, NULL);
-            delta = (now_time.tv_sec - last_time.tv_sec) * 1000 * 1000
-                    + (now_time.tv_usec - last_time.tv_usec);
-            if (delta >= 1000000 / PULSE_PER_SECOND) break;
-        }
-        last_time = now_time;
-        current_time = (time_t)last_time.tv_sec;
-    }
-
-    return;
-}
-#endif
-
-#if defined(unix)
-void game_loop_unix(int control)
+void game_loop(int control)
 {
     static struct timeval null_time;
     struct timeval last_time;
@@ -651,7 +291,7 @@ void game_loop_unix(int control)
          */
         for (d = descriptor_list; d != NULL; d = d_next) {
             d_next = d->next;
-            d->fcommand = FALSE;
+            d->fcommand = false;
 
             if (FD_ISSET(d->descriptor, &in_set)) {
                 if (d->character != NULL) d->character->timer = 0;
@@ -675,7 +315,7 @@ void game_loop_unix(int control)
 
             read_from_buffer(d);
             if (d->incomm[0] != '\0') {
-                d->fcommand = TRUE;
+                d->fcommand = true;
                 stop_idling(d->character);
 
                 if (d->showstr_point)
@@ -702,7 +342,7 @@ void game_loop_unix(int control)
 
             if ((d->fcommand || d->outtop > 0)
                 && FD_ISSET(d->descriptor, &out_set)) {
-                if (!process_output(d, TRUE)) {
+                if (!process_output(d, true)) {
                     if (d->character != NULL && d->connected == CON_PLAYING)
                         save_char_obj(d->character);
                     d->outtop = 0;
@@ -753,9 +393,7 @@ void game_loop_unix(int control)
 
     return;
 }
-#endif
 
-#if defined(unix)
 void init_descriptor(int control)
 {
     char buf[MAX_STRING_LENGTH];
@@ -849,13 +487,12 @@ void init_descriptor(int control)
 
     return;
 }
-#endif
 
 void close_socket(DESCRIPTOR_DATA* dclose)
 {
     CHAR_DATA* ch;
 
-    if (dclose->outtop > 0) process_output(dclose, FALSE);
+    if (dclose->outtop > 0) process_output(dclose, false);
 
     if (dclose->snoop_by != NULL) {
         write_to_buffer(dclose->snoop_by, "Your victim has left the game.\n\r",
@@ -900,9 +537,6 @@ void close_socket(DESCRIPTOR_DATA* dclose)
 
     close(dclose->descriptor);
     free_descriptor(dclose);
-#if defined(MSDOS) || defined(macintosh)
-    exit(1);
-#endif
     return;
 }
 
@@ -911,7 +545,7 @@ bool read_from_descriptor(DESCRIPTOR_DATA* d)
     int iStart;
 
     /* Hold horses if pending command already. */
-    if (d->incomm[0] != '\0') return TRUE;
+    if (d->incomm[0] != '\0') return true;
 
     /* Check for overflow. */
     iStart = strlen(d->inbuf);
@@ -920,23 +554,10 @@ bool read_from_descriptor(DESCRIPTOR_DATA* d)
         log_string(log_buf);
         write_to_descriptor(d->descriptor, "\n\r*** PUT A LID ON IT!!! ***\n\r",
                             0);
-        return FALSE;
+        return false;
     }
 
     /* Snarf input. */
-#if defined(macintosh)
-    for (;;) {
-        int c;
-        c = getc(stdin);
-        if (c == '\0' || c == EOF) break;
-        putc(c, stdout);
-        if (c == '\r') putc('\n', stdout);
-        d->inbuf[iStart++] = c;
-        if (iStart > sizeof(d->inbuf) - 10) break;
-    }
-#endif
-
-#if defined(MSDOS) || defined(unix)
     for (;;) {
         int nRead;
 
@@ -949,19 +570,18 @@ bool read_from_descriptor(DESCRIPTOR_DATA* d)
         }
         else if (nRead == 0) {
             log_string("EOF encountered on read.");
-            return FALSE;
+            return false;
         }
         else if (errno == EWOULDBLOCK)
             break;
         else {
             perror("Read_from_descriptor");
-            return FALSE;
+            return false;
         }
     }
-#endif
 
     d->inbuf[iStart] = '\0';
-    return TRUE;
+    return true;
 }
 
 /*
@@ -1125,7 +745,7 @@ bool process_output(DESCRIPTOR_DATA* d, bool fPrompt)
     /*
      * Short-circuit if nothing to write.
      */
-    if (d->outtop == 0) return TRUE;
+    if (d->outtop == 0) return true;
 
     /*
      * Snoop-o-rama.
@@ -1142,11 +762,11 @@ bool process_output(DESCRIPTOR_DATA* d, bool fPrompt)
      */
     if (!write_to_descriptor(d->descriptor, d->outbuf, d->outtop)) {
         d->outtop = 0;
-        return FALSE;
+        return false;
     }
     else {
         d->outtop = 0;
-        return TRUE;
+        return true;
     }
 }
 
@@ -1194,7 +814,7 @@ void bust_a_prompt(CHAR_DATA* ch)
             i = " ";
             break;
         case 'e':
-            found = FALSE;
+            found = false;
             doors[0] = '\0';
             for (door = 0; door < 6; door++) {
                 if ((pexit = ch->in_room->exit[door]) != NULL
@@ -1203,7 +823,7 @@ void bust_a_prompt(CHAR_DATA* ch)
                         || (IS_AFFECTED(ch, AFF_INFRARED)
                             && !IS_AFFECTED(ch, AFF_BLIND)))
                     && !IS_SET(pexit->exit_info, EX_CLOSED)) {
-                    found = TRUE;
+                    found = true;
                     strcat(doors, dir_name[door]);
                 }
             }
@@ -1371,21 +991,17 @@ bool write_to_descriptor(int desc, char* txt, int length)
     int nWrite;
     int nBlock;
 
-#if defined(macintosh) || defined(MSDOS)
-    if (desc == 0) desc = 1;
-#endif
-
     if (length <= 0) length = strlen(txt);
 
     for (iStart = 0; iStart < length; iStart += nWrite) {
         nBlock = UMIN(length - iStart, 4096);
         if ((nWrite = write(desc, txt + iStart, nBlock)) < 0) {
             perror("Write_to_descriptor");
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 /*
@@ -1442,7 +1058,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
             return;
         }
 
-        if (check_reconnect(d, argument, FALSE)) { fOld = TRUE; }
+        if (check_reconnect(d, argument, false)) { fOld = true; }
         else {
             if (wizlock && !IS_IMMORTAL(ch)) {
                 write_to_buffer(d, "The game is wizlocked.\n\r", 0);
@@ -1481,9 +1097,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
         break;
 
     case CON_GET_OLD_PASSWORD:
-#if defined(unix)
         write_to_buffer(d, "\n\r", 2);
-#endif
 
         if (strcmp(crypt(argument, ch->pcdata->pwd), ch->pcdata->pwd)) {
             write_to_buffer(d, "Wrong password.\n\r", 0);
@@ -1495,7 +1109,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
 
         if (check_playing(d, ch->name)) return;
 
-        if (check_reconnect(d, ch->name, TRUE)) return;
+        if (check_reconnect(d, ch->name, true)) return;
 
         sprintf(log_buf, "%s@%s has connected.", ch->name, d->host);
         log_string(log_buf);
@@ -1527,7 +1141,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
 
                 close_socket(d_old);
             }
-            if (check_reconnect(d, ch->name, TRUE)) return;
+            if (check_reconnect(d, ch->name, true)) return;
             write_to_buffer(d, "Reconnect attempt failed.\n\rName: ", 0);
             if (d->character != NULL) {
                 free_char(d->character);
@@ -1577,9 +1191,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
         break;
 
     case CON_GET_NEW_PASSWORD:
-#if defined(unix)
         write_to_buffer(d, "\n\r", 2);
-#endif
 
         if (strlen(argument) < 5) {
             write_to_buffer(
@@ -1606,9 +1218,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
         break;
 
     case CON_CONFIRM_NEW_PASSWORD:
-#if defined(unix)
         write_to_buffer(d, "\n\r", 2);
-#endif
 
         if (strcmp(crypt(argument, ch->pcdata->pwd), ch->pcdata->pwd)) {
             write_to_buffer(d,
@@ -1674,7 +1284,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
         /* add skills */
         for (i = 0; i < 5; i++) {
             if (pc_race_table[race].skills[i] == NULL) break;
-            group_add(ch, pc_race_table[race].skills[i], FALSE);
+            group_add(ch, pc_race_table[race].skills[i], false);
         }
         /* add cost */
         ch->pcdata->points = pc_race_table[race].points;
@@ -1755,8 +1365,8 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
 
         write_to_buffer(d, "\n\r", 0);
 
-        group_add(ch, "rom basics", FALSE);
-        group_add(ch, class_table[ch->class].base_group, FALSE);
+        group_add(ch, "rom basics", false);
+        group_add(ch, class_table[ch->class].base_group, false);
         ch->pcdata->learned[gsn_recall] = 50;
         write_to_buffer(d, "Do you wish to customize this character?\n\r", 0);
         write_to_buffer(d,
@@ -1783,7 +1393,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
             break;
         case 'n':
         case 'N':
-            group_add(ch, class_table[ch->class].default_group, TRUE);
+            group_add(ch, class_table[ch->class].default_group, true);
             write_to_buffer(d, "\n\r", 2);
             write_to_buffer(
                 d, "Please pick a weapon from the following choices:\n\r", 0);
@@ -1962,33 +1572,25 @@ bool check_parse_name(char* name)
      */
     if (is_exact_name(
             name, "all auto immortal self someone something the you loner")) {
-        return FALSE;
+        return false;
     }
 
     /* check clans */
     for (clan = 0; clan < MAX_CLAN; clan++) {
         if (LOWER(name[0]) == LOWER(clan_table[clan].name[0])
             && !str_cmp(name, clan_table[clan].name))
-            return FALSE;
+            return false;
     }
 
     if (str_cmp(capitalize(name), "Alander")
         && (!str_prefix("Alan", name) || !str_suffix("Alander", name)))
-        return FALSE;
+        return false;
 
     /*
      * Length restrictions.
      */
-
-    if (strlen(name) < 2) return FALSE;
-
-#if defined(MSDOS)
-    if (strlen(name) > 8) return FALSE;
-#endif
-
-#if defined(macintosh) || defined(unix)
-    if (strlen(name) > 12) return FALSE;
-#endif
+    if (strlen(name) < 2) return false;
+    if (strlen(name) > 12) return false;
 
     /*
      * Alphanumerics only.
@@ -1996,29 +1598,29 @@ bool check_parse_name(char* name)
      */
     {
         char* pc;
-        bool fIll, adjcaps = FALSE, cleancaps = FALSE;
+        bool fIll, adjcaps = false, cleancaps = false;
         int total_caps = 0;
 
-        fIll = TRUE;
+        fIll = true;
         for (pc = name; *pc != '\0'; pc++) {
-            if (!ISALPHA(*pc)) return FALSE;
+            if (!ISALPHA(*pc)) return false;
 
             if (ISUPPER(*pc)) /* ugly anti-caps hack */
             {
-                if (adjcaps) cleancaps = TRUE;
+                if (adjcaps) cleancaps = true;
                 total_caps++;
-                adjcaps = TRUE;
+                adjcaps = true;
             }
             else
-                adjcaps = FALSE;
+                adjcaps = false;
 
-            if (LOWER(*pc) != 'i' && LOWER(*pc) != 'l') fIll = FALSE;
+            if (LOWER(*pc) != 'i' && LOWER(*pc) != 'l') fIll = false;
         }
 
-        if (fIll) return FALSE;
+        if (fIll) return false;
 
         if (cleancaps || (total_caps > (strlen(name)) / 2 && strlen(name) < 3))
-            return FALSE;
+            return false;
     }
 
     /*
@@ -2032,12 +1634,12 @@ bool check_parse_name(char* name)
         for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
             for (pMobIndex = mob_index_hash[iHash]; pMobIndex != NULL;
                  pMobIndex = pMobIndex->next) {
-                if (is_name(name, pMobIndex->player_name)) return FALSE;
+                if (is_name(name, pMobIndex->player_name)) return false;
             }
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 /*
@@ -2050,7 +1652,7 @@ bool check_reconnect(DESCRIPTOR_DATA* d, char* name, bool fConn)
     for (ch = char_list; ch != NULL; ch = ch->next) {
         if (!IS_NPC(ch) && (!fConn || ch->desc == NULL)
             && !str_cmp(d->character->name, ch->name)) {
-            if (fConn == FALSE) {
+            if (fConn == false) {
                 free_string(d->character->pcdata->pwd);
                 d->character->pcdata->pwd = str_dup(ch->pcdata->pwd);
             }
@@ -2069,11 +1671,11 @@ bool check_reconnect(DESCRIPTOR_DATA* d, char* name, bool fConn)
                        0, 0);
                 d->connected = CON_PLAYING;
             }
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 /*
@@ -2092,11 +1694,11 @@ bool check_playing(DESCRIPTOR_DATA* d, char* name)
             write_to_buffer(d, "That character is already playing.\n\r", 0);
             write_to_buffer(d, "Do you wish to connect anyway (Y/N)?", 0);
             d->connected = CON_BREAK_CONNECT;
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 void stop_idling(CHAR_DATA* ch)
@@ -2179,14 +1781,10 @@ void page_to_char_bw(const char* txt, CHAR_DATA* ch)
         return;
     }
 
-#if defined(macintosh)
-    send_to_char_bw(txt, ch);
-#else
     ch->desc->showstr_head = alloc_mem(strlen(txt) + 1);
     strcpy(ch->desc->showstr_head, txt);
     ch->desc->showstr_point = ch->desc->showstr_head;
     show_string(ch->desc, "");
-#endif
 }
 
 /*
@@ -2199,9 +1797,6 @@ void page_to_char(const char* txt, CHAR_DATA* ch)
     char buf[MAX_STRING_LENGTH * 4];
     int skip = 0;
 
-#if defined(macintosh)
-    send_to_char(txt, ch);
-#else
     buf[0] = '\0';
     point2 = buf;
     if (txt && ch->desc) {
@@ -2238,7 +1833,6 @@ void page_to_char(const char* txt, CHAR_DATA* ch)
             show_string(ch->desc, "");
         }
     }
-#endif
     return;
 }
 
@@ -2432,17 +2026,6 @@ void act_new(const char* format, CHAR_DATA* ch, const void* arg1,
 
     return;
 }
-
-/*
- * Macintosh support functions.
- */
-#if defined(macintosh)
-int gettimeofday(struct timeval* tp, void* tzp)
-{
-    tp->tv_sec = time(NULL);
-    tp->tv_usec = 0;
-}
-#endif
 
 int colour(char type, CHAR_DATA* ch, char* string)
 {

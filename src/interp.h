@@ -54,10 +54,10 @@
 struct cmd_type {
     char* const name;
     DO_FUN* do_fun;
-    sh_int position;
-    sh_int level;
-    sh_int log;
-    sh_int show;
+    int16_t position;
+    int16_t level;
+    int16_t log;
+    int16_t show;
 };
 
 /* wrapper function for safe command execution */

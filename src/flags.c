@@ -25,18 +25,14 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#if defined(macintosh)
-#include <time.h>
-#include <types.h>
-#else
-#include <sys/time.h>
-#include <sys/types.h>
-#endif
 #include "merc.h"
 #include "tables.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
+#include <sys/types.h>
 
 int flag_lookup args((const char* name, const struct flag_type* flag_table));
 

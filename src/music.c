@@ -25,18 +25,14 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#if defined(macintosh)
-#include <types.h>
-#else
-#include <sys/time.h>
-#include <sys/types.h>
-#endif
 #include "merc.h"
 #include "music.h"
 #include "recycle.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
+#include <sys/types.h>
 #include <time.h>
 
 int channel_songs[MAX_GLOBAL + 1];
@@ -194,7 +190,7 @@ void do_play(CHAR_DATA* ch, char* argument)
     OBJ_DATA* juke;
     char *str, arg[MAX_INPUT_LENGTH];
     int song, i;
-    bool global = FALSE;
+    bool global = false;
 
     str = one_argument(argument, arg);
 
@@ -215,15 +211,15 @@ void do_play(CHAR_DATA* ch, char* argument)
         BUFFER* buffer;
         char buf[MAX_STRING_LENGTH];
         int col = 0;
-        bool artist = FALSE, match = FALSE;
+        bool artist = false, match = false;
 
         buffer = new_buf();
         argument = str;
         argument = one_argument(argument, arg);
 
-        if (!str_cmp(arg, "artist")) artist = TRUE;
+        if (!str_cmp(arg, "artist")) artist = true;
 
-        if (argument[0] != '\0') match = TRUE;
+        if (argument[0] != '\0') match = true;
 
         sprintf(buf, "%s has the following songs available:\n\r",
                 juke->short_descr);
@@ -253,7 +249,7 @@ void do_play(CHAR_DATA* ch, char* argument)
 
     if (!str_cmp(arg, "loud")) {
         argument = str;
-        global = TRUE;
+        global = true;
     }
 
     if (argument[0] == '\0') {

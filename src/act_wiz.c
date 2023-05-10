@@ -25,21 +25,17 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#if defined(macintosh)
-#include <time.h>
-#include <types.h>
-#else
-#include <sys/time.h>
-#include <sys/types.h>
-#endif
 #include "interp.h"
 #include "lookup.h"
 #include "merc.h"
 #include "recycle.h"
 #include "tables.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
+#include <sys/types.h>
 
 /*
  * Local functions.
@@ -470,7 +466,7 @@ void do_deny(CHAR_DATA* ch, char* argument)
     wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     send_to_char("OK.\n\r", ch);
     save_char_obj(victim);
-    stop_fighting(victim, TRUE);
+    stop_fighting(victim, true);
     do_function(victim, &do_quit, "");
 
     return;
@@ -731,7 +727,7 @@ void do_transfer(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if (victim->fighting != NULL) stop_fighting(victim, TRUE);
+    if (victim->fighting != NULL) stop_fighting(victim, true);
     act("$n disappears in a mushroom cloud.", victim, NULL, NULL, TO_ROOM);
     char_from_room(victim);
     char_to_room(victim, location);
@@ -814,7 +810,7 @@ void do_goto(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if (ch->fighting != NULL) stop_fighting(ch, TRUE);
+    if (ch->fighting != NULL) stop_fighting(ch, true);
 
     for (rch = ch->in_room->people; rch != NULL; rch = rch->next_in_room) {
         if (get_trust(rch) >= ch->invis_level) {
@@ -861,7 +857,7 @@ void do_violate(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if (ch->fighting != NULL) stop_fighting(ch, TRUE);
+    if (ch->fighting != NULL) stop_fighting(ch, true);
 
     for (rch = ch->in_room->people; rch != NULL; rch = rch->next_in_room) {
         if (get_trust(rch) >= ch->invis_level) {
@@ -1544,8 +1540,8 @@ void do_mfind(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    fAll = FALSE; /* !str_cmp( arg, "all" ); */
-    found = FALSE;
+    fAll = false; /* !str_cmp( arg, "all" ); */
+    found = false;
     nMatch = 0;
 
     /*
@@ -1558,7 +1554,7 @@ void do_mfind(CHAR_DATA* ch, char* argument)
         if ((pMobIndex = get_mob_index(vnum)) != NULL) {
             nMatch++;
             if (fAll || is_name(argument, pMobIndex->player_name)) {
-                found = TRUE;
+                found = true;
                 sprintf(buf, "[%5d] %s\n\r", pMobIndex->vnum,
                         pMobIndex->short_descr);
                 send_to_char(buf, ch);
@@ -1588,8 +1584,8 @@ void do_ofind(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    fAll = FALSE; /* !str_cmp( arg, "all" ); */
-    found = FALSE;
+    fAll = false; /* !str_cmp( arg, "all" ); */
+    found = false;
     nMatch = 0;
 
     /*
@@ -1602,7 +1598,7 @@ void do_ofind(CHAR_DATA* ch, char* argument)
         if ((pObjIndex = get_obj_index(vnum)) != NULL) {
             nMatch++;
             if (fAll || is_name(argument, pObjIndex->name)) {
-                found = TRUE;
+                found = true;
                 sprintf(buf, "[%5d] %s\n\r", pObjIndex->vnum,
                         pObjIndex->short_descr);
                 send_to_char(buf, ch);
@@ -1624,7 +1620,7 @@ void do_owhere(CHAR_DATA* ch, char* argument)
     bool found;
     int number = 0, max_found;
 
-    found = FALSE;
+    found = false;
     number = 0;
     max_found = 200;
 
@@ -1640,7 +1636,7 @@ void do_owhere(CHAR_DATA* ch, char* argument)
             || ch->level < obj->level)
             continue;
 
-        found = TRUE;
+        found = true;
         number++;
 
         for (in_obj = obj; in_obj->in_obj != NULL; in_obj = in_obj->in_obj)
@@ -1710,11 +1706,11 @@ void do_mwhere(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    found = FALSE;
+    found = false;
     buffer = new_buf();
     for (victim = char_list; victim != NULL; victim = victim->next) {
         if (victim->in_room != NULL && is_name(argument, victim->name)) {
-            found = TRUE;
+            found = true;
             count++;
             sprintf(buf, "%3d) [%5d] %-28s [%5d] %s\n\r", count,
                     IS_NPC(victim) ? victim->pIndexData->vnum : 0,
@@ -1752,7 +1748,7 @@ void do_reboot(CHAR_DATA* ch, char* argument)
         do_function(ch, &do_echo, buf);
     }
 
-    merc_down = TRUE;
+    merc_down = true;
     for (d = descriptor_list; d != NULL; d = d_next) {
         d_next = d->next;
         vch = d->original ? d->original : d->character;
@@ -1780,7 +1776,7 @@ void do_shutdown(CHAR_DATA* ch, char* argument)
     append_file(ch, SHUTDOWN_FILE, buf);
     strcat(buf, "\n\r");
     if (ch->invis_level < LEVEL_HERO) { do_function(ch, &do_echo, buf); }
-    merc_down = TRUE;
+    merc_down = true;
     for (d = descriptor_list; d != NULL; d = d_next) {
         d_next = d->next;
         vch = d->original ? d->original : d->character;
@@ -1981,9 +1977,9 @@ bool obj_check(CHAR_DATA* ch, OBJ_DATA* obj)
         || (IS_TRUSTED(ch, DEMI) && obj->level <= 10 && obj->cost <= 500)
         || (IS_TRUSTED(ch, ANGEL) && obj->level <= 5 && obj->cost <= 250)
         || (IS_TRUSTED(ch, AVATAR) && obj->level == 0 && obj->cost <= 100))
-        return TRUE;
+        return true;
     else
-        return FALSE;
+        return false;
 }
 
 /* for clone, to insure that cloning goes many levels deep */
@@ -2227,7 +2223,7 @@ void do_purge(CHAR_DATA* ch, char* argument)
             vnext = victim->next_in_room;
             if (IS_NPC(victim) && !IS_SET(victim->act, ACT_NOPURGE)
                 && victim != ch /* safety precaution */)
-                extract_char(victim, TRUE);
+                extract_char(victim, true);
         }
 
         for (obj = ch->in_room->contents; obj != NULL; obj = obj_next) {
@@ -2262,14 +2258,14 @@ void do_purge(CHAR_DATA* ch, char* argument)
 
         if (victim->level > 1) save_char_obj(victim);
         d = victim->desc;
-        extract_char(victim, TRUE);
+        extract_char(victim, true);
         if (d != NULL) close_socket(d);
 
         return;
     }
 
     act("$n purges $N.", ch, NULL, victim, TO_NOTVICT);
-    extract_char(victim, TRUE);
+    extract_char(victim, true);
     return;
 }
 
@@ -2333,7 +2329,7 @@ void do_advance(CHAR_DATA* ch, char* argument)
         victim->hit = victim->max_hit;
         victim->mana = victim->max_mana;
         victim->move = victim->max_move;
-        advance_level(victim, TRUE);
+        advance_level(victim, true);
         victim->practice = temp_prac;
     }
     else {
@@ -2343,7 +2339,7 @@ void do_advance(CHAR_DATA* ch, char* argument)
 
     for (iLevel = victim->level; iLevel < level; iLevel++) {
         victim->level += 1;
-        advance_level(victim, TRUE);
+        advance_level(victim, true);
     }
     sprintf(buf, "You are now level %d.\n\r", victim->level);
     send_to_char(buf, victim);
@@ -2530,11 +2526,11 @@ void do_log(CHAR_DATA* ch, char* argument)
 
     if (!str_cmp(arg, "all")) {
         if (fLogAll) {
-            fLogAll = FALSE;
+            fLogAll = false;
             send_to_char("Log ALL off.\n\r", ch);
         }
         else {
-            fLogAll = TRUE;
+            fLogAll = true;
             send_to_char("Log ALL on.\n\r", ch);
         }
         return;
@@ -2695,7 +2691,7 @@ void do_peace(CHAR_DATA* ch, char* argument)
     CHAR_DATA* rch;
 
     for (rch = ch->in_room->people; rch != NULL; rch = rch->next_in_room) {
-        if (rch->fighting != NULL) stop_fighting(rch, TRUE);
+        if (rch->fighting != NULL) stop_fighting(rch, true);
         if (IS_NPC(rch) && IS_SET(rch->act, ACT_AGGRESSIVE))
             REMOVE_BIT(rch->act, ACT_AGGRESSIVE);
     }
