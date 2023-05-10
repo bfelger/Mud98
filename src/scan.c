@@ -25,31 +25,28 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#if defined(macintosh)
-#include <types.h>
-#else
-#include <sys/types.h>
-#endif
 #include "merc.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 #include <time.h>
 
 char* const distance[4] = {"right here.", "nearby to the %s.", "not far %s.",
                            "off in the distance %s."};
 
-void scan_list args((ROOM_INDEX_DATA * scan_room, CHAR_DATA* ch, sh_int depth,
-                     sh_int door));
-void scan_char args((CHAR_DATA * victim, CHAR_DATA* ch, sh_int depth,
-                     sh_int door));
+void scan_list args((ROOM_INDEX_DATA * scan_room, CHAR_DATA* ch, int16_t depth,
+                     int16_t door));
+void scan_char args((CHAR_DATA * victim, CHAR_DATA* ch, int16_t depth,
+                     int16_t door));
 void do_scan(CHAR_DATA* ch, char* argument)
 {
     extern char* const dir_name[];
     char arg1[MAX_INPUT_LENGTH], buf[MAX_INPUT_LENGTH];
     ROOM_INDEX_DATA* scan_room;
     EXIT_DATA* pExit;
-    sh_int door, depth;
+    int16_t door, depth;
 
     argument = one_argument(argument, arg1);
 
@@ -96,8 +93,8 @@ void do_scan(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void scan_list(ROOM_INDEX_DATA* scan_room, CHAR_DATA* ch, sh_int depth,
-               sh_int door)
+void scan_list(ROOM_INDEX_DATA* scan_room, CHAR_DATA* ch, int16_t depth,
+               int16_t door)
 {
     CHAR_DATA* rch;
 
@@ -110,7 +107,7 @@ void scan_list(ROOM_INDEX_DATA* scan_room, CHAR_DATA* ch, sh_int depth,
     return;
 }
 
-void scan_char(CHAR_DATA* victim, CHAR_DATA* ch, sh_int depth, sh_int door)
+void scan_char(CHAR_DATA* victim, CHAR_DATA* ch, int16_t depth, int16_t door)
 {
     extern char* const dir_name[];
     extern char* const distance[];

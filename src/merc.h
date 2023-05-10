@@ -29,51 +29,15 @@
 #ifndef ROM__MERC_H
 #define ROM__MERC_H
 
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
+#include <time.h>
 
-/*
- * Accommodate old non-Ansi compilers.
- */
-#if defined(TRADITIONAL)
-#define const
-#define args( list )             ( )
-#define DECLARE_DO_FUN( fun )    void fun( )
-#define DECLARE_SPEC_FUN( fun )  bool fun( )
-#define DECLARE_SPELL_FUN( fun ) void fun( )
-#else
 #define args( list )             list
 #define DECLARE_DO_FUN( fun )    DO_FUN fun
 #define DECLARE_SPEC_FUN( fun )  SPEC_FUN fun
 #define DECLARE_SPELL_FUN( fun ) SPELL_FUN fun
-#endif
-
-/* system calls */
-int unlink();
-int system();
-
-/*
- * Short scalar types.
- * Diavolo reports AIX compiler has bugs with short types.
- */
-#if !defined(FALSE)
-#define FALSE 0
-#endif
-
-#if !defined(TRUE)
-#define TRUE 1
-#endif
-
-#if defined(_AIX)
-#if !defined(const)
-#define const
-#endif
-typedef int sh_int;
-typedef int bool;
-#define unix
-#else
-typedef short int sh_int;
-typedef unsigned char bool;
-#endif
 
 /*
  * Structure types.
@@ -290,16 +254,16 @@ typedef void SPELL_FUN args((int sn, int level, CHAR_DATA* ch, void* vo,
 struct ban_data {
     BAN_DATA* next;
     bool valid;
-    sh_int ban_flags;
-    sh_int level;
+    int16_t ban_flags;
+    int16_t level;
     char* name;
 };
 
 struct buf_type {
     BUFFER* next;
     bool valid;
-    sh_int state; /* error state of the buffer */
-    sh_int size; /* size in k */
+    int16_t state; /* error state of the buffer */
+    int16_t size; /* size in k */
     char* string; /* buffer's string */
 };
 
@@ -360,8 +324,8 @@ struct descriptor_data {
     CHAR_DATA* original;
     bool valid;
     char* host;
-    sh_int descriptor;
-    sh_int connected;
+    int16_t descriptor;
+    int16_t connected;
     bool fcommand;
     char inbuf[4 * MAX_INPUT_LENGTH];
     char incomm[MAX_INPUT_LENGTH];
@@ -378,27 +342,27 @@ struct descriptor_data {
  * Attribute bonus structures.
  */
 struct str_app_type {
-    sh_int tohit;
-    sh_int todam;
-    sh_int carry;
-    sh_int wield;
+    int16_t tohit;
+    int16_t todam;
+    int16_t carry;
+    int16_t wield;
 };
 
 struct int_app_type {
-    sh_int learn;
+    int16_t learn;
 };
 
 struct wis_app_type {
-    sh_int practice;
+    int16_t practice;
 };
 
 struct dex_app_type {
-    sh_int defensive;
+    int16_t defensive;
 };
 
 struct con_app_type {
-    sh_int hitp;
-    sh_int shock;
+    int16_t hitp;
+    int16_t shock;
 };
 
 /*
@@ -415,7 +379,7 @@ struct con_app_type {
  */
 struct help_data {
     HELP_DATA* next;
-    sh_int level;
+    int16_t level;
     char* keyword;
     char* text;
 };
@@ -427,12 +391,12 @@ struct help_data {
 
 struct shop_data {
     SHOP_DATA* next; /* Next shop in list		*/
-    sh_int keeper; /* Vnum of shop keeper mob	*/
-    sh_int buy_type[MAX_TRADE]; /* Item types shop will buy	*/
-    sh_int profit_buy; /* Cost multiplier for buying	*/
-    sh_int profit_sell; /* Cost multiplier for selling	*/
-    sh_int open_hour; /* First opening hour		*/
-    sh_int close_hour; /* First closing hour		*/
+    int16_t keeper; /* Vnum of shop keeper mob	*/
+    int16_t buy_type[MAX_TRADE]; /* Item types shop will buy	*/
+    int16_t profit_buy; /* Cost multiplier for buying	*/
+    int16_t profit_sell; /* Cost multiplier for selling	*/
+    int16_t open_hour; /* First opening hour		*/
+    int16_t close_hour; /* First closing hour		*/
 };
 
 /*
@@ -450,14 +414,14 @@ struct shop_data {
 struct class_type {
     char* name; /* the full name of the class */
     char who_name[4]; /* Three-letter name for 'who'	*/
-    sh_int attr_prime; /* Prime attribute		*/
-    sh_int weapon; /* First weapon			*/
-    sh_int guild[MAX_GUILD]; /* Vnum of guild rooms		*/
-    sh_int skill_adept; /* Maximum skill level		*/
-    sh_int thac0_00; /* Thac0 for level  0		*/
-    sh_int thac0_32; /* Thac0 for level 32		*/
-    sh_int hp_min; /* Min hp gained on leveling	*/
-    sh_int hp_max; /* Max hp gained on leveling	*/
+    int16_t attr_prime; /* Prime attribute		*/
+    int16_t weapon; /* First weapon			*/
+    int16_t guild[MAX_GUILD]; /* Vnum of guild rooms		*/
+    int16_t skill_adept; /* Maximum skill level		*/
+    int16_t thac0_00; /* Thac0 for level  0		*/
+    int16_t thac0_32; /* Thac0 for level 32		*/
+    int16_t hp_min; /* Min hp gained on leveling	*/
+    int16_t hp_max; /* Max hp gained on leveling	*/
     bool fMana; /* Class gains mana on level	*/
     char* base_group; /* base skills gained		*/
     char* default_group; /* default skills gained	*/
@@ -470,9 +434,9 @@ struct item_type {
 
 struct weapon_type {
     char* name;
-    sh_int vnum;
-    sh_int type;
-    sh_int* gsn;
+    int16_t vnum;
+    int16_t type;
+    int16_t* gsn;
 };
 
 struct wiznet_type {
@@ -504,12 +468,12 @@ struct pc_race_type /* additional data for pc races */
 {
     char* name; /* MUST be in race_type */
     char who_name[6];
-    sh_int points; /* cost in points of the race */
-    sh_int class_mult[MAX_CLASS]; /* exp multiplier for class, * 100 */
+    int16_t points; /* cost in points of the race */
+    int16_t class_mult[MAX_CLASS]; /* exp multiplier for class, * 100 */
     char* skills[5]; /* bonus skills for the race */
-    sh_int stats[MAX_STATS]; /* starting stats */
-    sh_int max_stats[MAX_STATS]; /* maximum stats */
-    sh_int size; /* aff bits for the race */
+    int16_t stats[MAX_STATS]; /* starting stats */
+    int16_t max_stats[MAX_STATS]; /* maximum stats */
+    int16_t size; /* aff bits for the race */
 };
 
 struct spec_type {
@@ -529,7 +493,7 @@ struct spec_type {
 struct note_data {
     NOTE_DATA* next;
     bool valid;
-    sh_int type;
+    int16_t type;
     char* sender;
     char* date;
     char* to_list;
@@ -544,12 +508,12 @@ struct note_data {
 struct affect_data {
     AFFECT_DATA* next;
     bool valid;
-    sh_int where;
-    sh_int type;
-    sh_int level;
-    sh_int duration;
-    sh_int location;
-    sh_int modifier;
+    int16_t where;
+    int16_t type;
+    int16_t level;
+    int16_t duration;
+    int16_t location;
+    int16_t modifier;
     int bitvector;
 };
 
@@ -565,8 +529,8 @@ struct affect_data {
  * A kill structure (indexed by level).
  */
 struct kill_data {
-    sh_int number;
-    sh_int killed;
+    int16_t number;
+    int16_t killed;
 };
 
 /***************************************************************************
@@ -1335,37 +1299,37 @@ struct mob_index_data {
     MOB_INDEX_DATA* next;
     SPEC_FUN* spec_fun;
     SHOP_DATA* pShop;
-    sh_int vnum;
-    sh_int group;
+    int16_t vnum;
+    int16_t group;
     bool new_format;
-    sh_int count;
-    sh_int killed;
+    int16_t count;
+    int16_t killed;
     char* player_name;
     char* short_descr;
     char* long_descr;
     char* description;
     long act;
     long affected_by;
-    sh_int alignment;
-    sh_int level;
-    sh_int hitroll;
-    sh_int hit[3];
-    sh_int mana[3];
-    sh_int damage[3];
-    sh_int ac[4];
-    sh_int dam_type;
+    int16_t alignment;
+    int16_t level;
+    int16_t hitroll;
+    int16_t hit[3];
+    int16_t mana[3];
+    int16_t damage[3];
+    int16_t ac[4];
+    int16_t dam_type;
     long off_flags;
     long imm_flags;
     long res_flags;
     long vuln_flags;
-    sh_int start_pos;
-    sh_int default_pos;
-    sh_int sex;
-    sh_int race;
+    int16_t start_pos;
+    int16_t default_pos;
+    int16_t sex;
+    int16_t race;
     long wealth;
     long form;
     long parts;
-    sh_int size;
+    int16_t size;
     char* material;
 };
 
@@ -1411,31 +1375,31 @@ struct char_data {
     bool valid;
     char* name;
     long id;
-    sh_int version;
+    int16_t version;
     char* short_descr;
     char* long_descr;
     char* description;
     char* prompt;
     char* prefix;
-    sh_int group;
-    sh_int clan;
-    sh_int sex;
-    sh_int class;
-    sh_int race;
-    sh_int level;
-    sh_int trust;
+    int16_t group;
+    int16_t clan;
+    int16_t sex;
+    int16_t class;
+    int16_t race;
+    int16_t level;
+    int16_t trust;
     int played;
     int lines; /* for the pager */
     time_t logon;
-    sh_int timer;
-    sh_int wait;
-    sh_int daze;
-    sh_int hit;
-    sh_int max_hit;
-    sh_int mana;
-    sh_int max_mana;
-    sh_int move;
-    sh_int max_move;
+    int16_t timer;
+    int16_t wait;
+    int16_t daze;
+    int16_t hit;
+    int16_t max_hit;
+    int16_t mana;
+    int16_t max_mana;
+    int16_t move;
+    int16_t max_move;
     long gold;
     long silver;
     int exp;
@@ -1445,34 +1409,34 @@ struct char_data {
     long imm_flags;
     long res_flags;
     long vuln_flags;
-    sh_int invis_level;
-    sh_int incog_level;
+    int16_t invis_level;
+    int16_t incog_level;
     long affected_by;
-    sh_int position;
-    sh_int practice;
-    sh_int train;
-    sh_int carry_weight;
-    sh_int carry_number;
-    sh_int saving_throw;
-    sh_int alignment;
-    sh_int hitroll;
-    sh_int damroll;
-    sh_int armor[4];
-    sh_int wimpy;
+    int16_t position;
+    int16_t practice;
+    int16_t train;
+    int16_t carry_weight;
+    int16_t carry_number;
+    int16_t saving_throw;
+    int16_t alignment;
+    int16_t hitroll;
+    int16_t damroll;
+    int16_t armor[4];
+    int16_t wimpy;
     /* stats */
-    sh_int perm_stat[MAX_STATS];
-    sh_int mod_stat[MAX_STATS];
+    int16_t perm_stat[MAX_STATS];
+    int16_t mod_stat[MAX_STATS];
     /* parts stuff */
     long form;
     long parts;
-    sh_int size;
+    int16_t size;
     char* material;
     /* mobile stuff */
     long off_flags;
-    sh_int damage[3];
-    sh_int dam_type;
-    sh_int start_pos;
-    sh_int default_pos;
+    int16_t damage[3];
+    int16_t dam_type;
+    int16_t start_pos;
+    int16_t default_pos;
 };
 
 /*
@@ -1492,15 +1456,15 @@ struct pc_data {
     time_t last_penalty;
     time_t last_news;
     time_t last_changes;
-    sh_int perm_hit;
-    sh_int perm_mana;
-    sh_int perm_move;
-    sh_int true_sex;
+    int16_t perm_hit;
+    int16_t perm_mana;
+    int16_t perm_move;
+    int16_t true_sex;
     int last_level;
-    sh_int condition[4];
-    sh_int learned[MAX_SKILL];
+    int16_t condition[4];
+    int16_t learned[MAX_SKILL];
     bool group_known[MAX_GROUP];
-    sh_int points;
+    int16_t points;
     bool confirm_delete;
     char* alias[MAX_ALIAS];
     char* alias_sub[MAX_ALIAS];
@@ -1562,7 +1526,7 @@ struct gen_data {
 struct liq_type {
     char* liq_name;
     char* liq_color;
-    sh_int liq_affect[5];
+    int16_t liq_affect[5];
 };
 
 /*
@@ -1586,16 +1550,16 @@ struct obj_index_data {
     char* name;
     char* short_descr;
     char* description;
-    sh_int vnum;
-    sh_int reset_num;
+    int16_t vnum;
+    int16_t reset_num;
     char* material;
-    sh_int item_type;
+    int16_t item_type;
     int extra_flags;
     int wear_flags;
-    sh_int level;
-    sh_int condition;
-    sh_int count;
-    sh_int weight;
+    int16_t level;
+    int16_t condition;
+    int16_t count;
+    int16_t weight;
     int cost;
     int value[5];
 };
@@ -1620,16 +1584,16 @@ struct obj_data {
     char* name;
     char* short_descr;
     char* description;
-    sh_int item_type;
+    int16_t item_type;
     int extra_flags;
     int wear_flags;
-    sh_int wear_loc;
-    sh_int weight;
+    int16_t wear_loc;
+    int16_t weight;
     int cost;
-    sh_int level;
-    sh_int condition;
+    int16_t level;
+    int16_t condition;
     char* material;
-    sh_int timer;
+    int16_t timer;
     int value[5];
 };
 
@@ -1639,10 +1603,10 @@ struct obj_data {
 struct exit_data {
     union {
         ROOM_INDEX_DATA* to_room;
-        sh_int vnum;
+        int16_t vnum;
     } u1;
-    sh_int exit_info;
-    sh_int key;
+    int16_t exit_info;
+    int16_t key;
     char* keyword;
     char* description;
 };
@@ -1666,10 +1630,10 @@ struct exit_data {
 struct reset_data {
     RESET_DATA* next;
     char command;
-    sh_int arg1;
-    sh_int arg2;
-    sh_int arg3;
-    sh_int arg4;
+    int16_t arg1;
+    int16_t arg2;
+    int16_t arg3;
+    int16_t arg4;
 };
 
 /*
@@ -1682,12 +1646,12 @@ struct area_data {
     char* file_name;
     char* name;
     char* credits;
-    sh_int age;
-    sh_int nplayer;
-    sh_int low_range;
-    sh_int high_range;
-    sh_int min_vnum;
-    sh_int max_vnum;
+    int16_t age;
+    int16_t nplayer;
+    int16_t low_range;
+    int16_t high_range;
+    int16_t min_vnum;
+    int16_t max_vnum;
     bool empty;
 };
 
@@ -1705,13 +1669,13 @@ struct room_index_data {
     char* name;
     char* description;
     char* owner;
-    sh_int vnum;
+    int16_t vnum;
     int room_flags;
-    sh_int light;
-    sh_int sector_type;
-    sh_int heal_rate;
-    sh_int mana_rate;
-    sh_int clan;
+    int16_t light;
+    int16_t sector_type;
+    int16_t heal_rate;
+    int16_t mana_rate;
+    int16_t clan;
 };
 
 /*
@@ -1743,15 +1707,15 @@ struct room_index_data {
  */
 struct skill_type {
     char* name; /* Name of skill		*/
-    sh_int skill_level[MAX_CLASS]; /* Level needed by class	*/
-    sh_int rating[MAX_CLASS]; /* How hard it is to learn	*/
+    int16_t skill_level[MAX_CLASS]; /* Level needed by class	*/
+    int16_t rating[MAX_CLASS]; /* How hard it is to learn	*/
     SPELL_FUN* spell_fun; /* Spell pointer (for spells)	*/
-    sh_int target; /* Legal targets		*/
-    sh_int minimum_position; /* Position for caster / user	*/
-    sh_int* pgsn; /* Pointer to associated gsn	*/
-    sh_int slot; /* Slot for #OBJECT loading	*/
-    sh_int min_mana; /* Minimum mana used		*/
-    sh_int beats; /* Waiting time after use	*/
+    int16_t target; /* Legal targets		*/
+    int16_t minimum_position; /* Position for caster / user	*/
+    int16_t* pgsn; /* Pointer to associated gsn	*/
+    int16_t slot; /* Slot for #OBJECT loading	*/
+    int16_t min_mana; /* Minimum mana used		*/
+    int16_t beats; /* Waiting time after use	*/
     char* noun_damage; /* Damage message		*/
     char* msg_off; /* Wear off message		*/
     char* msg_obj; /* Wear off message for obects	*/
@@ -1759,74 +1723,74 @@ struct skill_type {
 
 struct group_type {
     char* name;
-    sh_int rating[MAX_CLASS];
+    int16_t rating[MAX_CLASS];
     char* spells[MAX_IN_GROUP];
 };
 
 /*
  * These are skill_lookup return values for common skills and spells.
  */
-extern sh_int gsn_backstab;
-extern sh_int gsn_dodge;
-extern sh_int gsn_envenom;
-extern sh_int gsn_hide;
-extern sh_int gsn_peek;
-extern sh_int gsn_pick_lock;
-extern sh_int gsn_sneak;
-extern sh_int gsn_steal;
+extern int16_t gsn_backstab;
+extern int16_t gsn_dodge;
+extern int16_t gsn_envenom;
+extern int16_t gsn_hide;
+extern int16_t gsn_peek;
+extern int16_t gsn_pick_lock;
+extern int16_t gsn_sneak;
+extern int16_t gsn_steal;
 
-extern sh_int gsn_disarm;
-extern sh_int gsn_enhanced_damage;
-extern sh_int gsn_kick;
-extern sh_int gsn_parry;
-extern sh_int gsn_rescue;
-extern sh_int gsn_second_attack;
-extern sh_int gsn_third_attack;
+extern int16_t gsn_disarm;
+extern int16_t gsn_enhanced_damage;
+extern int16_t gsn_kick;
+extern int16_t gsn_parry;
+extern int16_t gsn_rescue;
+extern int16_t gsn_second_attack;
+extern int16_t gsn_third_attack;
 
-extern sh_int gsn_blindness;
-extern sh_int gsn_charm_person;
-extern sh_int gsn_curse;
-extern sh_int gsn_invis;
-extern sh_int gsn_mass_invis;
-extern sh_int gsn_plague;
-extern sh_int gsn_poison;
-extern sh_int gsn_sleep;
-extern sh_int gsn_fly;
-extern sh_int gsn_sanctuary;
+extern int16_t gsn_blindness;
+extern int16_t gsn_charm_person;
+extern int16_t gsn_curse;
+extern int16_t gsn_invis;
+extern int16_t gsn_mass_invis;
+extern int16_t gsn_plague;
+extern int16_t gsn_poison;
+extern int16_t gsn_sleep;
+extern int16_t gsn_fly;
+extern int16_t gsn_sanctuary;
 
 /* new gsns */
-extern sh_int gsn_axe;
-extern sh_int gsn_dagger;
-extern sh_int gsn_flail;
-extern sh_int gsn_mace;
-extern sh_int gsn_polearm;
-extern sh_int gsn_shield_block;
-extern sh_int gsn_spear;
-extern sh_int gsn_sword;
-extern sh_int gsn_whip;
+extern int16_t gsn_axe;
+extern int16_t gsn_dagger;
+extern int16_t gsn_flail;
+extern int16_t gsn_mace;
+extern int16_t gsn_polearm;
+extern int16_t gsn_shield_block;
+extern int16_t gsn_spear;
+extern int16_t gsn_sword;
+extern int16_t gsn_whip;
 
-extern sh_int gsn_bash;
-extern sh_int gsn_berserk;
-extern sh_int gsn_dirt;
-extern sh_int gsn_hand_to_hand;
-extern sh_int gsn_trip;
+extern int16_t gsn_bash;
+extern int16_t gsn_berserk;
+extern int16_t gsn_dirt;
+extern int16_t gsn_hand_to_hand;
+extern int16_t gsn_trip;
 
-extern sh_int gsn_fast_healing;
-extern sh_int gsn_haggle;
-extern sh_int gsn_lore;
-extern sh_int gsn_meditation;
+extern int16_t gsn_fast_healing;
+extern int16_t gsn_haggle;
+extern int16_t gsn_lore;
+extern int16_t gsn_meditation;
 
-extern sh_int gsn_scrolls;
-extern sh_int gsn_staves;
-extern sh_int gsn_wands;
-extern sh_int gsn_recall;
+extern int16_t gsn_scrolls;
+extern int16_t gsn_staves;
+extern int16_t gsn_wands;
+extern int16_t gsn_recall;
 
 /*
  * Utility macros.
  */
 #define IS_VALID(data)        ((data) != NULL && (data)->valid)
-#define VALIDATE(data)        ((data)->valid = TRUE)
-#define INVALIDATE(data)      ((data)->valid = FALSE)
+#define VALIDATE(data)        ((data)->valid = true)
+#define INVALIDATE(data)      ((data)->valid = false)
 #define UMIN(a, b)            ((a) < (b) ? (a) : (b))
 #define UMAX(a, b)            ((a) > (b) ? (a) : (b))
 #define URANGE(a, b, c)       ((b) < (a) ? (a) : ((b) > (c) ? (c) : (b)))
@@ -1945,79 +1909,6 @@ extern TIME_INFO_DATA time_info;
 extern WEATHER_DATA weather_info;
 
 /*
- * OS-dependent declarations.
- * These are all very standard library functions,
- *   but some systems have incomplete or non-ansi header files.
- */
-#if defined(_AIX)
-char* crypt args((const char* key, const char* salt));
-#endif
-
-#if defined(apollo)
-int atoi args((const char* string));
-void* calloc args((unsigned nelem, size_t size));
-char* crypt args((const char* key, const char* salt));
-#endif
-
-#if defined(hpux)
-char* crypt args((const char* key, const char* salt));
-#endif
-
-#if defined(linux)
-char* crypt args((const char* key, const char* salt));
-#endif
-
-#if defined(macintosh)
-#define NOCRYPT
-#if defined(unix)
-#undef unix
-#endif
-#endif
-
-#if defined(MIPS_OS)
-char* crypt args((const char* key, const char* salt));
-#endif
-
-#if defined(MSDOS)
-#define NOCRYPT
-#if defined(unix)
-#undef unix
-#endif
-#endif
-
-#if defined(NeXT)
-char* crypt args((const char* key, const char* salt));
-#endif
-
-#if defined(sequent)
-char* crypt args((const char* key, const char* salt));
-int fclose args((FILE * stream));
-int fprintf args((FILE * stream, const char* format, ...));
-int fread args((void* ptr, int size, int n, FILE* stream));
-int fseek args((FILE * stream, long offset, int ptrname));
-void perror args((const char* s));
-int ungetc args((int c, FILE* stream));
-#endif
-
-#if defined(sun)
-char* crypt args((const char* key, const char* salt));
-int fclose args((FILE * stream));
-int fprintf args((FILE * stream, const char* format, ...));
-#if defined(SYSV)
-siz_t fread args((void* ptr, size_t size, size_t n, FILE* stream));
-#elif !defined(__SVR4)
-int fread args((void* ptr, int size, int n, FILE* stream));
-#endif
-int fseek args((FILE * stream, long offset, int ptrname));
-void perror args((const char* s));
-int ungetc args((int c, FILE* stream));
-#endif
-
-#if defined(ultrix)
-char* crypt args((const char* key, const char* salt));
-#endif
-
-/*
  * The crypt(3) function is not available on some operating systems.
  * In particular, the U.S. Government prohibits its export from the
  *   United States to foreign countries.
@@ -2038,36 +1929,23 @@ char* crypt args((const char* key, const char* salt));
  *   so players can go ahead and telnet to all the other descriptors.
  * Then we close it whenever we need to open a file (e.g. a save file).
  */
-#if defined(macintosh)
-#define PLAYER_DIR "" /* Player files	*/
-#define TEMP_FILE  "romtmp"
-#define NULL_FILE  "proto.are" /* To reserve one stream */
-#endif
 
-#if defined(MSDOS)
-#define PLAYER_DIR "" /* Player files */
-#define TEMP_FILE  "romtmp"
-#define NULL_FILE  "nul" /* To reserve one stream */
-#endif
-
-#if defined(unix)
-#define PLAYER_DIR "../player/" /* Player files */
-#define GOD_DIR    "../gods/" /* list of gods */
-#define TEMP_FILE  "../player/romtmp"
-#define NULL_FILE  "/dev/null" /* To reserve one stream */
-#endif
-
-#define AREA_LIST     "area.lst" /* List of areas*/
-#define BUG_FILE      "bugs.txt" /* For 'bug' and bug()*/
-#define TYPO_FILE     "typos.txt" /* For 'typo'*/
-#define NOTE_FILE     "notes.not" /* For 'notes'*/
-#define IDEA_FILE     "ideas.not"
-#define PENALTY_FILE  "penal.not"
-#define NEWS_FILE     "news.not"
-#define CHANGES_FILE  "chang.not"
-#define SHUTDOWN_FILE "shutdown.txt" /* For 'shutdown'*/
-#define BAN_FILE      "ban.txt"
-#define MUSIC_FILE    "music.txt"
+#define PLAYER_DIR      "../player/"    // Player files
+#define GOD_DIR         "../gods/"      // list of gods
+#define TEMP_FILE       "../player/romtmp"
+#define AREA_LIST       "area.lst"      // List of areas
+#define BUG_FILE        "bugs.txt"      // For 'bug' and bug()
+#define TYPO_FILE       "typos.txt"     // For 'typo'
+#define NOTE_FILE       "notes.not"     // For 'notes'
+#define IDEA_FILE       "ideas.not"
+#define PENALTY_FILE    "penal.not"
+#define NEWS_FILE       "news.not"
+#define CHANGES_FILE    "chang.not"
+#define SHUTDOWN_FILE   "shutdown.txt"  // For 'shutdown'
+#define BAN_FILE        "ban.txt"
+#define MUSIC_FILE      "music.txt"
+ // TODO: Research how to reserve a stream in MSVC without /dev/null.
+#define NULL_FILE       "/dev/null"     // To reserve one stream
 
 /*
  * Our function prototypes.

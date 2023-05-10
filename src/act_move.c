@@ -25,23 +25,19 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#if defined(macintosh)
-#include <time.h>
-#include <types.h>
-#else
-#include <sys/time.h>
-#include <sys/types.h>
-#endif
 #include "interp.h"
 #include "merc.h"
+
 #include <stdio.h>
 #include <string.h>
+#include <sys/time.h>
+#include <sys/types.h>
 
 char* const dir_name[] = {"north", "east", "south", "west", "up", "down"};
 
-const sh_int rev_dir[] = {2, 3, 0, 1, 5, 4};
+const int16_t rev_dir[] = {2, 3, 0, 1, 5, 4};
 
-const sh_int movement_loss[SECT_MAX] = {1, 2, 2, 3, 4, 6, 4, 1, 6, 10, 6};
+const int16_t movement_loss[SECT_MAX] = {1, 2, 2, 3, 4, 6, 4, 1, 6, 10, 6};
 
 /*
  * Local functions.
@@ -120,13 +116,13 @@ void move_char(CHAR_DATA* ch, int door, bool follow)
             /*
              * Look for a boat.
              */
-            found = FALSE;
+            found = false;
 
-            if (IS_IMMORTAL(ch)) found = TRUE;
+            if (IS_IMMORTAL(ch)) found = true;
 
             for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
                 if (obj->item_type == ITEM_BOAT) {
-                    found = TRUE;
+                    found = true;
                     break;
                 }
             }
@@ -188,7 +184,7 @@ void move_char(CHAR_DATA* ch, int door, bool follow)
             }
 
             act("You follow $N.", fch, NULL, ch, TO_CHAR);
-            move_char(fch, door, TRUE);
+            move_char(fch, door, true);
         }
     }
 
@@ -197,37 +193,37 @@ void move_char(CHAR_DATA* ch, int door, bool follow)
 
 void do_north(CHAR_DATA* ch, char* argument)
 {
-    move_char(ch, DIR_NORTH, FALSE);
+    move_char(ch, DIR_NORTH, false);
     return;
 }
 
 void do_east(CHAR_DATA* ch, char* argument)
 {
-    move_char(ch, DIR_EAST, FALSE);
+    move_char(ch, DIR_EAST, false);
     return;
 }
 
 void do_south(CHAR_DATA* ch, char* argument)
 {
-    move_char(ch, DIR_SOUTH, FALSE);
+    move_char(ch, DIR_SOUTH, false);
     return;
 }
 
 void do_west(CHAR_DATA* ch, char* argument)
 {
-    move_char(ch, DIR_WEST, FALSE);
+    move_char(ch, DIR_WEST, false);
     return;
 }
 
 void do_up(CHAR_DATA* ch, char* argument)
 {
-    move_char(ch, DIR_UP, FALSE);
+    move_char(ch, DIR_UP, false);
     return;
 }
 
 void do_down(CHAR_DATA* ch, char* argument)
 {
-    move_char(ch, DIR_DOWN, FALSE);
+    move_char(ch, DIR_DOWN, false);
     return;
 }
 
@@ -457,10 +453,10 @@ bool has_key(CHAR_DATA* ch, int key)
     OBJ_DATA* obj;
 
     for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
-        if (obj->pIndexData->vnum == key) return TRUE;
+        if (obj->pIndexData->vnum == key) return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 void do_lock(CHAR_DATA* ch, char* argument)
@@ -718,7 +714,7 @@ void do_pick(CHAR_DATA* ch, char* argument)
 
     if (!IS_NPC(ch) && number_percent() > get_skill(ch, gsn_pick_lock)) {
         send_to_char("You failed.\n\r", ch);
-        check_improve(ch, gsn_pick_lock, FALSE, 2);
+        check_improve(ch, gsn_pick_lock, false, 2);
         return;
     }
 
@@ -748,7 +744,7 @@ void do_pick(CHAR_DATA* ch, char* argument)
             REMOVE_BIT(obj->value[1], EX_LOCKED);
             act("You pick the lock on $p.", ch, obj, NULL, TO_CHAR);
             act("$n picks the lock on $p.", ch, obj, NULL, TO_ROOM);
-            check_improve(ch, gsn_pick_lock, TRUE, 2);
+            check_improve(ch, gsn_pick_lock, true, 2);
             return;
         }
 
@@ -777,7 +773,7 @@ void do_pick(CHAR_DATA* ch, char* argument)
         REMOVE_BIT(obj->value[1], CONT_LOCKED);
         act("You pick the lock on $p.", ch, obj, NULL, TO_CHAR);
         act("$n picks the lock on $p.", ch, obj, NULL, TO_ROOM);
-        check_improve(ch, gsn_pick_lock, TRUE, 2);
+        check_improve(ch, gsn_pick_lock, true, 2);
         return;
     }
 
@@ -808,7 +804,7 @@ void do_pick(CHAR_DATA* ch, char* argument)
         REMOVE_BIT(pexit->exit_info, EX_LOCKED);
         send_to_char("*Click*\n\r", ch);
         act("$n picks the $d.", ch, NULL, pexit->keyword, TO_ROOM);
-        check_improve(ch, gsn_pick_lock, TRUE, 2);
+        check_improve(ch, gsn_pick_lock, true, 2);
 
         /* pick the other side */
         if ((to_room = pexit->u1.to_room) != NULL
@@ -1248,7 +1244,7 @@ void do_sneak(CHAR_DATA* ch, char* argument)
     if (IS_AFFECTED(ch, AFF_SNEAK)) return;
 
     if (number_percent() < get_skill(ch, gsn_sneak)) {
-        check_improve(ch, gsn_sneak, TRUE, 3);
+        check_improve(ch, gsn_sneak, true, 3);
         af.where = TO_AFFECTS;
         af.type = gsn_sneak;
         af.level = ch->level;
@@ -1259,7 +1255,7 @@ void do_sneak(CHAR_DATA* ch, char* argument)
         affect_to_char(ch, &af);
     }
     else
-        check_improve(ch, gsn_sneak, FALSE, 3);
+        check_improve(ch, gsn_sneak, false, 3);
 
     return;
 }
@@ -1272,10 +1268,10 @@ void do_hide(CHAR_DATA* ch, char* argument)
 
     if (number_percent() < get_skill(ch, gsn_hide)) {
         SET_BIT(ch->affected_by, AFF_HIDE);
-        check_improve(ch, gsn_hide, TRUE, 3);
+        check_improve(ch, gsn_hide, true, 3);
     }
     else
-        check_improve(ch, gsn_hide, FALSE, 3);
+        check_improve(ch, gsn_hide, false, 3);
 
     return;
 }
@@ -1327,7 +1323,7 @@ void do_recall(CHAR_DATA* ch, char* argument)
         skill = get_skill(ch, gsn_recall);
 
         if (number_percent() < 80 * skill / 100) {
-            check_improve(ch, gsn_recall, FALSE, 6);
+            check_improve(ch, gsn_recall, false, 6);
             WAIT_STATE(ch, 4);
             sprintf(buf, "You failed!.\n\r");
             send_to_char(buf, ch);
@@ -1336,10 +1332,10 @@ void do_recall(CHAR_DATA* ch, char* argument)
 
         lose = (ch->desc != NULL) ? 25 : 50;
         gain_exp(ch, 0 - lose);
-        check_improve(ch, gsn_recall, TRUE, 4);
+        check_improve(ch, gsn_recall, true, 4);
         sprintf(buf, "You recall from combat!  You lose %d exps.\n\r", lose);
         send_to_char(buf, ch);
-        stop_fighting(ch, TRUE);
+        stop_fighting(ch, true);
     }
 
     ch->move /= 2;
@@ -1358,7 +1354,7 @@ void do_train(CHAR_DATA* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     CHAR_DATA* mob;
-    sh_int stat = -1;
+    int16_t stat = -1;
     char* pOutput = NULL;
     int cost;
 

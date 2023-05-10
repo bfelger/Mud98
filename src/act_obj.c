@@ -25,18 +25,14 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#if defined(macintosh)
-#include <time.h>
-#include <types.h>
-#else
-#include <sys/time.h>
-#include <sys/types.h>
-#endif
 #include "interp.h"
 #include "merc.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
+#include <sys/types.h>
 
 /*
  * Local functions.
@@ -59,23 +55,23 @@ bool can_loot(CHAR_DATA* ch, OBJ_DATA* obj)
 {
     CHAR_DATA *owner, *wch;
 
-    if (IS_IMMORTAL(ch)) return TRUE;
+    if (IS_IMMORTAL(ch)) return true;
 
-    if (!obj->owner || obj->owner == NULL) return TRUE;
+    if (!obj->owner || obj->owner == NULL) return true;
 
     owner = NULL;
     for (wch = char_list; wch != NULL; wch = wch->next)
         if (!str_cmp(wch->name, obj->owner)) owner = wch;
 
-    if (owner == NULL) return TRUE;
+    if (owner == NULL) return true;
 
-    if (!str_cmp(ch->name, owner->name)) return TRUE;
+    if (!str_cmp(ch->name, owner->name)) return true;
 
-    if (!IS_NPC(owner) && IS_SET(owner->act, PLR_CANLOOT)) return TRUE;
+    if (!IS_NPC(owner) && IS_SET(owner->act, PLR_CANLOOT)) return true;
 
-    if (is_same_group(ch, owner)) return TRUE;
+    if (is_same_group(ch, owner)) return true;
 
-    return FALSE;
+    return false;
 }
 
 void get_obj(CHAR_DATA* ch, OBJ_DATA* obj, OBJ_DATA* container)
@@ -197,12 +193,12 @@ void do_get(CHAR_DATA* ch, char* argument)
         }
         else {
             /* 'get all' or 'get all.obj' */
-            found = FALSE;
+            found = false;
             for (obj = ch->in_room->contents; obj != NULL; obj = obj_next) {
                 obj_next = obj->next_content;
                 if ((arg1[3] == '\0' || is_name(&arg1[4], obj->name))
                     && can_see_obj(ch, obj)) {
-                    found = TRUE;
+                    found = true;
                     get_obj(ch, obj, NULL);
                 }
             }
@@ -261,12 +257,12 @@ void do_get(CHAR_DATA* ch, char* argument)
         }
         else {
             /* 'get all container' or 'get all.obj container' */
-            found = FALSE;
+            found = false;
             for (obj = container->contains; obj != NULL; obj = obj_next) {
                 obj_next = obj->next_content;
                 if ((arg1[3] == '\0' || is_name(&arg1[4], obj->name))
                     && can_see_obj(ch, obj)) {
-                    found = TRUE;
+                    found = true;
                     if (container->pIndexData->vnum == OBJ_VNUM_PIT
                         && !IS_IMMORTAL(ch)) {
                         send_to_char("Don't be so greedy!\n\r", ch);
@@ -525,14 +521,14 @@ void do_drop(CHAR_DATA* ch, char* argument)
     }
     else {
         /* 'drop all' or 'drop all.obj' */
-        found = FALSE;
+        found = false;
         for (obj = ch->carrying; obj != NULL; obj = obj_next) {
             obj_next = obj->next_content;
 
             if ((arg[3] == '\0' || is_name(&arg[4], obj->name))
                 && can_see_obj(ch, obj) && obj->wear_loc == WEAR_NONE
                 && can_drop_obj(ch, obj)) {
-                found = TRUE;
+                found = true;
                 obj_from_char(obj);
                 obj_to_room(obj, ch->in_room);
                 act("$n drops $p.", ch, obj, NULL, TO_ROOM);
@@ -740,14 +736,14 @@ void do_envenom(CHAR_DATA* ch, char* argument)
             act("You treat $p with deadly poison.", ch, obj, NULL, TO_CHAR);
             if (!obj->value[3]) {
                 obj->value[3] = 1;
-                check_improve(ch, gsn_envenom, TRUE, 4);
+                check_improve(ch, gsn_envenom, true, 4);
             }
             WAIT_STATE(ch, skill_table[gsn_envenom].beats);
             return;
         }
 
         act("You fail to poison $p.", ch, obj, NULL, TO_CHAR);
-        if (!obj->value[3]) check_improve(ch, gsn_envenom, FALSE, 4);
+        if (!obj->value[3]) check_improve(ch, gsn_envenom, false, 4);
         WAIT_STATE(ch, skill_table[gsn_envenom].beats);
         return;
     }
@@ -789,13 +785,13 @@ void do_envenom(CHAR_DATA* ch, char* argument)
 
             act("$n coats $p with deadly venom.", ch, obj, NULL, TO_ROOM);
             act("You coat $p with venom.", ch, obj, NULL, TO_CHAR);
-            check_improve(ch, gsn_envenom, TRUE, 3);
+            check_improve(ch, gsn_envenom, true, 3);
             WAIT_STATE(ch, skill_table[gsn_envenom].beats);
             return;
         }
         else {
             act("You fail to envenom $p.", ch, obj, NULL, TO_CHAR);
-            check_improve(ch, gsn_envenom, FALSE, 3);
+            check_improve(ch, gsn_envenom, false, 3);
             WAIT_STATE(ch, skill_table[gsn_envenom].beats);
             return;
         }
@@ -825,11 +821,11 @@ void do_fill(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    found = FALSE;
+    found = false;
     for (fountain = ch->in_room->contents; fountain != NULL;
          fountain = fountain->next_content) {
         if (fountain->item_type == ITEM_FOUNTAIN) {
-            found = TRUE;
+            found = true;
             break;
         }
     }
@@ -1161,19 +1157,19 @@ bool remove_obj(CHAR_DATA* ch, int iWear, bool fReplace)
 {
     OBJ_DATA* obj;
 
-    if ((obj = get_eq_char(ch, iWear)) == NULL) return TRUE;
+    if ((obj = get_eq_char(ch, iWear)) == NULL) return true;
 
-    if (!fReplace) return FALSE;
+    if (!fReplace) return false;
 
     if (IS_SET(obj->extra_flags, ITEM_NOREMOVE)) {
         act("You can't remove $p.", ch, obj, NULL, TO_CHAR);
-        return FALSE;
+        return false;
     }
 
     unequip_char(ch, obj);
     act("$n stops using $p.", ch, obj, NULL, TO_ROOM);
     act("You stop using $p.", ch, obj, NULL, TO_CHAR);
-    return TRUE;
+    return true;
 }
 
 /*
@@ -1451,7 +1447,7 @@ void do_wear(CHAR_DATA* ch, char* argument)
         for (obj = ch->carrying; obj != NULL; obj = obj_next) {
             obj_next = obj->next_content;
             if (obj->wear_loc == WEAR_NONE && can_see_obj(ch, obj))
-                wear_obj(ch, obj, FALSE);
+                wear_obj(ch, obj, false);
         }
         return;
     }
@@ -1461,7 +1457,7 @@ void do_wear(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        wear_obj(ch, obj, TRUE);
+        wear_obj(ch, obj, true);
     }
 
     return;
@@ -1484,7 +1480,7 @@ void do_remove(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    remove_obj(ch, obj->wear_loc, TRUE);
+    remove_obj(ch, obj->wear_loc, true);
     return;
 }
 
@@ -1650,14 +1646,14 @@ void do_recite(CHAR_DATA* ch, char* argument)
 
     if (number_percent() >= 20 + get_skill(ch, gsn_scrolls) * 4 / 5) {
         send_to_char("You mispronounce a syllable.\n\r", ch);
-        check_improve(ch, gsn_scrolls, FALSE, 2);
+        check_improve(ch, gsn_scrolls, false, 2);
     }
 
     else {
         obj_cast_spell(scroll->value[1], scroll->value[0], ch, victim, obj);
         obj_cast_spell(scroll->value[2], scroll->value[0], ch, victim, obj);
         obj_cast_spell(scroll->value[3], scroll->value[0], ch, victim, obj);
-        check_improve(ch, gsn_scrolls, TRUE, 2);
+        check_improve(ch, gsn_scrolls, true, 2);
     }
 
     extract_obj(scroll);
@@ -1696,7 +1692,7 @@ void do_brandish(CHAR_DATA* ch, char* argument)
             || number_percent() >= 20 + get_skill(ch, gsn_staves) * 4 / 5) {
             act("You fail to invoke $p.", ch, staff, NULL, TO_CHAR);
             act("...and nothing happens.", ch, NULL, NULL, TO_ROOM);
-            check_improve(ch, gsn_staves, FALSE, 2);
+            check_improve(ch, gsn_staves, false, 2);
         }
 
         else
@@ -1726,7 +1722,7 @@ void do_brandish(CHAR_DATA* ch, char* argument)
                 }
 
                 obj_cast_spell(staff->value[3], staff->value[0], ch, vch, NULL);
-                check_improve(ch, gsn_staves, TRUE, 2);
+                check_improve(ch, gsn_staves, true, 2);
             }
     }
 
@@ -1797,11 +1793,11 @@ void do_zap(CHAR_DATA* ch, char* argument)
                 NULL, TO_CHAR);
             act("$n's efforts with $p produce only smoke and sparks.", ch, wand,
                 NULL, TO_ROOM);
-            check_improve(ch, gsn_wands, FALSE, 2);
+            check_improve(ch, gsn_wands, false, 2);
         }
         else {
             obj_cast_spell(wand->value[3], wand->value[0], ch, victim, obj);
-            check_improve(ch, gsn_wands, TRUE, 2);
+            check_improve(ch, gsn_wands, true, 2);
         }
     }
 
@@ -1892,7 +1888,7 @@ void do_steal(CHAR_DATA* ch, char* argument)
         if (IS_AWAKE(victim)) do_function(victim, &do_yell, buf);
         if (!IS_NPC(ch)) {
             if (IS_NPC(victim)) {
-                check_improve(ch, gsn_steal, FALSE, 2);
+                check_improve(ch, gsn_steal, false, 2);
                 multi_hit(victim, ch, TYPE_UNDEFINED);
             }
             else {
@@ -1933,7 +1929,7 @@ void do_steal(CHAR_DATA* ch, char* argument)
                     silver, gold);
 
         send_to_char(buf, ch);
-        check_improve(ch, gsn_steal, TRUE, 2);
+        check_improve(ch, gsn_steal, true, 2);
         return;
     }
 
@@ -1961,7 +1957,7 @@ void do_steal(CHAR_DATA* ch, char* argument)
     obj_from_char(obj);
     obj_to_char(obj, ch);
     act("You pocket $p.", ch, obj, NULL, TO_CHAR);
-    check_improve(ch, gsn_steal, TRUE, 2);
+    check_improve(ch, gsn_steal, true, 2);
     send_to_char("Got it!\n\r", ch);
     return;
 }
@@ -2204,7 +2200,7 @@ void do_buy(CHAR_DATA* ch, char* argument)
             cost -= cost / 2 * roll / 100;
             sprintf(buf, "You haggle the price down to %d coins.\n\r", cost);
             send_to_char(buf, ch);
-            check_improve(ch, gsn_haggle, TRUE, 4);
+            check_improve(ch, gsn_haggle, true, 4);
         }
 
         deduct_cost(ch, cost);
@@ -2243,7 +2239,7 @@ void do_buy(CHAR_DATA* ch, char* argument)
 
         number = mult_argument(argument, arg);
         obj = get_obj_keeper(ch, keeper, arg);
-        cost = get_cost(keeper, obj, TRUE);
+        cost = get_cost(keeper, obj, true);
 
         if (number < 1 || number > 99) {
             act("$n tells you 'Get real!", keeper, NULL, ch, TO_VICT);
@@ -2309,7 +2305,7 @@ void do_buy(CHAR_DATA* ch, char* argument)
             && roll < get_skill(ch, gsn_haggle)) {
             cost -= obj->cost / 2 * roll / 100;
             act("You haggle with $N.", ch, NULL, keeper, TO_CHAR);
-            check_improve(ch, gsn_haggle, TRUE, 4);
+            check_improve(ch, gsn_haggle, true, 4);
         }
 
         if (number > 1) {
@@ -2367,11 +2363,11 @@ void do_list(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        found = FALSE;
+        found = false;
         for (pet = pRoomIndexNext->people; pet; pet = pet->next_in_room) {
             if (IS_SET(pet->act, ACT_PET)) {
                 if (!found) {
-                    found = TRUE;
+                    found = true;
                     send_to_char("Pets for sale:\n\r", ch);
                 }
                 sprintf(buf, "[%2d] %8d - %s\n\r", pet->level,
@@ -2392,13 +2388,13 @@ void do_list(CHAR_DATA* ch, char* argument)
         if ((keeper = find_keeper(ch)) == NULL) return;
         one_argument(argument, arg);
 
-        found = FALSE;
+        found = false;
         for (obj = keeper->carrying; obj; obj = obj->next_content) {
             if (obj->wear_loc == WEAR_NONE && can_see_obj(ch, obj)
-                && (cost = get_cost(keeper, obj, TRUE)) > 0
+                && (cost = get_cost(keeper, obj, true)) > 0
                 && (arg[0] == '\0' || is_name(arg, obj->name))) {
                 if (!found) {
-                    found = TRUE;
+                    found = true;
                     send_to_char("[Lv Price Qty] Item\n\r", ch);
                 }
 
@@ -2461,7 +2457,7 @@ void do_sell(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if ((cost = get_cost(keeper, obj, FALSE)) <= 0) {
+    if ((cost = get_cost(keeper, obj, false)) <= 0) {
         act("$n looks uninterested in $p.", keeper, obj, ch, TO_VICT);
         return;
     }
@@ -2478,9 +2474,9 @@ void do_sell(CHAR_DATA* ch, char* argument)
         && roll < get_skill(ch, gsn_haggle)) {
         send_to_char("You haggle with the shopkeeper.\n\r", ch);
         cost += obj->cost / 2 * roll / 100;
-        cost = UMIN(cost, 95 * get_cost(keeper, obj, TRUE) / 100);
+        cost = UMIN(cost, 95 * get_cost(keeper, obj, true) / 100);
         cost = UMIN(cost, (keeper->silver + 100 * keeper->gold));
-        check_improve(ch, gsn_haggle, TRUE, 4);
+        check_improve(ch, gsn_haggle, true, 4);
     }
     sprintf(buf, "You sell $p for %d silver and %d gold piece%s.",
             cost - (cost / 100) * 100, cost / 100, cost == 1 ? "" : "s");
@@ -2540,7 +2536,7 @@ void do_value(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if ((cost = get_cost(keeper, obj, FALSE)) <= 0) {
+    if ((cost = get_cost(keeper, obj, false)) <= 0) {
         act("$n looks uninterested in $p.", keeper, obj, ch, TO_VICT);
         return;
     }

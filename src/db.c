@@ -25,19 +25,6 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#if defined(macintosh)
-#include <types.h>
-#else
-#include <sys/resource.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#endif
-
 #include "db.h"
 #include "lookup.h"
 #include "merc.h"
@@ -45,18 +32,15 @@
 #include "recycle.h"
 #include "strings.h"
 
-#if !defined(macintosh)
-extern int _filbuf args((FILE*));
-#endif
-
-#if !defined(OLD_RAND)
-#if !defined(linux)
-long random();
-#endif
-void srandom(unsigned int);
-int getpid();
-time_t time(time_t* tloc);
-#endif
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/resource.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
 
 /* externals for counting purposes */
 extern OBJ_DATA* obj_free;
@@ -86,60 +70,60 @@ OBJ_DATA* object_list;
 TIME_INFO_DATA time_info;
 WEATHER_DATA weather_info;
 
-sh_int gsn_backstab;
-sh_int gsn_dodge;
-sh_int gsn_envenom;
-sh_int gsn_hide;
-sh_int gsn_peek;
-sh_int gsn_pick_lock;
-sh_int gsn_sneak;
-sh_int gsn_steal;
+int16_t gsn_backstab;
+int16_t gsn_dodge;
+int16_t gsn_envenom;
+int16_t gsn_hide;
+int16_t gsn_peek;
+int16_t gsn_pick_lock;
+int16_t gsn_sneak;
+int16_t gsn_steal;
 
-sh_int gsn_disarm;
-sh_int gsn_enhanced_damage;
-sh_int gsn_kick;
-sh_int gsn_parry;
-sh_int gsn_rescue;
-sh_int gsn_second_attack;
-sh_int gsn_third_attack;
+int16_t gsn_disarm;
+int16_t gsn_enhanced_damage;
+int16_t gsn_kick;
+int16_t gsn_parry;
+int16_t gsn_rescue;
+int16_t gsn_second_attack;
+int16_t gsn_third_attack;
 
-sh_int gsn_blindness;
-sh_int gsn_charm_person;
-sh_int gsn_curse;
-sh_int gsn_invis;
-sh_int gsn_mass_invis;
-sh_int gsn_poison;
-sh_int gsn_plague;
-sh_int gsn_sleep;
-sh_int gsn_sanctuary;
-sh_int gsn_fly;
+int16_t gsn_blindness;
+int16_t gsn_charm_person;
+int16_t gsn_curse;
+int16_t gsn_invis;
+int16_t gsn_mass_invis;
+int16_t gsn_poison;
+int16_t gsn_plague;
+int16_t gsn_sleep;
+int16_t gsn_sanctuary;
+int16_t gsn_fly;
 /* new gsns */
 
-sh_int gsn_axe;
-sh_int gsn_dagger;
-sh_int gsn_flail;
-sh_int gsn_mace;
-sh_int gsn_polearm;
-sh_int gsn_shield_block;
-sh_int gsn_spear;
-sh_int gsn_sword;
-sh_int gsn_whip;
+int16_t gsn_axe;
+int16_t gsn_dagger;
+int16_t gsn_flail;
+int16_t gsn_mace;
+int16_t gsn_polearm;
+int16_t gsn_shield_block;
+int16_t gsn_spear;
+int16_t gsn_sword;
+int16_t gsn_whip;
 
-sh_int gsn_bash;
-sh_int gsn_berserk;
-sh_int gsn_dirt;
-sh_int gsn_hand_to_hand;
-sh_int gsn_trip;
+int16_t gsn_bash;
+int16_t gsn_berserk;
+int16_t gsn_dirt;
+int16_t gsn_hand_to_hand;
+int16_t gsn_trip;
 
-sh_int gsn_fast_healing;
-sh_int gsn_haggle;
-sh_int gsn_lore;
-sh_int gsn_meditation;
+int16_t gsn_fast_healing;
+int16_t gsn_haggle;
+int16_t gsn_lore;
+int16_t gsn_meditation;
 
-sh_int gsn_scrolls;
-sh_int gsn_staves;
-sh_int gsn_wands;
-sh_int gsn_recall;
+int16_t gsn_scrolls;
+int16_t gsn_staves;
+int16_t gsn_wands;
+int16_t gsn_recall;
 
 /*
  * Locals.
@@ -231,7 +215,7 @@ void boot_db(void)
             exit(1);
         }
         top_string = string_space;
-        fBootDb = TRUE;
+        fBootDb = true;
     }
 
     /*
@@ -371,7 +355,7 @@ void boot_db(void)
      */
     {
         fix_exits();
-        fBootDb = FALSE;
+        fBootDb = false;
         area_update();
         load_notes();
         load_bans();
@@ -398,7 +382,7 @@ void load_area(FILE* fp)
     pArea->max_vnum = fread_number(fp);
     pArea->age = 15;
     pArea->nplayer = 0;
-    pArea->empty = FALSE;
+    pArea->empty = false;
 
     if (area_first == NULL) area_first = pArea;
     if (area_last != NULL) area_last->next = pArea;
@@ -447,7 +431,7 @@ void load_old_mob(FILE* fp)
     char name[MAX_STRING_LENGTH];
 
     for (;;) {
-        sh_int vnum;
+        int16_t vnum;
         char letter;
         int iHash;
 
@@ -460,16 +444,16 @@ void load_old_mob(FILE* fp)
         vnum = fread_number(fp);
         if (vnum == 0) break;
 
-        fBootDb = FALSE;
+        fBootDb = false;
         if (get_mob_index(vnum) != NULL) {
             bug("Load_mobiles: vnum %d duplicated.", vnum);
             exit(1);
         }
-        fBootDb = TRUE;
+        fBootDb = true;
 
         pMobIndex = alloc_perm(sizeof(*pMobIndex));
         pMobIndex->vnum = vnum;
-        pMobIndex->new_format = FALSE;
+        pMobIndex->new_format = false;
         pMobIndex->player_name = fread_string(fp);
         pMobIndex->short_descr = fread_string(fp);
         pMobIndex->long_descr = fread_string(fp);
@@ -566,7 +550,7 @@ void load_old_obj(FILE* fp)
     OBJ_INDEX_DATA* pObjIndex;
 
     for (;;) {
-        sh_int vnum;
+        int16_t vnum;
         char letter;
         int iHash;
 
@@ -579,16 +563,16 @@ void load_old_obj(FILE* fp)
         vnum = fread_number(fp);
         if (vnum == 0) break;
 
-        fBootDb = FALSE;
+        fBootDb = false;
         if (get_obj_index(vnum) != NULL) {
             bug("Load_objects: vnum %d duplicated.", vnum);
             exit(1);
         }
-        fBootDb = TRUE;
+        fBootDb = true;
 
         pObjIndex = alloc_perm(sizeof(*pObjIndex));
         pObjIndex->vnum = vnum;
-        pObjIndex->new_format = FALSE;
+        pObjIndex->new_format = false;
         pObjIndex->reset_num = 0;
         pObjIndex->name = fread_string(fp);
         pObjIndex->short_descr = fread_string(fp);
@@ -811,7 +795,7 @@ void load_rooms(FILE* fp)
     }
 
     for (;;) {
-        sh_int vnum;
+        int16_t vnum;
         char letter;
         int door;
         int iHash;
@@ -825,12 +809,12 @@ void load_rooms(FILE* fp)
         vnum = fread_number(fp);
         if (vnum == 0) break;
 
-        fBootDb = FALSE;
+        fBootDb = false;
         if (get_room_index(vnum) != NULL) {
             bug("Load_rooms: vnum %d duplicated.", vnum);
             exit(1);
         }
-        fBootDb = TRUE;
+        fBootDb = true;
 
         pRoomIndex = alloc_perm(sizeof(*pRoomIndex));
         pRoomIndex->owner = str_dup("");
@@ -1022,7 +1006,7 @@ void load_specials(FILE* fp)
  */
 void fix_exits(void)
 {
-    extern const sh_int rev_dir[];
+    extern const int16_t rev_dir[];
     char buf[MAX_STRING_LENGTH];
     ROOM_INDEX_DATA* pRoomIndex;
     ROOM_INDEX_DATA* to_room;
@@ -1036,14 +1020,14 @@ void fix_exits(void)
              pRoomIndex = pRoomIndex->next) {
             bool fexit;
 
-            fexit = FALSE;
+            fexit = false;
             for (door = 0; door <= 5; door++) {
                 if ((pexit = pRoomIndex->exit[door]) != NULL) {
                     if (pexit->u1.vnum <= 0
                         || get_room_index(pexit->u1.vnum) == NULL)
                         pexit->u1.to_room = NULL;
                     else {
-                        fexit = TRUE;
+                        fexit = true;
                         pexit->u1.to_room = get_room_index(pexit->u1.vnum);
                     }
                 }
@@ -1104,7 +1088,7 @@ void area_update(void)
             if (pRoomIndex != NULL && pArea == pRoomIndex->area)
                 pArea->age = 15 - 2;
             else if (pArea->nplayer == 0)
-                pArea->empty = TRUE;
+                pArea->empty = true;
         }
     }
 
@@ -1122,7 +1106,7 @@ void reset_area(AREA_DATA* pArea)
     int level;
 
     mob = NULL;
-    last = TRUE;
+    last = true;
     level = 0;
     for (pReset = pArea->reset_first; pReset != NULL; pReset = pReset->next) {
         ROOM_INDEX_DATA* pRoomIndex;
@@ -1151,7 +1135,7 @@ void reset_area(AREA_DATA* pArea)
             }
 
             if (pMobIndex->count >= pReset->arg2) {
-                last = FALSE;
+                last = false;
                 break;
             }
 
@@ -1160,7 +1144,7 @@ void reset_area(AREA_DATA* pArea)
                 if (mob->pIndexData == pMobIndex) {
                     count++;
                     if (count >= pReset->arg4) {
-                        last = FALSE;
+                        last = false;
                         break;
                     }
                 }
@@ -1185,7 +1169,7 @@ void reset_area(AREA_DATA* pArea)
 
             char_to_room(mob, pRoomIndex);
             level = URANGE(0, mob->level - 2, LEVEL_HERO - 1);
-            last = TRUE;
+            last = true;
             break;
 
         case 'O':
@@ -1201,7 +1185,7 @@ void reset_area(AREA_DATA* pArea)
 
             if (pArea->nplayer > 0
                 || count_obj_list(pObjIndex, pRoomIndex->contents) > 0) {
-                last = FALSE;
+                last = false;
                 break;
             }
 
@@ -1209,7 +1193,7 @@ void reset_area(AREA_DATA* pArea)
                                 UMIN(number_fuzzy(level), LEVEL_HERO - 1));
             obj->cost = 0;
             obj_to_room(obj, pRoomIndex);
-            last = TRUE;
+            last = true;
             break;
 
         case 'P':
@@ -1236,7 +1220,7 @@ void reset_area(AREA_DATA* pArea)
                 || (pObjIndex->count >= limit && number_range(0, 4) != 0)
                 || (count = count_obj_list(pObjIndex, obj_to->contains))
                        > pReset->arg4) {
-                last = FALSE;
+                last = false;
                 break;
             }
 
@@ -1248,7 +1232,7 @@ void reset_area(AREA_DATA* pArea)
             }
             /* fix object lock state! */
             obj_to->value[1] = obj_to->pIndexData->value[1];
-            last = TRUE;
+            last = true;
             break;
 
         case 'G':
@@ -1263,7 +1247,7 @@ void reset_area(AREA_DATA* pArea)
             if (mob == NULL) {
                 bug("Reset_area: 'E' or 'G': null mob for vnum %d.",
                     pReset->arg1);
-                last = FALSE;
+                last = false;
                 break;
             }
 
@@ -1335,7 +1319,7 @@ void reset_area(AREA_DATA* pArea)
             }
             obj_to_char(obj, mob);
             if (pReset->command == 'E') equip_char(mob, obj, pReset->arg3);
-            last = TRUE;
+            last = true;
             break;
 
         case 'D':
@@ -1363,7 +1347,7 @@ void reset_area(AREA_DATA* pArea)
                 break;
             }
 
-            last = TRUE;
+            last = true;
             break;
 
         case 'R':
@@ -1702,7 +1686,7 @@ OBJ_DATA* create_object(OBJ_INDEX_DATA* pObjIndex, int level)
 
     obj->pIndexData = pObjIndex;
     obj->in_room = NULL;
-    obj->enchanted = FALSE;
+    obj->enchanted = false;
 
     if (pObjIndex->new_format)
         obj->level = pObjIndex->level;
@@ -1998,10 +1982,10 @@ int fread_number(FILE* fp)
 
     number = 0;
 
-    sign = FALSE;
+    sign = false;
     if (c == '+') { c = getc(fp); }
     else if (c == '-') {
-        sign = TRUE;
+        sign = true;
         c = getc(fp);
     }
 
@@ -2029,7 +2013,7 @@ long fread_flag(FILE* fp)
 {
     int number;
     char c;
-    bool negative = FALSE;
+    bool negative = false;
 
     do {
         c = getc(fp);
@@ -2037,7 +2021,7 @@ long fread_flag(FILE* fp)
     while (ISSPACE(c));
 
     if (c == '-') {
-        negative = TRUE;
+        negative = true;
         c = getc(fp);
     }
 
@@ -2192,10 +2176,10 @@ char* fread_string_eol(FILE* fp)
     char* plast;
     char c;
 
-    if (char_special[EOF - EOF] != TRUE) {
-        char_special[EOF - EOF] = TRUE;
-        char_special['\n' - EOF] = TRUE;
-        char_special['\r' - EOF] = TRUE;
+    if (char_special[EOF - EOF] != true) {
+        char_special[EOF - EOF] = true;
+        char_special['\n' - EOF] = true;
+        char_special['\r' - EOF] = true;
     }
 
     plast = top_string + sizeof(char*);
@@ -2729,65 +2713,15 @@ int number_bits(int width)
     return number_mm() & ((1 << width) - 1);
 }
 
-/*
- * I've gotten too many bad reports on OS-supplied random number generators.
- * This is the Mitchell-Moore algorithm from Knuth Volume II.
- * Best to leave the constants alone unless you've read Knuth.
- * -- Furey
- */
-
-/* I noticed streaking with this random number generator, so I switched
-   back to the system srandom call.  If this doesn't work for you,
-   define OLD_RAND to use the old system -- Alander */
-
-#if defined(OLD_RAND)
-static int rgiState[2 + 55];
-#endif
-
 void init_mm()
 {
-#if defined(OLD_RAND)
-    int* piState;
-    int iState;
-
-    piState = &rgiState[2];
-
-    piState[-2] = 55 - 55;
-    piState[-1] = 55 - 24;
-
-    piState[0] = ((int)current_time) & ((1 << 30) - 1);
-    piState[1] = 1;
-    for (iState = 2; iState < 55; iState++) {
-        piState[iState]
-            = (piState[iState - 1] + piState[iState - 2]) & ((1 << 30) - 1);
-    }
-#else
     srandom(time(NULL) ^ getpid());
-#endif
     return;
 }
 
 long number_mm(void)
 {
-#if defined(OLD_RAND)
-    int* piState;
-    int iState1;
-    int iState2;
-    int iRand;
-
-    piState = &rgiState[2];
-    iState1 = piState[-2];
-    iState2 = piState[-1];
-    iRand = (piState[iState1] + piState[iState2]) & ((1 << 30) - 1);
-    piState[iState1] = iRand;
-    if (++iState1 == 55) iState1 = 0;
-    if (++iState2 == 55) iState2 = 0;
-    piState[-2] = iState1;
-    piState[-1] = iState2;
-    return iRand >> 6;
-#else
     return random() >> 6;
-#endif
 }
 
 /*
@@ -2834,55 +2768,55 @@ void smash_tilde(char* str)
 
 /*
  * Compare strings, case insensitive.
- * Return TRUE if different
+ * Return true if different
  *   (compatibility with historical functions).
  */
 bool str_cmp(const char* astr, const char* bstr)
 {
     if (astr == NULL) {
         bug("Str_cmp: null astr.", 0);
-        return TRUE;
+        return true;
     }
 
     if (bstr == NULL) {
         bug("Str_cmp: null bstr.", 0);
-        return TRUE;
+        return true;
     }
 
     for (; *astr || *bstr; astr++, bstr++) {
-        if (LOWER(*astr) != LOWER(*bstr)) return TRUE;
+        if (LOWER(*astr) != LOWER(*bstr)) return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 /*
  * Compare strings, case insensitive, for prefix matching.
- * Return TRUE if astr not a prefix of bstr
+ * Return true if astr not a prefix of bstr
  *   (compatibility with historical functions).
  */
 bool str_prefix(const char* astr, const char* bstr)
 {
     if (astr == NULL) {
         bug("Strn_cmp: null astr.", 0);
-        return TRUE;
+        return true;
     }
 
     if (bstr == NULL) {
         bug("Strn_cmp: null bstr.", 0);
-        return TRUE;
+        return true;
     }
 
     for (; *astr; astr++, bstr++) {
-        if (LOWER(*astr) != LOWER(*bstr)) return TRUE;
+        if (LOWER(*astr) != LOWER(*bstr)) return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 /*
  * Compare strings, case insensitive, for match anywhere.
- * Returns TRUE is astr not part of bstr.
+ * Returns true is astr not part of bstr.
  *   (compatibility with historical functions).
  */
 bool str_infix(const char* astr, const char* bstr)
@@ -2892,22 +2826,22 @@ bool str_infix(const char* astr, const char* bstr)
     int ichar;
     char c0;
 
-    if ((c0 = LOWER(astr[0])) == '\0') return FALSE;
+    if ((c0 = LOWER(astr[0])) == '\0') return false;
 
     sstr1 = strlen(astr);
     sstr2 = strlen(bstr);
 
     for (ichar = 0; ichar <= sstr2 - sstr1; ichar++) {
         if (c0 == LOWER(bstr[ichar]) && !str_prefix(astr, bstr + ichar))
-            return FALSE;
+            return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 /*
  * Compare strings, case insensitive, for suffix matching.
- * Return TRUE if astr not a suffix of bstr
+ * Return true if astr not a suffix of bstr
  *   (compatibility with historical functions).
  */
 bool str_suffix(const char* astr, const char* bstr)
@@ -2918,9 +2852,9 @@ bool str_suffix(const char* astr, const char* bstr)
     sstr1 = strlen(astr);
     sstr2 = strlen(bstr);
     if (sstr1 <= sstr2 && !str_cmp(astr, bstr + sstr2 - sstr1))
-        return FALSE;
+        return false;
     else
-        return TRUE;
+        return true;
 }
 
 /*
