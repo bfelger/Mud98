@@ -29,7 +29,9 @@
 #include "merc.h"
 #include "recycle.h"
 #include "tables.h"
+
 #include <ctype.h>
+#include <errno.h>
 #include <malloc.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -499,7 +501,7 @@ void fwrite_obj(CHAR_DATA* ch, OBJ_DATA* obj, FILE* fp, int iNest)
 bool load_char_obj(DESCRIPTOR_DATA* d, char* name)
 {
     char strsave[MAX_INPUT_LENGTH];
-    char buf[MAX_INPUT_LENGTH+12]; // To handle gzip cmd + strsave + \0
+    char buf[MAX_INPUT_LENGTH+50]; // To handle strsave + format
     CHAR_DATA* ch;
     FILE* fp;
     bool found;
@@ -640,7 +642,10 @@ bool load_char_obj(DESCRIPTOR_DATA* d, char* name)
     if ((fp = fopen(strsave, "r")) != NULL) {
         fclose(fp);
         sprintf(buf, "gzip -dfq %s", strsave);
-        system(buf);
+        if (!system(buf)) {
+            sprintf(buf, "ERROR: Failed to zip %s (Error Code: %d).", strsave, errno);
+            log_string(buf);
+        }
     }
 
     sprintf(strsave, "%s%s", PLAYER_DIR, capitalize(name));

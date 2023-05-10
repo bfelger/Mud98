@@ -34,9 +34,6 @@
 #include <stdio.h>
 #include <time.h>
 
-/*
- * Accommodate old non-Ansi compilers.
- */
 #define args( list )             list
 #define DECLARE_DO_FUN( fun )    DO_FUN fun
 #define DECLARE_SPEC_FUN( fun )  SPEC_FUN fun
