@@ -53,7 +53,9 @@
 #include "interp.h"
 #include "merc.h"
 #include "recycle.h"
+#include "strings.h"
 #include "tables.h"
+
 #include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
@@ -61,6 +63,10 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+
+#ifdef __CYGWIN__
+#include <crypt.h>
+#endif
 
 /*
  * Malloc debugging stuff.
@@ -995,7 +1001,7 @@ void read_from_buffer(DESCRIPTOR_DATA* d)
 
         if (d->inbuf[i] == '\b' && k > 0)
             --k;
-        else if (isascii(d->inbuf[i]) && isprint(d->inbuf[i]))
+        else if (isascii(d->inbuf[i]) && ISPRINT(d->inbuf[i]))
             d->incomm[k++] = d->inbuf[i];
     }
 
@@ -1396,7 +1402,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
     int iClass, race, i, weapon;
     bool fOld;
 
-    while (isspace(*argument)) argument++;
+    while (ISSPACE(*argument)) argument++;
 
     ch = d->character;
 
@@ -1995,9 +2001,9 @@ bool check_parse_name(char* name)
 
         fIll = TRUE;
         for (pc = name; *pc != '\0'; pc++) {
-            if (!isalpha(*pc)) return FALSE;
+            if (!ISALPHA(*pc)) return FALSE;
 
-            if (isupper(*pc)) /* ugly anti-caps hack */
+            if (ISUPPER(*pc)) /* ugly anti-caps hack */
             {
                 if (adjcaps) cleancaps = TRUE;
                 total_caps++;
@@ -2268,7 +2274,7 @@ void show_string(struct descriptor_data* d, char* input)
         else if (!*scan || (show_lines > 0 && lines >= show_lines)) {
             *scan = '\0';
             write_to_buffer(d, buffer, strlen(buffer));
-            for (chk = d->showstr_point; isspace(*chk); chk++)
+            for (chk = d->showstr_point; ISSPACE(*chk); chk++)
                 ;
             {
                 if (!*chk) {

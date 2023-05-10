@@ -32,6 +32,8 @@
 #endif
 #include "interp.h"
 #include "merc.h"
+#include "strings.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -369,7 +371,7 @@ void interpret(CHAR_DATA* ch, char* argument)
     /*
      * Strip leading spaces.
      */
-    while (isspace(*argument)) argument++;
+    while (ISSPACE(*argument)) argument++;
     if (argument[0] == '\0') return;
 
     /*
@@ -391,11 +393,11 @@ void interpret(CHAR_DATA* ch, char* argument)
      *   also no spaces needed after punctuation.
      */
     strcpy(logline, argument);
-    if (!isalpha(argument[0]) && !isdigit(argument[0])) {
+    if (!ISALPHA(argument[0]) && !ISDIGIT(argument[0])) {
         command[0] = argument[0];
         command[1] = '\0';
         argument++;
-        while (isspace(*argument)) argument++;
+        while (ISSPACE(*argument)) argument++;
     }
     else {
         argument = one_argument(argument, command);
@@ -611,7 +613,7 @@ bool is_number(char* arg)
     if (*arg == '+' || *arg == '-') arg++;
 
     for (; *arg != '\0'; arg++) {
-        if (!isdigit(*arg)) return FALSE;
+        if (!ISDIGIT(*arg)) return FALSE;
     }
 
     return TRUE;
@@ -669,7 +671,7 @@ char* one_argument(char* argument, char* arg_first)
 {
     char cEnd;
 
-    while (isspace(*argument)) argument++;
+    while (ISSPACE(*argument)) argument++;
 
     cEnd = ' ';
     if (*argument == '\'' || *argument == '"') cEnd = *argument++;
@@ -685,7 +687,7 @@ char* one_argument(char* argument, char* arg_first)
     }
     *arg_first = '\0';
 
-    while (isspace(*argument)) argument++;
+    while (ISSPACE(*argument)) argument++;
 
     return argument;
 }

@@ -43,6 +43,7 @@
 #include "merc.h"
 #include "music.h"
 #include "recycle.h"
+#include "strings.h"
 
 #if !defined(macintosh)
 extern int _filbuf args((FILE*));
@@ -1976,7 +1977,7 @@ char fread_letter(FILE* fp)
     do {
         c = getc(fp);
     }
-    while (isspace(c));
+    while (ISSPACE(c));
 
     return c;
 }
@@ -1993,7 +1994,7 @@ int fread_number(FILE* fp)
     do {
         c = getc(fp);
     }
-    while (isspace(c));
+    while (ISSPACE(c));
 
     number = 0;
 
@@ -2004,12 +2005,12 @@ int fread_number(FILE* fp)
         c = getc(fp);
     }
 
-    if (!isdigit(c)) {
+    if (!ISDIGIT(c)) {
         bug("Fread_number: bad format.", 0);
         exit(1);
     }
 
-    while (isdigit(c)) {
+    while (ISDIGIT(c)) {
         number = number * 10 + c - '0';
         c = getc(fp);
     }
@@ -2033,7 +2034,7 @@ long fread_flag(FILE* fp)
     do {
         c = getc(fp);
     }
-    while (isspace(c));
+    while (ISSPACE(c));
 
     if (c == '-') {
         negative = TRUE;
@@ -2042,14 +2043,14 @@ long fread_flag(FILE* fp)
 
     number = 0;
 
-    if (!isdigit(c)) {
+    if (!ISDIGIT(c)) {
         while (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
             number += flag_convert(c);
             c = getc(fp);
         }
     }
 
-    while (isdigit(c)) {
+    while (ISDIGIT(c)) {
         number = number * 10 + c - '0';
         c = getc(fp);
     }
@@ -2108,7 +2109,7 @@ char* fread_string(FILE* fp)
     do {
         c = getc(fp);
     }
-    while (isspace(c));
+    while (ISSPACE(c));
 
     if ((*plast++ = c) == '~') return &str_empty[0];
 
@@ -2210,7 +2211,7 @@ char* fread_string_eol(FILE* fp)
     do {
         c = getc(fp);
     }
-    while (isspace(c));
+    while (ISSPACE(c));
 
     if ((*plast++ = c) == '\n') return &str_empty[0];
 
@@ -2302,7 +2303,7 @@ char* fread_word(FILE* fp)
     do {
         cEnd = getc(fp);
     }
-    while (isspace(cEnd));
+    while (ISSPACE(cEnd));
 
     if (cEnd == '\'' || cEnd == '"') { pword = word; }
     else {
@@ -2313,7 +2314,7 @@ char* fread_word(FILE* fp)
 
     for (; pword < word + MAX_INPUT_LENGTH; pword++) {
         *pword = getc(fp);
-        if (cEnd == ' ' ? isspace(*pword) : *pword == cEnd) {
+        if (cEnd == ' ' ? ISSPACE(*pword) : *pword == cEnd) {
             if (cEnd == ' ') ungetc(*pword, fp);
             *pword = '\0';
             return word;
