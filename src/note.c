@@ -33,7 +33,9 @@
 #endif
 #include "merc.h"
 #include "recycle.h"
+#include "strings.h"
 #include "tables.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -211,7 +213,7 @@ void load_thread(char* name, NOTE_DATA** list, int type, time_t free_time)
                 return;
             }
         }
-        while (isspace(letter));
+        while (ISSPACE(letter));
         ungetc(letter, fp);
 
         pnote = alloc_perm(sizeof(*pnote));

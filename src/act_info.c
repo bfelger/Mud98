@@ -36,13 +36,19 @@
 #include "magic.h"
 #include "merc.h"
 #include "recycle.h"
+#include "strings.h"
 #include "tables.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-//#include <unistd.h>
+#include <unistd.h>
+
+#ifdef __CYGWIN__
+#include <crypt.h>
+#endif
 
 char* const where_name[] = {
     "<used as light>     ", "<worn on finger>    ", "<worn on finger>    ",
@@ -2210,7 +2216,7 @@ void do_description(CHAR_DATA* ch, char* argument)
                 strcat(buf, ch->description);
             }
             argument++;
-            while (isspace(*argument))
+            while (ISSPACE(*argument))
                 argument++;
         }
 
@@ -2391,7 +2397,7 @@ void do_password(CHAR_DATA* ch, char* argument)
      * So we just steal all its code.  Bleagh.
      */
     pArg = arg1;
-    while (isspace(*argument))
+    while (ISSPACE(*argument))
         argument++;
 
     cEnd = ' ';
@@ -2408,7 +2414,7 @@ void do_password(CHAR_DATA* ch, char* argument)
     *pArg = '\0';
 
     pArg = arg2;
-    while (isspace(*argument))
+    while (ISSPACE(*argument))
         argument++;
 
     cEnd = ' ';
