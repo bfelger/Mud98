@@ -37,7 +37,7 @@
 
 extern char* target_name;
 
-void spell_farsight(int sn, int level, CHAR_DATA* ch, void* vo, int target)
+void spell_farsight(int /*unused*/, int /*unused*/, CHAR_DATA* ch, void* /*unused*/, int /*unused*/)
 {
     if (IS_AFFECTED(ch, AFF_BLIND)) {
         send_to_char("Maybe it would help if you could see?\n\r", ch);
@@ -47,7 +47,7 @@ void spell_farsight(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     do_function(ch, &do_scan, target_name);
 }
 
-void spell_portal(int sn, int level, CHAR_DATA* ch, void* vo, int target)
+void spell_portal(int /*unused*/, int level, CHAR_DATA* ch, void* /*unused*/, int /*unused*/)
 {
     CHAR_DATA* victim;
     OBJ_DATA *portal, *stone;

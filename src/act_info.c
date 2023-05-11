@@ -43,7 +43,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#ifdef __CYGWIN__
+#ifndef _XOPEN_CRYPT
 #include <crypt.h>
 #endif
 

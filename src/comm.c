@@ -70,7 +70,7 @@ const char echo_off_str[] = { IAC, WILL, TELOPT_ECHO, '\0' };
 const char echo_on_str[] = { IAC, WONT, TELOPT_ECHO, '\0' };
 const char go_ahead_str[] = { IAC, GA, '\0' };
 
-#ifdef __CYGWIN__
+#ifndef _XOPEN_CRYPT
 #include <crypt.h>
 #endif
 
@@ -621,7 +621,7 @@ void read_from_buffer(DESCRIPTOR_DATA* d)
 
         if (d->inbuf[i] == '\b' && k > 0)
             --k;
-        else if (isascii(d->inbuf[i]) && ISPRINT(d->inbuf[i]))
+        else if (ISASCII(d->inbuf[i]) && ISPRINT(d->inbuf[i]))
             d->incomm[k++] = d->inbuf[i];
     }
 
