@@ -3,4 +3,5 @@
 .vs*
 *.o
 player/*
-src/rom
+src/rom*
+src/.build

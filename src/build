@@ -1,0 +1,27 @@
+#!/bin/bash
+
+clean_opt=""
+build_cfg="--config Debug"
+
+for ARG in "$@" 
+do
+    if [[ ${ARG,,} == "clean" ]]
+    then
+        clean_opt="--clean-first"
+    elif [[ ${ARG,,} == "release" ]] || [[ ${ARG,,} == "rel" ]]
+    then
+        build_cfg="--config Release"
+    elif [[ ${ARG,,} == "debug" ]] || [[ ${ARG,,} == "deb" ]]
+    then
+        build_cfg="--config Debug"
+    elif [[ ${ARG,,} == "relwithdebinfo" ]] || [[ ${ARG,,} == "relwithdeb" ]] || [[ ${ARG,,} == "reldeb" ]]
+    then
+        build_cfg="--config RelWithDebInfo"
+    else
+        echo "Unknown argument '${ARG,,}'."
+        exit
+    fi
+
+done
+
+cmake --build .build $clean_opt $build_cfg

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+compiler=""
+
+for arg in "$@" 
+do
+    if [[ ${arg,,} == "gcc" ]]
+    then
+        compiler="-DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc"
+    elif [[ ${arg,,} == "clang" ]]
+    then
+        compiler="-DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang"
+    else
+        echo "Unknown argument '${arg,,}'."
+        exit
+    fi
+
+done
+
+mkdir -p .build
+rm .build/* -rf
+cmake -G "Ninja Multi-Config" -B .build . $compiler
