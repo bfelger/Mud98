@@ -20,8 +20,6 @@ add_executable(rom act_comm.c act_enter.c act_info.c act_move.c act_obj.c
     pcg_basic.c recycle.c save.c scan.c skills.c special.c tables.c 
     update.c)
 
-message(STATUS "MSVC: ${MSVC}")
-
 if (NOT MSVC)
     target_link_libraries(rom crypt)
 endif()
