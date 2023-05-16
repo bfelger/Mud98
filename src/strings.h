@@ -14,7 +14,7 @@
 // special telnet characters. These macros keep 'ctype.h' functions copacetic
 // with char* strings under -Wall.
 
-#ifdef __CYGWIN__
+#if defined(__CYGWIN__) || defined(_MSC_VER)
     #define ISALPHA(c) isalpha((unsigned char)c)
     #define ISDIGIT(c) isdigit((unsigned char)c)
     #define ISPRINT(c) isprint((unsigned char)c)
@@ -30,6 +30,6 @@
 
 // isascii() is marked OB by POSIX, but we still need to test for telnet-
 // friendly characters.
-#define ISASCII(c) ((unsigned char)(c) & ~0x7F)
+#define ISASCII(c) (c >= 0 && c <= 127)
 
 #endif // !ROM__STRINGS_H

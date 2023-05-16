@@ -29,6 +29,7 @@
 #include "lookup.h"
 #include "merc.h"
 #include "music.h"
+#include "pcg_basic.h"
 #include "recycle.h"
 #include "strings.h"
 
@@ -36,11 +37,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/resource.h>
-#include <sys/time.h>
 #include <sys/types.h>
 #include <time.h>
+
+#ifndef _MSC_VER 
+#include <sys/resource.h>
+#include <sys/time.h>
 #include <unistd.h>
+#endif
 
 /* externals for counting purposes */
 extern OBJ_DATA* obj_free;
@@ -2316,11 +2320,11 @@ char* fread_word(FILE* fp)
  */
 void* alloc_mem(int sMem)
 {
-    void* pMem;
+    uintptr_t mem_addr;
     int* magic;
     int iList;
 
-    sMem += sizeof(*magic);
+    sMem += sizeof(*magic); 
 
     for (iList = 0; iList < MAX_MEM_LIST; iList++) {
         if (sMem <= rgSizeList[iList]) break;
@@ -2331,17 +2335,19 @@ void* alloc_mem(int sMem)
         exit(1);
     }
 
-    if (rgFreeList[iList] == NULL) { pMem = alloc_perm(rgSizeList[iList]); }
+    if (rgFreeList[iList] == NULL) { 
+        mem_addr = (uintptr_t)alloc_perm(rgSizeList[iList]); 
+    }
     else {
-        pMem = rgFreeList[iList];
+        mem_addr = (uintptr_t)rgFreeList[iList];
         rgFreeList[iList] = *((void**)rgFreeList[iList]);
     }
 
-    magic = (int*)pMem;
+    magic = (int*)mem_addr;
     *magic = MAGIC_NUM;
-    pMem += sizeof(*magic);
+    mem_addr += sizeof(*magic);
 
-    return pMem;
+    return (void*)mem_addr;
 }
 
 /*
@@ -2352,13 +2358,14 @@ void free_mem(void* pMem, int sMem)
 {
     int iList;
     int* magic;
+    uintptr_t mem_addr = (uintptr_t)pMem;
 
-    pMem -= sizeof(*magic);
-    magic = (int*)pMem;
+    mem_addr -= sizeof(*magic); 
+    magic = (int*)mem_addr;
 
     if (*magic != MAGIC_NUM) {
         bug("Attempt to recyle invalid memory of size %d.", sMem);
-        bug((char*)pMem + sizeof(*magic), 0);
+        bug((char*)mem_addr + sizeof(*magic), 0);
         return;
     }
 
@@ -2374,12 +2381,12 @@ void free_mem(void* pMem, int sMem)
         exit(1);
     }
 
+    pMem = (void*)mem_addr;
     *((void**)pMem) = rgFreeList[iList];
     rgFreeList[iList] = pMem;
 
     return;
 }
-
 /*
  * Allocate some permanent memory.
  * Permanent memory is never freed,
@@ -2715,13 +2722,15 @@ int number_bits(int width)
 
 void init_mm()
 {
-    srandom(time(NULL) ^ getpid());
-    return;
+    int rounds = 5;
+
+    // Seed with external entropy -- the time and some program addresses
+    pcg32_srandom(time(NULL) ^ (intptr_t)&printf, (intptr_t)&rounds);
 }
 
 long number_mm(void)
 {
-    return random() >> 6;
+    return pcg32_random();
 }
 
 /*

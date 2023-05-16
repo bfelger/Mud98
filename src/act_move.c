@@ -30,8 +30,11 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <sys/time.h>
 #include <sys/types.h>
+
+#ifndef _MSC_VER 
+#include <sys/time.h>
+#endif
 
 char* const dir_name[] = {"north", "east", "south", "west", "up", "down"};
 

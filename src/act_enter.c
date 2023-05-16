@@ -31,8 +31,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
 #include <sys/types.h>
+
+#ifndef _MSC_VER 
+#include <sys/time.h>
+#endif
 
 /* random room generation procedure */
 ROOM_INDEX_DATA* get_random_room(CHAR_DATA* ch)

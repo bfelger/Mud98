@@ -33,8 +33,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
 #include <sys/types.h>
+
+#ifndef _MSC_VER 
+#include <sys/time.h>
+#endif
 
 /* used to get new skills */
 void do_gain(CHAR_DATA* ch, char* argument)

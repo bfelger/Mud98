@@ -86,7 +86,7 @@ void substitute_alias(DESCRIPTOR_DATA* d, char* argument)
     interpret(d->character, buf);
 }
 
-void do_alia(CHAR_DATA* ch, char*)
+void do_alia(CHAR_DATA* ch, char* argument)
 {
     send_to_char("I'm sorry, alias must be entered in full.\n\r", ch);
     return;

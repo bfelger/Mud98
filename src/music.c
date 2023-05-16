@@ -31,9 +31,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
 #include <sys/types.h>
 #include <time.h>
+
+#ifndef _MSC_VER 
+#include <sys/time.h>
+#endif
 
 int channel_songs[MAX_GLOBAL + 1];
 struct song_data song_table[MAX_SONGS];

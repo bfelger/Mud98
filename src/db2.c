@@ -34,8 +34,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <sys/time.h>
 #include <sys/types.h>
+
+#ifndef _MSC_VER
+#include <sys/time.h>
+#endif
 
 /* values for db2.c */
 struct social_type social_table[MAX_SOCIALS];
