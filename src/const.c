@@ -156,98 +156,98 @@ const struct race_type race_table[] = {
     */
     {"unique", false, 0, 0, 0, 0, 0, 0, 0, 0},
 
-    {"human", true, 0, 0, 0, 0, 0, 0, A | H | M | V,
-     A | B | C | D | E | F | G | H | I | J | K},
+    {"human", true, 0, 0, 0, 0, 0, 0, BIT(0) | BIT(7) | BIT(12) | BIT(21),
+     BIT(0) | BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(6) | BIT(7) | BIT(8) | BIT(9) | BIT(10)},
 
-    {"elf", true, 0, AFF_INFRARED, 0, 0, RES_CHARM, VULN_IRON, A | H | M | V,
-     A | B | C | D | E | F | G | H | I | J | K},
+    {"elf", true, 0, AFF_INFRARED, 0, 0, RES_CHARM, VULN_IRON, BIT(0) | BIT(7) | BIT(12) | BIT(21),
+     BIT(0) | BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(6) | BIT(7) | BIT(8) | BIT(9) | BIT(10)},
 
     {"dwarf", true, 0, AFF_INFRARED, 0, 0, RES_POISON | RES_DISEASE,
-     VULN_DROWNING, A | H | M | V, A | B | C | D | E | F | G | H | I | J | K},
+     VULN_DROWNING, BIT(0) | BIT(7) | BIT(12) | BIT(21), BIT(0) | BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(6) | BIT(7) | BIT(8) | BIT(9) | BIT(10)},
 
     {"giant", true, 0, 0, 0, 0, RES_FIRE | RES_COLD,
-     VULN_MENTAL | VULN_LIGHTNING, A | H | M | V,
-     A | B | C | D | E | F | G | H | I | J | K},
+     VULN_MENTAL | VULN_LIGHTNING, BIT(0) | BIT(7) | BIT(12) | BIT(21),
+     BIT(0) | BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(6) | BIT(7) | BIT(8) | BIT(9) | BIT(10)},
 
     {"bat", false, 0, AFF_FLYING | AFF_DARK_VISION, OFF_DODGE | OFF_FAST, 0, 0,
-     VULN_LIGHT, A | G | V, A | C | D | E | F | H | J | K | P},
+     VULN_LIGHT, BIT(0) | BIT(6) | BIT(21), BIT(0) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(7) | BIT(9) | BIT(10) | BIT(15)},
 
     {"bear", false, 0, 0, OFF_CRUSH | OFF_DISARM | OFF_BERSERK, 0,
-     RES_BASH | RES_COLD, 0, A | G | V,
-     A | B | C | D | E | F | H | J | K | U | V},
+     RES_BASH | RES_COLD, 0, BIT(0) | BIT(6) | BIT(21),
+     BIT(0) | BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(7) | BIT(9) | BIT(10) | BIT(20) | BIT(21)},
 
-    {"cat", false, 0, AFF_DARK_VISION, OFF_FAST | OFF_DODGE, 0, 0, 0, A | G | V,
-     A | C | D | E | F | H | J | K | Q | U | V},
+    {"cat", false, 0, AFF_DARK_VISION, OFF_FAST | OFF_DODGE, 0, 0, 0, BIT(0) | BIT(6) | BIT(21),
+     BIT(0) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(7) | BIT(9) | BIT(10) | BIT(16) | BIT(20) | BIT(21)},
 
     {"centipede", false, 0, AFF_DARK_VISION, 0, 0, RES_PIERCE | RES_COLD,
-     VULN_BASH, A | B | G | O, A | C | K},
+     VULN_BASH, BIT(0) | BIT(1) | BIT(6) | BIT(14), BIT(0) | BIT(2) | BIT(10)},
 
-    {"dog", false, 0, 0, OFF_FAST, 0, 0, 0, A | G | V,
-     A | C | D | E | F | H | J | K | U | V},
+    {"dog", false, 0, 0, OFF_FAST, 0, 0, 0, BIT(0) | BIT(6) | BIT(21),
+     BIT(0) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(7) | BIT(9) | BIT(10) | BIT(20) | BIT(21)},
 
     {"doll", false, 0, 0, 0,
      IMM_COLD | IMM_POISON | IMM_HOLY | IMM_NEGATIVE | IMM_MENTAL | IMM_DISEASE
          | IMM_DROWNING,
      RES_BASH | RES_LIGHT,
      VULN_SLASH | VULN_FIRE | VULN_ACID | VULN_LIGHTNING | VULN_ENERGY,
-     E | J | M | cc, A | B | C | G | H | K},
+     BIT(4) | BIT(9) | BIT(12) | BIT(28), BIT(0) | BIT(1) | BIT(2) | BIT(6) | BIT(7) | BIT(10)},
 
     {"dragon", false, 0, AFF_INFRARED | AFF_FLYING, 0, 0,
-     RES_FIRE | RES_BASH | RES_CHARM, VULN_PIERCE | VULN_COLD, A | H | Z,
-     A | C | D | E | F | G | H | I | J | K | P | Q | U | V | X},
+     RES_FIRE | RES_BASH | RES_CHARM, VULN_PIERCE | VULN_COLD, BIT(0) | BIT(7) | BIT(25),
+     BIT(0) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(6) | BIT(7) | BIT(8) | BIT(9) | BIT(10) | BIT(15) | BIT(16) | BIT(20) | BIT(21) | BIT(23)},
 
     {"fido", false, 0, 0, OFF_DODGE | ASSIST_RACE, 0, 0, VULN_MAGIC,
-     A | B | G | V, A | C | D | E | F | H | J | K | Q | V},
+     BIT(0) | BIT(1) | BIT(6) | BIT(21), BIT(0) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(7) | BIT(9) | BIT(10) | BIT(16) | BIT(21)},
 
-    {"fox", false, 0, AFF_DARK_VISION, OFF_FAST | OFF_DODGE, 0, 0, 0, A | G | V,
-     A | C | D | E | F | H | J | K | Q | V},
+    {"fox", false, 0, AFF_DARK_VISION, OFF_FAST | OFF_DODGE, 0, 0, 0, BIT(0) | BIT(6) | BIT(21),
+     BIT(0) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(7) | BIT(9) | BIT(10) | BIT(16) | BIT(21)},
 
     {"goblin", false, 0, AFF_INFRARED, 0, 0, RES_DISEASE, VULN_MAGIC,
-     A | H | M | V, A | B | C | D | E | F | G | H | I | J | K},
+     BIT(0) | BIT(7) | BIT(12) | BIT(21), BIT(0) | BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(6) | BIT(7) | BIT(8) | BIT(9) | BIT(10)},
 
     {"hobgoblin", false, 0, AFF_INFRARED, 0, 0, RES_DISEASE | RES_POISON, 0,
-     A | H | M | V, A | B | C | D | E | F | G | H | I | J | K | Y},
+     BIT(0) | BIT(7) | BIT(12) | BIT(21), BIT(0) | BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(6) | BIT(7) | BIT(8) | BIT(9) | BIT(10) | BIT(24)},
 
     {"kobold", false, 0, AFF_INFRARED, 0, 0, RES_POISON, VULN_MAGIC,
-     A | B | H | M | V, A | B | C | D | E | F | G | H | I | J | K | Q},
+     BIT(0) | BIT(1) | BIT(7) | BIT(12) | BIT(21), BIT(0) | BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(6) | BIT(7) | BIT(8) | BIT(9) | BIT(10) | BIT(16)},
 
-    {"lizard", false, 0, 0, 0, 0, RES_POISON, VULN_COLD, A | G | X | cc,
-     A | C | D | E | F | H | K | Q | V},
+    {"lizard", false, 0, 0, 0, 0, RES_POISON, VULN_COLD, BIT(0) | BIT(6) | BIT(23) | BIT(28),
+     BIT(0) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(7) | BIT(10) | BIT(16) | BIT(21)},
 
     {"modron", false, 0, AFF_INFRARED, ASSIST_RACE | ASSIST_ALIGN,
      IMM_CHARM | IMM_DISEASE | IMM_MENTAL | IMM_HOLY | IMM_NEGATIVE,
-     RES_FIRE | RES_COLD | RES_ACID, 0, H, A | B | C | G | H | J | K},
+     RES_FIRE | RES_COLD | RES_ACID, 0, BIT(7), BIT(0) | BIT(1) | BIT(2) | BIT(6) | BIT(7) | BIT(9) | BIT(10)},
 
     {"orc", false, 0, AFF_INFRARED, 0, 0, RES_DISEASE, VULN_LIGHT,
-     A | H | M | V, A | B | C | D | E | F | G | H | I | J | K},
+     BIT(0) | BIT(7) | BIT(12) | BIT(21), BIT(0) | BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(6) | BIT(7) | BIT(8) | BIT(9) | BIT(10)},
 
-    {"pig", false, 0, 0, 0, 0, 0, 0, A | G | V, A | C | D | E | F | H | J | K},
+    {"pig", false, 0, 0, 0, 0, 0, 0, BIT(0) | BIT(6) | BIT(21), BIT(0) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(7) | BIT(9) | BIT(10)},
 
-    {"rabbit", false, 0, 0, OFF_DODGE | OFF_FAST, 0, 0, 0, A | G | V,
-     A | C | D | E | F | H | J | K},
+    {"rabbit", false, 0, 0, OFF_DODGE | OFF_FAST, 0, 0, 0, BIT(0) | BIT(6) | BIT(21),
+     BIT(0) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(7) | BIT(9) | BIT(10)},
 
     {"school monster", false, ACT_NOALIGN, 0, 0, IMM_CHARM | IMM_SUMMON, 0,
-     VULN_MAGIC, A | M | V, A | B | C | D | E | F | H | J | K | Q | U},
+     VULN_MAGIC, BIT(0) | BIT(12) | BIT(21), BIT(0) | BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(7) | BIT(9) | BIT(10) | BIT(16) | BIT(20)},
 
-    {"snake", false, 0, 0, 0, 0, RES_POISON, VULN_COLD, A | G | X | Y | cc,
-     A | D | E | F | K | L | Q | V | X},
+    {"snake", false, 0, 0, 0, 0, RES_POISON, VULN_COLD, BIT(0) | BIT(6) | BIT(23) | BIT(24) | BIT(28),
+     BIT(0) | BIT(3) | BIT(4) | BIT(5) | BIT(10) | BIT(11) | BIT(16) | BIT(21) | BIT(23)},
 
     {"song bird", false, 0, AFF_FLYING, OFF_FAST | OFF_DODGE, 0, 0, 0,
-     A | G | W, A | C | D | E | F | H | K | P},
+     BIT(0) | BIT(6) | BIT(22), BIT(0) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(7) | BIT(10) | BIT(15)},
 
     {"troll", false, 0, AFF_REGENERATION | AFF_INFRARED | AFF_DETECT_HIDDEN,
      OFF_BERSERK, 0, RES_CHARM | RES_BASH, VULN_FIRE | VULN_ACID,
-     A | B | H | M | V, A | B | C | D | E | F | G | H | I | J | K | U | V},
+     BIT(0) | BIT(1) | BIT(7) | BIT(12) | BIT(21), BIT(0) | BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(6) | BIT(7) | BIT(8) | BIT(9) | BIT(10) | BIT(20) | BIT(21)},
 
     {"water fowl", false, 0, AFF_SWIM | AFF_FLYING, 0, 0, RES_DROWNING, 0,
-     A | G | W, A | C | D | E | F | H | K | P},
+     BIT(0) | BIT(6) | BIT(22), BIT(0) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(7) | BIT(10) | BIT(15)},
 
     {"wolf", false, 0, AFF_DARK_VISION, OFF_FAST | OFF_DODGE, 0, 0, 0,
-     A | G | V, A | C | D | E | F | J | K | Q | V},
+     BIT(0) | BIT(6) | BIT(21), BIT(0) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(9) | BIT(10) | BIT(16) | BIT(21)},
 
     {"wyvern", false, 0, AFF_FLYING | AFF_DETECT_INVIS | AFF_DETECT_HIDDEN,
-     OFF_BASH | OFF_FAST | OFF_DODGE, IMM_POISON, 0, VULN_LIGHT, A | B | G | Z,
-     A | C | D | E | F | H | J | K | Q | V | X},
+     OFF_BASH | OFF_FAST | OFF_DODGE, IMM_POISON, 0, VULN_LIGHT, BIT(0) | BIT(1) | BIT(6) | BIT(25),
+     BIT(0) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(7) | BIT(9) | BIT(10) | BIT(16) | BIT(21) | BIT(23)},
 
     {"unique", false, 0, 0, 0, 0, 0, 0, 0, 0},
 

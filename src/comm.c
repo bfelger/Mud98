@@ -18,36 +18,37 @@
  *  around, comes around.                                                  *
  ***************************************************************************/
 
-/***************************************************************************
- *  ROM 2.4 is copyright 1993-1998 Russ Taylor                             *
- *  ROM has been brought to you by the ROM consortium                      *
- *      Russ Taylor (rtaylor@hypercube.org)                                *
- *      Gabrielle Taylor (gtaylor@hypercube.org)                           *
- *      Brian Moore (zump@rom.org)                                         *
- *  By using this code, you have agreed to follow the terms of the         *
- *  ROM license, in the file Rom24/doc/rom.license                         *
- ***************************************************************************/
+ /***************************************************************************
+  *  ROM 2.4 is copyright 1993-1998 Russ Taylor                             *
+  *  ROM has been brought to you by the ROM consortium                      *
+  *      Russ Taylor (rtaylor@hypercube.org)                                *
+  *      Gabrielle Taylor (gtaylor@hypercube.org)                           *
+  *      Brian Moore (zump@rom.org)                                         *
+  *  By using this code, you have agreed to follow the terms of the         *
+  *  ROM license, in the file Rom24/doc/rom.license                         *
+  ***************************************************************************/
 
-/*
- * This file contains all of the OS-dependent stuff:
- *   startup, signals, BSD sockets for tcp/ip, i/o, timing.
- *
- * The data flow for input is:
- *    Game_loop ---> Read_from_descriptor ---> Read
- *    Game_loop ---> Read_from_buffer
- *
- * The data flow for output is:
- *    Game_loop ---> Process_Output ---> Write_to_descriptor -> Write
- *
- * The OS-dependent functions are Read_from_descriptor and Write_to_descriptor.
- * -- Furey  26 Jan 1993
- */
+  /*
+   * This file contains all of the OS-dependent stuff:
+   *   startup, signals, BSD sockets for tcp/ip, i/o, timing.
+   *
+   * The data flow for input is:
+   *    Game_loop ---> Read_from_descriptor ---> Read
+   *    Game_loop ---> Read_from_buffer
+   *
+   * The data flow for output is:
+   *    Game_loop ---> Process_Output ---> Write_to_descriptor -> Write
+   *
+   * The OS-dependent functions are Read_from_descriptor and Write_to_descriptor.
+   * -- Furey  26 Jan 1993
+   */
 
 #include "interp.h"
 #include "merc.h"
 #include "recycle.h"
 #include "strings.h"
 #include "tables.h"
+#include "telnet.h"
 
 #include <ctype.h>
 #include <errno.h>
@@ -55,24 +56,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
 #include <sys/types.h>
 #include <time.h>
-#include <unistd.h>
 
-#include "telnet.h"
+#ifdef _MSC_VER
+#pragma comment(lib, "Ws2_32.lib")
+#include <windows.h>
+#include <winsock.h>
+#include <stdint.h>
+#include <io.h>
+#define CLOSE_SOCKET closesocket
+#define SOCKLEN int
+#else
 #include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/time.h>
+#include <unistd.h>
+#define CLOSE_SOCKET close
+#define SOCKLEN socklen_t
+#define SOCKET int
+    #ifndef _XOPEN_CRYPT
+    #include <crypt.h>
+    #endif
+#endif
 
 const char echo_off_str[] = { IAC, WILL, TELOPT_ECHO, '\0' };
 const char echo_on_str[] = { IAC, WONT, TELOPT_ECHO, '\0' };
 const char go_ahead_str[] = { IAC, GA, '\0' };
-
-#ifndef _XOPEN_CRYPT
-#include <crypt.h>
-#endif
 
 /*
  * Malloc debugging stuff.
@@ -96,26 +108,93 @@ bool newlock; /* Game is newlocked		*/
 char str_boot_time[MAX_INPUT_LENGTH];
 time_t current_time; /* time of this pulse */
 
-
 void bust_a_prompt args((CHAR_DATA* ch));
 bool check_parse_name args((char* name));
 bool check_playing args((DESCRIPTOR_DATA* d, char* name));
 bool check_reconnect args((DESCRIPTOR_DATA* d, char* name, bool fConn));
-void game_loop args((int control));
-void init_descriptor args((int control));
-int init_socket args((int port));
+void game_loop(SOCKET control);
+void init_descriptor(SOCKET control);
+SOCKET init_socket(int port);
 void nanny args((DESCRIPTOR_DATA* d, char* argument));
 bool process_output args((DESCRIPTOR_DATA* d, bool fPrompt));
 void read_from_buffer args((DESCRIPTOR_DATA* d));
-bool read_from_descriptor args((DESCRIPTOR_DATA * d));
+bool read_from_descriptor args((DESCRIPTOR_DATA* d));
 void stop_idling args((CHAR_DATA* ch));
-bool write_to_descriptor args((int desc, char* txt, int length));
+bool write_to_descriptor(SOCKET desc, char* txt, int length);
+
+#ifdef _MSC_VER
+////////////////////////////////////////////////////////////////////////////////
+// This implementation taken from StackOverflow user Michaelangel007's example:
+//    https://stackoverflow.com/a/26085827
+//    "Here is a free implementation:"
+////////////////////////////////////////////////////////////////////////////////
+static int gettimeofday(struct timeval* tp, struct timezone* tzp)
+{
+    // Note: some broken versions only have 8 trailing zero's, the correct epoch
+    // has 9 trailing zero's. This magic number is the number of 100 nanosecond 
+    // intervals since January 1, 1601 (UTC) until 00:00:00 January 1, 1970.
+    static const uint64_t EPOCH = ((uint64_t)116444736000000000ULL);
+
+    SYSTEMTIME  system_time;
+    FILETIME    file_time;
+    uint64_t    time;
+
+    GetSystemTime(&system_time);
+    SystemTimeToFileTime(&system_time, &file_time);
+    time = ((uint64_t)file_time.dwLowDateTime);
+    time += ((uint64_t)file_time.dwHighDateTime) << 32;
+
+    tp->tv_sec = (long)((time - EPOCH) / 10000000L);
+    tp->tv_usec = (long)(system_time.wMilliseconds * 1000);
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////
+#endif
+
+#ifdef _MSC_VER
+static void PrintLastWinSockError()
+{
+    char msgbuf[256] = "";
+    int err = WSAGetLastError();
+
+    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, // flags
+        NULL,           // lpsource
+        err,            // message id
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // languageid
+        msgbuf,         // output buffer
+        sizeof(msgbuf), // size of msgbuf, bytes
+        NULL);          // va_list of arguments
+
+    if (!*msgbuf)
+        sprintf(msgbuf, "%d", err);
+
+    printf("Error: %s", msgbuf);
+}
+#endif
 
 int main(int argc, char** argv)
 {
     struct timeval now_time;
     int port;
-    int control;
+
+    SOCKET control;
+
+#ifdef _MSC_VER
+    WORD wVersionRequested;
+    WSADATA wsaData;
+    int err;
+
+    /* Use the MAKEWORD(lowbyte, highbyte) macro declared in Windef.h */
+    wVersionRequested = MAKEWORD(2, 2);
+
+    err = WSAStartup(wVersionRequested, &wsaData);
+    if (err != 0) {
+        /* Tell the user that we could not find a usable */
+        /* Winsock DLL.                                  */
+        printf("WSAStartup failed with error: %d\n", err);
+        exit(1);
+    }
+#endif
 
     /*
      * Memory debugging if needed.
@@ -135,6 +214,9 @@ int main(int argc, char** argv)
      * Reserve one channel for our use.
      */
     if ((fpReserve = fopen(NULL_FILE, "r")) == NULL) {
+#ifdef _MSC_VER
+        printf("Please create a file named '%s' in the executing directory.", NULL_FILE);
+#endif
         perror(NULL_FILE);
         exit(1);
     }
@@ -162,7 +244,11 @@ int main(int argc, char** argv)
     sprintf(log_buf, "ROM is ready to rock on port %d.", port);
     log_string(log_buf);
     game_loop(control);
-    close(control);
+    CLOSE_SOCKET(control);
+
+#ifdef _MSC_VER
+    WSACleanup();
+#endif
 
     /*
      * That's all, folks.
@@ -172,21 +258,28 @@ int main(int argc, char** argv)
     return 0;
 }
 
-int init_socket(int port)
+SOCKET init_socket(int port)
 {
     static struct sockaddr_in sa_zero;
     struct sockaddr_in sa;
     int x = 1;
-    int fd;
+    SOCKET fd;
+    int errno;
 
     if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("Init_socket: socket");
+#ifdef _MSC_VER
+        PrintLastWinSockError();
+#endif
         exit(1);
     }
 
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&x, sizeof(x)) < 0) {
         perror("Init_socket: SO_REUSEADDR");
-        close(fd);
+#ifdef _MSC_VER
+        PrintLastWinSockError();
+#endif
+        CLOSE_SOCKET(fd);
         exit(1);
     }
 
@@ -197,10 +290,13 @@ int init_socket(int port)
         ld.l_onoff = 1;
         ld.l_linger = 1000;
 
-        if (setsockopt(fd, SOL_SOCKET, SO_DONTLINGER, (char*)&ld, sizeof(ld))
+        if (setsockopt(fd, SOL_SOCKET, SO_DONTLINGER, (char*)&ld, sizeof(ld)) 
             < 0) {
             perror("Init_socket: SO_DONTLINGER");
-            close(fd);
+#ifdef _MSC_VER
+            PrintLastWinSockError();;
+#endif
+            CLOSE_SOCKET(fd);
             exit(1);
         }
     }
@@ -212,25 +308,33 @@ int init_socket(int port)
 
     if (bind(fd, (struct sockaddr*)&sa, sizeof(sa)) < 0) {
         perror("Init socket: bind");
-        close(fd);
+#ifdef _MSC_VER
+        PrintLastWinSockError();
+#endif
+        CLOSE_SOCKET(fd);
         exit(1);
     }
 
     if (listen(fd, 3) < 0) {
         perror("Init socket: listen");
-        close(fd);
+#ifdef _MSC_VER
+        PrintLastWinSockError();
+#endif
+        CLOSE_SOCKET(fd);
         exit(1);
     }
 
     return fd;
 }
 
-void game_loop(int control)
+void game_loop(SOCKET control) 
 {
     static struct timeval null_time;
     struct timeval last_time;
 
+#ifndef _MSC_VER
     signal(SIGPIPE, SIG_IGN);
+#endif
     gettimeofday(&last_time, NULL);
     current_time = (time_t)last_time.tv_sec;
 
@@ -240,7 +344,7 @@ void game_loop(int control)
         fd_set out_set;
         fd_set exc_set;
         DESCRIPTOR_DATA* d;
-        int maxdesc;
+        SOCKET maxdesc;
 
 #if defined(MALLOC_DEBUG)
         if (malloc_verify() != 1) abort();
@@ -261,8 +365,12 @@ void game_loop(int control)
             FD_SET(d->descriptor, &exc_set);
         }
 
-        if (select(maxdesc + 1, &in_set, &out_set, &exc_set, &null_time) < 0) {
+        if (select((int)maxdesc + 1, &in_set, &out_set, &exc_set, &null_time) < 0) {
             perror("Game_loop: select: poll");
+#ifdef _MSC_VER
+            PrintLastWinSockError();
+#endif
+            CLOSE_SOCKET(control);
             exit(1);
         }
 
@@ -318,7 +426,7 @@ void game_loop(int control)
                 d->fcommand = true;
                 stop_idling(d->character);
 
-                if (d->showstr_point)
+                if (d->showstr_point && *d->showstr_point != '\0')
                     show_string(d, d->incomm);
                 else if (d->connected == CON_PLAYING)
                     substitute_alias(d, d->incomm);
@@ -363,7 +471,7 @@ void game_loop(int control)
 
             gettimeofday(&now_time, NULL);
             usecDelta = ((int)last_time.tv_usec) - ((int)now_time.tv_usec)
-                        + 1000000 / PULSE_PER_SECOND;
+                + 1000000 / PULSE_PER_SECOND;
             secDelta = ((int)last_time.tv_sec) - ((int)now_time.tv_sec);
             while (usecDelta < 0) {
                 usecDelta += 1000000;
@@ -376,6 +484,12 @@ void game_loop(int control)
             }
 
             if (secDelta > 0 || (secDelta == 0 && usecDelta > 0)) {
+#ifdef _MSC_VER
+                long int mSeconds = (secDelta * 1000) + (usecDelta / 1000);
+                if (mSeconds > 0) {
+                    Sleep(mSeconds);
+                }
+#else
                 struct timeval stall_time;
 
                 stall_time.tv_usec = usecDelta;
@@ -384,6 +498,7 @@ void game_loop(int control)
                     perror("Game_loop: select: stall");
                     exit(1);
                 }
+#endif
             }
         }
 
@@ -394,14 +509,14 @@ void game_loop(int control)
     return;
 }
 
-void init_descriptor(int control)
+void init_descriptor(SOCKET control) 
 {
     char buf[MAX_STRING_LENGTH];
     DESCRIPTOR_DATA* dnew;
     struct sockaddr_in sock;
     struct hostent* from;
-    int desc;
-    socklen_t size;
+    SOCKET desc;
+    SOCKLEN size;
 
     size = sizeof(sock);
     getsockname(control, (struct sockaddr*)&sock, &size);
@@ -410,6 +525,7 @@ void init_descriptor(int control)
         return;
     }
 
+#ifndef _MSC_VER
 #if !defined(FNDELAY)
 #define FNDELAY O_NDELAY
 #endif
@@ -418,6 +534,7 @@ void init_descriptor(int control)
         perror("New_descriptor: fcntl: FNDELAY");
         return;
     }
+#endif
 
     /*
      * Cons a new descriptor.
@@ -444,12 +561,14 @@ void init_descriptor(int control)
         int addr;
 
         addr = ntohl(sock.sin_addr.s_addr);
-        sprintf(buf, "%d.%d.%d.%d", (addr >> 24) & 0xFF, (addr >> 16) & 0xFF,
-                (addr >> 8) & 0xFF, (addr)&0xFF);
+        sprintf(buf, "%d.%d.%d.%d",
+            (addr >> 24) & 0xFF, (addr >> 16) & 0xFF,
+            (addr >> 8) & 0xFF, (addr)&0xFF
+        );
         sprintf(log_buf, "Sock.sinaddr:  %s", buf);
         log_string(log_buf);
-        from = gethostbyaddr((char*)&sock.sin_addr, sizeof(sock.sin_addr),
-                             AF_INET);
+        from = gethostbyaddr((char*)&sock.sin_addr,
+            sizeof(sock.sin_addr), AF_INET);
         dnew->host = str_dup(from ? from->h_name : buf);
     }
 
@@ -462,9 +581,8 @@ void init_descriptor(int control)
      * Furey: added suffix check by request of Nickel of HiddenWorlds.
      */
     if (check_ban(dnew->host, BAN_ALL)) {
-        write_to_descriptor(desc,
-                            "Your site has been banned from this mud.\n\r", 0);
-        close(desc);
+        write_to_descriptor(desc, "Your site has been banned from this mud.\n\r", 0);
+        CLOSE_SOCKET(desc);
         free_descriptor(dnew);
         return;
     }
@@ -490,13 +608,23 @@ void init_descriptor(int control)
 
 void close_socket(DESCRIPTOR_DATA* dclose)
 {
+    if (dclose == NULL) {
+        log_string("close_socket: NULL descriptor!");
+        return;
+    }
+
+    if (descriptor_list == NULL) {
+        log_string("close_socket: Descriptor not NULL but descriptor list is?");
+        return;
+    }
+
     CHAR_DATA* ch;
 
     if (dclose->outtop > 0) process_output(dclose, false);
 
     if (dclose->snoop_by != NULL) {
-        write_to_buffer(dclose->snoop_by, "Your victim has left the game.\n\r",
-                        0);
+        write_to_buffer(dclose->snoop_by, "Your victim has left the game.\n\r", 
+            0);
     }
 
     {
@@ -523,7 +651,9 @@ void close_socket(DESCRIPTOR_DATA* dclose)
 
     if (d_next == dclose) d_next = d_next->next;
 
-    if (dclose == descriptor_list) { descriptor_list = descriptor_list->next; }
+    if (dclose == descriptor_list) {
+        descriptor_list = descriptor_list->next;
+    }
     else {
         DESCRIPTOR_DATA* d;
 
@@ -535,7 +665,7 @@ void close_socket(DESCRIPTOR_DATA* dclose)
             bug("Close_socket: dclose not found.", 0);
     }
 
-    close(dclose->descriptor);
+    CLOSE_SOCKET(dclose->descriptor);
     free_descriptor(dclose);
     return;
 }
@@ -553,7 +683,7 @@ bool read_from_descriptor(DESCRIPTOR_DATA* d)
         sprintf(log_buf, "%s input overflow!", d->host);
         log_string(log_buf);
         write_to_descriptor(d->descriptor, "\n\r*** PUT A LID ON IT!!! ***\n\r",
-                            0);
+            0);
         return false;
     }
 
@@ -561,8 +691,13 @@ bool read_from_descriptor(DESCRIPTOR_DATA* d)
     for (;;) {
         int nRead;
 
+#ifdef _MSC_VER
+        nRead = recv(d->descriptor, d->inbuf + iStart, 
+            (int)(sizeof(d->inbuf) - 10 - iStart), 0);
+#else
         nRead = read(d->descriptor, d->inbuf + iStart,
-                     sizeof(d->inbuf) - 10 - iStart);
+            sizeof(d->inbuf) - 10 - iStart);
+#endif
         if (nRead > 0) {
             iStart += nRead;
             if (d->inbuf[iStart - 1] == '\n' || d->inbuf[iStart - 1] == '\r')
@@ -645,21 +780,16 @@ void read_from_buffer(DESCRIPTOR_DATA* d)
                 sprintf(log_buf, "%s input spamming!", d->host);
                 log_string(log_buf);
                 wiznet("Spam spam spam $N spam spam spam spam spam!",
-                       d->character, NULL, WIZ_SPAM, 0,
-                       get_trust(d->character));
+                    d->character, NULL, WIZ_SPAM, 0, 
+                    get_trust(d->character));
                 if (d->incomm[0] == '!')
                     wiznet(d->inlast, d->character, NULL, WIZ_SPAM, 0,
-                           get_trust(d->character));
+                        get_trust(d->character));
                 else
                     wiznet(d->incomm, d->character, NULL, WIZ_SPAM, 0,
-                           get_trust(d->character));
+                        get_trust(d->character));
 
                 d->repeat = 0;
-                /*
-                                write_to_descriptor( d->descriptor,
-                                    "\n\r*** PUT A LID ON IT!!! ***\n\r", 0 );
-                                strcpy( d->incomm, "quit" );
-                */
             }
         }
     }
@@ -691,7 +821,7 @@ bool process_output(DESCRIPTOR_DATA* d, bool fPrompt)
     /*
      * Bust a prompt.
      */
-    if (!merc_down && d->showstr_point)
+    if (!merc_down && d->showstr_point && *d->showstr_point != '\0')
         write_to_buffer(d, "[Hit Return to continue]\n\r", 0);
     else if (fPrompt && !merc_down && d->connected == CON_PLAYING) {
         CHAR_DATA* ch;
@@ -728,15 +858,17 @@ bool process_output(DESCRIPTOR_DATA* d, bool fPrompt)
                 sprintf(wound, "is bleeding to death.");
 
             sprintf(buf, "%s %s \n\r",
-                    IS_NPC(victim) ? victim->short_descr : victim->name, wound);
+                IS_NPC(victim) ? victim->short_descr : victim->name, wound);
             buf[0] = UPPER(buf[0]);
             write_to_buffer(d, buf, 0);
         }
 
         ch = d->original ? d->original : d->character;
-        if (!IS_SET(ch->comm, COMM_COMPACT)) write_to_buffer(d, "\n\r", 2);
+        if (!IS_SET(ch->comm, COMM_COMPACT))
+            write_to_buffer(d, "\n\r", 2);
 
-        if (IS_SET(ch->comm, COMM_PROMPT)) bust_a_prompt(d->character);
+        if (IS_SET(ch->comm, COMM_PROMPT))
+            bust_a_prompt(d->character);
 
         if (IS_SET(ch->comm, COMM_TELNET_GA))
             write_to_buffer(d, go_ahead_str, 0);
@@ -778,11 +910,12 @@ void bust_a_prompt(CHAR_DATA* ch)
 {
     char buf[MAX_STRING_LENGTH];
     char buf2[MAX_STRING_LENGTH];
+    char buffer[MAX_STRING_LENGTH * 2];
+
     const char* str;
     const char* i;
     char* point;
     char* pbuff;
-    char buffer[MAX_STRING_LENGTH * 2];
     char doors[MAX_INPUT_LENGTH];
     EXIT_DATA* pexit;
     bool found;
@@ -792,8 +925,8 @@ void bust_a_prompt(CHAR_DATA* ch)
     point = buf;
     str = ch->prompt;
     if (str == NULL || str[0] == '\0') {
-        sprintf(buf, "{p<%dhp %dm %dmv>{x %s", ch->hit, ch->mana, ch->move,
-                ch->prefix);
+        sprintf(buf, "{p<%dhp %dm %dmv>{x %s", ch->hit, ch->mana, ch->move, 
+            ch->prefix);
         send_to_char(buf, ch);
         return;
     }
@@ -833,7 +966,7 @@ void bust_a_prompt(CHAR_DATA* ch)
             break;
         case 'c':
             sprintf(buf2, "%s", "\n\r");
-            i = buf2;
+            i = buf2; 
             break;
         case 'h':
             sprintf(buf2, "%d", ch->hit);
@@ -865,10 +998,10 @@ void bust_a_prompt(CHAR_DATA* ch)
             break;
         case 'X':
             sprintf(buf2, "%d",
-                    IS_NPC(ch) ? 0
-                               : (ch->level + 1)
-                                         * exp_per_level(ch, ch->pcdata->points)
-                                     - ch->exp);
+                IS_NPC(ch) ? 0
+                : (ch->level + 1)
+                * exp_per_level(ch, ch->pcdata->points)
+                - ch->exp);
             i = buf2;
             break;
         case 'g':
@@ -884,19 +1017,19 @@ void bust_a_prompt(CHAR_DATA* ch)
                 sprintf(buf2, "%d", ch->alignment);
             else
                 sprintf(buf2, "%s",
-                        IS_GOOD(ch)   ? "good"
-                        : IS_EVIL(ch) ? "evil"
-                                      : "neutral");
+                    IS_GOOD(ch)   ? "good"
+                    : IS_EVIL(ch) ? "evil"
+                    : "neutral");
             i = buf2;
             break;
         case 'r':
             if (ch->in_room != NULL)
                 sprintf(buf2, "%s",
-                        ((!IS_NPC(ch) && IS_SET(ch->act, PLR_HOLYLIGHT))
-                         || (!IS_AFFECTED(ch, AFF_BLIND)
-                             && !room_is_dark(ch->in_room)))
-                            ? ch->in_room->name
-                            : "darkness");
+                    ((!IS_NPC(ch) && IS_SET(ch->act, PLR_HOLYLIGHT))
+                        || (!IS_AFFECTED(ch, AFF_BLIND)
+                            && !room_is_dark(ch->in_room)))
+                    ? ch->in_room->name
+                    : "darkness");
             else
                 sprintf(buf2, " ");
             i = buf2;
@@ -985,7 +1118,7 @@ void write_to_buffer(DESCRIPTOR_DATA* d, const char* txt, int length)
  * If this gives errors on very long blocks (like 'ofind all'),
  *   try lowering the max block size.
  */
-bool write_to_descriptor(int desc, char* txt, int length)
+bool write_to_descriptor(SOCKET desc, char* txt, int length)
 {
     int iStart;
     int nWrite;
@@ -995,7 +1128,13 @@ bool write_to_descriptor(int desc, char* txt, int length)
 
     for (iStart = 0; iStart < length; iStart += nWrite) {
         nBlock = UMIN(length - iStart, 4096);
+#ifdef _MSC_VER
+        if ((nWrite = send(desc, txt + iStart, nBlock, 0)) < 0) {
+            PrintLastWinSockError();
+#else
+
         if ((nWrite = write(desc, txt + iStart, nBlock)) < 0) {
+#endif
             perror("Write_to_descriptor");
             return false;
         }
@@ -1009,7 +1148,8 @@ bool write_to_descriptor(int desc, char* txt, int length)
  */
 void nanny(DESCRIPTOR_DATA* d, char* argument)
 {
-    DESCRIPTOR_DATA *d_old, *d_next;
+    DESCRIPTOR_DATA* d_old;
+    DESCRIPTOR_DATA* d_next;
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
     CHAR_DATA* ch;
@@ -1052,13 +1192,14 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
         }
 
         if (check_ban(d->host, BAN_PERMIT) && !IS_SET(ch->act, PLR_PERMIT)) {
-            write_to_buffer(d, "Your site has been banned from this mud.\n\r",
-                            0);
+            write_to_buffer(d, "Your site has been banned from this mud.\n\r", 0);
             close_socket(d);
             return;
         }
 
-        if (check_reconnect(d, argument, false)) { fOld = true; }
+        if (check_reconnect(d, argument, false)) {
+            fOld = true;
+        }
         else {
             if (wizlock && !IS_IMMORTAL(ch)) {
                 write_to_buffer(d, "The game is wizlocked.\n\r", 0);
@@ -1083,8 +1224,8 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
             }
 
             if (check_ban(d->host, BAN_NEWBIES)) {
-                write_to_buffer(
-                    d, "New players are not allowed from your site.\n\r", 0);
+                write_to_buffer(d,
+                    "New players are not allowed from your site.\n\r", 0);
                 close_socket(d);
                 return;
             }
@@ -1136,7 +1277,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
                 if (d_old == d || d_old->character == NULL) continue;
 
                 if (str_cmp(ch->name, d_old->original ? d_old->original->name
-                                                      : d_old->character->name))
+                    : d_old->character->name))
                     continue;
 
                 close_socket(d_old);
@@ -1171,7 +1312,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
         case 'y':
         case 'Y':
             sprintf(buf, "New character.\n\rGive me a password for %s: %s",
-                    ch->name, echo_off_str);
+                ch->name, echo_off_str);
             write_to_buffer(d, buf, 0);
             d->connected = CON_GET_NEW_PASSWORD;
             break;
@@ -1222,7 +1363,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
 
         if (strcmp(crypt(argument, ch->pcdata->pwd), ch->pcdata->pwd)) {
             write_to_buffer(d,
-                            "Passwords don't match.\n\rRetype password: ", 0);
+                "Passwords don't match.\n\rRetype password: ", 0);
             d->connected = CON_GET_NEW_PASSWORD;
             return;
         }
@@ -1236,7 +1377,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
         }
         write_to_buffer(d, "\n\r", 0);
         write_to_buffer(d, "What is your race (help for more information)? ",
-                        0);
+            0);
         d->connected = CON_GET_NEW_RACE;
         break;
 
@@ -1326,7 +1467,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
 
         if (iClass == -1) {
             write_to_buffer(d, "That's not a class.\n\rWhat IS your class? ",
-                            0);
+                0);
             return;
         }
 
@@ -1370,9 +1511,9 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
         ch->pcdata->learned[gsn_recall] = 50;
         write_to_buffer(d, "Do you wish to customize this character?\n\r", 0);
         write_to_buffer(d,
-                        "Customization takes time, but allows a wider range of "
-                        "skills and abilities.\n\r",
-                        0);
+            "Customization takes time, but allows a wider range of "
+            "skills and abilities.\n\r",
+            0);
         write_to_buffer(d, "Customize (Y/N)? ", 0);
         d->connected = CON_DEFAULT_CHOICE;
         break;
@@ -1419,7 +1560,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
         if (weapon == -1
             || ch->pcdata->learned[*weapon_table[weapon].gsn] <= 0) {
             write_to_buffer(d, "That's not a valid selection. Choices are:\n\r",
-                            0);
+                0);
             buf[0] = '\0';
             for (i = 0; weapon_table[i].name != NULL; i++)
                 if (ch->pcdata->learned[*weapon_table[i].gsn] > 0) {
@@ -1448,8 +1589,8 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
 
             if (ch->pcdata->points <= 40 + pc_race_table[ch->race].points) {
                 sprintf(buf,
-                        "You must take at least %d points of skills and groups",
-                        40 + pc_race_table[ch->race].points);
+                    "You must take at least %d points of skills and groups",
+                    40 + pc_race_table[ch->race].points);
                 send_to_char(buf, ch);
                 break;
             }
@@ -1457,7 +1598,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
             sprintf(buf, "Creation points: %d\n\r", ch->pcdata->points);
             send_to_char(buf, ch);
             sprintf(buf, "Experience per level: %d\n\r",
-                    exp_per_level(ch, ch->gen_data->points_chosen));
+                exp_per_level(ch, ch->gen_data->points_chosen));
             if (ch->pcdata->points < 40)
                 ch->train = (40 - ch->pcdata->points + 1) / 2;
             free_gen_data(ch->gen_data);
@@ -1520,8 +1661,8 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
             ch->train = 3;
             ch->practice = 5;
             sprintf(buf, "the %s",
-                    title_table[ch->class][ch->level]
-                               [ch->sex == SEX_FEMALE ? 1 : 0]);
+                title_table[ch->class][ch->level]
+                [ch->sex == SEX_FEMALE ? 1 : 0]);
             set_title(ch, buf);
 
             do_function(ch, &do_outfit, "");
@@ -1546,7 +1687,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
         do_function(ch, &do_look, "auto");
 
         wiznet("$N has left real life behind.", ch, NULL, WIZ_LOGINS, WIZ_SITES,
-               get_trust(ch));
+            get_trust(ch));
 
         if (ch->pet != NULL) {
             char_to_room(ch->pet, ch->in_room);
@@ -1571,7 +1712,7 @@ bool check_parse_name(char* name)
      * Reserved words.
      */
     if (is_exact_name(
-            name, "all auto immortal self someone something the you loner")) {
+        name, "all auto immortal self someone something the you loner")) {
         return false;
     }
 
@@ -1633,7 +1774,7 @@ bool check_parse_name(char* name)
 
         for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
             for (pMobIndex = mob_index_hash[iHash]; pMobIndex != NULL;
-                 pMobIndex = pMobIndex->next) {
+                pMobIndex = pMobIndex->next) {
                 if (is_name(name, pMobIndex->player_name)) return false;
             }
         }
@@ -1668,7 +1809,7 @@ bool check_reconnect(DESCRIPTOR_DATA* d, char* name, bool fConn)
                 sprintf(log_buf, "%s@%s reconnected.", ch->name, d->host);
                 log_string(log_buf);
                 wiznet("$N groks the fullness of $S link.", ch, NULL, WIZ_LINKS,
-                       0, 0);
+                    0, 0);
                 d->connected = CON_PLAYING;
             }
             return true;
@@ -1690,7 +1831,7 @@ bool check_playing(DESCRIPTOR_DATA* d, char* name)
             && dold->connected != CON_GET_NAME
             && dold->connected != CON_GET_OLD_PASSWORD
             && !str_cmp(name, dold->original ? dold->original->name
-                                             : dold->character->name)) {
+                : dold->character->name)) {
             write_to_buffer(d, "That character is already playing.\n\r", 0);
             write_to_buffer(d, "Do you wish to connect anyway (Y/N)?", 0);
             d->connected = CON_BREAK_CONNECT;
@@ -1841,7 +1982,8 @@ void show_string(struct descriptor_data* d, char* input)
 {
     char buffer[4 * MAX_STRING_LENGTH];
     char buf[MAX_INPUT_LENGTH];
-    register char *scan, *chk;
+    register char* scan;
+    register char* chk;
     int lines = 0, toggle = 1;
     int show_lines;
 
@@ -1893,7 +2035,7 @@ void fix_sex(CHAR_DATA* ch)
 }
 
 void act_new(const char* format, CHAR_DATA* ch, const void* arg1,
-             const void* arg2, int type, int min_pos)
+    const void* arg2, int type, int min_pos)
 {
     static char* const he_she[] = {"it", "he", "she"};
     static char* const him_her[] = {"it", "him", "her"};
@@ -1959,7 +2101,7 @@ void act_new(const char* format, CHAR_DATA* ch, const void* arg1,
                     bug("Act: bad code %d.", *str);
                     i = " <@@@> ";
                     break;
-                /* Thx alex for 't' idea */
+                    /* Thx alex for 't' idea */
                 case 't':
                     i = (char*)arg1;
                     break;
@@ -2052,14 +2194,14 @@ int colour(char type, CHAR_DATA* ch, char* string)
     case 's':
         if (col->room_title[2])
             sprintf(code, "\e[%d;3%dm%c", col->room_title[0],
-                    col->room_title[1], '\a');
+                col->room_title[1], '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->room_title[0], col->room_title[1]);
         break;
     case 'S':
         if (col->room_text[2])
             sprintf(code, "\e[%d;3%dm%c", col->room_text[0], col->room_text[1],
-                    '\a');
+                '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->room_text[0], col->room_text[1]);
         break;
@@ -2072,10 +2214,10 @@ int colour(char type, CHAR_DATA* ch, char* string)
     case '9':
         if (col->gossip_text[2])
             sprintf(code, "\e[%d;3%dm%c", col->gossip_text[0],
-                    col->gossip_text[1], '\a');
+                col->gossip_text[1], '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->gossip_text[0],
-                    col->gossip_text[1]);
+                col->gossip_text[1]);
         break;
     case 'Z':
         if (col->wiznet[2])
@@ -2086,70 +2228,70 @@ int colour(char type, CHAR_DATA* ch, char* string)
     case 'o':
         if (col->room_exits[2])
             sprintf(code, "\e[%d;3%dm%c", col->room_exits[0],
-                    col->room_exits[1], '\a');
+                col->room_exits[1], '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->room_exits[0], col->room_exits[1]);
         break;
     case 'O':
         if (col->room_things[2])
             sprintf(code, "\e[%d;3%dm%c", col->room_things[0],
-                    col->room_things[1], '\a');
+                col->room_things[1], '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->room_things[0],
-                    col->room_things[1]);
+                col->room_things[1]);
         break;
     case 'i':
         if (col->immtalk_text[2])
             sprintf(code, "\e[%d;3%dm%c", col->immtalk_text[0],
-                    col->immtalk_text[1], '\a');
+                col->immtalk_text[1], '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->immtalk_text[0],
-                    col->immtalk_text[1]);
+                col->immtalk_text[1]);
         break;
     case 'I':
         if (col->immtalk_type[2])
             sprintf(code, "\e[%d;3%dm%c", col->immtalk_type[0],
-                    col->immtalk_type[1], '\a');
+                col->immtalk_type[1], '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->immtalk_type[0],
-                    col->immtalk_type[1]);
+                col->immtalk_type[1]);
         break;
     case '2':
         if (col->fight_yhit[2])
             sprintf(code, "\e[%d;3%dm%c", col->fight_yhit[0],
-                    col->fight_yhit[1], '\a');
+                col->fight_yhit[1], '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->fight_yhit[0], col->fight_yhit[1]);
         break;
     case '3':
         if (col->fight_ohit[2])
             sprintf(code, "\e[%d;3%dm%c", col->fight_ohit[0],
-                    col->fight_ohit[1], '\a');
+                col->fight_ohit[1], '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->fight_ohit[0], col->fight_ohit[1]);
         break;
     case '4':
         if (col->fight_thit[2])
             sprintf(code, "\e[%d;3%dm%c", col->fight_thit[0],
-                    col->fight_thit[1], '\a');
+                col->fight_thit[1], '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->fight_thit[0], col->fight_thit[1]);
         break;
     case '5':
         if (col->fight_skill[2])
             sprintf(code, "\e[%d;3%dm%c", col->fight_skill[0],
-                    col->fight_skill[1], '\a');
+                col->fight_skill[1], '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->fight_skill[0],
-                    col->fight_skill[1]);
+                col->fight_skill[1]);
         break;
     case '1':
         if (col->fight_death[2])
             sprintf(code, "\e[%d;3%dm%c", col->fight_death[0],
-                    col->fight_death[1], '\a');
+                col->fight_death[1], '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->fight_death[0],
-                    col->fight_death[1]);
+                col->fight_death[1]);
         break;
     case '6':
         if (col->say[2])
@@ -2160,7 +2302,7 @@ int colour(char type, CHAR_DATA* ch, char* string)
     case '7':
         if (col->say_text[2])
             sprintf(code, "\e[%d;3%dm%c", col->say_text[0], col->say_text[1],
-                    '\a');
+                '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->say_text[0], col->say_text[1]);
         break;
@@ -2173,7 +2315,7 @@ int colour(char type, CHAR_DATA* ch, char* string)
     case 'K':
         if (col->tell_text[2])
             sprintf(code, "\e[%d;3%dm%c", col->tell_text[0], col->tell_text[1],
-                    '\a');
+                '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->tell_text[0], col->tell_text[1]);
         break;
@@ -2186,53 +2328,53 @@ int colour(char type, CHAR_DATA* ch, char* string)
     case 'L':
         if (col->reply_text[2])
             sprintf(code, "\e[%d;3%dm%c", col->reply_text[0],
-                    col->reply_text[1], '\a');
+                col->reply_text[1], '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->reply_text[0], col->reply_text[1]);
         break;
     case 'n':
         if (col->gtell_text[2])
             sprintf(code, "\e[%d;3%dm%c", col->gtell_text[0],
-                    col->gtell_text[1], '\a');
+                col->gtell_text[1], '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->gtell_text[0], col->gtell_text[1]);
         break;
     case 'N':
         if (col->gtell_type[2])
             sprintf(code, "\e[%d;3%dm%c", col->gtell_type[0],
-                    col->gtell_type[1], '\a');
+                col->gtell_type[1], '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->gtell_type[0], col->gtell_type[1]);
         break;
     case 'a':
         if (col->auction[2])
             sprintf(code, "\e[%d;3%dm%c", col->auction[0], col->auction[1],
-                    '\a');
+                '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->auction[0], col->auction[1]);
         break;
     case 'A':
         if (col->auction_text[2])
             sprintf(code, "\e[%d;3%dm%c", col->auction_text[0],
-                    col->auction_text[1], '\a');
+                col->auction_text[1], '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->auction_text[0],
-                    col->auction_text[1]);
+                col->auction_text[1]);
         break;
     case 'q':
         if (col->question[2])
             sprintf(code, "\e[%d;3%dm%c", col->question[0], col->question[1],
-                    '\a');
+                '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->question[0], col->question[1]);
         break;
     case 'Q':
         if (col->question_text[2])
             sprintf(code, "\e[%d;3%dm%c", col->question_text[0],
-                    col->question_text[1], '\a');
+                col->question_text[1], '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->question_text[0],
-                    col->question_text[1]);
+                col->question_text[1]);
         break;
     case 'f':
         if (col->answer[2])
@@ -2243,10 +2385,10 @@ int colour(char type, CHAR_DATA* ch, char* string)
     case 'F':
         if (col->answer_text[2])
             sprintf(code, "\e[%d;3%dm%c", col->answer_text[0],
-                    col->answer_text[1], '\a');
+                col->answer_text[1], '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->answer_text[0],
-                    col->answer_text[1]);
+                col->answer_text[1]);
         break;
     case 'e':
         if (col->music[2])
@@ -2257,7 +2399,7 @@ int colour(char type, CHAR_DATA* ch, char* string)
     case 'E':
         if (col->music_text[2])
             sprintf(code, "\e[%d;3%dm%c", col->music_text[0],
-                    col->music_text[1], '\a');
+                col->music_text[1], '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->music_text[0], col->music_text[1]);
         break;
@@ -2270,7 +2412,7 @@ int colour(char type, CHAR_DATA* ch, char* string)
     case 'H':
         if (col->quote_text[2])
             sprintf(code, "\e[%d;3%dm%c", col->quote_text[0],
-                    col->quote_text[1], '\a');
+                col->quote_text[1], '\a');
         else
             sprintf(code, "\e[%d;3%dm", col->quote_text[0], col->quote_text[1]);
         break;

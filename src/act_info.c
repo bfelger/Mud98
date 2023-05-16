@@ -38,14 +38,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
 #include <sys/types.h>
 #include <time.h>
-#include <unistd.h>
 
-#ifndef _XOPEN_CRYPT
-#include <crypt.h>
+#ifndef _MSC_VER 
+#include <sys/time.h>
+#include <unistd.h>
+    #ifndef _XOPEN_CRYPT
+    #include <crypt.h>
+    #endif
 #endif
+
 
 char* const where_name[] = {
     "<used as light>     ", "<worn on finger>    ", "<worn on finger>    ",

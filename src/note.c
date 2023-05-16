@@ -34,9 +34,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
 #include <sys/types.h>
 #include <time.h>
+
+#ifndef _MSC_VER 
+#include <sys/time.h>
+#endif
 
 /* globals from db.c for load_notes */
 extern int _filbuf args((FILE*));
