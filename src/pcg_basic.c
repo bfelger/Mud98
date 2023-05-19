@@ -30,6 +30,8 @@
 
 #include "pcg_basic.h"
 
+#pragma warning( disable : 4146 4244 )
+
   // state for global RNGs
 
 static pcg32_random_t pcg32_global = PCG32_INITIALIZER;

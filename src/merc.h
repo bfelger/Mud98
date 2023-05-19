@@ -34,6 +34,10 @@
 #include <stdio.h>
 #include <time.h>
 
+#ifndef _MSC_VER
+#include <stddef.h>
+#endif
+
 #define args( list )             list
 #define DECLARE_DO_FUN( fun )    DO_FUN fun
 #define DECLARE_SPEC_FUN( fun )  SPEC_FUN fun
@@ -127,22 +131,22 @@ typedef void SPELL_FUN args((int sn, int level, CHAR_DATA* ch, void* vo,
 /*
  * ColoUr stuff v2.0, by Lope.
  */
-#define CLEAR              "\e[0m" /* Resets Colour	*/
-#define C_RED              "\e[0;31m" /* Normal Colours	*/
-#define C_GREEN            "\e[0;32m"
-#define C_YELLOW           "\e[0;33m"
-#define C_BLUE             "\e[0;34m"
-#define C_MAGENTA          "\e[0;35m"
-#define C_CYAN             "\e[0;36m"
-#define C_WHITE            "\e[0;37m"
-#define C_D_GREY           "\e[1;30m" /* Light Colors		*/
-#define C_B_RED            "\e[1;31m"
-#define C_B_GREEN          "\e[1;32m"
-#define C_B_YELLOW         "\e[1;33m"
-#define C_B_BLUE           "\e[1;34m"
-#define C_B_MAGENTA        "\e[1;35m"
-#define C_B_CYAN           "\e[1;36m"
-#define C_B_WHITE          "\e[1;37m"
+#define CLEAR              "\033[0m" /* Resets Colour	*/
+#define C_RED              "\033[0;31m" /* Normal Colours	*/
+#define C_GREEN            "\033[0;32m"
+#define C_YELLOW           "\033[0;33m"
+#define C_BLUE             "\033[0;34m"
+#define C_MAGENTA          "\033[0;35m"
+#define C_CYAN             "\033[0;36m"
+#define C_WHITE            "\033[0;37m"
+#define C_D_GREY           "\033[1;30m" /* Light Colors		*/
+#define C_B_RED            "\033[1;31m"
+#define C_B_GREEN          "\033[1;32m"
+#define C_B_YELLOW         "\033[1;33m"
+#define C_B_BLUE           "\033[1;34m"
+#define C_B_MAGENTA        "\033[1;35m"
+#define C_B_CYAN           "\033[1;36m"
+#define C_B_WHITE          "\033[1;37m"
 
 #define COLOUR_NONE        7 /* White, hmm...	*/
 #define RED                1 /* Normal Colours	*/
@@ -338,8 +342,8 @@ struct descriptor_data {
     char inlast[MAX_INPUT_LENGTH];
     int repeat;
     char* outbuf;
-    int outsize;
-    int outtop;
+    size_t outsize;
+    ptrdiff_t outtop;
     char* showstr_head;
     char* showstr_point;
 };
@@ -1967,7 +1971,7 @@ bool check_ban args((char* site, int type));
 /* comm.c */
 void show_string args((struct descriptor_data * d, char* input));
 void close_socket args((DESCRIPTOR_DATA * dclose));
-void write_to_buffer args((DESCRIPTOR_DATA * d, const char* txt, int length));
+void write_to_buffer args((DESCRIPTOR_DATA * d, const char* txt, size_t length));
 void send_to_char args((const char* txt, CHAR_DATA* ch));
 void page_to_char args((const char* txt, CHAR_DATA* ch));
 void act args((const char* format, CHAR_DATA* ch, const void* arg1,
@@ -1977,7 +1981,7 @@ void act_new args((const char* format, CHAR_DATA* ch, const void* arg1,
 /*
  * Colour stuff by Lope
  */
-int colour args((char type, CHAR_DATA* ch, char* string));
+size_t colour(char type, CHAR_DATA* ch, char* string);
 void colourconv args((char* buffer, const char* txt, CHAR_DATA* ch));
 void send_to_char_bw args((const char* txt, CHAR_DATA* ch));
 void page_to_char_bw args((const char* txt, CHAR_DATA* ch));
@@ -2003,9 +2007,9 @@ char* fread_string_eol args((FILE * fp));
 void fread_to_eol args((FILE * fp));
 char* fread_word args((FILE * fp));
 long flag_convert args((char letter));
-void* alloc_mem args((int sMem));
-void* alloc_perm args((int sMem));
-void free_mem args((void* pMem, int sMem));
+void* alloc_mem(size_t sMem);
+void* alloc_perm(size_t sMem);
+void free_mem(void* pMem, size_t sMem);
 char* str_dup args((const char* str));
 void free_string args((char* pstr));
 int number_fuzzy args((int number));
@@ -2023,7 +2027,7 @@ bool str_infix args((const char* astr, const char* bstr));
 bool str_suffix args((const char* astr, const char* bstr));
 char* capitalize args((const char* str));
 void append_file args((CHAR_DATA * ch, char* file, char* str));
-void bug args((const char* str, int param));
+void bug(const char* fmt, ...);
 void log_string args((const char* str));
 void tail_chain args((void));
 

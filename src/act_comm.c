@@ -36,10 +36,11 @@
 #include <sys/types.h>
 #include <time.h>
 
-
 #ifndef _MSC_VER 
 #include <sys/time.h>
 #include <unistd.h>
+#else
+#define unlink _unlink
 #endif
 
 /* RT code to delete yourself */
@@ -906,7 +907,8 @@ void do_pmote(CHAR_DATA* ch, char* argument)
 {
     CHAR_DATA* vch;
     char *letter, *name;
-    char last[MAX_INPUT_LENGTH], temp[MAX_STRING_LENGTH];
+    char last[MAX_INPUT_LENGTH] = "";
+    char temp[MAX_STRING_LENGTH] = "";
     int matches = 0;
 
     if (!IS_NPC(ch) && IS_SET(ch->comm, COMM_NOEMOTE)) {
@@ -1146,7 +1148,8 @@ void do_qui(CHAR_DATA* ch, char* argument)
 
 void do_quit(CHAR_DATA* ch, char* argument)
 {
-    DESCRIPTOR_DATA *d, *d_next;
+    DESCRIPTOR_DATA* d;
+    DESCRIPTOR_DATA* d_next = NULL;
     int id;
 
     if (IS_NPC(ch)) return;
@@ -1327,10 +1330,11 @@ void die_follower(CHAR_DATA* ch)
 void do_order(CHAR_DATA* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    char arg[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+    char arg[MAX_INPUT_LENGTH];
+    char arg2[MAX_INPUT_LENGTH];
     CHAR_DATA* victim;
     CHAR_DATA* och;
-    CHAR_DATA* och_next;
+    CHAR_DATA* och_next = NULL;
     bool found;
     bool fAll;
 

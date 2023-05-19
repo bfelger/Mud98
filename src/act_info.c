@@ -2174,7 +2174,6 @@ void do_description(CHAR_DATA* ch, char* argument)
         smash_tilde(argument);
 
         if (argument[0] == '-') {
-            int len;
             bool found = false;
 
             if (ch->description == NULL || ch->description[0] == '\0') {
@@ -2184,7 +2183,7 @@ void do_description(CHAR_DATA* ch, char* argument)
 
             strcpy(buf, ch->description);
 
-            for (len = strlen(buf); len > 0; len--) {
+            for (size_t len = strlen(buf); len > 0; len--) {
                 if (buf[len] == '\r') {
                     if (!found) {
                         /* back it up */
