@@ -34,6 +34,10 @@
 #include <stdio.h>
 #include <time.h>
 
+#ifndef _MSC_VER
+#include <stddef.h>
+#endif
+
 #define args( list )             list
 #define DECLARE_DO_FUN( fun )    DO_FUN fun
 #define DECLARE_SPEC_FUN( fun )  SPEC_FUN fun
