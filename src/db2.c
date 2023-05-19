@@ -48,7 +48,7 @@ int social_count;
 void load_socials(FILE* fp)
 {
     for (;;) {
-        struct social_type social;
+        struct social_type social = { 0 };
         char* temp;
         /* clear social */
         social.char_no_arg = NULL;

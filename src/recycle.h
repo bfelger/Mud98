@@ -112,6 +112,9 @@ bool add_buf args((BUFFER * buffer, char* string));
 void clear_buf args((BUFFER * buffer));
 char* buf_string args((BUFFER * buffer));
 
+#define INIT_BUF(b, sz) BUFFER* b = new_buf_size(sz)
+#define BUF(b) (b->string)
+
 /* externs */
 extern char str_empty[1];
 extern int mobile_count;

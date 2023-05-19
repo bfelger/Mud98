@@ -28,6 +28,7 @@
 #include "lookup.h"
 #include "merc.h"
 #include "recycle.h"
+#include "strings.h"
 #include "tables.h"
 
 #include <ctype.h>
@@ -40,8 +41,6 @@
 #include <time.h>
 
 extern int _filbuf args((FILE*));
-
-int rename(const char* oldfname, const char* newfname);
 
 char* print_flags(int flag)
 {
@@ -126,9 +125,12 @@ void save_char_obj(CHAR_DATA* ch)
         if (ch->pet != NULL && ch->pet->in_room == ch->in_room)
             fwrite_pet(ch->pet, fp);
         fprintf(fp, "#END\n");
+        fclose(fp);
     }
-    fclose(fp);
-    rename(TEMP_FILE, strsave);
+
+    if (rename(TEMP_FILE, strsave) < 0) {
+        bug("Save_char_obj: failed to rename file %s to %s.\n", TEMP_FILE, strsave);
+    }
     fpReserve = fopen(NULL_FILE, "r");
     return;
 }
@@ -145,7 +147,7 @@ void fwrite_char(CHAR_DATA* ch, FILE* fp)
 
     fprintf(fp, "Name %s~\n", ch->name);
     fprintf(fp, "Id   %ld\n", ch->id);
-    fprintf(fp, "LogO %ld\n", current_time);
+    fprintf(fp, "LogO " TIME_FMT "\n", current_time);
     fprintf(fp, "Vers %d\n", 5);
     if (ch->short_descr[0] != '\0') fprintf(fp, "ShD  %s~\n", ch->short_descr);
     if (ch->long_descr[0] != '\0') fprintf(fp, "LnD  %s~\n", ch->long_descr);
@@ -160,8 +162,8 @@ void fwrite_char(CHAR_DATA* ch, FILE* fp)
     fprintf(fp, "Levl %d\n", ch->level);
     if (ch->trust != 0) fprintf(fp, "Tru  %d\n", ch->trust);
     fprintf(fp, "Plyd %d\n", ch->played + (int)(current_time - ch->logon));
-    fprintf(fp, "Not  %ld %ld %ld %ld %ld\n", ch->pcdata->last_note,
-            ch->pcdata->last_idea, ch->pcdata->last_penalty,
+    fprintf(fp, "Not  "TIME_FMT" "TIME_FMT" "TIME_FMT" "TIME_FMT" "TIME_FMT"\n", 
+            ch->pcdata->last_note, ch->pcdata->last_idea, ch->pcdata->last_penalty,
             ch->pcdata->last_news, ch->pcdata->last_changes);
     fprintf(fp, "Scro %d\n", ch->lines);
     fprintf(fp, "Room %d\n",
@@ -335,7 +337,7 @@ void fwrite_pet(CHAR_DATA* pet, FILE* fp)
     fprintf(fp, "Vnum %d\n", pet->pIndexData->vnum);
 
     fprintf(fp, "Name %s~\n", pet->name);
-    fprintf(fp, "LogO %ld\n", current_time);
+    fprintf(fp, "LogO " TIME_FMT "\n", current_time);
     if (pet->short_descr != pet->pIndexData->short_descr)
         fprintf(fp, "ShD  %s~\n", pet->short_descr);
     if (pet->long_descr != pet->pIndexData->long_descr)
@@ -797,7 +799,7 @@ void fread_char(CHAR_DATA* ch, FILE* fp)
     char* word;
     bool fMatch;
     int count = 0;
-    int lastlogoff = current_time;
+    time_t lastlogoff = current_time;
     int percent;
 
     sprintf(buf, "Loading %s.", ch->name);
@@ -1032,7 +1034,7 @@ void fread_char(CHAR_DATA* ch, FILE* fp)
         case 'E':
             if (!str_cmp(word, "End")) {
                 /* adjust hp mana move up  -- here for speed's sake */
-                percent = (current_time - lastlogoff) * 25 / (2 * 60 * 60);
+                percent = (int)(current_time - lastlogoff) * 25 / (2 * 60 * 60);
 
                 percent = UMIN(percent, 100);
 
@@ -1233,7 +1235,7 @@ void fread_pet(CHAR_DATA* ch, FILE* fp)
     char* word;
     CHAR_DATA* pet;
     bool fMatch;
-    int lastlogoff = current_time;
+    time_t lastlogoff = current_time;
     int percent;
 
     /* first entry had BETTER be the vnum or we barf */
@@ -1359,7 +1361,7 @@ void fread_pet(CHAR_DATA* ch, FILE* fp)
                 pet->master = ch;
                 ch->pet = pet;
                 /* adjust hp mana move up  -- here for speed's sake */
-                percent = (current_time - lastlogoff) * 25 / (2 * 60 * 60);
+                percent = (int)(current_time - lastlogoff) * 25 / (2 * 60 * 60);
 
                 if (percent > 0 && !IS_AFFECTED(ch, AFF_POISON)
                     && !IS_AFFECTED(ch, AFF_PLAGUE)) {

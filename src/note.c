@@ -172,7 +172,7 @@ void save_notes(int type)
         for (; pnote != NULL; pnote = pnote->next) {
             fprintf(fp, "Sender  %s~\n", pnote->sender);
             fprintf(fp, "Date    %s~\n", pnote->date);
-            fprintf(fp, "Stamp   %ld\n", pnote->date_stamp);
+            fprintf(fp, "Stamp   "TIME_FMT"\n", pnote->date_stamp);
             fprintf(fp, "To      %s~\n", pnote->to_list);
             fprintf(fp, "Subject %s~\n", pnote->subject);
             fprintf(fp, "Text\n%s~\n", pnote->text);
@@ -300,7 +300,7 @@ void append_note(NOTE_DATA* pnote)
     else {
         fprintf(fp, "Sender  %s~\n", pnote->sender);
         fprintf(fp, "Date    %s~\n", pnote->date);
-        fprintf(fp, "Stamp   %ld\n", pnote->date_stamp);
+        fprintf(fp, "Stamp   "TIME_FMT"\n", pnote->date_stamp);
         fprintf(fp, "To      %s~\n", pnote->to_list);
         fprintf(fp, "Subject %s~\n", pnote->subject);
         fprintf(fp, "Text\n%s~\n", pnote->text);
@@ -707,7 +707,6 @@ void parse_note(CHAR_DATA* ch, char* argument, int type)
     }
 
     if (!str_cmp(arg, "-")) {
-        int len;
         bool found = false;
 
         note_attach(ch, type);
@@ -724,7 +723,7 @@ void parse_note(CHAR_DATA* ch, char* argument, int type)
 
         strcpy(buf, ch->pnote->text);
 
-        for (len = strlen(buf); len > 0; len--) {
+        for (size_t len = strlen(buf); len > 0; len--) {
             if (buf[len] == '\r') {
                 if (!found) /* back it up */
                 {

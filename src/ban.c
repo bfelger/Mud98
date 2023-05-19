@@ -36,6 +36,8 @@
 #ifndef _MSC_VER 
 #include <sys/time.h>
 #include <unistd.h>
+#else
+#define unlink _unlink
 #endif
 
 BAN_DATA* ban_list;
@@ -65,11 +67,10 @@ void save_bans(void)
 void load_bans(void)
 {
     FILE* fp;
-    BAN_DATA* ban_last;
+    BAN_DATA* ban_last = NULL;
 
     if ((fp = fopen(BAN_FILE, "r")) == NULL) return;
 
-    ban_last = NULL;
     for (;;) {
         BAN_DATA* pban;
         if (feof(fp)) {
@@ -81,12 +82,12 @@ void load_bans(void)
 
         pban->name = str_dup(fread_word(fp));
         pban->level = fread_number(fp);
-        pban->ban_flags = fread_flag(fp);
+        pban->ban_flags = (int16_t)fread_flag(fp);
         fread_to_eol(fp);
 
         if (ban_list == NULL)
             ban_list = pban;
-        else
+        else if (ban_last)
             ban_last->next = pban;
         ban_last = pban;
     }

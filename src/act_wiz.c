@@ -48,7 +48,7 @@ ROOM_INDEX_DATA* find_location args((CHAR_DATA * ch, char* arg));
 void do_wiznet(CHAR_DATA* ch, char* argument)
 {
     int flag;
-    char buf[MAX_STRING_LENGTH];
+    char buf[MAX_STRING_LENGTH] = "";
 
     if (argument[0] == '\0') {
         if (IS_SET(ch->wiznet, WIZ_ON)) {
@@ -308,7 +308,8 @@ void do_smote(CHAR_DATA* ch, char* argument)
 {
     CHAR_DATA* vch;
     char *letter, *name;
-    char last[MAX_INPUT_LENGTH], temp[MAX_STRING_LENGTH];
+    char last[MAX_INPUT_LENGTH] = "";
+    char temp[MAX_STRING_LENGTH];
     int matches = 0;
 
     if (!IS_NPC(ch) && IS_SET(ch->comm, COMM_NOEMOTE)) {
@@ -1743,7 +1744,8 @@ void do_reboot(CHAR_DATA* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     extern bool merc_down;
-    DESCRIPTOR_DATA *d, *d_next;
+    DESCRIPTOR_DATA* d;
+    DESCRIPTOR_DATA* d_next = NULL;
     CHAR_DATA* vch;
 
     if (ch->invis_level < LEVEL_HERO) {
@@ -1772,7 +1774,8 @@ void do_shutdown(CHAR_DATA* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     extern bool merc_down;
-    DESCRIPTOR_DATA *d, *d_next;
+    DESCRIPTOR_DATA* d;
+    DESCRIPTOR_DATA* d_next = NULL;
     CHAR_DATA* vch;
 
     if (ch->invis_level < LEVEL_HERO) sprintf(buf, "Shutdown by %s.", ch->name);
@@ -2219,8 +2222,8 @@ void do_purge(CHAR_DATA* ch, char* argument)
 
     if (arg[0] == '\0') {
         /* 'purge' */
-        CHAR_DATA* vnext;
-        OBJ_DATA* obj_next;
+        CHAR_DATA* vnext = NULL;
+        OBJ_DATA* obj_next = NULL;
 
         for (victim = ch->in_room->people; victim != NULL; victim = vnext) {
             vnext = victim->next_in_room;
@@ -3495,9 +3498,9 @@ void do_rset(CHAR_DATA* ch, char* argument)
 
 void do_sockets(CHAR_DATA* ch, char* argument)
 {
-    char buf[2 * MAX_STRING_LENGTH];
-    char buf2[MAX_STRING_LENGTH];
-    char arg[MAX_INPUT_LENGTH];
+    char buf[2 * MAX_STRING_LENGTH] = "";
+    char buf2[MAX_STRING_LENGTH] = "";
+    char arg[MAX_INPUT_LENGTH] = "";
     DESCRIPTOR_DATA* d;
     int count;
 
@@ -3510,7 +3513,7 @@ void do_sockets(CHAR_DATA* ch, char* argument)
             && (arg[0] == '\0' || is_name(arg, d->character->name)
                 || (d->original && is_name(arg, d->original->name)))) {
             count++;
-            sprintf(buf + strlen(buf), "[%3d %2d] %s@%s\n\r", d->descriptor,
+            sprintf(buf + strlen(buf), "[%3ld %2d] %s@%s\n\r", (long)d->descriptor,
                     d->connected,
                     d->original    ? d->original->name
                     : d->character ? d->character->name
@@ -3556,7 +3559,7 @@ void do_force(CHAR_DATA* ch, char* argument)
 
     if (!str_cmp(arg, "all")) {
         CHAR_DATA* vch;
-        CHAR_DATA* vch_next;
+        CHAR_DATA* vch_next = NULL;
 
         if (get_trust(ch) < MAX_LEVEL - 3) {
             send_to_char("Not at your level!\n\r", ch);
@@ -3574,7 +3577,7 @@ void do_force(CHAR_DATA* ch, char* argument)
     }
     else if (!str_cmp(arg, "players")) {
         CHAR_DATA* vch;
-        CHAR_DATA* vch_next;
+        CHAR_DATA* vch_next = NULL;
 
         if (get_trust(ch) < MAX_LEVEL - 2) {
             send_to_char("Not at your level!\n\r", ch);
@@ -3593,7 +3596,7 @@ void do_force(CHAR_DATA* ch, char* argument)
     }
     else if (!str_cmp(arg, "gods")) {
         CHAR_DATA* vch;
-        CHAR_DATA* vch_next;
+        CHAR_DATA* vch_next = NULL;
 
         if (get_trust(ch) < MAX_LEVEL - 2) {
             send_to_char("Not at your level!\n\r", ch);

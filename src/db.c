@@ -34,6 +34,7 @@
 #include "strings.h"
 
 #include <ctype.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -168,13 +169,13 @@ int newobjs = 0;
 #define MAX_MEM_LIST   11
 
 void* rgFreeList[MAX_MEM_LIST];
-const int rgSizeList[MAX_MEM_LIST]
+const size_t rgSizeList[MAX_MEM_LIST]
     = {16, 32, 64, 128, 256, 1024, 2048, 4096, 8192, 16384, 32768 - 64};
 
 int nAllocString;
-int sAllocString;
+size_t sAllocString;
 int nAllocPerm;
-int sAllocPerm;
+size_t sAllocPerm;
 
 /*
  * Semi-locals.
@@ -233,13 +234,13 @@ void boot_db(void)
      * Set time and weather.
      */
     {
-        long lhour, lday, lmonth;
+        long lhour = (long)((current_time - 1684281600) 
+            / (PULSE_TICK / PULSE_PER_SECOND));
+        long lday = lhour / 24;
+        long lmonth = lday / 35;
 
-        lhour = (current_time - 650336715) / (PULSE_TICK / PULSE_PER_SECOND);
         time_info.hour = lhour % 24;
-        lday = lhour / 24;
         time_info.day = lday % 35;
-        lmonth = lday / 35;
         time_info.month = lmonth % 17;
         time_info.year = lmonth / 17;
 
@@ -405,7 +406,10 @@ void load_helps(FILE* fp)
     HELP_DATA* pHelp;
 
     for (;;) {
-        pHelp = alloc_perm(sizeof(*pHelp));
+        if ((pHelp = alloc_perm(sizeof(*pHelp))) == NULL) {
+            bug("load_helps: can't alloc helps.");
+            exit(1);
+        }
         pHelp->level = fread_number(fp);
         pHelp->keyword = fread_string(fp);
         if (pHelp->keyword[0] == '$') break;
@@ -413,11 +417,14 @@ void load_helps(FILE* fp)
 
         if (!str_cmp(pHelp->keyword, "greeting")) help_greeting = pHelp->text;
 
-        if (help_first == NULL) help_first = pHelp;
-        if (help_last != NULL) help_last->next = pHelp;
+        if (help_first == NULL)
+            help_first = pHelp;
+        if (help_last != NULL)
+            help_last->next = pHelp;
 
         help_last = pHelp;
-        pHelp->next = NULL;
+        if (pHelp)
+            pHelp->next = NULL;
         top_help++;
     }
 
@@ -705,7 +712,10 @@ void load_resets(FILE* fp)
             continue;
         }
 
-        pReset = alloc_perm(sizeof(*pReset));
+        if ((pReset = alloc_perm(sizeof(*pReset))) == NULL) {
+            bug("load_resets: can't alloc resets.");
+            exit(1);
+        }
         pReset->command = letter;
         /* if_flag */ fread_number(fp);
         pReset->arg1 = fread_number(fp);
@@ -779,7 +789,8 @@ void load_resets(FILE* fp)
         if (area_last->reset_last != NULL) area_last->reset_last->next = pReset;
 
         area_last->reset_last = pReset;
-        pReset->next = NULL;
+        if (pReset)
+            pReset->next = NULL;
         top_reset++;
     }
 
@@ -945,7 +956,11 @@ void load_shops(FILE* fp)
         MOB_INDEX_DATA* pMobIndex;
         int iTrade;
 
-        pShop = alloc_perm(sizeof(*pShop));
+        if ((pShop = (SHOP_DATA*)alloc_perm(sizeof(*pShop))) == NULL) {
+            bug("load_shops: Failed to create shops.");
+            exit(1);
+        }
+
         pShop->keeper = fread_number(fp);
         if (pShop->keeper == 0) break;
         for (iTrade = 0; iTrade < MAX_TRADE; iTrade++)
@@ -958,11 +973,13 @@ void load_shops(FILE* fp)
         pMobIndex = get_mob_index(pShop->keeper);
         pMobIndex->pShop = pShop;
 
-        if (shop_first == NULL) shop_first = pShop;
-        if (shop_last != NULL) shop_last->next = pShop;
-
+        if (shop_first == NULL)
+            shop_first = pShop;
+        if (shop_last != NULL) 
+            shop_last->next = pShop;
         shop_last = pShop;
-        pShop->next = NULL;
+        if (pShop)
+            pShop->next = NULL;
         top_shop++;
     }
 
@@ -976,7 +993,7 @@ void load_specials(FILE* fp)
 {
     for (;;) {
         MOB_INDEX_DATA* pMobIndex;
-        char letter;
+        char letter = 0;
 
         switch (letter = fread_letter(fp)) {
         default:
@@ -1385,7 +1402,7 @@ CHAR_DATA* create_mobile(MOB_INDEX_DATA* pMobIndex)
 {
     CHAR_DATA* mob;
     int i;
-    AFFECT_DATA af;
+    AFFECT_DATA af = { 0 };
 
     mobile_count++;
 
@@ -1559,7 +1576,7 @@ CHAR_DATA* create_mobile(MOB_INDEX_DATA* pMobIndex)
         mob->max_hit = mob->level * 8
                        + number_range(mob->level * mob->level / 4,
                                       mob->level * mob->level);
-        mob->max_hit *= .9;
+        mob->max_hit = (int16_t)((double)mob->max_hit * 0.9);
         mob->hit = mob->max_hit;
         mob->max_mana = 100 + dice(mob->level, 10);
         mob->mana = mob->max_mana;
@@ -2134,15 +2151,15 @@ char* fread_string(FILE* fp)
                 union {
                     char* pc;
                     char rgc[sizeof(char*)];
-                } u1;
+                } u1 = { 0 };
                 int ic;
                 int iHash;
                 char* pHash;
-                char* pHashPrev;
+                char* pHashPrev = NULL;
                 char* pString;
 
                 plast[-1] = '\0';
-                iHash = UMIN(MAX_KEY_HASH - 1, plast - 1 - top_string);
+                iHash = (int)UMIN(MAX_KEY_HASH - 1, plast - 1 - top_string);
                 for (pHash = string_hash[iHash]; pHash; pHash = pHashPrev) {
                     for (ic = 0; ic < sizeof(char*); ic++)
                         u1.rgc[ic] = pHash[ic];
@@ -2220,15 +2237,15 @@ char* fread_string_eol(FILE* fp)
             union {
                 char* pc;
                 char rgc[sizeof(char*)];
-            } u1;
+            } u1 = { 0 };
             int ic;
             int iHash;
             char* pHash;
-            char* pHashPrev;
+            char* pHashPrev = NULL;
             char* pString;
 
             plast[-1] = '\0';
-            iHash = UMIN(MAX_KEY_HASH - 1, plast - 1 - top_string);
+            iHash = (int)UMIN(MAX_KEY_HASH - 1, plast - 1 - top_string);
             for (pHash = string_hash[iHash]; pHash; pHash = pHashPrev) {
                 for (ic = 0; ic < sizeof(char*); ic++) u1.rgc[ic] = pHash[ic];
                 pHashPrev = u1.pc;
@@ -2318,7 +2335,7 @@ char* fread_word(FILE* fp)
  * Allocate some ordinary memory,
  *   with the expectation of freeing it someday.
  */
-void* alloc_mem(int sMem)
+void* alloc_mem(size_t sMem)
 {
     uintptr_t mem_addr;
     int* magic;
@@ -2331,7 +2348,7 @@ void* alloc_mem(int sMem)
     }
 
     if (iList == MAX_MEM_LIST) {
-        bug("Alloc_mem: size %d too large.", sMem);
+        bug("Alloc_mem: size %zu too large.", sMem);
         exit(1);
     }
 
@@ -2354,7 +2371,7 @@ void* alloc_mem(int sMem)
  * Free some memory.
  * Recycle it back onto the free list for blocks of that size.
  */
-void free_mem(void* pMem, int sMem)
+void free_mem(void* pMem, size_t sMem)
 {
     int iList;
     int* magic;
@@ -2364,7 +2381,7 @@ void free_mem(void* pMem, int sMem)
     magic = (int*)mem_addr;
 
     if (*magic != MAGIC_NUM) {
-        bug("Attempt to recyle invalid memory of size %d.", sMem);
+        bug("Attempt to recyle invalid memory of size %zu.", sMem);
         bug((char*)mem_addr + sizeof(*magic), 0);
         return;
     }
@@ -2377,7 +2394,7 @@ void free_mem(void* pMem, int sMem)
     }
 
     if (iList == MAX_MEM_LIST) {
-        bug("Free_mem: size %d too large.", sMem);
+        bug("Free_mem: size %zu too large.", sMem);
         exit(1);
     }
 
@@ -2392,15 +2409,15 @@ void free_mem(void* pMem, int sMem)
  * Permanent memory is never freed,
  *   pointers into it may be copied safely.
  */
-void* alloc_perm(int sMem)
+void* alloc_perm(size_t sMem)
 {
     static char* pMemPerm;
-    static int iMemPerm;
+    static size_t iMemPerm;
     void* pMem;
 
     while (sMem % sizeof(long) != 0) sMem++;
     if (sMem > MAX_PERM_BLOCK) {
-        bug("Alloc_perm: %d too large.", sMem);
+        bug("Alloc_perm: %zu too large.", sMem);
         exit(1);
     }
 
@@ -2509,11 +2526,11 @@ void do_memory(CHAR_DATA* ch, char* argument)
     sprintf(buf, "Shops   %5d\n\r", top_shop);
     send_to_char(buf, ch);
 
-    sprintf(buf, "Strings %5d strings of %7d bytes (max %d).\n\r", nAllocString,
+    sprintf(buf, "Strings %5d strings of %zu bytes (max %d).\n\r", nAllocString,
             sAllocString, MAX_STRING);
     send_to_char(buf, ch);
 
-    sprintf(buf, "Perms   %5d blocks  of %7d bytes.\n\r", nAllocPerm,
+    sprintf(buf, "Perms   %5d blocks  of %zu bytes.\n\r", nAllocPerm,
             sAllocPerm);
     send_to_char(buf, ch);
 
@@ -2528,8 +2545,8 @@ void do_dump(CHAR_DATA* ch, char* argument)
     PC_DATA* pc;
     OBJ_DATA* obj;
     OBJ_INDEX_DATA* pObjIndex;
-    ROOM_INDEX_DATA* room;
-    EXIT_DATA* exit;
+    ROOM_INDEX_DATA* room = NULL;
+    EXIT_DATA* exit = NULL;
     DESCRIPTOR_DATA* d;
     AFFECT_DATA* af;
     FILE* fp;
@@ -2830,15 +2847,13 @@ bool str_prefix(const char* astr, const char* bstr)
  */
 bool str_infix(const char* astr, const char* bstr)
 {
-    int sstr1;
-    int sstr2;
     int ichar;
     char c0;
 
     if ((c0 = LOWER(astr[0])) == '\0') return false;
 
-    sstr1 = strlen(astr);
-    sstr2 = strlen(bstr);
+    size_t sstr1 = strlen(astr);
+    size_t sstr2 = strlen(bstr);
 
     for (ichar = 0; ichar <= sstr2 - sstr1; ichar++) {
         if (c0 == LOWER(bstr[ichar]) && !str_prefix(astr, bstr + ichar))
@@ -2855,11 +2870,8 @@ bool str_infix(const char* astr, const char* bstr)
  */
 bool str_suffix(const char* astr, const char* bstr)
 {
-    int sstr1;
-    int sstr2;
-
-    sstr1 = strlen(astr);
-    sstr2 = strlen(bstr);
+    size_t sstr1 = strlen(astr);
+    size_t sstr2 = strlen(bstr);
     if (sstr1 <= sstr2 && !str_cmp(astr, bstr + sstr2 - sstr1))
         return false;
     else
@@ -2874,7 +2886,8 @@ char* capitalize(const char* str)
     static char strcap[MAX_STRING_LENGTH];
     int i;
 
-    for (i = 0; str[i] != '\0'; i++) strcap[i] = LOWER(str[i]);
+    for (i = 0; str[i] != '\0'; i++)
+        strcap[i] = LOWER(str[i]);
     strcap[i] = '\0';
     strcap[0] = UPPER(strcap[0]);
     return strcap;
@@ -2907,9 +2920,12 @@ void append_file(CHAR_DATA* ch, char* file, char* str)
 /*
  * Reports a bug.
  */
-void bug(const char* str, int param)
+void bug(const char* fmt, ...)
 {
     char buf[MAX_STRING_LENGTH];
+
+    va_list args;
+    va_start(args, fmt);
 
     if (fpArea != NULL) {
         int iLine;
@@ -2928,27 +2944,11 @@ void bug(const char* str, int param)
 
         sprintf(buf, "[*****] FILE: %s LINE: %d", strArea, iLine);
         log_string(buf);
-        /* RT removed because we don't want bugs shutting the mud
-                if ( ( fp = fopen( "shutdown.txt", "a" ) ) != NULL )
-                {
-                    fprintf( fp, "[*****] %s\n", buf );
-                    fclose( fp );
-                }
-        */
     }
 
     strcpy(buf, "[*****] BUG: ");
-    sprintf(buf + strlen(buf), str, param);
+    vsprintf(buf + strlen(buf), fmt, args);
     log_string(buf);
-    /* RT removed due to bug-file spamming
-        fclose( fpReserve );
-        if ( ( fp = fopen( BUG_FILE, "a" ) ) != NULL )
-        {
-            fprintf( fp, "%s\n", buf );
-            fclose( fp );
-        }
-        fpReserve = fopen( NULL_FILE, "r" );
-    */
 
     return;
 }

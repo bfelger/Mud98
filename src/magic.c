@@ -114,8 +114,7 @@ void say_spell(CHAR_DATA* ch, int sn)
     char buf2[MAX_STRING_LENGTH];
     CHAR_DATA* rch;
     char* pName;
-    int iSyl;
-    int length;
+    size_t length;
 
     struct syl_type {
         char* old;
@@ -143,7 +142,7 @@ void say_spell(CHAR_DATA* ch, int sn)
 
     buf[0] = '\0';
     for (pName = skill_table[sn].name; *pName != '\0'; pName += length) {
-        for (iSyl = 0; (length = strlen(syl_table[iSyl].old)) != 0; iSyl++) {
+        for (size_t iSyl = 0; (length = strlen(syl_table[iSyl].old)) != 0; iSyl++) {
             if (!str_prefix(syl_table[iSyl].old, pName)) {
                 strcat(buf, syl_table[iSyl].new);
                 break;

@@ -102,7 +102,7 @@ DESCRIPTOR_DATA* descriptor_list; /* All open descriptors		*/
 DESCRIPTOR_DATA* d_next; /* Next descriptor in loop	*/
 FILE* fpReserve; /* Reserved file handle		*/
 bool god; /* All new chars are gods!	*/
-bool merc_down; /* Shutdown			*/
+bool merc_down = false; /* Shutdown			*/
 bool wizlock; /* Game is wizlocked		*/
 bool newlock; /* Game is newlocked		*/
 char str_boot_time[MAX_INPUT_LENGTH];
@@ -120,7 +120,7 @@ bool process_output args((DESCRIPTOR_DATA* d, bool fPrompt));
 void read_from_buffer args((DESCRIPTOR_DATA* d));
 bool read_from_descriptor args((DESCRIPTOR_DATA* d));
 void stop_idling args((CHAR_DATA* ch));
-bool write_to_descriptor(SOCKET desc, char* txt, int length);
+bool write_to_descriptor(SOCKET desc, char* txt, size_t length);
 
 #ifdef _MSC_VER
 ////////////////////////////////////////////////////////////////////////////////
@@ -285,7 +285,7 @@ SOCKET init_socket(int port)
 
 #ifdef SO_DONTLINGER
     {
-        struct linger ld;
+        struct linger ld = { 0 };
 
         ld.l_onoff = 1;
         ld.l_linger = 1000;
@@ -340,9 +340,9 @@ void game_loop(SOCKET control)
 
     /* Main loop */
     while (!merc_down) {
-        fd_set in_set;
-        fd_set out_set;
-        fd_set exc_set;
+        fd_set in_set = { 0 };
+        fd_set out_set = { 0 };
+        fd_set exc_set = { 0 };
         DESCRIPTOR_DATA* d;
         SOCKET maxdesc;
 
@@ -513,7 +513,7 @@ void init_descriptor(SOCKET control)
 {
     char buf[MAX_STRING_LENGTH];
     DESCRIPTOR_DATA* dnew;
-    struct sockaddr_in sock;
+    struct sockaddr_in sock = { 0 };
     struct hostent* from;
     SOCKET desc;
     SOCKLEN size;
@@ -672,13 +672,11 @@ void close_socket(DESCRIPTOR_DATA* dclose)
 
 bool read_from_descriptor(DESCRIPTOR_DATA* d)
 {
-    int iStart;
-
     /* Hold horses if pending command already. */
     if (d->incomm[0] != '\0') return true;
 
     /* Check for overflow. */
-    iStart = strlen(d->inbuf);
+    size_t iStart = strlen(d->inbuf);
     if (iStart >= sizeof(d->inbuf) - 10) {
         sprintf(log_buf, "%s input overflow!", d->host);
         log_string(log_buf);
@@ -908,32 +906,32 @@ bool process_output(DESCRIPTOR_DATA* d, bool fPrompt)
  */
 void bust_a_prompt(CHAR_DATA* ch)
 {
-    char buf[MAX_STRING_LENGTH];
-    char buf2[MAX_STRING_LENGTH];
-    char buffer[MAX_STRING_LENGTH * 2];
+    INIT_BUF(temp1, MAX_STRING_LENGTH);
+    INIT_BUF(temp2, MAX_STRING_LENGTH);
+    INIT_BUF(temp3, MAX_STRING_LENGTH * 2);
 
     const char* str;
     const char* i;
     char* point;
     char* pbuff;
-    char doors[MAX_INPUT_LENGTH];
+    char doors[MAX_INPUT_LENGTH] = "";
     EXIT_DATA* pexit;
     bool found;
     const char* dir_name[] = {"N", "E", "S", "W", "U", "D"};
     int door;
 
-    point = buf;
+    point = BUF(temp1);
     str = ch->prompt;
     if (str == NULL || str[0] == '\0') {
-        sprintf(buf, "{p<%dhp %dm %dmv>{x %s", ch->hit, ch->mana, ch->move, 
+        sprintf(BUF(temp1), "{p<%dhp %dm %dmv>{x %s", ch->hit, ch->mana, ch->move, 
             ch->prefix);
-        send_to_char(buf, ch);
-        return;
+        send_to_char(BUF(temp1), ch);
+        goto bust_a_prompt_cleanup;
     }
 
     if (IS_SET(ch->comm, COMM_AFK)) {
         send_to_char("{p<AFK>{x ", ch);
-        return;
+        goto bust_a_prompt_cleanup;
     }
 
     while (*str != '\0') {
@@ -960,117 +958,122 @@ void bust_a_prompt(CHAR_DATA* ch)
                     strcat(doors, dir_name[door]);
                 }
             }
-            if (!found) strcat(buf, "none");
-            sprintf(buf2, "%s", doors);
-            i = buf2;
+            if (!found) strcat(BUF(temp1), "none");
+            sprintf(BUF(temp2), "%s", doors);
+            i = BUF(temp2);
             break;
         case 'c':
-            sprintf(buf2, "%s", "\n\r");
-            i = buf2; 
+            sprintf(BUF(temp2), "%s", "\n\r");
+            i = BUF(temp2); 
             break;
         case 'h':
-            sprintf(buf2, "%d", ch->hit);
-            i = buf2;
+            sprintf(BUF(temp2), "%d", ch->hit);
+            i = BUF(temp2);
             break;
         case 'H':
-            sprintf(buf2, "%d", ch->max_hit);
-            i = buf2;
+            sprintf(BUF(temp2), "%d", ch->max_hit);
+            i = BUF(temp2);
             break;
         case 'm':
-            sprintf(buf2, "%d", ch->mana);
-            i = buf2;
+            sprintf(BUF(temp2), "%d", ch->mana);
+            i = BUF(temp2);
             break;
         case 'M':
-            sprintf(buf2, "%d", ch->max_mana);
-            i = buf2;
+            sprintf(BUF(temp2), "%d", ch->max_mana);
+            i = BUF(temp2);
             break;
         case 'v':
-            sprintf(buf2, "%d", ch->move);
-            i = buf2;
+            sprintf(BUF(temp2), "%d", ch->move);
+            i = BUF(temp2);
             break;
         case 'V':
-            sprintf(buf2, "%d", ch->max_move);
-            i = buf2;
+            sprintf(BUF(temp2), "%d", ch->max_move);
+            i = BUF(temp2);
             break;
         case 'x':
-            sprintf(buf2, "%d", ch->exp);
-            i = buf2;
+            sprintf(BUF(temp2), "%d", ch->exp);
+            i = BUF(temp2);
             break;
         case 'X':
-            sprintf(buf2, "%d",
+            sprintf(BUF(temp2), "%d",
                 IS_NPC(ch) ? 0
                 : (ch->level + 1)
                 * exp_per_level(ch, ch->pcdata->points)
                 - ch->exp);
-            i = buf2;
+            i = BUF(temp2);
             break;
         case 'g':
-            sprintf(buf2, "%ld", ch->gold);
-            i = buf2;
+            sprintf(BUF(temp2), "%ld", ch->gold);
+            i = BUF(temp2);
             break;
         case 's':
-            sprintf(buf2, "%ld", ch->silver);
-            i = buf2;
+            sprintf(BUF(temp2), "%ld", ch->silver);
+            i = BUF(temp2);
             break;
         case 'a':
             if (ch->level > 9)
-                sprintf(buf2, "%d", ch->alignment);
+                sprintf(BUF(temp2), "%d", ch->alignment);
             else
-                sprintf(buf2, "%s",
+                sprintf(BUF(temp2), "%s",
                     IS_GOOD(ch)   ? "good"
                     : IS_EVIL(ch) ? "evil"
                     : "neutral");
-            i = buf2;
+            i = BUF(temp2);
             break;
         case 'r':
             if (ch->in_room != NULL)
-                sprintf(buf2, "%s",
+                sprintf(BUF(temp2), "%s",
                     ((!IS_NPC(ch) && IS_SET(ch->act, PLR_HOLYLIGHT))
                         || (!IS_AFFECTED(ch, AFF_BLIND)
                             && !room_is_dark(ch->in_room)))
                     ? ch->in_room->name
                     : "darkness");
             else
-                sprintf(buf2, " ");
-            i = buf2;
+                sprintf(BUF(temp2), " ");
+            i = BUF(temp2);
             break;
         case 'R':
             if (IS_IMMORTAL(ch) && ch->in_room != NULL)
-                sprintf(buf2, "%d", ch->in_room->vnum);
+                sprintf(BUF(temp2), "%d", ch->in_room->vnum);
             else
-                sprintf(buf2, " ");
-            i = buf2;
+                sprintf(BUF(temp2), " ");
+            i = BUF(temp2);
             break;
         case 'z':
             if (IS_IMMORTAL(ch) && ch->in_room != NULL)
-                sprintf(buf2, "%s", ch->in_room->area->name);
+                sprintf(BUF(temp2), "%s", ch->in_room->area->name);
             else
-                sprintf(buf2, " ");
-            i = buf2;
+                sprintf(BUF(temp2), " ");
+            i = BUF(temp2);
             break;
         case '%':
-            sprintf(buf2, "%%");
-            i = buf2;
+            sprintf(BUF(temp2), "%%");
+            i = BUF(temp2);
             break;
         }
         ++str;
         while ((*point = *i) != '\0') ++point, ++i;
     }
     *point = '\0';
-    pbuff = buffer;
-    colourconv(pbuff, buf, ch);
+    pbuff = BUF(temp3);
+    colourconv(pbuff, BUF(temp1), ch);
     send_to_char("{p", ch);
-    write_to_buffer(ch->desc, buffer, 0);
+    write_to_buffer(ch->desc, BUF(temp3), 0);
     send_to_char("{x", ch);
 
-    if (ch->prefix[0] != '\0') write_to_buffer(ch->desc, ch->prefix, 0);
-    return;
+    if (ch->prefix[0] != '\0') 
+        write_to_buffer(ch->desc, ch->prefix, 0);
+
+bust_a_prompt_cleanup:
+    free_buf(temp1);
+    free_buf(temp2);
+    free_buf(temp3);
 }
 
 /*
  * Append onto an output buffer.
  */
-void write_to_buffer(DESCRIPTOR_DATA* d, const char* txt, int length)
+void write_to_buffer(DESCRIPTOR_DATA* d, const char* txt, size_t length)
 {
     /*
      * Find length in case caller didn't.
@@ -1099,6 +1102,7 @@ void write_to_buffer(DESCRIPTOR_DATA* d, const char* txt, int length)
         }
         outbuf = alloc_mem(2 * d->outsize);
         strncpy(outbuf, d->outbuf, d->outtop);
+        outbuf[d->outtop] = '\0';
         free_mem(d->outbuf, d->outsize);
         d->outbuf = outbuf;
         d->outsize *= 2;
@@ -1118,16 +1122,15 @@ void write_to_buffer(DESCRIPTOR_DATA* d, const char* txt, int length)
  * If this gives errors on very long blocks (like 'ofind all'),
  *   try lowering the max block size.
  */
-bool write_to_descriptor(SOCKET desc, char* txt, int length)
+bool write_to_descriptor(SOCKET desc, char* txt, size_t length)
 {
-    int iStart;
-    int nWrite;
+    size_t nWrite = 0;
     int nBlock;
 
     if (length <= 0) length = strlen(txt);
 
-    for (iStart = 0; iStart < length; iStart += nWrite) {
-        nBlock = UMIN(length - iStart, 4096);
+    for (size_t iStart = 0; iStart < length; iStart += nWrite) {
+        nBlock = (int)UMIN(length - iStart, 4096);
 #ifdef _MSC_VER
         if ((nWrite = send(desc, txt + iStart, nBlock, 0)) < 0) {
             PrintLastWinSockError();
@@ -1148,8 +1151,8 @@ bool write_to_descriptor(SOCKET desc, char* txt, int length)
  */
 void nanny(DESCRIPTOR_DATA* d, char* argument)
 {
-    DESCRIPTOR_DATA* d_old;
-    DESCRIPTOR_DATA* d_next;
+    DESCRIPTOR_DATA* d_old = NULL;
+    DESCRIPTOR_DATA* d_next = NULL;
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
     CHAR_DATA* ch;
@@ -1874,11 +1877,11 @@ void send_to_char(const char* txt, CHAR_DATA* ch)
 {
     const char* point;
     char* point2;
-    char buf[MAX_STRING_LENGTH * 4];
-    int skip = 0;
+    INIT_BUF(temp, MAX_STRING_LENGTH * 4);
+    size_t skip = 0;
 
-    buf[0] = '\0';
-    point2 = buf;
+    BUF(temp)[0] = '\0';
+    point2 = BUF(temp);
     if (txt && ch->desc) {
         if (IS_SET(ch->act, PLR_COLOUR)) {
             for (point = txt; *point; point++) {
@@ -1892,7 +1895,7 @@ void send_to_char(const char* txt, CHAR_DATA* ch)
                 *++point2 = '\0';
             }
             *point2 = '\0';
-            write_to_buffer(ch->desc, buf, point2 - buf);
+            write_to_buffer(ch->desc, BUF(temp), point2 - BUF(temp));
         }
         else {
             for (point = txt; *point; point++) {
@@ -1904,10 +1907,11 @@ void send_to_char(const char* txt, CHAR_DATA* ch)
                 *++point2 = '\0';
             }
             *point2 = '\0';
-            write_to_buffer(ch->desc, buf, point2 - buf);
+            write_to_buffer(ch->desc, BUF(temp), point2 - BUF(temp));
         }
     }
-    return;
+
+    free_buf(temp);
 }
 
 /*
@@ -1933,13 +1937,13 @@ void page_to_char_bw(const char* txt, CHAR_DATA* ch)
  */
 void page_to_char(const char* txt, CHAR_DATA* ch)
 {
+    INIT_BUF(temp, MAX_STRING_LENGTH * 4);
     const char* point;
     char* point2;
-    char buf[MAX_STRING_LENGTH * 4];
-    int skip = 0;
+    size_t skip = 0;
 
-    buf[0] = '\0';
-    point2 = buf;
+    BUF(temp)[0] = '\0';
+    point2 = BUF(temp);
     if (txt && ch->desc) {
         if (IS_SET(ch->act, PLR_COLOUR)) {
             for (point = txt; *point; point++) {
@@ -1953,8 +1957,8 @@ void page_to_char(const char* txt, CHAR_DATA* ch)
                 *++point2 = '\0';
             }
             *point2 = '\0';
-            ch->desc->showstr_head = alloc_mem(strlen(buf) + 1);
-            strcpy(ch->desc->showstr_head, buf);
+            ch->desc->showstr_head = alloc_mem(strlen(BUF(temp)) + 1);
+            strcpy(ch->desc->showstr_head, BUF(temp));
             ch->desc->showstr_point = ch->desc->showstr_head;
             show_string(ch->desc, "");
         }
@@ -1968,33 +1972,34 @@ void page_to_char(const char* txt, CHAR_DATA* ch)
                 *++point2 = '\0';
             }
             *point2 = '\0';
-            ch->desc->showstr_head = alloc_mem(strlen(buf) + 1);
-            strcpy(ch->desc->showstr_head, buf);
+            ch->desc->showstr_head = alloc_mem(strlen(BUF(temp)) + 1);
+            strcpy(ch->desc->showstr_head, BUF(temp));
             ch->desc->showstr_point = ch->desc->showstr_head;
             show_string(ch->desc, "");
         }
     }
-    return;
+
+    free_buf(temp);
 }
 
 /* string pager */
 void show_string(struct descriptor_data* d, char* input)
 {
-    char buffer[4 * MAX_STRING_LENGTH];
-    char buf[MAX_INPUT_LENGTH];
+    INIT_BUF(temp1, MAX_STRING_LENGTH * 4);
+    INIT_BUF(temp2, MAX_STRING_LENGTH);
     register char* scan;
     register char* chk;
     int lines = 0, toggle = 1;
     int show_lines;
 
-    one_argument(input, buf);
-    if (buf[0] != '\0') {
+    one_argument(input, BUF(temp2));
+    if (BUF(temp2)[0] != '\0') {
         if (d->showstr_head) {
             free_mem(d->showstr_head, strlen(d->showstr_head));
             d->showstr_head = 0;
         }
         d->showstr_point = 0;
-        return;
+        goto show_string_cleanup;
     }
 
     if (d->character)
@@ -2002,14 +2007,14 @@ void show_string(struct descriptor_data* d, char* input)
     else
         show_lines = 0;
 
-    for (scan = buffer;; scan++, d->showstr_point++) {
+    for (scan = BUF(temp1);; scan++, d->showstr_point++) {
         if (((*scan = *d->showstr_point) == '\n' || *scan == '\r')
             && (toggle = -toggle) < 0)
             lines++;
 
         else if (!*scan || (show_lines > 0 && lines >= show_lines)) {
             *scan = '\0';
-            write_to_buffer(d, buffer, strlen(buffer));
+            write_to_buffer(d, BUF(temp1), strlen(BUF(temp1)));
             for (chk = d->showstr_point; ISSPACE(*chk); chk++)
                 ;
             {
@@ -2021,10 +2026,13 @@ void show_string(struct descriptor_data* d, char* input)
                     d->showstr_point = 0;
                 }
             }
-            return;
+            goto show_string_cleanup;
         }
     }
-    return;
+
+show_string_cleanup:
+    free_buf(temp1);
+    free_buf(temp2);
 }
 
 /* quick sex fixer */
@@ -2049,9 +2057,9 @@ void act_new(const char* format, CHAR_DATA* ch, const void* arg1,
     char* i = NULL;
     char* point;
     char* pbuff;
-    char buffer[MAX_STRING_LENGTH * 2];
-    char buf[MAX_STRING_LENGTH];
-    char fname[MAX_INPUT_LENGTH];
+    char buffer[MAX_STRING_LENGTH * 2] = "";
+    char buf[MAX_STRING_LENGTH] = "";
+    char fname[MAX_INPUT_LENGTH] = "";
 
     /*
      * Discard null and zero-length messages.
@@ -2169,7 +2177,7 @@ void act_new(const char* format, CHAR_DATA* ch, const void* arg1,
     return;
 }
 
-int colour(char type, CHAR_DATA* ch, char* string)
+size_t colour(char type, CHAR_DATA* ch, char* string)
 {
     PC_DATA* col;
     char code[20];
@@ -2187,240 +2195,240 @@ int colour(char type, CHAR_DATA* ch, char* string)
         break;
     case 'p':
         if (col->prompt[2])
-            sprintf(code, "\e[%d;3%dm%c", col->prompt[0], col->prompt[1], '\a');
+            sprintf(code, "\033[%d;3%dm%c", col->prompt[0], col->prompt[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->prompt[0], col->prompt[1]);
+            sprintf(code, "\033[%d;3%dm", col->prompt[0], col->prompt[1]);
         break;
     case 's':
         if (col->room_title[2])
-            sprintf(code, "\e[%d;3%dm%c", col->room_title[0],
+            sprintf(code, "\033[%d;3%dm%c", col->room_title[0],
                 col->room_title[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->room_title[0], col->room_title[1]);
+            sprintf(code, "\033[%d;3%dm", col->room_title[0], col->room_title[1]);
         break;
     case 'S':
         if (col->room_text[2])
-            sprintf(code, "\e[%d;3%dm%c", col->room_text[0], col->room_text[1],
+            sprintf(code, "\033[%d;3%dm%c", col->room_text[0], col->room_text[1],
                 '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->room_text[0], col->room_text[1]);
+            sprintf(code, "\033[%d;3%dm", col->room_text[0], col->room_text[1]);
         break;
     case 'd':
         if (col->gossip[2])
-            sprintf(code, "\e[%d;3%dm%c", col->gossip[0], col->gossip[1], '\a');
+            sprintf(code, "\033[%d;3%dm%c", col->gossip[0], col->gossip[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->gossip[0], col->gossip[1]);
+            sprintf(code, "\033[%d;3%dm", col->gossip[0], col->gossip[1]);
         break;
     case '9':
         if (col->gossip_text[2])
-            sprintf(code, "\e[%d;3%dm%c", col->gossip_text[0],
+            sprintf(code, "\033[%d;3%dm%c", col->gossip_text[0],
                 col->gossip_text[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->gossip_text[0],
+            sprintf(code, "\033[%d;3%dm", col->gossip_text[0],
                 col->gossip_text[1]);
         break;
     case 'Z':
         if (col->wiznet[2])
-            sprintf(code, "\e[%d;3%dm%c", col->wiznet[0], col->wiznet[1], '\a');
+            sprintf(code, "\033[%d;3%dm%c", col->wiznet[0], col->wiznet[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->wiznet[0], col->wiznet[1]);
+            sprintf(code, "\033[%d;3%dm", col->wiznet[0], col->wiznet[1]);
         break;
     case 'o':
         if (col->room_exits[2])
-            sprintf(code, "\e[%d;3%dm%c", col->room_exits[0],
+            sprintf(code, "\033[%d;3%dm%c", col->room_exits[0],
                 col->room_exits[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->room_exits[0], col->room_exits[1]);
+            sprintf(code, "\033[%d;3%dm", col->room_exits[0], col->room_exits[1]);
         break;
     case 'O':
         if (col->room_things[2])
-            sprintf(code, "\e[%d;3%dm%c", col->room_things[0],
+            sprintf(code, "\033[%d;3%dm%c", col->room_things[0],
                 col->room_things[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->room_things[0],
+            sprintf(code, "\033[%d;3%dm", col->room_things[0],
                 col->room_things[1]);
         break;
     case 'i':
         if (col->immtalk_text[2])
-            sprintf(code, "\e[%d;3%dm%c", col->immtalk_text[0],
+            sprintf(code, "\033[%d;3%dm%c", col->immtalk_text[0],
                 col->immtalk_text[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->immtalk_text[0],
+            sprintf(code, "\033[%d;3%dm", col->immtalk_text[0],
                 col->immtalk_text[1]);
         break;
     case 'I':
         if (col->immtalk_type[2])
-            sprintf(code, "\e[%d;3%dm%c", col->immtalk_type[0],
+            sprintf(code, "\033[%d;3%dm%c", col->immtalk_type[0],
                 col->immtalk_type[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->immtalk_type[0],
+            sprintf(code, "\033[%d;3%dm", col->immtalk_type[0],
                 col->immtalk_type[1]);
         break;
     case '2':
         if (col->fight_yhit[2])
-            sprintf(code, "\e[%d;3%dm%c", col->fight_yhit[0],
+            sprintf(code, "\033[%d;3%dm%c", col->fight_yhit[0],
                 col->fight_yhit[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->fight_yhit[0], col->fight_yhit[1]);
+            sprintf(code, "\033[%d;3%dm", col->fight_yhit[0], col->fight_yhit[1]);
         break;
     case '3':
         if (col->fight_ohit[2])
-            sprintf(code, "\e[%d;3%dm%c", col->fight_ohit[0],
+            sprintf(code, "\033[%d;3%dm%c", col->fight_ohit[0],
                 col->fight_ohit[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->fight_ohit[0], col->fight_ohit[1]);
+            sprintf(code, "\033[%d;3%dm", col->fight_ohit[0], col->fight_ohit[1]);
         break;
     case '4':
         if (col->fight_thit[2])
-            sprintf(code, "\e[%d;3%dm%c", col->fight_thit[0],
+            sprintf(code, "\033[%d;3%dm%c", col->fight_thit[0],
                 col->fight_thit[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->fight_thit[0], col->fight_thit[1]);
+            sprintf(code, "\033[%d;3%dm", col->fight_thit[0], col->fight_thit[1]);
         break;
     case '5':
         if (col->fight_skill[2])
-            sprintf(code, "\e[%d;3%dm%c", col->fight_skill[0],
+            sprintf(code, "\033[%d;3%dm%c", col->fight_skill[0],
                 col->fight_skill[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->fight_skill[0],
+            sprintf(code, "\033[%d;3%dm", col->fight_skill[0],
                 col->fight_skill[1]);
         break;
     case '1':
         if (col->fight_death[2])
-            sprintf(code, "\e[%d;3%dm%c", col->fight_death[0],
+            sprintf(code, "\033[%d;3%dm%c", col->fight_death[0],
                 col->fight_death[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->fight_death[0],
+            sprintf(code, "\033[%d;3%dm", col->fight_death[0],
                 col->fight_death[1]);
         break;
     case '6':
         if (col->say[2])
-            sprintf(code, "\e[%d;3%dm%c", col->say[0], col->say[1], '\a');
+            sprintf(code, "\033[%d;3%dm%c", col->say[0], col->say[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->say[0], col->say[1]);
+            sprintf(code, "\033[%d;3%dm", col->say[0], col->say[1]);
         break;
     case '7':
         if (col->say_text[2])
-            sprintf(code, "\e[%d;3%dm%c", col->say_text[0], col->say_text[1],
+            sprintf(code, "\033[%d;3%dm%c", col->say_text[0], col->say_text[1],
                 '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->say_text[0], col->say_text[1]);
+            sprintf(code, "\033[%d;3%dm", col->say_text[0], col->say_text[1]);
         break;
     case 'k':
         if (col->tell[2])
-            sprintf(code, "\e[%d;3%dm%c", col->tell[0], col->tell[1], '\a');
+            sprintf(code, "\033[%d;3%dm%c", col->tell[0], col->tell[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->tell[0], col->tell[1]);
+            sprintf(code, "\033[%d;3%dm", col->tell[0], col->tell[1]);
         break;
     case 'K':
         if (col->tell_text[2])
-            sprintf(code, "\e[%d;3%dm%c", col->tell_text[0], col->tell_text[1],
+            sprintf(code, "\033[%d;3%dm%c", col->tell_text[0], col->tell_text[1],
                 '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->tell_text[0], col->tell_text[1]);
+            sprintf(code, "\033[%d;3%dm", col->tell_text[0], col->tell_text[1]);
         break;
     case 'l':
         if (col->reply[2])
-            sprintf(code, "\e[%d;3%dm%c", col->reply[0], col->reply[1], '\a');
+            sprintf(code, "\033[%d;3%dm%c", col->reply[0], col->reply[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->reply[0], col->reply[1]);
+            sprintf(code, "\033[%d;3%dm", col->reply[0], col->reply[1]);
         break;
     case 'L':
         if (col->reply_text[2])
-            sprintf(code, "\e[%d;3%dm%c", col->reply_text[0],
+            sprintf(code, "\033[%d;3%dm%c", col->reply_text[0],
                 col->reply_text[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->reply_text[0], col->reply_text[1]);
+            sprintf(code, "\033[%d;3%dm", col->reply_text[0], col->reply_text[1]);
         break;
     case 'n':
         if (col->gtell_text[2])
-            sprintf(code, "\e[%d;3%dm%c", col->gtell_text[0],
+            sprintf(code, "\033[%d;3%dm%c", col->gtell_text[0],
                 col->gtell_text[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->gtell_text[0], col->gtell_text[1]);
+            sprintf(code, "\033[%d;3%dm", col->gtell_text[0], col->gtell_text[1]);
         break;
     case 'N':
         if (col->gtell_type[2])
-            sprintf(code, "\e[%d;3%dm%c", col->gtell_type[0],
+            sprintf(code, "\033[%d;3%dm%c", col->gtell_type[0],
                 col->gtell_type[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->gtell_type[0], col->gtell_type[1]);
+            sprintf(code, "\033[%d;3%dm", col->gtell_type[0], col->gtell_type[1]);
         break;
     case 'a':
         if (col->auction[2])
-            sprintf(code, "\e[%d;3%dm%c", col->auction[0], col->auction[1],
+            sprintf(code, "\033[%d;3%dm%c", col->auction[0], col->auction[1],
                 '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->auction[0], col->auction[1]);
+            sprintf(code, "\033[%d;3%dm", col->auction[0], col->auction[1]);
         break;
     case 'A':
         if (col->auction_text[2])
-            sprintf(code, "\e[%d;3%dm%c", col->auction_text[0],
+            sprintf(code, "\033[%d;3%dm%c", col->auction_text[0],
                 col->auction_text[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->auction_text[0],
+            sprintf(code, "\033[%d;3%dm", col->auction_text[0],
                 col->auction_text[1]);
         break;
     case 'q':
         if (col->question[2])
-            sprintf(code, "\e[%d;3%dm%c", col->question[0], col->question[1],
+            sprintf(code, "\033[%d;3%dm%c", col->question[0], col->question[1],
                 '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->question[0], col->question[1]);
+            sprintf(code, "\033[%d;3%dm", col->question[0], col->question[1]);
         break;
     case 'Q':
         if (col->question_text[2])
-            sprintf(code, "\e[%d;3%dm%c", col->question_text[0],
+            sprintf(code, "\033[%d;3%dm%c", col->question_text[0],
                 col->question_text[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->question_text[0],
+            sprintf(code, "\033[%d;3%dm", col->question_text[0],
                 col->question_text[1]);
         break;
     case 'f':
         if (col->answer[2])
-            sprintf(code, "\e[%d;3%dm%c", col->answer[0], col->answer[1], '\a');
+            sprintf(code, "\033[%d;3%dm%c", col->answer[0], col->answer[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->answer[0], col->answer[1]);
+            sprintf(code, "\033[%d;3%dm", col->answer[0], col->answer[1]);
         break;
     case 'F':
         if (col->answer_text[2])
-            sprintf(code, "\e[%d;3%dm%c", col->answer_text[0],
+            sprintf(code, "\033[%d;3%dm%c", col->answer_text[0],
                 col->answer_text[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->answer_text[0],
+            sprintf(code, "\033[%d;3%dm", col->answer_text[0],
                 col->answer_text[1]);
         break;
     case 'e':
         if (col->music[2])
-            sprintf(code, "\e[%d;3%dm%c", col->music[0], col->music[1], '\a');
+            sprintf(code, "\033[%d;3%dm%c", col->music[0], col->music[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->music[0], col->music[1]);
+            sprintf(code, "\033[%d;3%dm", col->music[0], col->music[1]);
         break;
     case 'E':
         if (col->music_text[2])
-            sprintf(code, "\e[%d;3%dm%c", col->music_text[0],
+            sprintf(code, "\033[%d;3%dm%c", col->music_text[0],
                 col->music_text[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->music_text[0], col->music_text[1]);
+            sprintf(code, "\033[%d;3%dm", col->music_text[0], col->music_text[1]);
         break;
     case 'h':
         if (col->quote[2])
-            sprintf(code, "\e[%d;3%dm%c", col->quote[0], col->quote[1], '\a');
+            sprintf(code, "\033[%d;3%dm%c", col->quote[0], col->quote[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->quote[0], col->quote[1]);
+            sprintf(code, "\033[%d;3%dm", col->quote[0], col->quote[1]);
         break;
     case 'H':
         if (col->quote_text[2])
-            sprintf(code, "\e[%d;3%dm%c", col->quote_text[0],
+            sprintf(code, "\033[%d;3%dm%c", col->quote_text[0],
                 col->quote_text[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->quote_text[0], col->quote_text[1]);
+            sprintf(code, "\033[%d;3%dm", col->quote_text[0], col->quote_text[1]);
         break;
     case 'j':
         if (col->info[2])
-            sprintf(code, "\e[%d;3%dm%c", col->info[0], col->info[1], '\a');
+            sprintf(code, "\033[%d;3%dm%c", col->info[0], col->info[1], '\a');
         else
-            sprintf(code, "\e[%d;3%dm", col->info[0], col->info[1]);
+            sprintf(code, "\033[%d;3%dm", col->info[0], col->info[1]);
         break;
     case 'b':
         strcpy(code, C_BLUE);
@@ -2493,7 +2501,7 @@ int colour(char type, CHAR_DATA* ch, char* string)
 void colourconv(char* buffer, const char* txt, CHAR_DATA* ch)
 {
     const char* point;
-    int skip = 0;
+    size_t skip = 0;
 
     if (ch->desc && txt) {
         if (IS_SET(ch->act, PLR_COLOUR)) {

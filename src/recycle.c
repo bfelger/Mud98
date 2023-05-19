@@ -245,8 +245,10 @@ OBJ_DATA* new_obj(void)
 
 void free_obj(OBJ_DATA* obj)
 {
-    AFFECT_DATA *paf, *paf_next;
-    EXTRA_DESCR_DATA *ed, *ed_next;
+    AFFECT_DATA* paf;
+    AFFECT_DATA* paf_next = NULL;
+    EXTRA_DESCR_DATA* ed;
+    EXTRA_DESCR_DATA* ed_next = NULL;
 
     if (!IS_VALID(obj)) return;
 
@@ -317,9 +319,9 @@ CHAR_DATA* new_char(void)
 void free_char(CHAR_DATA* ch)
 {
     OBJ_DATA* obj;
-    OBJ_DATA* obj_next;
+    OBJ_DATA* obj_next = NULL;
     AFFECT_DATA* paf;
-    AFFECT_DATA* paf_next;
+    AFFECT_DATA* paf_next = NULL;
 
     if (!IS_VALID(ch)) return;
 
@@ -409,9 +411,9 @@ long last_mob_id;
 
 long get_pc_id(void)
 {
-    int val;
-
-    val = (current_time <= last_pc_id) ? last_pc_id + 1 : current_time;
+    long val = (long)((current_time <= last_pc_id)
+                ? (time_t)last_pc_id + 1
+                : current_time);
     last_pc_id = val;
     return val;
 }
@@ -536,7 +538,6 @@ void free_buf(BUFFER* buffer)
 
 bool add_buf(BUFFER* buffer, char* string)
 {
-    int len;
     char* oldstr;
     int oldsize;
 
@@ -546,7 +547,7 @@ bool add_buf(BUFFER* buffer, char* string)
     if (buffer->state == BUFFER_OVERFLOW) /* don't waste time on bad strings! */
         return false;
 
-    len = strlen(buffer->string) + strlen(string) + 1;
+    size_t len = strlen(buffer->string) + strlen(string) + 1;
 
     while (len >= buffer->size) /* increase the buffer size */
     {

@@ -14,6 +14,11 @@ elseif (CMAKE_C_COMPILER_ID STREQUAL "Clang")
     add_compile_options(-Wall -std=c2x -D_GNU_SOURCE)
 endif()
 
+if (CMAKE_C_COMPILER_ID STREQUAL "GNU" 
+    OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    add_compile_options(-Wno-unknown-pragmas)
+endif()
+
 add_executable(rom act_comm.c act_enter.c act_info.c act_move.c act_obj.c 
     act_wiz.c alias.c ban.c comm.c const.c db.c db2.c effects.c fight.c flags.c
     handler.c healer.c interp.c lookup.c magic.c magic2.c music.c note.c 
