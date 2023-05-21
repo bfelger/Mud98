@@ -461,7 +461,8 @@ void free_mem_data(MEM_DATA* memory)
 
 /* buffer sizes */
 const int buf_size[MAX_BUF_LIST]
-    = {16, 32, 64, 128, 256, 1024, 2048, 4096, 8192, 16384};
+    = {16, 32, 64, 128, 256, 1024, 2048, 4096, MAX_STRING_LENGTH, 8192, 
+        MAX_STRING_LENGTH*2, 16384, MAX_STRING_LENGTH*4};
 
 /* local procedure for finding the next acceptable size */
 /* -1 indicates out-of-boundary error */

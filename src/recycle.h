@@ -33,8 +33,8 @@
 
 /* stuff for providing a crash-proof buffer */
 
-#define MAX_BUF         16384
-#define MAX_BUF_LIST    10
+#define MAX_BUF         MAX_STRING_LENGTH*4
+#define MAX_BUF_LIST    13
 #define BASE_BUF        1024
 
 /* valid states */
