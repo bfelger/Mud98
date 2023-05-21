@@ -49,7 +49,12 @@ void save_bans(void)
     bool found = false;
 
     fclose(fpReserve);
-    if ((fp = fopen(BAN_FILE, "w")) == NULL) { perror(BAN_FILE); }
+
+    char ban_file[256];
+    sprintf(ban_file, "%s%s", area_dir, BAN_FILE);
+    if ((fp = fopen(ban_file, "w")) == NULL) { 
+        perror(ban_file); 
+    }
 
     for (pban = ban_list; pban != NULL; pban = pban->next) {
         if (IS_SET(pban->ban_flags, BAN_PERMANENT)) {
@@ -61,7 +66,8 @@ void save_bans(void)
 
     fclose(fp);
     fpReserve = fopen(NULL_FILE, "r");
-    if (!found) unlink(BAN_FILE);
+    if (!found) 
+        unlink(ban_file);
 }
 
 void load_bans(void)
@@ -69,7 +75,9 @@ void load_bans(void)
     FILE* fp;
     BAN_DATA* ban_last = NULL;
 
-    if ((fp = fopen(BAN_FILE, "r")) == NULL) return;
+    char ban_file[256];
+    sprintf(ban_file, "%s%s", area_dir, BAN_FILE);
+    if ((fp = fopen(ban_file, "r")) == NULL) return;
 
     for (;;) {
         BAN_DATA* pban;

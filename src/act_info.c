@@ -1562,7 +1562,8 @@ void do_help(CHAR_DATA* ch, char* argument)
     HELP_DATA* pHelp;
     BUFFER* output;
     bool found = false;
-    char argall[MAX_INPUT_LENGTH], argone[MAX_INPUT_LENGTH];
+    char argall[MAX_INPUT_LENGTH];
+    char argone[MAX_INPUT_LENGTH];
     int level;
 
     output = new_buf();

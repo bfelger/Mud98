@@ -167,7 +167,9 @@ void save_notes(int type)
     }
 
     fclose(fpReserve);
-    if ((fp = fopen(name, "w")) == NULL) { perror(name); }
+    char filename[256];
+    sprintf(filename, "%s%s", area_dir, name);
+    if ((fp = fopen(filename, "w")) == NULL) { perror(name); }
     else {
         for (; pnote != NULL; pnote = pnote->next) {
             fprintf(fp, "Sender  %s~\n", pnote->sender);
@@ -196,7 +198,9 @@ void load_thread(char* name, NOTE_DATA** list, int type, time_t free_time)
     FILE* fp;
     NOTE_DATA* pnotelast;
 
-    if ((fp = fopen(name, "r")) == NULL) return;
+    char filename[256];
+    sprintf(filename, "%s%s", area_dir, name);
+    if ((fp = fopen(filename, "r")) == NULL) return;
 
     pnotelast = NULL;
     for (;;) {
@@ -242,7 +246,7 @@ void load_thread(char* name, NOTE_DATA** list, int type, time_t free_time)
 
         if (*list == NULL)
             *list = pnote;
-        else
+        else if (pnotelast)
             pnotelast->next = pnote;
 
         pnotelast = pnote;
@@ -296,7 +300,9 @@ void append_note(NOTE_DATA* pnote)
     }
 
     fclose(fpReserve);
-    if ((fp = fopen(name, "a")) == NULL) { perror(name); }
+    char filename[256];
+    sprintf(filename, "%s%s", area_dir, name);
+    if ((fp = fopen(filename, "a")) == NULL) { perror(name); }
     else {
         fprintf(fp, "Sender  %s~\n", pnote->sender);
         fprintf(fp, "Date    %s~\n", pnote->date);

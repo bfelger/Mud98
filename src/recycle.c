@@ -102,7 +102,7 @@ void free_ban(BAN_DATA* ban)
 }
 
 /* stuff for recycling descriptors */
-DESCRIPTOR_DATA* descriptor_free;
+DESCRIPTOR_DATA* descriptor_free = NULL;
 
 DESCRIPTOR_DATA* new_descriptor(void)
 {

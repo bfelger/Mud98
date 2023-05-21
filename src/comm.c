@@ -108,6 +108,10 @@ bool newlock; /* Game is newlocked		*/
 char str_boot_time[MAX_INPUT_LENGTH];
 time_t current_time; /* time of this pulse */
 
+bool rt_opt_benchmark = false;
+bool rt_opt_benchmark_only = false;
+char area_dir[256] = DEFAULT_AREA_DIR;
+
 void bust_a_prompt args((CHAR_DATA* ch));
 bool check_parse_name args((char* name));
 bool check_playing args((DESCRIPTOR_DATA* d, char* name));
@@ -222,18 +226,60 @@ int main(int argc, char** argv)
     }
 
     /*
-     * Get the port number.
+     * Get the command line arguments.
      */
     port = 4000;
+    char* port_str = NULL;
+    char* area_dir_str = NULL;
+
     if (argc > 1) {
-        if (!is_number(argv[1])) {
-            fprintf(stderr, "Usage: %s [port #]\n", argv[0]);
+        for (int i = 1; i < argc; i++) {
+            if (is_number(argv[i])) {
+                port = atoi(argv[i]);
+                continue;
+            }
+            else if (!strcmp(argv[i], "-p")) {
+                if (++i < argc) {
+                    port_str = argv[i];
+                    continue;
+                }
+            }
+            else if (!strncmp(argv[i], "--port=", 7)) {
+                port_str = argv[i] + 7;
+            }
+            else if (!strcmp(argv[i], "-a")) {
+                if (++i < argc) {
+                    area_dir_str = argv[i];
+                    continue;
+                }
+            }
+            else if (!strncmp(argv[i], "--area-dir=", 7)) {
+                area_dir_str = argv[i] + 11;
+            }
+        }
+    }
+
+    if (port_str) {
+        if (is_number(port_str)) {
+            port = atoi(port_str);
+        }
+        else {
+            fprintf(stderr, "Must specify a number for port.\n");
             exit(1);
         }
-        else if ((port = atoi(argv[1])) <= 1024) {
-            fprintf(stderr, "Port number must be above 1024.\n");
-            exit(1);
-        }
+    }
+
+    if (port <= 1024) {
+        fprintf(stderr, "Port number must be above 1024.\n");
+        exit(1);
+    }
+
+    if (area_dir_str) {
+        size_t len = strlen(area_dir_str);
+        if (area_dir_str[len - 1] != '/' && area_dir_str[len - 1] != '\\')
+            sprintf(area_dir, "%s/", area_dir_str);
+        else
+            sprintf(area_dir, "%s", area_dir_str);
     }
 
     /*
