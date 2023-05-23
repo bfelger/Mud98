@@ -63,7 +63,7 @@ void do_delete(CHAR_DATA* ch, char* argument)
             return;
         }
         else {
-            sprintf(strsave, "%s%s", PLAYER_DIR, capitalize(ch->name));
+            sprintf(strsave, "%s%s%s", area_dir, PLAYER_DIR, capitalize(ch->name));
             wiznet("$N turns $Mself into line noise.", ch, NULL, 0, 0, 0);
             stop_fighting(ch, true);
             do_function(ch, &do_quit, "");
@@ -1122,14 +1122,18 @@ void do_pose(CHAR_DATA* ch, char* argument)
 
 void do_bug(CHAR_DATA* ch, char* argument)
 {
-    append_file(ch, BUG_FILE, argument);
+    char bug_file[256];
+    sprintf(bug_file, "%s%s", area_dir, BUG_FILE);
+    append_file(ch, bug_file, argument);
     send_to_char("Bug logged.\n\r", ch);
     return;
 }
 
 void do_typo(CHAR_DATA* ch, char* argument)
 {
-    append_file(ch, TYPO_FILE, argument);
+    char typo_file[256];
+    sprintf(typo_file, "%s%s", area_dir, TYPO_FILE);
+    append_file(ch, typo_file, argument);
     send_to_char("Typo logged.\n\r", ch);
     return;
 }

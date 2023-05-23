@@ -145,7 +145,9 @@ void load_songs(void)
     /* reset global */
     for (i = 0; i <= MAX_GLOBAL; i++) channel_songs[i] = -1;
 
-    if ((fp = fopen(MUSIC_FILE, "r")) == NULL) {
+    char music_file[256];
+    sprintf(music_file, "%s%s", area_dir, MUSIC_FILE);
+    if ((fp = fopen(music_file, "r")) == NULL) {
         bug("Couldn't open music file, no songs available.", 0);
         fclose(fp);
         return;

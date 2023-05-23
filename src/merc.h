@@ -1906,6 +1906,9 @@ extern WEATHER_DATA weather_info;
  * Then we close it whenever we need to open a file (e.g. a save file).
  */
 
+extern char area_dir[];
+
+#define DEFAULT_AREA_DIR "./"
 #define PLAYER_DIR      "../player/"    // Player files
 #define GOD_DIR         "../gods/"      // list of gods
 #define TEMP_FILE       "../player/romtmp"

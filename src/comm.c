@@ -43,6 +43,7 @@
    * -- Furey  26 Jan 1993
    */
 
+#include "benchmark.h"
 #include "interp.h"
 #include "merc.h"
 #include "recycle.h"
@@ -107,6 +108,10 @@ bool wizlock; /* Game is wizlocked		*/
 bool newlock; /* Game is newlocked		*/
 char str_boot_time[MAX_INPUT_LENGTH];
 time_t current_time; /* time of this pulse */
+
+bool rt_opt_benchmark = false;
+bool rt_opt_noloop = false;
+char area_dir[256] = DEFAULT_AREA_DIR;
 
 void bust_a_prompt args((CHAR_DATA* ch));
 bool check_parse_name args((char* name));
@@ -179,76 +184,147 @@ int main(int argc, char** argv)
 
     SOCKET control;
 
-#ifdef _MSC_VER
-    WORD wVersionRequested;
-    WSADATA wsaData;
-    int err;
+    /*
+ * Get the command line arguments.
+ */
+    port = 4000;
+    char* port_str = NULL;
+    char* area_dir_str = NULL;
 
-    /* Use the MAKEWORD(lowbyte, highbyte) macro declared in Windef.h */
-    wVersionRequested = MAKEWORD(2, 2);
+    if (argc > 1) {
+        for (int i = 1; i < argc; i++) {
+            if (is_number(argv[i])) {
+                port = atoi(argv[i]);
+            }
+            else if (!strcmp(argv[i], "-p")) {
+                if (++i < argc) {
+                    port_str = argv[i];
+                }
+            }
+            else if (!strncmp(argv[i], "--port=", 7)) {
+                port_str = argv[i] + 7;
+            }
+            else if (!strcmp(argv[i], "-a")) {
+                if (++i < argc) {
+                    area_dir_str = argv[i];
+                }
+            }
+            else if (!strncmp(argv[i], "--area-dir=", 7)) {
+                area_dir_str = argv[i] + 11;
+            }
+            else if (!strcmp(argv[i], "--benchmark")) {
+                rt_opt_benchmark = true;
+            }
+            else if (!strcmp(argv[i], "--benchmark-only")) {
+                rt_opt_benchmark = true;
+                rt_opt_noloop = true;
+            }
+            else if (argv[i][0] == '-') {
+                char* opt = argv[i] + 1;
+                while (*opt != '\0') {
+                    switch (*opt) {
+                    case 'b':
+                        rt_opt_benchmark = true;
+                        break;
+                    case 'B':
+                        rt_opt_benchmark = true;
+                        rt_opt_noloop = true;
+                        break;
+                    default:
+                        fprintf(stderr, "Unknown option '-%c'.\n", *opt);
+                        exit(1);
+                    }
+                    opt++;
+                }
+            }
+            else {
+                fprintf(stderr, "Unknown argument '%s'.\n", argv[i]);
+                exit(1);
+            }
+        }
+    }
 
-    err = WSAStartup(wVersionRequested, &wsaData);
-    if (err != 0) {
-        /* Tell the user that we could not find a usable */
-        /* Winsock DLL.                                  */
-        printf("WSAStartup failed with error: %d\n", err);
+    if (port_str) {
+        if (is_number(port_str)) {
+            port = atoi(port_str);
+        }
+        else {
+            fprintf(stderr, "Must specify a number for port.\n");
+            exit(1);
+        }
+    }
+
+    if (port <= 1024) {
+        fprintf(stderr, "Port number must be above 1024.\n");
         exit(1);
+    }
+
+    if (area_dir_str) {
+        size_t len = strlen(area_dir_str);
+        if (area_dir_str[len - 1] != '/' && area_dir_str[len - 1] != '\\')
+            sprintf(area_dir, "%s/", area_dir_str);
+        else
+            sprintf(area_dir, "%s", area_dir_str);
+    }
+
+#ifdef _MSC_VER
+    if (!rt_opt_noloop) {
+        WORD wVersionRequested;
+        WSADATA wsaData;
+        int err;
+
+        /* Use the MAKEWORD(lowbyte, highbyte) macro declared in Windef.h */
+        wVersionRequested = MAKEWORD(2, 2);
+
+        err = WSAStartup(wVersionRequested, &wsaData);
+        if (err != 0) {
+            /* Tell the user that we could not find a usable */
+            /* Winsock DLL.                                  */
+            printf("WSAStartup failed with error: %d\n", err);
+            exit(1);
+        }
     }
 #endif
 
-    /*
-     * Memory debugging if needed.
-     */
-#if defined(MALLOC_DEBUG)
-    malloc_debug(2);
-#endif
-
-    /*
-     * Init time.
-     */
+    // Init time.
     gettimeofday(&now_time, NULL);
     current_time = (time_t)now_time.tv_sec;
     strcpy(str_boot_time, ctime(&current_time));
 
-    /*
-     * Reserve one channel for our use.
-     */
+    // Reserve one channel for our use.
     if ((fpReserve = fopen(NULL_FILE, "r")) == NULL) {
-#ifdef _MSC_VER
-        printf("Please create a file named '%s' in the executing directory.", NULL_FILE);
-#endif
         perror(NULL_FILE);
         exit(1);
     }
 
     /*
-     * Get the port number.
-     */
-    port = 4000;
-    if (argc > 1) {
-        if (!is_number(argv[1])) {
-            fprintf(stderr, "Usage: %s [port #]\n", argv[0]);
-            exit(1);
-        }
-        else if ((port = atoi(argv[1])) <= 1024) {
-            fprintf(stderr, "Port number must be above 1024.\n");
-            exit(1);
-        }
-    }
-
-    /*
      * Run the game.
      */
-    control = init_socket(port);
+    Timer boot_timer = { 0 };
+    if (rt_opt_benchmark)
+        start_timer(&boot_timer);
+
     boot_db();
-    sprintf(log_buf, "ROM is ready to rock on port %d.", port);
-    log_string(log_buf);
-    game_loop(control);
-    CLOSE_SOCKET(control);
+
+
+    if (rt_opt_benchmark) {
+        stop_timer(&boot_timer);
+        struct timespec timer_res = elapsed(&boot_timer);
+        sprintf(log_buf, "Boot time: "TIME_FMT"s, %ldns.", timer_res.tv_sec, timer_res.tv_nsec);
+        log_string(log_buf);
+    }
+
+    if (!rt_opt_noloop) {
+        control = init_socket(port);
+        sprintf(log_buf, "ROM is ready to rock on port %d.", port);
+        log_string(log_buf);
+        game_loop(control);
+        CLOSE_SOCKET(control);
 
 #ifdef _MSC_VER
-    WSACleanup();
+        WSACleanup();
 #endif
+    }
 
     /*
      * That's all, folks.

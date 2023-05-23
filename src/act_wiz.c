@@ -1779,7 +1779,9 @@ void do_shutdown(CHAR_DATA* ch, char* argument)
     CHAR_DATA* vch;
 
     if (ch->invis_level < LEVEL_HERO) sprintf(buf, "Shutdown by %s.", ch->name);
-    append_file(ch, SHUTDOWN_FILE, buf);
+    char filename[256];
+    sprintf(filename, "%s%s", area_dir, SHUTDOWN_FILE);
+    append_file(ch, filename, buf);
     strcat(buf, "\n\r");
     if (ch->invis_level < LEVEL_HERO) { do_function(ch, &do_echo, buf); }
     merc_down = true;

@@ -100,7 +100,7 @@ void save_char_obj(CHAR_DATA* ch)
     /* create god log */
     if (IS_IMMORTAL(ch) || ch->level >= LEVEL_IMMORTAL) {
         fclose(fpReserve);
-        sprintf(strsave, "%s%s", GOD_DIR, capitalize(ch->name));
+        sprintf(strsave, "%s%s%s", area_dir, GOD_DIR, capitalize(ch->name));
         if ((fp = fopen(strsave, "w")) == NULL) {
             bug("Save_char_obj: fopen", 0);
             perror(strsave);
@@ -113,8 +113,10 @@ void save_char_obj(CHAR_DATA* ch)
     }
 
     fclose(fpReserve);
-    sprintf(strsave, "%s%s", PLAYER_DIR, capitalize(ch->name));
-    if ((fp = fopen(TEMP_FILE, "w")) == NULL) {
+    sprintf(strsave, "%s%s%s", area_dir, PLAYER_DIR, capitalize(ch->name));
+    char temp_file[256];
+    sprintf(temp_file, "%s%s", area_dir, TEMP_FILE);
+    if ((fp = fopen(temp_file, "w")) == NULL) {
         bug("Save_char_obj: fopen", 0);
         perror(strsave);
     }
@@ -128,8 +130,8 @@ void save_char_obj(CHAR_DATA* ch)
         fclose(fp);
     }
 
-    if (rename(TEMP_FILE, strsave) < 0) {
-        bug("Save_char_obj: failed to rename file %s to %s.\n", TEMP_FILE, strsave);
+    if (rename(temp_file, strsave) < 0) {
+        bug("Save_char_obj: failed to rename file %s to %s.\n", temp_file, strsave);
     }
     fpReserve = fopen(NULL_FILE, "r");
     return;
@@ -640,7 +642,7 @@ bool load_char_obj(DESCRIPTOR_DATA* d, char* name)
     fclose(fpReserve);
 
     /* decompress if .gz file exists */
-    sprintf(strsave, "%s%s%s", PLAYER_DIR, capitalize(name), ".gz");
+    sprintf(strsave, "%s%s%s%s", area_dir, PLAYER_DIR, capitalize(name), ".gz");
     if ((fp = fopen(strsave, "r")) != NULL) {
         fclose(fp);
         sprintf(buf, "gzip -dfq %s", strsave);
@@ -650,7 +652,7 @@ bool load_char_obj(DESCRIPTOR_DATA* d, char* name)
         }
     }
 
-    sprintf(strsave, "%s%s", PLAYER_DIR, capitalize(name));
+    sprintf(strsave, "%s%s%s", area_dir, PLAYER_DIR, capitalize(name));
     if ((fp = fopen(strsave, "r")) != NULL) {
         int iNest;
 

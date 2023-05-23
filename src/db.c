@@ -288,9 +288,11 @@ void boot_db(void)
      */
     {
         FILE* fpList;
-
-        if ((fpList = fopen(AREA_LIST, "r")) == NULL) {
-            perror(AREA_LIST);
+        char area_list[256];
+        char area_file[256];
+        sprintf(area_list, "%s%s", area_dir, AREA_LIST);
+        if ((fpList = fopen(area_list, "r")) == NULL) {
+            perror(area_list);
             exit(1);
         }
 
@@ -298,10 +300,13 @@ void boot_db(void)
             strcpy(strArea, fread_word(fpList));
             if (strArea[0] == '$') break;
 
-            if (strArea[0] == '-') { fpArea = stdin; }
+            if (strArea[0] == '-') {
+                fpArea = stdin; 
+            }
             else {
-                if ((fpArea = fopen(strArea, "r")) == NULL) {
-                    perror(strArea);
+                sprintf(area_file, "%s%s", area_dir, strArea);
+                if ((fpArea = fopen(area_file, "r")) == NULL) {
+                    perror(area_file);
                     exit(1);
                 }
             }
