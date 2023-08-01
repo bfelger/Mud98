@@ -18,30 +18,15 @@
  *  around, comes around.                                                  *
  ***************************************************************************/
 
- /***************************************************************************
-  *  ROM 2.4 is copyright 1993-1998 Russ Taylor                             *
-  *  ROM has been brought to you by the ROM consortium                      *
-  *      Russ Taylor (rtaylor@hypercube.org)                                *
-  *      Gabrielle Taylor (gtaylor@hypercube.org)                           *
-  *      Brian Moore (zump@rom.org)                                         *
-  *  By using this code, you have agreed to follow the terms of the         *
-  *  ROM license, in the file Rom24/doc/rom.license                         *
-  ***************************************************************************/
-
-  /*
-   * This file contains all of the OS-dependent stuff:
-   *   startup, signals, BSD sockets for tcp/ip, i/o, timing.
-   *
-   * The data flow for input is:
-   *    Game_loop ---> Read_from_descriptor ---> Read
-   *    Game_loop ---> Read_from_buffer
-   *
-   * The data flow for output is:
-   *    Game_loop ---> Process_Output ---> Write_to_descriptor -> Write
-   *
-   * The OS-dependent functions are Read_from_descriptor and Write_to_descriptor.
-   * -- Furey  26 Jan 1993
-   */
+/***************************************************************************
+ *  ROM 2.4 is copyright 1993-1998 Russ Taylor                             *
+ *  ROM has been brought to you by the ROM consortium                      *
+ *      Russ Taylor (rtaylor@hypercube.org)                                *
+ *      Gabrielle Taylor (gtaylor@hypercube.org)                           *
+ *      Brian Moore (zump@rom.org)                                         *
+ *  By using this code, you have agreed to follow the terms of the         *
+ *  ROM license, in the file Rom24/doc/rom.license                         *
+ ***************************************************************************/
 
 #include "merc.h"
 
@@ -97,8 +82,9 @@ extern int malloc_debug args((int));
 extern int malloc_verify args((void));
 #endif
 
-extern DESCRIPTOR_DATA* descriptor_list;    // All open descriptors
-extern DESCRIPTOR_DATA* d_next;             // Next descriptor in loop
+DESCRIPTOR_DATA* descriptor_list;           // All open descriptors
+DESCRIPTOR_DATA* d_next;                    // Next descriptor in loop
+
 extern bool merc_down;                      // Shutdown
 extern bool wizlock;                        // Game is wizlocked
 extern bool newlock;                        // Game is newlocked
@@ -129,13 +115,32 @@ void PrintLastWinSockError()
 }
 #endif
 
-SOCKET init_socket(int port)
+void init_server(SockServer* server, int port)
 {
     static struct sockaddr_in sa_zero;
     struct sockaddr_in sa;
     int x = 1;
     SOCKET fd;
     int errno;
+
+#ifndef _MSC_VER
+    signal(SIGPIPE, SIG_IGN);
+#else
+    WORD wVersionRequested;
+    WSADATA wsaData;
+    int err;
+
+    /* Use the MAKEWORD(lowbyte, highbyte) macro declared in Windef.h */
+    wVersionRequested = MAKEWORD(2, 2);
+
+    err = WSAStartup(wVersionRequested, &wsaData);
+    if (err != 0) {
+        /* Tell the user that we could not find a usable */
+        /* Winsock DLL.                                  */
+        printf("WSAStartup failed with error: %d\n", err);
+        exit(1);
+    }
+#endif
 
     if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("Init_socket: socket");
@@ -195,10 +200,29 @@ SOCKET init_socket(int port)
         exit(1);
     }
 
-    return fd;
+    server->control = fd;
 }
 
-void init_descriptor(SOCKET control) 
+bool can_write(DESCRIPTOR_DATA* d, PollData* poll_data)
+{
+    return FD_ISSET(d->client.fd, &poll_data->out_set);
+}
+
+void close_server(SockServer* server)
+{
+    CLOSE_SOCKET(server->control);
+
+#ifdef _MSC_VER
+    WSACleanup();
+#endif
+}
+
+bool has_new_conn(SockServer* server, PollData* poll_data)
+{
+    return FD_ISSET(server->control, &poll_data->in_set);
+}
+
+void init_descriptor(SockServer* server)
 {
     char buf[MAX_STRING_LENGTH];
     DESCRIPTOR_DATA* dnew;
@@ -208,8 +232,8 @@ void init_descriptor(SOCKET control)
     SOCKLEN size;
 
     size = sizeof(sock);
-    getsockname(control, (struct sockaddr*)&sock, &size);
-    if ((desc = accept(control, (struct sockaddr*)&sock, &size)) < 0) {
+    getsockname(server->control, (struct sockaddr*)&sock, &size);
+    if ((desc = accept(server->control, (struct sockaddr*)&sock, &size)) < 0) {
         perror("New_descriptor: accept");
         return;
     }
@@ -230,7 +254,7 @@ void init_descriptor(SOCKET control)
      */
     dnew = new_descriptor();
 
-    dnew->descriptor = desc;
+    dnew->client.fd = desc;
     dnew->connected = CON_GET_NAME;
     dnew->showstr_head = NULL;
     dnew->showstr_point = NULL;
@@ -295,8 +319,6 @@ void init_descriptor(SOCKET control)
     return;
 }
 
-
-
 void close_socket(DESCRIPTOR_DATA* dclose)
 {
     if (dclose == NULL) {
@@ -311,7 +333,8 @@ void close_socket(DESCRIPTOR_DATA* dclose)
 
     CHAR_DATA* ch;
 
-    if (dclose->outtop > 0) process_output(dclose, false);
+    if (dclose->outtop > 0)
+        process_descriptor_output(dclose, false);
 
     if (dclose->snoop_by != NULL) {
         write_to_buffer(dclose->snoop_by, "Your victim has left the game.\n\r", 
@@ -357,7 +380,7 @@ void close_socket(DESCRIPTOR_DATA* dclose)
             bug("Close_socket: dclose not found.", 0);
     }
 
-    CLOSE_SOCKET(dclose->descriptor);
+    CLOSE_SOCKET(dclose->client.fd);
     free_descriptor(dclose);
     return;
 }
@@ -381,7 +404,7 @@ bool read_from_descriptor(DESCRIPTOR_DATA* d)
         int nRead;
 
 #ifdef _MSC_VER
-        nRead = recv(d->descriptor, d->inbuf + iStart, 
+        nRead = recv(d->client.fd, d->inbuf + iStart, 
             (int)(sizeof(d->inbuf) - 10 - iStart), 0);
 #else
         nRead = read(d->descriptor, d->inbuf + iStart,
@@ -406,6 +429,63 @@ bool read_from_descriptor(DESCRIPTOR_DATA* d)
 
     d->inbuf[iStart] = '\0';
     return true;
+}
+
+void process_client_input(SockServer* server, PollData* poll_data)
+{
+    // Kick out the freaky folks.
+    for (DESCRIPTOR_DATA* d = descriptor_list; d != NULL; d = d_next) {
+        d_next = d->next;
+        if (FD_ISSET(d->client.fd, &poll_data->exc_set)) {
+            FD_CLR(d->client.fd, &poll_data->in_set);
+            FD_CLR(d->client.fd, &poll_data->out_set);
+            if (d->character && d->connected == CON_PLAYING)
+                save_char_obj(d->character);
+            d->outtop = 0;
+            close_socket(d);
+        }
+    }
+
+    // Process input.
+    for (DESCRIPTOR_DATA* d = descriptor_list; d != NULL; d = d_next) {
+        d_next = d->next;
+        d->fcommand = false;
+
+        if (FD_ISSET(d->client.fd, &poll_data->in_set)) {
+            if (d->character != NULL) d->character->timer = 0;
+            if (!read_from_descriptor(d)) {
+                FD_CLR(d->client.fd, &poll_data->out_set);
+                if (d->character != NULL && d->connected == CON_PLAYING)
+                    save_char_obj(d->character);
+                d->outtop = 0;
+                close_socket(d);
+                continue;
+            }
+        }
+
+        if (d->character != NULL && d->character->daze > 0)
+            --d->character->daze;
+
+        if (d->character != NULL && d->character->wait > 0) {
+            --d->character->wait;
+            continue;
+        }
+
+        read_from_buffer(d);
+        if (d->incomm[0] != '\0') {
+            d->fcommand = true;
+            stop_idling(d->character);
+
+            if (d->showstr_point && *d->showstr_point != '\0')
+                show_string(d, d->incomm);
+            else if (d->connected == CON_PLAYING)
+                substitute_alias(d, d->incomm);
+            else
+                nanny(d, d->incomm);
+
+            d->incomm[0] = '\0';
+        }
+    }
 }
 
 /*
@@ -503,7 +583,7 @@ void read_from_buffer(DESCRIPTOR_DATA* d)
 /*
  * Low level output function.
  */
-bool process_output(DESCRIPTOR_DATA* d, bool fPrompt)
+bool process_descriptor_output(DESCRIPTOR_DATA* d, bool fPrompt)
 {
     extern bool merc_down;
 
@@ -823,7 +903,7 @@ bool write_to_descriptor(DESCRIPTOR_DATA* d, char* txt, size_t length)
     for (size_t iStart = 0; iStart < length; iStart += nWrite) {
         nBlock = (int)UMIN(length - iStart, 4096);
 #ifdef _MSC_VER
-        if ((nWrite = send(d->descriptor, txt + iStart, nBlock, 0)) < 0) {
+        if ((nWrite = send(d->client.fd, txt + iStart, nBlock, 0)) < 0) {
             PrintLastWinSockError();
 #else
 
@@ -1395,6 +1475,34 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
     return;
 }
 
+void poll_server(SockServer* server, PollData* poll_data)
+{
+    static struct timeval null_time = { 0 };
+
+    // Poll all active descriptors.
+    FD_ZERO(&poll_data->in_set);
+    FD_ZERO(&poll_data->out_set);
+    FD_ZERO(&poll_data->exc_set);
+    FD_SET(server->control, &poll_data->in_set);
+    poll_data->maxdesc = server->control;
+    for (DESCRIPTOR_DATA* d = descriptor_list; d; d = d->next) {
+        poll_data->maxdesc = UMAX(poll_data->maxdesc, d->client.fd);
+        FD_SET(d->client.fd, &poll_data->in_set);
+        FD_SET(d->client.fd, &poll_data->out_set);
+        FD_SET(d->client.fd, &poll_data->exc_set);
+    }
+
+    if (select((int)poll_data->maxdesc + 1, &poll_data->in_set, 
+            &poll_data->out_set, &poll_data->exc_set, &null_time) < 0) {
+        perror("poll_server");
+#ifdef _MSC_VER
+        PrintLastWinSockError();
+#endif
+        close_server(server);
+        exit(1);
+    }
+}
+
 /*
  * Parse a name for acceptability.
  */
@@ -1549,6 +1657,23 @@ void stop_idling(CHAR_DATA* ch)
     ch->was_in_room = NULL;
     act("$n has returned from the void.", ch, NULL, NULL, TO_ROOM);
     return;
+}
+
+void process_client_output(PollData* poll_data)
+{
+    for (DESCRIPTOR_DATA* d = descriptor_list; d != NULL; d = d_next) {
+        d_next = d->next;
+
+        if ((d->fcommand || d->outtop > 0)
+            && can_write(d, poll_data)) {
+            if (!process_descriptor_output(d, true)) {
+                if (d->character != NULL && d->connected == CON_PLAYING)
+                    save_char_obj(d->character);
+                d->outtop = 0;
+                close_socket(d);
+            }
+        }
+    }
 }
 
 /*

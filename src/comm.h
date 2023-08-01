@@ -14,7 +14,20 @@
 #define SOCKET int
 #endif
 
-//typedef struct descriptor_data DESCRIPTOR_DATA;
+typedef struct sock_server_t {
+    SOCKET control;
+} SockServer;
+
+typedef struct sock_client_t {
+    SOCKET fd;
+} SockClient;
+
+typedef struct poll_data_t {
+    fd_set in_set;
+    fd_set out_set;
+    fd_set exc_set;
+    SOCKET maxdesc;
+} PollData;
 
 // Descriptor (channel) structure.
 typedef struct descriptor_data {
@@ -24,7 +37,7 @@ typedef struct descriptor_data {
     CHAR_DATA* original;
     bool valid;
     char* host;
-    SOCKET descriptor;
+    SockClient client;
     int16_t connected;
     bool fcommand;
     char inbuf[4 * MAX_INPUT_LENGTH];
@@ -38,10 +51,16 @@ typedef struct descriptor_data {
     char* showstr_point;
 } DESCRIPTOR_DATA;
 
-void init_descriptor(SOCKET control);
-SOCKET init_socket(int port);
+bool can_write(DESCRIPTOR_DATA* d, PollData* poll_data);
+void close_server(SockServer* server);
+bool has_new_conn(SockServer* server, PollData* poll_data);
+void init_descriptor(SockServer* server);
+void init_server(SockServer* server, int port);
 void nanny(DESCRIPTOR_DATA* d, char* argument);
-bool process_output(DESCRIPTOR_DATA* d, bool fPrompt);
+void poll_server(SockServer* server, PollData* poll_data);
+void process_client_input(SockServer* server, PollData* poll_data);
+void process_client_output(PollData* poll_data);
+bool process_descriptor_output(DESCRIPTOR_DATA* d, bool fPrompt);
 void read_from_buffer(DESCRIPTOR_DATA* d);
 bool read_from_descriptor(DESCRIPTOR_DATA* d);
 void stop_idling(CHAR_DATA* ch);

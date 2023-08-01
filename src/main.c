@@ -50,31 +50,17 @@
 #include "strings.h"
 
 #ifdef _MSC_VER
-#pragma comment(lib, "Ws2_32.lib")
-#include <windows.h>
-#include <winsock.h>
 #include <stdint.h>
 #include <io.h>
-#define CLOSE_SOCKET closesocket
-#define SOCKLEN int
 #else
-#include <fcntl.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
 #include <sys/time.h>
 #include <unistd.h>
-#define CLOSE_SOCKET close
-#define SOCKLEN socklen_t
-#define SOCKET int
 #ifndef _XOPEN_CRYPT
 #include <crypt.h>
 #endif
 #endif
 
 // Global variables.
-DESCRIPTOR_DATA* descriptor_list;   // All open descriptors
-DESCRIPTOR_DATA* d_next;            // Next descriptor in loop
 FILE* fpReserve;                    // Reserved file handle
 bool god;                           // All new chars are gods!
 bool merc_down = false;             // Shutdown
@@ -87,7 +73,7 @@ bool rt_opt_benchmark = false;
 bool rt_opt_noloop = false;
 char area_dir[256] = DEFAULT_AREA_DIR;
 
-void game_loop(SOCKET control);
+void game_loop(SockServer* server);
 
 #ifdef _MSC_VER
 int gettimeofday(struct timeval* tp, struct timezone* tzp);
@@ -98,11 +84,9 @@ int main(int argc, char** argv)
     struct timeval now_time = { 0 };
     int port;
 
-    SOCKET control;
+    SockServer server;
 
-    /*
- * Get the command line arguments.
- */
+    // Get the command line arguments.
     port = 4000;
     char* port_str = NULL;
     char* area_dir_str = NULL;
@@ -183,25 +167,6 @@ int main(int argc, char** argv)
             sprintf(area_dir, "%s", area_dir_str);
     }
 
-#ifdef _MSC_VER
-    if (!rt_opt_noloop) {
-        WORD wVersionRequested;
-        WSADATA wsaData;
-        int err;
-
-        /* Use the MAKEWORD(lowbyte, highbyte) macro declared in Windef.h */
-        wVersionRequested = MAKEWORD(2, 2);
-
-        err = WSAStartup(wVersionRequested, &wsaData);
-        if (err != 0) {
-            /* Tell the user that we could not find a usable */
-            /* Winsock DLL.                                  */
-            printf("WSAStartup failed with error: %d\n", err);
-            exit(1);
-        }
-    }
-#endif
-
     // Init time.
     gettimeofday(&now_time, NULL);
     current_time = (time_t)now_time.tv_sec;
@@ -222,7 +187,6 @@ int main(int argc, char** argv)
 
     boot_db();
 
-
     if (rt_opt_benchmark) {
         stop_timer(&boot_timer);
         struct timespec timer_res = elapsed(&boot_timer);
@@ -231,15 +195,12 @@ int main(int argc, char** argv)
     }
 
     if (!rt_opt_noloop) {
-        control = init_socket(port);
+        init_server(&server, port);
         sprintf(log_buf, "ROM is ready to rock on port %d.", port);
         log_string(log_buf);
-        game_loop(control);
-        CLOSE_SOCKET(control);
+        game_loop(&server);
 
-#ifdef _MSC_VER
-        WSACleanup();
-#endif
+        close_server(&server);
     }
 
     /*
@@ -280,115 +241,23 @@ int gettimeofday(struct timeval* tp, struct timezone* tzp)
 #endif
 
 
-void game_loop(SOCKET control)
+void game_loop(SockServer* server)
 {
-    static struct timeval null_time;
     struct timeval last_time;
-
-#ifndef _MSC_VER
-    signal(SIGPIPE, SIG_IGN);
-#endif
     gettimeofday(&last_time, NULL);
     current_time = (time_t)last_time.tv_sec;
 
     /* Main loop */
     while (!merc_down) {
-        fd_set in_set = { 0 };
-        fd_set out_set = { 0 };
-        fd_set exc_set = { 0 };
-        SOCKET maxdesc;
-        DESCRIPTOR_DATA* d;
+        PollData poll_data = { 0 };
 
-#if defined(MALLOC_DEBUG)
-        if (malloc_verify() != 1) abort();
-#endif
+        poll_server(server, &poll_data);
 
-        /*
-         * Poll all active descriptors.
-         */
-        FD_ZERO(&in_set);
-        FD_ZERO(&out_set);
-        FD_ZERO(&exc_set);
-        FD_SET(control, &in_set);
-        maxdesc = control;
-        for (d = descriptor_list; d; d = d->next) {
-            maxdesc = UMAX(maxdesc, d->descriptor);
-            FD_SET(d->descriptor, &in_set);
-            FD_SET(d->descriptor, &out_set);
-            FD_SET(d->descriptor, &exc_set);
-        }
+        // New connection?
+        if (has_new_conn(server, &poll_data)) 
+            init_descriptor(server);
 
-        if (select((int)maxdesc + 1, &in_set, &out_set, &exc_set, &null_time) < 0) {
-            perror("Game_loop: select: poll");
-#ifdef _MSC_VER
-            PrintLastWinSockError();
-#endif
-            CLOSE_SOCKET(control);
-            exit(1);
-        }
-
-        /*
-         * New connection?
-         */
-        if (FD_ISSET(control, &in_set)) init_descriptor(control);
-
-        /*
-         * Kick out the freaky folks.
-         */
-        for (d = descriptor_list; d != NULL; d = d_next) {
-            d_next = d->next;
-            if (FD_ISSET(d->descriptor, &exc_set)) {
-                FD_CLR(d->descriptor, &in_set);
-                FD_CLR(d->descriptor, &out_set);
-                if (d->character && d->connected == CON_PLAYING)
-                    save_char_obj(d->character);
-                d->outtop = 0;
-                close_socket(d);
-            }
-        }
-
-        /*
-         * Process input.
-         */
-        for (d = descriptor_list; d != NULL; d = d_next) {
-            d_next = d->next;
-            d->fcommand = false;
-
-            if (FD_ISSET(d->descriptor, &in_set)) {
-                if (d->character != NULL) d->character->timer = 0;
-                if (!read_from_descriptor(d)) {
-                    FD_CLR(d->descriptor, &out_set);
-                    if (d->character != NULL && d->connected == CON_PLAYING)
-                        save_char_obj(d->character);
-                    d->outtop = 0;
-                    close_socket(d);
-                    continue;
-                }
-            }
-
-            if (d->character != NULL && d->character->daze > 0)
-                --d->character->daze;
-
-            if (d->character != NULL && d->character->wait > 0) {
-                --d->character->wait;
-                continue;
-            }
-
-            read_from_buffer(d);
-            if (d->incomm[0] != '\0') {
-                d->fcommand = true;
-                stop_idling(d->character);
-
-                if (d->showstr_point && *d->showstr_point != '\0')
-                    show_string(d, d->incomm);
-                else if (d->connected == CON_PLAYING)
-                    substitute_alias(d, d->incomm);
-                else
-                    nanny(d, d->incomm);
-
-                d->incomm[0] = '\0';
-            }
-        }
+        process_client_input(server, &poll_data);
 
         /*
          * Autonomous game motion.
@@ -398,19 +267,7 @@ void game_loop(SOCKET control)
         /*
          * Output.
          */
-        for (d = descriptor_list; d != NULL; d = d_next) {
-            d_next = d->next;
-
-            if ((d->fcommand || d->outtop > 0)
-                && FD_ISSET(d->descriptor, &out_set)) {
-                if (!process_output(d, true)) {
-                    if (d->character != NULL && d->connected == CON_PLAYING)
-                        save_char_obj(d->character);
-                    d->outtop = 0;
-                    close_socket(d);
-                }
-            }
-        }
+        process_client_output(&poll_data);
 
         /*
          * Synchronize to a clock.

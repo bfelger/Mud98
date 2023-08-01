@@ -738,7 +738,7 @@ void char_update(void)
     for (ch = char_list; ch != NULL; ch = ch_next) {
         ch_next = ch->next;
 
-        if (ch->desc != NULL && ch->desc->descriptor % 30 == save_number) {
+        if (ch->desc != NULL && ch->desc->client.fd % 30 == save_number) {
             save_char_obj(ch);
         }
 
