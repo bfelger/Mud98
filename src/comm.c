@@ -407,7 +407,7 @@ bool read_from_descriptor(DESCRIPTOR_DATA* d)
         nRead = recv(d->client.fd, d->inbuf + iStart, 
             (int)(sizeof(d->inbuf) - 10 - iStart), 0);
 #else
-        nRead = read(d->descriptor, d->inbuf + iStart,
+        nRead = read(d->client.fd, d->inbuf + iStart,
             sizeof(d->inbuf) - 10 - iStart);
 #endif
         if (nRead > 0) {
@@ -906,8 +906,7 @@ bool write_to_descriptor(DESCRIPTOR_DATA* d, char* txt, size_t length)
         if ((nWrite = send(d->client.fd, txt + iStart, nBlock, 0)) < 0) {
             PrintLastWinSockError();
 #else
-
-        if ((nWrite = write(desc, txt + iStart, nBlock)) < 0) {
+        if ((nWrite = write(d->client.fd, txt + iStart, nBlock)) < 0) {
 #endif
             perror("Write_to_descriptor");
             return false;

@@ -18,30 +18,30 @@
  *  around, comes around.                                                  *
  ***************************************************************************/
 
- /***************************************************************************
-  *  ROM 2.4 is copyright 1993-1998 Russ Taylor                             *
-  *  ROM has been brought to you by the ROM consortium                      *
-  *      Russ Taylor (rtaylor@hypercube.org)                                *
-  *      Gabrielle Taylor (gtaylor@hypercube.org)                           *
-  *      Brian Moore (zump@rom.org)                                         *
-  *  By using this code, you have agreed to follow the terms of the         *
-  *  ROM license, in the file Rom24/doc/rom.license                         *
-  ***************************************************************************/
+/***************************************************************************
+ *  ROM 2.4 is copyright 1993-1998 Russ Taylor                             *
+ *  ROM has been brought to you by the ROM consortium                      *
+ *      Russ Taylor (rtaylor@hypercube.org)                                *
+ *      Gabrielle Taylor (gtaylor@hypercube.org)                           *
+ *      Brian Moore (zump@rom.org)                                         *
+ *  By using this code, you have agreed to follow the terms of the         *
+ *  ROM license, in the file Rom24/doc/rom.license                         *
+ ***************************************************************************/
 
-  /*
-   * This file contains all of the OS-dependent stuff:
-   *   startup, signals, BSD sockets for tcp/ip, i/o, timing.
-   *
-   * The data flow for input is:
-   *    Game_loop ---> Read_from_descriptor ---> Read
-   *    Game_loop ---> Read_from_buffer
-   *
-   * The data flow for output is:
-   *    Game_loop ---> Process_Output ---> Write_to_descriptor -> Write
-   *
-   * The OS-dependent functions are Read_from_descriptor and Write_to_descriptor.
-   * -- Furey  26 Jan 1993
-   */
+/*
+ * This file contains all of the OS-dependent stuff:
+ *   startup, signals, BSD sockets for tcp/ip, i/o, timing.
+ *
+ * The data flow for input is:
+ *    Game_loop ---> Read_from_descriptor ---> Read
+ *    Game_loop ---> Read_from_buffer
+ *
+ * The data flow for output is:
+ *    Game_loop ---> Process_Output ---> Write_to_descriptor -> Write
+ *
+ * The OS-dependent functions are Read_from_descriptor and Write_to_descriptor.
+ * -- Furey  26 Jan 1993
+ */
 
 #include "merc.h"
 
@@ -53,6 +53,8 @@
 #include <stdint.h>
 #include <io.h>
 #else
+#include <stdlib.h>
+#include <string.h>
 #include <sys/time.h>
 #include <unistd.h>
 #ifndef _XOPEN_CRYPT
