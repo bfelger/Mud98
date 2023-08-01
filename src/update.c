@@ -25,8 +25,10 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "interp.h"
 #include "merc.h"
+
+#include "comm.h"
+#include "interp.h"
 #include "music.h"
 
 #include <stdio.h>
@@ -65,15 +67,15 @@ void advance_level(CHAR_DATA* ch, bool hide)
         = (ch->played + (int)(current_time - ch->logon)) / 3600;
 
     sprintf(buf, "the %s",
-            title_table[ch->class][ch->level][ch->sex == SEX_FEMALE ? 1 : 0]);
+            title_table[ch->ch_class][ch->level][ch->sex == SEX_FEMALE ? 1 : 0]);
     set_title(ch, buf);
 
     add_hp = con_app[get_curr_stat(ch, STAT_CON)].hitp
-             + number_range(class_table[ch->class].hp_min,
-                            class_table[ch->class].hp_max);
+             + number_range(class_table[ch->ch_class].hp_min,
+                            class_table[ch->ch_class].hp_max);
     add_mana = number_range(
         2, (2 * get_curr_stat(ch, STAT_INT) + get_curr_stat(ch, STAT_WIS)) / 5);
-    if (!class_table[ch->class].fMana) add_mana /= 2;
+    if (!class_table[ch->ch_class].fMana) add_mana /= 2;
     add_move = number_range(
         1, (get_curr_stat(ch, STAT_CON) + get_curr_stat(ch, STAT_DEX)) / 6);
     add_prac = wis_app[get_curr_stat(ch, STAT_WIS)].practice;
@@ -160,7 +162,7 @@ int hit_gain(CHAR_DATA* ch)
     }
     else {
         gain = UMAX(3, get_curr_stat(ch, STAT_CON) - 3 + ch->level / 2);
-        gain += class_table[ch->class].hp_max - 10;
+        gain += class_table[ch->ch_class].hp_max - 10;
         number = number_percent();
         if (number < get_skill(ch, gsn_fast_healing)) {
             gain += number * gain / 100;
@@ -234,7 +236,7 @@ int mana_gain(CHAR_DATA* ch)
             if (ch->mana < ch->max_mana)
                 check_improve(ch, gsn_meditation, true, 8);
         }
-        if (!class_table[ch->class].fMana) gain /= 2;
+        if (!class_table[ch->ch_class].fMana) gain /= 2;
 
         switch (ch->position) {
         default:
@@ -343,9 +345,9 @@ void gain_condition(CHAR_DATA* ch, int iCond, int value)
  */
 void mobile_update(void)
 {
-    CHAR_DATA* ch;
-    CHAR_DATA* ch_next;
-    EXIT_DATA* pexit;
+    CHAR_DATA* ch = NULL;
+    CHAR_DATA* ch_next = NULL;
+    EXIT_DATA* pexit = NULL;
     int door;
 
     /* Examine all mobs. */
@@ -422,7 +424,7 @@ void mobile_update(void)
  */
 void weather_update(void)
 {
-    char buf[MAX_STRING_LENGTH];
+    char buf[MAX_STRING_LENGTH] = "";
     DESCRIPTOR_DATA* d;
     int diff;
 
@@ -548,8 +550,8 @@ void weather_update(void)
 void char_update(void)
 {
     CHAR_DATA* ch;
-    CHAR_DATA* ch_next;
-    CHAR_DATA* ch_quit;
+    CHAR_DATA* ch_next = NULL;
+    CHAR_DATA* ch_quit = NULL;
 
     ch_quit = NULL;
 
@@ -560,7 +562,7 @@ void char_update(void)
 
     for (ch = char_list; ch != NULL; ch = ch_next) {
         AFFECT_DATA* paf;
-        AFFECT_DATA* paf_next;
+        AFFECT_DATA* paf_next = NULL;
 
         ch_next = ch->next;
 
@@ -659,7 +661,8 @@ void char_update(void)
          */
 
         if (is_affected(ch, gsn_plague) && ch != NULL) {
-            AFFECT_DATA *af, plague;
+            AFFECT_DATA* af;
+            AFFECT_DATA plague = { 0 };
             CHAR_DATA* vch;
             int dam;
 
@@ -752,8 +755,9 @@ void char_update(void)
 void obj_update(void)
 {
     OBJ_DATA* obj;
-    OBJ_DATA* obj_next;
-    AFFECT_DATA *paf, *paf_next;
+    OBJ_DATA* obj_next = NULL;
+    AFFECT_DATA* paf;
+    AFFECT_DATA* paf_next = NULL;
 
     for (obj = object_list; obj != NULL; obj = obj_next) {
         CHAR_DATA* rch;
@@ -849,7 +853,8 @@ void obj_update(void)
 
         if ((obj->item_type == ITEM_CORPSE_PC || obj->wear_loc == WEAR_FLOAT)
             && obj->contains) { /* save the contents */
-            OBJ_DATA *t_obj, *next_obj;
+            OBJ_DATA* t_obj;
+            OBJ_DATA* next_obj = NULL;
 
             for (t_obj = obj->contains; t_obj != NULL; t_obj = next_obj) {
                 next_obj = t_obj->next_content;
@@ -897,24 +902,13 @@ void obj_update(void)
  */
 void aggr_update(void)
 {
-    CHAR_DATA* wch;
-    CHAR_DATA* wch_next;
-    CHAR_DATA* ch;
-    CHAR_DATA* ch_next;
-    CHAR_DATA* vch;
-    CHAR_DATA* vch_next;
-    CHAR_DATA* victim;
-
-    for (wch = char_list; wch != NULL; wch = wch_next) {
-        wch_next = wch->next;
+    for (CHAR_DATA* wch = char_list; wch != NULL; wch = wch->next) {
         if (IS_NPC(wch) || wch->level >= LEVEL_IMMORTAL || wch->in_room == NULL
             || wch->in_room->area->empty)
             continue;
 
-        for (ch = wch->in_room->people; ch != NULL; ch = ch_next) {
+        for (CHAR_DATA* ch = wch->in_room->people; ch != NULL; ch = ch->next) {
             int count;
-
-            ch_next = ch->next_in_room;
 
             if (!IS_NPC(ch) || !IS_SET(ch->act, ACT_AGGRESSIVE)
                 || IS_SET(ch->in_room->room_flags, ROOM_SAFE)
@@ -930,10 +924,8 @@ void aggr_update(void)
              *   giving each 'vch' an equal chance of selection.
              */
             count = 0;
-            victim = NULL;
-            for (vch = wch->in_room->people; vch != NULL; vch = vch_next) {
-                vch_next = vch->next_in_room;
-
+            CHAR_DATA* victim = NULL;
+            for (CHAR_DATA* vch = wch->in_room->people; vch != NULL; vch = vch->next) {
                 if (!IS_NPC(vch) && vch->level < LEVEL_IMMORTAL
                     && ch->level >= vch->level - 5
                     && (!IS_SET(ch->act, ACT_WIMPY) || !IS_AWAKE(vch))

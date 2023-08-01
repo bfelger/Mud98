@@ -26,6 +26,8 @@
  ***************************************************************************/
 
 #include "merc.h"
+
+#include "comm.h"
 #include "recycle.h"
 
 #include <stdio.h>

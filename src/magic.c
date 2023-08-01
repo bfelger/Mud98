@@ -74,7 +74,7 @@ int find_spell(CHAR_DATA* ch, const char* name)
         if (LOWER(name[0]) == LOWER(skill_table[sn].name[0])
             && !str_prefix(name, skill_table[sn].name)) {
             if (found == -1) found = sn;
-            if (ch->level >= skill_table[sn].skill_level[ch->class]
+            if (ch->level >= skill_table[sn].skill_level[ch->ch_class]
                 && ch->pcdata->learned[sn] > 0)
                 return sn;
         }
@@ -157,7 +157,7 @@ void say_spell(CHAR_DATA* ch, int sn)
 
     for (rch = ch->in_room->people; rch; rch = rch->next_in_room) {
         if (rch != ch)
-            act((!IS_NPC(rch) && ch->class == rch->class) ? buf : buf2, ch,
+            act((!IS_NPC(rch) && ch->ch_class == rch->ch_class) ? buf : buf2, ch,
                 NULL, rch, TO_VICT);
     }
 
@@ -186,7 +186,7 @@ bool saves_spell(int level, CHAR_DATA* victim, int dam_type)
         break;
     }
 
-    if (!IS_NPC(victim) && class_table[victim->class].fMana)
+    if (!IS_NPC(victim) && class_table[victim->ch_class].fMana)
         save = 9 * save / 10;
     save = URANGE(5, save, 95);
     return number_percent() < save;
@@ -270,7 +270,7 @@ void do_cast(CHAR_DATA* ch, char* argument)
     if ((sn = find_spell(ch, arg1)) < 1
         || skill_table[sn].spell_fun == spell_null
         || (!IS_NPC(ch)
-            && (ch->level < skill_table[sn].skill_level[ch->class]
+            && (ch->level < skill_table[sn].skill_level[ch->ch_class]
                 || ch->pcdata->learned[sn] == 0))) {
         send_to_char("You don't know any spells of that name.\n\r", ch);
         return;
@@ -281,12 +281,12 @@ void do_cast(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if (ch->level + 2 == skill_table[sn].skill_level[ch->class])
+    if (ch->level + 2 == skill_table[sn].skill_level[ch->ch_class])
         mana = 50;
     else
         mana = UMAX(
             skill_table[sn].min_mana,
-            100 / (2 + ch->level - skill_table[sn].skill_level[ch->class]));
+            100 / (2 + ch->level - skill_table[sn].skill_level[ch->ch_class]));
 
     /*
      * Locate targets.
@@ -455,7 +455,7 @@ void do_cast(CHAR_DATA* ch, char* argument)
     }
     else {
         ch->mana -= mana;
-        if (IS_NPC(ch) || class_table[ch->class].fMana) /* class has spells */
+        if (IS_NPC(ch) || class_table[ch->ch_class].fMana) /* class has spells */
             (*skill_table[sn].spell_fun)(sn, ch->level, ch, vo, target);
         else
             (*skill_table[sn].spell_fun)(sn, 3 * ch->level / 4, ch, vo, target);

@@ -25,8 +25,10 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "lookup.h"
 #include "merc.h"
+
+#include "comm.h"
+#include "lookup.h"
 #include "recycle.h"
 #include "strings.h"
 #include "tables.h"
@@ -104,19 +106,19 @@ void save_char_obj(CHAR_DATA* ch)
         if ((fp = fopen(strsave, "w")) == NULL) {
             bug("Save_char_obj: fopen", 0);
             perror(strsave);
+            return;
         }
-
-        fprintf(fp, "Lev %2d Trust %2d  %s%s\n", ch->level, get_trust(ch),
+        else {
+            fprintf(fp, "Lev %2d Trust %2d  %s%s\n", ch->level, get_trust(ch),
                 ch->name, ch->pcdata->title);
-        fclose(fp);
-        fpReserve = fopen(NULL_FILE, "r");
+            fclose(fp);
+            fpReserve = fopen(NULL_FILE, "r");
+        }
     }
 
     fclose(fpReserve);
     sprintf(strsave, "%s%s%s", area_dir, PLAYER_DIR, capitalize(ch->name));
-    char temp_file[256];
-    sprintf(temp_file, "%s%s", area_dir, TEMP_FILE);
-    if ((fp = fopen(temp_file, "w")) == NULL) {
+    if ((fp = fopen(strsave, "w")) == NULL) {
         bug("Save_char_obj: fopen", 0);
         perror(strsave);
     }
@@ -128,10 +130,6 @@ void save_char_obj(CHAR_DATA* ch)
             fwrite_pet(ch->pet, fp);
         fprintf(fp, "#END\n");
         fclose(fp);
-    }
-
-    if (rename(temp_file, strsave) < 0) {
-        bug("Save_char_obj: failed to rename file %s to %s.\n", temp_file, strsave);
     }
     fpReserve = fopen(NULL_FILE, "r");
     return;
@@ -160,7 +158,7 @@ void fwrite_char(CHAR_DATA* ch, FILE* fp)
     fprintf(fp, "Race %s~\n", pc_race_table[ch->race].name);
     if (ch->clan) fprintf(fp, "Clan %s~\n", clan_table[ch->clan].name);
     fprintf(fp, "Sex  %d\n", ch->sex);
-    fprintf(fp, "Cla  %d\n", ch->class);
+    fprintf(fp, "Cla  %d\n", ch->ch_class);
     fprintf(fp, "Levl %d\n", ch->level);
     if (ch->trust != 0) fprintf(fp, "Tru  %d\n", ch->trust);
     fprintf(fp, "Plyd %d\n", ch->played + (int)(current_time - ch->logon));
@@ -721,8 +719,8 @@ bool load_char_obj(DESCRIPTOR_DATA* d, char* name)
     if (found && ch->version < 2) /* need to add the new skills */
     {
         group_add(ch, "rom basics", false);
-        group_add(ch, class_table[ch->class].base_group, false);
-        group_add(ch, class_table[ch->class].default_group, true);
+        group_add(ch, class_table[ch->ch_class].base_group, false);
+        group_add(ch, class_table[ch->ch_class].default_group, true);
         ch->pcdata->learned[gsn_recall] = 50;
     }
 
@@ -939,8 +937,8 @@ void fread_char(CHAR_DATA* ch, FILE* fp)
             break;
 
         case 'C':
-            KEY("Class", ch->class, fread_number(fp));
-            KEY("Cla", ch->class, fread_number(fp));
+            KEY("Class", ch->ch_class, fread_number(fp));
+            KEY("Cla", ch->ch_class, fread_number(fp));
             KEY("Clan", ch->clan, clan_lookup(fread_string(fp)));
             KEY("Comm", ch->comm, fread_flag(fp));
 

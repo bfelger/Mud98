@@ -25,9 +25,11 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+#include "merc.h"
+
+#include "comm.h"
 #include "db.h"
 #include "lookup.h"
-#include "merc.h"
 #include "music.h"
 #include "pcg_basic.h"
 #include "recycle.h"
@@ -1640,7 +1642,7 @@ void clone_mobile(CHAR_DATA* parent, CHAR_DATA* clone)
     clone->description = str_dup(parent->description);
     clone->group = parent->group;
     clone->sex = parent->sex;
-    clone->class = parent->class;
+    clone->ch_class = parent->ch_class;
     clone->race = parent->race;
     clone->level = parent->level;
     clone->trust = 0;

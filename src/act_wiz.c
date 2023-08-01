@@ -25,9 +25,11 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+#include "merc.h"
+
+#include "comm.h"
 #include "interp.h"
 #include "lookup.h"
-#include "merc.h"
 #include "recycle.h"
 #include "tables.h"
 
@@ -1375,7 +1377,7 @@ void do_mstat(CHAR_DATA* ch, char* argument)
     sprintf(buf,
             "Lv: %d  Class: %s  Align: %d  Gold: %ld  Silver: %ld  Exp: %d\n\r",
             victim->level,
-            IS_NPC(victim) ? "mobile" : class_table[victim->class].name,
+            IS_NPC(victim) ? "mobile" : class_table[victim->ch_class].name,
             victim->alignment, victim->gold, victim->silver, victim->exp);
     send_to_char(buf, ch);
 
@@ -3017,7 +3019,7 @@ void do_mset(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        victim->class = class;
+        victim->ch_class = class;
         return;
     }
 

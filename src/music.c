@@ -26,8 +26,11 @@
  ***************************************************************************/
 
 #include "merc.h"
+
+#include "comm.h"
 #include "music.h"
 #include "recycle.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

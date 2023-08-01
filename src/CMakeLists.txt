@@ -5,6 +5,9 @@ cmake_minimum_required (VERSION 3.10)
 
 project(rom)
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
 if (MSVC)
     add_compile_options(/W3 /std:c17)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -D NOCRYPT)
@@ -21,10 +24,12 @@ endif()
 
 add_executable(rom act_comm.c act_enter.c act_info.c act_move.c act_obj.c 
     act_wiz.c alias.c ban.c comm.c const.c db.c db2.c effects.c fight.c flags.c
-    handler.c healer.c interp.c lookup.c magic.c magic2.c music.c note.c 
+    handler.c healer.c interp.c lookup.c magic.c magic2.c main.c music.c note.c 
     pcg_basic.c recycle.c save.c scan.c skills.c special.c tables.c 
-    update.c benchmark.c)
+    update.c benchmark.c merc.h "comm.h" )
 
 if (NOT MSVC)
-    target_link_libraries(rom crypt)
+    target_link_libraries(rom crypt Threads::Threads)
+else()
+    target_link_libraries(rom Threads::Threads)
 endif()

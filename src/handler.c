@@ -25,9 +25,11 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+#include "merc.h"
+
+#include "comm.h"
 #include "interp.h"
 #include "magic.h"
-#include "merc.h"
 #include "recycle.h"
 #include "tables.h"
 
@@ -371,7 +373,7 @@ int get_skill(CHAR_DATA* ch, int sn)
     }
 
     else if (!IS_NPC(ch)) {
-        if (ch->level < skill_table[sn].skill_level[ch->class])
+        if (ch->level < skill_table[sn].skill_level[ch->ch_class])
             skill = 0;
         else
             skill = ch->pcdata->learned[sn];
@@ -836,7 +838,7 @@ int get_curr_stat(CHAR_DATA* ch, int stat)
     else {
         max = pc_race_table[ch->race].max_stats[stat] + 4;
 
-        if (class_table[ch->class].attr_prime == stat) max += 2;
+        if (class_table[ch->ch_class].attr_prime == stat) max += 2;
 
         if (ch->race == race_lookup("human")) max += 1;
 
@@ -855,7 +857,7 @@ int get_max_train(CHAR_DATA* ch, int stat)
         return 25;
 
     max = pc_race_table[ch->race].max_stats[stat];
-    if (class_table[ch->class].attr_prime == stat) {
+    if (class_table[ch->ch_class].attr_prime == stat) {
         if (ch->race == race_lookup("human"))
             max += 3;
         else
@@ -1335,7 +1337,7 @@ void affect_remove_obj(OBJ_DATA* obj, AFFECT_DATA* paf)
 void affect_strip(CHAR_DATA* ch, int sn)
 {
     AFFECT_DATA* paf;
-    AFFECT_DATA* paf_next;
+    AFFECT_DATA* paf_next = NULL;
 
     for (paf = ch->affected; paf != NULL; paf = paf_next) {
         paf_next = paf->next;
@@ -1459,7 +1461,8 @@ void char_to_room(CHAR_DATA* ch, ROOM_INDEX_DATA* pRoomIndex)
         ++ch->in_room->light;
 
     if (IS_AFFECTED(ch, AFF_PLAGUE)) {
-        AFFECT_DATA *af, plague;
+        AFFECT_DATA* af;
+        AFFECT_DATA plague = { 0 };
         CHAR_DATA* vch;
 
         for (af = ch->affected; af != NULL; af = af->next) {
@@ -1735,13 +1738,17 @@ void obj_from_room(OBJ_DATA* obj)
     ROOM_INDEX_DATA* in_room;
     CHAR_DATA* ch;
 
+    if (obj == NULL)
+        return;
+
     if ((in_room = obj->in_room) == NULL) {
         bug("obj_from_room: NULL.", 0);
         return;
     }
 
     for (ch = in_room->people; ch != NULL; ch = ch->next_in_room)
-        if (ch->on == obj) ch->on = NULL;
+        if (ch->on == obj)
+            ch->on = NULL;
 
     if (obj == in_room->contents) { 
         in_room->contents = obj->next_content; 
@@ -1854,7 +1861,7 @@ void obj_from_obj(OBJ_DATA* obj)
 void extract_obj(OBJ_DATA* obj)
 {
     OBJ_DATA* obj_content;
-    OBJ_DATA* obj_next;
+    OBJ_DATA* obj_next = NULL;
 
     if (obj->in_room != NULL)
         obj_from_room(obj);
@@ -1899,7 +1906,7 @@ void extract_char(CHAR_DATA* ch, bool fPull)
 {
     CHAR_DATA* wch;
     OBJ_DATA* obj;
-    OBJ_DATA* obj_next;
+    OBJ_DATA* obj_next = NULL;
 
     /* doesn't seem to be necessary
     if ( ch->in_room == NULL )
@@ -1908,6 +1915,9 @@ void extract_char(CHAR_DATA* ch, bool fPull)
         return;
     }
     */
+
+    if (ch == NULL)
+        return;
 
     nuke_pets(ch);
     ch->pet = NULL; /* just in case */

@@ -390,8 +390,8 @@ void one_hit(CHAR_DATA* ch, CHAR_DATA* victim, int dt)
             thac0_32 = 6;
     }
     else {
-        thac0_00 = class_table[ch->class].thac0_00;
-        thac0_32 = class_table[ch->class].thac0_32;
+        thac0_00 = class_table[ch->ch_class].thac0_00;
+        thac0_32 = class_table[ch->ch_class].thac0_32;
     }
     thac0 = interpolate(ch->level, thac0_00, thac0_32);
 
@@ -1944,7 +1944,7 @@ void do_berserk(CHAR_DATA* ch, char* argument)
     if ((chance = get_skill(ch, gsn_berserk)) == 0
         || (IS_NPC(ch) && !IS_SET(ch->off_flags, OFF_BERSERK))
         || (!IS_NPC(ch)
-            && ch->level < skill_table[gsn_berserk].skill_level[ch->class])) {
+            && ch->level < skill_table[gsn_berserk].skill_level[ch->ch_class])) {
         send_to_char("You turn red in the face, but nothing happens.\n\r", ch);
         return;
     }
@@ -2028,7 +2028,7 @@ void do_bash(CHAR_DATA* ch, char* argument)
     if ((chance = get_skill(ch, gsn_bash)) == 0
         || (IS_NPC(ch) && !IS_SET(ch->off_flags, OFF_BASH))
         || (!IS_NPC(ch)
-            && ch->level < skill_table[gsn_bash].skill_level[ch->class])) {
+            && ch->level < skill_table[gsn_bash].skill_level[ch->ch_class])) {
         send_to_char("Bashing? What's that?\n\r", ch);
         return;
     }
@@ -2146,7 +2146,7 @@ void do_dirt(CHAR_DATA* ch, char* argument)
     if ((chance = get_skill(ch, gsn_dirt)) == 0
         || (IS_NPC(ch) && !IS_SET(ch->off_flags, OFF_KICK_DIRT))
         || (!IS_NPC(ch)
-            && ch->level < skill_table[gsn_dirt].skill_level[ch->class])) {
+            && ch->level < skill_table[gsn_dirt].skill_level[ch->ch_class])) {
         send_to_char("You get your feet dirty.\n\r", ch);
         return;
     }
@@ -2283,7 +2283,7 @@ void do_trip(CHAR_DATA* ch, char* argument)
     if ((chance = get_skill(ch, gsn_trip)) == 0
         || (IS_NPC(ch) && !IS_SET(ch->off_flags, OFF_TRIP))
         || (!IS_NPC(ch)
-            && ch->level < skill_table[gsn_trip].skill_level[ch->class])) {
+            && ch->level < skill_table[gsn_trip].skill_level[ch->ch_class])) {
         send_to_char("Tripping?  What's that?\n\r", ch);
         return;
     }
@@ -2586,7 +2586,7 @@ void do_flee(CHAR_DATA* ch, char* argument)
 
         if (!IS_NPC(ch)) {
             send_to_char("You flee from combat!\n\r", ch);
-            if ((ch->class == 2) && (number_percent() < 3 * (ch->level / 2)))
+            if ((ch->ch_class == 2) && (number_percent() < 3 * (ch->level / 2)))
                 send_to_char("You snuck away safely.\n\r", ch);
             else {
                 send_to_char("You lost 10 exp.\n\r", ch);
@@ -2670,7 +2670,7 @@ void do_kick(CHAR_DATA* ch, char* argument)
     CHAR_DATA* victim;
 
     if (!IS_NPC(ch)
-        && ch->level < skill_table[gsn_kick].skill_level[ch->class]) {
+        && ch->level < skill_table[gsn_kick].skill_level[ch->ch_class]) {
         send_to_char("You better leave the martial arts to fighters.\n\r", ch);
         return;
     }
