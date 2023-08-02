@@ -153,7 +153,7 @@ void PrintLastWinSockError()
     if (!*msgbuf)
         sprintf(msgbuf, "%d", err);
 
-    printf("Error: %s", msgbuf);
+    printf("Error: %s\n", msgbuf);
 }
 #endif
 
@@ -171,7 +171,7 @@ void init_ssl_server(SockServer* server)
         exit(EXIT_FAILURE);
     }
     else {
-        printf("* Context created.");
+        printf("* Context created.\n");
     }
 
     char cert_file[256];
@@ -183,22 +183,22 @@ void init_ssl_server(SockServer* server)
     /* Set the key and cert */
     if (SSL_CTX_use_certificate_file(server->ssl_ctx, cert_file, 
             SSL_FILETYPE_PEM) <= 0) {
-        fprintf(stderr, "! Failed to open SSL certificate file %s", cert_file);
+        fprintf(stderr, "! Failed to open SSL certificate file %s\n", cert_file);
         ERR_print_errors_fp(stderr);
         exit(EXIT_FAILURE);
     }
     else {
-        printf("* Certificate %s loaded.", cert_file);
+        printf("* Certificate %s loaded.\n", cert_file);
     }
 
     if (SSL_CTX_use_PrivateKey_file(server->ssl_ctx, pkey_file, 
             SSL_FILETYPE_PEM) <= 0) {
-        fprintf(stderr, "! Failed to open SSL private key file %s", pkey_file);
+        fprintf(stderr, "! Failed to open SSL private key file %s\n", pkey_file);
         ERR_print_errors_fp(stderr);
         exit(EXIT_FAILURE);
     }
     else {
-        printf("* Private key %s loaded.", cert_file);
+        printf("* Private key %s loaded.\n", cert_file);
     }
 
     if (SSL_CTX_check_private_key(server->ssl_ctx) <= 0) {
@@ -207,7 +207,7 @@ void init_ssl_server(SockServer* server)
         exit(EXIT_FAILURE);
     }
     else {
-        printf("* Cert/pkey validated.");
+        printf("* Cert/pkey validated.\n");
     }
 
     // Only allow TLS
@@ -361,7 +361,7 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
 
 #ifndef USE_RAW_SOCKETS
     client.ssl = SSL_new(server->ssl_ctx);
-    SSL_set_fd(client.ssl, client.fd);
+    SSL_set_fd(client.ssl, (int)client.fd);
 
     if (SSL_accept(client.ssl) <= 0) {
         ERR_print_errors_fp(stderr);
