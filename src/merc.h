@@ -43,12 +43,6 @@
 #define DECLARE_SPEC_FUN( fun )  SPEC_FUN fun
 #define DECLARE_SPELL_FUN( fun ) SPELL_FUN fun
 
-#ifdef _MSC_VER
-#include <winsock.h>
-#else
-#define SOCKET int
-#endif
-
 /*
  * Structure types.
  */
@@ -57,6 +51,7 @@ typedef struct area_data AREA_DATA;
 typedef struct ban_data BAN_DATA;
 typedef struct buf_type BUFFER;
 typedef struct char_data CHAR_DATA;
+typedef struct colour_data COLOUR_DATA;
 typedef struct descriptor_data DESCRIPTOR_DATA;
 typedef struct exit_data EXIT_DATA;
 typedef struct extra_descr_data EXTRA_DESCR_DATA;
@@ -74,7 +69,6 @@ typedef struct room_index_data ROOM_INDEX_DATA;
 typedef struct shop_data SHOP_DATA;
 typedef struct time_info_data TIME_INFO_DATA;
 typedef struct weather_data WEATHER_DATA;
-typedef struct colour_data COLOUR_DATA;
 
 /*
  * Function types.
@@ -323,30 +317,6 @@ struct weather_data {
 #define CON_READ_IMOTD           13
 #define CON_READ_MOTD            14
 #define CON_BREAK_CONNECT        15
-
-/*
- * Descriptor (channel) structure.
- */
-struct descriptor_data {
-    DESCRIPTOR_DATA* next;
-    DESCRIPTOR_DATA* snoop_by;
-    CHAR_DATA* character;
-    CHAR_DATA* original;
-    bool valid;
-    char* host;
-    SOCKET descriptor;
-    int16_t connected;
-    bool fcommand;
-    char inbuf[4 * MAX_INPUT_LENGTH];
-    char incomm[MAX_INPUT_LENGTH];
-    char inlast[MAX_INPUT_LENGTH];
-    int repeat;
-    char* outbuf;
-    size_t outsize;
-    ptrdiff_t outtop;
-    char* showstr_head;
-    char* showstr_point;
-};
 
 /*
  * Attribute bonus structures.
@@ -1360,7 +1330,7 @@ struct char_data {
     int16_t group;
     int16_t clan;
     int16_t sex;
-    int16_t class;
+    int16_t ch_class;
     int16_t race;
     int16_t level;
     int16_t trust;
@@ -2046,10 +2016,10 @@ bool is_safe args((CHAR_DATA * ch, CHAR_DATA* victim));
 bool is_safe_spell args((CHAR_DATA * ch, CHAR_DATA* victim, bool area));
 void violence_update args((void));
 void multi_hit args((CHAR_DATA * ch, CHAR_DATA* victim, int dt));
-bool damage args((CHAR_DATA * ch, CHAR_DATA* victim, int dam, int dt, int class,
-                  bool show));
-bool damage_old args((CHAR_DATA * ch, CHAR_DATA* victim, int dam, int dt,
-                      int class, bool show));
+bool damage(CHAR_DATA * ch, CHAR_DATA* victim, int dam, int dt, int ch_class, 
+    bool show);
+bool damage_old(CHAR_DATA * ch, CHAR_DATA* victim, int dam, int dt, 
+    int ch_class, bool show);
 void update_pos args((CHAR_DATA * victim));
 void stop_fighting args((CHAR_DATA * ch, bool fBoth));
 void check_killer args((CHAR_DATA * ch, CHAR_DATA* victim));

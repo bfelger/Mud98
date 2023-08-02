@@ -25,8 +25,10 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "interp.h"
 #include "merc.h"
+
+#include "comm.h"
+#include "interp.h"
 #include "strings.h"
 
 #include <ctype.h>

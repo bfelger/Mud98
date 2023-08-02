@@ -25,11 +25,12 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+#include "merc.h"
 
+#include "comm.h"
 #include "interp.h"
 #include "lookup.h"
 #include "magic.h"
-#include "merc.h"
 #include "recycle.h"
 #include "strings.h"
 #include "tables.h"
@@ -211,7 +212,8 @@ void show_list_to_char(OBJ_DATA* list, CHAR_DATA* ch, bool fShort,
 
 void show_char_to_char_0(CHAR_DATA* victim, CHAR_DATA* ch)
 {
-    char buf[MAX_STRING_LENGTH], message[MAX_STRING_LENGTH];
+    char buf[MAX_STRING_LENGTH] = "";
+    char message[MAX_STRING_LENGTH] = "";
 
     buf[0] = '\0';
 
@@ -1251,7 +1253,7 @@ void do_score(CHAR_DATA* ch, char* argument)
             ch->sex == 0   ? "sexless"
             : ch->sex == 1 ? "male"
                            : "female",
-            IS_NPC(ch) ? "mobile" : class_table[ch->class].name);
+            IS_NPC(ch) ? "mobile" : class_table[ch->ch_class].name);
     send_to_char(buf, ch);
 
     sprintf(buf, "You have %d/%d hit, %d/%d mana, %d/%d movement.\n\r", ch->hit,
@@ -1562,8 +1564,8 @@ void do_help(CHAR_DATA* ch, char* argument)
     HELP_DATA* pHelp;
     BUFFER* output;
     bool found = false;
-    char argall[MAX_INPUT_LENGTH];
-    char argone[MAX_INPUT_LENGTH];
+    char argall[MAX_INPUT_LENGTH] = "";
+    char argone[MAX_INPUT_LENGTH] = "";
     int level;
 
     output = new_buf();
@@ -1648,7 +1650,7 @@ void do_whois(CHAR_DATA* ch, char* argument)
             found = true;
 
             /* work out the printing */
-            class = class_table[wch->class].who_name;
+            class = class_table[wch->ch_class].who_name;
             switch (wch->level) {
             case MAX_LEVEL - 0:
                 class = "IMP";
@@ -1708,8 +1710,8 @@ void do_whois(CHAR_DATA* ch, char* argument)
  */
 void do_who(CHAR_DATA* ch, char* argument)
 {
-    char buf[MAX_STRING_LENGTH];
-    char buf2[MAX_STRING_LENGTH];
+    char buf[MAX_STRING_LENGTH] = "";
+    char buf2[MAX_STRING_LENGTH] = "";
     BUFFER* output;
     DESCRIPTOR_DATA* d;
     int iClass;
@@ -1719,9 +1721,9 @@ void do_who(CHAR_DATA* ch, char* argument)
     int iLevelUpper;
     int nNumber;
     int nMatch;
-    bool rgfClass[MAX_CLASS];
-    bool rgfRace[MAX_PC_RACE];
-    bool rgfClan[MAX_CLAN];
+    bool rgfClass[MAX_CLASS] = { 0 };
+    bool rgfRace[MAX_PC_RACE] = { 0 };
+    bool rgfClan[MAX_CLAN] = { 0 };
     bool fClassRestrict = false;
     bool fClanRestrict = false;
     bool fClan = false;
@@ -1825,7 +1827,7 @@ void do_who(CHAR_DATA* ch, char* argument)
 
         if (wch->level < iLevelLower || wch->level > iLevelUpper
             || (fImmortalOnly && wch->level < LEVEL_IMMORTAL)
-            || (fClassRestrict && !rgfClass[wch->class])
+            || (fClassRestrict && !rgfClass[wch->ch_class])
             || (fRaceRestrict && !rgfRace[wch->race])
             || (fClan && !is_clan(wch))
             || (fClanRestrict && !rgfClan[wch->clan]))
@@ -1836,7 +1838,7 @@ void do_who(CHAR_DATA* ch, char* argument)
         /*
          * Figure out what to print for class.
          */
-        class = class_table[wch->class].who_name;
+        class = class_table[wch->ch_class].who_name;
         switch (wch->level) {
         case MAX_LEVEL - 0: class = "IMP"; break;
         case MAX_LEVEL - 1: class = "CRE"; break;
@@ -2129,7 +2131,7 @@ void do_consider(CHAR_DATA* ch, char* argument)
 
 void set_title(CHAR_DATA* ch, char* title)
 {
-    char buf[MAX_STRING_LENGTH];
+    char buf[MAX_STRING_LENGTH] = "";
 
     if (IS_NPC(ch)) {
         bug("Set_title: NPC.", 0);
@@ -2168,7 +2170,7 @@ void do_title(CHAR_DATA* ch, char* argument)
 
 void do_description(CHAR_DATA* ch, char* argument)
 {
-    char buf[MAX_STRING_LENGTH];
+    char buf[MAX_STRING_LENGTH] = "";
 
     if (argument[0] != '\0') {
         buf[0] = '\0';
@@ -2269,7 +2271,7 @@ void do_practice(CHAR_DATA* ch, char* argument)
         for (sn = 0; sn < MAX_SKILL; sn++) {
             if (skill_table[sn].name == NULL)
                 break;
-            if (ch->level < skill_table[sn].skill_level[ch->class]
+            if (ch->level < skill_table[sn].skill_level[ch->ch_class]
                 || ch->pcdata->learned[sn] < 1 /* skill is not known */)
                 continue;
 
@@ -2311,14 +2313,14 @@ void do_practice(CHAR_DATA* ch, char* argument)
 
         if ((sn = find_spell(ch, argument)) < 0
             || (!IS_NPC(ch)
-                && (ch->level < skill_table[sn].skill_level[ch->class]
+                && (ch->level < skill_table[sn].skill_level[ch->ch_class]
                     || ch->pcdata->learned[sn] < 1 /* skill is not known */
-                    || skill_table[sn].rating[ch->class] == 0))) {
+                    || skill_table[sn].rating[ch->ch_class] == 0))) {
             send_to_char("You can't practice that.\n\r", ch);
             return;
         }
 
-        adept = IS_NPC(ch) ? 100 : class_table[ch->class].skill_adept;
+        adept = IS_NPC(ch) ? 100 : class_table[ch->ch_class].skill_adept;
 
         if (ch->pcdata->learned[sn] >= adept) {
             sprintf(buf, "You are already learned at %s.\n\r",
@@ -2329,7 +2331,7 @@ void do_practice(CHAR_DATA* ch, char* argument)
             ch->practice--;
             ch->pcdata->learned[sn]
                 += int_app[get_curr_stat(ch, STAT_INT)].learn
-                   / skill_table[sn].rating[ch->class];
+                   / skill_table[sn].rating[ch->ch_class];
             if (ch->pcdata->learned[sn] < adept) {
                 act("You practice $T.", ch, NULL, skill_table[sn].name,
                     TO_CHAR);
@@ -2382,8 +2384,8 @@ void do_wimpy(CHAR_DATA* ch, char* argument)
 
 void do_password(CHAR_DATA* ch, char* argument)
 {
-    char arg1[MAX_INPUT_LENGTH];
-    char arg2[MAX_INPUT_LENGTH];
+    char arg1[MAX_INPUT_LENGTH] = "";
+    char arg2[MAX_INPUT_LENGTH] = "";
     char* pArg;
     char* pwdnew;
     char* p;

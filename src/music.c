@@ -26,8 +26,11 @@
  ***************************************************************************/
 
 #include "merc.h"
+
+#include "comm.h"
 #include "music.h"
 #include "recycle.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -149,7 +152,6 @@ void load_songs(void)
     sprintf(music_file, "%s%s", area_dir, MUSIC_FILE);
     if ((fp = fopen(music_file, "r")) == NULL) {
         bug("Couldn't open music file, no songs available.", 0);
-        fclose(fp);
         return;
     }
 

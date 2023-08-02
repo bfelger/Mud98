@@ -25,8 +25,10 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "interp.h"
 #include "merc.h"
+
+#include "comm.h"
+#include "interp.h"
 #include "recycle.h"
 #include "tables.h"
 
@@ -1114,8 +1116,8 @@ void do_pose(CHAR_DATA* ch, char* argument)
     level = UMIN(ch->level, sizeof(pose_table) / sizeof(pose_table[0]) - 1);
     pose = number_range(0, level);
 
-    act(pose_table[pose].message[2 * ch->class + 0], ch, NULL, NULL, TO_CHAR);
-    act(pose_table[pose].message[2 * ch->class + 1], ch, NULL, NULL, TO_ROOM);
+    act(pose_table[pose].message[2 * ch->ch_class + 0], ch, NULL, NULL, TO_CHAR);
+    act(pose_table[pose].message[2 * ch->ch_class + 1], ch, NULL, NULL, TO_ROOM);
 
     return;
 }
@@ -1427,7 +1429,7 @@ void do_group(CHAR_DATA* ch, char* argument)
                         "[%2d %s] %-16s %4d/%4d hp %4d/%4d mana %4d/%4d mv %5d "
                         "xp\n\r",
                         gch->level,
-                        IS_NPC(gch) ? "Mob" : class_table[gch->class].who_name,
+                        IS_NPC(gch) ? "Mob" : class_table[gch->ch_class].who_name,
                         capitalize(PERS(gch, ch)), gch->hit, gch->max_hit,
                         gch->mana, gch->max_mana, gch->move, gch->max_move,
                         gch->exp);
