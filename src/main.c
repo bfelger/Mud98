@@ -242,7 +242,6 @@ int gettimeofday(struct timeval* tp, struct timezone* tzp)
 ////////////////////////////////////////////////////////////////////////////////
 #endif
 
-
 void game_loop(SockServer* server)
 {
     struct timeval last_time;
@@ -257,7 +256,7 @@ void game_loop(SockServer* server)
 
         // New connection?
         if (has_new_conn(server, &poll_data)) 
-            init_descriptor(server);
+            handle_new_connection(server);
 
         process_client_input(server, &poll_data);
 

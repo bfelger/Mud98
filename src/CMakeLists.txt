@@ -5,8 +5,10 @@ cmake_minimum_required (VERSION 3.10)
 
 project(rom)
 
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
+if (NOT MSVC)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads REQUIRED)
+endif()
 
 if (MSVC)
     add_compile_options(/W3 /std:c17)
@@ -31,5 +33,5 @@ add_executable(rom act_comm.c act_enter.c act_info.c act_move.c act_obj.c
 if (NOT MSVC)
     target_link_libraries(rom crypt Threads::Threads)
 else()
-    target_link_libraries(rom Threads::Threads)
+    target_link_libraries(rom)
 endif()

@@ -58,6 +58,7 @@
 #include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <pthread.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -84,6 +85,37 @@ extern int malloc_verify args((void));
 
 DESCRIPTOR_DATA* descriptor_list;           // All open descriptors
 DESCRIPTOR_DATA* d_next;                    // Next descriptor in loop
+
+typedef enum {
+    THREAD_STATUS_NONE,
+    THREAD_STATUS_STARTED,
+    THREAD_STATUS_RUNNING, 
+    THREAD_STATUS_FINISHED,
+} ThreadStatus;
+
+#ifdef _MSC_VER
+#define THREAD_ERR -1
+#else
+#define THREAD_ERR (void*)-1
+#endif
+
+typedef struct new_conn_thread_t {
+#ifdef _MSC_VER
+    HANDLE thread;
+    DWORD id;
+#else
+    pthread_t id;
+#endif
+    ThreadStatus status;
+} NewConnThread;
+
+typedef struct thread_data_t {
+    SockServer* server;
+    int index;
+} ThreadData;
+
+NewConnThread new_conn_threads[MAX_HANDSHAKES] = { 0 };
+ThreadData thread_data[MAX_HANDSHAKES] = { 0 };
 
 extern bool merc_down;                      // Shutdown
 extern bool wizlock;                        // Game is wizlocked
@@ -222,7 +254,11 @@ bool has_new_conn(SockServer* server, PollData* poll_data)
     return FD_ISSET(server->control, &poll_data->in_set);
 }
 
-void init_descriptor(SockServer* server)
+#ifdef _MSC_VER
+static DWORD WINAPI init_descriptor(LPVOID lp_data)
+#else
+static void* init_descriptor(void* lp_data)
+#endif
 {
     char buf[MAX_STRING_LENGTH];
     DESCRIPTOR_DATA* dnew;
@@ -231,11 +267,16 @@ void init_descriptor(SockServer* server)
     SOCKET desc;
     SOCKLEN size;
 
+    ThreadData* data = (ThreadData*)lp_data;
+    SockServer* server = data->server;
+
     size = sizeof(sock);
     getsockname(server->control, (struct sockaddr*)&sock, &size);
+
+    new_conn_threads[thread_data->index].status = THREAD_STATUS_RUNNING;
     if ((desc = accept(server->control, (struct sockaddr*)&sock, &size)) < 0) {
         perror("New_descriptor: accept");
-        return;
+        return THREAD_ERR;
     }
 
 #ifndef _MSC_VER
@@ -245,7 +286,7 @@ void init_descriptor(SockServer* server)
 
     if (fcntl(desc, F_SETFL, FNDELAY) == -1) {
         perror("New_descriptor: fcntl: FNDELAY");
-        return;
+        return THREAD_ERR;
     }
 #endif
 
@@ -297,7 +338,7 @@ void init_descriptor(SockServer* server)
         write_to_descriptor(dnew, "Your site has been banned from this mud.\n\r", 0);
         CLOSE_SOCKET(desc);
         free_descriptor(dnew);
-        return;
+        return THREAD_ERR;
     }
     /*
      * Init descriptor data.
@@ -316,7 +357,72 @@ void init_descriptor(SockServer* server)
             write_to_buffer(dnew, help_greeting, 0);
     }
 
-    return;
+    new_conn_threads[thread_data->index].status = THREAD_STATUS_FINISHED;
+
+#ifndef _MSC_VER
+    pthread_exit(NULL);
+#endif
+
+    return 0;
+}
+
+void handle_new_connection(SockServer* server) {
+    int i;
+    int new_thread_ix = -1;
+
+    for (i = 0; i < MAX_HANDSHAKES; i++) {
+        if (new_conn_threads[i].status == THREAD_STATUS_STARTED) {
+            // We are still processing a handshake. Do nothing.
+            new_thread_ix = -2;
+        }
+
+        if (new_conn_threads[i].status == THREAD_STATUS_FINISHED) {
+#ifdef _MSC_VER
+            CloseHandle(new_conn_threads[i].thread);
+#endif
+            new_conn_threads[i].id = 0;
+            new_conn_threads[i].status = THREAD_STATUS_NONE;
+        }
+
+        if (new_conn_threads[i].status == THREAD_STATUS_NONE
+            && new_thread_ix == -1)
+            new_thread_ix = i;
+    }
+
+    if (new_thread_ix == -1) {
+        // New threads are maxed out.
+        perror("Not ready to receive new connections, yet.");
+        return;
+    }
+    else if (new_thread_ix == -2) {
+        // Still spinning up a previous thread.
+        return;
+    }
+
+    thread_data[new_thread_ix].index = new_thread_ix;
+    thread_data[new_thread_ix].server = server;
+
+    new_conn_threads[new_thread_ix].status = THREAD_STATUS_STARTED;
+#ifdef _MSC_VER
+    new_conn_threads[new_thread_ix].thread = CreateThread(
+        NULL,                                   // default security attributes
+        0,                                      // use default stack size  
+        init_descriptor,                        // thread function name
+        &thread_data[new_thread_ix],            // argument to thread function 
+        0,                                      // use default creation flags 
+        &(new_conn_threads[new_thread_ix].id)   // returns the thread identifier 
+    );
+
+    if (new_conn_threads[new_thread_ix].thread == NULL) {
+        perror("handle_new_connection()");
+        return;
+    }
+#else
+    if (pthread_create(&(new_conn_threads[new_thread_ix].id), NULL, 
+            init_descriptor, &thread_data[new_thread_ix]) != 0) {
+        perror("handle_new_connection(): pthread_create()");
+    }
+#endif
 }
 
 void close_socket(DESCRIPTOR_DATA* dclose)

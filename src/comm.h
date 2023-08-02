@@ -6,6 +6,8 @@
 #ifndef ROM__COMM_H
 #define ROM__COMM_H
 
+#define MAX_HANDSHAKES 10
+
 #include "merc.h"
 
 #ifdef _MSC_VER
@@ -54,7 +56,7 @@ typedef struct descriptor_data {
 bool can_write(DESCRIPTOR_DATA* d, PollData* poll_data);
 void close_server(SockServer* server);
 bool has_new_conn(SockServer* server, PollData* poll_data);
-void init_descriptor(SockServer* server);
+void handle_new_connection(SockServer* server);
 void init_server(SockServer* server, int port);
 void nanny(DESCRIPTOR_DATA* d, char* argument);
 void poll_server(SockServer* server, PollData* poll_data);
