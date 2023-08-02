@@ -13,16 +13,17 @@
 #ifdef _MSC_VER
 #include <winsock.h>
 #else
+#include <sys/select.h>
 #define SOCKET int
 #endif
-
-typedef struct sock_server_t {
-    SOCKET control;
-} SockServer;
 
 typedef struct sock_client_t {
     SOCKET fd;
 } SockClient;
+
+typedef struct sock_server_t {
+    SOCKET control;
+} SockServer;
 
 typedef struct poll_data_t {
     fd_set in_set;
