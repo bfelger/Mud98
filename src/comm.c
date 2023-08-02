@@ -46,6 +46,12 @@
 #include <sys/types.h>
 #include <time.h>
 
+#ifndef USE_RAW_SOCKETS
+#include <openssl/err.h>
+#include <openssl/pem.h>
+#include <openssl/ssl.h>
+#endif
+
 #ifdef _MSC_VER
 #pragma comment(lib, "Ws2_32.lib")
 #include <windows.h>
@@ -94,8 +100,12 @@ typedef enum {
 } ThreadStatus;
 
 #ifdef _MSC_VER
+#define INIT_DESC_RET DWORD WINAPI
+#define INIT_DESC_PARAM LPVOID
 #define THREAD_ERR -1
 #else
+#define INIT_DESC_RET void*
+#define INIT_DESC_PARAM void*
 #define THREAD_ERR (void*)-1
 #endif
 
@@ -147,13 +157,75 @@ void PrintLastWinSockError()
 }
 #endif
 
+#ifndef USE_RAW_SOCKETS
+void init_ssl_server(SockServer* server)
+{
+    log_string("Initializing SSL server:");
+
+    SSL_library_init();
+    OpenSSL_add_all_algorithms();
+
+    if ((server->ssl_ctx = SSL_CTX_new(TLS_server_method())) == NULL) {
+        perror("! Unable to create SSL context");
+        ERR_print_errors_fp(stderr);
+        exit(EXIT_FAILURE);
+    }
+    else {
+        printf("* Context created.");
+    }
+
+    char cert_file[256];
+    sprintf(cert_file, "%s%s", area_dir, CERT_FILE);
+
+    char pkey_file[256];
+    sprintf(pkey_file, "%s%s", area_dir, PKEY_FILE);
+
+    /* Set the key and cert */
+    if (SSL_CTX_use_certificate_file(server->ssl_ctx, cert_file, 
+            SSL_FILETYPE_PEM) <= 0) {
+        fprintf(stderr, "! Failed to open SSL certificate file %s", cert_file);
+        ERR_print_errors_fp(stderr);
+        exit(EXIT_FAILURE);
+    }
+    else {
+        printf("* Certificate %s loaded.", cert_file);
+    }
+
+    if (SSL_CTX_use_PrivateKey_file(server->ssl_ctx, pkey_file, 
+            SSL_FILETYPE_PEM) <= 0) {
+        fprintf(stderr, "! Failed to open SSL private key file %s", pkey_file);
+        ERR_print_errors_fp(stderr);
+        exit(EXIT_FAILURE);
+    }
+    else {
+        printf("* Private key %s loaded.", cert_file);
+    }
+
+    if (SSL_CTX_check_private_key(server->ssl_ctx) <= 0) {
+        perror("! Certificate/pkey validation failed.");
+        ERR_print_errors_fp(stderr);
+        exit(EXIT_FAILURE);
+    }
+    else {
+        printf("* Cert/pkey validated.");
+    }
+
+    // Only allow TLS
+    SSL_CTX_set_options(server->ssl_ctx, SSL_OP_ALL | SSL_OP_NO_SSLv2 
+        | SSL_OP_NO_SSLv3);
+}
+#endif
+
 void init_server(SockServer* server, int port)
 {
     static struct sockaddr_in sa_zero;
     struct sockaddr_in sa;
     int x = 1;
-    SOCKET fd;
     int errno;
+
+#ifndef USE_RAW_SOCKETS
+    init_ssl_server(server);
+#endif
 
 #ifndef _MSC_VER
     signal(SIGPIPE, SIG_IGN);
@@ -162,19 +234,18 @@ void init_server(SockServer* server, int port)
     WSADATA wsaData;
     int err;
 
-    /* Use the MAKEWORD(lowbyte, highbyte) macro declared in Windef.h */
+    // Use the MAKEWORD(lowbyte, highbyte) macro declared in Windef.h
     wVersionRequested = MAKEWORD(2, 2);
 
     err = WSAStartup(wVersionRequested, &wsaData);
     if (err != 0) {
-        /* Tell the user that we could not find a usable */
-        /* Winsock DLL.                                  */
+        // Tell the user that we could not find a usable Winsock DLL.
         printf("WSAStartup failed with error: %d\n", err);
         exit(1);
     }
 #endif
 
-    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    if ((server->control = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("Init_socket: socket");
 #ifdef _MSC_VER
         PrintLastWinSockError();
@@ -182,12 +253,12 @@ void init_server(SockServer* server, int port)
         exit(1);
     }
 
-    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&x, sizeof(x)) < 0) {
+    if (setsockopt(server->control, SOL_SOCKET, SO_REUSEADDR, (char*)&x, sizeof(x)) < 0) {
         perror("Init_socket: SO_REUSEADDR");
 #ifdef _MSC_VER
         PrintLastWinSockError();
 #endif
-        CLOSE_SOCKET(fd);
+        close_server(server);
         exit(1);
     }
 
@@ -198,13 +269,13 @@ void init_server(SockServer* server, int port)
         ld.l_onoff = 1;
         ld.l_linger = 1000;
 
-        if (setsockopt(fd, SOL_SOCKET, SO_DONTLINGER, (char*)&ld, sizeof(ld)) 
+        if (setsockopt(server->control, SOL_SOCKET, SO_DONTLINGER, (char*)&ld, sizeof(ld)) 
             < 0) {
             perror("Init_socket: SO_DONTLINGER");
 #ifdef _MSC_VER
-            PrintLastWinSockError();;
+            PrintLastWinSockError();
 #endif
-            CLOSE_SOCKET(fd);
+            close_server(server);
             exit(1);
         }
     }
@@ -214,25 +285,23 @@ void init_server(SockServer* server, int port)
     sa.sin_family = AF_INET;
     sa.sin_port = htons(port);
 
-    if (bind(fd, (struct sockaddr*)&sa, sizeof(sa)) < 0) {
+    if (bind(server->control, (struct sockaddr*)&sa, sizeof(sa)) < 0) {
         perror("Init socket: bind");
 #ifdef _MSC_VER
         PrintLastWinSockError();
 #endif
-        CLOSE_SOCKET(fd);
+        close_server(server);
         exit(1);
     }
 
-    if (listen(fd, 3) < 0) {
+    if (listen(server->control, 3) < 0) {
         perror("Init socket: listen");
 #ifdef _MSC_VER
         PrintLastWinSockError();
 #endif
-        CLOSE_SOCKET(fd);
+        close_server(server);
         exit(1);
     }
-
-    server->control = fd;
 }
 
 bool can_write(DESCRIPTOR_DATA* d, PollData* poll_data)
@@ -244,9 +313,24 @@ void close_server(SockServer* server)
 {
     CLOSE_SOCKET(server->control);
 
+#ifndef USE_RAW_SOCKETS
+    SSL_CTX_free(server->ssl_ctx);
+#endif
+
 #ifdef _MSC_VER
     WSACleanup();
 #endif
+}
+
+void close_client(SockClient* client)
+{
+#ifndef USE_RAW_SOCKETS
+    if (client->ssl) {
+        SSL_shutdown(client->ssl);
+        SSL_free(client->ssl);
+    }
+#endif
+    CLOSE_SOCKET(client->fd);
 }
 
 bool has_new_conn(SockServer* server, PollData* poll_data)
@@ -254,18 +338,14 @@ bool has_new_conn(SockServer* server, PollData* poll_data)
     return FD_ISSET(server->control, &poll_data->in_set);
 }
 
-#ifdef _MSC_VER
-static DWORD WINAPI init_descriptor(LPVOID lp_data)
-#else
-static void* init_descriptor(void* lp_data)
-#endif
+static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
 {
     char buf[MAX_STRING_LENGTH];
     DESCRIPTOR_DATA* dnew;
     struct sockaddr_in sock = { 0 };
     struct hostent* from;
-    SOCKET desc;
     SOCKLEN size;
+    SockClient client = { 0 };
 
     ThreadData* data = (ThreadData*)lp_data;
     SockServer* server = data->server;
@@ -274,28 +354,37 @@ static void* init_descriptor(void* lp_data)
     getsockname(server->control, (struct sockaddr*)&sock, &size);
 
     new_conn_threads[thread_data->index].status = THREAD_STATUS_RUNNING;
-    if ((desc = accept(server->control, (struct sockaddr*)&sock, &size)) < 0) {
+    if ((client.fd = accept(server->control, (struct sockaddr*)&sock, &size)) < 0) {
         perror("New_descriptor: accept");
         return THREAD_ERR;
     }
+
+#ifndef USE_RAW_SOCKETS
+    client.ssl = SSL_new(server->ssl_ctx);
+    SSL_set_fd(client.ssl, client.fd);
+
+    if (SSL_accept(client.ssl) <= 0) {
+        ERR_print_errors_fp(stderr);
+        close_client(&client);
+        return THREAD_ERR;
+    }
+#endif
 
 #ifndef _MSC_VER
 #if !defined(FNDELAY)
 #define FNDELAY O_NDELAY
 #endif
 
-    if (fcntl(desc, F_SETFL, FNDELAY) == -1) {
+    if (fcntl(client.fd, F_SETFL, FNDELAY) == -1) {
         perror("New_descriptor: fcntl: FNDELAY");
         return THREAD_ERR;
     }
 #endif
 
-    /*
-     * Cons a new descriptor.
-     */
+    // Cons a new descriptor.
     dnew = new_descriptor();
 
-    dnew->client.fd = desc;
+    dnew->client = client;
     dnew->connected = CON_GET_NAME;
     dnew->showstr_head = NULL;
     dnew->showstr_point = NULL;
@@ -303,7 +392,7 @@ static void* init_descriptor(void* lp_data)
     dnew->outbuf = alloc_mem(dnew->outsize);
 
     size = sizeof(sock);
-    if (getpeername(desc, (struct sockaddr*)&sock, &size) < 0) {
+    if (getpeername(dnew->client.fd, (struct sockaddr*)&sock, &size) < 0) {
         perror("New_descriptor: getpeername");
         dnew->host = str_dup("(unknown)");
     }
@@ -336,7 +425,7 @@ static void* init_descriptor(void* lp_data)
      */
     if (check_ban(dnew->host, BAN_ALL)) {
         write_to_descriptor(dnew, "Your site has been banned from this mud.\n\r", 0);
-        CLOSE_SOCKET(desc);
+        close_client(&dnew->client);
         free_descriptor(dnew);
         return THREAD_ERR;
     }
@@ -486,13 +575,17 @@ void close_socket(DESCRIPTOR_DATA* dclose)
             bug("Close_socket: dclose not found.", 0);
     }
 
-    CLOSE_SOCKET(dclose->client.fd);
+    close_client(&dclose->client);
     free_descriptor(dclose);
     return;
 }
 
 bool read_from_descriptor(DESCRIPTOR_DATA* d)
 {
+#ifndef USE_RAW_SOCKETS
+    int ssl_err;
+#endif
+
     /* Hold horses if pending command already. */
     if (d->incomm[0] != '\0') return true;
 
@@ -507,8 +600,15 @@ bool read_from_descriptor(DESCRIPTOR_DATA* d)
 
     /* Snarf input. */
     for (;;) {
-        int nRead;
+        size_t nRead;
 
+#ifndef USE_RAW_SOCKETS
+        if ((ssl_err = SSL_read_ex(d->client.ssl, d->inbuf + iStart,
+                sizeof(d->inbuf) - 10 - iStart, &nRead)) <= 0) {
+            ERR_print_errors_fp(stderr);
+            return false;
+        }
+#else
 #ifdef _MSC_VER
         nRead = recv(d->client.fd, d->inbuf + iStart, 
             (int)(sizeof(d->inbuf) - 10 - iStart), 0);
@@ -516,6 +616,7 @@ bool read_from_descriptor(DESCRIPTOR_DATA* d)
         nRead = read(d->client.fd, d->inbuf + iStart,
             sizeof(d->inbuf) - 10 - iStart);
 #endif
+#endif // !USE_RAW_SOCKETS
         if (nRead > 0) {
             iStart += nRead;
             if (d->inbuf[iStart - 1] == '\n' || d->inbuf[iStart - 1] == '\r')
@@ -947,28 +1048,20 @@ bust_a_prompt_cleanup:
     free_buf(temp3);
 }
 
-/*
- * Append onto an output buffer.
- */
+// Append onto an output buffer.
 void write_to_buffer(DESCRIPTOR_DATA* d, const char* txt, size_t length)
 {
-    /*
-     * Find length in case caller didn't.
-     */
+    // Find length in case caller didn't.
     if (length <= 0) length = strlen(txt);
 
-    /*
-     * Initial \n\r if needed.
-     */
+    // Initial \n\r if needed.
     if (d->outtop == 0 && !d->fcommand) {
         d->outbuf[0] = '\n';
         d->outbuf[1] = '\r';
         d->outtop = 2;
     }
 
-    /*
-     * Expand the buffer as needed.
-     */
+    // Expand the buffer as needed.
     while (d->outtop + length >= d->outsize) {
         char* outbuf;
 
@@ -985,9 +1078,7 @@ void write_to_buffer(DESCRIPTOR_DATA* d, const char* txt, size_t length)
         d->outsize *= 2;
     }
 
-    /*
-     * Copy.
-     */
+    // Copy.
     strncpy(d->outbuf + d->outtop, txt, length);
     d->outtop += length;
     return;
@@ -1003,11 +1094,21 @@ bool write_to_descriptor(DESCRIPTOR_DATA* d, char* txt, size_t length)
 {
     size_t nWrite = 0;
     int nBlock;
+#ifndef USE_RAW_SOCKETS
+    int ssl_err;
+#endif
 
-    if (length <= 0) length = strlen(txt);
+    if (length <= 0)
+        length = strlen(txt);
 
     for (size_t iStart = 0; iStart < length; iStart += nWrite) {
         nBlock = (int)UMIN(length - iStart, 4096);
+#ifndef USE_RAW_SOCKETS
+        if ((ssl_err = SSL_write_ex(d->client.ssl, txt + iStart, nBlock, &nWrite)) <= 0) {
+            ERR_print_errors_fp(stderr);
+            return false;
+        }
+#else
 #ifdef _MSC_VER
         if ((nWrite = send(d->client.fd, txt + iStart, nBlock, 0)) < 0) {
             PrintLastWinSockError();
@@ -1017,6 +1118,7 @@ bool write_to_descriptor(DESCRIPTOR_DATA* d, char* txt, size_t length)
             perror("Write_to_descriptor");
             return false;
         }
+#endif // !USE_RAW_SOCKETS
     }
 
     return true;

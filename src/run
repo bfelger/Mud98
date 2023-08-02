@@ -1,0 +1,22 @@
+#!/bin/bash
+
+build_cfg="Debug"
+
+for arg in "$@" 
+do
+if [[ ${ARG,,} == "release" ]] || [[ ${ARG,,} == "rel" ]]
+    then
+        build_cfg="Release"
+    elif [[ ${ARG,,} == "debug" ]] || [[ ${ARG,,} == "deb" ]]
+    then
+        build_cfg="Debug"
+    elif [[ ${ARG,,} == "relwithdebinfo" ]] || [[ ${ARG,,} == "relwithdeb" ]] || [[ ${ARG,,} == "reldeb" ]]
+    then
+        build_cfg="RelWithDebInfo"
+    else
+        echo "Unknown argument '${ARG,,}'."
+        exit
+    fi
+done
+
+./.build/$build_cfg/rom --area-dir=../area --port=4000

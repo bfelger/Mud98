@@ -10,6 +10,10 @@
 
 #include "merc.h"
 
+#ifndef USE_RAW_SOCKETS
+#include <openssl/ssl.h>
+#endif
+
 #ifdef _MSC_VER
 #include <winsock.h>
 #else
@@ -19,10 +23,16 @@
 
 typedef struct sock_client_t {
     SOCKET fd;
+#ifndef USE_RAW_SOCKETS
+    SSL* ssl;
+#endif
 } SockClient;
 
 typedef struct sock_server_t {
     SOCKET control;
+#ifndef USE_RAW_SOCKETS
+    SSL_CTX* ssl_ctx;
+#endif
 } SockServer;
 
 typedef struct poll_data_t {
@@ -55,6 +65,7 @@ typedef struct descriptor_data {
 } DESCRIPTOR_DATA;
 
 bool can_write(DESCRIPTOR_DATA* d, PollData* poll_data);
+void close_client(SockClient* client);
 void close_server(SockServer* server);
 bool has_new_conn(SockServer* server, PollData* poll_data);
 void handle_new_connection(SockServer* server);
