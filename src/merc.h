@@ -1899,6 +1899,11 @@ extern char area_dir[];
     #define NULL_FILE   "nul"
 #endif
 
+#ifndef USE_RAW_SOCKETS
+#define CERT_FILE       "../keys/server-cert.pem"
+#define PKEY_FILE       "../keys/server-key.pem"
+#endif
+
 /*
  * Our function prototypes.
  * One big lump ... this is every function in Merc.
