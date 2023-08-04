@@ -248,7 +248,7 @@ void game_loop(SockServer* server)
     gettimeofday(&last_time, NULL);
     current_time = (time_t)last_time.tv_sec;
 
-    /* Main loop */
+    // Main loop
     while (!merc_down) {
         PollData poll_data = { 0 };
 
@@ -260,14 +260,10 @@ void game_loop(SockServer* server)
 
         process_client_input(server, &poll_data);
 
-        /*
-         * Autonomous game motion.
-         */
+        // Autonomous game motion.
         update_handler();
 
-        /*
-         * Output.
-         */
+        // Output.
         process_client_output(&poll_data);
 
         /*

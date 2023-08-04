@@ -346,6 +346,7 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
     struct hostent* from;
     SOCKLEN size;
     SockClient client = { 0 };
+    INIT_DESC_RET rc = THREAD_ERR;
 
     ThreadData* data = (ThreadData*)lp_data;
     SockServer* server = data->server;
@@ -446,20 +447,22 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
             write_to_buffer(dnew, help_greeting, 0);
     }
 
+    rc = 0; // OK
+
+init_descriptor_finish:
     new_conn_threads[thread_data->index].status = THREAD_STATUS_FINISHED;
 
 #ifndef _MSC_VER
     pthread_exit(NULL);
 #endif
 
-    return 0;
+    return rc;
 }
 
 void handle_new_connection(SockServer* server) {
-    int i;
     int new_thread_ix = -1;
 
-    for (i = 0; i < MAX_HANDSHAKES; i++) {
+    for (int i = 0; i < MAX_HANDSHAKES; i++) {
         if (new_conn_threads[i].status == THREAD_STATUS_STARTED) {
             // We are still processing a handshake. Do nothing.
             new_thread_ix = -2;

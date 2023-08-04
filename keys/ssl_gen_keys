@@ -13,7 +13,7 @@ do
 done
 
 if [ ! -f "ca-key.pem" ] || [ ! -f "ca-cert.pem" ]; then
-    echo "Createing CA self-signed cert."
+    echo "Creating CA self-signed cert."
     openssl req -newkey rsa:2048 -nodes -keyout ca-key.pem -x509 -days 365 -out ca-cert.pem
 fi
 
