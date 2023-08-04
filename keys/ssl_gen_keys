@@ -4,6 +4,9 @@ for ARG in "$@"
 do
     if [[ ${ARG,,} == "clean" ]]
     then
+        rm -f *.key
+        rm -f *.csr
+        rm -f *.crt
         rm -f *.pem
     else
         echo "Unknown argument '${ARG,,}'."
@@ -12,23 +15,21 @@ do
 
 done
 
-if [ ! -f "ca-key.pem" ] || [ ! -f "ca-cert.pem" ]; then
-    echo "Creating CA self-signed cert."
-    openssl req -newkey rsa:2048 -nodes -keyout ca-key.pem -x509 -days 365 -out ca-cert.pem
+if [ ! -f "rom-mud.key" ] || [ ! -f "rom-mud.csr" ]; then
+    echo "Creating private key and signing request."
+    openssl req -newkey rsa:2048 -nodes -keyout rom-mud.key -out rom-mud.csr
 fi
 
-echo "CA self-signed cert:"
-openssl x509 -in ca-cert.pem -noout -text
-
-if [ ! -f "server-key.pem" ] || [ ! -f "server-req.pem" ]; then
-    echo "Creating server key and certificate request."
-    openssl req -newkey rsa:2048 -nodes -keyout server-key.pem -out server-req.pem
+if [ ! -f "rom-mud.crt" ]; then
+    echo "Creating self-signed certificate."
+    openssl x509 -signkey rom-mud.key -in rom-mud.csr -req -days 365 -out rom-mud.crt
 fi
 
-if [ ! -f "server-cert.pem" ]; then
-    echo "Signing server certificate."
-    openssl x509 -req -in server-req.pem -days 60 -CA ca-cert.pem -CAkey ca-key.pem -CAcreateserial -out server-cert.pem
+if [ ! -f "rom-mud.pem" ]; then
+    echo "Creating PEM file."
+    openssl x509 -in rom-mud.crt -out rom-mud.pem
 fi
 
-echo "Server's signed cert:"
-openssl x509 -in server-cert.pem -noout -text
+echo "Server's self-signed cert:"
+openssl x509 -in rom-mud.pem -noout -text
+

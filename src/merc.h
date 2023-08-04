@@ -1900,8 +1900,8 @@ extern char area_dir[];
 #endif
 
 #ifndef USE_RAW_SOCKETS
-#define CERT_FILE       "../keys/server-cert.pem"
-#define PKEY_FILE       "../keys/server-key.pem"
+#define CERT_FILE       "../keys/rom-mud.pem"
+#define PKEY_FILE       "../keys/rom-mud.key"
 #endif
 
 /*

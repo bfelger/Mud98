@@ -200,7 +200,7 @@ void init_ssl_server(SockServer* server)
         exit(EXIT_FAILURE);
     }
     else {
-        printf("* Private key %s loaded.\n", cert_file);
+        printf("* Private key %s loaded.\n", pkey_file);
     }
 
     if (SSL_CTX_check_private_key(server->ssl_ctx) <= 0) {
