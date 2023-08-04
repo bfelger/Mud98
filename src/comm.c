@@ -103,10 +103,12 @@ typedef enum {
 #define INIT_DESC_RET DWORD WINAPI
 #define INIT_DESC_PARAM LPVOID
 #define THREAD_ERR -1
+#define THREAD_RET_T DWORD
 #else
 #define INIT_DESC_RET void*
 #define INIT_DESC_PARAM void*
 #define THREAD_ERR (void*)-1
+#define THREAD_RET_T void*
 #endif
 
 typedef struct new_conn_thread_t {
@@ -346,7 +348,7 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
     struct hostent* from;
     SOCKLEN size;
     SockClient client = { 0 };
-    INIT_DESC_RET rc = THREAD_ERR;
+    THREAD_RET_T rc = THREAD_ERR;
 
     ThreadData* data = (ThreadData*)lp_data;
     SockServer* server = data->server;
@@ -357,7 +359,7 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
     new_conn_threads[thread_data->index].status = THREAD_STATUS_RUNNING;
     if ((client.fd = accept(server->control, (struct sockaddr*)&sock, &size)) < 0) {
         perror("New_descriptor: accept");
-        return THREAD_ERR;
+        goto init_descriptor_finish;
     }
 
 #ifndef USE_RAW_SOCKETS
@@ -366,8 +368,7 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
 
     if (SSL_accept(client.ssl) <= 0) {
         ERR_print_errors_fp(stderr);
-        close_client(&client);
-        return THREAD_ERR;
+        goto init_descriptor_finish;
     }
 #endif
 
@@ -378,7 +379,7 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
 
     if (fcntl(client.fd, F_SETFL, FNDELAY) == -1) {
         perror("New_descriptor: fcntl: FNDELAY");
-        return THREAD_ERR;
+        goto init_descriptor_finish;
     }
 #endif
 
@@ -428,7 +429,7 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
         write_to_descriptor(dnew, "Your site has been banned from this mud.\n\r", 0);
         close_client(&dnew->client);
         free_descriptor(dnew);
-        return THREAD_ERR;
+        goto init_descriptor_finish;
     }
     /*
      * Init descriptor data.
@@ -603,15 +604,15 @@ bool read_from_descriptor(DESCRIPTOR_DATA* d)
 
     /* Snarf input. */
     for (;;) {
-        size_t nRead;
-
 #ifndef USE_RAW_SOCKETS
+        size_t nRead;
         if ((ssl_err = SSL_read_ex(d->client.ssl, d->inbuf + iStart,
                 sizeof(d->inbuf) - 10 - iStart, &nRead)) <= 0) {
             ERR_print_errors_fp(stderr);
             return false;
         }
 #else
+        int nRead;
 #ifdef _MSC_VER
         nRead = recv(d->client.fd, d->inbuf + iStart, 
             (int)(sizeof(d->inbuf) - 10 - iStart), 0);
