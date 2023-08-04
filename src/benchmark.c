@@ -21,7 +21,6 @@
 #define NS_PER_HNS      (100ULL)    // NS = nanoseconds
 #define NS_PER_SEC      (MS_PER_SEC * US_PER_MS * NS_PER_US)
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // This implementation taken from StackOverflow user jws's example:
 //    https://stackoverflow.com/a/51974214
@@ -70,7 +69,7 @@ struct timespec elapsed(Timer* timer)
 
 void start_timer(Timer* timer)
 {
-    if (timer->running) {
+    if (!timer->running) {
         clock_gettime(CLOCK_MONOTONIC, &(timer->start));
         timer->running = true;
     }
