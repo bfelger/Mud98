@@ -29,6 +29,7 @@
 
 #include "benchmark.h"
 #include "comm.h"
+#include "digest.h"
 #include "lookup.h"
 #include "recycle.h"
 #include "strings.h"
@@ -42,8 +43,6 @@
 #include <string.h>
 #include <sys/types.h>
 #include <time.h>
-
-#include <openssl/err.h>
 
 extern int _filbuf args((FILE*));
 
@@ -216,7 +215,7 @@ void fwrite_char(CHAR_DATA* ch, FILE* fp)
     if (IS_NPC(ch)) { fprintf(fp, "Vnum %d\n", ch->pIndexData->vnum); }
     else {
         char digest_buf[256];
-        bin_to_hex(digest_buf, ch->pcdata->pwd_digest, SHA256_DIGEST_LENGTH);
+        bin_to_hex(digest_buf, ch->pcdata->pwd_digest, ch->pcdata->pwd_digest_len);
         fprintf(fp, "PwdDigest %s~\n", digest_buf);
 
         if (ch->pcdata->bamfin[0] != '\0')
@@ -528,6 +527,7 @@ bool load_char_obj(DESCRIPTOR_DATA* d, char* name)
     ch->prompt = str_dup("<%hhp %mm %vmv> ");
     ch->pcdata->confirm_delete = false;
     ch->pcdata->pwd_digest = NULL;
+    ch->pcdata->pwd_digest_len = 0;
     ch->pcdata->bamfin = str_dup("");
     ch->pcdata->bamfout = str_dup("");
     ch->pcdata->title = str_dup("");
@@ -1139,16 +1139,7 @@ void fread_char(CHAR_DATA* ch, FILE* fp)
             // platform. 
             if (!str_cmp(word, "Password") || !str_cmp(word, "Pass")) {
                 char* pwd = fread_string(fp);
-
-                if (ch->pcdata->pwd_digest == NULL) {
-                    ch->pcdata->pwd_digest = 
-                        (uint8_t*)alloc_mem(SHA256_DIGEST_LENGTH);
-                    if (!hash_sha256(pwd, strlen(pwd), 
-                            ch->pcdata->pwd_digest)) {
-                        ERR_print_errors_fp(stderr);
-                    }
-                }
-
+                set_password(pwd, ch);
                 free_string(pwd);
                 fMatch = true;
                 break;
@@ -1156,12 +1147,8 @@ void fread_char(CHAR_DATA* ch, FILE* fp)
 #endif
 
             if (!str_cmp(word, "PwdDigest")) {
-                if (ch->pcdata->pwd_digest == NULL)
-                    ch->pcdata->pwd_digest = 
-                        (uint8_t*)alloc_mem(SHA256_DIGEST_LENGTH);
                 char* dig_text = fread_string(fp);
-                hex_to_bin(ch->pcdata->pwd_digest, dig_text, 
-                    SHA256_DIGEST_LENGTH);
+                decode_digest(ch->pcdata, dig_text);
                 free_string(dig_text);
                 fMatch = true;
                 break;

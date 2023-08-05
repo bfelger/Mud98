@@ -31,6 +31,7 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "digest.h"
 #include "interp.h"
 #include "recycle.h"
 #include "strings.h"
@@ -51,8 +52,6 @@
 #include <openssl/pem.h>
 #include <openssl/ssl.h>
 #endif
-
-#include <openssl/sha.h>
 
 #ifdef _MSC_VER
 #pragma comment(lib, "Ws2_32.lib")
@@ -1327,14 +1326,11 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
             return;
         }
 
-        uint8_t pwd_digest[SHA256_DIGEST_LENGTH] = { 0 }; // 32 bytes
-        if (!hash_sha256(argument, strlen(argument), pwd_digest)) {
-            ERR_print_errors_fp(stderr);
+        if (!set_password(argument, ch)) {
+            perror("nanny: Could not set password.");
+            close_socket(d);
+            return;
         }
-
-        if (ch->pcdata->pwd_digest == NULL)
-            ch->pcdata->pwd_digest = (uint8_t*)alloc_mem(SHA256_DIGEST_LENGTH);
-        memcpy(ch->pcdata->pwd_digest, pwd_digest, SHA256_DIGEST_LENGTH);
 
         write_to_buffer(d, "Please retype password: ", 0);
         d->connected = CON_CONFIRM_NEW_PASSWORD;
@@ -1617,13 +1613,6 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
         break;
 
     case CON_READ_MOTD:
-        if (ch->pcdata == NULL || ch->pcdata->pwd_digest == NULL) {
-            write_to_buffer(d, "Warning! Null password!\n\r", 0);
-            write_to_buffer(d, "Please report old password with bug.\n\r", 0);
-            write_to_buffer(
-                d, "Type 'password null <new password>' to fix.\n\r", 0);
-        }
-
         write_to_buffer(
             d, "\n\rWelcome to ROM 2.4.  Please do not feed the mobiles.\n\r",
             0);
@@ -1804,8 +1793,11 @@ bool check_reconnect(DESCRIPTOR_DATA* d, char* name, bool fConn)
         if (!IS_NPC(ch) && (!fConn || ch->desc == NULL)
             && !str_cmp(d->character->name, ch->name)) {
             if (fConn == false) {
-                memcpy(d->character->pcdata->pwd_digest, ch->pcdata->pwd_digest,
-                    SHA256_DIGEST_LENGTH);
+                d->character->pcdata->pwd_digest = 
+                    (unsigned char*)OPENSSL_memdup(ch->pcdata->pwd_digest, 
+                        ch->pcdata->pwd_digest_len);
+                d->character->pcdata->pwd_digest_len = 
+                    ch->pcdata->pwd_digest_len;
             }
             else {
                 free_char(d->character);
@@ -1818,8 +1810,8 @@ bool check_reconnect(DESCRIPTOR_DATA* d, char* name, bool fConn)
 
                 sprintf(log_buf, "%s@%s reconnected.", ch->name, d->host);
                 log_string(log_buf);
-                wiznet("$N groks the fullness of $S link.", ch, NULL, WIZ_LINKS,
-                    0, 0);
+                wiznet("$N groks the fullness of $S link.", ch, NULL, 
+                    WIZ_LINKS, 0, 0);
                 d->connected = CON_PLAYING;
             }
             return true;
@@ -2554,41 +2546,4 @@ void colourconv(char* buffer, const char* txt, CHAR_DATA* ch)
         }
     }
     return;
-}
-
-void hex_to_bin(uint8_t* dest, char* hex_str, size_t size)
-{
-    for (int i = 0; i < size; ++i) {
-        char ch1 = *hex_str++;
-        uint8_t hi = (ch1 >= 'A') ? (ch1 - 'A' + 10) : (ch1 - '0');
-        char ch2 = *hex_str++;
-        uint8_t lo = (ch2 >= 'A') ? (ch2 - 'A' + 10) : (ch2 - '0');
-        uint8_t byte = (hi << 4) | (lo & 0xF);
-        *dest++ = (uint8_t)byte;
-    }
-}
-
-void bin_to_hex(char* dest, uint8_t* data, size_t size)
-{
-    for (int i = 0; i < size; ++i) {
-        sprintf(dest, "%.2X", *data++);
-        dest += 2;
-    }
-}
-
-// It is recommended to disable this warning when using OpenSSL 3.x in MSVC.
-#pragma warning(disable : 4996)
-bool hash_sha256(void* input, size_t length, uint8_t* md)
-{
-    SHA256_CTX context;
-    if (!SHA256_Init(&context))
-        return false;
-
-    if (!SHA256_Update(&context, (uint8_t*)input, length))
-        return false;
-
-    if (!SHA256_Final(md, &context))
-        return false;
-
-    return true;
 }

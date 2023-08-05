@@ -28,6 +28,7 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "digest.h"
 #include "interp.h"
 #include "lookup.h"
 #include "magic.h"
@@ -41,8 +42,6 @@
 #include <string.h>
 #include <sys/types.h>
 #include <time.h>
-
-#include <openssl/err.h>
 
 #ifndef _MSC_VER 
 #include <sys/time.h>
@@ -2437,14 +2436,10 @@ void do_password(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if (ch->pcdata->pwd_digest != NULL || strcmp(arg1, "NULL")) {
-        // If the old password is lost, you can type "password NULL <new pass>"
-        // to generate a new one. Skip the check in that case.
-        if (validate_password(arg1, ch)) {
-            WAIT_STATE(ch, 40);
-            send_to_char("Wrong password.  Wait 10 seconds.\n\r", ch);
-            return;
-        }
+    if (!validate_password(arg1, ch)) {
+        WAIT_STATE(ch, 40);
+        send_to_char("Wrong password.  Wait 10 seconds.\n\r", ch);
+        return;
     }
 
     if (strlen(arg2) < 5) {
@@ -2453,29 +2448,11 @@ void do_password(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    uint8_t pwd_digest[SHA256_DIGEST_LENGTH] = { 0 }; // 32 bytes
-    if (!hash_sha256(arg2, strlen(arg1), pwd_digest)) {
-        ERR_print_errors_fp(stderr);
+    if (!set_password(arg2, ch)) {
+        perror("do_password: Could not get digest.");
     }
 
-    if (ch->pcdata->pwd_digest == NULL)
-        ch->pcdata->pwd_digest = (uint8_t*)alloc_mem(SHA256_DIGEST_LENGTH);
-
-    memcpy(ch->pcdata->pwd_digest, pwd_digest, SHA256_DIGEST_LENGTH);
     save_char_obj(ch);
     send_to_char("Ok.\n\r", ch);
     return;
-}
-
-bool validate_password(char* pwd, CHAR_DATA* ch)
-{
-    if (ch->pcdata->pwd_digest == NULL)
-        return false;
-
-    uint8_t pwd_digest[SHA256_DIGEST_LENGTH] = { 0 }; // 32 bytes
-    if (!hash_sha256(pwd, strlen(pwd), pwd_digest)) {
-        ERR_print_errors_fp(stderr);
-    }
-
-    return !memcmp(pwd_digest, ch->pcdata->pwd_digest, SHA256_DIGEST_LENGTH);
 }

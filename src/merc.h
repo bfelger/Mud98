@@ -1395,7 +1395,8 @@ struct pc_data {
     BUFFER* buffer;
     COLOUR_DATA* code; /* Data for coloUr configuration	*/
     bool valid;
-    uint8_t* pwd_digest;
+    unsigned char* pwd_digest;
+    unsigned int pwd_digest_len;
     char* bamfin;
     char* bamfout;
     char* title;
@@ -1865,11 +1866,6 @@ extern WEATHER_DATA weather_info;
 #if defined(NOCRYPT)
 #define crypt(s1, s2) (s1)
 #endif
-
-void hex_to_bin(uint8_t* dest, char* hex_str, size_t size);
-void bin_to_hex(char* dest, uint8_t* data, size_t size);
-bool hash_sha256(void* input, size_t length, uint8_t* md);
-bool validate_password(char* pwd, CHAR_DATA* ch);
 
 /*
  * Data files used by the server.
