@@ -390,7 +390,7 @@ void free_pcdata(PC_DATA* pcdata)
 
     if (!IS_VALID(pcdata)) return;
 
-    free_string(pcdata->pwd);
+    free_mem(pcdata->pwd_digest, SHA256_DIGEST_LENGTH);
     free_string(pcdata->bamfin);
     free_string(pcdata->bamfout);
     free_string(pcdata->title);

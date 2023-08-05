@@ -27,6 +27,7 @@
 
 #include "merc.h"
 
+#include "benchmark.h"
 #include "comm.h"
 #include "lookup.h"
 #include "recycle.h"
@@ -41,6 +42,8 @@
 #include <string.h>
 #include <sys/types.h>
 #include <time.h>
+
+#include <openssl/err.h>
 
 extern int _filbuf args((FILE*));
 
@@ -212,7 +215,10 @@ void fwrite_char(CHAR_DATA* ch, FILE* fp)
 
     if (IS_NPC(ch)) { fprintf(fp, "Vnum %d\n", ch->pIndexData->vnum); }
     else {
-        fprintf(fp, "Pass %s~\n", ch->pcdata->pwd);
+        char digest_buf[256];
+        bin_to_hex(digest_buf, ch->pcdata->pwd_digest, SHA256_DIGEST_LENGTH);
+        fprintf(fp, "PwdDigest %s~\n", digest_buf);
+
         if (ch->pcdata->bamfin[0] != '\0')
             fprintf(fp, "Bin  %s~\n", ch->pcdata->bamfin);
         if (ch->pcdata->bamfout[0] != '\0')
@@ -521,7 +527,7 @@ bool load_char_obj(DESCRIPTOR_DATA* d, char* name)
     ch->comm = COMM_COMBINE | COMM_PROMPT;
     ch->prompt = str_dup("<%hhp %mm %vmv> ");
     ch->pcdata->confirm_delete = false;
-    ch->pcdata->pwd = str_dup("");
+    ch->pcdata->pwd_digest = NULL;
     ch->pcdata->bamfin = str_dup("");
     ch->pcdata->bamfout = str_dup("");
     ch->pcdata->title = str_dup("");
@@ -1126,8 +1132,40 @@ void fread_char(CHAR_DATA* ch, FILE* fp)
             break;
 
         case 'P':
-            KEY("Password", ch->pcdata->pwd, fread_string(fp));
-            KEY("Pass", ch->pcdata->pwd, fread_string(fp));
+#ifdef _MSC_VER
+            // Legacy password support for platforms without crypt(). 
+            // Read it, hash it, and throw it away.
+            // Because Linux has crypt() available, this won't work for that
+            // platform. 
+            if (!str_cmp(word, "Password") || !str_cmp(word, "Pass")) {
+                char* pwd = fread_string(fp);
+
+                if (ch->pcdata->pwd_digest == NULL) {
+                    ch->pcdata->pwd_digest = 
+                        (uint8_t*)alloc_mem(SHA256_DIGEST_LENGTH);
+                    if (!hash_sha256(pwd, strlen(pwd), 
+                            ch->pcdata->pwd_digest)) {
+                        ERR_print_errors_fp(stderr);
+                    }
+                }
+
+                free_string(pwd);
+                fMatch = true;
+                break;
+            }
+#endif
+
+            if (!str_cmp(word, "PwdDigest")) {
+                if (ch->pcdata->pwd_digest == NULL)
+                    ch->pcdata->pwd_digest = 
+                        (uint8_t*)alloc_mem(SHA256_DIGEST_LENGTH);
+                char* dig_text = fread_string(fp);
+                hex_to_bin(ch->pcdata->pwd_digest, dig_text, 
+                    SHA256_DIGEST_LENGTH);
+                free_string(dig_text);
+                fMatch = true;
+                break;
+            }
             KEY("Played", ch->played, fread_number(fp));
             KEY("Plyd", ch->played, fread_number(fp));
             KEY("Points", ch->pcdata->points, fread_number(fp));

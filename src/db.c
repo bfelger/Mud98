@@ -2095,6 +2095,8 @@ long flag_convert(char letter)
     return bitsum;
 }
 
+
+
 /*
  * Read and allocate space for a string from a file.
  * These strings are read-only and shared.

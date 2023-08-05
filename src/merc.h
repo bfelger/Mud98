@@ -38,6 +38,8 @@
 #include <stddef.h>
 #endif
 
+#include <openssl/sha.h>
+
 #define args( list )             list
 #define DECLARE_DO_FUN( fun )    DO_FUN fun
 #define DECLARE_SPEC_FUN( fun )  SPEC_FUN fun
@@ -1393,7 +1395,7 @@ struct pc_data {
     BUFFER* buffer;
     COLOUR_DATA* code; /* Data for coloUr configuration	*/
     bool valid;
-    char* pwd;
+    uint8_t* pwd_digest;
     char* bamfin;
     char* bamfout;
     char* title;
@@ -1863,6 +1865,11 @@ extern WEATHER_DATA weather_info;
 #if defined(NOCRYPT)
 #define crypt(s1, s2) (s1)
 #endif
+
+void hex_to_bin(uint8_t* dest, char* hex_str, size_t size);
+void bin_to_hex(char* dest, uint8_t* data, size_t size);
+bool hash_sha256(void* input, size_t length, uint8_t* md);
+bool validate_password(char* pwd, CHAR_DATA* ch);
 
 /*
  * Data files used by the server.
