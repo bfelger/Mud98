@@ -28,6 +28,7 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "digest.h"
 #include "interp.h"
 #include "lookup.h"
 #include "magic.h"
@@ -2387,8 +2388,6 @@ void do_password(CHAR_DATA* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH] = "";
     char arg2[MAX_INPUT_LENGTH] = "";
     char* pArg;
-    char* pwdnew;
-    char* p;
     char cEnd;
 
     if (IS_NPC(ch))
@@ -2437,7 +2436,7 @@ void do_password(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if (strcmp(crypt(arg1, ch->pcdata->pwd), ch->pcdata->pwd)) {
+    if (!validate_password(arg1, ch)) {
         WAIT_STATE(ch, 40);
         send_to_char("Wrong password.  Wait 10 seconds.\n\r", ch);
         return;
@@ -2449,19 +2448,10 @@ void do_password(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    /*
-     * No tilde allowed because of player file format.
-     */
-    pwdnew = crypt(arg2, ch->name);
-    for (p = pwdnew; *p != '\0'; p++) {
-        if (*p == '~') {
-            send_to_char("New password not acceptable, try again.\n\r", ch);
-            return;
-        }
+    if (!set_password(arg2, ch)) {
+        perror("do_password: Could not get digest.");
     }
 
-    free_string(ch->pcdata->pwd);
-    ch->pcdata->pwd = str_dup(pwdnew);
     save_char_obj(ch);
     send_to_char("Ok.\n\r", ch);
     return;

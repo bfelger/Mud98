@@ -38,6 +38,8 @@
 #include <stddef.h>
 #endif
 
+#include <openssl/sha.h>
+
 #define args( list )             list
 #define DECLARE_DO_FUN( fun )    DO_FUN fun
 #define DECLARE_SPEC_FUN( fun )  SPEC_FUN fun
@@ -1393,7 +1395,8 @@ struct pc_data {
     BUFFER* buffer;
     COLOUR_DATA* code; /* Data for coloUr configuration	*/
     bool valid;
-    char* pwd;
+    unsigned char* pwd_digest;
+    unsigned int pwd_digest_len;
     char* bamfin;
     char* bamfout;
     char* title;

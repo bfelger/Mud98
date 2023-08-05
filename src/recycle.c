@@ -28,6 +28,7 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "digest.h"
 #include "recycle.h"
 
 #include <stdio.h>
@@ -390,7 +391,7 @@ void free_pcdata(PC_DATA* pcdata)
 
     if (!IS_VALID(pcdata)) return;
 
-    free_string(pcdata->pwd);
+    free_digest(pcdata->pwd_digest);
     free_string(pcdata->bamfin);
     free_string(pcdata->bamfout);
     free_string(pcdata->title);

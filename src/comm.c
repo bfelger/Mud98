@@ -31,6 +31,7 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "digest.h"
 #include "interp.h"
 #include "recycle.h"
 #include "strings.h"
@@ -1138,8 +1139,6 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
     CHAR_DATA* ch;
-    char* pwdnew;
-    char* p;
     int iClass, race, i, weapon;
     bool fOld;
 
@@ -1225,7 +1224,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
     case CON_GET_OLD_PASSWORD:
         write_to_buffer(d, "\n\r", 2);
 
-        if (strcmp(crypt(argument, ch->pcdata->pwd), ch->pcdata->pwd)) {
+        if (!validate_password(argument, ch)) {
             write_to_buffer(d, "Wrong password.\n\r", 0);
             close_socket(d);
             return;
@@ -1327,18 +1326,12 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
             return;
         }
 
-        pwdnew = crypt(argument, ch->name);
-        for (p = pwdnew; *p != '\0'; p++) {
-            if (*p == '~') {
-                write_to_buffer(
-                    d,
-                    "New password not acceptable, try again.\n\rPassword: ", 0);
-                return;
-            }
+        if (!set_password(argument, ch)) {
+            perror("nanny: Could not set password.");
+            close_socket(d);
+            return;
         }
 
-        free_string(ch->pcdata->pwd);
-        ch->pcdata->pwd = str_dup(pwdnew);
         write_to_buffer(d, "Please retype password: ", 0);
         d->connected = CON_CONFIRM_NEW_PASSWORD;
         break;
@@ -1346,7 +1339,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
     case CON_CONFIRM_NEW_PASSWORD:
         write_to_buffer(d, "\n\r", 2);
 
-        if (strcmp(crypt(argument, ch->pcdata->pwd), ch->pcdata->pwd)) {
+        if (!validate_password(argument, ch)) {
             write_to_buffer(d,
                 "Passwords don't match.\n\rRetype password: ", 0);
             d->connected = CON_GET_NEW_PASSWORD;
@@ -1620,13 +1613,6 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
         break;
 
     case CON_READ_MOTD:
-        if (ch->pcdata == NULL || ch->pcdata->pwd[0] == '\0') {
-            write_to_buffer(d, "Warning! Null password!\n\r", 0);
-            write_to_buffer(d, "Please report old password with bug.\n\r", 0);
-            write_to_buffer(
-                d, "Type 'password null <new password>' to fix.\n\r", 0);
-        }
-
         write_to_buffer(
             d, "\n\rWelcome to ROM 2.4.  Please do not feed the mobiles.\n\r",
             0);
@@ -1807,8 +1793,11 @@ bool check_reconnect(DESCRIPTOR_DATA* d, char* name, bool fConn)
         if (!IS_NPC(ch) && (!fConn || ch->desc == NULL)
             && !str_cmp(d->character->name, ch->name)) {
             if (fConn == false) {
-                free_string(d->character->pcdata->pwd);
-                d->character->pcdata->pwd = str_dup(ch->pcdata->pwd);
+                d->character->pcdata->pwd_digest = 
+                    (unsigned char*)OPENSSL_memdup(ch->pcdata->pwd_digest, 
+                        ch->pcdata->pwd_digest_len);
+                d->character->pcdata->pwd_digest_len = 
+                    ch->pcdata->pwd_digest_len;
             }
             else {
                 free_char(d->character);
@@ -1821,8 +1810,8 @@ bool check_reconnect(DESCRIPTOR_DATA* d, char* name, bool fConn)
 
                 sprintf(log_buf, "%s@%s reconnected.", ch->name, d->host);
                 log_string(log_buf);
-                wiznet("$N groks the fullness of $S link.", ch, NULL, WIZ_LINKS,
-                    0, 0);
+                wiznet("$N groks the fullness of $S link.", ch, NULL, 
+                    WIZ_LINKS, 0, 0);
                 d->connected = CON_PLAYING;
             }
             return true;
