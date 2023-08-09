@@ -1793,6 +1793,8 @@ bool check_reconnect(DESCRIPTOR_DATA* d, char* name, bool fConn)
         if (!IS_NPC(ch) && (!fConn || ch->desc == NULL)
             && !str_cmp(d->character->name, ch->name)) {
             if (fConn == false) {
+                if (d->character->pcdata->pwd_digest != NULL)
+                    free_digest(d->character->pcdata->pwd_digest);
                 d->character->pcdata->pwd_digest = 
                     (unsigned char*)OPENSSL_memdup(ch->pcdata->pwd_digest, 
                         ch->pcdata->pwd_digest_len);
