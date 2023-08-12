@@ -456,7 +456,7 @@ bool spec_cast_adept(CHAR_DATA* ch)
 
     switch (number_bits(4)) {
     case 0:
-        act("$n utters the word 'abrazak'.", ch, NULL, NULL, TO_ROOM);
+        act("$n utters the word 'abracek'.", ch, NULL, NULL, TO_ROOM);
         spell_armor(skill_lookup("armor"), ch->level, ch, victim, TARGET_CHAR);
         return true;
 

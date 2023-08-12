@@ -1,8 +1,15 @@
-#AREA
-dylan.are~
-Dylan's Area~
-{15 25} Dylan   Dylan's Area~
-9100 9199
+#AREADATA
+Name Dylan's Area~
+Builders None~
+VNUMs 9100 9199
+Credits {15 25} Dylan   Dylan's Area~
+Security 9
+Low 0
+High 0
+Version 1
+End
+
+
 
 #MOBILES
 #9101
@@ -20,7 +27,7 @@ ACF DFP -500 0
 -4 -4 -4 7
 EFNU 0 0 0
 stand stand female 1525
-0 0 medium 0
+0 0 medium '0'
 #9102
 oldstyle harpy leader~
 the screaming harpy leader~
@@ -37,7 +44,7 @@ ABCF DFP -750 0
 -6 -6 -6 6
 EFNU 0 0 0
 stand stand female 2125
-0 0 medium 0
+0 0 medium '0'
 #9103
 oldstyle air elemental~
 the ghostly air elemental~
@@ -52,7 +59,7 @@ ACF DFPQ 0 0
 -7 -7 -7 6
 EFNU 0 0 0
 stand stand none 50
-0 0 medium 0
+0 0 medium '0'
 #9104
 oldstyle mysterious efreeti~
 the mysterious efreeti~
@@ -67,7 +74,7 @@ AC DHP -100 0
 -8 -8 -8 6
 EFNU 0 0 0
 stand stand none 2500
-0 0 medium 0
+0 0 medium '0'
 #9105
 oldstyle roc~
 the gigantic roc~
@@ -81,7 +88,7 @@ AG 0 50 0
 -6 -6 -6 6
 EFNU 0 0 0
 stand stand female 0
-0 0 medium 0
+0 0 medium '0'
 #9106
 oldstyle roc~
 the gigantic roc~
@@ -96,7 +103,7 @@ AG 0 50 0
 -8 -8 -8 6
 EFNU 0 0 0
 stand stand male 2000
-0 0 medium 0
+0 0 medium '0'
 #9107
 oldstyle wicked witch~
 the ugly, wicked witch~
@@ -112,8 +119,10 @@ ABCF DH -600 0
 -10 -10 -10 5
 EFNU 0 0 0
 stand stand female 3000
-0 0 medium 0
+0 0 medium '0'
 #0
+
+
 
 #OBJECTS
 #9101
@@ -124,12 +133,12 @@ oldstyle~
 armor G AG
 3 3 3 0 0
 13 100 2800 P
-A
-20 1
-A
-2 2
 F
 A 0 0 T
+A
+2 2
+A
+20 1
 #9102
 bronze bracer~
 A carved bronze bracer~
@@ -147,9 +156,9 @@ jewelry F AC
 0 0 0 0 0
 7 100 1140 P
 A
-4 1
-A
 3 1
+A
+4 1
 #9104
 magenta potion~
 magenta potion~
@@ -168,6 +177,8 @@ scroll AH AO
 12 50 1330 P
 #0
 
+
+
 #ROOMS
 #9101
 A fluffy white cloud.~
@@ -180,7 +191,8 @@ A floating sign says:
 "Scubdu's Area--Tread carefully! Only high levels should attempt
 this place. Leave messages on the board if you have problems."
 ~
-0 C 0
+0
+C 0
 D0
 The way back to solid footing, it seems.
 ~
@@ -198,7 +210,8 @@ You find yourself standing on a small cloud.  The cloud feels kind
 of spongy beneath your feet.  You find it hard to see anything in
 the distance as wisps of cloud blow over your face.
 ~
-0 0 0
+0
+0 0
 D1
 There is another cloud east of you.
 ~
@@ -216,7 +229,8 @@ You find yourself standing on a small cloud.  The cloud feels kind
 of spongy beneath your feet.  You find it hard to see anything in
 the distance as wisps of cloud blow over your face.
 ~
-0 0 0
+0
+0 0
 D0
 You can barely make out a cloud to the north.
 ~
@@ -239,7 +253,8 @@ You find yourself standing on a small cloud.  The cloud feels kind
 of spongy beneath your feet.  You find it hard to see anything in
 the distance as wisps of cloud blow over your face.
 ~
-0 0 0
+0
+0 0
 D0
 You can barely make out a cloud to the north.
 ~
@@ -257,7 +272,8 @@ You find yourself standing on a small cloud.  The cloud feels kind
 of spongy beneath your feet.  You find it hard to see anything in
 the distance as wisps of cloud blow over your face.
 ~
-0 0 0
+0
+0 0
 D1
 There is another cloud east of you.
 ~
@@ -275,7 +291,8 @@ You find yourself standing on a small cloud.  The cloud feels kind
 of spongy beneath your feet.  You find it hard to see anything in
 the distance as wisps of cloud blow over your face.
 ~
-0 0 0
+0
+0 0
 D0
 You can barely make out a cloud to the north.
 ~
@@ -293,7 +310,8 @@ You find yourself standing on a small cloud.  The cloud feels kind
 of spongy beneath your feet.  You find it hard to see anything in
 the distance as wisps of cloud blow over your face.
 ~
-0 0 0
+0
+0 0
 D1
 There is another cloud east of you.
 ~
@@ -316,7 +334,8 @@ You find yourself standing on a small cloud.  The cloud feels kind
 of spongy beneath your feet.  You find it hard to see anything in
 the distance as wisps of cloud blow over your face.
 ~
-0 0 0
+0
+0 0
 D1
 An ominous storm cloud looms to the east.
 ~
@@ -334,7 +353,8 @@ You find yourself standing on a small cloud.  The cloud feels kind
 of spongy beneath your feet.  You find it hard to see anything in
 the distance as wisps of cloud blow over your face.
 ~
-0 0 0
+0
+0 0
 D3
 You spy a tiny cloud.
 ~
@@ -351,7 +371,8 @@ An ominous storm cloud.~
 You find yourself in a storm.  Lightning flashes and thunder
 crashes, making you wish you were dry and warm.
 ~
-0 0 0
+0
+0 0
 D1
 There is a crag, high and rocky.
 ~
@@ -375,7 +396,8 @@ ominous storm cloud moving this way.  You might want to take cover
 before the storm hits.  You think that there is a narrow trail
 leading to the south.
 ~
-0 0 5
+0
+0 5
 D2
 ~
 ~
@@ -392,7 +414,8 @@ A narrow trail leads down towards the mountain and north toward the
 cliff.  It seems to fade in and out as it winds up the hill.
 Obviously, it has not been maintained in years.
 ~
-0 0 5
+0
+0 5
 D0
 ~
 ~
@@ -407,7 +430,8 @@ Small valley.~
 You are in a lush valley full of trees and other vegetation and the
 odd carcass or two.  The trail leads south and it leads up.
 ~
-0 0 5
+0
+0 5
 D2
 ~
 ~
@@ -423,7 +447,8 @@ You are in a lush valley full of trees and other vegetation and the
 odd carcass or three.  The trail leads north and it leads down into
 a crevasse.
 ~
-0 0 5
+0
+0 5
 D0
 ~
 ~
@@ -440,7 +465,8 @@ The crevice is deep and a little dim and it is hard to make your
 way around.  A mist makes everything a little damp and slippery.
 Better take your time climbing through here.
 ~
-0 0 5
+0
+0 5
 D2
 ~
 ~
@@ -464,7 +490,8 @@ edge of a cliff through the mist.  There is no trail leading there,
 just a smooth, flat, dew-covered rock that almost resembles a
 slide ...
 ~
-0 0 5
+0
+0 5
 D1
 The way back to safety.
 ~
@@ -481,7 +508,8 @@ Steep mountainside.~
 From here, you can see forever.  Clouds, birds, the forest.
 Midgaard is far, far to the west.  What a postcard perfect view!
 ~
-0 0 5
+0
+0 5
 D0
 ~
 ~
@@ -496,7 +524,8 @@ Steep mountainside.~
 From here, you can see forever.  Clouds, birds, the forest.
 Midgaard is far, far to the west.  What a postcard perfect view!
 ~
-0 0 5
+0
+0 5
 D1
 ~
 ~
@@ -512,7 +541,8 @@ The cliff is rocky and difficult to negotiate.  One wrong slip and
 you could fall and break a leg or impale yourself or something else
 nasty.
 ~
-0 0 5
+0
+0 5
 D3
 ~
 ~
@@ -530,7 +560,8 @@ You are more than a little nervous climbing on this almost vertical
 cliff face.  You miraculously find places to grab onto and little
 ledges to rest on.  You see a small cave here.
 ~
-0 0 5
+0
+0 5
 D1
 A dank, dark, smelly hole.
 ~
@@ -552,7 +583,8 @@ This hole must have been used as a lair or nest.  There are
 feathers and bones everywhere and the floor is covered with
 something disgusting.
 ~
-0 AD 5
+0
+AD 5
 D3
 ~
 ~
@@ -564,7 +596,8 @@ You are on a ledge above a steep cliff face.  You can climb down
 if you want, but be careful!  After viewing the scenery, you notice
 two small caves here, one north and one west.
 ~
-0 0 5
+0
+0 5
 D0
 ~
 ~
@@ -584,7 +617,8 @@ The stench in here is quite foul.  There are feathers, bones and
 rotting carcasses everywhere.  This place is absolutely gross and
 you have to strain yourself not to lose your lunch.
 ~
-0 AD 5
+0
+AD 5
 D1
 Your only hope to keep your lunch down is to head this way...
 ~
@@ -597,7 +631,8 @@ The stench in here is quite foul.  There are feathers, bones and
 rotting carcasses everywhere.  This place is absolutely gross and
 you have to strain yourself not to lose your lunch.
 ~
-0 AD 5
+0
+AD 5
 D2
 Your only hope to keep your lunch down is to head this way...
 ~
@@ -610,7 +645,8 @@ You find yourself standing on a small cloud.  The cloud feels kind
 of spongy beneath your feet.  You find it hard to see anything in
 the distance as wisps of cloud blow over your face.
 ~
-0 0 0
+0
+0 0
 D1
 An ominous storm cloud looms to the east.
 ~
@@ -628,7 +664,8 @@ You find yourself standing on a small cloud.  The cloud feels kind
 of spongy beneath your feet.  You find it hard to see anything in
 the distance as wisps of cloud blow over your face.
 ~
-0 0 0
+0
+0 0
 D0
 A cirrus cloud hums peacefully to itself.
 ~
@@ -656,7 +693,8 @@ You find yourself standing on a small cloud.  The cloud feels kind
 of spongy beneath your feet.  You find it hard to see anything in
 the distance as wisps of cloud blow over your face.
 ~
-0 0 0
+0
+0 0
 D0
 To the north you see an angry cloud lashing out.
 ~
@@ -679,7 +717,8 @@ You find yourself standing on a small cloud.  The cloud feels kind
 of spongy beneath your feet.  You find it hard to see anything in
 the distance as wisps of cloud blow over your face.
 ~
-0 0 0
+0
+0 0
 D2
 You see a cloud somewhere south of you.
 ~
@@ -696,7 +735,8 @@ Sleepy little cloud.~
 This cloud is peacefully snoozing away, enjoying himself.  There
 is grumpy cloud to the east and a rather shy cloud north of here.
 ~
-0 0 0
+0
+0 0
 D0
 The cloud to the north blushes and tries to hide when you look at
 it.
@@ -715,7 +755,8 @@ This cloud mutters and grumbles at you.  You have to jump quickly
 to avoid a lightning bolt that passes by your toe.  Your aren't
 sure but you think you hear the cloud snicker.
 ~
-0 0 0
+0
+0 0
 D1
 A happy little cloud is humming peacefully to itself.
 ~
@@ -738,7 +779,8 @@ Happy little cloud.~
 You hear the cloud humming a little song to itself, but you can't
 figure out the song.
 ~
-0 0 0
+0
+0 0
 D0
 There is a pure white cloud north of you.  It is snowing!
 ~
@@ -761,7 +803,8 @@ This cloud blushes and tries to avoid your glance as you look at
 your surroundings.  You decide that overall it is a peaceful little
 cloud.
 ~
-0 0 0
+0
+0 0
 D0
 The cloud to the north sneezes!
 ~
@@ -784,7 +827,8 @@ Sneezing little cloud.~
 The cloud is wracked with sneezes.  At first you thought you were
 in an earthquake before you realize where you are!
 ~
-0 0 0
+0
+0 0
 D0
 ~
 ~
@@ -812,7 +856,8 @@ This cloud is too busy daydreaming to watch where its going.  It
 doesn't even notice you landing on it.  It looks like it couldn't
 figure its way out of an open box.
 ~
-0 0 0
+0
+0 0
 D1
 You see a very scientific cloud.
 ~
@@ -829,7 +874,8 @@ Doc-like little cloud.~
 The cloud looks at you through its Lennon like specs and examines
 you quite scientifically.
 ~
-0 0 0
+0
+0 0
 D2
 There is a pure white cloud south of you.  It is snowing!
 ~
@@ -847,7 +893,8 @@ You shiver as you stand here.  This beautiful, fluffy, pure white
 cloud is snowing.  The snow is pure and sweet as it melts in your
 mouth.  What a nifty cloud to be on.
 ~
-0 0 0
+0
+0 0
 D0
 You see a very scientific cloud.
 ~
@@ -868,7 +915,8 @@ Cold, damp cloud.~
 Your mood grows grumpy as you find yourself cold and wet from this
 dismal cloud.  You notice a rock outcropping above you.
 ~
-0 A 0
+0
+A 0
 D1
 There is a pure white cloud east of you.  It is snowing!
 ~
@@ -885,7 +933,8 @@ This rock outcropping just seems to hang in midair.  To the north
 you see a house and if you ease yourself down, you can land on a
 rather damp, dismal cloud.  The door to the house is closed.
 ~
-0 AC 0
+0
+AC 0
 D0
 Eerie looking house.
 ~
@@ -903,7 +952,8 @@ something in a corner and turn to get a better look, nothing is
 there.  The place is very dark.  Even with a torch, you have
 trouble making out the room to the east.
 ~
-0 AD 0
+0
+AD 0
 D1
 ~
 ~
@@ -920,7 +970,8 @@ almost overpowering.  You hear strange creaks and groans ... is it
 the wind or did someone (something?) make that noise.  To the west
 is the house and there is a stairway leading up into the tower.
 ~
-0 AD 0
+0
+AD 0
 D3
 ~
 ~
@@ -937,7 +988,13 @@ corner bubbling madly, belching a foul brew that must have come from hell.
 On shelves lie jars of strange creatures you have never seen before, or
 hope to again.  A picture of a familiar temple hangs on the east wall.
 ~
-0 ACDN 0
+0
+ACDN 0
+E
+picture~
+The picture is in on the east wall.  It is very complex in detail, and you
+almost see people walking around the temple in the picture.
+~
 D1
 ~
 picture~
@@ -946,11 +1003,6 @@ D5
 ~
 ~
 0 -1 9140
-E
-picture~
-The picture is in on the east wall.  It is very complex in detail, and you
-almost see people walking around the temple in the picture.
-~
 S
 #9142
 Suspicious little raincloud.~
@@ -958,7 +1010,8 @@ On second glance, this cloud doesn't seem much like a raincloud.
 A balloon sticks out of the top and you think you hear it humming
 something like, 'Tut, tut!  It looks like rain!'
 ~
-0 0 0
+0
+0 0
 D0
 ~
 ~
@@ -973,7 +1026,8 @@ S
 Cirrus maximus cloud.~
 This cloud looks like it is of the cirrus maximus genre of clouds.
 ~
-0 0 0
+0
+0 0
 D1
 The cloud to the east sneezes!
 ~
@@ -991,7 +1045,8 @@ You are buffeted and knocked about by the almost godlike strength
 of the raging hurricane.  It is hard to see and hear anything.
 Your only thought is to seek refuge from the storm.
 ~
-0 AN 5
+0
+AN 5
 D0
 ~
 ~
@@ -1007,7 +1062,8 @@ You are buffeted and knocked about by the almost godlike strength
 of the raging hurricane.  It is hard to see and hear anything.
 Your only thought is to seek refuge from the storm.
 ~
-0 AN 5
+0
+AN 5
 D2
 You see a sneezy little cloud.
 ~
@@ -1028,7 +1084,8 @@ You are buffeted and knocked about by the almost godlike strength
 of the raging hurricane.  It is hard to see and hear anything.
 Your only thought is to seek refuge from the storm.
 ~
-0 AN 5
+0
+AN 5
 D0
 ~
 ~
@@ -1044,7 +1101,8 @@ You are buffeted and knocked about by the almost godlike strength
 of the raging hurricane.  It is hard to see and hear anything.
 Your only thought is to seek refuge from the storm.
 ~
-0 AN 5
+0
+AN 5
 D1
 ~
 ~
@@ -1060,7 +1118,8 @@ You are buffeted and knocked about by the almost godlike strength
 of the raging hurricane.  It is hard to see and hear anything.
 Your only thought is to seek refuge from the storm.
 ~
-0 AN 5
+0
+AN 5
 D2
 ~
 ~
@@ -1080,7 +1139,8 @@ You are buffeted and knocked about by the almost godlike strength
 of the raging hurricane.  It is hard to see and hear anything.
 Your only thought is to seek refuge from the storm.
 ~
-0 AN 5
+0
+AN 5
 D0
 ~
 ~
@@ -1101,7 +1161,8 @@ You are buffeted and knocked about by the almost godlike strength
 of the raging hurricane.  It is hard to see and hear anything.
 Your only thought is to seek refuge from the storm.
 ~
-0 AN 5
+0
+AN 5
 D0
 ~
 ~
@@ -1121,7 +1182,8 @@ You are buffeted and knocked about by the almost godlike strength
 of the raging hurricane.  It is hard to see and hear anything.
 Your only thought is to seek refuge from the storm.
 ~
-0 AN 5
+0
+AN 5
 D2
 ~
 ~
@@ -1137,7 +1199,8 @@ You are buffeted and knocked about by the almost godlike strength
 of the raging hurricane.  It is hard to see and hear anything.
 Your only thought is to seek refuge from the storm.
 ~
-0 AN 5
+0
+AN 5
 D1
 ~
 ~
@@ -1152,7 +1215,8 @@ Calm cloud.~
 This cloud is just outside the hurricane.  It looks like it might
 get sucked in, but you feel safe for the moment.
 ~
-0 0 0
+0
+0 0
 D3
 ~
 ~
@@ -1169,7 +1233,8 @@ is quite thin so you know you are at a very high altitude.  There
 is no plant life beyond moss and lichen in this lonely, barren
 place.
 ~
-0 0 5
+0
+0 5
 D1
 ~
 ~
@@ -1186,7 +1251,8 @@ is quite thin so you know you are at a very high altitude.  There
 is no plant life beyond moss and lichen in this lonely, barren
 place.
 ~
-0 0 5
+0
+0 5
 D1
 ~
 ~
@@ -1202,7 +1268,8 @@ You are standing in a nest.  It is huge, at least two spear-lengths
 wide.  You see three eggs in the center.  They are knee high, brown
 and look almost leathery.  Better hope mom isn't around!
 ~
-0 0 5
+0
+0 5
 D5
 ~
 ~
@@ -1212,7 +1279,8 @@ S
 Cumulative nimbus cloud.~
 This cloud looks like it belongs to the phylum of cumulative nimbus clouds.
 ~
-0 0 0
+0
+0 0
 D2
 ~
 ~
@@ -1230,7 +1298,8 @@ S
 Dark hidden cloud.~
 This cloud looks like the perfect place to hide.
 ~
-0 A 0
+0
+A 0
 D1
 ~
 ~
@@ -1241,7 +1310,8 @@ Yet another cloud~
 You find yourself in yet another cloud.  Will the madness never
 end?  There is a rope ladder leading up.
 ~
-0 0 0
+0
+0 0
 D0
 ~
 ~
@@ -1257,7 +1327,8 @@ There is a gate here.  It is huge, towering over you.  It creaks
 as it sways in the breeze.  To the south you see a huge lawn.
 There is a rope ladder leading down.
 ~
-0 C 2
+0
+C 2
 D2
 You see a huge lawn.
 ~
@@ -1275,7 +1346,8 @@ The lawn seems to stretch and stretch to the south and to the west.
 North of you is a gate.  The grass is emerald green and luscious,
 obviously well cared for.
 ~
-0 0 2
+0
+0 2
 D0
 ~
 ~
@@ -1295,7 +1367,8 @@ A croquet game has been set up and carelessly left out.  Who ever
 was playing blue was in the lead before they quit.  Benches have
 been set up for spectators and players to enjoy themselves.
 ~
-0 0 2
+0
+0 2
 D1
 ~
 ~
@@ -1311,7 +1384,8 @@ An enormous golden fountain is here.  You see swans, angels,
 gryphons and a host of other creatures in the fountain.  The
 fountain empties into a huge pool that looks quite inviting.
 ~
-0 0 2
+0
+0 2
 D0
 ~
 ~
@@ -1328,7 +1402,8 @@ chairs for a party of 100.  The tables and chairs are ornate and
 expensive, tasteful and elegant.  Stairs lead up to the main
 house.
 ~
-0 0 2
+0
+0 2
 D0
 ~
 ~
@@ -1348,7 +1423,8 @@ This stairway is suspended on clouds.  It leads from the house to
 the front lawn.  The banisters are made of ornate gold and silver
 inlays.
 ~
-0 0 1
+0
+0 1
 D4
 ~
 ~
@@ -1364,7 +1440,8 @@ You stand at the front door of an immense, sprawling mansion made
 of granite and marble.  The door is at least 10 feet high and is
 made of oak.
 ~
-0 0 1
+0
+0 1
 D1
 ~
 ~
@@ -1373,7 +1450,7 @@ D2
 You see an ornate oak door.
 ~
 oak door~
-2 -1 9177
+1 -1 9177
 D3
 ~
 ~
@@ -1388,7 +1465,8 @@ Lawn northwest of house.~
 You stand just outside the northwest corner of the house.  You try
 to peek in a window, but it is a little too high to see anything.
 ~
-0 0 1
+0
+0 1
 D1
 ~
 ~
@@ -1403,7 +1481,8 @@ Lawn west of house.~
 You stand just outside the west corner of the house.  You try to
 peek in a window, but it is a little too high to see anything.
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -1418,7 +1497,8 @@ Lawn southwest of house.~
 You stand just outside the southwest corner of the house.  You try
 to peek in a window, but it is a little too high to see anything.
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -1437,7 +1517,8 @@ Lawn south of house.~
 You stand just outside the south corner of the house.  You try to
 peek in a window, but it is a little too high to see anything.
 ~
-0 0 1
+0
+0 1
 D1
 ~
 ~
@@ -1452,7 +1533,8 @@ Lawn southeast of house.~
 You stand just outside the southeast corner of the house.  You try
 to peek in a window, but it is a little too high to see anything.
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -1467,7 +1549,8 @@ Lawn east of house.~
 You stand just outside the east corner of the house.  You try to
 peek in a window, but it is a little too high to see anything.
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -1482,7 +1565,8 @@ Lawn northeast of house.~
 You stand just outside the northeast corner of the house.  You try
 to peek in a window, but it is a little too high to see anything.
 ~
-0 0 1
+0
+0 1
 D2
 ~
 ~
@@ -1496,7 +1580,8 @@ S
 Dirty, dusty tunnel.~
 This dirty dusty tunnel must lead somewhere.
 ~
-0 AD 5
+0
+AD 5
 D1
 ~
 ~
@@ -1512,7 +1597,8 @@ This seems like your average basement.  Old Christmas decorations,
 suitcases, bicycles litter your way.  You hear the squeaking of
 rats in the corners.
 ~
-0 AD 5
+0
+AD 5
 D0
 ~
 ~
@@ -1528,7 +1614,8 @@ You stand at the bottom of a long staircase leading up to the main
 house.  To the south you can barely make out the accumulated
 clutter gathered throughout the years.
 ~
-0 AD 0
+0
+AD 0
 D2
 ~
 ~
@@ -1547,12 +1634,13 @@ from throughout history.  Antiques furnitures and oriental rugs are
 tastefully placed in ideal spots.  The door is at least 10 feet
 high and is made of oak.
 ~
-0 D 0
+0
+D 0
 D0
 You see an ornate oak door.
 ~
 oak door~
-2 -1 9166
+1 -1 9166
 D1
 ~
 ~
@@ -1572,7 +1660,8 @@ You are in a long, sprawling hallway connecting the eastern and
 western wings of the house.  There are several chairs and sofas in
 the hallway and some gorgeous, handwoven drapes.
 ~
-0 D 0
+0
+D 0
 D1
 ~
 ~
@@ -1593,7 +1682,8 @@ shelves stretch all the way to the ceiling and are on every wall,
 even above the doorway.  There are chairs for sitting and reading
 and a desk for more intense studies.
 ~
-0 D 0
+0
+D 0
 D0
 ~
 ~
@@ -1605,7 +1695,8 @@ A small indoor garden so that the residents don't have to go
 outside to enjoy plants and commune with nature.  There are several
 trees, a small pond and flowers of every kind.
 ~
-0 CD 0
+0
+CD 0
 D1
 ~
 ~
@@ -1623,7 +1714,8 @@ wind, causing quite a distraction.  When you go to shut the window,
 you see that the window is closed.  An old, wooden staircase leads
 up into darkness.
 ~
-0 D 1
+0
+D 1
 D0
 ~
 ~
@@ -1641,7 +1733,8 @@ the night sky.  The room is dark and there is almost a musty odor
 to it.  You are surprised that you can't detect any dust or dirt,
 although there are a couple of cobwebs in the corner.
 ~
-0 AD 1
+0
+AD 1
 D5
 ~
 ~
@@ -1653,7 +1746,8 @@ You are in a long, sprawling hallway connecting the eastern and
 western wings of the house.  There are several chairs and sofas in
 the hallway and some gorgeous, handwoven drapes.
 ~
-0 D 0
+0
+D 0
 D1
 ~
 ~
@@ -1673,7 +1767,8 @@ Here was the rehearsal and recital room for the residents of the
 estate.  There is a Steinway piano in the corner and various gilded
 instruments are on display in a glass cabinet.
 ~
-0 D 0
+0
+D 0
 D0
 ~
 ~
@@ -1686,7 +1781,8 @@ at least ten feet by five feet and made of ebony and inlaid with
 mother of pearl.  A grandfather clock towers over the room,
 mechanically ticking and tocking the hours away.
 ~
-0 D 0
+0
+D 0
 D2
 ~
 ~
@@ -1704,7 +1800,8 @@ wind, causing quite a distraction.  When you go to shut the window,
 you see that the window is closed.  An old, wooden staircase leads
 up into darkness.
 ~
-0 D 1
+0
+D 1
 D0
 ~
 ~
@@ -1722,7 +1819,8 @@ the night sky.  The room is dark and there is almost a musty odor
 to it.  You are surprised that you can't detect any dust or dirt,
 although there are a couple of cobwebs in the corner.
 ~
-0 AD 1
+0
+AD 1
 D5
 ~
 ~
@@ -1737,70 +1835,82 @@ worthless hide.  Next time, heed your conscience.
 
 You've fallen, and you can't get up!!!
 ~
-0 C 2
+0
+C 2
 S
 #0
 
-#RESETS
-M 0 9101  35 9102  2	* the screaming, filthy harpy
-M 0 9101  35 9102  2	* the screaming, filthy harpy
-M 0 9101  35 9105  2	* the screaming, filthy harpy
-M 0 9101  35 9105  2	* the screaming, filthy harpy
-M 0 9101  35 9127  3	* the screaming, filthy harpy
-M 0 9101  35 9127  3	* the screaming, filthy harpy
-M 0 9101  35 9127  3	* the screaming, filthy harpy
-M 0 9101  35 9108  3	* the screaming, filthy harpy
-M 0 9101  35 9108  3	* the screaming, filthy harpy
-M 0 9101  35 9108  3	* the screaming, filthy harpy
-M 0 9101  35 9112  2	* the screaming, filthy harpy
-M 0 9101  35 9112  2	* the screaming, filthy harpy
-M 0 9101  35 9117  1	* the screaming, filthy harpy
-M 0 9101  35 9119  3	* the screaming, filthy harpy
-M 0 9101  35 9119  3	* the screaming, filthy harpy
-M 0 9101  35 9119  3	* the screaming, filthy harpy
-M 0 9101  35 9121  1	* the screaming, filthy harpy
-M 0 9101  35 9122  2	* the screaming, filthy harpy
-M 0 9101  35 9122  2	* the screaming, filthy harpy
-M 0 9101  35 9129  1	* the screaming, filthy harpy
-M 0 9101  35 9131  1	* the screaming, filthy harpy
-M 0 9101  35 9133  1	* the screaming, filthy harpy
-M 0 9101  35 9135  1	* the screaming, filthy harpy
-M 0 9101  35 9144  1	* the screaming, filthy harpy
-M 0 9101  35 9145  1	* the screaming, filthy harpy
-M 0 9101  35 9146  1	* the screaming, filthy harpy
-M 0 9101  35 9147  1	* the screaming, filthy harpy
-M 0 9101  35 9149  1	* the screaming, filthy harpy
-M 0 9101  35 9150  1	* the screaming, filthy harpy
-M 0 9101  35 9151  1	* the screaming, filthy harpy
-M 0 9101  35 9152  1	* the screaming, filthy harpy
-M 0 9101  35 9158  2	* the screaming, filthy harpy
-M 0 9101  35 9158  2	* the screaming, filthy harpy
-M 0 9101  35 9162  2	* the screaming, filthy harpy
-M 0 9101  35 9162  2	* the screaming, filthy harpy
-M 0 9102   2 9123  1	* the screaming harpy leader
-G 1 9104  10     	*   magenta potion
-M 0 9102   2 9124  1	* the screaming harpy leader
-G 1 9105   1     	*   an ancient illustrated parchment
-M 0 9103   5 9148  1	* the ghostly air elemental
-M 0 9103   5 9109  1	* the ghostly air elemental
-M 0 9103   5 9137  1	* the ghostly air elemental
-M 0 9103   5 9163  1	* the ghostly air elemental
-M 0 9103   5 9177  1	* the ghostly air elemental
-M 0 9104   2 9182  1	* the mysterious efreeti
-G 1 9102   9     	*   A carved bronze bracer
-M 0 9104   2 9187  1	* the mysterious efreeti
-G 1 9103  20     	*   an ornate brooch
-M 0 9105   1 9156  1	* the gigantic roc
-M 0 9106   1 9153  1	* the gigantic roc
-M 0 9107   1 9141  1	* the ugly, wicked witch
-D 0 9141   1    1	* Witches Tower east
+
+
+#SPECIALS
+M 9107 spec_cast_undead
 S
+
+
+
+#RESETS
+D 0 9141 1 1
+M 0 9101 35 9102 2
+M 0 9101 35 9102 2
+M 0 9101 35 9105 2
+M 0 9101 35 9105 2
+M 0 9101 35 9108 3
+M 0 9101 35 9108 3
+M 0 9101 35 9108 3
+M 0 9103 5 9109 1
+M 0 9101 35 9112 2
+M 0 9101 35 9112 2
+M 0 9101 35 9117 1
+M 0 9101 35 9119 3
+M 0 9101 35 9119 3
+M 0 9101 35 9119 3
+M 0 9101 35 9121 1
+M 0 9101 35 9122 2
+M 0 9101 35 9122 2
+M 0 9102 2 9123 1
+G 0 9104 0
+M 0 9102 2 9124 1
+G 0 9105 0
+M 0 9101 35 9127 3
+M 0 9101 35 9127 3
+M 0 9101 35 9127 3
+M 0 9101 35 9129 1
+M 0 9101 35 9131 1
+M 0 9101 35 9133 1
+M 0 9101 35 9135 1
+M 0 9103 5 9137 1
+M 0 9107 1 9141 1
+M 0 9101 35 9144 1
+M 0 9101 35 9145 1
+M 0 9101 35 9146 1
+M 0 9101 35 9147 1
+M 0 9103 5 9148 1
+M 0 9101 35 9149 1
+M 0 9101 35 9150 1
+M 0 9101 35 9151 1
+M 0 9101 35 9152 1
+M 0 9106 1 9153 1
+M 0 9105 1 9156 1
+M 0 9101 35 9158 2
+M 0 9101 35 9158 2
+M 0 9101 35 9162 2
+M 0 9101 35 9162 2
+M 0 9103 5 9163 1
+M 0 9103 5 9177 1
+M 0 9104 2 9182 1
+G 0 9102 0
+M 0 9104 2 9187 1
+G 0 9103 0
+S
+
+
 
 #SHOPS
 0
 
-#SPECIALS
-M 9107 spec_cast_undead    	* the ugly, wicked witch
-S
+
+
+#MOBPROGS
+#0
 
 #$

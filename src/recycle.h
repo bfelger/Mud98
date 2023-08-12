@@ -105,15 +105,37 @@ MD* find_memory args((MEM_DATA * memory, long id));
 
 /* buffer procedures */
 
-BUFFER* new_buf args((void));
-BUFFER* new_buf_size args((int size));
-void free_buf args((BUFFER * buffer));
-bool add_buf args((BUFFER * buffer, char* string));
-void clear_buf args((BUFFER * buffer));
-char* buf_string args((BUFFER * buffer));
+BUFFER* new_buf(void);
+BUFFER* new_buf_size(int size);
+void free_buf(BUFFER * buffer);
+bool add_buf(BUFFER * buffer, char* string);
+void clear_buf(BUFFER * buffer);
+char* buf_string(BUFFER * buffer);
 
 #define INIT_BUF(b, sz) BUFFER* b = new_buf_size(sz)
+#define SET_BUF(b, s) clear_buf(b); add_buf(b, s)
 #define BUF(b) (b->string)
+
+// OLC procedures
+HELP_AREA* new_had args((void));
+HELP_DATA* new_help args((void));
+void free_help args((HELP_DATA*));
+
+int16_t* new_learned args((void));
+void free_learned args((int16_t*));
+
+bool* new_boolarray(size_t);
+void free_boolarray(bool*);
+
+#define allocfunc_val allocfunc
+#define allocfunc(a,b)              \
+    a* new_ ## b();                 \
+    void free_ ## b(a*);
+
+#include "allocfunc.h"
+
+#undef allocfunc
+#undef allocfunc_val
 
 /* externs */
 extern char str_empty[1];

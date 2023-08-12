@@ -516,7 +516,7 @@ void do_socials(CHAR_DATA* ch, char* argument)
 
     col = 0;
 
-    for (iSocial = 0; social_table[iSocial].name[0] != '\0'; iSocial++) {
+    for (iSocial = 0; !IS_NULLSTR(social_table[iSocial].name); iSocial++) {
         sprintf(buf, "%-12s", social_table[iSocial].name);
         send_to_char(buf, ch);
         if (++col % 6 == 0) send_to_char("\n\r", ch);
@@ -895,7 +895,8 @@ void do_look(CHAR_DATA* ch, char* argument)
         sprintf(buf, "{s%s", ch->in_room->name);
         send_to_char(buf, ch);
 
-        if (IS_IMMORTAL(ch) && (IS_NPC(ch) || IS_SET(ch->act, PLR_HOLYLIGHT))) {
+        if ((IS_IMMORTAL(ch) && (IS_NPC(ch) || IS_SET(ch->act, PLR_HOLYLIGHT)))
+            || IS_BUILDER(ch, ch->in_room->area)) {
             sprintf(buf, " {r[{RRoom %d{r]", ch->in_room->vnum);
             send_to_char(buf, ch);
         }
@@ -1444,7 +1445,8 @@ void do_score(CHAR_DATA* ch, char* argument)
     else
         send_to_char("satanic.\n\r", ch);
 
-    if (IS_SET(ch->comm, COMM_SHOW_AFFECTS)) do_function(ch, &do_affects, "");
+    if (IS_SET(ch->comm, COMM_SHOW_AFFECTS)) 
+        do_function(ch, &do_affects, "");
 }
 
 void do_affects(CHAR_DATA* ch, char* argument)
@@ -1684,8 +1686,12 @@ void do_whois(CHAR_DATA* ch, char* argument)
 
             /* a little formatting */
             sprintf(buf, "[%2d %6s %s] %s%s%s%s%s%s%s%s\n\r", wch->level,
+#ifdef FIRST_BOOT
                     wch->race < MAX_PC_RACE ? pc_race_table[wch->race].who_name
                                             : "     ",
+#else
+                    race_table[wch->race].who_name,
+#endif
                     class, wch->incog_level >= LEVEL_HERO ? "(Incog) " : "",
                     wch->invis_level >= LEVEL_HERO ? "(Wizi) " : "",
                     clan_table[wch->clan].who_name,
@@ -1857,8 +1863,12 @@ void do_who(CHAR_DATA* ch, char* argument)
          * Format it up.
          */
         sprintf(buf, "[%2d %6s %s] %s%s%s%s%s%s%s%s\n\r", wch->level,
+#ifdef FIRST_BOOT
                 wch->race < MAX_PC_RACE ? pc_race_table[wch->race].who_name
                                         : "     ",
+#else
+                race_table[wch->race].who_name,
+#endif
                 class, wch->incog_level >= LEVEL_HERO ? "(Incog) " : "",
                 wch->invis_level >= LEVEL_HERO ? "(Wizi) " : "",
                 clan_table[wch->clan].who_name,

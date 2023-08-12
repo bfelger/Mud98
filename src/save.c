@@ -157,12 +157,18 @@ void fwrite_char(CHAR_DATA* ch, FILE* fp)
     if (ch->prompt != NULL || !str_cmp(ch->prompt, "<%hhp %mm %vmv> ")
         || !str_cmp(ch->prompt, "{c<%hhp %mm %vmv>{x "))
         fprintf(fp, "Prom %s~\n", ch->prompt);
+#if defined(FIRST_BOOT)
     fprintf(fp, "Race %s~\n", pc_race_table[ch->race].name);
+#else
+    fprintf(fp, "Race %s~\n", race_table[ch->race].name);
+#endif
     if (ch->clan) fprintf(fp, "Clan %s~\n", clan_table[ch->clan].name);
     fprintf(fp, "Sex  %d\n", ch->sex);
     fprintf(fp, "Cla  %d\n", ch->ch_class);
     fprintf(fp, "Levl %d\n", ch->level);
-    if (ch->trust != 0) fprintf(fp, "Tru  %d\n", ch->trust);
+    if (ch->trust != 0)
+        fprintf(fp, "Tru  %d\n", ch->trust);
+    fprintf(fp, "Sec  %d\n", ch->pcdata->security);	// OLC
     fprintf(fp, "Plyd %d\n", ch->played + (int)(current_time - ch->logon));
     fprintf(fp, "Not  "TIME_FMT" "TIME_FMT" "TIME_FMT" "TIME_FMT" "TIME_FMT"\n", 
             ch->pcdata->last_note, ch->pcdata->last_idea, ch->pcdata->last_penalty,
@@ -535,6 +541,7 @@ bool load_char_obj(DESCRIPTOR_DATA* d, char* name)
     ch->pcdata->condition[COND_THIRST] = 48;
     ch->pcdata->condition[COND_FULL] = 48;
     ch->pcdata->condition[COND_HUNGER] = 48;
+    ch->pcdata->security = 0;   // OLC
 
     ch->pcdata->text[0] = (NORMAL);
     ch->pcdata->text[1] = (WHITE);
@@ -705,12 +712,23 @@ bool load_char_obj(DESCRIPTOR_DATA* d, char* name)
 
         if (ch->race == 0) ch->race = race_lookup("human");
 
+#if defined(FIRST_BOOT)
         ch->size = pc_race_table[ch->race].size;
+#else
+        ch->size = race_table[ch->race].size;
+#endif
         ch->dam_type = 17; /*punch */
 
         for (i = 0; i < 5; i++) {
-            if (pc_race_table[ch->race].skills[i] == NULL) break;
+#if defined(FIRST_BOOT)
+            if (pc_race_table[ch->race].skills[i] == NULL)
+                break;
             group_add(ch, pc_race_table[ch->race].skills[i], false);
+#else
+            if (race_table[ch->race].skills[i] == NULL)
+                break;
+            group_add(ch, race_table[ch->race].skills[i], false);
+#endif
         }
         ch->affected_by = ch->affected_by | race_table[ch->race].aff;
         ch->imm_flags = ch->imm_flags | race_table[ch->race].imm;
@@ -1185,6 +1203,7 @@ void fread_char(CHAR_DATA* ch, FILE* fp)
             KEY("Sex", ch->sex, fread_number(fp));
             KEY("ShortDescr", ch->short_descr, fread_string(fp));
             KEY("ShD", ch->short_descr, fread_string(fp));
+            KEY("Sec", ch->pcdata->security, fread_number(fp));	// OLC
             KEY("Silv", ch->silver, fread_number(fp));
 
             if (!str_cmp(word, "Skill") || !str_cmp(word, "Sk")) {
@@ -1208,7 +1227,7 @@ void fread_char(CHAR_DATA* ch, FILE* fp)
             break;
 
         case 'T':
-            KEY("TrueSex", ch->pcdata->true_sex, fread_number(fp));
+            KEY("trueSex", ch->pcdata->true_sex, fread_number(fp));
             KEY("TSex", ch->pcdata->true_sex, fread_number(fp));
             KEY("Trai", ch->train, fread_number(fp));
             KEY("Trust", ch->trust, fread_number(fp));
@@ -1592,12 +1611,17 @@ void fread_obj(CHAR_DATA* ch, FILE* fp)
             }
 
             if (!str_cmp(word, "End")) {
-                if (!fNest || !fVnum || obj->pIndexData == NULL) {
+                if (!fNest || (fVnum && obj->pIndexData == NULL)) {
                     bug("Fread_obj: incomplete object.", 0);
                     free_obj(obj);
                     return;
                 }
                 else {
+                    if (!fVnum) {
+                        free_obj(obj);
+                        obj = create_object(get_obj_index(OBJ_VNUM_DUMMY), 0);
+                    }
+
                     if (!new_format) {
                         obj->next = object_list;
                         object_list = obj;

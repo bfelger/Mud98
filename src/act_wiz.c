@@ -1469,6 +1469,11 @@ void do_mstat(CHAR_DATA* ch, char* argument)
             victim->pet ? victim->pet->name : "(none)");
     send_to_char(buf, ch);
 
+    if (!IS_NPC(victim)) {
+        sprintf(buf, "Security: %d.\n\r", victim->pcdata->security);    // OLC
+        send_to_char(buf, ch);
+    }
+
     sprintf(buf, "Short description: %s\n\rLong  description: %s",
             victim->short_descr,
             victim->long_descr[0] != '\0' ? victim->long_descr : "(none)\n\r");
@@ -2907,6 +2912,7 @@ void do_mset(CHAR_DATA* ch, char* argument)
         send_to_char("    str int wis dex con sex class level\n\r", ch);
         send_to_char("    race group gold silver hp mana move prac\n\r", ch);
         send_to_char("    align train thirst hunger drunk full\n\r", ch);
+        send_to_char("    security\n\r", ch);
         return;
     }
 
@@ -2926,6 +2932,32 @@ void do_mset(CHAR_DATA* ch, char* argument)
     /*
      * Set something.
      */
+    if (!str_cmp(arg2, "security")) {   // OLC
+        if (IS_NPC(ch)) {
+            send_to_char("NPC's cannot set security.\n\r", ch);
+            return;
+        }
+
+        if (IS_NPC(victim)) {
+            send_to_char("Not on NPC's.\n\r", ch);
+            return;
+        }
+
+        if (value > ch->pcdata->security || value < 0) {
+            if (ch->pcdata->security != 0) {
+                sprintf(buf, "Valid security is 0-%d.\n\r",
+                    ch->pcdata->security);
+                send_to_char(buf, ch);
+            }
+            else {
+                send_to_char("Valid security is 0 only.\n\r", ch);
+            }
+            return;
+        }
+        victim->pcdata->security = value;
+        return;
+    }
+
     if (!str_cmp(arg2, "str")) {
         if (value < 3 || value > get_max_train(victim, STAT_STR)) {
             sprintf(buf, "Strength range is 3 to %d\n\r.",
@@ -3555,7 +3587,7 @@ void do_force(CHAR_DATA* ch, char* argument)
 
     one_argument(argument, arg2);
 
-    if (!str_cmp(arg2, "delete")) {
+    if (!str_cmp(arg2, "delete") || !str_prefix(arg2, "mob")) {
         send_to_char("That will NOT be done.\n\r", ch);
         return;
     }

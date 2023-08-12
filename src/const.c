@@ -34,116 +34,123 @@
 #include <time.h>
 
 /* item type list */
-const struct item_type item_table[] = {{ITEM_LIGHT, "light"},
-                                       {ITEM_SCROLL, "scroll"},
-                                       {ITEM_WAND, "wand"},
-                                       {ITEM_STAFF, "staff"},
-                                       {ITEM_WEAPON, "weapon"},
-                                       {ITEM_TREASURE, "treasure"},
-                                       {ITEM_ARMOR, "armor"},
-                                       {ITEM_POTION, "potion"},
-                                       {ITEM_CLOTHING, "clothing"},
-                                       {ITEM_FURNITURE, "furniture"},
-                                       {ITEM_TRASH, "trash"},
-                                       {ITEM_CONTAINER, "container"},
-                                       {ITEM_DRINK_CON, "drink"},
-                                       {ITEM_KEY, "key"},
-                                       {ITEM_FOOD, "food"},
-                                       {ITEM_MONEY, "money"},
-                                       {ITEM_BOAT, "boat"},
-                                       {ITEM_CORPSE_NPC, "npc_corpse"},
-                                       {ITEM_CORPSE_PC, "pc_corpse"},
-                                       {ITEM_FOUNTAIN, "fountain"},
-                                       {ITEM_PILL, "pill"},
-                                       {ITEM_PROTECT, "protect"},
-                                       {ITEM_MAP, "map"},
-                                       {ITEM_PORTAL, "portal"},
-                                       {ITEM_WARP_STONE, "warp_stone"},
-                                       {ITEM_ROOM_KEY, "room_key"},
-                                       {ITEM_GEM, "gem"},
-                                       {ITEM_JEWELRY, "jewelry"},
-                                       {ITEM_JUKEBOX, "jukebox"},
-                                       {0, NULL}};
+const struct item_type item_table[] = {
+    { ITEM_LIGHT,           "light"         },
+    { ITEM_SCROLL,          "scroll"        },
+    { ITEM_WAND,            "wand"          },
+    { ITEM_STAFF,           "staff"         },
+    { ITEM_WEAPON,          "weapon"        },
+    { ITEM_TREASURE,        "treasure"      },
+    { ITEM_ARMOR,           "armor"         },
+    { ITEM_POTION,          "potion"        },
+    { ITEM_CLOTHING,        "clothing"      },
+    { ITEM_FURNITURE,       "furniture"     },
+    { ITEM_TRASH,           "trash"         },
+    { ITEM_CONTAINER,       "container"     },
+    { ITEM_DRINK_CON,       "drink"         },
+    { ITEM_KEY,             "key"           },
+    { ITEM_FOOD,            "food"          },
+    { ITEM_MONEY,           "money"         },
+    { ITEM_BOAT,            "boat"          },
+    { ITEM_CORPSE_NPC,      "npc_corpse"    },
+    { ITEM_CORPSE_PC,       "pc_corpse"     },
+    { ITEM_FOUNTAIN,        "fountain"      },
+    { ITEM_PILL,            "pill"          },
+    { ITEM_PROTECT,         "protect"       },
+    { ITEM_MAP,             "map"           },
+    { ITEM_PORTAL,          "portal"        },
+    { ITEM_WARP_STONE,      "warp_stone"    },
+    { ITEM_ROOM_KEY,        "room_key"      },
+    { ITEM_GEM,             "gem"           },
+    { ITEM_JEWELRY,         "jewelry"       },
+    { ITEM_JUKEBOX,         "jukebox"       },
+    { 0,                    NULL            }
+};
 
 /* weapon selection table */
-const struct weapon_type weapon_table[]
-    = {{"sword", OBJ_VNUM_SCHOOL_SWORD, WEAPON_SWORD, &gsn_sword},
-       {"mace", OBJ_VNUM_SCHOOL_MACE, WEAPON_MACE, &gsn_mace},
-       {"dagger", OBJ_VNUM_SCHOOL_DAGGER, WEAPON_DAGGER, &gsn_dagger},
-       {"axe", OBJ_VNUM_SCHOOL_AXE, WEAPON_AXE, &gsn_axe},
-       {"staff", OBJ_VNUM_SCHOOL_STAFF, WEAPON_SPEAR, &gsn_spear},
-       {"flail", OBJ_VNUM_SCHOOL_FLAIL, WEAPON_FLAIL, &gsn_flail},
-       {"whip", OBJ_VNUM_SCHOOL_WHIP, WEAPON_WHIP, &gsn_whip},
-       {"polearm", OBJ_VNUM_SCHOOL_POLEARM, WEAPON_POLEARM, &gsn_polearm},
-       {NULL, 0, 0, NULL}};
+const struct weapon_type weapon_table[] = {
+    { "sword",      OBJ_VNUM_SCHOOL_SWORD,      WEAPON_SWORD,   &gsn_sword      },
+    { "mace",       OBJ_VNUM_SCHOOL_MACE,       WEAPON_MACE,    &gsn_mace       },
+    { "dagger",     OBJ_VNUM_SCHOOL_DAGGER,     WEAPON_DAGGER,  &gsn_dagger     },
+    { "axe",        OBJ_VNUM_SCHOOL_AXE,        WEAPON_AXE,     &gsn_axe        },
+    { "staff",      OBJ_VNUM_SCHOOL_STAFF,      WEAPON_SPEAR,   &gsn_spear      },
+    { "flail",      OBJ_VNUM_SCHOOL_FLAIL,      WEAPON_FLAIL,   &gsn_flail      },
+    { "whip",       OBJ_VNUM_SCHOOL_WHIP,       WEAPON_WHIP,    &gsn_whip       },
+    { "polearm",    OBJ_VNUM_SCHOOL_POLEARM,    WEAPON_POLEARM, &gsn_polearm    },
+    { NULL,         0,                          0,              NULL            }
+};
 
 /* wiznet table and prototype for future flag setting */
-const struct wiznet_type wiznet_table[] = {{"on", WIZ_ON, IM},
-                                           {"prefix", WIZ_PREFIX, IM},
-                                           {"ticks", WIZ_TICKS, IM},
-                                           {"logins", WIZ_LOGINS, IM},
-                                           {"sites", WIZ_SITES, L4},
-                                           {"links", WIZ_LINKS, L7},
-                                           {"newbies", WIZ_NEWBIE, IM},
-                                           {"spam", WIZ_SPAM, L5},
-                                           {"deaths", WIZ_DEATHS, IM},
-                                           {"resets", WIZ_RESETS, L4},
-                                           {"mobdeaths", WIZ_MOBDEATHS, L4},
-                                           {"flags", WIZ_FLAGS, L5},
-                                           {"penalties", WIZ_PENALTIES, L5},
-                                           {"saccing", WIZ_SACCING, L5},
-                                           {"levels", WIZ_LEVELS, IM},
-                                           {"load", WIZ_LOAD, L2},
-                                           {"restore", WIZ_RESTORE, L2},
-                                           {"snoops", WIZ_SNOOPS, L2},
-                                           {"switches", WIZ_SWITCHES, L2},
-                                           {"secure", WIZ_SECURE, L1},
-                                           {NULL, 0, 0}};
+const struct wiznet_type wiznet_table[] = {
+    { "on",         WIZ_ON,         IM  },
+    { "prefix",     WIZ_PREFIX,     IM  },
+    { "ticks",      WIZ_TICKS,      IM  },
+    { "logins",     WIZ_LOGINS,     IM  },
+    { "sites",      WIZ_SITES,      L4  },
+    { "links",      WIZ_LINKS,      L7  },
+    { "newbies",    WIZ_NEWBIE,     IM  },
+    { "spam",       WIZ_SPAM,       L5  },
+    { "deaths",     WIZ_DEATHS,     IM  },
+    { "resets",     WIZ_RESETS,     L4  },
+    { "mobdeaths",  WIZ_MOBDEATHS,  L4  },
+    { "flags",      WIZ_FLAGS,      L5  },
+    { "penalties",  WIZ_PENALTIES,  L5  },
+    { "saccing",    WIZ_SACCING,    L5  },
+    { "levels",     WIZ_LEVELS,     IM  },
+    { "load",       WIZ_LOAD,       L2  },
+    { "restore",    WIZ_RESTORE,    L2  },
+    { "snoops",     WIZ_SNOOPS,     L2  },
+    { "switches",   WIZ_SWITCHES,   L2  },
+    { "secure",     WIZ_SECURE,     L1  },
+    { NULL,         0,              0   }
+};
 
 /* attack table  -- not very organized :( */
-const struct attack_type attack_table[MAX_DAMAGE_MESSAGE]
-    = {{"none", "hit", -1}, /*  0 */
-       {"slice", "slice", DAM_SLASH},
-       {"stab", "stab", DAM_PIERCE},
-       {"slash", "slash", DAM_SLASH},
-       {"whip", "whip", DAM_SLASH},
-       {"claw", "claw", DAM_SLASH}, /*  5 */
-       {"blast", "blast", DAM_BASH},
-       {"pound", "pound", DAM_BASH},
-       {"crush", "crush", DAM_BASH},
-       {"grep", "grep", DAM_SLASH},
-       {"bite", "bite", DAM_PIERCE}, /* 10 */
-       {"pierce", "pierce", DAM_PIERCE},
-       {"suction", "suction", DAM_BASH},
-       {"beating", "beating", DAM_BASH},
-       {"digestion", "digestion", DAM_ACID},
-       {"charge", "charge", DAM_BASH}, /* 15 */
-       {"slap", "slap", DAM_BASH},
-       {"punch", "punch", DAM_BASH},
-       {"wrath", "wrath", DAM_ENERGY},
-       {"magic", "magic", DAM_ENERGY},
-       {"divine", "divine power", DAM_HOLY}, /* 20 */
-       {"cleave", "cleave", DAM_SLASH},
-       {"scratch", "scratch", DAM_PIERCE},
-       {"peck", "peck", DAM_PIERCE},
-       {"peckb", "peck", DAM_BASH},
-       {"chop", "chop", DAM_SLASH}, /* 25 */
-       {"sting", "sting", DAM_PIERCE},
-       {"smash", "smash", DAM_BASH},
-       {"shbite", "shocking bite", DAM_LIGHTNING},
-       {"flbite", "flaming bite", DAM_FIRE},
-       {"frbite", "freezing bite", DAM_COLD}, /* 30 */
-       {"acbite", "acidic bite", DAM_ACID},
-       {"chomp", "chomp", DAM_PIERCE},
-       {"drain", "life drain", DAM_NEGATIVE},
-       {"thrust", "thrust", DAM_PIERCE},
-       {"slime", "slime", DAM_ACID},
-       {"shock", "shock", DAM_LIGHTNING},
-       {"thwack", "thwack", DAM_BASH},
-       {"flame", "flame", DAM_FIRE},
-       {"chill", "chill", DAM_COLD},
-       {NULL, NULL, 0}};
+const struct attack_type attack_table[MAX_DAMAGE_MESSAGE] = {
+    { "none",       "hit",              -1              }, /*  0 */
+    { "slice",      "slice",            DAM_SLASH       },
+    { "stab",       "stab",             DAM_PIERCE      },
+    { "slash",      "slash",            DAM_SLASH       },
+    { "whip",       "whip",             DAM_SLASH       },
+    { "claw",       "claw",             DAM_SLASH       }, /*  5 */
+    { "blast",      "blast",            DAM_BASH        },
+    { "pound",      "pound",            DAM_BASH        },
+    { "crush",      "crush",            DAM_BASH        },
+    { "grep",       "grep",             DAM_SLASH       },
+    { "bite",       "bite",             DAM_PIERCE      }, /* 10 */
+    { "pierce",     "pierce",           DAM_PIERCE      },
+    { "suction",    "suction",          DAM_BASH        },
+    { "beating",    "beating",          DAM_BASH        },
+    { "digestion",  "digestion",        DAM_ACID        },
+    { "charge",     "charge",           DAM_BASH        }, /* 15 */
+    { "slap",       "slap",             DAM_BASH        },
+    { "punch",      "punch",            DAM_BASH        },
+    { "wrath",      "wrath",            DAM_ENERGY      },
+    { "magic",      "magic",            DAM_ENERGY      },
+    { "divine",     "divine power",     DAM_HOLY        }, /* 20 */
+    { "cleave",     "cleave",           DAM_SLASH       },
+    { "scratch",    "scratch",          DAM_PIERCE      },
+    { "peck",       "peck",             DAM_PIERCE      },
+    { "peckb",      "peck",             DAM_BASH        },
+    { "chop",       "chop",             DAM_SLASH       }, /* 25 */
+    { "sting",      "sting",            DAM_PIERCE      },
+    { "smash",      "smash",            DAM_BASH        },
+    { "shbite",     "shocking bite",    DAM_LIGHTNING   },
+    { "flbite",     "flaming bite",     DAM_FIRE        },
+    { "frbite",     "freezing bite",    DAM_COLD        }, /* 30 */
+    { "acbite",     "acidic bite",      DAM_ACID        },
+    { "chomp",      "chomp",            DAM_PIERCE      },
+    { "drain",      "life drain",       DAM_NEGATIVE    },
+    { "thrust",     "thrust",           DAM_PIERCE      },
+    { "slime",      "slime",            DAM_ACID        },
+    { "shock",      "shock",            DAM_LIGHTNING   },
+    { "thwack",     "thwack",           DAM_BASH        },
+    { "flame",      "flame",            DAM_FIRE        },
+    { "chill",      "chill",            DAM_COLD        },
+    { NULL,         NULL,               0               }
+};
 
+#ifdef FIRST_BOOT
 /* race table */
 const struct race_type race_table[] = {
     /*
@@ -186,8 +193,7 @@ const struct race_type race_table[] = {
      BIT(0) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(7) | BIT(9) | BIT(10) | BIT(20) | BIT(21)},
 
     {"doll", false, 0, 0, 0,
-     IMM_COLD | IMM_POISON | IMM_HOLY | IMM_NEGATIVE | IMM_MENTAL | IMM_DISEASE
-         | IMM_DROWNING,
+     IMM_COLD | IMM_POISON | IMM_HOLY | IMM_NEGATIVE | IMM_MENTAL | IMM_DISEASE| IMM_DROWNING,
      RES_BASH | RES_LIGHT,
      VULN_SLASH | VULN_FIRE | VULN_ACID | VULN_LIGHTNING | VULN_ENERGY,
      BIT(4) | BIT(9) | BIT(12) | BIT(28), BIT(0) | BIT(1) | BIT(2) | BIT(6) | BIT(7) | BIT(10)},
@@ -305,6 +311,8 @@ const struct pc_race_type pc_race_table[]
         {16, 11, 13, 11, 14},
         {22, 15, 18, 15, 20},
         SIZE_LARGE}};
+
+#endif
 
 /*
  * Class table.
@@ -800,6 +808,8 @@ const struct liq_type liq_table[] = {
     {"cordial", "clear", {100, 1, 5, 0, 2}},
     {NULL, NULL, {0, 0, 0, 0, 0}}};
 
+
+#ifdef FIRST_BOOT
 /*
  * The skill and spell table.
  * Slot numbers must never be changed as they appear in #OBJECTS sections.
@@ -2825,3 +2835,5 @@ const struct group_type group_table[MAX_GROUP] = {
       "lightning bolt"}}
 
 };
+
+#endif

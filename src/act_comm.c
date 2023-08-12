@@ -30,7 +30,9 @@
 #include "comm.h"
 #include "interp.h"
 #include "recycle.h"
+#include "screen.h"
 #include "tables.h"
+#include "vt.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -669,9 +671,23 @@ void do_say(CHAR_DATA* ch, char* argument)
 
     act("{6$n says '{7$T{6'{x", ch, NULL, argument, TO_ROOM);
     act("{6You say '{7$T{6'{x", ch, NULL, argument, TO_CHAR);
+
+
+    if (!IS_NPC(ch)) {
+        CHAR_DATA* mob = NULL;
+        CHAR_DATA* mob_next = NULL;
+        for (mob = ch->in_room->people; mob != NULL; mob = mob_next) {
+            mob_next = mob->next_in_room;
+            if (IS_NPC(mob) && HAS_TRIGGER(mob, TRIG_SPEECH)
+                && mob->position == mob->pIndexData->default_pos)
+                mp_act_trigger(argument, mob, ch, NULL, NULL, TRIG_SPEECH);
+        }
+    }
+
     return;
 }
 
+// TODO: Make area-wide only. Add OOC channel? Pray? Whisper?
 void do_shout(CHAR_DATA* ch, char* argument)
 {
     DESCRIPTOR_DATA* d;
@@ -792,6 +808,9 @@ void do_tell(CHAR_DATA* ch, char* argument)
             POS_DEAD);
     victim->reply = ch;
 
+    if (!IS_NPC(ch) && IS_NPC(victim) && HAS_TRIGGER(victim, TRIG_SPEECH))
+        mp_act_trigger(argument, victim, ch, NULL, NULL, TRIG_SPEECH);
+
     return;
 }
 
@@ -900,8 +919,10 @@ void do_emote(CHAR_DATA* ch, char* argument)
         return;
     }
 
+    MOBtrigger = false;
     act("$n $T", ch, NULL, argument, TO_ROOM);
     act("$n $T", ch, NULL, argument, TO_CHAR);
+    MOBtrigger = true;
     return;
 }
 
@@ -929,7 +950,9 @@ void do_pmote(CHAR_DATA* ch, char* argument)
         if (vch->desc == NULL || vch == ch) continue;
 
         if ((letter = strstr(argument, vch->name)) == NULL) {
+            MOBtrigger = false;
             act("$N $t", vch, argument, ch, TO_CHAR);
+            MOBtrigger = true;
             continue;
         }
 
@@ -971,7 +994,9 @@ void do_pmote(CHAR_DATA* ch, char* argument)
             name = vch->name;
         }
 
+        MOBtrigger = false;
         act("$N $t", vch, temp, ch, TO_CHAR);
+        MOBtrigger = true;
     }
 
     return;
@@ -1347,7 +1372,7 @@ void do_order(CHAR_DATA* ch, char* argument)
     argument = one_argument(argument, arg);
     one_argument(argument, arg2);
 
-    if (!str_cmp(arg2, "delete")) {
+    if (!str_cmp(arg2, "delete") || !str_cmp(arg2, "mob")) {
         send_to_char("That will NOT be done.\n\r", ch);
         return;
     }
@@ -1786,4 +1811,27 @@ void do_colour(CHAR_DATA* ch, char* argument)
 
     send_to_char_bw("New Colour Parameter Set.\n\r", ch);
     return;
+}
+
+void do_clear(CHAR_DATA* ch, char* argument)
+{
+    if (!str_cmp(argument, "reset"))
+        //		send_to_char(VT_SETWIN_CLEAR VT_HOMECLR, ch);
+        send_to_char(VT_CLENSEQ, ch);
+    else
+        send_to_char(VT_CLEAR_SCREEN, ch);
+
+    if (ch->desc && ch->desc->screenmap)
+        InitScreenMap(ch->desc);
+
+    return;
+}
+
+void do_olcx(CHAR_DATA* ch, char* argument)
+{
+    TOGGLE_BIT(ch->comm, COMM_OLCX);
+    if (IS_SET(ch->comm, COMM_OLCX))
+        send_to_char("VT100 extensions for OLC activated.\n\r", ch);
+    else
+        send_to_char("VT100 extensions for OLC deactivated.\n\r", ch);
 }

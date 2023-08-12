@@ -1,8 +1,15 @@
-#AREA
-smurf.are~
-Smurfville~
-{ 1 10} Generic Smurf Village~
-100 199
+#AREADATA
+Name Smurfville~
+Builders None~
+VNUMs 100 199
+Credits { 1 10} Generic Smurf Village~
+Security 9
+Low 0
+High 0
+Version 1
+End
+
+
 
 #MOBILES
 #101
@@ -19,7 +26,7 @@ AGHS DF 100 0
 10 10 10 10
 BEFJNU 0 0 0
 stand stand male 1
-0 0 medium 0
+0 0 medium '0'
 #102
 oldstyle smurf~
 a smurf~
@@ -33,7 +40,7 @@ ABHS DF 100 0
 10 10 10 10
 BEFJNU 0 0 0
 stand stand male 1
-0 0 medium 0
+0 0 medium '0'
 #103
 oldstyle brainy smurf~
 Brainy Smurf~
@@ -48,7 +55,7 @@ AGHS DF 100 0
 8 8 8 10
 BEFJNU 0 0 0
 stand stand male 1
-0 0 medium 0
+0 0 medium '0'
 #104
 oldstyle handy smurf~
 Handy Smurf~
@@ -63,7 +70,7 @@ AGHS DF 100 0
 8 8 8 10
 BEFJNU 0 0 0
 stand stand male 1
-0 0 medium 0
+0 0 medium '0'
 #105
 oldstyle sleepy smurf~
 Sleepy Smurf~
@@ -78,7 +85,7 @@ AGHS DF 100 0
 8 8 8 10
 BEFJNU 0 0 0
 stand stand male 1
-0 0 medium 0
+0 0 medium '0'
 #106
 oldstyle hefty smurf~
 Hefty Smurf~
@@ -93,7 +100,7 @@ AGHS DF 100 0
 8 8 8 10
 BEFJNU 0 0 0
 stand stand male 1
-0 0 medium 0
+0 0 medium '0'
 #107
 oldstyle grumpy smurf~
 Grumpy Smurf~
@@ -107,7 +114,7 @@ AGHS DF 100 0
 8 8 8 10
 BEFJNU 0 0 0
 stand stand male 1
-0 0 medium 0
+0 0 medium '0'
 #108
 oldstyle jokey smurf~
 Jokey Smurf~
@@ -122,7 +129,7 @@ AGHS DF 100 0
 8 8 8 10
 BEFJNU 0 0 0
 stand stand male 1
-0 0 medium 0
+0 0 medium '0'
 #109
 oldstyle smurfette~
 Smurfette~
@@ -137,7 +144,7 @@ AGHS DF 100 0
 8 8 8 10
 BEFJNU 0 0 0
 stand stand female 1
-0 0 medium 0
+0 0 medium '0'
 #110
 oldstyle papa smurf~
 Papa Smurf~
@@ -153,7 +160,7 @@ AGHR 0 100 0
 2 2 2 6
 FU 0 0 0
 stand stand male 2
-0 0 medium 0
+0 0 medium '0'
 #111
 oldstyle gargamel~
 Gargamel~
@@ -168,7 +175,7 @@ ABHQ 0 -100 0
 1 1 1 7
 EIKU 0 0 0
 stand stand male 2
-0 0 medium 0
+0 0 medium '0'
 #112
 oldstyle azreal cat~
 Azreal~
@@ -183,8 +190,10 @@ ABH 0 -100 0
 3 3 3 9
 EFNU 0 0 0
 stand stand male 1
-0 0 medium 0
+0 0 medium '0'
 #0
+
+
 
 #OBJECTS
 #100
@@ -204,9 +213,9 @@ clothing A AE
 0 0 0 0 0
 3 20 270 P
 A
-4 1
-A
 2 -1
+A
+4 1
 #102
 smurf hat~
 a smurf hat~
@@ -221,7 +230,7 @@ a small axe~
 A small axe has been dropped here.~
 oldstyle~
 weapon 0 AN
-axe 1 7 slash 0
+axe 1 7 'slash' 0
 3 20 370 P
 #104
 necklace~
@@ -255,7 +264,7 @@ a tiny key~
 A tiny key is lying on the ground.~
 oldstyle~
 key 0 A
-2 0 0 0 0
+B 0 0 0 0
 0 20 0 P
 #108
 well~
@@ -271,9 +280,11 @@ a small key~
 A key to Gargamel's door lies here.~
 oldstyle~
 key 0 A
-2 0 0 0 0
+B 0 0 0 0
 0 20 0 P
 #0
+
+
 
 #ROOMS
 #101
@@ -281,7 +292,8 @@ Dimly Lit Path~
 This path is made of crushed granite with curious blue streaks in it.
 The path continues north to a village, or south to the eastern road.
 ~
-0 0 3
+0
+0 3
 D0
 The path continues toward the village.
 ~
@@ -298,7 +310,8 @@ Dimly Lit Path~
 This section of the road is badly worn and frequently traversed.  There is
 faint singing to the north.  The path back to the road lies to the south.
 ~
-0 C 3
+0
+C 3
 D0
 The path continues toward the village.
 ~
@@ -315,7 +328,8 @@ Dimly Lit Path~
 This section of the road is badly worn and frequently traversed.  Singing is
 getting stronger to the north.  The path back to the road lies to the south.
 ~
-0 0 3
+0
+0 3
 D0
 The entrance to smurf village.
 ~
@@ -334,7 +348,8 @@ village easily.  Little blue creatures with white hats and boots and little
 fluffy tails scamper about.  They sing continuously.  The singing is getting
 on your nerves and you have the urge to squash them.
 ~
-0 0 2
+0
+0 2
 D0
 Smurfy Road
 ~
@@ -353,7 +368,8 @@ you?  These little blue smurfs?  The singing is growing intense.  Your ears
 are starting to ring.  Smurfy Road continues to the north, west, and east.
 There is still time to turn back and go south.
 ~
-0 0 1
+0
+0 1
 D0
 Smurfy Road
 ~
@@ -381,7 +397,8 @@ You continue to travel down Smurfy Road.  Isn't it just smurfy?  Smurfy road
 continues its smurfy path to the smurfy north, smurfy west, and smurfy south.
 A smurfy home lies to the smurfy east.
 ~
-0 0 1
+0
+0 1
 D0
 Smurfy Road
 ~
@@ -409,7 +426,8 @@ Oh boy, another smurfy road!  Smurfy Road goes north and south here.  There
 is a smurfy, mushroom home to the west.  A beautiful smurfberry patch is to
 the east.
 ~
-0 0 1
+0
+0 1
 D0
 Smurfy Road
 ~
@@ -437,7 +455,8 @@ Smurfy Road continues to smurf here.  It smurfs to the south and smurfs to
 an end to the north.  A smurfberry patch is to the east.  A stone path lies
 to the west.
 ~
-0 0 1
+0
+0 1
 D0
 Smurfy Road
 ~
@@ -465,7 +484,13 @@ A smurfy well lies here in the middle of Smurfy Road.  A fence separates
 the smurfs from harm to the north.  A berry patch is to the east.  Smurfy
 Road continues to to the south and west.
 ~
-0 0 1
+0
+0 1
+E
+smurfy well~
+A small well is here.  Just the right size if you're a smurf.  But big
+enough for you to get some water from.  I'm sure the smurfs wont mind.
+~
 D1
 Smurfberry Patch
 ~
@@ -481,11 +506,6 @@ Smurfy Road
 ~
 ~
 0 -1 114
-E
-smurfy well~
-A small well is here.  Just the right size if you're a smurf.  But big
-enough for you to get some water from.  I'm sure the smurfs wont mind.
-~
 S
 #110
 Smurfy Road~
@@ -493,7 +513,8 @@ A corner of smurfy road is where you stand.  A smurfy fence blocks passage
 to the east or south.  A smurfy home is to the north.  Smurfy Road goes back
 to the west.
 ~
-0 0 1
+0
+0 1
 D0
 Smurfy Home
 ~
@@ -510,7 +531,8 @@ Smurfy Road~
 Western corner of Smurfy Road.  You can continue to smurf down the road
 to the east and north.  You can also smurf into a smurfy home to the south.
 ~
-0 0 1
+0
+0 1
 D0
 Smurfy Road
 ~
@@ -534,7 +556,8 @@ movie.  A smurfy home is to the west.  Papa Smurf's backyard is to the
 north but you can't go there.  Smurfy Road continues to the south and
 east.
 ~
-0 0 1
+0
+0 1
 D1
 Smurfy Road
 ~
@@ -557,7 +580,8 @@ You are walking along a cute little stone path.  To the south lies Papa
 Smurf's house.  A Smurfy house is to the west.  Smurfy road is to the east.
 Everything is so peaceful here.  You could stay forever.
 ~
-0 0 1
+0
+0 1
 D1
 Smurfy Road
 ~
@@ -579,7 +603,8 @@ Smurfy Road~
 Yet another part of Smurfy Road.  Hey if you go west its the last
 section of Smurfy Road.  You can go back to the smurfy well to the east.
 ~
-0 0 1
+0
+0 1
 D1
 Smurfy Road
 ~
@@ -597,7 +622,8 @@ The last piece of Smurfy Road.  You can go back to Smurfy Road to the east.
 A nice, beautiful, smurfy, mushroom home is to the south.  In the distance to
 the north you can see Gargamel's Castle.
 ~
-0 0 1
+0
+0 1
 D0
 Path to Gargamel's Castle
 ~
@@ -620,7 +646,8 @@ Delicious smurfberries grow here.  You could probably eat a year's worth of
 smurfberries in one sitting.  Smurfy Road is back to the west.  Another
 smurfberry patch is to the north.
 ~
-0 0 1
+0
+0 1
 D0
 Smurfberry Patch
 ~
@@ -639,7 +666,8 @@ nostrils crazy.  It almost, ALMOST, makes you forget all the singing going
 on.  Smurfy Road is to the west, while smurfberry patches are to the north
 and south.
 ~
-0 0 1
+0
+0 1
 D0
 Smurfberry Patch
 ~
@@ -662,7 +690,8 @@ The northernmost of the smurfberry patches grows here.  It looks just
 as scrumptious as all the rest.  Just take a few; they'll never know.  Smurfy
 Road is to the west.  A smurfberry patch is to the south.
 ~
-0 0 1
+0
+0 1
 D2
 Smurfberry Patch
 ~
@@ -681,7 +710,8 @@ many smurfy books.  The print is so small you couldn't even read it
 with a magnifying glass.  I wonder if Brainy Smurf minds if you
 destroy his home?  Smurfy Road is back to the south.
 ~
-0 0 1
+0
+0 1
 D2
 Smurfy Road
 ~
@@ -694,7 +724,8 @@ This home was well built.  Of course, until you rip it apart you big meany
 you.  Tools are all over the place.  Too small for you to use.  Smurfy Road is
 back to the west.
 ~
-0 0 1
+0
+0 1
 D3
 Smurfy Road
 ~
@@ -707,7 +738,8 @@ Hefty is anything but wimpy.  So is his house.  It actually took you a
 couple of minutes to destroy his house.  Better watch out -- he might be
 a little mad at you.  Smurfy Road is back to the north.
 ~
-0 0 1
+0
+0 1
 D0
 Smurfy Road
 ~
@@ -720,7 +752,8 @@ Be vewy vewy quiet.  Sleepy Smurf is probably sleeping.  You see so many
 beds you can't even tell if he is here.  Maybe you should quietly go back to
 Smurfy Road to the east.
 ~
-0 0 1
+0
+0 1
 D1
 Smurfy Road
 ~
@@ -733,7 +766,8 @@ This is Grumpy Smurf's home.  He is pissed at you.  Of course, he is pissed
 at everyone.  So don't take it bad.  Maybe you'd better leave before he really
 gets mad.  Smurfy Road to the east is your only salvation.
 ~
-0 0 1
+0
+0 1
 D1
 Smurfy Road
 ~
@@ -746,7 +780,8 @@ You pull the top of his house and it explodes in your face.  That Jokey
 Smurf, what a kidder.  You can hear his laughter as you wipe the ashes off
 your face.  You better get even.  Smurfy Road is to the north.
 ~
-0 0 1
+0
+0 1
 D0
 Smurfy Road
 ~
@@ -760,7 +795,8 @@ home.  He takes pride in his work.  You could get to know him or just squash
 him.  If Papa Smurf is not here he is probably at Smurfette's putting the
 moves on her.  A stone path lies to the north.
 ~
-0 0 1
+0
+0 1
 D0
 Stone Path
 ~
@@ -772,7 +808,8 @@ Path to Gargamel's Castle~
 You are walking along a path to Gargamel's Castle to the North.
 Smurfy Road lies to the south.
 ~
-0 0 1
+0
+0 1
 D0
 Outside Gargamel's Castle
 ~
@@ -790,7 +827,8 @@ You are standing outside Gargamel's Castle.  You can hear him screaming at
 Azreal from inside.  You can also him cursing out those wretched smurfs.
 His Castle is to the north while Smurfy Road is to the south.
 ~
-0 0 1
+0
+0 1
 D0
 Gargamel's Castle
 ~
@@ -807,7 +845,8 @@ Gargamel's Castle~
 This is Gargamel's Castle.  His big black kettle is in the middle of the room.
 Where else would he put it?  The place has only one room.
 ~
-0 0 1
+0
+0 1
 D2
 Outside Gargamel's Castle
 ~
@@ -820,7 +859,8 @@ This house is conveniently next to Papa Smurfs.  Makes it easier for Papa
 Smurf to sneak over at night.  I hope he uses protection.  I would hate to
 have little smurfs running around.  The only exit is to the east.
 ~
-0 0 1
+0
+0 1
 D1
 Smurfy Road
 ~
@@ -829,62 +869,73 @@ Smurfy Road
 S
 #0
 
-#RESETS
-O 0  108   1  109	* a smurf well
-M 0  102   3  118  1	* a smurf
-G 1  100  10     	*   a bunch of smurfberries
-M 0  102   3  117  1	* a smurf
-G 1  100  10     	*   a bunch of smurfberries
-M 0  102   3  116  1	* a smurf
-G 1  100  10     	*   a bunch of smurfberries
-M 0  101   8  105  1	* a smurf
-M 0  101   8  110  1	* a smurf
-G 1  102  10     	*   a smurf hat
-M 0  101   8  111  1	* a smurf
-M 0  101   8  112  1	* a smurf
-G 1  102  10     	*   a smurf hat
-M 0  101   8  107  1	* a smurf
-M 0  101   8  108  1	* a smurf
-G 1  102  10     	*   a smurf hat
-M 0  101   8  109  1	* a smurf
-M 0  101   8  104  1	* a smurf
-G 1  102  10     	*   a smurf hat
-M 0  103   1  119  1	* Brainy Smurf
-E 1  101   8    6	*   a pair of glasses
-M 0  104   1  120  1	* Handy Smurf
-E 1  103   8   16	*   a small axe
-M 0  105   1  122  1	* Sleepy Smurf
-M 0  106   1  121  1	* Hefty Smurf
-E 1  103   8   16	*   a small axe
-M 0  107   1  123  1	* Grumpy Smurf
-M 0  108   1  124  1	* Jokey Smurf
-M 0  109   1  129  1	* Smurfette
-E 1  104   8    3	*   a small necklace
-G 1  107   8     	*   a tiny key
-M 0  110   1  125  1	* Papa Smurf
-G 1  105  10     	*   a pink potion
-G 1  109   8     	*   a small key
-M 0  111   1  128  1	* Gargamel
-E 1  106   8   17	*   a small wand
-M 0  112   1  128  1	* Azreal
+
+
+#SPECIALS
+M 101 spec_thief
+M 102 spec_thief
+M 103 spec_thief
+M 104 spec_thief
+M 105 spec_thief
+M 106 spec_thief
+M 107 spec_thief
+M 108 spec_thief
+M 109 spec_thief
+M 110 spec_cast_mage
+M 111 spec_cast_cleric
+M 112 spec_poison
 S
+
+
+
+#RESETS
+M 0 101 8 104 1
+G 0 102 0
+M 0 101 8 105 1
+M 0 101 8 107 1
+M 0 101 8 108 1
+G 0 102 0
+O 0 108 0 109
+M 0 101 8 109 1
+M 0 101 8 110 1
+G 0 102 0
+M 0 101 8 111 1
+M 0 101 8 112 1
+G 0 102 0
+M 0 102 3 116 1
+G 0 100 0
+M 0 102 3 117 1
+G 0 100 0
+M 0 102 3 118 1
+G 0 100 0
+M 0 103 1 119 1
+E 0 101 0 6
+M 0 104 1 120 1
+E 0 103 0 16
+M 0 106 1 121 1
+E 0 103 0 16
+M 0 105 1 122 1
+M 0 107 1 123 1
+M 0 108 1 124 1
+M 0 110 1 125 1
+G 0 105 0
+G 0 109 0
+M 0 111 1 128 1
+E 0 106 0 17
+M 0 112 1 128 1
+M 0 109 1 129 1
+E 0 104 0 3
+G 0 107 0
+S
+
+
 
 #SHOPS
 0
 
-#SPECIALS
-M 101 spec_thief          	* a smurf
-M 102 spec_thief          	* a smurf
-M 103 spec_thief          	* Brainy Smurf
-M 104 spec_thief          	* Handy Smurf
-M 105 spec_thief          	* Sleepy Smurf
-M 106 spec_thief          	* Hefty Smurf
-M 107 spec_thief          	* Grumpy Smurf
-M 108 spec_thief          	* Jokey Smurf
-M 109 spec_thief          	* Smurfette
-M 110 spec_cast_mage      	* Papa Smurf
-M 111 spec_cast_cleric    	* Gargamel
-M 112 spec_poison         	* Azreal
-S
+
+
+#MOBPROGS
+#0
 
 #$

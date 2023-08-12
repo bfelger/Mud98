@@ -100,33 +100,6 @@ int material_lookup(const char* name)
     return 0;
 }
 
-/* returns race number */
-int race_lookup(const char* name)
-{
-    int race;
-
-    for (race = 0; race_table[race].name != NULL; race++) {
-        if (LOWER(name[0]) == LOWER(race_table[race].name[0])
-            && !str_prefix(name, race_table[race].name))
-            return race;
-    }
-
-    return 0;
-}
-
-int liq_lookup(const char* name)
-{
-    int liq;
-
-    for (liq = 0; liq_table[liq].liq_name != NULL; liq++) {
-        if (LOWER(name[0]) == LOWER(liq_table[liq].liq_name[0])
-            && !str_prefix(name, liq_table[liq].liq_name))
-            return liq;
-    }
-
-    return -1;
-}
-
 int weapon_lookup(const char* name)
 {
     int type;
@@ -151,19 +124,6 @@ int weapon_type(const char* name)
     }
 
     return WEAPON_EXOTIC;
-}
-
-int item_lookup(const char* name)
-{
-    int type;
-
-    for (type = 0; item_table[type].name != NULL; type++) {
-        if (LOWER(name[0]) == LOWER(item_table[type].name[0])
-            && !str_prefix(name, item_table[type].name))
-            return item_table[type].type;
-    }
-
-    return -1;
 }
 
 char* item_name(int item_type)
@@ -366,21 +326,18 @@ int get_skill(CHAR_DATA* ch, int sn)
     {
         skill = ch->level * 5 / 2;
     }
-
     else if (sn < -1 || sn > MAX_SKILL) {
         bug("Bad sn %d in get_skill.", sn);
         skill = 0;
     }
-
     else if (!IS_NPC(ch)) {
         if (ch->level < skill_table[sn].skill_level[ch->ch_class])
             skill = 0;
         else
             skill = ch->pcdata->learned[sn];
     }
-
-    else /* mobiles */
-    {
+    else {
+        // Mobiles
         if (skill_table[sn].spell_fun != spell_null)
             skill = 40 + 2 * ch->level;
 
@@ -836,7 +793,11 @@ int get_curr_stat(CHAR_DATA* ch, int stat)
         max = 25;
 
     else {
+#ifdef FIRST_BOOT
         max = pc_race_table[ch->race].max_stats[stat] + 4;
+#else
+        max = race_table[ch->race].max_stats[stat] + 4;
+#endif
 
         if (class_table[ch->ch_class].attr_prime == stat) max += 2;
 
@@ -856,7 +817,11 @@ int get_max_train(CHAR_DATA* ch, int stat)
     if (IS_NPC(ch) || ch->level > LEVEL_IMMORTAL)
         return 25;
 
+#ifdef FIRST_BOOT
     max = pc_race_table[ch->race].max_stats[stat];
+#else
+    max = race_table[ch->race].max_stats[stat];
+#endif
     if (class_table[ch->ch_class].attr_prime == stat) {
         if (ch->race == race_lookup("human"))
             max += 3;
@@ -1950,6 +1915,10 @@ void extract_char(CHAR_DATA* ch, bool fPull)
     for (wch = char_list; wch != NULL; wch = wch->next) {
         if (wch->reply == ch) 
             wch->reply = NULL;
+        // TODO: Is this right?
+        // Or should we be checking wch->mprog_target == ch?
+        if (ch->mprog_target == wch)
+            wch->mprog_target = NULL;
     }
 
     if (ch == char_list) { 
@@ -2267,7 +2236,7 @@ int get_true_weight(OBJ_DATA* obj)
 }
 
 /*
- * True if room is dark.
+ * true if room is dark.
  */
 bool room_is_dark(ROOM_INDEX_DATA* pRoomIndex)
 {
@@ -2293,7 +2262,7 @@ bool is_room_owner(CHAR_DATA* ch, ROOM_INDEX_DATA* room)
 }
 
 /*
- * True if room is private.
+ * true if room is private.
  */
 bool room_is_private(ROOM_INDEX_DATA* pRoomIndex)
 {
@@ -2340,7 +2309,7 @@ bool can_see_room(CHAR_DATA* ch, ROOM_INDEX_DATA* pRoomIndex)
 }
 
 /*
- * True if char can see victim.
+ * true if char can see victim.
  */
 bool can_see(CHAR_DATA* ch, CHAR_DATA* victim)
 {
@@ -2385,7 +2354,7 @@ bool can_see(CHAR_DATA* ch, CHAR_DATA* victim)
 }
 
 /*
- * True if char can see obj.
+ * true if char can see obj.
  */
 bool can_see_obj(CHAR_DATA* ch, OBJ_DATA* obj)
 {
@@ -2411,7 +2380,7 @@ bool can_see_obj(CHAR_DATA* ch, OBJ_DATA* obj)
 }
 
 /*
- * True if char can drop obj.
+ * true if char can drop obj.
  */
 bool can_drop_obj(CHAR_DATA* ch, OBJ_DATA* obj)
 {
@@ -3087,3 +3056,69 @@ void all_colour(CHAR_DATA* ch, char* argument)
 
     return;
 }
+
+bool emptystring(const char* str)
+{
+    int i = 0;
+
+    for (; str[i]; i++)
+        if (str[i] != ' ')
+            return false;
+
+    return true;
+}
+
+char* itos(int temp)
+{
+    static char buf[64];
+
+    sprintf(buf, "%d", temp);
+
+    return buf;
+}
+
+int get_vnum_mob_name_area(char* name, AREA_DATA* pArea)
+{
+    int hash;
+    MOB_INDEX_DATA* mob;
+
+    for (hash = 0; hash < MAX_KEY_HASH; hash++)
+        for (mob = mob_index_hash[hash]; mob; mob = mob->next)
+            if (mob->area == pArea
+                && !str_prefix(name, mob->player_name))
+                return mob->vnum;
+
+    return 0;
+}
+
+int get_vnum_obj_name_area(char* name, AREA_DATA* pArea)
+{
+    int hash;
+    OBJ_INDEX_DATA* obj;
+
+    for (hash = 0; hash < MAX_KEY_HASH; hash++)
+        for (obj = obj_index_hash[hash]; obj; obj = obj->next)
+            if (obj->area == pArea
+                && !str_prefix(name, obj->name))
+                return obj->vnum;
+
+    return 0;
+}
+
+#if !defined(FIRST_BOOT)
+int get_points(int race, int class)
+{
+    int x;
+
+    x = group_lookup(class_table[class].default_group);
+
+    if (x == -1) {
+        bugf("get_points : skill group %s doesn't exist, race %d, class %d",
+            class_table[class].default_group,
+            race, class);
+        return -1;
+    }
+
+    return group_table[x].rating[class] + race_table[race].points;
+}
+#endif

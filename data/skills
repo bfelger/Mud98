@@ -1,0 +1,2402 @@
+150
+#SKILL
+name reserved~
+skill_level 99 99 99 99 @
+rating 99 99 99 99 @
+spell_fun ~
+target tar_ignore~
+minimum_position standing~
+pgsn ~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off ~
+msg_obj ~
+#END
+
+#SKILL
+name acid blast~
+skill_level 28 53 35 32 @
+rating 1 1 2 2 @
+spell_fun spell_acid_blast~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 70
+min_mana 20
+beats 12
+noun_damage acid blast~
+msg_off !Acid Blast!~
+msg_obj ~
+#END
+
+#SKILL
+name armor~
+skill_level 7 2 10 5 @
+rating 1 1 2 2 @
+spell_fun spell_armor~
+target tar_char_defensive~
+minimum_position standing~
+pgsn ~
+slot 1
+min_mana 5
+beats 12
+noun_damage ~
+msg_off You feel less armored.~
+msg_obj ~
+#END
+
+#SKILL
+name bless~
+skill_level 53 7 53 8 @
+rating 1 1 2 2 @
+spell_fun spell_bless~
+target tar_obj_char_def~
+minimum_position standing~
+pgsn ~
+slot 3
+min_mana 5
+beats 12
+noun_damage ~
+msg_off You feel less righteous.~
+msg_obj $p's holy aura fades.~
+#END
+
+#SKILL
+name blindness~
+skill_level 12 8 17 15 @
+rating 1 1 2 2 @
+spell_fun spell_blindness~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn gsn_blindness~
+slot 4
+min_mana 5
+beats 12
+noun_damage ~
+msg_off You can see again.~
+msg_obj ~
+#END
+
+#SKILL
+name burning hands~
+skill_level 7 53 10 9 @
+rating 1 1 2 2 @
+spell_fun spell_burning_hands~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 5
+min_mana 15
+beats 12
+noun_damage burning hands~
+msg_off !Burning Hands!~
+msg_obj ~
+#END
+
+#SKILL
+name call lightning~
+skill_level 26 18 31 22 @
+rating 1 1 2 2 @
+spell_fun spell_call_lightning~
+target tar_ignore~
+minimum_position fighting~
+pgsn ~
+slot 6
+min_mana 15
+beats 12
+noun_damage lightning bolt~
+msg_off !Call Lightning!~
+msg_obj ~
+#END
+
+#SKILL
+name calm~
+skill_level 48 16 50 20 @
+rating 1 1 2 2 @
+spell_fun spell_calm~
+target tar_ignore~
+minimum_position fighting~
+pgsn ~
+slot 509
+min_mana 30
+beats 12
+noun_damage ~
+msg_off You have lost your peace of mind.~
+msg_obj ~
+#END
+
+#SKILL
+name cancellation~
+skill_level 18 26 34 34 @
+rating 1 1 2 2 @
+spell_fun spell_cancellation~
+target tar_char_defensive~
+minimum_position fighting~
+pgsn ~
+slot 507
+min_mana 20
+beats 12
+noun_damage !cancellation!~
+msg_off ~
+msg_obj ~
+#END
+
+#SKILL
+name cause critical~
+skill_level 53 13 53 19 @
+rating 1 1 2 2 @
+spell_fun spell_cause_critical~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 63
+min_mana 20
+beats 12
+noun_damage spell~
+msg_off !Cause Critical!~
+msg_obj ~
+#END
+
+#SKILL
+name cause light~
+skill_level 53 1 53 3 @
+rating 1 1 2 2 @
+spell_fun spell_cause_light~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 62
+min_mana 15
+beats 12
+noun_damage spell~
+msg_off !Cause Light!~
+msg_obj ~
+#END
+
+#SKILL
+name cause serious~
+skill_level 53 7 53 10 @
+rating 1 1 2 2 @
+spell_fun spell_cause_serious~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 64
+min_mana 17
+beats 12
+noun_damage spell~
+msg_off !Cause Serious!~
+msg_obj ~
+#END
+
+#SKILL
+name chain lightning~
+skill_level 33 53 39 36 @
+rating 1 1 2 2 @
+spell_fun spell_chain_lightning~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 500
+min_mana 25
+beats 12
+noun_damage lightning~
+msg_off !Chain Lightning!~
+msg_obj ~
+#END
+
+#SKILL
+name change sex~
+skill_level 53 53 53 53 @
+rating 1 1 2 2 @
+spell_fun spell_change_sex~
+target tar_char_defensive~
+minimum_position fighting~
+pgsn ~
+slot 82
+min_mana 15
+beats 12
+noun_damage ~
+msg_off Your body feels familiar again.~
+msg_obj ~
+#END
+
+#SKILL
+name charm person~
+skill_level 20 53 25 53 @
+rating 1 1 2 2 @
+spell_fun spell_charm_person~
+target tar_char_offensive~
+minimum_position standing~
+pgsn gsn_charm_person~
+slot 7
+min_mana 5
+beats 12
+noun_damage ~
+msg_off You feel more self-confident.~
+msg_obj ~
+#END
+
+#SKILL
+name chill touch~
+skill_level 4 53 6 6 @
+rating 1 1 2 2 @
+spell_fun spell_chill_touch~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 8
+min_mana 15
+beats 12
+noun_damage chilling touch~
+msg_off You feel less cold.~
+msg_obj ~
+#END
+
+#SKILL
+name colour spray~
+skill_level 16 53 22 20 @
+rating 1 1 2 2 @
+spell_fun spell_colour_spray~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 10
+min_mana 15
+beats 12
+noun_damage colour spray~
+msg_off !Colour Spray!~
+msg_obj ~
+#END
+
+#SKILL
+name continual light~
+skill_level 6 4 6 9 @
+rating 1 1 2 2 @
+spell_fun spell_continual_light~
+target tar_ignore~
+minimum_position standing~
+pgsn ~
+slot 57
+min_mana 7
+beats 12
+noun_damage ~
+msg_off !Continual Light!~
+msg_obj ~
+#END
+
+#SKILL
+name control weather~
+skill_level 15 19 28 22 @
+rating 1 1 2 2 @
+spell_fun spell_control_weather~
+target tar_ignore~
+minimum_position standing~
+pgsn ~
+slot 11
+min_mana 25
+beats 12
+noun_damage ~
+msg_off !Control Weather!~
+msg_obj ~
+#END
+
+#SKILL
+name create food~
+skill_level 10 5 11 12 @
+rating 1 1 2 2 @
+spell_fun spell_create_food~
+target tar_ignore~
+minimum_position standing~
+pgsn ~
+slot 12
+min_mana 5
+beats 12
+noun_damage ~
+msg_off !Create Food!~
+msg_obj ~
+#END
+
+#SKILL
+name create rose~
+skill_level 16 11 10 24 @
+rating 1 1 2 2 @
+spell_fun spell_create_rose~
+target tar_ignore~
+minimum_position standing~
+pgsn ~
+slot 511
+min_mana 30
+beats 12
+noun_damage ~
+msg_off !Create Rose!~
+msg_obj ~
+#END
+
+#SKILL
+name create spring~
+skill_level 14 17 23 20 @
+rating 1 1 2 2 @
+spell_fun spell_create_spring~
+target tar_ignore~
+minimum_position standing~
+pgsn ~
+slot 80
+min_mana 20
+beats 12
+noun_damage ~
+msg_off !Create Spring!~
+msg_obj ~
+#END
+
+#SKILL
+name create water~
+skill_level 8 3 12 11 @
+rating 1 1 2 2 @
+spell_fun spell_create_water~
+target tar_obj_inv~
+minimum_position standing~
+pgsn ~
+slot 13
+min_mana 5
+beats 12
+noun_damage ~
+msg_off !Create Water!~
+msg_obj ~
+#END
+
+#SKILL
+name cure blindness~
+skill_level 53 6 53 8 @
+rating 1 1 2 2 @
+spell_fun spell_cure_blindness~
+target tar_char_defensive~
+minimum_position fighting~
+pgsn ~
+slot 14
+min_mana 5
+beats 12
+noun_damage ~
+msg_off !Cure Blindness!~
+msg_obj ~
+#END
+
+#SKILL
+name cure critical~
+skill_level 53 13 53 19 @
+rating 1 1 2 2 @
+spell_fun spell_cure_critical~
+target tar_char_defensive~
+minimum_position fighting~
+pgsn ~
+slot 15
+min_mana 20
+beats 12
+noun_damage ~
+msg_off !Cure Critical!~
+msg_obj ~
+#END
+
+#SKILL
+name cure disease~
+skill_level 53 13 53 14 @
+rating 1 1 2 2 @
+spell_fun spell_cure_disease~
+target tar_char_defensive~
+minimum_position standing~
+pgsn ~
+slot 501
+min_mana 20
+beats 12
+noun_damage ~
+msg_off !Cure Disease!~
+msg_obj ~
+#END
+
+#SKILL
+name cure light~
+skill_level 53 1 53 3 @
+rating 1 1 2 2 @
+spell_fun spell_cure_light~
+target tar_char_defensive~
+minimum_position fighting~
+pgsn ~
+slot 16
+min_mana 10
+beats 12
+noun_damage ~
+msg_off !Cure Light!~
+msg_obj ~
+#END
+
+#SKILL
+name cure poison~
+skill_level 53 14 53 16 @
+rating 1 1 2 2 @
+spell_fun spell_cure_poison~
+target tar_char_defensive~
+minimum_position standing~
+pgsn ~
+slot 43
+min_mana 5
+beats 12
+noun_damage ~
+msg_off !Cure Poison!~
+msg_obj ~
+#END
+
+#SKILL
+name cure serious~
+skill_level 53 7 53 10 @
+rating 1 1 2 2 @
+spell_fun spell_cure_serious~
+target tar_char_defensive~
+minimum_position fighting~
+pgsn ~
+slot 61
+min_mana 15
+beats 12
+noun_damage ~
+msg_off !Cure Serious!~
+msg_obj ~
+#END
+
+#SKILL
+name curse~
+skill_level 18 18 26 22 @
+rating 1 1 2 2 @
+spell_fun spell_curse~
+target tar_obj_char_off~
+minimum_position fighting~
+pgsn gsn_curse~
+slot 17
+min_mana 20
+beats 12
+noun_damage curse~
+msg_off The curse wears off.~
+msg_obj $p is no longer impure.~
+#END
+
+#SKILL
+name demonfire~
+skill_level 53 34 53 45 @
+rating 1 1 2 2 @
+spell_fun spell_demonfire~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 505
+min_mana 20
+beats 12
+noun_damage torments~
+msg_off !Demonfire!~
+msg_obj ~
+#END
+
+#SKILL
+name detect evil~
+skill_level 11 4 12 53 @
+rating 1 1 2 2 @
+spell_fun spell_detect_evil~
+target tar_char_self~
+minimum_position standing~
+pgsn ~
+slot 18
+min_mana 5
+beats 12
+noun_damage ~
+msg_off The red in your vision disappears.~
+msg_obj ~
+#END
+
+#SKILL
+name detect good~
+skill_level 11 4 12 53 @
+rating 1 1 2 2 @
+spell_fun spell_detect_good~
+target tar_char_self~
+minimum_position standing~
+pgsn ~
+slot 513
+min_mana 5
+beats 12
+noun_damage ~
+msg_off The gold in your vision disappears.~
+msg_obj ~
+#END
+
+#SKILL
+name detect hidden~
+skill_level 15 11 12 53 @
+rating 1 1 2 2 @
+spell_fun spell_detect_hidden~
+target tar_char_self~
+minimum_position standing~
+pgsn ~
+slot 44
+min_mana 5
+beats 12
+noun_damage ~
+msg_off You feel less aware of your surroundings.~
+msg_obj ~
+#END
+
+#SKILL
+name detect invis~
+skill_level 3 8 6 53 @
+rating 1 1 2 2 @
+spell_fun spell_detect_invis~
+target tar_char_self~
+minimum_position standing~
+pgsn ~
+slot 19
+min_mana 5
+beats 12
+noun_damage ~
+msg_off You no longer see invisible objects.~
+msg_obj ~
+#END
+
+#SKILL
+name detect magic~
+skill_level 2 6 5 53 @
+rating 1 1 2 2 @
+spell_fun spell_detect_magic~
+target tar_char_self~
+minimum_position standing~
+pgsn ~
+slot 20
+min_mana 5
+beats 12
+noun_damage ~
+msg_off The detect magic wears off.~
+msg_obj ~
+#END
+
+#SKILL
+name detect poison~
+skill_level 15 7 9 53 @
+rating 1 1 2 2 @
+spell_fun spell_detect_poison~
+target tar_obj_inv~
+minimum_position standing~
+pgsn ~
+slot 21
+min_mana 5
+beats 12
+noun_damage ~
+msg_off !Detect Poison!~
+msg_obj ~
+#END
+
+#SKILL
+name dispel evil~
+skill_level 53 15 53 21 @
+rating 1 1 2 2 @
+spell_fun spell_dispel_evil~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 22
+min_mana 15
+beats 12
+noun_damage dispel evil~
+msg_off !Dispel Evil!~
+msg_obj ~
+#END
+
+#SKILL
+name dispel good~
+skill_level 53 15 53 21 @
+rating 1 1 2 2 @
+spell_fun spell_dispel_good~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 512
+min_mana 15
+beats 12
+noun_damage dispel good~
+msg_off !Dispel Good!~
+msg_obj ~
+#END
+
+#SKILL
+name dispel magic~
+skill_level 16 24 30 30 @
+rating 1 1 2 2 @
+spell_fun spell_dispel_magic~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 59
+min_mana 15
+beats 12
+noun_damage ~
+msg_off !Dispel Magic!~
+msg_obj ~
+#END
+
+#SKILL
+name earthquake~
+skill_level 53 10 53 14 @
+rating 1 1 2 2 @
+spell_fun spell_earthquake~
+target tar_ignore~
+minimum_position fighting~
+pgsn ~
+slot 23
+min_mana 15
+beats 12
+noun_damage earthquake~
+msg_off !Earthquake!~
+msg_obj ~
+#END
+
+#SKILL
+name enchant armor~
+skill_level 16 53 53 53 @
+rating 2 2 4 4 @
+spell_fun spell_enchant_armor~
+target tar_obj_inv~
+minimum_position standing~
+pgsn ~
+slot 510
+min_mana 100
+beats 24
+noun_damage ~
+msg_off !Enchant Armor!~
+msg_obj ~
+#END
+
+#SKILL
+name enchant weapon~
+skill_level 17 53 53 53 @
+rating 2 2 4 4 @
+spell_fun spell_enchant_weapon~
+target tar_obj_inv~
+minimum_position standing~
+pgsn ~
+slot 24
+min_mana 100
+beats 24
+noun_damage ~
+msg_off !Enchant Weapon!~
+msg_obj ~
+#END
+
+#SKILL
+name energy drain~
+skill_level 19 22 26 23 @
+rating 1 1 2 2 @
+spell_fun spell_energy_drain~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 25
+min_mana 35
+beats 12
+noun_damage energy drain~
+msg_off !Energy Drain!~
+msg_obj ~
+#END
+
+#SKILL
+name faerie fire~
+skill_level 6 3 5 8 @
+rating 1 1 2 2 @
+spell_fun spell_faerie_fire~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 72
+min_mana 5
+beats 12
+noun_damage faerie fire~
+msg_off The pink aura around you fades away.~
+msg_obj ~
+#END
+
+#SKILL
+name faerie fog~
+skill_level 14 21 16 24 @
+rating 1 1 2 2 @
+spell_fun spell_faerie_fog~
+target tar_ignore~
+minimum_position standing~
+pgsn ~
+slot 73
+min_mana 12
+beats 12
+noun_damage faerie fog~
+msg_off !Faerie Fog!~
+msg_obj ~
+#END
+
+#SKILL
+name farsight~
+skill_level 14 16 16 53 @
+rating 1 1 2 2 @
+spell_fun spell_farsight~
+target tar_ignore~
+minimum_position standing~
+pgsn ~
+slot 521
+min_mana 36
+beats 20
+noun_damage farsight~
+msg_off !Farsight!~
+msg_obj ~
+#END
+
+#SKILL
+name fireball~
+skill_level 22 53 30 26 @
+rating 1 1 2 2 @
+spell_fun spell_fireball~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 26
+min_mana 15
+beats 12
+noun_damage fireball~
+msg_off !Fireball!~
+msg_obj ~
+#END
+
+#SKILL
+name fireproof~
+skill_level 13 12 19 18 @
+rating 1 1 2 2 @
+spell_fun spell_fireproof~
+target tar_obj_inv~
+minimum_position standing~
+pgsn ~
+slot 523
+min_mana 10
+beats 12
+noun_damage ~
+msg_off ~
+msg_obj $p's protective aura fades.~
+#END
+
+#SKILL
+name flamestrike~
+skill_level 53 20 53 27 @
+rating 1 1 2 2 @
+spell_fun spell_flamestrike~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 65
+min_mana 20
+beats 12
+noun_damage flamestrike~
+msg_off !Flamestrike!~
+msg_obj ~
+#END
+
+#SKILL
+name fly~
+skill_level 10 18 20 22 @
+rating 1 1 2 2 @
+spell_fun spell_fly~
+target tar_char_defensive~
+minimum_position standing~
+pgsn ~
+slot 56
+min_mana 10
+beats 18
+noun_damage ~
+msg_off You slowly float to the ground.~
+msg_obj ~
+#END
+
+#SKILL
+name floating disc~
+skill_level 4 10 7 16 @
+rating 1 1 2 2 @
+spell_fun spell_floating_disc~
+target tar_ignore~
+minimum_position standing~
+pgsn ~
+slot 522
+min_mana 40
+beats 24
+noun_damage ~
+msg_off !Floating disc!~
+msg_obj ~
+#END
+
+#SKILL
+name frenzy~
+skill_level 53 24 53 26 @
+rating 1 1 2 2 @
+spell_fun spell_frenzy~
+target tar_char_defensive~
+minimum_position standing~
+pgsn ~
+slot 504
+min_mana 30
+beats 24
+noun_damage ~
+msg_off Your rage ebbs.~
+msg_obj ~
+#END
+
+#SKILL
+name gate~
+skill_level 27 17 32 28 @
+rating 1 1 2 2 @
+spell_fun spell_gate~
+target tar_ignore~
+minimum_position fighting~
+pgsn ~
+slot 83
+min_mana 80
+beats 12
+noun_damage ~
+msg_off !Gate!~
+msg_obj ~
+#END
+
+#SKILL
+name giant strength~
+skill_level 11 53 22 20 @
+rating 1 1 2 2 @
+spell_fun spell_giant_strength~
+target tar_char_defensive~
+minimum_position standing~
+pgsn ~
+slot 39
+min_mana 20
+beats 12
+noun_damage ~
+msg_off You feel weaker.~
+msg_obj ~
+#END
+
+#SKILL
+name harm~
+skill_level 53 23 53 28 @
+rating 1 1 2 2 @
+spell_fun spell_harm~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 27
+min_mana 35
+beats 12
+noun_damage harm spell~
+msg_off !Harm!,		~
+msg_obj ~
+#END
+
+#SKILL
+name haste~
+skill_level 21 53 26 29 @
+rating 1 1 2 2 @
+spell_fun spell_haste~
+target tar_char_defensive~
+minimum_position fighting~
+pgsn ~
+slot 502
+min_mana 30
+beats 12
+noun_damage ~
+msg_off You feel yourself slow down.~
+msg_obj ~
+#END
+
+#SKILL
+name heal~
+skill_level 53 21 33 30 @
+rating 1 1 2 2 @
+spell_fun spell_heal~
+target tar_char_defensive~
+minimum_position fighting~
+pgsn ~
+slot 28
+min_mana 50
+beats 12
+noun_damage ~
+msg_off !Heal!~
+msg_obj ~
+#END
+
+#SKILL
+name heat metal~
+skill_level 53 16 53 23 @
+rating 1 1 2 2 @
+spell_fun spell_heat_metal~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 516
+min_mana 25
+beats 18
+noun_damage spell~
+msg_off !Heat Metal!~
+msg_obj ~
+#END
+
+#SKILL
+name holy word~
+skill_level 53 36 53 42 @
+rating 2 2 4 4 @
+spell_fun spell_holy_word~
+target tar_ignore~
+minimum_position fighting~
+pgsn ~
+slot 506
+min_mana 200
+beats 24
+noun_damage divine wrath~
+msg_off !Holy Word!~
+msg_obj ~
+#END
+
+#SKILL
+name identify~
+skill_level 15 16 18 53 @
+rating 1 1 2 2 @
+spell_fun spell_identify~
+target tar_obj_inv~
+minimum_position standing~
+pgsn ~
+slot 53
+min_mana 12
+beats 24
+noun_damage ~
+msg_off !Identify!~
+msg_obj ~
+#END
+
+#SKILL
+name infravision~
+skill_level 9 13 10 16 @
+rating 1 1 2 2 @
+spell_fun spell_infravision~
+target tar_char_defensive~
+minimum_position standing~
+pgsn ~
+slot 77
+min_mana 5
+beats 18
+noun_damage ~
+msg_off You no longer see in the dark.~
+msg_obj ~
+#END
+
+#SKILL
+name invisibility~
+skill_level 5 53 9 53 @
+rating 1 1 2 2 @
+spell_fun spell_invis~
+target tar_obj_char_def~
+minimum_position standing~
+pgsn gsn_invis~
+slot 29
+min_mana 5
+beats 12
+noun_damage ~
+msg_off You are no longer invisible.~
+msg_obj $p fades into view.~
+#END
+
+#SKILL
+name know alignment~
+skill_level 12 9 20 53 @
+rating 1 1 2 2 @
+spell_fun spell_know_alignment~
+target tar_char_defensive~
+minimum_position fighting~
+pgsn ~
+slot 58
+min_mana 9
+beats 12
+noun_damage ~
+msg_off !Know Alignment!~
+msg_obj ~
+#END
+
+#SKILL
+name lightning bolt~
+skill_level 13 23 18 16 @
+rating 1 1 2 2 @
+spell_fun spell_lightning_bolt~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 30
+min_mana 15
+beats 12
+noun_damage lightning bolt~
+msg_off !Lightning Bolt!~
+msg_obj ~
+#END
+
+#SKILL
+name locate object~
+skill_level 9 15 11 53 @
+rating 1 1 2 2 @
+spell_fun spell_locate_object~
+target tar_ignore~
+minimum_position standing~
+pgsn ~
+slot 31
+min_mana 20
+beats 18
+noun_damage ~
+msg_off !Locate Object!~
+msg_obj ~
+#END
+
+#SKILL
+name magic missile~
+skill_level 1 53 2 2 @
+rating 1 1 2 2 @
+spell_fun spell_magic_missile~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 32
+min_mana 15
+beats 12
+noun_damage magic missile~
+msg_off !Magic Missile!~
+msg_obj ~
+#END
+
+#SKILL
+name mass healing~
+skill_level 53 38 53 46 @
+rating 2 2 4 4 @
+spell_fun spell_mass_healing~
+target tar_ignore~
+minimum_position standing~
+pgsn ~
+slot 508
+min_mana 100
+beats 36
+noun_damage ~
+msg_off !Mass Healing!~
+msg_obj ~
+#END
+
+#SKILL
+name mass invis~
+skill_level 22 25 31 53 @
+rating 1 1 2 2 @
+spell_fun spell_mass_invis~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_mass_invis~
+slot 69
+min_mana 20
+beats 24
+noun_damage ~
+msg_off You are no longer invisible.~
+msg_obj ~
+#END
+
+#SKILL
+name nexus~
+skill_level 40 35 50 45 @
+rating 2 2 4 4 @
+spell_fun spell_nexus~
+target tar_ignore~
+minimum_position standing~
+pgsn ~
+slot 520
+min_mana 150
+beats 36
+noun_damage ~
+msg_off !Nexus!~
+msg_obj ~
+#END
+
+#SKILL
+name pass door~
+skill_level 24 32 25 37 @
+rating 1 1 2 2 @
+spell_fun spell_pass_door~
+target tar_char_self~
+minimum_position standing~
+pgsn ~
+slot 74
+min_mana 20
+beats 12
+noun_damage ~
+msg_off You feel solid again.~
+msg_obj ~
+#END
+
+#SKILL
+name plague~
+skill_level 23 17 36 26 @
+rating 1 1 2 2 @
+spell_fun spell_plague~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn gsn_plague~
+slot 503
+min_mana 20
+beats 12
+noun_damage sickness~
+msg_off Your sores vanish.~
+msg_obj ~
+#END
+
+#SKILL
+name poison~
+skill_level 17 12 15 21 @
+rating 1 1 2 2 @
+spell_fun spell_poison~
+target tar_obj_char_off~
+minimum_position fighting~
+pgsn gsn_poison~
+slot 33
+min_mana 10
+beats 12
+noun_damage poison~
+msg_off You feel less sick.~
+msg_obj The poison on $p dries up.~
+#END
+
+#SKILL
+name portal~
+skill_level 35 30 45 40 @
+rating 2 2 4 4 @
+spell_fun spell_portal~
+target tar_ignore~
+minimum_position standing~
+pgsn ~
+slot 519
+min_mana 100
+beats 24
+noun_damage ~
+msg_off !Portal!~
+msg_obj ~
+#END
+
+#SKILL
+name protection evil~
+skill_level 12 9 17 11 @
+rating 1 1 2 2 @
+spell_fun spell_protection_evil~
+target tar_char_self~
+minimum_position standing~
+pgsn ~
+slot 34
+min_mana 5
+beats 12
+noun_damage ~
+msg_off You feel less protected.~
+msg_obj ~
+#END
+
+#SKILL
+name protection good~
+skill_level 12 9 17 11 @
+rating 1 1 2 2 @
+spell_fun spell_protection_good~
+target tar_char_self~
+minimum_position standing~
+pgsn ~
+slot 514
+min_mana 5
+beats 12
+noun_damage ~
+msg_off You feel less protected.~
+msg_obj ~
+#END
+
+#SKILL
+name ray of truth~
+skill_level 53 35 53 47 @
+rating 1 1 2 2 @
+spell_fun spell_ray_of_truth~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 518
+min_mana 20
+beats 12
+noun_damage ray of truth~
+msg_off !Ray of Truth!~
+msg_obj ~
+#END
+
+#SKILL
+name recharge~
+skill_level 9 53 53 53 @
+rating 1 1 2 2 @
+spell_fun spell_recharge~
+target tar_obj_inv~
+minimum_position standing~
+pgsn ~
+slot 517
+min_mana 60
+beats 24
+noun_damage ~
+msg_off !Recharge!~
+msg_obj ~
+#END
+
+#SKILL
+name refresh~
+skill_level 8 5 12 9 @
+rating 1 1 2 2 @
+spell_fun spell_refresh~
+target tar_char_defensive~
+minimum_position standing~
+pgsn ~
+slot 81
+min_mana 12
+beats 18
+noun_damage refresh~
+msg_off !Refresh!~
+msg_obj ~
+#END
+
+#SKILL
+name remove curse~
+skill_level 53 18 53 22 @
+rating 1 1 2 2 @
+spell_fun spell_remove_curse~
+target tar_obj_char_def~
+minimum_position standing~
+pgsn ~
+slot 35
+min_mana 5
+beats 12
+noun_damage ~
+msg_off !Remove Curse!~
+msg_obj ~
+#END
+
+#SKILL
+name sanctuary~
+skill_level 36 20 42 30 @
+rating 1 1 2 2 @
+spell_fun spell_sanctuary~
+target tar_char_defensive~
+minimum_position standing~
+pgsn gsn_sanctuary~
+slot 36
+min_mana 75
+beats 12
+noun_damage ~
+msg_off The white aura around your body fades.~
+msg_obj ~
+#END
+
+#SKILL
+name shield~
+skill_level 20 35 35 40 @
+rating 1 1 2 2 @
+spell_fun spell_shield~
+target tar_char_defensive~
+minimum_position standing~
+pgsn ~
+slot 67
+min_mana 12
+beats 18
+noun_damage ~
+msg_off Your force shield shimmers then fades away.~
+msg_obj ~
+#END
+
+#SKILL
+name shocking grasp~
+skill_level 10 53 14 13 @
+rating 1 1 2 2 @
+spell_fun spell_shocking_grasp~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 53
+min_mana 15
+beats 12
+noun_damage shocking grasp~
+msg_off !Shocking Grasp!~
+msg_obj ~
+#END
+
+#SKILL
+name sleep~
+skill_level 10 53 11 53 @
+rating 1 1 2 2 @
+spell_fun spell_sleep~
+target tar_char_offensive~
+minimum_position standing~
+pgsn gsn_sleep~
+slot 38
+min_mana 15
+beats 12
+noun_damage ~
+msg_off You feel less tired.~
+msg_obj ~
+#END
+
+#SKILL
+name slow~
+skill_level 23 30 29 32 @
+rating 1 1 2 2 @
+spell_fun spell_slow~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 515
+min_mana 30
+beats 12
+noun_damage ~
+msg_off You feel yourself speed up.~
+msg_obj ~
+#END
+
+#SKILL
+name stone skin~
+skill_level 25 40 40 45 @
+rating 1 1 2 2 @
+spell_fun spell_stone_skin~
+target tar_char_self~
+minimum_position standing~
+pgsn ~
+slot 66
+min_mana 12
+beats 18
+noun_damage ~
+msg_off Your skin feels soft again.~
+msg_obj ~
+#END
+
+#SKILL
+name summon~
+skill_level 24 12 29 22 @
+rating 1 1 2 2 @
+spell_fun spell_summon~
+target tar_ignore~
+minimum_position standing~
+pgsn ~
+slot 40
+min_mana 50
+beats 12
+noun_damage ~
+msg_off !Summon!~
+msg_obj ~
+#END
+
+#SKILL
+name teleport~
+skill_level 13 22 25 36 @
+rating 1 1 2 2 @
+spell_fun spell_teleport~
+target tar_char_self~
+minimum_position fighting~
+pgsn ~
+slot 2
+min_mana 35
+beats 12
+noun_damage ~
+msg_off !Teleport!~
+msg_obj ~
+#END
+
+#SKILL
+name ventriloquate~
+skill_level 1 53 2 53 @
+rating 1 1 2 2 @
+spell_fun spell_ventriloquate~
+target tar_ignore~
+minimum_position standing~
+pgsn ~
+slot 41
+min_mana 5
+beats 12
+noun_damage ~
+msg_off !Ventriloquate!~
+msg_obj ~
+#END
+
+#SKILL
+name weaken~
+skill_level 11 14 16 17 @
+rating 1 1 2 2 @
+spell_fun spell_weaken~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 68
+min_mana 20
+beats 12
+noun_damage spell~
+msg_off You feel stronger.~
+msg_obj ~
+#END
+
+#SKILL
+name word of recall~
+skill_level 32 28 40 30 @
+rating 1 1 2 2 @
+spell_fun spell_word_of_recall~
+target tar_char_self~
+minimum_position resting~
+pgsn ~
+slot 42
+min_mana 5
+beats 12
+noun_damage ~
+msg_off !Word of Recall!~
+msg_obj ~
+#END
+
+#SKILL
+name acid breath~
+skill_level 31 32 33 34 @
+rating 1 1 2 2 @
+spell_fun spell_acid_breath~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 200
+min_mana 100
+beats 24
+noun_damage blast of acid~
+msg_off !Acid Breath!~
+msg_obj ~
+#END
+
+#SKILL
+name fire breath~
+skill_level 40 45 50 51 @
+rating 1 1 2 2 @
+spell_fun spell_fire_breath~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 201
+min_mana 200
+beats 24
+noun_damage blast of flame~
+msg_off The smoke leaves your eyes.~
+msg_obj ~
+#END
+
+#SKILL
+name frost breath~
+skill_level 34 36 38 40 @
+rating 1 1 2 2 @
+spell_fun spell_frost_breath~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 202
+min_mana 125
+beats 24
+noun_damage blast of frost~
+msg_off !Frost Breath!~
+msg_obj ~
+#END
+
+#SKILL
+name gas breath~
+skill_level 39 43 47 50 @
+rating 1 1 2 2 @
+spell_fun spell_gas_breath~
+target tar_ignore~
+minimum_position fighting~
+pgsn ~
+slot 203
+min_mana 175
+beats 24
+noun_damage blast of gas~
+msg_off !Gas Breath!~
+msg_obj ~
+#END
+
+#SKILL
+name lightning breath~
+skill_level 37 40 43 46 @
+rating 1 1 2 2 @
+spell_fun spell_lightning_breath~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 204
+min_mana 150
+beats 24
+noun_damage blast of lightning~
+msg_off !Lightning Breath!~
+msg_obj ~
+#END
+
+#SKILL
+name general purpose~
+skill_level 53 53 53 53 @
+rating 0 0 0 0 @
+spell_fun spell_general_purpose~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 401
+min_mana 0
+beats 12
+noun_damage general purpose ammo~
+msg_off !General Purpose Ammo!~
+msg_obj ~
+#END
+
+#SKILL
+name high explosive~
+skill_level 53 53 53 53 @
+rating 0 0 0 0 @
+spell_fun spell_high_explosive~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn ~
+slot 402
+min_mana 0
+beats 12
+noun_damage high explosive ammo~
+msg_off !High Explosive Ammo!~
+msg_obj ~
+#END
+
+#SKILL
+name axe~
+skill_level 1 1 1 1 @
+rating 6 6 5 4 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_axe~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off !Axe!~
+msg_obj ~
+#END
+
+#SKILL
+name dagger~
+skill_level 1 1 1 1 @
+rating 2 3 2 2 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_dagger~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off !Dagger!~
+msg_obj ~
+#END
+
+#SKILL
+name flail~
+skill_level 1 1 1 1 @
+rating 6 3 6 4 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_flail~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off !Flail!~
+msg_obj ~
+#END
+
+#SKILL
+name mace~
+skill_level 1 1 1 1 @
+rating 5 2 3 3 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_mace~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off !Mace!~
+msg_obj ~
+#END
+
+#SKILL
+name polearm~
+skill_level 1 1 1 1 @
+rating 6 6 6 4 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_polearm~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off !Polearm!~
+msg_obj ~
+#END
+
+#SKILL
+name shield block~
+skill_level 1 1 1 1 @
+rating 6 4 6 2 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_shield_block~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off !Shield!~
+msg_obj ~
+#END
+
+#SKILL
+name spear~
+skill_level 1 1 1 1 @
+rating 4 4 4 3 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_spear~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off !Spear!~
+msg_obj ~
+#END
+
+#SKILL
+name sword~
+skill_level 1 1 1 1 @
+rating 5 6 3 2 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_sword~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off !sword!~
+msg_obj ~
+#END
+
+#SKILL
+name whip~
+skill_level 1 1 1 1 @
+rating 6 5 5 4 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_whip~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off !Whip!~
+msg_obj ~
+#END
+
+#SKILL
+name backstab~
+skill_level 53 53 1 53 @
+rating 0 0 5 0 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_backstab~
+slot 0
+min_mana 0
+beats 24
+noun_damage backstab~
+msg_off !Backstab!~
+msg_obj ~
+#END
+
+#SKILL
+name bash~
+skill_level 53 53 53 1 @
+rating 0 0 0 4 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_bash~
+slot 0
+min_mana 0
+beats 24
+noun_damage bash~
+msg_off !Bash!~
+msg_obj ~
+#END
+
+#SKILL
+name berserk~
+skill_level 53 53 53 18 @
+rating 0 0 0 5 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_berserk~
+slot 0
+min_mana 0
+beats 24
+noun_damage ~
+msg_off You feel your pulse slow down.~
+msg_obj ~
+#END
+
+#SKILL
+name dirt kicking~
+skill_level 53 53 3 3 @
+rating 0 0 4 4 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_dirt~
+slot 0
+min_mana 0
+beats 24
+noun_damage kicked dirt~
+msg_off You rub the dirt out of your eyes.~
+msg_obj ~
+#END
+
+#SKILL
+name disarm~
+skill_level 53 53 12 11 @
+rating 0 0 6 4 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_disarm~
+slot 0
+min_mana 0
+beats 24
+noun_damage ~
+msg_off !Disarm!~
+msg_obj ~
+#END
+
+#SKILL
+name dodge~
+skill_level 20 22 1 13 @
+rating 8 8 4 6 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_dodge~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off !Dodge!~
+msg_obj ~
+#END
+
+#SKILL
+name enhanced damage~
+skill_level 45 30 25 1 @
+rating 10 9 5 3 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_enhanced_damage~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off !Enhanced Damage!~
+msg_obj ~
+#END
+
+#SKILL
+name envenom~
+skill_level 53 53 10 53 @
+rating 0 0 4 0 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position resting~
+pgsn gsn_envenom~
+slot 0
+min_mana 0
+beats 36
+noun_damage ~
+msg_off !Envenom!~
+msg_obj ~
+#END
+
+#SKILL
+name hand to hand~
+skill_level 25 10 15 6 @
+rating 8 5 6 4 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_hand_to_hand~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off !Hand to Hand!~
+msg_obj ~
+#END
+
+#SKILL
+name kick~
+skill_level 53 12 14 8 @
+rating 0 4 6 3 @
+spell_fun spell_null~
+target tar_char_offensive~
+minimum_position fighting~
+pgsn gsn_kick~
+slot 0
+min_mana 0
+beats 12
+noun_damage kick~
+msg_off !Kick!~
+msg_obj ~
+#END
+
+#SKILL
+name parry~
+skill_level 22 20 13 1 @
+rating 8 8 6 4 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_parry~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off !Parry!~
+msg_obj ~
+#END
+
+#SKILL
+name rescue~
+skill_level 53 53 53 1 @
+rating 0 0 0 4 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_rescue~
+slot 0
+min_mana 0
+beats 12
+noun_damage ~
+msg_off !Rescue!~
+msg_obj ~
+#END
+
+#SKILL
+name trip~
+skill_level 53 53 1 15 @
+rating 0 0 4 8 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_trip~
+slot 0
+min_mana 0
+beats 24
+noun_damage trip~
+msg_off !Trip!~
+msg_obj ~
+#END
+
+#SKILL
+name second attack~
+skill_level 30 24 12 5 @
+rating 10 8 5 3 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_second_attack~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off !Second Attack!~
+msg_obj ~
+#END
+
+#SKILL
+name third attack~
+skill_level 53 53 24 12 @
+rating 0 0 10 4 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_third_attack~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off !Third Attack!~
+msg_obj ~
+#END
+
+#SKILL
+name fast healing~
+skill_level 15 9 16 6 @
+rating 8 5 6 4 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position sleeping~
+pgsn gsn_fast_healing~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off !Fast Healing!~
+msg_obj ~
+#END
+
+#SKILL
+name haggle~
+skill_level 7 18 1 14 @
+rating 5 8 3 6 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position resting~
+pgsn gsn_haggle~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off !Haggle!~
+msg_obj ~
+#END
+
+#SKILL
+name hide~
+skill_level 53 53 1 12 @
+rating 0 0 4 6 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position resting~
+pgsn gsn_hide~
+slot 0
+min_mana 0
+beats 12
+noun_damage ~
+msg_off !Hide!~
+msg_obj ~
+#END
+
+#SKILL
+name lore~
+skill_level 10 10 6 20 @
+rating 6 6 4 8 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position resting~
+pgsn gsn_lore~
+slot 0
+min_mana 0
+beats 36
+noun_damage ~
+msg_off !Lore!~
+msg_obj ~
+#END
+
+#SKILL
+name meditation~
+skill_level 6 6 15 15 @
+rating 5 5 8 8 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position sleeping~
+pgsn gsn_meditation~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off Meditation~
+msg_obj ~
+#END
+
+#SKILL
+name peek~
+skill_level 8 21 1 14 @
+rating 5 7 3 6 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_peek~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off !Peek!~
+msg_obj ~
+#END
+
+#SKILL
+name pick lock~
+skill_level 25 25 7 25 @
+rating 8 8 4 8 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_pick_lock~
+slot 0
+min_mana 0
+beats 12
+noun_damage ~
+msg_off !Pick!~
+msg_obj ~
+#END
+
+#SKILL
+name sneak~
+skill_level 53 53 4 10 @
+rating 0 0 4 6 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_sneak~
+slot 0
+min_mana 0
+beats 12
+noun_damage ~
+msg_off You no longer feel stealthy.~
+msg_obj ~
+#END
+
+#SKILL
+name steal~
+skill_level 53 53 5 53 @
+rating 0 0 4 0 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_steal~
+slot 0
+min_mana 0
+beats 24
+noun_damage ~
+msg_off !Steal!~
+msg_obj ~
+#END
+
+#SKILL
+name scrolls~
+skill_level 1 1 1 1 @
+rating 2 3 5 8 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_scrolls~
+slot 0
+min_mana 0
+beats 24
+noun_damage ~
+msg_off !Scrolls!~
+msg_obj ~
+#END
+
+#SKILL
+name staves~
+skill_level 1 1 1 1 @
+rating 2 3 5 8 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_staves~
+slot 0
+min_mana 0
+beats 12
+noun_damage ~
+msg_off !Staves!~
+msg_obj ~
+#END
+
+#SKILL
+name wands~
+skill_level 1 1 1 1 @
+rating 2 3 5 8 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_wands~
+slot 0
+min_mana 0
+beats 12
+noun_damage ~
+msg_off !Wands!~
+msg_obj ~
+#END
+
+#SKILL
+name recall~
+skill_level 1 1 1 1 @
+rating 2 2 2 2 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_recall~
+slot 0
+min_mana 0
+beats 12
+noun_damage ~
+msg_off !Recall!~
+msg_obj ~
+#END
+
+#SKILL
+name ~
+skill_level 0 0 0 0 @
+rating 0 0 0 0 @
+spell_fun ~
+target tar_ignore~
+minimum_position dead~
+pgsn ~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off ~
+msg_obj ~
+#END
+
+#SKILL
+name ~
+skill_level 0 0 0 0 @
+rating 0 0 0 0 @
+spell_fun ~
+target tar_ignore~
+minimum_position dead~
+pgsn ~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off ~
+msg_obj ~
+#END
+
+#SKILL
+name ~
+skill_level 0 0 0 0 @
+rating 0 0 0 0 @
+spell_fun ~
+target tar_ignore~
+minimum_position dead~
+pgsn ~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off ~
+msg_obj ~
+#END
+
+#SKILL
+name ~
+skill_level 0 0 0 0 @
+rating 0 0 0 0 @
+spell_fun ~
+target tar_ignore~
+minimum_position dead~
+pgsn ~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off ~
+msg_obj ~
+#END
+
+#SKILL
+name ~
+skill_level 0 0 0 0 @
+rating 0 0 0 0 @
+spell_fun ~
+target tar_ignore~
+minimum_position dead~
+pgsn ~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off ~
+msg_obj ~
+#END
+
+#SKILL
+name ~
+skill_level 0 0 0 0 @
+rating 0 0 0 0 @
+spell_fun ~
+target tar_ignore~
+minimum_position dead~
+pgsn ~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off ~
+msg_obj ~
+#END
+
+#SKILL
+name ~
+skill_level 0 0 0 0 @
+rating 0 0 0 0 @
+spell_fun ~
+target tar_ignore~
+minimum_position dead~
+pgsn ~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off ~
+msg_obj ~
+#END
+
+#SKILL
+name ~
+skill_level 0 0 0 0 @
+rating 0 0 0 0 @
+spell_fun ~
+target tar_ignore~
+minimum_position dead~
+pgsn ~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off ~
+msg_obj ~
+#END
+
+#SKILL
+name ~
+skill_level 0 0 0 0 @
+rating 0 0 0 0 @
+spell_fun ~
+target tar_ignore~
+minimum_position dead~
+pgsn ~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off ~
+msg_obj ~
+#END
+
+#SKILL
+name ~
+skill_level 0 0 0 0 @
+rating 0 0 0 0 @
+spell_fun ~
+target tar_ignore~
+minimum_position dead~
+pgsn ~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off ~
+msg_obj ~
+#END
+
+#SKILL
+name ~
+skill_level 0 0 0 0 @
+rating 0 0 0 0 @
+spell_fun ~
+target tar_ignore~
+minimum_position dead~
+pgsn ~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off ~
+msg_obj ~
+#END
+
+#SKILL
+name ~
+skill_level 0 0 0 0 @
+rating 0 0 0 0 @
+spell_fun ~
+target tar_ignore~
+minimum_position dead~
+pgsn ~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off ~
+msg_obj ~
+#END
+
+#SKILL
+name ~
+skill_level 0 0 0 0 @
+rating 0 0 0 0 @
+spell_fun ~
+target tar_ignore~
+minimum_position dead~
+pgsn ~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off ~
+msg_obj ~
+#END
+
+#SKILL
+name ~
+skill_level 0 0 0 0 @
+rating 0 0 0 0 @
+spell_fun ~
+target tar_ignore~
+minimum_position dead~
+pgsn ~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off ~
+msg_obj ~
+#END
+
+#SKILL
+name ~
+skill_level 0 0 0 0 @
+rating 0 0 0 0 @
+spell_fun ~
+target tar_ignore~
+minimum_position dead~
+pgsn ~
+slot 0
+min_mana 0
+beats 0
+noun_damage ~
+msg_off ~
+msg_obj ~
+#END
+
+#!

@@ -48,7 +48,7 @@ void substitute_alias(DESCRIPTOR_DATA* d, char* argument)
     /* check for prefix */
     if (ch->prefix[0] != '\0' && str_prefix("prefix", argument)) {
         if (strlen(ch->prefix) + strlen(argument) > MAX_INPUT_LENGTH)
-            send_to_char("Line to long, prefix not processed.\r\n", ch);
+            send_to_char("Line too long, prefix not processed.\r\n", ch);
         else {
             sprintf(prefix, "%s %s", ch->prefix, argument);
             argument = prefix;
@@ -58,7 +58,8 @@ void substitute_alias(DESCRIPTOR_DATA* d, char* argument)
     if (IS_NPC(ch) || ch->pcdata->alias[0] == NULL
         || !str_prefix("alias", argument) || !str_prefix("una", argument)
         || !str_prefix("prefix", argument)) {
-        interpret(d->character, argument);
+        if (!run_olc_editor(d, argument))
+            interpret(d->character, argument);
         return;
     }
 
@@ -85,7 +86,8 @@ void substitute_alias(DESCRIPTOR_DATA* d, char* argument)
             }
         }
     }
-    interpret(d->character, buf);
+    if (!run_olc_editor(d, buf))
+        interpret(d->character, buf);
 }
 
 void do_alia(CHAR_DATA* ch, char* argument)

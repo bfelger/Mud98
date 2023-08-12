@@ -62,6 +62,12 @@ typedef struct descriptor_data {
     ptrdiff_t outtop;
     char* showstr_head;
     char* showstr_point;
+    uintptr_t pEdit;    // OLC
+    char** pString; // OLC
+    int16_t editor; // OLC
+    int16_t page;
+    char* screenmap;
+    char* oldscreenmap;
 } DESCRIPTOR_DATA;
 
 bool can_write(DESCRIPTOR_DATA* d, PollData* poll_data);

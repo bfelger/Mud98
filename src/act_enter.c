@@ -186,6 +186,14 @@ void do_enter(CHAR_DATA* ch, char* argument)
             }
             extract_obj(portal);
         }
+
+        // If someone is following the char, these triggers get activated for 
+        // the followers before the char, but it's safer this way...
+        if (IS_NPC(ch) && HAS_TRIGGER(ch, TRIG_ENTRY))
+            mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_ENTRY);
+        if (!IS_NPC(ch))
+            mp_greet_trigger(ch);
+
         return;
     }
 

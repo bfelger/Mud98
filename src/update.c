@@ -373,6 +373,24 @@ void mobile_update(void)
                     += ch->pIndexData->wealth * number_range(1, 20) / 50000;
             }
 
+        /*
+         * Check triggers only if mobile still in default position
+         */
+        if (ch->position == ch->pIndexData->default_pos) {
+            /* Delay */
+            if (HAS_TRIGGER(ch, TRIG_DELAY)
+                && ch->mprog_delay > 0) {
+                if (--ch->mprog_delay <= 0) {
+                    mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_DELAY);
+                    continue;
+                }
+            }
+            if (HAS_TRIGGER(ch, TRIG_RANDOM)) {
+                if (mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_RANDOM))
+                    continue;
+            }
+        }
+
         /* That's all for sleeping / busy monster, and empty zones */
         if (ch->position != POS_STANDING) continue;
 
