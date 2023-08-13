@@ -5,13 +5,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#ifndef ROM__STRINGS_H
-#define ROM__STRINGS_H
+#ifndef MUD98__STRINGS_H
+#define MUD98__STRINGS_H
 
 #include <ctype.h>
 #include <inttypes.h>
 
-// All strings in ROM are 7-bit POSIX Locale, with the sign bit reserved for 
+// All strings in Mud98 are 7-bit POSIX Locale, with the sign bit reserved for 
 // special telnet characters. These macros keep 'ctype.h' functions copacetic
 // with char* strings under -Wall.
 
@@ -41,4 +41,4 @@
 #endif
 
 
-#endif // !ROM__STRINGS_H
+#endif // !MUD98__STRINGS_H

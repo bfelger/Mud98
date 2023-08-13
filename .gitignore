@@ -7,3 +7,10 @@ src/rom*
 src/.build
 src/CMakeSettings.json
 src/out/
+temp/*
+gods/
+keys/*.crt
+keys/*.csr
+keys/*.key
+keys/*.pem
+olc2.1e/*

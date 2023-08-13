@@ -26,8 +26,8 @@
  ***************************************************************************/
 
 #pragma once
-#ifndef ROM__TABLES_H
-#define ROM__TABLES_H
+#ifndef MUD98__TABLES_H
+#define MUD98__TABLES_H
 
 #include "merc.h"
 
@@ -124,4 +124,4 @@ struct recval_type {
     int bondam;
 };
 
-#endif // !ROM__TABLES_H
+#endif // !MUD98__TABLES_H

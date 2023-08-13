@@ -3,8 +3,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#ifndef ROM__COMM_H
-#define ROM__COMM_H
+#ifndef MUD98__COMM_H
+#define MUD98__COMM_H
 
 #define MAX_HANDSHAKES 10
 
@@ -90,4 +90,4 @@ bool write_to_descriptor(DESCRIPTOR_DATA* d, char* txt, size_t length);
 void PrintLastWinSockError();
 #endif
 
-#endif // ROM__COMM_H
+#endif // MUD98__COMM_H

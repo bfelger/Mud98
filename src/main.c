@@ -57,9 +57,6 @@
 #include <string.h>
 #include <sys/time.h>
 #include <unistd.h>
-#ifndef _XOPEN_CRYPT
-#include <crypt.h>
-#endif
 #endif
 
 // Global variables.
@@ -199,7 +196,7 @@ int main(int argc, char** argv)
 
     if (!rt_opt_noloop) {
         init_server(&server, port);
-        sprintf(log_buf, "ROM is ready to rock on port %d.", port);
+        sprintf(log_buf, MUD_NAME " is ready to rock on port %d.", port);
         log_string(log_buf);
         game_loop(&server);
 

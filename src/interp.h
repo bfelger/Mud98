@@ -26,8 +26,8 @@
  ***************************************************************************/
 
 #pragma once
-#ifndef ROM__INTERP_H
-#define ROM__INTERP_H
+#ifndef MUD98__INTERP_H
+#define MUD98__INTERP_H
 
 #include "merc.h"
 
@@ -74,4 +74,4 @@ extern size_t MAX_CMD;
 
 #include "command.h"
 
-#endif // !ROM__INTERP_H
+#endif // !MUD98__INTERP_H

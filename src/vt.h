@@ -3,8 +3,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#ifndef ROM__VT_H
-#define ROM__VT_H
+#ifndef MUD98__VT_H
+#define MUD98__VT_H
 
 #define VT_SAVECURSOR			"\0337"     // Save cursor and attrib
 #define VT_RESTORECURSOR		"\0338"     // Restore cursor pos and attribs
@@ -29,4 +29,4 @@
 #define VT_CURSAVE    			"\0337"
 #define VT_CURREST    			"\0338"
 
-#endif // !ROM__VT_H
+#endif // !MUD98__VT_H

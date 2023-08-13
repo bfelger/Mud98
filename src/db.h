@@ -26,8 +26,8 @@
  ***************************************************************************/
 
 #pragma once
-#ifndef ROM__DB_H
-#define ROM__DB_H
+#ifndef MUD98__DB_H
+#define MUD98__DB_H
 
 #include "merc.h"
 
@@ -64,4 +64,4 @@ extern AREA_DATA* area_first;
 /* from db2.c */
 extern int social_count;
 
-#endif // !ROM__DB_H
+#endif // !MUD98__DB_H

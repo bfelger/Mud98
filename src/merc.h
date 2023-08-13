@@ -26,8 +26,11 @@
  ***************************************************************************/
 
 #pragma once
-#ifndef ROM__MERC_H
-#define ROM__MERC_H
+#ifndef MUD98__MERC_H
+#define MUD98__MERC_H
+
+#define MUD_NAME "Mud98"
+#define MUD_VER "0.90"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -37,8 +40,6 @@
 #ifndef _MSC_VER
 #include <stddef.h>
 #endif
-
-#include <openssl/sha.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 // Data files used by the server.
@@ -2026,16 +2027,6 @@ extern WEATHER_DATA weather_info;
 extern bool MOBtrigger;
 
 /*
- * The crypt(3) function is not available on some operating systems.
- * In particular, the U.S. Government prohibits its export from the
- *   United States to foreign countries.
- * Turn on NOCRYPT to keep passwords in plain text.
- */
-#if defined(NOCRYPT)
-#define crypt(s1, s2) (s1)
-#endif
-
-/*
  * Our function prototypes.
  * One big lump ... this is every function in Merc.
  */
@@ -2413,4 +2404,4 @@ extern MOB_INDEX_DATA* mob_index_hash[MAX_KEY_HASH];
 extern OBJ_INDEX_DATA* obj_index_hash[MAX_KEY_HASH];
 extern ROOM_INDEX_DATA* room_index_hash[MAX_KEY_HASH];
 
-#endif // !ROM__MERC_H
+#endif // !MUD98__MERC_H

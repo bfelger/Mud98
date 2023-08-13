@@ -484,7 +484,8 @@ void free_pcdata(PC_DATA* pcdata)
 {
     int alias;
 
-    if (!IS_VALID(pcdata)) return;
+    if (!IS_VALID(pcdata))
+        return;
 
 #if !defined(FIRST_BOOT)
     free_learned(pcdata->learned);

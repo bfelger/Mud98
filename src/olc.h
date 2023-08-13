@@ -18,8 +18,8 @@
  */
 
 #pragma once
-#ifndef ROM__OLC_H
-#define ROM__OLC_H
+#ifndef MUD98__OLC_H
+#define MUD98__OLC_H
 
 #include "tables.h"
 #include "tablesave.h"
@@ -435,4 +435,4 @@ extern		    OBJ_INDEX_DATA		xObj;
 
 extern void     InitScreen		    args((DESCRIPTOR_DATA*));
 
-#endif // !ROM__OLC_H
+#endif // !MUD98__OLC_H

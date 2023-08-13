@@ -356,7 +356,8 @@ void boot_db(void)
         int sn;
 
         for (sn = 0; sn < MAX_SKILL; sn++) {
-            if (skill_table[sn].pgsn != NULL) *skill_table[sn].pgsn = sn;
+            if (skill_table[sn].pgsn != NULL) 
+                *skill_table[sn].pgsn = sn;
         }
     }
 
@@ -434,7 +435,8 @@ void boot_db(void)
                 }
             }
 
-            if (fpArea != stdin) fclose(fpArea);
+            if (fpArea != stdin) 
+                fclose(fpArea);
             fpArea = NULL;
         }
         fclose(fpList);
@@ -2801,7 +2803,8 @@ char* fread_word(FILE* fp)
     for (; pword < word + MAX_INPUT_LENGTH; pword++) {
         *pword = getc(fp);
         if (cEnd == ' ' ? ISSPACE(*pword) : *pword == cEnd) {
-            if (cEnd == ' ') ungetc(*pword, fp);
+            if (cEnd == ' ') 
+                ungetc(*pword, fp);
             *pword = '\0';
             return word;
         }

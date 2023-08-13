@@ -1536,7 +1536,7 @@ void do_time(CHAR_DATA* ch, char* argument)
             time_info.hour >= 12 ? "pm" : "am", day_name[day % 7], day, suf,
             month_name[time_info.month]);
     send_to_char(buf, ch);
-    sprintf(buf, "ROM started up at %s\n\rThe system time is %s.\n\r",
+    sprintf(buf, "Mud98 started up at %s\n\rThe system time is %s.\n\r",
             str_boot_time, (char*)ctime(&current_time));
 
     send_to_char(buf, ch);

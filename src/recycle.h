@@ -26,8 +26,8 @@
  ***************************************************************************/
 
 #pragma once
-#ifndef ROM__RECYCLE_H
-#define ROM__RECYCLE_H
+#ifndef MUD98__RECYCLE_H
+#define MUD98__RECYCLE_H
 
 #include "merc.h"
 
@@ -141,4 +141,4 @@ void free_boolarray(bool*);
 extern char str_empty[1];
 extern int mobile_count;
 
-#endif // !ROM__RECYCLE_H
+#endif // !MUD98__RECYCLE_H

@@ -74,23 +74,11 @@
 #define CLOSE_SOCKET close
 #define SOCKLEN socklen_t
 #define SOCKET int
-#ifndef _XOPEN_CRYPT
-#include <crypt.h>
-#endif
 #endif
 
 const char echo_off_str[] = { IAC, WILL, TELOPT_ECHO, '\0' };
 const char echo_on_str[] = { IAC, WONT, TELOPT_ECHO, '\0' };
 const char go_ahead_str[] = { IAC, GA, '\0' };
-
-/*
- * Malloc debugging stuff.
- */
-#if defined(MALLOC_DEBUG)
-#include <malloc.h>
-extern int malloc_debug args((int));
-extern int malloc_verify args((void));
-#endif
 
 DESCRIPTOR_DATA* descriptor_list;           // All open descriptors
 DESCRIPTOR_DATA* d_next;                    // Next descriptor in loop
@@ -1345,10 +1333,8 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
         write_to_buffer(d, "\n\r", 2);
 
         if (strlen(argument) < 5) {
-            write_to_buffer(
-                d,
-                "Password must be at least five characters long.\n\rPassword: ",
-                0);
+            write_to_buffer(d, "Password must be at least five characters long."
+                "\n\rPassword: ", 0);
             return;
         }
 
@@ -1366,8 +1352,8 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
         write_to_buffer(d, "\n\r", 2);
 
         if (!validate_password(argument, ch)) {
-            write_to_buffer(d,
-                "Passwords don't match.\n\rRetype password: ", 0);
+            write_to_buffer(d, "Passwords don't match.\n\r"
+                "Retype password: ", 0);
             d->connected = CON_GET_NEW_PASSWORD;
             return;
         }
@@ -1665,7 +1651,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
 
     case CON_READ_MOTD:
         write_to_buffer(
-            d, "\n\rWelcome to ROM 2.4.  Please do not feed the mobiles.\n\r",
+            d, "\n\rWelcome to " MUD_NAME " " MUD_VER ".  Please do not feed the mobiles.\n\r",
             0);
         ch->next = char_list;
         char_list = ch;

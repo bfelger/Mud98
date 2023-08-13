@@ -3,8 +3,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#ifndef ROM__TABLESAVE_H
-#define ROM__TABLESAVE_H
+#ifndef MUD98__TABLESAVE_H
+#define MUD98__TABLESAVE_H
 
 void save_skills();
 void save_races();
@@ -19,4 +19,4 @@ void load_socials_table();
 void load_skills_table();
 void load_groups();
 
-#endif // !ROM__TABLESAVE_H
+#endif // !MUD98__TABLESAVE_H

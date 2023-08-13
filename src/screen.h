@@ -3,8 +3,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#ifndef ROM__SCREEN_H
-#define ROM__SCREEN_H
+#ifndef MUD98__SCREEN_H
+#define MUD98__SCREEN_H
 
 void InitScreen(DESCRIPTOR_DATA *);
 void InitScreenMap(DESCRIPTOR_DATA *);
@@ -40,4 +40,4 @@ typedef char * STRFUNC ( void * );
 
 extern STRFUNC areaname;
 
-#endif // !ROM__SCREEN_H
+#endif // !MUD98__SCREEN_H
