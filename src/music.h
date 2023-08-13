@@ -26,8 +26,8 @@
  ***************************************************************************/
 
 #pragma once
-#ifndef ROM__MUSIC_H
-#define ROM__MUSIC_H
+#ifndef MUD98__MUSIC_H
+#define MUD98__MUSIC_H
 
 #include "merc.h"
 
@@ -47,4 +47,4 @@ void load_songs args((void));
 
 extern struct song_data song_table[MAX_SONGS];
 
-#endif // !ROM__MUSIC_H
+#endif // !MUD98__MUSIC_H

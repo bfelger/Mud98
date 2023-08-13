@@ -5,8 +5,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#ifndef ROM__BENCHMARK_H
-#define ROM__BENCHMARK_H
+#ifndef MUD98__BENCHMARK_H
+#define MUD98__BENCHMARK_H
 
 #include <stdbool.h>
 #include <time.h>
@@ -21,4 +21,4 @@ struct timespec elapsed(Timer* timer);
 void start_timer(Timer* timer);
 void stop_timer(Timer* timer);
 
-#endif // !ROM__BENCHMARK_H
+#endif // !MUD98__BENCHMARK_H

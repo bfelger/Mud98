@@ -25,8 +25,9 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "magic.h"
 #include "merc.h"
+
+#include "magic.h"
 
 #include <stdio.h>
 #include <stdlib.h>

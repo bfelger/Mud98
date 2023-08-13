@@ -1,8 +1,15 @@
-#AREA
-wyvern.are~
-Wyvern's Tower~
-{ 5 30} Tyrst   Wyvern's Tower~
-1600 1799
+#AREADATA
+Name Wyvern's Tower~
+Builders None~
+VNUMs 1600 1799
+Credits { 5 30} Tyrst   Wyvern's Tower~
+Security 9
+Low 0
+High 0
+Version 1
+End
+
+
 
 #MOBILES
 #1601
@@ -18,7 +25,7 @@ ABFG 0 -300 0
 5 5 5 9
 EFNU 0 0 0
 stand stand none 1
-0 0 medium 0
+0 0 medium '0'
 #1602
 oldstyle stone gargoyle~
 the stone gargoyle~
@@ -32,7 +39,7 @@ ABFGH 0 -400 0
 2 2 2 8
 EFNU 0 0 0
 stand stand male 20
-0 0 medium 0
+0 0 medium '0'
 #1603
 oldstyle angry gargoyle~
 an angry gargoyle~
@@ -46,7 +53,7 @@ ACFG 0 -600 0
 1 1 1 8
 EFNU 0 0 0
 stand stand male 25
-0 0 medium 0
+0 0 medium '0'
 #1604
 oldstyle elite gargoyle~
 the elite gargoyle~
@@ -60,7 +67,7 @@ ABC 0 -600 0
 0 0 0 8
 EFNU 0 0 0
 stand stand male 40
-0 0 medium 0
+0 0 medium '0'
 #1605
 oldstyle gargoyle shaman~
 the gargoyle shaman~
@@ -74,7 +81,7 @@ ABCGQ DF -900 0
 -1 -1 -1 7
 EIKU 0 0 0
 stand stand female 150
-0 0 medium 0
+0 0 medium '0'
 #1606
 oldstyle carnivorous plant~
 a carnivorous plant~
@@ -88,7 +95,7 @@ ABFG 0 0 0
 2 2 2 8
 EFNU 0 0 0
 stand stand none 0
-0 0 medium 0
+0 0 medium '0'
 #1607
 oldstyle gruesome ogre~
 a gruesome ogre~
@@ -102,7 +109,7 @@ ABCFG 0 -200 0
 1 1 1 8
 EFNU 0 0 0
 sit stand none 60
-0 0 medium 0
+0 0 medium '0'
 #1608
 oldstyle shadow~
 a shadow~
@@ -116,7 +123,7 @@ ACFG BDF -1000 0
 1 1 1 8
 EFNU 0 0 0
 stand stand none 45
-0 0 medium 0
+0 0 medium '0'
 #1609
 oldstyle evil wight~
 an evil wight~
@@ -130,7 +137,7 @@ ABCFG DF -1000 0
 0 0 0 8
 EFNU 0 0 0
 stand stand male 110
-0 0 medium 0
+0 0 medium '0'
 #1610
 oldstyle burly minotaur~
 A burly minotaur~
@@ -144,7 +151,7 @@ ACG D -600 0
 -1 -1 -1 8
 EFNU 0 0 0
 stand stand male 75
-0 0 medium 0
+0 0 medium '0'
 #1612
 oldstyle savage minotaur~
 the savage minotaur~
@@ -158,7 +165,7 @@ ABCFG D -600 0
 -2 -2 -2 7
 EFNU 0 0 0
 stand stand male 0
-0 0 medium 0
+0 0 medium '0'
 #1613
 oldstyle minotaur captain~
 the captain~
@@ -172,7 +179,7 @@ ABCFG D -900 0
 -3 -3 -3 7
 EFNU 0 0 0
 stand stand male 0
-0 0 medium 0
+0 0 medium '0'
 #1614
 oldstyle black pudding~
 the black pudding~
@@ -186,7 +193,7 @@ ACFG 0 -1000 0
 -2 -2 -2 7
 EFNU 0 0 0
 stand stand none 0
-0 0 medium 0
+0 0 medium '0'
 #1615
 oldstyle lesser golem~
 a lesser golem~
@@ -200,7 +207,7 @@ ABG D 0 0
 -2 -2 -2 7
 EFNU 0 0 0
 stand stand none 0
-0 0 medium 0
+0 0 medium '0'
 #1616
 oldstyle ancient wyvern~
 the ancient wyvern~
@@ -214,7 +221,7 @@ ACFG DF -1000 0
 -3 -3 -3 7
 EFNU 0 0 0
 stand rest male 0
-0 0 medium 0
+0 0 medium '0'
 #1617
 oldstyle spectre~
 the spectre~
@@ -228,7 +235,7 @@ ACFG BDH -1000 0
 -4 -4 -4 7
 EFNU 0 0 0
 stand stand male 0
-0 0 medium 0
+0 0 medium '0'
 #1702
 oldstyle trapper~
 a trapper~
@@ -242,7 +249,7 @@ AC 0 0 0
 4 4 4 9
 EFNU 0 0 0
 stand stand male 6
-0 0 medium 0
+0 0 medium '0'
 #1704
 oldstyle hunter~
 a hunter~
@@ -256,7 +263,7 @@ AC 0 0 0
 3 3 3 9
 EFNU 0 0 0
 rest stand male 6
-0 0 medium 0
+0 0 medium '0'
 #1706
 oldstyle ranger~
 a ranger~
@@ -270,7 +277,7 @@ ACG D 200 0
 0 0 0 8
 EFNU 0 0 0
 rest stand male 0
-0 0 medium 0
+0 0 medium '0'
 #1707
 oldstyle ranger leader~
 a ranger leader~
@@ -284,7 +291,7 @@ ABC D 300 0
 -2 -2 -2 7
 EFNU 0 0 0
 stand stand male 0
-0 0 medium 0
+0 0 medium '0'
 #1708
 oldstyle ranger lord~
 the Lord of the Rangers~
@@ -297,7 +304,7 @@ ABC D 400 0
 -4 -4 -4 7
 EFNU 0 0 0
 stand stand male 0
-0 0 medium 0
+0 0 medium '0'
 #1710
 oldstyle male centaur~
 a centaur~
@@ -311,7 +318,7 @@ AC 0 200 0
 4 4 4 9
 EFNU 0 0 0
 stand stand male 6
-0 0 medium 0
+0 0 medium '0'
 #1711
 oldstyle female centaur~
 a centaur~
@@ -325,7 +332,7 @@ AC 0 200 0
 4 4 4 9
 EFNU 0 0 0
 stand stand female 5
-0 0 medium 0
+0 0 medium '0'
 #1712
 oldstyle old centaur~
 an old centaur~
@@ -339,7 +346,7 @@ AC 0 200 0
 4 4 4 9
 EFNU 0 0 0
 rest rest male 5
-0 0 medium 0
+0 0 medium '0'
 #1714
 oldstyle centaur elder~
 an elder centaur~
@@ -353,7 +360,7 @@ ABC B 200 0
 2 2 2 8
 EFNU 0 0 0
 stand stand male 0
-0 0 medium 0
+0 0 medium '0'
 #1715
 oldstyle centaur guard~
 a centaur guard~
@@ -367,7 +374,7 @@ AB B 200 0
 1 1 1 8
 EFNU 0 0 0
 stand stand male 0
-0 0 medium 0
+0 0 medium '0'
 #1716
 oldstyle centaur chief~
 the centaur chief~
@@ -382,7 +389,7 @@ ABC B 200 0
 0 0 0 8
 EFNU 0 0 0
 rest stand male 0
-0 0 medium 0
+0 0 medium '0'
 #1720
 oldstyle displacer beast~
 a displacer beast~
@@ -396,8 +403,10 @@ AH 0 0 0
 1 1 1 8
 EFNU 0 0 0
 stand stand none 0
-0 0 medium 0
+0 0 medium '0'
 #0
+
+
 
 #OBJECTS
 #1601
@@ -406,7 +415,7 @@ a rusty cleaver~
 A rusty cleaver lies on a counter top.~
 oldstyle~
 weapon 0 AN
-dagger 1 6 chop 0
+dagger 1 6 'chop' 0
 1 20 230 P
 #1602
 fine mace~
@@ -414,7 +423,7 @@ the fine mace~
 There is a large mace of fine quality here.~
 oldstyle~
 weapon G AN
-mace 2 6 pound 0
+mace 2 6 'pound' 0
 10 110 570 P
 A
 18 1
@@ -424,7 +433,7 @@ a long elven dagger~
 A long elven dagger made of adamantite is here.~
 oldstyle~
 weapon AG AN
-dagger 2 5 pierce 0
+dagger 2 5 'pierce' 0
 8 20 700 P
 A
 18 2
@@ -434,36 +443,36 @@ a steel broad sword~
 A fine steel broad sword is lying on the ground.~
 oldstyle~
 weapon AG AN
-sword 2 6 slash 0
+sword 2 6 'slash' 0
 11 120 910 P
 A
-19 1
-A
 18 1
+A
+19 1
 #1605
 steel broad sword~
 a steel broad sword~
 A very fine steel broad sword is lying on the ground.~
 steel~
 weapon AG AN
-sword 2 7 slash 0
+sword 2 7 'slash' 0
 15 120 1510 P
 A
-19 2
-A
 18 2
+A
+19 2
 #1606
 rod might~
 the rod of might~
 A Rod of Might is lying here.~
 oldstyle~
 weapon BG AN
-mace 2 7 blast 0
+mace 2 7 'blast' 0
 14 130 1550 P
 A
-1 1
-A
 18 2
+A
+1 1
 #1612
 black kite shield~
 a black kite shield~
@@ -537,7 +546,7 @@ the twin towers key~
 There is a shiny skeleton key on the ground here.~
 oldstyle~
 key 0 A
-1 0 0 0 0
+A 0 0 0 0
 0 10 0 P
 #1692
 strange key~
@@ -545,7 +554,7 @@ a strange key~
 There is a very strange-looking key on the ground here.~
 oldstyle~
 key AG AO
-2 0 0 0 0
+B 0 0 0 0
 12 10 750 P
 A
 17 -3
@@ -558,7 +567,7 @@ a short bow~
 A short bow has been carelessly left here.~
 oldstyle~
 weapon 0 AN
-exotic 2 4 pierce 0
+exotic 2 4 'pierce' 0
 5 50 730 P
 E
 short bow~
@@ -570,7 +579,7 @@ a long bow~
 A long bow has been foolishly abandoned here.~
 oldstyle~
 weapon AG AN
-staff 2 6 pound 0
+staff 2 6 'pound' 0
 12 70 220 P
 A
 13 5
@@ -580,12 +589,12 @@ an ancient long sword~
 An ancient long sword has been left here.~
 oldstyle~
 weapon BG AN
-sword 2 8 slash 0
+sword 2 8 'slash' 0
 19 100 2500 P
 A
-19 3
-A
 18 3
+A
+19 3
 #1711
 fur cap~
 a fur cap~
@@ -616,13 +625,16 @@ A
 12 5
 #0
 
+
+
 #ROOMS
 #1601
 Rough East-West Path~
 You are on a very rough and overgrown path heading east-west over rugged
 terrain.  To the east the path passes between low hills.
 ~
-0 0 4
+0
+0 4
 D1
 The road heads into low hills this way.
 ~
@@ -640,7 +652,8 @@ Here the path passes between low hills. The going is very rough, but
 to the east the ground is smoother. In that direction a pair of tower
 looms above the hills.
 ~
-0 0 4
+0
+0 4
 D1
 You see a pair of tall towers in the distance.
 ~
@@ -658,7 +671,8 @@ You are on a path through an open area. East of here loom two tall towers,
 joined by a barbican and surrounded by a murky moat. West the path passes
 between low hills.
 ~
-0 0 2
+0
+0 2
 D1
 Two fantastic towers surrounded by a moat rise before you.
 ~
@@ -677,7 +691,8 @@ over 50 feet high. You will need a boat to go east across the moat. A
 rugged path heads west, and another one heads north to a cluster of low 
 buildings.
 ~
-0 0 2
+0
+0 2
 D0
 A worn path leads to a cluster of low buildings.
 ~
@@ -699,7 +714,8 @@ Path North of Moat~
 You walk on a faint path heading south toward the west side of the moat,
 and north to three small buildings.
 ~
-0 0 2
+0
+0 2
 D0
 Several low buildings lie this way.
 ~
@@ -717,7 +733,8 @@ You are in the middle of a cluster of small buildings. There is a building
 to the north, east, and west.  A sign over the eastern building says
 'House of Pancakes'.
 ~
-0 0 1
+0
+0 1
 D0
 There is an entrance to a building.
 ~
@@ -744,14 +761,16 @@ House of Pancakes~
 The moment you enter this room, the ceiling descends and crushes you
 into a pancake.  Don't you hate it when that happens?
 ~
-0 BC 0
+0
+BC 0
 S
 #1608
 Old Store Room~
 You have entered what appears to be an old storeroom. Most of the items
 that were in here appear to have been ruined long ago.
 ~
-0 AD 0
+0
+AD 0
 D1
 ~
 ~
@@ -762,7 +781,8 @@ Empty Room~
 This room appears to be completely empty. The only exit seems to be the
 way you came.  There are some scratches around the floor.
 ~
-0 AD 0
+0
+AD 0
 D2
 ~
 ~
@@ -778,7 +798,8 @@ Minotaur's Room~
 You have entered a secret chamber under the empty room. In this room is
 the worn but cared-for gear and trappings of some large humanoid.
 ~
-0 ACD 0
+0
+ACD 0
 D4
 ~
 ~
@@ -790,7 +811,8 @@ You are in the middle of the moat, on the west side of the tower.  There is a
 landing on both sides of the moat.  Deep throated 'ribbids' come from the
 water all around you.
 ~
-0 0 7
+0
+0 7
 D0
 ~
 ~
@@ -814,7 +836,8 @@ You are in the middle of the moat, on the north side of the tower.  There is
 no place to land here.  Deep throated 'ribbids' come from the water all
 around you.
 ~
-0 0 7
+0
+0 7
 D2
 ~
 ~
@@ -826,7 +849,8 @@ You are in the middle of the moat, on the south side of the tower.  There is
 no place to land here.  Deep throated 'ribbids' come from the water all
 around you.
 ~
-0 0 7
+0
+0 7
 D0
 ~
 ~
@@ -838,7 +862,8 @@ You are on a foyer on the west side of the structure. The moat is west of
 here. There is also a large door eastward into the structure.  You notice that
 the walls are ornately decorated with very life-like stone gargoyles.
 ~
-0 AD 0
+0
+AD 0
 D1
 ~
 ~
@@ -856,7 +881,8 @@ ornate balcony surrounds the lobby. To the east, below the balcony, is an
 opening. The door leading out is west.  You notice that the balcony is
 covered in highly ornate and life-like stone gargoyles.
 ~
-0 AD 0
+0
+AD 0
 D1
 ~
 ~
@@ -872,7 +898,8 @@ You stand in the center of the Western tower's base. Torch brackets occupy
 the four corners of this huge room. Above each torch is a lifelike ornate
 stone gargoyle.  There are doors north and south, and passages east and west.
 ~
-0 D 0
+0
+D 0
 D0
 ~
 ~
@@ -895,7 +922,8 @@ The Musty Corridor~
 You are walking along a musty east-west corridor joining the two towers.
 There are room on each side of the corridor, and openings at each end.
 ~
-0 AD 0
+0
+AD 0
 D0
 ~
 ~
@@ -919,7 +947,8 @@ You have entered what must once have been a kitchen. The rusting remains of
 various utensils lie on countertops. There is also an old wash basin and a
 pot-belly stove.  There is a door south, and a serving hatch east.
 ~
-0 AD 0
+0
+AD 0
 D2
 ~
 ~
@@ -930,7 +959,8 @@ Conservatory~
 You are in the tower's private conservatory. However, through years of neglect,
 the plants have grown into a hideous jungle.  The only exit is north.
 ~
-0 AD 0
+0
+AD 0
 D0
 ~
 ~
@@ -943,7 +973,8 @@ dominate the room. A horrible odor pervades the room, like some foul-smelling
 beast has been eating and shitting in here.  There is a serving hatch west and
 a door south.
 ~
-0 AD 0
+0
+AD 0
 D2
 ~
 ~
@@ -954,7 +985,8 @@ Art Gallery~
 You are in the ruined remains of an art gallery. Everything appears to
 have been stolen long ago, however.  The only exit is north.
 ~
-0 AD 1
+0
+AD 1
 D0
 ~
 ~
@@ -968,7 +1000,8 @@ gargoyle.  There are are open doors to the north and south, and passages east
 and west.  In addition, a spiral staircase leads up to the next level of this
 tower.
 ~
-0 D 1
+0
+D 1
 D0
 ~
 ~
@@ -993,7 +1026,8 @@ You are in what must once have been a common room for all residents of the
 tower. There is a huge fire pit with a chimney in the center, and the smashed
 remains of a great many table and chairs.  The exit is south.
 ~
-0 D 0
+0
+D 0
 D2
 ~
 ~
@@ -1010,7 +1044,8 @@ You are in what once was the servant's quarters, as evidenced by the shabby
 belongings and decor. What little remains is rotting and of little value
 anyway.  The only exit is north.
 ~
-0 AD 0
+0
+AD 0
 D0
 ~
 ~
@@ -1022,7 +1057,8 @@ You are in a large, murky cellar. An almost tangible air of horror pervades
 the room.  A thin layer of nitre covers the walls and ceiling.  Rotting
 furniture looms obliquely about the room.
 ~
-0 AD 1
+0
+AD 1
 D4
 ~
 ~
@@ -1033,7 +1069,8 @@ On the First Staircase~
 You are on a Spiral staircase connecting the first and second levels of
 the eastern tower. You can go up or down.
 ~
-0 AD 2
+0
+AD 2
 D4
 ~
 ~
@@ -1049,7 +1086,8 @@ You are in the center of the second level of the Eastern tower. This large
 room appears quite empty, except for the candle abras firmly fixed to the
 walls.  An opening leads westward, and a spiral staircase leads down.
 ~
-0 AD 1
+0
+AD 1
 D3
 ~
 ~
@@ -1066,7 +1104,8 @@ The rotted remains of a plush carpet covers the floor, while several moldy
 tapestries adorn the each side of the hall.  There are door north and south,
 and openings east and west.
 ~
-0 AD 0
+0
+AD 0
 D0
 ~
 ~
@@ -1091,7 +1130,8 @@ Costly paintings and pieces of furniture are tastefully situated.  On the
 north wall is an altar to Knar, the ghastly patron of Gargoyles.  The only
 exit is south.
 ~
-0 D 0
+0
+D 0
 D2
 ~
 ~
@@ -1102,7 +1142,8 @@ The Library~
 This room appears to have been a library.  Empty book shelves line each wall.
 The only exit is north.
 ~
-0 AD 0
+0
+AD 0
 D0
 ~
 ~
@@ -1115,7 +1156,8 @@ staircase of 29 steps connects this level with the third.  There are doors
 to the east and west.  Except for a torch bracket in each corner, the 
 room is barren.
 ~
-0 D 1
+0
+D 1
 D1
 ~
 ~
@@ -1135,7 +1177,8 @@ On the Balcony~
 You are on the balcony overlooking the Grand lobby.  You have a fabulous
 view of the entire room.  The only exit is the way you came in.
 ~
-0 D 2
+0
+D 2
 D1
 ~
 ~
@@ -1146,7 +1189,8 @@ The Spiral Stairs~
 You are on a large spiral staircase of 29 steps, leading between the 
 second and third floors.  You can go up or down.
 ~
-0 D 2
+0
+D 2
 D4
 ~
 ~
@@ -1162,7 +1206,8 @@ You stand in the center of the western tower's third floor.  This large room
 glows mysteriously with a strange light all its own.  From a door to the east
 comes a strange inky blackness.  A spiral staircase leads down.
 ~
-0 D 1
+0
+D 1
 D1
 ~
 ~
@@ -1175,7 +1220,8 @@ S
 #1644
 It's too dark to see anything!~
 ~
-0 AD 3
+0
+AD 3
 D0
 ~
 ~
@@ -1199,7 +1245,8 @@ In this room, which has somehow evaded the ravages of time, are neatly stored
 racks of common weapons.  They appear to be quite ordinary; however, a chest
 in one corner catches your eye.  The only exit is the way you came in.
 ~
-0 AD 0
+0
+AD 0
 D2
 ~
 ~
@@ -1213,7 +1260,8 @@ flying snake-like reptiles with poisonous tails fight humans and dwarves.
 Various objects in the room give evidence that it is occupied by individuals
 of authority.  The only door is north.
 ~
-0 AD 0
+0
+AD 0
 D0
 ~
 ~
@@ -1226,7 +1274,8 @@ glows with a mysterious light that has no source.  In the center of the room a
 ladder climbs up to a hatchway in the ceiling.  The hatchway is a strange
 looking keyhole.  There is also a door to the west.
 ~
-0 D 1
+0
+D 1
 D3
 ~
 ~
@@ -1244,7 +1293,8 @@ made in the roof by some enormous beast, letting the daylight (or moonlight)
 in.  There is a hatchway in the floor, and an opening to the west leading out
 onto a catwalk.
 ~
-0 0 1
+0
+0 1
 D3
 There is a small opening this way.
 ~
@@ -1264,7 +1314,8 @@ wilderness.  At the east end of the catwalk is a small opening leading
 inside the eastern turret.  At the western end, a strange mirror-like portal
 leads into the western turret.
 ~
-0 0 3
+0
+0 3
 D1
 ~
 ~
@@ -1282,7 +1333,8 @@ Scattered about this room are a great many coins and valuable articles.
 Yet you can't get rid of a feeling of dread!  A mirror-like portal is in the
 western wall.
 ~
-0 AD 0
+0
+AD 0
 D1
 ~
 ~
@@ -1301,7 +1353,8 @@ fabulous view of your surroundings, a murky city partially obscured by strange
 smoke that creeps along the ground instead of rising. The city stretches as far
 as the eye can see under the conditions.
 ~
-0 0 3
+0
+0 3
 D1
 ~
 ~
@@ -1316,7 +1369,8 @@ The Chamber~
 You are in a small carpeted chamber. The chamber is empty except for a single
 chair facing a mirror on the wall.
 ~
-0 0 0
+0
+0 0
 D1
 ~
 ~
@@ -1328,7 +1382,8 @@ You are on the old Eastern Road.  The crossroads to the east joins ANOTHER
 northern route to this road, which continues east.  South of the crossroads is
 an old building.  The area around here is lightly timbered.
 ~
-0 C 3
+0
+C 3
 D1
 You see a cross roads and an old building.
 ~
@@ -1347,7 +1402,8 @@ older road continues east, and a simple trail heads north.  To the south,
 an old ram-shackle building is being used as a trading post for the
 surrounding wilderness. 
 ~
-0 0 3
+0
+0 3
 D0
 You see a trail leading north.
 ~
@@ -1374,7 +1430,8 @@ You are in a trading post just south of the crossroads, where rangers,
 trappers and hunters from the surrounding area come to buy, sell, and
 barter goods.
 ~
-0 D 0
+0
+D 0
 D0
 The door opens out on the crossroads.
 ~
@@ -1387,7 +1444,8 @@ You are on a primitive north-south trail. South of here is a major cross-
 roads and an old building. To the north the trail continues toward a
 deep, dark forest.
 ~
-0 0 3
+0
+0 3
 D0
 The trail continues toward a deep, dark, forest.
 ~
@@ -1404,7 +1462,8 @@ Trail south of forest~
 You are on a primitive north-south trail.  Just north of here looms the
 entrance to a deep, dark forest. To the south the trail continues.
 ~
-0 0 3
+0
+0 3
 D0
 The trail enters a dark forest of thick oaks this way.
 ~
@@ -1422,7 +1481,8 @@ You are at the entrance to dark forest comprised mostly of huge black oak
 and towering firs.  A trail from the south continues north on into the
 woods at this point.
 ~
-0 0 3
+0
+0 3
 D0
 You see the trail continuing into the forest.
 ~
@@ -1441,7 +1501,8 @@ these trees are of enormous size.  Rustling and other low noises come
 from the forest on either side of the trail.  The trail continues on north
 and south.
 ~
-0 0 4
+0
+0 4
 D0
 You see the trail continue into thick, dark forest.
 ~
@@ -1458,7 +1519,8 @@ Junction in Dark Forest~
 You are in the midst of a deep dark forest of huge oak trees.  There is a
 junction of trails here, with paths leading south, west and east.
 ~
-0 0 4
+0
+0 4
 D1
 A path disappears into thick forest.
 ~
@@ -1481,7 +1543,8 @@ You are on an east-west path in the forest.  Here the forest is mostly
 towering firs, not quite as dense as the oak groves that can be seen eastward.
 Westward, the trail heads toward a small clearing.
 ~
-0 0 3
+0
+0 3
 D1
 A path disappears into thick forest.
 ~
@@ -1500,7 +1563,8 @@ about the edges of this clearing.  Beyond these on all sides are towering
 fir trees.  A path leads east out of the clearing. The clearing continues to
 the west.
 ~
-0 0 2
+0
+0 2
 D0
 There is a hut here.
 ~
@@ -1528,7 +1592,8 @@ You are on the west side of the clearing in the center of the Centaur village.
 Huts surround the clearing on all sides, and beyond are towering firs.  The
 clearing continues to the east.  To the west is a very large hut.
 ~
-0 0 2
+0
+0 2
 D0
 There is a hut here.
 ~
@@ -1555,7 +1620,8 @@ A Centaur's Hut~
 You are inside a smallish hut, the home of a family of Centaurs.  The hut
 is sparsely furnished, mostly the trappings of survival.
 ~
-0 D 0
+0
+D 0
 D2
 The opening leads out onto the clearing.
 ~
@@ -1567,7 +1633,8 @@ A Centaur's Hut~
 You are inside a smallish hut, the home of a family of Centaurs.  The hut
 is sparsely furnished, mostly the trappings of survival.
 ~
-0 D 0
+0
+D 0
 D0
 The opening leads out onto the clearing.
 ~
@@ -1579,7 +1646,8 @@ A Centaur's Hut~
 You are inside a smallish hut, the home of a family of Centaurs.  The hut
 is sparsely furnished, mostly the trappings of survival.
 ~
-0 D 0
+0
+D 0
 D2
 The opening leads out onto the clearing.
 ~
@@ -1591,7 +1659,8 @@ A Centaur's Hut~
 You are inside a smallish hut, the home of a family of Centaurs.  The hut
 is sparsely furnished, mostly the trappings of survival.
 ~
-0 D 0
+0
+D 0
 D0
 The opening leads out onto the clearing.
 ~
@@ -1604,7 +1673,8 @@ You are in the entry foyer of a large hut.  A curtain separates this section
 of the hut from the next section to the west.  To the east is an opening out
 onto the clearing.
 ~
-0 D 0
+0
+D 0
 D1
 The opening leads out onto the clearing.
 ~
@@ -1622,7 +1692,8 @@ You are in the back of a large hut.  A curtain separates this section from
 the front of the hut to the east.  This room is finely decorated, if
 somewhat primitive.  The decor suggests someone of authority lives here.
 ~
-0 D 0
+0
+D 0
 D1
 There is a curtain here separating this room from the front of the hut.
 ~
@@ -1635,7 +1706,8 @@ You are on an east-west path through extremely old growths of oak.  The path
 is fairly faint here.  Undergrowth closes in so closely that little can
 be seen in any direction.
 ~
-0 0 4
+0
+0 4
 D3
 The path continues west through thick forest.
 ~
@@ -1644,96 +1716,107 @@ The path continues west through thick forest.
 S
 #0
 
-#RESETS
-R 0 1644   0     	* It's too dark to see anything!
-O 0 1652   2 1608	* a barrel of ale
-O 0 1601   2 1627	* a rusty cleaver
-O 0 1651   1 1645	* a bronze chest
-P 1 1603   1 1651  1	*   a long elven dagger
-M 0 1601   4 1620  2	* a killer frog
-M 0 1601   4 1620  2	* a killer frog
-M 0 1601   4 1621  2	* a killer frog
-M 0 1601   4 1622  2	* a killer frog
-M 0 1602   6 1623  2	* the stone gargoyle
-M 0 1602   6 1623  2	* the stone gargoyle
-M 0 1602   6 1624  2	* the stone gargoyle
-M 0 1602   6 1624  2	* the stone gargoyle
-M 0 1602   6 1625  1	* the stone gargoyle
-M 0 1602   6 1631  1	* the stone gargoyle
-M 0 1603   3 1630  1	* an angry gargoyle
-M 0 1603   3 1632  1	* an angry gargoyle
-M 0 1603   3 1637  1	* an angry gargoyle
-M 0 1604   4 1636  2	* the elite gargoyle
-E 1 1604  10   16	*   a steel broad sword
-M 0 1604   4 1636  2	* the elite gargoyle
-E 1 1604  10   16	*   a steel broad sword
-M 0 1604   4 1639  2	* the elite gargoyle
-M 0 1604   4 1639  2	* the elite gargoyle
-M 0 1605   1 1638  1	* the gargoyle shaman
-E 1 1602   6   16	*   the fine mace
-E 1 1621   3   13	*   a dark red potion
-M 0 1606   1 1628  1	* a carnivorous plant
-M 0 1607   1 1629  1	* a gruesome ogre
-M 0 1608   4 1644  4	* a shadow
-M 0 1609   1 1634  1	* an evil wight
-E 1 1692   1   17	*   a strange key
-M 0 1610   2 1645  2	* A burly minotaur
-M 0 1610   2 1645  2	* A burly minotaur
-M 0 1612   1 1610  1	* the savage minotaur
-E 1 1604   5   16	*   a steel broad sword
-E 1 1612   3   11	*   a black kite shield
-M 0 1613   1 1646  1	* the captain
-E 1 1605   5   16	*   a steel broad sword
-E 1 1614   3    6	*   a commander's helm
-M 0 1614   1 1643  1	* the black pudding
-M 0 1615   2 1647  2	* a lesser golem
-E 1 1606   2   16	*   the rod of might
-M 0 1616   1 1648  1	* the ancient wyvern
-E 1 1615   2   14	*   a mithril bracer
-G 1 1621   5     	*   a dark red potion
-M 0 1617   1 1650  1	* the spectre
-E 1 1616   2    3	*   a dark blue cloak
-M 0 1702   2 1703  2	* a trapper
-E 1 1711   5    6	*   a fur cap
-M 0 1702   2 1703  2	* a trapper
-E 1 1711   5    6	*   a fur cap
-M 0 1704   2 1703  2	* a hunter
-M 0 1704   2 1703  2	* a hunter
-E 1 1701  10   16	*   a short bow
-M 0 1706   1 1703  1	* a ranger
-E 1 1702   5   16	*   a long bow
-G 1 1621   5     	*   a dark red potion
-M 0 1710   3 1704  1	* a centaur
-E 1 1701  10   16	*   a short bow
-M 0 1710   3 1708  1	* a centaur
-E 1 1701  10   16	*   a short bow
-M 0 1710   3 1710  1	* a centaur
-M 0 1711   2 1706  1	* a centaur
-M 0 1711   2 1709  1	* a centaur
-M 0 1712   3 1710  1	* an old centaur
-M 0 1712   3 1712  1	* an old centaur
-M 0 1712   3 1713  1	* an old centaur
-M 0 1714   3 1711  1	* an elder centaur
-M 0 1714   3 1714  1	* an elder centaur
-M 0 1714   3 1715  3	* an elder centaur
-M 0 1715   2 1716  2	* a centaur guard
-E 1 1604  10   16	*   a steel broad sword
-M 0 1715   2 1716  2	* a centaur guard
-E 1 1604  10   16	*   a steel broad sword
-M 0 1716   1 1717  1	* the centaur chief
-E 1 1713   1    2	*   a bronze ring
+
+
+#SPECIALS
+M 1605 spec_cast_cleric
+M 1609 spec_cast_undead
+M 1614 spec_breath_acid
+M 1616 spec_breath_any
+M 1617 spec_cast_undead
+M 1716 spec_cast_undead
 S
+
+
+
+#RESETS
+O 0 1652 0 1608
+M 0 1612 1 1610 1
+E 0 1604 0 16
+E 0 1612 0 11
+M 0 1601 4 1620 2
+M 0 1601 4 1620 2
+M 0 1601 4 1621 2
+M 0 1601 4 1622 2
+M 0 1602 6 1623 2
+M 0 1602 6 1623 2
+M 0 1602 6 1624 2
+M 0 1602 6 1624 2
+M 0 1602 6 1625 1
+O 0 1601 0 1627
+M 0 1606 1 1628 1
+M 0 1607 1 1629 1
+M 0 1603 3 1630 1
+M 0 1602 6 1631 1
+M 0 1603 3 1632 1
+M 0 1609 1 1634 1
+E 0 1692 0 17
+M 0 1604 4 1636 2
+E 0 1604 0 16
+M 0 1604 4 1636 2
+E 0 1604 0 16
+M 0 1603 3 1637 1
+M 0 1605 1 1638 1
+E 0 1602 0 16
+E 0 1621 0 13
+M 0 1604 4 1639 2
+M 0 1604 4 1639 2
+M 0 1614 1 1643 1
+R 0 1644 0
+M 0 1608 4 1644 4
+O 0 1651 0 1645
+P 0 1603 1 1651 1
+M 0 1610 2 1645 2
+M 0 1610 2 1645 2
+M 0 1613 1 1646 1
+E 0 1605 0 16
+E 0 1614 0 6
+M 0 1615 2 1647 2
+E 0 1606 0 16
+M 0 1616 1 1648 1
+E 0 1615 0 14
+G 0 1621 0
+M 0 1617 1 1650 1
+E 0 1616 0 3
+M 0 1702 2 1703 2
+E 0 1711 0 6
+M 0 1702 2 1703 2
+E 0 1711 0 6
+M 0 1704 2 1703 2
+M 0 1704 2 1703 2
+E 0 1701 0 16
+M 0 1706 1 1703 1
+E 0 1702 0 16
+G 0 1621 0
+M 0 1710 3 1704 1
+E 0 1701 0 16
+M 0 1711 2 1706 1
+M 0 1710 3 1708 1
+E 0 1701 0 16
+M 0 1711 2 1709 1
+M 0 1710 3 1710 1
+M 0 1712 3 1710 1
+M 0 1714 3 1711 1
+M 0 1712 3 1712 1
+M 0 1712 3 1713 1
+M 0 1714 3 1714 1
+M 0 1714 3 1715 3
+M 0 1715 2 1716 2
+E 0 1604 0 16
+M 0 1715 2 1716 2
+E 0 1604 0 16
+M 0 1716 1 1717 1
+E 0 1713 0 2
+S
+
+
 
 #SHOPS
 0
 
-#SPECIALS
-M 1605 spec_cast_cleric    	* the gargoyle shaman
-M 1609 spec_cast_undead    	* an evil wight
-M 1614 spec_breath_acid    	* the black pudding
-M 1616 spec_breath_any     	* the ancient wyvern
-M 1617 spec_cast_undead    	* the spectre
-M 1716 spec_cast_undead    	* the centaur chief
-S
+
+
+#MOBPROGS
+#0
 
 #$

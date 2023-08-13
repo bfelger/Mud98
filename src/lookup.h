@@ -26,14 +26,19 @@
  ***************************************************************************/
 
 #pragma once
-#ifndef ROM__LOOKUP_H
-#define ROM__LOOKUP_H
+#ifndef MUD98__LOOKUP_H
+#define MUD98__LOOKUP_H
 
 #include "merc.h"
+
+#include "tables.h"
 
 int clan_lookup args((const char* name));
 int position_lookup args((const char* name));
 int sex_lookup args((const char* name));
 int size_lookup args((const char* name));
+int	flag_lookup	args((const char*, const struct flag_type*));
+HELP_DATA* help_lookup args((char*));
+HELP_AREA* had_lookup args((char*));
 
-#endif // !ROM__LOOKUP_H
+#endif // !MUD98__LOOKUP_H

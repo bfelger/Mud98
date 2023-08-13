@@ -77,6 +77,13 @@ void violence_update(void)
          * Fun for the whole family!
          */
         check_assist(ch, victim);
+
+        if (IS_NPC(ch)) {
+            if (HAS_TRIGGER(ch, TRIG_FIGHT))
+                mp_percent_trigger(ch, victim, NULL, NULL, TRIG_FIGHT);
+            if (HAS_TRIGGER(ch, TRIG_HPCNT))
+                mp_hprct_trigger(ch, victim);
+        }
     }
 
     return;
@@ -628,8 +635,13 @@ bool damage(CHAR_DATA* ch, CHAR_DATA* victim, int dam, int dt, int dam_type,
         check_killer(ch, victim);
 
         if (victim->position > POS_STUNNED) {
-            if (victim->fighting == NULL) set_fighting(victim, ch);
-            if (victim->timer <= 4) victim->position = POS_FIGHTING;
+            if (victim->fighting == NULL) {
+                set_fighting(victim, ch);
+                if (IS_NPC(victim) && HAS_TRIGGER(victim, TRIG_KILL))
+                    mp_percent_trigger(victim, ch, NULL, NULL, TRIG_KILL);
+            }
+            if (victim->timer <= 4)
+                victim->position = POS_FIGHTING;
         }
 
         if (victim->position > POS_STUNNED) {
@@ -782,6 +794,14 @@ bool damage(CHAR_DATA* ch, CHAR_DATA* victim, int dam, int dt, int dam_type,
             wiznet(log_buf, NULL, NULL, WIZ_MOBDEATHS, 0, 0);
         else
             wiznet(log_buf, NULL, NULL, WIZ_DEATHS, 0, 0);
+
+        /*
+         * Death trigger
+         */
+        if (IS_NPC(victim) && HAS_TRIGGER(victim, TRIG_DEATH)) {
+            victim->position = POS_STANDING;
+            mp_percent_trigger(victim, ch, NULL, NULL, TRIG_DEATH);
+        }
 
         raw_kill(victim);
         /* dump the flags */
@@ -2804,4 +2824,24 @@ void do_slay(CHAR_DATA* ch, char* argument)
     act("{1$n slays $N in cold blood!{x", ch, NULL, victim, TO_NOTVICT);
     raw_kill(victim);
     return;
+}
+
+void do_surrender(CHAR_DATA* ch, char* argument)
+{
+    CHAR_DATA* mob;
+    if ((mob = ch->fighting) == NULL) {
+        send_to_char("But you're not fighting!\n\r", ch);
+        return;
+    }
+    act("You surrender to $N!", ch, NULL, mob, TO_CHAR);
+    act("$n surrenders to you!", ch, NULL, mob, TO_VICT);
+    act("$n tries to surrender to $N!", ch, NULL, mob, TO_NOTVICT);
+    stop_fighting(ch, true);
+
+    if (!IS_NPC(ch) && IS_NPC(mob)
+        && (!HAS_TRIGGER(mob, TRIG_SURR)
+            || !mp_percent_trigger(mob, ch, NULL, NULL, TRIG_SURR))) {
+        act("$N seems to ignore your cowardly act!", ch, NULL, mob, TO_CHAR);
+        multi_hit(mob, ch, TYPE_UNDEFINED);
+    }
 }

@@ -61,6 +61,10 @@ void move_char(CHAR_DATA* ch, int door, bool follow)
         return;
     }
 
+    // Exit trigger, if activated, bail out. Only PCs are triggered.
+    if (!IS_NPC(ch) && mp_exit_trigger(ch, door))
+        return;
+
     in_room = ch->in_room;
     if ((pexit = in_room->exit[door]) == NULL
         || (to_room = pexit->u1.to_room) == NULL
@@ -189,6 +193,16 @@ void move_char(CHAR_DATA* ch, int door, bool follow)
             act("You follow $N.", fch, NULL, ch, TO_CHAR);
             move_char(fch, door, true);
         }
+    }
+    
+    // If someone is following the char, these triggers get activated for the
+    // followers before the char, but it's safer this way...
+    if (IS_NPC(ch) && HAS_TRIGGER(ch, TRIG_ENTRY)) {
+        mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_ENTRY);
+    }
+
+    if (!IS_NPC(ch)) {
+        mp_greet_trigger(ch);
     }
 
     return;
@@ -1348,7 +1362,8 @@ void do_recall(CHAR_DATA* ch, char* argument)
     act("$n appears in the room.", ch, NULL, NULL, TO_ROOM);
     do_function(ch, &do_look, "auto");
 
-    if (ch->pet != NULL) do_function(ch->pet, &do_recall, "");
+    if (ch->pet != NULL) 
+        do_function(ch->pet, &do_recall, "");
 
     return;
 }

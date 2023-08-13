@@ -1,11 +1,20 @@
-#AREA
-limbo.are~
-Limbo~
-{None } Diku    Limbo~
-0 99
+#AREADATA
+Name Limbo~
+Builders None~
+VNUMs 1 25
+Credits {None } Diku    Limbo~
+Security 9
+Low 0
+High 0
+Version 1
+End
+
+
 
 #MOBILES
 #0
+
+
 
 #OBJECTS
 #1
@@ -54,7 +63,7 @@ the corpse of %s~
 The corpse of %s is lying here.~
 meat~
 npc_corpse 0 A
-0 0 0 1 0
+0 0 0 A 0
 0 1000 0 D
 #11
 corpse~
@@ -62,7 +71,7 @@ the corpse of %s~
 The corpse of %s is lying here.~
 meat~
 pc_corpse O A
-0 0 0 1 0
+0 0 0 A 0
 0 1000 0 D
 #12
 head~
@@ -102,7 +111,7 @@ the guts of %s~
 A steaming pile of %s's entrails is lying here.~
 meat~
 food 0 A
-5 5 0 1 0
+5 5 0 A 0
 0 20 0 D
 #17
 brains brain~
@@ -126,7 +135,7 @@ a bright ball of light~
 A bright ball of light shimmers in the air.~
 energy~
 light A A
-0 0 -1 0 0
+0 0 999 0 0
 0 0 0 P
 #22
 spring~
@@ -154,12 +163,15 @@ portal GOT 0
 0 0 0 P
 #0
 
+
+
 #ROOMS
 #1
 The Void~
 You are floating in nothing.
 ~
-0 CD 1
+0
+CD 1
 S
 #2
 Limbo~
@@ -168,7 +180,8 @@ matter, surrounded by swirling glowing light, which fades into the relative
 darkness around you without any trace of edges or shadow.
    There is a "No Tipping" notice pinned to the darkness.
 ~
-0 D 1
+0
+D 1
 D4
 ~
 ~
@@ -176,13 +189,24 @@ D4
 S
 #0
 
+
+
+#SPECIALS
+S
+
+
+
 #RESETS
 S
+
+
 
 #SHOPS
 0
 
-#SPECIALS
-S
+
+
+#MOBPROGS
+#0
 
 #$

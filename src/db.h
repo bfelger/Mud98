@@ -26,8 +26,8 @@
  ***************************************************************************/
 
 #pragma once
-#ifndef ROM__DB_H
-#define ROM__DB_H
+#ifndef MUD98__DB_H
+#define MUD98__DB_H
 
 #include "merc.h"
 
@@ -36,6 +36,14 @@
 
 /* Magic number for memory allocation */
 #define MAGIC_NUM               52571214
+
+/* func from db.c */
+extern void assign_area_vnum(int vnum);             // OLC
+
+/* from db2.c */
+void convert_mobile(MOB_INDEX_DATA * pMobIndex);    // OLC
+void convert_objects(void);                         // OLC
+void convert_object(OBJ_INDEX_DATA * pObjIndex);    // OLC
 
 /* conversion from db.h */
 void convert_mob(MOB_INDEX_DATA* mob);
@@ -56,4 +64,4 @@ extern AREA_DATA* area_first;
 /* from db2.c */
 extern int social_count;
 
-#endif // !ROM__DB_H
+#endif // !MUD98__DB_H

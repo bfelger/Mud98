@@ -1,9 +1,9 @@
 Merc Release 2.1
 Sunday 01 August 1993
 
-Furey	mec@shell.portal.com
-Hatchet	hatchet@uclink.berkeley.edu
-Kahn	michael@uclink.berkeley.edu
+Furey    mec@shell.portal.com
+Hatchet    hatchet@uclink.berkeley.edu
+Kahn    michael@uclink.berkeley.edu
 
 
 
@@ -12,11 +12,11 @@ Kahn	michael@uclink.berkeley.edu
 Merc contains the following memory regions: run file memory; stack; string
 space; and permanent space.  The approximate sizes of these regions are:
 
-    Run file memory	 300 k
-    Stack		  20 k
-    String space	1020 k
-    Permanent space	1020 k
-    TOTAL		2360 k
+    Run file memory     300 k
+    Stack               20 k
+    String space        1020 k
+    Permanent space     1020 k
+    TOTAL               2360 k
 
 
 

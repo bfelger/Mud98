@@ -1,8 +1,15 @@
-#AREA
-galaxy.are~
-Galaxy~
-{20 30} Doctor  Galaxy~
-9300 9399
+#AREADATA
+Name Galaxy~
+Builders None~
+VNUMs 9300 9399
+Credits {20 30} Doctor  Galaxy~
+Security 9
+Low 0
+High 0
+Version 1
+End
+
+
 
 #MOBILES
 #9301
@@ -18,7 +25,7 @@ ACGS DF 0 0
 7 7 7 9
 BEFJNU 0 0 0
 stand stand male 5
-0 0 medium 0
+0 0 medium '0'
 #9302
 oldstyle star~
 a beautiful star~
@@ -32,7 +39,7 @@ ABG 0 500 0
 3 3 3 9
 EFNU 0 0 0
 stand stand female 25
-0 0 medium 0
+0 0 medium '0'
 #9303
 oldstyle nebula young~
 a young nebula~
@@ -46,7 +53,7 @@ AG 0 200 0
 1 1 1 8
 EFNU 0 0 0
 stand stand female 50
-0 0 medium 0
+0 0 medium '0'
 #9304
 oldstyle comet speedy~
 a speedy comet~
@@ -60,7 +67,7 @@ ACFG 0 -500 0
 1 1 1 8
 EFNU 0 0 0
 stand stand male 75
-0 0 medium 0
+0 0 medium '0'
 #9305
 oldstyle red supergiant~
 a red supergiant~
@@ -75,7 +82,7 @@ ABGH 0 0 0
 -2 -2 -2 7
 EFNU 0 0 0
 sleep sleep male 100
-0 0 medium 0
+0 0 medium '0'
 #9306
 oldstyle white dwarf~
 a white dwarf~
@@ -90,7 +97,7 @@ ACG 0 0 0
 -2 -2 -2 7
 EFNU 0 0 0
 stand stand male 100
-0 0 medium 0
+0 0 medium '0'
 #9307
 oldstyle horsehead nebula~
 a horsehead nebula~
@@ -105,7 +112,7 @@ ABG PQ -1000 0
 -3 -3 -3 7
 EFNU 0 0 0
 sit sit male 300
-0 0 medium 0
+0 0 medium '0'
 #9308
 oldstyle andromeda~
 poor Andromeda~
@@ -120,7 +127,7 @@ ABEG H 1000 0
 -3 -3 -3 7
 EFNU 0 0 0
 stand stand female 375
-0 0 medium 0
+0 0 medium '0'
 #9309
 oldstyle hercules~
 the mighty Hercules~
@@ -136,7 +143,7 @@ ABG H 1000 0
 -4 -4 -4 7
 EFNU 0 0 0
 stand stand male 375
-0 0 medium 0
+0 0 medium '0'
 #9310
 oldstyle pegasus~
 the wild Pegasus~
@@ -150,7 +157,7 @@ ABGH 0 300 0
 -3 -3 -3 7
 EFNU 0 0 0
 stand stand none 250
-0 0 medium 0
+0 0 medium '0'
 #9311
 oldstyle orion~
 Orion the hunter~
@@ -167,7 +174,7 @@ ABG H 300 0
 -4 -4 -4 7
 EFNU 0 0 0
 stand stand male 375
-0 0 medium 0
+0 0 medium '0'
 #9312
 oldstyle pleiades~
 the Pleiades~
@@ -182,7 +189,7 @@ ABG 0 300 0
 1 1 1 8
 EFNU 0 0 0
 stand stand female 150
-0 0 medium 0
+0 0 medium '0'
 #9313
 oldstyle draco head~
 the Head of Draco~
@@ -198,7 +205,7 @@ ABFG DH -1000 0
 -7 -7 -7 6
 EFNU 0 0 0
 stand stand none 750
-0 0 medium 0
+0 0 medium '0'
 #9314
 oldstyle draco baby~
 a baby draco~
@@ -214,7 +221,7 @@ ACGH 0 -700 0
 2 2 2 8
 EFNU 0 0 0
 stand stand none 200
-0 0 medium 0
+0 0 medium '0'
 #9315
 oldstyle aries~
 Aries~
@@ -229,7 +236,7 @@ ABGQ H 700 0
 -5 -5 -5 5
 EIKU 0 0 0
 sit sit male 500
-0 0 medium 0
+0 0 medium '0'
 #9316
 oldstyle taurus~
 Taurus~
@@ -244,7 +251,7 @@ ABFGQ DH -100 0
 -5 -5 -5 5
 EIKU 0 0 0
 stand stand male 500
-0 0 medium 0
+0 0 medium '0'
 #9317
 oldstyle gemini~
 Gemini~
@@ -259,7 +266,7 @@ ABGQ H 1000 0
 -5 -5 -5 5
 EIKU 0 0 0
 stand stand male 500
-0 0 medium 0
+0 0 medium '0'
 #9318
 oldstyle gemini~
 Gemini~
@@ -274,7 +281,7 @@ ABCFGHQ DHU -1000 0
 -2 -2 -2 6
 EIKU 0 0 0
 stand stand male 250
-0 0 medium 0
+0 0 medium '0'
 #9319
 oldstyle cancer~
 Cancer~
@@ -290,7 +297,7 @@ ABGQ H 0 0
 -5 -5 -5 5
 EIKU 0 0 0
 stand stand male 600
-0 0 medium 0
+0 0 medium '0'
 #9320
 oldstyle leo~
 Leo~
@@ -306,7 +313,7 @@ ABFGQ DH -100 0
 -5 -5 -5 5
 EIKU 0 0 0
 stand stand male 500
-0 0 medium 0
+0 0 medium '0'
 #9321
 oldstyle virgo~
 Virgo~
@@ -322,7 +329,7 @@ ABGQ H 1000 0
 -5 -5 -5 5
 EIKU 0 0 0
 sit sit female 500
-0 0 medium 0
+0 0 medium '0'
 #9322
 oldstyle libra~
 Libra~
@@ -337,7 +344,7 @@ ABGQ H 1000 0
 -5 -5 -5 5
 EIKU 0 0 0
 stand stand male 500
-0 0 medium 0
+0 0 medium '0'
 #9323
 oldstyle scorpio~
 Scorpio~
@@ -352,7 +359,7 @@ ABFGQ DH -200 0
 -5 -5 -5 5
 EIKU 0 0 0
 stand stand male 500
-0 0 medium 0
+0 0 medium '0'
 #9324
 oldstyle sagittarius~
 Sagittarius~
@@ -366,7 +373,7 @@ ABGQ H 1000 0
 -5 -5 -5 5
 EIKU 0 0 0
 stand stand male 500
-0 0 medium 0
+0 0 medium '0'
 #9325
 oldstyle capricorn~
 Capricorn~
@@ -382,7 +389,7 @@ ABGQ H 700 0
 -5 -5 -5 5
 EIKU 0 0 0
 stand stand male 500
-0 0 medium 0
+0 0 medium '0'
 #9326
 oldstyle aquarius~
 Aquarius~
@@ -397,7 +404,7 @@ ABGQ H 1000 0
 -5 -5 -5 5
 EIKU 0 0 0
 stand stand female 500
-0 0 medium 0
+0 0 medium '0'
 #9327
 oldstyle pisces mermaid~
 Pisces the mermaid~
@@ -412,7 +419,7 @@ ABGQ H 1000 0
 -5 -5 -5 5
 EIKU 0 0 0
 sit sit female 500
-0 0 medium 0
+0 0 medium '0'
 #9328
 oldstyle pisces fish~
 Pisces the fish~
@@ -427,7 +434,7 @@ ABFGQ H -1000 0
 -5 -5 -5 5
 EIKU 0 0 0
 stand stand male 500
-0 0 medium 0
+0 0 medium '0'
 #9329
 oldstyle bear ursa major~
 Ursa Major the bear~
@@ -442,7 +449,7 @@ ABFGQ DH 0 0
 -8 -8 -8 4
 IKR 0 0 0
 stand stand none 750
-0 0 medium 0
+0 0 medium '0'
 #9330
 oldstyle cassiopeia queen~
 Cassiopeia the Queen~
@@ -456,7 +463,7 @@ ABGR DH 700 0
 -7 -7 -7 2
 FU 0 0 0
 sit sit female 600
-0 0 medium 0
+0 0 medium '0'
 #9331
 oldstyle cepheus king~
 Cepheus the King~
@@ -471,7 +478,7 @@ ABGR H 700 0
 -7 -7 -7 2
 FU 0 0 0
 sit sit male 600
-0 0 medium 0
+0 0 medium '0'
 #9332
 oldstyle polaris polar star~
 Polaris, the polar star~
@@ -488,8 +495,10 @@ ABG BDH 1000 0
 -9 -9 -9 6
 EFNU 0 0 0
 stand stand male 1000
-0 0 medium 0
+0 0 medium '0'
 #0
+
+
 
 #OBJECTS
 #9301
@@ -498,7 +507,7 @@ a comet's tail~
 A long, slender whip lies here.~
 oldstyle~
 weapon AB AN
-whip 2 6 whip 0
+whip 2 6 'whip' 0
 10 90 390 P
 #9302
 arm hercules~
@@ -509,9 +518,9 @@ armor AGK AI
 6 6 6 0 0
 22 100 3100 P
 A
-19 2
-A
 1 1
+A
+19 2
 E
 arm~
 These mighty armors have been worn by this immortal, since the ancient time.
@@ -562,9 +571,9 @@ armor AGK AG
 3 3 3 0 0
 20 100 1280 P
 A
-19 1
-A
 14 20
+A
+19 1
 E
 hoof~
 It is with these hooves that Taurus can stand against Orion's attacks.
@@ -578,9 +587,9 @@ armor AGHK AE
 2 2 2 0 0
 16 70 3600 P
 A
-2 2
-A
 1 1
+A
+2 2
 E
 mask~
 You notice the mask has got two faces, one smiling and the other crying.
@@ -636,9 +645,9 @@ armor AGK AJ
 8 8 8 0 0
 25 150 3900 P
 A
-13 5
-A
 17 -3
+A
+13 5
 E
 scale~
 It is a shield of justice, used in the ancient battle against injustice.
@@ -652,9 +661,9 @@ armor BGH AJ
 1 1 1 0 0
 0 150 0 P
 A
-13 -30
-A
 17 6
+A
+13 -30
 E
 scale~
 It is a shield of injustice, it picks on the innocent.
@@ -665,12 +674,12 @@ the Sting of Scorpio~
 Sting of the Zodiac lies here.~
 oldstyle~
 weapon AGK AN
-exotic 4 4 pierce 0
+exotic 4 4 'pierce' 0
 19 70 2700 P
 A
-19 1
-A
 18 3
+A
+19 1
 E
 sting~
 This dreadful weapon put a lot of mortals to death before Scorpio was banished.
@@ -693,12 +702,12 @@ the Titanic Bow of Sagittarius~
 The Titanic Bow of Sagittarius lies here.~
 oldstyle~
 weapon AGK AN
-exotic 2 9 blast 0
+exotic 2 9 'blast' 0
 20 200 2800 P
 A
-19 3
-A
 18 1
+A
+19 3
 E
 bow~
 The gigantic bow used by the Archer; it is a very powerful weapon.
@@ -712,9 +721,9 @@ armor AGK AH
 4 4 4 0 0
 22 60 3000 P
 A
-19 2
-A
 18 2
+A
+19 2
 E
 horn~
 These strange horns are the work of gods, shaped to fit on hands.
@@ -742,9 +751,9 @@ armor AGK AF
 8 8 8 0 0
 21 100 950 P
 A
-2 -2
-A
 17 -2
+A
+2 -2
 E
 tail~
 This tail can actually be worn by mortals somehow as leggings ... another
@@ -759,9 +768,9 @@ jewelry ABFGK AB
 0 0 0 0 0
 26 30 4200 P
 A
-3 2
-A
 12 25
+A
+3 2
 E
 ring~
 This ring belongs to Cassiopeia, queen of the Universe.
@@ -773,12 +782,12 @@ the Sceptre of Might~
 A sceptre of interest lies here.~
 oldstyle~
 light ABFGK ACDEGHIJKLMN
-0 0 -1 0 0
+0 0 999 0 0
 22 40 2400 P
 A
-19 2
-A
 18 2
+A
+19 2
 E
 sceptre~
 You'd better give it back, or the king of the Universe will punish you.
@@ -792,9 +801,9 @@ jewelry ABFGI AB
 0 0 0 0 0
 30 30 1690 P
 A
-13 30
-A
 12 10
+A
+13 30
 E
 ring~
 It conceals the power of the universe.
@@ -805,12 +814,12 @@ the Great Dipper of the Skies~
 A dazzling white object lies on the ground.~
 oldstyle~
 weapon ABFGI AN
-exotic 4 6 blast 0
+exotic 4 6 'blast' 0
 29 200 4200 P
 A
-19 2
-A
 18 2
+A
+19 2
 #9324
 spring shoot~
 a spring shoot~
@@ -857,6 +866,8 @@ They certainly look important!
 ~
 #0
 
+
+
 #ROOMS
 #9301
 Inside a Tavern~
@@ -866,7 +877,8 @@ destiny lie beyond this world.'  You are still wondering what she means when
 you suddenly notice the crystal ball ... it glows fiercely and displays the
 Universe!
 ~
-0 D 0
+0
+D 0
 D3
 The shadows cloud your vision.
 ~
@@ -883,7 +895,8 @@ You have touched the crystal ball and find that you have gone inside it:
 a world of stars and wonders!  As you look back you figure out there is no
 choice but to go forward.
 ~
-0 0 2
+0
+0 2
 D0
 ~
 ~
@@ -896,7 +909,8 @@ at your presence, and comets and meteors wandering around you.  You realize
 that this world may not be the true galaxy after all, but just another
 fantasy zone.  Exits lie virtually in all directions.
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -919,7 +933,8 @@ On an InterGalactic Walkway~
 You are on a well-paved path which seems that it was made deliberately for
 visitors like you.  The walkway continues north and a small exit lies west.
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -939,7 +954,8 @@ You notice the walkway has come to an abrupt end and you wonder why. You see
 that there is still a small path which leads north and one to the west.
 To the east lies a bridge.
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -962,7 +978,8 @@ At the Undeveloped Part of the Galaxy~
 This place looks deserted, covered with space debris.  Not a sign of life
 is around.
 ~
-0 0 1
+0
+0 1
 D2
 ~
 ~
@@ -979,7 +996,8 @@ bridge itself shines brightly and makes you feel that you are walking on
 a path of light.  An entrance to an ancient building lies north and to
 the east lies the Milky Way.
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -999,7 +1017,8 @@ This bridge, like the other, was made as a memorial.  The nebulae had to
 make one just to show that they are as capable as the stars.  North lies
 a throne room.
 ~
-0 A 1
+0
+A 1
 D0
 ~
 ~
@@ -1019,7 +1038,8 @@ You can only faintly make out that it is a throne room as it is too
 dark in here.  In the middle is an empty throne.  You wonder where
 the King has gone, maybe he is hiding from you?
 ~
-0 AD 0
+0
+AD 0
 D2
 ~
 ~
@@ -1031,7 +1051,8 @@ It is here that the famous old Milky Way starts flowing.  You are surrounded
 by streams of mist the moment you tread on it.  You can't see well in
 here ... luckily you haven't fallen yet!
 ~
-0 0 4
+0
+0 4
 D0
 ~
 ~
@@ -1046,7 +1067,8 @@ Along the Milky Way~
 You are still travelling inside this path of mist.  You notice a small
 opening to the east.
 ~
-0 0 4
+0
+0 4
 D0
 ~
 ~
@@ -1065,7 +1087,8 @@ At the End of the Milky Way~
 Just as you started enjoying this journey inside the mist, you have come to
 the end of it.  West leads to a bridge and east leads to somewhere else.
 ~
-0 0 4
+0
+0 4
 D1
 ~
 ~
@@ -1084,7 +1107,8 @@ A Small Clearing~
 You are inside a small clearing.  You can see that there are signs of a
 living creature nearby.
 ~
-0 0 2
+0
+0 2
 D0
 ~
 ~
@@ -1099,7 +1123,8 @@ An Edge of the Galaxy~
 You are on the very edge of the galaxy.  Nothing is here except that there
 is a path which leads down.
 ~
-0 0 1
+0
+0 1
 D2
 ~
 ~
@@ -1119,7 +1144,8 @@ You are very near to a gigantic red star.  While you are still fascinated
 by its beauty, the star keeps on growing ... suddenly you realize that you'd
 better leave.
 ~
-0 C 1
+0
+C 1
 D0
 ~
 ~
@@ -1145,14 +1171,16 @@ You may find yourself lucky to witness this rare event but even luckier,
 you have finally got out of this galaxy as your body turns into dust.
 That really HURTS!  
 ~
-0 BC 0
+0
+BC 0
 S
 #9321
 The Star Cluster~
 You are inside the home of the stars.  All you can see around you are stars
 and nothing else.  You eyes become pretty hurt as you look at them.
 ~
-0 D 1
+0
+D 1
 D0
 ~
 ~
@@ -1166,7 +1194,8 @@ S
 Another Edge of the Galaxy~
 This is another uninhabited place.  Exits lie north, east and south.
 ~
-0 0 2
+0
+0 2
 D0
 ~
 ~
@@ -1185,7 +1214,8 @@ Corner of the Galaxy~
 You wonder why the galaxy is limited.  All you have done in Astronomy
 courses now prove worthless.  Well who told you to take one at the start?  
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -1204,7 +1234,8 @@ Lost in Space~
 You are now lost in space.  Compasses don't work here, sorry.  What's more
 you can sense darkness engulfing you.  You'd better get out quick.
 ~
-0 A 2
+0
+A 2
 D0
 ~
 ~
@@ -1224,13 +1255,15 @@ Well you have chosen the wrong path, sorry.  Nothing can escape from this
 monster, not even light.
 PANIC!  You can't escape!
 ~
-0 ABC 0
+0
+ABC 0
 S
 #9326
 The Homes of the Pleiades~
 This is where the famous Seven Sisters live.  You'd better not disturb them.
 ~
-0 0 1
+0
+0 1
 D1
 ~
 ~
@@ -1245,7 +1278,8 @@ Western Side of the Temple~
 You are still wandering around this temple.  You notice exits lie in all
 directions except west.
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -1264,7 +1298,8 @@ Orion's Hunting Lodge~
 This is dedicated to the Great Hunter of all time -- Orion.
 Scattered on the floor is the famous hunting equipment used by him.
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -1279,7 +1314,8 @@ Northern Side of the Temple~
 You are still wandering around this temple.  You notice exits lie in all
 directions except north.
 ~
-0 0 1
+0
+0 1
 D1
 ~
 ~
@@ -1300,7 +1336,8 @@ young girl here, chained to the wall, as if she is waiting for execution.
 You look up and realize the chains are sent down directly from above.
 Below you recognize the temple of Thalos.
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -1332,7 +1369,8 @@ You have entered into this old temple, which was built originally for the gods
 in Mount Olympia, but it is now deserted as someone took over this part of the
 Universe.
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -1355,7 +1393,8 @@ Hercules' Mighty Throne~
 You stand before the throne of a long-forgotten hero.  It is full of bounty
 that he got from the Ten Labours. 
 ~
-0 0 1
+0
+0 1
 D2
 ~
 ~
@@ -1370,7 +1409,8 @@ Eastern Side of the Temple~
 You are still wandering around this temple.  You notice exits lie in all
 directions except east.
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -1389,7 +1429,8 @@ Perseus' Chamber~
 It is the chamber of the prince, Perseus.  However, he seems not to be here.
 Maybe he has gone to get Pegasus to save Andromeda?
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -1405,7 +1446,8 @@ You are dangling on the chains.  You notice exits lie in all directions.
 Up above you see the chains continue upwards.  But a forcefield prevents
 you from going further upwards.
 ~
-0 0 5
+0
+0 5
 D0
 ~
 ~
@@ -1437,7 +1479,8 @@ On a Hill~
 Suddenly you find yourself on a hillside.  As you look around, you notice
 that Spring has descended upon you.
 ~
-0 0 4
+0
+0 4
 D0
 ~
 ~
@@ -1456,7 +1499,8 @@ Inside a Spanish Bull-Ring~
 You are inside what used to be a ground for bull fighting.  But you notice
 there are no Matadors around.  Maybe they are all dead?
 ~
-0 0 2
+0
+0 2
 D1
 ~
 ~
@@ -1472,7 +1516,8 @@ This is a strange study. Besides the desks and chairs you also see a large
 mirror in the middle.  So, you wonder, is this how you make a Gemini into
 two Gemini?
 ~
-0 0 0
+0
+0 0
 D1
 ~
 ~
@@ -1483,7 +1528,8 @@ Along the seashore~
 You start to feel the heat of Summer.  Amongst the rocky beach you notice
 hidden forms which could be camouflaged crabs. 
 ~
-0 0 2
+0
+0 2
 D1
 ~
 ~
@@ -1498,7 +1544,8 @@ Within the Deep Jungle~
 Nearby you can hear the roar of an animal.  Peering through the dense
 overgrowth you think you glimpse a pair of menacing eyes.
 ~
-0 0 3
+0
+0 3
 D1
 ~
 ~
@@ -1509,7 +1556,8 @@ Inside a Luxurious Bedroom~
 A peaceful feeling overtakes you.  You see a magnificent four-poster bed.
 It's a double bed and there is only room for one more!  Well, what now ... ?
 ~
-0 D 1
+0
+D 1
 D3
 ~
 ~
@@ -1521,7 +1569,8 @@ You are standing inside the dock of a court.  You feel an overwhelming
 sense of guilt and you want to protest your innocence!  You fear retribution
 and feel yourself exposed, just like the trees in Autumn.
 ~
-0 D 1
+0
+D 1
 D1
 ~
 ~
@@ -1540,7 +1589,8 @@ In the Dry Desert~
 You are confused by the shifting sands around you.  Through the shimmering
 heat you see the hazy outline of a giant scorpion ... is this a mirage?
 ~
-0 0 2
+0
+0 2
 D1
 ~
 ~
@@ -1555,7 +1605,8 @@ In the Woods~
 You find yourself in the center of a Centaurion hunting party.  You'd better
 hide yourself before you become the 'center attraction'!
 ~
-0 0 3
+0
+0 3
 D1
 ~
 ~
@@ -1566,7 +1617,8 @@ On a Mountain Peak~
 You are on the highest peak of the Universe.  You look around and notice
 clouds below you.  One of the clouds resembles a goat-like form.
 ~
-0 0 5
+0
+0 5
 D1
 ~
 ~
@@ -1581,7 +1633,8 @@ Inside a Waterfall~
 The noise is deafening.  You are about to take a drink when you realize
 that the water is being poured out of a vessel of mind-boggling proportions!
 ~
-0 0 5
+0
+0 5
 D3
 ~
 ~
@@ -1592,7 +1645,8 @@ Inside a Gigantic Clam~
 You feel uneasy here as if some evil magic is being cast on you.
 You suspect something fishy is going on in here.
 ~
-0 0 5
+0
+0 5
 D3
 ~
 ~
@@ -1604,7 +1658,8 @@ You have reached the end of the mystic chains.  Looking up, you notice a
 small landing on which you can climb.  However, there seems to be another
 forcefield blocking your way.  
 ~
-0 0 5
+0
+0 5
 D4
 You see the forcefield of Summer.
 ~
@@ -1614,14 +1669,15 @@ D5
 You see the forcefield of Spring.
 ~
 ~
-2 9324 9339
+1 9324 9339
 S
 #9355
 On the Draco~
 You realize you are standing on scaly ground.  As you wonder what the ground
 is made of, you feel the ground move.
 ~
-0 A 4
+0
+A 4
 D0
 ~
 ~
@@ -1629,7 +1685,7 @@ D0
 D5
 ~
 ~
-2 9325 9354
+1 9325 9354
 S
 #9356
 Tail of the Draco~
@@ -1637,7 +1693,8 @@ At last you realize that you are on a giant snake-like dragon called the
 Draco, the guardian of the inner galaxy.  You realize that the Draco is
 actually flying now! 
 ~
-0 A 4
+0
+A 4
 D0
 ~
 ~
@@ -1652,7 +1709,8 @@ Path of the Draco~
 As you struggle along this scaly creature you realize that the only way
 you can reach to the inner galaxy is by going all the way to the head.
 ~
-0 A 4
+0
+A 4
 D0
 ~
 ~
@@ -1668,7 +1726,8 @@ You are approaching the leg part of this creature.  You look around and see
 that the surrounding is all dark except for some faint lights from the
 distant stars.
 ~
-0 A 4
+0
+A 4
 D0
 ~
 ~
@@ -1683,7 +1742,8 @@ On the Back of Draco~
 At last you are half way through this long, weary journey. You can see
 the wings are to the east but it seems that another forcefield is in the way.
 ~
-0 A 4
+0
+A 4
 D1
 You see the forcefield of Autumn.
 ~
@@ -1699,7 +1759,8 @@ Between the Wings of Draco~
 You hear some giant flapping sounds nearby.  You desperately try to get hold
 of something as the forceful gusts sweep you away.
 ~
-0 A 4
+0
+A 4
 D1
 ~
 ~
@@ -1707,14 +1768,15 @@ D1
 D3
 ~
 ~
-2 9326 9359
+1 9326 9359
 S
 #9361
 Near the Arms of Draco~
 From above you can faintly make out the gigantic arms which extend far
 beyond into the darkness.
 ~
-0 A 4
+0
+A 4
 D2
 ~
 ~
@@ -1729,7 +1791,8 @@ On the Neck of Draco~
 Your journey is now approaching the end.  However, this neck seems to be
 endless.
 ~
-0 A 4
+0
+A 4
 D0
 ~
 ~
@@ -1745,7 +1808,8 @@ You have come to the end of Draco, but you can't find the head!
 You see a forcefield to the south, some distance away, beyond reach.
 If only the head were here ...
 ~
-0 A 4
+0
+A 4
 D1
 ~
 ~
@@ -1761,11 +1825,12 @@ Now you are in the innermost part of the galaxy.  What you are walking on now
 is the path of the Great Dipper or the Plough.  You notice that there are
 seven rooms in this zone, representing the seven stars of the Dipper.
 ~
-0 0 1
+0
+0 1
 D0
 You see the forcefield of Winter.~
 forcefield~
-2 9327 9363
+1 9327 9363
 D2
 ~
 ~
@@ -1780,7 +1845,8 @@ Cassiopeia's Throne~
 This is the Throne room of the Queen of the Universe.  From here you can see
 every star and constellation in the Universe. 
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -1794,7 +1860,8 @@ S
 Along the Path of the Dipper~
 You see stars around you but nothing of special interest.
 ~
-0 0 1
+0
+0 1
 D1
 ~
 ~
@@ -1809,7 +1876,8 @@ Cepheus' Throne~
 This is the Throne room of the King of the Universe.  From here you can see
 every star and constellation in the Universe. 
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -1827,7 +1895,8 @@ S
 Along the path of the Dipper~
 You see stars around you but nothing of special interest.
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -1841,7 +1910,8 @@ S
 Along the path of the Dipper~
 You see stars around you but nothing of special interest.
 ~
-0 0 1
+0
+0 1
 D1
 ~
 ~
@@ -1857,7 +1927,8 @@ You have finished the path of the Dipper.  Here, the most prominent feature
 is a set of claw-marks.  You also notice a room to the south; it looks as
 if Polaris could lie here. 
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -1874,7 +1945,8 @@ significance.  You can see a powerful telescope pointing down towards the
 Universe (SNOOPING!).  It is from here that Polaris commands the Universe.
 You feel you have come to end of your search in this galaxy ...
 ~
-0 0 1
+0
+0 1
 D0
 ~
 ~
@@ -1882,129 +1954,140 @@ D0
 S
 #0
 
-#RESETS
-M 0 9301   3 9313  1	* a poor mudder
-M 0 9301   3 9322  1	* a poor mudder
-M 0 9301   3 9323  1	* a poor mudder
-M 0 9302   9 9304  1	* a beautiful star
-M 0 9302   9 9308  1	* a beautiful star
-M 0 9302   9 9312  1	* a beautiful star
-M 0 9302   9 9321  4	* a beautiful star
-M 0 9302   9 9321  4	* a beautiful star
-M 0 9302   9 9321  4	* a beautiful star
-M 0 9302   9 9321  4	* a beautiful star
-M 0 9302   9 9333  1	* a beautiful star
-M 0 9302   9 9355  1	* a beautiful star
-M 0 9303   5 9310  3	* a young nebula
-M 0 9303   5 9310  3	* a young nebula
-M 0 9303   5 9310  3	* a young nebula
-M 0 9303   5 9318  1	* a young nebula
-M 0 9303   5 9322  1	* a young nebula
-M 0 9304   4 9322  2	* a speedy comet
-E 1 9301  50   16	*   a comet's tail
-M 0 9304   4 9322  2	* a speedy comet
-E 1 9301  50   16	*   a comet's tail
-M 0 9304   4 9317  2	* a speedy comet
-E 1 9301  50   16	*   a comet's tail
-M 0 9304   4 9317  2	* a speedy comet
-E 1 9301  50   16	*   a comet's tail
-M 0 9305   4 9304  1	* a red supergiant
-M 0 9305   4 9308  1	* a red supergiant
-M 0 9305   4 9309  1	* a red supergiant
-M 0 9305   4 9313  1	* a red supergiant
-M 0 9306   3 9306  1	* a white dwarf
-M 0 9306   3 9314  1	* a white dwarf
-M 0 9306   3 9322  1	* a white dwarf
-M 0 9307   1 9310  1	* a horsehead nebula
-M 0 9308   1 9330  1	* poor Andromeda
-E 1 9328   1   17	*   chains of Andromeda
-M 0 9309   1 9332  1	* the mighty Hercules
-E 1 9302   1   10	*   the Titanic Arm plates of Hercules
-M 0 9310   1 9317  1	* the wild Pegasus
-M 0 9311   1 9328  1	* Orion the hunter
-E 1 9304   1   13	*   the Titanic Belt of Orion
-M 0 9312   7 9326  7	* the Pleiades
-M 0 9312   7 9326  7	* the Pleiades
-M 0 9312   7 9326  7	* the Pleiades
-M 0 9312   7 9326  7	* the Pleiades
-M 0 9312   7 9326  7	* the Pleiades
-M 0 9312   7 9326  7	* the Pleiades
-M 0 9312   7 9326  7	* the Pleiades
-M 0 9313   1 9363  1	* the Head of Draco
-G 1 9305   1     	*   an ugly skull of Draco
-M 0 9314   2 9358  1	* a baby draco
-M 0 9314   2 9360  1	* a baby draco
-M 0 9315   1 9342  1	* Aries
-G 1 9324   1     	*   a spring shoot
-E 1 9306   1    3	*   the Titanic Fleece of Aries
-M 0 9316   1 9343  1	* Taurus
-E 1 9307   1    8	*   the Titanic Hoof of Taurus
-M 0 9317   1 9344  1	* Gemini
-E 1 9308   1    6	*   the Titanic Mask of Gemini
-M 0 9318   1 9344  1	* Gemini
-M 0 9319   1 9345  1	* Cancer
-G 1 9325   1     	*   a summer flower
-E 1 9309   1    5	*   the Titanic Shell of Cancer
-M 0 9320   1 9346  1	* Leo
-E 1 9310   1   12	*   the Titanic Skin of Leo
-M 0 9321   1 9347  1	* Virgo
-E 1 9311   1   14	*   the Titanic Bracelet of Virgo
-M 0 9322   1 9348  1	* Libra
-G 1 9326   1     	*   an autumn leaf
-G 1 9312   1     	*   the Titanic Scale of Libra
-E 1 9313   1   11	*   the Titanic Scale of Libra
-M 0 9323   1 9349  1	* Scorpio
-E 1 9314   1   16	*   the Sting of Scorpio
-M 0 9324   1 9350  1	* Sagittarius
-E 1 9315   1   17	*   the Arrow of Sagittarius
-E 1 9316   1   16	*   the Titanic Bow of Sagittarius
-M 0 9325   1 9351  1	* Capricorn
-G 1 9327   1     	*   a winter branch
-E 1 9317   1    9	*   the Titanic Horns of Capricon
-M 0 9326   1 9352  1	* Aquarius
-E 1 9318   1   17	*   the Ancient Vessel of Aquarius
-M 0 9327   1 9353  1	* Pisces the mermaid
-E 1 9319   1    7	*   the Titanic Tail of Pisces
-M 0 9328   1 9353  1	* Pisces the fish
-M 0 9329   1 9370  1	* Ursa Major the bear
-M 0 9330   1 9365  1	* Cassiopeia the Queen
-E 1 9320   1    1	*   the Ring of Dignity
-M 0 9331   1 9367  1	* Cepheus the King
-E 1 9321   1    0	*   the Sceptre of Might
-M 0 9332   1 9371  1	* Polaris, the polar star
-E 1 9322   1    2	*   the ring of the universe
-E 1 9323   1   16	*   the Great Dipper of the Skies
-D 0 9339   4    2	* On the Mystic Chains up
-D 0 9354   4    2	* End of the Mystic Chains up
-D 0 9359   1    2	* On the Back of Draco east
-D 0 9363   2    2	* Approaching the Head of Draco south
+
+
+#SPECIALS
+M 9301 spec_thief
+M 9313 spec_breath_fire
+M 9314 spec_breath_fire
+M 9315 spec_cast_cleric
+M 9316 spec_cast_cleric
+M 9317 spec_cast_cleric
+M 9318 spec_cast_cleric
+M 9319 spec_cast_cleric
+M 9320 spec_cast_cleric
+M 9321 spec_cast_cleric
+M 9322 spec_cast_cleric
+M 9323 spec_cast_cleric
+M 9324 spec_cast_cleric
+M 9325 spec_cast_cleric
+M 9326 spec_cast_cleric
+M 9327 spec_cast_cleric
+M 9328 spec_cast_cleric
+M 9329 spec_cast_cleric
+M 9330 spec_cast_mage
+M 9331 spec_cast_mage
+M 9332 spec_breath_acid
 S
+
+
+
+#RESETS
+D 0 9339 4 2
+D 0 9354 4 2
+D 0 9359 1 2
+D 0 9363 2 2
+M 0 9302 9 9304 1
+M 0 9305 4 9304 1
+M 0 9306 3 9306 1
+M 0 9302 9 9308 1
+M 0 9305 4 9308 1
+M 0 9305 4 9309 1
+M 0 9303 5 9310 3
+M 0 9303 5 9310 3
+M 0 9303 5 9310 3
+M 0 9307 1 9310 1
+M 0 9302 9 9312 1
+M 0 9301 3 9313 1
+M 0 9305 4 9313 1
+M 0 9306 3 9314 1
+M 0 9304 4 9317 2
+E 0 9301 0 16
+M 0 9304 4 9317 2
+E 0 9301 0 16
+M 0 9310 1 9317 1
+M 0 9303 5 9318 1
+M 0 9302 9 9321 4
+M 0 9302 9 9321 4
+M 0 9302 9 9321 4
+M 0 9302 9 9321 4
+M 0 9301 3 9322 1
+M 0 9303 5 9322 1
+M 0 9304 4 9322 2
+E 0 9301 0 16
+M 0 9304 4 9322 2
+E 0 9301 0 16
+M 0 9306 3 9322 1
+M 0 9301 3 9323 1
+M 0 9312 7 9326 7
+M 0 9312 7 9326 7
+M 0 9312 7 9326 7
+M 0 9312 7 9326 7
+M 0 9312 7 9326 7
+M 0 9312 7 9326 7
+M 0 9312 7 9326 7
+M 0 9311 1 9328 1
+E 0 9304 0 13
+M 0 9308 1 9330 1
+E 0 9328 0 17
+M 0 9309 1 9332 1
+E 0 9302 0 10
+M 0 9302 9 9333 1
+M 0 9315 1 9342 1
+G 0 9324 0
+E 0 9306 0 3
+M 0 9316 1 9343 1
+E 0 9307 0 8
+M 0 9317 1 9344 1
+E 0 9308 0 6
+M 0 9318 1 9344 1
+M 0 9319 1 9345 1
+G 0 9325 0
+E 0 9309 0 5
+M 0 9320 1 9346 1
+E 0 9310 0 12
+M 0 9321 1 9347 1
+E 0 9311 0 14
+M 0 9322 1 9348 1
+G 0 9326 0
+G 0 9312 0
+E 0 9313 0 11
+M 0 9323 1 9349 1
+E 0 9314 0 16
+M 0 9324 1 9350 1
+E 0 9315 0 17
+E 0 9316 0 16
+M 0 9325 1 9351 1
+G 0 9327 0
+E 0 9317 0 9
+M 0 9326 1 9352 1
+E 0 9318 0 17
+M 0 9327 1 9353 1
+E 0 9319 0 7
+M 0 9328 1 9353 1
+M 0 9302 9 9355 1
+M 0 9314 2 9358 1
+M 0 9314 2 9360 1
+M 0 9313 1 9363 1
+G 0 9305 0
+M 0 9330 1 9365 1
+E 0 9320 0 1
+M 0 9331 1 9367 1
+E 0 9321 0 0
+M 0 9329 1 9370 1
+M 0 9332 1 9371 1
+E 0 9322 0 2
+E 0 9323 0 16
+S
+
+
 
 #SHOPS
 0
 
-#SPECIALS
-M 9301 spec_thief          	* a poor mudder
-M 9313 spec_breath_fire    	* the Head of Draco
-M 9314 spec_breath_fire    	* a baby draco
-M 9315 spec_cast_cleric    	* Aries
-M 9316 spec_cast_cleric    	* Taurus
-M 9317 spec_cast_cleric    	* Gemini
-M 9318 spec_cast_cleric    	* Gemini
-M 9319 spec_cast_cleric    	* Cancer
-M 9320 spec_cast_cleric    	* Leo
-M 9321 spec_cast_cleric    	* Virgo
-M 9322 spec_cast_cleric    	* Libra
-M 9323 spec_cast_cleric    	* Scorpio
-M 9324 spec_cast_cleric    	* Sagittarius
-M 9325 spec_cast_cleric    	* Capricorn
-M 9326 spec_cast_cleric    	* Aquarius
-M 9327 spec_cast_cleric    	* Pisces the mermaid
-M 9328 spec_cast_cleric    	* Pisces the fish
-M 9329 spec_cast_cleric    	* Ursa Major the bear
-M 9330 spec_cast_mage      	* Cassiopeia the Queen
-M 9331 spec_cast_mage      	* Cepheus the King
-M 9332 spec_breath_acid    	* Polaris, the polar star
-S
+
+
+#MOBPROGS
+#0
 
 #$

@@ -179,7 +179,7 @@ void do_flag(CHAR_DATA* ch, char* argument)
             if (word[0] == '\0') break;
 
             pos = flag_lookup(word, flag_table);
-            if (pos == 0) {
+            if (pos == NO_FLAG) {
                 send_to_char("That flag doesn't exist!\n\r", ch);
                 return;
             }

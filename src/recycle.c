@@ -40,6 +40,85 @@
 #include <sys/time.h>
 #endif
 
+#define STANDARD_ALLOCMEM(type, name)               \
+    type* name ## _free;                            \
+    int name ## _created;                           \
+    int name ## _allocated;                         \
+                                                    \
+    type* new_ ## name(void) {                      \
+        type* temp;                                 \
+        static type tZero;                          \
+                                                    \
+        if (name ## _free) {                        \
+            temp = name ## _free;                   \
+            name ## _free = name ## _free->next;    \
+        }                                           \
+        else {                                      \
+            temp = alloc_mem( sizeof(*temp) );      \
+            name ## _allocated++;                   \
+        }                                           \
+        *temp = tZero;                              \
+        name ## _created++;                         \
+        return temp;                                \
+    }
+
+#define STANDARD_FREEMEM(type, name)                \
+    int name ## _freed;                             \
+                                                    \
+    void free_ ## name(type* temp) {                \
+        temp->next = name ## _free;                 \
+        name ## _free = temp;                       \
+        name ## _freed++;                           \
+    }
+
+#define VAL_ALLOCMEM(type, name)                    \
+    type* name ## _free;                            \
+    int name ## _created;                           \
+    int name ## _allocated;                         \
+                                                    \
+    type* new_ ## name(void) {                      \
+        type* temp;                                 \
+        static type tZero;                          \
+                                                    \
+        if (name ## _free) {                        \
+            temp = name ## _free;                   \
+            name ## _free = name ## _free->next;    \
+        }                                           \
+        else {                                      \
+            temp = alloc_mem(sizeof(*temp));        \
+            name ## _allocated++;                   \
+        }                                           \
+                                                    \
+        *temp = tZero;                              \
+        VALIDATE(temp);                             \
+        name ## _created++;                         \
+        return temp;                                \
+    }
+
+#define VAL_FREEMEM(type, name)                     \
+    int name ## _freed;                             \
+                                                    \
+    void free_ ## name(type* temp) {                \
+        if (!IS_VALID(temp)) return;                \
+        INVALIDATE(temp);                           \
+        temp->next = name ## _free;                 \
+        name ## _free = temp;                       \
+        name ## _freed++;                           \
+    }
+
+#define allocfunc(a,b)          \
+    STANDARD_ALLOCMEM(a,b)      \
+    STANDARD_FREEMEM(a,b)
+
+#define allocfunc_val(a,b)      \
+    VAL_ALLOCMEM(a,b)           \
+    VAL_FREEMEM(a,b)
+
+#include "allocfunc.h"
+
+#undef allocfunc
+#undef allocfunc_val
+
 /* stuff for recyling notes */
 NOTE_DATA* note_free;
 
@@ -150,6 +229,12 @@ GEN_DATA* new_gen_data(void)
         gen_data_free = gen_data_free->next;
     }
     *gen = gen_zero;
+
+#if !defined(FIRST_BOOT)
+    gen->skill_chosen = new_boolarray(MAX_SKILL);
+    gen->group_chosen = new_boolarray(MAX_GROUP);
+#endif
+
     VALIDATE(gen);
     return gen;
 }
@@ -159,6 +244,11 @@ void free_gen_data(GEN_DATA* gen)
     if (!IS_VALID(gen)) return;
 
     INVALIDATE(gen);
+
+#if !defined(FIRST_BOOT)
+    free_boolarray(gen->skill_chosen);
+    free_boolarray(gen->group_chosen);
+#endif
 
     gen->next = gen_data_free;
     gen_data_free = gen;
@@ -381,6 +471,11 @@ PC_DATA* new_pcdata(void)
 
     pcdata->buffer = new_buf();
 
+#if !defined(FIRST_BOOT)
+    pcdata->learned = new_learned();
+    pcdata->group_known = new_boolarray(MAX_GROUP);
+#endif
+
     VALIDATE(pcdata);
     return pcdata;
 }
@@ -389,7 +484,13 @@ void free_pcdata(PC_DATA* pcdata)
 {
     int alias;
 
-    if (!IS_VALID(pcdata)) return;
+    if (!IS_VALID(pcdata))
+        return;
+
+#if !defined(FIRST_BOOT)
+    free_learned(pcdata->learned);
+    free_boolarray(pcdata->group_known);
+#endif
 
     free_digest(pcdata->pwd_digest);
     free_string(pcdata->bamfin);
@@ -429,7 +530,9 @@ long get_mob_id(void)
 
 MEM_DATA* mem_data_free;
 
-/* procedures and constants needed for buffering */
+////////////////////////////////////////////////////////////////////////////////
+// Buffer recycling
+////////////////////////////////////////////////////////////////////////////////
 
 BUFFER* buf_free;
 
@@ -463,18 +566,23 @@ void free_mem_data(MEM_DATA* memory)
 }
 
 /* buffer sizes */
-const int buf_size[MAX_BUF_LIST]
-    = {16, 32, 64, 128, 256, 1024, 2048, 4096, MAX_STRING_LENGTH, 8192, 
-        MAX_STRING_LENGTH*2, 16384, MAX_STRING_LENGTH*4};
+const size_t buf_size[MAX_BUF_LIST]= {
+    16, 32, 64, 128, 256, 1024, 2048, 4096, 
+    MAX_STRING_LENGTH,      // vvv
+    8192, 
+    MAX_STRING_LENGTH*2,    // Doesn't follow pattern, but frequently used.
+    16384, 
+    MAX_STRING_LENGTH*4     // ^^^
+};
 
 /* local procedure for finding the next acceptable size */
 /* -1 indicates out-of-boundary error */
-int get_size(int val)
+static size_t get_size(size_t val)
 {
-    int i;
-
-    for (i = 0; i < MAX_BUF_LIST; i++)
-        if (buf_size[i] >= val) { return buf_size[i]; }
+    for (int i = 0; i < MAX_BUF_LIST; i++) {
+        if (buf_size[i] >= val) 
+            return buf_size[i];
+    }
 
     return -1;
 }
@@ -543,7 +651,7 @@ void free_buf(BUFFER* buffer)
 bool add_buf(BUFFER* buffer, char* string)
 {
     char* oldstr;
-    int oldsize;
+    size_t oldsize;
 
     oldstr = buffer->string;
     oldsize = buffer->size;
@@ -553,17 +661,29 @@ bool add_buf(BUFFER* buffer, char* string)
 
     size_t len = strlen(buffer->string) + strlen(string) + 1;
 
-    while (len >= buffer->size) /* increase the buffer size */
+    //while (len >= buffer->size) /* increase the buffer size */
+    //{
+    //    buffer->size = get_size(buffer->size + 1);
+    //    {
+    //        if (buffer->size == -1) /* overflow */
+    //        {
+    //            buffer->size = oldsize;
+    //            buffer->state = BUFFER_OVERFLOW;
+    //            bug("buffer overflow past size %d", buffer->size);
+    //            return false;
+    //        }
+    //    }
+    //}
+
+    if (len >= buffer->size) /* increase the buffer size */
     {
-        buffer->size = get_size(buffer->size + 1);
+        buffer->size = get_size(len);
+        if (buffer->size == -1) /* overflow */
         {
-            if (buffer->size == -1) /* overflow */
-            {
-                buffer->size = oldsize;
-                buffer->state = BUFFER_OVERFLOW;
-                bug("buffer overflow past size %d", buffer->size);
-                return false;
-            }
+            buffer->size = oldsize;
+            buffer->state = BUFFER_OVERFLOW;
+            bug("buffer overflow past size %d", buffer->size);
+            return false;
         }
     }
 
@@ -587,4 +707,142 @@ void clear_buf(BUFFER* buffer)
 char* buf_string(BUFFER* buffer)
 {
     return buffer->string;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// MobProg recycling
+////////////////////////////////////////////////////////////////////////////////
+
+MPROG_LIST* mprog_free = NULL;
+
+MPROG_LIST* new_mprog(void)
+{
+    MPROG_LIST* mp;
+
+    if (mprog_free == NULL)
+        mp = alloc_perm(sizeof(MPROG_LIST));
+    else {
+        mp = mprog_free;
+        mprog_free = mprog_free->next;
+    }
+
+    memset(mp, 0, sizeof(MPROG_LIST));
+    mp->vnum = 0;
+    mp->trig_type = 0;
+    mp->code = str_dup("");
+    VALIDATE(mp);
+    return mp;
+}
+
+void free_mprog(MPROG_LIST* mp)
+{
+    if (!IS_VALID(mp))
+        return;
+
+    INVALIDATE(mp);
+    mp->next = mprog_free;
+    mprog_free = mp;
+}
+
+HELP_AREA* had_free = NULL;
+
+HELP_AREA* new_had(void)
+{
+    HELP_AREA* had;
+
+    if (had_free) {
+        had = had_free;
+        had_free = had_free->next;
+    }
+    else
+        had = alloc_perm(sizeof(HELP_AREA));
+
+    if (had == NULL) {
+        perror("Could not allocate HELP_AREA!");
+        exit(-1);
+    }
+
+    memset(had, 0, sizeof(HELP_AREA));
+
+    return had;
+}
+
+HELP_DATA* help_free = NULL;
+
+HELP_DATA* new_help(void)
+{
+    HELP_DATA* help;
+
+    if (help_free) {
+        help = help_free;
+        help_free = help_free->next;
+    }
+    else
+        help = alloc_perm(sizeof(HELP_DATA));
+
+    if (help == NULL) {
+        perror("Could not allocate HELP_DATA!");
+        exit(-1);
+    }
+
+    memset(help, 0, sizeof(HELP_DATA));
+
+    return help;
+}
+
+void free_help(HELP_DATA* help)
+{
+    free_string(help->keyword);
+    free_string(help->text);
+    help->next = help_free;
+    help_free = help;
+}
+
+int16_t* new_learned(void) // Return int16_t[MAX_SKILL]
+{
+    int16_t* temp;
+    int i;
+
+    if ((temp = (int16_t*)malloc(sizeof(int16_t) * MAX_SKILL)) == NULL) {
+        perror("malloc() failed in new_learned()");
+        exit(-1);
+    }
+
+    for (i = 0; i < MAX_SKILL; ++i)
+        temp[i] = 0;
+
+    return temp;
+}
+
+void free_learned(int16_t* temp)
+{
+    free(temp);
+    temp = NULL;
+    return;
+}
+
+bool* new_boolarray(size_t size) // Return bool[size]
+{
+    bool* temp;
+    int i;
+
+    if (size <= 0)
+        size = 1;
+
+    if ((temp = (bool*)malloc(sizeof(bool) * size)) == NULL) {
+        perror("malloc failed in new_boolarray()");
+        exit(-1);
+    }
+    
+    for (i = 0; i < size; ++i)
+        temp[i] = false;
+
+    return temp;
+}
+
+void free_boolarray(bool* temp)
+{
+    free(temp);
+    temp = NULL;
+    return;
 }

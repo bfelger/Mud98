@@ -33,7 +33,9 @@
 #include "comm.h"
 #include "digest.h"
 #include "interp.h"
+#include "olc.h"
 #include "recycle.h"
+#include "screen.h"
 #include "strings.h"
 #include "tables.h"
 #include "telnet.h"
@@ -72,23 +74,11 @@
 #define CLOSE_SOCKET close
 #define SOCKLEN socklen_t
 #define SOCKET int
-    #ifndef _XOPEN_CRYPT
-    #include <crypt.h>
-    #endif
 #endif
 
 const char echo_off_str[] = { IAC, WILL, TELOPT_ECHO, '\0' };
 const char echo_on_str[] = { IAC, WONT, TELOPT_ECHO, '\0' };
 const char go_ahead_str[] = { IAC, GA, '\0' };
-
-/*
- * Malloc debugging stuff.
- */
-#if defined(MALLOC_DEBUG)
-#include <malloc.h>
-extern int malloc_debug args((int));
-extern int malloc_verify args((void));
-#endif
 
 DESCRIPTOR_DATA* descriptor_list;           // All open descriptors
 DESCRIPTOR_DATA* d_next;                    // Next descriptor in loop
@@ -96,7 +86,7 @@ DESCRIPTOR_DATA* d_next;                    // Next descriptor in loop
 typedef enum {
     THREAD_STATUS_NONE,
     THREAD_STATUS_STARTED,
-    THREAD_STATUS_RUNNING, 
+    THREAD_STATUS_RUNNING,
     THREAD_STATUS_FINISHED,
 } ThreadStatus;
 
@@ -184,8 +174,8 @@ void init_ssl_server(SockServer* server)
     sprintf(pkey_file, "%s%s", area_dir, PKEY_FILE);
 
     /* Set the key and cert */
-    if (SSL_CTX_use_certificate_file(server->ssl_ctx, cert_file, 
-            SSL_FILETYPE_PEM) <= 0) {
+    if (SSL_CTX_use_certificate_file(server->ssl_ctx, cert_file,
+        SSL_FILETYPE_PEM) <= 0) {
         fprintf(stderr, "! Failed to open SSL certificate file %s\n", cert_file);
         ERR_print_errors_fp(stderr);
         exit(EXIT_FAILURE);
@@ -194,8 +184,8 @@ void init_ssl_server(SockServer* server)
         printf("* Certificate %s loaded.\n", cert_file);
     }
 
-    if (SSL_CTX_use_PrivateKey_file(server->ssl_ctx, pkey_file, 
-            SSL_FILETYPE_PEM) <= 0) {
+    if (SSL_CTX_use_PrivateKey_file(server->ssl_ctx, pkey_file,
+        SSL_FILETYPE_PEM) <= 0) {
         fprintf(stderr, "! Failed to open SSL private key file %s\n", pkey_file);
         ERR_print_errors_fp(stderr);
         exit(EXIT_FAILURE);
@@ -214,7 +204,7 @@ void init_ssl_server(SockServer* server)
     }
 
     // Only allow TLS
-    SSL_CTX_set_options(server->ssl_ctx, SSL_OP_ALL | SSL_OP_NO_SSLv2 
+    SSL_CTX_set_options(server->ssl_ctx, SSL_OP_ALL | SSL_OP_NO_SSLv2
         | SSL_OP_NO_SSLv3);
 }
 #endif
@@ -272,7 +262,7 @@ void init_server(SockServer* server, int port)
         ld.l_onoff = 1;
         ld.l_linger = 1000;
 
-        if (setsockopt(server->control, SOL_SOCKET, SO_DONTLINGER, (char*)&ld, sizeof(ld)) 
+        if (setsockopt(server->control, SOL_SOCKET, SO_DONTLINGER, (char*)&ld, sizeof(ld))
             < 0) {
             perror("Init_socket: SO_DONTLINGER");
 #ifdef _MSC_VER
@@ -393,6 +383,9 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
     dnew->showstr_point = NULL;
     dnew->outsize = 2000;
     dnew->outbuf = alloc_mem(dnew->outsize);
+    dnew->pEdit = 0;        // OLC
+    dnew->pString = NULL;   // OLC
+    dnew->editor = 0;       // OLC
 
     size = sizeof(sock);
     if (getpeername(dnew->client.fd, (struct sockaddr*)&sock, &size) < 0) {
@@ -409,7 +402,7 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
         addr = ntohl(sock.sin_addr.s_addr);
         sprintf(buf, "%d.%d.%d.%d",
             (addr >> 24) & 0xFF, (addr >> 16) & 0xFF,
-            (addr >> 8) & 0xFF, (addr)&0xFF
+            (addr >> 8) & 0xFF, (addr) & 0xFF
         );
         sprintf(log_buf, "Sock.sinaddr:  %s", buf);
         log_string(log_buf);
@@ -432,6 +425,7 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
         free_descriptor(dnew);
         goto init_descriptor_finish;
     }
+
     /*
      * Init descriptor data.
      */
@@ -461,7 +455,8 @@ init_descriptor_finish:
     return rc;
 }
 
-void handle_new_connection(SockServer* server) {
+void handle_new_connection(SockServer* server)
+{
     int new_thread_ix = -1;
 
     for (int i = 0; i < MAX_HANDSHAKES; i++) {
@@ -512,8 +507,8 @@ void handle_new_connection(SockServer* server) {
         return;
     }
 #else
-    if (pthread_create(&(new_conn_threads[new_thread_ix].id), NULL, 
-            init_descriptor, &thread_data[new_thread_ix]) != 0) {
+    if (pthread_create(&(new_conn_threads[new_thread_ix].id), NULL,
+        init_descriptor, &thread_data[new_thread_ix]) != 0) {
         perror("handle_new_connection(): pthread_create()");
     }
 #endif
@@ -537,7 +532,7 @@ void close_socket(DESCRIPTOR_DATA* dclose)
         process_descriptor_output(dclose, false);
 
     if (dclose->snoop_by != NULL) {
-        write_to_buffer(dclose->snoop_by, "Your victim has left the game.\n\r", 
+        write_to_buffer(dclose->snoop_by, "Your victim has left the game.\n\r",
             0);
     }
 
@@ -563,7 +558,7 @@ void close_socket(DESCRIPTOR_DATA* dclose)
         }
     }
 
-    if (d_next == dclose) 
+    if (d_next == dclose)
         d_next = d_next->next;
 
     if (dclose == descriptor_list) {
@@ -608,14 +603,14 @@ bool read_from_descriptor(DESCRIPTOR_DATA* d)
 #ifndef USE_RAW_SOCKETS
         size_t nRead;
         if ((ssl_err = SSL_read_ex(d->client.ssl, d->inbuf + iStart,
-                sizeof(d->inbuf) - 10 - iStart, &nRead)) <= 0) {
+            sizeof(d->inbuf) - 10 - iStart, &nRead)) <= 0) {
             ERR_print_errors_fp(stderr);
             return false;
         }
 #else
         int nRead;
 #ifdef _MSC_VER
-        nRead = recv(d->client.fd, d->inbuf + iStart, 
+        nRead = recv(d->client.fd, d->inbuf + iStart,
             (int)(sizeof(d->inbuf) - 10 - iStart), 0);
 #else
         nRead = read(d->client.fd, d->inbuf + iStart,
@@ -690,6 +685,8 @@ void process_client_input(SockServer* server, PollData* poll_data)
 
             if (d->showstr_point && *d->showstr_point != '\0')
                 show_string(d, d->incomm);
+            else if (d->pString)
+                string_add(d->character, d->incomm);    // OLC
             else if (d->connected == CON_PLAYING)
                 substitute_alias(d, d->incomm);
             else
@@ -761,7 +758,7 @@ void read_from_buffer(DESCRIPTOR_DATA* d)
                 sprintf(log_buf, "%s input spamming!", d->host);
                 log_string(log_buf);
                 wiznet("Spam spam spam $N spam spam spam spam spam!",
-                    d->character, NULL, WIZ_SPAM, 0, 
+                    d->character, NULL, WIZ_SPAM, 0,
                     get_trust(d->character));
                 if (d->incomm[0] == '!')
                     wiznet(d->inlast, d->character, NULL, WIZ_SPAM, 0,
@@ -797,62 +794,71 @@ void read_from_buffer(DESCRIPTOR_DATA* d)
  */
 bool process_descriptor_output(DESCRIPTOR_DATA* d, bool fPrompt)
 {
-    extern bool merc_down;
-
     /*
      * Bust a prompt.
      */
-    if (!merc_down && d->showstr_point && *d->showstr_point != '\0')
-        write_to_buffer(d, "[Hit Return to continue]\n\r", 0);
-    else if (fPrompt && !merc_down && d->connected == CON_PLAYING) {
-        CHAR_DATA* ch;
-        CHAR_DATA* victim;
+    if (!merc_down) {
+        if (d->showstr_point && *d->showstr_point != '\0')
+            write_to_buffer(d, "[Hit Return to continue]\n\r", 0);
+        else if (fPrompt && d->connected == CON_PLAYING) {
+            if (d->pString)
+                write_to_buffer(d, "> ", 2);    // OLC
+            else {
+                CHAR_DATA* ch;
+                CHAR_DATA* victim;
 
-        ch = d->character;
+                ch = d->character;
 
-        /* battle prompt */
-        if ((victim = ch->fighting) != NULL && can_see(ch, victim)) {
-            int percent;
-            char wound[100];
-            char buf[MAX_STRING_LENGTH];
+                /* battle prompt */
+                if ((victim = ch->fighting) != NULL && can_see(ch, victim)) {
+                    int percent;
+                    char wound[100];
+                    char buf[MAX_STRING_LENGTH];
 
-            if (victim->max_hit > 0)
-                percent = victim->hit * 100 / victim->max_hit;
-            else
-                percent = -1;
+                    if (victim->max_hit > 0)
+                        percent = victim->hit * 100 / victim->max_hit;
+                    else
+                        percent = -1;
 
-            if (percent >= 100)
-                sprintf(wound, "is in excellent condition.");
-            else if (percent >= 90)
-                sprintf(wound, "has a few scratches.");
-            else if (percent >= 75)
-                sprintf(wound, "has some small wounds and bruises.");
-            else if (percent >= 50)
-                sprintf(wound, "has quite a few wounds.");
-            else if (percent >= 30)
-                sprintf(wound, "has some big nasty wounds and scratches.");
-            else if (percent >= 15)
-                sprintf(wound, "looks pretty hurt.");
-            else if (percent >= 0)
-                sprintf(wound, "is in awful condition.");
-            else
-                sprintf(wound, "is bleeding to death.");
+                    if (percent >= 100)
+                        sprintf(wound, "is in excellent condition.");
+                    else if (percent >= 90)
+                        sprintf(wound, "has a few scratches.");
+                    else if (percent >= 75)
+                        sprintf(wound, "has some small wounds and bruises.");
+                    else if (percent >= 50)
+                        sprintf(wound, "has quite a few wounds.");
+                    else if (percent >= 30)
+                        sprintf(wound, "has some big nasty wounds and scratches.");
+                    else if (percent >= 15)
+                        sprintf(wound, "looks pretty hurt.");
+                    else if (percent >= 0)
+                        sprintf(wound, "is in awful condition.");
+                    else
+                        sprintf(wound, "is bleeding to death.");
 
-            sprintf(buf, "%s %s \n\r",
-                IS_NPC(victim) ? victim->short_descr : victim->name, wound);
-            buf[0] = UPPER(buf[0]);
-            write_to_buffer(d, buf, 0);
+                    sprintf(buf, "%s %s \n\r",
+                        IS_NPC(victim) ? victim->short_descr : victim->name, wound);
+                    buf[0] = UPPER(buf[0]);
+                    write_to_buffer(d, buf, 0);
+                }
+
+                ch = d->original ? d->original : d->character;
+                if (!IS_SET(ch->comm, COMM_COMPACT))
+                    write_to_buffer(d, "\n\r", 2);
+
+                if (IS_SET(ch->comm, COMM_PROMPT))
+                    bust_a_prompt(d->character);
+
+                if (IS_SET(ch->comm, COMM_TELNET_GA))
+                    write_to_buffer(d, go_ahead_str, 0);
+
+                if (IS_SET(ch->comm, COMM_OLCX)
+                    && d->editor != ED_NONE
+                    && d->pString == NULL)
+                    UpdateOLCScreen(d);
+            }
         }
-
-        ch = d->original ? d->original : d->character;
-        if (!IS_SET(ch->comm, COMM_COMPACT))
-            write_to_buffer(d, "\n\r", 2);
-
-        if (IS_SET(ch->comm, COMM_PROMPT))
-            bust_a_prompt(d->character);
-
-        if (IS_SET(ch->comm, COMM_TELNET_GA))
-            write_to_buffer(d, go_ahead_str, 0);
     }
 
     /*
@@ -900,13 +906,13 @@ void bust_a_prompt(CHAR_DATA* ch)
     char doors[MAX_INPUT_LENGTH] = "";
     EXIT_DATA* pexit;
     bool found;
-    const char* dir_name[] = {"N", "E", "S", "W", "U", "D"};
+    const char* dir_name[] = { "N", "E", "S", "W", "U", "D" };
     int door;
 
     point = BUF(temp1);
     str = ch->prompt;
     if (str == NULL || str[0] == '\0') {
-        sprintf(BUF(temp1), "{p<%dhp %dm %dmv>{x %s", ch->hit, ch->mana, ch->move, 
+        sprintf(BUF(temp1), "{p<%dhp %dm %dmv>{x %s", ch->hit, ch->mana, ch->move,
             ch->prefix);
         send_to_char(BUF(temp1), ch);
         goto bust_a_prompt_cleanup;
@@ -947,7 +953,7 @@ void bust_a_prompt(CHAR_DATA* ch)
             break;
         case 'c':
             sprintf(BUF(temp2), "%s", "\n\r");
-            i = BUF(temp2); 
+            i = BUF(temp2);
             break;
         case 'h':
             sprintf(BUF(temp2), "%d", ch->hit);
@@ -998,7 +1004,7 @@ void bust_a_prompt(CHAR_DATA* ch)
                 sprintf(BUF(temp2), "%d", ch->alignment);
             else
                 sprintf(BUF(temp2), "%s",
-                    IS_GOOD(ch)   ? "good"
+                    IS_GOOD(ch) ? "good"
                     : IS_EVIL(ch) ? "evil"
                     : "neutral");
             i = BUF(temp2);
@@ -1033,6 +1039,14 @@ void bust_a_prompt(CHAR_DATA* ch)
             sprintf(BUF(temp2), "%%");
             i = BUF(temp2);
             break;
+        case 'o':
+            sprintf(BUF(temp2), "%s", olc_ed_name(ch));
+            i = BUF(temp2);
+            break;
+        case 'O':
+            sprintf(BUF(temp2), "%s", olc_ed_vnum(ch));
+            i = BUF(temp2);
+            break;
         }
         ++str;
         while ((*point = *i) != '\0') ++point, ++i;
@@ -1044,7 +1058,7 @@ void bust_a_prompt(CHAR_DATA* ch)
     write_to_buffer(ch->desc, BUF(temp3), 0);
     send_to_char("{x", ch);
 
-    if (ch->prefix[0] != '\0') 
+    if (ch->prefix[0] != '\0')
         write_to_buffer(ch->desc, ch->prefix, 0);
 
 bust_a_prompt_cleanup:
@@ -1132,7 +1146,7 @@ bool write_to_descriptor(DESCRIPTOR_DATA* d, char* txt, size_t length)
 /*
  * Deal with sockets that haven't logged in yet.
  */
-void nanny(DESCRIPTOR_DATA* d, char* argument)
+void nanny(DESCRIPTOR_DATA * d, char* argument)
 {
     DESCRIPTOR_DATA* d_old = NULL;
     DESCRIPTOR_DATA* d_next = NULL;
@@ -1319,10 +1333,8 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
         write_to_buffer(d, "\n\r", 2);
 
         if (strlen(argument) < 5) {
-            write_to_buffer(
-                d,
-                "Password must be at least five characters long.\n\rPassword: ",
-                0);
+            write_to_buffer(d, "Password must be at least five characters long."
+                "\n\rPassword: ", 0);
             return;
         }
 
@@ -1340,8 +1352,8 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
         write_to_buffer(d, "\n\r", 2);
 
         if (!validate_password(argument, ch)) {
-            write_to_buffer(d,
-                "Passwords don't match.\n\rRetype password: ", 0);
+            write_to_buffer(d, "Passwords don't match.\n\r"
+                "Retype password: ", 0);
             d->connected = CON_GET_NEW_PASSWORD;
             return;
         }
@@ -1392,7 +1404,11 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
         ch->race = race;
         /* initialize stats */
         for (i = 0; i < MAX_STATS; i++)
+#if defined(FIRST_BOOT)
             ch->perm_stat[i] = pc_race_table[race].stats[i];
+#else
+            ch->perm_stat[i] = race_table[race].stats[i];
+#endif
         ch->affected_by = ch->affected_by | race_table[race].aff;
         ch->imm_flags = ch->imm_flags | race_table[race].imm;
         ch->res_flags = ch->res_flags | race_table[race].res;
@@ -1402,12 +1418,21 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
 
         /* add skills */
         for (i = 0; i < 5; i++) {
+#if defined(FIRST_BOOT)
             if (pc_race_table[race].skills[i] == NULL) break;
             group_add(ch, pc_race_table[race].skills[i], false);
         }
         /* add cost */
         ch->pcdata->points = pc_race_table[race].points;
         ch->size = pc_race_table[race].size;
+#else
+            if (race_table[race].skills[i] == NULL) break;
+            group_add(ch, race_table[race].skills[i], false);
+    }
+            /* add cost */
+        ch->pcdata->points = race_table[race].points;
+        ch->size = race_table[race].size;
+#endif
 
         write_to_buffer(d, "What is your sex (M/F)? ", 0);
         d->connected = CON_GET_NEW_SEX;
@@ -1560,15 +1585,27 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
         send_to_char("\n\r", ch);
 
         if (!str_cmp(argument, "done")) {
+#ifdef FIRST_BOOT
             if (ch->pcdata->points == pc_race_table[ch->race].points) {
+#else
+            if (ch->pcdata->points == race_table[ch->race].points) {
+#endif
                 send_to_char("You didn't pick anything.\n\r", ch);
                 break;
             }
 
+#ifdef FIRST_BOOT
             if (ch->pcdata->points <= 40 + pc_race_table[ch->race].points) {
+#else
+            if (ch->pcdata->points <= 40 + race_table[ch->race].points) {
+#endif
                 sprintf(buf,
                     "You must take at least %d points of skills and groups",
+#if defined(FIRST_BOOT)
                     40 + pc_race_table[ch->race].points);
+#else
+                    40 + race_table[ch->race].points);
+#endif
                 send_to_char(buf, ch);
                 break;
             }
@@ -1614,7 +1651,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
 
     case CON_READ_MOTD:
         write_to_buffer(
-            d, "\n\rWelcome to ROM 2.4.  Please do not feed the mobiles.\n\r",
+            d, "\n\rWelcome to " MUD_NAME " " MUD_VER ".  Please do not feed the mobiles.\n\r",
             0);
         ch->next = char_list;
         char_list = ch;
@@ -1672,7 +1709,7 @@ void nanny(DESCRIPTOR_DATA* d, char* argument)
     return;
 }
 
-void poll_server(SockServer* server, PollData* poll_data)
+void poll_server(SockServer * server, PollData * poll_data)
 {
     static struct timeval null_time = { 0 };
 
@@ -1689,8 +1726,8 @@ void poll_server(SockServer* server, PollData* poll_data)
         FD_SET(d->client.fd, &poll_data->exc_set);
     }
 
-    if (select((int)poll_data->maxdesc + 1, &poll_data->in_set, 
-            &poll_data->out_set, &poll_data->exc_set, &null_time) < 0) {
+    if (select((int)poll_data->maxdesc + 1, &poll_data->in_set,
+        &poll_data->out_set, &poll_data->exc_set, &null_time) < 0) {
         perror("poll_server");
 #ifdef _MSC_VER
         PrintLastWinSockError();
@@ -1711,7 +1748,7 @@ bool check_parse_name(char* name)
      * Reserved words.
      */
     if (is_exact_name(
-        name, "all auto immortal self someone something the you loner")) {
+        name, "all auto immortal self someone something the you loner none")) {
         return false;
     }
 
@@ -1721,10 +1758,6 @@ bool check_parse_name(char* name)
             && !str_cmp(name, clan_table[clan].name))
             return false;
     }
-
-    if (str_cmp(capitalize(name), "Alander")
-        && (!str_prefix("Alan", name) || !str_suffix("Alander", name)))
-        return false;
 
     /*
      * Length restrictions.
@@ -1785,7 +1818,7 @@ bool check_parse_name(char* name)
 /*
  * Look for link-dead player to reconnect.
  */
-bool check_reconnect(DESCRIPTOR_DATA* d, char* name, bool fConn)
+bool check_reconnect(DESCRIPTOR_DATA * d, char* name, bool fConn)
 {
     CHAR_DATA* ch;
 
@@ -1795,10 +1828,10 @@ bool check_reconnect(DESCRIPTOR_DATA* d, char* name, bool fConn)
             if (fConn == false) {
                 if (d->character->pcdata->pwd_digest != NULL)
                     free_digest(d->character->pcdata->pwd_digest);
-                d->character->pcdata->pwd_digest = 
-                    (unsigned char*)OPENSSL_memdup(ch->pcdata->pwd_digest, 
+                d->character->pcdata->pwd_digest =
+                    (unsigned char*)OPENSSL_memdup(ch->pcdata->pwd_digest,
                         ch->pcdata->pwd_digest_len);
-                d->character->pcdata->pwd_digest_len = 
+                d->character->pcdata->pwd_digest_len =
                     ch->pcdata->pwd_digest_len;
             }
             else {
@@ -1812,7 +1845,7 @@ bool check_reconnect(DESCRIPTOR_DATA* d, char* name, bool fConn)
 
                 sprintf(log_buf, "%s@%s reconnected.", ch->name, d->host);
                 log_string(log_buf);
-                wiznet("$N groks the fullness of $S link.", ch, NULL, 
+                wiznet("$N groks the fullness of $S link.", ch, NULL,
                     WIZ_LINKS, 0, 0);
                 d->connected = CON_PLAYING;
             }
@@ -1826,7 +1859,7 @@ bool check_reconnect(DESCRIPTOR_DATA* d, char* name, bool fConn)
 /*
  * Check if already playing.
  */
-bool check_playing(DESCRIPTOR_DATA* d, char* name)
+bool check_playing(DESCRIPTOR_DATA * d, char* name)
 {
     DESCRIPTOR_DATA* dold;
 
@@ -1846,7 +1879,7 @@ bool check_playing(DESCRIPTOR_DATA* d, char* name)
     return false;
 }
 
-void stop_idling(CHAR_DATA* ch)
+void stop_idling(CHAR_DATA * ch)
 {
     if (ch == NULL || ch->desc == NULL || ch->desc->connected != CON_PLAYING
         || ch->was_in_room == NULL
@@ -1861,7 +1894,7 @@ void stop_idling(CHAR_DATA* ch)
     return;
 }
 
-void process_client_output(PollData* poll_data)
+void process_client_output(PollData * poll_data)
 {
     for (DESCRIPTOR_DATA* d = descriptor_list; d != NULL; d = d_next) {
         d_next = d->next;
@@ -1881,7 +1914,7 @@ void process_client_output(PollData* poll_data)
 /*
  * Write to one char.
  */
-void send_to_char_bw(const char* txt, CHAR_DATA* ch)
+void send_to_char_bw(const char* txt, CHAR_DATA * ch)
 {
     if (txt != NULL && ch->desc != NULL)
         write_to_buffer(ch->desc, txt, strlen(txt));
@@ -1891,7 +1924,7 @@ void send_to_char_bw(const char* txt, CHAR_DATA* ch)
 /*
  * Write to one char, new colour version, by Lope.
  */
-void send_to_char(const char* txt, CHAR_DATA* ch)
+void send_to_char(const char* txt, CHAR_DATA * ch)
 {
     const char* point;
     char* point2;
@@ -1935,7 +1968,7 @@ void send_to_char(const char* txt, CHAR_DATA* ch)
 /*
  * Send a page to one char.
  */
-void page_to_char_bw(const char* txt, CHAR_DATA* ch)
+void page_to_char_bw(const char* txt, CHAR_DATA * ch)
 {
     if (txt == NULL || ch->desc == NULL) return;
 
@@ -1953,7 +1986,7 @@ void page_to_char_bw(const char* txt, CHAR_DATA* ch)
 /*
  * Page to one char, new colour version, by Lope.
  */
-void page_to_char(const char* txt, CHAR_DATA* ch)
+void page_to_char(const char* txt, CHAR_DATA * ch)
 {
     INIT_BUF(temp, MAX_STRING_LENGTH * 4);
     const char* point;
@@ -2054,18 +2087,18 @@ show_string_cleanup:
 }
 
 /* quick sex fixer */
-void fix_sex(CHAR_DATA* ch)
+void fix_sex(CHAR_DATA * ch)
 {
     if (ch->sex < 0 || ch->sex > 2)
         ch->sex = IS_NPC(ch) ? 0 : ch->pcdata->true_sex;
 }
 
-void act_new(const char* format, CHAR_DATA* ch, const void* arg1,
+void act_new(const char* format, CHAR_DATA * ch, const void* arg1,
     const void* arg2, int type, int min_pos)
 {
-    static char* const he_she[] = {"it", "he", "she"};
-    static char* const him_her[] = {"it", "him", "her"};
-    static char* const his_her[] = {"its", "his", "her"};
+    static char* const he_she[] = { "it", "he", "she" };
+    static char* const him_her[] = { "it", "him", "her" };
+    static char* const his_her[] = { "its", "his", "her" };
 
     CHAR_DATA* to;
     CHAR_DATA* vch = (CHAR_DATA*)arg2;
@@ -2100,7 +2133,10 @@ void act_new(const char* format, CHAR_DATA* ch, const void* arg1,
     }
 
     for (; to; to = to->next_in_room) {
-        if (!to->desc || to->position < min_pos) continue;
+        if ((!IS_NPC(to) && to->desc == NULL)
+            || (IS_NPC(to) && !HAS_TRIGGER(to, TRIG_ACT))
+            || to->position < min_pos)
+            continue;
 
         if ((type == TO_CHAR) && to != ch) continue;
         if (type == TO_VICT && (to != vch || to == ch)) continue;
@@ -2187,15 +2223,21 @@ void act_new(const char* format, CHAR_DATA* ch, const void* arg1,
         *point++ = '\r';
         *point = '\0';
         buf[0] = UPPER(buf[0]);
-        pbuff = buffer;
-        colourconv(pbuff, buf, to);
-        write_to_buffer(to->desc, buffer, 0);
+        if (to->desc != NULL) {
+            pbuff = buffer;
+            colourconv(pbuff, buf, to);
+            write_to_buffer(to->desc, buffer, 0);
+            //write_to_buffer(to->desc, buf, point - buf);
+        }
+        else if (MOBtrigger)
+            mp_act_trigger(buf, to, ch, arg1, arg2, TRIG_ACT);
+
     }
 
     return;
 }
 
-size_t colour(char type, CHAR_DATA* ch, char* string)
+size_t colour(char type, CHAR_DATA * ch, char* string)
 {
     PC_DATA* col;
     char code[20];
@@ -2516,7 +2558,7 @@ size_t colour(char type, CHAR_DATA* ch, char* string)
     return (strlen(code));
 }
 
-void colourconv(char* buffer, const char* txt, CHAR_DATA* ch)
+void colourconv(char* buffer, const char* txt, CHAR_DATA * ch)
 {
     const char* point;
     size_t skip = 0;
@@ -2548,4 +2590,39 @@ void colourconv(char* buffer, const char* txt, CHAR_DATA* ch)
         }
     }
     return;
+}
+
+
+// source: EOD, by John Booth <???> 
+void printf_to_char(CHAR_DATA* ch, char* fmt, ...)
+{
+    char buf[MAX_STRING_LENGTH];
+    va_list args;
+    va_start(args, fmt);
+    vsprintf(buf, fmt, args);
+    va_end(args);
+
+    send_to_char(buf, ch);
+}
+
+void bugf(char* fmt, ...)
+{
+    char buf[2 * MSL];
+    va_list args;
+    va_start(args, fmt);
+    vsprintf(buf, fmt, args);
+    va_end(args);
+
+    bug(buf, 0);
+}
+
+void flog(char* fmt, ...)
+{
+    char buf[2 * MSL];
+    va_list args;
+    va_start(args, fmt);
+    vsprintf(buf, fmt, args);
+    va_end(args);
+
+    log_string(buf);
 }

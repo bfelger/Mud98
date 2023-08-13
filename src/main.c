@@ -57,9 +57,6 @@
 #include <string.h>
 #include <sys/time.h>
 #include <unistd.h>
-#ifndef _XOPEN_CRYPT
-#include <crypt.h>
-#endif
 #endif
 
 // Global variables.
@@ -70,6 +67,7 @@ bool wizlock;                       // Game is wizlocked
 bool newlock;                       // Game is newlocked
 char str_boot_time[MAX_INPUT_LENGTH];
 time_t current_time;                // time of this pulse
+bool MOBtrigger = true;             // act() switch
 
 bool rt_opt_benchmark = false;
 bool rt_opt_noloop = false;
@@ -198,7 +196,7 @@ int main(int argc, char** argv)
 
     if (!rt_opt_noloop) {
         init_server(&server, port);
-        sprintf(log_buf, "ROM is ready to rock on port %d.", port);
+        sprintf(log_buf, MUD_NAME " is ready to rock on port %d.", port);
         log_string(log_buf);
         game_loop(&server);
 

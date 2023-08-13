@@ -26,8 +26,8 @@
  ***************************************************************************/
 
 #pragma once
-#ifndef ROM__TABLES_H
-#define ROM__TABLES_H
+#ifndef MUD98__TABLES_H
+#define MUD98__TABLES_H
 
 #include "merc.h"
 
@@ -80,4 +80,48 @@ extern const struct flag_type portal_flags[];
 extern const struct flag_type room_flags[];
 extern const struct flag_type exit_flags[];
 
-#endif // !ROM__TABLES_H
+/* OLC */
+extern const struct flag_type mprog_flags[];
+extern const struct flag_type area_flags[];
+extern const struct flag_type sector_flags[];
+extern const struct flag_type door_resets[];
+extern const struct flag_type wear_loc_strings[];
+extern const struct flag_type wear_loc_flags[];
+extern const struct flag_type res_flags[];
+extern const struct flag_type imm_flags[];
+extern const struct flag_type vuln_flags[];
+extern const struct flag_type type_flags[];
+extern const struct flag_type apply_flags[];
+extern const struct flag_type sex_flags[];
+extern const struct flag_type furniture_flags[];
+extern const struct flag_type weapon_class[];
+extern const struct flag_type apply_types[];
+extern const struct flag_type weapon_type2[];
+extern const struct flag_type apply_types[];
+extern const struct flag_type size_flags[];
+extern const struct flag_type position_flags[];
+extern const struct flag_type ac_type[];
+extern const struct bit_type bitvector_type[];
+extern const struct recval_type recval_table[];
+extern const struct flag_type target_table[];
+extern const struct flag_type dam_classes[];
+extern const struct flag_type log_flags[];
+extern const struct flag_type show_flags[];
+extern const struct flag_type stat_table[];
+
+struct bit_type {
+    const struct flag_type* table;
+    char* help;
+};
+
+struct recval_type {
+    int numhit;
+    int typhit;
+    int bonhit;
+    int ac;
+    int numdam;
+    int typdam;
+    int bondam;
+};
+
+#endif // !MUD98__TABLES_H

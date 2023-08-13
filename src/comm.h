@@ -3,8 +3,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#ifndef ROM__COMM_H
-#define ROM__COMM_H
+#ifndef MUD98__COMM_H
+#define MUD98__COMM_H
 
 #define MAX_HANDSHAKES 10
 
@@ -62,6 +62,12 @@ typedef struct descriptor_data {
     ptrdiff_t outtop;
     char* showstr_head;
     char* showstr_point;
+    uintptr_t pEdit;    // OLC
+    char** pString; // OLC
+    int16_t editor; // OLC
+    int16_t page;
+    char* screenmap;
+    char* oldscreenmap;
 } DESCRIPTOR_DATA;
 
 bool can_write(DESCRIPTOR_DATA* d, PollData* poll_data);
@@ -84,4 +90,4 @@ bool write_to_descriptor(DESCRIPTOR_DATA* d, char* txt, size_t length);
 void PrintLastWinSockError();
 #endif
 
-#endif // ROM__COMM_H
+#endif // MUD98__COMM_H
