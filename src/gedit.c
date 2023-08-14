@@ -7,14 +7,14 @@
 #include "comm.h"
 #include "olc.h"
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
 size_t MAX_GROUP;
 struct group_type* group_table;
 #endif
 #define GROUP_FILE DATA_DIR "groups"
 #define GEDIT(fun) bool fun(CHAR_DATA *ch, char *argument)
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
 void load_group(FILE* fp, struct group_type* group)
 {
     int i;
@@ -124,7 +124,7 @@ void save_groups()
 
 const struct olc_cmd_type gedit_table[] =
 {
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
     {	"name",		gedit_name	},
     {	"rating",	gedit_rating	},
     {	"spell",	gedit_spell	},
@@ -137,7 +137,6 @@ const struct olc_cmd_type gedit_table[] =
 
 void gedit(CHAR_DATA* ch, char* argument)
 {
-    struct group_type* pGroup;
     char arg[MAX_INPUT_LENGTH];
     char command[MAX_INPUT_LENGTH];
     int cmd;
@@ -145,7 +144,6 @@ void gedit(CHAR_DATA* ch, char* argument)
     strcpy(arg, argument);
     argument = one_argument(argument, command);
 
-    EDIT_GROUP(ch, pGroup);
     if (ch->pcdata->security < 5) {
         send_to_char("SKEdit: You do not have enough security to edit groups.\n\r", ch);
         edit_done(ch);
@@ -262,7 +260,7 @@ GEDIT(gedit_show)
     return false;
 }
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
 GEDIT(gedit_name)
 {
     struct group_type* pGrp;

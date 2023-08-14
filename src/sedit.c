@@ -37,8 +37,8 @@
 extern struct social_type xSoc;
 
 int maxSocial; /* max number of socials */
-#if !defined(FIRST_BOOT)
-struct    social_type* social_table;    /* and social table */
+#ifndef FIRST_BOOT
+extern struct social_type* social_table;    /* and social table */
 #endif
 
 #ifdef U
@@ -47,7 +47,7 @@ struct    social_type* social_table;    /* and social table */
 #define U(x)    (uintptr_t)(x)
 
 const struct olc_comm_type social_olc_comm_table[] = {
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
     { "cnoarg",     U(&xSoc.char_no_arg),   ed_line_string, 0                   },
     { "onoarg",     U(&xSoc.others_no_arg), ed_line_string, 0                   },
     { "cfound",     U(&xSoc.char_found),    ed_line_string, 0                   },
@@ -124,7 +124,7 @@ void do_sedit(CHAR_DATA* ch, char* argument)
 
     argument = one_argument(argument, command);
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
     if (!str_cmp(command, "new")) {
         if (sedit_new(ch, argument))
             save_socials();
@@ -187,7 +187,7 @@ SEDIT(sedit_show)
     return false;
 }
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
 SEDIT(sedit_new)
 {
     DESCRIPTOR_DATA* d;

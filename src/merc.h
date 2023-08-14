@@ -531,7 +531,7 @@ struct race_type {
     long form; /* default form flag for the race */
     long parts; /* default parts for the race */
     int16_t race_id;
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
     char* who_name;
     int16_t points;			/* cost in points of the race */
     int16_t class_mult[MAX_CLASS];	/* exp multiplier for class, * 100 */

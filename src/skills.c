@@ -953,7 +953,7 @@ void group_remove(CHAR_DATA* ch, const char* name)
     }
 }
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
 int race_exp_per_level(int race, int class, int points)
 {
     int expl, inc;

@@ -3105,7 +3105,7 @@ int get_vnum_obj_name_area(char* name, AREA_DATA* pArea)
     return 0;
 }
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
 int get_points(int race, int class)
 {
     int x;

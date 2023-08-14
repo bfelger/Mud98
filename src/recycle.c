@@ -230,7 +230,7 @@ GEN_DATA* new_gen_data(void)
     }
     *gen = gen_zero;
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
     gen->skill_chosen = new_boolarray(MAX_SKILL);
     gen->group_chosen = new_boolarray(MAX_GROUP);
 #endif
@@ -245,7 +245,7 @@ void free_gen_data(GEN_DATA* gen)
 
     INVALIDATE(gen);
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
     free_boolarray(gen->skill_chosen);
     free_boolarray(gen->group_chosen);
 #endif
@@ -255,7 +255,7 @@ void free_gen_data(GEN_DATA* gen)
 }
 
 /* stuff for recycling extended descs */
-EXTRA_DESCR_DATA* extra_descr_free;
+extern EXTRA_DESCR_DATA* extra_descr_free;
 
 EXTRA_DESCR_DATA* new_extra_descr(void)
 {
@@ -471,7 +471,7 @@ PC_DATA* new_pcdata(void)
 
     pcdata->buffer = new_buf();
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
     pcdata->learned = new_learned();
     pcdata->group_known = new_boolarray(MAX_GROUP);
 #endif
@@ -487,7 +487,7 @@ void free_pcdata(PC_DATA* pcdata)
     if (!IS_VALID(pcdata))
         return;
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
     free_learned(pcdata->learned);
     free_boolarray(pcdata->group_known);
 #endif
@@ -767,7 +767,7 @@ HELP_AREA* new_had(void)
     return had;
 }
 
-HELP_DATA* help_free = NULL;
+extern HELP_DATA* help_free;
 
 HELP_DATA* new_help(void)
 {

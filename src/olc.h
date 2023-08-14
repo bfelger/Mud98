@@ -113,6 +113,13 @@ struct olc_cmd_type {
     OLC_FUN* olc_fun;
 };
 
+struct olc_comm_type {
+    char* name;
+    uintptr_t argument;
+    ED_FUN* function;
+    const uintptr_t parameter;
+};
+
 extern const struct olc_comm_type mob_olc_comm_table[];
 extern const struct olc_comm_type obj_olc_comm_table[];
 extern const struct olc_comm_type room_olc_comm_table[];
@@ -121,13 +128,6 @@ extern const struct olc_comm_type race_olc_comm_table[];
 extern const struct olc_comm_type cmd_olc_comm_table[];
 extern const struct olc_comm_type prog_olc_comm_table[];
 extern const struct olc_comm_type social_olc_comm_table[];
-
-struct olc_comm_type {
-    char* name;
-    uintptr_t argument;
-    ED_FUN* function;
-    const uintptr_t parameter;
-};
 
 bool process_olc_command(CHAR_DATA*, char* argument, const struct olc_comm_type*);
 

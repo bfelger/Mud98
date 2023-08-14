@@ -57,6 +57,21 @@ struct size_type {
     char* name;
 };
 
+struct bit_type {
+    const struct flag_type* table;
+    char* help;
+};
+
+struct recval_type {
+    int numhit;
+    int typhit;
+    int bonhit;
+    int ac;
+    int numdam;
+    int typdam;
+    int bondam;
+};
+
 /* game tables */
 extern const struct clan_type clan_table[MAX_CLAN];
 extern const struct position_type position_table[];
@@ -108,20 +123,5 @@ extern const struct flag_type dam_classes[];
 extern const struct flag_type log_flags[];
 extern const struct flag_type show_flags[];
 extern const struct flag_type stat_table[];
-
-struct bit_type {
-    const struct flag_type* table;
-    char* help;
-};
-
-struct recval_type {
-    int numhit;
-    int typhit;
-    int bonhit;
-    int ac;
-    int numdam;
-    int typdam;
-    int bondam;
-};
 
 #endif // !MUD98__TABLES_H

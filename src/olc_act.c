@@ -788,7 +788,7 @@ AEDIT(aedit_builder)
 
     name[0] = UPPER(name[0]);
 
-    if (strstr(pArea->builders, name) != '\0') {
+    if (strstr(pArea->builders, name) != NULL) {
         pArea->builders = string_replace(pArea->builders, name, "\0");
         pArea->builders = string_unpad(pArea->builders);
 
@@ -801,7 +801,7 @@ AEDIT(aedit_builder)
     }
     else {
         buf[0] = '\0';
-        if (strstr(pArea->builders, "None") != '\0') {
+        if (strstr(pArea->builders, "None") != NULL) {
             pArea->builders = string_replace(pArea->builders, "None", "\0");
             pArea->builders = string_unpad(pArea->builders);
         }
@@ -4136,7 +4136,6 @@ ED_FUN_DEC(ed_ed)
     }
 
     if (!str_cmp(command, "format")) {
-        EXTRA_DESCR_DATA* ped = NULL;
 
         if (keyword[0] == '\0') {
             send_to_char("Syntax:  ed format [keyword]\n\r", ch);
@@ -4146,7 +4145,6 @@ ED_FUN_DEC(ed_ed)
         for (ed = *pEd; ed; ed = ed->next) {
             if (is_name(keyword, ed->keyword))
                 break;
-            ped = ed;
         }
 
         if (!ed) {
@@ -4161,7 +4159,6 @@ ED_FUN_DEC(ed_ed)
     }
 
     if (!str_cmp(command, "rename")) {
-        EXTRA_DESCR_DATA* ped = NULL;
 
         if (keyword[0] == '\0') {
             send_to_char("Syntax:  ed rename [old name] [new]\n\r", ch);
@@ -4171,7 +4168,6 @@ ED_FUN_DEC(ed_ed)
         for (ed = *pEd; ed; ed = ed->next) {
             if (is_name(keyword, ed->keyword))
                 break;
-            ped = ed;
         }
 
         if (!ed) {
@@ -4354,7 +4350,7 @@ ed_addapply_cleanup:
     free_buf(type);
     free_buf(bvector);
 
-    return true;
+    return rc;
 }
 
 ED_FUN_DEC(ed_value)

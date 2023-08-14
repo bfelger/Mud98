@@ -46,9 +46,11 @@
 #include <sys/types.h>
 #include <time.h>
 
-#ifndef _MSC_VER 
+#ifdef _MSC_VER 
 #include <Windows.h>
+#else
 #include <sys/resource.h>
+#include <sys/stat.h>
 #include <sys/time.h>
 #include <unistd.h>
 #endif
@@ -67,7 +69,7 @@ extern AFFECT_DATA* affect_free;
  * Globals.
  */
 HELP_DATA* help_first;
-HELP_DATA* help_last;
+extern HELP_DATA* help_last;
 
 HELP_AREA* had_list;
 
@@ -525,7 +527,6 @@ void load_area(FILE* fp)
 #define KEY( literal, field, value )    \
     if (!str_cmp(word, literal)) {      \
         field  = value;                 \
-        fMatch = true;                  \
         break;                          \
     }
 
@@ -533,7 +534,6 @@ void load_area(FILE* fp)
     if (!str_cmp(word, string)) {       \
         free_string(field);             \
         field = fread_string(fp);       \
-        fMatch = true;                  \
         break;                          \
     }
 
@@ -551,7 +551,6 @@ void new_load_area(FILE* fp)
 {
     AREA_DATA* pArea;
     char* word;
-    bool      fMatch;
 
     pArea = alloc_perm(sizeof(*pArea));
     pArea->age = 15;
@@ -568,7 +567,6 @@ void new_load_area(FILE* fp)
 
     for (; ; ) {
         word = feof(fp) ? "End" : fread_word(fp);
-        fMatch = false;
 
         switch (UPPER(word[0])) {
         case 'N':
@@ -585,7 +583,6 @@ void new_load_area(FILE* fp)
             break;
         case 'E':
             if (!str_cmp(word, "End")) {
-                fMatch = true;
                 if (area_first == NULL)
                     area_first = pArea;
                 if (area_last != NULL)
@@ -615,11 +612,12 @@ void assign_area_vnum(int vnum)
 {
     if (area_last->min_vnum == 0 || area_last->max_vnum == 0)
         area_last->min_vnum = area_last->max_vnum = vnum;
-    if (vnum != URANGE(area_last->min_vnum, vnum, area_last->max_vnum))
+    if (vnum != URANGE(area_last->min_vnum, vnum, area_last->max_vnum)) {
         if (vnum < area_last->min_vnum)
             area_last->min_vnum = vnum;
         else
             area_last->max_vnum = vnum;
+    }
     return;
 }
 

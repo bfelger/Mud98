@@ -23,7 +23,7 @@ struct cmd_list_type {
 
 extern	bool fBootDb;
 size_t MAX_CMD;
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
 struct cmd_type* cmd_table;
 #endif
 void create_command_table();
@@ -50,7 +50,7 @@ extern struct cmd_type xCmd;
 #define U(x)    (uintptr_t)(x)
 
 const struct olc_comm_type cmd_olc_comm_table[] = {
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
     { "name",	    0,		            ed_olded,	        U(cmdedit_name)	    },
     { "function",	0,		            ed_olded,	        U(cmdedit_function)	},
     { "level",	    0,		            ed_olded,	        U(cmdedit_level)	},
@@ -160,7 +160,7 @@ void do_cmdedit(CHAR_DATA* ch, char* argument)
 
     argument = one_argument(argument, command);
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
     if (!str_cmp(command, "new")) {
         if (cmdedit_new(ch, argument))
             save_command_table();
@@ -322,7 +322,7 @@ void do_nothing(CHAR_DATA* ch, char* argument)
     return;
 }
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
 CMDEDIT(cmdedit_name)
 {
     struct cmd_type* pCmd;
@@ -445,13 +445,10 @@ CMDEDIT(cmdedit_delete)
             edit_done(tch);
     }
 
-    size_t new_table_len = sizeof(struct cmd_type) * ((size_t)MAX_CMD + 1);
-    //if ((new_table = malloc(new_table_len)) == NULL) {
     if ((new_table = calloc(sizeof(struct cmd_type), (size_t)MAX_CMD + 1)) == NULL) {
         perror("cmdedit_delete: Could not allocate new_table!");
         exit(-1);
     }
-    //memset(new_table, 0, new_table_len);
 
     for (i = 0, j = 0; i < MAX_CMD + 1; i++) {
         if (i != iCmd && j < MAX_CMD) {

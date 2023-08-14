@@ -26,11 +26,11 @@ void            free_mprog              args((MPROG_LIST* mp));
 /*
  * Globals
  */
-extern          int                     top_reset;
-extern          int                     top_area;
-extern          int                     top_exit;
-extern          int                     top_ed;
-extern          int                     top_room;
+extern int top_reset;
+extern int top_area;
+extern int top_exit;
+extern int top_ed;
+extern int top_room;
 
 AREA_DATA* area_free;
 EXTRA_DESCR_DATA* extra_descr_free;
@@ -40,7 +40,7 @@ OBJ_INDEX_DATA* obj_index_free;
 SHOP_DATA* shop_free;
 MOB_INDEX_DATA* mob_index_free;
 RESET_DATA* reset_free;
-HELP_DATA* help_free;
+HELP_DATA* help_free = NULL;
 
 HELP_DATA* help_last;
 

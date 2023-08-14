@@ -679,7 +679,9 @@ void save_resets(FILE* fp, AREA_DATA* pArea)
 {
     RESET_DATA* pReset;
     MOB_INDEX_DATA* pLastMob = NULL;
+#ifdef VERBOSE
     OBJ_INDEX_DATA* pLastObj;
+#endif
     ROOM_INDEX_DATA* pRoom;
     char buf[MAX_STRING_LENGTH];
     int iHash;
@@ -697,7 +699,7 @@ void save_resets(FILE* fp, AREA_DATA* pArea)
                         bug("Save_resets: bad command %c.", pReset->command);
                         break;
 
-#if defined( VERBOSE )
+#ifdef VERBOSE
                     case 'M':
                         pLastMob = get_mob_index(pReset->arg1);
                         fprintf(fp, "M 0 %d %d %d %d Load %s\n",
@@ -764,8 +766,7 @@ void save_resets(FILE* fp, AREA_DATA* pArea)
                             pRoom->name);
                         break;
                     }
-#endif
-#if !defined( VERBOSE )
+#else
             case 'M':
                 pLastMob = get_mob_index(pReset->arg1);
                 fprintf(fp, "M 0 %d %d %d %d\n",
@@ -776,7 +777,9 @@ void save_resets(FILE* fp, AREA_DATA* pArea)
                 break;
 
             case 'O':
+#ifdef VERBOSE
                 pLastObj = get_obj_index(pReset->arg1);
+#endif
                 pRoom = get_room_index(pReset->arg3);
                 fprintf(fp, "O 0 %d 0 %d\n",
                     pReset->arg1,
@@ -784,7 +787,9 @@ void save_resets(FILE* fp, AREA_DATA* pArea)
                 break;
 
             case 'P':
+#ifdef VERBOSE
                 pLastObj = get_obj_index(pReset->arg1);
+#endif
                 fprintf(fp, "P 0 %d %d %d %d\n",
                     pReset->arg1,
                     pReset->arg2,
@@ -995,18 +1000,11 @@ void do_asave(CHAR_DATA* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     AREA_DATA* pArea;
-    FILE* fp;
-    int value, sec;
+    int value;
 
-    if (!ch)
-        sec = 9;
-    else
-        if (IS_NPC(ch))
-            return;
-        else
-            sec = ch->pcdata->security;
-
-    fp = NULL;
+    if (ch == NULL || ch->desc == NULL || IS_NPC(ch)) {
+        return;
+    }
 
     if (!ch)       /* Do an autosave */
     {
@@ -1019,7 +1017,7 @@ void do_asave(CHAR_DATA* ch, char* argument)
                 REMOVE_BIT(pArea->area_flags, AREA_CHANGED);
             }
 
-        save_progs(0, MAX_VNUM); // por si acaso
+        save_progs(0, MAX_VNUM); // Just in case
 
         save_other_helps(NULL);
 

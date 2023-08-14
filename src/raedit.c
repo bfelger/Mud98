@@ -10,7 +10,7 @@
 #include "recycle.h"
 #include "tables.h"
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
 struct	race_type* race_table;
 #endif
 int	maxrace;
@@ -27,7 +27,7 @@ extern struct race_type xRace;
 
 const struct olc_comm_type race_olc_comm_table[] = {
     { "show",	    0,				    ed_olded,		    U(raedit_show)	},
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
     { "name",	    U(&xRace.name),		ed_line_string,		0		        },
     { "pcrace",	    U(&xRace.pc_race),	ed_bool,		    0		        },
     { "act",	    U(&xRace.act),		ed_flag_toggle,		U(act_flags)    },
@@ -56,10 +56,6 @@ const struct olc_comm_type race_olc_comm_table[] = {
 
 void raedit(CHAR_DATA* ch, char* argument)
 {
-    struct race_type* pRace;
-
-    EDIT_RACE(ch, pRace);
-
     if (ch->pcdata->security < 7) {
         send_to_char("RAEdit : You do not have enough security to edit races.\n\r", ch);
         edit_done(ch);
@@ -118,7 +114,7 @@ RAEDIT(raedit_show)
 {
     struct race_type* pRace;
     char buf[MSL];
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
     static const char* Stats[] = { "Str", "Int", "Wis", "Dex", "Con" };
     int i = 0;
 #endif
@@ -146,7 +142,7 @@ RAEDIT(raedit_show)
     sprintf(buf, "Parts       : [%s]\n\r", flag_string(part_flags, pRace->parts));
     send_to_char(buf, ch);
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
     sprintf(buf, "Points      : [%10d] Size   : [%-10.10s]\n\r",
         pRace->points,
         size_table[pRace->size].name);
@@ -211,7 +207,7 @@ RAEDIT(raedit_list)
     return false;
 }
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
 RAEDIT(raedit_new)
 {
     DESCRIPTOR_DATA* d;
