@@ -20,7 +20,7 @@ int16_t* gsn_lookup(char* argument);
 
 #define SKEDIT(fun) bool fun(CHAR_DATA *ch, char *argument)
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
 struct skill_type* skill_table;
 size_t MAX_SKILL;
 #endif
@@ -70,7 +70,7 @@ extern struct skill_type xSkill;
 #define U(x)    (uintptr_t)(x)
 
 const struct olc_comm_type skill_olc_comm_table[] = {
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
     { "name",       0,                          ed_olded,       U(skedit_name)  },
     { "beats",      U(&xSkill.beats),           ed_number_s_pos,0               },
     { "position",   U(&xSkill.minimum_position),ed_int16lookup, U(position_lookup)},
@@ -235,7 +235,7 @@ void do_skedit(CHAR_DATA* ch, char* argument)
 
     one_argument(argument, command);
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
     if (!str_cmp(command, "new")) {
         argument = one_argument(argument, command);
         if (skedit_new(ch, argument))
@@ -531,7 +531,7 @@ void delete_skills_hash_table(void)
     }
 }
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
 SKEDIT(skedit_name)
 {
     struct skill_type* pSkill;

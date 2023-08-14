@@ -887,8 +887,8 @@ void convert_mobile(MOB_INDEX_DATA* pMobIndex)
 void recalc(MOB_INDEX_DATA* pMob)
 {
     int hplev, aclev, damlev, hitbonus;
-    int i, cnt = 0;
-    int clase[10] = { 0 };
+    //int i, cnt = 0;
+    //int clase[10] = { 0 };
     float n;
 
     if (pMob->level == 0)
@@ -898,23 +898,23 @@ void recalc(MOB_INDEX_DATA* pMob)
 
     if (IS_SET(pMob->act, ACT_WARRIOR)) {
         hplev += 1;
-        clase[cnt++] = ACT_WARRIOR;
+        //clase[cnt++] = ACT_WARRIOR;
     }
 
     if (IS_SET(pMob->act, ACT_THIEF)) {
         hplev -= 1; aclev -= 1; damlev -= 1;
-        clase[cnt++] = ACT_THIEF;
+        //clase[cnt++] = ACT_THIEF;
     }
 
     if (IS_SET(pMob->act, ACT_CLERIC)) {
         damlev -= 2;
-        clase[cnt++] = ACT_CLERIC;
+        //clase[cnt++] = ACT_CLERIC;
     }
 
     if (IS_SET(pMob->act, ACT_MAGE)) {
 //		hplev -= 1; aclev -= 1; damlev -= 3;
         hplev -= 2; aclev -= 1; damlev -= 3;
-        clase[cnt++] = ACT_MAGE;
+        //clase[cnt++] = ACT_MAGE;
     }
 
     hplev += pMob->level;
@@ -940,7 +940,7 @@ void recalc(MOB_INDEX_DATA* pMob)
     if (IS_SET(pMob->act, ACT_CLERIC) || IS_SET(pMob->act, ACT_MAGE))
         pMob->mana[DICE_BONUS] *= (1 + pMob->level / 3);
 
-    for (i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
         pMob->ac[i] = recval_table[aclev].ac * 10;
 
     if (IS_SET(pMob->act, ACT_UNDEAD)

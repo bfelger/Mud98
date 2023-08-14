@@ -25,7 +25,7 @@
 #include <time.h>
 
 char* numlineas(char*);
-char* getline(char*, char*);
+char* get_line(char*, char*);
 char* linedel(char*, int);
 char* lineadd(char*, char*, int);
 
@@ -576,7 +576,7 @@ char* linedel(char* str, int line)
     buf[0] = '\0';
 
     while (cnt < temp + 1) {
-        strtmp = getline(strtmp, tmpb);
+        strtmp = get_line(strtmp, tmpb);
         if (cnt++ != line) {
             strcat(buf, tmpb);
             strcat(buf, "\n\r");
@@ -587,7 +587,7 @@ char* linedel(char* str, int line)
     return str_dup(buf);
 }
 
-char* getline(char* str, char* buf)
+char* get_line(char* str, char* buf)
 {
     int tmp = 0;
     bool found = false;
@@ -617,12 +617,12 @@ char* numlineas(char* string)
 {
     int cnt = 1;
     static char buf[MSL * 2];
-    char buf2[MSL], tmpb[MSL];
+    char buf2[MSL + 50], tmpb[MSL];
 
     buf[0] = '\0';
 
     while (*string) {
-        string = getline(string, tmpb);
+        string = get_line(string, tmpb);
         sprintf(buf2, "#B%2d#b. %s\n\r", cnt++, tmpb);
         strcat(buf, buf2);
     }

@@ -255,7 +255,7 @@ const struct savetable_type racesavetable[] = {
     { "vuln",	    FIELD_FLAGVECTOR,	U(&race.vuln),	    0,		    0},
     { "form",	    FIELD_FLAGVECTOR,	U(&race.form),	    0,		    0},
     { "parts",	    FIELD_FLAGVECTOR,	U(&race.parts),	    0,		    0},
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
     { "points",	    FIELD_INT16,		U(&race.points),	0,			    0	},
     { "class_mult",	FIELD_INT16_ARRAY,	U(&race.class_mult),U(MAX_CLASS),	0	},
     { "who_name",	FIELD_STRING,		U(&race.who_name),	0,			    0	},
@@ -552,7 +552,7 @@ void save_command_table()
 {
     FILE* fp;
     const struct cmd_type* temp;
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
     extern struct cmd_type* cmd_table;
 #endif
     int cnt = 0;
@@ -565,12 +565,12 @@ void save_command_table()
         return;
     }
 
-    for (temp = cmd_table; !IS_NULLSTR(temp->name); temp = temp++)
+    for (temp = cmd_table; !IS_NULLSTR(temp->name); temp++)
         cnt++;
 
     fprintf(fp, "%d\n\n", cnt);
 
-    for (temp = cmd_table; !IS_NULLSTR(temp->name); temp = temp++) {
+    for (temp = cmd_table; !IS_NULLSTR(temp->name); temp++) {
         fprintf(fp, "#COMMAND\n");
         save_struct(fp, U(&cmd), cmdsavetable, U(temp));
         fprintf(fp, "#END\n\n");
@@ -579,7 +579,7 @@ void save_command_table()
     fclose(fp);
 }
 
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
 void load_command_table(void)
 {
     FILE* fp;
@@ -799,7 +799,7 @@ void save_races(void)
 {
     FILE* fp;
     const struct race_type* temp;
-#if !defined(FIRST_BOOT)
+#ifndef FIRST_BOOT
     extern struct race_type* race_table;
 #endif
     int cnt = 0;
@@ -812,12 +812,12 @@ void save_races(void)
         return;
     }
 
-    for (temp = race_table; !IS_NULLSTR(temp->name); temp = temp++)
+    for (temp = race_table; !IS_NULLSTR(temp->name); temp++)
         cnt++;
 
     fprintf(fp, "%d\n\n", cnt);
 
-    for (temp = race_table, cnt = 0; !IS_NULLSTR(temp->name); temp = temp++) {
+    for (temp = race_table, cnt = 0; !IS_NULLSTR(temp->name); temp++) {
         fprintf(fp, "#race\n");
         save_struct(fp, U(&race), racesavetable, U(temp));
 #if defined(FIRST_BOOT)

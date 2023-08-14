@@ -150,7 +150,7 @@ char* flag_string(const struct flag_type* flag_table, long bits)
     int  flag;
     static int toggle;
 
-    toggle = (++toggle) % 10;
+    toggle = (toggle + 1) % 10;
 
     buf[toggle][0] = '\0';
 
