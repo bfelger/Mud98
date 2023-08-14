@@ -189,7 +189,7 @@ void load_mobiles(FILE* fp)
     }
 
     for (;;) {
-        int16_t vnum;
+        VNUM vnum;
         char letter;
         int iHash;
 
@@ -204,7 +204,7 @@ void load_mobiles(FILE* fp)
 
         fBootDb = false;
         if (get_mob_index(vnum) != NULL) {
-            bug("Load_mobiles: vnum %d duplicated.", vnum);
+            bug("Load_mobiles: vnum %"PRVNUM" duplicated.", vnum);
             exit(1);
         }
         fBootDb = true;
@@ -364,7 +364,7 @@ void load_objects(FILE* fp)
     }
 
     for (;;) {
-        int16_t vnum;
+        VNUM vnum;
         char letter;
         int iHash;
 
@@ -379,7 +379,7 @@ void load_objects(FILE* fp)
 
         fBootDb = false;
         if (get_obj_index(vnum) != NULL) {
-            bug("Load_objects: vnum %d duplicated.", vnum);
+            bug("Load_objects: vnum %"PRVNUM" duplicated.", vnum);
             exit(1);
         }
         fBootDb = true;
@@ -574,7 +574,7 @@ void load_objects(FILE* fp)
  ****************************************************************************/
 void convert_objects(void)
 {
-    int vnum;
+    VNUM vnum;
     AREA_DATA* pArea;
     RESET_DATA* pReset;
     MOB_INDEX_DATA* pMob = NULL;
@@ -591,12 +591,12 @@ void convert_objects(void)
                 switch (pReset->command) {
                 case 'M':
                     if (!(pMob = get_mob_index(pReset->arg1)))
-                        bug("Convert_objects: 'M': bad vnum %d.", pReset->arg1);
+                        bug("Convert_objects: 'M': bad vnum %"PRVNUM".", pReset->arg1);
                     break;
 
                 case 'O':
                     if (!(pObj = get_obj_index(pReset->arg1))) {
-                        bug("Convert_objects: 'O': bad vnum %d.", pReset->arg1);
+                        bug("Convert_objects: 'O': bad vnum %"PRVNUM".", pReset->arg1);
                         break;
                     }
 
@@ -617,7 +617,7 @@ void convert_objects(void)
                     OBJ_INDEX_DATA* pObj, * pObjTo;
 
                     if (!(pObj = get_obj_index(pReset->arg1))) {
-                        bug("Convert_objects: 'P': bad vnum %d.", pReset->arg1);
+                        bug("Convert_objects: 'P': bad vnum %"PRVNUM".", pReset->arg1);
                         break;
                     }
 
@@ -625,7 +625,7 @@ void convert_objects(void)
                         continue;
 
                     if (!(pObjTo = get_obj_index(pReset->arg3))) {
-                        bug("Convert_objects: 'P': bad vnum %d.", pReset->arg3);
+                        bug("Convert_objects: 'P': bad vnum %"PRVNUM".", pReset->arg3);
                         break;
                     }
 
@@ -637,12 +637,12 @@ void convert_objects(void)
                 case 'G':
                 case 'E':
                     if (!(pObj = get_obj_index(pReset->arg1))) {
-                        bug("Convert_objects: 'E' or 'G': bad vnum %d.", pReset->arg1);
+                        bug("Convert_objects: 'E' or 'G': bad vnum %"PRVNUM".", pReset->arg1);
                         break;
                     }
 
                     if (!pMob) {
-                        bug("Convert_objects: 'E' or 'G': null mob for vnum %d.",
+                        bug("Convert_objects: 'E' or 'G': null mob for vnum %"PRVNUM".",
                             pReset->arg1);
                         break;
                     }
@@ -714,7 +714,7 @@ void convert_object(OBJ_INDEX_DATA* pObjIndex)
 
     switch (pObjIndex->item_type) {
     default:
-        bug("Obj_convert: vnum %d bad type.", pObjIndex->item_type);
+        bug("Obj_convert: vnum %"PRVNUM" bad type.", pObjIndex->item_type);
         break;
 
     case ITEM_LIGHT:

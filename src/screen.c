@@ -249,7 +249,7 @@ const struct olc_show_table_type redit_olc_show_table[] = {
         1, 1, 40, 1, 1, 0
     },
     {
-        "vnum",	U(&xRoom.vnum), "Vnum:", OLCS_INT16,
+        "vnum",	U(&xRoom.vnum), "Vnum:", OLCS_VNUM,
         49, 1, 5, 1, 1, 0
     },
     {
@@ -317,7 +317,7 @@ const struct olc_show_table_type medit_olc_show_table[] =
         40, 1, 12, 1, 1, U(areaname)
     },
     {
-        "vnum",	U(&xMob.vnum), "Vnum:", OLCS_INT16,
+        "vnum",	U(&xMob.vnum), "Vnum:", OLCS_VNUM,
         70, 1, 5, 1, 1, 0
     },
     {
@@ -450,7 +450,7 @@ const struct olc_show_table_type oedit_olc_show_table[] =
         40, 1, 14, 1, 1, U(areaname)
     },
     {
-        "vnum", U(&xObj.vnum), "Vnum:", OLCS_INT16,
+        "vnum", U(&xObj.vnum), "Vnum:", OLCS_VNUM,
         68, 1, 5, 1, 1, 0
     },
     {
@@ -598,6 +598,13 @@ void UpdateOLCScreen(DESCRIPTOR_DATA* d)
             SET_BUF(buf, itos(*(int16_t*)point));
             break;
 
+        case OLCS_VNUM: {
+            char vnum_buf[50]; // Overkill
+            sprintf(vnum_buf, "%" PRVNUM, *(VNUM*)point);
+            SET_BUF(buf, vnum_buf);
+            break;
+        }
+        
         case OLCS_STRFUNC:
             func = (STRFUNC*)table[i].func;
             tmpstr = (*func) (point);

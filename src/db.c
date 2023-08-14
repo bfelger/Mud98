@@ -56,7 +56,7 @@
 #endif
 
 COMMAND(do_asave);
-MPROG_CODE* pedit_prog(int);
+MPROG_CODE* pedit_prog(VNUM);
 
 // externals for counting purposes
 extern OBJ_DATA* obj_free;
@@ -170,9 +170,9 @@ int top_obj_index;
 int top_reset;
 int top_room;
 int top_shop;
-int top_vnum_room;      // OLC
-int top_vnum_mob;       // OLC
-int top_vnum_obj;       // OLC
+VNUM top_vnum_room;     // OLC
+VNUM top_vnum_mob;      // OLC
+VNUM top_vnum_obj;      // OLC
 int	top_mprog_index;    // OLC
 int mobile_count = 0;
 int newmobs = 0;
@@ -608,7 +608,7 @@ void new_load_area(FILE* fp)
 /*
  * Sets vnum range for area using OLC protection features.
  */
-void assign_area_vnum(int vnum)
+void assign_area_vnum(VNUM vnum)
 {
     if (area_last->min_vnum == 0 || area_last->max_vnum == 0)
         area_last->min_vnum = area_last->max_vnum = vnum;
@@ -715,7 +715,7 @@ void load_old_mob(FILE* fp)
     }
 
     for (;;) {
-        int16_t vnum;
+        VNUM vnum;
         char letter;
         int iHash;
 
@@ -730,7 +730,7 @@ void load_old_mob(FILE* fp)
 
         fBootDb = false;
         if (get_mob_index(vnum) != NULL) {
-            bug("Load_mobiles: vnum %d duplicated.", vnum);
+            bug("Load_mobiles: vnum %"PRVNUM" duplicated.", vnum);
             exit(1);
         }
         fBootDb = true;
@@ -814,7 +814,7 @@ void load_old_mob(FILE* fp)
         }
 
         if (letter != 'S') {
-            bug("Load_mobiles: vnum %d non-S.", vnum);
+            bug("Load_mobiles: vnum %"PRVNUM" non-S.", vnum);
             exit(1);
         }
 
@@ -845,7 +845,7 @@ void load_old_obj(FILE* fp)
     }
 
     for (;;) {
-        int16_t vnum;
+        VNUM vnum;
         char letter;
         int iHash;
 
@@ -860,7 +860,7 @@ void load_old_obj(FILE* fp)
 
         fBootDb = false;
         if (get_obj_index(vnum) != NULL) {
-            bug("Load_objects: vnum %d duplicated.", vnum);
+            bug("Load_objects: vnum %"PRVNUM" duplicated.", vnum);
             exit(1);
         }
         fBootDb = true;
@@ -1010,7 +1010,7 @@ void load_resets(FILE* fp)
     RESET_DATA* pReset;
     EXIT_DATA* pexit;
     ROOM_INDEX_DATA* pRoomIndex;
-    int rVnum = -1;
+    VNUM rVnum = VNUM_NONE;
 
     if (area_last == NULL) {
         bug("Load_resets: no #AREA seen yet.", 0);
@@ -1030,9 +1030,9 @@ void load_resets(FILE* fp)
         pReset = new_reset_data();
         pReset->command = letter;
         /* if_flag */ fread_number(fp);
-        pReset->arg1 = fread_number(fp);
+        pReset->arg1 = fread_vnum(fp);
         pReset->arg2 = fread_number(fp);
-        pReset->arg3 = (letter == 'G' || letter == 'R') ? 0 : fread_number(fp);
+        pReset->arg3 = (letter == 'G' || letter == 'R') ? 0 : fread_vnum(fp);
         pReset->arg4 = (letter == 'P' || letter == 'M') ? fread_number(fp) : 0;
         fread_to_eol(fp);
 
@@ -1054,7 +1054,7 @@ void load_resets(FILE* fp)
                 || !pRoomIndex
                 || !(pexit = pRoomIndex->exit[pReset->arg2])
                 || !IS_SET(pexit->rs_flags, EX_ISDOOR)) {
-                bugf("Load_resets: 'D': exit %d, room %d not door.", pReset->arg2, pReset->arg1);
+                bugf("Load_resets: 'D': exit %d, room %"PRVNUM" not door.", pReset->arg2, pReset->arg1);
                 exit(1);
             }
 
@@ -1078,8 +1078,8 @@ void load_resets(FILE* fp)
             break;
         }
 
-        if (rVnum == -1) {
-            bugf("load_resets : rVnum == -1");
+        if (rVnum == VNUM_NONE) {
+            bugf("load_resets : rVnum == VNUM_NONE");
             exit(1);
         }
 
@@ -1105,7 +1105,7 @@ void load_rooms(FILE* fp)
     }
 
     for (;;) {
-        int16_t vnum;
+        VNUM vnum;
         char letter;
         int door;
         int iHash;
@@ -1121,7 +1121,7 @@ void load_rooms(FILE* fp)
 
         fBootDb = false;
         if (get_room_index(vnum) != NULL) {
-            bug("Load_rooms: vnum %d duplicated.", vnum);
+            bug("Load_rooms: vnum %"PRVNUM" duplicated.", vnum);
             exit(1);
         }
         fBootDb = true;
@@ -1174,7 +1174,7 @@ void load_rooms(FILE* fp)
 
                 door = fread_number(fp);
                 if (door < 0 || door > 5) {
-                    bug("Fread_rooms: vnum %d has bad door number.", vnum);
+                    bug("Fread_rooms: vnum %"PRVNUM" has bad door number.", vnum);
                     exit(1);
                 }
 
@@ -1231,7 +1231,7 @@ void load_rooms(FILE* fp)
             }
 
             else {
-                bug("Load_rooms: vnum %d has flag not 'DES'.", vnum);
+                bug("Load_rooms: vnum %"PRVNUM" has flag not 'DES'.", vnum);
                 exit(1);
             }
         }
@@ -1312,7 +1312,7 @@ void load_specials(FILE* fp)
             pMobIndex = get_mob_index(fread_number(fp));
             pMobIndex->spec_fun = spec_lookup(fread_word(fp));
             if (pMobIndex->spec_fun == 0) {
-                bug("Load_specials: 'M': vnum %d.", pMobIndex->vnum);
+                bug("Load_specials: 'M': vnum %"PRVNUM".", pMobIndex->vnum);
                 exit(1);
             }
             break;
@@ -1487,7 +1487,7 @@ void load_mobprogs(FILE* fp)
     }
 
     for (; ; ) {
-        int16_t vnum;
+        VNUM vnum;
         char letter;
 
         letter = fread_letter(fp);
@@ -1502,7 +1502,7 @@ void load_mobprogs(FILE* fp)
 
         fBootDb = false;
         if (get_mprog_index(vnum) != NULL) {
-            bug("Load_mobprogs: vnum %d duplicated.", vnum);
+            bug("Load_mobprogs: vnum %"PRVNUM" duplicated.", vnum);
             exit(1);
         }
         fBootDb = true;
@@ -1539,7 +1539,7 @@ void fix_mobprogs(void)
                 if ((prog = pedit_prog(list->vnum)) != NULL)
                     list->code = prog->code;
                 else {
-                    bug("Fix_mobprogs: code vnum %d not found.", list->vnum);
+                    bug("Fix_mobprogs: code vnum %"PRVNUM" not found.", list->vnum);
                     exit(1);
                 }
             }
@@ -1596,12 +1596,12 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
             CHAR_DATA* mob;
 
             if ((pMobIndex = get_mob_index(pReset->arg1)) == NULL) {
-                bug("Reset_room: 'M': bad vnum %d.", pReset->arg1);
+                bug("Reset_room: 'M': bad vnum %"PRVNUM".", pReset->arg1);
                 continue;
             }
 
             if ((pRoomIndex = get_room_index(pReset->arg3)) == NULL) {
-                bug("Reset_area: 'R': bad vnum %d.", pReset->arg3);
+                bug("Reset_area: 'R': bad vnum %"PRVNUM".", pReset->arg3);
                 continue;
             }
 
@@ -1655,16 +1655,16 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
 
         case 'O':
             if (!(pObjIndex = get_obj_index(pReset->arg1))) {
-                bug("Reset_room: 'O' 1 : bad vnum %d", pReset->arg1);
-                sprintf(buf, "%d %d %d %d", pReset->arg1, pReset->arg2, pReset->arg3,
+                bug("Reset_room: 'O' 1 : bad vnum %"PRVNUM"", pReset->arg1);
+                sprintf(buf, "%"PRVNUM" %d %"PRVNUM" %d", pReset->arg1, pReset->arg2, pReset->arg3,
                     pReset->arg4);
                 bug(buf, 1);
                 continue;
             }
 
             if (!(pRoomIndex = get_room_index(pReset->arg3))) {
-                bug("Reset_room: 'O' 2 : bad vnum %d.", pReset->arg3);
-                sprintf(buf, "%d %d %d %d", pReset->arg1, pReset->arg2, pReset->arg3,
+                bug("Reset_room: 'O' 2 : bad vnum %"PRVNUM".", pReset->arg3);
+                sprintf(buf, "%"PRVNUM" %d %"PRVNUM" %d", pReset->arg1, pReset->arg2, pReset->arg3,
                     pReset->arg4);
                 bug(buf, 1);
                 continue;
@@ -1685,12 +1685,12 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
 
         case 'P':
             if ((pObjIndex = get_obj_index(pReset->arg1)) == NULL) {
-                bug("Reset_room: 'P': bad vnum %d.", pReset->arg1);
+                bug("Reset_room: 'P': bad vnum %"PRVNUM".", pReset->arg1);
                 continue;
             }
 
             if ((pObjToIndex = get_obj_index(pReset->arg3)) == NULL) {
-                bug("Reset_room: 'P': bad vnum %d.", pReset->arg3);
+                bug("Reset_room: 'P': bad vnum %"PRVNUM".", pReset->arg3);
                 continue;
             }
 
@@ -1727,14 +1727,14 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
         case 'G':
         case 'E':
             if ((pObjIndex = get_obj_index(pReset->arg1)) == NULL) {
-                bug("Reset_room: 'E' or 'G': bad vnum %d.", pReset->arg1);
+                bug("Reset_room: 'E' or 'G': bad vnum %"PRVNUM".", pReset->arg1);
                 continue;
             }
 
             if (!last) break;
 
             if (!LastMob) {
-                bug("Reset_room: 'E' or 'G': null mob for vnum %d.",
+                bug("Reset_room: 'E' or 'G': null mob for vnum %"PRVNUM".",
                     pReset->arg1);
                 last = false;
                 break;
@@ -1804,7 +1804,7 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
                             && pReset->command == 'E'
                             && pObj->level < LastMob->level - 5 && pObj->level < 45))
                         fprintf(stderr,
-                            "Err: obj %s (%d) -- %d, mob %s (%d) -- %d\n",
+                            "Err: obj %s (%"PRVNUM") -- %d, mob %s (%"PRVNUM") -- %d\n",
                             pObj->short_descr, pObj->pIndexData->vnum,
                             pObj->level, LastMob->short_descr,
                             LastMob->pIndexData->vnum, LastMob->level);
@@ -1824,7 +1824,7 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
 
         case 'R':
             if (!(pRoomIndex = get_room_index(pReset->arg1))) {
-                bug("Reset_room: 'R': bad vnum %d.", pReset->arg1);
+                bug("Reset_room: 'R': bad vnum %"PRVNUM".", pReset->arg1);
                 continue;
             }
 
@@ -1853,7 +1853,7 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
 void reset_area(AREA_DATA* pArea)
 {
     ROOM_INDEX_DATA* pRoom;
-    int  vnum;
+    VNUM  vnum;
 
     for (vnum = pArea->min_vnum; vnum <= pArea->max_vnum; vnum++) {
         if ((pRoom = get_room_index(vnum)))
@@ -2209,7 +2209,7 @@ OBJ_DATA* create_object(OBJ_INDEX_DATA* pObjIndex, int level)
      */
     switch (obj->item_type) {
     default:
-        bug("Read_object: vnum %d bad type.", pObjIndex->vnum);
+        bug("Read_object: vnum %"PRVNUM" bad type.", pObjIndex->vnum);
         break;
 
     case ITEM_LIGHT:
@@ -2335,7 +2335,7 @@ void clone_object(OBJ_DATA* parent, OBJ_DATA* clone)
     }
 }
 
-MPROG_CODE* get_mprog_index(int vnum)
+MPROG_CODE* get_mprog_index(VNUM vnum)
 {
     MPROG_CODE* prg;
     for (prg = mprog_list; prg; prg = prg->next) {
@@ -2392,7 +2392,7 @@ char* get_extra_descr(const char* name, EXTRA_DESCR_DATA* ed)
  * Translates mob virtual number to its mob index struct.
  * Hash table lookup.
  */
-MOB_INDEX_DATA* get_mob_index(int vnum)
+MOB_INDEX_DATA* get_mob_index(VNUM vnum)
 {
     MOB_INDEX_DATA* pMobIndex;
 
@@ -2402,7 +2402,7 @@ MOB_INDEX_DATA* get_mob_index(int vnum)
     }
 
     if (fBootDb) {
-        bug("Get_mob_index: bad vnum %d.", vnum);
+        bug("Get_mob_index: bad vnum %"PRVNUM".", vnum);
         exit(1);
     }
 
@@ -2413,7 +2413,7 @@ MOB_INDEX_DATA* get_mob_index(int vnum)
  * Translates mob virtual number to its obj index struct.
  * Hash table lookup.
  */
-OBJ_INDEX_DATA* get_obj_index(int vnum)
+OBJ_INDEX_DATA* get_obj_index(VNUM vnum)
 {
     OBJ_INDEX_DATA* pObjIndex;
 
@@ -2423,7 +2423,7 @@ OBJ_INDEX_DATA* get_obj_index(int vnum)
     }
 
     if (fBootDb) {
-        bug("Get_obj_index: bad vnum %d.", vnum);
+        bug("Get_obj_index: bad vnum %"PRVNUM".", vnum);
         exit(1);
     }
 
@@ -2434,7 +2434,7 @@ OBJ_INDEX_DATA* get_obj_index(int vnum)
  * Translates mob virtual number to its room index struct.
  * Hash table lookup.
  */
-ROOM_INDEX_DATA* get_room_index(int vnum)
+ROOM_INDEX_DATA* get_room_index(VNUM vnum)
 {
     ROOM_INDEX_DATA* pRoomIndex;
 
@@ -2444,7 +2444,7 @@ ROOM_INDEX_DATA* get_room_index(int vnum)
     }
 
     if (fBootDb) {
-        bug("Get_room_index: bad vnum %d.", vnum);
+        bug("Get_room_index: bad vnum %"PRVNUM".", vnum);
         exit(1);
     }
 
@@ -2464,6 +2464,36 @@ char fread_letter(FILE* fp)
     while (ISSPACE(c));
 
     return c;
+}
+
+/*
+ * Read a VNUM from a file.
+ */
+VNUM fread_vnum(FILE* fp)
+{
+    VNUM number;
+    char c;
+
+    do {
+        c = getc(fp);
+    } while (ISSPACE(c));
+
+    number = 0;
+
+    if (!ISDIGIT(c)) {
+        bug("Fread_number: bad format.", 0);
+        exit(1);
+    }
+
+    while (ISDIGIT(c)) {
+        number = number * 10 + c - '0';
+        c = getc(fp);
+    }
+
+    if (c != ' ')
+        ungetc(c, fp);
+
+    return number;
 }
 
 /*
@@ -2566,8 +2596,6 @@ long flag_convert(char letter)
 
     return bitsum;
 }
-
-
 
 /*
  * Read and allocate space for a string from a file.
@@ -2791,7 +2819,9 @@ char* fread_word(FILE* fp)
     }
     while (ISSPACE(cEnd));
 
-    if (cEnd == '\'' || cEnd == '"') { pword = word; }
+    if (cEnd == '\'' || cEnd == '"') { 
+        pword = word; 
+    }
     else {
         word[0] = cEnd;
         pword = word + 1;
@@ -3032,7 +3062,8 @@ void do_dump(CHAR_DATA* ch, char* argument)
     DESCRIPTOR_DATA* d;
     AFFECT_DATA* af;
     FILE* fp;
-    int vnum, nMatch = 0;
+    VNUM vnum;
+    int nMatch = 0;
 
     /* open file */
     fclose(fpReserve);

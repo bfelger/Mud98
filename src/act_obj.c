@@ -2176,7 +2176,7 @@ void do_buy(CHAR_DATA* ch, char* argument)
         else
             pRoomIndexNext = get_room_index(ch->in_room->vnum + 1);
         if (pRoomIndexNext == NULL) {
-            bug("Do_buy: bad pet shop at vnum %d.", ch->in_room->vnum);
+            bug("Do_buy: bad pet shop at vnum %"PRVNUM".", ch->in_room->vnum);
             send_to_char("Sorry, you can't buy that here.\n\r", ch);
             return;
         }
@@ -2373,7 +2373,7 @@ void do_list(CHAR_DATA* ch, char* argument)
             pRoomIndexNext = get_room_index(ch->in_room->vnum + 1);
 
         if (pRoomIndexNext == NULL) {
-            bug("Do_list: bad pet shop at vnum %d.", ch->in_room->vnum);
+            bug("Do_list: bad pet shop at vnum %"PRVNUM".", ch->in_room->vnum);
             send_to_char("You can't do that here.\n\r", ch);
             return;
         }

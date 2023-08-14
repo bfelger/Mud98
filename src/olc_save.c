@@ -83,13 +83,12 @@ bool area_changed(void)
 void save_mobprogs(FILE* fp, AREA_DATA* pArea)
 {
     MPROG_CODE* pMprog;
-    int i;
 
     fprintf(fp, "#MOBPROGS\n");
 
-    for (i = pArea->min_vnum; i <= pArea->max_vnum; i++) {
+    for (VNUM i = pArea->min_vnum; i <= pArea->max_vnum; i++) {
         if ((pMprog = get_mprog_index(i)) != NULL) {
-            fprintf(fp, "#%d\n", i);
+            fprintf(fp, "#%"PRVNUM"\n", i);
             fprintf(fp, "%s~\n", fix_string(pMprog->code));
         }
     }
@@ -184,7 +183,7 @@ void save_mobile(FILE* fp, MOB_INDEX_DATA* pMobIndex)
     char buf[MAX_STRING_LENGTH];
     MPROG_LIST* pMprog;
 
-    fprintf(fp, "#%d\n", pMobIndex->vnum);
+    fprintf(fp, "#%"PRVNUM"\n", pMobIndex->vnum);
     fprintf(fp, "%s~\n", pMobIndex->player_name);
     fprintf(fp, "%s~\n", pMobIndex->short_descr);
     fprintf(fp, "%s~\n", fix_string(pMobIndex->long_descr));
@@ -267,7 +266,7 @@ void save_mobile(FILE* fp, MOB_INDEX_DATA* pMobIndex)
         fprintf(fp, "F par %s\n", fwrite_flag(temp, buf));
 
     for (pMprog = pMobIndex->mprogs; pMprog; pMprog = pMprog->next) {
-        fprintf(fp, "M '%s' %d %s~\n",
+        fprintf(fp, "M '%s' %"PRVNUM" %s~\n",
             mprog_type_to_name(pMprog->trig_type), pMprog->vnum,
             pMprog->trig_phrase);
     }
@@ -283,12 +282,11 @@ void save_mobile(FILE* fp, MOB_INDEX_DATA* pMobIndex)
  ****************************************************************************/
 void save_mobiles(FILE* fp, AREA_DATA* pArea)
 {
-    int i;
     MOB_INDEX_DATA* pMob;
 
     fprintf(fp, "#MOBILES\n");
 
-    for (i = pArea->min_vnum; i <= pArea->max_vnum; i++) {
+    for (VNUM i = pArea->min_vnum; i <= pArea->max_vnum; i++) {
         if ((pMob = get_mob_index(i)))
             save_mobile(fp, pMob);
     }
@@ -310,7 +308,7 @@ void save_object(FILE* fp, OBJ_INDEX_DATA* pObjIndex)
     EXTRA_DESCR_DATA* pEd;
     char buf[MAX_STRING_LENGTH];
 
-    fprintf(fp, "#%d\n", pObjIndex->vnum);
+    fprintf(fp, "#%"PRVNUM"\n", pObjIndex->vnum);
     fprintf(fp, "%s~\n", pObjIndex->name);
     fprintf(fp, "%s~\n", pObjIndex->short_descr);
     fprintf(fp, "%s~\n", fix_string(pObjIndex->description));
@@ -504,12 +502,11 @@ void save_object(FILE* fp, OBJ_INDEX_DATA* pObjIndex)
  ****************************************************************************/
 void save_objects(FILE* fp, AREA_DATA* pArea)
 {
-    int i;
     OBJ_INDEX_DATA* pObj;
 
     fprintf(fp, "#OBJECTS\n");
 
-    for (i = pArea->min_vnum; i <= pArea->max_vnum; i++) {
+    for (VNUM i = pArea->min_vnum; i <= pArea->max_vnum; i++) {
         if ((pObj = get_obj_index(i)))
             save_object(fp, pObj);
     }
@@ -536,7 +533,7 @@ void save_rooms(FILE* fp, AREA_DATA* pArea)
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
         for (pRoomIndex = room_index_hash[iHash]; pRoomIndex; pRoomIndex = pRoomIndex->next) {
             if (pRoomIndex->area == pArea) {
-                fprintf(fp, "#%d\n", pRoomIndex->vnum);
+                fprintf(fp, "#%"PRVNUM"\n", pRoomIndex->vnum);
                 fprintf(fp, "%s~\n", pRoomIndex->name);
                 fprintf(fp, "%s~\n0\n", fix_string(pRoomIndex->description));
                 fprintf(fp, "%s ", fwrite_flag(pRoomIndex->room_flags, buf));
@@ -572,7 +569,7 @@ void save_rooms(FILE* fp, AREA_DATA* pArea)
                         fprintf(fp, "D%d\n", pExit->orig_door);
                         fprintf(fp, "%s~\n", fix_string(pExit->description));
                         fprintf(fp, "%s~\n", pExit->keyword);
-                        fprintf(fp, "%d %d %d\n", locks,
+                        fprintf(fp, "%d %d %"PRVNUM"\n", locks,
                             pExit->key,
                             pExit->u1.to_room->vnum);
                     }
@@ -611,11 +608,11 @@ void save_specials(FILE* fp, AREA_DATA* pArea)
         for (pMobIndex = mob_index_hash[iHash]; pMobIndex; pMobIndex = pMobIndex->next) {
             if (pMobIndex && pMobIndex->area == pArea && pMobIndex->spec_fun) {
 #if defined( VERBOSE )
-                fprintf(fp, "M %d %s Load to: %s\n", pMobIndex->vnum,
+                fprintf(fp, "M %"PRVNUM" %s Load to: %s\n", pMobIndex->vnum,
                     spec_name(pMobIndex->spec_fun),
                     pMobIndex->short_descr);
 #else
-                fprintf(fp, "M %d %s\n", pMobIndex->vnum,
+                fprintf(fp, "M %"PRVNUM" %s\n", pMobIndex->vnum,
                     spec_name(pMobIndex->spec_fun));
 #endif
             }
@@ -649,7 +646,7 @@ void save_door_resets(FILE* fp, AREA_DATA* pArea)
                         && (IS_SET(pExit->rs_flags, EX_CLOSED)
                             || IS_SET(pExit->rs_flags, EX_LOCKED)))
 #if defined( VERBOSE )
-                        fprintf(fp, "D 0 %d %d %d The %s door of %s is %s\n",
+                        fprintf(fp, "D 0 %"PRVNUM" %d %d The %s door of %s is %s\n",
                             pRoomIndex->vnum,
                             pExit->orig_door,
                             IS_SET(pExit->rs_flags, EX_LOCKED) ? 2 : 1,
@@ -658,7 +655,7 @@ void save_door_resets(FILE* fp, AREA_DATA* pArea)
                             IS_SET(pExit->rs_flags, EX_LOCKED) ? "closed and locked"
                             : "closed");
 #else
-                        fprintf(fp, "D 0 %d %d %d\n",
+                        fprintf(fp, "D 0 %"PRVNUM" %d %d\n",
                             pRoomIndex->vnum,
                             pExit->orig_door,
                             IS_SET(pExit->rs_flags, EX_LOCKED) ? 2 : 1);
@@ -949,7 +946,7 @@ void save_area(AREA_DATA* pArea)
         fprintf(fp, "#AREADATA\n");
         fprintf(fp, "Name %s~\n", pArea->name);
         fprintf(fp, "Builders %s~\n", fix_string(pArea->builders));
-        fprintf(fp, "VNUMs %d %d\n", pArea->min_vnum, pArea->max_vnum);
+        fprintf(fp, "VNUMs %"PRVNUM" %"PRVNUM"\n", pArea->min_vnum, pArea->max_vnum);
         fprintf(fp, "Credits %s~\n", pArea->credits);
         fprintf(fp, "Security %d\n", pArea->security);
         fprintf(fp, "Low %d\n", pArea->low_range);
@@ -1000,7 +997,7 @@ void do_asave(CHAR_DATA* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     AREA_DATA* pArea;
-    int value;
+    VNUM value;
 
     if (ch == NULL || ch->desc == NULL || IS_NPC(ch)) {
         return;
@@ -1037,8 +1034,8 @@ void do_asave(CHAR_DATA* ch, char* argument)
     }
 
     /* Snarf the value (which need not be numeric). */
-    value = atoi(arg1);
-    if (!(pArea = get_area_data(value)) && is_number(arg1)) {
+    value = STRTOVNUM(arg1);
+    if ((pArea = get_area_data(value)) == NULL && is_number(arg1)) {
         send_to_char("That area does not exist.\n\r", ch);
         return;
     }

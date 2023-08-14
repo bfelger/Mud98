@@ -38,7 +38,7 @@
 #define MAGIC_NUM               52571214
 
 /* func from db.c */
-extern void assign_area_vnum(int vnum);             // OLC
+extern void assign_area_vnum(VNUM vnum);             // OLC
 
 /* from db2.c */
 void convert_mobile(MOB_INDEX_DATA * pMobIndex);    // OLC

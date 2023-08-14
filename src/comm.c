@@ -404,11 +404,14 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
             (addr >> 24) & 0xFF, (addr >> 16) & 0xFF,
             (addr >> 8) & 0xFF, (addr) & 0xFF
         );
-        sprintf(log_buf, "Sock.sinaddr:  %s", buf);
-        log_string(log_buf);
         from = gethostbyaddr((char*)&sock.sin_addr,
             sizeof(sock.sin_addr), AF_INET);
         dnew->host = str_dup(from ? from->h_name : buf);
+        if (from == NULL || from->h_name == NULL || from->h_name[0] == '\0')
+            sprintf(log_buf, "New connection: %s", buf);
+        else
+            sprintf(log_buf, "New connection: %s (%s)", from->h_name, buf);
+        log_string(log_buf);
     }
 
     /*

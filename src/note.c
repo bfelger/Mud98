@@ -493,7 +493,7 @@ void parse_note(CHAR_DATA* ch, char* argument, int type)
     NOTE_DATA* pnote;
     NOTE_DATA** list;
     char* list_name;
-    int vnum;
+    VNUM vnum;
     int anum;
 
     if (IS_NPC(ch)) return;

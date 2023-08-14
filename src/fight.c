@@ -1356,7 +1356,7 @@ void death_cry(CHAR_DATA* ch)
     ROOM_INDEX_DATA* was_in_room;
     char* msg;
     int door;
-    int vnum;
+    VNUM vnum;
 
     vnum = 0;
     msg = "You hear $n's death cry.";

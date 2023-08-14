@@ -29,7 +29,7 @@
 /*
  * Local functions.
  */
-AREA_DATA* get_area_data args((int vnum));
+AREA_DATA* get_area_data args((VNUM vnum));
 
 COMMAND(do_purge);
 
@@ -432,7 +432,7 @@ const struct olc_cmd_type aedit_table[] =
  Purpose:	Returns pointer to area with given vnum.
  Called by:	do_aedit(olc.c).
  ****************************************************************************/
-AREA_DATA* get_area_data(int vnum)
+AREA_DATA* get_area_data(VNUM vnum)
 {
     AREA_DATA* pArea;
 
@@ -451,12 +451,12 @@ AREA_DATA* get_area_data(int vnum)
  Purpose:	Resets builder information on completion.
  Called by:	aedit, redit, oedit, medit(olc.c)
  ****************************************************************************/
-bool    edit_done(CHAR_DATA* ch)
+bool  edit_done(CHAR_DATA* ch)
 {
     COMMAND(do_clear)
 
-        if (ch->desc->editor != ED_NONE)
-            send_to_char("Editing the editor.\n\r", ch);
+    if (ch->desc->editor != ED_NONE)
+        send_to_char("Exiting the editor.\n\r", ch);
     ch->desc->pEdit = 0;
     ch->desc->editor = ED_NONE;
     ch->desc->page = 0;
@@ -473,7 +473,7 @@ bool    edit_done(CHAR_DATA* ch)
 
 
 /* Area Interpreter, called by do_aedit. */
-void    aedit(CHAR_DATA* ch, char* argument)
+void aedit(CHAR_DATA* ch, char* argument)
 {
     AREA_DATA* pArea;
     char    command[MAX_INPUT_LENGTH];
@@ -527,7 +527,7 @@ void    aedit(CHAR_DATA* ch, char* argument)
 }
 
 /* Room Interpreter, called by do_redit. */
-void    redit(CHAR_DATA* ch, char* argument)
+void redit(CHAR_DATA* ch, char* argument)
 {
     ROOM_INDEX_DATA* pRoom;
     AREA_DATA* pArea;
@@ -559,7 +559,7 @@ void    redit(CHAR_DATA* ch, char* argument)
 }
 
 /* Object Interpreter, called by do_oedit. */
-void    oedit(CHAR_DATA* ch, char* argument)
+void oedit(CHAR_DATA* ch, char* argument)
 {
     AREA_DATA* pArea;
     OBJ_INDEX_DATA* pObj;
@@ -674,18 +674,18 @@ void    do_olc(CHAR_DATA* ch, char* argument)
 
 
 /* Entry point for editing area_data. */
-void    do_aedit(CHAR_DATA* ch, char* argument)
+void do_aedit(CHAR_DATA* ch, char* argument)
 {
     AREA_DATA* pArea;
-    int     value;
-    char    arg[MAX_STRING_LENGTH];
+    VNUM vnum;
+    char arg[MAX_STRING_LENGTH];
 
     pArea = ch->in_room->area;
 
     argument = one_argument(argument, arg);
     if (is_number(arg)) {
-        value = atoi(arg);
-        if (!(pArea = get_area_data(value))) {
+        vnum = STRTOVNUM(arg);
+        if (!(pArea = get_area_data(vnum))) {
             send_to_char("That area vnum does not exist.\n\r", ch);
             return;
         }

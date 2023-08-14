@@ -32,9 +32,11 @@
 #define MUD_NAME "Mud98"
 #define MUD_VER "0.90"
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 
 #ifndef _MSC_VER
@@ -149,52 +151,58 @@ typedef int	LOOKUP_F args((const char*));
 /*
  * String and memory management parameters.
  */
-#define MAX_KEY_HASH       1024
-#define MAX_STRING_LENGTH  4608
-#define MAX_INPUT_LENGTH   256
-#define PAGELEN            22
+#define MAX_KEY_HASH        1024
+#define MAX_STRING_LENGTH   4608
+#define MAX_INPUT_LENGTH    256
+#define PAGELEN             22
 
 /*
  * Game parameters.
  * Increase the max'es if you add more of something.
  * Adjust the pulse numbers to suit yourself.
  */
-#define MAX_SOCIALS        256
+#define MAX_SOCIALS         256
 #ifdef FIRST_BOOT
-#define MAX_SKILL          150
-#define MAX_GROUP          30
+#define MAX_SKILL           150
+#define MAX_GROUP           30
 #else
 extern size_t MAX_SKILL;
 extern size_t MAX_GROUP;
 #endif
-#define MAX_IN_GROUP       15
-#define MAX_ALIAS          5
-#define MAX_CLASS          4
-#define MAX_PC_RACE        5
-#define MAX_CLAN           3
-#define MAX_DAMAGE_MESSAGE 41
-#define MAX_LEVEL          60
-#define LEVEL_HERO         (MAX_LEVEL - 9)
-#define LEVEL_IMMORTAL     (MAX_LEVEL - 8)
-#define MAX_VNUM		   INT16_MAX
+#define MAX_IN_GROUP        15
+#define MAX_ALIAS           5
+#define MAX_CLASS           4
+#define MAX_PC_RACE         5
+#define MAX_CLAN            3
+#define MAX_DAMAGE_MESSAGE  41
+#define MAX_LEVEL           60
+#define LEVEL_HERO          (MAX_LEVEL - 9)
+#define LEVEL_IMMORTAL      (MAX_LEVEL - 8)
 
-#define PULSE_PER_SECOND   4
-#define PULSE_VIOLENCE     (3 * PULSE_PER_SECOND)
-#define PULSE_MOBILE       (4 * PULSE_PER_SECOND)
-#define PULSE_MUSIC        (6 * PULSE_PER_SECOND)
-#define PULSE_TICK         (60 * PULSE_PER_SECOND)
-#define PULSE_AREA         (120 * PULSE_PER_SECOND)
+// If you want to change the type for VNUM's, this is where you do it.
+#define MAX_VNUM		    INT32_MAX
+#define VNUM                int32_t
+#define PRVNUM              PRId32
+#define STRTOVNUM(s)        (VNUM)strtol(s, NULL, 0)
+#define VNUM_NONE           -1
 
-#define IMPLEMENTOR        MAX_LEVEL
-#define CREATOR            (MAX_LEVEL - 1)
-#define SUPREME            (MAX_LEVEL - 2)
-#define DEITY              (MAX_LEVEL - 3)
-#define GOD                (MAX_LEVEL - 4)
-#define IMMORTAL           (MAX_LEVEL - 5)
-#define DEMI               (MAX_LEVEL - 6)
-#define ANGEL              (MAX_LEVEL - 7)
-#define AVATAR             (MAX_LEVEL - 8)
-#define HERO               LEVEL_HERO
+#define PULSE_PER_SECOND    4
+#define PULSE_VIOLENCE      (3 * PULSE_PER_SECOND)
+#define PULSE_MOBILE        (4 * PULSE_PER_SECOND)
+#define PULSE_MUSIC         (6 * PULSE_PER_SECOND)
+#define PULSE_TICK          (60 * PULSE_PER_SECOND)
+#define PULSE_AREA          (120 * PULSE_PER_SECOND)
+
+#define IMPLEMENTOR         MAX_LEVEL
+#define CREATOR             (MAX_LEVEL - 1)
+#define SUPREME             (MAX_LEVEL - 2)
+#define DEITY               (MAX_LEVEL - 3)
+#define GOD                 (MAX_LEVEL - 4)
+#define IMMORTAL            (MAX_LEVEL - 5)
+#define DEMI                (MAX_LEVEL - 6)
+#define ANGEL               (MAX_LEVEL - 7)
+#define AVATAR              (MAX_LEVEL - 8)
+#define HERO                LEVEL_HERO
 
 /*
  * ColoUr stuff v2.0, by Lope.
@@ -502,7 +510,7 @@ struct item_type {
 
 struct weapon_type {
     char* name;
-    int16_t vnum;
+    VNUM vnum;
     int16_t type;
     int16_t* gsn;
 };
@@ -1373,7 +1381,7 @@ struct mob_index_data {
     SHOP_DATA* pShop;
     MPROG_LIST* mprogs;
     AREA_DATA* area;        // OLC
-    int16_t vnum;
+    VNUM vnum;
     int16_t group;
     bool new_format;
     int16_t count;
@@ -1642,7 +1650,7 @@ struct obj_index_data {
     char* name;
     char* short_descr;
     char* description;
-    int16_t vnum;
+    VNUM vnum;
     int16_t reset_num;
     char* material;
     int16_t item_type;
@@ -1695,7 +1703,7 @@ struct obj_data {
 struct exit_data {
     union {
         ROOM_INDEX_DATA* to_room;
-        int16_t vnum;
+        VNUM vnum;
     } u1;
     int16_t exit_info;
     int16_t key;
@@ -1725,10 +1733,10 @@ struct exit_data {
 struct reset_data {
     RESET_DATA* next;
     char command;
-    int16_t arg1;
-    int16_t arg2;
-    int16_t arg3;
-    int16_t arg4;
+    VNUM arg1;          
+    int16_t arg2;       
+    VNUM arg3;          
+    int16_t arg4;       
 };
 
 /*
@@ -1744,11 +1752,11 @@ struct area_data {
     int16_t nplayer;
     int16_t low_range;
     int16_t high_range;
-    int16_t min_vnum;
-    int16_t max_vnum;
+    VNUM min_vnum;
+    VNUM max_vnum;
     bool empty;
     char* builders;     // OLC
-    int vnum;           // OLC
+    VNUM vnum;          // OLC
     int area_flags;     // OLC
     int security;       // OLC Value 1-9
 };
@@ -1768,7 +1776,7 @@ struct room_index_data {
     char* name;
     char* description;
     char* owner;
-    int16_t vnum;
+    VNUM vnum;
     int room_flags;
     int16_t light;
     int16_t sector_type;
@@ -1850,14 +1858,14 @@ struct group_type {
 struct mprog_list {
     int trig_type;
     char* trig_phrase;
-    int16_t vnum;
+    VNUM vnum;
     char* code;
     MPROG_LIST* next;
     bool valid;
 };
 
 struct mprog_code {
-    int16_t vnum;
+    VNUM vnum;
     bool changed;
     char* code;
     MPROG_CODE* next;
@@ -2104,16 +2112,17 @@ OD* create_object args((OBJ_INDEX_DATA * pObjIndex, int level));
 void clone_object args((OBJ_DATA * parent, OBJ_DATA* clone));
 void clear_char args((CHAR_DATA * ch));
 char* get_extra_descr args((const char* name, EXTRA_DESCR_DATA* ed));
-MID* get_mob_index args((int vnum));
-OID* get_obj_index args((int vnum));
-RID* get_room_index args((int vnum));
-MPC* get_mprog_index args((int vnum));
+MID* get_mob_index args((VNUM vnum));
+OID* get_obj_index args((VNUM vnum));
+RID* get_room_index args((VNUM vnum));
+MPC* get_mprog_index args((VNUM vnum));
 char fread_letter args((FILE * fp));
 int fread_number args((FILE * fp));
 long fread_flag args((FILE * fp));
 char* fread_string args((FILE * fp));
 char* fread_string_eol args((FILE * fp));
 void fread_to_eol args((FILE * fp));
+VNUM fread_vnum args((FILE* fp));
 char* fread_word args((FILE * fp));
 long flag_convert args((char letter));
 void* alloc_mem(size_t sMem);
@@ -2273,7 +2282,7 @@ void obj_cast_spell args((int sn, int level, CHAR_DATA* ch, CHAR_DATA* victim,
 
 
 /* mob_prog.c */
-void program_flow args((int16_t vnum, char* source, CHAR_DATA* mob, 
+void program_flow args((VNUM vnum, char* source, CHAR_DATA* mob, 
                         CHAR_DATA* ch, const void* arg1, const void* arg2));
 void mp_act_trigger args((char* argument, CHAR_DATA* mob, CHAR_DATA* ch,
                           const void* arg1, const void* arg2, int type));
@@ -2394,9 +2403,9 @@ extern int top_reset;
 extern int top_room;
 extern int top_shop;
 
-extern int top_vnum_mob;
-extern int top_vnum_obj;
-extern int top_vnum_room;
+extern VNUM top_vnum_mob;
+extern VNUM top_vnum_obj;
+extern VNUM top_vnum_room;
 
 extern char str_empty[1];
 

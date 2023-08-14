@@ -765,7 +765,7 @@ void load_skills_table()
     }
 
     if (!skill_table) {
-        bug("Error! Skill_table == NULL, MAX_SKILL : %d", MAX_SKILL);
+        bug("Error! Skill_table == NULL, MAX_SKILL : %zu", MAX_SKILL);
         exit(1);
     }
 
@@ -897,7 +897,7 @@ void save_skills()
     fclose(fpn);
 }
 
-void save_progs(int minvnum, int maxvnum)
+void save_progs(VNUM minvnum, VNUM maxvnum)
 {
     FILE* fp;
     MPROG_CODE* pMprog;
@@ -965,7 +965,7 @@ void load_prog(FILE* fp, MPROG_CODE** prog)
     }
 }
 
-MPROG_CODE* pedit_prog(int vnum)
+MPROG_CODE* pedit_prog(VNUM vnum)
 {
     FILE* fp;
     MPROG_CODE* prog;
