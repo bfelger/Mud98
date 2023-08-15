@@ -330,7 +330,7 @@ REDIT(redit_rlist)
     BUFFER* buf1;
     char		arg[MAX_INPUT_LENGTH];
     bool found;
-    int vnum;
+    VNUM vnum;
     int  col = 0;
 
     one_argument(argument, arg);
@@ -372,7 +372,7 @@ REDIT(redit_mlist)
     BUFFER* buf1;
     char		arg[MAX_INPUT_LENGTH];
     bool fAll, found;
-    int vnum;
+    VNUM vnum;
     int  col = 0;
 
     one_argument(argument, arg);
@@ -419,7 +419,7 @@ REDIT(redit_mlist)
  Purpose:	Ensures the range spans only one area.
  Called by:	aedit_vnum(olc_act.c).
  ****************************************************************************/
-bool check_range(int lower, int upper)
+bool check_range(VNUM lower, VNUM upper)
 {
     AREA_DATA* pArea;
     int cnt = 0;
@@ -440,7 +440,7 @@ bool check_range(int lower, int upper)
 
 
 
-AREA_DATA* get_vnum_area(int vnum)
+AREA_DATA* get_vnum_area(VNUM vnum)
 {
     AREA_DATA* pArea;
 
@@ -465,11 +465,11 @@ AEDIT(aedit_show)
 
     EDIT_AREA(ch, pArea);
 
-    sprintf(buf, "Name:     [%5d] %s\n\r", pArea->vnum, pArea->name);
+    sprintf(buf, "Name:     [%"PRVNUM"] %s\n\r", pArea->vnum, pArea->name);
     send_to_char(buf, ch);
 
 #if 0  /* ROM OLC */
-    sprintf(buf, "Recall:   [%5d] %s\n\r", pArea->recall,
+    sprintf(buf, "Recall:   [%"PRVNUM"] %s\n\r", pArea->recall,
         get_room_index(pArea->recall)
         ? get_room_index(pArea->recall)->name : "none");
     send_to_char(buf, ch);
@@ -708,7 +708,7 @@ AEDIT(aedit_recall)
 {
     AREA_DATA* pArea;
     char room[MAX_STRING_LENGTH];
-    int  value;
+    VNUM  value;
 
     EDIT_AREA(ch, pArea);
 
@@ -719,7 +719,7 @@ AEDIT(aedit_recall)
         return false;
     }
 
-    value = atoi(room);
+    value = STRTOVNUM(room);
 
     if (!get_room_index(value)) {
         send_to_char("AEdit:  Room vnum does not exist.\n\r", ch);
@@ -1418,12 +1418,12 @@ REDIT(redit_create)
 {
     AREA_DATA* pArea;
     ROOM_INDEX_DATA* pRoom;
-    int value;
+    VNUM value;
     int iHash;
 
     EDIT_ROOM(ch, pRoom);
 
-    value = atoi(argument);
+    value = STRTOVNUM(argument);
 
     if (argument[0] == '\0' || value <= 0) {
         send_to_char("Syntax:  create [vnum > 0]\n\r", ch);
@@ -2626,10 +2626,10 @@ OEDIT(oedit_create)
 {
     OBJ_INDEX_DATA* pObj;
     AREA_DATA* pArea;
-    int  value;
+    VNUM  value;
     int  iHash;
 
-    value = atoi(argument);
+    value = STRTOVNUM(argument);
     if (argument[0] == '\0' || value == 0) {
         send_to_char("Syntax:  oedit create [vnum]\n\r", ch);
         return false;
@@ -3226,7 +3226,7 @@ REDIT(redit_checkmob)
 REDIT(redit_copy)
 {
     ROOM_INDEX_DATA* this, * that;
-    int vnum;
+    VNUM vnum;
 
     EDIT_ROOM(ch, this);
 
@@ -3269,7 +3269,7 @@ REDIT(redit_copy)
 
 MEDIT(medit_copy)
 {
-    int vnum;
+    VNUM vnum;
     MOB_INDEX_DATA* pMob, * mob2;
 
     EDIT_MOB(ch, pMob);
@@ -3679,10 +3679,10 @@ ED_FUN_DEC(ed_new_mob)
 {
     MOB_INDEX_DATA* pMob;
     AREA_DATA* pArea;
-    int  value;
+    VNUM  value;
     int  iHash;
 
-    value = atoi(argument);
+    value = STRTOVNUM(argument);
 
     if (argument[0] == '\0' || value == 0) {
         send_to_char("Syntax : medit create [vnum]\n\r", ch);
@@ -4362,10 +4362,10 @@ ED_FUN_DEC(ed_new_obj)
 {
     OBJ_INDEX_DATA* pObj;
     AREA_DATA* pArea;
-    int  value;
+    VNUM  value;
     int  iHash;
 
-    value = atoi(argument);
+    value = STRTOVNUM(argument);
 
     if (argument[0] == '\0' || value == 0) {
         send_to_char("Syntax:  oedit create [vnum]\n\r", ch);
@@ -4476,7 +4476,7 @@ ED_FUN_DEC(ed_olist)
     BUFFER* buf1;
     char		blarg[MAX_INPUT_LENGTH];
     bool fAll, found;
-    int vnum;
+    VNUM vnum;
     int  col = 0;
 
     one_argument(argument, blarg);

@@ -142,8 +142,8 @@ struct editor_cmd_type {
 /*
  * Utils.
  */
-AREA_DATA* get_vnum_area args((int vnum));
-AREA_DATA* get_area_data args((int vnum));
+AREA_DATA* get_vnum_area args((VNUM vnum));
+AREA_DATA* get_area_data args((VNUM vnum));
 int	flag_value args((const struct flag_type* flag_table, char* argument));
 void add_reset args((ROOM_INDEX_DATA*, RESET_DATA*, int));
 void set_editor args((DESCRIPTOR_DATA*, int, uintptr_t));

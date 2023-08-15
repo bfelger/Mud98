@@ -293,9 +293,9 @@ char* format_string(char* oldstring /*, bool fSpace */)
 
     for (rdesc = oldstring; *rdesc; rdesc++) {
         if (*rdesc == '\n') {
-            if (CHK(-1) && xbuf[i - 1] != ' ') {
-                xbuf[i] = ' ';
-                i++;
+                if (CHK(-1) && xbuf[i - 1] != ' ') {
+                    xbuf[i] = ' ';
+                    i++;
             }
         }
         else if (*rdesc == '\r')

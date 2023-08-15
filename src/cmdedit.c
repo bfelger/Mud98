@@ -493,7 +493,7 @@ CMDEDIT(cmdedit_function)
 CMDEDIT(cmdedit_level)
 {
     struct cmd_type* pCmd;
-    int niv;
+    int level;
 
     EDIT_CMD(ch, pCmd);
 
@@ -502,8 +502,8 @@ CMDEDIT(cmdedit_level)
         return false;
     }
 
-    niv = atoi(argument);
-    if (niv < 0 || niv > MAX_LEVEL) {
+    level = atoi(argument);
+    if (level < 0 || level > MAX_LEVEL) {
         send_to_char("CMDEdit : The level must be between 0 and MAX_LEVEL.\n\r", ch);
         return false;
     }
@@ -513,7 +513,7 @@ CMDEDIT(cmdedit_level)
         return false;
     }
 
-    pCmd->level = niv;
+    pCmd->level = level;
     send_to_char("Ok.\n\r", ch);
     return true;
 }

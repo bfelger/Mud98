@@ -212,7 +212,8 @@ void do_guild(CHAR_DATA* ch, char* argument)
 void do_outfit(CHAR_DATA* ch, char* argument)
 {
     OBJ_DATA* obj;
-    int i, sn, vnum;
+    int i, sn;
+    VNUM vnum;
 
     if (ch->level > 5 || IS_NPC(ch)) {
         send_to_char("Find it yourself!\n\r", ch);
@@ -669,11 +670,14 @@ ROOM_INDEX_DATA* find_location(CHAR_DATA* ch, char* arg)
     CHAR_DATA* victim;
     OBJ_DATA* obj;
 
-    if (is_number(arg)) return get_room_index(atoi(arg));
+    if (is_number(arg)) 
+        return get_room_index(STRTOVNUM(arg));
 
-    if ((victim = get_char_world(ch, arg)) != NULL) return victim->in_room;
+    if ((victim = get_char_world(ch, arg)) != NULL) 
+        return victim->in_room;
 
-    if ((obj = get_obj_world(ch, arg)) != NULL) return obj->in_room;
+    if ((obj = get_obj_world(ch, arg)) != NULL) 
+        return obj->in_room;
 
     return NULL;
 }
@@ -709,7 +713,9 @@ void do_transfer(CHAR_DATA* ch, char* argument)
     /*
      * Thanks to Grodyn for the optional location parameter.
      */
-    if (arg2[0] == '\0') { location = ch->in_room; }
+    if (arg2[0] == '\0') { 
+        location = ch->in_room; 
+    }
     else {
         if ((location = find_location(ch, arg2)) == NULL) {
             send_to_char("No such location.\n\r", ch);
@@ -733,12 +739,14 @@ void do_transfer(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if (victim->fighting != NULL) stop_fighting(victim, true);
+    if (victim->fighting != NULL) 
+        stop_fighting(victim, true);
     act("$n disappears in a mushroom cloud.", victim, NULL, NULL, TO_ROOM);
     char_from_room(victim);
     char_to_room(victim, location);
     act("$n arrives from a puff of smoke.", victim, NULL, NULL, TO_ROOM);
-    if (ch != victim) act("$n has transferred you.", ch, NULL, victim, TO_VICT);
+    if (ch != victim) 
+        act("$n has transferred you.", ch, NULL, victim, TO_VICT);
     do_function(victim, &do_look, "auto");
     send_to_char("Ok.\n\r", ch);
 }
@@ -1540,7 +1548,7 @@ void do_mfind(CHAR_DATA* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
     MOB_INDEX_DATA* pMobIndex;
-    int vnum;
+    VNUM vnum;
     int nMatch;
     bool fAll;
     bool found;
@@ -1584,7 +1592,7 @@ void do_ofind(CHAR_DATA* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
     OBJ_INDEX_DATA* pObjIndex;
-    int vnum;
+    VNUM vnum;
     int nMatch;
     bool fAll;
     bool found;
@@ -2159,7 +2167,7 @@ void do_mload(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if ((pMobIndex = get_mob_index(atoi(arg))) == NULL) {
+    if ((pMobIndex = get_mob_index(STRTOVNUM(arg))) == NULL) {
         send_to_char("No mob has that vnum.\n\r", ch);
         return;
     }
@@ -2203,7 +2211,7 @@ void do_oload(CHAR_DATA* ch, char* argument)
         }
     }
 
-    if ((pObjIndex = get_obj_index(atoi(arg1))) == NULL) {
+    if ((pObjIndex = get_obj_index(STRTOVNUM(arg1))) == NULL) {
         send_to_char("No object has that vnum.\n\r", ch);
         return;
     }

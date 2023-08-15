@@ -304,11 +304,11 @@ int get_order(CHAR_DATA* ch)
  * item_type: item type or -1
  * fWear: true: item must be worn, false: don't care
  */
-bool has_item(CHAR_DATA* ch, int16_t vnum, int16_t item_type, bool fWear)
+bool has_item(CHAR_DATA* ch, VNUM vnum, int16_t item_type, bool fWear)
 {
     OBJ_DATA* obj;
     for (obj = ch->carrying; obj; obj = obj->next_content)
-        if ((vnum < 0 || obj->pIndexData->vnum == vnum)
+        if ((vnum == VNUM_NONE || obj->pIndexData->vnum == vnum)
             && (item_type < 0 || obj->pIndexData->item_type == item_type)
             && (!fWear || obj->wear_loc != WEAR_NONE))
             return true;
@@ -318,7 +318,7 @@ bool has_item(CHAR_DATA* ch, int16_t vnum, int16_t item_type, bool fWear)
 /*
  * Check if there's a mob with given vnum in the room
  */
-bool get_mob_vnum_room(CHAR_DATA* ch, int16_t vnum)
+bool get_mob_vnum_room(CHAR_DATA* ch, VNUM vnum)
 {
     CHAR_DATA* mob;
     for (mob = ch->in_room->people; mob; mob = mob->next_in_room)
@@ -330,7 +330,7 @@ bool get_mob_vnum_room(CHAR_DATA* ch, int16_t vnum)
 /*
  * Check if there's an object with given vnum in the room
  */
-bool get_obj_vnum_room(CHAR_DATA* ch, int16_t vnum)
+bool get_obj_vnum_room(CHAR_DATA* ch, VNUM vnum)
 {
     OBJ_DATA* obj;
     for (obj = ch->in_room->contents; obj; obj = obj->next_content)
@@ -351,7 +351,7 @@ bool get_obj_vnum_room(CHAR_DATA* ch, int16_t vnum)
  *
  *----------------------------------------------------------------------
  */
-int cmd_eval(int16_t vnum, char* line, int check,
+int cmd_eval(VNUM vnum, char* line, int check,
     CHAR_DATA* mob, CHAR_DATA* ch,
     const void* arg1, const void* arg2, CHAR_DATA* rch)
 {
@@ -362,7 +362,9 @@ int cmd_eval(int16_t vnum, char* line, int check,
     OBJ_DATA* lval_obj = NULL;
 
     char* original, buf[MAX_INPUT_LENGTH], code;
-    int lval = 0, oper = 0, rval = -1;
+    int lval = 0;
+    int rval = -1;
+    int oper = 0;
 
     original = line;
     line = one_argument(line, buf);
@@ -383,12 +385,12 @@ int cmd_eval(int16_t vnum, char* line, int check,
         return(atoi(buf) < number_percent());
     case CHK_MOBHERE:
         if (is_number(buf))
-            return(get_mob_vnum_room(mob, atoi(buf)));
+            return(get_mob_vnum_room(mob, STRTOVNUM(buf)));
         else
             return((bool)(get_char_room(mob, buf) != NULL));
     case CHK_OBJHERE:
         if (is_number(buf))
-            return(get_obj_vnum_room(mob, atoi(buf)));
+            return(get_obj_vnum_room(mob, STRTOVNUM(buf)));
         else
             return((bool)(get_obj_here(mob, buf) != NULL));
     case CHK_MOBEXISTS:
@@ -419,7 +421,7 @@ int cmd_eval(int16_t vnum, char* line, int check,
      */
     if (rval >= 0) {
         if ((oper = keyword_lookup(fn_evals, buf)) < 0) {
-            sprintf(buf, "Cmd_eval: prog %d syntax error(2) '%s'",
+            sprintf(buf, "Cmd_eval: prog %"PRVNUM" syntax error(2) '%s'",
                 vnum, original);
             bug(buf, 0);
             return false;
@@ -434,7 +436,7 @@ int cmd_eval(int16_t vnum, char* line, int check,
      * Case 3,4,5: Grab actors from $* codes
      */
     if (buf[0] != '$' || buf[1] == '\0') {
-        sprintf(buf, "Cmd_eval: prog %d syntax error(3) '%s'",
+        sprintf(buf, "Cmd_eval: prog %"PRVNUM" syntax error(3) '%s'",
             vnum, original);
         bug(buf, 0);
         return false;
@@ -533,18 +535,18 @@ int cmd_eval(int16_t vnum, char* line, int check,
             && IS_SET(lval_char->off_flags, flag_lookup(buf, off_flags)));
     case CHK_CARRIES:
         if (is_number(buf))
-            return(lval_char != NULL && has_item(lval_char, atoi(buf), -1, false));
+            return(lval_char != NULL && has_item(lval_char, STRTOVNUM(buf), -1, false));
         else
             return(lval_char != NULL && (get_obj_carry(lval_char, buf, lval_char) != NULL));
     case CHK_WEARS:
         if (is_number(buf))
-            return(lval_char != NULL && has_item(lval_char, atoi(buf), -1, true));
+            return(lval_char != NULL && has_item(lval_char, STRTOVNUM(buf), -1, true));
         else
             return(lval_char != NULL && (get_obj_wear(lval_char, buf) != NULL));
     case CHK_HAS:
-        return(lval_char != NULL && has_item(lval_char, -1, item_lookup(buf), false));
+        return(lval_char != NULL && has_item(lval_char, VNUM_NONE, item_lookup(buf), false));
     case CHK_USES:
-        return(lval_char != NULL && has_item(lval_char, -1, item_lookup(buf), true));
+        return(lval_char != NULL && has_item(lval_char, VNUM_NONE, item_lookup(buf), true));
     case CHK_NAME:
         switch (code) {
         default:
@@ -575,7 +577,7 @@ int cmd_eval(int16_t vnum, char* line, int check,
      * Case 5: Keyword, actor, comparison and value
      */
     if ((oper = keyword_lookup(fn_evals, buf)) < 0) {
-        sprintf(buf, "Cmd_eval: prog %d syntax error(5): '%s'",
+        sprintf(buf, "Cmd_eval: prog %"PRVNUM" syntax error(5): '%s'",
             vnum, original);
         bug(buf, 0);
         return false;
@@ -852,7 +854,7 @@ void expand_arg(char* buf,
 #define MAX_CALL_LEVEL    5 /* Maximum nested calls */
 
 void program_flow(
-    int16_t pvnum,  /* For diagnostic purposes */
+    VNUM pvnum,  /* For diagnostic purposes */
     char* source,  /* the actual MOBprog code */
     CHAR_DATA* mob, CHAR_DATA* ch, const void* arg1, const void* arg2)
 {
@@ -867,10 +869,10 @@ void program_flow(
     int state[MAX_NESTED_LEVEL], /* Block state (BEGIN,IN,END) */
         cond[MAX_NESTED_LEVEL];  /* Boolean value based on the last if-check */
 
-    int16_t mvnum = mob->pIndexData->vnum;
+    VNUM mvnum = mob->pIndexData->vnum;
 
     if (++call_level > MAX_CALL_LEVEL) {
-        bug("MOBprogs: MAX_CALL_LEVEL exceeded, vnum %d", mob->pIndexData->vnum);
+        bug("MOBprogs: MAX_CALL_LEVEL exceeded, vnum %"PRVNUM"", mob->pIndexData->vnum);
         return;
     }
 
@@ -925,14 +927,14 @@ void program_flow(
      */
         if (!str_cmp(control, "if")) {
             if (state[level] == BEGIN_BLOCK) {
-                sprintf(buf, "Mobprog: misplaced if statement, mob %d prog %d",
+                sprintf(buf, "Mobprog: misplaced if statement, mob %"PRVNUM" prog %"PRVNUM".",
                     mvnum, pvnum);
                 bug(buf, 0);
                 return;
             }
             state[level] = BEGIN_BLOCK;
             if (++level >= MAX_NESTED_LEVEL) {
-                sprintf(buf, "Mobprog: Max nested level exceeded, mob %d prog %d",
+                sprintf(buf, "Mobprog: Max nested level exceeded, mob %"PRVNUM" prog %"PRVNUM".",
                     mvnum, pvnum);
                 bug(buf, 0);
                 return;
@@ -946,7 +948,7 @@ void program_flow(
                 cond[level] = cmd_eval(pvnum, line, check, mob, ch, arg1, arg2, rch);
             }
             else {
-                sprintf(buf, "Mobprog: invalid if_check (if), mob %d prog %d",
+                sprintf(buf, "Mobprog: invalid if_check (if), mob %"PRVNUM" prog %"PRVNUM".",
                     mvnum, pvnum);
                 bug(buf, 0);
                 return;
@@ -955,7 +957,7 @@ void program_flow(
         }
         else if (!str_cmp(control, "or")) {
             if (!level || state[level - 1] != BEGIN_BLOCK) {
-                sprintf(buf, "Mobprog: or without if, mob %d prog %d",
+                sprintf(buf, "Mobprog: or without if, mob %"PRVNUM" prog %"PRVNUM".",
                     mvnum, pvnum);
                 bug(buf, 0);
                 return;
@@ -966,7 +968,7 @@ void program_flow(
                 eval = cmd_eval(pvnum, line, check, mob, ch, arg1, arg2, rch);
             }
             else {
-                sprintf(buf, "Mobprog: invalid if_check (or), mob %d prog %d",
+                sprintf(buf, "Mobprog: invalid if_check (or), mob %"PRVNUM" prog %"PRVNUM".",
                     mvnum, pvnum);
                 bug(buf, 0);
                 return;
@@ -975,7 +977,7 @@ void program_flow(
         }
         else if (!str_cmp(control, "and")) {
             if (!level || state[level - 1] != BEGIN_BLOCK) {
-                sprintf(buf, "Mobprog: and without if, mob %d prog %d",
+                sprintf(buf, "Mobprog: and without if, mob %"PRVNUM" prog %"PRVNUM".",
                     mvnum, pvnum);
                 bug(buf, 0);
                 return;
@@ -986,7 +988,7 @@ void program_flow(
                 eval = cmd_eval(pvnum, line, check, mob, ch, arg1, arg2, rch);
             }
             else {
-                sprintf(buf, "Mobprog: invalid if_check (and), mob %d prog %d",
+                sprintf(buf, "Mobprog: invalid if_check (and), mob %"PRVNUM" prog %"PRVNUM".",
                     mvnum, pvnum);
                 bug(buf, 0);
                 return;
@@ -995,7 +997,7 @@ void program_flow(
         }
         else if (!str_cmp(control, "endif")) {
             if (!level || state[level - 1] != BEGIN_BLOCK) {
-                sprintf(buf, "Mobprog: endif without if, mob %d prog %d",
+                sprintf(buf, "Mobprog: endif without if, mob %"PRVNUM" prog %"PRVNUM".",
                     mvnum, pvnum);
                 bug(buf, 0);
                 return;
@@ -1006,7 +1008,7 @@ void program_flow(
         }
         else if (!str_cmp(control, "else")) {
             if (!level || state[level - 1] != BEGIN_BLOCK) {
-                sprintf(buf, "Mobprog: else without if, mob %d prog %d",
+                sprintf(buf, "Mobprog: else without if, mob %"PRVNUM" prog %"PRVNUM".",
                     mvnum, pvnum);
                 bug(buf, 0);
                 return;
@@ -1143,7 +1145,7 @@ bool mp_exit_trigger(CHAR_DATA* ch, int dir)
 void mp_give_trigger(CHAR_DATA* mob, CHAR_DATA* ch, OBJ_DATA* obj)
 {
 
-    char        buf[MAX_INPUT_LENGTH], * p;
+    char buf[MAX_INPUT_LENGTH], * p;
     MPROG_LIST* prg;
 
     for (prg = mob->pIndexData->mprogs; prg; prg = prg->next)
@@ -1153,7 +1155,7 @@ void mp_give_trigger(CHAR_DATA* mob, CHAR_DATA* ch, OBJ_DATA* obj)
              * Vnum argument
              */
             if (is_number(p)) {
-                if (obj->pIndexData->vnum == atoi(p)) {
+                if (obj->pIndexData->vnum == STRTOVNUM(p)) {
                     program_flow(prg->vnum, prg->code, mob, ch, (void*)obj, NULL);
                     return;
                 }

@@ -218,7 +218,9 @@ void fwrite_char(CHAR_DATA* ch, FILE* fp)
             ch->mod_stat[STAT_INT], ch->mod_stat[STAT_WIS],
             ch->mod_stat[STAT_DEX], ch->mod_stat[STAT_CON]);
 
-    if (IS_NPC(ch)) { fprintf(fp, "Vnum %d\n", ch->pIndexData->vnum); }
+    if (IS_NPC(ch)) { 
+        fprintf(fp, "Vnum %"PRVNUM"\n", ch->pIndexData->vnum); 
+    }
     else {
         char digest_buf[256];
         bin_to_hex(digest_buf, ch->pcdata->pwd_digest, ch->pcdata->pwd_digest_len);
@@ -345,7 +347,7 @@ void fwrite_pet(CHAR_DATA* pet, FILE* fp)
 
     fprintf(fp, "#PET\n");
 
-    fprintf(fp, "Vnum %d\n", pet->pIndexData->vnum);
+    fprintf(fp, "Vnum %"PRVNUM"\n", pet->pIndexData->vnum);
 
     fprintf(fp, "Name %s~\n", pet->name);
     fprintf(fp, "LogO " TIME_FMT "\n", current_time);
@@ -424,7 +426,7 @@ void fwrite_obj(CHAR_DATA* ch, OBJ_DATA* obj, FILE* fp, int iNest)
         return;
 
     fprintf(fp, "#O\n");
-    fprintf(fp, "Vnum %d\n", obj->pIndexData->vnum);
+    fprintf(fp, "Vnum %"PRVNUM"\n", obj->pIndexData->vnum);
     if (!obj->pIndexData->new_format) fprintf(fp, "Oldstyle\n");
     if (obj->enchanted) fprintf(fp, "Enchanted\n");
     fprintf(fp, "Nest %d\n", iNest);
@@ -542,7 +544,6 @@ bool load_char_obj(DESCRIPTOR_DATA* d, char* name)
     ch->pcdata->condition[COND_FULL] = 48;
     ch->pcdata->condition[COND_HUNGER] = 48;
     ch->pcdata->security = 0;   // OLC
-
     ch->pcdata->text[0] = (NORMAL);
     ch->pcdata->text[1] = (WHITE);
     ch->pcdata->text[2] = 0;
@@ -1252,7 +1253,7 @@ void fread_char(CHAR_DATA* ch, FILE* fp)
             KEY("Version", ch->version, fread_number(fp));
             KEY("Vers", ch->version, fread_number(fp));
             if (!str_cmp(word, "Vnum")) {
-                ch->pIndexData = get_mob_index(fread_number(fp));
+                ch->pIndexData = get_mob_index(fread_vnum(fp));
                 fMatch = true;
                 break;
             }
@@ -1285,11 +1286,11 @@ void fread_pet(CHAR_DATA* ch, FILE* fp)
     /* first entry had BETTER be the vnum or we barf */
     word = feof(fp) ? "END" : fread_word(fp);
     if (!str_cmp(word, "Vnum")) {
-        int vnum;
+        VNUM vnum;
 
-        vnum = fread_number(fp);
+        vnum = fread_vnum(fp);
         if (get_mob_index(vnum) == NULL) {
-            bug("Fread_pet: bad vnum %d.", vnum);
+            bug("Fread_pet: bad vnum %"PRVNUM".", vnum);
             pet = create_mobile(get_mob_index(MOB_VNUM_FIDO));
         }
         else
@@ -1491,12 +1492,12 @@ void fread_obj(CHAR_DATA* ch, FILE* fp)
 
     word = feof(fp) ? "End" : fread_word(fp);
     if (!str_cmp(word, "Vnum")) {
-        int vnum;
+        VNUM vnum;
         first = false; /* fp will be in right place */
 
-        vnum = fread_number(fp);
+        vnum = fread_vnum(fp);
         if (get_obj_index(vnum) == NULL) {
-            bug("Fread_obj: bad vnum %d.", vnum);
+            bug("Fread_obj: bad vnum %"PRVNUM".", vnum);
         }
         else {
             obj = create_object(get_obj_index(vnum), -1);
@@ -1738,11 +1739,11 @@ void fread_obj(CHAR_DATA* ch, FILE* fp)
             }
 
             if (!str_cmp(word, "Vnum")) {
-                int vnum;
+                VNUM vnum;
 
-                vnum = fread_number(fp);
+                vnum = fread_vnum(fp);
                 if ((obj->pIndexData = get_obj_index(vnum)) == NULL)
-                    bug("Fread_obj: bad vnum %d.", vnum);
+                    bug("Fread_obj: bad vnum %"PRVNUM".", vnum);
                 else
                     fVnum = true;
                 fMatch = true;
