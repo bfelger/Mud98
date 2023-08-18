@@ -40,84 +40,10 @@
 #include <sys/time.h>
 #endif
 
-#define STANDARD_ALLOCMEM(type, name)               \
-    type* name ## _free;                            \
-    int name ## _created;                           \
-    int name ## _allocated;                         \
-                                                    \
-    type* new_ ## name(void) {                      \
-        type* temp;                                 \
-        static type tZero;                          \
-                                                    \
-        if (name ## _free) {                        \
-            temp = name ## _free;                   \
-            name ## _free = name ## _free->next;    \
-        }                                           \
-        else {                                      \
-            temp = alloc_mem( sizeof(*temp) );      \
-            name ## _allocated++;                   \
-        }                                           \
-        *temp = tZero;                              \
-        name ## _created++;                         \
-        return temp;                                \
-    }
-
-#define STANDARD_FREEMEM(type, name)                \
-    int name ## _freed;                             \
-                                                    \
-    void free_ ## name(type* temp) {                \
-        temp->next = name ## _free;                 \
-        name ## _free = temp;                       \
-        name ## _freed++;                           \
-    }
-
-#define VAL_ALLOCMEM(type, name)                    \
-    type* name ## _free;                            \
-    int name ## _created;                           \
-    int name ## _allocated;                         \
-                                                    \
-    type* new_ ## name(void) {                      \
-        type* temp;                                 \
-        static type tZero;                          \
-                                                    \
-        if (name ## _free) {                        \
-            temp = name ## _free;                   \
-            name ## _free = name ## _free->next;    \
-        }                                           \
-        else {                                      \
-            temp = alloc_mem(sizeof(*temp));        \
-            name ## _allocated++;                   \
-        }                                           \
-                                                    \
-        *temp = tZero;                              \
-        VALIDATE(temp);                             \
-        name ## _created++;                         \
-        return temp;                                \
-    }
-
-#define VAL_FREEMEM(type, name)                     \
-    int name ## _freed;                             \
-                                                    \
-    void free_ ## name(type* temp) {                \
-        if (!IS_VALID(temp)) return;                \
-        INVALIDATE(temp);                           \
-        temp->next = name ## _free;                 \
-        name ## _free = temp;                       \
-        name ## _freed++;                           \
-    }
-
-#define allocfunc(a,b)          \
-    STANDARD_ALLOCMEM(a,b)      \
-    STANDARD_FREEMEM(a,b)
-
-#define allocfunc_val(a,b)      \
-    VAL_ALLOCMEM(a,b)           \
-    VAL_FREEMEM(a,b)
-
-#include "allocfunc.h"
-
-#undef allocfunc
-#undef allocfunc_val
+struct skhash* skhash_free;
+int skhash_created;
+int skhash_allocated;
+int skhash_freed;
 
 /* stuff for recyling notes */
 NOTE_DATA* note_free;
@@ -230,10 +156,8 @@ GEN_DATA* new_gen_data(void)
     }
     *gen = gen_zero;
 
-#ifndef FIRST_BOOT
     gen->skill_chosen = new_boolarray(MAX_SKILL);
     gen->group_chosen = new_boolarray(MAX_GROUP);
-#endif
 
     VALIDATE(gen);
     return gen;
@@ -245,10 +169,8 @@ void free_gen_data(GEN_DATA* gen)
 
     INVALIDATE(gen);
 
-#ifndef FIRST_BOOT
     free_boolarray(gen->skill_chosen);
     free_boolarray(gen->group_chosen);
-#endif
 
     gen->next = gen_data_free;
     gen_data_free = gen;
@@ -470,11 +392,8 @@ PC_DATA* new_pcdata(void)
     }
 
     pcdata->buffer = new_buf();
-
-#ifndef FIRST_BOOT
     pcdata->learned = new_learned();
     pcdata->group_known = new_boolarray(MAX_GROUP);
-#endif
 
     VALIDATE(pcdata);
     return pcdata;
@@ -487,11 +406,8 @@ void free_pcdata(PC_DATA* pcdata)
     if (!IS_VALID(pcdata))
         return;
 
-#ifndef FIRST_BOOT
     free_learned(pcdata->learned);
     free_boolarray(pcdata->group_known);
-#endif
-
     free_digest(pcdata->pwd_digest);
     free_string(pcdata->bamfin);
     free_string(pcdata->bamfout);
@@ -516,8 +432,8 @@ long last_mob_id;
 long get_pc_id(void)
 {
     long val = (long)((current_time <= last_pc_id)
-                ? (time_t)last_pc_id + 1
-                : current_time);
+        ? (time_t)last_pc_id + 1
+        : current_time);
     last_pc_id = val;
     return val;
 }
@@ -566,13 +482,13 @@ void free_mem_data(MEM_DATA* memory)
 }
 
 /* buffer sizes */
-const size_t buf_size[MAX_BUF_LIST]= {
-    16, 32, 64, 128, 256, 1024, 2048, 4096, 
+const size_t buf_size[MAX_BUF_LIST] = {
+    16, 32, 64, 128, 256, 1024, 2048, 4096,
     MAX_STRING_LENGTH,      // vvv
-    8192, 
-    MAX_STRING_LENGTH*2,    // Doesn't follow pattern, but frequently used.
-    16384, 
-    MAX_STRING_LENGTH*4     // ^^^
+    8192,
+    MAX_STRING_LENGTH * 2,    // Doesn't follow pattern, but frequently used.
+    16384,
+    MAX_STRING_LENGTH * 4     // ^^^
 };
 
 /* local procedure for finding the next acceptable size */
@@ -580,7 +496,7 @@ const size_t buf_size[MAX_BUF_LIST]= {
 static size_t get_size(size_t val)
 {
     for (int i = 0; i < MAX_BUF_LIST; i++) {
-        if (buf_size[i] >= val) 
+        if (buf_size[i] >= val)
             return buf_size[i];
     }
 
@@ -833,7 +749,7 @@ bool* new_boolarray(size_t size) // Return bool[size]
         perror("malloc failed in new_boolarray()");
         exit(-1);
     }
-    
+
     for (i = 0; i < size; ++i)
         temp[i] = false;
 
@@ -845,4 +761,29 @@ void free_boolarray(bool* temp)
     free(temp);
     temp = NULL;
     return;
+}
+
+struct skhash* new_skhash(void)
+{
+    struct skhash* temp;
+    static struct skhash tZero;
+
+    if (skhash_free) {
+        temp = skhash_free;
+        skhash_free = skhash_free->next;
+    }
+    else {
+        temp = alloc_mem(sizeof(*temp));
+        skhash_allocated++;
+    }
+    *temp = tZero;
+    skhash_created++;
+    return temp;
+}
+
+void free_skhash(struct skhash* temp)
+{
+    temp->next = skhash_free;
+    skhash_free = temp;
+    skhash_freed++;
 }

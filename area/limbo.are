@@ -1,7 +1,7 @@
 #AREADATA
 Name Limbo~
 Builders None~
-VNUMs 1 25
+VNUMs 1 30
 Credits {None } Diku    Limbo~
 Security 9
 Low 0
@@ -159,6 +159,14 @@ a shimmering gate~
 A shimmering black gate rises from the ground, leading to parts unknown.~
 shadow~
 portal GOT 0
+0 0 0 0 0
+0 0 0 P
+#30
+dummy object~
+a dummy object~
+Dummy object is used for loading non-existent objects~
+~
+trash 0 0
 0 0 0 0 0
 0 0 0 P
 #0

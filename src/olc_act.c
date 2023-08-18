@@ -3501,6 +3501,7 @@ ED_FUN_DEC(ed_flag_set_long)
     }
 
     printf_to_char(ch, "Syntax : %s [flags]\n\r", n_fun);
+    show_flags_to_char(ch, (struct flag_type*)par);
 
     return false;
 }
@@ -3953,8 +3954,11 @@ ED_FUN_DEC(ed_addprog)
     }
 
     switch (ch->desc->editor) {
-    case ED_MOBILE:	flagtable = mprog_flags;	break;
-    default:	send_to_char("ERROR : Invalid editor.\n\r", ch);
+    case ED_MOBILE:	
+        flagtable = mprog_flags;	
+        break;
+    default:	
+        send_to_char("ERROR : Invalid editor.\n\r", ch);
         return false;
     }
 

@@ -49,38 +49,37 @@ extern ROOM_INDEX_DATA* find_location(CHAR_DATA*, char*);
 /*
  * Command table.
  */
-const	struct	mob_cmd_type	mob_cmd_table[] =
-{
-    {	"asound", 	do_mpasound	},
-    {	"gecho",	do_mpgecho	},
-    {	"zecho",	do_mpzecho	},
-    {	"kill",		do_mpkill	},
-    {	"assist",	do_mpassist	},
-    {	"junk",		do_mpjunk	},
-    {	"echo",		do_mpecho	},
-    {	"echoaround",	do_mpechoaround	},
-    {	"echoat",	do_mpechoat	},
-    {	"mload",	do_mpmload	},
-    {	"oload",	do_mpoload	},
-    {	"purge",	do_mppurge	},
-    {	"goto",		do_mpgoto	},
-    {	"at",		do_mpat		},
-    {	"transfer",	do_mptransfer	},
-    {	"gtransfer",	do_mpgtransfer	},
-    {	"otransfer",	do_mpotransfer	},
-    {	"force",	do_mpforce	},
-    {	"gforce",	do_mpgforce	},
-    {	"vforce",	do_mpvforce	},
-    {	"cast",		do_mpcast	},
-    {	"damage",	do_mpdamage	},
-    {	"remember",	do_mpremember	},
-    {	"forget",	do_mpforget	},
-    {	"delay",	do_mpdelay	},
-    {	"cancel",	do_mpcancel	},
-    {	"call",		do_mpcall	},
-    {	"flee",		do_mpflee	},
-    {	"remove",	do_mpremove	},
-    {	"",		0		}
+const struct mob_cmd_type mob_cmd_table[] = {
+    { "asound",     do_mpasound     },
+    { "gecho",      do_mpgecho      },
+    { "zecho",      do_mpzecho      },
+    { "kill",       do_mpkill       },
+    { "assist",     do_mpassist     },
+    { "junk",       do_mpjunk       },
+    { "echo",       do_mpecho       },
+    { "echoaround", do_mpechoaround },
+    { "echoat",     do_mpechoat     },
+    { "mload",      do_mpmload      },
+    { "oload",      do_mpoload      },
+    { "purge",      do_mppurge      },
+    { "goto",       do_mpgoto       },
+    { "at",         do_mpat         },
+    { "transfer",   do_mptransfer   },
+    { "gtransfer",  do_mpgtransfer  },
+    { "otransfer",  do_mpotransfer  },
+    { "force",      do_mpforce      },
+    { "gforce",     do_mpgforce     },
+    { "vforce",     do_mpvforce     },
+    { "cast",       do_mpcast       },
+    { "damage",     do_mpdamage     },
+    { "remember",   do_mpremember   },
+    { "forget",     do_mpforget     },
+    { "delay",      do_mpdelay      },
+    { "cancel",     do_mpcancel     },
+    { "call",       do_mpcall       },
+    { "flee",       do_mpflee       },
+    { "remove",     do_mpremove     },
+    { "",           0               }
 };
 
 void do_mob(CHAR_DATA* ch, char* argument)
@@ -122,23 +121,23 @@ void mob_interpret(CHAR_DATA* ch, char* argument)
 char* mprog_type_to_name(int type)
 {
     switch (type) {
-    case TRIG_ACT:             	return "ACT";
-    case TRIG_SPEECH:          	return "SPEECH";
-    case TRIG_RANDOM:          	return "RANDOM";
-    case TRIG_FIGHT:           	return "FIGHT";
-    case TRIG_HPCNT:           	return "HPCNT";
-    case TRIG_DEATH:           	return "DEATH";
-    case TRIG_ENTRY:           	return "ENTRY";
-    case TRIG_GREET:           	return "GREET";
-    case TRIG_GRALL:        	return "GRALL";
-    case TRIG_GIVE:            	return "GIVE";
-    case TRIG_BRIBE:           	return "BRIBE";
-    case TRIG_KILL:	      	return "KILL";
-    case TRIG_DELAY:           	return "DELAY";
-    case TRIG_SURR:	      	return "SURRENDER";
-    case TRIG_EXIT:	      	return "EXIT";
-    case TRIG_EXALL:	      	return "EXALL";
-    default:                  	return "ERROR";
+    case TRIG_ACT:      return "ACT";
+    case TRIG_SPEECH:   return "SPEECH";
+    case TRIG_RANDOM:   return "RANDOM";
+    case TRIG_FIGHT:    return "FIGHT";
+    case TRIG_HPCNT:    return "HPCNT";
+    case TRIG_DEATH:    return "DEATH";
+    case TRIG_ENTRY:    return "ENTRY";
+    case TRIG_GREET:    return "GREET";
+    case TRIG_GRALL:    return "GRALL";
+    case TRIG_GIVE:     return "GIVE";
+    case TRIG_BRIBE:    return "BRIBE";
+    case TRIG_KILL:     return "KILL";
+    case TRIG_DELAY:    return "DELAY";
+    case TRIG_SURR:     return "SURRENDER";
+    case TRIG_EXIT:     return "EXIT";
+    case TRIG_EXALL:    return "EXALL";
+    default:            return "ERROR";
     }
 }
 

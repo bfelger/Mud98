@@ -99,7 +99,7 @@ The following libraries and utilities are required to build Mud98:
    ./config && ./build
    ```
 
-    **For MSVC**:
+    **For Visual Studio (MSVC)**:
     
     Open the `src` folder in Visual Studio with CMake support enabled.
 
@@ -122,7 +122,19 @@ The following libraries and utilities are required to build Mud98:
 
     This will add the launch option, "Mud98.exe [with args]" that will run Mud98 from the `area` directory.
 
-    _TODO: Add Powershell scripts for building via CLI._
+    **For Windows CLI (MSVC)**
+
+    You need to know where `cmake.exe` lives. In my case, for instance, for Visual Studio 2022 Community Edition, it would be here:
+
+    ```
+    C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe
+    ```
+    You can then configure and build from the command line:
+
+    ```
+    cmake.exe -G "Ninja Multi-Config" -B out
+    cmake --build out --clean-first --config Debug
+    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -183,14 +195,14 @@ Project Link: [https://github.com/bfelger/Mud98](https://github.com/bfelger/Mud9
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- ACKNOWLEDGMENTS -->
+<!-- ACKNOWLEDGMENTS 
 ## Acknowledgments
 
 * []()
 * []()
 * []()
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p-->
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->

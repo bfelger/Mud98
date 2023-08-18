@@ -1,1 +1,0 @@
-allocfunc(struct skhash,skhash)

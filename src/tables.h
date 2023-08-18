@@ -31,6 +31,8 @@
 
 #include "merc.h"
 
+void show_flags_to_char(CHAR_DATA* ch, const struct flag_type* flags);
+
 struct flag_type {
     char* name;
     int bit;

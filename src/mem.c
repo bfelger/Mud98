@@ -21,7 +21,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-void            free_mprog              args((MPROG_LIST* mp));
+void free_mprog args((MPROG_LIST* mp));
 
 /*
  * Globals

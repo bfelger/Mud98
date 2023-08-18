@@ -300,14 +300,11 @@ void boot_db(void)
         init_mm();
     }
 
-#ifndef FIRST_BOOT
     load_skills_table();
     load_races_table();
     load_command_table();
     load_socials_table();
     load_groups();
-#endif
-
 
     /*
      * Set time and weather.
@@ -460,17 +457,6 @@ void boot_db(void)
         load_bans();
         load_songs();
     }
-
-#ifdef FIRST_BOOT
-    save_skills();
-    save_races();
-    save_command_table();
-    save_socials();
-    save_groups();
-    do_asave(NULL, "");
-    flog("Now recompile the code without -DFIRST_BOOT.");
-    exit(0);
-#endif
 
     return;
 }

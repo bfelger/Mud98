@@ -28,9 +28,6 @@ struct savetable_type {
 
 struct cmd_type		cmd;
 struct race_type	race;
-#if defined(FIRST_BOOT)
-struct pc_race_type	pcrace;
-#endif
 struct social_type	soc;
 struct skill_type	sk;
 MPROG_CODE		pcode;
@@ -255,7 +252,6 @@ const struct savetable_type racesavetable[] = {
     { "vuln",	    FIELD_FLAGVECTOR,	U(&race.vuln),	    0,		    0},
     { "form",	    FIELD_FLAGVECTOR,	U(&race.form),	    0,		    0},
     { "parts",	    FIELD_FLAGVECTOR,	U(&race.parts),	    0,		    0},
-#ifndef FIRST_BOOT
     { "points",	    FIELD_INT16,		U(&race.points),	0,			    0	},
     { "class_mult",	FIELD_INT16_ARRAY,	U(&race.class_mult),U(MAX_CLASS),	0	},
     { "who_name",	FIELD_STRING,		U(&race.who_name),	0,			    0	},
@@ -263,22 +259,8 @@ const struct savetable_type racesavetable[] = {
     { "stats",	    FIELD_INT16_ARRAY,	U(&race.stats),		U(MAX_STATS),	0	},
     { "max_stats",	FIELD_INT16_ARRAY,	U(&race.max_stats),	U(MAX_STATS),	0	},
     { "size",		FIELD_FUNCTION_INT16_TO_STR,U(&race.size),	U(size_str),U(size_read)},
-#endif
     { NULL,		    0,				    0,			        0,		    0}
 };
-
-#if defined(FIRST_BOOT)
-const struct savetable_type pcracesavetable[] = {
-    { "points",	    FIELD_INT16,		U(&pcrace.points),	    0,			    0	},
-    { "class_mult",	FIELD_INT16_ARRAY,	U(&pcrace.class_mult),	U(MAX_CLASS),	0	},
-    { "who_name",	FIELD_STRING,		U(&pcrace.who_name),	0,			    0	},
-    { "skills",	    FIELD_STRING_ARRAY,	U(&pcrace.skills),	    U(5),		    0	},
-    { "stats",      FIELD_INT16_ARRAY,	U(&pcrace.stats),		U(MAX_STATS),	0	},
-    { "max_stats",	FIELD_INT16_ARRAY,	U(&pcrace.max_stats),	U(MAX_STATS),	0	},
-    { "size",		FIELD_FUNCTION_INT16_TO_STR,U(&pcrace.size),U(size_str),	U(size_read)},
-    { NULL,		    0,			0,				0,			0	}
-};
-#endif
 
 const struct savetable_type cmdsavetable[] = {
     { "name",		FIELD_STRING,			    U(&cmd.name),	    0,		        0 },
@@ -552,9 +534,7 @@ void save_command_table()
 {
     FILE* fp;
     const struct cmd_type* temp;
-#ifndef FIRST_BOOT
     extern struct cmd_type* cmd_table;
-#endif
     int cnt = 0;
 
     char cmd_file[256];
@@ -579,7 +559,6 @@ void save_command_table()
     fclose(fp);
 }
 
-#ifndef FIRST_BOOT
 void load_command_table(void)
 {
     FILE* fp;
@@ -793,15 +772,12 @@ void load_skills_table()
 
     fclose(fp);
 }
-#endif
 
 void save_races(void)
 {
     FILE* fp;
     const struct race_type* temp;
-#ifndef FIRST_BOOT
     extern struct race_type* race_table;
-#endif
     int cnt = 0;
 
     char tempraces_file[256];
@@ -820,11 +796,6 @@ void save_races(void)
     for (temp = race_table, cnt = 0; !IS_NULLSTR(temp->name); temp++) {
         fprintf(fp, "#race\n");
         save_struct(fp, U(&race), racesavetable, U(temp));
-#if defined(FIRST_BOOT)
-        if (cnt < MAX_PC_RACE)
-            save_struct(fp, U(&pcrace), pcracesavetable, U(&pc_race_table[cnt]));
-        cnt++;
-#endif
         fprintf(fp, "#END\n\n");
     }
 

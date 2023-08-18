@@ -127,15 +127,8 @@ void free_learned args((int16_t*));
 bool* new_boolarray(size_t);
 void free_boolarray(bool*);
 
-#define allocfunc_val allocfunc
-#define allocfunc(a,b)              \
-    a* new_ ## b();                 \
-    void free_ ## b(a*);
-
-#include "allocfunc.h"
-
-#undef allocfunc
-#undef allocfunc_val
+struct skhash* new_skhash(); //allocfunc(struct skhash, skhash)
+void free_skhash(struct skhash*);
 
 /* externs */
 extern char str_empty[1];

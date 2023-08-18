@@ -114,23 +114,19 @@ void save_area_list(void)
     if ((fp = fopen(area_list, "w")) == NULL) {
         bugf("save_area_list: could not open %s.", area_list);
         perror("area.lst");
+        return;
     }
-    else {
-        for (ha = had_list; ha; ha = ha->next)
-            if (ha->area == NULL)
-                fprintf(fp, "%s\n", ha->filename);
 
-#if defined(FIRST_BOOT)
-        fprintf(fp, "olc.hlp\n");
-#endif
+    for (ha = had_list; ha; ha = ha->next)
+        if (ha->area == NULL)
+            fprintf(fp, "%s\n", ha->filename);
 
-        for (pArea = area_first; pArea; pArea = pArea->next) {
-            fprintf(fp, "%s\n", pArea->file_name);
-        }
-
-        fprintf(fp, "$\n");
-        fclose(fp);
+    for (pArea = area_first; pArea; pArea = pArea->next) {
+        fprintf(fp, "%s\n", pArea->file_name);
     }
+
+    fprintf(fp, "$\n");
+    fclose(fp);
 
     return;
 }
@@ -1042,8 +1038,8 @@ void do_asave(CHAR_DATA* ch, char* argument)
     /* Save area of given vnum. */
     /* ------------------------ */
 
-    if (is_number(arg1)) {
-        if (!IS_BUILDER(ch, pArea)) {
+    if (is_number(arg1) && pArea) {
+        if (ch && !IS_BUILDER(ch, pArea)) {
             send_to_char("You are not a builder for this area.\n\r", ch);
             return;
         }

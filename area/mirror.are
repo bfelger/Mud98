@@ -2488,26 +2488,26 @@ a ladder standing vertical.
 ~
 0
 0 3
-D3
-You see stars.
-~
-~
-0 0 5378
 D4
 You see stars.
 ~
 ~
 0 0 5376
-D1
-You see stars.
-~
-~
-0 0 5378
 D2
 You see a fuzzy portal of some sort and a little green.
 ~
 ~
 0 0 5368
+D1
+You see stars.
+~
+~
+0 0 5378
+D3
+You see stars.
+~
+~
+0 0 5378
 D5
 You see stars.
 ~
@@ -2524,22 +2524,7 @@ rainbow then back to its normal state.
 ~
 0
 0 3
-D1
-You see stars.
-~
-~
-0 0 5376
-D2
-You see stars.
-~
-~
-0 0 5377
 D4
-You see stars.
-~
-~
-0 0 5375
-D5
 You see stars.
 ~
 ~
@@ -2549,7 +2534,22 @@ You see stars.
 ~
 ~
 0 0 5377
+D5
+You see stars.
+~
+~
+0 0 5375
+D2
+You see stars.
+~
+~
+0 0 5377
 D3
+You see stars.
+~
+~
+0 0 5376
+D1
 You see stars.
 ~
 ~
@@ -2565,6 +2565,11 @@ rainbow then back to its normal state.
 ~
 0
 0 3
+D4
+You see stars.
+~
+~
+0 0 5378
 D0
 You see stars.
 ~
@@ -2575,21 +2580,16 @@ You see stars.
 ~
 ~
 0 0 5377
-D1
-You see stars.
-~
-~
-0 0 5377
 D5
 You see stars.
 ~
 ~
 0 0 5378
-D4
+D1
 You see stars.
 ~
 ~
-0 0 5378
+0 0 5377
 D2
 You see stars.
 ~
@@ -2607,11 +2607,6 @@ a ladder standing vertical.
 ~
 0
 0 3
-D2
-You see a fuzzy portal of some sort and a little green.
-~
-~
-0 0 8903
 D4
 You see stars.
 ~
@@ -2622,6 +2617,11 @@ You see stars.
 ~
 ~
 0 0 5375
+D2
+You see a fuzzy portal of some sort and a little green.
+~
+~
+0 0 8903
 D3
 You see stars.
 ~

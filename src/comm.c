@@ -128,6 +128,7 @@ void bust_a_prompt args((CHAR_DATA* ch));
 bool check_parse_name args((char* name));
 bool check_playing args((DESCRIPTOR_DATA* d, char* name));
 bool check_reconnect args((DESCRIPTOR_DATA* d, char* name, bool fConn));
+void send_to_desc(const char* txt, DESCRIPTOR_DATA* desc);
 
 #ifdef _MSC_VER
 void PrintLastWinSockError()
@@ -441,9 +442,11 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
     {
         extern char* help_greeting;
         if (help_greeting[0] == '.')
-            write_to_buffer(dnew, help_greeting + 1, 0);
+            send_to_desc(help_greeting + 1, dnew);
+            //write_to_buffer(dnew, help_greeting + 1, 0);
         else
-            write_to_buffer(dnew, help_greeting, 0);
+            //write_to_buffer(dnew, help_greeting, 0);
+            send_to_desc(help_greeting, dnew);
     }
 
     rc = 0; // OK
@@ -1309,6 +1312,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
         break;
 
     case CON_CONFIRM_NEW_NAME:
+        SET_BIT(ch->act, PLR_COLOUR);
         switch (*argument) {
         case 'y':
         case 'Y':
@@ -1407,11 +1411,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
         ch->race = race;
         /* initialize stats */
         for (i = 0; i < MAX_STATS; i++)
-#if defined(FIRST_BOOT)
-            ch->perm_stat[i] = pc_race_table[race].stats[i];
-#else
             ch->perm_stat[i] = race_table[race].stats[i];
-#endif
         ch->affected_by = ch->affected_by | race_table[race].aff;
         ch->imm_flags = ch->imm_flags | race_table[race].imm;
         ch->res_flags = ch->res_flags | race_table[race].res;
@@ -1421,21 +1421,14 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
 
         /* add skills */
         for (i = 0; i < 5; i++) {
-#if defined(FIRST_BOOT)
-            if (pc_race_table[race].skills[i] == NULL) break;
-            group_add(ch, pc_race_table[race].skills[i], false);
-        }
-        /* add cost */
-        ch->pcdata->points = pc_race_table[race].points;
-        ch->size = pc_race_table[race].size;
-#else
-            if (race_table[race].skills[i] == NULL) break;
+            if (race_table[race].skills[i] == NULL) 
+                break;
             group_add(ch, race_table[race].skills[i], false);
-    }
-            /* add cost */
+        }
+        
+        /* add cost */
         ch->pcdata->points = race_table[race].points;
         ch->size = race_table[race].size;
-#endif
 
         write_to_buffer(d, "What is your sex (M/F)? ", 0);
         d->connected = CON_GET_NEW_SEX;
@@ -1588,27 +1581,15 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
         send_to_char("\n\r", ch);
 
         if (!str_cmp(argument, "done")) {
-#ifdef FIRST_BOOT
-            if (ch->pcdata->points == pc_race_table[ch->race].points) {
-#else
             if (ch->pcdata->points == race_table[ch->race].points) {
-#endif
                 send_to_char("You didn't pick anything.\n\r", ch);
                 break;
             }
 
-#ifdef FIRST_BOOT
-            if (ch->pcdata->points <= 40 + pc_race_table[ch->race].points) {
-#else
             if (ch->pcdata->points <= 40 + race_table[ch->race].points) {
-#endif
                 sprintf(buf,
                     "You must take at least %d points of skills and groups",
-#if defined(FIRST_BOOT)
-                    40 + pc_race_table[ch->race].points);
-#else
                     40 + race_table[ch->race].points);
-#endif
                 send_to_char(buf, ch);
                 break;
             }
@@ -1913,6 +1894,35 @@ void process_client_output(PollData * poll_data)
         }
     }
 }
+
+// So we can send the greeting in color
+void send_to_desc(const char* txt, DESCRIPTOR_DATA* desc)
+{
+    const char* point;
+    char* point2;
+    INIT_BUF(temp, MAX_STRING_LENGTH * 4);
+    size_t skip = 0;
+
+    BUF(temp)[0] = '\0';
+    point2 = BUF(temp);
+    if (txt && desc) {
+        for (point = txt; *point; point++) {
+            if (*point == '{') {
+                point++;
+                skip = colour(*point, NULL, point2);
+                while (skip-- > 0) ++point2;
+                continue;
+            }
+            *point2 = *point;
+            *++point2 = '\0';
+        }
+        *point2 = '\0';
+        write_to_buffer(desc, BUF(temp), point2 - BUF(temp)); 
+    }
+
+    free_buf(temp);
+}
+
 
 /*
  * Write to one char.
@@ -2242,12 +2252,14 @@ void act_new(const char* format, CHAR_DATA * ch, const void* arg1,
 
 size_t colour(char type, CHAR_DATA * ch, char* string)
 {
-    PC_DATA* col;
-    char code[20];
+    PC_DATA* col = NULL;
+    char code[20] = { 0 };
 
-    if (IS_NPC(ch)) return (0);
-
-    col = ch->pcdata;
+    if (ch) {
+        if (IS_NPC(ch))
+            return (0);
+        col = ch->pcdata;
+    }
 
     switch (type) {
     default:
@@ -2257,12 +2269,14 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
         strcpy(code, CLEAR);
         break;
     case 'p':
+        if (!col) break;
         if (col->prompt[2])
             sprintf(code, "\033[%d;3%dm%c", col->prompt[0], col->prompt[1], '\a');
         else
             sprintf(code, "\033[%d;3%dm", col->prompt[0], col->prompt[1]);
         break;
     case 's':
+        if (!col) break;
         if (col->room_title[2])
             sprintf(code, "\033[%d;3%dm%c", col->room_title[0],
                 col->room_title[1], '\a');
@@ -2270,6 +2284,7 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
             sprintf(code, "\033[%d;3%dm", col->room_title[0], col->room_title[1]);
         break;
     case 'S':
+        if (!col) break;
         if (col->room_text[2])
             sprintf(code, "\033[%d;3%dm%c", col->room_text[0], col->room_text[1],
                 '\a');
@@ -2277,12 +2292,14 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
             sprintf(code, "\033[%d;3%dm", col->room_text[0], col->room_text[1]);
         break;
     case 'd':
+        if (!col) break;
         if (col->gossip[2])
             sprintf(code, "\033[%d;3%dm%c", col->gossip[0], col->gossip[1], '\a');
         else
             sprintf(code, "\033[%d;3%dm", col->gossip[0], col->gossip[1]);
         break;
     case '9':
+        if (!col) break;
         if (col->gossip_text[2])
             sprintf(code, "\033[%d;3%dm%c", col->gossip_text[0],
                 col->gossip_text[1], '\a');
@@ -2291,12 +2308,14 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
                 col->gossip_text[1]);
         break;
     case 'Z':
+        if (!col) break;
         if (col->wiznet[2])
             sprintf(code, "\033[%d;3%dm%c", col->wiznet[0], col->wiznet[1], '\a');
         else
             sprintf(code, "\033[%d;3%dm", col->wiznet[0], col->wiznet[1]);
         break;
     case 'o':
+        if (!col) break;
         if (col->room_exits[2])
             sprintf(code, "\033[%d;3%dm%c", col->room_exits[0],
                 col->room_exits[1], '\a');
@@ -2304,6 +2323,7 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
             sprintf(code, "\033[%d;3%dm", col->room_exits[0], col->room_exits[1]);
         break;
     case 'O':
+        if (!col) break;
         if (col->room_things[2])
             sprintf(code, "\033[%d;3%dm%c", col->room_things[0],
                 col->room_things[1], '\a');
@@ -2312,6 +2332,7 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
                 col->room_things[1]);
         break;
     case 'i':
+        if (!col) break;
         if (col->immtalk_text[2])
             sprintf(code, "\033[%d;3%dm%c", col->immtalk_text[0],
                 col->immtalk_text[1], '\a');
@@ -2320,6 +2341,7 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
                 col->immtalk_text[1]);
         break;
     case 'I':
+        if (!col) break;
         if (col->immtalk_type[2])
             sprintf(code, "\033[%d;3%dm%c", col->immtalk_type[0],
                 col->immtalk_type[1], '\a');
@@ -2328,6 +2350,7 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
                 col->immtalk_type[1]);
         break;
     case '2':
+        if (!col) break;
         if (col->fight_yhit[2])
             sprintf(code, "\033[%d;3%dm%c", col->fight_yhit[0],
                 col->fight_yhit[1], '\a');
@@ -2335,6 +2358,7 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
             sprintf(code, "\033[%d;3%dm", col->fight_yhit[0], col->fight_yhit[1]);
         break;
     case '3':
+        if (!col) break;
         if (col->fight_ohit[2])
             sprintf(code, "\033[%d;3%dm%c", col->fight_ohit[0],
                 col->fight_ohit[1], '\a');
@@ -2342,6 +2366,7 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
             sprintf(code, "\033[%d;3%dm", col->fight_ohit[0], col->fight_ohit[1]);
         break;
     case '4':
+        if (!col) break;
         if (col->fight_thit[2])
             sprintf(code, "\033[%d;3%dm%c", col->fight_thit[0],
                 col->fight_thit[1], '\a');
@@ -2349,6 +2374,7 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
             sprintf(code, "\033[%d;3%dm", col->fight_thit[0], col->fight_thit[1]);
         break;
     case '5':
+        if (!col) break;
         if (col->fight_skill[2])
             sprintf(code, "\033[%d;3%dm%c", col->fight_skill[0],
                 col->fight_skill[1], '\a');
@@ -2357,6 +2383,7 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
                 col->fight_skill[1]);
         break;
     case '1':
+        if (!col) break;
         if (col->fight_death[2])
             sprintf(code, "\033[%d;3%dm%c", col->fight_death[0],
                 col->fight_death[1], '\a');
@@ -2365,12 +2392,14 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
                 col->fight_death[1]);
         break;
     case '6':
+        if (!col) break;
         if (col->say[2])
             sprintf(code, "\033[%d;3%dm%c", col->say[0], col->say[1], '\a');
         else
             sprintf(code, "\033[%d;3%dm", col->say[0], col->say[1]);
         break;
     case '7':
+        if (!col) break;
         if (col->say_text[2])
             sprintf(code, "\033[%d;3%dm%c", col->say_text[0], col->say_text[1],
                 '\a');
@@ -2378,12 +2407,14 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
             sprintf(code, "\033[%d;3%dm", col->say_text[0], col->say_text[1]);
         break;
     case 'k':
+        if (!col) break;
         if (col->tell[2])
             sprintf(code, "\033[%d;3%dm%c", col->tell[0], col->tell[1], '\a');
         else
             sprintf(code, "\033[%d;3%dm", col->tell[0], col->tell[1]);
         break;
     case 'K':
+        if (!col) break;
         if (col->tell_text[2])
             sprintf(code, "\033[%d;3%dm%c", col->tell_text[0], col->tell_text[1],
                 '\a');
@@ -2391,12 +2422,14 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
             sprintf(code, "\033[%d;3%dm", col->tell_text[0], col->tell_text[1]);
         break;
     case 'l':
+        if (!col) break;
         if (col->reply[2])
             sprintf(code, "\033[%d;3%dm%c", col->reply[0], col->reply[1], '\a');
         else
             sprintf(code, "\033[%d;3%dm", col->reply[0], col->reply[1]);
         break;
     case 'L':
+        if (!col) break;
         if (col->reply_text[2])
             sprintf(code, "\033[%d;3%dm%c", col->reply_text[0],
                 col->reply_text[1], '\a');
@@ -2404,6 +2437,7 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
             sprintf(code, "\033[%d;3%dm", col->reply_text[0], col->reply_text[1]);
         break;
     case 'n':
+        if (!col) break;
         if (col->gtell_text[2])
             sprintf(code, "\033[%d;3%dm%c", col->gtell_text[0],
                 col->gtell_text[1], '\a');
@@ -2411,6 +2445,7 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
             sprintf(code, "\033[%d;3%dm", col->gtell_text[0], col->gtell_text[1]);
         break;
     case 'N':
+        if (!col) break;
         if (col->gtell_type[2])
             sprintf(code, "\033[%d;3%dm%c", col->gtell_type[0],
                 col->gtell_type[1], '\a');
@@ -2418,6 +2453,7 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
             sprintf(code, "\033[%d;3%dm", col->gtell_type[0], col->gtell_type[1]);
         break;
     case 'a':
+        if (!col) break;
         if (col->auction[2])
             sprintf(code, "\033[%d;3%dm%c", col->auction[0], col->auction[1],
                 '\a');
@@ -2425,6 +2461,7 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
             sprintf(code, "\033[%d;3%dm", col->auction[0], col->auction[1]);
         break;
     case 'A':
+        if (!col) break;
         if (col->auction_text[2])
             sprintf(code, "\033[%d;3%dm%c", col->auction_text[0],
                 col->auction_text[1], '\a');
@@ -2433,6 +2470,7 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
                 col->auction_text[1]);
         break;
     case 'q':
+        if (!col) break;
         if (col->question[2])
             sprintf(code, "\033[%d;3%dm%c", col->question[0], col->question[1],
                 '\a');
@@ -2440,6 +2478,7 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
             sprintf(code, "\033[%d;3%dm", col->question[0], col->question[1]);
         break;
     case 'Q':
+        if (!col) break;
         if (col->question_text[2])
             sprintf(code, "\033[%d;3%dm%c", col->question_text[0],
                 col->question_text[1], '\a');
@@ -2448,12 +2487,14 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
                 col->question_text[1]);
         break;
     case 'f':
+        if (!col) break;
         if (col->answer[2])
             sprintf(code, "\033[%d;3%dm%c", col->answer[0], col->answer[1], '\a');
         else
             sprintf(code, "\033[%d;3%dm", col->answer[0], col->answer[1]);
         break;
     case 'F':
+        if (!col) break;
         if (col->answer_text[2])
             sprintf(code, "\033[%d;3%dm%c", col->answer_text[0],
                 col->answer_text[1], '\a');
@@ -2462,12 +2503,14 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
                 col->answer_text[1]);
         break;
     case 'e':
+        if (!col) break;
         if (col->music[2])
             sprintf(code, "\033[%d;3%dm%c", col->music[0], col->music[1], '\a');
         else
             sprintf(code, "\033[%d;3%dm", col->music[0], col->music[1]);
         break;
     case 'E':
+        if (!col) break;
         if (col->music_text[2])
             sprintf(code, "\033[%d;3%dm%c", col->music_text[0],
                 col->music_text[1], '\a');
@@ -2475,12 +2518,14 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
             sprintf(code, "\033[%d;3%dm", col->music_text[0], col->music_text[1]);
         break;
     case 'h':
+        if (!col) break;
         if (col->quote[2])
             sprintf(code, "\033[%d;3%dm%c", col->quote[0], col->quote[1], '\a');
         else
             sprintf(code, "\033[%d;3%dm", col->quote[0], col->quote[1]);
         break;
     case 'H':
+        if (!col) break;
         if (col->quote_text[2])
             sprintf(code, "\033[%d;3%dm%c", col->quote_text[0],
                 col->quote_text[1], '\a');
@@ -2488,6 +2533,7 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
             sprintf(code, "\033[%d;3%dm", col->quote_text[0], col->quote_text[1]);
         break;
     case 'j':
+        if (!col) break;
         if (col->info[2])
             sprintf(code, "\033[%d;3%dm%c", col->info[0], col->info[1], '\a');
         else

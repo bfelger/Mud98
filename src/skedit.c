@@ -20,10 +20,8 @@ int16_t* gsn_lookup(char* argument);
 
 #define SKEDIT(fun) bool fun(CHAR_DATA *ch, char *argument)
 
-#ifndef FIRST_BOOT
 struct skill_type* skill_table;
 size_t MAX_SKILL;
-#endif
 struct skhash* skill_hash_table[26];
 
 void create_skills_hash_table(void);
@@ -70,7 +68,6 @@ extern struct skill_type xSkill;
 #define U(x)    (uintptr_t)(x)
 
 const struct olc_comm_type skill_olc_comm_table[] = {
-#ifndef FIRST_BOOT
     { "name",       0,                          ed_olded,       U(skedit_name)  },
     { "beats",      U(&xSkill.beats),           ed_number_s_pos,0               },
     { "position",   U(&xSkill.minimum_position),ed_int16lookup, U(position_lookup)},
@@ -85,7 +82,6 @@ const struct olc_comm_type skill_olc_comm_table[] = {
     { "off",        U(&xSkill.msg_off),         ed_line_string, 0               },
     { "obj",        U(&xSkill.msg_obj),         ed_line_string, 0               },
     { "new",        0,                          ed_olded,       U(skedit_new)   },
-#endif
     { "list",       0,                          ed_olded,       U(skedit_list)  },
     { "show",       0,                          ed_olded,       U(skedit_show)  },
     { "commands",   0,                          ed_olded,       U(show_commands)},
@@ -235,14 +231,12 @@ void do_skedit(CHAR_DATA* ch, char* argument)
 
     one_argument(argument, command);
 
-#ifndef FIRST_BOOT
     if (!str_cmp(command, "new")) {
         argument = one_argument(argument, command);
         if (skedit_new(ch, argument))
             save_skills();
         return;
     }
-#endif
 
     if ((skill = skill_lookup(argument)) == -1) {
         send_to_char("SKEdit : That skill does not exist.\n\r", ch);
@@ -531,7 +525,6 @@ void delete_skills_hash_table(void)
     }
 }
 
-#ifndef FIRST_BOOT
 SKEDIT(skedit_name)
 {
     struct skill_type* pSkill;
@@ -793,7 +786,6 @@ SKEDIT(skedit_new)
     send_to_char("Skill created.\n\r", ch);
     return true;
 }
-#endif
 
 #undef U
 #ifdef OLD_U

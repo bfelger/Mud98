@@ -579,13 +579,8 @@ int exp_per_level(CHAR_DATA* ch, int points)
     inc = 500;
 
     if (points < 40)
-#if defined(FIRST_BOOT)
-        return 1000 * (pc_race_table[ch->race].class_mult[ch->ch_class] ?
-            pc_race_table[ch->race].class_mult[ch->ch_class] / 100 : 1);
-#else
         return 1000 * (race_table[ch->race].class_mult[ch->ch_class] ?
             race_table[ch->race].class_mult[ch->ch_class] / 100 : 1);
-#endif
 
     /* processing */
     points -= 40;
@@ -602,11 +597,7 @@ int exp_per_level(CHAR_DATA* ch, int points)
 
     expl += points * inc / 10;
 
-#if defined(FIRST_BOOT)
-    return expl * pc_race_table[ch->race].class_mult[ch->ch_class] / 100;
-#else
     return expl * race_table[ch->race].class_mult[ch->ch_class] / 100;
-#endif
 }
 
 /* this procedure handles the input parsing for the skill generator */
@@ -953,7 +944,6 @@ void group_remove(CHAR_DATA* ch, const char* name)
     }
 }
 
-#ifndef FIRST_BOOT
 int race_exp_per_level(int race, int class, int points)
 {
     int expl, inc;
@@ -982,4 +972,3 @@ int race_exp_per_level(int race, int class, int points)
 
     return expl * race_table[race].class_mult[class] / 100;
 }
-#endif

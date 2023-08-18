@@ -162,13 +162,10 @@ typedef int	LOOKUP_F args((const char*));
  * Adjust the pulse numbers to suit yourself.
  */
 #define MAX_SOCIALS         256
-#ifdef FIRST_BOOT
-#define MAX_SKILL           150
-#define MAX_GROUP           30
-#else
+
 extern size_t MAX_SKILL;
 extern size_t MAX_GROUP;
-#endif
+
 #define MAX_IN_GROUP        15
 #define MAX_ALIAS           5
 #define MAX_CLASS           4
@@ -180,7 +177,7 @@ extern size_t MAX_GROUP;
 #define LEVEL_IMMORTAL      (MAX_LEVEL - 8)
 
 // If you want to change the type for VNUM's, this is where you do it.
-#define MAX_VNUM		    INT32_MAX
+#define MAX_VNUM            INT32_MAX
 #define VNUM                int32_t
 #define PRVNUM              PRId32
 #define STRTOVNUM(s)        (VNUM)strtol(s, NULL, 0)
@@ -539,7 +536,6 @@ struct race_type {
     long form; /* default form flag for the race */
     long parts; /* default parts for the race */
     int16_t race_id;
-#ifndef FIRST_BOOT
     char* who_name;
     int16_t points;			/* cost in points of the race */
     int16_t class_mult[MAX_CLASS];	/* exp multiplier for class, * 100 */
@@ -547,22 +543,7 @@ struct race_type {
     int16_t stats[MAX_STATS];	/* starting stats */
     int16_t max_stats[MAX_STATS];	/* maximum stats */
     int16_t size;			/* aff bits for the race */
-#endif
 };
-
-#ifdef FIRST_BOOT
-struct pc_race_type /* additional data for pc races */
-{
-    char* name; /* MUST be in race_type */
-    char* who_name;
-    int16_t points; /* cost in points of the race */
-    int16_t class_mult[MAX_CLASS]; /* exp multiplier for class, * 100 */
-    char* skills[5]; /* bonus skills for the race */
-    int16_t stats[MAX_STATS]; /* starting stats */
-    int16_t max_stats[MAX_STATS]; /* maximum stats */
-    int16_t size; /* aff bits for the race */
-};
-#endif
 
 struct spec_type {
     char* name; /* special function name */
@@ -1251,7 +1232,7 @@ struct kill_data {
 #define TYP_UNDEF 1
 #define TYP_CMM	10
 #define TYP_CBT	2
-#define TYP_ESP 3
+#define TYP_SPC 3
 #define TYP_GRP 4
 #define TYP_OBJ 5
 #define TYP_INF 6
@@ -1522,7 +1503,6 @@ struct char_data {
     int16_t dam_type;
     int16_t start_pos;
     int16_t default_pos;
-
     int16_t mprog_delay;
 };
 
@@ -1550,13 +1530,8 @@ struct pc_data {
     int16_t true_sex;
     int last_level;
     int16_t condition[4];
-#if defined(FIRST_BOOT)
-    int16_t learned[MAX_SKILL];
-    bool group_known[MAX_GROUP];
-#else
     int16_t* learned;
     bool* group_known;
-#endif
     int16_t points;
     bool confirm_delete;
     char* alias[MAX_ALIAS];
@@ -1607,13 +1582,8 @@ struct pc_data {
 struct gen_data {
     GEN_DATA* next;
     bool valid;
-#if defined(FIRST_BOOT)
-    bool skill_chosen[MAX_SKILL];
-    bool group_chosen[MAX_GROUP];
-#else
     bool* skill_chosen;
     bool* group_chosen;
-#endif
     int points_chosen;
 };
 
@@ -1947,9 +1917,9 @@ struct mprog_code {
 #define HAS_TRIGGER(ch, trig) (IS_SET((ch)->pIndexData->mprog_flags, (trig)))
 #define IS_SWITCHED(ch) (ch->desc && ch->desc->original)
 #define IS_BUILDER(ch, Area) (!IS_NPC(ch) && !IS_SWITCHED(ch) && \
-				(ch->pcdata->security >= Area->security \
-				|| strstr(Area->builders, ch->name) \
-				|| strstr(Area->builders, "All")))
+                (ch->pcdata->security >= Area->security \
+                || strstr(Area->builders, ch->name) \
+                || strstr(Area->builders, "All")))
 
 /*
  * Object macros.
@@ -1996,18 +1966,10 @@ extern const struct weapon_type weapon_table[];
 extern const struct item_type item_table[];
 extern const struct wiznet_type wiznet_table[];
 extern const struct attack_type attack_table[];
-#if defined(FIRST_BOOT)
-extern const struct race_type race_table[];
-extern const struct pc_race_type pc_race_table[];
-extern const struct skill_type skill_table[MAX_SKILL];
-extern const struct group_type group_table[MAX_GROUP];
-extern       struct social_type social_table[MAX_SOCIALS];
-#else
 extern       struct race_type* race_table;
 extern       struct skill_type* skill_table;
 extern       struct group_type* group_table;
 extern       struct social_type* social_table;
-#endif
 extern const struct spec_type spec_table[];
 extern const struct liq_type liq_table[];
 extern char* const title_table[MAX_CLASS][MAX_LEVEL + 1][2];

@@ -23,9 +23,7 @@ struct cmd_list_type {
 
 extern	bool fBootDb;
 size_t MAX_CMD;
-#ifndef FIRST_BOOT
 struct cmd_type* cmd_table;
-#endif
 void create_command_table();
 
 #if defined(COMMAND)
@@ -50,7 +48,6 @@ extern struct cmd_type xCmd;
 #define U(x)    (uintptr_t)(x)
 
 const struct olc_comm_type cmd_olc_comm_table[] = {
-#ifndef FIRST_BOOT
     { "name",	    0,		            ed_olded,	        U(cmdedit_name)	    },
     { "function",	0,		            ed_olded,	        U(cmdedit_function)	},
     { "level",	    0,		            ed_olded,	        U(cmdedit_level)	},
@@ -59,7 +56,6 @@ const struct olc_comm_type cmd_olc_comm_table[] = {
     { "type",	    U(&xCmd.show),	    ed_flag_set_long,   U(show_flags)	    },
     { "new",	    0,		            ed_olded,	        U(cmdedit_new)	    },
     { "delete",	    0,		            ed_olded,	        U(cmdedit_delete)	},
-#endif
     { "list",	    0,  		        ed_olded,	        U(cmdedit_list)	    },
     { "show",	    0,  		        ed_olded,	        U(cmdedit_show)	    },
     { "commands",	0,  		        ed_olded,	        U(show_commands)	},
@@ -160,7 +156,6 @@ void do_cmdedit(CHAR_DATA* ch, char* argument)
 
     argument = one_argument(argument, command);
 
-#ifndef FIRST_BOOT
     if (!str_cmp(command, "new")) {
         if (cmdedit_new(ch, argument))
             save_command_table();
@@ -172,7 +167,6 @@ void do_cmdedit(CHAR_DATA* ch, char* argument)
             save_command_table();
         return;
     }
-#endif
 
     if ((iCmd = cmd_lookup(command)) == -1) {
         send_to_char("CMDEdit : That command does not exist.\n\r", ch);
@@ -215,7 +209,7 @@ CMDEDIT(cmdedit_show)
     return false;
 }
 
-void list_functiones(BUFFER* pBuf)
+void list_functions(BUFFER* pBuf)
 {
     int i;
     char buf[MSL];
@@ -308,7 +302,7 @@ CMDEDIT(cmdedit_list)
     if (!str_prefix(arg, "commands"))
         list_commands(pBuf, minlev, maxlev);
     else if (!str_prefix(arg, "functions"))
-        list_functiones(pBuf);
+        list_functions(pBuf);
     else
         add_buf(pBuf, "Idiot!\n\r");
 
@@ -322,7 +316,6 @@ void do_nothing(CHAR_DATA* ch, char* argument)
     return;
 }
 
-#ifndef FIRST_BOOT
 CMDEDIT(cmdedit_name)
 {
     struct cmd_type* pCmd;
@@ -517,7 +510,6 @@ CMDEDIT(cmdedit_level)
     send_to_char("Ok.\n\r", ch);
     return true;
 }
-#endif
 
 #undef U
 #ifdef OLD_U

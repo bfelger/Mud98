@@ -63,8 +63,8 @@ typedef struct descriptor_data {
     char* showstr_head;
     char* showstr_point;
     uintptr_t pEdit;    // OLC
-    char** pString; // OLC
-    int16_t editor; // OLC
+    char** pString;     // OLC
+    int16_t editor;     // OLC
     int16_t page;
     char* screenmap;
     char* oldscreenmap;

@@ -280,23 +280,23 @@ char* olc_ed_vnum(CHAR_DATA* ch)
     switch (ch->desc->editor) {
     case ED_AREA:
         pArea = (AREA_DATA*)ch->desc->pEdit;
-        sprintf(buf, "%d", pArea ? pArea->vnum : 0);
+        sprintf(buf, "%"PRVNUM, pArea ? pArea->vnum : 0);
         break;
     case ED_ROOM:
         pRoom = ch->in_room;
-        sprintf(buf, "%d", pRoom ? pRoom->vnum : 0);
+        sprintf(buf, "%"PRVNUM, pRoom ? pRoom->vnum : 0);
         break;
     case ED_OBJECT:
         pObj = (OBJ_INDEX_DATA*)ch->desc->pEdit;
-        sprintf(buf, "%d", pObj ? pObj->vnum : 0);
+        sprintf(buf, "%"PRVNUM, pObj ? pObj->vnum : 0);
         break;
     case ED_MOBILE:
         pMob = (MOB_INDEX_DATA*)ch->desc->pEdit;
-        sprintf(buf, "%d", pMob ? pMob->vnum : 0);
+        sprintf(buf, "%"PRVNUM, pMob ? pMob->vnum : 0);
         break;
     case ED_PROG:
         pMcode = (MPROG_CODE*)ch->desc->pEdit;
-        sprintf(buf, "%d", pMcode ? pMcode->vnum : 0);
+        sprintf(buf, "%"PRVNUM, pMcode ? pMcode->vnum : 0);
         break;
     case ED_RACE:
         pRace = (struct race_type*)ch->desc->pEdit;
@@ -326,7 +326,7 @@ char* olc_ed_vnum(CHAR_DATA* ch)
     return buf;
 }
 
-const struct olc_comm_type* get_olc_tabla(int editor)
+const struct olc_comm_type* get_olc_table(int editor)
 {
     switch (editor) {
     case ED_MOBILE:	return mob_olc_comm_table;
@@ -337,6 +337,7 @@ const struct olc_comm_type* get_olc_tabla(int editor)
     case ED_CMD:	return cmd_olc_comm_table;
     case ED_PROG:	return prog_olc_comm_table;
     case ED_SOCIAL:	return social_olc_comm_table;
+    case ED_AREA:   return aedit_table;
     }
     return NULL;
 }
@@ -351,13 +352,28 @@ void show_olc_cmds(CHAR_DATA* ch)
     char    buf[MAX_STRING_LENGTH] = "";
     char    buf1[MAX_STRING_LENGTH] = "";
     const struct olc_comm_type* table;
-    int     cmd;
     int     col;
 
     buf1[0] = '\0';
     col = 0;
 
-    table = get_olc_tabla(ch->desc->editor);
+    if (ch->desc->editor == ED_AREA) {
+        // Areas have a cmd_type, not a comm_type
+        for (int cmd = 0; aedit_table[cmd].name != NULL; cmd++) {
+            sprintf(buf, "%-15.15s", aedit_table[cmd].name);
+            strcat(buf1, buf);
+            if (++col % 5 == 0)
+                strcat(buf1, "\n\r");
+        }
+
+        if (col % 5 != 0)
+            strcat(buf1, "\n\r");
+
+        send_to_char(buf1, ch);
+        return;
+    }
+
+    table = get_olc_table(ch->desc->editor);
 
     if (table == NULL) {
         bugf("slow_olc_cmds : NULL table, editor %d",
@@ -365,7 +381,7 @@ void show_olc_cmds(CHAR_DATA* ch)
         return;
     }
 
-    for (cmd = 0; table[cmd].name != NULL; cmd++) {
+    for (int cmd = 0; table[cmd].name != NULL; cmd++) {
         sprintf(buf, "%-15.15s", table[cmd].name);
         strcat(buf1, buf);
         if (++col % 5 == 0)
@@ -396,36 +412,30 @@ bool show_commands(CHAR_DATA* ch, char* argument)
  *****************************************************************************/
 const struct olc_cmd_type aedit_table[] =
 {
-/* {	command		function	}, */
-
-   {	"age", 		aedit_age	},
-   {	"builder", 	aedit_builder	},	/* s removed -- Hugin */
-   {	"commands", 	show_commands	},
-   {	"create", 	aedit_create	},
-   {	"filename", 	aedit_file	},
-   {	"name", 	aedit_name	},
-/* {	"recall",	aedit_recall    },   ROM OLC */
-   {	"reset", 	aedit_reset	},
-   {	"security", 	aedit_security	},
-   {	"show", 	aedit_show	},
-   {	"vnum", 	aedit_vnum	},
-   {	"lvnum", 	aedit_lvnum	},
-   {	"uvnum", 	aedit_uvnum	},
-   {	"credits", 	aedit_credits	},
-   {	"lowrange", 	aedit_lowrange	},
-   {	"highrange", 	aedit_highrange	},
-
-   {	"?",		show_help	},
-   {	"version", 	show_version	},
-
-   {	NULL, 		0		}
+// { command		function	    },
+   { "age", 		aedit_age	    },
+   { "builder", 	aedit_builder	},	// s removed -- Hugin
+   { "commands", 	show_commands	},
+   { "create", 	    aedit_create	},
+   { "filename", 	aedit_file	    },
+   { "name", 	    aedit_name	    },
+   { "reset", 	    aedit_reset	    },
+   { "security", 	aedit_security	},
+   { "show", 	    aedit_show	    },
+   { "vnum", 	    aedit_vnum	    },
+   { "lvnum", 	    aedit_lvnum	    },
+   { "uvnum", 	    aedit_uvnum	    },
+   { "credits", 	aedit_credits	},
+   { "lowrange", 	aedit_lowrange	},
+   { "highrange", 	aedit_highrange	},
+   { "?",		    show_help	    },
+   { "version", 	show_version	},
+   { NULL, 		    0		        }
 };
 
 /*****************************************************************************
  *                          End Interpreter Tables.                          *
  *****************************************************************************/
-
-
 
 /*****************************************************************************
  Name:		get_area_data

@@ -773,7 +773,7 @@ void do_prompt(CHAR_DATA* ch, char* argument)
     if (!strcmp(argument, "all"))
         strcpy(buf, "<%hhp %mm %vmv> ");
     else {
-        if (strlen(argument) > 50) argument[50] = '\0';
+        if (strlen(argument) > 150) argument[150] = '\0';
         strcpy(buf, argument);
         smash_tilde(buf);
         if (str_suffix("%c", buf)) strcat(buf, " ");
@@ -1686,12 +1686,7 @@ void do_whois(CHAR_DATA* ch, char* argument)
 
             /* a little formatting */
             sprintf(buf, "[%2d %6s %s] %s%s%s%s%s%s%s%s\n\r", wch->level,
-#ifdef FIRST_BOOT
-                    wch->race < MAX_PC_RACE ? pc_race_table[wch->race].who_name
-                                            : "     ",
-#else
                     race_table[wch->race].who_name,
-#endif
                     class, wch->incog_level >= LEVEL_HERO ? "(Incog) " : "",
                     wch->invis_level >= LEVEL_HERO ? "(Wizi) " : "",
                     clan_table[wch->clan].who_name,
@@ -1863,12 +1858,7 @@ void do_who(CHAR_DATA* ch, char* argument)
          * Format it up.
          */
         sprintf(buf, "[%2d %6s %s] %s%s%s%s%s%s%s%s\n\r", wch->level,
-#ifdef FIRST_BOOT
-                wch->race < MAX_PC_RACE ? pc_race_table[wch->race].who_name
-                                        : "     ",
-#else
                 race_table[wch->race].who_name,
-#endif
                 class, wch->incog_level >= LEVEL_HERO ? "(Incog) " : "",
                 wch->invis_level >= LEVEL_HERO ? "(Wizi) " : "",
                 clan_table[wch->clan].who_name,

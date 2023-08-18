@@ -64,11 +64,7 @@ struct cmd_type {
 void do_function args((CHAR_DATA * ch, DO_FUN* do_fun, char* argument));
 
 /* the command table itself */
-#ifdef FIRST_BOOT
-extern const struct cmd_type cmd_table[];
-#else
 extern struct cmd_type* cmd_table;
-#endif
 
 extern size_t MAX_CMD;
 
