@@ -10,9 +10,7 @@
 #include "recycle.h"
 #include "tables.h"
 
-#ifndef FIRST_BOOT
 struct	race_type* race_table;
-#endif
 int	maxrace;
 
 #define RACE_FILE	DATA_DIR "races"
@@ -26,32 +24,30 @@ extern struct race_type xRace;
 #define U(x)    (uintptr_t)(x)
 
 const struct olc_comm_type race_olc_comm_table[] = {
-    { "show",	    0,				    ed_olded,		    U(raedit_show)	},
-#ifndef FIRST_BOOT
-    { "name",	    U(&xRace.name),		ed_line_string,		0		        },
-    { "pcrace",	    U(&xRace.pc_race),	ed_bool,		    0		        },
-    { "act",	    U(&xRace.act),		ed_flag_toggle,		U(act_flags)    },
-    { "aff",	    U(&xRace.aff),		ed_flag_toggle,		U(affect_flags) },
-    { "off",	    U(&xRace.off),		ed_flag_toggle,		U(off_flags)    },
-    { "res",	    U(&xRace.res),		ed_flag_toggle,		U(res_flags)    },
-    { "vuln",	    U(&xRace.vuln),		ed_flag_toggle,		U(vuln_flags)   },
-    { "imm",	    U(&xRace.imm),		ed_flag_toggle,		U(imm_flags)    },
-    { "form",	    U(&xRace.form),		ed_flag_toggle,		U(form_flags)   },
-    { "part",	    U(&xRace.parts),	ed_flag_toggle,		U(part_flags)   },
-    { "who",	    U(&xRace.who_name),	ed_line_string,		0	            },
-    { "points",	    U(&xRace.points),	ed_number_s_pos,	0		        },
-    { "cmult",	    0,				    ed_olded,		    U(raedit_cmult)	},
-    { "stats",	    0,				    ed_olded,		    U(raedit_stats)	},
-    { "maxstats",   0,				    ed_olded,		    U(raedit_maxstats)},
-    { "skills",	    0,				    ed_olded,		    U(raedit_skills)},
-    { "size",	    U(&xRace.size),		ed_int16poslookup,	U(size_lookup)	},
-/*  { "new",	    0,				    ed_olded,		    U(raedit_new)	}, */
-#endif
-    { "list",	    0,				    ed_olded,		    U(raedit_list)  },
-    { "commands",   0,				    ed_olded,		    U(show_commands)},
-    { "?",		    0,				    ed_olded,		    U(show_help)    },
-    { "version",    0,				    ed_olded,		    U(show_version) },
-    { NULL,	        0,				    NULL,			    0               }
+    { "show",       0,                  ed_olded,           U(raedit_show)  },
+    { "name",       U(&xRace.name),     ed_line_string,     0               },
+    { "pcrace",     U(&xRace.pc_race),  ed_bool,            0               },
+    { "act",        U(&xRace.act),      ed_flag_toggle,     U(act_flags)    },
+    { "aff",        U(&xRace.aff),      ed_flag_toggle,     U(affect_flags) },
+    { "off",        U(&xRace.off),      ed_flag_toggle,     U(off_flags)    },
+    { "res",        U(&xRace.res),      ed_flag_toggle,     U(res_flags)    },
+    { "vuln",       U(&xRace.vuln),     ed_flag_toggle,     U(vuln_flags)   },
+    { "imm",        U(&xRace.imm),      ed_flag_toggle,     U(imm_flags)    },
+    { "form",       U(&xRace.form),     ed_flag_toggle,     U(form_flags)   },
+    { "part",       U(&xRace.parts),    ed_flag_toggle,     U(part_flags)    },
+    { "who",        U(&xRace.who_name), ed_line_string,     0               },
+    { "points",     U(&xRace.points),   ed_number_s_pos,    0               },
+    { "cmult",      0,                  ed_olded,           U(raedit_cmult) },
+    { "stats",      0,                  ed_olded,           U(raedit_stats) },
+    { "maxstats",   0,                  ed_olded,           U(raedit_maxstats)},
+    { "skills",     0,                  ed_olded,           U(raedit_skills)},
+    { "size",       U(&xRace.size),     ed_int16poslookup,  U(size_lookup)  },
+//  { "new",        0,                  ed_olded,           U(raedit_new)   },
+    { "list",       0,                  ed_olded,           U(raedit_list)  },
+    { "commands",   0,                  ed_olded,           U(show_commands)},
+    { "?",          0,                  ed_olded,           U(show_help)    },
+    { "version",    0,                  ed_olded,           U(show_version) },
+    { NULL,         0,                  NULL,               0               }
 };
 
 void raedit(CHAR_DATA* ch, char* argument)
@@ -114,10 +110,8 @@ RAEDIT(raedit_show)
 {
     struct race_type* pRace;
     char buf[MSL];
-#ifndef FIRST_BOOT
     static const char* Stats[] = { "Str", "Int", "Wis", "Dex", "Con" };
     int i = 0;
-#endif
 
     EDIT_RACE(ch, pRace);
 
@@ -207,13 +201,12 @@ RAEDIT(raedit_list)
     return false;
 }
 
-#ifndef FIRST_BOOT
 RAEDIT(raedit_new)
 {
     DESCRIPTOR_DATA* d;
     CHAR_DATA* tch;
     struct race_type* new_table;
-    int maxRace;
+    size_t maxRace;
 
     if (IS_NULLSTR(argument)) {
         send_to_char("Syntax : new [name]\n\r", ch);
@@ -436,8 +429,6 @@ RAEDIT(raedit_skills)
     send_to_char("Ok.\n\r", ch);
     return true;
 }
-
-#endif
 
 #undef U
 #ifdef OLD_U

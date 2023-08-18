@@ -15,11 +15,11 @@ endif()
 
 if (MSVC)
     add_compile_options(/W3 /std:c17)
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS -D NOCRYPT) # -DFIRST_BOOT)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS -D NOCRYPT)
 elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    add_compile_options(-Wall -std=gnu2x -D_GNU_SOURCE) # -DFIRST_BOOT)
+    add_compile_options(-Wall -std=gnu2x -D_GNU_SOURCE)
 elseif (CMAKE_C_COMPILER_ID STREQUAL "Clang")
-    add_compile_options(-Wall -std=c2x -D_GNU_SOURCE) # -DFIRST_BOOT)
+    add_compile_options(-Wall -std=c2x -D_GNU_SOURCE)
 endif()
 
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU" 
@@ -27,14 +27,14 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU"
     add_compile_options(-Wno-unknown-pragmas)
 endif()
 
-add_executable(Mud98 act_comm.c act_enter.c act_info.c act_move.c act_obj.c 
-    act_wiz.c alias.c ban.c comm.c const.c db.c db2.c effects.c fight.c flags.c
-    handler.c healer.c interp.c lookup.c magic.c magic2.c main.c music.c note.c 
-    pcg_basic.c recycle.c save.c scan.c skills.c special.c tables.c 
-    update.c benchmark.c digest.c merc.h comm.h digest.h
-    mob_cmds.c mob_prog.c olc.c olc_act.c olc_save.c bit.c
-    mem.c string_edit.c pedit.c hedit.c cmdedit.c raedit.c skedit.c
-    sedit.c gedit.c tablesave.c screen.c
+add_executable(Mud98 merc.h act_comm.c act_enter.c act_info.c act_move.c 
+    act_obj.c act_wiz.c alias.c ban.c benchmark.c bit.c cmdedit.c comm.h comm.c
+    const.c db.c db2.c digest.h digest.c effects.c fight.c flags.c gedit.c
+    handler.c healer.c  hedit.c  interp.c lookup.c magic.c magic2.c main.c  
+    mem.c  mob_cmds.c mob_prog.c music.c note.c olc.c olc_act.c olc_save.c 
+    pcg_basic.c pedit.c raedit.c  recycle.c save.c scan.c screen.c sedit.c  
+    skedit.c skills.c special.c string_edit.c tables.c tablesave.c update.c 
+    wizutil.v3.c
 )
 
 if (NOT MSVC)

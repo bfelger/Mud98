@@ -793,15 +793,13 @@ int get_curr_stat(CHAR_DATA* ch, int stat)
         max = 25;
 
     else {
-#ifdef FIRST_BOOT
-        max = pc_race_table[ch->race].max_stats[stat] + 4;
-#else
         max = race_table[ch->race].max_stats[stat] + 4;
-#endif
 
-        if (class_table[ch->ch_class].attr_prime == stat) max += 2;
+        if (class_table[ch->ch_class].attr_prime == stat)
+            max += 2;
 
-        if (ch->race == race_lookup("human")) max += 1;
+        if (ch->race == race_lookup("human")) 
+            max += 1;
 
         max = UMIN(max, 25);
     }
@@ -817,11 +815,8 @@ int get_max_train(CHAR_DATA* ch, int stat)
     if (IS_NPC(ch) || ch->level > LEVEL_IMMORTAL)
         return 25;
 
-#ifdef FIRST_BOOT
-    max = pc_race_table[ch->race].max_stats[stat];
-#else
     max = race_table[ch->race].max_stats[stat];
-#endif
+
     if (class_table[ch->ch_class].attr_prime == stat) {
         if (ch->race == race_lookup("human"))
             max += 3;
@@ -2786,9 +2781,11 @@ char* off_bit_name(int off_flags)
  */
 void default_colour(CHAR_DATA* ch)
 {
-    if (IS_NPC(ch)) return;
+    if (IS_NPC(ch))
+        return;
 
-    if (!ch->pcdata) return;
+    if (!ch->pcdata)
+        return;
 
     ch->pcdata->text[1] = (WHITE);
     ch->pcdata->auction[1] = (YELLOW);
@@ -3105,7 +3102,6 @@ int get_vnum_obj_name_area(char* name, AREA_DATA* pArea)
     return 0;
 }
 
-#ifndef FIRST_BOOT
 int get_points(int race, int class)
 {
     int x;
@@ -3121,4 +3117,3 @@ int get_points(int race, int class)
 
     return group_table[x].rating[class] + race_table[race].points;
 }
-#endif

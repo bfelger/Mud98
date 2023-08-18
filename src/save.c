@@ -157,11 +157,7 @@ void fwrite_char(CHAR_DATA* ch, FILE* fp)
     if (ch->prompt != NULL || !str_cmp(ch->prompt, "<%hhp %mm %vmv> ")
         || !str_cmp(ch->prompt, "{c<%hhp %mm %vmv>{x "))
         fprintf(fp, "Prom %s~\n", ch->prompt);
-#if defined(FIRST_BOOT)
-    fprintf(fp, "Race %s~\n", pc_race_table[ch->race].name);
-#else
     fprintf(fp, "Race %s~\n", race_table[ch->race].name);
-#endif
     if (ch->clan) fprintf(fp, "Clan %s~\n", clan_table[ch->clan].name);
     fprintf(fp, "Sex  %d\n", ch->sex);
     fprintf(fp, "Cla  %d\n", ch->ch_class);
@@ -515,8 +511,8 @@ void fwrite_obj(CHAR_DATA* ch, OBJ_DATA* obj, FILE* fp, int iNest)
  */
 bool load_char_obj(DESCRIPTOR_DATA* d, char* name)
 {
-    char strsave[MAX_INPUT_LENGTH];
-    char buf[MAX_INPUT_LENGTH+50]; // To handle strsave + format
+    char strsave[MAX_INPUT_LENGTH] = { 0 };
+    char buf[MAX_INPUT_LENGTH + 50] = { 0 };    // To handle strsave + format
     CHAR_DATA* ch;
     FILE* fp;
     bool found;
@@ -653,6 +649,7 @@ bool load_char_obj(DESCRIPTOR_DATA* d, char* name)
     found = false;
     fclose(fpReserve);
 
+#ifndef _MSC_VER
     /* decompress if .gz file exists */
     sprintf(strsave, "%s%s%s%s", area_dir, PLAYER_DIR, capitalize(name), ".gz");
     if ((fp = fopen(strsave, "r")) != NULL) {
@@ -663,6 +660,7 @@ bool load_char_obj(DESCRIPTOR_DATA* d, char* name)
             log_string(buf);
         }
     }
+#endif
 
     sprintf(strsave, "%s%s%s", area_dir, PLAYER_DIR, capitalize(name));
     if ((fp = fopen(strsave, "r")) != NULL) {
@@ -713,23 +711,13 @@ bool load_char_obj(DESCRIPTOR_DATA* d, char* name)
 
         if (ch->race == 0) ch->race = race_lookup("human");
 
-#if defined(FIRST_BOOT)
-        ch->size = pc_race_table[ch->race].size;
-#else
         ch->size = race_table[ch->race].size;
-#endif
         ch->dam_type = 17; /*punch */
 
         for (i = 0; i < 5; i++) {
-#if defined(FIRST_BOOT)
-            if (pc_race_table[ch->race].skills[i] == NULL)
-                break;
-            group_add(ch, pc_race_table[ch->race].skills[i], false);
-#else
             if (race_table[ch->race].skills[i] == NULL)
                 break;
             group_add(ch, race_table[ch->race].skills[i], false);
-#endif
         }
         ch->affected_by = ch->affected_by | race_table[ch->race].aff;
         ch->imm_flags = ch->imm_flags | race_table[ch->race].imm;

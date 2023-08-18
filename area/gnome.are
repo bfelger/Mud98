@@ -1470,14 +1470,14 @@ D0
 ~
 ~
 0 -1 1547
-D3
-~
-~
-0 -1 1551
 D1
 ~
 ~
 0 -1 1549
+D3
+~
+~
+0 -1 1551
 S
 #1549
 A Damp Hallway~
@@ -1586,14 +1586,14 @@ seems to be greater here, as well as your fear.
 ~
 0
 ADN 2
-D0
-~
-~
-0 -1 1550
 D3
 ~
 ~
 0 -1 1554
+D0
+~
+~
+0 -1 1550
 S
 #1556
 The End of the Hallway~

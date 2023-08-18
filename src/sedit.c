@@ -37,9 +37,7 @@
 extern struct social_type xSoc;
 
 int maxSocial; /* max number of socials */
-#ifndef FIRST_BOOT
 extern struct social_type* social_table;    /* and social table */
-#endif
 
 #ifdef U
 #define OLD_U U
@@ -47,7 +45,6 @@ extern struct social_type* social_table;    /* and social table */
 #define U(x)    (uintptr_t)(x)
 
 const struct olc_comm_type social_olc_comm_table[] = {
-#ifndef FIRST_BOOT
     { "cnoarg",     U(&xSoc.char_no_arg),   ed_line_string, 0                   },
     { "onoarg",     U(&xSoc.others_no_arg), ed_line_string, 0                   },
     { "cfound",     U(&xSoc.char_found),    ed_line_string, 0                   },
@@ -57,7 +54,6 @@ const struct olc_comm_type social_olc_comm_table[] = {
     { "oself",      U(&xSoc.others_auto),   ed_line_string, 0                   },
     { "new",        0,                      ed_olded,       U(sedit_new)        },
     { "delete",     0,                      ed_olded,       U(sedit_delete)     },
-#endif
     { "show",       0,                      ed_olded,       U(sedit_show)       },
     { "commands",   0,                      ed_olded,       U(show_commands)    },
     { "version",    0,                      ed_olded,       U(show_version)     },
@@ -124,7 +120,6 @@ void do_sedit(CHAR_DATA* ch, char* argument)
 
     argument = one_argument(argument, command);
 
-#ifndef FIRST_BOOT
     if (!str_cmp(command, "new")) {
         if (sedit_new(ch, argument))
             save_socials();
@@ -136,7 +131,6 @@ void do_sedit(CHAR_DATA* ch, char* argument)
             save_socials();
         return;
     }
-#endif
 
     if ((social = social_lookup(command)) == -1) {
         send_to_char("SEdit : That social does not exist.\n\r", ch);
@@ -187,7 +181,6 @@ SEDIT(sedit_show)
     return false;
 }
 
-#ifndef FIRST_BOOT
 SEDIT(sedit_new)
 {
     DESCRIPTOR_DATA* d;
@@ -296,7 +289,6 @@ SEDIT(sedit_delete)
     send_to_char("That social is history!\n\r", ch);
     return true;
 }
-#endif
 
 #undef U
 #ifdef OLD_U

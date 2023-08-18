@@ -34,14 +34,14 @@ char* flag_string(const struct flag_type*, long);
  * Do not remove these from the code - by request of Jason Dinkel
  */
 #define OLC_VERSION	"ILAB Online Creation [Beta 1.0, ROM 2.3 modified]\n\r" \
-			        "     Port to ROM 2.4 v2.01\n\r"
+                    "     Port to ROM 2.4 v2.01\n\r"
 #define OLC_AUTHOR	"     By Jason(jdinkel@mines.colorado.edu)\n\r"         \
-                	"     Modified for use with ROM 2.3\n\r"                \
-                	"     By Hans Birkeland (hansbi@ifi.uio.no)\n\r"        \
-                	"     Modificado para uso en ROM 2.4v4\n\r"	            \
-                	"     Por Birdie (itoledo.geo@yahoo.com)\n\r"
+                    "     Modified for use with ROM 2.3\n\r"                \
+                    "     By Hans Birkeland (hansbi@ifi.uio.no)\n\r"        \
+                    "     Modificado para uso en ROM 2.4v4\n\r"	            \
+                    "     Por Birdie (itoledo.geo@yahoo.com)\n\r"
 #define OLC_DATE	"     (Apr. 7, 1995 - ROM mod, Apr 16, 1995)\n\r"       \
-			        "     (Port to ROM 2.4 - Nov 2, 1996)\n\r"
+                    "     (Port to ROM 2.4 - Nov 2, 1996)\n\r"
 #define OLC_CREDITS	"     Original by Surreality(cxw197@psu.edu) and  "     \
                          "Locke(locke@lm.com)"
 

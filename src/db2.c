@@ -45,11 +45,7 @@
 extern int flag_lookup(const char* name, const struct flag_type* flag_table);
 
 /* values for db2.c */
-#ifdef FIRST_BOOT
-struct social_type social_table[MAX_SOCIALS];
-#else
 struct social_type* social_table;
-#endif
 int social_count;
 
 /* snarf a socials file */

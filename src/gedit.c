@@ -7,14 +7,12 @@
 #include "comm.h"
 #include "olc.h"
 
-#ifndef FIRST_BOOT
 size_t MAX_GROUP;
 struct group_type* group_table;
-#endif
+
 #define GROUP_FILE DATA_DIR "groups"
 #define GEDIT(fun) bool fun(CHAR_DATA *ch, char *argument)
 
-#ifndef FIRST_BOOT
 void load_group(FILE* fp, struct group_type* group)
 {
     int i;
@@ -77,7 +75,6 @@ void load_groups(void)
 
     fclose(fp);
 }
-#endif
 
 void save_group(FILE* fp, const struct group_type* group)
 {
@@ -122,17 +119,14 @@ void save_groups()
     fpReserve = fopen(NULL_FILE, "r");
 }
 
-const struct olc_cmd_type gedit_table[] =
-{
-#ifndef FIRST_BOOT
-    {	"name",		gedit_name	},
-    {	"rating",	gedit_rating	},
-    {	"spell",	gedit_spell	},
-    {	"list",		gedit_list	},
-#endif
-    {	"commands",	show_commands	},
-    {	"show",		gedit_show	},
-    {	NULL,		0		}
+const struct olc_cmd_type gedit_table[] = {
+    { "name",		gedit_name	    },
+    { "rating",	gedit_rating	},
+    { "spell",	gedit_spell	    },
+    { "list",		gedit_list	    },
+    { "commands",	show_commands	},
+    { "show",		gedit_show	    },
+    { NULL,		0		        }
 };
 
 void gedit(CHAR_DATA* ch, char* argument)
@@ -260,7 +254,6 @@ GEDIT(gedit_show)
     return false;
 }
 
-#ifndef FIRST_BOOT
 GEDIT(gedit_name)
 {
     struct group_type* pGrp;
@@ -382,7 +375,6 @@ GEDIT(gedit_spell)
     gedit_spell(ch, "");
     return false;
 }
-#endif
 
 GEDIT(gedit_list)
 {

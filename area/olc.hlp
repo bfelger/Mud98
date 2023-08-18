@@ -1,16 +1,16 @@
 #HELPS
 -1 OLC EDIT~
-Syntax: EDIT AREA [create/reset] [vnum]		- Area Creation and Repoping.
-Syntax: EDIT ROOM ( [create] [vnum] )		- Room Creation and Editing.
-Syntax: EDIT OBJ  [create] <vnum>		- Object Creation and Editing.
-Syntax: EDIT MOB  [create] <vnum>		- Mobile Creation and Editing.
-Syntax: EDIT MP   [create] <vnum>               - MobProg Creation/Editing.
+Syntax: EDIT AREA [create/reset] [vnum]     - Area Creation and Repoping.
+Syntax: EDIT ROOM ( [create] [vnum] )       - Room Creation and Editing.
+Syntax: EDIT OBJ  [create] <vnum>		    - Object Creation and Editing.
+Syntax: EDIT MOB  [create] <vnum>           - Mobile Creation and Editing.
+Syntax: EDIT MP   [create] <vnum>           - MobProg Creation/Editing.
 
-Syntax: ASAVE  <world/area/changed/list>	- Save Editing to Disk.
-Syntax: ALIST                                   - Listing of Areas.
-Syntax: RESET  See Help Resets.			- Set Game Resets.
+Syntax: ASAVE  <world/area/changed/list>    - Save Editing to Disk.
+Syntax: ALIST                               - Listing of Areas.
+Syntax: RESET  See Help Resets.             - Set Game Resets.
 
-Definition: [optional]  <required>  (combined arguments)
+Definition: [optional] <required> (combined arguments)
 
      The above commands are used to expand the game world.  The original
 code is based on was written by Surreality and installed in The Isles by Locke.
@@ -162,8 +162,8 @@ combinations on different levels.
 A high number of dice makes for less variance in mobiles hitpoints.
 Suggested values are:
 
-       level:     dice         min         max        mean
-         1:       1d2+6       7(  7)     8(   8)     8(   8)
+   level      dice         min         max        mean
+     1:       1d2+6       7(  7)     8(   8)     8(   8)
 	 2:       1d3+15     16( 15)    18(  18)    17(  17)
 	 3:       1d6+24     25( 24)    30(  30)    27(  27)
 	 5:      1d17+42     43( 42)    59(  59)    51(  51)
