@@ -359,7 +359,7 @@ REDIT(redit_rlist)
     if (col % 3 != 0)
         add_buf(buf1, "\n\r");
 
-    page_to_char(buf_string(buf1), ch);
+    page_to_char(BUF(buf1), ch);
     free_buf(buf1);
     return false;
 }
@@ -408,7 +408,7 @@ REDIT(redit_mlist)
     if (col % 3 != 0)
         add_buf(buf1, "\n\r");
 
-    page_to_char(buf_string(buf1), ch);
+    page_to_char(BUF(buf1), ch);
     free_buf(buf1);
     return false;
 }
@@ -2864,7 +2864,7 @@ MEDIT(medit_show)
         }
     }
 
-    page_to_char(buf_string(buffer), ch);
+    page_to_char(BUF(buffer), ch);
 
     free_buf(buffer);
 
@@ -2915,7 +2915,7 @@ MEDIT(medit_group)
         }
 
         if (found)
-            page_to_char(buf_string(buffer), ch);
+            page_to_char(BUF(buffer), ch);
         else
             send_to_char("There are no mobs in that group.\n\r", ch);
 
@@ -2945,7 +2945,7 @@ void show_liqlist(CHAR_DATA* ch)
         add_buf(buffer, buf);
     }
 
-    page_to_char(buf_string(buffer), ch);
+    page_to_char(BUF(buffer), ch);
     free_buf(buffer);
 
     return;
@@ -2968,7 +2968,7 @@ void show_damlist(CHAR_DATA* ch)
         add_buf(buffer, buf);
     }
 
-    page_to_char(buf_string(buffer), ch);
+    page_to_char(BUF(buffer), ch);
     free_buf(buffer);
 
     return;
@@ -2991,7 +2991,7 @@ void show_poslist(CHAR_DATA* ch)
         add_buf(buffer, buf);
     }
 
-    page_to_char(buf_string(buffer), ch);
+    page_to_char(BUF(buffer), ch);
     free_buf(buffer);
 
     return;
@@ -3015,7 +3015,7 @@ void show_sexlist(CHAR_DATA* ch)
     }
 
     add_buf(buffer, "\n\r");
-    page_to_char(buf_string(buffer), ch);
+    page_to_char(BUF(buffer), ch);
     free_buf(buffer);
 
     return;
@@ -3039,7 +3039,7 @@ void show_sizelist(CHAR_DATA* ch)
     }
 
     add_buf(buffer, "\n\r");
-    page_to_char(buf_string(buffer), ch);
+    page_to_char(BUF(buffer), ch);
     free_buf(buffer);
 
     return;
@@ -3159,7 +3159,7 @@ REDIT(redit_listreset)
         return false;
     }
 
-    page_to_char(buf_string(buf), ch);
+    page_to_char(BUF(buf), ch);
 
     return false;
 }
@@ -4517,7 +4517,7 @@ ED_FUN_DEC(ed_olist)
     if (col % 3 != 0)
         add_buf(buf1, "\n\r");
 
-    page_to_char(buf_string(buf1), ch);
+    page_to_char(BUF(buf1), ch);
     free_buf(buf1);
 
     return false;

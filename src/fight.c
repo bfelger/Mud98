@@ -442,8 +442,7 @@ void one_hit(CHAR_DATA* ch, CHAR_DATA* victim, int dt)
 
     if (diceroll == 0 || (diceroll != 19 && diceroll < thac0 - victim_ac)) {
         /* Miss. */
-        damage(ch, victim, 0, dt, dam_type, true);
-        tail_chain();
+        damage(ch, victim, 0, dt, dam_type, true);;
         return;
     }
 
@@ -593,7 +592,7 @@ void one_hit(CHAR_DATA* ch, CHAR_DATA* victim, int dt)
             damage(ch, victim, dam, 0, DAM_LIGHTNING, false);
         }
     }
-    tail_chain();
+
     return;
 }
 
@@ -881,7 +880,6 @@ bool damage(CHAR_DATA* ch, CHAR_DATA* victim, int dam, int dt, int dam_type,
         do_function(victim, &do_flee, "");
     }
 
-    tail_chain();
     return true;
 }
 

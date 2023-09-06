@@ -28,14 +28,14 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU"
 endif()
 
 add_executable(Mud98 merc.h act_comm.c act_enter.c act_info.c act_move.c 
-    act_obj.c act_wiz.c alias.c ban.c benchmark.c bit.c cmdedit.c comm.h comm.c
-    const.c db.c db2.c digest.h digest.c effects.c fight.c flags.c gedit.c
-    handler.c healer.c  hedit.c  interp.c lookup.c magic.c magic2.c main.c  
-    mem.c  mob_cmds.c mob_prog.c music.c note.c olc.c olc_act.c olc_save.c 
-    pcg_basic.c pedit.c raedit.c  recycle.c save.c scan.c screen.c sedit.c  
-    skedit.c skills.c special.c string_edit.c tables.c tablesave.c update.c 
-    wizutil.v3.c
-)
+    act_obj.c act_wiz.c alias.c ban.c benchmark.c bit.c cmdedit.c color.c comm.h
+    comm.c const.c db.c db2.c digest.h digest.c effects.c fight.c flags.c 
+    gedit.c handler.c healer.c  hedit.c  interp.c lookup.c magic.c magic2.c 
+    main.c mem.c  mob_cmds.c mob_prog.c music.c note.c olc.c olc_act.c 
+    olc_save.c pcg_basic.c pedit.c raedit.c  recycle.c save.c scan.c screen.c 
+    sedit.c skedit.c skills.c special.c string_edit.c tables.c tablesave.c 
+    update.c wizutil.v3.c
+ "color.h")
 
 if (NOT MSVC)
     target_link_libraries(Mud98 Threads::Threads OpenSSL::SSL)

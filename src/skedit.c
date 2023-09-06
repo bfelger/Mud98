@@ -371,7 +371,7 @@ SKEDIT(skedit_list)
     else
         add_buf(pBuf, "You may only list gsns/skills/spells/slots. Idiot.\n\r");
 
-    page_to_char(buf_string(pBuf), ch);
+    page_to_char(BUF(pBuf), ch);
 
     free_buf(pBuf);
 

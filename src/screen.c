@@ -526,14 +526,14 @@ void InitScreenMap(DESCRIPTOR_DATA* d)
     int i;
 
     if (d->screenmap == NULL)
-        d->screenmap = calloc(80 * (size_t)(d->character->lines - 3) + 1, sizeof(char));
+        d->screenmap = calloc(80 * ((size_t)(d->character->lines) - 3) + 1, sizeof(char));
     if (d->oldscreenmap == NULL)
-        d->oldscreenmap = calloc(80 * (size_t)(d->character->lines - 3) + 1, sizeof(char));
+        d->oldscreenmap = calloc(80 * ((size_t)(d->character->lines) - 3) + 1, sizeof(char));
     if (d->oldscreenmap == NULL || d->screenmap == NULL) {
         perror("InitScreenMap(): calloc failed!");
         exit(-1);
     }
-    for (i = 0; i < 80 * (size_t)(d->character->lines - 3); i++)
+    for (i = 0; i < 80 * (size_t)(d->character->lines) - 3; i++)
         d->screenmap[i] = d->oldscreenmap[i] = ' ';
 }
 

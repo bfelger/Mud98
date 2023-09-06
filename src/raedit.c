@@ -195,7 +195,7 @@ RAEDIT(raedit_list)
     if (i % 2 == 1)
         add_buf(fBuf, "\n\r");
 
-    page_to_char(buf_string(fBuf), ch);
+    page_to_char(BUF(fBuf), ch);
     free_buf(fBuf);
 
     return false;

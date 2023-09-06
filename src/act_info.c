@@ -199,7 +199,7 @@ void show_list_to_char(OBJ_DATA* list, CHAR_DATA* ch, bool fShort,
             send_to_char("     ", ch);
         send_to_char("Nothing.\n\r", ch);
     }
-    page_to_char(buf_string(output), ch);
+    page_to_char(BUF(output), ch);
 
     /*
      * Clean up.
@@ -1592,8 +1592,8 @@ void do_help(CHAR_DATA* ch, char* argument)
         if (is_name(argall, pHelp->keyword)) {
             /* add seperator if found */
             if (found)
-                add_buf(output, "\n\r=========================================="
-                                "==================\n\r\n\r");
+                add_buf(output, "\n\r{==========================================="
+                                "=================={x\n\r\n\r");
             if (pHelp->level >= 0 && str_cmp(argall, "imotd")) {
                 add_buf(output, pHelp->keyword);
                 add_buf(output, "\n\r");
@@ -1617,7 +1617,7 @@ void do_help(CHAR_DATA* ch, char* argument)
     if (!found)
         send_to_char("No help on that word.\n\r", ch);
     else
-        page_to_char(buf_string(output), ch);
+        page_to_char(BUF(output), ch);
     free_buf(output);
 }
 
@@ -1641,7 +1641,7 @@ void do_whois(CHAR_DATA* ch, char* argument)
 
     for (d = descriptor_list; d != NULL; d = d->next) {
         CHAR_DATA* wch;
-        char const* class;
+        char const* class_;
 
         if (d->connected != CON_PLAYING || !can_see(ch, d->character)) continue;
 
@@ -1653,47 +1653,30 @@ void do_whois(CHAR_DATA* ch, char* argument)
             found = true;
 
             /* work out the printing */
-            class = class_table[wch->ch_class].who_name;
+            class_ = class_table[wch->ch_class].who_name;
             switch (wch->level) {
-            case MAX_LEVEL - 0:
-                class = "IMP";
-                break;
-            case MAX_LEVEL - 1:
-                class = "CRE";
-                break;
-            case MAX_LEVEL - 2:
-                class = "SUP";
-                break;
-            case MAX_LEVEL - 3:
-                class = "DEI";
-                break;
-            case MAX_LEVEL - 4:
-                class = "GOD";
-                break;
-            case MAX_LEVEL - 5:
-                class = "IMM";
-                break;
-            case MAX_LEVEL - 6:
-                class = "DEM";
-                break;
-            case MAX_LEVEL - 7:
-                class = "ANG";
-                break;
-            case MAX_LEVEL - 8:
-                class = "AVA";
-                break;
+            case MAX_LEVEL - 0: class_ = "{=IMP"; break;
+            case MAX_LEVEL - 1: class_ = "{=CRE"; break;
+            case MAX_LEVEL - 2: class_ = "{=SUP"; break;
+            case MAX_LEVEL - 3: class_ = "{=DEI"; break;
+            case MAX_LEVEL - 4: class_ = "{=GOD"; break;
+            case MAX_LEVEL - 5: class_ = "{=IMM"; break;
+            case MAX_LEVEL - 6: class_ = "{=DEM"; break;
+            case MAX_LEVEL - 7: class_ = "{=ANG"; break;
+            case MAX_LEVEL - 8: class_ = "{=AVA"; break;
+            default: break;
             }
 
             /* a little formatting */
-            sprintf(buf, "[%2d %6s %s] %s%s%s%s%s%s%s%s\n\r", wch->level,
-                    race_table[wch->race].who_name,
-                    class, wch->incog_level >= LEVEL_HERO ? "(Incog) " : "",
-                    wch->invis_level >= LEVEL_HERO ? "(Wizi) " : "",
-                    clan_table[wch->clan].who_name,
-                    IS_SET(wch->comm, COMM_AFK) ? "[AFK] " : "",
-                    IS_SET(wch->act, PLR_KILLER) ? "(KILLER) " : "",
-                    IS_SET(wch->act, PLR_THIEF) ? "(THIEF) " : "", wch->name,
-                    IS_NPC(wch) ? "" : wch->pcdata->title);
+            sprintf(buf, "{=[{*%2d %6s %s{=]{x %s%s%s%s%s%s%s%s\n\r", 
+                wch->level, race_table[wch->race].who_name, class_, 
+                wch->incog_level >= LEVEL_HERO ? "{_(Incog){x " : "",
+                wch->invis_level >= LEVEL_HERO ? "{_(Wizi){x " : "",
+                clan_table[wch->clan].who_name,
+                IS_SET(wch->comm, COMM_AFK) ? "[AFK] " : "",
+                IS_SET(wch->act, PLR_KILLER) ? "{_(KILLER){x " : "",
+                IS_SET(wch->act, PLR_THIEF) ? "{_(THIEF){x " : "", 
+                wch->name, IS_NPC(wch) ? "" : wch->pcdata->title);
             add_buf(output, buf);
         }
     }
@@ -1703,7 +1686,7 @@ void do_whois(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    page_to_char(buf_string(output), ch);
+    page_to_char(BUF(output), ch);
     free_buf(output);
 }
 
@@ -1815,7 +1798,7 @@ void do_who(CHAR_DATA* ch, char* argument)
     output = new_buf();
     for (d = descriptor_list; d != NULL; d = d->next) {
         CHAR_DATA* wch;
-        char const* class;
+        char const* class_;
 
         /*
          * Check for match against restrictions.
@@ -1840,38 +1823,38 @@ void do_who(CHAR_DATA* ch, char* argument)
         /*
          * Figure out what to print for class.
          */
-        class = class_table[wch->ch_class].who_name;
+        class_ = class_table[wch->ch_class].who_name;
         switch (wch->level) {
-        case MAX_LEVEL - 0: class = "IMP"; break;
-        case MAX_LEVEL - 1: class = "CRE"; break;
-        case MAX_LEVEL - 2: class = "SUP"; break;
-        case MAX_LEVEL - 3: class = "DEI"; break;
-        case MAX_LEVEL - 4: class = "GOD"; break;
-        case MAX_LEVEL - 5: class = "IMM"; break;
-        case MAX_LEVEL - 6: class = "DEM"; break;
-        case MAX_LEVEL - 7: class = "ANG"; break;
-        case MAX_LEVEL - 8: class = "AVA"; break;
+        case MAX_LEVEL - 0: class_ = "{=IMP"; break;
+        case MAX_LEVEL - 1: class_ = "{=CRE"; break;
+        case MAX_LEVEL - 2: class_ = "{=SUP"; break;
+        case MAX_LEVEL - 3: class_ = "{=DEI"; break;
+        case MAX_LEVEL - 4: class_ = "{=GOD"; break;
+        case MAX_LEVEL - 5: class_ = "{=IMM"; break;
+        case MAX_LEVEL - 6: class_ = "{=DEM"; break;
+        case MAX_LEVEL - 7: class_ = "{=ANG"; break;
+        case MAX_LEVEL - 8: class_ = "{=AVA"; break;
         default: break;
         }
 
         /*
          * Format it up.
          */
-        sprintf(buf, "[%2d %6s %s] %s%s%s%s%s%s%s%s\n\r", wch->level,
-                race_table[wch->race].who_name,
-                class, wch->incog_level >= LEVEL_HERO ? "(Incog) " : "",
-                wch->invis_level >= LEVEL_HERO ? "(Wizi) " : "",
-                clan_table[wch->clan].who_name,
-                IS_SET(wch->comm, COMM_AFK) ? "[AFK] " : "",
-                IS_SET(wch->act, PLR_KILLER) ? "(KILLER) " : "",
-                IS_SET(wch->act, PLR_THIEF) ? "(THIEF) " : "", wch->name,
-                IS_NPC(wch) ? "" : wch->pcdata->title);
+        sprintf(buf, "{|[{*%2d %6s %s{|]{x %s%s%s%s%s%s%s%s\n\r", wch->level,
+            race_table[wch->race].who_name,
+            class_, wch->incog_level >= LEVEL_HERO ? "{_(Incog){x " : "",
+            wch->invis_level >= LEVEL_HERO ? "{_(Wizi){x " : "",
+            clan_table[wch->clan].who_name,
+            IS_SET(wch->comm, COMM_AFK) ? "[AFK] " : "",
+            IS_SET(wch->act, PLR_KILLER) ? "{_(KILLER){x " : "",
+            IS_SET(wch->act, PLR_THIEF) ? "{_(THIEF){x " : "", wch->name,
+            IS_NPC(wch) ? "" : wch->pcdata->title);
         add_buf(output, buf);
     }
 
     sprintf(buf2, "\n\rPlayers found: %d\n\r", nMatch);
     add_buf(output, buf2);
-    page_to_char(buf_string(output), ch);
+    page_to_char(BUF(output), ch);
     free_buf(output);
     return;
 }
