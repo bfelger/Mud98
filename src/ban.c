@@ -45,7 +45,7 @@ BAN_DATA* ban_list;
 void save_bans(void)
 {
     BAN_DATA* pban;
-    FILE* fp;
+    FILE* fp = NULL;
     bool found = false;
 
     fclose(fpReserve);
@@ -53,7 +53,9 @@ void save_bans(void)
     char ban_file[256];
     sprintf(ban_file, "%s%s", area_dir, BAN_FILE);
     if ((fp = fopen(ban_file, "w")) == NULL) { 
-        perror(ban_file); 
+        perror(ban_file);
+        fpReserve = fopen(NULL_FILE, "r");
+        return;
     }
 
     for (pban = ban_list; pban != NULL; pban = pban->next) {
@@ -163,7 +165,7 @@ void ban_site(CHAR_DATA* ch, char* argument, bool fPerm)
             add_buf(buffer, buf);
         }
 
-        page_to_char(buf_string(buffer), ch);
+        page_to_char(BUF(buffer), ch);
         free_buf(buffer);
         return;
     }

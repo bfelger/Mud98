@@ -337,7 +337,6 @@ const struct olc_comm_type* get_olc_table(int editor)
     case ED_CMD:	return cmd_olc_comm_table;
     case ED_PROG:	return prog_olc_comm_table;
     case ED_SOCIAL:	return social_olc_comm_table;
-    case ED_AREA:   return aedit_table;
     }
     return NULL;
 }

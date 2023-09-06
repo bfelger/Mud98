@@ -117,7 +117,6 @@ typedef struct area_data AREA_DATA;
 typedef struct ban_data BAN_DATA;
 typedef struct buf_type BUFFER;
 typedef struct char_data CHAR_DATA;
-typedef struct colour_data COLOUR_DATA;
 typedef struct descriptor_data DESCRIPTOR_DATA;
 typedef struct exit_data EXIT_DATA;
 typedef struct extra_descr_data EXTRA_DESCR_DATA;
@@ -126,8 +125,8 @@ typedef struct help_area_data HELP_AREA;
 typedef struct kill_data KILL_DATA;
 typedef struct mem_data MEM_DATA;
 typedef struct mob_index_data MOB_INDEX_DATA;
-typedef struct  mprog_list MPROG_LIST;
-typedef struct  mprog_code MPROG_CODE;
+typedef struct mprog_list MPROG_LIST;
+typedef struct mprog_code MPROG_CODE;
 typedef struct note_data NOTE_DATA;
 typedef struct obj_data OBJ_DATA;
 typedef struct obj_index_data OBJ_INDEX_DATA;
@@ -138,6 +137,9 @@ typedef struct room_index_data ROOM_INDEX_DATA;
 typedef struct shop_data SHOP_DATA;
 typedef struct time_info_data TIME_INFO_DATA;
 typedef struct weather_data WEATHER_DATA;
+
+// New structures for Mud98 -- Halivar
+typedef struct color_theme_t ColorTheme;
 
 /*
  * Function types.
@@ -168,6 +170,7 @@ extern size_t MAX_GROUP;
 
 #define MAX_IN_GROUP        15
 #define MAX_ALIAS           5
+#define MAX_THEMES          5
 #define MAX_CLASS           4
 #define MAX_PC_RACE         5
 #define MAX_CLAN            3
@@ -200,128 +203,6 @@ extern size_t MAX_GROUP;
 #define ANGEL               (MAX_LEVEL - 7)
 #define AVATAR              (MAX_LEVEL - 8)
 #define HERO                LEVEL_HERO
-
-/*
- * ColoUr stuff v2.0, by Lope.
- */
-#define CLEAR              "\033[0m" /* Resets Colour	*/
-#define C_RED              "\033[0;31m" /* Normal Colours	*/
-#define C_GREEN            "\033[0;32m"
-#define C_YELLOW           "\033[0;33m"
-#define C_BLUE             "\033[0;34m"
-#define C_MAGENTA          "\033[0;35m"
-#define C_CYAN             "\033[0;36m"
-#define C_WHITE            "\033[0;37m"
-#define C_D_GREY           "\033[1;30m" /* Light Colors		*/
-#define C_B_RED            "\033[1;31m"
-#define C_B_GREEN          "\033[1;32m"
-#define C_B_YELLOW         "\033[1;33m"
-#define C_B_BLUE           "\033[1;34m"
-#define C_B_MAGENTA        "\033[1;35m"
-#define C_B_CYAN           "\033[1;36m"
-#define C_B_WHITE          "\033[1;37m"
-
-#define COLOUR_NONE        7 /* White, hmm...	*/
-#define RED                1 /* Normal Colours	*/
-#define GREEN              2
-#define YELLOW             3
-#define BLUE               4
-#define MAGENTA            5
-#define CYAN               6
-#define WHITE              7
-#define BLACK              0
-
-#define NORMAL             0 /* Bright/Normal colours */
-#define BRIGHT             1
-
-#define ALTER_COLOUR(type)                                                     \
-    if (!str_prefix(argument, "red")) {                                        \
-        ch->pcdata->type[0] = NORMAL;                                          \
-        ch->pcdata->type[1] = RED;                                             \
-    }                                                                          \
-    else if (!str_prefix(argument, "hi-red")) {                                \
-        ch->pcdata->type[0] = BRIGHT;                                          \
-        ch->pcdata->type[1] = RED;                                             \
-    }                                                                          \
-    else if (!str_prefix(argument, "green")) {                                 \
-        ch->pcdata->type[0] = NORMAL;                                          \
-        ch->pcdata->type[1] = GREEN;                                           \
-    }                                                                          \
-    else if (!str_prefix(argument, "hi-green")) {                              \
-        ch->pcdata->type[0] = BRIGHT;                                          \
-        ch->pcdata->type[1] = GREEN;                                           \
-    }                                                                          \
-    else if (!str_prefix(argument, "yellow")) {                                \
-        ch->pcdata->type[0] = NORMAL;                                          \
-        ch->pcdata->type[1] = YELLOW;                                          \
-    }                                                                          \
-    else if (!str_prefix(argument, "hi-yellow")) {                             \
-        ch->pcdata->type[0] = BRIGHT;                                          \
-        ch->pcdata->type[1] = YELLOW;                                          \
-    }                                                                          \
-    else if (!str_prefix(argument, "blue")) {                                  \
-        ch->pcdata->type[0] = NORMAL;                                          \
-        ch->pcdata->type[1] = BLUE;                                            \
-    }                                                                          \
-    else if (!str_prefix(argument, "hi-blue")) {                               \
-        ch->pcdata->type[0] = BRIGHT;                                          \
-        ch->pcdata->type[1] = BLUE;                                            \
-    }                                                                          \
-    else if (!str_prefix(argument, "magenta")) {                               \
-        ch->pcdata->type[0] = NORMAL;                                          \
-        ch->pcdata->type[1] = MAGENTA;                                         \
-    }                                                                          \
-    else if (!str_prefix(argument, "hi-magenta")) {                            \
-        ch->pcdata->type[0] = BRIGHT;                                          \
-        ch->pcdata->type[1] = MAGENTA;                                         \
-    }                                                                          \
-    else if (!str_prefix(argument, "cyan")) {                                  \
-        ch->pcdata->type[0] = NORMAL;                                          \
-        ch->pcdata->type[1] = CYAN;                                            \
-    }                                                                          \
-    else if (!str_prefix(argument, "hi-cyan")) {                               \
-        ch->pcdata->type[0] = BRIGHT;                                          \
-        ch->pcdata->type[1] = CYAN;                                            \
-    }                                                                          \
-    else if (!str_prefix(argument, "white")) {                                 \
-        ch->pcdata->type[0] = NORMAL;                                          \
-        ch->pcdata->type[1] = WHITE;                                           \
-    }                                                                          \
-    else if (!str_prefix(argument, "hi-white")) {                              \
-        ch->pcdata->type[0] = BRIGHT;                                          \
-        ch->pcdata->type[1] = WHITE;                                           \
-    }                                                                          \
-    else if (!str_prefix(argument, "grey")) {                                  \
-        ch->pcdata->type[0] = BRIGHT;                                          \
-        ch->pcdata->type[1] = BLACK;                                           \
-    }                                                                          \
-    else if (!str_prefix(argument, "beep")) {                                  \
-        ch->pcdata->type[2] = 1;                                               \
-    }                                                                          \
-    else if (!str_prefix(argument, "nobeep")) {                                \
-        ch->pcdata->type[2] = 0;                                               \
-    }                                                                          \
-    else {                                                                     \
-        send_to_char_bw("Unrecognised colour, unchanged.\n\r", ch);            \
-        return;                                                                \
-    }
-
-#define LOAD_COLOUR(field)                                                     \
-    ch->pcdata->field[1] = fread_number(fp);                                   \
-    if (ch->pcdata->field[1] > 100) {                                          \
-        ch->pcdata->field[1] -= 100;                                           \
-        ch->pcdata->field[2] = 1;                                              \
-    }                                                                          \
-    else {                                                                     \
-        ch->pcdata->field[2] = 0;                                              \
-    }                                                                          \
-    if (ch->pcdata->field[1] > 10) {                                           \
-        ch->pcdata->field[1] -= 10;                                            \
-        ch->pcdata->field[0] = 1;                                              \
-    }                                                                          \
-    else {                                                                     \
-        ch->pcdata->field[0] = 0;                                              \
-    }
 
 /*
  * Site ban structure.
@@ -1417,6 +1298,7 @@ struct mem_data {
  * One character (PC or NPC).
  */
 struct char_data {
+    bool* area_empty;
     CHAR_DATA* next;
     CHAR_DATA* next_in_room;
     CHAR_DATA* master;
@@ -1509,10 +1391,18 @@ struct char_data {
 /*
  * Data which only PC's have.
  */
+
+typedef struct color_config_t {
+    bool hide_256;          // Whether to show these higher-bit themes. Some
+    bool hide_24bit;        // clients (like Windows CMD) can't handle them.
+    bool xterm;             // Use xterm semi-colons for 24-bit colors.
+    bool hide_rgb_help;     // Hide verbose 24-bit help at the end THEME LIST.
+    char* current_theme_name;   // For lazy-loading and discardability
+} ColorConfig;
+
 struct pc_data {
     PC_DATA* next;
     BUFFER* buffer;
-    COLOUR_DATA* code; /* Data for coloUr configuration	*/
     bool valid;
     unsigned char* pwd_digest;
     unsigned int pwd_digest_len;
@@ -1536,46 +1426,10 @@ struct pc_data {
     bool confirm_delete;
     char* alias[MAX_ALIAS];
     char* alias_sub[MAX_ALIAS];
-    int security;       // OLC Builder Security
-
-    /*
-     * Colour data stuff for config.
-     */
-    int text[3];            /* {t */
-    int auction[3];         /* {a */
-    int auction_text[3];    /* {A */
-    int gossip[3];          /* {d */
-    int gossip_text[3];     /* {9 */
-    int music[3];           /* {e */
-    int music_text[3];      /* {E */
-    int question[3];        /* {q */
-    int question_text[3];   /* {Q */
-    int answer[3];          /* {f */
-    int answer_text[3];     /* {F */
-    int quote[3];           /* {h */
-    int quote_text[3];      /* {H */
-    int immtalk_text[3];    /* {i */
-    int immtalk_type[3];    /* {I */
-    int info[3];            /* {j */
-    int say[3];             /* {6 */
-    int say_text[3];        /* {7 */
-    int tell[3];            /* {k */
-    int tell_text[3];       /* {K */
-    int reply[3];           /* {l */
-    int reply_text[3];      /* {L */
-    int gtell_text[3];      /* {n */
-    int gtell_type[3];      /* {N */
-    int wiznet[3];          /* {B */
-    int room_title[3];      /* {s */
-    int room_text[3];       /* {S */
-    int room_exits[3];      /* {o */
-    int room_things[3];     /* {O */
-    int prompt[3];          /* {p */
-    int fight_death[3];     /* {1 */
-    int fight_yhit[3];      /* {2 */
-    int fight_ohit[3];      /* {3 */
-    int fight_thit[3];      /* {4 */
-    int fight_skill[3];     /* {5 */
+    int security;                           // OLC Builder Security
+    ColorTheme* current_theme;              // VT102 color assignments
+    ColorTheme* color_themes[MAX_THEMES];   // Personal themes
+    ColorConfig theme_config;
 };
 
 /* Data for generating characters -- only used during generation */
@@ -1719,7 +1573,7 @@ struct area_data {
     char* name;
     char* credits;
     int16_t age;
-    int16_t nplayer;
+    int nplayer;
     int16_t low_range;
     int16_t high_range;
     VNUM min_vnum;
@@ -2223,7 +2077,7 @@ int get_points(int race, int args);
 /*
  * Colour Config
  */
-void default_colour args((CHAR_DATA * ch));
+void set_default_theme args((CHAR_DATA * ch));
 void all_colour args((CHAR_DATA * ch, char* argument));
 
 /* interp.c */

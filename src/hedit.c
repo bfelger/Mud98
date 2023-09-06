@@ -347,7 +347,7 @@ HEDIT(hedit_list)
         if (cnt % 4)
             add_buf(buffer, "\n\r");
 
-        page_to_char(buf_string(buffer), ch);
+        page_to_char(BUF(buffer), ch);
         return false;
     }
 
@@ -369,7 +369,7 @@ HEDIT(hedit_list)
         if (cnt % 4)
             add_buf(buffer, "\n\r");
 
-        page_to_char(buf_string(buffer), ch);
+        page_to_char(BUF(buffer), ch);
         return false;
     }
 

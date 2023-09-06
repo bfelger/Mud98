@@ -1,4 +1,4 @@
-259
+260
 
 #COMMAND
 name .~
@@ -2041,6 +2041,15 @@ position resting~
 level 0
 log log_normal~
 show none~
+#END
+
+#COMMAND
+name theme~
+do_fun do_theme~
+position dead~
+level 0
+log log_normal~
+show undef~
 #END
 
 #COMMAND

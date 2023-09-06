@@ -27,6 +27,7 @@
 
 #include "merc.h"
 
+#include "color.h"
 #include "comm.h"
 #include "interp.h"
 #include "recycle.h"
@@ -243,12 +244,12 @@ void do_replay(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if (buf_string(ch->pcdata->buffer)[0] == '\0') {
+    if (BUF(ch->pcdata->buffer)[0] == '\0') {
         send_to_char("You have no tells to replay.\n\r", ch);
         return;
     }
 
-    page_to_char(buf_string(ch->pcdata->buffer), ch);
+    page_to_char(BUF(ch->pcdata->buffer), ch);
     clear_buf(ch->pcdata->buffer);
 }
 
@@ -713,7 +714,7 @@ void do_shout(CHAR_DATA* ch, char* argument)
 
     WAIT_STATE(ch, 12);
 
-    act("You shout '$T'", ch, NULL, argument, TO_CHAR);
+    act("{dYou shout '{9$T{d'{x", ch, NULL, argument, TO_CHAR);
     for (d = descriptor_list; d != NULL; d = d->next) {
         CHAR_DATA* victim;
 
@@ -722,7 +723,7 @@ void do_shout(CHAR_DATA* ch, char* argument)
         if (d->connected == CON_PLAYING && d->character != ch
             && !IS_SET(victim->comm, COMM_SHOUTSOFF)
             && !IS_SET(victim->comm, COMM_QUIET)) {
-            act("$n shouts '$t'", ch, argument, d->character, TO_VICT);
+            act("{d$n shouts '{9$t{d'{x", ch, argument, d->character, TO_VICT);
         }
     }
 
@@ -894,7 +895,7 @@ void do_yell(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    act("You yell '$t'", ch, argument, NULL, TO_CHAR);
+    act("{dYou yell '{9$t{d'{x", ch, argument, NULL, TO_CHAR);
     for (d = descriptor_list; d != NULL; d = d->next) {
         if (d->connected == CON_PLAYING && d->character != ch
             && d->character->in_room != NULL
@@ -1653,6 +1654,93 @@ bool is_same_group(CHAR_DATA* ach, CHAR_DATA* bch)
     return ach == bch;
 }
 
+static inline bool alter_color(char* argument, Color* color)
+{
+    char color_name[50] = { 0 };
+    argument = one_argument(argument, color_name);
+
+    if (color_name[0] == '#') {
+        // Set it to an 24-bit RGB value.
+
+    }
+    else if (!str_cmp(color_name, "theme")) {
+        // Set it to a theme palette color.
+
+    }
+    else {
+        // Set it to an ANSI indexed color.
+        uint8_t code;
+        uint8_t bright;
+
+        if (!str_prefix(color_name, "red")) {
+            bright = NORMAL;
+            code = RED;
+        }
+        else if (!str_prefix(color_name, "hi-red")) {
+            bright = BRIGHT;
+            code = RED;
+        }
+        else if (!str_prefix(color_name, "green")) {
+            bright = NORMAL;
+            code = GREEN;
+        }
+        else if (!str_prefix(color_name, "hi-green")) {
+            bright = BRIGHT;
+            code = GREEN;
+        }
+        else if (!str_prefix(color_name, "yellow")) {
+            bright = NORMAL;
+            code = YELLOW;
+        }
+        else if (!str_prefix(color_name, "hi-yellow")) {
+            bright = BRIGHT;
+            code = YELLOW;
+        }
+        else if (!str_prefix(color_name, "blue")) {
+            bright = NORMAL;
+            code = BLUE;
+        }
+        else if (!str_prefix(color_name, "hi-blue")) {
+            bright = BRIGHT;
+            code = BLUE;
+        }
+        else if (!str_prefix(color_name, "magenta")) {
+            bright = NORMAL;
+            code = MAGENTA;
+        }
+        else if (!str_prefix(color_name, "hi-magenta")) {
+            bright = BRIGHT;
+            code = MAGENTA;
+        }
+        else if (!str_prefix(color_name, "cyan")) {
+            bright = NORMAL;
+            code = CYAN;
+        }
+        else if (!str_prefix(color_name, "hi-cyan")) {
+            bright = BRIGHT;
+            code = CYAN;
+        }
+        else if (!str_prefix(color_name, "white")) {
+            bright = NORMAL;
+            code = WHITE;
+        }
+        else if (!str_prefix(color_name, "hi-white")) {
+            bright = BRIGHT;
+            code = WHITE;
+        }
+        else if (!str_prefix(color_name, "gray")) {
+            bright = BRIGHT;
+            code = BLACK;
+        }
+        else
+            return false;
+
+        set_color_ansi(color, bright, code);
+    }
+
+    return true;
+}
+
 /*
  * ColoUr setting and unsetting, way cool, Ant Oct 94
  *        revised to include config colour, Ant Feb 95
@@ -1662,7 +1750,6 @@ void do_colour(CHAR_DATA* ch, char* argument)
     char arg[MAX_STRING_LENGTH];
 
     if (IS_NPC(ch)) {
-        send_to_char_bw("ColoUr is not ON, Way Moron!\n\r", ch);
         return;
     }
 
@@ -1686,9 +1773,12 @@ void do_colour(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if (!str_cmp(arg, "default")) {
-        default_colour(ch);
-        send_to_char_bw("ColoUr setting set to default values.\n\r", ch);
+    send_to_char("{jUse the {*THEME{j command to change colors.\n\r", ch);
+
+    /*
+    if (!str_cmp(arg, "default") || ch->pcdata->current_theme == NULL) {
+        set_default_theme(ch);
+        send_to_char("ColoUr setting set to default values.\n\r", ch);
         return;
     }
 
@@ -1697,120 +1787,39 @@ void do_colour(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    /*
-     * Yes, I know this is ugly and unnessessary repetition, but its old
-     * and I can't justify the time to make it pretty. -Lope
-     */
-    if (!str_cmp(arg, "text")) { ALTER_COLOUR(text) }
-    else if (!str_cmp(arg, "auction")) {
-        ALTER_COLOUR(auction)
-    }
-    else if (!str_cmp(arg, "auction_text")) {
-        ALTER_COLOUR(auction_text)
-    }
-    else if (!str_cmp(arg, "gossip")) {
-        ALTER_COLOUR(gossip)
-    }
-    else if (!str_cmp(arg, "gossip_text")) {
-        ALTER_COLOUR(gossip_text)
-    }
-    else if (!str_cmp(arg, "music")) {
-        ALTER_COLOUR(music)
-    }
-    else if (!str_cmp(arg, "music_text")) {
-        ALTER_COLOUR(music_text)
-    }
-    else if (!str_cmp(arg, "question")) {
-        ALTER_COLOUR(question)
-    }
-    else if (!str_cmp(arg, "question_text")) {
-        ALTER_COLOUR(question_text)
-    }
-    else if (!str_cmp(arg, "answer")) {
-        ALTER_COLOUR(answer)
-    }
-    else if (!str_cmp(arg, "answer_text")) {
-        ALTER_COLOUR(answer_text)
-    }
-    else if (!str_cmp(arg, "quote")) {
-        ALTER_COLOUR(quote)
-    }
-    else if (!str_cmp(arg, "quote_text")) {
-        ALTER_COLOUR(quote_text)
-    }
-    else if (!str_cmp(arg, "immtalk_text")) {
-        ALTER_COLOUR(immtalk_text)
-    }
-    else if (!str_cmp(arg, "immtalk_type")) {
-        ALTER_COLOUR(immtalk_type)
-    }
-    else if (!str_cmp(arg, "info")) {
-        ALTER_COLOUR(info)
-    }
-    else if (!str_cmp(arg, "say")) {
-        ALTER_COLOUR(say)
-    }
-    else if (!str_cmp(arg, "say_text")) {
-        ALTER_COLOUR(say_text)
-    }
-    else if (!str_cmp(arg, "tell")) {
-        ALTER_COLOUR(tell)
-    }
-    else if (!str_cmp(arg, "tell_text")) {
-        ALTER_COLOUR(tell_text)
-    }
-    else if (!str_cmp(arg, "reply")) {
-        ALTER_COLOUR(reply)
-    }
-    else if (!str_cmp(arg, "reply_text")) {
-        ALTER_COLOUR(reply_text)
-    }
-    else if (!str_cmp(arg, "gtell_text")) {
-        ALTER_COLOUR(gtell_text)
-    }
-    else if (!str_cmp(arg, "gtell_type")) {
-        ALTER_COLOUR(gtell_type)
-    }
-    else if (!str_cmp(arg, "wiznet")) {
-        ALTER_COLOUR(wiznet)
-    }
-    else if (!str_cmp(arg, "room_title")) {
-        ALTER_COLOUR(room_title)
-    }
-    else if (!str_cmp(arg, "room_text")) {
-        ALTER_COLOUR(room_text)
-    }
-    else if (!str_cmp(arg, "room_exits")) {
-        ALTER_COLOUR(room_exits)
-    }
-    else if (!str_cmp(arg, "room_things")) {
-        ALTER_COLOUR(room_things)
-    }
-    else if (!str_cmp(arg, "prompt")) {
-        ALTER_COLOUR(prompt)
-    }
-    else if (!str_cmp(arg, "fight_death")) {
-        ALTER_COLOUR(fight_death)
-    }
-    else if (!str_cmp(arg, "fight_yhit")) {
-        ALTER_COLOUR(fight_yhit)
-    }
-    else if (!str_cmp(arg, "fight_ohit")) {
-        ALTER_COLOUR(fight_ohit)
-    }
-    else if (!str_cmp(arg, "fight_thit")) {
-        ALTER_COLOUR(fight_thit)
-    }
-    else if (!str_cmp(arg, "fight_skill")) {
-        ALTER_COLOUR(fight_skill)
+    ColorTheme* theme = ch->pcdata->current_theme;
+    Color* color;
+    ColorChannel slot = -1;
+
+    LOOKUP_COLOR_SLOT_NAME(slot, arg);
+    if (slot > -1 && slot < SLOT_MAX) {
+        color = &theme->channels[slot];
     }
     else {
-        send_to_char_bw("Unrecognised Colour Parameter Not Set.\n\r", ch);
+        printf_to_char(ch, "Unrecognised color channel '%s'. No changes made.\n\r", arg);
         return;
     }
 
-    send_to_char_bw("New Colour Parameter Set.\n\r", ch);
-    return;
+    if (!alter_color(argument, color)) {
+        printf_to_char(ch, "Unrecognised color '%s'. No changes made.\n\r", argument);
+        return;
+    }
+
+    if (theme->type == COLOR_THEME_TYPE_SYSTEM_COPY) {
+        char new_name[50];
+
+        // They had a system theme before; now it's modified, so tag the name
+        // as such.
+        theme->type = COLOR_THEME_TYPE_CUSTOM;
+        sprintf(new_name, "%s (modified)", theme->name);
+        free_string(theme->name);
+        theme->name = str_dup(new_name);
+    }
+
+    // In case they changed the text channel or background:
+    set_default_colors(ch);
+    printf_to_char(ch, "Color '%s' set to '%s'.\n\r", arg, argument);
+    */
 }
 
 void do_clear(CHAR_DATA* ch, char* argument)

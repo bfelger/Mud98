@@ -109,7 +109,6 @@ void mob_interpret(CHAR_DATA* ch, char* argument)
         if (command[0] == mob_cmd_table[cmd].name[0]
             && !str_prefix(command, mob_cmd_table[cmd].name)) {
             (*mob_cmd_table[cmd].do_fun) (ch, argument);
-            tail_chain();
             return;
         }
     }

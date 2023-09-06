@@ -89,7 +89,7 @@ void free_obj args((OBJ_DATA * obj));
 #define PD PC_DATA
 CD* new_char args((void));
 void free_char args((CHAR_DATA * ch));
-PD* new_pcdata args((void));
+PD* new_pcdata();
 void free_pcdata args((PC_DATA * pcdata));
 #undef PD
 #undef CD
@@ -110,7 +110,6 @@ BUFFER* new_buf_size(int size);
 void free_buf(BUFFER * buffer);
 bool add_buf(BUFFER * buffer, char* string);
 void clear_buf(BUFFER * buffer);
-char* buf_string(BUFFER * buffer);
 
 #define INIT_BUF(b, sz) BUFFER* b = new_buf_size(sz)
 #define SET_BUF(b, s) clear_buf(b); add_buf(b, s)

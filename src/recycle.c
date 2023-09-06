@@ -27,6 +27,7 @@
 
 #include "merc.h"
 
+#include "color.h"
 #include "comm.h"
 #include "digest.h"
 #include "recycle.h"
@@ -112,7 +113,7 @@ void free_ban(BAN_DATA* ban)
 /* stuff for recycling descriptors */
 DESCRIPTOR_DATA* descriptor_free = NULL;
 
-DESCRIPTOR_DATA* new_descriptor(void)
+DESCRIPTOR_DATA* new_descriptor()
 {
     static DESCRIPTOR_DATA d_zero;
     DESCRIPTOR_DATA* d;
@@ -370,7 +371,7 @@ void free_char(CHAR_DATA* ch)
 
 PC_DATA* pcdata_free;
 
-PC_DATA* new_pcdata(void)
+PC_DATA* new_pcdata()
 {
     int alias;
 
@@ -409,6 +410,10 @@ void free_pcdata(PC_DATA* pcdata)
     free_learned(pcdata->learned);
     free_boolarray(pcdata->group_known);
     free_digest(pcdata->pwd_digest);
+    free_color_theme(pcdata->current_theme);
+    for (int i = 0; i < MAX_THEMES; ++i)
+        if (pcdata->color_themes[i] != NULL)
+            free_color_theme(pcdata->color_themes[i]);
     free_string(pcdata->bamfin);
     free_string(pcdata->bamfout);
     free_string(pcdata->title);
@@ -577,20 +582,6 @@ bool add_buf(BUFFER* buffer, char* string)
 
     size_t len = strlen(buffer->string) + strlen(string) + 1;
 
-    //while (len >= buffer->size) /* increase the buffer size */
-    //{
-    //    buffer->size = get_size(buffer->size + 1);
-    //    {
-    //        if (buffer->size == -1) /* overflow */
-    //        {
-    //            buffer->size = oldsize;
-    //            buffer->state = BUFFER_OVERFLOW;
-    //            bug("buffer overflow past size %d", buffer->size);
-    //            return false;
-    //        }
-    //    }
-    //}
-
     if (len >= buffer->size) /* increase the buffer size */
     {
         buffer->size = get_size(len);
@@ -618,11 +609,6 @@ void clear_buf(BUFFER* buffer)
 {
     buffer->string[0] = '\0';
     buffer->state = BUFFER_SAFE;
-}
-
-char* buf_string(BUFFER* buffer)
-{
-    return buffer->string;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

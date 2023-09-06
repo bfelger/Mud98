@@ -329,7 +329,7 @@ void do_spells(CHAR_DATA* ch, char* argument)
                 add_buf(buffer, BUF(spell_buf[slot]));
         }
         add_buf(buffer, "\n\r");
-        page_to_char(buf_string(buffer), ch);
+        page_to_char(BUF(buffer), ch);
         free_buf(buffer);
     }
     for (int i = 0; i < range; i++)
@@ -448,7 +448,7 @@ void do_skills(CHAR_DATA* ch, char* argument)
                 add_buf(buffer, BUF(skill_buf[slot]));
         }
         add_buf(buffer, "\n\r");
-        page_to_char(buf_string(buffer), ch);
+        page_to_char(BUF(buffer), ch);
         free_buf(buffer);
     }
 

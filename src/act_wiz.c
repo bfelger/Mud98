@@ -1682,7 +1682,7 @@ void do_owhere(CHAR_DATA* ch, char* argument)
     if (!found)
         send_to_char("Nothing like that in heaven or earth.\n\r", ch);
     else
-        page_to_char(buf_string(buffer), ch);
+        page_to_char(BUF(buffer), ch);
 
     free_buf(buffer);
 }
@@ -1720,7 +1720,7 @@ void do_mwhere(CHAR_DATA* ch, char* argument)
             }
         }
 
-        page_to_char(buf_string(buffer), ch);
+        page_to_char(BUF(buffer), ch);
         free_buf(buffer);
         return;
     }
@@ -1742,7 +1742,7 @@ void do_mwhere(CHAR_DATA* ch, char* argument)
     if (!found)
         act("You didn't find any $T.", ch, NULL, argument, TO_CHAR);
     else
-        page_to_char(buf_string(buffer), ch);
+        page_to_char(BUF(buffer), ch);
 
     free_buf(buffer);
 

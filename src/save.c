@@ -28,12 +28,14 @@
 #include "merc.h"
 
 #include "benchmark.h"
+#include "color.h"
 #include "comm.h"
 #include "digest.h"
 #include "lookup.h"
 #include "recycle.h"
 #include "strings.h"
 #include "tables.h"
+#include "vt.h"
 
 #include <ctype.h>
 #include <errno.h>
@@ -80,12 +82,14 @@ static OBJ_DATA* rgObjNest[MAX_NEST];
 /*
  * Local functions.
  */
-void fwrite_char args((CHAR_DATA * ch, FILE* fp));
-void fwrite_obj args((CHAR_DATA * ch, OBJ_DATA* obj, FILE* fp, int iNest));
-void fwrite_pet args((CHAR_DATA * pet, FILE* fp));
-void fread_char args((CHAR_DATA * ch, FILE* fp));
-void fread_pet args((CHAR_DATA * ch, FILE* fp));
-void fread_obj args((CHAR_DATA * ch, FILE* fp));
+void fwrite_char(CHAR_DATA * ch, FILE* fp);
+void fwrite_obj(CHAR_DATA * ch, OBJ_DATA* obj, FILE* fp, int iNest);
+void fwrite_pet(CHAR_DATA * pet, FILE* fp);
+void fwrite_themes(CHAR_DATA* ch, FILE* fp);
+void fread_char(CHAR_DATA * ch, FILE* fp);
+void fread_pet(CHAR_DATA * ch, FILE* fp);
+void fread_obj(CHAR_DATA * ch, FILE* fp);
+void fread_theme(CHAR_DATA* ch, FILE* fp);
 
 /*
  * Save a character and inventory.
@@ -130,6 +134,7 @@ void save_char_obj(CHAR_DATA* ch)
         /* save the pets */
         if (ch->pet != NULL && ch->pet->in_room == ch->in_room)
             fwrite_pet(ch->pet, fp);
+        fwrite_themes(ch, fp);
         fprintf(fp, "#END\n");
         fclose(fp);
     }
@@ -235,70 +240,14 @@ void fwrite_char(CHAR_DATA* ch, FILE* fp)
         fprintf(fp, "Cnd  %d %d %d %d\n", ch->pcdata->condition[0],
                 ch->pcdata->condition[1], ch->pcdata->condition[2],
                 ch->pcdata->condition[3]);
-
-        /*
-         * Write Colour Config Information.
-         */
-        fprintf(fp, "Coloura     %d%d%d %d%d%d %d%d%d %d%d%d %d%d%d\n",
-                ch->pcdata->text[2], ch->pcdata->text[0], ch->pcdata->text[1],
-                ch->pcdata->auction[2], ch->pcdata->auction[0],
-                ch->pcdata->auction[1], ch->pcdata->gossip[2],
-                ch->pcdata->gossip[0], ch->pcdata->gossip[1],
-                ch->pcdata->music[2], ch->pcdata->music[0],
-                ch->pcdata->music[1], ch->pcdata->question[2],
-                ch->pcdata->question[0], ch->pcdata->question[1]);
-        fprintf(fp, "Colourb     %d%d%d %d%d%d %d%d%d %d%d%d %d%d%d\n",
-                ch->pcdata->answer[2], ch->pcdata->answer[0],
-                ch->pcdata->answer[1], ch->pcdata->quote[2],
-                ch->pcdata->quote[0], ch->pcdata->quote[1],
-                ch->pcdata->quote_text[2], ch->pcdata->quote_text[0],
-                ch->pcdata->quote_text[1], ch->pcdata->immtalk_text[2],
-                ch->pcdata->immtalk_text[0], ch->pcdata->immtalk_text[1],
-                ch->pcdata->immtalk_type[2], ch->pcdata->immtalk_type[0],
-                ch->pcdata->immtalk_type[1]);
-        fprintf(fp, "Colourc     %d%d%d %d%d%d %d%d%d %d%d%d %d%d%d\n",
-                ch->pcdata->info[2], ch->pcdata->info[0], ch->pcdata->info[1],
-                ch->pcdata->tell[2], ch->pcdata->tell[0], ch->pcdata->tell[1],
-                ch->pcdata->reply[2], ch->pcdata->reply[0],
-                ch->pcdata->reply[1], ch->pcdata->gtell_text[2],
-                ch->pcdata->gtell_text[0], ch->pcdata->gtell_text[1],
-                ch->pcdata->gtell_type[2], ch->pcdata->gtell_type[0],
-                ch->pcdata->gtell_type[1]);
-        fprintf(fp, "Colourd     %d%d%d %d%d%d %d%d%d %d%d%d %d%d%d\n",
-                ch->pcdata->room_title[2], ch->pcdata->room_title[0],
-                ch->pcdata->room_title[1], ch->pcdata->room_text[2],
-                ch->pcdata->room_text[0], ch->pcdata->room_text[1],
-                ch->pcdata->room_exits[2], ch->pcdata->room_exits[0],
-                ch->pcdata->room_exits[1], ch->pcdata->room_things[2],
-                ch->pcdata->room_things[0], ch->pcdata->room_things[1],
-                ch->pcdata->prompt[2], ch->pcdata->prompt[0],
-                ch->pcdata->prompt[1]);
-        fprintf(fp, "Coloure     %d%d%d %d%d%d %d%d%d %d%d%d %d%d%d\n",
-                ch->pcdata->fight_death[2], ch->pcdata->fight_death[0],
-                ch->pcdata->fight_death[1], ch->pcdata->fight_yhit[2],
-                ch->pcdata->fight_yhit[0], ch->pcdata->fight_yhit[1],
-                ch->pcdata->fight_ohit[2], ch->pcdata->fight_ohit[0],
-                ch->pcdata->fight_ohit[1], ch->pcdata->fight_thit[2],
-                ch->pcdata->fight_thit[0], ch->pcdata->fight_thit[1],
-                ch->pcdata->fight_skill[2], ch->pcdata->fight_skill[0],
-                ch->pcdata->fight_skill[1]);
-        fprintf(fp, "Colourf     %d%d%d %d%d%d %d%d%d %d%d%d %d%d%d\n",
-                ch->pcdata->wiznet[2], ch->pcdata->wiznet[0],
-                ch->pcdata->wiznet[1], ch->pcdata->say[2], ch->pcdata->say[0],
-                ch->pcdata->say[1], ch->pcdata->say_text[2],
-                ch->pcdata->say_text[0], ch->pcdata->say_text[1],
-                ch->pcdata->tell_text[2], ch->pcdata->tell_text[0],
-                ch->pcdata->tell_text[1], ch->pcdata->reply_text[2],
-                ch->pcdata->reply_text[0], ch->pcdata->reply_text[1]);
-        fprintf(fp, "Colourg     %d%d%d %d%d%d %d%d%d %d%d%d %d%d%d\n",
-                ch->pcdata->auction_text[2], ch->pcdata->auction_text[0],
-                ch->pcdata->auction_text[1], ch->pcdata->gossip_text[2],
-                ch->pcdata->gossip_text[0], ch->pcdata->gossip_text[1],
-                ch->pcdata->music_text[2], ch->pcdata->music_text[0],
-                ch->pcdata->music_text[1], ch->pcdata->question_text[2],
-                ch->pcdata->question_text[0], ch->pcdata->question_text[1],
-                ch->pcdata->answer_text[2], ch->pcdata->answer_text[0],
-                ch->pcdata->answer_text[1]);
+        if (ch->pcdata->theme_config.current_theme_name)
+            fprintf(fp, "Theme %s~\n", ch->pcdata->theme_config.current_theme_name);
+        fprintf(fp, "ThemeConfig %d %d %d %d %d\n",
+            ch->pcdata->theme_config.hide_24bit,
+            ch->pcdata->theme_config.hide_256,
+            ch->pcdata->theme_config.xterm,
+            ch->pcdata->theme_config.hide_rgb_help,
+            0); // Reserved
 
         /* write alias */
         for (pos = 0; pos < MAX_ALIAS; pos++) {
@@ -334,6 +283,43 @@ void fwrite_char(CHAR_DATA* ch, FILE* fp)
 
     fprintf(fp, "End\n\n");
     return;
+}
+
+static void fwrite_palette(Color* color, int index, FILE* fp)
+{
+    // Extra reserved value for future use.
+    fprintf(fp, "Palette %d %u %u %u %u 0\n", index, color->mode, color->code[0], 
+        color->code[1], color->code[2]);
+}
+
+static void fwrite_channel(Color* color, const char* channel, FILE* fp)
+{
+    // Extra reserved value for future use.
+    fprintf(fp, "Channel %s %u %u %u %u 0\n", channel, color->mode, color->code[0],
+        color->code[1], color->code[2]);
+}
+
+void fwrite_themes(CHAR_DATA* ch, FILE* fp)
+{
+    for (int i = 0; i < MAX_THEMES; ++i) {
+        if (ch->pcdata->color_themes[i] == NULL)
+            continue;
+
+        ColorTheme* theme = ch->pcdata->color_themes[i];
+        fprintf(fp, "#THEME\n");
+        fprintf(fp, "Name %s~\n", theme->name);
+        fprintf(fp, "Banner %s~\n", theme->banner);
+        fprintf(fp, "Info %d %d %d %d\n", theme->type, theme->mode, 
+            theme->palette_max, theme->is_public);
+        
+        for (int i = 0; i < theme->palette_max; ++i)
+            fwrite_palette(&theme->palette[i], i, fp);
+
+        for (int i = 0; i < SLOT_MAX; ++i)
+            fwrite_channel(&theme->channels[i], color_slot_entries[i].name, fp);
+
+        fprintf(fp, "End\n\n");
+    }
 }
 
 /* write a pet */
@@ -535,116 +521,19 @@ bool load_char_obj(DESCRIPTOR_DATA* d, char* name)
     ch->pcdata->bamfin = str_dup("");
     ch->pcdata->bamfout = str_dup("");
     ch->pcdata->title = str_dup("");
-    for (stat = 0; stat < MAX_STATS; stat++) ch->perm_stat[stat] = 13;
+    for (stat = 0; stat < MAX_STATS; stat++)
+        ch->perm_stat[stat] = 13;
     ch->pcdata->condition[COND_THIRST] = 48;
     ch->pcdata->condition[COND_FULL] = 48;
     ch->pcdata->condition[COND_HUNGER] = 48;
     ch->pcdata->security = 0;   // OLC
-    ch->pcdata->text[0] = (NORMAL);
-    ch->pcdata->text[1] = (WHITE);
-    ch->pcdata->text[2] = 0;
-    ch->pcdata->auction[0] = (BRIGHT);
-    ch->pcdata->auction[1] = (YELLOW);
-    ch->pcdata->auction[2] = 0;
-    ch->pcdata->auction_text[0] = (BRIGHT);
-    ch->pcdata->auction_text[1] = (WHITE);
-    ch->pcdata->auction_text[2] = 0;
-    ch->pcdata->gossip[0] = (NORMAL);
-    ch->pcdata->gossip[1] = (MAGENTA);
-    ch->pcdata->gossip[2] = 0;
-    ch->pcdata->gossip_text[0] = (BRIGHT);
-    ch->pcdata->gossip_text[1] = (MAGENTA);
-    ch->pcdata->gossip_text[2] = 0;
-    ch->pcdata->music[0] = (NORMAL);
-    ch->pcdata->music[1] = (RED);
-    ch->pcdata->music[2] = 0;
-    ch->pcdata->music_text[0] = (BRIGHT);
-    ch->pcdata->music_text[1] = (RED);
-    ch->pcdata->music_text[2] = 0;
-    ch->pcdata->question[0] = (BRIGHT);
-    ch->pcdata->question[1] = (YELLOW);
-    ch->pcdata->question[2] = 0;
-    ch->pcdata->question_text[0] = (BRIGHT);
-    ch->pcdata->question_text[1] = (WHITE);
-    ch->pcdata->question_text[2] = 0;
-    ch->pcdata->answer[0] = (BRIGHT);
-    ch->pcdata->answer[1] = (YELLOW);
-    ch->pcdata->answer[2] = 0;
-    ch->pcdata->answer_text[0] = (BRIGHT);
-    ch->pcdata->answer_text[1] = (WHITE);
-    ch->pcdata->answer_text[2] = 0;
-    ch->pcdata->quote[0] = (NORMAL);
-    ch->pcdata->quote[1] = (YELLOW);
-    ch->pcdata->quote[2] = 0;
-    ch->pcdata->quote_text[0] = (NORMAL);
-    ch->pcdata->quote_text[1] = (GREEN);
-    ch->pcdata->quote_text[2] = 0;
-    ch->pcdata->immtalk_text[0] = (NORMAL);
-    ch->pcdata->immtalk_text[1] = (CYAN);
-    ch->pcdata->immtalk_text[2] = 0;
-    ch->pcdata->immtalk_type[0] = (NORMAL);
-    ch->pcdata->immtalk_type[1] = (YELLOW);
-    ch->pcdata->immtalk_type[2] = 0;
-    ch->pcdata->info[0] = (BRIGHT);
-    ch->pcdata->info[1] = (YELLOW);
-    ch->pcdata->info[2] = 1;
-    ch->pcdata->say[0] = (NORMAL);
-    ch->pcdata->say[1] = (GREEN);
-    ch->pcdata->say[2] = 0;
-    ch->pcdata->say_text[0] = (BRIGHT);
-    ch->pcdata->say_text[1] = (GREEN);
-    ch->pcdata->say_text[2] = 0;
-    ch->pcdata->tell[0] = (NORMAL);
-    ch->pcdata->tell[1] = (GREEN);
-    ch->pcdata->tell[2] = 0;
-    ch->pcdata->tell_text[0] = (BRIGHT);
-    ch->pcdata->tell_text[1] = (GREEN);
-    ch->pcdata->tell_text[2] = 0;
-    ch->pcdata->reply[0] = (NORMAL);
-    ch->pcdata->reply[1] = (GREEN);
-    ch->pcdata->reply[2] = 0;
-    ch->pcdata->reply_text[0] = (BRIGHT);
-    ch->pcdata->reply_text[1] = (GREEN);
-    ch->pcdata->reply_text[2] = 0;
-    ch->pcdata->gtell_text[0] = (NORMAL);
-    ch->pcdata->gtell_text[1] = (GREEN);
-    ch->pcdata->gtell_text[2] = 0;
-    ch->pcdata->gtell_type[0] = (NORMAL);
-    ch->pcdata->gtell_type[1] = (RED);
-    ch->pcdata->gtell_type[2] = 0;
-    ch->pcdata->wiznet[0] = (NORMAL);
-    ch->pcdata->wiznet[1] = (GREEN);
-    ch->pcdata->wiznet[2] = 0;
-    ch->pcdata->room_title[0] = (NORMAL);
-    ch->pcdata->room_title[1] = (CYAN);
-    ch->pcdata->room_title[2] = 0;
-    ch->pcdata->room_text[0] = (NORMAL);
-    ch->pcdata->room_text[1] = (WHITE);
-    ch->pcdata->room_text[2] = 0;
-    ch->pcdata->room_exits[0] = (NORMAL);
-    ch->pcdata->room_exits[1] = (GREEN);
-    ch->pcdata->room_exits[2] = 0;
-    ch->pcdata->room_things[0] = (NORMAL);
-    ch->pcdata->room_things[1] = (CYAN);
-    ch->pcdata->room_things[2] = 0;
-    ch->pcdata->prompt[0] = (NORMAL);
-    ch->pcdata->prompt[1] = (CYAN);
-    ch->pcdata->prompt[2] = 0;
-    ch->pcdata->fight_death[0] = (BRIGHT);
-    ch->pcdata->fight_death[1] = (RED);
-    ch->pcdata->fight_death[2] = 0;
-    ch->pcdata->fight_yhit[0] = (NORMAL);
-    ch->pcdata->fight_yhit[1] = (GREEN);
-    ch->pcdata->fight_yhit[2] = 0;
-    ch->pcdata->fight_ohit[0] = (NORMAL);
-    ch->pcdata->fight_ohit[1] = (YELLOW);
-    ch->pcdata->fight_ohit[2] = 0;
-    ch->pcdata->fight_thit[0] = (NORMAL);
-    ch->pcdata->fight_thit[1] = (RED);
-    ch->pcdata->fight_thit[2] = 0;
-    ch->pcdata->fight_skill[0] = (BRIGHT);
-    ch->pcdata->fight_skill[1] = (WHITE);
-    ch->pcdata->fight_skill[2] = 0;
+
+    // Set the default color theme.
+    SET_BIT(ch->act, PLR_COLOUR);
+    set_default_colors(ch);
+    for (int i = 0; i < MAX_THEMES; ++i) {
+        ch->pcdata->color_themes[i] = NULL;
+    }
 
     found = false;
     fclose(fpReserve);
@@ -693,6 +582,8 @@ bool load_char_obj(DESCRIPTOR_DATA* d, char* name)
                 fread_obj(ch, fp);
             else if (!str_cmp(word, "PET"))
                 fread_pet(ch, fp);
+            else if (!str_cmp(word, "THEME"))
+                fread_theme(ch, fp);
             else if (!str_cmp(word, "END"))
                 break;
             else {
@@ -771,6 +662,20 @@ bool load_char_obj(DESCRIPTOR_DATA* d, char* name)
             ch->trust = 51;
             break; /* hero -> hero */
         }
+    }
+
+    char* theme_name;
+    if (found && (theme_name = ch->pcdata->theme_config.current_theme_name)) {
+        ColorTheme* theme = lookup_color_theme(ch, theme_name);
+        if (!theme) {
+            free_string(theme_name);
+            theme = (ColorTheme*)system_color_themes[SYSTEM_COLOR_THEME_LOPE];
+            ch->pcdata->theme_config.current_theme_name = str_dup(theme->name);
+        }
+        if (ch->pcdata->current_theme)
+            free_color_theme(ch->pcdata->current_theme);
+        ch->pcdata->current_theme = dup_color_theme(theme);
+        set_default_colors(ch);
     }
 
     /* ream gold */
@@ -970,71 +875,6 @@ void fread_char(CHAR_DATA* ch, FILE* fp)
                 fMatch = true;
                 break;
             }
-
-            if (!str_cmp(word, "Coloura")) {
-                LOAD_COLOUR(text)
-                LOAD_COLOUR(auction)
-                LOAD_COLOUR(gossip)
-                LOAD_COLOUR(music)
-                LOAD_COLOUR(question)
-                fMatch = true;
-                break;
-            }
-            if (!str_cmp(word, "Colourb")) {
-                LOAD_COLOUR(answer)
-                LOAD_COLOUR(quote)
-                LOAD_COLOUR(quote_text)
-                LOAD_COLOUR(immtalk_text)
-                LOAD_COLOUR(immtalk_type)
-                fMatch = true;
-                break;
-            }
-            if (!str_cmp(word, "Colourc")) {
-                LOAD_COLOUR(info)
-                LOAD_COLOUR(tell)
-                LOAD_COLOUR(reply)
-                LOAD_COLOUR(gtell_text)
-                LOAD_COLOUR(gtell_type)
-                fMatch = true;
-                break;
-            }
-            if (!str_cmp(word, "Colourd")) {
-                LOAD_COLOUR(room_title)
-                LOAD_COLOUR(room_text)
-                LOAD_COLOUR(room_exits)
-                LOAD_COLOUR(room_things)
-                LOAD_COLOUR(prompt)
-                fMatch = true;
-                break;
-            }
-            if (!str_cmp(word, "Coloure")) {
-                LOAD_COLOUR(fight_death)
-                LOAD_COLOUR(fight_yhit)
-                LOAD_COLOUR(fight_ohit)
-                LOAD_COLOUR(fight_thit)
-                LOAD_COLOUR(fight_skill)
-                fMatch = true;
-                break;
-            }
-            if (!str_cmp(word, "Colourf")) {
-                LOAD_COLOUR(wiznet)
-                LOAD_COLOUR(say)
-                LOAD_COLOUR(say_text)
-                LOAD_COLOUR(tell_text)
-                LOAD_COLOUR(reply_text)
-                fMatch = true;
-                break;
-            }
-            if (!str_cmp(word, "Colourg")) {
-                LOAD_COLOUR(auction_text)
-                LOAD_COLOUR(gossip_text)
-                LOAD_COLOUR(music_text)
-                LOAD_COLOUR(question_text)
-                LOAD_COLOUR(answer_text)
-                fMatch = true;
-                break;
-            }
-
             break;
 
         case 'D':
@@ -1216,6 +1056,18 @@ void fread_char(CHAR_DATA* ch, FILE* fp)
             break;
 
         case 'T':
+            KEY("Theme", ch->pcdata->theme_config.current_theme_name, fread_string(fp));
+
+            if (!str_cmp(word, "ThemeConfig")) {
+                ch->pcdata->theme_config.hide_24bit = fread_number(fp);
+                ch->pcdata->theme_config.hide_256 = fread_number(fp);
+                ch->pcdata->theme_config.xterm = fread_number(fp);
+                ch->pcdata->theme_config.hide_rgb_help = fread_number(fp);
+                int reserved = fread_number(fp);
+                fMatch = true;
+                break;
+            }
+
             KEY("trueSex", ch->pcdata->true_sex, fread_number(fp));
             KEY("TSex", ch->pcdata->true_sex, fread_number(fp));
             KEY("Trai", ch->train, fread_number(fp));
@@ -1234,7 +1086,6 @@ void fread_char(CHAR_DATA* ch, FILE* fp)
                 fMatch = true;
                 break;
             }
-
             break;
 
         case 'V':
@@ -1754,4 +1605,100 @@ void fread_obj(CHAR_DATA* ch, FILE* fp)
             fread_to_eol(fp);
         }
     }
+}
+
+void fread_theme(CHAR_DATA* ch, FILE* fp)
+{
+    ColorTheme theme = { 0 };
+    bool fMatch;
+    char* word;
+
+    for (;;) {
+        word = feof(fp) ? "End" : fread_word(fp);
+        fMatch = false;
+        switch (UPPER(word[0])) {
+        case 'B':
+            KEY("Banner", theme.banner, fread_string(fp));
+            break;
+        case 'C':
+            if (!str_cmp(word, "Channel")) {
+                char* chan = fread_word(fp);
+                int mode = fread_number(fp);
+                int code_0 = fread_number(fp);
+                int code_1 = fread_number(fp);
+                int code_2 = fread_number(fp);
+                int reserved = fread_number(fp);
+                int slot = -1;
+                LOOKUP_COLOR_SLOT_NAME(slot, chan);
+                if (slot < 0 || slot > SLOT_MAX) {
+                    bugf("fread_theme(%s): bad channel name '%s'.", ch->name,
+                        chan);
+                    break;
+                }
+                theme.channels[slot] = (Color){ 
+                    .mode = mode, 
+                    .code = { code_0, code_1, code_2 }, 
+                    .cache = NULL, 
+                    .xterm = NULL 
+                };
+                fMatch = true;
+                break;
+            }
+            break;
+        case 'E':
+            if (!str_cmp(word, "End")) {
+                for (int i = 0; i < MAX_THEMES; ++i) {
+                    if (!ch->pcdata->color_themes[i]) {
+                        ch->pcdata->color_themes[i] = new_color_theme();
+                        *ch->pcdata->color_themes[i] = theme;
+                        return;
+                    }
+                }
+                bugf("Could not find a free color theme slot for %s.",
+                    ch->name);
+                return;
+            }
+            break;
+        case 'I':
+            if (!str_cmp(word, "Info")) {
+                theme.type = fread_number(fp);
+                theme.mode = fread_number(fp);
+                theme.palette_max = fread_number(fp);
+                theme.is_public = fread_number(fp);
+                fMatch = true;
+                break;
+            }
+            break;
+        case 'P':
+            if (!str_cmp(word, "Palette")) {
+                int idx = fread_number(fp);
+                int mode = fread_number(fp);
+                int code_0 = fread_number(fp);
+                int code_1 = fread_number(fp);
+                int code_2 = fread_number(fp);
+                int reserved = fread_number(fp);
+                theme.palette[idx] = (Color){
+                    .mode = mode,
+                    .code = { code_0, code_1, code_2 },
+                    .cache = NULL, 
+                    .xterm = NULL
+                };
+                fMatch = true;
+                break;
+            }
+            break;
+        case 'N':
+            KEY("Name", theme.name, fread_string(fp));
+            break;
+        default:
+            break;
+        }
+
+        if (!fMatch) {
+            bugf("Fread_theme: no match for '%'.", word);
+            fread_to_eol(fp);
+        }
+    }
+
+    
 }

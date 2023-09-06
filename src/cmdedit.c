@@ -306,7 +306,7 @@ CMDEDIT(cmdedit_list)
     else
         add_buf(pBuf, "Idiot!\n\r");
 
-    page_to_char(buf_string(pBuf), ch);
+    page_to_char(BUF(pBuf), ch);
     free_buf(pBuf);
     return false;
 }

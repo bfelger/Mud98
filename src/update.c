@@ -921,8 +921,9 @@ void obj_update(void)
 void aggr_update(void)
 {
     for (CHAR_DATA* wch = char_list; wch != NULL; wch = wch->next) {
-        if (IS_NPC(wch) || wch->level >= LEVEL_IMMORTAL || wch->in_room == NULL
-            || wch->in_room->area->empty)
+        if (IS_NPC(wch) || wch->level >= LEVEL_IMMORTAL
+            || wch->in_room == NULL
+            || wch->area_empty == NULL || *(wch->area_empty) == true)
             continue;
 
         for (CHAR_DATA* ch = wch->in_room->people; ch != NULL; ch = ch->next) {
@@ -1007,6 +1008,6 @@ void update_handler(void)
     }
 
     aggr_update();
-    tail_chain();
+
     return;
 }

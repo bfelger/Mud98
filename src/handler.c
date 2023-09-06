@@ -27,11 +27,13 @@
 
 #include "merc.h"
 
+#include "color.h"
 #include "comm.h"
 #include "interp.h"
 #include "magic.h"
 #include "recycle.h"
 #include "tables.h"
+#include "vt.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -1383,6 +1385,7 @@ void char_from_room(CHAR_DATA* ch)
     ch->in_room = NULL;
     ch->next_in_room = NULL;
     ch->on = NULL; /* sanity check! */
+    ch->area_empty = NULL;
     return;
 }
 
@@ -1414,6 +1417,8 @@ void char_to_room(CHAR_DATA* ch, ROOM_INDEX_DATA* pRoomIndex)
             ch->in_room->area->age = 0;
         }
         ++ch->in_room->area->nplayer;
+
+        ch->area_empty = &(ch->in_room->area->empty);
     }
 
     if ((obj = get_eq_char(ch, WEAR_LIGHT)) != NULL
@@ -2779,123 +2784,6 @@ char* off_bit_name(int off_flags)
 /*
  * Config Colour stuff
  */
-void default_colour(CHAR_DATA* ch)
-{
-    if (IS_NPC(ch))
-        return;
-
-    if (!ch->pcdata)
-        return;
-
-    ch->pcdata->text[1] = (WHITE);
-    ch->pcdata->auction[1] = (YELLOW);
-    ch->pcdata->auction_text[1] = (WHITE);
-    ch->pcdata->gossip[1] = (MAGENTA);
-    ch->pcdata->gossip_text[1] = (MAGENTA);
-    ch->pcdata->music[1] = (RED);
-    ch->pcdata->music_text[1] = (RED);
-    ch->pcdata->question[1] = (YELLOW);
-    ch->pcdata->question_text[1] = (WHITE);
-    ch->pcdata->answer[1] = (YELLOW);
-    ch->pcdata->answer_text[1] = (WHITE);
-    ch->pcdata->quote[1] = (GREEN);
-    ch->pcdata->quote_text[1] = (GREEN);
-    ch->pcdata->immtalk_text[1] = (CYAN);
-    ch->pcdata->immtalk_type[1] = (YELLOW);
-    ch->pcdata->info[1] = (YELLOW);
-    ch->pcdata->tell[1] = (GREEN);
-    ch->pcdata->tell_text[1] = (GREEN);
-    ch->pcdata->say[1] = (GREEN);
-    ch->pcdata->say_text[1] = (GREEN);
-    ch->pcdata->reply[1] = (GREEN);
-    ch->pcdata->reply_text[1] = (GREEN);
-    ch->pcdata->gtell_text[1] = (GREEN);
-    ch->pcdata->gtell_type[1] = (RED);
-    ch->pcdata->wiznet[1] = (GREEN);
-    ch->pcdata->room_title[1] = (CYAN);
-    ch->pcdata->room_text[1] = (WHITE);
-    ch->pcdata->room_exits[1] = (GREEN);
-    ch->pcdata->room_things[1] = (CYAN);
-    ch->pcdata->prompt[1] = (CYAN);
-    ch->pcdata->fight_death[1] = (RED);
-    ch->pcdata->fight_yhit[1] = (GREEN);
-    ch->pcdata->fight_ohit[1] = (YELLOW);
-    ch->pcdata->fight_thit[1] = (RED);
-    ch->pcdata->fight_skill[1] = (WHITE);
-    ch->pcdata->text[0] = (NORMAL);
-    ch->pcdata->auction[0] = (BRIGHT);
-    ch->pcdata->auction_text[0] = (BRIGHT);
-    ch->pcdata->gossip[0] = (NORMAL);
-    ch->pcdata->gossip_text[0] = (BRIGHT);
-    ch->pcdata->music[0] = (NORMAL);
-    ch->pcdata->music_text[0] = (BRIGHT);
-    ch->pcdata->question[0] = (BRIGHT);
-    ch->pcdata->question_text[0] = (BRIGHT);
-    ch->pcdata->answer[0] = (BRIGHT);
-    ch->pcdata->answer_text[0] = (BRIGHT);
-    ch->pcdata->quote[0] = (NORMAL);
-    ch->pcdata->quote_text[0] = (BRIGHT);
-    ch->pcdata->immtalk_text[0] = (NORMAL);
-    ch->pcdata->immtalk_type[0] = (NORMAL);
-    ch->pcdata->info[0] = (NORMAL);
-    ch->pcdata->say[0] = (NORMAL);
-    ch->pcdata->say_text[0] = (BRIGHT);
-    ch->pcdata->tell[0] = (NORMAL);
-    ch->pcdata->tell_text[0] = (BRIGHT);
-    ch->pcdata->reply[0] = (NORMAL);
-    ch->pcdata->reply_text[0] = (BRIGHT);
-    ch->pcdata->gtell_text[0] = (NORMAL);
-    ch->pcdata->gtell_type[0] = (NORMAL);
-    ch->pcdata->wiznet[0] = (NORMAL);
-    ch->pcdata->room_title[0] = (NORMAL);
-    ch->pcdata->room_text[0] = (NORMAL);
-    ch->pcdata->room_exits[0] = (NORMAL);
-    ch->pcdata->room_things[0] = (NORMAL);
-    ch->pcdata->prompt[0] = (NORMAL);
-    ch->pcdata->fight_death[0] = (NORMAL);
-    ch->pcdata->fight_yhit[0] = (NORMAL);
-    ch->pcdata->fight_ohit[0] = (NORMAL);
-    ch->pcdata->fight_thit[0] = (NORMAL);
-    ch->pcdata->fight_skill[0] = (NORMAL);
-    ch->pcdata->text[2] = 0;
-    ch->pcdata->auction[2] = 0;
-    ch->pcdata->auction_text[2] = 0;
-    ch->pcdata->gossip[2] = 0;
-    ch->pcdata->gossip_text[2] = 0;
-    ch->pcdata->music[2] = 0;
-    ch->pcdata->music_text[2] = 0;
-    ch->pcdata->question[2] = 0;
-    ch->pcdata->question_text[2] = 0;
-    ch->pcdata->answer[2] = 0;
-    ch->pcdata->answer_text[2] = 0;
-    ch->pcdata->quote[2] = 0;
-    ch->pcdata->quote_text[2] = 0;
-    ch->pcdata->immtalk_text[2] = 0;
-    ch->pcdata->immtalk_type[2] = 0;
-    ch->pcdata->info[2] = 1;
-    ch->pcdata->say[2] = 0;
-    ch->pcdata->say_text[2] = 0;
-    ch->pcdata->tell[2] = 0;
-    ch->pcdata->tell_text[2] = 0;
-    ch->pcdata->reply[2] = 0;
-    ch->pcdata->reply_text[2] = 0;
-    ch->pcdata->gtell_text[2] = 0;
-    ch->pcdata->gtell_type[2] = 0;
-    ch->pcdata->wiznet[2] = 0;
-    ch->pcdata->room_title[2] = 0;
-    ch->pcdata->room_text[2] = 0;
-    ch->pcdata->room_exits[2] = 0;
-    ch->pcdata->room_things[2] = 0;
-    ch->pcdata->prompt[2] = 0;
-    ch->pcdata->fight_death[2] = 0;
-    ch->pcdata->fight_yhit[2] = 0;
-    ch->pcdata->fight_ohit[2] = 0;
-    ch->pcdata->fight_thit[2] = 0;
-    ch->pcdata->fight_skill[2] = 0;
-
-    return;
-}
-
 void all_colour(CHAR_DATA* ch, char* argument)
 {
     char buf[132];
@@ -2977,79 +2865,32 @@ void all_colour(CHAR_DATA* ch, char* argument)
         bright = BRIGHT;
         sprintf(buf2, "White");
     }
-    else if (!str_prefix(argument, "grey")) {
+    else if (!str_prefix(argument, "gray")) {
         colour = (BLACK);
         bright = BRIGHT;
         sprintf(buf2, "White");
     }
     else {
-        send_to_char_bw("Unrecognised colour, unchanged.\n\r", ch);
+        send_to_char_bw("Unrecognised color, unchanged.\n\r", ch);
         return;
     }
 
-    ch->pcdata->text[1] = colour;
-    ch->pcdata->auction[1] = colour;
-    ch->pcdata->gossip[1] = colour;
-    ch->pcdata->music[1] = colour;
-    ch->pcdata->question[1] = colour;
-    ch->pcdata->answer[1] = colour;
-    ch->pcdata->quote[1] = colour;
-    ch->pcdata->quote_text[1] = colour;
-    ch->pcdata->immtalk_text[1] = colour;
-    ch->pcdata->immtalk_type[1] = colour;
-    ch->pcdata->info[1] = colour;
-    ch->pcdata->say[1] = colour;
-    ch->pcdata->say_text[1] = colour;
-    ch->pcdata->tell[1] = colour;
-    ch->pcdata->tell_text[1] = colour;
-    ch->pcdata->reply[1] = colour;
-    ch->pcdata->reply_text[1] = colour;
-    ch->pcdata->gtell_text[1] = colour;
-    ch->pcdata->gtell_type[1] = colour;
-    ch->pcdata->wiznet[1] = colour;
-    ch->pcdata->room_title[1] = colour;
-    ch->pcdata->room_text[1] = colour;
-    ch->pcdata->room_exits[1] = colour;
-    ch->pcdata->room_things[1] = colour;
-    ch->pcdata->prompt[1] = colour;
-    ch->pcdata->fight_death[1] = colour;
-    ch->pcdata->fight_yhit[1] = colour;
-    ch->pcdata->fight_ohit[1] = colour;
-    ch->pcdata->fight_thit[1] = colour;
-    ch->pcdata->fight_skill[1] = colour;
-    ch->pcdata->text[0] = bright;
-    ch->pcdata->auction[0] = bright;
-    ch->pcdata->gossip[0] = bright;
-    ch->pcdata->music[0] = bright;
-    ch->pcdata->question[0] = bright;
-    ch->pcdata->answer[0] = bright;
-    ch->pcdata->quote[0] = bright;
-    ch->pcdata->quote_text[0] = bright;
-    ch->pcdata->immtalk_text[0] = bright;
-    ch->pcdata->immtalk_type[0] = bright;
-    ch->pcdata->info[0] = bright;
-    ch->pcdata->say[0] = bright;
-    ch->pcdata->say_text[0] = bright;
-    ch->pcdata->tell[0] = bright;
-    ch->pcdata->tell_text[0] = bright;
-    ch->pcdata->reply[0] = bright;
-    ch->pcdata->reply_text[0] = bright;
-    ch->pcdata->gtell_text[0] = bright;
-    ch->pcdata->gtell_type[0] = bright;
-    ch->pcdata->wiznet[0] = bright;
-    ch->pcdata->room_title[0] = bright;
-    ch->pcdata->room_text[0] = bright;
-    ch->pcdata->room_exits[0] = bright;
-    ch->pcdata->room_things[0] = bright;
-    ch->pcdata->prompt[0] = bright;
-    ch->pcdata->fight_death[0] = bright;
-    ch->pcdata->fight_yhit[0] = bright;
-    ch->pcdata->fight_ohit[0] = bright;
-    ch->pcdata->fight_thit[0] = bright;
-    ch->pcdata->fight_skill[0] = bright;
+    Color color;
+    set_color_ansi(&color, bright, colour);
 
-    sprintf(buf, "All Colour settings set to %s.\n\r", buf2);
-    send_to_char_bw(buf, ch);
+    ColorTheme* theme = new_color_theme();
+    theme->name = str_dup(buf2);
+    theme->banner = str_dup("");
+
+    theme->palette[0] = color;
+    theme->palette_max = 1;
+
+    for (int i = 0; i < SLOT_MAX; ++i) {
+        theme->channels[i] = color;
+    }
+
+    sprintf(buf, "All Color settings set to %s.\n\r", buf2);
+    send_to_char(buf, ch);
 
     return;
 }

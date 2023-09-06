@@ -32,6 +32,12 @@
       <a href="#about-mud98">About Mud98</a>
     </li>
     <li>
+      <a href="#features">Features</a>
+      <ul>
+        <li><a href="#color-themes">Color Themes</a></li>
+      </ul>
+    </li>
+    <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
@@ -59,8 +65,29 @@ Mud98 has the following improvements:
 - Builds without errors or warnings in GCC, Clang, and MSVC.
 - Continuing implementation of modern C (including newer C standards).
 - Secure telnet with TLS and password digests provided by OpenSSL.
+- User-defined, shareable color themes.
 
 Other than the improvements listed above, Mud98 intends to be true to the spirit of the original ROM as possible; to be a _tabula rasa_ on which other, more modern MUD's can be built.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- FEATURES -->
+## Features
+
+Here are some of the novel improvements to Mud98 over stock ROM:
+
+<!-- COLOR THEMES -->
+### Color Themes
+
+Players can create new color themes and share them publicly with other players. Mud98 supports traditional ANSI, extended 256 color, and 24-bit true color. True color support covers both standard SGR format (Mudlet) and `xterm` format (TinTin++). 
+
+<div>
+  <a href="doc/theme-1.png">
+  <img src="doc/theme-1.png" alt="Logo" width="295" height="362">
+  </a> <a href="doc/theme-2.png">
+  <img src="doc/theme-2.png" alt="Logo" width="301" height="280">
+  </a>
+</div>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

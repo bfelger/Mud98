@@ -116,7 +116,7 @@ v3 <num>            - sets the value '3' on the object
 v4 <num>            - sets the value '4' on the objcet
 weight <num>        - sets the weight of the object
 type         	    - type of object, type ? TYPE for a list
-extra		    - attributes of object, type ? EXTRA for a list
+extra               - attributes of object, type ? EXTRA for a list
 wear                - where object is worn, type ? WEAR for a list
 material            - material the object is made from
 ~
@@ -141,18 +141,18 @@ spec                - sets a mobiles spec proc, type ? SPEC for a list
 sex                 - set the mobile's sex, type ? SEX for a list
 act                 - mobiles actions, type ? ACT for a list
 affect              - mobile affects, type ? AFFECT for a list
-ac		    - set the mobile's ac, type ? AC for a list
-form		    - mobiles body-form, type ? FORM for a list
-part		    - mobiles bodyparts, type ? PART for a list
-imm		    - mobile is immune to, type ? IMM for a list
-res		    - mobile is resistant to, type ? RES for a list
-vuln		    - mobile is vulnerable to, type ? VULN for a list
-material	    - material mobile is made from, type ? MATERIAL for a list
-off		    - offensive behaviour, type ? OFF for a list
-size		    - size, type ? SIZE for a list
-hitdice		    - dice to toss to get mobile's hitpoints
-manadice	    - dice to toss to get mobile's mana
-damdice		    - dice to toss to get mobile's hand to hand damage
+ac                  - set the mobile's ac, type ? AC for a list
+form                - mobiles body-form, type ? FORM for a list
+part                - mobiles bodyparts, type ? PART for a list
+imm                 - mobile is immune to, type ? IMM for a list
+res                 - mobile is resistant to, type ? RES for a list
+vuln                - mobile is vulnerable to, type ? VULN for a list
+material            - material mobile is made from, type ? MATERIAL for a list
+off                 - offensive behaviour, type ? OFF for a list
+size                - size, type ? SIZE for a list
+hitdice             - dice to toss to get mobile's hitpoints
+manadice            - dice to toss to get mobile's mana
+damdice             - dice to toss to get mobile's hand to hand damage
 
 type 'help HITDICE', 'help MANADICE', 'help DAMDICE' for lists of reasonable dice 
 combinations on different levels.

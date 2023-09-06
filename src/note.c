@@ -706,7 +706,7 @@ void parse_note(CHAR_DATA* ch, char* argument, int type)
         add_buf(buffer, argument);
         add_buf(buffer, "\n\r");
         free_string(ch->pnote->text);
-        ch->pnote->text = str_dup(buf_string(buffer));
+        ch->pnote->text = str_dup(BUF(buffer));
         free_buf(buffer);
         send_to_char("Ok.\n\r", ch);
         return;
