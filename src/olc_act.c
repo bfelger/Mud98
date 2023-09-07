@@ -156,7 +156,7 @@ void show_skill_cmds(CHAR_DATA* ch, int tar)
 
     buf1[0] = '\0';
     col = 0;
-    for (sn = 0; sn < MAX_SKILL; sn++) {
+    for (sn = 0; sn < max_skill; sn++) {
         if (!skill_table[sn].name)
             break;
 
@@ -607,7 +607,7 @@ AEDIT(aedit_file)
     /*
      * Allow only letters and numbers.
      */
-    for (i = 0; i < length; i++) {
+    for (i = 0; i < (int)length; i++) {
         if (!isalnum(file[i])) {
             send_to_char("Only letters and numbers are valid.\n\r", ch);
             return false;
@@ -1088,7 +1088,7 @@ REDIT(redit_show)
 
             if (str_infix(BUF(word), BUF(reset_state))) {
                 length = strlen(BUF(word));
-                for (i = 0; i < length; i++)
+                for (i = 0; i < (int)length; i++)
                     BUF(word)[i] = UPPER(BUF(word)[i]);
             }
             add_buf(out, BUF(word));

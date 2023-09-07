@@ -1692,7 +1692,7 @@ void do_brandish(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if ((sn = staff->value[3]) < 0 || sn >= MAX_SKILL
+    if ((sn = staff->value[3]) < 0 || sn >= (int)max_skill
         || skill_table[sn].spell_fun == 0) {
         bug("Do_brandish: bad sn %d.", sn);
         return;

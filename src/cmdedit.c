@@ -22,7 +22,7 @@ struct cmd_list_type {
 };
 
 extern	bool fBootDb;
-size_t MAX_CMD;
+int max_cmd;
 struct cmd_type* cmd_table;
 void create_command_table();
 
@@ -240,7 +240,7 @@ void list_commands(BUFFER* pBuf, int minlev, int maxlev)
         "Name", "Function", "Name", "Function");
     add_buf(pBuf, buf);
 
-    for (i = 0; i < MAX_CMD; ++i) {
+    for (i = 0; i < max_cmd; ++i) {
         if (cmd_table[i].level < minlev || cmd_table[i].level > maxlev)
             continue;
 
@@ -377,8 +377,8 @@ CMDEDIT(cmdedit_new)
 
     /* reallocate the table */
 
-    MAX_CMD++;
-    new_table = realloc(cmd_table, sizeof(struct cmd_type) * (size_t)(MAX_CMD + 1));
+    max_cmd++;
+    new_table = realloc(cmd_table, sizeof(struct cmd_type) * (size_t)(max_cmd + 1));
 
     if (!new_table) /* realloc failed */
     {
@@ -388,14 +388,14 @@ CMDEDIT(cmdedit_new)
 
     cmd_table = new_table;
 
-    cmd_table[MAX_CMD - 1].name = str_dup(argument);
-    cmd_table[MAX_CMD - 1].do_fun = do_nothing;
-    cmd_table[MAX_CMD - 1].position = position_lookup("standing");
-    cmd_table[MAX_CMD - 1].level = MAX_LEVEL;
-    cmd_table[MAX_CMD - 1].log = LOG_ALWAYS;
-    cmd_table[MAX_CMD - 1].show = TYP_NUL;
+    cmd_table[max_cmd - 1].name = str_dup(argument);
+    cmd_table[max_cmd - 1].do_fun = do_nothing;
+    cmd_table[max_cmd - 1].position = position_lookup("standing");
+    cmd_table[max_cmd - 1].level = MAX_LEVEL;
+    cmd_table[max_cmd - 1].log = LOG_ALWAYS;
+    cmd_table[max_cmd - 1].show = TYP_NUL;
 
-    cmd_table[MAX_CMD].name = str_dup("");
+    cmd_table[max_cmd].name = str_dup("");
 
     create_command_table();
 
@@ -438,13 +438,13 @@ CMDEDIT(cmdedit_delete)
             edit_done(tch);
     }
 
-    if ((new_table = calloc(sizeof(struct cmd_type), (size_t)MAX_CMD + 1)) == NULL) {
+    if ((new_table = calloc(sizeof(struct cmd_type), (size_t)max_cmd + 1)) == NULL) {
         perror("cmdedit_delete: Could not allocate new_table!");
         exit(-1);
     }
 
-    for (i = 0, j = 0; i < MAX_CMD + 1; i++) {
-        if (i != iCmd && j < MAX_CMD) {
+    for (i = 0, j = 0; i < max_cmd + 1; i++) {
+        if (i != iCmd && j < max_cmd) {
             // copy, increase only if copied
             new_table[j] = cmd_table[i];
             j++;
@@ -454,7 +454,7 @@ CMDEDIT(cmdedit_delete)
     free(cmd_table);
     cmd_table = new_table;
 
-    MAX_CMD--; /* Important :() */
+    max_cmd--; /* Important :() */
 
     create_command_table();
     send_to_char("That command is history.\n\r", ch);

@@ -31,8 +31,6 @@
 
 #include "merc.h"
 
-void show_flags_to_char(CHAR_DATA* ch, const struct flag_type* flags);
-
 struct flag_type {
     char* name;
     int bit;
@@ -125,5 +123,7 @@ extern const struct flag_type dam_classes[];
 extern const struct flag_type log_flags[];
 extern const struct flag_type show_flags[];
 extern const struct flag_type stat_table[];
+
+void show_flags_to_char(CHAR_DATA* ch, const struct flag_type* flags);
 
 #endif // !MUD98__TABLES_H

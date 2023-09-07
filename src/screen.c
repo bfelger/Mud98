@@ -137,12 +137,11 @@ char* exits2str(void* point)
     static char buf[MSL];
     char word[MIL], reset_state[MIL], tmpbuf[MIL];
     char* state;
-    int i, j;
     size_t length;
 
     buf[0] = '\0';
 
-    for (j = 0; j < MAX_DIR; j++) {
+    for (int j = 0; j < MAX_DIR; j++) {
         if ((pexit = pexitarray[j]) == NULL)
             continue;
 
@@ -181,7 +180,7 @@ char* exits2str(void* point)
 
             if (str_infix(word, reset_state)) {
                 length = strlen(word);
-                for (i = 0; i < length; i++)
+                for (size_t i = 0; i < length; i++)
                     word[i] = UPPER(word[i]);
             }
 
@@ -302,7 +301,7 @@ const struct olc_show_table_type redit_olc_show_table[] = {
         1, 1, 10, 1, 2, 0
     },
     {
-        NULL, 0, NULL, 0, 0, 0, 0, 0
+        NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0
     }
 };
 
@@ -523,8 +522,6 @@ void InitScreen(DESCRIPTOR_DATA* d)
 
 void InitScreenMap(DESCRIPTOR_DATA* d)
 {
-    int i;
-
     if (d->screenmap == NULL)
         d->screenmap = calloc(80 * ((size_t)(d->character->lines) - 3) + 1, sizeof(char));
     if (d->oldscreenmap == NULL)
@@ -533,7 +530,7 @@ void InitScreenMap(DESCRIPTOR_DATA* d)
         perror("InitScreenMap(): calloc failed!");
         exit(-1);
     }
-    for (i = 0; i < 80 * (size_t)(d->character->lines) - 3; i++)
+    for (size_t i = 0; i < 80 * (size_t)(d->character->lines) - 3; i++)
         d->screenmap[i] = d->oldscreenmap[i] = ' ';
 }
 
@@ -543,7 +540,7 @@ void UpdateOLCScreen(DESCRIPTOR_DATA* d)
     INIT_BUF(buf2, MSL * 2);
     void* point;
     const struct olc_show_table_type* table;
-    int x, y;
+    int16_t x, y;
     size_t i;
     size_t j;
     uintptr_t blah;
@@ -645,7 +642,7 @@ void UpdateOLCScreen(DESCRIPTOR_DATA* d)
                 continue;
             }
             if ((table[i].sizex < 1 && x > 79)
-                || (table[i].sizex > 0 && x >= (size_t)table[i].x + (size_t)table[i].sizex + strlen(table[i].desc))) {
+                || (table[i].sizex > 0 && x >= table[i].x + table[i].sizex + (int)strlen(table[i].desc))) {
                 y++;
                 x = table[i].x;
             }

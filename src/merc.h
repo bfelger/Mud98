@@ -165,8 +165,8 @@ typedef int	LOOKUP_F args((const char*));
  */
 #define MAX_SOCIALS         256
 
-extern size_t MAX_SKILL;
-extern size_t MAX_GROUP;
+extern int max_skill;
+extern int max_group;
 
 #define MAX_IN_GROUP        15
 #define MAX_ALIAS           5

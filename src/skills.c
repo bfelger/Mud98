@@ -75,7 +75,7 @@ void do_gain(CHAR_DATA* ch, char* argument)
                 "group", "cost", "group", "cost");
         send_to_char(buf, ch);
 
-        for (gn = 0; gn < MAX_GROUP; gn++) {
+        for (gn = 0; gn < max_group; gn++) {
             if (group_table[gn].name == NULL) break;
 
             if (!ch->pcdata->group_known[gn]
@@ -96,7 +96,7 @@ void do_gain(CHAR_DATA* ch, char* argument)
                 "skill", "cost", "skill", "cost");
         send_to_char(buf, ch);
 
-        for (sn = 0; sn < MAX_SKILL; sn++) {
+        for (sn = 0; sn < max_skill; sn++) {
             if (skill_table[sn].name == NULL) break;
 
             if (!ch->pcdata->learned[sn]
@@ -285,7 +285,7 @@ void do_spells(CHAR_DATA* ch, char* argument)
         spell_columns[level] = 0;
     }
 
-    for (sn = 0; sn < MAX_SKILL; sn++) {
+    for (sn = 0; sn < max_skill; sn++) {
         if (skill_table[sn].name == NULL) break;
 
         if ((level = skill_table[sn].skill_level[ch->ch_class]) < LEVEL_HERO + 1
@@ -405,7 +405,7 @@ void do_skills(CHAR_DATA* ch, char* argument)
         skill_columns[level] = 0;
     }
 
-    for (sn = 0; sn < MAX_SKILL; sn++) {
+    for (sn = 0; sn < max_skill; sn++) {
         if (skill_table[sn].name == NULL) break;
 
         if ((level = skill_table[sn].skill_level[ch->ch_class]) < LEVEL_HERO + 1
@@ -471,7 +471,7 @@ void list_group_costs(CHAR_DATA* ch)
             "cp", "group", "cp");
     send_to_char(buf, ch);
 
-    for (gn = 0; gn < MAX_GROUP; gn++) {
+    for (gn = 0; gn < max_group; gn++) {
         if (group_table[gn].name == NULL) break;
 
         if (!ch->gen_data->group_chosen[gn] && !ch->pcdata->group_known[gn]
@@ -491,7 +491,7 @@ void list_group_costs(CHAR_DATA* ch)
             "cp", "skill", "cp");
     send_to_char(buf, ch);
 
-    for (sn = 0; sn < MAX_SKILL; sn++) {
+    for (sn = 0; sn < max_skill; sn++) {
         if (skill_table[sn].name == NULL) break;
 
         if (!ch->gen_data->skill_chosen[sn] && ch->pcdata->learned[sn] == 0
@@ -527,7 +527,7 @@ void list_group_chosen(CHAR_DATA* ch)
             "cp", "group", "cp\n\r");
     send_to_char(buf, ch);
 
-    for (gn = 0; gn < MAX_GROUP; gn++) {
+    for (gn = 0; gn < max_group; gn++) {
         if (group_table[gn].name == NULL) break;
 
         if (ch->gen_data->group_chosen[gn]
@@ -547,7 +547,7 @@ void list_group_chosen(CHAR_DATA* ch)
             "cp", "skill", "cp\n\r");
     send_to_char(buf, ch);
 
-    for (sn = 0; sn < MAX_SKILL; sn++) {
+    for (sn = 0; sn < max_skill; sn++) {
         if (skill_table[sn].name == NULL) break;
 
         if (ch->gen_data->skill_chosen[sn]
@@ -701,7 +701,7 @@ bool parse_gen_groups(CHAR_DATA* ch, char* argument)
             ch->gen_data->group_chosen[gn] = false;
             ch->gen_data->points_chosen -= group_table[gn].rating[ch->ch_class];
             gn_remove(ch, gn);
-            for (i = 0; i < MAX_GROUP; i++) {
+            for (i = 0; i < max_group; i++) {
                 if (ch->gen_data->group_chosen[gn]) gn_add(ch, gn);
             }
             ch->pcdata->points -= group_table[gn].rating[ch->ch_class];
@@ -757,7 +757,7 @@ void do_groups(CHAR_DATA* ch, char* argument)
 
     if (argument[0] == '\0') { /* show all groups */
 
-        for (gn = 0; gn < MAX_GROUP; gn++) {
+        for (gn = 0; gn < max_group; gn++) {
             if (group_table[gn].name == NULL) break;
             if (ch->pcdata->group_known[gn]) {
                 sprintf(buf, "%-20s ", group_table[gn].name);
@@ -773,7 +773,7 @@ void do_groups(CHAR_DATA* ch, char* argument)
 
     if (!str_cmp(argument, "all")) /* show all groups */
     {
-        for (gn = 0; gn < MAX_GROUP; gn++) {
+        for (gn = 0; gn < max_group; gn++) {
             if (group_table[gn].name == NULL) break;
             sprintf(buf, "%-20s ", group_table[gn].name);
             send_to_char(buf, ch);
@@ -854,7 +854,7 @@ int group_lookup(const char* name)
 {
     int gn;
 
-    for (gn = 0; gn < MAX_GROUP; gn++) {
+    for (gn = 0; gn < max_group; gn++) {
         if (group_table[gn].name == NULL) break;
         if (LOWER(name[0]) == LOWER(group_table[gn].name[0])
             && !str_prefix(name, group_table[gn].name))

@@ -37,6 +37,9 @@ char* bg_color_to_str(const ColorTheme* theme, const Color* color, bool xterm)
     }
 
     switch (color->mode) {
+    case COLOR_MODE_PAL_IDX:
+        bug("bad color reference (PAL->PAL)");
+        return "";
     case COLOR_MODE_16:
         if (color->code[0] == 0)
             sprintf(buf, "\033[4%dm", color->code[1]);
@@ -85,6 +88,9 @@ char* color_to_str(ColorTheme* theme, Color* color, bool xterm)
         return color->cache;
 
     switch (color->mode) {
+    case COLOR_MODE_PAL_IDX:
+        bug("bad color reference (PAL->PAL)");
+        return "";
     case COLOR_MODE_16:
         if (color->code[0])
             sprintf(buf, "\033[9%dm", color->code[1]);
@@ -122,7 +128,7 @@ char* color_to_str(ColorTheme* theme, Color* color, bool xterm)
 static void list_theme_entry(CHAR_DATA* ch, ColorTheme* theme, const char* owner, bool show_public)
 {
     char out[MAX_STRING_LENGTH];
-    char buf[300];
+    char buf[500];
     bool xterm = ch->pcdata->theme_config.xterm;
 
     char bg_code[50];
@@ -143,7 +149,7 @@ static void list_theme_entry(CHAR_DATA* ch, ColorTheme* theme, const char* owner
         sprintf(mode, "(error) ");
     }
 
-    char public_buf[300] = { 0 };
+    char public_buf[20] = { 0 };
     if (show_public && theme->is_public) {
         sprintf(public_buf, "%s (public)", COLOR2STR(theme, SLOT_ALT_TEXT_2, xterm));
     }
@@ -156,13 +162,13 @@ static void list_theme_entry(CHAR_DATA* ch, ColorTheme* theme, const char* owner
     sprintf(out, "%s                                                                      {x\n\r", bg_code);
 
     // Second line, name and first row of color boxes
-    char name[300] = { 0 };
+    char name[50] = { 0 };
     strcat(name, theme->name);
     if (owner != NULL) {
         size_t pad = strlen(owner) + strlen(name) + 2;
-        char owner_buf[300] = { 0 };
+        char owner_buf[70] = { 0 };
         sprintf(owner_buf, "%s@%s%s", COLOR2STR(theme, SLOT_ALT_TEXT_1, xterm), owner, fg_code);
-        sprintf(buf, "%s%s    %s %s", bg_code, fg_code, owner_buf, name);
+        snprintf(buf, 500, "%s%s    %s %s", bg_code, fg_code, owner_buf, name);
         for (size_t i = pad; i < 30; ++i)
             strcat(buf, " ");
     }
@@ -1071,7 +1077,7 @@ static void do_theme_set(CHAR_DATA* ch, char* argument)
 
     argument = one_argument(argument, opt);
 
-    if (!opt || !opt[0] || !str_prefix(opt, "help")) {
+    if (!opt[0] || !str_prefix(opt, "help")) {
         send_to_char(help, ch);
         return;
     }
@@ -1152,7 +1158,6 @@ static void do_theme_show(CHAR_DATA* ch, char* argument)
     sprintf(out, "\n\r%s{_                                   00  02  04  06  08  10  12  14      {x\n\r", bg_code);
 
     // Second line, name and first row of color boxes
-    char name[50] = { 0 };
     sprintf(buf, "%s{t    %-30s", bg_code, theme->name);
     strcat(out, buf);
     for (int i = 0; i < PALETTE_SIZE; i += 2) {

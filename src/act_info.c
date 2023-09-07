@@ -2252,7 +2252,7 @@ void do_practice(CHAR_DATA* ch, char* argument)
         int col;
 
         col = 0;
-        for (sn = 0; sn < MAX_SKILL; sn++) {
+        for (sn = 0; sn < max_skill; sn++) {
             if (skill_table[sn].name == NULL)
                 break;
             if (ch->level < skill_table[sn].skill_level[ch->ch_class]

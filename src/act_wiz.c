@@ -313,7 +313,7 @@ void do_smote(CHAR_DATA* ch, char* argument)
     char *letter, *name;
     char last[MAX_INPUT_LENGTH] = "";
     char temp[MAX_STRING_LENGTH];
-    int matches = 0;
+    size_t matches = 0;
 
     if (!IS_NPC(ch) && IS_SET(ch->comm, COMM_NOEMOTE)) {
         send_to_char("You can't show your emotions.\n\r", ch);
@@ -1105,25 +1105,25 @@ void do_ostat(CHAR_DATA* ch, char* argument)
         sprintf(buf, "Level %d spells of:", obj->value[0]);
         send_to_char(buf, ch);
 
-        if (obj->value[1] >= 0 && obj->value[1] < MAX_SKILL) {
+        if (obj->value[1] >= 0 && obj->value[1] < max_skill) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[1]].name, ch);
             send_to_char("'", ch);
         }
 
-        if (obj->value[2] >= 0 && obj->value[2] < MAX_SKILL) {
+        if (obj->value[2] >= 0 && obj->value[2] < max_skill) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[2]].name, ch);
             send_to_char("'", ch);
         }
 
-        if (obj->value[3] >= 0 && obj->value[3] < MAX_SKILL) {
+        if (obj->value[3] >= 0 && obj->value[3] < max_skill) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[3]].name, ch);
             send_to_char("'", ch);
         }
 
-        if (obj->value[4] >= 0 && obj->value[4] < MAX_SKILL) {
+        if (obj->value[4] >= 0 && obj->value[4] < max_skill) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[4]].name, ch);
             send_to_char("'", ch);
@@ -1138,7 +1138,7 @@ void do_ostat(CHAR_DATA* ch, char* argument)
                 obj->value[2], obj->value[0]);
         send_to_char(buf, ch);
 
-        if (obj->value[3] >= 0 && obj->value[3] < MAX_SKILL) {
+        if (obj->value[3] >= 0 && obj->value[3] < max_skill) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[3]].name, ch);
             send_to_char("'", ch);
@@ -2772,7 +2772,7 @@ void do_slookup(CHAR_DATA* ch, char* argument)
     }
 
     if (!str_cmp(arg, "all")) {
-        for (sn = 0; sn < MAX_SKILL; sn++) {
+        for (sn = 0; sn < max_skill; sn++) {
             if (skill_table[sn].name == NULL) break;
             sprintf(buf, "Sn: %3d  Slot: %3d  Skill/spell: '%s'\n\r", sn,
                     skill_table[sn].slot, skill_table[sn].name);
@@ -2887,7 +2887,7 @@ void do_sset(CHAR_DATA* ch, char* argument)
     }
 
     if (fAll) {
-        for (sn = 0; sn < MAX_SKILL; sn++) {
+        for (sn = 0; sn < max_skill; sn++) {
             if (skill_table[sn].name != NULL)
                 victim->pcdata->learned[sn] = value;
         }

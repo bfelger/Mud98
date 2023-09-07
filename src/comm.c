@@ -1742,11 +1742,13 @@ bool check_parse_name(char* name)
             return false;
     }
 
+    int len = (int)strlen(name);
+
     /*
      * Length restrictions.
      */
-    if (strlen(name) < 2) return false;
-    if (strlen(name) > 12) return false;
+    if (len < 2 || len > 12) 
+        return false;
 
     /*
      * Alphanumerics only.
@@ -1775,7 +1777,7 @@ bool check_parse_name(char* name)
 
         if (fIll) return false;
 
-        if (cleancaps || (total_caps > (strlen(name)) / 2 && strlen(name) < 3))
+        if (cleancaps || (total_caps > len / 2 && len < 3))
             return false;
     }
 

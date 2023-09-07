@@ -528,7 +528,7 @@ void save_struct(FILE* fp, uintptr_t base_type, const struct savetable_type* tab
 
         cnt++;
     }
-};
+}
 
 void save_command_table()
 {
@@ -563,9 +563,9 @@ void load_command_table(void)
 {
     FILE* fp;
     extern struct cmd_type* cmd_table;
-    extern size_t MAX_CMD;
+    extern int max_cmd;
     int i = 0;
-    size_t size;
+    int size;
     char* word;
 
     char cmd_file[256];
@@ -579,7 +579,7 @@ void load_command_table(void)
 
     size = fread_number(fp);
 
-    MAX_CMD = size;
+    max_cmd = size;
 
     flog("Creating cmd_table of length %d, size %zu", size + 1,
         sizeof(struct cmd_type) * (size + 1));
@@ -730,21 +730,21 @@ void load_skills_table()
     }
 
     if (fscanf(fp, "%d\n", &max_skill) < 1) {
-        bug("load_skills_table(): Could not read MAX_SKILL!");
+        bug("load_skills_table(): Could not read max_skill!");
         return;
     }
 
-    MAX_SKILL = (size_t)max_skill;
+    max_skill = (size_t)max_skill;
 
     flog("Creating skill table of length %d, size %zu",
-        MAX_SKILL + 1, sizeof(struct skill_type) * (MAX_SKILL + 1));
-    if ((skill_table = calloc(sizeof(struct skill_type), MAX_SKILL + 1)) == NULL) {
+        max_skill + 1, sizeof(struct skill_type) * (max_skill + 1));
+    if ((skill_table = calloc(sizeof(struct skill_type), max_skill + 1)) == NULL) {
         bug("load_skills_table(): Could not allocate skill_table!");
         return;
     }
 
     if (!skill_table) {
-        bug("Error! Skill_table == NULL, MAX_SKILL : %zu", MAX_SKILL);
+        bug("Error! Skill_table == NULL, max_skill : %zu", max_skill);
         exit(1);
     }
 
@@ -759,8 +759,8 @@ void load_skills_table()
             exit(1);
         }
 
-        if (i >= MAX_SKILL) {
-            bug("Load_skills : the number of skills is greater than MAX_SKILL", 0);
+        if (i >= max_skill) {
+            bug("Load_skills : the number of skills is greater than max_skill", 0);
             exit(1);
         }
 
@@ -768,7 +768,7 @@ void load_skills_table()
         load_struct(fp, U(&sk), skillsavetable, U(&skill_table[i++]));
     }
 
-    skill_table[MAX_SKILL].name = NULL;
+    skill_table[max_skill].name = NULL;
 
     fclose(fp);
 }
@@ -855,9 +855,9 @@ void save_skills()
         return;
     }
 
-    fprintf(fpn, "%d\n", (int)MAX_SKILL);
+    fprintf(fpn, "%d\n", (int)max_skill);
 
-    for (i = 0; i < MAX_SKILL; ++i) {
+    for (i = 0; i < max_skill; ++i) {
         fprintf(fpn, "#SKILL\n");
         save_struct(fpn, U(&sk), skillsavetable, U(&skill_table[i]));
         fprintf(fpn, "#END\n\n");

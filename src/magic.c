@@ -53,7 +53,7 @@ int skill_lookup(const char* name)
 {
     int sn;
 
-    for (sn = 0; sn < MAX_SKILL; sn++) {
+    for (sn = 0; sn < max_skill; sn++) {
         if (skill_table[sn].name == NULL) break;
         if (LOWER(name[0]) == LOWER(skill_table[sn].name[0])
             && !str_prefix(name, skill_table[sn].name))
@@ -70,7 +70,7 @@ int find_spell(CHAR_DATA* ch, const char* name)
 
     if (IS_NPC(ch)) return skill_lookup(name);
 
-    for (sn = 0; sn < MAX_SKILL; sn++) {
+    for (sn = 0; sn < max_skill; sn++) {
         if (skill_table[sn].name == NULL) break;
         if (LOWER(name[0]) == LOWER(skill_table[sn].name[0])
             && !str_prefix(name, skill_table[sn].name)) {
@@ -94,7 +94,7 @@ int slot_lookup(int slot)
 
     if (slot <= 0) return -1;
 
-    for (sn = 0; sn < MAX_SKILL; sn++) {
+    for (sn = 0; sn < max_skill; sn++) {
         if (slot == skill_table[sn].slot) return sn;
     }
 
@@ -494,7 +494,7 @@ void obj_cast_spell(int sn, int level, CHAR_DATA* ch, CHAR_DATA* victim,
 
     if (sn <= 0) return;
 
-    if (sn >= MAX_SKILL || skill_table[sn].spell_fun == 0) {
+    if (sn >= max_skill || skill_table[sn].spell_fun == 0) {
         bug("Obj_cast_spell: bad sn %d.", sn);
         return;
     }
@@ -749,7 +749,7 @@ void spell_burning_hands(int sn, int level, CHAR_DATA* ch, void* vo, int target)
            40, 41, 41, 42, 42, 43, 43, 44, 44, 45, 45, 46, 46, 47, 47, 48, 48};
     int dam;
 
-    level = UMIN(level, sizeof(dam_each) / sizeof(dam_each[0]) - 1);
+    level = UMIN(level, (int)sizeof(dam_each) / (int)sizeof(dam_each[0]) - 1);
     level = UMAX(0, level);
     dam = number_range(dam_each[level] / 2, dam_each[level] * 2);
     if (saves_spell(level, victim, DAM_FIRE)) dam /= 2;
@@ -1172,7 +1172,7 @@ void spell_chill_touch(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     AFFECT_DATA af = { 0 };
     int dam;
 
-    level = UMIN(level, sizeof(dam_each) / sizeof(dam_each[0]) - 1);
+    level = UMIN(level, (int)sizeof(dam_each) / (int)sizeof(dam_each[0]) - 1);
     level = UMAX(0, level);
     dam = number_range(dam_each[level] / 2, dam_each[level] * 2);
     if (!saves_spell(level, victim, DAM_COLD)) {
@@ -1203,7 +1203,7 @@ void spell_colour_spray(int sn, int level, CHAR_DATA* ch, void* vo, int target)
            67, 68, 69, 70, 70, 71, 72, 73, 73, 74, 75, 76, 76, 77, 78, 79, 79};
     int dam;
 
-    level = UMIN(level, sizeof(dam_each) / sizeof(dam_each[0]) - 1);
+    level = UMIN(level, (int)sizeof(dam_each) / (int)sizeof(dam_each[0]) - 1);
     level = UMAX(0, level);
     dam = number_range(dam_each[level] / 2, dam_each[level] * 2);
     if (saves_spell(level, victim, DAM_LIGHT))
@@ -2306,7 +2306,7 @@ void spell_fireball(int sn, int level, CHAR_DATA* ch, void* vo, int target)
            108, 110, 112, 114, 116, 118, 120, 122, 124, 126, 128, 130};
     int dam;
 
-    level = UMIN(level, sizeof(dam_each) / sizeof(dam_each[0]) - 1);
+    level = UMIN(level, (int)sizeof(dam_each) / (int)sizeof(dam_each[0]) - 1);
     level = UMAX(0, level);
     dam = number_range(dam_each[level] / 2, dam_each[level] * 2);
     if (saves_spell(level, victim, DAM_FIRE)) dam /= 2;
@@ -2829,25 +2829,25 @@ void spell_identify(int sn, int level, CHAR_DATA* ch, void* vo, int target)
         sprintf(buf, "Level %d spells of:", obj->value[0]);
         send_to_char(buf, ch);
 
-        if (obj->value[1] >= 0 && obj->value[1] < MAX_SKILL) {
+        if (obj->value[1] >= 0 && obj->value[1] < max_skill) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[1]].name, ch);
             send_to_char("'", ch);
         }
 
-        if (obj->value[2] >= 0 && obj->value[2] < MAX_SKILL) {
+        if (obj->value[2] >= 0 && obj->value[2] < max_skill) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[2]].name, ch);
             send_to_char("'", ch);
         }
 
-        if (obj->value[3] >= 0 && obj->value[3] < MAX_SKILL) {
+        if (obj->value[3] >= 0 && obj->value[3] < max_skill) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[3]].name, ch);
             send_to_char("'", ch);
         }
 
-        if (obj->value[4] >= 0 && obj->value[4] < MAX_SKILL) {
+        if (obj->value[4] >= 0 && obj->value[4] < max_skill) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[4]].name, ch);
             send_to_char("'", ch);
@@ -2862,7 +2862,7 @@ void spell_identify(int sn, int level, CHAR_DATA* ch, void* vo, int target)
                 obj->value[0]);
         send_to_char(buf, ch);
 
-        if (obj->value[3] >= 0 && obj->value[3] < MAX_SKILL) {
+        if (obj->value[3] >= 0 && obj->value[3] < max_skill) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[3]].name, ch);
             send_to_char("'", ch);
@@ -3144,7 +3144,7 @@ void spell_lightning_bolt(int sn, int level, CHAR_DATA* ch, void* vo,
            53, 54, 54, 55, 56, 56, 57, 58, 58, 59, 60, 60, 61, 62, 62, 63, 64};
     int dam;
 
-    level = UMIN(level, sizeof(dam_each) / sizeof(dam_each[0]) - 1);
+    level = UMIN(level, (int)sizeof(dam_each) / (int)sizeof(dam_each[0]) - 1);
     level = UMAX(0, level);
     dam = number_range(dam_each[level] / 2, dam_each[level] * 2);
     if (saves_spell(level, victim, DAM_LIGHTNING)) dam /= 2;
@@ -3218,7 +3218,7 @@ void spell_magic_missile(int sn, int level, CHAR_DATA* ch, void* vo, int target)
            11, 11, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14};
     int dam;
 
-    level = UMIN(level, sizeof(dam_each) / sizeof(dam_each[0]) - 1);
+    level = UMIN(level, (int)sizeof(dam_each) / (int)sizeof(dam_each[0]) - 1);
     level = UMAX(0, level);
     dam = number_range(dam_each[level] / 2, dam_each[level] * 2);
     if (saves_spell(level, victim, DAM_ENERGY)) dam /= 2;
@@ -3701,7 +3701,7 @@ void spell_shocking_grasp(int sn, int level, CHAR_DATA* ch, void* vo,
            49, 50, 50, 51, 51, 52, 52, 53, 53, 54, 54, 55, 55, 56, 56, 57, 57};
     int dam;
 
-    level = UMIN(level, sizeof(dam_each) / sizeof(dam_each[0]) - 1);
+    level = UMIN(level, (int)sizeof(dam_each) / (int)sizeof(dam_each[0]) - 1);
     level = UMAX(0, level);
     dam = number_range(dam_each[level] / 2, dam_each[level] * 2);
     if (saves_spell(level, victim, DAM_LIGHTNING)) dam /= 2;

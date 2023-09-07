@@ -31,7 +31,7 @@
  */
 AREA_DATA* get_area_data args((VNUM vnum));
 
-COMMAND(do_purge);
+COMMAND(do_purge)
 
 MOB_INDEX_DATA		xMob;
 OBJ_INDEX_DATA		xObj;

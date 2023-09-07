@@ -259,14 +259,14 @@ void fwrite_char(CHAR_DATA* ch, FILE* fp)
                     ch->pcdata->alias_sub[pos]);
         }
 
-        for (sn = 0; sn < MAX_SKILL; sn++) {
+        for (sn = 0; sn < max_skill; sn++) {
             if (skill_table[sn].name != NULL && ch->pcdata->learned[sn] > 0) {
                 fprintf(fp, "Sk %d '%s'\n", ch->pcdata->learned[sn],
                         skill_table[sn].name);
             }
         }
 
-        for (gn = 0; gn < MAX_GROUP; gn++) {
+        for (gn = 0; gn < max_group; gn++) {
             if (group_table[gn].name != NULL && ch->pcdata->group_known[gn]) {
                 fprintf(fp, "Gr '%s'\n", group_table[gn].name);
             }
@@ -274,7 +274,7 @@ void fwrite_char(CHAR_DATA* ch, FILE* fp)
     }
 
     for (paf = ch->affected; paf != NULL; paf = paf->next) {
-        if (paf->type < 0 || paf->type >= MAX_SKILL) continue;
+        if (paf->type < 0 || paf->type >= max_skill) continue;
 
         fprintf(fp, "Affc '%s' %3d %3d %3d %3d %3d %10d\n",
                 skill_table[paf->type].name, paf->where, paf->level,
@@ -374,7 +374,7 @@ void fwrite_pet(CHAR_DATA* pet, FILE* fp)
             pet->mod_stat[STAT_DEX], pet->mod_stat[STAT_CON]);
 
     for (paf = pet->affected; paf != NULL; paf = paf->next) {
-        if (paf->type < 0 || paf->type >= MAX_SKILL) continue;
+        if (paf->type < 0 || paf->type >= max_skill) continue;
 
         fprintf(fp, "Affc '%s' %3d %3d %3d %3d %3d %10d\n",
                 skill_table[paf->type].name, paf->where, paf->level,
@@ -475,7 +475,7 @@ void fwrite_obj(CHAR_DATA* ch, OBJ_DATA* obj, FILE* fp, int iNest)
     }
 
     for (paf = obj->affected; paf != NULL; paf = paf->next) {
-        if (paf->type < 0 || paf->type >= MAX_SKILL) continue;
+        if (paf->type < 0 || paf->type >= max_skill) continue;
         fprintf(fp, "Affc '%s' %3d %3d %3d %3d %3d %10d\n",
                 skill_table[paf->type].name, paf->where, paf->level,
                 paf->duration, paf->modifier, paf->location, paf->bitvector);
@@ -1063,7 +1063,7 @@ void fread_char(CHAR_DATA* ch, FILE* fp)
                 ch->pcdata->theme_config.hide_256 = fread_number(fp);
                 ch->pcdata->theme_config.xterm = fread_number(fp);
                 ch->pcdata->theme_config.hide_rgb_help = fread_number(fp);
-                int reserved = fread_number(fp);
+                fread_number(fp); // reserved
                 fMatch = true;
                 break;
             }
@@ -1627,7 +1627,7 @@ void fread_theme(CHAR_DATA* ch, FILE* fp)
                 int code_0 = fread_number(fp);
                 int code_1 = fread_number(fp);
                 int code_2 = fread_number(fp);
-                int reserved = fread_number(fp);
+                fread_number(fp); // reserved
                 int slot = -1;
                 LOOKUP_COLOR_SLOT_NAME(slot, chan);
                 if (slot < 0 || slot > SLOT_MAX) {
@@ -1676,7 +1676,7 @@ void fread_theme(CHAR_DATA* ch, FILE* fp)
                 int code_0 = fread_number(fp);
                 int code_1 = fread_number(fp);
                 int code_2 = fread_number(fp);
-                int reserved = fread_number(fp);
+                fread_number(fp); // reserved
                 theme.palette[idx] = (Color){
                     .mode = mode,
                     .code = { code_0, code_1, code_2 },

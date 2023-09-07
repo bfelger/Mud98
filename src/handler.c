@@ -328,7 +328,7 @@ int get_skill(CHAR_DATA* ch, int sn)
     {
         skill = ch->level * 5 / 2;
     }
-    else if (sn < -1 || sn > MAX_SKILL) {
+    else if (sn < -1 || sn > max_skill) {
         bug("Bad sn %d in get_skill.", sn);
         skill = 0;
     }

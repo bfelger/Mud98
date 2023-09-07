@@ -1366,8 +1366,8 @@ void death_cry(CHAR_DATA* ch)
     case 1:
         if (ch->material == 0) {
             msg = "$n splatters blood on your armor.";
-            break;
         }
+        break;
     case 2:
         if (IS_SET(ch->parts, PART_GUTS)) {
             msg = "$n spills $s guts all over the floor.";
@@ -1872,7 +1872,7 @@ void dam_message(CHAR_DATA* ch, CHAR_DATA* victim, int dam, int dt, bool immune)
         }
     }
     else {
-        if (dt >= 0 && dt < MAX_SKILL)
+        if (dt >= 0 && dt < max_skill)
             attack = skill_table[dt].noun_damage;
         else if (dt >= TYPE_HIT && dt < TYPE_HIT + MAX_DAMAGE_MESSAGE)
             attack = attack_table[dt - TYPE_HIT].noun;

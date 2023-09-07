@@ -55,7 +55,8 @@
 #include <unistd.h>
 #endif
 
-COMMAND(do_asave);
+COMMAND(do_asave)
+
 MPROG_CODE* pedit_prog(VNUM);
 
 // externals for counting purposes
@@ -354,7 +355,7 @@ void boot_db(void)
     {
         int sn;
 
-        for (sn = 0; sn < MAX_SKILL; sn++) {
+        for (sn = 0; sn < max_skill; sn++) {
             if (skill_table[sn].pgsn != NULL) 
                 *skill_table[sn].pgsn = sn;
         }
@@ -2656,7 +2657,7 @@ char* fread_string(FILE* fp)
                 plast[-1] = '\0';
                 iHash = (int)UMIN(MAX_KEY_HASH - 1, plast - 1 - top_string);
                 for (pHash = string_hash[iHash]; pHash; pHash = pHashPrev) {
-                    for (ic = 0; ic < sizeof(char*); ic++)
+                    for (ic = 0; ic < (int)sizeof(char*); ic++)
                         u1.rgc[ic] = pHash[ic];
                     pHashPrev = u1.pc;
                     pHash += sizeof(char*);
@@ -2670,7 +2671,7 @@ char* fread_string(FILE* fp)
                     pString = top_string;
                     top_string = plast;
                     u1.pc = string_hash[iHash];
-                    for (ic = 0; ic < sizeof(char*); ic++)
+                    for (ic = 0; ic < (int)sizeof(char*); ic++)
                         pString[ic] = u1.rgc[ic];
                     string_hash[iHash] = pString;
 
@@ -2742,7 +2743,7 @@ char* fread_string_eol(FILE* fp)
             plast[-1] = '\0';
             iHash = (int)UMIN(MAX_KEY_HASH - 1, plast - 1 - top_string);
             for (pHash = string_hash[iHash]; pHash; pHash = pHashPrev) {
-                for (ic = 0; ic < sizeof(char*); ic++) u1.rgc[ic] = pHash[ic];
+                for (ic = 0; ic < (int)sizeof(char*); ic++) u1.rgc[ic] = pHash[ic];
                 pHashPrev = u1.pc;
                 pHash += sizeof(char*);
 
@@ -2755,7 +2756,8 @@ char* fread_string_eol(FILE* fp)
                 pString = top_string;
                 top_string = plast;
                 u1.pc = string_hash[iHash];
-                for (ic = 0; ic < sizeof(char*); ic++) pString[ic] = u1.rgc[ic];
+                for (ic = 0; ic < (int)sizeof(char*); ic++) 
+                    pString[ic] = u1.rgc[ic];
                 string_hash[iHash] = pString;
 
                 nAllocString += 1;
@@ -3351,7 +3353,7 @@ bool str_prefix(const char* astr, const char* bstr)
  */
 bool str_infix(const char* astr, const char* bstr)
 {
-    int ichar;
+    size_t ichar;
     char c0;
 
     if ((c0 = LOWER(astr[0])) == '\0') return false;
