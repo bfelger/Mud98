@@ -31,7 +31,10 @@
  */
 AREA_DATA* get_area_data args((VNUM vnum));
 
-COMMAND(do_purge);
+COMMAND(do_clear)
+COMMAND(do_purge)
+
+void UpdateOLCScreen(DESCRIPTOR_DATA*);
 
 MOB_INDEX_DATA		xMob;
 OBJ_INDEX_DATA		xObj;
@@ -53,17 +56,17 @@ const struct olc_comm_type mob_olc_comm_table[] = {
     { "long",	    U(&xMob.long_descr),	ed_line_string,		U(1)	        },
     { "material",	U(&xMob.material),	    ed_line_string,		0		        },
     { "desc",	    U(&xMob.description),	ed_desc,		    0		        },
-    { "level",	    U(&xMob.level),		    ed_number_level,		0		        },
+    { "level",	    U(&xMob.level),		    ed_number_level,    0		        },
     { "align",	    U(&xMob.alignment),	    ed_number_align,	0		        },
     { "group",	    U(&xMob.group),		    ed_olded,		    U(medit_group)	},
-    { "imm",	    U(&xMob.imm_flags),	    ed_flag_toggle,		U(imm_flags)	},
-    { "res",	    U(&xMob.res_flags),	    ed_flag_toggle,		U(res_flags)	},
-    { "vuln",	    U(&xMob.vuln_flags),	ed_flag_toggle,		U(vuln_flags)	},
-    { "act",	    U(&xMob.act),		    ed_flag_toggle,		U(act_flags)	},
-    { "affect",	    U(&xMob.affected_by),	ed_flag_toggle,		U(affect_flags) },
-    { "off",	    U(&xMob.off_flags),	    ed_flag_toggle,		U(off_flags)	},
-    { "form",	    U(&xMob.form),		    ed_flag_toggle,		U(form_flags)	},
-    { "parts",	    U(&xMob.parts),		    ed_flag_toggle,		U(part_flags)	},
+    { "imm",	    U(&xMob.imm_flags),	    ed_flag_toggle,		U(imm_flag_table)	},
+    { "res",	    U(&xMob.res_flags),	    ed_flag_toggle,		U(res_flag_table)	},
+    { "vuln",	    U(&xMob.vuln_flags),	ed_flag_toggle,		U(vuln_flag_table)	},
+    { "act",	    U(&xMob.act),		    ed_flag_toggle,		U(act_flag_table)	},
+    { "affect",	    U(&xMob.affected_by),	ed_flag_toggle,		U(affect_flag_table)},
+    { "off",	    U(&xMob.off_flags),	    ed_flag_toggle,		U(off_flag_table)	},
+    { "form",	    U(&xMob.form),		    ed_flag_toggle,		U(form_flag_table)	},
+    { "parts",	    U(&xMob.parts),		    ed_flag_toggle,		U(part_flag_table)	},
     { "shop",	    U(&xMob),			    ed_shop,		    0		        },
     { "create",	    0,				        ed_new_mob,		    0		        },
     { "spec",	    U(&xMob.spec_fun),	    ed_gamespec,		0		        },
@@ -98,13 +101,13 @@ const struct olc_comm_type obj_olc_comm_table[] = {
     { "long",	    U(&xObj.description),	ed_line_string,		0		        },
     { "material",	U(&xObj.material),	    ed_line_string,		0		        },
     { "cost",	    U(&xObj.cost),		    ed_number_pos,		0		        },
-    { "level",	    U(&xObj.level),		    ed_number_level,		0		        },
+    { "level",	    U(&xObj.level),		    ed_number_level,    0		        },
     { "condition",	U(&xObj.condition),	    ed_number_s_pos,	0		        },
     { "weight",	    U(&xObj.weight),		ed_number_s_pos,	0		        },
-    { "extra",	    U(&xObj.extra_flags),   ed_flag_toggle,		U(extra_flags)  },
-    { "wear",	    U(&xObj.wear_flags),	ed_flag_toggle,		U(wear_flags)   },
+    { "extra",	    U(&xObj.extra_flags),   ed_flag_toggle,		U(extra_flag_table)  },
+    { "wear",	    U(&xObj.wear_flags),	ed_flag_toggle,		U(wear_flag_table)   },
     { "ed",	        U(&xObj.extra_descr),	ed_ed,			    0		        },
-    { "type",	    U(&xObj.item_type),	    ed_flag_set_sh,		U(type_flags)   },
+    { "type",	    U(&xObj.item_type),	    ed_flag_set_sh,		U(type_flag_table)   },
     { "addaffect",	U(&xObj),			    ed_addaffect,		0		        },
     { "delaffect",	U(&xObj.affected),	    ed_delaffect,		0		        },
     { "addapply",	U(&xObj),			    ed_addapply,		0		        },
@@ -131,9 +134,9 @@ const struct olc_comm_type room_olc_comm_table[] = {
     { "heal",	    U(&xRoom.heal_rate),	ed_number_s_pos,	0		        },
     { "mana",	    U(&xRoom.mana_rate),	ed_number_s_pos,	0		        },
     { "owner",	    U(&xRoom.owner),		ed_line_string,		0		        },
-    { "roomflags",	U(&xRoom.room_flags),	ed_flag_toggle,		U(room_flags)	},
+    { "roomflags",	U(&xRoom.room_flags),	ed_flag_toggle,		U(room_flag_table)	},
     { "clan",	    U(&xRoom.clan),		    ed_int16lookup,		U(clan_lookup)	},
-    { "sector",	    U(&xRoom.sector_type),	ed_flag_set_sh,		U(sector_flags)	},
+    { "sector",	    U(&xRoom.sector_type),	ed_flag_set_sh,		U(sector_flag_table)},
     { "north",	    0,				        ed_direccion,		DIR_NORTH	    },
     { "south",	    0,				        ed_direccion,		DIR_SOUTH	    },
     { "east",	    0,				        ed_direccion,		DIR_EAST	    },
@@ -164,7 +167,7 @@ const struct olc_comm_type room_olc_comm_table[] = {
 
 void set_editor(DESCRIPTOR_DATA* d, int editor, uintptr_t param)
 {
-    d->editor = editor;
+    d->editor = (int16_t)editor;
     d->pEdit = param;
     if (d->page < 1)
         d->page = 1;
@@ -462,8 +465,6 @@ AREA_DATA* get_area_data(VNUM vnum)
  ****************************************************************************/
 bool  edit_done(CHAR_DATA* ch)
 {
-    COMMAND(do_clear)
-
     if (ch->desc->editor != ED_NONE)
         send_to_char("Exiting the editor.\n\r", ch);
     ch->desc->pEdit = 0;
@@ -511,7 +512,7 @@ void aedit(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if ((value = flag_value(area_flags, command)) != NO_FLAG) {
+    if ((value = flag_value(area_flag_table, command)) != NO_FLAG) {
         TOGGLE_BIT(pArea->area_flags, value);
 
         send_to_char("Flag toggled.\n\r", ch);
@@ -1261,10 +1262,10 @@ void    do_resets(CHAR_DATA* ch, char* argument)
                     }
                     pReset = new_reset_data();
                     pReset->command = 'M';
-                    pReset->arg1 = atoi(arg3);
-                    pReset->arg2 = is_number(arg4) ? atoi(arg4) : 1;	/* Max # */
+                    pReset->arg1 = (VNUM)atoi(arg3);
+                    pReset->arg2 = is_number(arg4) ? (int16_t)atoi(arg4) : 1;	/* Max # */
                     pReset->arg3 = ch->in_room->vnum;
-                    pReset->arg4 = is_number(arg5) ? atoi(arg5) : 1;	/* Min # */
+                    pReset->arg4 = is_number(arg5) ? (int16_t)atoi(arg5) : 1;	/* Min # */
                 }
                 else
                     /*
@@ -1279,18 +1280,18 @@ void    do_resets(CHAR_DATA* ch, char* argument)
                         if (!str_prefix(arg4, "inside")) {
                             OBJ_INDEX_DATA* temp;
 
-                            temp = get_obj_index(is_number(arg5) ? atoi(arg5) : 1);
+                            temp = get_obj_index(is_number(arg5) ? (VNUM)atoi(arg5) : 1);
                             if ((temp->item_type != ITEM_CONTAINER) &&
                                 (temp->item_type != ITEM_CORPSE_NPC)) {
                                 send_to_char("Object 2 is not a container.\n\r", ch);
                                 return;
                             }
                             pReset = new_reset_data();
-                            pReset->arg1 = atoi(arg3);
+                            pReset->arg1 = (VNUM)atoi(arg3);
                             pReset->command = 'P';
-                            pReset->arg2 = is_number(arg6) ? atoi(arg6) : 1;
-                            pReset->arg3 = is_number(arg5) ? atoi(arg5) : 1;
-                            pReset->arg4 = is_number(arg7) ? atoi(arg7) : 1;
+                            pReset->arg2 = is_number(arg6) ? (int16_t)atoi(arg6) : 1;
+                            pReset->arg3 = is_number(arg5) ? (VNUM)atoi(arg5) : 1;
+                            pReset->arg4 = is_number(arg7) ? (int16_t)atoi(arg7) : 1;
                         }
                         else
                             /*
@@ -1303,7 +1304,7 @@ void    do_resets(CHAR_DATA* ch, char* argument)
                                     return;
                                 }
                                 pReset = new_reset_data();
-                                pReset->arg1 = atoi(arg3);
+                                pReset->arg1 = (VNUM)atoi(arg3);
                                 pReset->command = 'O';
                                 pReset->arg2 = 0;
                                 pReset->arg3 = ch->in_room->vnum;
@@ -1315,7 +1316,7 @@ void    do_resets(CHAR_DATA* ch, char* argument)
                                  * --------------------------
                                  */
                             {
-                                int blah = flag_value(wear_loc_flags, arg4);
+                                int blah = flag_value(wear_loc_flag_table, arg4);
 
                                 if (blah == NO_FLAG) {
                                     send_to_char("Resets: '? wear-loc'\n\r", ch);
@@ -1346,7 +1347,7 @@ void    do_resets(CHAR_DATA* ch, char* argument)
                 pReset = new_reset_data();
                 pReset->command = 'R';
                 pReset->arg1 = ch->in_room->vnum;
-                pReset->arg2 = atoi(arg3);
+                pReset->arg2 = (int16_t)atoi(arg3);
                 add_reset(ch->in_room, pReset, atoi(arg1));
                 SET_BIT(ch->in_room->area->area_flags, AREA_CHANGED);
                 send_to_char("Random exits reset added.\n\r", ch);
@@ -1580,8 +1581,7 @@ bool process_olc_command(CHAR_DATA* ch, char* argument, const struct olc_comm_ty
 
 DO_FUN_DEC(do_page)
 {
-    extern	void UpdateOLCScreen(DESCRIPTOR_DATA*);
-    int num;
+    int16_t num;
 
     if (IS_NPC(ch)
         || ch->desc == NULL
@@ -1595,7 +1595,7 @@ DO_FUN_DEC(do_page)
         return;
     }
 
-    num = atoi(argument);
+    num = (int16_t)atoi(argument);
 
     if (num <= 0) {
         send_to_char("That's a strange-looking number.\n\r", ch);

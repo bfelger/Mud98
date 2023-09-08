@@ -91,7 +91,7 @@ void load_bans(void)
         pban = new_ban();
 
         pban->name = str_dup(fread_word(fp));
-        pban->level = fread_number(fp);
+        pban->level = (LEVEL)fread_number(fp);
         pban->ban_flags = (int16_t)fread_flag(fp);
         fread_to_eol(fp);
 

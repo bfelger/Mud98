@@ -311,8 +311,9 @@ bool spec_patrolman(CHAR_DATA* ch)
 
 bool spec_nasty(CHAR_DATA* ch)
 {
-    CHAR_DATA *victim, *v_next;
-    long gold;
+    CHAR_DATA* victim;
+    CHAR_DATA* v_next = NULL;
+    int16_t gold;
 
     if (!IS_AWAKE(ch)) { return false; }
 
@@ -364,8 +365,8 @@ bool spec_nasty(CHAR_DATA* ch)
 bool dragon(CHAR_DATA* ch, char* spell_name)
 {
     CHAR_DATA* victim;
-    CHAR_DATA* v_next;
-    int sn;
+    CHAR_DATA* v_next = NULL;
+    SKNUM sn;
 
     if (ch->position != POS_FIGHTING) return false;
 
@@ -424,7 +425,7 @@ bool spec_breath_frost(CHAR_DATA* ch)
 
 bool spec_breath_gas(CHAR_DATA* ch)
 {
-    int sn;
+    SKNUM sn;
 
     if (ch->position != POS_FIGHTING) return false;
 
@@ -441,7 +442,7 @@ bool spec_breath_lightning(CHAR_DATA* ch)
 bool spec_cast_adept(CHAR_DATA* ch)
 {
     CHAR_DATA* victim;
-    CHAR_DATA* v_next;
+    CHAR_DATA* v_next = NULL;
 
     if (!IS_AWAKE(ch)) return false;
 
@@ -504,9 +505,9 @@ bool spec_cast_adept(CHAR_DATA* ch)
 bool spec_cast_cleric(CHAR_DATA* ch)
 {
     CHAR_DATA* victim;
-    CHAR_DATA* v_next;
+    CHAR_DATA* v_next = NULL;
     char* spell;
-    int sn;
+    SKNUM sn;
 
     if (ch->position != POS_FIGHTING) return false;
 
@@ -580,9 +581,9 @@ bool spec_cast_cleric(CHAR_DATA* ch)
 bool spec_cast_judge(CHAR_DATA* ch)
 {
     CHAR_DATA* victim;
-    CHAR_DATA* v_next;
+    CHAR_DATA* v_next = NULL;
     char* spell;
-    int sn;
+    SKNUM sn;
 
     if (ch->position != POS_FIGHTING) return false;
 
@@ -602,9 +603,9 @@ bool spec_cast_judge(CHAR_DATA* ch)
 bool spec_cast_mage(CHAR_DATA* ch)
 {
     CHAR_DATA* victim;
-    CHAR_DATA* v_next;
+    CHAR_DATA* v_next = NULL;
     char* spell;
-    int sn;
+    SKNUM sn;
 
     if (ch->position != POS_FIGHTING) return false;
 
@@ -674,9 +675,9 @@ bool spec_cast_mage(CHAR_DATA* ch)
 bool spec_cast_undead(CHAR_DATA* ch)
 {
     CHAR_DATA* victim;
-    CHAR_DATA* v_next;
+    CHAR_DATA* v_next = NULL;
     char* spell;
-    int sn;
+    SKNUM sn;
 
     if (ch->position != POS_FIGHTING) return false;
 
@@ -745,7 +746,7 @@ bool spec_executioner(CHAR_DATA* ch)
 {
     char buf[MAX_STRING_LENGTH];
     CHAR_DATA* victim;
-    CHAR_DATA* v_next;
+    CHAR_DATA* v_next = NULL;
     char* crime;
 
     if (!IS_AWAKE(ch) || ch->fighting != NULL) return false;
@@ -780,9 +781,9 @@ bool spec_executioner(CHAR_DATA* ch)
 bool spec_fido(CHAR_DATA* ch)
 {
     OBJ_DATA* corpse;
-    OBJ_DATA* c_next;
+    OBJ_DATA* c_next = NULL;
     OBJ_DATA* obj;
-    OBJ_DATA* obj_next;
+    OBJ_DATA* obj_next = NULL;
 
     if (!IS_AWAKE(ch)) return false;
 
@@ -807,7 +808,7 @@ bool spec_guard(CHAR_DATA* ch)
 {
     char buf[MAX_STRING_LENGTH];
     CHAR_DATA* victim;
-    CHAR_DATA* v_next;
+    CHAR_DATA* v_next = NULL;
     CHAR_DATA* ech;
     char* crime;
     int max_evil;
@@ -862,7 +863,7 @@ bool spec_guard(CHAR_DATA* ch)
 bool spec_janitor(CHAR_DATA* ch)
 {
     OBJ_DATA* trash;
-    OBJ_DATA* trash_next;
+    OBJ_DATA* trash_next = NULL;
 
     if (!IS_AWAKE(ch)) return false;
 
@@ -994,8 +995,8 @@ bool spec_poison(CHAR_DATA* ch)
 bool spec_thief(CHAR_DATA* ch)
 {
     CHAR_DATA* victim;
-    CHAR_DATA* v_next;
-    long gold, silver;
+    CHAR_DATA* v_next = NULL;
+    int16_t gold, silver;
 
     if (ch->position != POS_STANDING) return false;
 
@@ -1014,12 +1015,11 @@ bool spec_thief(CHAR_DATA* ch)
             return true;
         }
         else {
-            gold
-                = victim->gold * UMIN(number_range(1, 20), ch->level / 2) / 100;
+            gold = victim->gold * UMIN((int16_t)number_range(1, 20), ch->level / 2) / 100;
             gold = UMIN(gold, ch->level * ch->level * 10);
             ch->gold += gold;
             victim->gold -= gold;
-            silver = victim->silver * UMIN(number_range(1, 20), ch->level / 2)
+            silver = victim->silver * UMIN((int16_t)number_range(1, 20), ch->level / 2)
                      / 100;
             silver = UMIN(silver, ch->level * ch->level * 25);
             ch->silver += silver;

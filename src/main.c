@@ -76,7 +76,11 @@ char area_dir[256] = DEFAULT_AREA_DIR;
 void game_loop(SockServer* server);
 
 #ifdef _MSC_VER
-int gettimeofday(struct timeval* tp, struct timezone* tzp);
+struct timezone {
+    int  dummy;
+};
+
+int gettimeofday(struct timeval* tp, struct timezone* unused);
 #endif
 
 int main(int argc, char** argv)
@@ -208,7 +212,6 @@ int main(int argc, char** argv)
      */
     log_string("Normal termination of game.");
     exit(0);
-    return 0;
 }
 
 #ifdef _MSC_VER
@@ -217,7 +220,7 @@ int main(int argc, char** argv)
 //    https://stackoverflow.com/a/26085827
 //    "Here is a free implementation:"
 ////////////////////////////////////////////////////////////////////////////////
-int gettimeofday(struct timeval* tp, struct timezone* tzp)
+int gettimeofday(struct timeval* tp, struct timezone* unused)
 {
     // Note: some broken versions only have 8 trailing zero's, the correct epoch
     // has 9 trailing zero's. This magic number is the number of 100 nanosecond 

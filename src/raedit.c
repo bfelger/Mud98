@@ -27,14 +27,14 @@ const struct olc_comm_type race_olc_comm_table[] = {
     { "show",       0,                  ed_olded,           U(raedit_show)  },
     { "name",       U(&xRace.name),     ed_line_string,     0               },
     { "pcrace",     U(&xRace.pc_race),  ed_bool,            0               },
-    { "act",        U(&xRace.act),      ed_flag_toggle,     U(act_flags)    },
-    { "aff",        U(&xRace.aff),      ed_flag_toggle,     U(affect_flags) },
-    { "off",        U(&xRace.off),      ed_flag_toggle,     U(off_flags)    },
-    { "res",        U(&xRace.res),      ed_flag_toggle,     U(res_flags)    },
-    { "vuln",       U(&xRace.vuln),     ed_flag_toggle,     U(vuln_flags)   },
-    { "imm",        U(&xRace.imm),      ed_flag_toggle,     U(imm_flags)    },
-    { "form",       U(&xRace.form),     ed_flag_toggle,     U(form_flags)   },
-    { "part",       U(&xRace.parts),    ed_flag_toggle,     U(part_flags)    },
+    { "act",        U(&xRace.act),      ed_flag_toggle,     U(act_flag_table)   },
+    { "aff",        U(&xRace.aff),      ed_flag_toggle,     U(affect_flag_table)},
+    { "off",        U(&xRace.off),      ed_flag_toggle,     U(off_flag_table)   },
+    { "res",        U(&xRace.res),      ed_flag_toggle,     U(res_flag_table)   },
+    { "vuln",       U(&xRace.vuln),     ed_flag_toggle,     U(vuln_flag_table)  },
+    { "imm",        U(&xRace.imm),      ed_flag_toggle,     U(imm_flag_table)   },
+    { "form",       U(&xRace.form),     ed_flag_toggle,     U(form_flag_table)  },
+    { "part",       U(&xRace.parts),    ed_flag_toggle,     U(part_flag_table)  },
     { "who",        U(&xRace.who_name), ed_line_string,     0               },
     { "points",     U(&xRace.points),   ed_number_s_pos,    0               },
     { "cmult",      0,                  ed_olded,           U(raedit_cmult) },
@@ -119,21 +119,21 @@ RAEDIT(raedit_show)
     send_to_char(buf, ch);
     sprintf(buf, "PC race?    : [%s]\n\r", pRace->pc_race ? "YES" : " NO");
     send_to_char(buf, ch);
-    sprintf(buf, "Act         : [%s]\n\r", flag_string(act_flags, pRace->act));
+    sprintf(buf, "Act         : [%s]\n\r", flag_string(act_flag_table, pRace->act));
     send_to_char(buf, ch);
-    sprintf(buf, "Aff         : [%s]\n\r", flag_string(affect_flags, pRace->aff));
+    sprintf(buf, "Aff         : [%s]\n\r", flag_string(affect_flag_table, pRace->aff));
     send_to_char(buf, ch);
-    sprintf(buf, "Off         : [%s]\n\r", flag_string(off_flags, pRace->off));
+    sprintf(buf, "Off         : [%s]\n\r", flag_string(off_flag_table, pRace->off));
     send_to_char(buf, ch);
-    sprintf(buf, "Imm         : [%s]\n\r", flag_string(imm_flags, pRace->imm));
+    sprintf(buf, "Imm         : [%s]\n\r", flag_string(imm_flag_table, pRace->imm));
     send_to_char(buf, ch);
-    sprintf(buf, "Res         : [%s]\n\r", flag_string(res_flags, pRace->res));
+    sprintf(buf, "Res         : [%s]\n\r", flag_string(res_flag_table, pRace->res));
     send_to_char(buf, ch);
-    sprintf(buf, "Vuln        : [%s]\n\r", flag_string(vuln_flags, pRace->vuln));
+    sprintf(buf, "Vuln        : [%s]\n\r", flag_string(vuln_flag_table, pRace->vuln));
     send_to_char(buf, ch);
-    sprintf(buf, "Form        : [%s]\n\r", flag_string(form_flags, pRace->form));
+    sprintf(buf, "Form        : [%s]\n\r", flag_string(form_flag_table, pRace->form));
     send_to_char(buf, ch);
-    sprintf(buf, "Parts       : [%s]\n\r", flag_string(part_flags, pRace->parts));
+    sprintf(buf, "Parts       : [%s]\n\r", flag_string(part_flag_table, pRace->parts));
     send_to_char(buf, ch);
 
 #ifndef FIRST_BOOT
@@ -278,7 +278,8 @@ RAEDIT(raedit_new)
 RAEDIT(raedit_cmult)
 {
     struct race_type* race;
-    int mult, vclase;
+    int mult;
+    int vclase;
     char clase[MIL];
 
     EDIT_RACE(ch, race);
@@ -307,7 +308,7 @@ RAEDIT(raedit_cmult)
         return false;
     }
 
-    race->class_mult[vclase] = mult;
+    race->class_mult[vclase] = (int16_t)mult;
     send_to_char("Ok.\n\r", ch);
     return true;
 }
@@ -346,7 +347,7 @@ RAEDIT(raedit_stats)
         return false;
     }
 
-    race->stats[vstat] = value;
+    race->stats[vstat] = (int16_t)value;
     send_to_char("Ok.\n\r", ch);
     return true;
 }
@@ -385,7 +386,7 @@ RAEDIT(raedit_maxstats)
         return false;
     }
 
-    race->max_stats[vstat] = value;
+    race->max_stats[vstat] = (int16_t)value;
     send_to_char("Ok.\n\r", ch);
     return true;
 }

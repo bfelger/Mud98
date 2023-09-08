@@ -26,11 +26,11 @@ struct savetable_type {
     const uintptr_t argument2;
 };
 
-struct cmd_type		cmd;
-struct race_type	race;
-struct social_type	soc;
-struct skill_type	sk;
-MPROG_CODE		pcode;
+struct cmd_type tmp_cmd;
+struct race_type tmp_race;
+struct social_type tmp_soc;
+struct skill_type tmp_sk;
+MPROG_CODE tmp_pcode;
 
 char* cmd_func_name(DO_FUN*);
 DO_FUN* cmd_func_lookup(char*);
@@ -113,7 +113,7 @@ bool clan_read(void* temp, char* arg)
 {
     int16_t* klan = (int16_t*)temp;
 
-    *klan = clan_lookup(arg);
+    *klan = (int16_t)clan_lookup(arg);
 
     return true;
 }
@@ -122,7 +122,7 @@ bool class_read(void* temp, char* arg)
 {
     int16_t* class = (int16_t*)temp;
 
-    *class = class_lookup(arg);
+    *class = (int16_t)class_lookup(arg);
 
     if (*class == -1) {
         *class = 0;
@@ -144,7 +144,7 @@ bool do_fun_read(void* temp, char* arg)
 bool position_read(void* temp, char* arg)
 {
     int16_t* posic = (int16_t*)temp;
-    int16_t ffg = position_lookup(arg);
+    int16_t ffg = (int16_t)position_lookup(arg);
 
     *posic = UMAX(0, ffg);
 
@@ -159,7 +159,7 @@ bool size_read(void* temp, char* arg)
     int16_t* size = (int16_t*)temp;
     int ffg = size_lookup(arg);
 
-    *size = UMAX(0, ffg);
+    *size = UMAX(0, (int16_t)ffg);
 
     if (ffg == -1)
         return false;
@@ -207,68 +207,68 @@ bool spell_fun_read(void* temp, char* arg)
 #define U(x)    (uintptr_t)(x)
 
 const struct savetable_type progcodesavetable[] = {
-    { "vnum",		    FIELD_INT16,	            U(&pcode.vnum),	0,	0	},
-    { "code",		    FIELD_STRING,	            U(&pcode.code),	0,	0	},
+    { "vnum",		    FIELD_INT16,	            U(&tmp_pcode.vnum),	0,	0	},
+    { "code",		    FIELD_STRING,	            U(&tmp_pcode.code),	0,	0	},
     { NULL,		        0,				            0,			    0,	0	}
 };
 
 const struct savetable_type skillsavetable[] = {
-    {"name",		    FIELD_STRING,			    U(&sk.name),		    0,			    0	},
-    {"skill_level",	    FIELD_INT16_ARRAY,		    U(&sk.skill_level),	    U(MAX_CLASS),	0	},
-    {"rating",	        FIELD_INT16_ARRAY,		    U(&sk.rating),		    U(MAX_CLASS),	0	},
-    {"spell_fun",	    FIELD_FUNCTION_INT_TO_STR,	U(&sk.spell_fun),	    U(spell_fun_str),U(spell_fun_read)	},
-    {"target",	        FIELD_INT16_FLAGSTRING,		U(&sk.target),		    U(target_table),0	},
-    {"minimum_position",FIELD_FUNCTION_INT16_TO_STR,U(&sk.minimum_position),U(position_str),U(position_read)	},
-    {"pgsn",		    FIELD_FUNCTION_INT_TO_STR,	U(&sk.pgsn),		    U(pgsn_str),	U(pgsn_read)	},
-    {"slot",		    FIELD_INT16,			    U(&sk.slot),		    0,			    0	},
-    {"min_mana",	    FIELD_INT16,			    U(&sk.min_mana),	    0,			    0	},
-    {"beats",	        FIELD_INT16,			    U(&sk.beats),		    0,			    0	},
-    {"noun_damage",	    FIELD_STRING,			    U(&sk.noun_damage),	    0,			    0	},
-    {"msg_off",	        FIELD_STRING,			    U(&sk.msg_off),		    0,			    0	},
-    {"msg_obj",	        FIELD_STRING,			    U(&sk.msg_obj),		    0,			    0	},
+    {"name",		    FIELD_STRING,			    U(&tmp_sk.name),		    0,			    0	},
+    {"skill_level",	    FIELD_INT16_ARRAY,		    U(&tmp_sk.skill_level),	    U(MAX_CLASS),	0	},
+    {"rating",	        FIELD_INT16_ARRAY,		    U(&tmp_sk.rating),		    U(MAX_CLASS),	0	},
+    {"spell_fun",	    FIELD_FUNCTION_INT_TO_STR,	U(&tmp_sk.spell_fun),	    U(spell_fun_str),U(spell_fun_read)	},
+    {"target",	        FIELD_INT16_FLAGSTRING,		U(&tmp_sk.target),		    U(target_table),0	},
+    {"minimum_position",FIELD_FUNCTION_INT16_TO_STR,U(&tmp_sk.minimum_position),U(position_str),U(position_read)	},
+    {"pgsn",		    FIELD_FUNCTION_INT_TO_STR,	U(&tmp_sk.pgsn),		    U(pgsn_str),	U(pgsn_read)	},
+    {"slot",		    FIELD_INT16,			    U(&tmp_sk.slot),		    0,			    0	},
+    {"min_mana",	    FIELD_INT16,			    U(&tmp_sk.min_mana),	    0,			    0	},
+    {"beats",	        FIELD_INT16,			    U(&tmp_sk.beats),		    0,			    0	},
+    {"noun_damage",	    FIELD_STRING,			    U(&tmp_sk.noun_damage),	    0,			    0	},
+    {"msg_off",	        FIELD_STRING,			    U(&tmp_sk.msg_off),		    0,			    0	},
+    {"msg_obj",	        FIELD_STRING,			    U(&tmp_sk.msg_obj),		    0,			    0	},
     {NULL,		        0,				            0,				        0,			    0	}
 };
 
 const struct savetable_type socialsavetable[] = {
-    { "name",		    FIELD_STRING,	U(&soc.name),		    0,      0},
-    { "char_no_arg",	FIELD_STRING,	U(&soc.char_no_arg), 	0,      0},
-    { "others_no_arg",  FIELD_STRING,	U(&soc.others_no_arg),	0,      0},
-    { "char_found",	    FIELD_STRING,	U(&soc.char_found),	    0,      0},
-    { "others_found",	FIELD_STRING,	U(&soc.others_found),	0,      0},
-    { "vict_found",	    FIELD_STRING,	U(&soc.vict_found),	    0,      0},
-    { "char_auto",	    FIELD_STRING,	U(&soc.char_auto),	    0,      0},
-    { "others_auto",	FIELD_STRING,	U(&soc.others_auto),	0,      0},
+    { "name",		    FIELD_STRING,	U(&tmp_soc.name),		    0,      0},
+    { "char_no_arg",	FIELD_STRING,	U(&tmp_soc.char_no_arg), 	0,      0},
+    { "others_no_arg",  FIELD_STRING,	U(&tmp_soc.others_no_arg),	0,      0},
+    { "char_found",	    FIELD_STRING,	U(&tmp_soc.char_found),	    0,      0},
+    { "others_found",	FIELD_STRING,	U(&tmp_soc.others_found),	0,      0},
+    { "vict_found",	    FIELD_STRING,	U(&tmp_soc.vict_found),	    0,      0},
+    { "char_auto",	    FIELD_STRING,	U(&tmp_soc.char_auto),	    0,      0},
+    { "others_auto",	FIELD_STRING,	U(&tmp_soc.others_auto),	0,      0},
     { NULL,		        0,		        0,				        0,      0}
 };
 
 const struct savetable_type racesavetable[] = {
-    { "name",	    FIELD_STRING,		U(&race.name),	    0,		    0},
-    { "pc",		    FIELD_BOOL,			U(&race.pc_race),	0,		    0},
-    { "act",	    FIELD_FLAGVECTOR,	U(&race.act),	    0,		    0},
-    { "aff",	    FIELD_FLAGVECTOR,	U(&race.aff),	    0,		    0},
-    { "off",	    FIELD_FLAGVECTOR,	U(&race.off),	    0,		    0},
-    { "imm",	    FIELD_FLAGVECTOR,	U(&race.imm),	    0,		    0},
-    { "res",	    FIELD_FLAGVECTOR,	U(&race.res),	    0,		    0},
-    { "vuln",	    FIELD_FLAGVECTOR,	U(&race.vuln),	    0,		    0},
-    { "form",	    FIELD_FLAGVECTOR,	U(&race.form),	    0,		    0},
-    { "parts",	    FIELD_FLAGVECTOR,	U(&race.parts),	    0,		    0},
-    { "points",	    FIELD_INT16,		U(&race.points),	0,			    0	},
-    { "class_mult",	FIELD_INT16_ARRAY,	U(&race.class_mult),U(MAX_CLASS),	0	},
-    { "who_name",	FIELD_STRING,		U(&race.who_name),	0,			    0	},
-    { "skills",	    FIELD_STRING_ARRAY,	U(&race.skills),	U(5),		    0	},
-    { "stats",	    FIELD_INT16_ARRAY,	U(&race.stats),		U(MAX_STATS),	0	},
-    { "max_stats",	FIELD_INT16_ARRAY,	U(&race.max_stats),	U(MAX_STATS),	0	},
-    { "size",		FIELD_FUNCTION_INT16_TO_STR,U(&race.size),	U(size_str),U(size_read)},
+    { "name",	    FIELD_STRING,		U(&tmp_race.name),	    0,		    0},
+    { "pc",		    FIELD_BOOL,			U(&tmp_race.pc_race),	0,		    0},
+    { "act",	    FIELD_FLAGVECTOR,	U(&tmp_race.act),	    0,		    0},
+    { "aff",	    FIELD_FLAGVECTOR,	U(&tmp_race.aff),	    0,		    0},
+    { "off",	    FIELD_FLAGVECTOR,	U(&tmp_race.off),	    0,		    0},
+    { "imm",	    FIELD_FLAGVECTOR,	U(&tmp_race.imm),	    0,		    0},
+    { "res",	    FIELD_FLAGVECTOR,	U(&tmp_race.res),	    0,		    0},
+    { "vuln",	    FIELD_FLAGVECTOR,	U(&tmp_race.vuln),	    0,		    0},
+    { "form",	    FIELD_FLAGVECTOR,	U(&tmp_race.form),	    0,		    0},
+    { "parts",	    FIELD_FLAGVECTOR,	U(&tmp_race.parts),	    0,		    0},
+    { "points",	    FIELD_INT16,		U(&tmp_race.points),	0,			    0	},
+    { "class_mult",	FIELD_INT16_ARRAY,	U(&tmp_race.class_mult),U(MAX_CLASS),	0	},
+    { "who_name",	FIELD_STRING,		U(&tmp_race.who_name),	0,			    0	},
+    { "skills",	    FIELD_STRING_ARRAY,	U(&tmp_race.skills),	U(5),		    0	},
+    { "stats",	    FIELD_INT16_ARRAY,	U(&tmp_race.stats),		U(MAX_STATS),	0	},
+    { "max_stats",	FIELD_INT16_ARRAY,	U(&tmp_race.max_stats),	U(MAX_STATS),	0	},
+    { "size",		FIELD_FUNCTION_INT16_TO_STR,U(&tmp_race.size),	U(size_str),U(size_read)},
     { NULL,		    0,				    0,			        0,		    0}
 };
 
 const struct savetable_type cmdsavetable[] = {
-    { "name",		FIELD_STRING,			    U(&cmd.name),	    0,		        0 },
-    { "do_fun",	    FIELD_FUNCTION_INT_TO_STR,	U(&cmd.do_fun),	    U(do_fun_str),	U(do_fun_read) },
-    { "position",	FIELD_FUNCTION_INT16_TO_STR,U(&cmd.position),   U(position_str),U(position_read) },
-    { "level",	    FIELD_INT16,			    U(&cmd.level),	    0,		        0 },
-    { "log",		FIELD_INT16_FLAGSTRING,		U(&cmd.log),	    U(log_flags),	0 },
-    { "show",		FIELD_INT16_FLAGSTRING,		U(&cmd.show),	    U(show_flags),	0 },
+    { "name",		FIELD_STRING,			    U(&tmp_cmd.name),	    0,		        0 },
+    { "do_fun",	    FIELD_FUNCTION_INT_TO_STR,	U(&tmp_cmd.do_fun),	    U(do_fun_str),	U(do_fun_read) },
+    { "position",	FIELD_FUNCTION_INT16_TO_STR,U(&tmp_cmd.position),   U(position_str),U(position_read) },
+    { "level",	    FIELD_INT16,			    U(&tmp_cmd.level),	    0,		        0 },
+    { "log",		FIELD_INT16_FLAGSTRING,		U(&tmp_cmd.log),	    U(log_flag_table),	0 },
+    { "show",		FIELD_INT16_FLAGSTRING,		U(&tmp_cmd.show),	    U(show_flag_table),	0 },
     { NULL,		    0,				            0,			        0,		        0 }
 };
 
@@ -346,7 +346,7 @@ void load_struct(FILE* fp, uintptr_t base_type, const struct savetable_type* tab
                     flagtable = (struct flag_type*)temp->argument;
                     pInt16 = (int16_t*)(temp->field_ptr - base_type + pointer);
                     string = fread_string(fp);
-                    if ((*pInt16 = flag_value(flagtable, string)) == NO_FLAG)
+                    if ((*pInt16 = (int16_t)flag_value(flagtable, string)) == NO_FLAG)
                         *pInt16 = 0;
                     free_string(string);
                     found = true, cnt++;
@@ -528,7 +528,7 @@ void save_struct(FILE* fp, uintptr_t base_type, const struct savetable_type* tab
 
         cnt++;
     }
-};
+}
 
 void save_command_table()
 {
@@ -552,7 +552,7 @@ void save_command_table()
 
     for (temp = cmd_table; !IS_NULLSTR(temp->name); temp++) {
         fprintf(fp, "#COMMAND\n");
-        save_struct(fp, U(&cmd), cmdsavetable, U(temp));
+        save_struct(fp, U(&tmp_cmd), cmdsavetable, U(temp));
         fprintf(fp, "#END\n\n");
     }
 
@@ -563,9 +563,9 @@ void load_command_table(void)
 {
     FILE* fp;
     extern struct cmd_type* cmd_table;
-    extern size_t MAX_CMD;
+    extern int max_cmd;
     int i = 0;
-    size_t size;
+    int size;
     char* word;
 
     char cmd_file[256];
@@ -579,12 +579,12 @@ void load_command_table(void)
 
     size = fread_number(fp);
 
-    MAX_CMD = size;
+    max_cmd = size;
 
     flog("Creating cmd_table of length %d, size %zu", size + 1,
-        sizeof(struct cmd_type) * (size + 1));
+        sizeof(struct cmd_type) * ((size_t)size + 1));
 
-    if ((cmd_table = calloc(sizeof(struct cmd_type), size + 1)) == NULL) {
+    if ((cmd_table = calloc(sizeof(struct cmd_type), (size_t)size + 1)) == NULL) {
         perror("load_command_table: Could not allocate cmd_table!");
         exit(-1);
     }
@@ -601,7 +601,7 @@ void load_command_table(void)
             return;
         }
 
-        load_struct(fp, U(&cmd), cmdsavetable, U(&cmd_table[i++]));
+        load_struct(fp, U(&tmp_cmd), cmdsavetable, U(&cmd_table[i++]));
 
         if (i == size) {
             flog("Command table loaded.");
@@ -655,7 +655,7 @@ void load_races_table()
             return;
         }
 
-        load_struct(fp, U(&race), racesavetable, U(&race_table[i++]));
+        load_struct(fp, U(&tmp_race), racesavetable, U(&race_table[i++]));
 
         if (i == maxrace) {
             flog("Race table loaded.");
@@ -701,7 +701,7 @@ void load_socials_table()
                 clave);
             exit(1);
         }
-        load_struct(fp, U(&soc), socialsavetable, U(&social_table[i]));
+        load_struct(fp, U(&tmp_soc), socialsavetable, U(&social_table[i]));
     }
 
     /* For backwards compatibility */
@@ -715,10 +715,10 @@ void load_socials_table()
 void load_skills_table()
 {
     FILE* fp;
-    static	struct skill_type skzero;
+    static struct skill_type skzero;
     int i = 0;
     char* word;
-    int max_skill;
+    int tmp_max_skill;
 
     char skill_file[256];
     sprintf(skill_file, "%s%s", area_dir, SKILL_FILE);
@@ -729,22 +729,22 @@ void load_skills_table()
         exit(1);
     }
 
-    if (fscanf(fp, "%d\n", &max_skill) < 1) {
-        bug("load_skills_table(): Could not read MAX_SKILL!");
+    if (fscanf(fp, "%d\n", &tmp_max_skill) < 1) {
+        bug("load_skills_table(): Could not read max_skill!");
         return;
     }
 
-    MAX_SKILL = (size_t)max_skill;
+    max_skill = (SKNUM)tmp_max_skill;
 
     flog("Creating skill table of length %d, size %zu",
-        MAX_SKILL + 1, sizeof(struct skill_type) * (MAX_SKILL + 1));
-    if ((skill_table = calloc(sizeof(struct skill_type), MAX_SKILL + 1)) == NULL) {
+        max_skill + 1, sizeof(struct skill_type) * ((size_t)max_skill + 1));
+    if ((skill_table = calloc(sizeof(struct skill_type), (size_t)max_skill + 1)) == NULL) {
         bug("load_skills_table(): Could not allocate skill_table!");
         return;
     }
 
     if (!skill_table) {
-        bug("Error! Skill_table == NULL, MAX_SKILL : %zu", MAX_SKILL);
+        bug("Error! Skill_table == NULL, max_skill : %d", max_skill);
         exit(1);
     }
 
@@ -759,16 +759,16 @@ void load_skills_table()
             exit(1);
         }
 
-        if (i >= MAX_SKILL) {
-            bug("Load_skills : the number of skills is greater than MAX_SKILL", 0);
+        if (i >= max_skill) {
+            bug("Load_skills : the number of skills is greater than max_skill", 0);
             exit(1);
         }
 
         skill_table[i] = skzero;
-        load_struct(fp, U(&sk), skillsavetable, U(&skill_table[i++]));
+        load_struct(fp, U(&tmp_sk), skillsavetable, U(&skill_table[i++]));
     }
 
-    skill_table[MAX_SKILL].name = NULL;
+    skill_table[max_skill].name = NULL;
 
     fclose(fp);
 }
@@ -795,7 +795,7 @@ void save_races(void)
 
     for (temp = race_table, cnt = 0; !IS_NULLSTR(temp->name); temp++) {
         fprintf(fp, "#race\n");
-        save_struct(fp, U(&race), racesavetable, U(temp));
+        save_struct(fp, U(&tmp_race), racesavetable, U(temp));
         fprintf(fp, "#END\n\n");
     }
 
@@ -835,7 +835,7 @@ void save_socials(void)
 
     for (i = 0; i < maxSocial; i++) {
         fprintf(fp, "#SOCIAL\n");
-        save_struct(fp, U(&soc), socialsavetable, U(&social_table[i]));
+        save_struct(fp, U(&tmp_soc), socialsavetable, U(&social_table[i]));
         fprintf(fp, "#END\n\n");
     }
 
@@ -855,11 +855,11 @@ void save_skills()
         return;
     }
 
-    fprintf(fpn, "%d\n", (int)MAX_SKILL);
+    fprintf(fpn, "%d\n", (int)max_skill);
 
-    for (i = 0; i < MAX_SKILL; ++i) {
+    for (i = 0; i < max_skill; ++i) {
         fprintf(fpn, "#SKILL\n");
-        save_struct(fpn, U(&sk), skillsavetable, U(&skill_table[i]));
+        save_struct(fpn, U(&tmp_sk), skillsavetable, U(&skill_table[i]));
         fprintf(fpn, "#END\n\n");
     }
 
@@ -885,7 +885,7 @@ void save_progs(VNUM minvnum, VNUM maxvnum)
             }
 
             fprintf(fp, "#PROG\n");
-            save_struct(fp, U(&pcode), progcodesavetable, U(pMprog));
+            save_struct(fp, U(&tmp_pcode), progcodesavetable, U(pMprog));
             fprintf(fp, "#END\n\n");
             fclose(fp);
 
@@ -910,7 +910,7 @@ void load_prog(FILE* fp, MPROG_CODE** prog)
     // Clear it
     **prog = mprog_zero;
 
-    load_struct(fp, U(&pcode), progcodesavetable, U(*prog));
+    load_struct(fp, U(&tmp_pcode), progcodesavetable, U(*prog));
 
     // Populate the linked list
     if (mprog_list == NULL)

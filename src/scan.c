@@ -33,9 +33,6 @@
 #include <sys/types.h>
 #include <time.h>
 
-char* const distance[4] = {"right here.", "nearby to the %s.", "not far %s.",
-                           "off in the distance %s."};
-
 void scan_list args((ROOM_INDEX_DATA * scan_room, CHAR_DATA* ch, int16_t depth,
                      int16_t door));
 void scan_char args((CHAR_DATA * victim, CHAR_DATA* ch, int16_t depth,
@@ -110,14 +107,25 @@ void scan_list(ROOM_INDEX_DATA* scan_room, CHAR_DATA* ch, int16_t depth,
 void scan_char(CHAR_DATA* victim, CHAR_DATA* ch, int16_t depth, int16_t door)
 {
     extern char* const dir_name[];
-    extern char* const distance[];
-    char buf[MAX_INPUT_LENGTH], buf2[MAX_INPUT_LENGTH];
+    char buf[MAX_INPUT_LENGTH] = "";
+    char buf2[MAX_INPUT_LENGTH] = "";
 
-    buf[0] = '\0';
-
-    strcat(buf, PERS(victim, ch));
+    sprintf(buf, "%s", PERS(victim, ch));
     strcat(buf, ", ");
-    sprintf(buf2, distance[depth], dir_name[door]);
+    switch (depth) {
+    case 0:
+        sprintf(buf2, "right here.");
+        break;
+    case 1:
+        sprintf(buf2, "nearby to the %s.", dir_name[door]);
+        break;
+    case 2:
+        sprintf(buf2, "not far %s.", dir_name[door]);
+        break;
+    case 4:
+        sprintf(buf2, "off in the distance %s.", dir_name[door]);
+        break;
+    }
     strcat(buf, buf2);
     strcat(buf, "\n\r");
 

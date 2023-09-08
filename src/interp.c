@@ -59,8 +59,8 @@ bool fLogAll = false;
 void init_command_table(void)
 {
     int i, j, cnt, ilet, calc;
-    size_t maxcnt = 0;
-    size_t cntl[27] = { 0 };
+    int maxcnt = 0;
+    int cntl[27] = { 0 };
     char letter;
     struct cmd_type* new_cmd_table;
     struct cmd_type** temp_table;
@@ -71,7 +71,7 @@ void init_command_table(void)
     for (i = 0; i < 26; i++) {
         cnt = 0;
 
-        for (j = 0; j < MAX_CMD; ++j) {
+        for (j = 0; j < max_cmd; ++j) {
             letter = LOWER(cmd_table[j].name[0]) - 'a';
             if (i == (int)letter)
                 cnt++;
@@ -86,7 +86,7 @@ void init_command_table(void)
     for (i = 0; i < (maxcnt * 27); ++i)
         temp_table[i] = NULL;
 
-    for (i = 0; i < MAX_CMD; ++i) {
+    for (i = 0; i < max_cmd; ++i) {
         if (!isalpha(cmd_table[i].name[0]))
             temp_table[cntl[0]++] = &cmd_table[i];
         else {
@@ -100,7 +100,7 @@ void init_command_table(void)
         }
     }
 
-    if ((new_cmd_table = malloc(sizeof(struct cmd_type) * ((size_t)MAX_CMD + 1))) == NULL) {
+    if ((new_cmd_table = malloc(sizeof(struct cmd_type) * ((size_t)max_cmd + 1))) == NULL) {
         perror("init_command_table: Could not allocate new_cmd_table!");
         exit(-1);
     }
@@ -112,7 +112,7 @@ void init_command_table(void)
         i++;
     }
 
-    new_cmd_table[MAX_CMD].name = str_dup("");
+    new_cmd_table[max_cmd].name = str_dup("");
 
     free(temp_table);
     free(cmd_table);

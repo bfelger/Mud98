@@ -75,7 +75,7 @@ void do_gain(CHAR_DATA* ch, char* argument)
                 "group", "cost", "group", "cost");
         send_to_char(buf, ch);
 
-        for (gn = 0; gn < MAX_GROUP; gn++) {
+        for (gn = 0; gn < max_group; gn++) {
             if (group_table[gn].name == NULL) break;
 
             if (!ch->pcdata->group_known[gn]
@@ -96,7 +96,7 @@ void do_gain(CHAR_DATA* ch, char* argument)
                 "skill", "cost", "skill", "cost");
         send_to_char(buf, ch);
 
-        for (sn = 0; sn < MAX_SKILL; sn++) {
+        for (sn = 0; sn < max_skill; sn++) {
             if (skill_table[sn].name == NULL) break;
 
             if (!ch->pcdata->learned[sn]
@@ -174,7 +174,7 @@ void do_gain(CHAR_DATA* ch, char* argument)
         gn_add(ch, gn);
         act("$N trains you in the art of $t", ch, group_table[gn].name, trainer,
             TO_CHAR);
-        ch->train -= group_table[gn].rating[ch->ch_class];
+        ch->train -= (int16_t)group_table[gn].rating[ch->ch_class];
         return;
     }
 
@@ -208,7 +208,7 @@ void do_gain(CHAR_DATA* ch, char* argument)
         ch->pcdata->learned[sn] = 1;
         act("$N trains you in the art of $t", ch, skill_table[sn].name, trainer,
             TO_CHAR);
-        ch->train -= skill_table[sn].rating[ch->ch_class];
+        ch->train -= (int16_t)skill_table[sn].rating[ch->ch_class];
         return;
     }
 
@@ -285,7 +285,7 @@ void do_spells(CHAR_DATA* ch, char* argument)
         spell_columns[level] = 0;
     }
 
-    for (sn = 0; sn < MAX_SKILL; sn++) {
+    for (sn = 0; sn < max_skill; sn++) {
         if (skill_table[sn].name == NULL) break;
 
         if ((level = skill_table[sn].skill_level[ch->ch_class]) < LEVEL_HERO + 1
@@ -405,7 +405,7 @@ void do_skills(CHAR_DATA* ch, char* argument)
         skill_columns[level] = 0;
     }
 
-    for (sn = 0; sn < MAX_SKILL; sn++) {
+    for (sn = 0; sn < max_skill; sn++) {
         if (skill_table[sn].name == NULL) break;
 
         if ((level = skill_table[sn].skill_level[ch->ch_class]) < LEVEL_HERO + 1
@@ -471,7 +471,7 @@ void list_group_costs(CHAR_DATA* ch)
             "cp", "group", "cp");
     send_to_char(buf, ch);
 
-    for (gn = 0; gn < MAX_GROUP; gn++) {
+    for (gn = 0; gn < max_group; gn++) {
         if (group_table[gn].name == NULL) break;
 
         if (!ch->gen_data->group_chosen[gn] && !ch->pcdata->group_known[gn]
@@ -491,7 +491,7 @@ void list_group_costs(CHAR_DATA* ch)
             "cp", "skill", "cp");
     send_to_char(buf, ch);
 
-    for (sn = 0; sn < MAX_SKILL; sn++) {
+    for (sn = 0; sn < max_skill; sn++) {
         if (skill_table[sn].name == NULL) break;
 
         if (!ch->gen_data->skill_chosen[sn] && ch->pcdata->learned[sn] == 0
@@ -527,7 +527,7 @@ void list_group_chosen(CHAR_DATA* ch)
             "cp", "group", "cp\n\r");
     send_to_char(buf, ch);
 
-    for (gn = 0; gn < MAX_GROUP; gn++) {
+    for (gn = 0; gn < max_group; gn++) {
         if (group_table[gn].name == NULL) break;
 
         if (ch->gen_data->group_chosen[gn]
@@ -547,7 +547,7 @@ void list_group_chosen(CHAR_DATA* ch)
             "cp", "skill", "cp\n\r");
     send_to_char(buf, ch);
 
-    for (sn = 0; sn < MAX_SKILL; sn++) {
+    for (sn = 0; sn < max_skill; sn++) {
         if (skill_table[sn].name == NULL) break;
 
         if (ch->gen_data->skill_chosen[sn]
@@ -652,7 +652,7 @@ bool parse_gen_groups(CHAR_DATA* ch, char* argument)
             ch->gen_data->group_chosen[gn] = true;
             ch->gen_data->points_chosen += group_table[gn].rating[ch->ch_class];
             gn_add(ch, gn);
-            ch->pcdata->points += group_table[gn].rating[ch->ch_class];
+            ch->pcdata->points += (int16_t)group_table[gn].rating[ch->ch_class];
             return true;
         }
 
@@ -681,7 +681,7 @@ bool parse_gen_groups(CHAR_DATA* ch, char* argument)
             ch->gen_data->skill_chosen[sn] = true;
             ch->gen_data->points_chosen += skill_table[sn].rating[ch->ch_class];
             ch->pcdata->learned[sn] = 1;
-            ch->pcdata->points += skill_table[sn].rating[ch->ch_class];
+            ch->pcdata->points += (int16_t)skill_table[sn].rating[ch->ch_class];
             return true;
         }
 
@@ -701,10 +701,10 @@ bool parse_gen_groups(CHAR_DATA* ch, char* argument)
             ch->gen_data->group_chosen[gn] = false;
             ch->gen_data->points_chosen -= group_table[gn].rating[ch->ch_class];
             gn_remove(ch, gn);
-            for (i = 0; i < MAX_GROUP; i++) {
+            for (i = 0; i < max_group; i++) {
                 if (ch->gen_data->group_chosen[gn]) gn_add(ch, gn);
             }
-            ch->pcdata->points -= group_table[gn].rating[ch->ch_class];
+            ch->pcdata->points -= (int16_t)group_table[gn].rating[ch->ch_class];
             return true;
         }
 
@@ -714,7 +714,7 @@ bool parse_gen_groups(CHAR_DATA* ch, char* argument)
             ch->gen_data->skill_chosen[sn] = false;
             ch->gen_data->points_chosen -= skill_table[sn].rating[ch->ch_class];
             ch->pcdata->learned[sn] = 0;
-            ch->pcdata->points -= skill_table[sn].rating[ch->ch_class];
+            ch->pcdata->points -= (int16_t)skill_table[sn].rating[ch->ch_class];
             return true;
         }
 
@@ -757,7 +757,7 @@ void do_groups(CHAR_DATA* ch, char* argument)
 
     if (argument[0] == '\0') { /* show all groups */
 
-        for (gn = 0; gn < MAX_GROUP; gn++) {
+        for (gn = 0; gn < max_group; gn++) {
             if (group_table[gn].name == NULL) break;
             if (ch->pcdata->group_known[gn]) {
                 sprintf(buf, "%-20s ", group_table[gn].name);
@@ -773,7 +773,7 @@ void do_groups(CHAR_DATA* ch, char* argument)
 
     if (!str_cmp(argument, "all")) /* show all groups */
     {
-        for (gn = 0; gn < MAX_GROUP; gn++) {
+        for (gn = 0; gn < max_group; gn++) {
             if (group_table[gn].name == NULL) break;
             sprintf(buf, "%-20s ", group_table[gn].name);
             send_to_char(buf, ch);
@@ -842,7 +842,7 @@ void check_improve(CHAR_DATA* ch, int sn, bool success, int multiplier)
                 "You learn from your mistakes, and your %s skill improves.\n\r",
                 skill_table[sn].name);
             send_to_char(buf, ch);
-            ch->pcdata->learned[sn] += number_range(1, 3);
+            ch->pcdata->learned[sn] += (int16_t)number_range(1, 3);
             ch->pcdata->learned[sn] = UMIN(ch->pcdata->learned[sn], 100);
             gain_exp(ch, 2 * skill_table[sn].rating[ch->ch_class]);
         }
@@ -854,7 +854,7 @@ int group_lookup(const char* name)
 {
     int gn;
 
-    for (gn = 0; gn < MAX_GROUP; gn++) {
+    for (gn = 0; gn < max_group; gn++) {
         if (group_table[gn].name == NULL) break;
         if (LOWER(name[0]) == LOWER(group_table[gn].name[0])
             && !str_prefix(name, group_table[gn].name))
@@ -903,7 +903,7 @@ void group_add(CHAR_DATA* ch, const char* name, bool deduct)
         if (ch->pcdata->learned[sn] == 0) /* i.e. not known */
         {
             ch->pcdata->learned[sn] = 1;
-            if (deduct) ch->pcdata->points += skill_table[sn].rating[ch->ch_class];
+            if (deduct) ch->pcdata->points += (int16_t)skill_table[sn].rating[ch->ch_class];
         }
         return;
     }
@@ -915,7 +915,7 @@ void group_add(CHAR_DATA* ch, const char* name, bool deduct)
     if (gn != -1) {
         if (ch->pcdata->group_known[gn] == false) {
             ch->pcdata->group_known[gn] = true;
-            if (deduct) ch->pcdata->points += group_table[gn].rating[ch->ch_class];
+            if (deduct) ch->pcdata->points += (int16_t)group_table[gn].rating[ch->ch_class];
         }
         gn_add(ch, gn); /* make sure all skills in the group are known */
     }

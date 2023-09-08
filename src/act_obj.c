@@ -70,9 +70,11 @@ bool can_loot(CHAR_DATA* ch, OBJ_DATA* obj)
 
     if (!str_cmp(ch->name, owner->name)) return true;
 
-    if (!IS_NPC(owner) && IS_SET(owner->act, PLR_CANLOOT)) return true;
+    if (!IS_NPC(owner) && IS_SET(owner->act, PLR_CANLOOT))
+        return true;
 
-    if (is_same_group(ch, owner)) return true;
+    if (is_same_group(ch, owner))
+        return true;
 
     return false;
 }
@@ -138,8 +140,8 @@ void get_obj(CHAR_DATA* ch, OBJ_DATA* obj, OBJ_DATA* container)
     }
 
     if (obj->item_type == ITEM_MONEY) {
-        ch->silver += obj->value[0];
-        ch->gold += obj->value[1];
+        ch->silver += (int16_t)obj->value[0];
+        ch->gold += (int16_t)obj->value[1];
         if (IS_SET(ch->act, PLR_AUTOSPLIT)) { /* AUTOSPLIT code */
             members = 0;
             for (gch = ch->in_room->people; gch != NULL;
@@ -168,7 +170,7 @@ void do_get(CHAR_DATA* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     OBJ_DATA* obj;
-    OBJ_DATA* obj_next;
+    OBJ_DATA* obj_next = NULL;
     OBJ_DATA* container;
     bool found;
 
@@ -294,7 +296,7 @@ void do_put(CHAR_DATA* ch, char* argument)
     char arg2[MAX_INPUT_LENGTH];
     OBJ_DATA* container;
     OBJ_DATA* obj;
-    OBJ_DATA* obj_next;
+    OBJ_DATA* obj_next = NULL;
 
     argument = one_argument(argument, arg1);
     argument = one_argument(argument, arg2);
@@ -362,7 +364,7 @@ void do_put(CHAR_DATA* ch, char* argument)
             if (obj->timer)
                 SET_BIT(obj->extra_flags, ITEM_HAD_TIMER);
             else
-                obj->timer = number_range(100, 200);
+                obj->timer = (int16_t)number_range(100, 200);
         }
 
         obj_from_char(obj);
@@ -394,7 +396,7 @@ void do_put(CHAR_DATA* ch, char* argument)
                     if (obj->timer)
                         SET_BIT(obj->extra_flags, ITEM_HAD_TIMER);
                     else
-                        obj->timer = number_range(100, 200);
+                        obj->timer = (int16_t)number_range(100, 200);
                 }
                 obj_from_char(obj);
                 obj_to_obj(obj, container);
@@ -418,7 +420,7 @@ void do_drop(CHAR_DATA* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     OBJ_DATA* obj;
-    OBJ_DATA* obj_next;
+    OBJ_DATA* obj_next = NULL;
     bool found;
 
     argument = one_argument(argument, arg);
@@ -430,9 +432,11 @@ void do_drop(CHAR_DATA* ch, char* argument)
 
     if (is_number(arg)) {
         /* 'drop NNNN coins' */
-        int amount, gold = 0, silver = 0;
+        int16_t amount;
+        int16_t gold = 0;
+        int16_t silver = 0;
 
-        amount = atoi(arg);
+        amount = (int16_t)atoi(arg);
         argument = one_argument(argument, arg);
         if (amount <= 0
             || (str_cmp(arg, "coins") && str_cmp(arg, "coin")
@@ -477,18 +481,18 @@ void do_drop(CHAR_DATA* ch, char* argument)
                 break;
 
             case OBJ_VNUM_SILVER_SOME:
-                silver += obj->value[0];
+                silver += (int16_t)obj->value[0];
                 extract_obj(obj);
                 break;
 
             case OBJ_VNUM_GOLD_SOME:
-                gold += obj->value[1];
+                gold += (int16_t)obj->value[1];
                 extract_obj(obj);
                 break;
 
             case OBJ_VNUM_COINS:
-                silver += obj->value[0];
-                gold += obj->value[1];
+                silver += (int16_t)obj->value[0];
+                gold += (int16_t)obj->value[1];
                 extract_obj(obj);
                 break;
             }
@@ -603,12 +607,12 @@ void do_give(CHAR_DATA* ch, char* argument)
         }
 
         if (silver) {
-            ch->silver -= amount;
-            victim->silver += amount;
+            ch->silver -= (int16_t)amount;
+            victim->silver += (int16_t)amount;
         }
         else {
-            ch->gold -= amount;
-            victim->gold += amount;
+            ch->gold -= (int16_t)amount;
+            victim->gold += (int16_t)amount;
         }
 
         sprintf(buf, "$n gives you %d %s.", amount, silver ? "silver" : "gold");
@@ -627,9 +631,11 @@ void do_give(CHAR_DATA* ch, char* argument)
 
             change = (silver ? 95 * amount / 100 / 100 : 95 * amount);
 
-            if (!silver && change > victim->silver) victim->silver += change;
+            if (!silver && change > victim->silver) 
+                victim->silver += (int16_t)change;
 
-            if (silver && change > victim->gold) victim->gold += change;
+            if (silver && change > victim->gold) 
+                victim->gold += (int16_t)change;
 
             if (change < 1 && can_see(victim, ch)) {
                 act("$n tells you 'I'm sorry, you did not give me enough to "
@@ -718,7 +724,7 @@ void do_give(CHAR_DATA* ch, char* argument)
 void do_envenom(CHAR_DATA* ch, char* argument)
 {
     OBJ_DATA* obj;
-    AFFECT_DATA af;
+    AFFECT_DATA af = { 0 };
     int percent, skill;
 
     /* find out what */
@@ -791,8 +797,8 @@ void do_envenom(CHAR_DATA* ch, char* argument)
         if (percent < skill) {
             af.where = TO_WEAPON;
             af.type = gsn_poison;
-            af.level = ch->level * percent / 100;
-            af.duration = ch->level / 2 * percent / 100;
+            af.level = ch->level * (int16_t)percent / 100;
+            af.duration = ((ch->level / 2) * (int16_t)percent) / 100;
             af.location = 0;
             af.modifier = 0;
             af.bitvector = WEAPON_POISON;
@@ -1072,14 +1078,14 @@ void do_drink(CHAR_DATA* ch, char* argument)
 
     if (obj->value[3] != 0) {
         /* The drink was poisoned ! */
-        AFFECT_DATA af;
+        AFFECT_DATA af = { 0 };
 
         act("$n chokes and gags.", ch, NULL, NULL, TO_ROOM);
         send_to_char("You choke and gag.\n\r", ch);
         af.where = TO_AFFECTS;
         af.type = gsn_poison;
-        af.level = number_fuzzy(amount);
-        af.duration = 3 * amount;
+        af.level = (int16_t)number_fuzzy(amount);
+        af.duration = 3 * (int16_t)amount;
         af.location = APPLY_NONE;
         af.modifier = 0;
         af.bitvector = AFF_POISON;
@@ -1138,15 +1144,15 @@ void do_eat(CHAR_DATA* ch, char* argument)
 
         if (obj->value[3] != 0) {
             /* The food was poisoned! */
-            AFFECT_DATA af;
+            AFFECT_DATA af = { 0 };
 
             act("$n chokes and gags.", ch, 0, 0, TO_ROOM);
             send_to_char("You choke and gag.\n\r", ch);
 
             af.where = TO_AFFECTS;
             af.type = gsn_poison;
-            af.level = number_fuzzy(obj->value[0]);
-            af.duration = 2 * obj->value[0];
+            af.level = (int16_t)number_fuzzy(obj->value[0]);
+            af.duration = 2 * (int16_t)obj->value[0];
             af.location = APPLY_NONE;
             af.modifier = 0;
             af.bitvector = AFF_POISON;
@@ -1155,9 +1161,9 @@ void do_eat(CHAR_DATA* ch, char* argument)
         break;
 
     case ITEM_PILL:
-        obj_cast_spell(obj->value[1], obj->value[0], ch, ch, NULL);
-        obj_cast_spell(obj->value[2], obj->value[0], ch, ch, NULL);
-        obj_cast_spell(obj->value[3], obj->value[0], ch, ch, NULL);
+        obj_cast_spell((SKNUM)obj->value[1], (LEVEL)obj->value[0], ch, ch, NULL);
+        obj_cast_spell((SKNUM)obj->value[2], (LEVEL)obj->value[0], ch, ch, NULL);
+        obj_cast_spell((SKNUM)obj->value[3], (LEVEL)obj->value[0], ch, ch, NULL);
         break;
     }
 
@@ -1374,7 +1380,8 @@ void wear_obj(CHAR_DATA* ch, OBJ_DATA* obj, bool fReplace)
     }
 
     if (CAN_WEAR(obj, ITEM_WIELD)) {
-        int sn, skill;
+        SKNUM sn;
+        int skill;
 
         if (!remove_obj(ch, WEAR_WIELD, fReplace)) return;
 
@@ -1398,7 +1405,8 @@ void wear_obj(CHAR_DATA* ch, OBJ_DATA* obj, bool fReplace)
 
         sn = get_weapon_sn(ch);
 
-        if (sn == gsn_hand_to_hand) return;
+        if (sn == gsn_hand_to_hand) 
+            return;
 
         skill = get_weapon_skill(ch, sn);
 
@@ -1457,7 +1465,7 @@ void do_wear(CHAR_DATA* ch, char* argument)
     }
 
     if (!str_cmp(arg, "all")) {
-        OBJ_DATA* obj_next;
+        OBJ_DATA* obj_next = NULL;
 
         for (obj = ch->carrying; obj != NULL; obj = obj_next) {
             obj_next = obj->next_content;
@@ -1504,7 +1512,7 @@ void do_sacrifice(CHAR_DATA* ch, char* argument)
     char arg[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
     OBJ_DATA* obj;
-    int silver;
+    int16_t silver;
 
     /* variables for AUTOSPLIT */
     CHAR_DATA* gch;
@@ -1550,7 +1558,7 @@ void do_sacrifice(CHAR_DATA* ch, char* argument)
     silver = UMAX(1, obj->level * 3);
 
     if (obj->item_type != ITEM_CORPSE_NPC && obj->item_type != ITEM_CORPSE_PC)
-        silver = UMIN(silver, obj->cost);
+        silver = UMIN(silver, (int16_t)obj->cost);
 
     if (silver == 1)
         send_to_char("Mota gives you one silver coin for your sacrifice.\n\r",
@@ -1611,9 +1619,9 @@ void do_quaff(CHAR_DATA* ch, char* argument)
     act("$n quaffs $p.", ch, obj, NULL, TO_ROOM);
     act("You quaff $p.", ch, obj, NULL, TO_CHAR);
 
-    obj_cast_spell(obj->value[1], obj->value[0], ch, ch, NULL);
-    obj_cast_spell(obj->value[2], obj->value[0], ch, ch, NULL);
-    obj_cast_spell(obj->value[3], obj->value[0], ch, ch, NULL);
+    obj_cast_spell((SKNUM)obj->value[1], (LEVEL)obj->value[0], ch, ch, NULL);
+    obj_cast_spell((SKNUM)obj->value[2], (LEVEL)obj->value[0], ch, ch, NULL);
+    obj_cast_spell((SKNUM)obj->value[3], (LEVEL)obj->value[0], ch, ch, NULL);
 
     extract_obj(obj);
     return;
@@ -1665,9 +1673,9 @@ void do_recite(CHAR_DATA* ch, char* argument)
     }
 
     else {
-        obj_cast_spell(scroll->value[1], scroll->value[0], ch, victim, obj);
-        obj_cast_spell(scroll->value[2], scroll->value[0], ch, victim, obj);
-        obj_cast_spell(scroll->value[3], scroll->value[0], ch, victim, obj);
+        obj_cast_spell((SKNUM)scroll->value[1], (LEVEL)scroll->value[0], ch, victim, obj);
+        obj_cast_spell((SKNUM)scroll->value[2], (LEVEL)scroll->value[0], ch, victim, obj);
+        obj_cast_spell((SKNUM)scroll->value[3], (LEVEL)scroll->value[0], ch, victim, obj);
         check_improve(ch, gsn_scrolls, true, 2);
     }
 
@@ -1678,9 +1686,9 @@ void do_recite(CHAR_DATA* ch, char* argument)
 void do_brandish(CHAR_DATA* ch, char* argument)
 {
     CHAR_DATA* vch;
-    CHAR_DATA* vch_next;
+    CHAR_DATA* vch_next = NULL;
     OBJ_DATA* staff;
-    int sn;
+    SKNUM sn;
 
     if ((staff = get_eq_char(ch, WEAR_HOLD)) == NULL) {
         send_to_char("You hold nothing in your hand.\n\r", ch);
@@ -1692,7 +1700,7 @@ void do_brandish(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if ((sn = staff->value[3]) < 0 || sn >= MAX_SKILL
+    if ((sn = (SKNUM)staff->value[3]) < 0 || sn >= max_skill
         || skill_table[sn].spell_fun == 0) {
         bug("Do_brandish: bad sn %d.", sn);
         return;
@@ -1736,7 +1744,7 @@ void do_brandish(CHAR_DATA* ch, char* argument)
                     break;
                 }
 
-                obj_cast_spell(staff->value[3], staff->value[0], ch, vch, NULL);
+                obj_cast_spell((SKNUM)staff->value[3], (LEVEL)staff->value[0], ch, vch, NULL);
                 check_improve(ch, gsn_staves, true, 2);
             }
     }
@@ -1811,7 +1819,7 @@ void do_zap(CHAR_DATA* ch, char* argument)
             check_improve(ch, gsn_wands, false, 2);
         }
         else {
-            obj_cast_spell(wand->value[3], wand->value[0], ch, victim, obj);
+            obj_cast_spell((SKNUM)wand->value[3], (LEVEL)wand->value[0], ch, victim, obj);
             check_improve(ch, gsn_wands, true, 2);
         }
     }
@@ -1922,10 +1930,11 @@ void do_steal(CHAR_DATA* ch, char* argument)
 
     if (!str_cmp(arg1, "coin") || !str_cmp(arg1, "coins")
         || !str_cmp(arg1, "gold") || !str_cmp(arg1, "silver")) {
-        int gold, silver;
+        int16_t gold;
+        int16_t silver;
 
-        gold = victim->gold * number_range(1, ch->level) / MAX_LEVEL;
-        silver = victim->silver * number_range(1, ch->level) / MAX_LEVEL;
+        gold = (int16_t)(victim->gold * number_range(1, ch->level) / MAX_LEVEL);
+        silver = (int16_t)(victim->silver * number_range(1, ch->level) / MAX_LEVEL);
         if (gold <= 0 && silver <= 0) {
             send_to_char("You couldn't get any coins.\n\r", ch);
             return;
@@ -2043,7 +2052,8 @@ CHAR_DATA* find_keeper(CHAR_DATA* ch)
 /* insert an object at the right spot for the keeper */
 void obj_to_keeper(OBJ_DATA* obj, CHAR_DATA* ch)
 {
-    OBJ_DATA *t_obj, *t_obj_next;
+    OBJ_DATA* t_obj;
+    OBJ_DATA* t_obj_next = NULL;
 
     /* see if any duplicates are found */
     for (t_obj = ch->carrying; t_obj != NULL; t_obj = t_obj_next) {
@@ -2073,8 +2083,8 @@ void obj_to_keeper(OBJ_DATA* obj, CHAR_DATA* ch)
     obj->carried_by = ch;
     obj->in_room = NULL;
     obj->in_obj = NULL;
-    ch->carry_number += get_obj_number(obj);
-    ch->carry_weight += get_obj_weight(obj);
+    ch->carry_number += (int16_t)get_obj_number(obj);
+    ch->carry_weight += (int16_t)get_obj_weight(obj);
 }
 
 /* get an object from a shopkeeper's list */
@@ -2150,6 +2160,7 @@ int get_cost(CHAR_DATA* keeper, OBJ_DATA* obj, bool fBuy)
 void do_buy(CHAR_DATA* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
+    //char buf[MAX_STRING_LENGTH];
     int cost, roll;
 
     if (argument[0] == '\0') {
@@ -2159,7 +2170,6 @@ void do_buy(CHAR_DATA* ch, char* argument)
 
     if (IS_SET(ch->in_room->room_flags, ROOM_PET_SHOP)) {
         char arg[MAX_INPUT_LENGTH];
-        char buf[MAX_STRING_LENGTH];
         CHAR_DATA* pet;
         ROOM_INDEX_DATA* pRoomIndexNext;
         ROOM_INDEX_DATA* in_room;
@@ -2336,8 +2346,8 @@ void do_buy(CHAR_DATA* ch, char* argument)
             act(buf, ch, obj, NULL, TO_CHAR);
         }
         deduct_cost(ch, cost * number);
-        keeper->gold += cost * number / 100;
-        keeper->silver += cost * number - (cost * number / 100) * 100;
+        keeper->gold += (int16_t)(cost * number / 100);
+        keeper->silver += (int16_t)(cost * number - (cost * number / 100) * 100);
 
         for (count = 0; count < number; count++) {
             if (IS_SET(obj->extra_flags, ITEM_INVENTORY))
@@ -2496,8 +2506,8 @@ void do_sell(CHAR_DATA* ch, char* argument)
     sprintf(buf, "You sell $p for %d silver and %d gold piece%s.",
             cost - (cost / 100) * 100, cost / 100, cost == 1 ? "" : "s");
     act(buf, ch, obj, NULL, TO_CHAR);
-    ch->gold += cost / 100;
-    ch->silver += cost - (cost / 100) * 100;
+    ch->gold += (int16_t)(cost / 100);
+    ch->silver += (int16_t)(cost - (cost / 100) * 100);
     deduct_cost(keeper, cost);
     if (keeper->gold < 0) keeper->gold = 0;
     if (keeper->silver < 0) keeper->silver = 0;
@@ -2510,7 +2520,7 @@ void do_sell(CHAR_DATA* ch, char* argument)
         if (obj->timer)
             SET_BIT(obj->extra_flags, ITEM_HAD_TIMER);
         else
-            obj->timer = number_range(50, 100);
+            obj->timer = (int16_t)number_range(50, 100);
         obj_to_keeper(obj, keeper);
     }
 

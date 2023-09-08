@@ -157,8 +157,8 @@ GEN_DATA* new_gen_data(void)
     }
     *gen = gen_zero;
 
-    gen->skill_chosen = new_boolarray(MAX_SKILL);
-    gen->group_chosen = new_boolarray(MAX_GROUP);
+    gen->skill_chosen = new_boolarray(max_skill);
+    gen->group_chosen = new_boolarray(max_group);
 
     VALIDATE(gen);
     return gen;
@@ -394,7 +394,7 @@ PC_DATA* new_pcdata()
 
     pcdata->buffer = new_buf();
     pcdata->learned = new_learned();
-    pcdata->group_known = new_boolarray(MAX_GROUP);
+    pcdata->group_known = new_boolarray(max_group);
 
     VALIDATE(pcdata);
     return pcdata;
@@ -497,7 +497,7 @@ const size_t buf_size[MAX_BUF_LIST] = {
 };
 
 /* local procedure for finding the next acceptable size */
-/* -1 indicates out-of-boundary error */
+/* SIZE_MAX indicates out-of-boundary error */
 static size_t get_size(size_t val)
 {
     for (int i = 0; i < MAX_BUF_LIST; i++) {
@@ -505,7 +505,7 @@ static size_t get_size(size_t val)
             return buf_size[i];
     }
 
-    return -1;
+    return SIZE_MAX;
 }
 
 BUFFER* new_buf()
@@ -544,7 +544,7 @@ BUFFER* new_buf_size(int size)
     buffer->next = NULL;
     buffer->state = BUFFER_SAFE;
     buffer->size = get_size(size);
-    if (buffer->size == -1) {
+    if (buffer->size == SIZE_MAX) {
         bug("new_buf: buffer size %d too large.", size);
         exit(1);
     }
@@ -585,7 +585,7 @@ bool add_buf(BUFFER* buffer, char* string)
     if (len >= buffer->size) /* increase the buffer size */
     {
         buffer->size = get_size(len);
-        if (buffer->size == -1) /* overflow */
+        if (buffer->size == SIZE_MAX) /* overflow */
         {
             buffer->size = oldsize;
             buffer->state = BUFFER_OVERFLOW;
@@ -700,17 +700,17 @@ void free_help(HELP_DATA* help)
     help_free = help;
 }
 
-int16_t* new_learned(void) // Return int16_t[MAX_SKILL]
+int16_t* new_learned(void) // Return int16_t[max_skill]
 {
     int16_t* temp;
     int i;
 
-    if ((temp = (int16_t*)malloc(sizeof(int16_t) * MAX_SKILL)) == NULL) {
+    if ((temp = (int16_t*)malloc(sizeof(int16_t) * max_skill)) == NULL) {
         perror("malloc() failed in new_learned()");
         exit(-1);
     }
 
-    for (i = 0; i < MAX_SKILL; ++i)
+    for (i = 0; i < max_skill; ++i)
         temp[i] = 0;
 
     return temp;
@@ -726,7 +726,6 @@ void free_learned(int16_t* temp)
 bool* new_boolarray(size_t size) // Return bool[size]
 {
     bool* temp;
-    int i;
 
     if (size <= 0)
         size = 1;
@@ -736,7 +735,7 @@ bool* new_boolarray(size_t size) // Return bool[size]
         exit(-1);
     }
 
-    for (i = 0; i < size; ++i)
+    for (size_t i = 0; i < size; ++i)
         temp[i] = false;
 
     return temp;

@@ -44,7 +44,7 @@ void do_flag(CHAR_DATA* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH], arg3[MAX_INPUT_LENGTH];
     char word[MAX_INPUT_LENGTH];
     CHAR_DATA* victim;
-    long *flag, old = 0, new = 0, marked = 0, pos;
+    int *flag, old = 0, new = 0, marked = 0, pos;
     char type;
     const struct flag_type* flag_table;
 
@@ -99,7 +99,7 @@ void do_flag(CHAR_DATA* ch, char* argument)
             }
 
             flag = &victim->act;
-            flag_table = act_flags;
+            flag_table = act_flag_table;
         }
 
         else if (!str_prefix(arg3, "plr")) {
@@ -109,27 +109,27 @@ void do_flag(CHAR_DATA* ch, char* argument)
             }
 
             flag = &victim->act;
-            flag_table = plr_flags;
+            flag_table = plr_flag_table;
         }
 
         else if (!str_prefix(arg3, "aff")) {
             flag = &victim->affected_by;
-            flag_table = affect_flags;
+            flag_table = affect_flag_table;
         }
 
         else if (!str_prefix(arg3, "immunity")) {
             flag = &victim->imm_flags;
-            flag_table = imm_flags;
+            flag_table = imm_flag_table;
         }
 
         else if (!str_prefix(arg3, "resist")) {
             flag = &victim->res_flags;
-            flag_table = imm_flags;
+            flag_table = imm_flag_table;
         }
 
         else if (!str_prefix(arg3, "vuln")) {
             flag = &victim->vuln_flags;
-            flag_table = imm_flags;
+            flag_table = imm_flag_table;
         }
 
         else if (!str_prefix(arg3, "form")) {
@@ -139,7 +139,7 @@ void do_flag(CHAR_DATA* ch, char* argument)
             }
 
             flag = &victim->form;
-            flag_table = form_flags;
+            flag_table = form_flag_table;
         }
 
         else if (!str_prefix(arg3, "parts")) {
@@ -149,7 +149,7 @@ void do_flag(CHAR_DATA* ch, char* argument)
             }
 
             flag = &victim->parts;
-            flag_table = part_flags;
+            flag_table = part_flag_table;
         }
 
         else if (!str_prefix(arg3, "comm")) {
@@ -159,7 +159,7 @@ void do_flag(CHAR_DATA* ch, char* argument)
             }
 
             flag = &victim->comm;
-            flag_table = comm_flags;
+            flag_table = comm_flag_table;
         }
 
         else {

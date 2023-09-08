@@ -37,6 +37,9 @@ char* bg_color_to_str(const ColorTheme* theme, const Color* color, bool xterm)
     }
 
     switch (color->mode) {
+    case COLOR_MODE_PAL_IDX:
+        bug("bad color reference (PAL->PAL)");
+        return "";
     case COLOR_MODE_16:
         if (color->code[0] == 0)
             sprintf(buf, "\033[4%dm", color->code[1]);
@@ -85,6 +88,9 @@ char* color_to_str(ColorTheme* theme, Color* color, bool xterm)
         return color->cache;
 
     switch (color->mode) {
+    case COLOR_MODE_PAL_IDX:
+        bug("bad color reference (PAL->PAL)");
+        return "";
     case COLOR_MODE_16:
         if (color->code[0])
             sprintf(buf, "\033[9%dm", color->code[1]);
@@ -122,7 +128,7 @@ char* color_to_str(ColorTheme* theme, Color* color, bool xterm)
 static void list_theme_entry(CHAR_DATA* ch, ColorTheme* theme, const char* owner, bool show_public)
 {
     char out[MAX_STRING_LENGTH];
-    char buf[300];
+    char buf[500];
     bool xterm = ch->pcdata->theme_config.xterm;
 
     char bg_code[50];
@@ -139,11 +145,11 @@ static void list_theme_entry(CHAR_DATA* ch, ColorTheme* theme, const char* owner
     case COLOR_MODE_RGB:
         sprintf(mode, "(24-Bit) ");
         break;
-    default:
+    case COLOR_MODE_PAL_IDX:
         sprintf(mode, "(error) ");
     }
 
-    char public_buf[300] = { 0 };
+    char public_buf[20] = { 0 };
     if (show_public && theme->is_public) {
         sprintf(public_buf, "%s (public)", COLOR2STR(theme, SLOT_ALT_TEXT_2, xterm));
     }
@@ -156,13 +162,13 @@ static void list_theme_entry(CHAR_DATA* ch, ColorTheme* theme, const char* owner
     sprintf(out, "%s                                                                      {x\n\r", bg_code);
 
     // Second line, name and first row of color boxes
-    char name[300] = { 0 };
+    char name[50] = { 0 };
     strcat(name, theme->name);
     if (owner != NULL) {
         size_t pad = strlen(owner) + strlen(name) + 2;
-        char owner_buf[300] = { 0 };
+        char owner_buf[70] = { 0 };
         sprintf(owner_buf, "%s@%s%s", COLOR2STR(theme, SLOT_ALT_TEXT_1, xterm), owner, fg_code);
-        sprintf(buf, "%s%s    %s %s", bg_code, fg_code, owner_buf, name);
+        snprintf(buf, 500, "%s%s    %s %s", bg_code, fg_code, owner_buf, name);
         for (size_t i = pad; i < 30; ++i)
             strcat(buf, " ");
     }
@@ -295,7 +301,7 @@ static inline bool lookup_color(char* argument, Color* color, CHAR_DATA* ch)
             return false;
         }
 
-        set_color_palette_ref(color, idx);
+        set_color_palette_ref(color, (uint8_t)idx);
     }
     else {
         if (ch->pcdata->current_theme->mode == COLOR_MODE_RGB) {
@@ -304,8 +310,8 @@ static inline bool lookup_color(char* argument, Color* color, CHAR_DATA* ch)
             return false;
         }
         // Set it to an ANSI or indexed color.
-        uint8_t code;
-        uint8_t bright;
+        uint8_t code = 0;
+        uint8_t bright = 0;
         bool found = false;
         int pal_max = ch->pcdata->current_theme->palette_max;
 
@@ -382,7 +388,7 @@ static void do_theme_channel(CHAR_DATA* ch, char* argument)
             return;
         }
         else
-            set_color_ansi(&color, idx / 8, idx % 8);
+            set_color_ansi(&color, (uint8_t)idx / 8, (uint8_t)idx % 8);
     }
     else if (theme->mode == COLOR_MODE_256) {
         if (!color_is_num) {
@@ -395,7 +401,7 @@ static void do_theme_channel(CHAR_DATA* ch, char* argument)
             return;
         }
         else
-            set_color_256(&color, idx);
+            set_color_256(&color, (uint8_t)idx);
     }
     else if (theme->mode == COLOR_MODE_RGB) {
         if (!lookup_color(argument, &color, ch))
@@ -582,6 +588,10 @@ static void do_theme_create(CHAR_DATA* ch, char* argument)
     case COLOR_MODE_RGB:
         white = (Color){ .mode = COLOR_MODE_RGB, .code = { 0xC0u, 0xC0u, 0xC0u }, .cache = NULL, .xterm = NULL };
         black = (Color){ .mode = COLOR_MODE_RGB, .code = { 0x00u, 0x00u, 0x00u }, .cache = NULL, .xterm = NULL };
+        break;
+    case COLOR_MODE_PAL_IDX:
+        white = (Color){ .mode = COLOR_MODE_16, .code = { NORMAL, WHITE, 0 }, .cache = NULL, .xterm = NULL };
+        black = (Color){ .mode = COLOR_MODE_16, .code = { NORMAL, BLACK, 0 }, .cache = NULL, .xterm = NULL };
         break;
     }
 
@@ -801,7 +811,7 @@ static void do_theme_palette(CHAR_DATA* ch, char* argument)
             return;
         }
         else
-            set_color_ansi(&color, idx / 8, idx % 8);
+            set_color_ansi(&color, (uint8_t)idx / 8, (uint8_t)idx % 8);
     }
     else if (theme->mode == COLOR_MODE_256) {
         if (!color_is_num) {
@@ -814,7 +824,7 @@ static void do_theme_palette(CHAR_DATA* ch, char* argument)
             return;
         }
         else
-            set_color_256(&color, idx);
+            set_color_256(&color, (uint8_t)idx);
     }
     else if (theme->mode == COLOR_MODE_RGB) {
         if (!lookup_color(argument, &color, ch))
@@ -1071,7 +1081,7 @@ static void do_theme_set(CHAR_DATA* ch, char* argument)
 
     argument = one_argument(argument, opt);
 
-    if (!opt || !opt[0] || !str_prefix(opt, "help")) {
+    if (!opt[0] || !str_prefix(opt, "help")) {
         send_to_char(help, ch);
         return;
     }
@@ -1141,7 +1151,7 @@ static void do_theme_show(CHAR_DATA* ch, char* argument)
     case COLOR_MODE_RGB:
         sprintf(mode, "(24-Bit) ");
         break;
-    default:
+    case COLOR_MODE_PAL_IDX:
         sprintf(mode, "(error) ");
     }
 
@@ -1152,7 +1162,6 @@ static void do_theme_show(CHAR_DATA* ch, char* argument)
     sprintf(out, "\n\r%s{_                                   00  02  04  06  08  10  12  14      {x\n\r", bg_code);
 
     // Second line, name and first row of color boxes
-    char name[50] = { 0 };
     sprintf(buf, "%s{t    %-30s", bg_code, theme->name);
     strcat(out, buf);
     for (int i = 0; i < PALETTE_SIZE; i += 2) {
@@ -1197,7 +1206,7 @@ static void do_theme_show(CHAR_DATA* ch, char* argument)
             sprintf(color_ref, "#%02X%02X%02X;",
                 color->code[0], color->code[1], color->code[2]);
             break;
-        default:
+        case COLOR_MODE_PAL_IDX:
             sprintf(color_ref, "(error)");
             break;
         }

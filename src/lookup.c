@@ -99,11 +99,9 @@ int size_lookup(const char* name)
 }
 
 /* returns race number */
-int race_lookup(const char* name)
+int16_t race_lookup(const char* name)
 {
-    int race;
-
-    for (race = 0; race_table[race].name != NULL; race++) {
+    for (int16_t race = 0; race_table[race].name != NULL; race++) {
         if (LOWER(name[0]) == LOWER(race_table[race].name[0])
             && !str_prefix(name, race_table[race].name))
             return race;
@@ -141,7 +139,8 @@ int liq_lookup(const char* name)
 HELP_DATA* help_lookup(char* keyword)
 {
     HELP_DATA* pHelp;
-    char temp[MIL], argall[MIL];
+    char temp[MIL];
+    char argall[MIL] = "";
 
     argall[0] = '\0';
 

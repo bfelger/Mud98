@@ -51,7 +51,7 @@ bool has_key args((CHAR_DATA * ch, int key));
 void move_char(CHAR_DATA* ch, int door, bool follow)
 {
     CHAR_DATA* fch;
-    CHAR_DATA* fch_next;
+    CHAR_DATA* fch_next = NULL;
     ROOM_INDEX_DATA* in_room;
     ROOM_INDEX_DATA* to_room;
     EXIT_DATA* pexit;
@@ -156,7 +156,7 @@ void move_char(CHAR_DATA* ch, int door, bool follow)
         }
 
         WAIT_STATE(ch, 1);
-        ch->move -= move;
+        ch->move -= (int16_t)move;
     }
 
     if (!IS_AFFECTED(ch, AFF_SNEAK) && ch->invis_level < LEVEL_HERO)
@@ -1253,7 +1253,7 @@ void do_wake(CHAR_DATA* ch, char* argument)
 
 void do_sneak(CHAR_DATA* ch, char* argument)
 {
-    AFFECT_DATA af;
+    AFFECT_DATA af = { 0 };
 
     send_to_char("You attempt to move silently.\n\r", ch);
     affect_strip(ch, gsn_sneak);
@@ -1472,7 +1472,7 @@ void do_train(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        ch->train -= cost;
+        ch->train -= (int16_t)cost;
         ch->pcdata->perm_hit += 10;
         ch->max_hit += 10;
         ch->hit += 10;
@@ -1487,7 +1487,7 @@ void do_train(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        ch->train -= cost;
+        ch->train -= (int16_t)cost;
         ch->pcdata->perm_mana += 10;
         ch->max_mana += 10;
         ch->mana += 10;
@@ -1506,7 +1506,7 @@ void do_train(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    ch->train -= cost;
+    ch->train -= (int16_t)cost;
 
     ch->perm_stat[stat] += 1;
     act("Your $T increases!", ch, NULL, pOutput, TO_CHAR);

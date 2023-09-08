@@ -31,8 +31,6 @@
 
 #include "merc.h"
 
-void show_flags_to_char(CHAR_DATA* ch, const struct flag_type* flags);
-
 struct flag_type {
     char* name;
     int bit;
@@ -65,13 +63,13 @@ struct bit_type {
 };
 
 struct recval_type {
-    int numhit;
-    int typhit;
-    int bonhit;
-    int ac;
-    int numdam;
-    int typdam;
-    int bondam;
+    int16_t numhit;
+    int16_t typhit;
+    int16_t bonhit;
+    int16_t ac;
+    int16_t numdam;
+    int16_t typdam;
+    int16_t bondam;
 };
 
 /* game tables */
@@ -81,49 +79,51 @@ extern const struct sex_type sex_table[];
 extern const struct size_type size_table[];
 
 /* flag tables */
-extern const struct flag_type act_flags[];
-extern const struct flag_type plr_flags[];
-extern const struct flag_type affect_flags[];
-extern const struct flag_type off_flags[];
-extern const struct flag_type imm_flags[];
-extern const struct flag_type form_flags[];
-extern const struct flag_type part_flags[];
-extern const struct flag_type comm_flags[];
-extern const struct flag_type extra_flags[];
-extern const struct flag_type wear_flags[];
-extern const struct flag_type weapon_flags[];
-extern const struct flag_type container_flags[];
-extern const struct flag_type portal_flags[];
-extern const struct flag_type room_flags[];
-extern const struct flag_type exit_flags[];
+extern const struct flag_type act_flag_table[];
+extern const struct flag_type plr_flag_table[];
+extern const struct flag_type affect_flag_table[];
+extern const struct flag_type off_flag_table[];
+extern const struct flag_type imm_flag_table[];
+extern const struct flag_type form_flag_table[];
+extern const struct flag_type part_flag_table[];
+extern const struct flag_type comm_flag_table[];
+extern const struct flag_type extra_flag_table[];
+extern const struct flag_type wear_flag_table[];
+extern const struct flag_type weapon_flag_table[];
+extern const struct flag_type container_flag_table[];
+extern const struct flag_type portal_flag_table[];
+extern const struct flag_type room_flag_table[];
+extern const struct flag_type exit_flag_table[];
 
 /* OLC */
-extern const struct flag_type mprog_flags[];
-extern const struct flag_type area_flags[];
-extern const struct flag_type sector_flags[];
+extern const struct flag_type mprog_flag_table[];
+extern const struct flag_type area_flag_table[];
+extern const struct flag_type sector_flag_table[];
 extern const struct flag_type door_resets[];
 extern const struct flag_type wear_loc_strings[];
-extern const struct flag_type wear_loc_flags[];
-extern const struct flag_type res_flags[];
-extern const struct flag_type imm_flags[];
-extern const struct flag_type vuln_flags[];
-extern const struct flag_type type_flags[];
-extern const struct flag_type apply_flags[];
-extern const struct flag_type sex_flags[];
-extern const struct flag_type furniture_flags[];
+extern const struct flag_type wear_loc_flag_table[];
+extern const struct flag_type res_flag_table[];
+extern const struct flag_type imm_flag_table[];
+extern const struct flag_type vuln_flag_table[];
+extern const struct flag_type type_flag_table[];
+extern const struct flag_type apply_flag_table[];
+extern const struct flag_type sex_flag_table[];
+extern const struct flag_type furniture_flag_table[];
 extern const struct flag_type weapon_class[];
 extern const struct flag_type apply_types[];
 extern const struct flag_type weapon_type2[];
 extern const struct flag_type apply_types[];
-extern const struct flag_type size_flags[];
-extern const struct flag_type position_flags[];
+extern const struct flag_type size_flag_table[];
+extern const struct flag_type position_flag_table[];
 extern const struct flag_type ac_type[];
 extern const struct bit_type bitvector_type[];
 extern const struct recval_type recval_table[];
 extern const struct flag_type target_table[];
 extern const struct flag_type dam_classes[];
-extern const struct flag_type log_flags[];
-extern const struct flag_type show_flags[];
+extern const struct flag_type log_flag_table[];
+extern const struct flag_type show_flag_table[];
 extern const struct flag_type stat_table[];
+
+void show_flags_to_char(CHAR_DATA* ch, const struct flag_type* flags);
 
 #endif // !MUD98__TABLES_H

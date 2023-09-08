@@ -25,13 +25,43 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "interp.h"
 #include "merc.h"
+
+#include "interp.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
 #include <time.h>
+
+typedef struct {
+    const char* short_desc;
+    const char* desc1;
+    const char* desc2;
+} CorpseDesc;
+
+static const CorpseDesc corpse_descs[] = {
+    { "corpse",   "The corpse of ",             " is lying here."           },
+    { "corpse",   "The corpse of ",             " is lying here."           },
+    { "head",     "The severed head of ",       " is lying here."           },
+    { "heart",    "The torn-out heart of ",     " is lying here."           },
+    { "arm",      "The sliced-off arm of ",     " is lying here."           },
+    { "leg",      "The sliced-off leg of ",     " is lying here."           },
+    { "guts",     "A steaming pile of ",        "'s entrails is lying here."},
+    { "brains",   "The splattered brains of ",  " are lying here."          },
+};
+
+#define DESC_CORPSE         0
+#define DESC_CORPSE_PC      1
+#define DESC_SEVERED_HEAD   2
+#define DESC_TORN_HEART     3
+#define DESC_SLICED_ARM     4
+#define DESC_SLICED_LEG     5
+#define DESC_GUTS           6
+#define DESC_BRAINS         7
+
+#define SPRINTF_CORPSE_SDESC(b, t, n)   sprintf(b, "the %s of %s", corpse_descs[t].short_desc, n);
+#define SPRINTF_CORPSE_DESC(b, t, n)   sprintf(b, "%s%s%s", corpse_descs[t].desc1, n, corpse_descs[DESC_CORPSE].desc2);
 
 /*
  * Local functions.
@@ -48,8 +78,8 @@ void group_gain args((CHAR_DATA * ch, CHAR_DATA* victim));
 int xp_compute args((CHAR_DATA * gch, CHAR_DATA* victim, int total_levels));
 bool is_safe args((CHAR_DATA * ch, CHAR_DATA* victim));
 void make_corpse args((CHAR_DATA * ch));
-void one_hit args((CHAR_DATA * ch, CHAR_DATA* victim, int dt));
-void mob_hit args((CHAR_DATA * ch, CHAR_DATA* victim, int dt));
+void one_hit(CHAR_DATA * ch, CHAR_DATA* victim, SKNUM dt);
+void mob_hit(CHAR_DATA * ch, CHAR_DATA* victim, SKNUM dt);
 void raw_kill args((CHAR_DATA * victim));
 void set_fighting args((CHAR_DATA * ch, CHAR_DATA* victim));
 void disarm args((CHAR_DATA * ch, CHAR_DATA* victim));
@@ -92,7 +122,8 @@ void violence_update(void)
 /* for auto assisting */
 void check_assist(CHAR_DATA* ch, CHAR_DATA* victim)
 {
-    CHAR_DATA *rch, *rch_next;
+    CHAR_DATA* rch;
+    CHAR_DATA* rch_next = NULL;
 
     for (rch = ch->in_room->people; rch != NULL; rch = rch_next) {
         rch_next = rch->next_in_room;
@@ -167,7 +198,7 @@ void check_assist(CHAR_DATA* ch, CHAR_DATA* victim)
 /*
  * Do one group of attacks.
  */
-void multi_hit(CHAR_DATA* ch, CHAR_DATA* victim, int dt)
+void multi_hit(CHAR_DATA* ch, CHAR_DATA* victim, SKNUM dt)
 {
     int chance;
 
@@ -217,10 +248,11 @@ void multi_hit(CHAR_DATA* ch, CHAR_DATA* victim, int dt)
 }
 
 /* procedure for all mobile attacks */
-void mob_hit(CHAR_DATA* ch, CHAR_DATA* victim, int dt)
+void mob_hit(CHAR_DATA* ch, CHAR_DATA* victim, SKNUM dt)
 {
     int chance, number;
-    CHAR_DATA *vch, *vch_next;
+    CHAR_DATA* vch;
+    CHAR_DATA* vch_next = NULL;
 
     one_hit(ch, victim, dt);
 
@@ -330,7 +362,7 @@ void mob_hit(CHAR_DATA* ch, CHAR_DATA* victim, int dt)
 /*
  * Hit one guy once.
  */
-void one_hit(CHAR_DATA* ch, CHAR_DATA* victim, int dt)
+void one_hit(CHAR_DATA* ch, CHAR_DATA* victim, SKNUM dt)
 {
     OBJ_DATA* wield;
     int victim_ac;
@@ -339,8 +371,9 @@ void one_hit(CHAR_DATA* ch, CHAR_DATA* victim, int dt)
     int thac0_32;
     int dam;
     int diceroll;
-    int sn, skill;
-    int dam_type;
+    SKNUM sn;
+    int skill;
+    DamageType dam_type;
     bool result;
 
     sn = -1;
@@ -362,7 +395,7 @@ void one_hit(CHAR_DATA* ch, CHAR_DATA* victim, int dt)
     if (dt == TYPE_UNDEFINED) {
         dt = TYPE_HIT;
         if (wield != NULL && wield->item_type == ITEM_WEAPON)
-            dt += wield->value[3];
+            dt += (SKNUM)wield->value[3];
         else
             dt += ch->dam_type;
     }
@@ -375,7 +408,8 @@ void one_hit(CHAR_DATA* ch, CHAR_DATA* victim, int dt)
     else
         dam_type = attack_table[dt - TYPE_HIT].damage;
 
-    if (dam_type == -1) dam_type = DAM_BASH;
+    if (dam_type == DAM_NOT_FOUND) 
+        dam_type = DAM_BASH;
 
     /* get the weapon skill */
     sn = get_weapon_sn(ch);
@@ -412,15 +446,33 @@ void one_hit(CHAR_DATA* ch, CHAR_DATA* victim, int dt)
     if (dt == gsn_backstab) thac0 -= 10 * (100 - get_skill(ch, gsn_backstab));
 
     switch (dam_type) {
-    case (DAM_PIERCE):
+    case DAM_PIERCE:
         victim_ac = GET_AC(victim, AC_PIERCE) / 10;
         break;
-    case (DAM_BASH):
+    case DAM_BASH:
         victim_ac = GET_AC(victim, AC_BASH) / 10;
         break;
-    case (DAM_SLASH):
+    case DAM_SLASH:
         victim_ac = GET_AC(victim, AC_SLASH) / 10;
         break;
+    case DAM_NONE:
+    case DAM_FIRE:
+    case DAM_COLD:
+    case DAM_LIGHTNING:
+    case DAM_ACID:
+    case DAM_POISON:
+    case DAM_NEGATIVE:
+    case DAM_HOLY:
+    case DAM_ENERGY:
+    case DAM_MENTAL:
+    case DAM_DISEASE:
+    case DAM_DROWNING:
+    case DAM_LIGHT:
+    case DAM_OTHER:
+    case DAM_CHARM:
+    case DAM_HARM:
+    case DAM_SOUND:
+    case DAM_NOT_FOUND:
     default:
         victim_ac = GET_AC(victim, AC_EXOTIC) / 10;
         break;
@@ -518,11 +570,11 @@ void one_hit(CHAR_DATA* ch, CHAR_DATA* victim, int dt)
 
     /* but do we have a funky weapon? */
     if (result && wield != NULL) {
-        int dam;
 
         if (ch->fighting == victim && IS_WEAPON_STAT(wield, WEAPON_POISON)) {
-            int level;
-            AFFECT_DATA *poison, af;
+            LEVEL level;
+            AFFECT_DATA* poison;
+            AFFECT_DATA af = { 0 };
 
             if ((poison = affect_find(wield->affected, gsn_poison)) == NULL)
                 level = wield->level;
@@ -537,8 +589,8 @@ void one_hit(CHAR_DATA* ch, CHAR_DATA* victim, int dt)
 
                 af.where = TO_AFFECTS;
                 af.type = gsn_poison;
-                af.level = level * 3 / 4;
-                af.duration = level / 2;
+                af.level = (int16_t)level * 3 / 4;
+                af.duration = (int16_t)level / 2;
                 af.location = APPLY_STR;
                 af.modifier = -1;
                 af.bitvector = AFF_POISON;
@@ -563,7 +615,7 @@ void one_hit(CHAR_DATA* ch, CHAR_DATA* victim, int dt)
                 TO_CHAR);
             damage(ch, victim, dam, 0, DAM_NEGATIVE, false);
             ch->alignment = UMAX(-1000, ch->alignment - 1);
-            ch->hit += dam / 2;
+            ch->hit += (int16_t)dam / 2;
         }
 
         if (ch->fighting == victim && IS_WEAPON_STAT(wield, WEAPON_FLAMING)) {
@@ -599,8 +651,8 @@ void one_hit(CHAR_DATA* ch, CHAR_DATA* victim, int dt)
 /*
  * Inflict damage from a hit.
  */
-bool damage(CHAR_DATA* ch, CHAR_DATA* victim, int dam, int dt, int dam_type,
-            bool show)
+bool damage(CHAR_DATA* ch, CHAR_DATA* victim, int dam, SKNUM dt, 
+    DamageType dam_type, bool show)
 {
     OBJ_DATA* corpse;
     bool immune;
@@ -711,7 +763,7 @@ bool damage(CHAR_DATA* ch, CHAR_DATA* victim, int dam, int dt, int dam_type,
      * Hurt the victim.
      * Inform the victim of his new state.
      */
-    victim->hit -= dam;
+    victim->hit -= (int16_t)dam;
     if (!IS_NPC(victim) && victim->level >= LEVEL_IMMORTAL && victim->hit < 1)
         victim->hit = 1;
     update_pos(victim);
@@ -1074,8 +1126,6 @@ void check_killer(CHAR_DATA* ch, CHAR_DATA* victim)
      */
     if (IS_SET(ch->affected_by, AFF_CHARM)) {
         if (ch->master == NULL) {
-            char buf[MAX_STRING_LENGTH];
-
             sprintf(buf, "Check_killer: %s bad AFF_CHARM",
                     IS_NPC(ch) ? ch->short_descr : ch->name);
             bug(buf, 0);
@@ -1255,13 +1305,13 @@ void make_corpse(CHAR_DATA* ch)
     char buf[MAX_STRING_LENGTH];
     OBJ_DATA* corpse;
     OBJ_DATA* obj;
-    OBJ_DATA* obj_next;
+    OBJ_DATA* obj_next = NULL;
     char* name;
 
     if (IS_NPC(ch)) {
         name = ch->short_descr;
         corpse = create_object(get_obj_index(OBJ_VNUM_CORPSE_NPC), 0);
-        corpse->timer = number_range(3, 6);
+        corpse->timer = (int16_t)number_range(3, 6);
         if (ch->gold > 0) {
             obj_to_obj(create_money(ch->gold, ch->silver), corpse);
             ch->gold = 0;
@@ -1272,7 +1322,7 @@ void make_corpse(CHAR_DATA* ch)
     else {
         name = ch->name;
         corpse = create_object(get_obj_index(OBJ_VNUM_CORPSE_PC), 0);
-        corpse->timer = number_range(25, 40);
+        corpse->timer = (int16_t)number_range(25, 40);
         REMOVE_BIT(ch->act, PLR_CANLOOT);
         if (!is_clan(ch))
             corpse->owner = str_dup(ch->name);
@@ -1290,11 +1340,11 @@ void make_corpse(CHAR_DATA* ch)
 
     corpse->level = ch->level;
 
-    sprintf(buf, corpse->short_descr, name);
+    SPRINTF_CORPSE_SDESC(buf, DESC_CORPSE, name);
     free_string(corpse->short_descr);
     corpse->short_descr = str_dup(buf);
 
-    sprintf(buf, corpse->description, name);
+    SPRINTF_CORPSE_DESC(buf, DESC_CORPSE, name);
     free_string(corpse->description);
     corpse->description = str_dup(buf);
 
@@ -1304,11 +1354,12 @@ void make_corpse(CHAR_DATA* ch)
         obj_next = obj->next_content;
         if (obj->wear_loc == WEAR_FLOAT) floating = true;
         obj_from_char(obj);
-        if (obj->item_type == ITEM_POTION) obj->timer = number_range(500, 1000);
+        if (obj->item_type == ITEM_POTION) 
+            obj->timer = (int16_t)number_range(500, 1000);
         if (obj->item_type == ITEM_SCROLL)
-            obj->timer = number_range(1000, 2500);
+            obj->timer = (int16_t)number_range(1000, 2500);
         if (IS_SET(obj->extra_flags, ITEM_ROT_DEATH) && !floating) {
-            obj->timer = number_range(5, 10);
+            obj->timer = (int16_t)number_range(5, 10);
             REMOVE_BIT(obj->extra_flags, ITEM_ROT_DEATH);
         }
         REMOVE_BIT(obj->extra_flags, ITEM_VIS_DEATH);
@@ -1319,7 +1370,8 @@ void make_corpse(CHAR_DATA* ch)
             if (IS_OBJ_STAT(obj, ITEM_ROT_DEATH)) /* get rid of it! */
             {
                 if (obj->contains != NULL) {
-                    OBJ_DATA *in, *in_next;
+                    OBJ_DATA* in;
+                    OBJ_DATA* in_next = NULL;
 
                     act("$p evaporates,scattering its contents.", ch, obj, NULL,
                         TO_ROOM);
@@ -1366,8 +1418,8 @@ void death_cry(CHAR_DATA* ch)
     case 1:
         if (ch->material == 0) {
             msg = "$n splatters blood on your armor.";
-            break;
         }
+        break;
     case 2:
         if (IS_SET(ch->parts, PART_GUTS)) {
             msg = "$n spills $s guts all over the floor.";
@@ -1414,13 +1466,13 @@ void death_cry(CHAR_DATA* ch)
 
         name = IS_NPC(ch) ? ch->short_descr : ch->name;
         obj = create_object(get_obj_index(vnum), 0);
-        obj->timer = number_range(4, 7);
+        obj->timer = (int16_t)number_range(4, 7);
 
-        sprintf(buf, obj->short_descr, name);
+        SPRINTF_CORPSE_SDESC(buf, vnum - OBJ_VNUM_CORPSE_NPC, name);
         free_string(obj->short_descr);
         obj->short_descr = str_dup(buf);
 
-        sprintf(buf, obj->description, name);
+        SPRINTF_CORPSE_DESC(buf, vnum - OBJ_VNUM_CORPSE_NPC, name);
         free_string(obj->description);
         obj->description = str_dup(buf);
 
@@ -1513,7 +1565,7 @@ void group_gain(CHAR_DATA* ch, CHAR_DATA* victim)
 
     for (gch = ch->in_room->people; gch != NULL; gch = gch->next_in_room) {
         OBJ_DATA* obj;
-        OBJ_DATA* obj_next;
+        OBJ_DATA* obj_next = NULL;
 
         if (!is_same_group(gch, ch) || IS_NPC(gch)) continue;
 
@@ -1630,7 +1682,7 @@ int xp_compute(CHAR_DATA* gch, CHAR_DATA* victim, int total_levels)
     {
         change = (align - 500) * base_exp / 500 * gch->level / total_levels;
         change = UMAX(1, change);
-        gch->alignment = UMAX(-1000, gch->alignment - change);
+        gch->alignment = UMAX(-1000, gch->alignment - (int16_t)change);
     }
 
     else if (align < -500) /* monster is more evil than slayer */
@@ -1638,13 +1690,13 @@ int xp_compute(CHAR_DATA* gch, CHAR_DATA* victim, int total_levels)
         change
             = (-1 * align - 500) * base_exp / 500 * gch->level / total_levels;
         change = UMAX(1, change);
-        gch->alignment = UMIN(1000, gch->alignment + change);
+        gch->alignment = UMIN(1000, gch->alignment + (int16_t)change);
     }
 
     else /* improve this someday */
     {
         change = gch->alignment * base_exp / 500 * gch->level / total_levels;
-        gch->alignment -= change;
+        gch->alignment -= (int16_t)change;
     }
 
     /* calculate exp multiplier */
@@ -1872,7 +1924,7 @@ void dam_message(CHAR_DATA* ch, CHAR_DATA* victim, int dam, int dt, bool immune)
         }
     }
     else {
-        if (dt >= 0 && dt < MAX_SKILL)
+        if (dt >= 0 && dt < max_skill)
             attack = skill_table[dt].noun_damage;
         else if (dt >= TYPE_HIT && dt < TYPE_HIT + MAX_DAMAGE_MESSAGE)
             attack = attack_table[dt - TYPE_HIT].noun;
@@ -1993,7 +2045,7 @@ void do_berserk(CHAR_DATA* ch, char* argument)
     chance += 25 - hp_percent / 2;
 
     if (number_percent() < chance) {
-        AFFECT_DATA af;
+        AFFECT_DATA af = { 0 };
 
         WAIT_STATE(ch, PULSE_VIOLENCE);
         ch->mana -= 50;
@@ -2010,7 +2062,7 @@ void do_berserk(CHAR_DATA* ch, char* argument)
         af.where = TO_AFFECTS;
         af.type = gsn_berserk;
         af.level = ch->level;
-        af.duration = number_fuzzy(ch->level / 8);
+        af.duration = (int16_t)number_fuzzy(ch->level / 8);
         af.modifier = UMAX(1, ch->level / 5);
         af.bitvector = AFF_BERSERK;
 
@@ -2263,7 +2315,7 @@ void do_dirt(CHAR_DATA* ch, char* argument)
 
     /* now the attack */
     if (number_percent() < chance) {
-        AFFECT_DATA af;
+        AFFECT_DATA af = { 0 };
         act("{5$n is blinded by the dirt in $s eyes!{x", victim, NULL, NULL,
             TO_ROOM);
         act("{5$n kicks dirt in your eyes!{x", ch, NULL, victim, TO_VICT);

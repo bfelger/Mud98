@@ -120,8 +120,8 @@ HELP_AREA* new_had args((void));
 HELP_DATA* new_help args((void));
 void free_help args((HELP_DATA*));
 
-int16_t* new_learned args((void));
-void free_learned args((int16_t*));
+SKNUM* new_learned();
+void free_learned(SKNUM*);
 
 bool* new_boolarray(size_t);
 void free_boolarray(bool*);

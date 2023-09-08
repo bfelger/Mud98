@@ -205,7 +205,7 @@ void do_guild(CHAR_DATA* ch, char* argument)
                 capitalize(clan_table[clan].name));
     }
 
-    victim->clan = clan;
+    victim->clan = (int16_t)clan;
 }
 
 /* equips a character */
@@ -313,7 +313,7 @@ void do_smote(CHAR_DATA* ch, char* argument)
     char *letter, *name;
     char last[MAX_INPUT_LENGTH] = "";
     char temp[MAX_STRING_LENGTH];
-    int matches = 0;
+    size_t matches = 0;
 
     if (!IS_NPC(ch) && IS_SET(ch->comm, COMM_NOEMOTE)) {
         send_to_char("You can't show your emotions.\n\r", ch);
@@ -492,9 +492,9 @@ void do_disconnect(CHAR_DATA* ch, char* argument)
     }
 
     if (is_number(arg)) {
-        int desc;
+        SOCKET desc;
 
-        desc = atoi(arg);
+        desc = (SOCKET)atoi(arg);
         for (d = descriptor_list; d != NULL; d = d->next) {
             if (d->client.fd == desc) {
                 close_socket(d);
@@ -1105,25 +1105,25 @@ void do_ostat(CHAR_DATA* ch, char* argument)
         sprintf(buf, "Level %d spells of:", obj->value[0]);
         send_to_char(buf, ch);
 
-        if (obj->value[1] >= 0 && obj->value[1] < MAX_SKILL) {
+        if (obj->value[1] >= 0 && obj->value[1] < max_skill) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[1]].name, ch);
             send_to_char("'", ch);
         }
 
-        if (obj->value[2] >= 0 && obj->value[2] < MAX_SKILL) {
+        if (obj->value[2] >= 0 && obj->value[2] < max_skill) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[2]].name, ch);
             send_to_char("'", ch);
         }
 
-        if (obj->value[3] >= 0 && obj->value[3] < MAX_SKILL) {
+        if (obj->value[3] >= 0 && obj->value[3] < max_skill) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[3]].name, ch);
             send_to_char("'", ch);
         }
 
-        if (obj->value[4] >= 0 && obj->value[4] < MAX_SKILL) {
+        if (obj->value[4] >= 0 && obj->value[4] < max_skill) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[4]].name, ch);
             send_to_char("'", ch);
@@ -1138,7 +1138,7 @@ void do_ostat(CHAR_DATA* ch, char* argument)
                 obj->value[2], obj->value[0]);
         send_to_char(buf, ch);
 
-        if (obj->value[3] >= 0 && obj->value[3] < MAX_SKILL) {
+        if (obj->value[3] >= 0 && obj->value[3] < max_skill) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[3]].name, ch);
             send_to_char("'", ch);
@@ -1383,7 +1383,7 @@ void do_mstat(CHAR_DATA* ch, char* argument)
     send_to_char(buf, ch);
 
     sprintf(buf,
-            "Lv: %d  Class: %s  Align: %d  Gold: %ld  Silver: %ld  Exp: %d\n\r",
+            "Lv: %d  Class: %s  Align: %d  Gold: %d  Silver: %d  Exp: %d\n\r",
             victim->level,
             IS_NPC(victim) ? "mobile" : class_table[victim->ch_class].name,
             victim->alignment, victim->gold, victim->silver, victim->exp);
@@ -1421,7 +1421,7 @@ void do_mstat(CHAR_DATA* ch, char* argument)
         send_to_char(buf, ch);
     }
 
-    sprintf(buf, "Carry number: %d  Carry weight: %ld\n\r",
+    sprintf(buf, "Carry number: %d  Carry weight: %d\n\r",
             victim->carry_number, get_carry_weight(victim) / 10);
     send_to_char(buf, ch);
 
@@ -2186,7 +2186,7 @@ void do_oload(CHAR_DATA* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
     OBJ_INDEX_DATA* pObjIndex;
     OBJ_DATA* obj;
-    int level;
+    LEVEL level;
 
     argument = one_argument(argument, arg1);
     one_argument(argument, arg2);
@@ -2204,7 +2204,7 @@ void do_oload(CHAR_DATA* ch, char* argument)
             send_to_char("Syntax: oload <vnum> <level>.\n\r", ch);
             return;
         }
-        level = atoi(arg2);
+        level = (LEVEL)atoi(arg2);
         if (level < 0 || level > get_trust(ch)) {
             send_to_char("Level must be be between 0 and your level.\n\r", ch);
             return;
@@ -2298,7 +2298,7 @@ void do_advance(CHAR_DATA* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     CHAR_DATA* victim;
-    int level;
+    LEVEL level;
     int iLevel;
 
     argument = one_argument(argument, arg1);
@@ -2319,7 +2319,7 @@ void do_advance(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if ((level = atoi(arg2)) < 1 || level > MAX_LEVEL) {
+    if ((level = (LEVEL)atoi(arg2)) < 1 || level > MAX_LEVEL) {
         sprintf(buf, "Level must be 1 to %d.\n\r", MAX_LEVEL);
         send_to_char(buf, ch);
         return;
@@ -2338,7 +2338,7 @@ void do_advance(CHAR_DATA* ch, char* argument)
      *   -- Swiftest
      */
     if (level <= victim->level) {
-        int temp_prac;
+        int16_t temp_prac;
 
         send_to_char("Lowering a player's level!\n\r", ch);
         send_to_char("**** OOOOHHHHHHHHHH  NNNNOOOO ****\n\r", victim);
@@ -2379,7 +2379,7 @@ void do_trust(CHAR_DATA* ch, char* argument)
     char arg2[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
     CHAR_DATA* victim;
-    int level;
+    LEVEL level;
 
     argument = one_argument(argument, arg1);
     argument = one_argument(argument, arg2);
@@ -2394,7 +2394,7 @@ void do_trust(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if ((level = atoi(arg2)) < 0 || level > MAX_LEVEL) {
+    if ((level = (LEVEL)atoi(arg2)) < 0 || level > MAX_LEVEL) {
         sprintf(buf, "Level must be 0 (reset) or 1 to %d.\n\r", MAX_LEVEL);
         send_to_char(buf, ch);
         return;
@@ -2763,7 +2763,7 @@ void do_slookup(CHAR_DATA* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    int sn;
+    SKNUM sn;
 
     one_argument(argument, arg);
     if (arg[0] == '\0') {
@@ -2772,7 +2772,7 @@ void do_slookup(CHAR_DATA* ch, char* argument)
     }
 
     if (!str_cmp(arg, "all")) {
-        for (sn = 0; sn < MAX_SKILL; sn++) {
+        for (sn = 0; sn < max_skill; sn++) {
             if (skill_table[sn].name == NULL) break;
             sprintf(buf, "Sn: %3d  Slot: %3d  Skill/spell: '%s'\n\r", sn,
                     skill_table[sn].slot, skill_table[sn].name);
@@ -2840,7 +2840,7 @@ void do_sset(CHAR_DATA* ch, char* argument)
     char arg3[MAX_INPUT_LENGTH];
     CHAR_DATA* victim;
     int value;
-    int sn;
+    SKNUM sn;
     bool fAll;
 
     argument = one_argument(argument, arg1);
@@ -2887,13 +2887,13 @@ void do_sset(CHAR_DATA* ch, char* argument)
     }
 
     if (fAll) {
-        for (sn = 0; sn < MAX_SKILL; sn++) {
+        for (sn = 0; sn < max_skill; sn++) {
             if (skill_table[sn].name != NULL)
-                victim->pcdata->learned[sn] = value;
+                victim->pcdata->learned[sn] = (int16_t)value;
         }
     }
     else {
-        victim->pcdata->learned[sn] = value;
+        victim->pcdata->learned[sn] = (int16_t)value;
     }
 
     return;
@@ -2974,7 +2974,7 @@ void do_mset(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        victim->perm_stat[STAT_STR] = value;
+        victim->perm_stat[STAT_STR] = (int16_t)value;
         return;
     }
 
@@ -2986,7 +2986,7 @@ void do_mset(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        victim->perm_stat[STAT_INT] = value;
+        victim->perm_stat[STAT_INT] = (int16_t)value;
         return;
     }
 
@@ -2998,7 +2998,7 @@ void do_mset(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        victim->perm_stat[STAT_WIS] = value;
+        victim->perm_stat[STAT_WIS] = (int16_t)value;
         return;
     }
 
@@ -3010,7 +3010,7 @@ void do_mset(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        victim->perm_stat[STAT_DEX] = value;
+        victim->perm_stat[STAT_DEX] = (int16_t)value;
         return;
     }
 
@@ -3022,7 +3022,7 @@ void do_mset(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        victim->perm_stat[STAT_CON] = value;
+        victim->perm_stat[STAT_CON] = (int16_t)value;
         return;
     }
 
@@ -3031,27 +3031,26 @@ void do_mset(CHAR_DATA* ch, char* argument)
             send_to_char("Sex range is 0 to 2.\n\r", ch);
             return;
         }
-        victim->sex = value;
-        if (!IS_NPC(victim)) victim->pcdata->true_sex = value;
+        victim->sex = (int16_t)value;
+        if (!IS_NPC(victim)) victim->pcdata->true_sex = (int16_t)value;
         return;
     }
 
     if (!str_prefix(arg2, "class")) {
-        int class;
+        int16_t ch_class;
 
         if (IS_NPC(victim)) {
             send_to_char("Mobiles have no class.\n\r", ch);
             return;
         }
 
-        class = class_lookup(arg3);
-        if (class == -1) {
-            char buf[MAX_STRING_LENGTH];
-
+        ch_class = (int16_t)class_lookup(arg3);
+        if (ch_class == -1) {
             strcpy(buf, "Possible classes are: ");
-            for (class = 0; class < MAX_CLASS; class ++) {
-                if (class > 0) strcat(buf, " ");
-                strcat(buf, class_table[class].name);
+            for (ch_class = 0; ch_class < MAX_CLASS; ch_class++) {
+                if (ch_class > 0) 
+                    strcat(buf, " ");
+                strcat(buf, class_table[ch_class].name);
             }
             strcat(buf, ".\n\r");
 
@@ -3059,7 +3058,7 @@ void do_mset(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        victim->ch_class = class;
+        victim->ch_class = ch_class;
         return;
     }
 
@@ -3074,17 +3073,17 @@ void do_mset(CHAR_DATA* ch, char* argument)
             send_to_char(buf, ch);
             return;
         }
-        victim->level = value;
+        victim->level = (int16_t)value;
         return;
     }
 
     if (!str_prefix(arg2, "gold")) {
-        victim->gold = value;
+        victim->gold = (int16_t)value;
         return;
     }
 
     if (!str_prefix(arg2, "silver")) {
-        victim->silver = value;
+        victim->silver = (int16_t)value;
         return;
     }
 
@@ -3093,8 +3092,8 @@ void do_mset(CHAR_DATA* ch, char* argument)
             send_to_char("Hp range is -10 to 30,000 hit points.\n\r", ch);
             return;
         }
-        victim->max_hit = value;
-        if (!IS_NPC(victim)) victim->pcdata->perm_hit = value;
+        victim->max_hit = (int16_t)value;
+        if (!IS_NPC(victim)) victim->pcdata->perm_hit = (int16_t)value;
         return;
     }
 
@@ -3103,8 +3102,8 @@ void do_mset(CHAR_DATA* ch, char* argument)
             send_to_char("Mana range is 0 to 30,000 mana points.\n\r", ch);
             return;
         }
-        victim->max_mana = value;
-        if (!IS_NPC(victim)) victim->pcdata->perm_mana = value;
+        victim->max_mana = (int16_t)value;
+        if (!IS_NPC(victim)) victim->pcdata->perm_mana = (int16_t)value;
         return;
     }
 
@@ -3113,8 +3112,8 @@ void do_mset(CHAR_DATA* ch, char* argument)
             send_to_char("Move range is 0 to 30,000 move points.\n\r", ch);
             return;
         }
-        victim->max_move = value;
-        if (!IS_NPC(victim)) victim->pcdata->perm_move = value;
+        victim->max_move = (int16_t)value;
+        if (!IS_NPC(victim)) victim->pcdata->perm_move = (int16_t)value;
         return;
     }
 
@@ -3123,7 +3122,7 @@ void do_mset(CHAR_DATA* ch, char* argument)
             send_to_char("Practice range is 0 to 250 sessions.\n\r", ch);
             return;
         }
-        victim->practice = value;
+        victim->practice = (int16_t)value;
         return;
     }
 
@@ -3132,7 +3131,7 @@ void do_mset(CHAR_DATA* ch, char* argument)
             send_to_char("Training session range is 0 to 50 sessions.\n\r", ch);
             return;
         }
-        victim->train = value;
+        victim->train = (int16_t)value;
         return;
     }
 
@@ -3141,7 +3140,7 @@ void do_mset(CHAR_DATA* ch, char* argument)
             send_to_char("Alignment range is -1000 to 1000.\n\r", ch);
             return;
         }
-        victim->alignment = value;
+        victim->alignment = (int16_t)value;
         return;
     }
 
@@ -3156,7 +3155,7 @@ void do_mset(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        victim->pcdata->condition[COND_THIRST] = value;
+        victim->pcdata->condition[COND_THIRST] = (int16_t)value;
         return;
     }
 
@@ -3171,7 +3170,7 @@ void do_mset(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        victim->pcdata->condition[COND_DRUNK] = value;
+        victim->pcdata->condition[COND_DRUNK] = (int16_t)value;
         return;
     }
 
@@ -3186,7 +3185,7 @@ void do_mset(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        victim->pcdata->condition[COND_FULL] = value;
+        victim->pcdata->condition[COND_FULL] = (int16_t)value;
         return;
     }
 
@@ -3201,7 +3200,7 @@ void do_mset(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        victim->pcdata->condition[COND_HUNGER] = value;
+        victim->pcdata->condition[COND_HUNGER] = (int16_t)value;
         return;
     }
 
@@ -3220,7 +3219,7 @@ void do_mset(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        victim->race = race;
+        victim->race = (int16_t)race;
         return;
     }
 
@@ -3229,7 +3228,7 @@ void do_mset(CHAR_DATA* ch, char* argument)
             send_to_char("Only on NPCs.\n\r", ch);
             return;
         }
-        victim->group = value;
+        victim->group = (int16_t)value;
         return;
     }
 
@@ -3453,12 +3452,12 @@ void do_oset(CHAR_DATA* ch, char* argument)
     }
 
     if (!str_prefix(arg2, "level")) {
-        obj->level = value;
+        obj->level = (int16_t)value;
         return;
     }
 
     if (!str_prefix(arg2, "weight")) {
-        obj->weight = value;
+        obj->weight = (int16_t)value;
         return;
     }
 
@@ -3468,7 +3467,7 @@ void do_oset(CHAR_DATA* ch, char* argument)
     }
 
     if (!str_prefix(arg2, "timer")) {
-        obj->timer = value;
+        obj->timer = (int16_t)value;
         return;
     }
 
@@ -3529,7 +3528,7 @@ void do_rset(CHAR_DATA* ch, char* argument)
     }
 
     if (!str_prefix(arg2, "sector")) {
-        location->sector_type = value;
+        location->sector_type = (int16_t)value;
         return;
     }
 
@@ -3702,7 +3701,7 @@ void do_force(CHAR_DATA* ch, char* argument)
  */
 void do_invis(CHAR_DATA* ch, char* argument)
 {
-    int level;
+    LEVEL level;
     char arg[MAX_STRING_LENGTH];
 
     /* RT code for taking a level argument */
@@ -3723,7 +3722,7 @@ void do_invis(CHAR_DATA* ch, char* argument)
     else
     /* do the level thing */
     {
-        level = atoi(arg);
+        level = (LEVEL)atoi(arg);
         if (level < 2 || level > get_trust(ch)) {
             send_to_char("Invis level must be between 2 and your level.\n\r",
                          ch);
@@ -3742,7 +3741,7 @@ void do_invis(CHAR_DATA* ch, char* argument)
 
 void do_incognito(CHAR_DATA* ch, char* argument)
 {
-    int level;
+    LEVEL level;
     char arg[MAX_STRING_LENGTH];
 
     /* RT code for taking a level argument */
@@ -3763,7 +3762,7 @@ void do_incognito(CHAR_DATA* ch, char* argument)
     else
     /* do the level thing */
     {
-        level = atoi(arg);
+        level = (LEVEL)atoi(arg);
         if (level < 2 || level > get_trust(ch)) {
             send_to_char("Incog level must be between 2 and your level.\n\r",
                          ch);

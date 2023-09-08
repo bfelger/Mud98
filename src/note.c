@@ -32,6 +32,7 @@
 
 #include <ctype.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -47,8 +48,8 @@ extern FILE* fpArea;
 extern char strArea[MAX_INPUT_LENGTH];
 
 /* local procedures */
-void load_thread(char* name, NOTE_DATA** list, int type, time_t free_time);
-void parse_note(CHAR_DATA* ch, char* argument, int type);
+void load_thread(char* name, NOTE_DATA** list, int16_t type, time_t free_time);
+void parse_note(CHAR_DATA* ch, char* argument, int16_t type);
 bool hide_note(CHAR_DATA* ch, NOTE_DATA* pnote);
 
 NOTE_DATA* note_list;
@@ -186,14 +187,14 @@ void save_notes(int type)
 }
 void load_notes(void)
 {
-    load_thread(NOTE_FILE, &note_list, NOTE_NOTE, 14 * 24 * 60 * 60);
-    load_thread(IDEA_FILE, &idea_list, NOTE_IDEA, 28 * 24 * 60 * 60);
+    load_thread(NOTE_FILE, &note_list, NOTE_NOTE, (time_t)14 * 24 * 60 * 60);
+    load_thread(IDEA_FILE, &idea_list, NOTE_IDEA, (time_t)28 * 24 * 60 * 60);
     load_thread(PENALTY_FILE, &penalty_list, NOTE_PENALTY, 0);
     load_thread(NEWS_FILE, &news_list, NOTE_NEWS, 0);
     load_thread(CHANGES_FILE, &changes_list, NOTE_CHANGES, 0);
 }
 
-void load_thread(char* name, NOTE_DATA** list, int type, time_t free_time)
+void load_thread(char* name, NOTE_DATA** list, int16_t type, time_t free_time)
 {
     FILE* fp;
     NOTE_DATA* pnotelast;
@@ -208,7 +209,7 @@ void load_thread(char* name, NOTE_DATA** list, int type, time_t free_time)
         char letter;
 
         do {
-            letter = getc(fp);
+            letter = (char)getc(fp);
             if (feof(fp)) {
                 fclose(fp);
                 return;
@@ -242,7 +243,7 @@ void load_thread(char* name, NOTE_DATA** list, int type, time_t free_time)
             continue;
         }
 
-        pnote->type = type;
+        pnote->type = (int16_t)type;
 
         if (*list == NULL)
             *list = pnote;
@@ -332,7 +333,7 @@ bool is_note_to(CHAR_DATA* ch, NOTE_DATA* pnote)
     return false;
 }
 
-void note_attach(CHAR_DATA* ch, int type)
+void note_attach(CHAR_DATA* ch, int16_t type)
 {
     NOTE_DATA* pnote;
 
@@ -353,8 +354,8 @@ void note_attach(CHAR_DATA* ch, int type)
 
 void note_remove(CHAR_DATA* ch, NOTE_DATA* pnote, bool delete)
 {
-    char to_new[MAX_INPUT_LENGTH];
-    char to_one[MAX_INPUT_LENGTH];
+    char to_new[MAX_INPUT_LENGTH] = "";
+    char to_one[MAX_INPUT_LENGTH] = "";
     NOTE_DATA* prev;
     NOTE_DATA** list;
     char* to_list;
@@ -485,7 +486,7 @@ void update_read(CHAR_DATA* ch, NOTE_DATA* pnote)
     }
 }
 
-void parse_note(CHAR_DATA* ch, char* argument, int type)
+void parse_note(CHAR_DATA* ch, char* argument, int16_t type)
 {
     BUFFER* buffer;
     char buf[MAX_STRING_LENGTH];

@@ -379,7 +379,7 @@ void do_mpjunk(CHAR_DATA* ch, char* argument)
 {
     char      arg[MAX_INPUT_LENGTH];
     OBJ_DATA* obj;
-    OBJ_DATA* obj_next;
+    OBJ_DATA* obj_next = NULL;
 
     one_argument(argument, arg);
 
@@ -506,8 +506,9 @@ void do_mpoload(CHAR_DATA* ch, char* argument)
     char arg3[MAX_INPUT_LENGTH];
     OBJ_INDEX_DATA* pObjIndex;
     OBJ_DATA* obj;
-    int             level;
-    bool            fToroom = false, fWear = false;
+    LEVEL level;
+    bool fToroom = false;
+    bool fWear = false;
 
     argument = one_argument(argument, arg1);
     argument = one_argument(argument, arg2);
@@ -531,7 +532,7 @@ void do_mpoload(CHAR_DATA* ch, char* argument)
                 IS_NPC(ch) ? ch->pIndexData->vnum : 0);
             return;
         }
-        level = atoi(arg2);
+        level = (LEVEL)atoi(arg2);
         if (level < 0 || level > get_trust(ch)) {
             bug("Mpoload - Bad level from vnum %"PRVNUM".",
                 IS_NPC(ch) ? ch->pIndexData->vnum : 0);
@@ -578,7 +579,7 @@ void do_mpoload(CHAR_DATA* ch, char* argument)
  */
 void do_mppurge(CHAR_DATA* ch, char* argument)
 {
-    char       arg[MAX_INPUT_LENGTH];
+    char arg[MAX_INPUT_LENGTH];
     CHAR_DATA* victim;
     OBJ_DATA* obj;
 
@@ -586,8 +587,8 @@ void do_mppurge(CHAR_DATA* ch, char* argument)
 
     if (arg[0] == '\0') {
         /* 'purge' */
-        CHAR_DATA* vnext;
-        OBJ_DATA* obj_next;
+        CHAR_DATA* vnext = NULL;
+        OBJ_DATA* obj_next = NULL;
 
         for (victim = ch->in_room->people; victim != NULL; victim = vnext) {
             vnext = victim->next_in_room;
@@ -731,7 +732,7 @@ void do_mptransfer(CHAR_DATA* ch, char* argument)
     }
 
     if (!str_cmp(arg1, "all")) {
-        CHAR_DATA* victim_next;
+        CHAR_DATA* victim_next = NULL;
 
         for (victim = ch->in_room->people; victim != NULL; victim = victim_next) {
             victim_next = victim->next_in_room;
@@ -785,7 +786,9 @@ void do_mpgtransfer(CHAR_DATA* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
-    CHAR_DATA* who, * victim, * victim_next;
+    CHAR_DATA* who; 
+    CHAR_DATA* victim;
+    CHAR_DATA* victim_next = NULL;
 
     argument = one_argument(argument, arg1);
     argument = one_argument(argument, arg2);
@@ -829,7 +832,7 @@ void do_mpforce(CHAR_DATA* ch, char* argument)
 
     if (!str_cmp(arg, "all")) {
         CHAR_DATA* vch;
-        CHAR_DATA* vch_next;
+        CHAR_DATA* vch_next = NULL;
 
         for (vch = char_list; vch != NULL; vch = vch_next) {
             vch_next = vch->next;
@@ -864,7 +867,9 @@ void do_mpforce(CHAR_DATA* ch, char* argument)
 void do_mpgforce(CHAR_DATA* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim, * vch, * vch_next;
+    CHAR_DATA* victim;
+    CHAR_DATA* vch;
+    CHAR_DATA* vch_next = NULL;
 
     argument = one_argument(argument, arg);
 
@@ -897,7 +902,8 @@ void do_mpgforce(CHAR_DATA* ch, char* argument)
  */
 void do_mpvforce(CHAR_DATA* ch, char* argument)
 {
-    CHAR_DATA* victim, * victim_next;
+    CHAR_DATA* victim;
+    CHAR_DATA* victim_next = NULL;
     char arg[MAX_INPUT_LENGTH];
     VNUM vnum;
 
@@ -943,7 +949,7 @@ void do_mpcast(CHAR_DATA* ch, char* argument)
     void* victim = NULL;
     char spell[MAX_INPUT_LENGTH],
         target[MAX_INPUT_LENGTH];
-    int sn;
+    SKNUM sn;
 
     argument = one_argument(argument, spell);
     one_argument(argument, target);
@@ -994,10 +1000,11 @@ void do_mpcast(CHAR_DATA* ch, char* argument)
  */
 void do_mpdamage(CHAR_DATA* ch, char* argument)
 {
-    CHAR_DATA* victim = NULL, * victim_next;
-    char target[MAX_INPUT_LENGTH],
-        min[MAX_INPUT_LENGTH],
-        max[MAX_INPUT_LENGTH];
+    CHAR_DATA* victim = NULL;
+    CHAR_DATA* victim_next = NULL;
+    char target[MAX_INPUT_LENGTH];
+    char min[MAX_INPUT_LENGTH];
+    char max[MAX_INPUT_LENGTH];
     VNUM low;
     VNUM high;
     bool fAll = false, fKill = false;
@@ -1101,7 +1108,7 @@ void do_mpdelay(CHAR_DATA* ch, char* argument)
             IS_NPC(ch) ? ch->pIndexData->vnum : 0);
         return;
     }
-    ch->mprog_delay = atoi(arg);
+    ch->mprog_delay = (int16_t)atoi(arg);
 }
 
 /*
@@ -1235,7 +1242,8 @@ void do_mpotransfer(CHAR_DATA* ch, char* argument)
 void do_mpremove(CHAR_DATA* ch, char* argument)
 {
     CHAR_DATA* victim;
-    OBJ_DATA* obj, * obj_next;
+    OBJ_DATA* obj;
+    OBJ_DATA* obj_next = NULL;
     VNUM vnum = 0;
     bool fAll = false;
     char arg[MAX_INPUT_LENGTH];

@@ -7,7 +7,7 @@
 #include "comm.h"
 #include "olc.h"
 
-size_t MAX_GROUP;
+int max_group;
 struct group_type* group_table;
 
 #define GROUP_FILE DATA_DIR "groups"
@@ -51,27 +51,27 @@ void load_groups(void)
         exit(1);
     }
 
-    int max_group;
-    if (fscanf(fp, "%d\n", &max_group) < 1) {
+    int tmp_max_group;
+    if (fscanf(fp, "%d\n", &tmp_max_group) < 1) {
         perror("load_groups: Could not read number of groups!");
         return;
     }
-    MAX_GROUP = max_group;
+    max_group = tmp_max_group;
 
-    if ((group_table = calloc(sizeof(struct group_type), (MAX_GROUP + 1))) == NULL) {
+    if ((group_table = calloc(sizeof(struct group_type), ((size_t)max_group + 1))) == NULL) {
         perror("load_groups: Could not allocate group_table!");
         return;
     }
 
     if (!group_table) {
-        bug("Error! Group_table == NULL, MAX_GROUP : %d", MAX_GROUP);
+        bug("Error! Group_table == NULL, max_group : %d", max_group);
         exit(1);
     }
 
-    for (i = 0; i < MAX_GROUP; ++i)
+    for (i = 0; i < max_group; ++i)
         load_group(fp, &group_table[i]);
 
-    group_table[MAX_GROUP].name = NULL;
+    group_table[max_group].name = NULL;
 
     fclose(fp);
 }
@@ -109,9 +109,9 @@ void save_groups()
         return;
     }
 
-    fprintf(fp, "%d\n", (int)MAX_GROUP);
+    fprintf(fp, "%d\n", (int)max_group);
 
-    for (i = 0; i < MAX_GROUP; ++i)
+    for (i = 0; i < max_group; ++i)
         save_group(fp, &group_table[i]);
 
     fclose(fp);
@@ -382,7 +382,7 @@ GEDIT(gedit_list)
     int i, cnt = 0;
     char buf[MIL];
 
-    for (i = 0; i < MAX_GROUP; ++i) {
+    for (i = 0; i < max_group; ++i) {
         if ((pGrp = &group_table[i]) == NULL)
             break;
 

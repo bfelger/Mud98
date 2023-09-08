@@ -76,7 +76,7 @@ HEDIT(hedit_show)
 HEDIT(hedit_level)
 {
     HELP_DATA* help;
-    int lev;
+    LEVEL lev;
 
     EDIT_HELP(ch, help);
 
@@ -85,7 +85,7 @@ HEDIT(hedit_level)
         return false;
     }
 
-    lev = atoi(argument);
+    lev = (LEVEL)atoi(argument);
 
     if (lev < -1 || lev > MAX_LEVEL) {
         printf_to_char(ch, "HEdit : level must be between -1 and %d, inclusive.\n\r", MAX_LEVEL);

@@ -55,7 +55,8 @@
 #include <unistd.h>
 #endif
 
-COMMAND(do_asave);
+COMMAND(do_asave)
+
 MPROG_CODE* pedit_prog(VNUM);
 
 // externals for counting purposes
@@ -90,59 +91,59 @@ OBJ_DATA* object_list;
 TIME_INFO_DATA time_info;
 WEATHER_DATA weather_info;
 
-int16_t gsn_backstab;
-int16_t gsn_dodge;
-int16_t gsn_envenom;
-int16_t gsn_hide;
-int16_t gsn_peek;
-int16_t gsn_pick_lock;
-int16_t gsn_sneak;
-int16_t gsn_steal;
+SKNUM gsn_backstab;
+SKNUM gsn_dodge;
+SKNUM gsn_envenom;
+SKNUM gsn_hide;
+SKNUM gsn_peek;
+SKNUM gsn_pick_lock;
+SKNUM gsn_sneak;
+SKNUM gsn_steal;
 
-int16_t gsn_disarm;
-int16_t gsn_enhanced_damage;
-int16_t gsn_kick;
-int16_t gsn_parry;
-int16_t gsn_rescue;
-int16_t gsn_second_attack;
-int16_t gsn_third_attack;
+SKNUM gsn_disarm;
+SKNUM gsn_enhanced_damage;
+SKNUM gsn_kick;
+SKNUM gsn_parry;
+SKNUM gsn_rescue;
+SKNUM gsn_second_attack;
+SKNUM gsn_third_attack;
 
-int16_t gsn_blindness;
-int16_t gsn_charm_person;
-int16_t gsn_curse;
-int16_t gsn_invis;
-int16_t gsn_mass_invis;
-int16_t gsn_poison;
-int16_t gsn_plague;
-int16_t gsn_sleep;
-int16_t gsn_sanctuary;
-int16_t gsn_fly;
+SKNUM gsn_blindness;
+SKNUM gsn_charm_person;
+SKNUM gsn_curse;
+SKNUM gsn_invis;
+SKNUM gsn_mass_invis;
+SKNUM gsn_poison;
+SKNUM gsn_plague;
+SKNUM gsn_sleep;
+SKNUM gsn_sanctuary;
+SKNUM gsn_fly;
 
-int16_t gsn_axe;
-int16_t gsn_dagger;
-int16_t gsn_flail;
-int16_t gsn_mace;
-int16_t gsn_polearm;
-int16_t gsn_shield_block;
-int16_t gsn_spear;
-int16_t gsn_sword;
-int16_t gsn_whip;
+SKNUM gsn_axe;
+SKNUM gsn_dagger;
+SKNUM gsn_flail;
+SKNUM gsn_mace;
+SKNUM gsn_polearm;
+SKNUM gsn_shield_block;
+SKNUM gsn_spear;
+SKNUM gsn_sword;
+SKNUM gsn_whip;
 
-int16_t gsn_bash;
-int16_t gsn_berserk;
-int16_t gsn_dirt;
-int16_t gsn_hand_to_hand;
-int16_t gsn_trip;
+SKNUM gsn_bash;
+SKNUM gsn_berserk;
+SKNUM gsn_dirt;
+SKNUM gsn_hand_to_hand;
+SKNUM gsn_trip;
 
-int16_t gsn_fast_healing;
-int16_t gsn_haggle;
-int16_t gsn_lore;
-int16_t gsn_meditation;
+SKNUM gsn_fast_healing;
+SKNUM gsn_haggle;
+SKNUM gsn_lore;
+SKNUM gsn_meditation;
 
-int16_t gsn_scrolls;
-int16_t gsn_staves;
-int16_t gsn_wands;
-int16_t gsn_recall;
+SKNUM gsn_scrolls;
+SKNUM gsn_staves;
+SKNUM gsn_wands;
+SKNUM gsn_recall;
 
 /*
  * Locals.
@@ -352,9 +353,9 @@ void boot_db(void)
      * Assign gsn's for skills which have them.
      */
     {
-        int sn;
+        SKNUM sn;
 
-        for (sn = 0; sn < MAX_SKILL; sn++) {
+        for (sn = 0; sn < max_skill; sn++) {
             if (skill_table[sn].pgsn != NULL) 
                 *skill_table[sn].pgsn = sn;
         }
@@ -613,13 +614,13 @@ void assign_area_vnum(VNUM vnum)
 void load_helps(FILE* fp, char* fname)
 {
     HELP_DATA* pHelp;
-    int level;
+    LEVEL level;
     char* keyword;
 
     for (;;) {
         HELP_AREA* had = NULL;
 
-        level = fread_number(fp);
+        level = (LEVEL)fread_number(fp);
         keyword = fread_string(fp);
 
         if (keyword[0] == '$')
@@ -736,9 +737,9 @@ void load_old_mob(FILE* fp)
         pMobIndex->act = fread_flag(fp) | ACT_IS_NPC;
         pMobIndex->affected_by = fread_flag(fp);
         pMobIndex->pShop = NULL;
-        pMobIndex->alignment = fread_number(fp);
+        pMobIndex->alignment = (int16_t)fread_number(fp);
         letter = fread_letter(fp);
-        pMobIndex->level = fread_number(fp);
+        pMobIndex->level = (LEVEL)fread_number(fp);
 
         /*
          * The unused stuff is for imps who want to use the old-style
@@ -759,8 +760,8 @@ void load_old_mob(FILE* fp)
         pMobIndex->wealth = fread_number(fp) / 20;
         /* xp can't be used! */ 
         fread_number(fp); /* Unused */
-        pMobIndex->start_pos = fread_number(fp); /* Unused */
-        pMobIndex->default_pos = fread_number(fp); /* Unused */
+        pMobIndex->start_pos = (int16_t)fread_number(fp); /* Unused */
+        pMobIndex->default_pos = (int16_t)fread_number(fp); /* Unused */
 
         if (pMobIndex->start_pos < POS_SLEEPING)
             pMobIndex->start_pos = POS_STANDING;
@@ -770,14 +771,14 @@ void load_old_mob(FILE* fp)
         /*
          * Back to meaningful values.
          */
-        pMobIndex->sex = fread_number(fp);
+        pMobIndex->sex = (int16_t)fread_number(fp);
 
         /* compute the race BS */
         one_argument(pMobIndex->player_name, name);
 
         if (name[0] == '\0' || (race = race_lookup(name)) == 0) {
             /* fill in with blanks */
-            pMobIndex->race = race_lookup("human");
+            pMobIndex->race = (int16_t)race_lookup("human");
             pMobIndex->off_flags
                 = OFF_DODGE | OFF_DISARM | OFF_TRIP | ASSIST_VNUM;
             pMobIndex->imm_flags = 0;
@@ -789,7 +790,7 @@ void load_old_mob(FILE* fp)
                                | PART_BRAINS | PART_GUTS;
         }
         else {
-            pMobIndex->race = race;
+            pMobIndex->race = (int16_t)race;
             pMobIndex->off_flags = OFF_DODGE | OFF_DISARM | OFF_TRIP
                                    | ASSIST_RACE | race_table[race].off;
             pMobIndex->imm_flags = race_table[race].imm;
@@ -865,7 +866,7 @@ void load_old_obj(FILE* fp)
         pObjIndex->description[0] = UPPER(pObjIndex->description[0]);
         pObjIndex->material = str_dup("");
 
-        pObjIndex->item_type = fread_number(fp);
+        pObjIndex->item_type = (int16_t)fread_number(fp);
         pObjIndex->extra_flags = fread_flag(fp);
         pObjIndex->wear_flags = fread_flag(fp);
         pObjIndex->value[0] = fread_number(fp);
@@ -875,7 +876,7 @@ void load_old_obj(FILE* fp)
         pObjIndex->value[4] = 0;
         pObjIndex->level = 0;
         pObjIndex->condition = 100;
-        pObjIndex->weight = fread_number(fp);
+        pObjIndex->weight = (int16_t)fread_number(fp);
         pObjIndex->cost = fread_number(fp); /* Unused */
         /* Cost per day */ fread_number(fp);
 
@@ -887,8 +888,6 @@ void load_old_obj(FILE* fp)
         }
 
         for (;;) {
-            char letter;
-
             letter = fread_letter(fp);
 
             if (letter == 'A') {
@@ -899,8 +898,8 @@ void load_old_obj(FILE* fp)
                 paf->type = -1;
                 paf->level = 20; /* RT temp fix */
                 paf->duration = -1;
-                paf->location = fread_number(fp);
-                paf->modifier = fread_number(fp);
+                paf->location = (int16_t)fread_number(fp);
+                paf->modifier = (int16_t)fread_number(fp);
                 paf->bitvector = 0;
                 paf->next = pObjIndex->affected;
                 pObjIndex->affected = paf;
@@ -937,15 +936,15 @@ void load_old_obj(FILE* fp)
         case ITEM_PILL:
         case ITEM_POTION:
         case ITEM_SCROLL:
-            pObjIndex->value[1] = slot_lookup(pObjIndex->value[1]);
-            pObjIndex->value[2] = slot_lookup(pObjIndex->value[2]);
-            pObjIndex->value[3] = slot_lookup(pObjIndex->value[3]);
-            pObjIndex->value[4] = slot_lookup(pObjIndex->value[4]);
+            pObjIndex->value[1] = skill_slot_lookup(pObjIndex->value[1]);
+            pObjIndex->value[2] = skill_slot_lookup(pObjIndex->value[2]);
+            pObjIndex->value[3] = skill_slot_lookup(pObjIndex->value[3]);
+            pObjIndex->value[4] = skill_slot_lookup(pObjIndex->value[4]);
             break;
 
         case ITEM_STAFF:
         case ITEM_WAND:
-            pObjIndex->value[3] = slot_lookup(pObjIndex->value[3]);
+            pObjIndex->value[3] = skill_slot_lookup(pObjIndex->value[3]);
             break;
         }
 
@@ -1017,9 +1016,9 @@ void load_resets(FILE* fp)
         pReset->command = letter;
         /* if_flag */ fread_number(fp);
         pReset->arg1 = fread_vnum(fp);
-        pReset->arg2 = fread_number(fp);
+        pReset->arg2 = (int16_t)fread_number(fp);
         pReset->arg3 = (letter == 'G' || letter == 'R') ? 0 : fread_vnum(fp);
-        pReset->arg4 = (letter == 'P' || letter == 'M') ? fread_number(fp) : 0;
+        pReset->arg4 = (letter == 'P' || letter == 'M') ? (int16_t)fread_number(fp) : 0;
         fread_to_eol(fp);
 
         switch (pReset->command) {
@@ -1126,7 +1125,7 @@ void load_rooms(FILE* fp)
         /* horrible hack */
         if (3000 <= vnum && vnum < 3400)
             SET_BIT(pRoomIndex->room_flags, ROOM_LAW);
-        pRoomIndex->sector_type = fread_number(fp);
+        pRoomIndex->sector_type = (int16_t)fread_number(fp);
         pRoomIndex->light = 0;
         for (door = 0; door <= 5; door++) pRoomIndex->exit[door] = NULL;
 
@@ -1140,10 +1139,10 @@ void load_rooms(FILE* fp)
             if (letter == 'S') break;
 
             if (letter == 'H') /* healing room */
-                pRoomIndex->heal_rate = fread_number(fp);
+                pRoomIndex->heal_rate = (int16_t)fread_number(fp);
 
             else if (letter == 'M') /* mana room */
-                pRoomIndex->mana_rate = fread_number(fp);
+                pRoomIndex->mana_rate = (int16_t)fread_number(fp);
 
             else if (letter == 'C') /* clan */
             {
@@ -1151,7 +1150,7 @@ void load_rooms(FILE* fp)
                     bug("Load_rooms: duplicate clan fields.", 0);
                     exit(1);
                 }
-                pRoomIndex->clan = clan_lookup(fread_string(fp));
+                pRoomIndex->clan = (int16_t)clan_lookup(fread_string(fp));
             }
 
             else if (letter == 'D') {
@@ -1170,7 +1169,7 @@ void load_rooms(FILE* fp)
                 pexit->exit_info = 0;
                 pexit->rs_flags = 0;        // OLC
                 locks = fread_number(fp);
-                pexit->key = fread_number(fp);
+                pexit->key = (int16_t)fread_number(fp);
                 pexit->u1.vnum = fread_number(fp);
                 pexit->orig_door = door;    // OLC
 
@@ -1249,14 +1248,14 @@ void load_shops(FILE* fp)
             exit(1);
         }
 
-        pShop->keeper = fread_number(fp);
+        pShop->keeper = (int16_t)fread_number(fp);
         if (pShop->keeper == 0) break;
         for (iTrade = 0; iTrade < MAX_TRADE; iTrade++)
-            pShop->buy_type[iTrade] = fread_number(fp);
-        pShop->profit_buy = fread_number(fp);
-        pShop->profit_sell = fread_number(fp);
-        pShop->open_hour = fread_number(fp);
-        pShop->close_hour = fread_number(fp);
+            pShop->buy_type[iTrade] = (int16_t)fread_number(fp);
+        pShop->profit_buy = (int16_t)fread_number(fp);
+        pShop->profit_sell = (int16_t)fread_number(fp);
+        pShop->open_hour = (int16_t)fread_number(fp);
+        pShop->close_hour = (int16_t)fread_number(fp);
         fread_to_eol(fp);
         pMobIndex = get_mob_index(pShop->keeper);
         pMobIndex->pShop = pShop;
@@ -1448,7 +1447,7 @@ void area_update(void)
             sprintf(buf, "%s has just been reset.", pArea->name);
             wiznet(buf, NULL, NULL, WIZ_RESETS, 0, 0);
 
-            pArea->age = number_range(0, 3);
+            pArea->age = (int16_t)number_range(0, 3);
             pRoomIndex = get_room_index(ROOM_VNUM_SCHOOL);
             if (pRoomIndex != NULL && pArea == pRoomIndex->area)
                 pArea->age = 15 - 2;
@@ -1555,11 +1554,11 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
         EXIT_DATA* pExit;
         if ((pExit = pRoom->exit[iExit])
             /*  && !IS_SET( pExit->exit_info, EX_BASHED )   ROM OLC */) {
-            pExit->exit_info = pExit->rs_flags;
+            pExit->exit_info = (int16_t)pExit->rs_flags;
             if ((pExit->u1.to_room != NULL)
                 && ((pExit = pExit->u1.to_room->exit[rev_dir[iExit]]))) {
                   /* nail the other side */
-                pExit->exit_info = pExit->rs_flags;
+                pExit->exit_info = (int16_t)pExit->rs_flags;
             }
         }
     }
@@ -1662,7 +1661,7 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
                 break;
             }
 
-            pObj = create_object(pObjIndex, UMIN(number_fuzzy(level),
+            pObj = create_object(pObjIndex, (int16_t)UMIN(number_fuzzy(level),
                 LEVEL_HERO - 1)); /* UMIN - ROM OLC */
             pObj->cost = 0;
             obj_to_room(pObj, pRoom);
@@ -1699,7 +1698,7 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
             /* lastObj->level  -  ROM */
 
             while (count < pReset->arg4) {
-                pObj = create_object(pObjIndex, number_fuzzy(LastObj->level));
+                pObj = create_object(pObjIndex, (int16_t)number_fuzzy(LastObj->level));
                 obj_to_obj(pObj, LastObj);
                 count++;
                 if (pObjIndex->count >= limit) break;
@@ -1727,7 +1726,8 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
             }
 
             if (LastMob->pIndexData->pShop != NULL) { // Shopkeeper?
-                int olevel = 0, i, j;
+                LEVEL olevel = 0;
+                int i, j;
 
                 if (!pObjIndex->new_format) {
                     switch (pObjIndex->item_type) {
@@ -1749,19 +1749,19 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
                         olevel = UMAX(0, (olevel * 3 / 4) - 2);
                         break;
                     case ITEM_WAND:
-                        olevel = number_range(10, 20);
+                        olevel = (LEVEL)number_range(10, 20);
                         break;
                     case ITEM_STAFF:
-                        olevel = number_range(15, 25);
+                        olevel = (LEVEL)number_range(15, 25);
                         break;
                     case ITEM_ARMOR:
-                        olevel = number_range(5, 15);
+                        olevel = (LEVEL)number_range(5, 15);
                         break;
                     case ITEM_WEAPON:
-                        olevel = number_range(5, 15);
+                        olevel = (LEVEL)number_range(5, 15);
                         break;
                     case ITEM_TREASURE:
-                        olevel = number_range(10, 20);
+                        olevel = (LEVEL)number_range(10, 20);
                         break;
                     default:
                         olevel = 0;
@@ -1783,7 +1783,7 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
 
                 if (pObjIndex->count < limit || number_range(0, 4) == 0) {
                     pObj = create_object(
-                        pObjIndex, UMIN(number_fuzzy(level), LEVEL_HERO - 1));
+                        pObjIndex, UMIN((LEVEL)number_fuzzy(level), LEVEL_HERO - 1));
                     /* error message if it is too high */
                     if (pObj->level > LastMob->level + 3
                         || (pObj->item_type == ITEM_WEAPON
@@ -1801,7 +1801,7 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
 
             obj_to_char(pObj, LastMob);
             if (pReset->command == 'E')
-                equip_char(LastMob, pObj, pReset->arg3);
+                equip_char(LastMob, pObj, (int16_t)pReset->arg3);
             last = true;
             break;
 
@@ -1883,10 +1883,9 @@ CHAR_DATA* create_mobile(MOB_INDEX_DATA* pMobIndex)
         mob->gold = 0;
     }
     else {
-        long wealth;
-
-        wealth = number_range(pMobIndex->wealth / 2, 3 * pMobIndex->wealth / 2);
-        mob->gold = number_range(wealth / 200, wealth / 100);
+        int16_t wealth = (int16_t)number_range(pMobIndex->wealth / 2, 
+            3 * pMobIndex->wealth / 2);
+        mob->gold = (int16_t)number_range(wealth / 200, wealth / 100);
         mob->silver = wealth - (mob->gold * 100);
     }
 
@@ -1903,11 +1902,11 @@ CHAR_DATA* create_mobile(MOB_INDEX_DATA* pMobIndex)
         mob->hitroll = pMobIndex->hitroll;
         mob->damroll = pMobIndex->damage[DICE_BONUS];
         mob->max_hit
-            = dice(pMobIndex->hit[DICE_NUMBER], pMobIndex->hit[DICE_TYPE])
+            = (int16_t)dice(pMobIndex->hit[DICE_NUMBER], pMobIndex->hit[DICE_TYPE])
               + pMobIndex->hit[DICE_BONUS];
         mob->hit = mob->max_hit;
         mob->max_mana
-            = dice(pMobIndex->mana[DICE_NUMBER], pMobIndex->mana[DICE_TYPE])
+            = (int16_t)dice(pMobIndex->mana[DICE_NUMBER], pMobIndex->mana[DICE_TYPE])
               + pMobIndex->mana[DICE_BONUS];
         mob->mana = mob->max_mana;
         mob->damage[DICE_NUMBER] = pMobIndex->damage[DICE_NUMBER];
@@ -1933,7 +1932,7 @@ CHAR_DATA* create_mobile(MOB_INDEX_DATA* pMobIndex)
         mob->default_pos = pMobIndex->default_pos;
         mob->sex = pMobIndex->sex;
         if (mob->sex == 3) /* random sex */
-            mob->sex = number_range(1, 2);
+            mob->sex = (int16_t)number_range(1, 2);
         mob->race = pMobIndex->race;
         mob->form = pMobIndex->form;
         mob->parts = pMobIndex->parts;
@@ -2029,11 +2028,11 @@ CHAR_DATA* create_mobile(MOB_INDEX_DATA* pMobIndex)
         mob->hitroll = pMobIndex->hitroll;
         mob->damroll = 0;
         mob->max_hit = mob->level * 8
-                       + number_range(mob->level * mob->level / 4,
+                       + (int16_t)number_range(mob->level * mob->level / 4,
                                       mob->level * mob->level);
         mob->max_hit = (int16_t)((double)mob->max_hit * 0.9);
         mob->hit = mob->max_hit;
-        mob->max_mana = 100 + dice(mob->level, 10);
+        mob->max_mana = 100 + (int16_t)dice(mob->level, 10);
         mob->mana = mob->max_mana;
         switch (number_range(1, 3)) {
         case (1):
@@ -2047,8 +2046,8 @@ CHAR_DATA* create_mobile(MOB_INDEX_DATA* pMobIndex)
             break; /* pierce */
         }
         for (i = 0; i < 3; i++)
-            mob->armor[i] = interpolate(mob->level, 100, -100);
-        mob->armor[3] = interpolate(mob->level, 100, 0);
+            mob->armor[i] = (int16_t)interpolate(mob->level, 100, -100);
+        mob->armor[3] = (int16_t)interpolate(mob->level, 100, 0);
         mob->race = pMobIndex->race;
         mob->off_flags = pMobIndex->off_flags;
         mob->imm_flags = pMobIndex->imm_flags;
@@ -2147,7 +2146,7 @@ void clone_mobile(CHAR_DATA* parent, CHAR_DATA* clone)
 /*
  * Create an instance of an object.
  */
-OBJ_DATA* create_object(OBJ_INDEX_DATA* pObjIndex, int level)
+OBJ_DATA* create_object(OBJ_INDEX_DATA* pObjIndex, LEVEL level)
 {
     AFFECT_DATA* paf;
     OBJ_DATA* obj;
@@ -2445,7 +2444,7 @@ char fread_letter(FILE* fp)
     char c;
 
     do {
-        c = getc(fp);
+        c = (char)getc(fp);
     }
     while (ISSPACE(c));
 
@@ -2461,7 +2460,7 @@ VNUM fread_vnum(FILE* fp)
     char c;
 
     do {
-        c = getc(fp);
+        c = (char)getc(fp);
     } while (ISSPACE(c));
 
     number = 0;
@@ -2473,7 +2472,7 @@ VNUM fread_vnum(FILE* fp)
 
     while (ISDIGIT(c)) {
         number = number * 10 + c - '0';
-        c = getc(fp);
+        c = (char)getc(fp);
     }
 
     if (c != ' ')
@@ -2492,17 +2491,19 @@ int fread_number(FILE* fp)
     char c;
 
     do {
-        c = getc(fp);
+        c = (char)getc(fp);
     }
     while (ISSPACE(c));
 
     number = 0;
 
     sign = false;
-    if (c == '+') { c = getc(fp); }
+    if (c == '+') { 
+        c = (char)getc(fp); 
+    }
     else if (c == '-') {
         sign = true;
-        c = getc(fp);
+        c = (char)getc(fp);
     }
 
     if (!ISDIGIT(c)) {
@@ -2512,7 +2513,7 @@ int fread_number(FILE* fp)
 
     while (ISDIGIT(c)) {
         number = number * 10 + c - '0';
-        c = getc(fp);
+        c = (char)getc(fp);
     }
 
     if (sign) number = 0 - number;
@@ -2532,13 +2533,13 @@ long fread_flag(FILE* fp)
     bool negative = false;
 
     do {
-        c = getc(fp);
+        c = (char)getc(fp);
     }
     while (ISSPACE(c));
 
     if (c == '-') {
         negative = true;
-        c = getc(fp);
+        c = (char)getc(fp);
     }
 
     number = 0;
@@ -2546,13 +2547,13 @@ long fread_flag(FILE* fp)
     if (!ISDIGIT(c)) {
         while (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
             number += flag_convert(c);
-            c = getc(fp);
+            c = (char)getc(fp);
         }
     }
 
     while (ISDIGIT(c)) {
         number = number * 10 + c - '0';
-        c = getc(fp);
+        c = (char)getc(fp);
     }
 
     if (c == '|')
@@ -2607,7 +2608,7 @@ char* fread_string(FILE* fp)
      * Read first char.
      */
     do {
-        c = getc(fp);
+        c = (char)getc(fp);
     }
     while (ISSPACE(c));
 
@@ -2620,7 +2621,7 @@ char* fread_string(FILE* fp)
          *   -- Furey
          */
 
-        switch (*plast = getc(fp)) {
+        switch (*plast = (char)getc(fp)) {
         default:
             plast++;
             break;
@@ -2656,7 +2657,7 @@ char* fread_string(FILE* fp)
                 plast[-1] = '\0';
                 iHash = (int)UMIN(MAX_KEY_HASH - 1, plast - 1 - top_string);
                 for (pHash = string_hash[iHash]; pHash; pHash = pHashPrev) {
-                    for (ic = 0; ic < sizeof(char*); ic++)
+                    for (ic = 0; ic < (int)sizeof(char*); ic++)
                         u1.rgc[ic] = pHash[ic];
                     pHashPrev = u1.pc;
                     pHash += sizeof(char*);
@@ -2670,7 +2671,7 @@ char* fread_string(FILE* fp)
                     pString = top_string;
                     top_string = plast;
                     u1.pc = string_hash[iHash];
-                    for (ic = 0; ic < sizeof(char*); ic++)
+                    for (ic = 0; ic < (int)sizeof(char*); ic++)
                         pString[ic] = u1.rgc[ic];
                     string_hash[iHash] = pString;
 
@@ -2709,14 +2710,16 @@ char* fread_string_eol(FILE* fp)
      * Read first char.
      */
     do {
-        c = getc(fp);
+        c = (char)getc(fp);
     }
     while (ISSPACE(c));
 
-    if ((*plast++ = c) == '\n') return &str_empty[0];
+    if ((*plast++ = c) == '\n')
+        return &str_empty[0];
 
     for (;;) {
-        if (!char_special[(*plast++ = getc(fp)) - EOF]) continue;
+        if (!char_special[(*plast++ = (char)getc(fp)) - EOF]) 
+            continue;
 
         switch (plast[-1]) {
         default:
@@ -2742,7 +2745,7 @@ char* fread_string_eol(FILE* fp)
             plast[-1] = '\0';
             iHash = (int)UMIN(MAX_KEY_HASH - 1, plast - 1 - top_string);
             for (pHash = string_hash[iHash]; pHash; pHash = pHashPrev) {
-                for (ic = 0; ic < sizeof(char*); ic++) u1.rgc[ic] = pHash[ic];
+                for (ic = 0; ic < (int)sizeof(char*); ic++) u1.rgc[ic] = pHash[ic];
                 pHashPrev = u1.pc;
                 pHash += sizeof(char*);
 
@@ -2755,7 +2758,8 @@ char* fread_string_eol(FILE* fp)
                 pString = top_string;
                 top_string = plast;
                 u1.pc = string_hash[iHash];
-                for (ic = 0; ic < sizeof(char*); ic++) pString[ic] = u1.rgc[ic];
+                for (ic = 0; ic < (int)sizeof(char*); ic++) 
+                    pString[ic] = u1.rgc[ic];
                 string_hash[iHash] = pString;
 
                 nAllocString += 1;
@@ -2778,12 +2782,12 @@ void fread_to_eol(FILE* fp)
     char c;
 
     do {
-        c = getc(fp);
+        c = (char)getc(fp);
     }
     while (c != '\n' && c != '\r');
 
     do {
-        c = getc(fp);
+        c = (char)getc(fp);
     }
     while (c == '\n' || c == '\r');
 
@@ -2801,7 +2805,7 @@ char* fread_word(FILE* fp)
     char cEnd;
 
     do {
-        cEnd = getc(fp);
+        cEnd = (char)getc(fp);
     }
     while (ISSPACE(cEnd));
 
@@ -2815,7 +2819,7 @@ char* fread_word(FILE* fp)
     }
 
     for (; pword < word + MAX_INPUT_LENGTH; pword++) {
-        *pword = getc(fp);
+        *pword = (char)getc(fp);
         if (cEnd == ' ' ? ISSPACE(*pword) : *pword == cEnd) {
             if (cEnd == ' ') 
                 ungetc(*pword, fp);
@@ -2826,7 +2830,6 @@ char* fread_word(FILE* fp)
 
     bug("Fread_word: word too long.", 0);
     exit(1);
-    return NULL;
 }
 
 /*
@@ -3351,7 +3354,7 @@ bool str_prefix(const char* astr, const char* bstr)
  */
 bool str_infix(const char* astr, const char* bstr)
 {
-    int ichar;
+    size_t ichar;
     char c0;
 
     if ((c0 = LOWER(astr[0])) == '\0') return false;

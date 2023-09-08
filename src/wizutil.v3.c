@@ -299,7 +299,7 @@ void do_rename(CHAR_DATA* ch, char* argument)
     sprintf(strsave, "%s%s%s", area_dir, PLAYER_DIR, capitalize(new_name));
 
     fclose(fpReserve); /* close the reserve file */
-    if (file = fopen(strsave, "r")) {
+    if ((file = fopen(strsave, "r")) != NULL) {
         send_to_char("A player with that name already exists!\n\r", ch);
         fclose(file);
         fpReserve = fopen(NULL_FILE, "r"); /* is this really necessary these days? */
@@ -311,7 +311,7 @@ void do_rename(CHAR_DATA* ch, char* argument)
     sprintf(strsave, "%s%s%s%s", area_dir, PLAYER_DIR, capitalize(new_name), ".gz");
 
     fclose(fpReserve);
-    if (file = fopen(strsave, "r")) {
+    if ((file = fopen(strsave, "r")) != NULL) {
         send_to_char("A player with that name already exists in a compressed file!\n\r", ch);
         fclose(file);
         fpReserve = fopen(NULL_FILE, "r");
@@ -390,7 +390,7 @@ const char* name_expand(CHAR_DATA* ch)
     CHAR_DATA* rch;
     char name[MAX_INPUT_LENGTH]; /*  HOPEFULLY no mob has a name longer than THAT */
 
-    static char outbuf[MAX_INPUT_LENGTH];
+    static char outbuf[MAX_INPUT_LENGTH * 2];
 
     if (!IS_NPC(ch))
         return ch->name;

@@ -13,7 +13,7 @@
 
 void bin_to_hex(char* dest, const uint8_t* data, size_t size)
 {
-    for (int i = 0; i < size; ++i) {
+    for (int i = 0; i < (int)size; ++i) {
         sprintf(dest, "%.2X", *data++);
         dest += 2;
     }
@@ -69,7 +69,7 @@ void free_digest(unsigned char* digest)
 
 void hex_to_bin(uint8_t* dest, const char* hex_str, size_t bin_size)
 {
-    for (int i = 0; i < bin_size; ++i) {
+    for (int i = 0; i < (int)bin_size; ++i) {
         char ch1 = *hex_str++;
         uint8_t hi = (ch1 >= 'A') ? (ch1 - 'A' + 10) : (ch1 - '0');
         char ch2 = *hex_str++;

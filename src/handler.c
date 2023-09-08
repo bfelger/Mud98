@@ -192,7 +192,7 @@ int class_lookup(const char* name)
    the 'globals' (magic and weapons) may be overriden
    three other cases -- wood, silver, and iron -- are checked in fight.c */
 
-int check_immune(CHAR_DATA* ch, int dam_type)
+int check_immune(CHAR_DATA* ch, DamageType dam_type)
 {
     int immune, def;
     int bit;
@@ -222,57 +222,61 @@ int check_immune(CHAR_DATA* ch, int dam_type)
 
     /* set bits to check -- VULN etc. must ALL be the same or this will fail */
     switch (dam_type) {
-    case (DAM_BASH):
+    case DAM_BASH:
         bit = IMM_BASH;
         break;
-    case (DAM_PIERCE):
+    case DAM_PIERCE:
         bit = IMM_PIERCE;
         break;
-    case (DAM_SLASH):
+    case DAM_SLASH:
         bit = IMM_SLASH;
         break;
-    case (DAM_FIRE):
+    case DAM_FIRE:
         bit = IMM_FIRE;
         break;
-    case (DAM_COLD):
+    case DAM_COLD:
         bit = IMM_COLD;
         break;
-    case (DAM_LIGHTNING):
+    case DAM_LIGHTNING:
         bit = IMM_LIGHTNING;
         break;
-    case (DAM_ACID):
+    case DAM_ACID:
         bit = IMM_ACID;
         break;
-    case (DAM_POISON):
+    case DAM_POISON:
         bit = IMM_POISON;
         break;
-    case (DAM_NEGATIVE):
+    case DAM_NEGATIVE:
         bit = IMM_NEGATIVE;
         break;
-    case (DAM_HOLY):
+    case DAM_HOLY:
         bit = IMM_HOLY;
         break;
-    case (DAM_ENERGY):
+    case DAM_ENERGY:
         bit = IMM_ENERGY;
         break;
-    case (DAM_MENTAL):
+    case DAM_MENTAL:
         bit = IMM_MENTAL;
         break;
-    case (DAM_DISEASE):
+    case DAM_DISEASE:
         bit = IMM_DISEASE;
         break;
-    case (DAM_DROWNING):
+    case DAM_DROWNING:
         bit = IMM_DROWNING;
         break;
-    case (DAM_LIGHT):
+    case DAM_LIGHT:
         bit = IMM_LIGHT;
         break;
-    case (DAM_CHARM):
+    case DAM_CHARM:
         bit = IMM_CHARM;
         break;
-    case (DAM_SOUND):
+    case DAM_SOUND:
         bit = IMM_SOUND;
         break;
+    case DAM_OTHER:
+    case DAM_NONE:
+    case DAM_HARM:
+    case DAM_NOT_FOUND:
     default:
         return def;
     }
@@ -320,7 +324,7 @@ bool is_old_mob(CHAR_DATA* ch)
 }
 
 /* for returning skill information */
-int get_skill(CHAR_DATA* ch, int sn)
+int get_skill(CHAR_DATA* ch, SKNUM sn)
 {
     int skill;
 
@@ -328,7 +332,7 @@ int get_skill(CHAR_DATA* ch, int sn)
     {
         skill = ch->level * 5 / 2;
     }
-    else if (sn < -1 || sn > MAX_SKILL) {
+    else if (sn < -1 || sn > max_skill) {
         bug("Bad sn %d in get_skill.", sn);
         skill = 0;
     }
@@ -414,10 +418,10 @@ int get_skill(CHAR_DATA* ch, int sn)
 }
 
 /* for returning weapon information */
-int get_weapon_sn(CHAR_DATA* ch)
+SKNUM get_weapon_sn(CHAR_DATA* ch)
 {
     OBJ_DATA* wield;
-    int sn;
+    SKNUM sn;
 
     wield = get_eq_char(ch, WEAR_WIELD);
     if (wield == NULL || wield->item_type != ITEM_WEAPON)
@@ -455,7 +459,7 @@ int get_weapon_sn(CHAR_DATA* ch)
     return sn;
 }
 
-int get_weapon_skill(CHAR_DATA* ch, int sn)
+int get_weapon_skill(CHAR_DATA* ch, SKNUM sn)
 {
     int skill;
 
@@ -482,7 +486,8 @@ int get_weapon_skill(CHAR_DATA* ch, int sn)
 /* used to de-screw characters */
 void reset_char(CHAR_DATA* ch)
 {
-    int loc, mod, stat;
+    int loc, stat;
+    int16_t mod;
     OBJ_DATA* obj;
     AFFECT_DATA* af;
     int i;
@@ -539,7 +544,7 @@ void reset_char(CHAR_DATA* ch)
         ch->pcdata->perm_hit = ch->max_hit;
         ch->pcdata->perm_mana = ch->max_mana;
         ch->pcdata->perm_move = ch->max_move;
-        ch->pcdata->last_level = ch->played / 3600;
+        ch->pcdata->last_level = (int16_t)(ch->played / 3600);
         if (ch->pcdata->true_sex < 0 || ch->pcdata->true_sex > 2) {
             if (ch->sex > 0 && ch->sex < 3)
                 ch->pcdata->true_sex = ch->sex;
@@ -572,7 +577,7 @@ void reset_char(CHAR_DATA* ch)
         if (obj == NULL)
             continue;
         for (i = 0; i < 4; i++)
-            ch->armor[i] -= apply_ac(obj, loc, i);
+            ch->armor[i] -= (int16_t)apply_ac(obj, loc, i);
 
         if (!obj->enchanted) {
             for (af = obj->pIndexData->affected; af != NULL; af = af->next) {
@@ -766,7 +771,7 @@ void reset_char(CHAR_DATA* ch)
 /*
  * Retrieve a character's trusted level for permission checking.
  */
-int get_trust(CHAR_DATA* ch)
+LEVEL get_trust(CHAR_DATA* ch)
 {
     if (ch->desc != NULL && ch->desc->original != NULL) ch = ch->desc->original;
 
@@ -939,7 +944,8 @@ void affect_enchant(OBJ_DATA* obj)
 void affect_modify(CHAR_DATA* ch, AFFECT_DATA* paf, bool fAdd)
 {
     OBJ_DATA* wield;
-    int mod, i;
+    int16_t mod;
+    int i;
 
     mod = paf->modifier;
 
@@ -1076,7 +1082,7 @@ void affect_modify(CHAR_DATA* ch, AFFECT_DATA* paf, bool fAdd)
 }
 
 /* find an effect in an affect list */
-AFFECT_DATA* affect_find(AFFECT_DATA* paf, int sn)
+AFFECT_DATA* affect_find(AFFECT_DATA* paf, SKNUM sn)
 {
     AFFECT_DATA* paf_find;
 
@@ -1296,7 +1302,7 @@ void affect_remove_obj(OBJ_DATA* obj, AFFECT_DATA* paf)
 /*
  * Strip all affects of a given sn.
  */
-void affect_strip(CHAR_DATA* ch, int sn)
+void affect_strip(CHAR_DATA* ch, SKNUM sn)
 {
     AFFECT_DATA* paf;
     AFFECT_DATA* paf_next = NULL;
@@ -1312,7 +1318,7 @@ void affect_strip(CHAR_DATA* ch, int sn)
 /*
  * Return true if a char is affected by a spell.
  */
-bool is_affected(CHAR_DATA* ch, int sn)
+bool is_affected(CHAR_DATA* ch, SKNUM sn)
 {
     AFFECT_DATA* paf;
 
@@ -1444,7 +1450,7 @@ void char_to_room(CHAR_DATA* ch, ROOM_INDEX_DATA* pRoomIndex)
         plague.where = TO_AFFECTS;
         plague.type = gsn_plague;
         plague.level = af->level - 1;
-        plague.duration = number_range(1, 2 * plague.level);
+        plague.duration = (int16_t)number_range(1, 2 * plague.level);
         plague.location = APPLY_STR;
         plague.modifier = -5;
         plague.bitvector = AFF_PLAGUE;
@@ -1473,8 +1479,8 @@ void obj_to_char(OBJ_DATA* obj, CHAR_DATA* ch)
     obj->carried_by = ch;
     obj->in_room = NULL;
     obj->in_obj = NULL;
-    ch->carry_number += get_obj_number(obj);
-    ch->carry_weight += get_obj_weight(obj);
+    ch->carry_number += (int16_t)get_obj_number(obj);
+    ch->carry_weight += (int16_t)get_obj_weight(obj);
 }
 
 /*
@@ -1507,8 +1513,8 @@ void obj_from_char(OBJ_DATA* obj)
 
     obj->carried_by = NULL;
     obj->next_content = NULL;
-    ch->carry_number -= get_obj_number(obj);
-    ch->carry_weight -= get_obj_weight(obj);
+    ch->carry_number -= (int16_t)get_obj_number(obj);
+    ch->carry_weight -= (int16_t)get_obj_weight(obj);
     return;
 }
 
@@ -1517,7 +1523,8 @@ void obj_from_char(OBJ_DATA* obj)
  */
 int apply_ac(OBJ_DATA* obj, int iWear, int type)
 {
-    if (obj->item_type != ITEM_ARMOR) return 0;
+    if (obj->item_type != ITEM_ARMOR) 
+        return 0;
 
     switch (iWear) {
     case WEAR_BODY:
@@ -1572,7 +1579,7 @@ OBJ_DATA* get_eq_char(CHAR_DATA* ch, int iWear)
 /*
  * Equip a char with an obj.
  */
-void equip_char(CHAR_DATA* ch, OBJ_DATA* obj, int iWear)
+void equip_char(CHAR_DATA* ch, OBJ_DATA* obj, int16_t iWear)
 {
     AFFECT_DATA* paf;
     int i;
@@ -1595,7 +1602,7 @@ void equip_char(CHAR_DATA* ch, OBJ_DATA* obj, int iWear)
         return;
     }
 
-    for (i = 0; i < 4; i++) ch->armor[i] -= apply_ac(obj, iWear, i);
+    for (i = 0; i < 4; i++) ch->armor[i] -= (int16_t)apply_ac(obj, iWear, i);
     obj->wear_loc = iWear;
 
     if (!obj->enchanted)
@@ -1630,7 +1637,7 @@ void unequip_char(CHAR_DATA* ch, OBJ_DATA* obj)
         return;
     }
 
-    for (i = 0; i < 4; i++) ch->armor[i] += apply_ac(obj, obj->wear_loc, i);
+    for (i = 0; i < 4; i++) ch->armor[i] += (int16_t)apply_ac(obj, obj->wear_loc, i);
     obj->wear_loc = -1;
 
     if (!obj->enchanted) {
@@ -1766,9 +1773,9 @@ void obj_to_obj(OBJ_DATA* obj, OBJ_DATA* obj_to)
 
     for (; obj_to != NULL; obj_to = obj_to->in_obj) {
         if (obj_to->carried_by != NULL) {
-            obj_to->carried_by->carry_number += get_obj_number(obj);
+            obj_to->carried_by->carry_number += (int16_t)get_obj_number(obj);
             obj_to->carried_by->carry_weight
-                += get_obj_weight(obj) * WEIGHT_MULT(obj_to) / 100;
+                += (int16_t)get_obj_weight(obj) * (int16_t)(WEIGHT_MULT(obj_to) / 100);
         }
     }
 
@@ -1811,9 +1818,9 @@ void obj_from_obj(OBJ_DATA* obj)
 
     for (; obj_from != NULL; obj_from = obj_from->in_obj) {
         if (obj_from->carried_by != NULL) {
-            obj_from->carried_by->carry_number -= get_obj_number(obj);
+            obj_from->carried_by->carry_number -= (int16_t)get_obj_number(obj);
             obj_from->carried_by->carry_weight
-                -= get_obj_weight(obj) * WEIGHT_MULT(obj_from) / 100;
+                -= (int16_t)get_obj_weight(obj) * (int16_t)(WEIGHT_MULT(obj_from) / 100);
         }
     }
 
@@ -2115,13 +2122,14 @@ OBJ_DATA* get_obj_world(CHAR_DATA* ch, char* argument)
 
 void deduct_cost(CHAR_DATA* ch, int cost)
 {
-    int silver = 0, gold = 0;
+    int16_t silver = 0; 
+    int16_t gold = 0;
 
-    silver = UMIN(ch->silver, cost);
+    silver = UMIN(ch->silver, (int16_t)cost);
 
     if (silver < cost) {
-        gold = ((cost - silver + 99) / 100);
-        silver = cost - 100 * gold;
+        gold = (int16_t)((cost - silver + 99) / 100);
+        silver = (int16_t)(cost - 100 * gold);
     }
 
     ch->gold -= gold;
@@ -2139,7 +2147,7 @@ void deduct_cost(CHAR_DATA* ch, int cost)
 /*
  * Create a 'money' obj.
  */
-OBJ_DATA* create_money(int gold, int silver)
+OBJ_DATA* create_money(int16_t gold, int16_t silver)
 {
     char buf[MAX_STRING_LENGTH];
     OBJ_DATA* obj;
@@ -2158,7 +2166,7 @@ OBJ_DATA* create_money(int gold, int silver)
     }
     else if (silver == 0) {
         obj = create_object(get_obj_index(OBJ_VNUM_GOLD_SOME), 0);
-        sprintf(buf, obj->short_descr, gold);
+        sprintf(buf, "%d gold coins", gold);
         free_string(obj->short_descr);
         obj->short_descr = str_dup(buf);
         obj->value[1] = gold;
@@ -2167,7 +2175,7 @@ OBJ_DATA* create_money(int gold, int silver)
     }
     else if (gold == 0) {
         obj = create_object(get_obj_index(OBJ_VNUM_SILVER_SOME), 0);
-        sprintf(buf, obj->short_descr, silver);
+        sprintf(buf, "%d silver coins", silver);
         free_string(obj->short_descr);
         obj->short_descr = str_dup(buf);
         obj->value[0] = silver;
@@ -2177,7 +2185,7 @@ OBJ_DATA* create_money(int gold, int silver)
 
     else {
         obj = create_object(get_obj_index(OBJ_VNUM_COINS), 0);
-        sprintf(buf, obj->short_descr, silver, gold);
+        sprintf(buf, "%d gold coins and %d silver coins", gold, silver);
         free_string(obj->short_descr);
         obj->short_descr = str_dup(buf);
         obj->value[0] = silver;
@@ -2788,8 +2796,8 @@ void all_colour(CHAR_DATA* ch, char* argument)
 {
     char buf[132];
     char buf2[100];
-    int colour;
-    int bright;
+    uint8_t colour;
+    uint8_t bright;
 
     if (IS_NPC(ch) || !ch->pcdata) return;
 

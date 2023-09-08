@@ -214,7 +214,7 @@ void load_mobiles(FILE* fp)
         pMobIndex->short_descr = fread_string(fp);
         pMobIndex->long_descr = fread_string(fp);
         pMobIndex->description = fread_string(fp);
-        pMobIndex->race = race_lookup(fread_string(fp));
+        pMobIndex->race = (int16_t)race_lookup(fread_string(fp));
 
         pMobIndex->long_descr[0] = UPPER(pMobIndex->long_descr[0]);
         pMobIndex->description[0] = UPPER(pMobIndex->description[0]);
@@ -224,39 +224,39 @@ void load_mobiles(FILE* fp)
         pMobIndex->affected_by
             = fread_flag(fp) | race_table[pMobIndex->race].aff;
         pMobIndex->pShop = NULL;
-        pMobIndex->alignment = fread_number(fp);
-        pMobIndex->group = fread_number(fp);
+        pMobIndex->alignment = (int16_t)fread_number(fp);
+        pMobIndex->group = (int16_t)fread_number(fp);
 
-        pMobIndex->level = fread_number(fp);
-        pMobIndex->hitroll = fread_number(fp);
+        pMobIndex->level = (int16_t)fread_number(fp);
+        pMobIndex->hitroll = (int16_t)fread_number(fp);
 
         /* read hit dice */
-        pMobIndex->hit[DICE_NUMBER] = fread_number(fp);
+        pMobIndex->hit[DICE_NUMBER] = (int16_t)fread_number(fp);
         /* 'd'          */ fread_letter(fp);
-        pMobIndex->hit[DICE_TYPE] = fread_number(fp);
+        pMobIndex->hit[DICE_TYPE] = (int16_t)fread_number(fp);
         /* '+'          */ fread_letter(fp);
-        pMobIndex->hit[DICE_BONUS] = fread_number(fp);
+        pMobIndex->hit[DICE_BONUS] = (int16_t)fread_number(fp);
 
         /* read mana dice */
-        pMobIndex->mana[DICE_NUMBER] = fread_number(fp);
+        pMobIndex->mana[DICE_NUMBER] = (int16_t)fread_number(fp);
         fread_letter(fp);
-        pMobIndex->mana[DICE_TYPE] = fread_number(fp);
+        pMobIndex->mana[DICE_TYPE] = (int16_t)fread_number(fp);
         fread_letter(fp);
-        pMobIndex->mana[DICE_BONUS] = fread_number(fp);
+        pMobIndex->mana[DICE_BONUS] = (int16_t)fread_number(fp);
 
         /* read damage dice */
-        pMobIndex->damage[DICE_NUMBER] = fread_number(fp);
+        pMobIndex->damage[DICE_NUMBER] = (int16_t)fread_number(fp);
         fread_letter(fp);
-        pMobIndex->damage[DICE_TYPE] = fread_number(fp);
+        pMobIndex->damage[DICE_TYPE] = (int16_t)fread_number(fp);
         fread_letter(fp);
-        pMobIndex->damage[DICE_BONUS] = fread_number(fp);
-        pMobIndex->dam_type = attack_lookup(fread_word(fp));
+        pMobIndex->damage[DICE_BONUS] = (int16_t)fread_number(fp);
+        pMobIndex->dam_type = (int16_t)attack_lookup(fread_word(fp));
 
         /* read armor class */
-        pMobIndex->ac[AC_PIERCE] = fread_number(fp) * 10;
-        pMobIndex->ac[AC_BASH] = fread_number(fp) * 10;
-        pMobIndex->ac[AC_SLASH] = fread_number(fp) * 10;
-        pMobIndex->ac[AC_EXOTIC] = fread_number(fp) * 10;
+        pMobIndex->ac[AC_PIERCE] = (int16_t)fread_number(fp) * 10;
+        pMobIndex->ac[AC_BASH] = (int16_t)fread_number(fp) * 10;
+        pMobIndex->ac[AC_SLASH] = (int16_t)fread_number(fp) * 10;
+        pMobIndex->ac[AC_EXOTIC] = (int16_t)fread_number(fp) * 10;
 
         /* read flags and add in data from the race table */
         pMobIndex->off_flags = fread_flag(fp) | race_table[pMobIndex->race].off;
@@ -266,16 +266,16 @@ void load_mobiles(FILE* fp)
             = fread_flag(fp) | race_table[pMobIndex->race].vuln;
 
         /* vital statistics */
-        pMobIndex->start_pos = position_lookup(fread_word(fp));
-        pMobIndex->default_pos = position_lookup(fread_word(fp));
-        pMobIndex->sex = sex_lookup(fread_word(fp));
+        pMobIndex->start_pos = (int16_t)position_lookup(fread_word(fp));
+        pMobIndex->default_pos = (int16_t)position_lookup(fread_word(fp));
+        pMobIndex->sex = (int16_t)sex_lookup(fread_word(fp));
 
         pMobIndex->wealth = fread_number(fp);
 
         pMobIndex->form = fread_flag(fp) | race_table[pMobIndex->race].form;
         pMobIndex->parts = fread_flag(fp) | race_table[pMobIndex->race].parts;
         /* size */
-        CHECK_POS(pMobIndex->size, size_lookup(fread_word(fp)), "size");
+        CHECK_POS(pMobIndex->size, (int16_t)size_lookup(fread_word(fp)), "size");
         /*	pMobIndex->size			= size_lookup(fread_word(fp)); */
         pMobIndex->material = str_dup(fread_word(fp));
 
@@ -317,7 +317,7 @@ void load_mobiles(FILE* fp)
 
                 pMprog = alloc_perm(sizeof(*pMprog));
                 word = fread_word(fp);
-                if ((trigger = flag_lookup(word, mprog_flags)) == NO_FLAG) {
+                if ((trigger = flag_lookup(word, mprog_flag_table)) == NO_FLAG) {
                     bug("MOBprogs: invalid trigger.", 0);
                     exit(1);
                 }
@@ -391,7 +391,7 @@ void load_objects(FILE* fp)
         pObjIndex->description = fread_string(fp);
         pObjIndex->material = fread_string(fp);
 
-        CHECK_POS(pObjIndex->item_type, item_lookup(fread_word(fp)), "item_type");
+        CHECK_POS(pObjIndex->item_type, (int16_t)item_lookup(fread_word(fp)), "item_type");
         pObjIndex->extra_flags = fread_flag(fp);
         pObjIndex->wear_flags = fread_flag(fp);
         switch (pObjIndex->item_type) {
@@ -442,8 +442,8 @@ void load_objects(FILE* fp)
             pObjIndex->value[4] = fread_flag(fp);
             break;
         }
-        pObjIndex->level = fread_number(fp);
-        pObjIndex->weight = fread_number(fp);
+        pObjIndex->level = (int16_t)fread_number(fp);
+        pObjIndex->weight = (int16_t)fread_number(fp);
         pObjIndex->cost = fread_number(fp);
 
         /* condition */
@@ -476,8 +476,6 @@ void load_objects(FILE* fp)
         }
 
         for (;;) {
-            char letter;
-
             letter = fread_letter(fp);
 
             if (letter == 'A') {
@@ -488,8 +486,8 @@ void load_objects(FILE* fp)
                 paf->type = -1;
                 paf->level = pObjIndex->level;
                 paf->duration = -1;
-                paf->location = fread_number(fp);
-                paf->modifier = fread_number(fp);
+                paf->location = (int16_t)fread_number(fp);
+                paf->modifier = (int16_t)fread_number(fp);
                 paf->bitvector = 0;
                 paf->next = pObjIndex->affected;
                 pObjIndex->affected = paf;
@@ -521,8 +519,8 @@ void load_objects(FILE* fp)
                 paf->type = -1;
                 paf->level = pObjIndex->level;
                 paf->duration = -1;
-                paf->location = fread_number(fp);
-                paf->modifier = fread_number(fp);
+                paf->location = (int16_t)fread_number(fp);
+                paf->modifier = (int16_t)fread_number(fp);
                 paf->bitvector = fread_flag(fp);
                 paf->next = pObjIndex->affected;
                 pObjIndex->affected = paf;
@@ -610,7 +608,7 @@ void convert_objects(void)
 
                 case 'P':
                 {
-                    OBJ_INDEX_DATA* pObj, * pObjTo;
+                    OBJ_INDEX_DATA* pObjTo;
 
                     if (!(pObj = get_obj_index(pReset->arg1))) {
                         bug("Convert_objects: 'P': bad vnum %"PRVNUM".", pReset->arg1);
@@ -698,7 +696,7 @@ void convert_objects(void)
  ****************************************************************************/
 void convert_object(OBJ_INDEX_DATA* pObjIndex)
 {
-    int level;
+    LEVEL level;
     int number, type;  /* for dice-conversion */
 
     if (!pObjIndex || pObjIndex->new_format) return;
@@ -801,7 +799,7 @@ void convert_mobile(MOB_INDEX_DATA* pMobIndex)
 {
     int i;
     int type, number, bonus;
-    int level;
+    LEVEL level;
 
     if (!pMobIndex || pMobIndex->new_format) return;
 
@@ -839,11 +837,11 @@ void convert_mobile(MOB_INDEX_DATA* pMobIndex)
     type = UMAX(2, type / number);
     bonus = UMAX(0, ((int)(level * (8 + level) * .9) - number * type));
 
-    pMobIndex->hit[DICE_NUMBER] = number;
-    pMobIndex->hit[DICE_TYPE] = type;
-    pMobIndex->hit[DICE_BONUS] = bonus;
+    pMobIndex->hit[DICE_NUMBER] = (int16_t)number;
+    pMobIndex->hit[DICE_TYPE] = (int16_t)type;
+    pMobIndex->hit[DICE_BONUS] = (int16_t)bonus;
 
-    pMobIndex->mana[DICE_NUMBER] = level;
+    pMobIndex->mana[DICE_NUMBER] = (int16_t)level;
     pMobIndex->mana[DICE_TYPE] = 10;
     pMobIndex->mana[DICE_BONUS] = 100;
 
@@ -856,9 +854,9 @@ void convert_mobile(MOB_INDEX_DATA* pMobIndex)
     type = UMAX(2, type / number);
     bonus = UMAX(0, level * 9 / 4 - number * type);
 
-    pMobIndex->damage[DICE_NUMBER] = number;
-    pMobIndex->damage[DICE_TYPE] = type;
-    pMobIndex->damage[DICE_BONUS] = bonus;
+    pMobIndex->damage[DICE_NUMBER] = (int16_t)number;
+    pMobIndex->damage[DICE_TYPE] = (int16_t)type;
+    pMobIndex->damage[DICE_BONUS] = (int16_t)bonus;
 
     switch (number_range(1, 3)) {
     case (1): pMobIndex->dam_type = 3;       break;  /* slash  */
@@ -867,8 +865,8 @@ void convert_mobile(MOB_INDEX_DATA* pMobIndex)
     }
 
     for (i = 0; i < 3; i++)
-        pMobIndex->ac[i] = interpolate(level, 100, -100);
-    pMobIndex->ac[3] = interpolate(level, 100, 0);    /* exotic */
+        pMobIndex->ac[i] = (int16_t)interpolate(level, 100, -100);
+    pMobIndex->ac[3] = (int16_t)interpolate(level, 100, 0);    /* exotic */
 
     pMobIndex->wealth /= 100;
     pMobIndex->size = SIZE_MEDIUM;
@@ -962,7 +960,7 @@ void recalc(MOB_INDEX_DATA* pMob)
     else if (IS_SET(pMob->act, ACT_CLERIC) || IS_SET(pMob->act, ACT_MAGE))
         hitbonus = pMob->level / 2;
 
-    pMob->hitroll = hitbonus;
+    pMob->hitroll = (int16_t)hitbonus;
 
     return;
 }

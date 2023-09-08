@@ -66,7 +66,7 @@ void do_function args((CHAR_DATA * ch, DO_FUN* do_fun, char* argument));
 /* the command table itself */
 extern struct cmd_type* cmd_table;
 
-extern size_t MAX_CMD;
+extern int max_cmd;
 
 #include "command.h"
 
