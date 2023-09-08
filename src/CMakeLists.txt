@@ -46,14 +46,14 @@ if (MSVC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MSVC_C_STD} /Wall ${MSVC_DISABLED_WARNINGS_OPT}")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_CRT_SECURE_NO_WARNINGS -DNOCRYPT")
 elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    add_compile_options(-Wall -Werror -Wextra -pedantic -Wno-unused-parameter -std=gnu2x -D_GNU_SOURCE)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -Wextra -pedantic -Wno-unused-parameter -std=gnu2x -D_GNU_SOURCE")
 elseif (CMAKE_C_COMPILER_ID STREQUAL "Clang")
-    add_compile_options(-Wall -Werror -Wextra -pedantic -Wno-unused-parameter -std=c2x -D_GNU_SOURCE)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -Wextra -pedantic -Wno-unused-parameter -std=c2x -D_GNU_SOURCE")
 endif()
 
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU" 
     OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
-    add_compile_options(-Wno-unknown-pragmas)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unknown-pragmas")
 endif()
 
 add_executable(Mud98 merc.h act_comm.c act_enter.c act_info.c act_move.c 

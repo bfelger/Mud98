@@ -162,8 +162,6 @@ typedef struct weather_data WEATHER_DATA;
 // New structures for Mud98 -- Halivar
 typedef struct color_theme_t ColorTheme;
 
-typedef enum damage_type_t DamageType;
-
 /*
  * Function types.
  */
@@ -297,6 +295,32 @@ struct weather_data {
 #define CON_READ_IMOTD           13
 #define CON_READ_MOTD            14
 #define CON_BREAK_CONNECT        15
+
+/* damage classes */
+typedef enum {
+    DAM_NONE        = 0,
+    DAM_BASH        = 1,
+    DAM_PIERCE      = 2,
+    DAM_SLASH       = 3,
+    DAM_FIRE        = 4,
+    DAM_COLD        = 5,
+    DAM_LIGHTNING   = 6,
+    DAM_ACID        = 7,
+    DAM_POISON      = 8,
+    DAM_NEGATIVE    = 9,
+    DAM_HOLY        = 10,
+    DAM_ENERGY      = 11,
+    DAM_MENTAL      = 12,
+    DAM_DISEASE     = 13,
+    DAM_DROWNING    = 14,
+    DAM_LIGHT       = 15,
+    DAM_OTHER       = 16,
+    DAM_HARM        = 17,
+    DAM_CHARM       = 18,
+    DAM_SOUND       = 19,
+    
+    DAM_NOT_FOUND   = -1,
+} DamageType;
 
 /*
  * Attribute bonus structures.
@@ -546,30 +570,6 @@ struct kill_data {
 #define ACT_GAIN                BIT(27)
 #define ACT_UPDATE_ALWAYS       BIT(28)
 #define ACT_IS_CHANGER          BIT(29)
-
-/* damage classes */
-typedef enum damage_type_t {
-    DAM_NONE        = 0,
-    DAM_BASH        = 1,
-    DAM_PIERCE      = 2,
-    DAM_SLASH       = 3,
-    DAM_FIRE        = 4,
-    DAM_COLD        = 5,
-    DAM_LIGHTNING   = 6,
-    DAM_ACID        = 7,
-    DAM_POISON      = 8,
-    DAM_NEGATIVE    = 9,
-    DAM_HOLY        = 10,
-    DAM_ENERGY      = 11,
-    DAM_MENTAL      = 12,
-    DAM_DISEASE     = 13,
-    DAM_DROWNING    = 14,
-    DAM_LIGHT       = 15,
-    DAM_OTHER       = 16,
-    DAM_HARM        = 17,
-    DAM_CHARM       = 18,
-    DAM_SOUND       = 19,
-} DamageType;
 
 /* OFF bits for mobiles */
 #define OFF_AREA_ATTACK         BIT(0)
@@ -2104,7 +2104,7 @@ SKNUM find_spell(CHAR_DATA * ch, const char* name);
 int mana_cost(CHAR_DATA* ch, int min_mana, LEVEL level);
 SKNUM skill_lookup(const char* name);
 SKNUM skill_slot_lookup(int slot);
-bool saves_spell(LEVEL level, CHAR_DATA* victim, int dam_type);
+bool saves_spell(LEVEL level, CHAR_DATA* victim, DamageType dam_type);
 void obj_cast_spell args((SKNUM sn, LEVEL level, CHAR_DATA* ch, CHAR_DATA* victim,
                           OBJ_DATA* obj));
 

@@ -408,7 +408,8 @@ void one_hit(CHAR_DATA* ch, CHAR_DATA* victim, SKNUM dt)
     else
         dam_type = attack_table[dt - TYPE_HIT].damage;
 
-    if (dam_type == -1) dam_type = DAM_BASH;
+    if (dam_type == DAM_NOT_FOUND) 
+        dam_type = DAM_BASH;
 
     /* get the weapon skill */
     sn = get_weapon_sn(ch);

@@ -107,7 +107,6 @@ void scan_list(ROOM_INDEX_DATA* scan_room, CHAR_DATA* ch, int16_t depth,
 void scan_char(CHAR_DATA* victim, CHAR_DATA* ch, int16_t depth, int16_t door)
 {
     extern char* const dir_name[];
-    extern char* const distance[];
     char buf[MAX_INPUT_LENGTH] = "";
     char buf2[MAX_INPUT_LENGTH] = "";
 
