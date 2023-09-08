@@ -68,43 +68,43 @@ bool show_version(CHAR_DATA* ch, char* argument)
  */
 const struct olc_help_type help_table[] =
 {
-    {	"area",		    U(area_flags),	        "Area flags."		        },
-    {	"room",		    U(room_flags),	        "Room flags."		        },
-    {	"sector",	    U(sector_flags),	    "Sector flags."	            },
-    {	"exit",		    U(exit_flags),	        "Exit flags."		        },
-    {	"type",		    U(type_flags),	        "Object types."		        },
-    {	"extra",	    U(extra_flags),	        "Object extra flags."		},
-    {	"wear",		    U(wear_flags),	        "Object wear flags."		},
+    {	"area",		    U(area_flag_table),	    "Area flags."		        },
+    {	"room",		    U(room_flag_table),	    "Room flags."		        },
+    {	"sector",	    U(sector_flag_table),	"Sector flags."	            },
+    {	"exit",		    U(exit_flag_table),	    "Exit flags."		        },
+    {	"type",		    U(type_flag_table),	    "Object types."		        },
+    {	"extra",	    U(extra_flag_table),    "Object extra flags."		},
+    {	"wear",		    U(wear_flag_table),	    "Object wear flags."		},
     {	"spec",		    U(spec_table),	        "Special procedures."	    },
     {	"sex",		    U(sex_table),	        "Sexes."			        },
-    {	"act",		    U(act_flags),	        "Mobile act flags."		    },
-    {	"affect",	    U(affect_flags),	    "Mob affect flags"		    },
-    {	"wear-loc",	    U(wear_loc_flags),	    "Wear loc flags."	        },
+    {	"act",		    U(act_flag_table),	    "Mobile act flags."		    },
+    {	"affect",	    U(affect_flag_table),	"Mob affect flags"		    },
+    {	"wear-loc",	    U(wear_loc_flag_table),	"Wear loc flags."	        },
     {	"spells",	    0,		                "Spell names."		        },
-    {	"container",    U(container_flags),     "Container flags."		    },
+    {	"container",    U(container_flag_table),"Container flags."		    },
     {	"armor",	    U(ac_type),	            "Ac types."	                },
-    {   "apply",	    U(apply_flags),	        "Apply types."		        },
-    {	"form",		    U(form_flags),	        "Mob form flags."		    },
-    {	"part",		    U(part_flags),	        "Mob part flags."		    },
-    {	"imm",		    U(imm_flags),	        "Mob immunity flags."		},
-    {	"res",		    U(res_flags),	        "Mob resistance flags."		},
-    {	"vuln",		    U(vuln_flags),	        "Mob vulnerability flags."	},
-    {	"off",		    U(off_flags),	        "Mob offensive flags."	    },
+    {   "apply",	    U(apply_flag_table),	"Apply types."		        },
+    {	"form",		    U(form_flag_table),	    "Mob form flags."		    },
+    {	"part",		    U(part_flag_table),	    "Mob part flags."		    },
+    {	"imm",		    U(imm_flag_table),	    "Mob immunity flags."		},
+    {	"res",		    U(res_flag_table),	    "Mob resistance flags."		},
+    {	"vuln",		    U(vuln_flag_table),	    "Mob vulnerability flags."	},
+    {	"off",		    U(off_flag_table),	    "Mob offensive flags."	    },
     {	"size",		    U(size_table),	        "Sizes."		            },
     {   "wclass",       U(weapon_class),        "Weapon classes."		    },
     {   "wtype",        U(weapon_type2),        "Weapon types."	            },
-    {	"portal",	    U(portal_flags),	    "Portal flags."		        },
-    {	"furniture",    U(furniture_flags),     "Furniture flags."		    },
+    {	"portal",	    U(portal_flag_table),	"Portal flags."		        },
+    {	"furniture",    U(furniture_flag_table),"Furniture flags."		    },
     {	"liquid",	    U(liq_table),	        "Liquid types."		        },
     {	"damtype",	    U(attack_table),	    "Damtypes."		            },
     {	"weapon",	    U(attack_table),	    NULL				        },
     {   "position",	    U(position_table),	    "Positions."			    },
-    {	"mprog",	    U(mprog_flags),	        "Mprog flags."		        },
+    {	"mprog",	    U(mprog_flag_table),	"Mprog flags."		        },
     {	"apptype",	    U(apply_types),	        "Apply types (2)."		    },
     {	"target",	    U(target_table),	    "Spell target table."		},
     {	"damclass",	    U(dam_classes),	        "Damage classes."		    },
-    {	"log",		    U(log_flags),	        "Log flags."			    },
-    {	"show",		    U(show_flags),	        "Command display flags."	},
+    {	"log",		    U(log_flag_table),	    "Log flags."			    },
+    {	"show",		    U(show_flag_table),	    "Command display flags."	},
     {	NULL,		    0,		                NULL				        }
 };
 
@@ -502,7 +502,7 @@ AEDIT(aedit_show)
     sprintf(buf, "Hi range: [%d]\n\r", pArea->high_range);
     send_to_char(buf, ch);
 
-    sprintf(buf, "Flags:    [%s]\n\r", flag_string(area_flags, pArea->area_flags));
+    sprintf(buf, "Flags:    [%s]\n\r", flag_string(area_flag_table, pArea->area_flags));
     send_to_char(buf, ch);
 
     return false;
@@ -625,7 +625,7 @@ AEDIT(aedit_file)
 AEDIT(aedit_lowrange)
 {
     AREA_DATA* pArea;
-    int low_r;
+    LEVEL low_r;
 
     EDIT_AREA(ch, pArea);
 
@@ -634,7 +634,7 @@ AEDIT(aedit_lowrange)
         return false;
     }
 
-    low_r = atoi(argument);
+    low_r = (LEVEL)atoi(argument);
 
     if (low_r < 0 || low_r > MAX_LEVEL) {
         send_to_char("Value must be between 0 and MAX_LEVEL.\n\r", ch);
@@ -655,7 +655,7 @@ AEDIT(aedit_lowrange)
 AEDIT(aedit_highrange)
 {
     AREA_DATA* pArea;
-    int high_r;
+    LEVEL high_r;
 
     EDIT_AREA(ch, pArea);
 
@@ -664,7 +664,7 @@ AEDIT(aedit_highrange)
         return false;
     }
 
-    high_r = atoi(argument);
+    high_r = (LEVEL)atoi(argument);
 
     if (high_r < 0 || high_r > MAX_LEVEL) {
         send_to_char("Value must be between 0 and MAX_LEVEL.\n\r", ch);
@@ -696,7 +696,7 @@ AEDIT(aedit_age)
         return false;
     }
 
-    pArea->age = atoi(age);
+    pArea->age = (int16_t)atoi(age);
 
     send_to_char("Age set.\n\r", ch);
     return true;
@@ -799,28 +799,25 @@ AEDIT(aedit_builder)
         send_to_char("Builder removed.\n\r", ch);
         return true;
     }
-    else {
-        buf[0] = '\0';
-        if (strstr(pArea->builders, "None") != NULL) {
-            pArea->builders = string_replace(pArea->builders, "None", "\0");
-            pArea->builders = string_unpad(pArea->builders);
-        }
 
-        if (pArea->builders[0] != '\0') {
-            strcat(buf, pArea->builders);
-            strcat(buf, " ");
-        }
-        strcat(buf, name);
-        free_string(pArea->builders);
-        pArea->builders = string_proper(str_dup(buf));
-
-        send_to_char("Builder added.\n\r", ch);
-        send_to_char(pArea->builders, ch);
-        send_to_char("\n\r", ch);
-        return true;
+    buf[0] = '\0';
+    if (strstr(pArea->builders, "None") != NULL) {
+        pArea->builders = string_replace(pArea->builders, "None", "\0");
+        pArea->builders = string_unpad(pArea->builders);
     }
 
-    return false;
+    if (pArea->builders[0] != '\0') {
+        strcat(buf, pArea->builders);
+        strcat(buf, " ");
+    }
+    strcat(buf, name);
+    free_string(pArea->builders);
+    pArea->builders = string_proper(str_dup(buf));
+
+    send_to_char("Builder added.\n\r", ch);
+    send_to_char(pArea->builders, ch);
+    send_to_char("\n\r", ch);
+    return true;
 }
 
 
@@ -983,11 +980,11 @@ REDIT(redit_show)
     add_buf(out, BUF(line));
 
     sprintf(BUF(line), "Vnum:       [%5d]\n\rSector:     [%s]\n\r",
-        pRoom->vnum, flag_string(sector_flags, pRoom->sector_type));
+        pRoom->vnum, flag_string(sector_flag_table, pRoom->sector_type));
     add_buf(out, BUF(line));
 
     sprintf(BUF(line), "Room flags: [%s]\n\r",
-        flag_string(room_flags, pRoom->room_flags));
+        flag_string(room_flag_table, pRoom->room_flags));
     add_buf(out, BUF(line));
 
     sprintf(BUF(line), "Heal rec  : [%d]\n\rMana rec  : [%d]\n\r",
@@ -1073,8 +1070,8 @@ REDIT(redit_show)
          * Format up the exit info.
          * Capitalize all flags that are not part of the reset info.
          */
-        strcpy(BUF(reset_state), flag_string(exit_flags, pRoom->exit[cnt]->rs_flags));
-        state = flag_string(exit_flags, pRoom->exit[cnt]->exit_info);
+        strcpy(BUF(reset_state), flag_string(exit_flag_table, pRoom->exit[cnt]->rs_flags));
+        state = flag_string(exit_flag_table, pRoom->exit[cnt]->exit_info);
         add_buf(out, " Exit flags: [");
         for (; ;) {
             state = one_argument(state, BUF(word));
@@ -1130,7 +1127,7 @@ bool change_exit(CHAR_DATA* ch, char* argument, int door)
      * Set the exit flags, needs full argument.
      * ----------------------------------------
      */
-    if ((value = flag_value(exit_flags, argument)) != NO_FLAG) {
+    if ((value = flag_value(exit_flag_table, argument)) != NO_FLAG) {
         ROOM_INDEX_DATA* pToRoom;
         EXIT_DATA* pExit, * pNExit;
         int16_t rev;                                    /* ROM OLC */
@@ -1363,7 +1360,7 @@ bool change_exit(CHAR_DATA* ch, char* argument, int door)
             return false;
         }
 
-        pExit->key = atoi(arg);
+        pExit->key = (int16_t)atoi(arg);
 
         send_to_char("Exit key set.\n\r", ch);
         return true;
@@ -1514,9 +1511,9 @@ REDIT(redit_mreset)
     pReset = new_reset_data();
     pReset->command = 'M';
     pReset->arg1 = pMobIndex->vnum;
-    pReset->arg2 = is_number(arg2) ? atoi(arg2) : MAX_MOB;
+    pReset->arg2 = is_number(arg2) ? (int16_t)atoi(arg2) : MAX_MOB;
     pReset->arg3 = pRoom->vnum;
-    pReset->arg4 = is_number(argument) ? atoi(argument) : 1;
+    pReset->arg4 = is_number(argument) ? (int16_t)atoi(argument) : 1;
     add_reset(pRoom, pReset, 0/* Last slot*/);
 
     /*
@@ -1617,9 +1614,9 @@ REDIT(redit_oreset)
     OBJ_DATA* newobj;
     OBJ_DATA* to_obj;
     CHAR_DATA* to_mob;
-    char		arg1[MAX_INPUT_LENGTH];
-    char		arg2[MAX_INPUT_LENGTH];
-    int			olevel = 0;
+    char arg1[MAX_INPUT_LENGTH];
+    char arg2[MAX_INPUT_LENGTH];
+    LEVEL olevel = 0;
 
     RESET_DATA* pReset;
     char		output[MAX_STRING_LENGTH];
@@ -1659,7 +1656,7 @@ REDIT(redit_oreset)
         pReset->arg4 = 0;
         add_reset(pRoom, pReset, 0/* Last slot*/);
 
-        newobj = create_object(pObjIndex, number_fuzzy(olevel));
+        newobj = create_object(pObjIndex, (int16_t)number_fuzzy(olevel));
         obj_to_room(newobj, pRoom);
 
         sprintf(output, "%s (%d) has been loaded and added to resets.\n\r",
@@ -1681,7 +1678,7 @@ REDIT(redit_oreset)
             pReset->arg4 = 1;
             add_reset(pRoom, pReset, 0/* Last slot*/);
 
-            newobj = create_object(pObjIndex, number_fuzzy(olevel));
+            newobj = create_object(pObjIndex, (int16_t)number_fuzzy(olevel));
             newobj->cost = 0;
             obj_to_obj(newobj, to_obj);
 
@@ -1698,12 +1695,12 @@ REDIT(redit_oreset)
          * Load into mobile's inventory.
          */
             if ((to_mob = get_char_room(ch, arg2)) != NULL) {
-                int	wearloc;
+                int wearloc;
 
                 /*
                  * Make sure the location on mobile is valid.
                  */
-                if ((wearloc = flag_value(wear_loc_flags, argument)) == NO_FLAG) {
+                if ((wearloc = flag_value(wear_loc_flag_table, argument)) == NO_FLAG) {
                     send_to_char("REdit: Invalid wear_loc.  '? wear-loc'\n\r", ch);
                     return false;
                 }
@@ -1716,7 +1713,7 @@ REDIT(redit_oreset)
                         "%s (%d) has wear flags: [%s]\n\r",
                         capitalize(pObjIndex->short_descr),
                         pObjIndex->vnum,
-                        flag_string(wear_flags, pObjIndex->wear_flags));
+                        flag_string(wear_flag_table, pObjIndex->wear_flags));
                     send_to_char(output, ch);
                     return false;
                 }
@@ -1731,7 +1728,7 @@ REDIT(redit_oreset)
 
                 pReset = new_reset_data();
                 pReset->arg1 = pObjIndex->vnum;
-                pReset->arg2 = wearloc;
+                pReset->arg2 = (int16_t)wearloc;
                 if (pReset->arg2 == WEAR_NONE)
                     pReset->command = 'G';
                 else
@@ -1741,22 +1738,23 @@ REDIT(redit_oreset)
                 add_reset(pRoom, pReset, 0/* Last slot*/);
 
                 olevel = URANGE(0, to_mob->level - 2, LEVEL_HERO);
-                newobj = create_object(pObjIndex, number_fuzzy(olevel));
+                newobj = create_object(pObjIndex, (int16_t)number_fuzzy(olevel));
 
                 if (to_mob->pIndexData->pShop)	/* Shop-keeper? */
                 {
                     switch (pObjIndex->item_type) {
-                    default:		olevel = 0;				break;
-                    case ITEM_PILL:	olevel = number_range(0, 10);	break;
-                    case ITEM_POTION:	olevel = number_range(0, 10);	break;
-                    case ITEM_SCROLL:	olevel = number_range(5, 15);	break;
-                    case ITEM_WAND:	olevel = number_range(10, 20);	break;
-                    case ITEM_STAFF:	olevel = number_range(15, 25);	break;
-                    case ITEM_ARMOR:	olevel = number_range(5, 15);	break;
-                    case ITEM_WEAPON:	if (pReset->command == 'G')
-                        olevel = number_range(5, 15);
-                                    else
-                        olevel = number_fuzzy(olevel);
+                    default:		    olevel = 0;				                break;
+                    case ITEM_PILL: 	olevel = (LEVEL)number_range(0, 10);	break;
+                    case ITEM_POTION:	olevel = (LEVEL)number_range(0, 10);	break;
+                    case ITEM_SCROLL:	olevel = (LEVEL)number_range(5, 15);	break;
+                    case ITEM_WAND:	    olevel = (LEVEL)number_range(10, 20);	break;
+                    case ITEM_STAFF:	olevel = (LEVEL)number_range(15, 25);	break;
+                    case ITEM_ARMOR:	olevel = (LEVEL)number_range(5, 15);	break;
+                    case ITEM_WEAPON:	
+                        if (pReset->command == 'G')
+                            olevel = (LEVEL)number_range(5, 15);
+                        else
+                            olevel = (LEVEL)number_fuzzy(olevel);
                         break;
                     }
 
@@ -1765,11 +1763,11 @@ REDIT(redit_oreset)
                         SET_BIT(newobj->extra_flags, ITEM_INVENTORY);
                 }
                 else
-                    newobj = create_object(pObjIndex, number_fuzzy(olevel));
+                    newobj = create_object(pObjIndex, (int16_t)number_fuzzy(olevel));
 
                 obj_to_char(newobj, to_mob);
                 if (pReset->command == 'E')
-                    equip_char(to_mob, newobj, pReset->arg3);
+                    equip_char(to_mob, newobj, (int16_t)pReset->arg3);
 
                 sprintf(output, "%s (%d) has been loaded "
                     "%s of %s (%d) and added to resets.\n\r",
@@ -1830,7 +1828,7 @@ void show_obj_values(CHAR_DATA* ch, OBJ_INDEX_DATA* obj)
     {
         char buf2[MIL];
 
-        sprintf(buf2, "%s", flag_string(exit_flags, obj->value[1]));
+        sprintf(buf2, "%s", flag_string(exit_flag_table, obj->value[1]));
 
         sprintf(buf,
             "[v0] Charges:        [%d]\n\r"
@@ -1839,7 +1837,7 @@ void show_obj_values(CHAR_DATA* ch, OBJ_INDEX_DATA* obj)
             "[v3] Goes to (vnum): [%d]\n\r",
             obj->value[0],
             buf2,
-            flag_string(portal_flags, obj->value[2]),
+            flag_string(portal_flag_table, obj->value[2]),
             obj->value[3]);
         send_to_char(buf, ch);
     }
@@ -1854,7 +1852,7 @@ void show_obj_values(CHAR_DATA* ch, OBJ_INDEX_DATA* obj)
             "[v4] Mana bonus:      [%d]\n\r",
             obj->value[0],
             obj->value[1],
-            flag_string(furniture_flags, obj->value[2]),
+            flag_string(furniture_flag_table, obj->value[2]),
             obj->value[3],
             obj->value[4]);
         send_to_char(buf, ch);
@@ -1923,7 +1921,7 @@ void show_obj_values(CHAR_DATA* ch, OBJ_INDEX_DATA* obj)
             "[v3] Capacity    [%d]\n\r"
             "[v4] Weight Mult [%d]\n\r",
             obj->value[0],
-            flag_string(container_flags, obj->value[1]),
+            flag_string(container_flag_table, obj->value[1]),
             get_obj_index(obj->value[2])
             ? get_obj_index(obj->value[2])->short_descr
             : "none",
@@ -2126,11 +2124,11 @@ bool set_obj_values(CHAR_DATA* ch, OBJ_INDEX_DATA* pObj, int value_num, char* ar
             break;
         case 1:
             send_to_char("EXIT FLAGS SET.\n\r\n\r", ch);
-            pObj->value[1] = ((tmp = flag_value(exit_flags, argument)) == NO_FLAG ? 0 : tmp);
+            pObj->value[1] = ((tmp = flag_value(exit_flag_table, argument)) == NO_FLAG ? 0 : tmp);
             break;
         case 2:
             send_to_char("PORTAL FLAGS SET.\n\r\n\r", ch);
-            pObj->value[2] = ((tmp = flag_value(portal_flags, argument)) == NO_FLAG ? 0 : tmp);
+            pObj->value[2] = ((tmp = flag_value(portal_flag_table, argument)) == NO_FLAG ? 0 : tmp);
             break;
         case 3:
             send_to_char("EXIT VNUM SET.\n\r\n\r", ch);
@@ -2155,8 +2153,8 @@ bool set_obj_values(CHAR_DATA* ch, OBJ_INDEX_DATA* pObj, int value_num, char* ar
             break;
         case 2:
             send_to_char("FURNITURE FLAGS TOGGLED.\n\r\n\r", ch);
-            pObj->value[2] ^= (flag_value(furniture_flags, argument) != NO_FLAG
-                ? flag_value(furniture_flags, argument) : 0);
+            pObj->value[2] ^= (flag_value(furniture_flag_table, argument) != NO_FLAG
+                ? flag_value(furniture_flag_table, argument) : 0);
             break;
         case 3:
             send_to_char("HEAL BONUS SET.\n\r\n\r", ch);
@@ -2181,7 +2179,7 @@ bool set_obj_values(CHAR_DATA* ch, OBJ_INDEX_DATA* pObj, int value_num, char* ar
             pObj->value[0] = atoi(argument);
             break;
         case 1:
-            if ((value = flag_value(container_flags, argument))
+            if ((value = flag_value(container_flag_table, argument))
                 != NO_FLAG)
                 TOGGLE_BIT(pObj->value[1], value);
             else {
@@ -2346,18 +2344,18 @@ OEDIT(oedit_show)
 
     sprintf(buf, "Vnum:        [%5d]\n\rType:        [%s]\n\r",
         pObj->vnum,
-        flag_string(type_flags, pObj->item_type));
+        flag_string(type_flag_table, pObj->item_type));
     send_to_char(buf, ch);
 
     sprintf(buf, "Level:       [%5d]\n\r", pObj->level);
     send_to_char(buf, ch);
 
     sprintf(buf, "Wear flags:  [%s]\n\r",
-        flag_string(wear_flags, pObj->wear_flags));
+        flag_string(wear_flag_table, pObj->wear_flags));
     send_to_char(buf, ch);
 
     sprintf(buf, "Extra flags: [%s]\n\r",
-        flag_string(extra_flags, pObj->extra_flags));
+        flag_string(extra_flag_table, pObj->extra_flags));
     send_to_char(buf, ch);
 
     sprintf(buf, "Material:    [%s]\n\r",                /* ROM */
@@ -2397,7 +2395,7 @@ OEDIT(oedit_show)
         }
         sprintf(buf, "[%4d] %-8d %-12s ", cnt,
             paf->modifier,
-            flag_string(apply_flags, paf->location));
+            flag_string(apply_flag_table, paf->location));
         send_to_char(buf, ch);
         sprintf(buf, "%s ", flag_string(bitvector_type[paf->where].table, paf->bitvector));
         send_to_char(buf, ch);
@@ -2433,7 +2431,7 @@ OEDIT(oedit_addaffect)
         return false;
     }
 
-    if ((value = flag_value(apply_flags, loc)) == NO_FLAG) /* Hugin */
+    if ((value = flag_value(apply_flag_table, loc)) == NO_FLAG) /* Hugin */
     {
         send_to_char("Valid affects are:\n\r", ch);
         show_help(ch, "apply");
@@ -2441,8 +2439,8 @@ OEDIT(oedit_addaffect)
     }
 
     pAf = new_affect();
-    pAf->location = value;
-    pAf->modifier = atoi(mod);
+    pAf->location = (LEVEL)value;
+    pAf->modifier = (int16_t)atoi(mod);
     pAf->where = TO_OBJECT;
     pAf->type = -1;
     pAf->duration = -1;
@@ -2486,7 +2484,7 @@ OEDIT(oedit_addapply)
         goto oedit_addapply_cleanup;
     }
 
-    if (BUF(loc)[0] == '\0' || (value = flag_value(apply_flags, BUF(loc))) == NO_FLAG) {
+    if (BUF(loc)[0] == '\0' || (value = flag_value(apply_flag_table, BUF(loc))) == NO_FLAG) {
         send_to_char("Valid applys are:\n\r", ch);
         show_help(ch, "apply");
         rc = false;
@@ -2508,9 +2506,9 @@ OEDIT(oedit_addapply)
     }
 
     pAf = new_affect();
-    pAf->location = value;
-    pAf->modifier = atoi(BUF(mod));
-    pAf->where = apply_flags[typ].bit;
+    pAf->location = (int16_t)value;
+    pAf->modifier = (int16_t)atoi(BUF(mod));
+    pAf->where = (int16_t)apply_flag_table[typ].bit;
     pAf->type = -1;
     pAf->duration = -1;
     pAf->bitvector = bv;
@@ -2714,7 +2712,7 @@ MEDIT(medit_show)
     add_buf(buffer, buf);
 
     sprintf(buf, "Act:         [%s]\n\r",
-        flag_string(act_flags, pMob->act));
+        flag_string(act_flag_table, pMob->act));
     add_buf(buffer, buf);
 
     sprintf(buf, "Vnum:        [%5d] Sex:   [%6s]    Group: [%5d]\n\r"
@@ -2767,7 +2765,7 @@ MEDIT(medit_show)
     add_buf(buffer, buf);
 
     sprintf(buf, "Affected by: [%s]\n\r",
-        flag_string(affect_flags, pMob->affected_by));
+        flag_string(affect_flag_table, pMob->affected_by));
     add_buf(buffer, buf);
 
 /* ROM values: */
@@ -2778,27 +2776,27 @@ MEDIT(medit_show)
     add_buf(buffer, buf);
 
     sprintf(buf, "Form:        [%s]\n\r",
-        flag_string(form_flags, pMob->form));
+        flag_string(form_flag_table, pMob->form));
     add_buf(buffer, buf);
 
     sprintf(buf, "Parts:       [%s]\n\r",
-        flag_string(part_flags, pMob->parts));
+        flag_string(part_flag_table, pMob->parts));
     add_buf(buffer, buf);
 
     sprintf(buf, "Imm:         [%s]\n\r",
-        flag_string(imm_flags, pMob->imm_flags));
+        flag_string(imm_flag_table, pMob->imm_flags));
     add_buf(buffer, buf);
 
     sprintf(buf, "Res:         [%s]\n\r",
-        flag_string(res_flags, pMob->res_flags));
+        flag_string(res_flag_table, pMob->res_flags));
     add_buf(buffer, buf);
 
     sprintf(buf, "Vuln:        [%s]\n\r",
-        flag_string(vuln_flags, pMob->vuln_flags));
+        flag_string(vuln_flag_table, pMob->vuln_flags));
     add_buf(buffer, buf);
 
     sprintf(buf, "Off:         [%s]\n\r",
-        flag_string(off_flags, pMob->off_flags));
+        flag_string(off_flag_table, pMob->off_flags));
     add_buf(buffer, buf);
 
 /* ROM values end */
@@ -2839,7 +2837,7 @@ MEDIT(medit_show)
                     add_buf(buffer, "  ------ -----------\n\r");
                 }
                 sprintf(buf, "  [%4d] %s\n\r", iTrade,
-                    flag_string(type_flags, pShop->buy_type[iTrade]));
+                    flag_string(type_flag_table, pShop->buy_type[iTrade]));
                 add_buf(buffer, buf);
             }
         }
@@ -2890,7 +2888,7 @@ MEDIT(medit_group)
     }
 
     if (is_number(argument)) {
-        pMob->group = atoi(argument);
+        pMob->group = (SKNUM)atoi(argument);
         send_to_char("Group set.\n\r", ch);
         return true;
     }
@@ -3394,9 +3392,9 @@ bool numedit(char* n_fun, CHAR_DATA* ch, char* argument, uintptr_t arg, int16_t 
     }
 
     if (type == NUM_INT16)
-        *shvalue = temp;
+        *shvalue = (int16_t)temp;
     else if (type == NUM_INT32)
-        *value = temp;
+        *value = (int32_t)temp;
     else
         *lvalue = temp;
 
@@ -3512,7 +3510,7 @@ ED_FUN_DEC(ed_flag_set_sh)
 
     if (!emptystring(argument)) {
         if ((value = flag_value((struct flag_type*)par, argument)) != NO_FLAG) {
-            *(int16_t*)arg = value;
+            *(int16_t*)arg = (int16_t)value;
 
             printf_to_char(ch, "%c%s flag set.\n\r",
                 toupper(n_fun[0]),
@@ -3558,8 +3556,8 @@ ED_FUN_DEC(ed_shop)
             return false;
         }
 
-        pMob->pShop->open_hour = atoi(arg1);
-        pMob->pShop->close_hour = atoi(argument);
+        pMob->pShop->open_hour = (int16_t)atoi(arg1);
+        pMob->pShop->close_hour = (int16_t)atoi(argument);
 
         send_to_char("Hours set.\n\r", ch);
         return true;
@@ -3577,8 +3575,8 @@ ED_FUN_DEC(ed_shop)
             return false;
         }
 
-        pMob->pShop->profit_buy = atoi(arg1);
-        pMob->pShop->profit_sell = atoi(argument);
+        pMob->pShop->profit_buy = (int16_t)atoi(arg1);
+        pMob->pShop->profit_sell = (int16_t)atoi(argument);
 
         send_to_char("Shop profit set.\n\r", ch);
         return true;
@@ -3605,12 +3603,12 @@ ED_FUN_DEC(ed_shop)
             return false;
         }
 
-        if (str_cmp(argument, "none") && (value = flag_value(type_flags, argument)) == NO_FLAG) {
+        if (str_cmp(argument, "none") && (value = flag_value(type_flag_table, argument)) == NO_FLAG) {
             send_to_char("MEdit:  That type of item does not exist.\n\r", ch);
             return false;
         }
 
-        pMob->pShop->buy_type[atoi(arg1)] = !str_cmp(argument, "none") ? 0 : value;
+        pMob->pShop->buy_type[atoi(arg1)] = !str_cmp(argument, "none") ? 0 : (int16_t)value;
 
         send_to_char("Shop type set.\n\r", ch);
         return true;
@@ -3757,11 +3755,8 @@ ED_FUN_DEC(ed_gamespec)
         send_to_char("Spec set.\n\r", ch);
         return true;
     }
-    else {
-        send_to_char("ERROR : Spec does not exist.\n\r", ch);
-        return false;
-    }
 
+    send_to_char("ERROR : Spec does not exist.\n\r", ch);
     return false;
 }
 
@@ -3807,7 +3802,7 @@ bool templookup(char* n_fun, CHAR_DATA* ch, char* argument, uintptr_t arg, const
 
     if (!emptystring(argument)) {
         if ((value = ((*blah) (argument))) > temp) {
-            *(int16_t*)arg = value;
+            *(int16_t*)arg = (int16_t)value;
             printf_to_char(ch, "%s set.\n\r",
                 n_fun);
             return true;
@@ -3842,7 +3837,7 @@ ED_FUN_DEC(ed_ac)
 {
     MOB_INDEX_DATA* pMob = (MOB_INDEX_DATA*)arg;
     char blarg[MAX_INPUT_LENGTH];
-    int pierce, bash, slash, exotic;
+    int16_t pierce, bash, slash, exotic;
 
     do   /* So that I can use break and send the syntax in one place */
     {
@@ -3851,12 +3846,12 @@ ED_FUN_DEC(ed_ac)
         argument = one_argument(argument, blarg);
 
         if (!is_number(blarg))  break;
-        pierce = atoi(blarg);
+        pierce = (int16_t)atoi(blarg);
         argument = one_argument(argument, blarg);
 
         if (blarg[0] != '\0') {
             if (!is_number(blarg))  break;
-            bash = atoi(blarg);
+            bash = (int16_t)atoi(blarg);
             argument = one_argument(argument, blarg);
         }
         else
@@ -3864,7 +3859,7 @@ ED_FUN_DEC(ed_ac)
 
         if (blarg[0] != '\0') {
             if (!is_number(blarg))  break;
-            slash = atoi(blarg);
+            slash = (int16_t)atoi(blarg);
             argument = one_argument(argument, blarg);
         }
         else
@@ -3872,7 +3867,7 @@ ED_FUN_DEC(ed_ac)
 
         if (blarg[0] != '\0') {
             if (!is_number(blarg))  break;
-            exotic = atoi(blarg);
+            exotic = (int16_t)atoi(blarg);
         }
         else
             exotic = pMob->ac[AC_EXOTIC];
@@ -3895,42 +3890,47 @@ ED_FUN_DEC(ed_ac)
 ED_FUN_DEC(ed_dice)
 {
     static char syntax[] = "Syntax:  hitdice <number> d <type> + <bonus>\n\r";
-    char* numb, * type, * bonus, * cp;
-    int16_t* arreglo = (int16_t*)arg;
+    char* numb_str; 
+    char* type_str; 
+    char* bonus_str;
+    int16_t numb;
+    int16_t type;
+    int16_t bonus;
+    char* cp;
+    int16_t* array = (int16_t*)arg;
 
     if (emptystring(argument)) {
         send_to_char(syntax, ch);
         return false;
     }
 
-    numb = cp = argument;
+    numb_str = cp = argument;
 
     while (isdigit(*cp)) ++cp;
     while (*cp != '\0' && !isdigit(*cp))  *(cp++) = '\0';
 
-    type = cp;
+    type_str = cp;
 
     while (isdigit(*cp)) ++cp;
     while (*cp != '\0' && !isdigit(*cp)) *(cp++) = '\0';
 
-    bonus = cp;
+    bonus_str = cp;
 
     while (isdigit(*cp)) ++cp;
     if (*cp != '\0') *cp = '\0';
 
-    if ((!is_number(numb) || atoi(numb) < 1)
-        || (!is_number(type) || atoi(type) < 1)
-        || (!is_number(bonus) || atoi(bonus) < 0)) {
+    if ((!is_number(numb_str) || (numb = (int16_t)atoi(numb_str)) < 1)
+        || (!is_number(type_str) || (type = (int16_t)atoi(type_str)) < 1)
+        || (!is_number(bonus_str) || (bonus = (int16_t)atoi(bonus_str)) < 0)) {
         send_to_char(syntax, ch);
         return false;
     }
 
-    arreglo[DICE_NUMBER] = atoi(numb);
-    arreglo[DICE_TYPE] = atoi(type);
-    arreglo[DICE_BONUS] = atoi(bonus);
+    array[DICE_NUMBER] = numb;
+    array[DICE_TYPE] = type;
+    array[DICE_BONUS] = bonus;
 
-    printf_to_char(ch, "%s set.\n\r",
-        n_fun);
+    printf_to_char(ch, "%s set.\n\r", n_fun);
 
     return true;
 }
@@ -3955,7 +3955,7 @@ ED_FUN_DEC(ed_addprog)
 
     switch (ch->desc->editor) {
     case ED_MOBILE:	
-        flagtable = mprog_flags;	
+        flagtable = mprog_flag_table;
         break;
     default:	
         send_to_char("ERROR : Invalid editor.\n\r", ch);
@@ -4205,7 +4205,7 @@ ED_FUN_DEC(ed_addaffect)
         return false;
     }
 
-    if ((value = flag_value(apply_flags, loc)) == NO_FLAG) /* Hugin */
+    if ((value = flag_value(apply_flag_table, loc)) == NO_FLAG) /* Hugin */
     {
         send_to_char("Valid affects are:\n\r", ch);
         show_help(ch, "apply");
@@ -4213,8 +4213,8 @@ ED_FUN_DEC(ed_addaffect)
     }
 
     pAf = new_affect();
-    pAf->location = value;
-    pAf->modifier = atoi(mod);
+    pAf->location = (int16_t)value;
+    pAf->modifier = (int16_t)atoi(mod);
     pAf->where = TO_OBJECT;
     pAf->type = -1;
     pAf->duration = -1;
@@ -4314,7 +4314,7 @@ ED_FUN_DEC(ed_addapply)
         goto ed_addapply_cleanup;
     }
 
-    if (BUF(loc)[0] == '\0' || (value = flag_value(apply_flags, BUF(loc))) == NO_FLAG) {
+    if (BUF(loc)[0] == '\0' || (value = flag_value(apply_flag_table, BUF(loc))) == NO_FLAG) {
         send_to_char("Valid applys are:\n\r", ch);
         show_help(ch, "apply");
         rc = false;
@@ -4336,9 +4336,9 @@ ED_FUN_DEC(ed_addapply)
     }
 
     pAf = new_affect();
-    pAf->location = value;
-    pAf->modifier = atoi(BUF(mod));
-    pAf->where = apply_flags[typ].bit;
+    pAf->location = (int16_t)value;
+    pAf->modifier = (int16_t)atoi(BUF(mod));
+    pAf->where = (int16_t)apply_flag_table[typ].bit;
     pAf->type = -1;
     pAf->duration = -1;
     pAf->bitvector = bv;
@@ -4417,7 +4417,7 @@ ED_FUN_DEC(ed_new_obj)
 ED_FUN_DEC(ed_race)
 {
     MOB_INDEX_DATA* pMob = (MOB_INDEX_DATA*)arg;
-    int race;
+    int16_t race;
 
     if (argument[0] != '\0'
         && (race = race_lookup(argument)) != 0) {
@@ -4498,7 +4498,7 @@ ED_FUN_DEC(ed_olist)
     for (vnum = pArea->min_vnum; vnum <= pArea->max_vnum; vnum++) {
         if ((pObjIndex = get_obj_index(vnum))) {
             if (fAll || is_name(blarg, pObjIndex->name)
-                || flag_value(type_flags, blarg) == pObjIndex->item_type) {
+                || flag_value(type_flag_table, blarg) == pObjIndex->item_type) {
                 found = true;
                 sprintf(buf, "[%5d] %-17.16s",
                     pObjIndex->vnum, capitalize(pObjIndex->short_descr));

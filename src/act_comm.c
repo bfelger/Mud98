@@ -1134,7 +1134,7 @@ const struct pose_table_type pose_table[] = {
 
 void do_pose(CHAR_DATA* ch, char* argument)
 {
-    int level;
+    LEVEL level;
     int pose;
 
     if (IS_NPC(ch)) return;
@@ -1518,10 +1518,10 @@ void do_split(CHAR_DATA* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
     CHAR_DATA* gch;
-    int members;
-    int amount_gold = 0, amount_silver = 0;
-    int share_gold, share_silver;
-    int extra_gold, extra_silver;
+    int16_t members;
+    int16_t amount_gold = 0, amount_silver = 0;
+    int16_t share_gold, share_silver;
+    int16_t extra_gold, extra_silver;
 
     argument = one_argument(argument, arg1);
     one_argument(argument, arg2);
@@ -1531,9 +1531,10 @@ void do_split(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    amount_silver = atoi(arg1);
+    amount_silver = (int16_t)atoi(arg1);
 
-    if (arg2[0] != '\0') amount_gold = atoi(arg2);
+    if (arg2[0] != '\0') 
+        amount_gold = (int16_t)atoi(arg2);
 
     if (amount_gold < 0 || amount_silver < 0) {
         send_to_char("Your group wouldn't like that.\n\r", ch);

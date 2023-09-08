@@ -43,6 +43,10 @@
 #include <stddef.h>
 #endif
 
+// C5045 "Compiler will insert Spectre mitigation for memeory load if /QSpectre
+//     swich defined"
+#pragma warning(disable:5045)
+
 ////////////////////////////////////////////////////////////////////////////////
 // Data files used by the server.
 // 
@@ -99,7 +103,7 @@ extern char area_dir[];
 
 // OLC2
 #define SPELL(spell)		DECLARE_SPELL_FUN(spell);
-#define SPELL_FUN_DEC(spell)	FRetVal spell(int sn, int level, Entity* caster, Entity* ent, int target)
+#define SPELL_FUN_DEC(spell)	FRetVal spell(SKNUM sn, LEVEL level, Entity* caster, Entity* ent, int target)
 #define COMMAND(cmd)		DECLARE_DO_FUN(cmd);
 #define DO_FUN_DEC(x)		void x(CHAR_DATA* ch, char* argument)
 #define NEW_DO_FUN_DEC(x)	FRetVal x(Entity* ent, char* argument)
@@ -108,6 +112,23 @@ extern char area_dir[];
 /* ea */
 #define MSL MAX_STRING_LENGTH
 #define MIL MAX_INPUT_LENGTH
+
+////////////////////////////////////////////////////////////////////////////////
+// Custom Types
+////////////////////////////////////////////////////////////////////////////////
+
+#define LEVEL               int16_t
+
+#define SKNUM               int16_t
+
+// If you want to change the type for VNUM's, this is where you do it.
+#define MAX_VNUM            INT32_MAX
+#define VNUM                int32_t
+#define PRVNUM              PRId32
+#define STRTOVNUM(s)        (VNUM)strtol(s, NULL, 0)
+#define VNUM_NONE           -1
+
+////////////////////////////////////////////////////////////////////////////////
 
 /*
  * Structure types.
@@ -141,14 +162,15 @@ typedef struct weather_data WEATHER_DATA;
 // New structures for Mud98 -- Halivar
 typedef struct color_theme_t ColorTheme;
 
+typedef enum damage_type_t DamageType;
+
 /*
  * Function types.
  */
-typedef void DO_FUN args((CHAR_DATA * ch, char* argument));
-typedef bool SPEC_FUN args((CHAR_DATA * ch));
-typedef void SPELL_FUN args((int sn, int level, CHAR_DATA* ch, void* vo,
-                             int target));
-typedef int	LOOKUP_F args((const char*));
+typedef void DO_FUN(CHAR_DATA * ch, char* argument);
+typedef bool SPEC_FUN(CHAR_DATA * ch);
+typedef void SPELL_FUN(SKNUM sn, LEVEL level, CHAR_DATA* ch, void* vo, int target);
+typedef int	LOOKUP_F(const char*);
 
 /*
  * String and memory management parameters.
@@ -165,7 +187,7 @@ typedef int	LOOKUP_F args((const char*));
  */
 #define MAX_SOCIALS         256
 
-extern int max_skill;
+extern SKNUM max_skill;
 extern int max_group;
 
 #define MAX_IN_GROUP        15
@@ -175,16 +197,9 @@ extern int max_group;
 #define MAX_PC_RACE         5
 #define MAX_CLAN            3
 #define MAX_DAMAGE_MESSAGE  41
-#define MAX_LEVEL           60
+#define MAX_LEVEL           (LEVEL)60
 #define LEVEL_HERO          (MAX_LEVEL - 9)
 #define LEVEL_IMMORTAL      (MAX_LEVEL - 8)
-
-// If you want to change the type for VNUM's, this is where you do it.
-#define MAX_VNUM            INT32_MAX
-#define VNUM                int32_t
-#define PRVNUM              PRId32
-#define STRTOVNUM(s)        (VNUM)strtol(s, NULL, 0)
-#define VNUM_NONE           -1
 
 #define PULSE_PER_SECOND    4
 #define PULSE_VIOLENCE      (3 * PULSE_PER_SECOND)
@@ -217,23 +232,23 @@ extern int max_group;
 
 struct ban_data {
     BAN_DATA* next;
-    bool valid;
-    int16_t ban_flags;
-    int16_t level;
     char* name;
+    int ban_flags;
+    LEVEL level;
+    bool valid;
 };
 
 struct buf_type {
     BUFFER* next;
-    bool valid;
-    int16_t state; /* error state of the buffer */
-    size_t size;  /* size in k */
     char* string; /* buffer's string */
+    size_t size;  /* size in k */
+    int state; /* error state of the buffer */
+    bool valid;
 };
 
 struct skhash {
     struct skhash* next;
-    int sn;
+    SKNUM sn;
 };
 
 /*
@@ -346,7 +361,7 @@ struct help_area_data {
 
 struct shop_data {
     SHOP_DATA* next; /* Next shop in list		*/
-    int16_t keeper; /* Vnum of shop keeper mob	*/
+    VNUM keeper; /* Vnum of shop keeper mob	*/
     int16_t buy_type[MAX_TRADE]; /* Item types shop will buy	*/
     int16_t profit_buy; /* Cost multiplier for buying	*/
     int16_t profit_sell; /* Cost multiplier for selling	*/
@@ -388,25 +403,27 @@ struct item_type {
 
 struct weapon_type {
     char* name;
+    SKNUM* gsn;
     VNUM vnum;
-    int16_t type;
-    int16_t* gsn;
+    int type;
 };
 
 struct wiznet_type {
     char* name;
     long flag;
-    int level;
+    LEVEL level;
 };
 
 struct attack_type {
     char* name; /* name */
     char* noun; /* message */
-    int damage; /* damage class */
+    DamageType damage; /* damage class */
 };
 
 struct race_type {
     char* name; /* call name of the race */
+    char* who_name;
+    char* skills[5];		/* bonus skills for the race */
     bool pc_race; /* can be chosen by pcs */
     long act; /* act bits for the race */
     long aff; /* aff bits for the race */
@@ -417,10 +434,8 @@ struct race_type {
     long form; /* default form flag for the race */
     long parts; /* default parts for the race */
     int16_t race_id;
-    char* who_name;
     int16_t points;			/* cost in points of the race */
     int16_t class_mult[MAX_CLASS];	/* exp multiplier for class, * 100 */
-    char* skills[5];		/* bonus skills for the race */
     int16_t stats[MAX_STATS];	/* starting stats */
     int16_t max_stats[MAX_STATS];	/* maximum stats */
     int16_t size;			/* aff bits for the race */
@@ -442,14 +457,14 @@ struct spec_type {
 #define NOTE_CHANGES 4
 struct note_data {
     NOTE_DATA* next;
-    bool valid;
-    int16_t type;
     char* sender;
     char* date;
     char* to_list;
     char* subject;
     char* text;
     time_t date_stamp;
+    int16_t type;
+    bool valid;
 };
 
 /*
@@ -459,7 +474,7 @@ struct affect_data {
     AFFECT_DATA* next;
     bool valid;
     int16_t where;
-    int16_t type;
+    SKNUM type;
     int16_t level;
     int16_t duration;
     int16_t location;
@@ -533,26 +548,28 @@ struct kill_data {
 #define ACT_IS_CHANGER          BIT(29)
 
 /* damage classes */
-#define DAM_NONE                0
-#define DAM_BASH                1
-#define DAM_PIERCE              2
-#define DAM_SLASH               3
-#define DAM_FIRE                4
-#define DAM_COLD                5
-#define DAM_LIGHTNING           6
-#define DAM_ACID                7
-#define DAM_POISON              8
-#define DAM_NEGATIVE            9
-#define DAM_HOLY                10
-#define DAM_ENERGY              11
-#define DAM_MENTAL              12
-#define DAM_DISEASE             13
-#define DAM_DROWNING            14
-#define DAM_LIGHT               15
-#define DAM_OTHER               16
-#define DAM_HARM                17
-#define DAM_CHARM               18
-#define DAM_SOUND               19
+typedef enum damage_type_t {
+    DAM_NONE        = 0,
+    DAM_BASH        = 1,
+    DAM_PIERCE      = 2,
+    DAM_SLASH       = 3,
+    DAM_FIRE        = 4,
+    DAM_COLD        = 5,
+    DAM_LIGHTNING   = 6,
+    DAM_ACID        = 7,
+    DAM_POISON      = 8,
+    DAM_NEGATIVE    = 9,
+    DAM_HOLY        = 10,
+    DAM_ENERGY      = 11,
+    DAM_MENTAL      = 12,
+    DAM_DISEASE     = 13,
+    DAM_DROWNING    = 14,
+    DAM_LIGHT       = 15,
+    DAM_OTHER       = 16,
+    DAM_HARM        = 17,
+    DAM_CHARM       = 18,
+    DAM_SOUND       = 19,
+} DamageType;
 
 /* OFF bits for mobiles */
 #define OFF_AREA_ATTACK         BIT(0)
@@ -1320,15 +1337,37 @@ struct char_data {
     AREA_DATA* zone;
     PC_DATA* pcdata;
     GEN_DATA* gen_data;
-    bool valid;
     char* name;
-    long id;
-    int16_t version;
+    char* material;
     char* short_descr;
     char* long_descr;
     char* description;
     char* prompt;
     char* prefix;
+    time_t logon;
+    int id;
+    int version;
+    int played;
+    int lines; /* for the pager */
+    int16_t gold;
+    int16_t silver;
+    int exp;
+    int act;
+    int comm;
+    int wiznet;
+    int imm_flags;
+    int res_flags;
+    int vuln_flags;
+    int affected_by;
+    int form;
+    int parts;
+    int off_flags;
+    int wait;
+    int16_t damage[3];
+    int16_t dam_type;
+    int16_t start_pos;
+    int16_t default_pos;
+    int16_t mprog_delay;
     int16_t group;
     int16_t clan;
     int16_t sex;
@@ -1336,30 +1375,7 @@ struct char_data {
     int16_t race;
     int16_t level;
     int16_t trust;
-    int played;
-    int lines; /* for the pager */
-    time_t logon;
-    int16_t timer;
-    int16_t wait;
-    int16_t daze;
-    int16_t hit;
-    int16_t max_hit;
-    int16_t mana;
-    int16_t max_mana;
-    int16_t move;
-    int16_t max_move;
-    long gold;
-    long silver;
-    int exp;
-    long act;
-    long comm; /* RT added to pad the vector */
-    long wiznet; /* wiz stuff */
-    long imm_flags;
-    long res_flags;
-    long vuln_flags;
-    int16_t invis_level;
-    int16_t incog_level;
-    long affected_by;
+    int16_t size;
     int16_t position;
     int16_t practice;
     int16_t train;
@@ -1371,21 +1387,19 @@ struct char_data {
     int16_t damroll;
     int16_t armor[4];
     int16_t wimpy;
-    /* stats */
     int16_t perm_stat[MAX_STATS];
     int16_t mod_stat[MAX_STATS];
-    /* parts stuff */
-    long form;
-    long parts;
-    int16_t size;
-    char* material;
-    /* mobile stuff */
-    long off_flags;
-    int16_t damage[3];
-    int16_t dam_type;
-    int16_t start_pos;
-    int16_t default_pos;
-    int16_t mprog_delay;
+    int16_t invis_level;
+    int16_t incog_level;
+    int16_t timer;
+    int16_t daze;
+    int16_t hit;
+    int16_t max_hit;
+    int16_t mana;
+    int16_t max_mana;
+    int16_t move;
+    int16_t max_move;
+    bool valid;
 };
 
 /*
@@ -1393,52 +1407,52 @@ struct char_data {
  */
 
 typedef struct color_config_t {
+    char* current_theme_name;   // For lazy-loading and discardability
     bool hide_256;          // Whether to show these higher-bit themes. Some
     bool hide_24bit;        // clients (like Windows CMD) can't handle them.
     bool xterm;             // Use xterm semi-colons for 24-bit colors.
     bool hide_rgb_help;     // Hide verbose 24-bit help at the end THEME LIST.
-    char* current_theme_name;   // For lazy-loading and discardability
 } ColorConfig;
 
 struct pc_data {
+    ColorConfig theme_config;
+    ColorTheme* current_theme;              // VT102 color assignments
+    ColorTheme* color_themes[MAX_THEMES];   // Personal themes
     PC_DATA* next;
     BUFFER* buffer;
-    bool valid;
-    unsigned char* pwd_digest;
-    unsigned int pwd_digest_len;
     char* bamfin;
     char* bamfout;
     char* title;
+    char* alias[MAX_ALIAS];
+    char* alias_sub[MAX_ALIAS];
+    SKNUM* learned;
+    bool* group_known;
     time_t last_note;
     time_t last_idea;
     time_t last_penalty;
     time_t last_news;
     time_t last_changes;
+    unsigned char* pwd_digest;
+    unsigned int pwd_digest_len;
+    LEVEL last_level;
+    int security;                           // OLC Builder Security
     int16_t perm_hit;
     int16_t perm_mana;
     int16_t perm_move;
     int16_t true_sex;
-    int last_level;
     int16_t condition[4];
-    int16_t* learned;
-    bool* group_known;
     int16_t points;
     bool confirm_delete;
-    char* alias[MAX_ALIAS];
-    char* alias_sub[MAX_ALIAS];
-    int security;                           // OLC Builder Security
-    ColorTheme* current_theme;              // VT102 color assignments
-    ColorTheme* color_themes[MAX_THEMES];   // Personal themes
-    ColorConfig theme_config;
+    bool valid;
 };
 
 /* Data for generating characters -- only used during generation */
 struct gen_data {
     GEN_DATA* next;
-    bool valid;
     bool* skill_chosen;
     bool* group_chosen;
     int points_chosen;
+    bool valid;
 };
 
 /*
@@ -1480,7 +1494,7 @@ struct obj_index_data {
     int16_t item_type;
     int extra_flags;
     int wear_flags;
-    int16_t level;
+    LEVEL level;
     int16_t condition;
     int16_t count;
     int16_t weight;
@@ -1514,7 +1528,7 @@ struct obj_data {
     int16_t wear_loc;
     int16_t weight;
     int cost;
-    int16_t level;
+    LEVEL level;
     int16_t condition;
     char* material;
     int16_t timer;
@@ -1534,7 +1548,7 @@ struct exit_data {
     char* keyword;
     char* description;
     EXIT_DATA* next;    // OLC
-    int rs_flags;       // OLC
+    int16_t rs_flags;   // OLC
     int orig_door;      // OLC
 };
 
@@ -1574,8 +1588,8 @@ struct area_data {
     char* credits;
     int16_t age;
     int nplayer;
-    int16_t low_range;
-    int16_t high_range;
+    LEVEL low_range;
+    LEVEL high_range;
     VNUM min_vnum;
     VNUM max_vnum;
     bool empty;
@@ -1639,15 +1653,15 @@ struct room_index_data {
  */
 struct skill_type {
     char* name; /* Name of skill		*/
-    int16_t skill_level[MAX_CLASS]; /* Level needed by class	*/
-    int16_t rating[MAX_CLASS]; /* How hard it is to learn	*/
+    LEVEL skill_level[MAX_CLASS]; /* Level needed by class	*/
+    int rating[MAX_CLASS]; /* How hard it is to learn	*/
     SPELL_FUN* spell_fun; /* Spell pointer (for spells)	*/
-    int16_t target; /* Legal targets		*/
-    int16_t minimum_position; /* Position for caster / user	*/
-    int16_t* pgsn; /* Pointer to associated gsn	*/
-    int16_t slot; /* Slot for #OBJECT loading	*/
-    int16_t min_mana; /* Minimum mana used		*/
-    int16_t beats; /* Waiting time after use	*/
+    int target; /* Legal targets		*/
+    int minimum_position; /* Position for caster / user	*/
+    SKNUM* pgsn; /* Pointer to associated gsn	*/
+    int slot; /* Slot for #OBJECT loading	*/
+    int min_mana; /* Minimum mana used		*/
+    int beats; /* Waiting time after use	*/
     char* noun_damage; /* Damage message		*/
     char* msg_off; /* Wear off message		*/
     char* msg_obj; /* Wear off message for obects	*/
@@ -1655,7 +1669,7 @@ struct skill_type {
 
 struct group_type {
     char* name;
-    int16_t rating[MAX_CLASS];
+    int rating[MAX_CLASS];
     char* spells[MAX_IN_GROUP];
 };
 
@@ -1696,7 +1710,7 @@ struct mprog_code {
 };
  
 // gsn
-#define GSN(x) extern int16_t x;
+#define GSN(x) extern SKNUM x;
 #include "gsn.h"
 #undef GSN
 
@@ -1924,7 +1938,7 @@ void boot_db args((void));
 void area_update args((void));
 CD* create_mobile args((MOB_INDEX_DATA * pMobIndex));
 void clone_mobile args((CHAR_DATA * parent, CHAR_DATA* clone));
-OD* create_object args((OBJ_INDEX_DATA * pObjIndex, int level));
+OD* create_object args((OBJ_INDEX_DATA * pObjIndex, LEVEL level));
 void clone_object args((OBJ_DATA * parent, OBJ_DATA* clone));
 void clear_char args((CHAR_DATA * ch));
 char* get_extra_descr args((const char* name, EXTRA_DESCR_DATA* ed));
@@ -1966,32 +1980,30 @@ void log_string args((const char* str));
 void tail_chain args((void));
 
 /* effect.c */
-void acid_effect args((void* vo, int level, int dam, int target));
-void cold_effect args((void* vo, int level, int dam, int target));
-void fire_effect args((void* vo, int level, int dam, int target));
-void poison_effect args((void* vo, int level, int dam, int target));
-void shock_effect args((void* vo, int level, int dam, int target));
+void acid_effect(void* vo, LEVEL level, int dam, int target);
+void cold_effect(void* vo, LEVEL level, int dam, int target);
+void fire_effect(void* vo, LEVEL level, int dam, int target);
+void poison_effect(void* vo, LEVEL level, int dam, int target);
+void shock_effect(void* vo, LEVEL level, int dam, int target);
 
 /* fight.c */
 bool is_safe args((CHAR_DATA * ch, CHAR_DATA* victim));
 bool is_safe_spell args((CHAR_DATA * ch, CHAR_DATA* victim, bool area));
 void violence_update args((void));
-void multi_hit args((CHAR_DATA * ch, CHAR_DATA* victim, int dt));
-bool damage(CHAR_DATA * ch, CHAR_DATA* victim, int dam, int dt, int ch_class, 
-    bool show);
-bool damage_old(CHAR_DATA * ch, CHAR_DATA* victim, int dam, int dt, 
-    int ch_class, bool show);
+void multi_hit(CHAR_DATA * ch, CHAR_DATA* victim, SKNUM dt);
+bool damage(CHAR_DATA * ch, CHAR_DATA* victim, int dam, SKNUM dt, 
+    DamageType dam_type, bool show);
 void update_pos args((CHAR_DATA * victim));
 void stop_fighting args((CHAR_DATA * ch, bool fBoth));
 void check_killer args((CHAR_DATA * ch, CHAR_DATA* victim));
 
 /* handler.c */
-AD* affect_find args((AFFECT_DATA * paf, int sn));
+AD* affect_find(AFFECT_DATA * paf, SKNUM sn);
 void affect_check args((CHAR_DATA * ch, int where, int vector));
 int count_users args((OBJ_DATA * obj));
 void deduct_cost args((CHAR_DATA * ch, int cost));
 void affect_enchant args((OBJ_DATA * obj));
-int check_immune args((CHAR_DATA * ch, int dam_type));
+int check_immune(CHAR_DATA * ch, DamageType dam_type);
 int material_lookup args((const char* name));
 int weapon_lookup args((const char* name));
 int weapon_type args((const char* name));
@@ -2003,12 +2015,12 @@ int class_lookup args((const char* name));
 bool is_clan args((CHAR_DATA * ch));
 bool is_same_clan args((CHAR_DATA * ch, CHAR_DATA* victim));
 bool is_old_mob args((CHAR_DATA * ch));
-int get_skill args((CHAR_DATA * ch, int sn));
-int get_weapon_sn args((CHAR_DATA * ch));
-int get_weapon_skill args((CHAR_DATA * ch, int sn));
+int get_skill(CHAR_DATA * ch, SKNUM sn);
+SKNUM get_weapon_sn(CHAR_DATA * ch);
+int get_weapon_skill(CHAR_DATA* ch, SKNUM sn);
 int get_age args((CHAR_DATA * ch));
 void reset_char args((CHAR_DATA * ch));
-int get_trust args((CHAR_DATA * ch));
+LEVEL get_trust(CHAR_DATA* ch);
 int get_curr_stat args((CHAR_DATA * ch, int stat));
 int get_max_train args((CHAR_DATA * ch, int stat));
 int can_carry_n args((CHAR_DATA * ch));
@@ -2019,8 +2031,8 @@ void affect_to_char args((CHAR_DATA * ch, AFFECT_DATA* paf));
 void affect_to_obj args((OBJ_DATA * obj, AFFECT_DATA* paf));
 void affect_remove args((CHAR_DATA * ch, AFFECT_DATA* paf));
 void affect_remove_obj args((OBJ_DATA * obj, AFFECT_DATA* paf));
-void affect_strip args((CHAR_DATA * ch, int sn));
-bool is_affected args((CHAR_DATA * ch, int sn));
+void affect_strip(CHAR_DATA* ch, SKNUM sn);
+bool is_affected(CHAR_DATA* ch, SKNUM sn);
 void affect_join args((CHAR_DATA * ch, AFFECT_DATA* paf));
 void char_from_room args((CHAR_DATA * ch));
 void char_to_room args((CHAR_DATA * ch, ROOM_INDEX_DATA* pRoomIndex));
@@ -2028,7 +2040,7 @@ void obj_to_char args((OBJ_DATA * obj, CHAR_DATA* ch));
 void obj_from_char args((OBJ_DATA * obj));
 int apply_ac args((OBJ_DATA * obj, int iWear, int type));
 OD* get_eq_char args((CHAR_DATA * ch, int iWear));
-void equip_char args((CHAR_DATA * ch, OBJ_DATA* obj, int iWear));
+void equip_char(CHAR_DATA* ch, OBJ_DATA* obj, int16_t iWear);
 void unequip_char args((CHAR_DATA * ch, OBJ_DATA* obj));
 int count_obj_list args((OBJ_INDEX_DATA * obj, OBJ_DATA* list));
 void obj_from_room args((OBJ_DATA * obj));
@@ -2045,7 +2057,7 @@ OD* get_obj_carry args((CHAR_DATA * ch, char* argument, CHAR_DATA* viewer));
 OD* get_obj_wear args((CHAR_DATA * ch, char* argument));
 OD* get_obj_here args((CHAR_DATA * ch, char* argument));
 OD* get_obj_world args((CHAR_DATA * ch, char* argument));
-OD* create_money args((int gold, int silver));
+OD* create_money(int16_t gold, int16_t silver);
 int get_obj_number args((OBJ_DATA * obj));
 int get_obj_weight args((OBJ_DATA * obj));
 int get_true_weight args((OBJ_DATA * obj));
@@ -2088,12 +2100,12 @@ int mult_argument args((char* argument, char* arg));
 char* one_argument args((char* argument, char* arg_first));
 
 /* magic.c */
-int find_spell args((CHAR_DATA * ch, const char* name));
-int mana_cost(CHAR_DATA* ch, int min_mana, int level);
-int skill_lookup args((const char* name));
-int slot_lookup args((int slot));
-bool saves_spell args((int level, CHAR_DATA* victim, int dam_type));
-void obj_cast_spell args((int sn, int level, CHAR_DATA* ch, CHAR_DATA* victim,
+SKNUM find_spell(CHAR_DATA * ch, const char* name);
+int mana_cost(CHAR_DATA* ch, int min_mana, LEVEL level);
+SKNUM skill_lookup(const char* name);
+SKNUM skill_slot_lookup(int slot);
+bool saves_spell(LEVEL level, CHAR_DATA* victim, int dam_type);
+void obj_cast_spell args((SKNUM sn, LEVEL level, CHAR_DATA* ch, CHAR_DATA* victim,
                           OBJ_DATA* obj));
 
 
@@ -2151,12 +2163,12 @@ char* olc_ed_name args((CHAR_DATA* ch));
 char* olc_ed_vnum args((CHAR_DATA* ch));
 
 /* lookup.c */
-int race_lookup args((const char* name));
+int16_t race_lookup(const char* name);
 int item_lookup args((const char* name));
 int liq_lookup args((const char* name));
 
 /* teleport.c */
-RID* room_by_name args((char* target, int level, bool error));
+RID* room_by_name args((char* target, LEVEL level, bool error));
 
 /* update.c */
 void advance_level args((CHAR_DATA * ch, bool hide));

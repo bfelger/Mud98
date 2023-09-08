@@ -52,8 +52,8 @@ const struct olc_comm_type cmd_olc_comm_table[] = {
     { "function",	0,		            ed_olded,	        U(cmdedit_function)	},
     { "level",	    0,		            ed_olded,	        U(cmdedit_level)	},
     { "posicion",	U(&xCmd.position),	ed_int16lookup,	    U(position_lookup)	},
-    { "log",	    U(&xCmd.log),	    ed_flag_set_long,   U(log_flags)	    },
-    { "type",	    U(&xCmd.show),	    ed_flag_set_long,   U(show_flags)	    },
+    { "log",	    U(&xCmd.log),	    ed_flag_set_long,   U(log_flag_table)	    },
+    { "type",	    U(&xCmd.show),	    ed_flag_set_long,   U(show_flag_table)	    },
     { "new",	    0,		            ed_olded,	        U(cmdedit_new)	    },
     { "delete",	    0,		            ed_olded,	        U(cmdedit_delete)	},
     { "list",	    0,  		        ed_olded,	        U(cmdedit_list)	    },
@@ -200,10 +200,10 @@ CMDEDIT(cmdedit_show)
     sprintf(buf, "Position : [%s]\n\r", position_table[pCmd->position].name);
     send_to_char(buf, ch);
 
-    sprintf(buf, "Log?     : [%s]\n\r", flag_string(log_flags, pCmd->log));
+    sprintf(buf, "Log?     : [%s]\n\r", flag_string(log_flag_table, pCmd->log));
     send_to_char(buf, ch);
 
-    sprintf(buf, "Show?    : [%s]\n\r", flag_string(show_flags, pCmd->show));
+    sprintf(buf, "Show?    : [%s]\n\r", flag_string(show_flag_table, pCmd->show));
     send_to_char(buf, ch);
 
     return false;
@@ -249,7 +249,7 @@ void list_commands(BUFFER* pBuf, int minlev, int maxlev)
             cmd_table[i].name,
             cmd_func_name(cmd_table[i].do_fun),
             position_table[cmd_table[i].position].name,
-            &(flag_string(log_flags, cmd_table[i].log))[4]);
+            &(flag_string(log_flag_table, cmd_table[i].log))[4]);
         if (cnt % 2 == 1)
             strcat(buf, "\n\r");
         else
@@ -390,7 +390,7 @@ CMDEDIT(cmdedit_new)
 
     cmd_table[max_cmd - 1].name = str_dup(argument);
     cmd_table[max_cmd - 1].do_fun = do_nothing;
-    cmd_table[max_cmd - 1].position = position_lookup("standing");
+    cmd_table[max_cmd - 1].position = (int16_t)position_lookup("standing");
     cmd_table[max_cmd - 1].level = MAX_LEVEL;
     cmd_table[max_cmd - 1].log = LOG_ALWAYS;
     cmd_table[max_cmd - 1].show = TYP_NUL;
@@ -486,7 +486,7 @@ CMDEDIT(cmdedit_function)
 CMDEDIT(cmdedit_level)
 {
     struct cmd_type* pCmd;
-    int level;
+    LEVEL level;
 
     EDIT_CMD(ch, pCmd);
 
@@ -495,7 +495,7 @@ CMDEDIT(cmdedit_level)
         return false;
     }
 
-    level = atoi(argument);
+    level = (LEVEL)atoi(argument);
     if (level < 0 || level > MAX_LEVEL) {
         send_to_char("CMDEdit : The level must be between 0 and MAX_LEVEL.\n\r", ch);
         return false;

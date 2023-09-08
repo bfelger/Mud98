@@ -33,7 +33,7 @@
 
 #include <inttypes.h>
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -71,7 +71,7 @@ extern "C" {
     uint32_t pcg32_boundedrand(uint32_t bound);
     uint32_t pcg32_boundedrand_r(pcg32_random_t* rng, uint32_t bound);
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

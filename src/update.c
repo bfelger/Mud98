@@ -58,25 +58,25 @@ int save_number = 0;
 void advance_level(CHAR_DATA* ch, bool hide)
 {
     char buf[MAX_STRING_LENGTH];
-    int add_hp;
-    int add_mana;
-    int add_move;
-    int add_prac;
+    int16_t add_hp;
+    int16_t add_mana;
+    int16_t add_move;
+    int16_t add_prac;
 
     ch->pcdata->last_level
-        = (ch->played + (int)(current_time - ch->logon)) / 3600;
+        = (int16_t)((ch->played + (current_time - ch->logon)) / 3600);
 
     sprintf(buf, "the %s",
             title_table[ch->ch_class][ch->level][ch->sex == SEX_FEMALE ? 1 : 0]);
     set_title(ch, buf);
 
     add_hp = con_app[get_curr_stat(ch, STAT_CON)].hitp
-             + number_range(class_table[ch->ch_class].hp_min,
+             + (int16_t)number_range(class_table[ch->ch_class].hp_min,
                             class_table[ch->ch_class].hp_max);
-    add_mana = number_range(
+    add_mana = (int16_t)number_range(
         2, (2 * get_curr_stat(ch, STAT_INT) + get_curr_stat(ch, STAT_WIS)) / 5);
     if (!class_table[ch->ch_class].fMana) add_mana /= 2;
-    add_move = number_range(
+    add_move = (int16_t)number_range(
         1, (get_curr_stat(ch, STAT_CON) + get_curr_stat(ch, STAT_DEX)) / 6);
     add_prac = wis_app[get_curr_stat(ch, STAT_WIS)].practice;
 
@@ -317,7 +317,7 @@ void gain_condition(CHAR_DATA* ch, int iCond, int value)
 
     condition = ch->pcdata->condition[iCond];
     if (condition == -1) return;
-    ch->pcdata->condition[iCond] = URANGE(0, condition + value, 48);
+    ch->pcdata->condition[iCond] = URANGE(0, (int16_t)(condition + value), 48);
 
     if (ch->pcdata->condition[iCond] == 0) {
         switch (iCond) {
@@ -330,7 +330,8 @@ void gain_condition(CHAR_DATA* ch, int iCond, int value)
             break;
 
         case COND_DRUNK:
-            if (condition != 0) send_to_char("You are sober.\n\r", ch);
+            if (condition != 0) 
+                send_to_char("You are sober.\n\r", ch);
             break;
         }
     }
@@ -366,11 +367,11 @@ void mobile_update(void)
         }
 
         if (ch->pIndexData->pShop != NULL) /* give him some gold */
-            if ((ch->gold * 100 + ch->silver) < ch->pIndexData->wealth) {
+            if (((int)ch->gold * 100 + (int)ch->silver) < ch->pIndexData->wealth) {
                 ch->gold
-                    += ch->pIndexData->wealth * number_range(1, 20) / 5000000;
+                    += (int16_t)(ch->pIndexData->wealth * number_range(1, 20) / 5000000);
                 ch->silver
-                    += ch->pIndexData->wealth * number_range(1, 20) / 50000;
+                    += (int16_t)(ch->pIndexData->wealth * number_range(1, 20) / 50000);
             }
 
         /*
@@ -597,17 +598,17 @@ void char_update(void)
             }
 
             if (ch->hit < ch->max_hit)
-                ch->hit += hit_gain(ch);
+                ch->hit += (int16_t)hit_gain(ch);
             else
                 ch->hit = ch->max_hit;
 
             if (ch->mana < ch->max_mana)
-                ch->mana += mana_gain(ch);
+                ch->mana += (int16_t)mana_gain(ch);
             else
                 ch->mana = ch->max_mana;
 
             if (ch->move < ch->max_move)
-                ch->move += move_gain(ch);
+                ch->move += (int16_t)move_gain(ch);
             else
                 ch->move = ch->max_move;
         }
@@ -703,7 +704,7 @@ void char_update(void)
             plague.where = TO_AFFECTS;
             plague.type = gsn_plague;
             plague.level = af->level - 1;
-            plague.duration = number_range(1, 2 * plague.level);
+            plague.duration = (int16_t)(number_range(1, 2 * plague.level));
             plague.location = APPLY_STR;
             plague.modifier = -5;
             plague.bitvector = AFF_PLAGUE;
@@ -721,8 +722,8 @@ void char_update(void)
             }
 
             dam = UMIN(ch->level, af->level / 5 + 1);
-            ch->mana -= dam;
-            ch->move -= dam;
+            ch->mana -= (int16_t)dam;
+            ch->move -= (int16_t)dam;
             damage(ch, ch, dam, gsn_plague, DAM_DISEASE, false);
         }
         else if (IS_AFFECTED(ch, AFF_POISON) && ch != NULL
@@ -756,11 +757,13 @@ void char_update(void)
     for (ch = char_list; ch != NULL; ch = ch_next) {
         ch_next = ch->next;
 
-        if (ch->desc != NULL && ch->desc->client.fd % 30 == save_number) {
+        if (ch->desc != NULL && (int)ch->desc->client.fd % 30 == save_number) {
             save_char_obj(ch);
         }
 
-        if (ch == ch_quit) { do_function(ch, &do_quit, ""); }
+        if (ch == ch_quit) { 
+            do_function(ch, &do_quit, ""); 
+        }
     }
 
     return;
@@ -854,7 +857,7 @@ void obj_update(void)
         if (obj->carried_by != NULL) {
             if (IS_NPC(obj->carried_by)
                 && obj->carried_by->pIndexData->pShop != NULL)
-                obj->carried_by->silver += obj->cost / 5;
+                obj->carried_by->silver += (int16_t)obj->cost / 5;
             else {
                 act(message, obj->carried_by, obj, NULL, TO_CHAR);
                 if (obj->wear_loc == WEAR_FLOAT)

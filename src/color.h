@@ -135,8 +135,8 @@ typedef enum {
 
 typedef struct ansi_palette_entry_t {
     const char* name;
-    int bright;
-    int code;
+    uint8_t bright;
+    uint8_t code;
     Color color;
 } AnsiPaletteEntry;
 

@@ -69,15 +69,15 @@ const struct item_type item_table[] = {
 
 /* weapon selection table */
 const struct weapon_type weapon_table[] = {
-    { "sword",      OBJ_VNUM_SCHOOL_SWORD,      WEAPON_SWORD,   &gsn_sword      },
-    { "mace",       OBJ_VNUM_SCHOOL_MACE,       WEAPON_MACE,    &gsn_mace       },
-    { "dagger",     OBJ_VNUM_SCHOOL_DAGGER,     WEAPON_DAGGER,  &gsn_dagger     },
-    { "axe",        OBJ_VNUM_SCHOOL_AXE,        WEAPON_AXE,     &gsn_axe        },
-    { "staff",      OBJ_VNUM_SCHOOL_STAFF,      WEAPON_SPEAR,   &gsn_spear      },
-    { "flail",      OBJ_VNUM_SCHOOL_FLAIL,      WEAPON_FLAIL,   &gsn_flail      },
-    { "whip",       OBJ_VNUM_SCHOOL_WHIP,       WEAPON_WHIP,    &gsn_whip       },
-    { "polearm",    OBJ_VNUM_SCHOOL_POLEARM,    WEAPON_POLEARM, &gsn_polearm    },
-    { NULL,         0,                          0,              NULL            }
+    { "sword",      &gsn_sword,     OBJ_VNUM_SCHOOL_SWORD,      WEAPON_SWORD,   },
+    { "mace",       &gsn_mace,      OBJ_VNUM_SCHOOL_MACE,       WEAPON_MACE,    },
+    { "dagger",     &gsn_dagger,    OBJ_VNUM_SCHOOL_DAGGER,     WEAPON_DAGGER,  },
+    { "axe",        &gsn_axe,       OBJ_VNUM_SCHOOL_AXE,        WEAPON_AXE,     },
+    { "staff",      &gsn_spear,     OBJ_VNUM_SCHOOL_STAFF,      WEAPON_SPEAR,   },
+    { "flail",      &gsn_flail,     OBJ_VNUM_SCHOOL_FLAIL,      WEAPON_FLAIL,   },
+    { "whip",       &gsn_whip,      OBJ_VNUM_SCHOOL_WHIP,       WEAPON_WHIP,    },
+    { "polearm",    &gsn_polearm,   OBJ_VNUM_SCHOOL_POLEARM,    WEAPON_POLEARM, },
+    { NULL,         NULL,           0,                          0,              }
 };
 
 /* wiznet table and prototype for future flag setting */

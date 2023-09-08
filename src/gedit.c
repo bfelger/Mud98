@@ -51,14 +51,14 @@ void load_groups(void)
         exit(1);
     }
 
-    int max_group;
-    if (fscanf(fp, "%d\n", &max_group) < 1) {
+    int tmp_max_group;
+    if (fscanf(fp, "%d\n", &tmp_max_group) < 1) {
         perror("load_groups: Could not read number of groups!");
         return;
     }
-    max_group = max_group;
+    max_group = tmp_max_group;
 
-    if ((group_table = calloc(sizeof(struct group_type), (max_group + 1))) == NULL) {
+    if ((group_table = calloc(sizeof(struct group_type), ((size_t)max_group + 1))) == NULL) {
         perror("load_groups: Could not allocate group_table!");
         return;
     }

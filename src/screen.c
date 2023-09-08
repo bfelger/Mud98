@@ -159,8 +159,8 @@ char* exits2str(void* point)
          * Format up the exit info.
          * Capitalize all flags that are not part of the reset info.
          */
-        strcpy(reset_state, flag_string(exit_flags, pexit->rs_flags));
-        state = flag_string(exit_flags, pexit->exit_info);
+        strcpy(reset_state, flag_string(exit_flag_table, pexit->rs_flags));
+        state = flag_string(exit_flag_table, pexit->exit_info);
         strcat(buf, "Flags: [");
         for (; ;) {
             state = one_argument(state, word);
@@ -229,7 +229,7 @@ char* shop2str(void* point)
             if (iTrade == 0)
                 strcat(buf, "N Type\n\r");
             sprintf(tmpbuf, "%d %s\n\r", iTrade,
-                flag_string(type_flags, pShop->buy_type[iTrade]));
+                flag_string(type_flag_table, pShop->buy_type[iTrade]));
             strcat(buf, tmpbuf);
         }
     }
@@ -269,11 +269,11 @@ const struct olc_show_table_type redit_olc_show_table[] = {
     },
     {
         "sector", U(&xRoom.sector_type), "Sector:", OLCS_FLAGSTR_INT16,
-        35, 2, 10, 1, 1, U(sector_flags)
+        35, 2, 10, 1, 1, U(sector_flag_table)
     },
     {
         "roomflags", U(&xRoom.room_flags), "Flags:", OLCS_FLAGSTR_INT,
-        1, 3, 73, 1, 1, U(room_flags)
+        1, 3, 73, 1, 1, U(room_flag_table)
     },
     {
         "extradesc", U(&xRoom.extra_descr), "Extra desc:", OLCS_STRFUNC,
@@ -389,35 +389,35 @@ const struct olc_show_table_type medit_olc_show_table[] =
     },
     {
         "act", U(&xMob.act), "Act :", OLCS_FLAGSTR_INT,
-        1, 6, 74, 1, 1, U(act_flags)
+        1, 6, 74, 1, 1, U(act_flag_table)
     },
     {
         "aff", U(&xMob.affected_by), "Aff :", OLCS_FLAGSTR_INT,
-        1, 7, 74, 1, 1, U(affect_flags)
+        1, 7, 74, 1, 1, U(affect_flag_table)
     },
     {
         "form", U(&xMob.form), "Form:", OLCS_FLAGSTR_INT,
-        1, 9, 74, 1, 1, U(form_flags)
+        1, 9, 74, 1, 1, U(form_flag_table)
     },
     {
         "parts", U(&xMob.parts), "Part:", OLCS_FLAGSTR_INT,
-        1, 10, 74, 1, 1, U(part_flags)
+        1, 10, 74, 1, 1, U(part_flag_table)
     },
     {
         "imm", U(&xMob.imm_flags), "Imm:", OLCS_FLAGSTR_INT,
-        1, 11, 74, 1, 1, U(imm_flags)
+        1, 11, 74, 1, 1, U(imm_flag_table)
     },
     {
         "res", U(&xMob.res_flags), "Res:", OLCS_FLAGSTR_INT,
-        1, 12, 74, 1, 1, U(res_flags)
+        1, 12, 74, 1, 1, U(res_flag_table)
     },
     {
         "vuln", U(&xMob.vuln_flags), "Vuln:", OLCS_FLAGSTR_INT,
-        1, 13, 74, 1, 1, U(vuln_flags)
+        1, 13, 74, 1, 1, U(vuln_flag_table)
     },
     {
         "off", U(&xMob.off_flags), "Off:", OLCS_FLAGSTR_INT,
-        1, 14, 74, 1, 1, U(off_flags)
+        1, 14, 74, 1, 1, U(off_flag_table)
     },
     {
         "short_descr", U(&xMob.short_descr), "ShDe:", OLCS_STRING,
@@ -454,7 +454,7 @@ const struct olc_show_table_type oedit_olc_show_table[] =
     },
     {
         "type", U(&xObj.item_type), "Type:", OLCS_FLAGSTR_INT16,
-        1, 2, 11, 1, 1, U(type_flags)
+        1, 2, 11, 1, 1, U(type_flag_table)
     },
     {
         "level", U(&xObj.level), "Level:", OLCS_INT16,
@@ -474,11 +474,11 @@ const struct olc_show_table_type oedit_olc_show_table[] =
     },
     {
         "wear", U(&xObj.wear_flags), "Wear F:", OLCS_FLAGSTR_INT,
-        1, 3, 72, 1, 1, U(wear_flags)
+        1, 3, 72, 1, 1, U(wear_flag_table)
     },
     {
         "extra", U(&xObj.extra_flags), "Extra :", OLCS_FLAGSTR_INT,
-        1, 4, 72, 1, 1, U(extra_flags)
+        1, 4, 72, 1, 1, U(extra_flag_table)
     },
     {
         "short_descr", U(&xObj.short_descr), "ShDesc:", OLCS_STRING,

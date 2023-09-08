@@ -4,11 +4,14 @@
 // Utilities for gathering metrics to benchmark code changes
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "merc.h"
+
 #include "benchmark.h"
 
 #ifdef _MSC_VER
 #include <windows.h>
 #include <winsock.h>
+#include <winnt.h>
 #define CLOCK_MONOTONIC		        1
 #define CLOCK_PROCESS_CPUTIME_ID    2
 
@@ -26,7 +29,7 @@
 //    https://stackoverflow.com/a/51974214
 // I only implemented the CLOCK_MONOTONIC version.
 ////////////////////////////////////////////////////////////////////////////////
-static int clock_gettime(int X, struct timespec* tv)
+static int clock_gettime(int dummy, struct timespec* tv)
 {
     static LARGE_INTEGER ticksPerSec;
     LARGE_INTEGER ticks;

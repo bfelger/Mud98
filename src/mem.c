@@ -336,7 +336,7 @@ MOB_INDEX_DATA* new_mob_index(void)
     pMob->affected_by = 0;
     pMob->alignment = 0;
     pMob->hitroll = 0;
-    pMob->race = race_lookup("human"); /* - Hugin */
+    pMob->race = (int16_t)race_lookup("human"); /* - Hugin */
     pMob->form = 0;           /* ROM patch -- Hugin */
     pMob->parts = 0;           /* ROM patch -- Hugin */
     pMob->imm_flags = 0;           /* ROM patch -- Hugin */

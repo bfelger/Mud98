@@ -3,6 +3,10 @@
 #
 cmake_minimum_required (VERSION 3.10)
 
+set (CMAKE_C_STANDARD 23)
+
+set (MSVC_C_STD "/std:c17")
+
 project(Mud98)
 
 set(OPENSSL_USE_STATIC_LIBS true)
@@ -14,8 +18,33 @@ if (NOT MSVC)
 endif()
 
 if (MSVC)
-    add_compile_options(/Wall /std:c17)
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS -D NOCRYPT)
+    set(MSVC_DISABLED_WARNINGS
+        # Nonstandard extension, function/data pointer conversion in expression
+        "C4152"     # For openssl/applink.c
+
+         # Assignment within conditional expression
+        "C4706"     # Microsoft can take my assigning conditionals out of my 
+                    # cold, dead hands.
+        
+        # X bytes padding after data member 'Y'
+        "C4820"     # As long as sizeof() reports the correct value (it does), 
+                    # this is a non-issue.
+
+        # No function prototype given: converting '()' to '(void)'"
+        "C4255"     # C23 removes this requirement. Although MSVC is not 
+                    # implementing C23, I would rather make MSVC conform to 
+                    # GCC/Clang, and not the other way around.
+
+        # Unreferenced formal parameter
+        "C4100"     # Disabling this is the equivalent of GCC/Clang's  
+                    # '-Wno-unused-parameter'
+    )
+
+    string(REPLACE "C" " -wd" MSVC_DISABLED_WARNINGS_OPT ${MSVC_DISABLED_WARNINGS})
+    string(REGEX REPLACE "[/-]W[1234][ ]?" "" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MSVC_C_STD} /Wall ${MSVC_DISABLED_WARNINGS_OPT}")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_CRT_SECURE_NO_WARNINGS -DNOCRYPT")
 elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
     add_compile_options(-Wall -Werror -Wextra -pedantic -Wno-unused-parameter -std=gnu2x -D_GNU_SOURCE)
 elseif (CMAKE_C_COMPILER_ID STREQUAL "Clang")
@@ -41,3 +70,18 @@ if (NOT MSVC)
 else()
     target_link_libraries(Mud98 OpenSSL::Crypto OpenSSL::SSL OpenSSL::applink)
 endif()
+
+message("Build summary:")
+message("")
+message("        Project name:     ${CMAKE_PROJECT_NAME}")
+message("        Host type:        ${CMAKE_SYSTEM_NAME}")
+message("        Compiler:         ${CMAKE_C_COMPILER}")
+message("        Compiler ID:      ${CMAKE_C_COMPILER_ID}")
+message("        CMAKE_VERSION:    ${CMAKE_VERSION}")
+message("        CFLAGS:           ${CMAKE_C_FLAGS}")
+message("        CFLAGS_DEBUG:     ${CMAKE_C_FLAGS_DEBUG}")
+message("        CPPFLAGS:         ${CMAKE_CXX_FLAGS}")
+message("        Build type:       ${CMAKE_BUILD_TYPE}")
+message("")
+message("        Install prefix:    ${CMAKE_INSTALL_PREFIX}")
+message("")

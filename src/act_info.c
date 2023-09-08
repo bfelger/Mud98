@@ -1219,14 +1219,14 @@ void do_worth(CHAR_DATA* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
 
     if (IS_NPC(ch)) {
-        sprintf(buf, "You have %ld gold and %ld silver.\n\r", ch->gold,
+        sprintf(buf, "You have %d gold and %d silver.\n\r", ch->gold,
                 ch->silver);
         send_to_char(buf, ch);
         return;
     }
 
     sprintf(buf,
-            "You have %ld gold, %ld silver, and %d experience (%d exp to "
+            "You have %d gold, %d silver, and %d experience (%d exp to "
             "level).\n\r",
             ch->gold, ch->silver, ch->exp,
             (ch->level + 1) * exp_per_level(ch, ch->pcdata->points) - ch->exp);
@@ -1266,7 +1266,7 @@ void do_score(CHAR_DATA* ch, char* argument)
             ch->practice, ch->train);
     send_to_char(buf, ch);
 
-    sprintf(buf, "You are carrying %d/%d items with weight %ld/%d pounds.\n\r",
+    sprintf(buf, "You are carrying %d/%d items with weight %d/%d pounds.\n\r",
             ch->carry_number, can_carry_n(ch), get_carry_weight(ch) / 10,
             can_carry_w(ch) / 10);
     send_to_char(buf, ch);
@@ -1283,7 +1283,7 @@ void do_score(CHAR_DATA* ch, char* argument)
 
     sprintf(
         buf,
-        "You have scored %d exp, and have %ld gold and %ld silver coins.\n\r",
+        "You have scored %d exp, and have %d gold and %d silver coins.\n\r",
         ch->exp, ch->gold, ch->silver);
     send_to_char(buf, ch);
 
@@ -1569,7 +1569,7 @@ void do_help(CHAR_DATA* ch, char* argument)
     bool found = false;
     char argall[MAX_INPUT_LENGTH] = "";
     char argone[MAX_INPUT_LENGTH] = "";
-    int level;
+    LEVEL level;
 
     output = new_buf();
 
@@ -2244,7 +2244,7 @@ void do_report(CHAR_DATA* ch, char* argument)
 void do_practice(CHAR_DATA* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    int sn;
+    SKNUM sn;
 
     if (IS_NPC(ch)) return;
 
@@ -2273,7 +2273,7 @@ void do_practice(CHAR_DATA* ch, char* argument)
     }
     else {
         CHAR_DATA* mob;
-        int adept;
+        int16_t adept;
 
         if (!IS_AWAKE(ch)) {
             send_to_char("In your dreams, or what?\n\r", ch);
@@ -2315,7 +2315,7 @@ void do_practice(CHAR_DATA* ch, char* argument)
             ch->practice--;
             ch->pcdata->learned[sn]
                 += int_app[get_curr_stat(ch, STAT_INT)].learn
-                   / skill_table[sn].rating[ch->ch_class];
+                   / (int16_t)skill_table[sn].rating[ch->ch_class];
             if (ch->pcdata->learned[sn] < adept) {
                 act("You practice $T.", ch, NULL, skill_table[sn].name,
                     TO_CHAR);
@@ -2360,7 +2360,7 @@ void do_wimpy(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    ch->wimpy = wimpy;
+    ch->wimpy = (int16_t)wimpy;
     sprintf(buf, "Wimpy set to %d hit points.\n\r", wimpy);
     send_to_char(buf, ch);
     return;

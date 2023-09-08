@@ -37,7 +37,7 @@
 
 extern char* target_name;
 
-void spell_farsight(int sn, int level, CHAR_DATA* ch, void* vo, int target)
+void spell_farsight(SKNUM sn, LEVEL level, CHAR_DATA* ch, void* vo, int target)
 {
     if (IS_AFFECTED(ch, AFF_BLIND)) {
         send_to_char("Maybe it would help if you could see?\n\r", ch);
@@ -47,7 +47,7 @@ void spell_farsight(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     do_function(ch, &do_scan, target_name);
 }
 
-void spell_portal(int sn, int level, CHAR_DATA* ch, void* vo, int target)
+void spell_portal(SKNUM sn, LEVEL level, CHAR_DATA* ch, void* vo, int target)
 {
     CHAR_DATA* victim;
     OBJ_DATA *portal, *stone;
@@ -82,7 +82,7 @@ void spell_portal(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     }
 
     portal = create_object(get_obj_index(OBJ_VNUM_PORTAL), 0);
-    portal->timer = 2 + level / 25;
+    portal->timer = 2 + (int16_t)level / 25;
     portal->value[3] = victim->in_room->vnum;
 
     obj_to_room(portal, ch->in_room);
@@ -91,7 +91,7 @@ void spell_portal(int sn, int level, CHAR_DATA* ch, void* vo, int target)
     act("$p rises up before you.", ch, portal, NULL, TO_CHAR);
 }
 
-void spell_nexus(int sn, int level, CHAR_DATA* ch, void* vo, int target)
+void spell_nexus(SKNUM sn, LEVEL level, CHAR_DATA* ch, void* vo, int target)
 {
     CHAR_DATA* victim;
     OBJ_DATA *portal, *stone;
@@ -132,7 +132,7 @@ void spell_nexus(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 
     /* portal one */
     portal = create_object(get_obj_index(OBJ_VNUM_PORTAL), 0);
-    portal->timer = 1 + level / 10;
+    portal->timer = 1 + (int16_t)level / 10;
     portal->value[3] = to_room->vnum;
 
     obj_to_room(portal, from_room);
@@ -145,7 +145,7 @@ void spell_nexus(int sn, int level, CHAR_DATA* ch, void* vo, int target)
 
     /* portal two */
     portal = create_object(get_obj_index(OBJ_VNUM_PORTAL), 0);
-    portal->timer = 1 + level / 10;
+    portal->timer = 1 + (int16_t)level / 10;
     portal->value[3] = from_room->vnum;
 
     obj_to_room(portal, to_room);

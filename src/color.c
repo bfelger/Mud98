@@ -145,7 +145,7 @@ static void list_theme_entry(CHAR_DATA* ch, ColorTheme* theme, const char* owner
     case COLOR_MODE_RGB:
         sprintf(mode, "(24-Bit) ");
         break;
-    default:
+    case COLOR_MODE_PAL_IDX:
         sprintf(mode, "(error) ");
     }
 
@@ -301,7 +301,7 @@ static inline bool lookup_color(char* argument, Color* color, CHAR_DATA* ch)
             return false;
         }
 
-        set_color_palette_ref(color, idx);
+        set_color_palette_ref(color, (uint8_t)idx);
     }
     else {
         if (ch->pcdata->current_theme->mode == COLOR_MODE_RGB) {
@@ -310,8 +310,8 @@ static inline bool lookup_color(char* argument, Color* color, CHAR_DATA* ch)
             return false;
         }
         // Set it to an ANSI or indexed color.
-        uint8_t code;
-        uint8_t bright;
+        uint8_t code = 0;
+        uint8_t bright = 0;
         bool found = false;
         int pal_max = ch->pcdata->current_theme->palette_max;
 
@@ -388,7 +388,7 @@ static void do_theme_channel(CHAR_DATA* ch, char* argument)
             return;
         }
         else
-            set_color_ansi(&color, idx / 8, idx % 8);
+            set_color_ansi(&color, (uint8_t)idx / 8, (uint8_t)idx % 8);
     }
     else if (theme->mode == COLOR_MODE_256) {
         if (!color_is_num) {
@@ -401,7 +401,7 @@ static void do_theme_channel(CHAR_DATA* ch, char* argument)
             return;
         }
         else
-            set_color_256(&color, idx);
+            set_color_256(&color, (uint8_t)idx);
     }
     else if (theme->mode == COLOR_MODE_RGB) {
         if (!lookup_color(argument, &color, ch))
@@ -588,6 +588,10 @@ static void do_theme_create(CHAR_DATA* ch, char* argument)
     case COLOR_MODE_RGB:
         white = (Color){ .mode = COLOR_MODE_RGB, .code = { 0xC0u, 0xC0u, 0xC0u }, .cache = NULL, .xterm = NULL };
         black = (Color){ .mode = COLOR_MODE_RGB, .code = { 0x00u, 0x00u, 0x00u }, .cache = NULL, .xterm = NULL };
+        break;
+    case COLOR_MODE_PAL_IDX:
+        white = (Color){ .mode = COLOR_MODE_16, .code = { NORMAL, WHITE, 0 }, .cache = NULL, .xterm = NULL };
+        black = (Color){ .mode = COLOR_MODE_16, .code = { NORMAL, BLACK, 0 }, .cache = NULL, .xterm = NULL };
         break;
     }
 
@@ -807,7 +811,7 @@ static void do_theme_palette(CHAR_DATA* ch, char* argument)
             return;
         }
         else
-            set_color_ansi(&color, idx / 8, idx % 8);
+            set_color_ansi(&color, (uint8_t)idx / 8, (uint8_t)idx % 8);
     }
     else if (theme->mode == COLOR_MODE_256) {
         if (!color_is_num) {
@@ -820,7 +824,7 @@ static void do_theme_palette(CHAR_DATA* ch, char* argument)
             return;
         }
         else
-            set_color_256(&color, idx);
+            set_color_256(&color, (uint8_t)idx);
     }
     else if (theme->mode == COLOR_MODE_RGB) {
         if (!lookup_color(argument, &color, ch))
@@ -1147,7 +1151,7 @@ static void do_theme_show(CHAR_DATA* ch, char* argument)
     case COLOR_MODE_RGB:
         sprintf(mode, "(24-Bit) ");
         break;
-    default:
+    case COLOR_MODE_PAL_IDX:
         sprintf(mode, "(error) ");
     }
 
@@ -1202,7 +1206,7 @@ static void do_theme_show(CHAR_DATA* ch, char* argument)
             sprintf(color_ref, "#%02X%02X%02X;",
                 color->code[0], color->code[1], color->code[2]);
             break;
-        default:
+        case COLOR_MODE_PAL_IDX:
             sprintf(color_ref, "(error)");
             break;
         }

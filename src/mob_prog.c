@@ -523,16 +523,16 @@ int cmd_eval(VNUM vnum, char* line, int check,
     switch (check) {
     case CHK_AFFECTED:
         return(lval_char != NULL
-            && IS_SET(lval_char->affected_by, flag_lookup(buf, affect_flags)));
+            && IS_SET(lval_char->affected_by, flag_lookup(buf, affect_flag_table)));
     case CHK_ACT:
         return(lval_char != NULL
-            && IS_SET(lval_char->act, flag_lookup(buf, act_flags)));
+            && IS_SET(lval_char->act, flag_lookup(buf, act_flag_table)));
     case CHK_IMM:
         return(lval_char != NULL
-            && IS_SET(lval_char->imm_flags, flag_lookup(buf, imm_flags)));
+            && IS_SET(lval_char->imm_flags, flag_lookup(buf, imm_flag_table)));
     case CHK_OFF:
         return(lval_char != NULL
-            && IS_SET(lval_char->off_flags, flag_lookup(buf, off_flags)));
+            && IS_SET(lval_char->off_flags, flag_lookup(buf, off_flag_table)));
     case CHK_CARRIES:
         if (is_number(buf))
             return(lval_char != NULL && has_item(lval_char, STRTOVNUM(buf), -1, false));
@@ -544,9 +544,9 @@ int cmd_eval(VNUM vnum, char* line, int check,
         else
             return(lval_char != NULL && (get_obj_wear(lval_char, buf) != NULL));
     case CHK_HAS:
-        return(lval_char != NULL && has_item(lval_char, VNUM_NONE, item_lookup(buf), false));
+        return(lval_char != NULL && has_item(lval_char, VNUM_NONE, (int16_t)item_lookup(buf), false));
     case CHK_USES:
-        return(lval_char != NULL && has_item(lval_char, VNUM_NONE, item_lookup(buf), true));
+        return(lval_char != NULL && has_item(lval_char, VNUM_NONE, (int16_t)item_lookup(buf), true));
     case CHK_NAME:
         switch (code) {
         default:
@@ -860,14 +860,15 @@ void program_flow(
 {
     CHAR_DATA* rch = NULL;
     char* code, * line;
-    char buf[MAX_STRING_LENGTH];
-    char control[MAX_INPUT_LENGTH], data[MAX_STRING_LENGTH];
+    char buf[MAX_STRING_LENGTH] = "";
+    char control[MAX_INPUT_LENGTH] = "";
+    char data[MAX_STRING_LENGTH] = "";
 
     static int call_level; /* Keep track of nested "mpcall"s */
 
     int level, eval, check;
-    int state[MAX_NESTED_LEVEL], /* Block state (BEGIN,IN,END) */
-        cond[MAX_NESTED_LEVEL];  /* Boolean value based on the last if-check */
+    int state[MAX_NESTED_LEVEL] = { 0 }; /* Block state (BEGIN,IN,END) */
+    int cond[MAX_NESTED_LEVEL] = { 0 };  /* Boolean value based on the last if-check */
 
     VNUM mvnum = mob->pIndexData->vnum;
 

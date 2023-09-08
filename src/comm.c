@@ -78,9 +78,9 @@
 #define SOCKET int
 #endif
 
-const char echo_off_str[] = { IAC, WILL, TELOPT_ECHO, '\0' };
-const char echo_on_str[] = { IAC, WONT, TELOPT_ECHO, '\0' };
-const char go_ahead_str[] = { IAC, GA, '\0' };
+const unsigned char echo_off_str[4] = { IAC, WILL, TELOPT_ECHO, 0 };
+const unsigned char echo_on_str[4] = { IAC, WONT, TELOPT_ECHO, 0 };
+const unsigned char go_ahead_str[3] = { IAC, GA, 0 };
 
 DESCRIPTOR_DATA* descriptor_list;           // All open descriptors
 DESCRIPTOR_DATA* d_next;                    // Next descriptor in loop
@@ -95,7 +95,7 @@ typedef enum {
 #ifdef _MSC_VER
 #define INIT_DESC_RET DWORD WINAPI
 #define INIT_DESC_PARAM LPVOID
-#define THREAD_ERR -1
+#define THREAD_ERR (DWORD)-1
 #define THREAD_RET_T DWORD
 #else
 #define INIT_DESC_RET void*
@@ -126,10 +126,10 @@ extern bool merc_down;                      // Shutdown
 extern bool wizlock;                        // Game is wizlocked
 extern bool newlock;                        // Game is newlocked
 
-void bust_a_prompt args((CHAR_DATA* ch));
-bool check_parse_name args((char* name));
-bool check_playing args((DESCRIPTOR_DATA* d, char* name));
-bool check_reconnect args((DESCRIPTOR_DATA* d, char* name, bool fConn));
+void bust_a_prompt(CHAR_DATA* ch);
+bool check_parse_name(char* name);
+bool check_playing(DESCRIPTOR_DATA* d, char* name);
+bool check_reconnect(DESCRIPTOR_DATA* d, bool fConn);
 void send_to_desc(const char* txt, DESCRIPTOR_DATA* desc);
 
 #ifdef _MSC_VER
@@ -217,7 +217,6 @@ void init_server(SockServer* server, int port)
     static struct sockaddr_in sa_zero;
     struct sockaddr_in sa;
     int x = 1;
-    int errno;
 
 #ifndef USE_RAW_SOCKETS
     init_ssl_server(server);
@@ -241,13 +240,15 @@ void init_server(SockServer* server, int port)
     }
 #endif
 
+
+#ifdef _MSC_VER
+    server->control = socket(AF_INET, SOCK_STREAM, 0);;
+#else
     if ((server->control = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("Init_socket: socket");
-#ifdef _MSC_VER
-        PrintLastWinSockError();
-#endif
         exit(1);
     }
+#endif
 
     if (setsockopt(server->control, SOL_SOCKET, SO_REUSEADDR, (char*)&x, sizeof(x)) < 0) {
         perror("Init_socket: SO_REUSEADDR");
@@ -279,7 +280,7 @@ void init_server(SockServer* server, int port)
 
     sa = sa_zero;
     sa.sin_family = AF_INET;
-    sa.sin_port = htons(port);
+    sa.sin_port = htons((u_short)port);
 
     if (bind(server->control, (struct sockaddr*)&sa, sizeof(sa)) < 0) {
         perror("Init socket: bind");
@@ -351,10 +352,14 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
     getsockname(server->control, (struct sockaddr*)&sock, &size);
 
     new_conn_threads[thread_data->index].status = THREAD_STATUS_RUNNING;
+#ifdef _MSC_VER
+    client.fd = accept(server->control, (struct sockaddr*)&sock, &size);
+#else
     if ((client.fd = accept(server->control, (struct sockaddr*)&sock, &size)) < 0) {
         perror("New_descriptor: accept");
         goto init_descriptor_finish;
     }
+#endif
 
 #ifndef USE_RAW_SOCKETS
     client.ssl = SSL_new(server->ssl_ctx);
@@ -857,7 +862,7 @@ bool process_descriptor_output(DESCRIPTOR_DATA* d, bool fPrompt)
                     bust_a_prompt(d->character);
 
                 if (IS_SET(ch->comm, COMM_TELNET_GA))
-                    write_to_buffer(d, go_ahead_str, 0);
+                    write_to_buffer(d, (const char*)go_ahead_str, 0);
 
                 if (IS_SET(ch->comm, COMM_OLCX)
                     && d->editor != ED_NONE
@@ -912,7 +917,7 @@ void bust_a_prompt(CHAR_DATA* ch)
     char doors[MAX_INPUT_LENGTH] = "";
     EXIT_DATA* pexit;
     bool found;
-    const char* dir_name[] = { "N", "E", "S", "W", "U", "D" };
+    const char* dir_name_abbr[] = { "N", "E", "S", "W", "U", "D" };
     int door;
 
     point = BUF(temp1);
@@ -950,7 +955,7 @@ void bust_a_prompt(CHAR_DATA* ch)
                             && !IS_AFFECTED(ch, AFF_BLIND)))
                     && !IS_SET(pexit->exit_info, EX_CLOSED)) {
                     found = true;
-                    strcat(doors, dir_name[door]);
+                    strcat(doors, dir_name_abbr[door]);
                 }
             }
             if (!found) strcat(BUF(temp1), "none");
@@ -998,11 +1003,11 @@ void bust_a_prompt(CHAR_DATA* ch)
             i = BUF(temp2);
             break;
         case 'g':
-            sprintf(BUF(temp2), "%ld", ch->gold);
+            sprintf(BUF(temp2), "%d", ch->gold);
             i = BUF(temp2);
             break;
         case 's':
-            sprintf(BUF(temp2), "%ld", ch->silver);
+            sprintf(BUF(temp2), "%d", ch->silver);
             i = BUF(temp2);
             break;
         case 'a':
@@ -1155,7 +1160,7 @@ bool write_to_descriptor(DESCRIPTOR_DATA* d, char* txt, size_t length)
 void nanny(DESCRIPTOR_DATA * d, char* argument)
 {
     DESCRIPTOR_DATA* d_old = NULL;
-    DESCRIPTOR_DATA* d_next = NULL;
+    DESCRIPTOR_DATA* d_next_local = NULL;
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
     CHAR_DATA* ch;
@@ -1201,7 +1206,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
             return;
         }
 
-        if (check_reconnect(d, argument, false)) {
+        if (check_reconnect(d, false)) {
             fOld = true;
         }
         else {
@@ -1215,7 +1220,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
         if (fOld) {
             /* Old player */
             write_to_buffer(d, "Password: ", 0);
-            write_to_buffer(d, echo_off_str, 0);
+            write_to_buffer(d, (const char*)echo_off_str, 0);
             d->connected = CON_GET_OLD_PASSWORD;
             return;
         }
@@ -1250,11 +1255,11 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
             return;
         }
 
-        write_to_buffer(d, echo_on_str, 0);
+        write_to_buffer(d, (const char*)echo_on_str, 0);
 
         if (check_playing(d, ch->name)) return;
 
-        if (check_reconnect(d, ch->name, true)) return;
+        if (check_reconnect(d, true)) return;
 
         sprintf(log_buf, "%s@%s has connected.", ch->name, d->host);
         log_string(log_buf);
@@ -1276,8 +1281,8 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
         switch (*argument) {
         case 'y':
         case 'Y':
-            for (d_old = descriptor_list; d_old != NULL; d_old = d_next) {
-                d_next = d_old->next;
+            for (d_old = descriptor_list; d_old != NULL; d_old = d_next_local) {
+                d_next_local = d_old->next;
                 if (d_old == d || d_old->character == NULL) continue;
 
                 if (str_cmp(ch->name, d_old->original ? d_old->original->name
@@ -1286,7 +1291,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
 
                 close_socket(d_old);
             }
-            if (check_reconnect(d, ch->name, true)) return;
+            if (check_reconnect(d, true)) return;
             write_to_buffer(d, "Reconnect attempt failed.\n\rName: ", 0);
             if (d->character != NULL) {
                 free_char(d->character);
@@ -1364,7 +1369,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
             return;
         }
 
-        write_to_buffer(d, echo_on_str, 0);
+        write_to_buffer(d, (const char*)echo_on_str, 0);
         write_to_buffer(d, "The following races are available:\n\r  ", 0);
         for (race = 1; race_table[race].name != NULL; race++) {
             if (!race_table[race].pc_race) break;
@@ -1407,7 +1412,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
             break;
         }
 
-        ch->race = race;
+        ch->race = (int16_t)race;
         /* initialize stats */
         for (i = 0; i < MAX_STATS; i++)
             ch->perm_stat[i] = race_table[race].stats[i];
@@ -1469,7 +1474,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
             return;
         }
 
-        ch->ch_class = iClass;
+        ch->ch_class = (int16_t)iClass;
 
         sprintf(log_buf, "%s@%s new player.", ch->name, d->host);
         log_string(log_buf);
@@ -1803,7 +1808,7 @@ bool check_parse_name(char* name)
 /*
  * Look for link-dead player to reconnect.
  */
-bool check_reconnect(DESCRIPTOR_DATA * d, char* name, bool fConn)
+bool check_reconnect(DESCRIPTOR_DATA * d, bool fConn)
 {
     CHAR_DATA* ch;
 

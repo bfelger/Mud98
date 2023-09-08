@@ -13,23 +13,23 @@
 #ifndef _arpa_telnet_h
 #define _arpa_telnet_h
 
-#define IAC   (char)255 /* interpret as command: */
-#define DONT  (char)254 /* you are not to use option */
-#define DO    (char)253 /* please, you use option */
-#define WONT  (char)252 /* I won't use option */
-#define WILL  (char)251 /* I will use option */
-#define SB    (char)250 /* interpret as subnegotiation */
-#define GA    (char)249 /* you may reverse the line */
-#define EL    (char)248 /* erase the current line */
-#define EC    (char)247 /* erase the current character */
-#define AYT   (char)246 /* are you there */
-#define AO    (char)245 /* abort output--but let prog finish */
-#define IP    (char)244 /* interrupt process--permanently */
-#define BREAK (char)243 /* break */
-#define DM    (char)242 /* data mark--for connect. cleaning */
-#define NOP   (char)241 /* nop */
-#define SE    (char)240 /* end sub negotiation */
-#define EOR   (char)239 /* end of record (transparent mode) */
+#define IAC   (unsigned char)255 /* interpret as command: */
+#define DONT  (unsigned char)254 /* you are not to use option */
+#define DO    (unsigned char)253 /* please, you use option */
+#define WONT  (unsigned char)252 /* I won't use option */
+#define WILL  (unsigned char)251 /* I will use option */
+#define SB    (unsigned char)250 /* interpret as subnegotiation */
+#define GA    (unsigned char)249 /* you may reverse the line */
+#define EL    (unsigned char)248 /* erase the current line */
+#define EC    (unsigned char)247 /* erase the current character */
+#define AYT   (unsigned char)246 /* are you there */
+#define AO    (unsigned char)245 /* abort output--but let prog finish */
+#define IP    (unsigned char)244 /* interrupt process--permanently */
+#define BREAK (unsigned char)243 /* break */
+#define DM    (unsigned char)242 /* data mark--for connect. cleaning */
+#define NOP   (unsigned char)241 /* nop */
+#define SE    (unsigned char)240 /* end sub negotiation */
+#define EOR   (unsigned char)239 /* end of record (transparent mode) */
 
 #define SYNCH 242 /* for telfunc calls */
 

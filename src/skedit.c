@@ -21,7 +21,7 @@ int16_t* gsn_lookup(char* argument);
 #define SKEDIT(fun) bool fun(CHAR_DATA *ch, char *argument)
 
 struct skill_type* skill_table;
-int max_skill;
+SKNUM max_skill;
 struct skhash* skill_hash_table[26];
 
 void create_skills_hash_table(void);
@@ -31,7 +31,7 @@ void delete_skills_hash_table(void);
 
 struct gsn_type {
     char* name;
-    int16_t* pgsn;
+    SKNUM* pgsn;
 };
 
 struct spell_type {
@@ -109,7 +109,7 @@ char* spell_name(SPELL_FUN* spell)
     return "";
 }
 
-char* gsn_name(int16_t* pgsn)
+char* gsn_name(SKNUM* pgsn)
 {
     int i = 0;
 
@@ -148,7 +148,7 @@ SPELL_FUN* spell_function(char* argument)
     return spell_null;
 }
 
-void    check_gsns(void)
+void check_gsns(void)
 {
     int i;
 
@@ -160,7 +160,7 @@ void    check_gsns(void)
     return;
 }
 
-int16_t* gsn_lookup(char* argument)
+SKNUM* gsn_lookup(char* argument)
 {
     int i;
     char buf[MSL];
@@ -180,7 +180,7 @@ int16_t* gsn_lookup(char* argument)
     return NULL;
 }
 
-void    skedit(CHAR_DATA* ch, char* argument)
+void skedit(CHAR_DATA* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_SKEDIT_SECURITY) {
         send_to_char("SKEdit : You do not have enough security to edit skills.\n\r", ch);
@@ -214,7 +214,7 @@ void do_skedit(CHAR_DATA* ch, char* argument)
 {
     const struct skill_type* pSkill;
     char command[MSL];
-    int skill;
+    SKNUM skill;
 
     if (IS_NPC(ch))
         return;
@@ -383,7 +383,8 @@ SKEDIT(skedit_show)
     struct skill_type* pSkill;
     char buf[MAX_STRING_LENGTH];
     char buf2[MSL];
-    int i, sn = 0;
+    int i;
+    SKNUM sn = 0;
 
     EDIT_SKILL(ch, pSkill);
 
@@ -395,7 +396,7 @@ SKEDIT(skedit_show)
         sn++;
 
     if (sn != max_skill) {
-        sprintf(buf, "Sn       : [%3d/%3d]\n\r", sn, (int)max_skill);
+        sprintf(buf, "Sn       : [%3d/%3d]\n\r", sn, max_skill);
         send_to_char(buf, ch);
     }
 
@@ -466,9 +467,10 @@ SKEDIT(skedit_show)
 
 void create_skills_hash_table(void)
 {
-    int sn, value;
+    int value;
     struct skhash* data;
     struct skhash* temp;
+    SKNUM sn;
 
     for (sn = 0; sn < max_skill; sn++) {
         if (IS_NULLSTR(skill_table[sn].name))
@@ -562,12 +564,14 @@ SKEDIT(skedit_slot)
         return false;
     }
 
-    if (slot_lookup(atoi(argument)) != -1) {
+    int slot = atoi(argument);
+
+    if (skill_slot_lookup(slot) != -1) {
         send_to_char("That slot is already in use.\n\r", ch);
         return false;
     }
 
-    pSkill->slot = atoi(argument);
+    pSkill->slot = slot;
 
     send_to_char("Ok.\n\r", ch);
     return true;
@@ -577,7 +581,8 @@ SKEDIT(skedit_level)
 {
     struct skill_type* pSkill;
     char arg[MIL];
-    int clase, level;
+    int clase;
+    LEVEL level;
 
     EDIT_SKILL(ch, pSkill);
 
@@ -593,7 +598,7 @@ SKEDIT(skedit_level)
         return false;
     }
 
-    level = atoi(argument);
+    level = (LEVEL)atoi(argument);
 
     if (level < 0 || level > MAX_LEVEL) {
         send_to_char("SKEdit : Invalid level.\n\r", ch);
@@ -664,8 +669,8 @@ SKEDIT(skedit_spell)
 SKEDIT(skedit_gsn)
 {
     struct skill_type* pSkill;
-    int16_t* gsn;
-    int sn;
+    SKNUM* gsn;
+    SKNUM sn;
 
     EDIT_SKILL(ch, pSkill);
 
@@ -698,7 +703,7 @@ SKEDIT(skedit_new)
     CHAR_DATA* tch;
     struct skill_type* new_table;
     bool* tempgendata;
-    int16_t* templearned;
+    SKNUM* templearned;
     int i;
 
     if (IS_NULLSTR(argument)) {
@@ -721,7 +726,7 @@ SKEDIT(skedit_new)
 
     /* reallocate the table */
     max_skill++;
-    new_table = realloc(skill_table, sizeof(struct skill_type) * (max_skill + 1));
+    new_table = realloc(skill_table, sizeof(struct skill_type) * ((size_t)max_skill + 1));
 
     if (!new_table) /* realloc failed */
     {
