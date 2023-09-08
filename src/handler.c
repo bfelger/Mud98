@@ -276,6 +276,7 @@ int check_immune(CHAR_DATA* ch, DamageType dam_type)
     case DAM_OTHER:
     case DAM_NONE:
     case DAM_HARM:
+    case DAM_NOT_FOUND:
     default:
         return def;
     }

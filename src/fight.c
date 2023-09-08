@@ -472,6 +472,7 @@ void one_hit(CHAR_DATA* ch, CHAR_DATA* victim, SKNUM dt)
     case DAM_CHARM:
     case DAM_HARM:
     case DAM_SOUND:
+    case DAM_NOT_FOUND:
     default:
         victim_ac = GET_AC(victim, AC_EXOTIC) / 10;
         break;
