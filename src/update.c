@@ -31,6 +31,8 @@
 #include "interp.h"
 #include "music.h"
 
+#include "entities/player_data.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -923,7 +925,7 @@ void obj_update(void)
  */
 void aggr_update(void)
 {
-    for (PC_DATA* wpc = pc_list; wpc != NULL; wpc = wpc->next) {
+    for (PlayerData* wpc = player_list; wpc != NULL; wpc = wpc->next) {
         CHAR_DATA* wch = wpc->ch;
 
         if (wch->level >= LEVEL_IMMORTAL || wch->in_room == NULL)

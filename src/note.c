@@ -26,9 +26,12 @@
  ***************************************************************************/
 
 #include "merc.h"
+
 #include "recycle.h"
 #include "strings.h"
 #include "tables.h"
+
+#include "entities/player_data.h"
 
 #include <ctype.h>
 #include <stdio.h>

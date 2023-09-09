@@ -25,6 +25,8 @@
 #include "comm.h"
 #include "olc.h"
 
+#include "entities/player_data.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -25,8 +25,11 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "interp.h"
 #include "merc.h"
+
+#include "interp.h"
+
+#include "entities/player_data.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -68,7 +71,8 @@ void do_enter(CHAR_DATA* ch, char* argument)
     if (argument[0] != '\0') {
         ROOM_INDEX_DATA* old_room;
         OBJ_DATA* portal;
-        CHAR_DATA *fch, *fch_next;
+        CHAR_DATA* fch;
+        CHAR_DATA* fch_next = NULL;
 
         old_room = ch->in_room;
 

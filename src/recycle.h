@@ -86,12 +86,8 @@ void free_obj args((OBJ_DATA * obj));
 
 /* character recyling */
 #define CD CHAR_DATA
-#define PD PC_DATA
 CD* new_char args((void));
 void free_char args((CHAR_DATA * ch));
-PD* new_pcdata();
-void free_pcdata args((PC_DATA * pcdata));
-#undef PD
 #undef CD
 
 /* mob id and memory procedures */

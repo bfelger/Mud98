@@ -43,6 +43,8 @@
 #include <stddef.h>
 #endif
 
+typedef struct player_data_t PlayerData;
+
 ////////////////////////////////////////////////////////////////////////////////
 // Data files used by the server.
 // 
@@ -147,7 +149,6 @@ typedef struct mprog_code MPROG_CODE;
 typedef struct note_data NOTE_DATA;
 typedef struct obj_data OBJ_DATA;
 typedef struct obj_index_data OBJ_INDEX_DATA;
-typedef struct pc_data PC_DATA;
 typedef struct gen_data GEN_DATA;
 typedef struct reset_data RESET_DATA;
 typedef struct room_index_data ROOM_INDEX_DATA;
@@ -1330,7 +1331,7 @@ struct char_data {
     ROOM_INDEX_DATA* in_room;
     ROOM_INDEX_DATA* was_in_room;
     AREA_DATA* zone;
-    PC_DATA* pcdata;
+    PlayerData* pcdata;
     GEN_DATA* gen_data;
     char* name;
     char* material;
@@ -1340,12 +1341,10 @@ struct char_data {
     char* prompt;
     char* prefix;
     time_t logon;
+    time_t played;
     int id;
     int version;
-    time_t played;
     int lines; /* for the pager */
-    int16_t gold;
-    int16_t silver;
     int exp;
     int act;
     int comm;
@@ -1394,6 +1393,8 @@ struct char_data {
     int16_t max_mana;
     int16_t move;
     int16_t max_move;
+    int16_t gold;
+    int16_t silver;
     bool valid;
 };
 
@@ -1408,39 +1409,6 @@ typedef struct color_config_t {
     bool xterm;             // Use xterm semi-colons for 24-bit colors.
     bool hide_rgb_help;     // Hide verbose 24-bit help at the end of THEME LIST.
 } ColorConfig;
-
-struct pc_data {
-    CHAR_DATA* ch;
-    ColorConfig theme_config;
-    ColorTheme* current_theme;              // VT102 color assignments
-    ColorTheme* color_themes[MAX_THEMES];   // Personal themes
-    PC_DATA* next;
-    BUFFER* buffer;
-    char* bamfin;
-    char* bamfout;
-    char* title;
-    char* alias[MAX_ALIAS];
-    char* alias_sub[MAX_ALIAS];
-    SKNUM* learned;
-    bool* group_known;
-    time_t last_note;
-    time_t last_idea;
-    time_t last_penalty;
-    time_t last_news;
-    time_t last_changes;
-    unsigned char* pwd_digest;
-    unsigned int pwd_digest_len;
-    LEVEL last_level;
-    int security;                           // OLC Builder Security
-    int16_t perm_hit;
-    int16_t perm_mana;
-    int16_t perm_move;
-    int16_t true_sex;
-    int16_t condition[4];
-    int16_t points;
-    bool confirm_delete;
-    bool valid;
-};
 
 /* Data for generating characters -- only used during generation */
 struct gen_data {
@@ -1845,7 +1813,6 @@ extern HELP_DATA* help_first;
 extern SHOP_DATA* shop_first;
 
 extern CHAR_DATA* char_list;
-extern PC_DATA* pc_list;
 extern DESCRIPTOR_DATA* descriptor_list;
 extern OBJ_DATA* object_list;
 

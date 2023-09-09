@@ -10,6 +10,8 @@
 #include "digest.h"
 #include "vt.h"
 
+#include "entities/player_data.h"
+
 #include <stdint.h>
 #include <string.h>
 

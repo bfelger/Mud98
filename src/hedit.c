@@ -10,6 +10,8 @@
 #include "recycle.h"
 #include "tables.h"
 
+#include "entities/player_data.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,14 +22,12 @@
 #include <sys/types.h>
 #include <time.h>
 
-#define HEDIT( fun )           bool fun(CHAR_DATA *ch, char*argument)
+#define HEDIT(fun) bool fun(CHAR_DATA *ch, char*argument)
 
 extern HELP_AREA* had_list;
 
-const struct olc_cmd_type hedit_table[] =
-{
+const struct olc_cmd_type hedit_table[] = {
 /*	{	command		function	}, */
-
     {	"keyword",	hedit_keyword	},
     {	"text",		hedit_text	},
     {	"new",		hedit_new	},
@@ -37,7 +37,6 @@ const struct olc_cmd_type hedit_table[] =
     {	"list",		hedit_list	},
     {	"show",		hedit_show	},
     {	"?",		show_help	},
-
     {	NULL,		0		}
 };
 
@@ -141,8 +140,8 @@ HEDIT(hedit_new)
         return false;
     }
 
-    if (!had) /* No helpfiles in this area yet */
-    {
+    // No helpfiles in this area yet
+    if (!had) {
         had = new_had();
         had->filename = str_dup(ch->in_room->area->file_name);
         had->area = ch->in_room->area;

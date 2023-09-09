@@ -35,6 +35,8 @@
 #include "tables.h"
 #include "vt.h"
 
+#include "entities/player_data.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>

@@ -10,6 +10,8 @@
 #include "recycle.h"
 #include "tables.h"
 
+#include "entities/player_data.h"
+
 struct	race_type* race_table;
 int	maxrace;
 

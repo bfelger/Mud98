@@ -6,6 +6,8 @@
 
 #include "digest.h"
 
+#include "entities/player_data.h"
+
 #include <string.h>
 
 #include <openssl/err.h>
@@ -51,7 +53,7 @@ digest_message_err:
     return false;
 }
 
-void decode_digest(PC_DATA* pc, const char* hex_str)
+void decode_digest(PlayerData* pc, const char* hex_str)
 {
     if (pc->pwd_digest != NULL)
         OPENSSL_free(pc->pwd_digest);

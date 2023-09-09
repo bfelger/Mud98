@@ -11,6 +11,8 @@
 #include "olc.h"
 #include "recycle.h"
 
+#include "entities/player_data.h"
+
 #define CMD_FILE DATA_DIR "commands"
 #define CMDEDIT( fun )	bool fun( CHAR_DATA *ch, char *argument )
 
@@ -52,8 +54,8 @@ const struct olc_comm_type cmd_olc_comm_table[] = {
     { "function",	0,		            ed_olded,	        U(cmdedit_function)	},
     { "level",	    0,		            ed_olded,	        U(cmdedit_level)	},
     { "posicion",	U(&xCmd.position),	ed_int16lookup,	    U(position_lookup)	},
-    { "log",	    U(&xCmd.log),	    ed_flag_set_long,   U(log_flag_table)	    },
-    { "type",	    U(&xCmd.show),	    ed_flag_set_long,   U(show_flag_table)	    },
+    { "log",	    U(&xCmd.log),	    ed_flag_set_long,   U(log_flag_table)   },
+    { "type",	    U(&xCmd.show),	    ed_flag_set_long,   U(show_flag_table)  },
     { "new",	    0,		            ed_olded,	        U(cmdedit_new)	    },
     { "delete",	    0,		            ed_olded,	        U(cmdedit_delete)	},
     { "list",	    0,  		        ed_olded,	        U(cmdedit_list)	    },

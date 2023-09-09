@@ -37,6 +37,8 @@
 #include "strings.h"
 #include "tables.h"
 
+#include "entities/player_data.h"
+
 #include <ctype.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -63,7 +65,6 @@ MPROG_CODE* pedit_prog(VNUM);
 extern OBJ_DATA* obj_free;
 extern CHAR_DATA* char_free;
 extern DESCRIPTOR_DATA* descriptor_free;
-extern PC_DATA* pcdata_free;
 extern AFFECT_DATA* affect_free;
 
 /*
@@ -83,7 +84,7 @@ MPROG_CODE* mprog_list;
 
 char bug_buf[2 * MAX_INPUT_LENGTH];
 CHAR_DATA* char_list;
-PC_DATA* pc_list;
+PlayerData* player_list;
 char* help_greeting;
 char log_buf[2 * MAX_INPUT_LENGTH];
 KILL_DATA kill_table[MAX_LEVEL];
@@ -3044,7 +3045,7 @@ void do_dump(CHAR_DATA* ch, char* argument)
     int count, count2, num_pcs, aff_count;
     CHAR_DATA* fch;
     MOB_INDEX_DATA* pMobIndex;
-    PC_DATA* pc;
+    PlayerData* pc;
     OBJ_DATA* obj;
     OBJ_INDEX_DATA* pObjIndex;
     ROOM_INDEX_DATA* room = NULL;
@@ -3087,8 +3088,7 @@ void do_dump(CHAR_DATA* ch, char* argument)
 
     /* pcdata */
     count = 0;
-    for (pc = pcdata_free; pc != NULL; pc = pc->next) count++;
-
+    for (pc = player_free; pc != NULL; pc = pc->next) count++;
     fprintf(fp, "Pcdata	%4d (%8zu bytes), %2d free (%zu bytes)\n", num_pcs,
             num_pcs * (sizeof(*pc)), count, count * (sizeof(*pc)));
 

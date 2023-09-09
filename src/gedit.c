@@ -7,6 +7,8 @@
 #include "comm.h"
 #include "olc.h"
 
+#include "entities/player_data.h"
+
 int max_group;
 struct group_type* group_table;
 

@@ -26,7 +26,10 @@
  ***************************************************************************/
 
 #include "merc.h"
+
 #include "tables.h"
+
+#include "entities/player_data.h"
 
 #include <stdio.h>
 #include <stdlib.h>

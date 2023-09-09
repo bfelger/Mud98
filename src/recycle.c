@@ -360,92 +360,12 @@ void free_char(CHAR_DATA* ch)
     free_string(ch->prompt);
     free_string(ch->prefix);
     free_note(ch->pnote);
-    free_pcdata(ch->pcdata);
+    free_player_data(ch->pcdata);
 
     ch->next = char_free;
     char_free = ch;
 
     INVALIDATE(ch);
-    return;
-}
-
-PC_DATA* pcdata_free;
-
-PC_DATA* new_pcdata()
-{
-    int alias;
-
-    static PC_DATA pcdata_zero;
-    PC_DATA* pcdata;
-
-    if (pcdata_free == NULL)
-        pcdata = alloc_perm(sizeof(*pcdata));
-    else {
-        pcdata = pcdata_free;
-        pcdata_free = pcdata_free->next;
-    }
-
-    *pcdata = pcdata_zero;
-
-    for (alias = 0; alias < MAX_ALIAS; alias++) {
-        pcdata->alias[alias] = NULL;
-        pcdata->alias_sub[alias] = NULL;
-    }
-
-    pcdata->buffer = new_buf();
-    pcdata->learned = new_learned();
-    pcdata->group_known = new_boolarray(max_group);
-
-    VALIDATE(pcdata);
-    return pcdata;
-}
-
-void free_pcdata(PC_DATA* pcdata)
-{
-    int alias;
-
-    if (!IS_VALID(pcdata))
-        return;
-
-    if (pcdata == pc_list) {
-        pc_list = pcdata->next;
-    }
-    else {
-        PC_DATA* prev;
-
-        for (prev = pc_list; prev != NULL; prev = prev->next) {
-            if (prev->next == pcdata) {
-                prev->next = pcdata->next;
-                break;
-            }
-        }
-
-        if (prev == NULL) {
-            bug("Free_pcdata: pcdata not found.", 0);
-            return;
-        }
-    }
-
-    free_learned(pcdata->learned);
-    free_boolarray(pcdata->group_known);
-    free_digest(pcdata->pwd_digest);
-    free_color_theme(pcdata->current_theme);
-    for (int i = 0; i < MAX_THEMES; ++i)
-        if (pcdata->color_themes[i] != NULL)
-            free_color_theme(pcdata->color_themes[i]);
-    free_string(pcdata->bamfin);
-    free_string(pcdata->bamfout);
-    free_string(pcdata->title);
-    free_buf(pcdata->buffer);
-
-    for (alias = 0; alias < MAX_ALIAS; alias++) {
-        free_string(pcdata->alias[alias]);
-        free_string(pcdata->alias_sub[alias]);
-    }
-    INVALIDATE(pcdata);
-    pcdata->next = pcdata_free;
-    pcdata_free = pcdata;
-
     return;
 }
 

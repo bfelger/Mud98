@@ -42,6 +42,8 @@
 #include "telnet.h"
 #include "vt.h"
 
+#include "entities/player_data.h"
+
 #include <ctype.h>
 #include <errno.h>
 #include <signal.h>
@@ -1643,8 +1645,8 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
             0);
         ch->next = char_list;
         char_list = ch;
-        ch->pcdata->next = pc_list;
-        pc_list = ch->pcdata;
+        ch->pcdata->next = player_list;
+        player_list = ch->pcdata;
 
         d->connected = CON_PLAYING;
         reset_char(ch);

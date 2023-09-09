@@ -29,6 +29,8 @@
 
 #include "comm.h"
 
+#include "entities/player_data.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>

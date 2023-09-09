@@ -11,6 +11,8 @@
 #include "recycle.h"
 #include "tables.h"
 
+#include "entities/player_data.h"
+
 extern bool fBootDb;
 
 char* gsn_name(int16_t* pgsn);
