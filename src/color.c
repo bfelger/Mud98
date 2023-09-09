@@ -653,7 +653,7 @@ static void do_theme_list(CHAR_DATA* ch, char* argument)
 
     argument = one_argument(argument, opt);
 
-    if (opt == NULL || !opt[0] || !str_prefix(opt, "all")) {
+    if (!opt[0] || !str_prefix(opt, "all")) {
         priv = true;
         system = true;
         shared = true;
@@ -1310,7 +1310,7 @@ void do_theme(CHAR_DATA* ch, char* argument)
 
     argument = one_argument(argument, cmd);
 
-    if (cmd == NULL || !str_prefix(cmd, "help")) {
+    if (!str_prefix(cmd, "help")) {
         send_to_char(help, ch);
         return;
     }
