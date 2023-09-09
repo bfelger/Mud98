@@ -170,7 +170,7 @@ void fwrite_char(CHAR_DATA* ch, FILE* fp)
     if (ch->trust != 0)
         fprintf(fp, "Tru  %d\n", ch->trust);
     fprintf(fp, "Sec  %d\n", ch->pcdata->security);	// OLC
-    fprintf(fp, "Plyd %d\n", ch->played + (int)(current_time - ch->logon));
+    fprintf(fp, "Plyd %d\n", (int)(ch->played + (current_time - ch->logon)));
     fprintf(fp, "Not  "TIME_FMT" "TIME_FMT" "TIME_FMT" "TIME_FMT" "TIME_FMT"\n", 
             ch->pcdata->last_note, ch->pcdata->last_idea, ch->pcdata->last_penalty,
             ch->pcdata->last_news, ch->pcdata->last_changes);
@@ -499,7 +499,7 @@ bool load_char_obj(DESCRIPTOR_DATA* d, char* name)
 
     ch = new_char();
     ch->pcdata = new_pcdata();
-
+    ch->pcdata->ch = ch;
     d->character = ch;
     ch->desc = d;
     ch->name = str_dup(name);

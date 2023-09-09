@@ -18,6 +18,7 @@ typedef struct {
 } Timer;
 
 struct timespec elapsed(Timer* timer);
+void reset_timer(Timer* timer);
 void start_timer(Timer* timer);
 void stop_timer(Timer* timer);
 

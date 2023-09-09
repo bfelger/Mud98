@@ -56,18 +56,23 @@ struct timespec elapsed(Timer* timer)
 {
     struct timespec temp = { 0 };
 
-    if (!timer->running)
+    if (timer->running)
         return temp;
 
-    if ((timer->stop.tv_nsec - timer->start.tv_nsec) < 0) {
-        temp.tv_sec = timer->stop.tv_sec - timer->start.tv_sec - 1;
-        temp.tv_nsec = 1000000000 + timer->stop.tv_nsec - timer->start.tv_nsec;
+    temp.tv_sec = timer->stop.tv_sec - timer->start.tv_sec;
+    temp.tv_nsec = timer->stop.tv_nsec - timer->start.tv_nsec;
+
+    if (temp.tv_nsec < 0) {
+        temp.tv_sec -= 1;
+        temp.tv_nsec += NS_PER_SEC;
     }
-    else {
-        temp.tv_sec = timer->stop.tv_sec - timer->start.tv_sec;
-        temp.tv_nsec = timer->stop.tv_nsec - timer->start.tv_nsec;
-    }
+
     return temp;
+}
+
+void reset_timer(Timer* timer)
+{
+    memset(timer, 0, sizeof(Timer));
 }
 
 void start_timer(Timer* timer)

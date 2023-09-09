@@ -293,7 +293,7 @@ void free_obj(OBJ_DATA* obj)
 /* stuff for recyling characters */
 CHAR_DATA* char_free;
 
-CHAR_DATA* new_char(void)
+CHAR_DATA* new_char()
 {
     static CHAR_DATA ch_zero;
     CHAR_DATA* ch;
@@ -407,6 +407,25 @@ void free_pcdata(PC_DATA* pcdata)
     if (!IS_VALID(pcdata))
         return;
 
+    if (pcdata == pc_list) {
+        pc_list = pcdata->next;
+    }
+    else {
+        PC_DATA* prev;
+
+        for (prev = pc_list; prev != NULL; prev = prev->next) {
+            if (prev->next == pcdata) {
+                prev->next = pcdata->next;
+                break;
+            }
+        }
+
+        if (prev == NULL) {
+            bug("Free_pcdata: pcdata not found.", 0);
+            return;
+        }
+    }
+
     free_learned(pcdata->learned);
     free_boolarray(pcdata->group_known);
     free_digest(pcdata->pwd_digest);
@@ -489,8 +508,8 @@ void free_mem_data(MEM_DATA* memory)
 /* buffer sizes */
 const size_t buf_size[MAX_BUF_LIST] = {
     16, 32, 64, 128, 256, 1024, 2048, 4096,
-    MAX_STRING_LENGTH,      // vvv
-    8192,
+    MAX_STRING_LENGTH,        // vvv
+    8192,                   
     MAX_STRING_LENGTH * 2,    // Doesn't follow pattern, but frequently used.
     16384,
     MAX_STRING_LENGTH * 4     // ^^^

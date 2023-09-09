@@ -46,7 +46,7 @@ void mobile_update args((void));
 void weather_update args((void));
 void char_update args((void));
 void obj_update args((void));
-void aggr_update args((void));
+void aggr_update();
 
 /* used for saving */
 
@@ -923,13 +923,13 @@ void obj_update(void)
  */
 void aggr_update(void)
 {
-    for (CHAR_DATA* wch = char_list; wch != NULL; wch = wch->next) {
-        if (IS_NPC(wch) || wch->level >= LEVEL_IMMORTAL
-            || wch->in_room == NULL
-            || wch->area_empty == NULL || *(wch->area_empty) == true)
+    for (PC_DATA* wpc = pc_list; wpc != NULL; wpc = wpc->next) {
+        CHAR_DATA* wch = wpc->ch;
+
+        if (wch->level >= LEVEL_IMMORTAL || wch->in_room == NULL)
             continue;
 
-        for (CHAR_DATA* ch = wch->in_room->people; ch != NULL; ch = ch->next) {
+        for (CHAR_DATA* ch = wch->in_room->people; ch != NULL; ch = ch->next_in_room) {
             int count;
 
             if (!IS_NPC(ch) || !IS_SET(ch->act, ACT_AGGRESSIVE)
@@ -947,7 +947,7 @@ void aggr_update(void)
              */
             count = 0;
             CHAR_DATA* victim = NULL;
-            for (CHAR_DATA* vch = wch->in_room->people; vch != NULL; vch = vch->next) {
+            for (CHAR_DATA* vch = wch->in_room->people; vch != NULL; vch = vch->next_in_room) {
                 if (!IS_NPC(vch) && vch->level < LEVEL_IMMORTAL
                     && ch->level >= vch->level - 5
                     && (!IS_SET(ch->act, ACT_WIMPY) || !IS_AWAKE(vch))

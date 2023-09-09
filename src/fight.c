@@ -1797,8 +1797,8 @@ int xp_compute(CHAR_DATA* gch, CHAR_DATA* victim, int total_levels)
 
     {
         /* compute quarter-hours per level */
-        time_per_level = 4 * (gch->played + (int)(current_time - gch->logon))
-                         / 3600 / gch->level;
+        time_per_level = 4 * (int)((gch->played + (current_time - gch->logon))
+                         / 3600 / gch->level);
 
         time_per_level = URANGE(2, time_per_level, 12);
         if (gch->level < 15) /* make it a curve */

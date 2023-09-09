@@ -1243,7 +1243,7 @@ void do_score(CHAR_DATA* ch, char* argument)
 
     sprintf(buf, "You are %s%s, level %d, %d years old (%d hours).\n\r",
             ch->name, IS_NPC(ch) ? "" : ch->pcdata->title, ch->level,
-            get_age(ch), (ch->played + (int)(current_time - ch->logon)) / 3600);
+            get_age(ch), (int)(ch->played + (current_time - ch->logon)) / 3600);
     send_to_char(buf, ch);
 
     if (get_trust(ch) != ch->level) {

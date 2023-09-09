@@ -91,7 +91,8 @@ int count_users(OBJ_DATA* obj)
     if (obj->in_room == NULL) return 0;
 
     for (fch = obj->in_room->people; fch != NULL; fch = fch->next_in_room)
-        if (fch->on == obj) count++;
+        if (fch->on == obj) 
+            count++;
 
     return count;
 }
@@ -161,7 +162,7 @@ int attack_lookup(const char* name)
 }
 
 /* returns a flag for wiznet */
-long wiznet_lookup(const char* name)
+int wiznet_lookup(const char* name)
 {
     int flag;
 
@@ -175,11 +176,11 @@ long wiznet_lookup(const char* name)
 }
 
 /* returns class number */
-int class_lookup(const char* name)
+int16_t class_lookup(const char* name)
 {
-    int class;
+    int16_t class;
 
-    for (class = 0; class < MAX_CLASS; class ++) {
+    for (class = 0; class < MAX_CLASS; class++) {
         if (LOWER(name[0]) == LOWER(class_table[class].name[0])
             && !str_prefix(name, class_table[class].name))
             return class;
@@ -788,7 +789,7 @@ LEVEL get_trust(CHAR_DATA* ch)
  */
 int get_age(CHAR_DATA* ch)
 {
-    return 17 + (ch->played + (int)(current_time - ch->logon)) / 72000;
+    return 17 + (int)(ch->played + (current_time - ch->logon)) / 72000;
 }
 
 /* command for retrieving stats */
@@ -1391,7 +1392,6 @@ void char_from_room(CHAR_DATA* ch)
     ch->in_room = NULL;
     ch->next_in_room = NULL;
     ch->on = NULL; /* sanity check! */
-    ch->area_empty = NULL;
     return;
 }
 
@@ -1423,8 +1423,6 @@ void char_to_room(CHAR_DATA* ch, ROOM_INDEX_DATA* pRoomIndex)
             ch->in_room->area->age = 0;
         }
         ++ch->in_room->area->nplayer;
-
-        ch->area_empty = &(ch->in_room->area->empty);
     }
 
     if ((obj = get_eq_char(ch, WEAR_LIGHT)) != NULL

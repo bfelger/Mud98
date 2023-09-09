@@ -732,7 +732,8 @@ void do_shout(CHAR_DATA* ch, char* argument)
 
 void do_tell(CHAR_DATA* ch, char* argument)
 {
-    char arg[MAX_INPUT_LENGTH], buf[MAX_STRING_LENGTH];
+    char arg[MAX_INPUT_LENGTH];
+    char buf[MAX_STRING_LENGTH];
     CHAR_DATA* victim;
 
     if (IS_SET(ch->comm, COMM_NOTELL) || IS_SET(ch->comm, COMM_DEAF)) {

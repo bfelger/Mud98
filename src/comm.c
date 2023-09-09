@@ -1643,6 +1643,9 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
             0);
         ch->next = char_list;
         char_list = ch;
+        ch->pcdata->next = pc_list;
+        pc_list = ch->pcdata;
+
         d->connected = CON_PLAYING;
         reset_char(ch);
 

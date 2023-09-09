@@ -48,6 +48,7 @@
 #include "benchmark.h"
 #include "comm.h"
 #include "strings.h"
+#include "tests.h"
 
 #ifdef _MSC_VER
 #include <stdint.h>
@@ -196,6 +197,8 @@ int main(int argc, char** argv)
         struct timespec timer_res = elapsed(&boot_timer);
         sprintf(log_buf, "Boot time: "TIME_FMT"s, %ldns.", timer_res.tv_sec, timer_res.tv_nsec);
         log_string(log_buf);
+
+        run_unit_tests();
     }
 
     if (!rt_opt_noloop) {
