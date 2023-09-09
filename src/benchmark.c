@@ -8,12 +8,15 @@
 
 #include "benchmark.h"
 
+#include <string.h>
+
 #ifdef _MSC_VER
 #include <windows.h>
 #include <winsock.h>
 #include <winnt.h>
 #define CLOCK_MONOTONIC		        1
 #define CLOCK_PROCESS_CPUTIME_ID    2
+#endif
 
 #define MS_PER_SEC      1000ULL     // MS = milliseconds
 #define US_PER_MS       1000ULL     // US = microseconds
@@ -24,6 +27,7 @@
 #define NS_PER_HNS      (100ULL)    // NS = nanoseconds
 #define NS_PER_SEC      (MS_PER_SEC * US_PER_MS * NS_PER_US)
 
+#ifdef _MSC_VER
 ////////////////////////////////////////////////////////////////////////////////
 // This implementation taken from StackOverflow user jws's example:
 //    https://stackoverflow.com/a/51974214
@@ -56,18 +60,23 @@ struct timespec elapsed(Timer* timer)
 {
     struct timespec temp = { 0 };
 
-    if (!timer->running)
+    if (timer->running)
         return temp;
 
-    if ((timer->stop.tv_nsec - timer->start.tv_nsec) < 0) {
-        temp.tv_sec = timer->stop.tv_sec - timer->start.tv_sec - 1;
-        temp.tv_nsec = 1000000000 + timer->stop.tv_nsec - timer->start.tv_nsec;
+    temp.tv_sec = timer->stop.tv_sec - timer->start.tv_sec;
+    temp.tv_nsec = timer->stop.tv_nsec - timer->start.tv_nsec;
+
+    if (temp.tv_nsec < 0) {
+        temp.tv_sec -= 1;
+        temp.tv_nsec += NS_PER_SEC;
     }
-    else {
-        temp.tv_sec = timer->stop.tv_sec - timer->start.tv_sec;
-        temp.tv_nsec = timer->stop.tv_nsec - timer->start.tv_nsec;
-    }
+
     return temp;
+}
+
+void reset_timer(Timer* timer)
+{
+    memset(timer, 0, sizeof(Timer));
 }
 
 void start_timer(Timer* timer)

@@ -20,7 +20,7 @@ endif()
 if (MSVC)
     set(MSVC_DISABLED_WARNINGS
         # Nonstandard extension, function/data pointer conversion in expression
-        "C4152"     # For openssl/applink.c
+        "C4152"     # For openssl/applink.c.
 
          # Assignment within conditional expression
         "C4706"     # Microsoft can take my assigning conditionals out of my 
@@ -37,7 +37,18 @@ if (MSVC)
 
         # Unreferenced formal parameter
         "C4100"     # Disabling this is the equivalent of GCC/Clang's  
-                    # '-Wno-unused-parameter'
+                    # '-Wno-unused-parameter'.
+
+        # Compiler will insert Spectre mitigation for memory load if /Qspectre
+        # switch specified
+        "C5045"     # Spectre is serious business, but mitigations are costly.
+                    # In the end, the choice to add mitigation is yours. Add
+                    # /Qspectre to CFLAGS if you want to enable it. This WILL
+                    # impact performance, as ROM does quite a bit of the things
+                    # that need to be guarded. You can also mitigate by running
+                    # as a user account with no privileges (which you should be
+                    # doing, anyway). With or without Spectre, ASSUME HACKERS
+                    # WILL BREACH. Prepare accordingly.
     )
 
     string(REPLACE "C" " -wd" MSVC_DISABLED_WARNINGS_OPT ${MSVC_DISABLED_WARNINGS})
@@ -63,7 +74,7 @@ add_executable(Mud98 merc.h act_comm.c act_enter.c act_info.c act_move.c
     magic2.c main.c mem.c  mob_cmds.c mob_prog.c music.c note.c olc.c olc_act.c 
     olc_save.c pcg_basic.c pedit.c raedit.c  recycle.c save.c scan.c screen.c 
     sedit.c skedit.c skills.c special.c string_edit.c tables.c tablesave.c 
-    update.c wizutil.v3.c)
+    tests.h tests.c update.c wizutil.v3.c)
 
 if (NOT MSVC)
     target_link_libraries(Mud98 Threads::Threads OpenSSL::SSL)

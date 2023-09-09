@@ -81,7 +81,7 @@ void init_command_table(void)
             maxcnt = cnt;
     }
 
-    temp_table = calloc((maxcnt * 27), sizeof(struct cmd_type*));
+    temp_table = calloc(((size_t)maxcnt * 27), sizeof(struct cmd_type*));
 
     for (i = 0; i < (maxcnt * 27); ++i)
         temp_table[i] = NULL;

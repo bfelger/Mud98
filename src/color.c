@@ -70,7 +70,7 @@ char* bg_color_to_str(const ColorTheme* theme, const Color* color, bool xterm)
 
 char* color_to_str(ColorTheme* theme, Color* color, bool xterm)
 {
-    char buf[50];
+    char buf[MAX_INPUT_LENGTH];
 
     if (color->mode == COLOR_MODE_PAL_IDX) {
         if (color->code[0] >= theme->palette_max)
@@ -354,7 +354,7 @@ static void do_theme_channel(CHAR_DATA* ch, char* argument)
         "        You can also refer directly to a palette color with {*PALETTE <index>{x\n\r"
         "        or {*PAL <index>{x.\n\r";
 
-    char chan_arg[50];
+    char chan_arg[MAX_INPUT_LENGTH];
     int chan = -1;
     ColorTheme* theme = ch->pcdata->current_theme;
 
@@ -454,8 +454,8 @@ static void do_theme_config(CHAR_DATA* ch, char* argument)
         "       {*RGB_HELP  {x- Show/hide long-winded message at the end of {*THEME_LIST{x.\n\r"
         "\n\r";
 
-    char cmd[50];
-    char opt[50];
+    char cmd[MAX_INPUT_LENGTH];
+    char opt[MAX_INPUT_LENGTH];
     bool enable = false;
 
     argument = one_argument(argument, cmd);
@@ -518,7 +518,7 @@ static void do_theme_create(CHAR_DATA* ch, char* argument)
         "background, which is set to the second palette index (black by "
         "default). These values can be changed.\n\r";
 
-    char mode_arg[50];
+    char mode_arg[MAX_INPUT_LENGTH];
     ColorMode mode;
 
     if (ch->pcdata->current_theme->is_changed) {
@@ -646,14 +646,14 @@ static void do_theme_list(CHAR_DATA* ch, char* argument)
         "       {*PUBLIC  {x- Only show themes made public by current, logged-in users.\n\r"
         "       {*PRIVATE {x- Only show your own personal themes.\n\r";
 
-    char opt[50] = { 0 };
+    char opt[MAX_INPUT_LENGTH] = { 0 };
     bool system = false;
     bool shared = false;
     bool priv = false;
 
     argument = one_argument(argument, opt);
 
-    if (opt == NULL || !opt[0] || !str_prefix(opt, "all")) {
+    if (!opt[0] || !str_prefix(opt, "all")) {
         priv = true;
         system = true;
         shared = true;
@@ -777,7 +777,7 @@ static void do_theme_palette(CHAR_DATA* ch, char* argument)
 
     ColorTheme* theme = ch->pcdata->current_theme;
 
-    char arg1[50];
+    char arg1[MAX_INPUT_LENGTH];
     argument = one_argument(argument, arg1);
 
     if (!is_number(arg1) && theme->mode == COLOR_MODE_256) {
@@ -1296,7 +1296,7 @@ void do_theme(CHAR_DATA* ch, char* argument)
         "\n\r"
         "Type '{*THEME <option>{x' for more information.\n\r";
 
-    char cmd[50] = { 0 };
+    char cmd[MAX_INPUT_LENGTH] = { 0 };
 
     if (IS_NPC(ch)) {
         return;
@@ -1310,7 +1310,7 @@ void do_theme(CHAR_DATA* ch, char* argument)
 
     argument = one_argument(argument, cmd);
 
-    if (cmd == NULL || !str_prefix(cmd, "help")) {
+    if (!str_prefix(cmd, "help")) {
         send_to_char(help, ch);
         return;
     }
@@ -1564,7 +1564,7 @@ void set_color_rgb(Color* color, uint8_t r, uint8_t g, uint8_t b)
 
 void set_default_colors(CHAR_DATA* ch)
 {
-    char out[100];
+    char out[MAX_INPUT_LENGTH];
     bool xterm = ch->pcdata->theme_config.xterm;
 
     if (IS_NPC(ch) || ch->pcdata == NULL)

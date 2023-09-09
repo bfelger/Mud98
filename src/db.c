@@ -83,6 +83,7 @@ MPROG_CODE* mprog_list;
 
 char bug_buf[2 * MAX_INPUT_LENGTH];
 CHAR_DATA* char_list;
+PC_DATA* pc_list;
 char* help_greeting;
 char log_buf[2 * MAX_INPUT_LENGTH];
 KILL_DATA kill_table[MAX_LEVEL];

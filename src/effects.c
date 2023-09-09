@@ -111,7 +111,8 @@ void acid_effect(void* vo, LEVEL level, int dam, int target)
 
         chance = URANGE(5, chance, 95);
 
-        if (number_percent() > chance) return;
+        if (number_percent() > chance) 
+            return;
 
         if (obj->carried_by != NULL)
             act(msg, obj->carried_by, obj, NULL, TO_ALL);
@@ -121,12 +122,14 @@ void acid_effect(void* vo, LEVEL level, int dam, int target)
         if (obj->item_type == ITEM_ARMOR) /* etch it */
         {
             AFFECT_DATA* paf;
+            AFFECT_DATA* paf_next = NULL;
             bool af_found = false;
             int i;
 
             affect_enchant(obj);
 
-            for (paf = obj->affected; paf != NULL; paf = paf->next) {
+            for (paf = obj->affected; paf != NULL; paf = paf_next) {
+                paf_next = paf->next;
                 if (paf->location == APPLY_AC) {
                     af_found = true;
                     paf->type = -1;
@@ -219,7 +222,8 @@ void cold_effect(void* vo, LEVEL level, int dam, int target)
         }
 
         /* hunger! (warmth sucked out */
-        if (!IS_NPC(victim)) gain_condition(victim, COND_HUNGER, dam / 20);
+        if (!IS_NPC(victim)) 
+            gain_condition(victim, COND_HUNGER, dam / 20);
 
         /* let's toast some gear */
         for (obj = victim->carrying; obj != NULL; obj = obj_next) {
@@ -244,7 +248,8 @@ void cold_effect(void* vo, LEVEL level, int dam, int target)
         if (chance > 25) chance = (chance - 25) / 2 + 25;
         if (chance > 50) chance = (chance - 50) / 2 + 50;
 
-        if (IS_OBJ_STAT(obj, ITEM_BLESS)) chance -= 5;
+        if (IS_OBJ_STAT(obj, ITEM_BLESS))
+            chance -= 5;
 
         chance -= obj->level * 2;
 
@@ -263,7 +268,8 @@ void cold_effect(void* vo, LEVEL level, int dam, int target)
 
         chance = URANGE(5, chance, 95);
 
-        if (number_percent() > chance) return;
+        if (number_percent() > chance) 
+            return;
 
         if (obj->carried_by != NULL)
             act(msg, obj->carried_by, obj, NULL, TO_ALL);
@@ -330,8 +336,6 @@ void fire_effect(void* vo, LEVEL level, int dam, int target)
     if (target == TARGET_OBJ) /* toast an object */
     {
         OBJ_DATA* obj = (OBJ_DATA*)vo;
-        OBJ_DATA* t_obj;
-        OBJ_DATA* n_obj = NULL;
         int chance;
         char* msg;
 
@@ -378,7 +382,8 @@ void fire_effect(void* vo, LEVEL level, int dam, int target)
 
         chance = URANGE(5, chance, 95);
 
-        if (number_percent() > chance) return;
+        if (number_percent() > chance)
+            return;
 
         if (obj->carried_by != NULL)
             act(msg, obj->carried_by, obj, NULL, TO_ALL);
@@ -387,7 +392,8 @@ void fire_effect(void* vo, LEVEL level, int dam, int target)
 
         if (obj->contains) {
             /* dump the contents */
-
+            OBJ_DATA* t_obj;
+            OBJ_DATA* n_obj = NULL;
             for (t_obj = obj->contains; t_obj != NULL; t_obj = n_obj) {
                 n_obj = t_obj->next_content;
                 obj_from_obj(t_obj);
