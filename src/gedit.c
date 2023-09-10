@@ -13,7 +13,7 @@ int max_group;
 struct group_type* group_table;
 
 #define GROUP_FILE DATA_DIR "groups"
-#define GEDIT(fun) bool fun(CHAR_DATA *ch, char *argument)
+#define GEDIT(fun) bool fun(CharData *ch, char *argument)
 
 void load_group(FILE* fp, struct group_type* group)
 {
@@ -131,7 +131,7 @@ const struct olc_cmd_type gedit_table[] = {
     { NULL,		0		        }
 };
 
-void gedit(CHAR_DATA* ch, char* argument)
+void gedit(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char command[MAX_INPUT_LENGTH];
@@ -173,7 +173,7 @@ void gedit(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_gedit(CHAR_DATA* ch, char* argument)
+void do_gedit(CharData* ch, char* argument)
 {
     const struct group_type* pGroup;
     char command[MSL];

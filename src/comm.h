@@ -46,8 +46,8 @@ typedef struct poll_data_t {
 typedef struct descriptor_data {
     struct descriptor_data* next;
     struct descriptor_data* snoop_by;
-    CHAR_DATA* character;
-    CHAR_DATA* original;
+    CharData* character;
+    CharData* original;
     bool valid;
     char* host;
     SockClient client;
@@ -83,7 +83,7 @@ void process_client_output(PollData* poll_data);
 bool process_descriptor_output(DESCRIPTOR_DATA* d, bool fPrompt);
 void read_from_buffer(DESCRIPTOR_DATA* d);
 bool read_from_descriptor(DESCRIPTOR_DATA* d);
-void stop_idling(CHAR_DATA* ch);
+void stop_idling(CharData* ch);
 bool write_to_descriptor(DESCRIPTOR_DATA* d, char* txt, size_t length);
 
 #ifdef _MSC_VER

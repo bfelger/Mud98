@@ -26,7 +26,10 @@
  ***************************************************************************/
 
 #include "merc.h"
+
 #include "recycle.h"
+
+#include "entities/char_data.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,7 +54,7 @@ void acid_effect(void* vo, LEVEL level, int dam, int target)
 
     if (target == TARGET_CHAR) /* do the effect on a victim */
     {
-        CHAR_DATA* victim = (CHAR_DATA*)vo;
+        CharData* victim = (CharData*)vo;
         OBJ_DATA* obj;
         OBJ_DATA* obj_next = NULL;
 
@@ -200,7 +203,7 @@ void cold_effect(void* vo, LEVEL level, int dam, int target)
 
     if (target == TARGET_CHAR) /* whack a character */
     {
-        CHAR_DATA* victim = (CHAR_DATA*)vo;
+        CharData* victim = (CharData*)vo;
         OBJ_DATA* obj;
         OBJ_DATA* obj_next = NULL;
 
@@ -298,7 +301,7 @@ void fire_effect(void* vo, LEVEL level, int dam, int target)
 
     if (target == TARGET_CHAR) /* do the effect on a victim */
     {
-        CHAR_DATA* victim = (CHAR_DATA*)vo;
+        CharData* victim = (CharData*)vo;
         OBJ_DATA* obj;
         OBJ_DATA* obj_next = NULL;
 
@@ -431,7 +434,7 @@ void poison_effect(void* vo, LEVEL level, int dam, int target)
 
     if (target == TARGET_CHAR) /* do the effect on a victim */
     {
-        CHAR_DATA* victim = (CHAR_DATA*)vo;
+        CharData* victim = (CharData*)vo;
         OBJ_DATA* obj;
         OBJ_DATA* obj_next = NULL;
 
@@ -510,7 +513,7 @@ void shock_effect(void* vo, LEVEL level, int dam, int target)
     }
 
     if (target == TARGET_CHAR) {
-        CHAR_DATA* victim = (CHAR_DATA*)vo;
+        CharData* victim = (CharData*)vo;
         OBJ_DATA* obj;
         OBJ_DATA* obj_next = NULL;
 

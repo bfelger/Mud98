@@ -52,8 +52,8 @@ extern char strArea[MAX_INPUT_LENGTH];
 
 /* local procedures */
 void load_thread(char* name, NOTE_DATA** list, int16_t type, time_t free_time);
-void parse_note(CHAR_DATA* ch, char* argument, int16_t type);
-bool hide_note(CHAR_DATA* ch, NOTE_DATA* pnote);
+void parse_note(CharData* ch, char* argument, int16_t type);
+bool hide_note(CharData* ch, NOTE_DATA* pnote);
 
 NOTE_DATA* note_list;
 NOTE_DATA* idea_list;
@@ -61,7 +61,7 @@ NOTE_DATA* penalty_list;
 NOTE_DATA* news_list;
 NOTE_DATA* changes_list;
 
-int count_spool(CHAR_DATA* ch, NOTE_DATA* spool)
+int count_spool(CharData* ch, NOTE_DATA* spool)
 {
     int count = 0;
     NOTE_DATA* pnote;
@@ -72,7 +72,7 @@ int count_spool(CHAR_DATA* ch, NOTE_DATA* spool)
     return count;
 }
 
-void do_unread(CHAR_DATA* ch)
+void do_unread(CharData* ch)
 {
     char buf[MAX_STRING_LENGTH];
     int count;
@@ -114,27 +114,27 @@ void do_unread(CHAR_DATA* ch)
     if (!found) send_to_char("You have no unread notes.\n\r", ch);
 }
 
-void do_note(CHAR_DATA* ch, char* argument)
+void do_note(CharData* ch, char* argument)
 {
     parse_note(ch, argument, NOTE_NOTE);
 }
 
-void do_idea(CHAR_DATA* ch, char* argument)
+void do_idea(CharData* ch, char* argument)
 {
     parse_note(ch, argument, NOTE_IDEA);
 }
 
-void do_penalty(CHAR_DATA* ch, char* argument)
+void do_penalty(CharData* ch, char* argument)
 {
     parse_note(ch, argument, NOTE_PENALTY);
 }
 
-void do_news(CHAR_DATA* ch, char* argument)
+void do_news(CharData* ch, char* argument)
 {
     parse_note(ch, argument, NOTE_NEWS);
 }
 
-void do_changes(CHAR_DATA* ch, char* argument)
+void do_changes(CharData* ch, char* argument)
 {
     parse_note(ch, argument, NOTE_CHANGES);
 }
@@ -319,7 +319,7 @@ void append_note(NOTE_DATA* pnote)
     fpReserve = fopen(NULL_FILE, "r");
 }
 
-bool is_note_to(CHAR_DATA* ch, NOTE_DATA* pnote)
+bool is_note_to(CharData* ch, NOTE_DATA* pnote)
 {
     if (!str_cmp(ch->name, pnote->sender)) return true;
 
@@ -336,7 +336,7 @@ bool is_note_to(CHAR_DATA* ch, NOTE_DATA* pnote)
     return false;
 }
 
-void note_attach(CHAR_DATA* ch, int16_t type)
+void note_attach(CharData* ch, int16_t type)
 {
     NOTE_DATA* pnote;
 
@@ -355,7 +355,7 @@ void note_attach(CHAR_DATA* ch, int16_t type)
     return;
 }
 
-void note_remove(CHAR_DATA* ch, NOTE_DATA* pnote, bool delete)
+void note_remove(CharData* ch, NOTE_DATA* pnote, bool delete)
 {
     char to_new[MAX_INPUT_LENGTH] = "";
     char to_one[MAX_INPUT_LENGTH] = "";
@@ -425,7 +425,7 @@ void note_remove(CHAR_DATA* ch, NOTE_DATA* pnote, bool delete)
     return;
 }
 
-bool hide_note(CHAR_DATA* ch, NOTE_DATA* pnote)
+bool hide_note(CharData* ch, NOTE_DATA* pnote)
 {
     time_t last_read;
 
@@ -460,7 +460,7 @@ bool hide_note(CHAR_DATA* ch, NOTE_DATA* pnote)
     return false;
 }
 
-void update_read(CHAR_DATA* ch, NOTE_DATA* pnote)
+void update_read(CharData* ch, NOTE_DATA* pnote)
 {
     time_t stamp;
 
@@ -489,7 +489,7 @@ void update_read(CHAR_DATA* ch, NOTE_DATA* pnote)
     }
 }
 
-void parse_note(CHAR_DATA* ch, char* argument, int16_t type)
+void parse_note(CharData* ch, char* argument, int16_t type)
 {
     BUFFER* buffer;
     char buf[MAX_STRING_LENGTH];

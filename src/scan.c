@@ -27,17 +27,19 @@
 
 #include "merc.h"
 
+#include "entities/char_data.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <time.h>
 
-void scan_list args((ROOM_INDEX_DATA * scan_room, CHAR_DATA* ch, int16_t depth,
+void scan_list args((ROOM_INDEX_DATA * scan_room, CharData* ch, int16_t depth,
                      int16_t door));
-void scan_char args((CHAR_DATA * victim, CHAR_DATA* ch, int16_t depth,
+void scan_char args((CharData * victim, CharData* ch, int16_t depth,
                      int16_t door));
-void do_scan(CHAR_DATA* ch, char* argument)
+void do_scan(CharData* ch, char* argument)
 {
     extern char* const dir_name[];
     char arg1[MAX_INPUT_LENGTH], buf[MAX_INPUT_LENGTH];
@@ -90,10 +92,10 @@ void do_scan(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void scan_list(ROOM_INDEX_DATA* scan_room, CHAR_DATA* ch, int16_t depth,
+void scan_list(ROOM_INDEX_DATA* scan_room, CharData* ch, int16_t depth,
                int16_t door)
 {
-    CHAR_DATA* rch;
+    CharData* rch;
 
     if (scan_room == NULL) return;
     for (rch = scan_room->people; rch != NULL; rch = rch->next_in_room) {
@@ -104,7 +106,7 @@ void scan_list(ROOM_INDEX_DATA* scan_room, CHAR_DATA* ch, int16_t depth,
     return;
 }
 
-void scan_char(CHAR_DATA* victim, CHAR_DATA* ch, int16_t depth, int16_t door)
+void scan_char(CharData* victim, CharData* ch, int16_t depth, int16_t door)
 {
     extern char* const dir_name[];
     char buf[MAX_INPUT_LENGTH] = "";

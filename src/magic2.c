@@ -25,9 +25,12 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+#include "merc.h"
+
 #include "interp.h"
 #include "magic.h"
-#include "merc.h"
+
+#include "entities/char_data.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,7 +40,7 @@
 
 extern char* target_name;
 
-void spell_farsight(SKNUM sn, LEVEL level, CHAR_DATA* ch, void* vo, int target)
+void spell_farsight(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
     if (IS_AFFECTED(ch, AFF_BLIND)) {
         send_to_char("Maybe it would help if you could see?\n\r", ch);
@@ -47,9 +50,9 @@ void spell_farsight(SKNUM sn, LEVEL level, CHAR_DATA* ch, void* vo, int target)
     do_function(ch, &do_scan, target_name);
 }
 
-void spell_portal(SKNUM sn, LEVEL level, CHAR_DATA* ch, void* vo, int target)
+void spell_portal(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
-    CHAR_DATA* victim;
+    CharData* victim;
     OBJ_DATA *portal, *stone;
 
     if ((victim = get_char_world(ch, target_name)) == NULL || victim == ch
@@ -91,9 +94,9 @@ void spell_portal(SKNUM sn, LEVEL level, CHAR_DATA* ch, void* vo, int target)
     act("$p rises up before you.", ch, portal, NULL, TO_CHAR);
 }
 
-void spell_nexus(SKNUM sn, LEVEL level, CHAR_DATA* ch, void* vo, int target)
+void spell_nexus(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
-    CHAR_DATA* victim;
+    CharData* victim;
     OBJ_DATA *portal, *stone;
     ROOM_INDEX_DATA *to_room, *from_room;
 

@@ -29,6 +29,8 @@
 
 #include "magic.h"
 
+#include "entities/char_data.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,9 +40,9 @@
 #include <sys/time.h>
 #endif
 
-void do_heal(CHAR_DATA* ch, char* argument)
+void do_heal(CharData* ch, char* argument)
 {
-    CHAR_DATA* mob;
+    CharData* mob;
     char arg[MAX_INPUT_LENGTH];
     int cost;
     SKNUM sn;

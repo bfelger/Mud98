@@ -34,10 +34,10 @@ void recalc(MOB_INDEX_DATA*);
 COMMAND(do_clear)
 
 /* Return true if area changed, false if not. */
-#define REDIT(fun)    bool fun( CHAR_DATA *ch, char *argument )
-#define OEDIT(fun)    bool fun( CHAR_DATA *ch, char *argument )
-#define MEDIT(fun)    bool fun( CHAR_DATA *ch, char *argument )
-#define AEDIT(fun)    bool fun( CHAR_DATA *ch, char *argument )
+#define REDIT(fun)    bool fun( CharData *ch, char *argument )
+#define OEDIT(fun)    bool fun( CharData *ch, char *argument )
+#define MEDIT(fun)    bool fun( CharData *ch, char *argument )
+#define AEDIT(fun)    bool fun( CharData *ch, char *argument )
 
 struct olc_help_type {
     char* command;
@@ -45,7 +45,7 @@ struct olc_help_type {
     char* desc;
 };
 
-bool show_version(CHAR_DATA* ch, char* argument)
+bool show_version(CharData* ch, char* argument)
 {
     send_to_char(OLC_VERSION, ch);
     send_to_char("\n\r", ch);
@@ -115,7 +115,7 @@ const struct olc_help_type help_table[] =
  Purpose:	Displays settable flags and stats.
  Called by:	show_help(olc_act.c).
  ****************************************************************************/
-void show_flag_cmds(CHAR_DATA* ch, const struct flag_type* flag_table)
+void show_flag_cmds(CharData* ch, const struct flag_type* flag_table)
 {
     char buf[MAX_STRING_LENGTH] = "";
     char buf1[MAX_STRING_LENGTH] = "";
@@ -149,7 +149,7 @@ void show_flag_cmds(CHAR_DATA* ch, const struct flag_type* flag_table)
         (2) Adding a check for a level range.
  Called by:	show_help(olc_act.c).
  ****************************************************************************/
-void show_skill_cmds(CHAR_DATA* ch, int tar)
+void show_skill_cmds(CharData* ch, int tar)
 {
     char buf[MAX_STRING_LENGTH] = "";
     char buf1[MAX_STRING_LENGTH * 2] = "";
@@ -186,7 +186,7 @@ void show_skill_cmds(CHAR_DATA* ch, int tar)
  Purpose:	Displays settable special functions.
  Called by:	show_help(olc_act.c).
  ****************************************************************************/
-void show_spec_cmds(CHAR_DATA* ch)
+void show_spec_cmds(CharData* ch)
 {
     char buf[MAX_STRING_LENGTH] = "";
     char buf1[MAX_STRING_LENGTH] = "";
@@ -215,7 +215,7 @@ void show_spec_cmds(CHAR_DATA* ch)
  Purpose:	Displays help for many tables used in OLC.
  Called by:	olc interpreters.
  ****************************************************************************/
-bool show_help(CHAR_DATA* ch, char* argument)
+bool show_help(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
@@ -962,7 +962,7 @@ REDIT(redit_show)
 {
     ROOM_INDEX_DATA* pRoom;
     OBJ_DATA* obj;
-    CHAR_DATA* rch;
+    CharData* rch;
     int			cnt = 0;
     bool		fcnt;
 
@@ -1116,7 +1116,7 @@ REDIT(redit_show)
 }
 
 /* Local function. */
-bool change_exit(CHAR_DATA* ch, char* argument, int door)
+bool change_exit(CharData* ch, char* argument, int door)
 {
     ROOM_INDEX_DATA* pRoom;
     char command[MAX_INPUT_LENGTH];
@@ -1480,7 +1480,7 @@ REDIT(redit_mreset)
 {
     ROOM_INDEX_DATA* pRoom;
     MOB_INDEX_DATA* pMobIndex;
-    CHAR_DATA* newmob;
+    CharData* newmob;
     char		arg[MAX_INPUT_LENGTH];
     char		arg2[MAX_INPUT_LENGTH];
 
@@ -1615,7 +1615,7 @@ REDIT(redit_oreset)
     OBJ_INDEX_DATA* pObjIndex;
     OBJ_DATA* newobj;
     OBJ_DATA* to_obj;
-    CHAR_DATA* to_mob;
+    CharData* to_mob;
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     LEVEL olevel = 0;
@@ -1795,7 +1795,7 @@ REDIT(redit_oreset)
 /*
  * Object Editor Functions.
  */
-void show_obj_values(CHAR_DATA* ch, OBJ_INDEX_DATA* obj)
+void show_obj_values(CharData* ch, OBJ_INDEX_DATA* obj)
 {
     char buf[MAX_STRING_LENGTH];
 
@@ -1982,7 +1982,7 @@ void show_obj_values(CHAR_DATA* ch, OBJ_INDEX_DATA* obj)
 
 
 
-bool set_obj_values(CHAR_DATA* ch, OBJ_INDEX_DATA* pObj, int value_num, char* argument)
+bool set_obj_values(CharData* ch, OBJ_INDEX_DATA* pObj, int value_num, char* argument)
 {
     int tmp;
 
@@ -2590,7 +2590,7 @@ OEDIT(oedit_delaffect)
     return true;
 }
 
-bool set_value(CHAR_DATA* ch, OBJ_INDEX_DATA* pObj, char* argument, int value)
+bool set_value(CharData* ch, OBJ_INDEX_DATA* pObj, char* argument, int value)
 {
     if (argument[0] == '\0') {
         set_obj_values(ch, pObj, -1, "");     /* '\0' changed to "" -- Hugin */
@@ -2610,7 +2610,7 @@ bool set_value(CHAR_DATA* ch, OBJ_INDEX_DATA* pObj, char* argument, int value)
  Purpose:	Finds the object and sets its value.
  Called by:	The four valueX functions below. (now five -- Hugin )
  ****************************************************************************/
-bool oedit_values(CHAR_DATA* ch, char* argument, int value)
+bool oedit_values(CharData* ch, char* argument, int value)
 {
     OBJ_INDEX_DATA* pObj;
 
@@ -2925,7 +2925,7 @@ MEDIT(medit_group)
     return false;
 }
 
-void show_liqlist(CHAR_DATA* ch)
+void show_liqlist(CharData* ch)
 {
     int liq;
     BUFFER* buffer;
@@ -2951,7 +2951,7 @@ void show_liqlist(CHAR_DATA* ch)
     return;
 }
 
-void show_damlist(CHAR_DATA* ch)
+void show_damlist(CharData* ch)
 {
     int att;
     BUFFER* buffer;
@@ -2974,7 +2974,7 @@ void show_damlist(CHAR_DATA* ch)
     return;
 }
 
-void show_poslist(CHAR_DATA* ch)
+void show_poslist(CharData* ch)
 {
     int pos;
     BUFFER* buffer;
@@ -2997,7 +2997,7 @@ void show_poslist(CHAR_DATA* ch)
     return;
 }
 
-void show_sexlist(CHAR_DATA* ch)
+void show_sexlist(CharData* ch)
 {
     int sex;
     BUFFER* buffer;
@@ -3021,7 +3021,7 @@ void show_sexlist(CHAR_DATA* ch)
     return;
 }
 
-void show_sizelist(CHAR_DATA* ch)
+void show_sizelist(CharData* ch)
 {
     int size;
     BUFFER* buffer;
@@ -3067,7 +3067,7 @@ REDIT(redit_owner)
     return true;
 }
 
-void showresets(CHAR_DATA* ch, BUFFER* buf, AREA_DATA* pArea, MOB_INDEX_DATA* mob, OBJ_INDEX_DATA* obj)
+void showresets(CharData* ch, BUFFER* buf, AREA_DATA* pArea, MOB_INDEX_DATA* mob, OBJ_INDEX_DATA* obj)
 {
     ROOM_INDEX_DATA* room;
     MOB_INDEX_DATA* pLastMob;
@@ -3106,7 +3106,7 @@ void showresets(CHAR_DATA* ch, BUFFER* buf, AREA_DATA* pArea, MOB_INDEX_DATA* mo
             }
 }
 
-void listobjreset(CHAR_DATA* ch, BUFFER* buf, AREA_DATA* pArea)
+void listobjreset(CharData* ch, BUFFER* buf, AREA_DATA* pArea)
 {
     OBJ_INDEX_DATA* obj;
     int key;
@@ -3119,7 +3119,7 @@ void listobjreset(CHAR_DATA* ch, BUFFER* buf, AREA_DATA* pArea)
                 showresets(ch, buf, pArea, 0, obj);
 }
 
-void listmobreset(CHAR_DATA* ch, BUFFER* buf, AREA_DATA* pArea)
+void listmobreset(CharData* ch, BUFFER* buf, AREA_DATA* pArea)
 {
     MOB_INDEX_DATA* mob;
     int key;
@@ -3364,7 +3364,7 @@ ED_FUN_DEC(ed_line_string)
 #define NUM_INT32 1
 #define NUM_LONG 2
 
-bool numedit(char* n_fun, CHAR_DATA* ch, char* argument, uintptr_t arg, int16_t type, long min, long max)
+bool numedit(char* n_fun, CharData* ch, char* argument, uintptr_t arg, int16_t type, long min, long max)
 {
     int temp;
     int* value = (int*)arg;
@@ -3797,7 +3797,7 @@ ED_FUN_DEC(ed_recval)
     return true;
 }
 
-bool templookup(char* n_fun, CHAR_DATA* ch, char* argument, uintptr_t arg, const uintptr_t par, int temp)
+bool templookup(char* n_fun, CharData* ch, char* argument, uintptr_t arg, const uintptr_t par, int temp)
 {
     int value;
     LOOKUP_F* blah = (LOOKUP_F*)par;

@@ -41,7 +41,7 @@
 #endif
 
 /* random room generation procedure */
-ROOM_INDEX_DATA* get_random_room(CHAR_DATA* ch)
+ROOM_INDEX_DATA* get_random_room(CharData* ch)
 {
     ROOM_INDEX_DATA* room;
 
@@ -61,7 +61,7 @@ ROOM_INDEX_DATA* get_random_room(CHAR_DATA* ch)
 }
 
 /* RT Enter portals */
-void do_enter(CHAR_DATA* ch, char* argument)
+void do_enter(CharData* ch, char* argument)
 {
     ROOM_INDEX_DATA* location;
 
@@ -71,8 +71,8 @@ void do_enter(CHAR_DATA* ch, char* argument)
     if (argument[0] != '\0') {
         ROOM_INDEX_DATA* old_room;
         OBJ_DATA* portal;
-        CHAR_DATA* fch;
-        CHAR_DATA* fch_next = NULL;
+        CharData* fch;
+        CharData* fch_next = NULL;
 
         old_room = ch->in_room;
 

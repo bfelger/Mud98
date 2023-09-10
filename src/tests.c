@@ -9,17 +9,19 @@
 #include "strings.h"
 #include "tests.h"
 
+#include "entities/char_data.h"
+
 extern void aggr_update();
 
 static void old_aggr_update()
 {
-    CHAR_DATA* wch;
-    CHAR_DATA* wch_next = NULL;
-    CHAR_DATA* ch;
-    CHAR_DATA* ch_next = NULL;
-    CHAR_DATA* vch;
-    CHAR_DATA* vch_next = NULL;
-    CHAR_DATA* victim;
+    CharData* wch;
+    CharData* wch_next = NULL;
+    CharData* ch;
+    CharData* ch_next = NULL;
+    CharData* vch;
+    CharData* vch_next = NULL;
+    CharData* victim;
 
     for (wch = char_list; wch != NULL; wch = wch_next) {
         wch_next = wch->next;

@@ -850,7 +850,7 @@ const struct flag_type stat_table[] = {
     { NULL,             0,                  true    }
 };
 
-void show_flags_to_char(CHAR_DATA* ch, const struct flag_type* flags)
+void show_flags_to_char(CharData* ch, const struct flag_type* flags)
 {
     char line[25];
     int col = 0;

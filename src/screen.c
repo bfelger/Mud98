@@ -11,6 +11,8 @@
 #include "tables.h"
 #include "vt.h"
 
+#include "entities/char_data.h"
+
 char* areaname(void* point)
 {
     AREA_DATA* area = *(AREA_DATA**)point;
@@ -502,7 +504,7 @@ void InitScreen(DESCRIPTOR_DATA* d)
 {
     char buf[MIL];
     int size;
-    CHAR_DATA* ch = d->character;
+    CharData* ch = d->character;
 
     if (!IS_SET(ch->comm, COMM_OLCX))
         return;

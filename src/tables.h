@@ -124,6 +124,6 @@ extern const struct flag_type log_flag_table[];
 extern const struct flag_type show_flag_table[];
 extern const struct flag_type stat_table[];
 
-void show_flags_to_char(CHAR_DATA* ch, const struct flag_type* flags);
+void show_flags_to_char(CharData* ch, const struct flag_type* flags);
 
 #endif // !MUD98__TABLES_H

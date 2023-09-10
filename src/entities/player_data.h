@@ -5,6 +5,7 @@
 
 typedef struct player_data_t PlayerData;
 
+#pragma once
 #ifndef MUD98__ENTITIES__PLAYER_DATA_H
 #define MUD98__ENTITIES__PLAYER_DATA_H
 
@@ -12,8 +13,10 @@ typedef struct player_data_t PlayerData;
 
 #include "color.h"
 
+#include "char_data.h"
+
 typedef struct player_data_t {
-    CHAR_DATA* ch;
+    CharData* ch;
     ColorConfig theme_config;
     ColorTheme* current_theme;              // VT102 color assignments
     ColorTheme* color_themes[MAX_THEMES];   // Personal themes

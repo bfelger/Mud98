@@ -70,15 +70,15 @@ int max_on = 0;
 /*
  * Local functions.
  */
-char* format_obj_to_char args((OBJ_DATA * obj, CHAR_DATA* ch, bool fShort));
-void show_list_to_char args((OBJ_DATA * list, CHAR_DATA* ch, bool fShort,
+char* format_obj_to_char args((OBJ_DATA * obj, CharData* ch, bool fShort));
+void show_list_to_char args((OBJ_DATA * list, CharData* ch, bool fShort,
                              bool fShowNothing));
-void show_char_to_char_0 args((CHAR_DATA * victim, CHAR_DATA* ch));
-void show_char_to_char_1 args((CHAR_DATA * victim, CHAR_DATA* ch));
-void show_char_to_char args((CHAR_DATA * list, CHAR_DATA* ch));
-bool check_blind args((CHAR_DATA * ch));
+void show_char_to_char_0 args((CharData * victim, CharData* ch));
+void show_char_to_char_1 args((CharData * victim, CharData* ch));
+void show_char_to_char args((CharData * list, CharData* ch));
+bool check_blind args((CharData * ch));
 
-char* format_obj_to_char(OBJ_DATA* obj, CHAR_DATA* ch, bool fShort)
+char* format_obj_to_char(OBJ_DATA* obj, CharData* ch, bool fShort)
 {
     static char buf[MAX_STRING_LENGTH];
 
@@ -112,7 +112,7 @@ char* format_obj_to_char(OBJ_DATA* obj, CHAR_DATA* ch, bool fShort)
  * Show a list to a character.
  * Can coalesce duplicated items.
  */
-void show_list_to_char(OBJ_DATA* list, CHAR_DATA* ch, bool fShort,
+void show_list_to_char(OBJ_DATA* list, CharData* ch, bool fShort,
                        bool fShowNothing)
 {
     char buf[MAX_STRING_LENGTH];
@@ -213,7 +213,7 @@ void show_list_to_char(OBJ_DATA* list, CHAR_DATA* ch, bool fShort,
     return;
 }
 
-void show_char_to_char_0(CHAR_DATA* victim, CHAR_DATA* ch)
+void show_char_to_char_0(CharData* victim, CharData* ch)
 {
     char buf[MAX_STRING_LENGTH] = "";
     char message[MAX_STRING_LENGTH] = "";
@@ -360,7 +360,7 @@ void show_char_to_char_0(CHAR_DATA* victim, CHAR_DATA* ch)
     return;
 }
 
-void show_char_to_char_1(CHAR_DATA* victim, CHAR_DATA* ch)
+void show_char_to_char_1(CharData* victim, CharData* ch)
 {
     char buf[MAX_STRING_LENGTH];
     OBJ_DATA* obj;
@@ -436,9 +436,9 @@ void show_char_to_char_1(CHAR_DATA* victim, CHAR_DATA* ch)
     return;
 }
 
-void show_char_to_char(CHAR_DATA* list, CHAR_DATA* ch)
+void show_char_to_char(CharData* list, CharData* ch)
 {
-    CHAR_DATA* rch;
+    CharData* rch;
 
     for (rch = list; rch != NULL; rch = rch->next_in_room) {
         if (rch == ch) continue;
@@ -454,7 +454,7 @@ void show_char_to_char(CHAR_DATA* list, CHAR_DATA* ch)
     return;
 }
 
-bool check_blind(CHAR_DATA* ch)
+bool check_blind(CharData* ch)
 {
     if (!IS_NPC(ch) && IS_SET(ch->act, PLR_HOLYLIGHT)) return true;
 
@@ -467,7 +467,7 @@ bool check_blind(CHAR_DATA* ch)
 }
 
 /* changes your scroll */
-void do_scroll(CHAR_DATA* ch, char* argument)
+void do_scroll(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char buf[100];
@@ -510,7 +510,7 @@ void do_scroll(CHAR_DATA* ch, char* argument)
 }
 
 /* RT does socials */
-void do_socials(CHAR_DATA* ch, char* argument)
+void do_socials(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     int iSocial;
@@ -530,27 +530,27 @@ void do_socials(CHAR_DATA* ch, char* argument)
 
 /* RT Commands to replace news, motd, imotd, etc from ROM */
 
-void do_motd(CHAR_DATA* ch, char* argument)
+void do_motd(CharData* ch, char* argument)
 {
     do_function(ch, &do_help, "motd");
 }
 
-void do_imotd(CHAR_DATA* ch, char* argument)
+void do_imotd(CharData* ch, char* argument)
 {
     do_function(ch, &do_help, "imotd");
 }
 
-void do_rules(CHAR_DATA* ch, char* argument)
+void do_rules(CharData* ch, char* argument)
 {
     do_function(ch, &do_help, "rules");
 }
 
-void do_story(CHAR_DATA* ch, char* argument)
+void do_story(CharData* ch, char* argument)
 {
     do_function(ch, &do_help, "story");
 }
 
-void do_wizlist(CHAR_DATA* ch, char* argument)
+void do_wizlist(CharData* ch, char* argument)
 {
     do_function(ch, &do_help, "wizlist");
 }
@@ -558,7 +558,7 @@ void do_wizlist(CHAR_DATA* ch, char* argument)
 /* RT this following section holds all the auto commands from ROM, as well as
    replacements for config */
 
-void do_autolist(CHAR_DATA* ch, char* argument)
+void do_autolist(CharData* ch, char* argument)
 {
     /* lists most player flags */
     if (IS_NPC(ch)) return;
@@ -636,7 +636,7 @@ void do_autolist(CHAR_DATA* ch, char* argument)
         send_to_char("You accept followers.\n\r", ch);
 }
 
-void do_autoassist(CHAR_DATA* ch, char* argument)
+void do_autoassist(CharData* ch, char* argument)
 {
     if (IS_NPC(ch)) return;
 
@@ -650,7 +650,7 @@ void do_autoassist(CHAR_DATA* ch, char* argument)
     }
 }
 
-void do_autoexit(CHAR_DATA* ch, char* argument)
+void do_autoexit(CharData* ch, char* argument)
 {
     if (IS_NPC(ch)) return;
 
@@ -664,7 +664,7 @@ void do_autoexit(CHAR_DATA* ch, char* argument)
     }
 }
 
-void do_autogold(CHAR_DATA* ch, char* argument)
+void do_autogold(CharData* ch, char* argument)
 {
     if (IS_NPC(ch)) return;
 
@@ -678,7 +678,7 @@ void do_autogold(CHAR_DATA* ch, char* argument)
     }
 }
 
-void do_autoloot(CHAR_DATA* ch, char* argument)
+void do_autoloot(CharData* ch, char* argument)
 {
     if (IS_NPC(ch)) return;
 
@@ -692,7 +692,7 @@ void do_autoloot(CHAR_DATA* ch, char* argument)
     }
 }
 
-void do_autosac(CHAR_DATA* ch, char* argument)
+void do_autosac(CharData* ch, char* argument)
 {
     if (IS_NPC(ch)) return;
 
@@ -706,7 +706,7 @@ void do_autosac(CHAR_DATA* ch, char* argument)
     }
 }
 
-void do_autosplit(CHAR_DATA* ch, char* argument)
+void do_autosplit(CharData* ch, char* argument)
 {
     if (IS_NPC(ch)) return;
 
@@ -720,7 +720,7 @@ void do_autosplit(CHAR_DATA* ch, char* argument)
     }
 }
 
-void do_brief(CHAR_DATA* ch, char* argument)
+void do_brief(CharData* ch, char* argument)
 {
     if (IS_SET(ch->comm, COMM_BRIEF)) {
         send_to_char("Full descriptions activated.\n\r", ch);
@@ -732,7 +732,7 @@ void do_brief(CHAR_DATA* ch, char* argument)
     }
 }
 
-void do_compact(CHAR_DATA* ch, char* argument)
+void do_compact(CharData* ch, char* argument)
 {
     if (IS_SET(ch->comm, COMM_COMPACT)) {
         send_to_char("Compact mode removed.\n\r", ch);
@@ -744,7 +744,7 @@ void do_compact(CHAR_DATA* ch, char* argument)
     }
 }
 
-void do_show(CHAR_DATA* ch, char* argument)
+void do_show(CharData* ch, char* argument)
 {
     if (IS_SET(ch->comm, COMM_SHOW_AFFECTS)) {
         send_to_char("Affects will no longer be shown in score.\n\r", ch);
@@ -756,7 +756,7 @@ void do_show(CHAR_DATA* ch, char* argument)
     }
 }
 
-void do_prompt(CHAR_DATA* ch, char* argument)
+void do_prompt(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
 
@@ -788,7 +788,7 @@ void do_prompt(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_combine(CHAR_DATA* ch, char* argument)
+void do_combine(CharData* ch, char* argument)
 {
     if (IS_SET(ch->comm, COMM_COMBINE)) {
         send_to_char("Long inventory selected.\n\r", ch);
@@ -800,7 +800,7 @@ void do_combine(CHAR_DATA* ch, char* argument)
     }
 }
 
-void do_noloot(CHAR_DATA* ch, char* argument)
+void do_noloot(CharData* ch, char* argument)
 {
     if (IS_NPC(ch)) return;
 
@@ -814,7 +814,7 @@ void do_noloot(CHAR_DATA* ch, char* argument)
     }
 }
 
-void do_nofollow(CHAR_DATA* ch, char* argument)
+void do_nofollow(CharData* ch, char* argument)
 {
     if (IS_NPC(ch)) return;
 
@@ -829,7 +829,7 @@ void do_nofollow(CHAR_DATA* ch, char* argument)
     }
 }
 
-void do_nosummon(CHAR_DATA* ch, char* argument)
+void do_nosummon(CharData* ch, char* argument)
 {
     if (IS_NPC(ch)) {
         if (IS_SET(ch->imm_flags, IMM_SUMMON)) {
@@ -853,14 +853,14 @@ void do_nosummon(CHAR_DATA* ch, char* argument)
     }
 }
 
-void do_look(CHAR_DATA* ch, char* argument)
+void do_look(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char arg3[MAX_INPUT_LENGTH];
     EXIT_DATA* pexit;
-    CHAR_DATA* victim;
+    CharData* victim;
     OBJ_DATA* obj;
     char* pdesc;
     int door;
@@ -1095,12 +1095,12 @@ void do_look(CHAR_DATA* ch, char* argument)
 }
 
 /* RT added back for the hell of it */
-void do_read(CHAR_DATA* ch, char* argument)
+void do_read(CharData* ch, char* argument)
 {
     do_function(ch, &do_look, argument);
 }
 
-void do_examine(CHAR_DATA* ch, char* argument)
+void do_examine(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
@@ -1164,7 +1164,7 @@ void do_examine(CHAR_DATA* ch, char* argument)
 /*
  * Thanks to Zrin for auto-exit part.
  */
-void do_exits(CHAR_DATA* ch, char* argument)
+void do_exits(CharData* ch, char* argument)
 {
     extern char* const dir_name[];
     char buf[MAX_STRING_LENGTH];
@@ -1216,7 +1216,7 @@ void do_exits(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_worth(CHAR_DATA* ch, char* argument)
+void do_worth(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
 
@@ -1238,7 +1238,7 @@ void do_worth(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_score(CHAR_DATA* ch, char* argument)
+void do_score(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     int i;
@@ -1451,7 +1451,7 @@ void do_score(CHAR_DATA* ch, char* argument)
         do_function(ch, &do_affects, "");
 }
 
-void do_affects(CHAR_DATA* ch, char* argument)
+void do_affects(CharData* ch, char* argument)
 {
     AFFECT_DATA *paf, *paf_last = NULL;
     char buf[MAX_STRING_LENGTH];
@@ -1513,7 +1513,7 @@ char* const month_name[] = {"Winter",
                             "the Ancient Darkness",
                             "the Great Evil"};
 
-void do_time(CHAR_DATA* ch, char* argument)
+void do_time(CharData* ch, char* argument)
 {
     extern char str_boot_time[];
     char buf[MAX_STRING_LENGTH];
@@ -1545,7 +1545,7 @@ void do_time(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_weather(CHAR_DATA* ch, char* argument)
+void do_weather(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
 
@@ -1564,7 +1564,7 @@ void do_weather(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_help(CHAR_DATA* ch, char* argument)
+void do_help(CharData* ch, char* argument)
 {
     HELP_DATA* pHelp;
     BUFFER* output;
@@ -1624,7 +1624,7 @@ void do_help(CHAR_DATA* ch, char* argument)
 }
 
 /* whois command */
-void do_whois(CHAR_DATA* ch, char* argument)
+void do_whois(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     BUFFER* output;
@@ -1642,7 +1642,7 @@ void do_whois(CHAR_DATA* ch, char* argument)
     output = new_buf();
 
     for (d = descriptor_list; d != NULL; d = d->next) {
-        CHAR_DATA* wch;
+        CharData* wch;
         char const* class_;
 
         if (d->connected != CON_PLAYING || !can_see(ch, d->character)) continue;
@@ -1695,7 +1695,7 @@ void do_whois(CHAR_DATA* ch, char* argument)
 /*
  * New 'who' command originally by Alander of Rivers of Mud.
  */
-void do_who(CHAR_DATA* ch, char* argument)
+void do_who(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH] = "";
     char buf2[MAX_STRING_LENGTH] = "";
@@ -1799,7 +1799,7 @@ void do_who(CHAR_DATA* ch, char* argument)
     buf[0] = '\0';
     output = new_buf();
     for (d = descriptor_list; d != NULL; d = d->next) {
-        CHAR_DATA* wch;
+        CharData* wch;
         char const* class_;
 
         /*
@@ -1861,7 +1861,7 @@ void do_who(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_count(CHAR_DATA* ch, char* argument)
+void do_count(CharData* ch, char* argument)
 {
     int count;
     DESCRIPTOR_DATA* d;
@@ -1890,14 +1890,14 @@ void do_count(CHAR_DATA* ch, char* argument)
     send_to_char(buf, ch);
 }
 
-void do_inventory(CHAR_DATA* ch, char* argument)
+void do_inventory(CharData* ch, char* argument)
 {
     send_to_char("You are carrying:\n\r", ch);
     show_list_to_char(ch->carrying, ch, true, true);
     return;
 }
 
-void do_equipment(CHAR_DATA* ch, char* argument)
+void do_equipment(CharData* ch, char* argument)
 {
     OBJ_DATA* obj;
     int iWear;
@@ -1925,7 +1925,7 @@ void do_equipment(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_compare(CHAR_DATA* ch, char* argument)
+void do_compare(CharData* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
@@ -2013,17 +2013,17 @@ void do_compare(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_credits(CHAR_DATA* ch, char* argument)
+void do_credits(CharData* ch, char* argument)
 {
     do_function(ch, &do_help, "diku");
     return;
 }
 
-void do_where(CHAR_DATA* ch, char* argument)
+void do_where(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
+    CharData* victim;
     DESCRIPTOR_DATA* d;
     bool found;
 
@@ -2070,10 +2070,10 @@ void do_where(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_consider(CHAR_DATA* ch, char* argument)
+void do_consider(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
+    CharData* victim;
     char* msg;
     int diff;
 
@@ -2115,7 +2115,7 @@ void do_consider(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void set_title(CHAR_DATA* ch, char* title)
+void set_title(CharData* ch, char* title)
 {
     char buf[MAX_STRING_LENGTH] = "";
 
@@ -2138,7 +2138,7 @@ void set_title(CHAR_DATA* ch, char* title)
     return;
 }
 
-void do_title(CHAR_DATA* ch, char* argument)
+void do_title(CharData* ch, char* argument)
 {
     if (IS_NPC(ch)) return;
 
@@ -2154,7 +2154,7 @@ void do_title(CHAR_DATA* ch, char* argument)
     send_to_char("Ok.\n\r", ch);
 }
 
-void do_description(CHAR_DATA* ch, char* argument)
+void do_description(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH] = "";
 
@@ -2224,7 +2224,7 @@ void do_description(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_report(CHAR_DATA* ch, char* argument)
+void do_report(CharData* ch, char* argument)
 {
     char buf[MAX_INPUT_LENGTH];
 
@@ -2243,7 +2243,7 @@ void do_report(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_practice(CHAR_DATA* ch, char* argument)
+void do_practice(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     SKNUM sn;
@@ -2274,7 +2274,7 @@ void do_practice(CHAR_DATA* ch, char* argument)
         send_to_char(buf, ch);
     }
     else {
-        CHAR_DATA* mob;
+        CharData* mob;
         int16_t adept;
 
         if (!IS_AWAKE(ch)) {
@@ -2339,7 +2339,7 @@ void do_practice(CHAR_DATA* ch, char* argument)
 /*
  * 'Wimpy' originally by Dionysos.
  */
-void do_wimpy(CHAR_DATA* ch, char* argument)
+void do_wimpy(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
@@ -2368,7 +2368,7 @@ void do_wimpy(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_password(CHAR_DATA* ch, char* argument)
+void do_password(CharData* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH] = "";
     char arg2[MAX_INPUT_LENGTH] = "";

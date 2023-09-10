@@ -31,6 +31,8 @@
 #include "music.h"
 #include "recycle.h"
 
+#include "entities/char_data.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -47,7 +49,7 @@ struct song_data song_table[MAX_SONGS];
 void song_update(void)
 {
     OBJ_DATA* obj;
-    CHAR_DATA* victim;
+    CharData* victim;
     ROOM_INDEX_DATA* room;
     DESCRIPTOR_DATA* d;
     char buf[MAX_STRING_LENGTH];
@@ -192,7 +194,7 @@ void load_songs(void)
     }
 }
 
-void do_play(CHAR_DATA* ch, char* argument)
+void do_play(CharData* ch, char* argument)
 {
     OBJ_DATA* juke;
     char *str, arg[MAX_INPUT_LENGTH];

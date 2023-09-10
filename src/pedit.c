@@ -18,7 +18,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#define MPEDIT( fun )           bool fun(CHAR_DATA *ch, char*argument)
+#define MPEDIT( fun )           bool fun(CharData *ch, char*argument)
 
 extern MPROG_CODE xProg;
 
@@ -41,7 +41,7 @@ const struct olc_comm_type prog_olc_comm_table[] =
     { 	NULL,		0,			    0,		    0		        }
 };
 
-void pedit(CHAR_DATA* ch, char* argument)
+void pedit(CharData* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_PEDIT_SECURITY) {
         send_to_char("MPEdit : You do not have enough security to edit prog.\n\r", ch);
@@ -65,7 +65,7 @@ void pedit(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_pedit(CHAR_DATA* ch, char* argument)
+void do_pedit(CharData* ch, char* argument)
 {
     MPROG_CODE* pMcode;
     char command[MAX_INPUT_LENGTH];
@@ -178,7 +178,7 @@ MPEDIT(pedit_show)
     return false;
 }
 
-void do_mplist(CHAR_DATA* ch, char* argument)
+void do_mplist(CharData* ch, char* argument)
 {
     int count;
     bool fAll = false;

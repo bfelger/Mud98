@@ -16,6 +16,8 @@
 #include "comm.h"
 #include "olc.h"
 
+#include "entities/char_data.h"
+
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -34,7 +36,7 @@ char* lineadd(char*, char*, int);
  Purpose:	Clears string and puts player into editing mode.
  Called by:	none
  ****************************************************************************/
-void string_edit(CHAR_DATA* ch, char** pString)
+void string_edit(CharData* ch, char** pString)
 {
     send_to_char("{=-========- {*Entering EDIT Mode {=-=========-{_\n\r", ch);
     send_to_char("    Type .h on a new line for help\n\r", ch);
@@ -58,7 +60,7 @@ void string_edit(CHAR_DATA* ch, char** pString)
  Purpose:	Puts player into append mode for given string.
  Called by:	(many)olc_act.c
  ****************************************************************************/
-void string_append(CHAR_DATA* ch, char** pString)
+void string_append(CharData* ch, char** pString)
 {
     send_to_char("{=-========- {*Entering EDIT Mode {=-=========-{_\n\r", ch);
     send_to_char("    Type .h on a new line for help\n\r", ch);
@@ -108,7 +110,7 @@ char* string_replace(char* orig, char* old, char* new)
  Purpose:	Interpreter for string editing.
  Called by:	game_loop_xxxx(comm.c).
  ****************************************************************************/
-void string_add(CHAR_DATA* ch, char* argument)
+void string_add(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
 

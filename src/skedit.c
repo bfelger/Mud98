@@ -20,7 +20,7 @@ char* spell_name(SPELL_FUN* spell);
 SPELL_FUN* spell_function(char* argument);
 int16_t* gsn_lookup(char* argument);
 
-#define SKEDIT(fun) bool fun(CHAR_DATA *ch, char *argument)
+#define SKEDIT(fun) bool fun(CharData *ch, char *argument)
 
 struct skill_type* skill_table;
 SKNUM max_skill;
@@ -182,7 +182,7 @@ SKNUM* gsn_lookup(char* argument)
     return NULL;
 }
 
-void skedit(CHAR_DATA* ch, char* argument)
+void skedit(CharData* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_SKEDIT_SECURITY) {
         send_to_char("SKEdit : You do not have enough security to edit skills.\n\r", ch);
@@ -212,7 +212,7 @@ void skedit(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_skedit(CHAR_DATA* ch, char* argument)
+void do_skedit(CharData* ch, char* argument)
 {
     const struct skill_type* pSkill;
     char command[MSL];
@@ -702,7 +702,7 @@ SKEDIT(skedit_gsn)
 SKEDIT(skedit_new)
 {
     DESCRIPTOR_DATA* d;
-    CHAR_DATA* tch;
+    CharData* tch;
     struct skill_type* new_table;
     bool* tempgendata;
     SKNUM* templearned;

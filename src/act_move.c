@@ -48,13 +48,13 @@ const int16_t movement_loss[SECT_MAX] = {1, 2, 2, 3, 4, 6, 4, 1, 6, 10, 6};
 /*
  * Local functions.
  */
-int find_door args((CHAR_DATA * ch, char* arg));
-bool has_key args((CHAR_DATA * ch, int key));
+int find_door args((CharData * ch, char* arg));
+bool has_key args((CharData * ch, int key));
 
-void move_char(CHAR_DATA* ch, int door, bool follow)
+void move_char(CharData* ch, int door, bool follow)
 {
-    CHAR_DATA* fch;
-    CHAR_DATA* fch_next = NULL;
+    CharData* fch;
+    CharData* fch_next = NULL;
     ROOM_INDEX_DATA* in_room;
     ROOM_INDEX_DATA* to_room;
     EXIT_DATA* pexit;
@@ -211,43 +211,43 @@ void move_char(CHAR_DATA* ch, int door, bool follow)
     return;
 }
 
-void do_north(CHAR_DATA* ch, char* argument)
+void do_north(CharData* ch, char* argument)
 {
     move_char(ch, DIR_NORTH, false);
     return;
 }
 
-void do_east(CHAR_DATA* ch, char* argument)
+void do_east(CharData* ch, char* argument)
 {
     move_char(ch, DIR_EAST, false);
     return;
 }
 
-void do_south(CHAR_DATA* ch, char* argument)
+void do_south(CharData* ch, char* argument)
 {
     move_char(ch, DIR_SOUTH, false);
     return;
 }
 
-void do_west(CHAR_DATA* ch, char* argument)
+void do_west(CharData* ch, char* argument)
 {
     move_char(ch, DIR_WEST, false);
     return;
 }
 
-void do_up(CHAR_DATA* ch, char* argument)
+void do_up(CharData* ch, char* argument)
 {
     move_char(ch, DIR_UP, false);
     return;
 }
 
-void do_down(CHAR_DATA* ch, char* argument)
+void do_down(CharData* ch, char* argument)
 {
     move_char(ch, DIR_DOWN, false);
     return;
 }
 
-int find_door(CHAR_DATA* ch, char* arg)
+int find_door(CharData* ch, char* arg)
 {
     EXIT_DATA* pexit;
     int door;
@@ -288,7 +288,7 @@ int find_door(CHAR_DATA* ch, char* arg)
     return door;
 }
 
-void do_open(CHAR_DATA* ch, char* argument)
+void do_open(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     OBJ_DATA* obj;
@@ -373,7 +373,7 @@ void do_open(CHAR_DATA* ch, char* argument)
         if ((to_room = pexit->u1.to_room) != NULL
             && (pexit_rev = to_room->exit[rev_dir[door]]) != NULL
             && pexit_rev->u1.to_room == ch->in_room) {
-            CHAR_DATA* rch;
+            CharData* rch;
 
             REMOVE_BIT(pexit_rev->exit_info, EX_CLOSED);
             for (rch = to_room->people; rch != NULL; rch = rch->next_in_room)
@@ -384,7 +384,7 @@ void do_open(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_close(CHAR_DATA* ch, char* argument)
+void do_close(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     OBJ_DATA* obj;
@@ -457,7 +457,7 @@ void do_close(CHAR_DATA* ch, char* argument)
         if ((to_room = pexit->u1.to_room) != NULL
             && (pexit_rev = to_room->exit[rev_dir[door]]) != 0
             && pexit_rev->u1.to_room == ch->in_room) {
-            CHAR_DATA* rch;
+            CharData* rch;
 
             SET_BIT(pexit_rev->exit_info, EX_CLOSED);
             for (rch = to_room->people; rch != NULL; rch = rch->next_in_room)
@@ -468,7 +468,7 @@ void do_close(CHAR_DATA* ch, char* argument)
     return;
 }
 
-bool has_key(CHAR_DATA* ch, int key)
+bool has_key(CharData* ch, int key)
 {
     OBJ_DATA* obj;
 
@@ -479,7 +479,7 @@ bool has_key(CHAR_DATA* ch, int key)
     return false;
 }
 
-void do_lock(CHAR_DATA* ch, char* argument)
+void do_lock(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     OBJ_DATA* obj;
@@ -593,7 +593,7 @@ void do_lock(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_unlock(CHAR_DATA* ch, char* argument)
+void do_unlock(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     OBJ_DATA* obj;
@@ -707,10 +707,10 @@ void do_unlock(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_pick(CHAR_DATA* ch, char* argument)
+void do_pick(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* gch;
+    CharData* gch;
     OBJ_DATA* obj;
     int door;
 
@@ -837,7 +837,7 @@ void do_pick(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_stand(CHAR_DATA* ch, char* argument)
+void do_stand(CharData* ch, char* argument)
 {
     OBJ_DATA* obj = NULL;
 
@@ -931,7 +931,7 @@ void do_stand(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_rest(CHAR_DATA* ch, char* argument)
+void do_rest(CharData* ch, char* argument)
 {
     OBJ_DATA* obj = NULL;
 
@@ -1046,7 +1046,7 @@ void do_rest(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_sit(CHAR_DATA* ch, char* argument)
+void do_sit(CharData* ch, char* argument)
 {
     OBJ_DATA* obj = NULL;
 
@@ -1151,7 +1151,7 @@ void do_sit(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_sleep(CHAR_DATA* ch, char* argument)
+void do_sleep(CharData* ch, char* argument)
 {
     OBJ_DATA* obj = NULL;
 
@@ -1218,10 +1218,10 @@ void do_sleep(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_wake(CHAR_DATA* ch, char* argument)
+void do_wake(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
+    CharData* victim;
 
     one_argument(argument, arg);
     if (arg[0] == '\0') {
@@ -1254,7 +1254,7 @@ void do_wake(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_sneak(CHAR_DATA* ch, char* argument)
+void do_sneak(CharData* ch, char* argument)
 {
     AFFECT_DATA af = { 0 };
 
@@ -1280,7 +1280,7 @@ void do_sneak(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_hide(CHAR_DATA* ch, char* argument)
+void do_hide(CharData* ch, char* argument)
 {
     send_to_char("You attempt to hide.\n\r", ch);
 
@@ -1299,7 +1299,7 @@ void do_hide(CHAR_DATA* ch, char* argument)
 /*
  * Contributed by Alander.
  */
-void do_visible(CHAR_DATA* ch, char* argument)
+void do_visible(CharData* ch, char* argument)
 {
     affect_strip(ch, gsn_invis);
     affect_strip(ch, gsn_mass_invis);
@@ -1311,10 +1311,10 @@ void do_visible(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_recall(CHAR_DATA* ch, char* argument)
+void do_recall(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    CHAR_DATA* victim;
+    CharData* victim;
     ROOM_INDEX_DATA* location;
 
     if (IS_NPC(ch) && !IS_SET(ch->act, ACT_PET)) {
@@ -1371,10 +1371,10 @@ void do_recall(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_train(CHAR_DATA* ch, char* argument)
+void do_train(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    CHAR_DATA* mob;
+    CharData* mob;
     int16_t stat = -1;
     char* pOutput = NULL;
     int cost;

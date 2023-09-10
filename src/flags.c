@@ -42,11 +42,11 @@
 
 int flag_lookup args((const char* name, const struct flag_type* flag_table));
 
-void do_flag(CHAR_DATA* ch, char* argument)
+void do_flag(CharData* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH], arg3[MAX_INPUT_LENGTH];
     char word[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
+    CharData* victim;
     int *flag, old = 0, new = 0, marked = 0, pos;
     char type;
     const struct flag_type* flag_table;

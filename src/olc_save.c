@@ -888,7 +888,7 @@ void save_helps(FILE* fp, HELP_AREA* ha)
     return;
 }
 
-void save_other_helps(CHAR_DATA* ch)
+void save_other_helps(CharData* ch)
 {
     extern HELP_AREA* had_list;
     HELP_AREA* ha;
@@ -991,7 +991,7 @@ void save_area(AREA_DATA* pArea)
  Purpose:	Entry point for saving area data.
  Called by:	interpreter(interp.c)
  ****************************************************************************/
-void do_asave(CHAR_DATA* ch, char* argument)
+void do_asave(CharData* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     AREA_DATA* pArea;

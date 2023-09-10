@@ -38,13 +38,15 @@
 #include "comm.h"
 #include "mob_cmds.h"
 
-#include <sys/types.h>
+#include "entities/char_data.h"
+
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
 
 DECLARE_DO_FUN(do_look);
-extern ROOM_INDEX_DATA* find_location(CHAR_DATA*, char*);
+extern ROOM_INDEX_DATA* find_location(CharData*, char*);
 
 /*
  * Command table.
@@ -82,7 +84,7 @@ const struct mob_cmd_type mob_cmd_table[] = {
     { "",           0               }
 };
 
-void do_mob(CHAR_DATA* ch, char* argument)
+void do_mob(CharData* ch, char* argument)
 {
     /*
      * Security check!
@@ -95,7 +97,7 @@ void do_mob(CHAR_DATA* ch, char* argument)
  * Mob command interpreter. Implemented separately for security and speed
  * reasons. A trivial hack of interpret()
  */
-void mob_interpret(CHAR_DATA* ch, char* argument)
+void mob_interpret(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH], command[MAX_INPUT_LENGTH];
     int cmd;
@@ -145,11 +147,11 @@ char* mprog_type_to_name(int type)
  *
  * Syntax: mpstat [name]
  */
-void do_mpstat(CHAR_DATA* ch, char* argument)
+void do_mpstat(CharData* ch, char* argument)
 {
     char        arg[MAX_STRING_LENGTH];
     MPROG_LIST* mprg;
-    CHAR_DATA* victim;
+    CharData* victim;
     int i;
 
     one_argument(argument, arg);
@@ -210,7 +212,7 @@ void do_mpstat(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mpdump [vnum]
  */
-void do_mpdump(CHAR_DATA* ch, char* argument)
+void do_mpdump(CharData* ch, char* argument)
 {
     char buf[MAX_INPUT_LENGTH];
     MPROG_CODE* mprg;
@@ -228,7 +230,7 @@ void do_mpdump(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob gecho [string]
  */
-void do_mpgecho(CHAR_DATA* ch, char* argument)
+void do_mpgecho(CharData* ch, char* argument)
 {
     DESCRIPTOR_DATA* d;
 
@@ -253,7 +255,7 @@ void do_mpgecho(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob zecho [string]
  */
-void do_mpzecho(CHAR_DATA* ch, char* argument)
+void do_mpzecho(CharData* ch, char* argument)
 {
     DESCRIPTOR_DATA* d;
 
@@ -283,7 +285,7 @@ void do_mpzecho(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob asound [string]
  */
-void do_mpasound(CHAR_DATA* ch, char* argument)
+void do_mpasound(CharData* ch, char* argument)
 {
 
     ROOM_INDEX_DATA* was_in_room;
@@ -315,10 +317,10 @@ void do_mpasound(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob kill [victim]
  */
-void do_mpkill(CHAR_DATA* ch, char* argument)
+void do_mpkill(CharData* ch, char* argument)
 {
     char      arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
+    CharData* victim;
 
     one_argument(argument, arg);
 
@@ -346,10 +348,10 @@ void do_mpkill(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob assist [character]
  */
-void do_mpassist(CHAR_DATA* ch, char* argument)
+void do_mpassist(CharData* ch, char* argument)
 {
     char      arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
+    CharData* victim;
 
     one_argument(argument, arg);
 
@@ -375,7 +377,7 @@ void do_mpassist(CHAR_DATA* ch, char* argument)
  * Syntax: mob junk [item]
  */
 
-void do_mpjunk(CHAR_DATA* ch, char* argument)
+void do_mpjunk(CharData* ch, char* argument)
 {
     char      arg[MAX_INPUT_LENGTH];
     OBJ_DATA* obj;
@@ -416,10 +418,10 @@ void do_mpjunk(CHAR_DATA* ch, char* argument)
  * Syntax: mob echoaround [victim] [string]
  */
 
-void do_mpechoaround(CHAR_DATA* ch, char* argument)
+void do_mpechoaround(CharData* ch, char* argument)
 {
     char       arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
+    CharData* victim;
 
     argument = one_argument(argument, arg);
 
@@ -437,10 +439,10 @@ void do_mpechoaround(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob echoat [victim] [string]
  */
-void do_mpechoat(CHAR_DATA* ch, char* argument)
+void do_mpechoat(CharData* ch, char* argument)
 {
     char       arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
+    CharData* victim;
 
     argument = one_argument(argument, arg);
 
@@ -458,7 +460,7 @@ void do_mpechoat(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mpecho [string]
  */
-void do_mpecho(CHAR_DATA* ch, char* argument)
+void do_mpecho(CharData* ch, char* argument)
 {
     if (argument[0] == '\0')
         return;
@@ -470,11 +472,11 @@ void do_mpecho(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob mload [vnum]
  */
-void do_mpmload(CHAR_DATA* ch, char* argument)
+void do_mpmload(CharData* ch, char* argument)
 {
     char            arg[MAX_INPUT_LENGTH];
     MOB_INDEX_DATA* pMobIndex;
-    CHAR_DATA* victim;
+    CharData* victim;
     VNUM vnum;
 
     one_argument(argument, arg);
@@ -499,7 +501,7 @@ void do_mpmload(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob oload [vnum] [level] {R}
  */
-void do_mpoload(CHAR_DATA* ch, char* argument)
+void do_mpoload(CharData* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
@@ -577,17 +579,17 @@ void do_mpoload(CHAR_DATA* ch, char* argument)
  *
  * syntax mob purge {target}
  */
-void do_mppurge(CHAR_DATA* ch, char* argument)
+void do_mppurge(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
+    CharData* victim;
     OBJ_DATA* obj;
 
     one_argument(argument, arg);
 
     if (arg[0] == '\0') {
         /* 'purge' */
-        CHAR_DATA* vnext = NULL;
+        CharData* vnext = NULL;
         OBJ_DATA* obj_next = NULL;
 
         for (victim = ch->in_room->people; victim != NULL; victim = vnext) {
@@ -632,7 +634,7 @@ void do_mppurge(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob goto [location]
  */
-void do_mpgoto(CHAR_DATA* ch, char* argument)
+void do_mpgoto(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     ROOM_INDEX_DATA* location;
@@ -664,12 +666,12 @@ void do_mpgoto(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob at [location] [commands]
  */
-void do_mpat(CHAR_DATA* ch, char* argument)
+void do_mpat(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     ROOM_INDEX_DATA* location;
     ROOM_INDEX_DATA* original;
-    CHAR_DATA* wch;
+    CharData* wch;
     OBJ_DATA* on;
 
     argument = one_argument(argument, arg);
@@ -714,13 +716,13 @@ void do_mpat(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob transfer [target|'all'] [location]
  */
-void do_mptransfer(CHAR_DATA* ch, char* argument)
+void do_mptransfer(CharData* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
     ROOM_INDEX_DATA* location;
-    CHAR_DATA* victim;
+    CharData* victim;
 
     argument = one_argument(argument, arg1);
     argument = one_argument(argument, arg2);
@@ -732,7 +734,7 @@ void do_mptransfer(CHAR_DATA* ch, char* argument)
     }
 
     if (!str_cmp(arg1, "all")) {
-        CHAR_DATA* victim_next = NULL;
+        CharData* victim_next = NULL;
 
         for (victim = ch->in_room->people; victim != NULL; victim = victim_next) {
             victim_next = victim->next_in_room;
@@ -781,14 +783,14 @@ void do_mptransfer(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob gtransfer [victim] [location]
  */
-void do_mpgtransfer(CHAR_DATA* ch, char* argument)
+void do_mpgtransfer(CharData* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
-    CHAR_DATA* who; 
-    CHAR_DATA* victim;
-    CHAR_DATA* victim_next = NULL;
+    CharData* who; 
+    CharData* victim;
+    CharData* victim_next = NULL;
 
     argument = one_argument(argument, arg1);
     argument = one_argument(argument, arg2);
@@ -818,7 +820,7 @@ void do_mpgtransfer(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob force [victim] [commands]
  */
-void do_mpforce(CHAR_DATA* ch, char* argument)
+void do_mpforce(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
 
@@ -831,8 +833,8 @@ void do_mpforce(CHAR_DATA* ch, char* argument)
     }
 
     if (!str_cmp(arg, "all")) {
-        CHAR_DATA* vch;
-        CHAR_DATA* vch_next = NULL;
+        CharData* vch;
+        CharData* vch_next = NULL;
 
         for (vch = char_list; vch != NULL; vch = vch_next) {
             vch_next = vch->next;
@@ -845,7 +847,7 @@ void do_mpforce(CHAR_DATA* ch, char* argument)
         }
     }
     else {
-        CHAR_DATA* victim;
+        CharData* victim;
 
         if ((victim = get_char_room(ch, arg)) == NULL)
             return;
@@ -864,12 +866,12 @@ void do_mpforce(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob gforce [victim] [commands]
  */
-void do_mpgforce(CHAR_DATA* ch, char* argument)
+void do_mpgforce(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
-    CHAR_DATA* vch;
-    CHAR_DATA* vch_next = NULL;
+    CharData* victim;
+    CharData* vch;
+    CharData* vch_next = NULL;
 
     argument = one_argument(argument, arg);
 
@@ -900,10 +902,10 @@ void do_mpgforce(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob vforce [vnum] [commands]
  */
-void do_mpvforce(CHAR_DATA* ch, char* argument)
+void do_mpvforce(CharData* ch, char* argument)
 {
-    CHAR_DATA* victim;
-    CHAR_DATA* victim_next = NULL;
+    CharData* victim;
+    CharData* victim_next = NULL;
     char arg[MAX_INPUT_LENGTH];
     VNUM vnum;
 
@@ -942,9 +944,9 @@ void do_mpvforce(CHAR_DATA* ch, char* argument)
  * Syntax: mob cast [spell] {target}
  */
 
-void do_mpcast(CHAR_DATA* ch, char* argument)
+void do_mpcast(CharData* ch, char* argument)
 {
-    CHAR_DATA* vch;
+    CharData* vch;
     OBJ_DATA* obj;
     void* victim = NULL;
     char spell[MAX_INPUT_LENGTH],
@@ -998,10 +1000,10 @@ void do_mpcast(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob damage [victim] [min] [max] {kill}
  */
-void do_mpdamage(CHAR_DATA* ch, char* argument)
+void do_mpdamage(CharData* ch, char* argument)
 {
-    CHAR_DATA* victim = NULL;
-    CHAR_DATA* victim_next = NULL;
+    CharData* victim = NULL;
+    CharData* victim_next = NULL;
     char target[MAX_INPUT_LENGTH];
     char min[MAX_INPUT_LENGTH];
     char max[MAX_INPUT_LENGTH];
@@ -1070,7 +1072,7 @@ void do_mpdamage(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob remember [victim]
  */
-void do_mpremember(CHAR_DATA* ch, char* argument)
+void do_mpremember(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     one_argument(argument, arg);
@@ -1086,7 +1088,7 @@ void do_mpremember(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob forget
  */
-void do_mpforget(CHAR_DATA* ch, char* argument)
+void do_mpforget(CharData* ch, char* argument)
 {
     ch->mprog_target = NULL;
 }
@@ -1098,7 +1100,7 @@ void do_mpforget(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob delay [pulses]
  */
-void do_mpdelay(CHAR_DATA* ch, char* argument)
+void do_mpdelay(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
 
@@ -1116,7 +1118,7 @@ void do_mpdelay(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob cancel
  */
-void do_mpcancel(CHAR_DATA* ch, char* argument)
+void do_mpcancel(CharData* ch, char* argument)
 {
     ch->mprog_delay = -1;
 }
@@ -1130,13 +1132,13 @@ void do_mpcancel(CHAR_DATA* ch, char* argument)
  * Syntax: mob call [vnum] [victim|'null'] [object1|'null'] [object2|'null']
  *
  */
-void do_mpcall(CHAR_DATA* ch, char* argument)
+void do_mpcall(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* vch;
+    CharData* vch;
     OBJ_DATA* obj1, * obj2;
     MPROG_CODE* prg;
-    extern void program_flow(VNUM, char*, CHAR_DATA*, CHAR_DATA*, const void*, const void*);
+    extern void program_flow(VNUM, char*, CharData*, CharData*, const void*, const void*);
 
     argument = one_argument(argument, arg);
     if (arg[0] == '\0') {
@@ -1169,7 +1171,7 @@ void do_mpcall(CHAR_DATA* ch, char* argument)
  * Syntax: mob flee
  *
  */
-void do_mpflee(CHAR_DATA* ch, char* argument)
+void do_mpflee(CharData* ch, char* argument)
 {
     ROOM_INDEX_DATA* was_in;
     EXIT_DATA* pexit;
@@ -1202,7 +1204,7 @@ void do_mpflee(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob otransfer [item name] [location]
  */
-void do_mpotransfer(CHAR_DATA* ch, char* argument)
+void do_mpotransfer(CharData* ch, char* argument)
 {
     OBJ_DATA* obj;
     ROOM_INDEX_DATA* location;
@@ -1239,9 +1241,9 @@ void do_mpotransfer(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob remove [victim] [object vnum|'all']
  */
-void do_mpremove(CHAR_DATA* ch, char* argument)
+void do_mpremove(CharData* ch, char* argument)
 {
-    CHAR_DATA* victim;
+    CharData* victim;
     OBJ_DATA* obj;
     OBJ_DATA* obj_next = NULL;
     VNUM vnum = 0;

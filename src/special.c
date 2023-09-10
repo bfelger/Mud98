@@ -25,9 +25,13 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+#include "merc.h"
+
 #include "interp.h"
 #include "magic.h"
-#include "merc.h"
+
+#include "entities/char_data.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -113,9 +117,9 @@ char* spec_name(SPEC_FUN* function)
     return NULL;
 }
 
-bool spec_troll_member(CHAR_DATA* ch)
+bool spec_troll_member(CharData* ch)
 {
-    CHAR_DATA *vch, *victim = NULL;
+    CharData *vch, *victim = NULL;
     int count = 0;
     char* message;
 
@@ -173,9 +177,9 @@ bool spec_troll_member(CHAR_DATA* ch)
     return true;
 }
 
-bool spec_ogre_member(CHAR_DATA* ch)
+bool spec_ogre_member(CharData* ch)
 {
-    CHAR_DATA *vch, *victim = NULL;
+    CharData *vch, *victim = NULL;
     int count = 0;
     char* message;
 
@@ -232,9 +236,9 @@ bool spec_ogre_member(CHAR_DATA* ch)
     return true;
 }
 
-bool spec_patrolman(CHAR_DATA* ch)
+bool spec_patrolman(CharData* ch)
 {
-    CHAR_DATA *vch, *victim = NULL;
+    CharData *vch, *victim = NULL;
     OBJ_DATA* obj;
     char* message;
     int count = 0;
@@ -309,10 +313,10 @@ bool spec_patrolman(CHAR_DATA* ch)
     return true;
 }
 
-bool spec_nasty(CHAR_DATA* ch)
+bool spec_nasty(CharData* ch)
 {
-    CHAR_DATA* victim;
-    CHAR_DATA* v_next = NULL;
+    CharData* victim;
+    CharData* v_next = NULL;
     int16_t gold;
 
     if (!IS_AWAKE(ch)) { return false; }
@@ -362,10 +366,10 @@ bool spec_nasty(CHAR_DATA* ch)
 /*
  * Core procedure for dragons.
  */
-bool dragon(CHAR_DATA* ch, char* spell_name)
+bool dragon(CharData* ch, char* spell_name)
 {
-    CHAR_DATA* victim;
-    CHAR_DATA* v_next = NULL;
+    CharData* victim;
+    CharData* v_next = NULL;
     SKNUM sn;
 
     if (ch->position != POS_FIGHTING) return false;
@@ -385,7 +389,7 @@ bool dragon(CHAR_DATA* ch, char* spell_name)
 /*
  * Special procedures for mobiles.
  */
-bool spec_breath_any(CHAR_DATA* ch)
+bool spec_breath_any(CharData* ch)
 {
     if (ch->position != POS_FIGHTING) return false;
 
@@ -408,22 +412,22 @@ bool spec_breath_any(CHAR_DATA* ch)
     return false;
 }
 
-bool spec_breath_acid(CHAR_DATA* ch)
+bool spec_breath_acid(CharData* ch)
 {
     return dragon(ch, "acid breath");
 }
 
-bool spec_breath_fire(CHAR_DATA* ch)
+bool spec_breath_fire(CharData* ch)
 {
     return dragon(ch, "fire breath");
 }
 
-bool spec_breath_frost(CHAR_DATA* ch)
+bool spec_breath_frost(CharData* ch)
 {
     return dragon(ch, "frost breath");
 }
 
-bool spec_breath_gas(CHAR_DATA* ch)
+bool spec_breath_gas(CharData* ch)
 {
     SKNUM sn;
 
@@ -434,15 +438,15 @@ bool spec_breath_gas(CHAR_DATA* ch)
     return true;
 }
 
-bool spec_breath_lightning(CHAR_DATA* ch)
+bool spec_breath_lightning(CharData* ch)
 {
     return dragon(ch, "lightning breath");
 }
 
-bool spec_cast_adept(CHAR_DATA* ch)
+bool spec_cast_adept(CharData* ch)
 {
-    CHAR_DATA* victim;
-    CHAR_DATA* v_next = NULL;
+    CharData* victim;
+    CharData* v_next = NULL;
 
     if (!IS_AWAKE(ch)) return false;
 
@@ -502,10 +506,10 @@ bool spec_cast_adept(CHAR_DATA* ch)
     return false;
 }
 
-bool spec_cast_cleric(CHAR_DATA* ch)
+bool spec_cast_cleric(CharData* ch)
 {
-    CHAR_DATA* victim;
-    CHAR_DATA* v_next = NULL;
+    CharData* victim;
+    CharData* v_next = NULL;
     char* spell;
     SKNUM sn;
 
@@ -578,10 +582,10 @@ bool spec_cast_cleric(CHAR_DATA* ch)
     return true;
 }
 
-bool spec_cast_judge(CHAR_DATA* ch)
+bool spec_cast_judge(CharData* ch)
 {
-    CHAR_DATA* victim;
-    CHAR_DATA* v_next = NULL;
+    CharData* victim;
+    CharData* v_next = NULL;
     char* spell;
     SKNUM sn;
 
@@ -600,10 +604,10 @@ bool spec_cast_judge(CHAR_DATA* ch)
     return true;
 }
 
-bool spec_cast_mage(CHAR_DATA* ch)
+bool spec_cast_mage(CharData* ch)
 {
-    CHAR_DATA* victim;
-    CHAR_DATA* v_next = NULL;
+    CharData* victim;
+    CharData* v_next = NULL;
     char* spell;
     SKNUM sn;
 
@@ -672,10 +676,10 @@ bool spec_cast_mage(CHAR_DATA* ch)
     return true;
 }
 
-bool spec_cast_undead(CHAR_DATA* ch)
+bool spec_cast_undead(CharData* ch)
 {
-    CHAR_DATA* victim;
-    CHAR_DATA* v_next = NULL;
+    CharData* victim;
+    CharData* v_next = NULL;
     char* spell;
     SKNUM sn;
 
@@ -742,11 +746,11 @@ bool spec_cast_undead(CHAR_DATA* ch)
     return true;
 }
 
-bool spec_executioner(CHAR_DATA* ch)
+bool spec_executioner(CharData* ch)
 {
     char buf[MAX_STRING_LENGTH];
-    CHAR_DATA* victim;
-    CHAR_DATA* v_next = NULL;
+    CharData* victim;
+    CharData* v_next = NULL;
     char* crime;
 
     if (!IS_AWAKE(ch) || ch->fighting != NULL) return false;
@@ -778,7 +782,7 @@ bool spec_executioner(CHAR_DATA* ch)
     return true;
 }
 
-bool spec_fido(CHAR_DATA* ch)
+bool spec_fido(CharData* ch)
 {
     OBJ_DATA* corpse;
     OBJ_DATA* c_next = NULL;
@@ -804,12 +808,12 @@ bool spec_fido(CHAR_DATA* ch)
     return false;
 }
 
-bool spec_guard(CHAR_DATA* ch)
+bool spec_guard(CharData* ch)
 {
     char buf[MAX_STRING_LENGTH];
-    CHAR_DATA* victim;
-    CHAR_DATA* v_next = NULL;
-    CHAR_DATA* ech;
+    CharData* victim;
+    CharData* v_next = NULL;
+    CharData* ech;
     char* crime;
     int max_evil;
 
@@ -860,7 +864,7 @@ bool spec_guard(CHAR_DATA* ch)
     return false;
 }
 
-bool spec_janitor(CHAR_DATA* ch)
+bool spec_janitor(CharData* ch)
 {
     OBJ_DATA* trash;
     OBJ_DATA* trash_next = NULL;
@@ -883,7 +887,7 @@ bool spec_janitor(CHAR_DATA* ch)
     return false;
 }
 
-bool spec_mayor(CHAR_DATA* ch)
+bool spec_mayor(CharData* ch)
 {
     static const char open_path[]
         = "W3a3003b33000c111d0d111Oe333333Oe22c222112212111a1S.";
@@ -977,9 +981,9 @@ bool spec_mayor(CHAR_DATA* ch)
     return false;
 }
 
-bool spec_poison(CHAR_DATA* ch)
+bool spec_poison(CharData* ch)
 {
-    CHAR_DATA* victim;
+    CharData* victim;
 
     if (ch->position != POS_FIGHTING || (victim = ch->fighting) == NULL
         || number_percent() > 2 * ch->level)
@@ -992,10 +996,10 @@ bool spec_poison(CHAR_DATA* ch)
     return true;
 }
 
-bool spec_thief(CHAR_DATA* ch)
+bool spec_thief(CharData* ch)
 {
-    CHAR_DATA* victim;
-    CHAR_DATA* v_next = NULL;
+    CharData* victim;
+    CharData* v_next = NULL;
     int16_t gold, silver;
 
     if (ch->position != POS_STANDING) return false;

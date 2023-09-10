@@ -14,7 +14,7 @@
 #include "entities/player_data.h"
 
 #define CMD_FILE DATA_DIR "commands"
-#define CMDEDIT( fun )	bool fun( CHAR_DATA *ch, char *argument )
+#define CMDEDIT( fun )	bool fun( CharData *ch, char *argument )
 
 void save_command_table(void);
 
@@ -105,7 +105,7 @@ int cmd_lookup(char* arg)
     return -1;
 }
 
-void cmdedit(CHAR_DATA* ch, char* argument)
+void cmdedit(CharData* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_CMDEDIT_SECURITY) {
         send_to_char("CMDEdit: You do not have enough security to edit commands.\n\r", ch);
@@ -137,7 +137,7 @@ void cmdedit(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_cmdedit(CHAR_DATA* ch, char* argument)
+void do_cmdedit(CharData* ch, char* argument)
 {
     const struct cmd_type* pCmd;
     char command[MSL];
@@ -313,7 +313,7 @@ CMDEDIT(cmdedit_list)
     return false;
 }
 
-void do_nothing(CHAR_DATA* ch, char* argument)
+void do_nothing(CharData* ch, char* argument)
 {
     return;
 }
@@ -353,7 +353,7 @@ CMDEDIT(cmdedit_name)
 CMDEDIT(cmdedit_new)
 {
     DESCRIPTOR_DATA* d;
-    CHAR_DATA* tch;
+    CharData* tch;
     struct cmd_type* new_table;
     int cmd;
 
@@ -416,7 +416,7 @@ CMDEDIT(cmdedit_new)
 CMDEDIT(cmdedit_delete)
 {
     DESCRIPTOR_DATA* d;
-    CHAR_DATA* tch;
+    CharData* tch;
     int i, j, iCmd;
     struct cmd_type* new_table;
 

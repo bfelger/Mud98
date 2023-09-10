@@ -63,7 +63,6 @@ MPROG_CODE* pedit_prog(VNUM);
 
 // externals for counting purposes
 extern OBJ_DATA* obj_free;
-extern CHAR_DATA* char_free;
 extern DESCRIPTOR_DATA* descriptor_free;
 extern AFFECT_DATA* affect_free;
 
@@ -83,8 +82,6 @@ extern NOTE_DATA* note_free;
 MPROG_CODE* mprog_list;
 
 char bug_buf[2 * MAX_INPUT_LENGTH];
-CHAR_DATA* char_list;
-PlayerData* player_list;
 char* help_greeting;
 char log_buf[2 * MAX_INPUT_LENGTH];
 KILL_DATA kill_table[MAX_LEVEL];
@@ -177,7 +174,6 @@ VNUM top_vnum_room;     // OLC
 VNUM top_vnum_mob;      // OLC
 VNUM top_vnum_obj;      // OLC
 int	top_mprog_index;    // OLC
-int mobile_count = 0;
 int newmobs = 0;
 int newobjs = 0;
 
@@ -1540,9 +1536,9 @@ void fix_mobprogs(void)
 void reset_room(ROOM_INDEX_DATA* pRoom)
 {
     RESET_DATA* pReset;
-    CHAR_DATA* pMob = NULL;
+    CharData* pMob = NULL;
     OBJ_DATA* pObj;
-    CHAR_DATA* LastMob = NULL;
+    CharData* LastMob = NULL;
     OBJ_DATA* LastObj = NULL;
     int iExit;
     int level = 0;
@@ -1580,7 +1576,7 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
 
         case 'M':
         {
-            CHAR_DATA* mob;
+            CharData* mob;
 
             if ((pMobIndex = get_mob_index(pReset->arg1)) == NULL) {
                 bug("Reset_room: 'M': bad vnum %"PRVNUM".", pReset->arg1);
@@ -1854,9 +1850,9 @@ void reset_area(AREA_DATA* pArea)
 /*
  * Create an instance of a mobile.
  */
-CHAR_DATA* create_mobile(MOB_INDEX_DATA* pMobIndex)
+CharData* create_mobile(MOB_INDEX_DATA* pMobIndex)
 {
-    CHAR_DATA* mob;
+    CharData* mob;
     int i;
     AFFECT_DATA af = { 0 };
 
@@ -1867,7 +1863,7 @@ CHAR_DATA* create_mobile(MOB_INDEX_DATA* pMobIndex)
         exit(1);
     }
 
-    mob = new_char();
+    mob = new_char_data();
 
     mob->pIndexData = pMobIndex;
 
@@ -2076,7 +2072,7 @@ CHAR_DATA* create_mobile(MOB_INDEX_DATA* pMobIndex)
 }
 
 /* duplicate a mobile exactly -- except inventory */
-void clone_mobile(CHAR_DATA* parent, CHAR_DATA* clone)
+void clone_mobile(CharData* parent, CharData* clone)
 {
     int i;
     AFFECT_DATA* paf;
@@ -2335,9 +2331,9 @@ MPROG_CODE* get_mprog_index(VNUM vnum)
 /*
  * Clear a new character.
  */
-void clear_char(CHAR_DATA* ch)
+void clear_char(CharData* ch)
 {
-    static CHAR_DATA ch_zero;
+    static CharData ch_zero;
     int i;
 
     *ch = ch_zero;
@@ -2971,7 +2967,7 @@ void free_string(char* pstr)
     return;
 }
 
-void do_areas(CHAR_DATA* ch, char* argument)
+void do_areas(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     AREA_DATA* pArea1;
@@ -3000,7 +2996,7 @@ void do_areas(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_memory(CHAR_DATA* ch, char* argument)
+void do_memory(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
 
@@ -3040,10 +3036,10 @@ void do_memory(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_dump(CHAR_DATA* ch, char* argument)
+void do_dump(CharData* ch, char* argument)
 {
     int count, count2, num_pcs, aff_count;
-    CHAR_DATA* fch;
+    CharData* fch;
     MOB_INDEX_DATA* pMobIndex;
     PlayerData* pc;
     OBJ_DATA* obj;
@@ -3404,7 +3400,7 @@ char* capitalize(const char* str)
 /*
  * Append a string to a file.
  */
-void append_file(CHAR_DATA* ch, char* file, char* str)
+void append_file(CharData* ch, char* file, char* str)
 {
     FILE* fp;
 

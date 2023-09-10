@@ -81,7 +81,7 @@ void hex_to_bin(uint8_t* dest, const char* hex_str, size_t bin_size)
     }
 }
 
-bool set_password(char* pwd, CHAR_DATA* ch)
+bool set_password(char* pwd, CharData* ch)
 {
     // If the operation fails, keep the old digest
     unsigned char* old_digest = ch->pcdata->pwd_digest;
@@ -109,7 +109,7 @@ bool set_password(char* pwd, CHAR_DATA* ch)
     return true;
 }
 
-bool validate_password(char* pwd, CHAR_DATA* ch)
+bool validate_password(char* pwd, CharData* ch)
 {
     if (ch->pcdata->pwd_digest == NULL || ch->pcdata->pwd_digest_len == 0)
         return false;

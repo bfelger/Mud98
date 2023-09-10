@@ -41,9 +41,9 @@
 /*
  * Local functions.
  */
-int hit_gain args((CHAR_DATA * ch));
-int mana_gain args((CHAR_DATA * ch));
-int move_gain args((CHAR_DATA * ch));
+int hit_gain args((CharData * ch));
+int mana_gain args((CharData * ch));
+int move_gain args((CharData * ch));
 void mobile_update args((void));
 void weather_update args((void));
 void char_update args((void));
@@ -57,7 +57,7 @@ int save_number = 0;
 /*
  * Advancement stuff.
  */
-void advance_level(CHAR_DATA* ch, bool hide)
+void advance_level(CharData* ch, bool hide)
 {
     char buf[MAX_STRING_LENGTH];
     int16_t add_hp;
@@ -111,7 +111,7 @@ void advance_level(CHAR_DATA* ch, bool hide)
     return;
 }
 
-void gain_exp(CHAR_DATA* ch, int gain)
+void gain_exp(CharData* ch, int gain)
 {
     char buf[MAX_STRING_LENGTH];
 
@@ -137,7 +137,7 @@ void gain_exp(CHAR_DATA* ch, int gain)
 /*
  * Regeneration stuff.
  */
-int hit_gain(CHAR_DATA* ch)
+int hit_gain(CharData* ch)
 {
     int gain;
     int number;
@@ -205,7 +205,7 @@ int hit_gain(CHAR_DATA* ch)
     return UMIN(gain, ch->max_hit - ch->hit);
 }
 
-int mana_gain(CHAR_DATA* ch)
+int mana_gain(CharData* ch)
 {
     int gain;
     int number;
@@ -273,7 +273,7 @@ int mana_gain(CHAR_DATA* ch)
     return UMIN(gain, ch->max_mana - ch->mana);
 }
 
-int move_gain(CHAR_DATA* ch)
+int move_gain(CharData* ch)
 {
     int gain;
 
@@ -311,7 +311,7 @@ int move_gain(CHAR_DATA* ch)
     return UMIN(gain, ch->max_move - ch->move);
 }
 
-void gain_condition(CHAR_DATA* ch, int iCond, int value)
+void gain_condition(CharData* ch, int iCond, int value)
 {
     int condition;
 
@@ -348,8 +348,8 @@ void gain_condition(CHAR_DATA* ch, int iCond, int value)
  */
 void mobile_update(void)
 {
-    CHAR_DATA* ch = NULL;
-    CHAR_DATA* ch_next = NULL;
+    CharData* ch = NULL;
+    CharData* ch_next = NULL;
     EXIT_DATA* pexit = NULL;
     int door;
 
@@ -570,9 +570,9 @@ void weather_update(void)
  */
 void char_update(void)
 {
-    CHAR_DATA* ch;
-    CHAR_DATA* ch_next = NULL;
-    CHAR_DATA* ch_quit = NULL;
+    CharData* ch;
+    CharData* ch_next = NULL;
+    CharData* ch_quit = NULL;
 
     ch_quit = NULL;
 
@@ -684,7 +684,7 @@ void char_update(void)
         if (is_affected(ch, gsn_plague) && ch != NULL) {
             AFFECT_DATA* af;
             AFFECT_DATA plague = { 0 };
-            CHAR_DATA* vch;
+            CharData* vch;
             int dam;
 
             if (ch->in_room == NULL) continue;
@@ -783,7 +783,7 @@ void obj_update(void)
     AFFECT_DATA* paf_next = NULL;
 
     for (obj = object_list; obj != NULL; obj = obj_next) {
-        CHAR_DATA* rch;
+        CharData* rch;
         char* message;
 
         obj_next = obj->next;
@@ -926,12 +926,12 @@ void obj_update(void)
 void aggr_update(void)
 {
     for (PlayerData* wpc = player_list; wpc != NULL; wpc = wpc->next) {
-        CHAR_DATA* wch = wpc->ch;
+        CharData* wch = wpc->ch;
 
         if (wch->level >= LEVEL_IMMORTAL || wch->in_room == NULL)
             continue;
 
-        for (CHAR_DATA* ch = wch->in_room->people; ch != NULL; ch = ch->next_in_room) {
+        for (CharData* ch = wch->in_room->people; ch != NULL; ch = ch->next_in_room) {
             int count;
 
             if (!IS_NPC(ch) || !IS_SET(ch->act, ACT_AGGRESSIVE)
@@ -948,8 +948,8 @@ void aggr_update(void)
              *   giving each 'vch' an equal chance of selection.
              */
             count = 0;
-            CHAR_DATA* victim = NULL;
-            for (CHAR_DATA* vch = wch->in_room->people; vch != NULL; vch = vch->next_in_room) {
+            CharData* victim = NULL;
+            for (CharData* vch = wch->in_room->people; vch != NULL; vch = vch->next_in_room) {
                 if (!IS_NPC(vch) && vch->level < LEVEL_IMMORTAL
                     && ch->level >= vch->level - 5
                     && (!IS_SET(ch->act, ACT_WIMPY) || !IS_AWAKE(vch))

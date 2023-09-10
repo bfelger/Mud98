@@ -16,7 +16,7 @@ struct	race_type* race_table;
 int	maxrace;
 
 #define RACE_FILE	DATA_DIR "races"
-#define RAEDIT( fun )		bool fun( CHAR_DATA *ch, char *argument )
+#define RAEDIT( fun )		bool fun( CharData *ch, char *argument )
 
 extern struct race_type xRace;
 
@@ -52,7 +52,7 @@ const struct olc_comm_type race_olc_comm_table[] = {
     { NULL,         0,                  NULL,               0               }
 };
 
-void raedit(CHAR_DATA* ch, char* argument)
+void raedit(CharData* ch, char* argument)
 {
     if (ch->pcdata->security < 7) {
         send_to_char("RAEdit : You do not have enough security to edit races.\n\r", ch);
@@ -82,7 +82,7 @@ void raedit(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_raedit(CHAR_DATA* ch, char* argument)
+void do_raedit(CharData* ch, char* argument)
 {
     const struct race_type* pRace;
     int race;
@@ -206,7 +206,7 @@ RAEDIT(raedit_list)
 RAEDIT(raedit_new)
 {
     DESCRIPTOR_DATA* d;
-    CHAR_DATA* tch;
+    CharData* tch;
     struct race_type* new_table;
     size_t maxRace;
 

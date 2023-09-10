@@ -20,6 +20,8 @@
 #include "comm.h"
 #include "interp.h"
 
+#include "entities/char_data.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -175,7 +177,7 @@ void check_exits(ROOM_INDEX_DATA* room, AREA_DATA* pArea, char* buffer)
 }
 
 // For now, no arguments, just list the current area
-void do_exlist(CHAR_DATA* ch, char* argument)
+void do_exlist(CharData* ch, char* argument)
 {
     ROOM_INDEX_DATA* room;
     char buffer[MAX_STRING_LENGTH];
@@ -195,7 +197,7 @@ void do_exlist(CHAR_DATA* ch, char* argument)
 #define COLUMNS 5   // number of columns */
 #define MAX_ROW ((MAX_SHOW_VNUM / COLUMNS)+1) // rows
 
-void do_vlist(CHAR_DATA* ch, char* argument)
+void do_vlist(CharData* ch, char* argument)
 {
     VNUM i;
     VNUM j;
@@ -234,13 +236,13 @@ void do_vlist(CHAR_DATA* ch, char* argument)
 
 bool check_parse_name(char* name);  // comm.c
 
-void do_rename(CHAR_DATA* ch, char* argument)
+void do_rename(CharData* ch, char* argument)
 {
     char old_name[MAX_INPUT_LENGTH] = { 0 };
     char new_name[MAX_INPUT_LENGTH] = { 0 };
     char strsave[MAX_INPUT_LENGTH] = { 0 };
 
-    CHAR_DATA* victim;
+    CharData* victim;
     FILE* file;
 
     argument = one_argument(argument, old_name); /* find new/old name */
@@ -384,10 +386,10 @@ target in them. Private rooms are not violated.
 
 // Expand the name of a character into a string that identifies THAT character 
 // within a room. E.g. the second 'guard' -> 2. guard 
-const char* name_expand(CHAR_DATA* ch)
+const char* name_expand(CharData* ch)
 {
     int count = 1;
-    CHAR_DATA* rch;
+    CharData* rch;
     char name[MAX_INPUT_LENGTH]; /*  HOPEFULLY no mob has a name longer than THAT */
 
     static char outbuf[MAX_INPUT_LENGTH * 2];
@@ -411,14 +413,14 @@ const char* name_expand(CHAR_DATA* ch)
     return outbuf;
 }
 
-void do_for(CHAR_DATA* ch, char* argument)
+void do_for(CharData* ch, char* argument)
 {
     char range[MAX_INPUT_LENGTH] = { 0 };
     char buf[MAX_STRING_LENGTH] = { 0 };
     bool fGods = false, fMortals = false, fMobs = false, fEverywhere = false, found;
     ROOM_INDEX_DATA* room, * old_room;
-    CHAR_DATA* p;
-    CHAR_DATA* p_next = NULL;
+    CharData* p;
+    CharData* p_next = NULL;
     int i;
 
     argument = one_argument(argument, range);

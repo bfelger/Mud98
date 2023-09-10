@@ -48,13 +48,13 @@ char* flag_string(const struct flag_type*, long);
 /*
  * New typedefs.
  */
-typedef	bool OLC_FUN		args((CHAR_DATA* ch, char* argument));
+typedef	bool OLC_FUN		args((CharData* ch, char* argument));
 #define DECLARE_OLC_FUN( fun )	OLC_FUN fun
 
-typedef bool ED_FUN		args((char*, CHAR_DATA*, char*, uintptr_t, const uintptr_t));
+typedef bool ED_FUN		args((char*, CharData*, char*, uintptr_t, const uintptr_t));
 #define DECLARE_ED_FUN( fun )	ED_FUN fun
 
-#define ED_FUN_DEC(blah)	bool blah (char* n_fun, CHAR_DATA* ch,        \
+#define ED_FUN_DEC(blah)	bool blah (char* n_fun, CharData* ch,        \
                             char* argument, uintptr_t arg, const uintptr_t par )
 
 /* Command procedures needed ROM OLC */
@@ -81,19 +81,19 @@ DECLARE_SPELL_FUN(spell_null);
 /*
  * Interpreter Prototypes
  */
-void    aedit       args((CHAR_DATA* ch, char* argument));
-void    redit       args((CHAR_DATA* ch, char* argument));
-void    medit       args((CHAR_DATA* ch, char* argument));
-void    oedit       args((CHAR_DATA* ch, char* argument));
-void    pedit       args((CHAR_DATA* ch, char* argument));
-void	cedit		args((CHAR_DATA* ch, char* argument));
-void	raedit		args((CHAR_DATA* ch, char* argument));
-void	sedit		args((CHAR_DATA* ch, char* argument));
-void	skedit		args((CHAR_DATA* ch, char* argument));
-void	cmdedit		args((CHAR_DATA* ch, char* argument));
-void	gedit		args((CHAR_DATA* ch, char* argument));
-void	scedit		args((CHAR_DATA* ch, char* argument));
-void	hedit		args((CHAR_DATA* ch, char* argument));
+void    aedit       args((CharData* ch, char* argument));
+void    redit       args((CharData* ch, char* argument));
+void    medit       args((CharData* ch, char* argument));
+void    oedit       args((CharData* ch, char* argument));
+void    pedit       args((CharData* ch, char* argument));
+void	cedit		args((CharData* ch, char* argument));
+void	raedit		args((CharData* ch, char* argument));
+void	sedit		args((CharData* ch, char* argument));
+void	skedit		args((CharData* ch, char* argument));
+void	cmdedit		args((CharData* ch, char* argument));
+void	gedit		args((CharData* ch, char* argument));
+void	scedit		args((CharData* ch, char* argument));
+void	hedit		args((CharData* ch, char* argument));
 
 /*
  * OLC Constants
@@ -129,7 +129,7 @@ extern const struct olc_comm_type cmd_olc_comm_table[];
 extern const struct olc_comm_type prog_olc_comm_table[];
 extern const struct olc_comm_type social_olc_comm_table[];
 
-bool process_olc_command(CHAR_DATA*, char* argument, const struct olc_comm_type*);
+bool process_olc_command(CharData*, char* argument, const struct olc_comm_type*);
 
 /*
  * Structure for an OLC editor startup command.
@@ -178,10 +178,10 @@ DECLARE_DO_FUN(do_hedit);
 /*
  * General Functions
  */
-bool show_commands		args((CHAR_DATA* ch, char* argument));
-bool show_help			args((CHAR_DATA* ch, char* argument));
-bool edit_done			args((CHAR_DATA* ch));
-bool show_version		args((CHAR_DATA* ch, char* argument));
+bool show_commands		args((CharData* ch, char* argument));
+bool show_help			args((CharData* ch, char* argument));
+bool edit_done			args((CharData* ch));
+bool show_version		args((CharData* ch, char* argument));
 
 /*
  * Area Editor Prototypes
@@ -423,11 +423,11 @@ void            free_mprog          args((MPROG_LIST* mp));
 MPROG_CODE*     new_mpcode          args((void));
 void            free_mpcode         args((MPROG_CODE* pMcode));
 
-void		    show_liqlist		args((CHAR_DATA* ch));
-void		    show_poslist		args((CHAR_DATA* ch));
-void		    show_damlist		args((CHAR_DATA* ch));
-void		    show_sexlist		args((CHAR_DATA* ch));
-void		    show_sizelist		args((CHAR_DATA* ch));
+void		    show_liqlist		args((CharData* ch));
+void		    show_poslist		args((CharData* ch));
+void		    show_damlist		args((CharData* ch));
+void		    show_sexlist		args((CharData* ch));
+void		    show_sizelist		args((CharData* ch));
 
 extern		    ROOM_INDEX_DATA 	xRoom;
 extern		    MOB_INDEX_DATA 		xMob;

@@ -22,7 +22,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#define HEDIT(fun) bool fun(CHAR_DATA *ch, char*argument)
+#define HEDIT(fun) bool fun(CharData *ch, char*argument)
 
 extern HELP_AREA* had_list;
 
@@ -200,7 +200,7 @@ HEDIT(hedit_text)
     return true;
 }
 
-void hedit(CHAR_DATA* ch, char* argument)
+void hedit(CharData* ch, char* argument)
 {
     HELP_DATA* pHelp;
     HELP_AREA* had;
@@ -250,7 +250,7 @@ void hedit(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_hedit(CHAR_DATA* ch, char* argument)
+void do_hedit(CharData* ch, char* argument)
 {
     HELP_DATA* pHelp;
 

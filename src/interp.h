@@ -61,7 +61,7 @@ struct cmd_type {
 };
 
 /* wrapper function for safe command execution */
-void do_function args((CHAR_DATA * ch, DO_FUN* do_fun, char* argument));
+void do_function args((CharData * ch, DO_FUN* do_fun, char* argument));
 
 /* the command table itself */
 extern struct cmd_type* cmd_table;

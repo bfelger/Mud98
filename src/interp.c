@@ -31,6 +31,8 @@
 #include "interp.h"
 #include "strings.h"
 
+#include "entities/char_data.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,7 +40,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-bool check_social args((CHAR_DATA * ch, char* command, char* argument));
+bool check_social args((CharData * ch, char* command, char* argument));
 
 /*
  * Command logging types.
@@ -145,7 +147,7 @@ void create_command_table()
  * The main entry point for executing commands.
  * Can be recursively called from 'at', 'order', 'force'.
  */
-void interpret(CHAR_DATA* ch, char* argument)
+void interpret(CharData* ch, char* argument)
 {
     char command[MAX_INPUT_LENGTH] = "";
     char logline[MAX_INPUT_LENGTH] = "";
@@ -280,7 +282,7 @@ void interpret(CHAR_DATA* ch, char* argument)
 }
 
 /* function to keep argument safe in all commands -- no static strings */
-void do_function(CHAR_DATA* ch, DO_FUN* do_fun, char* argument)
+void do_function(CharData* ch, DO_FUN* do_fun, char* argument)
 {
     char* command_string;
 
@@ -294,10 +296,10 @@ void do_function(CHAR_DATA* ch, DO_FUN* do_fun, char* argument)
     free_string(command_string);
 }
 
-bool check_social(CHAR_DATA* ch, char* command, char* argument)
+bool check_social(CharData* ch, char* command, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
+    CharData* victim;
     int cmd;
     bool found;
 
@@ -486,7 +488,7 @@ char* one_argument(char* argument, char* arg_first)
 /*
  * Contributed by Alander.
  */
-void do_commands(CHAR_DATA* ch, char* argument)
+void do_commands(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     int cmd;
@@ -506,7 +508,7 @@ void do_commands(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_wizhelp(CHAR_DATA* ch, char* argument)
+void do_wizhelp(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     int cmd;

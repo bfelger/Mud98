@@ -34,7 +34,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#define SEDIT(fun) bool fun(CHAR_DATA *ch, char *argument)
+#define SEDIT(fun) bool fun(CharData *ch, char *argument)
 
 extern struct social_type xSoc;
 
@@ -75,7 +75,7 @@ int social_lookup(const char* name)
     return -1;
 }
 
-void sedit(CHAR_DATA* ch, char* argument)
+void sedit(CharData* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_SEDIT_SECURITY) {
         send_to_char("SEdit: You do not have enough security to edit socials.\n\r", ch);
@@ -99,7 +99,7 @@ void sedit(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_sedit(CHAR_DATA* ch, char* argument)
+void do_sedit(CharData* ch, char* argument)
 {
     struct social_type* pSocial;
     char command[MIL];
@@ -186,7 +186,7 @@ SEDIT(sedit_show)
 SEDIT(sedit_new)
 {
     DESCRIPTOR_DATA* d;
-    CHAR_DATA* tch;
+    CharData* tch;
     struct social_type* new_table;
     int iSocial;
 
@@ -244,7 +244,7 @@ SEDIT(sedit_new)
 SEDIT(sedit_delete)
 {
     DESCRIPTOR_DATA* d;
-    CHAR_DATA* tch;
+    CharData* tch;
     int i, j, iSocial;
     struct social_type* new_table;
 

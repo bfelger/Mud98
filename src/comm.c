@@ -128,7 +128,7 @@ extern bool merc_down;                      // Shutdown
 extern bool wizlock;                        // Game is wizlocked
 extern bool newlock;                        // Game is newlocked
 
-void bust_a_prompt(CHAR_DATA* ch);
+void bust_a_prompt(CharData* ch);
 bool check_parse_name(char* name);
 bool check_playing(DESCRIPTOR_DATA* d, char* name);
 bool check_reconnect(DESCRIPTOR_DATA* d, bool fConn);
@@ -539,7 +539,7 @@ void close_socket(DESCRIPTOR_DATA* dclose)
         return;
     }
 
-    CHAR_DATA* ch;
+    CharData* ch;
 
     if (dclose->outtop > 0)
         process_descriptor_output(dclose, false);
@@ -567,7 +567,7 @@ void close_socket(DESCRIPTOR_DATA* dclose)
             ch->desc = NULL;
         }
         else {
-            free_char(dclose->original ? dclose->original : dclose->character);
+            free_char_data(dclose->original ? dclose->original : dclose->character);
         }
     }
 
@@ -817,8 +817,8 @@ bool process_descriptor_output(DESCRIPTOR_DATA* d, bool fPrompt)
             if (d->pString)
                 write_to_buffer(d, "> ", 2);    // OLC
             else {
-                CHAR_DATA* ch;
-                CHAR_DATA* victim;
+                CharData* ch;
+                CharData* victim;
 
                 ch = d->character;
 
@@ -906,7 +906,7 @@ bool process_descriptor_output(DESCRIPTOR_DATA* d, bool fPrompt)
  * Bust a prompt (player settable prompt)
  * coded by Morgenes for Aldara Mud
  */
-void bust_a_prompt(CHAR_DATA* ch)
+void bust_a_prompt(CharData* ch)
 {
     INIT_BUF(temp1, MAX_STRING_LENGTH);
     INIT_BUF(temp2, MAX_STRING_LENGTH);
@@ -1165,7 +1165,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
     DESCRIPTOR_DATA* d_next_local = NULL;
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* ch;
+    CharData* ch;
     int iClass, race, i, weapon;
     bool fOld;
 
@@ -1296,7 +1296,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
             if (check_reconnect(d, true)) return;
             write_to_buffer(d, "Reconnect attempt failed.\n\rName: ", 0);
             if (d->character != NULL) {
-                free_char(d->character);
+                free_char_data(d->character);
                 d->character = NULL;
             }
             d->connected = CON_GET_NAME;
@@ -1306,7 +1306,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
         case 'N':
             write_to_buffer(d, "Name: ", 0);
             if (d->character != NULL) {
-                free_char(d->character);
+                free_char_data(d->character);
                 d->character = NULL;
             }
             d->connected = CON_GET_NAME;
@@ -1331,7 +1331,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
         case 'n':
         case 'N':
             write_to_buffer(d, "Ok, what IS it, then? ", 0);
-            free_char(d->character);
+            free_char_data(d->character);
             d->character = NULL;
             d->connected = CON_GET_NAME;
             break;
@@ -1815,7 +1815,7 @@ bool check_parse_name(char* name)
  */
 bool check_reconnect(DESCRIPTOR_DATA * d, bool fConn)
 {
-    CHAR_DATA* ch;
+    CharData* ch;
 
     for (ch = char_list; ch != NULL; ch = ch->next) {
         if (!IS_NPC(ch) && (!fConn || ch->desc == NULL)
@@ -1830,7 +1830,7 @@ bool check_reconnect(DESCRIPTOR_DATA * d, bool fConn)
                     ch->pcdata->pwd_digest_len;
             }
             else {
-                free_char(d->character);
+                free_char_data(d->character);
                 d->character = ch;
                 ch->desc = d;
                 ch->timer = 0;
@@ -1874,7 +1874,7 @@ bool check_playing(DESCRIPTOR_DATA * d, char* name)
     return false;
 }
 
-void stop_idling(CHAR_DATA * ch)
+void stop_idling(CharData * ch)
 {
     if (ch == NULL || ch->desc == NULL || ch->desc->connected != CON_PLAYING
         || ch->was_in_room == NULL
@@ -1938,7 +1938,7 @@ void send_to_desc(const char* txt, DESCRIPTOR_DATA* desc)
 /*
  * Write to one char.
  */
-void send_to_char_bw(const char* txt, CHAR_DATA * ch)
+void send_to_char_bw(const char* txt, CharData * ch)
 {
     if (txt != NULL && ch->desc != NULL)
         write_to_buffer(ch->desc, txt, strlen(txt));
@@ -1948,7 +1948,7 @@ void send_to_char_bw(const char* txt, CHAR_DATA * ch)
 /*
  * Write to one char, new colour version, by Lope.
  */
-void send_to_char(const char* txt, CHAR_DATA * ch)
+void send_to_char(const char* txt, CharData * ch)
 {
     const char* point;
     char* point2;
@@ -1992,7 +1992,7 @@ void send_to_char(const char* txt, CHAR_DATA * ch)
 /*
  * Send a page to one char.
  */
-void page_to_char_bw(const char* txt, CHAR_DATA * ch)
+void page_to_char_bw(const char* txt, CharData * ch)
 {
     if (txt == NULL || ch->desc == NULL) return;
 
@@ -2010,7 +2010,7 @@ void page_to_char_bw(const char* txt, CHAR_DATA * ch)
 /*
  * Page to one char, new colour version, by Lope.
  */
-void page_to_char(const char* txt, CHAR_DATA * ch)
+void page_to_char(const char* txt, CharData * ch)
 {
     INIT_BUF(temp, MAX_STRING_LENGTH * 4);
     const char* point;
@@ -2111,21 +2111,21 @@ show_string_cleanup:
 }
 
 /* quick sex fixer */
-void fix_sex(CHAR_DATA * ch)
+void fix_sex(CharData * ch)
 {
     if (ch->sex < 0 || ch->sex > 2)
         ch->sex = IS_NPC(ch) ? 0 : ch->pcdata->true_sex;
 }
 
-void act_new(const char* format, CHAR_DATA * ch, const void* arg1,
+void act_new(const char* format, CharData * ch, const void* arg1,
     const void* arg2, int type, int min_pos)
 {
     static char* const he_she[] = { "it", "he", "she" };
     static char* const him_her[] = { "it", "him", "her" };
     static char* const his_her[] = { "its", "his", "her" };
 
-    CHAR_DATA* to;
-    CHAR_DATA* vch = (CHAR_DATA*)arg2;
+    CharData* to;
+    CharData* vch = (CharData*)arg2;
     OBJ_DATA* obj1 = (OBJ_DATA*)arg1;
     OBJ_DATA* obj2 = (OBJ_DATA*)arg2;
     const char* str;
@@ -2261,7 +2261,7 @@ void act_new(const char* format, CHAR_DATA * ch, const void* arg1,
     return;
 }
 
-size_t colour(char type, CHAR_DATA * ch, char* string)
+size_t colour(char type, CharData * ch, char* string)
 {
     char code[50] = { 0 };
     bool xterm = ch->pcdata->theme_config.xterm;
@@ -2323,7 +2323,7 @@ size_t colour(char type, CHAR_DATA * ch, char* string)
     return (strlen(code));
 }
 
-void colourconv(char* buffer, const char* txt, CHAR_DATA * ch)
+void colourconv(char* buffer, const char* txt, CharData * ch)
 {
     const char* point;
     size_t skip = 0;
@@ -2358,7 +2358,7 @@ void colourconv(char* buffer, const char* txt, CHAR_DATA * ch)
 }
 
 // source: EOD, by John Booth <???> 
-void printf_to_char(CHAR_DATA* ch, char* fmt, ...)
+void printf_to_char(CharData* ch, char* fmt, ...)
 {
     char buf[MAX_STRING_LENGTH];
     va_list args;
