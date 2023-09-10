@@ -56,8 +56,8 @@ void move_char(CharData* ch, int door, bool follow)
 {
     CharData* fch;
     CharData* fch_next = NULL;
-    ROOM_INDEX_DATA* in_room;
-    ROOM_INDEX_DATA* to_room;
+    RoomData* in_room;
+    RoomData* to_room;
     EXIT_DATA* pexit;
 
     if (door < 0 || door > 5) {
@@ -352,7 +352,7 @@ void do_open(CharData* ch, char* argument)
 
     if ((door = find_door(ch, arg)) >= 0) {
         /* 'open door' */
-        ROOM_INDEX_DATA* to_room;
+        RoomData* to_room;
         EXIT_DATA* pexit;
         EXIT_DATA* pexit_rev;
 
@@ -440,7 +440,7 @@ void do_close(CharData* ch, char* argument)
 
     if ((door = find_door(ch, arg)) >= 0) {
         /* 'close door' */
-        ROOM_INDEX_DATA* to_room;
+        RoomData* to_room;
         EXIT_DATA* pexit;
         EXIT_DATA* pexit_rev;
 
@@ -557,7 +557,7 @@ void do_lock(CharData* ch, char* argument)
 
     if ((door = find_door(ch, arg)) >= 0) {
         /* 'lock door' */
-        ROOM_INDEX_DATA* to_room;
+        RoomData* to_room;
         EXIT_DATA* pexit;
         EXIT_DATA* pexit_rev;
 
@@ -671,7 +671,7 @@ void do_unlock(CharData* ch, char* argument)
 
     if ((door = find_door(ch, arg)) >= 0) {
         /* 'unlock door' */
-        ROOM_INDEX_DATA* to_room;
+        RoomData* to_room;
         EXIT_DATA* pexit;
         EXIT_DATA* pexit_rev;
 
@@ -800,7 +800,7 @@ void do_pick(CharData* ch, char* argument)
 
     if ((door = find_door(ch, arg)) >= 0) {
         /* 'pick door' */
-        ROOM_INDEX_DATA* to_room;
+        RoomData* to_room;
         EXIT_DATA* pexit;
         EXIT_DATA* pexit_rev;
 
@@ -1316,7 +1316,7 @@ void do_recall(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     CharData* victim;
-    ROOM_INDEX_DATA* location;
+    RoomData* location;
 
     if (IS_NPC(ch) && !IS_SET(ch->act, ACT_PET)) {
         send_to_char("Only players can recall.\n\r", ch);

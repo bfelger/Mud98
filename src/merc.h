@@ -47,6 +47,7 @@ typedef struct player_data_t PlayerData;
 typedef struct char_data_t CharData;
 typedef struct object_prototype_t ObjectPrototype;
 typedef struct object_data_t ObjectData;
+typedef struct room_data_t RoomData;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Data files used by the server.
@@ -150,7 +151,6 @@ typedef struct mprog_code MPROG_CODE;
 typedef struct note_data NOTE_DATA;
 typedef struct gen_data GEN_DATA;
 typedef struct reset_data RESET_DATA;
-typedef struct room_index_data ROOM_INDEX_DATA;
 typedef struct shop_data SHOP_DATA;
 typedef struct time_info_data TIME_INFO_DATA;
 typedef struct weather_data WEATHER_DATA;
@@ -1261,8 +1261,6 @@ struct mem_data {
     time_t when;
 };
 
-
-
 typedef struct color_config_t {
     char* current_theme_name;   // For lazy-loading and discardability
     bool hide_256;          // Whether to show these higher-bit themes. Some
@@ -1306,7 +1304,7 @@ struct extra_descr_data {
  */
 struct exit_data {
     union {
-        ROOM_INDEX_DATA* to_room;
+        RoomData* to_room;
         VNUM vnum;
     } u1;
     int16_t exit_info;
@@ -1363,31 +1361,6 @@ struct area_data {
     VNUM vnum;          // OLC
     int area_flags;     // OLC
     int security;       // OLC Value 1-9
-};
-
-/*
- * Room type.
- */
-struct room_index_data {
-    ROOM_INDEX_DATA* next;
-    CharData* people;
-    ObjectData* contents;
-    EXTRA_DESCR_DATA* extra_descr;
-    AREA_DATA* area;
-    EXIT_DATA* exit[6];
-    RESET_DATA* reset_first;    // OLC
-    RESET_DATA* reset_last;     // OLC
-    char* name;
-    char* description;
-    char* owner;
-    VNUM vnum;
-    int room_flags;
-    int16_t light;
-    int16_t sector_type;
-    int16_t heal_rate;
-    int16_t mana_rate;
-    int16_t clan;
-    int16_t reset_num;
 };
 
 /*
@@ -1636,7 +1609,7 @@ extern bool MOBtrigger;
 #define MID         MobPrototype
 #define OD          ObjectData
 #define OID         ObjectPrototype
-#define RID         ROOM_INDEX_DATA
+#define RID         RoomData
 #define SF          SPEC_FUN
 #define AD          AFFECT_DATA
 #define MPC         MPROG_CODE
@@ -1693,7 +1666,7 @@ void page_to_char_bw(const char* txt, CharData* ch);
 
 /* db.c */
 void reset_area(AREA_DATA* pArea);       // OLC
-void reset_room(ROOM_INDEX_DATA* pRoom);	// OLC
+void reset_room(RoomData* pRoom);	// OLC
 char* print_flags(int flag);
 void boot_db(void);
 void area_update(void);
@@ -1790,7 +1763,7 @@ void affect_strip(CharData* ch, SKNUM sn);
 bool is_affected(CharData* ch, SKNUM sn);
 void affect_join(CharData * ch, AFFECT_DATA* paf);
 void char_from_room(CharData * ch);
-void char_to_room(CharData * ch, ROOM_INDEX_DATA* pRoomIndex);
+void char_to_room(CharData * ch, RoomData* pRoomIndex);
 void obj_to_char(ObjectData * obj, CharData* ch);
 void obj_from_char(ObjectData * obj);
 int apply_ac(ObjectData * obj, int iWear, int type);
@@ -1799,7 +1772,7 @@ void equip_char(CharData* ch, ObjectData* obj, int16_t iWear);
 void unequip_char(CharData * ch, ObjectData* obj);
 int count_obj_list(ObjectPrototype * obj, ObjectData* list);
 void obj_from_room(ObjectData * obj);
-void obj_to_room(ObjectData * obj, ROOM_INDEX_DATA* pRoomIndex);
+void obj_to_room(ObjectData * obj, RoomData* pRoomIndex);
 void obj_to_obj(ObjectData * obj, ObjectData* obj_to);
 void obj_from_obj(ObjectData * obj);
 void extract_obj(ObjectData * obj);
@@ -1816,12 +1789,12 @@ OD* create_money(int16_t gold, int16_t silver);
 int get_obj_number(ObjectData * obj);
 int get_obj_weight(ObjectData * obj);
 int get_true_weight(ObjectData * obj);
-bool room_is_dark(ROOM_INDEX_DATA * pRoomIndex);
-bool is_room_owner(CharData * ch, ROOM_INDEX_DATA* room);
-bool room_is_private(ROOM_INDEX_DATA * pRoomIndex);
+bool room_is_dark(RoomData * pRoomIndex);
+bool is_room_owner(CharData * ch, RoomData* room);
+bool room_is_private(RoomData * pRoomIndex);
 bool can_see(CharData * ch, CharData* victim);
 bool can_see_obj(CharData * ch, ObjectData* obj);
-bool can_see_room(CharData * ch, ROOM_INDEX_DATA* pRoomIndex);
+bool can_see_room(CharData * ch, RoomData* pRoomIndex);
 bool can_drop_obj(CharData * ch, ObjectData* obj);
 char* affect_loc_name(int location);
 char* affect_bit_name(int vector);
@@ -1989,7 +1962,7 @@ extern VNUM top_vnum_room;
 extern char str_empty[1];
 
 extern ObjectPrototype* object_prototype_hash[MAX_KEY_HASH];
-extern ROOM_INDEX_DATA* room_index_hash[MAX_KEY_HASH];
+extern RoomData* room_index_hash[MAX_KEY_HASH];
 
 extern	bool fBootDb;
 

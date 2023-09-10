@@ -147,7 +147,7 @@ struct editor_cmd_type {
 AREA_DATA* get_vnum_area args((VNUM vnum));
 AREA_DATA* get_area_data args((VNUM vnum));
 int	flag_value args((const struct flag_type* flag_table, char* argument));
-void add_reset args((ROOM_INDEX_DATA*, RESET_DATA*, int));
+void add_reset args((RoomData*, RESET_DATA*, int));
 void set_editor args((DESCRIPTOR_DATA*, int, uintptr_t));
 
 /*
@@ -383,7 +383,7 @@ DECLARE_ED_FUN(ed_objrecval);
 /* Return pointers to what is being edited. */
 #define EDIT_MOB(Ch, Mob)	( Mob = (MobPrototype *)Ch->desc->pEdit )
 #define EDIT_OBJ(Ch, Obj)	( Obj = (ObjectPrototype *)Ch->desc->pEdit )
-#define EDIT_ROOM(Ch, Room)	( Room = (ROOM_INDEX_DATA *)Ch->desc->pEdit )
+#define EDIT_ROOM(Ch, Room)	( Room = (RoomData *)Ch->desc->pEdit )
 #define EDIT_AREA(Ch, Area)	( Area = (AREA_DATA *)Ch->desc->pEdit )
 #define EDIT_CLAN(Ch, Clan)	( Clan = (CLAN_TYPE *)Ch->desc->pEdit )
 #define EDIT_RACE(Ch, Race)	( Race = (struct race_type *)Ch->desc->pEdit )
@@ -407,14 +407,10 @@ EXIT_DATA*      new_exit            args((void));
 void            free_exit           args((EXIT_DATA*));
 ED*             new_extra_descr	    args((void));
 void            free_extra_descr    args((ED* pExtra));
-ROOM_INDEX_DATA* new_room_index     args((void));
-void            free_room_index     args((ROOM_INDEX_DATA* pRoom));
 AFFECT_DATA*    new_affect          args((void));
 void            free_affect         args((AFFECT_DATA* pAf));
 SHOP_DATA*      new_shop            args((void));
 void            free_shop           args((SHOP_DATA* pShop));
-ObjectPrototype* new_object_prototype       args((void));
-void            free_object_prototype      args((ObjectPrototype* pObj));
 #undef	ED
 
 MPROG_LIST*     new_mprog           args((void));
@@ -429,7 +425,7 @@ void		    show_damlist		args((CharData* ch));
 void		    show_sexlist		args((CharData* ch));
 void		    show_sizelist		args((CharData* ch));
 
-extern		    ROOM_INDEX_DATA 	xRoom;
+extern		    RoomData 	        xRoom;
 extern		    MobPrototype 		xMob;
 extern		    ObjectPrototype		xObj;
 

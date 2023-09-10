@@ -2175,8 +2175,8 @@ void do_buy(CharData* ch, char* argument)
     if (IS_SET(ch->in_room->room_flags, ROOM_PET_SHOP)) {
         char arg[MAX_INPUT_LENGTH];
         CharData* pet;
-        ROOM_INDEX_DATA* pRoomIndexNext;
-        ROOM_INDEX_DATA* in_room;
+        RoomData* pRoomIndexNext;
+        RoomData* in_room;
 
         smash_tilde(argument);
 
@@ -2376,7 +2376,7 @@ void do_list(CharData* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
 
     if (IS_SET(ch->in_room->room_flags, ROOM_PET_SHOP)) {
-        ROOM_INDEX_DATA* pRoomIndexNext;
+        RoomData* pRoomIndexNext;
         CharData* pet;
         bool found;
 

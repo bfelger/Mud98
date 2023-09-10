@@ -99,7 +99,7 @@ void spell_nexus(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
     CharData* victim;
     ObjectData *portal, *stone;
-    ROOM_INDEX_DATA *to_room, *from_room;
+    RoomData *to_room, *from_room;
 
     from_room = ch->in_room;
 

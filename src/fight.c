@@ -1406,7 +1406,7 @@ void make_corpse(CharData* ch)
  */
 void death_cry(CharData* ch)
 {
-    ROOM_INDEX_DATA* was_in_room;
+    RoomData* was_in_room;
     char* msg;
     int door;
     VNUM vnum;
@@ -2626,8 +2626,8 @@ void do_backstab(CharData* ch, char* argument)
 
 void do_flee(CharData* ch, char* argument)
 {
-    ROOM_INDEX_DATA* was_in;
-    ROOM_INDEX_DATA* now_in;
+    RoomData* was_in;
+    RoomData* now_in;
     CharData* victim;
     int attempt;
 

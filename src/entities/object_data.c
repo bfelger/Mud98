@@ -177,7 +177,7 @@ void convert_objects()
     RESET_DATA* pReset;
     MobPrototype* pMob = NULL;
     ObjectPrototype* pObj;
-    ROOM_INDEX_DATA* pRoom;
+    RoomData* pRoom;
 
     if (newobjs == top_object_prototype) return; /* all objects in new format */
 

@@ -13,6 +13,7 @@ typedef struct object_data_t ObjectData;
 #include "merc.h"
 
 #include "char_data.h"
+#include "room_data.h"
 
 /*
  * Prototype for an object.
@@ -50,7 +51,7 @@ typedef struct object_data_t {
     EXTRA_DESCR_DATA* extra_descr;
     AFFECT_DATA* affected;
     ObjectPrototype* pIndexData;
-    ROOM_INDEX_DATA* in_room;
+    RoomData* in_room;
     bool valid;
     bool enchanted;
     char* owner;

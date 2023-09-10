@@ -48,7 +48,7 @@
 /*
  * Local functions.
  */
-ROOM_INDEX_DATA* find_location args((CharData * ch, char* arg));
+RoomData* find_location args((CharData * ch, char* arg));
 
 void do_wiznet(CharData* ch, char* argument)
 {
@@ -668,7 +668,7 @@ void do_pecho(CharData* ch, char* argument)
     send_to_char("\n\r", ch);
 }
 
-ROOM_INDEX_DATA* find_location(CharData* ch, char* arg)
+RoomData* find_location(CharData* ch, char* arg)
 {
     CharData* victim;
     ObjectData* obj;
@@ -689,7 +689,7 @@ void do_transfer(CharData* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
-    ROOM_INDEX_DATA* location;
+    RoomData* location;
     DESCRIPTOR_DATA* d;
     CharData* victim;
 
@@ -757,8 +757,8 @@ void do_transfer(CharData* ch, char* argument)
 void do_at(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    ROOM_INDEX_DATA* location;
-    ROOM_INDEX_DATA* original;
+    RoomData* location;
+    RoomData* original;
     ObjectData* on;
     CharData* wch;
 
@@ -804,7 +804,7 @@ void do_at(CharData* ch, char* argument)
 
 void do_goto(CharData* ch, char* argument)
 {
-    ROOM_INDEX_DATA* location;
+    RoomData* location;
     CharData* rch;
     int count = 0;
 
@@ -856,7 +856,7 @@ void do_goto(CharData* ch, char* argument)
 
 void do_violate(CharData* ch, char* argument)
 {
-    ROOM_INDEX_DATA* location;
+    RoomData* location;
     CharData* rch;
 
     if (argument[0] == '\0') {
@@ -908,7 +908,7 @@ void do_stat(CharData* ch, char* argument)
     char arg[MAX_INPUT_LENGTH];
     char* string;
     ObjectData* obj;
-    ROOM_INDEX_DATA* location;
+    RoomData* location;
     CharData* victim;
 
     string = one_argument(argument, arg);
@@ -963,7 +963,7 @@ void do_rstat(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    ROOM_INDEX_DATA* location;
+    RoomData* location;
     ObjectData* obj;
     CharData* rch;
     int door;
@@ -3484,7 +3484,7 @@ void do_rset(CharData* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char arg3[MAX_INPUT_LENGTH];
-    ROOM_INDEX_DATA* location;
+    RoomData* location;
     int value;
 
     smash_tilde(argument);

@@ -12,7 +12,9 @@ typedef struct char_data_t CharData;
 #include "merc.h"
 
 #include "mob_prototype.h"
+#include "object_data.h"
 #include "player_data.h"
+#include "room_data.h"
 
 typedef struct char_data_t {
     CharData* next;
@@ -31,8 +33,8 @@ typedef struct char_data_t {
     NOTE_DATA* pnote;
     ObjectData* carrying;
     ObjectData* on;
-    ROOM_INDEX_DATA* in_room;
-    ROOM_INDEX_DATA* was_in_room;
+    RoomData* in_room;
+    RoomData* was_in_room;
     AREA_DATA* zone;
     PlayerData* pcdata;
     GEN_DATA* gen_data;

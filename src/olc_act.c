@@ -326,7 +326,7 @@ bool show_help(CharData* ch, char* argument)
 
 REDIT(redit_rlist)
 {
-    ROOM_INDEX_DATA* pRoomIndex;
+    RoomData* pRoomIndex;
     AREA_DATA* pArea;
     char		buf[MAX_STRING_LENGTH];
     BUFFER* buf1;
@@ -960,7 +960,7 @@ AEDIT(aedit_uvnum)
  */
 REDIT(redit_show)
 {
-    ROOM_INDEX_DATA* pRoom;
+    RoomData* pRoom;
     ObjectData* obj;
     CharData* rch;
     int			cnt = 0;
@@ -1118,7 +1118,7 @@ REDIT(redit_show)
 /* Local function. */
 bool change_exit(CharData* ch, char* argument, int door)
 {
-    ROOM_INDEX_DATA* pRoom;
+    RoomData* pRoom;
     char command[MAX_INPUT_LENGTH];
     char arg[MAX_INPUT_LENGTH];
     int  value;
@@ -1130,7 +1130,7 @@ bool change_exit(CharData* ch, char* argument, int door)
      * ----------------------------------------
      */
     if ((value = flag_value(exit_flag_table, argument)) != NO_FLAG) {
-        ROOM_INDEX_DATA* pToRoom;
+        RoomData* pToRoom;
         EXIT_DATA* pExit, * pNExit;
         int16_t rev;                                    /* ROM OLC */
 
@@ -1183,7 +1183,7 @@ bool change_exit(CharData* ch, char* argument, int door)
     }
 
     if (!str_cmp(command, "delete")) {
-        ROOM_INDEX_DATA* pToRoom;
+        RoomData* pToRoom;
         EXIT_DATA* pExit, * pNExit;
         int16_t rev;
         bool rDeleted = false;
@@ -1233,7 +1233,7 @@ bool change_exit(CharData* ch, char* argument, int door)
 
     if (!str_cmp(command, "link")) {
         EXIT_DATA* pExit;
-        ROOM_INDEX_DATA* pRoomIndex;
+        RoomData* pRoomIndex;
 
         if (arg[0] == '\0' || !is_number(arg)) {
             send_to_char("Syntax:  [direction] link [vnum]\n\r", ch);
@@ -1300,7 +1300,7 @@ bool change_exit(CharData* ch, char* argument, int door)
 
     if (!str_cmp(command, "room")) {
         EXIT_DATA* pExit;
-        ROOM_INDEX_DATA* target;
+        RoomData* target;
 
         if (arg[0] == '\0' || !is_number(arg)) {
             send_to_char("Syntax:  [direction] room [vnum]\n\r", ch);
@@ -1416,7 +1416,7 @@ bool change_exit(CharData* ch, char* argument, int door)
 REDIT(redit_create)
 {
     AREA_DATA* pArea;
-    ROOM_INDEX_DATA* pRoom;
+    RoomData* pRoom;
     VNUM value;
     int iHash;
 
@@ -1466,7 +1466,7 @@ REDIT(redit_create)
 
 REDIT(redit_format)
 {
-    ROOM_INDEX_DATA* pRoom;
+    RoomData* pRoom;
 
     EDIT_ROOM(ch, pRoom);
 
@@ -1478,7 +1478,7 @@ REDIT(redit_format)
 
 REDIT(redit_mreset)
 {
-    ROOM_INDEX_DATA* pRoom;
+    RoomData* pRoom;
     MobPrototype* p_mob_proto;
     CharData* newmob;
     char		arg[MAX_INPUT_LENGTH];
@@ -1611,7 +1611,7 @@ int wear_bit(int loc)
 
 REDIT(redit_oreset)
 {
-    ROOM_INDEX_DATA* pRoom;
+    RoomData* pRoom;
     ObjectPrototype* p_object_prototype;
     ObjectData* newobj;
     ObjectData* to_obj;
@@ -3047,7 +3047,7 @@ void show_sizelist(CharData* ch)
 
 REDIT(redit_owner)
 {
-    ROOM_INDEX_DATA* pRoom;
+    RoomData* pRoom;
 
     EDIT_ROOM(ch, pRoom);
 
@@ -3069,7 +3069,7 @@ REDIT(redit_owner)
 
 void showresets(CharData* ch, BUFFER* buf, AREA_DATA* pArea, MobPrototype* mob, ObjectPrototype* obj)
 {
-    ROOM_INDEX_DATA* room;
+    RoomData* room;
     MobPrototype* pLastMob;
     RESET_DATA* reset;
     char buf2[MIL];
@@ -3135,7 +3135,7 @@ void listmobreset(CharData* ch, BUFFER* buf, AREA_DATA* pArea)
 REDIT(redit_listreset)
 {
     AREA_DATA* pArea;
-    ROOM_INDEX_DATA* pRoom;
+    RoomData* pRoom;
     BUFFER* buf;
 
     EDIT_ROOM(ch, pRoom);
@@ -3169,7 +3169,7 @@ REDIT(redit_checkobj)
     ObjectPrototype* obj;
     int key;
     bool fAll = !str_cmp(argument, "all");
-    ROOM_INDEX_DATA* room;
+    RoomData* room;
 
     EDIT_ROOM(ch, room);
 
@@ -3183,7 +3183,7 @@ REDIT(redit_checkobj)
 
 REDIT(redit_checkrooms)
 {
-    ROOM_INDEX_DATA* room, * thisroom;
+    RoomData* room, * thisroom;
     int iHash;
     bool fAll = false;
 
@@ -3209,7 +3209,7 @@ REDIT(redit_checkrooms)
 REDIT(redit_checkmob)
 {
     MobPrototype* mob;
-    ROOM_INDEX_DATA* room;
+    RoomData* room;
     int key;
     bool fAll = !str_cmp(argument, "all");
 
@@ -3225,7 +3225,7 @@ REDIT(redit_checkmob)
 
 REDIT(redit_copy)
 {
-    ROOM_INDEX_DATA* this, * that;
+    RoomData* this, * that;
     VNUM vnum;
 
     EDIT_ROOM(ch, this);
@@ -4527,7 +4527,7 @@ ED_FUN_DEC(ed_olist)
 
 REDIT(redit_limpiar)
 {
-    ROOM_INDEX_DATA* pRoom;
+    RoomData* pRoom;
     int i;
 
     if (!IS_NULLSTR(argument)) {

@@ -42,9 +42,9 @@
 #endif
 
 /* random room generation procedure */
-ROOM_INDEX_DATA* get_random_room(CharData* ch)
+RoomData* get_random_room(CharData* ch)
 {
-    ROOM_INDEX_DATA* room;
+    RoomData* room;
 
     for (;;) {
         room = get_room_index(number_range(0, 65535));
@@ -64,13 +64,13 @@ ROOM_INDEX_DATA* get_random_room(CharData* ch)
 /* RT Enter portals */
 void do_enter(CharData* ch, char* argument)
 {
-    ROOM_INDEX_DATA* location;
+    RoomData* location;
 
     if (ch->fighting != NULL) return;
 
     /* nifty portal stuff */
     if (argument[0] != '\0') {
-        ROOM_INDEX_DATA* old_room;
+        RoomData* old_room;
         ObjectData* portal;
         CharData* fch;
         CharData* fch_next = NULL;

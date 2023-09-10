@@ -3851,7 +3851,7 @@ void spell_summon(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 void spell_teleport(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
     CharData* victim = (CharData*)vo;
-    ROOM_INDEX_DATA* pRoomIndex;
+    RoomData* pRoomIndex;
 
     if (victim->in_room == NULL
         || IS_SET(victim->in_room->room_flags, ROOM_NO_RECALL)
@@ -3922,7 +3922,7 @@ void spell_word_of_recall(SKNUM sn, LEVEL level, CharData* ch, void* vo,
                           int target)
 {
     CharData* victim = (CharData*)vo;
-    ROOM_INDEX_DATA* location;
+    RoomData* location;
 
     if (IS_NPC(victim)) return;
 

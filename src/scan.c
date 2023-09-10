@@ -35,7 +35,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-void scan_list args((ROOM_INDEX_DATA * scan_room, CharData* ch, int16_t depth,
+void scan_list args((RoomData * scan_room, CharData* ch, int16_t depth,
                      int16_t door));
 void scan_char args((CharData * victim, CharData* ch, int16_t depth,
                      int16_t door));
@@ -43,7 +43,7 @@ void do_scan(CharData* ch, char* argument)
 {
     extern char* const dir_name[];
     char arg1[MAX_INPUT_LENGTH], buf[MAX_INPUT_LENGTH];
-    ROOM_INDEX_DATA* scan_room;
+    RoomData* scan_room;
     EXIT_DATA* pExit;
     int16_t door, depth;
 
@@ -92,7 +92,7 @@ void do_scan(CharData* ch, char* argument)
     return;
 }
 
-void scan_list(ROOM_INDEX_DATA* scan_room, CharData* ch, int16_t depth,
+void scan_list(RoomData* scan_room, CharData* ch, int16_t depth,
                int16_t door)
 {
     CharData* rch;

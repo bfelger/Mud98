@@ -548,7 +548,7 @@ void UpdateOLCScreen(DESCRIPTOR_DATA* d)
     size_t j;
     uintptr_t blah;
     size_t size;
-    extern ROOM_INDEX_DATA xRoom;
+    extern RoomData xRoom;
     STRFUNC* func;
     char* tmpstr;
     const struct flag_type* flagt;

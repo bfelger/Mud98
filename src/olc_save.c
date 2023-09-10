@@ -521,7 +521,7 @@ void save_objects(FILE* fp, AREA_DATA* pArea)
  ****************************************************************************/
 void save_rooms(FILE* fp, AREA_DATA* pArea)
 {
-    ROOM_INDEX_DATA* pRoomIndex;
+    RoomData* pRoomIndex;
     EXTRA_DESCR_DATA* pEd;
     EXIT_DATA* pExit;
     char buf[MSL];
@@ -631,7 +631,7 @@ void save_specials(FILE* fp, AREA_DATA* pArea)
 void save_door_resets(FILE* fp, AREA_DATA* pArea)
 {
     int iHash, i;
-    ROOM_INDEX_DATA* pRoomIndex;
+    RoomData* pRoomIndex;
     EXIT_DATA* pExit;
 
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
@@ -678,7 +678,7 @@ void save_resets(FILE* fp, AREA_DATA* pArea)
 #ifdef VERBOSE
     ObjectPrototype* pLastObj;
 #endif
-    ROOM_INDEX_DATA* pRoom;
+    RoomData* pRoom;
     char buf[MAX_STRING_LENGTH];
     int iHash;
 

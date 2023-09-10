@@ -1401,12 +1401,12 @@ void char_from_room(CharData* ch)
 /*
  * Move a char into a room.
  */
-void char_to_room(CharData* ch, ROOM_INDEX_DATA* pRoomIndex)
+void char_to_room(CharData* ch, RoomData* pRoomIndex)
 {
     ObjectData* obj;
 
     if (pRoomIndex == NULL) {
-        ROOM_INDEX_DATA* room;
+        RoomData* room;
 
         bug("Char_to_room: NULL.", 0);
 
@@ -1708,7 +1708,7 @@ int count_obj_list(ObjectPrototype* p_object_prototype, ObjectData* list)
  */
 void obj_from_room(ObjectData* obj)
 {
-    ROOM_INDEX_DATA* in_room;
+    RoomData* in_room;
     CharData* ch;
 
     if (obj == NULL)
@@ -1750,7 +1750,7 @@ void obj_from_room(ObjectData* obj)
 /*
  * Move an obj into a room.
  */
-void obj_to_room(ObjectData* obj, ROOM_INDEX_DATA* pRoomIndex)
+void obj_to_room(ObjectData* obj, RoomData* pRoomIndex)
 {
     obj->next_content = pRoomIndex->contents;
     pRoomIndex->contents = obj;
@@ -2247,7 +2247,7 @@ int get_true_weight(ObjectData* obj)
 /*
  * true if room is dark.
  */
-bool room_is_dark(ROOM_INDEX_DATA* pRoomIndex)
+bool room_is_dark(RoomData* pRoomIndex)
 {
     if (pRoomIndex->light > 0) return false;
 
@@ -2263,7 +2263,7 @@ bool room_is_dark(ROOM_INDEX_DATA* pRoomIndex)
     return false;
 }
 
-bool is_room_owner(CharData* ch, ROOM_INDEX_DATA* room)
+bool is_room_owner(CharData* ch, RoomData* room)
 {
     if (room->owner == NULL || room->owner[0] == '\0') return false;
 
@@ -2273,7 +2273,7 @@ bool is_room_owner(CharData* ch, ROOM_INDEX_DATA* room)
 /*
  * true if room is private.
  */
-bool room_is_private(ROOM_INDEX_DATA* pRoomIndex)
+bool room_is_private(RoomData* pRoomIndex)
 {
     CharData* rch;
     int count;
@@ -2295,7 +2295,7 @@ bool room_is_private(ROOM_INDEX_DATA* pRoomIndex)
 }
 
 /* visibility on a room -- for entering and exits */
-bool can_see_room(CharData* ch, ROOM_INDEX_DATA* pRoomIndex)
+bool can_see_room(CharData* ch, RoomData* pRoomIndex)
 {
     if (IS_SET(pRoomIndex->room_flags, ROOM_IMP_ONLY)
         && get_trust(ch) < MAX_LEVEL)

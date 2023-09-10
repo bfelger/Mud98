@@ -147,7 +147,7 @@ SKNUM gsn_recall;
 /*
  * Locals.
  */
-ROOM_INDEX_DATA* room_index_hash[MAX_KEY_HASH];
+RoomData* room_index_hash[MAX_KEY_HASH];
 char* string_hash[MAX_KEY_HASH];
 
 AREA_DATA* area_first;
@@ -819,7 +819,7 @@ void load_old_obj(FILE* fp)
  * Adds a reset to a room.
  * Similar to add_reset in olc.c
  */
-void new_reset(ROOM_INDEX_DATA* pR, RESET_DATA* pReset)
+void new_reset(RoomData* pR, RESET_DATA* pReset)
 {
     RESET_DATA* pr;
 
@@ -850,7 +850,7 @@ void load_resets(FILE* fp)
 {
     RESET_DATA* pReset;
     EXIT_DATA* pexit;
-    ROOM_INDEX_DATA* pRoomIndex;
+    RoomData* pRoomIndex;
     VNUM rVnum = VNUM_NONE;
 
     if (area_last == NULL) {
@@ -938,7 +938,7 @@ void load_resets(FILE* fp)
  */
 void load_rooms(FILE* fp)
 {
-    ROOM_INDEX_DATA* pRoomIndex;
+    RoomData* pRoomIndex;
 
     if (area_last == NULL) {
         bug("Load_resets: no #AREA seen yet.", 0);
@@ -1172,13 +1172,13 @@ void fix_exits(void)
 {
     extern const int16_t rev_dir[];
     char buf[MAX_STRING_LENGTH];
-    ROOM_INDEX_DATA* pRoomIndex;
-    ROOM_INDEX_DATA* to_room;
+    RoomData* pRoomIndex;
+    RoomData* to_room;
     EXIT_DATA* pexit;
     EXIT_DATA* pexit_rev;
     RESET_DATA* pReset;
-    ROOM_INDEX_DATA* iLastRoom;
-    ROOM_INDEX_DATA* iLastObj;
+    RoomData* iLastRoom;
+    RoomData* iLastObj;
     int iHash;
     int door;
 
@@ -1297,7 +1297,7 @@ void area_update(void)
          */
         if ((!pArea->empty && (pArea->nplayer == 0 || pArea->age >= 15))
             || pArea->age >= 31) {
-            ROOM_INDEX_DATA* pRoomIndex;
+            RoomData* pRoomIndex;
 
             reset_area(pArea);
             sprintf(buf, "%s has just been reset.", pArea->name);
@@ -1391,7 +1391,7 @@ void fix_mobprogs(void)
 /* OLC
  * Reset one room.  Called by reset_area and olc.
  */
-void reset_room(ROOM_INDEX_DATA* pRoom)
+void reset_room(RoomData* pRoom)
 {
     RESET_DATA* pReset;
     CharData* pMob = NULL;
@@ -1423,7 +1423,7 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
         MobPrototype* p_mob_proto;
         ObjectPrototype* p_object_prototype;
         ObjectPrototype* pObjToIndex;
-        ROOM_INDEX_DATA* pRoomIndex;
+        RoomData* pRoomIndex;
         char buf[MAX_STRING_LENGTH];
         int count, limit = 0;
 
@@ -1479,7 +1479,7 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
              * Pet shop mobiles get ACT_PET set.
              */
             {
-                ROOM_INDEX_DATA* pRoomIndexPrev;
+                RoomData* pRoomIndexPrev;
 
                 pRoomIndexPrev = get_room_index(pRoom->vnum - 1);
                 if (pRoomIndexPrev
@@ -1694,7 +1694,7 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
  */
 void reset_area(AREA_DATA* pArea)
 {
-    ROOM_INDEX_DATA* pRoom;
+    RoomData* pRoom;
     VNUM  vnum;
 
     for (vnum = pArea->min_vnum; vnum <= pArea->max_vnum; vnum++) {
@@ -1832,9 +1832,9 @@ char* get_extra_descr(const char* name, EXTRA_DESCR_DATA* ed)
  * Translates mob virtual number to its room index struct.
  * Hash table lookup.
  */
-ROOM_INDEX_DATA* get_room_index(VNUM vnum)
+RoomData* get_room_index(VNUM vnum)
 {
-    ROOM_INDEX_DATA* pRoomIndex;
+    RoomData* pRoomIndex;
 
     for (pRoomIndex = room_index_hash[vnum % MAX_KEY_HASH]; pRoomIndex != NULL;
          pRoomIndex = pRoomIndex->next) {
@@ -2459,7 +2459,7 @@ void do_dump(CharData* ch, char* argument)
     PlayerData* pc;
     ObjectData* obj;
     ObjectPrototype* p_object_prototype;
-    ROOM_INDEX_DATA* room = NULL;
+    RoomData* room = NULL;
     EXIT_DATA* exit = NULL;
     DESCRIPTOR_DATA* d;
     AFFECT_DATA* af;

@@ -76,7 +76,7 @@ http://www.andreasen.org/
 // To have VLIST show more than vnum 0 - 9900, change the number below:
 #define MAX_SHOW_VNUM   99 // Show only 1 - 100*100 */
 
-extern ROOM_INDEX_DATA* room_index_hash[];	// db.c
+extern RoomData* room_index_hash[];	// db.c
 
 /* opposite directions */
 const int16_t opposite_dir[6] = {
@@ -107,7 +107,7 @@ typedef enum {
 } exit_status;
 
 // Depending on status print > or < or <> between the 2 rooms
-void room_pair(ROOM_INDEX_DATA* left, ROOM_INDEX_DATA* right, exit_status ex,
+void room_pair(RoomData* left, RoomData* right, exit_status ex,
     char* buffer)
 {
     char* sExit;
@@ -134,12 +134,12 @@ void room_pair(ROOM_INDEX_DATA* left, ROOM_INDEX_DATA* right, exit_status ex,
 }
 
 // For every exit in 'room' which leads to or from pArea but NOT both, print it
-void check_exits(ROOM_INDEX_DATA* room, AREA_DATA* pArea, char* buffer)
+void check_exits(RoomData* room, AREA_DATA* pArea, char* buffer)
 {
     char buf[MAX_STRING_LENGTH];
     int i;
     EXIT_DATA* exit;
-    ROOM_INDEX_DATA* to_room;
+    RoomData* to_room;
 
     strcpy(buffer, "");
     for (i = 0; i < 6; i++) {
@@ -179,7 +179,7 @@ void check_exits(ROOM_INDEX_DATA* room, AREA_DATA* pArea, char* buffer)
 // For now, no arguments, just list the current area
 void do_exlist(CharData* ch, char* argument)
 {
-    ROOM_INDEX_DATA* room;
+    RoomData* room;
     char buffer[MAX_STRING_LENGTH];
 
     AREA_DATA* pArea = ch->in_room->area; // This is the area we want info on 
@@ -202,7 +202,7 @@ void do_vlist(CharData* ch, char* argument)
     VNUM i;
     VNUM j;
     VNUM vnum;
-    ROOM_INDEX_DATA* room;
+    RoomData* room;
     char buffer[MAX_ROW * 100]; // Should be plenty */
     char buf2[100];
 
@@ -418,7 +418,7 @@ void do_for(CharData* ch, char* argument)
     char range[MAX_INPUT_LENGTH] = { 0 };
     char buf[MAX_STRING_LENGTH] = { 0 };
     bool fGods = false, fMortals = false, fMobs = false, fEverywhere = false, found;
-    ROOM_INDEX_DATA* room, * old_room;
+    RoomData* room, * old_room;
     CharData* p;
     CharData* p_next = NULL;
     int i;

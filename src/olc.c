@@ -41,7 +41,7 @@ void UpdateOLCScreen(DESCRIPTOR_DATA*);
 
 MobPrototype		xMob;
 ObjectPrototype		xObj;
-ROOM_INDEX_DATA		xRoom;
+RoomData		xRoom;
 struct	skill_type	xSkill;
 struct	race_type	xRace;
 MPROG_CODE		    xProg;
@@ -271,7 +271,7 @@ char* olc_ed_name(CharData* ch)
 char* olc_ed_vnum(CharData* ch)
 {
     AREA_DATA* pArea;
-    ROOM_INDEX_DATA* pRoom;
+    RoomData* pRoom;
     ObjectPrototype* pObj;
     MobPrototype* pMob;
     MPROG_CODE* pMcode;
@@ -542,7 +542,7 @@ void aedit(CharData* ch, char* argument)
 /* Room Interpreter, called by do_redit. */
 void redit(CharData* ch, char* argument)
 {
-    ROOM_INDEX_DATA* pRoom;
+    RoomData* pRoom;
     AREA_DATA* pArea;
 
     EDIT_ROOM(ch, pRoom);
@@ -724,7 +724,7 @@ void do_aedit(CharData* ch, char* argument)
 /* Entry point for editing room_index_data. */
 void do_redit(CharData* ch, char* argument)
 {
-    ROOM_INDEX_DATA* pRoom;
+    RoomData* pRoom;
     char arg1[MIL];
 
     argument = one_argument(argument, arg1);
@@ -749,7 +749,7 @@ void do_redit(CharData* ch, char* argument)
 
         if (redit_create(ch, argument)) {
             char_from_room(ch);
-            char_to_room(ch, (ROOM_INDEX_DATA*)ch->desc->pEdit);
+            char_to_room(ch, (RoomData*)ch->desc->pEdit);
             SET_BIT(pRoom->area->area_flags, AREA_CHANGED);
             pRoom = ch->in_room;
         }
@@ -913,7 +913,7 @@ void do_medit(CharData* ch, char* argument)
     return;
 }
 
-void    display_resets(CharData* ch, ROOM_INDEX_DATA* pRoom)
+void    display_resets(CharData* ch, RoomData* pRoom)
 {
     RESET_DATA* pReset;
     MobPrototype* pMob = NULL;
@@ -934,7 +934,7 @@ void    display_resets(CharData* ch, ROOM_INDEX_DATA* pRoom)
         MobPrototype* p_mob_proto;
         ObjectPrototype* p_object_prototype;
         ObjectPrototype* pObjToIndex;
-        ROOM_INDEX_DATA* pRoomIndex;
+        RoomData* pRoomIndex;
 
         final[0] = '\0';
         sprintf(final, "[%2d] ", ++iReset);
@@ -969,7 +969,7 @@ void    display_resets(CharData* ch, ROOM_INDEX_DATA* pRoom)
              * -------------------
              */
             {
-                ROOM_INDEX_DATA* pRoomIndexPrev;
+                RoomData* pRoomIndexPrev;
 
                 pRoomIndexPrev = get_room_index(pRoomIndex->vnum - 1);
                 if (pRoomIndexPrev
@@ -1115,7 +1115,7 @@ void    display_resets(CharData* ch, ROOM_INDEX_DATA* pRoom)
  Purpose:	Inserts a new reset in the given index slot.
  Called by:	do_resets(olc.c).
  ****************************************************************************/
-void    add_reset(ROOM_INDEX_DATA* room, RESET_DATA* pReset, int indice)
+void    add_reset(RoomData* room, RESET_DATA* pReset, int indice)
 {
     RESET_DATA* reset;
     int     iReset = 0;
@@ -1196,7 +1196,7 @@ void    do_resets(CharData* ch, char* argument)
      * ------------------------------------------
      */
     if (is_number(arg1)) {
-        ROOM_INDEX_DATA* pRoom = ch->in_room;
+        RoomData* pRoom = ch->in_room;
 
         /*
          * Delete a reset.
@@ -1466,7 +1466,7 @@ bool process_olc_command(CharData* ch, char* argument, const struct olc_comm_typ
     char arg[MIL];
     MobPrototype* pMob;
     ObjectPrototype* pObj;
-    ROOM_INDEX_DATA* pRoom;
+    RoomData* pRoom;
     struct race_type* pRace;
     struct skill_type* pSkill;
     struct cmd_type* pCmd;

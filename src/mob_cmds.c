@@ -47,7 +47,7 @@
 #include <sys/types.h>
 
 DECLARE_DO_FUN(do_look);
-extern ROOM_INDEX_DATA* find_location(CharData*, char*);
+extern RoomData* find_location(CharData*, char*);
 
 /*
  * Command table.
@@ -289,7 +289,7 @@ void do_mpzecho(CharData* ch, char* argument)
 void do_mpasound(CharData* ch, char* argument)
 {
 
-    ROOM_INDEX_DATA* was_in_room;
+    RoomData* was_in_room;
     int              door;
 
     if (argument[0] == '\0')
@@ -638,7 +638,7 @@ void do_mppurge(CharData* ch, char* argument)
 void do_mpgoto(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    ROOM_INDEX_DATA* location;
+    RoomData* location;
 
     one_argument(argument, arg);
     if (arg[0] == '\0') {
@@ -670,8 +670,8 @@ void do_mpgoto(CharData* ch, char* argument)
 void do_mpat(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    ROOM_INDEX_DATA* location;
-    ROOM_INDEX_DATA* original;
+    RoomData* location;
+    RoomData* original;
     CharData* wch;
     ObjectData* on;
 
@@ -722,7 +722,7 @@ void do_mptransfer(CharData* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
-    ROOM_INDEX_DATA* location;
+    RoomData* location;
     CharData* victim;
 
     argument = one_argument(argument, arg1);
@@ -1174,7 +1174,7 @@ void do_mpcall(CharData* ch, char* argument)
  */
 void do_mpflee(CharData* ch, char* argument)
 {
-    ROOM_INDEX_DATA* was_in;
+    RoomData* was_in;
     EXIT_DATA* pexit;
     int door, attempt;
 
@@ -1208,7 +1208,7 @@ void do_mpflee(CharData* ch, char* argument)
 void do_mpotransfer(CharData* ch, char* argument)
 {
     ObjectData* obj;
-    ROOM_INDEX_DATA* location;
+    RoomData* location;
     char arg[MAX_INPUT_LENGTH];
     char buf[MAX_INPUT_LENGTH];
 

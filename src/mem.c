@@ -35,7 +35,6 @@ extern int top_room;
 AREA_DATA* area_free;
 EXTRA_DESCR_DATA* extra_descr_free;
 EXIT_DATA* exit_free;
-ROOM_INDEX_DATA* room_index_free;
 SHOP_DATA* shop_free;
 RESET_DATA* reset_free;
 HELP_DATA* help_free = NULL;
@@ -156,57 +155,6 @@ void free_exit(EXIT_DATA* pExit)
     pExit->next = exit_free;
     exit_free = pExit;
 
-    return;
-}
-
-ROOM_INDEX_DATA* new_room_index(void)
-{
-    static	ROOM_INDEX_DATA rZero;
-    ROOM_INDEX_DATA* pRoom;
-
-    if (!room_index_free) {
-        pRoom = alloc_perm(sizeof(*pRoom));
-        top_room++;
-    }
-    else {
-        pRoom = room_index_free;
-        room_index_free = room_index_free->next;
-    }
-
-    *pRoom = rZero;
-
-    pRoom->name = &str_empty[0];
-    pRoom->description = &str_empty[0];
-    pRoom->owner = &str_empty[0];
-    pRoom->heal_rate = 100;
-    pRoom->mana_rate = 100;
-
-    return pRoom;
-}
-
-void free_room_index(ROOM_INDEX_DATA* pRoom)
-{
-    EXTRA_DESCR_DATA* pExtra;
-    RESET_DATA* pReset;
-    int i;
-
-    free_string(pRoom->name);
-    free_string(pRoom->description);
-    free_string(pRoom->owner);
-
-    for (i = 0; i < MAX_DIR; i++)
-        free_exit(pRoom->exit[i]);
-
-    for (pExtra = pRoom->extra_descr; pExtra; pExtra = pExtra->next) {
-        free_extra_descr(pExtra);
-    }
-
-    for (pReset = pRoom->reset_first; pReset; pReset = pReset->next) {
-        free_reset_data(pReset);
-    }
-
-    pRoom->next = room_index_free;
-    room_index_free = pRoom;
     return;
 }
 

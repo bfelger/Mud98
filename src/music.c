@@ -51,7 +51,7 @@ void song_update(void)
 {
     ObjectData* obj;
     CharData* victim;
-    ROOM_INDEX_DATA* room;
+    RoomData* room;
     DESCRIPTOR_DATA* d;
     char buf[MAX_STRING_LENGTH];
     char* line;
