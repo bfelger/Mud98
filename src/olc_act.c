@@ -21,6 +21,7 @@
 #include "recycle.h"
 #include "tables.h"
 
+#include "entities/object_data.h"
 #include "entities/player_data.h"
 
 #include <ctype.h>
@@ -390,7 +391,7 @@ REDIT(redit_mlist)
 
     for (vnum = pArea->min_vnum; vnum <= pArea->max_vnum; vnum++) {
         if ((p_mob_proto = get_mob_prototype(vnum)) != NULL) {
-            if (fAll || is_name(arg, p_mob_proto->player_name)) {
+            if (fAll || is_name(arg, p_mob_proto->name)) {
                 found = true;
                 sprintf(buf, "[%5d] %-17.16s",
                     p_mob_proto->vnum, capitalize(p_mob_proto->short_descr));
@@ -960,7 +961,7 @@ AEDIT(aedit_uvnum)
 REDIT(redit_show)
 {
     ROOM_INDEX_DATA* pRoom;
-    OBJ_DATA* obj;
+    ObjectData* obj;
     CharData* rch;
     int			cnt = 0;
     bool		fcnt;
@@ -1337,7 +1338,7 @@ bool change_exit(CharData* ch, char* argument, int door)
 
     if (!str_cmp(command, "key")) {
         EXIT_DATA* pExit;
-        OBJ_INDEX_DATA* pObj;
+        ObjectPrototype* pObj;
 
         if (arg[0] == '\0' || !is_number(arg)) {
             send_to_char("Syntax:  [direction] key [vnum]\n\r", ch);
@@ -1349,7 +1350,7 @@ bool change_exit(CharData* ch, char* argument, int door)
             return false;
         }
 
-        pObj = get_obj_index(atoi(arg));
+        pObj = get_object_prototype(atoi(arg));
 
         if (!pObj) {
             send_to_char("REdit:  Item doesn't exist.\n\r", ch);
@@ -1611,9 +1612,9 @@ int wear_bit(int loc)
 REDIT(redit_oreset)
 {
     ROOM_INDEX_DATA* pRoom;
-    OBJ_INDEX_DATA* pObjIndex;
-    OBJ_DATA* newobj;
-    OBJ_DATA* to_obj;
+    ObjectPrototype* p_object_prototype;
+    ObjectData* newobj;
+    ObjectData* to_obj;
     CharData* to_mob;
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
@@ -1635,12 +1636,12 @@ REDIT(redit_oreset)
         return false;
     }
 
-    if (!(pObjIndex = get_obj_index(atoi(arg1)))) {
+    if (!(p_object_prototype = get_object_prototype(atoi(arg1)))) {
         send_to_char("REdit: No object has that vnum.\n\r", ch);
         return false;
     }
 
-    if (pObjIndex->area != pRoom->area) {
+    if (p_object_prototype->area != pRoom->area) {
         send_to_char("REdit: No such object in this area.\n\r", ch);
         return false;
     }
@@ -1651,18 +1652,18 @@ REDIT(redit_oreset)
     if (arg2[0] == '\0') {
         pReset = new_reset_data();
         pReset->command = 'O';
-        pReset->arg1 = pObjIndex->vnum;
+        pReset->arg1 = p_object_prototype->vnum;
         pReset->arg2 = 0;
         pReset->arg3 = pRoom->vnum;
         pReset->arg4 = 0;
         add_reset(pRoom, pReset, 0/* Last slot*/);
 
-        newobj = create_object(pObjIndex, (int16_t)number_fuzzy(olevel));
+        newobj = create_object(p_object_prototype, (int16_t)number_fuzzy(olevel));
         obj_to_room(newobj, pRoom);
 
         sprintf(output, "%s (%d) has been loaded and added to resets.\n\r",
-            capitalize(pObjIndex->short_descr),
-            pObjIndex->vnum);
+            capitalize(p_object_prototype->short_descr),
+            p_object_prototype->vnum);
         send_to_char(output, ch);
     }
     else
@@ -1673,13 +1674,13 @@ REDIT(redit_oreset)
             && ((to_obj = get_obj_list(ch, arg2, pRoom->contents)) != NULL)) {
             pReset = new_reset_data();
             pReset->command = 'P';
-            pReset->arg1 = pObjIndex->vnum;
+            pReset->arg1 = p_object_prototype->vnum;
             pReset->arg2 = 0;
             pReset->arg3 = to_obj->pIndexData->vnum;
             pReset->arg4 = 1;
             add_reset(pRoom, pReset, 0/* Last slot*/);
 
-            newobj = create_object(pObjIndex, (int16_t)number_fuzzy(olevel));
+            newobj = create_object(p_object_prototype, (int16_t)number_fuzzy(olevel));
             newobj->cost = 0;
             obj_to_obj(newobj, to_obj);
 
@@ -1709,12 +1710,12 @@ REDIT(redit_oreset)
                 /*
                  * Disallow loading a sword(WEAR_WIELD) into WEAR_HEAD.
                  */
-                if (!IS_SET(pObjIndex->wear_flags, wear_bit(wearloc))) {
+                if (!IS_SET(p_object_prototype->wear_flags, wear_bit(wearloc))) {
                     sprintf(output,
                         "%s (%d) has wear flags: [%s]\n\r",
-                        capitalize(pObjIndex->short_descr),
-                        pObjIndex->vnum,
-                        flag_string(wear_flag_table, pObjIndex->wear_flags));
+                        capitalize(p_object_prototype->short_descr),
+                        p_object_prototype->vnum,
+                        flag_string(wear_flag_table, p_object_prototype->wear_flags));
                     send_to_char(output, ch);
                     return false;
                 }
@@ -1728,7 +1729,7 @@ REDIT(redit_oreset)
                 }
 
                 pReset = new_reset_data();
-                pReset->arg1 = pObjIndex->vnum;
+                pReset->arg1 = p_object_prototype->vnum;
                 pReset->arg2 = (int16_t)wearloc;
                 if (pReset->arg2 == WEAR_NONE)
                     pReset->command = 'G';
@@ -1739,11 +1740,11 @@ REDIT(redit_oreset)
                 add_reset(pRoom, pReset, 0/* Last slot*/);
 
                 olevel = URANGE(0, to_mob->level - 2, LEVEL_HERO);
-                newobj = create_object(pObjIndex, (int16_t)number_fuzzy(olevel));
+                newobj = create_object(p_object_prototype, (int16_t)number_fuzzy(olevel));
 
                 if (to_mob->pIndexData->pShop)	/* Shop-keeper? */
                 {
-                    switch (pObjIndex->item_type) {
+                    switch (p_object_prototype->item_type) {
                     default:		    olevel = 0;				                break;
                     case ITEM_PILL: 	olevel = (LEVEL)number_range(0, 10);	break;
                     case ITEM_POTION:	olevel = (LEVEL)number_range(0, 10);	break;
@@ -1759,12 +1760,12 @@ REDIT(redit_oreset)
                         break;
                     }
 
-                    newobj = create_object(pObjIndex, olevel);
+                    newobj = create_object(p_object_prototype, olevel);
                     if (pReset->arg2 == WEAR_NONE)
                         SET_BIT(newobj->extra_flags, ITEM_INVENTORY);
                 }
                 else
-                    newobj = create_object(pObjIndex, (int16_t)number_fuzzy(olevel));
+                    newobj = create_object(p_object_prototype, (int16_t)number_fuzzy(olevel));
 
                 obj_to_char(newobj, to_mob);
                 if (pReset->command == 'E')
@@ -1772,8 +1773,8 @@ REDIT(redit_oreset)
 
                 sprintf(output, "%s (%d) has been loaded "
                     "%s of %s (%d) and added to resets.\n\r",
-                    capitalize(pObjIndex->short_descr),
-                    pObjIndex->vnum,
+                    capitalize(p_object_prototype->short_descr),
+                    p_object_prototype->vnum,
                     flag_string(wear_loc_strings, pReset->arg3),
                     to_mob->short_descr,
                     to_mob->pIndexData->vnum);
@@ -1794,7 +1795,7 @@ REDIT(redit_oreset)
 /*
  * Object Editor Functions.
  */
-void show_obj_values(CharData* ch, OBJ_INDEX_DATA* obj)
+void show_obj_values(CharData* ch, ObjectPrototype* obj)
 {
     char buf[MAX_STRING_LENGTH];
 
@@ -1923,8 +1924,8 @@ void show_obj_values(CharData* ch, OBJ_INDEX_DATA* obj)
             "[v4] Weight Mult [%d]\n\r",
             obj->value[0],
             flag_string(container_flag_table, obj->value[1]),
-            get_obj_index(obj->value[2])
-            ? get_obj_index(obj->value[2])->short_descr
+            get_object_prototype(obj->value[2])
+            ? get_object_prototype(obj->value[2])->short_descr
             : "none",
             obj->value[2],
             obj->value[3],
@@ -1981,7 +1982,7 @@ void show_obj_values(CharData* ch, OBJ_INDEX_DATA* obj)
 
 
 
-bool set_obj_values(CharData* ch, OBJ_INDEX_DATA* pObj, int value_num, char* argument)
+bool set_obj_values(CharData* ch, ObjectPrototype* pObj, int value_num, char* argument)
 {
     int tmp;
 
@@ -2191,12 +2192,12 @@ bool set_obj_values(CharData* ch, OBJ_INDEX_DATA* pObj, int value_num, char* arg
             break;
         case 2:
             if (atoi(argument) != 0) {
-                if (!get_obj_index(atoi(argument))) {
+                if (!get_object_prototype(atoi(argument))) {
                     send_to_char("THERE IS NO SUCH ITEM.\n\r\n\r", ch);
                     return false;
                 }
 
-                if (get_obj_index(atoi(argument))->item_type != ITEM_KEY) {
+                if (get_object_prototype(atoi(argument))->item_type != ITEM_KEY) {
                     send_to_char("THAT ITEM IS NOT A KEY.\n\r\n\r", ch);
                     return false;
                 }
@@ -2307,7 +2308,7 @@ bool set_obj_values(CharData* ch, OBJ_INDEX_DATA* pObj, int value_num, char* arg
 
 OEDIT(oedit_show)
 {
-    OBJ_INDEX_DATA* pObj;
+    ObjectPrototype* pObj;
     char buf[MAX_STRING_LENGTH];
     AFFECT_DATA* paf;
     int cnt;
@@ -2323,7 +2324,7 @@ OEDIT(oedit_show)
         }
     }
     else {
-        pObj = get_obj_index(atoi(buf));
+        pObj = get_object_prototype(atoi(buf));
 
         if (!pObj) {
             send_to_char("ERROR : That object does not exist.\n\r", ch);
@@ -2417,7 +2418,7 @@ OEDIT(oedit_show)
 OEDIT(oedit_addaffect)
 {
     int value;
-    OBJ_INDEX_DATA* pObj;
+    ObjectPrototype* pObj;
     AFFECT_DATA* pAf;
     char loc[MAX_STRING_LENGTH];
     char mod[MAX_STRING_LENGTH];
@@ -2458,7 +2459,7 @@ OEDIT(oedit_addapply)
 {
     bool rc = true;
     int value, bv, typ;
-    OBJ_INDEX_DATA* pObj;
+    ObjectPrototype* pObj;
     AFFECT_DATA* pAf;
     INIT_BUF(loc, MAX_STRING_LENGTH);
     INIT_BUF(mod, MAX_STRING_LENGTH);
@@ -2534,7 +2535,7 @@ oedit_addapply_cleanup:
  */
 OEDIT(oedit_delaffect)
 {
-    OBJ_INDEX_DATA* pObj;
+    ObjectPrototype* pObj;
     AFFECT_DATA* pAf;
     AFFECT_DATA* pAf_next;
     char affect[MAX_STRING_LENGTH];
@@ -2589,7 +2590,7 @@ OEDIT(oedit_delaffect)
     return true;
 }
 
-bool set_value(CharData* ch, OBJ_INDEX_DATA* pObj, char* argument, int value)
+bool set_value(CharData* ch, ObjectPrototype* pObj, char* argument, int value)
 {
     if (argument[0] == '\0') {
         set_obj_values(ch, pObj, -1, "");     /* '\0' changed to "" -- Hugin */
@@ -2611,7 +2612,7 @@ bool set_value(CharData* ch, OBJ_INDEX_DATA* pObj, char* argument, int value)
  ****************************************************************************/
 bool oedit_values(CharData* ch, char* argument, int value)
 {
-    OBJ_INDEX_DATA* pObj;
+    ObjectPrototype* pObj;
 
     EDIT_OBJ(ch, pObj);
 
@@ -2623,7 +2624,7 @@ bool oedit_values(CharData* ch, char* argument, int value)
 
 OEDIT(oedit_create)
 {
-    OBJ_INDEX_DATA* pObj;
+    ObjectPrototype* pObj;
     AREA_DATA* pArea;
     VNUM  value;
     int  iHash;
@@ -2645,12 +2646,12 @@ OEDIT(oedit_create)
         return false;
     }
 
-    if (get_obj_index(value)) {
+    if (get_object_prototype(value)) {
         send_to_char("OEdit:  Object vnum already exists.\n\r", ch);
         return false;
     }
 
-    pObj = new_obj_index();
+    pObj = new_object_prototype();
     pObj->vnum = value;
     pObj->area = pArea;
     pObj->extra_flags = 0;
@@ -2659,8 +2660,8 @@ OEDIT(oedit_create)
         top_vnum_obj = value;
 
     iHash = value % MAX_KEY_HASH;
-    pObj->next = obj_index_hash[iHash];
-    obj_index_hash[iHash] = pObj;
+    pObj->next = object_prototype_hash[iHash];
+    object_prototype_hash[iHash] = pObj;
 
     set_editor(ch->desc, ED_OBJECT, U(pObj));
 /*    ch->desc->pEdit		= (void *)pObj; */
@@ -2707,7 +2708,7 @@ MEDIT(medit_show)
     buffer = new_buf();
 
     sprintf(buf, "Name:        [%s]\n\rArea:        [%5d] %s\n\r",
-        pMob->player_name,
+        pMob->name,
         !pMob->area ? -1 : pMob->area->vnum,
         !pMob->area ? "No Area" : pMob->area->name);
     add_buf(buffer, buf);
@@ -2754,7 +2755,7 @@ MEDIT(medit_show)
     add_buf(buffer, buf);
 
     sprintf(buf, "Material:    [%16s] "
-        "Wealth:       [%5ld]\n\r",
+        "Wealth:       [%5d]\n\r",
         pMob->material,
         pMob->wealth);
     add_buf(buffer, buf);
@@ -2908,7 +2909,7 @@ MEDIT(medit_group)
             pMTemp = get_mob_prototype(temp);
             if (pMTemp && (pMTemp->group == atoi(argument))) {
                 found = true;
-                sprintf(buf, "[%5d] %s\n\r", pMTemp->vnum, pMTemp->player_name);
+                sprintf(buf, "[%5d] %s\n\r", pMTemp->vnum, pMTemp->name);
                 add_buf(buffer, buf);
             }
         }
@@ -3066,7 +3067,7 @@ REDIT(redit_owner)
     return true;
 }
 
-void showresets(CharData* ch, BUFFER* buf, AREA_DATA* pArea, MobPrototype* mob, OBJ_INDEX_DATA* obj)
+void showresets(CharData* ch, BUFFER* buf, AREA_DATA* pArea, MobPrototype* mob, ObjectPrototype* obj)
 {
     ROOM_INDEX_DATA* room;
     MobPrototype* pLastMob;
@@ -3089,7 +3090,7 @@ void showresets(CharData* ch, BUFFER* buf, AREA_DATA* pArea, MobPrototype* mob, 
                             return;
                         }
                         if (mob && lastmob == mob->vnum) {
-                            sprintf(buf2, "%-5d %-15.15s %-5d\n\r", lastmob, mob->player_name, room->vnum);
+                            sprintf(buf2, "%-5d %-15.15s %-5d\n\r", lastmob, mob->name, room->vnum);
                             add_buf(buf, buf2);
                         }
                     }
@@ -3098,7 +3099,7 @@ void showresets(CharData* ch, BUFFER* buf, AREA_DATA* pArea, MobPrototype* mob, 
                         add_buf(buf, buf2);
                     }
                     if (obj && (reset->command == 'G' || reset->command == 'E') && reset->arg1 == obj->vnum) {
-                        sprintf(buf2, "%-5d %-15.15s %-5d %-5d %-15.15s\n\r", obj->vnum, obj->name, room->vnum, lastmob, pLastMob ? pLastMob->player_name : "");
+                        sprintf(buf2, "%-5d %-15.15s %-5d %-5d %-15.15s\n\r", obj->vnum, obj->name, room->vnum, lastmob, pLastMob ? pLastMob->name : "");
                         add_buf(buf, buf2);
                     }
                 }
@@ -3107,13 +3108,13 @@ void showresets(CharData* ch, BUFFER* buf, AREA_DATA* pArea, MobPrototype* mob, 
 
 void listobjreset(CharData* ch, BUFFER* buf, AREA_DATA* pArea)
 {
-    OBJ_INDEX_DATA* obj;
+    ObjectPrototype* obj;
     int key;
 
     add_buf(buf, "#UVnum  Name            Room  On mob#u\n\r");
 
     for (key = 0; key < MAX_KEY_HASH; ++key)
-        for (obj = obj_index_hash[key]; obj; obj = obj->next)
+        for (obj = object_prototype_hash[key]; obj; obj = obj->next)
             if (obj->area == pArea)
                 showresets(ch, buf, pArea, 0, obj);
 }
@@ -3165,7 +3166,7 @@ REDIT(redit_listreset)
 
 REDIT(redit_checkobj)
 {
-    OBJ_INDEX_DATA* obj;
+    ObjectPrototype* obj;
     int key;
     bool fAll = !str_cmp(argument, "all");
     ROOM_INDEX_DATA* room;
@@ -3173,7 +3174,7 @@ REDIT(redit_checkobj)
     EDIT_ROOM(ch, room);
 
     for (key = 0; key < MAX_KEY_HASH; ++key)
-        for (obj = obj_index_hash[key]; obj; obj = obj->next)
+        for (obj = object_prototype_hash[key]; obj; obj = obj->next)
             if (obj->reset_num == 0 && (fAll || obj->area == room->area))
                 printf_to_char(ch, "Obj #B%-5.5d#b [%-20.20s] is not reset.\n\r", obj->vnum, obj->name);
 
@@ -3217,7 +3218,7 @@ REDIT(redit_checkmob)
     for (key = 0; key < MAX_KEY_HASH; ++key)
         for (mob = mob_prototype_hash[key]; mob; mob = mob->next)
             if (mob->reset_num == 0 && (fAll || mob->area == room->area))
-                printf_to_char(ch, "Mob #B%-5.5d#b [%-20.20s] has no resets.\n\r", mob->vnum, mob->player_name);
+                printf_to_char(ch, "Mob #B%-5.5d#b [%-20.20s] has no resets.\n\r", mob->vnum, mob->name);
 
     return false;
 }
@@ -3293,8 +3294,8 @@ MEDIT(medit_copy)
         return false;
     }
 
-    free_string(pMob->player_name);
-    pMob->player_name = str_dup(mob2->player_name);
+    free_string(pMob->name);
+    pMob->name = str_dup(mob2->name);
     free_string(pMob->short_descr);
     pMob->short_descr = str_dup(mob2->short_descr);
     free_string(pMob->long_descr);
@@ -3763,7 +3764,7 @@ ED_FUN_DEC(ed_gamespec)
 
 ED_FUN_DEC(ed_objrecval)
 {
-    OBJ_INDEX_DATA* pObj = (OBJ_INDEX_DATA*)arg;
+    ObjectPrototype* pObj = (ObjectPrototype*)arg;
 
     switch (pObj->item_type) {
     default:
@@ -4194,7 +4195,7 @@ ED_FUN_DEC(ed_addaffect)
 {
     int value;
     AFFECT_DATA* pAf;
-    OBJ_INDEX_DATA* pObj = (OBJ_INDEX_DATA*)arg;
+    ObjectPrototype* pObj = (ObjectPrototype*)arg;
     char loc[MAX_STRING_LENGTH];
     char mod[MAX_STRING_LENGTH];
 
@@ -4290,7 +4291,7 @@ ED_FUN_DEC(ed_addapply)
 {
     bool rc = true;
     int value, bv, typ;
-    OBJ_INDEX_DATA* pObj = (OBJ_INDEX_DATA*)arg;
+    ObjectPrototype* pObj = (ObjectPrototype*)arg;
     AFFECT_DATA* pAf;
     INIT_BUF(loc, MAX_STRING_LENGTH);
     INIT_BUF(mod, MAX_STRING_LENGTH);
@@ -4365,7 +4366,7 @@ ED_FUN_DEC(ed_value)
 
 ED_FUN_DEC(ed_new_obj)
 {
-    OBJ_INDEX_DATA* pObj;
+    ObjectPrototype* pObj;
     AREA_DATA* pArea;
     VNUM  value;
     int  iHash;
@@ -4389,12 +4390,12 @@ ED_FUN_DEC(ed_new_obj)
         return false;
     }
 
-    if (get_obj_index(value)) {
+    if (get_object_prototype(value)) {
         send_to_char("OEdit:  Object vnum already exists.\n\r", ch);
         return false;
     }
 
-    pObj = new_obj_index();
+    pObj = new_object_prototype();
     pObj->vnum = value;
     pObj->area = pArea;
     pObj->extra_flags = 0;
@@ -4403,8 +4404,8 @@ ED_FUN_DEC(ed_new_obj)
         top_vnum_obj = value;
 
     iHash = value % MAX_KEY_HASH;
-    pObj->next = obj_index_hash[iHash];
-    obj_index_hash[iHash] = pObj;
+    pObj->next = object_prototype_hash[iHash];
+    object_prototype_hash[iHash] = pObj;
 
     set_editor(ch->desc, ED_OBJECT, U(pObj));
 /*    ch->desc->pEdit		= (void *)pObj;
@@ -4475,7 +4476,7 @@ ED_FUN_DEC(ed_direccion)
 
 ED_FUN_DEC(ed_olist)
 {
-    OBJ_INDEX_DATA* pObjIndex;
+    ObjectPrototype* p_object_prototype;
     AREA_DATA* pArea;
     char		buf[MAX_STRING_LENGTH];
     BUFFER* buf1;
@@ -4497,12 +4498,12 @@ ED_FUN_DEC(ed_olist)
     found = false;
 
     for (vnum = pArea->min_vnum; vnum <= pArea->max_vnum; vnum++) {
-        if ((pObjIndex = get_obj_index(vnum))) {
-            if (fAll || is_name(blarg, pObjIndex->name)
-                || flag_value(type_flag_table, blarg) == pObjIndex->item_type) {
+        if ((p_object_prototype = get_object_prototype(vnum))) {
+            if (fAll || is_name(blarg, p_object_prototype->name)
+                || flag_value(type_flag_table, blarg) == p_object_prototype->item_type) {
                 found = true;
                 sprintf(buf, "[%5d] %-17.16s",
-                    pObjIndex->vnum, capitalize(pObjIndex->short_descr));
+                    p_object_prototype->vnum, capitalize(p_object_prototype->short_descr));
                 add_buf(buf1, buf);
                 if (++col % 3 == 0)
                     add_buf(buf1, "\n\r");

@@ -42,6 +42,7 @@
 #include "telnet.h"
 #include "vt.h"
 
+#include "entities/object_data.h"
 #include "entities/player_data.h"
 
 #include <ctype.h>
@@ -1667,7 +1668,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
             set_title(ch, buf);
 
             do_function(ch, &do_outfit, "");
-            obj_to_char(create_object(get_obj_index(OBJ_VNUM_MAP), 0), ch);
+            obj_to_char(create_object(get_object_prototype(OBJ_VNUM_MAP), 0), ch);
 
             char_to_room(ch, get_room_index(ROOM_VNUM_SCHOOL));
             send_to_char("\n\r", ch);
@@ -1801,7 +1802,7 @@ bool check_parse_name(char* name)
         for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
             for (p_mob_proto = mob_prototype_hash[iHash]; p_mob_proto != NULL;
                 p_mob_proto = p_mob_proto->next) {
-                if (is_name(name, p_mob_proto->player_name)) return false;
+                if (is_name(name, p_mob_proto->name)) return false;
             }
         }
     }
@@ -2125,8 +2126,8 @@ void act_new(const char* format, CharData * ch, const void* arg1,
 
     CharData* to;
     CharData* vch = (CharData*)arg2;
-    OBJ_DATA* obj1 = (OBJ_DATA*)arg1;
-    OBJ_DATA* obj2 = (OBJ_DATA*)arg2;
+    ObjectData* obj1 = (ObjectData*)arg1;
+    ObjectData* obj2 = (ObjectData*)arg2;
     const char* str;
     char* i = NULL;
     char* point;

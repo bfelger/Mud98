@@ -8,6 +8,7 @@
 #include "recycle.h"
 
 #include "char_data.h"
+#include "object_data.h"
 
 CharData* char_list;
 CharData* char_free;
@@ -16,8 +17,8 @@ int mobile_count = 0;
 
 void free_char_data(CharData* ch)
 {
-    OBJ_DATA* obj;
-    OBJ_DATA* obj_next = NULL;
+    ObjectData* obj;
+    ObjectData* obj_next = NULL;
     AFFECT_DATA* paf;
     AFFECT_DATA* paf_next = NULL;
 

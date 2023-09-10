@@ -39,6 +39,7 @@
 #include "mob_cmds.h"
 
 #include "entities/char_data.h"
+#include "entities/object_data.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -380,8 +381,8 @@ void do_mpassist(CharData* ch, char* argument)
 void do_mpjunk(CharData* ch, char* argument)
 {
     char      arg[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
-    OBJ_DATA* obj_next = NULL;
+    ObjectData* obj;
+    ObjectData* obj_next = NULL;
 
     one_argument(argument, arg);
 
@@ -506,8 +507,8 @@ void do_mpoload(CharData* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char arg3[MAX_INPUT_LENGTH];
-    OBJ_INDEX_DATA* pObjIndex;
-    OBJ_DATA* obj;
+    ObjectPrototype* p_object_prototype;
+    ObjectData* obj;
     LEVEL level;
     bool fToroom = false;
     bool fWear = false;
@@ -553,13 +554,13 @@ void do_mpoload(CharData* ch, char* argument)
     else if (arg3[0] == 'W' || arg3[0] == 'w')
         fWear = true;
 
-    if ((pObjIndex = get_obj_index(STRTOVNUM(arg1))) == NULL) {
+    if ((p_object_prototype = get_object_prototype(STRTOVNUM(arg1))) == NULL) {
         bug("Mpoload - Bad vnum arg from vnum %"PRVNUM".",
             IS_NPC(ch) ? ch->pIndexData->vnum : 0);
         return;
     }
 
-    obj = create_object(pObjIndex, level);
+    obj = create_object(p_object_prototype, level);
     if ((fWear || !fToroom) && CAN_WEAR(obj, ITEM_TAKE)) {
         obj_to_char(obj, ch);
         if (fWear)
@@ -583,14 +584,14 @@ void do_mppurge(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     CharData* victim;
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     one_argument(argument, arg);
 
     if (arg[0] == '\0') {
         /* 'purge' */
         CharData* vnext = NULL;
-        OBJ_DATA* obj_next = NULL;
+        ObjectData* obj_next = NULL;
 
         for (victim = ch->in_room->people; victim != NULL; victim = vnext) {
             vnext = victim->next_in_room;
@@ -672,7 +673,7 @@ void do_mpat(CharData* ch, char* argument)
     ROOM_INDEX_DATA* location;
     ROOM_INDEX_DATA* original;
     CharData* wch;
-    OBJ_DATA* on;
+    ObjectData* on;
 
     argument = one_argument(argument, arg);
 
@@ -947,7 +948,7 @@ void do_mpvforce(CharData* ch, char* argument)
 void do_mpcast(CharData* ch, char* argument)
 {
     CharData* vch;
-    OBJ_DATA* obj;
+    ObjectData* obj;
     void* victim = NULL;
     char spell[MAX_INPUT_LENGTH],
         target[MAX_INPUT_LENGTH];
@@ -1136,7 +1137,7 @@ void do_mpcall(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     CharData* vch;
-    OBJ_DATA* obj1, * obj2;
+    ObjectData* obj1, * obj2;
     MPROG_CODE* prg;
     extern void program_flow(VNUM, char*, CharData*, CharData*, const void*, const void*);
 
@@ -1206,7 +1207,7 @@ void do_mpflee(CharData* ch, char* argument)
  */
 void do_mpotransfer(CharData* ch, char* argument)
 {
-    OBJ_DATA* obj;
+    ObjectData* obj;
     ROOM_INDEX_DATA* location;
     char arg[MAX_INPUT_LENGTH];
     char buf[MAX_INPUT_LENGTH];
@@ -1244,8 +1245,8 @@ void do_mpotransfer(CharData* ch, char* argument)
 void do_mpremove(CharData* ch, char* argument)
 {
     CharData* victim;
-    OBJ_DATA* obj;
-    OBJ_DATA* obj_next = NULL;
+    ObjectData* obj;
+    ObjectData* obj_next = NULL;
     VNUM vnum = 0;
     bool fAll = false;
     char arg[MAX_INPUT_LENGTH];

@@ -31,6 +31,7 @@
 #include "interp.h"
 #include "music.h"
 
+#include "entities/object_data.h"
 #include "entities/player_data.h"
 
 #include <stdio.h>
@@ -400,8 +401,8 @@ void mobile_update(void)
         /* Scavenge */
         if (IS_SET(ch->act, ACT_SCAVENGER) && ch->in_room->contents != NULL
             && number_bits(6) == 0) {
-            OBJ_DATA* obj;
-            OBJ_DATA* obj_best;
+            ObjectData* obj;
+            ObjectData* obj_best;
             int max;
 
             max = 1;
@@ -618,7 +619,7 @@ void char_update(void)
         if (ch->position == POS_STUNNED) update_pos(ch);
 
         if (!IS_NPC(ch) && ch->level < LEVEL_IMMORTAL) {
-            OBJ_DATA* obj;
+            ObjectData* obj;
 
             if ((obj = get_eq_char(ch, WEAR_LIGHT)) != NULL
                 && obj->item_type == ITEM_LIGHT && obj->value[2] > 0) {
@@ -777,8 +778,8 @@ void char_update(void)
  */
 void obj_update(void)
 {
-    OBJ_DATA* obj;
-    OBJ_DATA* obj_next = NULL;
+    ObjectData* obj;
+    ObjectData* obj_next = NULL;
     AFFECT_DATA* paf;
     AFFECT_DATA* paf_next = NULL;
 
@@ -876,8 +877,8 @@ void obj_update(void)
 
         if ((obj->item_type == ITEM_CORPSE_PC || obj->wear_loc == WEAR_FLOAT)
             && obj->contains) { /* save the contents */
-            OBJ_DATA* t_obj;
-            OBJ_DATA* next_obj = NULL;
+            ObjectData* t_obj;
+            ObjectData* next_obj = NULL;
 
             for (t_obj = obj->contains; t_obj != NULL; t_obj = next_obj) {
                 next_obj = t_obj->next_content;

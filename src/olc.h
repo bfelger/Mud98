@@ -382,7 +382,7 @@ DECLARE_ED_FUN(ed_objrecval);
 
 /* Return pointers to what is being edited. */
 #define EDIT_MOB(Ch, Mob)	( Mob = (MobPrototype *)Ch->desc->pEdit )
-#define EDIT_OBJ(Ch, Obj)	( Obj = (OBJ_INDEX_DATA *)Ch->desc->pEdit )
+#define EDIT_OBJ(Ch, Obj)	( Obj = (ObjectPrototype *)Ch->desc->pEdit )
 #define EDIT_ROOM(Ch, Room)	( Room = (ROOM_INDEX_DATA *)Ch->desc->pEdit )
 #define EDIT_AREA(Ch, Area)	( Area = (AREA_DATA *)Ch->desc->pEdit )
 #define EDIT_CLAN(Ch, Clan)	( Clan = (CLAN_TYPE *)Ch->desc->pEdit )
@@ -413,8 +413,8 @@ AFFECT_DATA*    new_affect          args((void));
 void            free_affect         args((AFFECT_DATA* pAf));
 SHOP_DATA*      new_shop            args((void));
 void            free_shop           args((SHOP_DATA* pShop));
-OBJ_INDEX_DATA* new_obj_index       args((void));
-void            free_obj_index      args((OBJ_INDEX_DATA* pObj));
+ObjectPrototype* new_object_prototype       args((void));
+void            free_object_prototype      args((ObjectPrototype* pObj));
 #undef	ED
 
 MPROG_LIST*     new_mprog           args((void));
@@ -431,7 +431,7 @@ void		    show_sizelist		args((CharData* ch));
 
 extern		    ROOM_INDEX_DATA 	xRoom;
 extern		    MobPrototype 		xMob;
-extern		    OBJ_INDEX_DATA		xObj;
+extern		    ObjectPrototype		xObj;
 
 extern void     InitScreen		    args((DESCRIPTOR_DATA*));
 

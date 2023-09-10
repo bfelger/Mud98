@@ -29,6 +29,7 @@
 
 #include "interp.h"
 
+#include "entities/object_data.h"
 #include "entities/player_data.h"
 
 #include <stdio.h>
@@ -120,7 +121,7 @@ void move_char(CharData* ch, int door, bool follow)
         if ((in_room->sector_type == SECT_WATER_NOSWIM
              || to_room->sector_type == SECT_WATER_NOSWIM)
             && !IS_AFFECTED(ch, AFF_FLYING)) {
-            OBJ_DATA* obj;
+            ObjectData* obj;
             bool found;
 
             /*
@@ -291,7 +292,7 @@ int find_door(CharData* ch, char* arg)
 void do_open(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
+    ObjectData* obj;
     int door;
 
     one_argument(argument, arg);
@@ -387,7 +388,7 @@ void do_open(CharData* ch, char* argument)
 void do_close(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
+    ObjectData* obj;
     int door;
 
     one_argument(argument, arg);
@@ -470,7 +471,7 @@ void do_close(CharData* ch, char* argument)
 
 bool has_key(CharData* ch, int key)
 {
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
         if (obj->pIndexData->vnum == key) return true;
@@ -482,7 +483,7 @@ bool has_key(CharData* ch, int key)
 void do_lock(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
+    ObjectData* obj;
     int door;
 
     one_argument(argument, arg);
@@ -596,7 +597,7 @@ void do_lock(CharData* ch, char* argument)
 void do_unlock(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
+    ObjectData* obj;
     int door;
 
     one_argument(argument, arg);
@@ -711,7 +712,7 @@ void do_pick(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     CharData* gch;
-    OBJ_DATA* obj;
+    ObjectData* obj;
     int door;
 
     one_argument(argument, arg);
@@ -839,7 +840,7 @@ void do_pick(CharData* ch, char* argument)
 
 void do_stand(CharData* ch, char* argument)
 {
-    OBJ_DATA* obj = NULL;
+    ObjectData* obj = NULL;
 
     if (argument[0] != '\0') {
         if (ch->position == POS_FIGHTING) {
@@ -933,7 +934,7 @@ void do_stand(CharData* ch, char* argument)
 
 void do_rest(CharData* ch, char* argument)
 {
-    OBJ_DATA* obj = NULL;
+    ObjectData* obj = NULL;
 
     if (ch->position == POS_FIGHTING) {
         send_to_char("You are already fighting!\n\r", ch);
@@ -1048,7 +1049,7 @@ void do_rest(CharData* ch, char* argument)
 
 void do_sit(CharData* ch, char* argument)
 {
-    OBJ_DATA* obj = NULL;
+    ObjectData* obj = NULL;
 
     if (ch->position == POS_FIGHTING) {
         send_to_char("Maybe you should finish this fight first?\n\r", ch);
@@ -1153,7 +1154,7 @@ void do_sit(CharData* ch, char* argument)
 
 void do_sleep(CharData* ch, char* argument)
 {
-    OBJ_DATA* obj = NULL;
+    ObjectData* obj = NULL;
 
     switch (ch->position) {
     case POS_SLEEPING:

@@ -29,6 +29,7 @@
 
 #include "interp.h"
 
+#include "entities/object_data.h"
 #include "entities/player_data.h"
 
 #include <stdio.h>
@@ -366,7 +367,7 @@ void mob_hit(CharData* ch, CharData* victim, SKNUM dt)
  */
 void one_hit(CharData* ch, CharData* victim, SKNUM dt)
 {
-    OBJ_DATA* wield;
+    ObjectData* wield;
     int victim_ac;
     int thac0;
     int thac0_00;
@@ -656,7 +657,7 @@ void one_hit(CharData* ch, CharData* victim, SKNUM dt)
 bool damage(CharData* ch, CharData* victim, int dam, SKNUM dt, 
     DamageType dam_type, bool show)
 {
-    OBJ_DATA* corpse;
+    ObjectData* corpse;
     bool immune;
 
     if (victim->position == POS_DEAD) return false;
@@ -668,7 +669,7 @@ bool damage(CharData* ch, CharData* victim, int dam, SKNUM dt,
         bug("Damage: %d: more than 1200 points!", dam);
         dam = 1200;
         if (!IS_IMMORTAL(ch)) {
-            OBJ_DATA* obj;
+            ObjectData* obj;
             obj = get_eq_char(ch, WEAR_WIELD);
             send_to_char("You really shouldn't cheat.\n\r", ch);
             if (obj != NULL) extract_obj(obj);
@@ -872,7 +873,7 @@ bool damage(CharData* ch, CharData* victim, int dam, SKNUM dt,
                    != NULL
             && corpse->item_type == ITEM_CORPSE_NPC
             && can_see_obj(ch, corpse)) {
-            OBJ_DATA* coins;
+            ObjectData* coins;
 
             corpse = get_obj_list(ch, "corpse", ch->in_room->contents);
 
@@ -1305,14 +1306,14 @@ void stop_fighting(CharData* ch, bool fBoth)
 void make_corpse(CharData* ch)
 {
     char buf[MAX_STRING_LENGTH];
-    OBJ_DATA* corpse;
-    OBJ_DATA* obj;
-    OBJ_DATA* obj_next = NULL;
+    ObjectData* corpse;
+    ObjectData* obj;
+    ObjectData* obj_next = NULL;
     char* name;
 
     if (IS_NPC(ch)) {
         name = ch->short_descr;
-        corpse = create_object(get_obj_index(OBJ_VNUM_CORPSE_NPC), 0);
+        corpse = create_object(get_object_prototype(OBJ_VNUM_CORPSE_NPC), 0);
         corpse->timer = (int16_t)number_range(3, 6);
         if (ch->gold > 0) {
             obj_to_obj(create_money(ch->gold, ch->silver), corpse);
@@ -1323,7 +1324,7 @@ void make_corpse(CharData* ch)
     }
     else {
         name = ch->name;
-        corpse = create_object(get_obj_index(OBJ_VNUM_CORPSE_PC), 0);
+        corpse = create_object(get_object_prototype(OBJ_VNUM_CORPSE_PC), 0);
         corpse->timer = (int16_t)number_range(25, 40);
         REMOVE_BIT(ch->act, PLR_CANLOOT);
         if (!is_clan(ch))
@@ -1372,8 +1373,8 @@ void make_corpse(CharData* ch)
             if (IS_OBJ_STAT(obj, ITEM_ROT_DEATH)) /* get rid of it! */
             {
                 if (obj->contains != NULL) {
-                    OBJ_DATA* in;
-                    OBJ_DATA* in_next = NULL;
+                    ObjectData* in;
+                    ObjectData* in_next = NULL;
 
                     act("$p evaporates,scattering its contents.", ch, obj, NULL,
                         TO_ROOM);
@@ -1463,11 +1464,11 @@ void death_cry(CharData* ch)
 
     if (vnum != 0) {
         char buf[MAX_STRING_LENGTH];
-        OBJ_DATA* obj;
+        ObjectData* obj;
         char* name;
 
         name = IS_NPC(ch) ? ch->short_descr : ch->name;
-        obj = create_object(get_obj_index(vnum), 0);
+        obj = create_object(get_object_prototype(vnum), 0);
         obj->timer = (int16_t)number_range(4, 7);
 
         SPRINTF_CORPSE_SDESC(buf, vnum - OBJ_VNUM_CORPSE_NPC, name);
@@ -1566,8 +1567,8 @@ void group_gain(CharData* ch, CharData* victim)
     }
 
     for (gch = ch->in_room->people; gch != NULL; gch = gch->next_in_room) {
-        OBJ_DATA* obj;
-        OBJ_DATA* obj_next = NULL;
+        ObjectData* obj;
+        ObjectData* obj_next = NULL;
 
         if (!is_same_group(gch, ch) || IS_NPC(gch)) continue;
 
@@ -1979,7 +1980,7 @@ void dam_message(CharData* ch, CharData* victim, int dam, int dt, bool immune)
  */
 void disarm(CharData* ch, CharData* victim)
 {
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     if ((obj = get_eq_char(victim, WEAR_WIELD)) == NULL) return;
 
@@ -2565,7 +2566,7 @@ void do_backstab(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     CharData* victim;
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     one_argument(argument, arg);
 
@@ -2771,7 +2772,7 @@ void do_kick(CharData* ch, char* argument)
 void do_disarm(CharData* ch, char* argument)
 {
     CharData* victim;
-    OBJ_DATA* obj;
+    ObjectData* obj;
     int chance, hth, ch_weapon, vict_weapon, ch_vict_weapon;
 
     hth = 0;

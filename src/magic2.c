@@ -31,6 +31,7 @@
 #include "magic.h"
 
 #include "entities/char_data.h"
+#include "entities/object_data.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,7 +54,7 @@ void spell_farsight(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 void spell_portal(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
     CharData* victim;
-    OBJ_DATA *portal, *stone;
+    ObjectData *portal, *stone;
 
     if ((victim = get_char_world(ch, target_name)) == NULL || victim == ch
         || victim->in_room == NULL || !can_see_room(ch, victim->in_room)
@@ -84,7 +85,7 @@ void spell_portal(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
         extract_obj(stone);
     }
 
-    portal = create_object(get_obj_index(OBJ_VNUM_PORTAL), 0);
+    portal = create_object(get_object_prototype(OBJ_VNUM_PORTAL), 0);
     portal->timer = 2 + (int16_t)level / 25;
     portal->value[3] = victim->in_room->vnum;
 
@@ -97,7 +98,7 @@ void spell_portal(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 void spell_nexus(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
     CharData* victim;
-    OBJ_DATA *portal, *stone;
+    ObjectData *portal, *stone;
     ROOM_INDEX_DATA *to_room, *from_room;
 
     from_room = ch->in_room;
@@ -134,7 +135,7 @@ void spell_nexus(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
     }
 
     /* portal one */
-    portal = create_object(get_obj_index(OBJ_VNUM_PORTAL), 0);
+    portal = create_object(get_object_prototype(OBJ_VNUM_PORTAL), 0);
     portal->timer = 1 + (int16_t)level / 10;
     portal->value[3] = to_room->vnum;
 
@@ -147,7 +148,7 @@ void spell_nexus(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
     if (to_room == from_room) return;
 
     /* portal two */
-    portal = create_object(get_obj_index(OBJ_VNUM_PORTAL), 0);
+    portal = create_object(get_object_prototype(OBJ_VNUM_PORTAL), 0);
     portal->timer = 1 + (int16_t)level / 10;
     portal->value[3] = from_room->vnum;
 

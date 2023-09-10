@@ -37,6 +37,8 @@
 #include "tables.h"
 #include "vt.h"
 
+#include "entities/object_data.h"
+
 #include <ctype.h>
 #include <errno.h>
 #include <malloc.h>
@@ -77,13 +79,13 @@ char* print_flags(int flag)
  * Array of containers read for proper re-nesting of objects.
  */
 #define MAX_NEST 100
-static OBJ_DATA* rgObjNest[MAX_NEST];
+static ObjectData* rgObjNest[MAX_NEST];
 
 /*
  * Local functions.
  */
 void fwrite_char(CharData * ch, FILE* fp);
-void fwrite_obj(CharData * ch, OBJ_DATA* obj, FILE* fp, int iNest);
+void fwrite_obj(CharData * ch, ObjectData* obj, FILE* fp, int iNest);
 void fwrite_pet(CharData * pet, FILE* fp);
 void fwrite_themes(CharData* ch, FILE* fp);
 void fread_char(CharData * ch, FILE* fp);
@@ -382,7 +384,7 @@ void fwrite_pet(CharData* pet, FILE* fp)
 /*
  * Write an object and its contents.
  */
-void fwrite_obj(CharData* ch, OBJ_DATA* obj, FILE* fp, int iNest)
+void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
 {
     EXTRA_DESCR_DATA* ed;
     AFFECT_DATA* paf;
@@ -1308,7 +1310,7 @@ void fread_pet(CharData* ch, FILE* fp)
 
 void fread_obj(CharData* ch, FILE* fp)
 {
-    OBJ_DATA* obj;
+    ObjectData* obj;
     char* word;
     int iNest;
     bool fMatch;
@@ -1330,18 +1332,18 @@ void fread_obj(CharData* ch, FILE* fp)
         first = false; /* fp will be in right place */
 
         vnum = fread_vnum(fp);
-        if (get_obj_index(vnum) == NULL) {
+        if (get_object_prototype(vnum) == NULL) {
             bug("Fread_obj: bad vnum %"PRVNUM".", vnum);
         }
         else {
-            obj = create_object(get_obj_index(vnum), -1);
+            obj = create_object(get_object_prototype(vnum), -1);
             new_format = true;
         }
     }
 
     if (obj == NULL) /* either not found or old style */
     {
-        obj = new_obj();
+        obj = new_object();
         obj->name = str_dup("");
         obj->short_descr = str_dup("");
         obj->description = str_dup("");
@@ -1448,13 +1450,13 @@ void fread_obj(CharData* ch, FILE* fp)
             if (!str_cmp(word, "End")) {
                 if (!fNest || (fVnum && obj->pIndexData == NULL)) {
                     bug("Fread_obj: incomplete object.", 0);
-                    free_obj(obj);
+                    free_object(obj);
                     return;
                 }
                 else {
                     if (!fVnum) {
-                        free_obj(obj);
-                        obj = create_object(get_obj_index(OBJ_VNUM_DUMMY), 0);
+                        free_object(obj);
+                        obj = create_object(get_object_prototype(OBJ_VNUM_DUMMY), 0);
                     }
 
                     if (!new_format) {
@@ -1576,7 +1578,7 @@ void fread_obj(CharData* ch, FILE* fp)
                 VNUM vnum;
 
                 vnum = fread_vnum(fp);
-                if ((obj->pIndexData = get_obj_index(vnum)) == NULL)
+                if ((obj->pIndexData = get_object_prototype(vnum)) == NULL)
                     bug("Fread_obj: bad vnum %"PRVNUM".", vnum);
                 else
                     fVnum = true;

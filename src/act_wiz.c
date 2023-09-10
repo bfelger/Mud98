@@ -33,6 +33,7 @@
 #include "recycle.h"
 #include "tables.h"
 
+#include "entities/object_data.h"
 #include "entities/player_data.h"
 
 #include <stdio.h>
@@ -139,7 +140,7 @@ void do_wiznet(CharData* ch, char* argument)
     }
 }
 
-void wiznet(char* string, CharData* ch, OBJ_DATA* obj, long flag,
+void wiznet(char* string, CharData* ch, ObjectData* obj, long flag,
             long flag_skip, int min_level)
 {
     DESCRIPTOR_DATA* d;
@@ -213,7 +214,7 @@ void do_guild(CharData* ch, char* argument)
 /* equips a character */
 void do_outfit(CharData* ch, char* argument)
 {
-    OBJ_DATA* obj;
+    ObjectData* obj;
     int i, sn;
     VNUM vnum;
 
@@ -223,14 +224,14 @@ void do_outfit(CharData* ch, char* argument)
     }
 
     if ((obj = get_eq_char(ch, WEAR_LIGHT)) == NULL) {
-        obj = create_object(get_obj_index(OBJ_VNUM_SCHOOL_BANNER), 0);
+        obj = create_object(get_object_prototype(OBJ_VNUM_SCHOOL_BANNER), 0);
         obj->cost = 0;
         obj_to_char(obj, ch);
         equip_char(ch, obj, WEAR_LIGHT);
     }
 
     if ((obj = get_eq_char(ch, WEAR_BODY)) == NULL) {
-        obj = create_object(get_obj_index(OBJ_VNUM_SCHOOL_VEST), 0);
+        obj = create_object(get_object_prototype(OBJ_VNUM_SCHOOL_VEST), 0);
         obj->cost = 0;
         obj_to_char(obj, ch);
         equip_char(ch, obj, WEAR_BODY);
@@ -249,7 +250,7 @@ void do_outfit(CharData* ch, char* argument)
             }
         }
 
-        obj = create_object(get_obj_index(vnum), 0);
+        obj = create_object(get_object_prototype(vnum), 0);
         obj_to_char(obj, ch);
         equip_char(ch, obj, WEAR_WIELD);
     }
@@ -257,7 +258,7 @@ void do_outfit(CharData* ch, char* argument)
     if (((obj = get_eq_char(ch, WEAR_WIELD)) == NULL
          || !IS_WEAPON_STAT(obj, WEAPON_TWO_HANDS))
         && (obj = get_eq_char(ch, WEAR_SHIELD)) == NULL) {
-        obj = create_object(get_obj_index(OBJ_VNUM_SCHOOL_SHIELD), 0);
+        obj = create_object(get_object_prototype(OBJ_VNUM_SCHOOL_SHIELD), 0);
         obj->cost = 0;
         obj_to_char(obj, ch);
         equip_char(ch, obj, WEAR_SHIELD);
@@ -670,7 +671,7 @@ void do_pecho(CharData* ch, char* argument)
 ROOM_INDEX_DATA* find_location(CharData* ch, char* arg)
 {
     CharData* victim;
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     if (is_number(arg)) 
         return get_room_index(STRTOVNUM(arg));
@@ -758,7 +759,7 @@ void do_at(CharData* ch, char* argument)
     char arg[MAX_INPUT_LENGTH];
     ROOM_INDEX_DATA* location;
     ROOM_INDEX_DATA* original;
-    OBJ_DATA* on;
+    ObjectData* on;
     CharData* wch;
 
     argument = one_argument(argument, arg);
@@ -906,7 +907,7 @@ void do_stat(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char* string;
-    OBJ_DATA* obj;
+    ObjectData* obj;
     ROOM_INDEX_DATA* location;
     CharData* victim;
 
@@ -963,7 +964,7 @@ void do_rstat(CharData* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
     ROOM_INDEX_DATA* location;
-    OBJ_DATA* obj;
+    ObjectData* obj;
     CharData* rch;
     int door;
 
@@ -1046,7 +1047,7 @@ void do_ostat(CharData* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
     AFFECT_DATA* paf;
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     one_argument(argument, arg);
 
@@ -1573,7 +1574,7 @@ void do_mfind(CharData* ch, char* argument)
     for (vnum = 0; nMatch < top_mob_prototype; vnum++) {
         if ((p_mob_proto = get_mob_prototype(vnum)) != NULL) {
             nMatch++;
-            if (fAll || is_name(argument, p_mob_proto->player_name)) {
+            if (fAll || is_name(argument, p_mob_proto->name)) {
                 found = true;
                 sprintf(buf, "[%5d] %s\n\r", p_mob_proto->vnum,
                         p_mob_proto->short_descr);
@@ -1589,10 +1590,9 @@ void do_mfind(CharData* ch, char* argument)
 
 void do_ofind(CharData* ch, char* argument)
 {
-    extern int top_obj_index;
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    OBJ_INDEX_DATA* pObjIndex;
+    ObjectPrototype* p_object_prototype;
     VNUM vnum;
     int nMatch;
     bool fAll;
@@ -1610,17 +1610,17 @@ void do_ofind(CharData* ch, char* argument)
 
     /*
      * Yeah, so iterating over all vnum's takes 10,000 loops.
-     * Get_obj_index is fast, and I don't feel like threading another link.
+     * Get_object_prototype is fast, and I don't feel like threading another link.
      * Do you?
      * -- Furey
      */
-    for (vnum = 0; nMatch < top_obj_index; vnum++) {
-        if ((pObjIndex = get_obj_index(vnum)) != NULL) {
+    for (vnum = 0; nMatch < top_object_prototype; vnum++) {
+        if ((p_object_prototype = get_object_prototype(vnum)) != NULL) {
             nMatch++;
-            if (fAll || is_name(argument, pObjIndex->name)) {
+            if (fAll || is_name(argument, p_object_prototype->name)) {
                 found = true;
-                sprintf(buf, "[%5d] %s\n\r", pObjIndex->vnum,
-                        pObjIndex->short_descr);
+                sprintf(buf, "[%5d] %s\n\r", p_object_prototype->vnum,
+                        p_object_prototype->short_descr);
                 send_to_char(buf, ch);
             }
         }
@@ -1635,8 +1635,8 @@ void do_owhere(CharData* ch, char* argument)
 {
     char buf[MAX_INPUT_LENGTH];
     BUFFER* buffer;
-    OBJ_DATA* obj;
-    OBJ_DATA* in_obj;
+    ObjectData* obj;
+    ObjectData* in_obj;
     bool found;
     int number = 0, max_found;
 
@@ -1994,7 +1994,7 @@ void do_return(CharData* ch, char* argument)
 }
 
 /* trust levels for load and clone */
-bool obj_check(CharData* ch, OBJ_DATA* obj)
+bool obj_check(CharData* ch, ObjectData* obj)
 {
     if (IS_TRUSTED(ch, GOD)
         || (IS_TRUSTED(ch, IMMORTAL) && obj->level <= 20 && obj->cost <= 1000)
@@ -2007,9 +2007,9 @@ bool obj_check(CharData* ch, OBJ_DATA* obj)
 }
 
 /* for clone, to insure that cloning goes many levels deep */
-void recursive_clone(CharData* ch, OBJ_DATA* obj, OBJ_DATA* clone)
+void recursive_clone(CharData* ch, ObjectData* obj, ObjectData* clone)
 {
-    OBJ_DATA *c_obj, *t_obj;
+    ObjectData *c_obj, *t_obj;
 
     for (c_obj = obj->contains; c_obj != NULL; c_obj = c_obj->next_content) {
         if (obj_check(ch, c_obj)) {
@@ -2027,7 +2027,7 @@ void do_clone(CharData* ch, char* argument)
     char arg[MAX_INPUT_LENGTH];
     char* rest;
     CharData* mob;
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     rest = one_argument(argument, arg);
 
@@ -2064,7 +2064,7 @@ void do_clone(CharData* ch, char* argument)
 
     /* clone an object */
     if (obj != NULL) {
-        OBJ_DATA* clone;
+        ObjectData* clone;
 
         if (!obj_check(ch, obj)) {
             send_to_char(
@@ -2087,7 +2087,7 @@ void do_clone(CharData* ch, char* argument)
     }
     else if (mob != NULL) {
         CharData* clone;
-        OBJ_DATA* new_obj;
+        ObjectData* new_object;
         char buf[MAX_STRING_LENGTH];
 
         if (!IS_NPC(mob)) {
@@ -2110,11 +2110,11 @@ void do_clone(CharData* ch, char* argument)
 
         for (obj = mob->carrying; obj != NULL; obj = obj->next_content) {
             if (obj_check(ch, obj)) {
-                new_obj = create_object(obj->pIndexData, 0);
-                clone_object(obj, new_obj);
-                recursive_clone(ch, obj, new_obj);
-                obj_to_char(new_obj, clone);
-                new_obj->wear_loc = obj->wear_loc;
+                new_object = create_object(obj->pIndexData, 0);
+                clone_object(obj, new_object);
+                recursive_clone(ch, obj, new_object);
+                obj_to_char(new_object, clone);
+                new_object->wear_loc = obj->wear_loc;
             }
         }
         char_to_room(clone, ch->in_room);
@@ -2185,8 +2185,8 @@ void do_mload(CharData* ch, char* argument)
 void do_oload(CharData* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
-    OBJ_INDEX_DATA* pObjIndex;
-    OBJ_DATA* obj;
+    ObjectPrototype* p_object_prototype;
+    ObjectData* obj;
     LEVEL level;
 
     argument = one_argument(argument, arg1);
@@ -2212,12 +2212,12 @@ void do_oload(CharData* ch, char* argument)
         }
     }
 
-    if ((pObjIndex = get_obj_index(STRTOVNUM(arg1))) == NULL) {
+    if ((p_object_prototype = get_object_prototype(STRTOVNUM(arg1))) == NULL) {
         send_to_char("No object has that vnum.\n\r", ch);
         return;
     }
 
-    obj = create_object(pObjIndex, level);
+    obj = create_object(p_object_prototype, level);
     if (CAN_WEAR(obj, ITEM_TAKE))
         obj_to_char(obj, ch);
     else
@@ -2233,7 +2233,7 @@ void do_purge(CharData* ch, char* argument)
     char arg[MAX_INPUT_LENGTH];
     char buf[100];
     CharData* victim;
-    OBJ_DATA* obj;
+    ObjectData* obj;
     DESCRIPTOR_DATA* d;
 
     one_argument(argument, arg);
@@ -2241,7 +2241,7 @@ void do_purge(CharData* ch, char* argument)
     if (arg[0] == '\0') {
         /* 'purge' */
         CharData* vnext = NULL;
-        OBJ_DATA* obj_next = NULL;
+        ObjectData* obj_next = NULL;
 
         for (victim = ch->in_room->people; victim != NULL; victim = vnext) {
             vnext = victim->next_in_room;
@@ -3247,7 +3247,7 @@ void do_string(CharData* ch, char* argument)
     char arg2[MAX_INPUT_LENGTH];
     char arg3[MAX_INPUT_LENGTH];
     CharData* victim;
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     smash_tilde(argument);
     argument = one_argument(argument, type);
@@ -3387,7 +3387,7 @@ void do_oset(CharData* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char arg3[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
+    ObjectData* obj;
     int value;
 
     smash_tilde(argument);

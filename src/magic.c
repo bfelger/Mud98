@@ -31,6 +31,7 @@
 #include "magic.h"
 #include "recycle.h"
 
+#include "entities/object_data.h"
 #include "entities/player_data.h"
 
 #include <stdio.h>
@@ -46,7 +47,7 @@ void say_spell(CharData * ch, SKNUM sn);
 
 /* imported functions */
 bool remove_obj(CharData* ch, int iWear, bool fReplace);
-void wear_obj(CharData* ch, OBJ_DATA* obj, bool fReplace);
+void wear_obj(CharData* ch, ObjectData* obj, bool fReplace);
 
 /*
  * Lookup a skill by name.
@@ -254,7 +255,7 @@ void do_cast(CharData* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     CharData* victim;
-    OBJ_DATA* obj;
+    ObjectData* obj;
     void* vo;
     int mana;
     SKNUM sn;
@@ -492,7 +493,7 @@ void do_cast(CharData* ch, char* argument)
  * Cast spells at targets using a magical object.
  */
 void obj_cast_spell(SKNUM sn, LEVEL level, CharData* ch, CharData* victim,
-                    OBJ_DATA* obj)
+                    ObjectData* obj)
 {
     void* vo;
     int target = TARGET_NONE;
@@ -651,12 +652,12 @@ void spell_armor(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 void spell_bless(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
     CharData* victim;
-    OBJ_DATA* obj;
+    ObjectData* obj;
     AFFECT_DATA af = { 0 };
 
     /* deal with the object case first */
     if (target == TARGET_OBJ) {
-        obj = (OBJ_DATA*)vo;
+        obj = (ObjectData*)vo;
         if (IS_OBJ_STAT(obj, ITEM_BLESS)) {
             act("$p is already blessed.", ch, obj, NULL, TO_CHAR);
             return;
@@ -1224,7 +1225,7 @@ void spell_colour_spray(SKNUM sn, LEVEL level, CharData* ch, void* vo, int targe
 void spell_continual_light(SKNUM sn, LEVEL level, CharData* ch, void* vo,
                            int target)
 {
-    OBJ_DATA* light;
+    ObjectData* light;
 
     if (target_name[0] != '\0') /* do a glow on some object */
     {
@@ -1245,7 +1246,7 @@ void spell_continual_light(SKNUM sn, LEVEL level, CharData* ch, void* vo,
         return;
     }
 
-    light = create_object(get_obj_index(OBJ_VNUM_LIGHT_BALL), 0);
+    light = create_object(get_object_prototype(OBJ_VNUM_LIGHT_BALL), 0);
     obj_to_room(light, ch->in_room);
     act("$n twiddles $s thumbs and $p appears.", ch, light, NULL, TO_ROOM);
     act("You twiddle your thumbs and $p appears.", ch, light, NULL, TO_CHAR);
@@ -1268,9 +1269,9 @@ void spell_control_weather(SKNUM sn, LEVEL level, CharData* ch, void* vo,
 
 void spell_create_food(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
-    OBJ_DATA* mushroom;
+    ObjectData* mushroom;
 
-    mushroom = create_object(get_obj_index(OBJ_VNUM_MUSHROOM), 0);
+    mushroom = create_object(get_object_prototype(OBJ_VNUM_MUSHROOM), 0);
     mushroom->value[0] = level / 2;
     mushroom->value[1] = level;
     obj_to_room(mushroom, ch->in_room);
@@ -1281,8 +1282,8 @@ void spell_create_food(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target
 
 void spell_create_rose(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
-    OBJ_DATA* rose;
-    rose = create_object(get_obj_index(OBJ_VNUM_ROSE), 0);
+    ObjectData* rose;
+    rose = create_object(get_object_prototype(OBJ_VNUM_ROSE), 0);
     act("$n has created a beautiful red rose.", ch, rose, NULL, TO_ROOM);
     send_to_char("You create a beautiful red rose.\n\r", ch);
     obj_to_char(rose, ch);
@@ -1291,9 +1292,9 @@ void spell_create_rose(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target
 
 void spell_create_spring(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
-    OBJ_DATA* spring;
+    ObjectData* spring;
 
-    spring = create_object(get_obj_index(OBJ_VNUM_SPRING), 0);
+    spring = create_object(get_object_prototype(OBJ_VNUM_SPRING), 0);
     spring->timer = (int16_t)level;
     obj_to_room(spring, ch->in_room);
     act("$p flows from the ground.", ch, spring, NULL, TO_ROOM);
@@ -1303,7 +1304,7 @@ void spell_create_spring(SKNUM sn, LEVEL level, CharData* ch, void* vo, int targ
 
 void spell_create_water(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
-    OBJ_DATA* obj = (OBJ_DATA*)vo;
+    ObjectData* obj = (ObjectData*)vo;
     int water;
 
     if (obj->item_type != ITEM_DRINK_CON) {
@@ -1440,12 +1441,12 @@ void spell_cure_serious(SKNUM sn, LEVEL level, CharData* ch, void* vo, int targe
 void spell_curse(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
     CharData* victim;
-    OBJ_DATA* obj;
+    ObjectData* obj;
     AFFECT_DATA af = { 0 };
 
     /* deal with the object case first */
     if (target == TARGET_OBJ) {
-        obj = (OBJ_DATA*)vo;
+        obj = (ObjectData*)vo;
         if (IS_OBJ_STAT(obj, ITEM_EVIL)) {
             act("$p is already filled with evil.", ch, obj, NULL, TO_CHAR);
             return;
@@ -1667,7 +1668,7 @@ void spell_detect_magic(SKNUM sn, LEVEL level, CharData* ch, void* vo, int targe
 
 void spell_detect_poison(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
-    OBJ_DATA* obj = (OBJ_DATA*)vo;
+    ObjectData* obj = (ObjectData*)vo;
 
     if (obj->item_type == ITEM_DRINK_CON || obj->item_type == ITEM_FOOD) {
         if (obj->value[3] != 0)
@@ -1912,7 +1913,7 @@ void spell_earthquake(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 
 void spell_enchant_armor(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
-    OBJ_DATA* obj = (OBJ_DATA*)vo;
+    ObjectData* obj = (ObjectData*)vo;
     AFFECT_DATA* paf;
     int result, fail;
     int ac_bonus, added;
@@ -2073,7 +2074,7 @@ void spell_enchant_armor(SKNUM sn, LEVEL level, CharData* ch, void* vo, int targ
 void spell_enchant_weapon(SKNUM sn, LEVEL level, CharData* ch, void* vo,
                           int target)
 {
-    OBJ_DATA* obj = (OBJ_DATA*)vo;
+    ObjectData* obj = (ObjectData*)vo;
     AFFECT_DATA* paf;
     int result, fail;
     int hit_bonus, dam_bonus, added;
@@ -2321,7 +2322,7 @@ void spell_fireball(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 
 void spell_fireproof(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
-    OBJ_DATA* obj = (OBJ_DATA*)vo;
+    ObjectData* obj = (ObjectData*)vo;
     AFFECT_DATA af = { 0 };
 
     if (IS_OBJ_STAT(obj, ITEM_BURN_PROOF)) {
@@ -2400,7 +2401,7 @@ void spell_faerie_fog(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 
 void spell_floating_disc(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
-    OBJ_DATA *disc, *floating;
+    ObjectData *disc, *floating;
 
     floating = get_eq_char(ch, WEAR_FLOAT);
     if (floating != NULL && IS_OBJ_STAT(floating, ITEM_NOREMOVE)) {
@@ -2408,7 +2409,7 @@ void spell_floating_disc(SKNUM sn, LEVEL level, CharData* ch, void* vo, int targ
         return;
     }
 
-    disc = create_object(get_obj_index(OBJ_VNUM_DISC), 0);
+    disc = create_object(get_object_prototype(OBJ_VNUM_DISC), 0);
     disc->value[0] = ch->level * 10; /* 10 pounds per level capacity */
     disc->value[3] = ch->level * 5; /* 5 pounds per level max per item */
     disc->timer = ch->level * 2 - (int16_t)number_range(0, level / 2);
@@ -2640,8 +2641,8 @@ void spell_heal(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 void spell_heat_metal(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
     CharData* victim = (CharData*)vo;
-    OBJ_DATA* obj_lose;
-    OBJ_DATA* obj_next = NULL;
+    ObjectData* obj_lose;
+    ObjectData* obj_next = NULL;
     int dam = 0;
     bool fail = true;
 
@@ -2814,7 +2815,7 @@ void spell_holy_word(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 
 void spell_identify(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
-    OBJ_DATA* obj = (OBJ_DATA*)vo;
+    ObjectData* obj = (ObjectData*)vo;
     char buf[MAX_STRING_LENGTH];
     AFFECT_DATA* paf;
 
@@ -3067,12 +3068,12 @@ void spell_infravision(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target
 void spell_invis(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
     CharData* victim;
-    OBJ_DATA* obj;
+    ObjectData* obj;
     AFFECT_DATA af = { 0 };
 
     /* object invisibility */
     if (target == TARGET_OBJ) {
-        obj = (OBJ_DATA*)vo;
+        obj = (ObjectData*)vo;
 
         if (IS_OBJ_STAT(obj, ITEM_INVIS)) {
             act("$p is already invisible.", ch, obj, NULL, TO_CHAR);
@@ -3161,8 +3162,8 @@ void spell_locate_object(SKNUM sn, LEVEL level, CharData* ch, void* vo, int targ
 {
     char buf[MAX_INPUT_LENGTH];
     BUFFER* buffer;
-    OBJ_DATA* obj;
-    OBJ_DATA* in_obj;
+    ObjectData* obj;
+    ObjectData* in_obj;
     bool found;
     int number = 0, max_found;
 
@@ -3341,11 +3342,11 @@ void spell_plague(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 void spell_poison(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
     CharData* victim;
-    OBJ_DATA* obj;
+    ObjectData* obj;
     AFFECT_DATA af = { 0 };
 
     if (target == TARGET_OBJ) {
-        obj = (OBJ_DATA*)vo;
+        obj = (ObjectData*)vo;
 
         if (obj->item_type == ITEM_FOOD || obj->item_type == ITEM_DRINK_CON) {
             if (IS_OBJ_STAT(obj, ITEM_BLESS)
@@ -3514,7 +3515,7 @@ void spell_ray_of_truth(SKNUM sn, LEVEL level, CharData* ch, void* vo, int targe
 
 void spell_recharge(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
-    OBJ_DATA* obj = (OBJ_DATA*)vo;
+    ObjectData* obj = (ObjectData*)vo;
     int chance, percent;
 
     if (obj->item_type != ITEM_WAND && obj->item_type != ITEM_STAFF) {
@@ -3596,12 +3597,12 @@ void spell_refresh(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 void spell_remove_curse(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
     CharData* victim;
-    OBJ_DATA* obj;
+    ObjectData* obj;
     bool found = false;
 
     /* do object cases first */
     if (target == TARGET_OBJ) {
-        obj = (OBJ_DATA*)vo;
+        obj = (ObjectData*)vo;
 
         if (IS_OBJ_STAT(obj, ITEM_NODROP) || IS_OBJ_STAT(obj, ITEM_NOREMOVE)) {
             if (!IS_OBJ_STAT(obj, ITEM_NOUNCURSE)

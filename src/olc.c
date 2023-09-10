@@ -19,6 +19,7 @@
 #include "olc.h"
 #include "tables.h"
 
+#include "entities/object_data.h"
 #include "entities/player_data.h"
 
 #include <sys/types.h>
@@ -39,7 +40,7 @@ COMMAND(do_purge)
 void UpdateOLCScreen(DESCRIPTOR_DATA*);
 
 MobPrototype		xMob;
-OBJ_INDEX_DATA		xObj;
+ObjectPrototype		xObj;
 ROOM_INDEX_DATA		xRoom;
 struct	skill_type	xSkill;
 struct	race_type	xRace;
@@ -53,7 +54,7 @@ struct	social_type	xSoc;
 #define U(x)    (uintptr_t)(x)
 
 const struct olc_comm_type mob_olc_comm_table[] = {
-    { "name",	    U(&xMob.player_name),   ed_line_string,		0		        },
+    { "name",	    U(&xMob.name),   ed_line_string,		0		        },
     { "short",	    U(&xMob.short_descr),	ed_line_string,		0		        },
     { "long",	    U(&xMob.long_descr),	ed_line_string,		U(1)	        },
     { "material",	U(&xMob.material),	    ed_line_string,		0		        },
@@ -271,7 +272,7 @@ char* olc_ed_vnum(CharData* ch)
 {
     AREA_DATA* pArea;
     ROOM_INDEX_DATA* pRoom;
-    OBJ_INDEX_DATA* pObj;
+    ObjectPrototype* pObj;
     MobPrototype* pMob;
     MPROG_CODE* pMcode;
     HELP_DATA* pHelp;
@@ -292,7 +293,7 @@ char* olc_ed_vnum(CharData* ch)
         sprintf(buf, "%"PRVNUM, pRoom ? pRoom->vnum : 0);
         break;
     case ED_OBJECT:
-        pObj = (OBJ_INDEX_DATA*)ch->desc->pEdit;
+        pObj = (ObjectPrototype*)ch->desc->pEdit;
         sprintf(buf, "%"PRVNUM, pObj ? pObj->vnum : 0);
         break;
     case ED_MOBILE:
@@ -574,7 +575,7 @@ void redit(CharData* ch, char* argument)
 void oedit(CharData* ch, char* argument)
 {
     AREA_DATA* pArea;
-    OBJ_INDEX_DATA* pObj;
+    ObjectPrototype* pObj;
 
     EDIT_OBJ(ch, pObj);
     pArea = pObj->area;
@@ -786,10 +787,10 @@ void do_redit(CharData* ch, char* argument)
     return;
 }
 
-/* Entry point for editing obj_index_data. */
+/* Entry point for editing object_prototype_data. */
 void do_oedit(CharData* ch, char* argument)
 {
-    OBJ_INDEX_DATA* pObj;
+    ObjectPrototype* pObj;
     AREA_DATA* pArea;
     char arg1[MAX_STRING_LENGTH];
     int  value;
@@ -801,7 +802,7 @@ void do_oedit(CharData* ch, char* argument)
 
     if (is_number(arg1)) {
         value = atoi(arg1);
-        if (!(pObj = get_obj_index(value))) {
+        if (!(pObj = get_object_prototype(value))) {
             send_to_char("OEdit:  That vnum does not exist.\n\r", ch);
             return;
         }
@@ -929,10 +930,10 @@ void    display_resets(CharData* ch, ROOM_INDEX_DATA* pRoom)
         "\n\r", ch);
 
     for (pReset = pRoom->reset_first; pReset; pReset = pReset->next) {
-        OBJ_INDEX_DATA* pObj;
+        ObjectPrototype* pObj;
         MobPrototype* p_mob_proto;
-        OBJ_INDEX_DATA* pObjIndex;
-        OBJ_INDEX_DATA* pObjToIndex;
+        ObjectPrototype* p_object_prototype;
+        ObjectPrototype* pObjToIndex;
         ROOM_INDEX_DATA* pRoomIndex;
 
         final[0] = '\0';
@@ -979,14 +980,14 @@ void    display_resets(CharData* ch, ROOM_INDEX_DATA* pRoom)
             break;
 
         case 'O':
-            if (!(pObjIndex = get_obj_index(pReset->arg1))) {
+            if (!(p_object_prototype = get_object_prototype(pReset->arg1))) {
                 sprintf(buf, "Load Object - Bad Object %d\n\r",
                     pReset->arg1);
                 strcat(final, buf);
                 continue;
             }
 
-            pObj = pObjIndex;
+            pObj = p_object_prototype;
 
             if (!(pRoomIndex = get_room_index(pReset->arg3))) {
                 sprintf(buf, "Load Object - Bad Room %d\n\r", pReset->arg3);
@@ -1003,16 +1004,16 @@ void    display_resets(CharData* ch, ROOM_INDEX_DATA* pRoom)
             break;
 
         case 'P':
-            if (!(pObjIndex = get_obj_index(pReset->arg1))) {
+            if (!(p_object_prototype = get_object_prototype(pReset->arg1))) {
                 sprintf(buf, "Put Object - Bad Object %d\n\r",
                     pReset->arg1);
                 strcat(final, buf);
                 continue;
             }
 
-            pObj = pObjIndex;
+            pObj = p_object_prototype;
 
-            if (!(pObjToIndex = get_obj_index(pReset->arg3))) {
+            if (!(pObjToIndex = get_object_prototype(pReset->arg3))) {
                 sprintf(buf, "Put Object - Bad To Object %d\n\r",
                     pReset->arg3);
                 strcat(final, buf);
@@ -1033,14 +1034,14 @@ void    display_resets(CharData* ch, ROOM_INDEX_DATA* pRoom)
 
         case 'G':
         case 'E':
-            if (!(pObjIndex = get_obj_index(pReset->arg1))) {
+            if (!(p_object_prototype = get_object_prototype(pReset->arg1))) {
                 sprintf(buf, "Give/Equip Object - Bad Object %d\n\r",
                     pReset->arg1);
                 strcat(final, buf);
                 continue;
             }
 
-            pObj = pObjIndex;
+            pObj = p_object_prototype;
 
             if (!pMob) {
                 sprintf(buf, "Give/Equip Object - No Previous Mobile\n\r");
@@ -1280,9 +1281,9 @@ void    do_resets(CharData* ch, char* argument)
                          * ----------------------
                          */
                         if (!str_prefix(arg4, "inside")) {
-                            OBJ_INDEX_DATA* temp;
+                            ObjectPrototype* temp;
 
-                            temp = get_obj_index(is_number(arg5) ? (VNUM)atoi(arg5) : 1);
+                            temp = get_object_prototype(is_number(arg5) ? (VNUM)atoi(arg5) : 1);
                             if ((temp->item_type != ITEM_CONTAINER) &&
                                 (temp->item_type != ITEM_CORPSE_NPC)) {
                                 send_to_char("Object 2 is not a container.\n\r", ch);
@@ -1301,7 +1302,7 @@ void    do_resets(CharData* ch, char* argument)
                              * ----------------
                              */
                             if (!str_cmp(arg4, "room")) {
-                                if (get_obj_index(atoi(arg3)) == NULL) {
+                                if (get_object_prototype(atoi(arg3)) == NULL) {
                                     send_to_char("That object does not exist.\n\r", ch);
                                     return;
                                 }
@@ -1324,7 +1325,7 @@ void    do_resets(CharData* ch, char* argument)
                                     send_to_char("Resets: '? wear-loc'\n\r", ch);
                                     return;
                                 }
-                                if (get_obj_index(atoi(arg3)) == NULL) {
+                                if (get_object_prototype(atoi(arg3)) == NULL) {
                                     send_to_char("That vnum does not exist.\n\r", ch);
                                     return;
                                 }
@@ -1401,7 +1402,7 @@ void    do_resets(CharData* ch, char* argument)
 
             if (found == 0 && (tvar == 0 || tvar == 2)) {
                 if (is_number(arg))
-                    found = get_obj_index(atoi(arg)) ? atoi(arg) : 0;
+                    found = get_object_prototype(atoi(arg)) ? atoi(arg) : 0;
                 else
                     found = get_vnum_obj_name_area(arg, ch->in_room->area);
                 if (found)
@@ -1464,7 +1465,7 @@ bool process_olc_command(CharData* ch, char* argument, const struct olc_comm_typ
 {
     char arg[MIL];
     MobPrototype* pMob;
-    OBJ_INDEX_DATA* pObj;
+    ObjectPrototype* pObj;
     ROOM_INDEX_DATA* pRoom;
     struct race_type* pRace;
     struct skill_type* pSkill;

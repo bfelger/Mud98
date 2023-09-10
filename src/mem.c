@@ -36,7 +36,6 @@ AREA_DATA* area_free;
 EXTRA_DESCR_DATA* extra_descr_free;
 EXIT_DATA* exit_free;
 ROOM_INDEX_DATA* room_index_free;
-OBJ_INDEX_DATA* obj_index_free;
 SHOP_DATA* shop_free;
 RESET_DATA* reset_free;
 HELP_DATA* help_free = NULL;
@@ -243,65 +242,6 @@ void free_shop(SHOP_DATA* pShop)
 {
     pShop->next = shop_free;
     shop_free = pShop;
-    return;
-}
-
-OBJ_INDEX_DATA* new_obj_index(void)
-{
-    OBJ_INDEX_DATA* pObj;
-    int value;
-
-    if (!obj_index_free) {
-        pObj = alloc_perm(sizeof(*pObj));
-        top_obj_index++;
-    }
-    else {
-        pObj = obj_index_free;
-        obj_index_free = obj_index_free->next;
-    }
-
-    pObj->next = NULL;
-    pObj->extra_descr = NULL;
-    pObj->affected = NULL;
-    pObj->area = NULL;
-    pObj->name = str_dup("no name");
-    pObj->short_descr = str_dup("(no short description)");
-    pObj->description = str_dup("(no description)");
-    pObj->vnum = 0;
-    pObj->item_type = ITEM_TRASH;
-    pObj->extra_flags = 0;
-    pObj->wear_flags = 0;
-    pObj->count = 0;
-    pObj->weight = 0;
-    pObj->cost = 0;
-    pObj->condition = 100;			/* ROM */
-    for (value = 0; value < 5; value++)		/* 5 - ROM */
-        pObj->value[value] = 0;
-
-    pObj->new_format = true; /* ROM */
-
-    return pObj;
-}
-
-void free_obj_index(OBJ_INDEX_DATA* pObj)
-{
-    EXTRA_DESCR_DATA* pExtra;
-    AFFECT_DATA* pAf;
-
-    free_string(pObj->name);
-    free_string(pObj->short_descr);
-    free_string(pObj->description);
-
-    for (pAf = pObj->affected; pAf; pAf = pAf->next) {
-        free_affect(pAf);
-    }
-
-    for (pExtra = pObj->extra_descr; pExtra; pExtra = pExtra->next) {
-        free_extra_descr(pExtra);
-    }
-
-    pObj->next = obj_index_free;
-    obj_index_free = pObj;
     return;
 }
 

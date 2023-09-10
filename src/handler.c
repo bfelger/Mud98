@@ -35,6 +35,7 @@
 #include "tables.h"
 #include "vt.h"
 
+#include "entities/object_data.h"
 #include "entities/player_data.h"
 
 #include <ctype.h>
@@ -85,7 +86,7 @@ bool is_friend(CharData* ch, CharData* victim)
 }
 
 /* returns number of people on an object */
-int count_users(OBJ_DATA* obj)
+int count_users(ObjectData* obj)
 {
     CharData* fch;
     int count = 0;
@@ -423,7 +424,7 @@ int get_skill(CharData* ch, SKNUM sn)
 /* for returning weapon information */
 SKNUM get_weapon_sn(CharData* ch)
 {
-    OBJ_DATA* wield;
+    ObjectData* wield;
     SKNUM sn;
 
     wield = get_eq_char(ch, WEAR_WIELD);
@@ -491,7 +492,7 @@ void reset_char(CharData* ch)
 {
     int loc, stat;
     int16_t mod;
-    OBJ_DATA* obj;
+    ObjectData* obj;
     AFFECT_DATA* af;
     int i;
 
@@ -917,7 +918,7 @@ bool is_exact_name(char* str, char* namelist)
 }
 
 /* enchanted stuff for eq */
-void affect_enchant(OBJ_DATA* obj)
+void affect_enchant(ObjectData* obj)
 {
     /* okay, move all the old flags into new vectors if we have to */
     if (!obj->enchanted) {
@@ -946,7 +947,7 @@ void affect_enchant(OBJ_DATA* obj)
  */
 void affect_modify(CharData* ch, AFFECT_DATA* paf, bool fAdd)
 {
-    OBJ_DATA* wield;
+    ObjectData* wield;
     int16_t mod;
     int i;
 
@@ -1100,7 +1101,7 @@ AFFECT_DATA* affect_find(AFFECT_DATA* paf, SKNUM sn)
 void affect_check(CharData* ch, int where, int vector)
 {
     AFFECT_DATA* paf;
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     if (where == TO_OBJECT || where == TO_WEAPON || vector == 0) return;
 
@@ -1187,7 +1188,7 @@ void affect_to_char(CharData* ch, AFFECT_DATA* paf)
 }
 
 /* give an affect to an object */
-void affect_to_obj(OBJ_DATA* obj, AFFECT_DATA* paf)
+void affect_to_obj(ObjectData* obj, AFFECT_DATA* paf)
 {
     AFFECT_DATA* paf_new;
 
@@ -1253,7 +1254,7 @@ void affect_remove(CharData* ch, AFFECT_DATA* paf)
     return;
 }
 
-void affect_remove_obj(OBJ_DATA* obj, AFFECT_DATA* paf)
+void affect_remove_obj(ObjectData* obj, AFFECT_DATA* paf)
 {
     int where, vector;
     if (obj->affected == NULL) {
@@ -1360,7 +1361,7 @@ void affect_join(CharData* ch, AFFECT_DATA* paf)
  */
 void char_from_room(CharData* ch)
 {
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     if (ch->in_room == NULL) {
         bug("Char_from_room: NULL.", 0);
@@ -1402,7 +1403,7 @@ void char_from_room(CharData* ch)
  */
 void char_to_room(CharData* ch, ROOM_INDEX_DATA* pRoomIndex)
 {
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     if (pRoomIndex == NULL) {
         ROOM_INDEX_DATA* room;
@@ -1472,7 +1473,7 @@ void char_to_room(CharData* ch, ROOM_INDEX_DATA* pRoomIndex)
 /*
  * Give an obj to a char.
  */
-void obj_to_char(OBJ_DATA* obj, CharData* ch)
+void obj_to_char(ObjectData* obj, CharData* ch)
 {
     obj->next_content = ch->carrying;
     ch->carrying = obj;
@@ -1486,7 +1487,7 @@ void obj_to_char(OBJ_DATA* obj, CharData* ch)
 /*
  * Take an obj from its character.
  */
-void obj_from_char(OBJ_DATA* obj)
+void obj_from_char(ObjectData* obj)
 {
     CharData* ch;
 
@@ -1499,7 +1500,7 @@ void obj_from_char(OBJ_DATA* obj)
 
     if (ch->carrying == obj) { ch->carrying = obj->next_content; }
     else {
-        OBJ_DATA* prev;
+        ObjectData* prev;
 
         for (prev = ch->carrying; prev != NULL; prev = prev->next_content) {
             if (prev->next_content == obj) {
@@ -1521,7 +1522,7 @@ void obj_from_char(OBJ_DATA* obj)
 /*
  * Find the ac value of an obj, including position effect.
  */
-int apply_ac(OBJ_DATA* obj, int iWear, int type)
+int apply_ac(ObjectData* obj, int iWear, int type)
 {
     if (obj->item_type != ITEM_ARMOR) 
         return 0;
@@ -1563,9 +1564,9 @@ int apply_ac(OBJ_DATA* obj, int iWear, int type)
 /*
  * Find a piece of eq on a character.
  */
-OBJ_DATA* get_eq_char(CharData* ch, int iWear)
+ObjectData* get_eq_char(CharData* ch, int iWear)
 {
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     if (ch == NULL) return NULL;
 
@@ -1579,7 +1580,7 @@ OBJ_DATA* get_eq_char(CharData* ch, int iWear)
 /*
  * Equip a char with an obj.
  */
-void equip_char(CharData* ch, OBJ_DATA* obj, int16_t iWear)
+void equip_char(CharData* ch, ObjectData* obj, int16_t iWear)
 {
     AFFECT_DATA* paf;
     int i;
@@ -1625,7 +1626,7 @@ void equip_char(CharData* ch, OBJ_DATA* obj, int16_t iWear)
 /*
  * Unequip a char with an obj.
  */
-void unequip_char(CharData* ch, OBJ_DATA* obj)
+void unequip_char(CharData* ch, ObjectData* obj)
 {
     AFFECT_DATA* paf = NULL;
     AFFECT_DATA* lpaf = NULL;
@@ -1689,14 +1690,14 @@ void unequip_char(CharData* ch, OBJ_DATA* obj)
 /*
  * Count occurrences of an obj in a list.
  */
-int count_obj_list(OBJ_INDEX_DATA* pObjIndex, OBJ_DATA* list)
+int count_obj_list(ObjectPrototype* p_object_prototype, ObjectData* list)
 {
-    OBJ_DATA* obj;
+    ObjectData* obj;
     int nMatch;
 
     nMatch = 0;
     for (obj = list; obj != NULL; obj = obj->next_content) {
-        if (obj->pIndexData == pObjIndex) nMatch++;
+        if (obj->pIndexData == p_object_prototype) nMatch++;
     }
 
     return nMatch;
@@ -1705,7 +1706,7 @@ int count_obj_list(OBJ_INDEX_DATA* pObjIndex, OBJ_DATA* list)
 /*
  * Move an obj out of a room.
  */
-void obj_from_room(OBJ_DATA* obj)
+void obj_from_room(ObjectData* obj)
 {
     ROOM_INDEX_DATA* in_room;
     CharData* ch;
@@ -1726,7 +1727,7 @@ void obj_from_room(OBJ_DATA* obj)
         in_room->contents = obj->next_content; 
     }
     else {
-        OBJ_DATA* prev;
+        ObjectData* prev;
 
         for (prev = in_room->contents; prev; prev = prev->next_content) {
             if (prev->next_content == obj) {
@@ -1749,7 +1750,7 @@ void obj_from_room(OBJ_DATA* obj)
 /*
  * Move an obj into a room.
  */
-void obj_to_room(OBJ_DATA* obj, ROOM_INDEX_DATA* pRoomIndex)
+void obj_to_room(ObjectData* obj, ROOM_INDEX_DATA* pRoomIndex)
 {
     obj->next_content = pRoomIndex->contents;
     pRoomIndex->contents = obj;
@@ -1762,7 +1763,7 @@ void obj_to_room(OBJ_DATA* obj, ROOM_INDEX_DATA* pRoomIndex)
 /*
  * Move an object into an object.
  */
-void obj_to_obj(OBJ_DATA* obj, OBJ_DATA* obj_to)
+void obj_to_obj(ObjectData* obj, ObjectData* obj_to)
 {
     obj->next_content = obj_to->contains;
     obj_to->contains = obj;
@@ -1785,9 +1786,9 @@ void obj_to_obj(OBJ_DATA* obj, OBJ_DATA* obj_to)
 /*
  * Move an object out of an object.
  */
-void obj_from_obj(OBJ_DATA* obj)
+void obj_from_obj(ObjectData* obj)
 {
-    OBJ_DATA* obj_from;
+    ObjectData* obj_from;
 
     if ((obj_from = obj->in_obj) == NULL) {
         bug("Obj_from_obj: null obj_from.", 0);
@@ -1798,7 +1799,7 @@ void obj_from_obj(OBJ_DATA* obj)
         obj_from->contains = obj->next_content; 
     }
     else {
-        OBJ_DATA* prev;
+        ObjectData* prev;
 
         for (prev = obj_from->contains; prev; prev = prev->next_content) {
             if (prev->next_content == obj) {
@@ -1830,10 +1831,10 @@ void obj_from_obj(OBJ_DATA* obj)
 /*
  * Extract an obj from the world.
  */
-void extract_obj(OBJ_DATA* obj)
+void extract_obj(ObjectData* obj)
 {
-    OBJ_DATA* obj_content;
-    OBJ_DATA* obj_next = NULL;
+    ObjectData* obj_content;
+    ObjectData* obj_next = NULL;
 
     if (obj->in_room != NULL)
         obj_from_room(obj);
@@ -1851,7 +1852,7 @@ void extract_obj(OBJ_DATA* obj)
         object_list = obj->next; 
     }
     else {
-        OBJ_DATA* prev;
+        ObjectData* prev;
 
         for (prev = object_list; prev != NULL; prev = prev->next) {
             if (prev->next == obj) {
@@ -1867,7 +1868,7 @@ void extract_obj(OBJ_DATA* obj)
     }
 
     --obj->pIndexData->count;
-    free_obj(obj);
+    free_object(obj);
     return;
 }
 
@@ -1877,8 +1878,8 @@ void extract_obj(OBJ_DATA* obj)
 void extract_char(CharData* ch, bool fPull)
 {
     CharData* wch;
-    OBJ_DATA* obj;
-    OBJ_DATA* obj_next = NULL;
+    ObjectData* obj;
+    ObjectData* obj_next = NULL;
 
     /* doesn't seem to be necessary
     if ( ch->in_room == NULL )
@@ -2002,12 +2003,12 @@ CharData* get_char_world(CharData* ch, char* argument)
  * Find some object with a given index data.
  * Used by area-reset 'P' command.
  */
-OBJ_DATA* get_obj_type(OBJ_INDEX_DATA* pObjIndex)
+ObjectData* get_obj_type(ObjectPrototype* p_object_prototype)
 {
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     for (obj = object_list; obj != NULL; obj = obj->next) {
-        if (obj->pIndexData == pObjIndex) return obj;
+        if (obj->pIndexData == p_object_prototype) return obj;
     }
 
     return NULL;
@@ -2016,10 +2017,10 @@ OBJ_DATA* get_obj_type(OBJ_INDEX_DATA* pObjIndex)
 /*
  * Find an obj in a list.
  */
-OBJ_DATA* get_obj_list(CharData* ch, char* argument, OBJ_DATA* list)
+ObjectData* get_obj_list(CharData* ch, char* argument, ObjectData* list)
 {
     char arg[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
+    ObjectData* obj;
     int number;
     int count;
 
@@ -2037,10 +2038,10 @@ OBJ_DATA* get_obj_list(CharData* ch, char* argument, OBJ_DATA* list)
 /*
  * Find an obj in player's inventory.
  */
-OBJ_DATA* get_obj_carry(CharData* ch, char* argument, CharData* viewer)
+ObjectData* get_obj_carry(CharData* ch, char* argument, CharData* viewer)
 {
     char arg[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
+    ObjectData* obj;
     int number;
     int count;
 
@@ -2059,10 +2060,10 @@ OBJ_DATA* get_obj_carry(CharData* ch, char* argument, CharData* viewer)
 /*
  * Find an obj in player's equipment.
  */
-OBJ_DATA* get_obj_wear(CharData* ch, char* argument)
+ObjectData* get_obj_wear(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
+    ObjectData* obj;
     int number;
     int count;
 
@@ -2081,9 +2082,9 @@ OBJ_DATA* get_obj_wear(CharData* ch, char* argument)
 /*
  * Find an obj in the room or in inventory.
  */
-OBJ_DATA* get_obj_here(CharData* ch, char* argument)
+ObjectData* get_obj_here(CharData* ch, char* argument)
 {
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     obj = get_obj_list(ch, argument, ch->in_room->contents);
     if (obj != NULL) return obj;
@@ -2098,10 +2099,10 @@ OBJ_DATA* get_obj_here(CharData* ch, char* argument)
 /*
  * Find an obj in the world.
  */
-OBJ_DATA* get_obj_world(CharData* ch, char* argument)
+ObjectData* get_obj_world(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
+    ObjectData* obj;
     int number;
     int count;
 
@@ -2147,10 +2148,10 @@ void deduct_cost(CharData* ch, int cost)
 /*
  * Create a 'money' obj.
  */
-OBJ_DATA* create_money(int16_t gold, int16_t silver)
+ObjectData* create_money(int16_t gold, int16_t silver)
 {
     char buf[MAX_STRING_LENGTH];
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     if (gold < 0 || silver < 0 || (gold == 0 && silver == 0)) {
         bug("Create_money: zero or negative money.", UMIN(gold, silver));
@@ -2159,13 +2160,13 @@ OBJ_DATA* create_money(int16_t gold, int16_t silver)
     }
 
     if (gold == 0 && silver == 1) {
-        obj = create_object(get_obj_index(OBJ_VNUM_SILVER_ONE), 0);
+        obj = create_object(get_object_prototype(OBJ_VNUM_SILVER_ONE), 0);
     }
     else if (gold == 1 && silver == 0) {
-        obj = create_object(get_obj_index(OBJ_VNUM_GOLD_ONE), 0);
+        obj = create_object(get_object_prototype(OBJ_VNUM_GOLD_ONE), 0);
     }
     else if (silver == 0) {
-        obj = create_object(get_obj_index(OBJ_VNUM_GOLD_SOME), 0);
+        obj = create_object(get_object_prototype(OBJ_VNUM_GOLD_SOME), 0);
         sprintf(buf, "%d gold coins", gold);
         free_string(obj->short_descr);
         obj->short_descr = str_dup(buf);
@@ -2174,7 +2175,7 @@ OBJ_DATA* create_money(int16_t gold, int16_t silver)
         obj->weight = gold / 5;
     }
     else if (gold == 0) {
-        obj = create_object(get_obj_index(OBJ_VNUM_SILVER_SOME), 0);
+        obj = create_object(get_object_prototype(OBJ_VNUM_SILVER_SOME), 0);
         sprintf(buf, "%d silver coins", silver);
         free_string(obj->short_descr);
         obj->short_descr = str_dup(buf);
@@ -2184,7 +2185,7 @@ OBJ_DATA* create_money(int16_t gold, int16_t silver)
     }
 
     else {
-        obj = create_object(get_obj_index(OBJ_VNUM_COINS), 0);
+        obj = create_object(get_object_prototype(OBJ_VNUM_COINS), 0);
         sprintf(buf, "%d gold coins and %d silver coins", gold, silver);
         free_string(obj->short_descr);
         obj->short_descr = str_dup(buf);
@@ -2201,7 +2202,7 @@ OBJ_DATA* create_money(int16_t gold, int16_t silver)
  * Return # of objects which an object counts as.
  * Thanks to Tony Chamberlain for the correct recursive code here.
  */
-int get_obj_number(OBJ_DATA* obj)
+int get_obj_number(ObjectData* obj)
 {
     int number;
 
@@ -2220,10 +2221,10 @@ int get_obj_number(OBJ_DATA* obj)
 /*
  * Return weight of an object, including weight of contents.
  */
-int get_obj_weight(OBJ_DATA* obj)
+int get_obj_weight(ObjectData* obj)
 {
     int weight;
-    OBJ_DATA* tobj;
+    ObjectData* tobj;
 
     weight = obj->weight;
     for (tobj = obj->contains; tobj != NULL; tobj = tobj->next_content)
@@ -2232,7 +2233,7 @@ int get_obj_weight(OBJ_DATA* obj)
     return weight;
 }
 
-int get_true_weight(OBJ_DATA* obj)
+int get_true_weight(ObjectData* obj)
 {
     int weight;
 
@@ -2364,7 +2365,7 @@ bool can_see(CharData* ch, CharData* victim)
 /*
  * true if char can see obj.
  */
-bool can_see_obj(CharData* ch, OBJ_DATA* obj)
+bool can_see_obj(CharData* ch, ObjectData* obj)
 {
     if (!IS_NPC(ch) && IS_SET(ch->act, PLR_HOLYLIGHT)) return true;
 
@@ -2390,7 +2391,7 @@ bool can_see_obj(CharData* ch, OBJ_DATA* obj)
 /*
  * true if char can drop obj.
  */
-bool can_drop_obj(CharData* ch, OBJ_DATA* obj)
+bool can_drop_obj(CharData* ch, ObjectData* obj)
 {
     if (!IS_SET(obj->extra_flags, ITEM_NODROP)) return true;
 
@@ -2931,7 +2932,7 @@ int get_vnum_mob_name_area(char* name, AREA_DATA* pArea)
     for (hash = 0; hash < MAX_KEY_HASH; hash++)
         for (mob = mob_prototype_hash[hash]; mob; mob = mob->next)
             if (mob->area == pArea
-                && !str_prefix(name, mob->player_name))
+                && !str_prefix(name, mob->name))
                 return mob->vnum;
 
     return 0;
@@ -2940,10 +2941,10 @@ int get_vnum_mob_name_area(char* name, AREA_DATA* pArea)
 int get_vnum_obj_name_area(char* name, AREA_DATA* pArea)
 {
     int hash;
-    OBJ_INDEX_DATA* obj;
+    ObjectPrototype* obj;
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++)
-        for (obj = obj_index_hash[hash]; obj; obj = obj->next)
+        for (obj = object_prototype_hash[hash]; obj; obj = obj->next)
             if (obj->area == pArea
                 && !str_prefix(name, obj->name))
                 return obj->vnum;

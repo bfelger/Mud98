@@ -29,6 +29,7 @@
 
 #include "interp.h"
 
+#include "entities/object_data.h"
 #include "entities/player_data.h"
 
 #include <stdio.h>
@@ -70,7 +71,7 @@ void do_enter(CharData* ch, char* argument)
     /* nifty portal stuff */
     if (argument[0] != '\0') {
         ROOM_INDEX_DATA* old_room;
-        OBJ_DATA* portal;
+        ObjectData* portal;
         CharData* fch;
         CharData* fch_next = NULL;
 

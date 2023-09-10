@@ -78,18 +78,6 @@ AD* new_affect args((void));
 void free_affect args((AFFECT_DATA * af));
 #undef AD
 
-/* object recycling */
-#define OD OBJ_DATA
-OD* new_obj args((void));
-void free_obj args((OBJ_DATA * obj));
-#undef OD
-
-/* character recyling */
-#define CD CharData
-CD* new_char args((void));
-void free_char args((CharData * ch));
-#undef CD
-
 /* mob id and memory procedures */
 #define MD MEM_DATA
 long get_pc_id args((void));

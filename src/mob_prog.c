@@ -41,6 +41,7 @@
 #include "lookup.h"
 
 #include "entities/char_data.h"
+#include "entities/object_data.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -310,7 +311,7 @@ int get_order(CharData* ch)
  */
 bool has_item(CharData* ch, VNUM vnum, int16_t item_type, bool fWear)
 {
-    OBJ_DATA* obj;
+    ObjectData* obj;
     for (obj = ch->carrying; obj; obj = obj->next_content)
         if ((vnum == VNUM_NONE || obj->pIndexData->vnum == vnum)
             && (item_type < 0 || obj->pIndexData->item_type == item_type)
@@ -336,7 +337,7 @@ bool get_mob_vnum_room(CharData* ch, VNUM vnum)
  */
 bool get_obj_vnum_room(CharData* ch, VNUM vnum)
 {
-    OBJ_DATA* obj;
+    ObjectData* obj;
     for (obj = ch->in_room->contents; obj; obj = obj->next_content)
         if (obj->pIndexData->vnum == vnum)
             return true;
@@ -361,9 +362,9 @@ int cmd_eval(VNUM vnum, char* line, int check,
 {
     CharData* lval_char = mob;
     CharData* vch = (CharData*)arg2;
-    OBJ_DATA* obj1 = (OBJ_DATA*)arg1;
-    OBJ_DATA* obj2 = (OBJ_DATA*)arg2;
-    OBJ_DATA* lval_obj = NULL;
+    ObjectData* obj1 = (ObjectData*)arg1;
+    ObjectData* obj2 = (ObjectData*)arg2;
+    ObjectData* lval_obj = NULL;
 
     char* original, buf[MAX_INPUT_LENGTH], code;
     int lval = 0;
@@ -682,8 +683,8 @@ void expand_arg(char* buf,
 
     char fname[MAX_INPUT_LENGTH];
     CharData* vch = (CharData*)arg2;
-    OBJ_DATA* obj1 = (OBJ_DATA*)arg1;
-    OBJ_DATA* obj2 = (OBJ_DATA*)arg2;
+    ObjectData* obj1 = (ObjectData*)arg1;
+    ObjectData* obj2 = (ObjectData*)arg2;
     const char* str;
     const char* i;
     char* point;
@@ -1147,7 +1148,7 @@ bool mp_exit_trigger(CharData* ch, int dir)
     return false;
 }
 
-void mp_give_trigger(CharData* mob, CharData* ch, OBJ_DATA* obj)
+void mp_give_trigger(CharData* mob, CharData* ch, ObjectData* obj)
 {
 
     char buf[MAX_INPUT_LENGTH], * p;

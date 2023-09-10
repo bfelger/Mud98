@@ -26,6 +26,7 @@
 #include "tables.h"
 #include "tablesave.h"
 
+#include "entities/object_data.h"
 #include "entities/player_data.h"
 
 #include <ctype.h>
@@ -182,7 +183,7 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
     MPROG_LIST* pMprog;
 
     fprintf(fp, "#%"PRVNUM"\n", p_mob_proto->vnum);
-    fprintf(fp, "%s~\n", p_mob_proto->player_name);
+    fprintf(fp, "%s~\n", p_mob_proto->name);
     fprintf(fp, "%s~\n", p_mob_proto->short_descr);
     fprintf(fp, "%s~\n", fix_string(p_mob_proto->long_descr));
     fprintf(fp, "%s~\n", fix_string(p_mob_proto->description));
@@ -224,7 +225,7 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
     temp = DIF(p_mob_proto->vuln_flags, race_table[race].vuln);
     fprintf(fp, "%s\n", fwrite_flag(temp, buf));
 
-    fprintf(fp, "%s %s %s %ld\n",
+    fprintf(fp, "%s %s %s %d\n",
         position_table[p_mob_proto->start_pos].short_name,
         position_table[p_mob_proto->default_pos].short_name,
         sex_table[p_mob_proto->sex].name,
@@ -299,21 +300,21 @@ void save_mobiles(FILE* fp, AREA_DATA* pArea)
                 new ROM format saving -- Hugin
  Called by:	save_objects (below).
  ****************************************************************************/
-void save_object(FILE* fp, OBJ_INDEX_DATA* pObjIndex)
+void save_object(FILE* fp, ObjectPrototype* p_object_prototype)
 {
     char letter;
     AFFECT_DATA* pAf;
     EXTRA_DESCR_DATA* pEd;
     char buf[MAX_STRING_LENGTH];
 
-    fprintf(fp, "#%"PRVNUM"\n", pObjIndex->vnum);
-    fprintf(fp, "%s~\n", pObjIndex->name);
-    fprintf(fp, "%s~\n", pObjIndex->short_descr);
-    fprintf(fp, "%s~\n", fix_string(pObjIndex->description));
-    fprintf(fp, "%s~\n", pObjIndex->material);
-    fprintf(fp, "%s ", item_name(pObjIndex->item_type));
-    fprintf(fp, "%s ", fwrite_flag(pObjIndex->extra_flags, buf));
-    fprintf(fp, "%s\n", fwrite_flag(pObjIndex->wear_flags, buf));
+    fprintf(fp, "#%"PRVNUM"\n", p_object_prototype->vnum);
+    fprintf(fp, "%s~\n", p_object_prototype->name);
+    fprintf(fp, "%s~\n", p_object_prototype->short_descr);
+    fprintf(fp, "%s~\n", fix_string(p_object_prototype->description));
+    fprintf(fp, "%s~\n", p_object_prototype->material);
+    fprintf(fp, "%s ", item_name(p_object_prototype->item_type));
+    fprintf(fp, "%s ", fwrite_flag(p_object_prototype->extra_flags, buf));
+    fprintf(fp, "%s\n", fwrite_flag(p_object_prototype->wear_flags, buf));
 
 /*
  *  Using fwrite_flag to write most values gives a strange
@@ -321,141 +322,141 @@ void save_object(FILE* fp, OBJ_INDEX_DATA* pObjIndex)
  *  item type later.
  */
 
-    switch (pObjIndex->item_type) {
+    switch (p_object_prototype->item_type) {
     default:
-        fprintf(fp, "%s ", fwrite_flag(pObjIndex->value[0], buf));
-        fprintf(fp, "%s ", fwrite_flag(pObjIndex->value[1], buf));
-        fprintf(fp, "%s ", fwrite_flag(pObjIndex->value[2], buf));
-        fprintf(fp, "%s ", fwrite_flag(pObjIndex->value[3], buf));
-        fprintf(fp, "%s\n", fwrite_flag(pObjIndex->value[4], buf));
+        fprintf(fp, "%s ", fwrite_flag(p_object_prototype->value[0], buf));
+        fprintf(fp, "%s ", fwrite_flag(p_object_prototype->value[1], buf));
+        fprintf(fp, "%s ", fwrite_flag(p_object_prototype->value[2], buf));
+        fprintf(fp, "%s ", fwrite_flag(p_object_prototype->value[3], buf));
+        fprintf(fp, "%s\n", fwrite_flag(p_object_prototype->value[4], buf));
         break;
 
     case ITEM_LIGHT:
         fprintf(fp, "0 0 %d 0 0\n",
-            pObjIndex->value[2] < 1 ? 999  /* infinite */
-            : pObjIndex->value[2]);
+            p_object_prototype->value[2] < 1 ? 999  /* infinite */
+            : p_object_prototype->value[2]);
         break;
 
     case ITEM_MONEY:
         fprintf(fp, "%d %d 0 0 0\n",
-            pObjIndex->value[0],
-            pObjIndex->value[1]);
+            p_object_prototype->value[0],
+            p_object_prototype->value[1]);
         break;
 
     case ITEM_DRINK_CON:
         fprintf(fp, "%d %d '%s' %d 0\n",
-            pObjIndex->value[0],
-            pObjIndex->value[1],
-            liq_table[pObjIndex->value[2]].liq_name,
-            pObjIndex->value[3]);
+            p_object_prototype->value[0],
+            p_object_prototype->value[1],
+            liq_table[p_object_prototype->value[2]].liq_name,
+            p_object_prototype->value[3]);
         break;
 
     case ITEM_FOUNTAIN:
         fprintf(fp, "%d %d '%s' 0 0\n",
-            pObjIndex->value[0],
-            pObjIndex->value[1],
-            liq_table[pObjIndex->value[2]].liq_name);
+            p_object_prototype->value[0],
+            p_object_prototype->value[1],
+            liq_table[p_object_prototype->value[2]].liq_name);
         break;
 
     case ITEM_CONTAINER:
         fprintf(fp, "%d %s %d %d %d\n",
-            pObjIndex->value[0],
-            fwrite_flag(pObjIndex->value[1], buf),
-            pObjIndex->value[2],
-            pObjIndex->value[3],
-            pObjIndex->value[4]);
+            p_object_prototype->value[0],
+            fwrite_flag(p_object_prototype->value[1], buf),
+            p_object_prototype->value[2],
+            p_object_prototype->value[3],
+            p_object_prototype->value[4]);
         break;
 
     case ITEM_FOOD:
         fprintf(fp, "%d %d 0 %s 0\n",
-            pObjIndex->value[0],
-            pObjIndex->value[1],
-            fwrite_flag(pObjIndex->value[3], buf));
+            p_object_prototype->value[0],
+            p_object_prototype->value[1],
+            fwrite_flag(p_object_prototype->value[3], buf));
         break;
 
     case ITEM_PORTAL:
         fprintf(fp, "%d %s %s %d 0\n",
-            pObjIndex->value[0],
-            fwrite_flag(pObjIndex->value[1], buf),
-            fwrite_flag(pObjIndex->value[2], buf),
-            pObjIndex->value[3]);
+            p_object_prototype->value[0],
+            fwrite_flag(p_object_prototype->value[1], buf),
+            fwrite_flag(p_object_prototype->value[2], buf),
+            p_object_prototype->value[3]);
         break;
 
     case ITEM_FURNITURE:
         fprintf(fp, "%d %d %s %d %d\n",
-            pObjIndex->value[0],
-            pObjIndex->value[1],
-            fwrite_flag(pObjIndex->value[2], buf),
-            pObjIndex->value[3],
-            pObjIndex->value[4]);
+            p_object_prototype->value[0],
+            p_object_prototype->value[1],
+            fwrite_flag(p_object_prototype->value[2], buf),
+            p_object_prototype->value[3],
+            p_object_prototype->value[4]);
         break;
 
     case ITEM_WEAPON:
         fprintf(fp, "%s %d %d '%s' %s\n",
-            weapon_name(pObjIndex->value[0]),
-            pObjIndex->value[1],
-            pObjIndex->value[2],
-            attack_table[pObjIndex->value[3]].name,
-            fwrite_flag(pObjIndex->value[4], buf));
+            weapon_name(p_object_prototype->value[0]),
+            p_object_prototype->value[1],
+            p_object_prototype->value[2],
+            attack_table[p_object_prototype->value[3]].name,
+            fwrite_flag(p_object_prototype->value[4], buf));
         break;
 
     case ITEM_ARMOR:
         fprintf(fp, "%d %d %d %d %d\n",
-            pObjIndex->value[0],
-            pObjIndex->value[1],
-            pObjIndex->value[2],
-            pObjIndex->value[3],
-            pObjIndex->value[4]);
+            p_object_prototype->value[0],
+            p_object_prototype->value[1],
+            p_object_prototype->value[2],
+            p_object_prototype->value[3],
+            p_object_prototype->value[4]);
         break;
 
     case ITEM_PILL:
     case ITEM_POTION:
     case ITEM_SCROLL:
         fprintf(fp, "%d '%s' '%s' '%s' '%s'\n",
-            pObjIndex->value[0] > 0 ? /* no negative numbers */
-            pObjIndex->value[0]
+            p_object_prototype->value[0] > 0 ? /* no negative numbers */
+            p_object_prototype->value[0]
             : 0,
-            pObjIndex->value[1] > 0 ?
-            skill_table[pObjIndex->value[1]].name
+            p_object_prototype->value[1] > 0 ?
+            skill_table[p_object_prototype->value[1]].name
             : "",
-            pObjIndex->value[2] > 0 ?
-            skill_table[pObjIndex->value[2]].name
+            p_object_prototype->value[2] > 0 ?
+            skill_table[p_object_prototype->value[2]].name
             : "",
-            pObjIndex->value[3] > 0 ?
-            skill_table[pObjIndex->value[3]].name
+            p_object_prototype->value[3] > 0 ?
+            skill_table[p_object_prototype->value[3]].name
             : "",
-            pObjIndex->value[4] > 0 ?
-            skill_table[pObjIndex->value[4]].name
+            p_object_prototype->value[4] > 0 ?
+            skill_table[p_object_prototype->value[4]].name
             : "");
         break;
 
     case ITEM_STAFF:
     case ITEM_WAND:
-        fprintf(fp, "%d ", pObjIndex->value[0]);
-        fprintf(fp, "%d ", pObjIndex->value[1]);
+        fprintf(fp, "%d ", p_object_prototype->value[0]);
+        fprintf(fp, "%d ", p_object_prototype->value[1]);
         fprintf(fp, "%d '%s' 0\n",
-            pObjIndex->value[2],
-            pObjIndex->value[3] > 0 ?
-            skill_table[pObjIndex->value[3]].name
+            p_object_prototype->value[2],
+            p_object_prototype->value[3] > 0 ?
+            skill_table[p_object_prototype->value[3]].name
             : "");
         break;
     }
 
-    fprintf(fp, "%d ", pObjIndex->level);
-    fprintf(fp, "%d ", pObjIndex->weight);
-    fprintf(fp, "%d ", pObjIndex->cost);
+    fprintf(fp, "%d ", p_object_prototype->level);
+    fprintf(fp, "%d ", p_object_prototype->weight);
+    fprintf(fp, "%d ", p_object_prototype->cost);
 
-    if (pObjIndex->condition > 90) letter = 'P';
-    else if (pObjIndex->condition > 75) letter = 'G';
-    else if (pObjIndex->condition > 50) letter = 'A';
-    else if (pObjIndex->condition > 25) letter = 'W';
-    else if (pObjIndex->condition > 10) letter = 'D';
-    else if (pObjIndex->condition > 0) letter = 'B';
+    if (p_object_prototype->condition > 90) letter = 'P';
+    else if (p_object_prototype->condition > 75) letter = 'G';
+    else if (p_object_prototype->condition > 50) letter = 'A';
+    else if (p_object_prototype->condition > 25) letter = 'W';
+    else if (p_object_prototype->condition > 10) letter = 'D';
+    else if (p_object_prototype->condition > 0) letter = 'B';
     else                                   letter = 'R';
 
     fprintf(fp, "%c\n", letter);
 
-    for (pAf = pObjIndex->affected; pAf; pAf = pAf->next) {
+    for (pAf = p_object_prototype->affected; pAf; pAf = pAf->next) {
         if (pAf->where == TO_OBJECT || pAf->bitvector == 0)
             fprintf(fp, "A\n%d %d\n", pAf->location, pAf->modifier);
         else {
@@ -484,7 +485,7 @@ void save_object(FILE* fp, OBJ_INDEX_DATA* pObjIndex)
         }
     }
 
-    for (pEd = pObjIndex->extra_descr; pEd; pEd = pEd->next) {
+    for (pEd = p_object_prototype->extra_descr; pEd; pEd = pEd->next) {
         fprintf(fp, "E\n%s~\n%s~\n", pEd->keyword,
             fix_string(pEd->description));
     }
@@ -500,12 +501,12 @@ void save_object(FILE* fp, OBJ_INDEX_DATA* pObjIndex)
  ****************************************************************************/
 void save_objects(FILE* fp, AREA_DATA* pArea)
 {
-    OBJ_INDEX_DATA* pObj;
+    ObjectPrototype* pObj;
 
     fprintf(fp, "#OBJECTS\n");
 
     for (VNUM i = pArea->min_vnum; i <= pArea->max_vnum; i++) {
-        if ((pObj = get_obj_index(i)))
+        if ((pObj = get_object_prototype(i)))
             save_object(fp, pObj);
     }
 
@@ -675,7 +676,7 @@ void save_resets(FILE* fp, AREA_DATA* pArea)
     RESET_DATA* pReset;
     MobPrototype* pLastMob = NULL;
 #ifdef VERBOSE
-    OBJ_INDEX_DATA* pLastObj;
+    ObjectPrototype* pLastObj;
 #endif
     ROOM_INDEX_DATA* pRoom;
     char buf[MAX_STRING_LENGTH];
@@ -706,7 +707,7 @@ void save_resets(FILE* fp, AREA_DATA* pArea)
                         break;
 
                     case 'O':
-                        pLastObj = get_obj_index(pReset->arg1);
+                        pLastObj = get_object_prototype(pReset->arg1);
                         pRoom = get_room_index(pReset->arg3);
                         fprintf(fp, "O 0 %d 0 %d %s loaded to %s\n",
                             pReset->arg1,
@@ -716,20 +717,20 @@ void save_resets(FILE* fp, AREA_DATA* pArea)
                         break;
 
                     case 'P':
-                        pLastObj = get_obj_index(pReset->arg1);
+                        pLastObj = get_object_prototype(pReset->arg1);
                         fprintf(fp, "P 0 %d %d %d %d %s put inside %s\n",
                             pReset->arg1,
                             pReset->arg2,
                             pReset->arg3,
                             pReset->arg4,
-                            capitalize(get_obj_index(pReset->arg1)->short_descr),
+                            capitalize(get_object_prototype(pReset->arg1)->short_descr),
                             pLastObj->short_descr);
                         break;
 
                     case 'G':
                         fprintf(fp, "G 0 %d 0 %s is given to %s\n",
                             pReset->arg1,
-                            capitalize(get_obj_index(pReset->arg1)->short_descr),
+                            capitalize(get_object_prototype(pReset->arg1)->short_descr),
                             pLastMob ? pLastMob->short_descr : "!NO_MOB!");
                         if (!pLastMob) {
                             sprintf(buf, "Save_resets: !NO_MOB! in [%s]", pArea->file_name);
@@ -741,7 +742,7 @@ void save_resets(FILE* fp, AREA_DATA* pArea)
                         fprintf(fp, "E 0 %d 0 %d %s is loaded %s of %s\n",
                             pReset->arg1,
                             pReset->arg3,
-                            capitalize(get_obj_index(pReset->arg1)->short_descr),
+                            capitalize(get_object_prototype(pReset->arg1)->short_descr),
                             flag_string(wear_loc_strings, pReset->arg3),
                             pLastMob ? pLastMob->short_descr : "!NO_MOB!");
                         if (!pLastMob) {
@@ -773,7 +774,7 @@ void save_resets(FILE* fp, AREA_DATA* pArea)
 
             case 'O':
 #ifdef VERBOSE
-                pLastObj = get_obj_index(pReset->arg1);
+                pLastObj = get_object_prototype(pReset->arg1);
 #endif
                 pRoom = get_room_index(pReset->arg3);
                 fprintf(fp, "O 0 %d 0 %d\n",
@@ -783,7 +784,7 @@ void save_resets(FILE* fp, AREA_DATA* pArea)
 
             case 'P':
 #ifdef VERBOSE
-                pLastObj = get_obj_index(pReset->arg1);
+                pLastObj = get_object_prototype(pReset->arg1);
 #endif
                 fprintf(fp, "P 0 %d %d %d %d\n",
                     pReset->arg1,
@@ -1128,7 +1129,7 @@ void do_asave(CharData* ch, char* argument)
             pArea = ch->in_room->area;
             break;
         case ED_OBJECT:
-            pArea = ((OBJ_INDEX_DATA*)ch->desc->pEdit)->area;
+            pArea = ((ObjectPrototype*)ch->desc->pEdit)->area;
             break;
         case ED_MOBILE:
             pArea = ((MobPrototype*)ch->desc->pEdit)->area;

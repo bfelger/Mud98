@@ -128,7 +128,7 @@ CharData* create_mobile(MobPrototype* p_mob_proto)
 
     mob->pIndexData = p_mob_proto;
 
-    mob->name = str_dup(p_mob_proto->player_name);    /* OLC */
+    mob->name = str_dup(p_mob_proto->name);    /* OLC */
     mob->short_descr = str_dup(p_mob_proto->short_descr);    /* OLC */
     mob->long_descr = str_dup(p_mob_proto->long_descr);     /* OLC */
     mob->description = str_dup(p_mob_proto->description);    /* OLC */
@@ -334,7 +334,7 @@ CharData* create_mobile(MobPrototype* p_mob_proto)
 
 void free_mob_prototype(MobPrototype* p_mob_proto)
 {
-    free_string(p_mob_proto->player_name);
+    free_string(p_mob_proto->name);
     free_string(p_mob_proto->short_descr);
     free_string(p_mob_proto->long_descr);
     free_string(p_mob_proto->description);
@@ -409,7 +409,7 @@ void load_mobiles(FILE* fp)
         p_mob_proto->area = area_last;    // OLC
         p_mob_proto->new_format = true;
         newmobs++;
-        p_mob_proto->player_name = fread_string(fp);
+        p_mob_proto->name = fread_string(fp);
         p_mob_proto->short_descr = fread_string(fp);
         p_mob_proto->long_descr = fread_string(fp);
         p_mob_proto->description = fread_string(fp);
@@ -583,7 +583,7 @@ void load_old_mob(FILE* fp)
         p_mob_proto->vnum = vnum;
         p_mob_proto->area = area_last;    // OLC
         p_mob_proto->new_format = false;
-        p_mob_proto->player_name = fread_string(fp);
+        p_mob_proto->name = fread_string(fp);
         p_mob_proto->short_descr = fread_string(fp);
         p_mob_proto->long_descr = fread_string(fp);
         p_mob_proto->description = fread_string(fp);
@@ -631,7 +631,7 @@ void load_old_mob(FILE* fp)
         p_mob_proto->sex = (int16_t)fread_number(fp);
 
         /* compute the race BS */
-        one_argument(p_mob_proto->player_name, name);
+        one_argument(p_mob_proto->name, name);
 
         if (name[0] == '\0' || (race = race_lookup(name)) == 0) {
             /* fill in with blanks */
@@ -693,7 +693,7 @@ MobPrototype* new_mob_prototype()
     pMob->spec_fun = NULL;
     pMob->pShop = NULL;
     pMob->area = NULL;
-    pMob->player_name = str_dup("no name");
+    pMob->name = str_dup("no name");
     pMob->short_descr = str_dup("(no short description)");
     pMob->long_descr = str_dup("(no long description)\n\r");
     pMob->description = &str_empty[0];

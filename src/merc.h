@@ -45,6 +45,8 @@
 
 typedef struct player_data_t PlayerData;
 typedef struct char_data_t CharData;
+typedef struct object_prototype_t ObjectPrototype;
+typedef struct object_data_t ObjectData;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Data files used by the server.
@@ -146,8 +148,6 @@ typedef struct mem_data MEM_DATA;
 typedef struct mprog_list MPROG_LIST;
 typedef struct mprog_code MPROG_CODE;
 typedef struct note_data NOTE_DATA;
-typedef struct obj_data OBJ_DATA;
-typedef struct obj_index_data OBJ_INDEX_DATA;
 typedef struct gen_data GEN_DATA;
 typedef struct reset_data RESET_DATA;
 typedef struct room_index_data ROOM_INDEX_DATA;
@@ -1302,65 +1302,6 @@ struct extra_descr_data {
 };
 
 /*
- * Prototype for an object.
- */
-struct obj_index_data {
-    OBJ_INDEX_DATA* next;
-    EXTRA_DESCR_DATA* extra_descr;
-    AFFECT_DATA* affected;
-    AREA_DATA* area;        // OLC
-    bool new_format;
-    char* name;
-    char* short_descr;
-    char* description;
-    VNUM vnum;
-    int16_t reset_num;
-    char* material;
-    int16_t item_type;
-    int extra_flags;
-    int wear_flags;
-    LEVEL level;
-    int16_t condition;
-    int16_t count;
-    int16_t weight;
-    int cost;
-    int value[5];
-};
-
-/*
- * One object.
- */
-struct obj_data {
-    OBJ_DATA* next;
-    OBJ_DATA* next_content;
-    OBJ_DATA* contains;
-    OBJ_DATA* in_obj;
-    OBJ_DATA* on;
-    CharData* carried_by;
-    EXTRA_DESCR_DATA* extra_descr;
-    AFFECT_DATA* affected;
-    OBJ_INDEX_DATA* pIndexData;
-    ROOM_INDEX_DATA* in_room;
-    bool valid;
-    bool enchanted;
-    char* owner;
-    char* name;
-    char* short_descr;
-    char* description;
-    int16_t item_type;
-    int extra_flags;
-    int wear_flags;
-    int16_t wear_loc;
-    int16_t weight;
-    int cost;
-    LEVEL level;
-    int16_t condition;
-    char* material;
-    int16_t timer;
-    int value[5];
-};
-
-/*
  * Exit data.
  */
 struct exit_data {
@@ -1430,7 +1371,7 @@ struct area_data {
 struct room_index_data {
     ROOM_INDEX_DATA* next;
     CharData* people;
-    OBJ_DATA* contents;
+    ObjectData* contents;
     EXTRA_DESCR_DATA* extra_descr;
     AREA_DATA* area;
     EXIT_DATA* exit[6];
@@ -1674,7 +1615,6 @@ extern HELP_DATA* help_first;
 extern SHOP_DATA* shop_first;
 
 extern DESCRIPTOR_DATA* descriptor_list;
-extern OBJ_DATA* object_list;
 
 extern MPROG_CODE* mprog_list;
 
@@ -1694,8 +1634,8 @@ extern bool MOBtrigger;
  */
 #define CD          CharData
 #define MID         MobPrototype
-#define OD          OBJ_DATA
-#define OID         OBJ_INDEX_DATA
+#define OD          ObjectData
+#define OID         ObjectPrototype
 #define RID         ROOM_INDEX_DATA
 #define SF          SPEC_FUN
 #define AD          AFFECT_DATA
@@ -1718,12 +1658,12 @@ void set_title(CharData * ch, char* title);
 void move_char(CharData * ch, int door, bool follow);
 
 /* act_obj.c */
-bool can_loot(CharData * ch, OBJ_DATA* obj);
-void wear_obj(CharData* ch, OBJ_DATA* obj, bool fReplace);
-void get_obj(CharData * ch, OBJ_DATA* obj, OBJ_DATA* container);
+bool can_loot(CharData * ch, ObjectData* obj);
+void wear_obj(CharData* ch, ObjectData* obj, bool fReplace);
+void get_obj(CharData * ch, ObjectData* obj, ObjectData* container);
 
 /* act_wiz.c */
-void wiznet(char* string, CharData* ch, OBJ_DATA* obj, long flag,
+void wiznet(char* string, CharData* ch, ObjectData* obj, long flag,
                   long flag_skip, int min_level);
 /* alias.c */
 void substitute_alias(DESCRIPTOR_DATA * d, char* input);
@@ -1758,11 +1698,8 @@ char* print_flags(int flag);
 void boot_db(void);
 void area_update(void);
 void clone_mobile(CharData * parent, CharData* clone);
-OD* create_object(OBJ_INDEX_DATA * pObjIndex, LEVEL level);
-void clone_object(OBJ_DATA * parent, OBJ_DATA* clone);
 void clear_char(CharData * ch);
 char* get_extra_descr(const char* name, EXTRA_DESCR_DATA* ed);
-OID* get_obj_index(VNUM vnum);
 RID* get_room_index(VNUM vnum);
 MPC* get_mprog_index(VNUM vnum);
 char fread_letter(FILE * fp);
@@ -1818,9 +1755,9 @@ void check_killer(CharData * ch, CharData* victim);
 /* handler.c */
 AD* affect_find(AFFECT_DATA * paf, SKNUM sn);
 void affect_check(CharData * ch, int where, int vector);
-int count_users(OBJ_DATA * obj);
+int count_users(ObjectData * obj);
 void deduct_cost(CharData * ch, int cost);
-void affect_enchant(OBJ_DATA * obj);
+void affect_enchant(ObjectData * obj);
 int check_immune(CharData * ch, DamageType dam_type);
 int material_lookup(const char* name);
 int weapon_lookup(const char* name);
@@ -1846,46 +1783,46 @@ int can_carry_w(CharData * ch);
 bool is_name(char* str, char* namelist);
 bool is_exact_name(char* str, char* namelist);
 void affect_to_char(CharData * ch, AFFECT_DATA* paf);
-void affect_to_obj(OBJ_DATA * obj, AFFECT_DATA* paf);
+void affect_to_obj(ObjectData * obj, AFFECT_DATA* paf);
 void affect_remove(CharData * ch, AFFECT_DATA* paf);
-void affect_remove_obj(OBJ_DATA * obj, AFFECT_DATA* paf);
+void affect_remove_obj(ObjectData * obj, AFFECT_DATA* paf);
 void affect_strip(CharData* ch, SKNUM sn);
 bool is_affected(CharData* ch, SKNUM sn);
 void affect_join(CharData * ch, AFFECT_DATA* paf);
 void char_from_room(CharData * ch);
 void char_to_room(CharData * ch, ROOM_INDEX_DATA* pRoomIndex);
-void obj_to_char(OBJ_DATA * obj, CharData* ch);
-void obj_from_char(OBJ_DATA * obj);
-int apply_ac(OBJ_DATA * obj, int iWear, int type);
+void obj_to_char(ObjectData * obj, CharData* ch);
+void obj_from_char(ObjectData * obj);
+int apply_ac(ObjectData * obj, int iWear, int type);
 OD* get_eq_char(CharData * ch, int iWear);
-void equip_char(CharData* ch, OBJ_DATA* obj, int16_t iWear);
-void unequip_char(CharData * ch, OBJ_DATA* obj);
-int count_obj_list(OBJ_INDEX_DATA * obj, OBJ_DATA* list);
-void obj_from_room(OBJ_DATA * obj);
-void obj_to_room(OBJ_DATA * obj, ROOM_INDEX_DATA* pRoomIndex);
-void obj_to_obj(OBJ_DATA * obj, OBJ_DATA* obj_to);
-void obj_from_obj(OBJ_DATA * obj);
-void extract_obj(OBJ_DATA * obj);
+void equip_char(CharData* ch, ObjectData* obj, int16_t iWear);
+void unequip_char(CharData * ch, ObjectData* obj);
+int count_obj_list(ObjectPrototype * obj, ObjectData* list);
+void obj_from_room(ObjectData * obj);
+void obj_to_room(ObjectData * obj, ROOM_INDEX_DATA* pRoomIndex);
+void obj_to_obj(ObjectData * obj, ObjectData* obj_to);
+void obj_from_obj(ObjectData * obj);
+void extract_obj(ObjectData * obj);
 void extract_char(CharData * ch, bool fPull);
 CD* get_char_room(CharData * ch, char* argument);
 CD* get_char_world(CharData * ch, char* argument);
-OD* get_obj_type(OBJ_INDEX_DATA * pObjIndexData);
-OD* get_obj_list(CharData * ch, char* argument, OBJ_DATA* list);
+OD* get_obj_type(ObjectPrototype * pObjIndexData);
+OD* get_obj_list(CharData * ch, char* argument, ObjectData* list);
 OD* get_obj_carry(CharData * ch, char* argument, CharData* viewer);
 OD* get_obj_wear(CharData * ch, char* argument);
 OD* get_obj_here(CharData * ch, char* argument);
 OD* get_obj_world(CharData * ch, char* argument);
 OD* create_money(int16_t gold, int16_t silver);
-int get_obj_number(OBJ_DATA * obj);
-int get_obj_weight(OBJ_DATA * obj);
-int get_true_weight(OBJ_DATA * obj);
+int get_obj_number(ObjectData * obj);
+int get_obj_weight(ObjectData * obj);
+int get_true_weight(ObjectData * obj);
 bool room_is_dark(ROOM_INDEX_DATA * pRoomIndex);
 bool is_room_owner(CharData * ch, ROOM_INDEX_DATA* room);
 bool room_is_private(ROOM_INDEX_DATA * pRoomIndex);
 bool can_see(CharData * ch, CharData* victim);
-bool can_see_obj(CharData * ch, OBJ_DATA* obj);
+bool can_see_obj(CharData * ch, ObjectData* obj);
 bool can_see_room(CharData * ch, ROOM_INDEX_DATA* pRoomIndex);
-bool can_drop_obj(CharData * ch, OBJ_DATA* obj);
+bool can_drop_obj(CharData * ch, ObjectData* obj);
 char* affect_loc_name(int location);
 char* affect_bit_name(int vector);
 char* extra_bit_name(int extra_flags);
@@ -1924,8 +1861,7 @@ SKNUM skill_lookup(const char* name);
 SKNUM skill_slot_lookup(int slot);
 bool saves_spell(LEVEL level, CharData* victim, DamageType dam_type);
 void obj_cast_spell(SKNUM sn, LEVEL level, CharData* ch, CharData* victim,
-                          OBJ_DATA* obj);
-
+                          ObjectData* obj);
 
 /* mob_prog.c */
 void program_flow(VNUM vnum, char* source, CharData* mob, 
@@ -1936,7 +1872,7 @@ bool mp_percent_trigger(CharData* mob, CharData* ch, const void* arg1,
                               const void* arg2, int type);
 void mp_bribe_trigger(CharData* mob, CharData* ch, int amount);
 bool mp_exit_trigger(CharData* ch, int dir);
-void mp_give_trigger(CharData* mob, CharData* ch, OBJ_DATA* obj);
+void mp_give_trigger(CharData* mob, CharData* ch, ObjectData* obj);
 void mp_greet_trigger(CharData* ch);
 void mp_hprct_trigger(CharData* mob, CharData* ch);
 
@@ -2042,7 +1978,7 @@ extern int top_area;
 extern int top_ed;
 extern int top_exit;
 extern int top_help;
-extern int top_obj_index;
+extern int top_object_prototype;
 extern int top_reset;
 extern int top_room;
 extern int top_shop;
@@ -2052,7 +1988,7 @@ extern VNUM top_vnum_room;
 
 extern char str_empty[1];
 
-extern OBJ_INDEX_DATA* obj_index_hash[MAX_KEY_HASH];
+extern ObjectPrototype* object_prototype_hash[MAX_KEY_HASH];
 extern ROOM_INDEX_DATA* room_index_hash[MAX_KEY_HASH];
 
 extern	bool fBootDb;

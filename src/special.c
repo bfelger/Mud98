@@ -31,6 +31,7 @@
 #include "magic.h"
 
 #include "entities/char_data.h"
+#include "entities/object_data.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -239,7 +240,7 @@ bool spec_ogre_member(CharData* ch)
 bool spec_patrolman(CharData* ch)
 {
     CharData *vch, *victim = NULL;
-    OBJ_DATA* obj;
+    ObjectData* obj;
     char* message;
     int count = 0;
 
@@ -784,10 +785,10 @@ bool spec_executioner(CharData* ch)
 
 bool spec_fido(CharData* ch)
 {
-    OBJ_DATA* corpse;
-    OBJ_DATA* c_next = NULL;
-    OBJ_DATA* obj;
-    OBJ_DATA* obj_next = NULL;
+    ObjectData* corpse;
+    ObjectData* c_next = NULL;
+    ObjectData* obj;
+    ObjectData* obj_next = NULL;
 
     if (!IS_AWAKE(ch)) return false;
 
@@ -866,8 +867,8 @@ bool spec_guard(CharData* ch)
 
 bool spec_janitor(CharData* ch)
 {
-    OBJ_DATA* trash;
-    OBJ_DATA* trash_next = NULL;
+    ObjectData* trash;
+    ObjectData* trash_next = NULL;
 
     if (!IS_AWAKE(ch)) return false;
 

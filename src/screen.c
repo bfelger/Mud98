@@ -12,6 +12,7 @@
 #include "vt.h"
 
 #include "entities/char_data.h"
+#include "entities/object_data.h"
 
 char* areaname(void* point)
 {
@@ -310,7 +311,7 @@ const struct olc_show_table_type redit_olc_show_table[] = {
 const struct olc_show_table_type medit_olc_show_table[] =
 {
     {
-        "name", U(&xMob.player_name), "Name:", OLCS_STRING,
+        "name", U(&xMob.name), "Name:", OLCS_STRING,
         1, 1, 31, 1, 1, 0
     },
     {

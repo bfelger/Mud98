@@ -239,57 +239,6 @@ void free_affect(AFFECT_DATA* af)
     affect_free = af;
 }
 
-/* stuff for recycling objects */
-OBJ_DATA* obj_free;
-
-OBJ_DATA* new_obj(void)
-{
-    static OBJ_DATA obj_zero;
-    OBJ_DATA* obj;
-
-    if (obj_free == NULL)
-        obj = alloc_perm(sizeof(*obj));
-    else {
-        obj = obj_free;
-        obj_free = obj_free->next;
-    }
-    *obj = obj_zero;
-    VALIDATE(obj);
-
-    return obj;
-}
-
-void free_obj(OBJ_DATA* obj)
-{
-    AFFECT_DATA* paf;
-    AFFECT_DATA* paf_next = NULL;
-    EXTRA_DESCR_DATA* ed;
-    EXTRA_DESCR_DATA* ed_next = NULL;
-
-    if (!IS_VALID(obj)) return;
-
-    for (paf = obj->affected; paf != NULL; paf = paf_next) {
-        paf_next = paf->next;
-        free_affect(paf);
-    }
-    obj->affected = NULL;
-
-    for (ed = obj->extra_descr; ed != NULL; ed = ed_next) {
-        ed_next = ed->next;
-        free_extra_descr(ed);
-    }
-    obj->extra_descr = NULL;
-
-    free_string(obj->name);
-    free_string(obj->description);
-    free_string(obj->short_descr);
-    free_string(obj->owner);
-    INVALIDATE(obj);
-
-    obj->next = obj_free;
-    obj_free = obj;
-}
-
 /* stuff for setting ids */
 long last_pc_id;
 

@@ -29,8 +29,8 @@ typedef struct char_data_t {
     DESCRIPTOR_DATA* desc;
     AFFECT_DATA* affected;
     NOTE_DATA* pnote;
-    OBJ_DATA* carrying;
-    OBJ_DATA* on;
+    ObjectData* carrying;
+    ObjectData* on;
     ROOM_INDEX_DATA* in_room;
     ROOM_INDEX_DATA* was_in_room;
     AREA_DATA* zone;

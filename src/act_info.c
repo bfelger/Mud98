@@ -36,6 +36,7 @@
 #include "strings.h"
 #include "tables.h"
 
+#include "entities/object_data.h"
 #include "entities/player_data.h"
 
 #include <ctype.h>
@@ -70,15 +71,15 @@ int max_on = 0;
 /*
  * Local functions.
  */
-char* format_obj_to_char args((OBJ_DATA * obj, CharData* ch, bool fShort));
-void show_list_to_char args((OBJ_DATA * list, CharData* ch, bool fShort,
+char* format_obj_to_char args((ObjectData * obj, CharData* ch, bool fShort));
+void show_list_to_char args((ObjectData * list, CharData* ch, bool fShort,
                              bool fShowNothing));
 void show_char_to_char_0 args((CharData * victim, CharData* ch));
 void show_char_to_char_1 args((CharData * victim, CharData* ch));
 void show_char_to_char args((CharData * list, CharData* ch));
 bool check_blind args((CharData * ch));
 
-char* format_obj_to_char(OBJ_DATA* obj, CharData* ch, bool fShort)
+char* format_obj_to_char(ObjectData* obj, CharData* ch, bool fShort)
 {
     static char buf[MAX_STRING_LENGTH];
 
@@ -112,7 +113,7 @@ char* format_obj_to_char(OBJ_DATA* obj, CharData* ch, bool fShort)
  * Show a list to a character.
  * Can coalesce duplicated items.
  */
-void show_list_to_char(OBJ_DATA* list, CharData* ch, bool fShort,
+void show_list_to_char(ObjectData* list, CharData* ch, bool fShort,
                        bool fShowNothing)
 {
     char buf[MAX_STRING_LENGTH];
@@ -120,7 +121,7 @@ void show_list_to_char(OBJ_DATA* list, CharData* ch, bool fShort,
     char** prgpstrShow;
     int* prgnShow;
     char* pstrShow;
-    OBJ_DATA* obj;
+    ObjectData* obj;
     int nShow;
     int iShow;
     int count;
@@ -363,7 +364,7 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
 void show_char_to_char_1(CharData* victim, CharData* ch)
 {
     char buf[MAX_STRING_LENGTH];
-    OBJ_DATA* obj;
+    ObjectData* obj;
     int iWear;
     int percent;
     bool found;
@@ -861,7 +862,7 @@ void do_look(CharData* ch, char* argument)
     char arg3[MAX_INPUT_LENGTH];
     EXIT_DATA* pexit;
     CharData* victim;
-    OBJ_DATA* obj;
+    ObjectData* obj;
     char* pdesc;
     int door;
     int number, count;
@@ -1104,7 +1105,7 @@ void do_examine(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     one_argument(argument, arg);
 
@@ -1899,7 +1900,7 @@ void do_inventory(CharData* ch, char* argument)
 
 void do_equipment(CharData* ch, char* argument)
 {
-    OBJ_DATA* obj;
+    ObjectData* obj;
     int iWear;
     bool found;
 
@@ -1929,8 +1930,8 @@ void do_compare(CharData* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj1;
-    OBJ_DATA* obj2;
+    ObjectData* obj1;
+    ObjectData* obj2;
     int value1;
     int value2;
     char* msg;

@@ -42,15 +42,12 @@ extern void assign_area_vnum(VNUM vnum);             // OLC
 
 /* from db2.c */
 void convert_objects(void);                         // OLC
-void convert_object(OBJ_INDEX_DATA * pObjIndex);    // OLC
+void convert_object(ObjectPrototype * p_object_prototype);    // OLC
 
 /* conversion from db.h */
-void convert_obj(OBJ_INDEX_DATA* obj);
+void convert_obj(ObjectPrototype* obj);
 
 /* vals from db.c */
-extern int newobjs;
-extern OBJ_INDEX_DATA* obj_index_hash[MAX_KEY_HASH];
-extern int top_obj_index;
 extern int top_affect;
 extern int top_ed;
 extern AREA_DATA* area_first;

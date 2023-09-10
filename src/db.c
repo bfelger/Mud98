@@ -38,6 +38,7 @@
 #include "tables.h"
 
 #include "entities/mob_prototype.h"
+#include "entities/object_data.h"
 #include "entities/player_data.h"
 
 #include <ctype.h>
@@ -63,7 +64,6 @@ COMMAND(do_asave)
 MPROG_CODE* pedit_prog(VNUM);
 
 // externals for counting purposes
-extern OBJ_DATA* obj_free;
 extern DESCRIPTOR_DATA* descriptor_free;
 extern AFFECT_DATA* affect_free;
 
@@ -87,7 +87,6 @@ char* help_greeting;
 char log_buf[2 * MAX_INPUT_LENGTH];
 KILL_DATA kill_table[MAX_LEVEL];
 extern NOTE_DATA* note_list;
-OBJ_DATA* object_list;
 TIME_INFO_DATA time_info;
 WEATHER_DATA weather_info;
 
@@ -148,7 +147,6 @@ SKNUM gsn_recall;
 /*
  * Locals.
  */
-OBJ_INDEX_DATA* obj_index_hash[MAX_KEY_HASH];
 ROOM_INDEX_DATA* room_index_hash[MAX_KEY_HASH];
 char* string_hash[MAX_KEY_HASH];
 
@@ -165,12 +163,10 @@ int top_area;
 int top_ed;
 int top_exit;
 int top_help;
-int top_obj_index;
 int top_reset;
 int top_room;
 int top_shop;
 VNUM top_vnum_room;     // OLC
-VNUM top_vnum_obj;      // OLC
 int	top_mprog_index;    // OLC
 int newobjs = 0;
 
@@ -684,7 +680,7 @@ void load_helps(FILE* fp, char* fname)
  */
 void load_old_obj(FILE* fp)
 {
-    OBJ_INDEX_DATA* pObjIndex;
+    ObjectPrototype* p_object_prototype;
 
     if (!area_last) {
         bug("Load_objects: no #AREA seen yet.", 0);
@@ -706,45 +702,45 @@ void load_old_obj(FILE* fp)
         if (vnum == 0) break;
 
         fBootDb = false;
-        if (get_obj_index(vnum) != NULL) {
+        if (get_object_prototype(vnum) != NULL) {
             bug("Load_objects: vnum %"PRVNUM" duplicated.", vnum);
             exit(1);
         }
         fBootDb = true;
 
-        pObjIndex = alloc_perm(sizeof(*pObjIndex));
-        pObjIndex->vnum = vnum;
-        pObjIndex->area = area_last;    // OLC
-        pObjIndex->new_format = false;
-        pObjIndex->reset_num = 0;
-        pObjIndex->name = fread_string(fp);
-        pObjIndex->short_descr = fread_string(fp);
-        pObjIndex->description = fread_string(fp);
+        p_object_prototype = alloc_perm(sizeof(*p_object_prototype));
+        p_object_prototype->vnum = vnum;
+        p_object_prototype->area = area_last;    // OLC
+        p_object_prototype->new_format = false;
+        p_object_prototype->reset_num = 0;
+        p_object_prototype->name = fread_string(fp);
+        p_object_prototype->short_descr = fread_string(fp);
+        p_object_prototype->description = fread_string(fp);
         /* Action description */ fread_string(fp);
 
-        pObjIndex->short_descr[0] = LOWER(pObjIndex->short_descr[0]);
-        pObjIndex->description[0] = UPPER(pObjIndex->description[0]);
-        pObjIndex->material = str_dup("");
+        p_object_prototype->short_descr[0] = LOWER(p_object_prototype->short_descr[0]);
+        p_object_prototype->description[0] = UPPER(p_object_prototype->description[0]);
+        p_object_prototype->material = str_dup("");
 
-        pObjIndex->item_type = (int16_t)fread_number(fp);
-        pObjIndex->extra_flags = fread_flag(fp);
-        pObjIndex->wear_flags = fread_flag(fp);
-        pObjIndex->value[0] = fread_number(fp);
-        pObjIndex->value[1] = fread_number(fp);
-        pObjIndex->value[2] = fread_number(fp);
-        pObjIndex->value[3] = fread_number(fp);
-        pObjIndex->value[4] = 0;
-        pObjIndex->level = 0;
-        pObjIndex->condition = 100;
-        pObjIndex->weight = (int16_t)fread_number(fp);
-        pObjIndex->cost = fread_number(fp); /* Unused */
+        p_object_prototype->item_type = (int16_t)fread_number(fp);
+        p_object_prototype->extra_flags = fread_flag(fp);
+        p_object_prototype->wear_flags = fread_flag(fp);
+        p_object_prototype->value[0] = fread_number(fp);
+        p_object_prototype->value[1] = fread_number(fp);
+        p_object_prototype->value[2] = fread_number(fp);
+        p_object_prototype->value[3] = fread_number(fp);
+        p_object_prototype->value[4] = 0;
+        p_object_prototype->level = 0;
+        p_object_prototype->condition = 100;
+        p_object_prototype->weight = (int16_t)fread_number(fp);
+        p_object_prototype->cost = fread_number(fp); /* Unused */
         /* Cost per day */ fread_number(fp);
 
-        if (pObjIndex->item_type == ITEM_WEAPON) {
-            if (is_name("two", pObjIndex->name)
-                || is_name("two-handed", pObjIndex->name)
-                || is_name("claymore", pObjIndex->name))
-                SET_BIT(pObjIndex->value[4], WEAPON_TWO_HANDS);
+        if (p_object_prototype->item_type == ITEM_WEAPON) {
+            if (is_name("two", p_object_prototype->name)
+                || is_name("two-handed", p_object_prototype->name)
+                || is_name("claymore", p_object_prototype->name))
+                SET_BIT(p_object_prototype->value[4], WEAPON_TWO_HANDS);
         }
 
         for (;;) {
@@ -761,8 +757,8 @@ void load_old_obj(FILE* fp)
                 paf->location = (int16_t)fread_number(fp);
                 paf->modifier = (int16_t)fread_number(fp);
                 paf->bitvector = 0;
-                paf->next = pObjIndex->affected;
-                pObjIndex->affected = paf;
+                paf->next = p_object_prototype->affected;
+                p_object_prototype->affected = paf;
                 top_affect++;
             }
 
@@ -772,8 +768,8 @@ void load_old_obj(FILE* fp)
                 ed = alloc_perm(sizeof(*ed));
                 ed->keyword = fread_string(fp);
                 ed->description = fread_string(fp);
-                ed->next = pObjIndex->extra_descr;
-                pObjIndex->extra_descr = ed;
+                ed->next = p_object_prototype->extra_descr;
+                p_object_prototype->extra_descr = ed;
                 top_ed++;
             }
 
@@ -784,34 +780,34 @@ void load_old_obj(FILE* fp)
         }
 
         /* fix armors */
-        if (pObjIndex->item_type == ITEM_ARMOR) {
-            pObjIndex->value[1] = pObjIndex->value[0];
-            pObjIndex->value[2] = pObjIndex->value[1];
+        if (p_object_prototype->item_type == ITEM_ARMOR) {
+            p_object_prototype->value[1] = p_object_prototype->value[0];
+            p_object_prototype->value[2] = p_object_prototype->value[1];
         }
 
         /*
          * Translate spell "slot numbers" to internal "skill numbers."
          */
-        switch (pObjIndex->item_type) {
+        switch (p_object_prototype->item_type) {
         case ITEM_PILL:
         case ITEM_POTION:
         case ITEM_SCROLL:
-            pObjIndex->value[1] = skill_slot_lookup(pObjIndex->value[1]);
-            pObjIndex->value[2] = skill_slot_lookup(pObjIndex->value[2]);
-            pObjIndex->value[3] = skill_slot_lookup(pObjIndex->value[3]);
-            pObjIndex->value[4] = skill_slot_lookup(pObjIndex->value[4]);
+            p_object_prototype->value[1] = skill_slot_lookup(p_object_prototype->value[1]);
+            p_object_prototype->value[2] = skill_slot_lookup(p_object_prototype->value[2]);
+            p_object_prototype->value[3] = skill_slot_lookup(p_object_prototype->value[3]);
+            p_object_prototype->value[4] = skill_slot_lookup(p_object_prototype->value[4]);
             break;
 
         case ITEM_STAFF:
         case ITEM_WAND:
-            pObjIndex->value[3] = skill_slot_lookup(pObjIndex->value[3]);
+            p_object_prototype->value[3] = skill_slot_lookup(p_object_prototype->value[3]);
             break;
         }
 
         iHash = vnum % MAX_KEY_HASH;
-        pObjIndex->next = obj_index_hash[iHash];
-        obj_index_hash[iHash] = pObjIndex;
-        top_obj_index++;
+        p_object_prototype->next = object_prototype_hash[iHash];
+        object_prototype_hash[iHash] = p_object_prototype;
+        top_object_prototype++;
         top_vnum_obj = top_vnum_obj < vnum ? vnum : top_vnum_obj;   // OLC
         assign_area_vnum( vnum );                                   // OLC
     }
@@ -1207,12 +1203,12 @@ void fix_exits(void)
                     break;
 
                 case 'O':
-                    get_obj_index(pReset->arg1);
+                    get_object_prototype(pReset->arg1);
                     iLastObj = get_room_index(pReset->arg3);
                     break;
 
                 case 'P':
-                    get_obj_index(pReset->arg1);
+                    get_object_prototype(pReset->arg1);
                     if (iLastObj == NULL) {
                         bugf("fix_exits : reset in room %d with iLastObj NULL", pRoomIndex->vnum);
                         exit(1);
@@ -1221,7 +1217,7 @@ void fix_exits(void)
 
                 case 'G':
                 case 'E':
-                    get_obj_index(pReset->arg1);
+                    get_object_prototype(pReset->arg1);
                     if (iLastRoom == NULL) {
                         bugf("fix_exits : reset in room %d with iLastRoom NULL", pRoomIndex->vnum);
                         exit(1);
@@ -1399,9 +1395,9 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
 {
     RESET_DATA* pReset;
     CharData* pMob = NULL;
-    OBJ_DATA* pObj;
+    ObjectData* pObj;
     CharData* LastMob = NULL;
-    OBJ_DATA* LastObj = NULL;
+    ObjectData* LastObj = NULL;
     int iExit;
     int level = 0;
     bool last;
@@ -1425,8 +1421,8 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
 
     for (pReset = pRoom->reset_first; pReset != NULL; pReset = pReset->next) {
         MobPrototype* p_mob_proto;
-        OBJ_INDEX_DATA* pObjIndex;
-        OBJ_INDEX_DATA* pObjToIndex;
+        ObjectPrototype* p_object_prototype;
+        ObjectPrototype* pObjToIndex;
         ROOM_INDEX_DATA* pRoomIndex;
         char buf[MAX_STRING_LENGTH];
         int count, limit = 0;
@@ -1499,7 +1495,7 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
         }
 
         case 'O':
-            if (!(pObjIndex = get_obj_index(pReset->arg1))) {
+            if (!(p_object_prototype = get_object_prototype(pReset->arg1))) {
                 bug("Reset_room: 'O' 1 : bad vnum %"PRVNUM"", pReset->arg1);
                 sprintf(buf, "%"PRVNUM" %d %"PRVNUM" %d", pReset->arg1, pReset->arg2, pReset->arg3,
                     pReset->arg4);
@@ -1516,12 +1512,12 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
             }
 
             if (pRoom->area->nplayer > 0
-                || count_obj_list(pObjIndex, pRoom->contents) > 0) {
+                || count_obj_list(p_object_prototype, pRoom->contents) > 0) {
                 last = false;
                 break;
             }
 
-            pObj = create_object(pObjIndex, (int16_t)UMIN(number_fuzzy(level),
+            pObj = create_object(p_object_prototype, (int16_t)UMIN(number_fuzzy(level),
                 LEVEL_HERO - 1)); /* UMIN - ROM OLC */
             pObj->cost = 0;
             obj_to_room(pObj, pRoom);
@@ -1529,12 +1525,12 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
             break;
 
         case 'P':
-            if ((pObjIndex = get_obj_index(pReset->arg1)) == NULL) {
+            if ((p_object_prototype = get_object_prototype(pReset->arg1)) == NULL) {
                 bug("Reset_room: 'P': bad vnum %"PRVNUM".", pReset->arg1);
                 continue;
             }
 
-            if ((pObjToIndex = get_obj_index(pReset->arg3)) == NULL) {
+            if ((pObjToIndex = get_object_prototype(pReset->arg3)) == NULL) {
                 bug("Reset_room: 'P': bad vnum %"PRVNUM".", pReset->arg3);
                 continue;
             }
@@ -1549,8 +1545,8 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
             if (pRoom->area->nplayer > 0
                 || (LastObj = get_obj_type(pObjToIndex)) == NULL
                 || (LastObj->in_room == NULL && !last)
-                || (pObjIndex->count >= limit /* && number_range(0,4) != 0 */)
-                || (count = count_obj_list(pObjIndex, LastObj->contains))
+                || (p_object_prototype->count >= limit /* && number_range(0,4) != 0 */)
+                || (count = count_obj_list(p_object_prototype, LastObj->contains))
                 > pReset->arg4) {
                 last = false;
                 break;
@@ -1558,10 +1554,10 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
             /* lastObj->level  -  ROM */
 
             while (count < pReset->arg4) {
-                pObj = create_object(pObjIndex, (int16_t)number_fuzzy(LastObj->level));
+                pObj = create_object(p_object_prototype, (int16_t)number_fuzzy(LastObj->level));
                 obj_to_obj(pObj, LastObj);
                 count++;
-                if (pObjIndex->count >= limit) break;
+                if (p_object_prototype->count >= limit) break;
             }
 
             /* fix object lock state! */
@@ -1571,7 +1567,7 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
 
         case 'G':
         case 'E':
-            if ((pObjIndex = get_obj_index(pReset->arg1)) == NULL) {
+            if ((p_object_prototype = get_object_prototype(pReset->arg1)) == NULL) {
                 bug("Reset_room: 'E' or 'G': bad vnum %"PRVNUM".", pReset->arg1);
                 continue;
             }
@@ -1589,18 +1585,18 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
                 LEVEL olevel = 0;
                 int i, j;
 
-                if (!pObjIndex->new_format) {
-                    switch (pObjIndex->item_type) {
+                if (!p_object_prototype->new_format) {
+                    switch (p_object_prototype->item_type) {
 
                     case ITEM_PILL:
                     case ITEM_POTION:
                     case ITEM_SCROLL:
                         olevel = 53;
                         for (i = 1; i < 5; i++) {
-                            if (pObjIndex->value[i] > 0) {
+                            if (p_object_prototype->value[i] > 0) {
                                 for (j = 0; j < MAX_CLASS; j++) {
                                     olevel = UMIN(
-                                        olevel, skill_table[pObjIndex->value[i]]
+                                        olevel, skill_table[p_object_prototype->value[i]]
                                         .skill_level[j]);
                                 }
                             }
@@ -1629,7 +1625,7 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
                     }
                 }
 
-                pObj = create_object(pObjIndex, olevel);
+                pObj = create_object(p_object_prototype, olevel);
                 SET_BIT(pObj->extra_flags, ITEM_INVENTORY);
             }
             else {
@@ -1641,9 +1637,9 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
                 else
                     limit = pReset->arg2;
 
-                if (pObjIndex->count < limit || number_range(0, 4) == 0) {
+                if (p_object_prototype->count < limit || number_range(0, 4) == 0) {
                     pObj = create_object(
-                        pObjIndex, UMIN((LEVEL)number_fuzzy(level), LEVEL_HERO - 1));
+                        p_object_prototype, UMIN((LEVEL)number_fuzzy(level), LEVEL_HERO - 1));
                     /* error message if it is too high */
                     if (pObj->level > LastMob->level + 3
                         || (pObj->item_type == ITEM_WEAPON
@@ -1779,183 +1775,6 @@ void clone_mobile(CharData* parent, CharData* clone)
         affect_to_char(clone, paf);
 }
 
-/*
- * Create an instance of an object.
- */
-OBJ_DATA* create_object(OBJ_INDEX_DATA* pObjIndex, LEVEL level)
-{
-    AFFECT_DATA* paf;
-    OBJ_DATA* obj;
-    int i;
-
-    if (pObjIndex == NULL) {
-        bug("Create_object: NULL pObjIndex.", 0);
-        exit(1);
-    }
-
-    obj = new_obj();
-
-    obj->pIndexData = pObjIndex;
-    obj->in_room = NULL;
-    obj->enchanted = false;
-
-    if (pObjIndex->new_format)
-        obj->level = pObjIndex->level;
-    else
-        obj->level = UMAX(0, level);
-    obj->wear_loc = -1;
-
-    obj->name = str_dup(pObjIndex->name);           /* OLC */
-    obj->short_descr = str_dup(pObjIndex->short_descr);    /* OLC */
-    obj->description = str_dup(pObjIndex->description);    /* OLC */
-    obj->material = str_dup(pObjIndex->material);
-    obj->item_type = pObjIndex->item_type;
-    obj->extra_flags = pObjIndex->extra_flags;
-    obj->wear_flags = pObjIndex->wear_flags;
-    obj->value[0] = pObjIndex->value[0];
-    obj->value[1] = pObjIndex->value[1];
-    obj->value[2] = pObjIndex->value[2];
-    obj->value[3] = pObjIndex->value[3];
-    obj->value[4] = pObjIndex->value[4];
-    obj->weight = pObjIndex->weight;
-
-    if (level == -1 || pObjIndex->new_format)
-        obj->cost = pObjIndex->cost;
-    else
-        obj->cost
-            = number_fuzzy(10) * number_fuzzy(level) * number_fuzzy(level);
-
-    /*
-     * Mess with object properties.
-     */
-    switch (obj->item_type) {
-    default:
-        bug("Read_object: vnum %"PRVNUM" bad type.", pObjIndex->vnum);
-        break;
-
-    case ITEM_LIGHT:
-        if (obj->value[2] == 999) obj->value[2] = -1;
-        break;
-
-    case ITEM_FURNITURE:
-    case ITEM_TRASH:
-    case ITEM_CONTAINER:
-    case ITEM_DRINK_CON:
-    case ITEM_KEY:
-    case ITEM_FOOD:
-    case ITEM_BOAT:
-    case ITEM_CORPSE_NPC:
-    case ITEM_CORPSE_PC:
-    case ITEM_FOUNTAIN:
-    case ITEM_MAP:
-    case ITEM_CLOTHING:
-    case ITEM_PORTAL:
-        if (!pObjIndex->new_format) obj->cost /= 5;
-        break;
-
-    case ITEM_TREASURE:
-    case ITEM_WARP_STONE:
-    case ITEM_ROOM_KEY:
-    case ITEM_GEM:
-    case ITEM_JEWELRY:
-        break;
-
-    case ITEM_JUKEBOX:
-        for (i = 0; i < 5; i++) obj->value[i] = -1;
-        break;
-
-    case ITEM_SCROLL:
-        if (level != -1 && !pObjIndex->new_format)
-            obj->value[0] = number_fuzzy(obj->value[0]);
-        break;
-
-    case ITEM_WAND:
-    case ITEM_STAFF:
-        if (level != -1 && !pObjIndex->new_format) {
-            obj->value[0] = number_fuzzy(obj->value[0]);
-            obj->value[1] = number_fuzzy(obj->value[1]);
-            obj->value[2] = obj->value[1];
-        }
-        if (!pObjIndex->new_format) obj->cost *= 2;
-        break;
-
-    case ITEM_WEAPON:
-        if (level != -1 && !pObjIndex->new_format) {
-            obj->value[1] = number_fuzzy(number_fuzzy(1 * level / 4 + 2));
-            obj->value[2] = number_fuzzy(number_fuzzy(3 * level / 4 + 6));
-        }
-        break;
-
-    case ITEM_ARMOR:
-        if (level != -1 && !pObjIndex->new_format) {
-            obj->value[0] = number_fuzzy(level / 5 + 3);
-            obj->value[1] = number_fuzzy(level / 5 + 3);
-            obj->value[2] = number_fuzzy(level / 5 + 3);
-        }
-        break;
-
-    case ITEM_POTION:
-    case ITEM_PILL:
-        if (level != -1 && !pObjIndex->new_format)
-            obj->value[0] = number_fuzzy(number_fuzzy(obj->value[0]));
-        break;
-
-    case ITEM_MONEY:
-        if (!pObjIndex->new_format) obj->value[0] = obj->cost;
-        break;
-    }
-
-    for (paf = pObjIndex->affected; paf != NULL; paf = paf->next)
-        if (paf->location == APPLY_SPELL_AFFECT) affect_to_obj(obj, paf);
-
-    obj->next = object_list;
-    object_list = obj;
-    pObjIndex->count++;
-
-    return obj;
-}
-
-/* duplicate an object exactly -- except contents */
-void clone_object(OBJ_DATA* parent, OBJ_DATA* clone)
-{
-    int i;
-    AFFECT_DATA* paf;
-    EXTRA_DESCR_DATA *ed, *ed_new;
-
-    if (parent == NULL || clone == NULL) return;
-
-    /* start fixing the object */
-    clone->name = str_dup(parent->name);
-    clone->short_descr = str_dup(parent->short_descr);
-    clone->description = str_dup(parent->description);
-    clone->item_type = parent->item_type;
-    clone->extra_flags = parent->extra_flags;
-    clone->wear_flags = parent->wear_flags;
-    clone->weight = parent->weight;
-    clone->cost = parent->cost;
-    clone->level = parent->level;
-    clone->condition = parent->condition;
-    clone->material = str_dup(parent->material);
-    clone->timer = parent->timer;
-
-    for (i = 0; i < 5; i++) clone->value[i] = parent->value[i];
-
-    /* affects */
-    clone->enchanted = parent->enchanted;
-
-    for (paf = parent->affected; paf != NULL; paf = paf->next)
-        affect_to_obj(clone, paf);
-
-    /* extended desc */
-    for (ed = parent->extra_descr; ed != NULL; ed = ed->next) {
-        ed_new = new_extra_descr();
-        ed_new->keyword = str_dup(ed->keyword);
-        ed_new->description = str_dup(ed->description);
-        ed_new->next = clone->extra_descr;
-        clone->extra_descr = ed_new;
-    }
-}
-
 MPROG_CODE* get_mprog_index(VNUM vnum)
 {
     MPROG_CODE* prg;
@@ -2006,27 +1825,6 @@ char* get_extra_descr(const char* name, EXTRA_DESCR_DATA* ed)
     for (; ed != NULL; ed = ed->next) {
         if (is_name((char*)name, ed->keyword)) return ed->description;
     }
-    return NULL;
-}
-
-/*
- * Translates mob virtual number to its obj index struct.
- * Hash table lookup.
- */
-OBJ_INDEX_DATA* get_obj_index(VNUM vnum)
-{
-    OBJ_INDEX_DATA* pObjIndex;
-
-    for (pObjIndex = obj_index_hash[vnum % MAX_KEY_HASH]; pObjIndex != NULL;
-         pObjIndex = pObjIndex->next) {
-        if (pObjIndex->vnum == vnum) return pObjIndex;
-    }
-
-    if (fBootDb) {
-        bug("Get_obj_index: bad vnum %"PRVNUM".", vnum);
-        exit(1);
-    }
-
     return NULL;
 }
 
@@ -2633,7 +2431,7 @@ void do_memory(CharData* ch, char* argument)
     send_to_char(buf, ch);
     sprintf(buf, "(in use)%5d\n\r", mobile_count);
     send_to_char(buf, ch);
-    sprintf(buf, "Objs    %5d(%d new format)\n\r", top_obj_index, newobjs);
+    sprintf(buf, "Objs    %5d(%d new format)\n\r", top_object_prototype, newobjs);
     send_to_char(buf, ch);
     sprintf(buf, "Resets  %5d\n\r", top_reset);
     send_to_char(buf, ch);
@@ -2659,8 +2457,8 @@ void do_dump(CharData* ch, char* argument)
     CharData* fch;
     MobPrototype* p_mob_proto;
     PlayerData* pc;
-    OBJ_DATA* obj;
-    OBJ_INDEX_DATA* pObjIndex;
+    ObjectData* obj;
+    ObjectPrototype* p_object_prototype;
     ROOM_INDEX_DATA* room = NULL;
     EXIT_DATA* exit = NULL;
     DESCRIPTOR_DATA* d;
@@ -2715,15 +2513,15 @@ void do_dump(CharData* ch, char* argument)
             count * (sizeof(*d)), count2, count2 * (sizeof(*d)));
 
     /* object prototypes */
-    for (vnum = 0; nMatch < top_obj_index; vnum++)
-        if ((pObjIndex = get_obj_index(vnum)) != NULL) {
-            for (af = pObjIndex->affected; af != NULL; af = af->next)
+    for (vnum = 0; nMatch < top_object_prototype; vnum++)
+        if ((p_object_prototype = get_object_prototype(vnum)) != NULL) {
+            for (af = p_object_prototype->affected; af != NULL; af = af->next)
                 aff_count++;
             nMatch++;
         }
 
-    fprintf(fp, "ObjProt	%4d (%8zu bytes)\n", top_obj_index,
-            top_obj_index * (sizeof(*pObjIndex)));
+    fprintf(fp, "ObjProt	%4d (%8zu bytes)\n", top_object_prototype,
+            top_object_prototype * (sizeof(*p_object_prototype)));
 
     /* objects */
     count = 0;
@@ -2732,7 +2530,7 @@ void do_dump(CharData* ch, char* argument)
         count++;
         for (af = obj->affected; af != NULL; af = af->next) aff_count++;
     }
-    for (obj = obj_free; obj != NULL; obj = obj->next) count2++;
+    for (obj = object_free; obj != NULL; obj = obj->next) count2++;
 
     fprintf(fp, "Objs	%4d (%8zu bytes), %2d free (%zu bytes)\n", count,
             count * (sizeof(*obj)), count2, count2 * (sizeof(*obj)));
@@ -2776,12 +2574,12 @@ void do_dump(CharData* ch, char* argument)
     fprintf(fp, "\nObject Analysis\n");
     fprintf(fp, "---------------\n");
     nMatch = 0;
-    for (vnum = 0; nMatch < top_obj_index; vnum++)
-        if ((pObjIndex = get_obj_index(vnum)) != NULL) {
+    for (vnum = 0; nMatch < top_object_prototype; vnum++)
+        if ((p_object_prototype = get_object_prototype(vnum)) != NULL) {
             nMatch++;
-            fprintf(fp, "#%-4d %3d active %3d reset      %s\n", pObjIndex->vnum,
-                    pObjIndex->count, pObjIndex->reset_num,
-                    pObjIndex->short_descr);
+            fprintf(fp, "#%-4d %3d active %3d reset      %s\n", p_object_prototype->vnum,
+                    p_object_prototype->count, p_object_prototype->reset_num,
+                    p_object_prototype->short_descr);
         }
 
     /* close file */
