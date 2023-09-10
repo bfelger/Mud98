@@ -475,7 +475,7 @@ void do_mpecho(CharData* ch, char* argument)
 void do_mpmload(CharData* ch, char* argument)
 {
     char            arg[MAX_INPUT_LENGTH];
-    MOB_INDEX_DATA* pMobIndex;
+    MobPrototype* p_mob_proto;
     CharData* victim;
     VNUM vnum;
 
@@ -485,13 +485,13 @@ void do_mpmload(CharData* ch, char* argument)
         return;
 
     vnum = STRTOVNUM(arg);
-    if ((pMobIndex = get_mob_index(vnum)) == NULL) {
+    if ((p_mob_proto = get_mob_prototype(vnum)) == NULL) {
         sprintf(arg, "Mpmload: bad mob index (%"PRVNUM") from mob %"PRVNUM".",
             vnum, IS_NPC(ch) ? ch->pIndexData->vnum : 0);
         bug(arg, 0);
         return;
     }
-    victim = create_mobile(pMobIndex);
+    victim = create_mobile(p_mob_proto);
     char_to_room(victim, ch->in_room);
     return;
 }

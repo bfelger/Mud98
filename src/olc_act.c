@@ -30,7 +30,6 @@
 #include <sys/types.h>
 #include <time.h>
 
-void recalc(MOB_INDEX_DATA*);
 COMMAND(do_clear)
 
 /* Return true if area changed, false if not. */
@@ -368,7 +367,7 @@ REDIT(redit_rlist)
 
 REDIT(redit_mlist)
 {
-    MOB_INDEX_DATA* pMobIndex;
+    MobPrototype* p_mob_proto;
     AREA_DATA* pArea;
     char		buf[MAX_STRING_LENGTH];
     BUFFER* buf1;
@@ -390,11 +389,11 @@ REDIT(redit_mlist)
     found = false;
 
     for (vnum = pArea->min_vnum; vnum <= pArea->max_vnum; vnum++) {
-        if ((pMobIndex = get_mob_index(vnum)) != NULL) {
-            if (fAll || is_name(arg, pMobIndex->player_name)) {
+        if ((p_mob_proto = get_mob_prototype(vnum)) != NULL) {
+            if (fAll || is_name(arg, p_mob_proto->player_name)) {
                 found = true;
                 sprintf(buf, "[%5d] %-17.16s",
-                    pMobIndex->vnum, capitalize(pMobIndex->short_descr));
+                    p_mob_proto->vnum, capitalize(p_mob_proto->short_descr));
                 add_buf(buf1, buf);
                 if (++col % 3 == 0)
                     add_buf(buf1, "\n\r");
@@ -1479,7 +1478,7 @@ REDIT(redit_format)
 REDIT(redit_mreset)
 {
     ROOM_INDEX_DATA* pRoom;
-    MOB_INDEX_DATA* pMobIndex;
+    MobPrototype* p_mob_proto;
     CharData* newmob;
     char		arg[MAX_INPUT_LENGTH];
     char		arg2[MAX_INPUT_LENGTH];
@@ -1497,12 +1496,12 @@ REDIT(redit_mreset)
         return false;
     }
 
-    if (!(pMobIndex = get_mob_index(atoi(arg)))) {
+    if (!(p_mob_proto = get_mob_prototype(atoi(arg)))) {
         send_to_char("REdit: No mobile has that vnum.\n\r", ch);
         return false;
     }
 
-    if (pMobIndex->area != pRoom->area) {
+    if (p_mob_proto->area != pRoom->area) {
         send_to_char("REdit: No such mobile in this area.\n\r", ch);
         return false;
     }
@@ -1512,7 +1511,7 @@ REDIT(redit_mreset)
      */
     pReset = new_reset_data();
     pReset->command = 'M';
-    pReset->arg1 = pMobIndex->vnum;
+    pReset->arg1 = p_mob_proto->vnum;
     pReset->arg2 = is_number(arg2) ? (int16_t)atoi(arg2) : MAX_MOB;
     pReset->arg3 = pRoom->vnum;
     pReset->arg4 = is_number(argument) ? (int16_t)atoi(argument) : 1;
@@ -1521,13 +1520,13 @@ REDIT(redit_mreset)
     /*
      * Create the mobile.
      */
-    newmob = create_mobile(pMobIndex);
+    newmob = create_mobile(p_mob_proto);
     char_to_room(newmob, pRoom);
 
     sprintf(output, "%s (%d) has been added to resets.\n\r"
         "There will be a maximum of %d in the area, and %d in this room.\n\r",
-        capitalize(pMobIndex->short_descr),
-        pMobIndex->vnum,
+        capitalize(p_mob_proto->short_descr),
+        p_mob_proto->vnum,
         pReset->arg2,
         pReset->arg4);
     send_to_char(output, ch);
@@ -2675,7 +2674,7 @@ OEDIT(oedit_create)
  */
 MEDIT(medit_show)
 {
-    MOB_INDEX_DATA* pMob;
+    MobPrototype* pMob;
     char buf[MAX_STRING_LENGTH];
     MPROG_LIST* list;
     int cnt;
@@ -2692,7 +2691,7 @@ MEDIT(medit_show)
         }
     }
     else {
-        pMob = get_mob_index(atoi(buf));
+        pMob = get_mob_prototype(atoi(buf));
 
         if (!pMob) {
             send_to_char("ERROR : That mob does not exist.\n\r", ch);
@@ -2873,8 +2872,8 @@ MEDIT(medit_show)
 
 MEDIT(medit_group)
 {
-    MOB_INDEX_DATA* pMob;
-    MOB_INDEX_DATA* pMTemp;
+    MobPrototype* pMob;
+    MobPrototype* pMTemp;
     char arg[MAX_STRING_LENGTH];
     char buf[MAX_STRING_LENGTH];
     int temp;
@@ -2906,7 +2905,7 @@ MEDIT(medit_group)
         buffer = new_buf();
 
         for (temp = 0; temp < MAX_VNUM; temp++) {
-            pMTemp = get_mob_index(temp);
+            pMTemp = get_mob_prototype(temp);
             if (pMTemp && (pMTemp->group == atoi(argument))) {
                 found = true;
                 sprintf(buf, "[%5d] %s\n\r", pMTemp->vnum, pMTemp->player_name);
@@ -3067,10 +3066,10 @@ REDIT(redit_owner)
     return true;
 }
 
-void showresets(CharData* ch, BUFFER* buf, AREA_DATA* pArea, MOB_INDEX_DATA* mob, OBJ_INDEX_DATA* obj)
+void showresets(CharData* ch, BUFFER* buf, AREA_DATA* pArea, MobPrototype* mob, OBJ_INDEX_DATA* obj)
 {
     ROOM_INDEX_DATA* room;
-    MOB_INDEX_DATA* pLastMob;
+    MobPrototype* pLastMob;
     RESET_DATA* reset;
     char buf2[MIL];
     int key, lastmob;
@@ -3084,7 +3083,7 @@ void showresets(CharData* ch, BUFFER* buf, AREA_DATA* pArea, MOB_INDEX_DATA* mob
                 for (reset = room->reset_first; reset; reset = reset->next) {
                     if (reset->command == 'M') {
                         lastmob = reset->arg1;
-                        pLastMob = get_mob_index(lastmob);
+                        pLastMob = get_mob_prototype(lastmob);
                         if (pLastMob == NULL) {
                             bugf("Showresets : invalid reset (mob %d) in room %d", lastmob, room->vnum);
                             return;
@@ -3121,13 +3120,13 @@ void listobjreset(CharData* ch, BUFFER* buf, AREA_DATA* pArea)
 
 void listmobreset(CharData* ch, BUFFER* buf, AREA_DATA* pArea)
 {
-    MOB_INDEX_DATA* mob;
+    MobPrototype* mob;
     int key;
 
     add_buf(buf, "#UVnum  Name            Room #u\n\r");
 
     for (key = 0; key < MAX_KEY_HASH; ++key)
-        for (mob = mob_index_hash[key]; mob; mob = mob->next)
+        for (mob = mob_prototype_hash[key]; mob; mob = mob->next)
             if (mob->area == pArea)
                 showresets(ch, buf, pArea, mob, 0);
 }
@@ -3208,7 +3207,7 @@ REDIT(redit_checkrooms)
 
 REDIT(redit_checkmob)
 {
-    MOB_INDEX_DATA* mob;
+    MobPrototype* mob;
     ROOM_INDEX_DATA* room;
     int key;
     bool fAll = !str_cmp(argument, "all");
@@ -3216,7 +3215,7 @@ REDIT(redit_checkmob)
     EDIT_ROOM(ch, room);
 
     for (key = 0; key < MAX_KEY_HASH; ++key)
-        for (mob = mob_index_hash[key]; mob; mob = mob->next)
+        for (mob = mob_prototype_hash[key]; mob; mob = mob->next)
             if (mob->reset_num == 0 && (fAll || mob->area == room->area))
                 printf_to_char(ch, "Mob #B%-5.5d#b [%-20.20s] has no resets.\n\r", mob->vnum, mob->player_name);
 
@@ -3270,7 +3269,7 @@ REDIT(redit_copy)
 MEDIT(medit_copy)
 {
     VNUM vnum;
-    MOB_INDEX_DATA* pMob, * mob2;
+    MobPrototype* pMob, * mob2;
 
     EDIT_MOB(ch, pMob);
 
@@ -3284,7 +3283,7 @@ MEDIT(medit_copy)
         return false;
     }
 
-    if ((mob2 = get_mob_index(vnum)) == NULL) {
+    if ((mob2 = get_mob_prototype(vnum)) == NULL) {
         send_to_char("ERROR : That mob does not exist.\n\r", ch);
         return false;
     }
@@ -3528,7 +3527,7 @@ ED_FUN_DEC(ed_flag_set_sh)
 
 ED_FUN_DEC(ed_shop)
 {
-    MOB_INDEX_DATA* pMob = (MOB_INDEX_DATA*)arg;
+    MobPrototype* pMob = (MobPrototype*)arg;
     char command[MAX_INPUT_LENGTH];
     char arg1[MAX_INPUT_LENGTH];
 
@@ -3678,7 +3677,7 @@ ED_FUN_DEC(ed_shop)
 
 ED_FUN_DEC(ed_new_mob)
 {
-    MOB_INDEX_DATA* pMob;
+    MobPrototype* pMob;
     AREA_DATA* pArea;
     VNUM  value;
     int  iHash;
@@ -3702,12 +3701,12 @@ ED_FUN_DEC(ed_new_mob)
         return false;
     }
 
-    if (get_mob_index(value)) {
+    if (get_mob_prototype(value)) {
         send_to_char("MEdit : A mob with that vnum already exists.\n\r", ch);
         return false;
     }
 
-    pMob = new_mob_index();
+    pMob = new_mob_prototype();
     pMob->vnum = value;
     pMob->area = pArea;
     pMob->act = ACT_IS_NPC;
@@ -3718,8 +3717,8 @@ ED_FUN_DEC(ed_new_mob)
     SET_BIT(pArea->area_flags, AREA_CHANGED);
 
     iHash = value % MAX_KEY_HASH;
-    pMob->next = mob_index_hash[iHash];
-    mob_index_hash[iHash] = pMob;
+    pMob->next = mob_prototype_hash[iHash];
+    mob_prototype_hash[iHash] = pMob;
 
     set_editor(ch->desc, ED_MOBILE, U(pMob));
 /*    ch->desc->pEdit		= (void *)pMob; */
@@ -3783,7 +3782,7 @@ ED_FUN_DEC(ed_objrecval)
 
 ED_FUN_DEC(ed_recval)
 {
-    MOB_INDEX_DATA* pMob = (MOB_INDEX_DATA*)arg;
+    MobPrototype* pMob = (MobPrototype*)arg;
 
     if (pMob->level < 1 || pMob->level > 60) {
         send_to_char("The mob's level must be between 1 and 60.\n\r", ch);
@@ -3837,7 +3836,7 @@ ED_FUN_DEC(ed_int16lookup)
 
 ED_FUN_DEC(ed_ac)
 {
-    MOB_INDEX_DATA* pMob = (MOB_INDEX_DATA*)arg;
+    MobPrototype* pMob = (MobPrototype*)arg;
     char blarg[MAX_INPUT_LENGTH];
     int16_t pierce, bash, slash, exotic;
 
@@ -3943,7 +3942,7 @@ ED_FUN_DEC(ed_addprog)
     const struct flag_type* flagtable;
     MPROG_LIST* list, ** mprogs = (MPROG_LIST**)arg;
     MPROG_CODE* code;
-    MOB_INDEX_DATA* pMob;
+    MobPrototype* pMob;
     char trigger[MAX_STRING_LENGTH];
     char numb[MAX_STRING_LENGTH];
 
@@ -3999,7 +3998,7 @@ ED_FUN_DEC(ed_delprog)
     MPROG_LIST* list;
     MPROG_LIST* list_next;
     MPROG_LIST** mprogs = (MPROG_LIST**)arg;
-    MOB_INDEX_DATA* pMob;
+    MobPrototype* pMob;
     char mprog[MAX_STRING_LENGTH];
     int value;
     int cnt = 0, t2rem;
@@ -4418,7 +4417,7 @@ ED_FUN_DEC(ed_new_obj)
 
 ED_FUN_DEC(ed_race)
 {
-    MOB_INDEX_DATA* pMob = (MOB_INDEX_DATA*)arg;
+    MobPrototype* pMob = (MobPrototype*)arg;
     int16_t race;
 
     if (argument[0] != '\0'

@@ -80,6 +80,7 @@ add_executable(Mud98 merc.h act_comm.c act_enter.c act_info.c act_move.c
     
     entities/player_data.h entities/player_data.c
     entities/char_data.h entities/char_data.c
+    entities/mob_prototype.h entities/mob_prototype.c
 )
 
 if (NOT MSVC)

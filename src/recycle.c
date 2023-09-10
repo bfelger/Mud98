@@ -292,7 +292,6 @@ void free_obj(OBJ_DATA* obj)
 
 /* stuff for setting ids */
 long last_pc_id;
-long last_mob_id;
 
 long get_pc_id(void)
 {
@@ -301,12 +300,6 @@ long get_pc_id(void)
         : current_time);
     last_pc_id = val;
     return val;
-}
-
-long get_mob_id(void)
-{
-    last_mob_id++;
-    return last_mob_id;
 }
 
 MEM_DATA* mem_data_free;

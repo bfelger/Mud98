@@ -143,7 +143,6 @@ typedef struct help_data HELP_DATA;
 typedef struct help_area_data HELP_AREA;
 typedef struct kill_data KILL_DATA;
 typedef struct mem_data MEM_DATA;
-typedef struct mob_index_data MOB_INDEX_DATA;
 typedef struct mprog_list MPROG_LIST;
 typedef struct mprog_code MPROG_CODE;
 typedef struct note_data NOTE_DATA;
@@ -1247,52 +1246,6 @@ struct kill_data {
 #define WIZ_PREFIX              BIT(18)
 #define WIZ_SPAM                BIT(19)
 
-/*
- * Prototype for a mob.
- * This is the in-memory version of #MOBILES.
- */
-struct mob_index_data {
-    MOB_INDEX_DATA* next;
-    SPEC_FUN* spec_fun;
-    SHOP_DATA* pShop;
-    MPROG_LIST* mprogs;
-    AREA_DATA* area;        // OLC
-    VNUM vnum;
-    int16_t group;
-    bool new_format;
-    int16_t count;
-    int16_t killed;
-    char* player_name;
-    char* short_descr;
-    char* long_descr;
-    char* description;
-    long act;
-    long affected_by;
-    int16_t alignment;
-    int16_t level;
-    int16_t hitroll;
-    int16_t hit[3];
-    int16_t mana[3];
-    int16_t damage[3];
-    int16_t ac[4];
-    int16_t dam_type;
-    long off_flags;
-    long imm_flags;
-    long res_flags;
-    long vuln_flags;
-    int16_t start_pos;
-    int16_t default_pos;
-    int16_t sex;
-    int16_t race;
-    long wealth;
-    long form;
-    long parts;
-    int16_t size;
-    int16_t reset_num;
-    char* material;
-    long mprog_flags;
-};
-
 /* memory settings */
 #define MEM_CUSTOMER BIT(0)
 #define MEM_SELLER   BIT(1)
@@ -1740,7 +1693,7 @@ extern bool MOBtrigger;
  * One big lump ... this is every function in Merc.
  */
 #define CD          CharData
-#define MID         MOB_INDEX_DATA
+#define MID         MobPrototype
 #define OD          OBJ_DATA
 #define OID         OBJ_INDEX_DATA
 #define RID         ROOM_INDEX_DATA
@@ -1804,13 +1757,11 @@ void reset_room(ROOM_INDEX_DATA* pRoom);	// OLC
 char* print_flags(int flag);
 void boot_db(void);
 void area_update(void);
-CD* create_mobile(MOB_INDEX_DATA * pMobIndex);
 void clone_mobile(CharData * parent, CharData* clone);
 OD* create_object(OBJ_INDEX_DATA * pObjIndex, LEVEL level);
 void clone_object(OBJ_DATA * parent, OBJ_DATA* clone);
 void clear_char(CharData * ch);
 char* get_extra_descr(const char* name, EXTRA_DESCR_DATA* ed);
-MID* get_mob_index(VNUM vnum);
 OID* get_obj_index(VNUM vnum);
 RID* get_room_index(VNUM vnum);
 MPC* get_mprog_index(VNUM vnum);
@@ -2051,7 +2002,6 @@ void update_handler(void);
 #undef SF
 #undef AD
 
-
 /*****************************************************************************
  *                                    OLC                                    *
  *****************************************************************************/
@@ -2092,20 +2042,26 @@ extern int top_area;
 extern int top_ed;
 extern int top_exit;
 extern int top_help;
-extern int top_mob_index;
 extern int top_obj_index;
 extern int top_reset;
 extern int top_room;
 extern int top_shop;
 
-extern VNUM top_vnum_mob;
 extern VNUM top_vnum_obj;
 extern VNUM top_vnum_room;
 
 extern char str_empty[1];
 
-extern MOB_INDEX_DATA* mob_index_hash[MAX_KEY_HASH];
 extern OBJ_INDEX_DATA* obj_index_hash[MAX_KEY_HASH];
 extern ROOM_INDEX_DATA* room_index_hash[MAX_KEY_HASH];
+
+extern	bool fBootDb;
+
+struct flag_stat_type {
+    const struct flag_type* structure;
+    bool stat;
+};
+
+extern const struct flag_stat_type flag_stat_table[];
 
 #endif // !MUD98__MERC_H

@@ -226,14 +226,14 @@ void string_add(CharData* ch, char* argument)
 
         if (ch->desc->editor == ED_PROG && ch->desc->pEdit) {
             int hash = 0;
-            MOB_INDEX_DATA* mob;
+            MobPrototype* mob;
             MPROG_LIST* mp;
             MPROG_CODE* mpc = (MPROG_CODE*)ch->desc->pEdit;
 
             mpc->changed = true;
 
             for (; hash < MAX_KEY_HASH; hash++) {
-                for (mob = mob_index_hash[hash]; mob; mob = mob->next)
+                for (mob = mob_prototype_hash[hash]; mob; mob = mob->next)
                     for (mp = mob->mprogs; mp; mp = mp->next)
                         if (mp->vnum == mpc->vnum) {
                             mp->code = mpc->code;

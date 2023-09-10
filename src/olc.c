@@ -38,7 +38,7 @@ COMMAND(do_purge)
 
 void UpdateOLCScreen(DESCRIPTOR_DATA*);
 
-MOB_INDEX_DATA		xMob;
+MobPrototype		xMob;
 OBJ_INDEX_DATA		xObj;
 ROOM_INDEX_DATA		xRoom;
 struct	skill_type	xSkill;
@@ -272,7 +272,7 @@ char* olc_ed_vnum(CharData* ch)
     AREA_DATA* pArea;
     ROOM_INDEX_DATA* pRoom;
     OBJ_INDEX_DATA* pObj;
-    MOB_INDEX_DATA* pMob;
+    MobPrototype* pMob;
     MPROG_CODE* pMcode;
     HELP_DATA* pHelp;
     struct race_type* pRace;
@@ -296,7 +296,7 @@ char* olc_ed_vnum(CharData* ch)
         sprintf(buf, "%"PRVNUM, pObj ? pObj->vnum : 0);
         break;
     case ED_MOBILE:
-        pMob = (MOB_INDEX_DATA*)ch->desc->pEdit;
+        pMob = (MobPrototype*)ch->desc->pEdit;
         sprintf(buf, "%"PRVNUM, pMob ? pMob->vnum : 0);
         break;
     case ED_PROG:
@@ -606,7 +606,7 @@ void oedit(CharData* ch, char* argument)
 void    medit(CharData* ch, char* argument)
 {
     AREA_DATA* pArea;
-    MOB_INDEX_DATA* pMob;
+    MobPrototype* pMob;
 
     EDIT_MOB(ch, pMob);
     pArea = pMob->area;
@@ -850,10 +850,10 @@ void do_oedit(CharData* ch, char* argument)
 
 
 
-/* Entry point for editing mob_index_data. */
+/* Entry point for editing mob_prototype_data. */
 void do_medit(CharData* ch, char* argument)
 {
-    MOB_INDEX_DATA* pMob;
+    MobPrototype* pMob;
     AREA_DATA* pArea;
     int     value;
     char    arg1[MAX_STRING_LENGTH];
@@ -865,7 +865,7 @@ void do_medit(CharData* ch, char* argument)
 
     if (is_number(arg1)) {
         value = atoi(arg1);
-        if (!(pMob = get_mob_index(value))) {
+        if (!(pMob = get_mob_prototype(value))) {
             send_to_char("MEdit:  That vnum does not exist.\n\r", ch);
             return;
         }
@@ -915,7 +915,7 @@ void do_medit(CharData* ch, char* argument)
 void    display_resets(CharData* ch, ROOM_INDEX_DATA* pRoom)
 {
     RESET_DATA* pReset;
-    MOB_INDEX_DATA* pMob = NULL;
+    MobPrototype* pMob = NULL;
     char    buf[MAX_STRING_LENGTH] = "";
     char    final[MAX_STRING_LENGTH] = "";
     int     iReset = 0;
@@ -930,7 +930,7 @@ void    display_resets(CharData* ch, ROOM_INDEX_DATA* pRoom)
 
     for (pReset = pRoom->reset_first; pReset; pReset = pReset->next) {
         OBJ_INDEX_DATA* pObj;
-        MOB_INDEX_DATA* pMobIndex;
+        MobPrototype* p_mob_proto;
         OBJ_INDEX_DATA* pObjIndex;
         OBJ_INDEX_DATA* pObjToIndex;
         ROOM_INDEX_DATA* pRoomIndex;
@@ -945,7 +945,7 @@ void    display_resets(CharData* ch, ROOM_INDEX_DATA* pRoom)
             break;
 
         case 'M':
-            if (!(pMobIndex = get_mob_index(pReset->arg1))) {
+            if (!(p_mob_proto = get_mob_prototype(pReset->arg1))) {
                 sprintf(buf, "Load Mobile - Bad Mob %d\n\r", pReset->arg1);
                 strcat(final, buf);
                 continue;
@@ -957,7 +957,7 @@ void    display_resets(CharData* ch, ROOM_INDEX_DATA* pRoom)
                 continue;
             }
 
-            pMob = pMobIndex;
+            pMob = p_mob_proto;
             sprintf(buf, "M[%5d] %-13.13s en el suelo         R[%5d] %2d-%2d %-15.15s\n\r",
                 pReset->arg1, pMob->short_descr, pReset->arg3,
                 pReset->arg2, pReset->arg4, pRoomIndex->name);
@@ -1258,7 +1258,7 @@ void    do_resets(CharData* ch, char* argument)
                   * -----------------------
                   */
                 if (!str_cmp(arg2, "mob")) {
-                    if (get_mob_index(is_number(arg3) ? atoi(arg3) : 1) == NULL) {
+                    if (get_mob_prototype(is_number(arg3) ? atoi(arg3) : 1) == NULL) {
                         send_to_char("That mob does not exist.\n\r", ch);
                         return;
                     }
@@ -1392,7 +1392,7 @@ void    do_resets(CharData* ch, char* argument)
 
             if (tvar == 0 || tvar == 1) {
                 if (is_number(arg))
-                    found = get_mob_index(atoi(arg)) ? atoi(arg) : 0;
+                    found = get_mob_prototype(atoi(arg)) ? atoi(arg) : 0;
                 else
                     found = get_vnum_mob_name_area(arg, ch->in_room->area);
                 if (found)
@@ -1463,7 +1463,7 @@ void    do_alist(CharData* ch, char* argument)
 bool process_olc_command(CharData* ch, char* argument, const struct olc_comm_type* table)
 {
     char arg[MIL];
-    MOB_INDEX_DATA* pMob;
+    MobPrototype* pMob;
     OBJ_INDEX_DATA* pObj;
     ROOM_INDEX_DATA* pRoom;
     struct race_type* pRace;

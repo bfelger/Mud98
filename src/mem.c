@@ -38,7 +38,6 @@ EXIT_DATA* exit_free;
 ROOM_INDEX_DATA* room_index_free;
 OBJ_INDEX_DATA* obj_index_free;
 SHOP_DATA* shop_free;
-MOB_INDEX_DATA* mob_index_free;
 RESET_DATA* reset_free;
 HELP_DATA* help_free = NULL;
 
@@ -303,86 +302,6 @@ void free_obj_index(OBJ_INDEX_DATA* pObj)
 
     pObj->next = obj_index_free;
     obj_index_free = pObj;
-    return;
-}
-
-MOB_INDEX_DATA* new_mob_index(void)
-{
-    MOB_INDEX_DATA* pMob;
-
-    if (!mob_index_free) {
-        pMob = alloc_perm(sizeof(*pMob));
-        top_mob_index++;
-    }
-    else {
-        pMob = mob_index_free;
-        mob_index_free = mob_index_free->next;
-    }
-
-    pMob->next = NULL;
-    pMob->spec_fun = NULL;
-    pMob->pShop = NULL;
-    pMob->area = NULL;
-    pMob->player_name = str_dup("no name");
-    pMob->short_descr = str_dup("(no short description)");
-    pMob->long_descr = str_dup("(no long description)\n\r");
-    pMob->description = &str_empty[0];
-    pMob->vnum = 0;
-    pMob->count = 0;
-    pMob->killed = 0;
-    pMob->sex = 0;
-    pMob->level = 0;
-    pMob->act = ACT_IS_NPC;
-    pMob->affected_by = 0;
-    pMob->alignment = 0;
-    pMob->hitroll = 0;
-    pMob->race = (int16_t)race_lookup("human"); /* - Hugin */
-    pMob->form = 0;           /* ROM patch -- Hugin */
-    pMob->parts = 0;           /* ROM patch -- Hugin */
-    pMob->imm_flags = 0;           /* ROM patch -- Hugin */
-    pMob->res_flags = 0;           /* ROM patch -- Hugin */
-    pMob->vuln_flags = 0;           /* ROM patch -- Hugin */
-    pMob->material = str_dup("unknown"); /* -- Hugin */
-    pMob->off_flags = 0;           /* ROM patch -- Hugin */
-    pMob->size = SIZE_MEDIUM; /* ROM patch -- Hugin */
-    pMob->ac[AC_PIERCE] = 0;           /* ROM patch -- Hugin */
-    pMob->ac[AC_BASH] = 0;           /* ROM patch -- Hugin */
-    pMob->ac[AC_SLASH] = 0;           /* ROM patch -- Hugin */
-    pMob->ac[AC_EXOTIC] = 0;           /* ROM patch -- Hugin */
-    pMob->hit[DICE_NUMBER] = 0;   /* ROM patch -- Hugin */
-    pMob->hit[DICE_TYPE] = 0;   /* ROM patch -- Hugin */
-    pMob->hit[DICE_BONUS] = 0;   /* ROM patch -- Hugin */
-    pMob->mana[DICE_NUMBER] = 0;   /* ROM patch -- Hugin */
-    pMob->mana[DICE_TYPE] = 0;   /* ROM patch -- Hugin */
-    pMob->mana[DICE_BONUS] = 0;   /* ROM patch -- Hugin */
-    pMob->damage[DICE_NUMBER] = 0;   /* ROM patch -- Hugin */
-    pMob->damage[DICE_TYPE] = 0;   /* ROM patch -- Hugin */
-    pMob->damage[DICE_NUMBER] = 0;   /* ROM patch -- Hugin */
-    pMob->start_pos = POS_STANDING; /*  -- Hugin */
-    pMob->default_pos = POS_STANDING; /*  -- Hugin */
-    pMob->wealth = 0;
-    pMob->mprogs = NULL;
-    pMob->mprog_flags = 0;
-
-    pMob->new_format = true;  /* ROM */
-
-    return pMob;
-}
-
-
-
-void free_mob_index(MOB_INDEX_DATA* pMob)
-{
-    free_string(pMob->player_name);
-    free_string(pMob->short_descr);
-    free_string(pMob->long_descr);
-    free_string(pMob->description);
-    free_mprog(pMob->mprogs);
-
-    free_shop(pMob->pShop);
-
-    pMob->next = mob_index_free;
-    mob_index_free = pMob;
     return;
 }
 

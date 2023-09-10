@@ -23,7 +23,6 @@ struct cmd_list_type {
     DO_FUN* function;
 };
 
-extern	bool fBootDb;
 int max_cmd;
 struct cmd_type* cmd_table;
 void create_command_table();

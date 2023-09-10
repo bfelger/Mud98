@@ -24,6 +24,8 @@
 #include "tables.h"
 #include "tablesave.h"
 
+#include "entities/mob_prototype.h"
+
 #include <inttypes.h>
 
 char* flag_string(const struct flag_type*, long);
@@ -379,7 +381,7 @@ DECLARE_ED_FUN(ed_objrecval);
  */
 
 /* Return pointers to what is being edited. */
-#define EDIT_MOB(Ch, Mob)	( Mob = (MOB_INDEX_DATA *)Ch->desc->pEdit )
+#define EDIT_MOB(Ch, Mob)	( Mob = (MobPrototype *)Ch->desc->pEdit )
 #define EDIT_OBJ(Ch, Obj)	( Obj = (OBJ_INDEX_DATA *)Ch->desc->pEdit )
 #define EDIT_ROOM(Ch, Room)	( Room = (ROOM_INDEX_DATA *)Ch->desc->pEdit )
 #define EDIT_AREA(Ch, Area)	( Area = (AREA_DATA *)Ch->desc->pEdit )
@@ -413,8 +415,6 @@ SHOP_DATA*      new_shop            args((void));
 void            free_shop           args((SHOP_DATA* pShop));
 OBJ_INDEX_DATA* new_obj_index       args((void));
 void            free_obj_index      args((OBJ_INDEX_DATA* pObj));
-MOB_INDEX_DATA* new_mob_index       args((void));
-void            free_mob_index      args((MOB_INDEX_DATA* pMob));
 #undef	ED
 
 MPROG_LIST*     new_mprog           args((void));
@@ -430,7 +430,7 @@ void		    show_sexlist		args((CharData* ch));
 void		    show_sizelist		args((CharData* ch));
 
 extern		    ROOM_INDEX_DATA 	xRoom;
-extern		    MOB_INDEX_DATA 		xMob;
+extern		    MobPrototype 		xMob;
 extern		    OBJ_INDEX_DATA		xObj;
 
 extern void     InitScreen		    args((DESCRIPTOR_DATA*));

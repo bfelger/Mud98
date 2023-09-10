@@ -2926,10 +2926,10 @@ char* itos(int temp)
 int get_vnum_mob_name_area(char* name, AREA_DATA* pArea)
 {
     int hash;
-    MOB_INDEX_DATA* mob;
+    MobPrototype* mob;
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++)
-        for (mob = mob_index_hash[hash]; mob; mob = mob->next)
+        for (mob = mob_prototype_hash[hash]; mob; mob = mob->next)
             if (mob->area == pArea
                 && !str_prefix(name, mob->player_name))
                 return mob->vnum;

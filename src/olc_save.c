@@ -174,96 +174,96 @@ char* fwrite_flag(long flags, char buf[])
  Purpose:	Save one mobile to file, new format -- Hugin
  Called by:	save_mobiles (below).
  ****************************************************************************/
-void save_mobile(FILE* fp, MOB_INDEX_DATA* pMobIndex)
+void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
 {
-    int16_t race = pMobIndex->race;
+    int16_t race = p_mob_proto->race;
     long temp;
     char buf[MAX_STRING_LENGTH];
     MPROG_LIST* pMprog;
 
-    fprintf(fp, "#%"PRVNUM"\n", pMobIndex->vnum);
-    fprintf(fp, "%s~\n", pMobIndex->player_name);
-    fprintf(fp, "%s~\n", pMobIndex->short_descr);
-    fprintf(fp, "%s~\n", fix_string(pMobIndex->long_descr));
-    fprintf(fp, "%s~\n", fix_string(pMobIndex->description));
+    fprintf(fp, "#%"PRVNUM"\n", p_mob_proto->vnum);
+    fprintf(fp, "%s~\n", p_mob_proto->player_name);
+    fprintf(fp, "%s~\n", p_mob_proto->short_descr);
+    fprintf(fp, "%s~\n", fix_string(p_mob_proto->long_descr));
+    fprintf(fp, "%s~\n", fix_string(p_mob_proto->description));
     fprintf(fp, "%s~\n", race_table[race].name);
 
-    temp = DIF(pMobIndex->act, race_table[race].act);
+    temp = DIF(p_mob_proto->act, race_table[race].act);
     fprintf(fp, "%s ", fwrite_flag(temp, buf));
 
-    temp = DIF(pMobIndex->affected_by, race_table[race].aff);
+    temp = DIF(p_mob_proto->affected_by, race_table[race].aff);
     fprintf(fp, "%s ", fwrite_flag(temp, buf));
 
-    fprintf(fp, "%d %d\n", pMobIndex->alignment, pMobIndex->group);
-    fprintf(fp, "%d ", pMobIndex->level);
-    fprintf(fp, "%d ", pMobIndex->hitroll);
-    fprintf(fp, "%dd%d+%d ", pMobIndex->hit[DICE_NUMBER],
-        pMobIndex->hit[DICE_TYPE],
-        pMobIndex->hit[DICE_BONUS]);
-    fprintf(fp, "%dd%d+%d ", pMobIndex->mana[DICE_NUMBER],
-        pMobIndex->mana[DICE_TYPE],
-        pMobIndex->mana[DICE_BONUS]);
-    fprintf(fp, "%dd%d+%d ", pMobIndex->damage[DICE_NUMBER],
-        pMobIndex->damage[DICE_TYPE],
-        pMobIndex->damage[DICE_BONUS]);
-    fprintf(fp, "%s\n", attack_table[pMobIndex->dam_type].name);
-    fprintf(fp, "%d %d %d %d\n", pMobIndex->ac[AC_PIERCE] / 10,
-        pMobIndex->ac[AC_BASH] / 10,
-        pMobIndex->ac[AC_SLASH] / 10,
-        pMobIndex->ac[AC_EXOTIC] / 10);
+    fprintf(fp, "%d %d\n", p_mob_proto->alignment, p_mob_proto->group);
+    fprintf(fp, "%d ", p_mob_proto->level);
+    fprintf(fp, "%d ", p_mob_proto->hitroll);
+    fprintf(fp, "%dd%d+%d ", p_mob_proto->hit[DICE_NUMBER],
+        p_mob_proto->hit[DICE_TYPE],
+        p_mob_proto->hit[DICE_BONUS]);
+    fprintf(fp, "%dd%d+%d ", p_mob_proto->mana[DICE_NUMBER],
+        p_mob_proto->mana[DICE_TYPE],
+        p_mob_proto->mana[DICE_BONUS]);
+    fprintf(fp, "%dd%d+%d ", p_mob_proto->damage[DICE_NUMBER],
+        p_mob_proto->damage[DICE_TYPE],
+        p_mob_proto->damage[DICE_BONUS]);
+    fprintf(fp, "%s\n", attack_table[p_mob_proto->dam_type].name);
+    fprintf(fp, "%d %d %d %d\n", p_mob_proto->ac[AC_PIERCE] / 10,
+        p_mob_proto->ac[AC_BASH] / 10,
+        p_mob_proto->ac[AC_SLASH] / 10,
+        p_mob_proto->ac[AC_EXOTIC] / 10);
 
-    temp = DIF(pMobIndex->off_flags, race_table[race].off);
+    temp = DIF(p_mob_proto->off_flags, race_table[race].off);
     fprintf(fp, "%s ", fwrite_flag(temp, buf));
 
-    temp = DIF(pMobIndex->imm_flags, race_table[race].imm);
+    temp = DIF(p_mob_proto->imm_flags, race_table[race].imm);
     fprintf(fp, "%s ", fwrite_flag(temp, buf));
 
-    temp = DIF(pMobIndex->res_flags, race_table[race].res);
+    temp = DIF(p_mob_proto->res_flags, race_table[race].res);
     fprintf(fp, "%s ", fwrite_flag(temp, buf));
 
-    temp = DIF(pMobIndex->vuln_flags, race_table[race].vuln);
+    temp = DIF(p_mob_proto->vuln_flags, race_table[race].vuln);
     fprintf(fp, "%s\n", fwrite_flag(temp, buf));
 
     fprintf(fp, "%s %s %s %ld\n",
-        position_table[pMobIndex->start_pos].short_name,
-        position_table[pMobIndex->default_pos].short_name,
-        sex_table[pMobIndex->sex].name,
-        pMobIndex->wealth);
+        position_table[p_mob_proto->start_pos].short_name,
+        position_table[p_mob_proto->default_pos].short_name,
+        sex_table[p_mob_proto->sex].name,
+        p_mob_proto->wealth);
 
-    temp = DIF(pMobIndex->form, race_table[race].form);
+    temp = DIF(p_mob_proto->form, race_table[race].form);
     fprintf(fp, "%s ", fwrite_flag(temp, buf));
 
-    temp = DIF(pMobIndex->parts, race_table[race].parts);
+    temp = DIF(p_mob_proto->parts, race_table[race].parts);
     fprintf(fp, "%s ", fwrite_flag(temp, buf));
 
-    fprintf(fp, "%s ", size_table[pMobIndex->size].name);
-    fprintf(fp, "'%s'\n", ((pMobIndex->material[0] != '\0') ? pMobIndex->material : "unknown"));
+    fprintf(fp, "%s ", size_table[p_mob_proto->size].name);
+    fprintf(fp, "'%s'\n", ((p_mob_proto->material[0] != '\0') ? p_mob_proto->material : "unknown"));
 
-    if ((temp = DIF(race_table[race].act, pMobIndex->act)))
+    if ((temp = DIF(race_table[race].act, p_mob_proto->act)))
         fprintf(fp, "F act %s\n", fwrite_flag(temp, buf));
 
-    if ((temp = DIF(race_table[race].aff, pMobIndex->affected_by)))
+    if ((temp = DIF(race_table[race].aff, p_mob_proto->affected_by)))
         fprintf(fp, "F aff %s\n", fwrite_flag(temp, buf));
 
-    if ((temp = DIF(race_table[race].off, pMobIndex->off_flags)))
+    if ((temp = DIF(race_table[race].off, p_mob_proto->off_flags)))
         fprintf(fp, "F off %s\n", fwrite_flag(temp, buf));
 
-    if ((temp = DIF(race_table[race].imm, pMobIndex->imm_flags)))
+    if ((temp = DIF(race_table[race].imm, p_mob_proto->imm_flags)))
         fprintf(fp, "F imm %s\n", fwrite_flag(temp, buf));
 
-    if ((temp = DIF(race_table[race].res, pMobIndex->res_flags)))
+    if ((temp = DIF(race_table[race].res, p_mob_proto->res_flags)))
         fprintf(fp, "F res %s\n", fwrite_flag(temp, buf));
 
-    if ((temp = DIF(race_table[race].vuln, pMobIndex->vuln_flags)))
+    if ((temp = DIF(race_table[race].vuln, p_mob_proto->vuln_flags)))
         fprintf(fp, "F vul %s\n", fwrite_flag(temp, buf));
 
-    if ((temp = DIF(race_table[race].form, pMobIndex->form)))
+    if ((temp = DIF(race_table[race].form, p_mob_proto->form)))
         fprintf(fp, "F for %s\n", fwrite_flag(temp, buf));
 
-    if ((temp = DIF(race_table[race].parts, pMobIndex->parts)))
+    if ((temp = DIF(race_table[race].parts, p_mob_proto->parts)))
         fprintf(fp, "F par %s\n", fwrite_flag(temp, buf));
 
-    for (pMprog = pMobIndex->mprogs; pMprog; pMprog = pMprog->next) {
+    for (pMprog = p_mob_proto->mprogs; pMprog; pMprog = pMprog->next) {
         fprintf(fp, "M '%s' %"PRVNUM" %s~\n",
             mprog_type_to_name(pMprog->trig_type), pMprog->vnum,
             pMprog->trig_phrase);
@@ -280,12 +280,12 @@ void save_mobile(FILE* fp, MOB_INDEX_DATA* pMobIndex)
  ****************************************************************************/
 void save_mobiles(FILE* fp, AREA_DATA* pArea)
 {
-    MOB_INDEX_DATA* pMob;
+    MobPrototype* pMob;
 
     fprintf(fp, "#MOBILES\n");
 
     for (VNUM i = pArea->min_vnum; i <= pArea->max_vnum; i++) {
-        if ((pMob = get_mob_index(i)))
+        if ((pMob = get_mob_prototype(i)))
             save_mobile(fp, pMob);
     }
 
@@ -598,20 +598,20 @@ void save_rooms(FILE* fp, AREA_DATA* pArea)
 void save_specials(FILE* fp, AREA_DATA* pArea)
 {
     int iHash;
-    MOB_INDEX_DATA* pMobIndex;
+    MobPrototype* p_mob_proto;
 
     fprintf(fp, "#SPECIALS\n");
 
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
-        for (pMobIndex = mob_index_hash[iHash]; pMobIndex; pMobIndex = pMobIndex->next) {
-            if (pMobIndex && pMobIndex->area == pArea && pMobIndex->spec_fun) {
+        for (p_mob_proto = mob_prototype_hash[iHash]; p_mob_proto; p_mob_proto = p_mob_proto->next) {
+            if (p_mob_proto && p_mob_proto->area == pArea && p_mob_proto->spec_fun) {
 #if defined( VERBOSE )
-                fprintf(fp, "M %"PRVNUM" %s Load to: %s\n", pMobIndex->vnum,
-                    spec_name(pMobIndex->spec_fun),
-                    pMobIndex->short_descr);
+                fprintf(fp, "M %"PRVNUM" %s Load to: %s\n", p_mob_proto->vnum,
+                    spec_name(p_mob_proto->spec_fun),
+                    p_mob_proto->short_descr);
 #else
-                fprintf(fp, "M %"PRVNUM" %s\n", pMobIndex->vnum,
-                    spec_name(pMobIndex->spec_fun));
+                fprintf(fp, "M %"PRVNUM" %s\n", p_mob_proto->vnum,
+                    spec_name(p_mob_proto->spec_fun));
 #endif
             }
         }
@@ -673,7 +673,7 @@ void save_door_resets(FILE* fp, AREA_DATA* pArea)
 void save_resets(FILE* fp, AREA_DATA* pArea)
 {
     RESET_DATA* pReset;
-    MOB_INDEX_DATA* pLastMob = NULL;
+    MobPrototype* pLastMob = NULL;
 #ifdef VERBOSE
     OBJ_INDEX_DATA* pLastObj;
 #endif
@@ -696,7 +696,7 @@ void save_resets(FILE* fp, AREA_DATA* pArea)
 
 #ifdef VERBOSE
                     case 'M':
-                        pLastMob = get_mob_index(pReset->arg1);
+                        pLastMob = get_mob_prototype(pReset->arg1);
                         fprintf(fp, "M 0 %d %d %d %d Load %s\n",
                             pReset->arg1,
                             pReset->arg2,
@@ -763,7 +763,7 @@ void save_resets(FILE* fp, AREA_DATA* pArea)
                     }
 #else
             case 'M':
-                pLastMob = get_mob_index(pReset->arg1);
+                pLastMob = get_mob_prototype(pReset->arg1);
                 fprintf(fp, "M 0 %d %d %d %d\n",
                     pReset->arg1,
                     pReset->arg2,
@@ -841,16 +841,16 @@ return;
 void save_shops(FILE* fp, AREA_DATA* pArea)
 {
     SHOP_DATA* pShopIndex;
-    MOB_INDEX_DATA* pMobIndex;
+    MobPrototype* p_mob_proto;
     int iTrade;
     int iHash;
 
     fprintf(fp, "#SHOPS\n");
 
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
-        for (pMobIndex = mob_index_hash[iHash]; pMobIndex; pMobIndex = pMobIndex->next) {
-            if (pMobIndex && pMobIndex->area == pArea && pMobIndex->pShop) {
-                pShopIndex = pMobIndex->pShop;
+        for (p_mob_proto = mob_prototype_hash[iHash]; p_mob_proto; p_mob_proto = p_mob_proto->next) {
+            if (p_mob_proto && p_mob_proto->area == pArea && p_mob_proto->pShop) {
+                pShopIndex = p_mob_proto->pShop;
 
                 fprintf(fp, "%d ", pShopIndex->keeper);
                 for (iTrade = 0; iTrade < MAX_TRADE; iTrade++) {
@@ -1131,7 +1131,7 @@ void do_asave(CharData* ch, char* argument)
             pArea = ((OBJ_INDEX_DATA*)ch->desc->pEdit)->area;
             break;
         case ED_MOBILE:
-            pArea = ((MOB_INDEX_DATA*)ch->desc->pEdit)->area;
+            pArea = ((MobPrototype*)ch->desc->pEdit)->area;
             break;
         default:
             pArea = ch->in_room->area;

@@ -37,6 +37,7 @@
 #include "strings.h"
 #include "tables.h"
 
+#include "entities/mob_prototype.h"
 #include "entities/player_data.h"
 
 #include <ctype.h>
@@ -147,7 +148,6 @@ SKNUM gsn_recall;
 /*
  * Locals.
  */
-MOB_INDEX_DATA* mob_index_hash[MAX_KEY_HASH];
 OBJ_INDEX_DATA* obj_index_hash[MAX_KEY_HASH];
 ROOM_INDEX_DATA* room_index_hash[MAX_KEY_HASH];
 char* string_hash[MAX_KEY_HASH];
@@ -165,16 +165,13 @@ int top_area;
 int top_ed;
 int top_exit;
 int top_help;
-int top_mob_index;
 int top_obj_index;
 int top_reset;
 int top_room;
 int top_shop;
 VNUM top_vnum_room;     // OLC
-VNUM top_vnum_mob;      // OLC
 VNUM top_vnum_obj;      // OLC
 int	top_mprog_index;    // OLC
-int newmobs = 0;
 int newobjs = 0;
 
 /*
@@ -216,8 +213,6 @@ void init_mm args((void));
 void load_area args((FILE * fp)); 
 void new_load_area args((FILE * fp));   // OOC
 void load_helps	args((FILE * fp, char* fname));
-void load_old_mob args((FILE * fp));
-void load_mobiles args((FILE * fp));
 void load_old_obj args((FILE * fp));
 void load_objects args((FILE * fp));
 void load_resets args((FILE * fp));
@@ -685,139 +680,6 @@ void load_helps(FILE* fp, char* fname)
 }
 
 /*
- * Snarf a mob section. old style
- */
-void load_old_mob(FILE* fp)
-{
-    MOB_INDEX_DATA* pMobIndex;
-    /* for race updating */
-    int race;
-    char name[MAX_STRING_LENGTH];
-
-    if (!area_last) {
-        bug("Load_mobiles: no #AREA seen yet.", 0);
-        exit(1);
-    }
-
-    for (;;) {
-        VNUM vnum;
-        char letter;
-        int iHash;
-
-        letter = fread_letter(fp);
-        if (letter != '#') {
-            bug("Load_mobiles: # not found.", 0);
-            exit(1);
-        }
-
-        vnum = fread_number(fp);
-        if (vnum == 0) break;
-
-        fBootDb = false;
-        if (get_mob_index(vnum) != NULL) {
-            bug("Load_mobiles: vnum %"PRVNUM" duplicated.", vnum);
-            exit(1);
-        }
-        fBootDb = true;
-
-        pMobIndex = alloc_perm(sizeof(*pMobIndex));
-        pMobIndex->vnum = vnum;
-        pMobIndex->area = area_last;    // OLC
-        pMobIndex->new_format = false;
-        pMobIndex->player_name = fread_string(fp);
-        pMobIndex->short_descr = fread_string(fp);
-        pMobIndex->long_descr = fread_string(fp);
-        pMobIndex->description = fread_string(fp);
-
-        pMobIndex->long_descr[0] = UPPER(pMobIndex->long_descr[0]);
-        pMobIndex->description[0] = UPPER(pMobIndex->description[0]);
-
-        pMobIndex->act = fread_flag(fp) | ACT_IS_NPC;
-        pMobIndex->affected_by = fread_flag(fp);
-        pMobIndex->pShop = NULL;
-        pMobIndex->alignment = (int16_t)fread_number(fp);
-        letter = fread_letter(fp);
-        pMobIndex->level = (LEVEL)fread_number(fp);
-
-        /*
-         * The unused stuff is for imps who want to use the old-style
-         * stats-in-files method.
-         */
-        fread_number(fp); /* Unused */
-        fread_number(fp); /* Unused */
-        fread_number(fp); /* Unused */
-        fread_letter(fp); /* d */
-        fread_number(fp); /* Unused */
-        fread_letter(fp); /* + */
-        fread_number(fp); /* Unused */
-        fread_number(fp); /* Unused */
-        fread_letter(fp); /* d */
-        fread_number(fp); /* Unused */
-        fread_letter(fp); /* + */
-        fread_number(fp); /* Unused */
-        pMobIndex->wealth = fread_number(fp) / 20;
-        /* xp can't be used! */ 
-        fread_number(fp); /* Unused */
-        pMobIndex->start_pos = (int16_t)fread_number(fp); /* Unused */
-        pMobIndex->default_pos = (int16_t)fread_number(fp); /* Unused */
-
-        if (pMobIndex->start_pos < POS_SLEEPING)
-            pMobIndex->start_pos = POS_STANDING;
-        if (pMobIndex->default_pos < POS_SLEEPING)
-            pMobIndex->default_pos = POS_STANDING;
-
-        /*
-         * Back to meaningful values.
-         */
-        pMobIndex->sex = (int16_t)fread_number(fp);
-
-        /* compute the race BS */
-        one_argument(pMobIndex->player_name, name);
-
-        if (name[0] == '\0' || (race = race_lookup(name)) == 0) {
-            /* fill in with blanks */
-            pMobIndex->race = (int16_t)race_lookup("human");
-            pMobIndex->off_flags
-                = OFF_DODGE | OFF_DISARM | OFF_TRIP | ASSIST_VNUM;
-            pMobIndex->imm_flags = 0;
-            pMobIndex->res_flags = 0;
-            pMobIndex->vuln_flags = 0;
-            pMobIndex->form
-                = FORM_EDIBLE | FORM_SENTIENT | FORM_BIPED | FORM_MAMMAL;
-            pMobIndex->parts = PART_HEAD | PART_ARMS | PART_LEGS | PART_HEART
-                               | PART_BRAINS | PART_GUTS;
-        }
-        else {
-            pMobIndex->race = (int16_t)race;
-            pMobIndex->off_flags = OFF_DODGE | OFF_DISARM | OFF_TRIP
-                                   | ASSIST_RACE | race_table[race].off;
-            pMobIndex->imm_flags = race_table[race].imm;
-            pMobIndex->res_flags = race_table[race].res;
-            pMobIndex->vuln_flags = race_table[race].vuln;
-            pMobIndex->form = race_table[race].form;
-            pMobIndex->parts = race_table[race].parts;
-        }
-
-        if (letter != 'S') {
-            bug("Load_mobiles: vnum %"PRVNUM" non-S.", vnum);
-            exit(1);
-        }
-
-        convert_mobile(pMobIndex);  // OLC
-
-        iHash = vnum % MAX_KEY_HASH;
-        pMobIndex->next = mob_index_hash[iHash];
-        mob_index_hash[iHash] = pMobIndex;
-        top_mob_index++;
-        top_vnum_mob = top_vnum_mob < vnum ? vnum : top_vnum_mob;   // OLC
-        assign_area_vnum(vnum);                                     // OLC
-        kill_table[URANGE(0, pMobIndex->level, MAX_LEVEL - 1)].number++;
-    }
-
-    return;
-}
-
-/*
  * Snarf an obj section.  old style
  */
 void load_old_obj(FILE* fp)
@@ -1238,7 +1100,7 @@ void load_shops(FILE* fp)
     SHOP_DATA* pShop;
 
     for (;;) {
-        MOB_INDEX_DATA* pMobIndex;
+        MobPrototype* p_mob_proto;
         int iTrade;
 
         if ((pShop = (SHOP_DATA*)alloc_perm(sizeof(*pShop))) == NULL) {
@@ -1255,8 +1117,8 @@ void load_shops(FILE* fp)
         pShop->open_hour = (int16_t)fread_number(fp);
         pShop->close_hour = (int16_t)fread_number(fp);
         fread_to_eol(fp);
-        pMobIndex = get_mob_index(pShop->keeper);
-        pMobIndex->pShop = pShop;
+        p_mob_proto = get_mob_prototype(pShop->keeper);
+        p_mob_proto->pShop = pShop;
 
         if (shop_first == NULL)
             shop_first = pShop;
@@ -1277,7 +1139,7 @@ void load_shops(FILE* fp)
 void load_specials(FILE* fp)
 {
     for (;;) {
-        MOB_INDEX_DATA* pMobIndex;
+        MobPrototype* p_mob_proto;
         char letter = 0;
 
         switch (letter = fread_letter(fp)) {
@@ -1292,10 +1154,10 @@ void load_specials(FILE* fp)
             break;
 
         case 'M':
-            pMobIndex = get_mob_index(fread_number(fp));
-            pMobIndex->spec_fun = spec_lookup(fread_word(fp));
-            if (pMobIndex->spec_fun == 0) {
-                bug("Load_specials: 'M': vnum %"PRVNUM".", pMobIndex->vnum);
+            p_mob_proto = get_mob_prototype(fread_number(fp));
+            p_mob_proto->spec_fun = spec_lookup(fread_word(fp));
+            if (p_mob_proto->spec_fun == 0) {
+                bug("Load_specials: 'M': vnum %"PRVNUM".", p_mob_proto->vnum);
                 exit(1);
             }
             break;
@@ -1340,7 +1202,7 @@ void fix_exits(void)
                     break;
 
                 case 'M':
-                    get_mob_index(pReset->arg1);
+                    get_mob_prototype(pReset->arg1);
                     iLastRoom = get_room_index(pReset->arg3);
                     break;
 
@@ -1509,16 +1371,16 @@ void load_mobprogs(FILE* fp)
  */
 void fix_mobprogs(void)
 {
-    MOB_INDEX_DATA* pMobIndex;
+    MobPrototype* p_mob_proto;
     MPROG_LIST* list;
     MPROG_CODE* prog;
     int iHash;
 
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
-        for (pMobIndex = mob_index_hash[iHash];
-            pMobIndex != NULL;
-            pMobIndex = pMobIndex->next) {
-            for (list = pMobIndex->mprogs; list != NULL; list = list->next) {
+        for (p_mob_proto = mob_prototype_hash[iHash];
+            p_mob_proto != NULL;
+            p_mob_proto = p_mob_proto->next) {
+            for (list = p_mob_proto->mprogs; list != NULL; list = list->next) {
                 if ((prog = pedit_prog(list->vnum)) != NULL)
                     list->code = prog->code;
                 else {
@@ -1562,7 +1424,7 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
     }
 
     for (pReset = pRoom->reset_first; pReset != NULL; pReset = pReset->next) {
-        MOB_INDEX_DATA* pMobIndex;
+        MobPrototype* p_mob_proto;
         OBJ_INDEX_DATA* pObjIndex;
         OBJ_INDEX_DATA* pObjToIndex;
         ROOM_INDEX_DATA* pRoomIndex;
@@ -1578,7 +1440,7 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
         {
             CharData* mob;
 
-            if ((pMobIndex = get_mob_index(pReset->arg1)) == NULL) {
+            if ((p_mob_proto = get_mob_prototype(pReset->arg1)) == NULL) {
                 bug("Reset_room: 'M': bad vnum %"PRVNUM".", pReset->arg1);
                 continue;
             }
@@ -1588,7 +1450,7 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
                 continue;
             }
 
-            if (pMobIndex->count >= pReset->arg2) {
+            if (p_mob_proto->count >= pReset->arg2) {
                 last = false;
                 break;
             }
@@ -1597,7 +1459,7 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
 
             count = 0;
             for (mob = pRoomIndex->people; mob != NULL; mob = mob->next_in_room)
-                if (mob->pIndexData == pMobIndex) {
+                if (mob->pIndexData == p_mob_proto) {
                     count++;
                     if (count >= pReset->arg4) {
                         last = false;
@@ -1609,7 +1471,7 @@ void reset_room(ROOM_INDEX_DATA* pRoom)
 
             /* */
 
-            pMob = create_mobile(pMobIndex);
+            pMob = create_mobile(p_mob_proto);
 
             /*
              * Some more hard coding.
@@ -1845,230 +1707,6 @@ void reset_area(AREA_DATA* pArea)
     }
 
     return;
-}
-
-/*
- * Create an instance of a mobile.
- */
-CharData* create_mobile(MOB_INDEX_DATA* pMobIndex)
-{
-    CharData* mob;
-    int i;
-    AFFECT_DATA af = { 0 };
-
-    mobile_count++;
-
-    if (pMobIndex == NULL) {
-        bug("Create_mobile: NULL pMobIndex.", 0);
-        exit(1);
-    }
-
-    mob = new_char_data();
-
-    mob->pIndexData = pMobIndex;
-
-    mob->name = str_dup(pMobIndex->player_name);    /* OLC */
-    mob->short_descr = str_dup(pMobIndex->short_descr);    /* OLC */
-    mob->long_descr = str_dup(pMobIndex->long_descr);     /* OLC */
-    mob->description = str_dup(pMobIndex->description);    /* OLC */
-    mob->id = get_mob_id();
-    mob->spec_fun = pMobIndex->spec_fun;
-    mob->prompt = NULL;
-    mob->mprog_target = NULL;
-
-    if (pMobIndex->wealth == 0) {
-        mob->silver = 0;
-        mob->gold = 0;
-    }
-    else {
-        int16_t wealth = (int16_t)number_range(pMobIndex->wealth / 2, 
-            3 * pMobIndex->wealth / 2);
-        mob->gold = (int16_t)number_range(wealth / 200, wealth / 100);
-        mob->silver = wealth - (mob->gold * 100);
-    }
-
-    if (pMobIndex->new_format)
-    /* load in new style */
-    {
-        /* read from prototype */
-        mob->group = pMobIndex->group;
-        mob->act = pMobIndex->act;
-        mob->comm = COMM_NOCHANNELS | COMM_NOSHOUT | COMM_NOTELL;
-        mob->affected_by = pMobIndex->affected_by;
-        mob->alignment = pMobIndex->alignment;
-        mob->level = pMobIndex->level;
-        mob->hitroll = pMobIndex->hitroll;
-        mob->damroll = pMobIndex->damage[DICE_BONUS];
-        mob->max_hit
-            = (int16_t)dice(pMobIndex->hit[DICE_NUMBER], pMobIndex->hit[DICE_TYPE])
-              + pMobIndex->hit[DICE_BONUS];
-        mob->hit = mob->max_hit;
-        mob->max_mana
-            = (int16_t)dice(pMobIndex->mana[DICE_NUMBER], pMobIndex->mana[DICE_TYPE])
-              + pMobIndex->mana[DICE_BONUS];
-        mob->mana = mob->max_mana;
-        mob->damage[DICE_NUMBER] = pMobIndex->damage[DICE_NUMBER];
-        mob->damage[DICE_TYPE] = pMobIndex->damage[DICE_TYPE];
-        mob->dam_type = pMobIndex->dam_type;
-        if (mob->dam_type == 0) switch (number_range(1, 3)) {
-            case (1):
-                mob->dam_type = 3;
-                break; /* slash */
-            case (2):
-                mob->dam_type = 7;
-                break; /* pound */
-            case (3):
-                mob->dam_type = 11;
-                break; /* pierce */
-            }
-        for (i = 0; i < 4; i++) mob->armor[i] = pMobIndex->ac[i];
-        mob->off_flags = pMobIndex->off_flags;
-        mob->imm_flags = pMobIndex->imm_flags;
-        mob->res_flags = pMobIndex->res_flags;
-        mob->vuln_flags = pMobIndex->vuln_flags;
-        mob->start_pos = pMobIndex->start_pos;
-        mob->default_pos = pMobIndex->default_pos;
-        mob->sex = pMobIndex->sex;
-        if (mob->sex == 3) /* random sex */
-            mob->sex = (int16_t)number_range(1, 2);
-        mob->race = pMobIndex->race;
-        mob->form = pMobIndex->form;
-        mob->parts = pMobIndex->parts;
-        mob->size = pMobIndex->size;
-        mob->material = str_dup(pMobIndex->material);
-
-        /* computed on the spot */
-
-        for (i = 0; i < MAX_STATS; i++)
-            mob->perm_stat[i] = UMIN(25, 11 + mob->level / 4);
-
-        if (IS_SET(mob->act, ACT_WARRIOR)) {
-            mob->perm_stat[STAT_STR] += 3;
-            mob->perm_stat[STAT_INT] -= 1;
-            mob->perm_stat[STAT_CON] += 2;
-        }
-
-        if (IS_SET(mob->act, ACT_THIEF)) {
-            mob->perm_stat[STAT_DEX] += 3;
-            mob->perm_stat[STAT_INT] += 1;
-            mob->perm_stat[STAT_WIS] -= 1;
-        }
-
-        if (IS_SET(mob->act, ACT_CLERIC)) {
-            mob->perm_stat[STAT_WIS] += 3;
-            mob->perm_stat[STAT_DEX] -= 1;
-            mob->perm_stat[STAT_STR] += 1;
-        }
-
-        if (IS_SET(mob->act, ACT_MAGE)) {
-            mob->perm_stat[STAT_INT] += 3;
-            mob->perm_stat[STAT_STR] -= 1;
-            mob->perm_stat[STAT_DEX] += 1;
-        }
-
-        if (IS_SET(mob->off_flags, OFF_FAST)) mob->perm_stat[STAT_DEX] += 2;
-
-        mob->perm_stat[STAT_STR] += mob->size - SIZE_MEDIUM;
-        mob->perm_stat[STAT_CON] += (mob->size - SIZE_MEDIUM) / 2;
-
-        /* let's get some spell action */
-        if (IS_AFFECTED(mob, AFF_SANCTUARY)) {
-            af.where = TO_AFFECTS;
-            af.type = skill_lookup("sanctuary");
-            af.level = mob->level;
-            af.duration = -1;
-            af.location = APPLY_NONE;
-            af.modifier = 0;
-            af.bitvector = AFF_SANCTUARY;
-            affect_to_char(mob, &af);
-        }
-
-        if (IS_AFFECTED(mob, AFF_HASTE)) {
-            af.where = TO_AFFECTS;
-            af.type = skill_lookup("haste");
-            af.level = mob->level;
-            af.duration = -1;
-            af.location = APPLY_DEX;
-            af.modifier = 1 + (mob->level >= 18) + (mob->level >= 25)
-                          + (mob->level >= 32);
-            af.bitvector = AFF_HASTE;
-            affect_to_char(mob, &af);
-        }
-
-        if (IS_AFFECTED(mob, AFF_PROTECT_EVIL)) {
-            af.where = TO_AFFECTS;
-            af.type = skill_lookup("protection evil");
-            af.level = mob->level;
-            af.duration = -1;
-            af.location = APPLY_SAVES;
-            af.modifier = -1;
-            af.bitvector = AFF_PROTECT_EVIL;
-            affect_to_char(mob, &af);
-        }
-
-        if (IS_AFFECTED(mob, AFF_PROTECT_GOOD)) {
-            af.where = TO_AFFECTS;
-            af.type = skill_lookup("protection good");
-            af.level = mob->level;
-            af.duration = -1;
-            af.location = APPLY_SAVES;
-            af.modifier = -1;
-            af.bitvector = AFF_PROTECT_GOOD;
-            affect_to_char(mob, &af);
-        }
-    }
-    else /* read in old format and convert */
-    {
-        mob->act = pMobIndex->act;
-        mob->affected_by = pMobIndex->affected_by;
-        mob->alignment = pMobIndex->alignment;
-        mob->level = pMobIndex->level;
-        mob->hitroll = pMobIndex->hitroll;
-        mob->damroll = 0;
-        mob->max_hit = mob->level * 8
-                       + (int16_t)number_range(mob->level * mob->level / 4,
-                                      mob->level * mob->level);
-        mob->max_hit = (int16_t)((double)mob->max_hit * 0.9);
-        mob->hit = mob->max_hit;
-        mob->max_mana = 100 + (int16_t)dice(mob->level, 10);
-        mob->mana = mob->max_mana;
-        switch (number_range(1, 3)) {
-        case (1):
-            mob->dam_type = 3;
-            break; /* slash */
-        case (2):
-            mob->dam_type = 7;
-            break; /* pound */
-        case (3):
-            mob->dam_type = 11;
-            break; /* pierce */
-        }
-        for (i = 0; i < 3; i++)
-            mob->armor[i] = (int16_t)interpolate(mob->level, 100, -100);
-        mob->armor[3] = (int16_t)interpolate(mob->level, 100, 0);
-        mob->race = pMobIndex->race;
-        mob->off_flags = pMobIndex->off_flags;
-        mob->imm_flags = pMobIndex->imm_flags;
-        mob->res_flags = pMobIndex->res_flags;
-        mob->vuln_flags = pMobIndex->vuln_flags;
-        mob->start_pos = pMobIndex->start_pos;
-        mob->default_pos = pMobIndex->default_pos;
-        mob->sex = pMobIndex->sex;
-        mob->form = pMobIndex->form;
-        mob->parts = pMobIndex->parts;
-        mob->size = SIZE_MEDIUM;
-        mob->material = "";
-
-        for (i = 0; i < MAX_STATS; i++) mob->perm_stat[i] = 11 + mob->level / 4;
-    }
-
-    mob->position = mob->start_pos;
-
-    /* link the mob to the world list */
-    mob->next = char_list;
-    char_list = mob;
-    pMobIndex->count++;
-    return mob;
 }
 
 /* duplicate a mobile exactly -- except inventory */
@@ -2368,27 +2006,6 @@ char* get_extra_descr(const char* name, EXTRA_DESCR_DATA* ed)
     for (; ed != NULL; ed = ed->next) {
         if (is_name((char*)name, ed->keyword)) return ed->description;
     }
-    return NULL;
-}
-
-/*
- * Translates mob virtual number to its mob index struct.
- * Hash table lookup.
- */
-MOB_INDEX_DATA* get_mob_index(VNUM vnum)
-{
-    MOB_INDEX_DATA* pMobIndex;
-
-    for (pMobIndex = mob_index_hash[vnum % MAX_KEY_HASH]; pMobIndex != NULL;
-         pMobIndex = pMobIndex->next) {
-        if (pMobIndex->vnum == vnum) return pMobIndex;
-    }
-
-    if (fBootDb) {
-        bug("Get_mob_index: bad vnum %"PRVNUM".", vnum);
-        exit(1);
-    }
-
     return NULL;
 }
 
@@ -3012,7 +2629,7 @@ void do_memory(CharData* ch, char* argument)
     send_to_char(buf, ch);
     sprintf(buf, "Socials %5d\n\r", social_count);
     send_to_char(buf, ch);
-    sprintf(buf, "Mobs    %5d(%d new format)\n\r", top_mob_index, newmobs);
+    sprintf(buf, "Mobs    %5d(%d new format)\n\r", top_mob_prototype, newmobs);
     send_to_char(buf, ch);
     sprintf(buf, "(in use)%5d\n\r", mobile_count);
     send_to_char(buf, ch);
@@ -3040,7 +2657,7 @@ void do_dump(CharData* ch, char* argument)
 {
     int count, count2, num_pcs, aff_count;
     CharData* fch;
-    MOB_INDEX_DATA* pMobIndex;
+    MobPrototype* p_mob_proto;
     PlayerData* pc;
     OBJ_DATA* obj;
     OBJ_INDEX_DATA* pObjIndex;
@@ -3066,8 +2683,8 @@ void do_dump(CharData* ch, char* argument)
     aff_count = 0;
 
     /* mobile prototypes */
-    fprintf(fp, "MobProt    %4d (%8zu bytes)\n", top_mob_index,
-            top_mob_index * (sizeof(*pMobIndex)));
+    fprintf(fp, "MobProt    %4d (%8zu bytes)\n", top_mob_prototype,
+            top_mob_prototype * (sizeof(*p_mob_proto)));
 
     /* mobs */
     count = 0;
@@ -3144,12 +2761,12 @@ void do_dump(CharData* ch, char* argument)
     fprintf(fp, "\nMobile Analysis\n");
     fprintf(fp, "---------------\n");
     nMatch = 0;
-    for (vnum = 0; nMatch < top_mob_index; vnum++)
-        if ((pMobIndex = get_mob_index(vnum)) != NULL) {
+    for (vnum = 0; nMatch < top_mob_prototype; vnum++)
+        if ((p_mob_proto = get_mob_prototype(vnum)) != NULL) {
             nMatch++;
-            fprintf(fp, "#%-4d %3d active %3d killed     %s\n", pMobIndex->vnum,
-                    pMobIndex->count, pMobIndex->killed,
-                    pMobIndex->short_descr);
+            fprintf(fp, "#%-4d %3d active %3d killed     %s\n", p_mob_proto->vnum,
+                    p_mob_proto->count, p_mob_proto->killed,
+                    p_mob_proto->short_descr);
         }
     fclose(fp);
 

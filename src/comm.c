@@ -1795,14 +1795,13 @@ bool check_parse_name(char* name)
      * Prevent players from naming themselves after mobs.
      */
     {
-        extern MOB_INDEX_DATA* mob_index_hash[MAX_KEY_HASH];
-        MOB_INDEX_DATA* pMobIndex;
+        MobPrototype* p_mob_proto;
         int iHash;
 
         for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
-            for (pMobIndex = mob_index_hash[iHash]; pMobIndex != NULL;
-                pMobIndex = pMobIndex->next) {
-                if (is_name(name, pMobIndex->player_name)) return false;
+            for (p_mob_proto = mob_prototype_hash[iHash]; p_mob_proto != NULL;
+                p_mob_proto = p_mob_proto->next) {
+                if (is_name(name, p_mob_proto->player_name)) return false;
             }
         }
     }

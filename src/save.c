@@ -1087,7 +1087,7 @@ void fread_char(CharData* ch, FILE* fp)
             KEY("Version", ch->version, fread_number(fp));
             KEY("Vers", ch->version, fread_number(fp));
             if (!str_cmp(word, "Vnum")) {
-                ch->pIndexData = get_mob_index(fread_vnum(fp));
+                ch->pIndexData = get_mob_prototype(fread_vnum(fp));
                 fMatch = true;
                 break;
             }
@@ -1123,16 +1123,16 @@ void fread_pet(CharData* ch, FILE* fp)
         VNUM vnum;
 
         vnum = fread_vnum(fp);
-        if (get_mob_index(vnum) == NULL) {
+        if (get_mob_prototype(vnum) == NULL) {
             bug("Fread_pet: bad vnum %"PRVNUM".", vnum);
-            pet = create_mobile(get_mob_index(MOB_VNUM_FIDO));
+            pet = create_mobile(get_mob_prototype(MOB_VNUM_FIDO));
         }
         else
-            pet = create_mobile(get_mob_index(vnum));
+            pet = create_mobile(get_mob_prototype(vnum));
     }
     else {
         bug("Fread_pet: no vnum in file.", 0);
-        pet = create_mobile(get_mob_index(MOB_VNUM_FIDO));
+        pet = create_mobile(get_mob_prototype(MOB_VNUM_FIDO));
     }
 
     for (;;) {

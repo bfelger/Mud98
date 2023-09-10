@@ -28,11 +28,6 @@
 #include <sys/types.h>
 #include <time.h>
 
-struct flag_stat_type {
-    const struct flag_type *structure;
-    bool stat;
-};
-
 /*****************************************************************************
  Name:		flag_stat_table
  Purpose:	This table catagorizes the tables following the lookup

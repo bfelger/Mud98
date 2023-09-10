@@ -11,6 +11,7 @@ typedef struct char_data_t CharData;
 
 #include "merc.h"
 
+#include "mob_prototype.h"
 #include "player_data.h"
 
 typedef struct char_data_t {
@@ -24,7 +25,7 @@ typedef struct char_data_t {
     CharData* mprog_target;
     MEM_DATA* memory;
     SPEC_FUN* spec_fun;
-    MOB_INDEX_DATA* pIndexData;
+    MobPrototype* pIndexData;
     DESCRIPTOR_DATA* desc;
     AFFECT_DATA* affected;
     NOTE_DATA* pnote;
@@ -105,5 +106,6 @@ CharData* new_char_data();
 
 extern CharData* char_list;
 extern CharData* char_free;
+extern int mobile_count;
 
 #endif // !MUD98__ENTITIES__CHAR_DATA_H

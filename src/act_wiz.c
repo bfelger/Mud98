@@ -1546,10 +1546,9 @@ void do_vnum(CharData* ch, char* argument)
 
 void do_mfind(CharData* ch, char* argument)
 {
-    extern int top_mob_index;
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    MOB_INDEX_DATA* pMobIndex;
+    MobPrototype* p_mob_proto;
     VNUM vnum;
     int nMatch;
     bool fAll;
@@ -1567,17 +1566,17 @@ void do_mfind(CharData* ch, char* argument)
 
     /*
      * Yeah, so iterating over all vnum's takes 10,000 loops.
-     * Get_mob_index is fast, and I don't feel like threading another link.
+     * Get_mob_prototype is fast, and I don't feel like threading another link.
      * Do you?
      * -- Furey
      */
-    for (vnum = 0; nMatch < top_mob_index; vnum++) {
-        if ((pMobIndex = get_mob_index(vnum)) != NULL) {
+    for (vnum = 0; nMatch < top_mob_prototype; vnum++) {
+        if ((p_mob_proto = get_mob_prototype(vnum)) != NULL) {
             nMatch++;
-            if (fAll || is_name(argument, pMobIndex->player_name)) {
+            if (fAll || is_name(argument, p_mob_proto->player_name)) {
                 found = true;
-                sprintf(buf, "[%5d] %s\n\r", pMobIndex->vnum,
-                        pMobIndex->short_descr);
+                sprintf(buf, "[%5d] %s\n\r", p_mob_proto->vnum,
+                        p_mob_proto->short_descr);
                 send_to_char(buf, ch);
             }
         }
@@ -2158,7 +2157,7 @@ void do_load(CharData* ch, char* argument)
 void do_mload(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    MOB_INDEX_DATA* pMobIndex;
+    MobPrototype* p_mob_proto;
     CharData* victim;
     char buf[MAX_STRING_LENGTH];
 
@@ -2169,12 +2168,12 @@ void do_mload(CharData* ch, char* argument)
         return;
     }
 
-    if ((pMobIndex = get_mob_index(STRTOVNUM(arg))) == NULL) {
+    if ((p_mob_proto = get_mob_prototype(STRTOVNUM(arg))) == NULL) {
         send_to_char("No mob has that vnum.\n\r", ch);
         return;
     }
 
-    victim = create_mobile(pMobIndex);
+    victim = create_mobile(p_mob_proto);
     char_to_room(victim, ch->in_room);
     act("$n has created $N!", ch, NULL, victim, TO_ROOM);
     sprintf(buf, "$N loads %s.", victim->short_descr);
