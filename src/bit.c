@@ -17,7 +17,7 @@
  implementing a system like below with such functions. -Jason Dinkel
  */
 
-#include "merc.h"
+#include "bit.h"
 
 #include "tables.h"
 #include "lookup.h"
@@ -75,8 +75,6 @@ const struct flag_stat_type flag_stat_table[] =
     {   0,			            0	    }
 };
     
-
-
 /*****************************************************************************
  Name:		is_stat( table )
  Purpose:	Returns true if the table is a stat table and false if flag.

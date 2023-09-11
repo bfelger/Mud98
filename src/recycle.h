@@ -103,6 +103,7 @@ HELP_AREA* new_had args((void));
 HELP_DATA* new_help args((void));
 void free_help args((HELP_DATA*));
 
+MPROG_LIST* new_mprog();
 void free_mprog(MPROG_LIST* mp);
 
 SKNUM* new_learned();

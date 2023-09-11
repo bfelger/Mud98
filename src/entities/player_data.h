@@ -3,11 +3,11 @@
 // Player character data
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef struct player_data_t PlayerData;
-
 #pragma once
 #ifndef MUD98__ENTITIES__PLAYER_DATA_H
 #define MUD98__ENTITIES__PLAYER_DATA_H
+
+typedef struct player_data_t PlayerData;
 
 #include "merc.h"
 
@@ -16,18 +16,17 @@ typedef struct player_data_t PlayerData;
 #include "char_data.h"
 
 typedef struct player_data_t {
+    char* alias[MAX_ALIAS];
+    char* alias_sub[MAX_ALIAS];
+    ColorTheme* color_themes[MAX_THEMES];   // Personal themes
+    ColorTheme* current_theme;              // Channel color assignments
     CharData* ch;
     ColorConfig theme_config;
-    ColorTheme* current_theme;              // VT102 color assignments
-    ColorTheme* color_themes[MAX_THEMES];   // Personal themes
     PlayerData* next;
     BUFFER* buffer;
     char* bamfin;
     char* bamfout;
     char* title;
-    char* alias[MAX_ALIAS];
-    char* alias_sub[MAX_ALIAS];
-    SKNUM* learned;
     bool* group_known;
     unsigned char* pwd_digest;
     time_t last_note;
@@ -38,6 +37,7 @@ typedef struct player_data_t {
     unsigned int pwd_digest_len;
     int security;                           // OLC Builder Security
     LEVEL last_level;
+    SKNUM* learned;
     int16_t perm_hit;
     int16_t perm_mana;
     int16_t perm_move;

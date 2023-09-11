@@ -26,7 +26,10 @@
  ***************************************************************************/
 
 #include "merc.h"
+
 #include "tables.h"
+
+#include "comm.h"
 
 #include <stdio.h>
 #include <string.h>

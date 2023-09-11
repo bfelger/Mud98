@@ -27,7 +27,11 @@
 
 #include "merc.h"
 
+#include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "magic.h"
+#include "spell_list.h"
 
 #include "entities/char_data.h"
 

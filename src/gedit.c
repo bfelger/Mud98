@@ -5,12 +5,14 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "db.h"
+#include "handler.h"
+#include "magic.h"
 #include "olc.h"
+#include "skills.h"
 
 #include "entities/player_data.h"
 
-int max_group;
-struct group_type* group_table;
 
 #define GROUP_FILE DATA_DIR "groups"
 #define GEDIT(fun) bool fun(CharData *ch, char *argument)

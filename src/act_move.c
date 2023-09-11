@@ -25,9 +25,16 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "merc.h"
+#include "act_move.h"
 
+#include "comm.h"
+#include "db.h"
+#include "fight.h"
+#include "handler.h"
 #include "interp.h"
+#include "mob_prog.h"
+#include "skills.h"
+#include "update.h"
 
 #include "entities/object_data.h"
 #include "entities/player_data.h"
@@ -40,7 +47,8 @@
 #include <sys/time.h>
 #endif
 
-char* const dir_name[] = {"north", "east", "south", "west", "up", "down"};
+const char* dir_name[] = {"north", "east", "south", "west", "up", "down"};
+const char* dir_name_abbr[] = { "N", "E", "S", "W", "U", "D" };
 
 const int16_t rev_dir[] = {2, 3, 0, 1, 5, 4};
 
@@ -58,7 +66,7 @@ void move_char(CharData* ch, int door, bool follow)
     CharData* fch_next = NULL;
     RoomData* in_room;
     RoomData* to_room;
-    EXIT_DATA* pexit;
+    ExitData* pexit;
 
     if (door < 0 || door > 5) {
         bug("Do_move: bad door %d.", door);
@@ -250,7 +258,7 @@ void do_down(CharData* ch, char* argument)
 
 int find_door(CharData* ch, char* arg)
 {
-    EXIT_DATA* pexit;
+    ExitData* pexit;
     int door;
 
     if (!str_cmp(arg, "n") || !str_cmp(arg, "north"))
@@ -353,8 +361,8 @@ void do_open(CharData* ch, char* argument)
     if ((door = find_door(ch, arg)) >= 0) {
         /* 'open door' */
         RoomData* to_room;
-        EXIT_DATA* pexit;
-        EXIT_DATA* pexit_rev;
+        ExitData* pexit;
+        ExitData* pexit_rev;
 
         pexit = ch->in_room->exit[door];
         if (!IS_SET(pexit->exit_info, EX_CLOSED)) {
@@ -441,8 +449,8 @@ void do_close(CharData* ch, char* argument)
     if ((door = find_door(ch, arg)) >= 0) {
         /* 'close door' */
         RoomData* to_room;
-        EXIT_DATA* pexit;
-        EXIT_DATA* pexit_rev;
+        ExitData* pexit;
+        ExitData* pexit_rev;
 
         pexit = ch->in_room->exit[door];
         if (IS_SET(pexit->exit_info, EX_CLOSED)) {
@@ -558,8 +566,8 @@ void do_lock(CharData* ch, char* argument)
     if ((door = find_door(ch, arg)) >= 0) {
         /* 'lock door' */
         RoomData* to_room;
-        EXIT_DATA* pexit;
-        EXIT_DATA* pexit_rev;
+        ExitData* pexit;
+        ExitData* pexit_rev;
 
         pexit = ch->in_room->exit[door];
         if (!IS_SET(pexit->exit_info, EX_CLOSED)) {
@@ -672,8 +680,8 @@ void do_unlock(CharData* ch, char* argument)
     if ((door = find_door(ch, arg)) >= 0) {
         /* 'unlock door' */
         RoomData* to_room;
-        EXIT_DATA* pexit;
-        EXIT_DATA* pexit_rev;
+        ExitData* pexit;
+        ExitData* pexit_rev;
 
         pexit = ch->in_room->exit[door];
         if (!IS_SET(pexit->exit_info, EX_CLOSED)) {
@@ -801,8 +809,8 @@ void do_pick(CharData* ch, char* argument)
     if ((door = find_door(ch, arg)) >= 0) {
         /* 'pick door' */
         RoomData* to_room;
-        EXIT_DATA* pexit;
-        EXIT_DATA* pexit_rev;
+        ExitData* pexit;
+        ExitData* pexit_rev;
 
         pexit = ch->in_room->exit[door];
         if (!IS_SET(pexit->exit_info, EX_CLOSED) && !IS_IMMORTAL(ch)) {
@@ -1325,7 +1333,7 @@ void do_recall(CharData* ch, char* argument)
 
     act("$n prays for transportation!", ch, 0, 0, TO_ROOM);
 
-    if ((location = get_room_index(ROOM_VNUM_TEMPLE)) == NULL) {
+    if ((location = get_room_data(ROOM_VNUM_TEMPLE)) == NULL) {
         send_to_char("You are completely lost.\n\r", ch);
         return;
     }

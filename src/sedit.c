@@ -23,6 +23,8 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "olc.h"
 
 #include "entities/player_data.h"

@@ -4,10 +4,15 @@
 
 #include "merc.h"
 
+#include "act_move.h"
+#include "db.h"
 #include "comm.h"
+#include "handler.h"
+#include "mob_cmds.h"
 #include "olc.h"
 #include "recycle.h"
 #include "screen.h"
+#include "special.h"
 #include "tables.h"
 #include "vt.h"
 
@@ -135,8 +140,8 @@ char* pos2str(void* point)
 
 char* exits2str(void* point)
 {
-    EXIT_DATA** pexitarray = (EXIT_DATA**)point;
-    EXIT_DATA* pexit;
+    ExitData** pexitarray = (ExitData**)point;
+    ExitData* pexit;
     static char buf[MSL];
     char word[MIL], reset_state[MIL], tmpbuf[MIL];
     char* state;

@@ -28,15 +28,26 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "merc.h"
-
-#include "color.h"
 #include "comm.h"
+
+#include "act_info.h"
+#include "alias.h"
+#include "act_move.h"
+#include "act_wiz.h"
+#include "ban.h"
+#include "color.h"
+#include "db.h"
 #include "digest.h"
+#include "handler.h"
 #include "interp.h"
+#include "lookup.h"
+#include "mob_prog.h"
 #include "olc.h"
 #include "recycle.h"
+#include "save.h"
 #include "screen.h"
+#include "skills.h"
+#include "string_edit.h"
 #include "strings.h"
 #include "tables.h"
 #include "telnet.h"
@@ -918,9 +929,8 @@ void bust_a_prompt(CharData* ch)
     char* point;
     char* pbuff;
     char doors[MAX_INPUT_LENGTH] = "";
-    EXIT_DATA* pexit;
+    ExitData* pexit;
     bool found;
-    const char* dir_name_abbr[] = { "N", "E", "S", "W", "U", "D" };
     int door;
 
     point = BUF(temp1);
@@ -1670,7 +1680,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
             do_function(ch, &do_outfit, "");
             obj_to_char(create_object(get_object_prototype(OBJ_VNUM_MAP), 0), ch);
 
-            char_to_room(ch, get_room_index(ROOM_VNUM_SCHOOL));
+            char_to_room(ch, get_room_data(ROOM_VNUM_SCHOOL));
             send_to_char("\n\r", ch);
             do_function(ch, &do_help, "newbie info");
             send_to_char("\n\r", ch);
@@ -1679,10 +1689,10 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
             char_to_room(ch, ch->in_room);
         }
         else if (IS_IMMORTAL(ch)) {
-            char_to_room(ch, get_room_index(ROOM_VNUM_CHAT));
+            char_to_room(ch, get_room_data(ROOM_VNUM_CHAT));
         }
         else {
-            char_to_room(ch, get_room_index(ROOM_VNUM_TEMPLE));
+            char_to_room(ch, get_room_data(ROOM_VNUM_TEMPLE));
         }
 
         act("$n has entered the game.", ch, NULL, NULL, TO_ROOM);
@@ -1878,7 +1888,7 @@ void stop_idling(CharData * ch)
 {
     if (ch == NULL || ch->desc == NULL || ch->desc->connected != CON_PLAYING
         || ch->was_in_room == NULL
-        || ch->in_room != get_room_index(ROOM_VNUM_LIMBO))
+        || ch->in_room != get_room_data(ROOM_VNUM_LIMBO))
         return;
 
     ch->timer = 0;

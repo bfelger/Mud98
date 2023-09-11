@@ -47,8 +47,10 @@
 
 #include "benchmark.h"
 #include "comm.h"
+#include "db.h"
 #include "strings.h"
 #include "tests.h"
+#include "update.h"
 
 #ifdef _MSC_VER
 #include <stdint.h>

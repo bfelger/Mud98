@@ -29,7 +29,7 @@
 #ifndef MUD98__TABLES_H
 #define MUD98__TABLES_H
 
-#include "merc.h"
+#include "entities/char_data.h"
 
 struct flag_type {
     char* name;

@@ -11,9 +11,10 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "merc.h"
+#include "string_edit.h"
 
 #include "comm.h"
+#include "db.h"
 #include "olc.h"
 
 #include "entities/char_data.h"

@@ -25,11 +25,22 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "merc.h"
+#include "update.h"
 
+#include "act_info.h"
+#include "act_move.h"
+#include "act_obj.h"
+#include "act_wiz.h"
+#include "db.h"
 #include "comm.h"
+#include "fight.h"
+#include "handler.h"
 #include "interp.h"
+#include "magic.h"
+#include "mob_prog.h"
 #include "music.h"
+#include "save.h"
+#include "skills.h"
 
 #include "entities/object_data.h"
 #include "entities/player_data.h"
@@ -351,7 +362,7 @@ void mobile_update(void)
 {
     CharData* ch = NULL;
     CharData* ch_next = NULL;
-    EXIT_DATA* pexit = NULL;
+    ExitData* pexit = NULL;
     int door;
 
     /* Examine all mobs. */
@@ -644,7 +655,7 @@ void char_update(void)
                     send_to_char("You disappear into the void.\n\r", ch);
                     if (ch->level > 1) save_char_obj(ch);
                     char_from_room(ch);
-                    char_to_room(ch, get_room_index(ROOM_VNUM_LIMBO));
+                    char_to_room(ch, get_room_data(ROOM_VNUM_LIMBO));
                 }
             }
 

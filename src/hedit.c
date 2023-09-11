@@ -4,10 +4,12 @@
 
 #include "merc.h"
 
+#include "db.h"
 #include "comm.h"
 #include "lookup.h"
 #include "olc.h"
 #include "recycle.h"
+#include "string_edit.h"
 #include "tables.h"
 
 #include "entities/player_data.h"

@@ -35,8 +35,12 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "merc.h"
+#include "mob_prog.h"
 
+#include "act_comm.h"
+#include "db.h"
+#include "handler.h"
+#include "mob_cmds.h"
 #include "tables.h"
 #include "lookup.h"
 

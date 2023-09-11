@@ -10,6 +10,8 @@
 
 #include "merc.h"
 
+#include "entities/char_data.h"
+
 #ifndef USE_RAW_SOCKETS
 #include <openssl/ssl.h>
 #endif
@@ -85,9 +87,25 @@ void read_from_buffer(DESCRIPTOR_DATA* d);
 bool read_from_descriptor(DESCRIPTOR_DATA* d);
 void stop_idling(CharData* ch);
 bool write_to_descriptor(DESCRIPTOR_DATA* d, char* txt, size_t length);
+void show_string(struct descriptor_data* d, char* input);
+void close_socket(DESCRIPTOR_DATA* dclose);
+void write_to_buffer(DESCRIPTOR_DATA* d, const char* txt, size_t length);
+void send_to_char(const char* txt, CharData* ch);
+void page_to_char(const char* txt, CharData* ch);
+void act_new(const char* format, CharData* ch, const void* arg1,
+    const void* arg2, int type, int min_pos);
+void printf_to_char(CharData*, char*, ...);
+void bugf(char*, ...);
+void flog(char*, ...);
+size_t colour(char type, CharData* ch, char* string);
+void colourconv(char* buffer, const char* txt, CharData* ch);
+void send_to_char_bw(const char* txt, CharData* ch);
+void page_to_char_bw(const char* txt, CharData* ch);
 
 #ifdef _MSC_VER
 void PrintLastWinSockError();
 #endif
+
+extern DESCRIPTOR_DATA* descriptor_list;
 
 #endif // MUD98__COMM_H

@@ -29,8 +29,10 @@
 
 #include "color.h"
 #include "comm.h"
+#include "db.h"
 #include "digest.h"
 #include "recycle.h"
+#include "skills.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -419,7 +421,7 @@ void clear_buf(BUFFER* buffer)
 
 MPROG_LIST* mprog_free = NULL;
 
-MPROG_LIST* new_mprog(void)
+MPROG_LIST* new_mprog()
 {
     MPROG_LIST* mp;
 

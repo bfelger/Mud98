@@ -76,13 +76,19 @@ add_executable(Mud98 merc.h act_comm.c act_enter.c act_info.c act_move.c
     magic2.c main.c mem.c  mob_cmds.c mob_prog.c music.c note.c olc.c olc_act.c 
     olc_save.c pcg_basic.c pedit.c raedit.c  recycle.c save.c scan.c screen.c 
     sedit.c skedit.c skills.c special.c string_edit.c tables.c tablesave.c 
-    tests.h tests.c update.c wizutil.v3.c 
+    tests.h tests.c update.c wizutil.v3.c
+
+    act_comm.h spell_list.h handler.h act_enter.h act_info.h act_move.h
+    act_obj.h act_wiz.h alias.h ban.h effects.h fight.h mob_prog.h save.h
+    skills.h special.h string_edit.h update.h bit.h
     
     entities/player_data.h entities/player_data.c
     entities/char_data.h entities/char_data.c
     entities/mob_prototype.h entities/mob_prototype.c
     entities/object_data.h entities/object_data.c
-    entities/room_data.h entities/room_data.c)
+    entities/room_data.h entities/room_data.c
+    entities/exit_data.h entities/exit_data.c
+    entities/reset_data.h entities/reset_data.c "mem.h")
 
 if (NOT MSVC)
     target_link_libraries(Mud98 Threads::Threads OpenSSL::SSL)

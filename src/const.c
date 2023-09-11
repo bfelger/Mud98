@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #include "interp.h"
-#include "magic.h"
+#include "spell_list.h"
 #include "merc.h"
 
 #include <stdio.h>

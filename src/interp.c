@@ -27,7 +27,10 @@
 
 #include "merc.h"
 
+#include "act_wiz.h"
 #include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "interp.h"
 #include "strings.h"
 

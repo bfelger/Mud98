@@ -25,14 +25,18 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "merc.h"
+#include "save.h"
 
 #include "benchmark.h"
 #include "color.h"
 #include "comm.h"
+#include "db.h"
 #include "digest.h"
+#include "handler.h"
 #include "lookup.h"
+#include "magic.h"
 #include "recycle.h"
+#include "skills.h"
 #include "strings.h"
 #include "tables.h"
 #include "vt.h"
@@ -178,7 +182,7 @@ void fwrite_char(CharData* ch, FILE* fp)
             ch->pcdata->last_news, ch->pcdata->last_changes);
     fprintf(fp, "Scro %d\n", ch->lines);
     fprintf(fp, "Room %d\n",
-            (ch->in_room == get_room_index(ROOM_VNUM_LIMBO)
+            (ch->in_room == get_room_data(ROOM_VNUM_LIMBO)
              && ch->was_in_room != NULL)
                 ? ch->was_in_room->vnum
             : ch->in_room == NULL ? 3001
@@ -1013,9 +1017,9 @@ void fread_char(CharData* ch, FILE* fp)
             KEY("Race", ch->race, race_lookup(fread_string(fp)));
 
             if (!str_cmp(word, "Room")) {
-                ch->in_room = get_room_index(fread_number(fp));
+                ch->in_room = get_room_data(fread_number(fp));
                 if (ch->in_room == NULL)
-                    ch->in_room = get_room_index(ROOM_VNUM_LIMBO);
+                    ch->in_room = get_room_data(ROOM_VNUM_LIMBO);
                 fMatch = true;
                 break;
             }

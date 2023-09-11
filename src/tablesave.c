@@ -4,10 +4,14 @@
 
 #include "merc.h"
 
+#include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "interp.h"
 #include "lookup.h"
 #include "olc.h"
 #include "recycle.h"
+#include "skills.h"
 #include "tables.h"
 
 #include <stdint.h>
@@ -120,12 +124,12 @@ bool clan_read(void* temp, char* arg)
 
 bool class_read(void* temp, char* arg)
 {
-    int16_t* class = (int16_t*)temp;
+    int16_t* class_ = (int16_t*)temp;
 
-    *class = (int16_t)class_lookup(arg);
+    *class_ = (int16_t)class_lookup(arg);
 
-    if (*class == -1) {
-        *class = 0;
+    if (*class_ == -1) {
+        *class_ = 0;
         return false;
     }
 

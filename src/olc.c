@@ -11,16 +11,20 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "merc.h"
+#include "olc.h"
 
+#include "act_move.h"
 #include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "interp.h"
 #include "lookup.h"
-#include "olc.h"
+#include "skills.h"
 #include "tables.h"
 
 #include "entities/object_data.h"
 #include "entities/player_data.h"
+#include "entities/reset_data.h"
 
 #include <sys/types.h>
 #include <ctype.h>
@@ -54,7 +58,7 @@ struct	social_type	xSoc;
 #define U(x)    (uintptr_t)(x)
 
 const struct olc_comm_type mob_olc_comm_table[] = {
-    { "name",	    U(&xMob.name),   ed_line_string,		0		        },
+    { "name",	    U(&xMob.name),          ed_line_string,		0		        },
     { "short",	    U(&xMob.short_descr),	ed_line_string,		0		        },
     { "long",	    U(&xMob.long_descr),	ed_line_string,		U(1)	        },
     { "material",	U(&xMob.material),	    ed_line_string,		0		        },
@@ -755,7 +759,7 @@ void do_redit(CharData* ch, char* argument)
         }
     }
     else if (!IS_NULLSTR(arg1)) {
-        pRoom = get_room_index(atoi(arg1));
+        pRoom = get_room_data(atoi(arg1));
 
         if (pRoom == NULL) {
             send_to_char("That room does not exist.\n\r", ch);
@@ -915,7 +919,7 @@ void do_medit(CharData* ch, char* argument)
 
 void    display_resets(CharData* ch, RoomData* pRoom)
 {
-    RESET_DATA* pReset;
+    ResetData* pReset;
     MobPrototype* pMob = NULL;
     char    buf[MAX_STRING_LENGTH] = "";
     char    final[MAX_STRING_LENGTH] = "";
@@ -952,7 +956,7 @@ void    display_resets(CharData* ch, RoomData* pRoom)
                 continue;
             }
 
-            if (!(pRoomIndex = get_room_index(pReset->arg3))) {
+            if (!(pRoomIndex = get_room_data(pReset->arg3))) {
                 sprintf(buf, "Load Mobile - Bad Room %d\n\r", pReset->arg3);
                 strcat(final, buf);
                 continue;
@@ -971,7 +975,7 @@ void    display_resets(CharData* ch, RoomData* pRoom)
             {
                 RoomData* pRoomIndexPrev;
 
-                pRoomIndexPrev = get_room_index(pRoomIndex->vnum - 1);
+                pRoomIndexPrev = get_room_data(pRoomIndex->vnum - 1);
                 if (pRoomIndexPrev
                     && IS_SET(pRoomIndexPrev->room_flags, ROOM_PET_SHOP))
                     final[5] = 'P';
@@ -989,7 +993,7 @@ void    display_resets(CharData* ch, RoomData* pRoom)
 
             pObj = p_object_prototype;
 
-            if (!(pRoomIndex = get_room_index(pReset->arg3))) {
+            if (!(pRoomIndex = get_room_data(pReset->arg3))) {
                 sprintf(buf, "Load Object - Bad Room %d\n\r", pReset->arg3);
                 strcat(final, buf);
                 continue;
@@ -1076,7 +1080,7 @@ void    display_resets(CharData* ch, RoomData* pRoom)
              * line in the case 'D' in load_resets in db.c and here.
              */
         case 'D':
-            pRoomIndex = get_room_index(pReset->arg1);
+            pRoomIndex = get_room_data(pReset->arg1);
             sprintf(buf, "R[%5d] %s door of %-19.19s reset to %s\n\r",
                 pReset->arg1,
                 capitalize(dir_name[pReset->arg2]),
@@ -1089,7 +1093,7 @@ void    display_resets(CharData* ch, RoomData* pRoom)
              * End Doors Comment.
              */
         case 'R':
-            if (!(pRoomIndex = get_room_index(pReset->arg1))) {
+            if (!(pRoomIndex = get_room_data(pReset->arg1))) {
                 sprintf(buf, "Randomize Exits - Bad Room %d\n\r",
                     pReset->arg1);
                 strcat(final, buf);
@@ -1115,9 +1119,9 @@ void    display_resets(CharData* ch, RoomData* pRoom)
  Purpose:	Inserts a new reset in the given index slot.
  Called by:	do_resets(olc.c).
  ****************************************************************************/
-void    add_reset(RoomData* room, RESET_DATA* pReset, int indice)
+void    add_reset(RoomData* room, ResetData* pReset, int indice)
 {
-    RESET_DATA* reset;
+    ResetData* reset;
     int     iReset = 0;
 
     if (!room->reset_first) {
@@ -1160,7 +1164,7 @@ void    do_resets(CharData* ch, char* argument)
     char    arg5[MAX_INPUT_LENGTH];
     char    arg6[MAX_INPUT_LENGTH];
     char    arg7[MAX_INPUT_LENGTH];
-    RESET_DATA* pReset = NULL;
+    ResetData* pReset = NULL;
 
     argument = one_argument(argument, arg1);
     argument = one_argument(argument, arg2);
@@ -1218,7 +1222,7 @@ void    do_resets(CharData* ch, char* argument)
             }
             else {
                 int     iReset = 0;
-                RESET_DATA* prev = NULL;
+                ResetData* prev = NULL;
 
                 for (pReset = pRoom->reset_first;
                     pReset;

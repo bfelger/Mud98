@@ -27,6 +27,9 @@
 
 #include "merc.h"
 
+#include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "recycle.h"
 #include "strings.h"
 #include "tables.h"
@@ -44,11 +47,6 @@
 #ifndef _MSC_VER 
 #include <sys/time.h>
 #endif
-
-/* globals from db.c for load_notes */
-extern int _filbuf args((FILE*));
-extern FILE* fpArea;
-extern char strArea[MAX_INPUT_LENGTH];
 
 /* local procedures */
 void load_thread(char* name, NOTE_DATA** list, int16_t type, time_t free_time);
@@ -72,7 +70,7 @@ int count_spool(CharData* ch, NOTE_DATA* spool)
     return count;
 }
 
-void do_unread(CharData* ch)
+void do_unread(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     int count;

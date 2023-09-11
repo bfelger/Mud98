@@ -11,10 +11,14 @@ typedef struct char_data_t CharData;
 
 #include "merc.h"
 
+#include "interp.h"
+
 #include "mob_prototype.h"
 #include "object_data.h"
 #include "player_data.h"
 #include "room_data.h"
+
+#include <stdbool.h>
 
 typedef struct char_data_t {
     CharData* next;

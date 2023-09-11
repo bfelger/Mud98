@@ -25,11 +25,20 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "merc.h"
-
-#include "interp.h"
 #include "magic.h"
+
+#include "act_comm.h"
+#include "act_enter.h"
+#include "comm.h"
+#include "db.h"
+#include "effects.h"
+#include "fight.h"
+#include "interp.h"
+#include "handler.h"
 #include "recycle.h"
+#include "skills.h"
+#include "spell_list.h"
+#include "update.h"
 
 #include "entities/object_data.h"
 #include "entities/player_data.h"
@@ -2822,7 +2831,6 @@ void spell_identify(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
     sprintf(buf,
             "Object '%s' is type %s, extra flags %s.\n\rWeight is %d, value is "
             "%d, level is %d.\n\r",
-
             obj->name, item_name(obj->item_type),
             extra_bit_name(obj->extra_flags), obj->weight / 10, obj->cost,
             obj->level);
@@ -3926,7 +3934,7 @@ void spell_word_of_recall(SKNUM sn, LEVEL level, CharData* ch, void* vo,
 
     if (IS_NPC(victim)) return;
 
-    if ((location = get_room_index(ROOM_VNUM_TEMPLE)) == NULL) {
+    if ((location = get_room_data(ROOM_VNUM_TEMPLE)) == NULL) {
         send_to_char("You are completely lost.\n\r", victim);
         return;
     }

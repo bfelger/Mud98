@@ -28,6 +28,8 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "music.h"
 #include "recycle.h"
 

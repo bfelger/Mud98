@@ -26,6 +26,9 @@
  ***************************************************************************/
 
 #include "merc.h"
+
+#include "db.h"
+#include "handler.h"
 #include "tables.h"
 
 #include <stdio.h>

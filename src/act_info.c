@@ -25,14 +25,22 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "merc.h"
+#include "act_info.h"
 
+#include "act_comm.h"
+#include "act_move.h"
 #include "comm.h"
+#include "db.h"
 #include "digest.h"
+#include "fight.h"
+#include "handler.h"
 #include "interp.h"
 #include "lookup.h"
 #include "magic.h"
+#include "spell_list.h"
 #include "recycle.h"
+#include "save.h"
+#include "skills.h"
 #include "strings.h"
 #include "tables.h"
 
@@ -860,7 +868,7 @@ void do_look(CharData* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char arg3[MAX_INPUT_LENGTH];
-    EXIT_DATA* pexit;
+    ExitData* pexit;
     CharData* victim;
     ObjectData* obj;
     char* pdesc;
@@ -1167,9 +1175,8 @@ void do_examine(CharData* ch, char* argument)
  */
 void do_exits(CharData* ch, char* argument)
 {
-    extern char* const dir_name[];
     char buf[MAX_STRING_LENGTH];
-    EXIT_DATA* pexit;
+    ExitData* pexit;
     bool found;
     bool fAuto;
     int door;

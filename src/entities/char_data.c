@@ -3,11 +3,12 @@
 // Character data
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "merc.h"
+#include "char_data.h"
 
+#include "db.h"
+#include "handler.h"
 #include "recycle.h"
 
-#include "char_data.h"
 #include "object_data.h"
 
 CharData* char_list;

@@ -25,13 +25,22 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "merc.h"
+#include "act_wiz.h"
 
+#include "act_info.h"
 #include "comm.h"
+#include "db.h"
+#include "fight.h"
+#include "handler.h"
 #include "interp.h"
 #include "lookup.h"
+#include "magic.h"
 #include "recycle.h"
+#include "save.h"
+#include "skills.h"
+#include "special.h"
 #include "tables.h"
+#include "update.h"
 
 #include "entities/object_data.h"
 #include "entities/player_data.h"
@@ -48,7 +57,7 @@
 /*
  * Local functions.
  */
-RoomData* find_location args((CharData * ch, char* arg));
+RoomData* find_location(CharData* ch, char* arg);
 
 void do_wiznet(CharData* ch, char* argument)
 {
@@ -674,7 +683,7 @@ RoomData* find_location(CharData* ch, char* arg)
     ObjectData* obj;
 
     if (is_number(arg)) 
-        return get_room_index(STRTOVNUM(arg));
+        return get_room_data(STRTOVNUM(arg));
 
     if ((victim = get_char_world(ch, arg)) != NULL) 
         return victim->in_room;
@@ -1023,7 +1032,7 @@ void do_rstat(CharData* ch, char* argument)
     send_to_char(".\n\r", ch);
 
     for (door = 0; door <= 5; door++) {
-        EXIT_DATA* pexit;
+        ExitData* pexit;
 
         if ((pexit = location->exit[door]) != NULL) {
             sprintf(buf,

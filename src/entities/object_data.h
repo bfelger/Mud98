@@ -3,12 +3,12 @@
 // Utilities for handling in-game objects
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef struct object_prototype_t ObjectPrototype;
-typedef struct object_data_t ObjectData;
-
 #pragma once
 #ifndef MUD98__ENTITIES__OBJECT_DATA_H
 #define MUD98__ENTITIES__OBJECT_DATA_H
+
+typedef struct object_prototype_t ObjectPrototype;
+typedef struct object_data_t ObjectData;
 
 #include "merc.h"
 
@@ -23,22 +23,22 @@ typedef struct object_prototype_t {
     EXTRA_DESCR_DATA* extra_descr;
     AFFECT_DATA* affected;
     AREA_DATA* area;        // OLC
-    bool new_format;
     char* name;
     char* short_descr;
     char* description;
-    VNUM vnum;
-    int16_t reset_num;
     char* material;
-    int16_t item_type;
+    int value[5];
+    int cost;
     int extra_flags;
     int wear_flags;
+    VNUM vnum;
     LEVEL level;
+    int16_t item_type;
+    int16_t reset_num;
     int16_t condition;
     int16_t count;
     int16_t weight;
-    int cost;
-    int value[5];
+    bool new_format;
 } ObjectPrototype;
 
 typedef struct object_data_t {
@@ -52,23 +52,23 @@ typedef struct object_data_t {
     AFFECT_DATA* affected;
     ObjectPrototype* pIndexData;
     RoomData* in_room;
-    bool valid;
-    bool enchanted;
     char* owner;
     char* name;
     char* short_descr;
     char* description;
-    int16_t item_type;
+    char* material;
+    int value[5];
+    int cost;
     int extra_flags;
     int wear_flags;
-    int16_t wear_loc;
-    int16_t weight;
-    int cost;
     LEVEL level;
     int16_t condition;
-    char* material;
+    int16_t wear_loc;
+    int16_t weight;
     int16_t timer;
-    int value[5];
+    int16_t item_type;
+    bool enchanted;
+    bool valid;
 } ObjectData;
 
 void clone_object(ObjectData* parent, ObjectData* clone);

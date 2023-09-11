@@ -3,11 +3,13 @@
 // Functions to handle VT102 SGR colors
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "merc.h"
-
 #include "color.h"
+
 #include "comm.h"
+#include "db.h"
 #include "digest.h"
+#include "handler.h"
+#include "save.h"
 #include "vt.h"
 
 #include "entities/player_data.h"
@@ -1564,6 +1566,29 @@ void set_color_rgb(Color* color, uint8_t r, uint8_t g, uint8_t b)
     color->xterm = NULL;
 }
 
+void set_default_theme(CharData* ch)
+{
+    if (IS_NPC(ch))
+        return;
+
+    if (ch->pcdata == NULL)
+        return;
+
+    if (ch->pcdata->current_theme) {
+        if (ch->pcdata->current_theme->is_changed) {
+            send_to_char(theme_change_warning, ch);
+            return;
+        }
+        free_color_theme(ch->pcdata->current_theme);
+    }
+
+    ch->pcdata->current_theme = dup_color_theme(system_color_themes[SYSTEM_COLOR_THEME_LOPE]);
+    free_string(ch->pcdata->theme_config.current_theme_name);
+    ch->pcdata->theme_config.current_theme_name = str_dup(ch->pcdata->current_theme->name);
+
+    return;
+}
+
 void set_default_colors(CharData* ch)
 {
     char out[MAX_INPUT_LENGTH];
@@ -1586,29 +1611,6 @@ void set_default_colors(CharData* ch)
     );
 
     send_to_char(out, ch);
-}
-
-void set_default_theme(CharData* ch)
-{
-    if (IS_NPC(ch))
-        return;
-
-    if (ch->pcdata == NULL)
-        return;
-
-    if (ch->pcdata->current_theme) {
-        if (ch->pcdata->current_theme->is_changed) {
-            send_to_char(theme_change_warning, ch);
-            return;
-        }
-        free_color_theme(ch->pcdata->current_theme);
-    }
-    
-    ch->pcdata->current_theme = dup_color_theme(system_color_themes[SYSTEM_COLOR_THEME_LOPE]);
-    free_string(ch->pcdata->theme_config.current_theme_name);
-    ch->pcdata->theme_config.current_theme_name = str_dup(ch->pcdata->current_theme->name);
-
-    return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -3,13 +3,13 @@
 // Player character data
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "merc.h"
-
 #include "player_data.h"
 
 #include "color.h"
+#include "db.h"
 #include "digest.h"
 #include "recycle.h"
+#include "skills.h"
 
 PlayerData* player_list = NULL;
 PlayerData* player_free = NULL;

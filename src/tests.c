@@ -6,6 +6,9 @@
 #include "merc.h"
 
 #include "benchmark.h"
+#include "db.h"
+#include "fight.h"
+#include "handler.h"
 #include "strings.h"
 #include "tests.h"
 

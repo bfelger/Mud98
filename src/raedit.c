@@ -5,9 +5,13 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "lookup.h"
+#include "magic.h"
 #include "olc.h"
 #include "recycle.h"
+#include "save.h"
 #include "tables.h"
 
 #include "entities/player_data.h"

@@ -21,11 +21,14 @@
 #ifndef MUD98__OLC_H
 #define MUD98__OLC_H
 
+#include "interp.h"
 #include "tables.h"
 #include "tablesave.h"
 
 #include "entities/mob_prototype.h"
 
+#include <stdbool.h>
+#include <stdint.h>
 #include <inttypes.h>
 
 char* flag_string(const struct flag_type*, long);
@@ -50,14 +53,14 @@ char* flag_string(const struct flag_type*, long);
 /*
  * New typedefs.
  */
-typedef	bool OLC_FUN		args((CharData* ch, char* argument));
+typedef	bool OLC_FUN(CharData* ch, char* argument);
 #define DECLARE_OLC_FUN( fun )	OLC_FUN fun
 
-typedef bool ED_FUN		args((char*, CharData*, char*, uintptr_t, const uintptr_t));
+typedef bool ED_FUN(char*, CharData*, char*, uintptr_t, const uintptr_t);
 #define DECLARE_ED_FUN( fun )	ED_FUN fun
 
 #define ED_FUN_DEC(blah)	bool blah (char* n_fun, CharData* ch,        \
-                            char* argument, uintptr_t arg, const uintptr_t par )
+                            char* argument, uintptr_t arg, const uintptr_t par)
 
 /* Command procedures needed ROM OLC */
 DECLARE_DO_FUN(do_help);
@@ -83,19 +86,19 @@ DECLARE_SPELL_FUN(spell_null);
 /*
  * Interpreter Prototypes
  */
-void    aedit       args((CharData* ch, char* argument));
-void    redit       args((CharData* ch, char* argument));
-void    medit       args((CharData* ch, char* argument));
-void    oedit       args((CharData* ch, char* argument));
-void    pedit       args((CharData* ch, char* argument));
-void	cedit		args((CharData* ch, char* argument));
-void	raedit		args((CharData* ch, char* argument));
-void	sedit		args((CharData* ch, char* argument));
-void	skedit		args((CharData* ch, char* argument));
-void	cmdedit		args((CharData* ch, char* argument));
-void	gedit		args((CharData* ch, char* argument));
-void	scedit		args((CharData* ch, char* argument));
-void	hedit		args((CharData* ch, char* argument));
+void    aedit       (CharData* ch, char* argument);
+void    redit       (CharData* ch, char* argument);
+void    medit       (CharData* ch, char* argument);
+void    oedit       (CharData* ch, char* argument);
+void    pedit       (CharData* ch, char* argument);
+void	cedit		(CharData* ch, char* argument);
+void	raedit		(CharData* ch, char* argument);
+void	sedit		(CharData* ch, char* argument);
+void	skedit		(CharData* ch, char* argument);
+void	cmdedit		(CharData* ch, char* argument);
+void	gedit		(CharData* ch, char* argument);
+void	scedit		(CharData* ch, char* argument);
+void	hedit		(CharData* ch, char* argument);
 
 /*
  * OLC Constants
@@ -144,11 +147,15 @@ struct editor_cmd_type {
 /*
  * Utils.
  */
-AREA_DATA* get_vnum_area args((VNUM vnum));
-AREA_DATA* get_area_data args((VNUM vnum));
-int	flag_value args((const struct flag_type* flag_table, char* argument));
-void add_reset args((RoomData*, RESET_DATA*, int));
-void set_editor args((DESCRIPTOR_DATA*, int, uintptr_t));
+AREA_DATA* get_vnum_area(VNUM vnum);
+AREA_DATA* get_area_data(VNUM vnum);
+int	flag_value(const struct flag_type* flag_table, char* argument);
+void add_reset(RoomData*, ResetData*, int);
+void set_editor(DESCRIPTOR_DATA*, int, uintptr_t);
+
+bool run_olc_editor(DESCRIPTOR_DATA* d, char* incomm);
+char* olc_ed_name(CharData* ch);
+char* olc_ed_vnum(CharData* ch);
 
 /*
  * Interpreter Table Prototypes
@@ -394,30 +401,6 @@ DECLARE_ED_FUN(ed_objrecval);
 #define EDIT_HELP(Ch, Help)	( Help = (HELP_DATA *)Ch->desc->pEdit )
 #define EDIT_PROG(Ch, Code)	( Code = (MPROG_CODE*)Ch->desc->pEdit )
 
-/*
- * Prototypes
- */
-/* mem.c - memory prototypes. */
-#define ED EXTRA_DESCR_DATA
-RESET_DATA*     new_reset_data      args((void));
-void            free_reset_data     args((RESET_DATA* pReset));
-AREA_DATA*      new_area            args((void));
-void            free_area           args((AREA_DATA* pArea));
-EXIT_DATA*      new_exit            args((void));
-void            free_exit           args((EXIT_DATA*));
-ED*             new_extra_descr	    args((void));
-void            free_extra_descr    args((ED* pExtra));
-AFFECT_DATA*    new_affect          args((void));
-void            free_affect         args((AFFECT_DATA* pAf));
-SHOP_DATA*      new_shop            args((void));
-void            free_shop           args((SHOP_DATA* pShop));
-#undef	ED
-
-MPROG_LIST*     new_mprog           args((void));
-void            free_mprog          args((MPROG_LIST* mp));
-
-MPROG_CODE*     new_mpcode          args((void));
-void            free_mpcode         args((MPROG_CODE* pMcode));
 
 void		    show_liqlist		args((CharData* ch));
 void		    show_poslist		args((CharData* ch));

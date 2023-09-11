@@ -5,6 +5,8 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "interp.h"
 #include "tables.h"
 #include "lookup.h"

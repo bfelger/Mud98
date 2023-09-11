@@ -3,17 +3,18 @@
 // Utilities for handling in-game objects
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "merc.h"
+#include "object_data.h"
 
 #include "db.h"
+#include "handler.h"
+#include "lookup.h"
+#include "magic.h"
 #include "recycle.h"
-
-#include "object_data.h"
 
 ObjectPrototype* object_prototype_hash[MAX_KEY_HASH];
 int top_object_prototype;
 VNUM top_vnum_obj;      // OLC
-int newobjs;
+int newobjs = 0;
 ObjectPrototype* object_prototype_free;
 ObjectData* object_free;
 ObjectData* object_list;
@@ -174,7 +175,7 @@ void convert_objects()
 {
     VNUM vnum;
     AREA_DATA* pArea;
-    RESET_DATA* pReset;
+    ResetData* pReset;
     MobPrototype* pMob = NULL;
     ObjectPrototype* pObj;
     RoomData* pRoom;
@@ -183,7 +184,7 @@ void convert_objects()
 
     for (pArea = area_first; pArea; pArea = pArea->next) {
         for (vnum = pArea->min_vnum; vnum <= pArea->max_vnum; vnum++) {
-            if (!(pRoom = get_room_index(vnum))) continue;
+            if (!(pRoom = get_room_data(vnum))) continue;
 
             for (pReset = pRoom->reset_first; pReset; pReset = pReset->next) {
                 switch (pReset->command) {

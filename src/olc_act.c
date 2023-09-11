@@ -14,15 +14,25 @@
 
 #include "merc.h"
 
+#include "act_move.h"
 #include "comm.h"
-#include "lookup.h"
+#include "db.h"
+#include "handler.h"
 #include "interp.h"
+#include "lookup.h"
+#include "magic.h"
+#include "mem.h"
+#include "mob_cmds.h"
 #include "olc.h"
 #include "recycle.h"
+#include "skills.h"
+#include "special.h"
+#include "string_edit.h"
 #include "tables.h"
 
 #include "entities/object_data.h"
 #include "entities/player_data.h"
+#include "entities/room_data.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -343,7 +353,7 @@ REDIT(redit_rlist)
     found = false;
 
     for (vnum = pArea->min_vnum; vnum <= pArea->max_vnum; vnum++) {
-        if ((pRoomIndex = get_room_index(vnum))) {
+        if ((pRoomIndex = get_room_data(vnum))) {
             found = true;
             sprintf(buf, "[%5d] %-17.16s#n",
                 vnum, capitalize(pRoomIndex->name));
@@ -472,8 +482,8 @@ AEDIT(aedit_show)
 
 #if 0  /* ROM OLC */
     sprintf(buf, "Recall:   [%"PRVNUM"] %s\n\r", pArea->recall,
-        get_room_index(pArea->recall)
-        ? get_room_index(pArea->recall)->name : "none");
+        get_room_data(pArea->recall)
+        ? get_room_data(pArea->recall)->name : "none");
     send_to_char(buf, ch);
 #endif /* ROM */
 
@@ -723,7 +733,7 @@ AEDIT(aedit_recall)
 
     value = STRTOVNUM(room);
 
-    if (!get_room_index(value)) {
+    if (!get_room_data(value)) {
         send_to_char("AEdit:  Room vnum does not exist.\n\r", ch);
         return false;
     }
@@ -1131,7 +1141,7 @@ bool change_exit(CharData* ch, char* argument, int door)
      */
     if ((value = flag_value(exit_flag_table, argument)) != NO_FLAG) {
         RoomData* pToRoom;
-        EXIT_DATA* pExit, * pNExit;
+        ExitData* pExit, * pNExit;
         int16_t rev;                                    /* ROM OLC */
 
         pExit = pRoom->exit[door];
@@ -1184,7 +1194,7 @@ bool change_exit(CharData* ch, char* argument, int door)
 
     if (!str_cmp(command, "delete")) {
         RoomData* pToRoom;
-        EXIT_DATA* pExit, * pNExit;
+        ExitData* pExit, * pNExit;
         int16_t rev;
         bool rDeleted = false;
 
@@ -1232,7 +1242,7 @@ bool change_exit(CharData* ch, char* argument, int door)
     }
 
     if (!str_cmp(command, "link")) {
-        EXIT_DATA* pExit;
+        ExitData* pExit;
         RoomData* pRoomIndex;
 
         if (arg[0] == '\0' || !is_number(arg)) {
@@ -1240,7 +1250,7 @@ bool change_exit(CharData* ch, char* argument, int door)
             return false;
         }
 
-        pRoomIndex = get_room_index(atoi(arg));
+        pRoomIndex = get_room_data(atoi(arg));
 
         if (!pRoomIndex) {
             send_to_char("REdit:  Cannot link to non-existent room.\n\r", ch);
@@ -1299,7 +1309,7 @@ bool change_exit(CharData* ch, char* argument, int door)
     }
 
     if (!str_cmp(command, "room")) {
-        EXIT_DATA* pExit;
+        ExitData* pExit;
         RoomData* target;
 
         if (arg[0] == '\0' || !is_number(arg)) {
@@ -1309,7 +1319,7 @@ bool change_exit(CharData* ch, char* argument, int door)
 
         value = atoi(arg);
 
-        if ((target = get_room_index(value)) == NULL) {
+        if ((target = get_room_data(value)) == NULL) {
             send_to_char("REdit:  Cannot link to non-existant room.\n\r", ch);
             return false;
         }
@@ -1337,7 +1347,7 @@ bool change_exit(CharData* ch, char* argument, int door)
     }
 
     if (!str_cmp(command, "key")) {
-        EXIT_DATA* pExit;
+        ExitData* pExit;
         ObjectPrototype* pObj;
 
         if (arg[0] == '\0' || !is_number(arg)) {
@@ -1369,7 +1379,7 @@ bool change_exit(CharData* ch, char* argument, int door)
     }
 
     if (!str_cmp(command, "name")) {
-        EXIT_DATA* pExit;
+        ExitData* pExit;
 
         if (arg[0] == '\0') {
             send_to_char("Syntax:  [direction] name [string]\n\r", ch);
@@ -1394,7 +1404,7 @@ bool change_exit(CharData* ch, char* argument, int door)
     }
 
     if (!str_prefix(command, "description")) {
-        EXIT_DATA* pExit;
+        ExitData* pExit;
 
         if (arg[0] == '\0') {
             if ((pExit = pRoom->exit[door]) == NULL) {
@@ -1440,7 +1450,7 @@ REDIT(redit_create)
         return false;
     }
 
-    if (get_room_index(value)) {
+    if (get_room_data(value)) {
         send_to_char("REdit:  Room vnum already exists.\n\r", ch);
         return false;
     }
@@ -1484,7 +1494,7 @@ REDIT(redit_mreset)
     char		arg[MAX_INPUT_LENGTH];
     char		arg2[MAX_INPUT_LENGTH];
 
-    RESET_DATA* pReset;
+    ResetData* pReset;
     char		output[MAX_STRING_LENGTH];
 
     EDIT_ROOM(ch, pRoom);
@@ -1620,7 +1630,7 @@ REDIT(redit_oreset)
     char arg2[MAX_INPUT_LENGTH];
     LEVEL olevel = 0;
 
-    RESET_DATA* pReset;
+    ResetData* pReset;
     char		output[MAX_STRING_LENGTH];
 
     EDIT_ROOM(ch, pRoom);
@@ -3071,7 +3081,7 @@ void showresets(CharData* ch, BUFFER* buf, AREA_DATA* pArea, MobPrototype* mob, 
 {
     RoomData* room;
     MobPrototype* pLastMob;
-    RESET_DATA* reset;
+    ResetData* reset;
     char buf2[MIL];
     int key, lastmob;
 
@@ -3242,7 +3252,7 @@ REDIT(redit_copy)
         return false;
     }
 
-    that = get_room_index(vnum);
+    that = get_room_data(vnum);
 
     if (!that || !IS_BUILDER(ch, that->area) || that == this) {
         send_to_char("REdit : That room does not exist, or cannot be copied by you.\n\r", ch);

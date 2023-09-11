@@ -14,6 +14,11 @@
 
 #include "merc.h"
 
+#include "db.h"
+
+#include "entities/exit_data.h"
+#include "entities/reset_data.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,22 +26,9 @@
 #include <sys/types.h>
 #include <time.h>
 
-void free_mprog args((MPROG_LIST* mp));
-
-/*
- * Globals
- */
-extern int top_reset;
-extern int top_area;
-extern int top_exit;
-extern int top_ed;
-extern int top_room;
-
 AREA_DATA* area_free;
 EXTRA_DESCR_DATA* extra_descr_free;
-EXIT_DATA* exit_free;
 SHOP_DATA* shop_free;
-RESET_DATA* reset_free;
 HELP_DATA* help_free = NULL;
 
 HELP_DATA* help_last;
@@ -44,37 +36,7 @@ HELP_DATA* help_last;
 void free_extra_descr(EXTRA_DESCR_DATA* pExtra);
 void free_affect(AFFECT_DATA* af);
 
-RESET_DATA* new_reset_data(void)
-{
-    RESET_DATA* pReset;
-
-    if (!reset_free) {
-        pReset = alloc_perm(sizeof(*pReset));
-        top_reset++;
-    }
-    else {
-        pReset = reset_free;
-        reset_free = reset_free->next;
-    }
-
-    pReset->next = NULL;
-    pReset->command = 'X';
-    pReset->arg1 = 0;
-    pReset->arg2 = 0;
-    pReset->arg3 = 0;
-    pReset->arg4 = 0;
-
-    return pReset;
-}
-
-void free_reset_data(RESET_DATA* pReset)
-{
-    pReset->next = reset_free;
-    reset_free = pReset;
-    return;
-}
-
-AREA_DATA* new_area(void)
+AREA_DATA* new_area()
 {
     AREA_DATA* pArea;
     char buf[MAX_INPUT_LENGTH];
@@ -119,46 +81,7 @@ void free_area(AREA_DATA* pArea)
     return;
 }
 
-EXIT_DATA* new_exit(void)
-{
-    EXIT_DATA* pExit;
-
-    if (!exit_free) {
-        pExit = alloc_perm(sizeof(*pExit));
-        top_exit++;
-    }
-    else {
-        pExit = exit_free;
-        exit_free = exit_free->next;
-    }
-
-    pExit->u1.to_room = NULL;                  /* ROM OLC */
-    pExit->next = NULL;
-/*  pExit->vnum         =   0;                        ROM OLC */
-    pExit->exit_info = 0;
-    pExit->key = 0;
-    pExit->keyword = &str_empty[0];
-    pExit->description = &str_empty[0];
-    pExit->rs_flags = 0;
-
-    return pExit;
-}
-
-void free_exit(EXIT_DATA* pExit)
-{
-    if (pExit == NULL)
-        return;
-
-    free_string(pExit->keyword);
-    free_string(pExit->description);
-
-    pExit->next = exit_free;
-    exit_free = pExit;
-
-    return;
-}
-
-SHOP_DATA* new_shop(void)
+SHOP_DATA* new_shop()
 {
     SHOP_DATA* pShop;
     int buy;
@@ -195,7 +118,7 @@ void free_shop(SHOP_DATA* pShop)
 
 MPROG_CODE* mpcode_free;
 
-MPROG_CODE* new_mpcode(void)
+MPROG_CODE* new_mpcode()
 {
     MPROG_CODE* NewCode;
     extern int top_mprog_index;

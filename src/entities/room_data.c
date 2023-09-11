@@ -3,22 +3,26 @@
 // Utilities to handle navigable rooms
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "merc.h"
-
 #include "room_data.h"
 
+#include "db.h"
+
+#include "reset_data.h"
+
 // MOVE THESE LATER!
-void free_reset_data(RESET_DATA* pReset);
-void free_exit(EXIT_DATA* pExit);
+void free_exit(ExitData* pExit);
 void free_extra_descr(EXTRA_DESCR_DATA* pExtra);
 //
 
+int top_room;
+VNUM top_vnum_room;
 RoomData* room_index_free;
+RoomData* room_index_hash[MAX_KEY_HASH];
 
 void free_room_index(RoomData* pRoom)
 {
     EXTRA_DESCR_DATA* pExtra;
-    RESET_DATA* pReset;
+    ResetData* pReset;
     int i;
 
     free_string(pRoom->name);
@@ -39,6 +43,27 @@ void free_room_index(RoomData* pRoom)
     pRoom->next = room_index_free;
     room_index_free = pRoom;
     return;
+}
+
+/*
+ * Translates mob virtual number to its room index struct.
+ * Hash table lookup.
+ */
+RoomData* get_room_data(VNUM vnum)
+{
+    RoomData* pRoomIndex;
+
+    for (pRoomIndex = room_index_hash[vnum % MAX_KEY_HASH]; pRoomIndex != NULL;
+        pRoomIndex = pRoomIndex->next) {
+        if (pRoomIndex->vnum == vnum) return pRoomIndex;
+    }
+
+    if (fBootDb) {
+        bug("Get_room_index: bad vnum %"PRVNUM".", vnum);
+        exit(1);
+    }
+
+    return NULL;
 }
 
 RoomData* new_room_index()

@@ -33,10 +33,18 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "merc.h"
-
-#include "comm.h"
 #include "mob_cmds.h"
+
+#include "act_comm.h"
+#include "act_move.h"
+#include "act_obj.h"
+#include "comm.h"
+#include "db.h"
+#include "fight.h"
+#include "handler.h"
+#include "magic.h"
+#include "mob_prog.h"
+#include "skills.h"
 
 #include "entities/char_data.h"
 #include "entities/object_data.h"
@@ -297,7 +305,7 @@ void do_mpasound(CharData* ch, char* argument)
 
     was_in_room = ch->in_room;
     for (door = 0; door < 6; door++) {
-        EXIT_DATA* pexit;
+        ExitData* pexit;
 
         if ((pexit = was_in_room->exit[door]) != NULL
             && pexit->u1.to_room != NULL
@@ -1139,7 +1147,6 @@ void do_mpcall(CharData* ch, char* argument)
     CharData* vch;
     ObjectData* obj1, * obj2;
     MPROG_CODE* prg;
-    extern void program_flow(VNUM, char*, CharData*, CharData*, const void*, const void*);
 
     argument = one_argument(argument, arg);
     if (arg[0] == '\0') {
@@ -1175,7 +1182,7 @@ void do_mpcall(CharData* ch, char* argument)
 void do_mpflee(CharData* ch, char* argument)
 {
     RoomData* was_in;
-    EXIT_DATA* pexit;
+    ExitData* pexit;
     int door, attempt;
 
     if (ch->fighting != NULL)

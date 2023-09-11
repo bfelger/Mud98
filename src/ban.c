@@ -25,8 +25,14 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "merc.h"
+#include "ban.h"
+
+#include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "recycle.h"
+
+#include "entities/char_data.h"
 
 #include <stdio.h>
 #include <stdlib.h>

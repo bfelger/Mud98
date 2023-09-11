@@ -5,10 +5,14 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "lookup.h"
 #include "magic.h"
+#include "spell_list.h"
 #include "olc.h"
 #include "recycle.h"
+#include "skills.h"
 #include "tables.h"
 
 #include "entities/player_data.h"
@@ -48,7 +52,7 @@ struct spell_type {
 
 const struct spell_type spell_table[] = {
 // I hate everything about this.
-#include "magic.h"
+#include "spell_list.h"
     { NULL, NULL }
 };
 

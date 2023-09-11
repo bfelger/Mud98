@@ -25,9 +25,20 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "merc.h"
+#include "act_obj.h"
 
+#include "act_comm.h"
+#include "comm.h"
+#include "act_wiz.h"
+#include "db.h"
+#include "fight.h"
+#include "handler.h"
 #include "interp.h"
+#include "magic.h"
+#include "mob_prog.h"
+#include "save.h"
+#include "skills.h"
+#include "update.h"
 
 #include "entities/object_data.h"
 #include "entities/player_data.h"
@@ -2186,9 +2197,9 @@ void do_buy(CharData* ch, char* argument)
 
         /* hack to make new thalos pets work */
         if (ch->in_room->vnum == 9621)
-            pRoomIndexNext = get_room_index(9706);
+            pRoomIndexNext = get_room_data(9706);
         else
-            pRoomIndexNext = get_room_index(ch->in_room->vnum + 1);
+            pRoomIndexNext = get_room_data(ch->in_room->vnum + 1);
         if (pRoomIndexNext == NULL) {
             bug("Do_buy: bad pet shop at vnum %"PRVNUM".", ch->in_room->vnum);
             send_to_char("Sorry, you can't buy that here.\n\r", ch);
@@ -2382,9 +2393,9 @@ void do_list(CharData* ch, char* argument)
 
         /* hack to make new thalos pets work */
         if (ch->in_room->vnum == 9621)
-            pRoomIndexNext = get_room_index(9706);
+            pRoomIndexNext = get_room_data(9706);
         else
-            pRoomIndexNext = get_room_index(ch->in_room->vnum + 1);
+            pRoomIndexNext = get_room_data(ch->in_room->vnum + 1);
 
         if (pRoomIndexNext == NULL) {
             bug("Do_list: bad pet shop at vnum %"PRVNUM".", ch->in_room->vnum);

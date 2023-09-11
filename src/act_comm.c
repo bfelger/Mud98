@@ -25,12 +25,20 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+#include "act_comm.h"
+
 #include "merc.h"
 
+#include "act_wiz.h"
 #include "color.h"
 #include "comm.h"
+#include "db.h"
+#include "fight.h"
+#include "handler.h"
 #include "interp.h"
+#include "mob_prog.h"
 #include "recycle.h"
+#include "save.h"
 #include "screen.h"
 #include "tables.h"
 #include "vt.h"

@@ -25,9 +25,22 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "merc.h"
+#include "fight.h"
 
+#include "act_comm.h"
+#include "act_move.h"
+#include "act_obj.h"
+#include "act_wiz.h"
+#include "comm.h"
+#include "db.h"
+#include "effects.h"
+#include "handler.h"
 #include "interp.h"
+#include "magic.h"
+#include "mob_prog.h"
+#include "save.h"
+#include "skills.h"
+#include "update.h"
 
 #include "entities/object_data.h"
 #include "entities/player_data.h"
@@ -1496,7 +1509,7 @@ void death_cry(CharData* ch)
 
     was_in_room = ch->in_room;
     for (door = 0; door <= 5; door++) {
-        EXIT_DATA* pexit;
+        ExitData* pexit;
 
         if ((pexit = was_in_room->exit[door]) != NULL
             && pexit->u1.to_room != NULL && pexit->u1.to_room != was_in_room) {
@@ -2639,7 +2652,7 @@ void do_flee(CharData* ch, char* argument)
 
     was_in = ch->in_room;
     for (attempt = 0; attempt < 6; attempt++) {
-        EXIT_DATA* pexit;
+        ExitData* pexit;
         int door;
 
         door = number_door();

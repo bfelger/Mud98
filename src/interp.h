@@ -31,7 +31,7 @@
 
 #include "merc.h"
 
-/* this is a listing of all the commands and command related data */
+#include <stdbool.h>
 
 /* for command types */
 #define ML         MAX_LEVEL /* implementor */
@@ -48,6 +48,11 @@
 
 #define COM_INGORE 1
 
+struct spec_type {
+    char* name; /* special function name */
+    SPEC_FUN* function; /* the function */
+};
+
 /*
  * Structure for a command in the command lookup table.
  */
@@ -60,14 +65,21 @@ struct cmd_type {
     int16_t show;
 };
 
-/* wrapper function for safe command execution */
-void do_function args((CharData * ch, DO_FUN* do_fun, char* argument));
-
 /* the command table itself */
+#include "command.h"
+
+void interpret(CharData* ch, char* argument);
+bool is_number(char* arg);
+int number_argument(char* argument, char* arg);
+int mult_argument(char* argument, char* arg);
+char* one_argument(char* argument, char* arg_first);
+
+/* wrapper function for safe command execution */
+void do_function(CharData* ch, DO_FUN* do_fun, char* argument);
+
 extern struct cmd_type* cmd_table;
 
 extern int max_cmd;
-
-#include "command.h"
+extern bool fLogAll;
 
 #endif // !MUD98__INTERP_H

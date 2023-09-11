@@ -40,5 +40,8 @@ int size_lookup args((const char* name));
 int	flag_lookup	args((const char*, const struct flag_type*));
 HELP_DATA* help_lookup args((char*));
 HELP_AREA* had_lookup args((char*));
+int16_t race_lookup(const char* name);
+int item_lookup(const char* name);
+int liq_lookup(const char* name);
 
 #endif // !MUD98__LOOKUP_H

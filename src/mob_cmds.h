@@ -1,29 +1,29 @@
 /***************************************************************************
- *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,	   *
+ *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
  *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
- *									   *
- *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael	   *
- *  Chastain, Michael Quan, and Mitchell Tse.				   *
- *									   *
+ *                                                                         *
+ *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
+ *  Chastain, Michael Quan, and Mitchell Tse.                              *
+ *                                                                         *
  *  In order to use any part of this Merc Diku Mud, you must comply with   *
- *  both the original Diku license in 'license.doc' as well the Merc	   *
+ *  both the original Diku license in 'license.doc' as well the Merc       *
  *  license in 'license.txt'.  In particular, you may not remove either of *
- *  these copyright notices.						   *
- *									   *
- *  Much time and thought has gone into this software and you are	   *
- *  benefitting.  We hope that you share your changes too.  What goes	   *
- *  around, comes around.						   *
+ *  these copyright notices.                                               *
+ *                                                                         *
+ *  Much time and thought has gone into this software and you are          *
+ *  benefitting.  We hope that you share your changes too.  What goes      *
+ *  around, comes around.                                                  *
  ***************************************************************************/
- 
+
 /***************************************************************************
-*	ROM 2.4 is copyright 1993-1995 Russ Taylor			   *
-*	ROM has been brought to you by the ROM consortium		   *
-*	    Russ Taylor (rtaylor@pacinfo.com)				   *
-*	    Gabrielle Taylor (gtaylor@pacinfo.com)			   *
-*	    Brian Moore (rom@rom.efn.org)				   *
-*	By using this code, you have agreed to follow the terms of the	   *
-*	ROM license, in the file Rom24/doc/rom.license			   *
-***************************************************************************/
+ *  ROM 2.4 is copyright 1993-1998 Russ Taylor                             *
+ *  ROM has been brought to you by the ROM consortium                      *
+ *      Russ Taylor (rtaylor@hypercube.org)                                *
+ *      Gabrielle Taylor (gtaylor@hypercube.org)                           *
+ *      Brian Moore (zump@rom.org)                                         *
+ *  By using this code, you have agreed to follow the terms of the         *
+ *  ROM license, in the file Rom24/doc/rom.license                         *
+ ***************************************************************************/
 
 /***************************************************************************
  *                                                                         *
@@ -33,15 +33,17 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "interp.h"
 
-struct	mob_cmd_type
-{
-    char * const	name;
-    DO_FUN *		do_fun;
+#include "entities/char_data.h"
+
+struct mob_cmd_type {
+    char* const	name;
+    DO_FUN* do_fun;
 };
 
 /* the command table itself */
-extern	const	struct	mob_cmd_type	mob_cmd_table	[];
+extern const struct mob_cmd_type mob_cmd_table[];
 
 /*
  * Command functions.
@@ -76,3 +78,6 @@ DECLARE_DO_FUN(	do_mpcall	);
 DECLARE_DO_FUN(	do_mpflee	);
 DECLARE_DO_FUN(	do_mpotransfer	);
 DECLARE_DO_FUN(	do_mpremove	);
+
+void mob_interpret(CharData* ch, char* argument);
+char* mprog_type_to_name(int);

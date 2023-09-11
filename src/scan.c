@@ -27,6 +27,11 @@
 
 #include "merc.h"
 
+#include "act_move.h"
+#include "comm.h"
+#include "db.h"
+#include "handler.h"
+
 #include "entities/char_data.h"
 
 #include <stdio.h>
@@ -37,14 +42,15 @@
 
 void scan_list args((RoomData * scan_room, CharData* ch, int16_t depth,
                      int16_t door));
+
 void scan_char args((CharData * victim, CharData* ch, int16_t depth,
                      int16_t door));
+
 void do_scan(CharData* ch, char* argument)
 {
-    extern char* const dir_name[];
     char arg1[MAX_INPUT_LENGTH], buf[MAX_INPUT_LENGTH];
     RoomData* scan_room;
-    EXIT_DATA* pExit;
+    ExitData* pExit;
     int16_t door, depth;
 
     argument = one_argument(argument, arg1);
@@ -108,7 +114,6 @@ void scan_list(RoomData* scan_room, CharData* ch, int16_t depth,
 
 void scan_char(CharData* victim, CharData* ch, int16_t depth, int16_t door)
 {
-    extern char* const dir_name[];
     char buf[MAX_INPUT_LENGTH] = "";
     char buf2[MAX_INPUT_LENGTH] = "";
 

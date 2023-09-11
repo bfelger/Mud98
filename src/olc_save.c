@@ -19,10 +19,14 @@
  *  mob etc is part of that area.
  */
 
-#include "merc.h"
+#include "olc.h"
 
 #include "comm.h"
-#include "olc.h"
+#include "db.h"
+#include "handler.h"
+#include "mob_cmds.h"
+#include "skills.h"
+#include "special.h"
 #include "tables.h"
 #include "tablesave.h"
 
@@ -523,7 +527,7 @@ void save_rooms(FILE* fp, AREA_DATA* pArea)
 {
     RoomData* pRoomIndex;
     EXTRA_DESCR_DATA* pEd;
-    EXIT_DATA* pExit;
+    ExitData* pExit;
     char buf[MSL];
     int iHash, i, locks;
 
@@ -632,7 +636,7 @@ void save_door_resets(FILE* fp, AREA_DATA* pArea)
 {
     int iHash, i;
     RoomData* pRoomIndex;
-    EXIT_DATA* pExit;
+    ExitData* pExit;
 
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
         for (pRoomIndex = room_index_hash[iHash]; pRoomIndex; pRoomIndex = pRoomIndex->next) {
@@ -673,7 +677,7 @@ void save_door_resets(FILE* fp, AREA_DATA* pArea)
 ////////////////////////////////////////////////////////////////////////////////
 void save_resets(FILE* fp, AREA_DATA* pArea)
 {
-    RESET_DATA* pReset;
+    ResetData* pReset;
     MobPrototype* pLastMob = NULL;
 #ifdef VERBOSE
     ObjectPrototype* pLastObj;
@@ -708,7 +712,7 @@ void save_resets(FILE* fp, AREA_DATA* pArea)
 
                     case 'O':
                         pLastObj = get_object_prototype(pReset->arg1);
-                        pRoom = get_room_index(pReset->arg3);
+                        pRoom = get_room_data(pReset->arg3);
                         fprintf(fp, "O 0 %d 0 %d %s loaded to %s\n",
                             pReset->arg1,
                             pReset->arg3,
@@ -755,7 +759,7 @@ void save_resets(FILE* fp, AREA_DATA* pArea)
                         break;
 
                     case 'R':
-                        pRoom = get_room_index(pReset->arg1);
+                        pRoom = get_room_data(pReset->arg1);
                         fprintf(fp, "R 0 %d %d Randomize %s\n",
                             pReset->arg1,
                             pReset->arg2,
@@ -776,7 +780,7 @@ void save_resets(FILE* fp, AREA_DATA* pArea)
 #ifdef VERBOSE
                 pLastObj = get_object_prototype(pReset->arg1);
 #endif
-                pRoom = get_room_index(pReset->arg3);
+                pRoom = get_room_data(pReset->arg3);
                 fprintf(fp, "O 0 %d 0 %d\n",
                     pReset->arg1,
                     pReset->arg3);
@@ -817,7 +821,7 @@ void save_resets(FILE* fp, AREA_DATA* pArea)
                 break;
 
             case 'R':
-                pRoom = get_room_index(pReset->arg1);
+                pRoom = get_room_data(pReset->arg1);
                 fprintf(fp, "R 0 %d %d\n",
                     pReset->arg1,
                     pReset->arg2);

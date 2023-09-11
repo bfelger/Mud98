@@ -25,21 +25,31 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+#include "db.h"
+
 #include "merc.h"
 
+#include "act_move.h"
+#include "act_wiz.h"
 #include "comm.h"
-#include "db.h"
+#include "handler.h"
 #include "lookup.h"
+#include "magic.h"
 #include "music.h"
 #include "olc.h"
 #include "pcg_basic.h"
 #include "recycle.h"
+#include "skills.h"
+#include "special.h"
 #include "strings.h"
 #include "tables.h"
 
+#include "entities/exit_data.h"
 #include "entities/mob_prototype.h"
 #include "entities/object_data.h"
 #include "entities/player_data.h"
+#include "entities/reset_data.h"
+#include "entities/room_data.h"
 
 #include <ctype.h>
 #include <stdarg.h>
@@ -147,7 +157,6 @@ SKNUM gsn_recall;
 /*
  * Locals.
  */
-RoomData* room_index_hash[MAX_KEY_HASH];
 char* string_hash[MAX_KEY_HASH];
 
 AREA_DATA* area_first;
@@ -161,14 +170,9 @@ char str_empty[1];
 int top_affect;
 int top_area;
 int top_ed;
-int top_exit;
 int top_help;
-int top_reset;
-int top_room;
 int top_shop;
-VNUM top_vnum_room;     // OLC
 int	top_mprog_index;    // OLC
-int newobjs = 0;
 
 /*
  * Memory management.
@@ -819,9 +823,9 @@ void load_old_obj(FILE* fp)
  * Adds a reset to a room.
  * Similar to add_reset in olc.c
  */
-void new_reset(RoomData* pR, RESET_DATA* pReset)
+void new_reset(RoomData* pR, ResetData* pReset)
 {
-    RESET_DATA* pr;
+    ResetData* pr;
 
     if (!pR)
         return;
@@ -848,8 +852,8 @@ void new_reset(RoomData* pR, RESET_DATA* pReset)
  */
 void load_resets(FILE* fp)
 {
-    RESET_DATA* pReset;
-    EXIT_DATA* pexit;
+    ResetData* pReset;
+    ExitData* pexit;
     RoomData* pRoomIndex;
     VNUM rVnum = VNUM_NONE;
 
@@ -889,7 +893,7 @@ void load_resets(FILE* fp)
             break;
 
         case 'D':
-            pRoomIndex = get_room_index((rVnum = pReset->arg1));
+            pRoomIndex = get_room_data((rVnum = pReset->arg1));
             if (pReset->arg2 < 0
                 || pReset->arg2 >= MAX_DIR
                 || !pRoomIndex
@@ -925,7 +929,7 @@ void load_resets(FILE* fp)
         }
 
         if (pReset->command != 'D')
-            new_reset(get_room_index(rVnum), pReset);
+            new_reset(get_room_data(rVnum), pReset);
         else
             free_reset_data(pReset);
     }
@@ -961,7 +965,7 @@ void load_rooms(FILE* fp)
         if (vnum == 0) break;
 
         fBootDb = false;
-        if (get_room_index(vnum) != NULL) {
+        if (get_room_data(vnum) != NULL) {
             bug("Load_rooms: vnum %"PRVNUM" duplicated.", vnum);
             exit(1);
         }
@@ -1010,7 +1014,6 @@ void load_rooms(FILE* fp)
             }
 
             else if (letter == 'D') {
-                EXIT_DATA* pexit;
                 int locks;
 
                 door = fread_number(fp);
@@ -1019,7 +1022,7 @@ void load_rooms(FILE* fp)
                     exit(1);
                 }
 
-                pexit = alloc_perm(sizeof(*pexit));
+                ExitData* pexit = alloc_perm(sizeof(ExitData));
                 pexit->description = fread_string(fp);
                 pexit->keyword = fread_string(fp);
                 pexit->exit_info = 0;
@@ -1170,13 +1173,12 @@ void load_specials(FILE* fp)
  */
 void fix_exits(void)
 {
-    extern const int16_t rev_dir[];
     char buf[MAX_STRING_LENGTH];
     RoomData* pRoomIndex;
     RoomData* to_room;
-    EXIT_DATA* pexit;
-    EXIT_DATA* pexit_rev;
-    RESET_DATA* pReset;
+    ExitData* pexit;
+    ExitData* pexit_rev;
+    ResetData* pReset;
     RoomData* iLastRoom;
     RoomData* iLastObj;
     int iHash;
@@ -1199,12 +1201,12 @@ void fix_exits(void)
 
                 case 'M':
                     get_mob_prototype(pReset->arg1);
-                    iLastRoom = get_room_index(pReset->arg3);
+                    iLastRoom = get_room_data(pReset->arg3);
                     break;
 
                 case 'O':
                     get_object_prototype(pReset->arg1);
-                    iLastObj = get_room_index(pReset->arg3);
+                    iLastObj = get_room_data(pReset->arg3);
                     break;
 
                 case 'P':
@@ -1230,7 +1232,7 @@ void fix_exits(void)
                     break;
 
                 case 'R':
-                    get_room_index(pReset->arg1);
+                    get_room_data(pReset->arg1);
                     if (pReset->arg2 < 0 || pReset->arg2 > MAX_DIR) {
                         bugf("fix_exits : reset in room %d with arg2 %d >= MAX_DIR",
                             pRoomIndex->vnum, pReset->arg2);
@@ -1244,11 +1246,11 @@ void fix_exits(void)
             for (door = 0; door <= 5; door++) {
                 if ((pexit = pRoomIndex->exit[door]) != NULL) {
                     if (pexit->u1.vnum <= 0
-                        || get_room_index(pexit->u1.vnum) == NULL)
+                        || get_room_data(pexit->u1.vnum) == NULL)
                         pexit->u1.to_room = NULL;
                     else {
                         fexit = true;
-                        pexit->u1.to_room = get_room_index(pexit->u1.vnum);
+                        pexit->u1.to_room = get_room_data(pexit->u1.vnum);
                     }
                 }
             }
@@ -1304,7 +1306,7 @@ void area_update(void)
             wiznet(buf, NULL, NULL, WIZ_RESETS, 0, 0);
 
             pArea->age = (int16_t)number_range(0, 3);
-            pRoomIndex = get_room_index(ROOM_VNUM_SCHOOL);
+            pRoomIndex = get_room_data(ROOM_VNUM_SCHOOL);
             if (pRoomIndex != NULL && pArea == pRoomIndex->area)
                 pArea->age = 15 - 2;
             else if (pArea->nplayer == 0)
@@ -1393,7 +1395,7 @@ void fix_mobprogs(void)
  */
 void reset_room(RoomData* pRoom)
 {
-    RESET_DATA* pReset;
+    ResetData* pReset;
     CharData* pMob = NULL;
     ObjectData* pObj;
     CharData* LastMob = NULL;
@@ -1407,7 +1409,7 @@ void reset_room(RoomData* pRoom)
     last = false;
 
     for (iExit = 0; iExit < MAX_DIR; iExit++) {
-        EXIT_DATA* pExit;
+        ExitData* pExit;
         if ((pExit = pRoom->exit[iExit])
             /*  && !IS_SET( pExit->exit_info, EX_BASHED )   ROM OLC */) {
             pExit->exit_info = (int16_t)pExit->rs_flags;
@@ -1441,7 +1443,7 @@ void reset_room(RoomData* pRoom)
                 continue;
             }
 
-            if ((pRoomIndex = get_room_index(pReset->arg3)) == NULL) {
+            if ((pRoomIndex = get_room_data(pReset->arg3)) == NULL) {
                 bug("Reset_area: 'R': bad vnum %"PRVNUM".", pReset->arg3);
                 continue;
             }
@@ -1481,7 +1483,7 @@ void reset_room(RoomData* pRoom)
             {
                 RoomData* pRoomIndexPrev;
 
-                pRoomIndexPrev = get_room_index(pRoom->vnum - 1);
+                pRoomIndexPrev = get_room_data(pRoom->vnum - 1);
                 if (pRoomIndexPrev
                     && IS_SET(pRoomIndexPrev->room_flags, ROOM_PET_SHOP))
                     SET_BIT(pMob->act, ACT_PET);
@@ -1503,7 +1505,7 @@ void reset_room(RoomData* pRoom)
                 continue;
             }
 
-            if (!(pRoomIndex = get_room_index(pReset->arg3))) {
+            if (!(pRoomIndex = get_room_data(pReset->arg3))) {
                 bug("Reset_room: 'O' 2 : bad vnum %"PRVNUM".", pReset->arg3);
                 sprintf(buf, "%"PRVNUM" %d %"PRVNUM" %d", pReset->arg1, pReset->arg2, pReset->arg3,
                     pReset->arg4);
@@ -1665,13 +1667,13 @@ void reset_room(RoomData* pRoom)
             break;
 
         case 'R':
-            if (!(pRoomIndex = get_room_index(pReset->arg1))) {
+            if (!(pRoomIndex = get_room_data(pReset->arg1))) {
                 bug("Reset_room: 'R': bad vnum %"PRVNUM".", pReset->arg1);
                 continue;
             }
 
             {
-                EXIT_DATA* pExit;
+                ExitData* pExit;
                 int d0;
                 int d1;
 
@@ -1698,7 +1700,7 @@ void reset_area(AREA_DATA* pArea)
     VNUM  vnum;
 
     for (vnum = pArea->min_vnum; vnum <= pArea->max_vnum; vnum++) {
-        if ((pRoom = get_room_index(vnum)))
+        if ((pRoom = get_room_data(vnum)))
             reset_room(pRoom);
     }
 
@@ -1825,27 +1827,6 @@ char* get_extra_descr(const char* name, EXTRA_DESCR_DATA* ed)
     for (; ed != NULL; ed = ed->next) {
         if (is_name((char*)name, ed->keyword)) return ed->description;
     }
-    return NULL;
-}
-
-/*
- * Translates mob virtual number to its room index struct.
- * Hash table lookup.
- */
-RoomData* get_room_index(VNUM vnum)
-{
-    RoomData* pRoomIndex;
-
-    for (pRoomIndex = room_index_hash[vnum % MAX_KEY_HASH]; pRoomIndex != NULL;
-         pRoomIndex = pRoomIndex->next) {
-        if (pRoomIndex->vnum == vnum) return pRoomIndex;
-    }
-
-    if (fBootDb) {
-        bug("Get_room_index: bad vnum %"PRVNUM".", vnum);
-        exit(1);
-    }
-
     return NULL;
 }
 
@@ -2460,7 +2441,7 @@ void do_dump(CharData* ch, char* argument)
     ObjectData* obj;
     ObjectPrototype* p_object_prototype;
     RoomData* room = NULL;
-    EXIT_DATA* exit = NULL;
+    ExitData* exit = NULL;
     DESCRIPTOR_DATA* d;
     AFFECT_DATA* af;
     FILE* fp;

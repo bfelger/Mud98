@@ -25,13 +25,21 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "merc.h"
-
-#include "interp.h"
-#include "magic.h"
+#include "special.h"
 
 #include "entities/char_data.h"
 #include "entities/object_data.h"
+
+#include "act_move.h"
+#include "act_obj.h"
+#include "comm.h"
+#include "db.h"
+#include "fight.h"
+#include "handler.h"
+#include "interp.h"
+#include "magic.h"
+#include "skills.h"
+#include "spell_list.h"
 
 #include <stdio.h>
 #include <stdlib.h>

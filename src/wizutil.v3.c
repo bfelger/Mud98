@@ -18,7 +18,10 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "interp.h"
+#include "save.h"
 
 #include "entities/char_data.h"
 
@@ -138,7 +141,7 @@ void check_exits(RoomData* room, AREA_DATA* pArea, char* buffer)
 {
     char buf[MAX_STRING_LENGTH];
     int i;
-    EXIT_DATA* exit;
+    ExitData* exit;
     RoomData* to_room;
 
     strcpy(buffer, "");
@@ -212,7 +215,7 @@ void do_vlist(CharData* ch, char* argument)
             vnum = ((j * MAX_ROW) + i); /* find a vnum which should be there */
             if (vnum < MAX_SHOW_VNUM) {
                 /* each zone has to have a XXX01 room */
-                room = get_room_index(vnum * 100 + 1);
+                room = get_room_data(vnum * 100 + 1);
                 sprintf(buf2, "%"PRVNUM" %-8.8s  ", vnum,
                     room ? get_area_name(room->area) : "-");
                 /* something there or unused ? */

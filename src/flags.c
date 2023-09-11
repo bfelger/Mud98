@@ -27,6 +27,9 @@
 
 #include "merc.h"
 
+#include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "tables.h"
 
 #include "entities/player_data.h"

@@ -25,13 +25,19 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "merc.h"
+#include "handler.h"
 
+#include "act_comm.h"
 #include "color.h"
 #include "comm.h"
+#include "db.h"
+#include "fight.h"
 #include "interp.h"
+#include "lookup.h"
 #include "magic.h"
 #include "recycle.h"
+#include "skills.h"
+#include "spell_list.h"
 #include "tables.h"
 #include "vt.h"
 
@@ -1410,7 +1416,7 @@ void char_to_room(CharData* ch, RoomData* pRoomIndex)
 
         bug("Char_to_room: NULL.", 0);
 
-        if ((room = get_room_index(ROOM_VNUM_TEMPLE)) != NULL)
+        if ((room = get_room_data(ROOM_VNUM_TEMPLE)) != NULL)
             char_to_room(ch, room);
 
         return;
@@ -1908,7 +1914,7 @@ void extract_char(CharData* ch, bool fPull)
 
     /* Death room is set in the clan tabe now */
     if (!fPull) {
-        char_to_room(ch, get_room_index(clan_table[ch->clan].hall));
+        char_to_room(ch, get_room_data(clan_table[ch->clan].hall));
         return;
     }
 

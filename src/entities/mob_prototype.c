@@ -3,15 +3,18 @@
 // Prototype data for mobile (NPC) CharData
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "merc.h"
+#include "mob_prototype.h"
 
 #include "db.h"
+#include "handler.h"
 #include "lookup.h"
+#include "magic.h"
+#include "mem.h"
 #include "olc.h"
+#include "recycle.h"
 #include "tables.h"
 
 #include "char_data.h"
-#include "mob_prototype.h"
 
 MobPrototype* mob_prototype_hash[MAX_KEY_HASH];
 MobPrototype* mob_prototype_free;

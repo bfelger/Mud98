@@ -25,9 +25,13 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "merc.h"
+#include "act_enter.h"
 
+#include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "interp.h"
+#include "mob_prog.h"
 
 #include "entities/object_data.h"
 #include "entities/player_data.h"
@@ -47,7 +51,7 @@ RoomData* get_random_room(CharData* ch)
     RoomData* room;
 
     for (;;) {
-        room = get_room_index(number_range(0, 65535));
+        room = get_room_data(number_range(0, 65535));
         if (room != NULL)
             if (can_see_room(ch, room) && !room_is_private(room)
                 && !IS_SET(room->room_flags, ROOM_PRIVATE)
@@ -105,7 +109,7 @@ void do_enter(CharData* ch, char* argument)
         else if (IS_SET(portal->value[2], GATE_BUGGY) && (number_percent() < 5))
             location = get_random_room(ch);
         else
-            location = get_room_index(portal->value[3]);
+            location = get_room_data(portal->value[3]);
 
         if (location == NULL || location == old_room
             || !can_see_room(ch, location)

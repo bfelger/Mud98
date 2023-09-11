@@ -25,13 +25,19 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "merc.h"
+#include "skills.h"
 
+#include "entities/char_data.h"
+#include "entities/player_data.h"
+
+#include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "interp.h"
 #include "magic.h"
+#include "spell_list.h"
 #include "recycle.h"
-
-#include "entities/player_data.h"
+#include "update.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,6 +47,9 @@
 #ifndef _MSC_VER 
 #include <sys/time.h>
 #endif
+
+int max_group;
+struct group_type* group_table;
 
 /* used to get new skills */
 void do_gain(CharData* ch, char* argument)

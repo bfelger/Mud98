@@ -3,14 +3,17 @@
 // Functions to handle VT102 SGR colors
 ////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+typedef struct color_t Color;
+typedef struct color_theme_t ColorTheme;
+
 #ifndef MUD98__COLOR_H
 #define MUD98__COLOR_H
 
 #include "merc.h"
 
-#include "color.h"
 #include "vt.h"
+
+#include "entities/char_data.h"
 
 #include <stdint.h>
 
@@ -21,7 +24,7 @@ typedef enum {
     COLOR_MODE_PAL_IDX  = 3,    // Indexed against theme palette
 } ColorMode;
 
-typedef struct {
+typedef struct color_t {
     ColorMode mode;
     uint8_t code[3];
     char* cache;
