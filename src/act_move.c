@@ -33,6 +33,7 @@
 #include "handler.h"
 #include "interp.h"
 #include "mob_prog.h"
+#include "note.h"
 #include "skills.h"
 #include "update.h"
 

@@ -42,12 +42,6 @@
 #define BUFFER_OVERFLOW 1
 #define BUFFER_FREED    2
 
-/* note recycling */
-#define ND              NOTE_DATA
-ND* new_note args((void));
-void free_note args((NOTE_DATA * note));
-#undef ND
-
 /* ban data recycling */
 #define BD BAN_DATA
 BD* new_ban args((void));
@@ -78,13 +72,7 @@ AD* new_affect args((void));
 void free_affect args((AFFECT_DATA * af));
 #undef AD
 
-/* mob id and memory procedures */
-#define MD MEM_DATA
-long get_pc_id args((void));
-MD* new_mem_data args((void));
-void free_mem_data args((MEM_DATA * memory));
-MD* find_memory args((MEM_DATA * memory, long id));
-#undef MD
+long get_pc_id(void);
 
 /* buffer procedures */
 

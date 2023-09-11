@@ -30,6 +30,7 @@
 #include "comm.h"
 #include "db.h"
 #include "handler.h"
+#include "note.h"
 #include "tables.h"
 
 #include "entities/player_data.h"

@@ -35,6 +35,7 @@
 #include "interp.h"
 #include "lookup.h"
 #include "magic.h"
+#include "note.h"
 #include "recycle.h"
 #include "save.h"
 #include "skills.h"

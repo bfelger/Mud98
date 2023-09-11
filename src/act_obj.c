@@ -36,6 +36,7 @@
 #include "interp.h"
 #include "magic.h"
 #include "mob_prog.h"
+#include "note.h"
 #include "save.h"
 #include "skills.h"
 #include "update.h"

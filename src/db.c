@@ -36,6 +36,7 @@
 #include "lookup.h"
 #include "magic.h"
 #include "music.h"
+#include "note.h"
 #include "olc.h"
 #include "pcg_basic.h"
 #include "recycle.h"
@@ -84,15 +85,12 @@ extern AFFECT_DATA* affect_free;
 SHOP_DATA* shop_first;
 SHOP_DATA* shop_last;
 
-extern NOTE_DATA* note_free;
-
 MPROG_CODE* mprog_list;
 
 char bug_buf[2 * MAX_INPUT_LENGTH];
 char* help_greeting;
 char log_buf[2 * MAX_INPUT_LENGTH];
 KILL_DATA kill_table[MAX_LEVEL];
-extern NOTE_DATA* note_list;
 TIME_INFO_DATA time_info;
 WEATHER_DATA weather_info;
 

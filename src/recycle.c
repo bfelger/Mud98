@@ -48,38 +48,6 @@ int skhash_created;
 int skhash_allocated;
 int skhash_freed;
 
-/* stuff for recyling notes */
-NOTE_DATA* note_free;
-
-NOTE_DATA* new_note()
-{
-    NOTE_DATA* note;
-
-    if (note_free == NULL)
-        note = alloc_perm(sizeof(*note));
-    else {
-        note = note_free;
-        note_free = note_free->next;
-    }
-    VALIDATE(note);
-    return note;
-}
-
-void free_note(NOTE_DATA* note)
-{
-    if (!IS_VALID(note)) return;
-
-    free_string(note->text);
-    free_string(note->subject);
-    free_string(note->to_list);
-    free_string(note->date);
-    free_string(note->sender);
-    INVALIDATE(note);
-
-    note->next = note_free;
-    note_free = note;
-}
-
 /* stuff for recycling ban structures */
 BAN_DATA* ban_free;
 
@@ -253,42 +221,11 @@ long get_pc_id(void)
     return val;
 }
 
-MEM_DATA* mem_data_free;
-
 ////////////////////////////////////////////////////////////////////////////////
 // Buffer recycling
 ////////////////////////////////////////////////////////////////////////////////
 
 BUFFER* buf_free;
-
-MEM_DATA* new_mem_data(void)
-{
-    MEM_DATA* memory;
-
-    if (mem_data_free == NULL)
-        memory = alloc_mem(sizeof(*memory));
-    else {
-        memory = mem_data_free;
-        mem_data_free = mem_data_free->next;
-    }
-
-    memory->next = NULL;
-    memory->id = 0;
-    memory->reaction = 0;
-    memory->when = 0;
-    VALIDATE(memory);
-
-    return memory;
-}
-
-void free_mem_data(MEM_DATA* memory)
-{
-    if (!IS_VALID(memory)) return;
-
-    memory->next = mem_data_free;
-    mem_data_free = memory;
-    INVALIDATE(memory);
-}
 
 /* buffer sizes */
 const size_t buf_size[MAX_BUF_LIST] = {

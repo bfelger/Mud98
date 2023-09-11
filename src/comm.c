@@ -42,6 +42,7 @@
 #include "interp.h"
 #include "lookup.h"
 #include "mob_prog.h"
+#include "note.h"
 #include "olc.h"
 #include "recycle.h"
 #include "save.h"

@@ -30,6 +30,7 @@
 #include "comm.h"
 #include "db.h"
 #include "handler.h"
+#include "note.h"
 #include "recycle.h"
 #include "strings.h"
 #include "tables.h"
@@ -49,20 +50,21 @@
 #endif
 
 /* local procedures */
-void load_thread(char* name, NOTE_DATA** list, int16_t type, time_t free_time);
+void load_thread(char* name, NoteData** list, int16_t type, time_t free_time);
 void parse_note(CharData* ch, char* argument, int16_t type);
-bool hide_note(CharData* ch, NOTE_DATA* pnote);
+bool hide_note(CharData* ch, NoteData* pnote);
 
-NOTE_DATA* note_list;
-NOTE_DATA* idea_list;
-NOTE_DATA* penalty_list;
-NOTE_DATA* news_list;
-NOTE_DATA* changes_list;
+NoteData* note_list;
+NoteData* idea_list;
+NoteData* penalty_list;
+NoteData* news_list;
+NoteData* changes_list;
+NoteData* note_free;
 
-int count_spool(CharData* ch, NOTE_DATA* spool)
+int count_spool(CharData* ch, NoteData* spool)
 {
     int count = 0;
-    NOTE_DATA* pnote;
+    NoteData* pnote;
 
     for (pnote = spool; pnote != NULL; pnote = pnote->next)
         if (!hide_note(ch, pnote)) count++;
@@ -141,7 +143,7 @@ void save_notes(int type)
 {
     FILE* fp;
     char* name;
-    NOTE_DATA* pnote;
+    NoteData* pnote;
 
     switch (type) {
     default:
@@ -195,10 +197,10 @@ void load_notes(void)
     load_thread(CHANGES_FILE, &changes_list, NOTE_CHANGES, 0);
 }
 
-void load_thread(char* name, NOTE_DATA** list, int16_t type, time_t free_time)
+void load_thread(char* name, NoteData** list, int16_t type, time_t free_time)
 {
     FILE* fp;
-    NOTE_DATA* pnotelast;
+    NoteData* pnotelast;
 
     char filename[256];
     sprintf(filename, "%s%s", area_dir, name);
@@ -206,7 +208,7 @@ void load_thread(char* name, NOTE_DATA** list, int16_t type, time_t free_time)
 
     pnotelast = NULL;
     for (;;) {
-        NOTE_DATA* pnote;
+        NoteData* pnote;
         char letter;
 
         do {
@@ -261,12 +263,12 @@ void load_thread(char* name, NOTE_DATA** list, int16_t type, time_t free_time)
     return;
 }
 
-void append_note(NOTE_DATA* pnote)
+void append_note(NoteData* pnote)
 {
     FILE* fp;
     char* name;
-    NOTE_DATA** list;
-    NOTE_DATA* last;
+    NoteData** list;
+    NoteData* last;
 
     switch (pnote->type) {
     default:
@@ -317,7 +319,7 @@ void append_note(NOTE_DATA* pnote)
     fpReserve = fopen(NULL_FILE, "r");
 }
 
-bool is_note_to(CharData* ch, NOTE_DATA* pnote)
+bool is_note_to(CharData* ch, NoteData* pnote)
 {
     if (!str_cmp(ch->name, pnote->sender)) return true;
 
@@ -336,7 +338,7 @@ bool is_note_to(CharData* ch, NOTE_DATA* pnote)
 
 void note_attach(CharData* ch, int16_t type)
 {
-    NOTE_DATA* pnote;
+    NoteData* pnote;
 
     if (ch->pnote != NULL) return;
 
@@ -353,12 +355,12 @@ void note_attach(CharData* ch, int16_t type)
     return;
 }
 
-void note_remove(CharData* ch, NOTE_DATA* pnote, bool delete)
+void note_remove(CharData* ch, NoteData* pnote, bool delete)
 {
     char to_new[MAX_INPUT_LENGTH] = "";
     char to_one[MAX_INPUT_LENGTH] = "";
-    NOTE_DATA* prev;
-    NOTE_DATA** list;
+    NoteData* prev;
+    NoteData** list;
     char* to_list;
 
     if (!delete) {
@@ -423,7 +425,7 @@ void note_remove(CharData* ch, NOTE_DATA* pnote, bool delete)
     return;
 }
 
-bool hide_note(CharData* ch, NOTE_DATA* pnote)
+bool hide_note(CharData* ch, NoteData* pnote)
 {
     time_t last_read;
 
@@ -458,7 +460,7 @@ bool hide_note(CharData* ch, NOTE_DATA* pnote)
     return false;
 }
 
-void update_read(CharData* ch, NOTE_DATA* pnote)
+void update_read(CharData* ch, NoteData* pnote)
 {
     time_t stamp;
 
@@ -492,8 +494,8 @@ void parse_note(CharData* ch, char* argument, int16_t type)
     BUFFER* buffer;
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    NOTE_DATA* pnote;
-    NOTE_DATA** list;
+    NoteData* pnote;
+    NoteData** list;
     char* list_name;
     VNUM vnum;
     int anum;
@@ -846,4 +848,33 @@ void parse_note(CharData* ch, char* argument, int16_t type)
 
     send_to_char("You can't do that.\n\r", ch);
     return;
+}
+
+NoteData* new_note()
+{
+    NoteData* note;
+
+    if (note_free == NULL)
+        note = alloc_perm(sizeof(*note));
+    else {
+        note = note_free;
+        note_free = note_free->next;
+    }
+    VALIDATE(note);
+    return note;
+}
+
+void free_note(NoteData* note)
+{
+    if (!IS_VALID(note)) return;
+
+    free_string(note->text);
+    free_string(note->subject);
+    free_string(note->to_list);
+    free_string(note->date);
+    free_string(note->sender);
+    INVALIDATE(note);
+
+    note->next = note_free;
+    note_free = note;
 }

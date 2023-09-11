@@ -144,10 +144,8 @@ typedef struct buf_type BUFFER;
 typedef struct descriptor_data DESCRIPTOR_DATA;
 typedef struct extra_descr_data EXTRA_DESCR_DATA;
 typedef struct kill_data KILL_DATA;
-typedef struct mem_data MEM_DATA;
 typedef struct mprog_list MPROG_LIST;
 typedef struct mprog_code MPROG_CODE;
-typedef struct note_data NOTE_DATA;
 typedef struct gen_data GEN_DATA;
 typedef struct shop_data SHOP_DATA;
 typedef struct time_info_data TIME_INFO_DATA;
@@ -425,26 +423,6 @@ struct race_type {
     int16_t size;			/* aff bits for the race */
 };
 
-/*
- * Data structure for notes.
- */
-
-#define NOTE_NOTE    0
-#define NOTE_IDEA    1
-#define NOTE_PENALTY 2
-#define NOTE_NEWS    3
-#define NOTE_CHANGES 4
-struct note_data {
-    NOTE_DATA* next;
-    char* sender;
-    char* date;
-    char* to_list;
-    char* subject;
-    char* text;
-    time_t date_stamp;
-    int16_t type;
-    bool valid;
-};
 
 /*
  * An affect.
@@ -1204,21 +1182,6 @@ struct kill_data {
 #define WIZ_NEWBIE              BIT(17)
 #define WIZ_PREFIX              BIT(18)
 #define WIZ_SPAM                BIT(19)
-
-/* memory settings */
-#define MEM_CUSTOMER BIT(0)
-#define MEM_SELLER   BIT(1)
-#define MEM_HOSTILE  BIT(2)
-#define MEM_AFRAID   BIT(3)
-
-/* memory for mobs */
-struct mem_data {
-    MEM_DATA* next;
-    bool valid;
-    int id;
-    int reaction;
-    time_t when;
-};
 
 typedef struct color_config_t {
     char* current_theme_name;   // For lazy-loading and discardability

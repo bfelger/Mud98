@@ -12,8 +12,10 @@ typedef struct char_data_t CharData;
 #include "merc.h"
 
 #include "interp.h"
+#include "note.h"
 
 #include "area_data.h"
+#include "mob_memory.h"
 #include "mob_prototype.h"
 #include "object_data.h"
 #include "player_data.h"
@@ -30,12 +32,12 @@ typedef struct char_data_t {
     CharData* reply;
     CharData* pet;
     CharData* mprog_target;
-    MEM_DATA* memory;
+    MobMemory* memory;
     SpecFunc* spec_fun;
     MobPrototype* pIndexData;
     DESCRIPTOR_DATA* desc;
     AFFECT_DATA* affected;
-    NOTE_DATA* pnote;
+    NoteData* pnote;
     ObjectData* carrying;
     ObjectData* on;
     RoomData* in_room;
@@ -113,6 +115,7 @@ CharData* new_char_data();
 
 extern CharData* char_list;
 extern CharData* char_free;
+
 extern int mobile_count;
 
 #endif // !MUD98__ENTITIES__CHAR_DATA_H
