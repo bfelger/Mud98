@@ -13,6 +13,8 @@ struct flag_stat_type {
     bool stat;
 };
 
+char* flag_string(const struct flag_type* flag_table, long bits);
+
 extern const struct flag_stat_type flag_stat_table[];
 
 #endif // !MUD98__BIT_H

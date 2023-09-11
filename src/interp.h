@@ -50,7 +50,7 @@
 
 struct spec_type {
     char* name; /* special function name */
-    SPEC_FUN* function; /* the function */
+    SpecFunc* function; /* the function */
 };
 
 /*
@@ -58,7 +58,7 @@ struct spec_type {
  */
 struct cmd_type {
     char* name;
-    DO_FUN* do_fun;
+    DoFunc* do_fun;
     int16_t position;
     int16_t level;
     int16_t log;
@@ -75,7 +75,7 @@ int mult_argument(char* argument, char* arg);
 char* one_argument(char* argument, char* arg_first);
 
 /* wrapper function for safe command execution */
-void do_function(CharData* ch, DO_FUN* do_fun, char* argument);
+void do_function(CharData* ch, DoFunc* do_fun, char* argument);
 
 extern struct cmd_type* cmd_table;
 

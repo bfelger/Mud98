@@ -53,6 +53,7 @@
 #include "telnet.h"
 #include "vt.h"
 
+#include "entities/area_data.h"
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 

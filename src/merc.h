@@ -43,12 +43,6 @@
 #include <stddef.h>
 #endif
 
-//typedef struct player_data_t PlayerData;
-//typedef struct char_data_t CharData;
-//typedef struct object_prototype_t ObjectPrototype;
-//typedef struct object_data_t ObjectData;
-//typedef struct room_data_t RoomData;
-
 ////////////////////////////////////////////////////////////////////////////////
 // Data files used by the server.
 // 
@@ -117,16 +111,17 @@ extern char area_dir[];
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef struct char_data_t CharData;
+typedef struct area_data_t AreaData;
 
-typedef void DO_FUN(CharData* ch, char* argument);
-typedef bool SPEC_FUN(CharData* ch);
-typedef void SPELL_FUN(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target);
-typedef int	LOOKUP_F(const char*);
+typedef void DoFunc(CharData* ch, char* argument);
+typedef bool SpecFunc(CharData* ch);
+typedef void SpellFunc(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target);
+typedef int	LookupFunc(const char*);
 
-#define DECLARE_DO_FUN( fun )       DO_FUN fun
-#define DECLARE_SPEC_FUN( fun )     SPEC_FUN fun
-#define DECLARE_SPELL_FUN( fun )    SPELL_FUN fun
-#define DECLARE_LOOKUP_FUN( fun )   LOOKUP_F fun
+#define DECLARE_DO_FUN( fun )       DoFunc fun
+#define DECLARE_SPEC_FUN( fun )     SpecFunc fun
+#define DECLARE_SPELL_FUN( fun )    SpellFunc fun
+#define DECLARE_LOOKUP_FUN( fun )   LookupFunc fun
 
 // OLC2
 #define SPELL(spell)		DECLARE_SPELL_FUN(spell);
@@ -144,13 +139,10 @@ typedef int	LOOKUP_F(const char*);
  * Structure types.
  */
 typedef struct affect_data AFFECT_DATA;
-typedef struct area_data AREA_DATA;
 typedef struct ban_data BAN_DATA;
 typedef struct buf_type BUFFER;
 typedef struct descriptor_data DESCRIPTOR_DATA;
 typedef struct extra_descr_data EXTRA_DESCR_DATA;
-typedef struct help_data HELP_DATA;
-typedef struct help_area_data HELP_AREA;
 typedef struct kill_data KILL_DATA;
 typedef struct mem_data MEM_DATA;
 typedef struct mprog_list MPROG_LIST;
@@ -345,26 +337,6 @@ struct con_app_type {
 #define TO_VICT    2
 #define TO_CHAR    3
 #define TO_ALL     4
-
-/*
- * Help table types.
- */
-struct help_data {
-    HELP_DATA* next;
-    HELP_DATA* next_area;
-    int16_t level;
-    char* keyword;
-    char* text;
-};
-
-struct help_area_data {
-    HELP_AREA* next;
-    HELP_DATA* first;
-    HELP_DATA* last;
-    AREA_DATA* area;
-    char* filename;
-    bool changed;
-};
 
 /*
  * Shop types.
@@ -1284,28 +1256,6 @@ struct extra_descr_data {
     bool valid;
     char* keyword;          // Keyword in look/examine
     char* description;      // What to see
-};
-
-/*
- * Area definition.
- */
-struct area_data {
-    AREA_DATA* next;
-    HELP_AREA* helps;
-    char* file_name;
-    char* name;
-    char* credits;
-    int16_t age;
-    int nplayer;
-    LEVEL low_range;
-    LEVEL high_range;
-    VNUM min_vnum;
-    VNUM max_vnum;
-    bool empty;
-    char* builders;     // OLC
-    VNUM vnum;          // OLC
-    int area_flags;     // OLC
-    int security;       // OLC Value 1-9
 };
 
 /*

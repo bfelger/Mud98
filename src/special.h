@@ -8,8 +8,8 @@
 
 #include "interp.h"
 
-SPEC_FUN* spec_lookup(const char* name);
-char* spec_name(SPEC_FUN* function);
+SpecFunc* spec_lookup(const char* name);
+char* spec_name(SpecFunc* function);
 
 extern const struct	spec_type spec_table[];
 

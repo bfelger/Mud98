@@ -4,6 +4,7 @@
 
 #include "merc.h"
 
+#include "bit.h"
 #include "comm.h"
 #include "db.h"
 #include "handler.h"

@@ -26,60 +26,11 @@
 #include <sys/types.h>
 #include <time.h>
 
-AREA_DATA* area_free;
 EXTRA_DESCR_DATA* extra_descr_free;
 SHOP_DATA* shop_free;
-HELP_DATA* help_free = NULL;
-
-HELP_DATA* help_last;
 
 void free_extra_descr(EXTRA_DESCR_DATA* pExtra);
 void free_affect(AFFECT_DATA* af);
-
-AREA_DATA* new_area()
-{
-    AREA_DATA* pArea;
-    char buf[MAX_INPUT_LENGTH];
-
-    if (!area_free) {
-        pArea = alloc_perm(sizeof(*pArea));
-        top_area++;
-    }
-    else {
-        pArea = area_free;
-        area_free = area_free->next;
-    }
-
-    pArea->next = NULL;
-    pArea->name = str_dup("New area");
-/*    pArea->recall           =   ROOM_VNUM_TEMPLE;      ROM OLC */
-    pArea->area_flags = AREA_ADDED;
-    pArea->security = 1;
-    pArea->builders = str_dup("None");
-    pArea->credits = str_dup("None");
-    pArea->min_vnum = 0;
-    pArea->max_vnum = 0;
-    pArea->age = 0;
-    pArea->nplayer = 0;
-    pArea->empty = true;              /* ROM patch */
-    pArea->vnum = top_area - 1;
-    sprintf(buf, "area%"PRVNUM".are", pArea->vnum);
-    pArea->file_name = str_dup(buf);
-
-    return pArea;
-}
-
-void free_area(AREA_DATA* pArea)
-{
-    free_string(pArea->name);
-    free_string(pArea->file_name);
-    free_string(pArea->builders);
-    free_string(pArea->credits);
-
-    pArea->next = area_free->next;
-    area_free = pArea;
-    return;
-}
 
 SHOP_DATA* new_shop()
 {

@@ -5,6 +5,7 @@
 #include "merc.h"
 
 #include "act_move.h"
+#include "bit.h"
 #include "db.h"
 #include "comm.h"
 #include "handler.h"
@@ -21,7 +22,7 @@
 
 char* areaname(void* point)
 {
-    AREA_DATA* area = *(AREA_DATA**)point;
+    AreaData* area = *(AreaData**)point;
 
     return area->name;
 }
@@ -213,7 +214,7 @@ char* exits2str(void* point)
 
 char* spec2str(void* point)
 {
-    SPEC_FUN* spec = *(SPEC_FUN**)point;
+    SpecFunc* spec = *(SpecFunc**)point;
 
     return spec_name(spec);
 }

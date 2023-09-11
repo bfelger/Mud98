@@ -102,7 +102,7 @@ const struct spec_type spec_table[]
 /*
  * Given a name, return the appropriate spec fun.
  */
-SPEC_FUN* spec_lookup(const char* name)
+SpecFunc* spec_lookup(const char* name)
 {
     int i;
 
@@ -115,7 +115,7 @@ SPEC_FUN* spec_lookup(const char* name)
     return 0;
 }
 
-char* spec_name(SPEC_FUN* function)
+char* spec_name(SpecFunc* function)
 {
     int i;
 

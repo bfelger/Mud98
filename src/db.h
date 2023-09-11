@@ -43,7 +43,7 @@
 #define MAGIC_NUM               52571214
 
 void assign_area_vnum(VNUM vnum);       // OLC
-void reset_area(AREA_DATA* pArea);      // OLC
+void reset_area(AreaData* pArea);      // OLC
 void reset_room(RoomData* pRoom);	    // OLC
 char* print_flags(int flag);
 void boot_db(void);
@@ -92,11 +92,6 @@ extern int social_count;
 extern TIME_INFO_DATA time_info;
 extern WEATHER_DATA weather_info;
 
-extern AREA_DATA* area_first;
-extern AREA_DATA* area_last;
-
-extern HELP_DATA* help_first;
-
 extern SHOP_DATA* shop_first;
 extern SHOP_DATA* shop_last;
 
@@ -108,7 +103,6 @@ extern char bug_buf[];
 extern char log_buf[];
 
 extern int top_affect;
-extern int top_area;
 extern int top_ed;
 extern int top_exit;
 extern int top_help;

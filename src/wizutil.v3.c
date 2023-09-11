@@ -61,7 +61,7 @@ http://www.andreasen.org/
   Various administrative utility commands.
   Version: 3 - Last update: January 1996.
 
-  To use these 2 commands you will have to add a filename field to AREA_DATA.
+  To use these 2 commands you will have to add a filename field to AreaData.
   This value can be found easily in load_area while booting - the filename
   of the current area boot_db is reading from is in the strArea global.
 
@@ -87,9 +87,9 @@ const int16_t opposite_dir[6] = {
 };
 
 // Cut the 'short' name of an area (e.g. MIDGAARD, MIRROR, etc.)
-// Assumes that the filename saved in the AREA_DATA struct is something like 
+// Assumes that the filename saved in the AreaData struct is something like 
 // "midgaard.are"
-char* get_area_name(AREA_DATA* pArea)
+char* get_area_name(AreaData* pArea)
 {
     static char buffer[256];
     char* period;
@@ -137,7 +137,7 @@ void room_pair(RoomData* left, RoomData* right, exit_status ex,
 }
 
 // For every exit in 'room' which leads to or from pArea but NOT both, print it
-void check_exits(RoomData* room, AREA_DATA* pArea, char* buffer)
+void check_exits(RoomData* room, AreaData* pArea, char* buffer)
 {
     char buf[MAX_STRING_LENGTH];
     int i;
@@ -185,7 +185,7 @@ void do_exlist(CharData* ch, char* argument)
     RoomData* room;
     char buffer[MAX_STRING_LENGTH];
 
-    AREA_DATA* pArea = ch->in_room->area; // This is the area we want info on 
+    AreaData* pArea = ch->in_room->area; // This is the area we want info on 
     for (int i = 0; i < MAX_KEY_HASH; i++) {
         // Room index hash table
         for (room = room_index_hash[i]; room != NULL; room = room->next) {

@@ -285,7 +285,7 @@ void interpret(CharData* ch, char* argument)
 }
 
 /* function to keep argument safe in all commands -- no static strings */
-void do_function(CharData* ch, DO_FUN* do_fun, char* argument)
+void do_function(CharData* ch, DoFunc* do_fun, char* argument)
 {
     char* command_string;
 

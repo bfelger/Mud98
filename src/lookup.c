@@ -139,9 +139,9 @@ int liq_lookup(const char* name)
     return -1;
 }
 
-HELP_DATA* help_lookup(char* keyword)
+HelpData* help_lookup(char* keyword)
 {
-    HELP_DATA* pHelp;
+    HelpData* pHelp;
     char temp[MIL];
     char argall[MIL] = "";
 
@@ -161,12 +161,11 @@ HELP_DATA* help_lookup(char* keyword)
     return NULL;
 }
 
-HELP_AREA* had_lookup(char* arg)
+HelpArea* had_lookup(char* arg)
 {
-    HELP_AREA* temp;
-    extern HELP_AREA* had_list;
+    HelpArea* temp;
 
-    for (temp = had_list; temp; temp = temp->next)
+    for (temp = help_area_list; temp; temp = temp->next)
         if (!str_cmp(arg, temp->filename))
             return temp;
 

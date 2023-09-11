@@ -4,8 +4,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#ifndef MUD98__ENTITIES__ExitData_H
-#define MUD98__ENTITIES__ExitData_H
+#ifndef MUD98__ENTITIES__EXIT_DATA_H
+#define MUD98__ENTITIES__EXIT_DATA_H
 
 typedef struct exit_data_t ExitData;
 
@@ -34,4 +34,4 @@ ExitData* new_exit();
 
 extern int top_exit;
 
-#endif // !MUD98__ENTITIES__ExitData_H
+#endif // !MUD98__ENTITIES__EXIT_DATA_H

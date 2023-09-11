@@ -15,6 +15,7 @@
 #include "merc.h"
 
 #include "act_move.h"
+#include "bit.h"
 #include "comm.h"
 #include "db.h"
 #include "handler.h"
@@ -337,7 +338,7 @@ bool show_help(CharData* ch, char* argument)
 REDIT(redit_rlist)
 {
     RoomData* pRoomIndex;
-    AREA_DATA* pArea;
+    AreaData* pArea;
     char		buf[MAX_STRING_LENGTH];
     BUFFER* buf1;
     char		arg[MAX_INPUT_LENGTH];
@@ -379,7 +380,7 @@ REDIT(redit_rlist)
 REDIT(redit_mlist)
 {
     MobPrototype* p_mob_proto;
-    AREA_DATA* pArea;
+    AreaData* pArea;
     char		buf[MAX_STRING_LENGTH];
     BUFFER* buf1;
     char		arg[MAX_INPUT_LENGTH];
@@ -433,7 +434,7 @@ REDIT(redit_mlist)
  ****************************************************************************/
 bool check_range(VNUM lower, VNUM upper)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     int cnt = 0;
 
     for (pArea = area_first; pArea; pArea = pArea->next) {
@@ -452,9 +453,9 @@ bool check_range(VNUM lower, VNUM upper)
 
 
 
-AREA_DATA* get_vnum_area(VNUM vnum)
+AreaData* get_vnum_area(VNUM vnum)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
 
     for (pArea = area_first; pArea; pArea = pArea->next) {
         if (vnum >= pArea->min_vnum
@@ -472,7 +473,7 @@ AREA_DATA* get_vnum_area(VNUM vnum)
  */
 AEDIT(aedit_show)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     char buf[MAX_STRING_LENGTH];
 
     EDIT_AREA(ch, pArea);
@@ -524,7 +525,7 @@ AEDIT(aedit_show)
 
 AEDIT(aedit_reset)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
 
     EDIT_AREA(ch, pArea);
 
@@ -535,7 +536,7 @@ AEDIT(aedit_reset)
 }
 AEDIT(aedit_create)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
 
     if (IS_NPC(ch) || ch->pcdata->security < 9) {
         send_to_char("You do not have enough security to edit areas.\n\r", ch);
@@ -556,7 +557,7 @@ AEDIT(aedit_create)
 
 AEDIT(aedit_name)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
 
     EDIT_AREA(ch, pArea);
 
@@ -574,7 +575,7 @@ AEDIT(aedit_name)
 
 AEDIT(aedit_credits)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
 
     EDIT_AREA(ch, pArea);
 
@@ -593,7 +594,7 @@ AEDIT(aedit_credits)
 
 AEDIT(aedit_file)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     char file[MAX_STRING_LENGTH];
     int i;
     size_t length;
@@ -636,7 +637,7 @@ AEDIT(aedit_file)
 
 AEDIT(aedit_lowrange)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     LEVEL low_r;
 
     EDIT_AREA(ch, pArea);
@@ -666,7 +667,7 @@ AEDIT(aedit_lowrange)
 
 AEDIT(aedit_highrange)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     LEVEL high_r;
 
     EDIT_AREA(ch, pArea);
@@ -696,7 +697,7 @@ AEDIT(aedit_highrange)
 
 AEDIT(aedit_age)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     char age[MAX_STRING_LENGTH];
 
     EDIT_AREA(ch, pArea);
@@ -718,7 +719,7 @@ AEDIT(aedit_age)
 #if 0 /* ROM OLC */
 AEDIT(aedit_recall)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     char room[MAX_STRING_LENGTH];
     VNUM  value;
 
@@ -748,7 +749,7 @@ AEDIT(aedit_recall)
 
 AEDIT(aedit_security)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     char sec[MAX_STRING_LENGTH];
     char buf[MAX_STRING_LENGTH];
     int  value;
@@ -784,7 +785,7 @@ AEDIT(aedit_security)
 
 AEDIT(aedit_builder)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     char name[MAX_STRING_LENGTH] = "";
     char buf[MAX_STRING_LENGTH] = "";
 
@@ -836,7 +837,7 @@ AEDIT(aedit_builder)
 
 AEDIT(aedit_vnum)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     char lower[MAX_STRING_LENGTH];
     char upper[MAX_STRING_LENGTH];
     int  ilower;
@@ -888,7 +889,7 @@ AEDIT(aedit_vnum)
 
 AEDIT(aedit_lvnum)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     char lower[MAX_STRING_LENGTH];
     int  ilower;
     int  iupper;
@@ -927,7 +928,7 @@ AEDIT(aedit_lvnum)
 
 AEDIT(aedit_uvnum)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     char upper[MAX_STRING_LENGTH];
     int  ilower;
     int  iupper;
@@ -1425,7 +1426,7 @@ bool change_exit(CharData* ch, char* argument, int door)
 
 REDIT(redit_create)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     RoomData* pRoom;
     VNUM value;
     int iHash;
@@ -2635,7 +2636,7 @@ bool oedit_values(CharData* ch, char* argument, int value)
 OEDIT(oedit_create)
 {
     ObjectPrototype* pObj;
-    AREA_DATA* pArea;
+    AreaData* pArea;
     VNUM  value;
     int  iHash;
 
@@ -3077,7 +3078,7 @@ REDIT(redit_owner)
     return true;
 }
 
-void showresets(CharData* ch, BUFFER* buf, AREA_DATA* pArea, MobPrototype* mob, ObjectPrototype* obj)
+void showresets(CharData* ch, BUFFER* buf, AreaData* pArea, MobPrototype* mob, ObjectPrototype* obj)
 {
     RoomData* room;
     MobPrototype* pLastMob;
@@ -3116,7 +3117,7 @@ void showresets(CharData* ch, BUFFER* buf, AREA_DATA* pArea, MobPrototype* mob, 
             }
 }
 
-void listobjreset(CharData* ch, BUFFER* buf, AREA_DATA* pArea)
+void listobjreset(CharData* ch, BUFFER* buf, AreaData* pArea)
 {
     ObjectPrototype* obj;
     int key;
@@ -3129,7 +3130,7 @@ void listobjreset(CharData* ch, BUFFER* buf, AREA_DATA* pArea)
                 showresets(ch, buf, pArea, 0, obj);
 }
 
-void listmobreset(CharData* ch, BUFFER* buf, AREA_DATA* pArea)
+void listmobreset(CharData* ch, BUFFER* buf, AreaData* pArea)
 {
     MobPrototype* mob;
     int key;
@@ -3144,7 +3145,7 @@ void listmobreset(CharData* ch, BUFFER* buf, AREA_DATA* pArea)
 
 REDIT(redit_listreset)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     RoomData* pRoom;
     BUFFER* buf;
 
@@ -3689,7 +3690,7 @@ ED_FUN_DEC(ed_shop)
 ED_FUN_DEC(ed_new_mob)
 {
     MobPrototype* pMob;
-    AREA_DATA* pArea;
+    AreaData* pArea;
     VNUM  value;
     int  iHash;
 
@@ -3747,7 +3748,7 @@ ED_FUN_DEC(ed_commands)
 
 ED_FUN_DEC(ed_gamespec)
 {
-    SPEC_FUN** spec = (SPEC_FUN**)arg;
+    SpecFunc** spec = (SpecFunc**)arg;
 
     if (argument[0] == '\0') {
         printf_to_char(ch, "Syntax : %s [%s]\n\r",
@@ -3810,7 +3811,7 @@ ED_FUN_DEC(ed_recval)
 bool templookup(char* n_fun, CharData* ch, char* argument, uintptr_t arg, const uintptr_t par, int temp)
 {
     int value;
-    LOOKUP_F* blah = (LOOKUP_F*)par;
+    LookupFunc* blah = (LookupFunc*)par;
 
     if (!emptystring(argument)) {
         if ((value = ((*blah) (argument))) > temp) {
@@ -4377,7 +4378,7 @@ ED_FUN_DEC(ed_value)
 ED_FUN_DEC(ed_new_obj)
 {
     ObjectPrototype* pObj;
-    AREA_DATA* pArea;
+    AreaData* pArea;
     VNUM  value;
     int  iHash;
 
@@ -4475,7 +4476,7 @@ ED_FUN_DEC(ed_olded)
 
 ED_FUN_DEC(ed_docomm)
 {
-    (*(DO_FUN*)par) (ch, argument);
+    (*(DoFunc*)par) (ch, argument);
     return false;
 }
 
@@ -4487,7 +4488,7 @@ ED_FUN_DEC(ed_direccion)
 ED_FUN_DEC(ed_olist)
 {
     ObjectPrototype* p_object_prototype;
-    AREA_DATA* pArea;
+    AreaData* pArea;
     char		buf[MAX_STRING_LENGTH];
     BUFFER* buf1;
     char		blarg[MAX_INPUT_LENGTH];
@@ -4502,7 +4503,7 @@ ED_FUN_DEC(ed_olist)
         return false;
     }
 
-    pArea = *(AREA_DATA**)arg;
+    pArea = *(AreaData**)arg;
     buf1 = new_buf();
     fAll = !str_cmp(blarg, "all");
     found = false;

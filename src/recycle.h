@@ -98,11 +98,6 @@ void clear_buf(BUFFER * buffer);
 #define SET_BUF(b, s) clear_buf(b); add_buf(b, s)
 #define BUF(b) (b->string)
 
-// OLC procedures
-HELP_AREA* new_had args((void));
-HELP_DATA* new_help args((void));
-void free_help args((HELP_DATA*));
-
 MPROG_LIST* new_mprog();
 void free_mprog(MPROG_LIST* mp);
 

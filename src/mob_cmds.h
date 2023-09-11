@@ -39,7 +39,7 @@
 
 struct mob_cmd_type {
     char* const	name;
-    DO_FUN* do_fun;
+    DoFunc* do_fun;
 };
 
 /* the command table itself */

@@ -4,8 +4,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#ifndef MUD98__ENTITIES__ResetData_H
-#define MUD98__ENTITIES__ResetData_H
+#ifndef MUD98__ENTITIES__RESET_DATA_H
+#define MUD98__ENTITIES__RESET_DATA_H
 
 typedef struct reset_data_t ResetData;
 
@@ -43,4 +43,4 @@ ResetData* new_reset_data();
 
 extern int top_reset;
 
-#endif // !MUD98__ENTITIES__ResetData_H
+#endif // !MUD98__ENTITIES__RESET_DATA_H

@@ -4,6 +4,7 @@
 
 #include "merc.h"
 
+#include "bit.h"
 #include "comm.h"
 #include "db.h"
 #include "handler.h"
@@ -22,7 +23,7 @@ void save_command_table(void);
 
 struct cmd_list_type {
     char* name;
-    DO_FUN* function;
+    DoFunc* function;
 };
 
 int max_cmd;
@@ -67,7 +68,7 @@ const struct olc_comm_type cmd_olc_comm_table[] = {
     { NULL,		    0,  		        NULL,		        0		            }
 };
 
-char* cmd_func_name(DO_FUN* command)
+char* cmd_func_name(DoFunc* command)
 {
     int cmd;
 
@@ -78,7 +79,7 @@ char* cmd_func_name(DO_FUN* command)
     return "";
 }
 
-DO_FUN* cmd_func_lookup(char* arg)
+DoFunc* cmd_func_lookup(char* arg)
 {
     int cmd;
 
@@ -467,7 +468,7 @@ CMDEDIT(cmdedit_delete)
 CMDEDIT(cmdedit_function)
 {
     struct cmd_type* pCmd;
-    DO_FUN* function;
+    DoFunc* function;
 
     EDIT_CMD(ch, pCmd);
 

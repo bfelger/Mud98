@@ -13,14 +13,16 @@ typedef struct mob_prototype_t MobPrototype;
 
 #include "interp.h"
 
+#include "area_data.h"
+
 #include <stdbool.h>
 
 typedef struct mob_prototype_t {
     MobPrototype* next;
-    SPEC_FUN* spec_fun;
+    SpecFunc* spec_fun;
     SHOP_DATA* pShop;
     MPROG_LIST* mprogs;
-    AREA_DATA* area;
+    AreaData* area;
     char* name;
     char* short_descr;
     char* long_descr;

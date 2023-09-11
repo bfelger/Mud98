@@ -44,6 +44,7 @@
 #include "strings.h"
 #include "tables.h"
 
+#include "entities/area_data.h"
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
@@ -1574,7 +1575,7 @@ void do_weather(CharData* ch, char* argument)
 
 void do_help(CharData* ch, char* argument)
 {
-    HELP_DATA* pHelp;
+    HelpData* pHelp;
     BUFFER* output;
     bool found = false;
     char argall[MAX_INPUT_LENGTH] = "";

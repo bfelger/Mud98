@@ -41,6 +41,7 @@
 #include "tables.h"
 #include "vt.h"
 
+#include "entities/area_data.h"
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
@@ -2930,7 +2931,7 @@ char* itos(int temp)
     return buf;
 }
 
-int get_vnum_mob_name_area(char* name, AREA_DATA* pArea)
+int get_vnum_mob_name_area(char* name, AreaData* pArea)
 {
     int hash;
     MobPrototype* mob;
@@ -2944,7 +2945,7 @@ int get_vnum_mob_name_area(char* name, AREA_DATA* pArea)
     return 0;
 }
 
-int get_vnum_obj_name_area(char* name, AREA_DATA* pArea)
+int get_vnum_obj_name_area(char* name, AreaData* pArea)
 {
     int hash;
     ObjectPrototype* obj;

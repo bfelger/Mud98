@@ -174,7 +174,7 @@ void convert_object(ObjectPrototype* p_object_prototype)
 void convert_objects()
 {
     VNUM vnum;
-    AREA_DATA* pArea;
+    AreaData* pArea;
     ResetData* pReset;
     MobPrototype* pMob = NULL;
     ObjectPrototype* pObj;

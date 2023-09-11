@@ -95,8 +95,8 @@ char* comm_bit_name(int comm_flags);
 char* cont_bit_name(int cont_flags);
 bool emptystring(const char*);
 char* itos(int);
-int get_vnum_mob_name_area(char*, AREA_DATA*);
-int get_vnum_obj_name_area(char*, AREA_DATA*);
+int get_vnum_mob_name_area(char*, AreaData*);
+int get_vnum_obj_name_area(char*, AreaData*);
 int get_points(int race, int args);
 
 #endif // !MUD98__HANDLER_H

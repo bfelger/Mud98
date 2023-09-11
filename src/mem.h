@@ -11,8 +11,6 @@
 SHOP_DATA* new_shop();
 void free_shop(SHOP_DATA* pShop);
 
-AREA_DATA* new_area();
 MPROG_CODE* new_mpcode();
-
 
 #endif // !MUD98__MEM_H

@@ -84,7 +84,7 @@ void do_pedit(CharData* ch, char* argument)
     argument = one_argument(argument, command);
 
     if (is_number(command)) {
-        AREA_DATA* pArea;
+        AreaData* pArea;
 
         if ((pArea = get_vnum_area(atoi(command))) == NULL) {
             send_to_char("PEdit : That vnum is not assigned to an area.\n\r", ch);
@@ -122,7 +122,7 @@ void do_pedit(CharData* ch, char* argument)
 MPEDIT(pedit_create)
 {
     MPROG_CODE* pMcode;
-    AREA_DATA* pArea;
+    AreaData* pArea;
     int value;
 
     value = atoi(argument);

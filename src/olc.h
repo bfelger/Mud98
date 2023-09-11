@@ -31,8 +31,6 @@
 #include <stdint.h>
 #include <inttypes.h>
 
-char* flag_string(const struct flag_type*, long);
-
 /*
  * The version info.  Please use this info when reporting bugs.
  * It is displayed in the game by typing 'version' while editing.
@@ -91,13 +89,11 @@ void    redit       (CharData* ch, char* argument);
 void    medit       (CharData* ch, char* argument);
 void    oedit       (CharData* ch, char* argument);
 void    pedit       (CharData* ch, char* argument);
-void	cedit		(CharData* ch, char* argument);
 void	raedit		(CharData* ch, char* argument);
 void	sedit		(CharData* ch, char* argument);
 void	skedit		(CharData* ch, char* argument);
 void	cmdedit		(CharData* ch, char* argument);
 void	gedit		(CharData* ch, char* argument);
-void	scedit		(CharData* ch, char* argument);
 void	hedit		(CharData* ch, char* argument);
 
 /*
@@ -141,14 +137,14 @@ bool process_olc_command(CharData*, char* argument, const struct olc_comm_type*)
  */
 struct editor_cmd_type {
     char* const	name;
-    DO_FUN* do_fun;
+    DoFunc* do_fun;
 };
 
 /*
  * Utils.
  */
-AREA_DATA* get_vnum_area(VNUM vnum);
-AREA_DATA* get_area_data(VNUM vnum);
+AreaData* get_vnum_area(VNUM vnum);
+AreaData* get_area_data(VNUM vnum);
 int	flag_value(const struct flag_type* flag_table, char* argument);
 void add_reset(RoomData*, ResetData*, int);
 void set_editor(DESCRIPTOR_DATA*, int, uintptr_t);
@@ -161,10 +157,8 @@ char* olc_ed_vnum(CharData* ch);
  * Interpreter Table Prototypes
  */
 extern const struct olc_cmd_type aedit_table[];
-extern const struct olc_cmd_type cedit_table[];
 extern const struct olc_cmd_type raedit_table[];
 extern const struct olc_cmd_type gedit_table[];
-extern const struct olc_cmd_type scedit_table[];
 extern const struct olc_cmd_type hedit_table[];
 
 /*
@@ -175,13 +169,11 @@ DECLARE_DO_FUN(do_redit);
 DECLARE_DO_FUN(do_oedit);
 DECLARE_DO_FUN(do_medit);
 DECLARE_DO_FUN(do_pedit);
-DECLARE_DO_FUN(do_cedit);
 DECLARE_DO_FUN(do_raedit);
 DECLARE_DO_FUN(do_sedit);
 DECLARE_DO_FUN(do_skedit);
 DECLARE_DO_FUN(do_cmdedit);
 DECLARE_DO_FUN(do_gedit);
-DECLARE_DO_FUN(do_scedit);
 DECLARE_DO_FUN(do_hedit);
 
 /*
@@ -243,20 +235,6 @@ DECLARE_OLC_FUN(oedit_addoprog);
 DECLARE_OLC_FUN(medit_show);
 DECLARE_OLC_FUN(medit_group);
 DECLARE_OLC_FUN(medit_copy);
-
-/*
- * Clan editor.
- */
-DECLARE_OLC_FUN(cedit_show);
-DECLARE_OLC_FUN(cedit_name);
-DECLARE_OLC_FUN(cedit_who);
-DECLARE_OLC_FUN(cedit_god);
-DECLARE_OLC_FUN(cedit_hall);
-DECLARE_OLC_FUN(cedit_recall);
-DECLARE_OLC_FUN(cedit_death);
-DECLARE_OLC_FUN(cedit_new);
-DECLARE_OLC_FUN(cedit_flags);
-DECLARE_OLC_FUN(cedit_pit);
 
 /*
  * Race editor.
@@ -323,16 +301,6 @@ DECLARE_OLC_FUN(gedit_spell);
 DECLARE_OLC_FUN(gedit_list);
 
 /*
- * Script editor.
- */
-DECLARE_OLC_FUN(scedit_show);
-DECLARE_OLC_FUN(scedit_new);
-DECLARE_OLC_FUN(scedit_add);
-DECLARE_OLC_FUN(scedit_remove);
-DECLARE_OLC_FUN(scedit_delete);
-DECLARE_OLC_FUN(scedit_list);
-
-/*
  * Help Editor.
  */
 DECLARE_OLC_FUN(hedit_show);
@@ -391,14 +359,14 @@ DECLARE_ED_FUN(ed_objrecval);
 #define EDIT_MOB(Ch, Mob)	( Mob = (MobPrototype *)Ch->desc->pEdit )
 #define EDIT_OBJ(Ch, Obj)	( Obj = (ObjectPrototype *)Ch->desc->pEdit )
 #define EDIT_ROOM(Ch, Room)	( Room = (RoomData *)Ch->desc->pEdit )
-#define EDIT_AREA(Ch, Area)	( Area = (AREA_DATA *)Ch->desc->pEdit )
+#define EDIT_AREA(Ch, Area)	( Area = (AreaData *)Ch->desc->pEdit )
 #define EDIT_CLAN(Ch, Clan)	( Clan = (CLAN_TYPE *)Ch->desc->pEdit )
 #define EDIT_RACE(Ch, Race)	( Race = (struct race_type *)Ch->desc->pEdit )
 #define EDIT_SOCIAL(Ch, Social)	( Social = (struct social_type *)Ch->desc->pEdit )
 #define EDIT_SKILL(Ch, Skill)	( Skill = (struct skill_type *)Ch->desc->pEdit )
 #define EDIT_CMD(Ch, Cmd)	( Cmd = (struct cmd_type *)Ch->desc->pEdit )
 #define EDIT_GROUP(Ch, Grp)	( Grp = (struct group_type *)Ch->desc->pEdit )
-#define EDIT_HELP(Ch, Help)	( Help = (HELP_DATA *)Ch->desc->pEdit )
+#define EDIT_HELP(Ch, Help)	( Help = (HelpData *)Ch->desc->pEdit )
 #define EDIT_PROG(Ch, Code)	( Code = (MPROG_CODE*)Ch->desc->pEdit )
 
 

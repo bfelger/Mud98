@@ -14,6 +14,7 @@
 #include "olc.h"
 
 #include "act_move.h"
+#include "bit.h"
 #include "comm.h"
 #include "db.h"
 #include "handler.h"
@@ -36,7 +37,7 @@
 /*
  * Local functions.
  */
-AREA_DATA* get_area_data args((VNUM vnum));
+AreaData* get_area_data args((VNUM vnum));
 
 COMMAND(do_clear)
 COMMAND(do_purge)
@@ -274,12 +275,12 @@ char* olc_ed_name(CharData* ch)
 
 char* olc_ed_vnum(CharData* ch)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     RoomData* pRoom;
     ObjectPrototype* pObj;
     MobPrototype* pMob;
     MPROG_CODE* pMcode;
-    HELP_DATA* pHelp;
+    HelpData* pHelp;
     struct race_type* pRace;
     struct social_type* pSocial;
     struct skill_type* pSkill;
@@ -289,7 +290,7 @@ char* olc_ed_vnum(CharData* ch)
     buf[0] = '\0';
     switch (ch->desc->editor) {
     case ED_AREA:
-        pArea = (AREA_DATA*)ch->desc->pEdit;
+        pArea = (AreaData*)ch->desc->pEdit;
         sprintf(buf, "%"PRVNUM, pArea ? pArea->vnum : 0);
         break;
     case ED_ROOM:
@@ -325,7 +326,7 @@ char* olc_ed_vnum(CharData* ch)
         sprintf(buf, "%s", pCmd ? pCmd->name : "");
         break;
     case ED_HELP:
-        pHelp = (HELP_DATA*)ch->desc->pEdit;
+        pHelp = (HelpData*)ch->desc->pEdit;
         sprintf(buf, "%s", pHelp ? pHelp->keyword : "");
         break;
     default:
@@ -451,9 +452,9 @@ const struct olc_cmd_type aedit_table[] =
  Purpose:	Returns pointer to area with given vnum.
  Called by:	do_aedit(olc.c).
  ****************************************************************************/
-AREA_DATA* get_area_data(VNUM vnum)
+AreaData* get_area_data(VNUM vnum)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
 
     for (pArea = area_first; pArea; pArea = pArea->next) {
         if (pArea->vnum == vnum)
@@ -492,7 +493,7 @@ bool  edit_done(CharData* ch)
 /* Area Interpreter, called by do_aedit. */
 void aedit(CharData* ch, char* argument)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     char    command[MAX_INPUT_LENGTH];
     char    arg[MAX_INPUT_LENGTH];
     int     cmd;
@@ -547,7 +548,7 @@ void aedit(CharData* ch, char* argument)
 void redit(CharData* ch, char* argument)
 {
     RoomData* pRoom;
-    AREA_DATA* pArea;
+    AreaData* pArea;
 
     EDIT_ROOM(ch, pRoom);
     pArea = pRoom->area;
@@ -578,7 +579,7 @@ void redit(CharData* ch, char* argument)
 /* Object Interpreter, called by do_oedit. */
 void oedit(CharData* ch, char* argument)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     ObjectPrototype* pObj;
 
     EDIT_OBJ(ch, pObj);
@@ -610,7 +611,7 @@ void oedit(CharData* ch, char* argument)
 /* Mobile Interpreter, called by do_medit. */
 void    medit(CharData* ch, char* argument)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     MobPrototype* pMob;
 
     EDIT_MOB(ch, pMob);
@@ -693,7 +694,7 @@ void    do_olc(CharData* ch, char* argument)
 /* Entry point for editing area_data. */
 void do_aedit(CharData* ch, char* argument)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     VNUM vnum;
     char arg[MAX_STRING_LENGTH];
 
@@ -795,7 +796,7 @@ void do_redit(CharData* ch, char* argument)
 void do_oedit(CharData* ch, char* argument)
 {
     ObjectPrototype* pObj;
-    AREA_DATA* pArea;
+    AreaData* pArea;
     char arg1[MAX_STRING_LENGTH];
     int  value;
 
@@ -859,7 +860,7 @@ void do_oedit(CharData* ch, char* argument)
 void do_medit(CharData* ch, char* argument)
 {
     MobPrototype* pMob;
-    AREA_DATA* pArea;
+    AreaData* pArea;
     int     value;
     char    arg1[MAX_STRING_LENGTH];
 
@@ -1444,7 +1445,7 @@ void    do_alist(CharData* ch, char* argument)
 {
     char    buf[MAX_STRING_LENGTH];
     char    result[MAX_STRING_LENGTH * 2];	/* May need tweaking. */
-    AREA_DATA* pArea;
+    AreaData* pArea;
 
     sprintf(result, "[%3s] [%-27s] (%-5s-%5s) [%-10s] %3s [%-10s]\n\r",
         "Num", "Area Name", "lvnum", "uvnum", "Filename", "Sec", "Builders");
@@ -1474,7 +1475,7 @@ bool process_olc_command(CharData* ch, char* argument, const struct olc_comm_typ
     struct race_type* pRace;
     struct skill_type* pSkill;
     struct cmd_type* pCmd;
-    AREA_DATA* tArea;
+    AreaData* tArea;
     MPROG_CODE* pProg;
     struct social_type* pSoc;
     int temp;

@@ -13,6 +13,7 @@ typedef struct char_data_t CharData;
 
 #include "interp.h"
 
+#include "area_data.h"
 #include "mob_prototype.h"
 #include "object_data.h"
 #include "player_data.h"
@@ -30,7 +31,7 @@ typedef struct char_data_t {
     CharData* pet;
     CharData* mprog_target;
     MEM_DATA* memory;
-    SPEC_FUN* spec_fun;
+    SpecFunc* spec_fun;
     MobPrototype* pIndexData;
     DESCRIPTOR_DATA* desc;
     AFFECT_DATA* affected;
@@ -39,7 +40,7 @@ typedef struct char_data_t {
     ObjectData* on;
     RoomData* in_room;
     RoomData* was_in_room;
-    AREA_DATA* zone;
+    AreaData* zone;
     PlayerData* pcdata;
     GEN_DATA* gen_data;
     char* name;

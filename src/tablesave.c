@@ -4,6 +4,7 @@
 
 #include "merc.h"
 
+#include "bit.h"
 #include "comm.h"
 #include "db.h"
 #include "handler.h"
@@ -36,21 +37,21 @@ struct social_type tmp_soc;
 struct skill_type tmp_sk;
 MPROG_CODE tmp_pcode;
 
-char* cmd_func_name(DO_FUN*);
-DO_FUN* cmd_func_lookup(char*);
+char* cmd_func_name(DoFunc*);
+DoFunc* cmd_func_lookup(char*);
 
 char* gsn_name(int16_t*);
 int16_t* gsn_lookup(char*);
 
-char* spell_name(SPELL_FUN*);
-SPELL_FUN* spell_function(char*);
+char* spell_name(SpellFunc*);
+SpellFunc* spell_function(char*);
 
 typedef char* STR_FUNC(void*);
 typedef bool   STR_READ_FUNC(void*, char*);
 
 char* do_fun_str(void* temp)
 {
-    DO_FUN** fun = (DO_FUN**)temp;
+    DoFunc** fun = (DoFunc**)temp;
 
     return cmd_func_name(*fun);
 }
@@ -99,7 +100,7 @@ char* pgsn_str(void* temp)
 
 char* spell_fun_str(void* temp)
 {
-    SPELL_FUN** spfun = (SPELL_FUN**)temp;
+    SpellFunc** spfun = (SpellFunc**)temp;
 
     return spell_name(*spfun);
 }
@@ -138,7 +139,7 @@ bool class_read(void* temp, char* arg)
 
 bool do_fun_read(void* temp, char* arg)
 {
-    DO_FUN** fun = (DO_FUN**)temp;
+    DoFunc** fun = (DoFunc**)temp;
 
     *fun = cmd_func_lookup(arg);
 
@@ -183,8 +184,8 @@ bool pgsn_read(void* temp, char* arg)
 
 bool spell_fun_read(void* temp, char* arg)
 {
-    SPELL_FUN** spfun = (SPELL_FUN**)temp;
-    SPELL_FUN* blah = spell_function(arg);
+    SpellFunc** spfun = (SpellFunc**)temp;
+    SpellFunc* blah = spell_function(arg);
 
     *spfun = blah;
 

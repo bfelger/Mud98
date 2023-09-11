@@ -450,59 +450,6 @@ void free_mprog(MPROG_LIST* mp)
     mprog_free = mp;
 }
 
-HELP_AREA* had_free = NULL;
-
-HELP_AREA* new_had(void)
-{
-    HELP_AREA* had;
-
-    if (had_free) {
-        had = had_free;
-        had_free = had_free->next;
-    }
-    else
-        had = alloc_perm(sizeof(HELP_AREA));
-
-    if (had == NULL) {
-        perror("Could not allocate HELP_AREA!");
-        exit(-1);
-    }
-
-    memset(had, 0, sizeof(HELP_AREA));
-
-    return had;
-}
-
-extern HELP_DATA* help_free;
-
-HELP_DATA* new_help(void)
-{
-    HELP_DATA* help;
-
-    if (help_free) {
-        help = help_free;
-        help_free = help_free->next;
-    }
-    else
-        help = alloc_perm(sizeof(HELP_DATA));
-
-    if (help == NULL) {
-        perror("Could not allocate HELP_DATA!");
-        exit(-1);
-    }
-
-    memset(help, 0, sizeof(HELP_DATA));
-
-    return help;
-}
-
-void free_help(HELP_DATA* help)
-{
-    free_string(help->keyword);
-    free_string(help->text);
-    help->next = help_free;
-    help_free = help;
-}
 
 int16_t* new_learned(void) // Return int16_t[max_skill]
 {

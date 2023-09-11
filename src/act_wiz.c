@@ -42,6 +42,7 @@
 #include "tables.h"
 #include "update.h"
 
+#include "entities/area_data.h"
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 

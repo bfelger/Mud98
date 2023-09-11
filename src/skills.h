@@ -22,7 +22,7 @@ struct skill_type {
     char* name; /* Name of skill		*/
     LEVEL skill_level[MAX_CLASS]; /* Level needed by class	*/
     int rating[MAX_CLASS]; /* How hard it is to learn	*/
-    SPELL_FUN* spell_fun; /* Spell pointer (for spells)	*/
+    SpellFunc* spell_fun; /* Spell pointer (for spells)	*/
     int target; /* Legal targets		*/
     int minimum_position; /* Position for caster / user	*/
     SKNUM* pgsn; /* Pointer to associated gsn	*/

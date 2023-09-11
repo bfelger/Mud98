@@ -12,6 +12,7 @@
 #include "string_edit.h"
 #include "tables.h"
 
+#include "entities/area_data.h"
 #include "entities/player_data.h"
 
 #include <ctype.h>
@@ -25,8 +26,6 @@
 #include <time.h>
 
 #define HEDIT(fun) bool fun(CharData *ch, char*argument)
-
-extern HELP_AREA* had_list;
 
 const struct olc_cmd_type hedit_table[] = {
 /*	{	command		function	}, */
@@ -42,12 +41,12 @@ const struct olc_cmd_type hedit_table[] = {
     {	NULL,		0		}
 };
 
-HELP_AREA* get_help_area(HELP_DATA* help)
+HelpArea* get_help_area(HelpData* help)
 {
-    HELP_AREA* temp;
-    HELP_DATA* thelp;
+    HelpArea* temp;
+    HelpData* thelp;
 
-    for (temp = had_list; temp; temp = temp->next)
+    for (temp = help_area_list; temp; temp = temp->next)
         for (thelp = temp->first; thelp; thelp = thelp->next_area)
             if (thelp == help)
                 return temp;
@@ -57,7 +56,7 @@ HELP_AREA* get_help_area(HELP_DATA* help)
 
 HEDIT(hedit_show)
 {
-    HELP_DATA* help;
+    HelpData* help;
     char buf[MSL * 2];
 
     EDIT_HELP(ch, help);
@@ -76,7 +75,7 @@ HEDIT(hedit_show)
 
 HEDIT(hedit_level)
 {
-    HELP_DATA* help;
+    HelpData* help;
     LEVEL lev;
 
     EDIT_HELP(ch, help);
@@ -100,7 +99,7 @@ HEDIT(hedit_level)
 
 HEDIT(hedit_keyword)
 {
-    HELP_DATA* help;
+    HelpData* help;
 
     EDIT_HELP(ch, help);
 
@@ -119,9 +118,8 @@ HEDIT(hedit_keyword)
 HEDIT(hedit_new)
 {
     char arg[MIL], fullarg[MIL];
-    HELP_AREA* had;
-    HELP_DATA* help;
-    extern HELP_DATA* help_last;
+    HelpArea* had;
+    HelpData* help;
 
     if (IS_NULLSTR(argument)) {
         send_to_char("Syntax : new [name]\n\r", ch);
@@ -144,19 +142,19 @@ HEDIT(hedit_new)
 
     // No helpfiles in this area yet
     if (!had) {
-        had = new_had();
+        had = new_help_area();
         had->filename = str_dup(ch->in_room->area->file_name);
         had->area = ch->in_room->area;
         had->first = NULL;
         had->last = NULL;
         had->changed = true;
-        had->next = had_list;
-        had_list = had;
+        had->next = help_area_list;
+        help_area_list = had;
         ch->in_room->area->helps = had;
         SET_BIT(ch->in_room->area->area_flags, AREA_CHANGED);
     }
 
-    help = new_help();
+    help = new_help_data();
     help->level = 0;
     help->keyword = str_dup(argument);
     help->text = str_dup("");
@@ -188,7 +186,7 @@ HEDIT(hedit_new)
 
 HEDIT(hedit_text)
 {
-    HELP_DATA* help;
+    HelpData* help;
 
     EDIT_HELP(ch, help);
 
@@ -204,8 +202,8 @@ HEDIT(hedit_text)
 
 void hedit(CharData* ch, char* argument)
 {
-    HELP_DATA* pHelp;
-    HELP_AREA* had;
+    HelpData* pHelp;
+    HelpArea* had;
     char arg[MAX_INPUT_LENGTH];
     char command[MAX_INPUT_LENGTH];
     int cmd;
@@ -254,7 +252,7 @@ void hedit(CharData* ch, char* argument)
 
 void do_hedit(CharData* ch, char* argument)
 {
-    HELP_DATA* pHelp;
+    HelpData* pHelp;
 
     if (IS_NPC(ch))
         return;
@@ -272,15 +270,15 @@ void do_hedit(CharData* ch, char* argument)
 
 HEDIT(hedit_delete)
 {
-    HELP_DATA* pHelp, * temp;
-    HELP_AREA* had;
+    HelpData* pHelp, * temp;
+    HelpArea* had;
     DESCRIPTOR_DATA* d;
     bool found = false;
 
     EDIT_HELP(ch, pHelp);
 
     for (d = descriptor_list; d; d = d->next)
-        if (d->editor == ED_HELP && pHelp == (HELP_DATA*)d->pEdit)
+        if (d->editor == ED_HELP && pHelp == (HelpData*)d->pEdit)
             edit_done(d->character);
 
     if (help_first == pHelp)
@@ -298,7 +296,7 @@ HEDIT(hedit_delete)
         temp->next = pHelp->next;
     }
 
-    for (had = had_list; had; had = had->next)
+    for (had = help_area_list; had; had = had->next)
         if (pHelp == had->first) {
             found = true;
             had->first = had->first->next_area;
@@ -316,7 +314,7 @@ HEDIT(hedit_delete)
         }
 
     if (!found) {
-        bugf("hedit_delete : help %s was not found in had_list", pHelp->keyword);
+        bugf("hedit_delete : help %s was not found in help_area_list", pHelp->keyword);
         return false;
     }
 
@@ -330,7 +328,7 @@ HEDIT(hedit_list)
 {
     char buf[MIL];
     int cnt = 0;
-    HELP_DATA* pHelp;
+    HelpData* pHelp;
     BUFFER* buffer;
 
     EDIT_HELP(ch, pHelp);

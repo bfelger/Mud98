@@ -4,6 +4,7 @@
 
 #include "merc.h"
 
+#include "bit.h"
 #include "comm.h"
 #include "db.h"
 #include "handler.h"
@@ -20,8 +21,8 @@
 extern bool fBootDb;
 
 char* gsn_name(int16_t* pgsn);
-char* spell_name(SPELL_FUN* spell);
-SPELL_FUN* spell_function(char* argument);
+char* spell_name(SpellFunc* spell);
+SpellFunc* spell_function(char* argument);
 int16_t* gsn_lookup(char* argument);
 
 #define SKEDIT(fun) bool fun(CharData *ch, char *argument)
@@ -42,7 +43,7 @@ struct gsn_type {
 
 struct spell_type {
     char* name;
-    SPELL_FUN* spell;
+    SpellFunc* spell;
 };
 
 #if defined(SPELL)
@@ -96,7 +97,7 @@ const struct olc_comm_type skill_olc_comm_table[] = {
     { NULL,         0,                          0,              0               }
 };
 
-char* spell_name(SPELL_FUN* spell)
+char* spell_name(SpellFunc* spell)
 {
     int i = 0;
 
@@ -134,7 +135,7 @@ char* gsn_name(SKNUM* pgsn)
     return "";
 }
 
-SPELL_FUN* spell_function(char* argument)
+SpellFunc* spell_function(char* argument)
 {
     int i;
     char buf[MSL];
@@ -651,7 +652,7 @@ SKEDIT(skedit_rating)
 SKEDIT(skedit_spell)
 {
     struct skill_type* pSkill;
-    SPELL_FUN* spell;
+    SpellFunc* spell;
 
     EDIT_SKILL(ch, pSkill);
 

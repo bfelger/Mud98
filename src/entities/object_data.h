@@ -12,8 +12,11 @@ typedef struct object_data_t ObjectData;
 
 #include "merc.h"
 
+#include "area_data.h"
 #include "char_data.h"
 #include "room_data.h"
+
+#include <stdio.h>
 
 /*
  * Prototype for an object.
@@ -22,7 +25,7 @@ typedef struct object_prototype_t {
     ObjectPrototype* next;
     EXTRA_DESCR_DATA* extra_descr;
     AFFECT_DATA* affected;
-    AREA_DATA* area;        // OLC
+    AreaData* area;        // OLC
     char* name;
     char* short_descr;
     char* description;

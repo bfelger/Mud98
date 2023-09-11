@@ -44,6 +44,7 @@
 #include "strings.h"
 #include "tables.h"
 
+#include "entities/area_data.h"
 #include "entities/exit_data.h"
 #include "entities/mob_prototype.h"
 #include "entities/object_data.h"
@@ -80,11 +81,6 @@ extern AFFECT_DATA* affect_free;
 /*
  * Globals.
  */
-HELP_DATA* help_first;
-extern HELP_DATA* help_last;
-
-HELP_AREA* had_list;
-
 SHOP_DATA* shop_first;
 SHOP_DATA* shop_last;
 
@@ -159,16 +155,11 @@ SKNUM gsn_recall;
  */
 char* string_hash[MAX_KEY_HASH];
 
-AREA_DATA* area_first;
-AREA_DATA* area_last;
-AREA_DATA* current_area;
-
 char* string_space;
 char* top_string;
 char str_empty[1];
 
 int top_affect;
-int top_area;
 int top_ed;
 int top_help;
 int top_shop;
@@ -205,6 +196,7 @@ size_t sAllocPerm;
 bool fBootDb;
 FILE* fpArea;
 char strArea[MAX_INPUT_LENGTH];
+AreaData* current_area;
 
 /*
  * Local booting procedures.
@@ -228,7 +220,7 @@ void load_groups(void);
 void fix_exits args((void));
 void fix_mobprogs args((void));
 
-void reset_area args((AREA_DATA * pArea));
+void reset_area args((AreaData * pArea));
 
 static bool check_dir(const char* dir)
 {
@@ -460,7 +452,7 @@ void boot_db(void)
  */
 void load_area(FILE* fp)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
 
     pArea = alloc_perm(sizeof(*pArea));
     pArea->file_name = fread_string(fp);
@@ -529,7 +521,7 @@ void load_area(FILE* fp)
  */
 void new_load_area(FILE* fp)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     char* word;
 
     pArea = alloc_perm(sizeof(*pArea));
@@ -606,12 +598,12 @@ void assign_area_vnum(VNUM vnum)
  */
 void load_helps(FILE* fp, char* fname)
 {
-    HELP_DATA* pHelp;
+    HelpData* pHelp;
     LEVEL level;
     char* keyword;
 
     for (;;) {
-        HELP_AREA* had = NULL;
+        HelpArea* had = NULL;
 
         level = (LEVEL)fread_number(fp);
         keyword = fread_string(fp);
@@ -619,34 +611,34 @@ void load_helps(FILE* fp, char* fname)
         if (keyword[0] == '$')
             break;
 
-        if (had_list == NULL) {
-            if ((had = new_had()) == NULL) {
-                perror("load_helps (1): could not allocate new HELP_AREA!");
+        if (help_area_list == NULL) {
+            if ((had = new_help_area()) == NULL) {
+                perror("load_helps (1): could not allocate new HelpArea!");
                 exit(-1);
             }
             had->filename = str_dup(fname);
             had->area = current_area;
             if (current_area)
                 current_area->helps = had;
-            had_list = had;
+            help_area_list = had;
         }
-        else if (str_cmp(fname, had_list->filename)) {
-            if ((had = new_had()) == NULL) {
-                perror("load_helps (2): could not allocate new HELP_AREA!");
+        else if (str_cmp(fname, help_area_list->filename)) {
+            if ((had = new_help_area()) == NULL) {
+                perror("load_helps (2): could not allocate new HelpArea!");
                 exit(-1);
             }
             had->filename = str_dup(fname);
             had->area = current_area;
             if (current_area)
                 current_area->helps = had;
-            had->next = had_list;
-            had_list = had;
+            had->next = help_area_list;
+            help_area_list = had;
         }
         else
-            had = had_list;
+            had = help_area_list;
         
-        if ((pHelp = new_help()) == NULL) {
-            perror("load_helps: could not allocate new HELP_DATA!");
+        if ((pHelp = new_help_data()) == NULL) {
+            perror("load_helps: could not allocate new HelpData!");
             exit(-1);
         }
         pHelp->level = level;
@@ -1287,7 +1279,7 @@ void fix_exits(void)
  */
 void area_update(void)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
     char buf[MAX_STRING_LENGTH];
 
     for (pArea = area_first; pArea != NULL; pArea = pArea->next) {
@@ -1694,7 +1686,7 @@ void reset_room(RoomData* pRoom)
 /* OLC
  * Reset one area.
  */
-void reset_area(AREA_DATA* pArea)
+void reset_area(AreaData* pArea)
 {
     RoomData* pRoom;
     VNUM  vnum;
@@ -2366,8 +2358,8 @@ void free_string(char* pstr)
 void do_areas(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    AREA_DATA* pArea1;
-    AREA_DATA* pArea2;
+    AreaData* pArea1;
+    AreaData* pArea2;
     int iArea;
     int iAreaHalf;
 

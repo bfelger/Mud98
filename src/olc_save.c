@@ -78,7 +78,7 @@ char* fix_string(const char* str)
 
 bool area_changed(void)
 {
-    AREA_DATA* pArea;
+    AreaData* pArea;
 
     for (pArea = area_first; pArea; pArea = pArea->next)
         if (IS_SET(pArea->area_flags, AREA_CHANGED))
@@ -87,7 +87,7 @@ bool area_changed(void)
     return false;
 }
 
-void save_mobprogs(FILE* fp, AREA_DATA* pArea)
+void save_mobprogs(FILE* fp, AreaData* pArea)
 {
     MPROG_CODE* pMprog;
 
@@ -112,9 +112,8 @@ void save_mobprogs(FILE* fp, AREA_DATA* pArea)
 void save_area_list(void)
 {
     FILE* fp;
-    AREA_DATA* pArea;
-    extern HELP_AREA* had_list;
-    HELP_AREA* ha;
+    AreaData* pArea;
+    HelpArea* ha;
 
     char area_list[256];
     sprintf(area_list, "%s%s", area_dir, AREA_LIST);
@@ -124,7 +123,7 @@ void save_area_list(void)
         return;
     }
 
-    for (ha = had_list; ha; ha = ha->next)
+    for (ha = help_area_list; ha; ha = ha->next)
         if (ha->area == NULL)
             fprintf(fp, "%s\n", ha->filename);
 
@@ -283,7 +282,7 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
  Called by:	save_area(olc_save.c).
  Notes:         Changed for ROM OLC.
  ****************************************************************************/
-void save_mobiles(FILE* fp, AREA_DATA* pArea)
+void save_mobiles(FILE* fp, AreaData* pArea)
 {
     MobPrototype* pMob;
 
@@ -503,7 +502,7 @@ void save_object(FILE* fp, ObjectPrototype* p_object_prototype)
  Called by:	save_area(olc_save.c).
  Notes:         Changed for ROM OLC.
  ****************************************************************************/
-void save_objects(FILE* fp, AREA_DATA* pArea)
+void save_objects(FILE* fp, AreaData* pArea)
 {
     ObjectPrototype* pObj;
 
@@ -523,7 +522,7 @@ void save_objects(FILE* fp, AREA_DATA* pArea)
  Purpose:	Save #ROOMS section of an area file.
  Called by:	save_area(olc_save.c).
  ****************************************************************************/
-void save_rooms(FILE* fp, AREA_DATA* pArea)
+void save_rooms(FILE* fp, AreaData* pArea)
 {
     RoomData* pRoomIndex;
     EXTRA_DESCR_DATA* pEd;
@@ -600,7 +599,7 @@ void save_rooms(FILE* fp, AREA_DATA* pArea)
  Purpose:	Save #SPECIALS section of area file.
  Called by:	save_area(olc_save.c).
  ****************************************************************************/
-void save_specials(FILE* fp, AREA_DATA* pArea)
+void save_specials(FILE* fp, AreaData* pArea)
 {
     int iHash;
     MobPrototype* p_mob_proto;
@@ -632,7 +631,7 @@ void save_specials(FILE* fp, AREA_DATA* pArea)
  *
  * I don't think it's obsolete in ROM -- Hugin.
  */
-void save_door_resets(FILE* fp, AREA_DATA* pArea)
+void save_door_resets(FILE* fp, AreaData* pArea)
 {
     int iHash, i;
     RoomData* pRoomIndex;
@@ -675,7 +674,7 @@ void save_door_resets(FILE* fp, AREA_DATA* pArea)
 // Purpose:	Saves the #RESETS section of an area file.
 // Called by: save_area(olc_save.c)
 ////////////////////////////////////////////////////////////////////////////////
-void save_resets(FILE* fp, AREA_DATA* pArea)
+void save_resets(FILE* fp, AreaData* pArea)
 {
     ResetData* pReset;
     MobPrototype* pLastMob = NULL;
@@ -843,7 +842,7 @@ return;
  Purpose:	Saves the #SHOPS section of an area file.
  Called by:	save_area(olc_save.c)
  ****************************************************************************/
-void save_shops(FILE* fp, AREA_DATA* pArea)
+void save_shops(FILE* fp, AreaData* pArea)
 {
     SHOP_DATA* pShopIndex;
     MobPrototype* p_mob_proto;
@@ -875,9 +874,9 @@ void save_shops(FILE* fp, AREA_DATA* pArea)
     return;
 }
 
-void save_helps(FILE* fp, HELP_AREA* ha)
+void save_helps(FILE* fp, HelpArea* ha)
 {
-    HELP_DATA* help = ha->first;
+    HelpData* help = ha->first;
 
     fprintf(fp, "#HELPS\n");
 
@@ -895,12 +894,11 @@ void save_helps(FILE* fp, HELP_AREA* ha)
 
 void save_other_helps(CharData* ch)
 {
-    extern HELP_AREA* had_list;
-    HELP_AREA* ha;
+    HelpArea* ha;
     FILE* fp;
     char buf[MIL];
 
-    for (ha = had_list; ha; ha = ha->next)
+    for (ha = help_area_list; ha; ha = ha->next)
         if (ha->changed == true
             && ha->area == NULL) {
             sprintf(buf, "%s%s", area_dir, ha->filename);
@@ -929,7 +927,7 @@ void save_other_helps(CharData* ch)
  Purpose:	Save an area, note that this format is new.
  Called by:	do_asave(olc_save.c).
  ****************************************************************************/
-void save_area(AREA_DATA* pArea)
+void save_area(AreaData* pArea)
 {
     FILE* fp;
     char buf[MIL];
@@ -999,7 +997,7 @@ void save_area(AREA_DATA* pArea)
 void do_asave(CharData* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
-    AREA_DATA* pArea;
+    AreaData* pArea;
     VNUM value;
 
     if (ch == NULL || ch->desc == NULL || IS_NPC(ch)) {
@@ -1127,7 +1125,7 @@ void do_asave(CharData* ch, char* argument)
         /* Find the area to save. */
         switch (ch->desc->editor) {
         case ED_AREA:
-            pArea = (AREA_DATA*)ch->desc->pEdit;
+            pArea = (AreaData*)ch->desc->pEdit;
             break;
         case ED_ROOM:
             pArea = ch->in_room->area;

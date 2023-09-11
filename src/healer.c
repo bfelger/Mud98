@@ -50,7 +50,7 @@ void do_heal(CharData* ch, char* argument)
     char arg[MAX_INPUT_LENGTH];
     int cost;
     SKNUM sn;
-    SPELL_FUN* spell;
+    SpellFunc* spell;
     char* words;
 
     /* check for healer */
