@@ -23,7 +23,7 @@ void clone_object(ObjectData* parent, ObjectData* clone)
 {
     int i;
     AFFECT_DATA* paf;
-    EXTRA_DESCR_DATA* ed, * ed_new;
+    ExtraDesc* ed, * ed_new;
 
     if (parent == NULL || clone == NULL) return;
 
@@ -50,12 +50,12 @@ void clone_object(ObjectData* parent, ObjectData* clone)
         affect_to_obj(clone, paf);
 
     /* extended desc */
-    for (ed = parent->extra_descr; ed != NULL; ed = ed->next) {
-        ed_new = new_extra_descr();
+    for (ed = parent->extra_desc; ed != NULL; ed = ed->next) {
+        ed_new = new_extra_desc();
         ed_new->keyword = str_dup(ed->keyword);
         ed_new->description = str_dup(ed->description);
-        ed_new->next = clone->extra_descr;
-        clone->extra_descr = ed_new;
+        ed_new->next = clone->extra_desc;
+        clone->extra_desc = ed_new;
     }
 }
 
@@ -429,8 +429,8 @@ void free_object(ObjectData* obj)
 {
     AFFECT_DATA* paf;
     AFFECT_DATA* paf_next = NULL;
-    EXTRA_DESCR_DATA* ed;
-    EXTRA_DESCR_DATA* ed_next = NULL;
+    ExtraDesc* ed;
+    ExtraDesc* ed_next = NULL;
 
     if (!IS_VALID(obj)) return;
 
@@ -440,11 +440,11 @@ void free_object(ObjectData* obj)
     }
     obj->affected = NULL;
 
-    for (ed = obj->extra_descr; ed != NULL; ed = ed_next) {
+    for (ed = obj->extra_desc; ed != NULL; ed = ed_next) {
         ed_next = ed->next;
-        free_extra_descr(ed);
+        free_extra_desc(ed);
     }
-    obj->extra_descr = NULL;
+    obj->extra_desc = NULL;
 
     free_string(obj->name);
     free_string(obj->description);
@@ -458,7 +458,7 @@ void free_object(ObjectData* obj)
 
 void free_object_prototype(ObjectPrototype* pObj)
 {
-    EXTRA_DESCR_DATA* pExtra;
+    ExtraDesc* pExtra;
     AFFECT_DATA* pAf;
 
     free_string(pObj->name);
@@ -469,8 +469,8 @@ void free_object_prototype(ObjectPrototype* pObj)
         free_affect(pAf);
     }
 
-    for (pExtra = pObj->extra_descr; pExtra; pExtra = pExtra->next) {
-        free_extra_descr(pExtra);
+    for (pExtra = pObj->extra_desc; pExtra; pExtra = pExtra->next) {
+        free_extra_desc(pExtra);
     }
 
     pObj->next = object_prototype_free;
@@ -679,13 +679,13 @@ void load_objects(FILE* fp)
             }
 
             else if (letter == 'E') {
-                EXTRA_DESCR_DATA* ed;
+                ExtraDesc* ed;
 
                 ed = alloc_perm(sizeof(*ed));
                 ed->keyword = fread_string(fp);
                 ed->description = fread_string(fp);
-                ed->next = p_object_prototype->extra_descr;
-                p_object_prototype->extra_descr = ed;
+                ed->next = p_object_prototype->extra_desc;
+                p_object_prototype->extra_desc = ed;
                 top_ed++;
             }
 
@@ -738,7 +738,7 @@ ObjectPrototype* new_object_prototype()
     }
 
     pObj->next = NULL;
-    pObj->extra_descr = NULL;
+    pObj->extra_desc = NULL;
     pObj->affected = NULL;
     pObj->area = NULL;
     pObj->name = str_dup("no name");

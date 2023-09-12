@@ -1015,11 +1015,11 @@ REDIT(redit_show)
         add_buf(out, BUF(line));
     }
 
-    if (pRoom->extra_descr) {
-        EXTRA_DESCR_DATA* ed;
+    if (pRoom->extra_desc) {
+        ExtraDesc* ed;
 
         add_buf(out, "Desc Kwds:  [");
-        for (ed = pRoom->extra_descr; ed; ed = ed->next) {
+        for (ed = pRoom->extra_desc; ed; ed = ed->next) {
             add_buf(out, ed->keyword);
             if (ed->next)
                 add_buf(out, " ");
@@ -2383,12 +2383,12 @@ OEDIT(oedit_show)
         pObj->weight, pObj->cost);
     send_to_char(buf, ch);
 
-    if (pObj->extra_descr) {
-        EXTRA_DESCR_DATA* ed;
+    if (pObj->extra_desc) {
+        ExtraDesc* ed;
 
         send_to_char("Ex desc kwd: ", ch);
 
-        for (ed = pObj->extra_descr; ed; ed = ed->next) {
+        for (ed = pObj->extra_desc; ed; ed = ed->next) {
             send_to_char("[", ch);
             send_to_char(ed->keyword, ch);
             send_to_char("]", ch);
@@ -4068,8 +4068,8 @@ ED_FUN_DEC(ed_delprog)
 
 ED_FUN_DEC(ed_ed)
 {
-    EXTRA_DESCR_DATA* ed;
-    EXTRA_DESCR_DATA** pEd = (EXTRA_DESCR_DATA**)arg;
+    ExtraDesc* ed;
+    ExtraDesc** pEd = (ExtraDesc**)arg;
     char command[MAX_INPUT_LENGTH];
     char keyword[MAX_INPUT_LENGTH];
 
@@ -4091,7 +4091,7 @@ ED_FUN_DEC(ed_ed)
             return false;
         }
 
-        ed = new_extra_descr();
+        ed = new_extra_desc();
         ed->keyword = str_dup(keyword);
         ed->next = *pEd;
         *pEd = ed;
@@ -4123,7 +4123,7 @@ ED_FUN_DEC(ed_ed)
     }
 
     if (!str_cmp(command, "delete")) {
-        EXTRA_DESCR_DATA* ped = NULL;
+        ExtraDesc* ped = NULL;
 
         if (keyword[0] == '\0') {
             send_to_char("Syntax:  ed delete [keyword]\n\r", ch);
@@ -4146,7 +4146,7 @@ ED_FUN_DEC(ed_ed)
         else
             ped->next = ed->next;
 
-        free_extra_descr(ed);
+        free_extra_desc(ed);
 
         send_to_char("Extra description deleted.\n\r", ch);
         return true;

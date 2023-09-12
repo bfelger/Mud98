@@ -60,12 +60,6 @@ GD* new_gen_data args((void));
 void free_gen_data args((GEN_DATA * gen));
 #undef GD
 
-/* extra descr recycling */
-#define ED EXTRA_DESCR_DATA
-ED* new_extra_descr args((void));
-void free_extra_descr args((EXTRA_DESCR_DATA * ed));
-#undef ED
-
 /* affect recycling */
 #define AD AFFECT_DATA
 AD* new_affect args((void));

@@ -390,7 +390,7 @@ void fwrite_pet(CharData* pet, FILE* fp)
  */
 void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
 {
-    EXTRA_DESCR_DATA* ed;
+    ExtraDesc* ed;
     AFFECT_DATA* paf;
 
     /*
@@ -481,7 +481,7 @@ void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
                 paf->duration, paf->modifier, paf->location, paf->bitvector);
     }
 
-    for (ed = obj->extra_descr; ed != NULL; ed = ed->next) {
+    for (ed = obj->extra_desc; ed != NULL; ed = ed->next) {
         fprintf(fp, "ExDe %s~ %s~\n", ed->keyword, ed->description);
     }
 
@@ -1440,14 +1440,14 @@ void fread_obj(CharData* ch, FILE* fp)
             KEY("ExtF", obj->extra_flags, fread_number(fp));
 
             if (!str_cmp(word, "ExtraDescr") || !str_cmp(word, "ExDe")) {
-                EXTRA_DESCR_DATA* ed;
+                ExtraDesc* ed;
 
-                ed = new_extra_descr();
+                ed = new_extra_desc();
 
                 ed->keyword = fread_string(fp);
                 ed->description = fread_string(fp);
-                ed->next = obj->extra_descr;
-                obj->extra_descr = ed;
+                ed->next = obj->extra_desc;
+                obj->extra_desc = ed;
                 fMatch = true;
             }
 

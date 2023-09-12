@@ -50,7 +50,6 @@ void boot_db(void);
 void area_update(void);
 void clone_mobile(CharData* parent, CharData* clone);
 void clear_char(CharData* ch);
-char* get_extra_descr(const char* name, EXTRA_DESCR_DATA* ed);
 MPROG_CODE* get_mprog_index(VNUM vnum);
 char fread_letter(FILE* fp);
 int fread_number(FILE* fp);
@@ -104,8 +103,6 @@ extern char log_buf[];
 
 extern int top_affect;
 extern int top_ed;
-extern int top_exit;
-extern int top_help;
 extern int top_shop;
 
 extern int _filbuf(FILE*);

@@ -14,6 +14,7 @@ typedef struct room_data_t RoomData;
 #include "room_data.h"
 #include "char_data.h"
 #include "exit_data.h"
+#include "extra_desc.h"
 #include "object_data.h"
 #include "reset_data.h"
 
@@ -21,7 +22,7 @@ typedef struct room_data_t {
     RoomData* next;
     CharData* people;
     ObjectData* contents;
-    EXTRA_DESCR_DATA* extra_descr;
+    ExtraDesc* extra_desc;
     AreaData* area;
     ExitData* exit[6];
     ResetData* reset_first;    // OLC

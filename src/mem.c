@@ -26,10 +26,10 @@
 #include <sys/types.h>
 #include <time.h>
 
-EXTRA_DESCR_DATA* extra_descr_free;
+ExtraDesc* extra_desc_free;
 SHOP_DATA* shop_free;
 
-void free_extra_descr(EXTRA_DESCR_DATA* pExtra);
+void free_extra_desc(ExtraDesc* pExtra);
 void free_affect(AFFECT_DATA* af);
 
 SHOP_DATA* new_shop()

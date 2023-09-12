@@ -14,6 +14,7 @@ typedef struct object_data_t ObjectData;
 
 #include "area_data.h"
 #include "char_data.h"
+#include "extra_desc.h"
 #include "room_data.h"
 
 #include <stdio.h>
@@ -23,7 +24,7 @@ typedef struct object_data_t ObjectData;
  */
 typedef struct object_prototype_t {
     ObjectPrototype* next;
-    EXTRA_DESCR_DATA* extra_descr;
+    ExtraDesc* extra_desc;
     AFFECT_DATA* affected;
     AreaData* area;        // OLC
     char* name;
@@ -51,7 +52,7 @@ typedef struct object_data_t {
     ObjectData* in_obj;
     ObjectData* on;
     CharData* carried_by;
-    EXTRA_DESCR_DATA* extra_descr;
+    ExtraDesc* extra_desc;
     AFFECT_DATA* affected;
     ObjectPrototype* pIndexData;
     RoomData* in_room;

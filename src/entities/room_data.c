@@ -7,11 +7,11 @@
 
 #include "db.h"
 
+#include "extra_desc.h"
 #include "reset_data.h"
 
 // MOVE THESE LATER!
 void free_exit(ExitData* pExit);
-void free_extra_descr(EXTRA_DESCR_DATA* pExtra);
 //
 
 int top_room;
@@ -21,7 +21,7 @@ RoomData* room_index_hash[MAX_KEY_HASH];
 
 void free_room_index(RoomData* pRoom)
 {
-    EXTRA_DESCR_DATA* pExtra;
+    ExtraDesc* pExtra;
     ResetData* pReset;
     int i;
 
@@ -32,8 +32,8 @@ void free_room_index(RoomData* pRoom)
     for (i = 0; i < MAX_DIR; i++)
         free_exit(pRoom->exit[i]);
 
-    for (pExtra = pRoom->extra_descr; pExtra; pExtra = pExtra->next) {
-        free_extra_descr(pExtra);
+    for (pExtra = pRoom->extra_desc; pExtra; pExtra = pExtra->next) {
+        free_extra_desc(pExtra);
     }
 
     for (pReset = pRoom->reset_first; pReset; pReset = pReset->next) {
@@ -68,7 +68,7 @@ RoomData* get_room_data(VNUM vnum)
 
 RoomData* new_room_index()
 {
-    static	RoomData rZero;
+    static RoomData rZero;
     RoomData* pRoom;
 
     if (!room_index_free) {

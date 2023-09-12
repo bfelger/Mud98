@@ -307,7 +307,7 @@ void save_object(FILE* fp, ObjectPrototype* p_object_prototype)
 {
     char letter;
     AFFECT_DATA* pAf;
-    EXTRA_DESCR_DATA* pEd;
+    ExtraDesc* pEd;
     char buf[MAX_STRING_LENGTH];
 
     fprintf(fp, "#%"PRVNUM"\n", p_object_prototype->vnum);
@@ -488,7 +488,7 @@ void save_object(FILE* fp, ObjectPrototype* p_object_prototype)
         }
     }
 
-    for (pEd = p_object_prototype->extra_descr; pEd; pEd = pEd->next) {
+    for (pEd = p_object_prototype->extra_desc; pEd; pEd = pEd->next) {
         fprintf(fp, "E\n%s~\n%s~\n", pEd->keyword,
             fix_string(pEd->description));
     }
@@ -525,7 +525,7 @@ void save_objects(FILE* fp, AreaData* pArea)
 void save_rooms(FILE* fp, AreaData* pArea)
 {
     RoomData* pRoomIndex;
-    EXTRA_DESCR_DATA* pEd;
+    ExtraDesc* pEd;
     ExitData* pExit;
     char buf[MSL];
     int iHash, i, locks;
@@ -541,7 +541,7 @@ void save_rooms(FILE* fp, AreaData* pArea)
                 fprintf(fp, "%s ", fwrite_flag(pRoomIndex->room_flags, buf));
                 fprintf(fp, "%d\n", pRoomIndex->sector_type);
 
-                for (pEd = pRoomIndex->extra_descr; pEd;
+                for (pEd = pRoomIndex->extra_desc; pEd;
                     pEd = pEd->next) {
                     fprintf(fp, "E\n%s~\n%s~\n", pEd->keyword,
                         fix_string(pEd->description));

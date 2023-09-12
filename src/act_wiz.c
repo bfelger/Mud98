@@ -1005,11 +1005,11 @@ void do_rstat(CharData* ch, char* argument)
             location->description);
     send_to_char(buf, ch);
 
-    if (location->extra_descr != NULL) {
-        EXTRA_DESCR_DATA* ed;
+    if (location->extra_desc != NULL) {
+        ExtraDesc* ed;
 
         send_to_char("Extra description keywords: '", ch);
-        for (ed = location->extra_descr; ed; ed = ed->next) {
+        for (ed = location->extra_desc; ed; ed = ed->next) {
             send_to_char(ed->keyword, ch);
             if (ed->next != NULL) send_to_char(" ", ch);
         }
@@ -1243,17 +1243,17 @@ void do_ostat(CharData* ch, char* argument)
         break;
     }
 
-    if (obj->extra_descr != NULL || obj->pIndexData->extra_descr != NULL) {
-        EXTRA_DESCR_DATA* ed;
+    if (obj->extra_desc != NULL || obj->pIndexData->extra_desc != NULL) {
+        ExtraDesc* ed;
 
         send_to_char("Extra description keywords: '", ch);
 
-        for (ed = obj->extra_descr; ed != NULL; ed = ed->next) {
+        for (ed = obj->extra_desc; ed != NULL; ed = ed->next) {
             send_to_char(ed->keyword, ch);
             if (ed->next != NULL) send_to_char(" ", ch);
         }
 
-        for (ed = obj->pIndexData->extra_descr; ed != NULL; ed = ed->next) {
+        for (ed = obj->pIndexData->extra_desc; ed != NULL; ed = ed->next) {
             send_to_char(ed->keyword, ch);
             if (ed->next != NULL) send_to_char(" ", ch);
         }
@@ -3368,7 +3368,7 @@ void do_string(CharData* ch, char* argument)
         }
 
         if (!str_prefix(arg2, "ed") || !str_prefix(arg2, "extended")) {
-            EXTRA_DESCR_DATA* ed;
+            ExtraDesc* ed;
 
             argument = one_argument(argument, arg3);
             if (argument == NULL) {
@@ -3379,12 +3379,12 @@ void do_string(CharData* ch, char* argument)
 
             strcat(argument, "\n\r");
 
-            ed = new_extra_descr();
+            ed = new_extra_desc();
 
             ed->keyword = str_dup(arg3);
             ed->description = str_dup(argument);
-            ed->next = obj->extra_descr;
-            obj->extra_descr = ed;
+            ed->next = obj->extra_desc;
+            obj->extra_desc = ed;
             return;
         }
     }

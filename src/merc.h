@@ -142,7 +142,6 @@ typedef struct affect_data AFFECT_DATA;
 typedef struct ban_data BAN_DATA;
 typedef struct buf_type BUFFER;
 typedef struct descriptor_data DESCRIPTOR_DATA;
-typedef struct extra_descr_data EXTRA_DESCR_DATA;
 typedef struct kill_data KILL_DATA;
 typedef struct mprog_list MPROG_LIST;
 typedef struct mprog_code MPROG_CODE;
@@ -1209,16 +1208,6 @@ struct liq_type {
     char* liq_name;
     char* liq_color;
     int16_t liq_affect[5];
-};
-
-/*
- * Extra description data for a room or object.
- */
-struct extra_descr_data {
-    EXTRA_DESCR_DATA* next; // Next in list
-    bool valid;
-    char* keyword;          // Keyword in look/examine
-    char* description;      // What to see
 };
 
 /*

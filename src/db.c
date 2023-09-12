@@ -757,13 +757,13 @@ void load_old_obj(FILE* fp)
             }
 
             else if (letter == 'E') {
-                EXTRA_DESCR_DATA* ed;
+                ExtraDesc* ed;
 
                 ed = alloc_perm(sizeof(*ed));
                 ed->keyword = fread_string(fp);
                 ed->description = fread_string(fp);
-                ed->next = p_object_prototype->extra_descr;
-                p_object_prototype->extra_descr = ed;
+                ed->next = p_object_prototype->extra_desc;
+                p_object_prototype->extra_desc = ed;
                 top_ed++;
             }
 
@@ -965,7 +965,7 @@ void load_rooms(FILE* fp)
         pRoomIndex->owner = str_dup("");
         pRoomIndex->people = NULL;
         pRoomIndex->contents = NULL;
-        pRoomIndex->extra_descr = NULL;
+        pRoomIndex->extra_desc = NULL;
         pRoomIndex->area = area_last;
         pRoomIndex->vnum = vnum;
         pRoomIndex->name = fread_string(fp);
@@ -1045,13 +1045,13 @@ void load_rooms(FILE* fp)
                 top_exit++;
             }
             else if (letter == 'E') {
-                EXTRA_DESCR_DATA* ed;
+                ExtraDesc* ed;
 
                 ed = alloc_perm(sizeof(*ed));
                 ed->keyword = fread_string(fp);
                 ed->description = fread_string(fp);
-                ed->next = pRoomIndex->extra_descr;
-                pRoomIndex->extra_descr = ed;
+                ed->next = pRoomIndex->extra_desc;
+                pRoomIndex->extra_desc = ed;
                 top_ed++;
             }
 
@@ -1807,17 +1807,6 @@ void clear_char(CharData* ch)
         ch->mod_stat[i] = 0;
     }
     return;
-}
-
-/*
- * Get an extra description from a list.
- */
-char* get_extra_descr(const char* name, EXTRA_DESCR_DATA* ed)
-{
-    for (; ed != NULL; ed = ed->next) {
-        if (is_name((char*)name, ed->keyword)) return ed->description;
-    }
-    return NULL;
 }
 
 /*

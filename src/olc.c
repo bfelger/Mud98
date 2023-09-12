@@ -114,7 +114,7 @@ const struct olc_comm_type obj_olc_comm_table[] = {
     { "weight",	    U(&xObj.weight),		ed_number_s_pos,	0		        },
     { "extra",	    U(&xObj.extra_flags),   ed_flag_toggle,		U(extra_flag_table)  },
     { "wear",	    U(&xObj.wear_flags),	ed_flag_toggle,		U(wear_flag_table)   },
-    { "ed",	        U(&xObj.extra_descr),	ed_ed,			    0		        },
+    { "ed",	        U(&xObj.extra_desc),	ed_ed,			    0		        },
     { "type",	    U(&xObj.item_type),	    ed_flag_set_sh,		U(type_flag_table)   },
     { "addaffect",	U(&xObj),			    ed_addaffect,		0		        },
     { "delaffect",	U(&xObj.affected),	    ed_delaffect,		0		        },
@@ -138,7 +138,7 @@ const struct olc_comm_type obj_olc_comm_table[] = {
 const struct olc_comm_type room_olc_comm_table[] = {
     { "name",	    U(&xRoom.name),		    ed_line_string,		0		        },
     { "desc",	    U(&xRoom.description),	ed_desc,		    0		        },
-    { "ed",	        U(&xRoom.extra_descr),	ed_ed,			    0		        },
+    { "ed",	        U(&xRoom.extra_desc),	ed_ed,			    0		        },
     { "heal",	    U(&xRoom.heal_rate),	ed_number_s_pos,	0		        },
     { "mana",	    U(&xRoom.mana_rate),	ed_number_s_pos,	0		        },
     { "owner",	    U(&xRoom.owner),		ed_line_string,		0		        },

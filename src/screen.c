@@ -37,7 +37,7 @@ char* clan2str(void* point)
 char* extradescr2str(void* point)
 {
     static	char buf[MIL];
-    EXTRA_DESCR_DATA* ed = *(EXTRA_DESCR_DATA**)point;
+    ExtraDesc* ed = *(ExtraDesc**)point;
 
     buf[0] = '\0';
     for (; ed; ed = ed->next) {
@@ -285,7 +285,7 @@ const struct olc_show_table_type redit_olc_show_table[] = {
         1, 3, 73, 1, 1, U(room_flag_table)
     },
     {
-        "extradesc", U(&xRoom.extra_descr), "Extra desc:", OLCS_STRFUNC,
+        "extradesc", U(&xRoom.extra_desc), "Extra desc:", OLCS_STRFUNC,
         1, 4, 67, 1, 1, U(extradescr2str)
     },
     {
@@ -494,7 +494,7 @@ const struct olc_show_table_type oedit_olc_show_table[] =
         1, 5, 72, 1, 1, 0
     },
     {
-        "extra_descr", U(&xObj.extra_descr), "ExDesc:", OLCS_STRFUNC,
+        "extra_desc", U(&xObj.extra_desc), "ExDesc:", OLCS_STRFUNC,
         1, 6, 72, 1, 1, U(extradescr2str)
     },
     {

@@ -985,7 +985,7 @@ void do_look(CharData* ch, char* argument)
     for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
         if (can_see_obj(ch, obj)) { 
             /* player can see object */
-            pdesc = get_extra_descr(arg3, obj->extra_descr);
+            pdesc = get_extra_desc(arg3, obj->extra_desc);
             if (pdesc != NULL) {
                 if (++count == number) {
                     send_to_char(pdesc, ch);
@@ -996,7 +996,7 @@ void do_look(CharData* ch, char* argument)
                 }
             }
 
-            pdesc = get_extra_descr(arg3, obj->pIndexData->extra_descr);
+            pdesc = get_extra_desc(arg3, obj->pIndexData->extra_desc);
             if (pdesc != NULL) {
                 if (++count == number) {
                     send_to_char(pdesc, ch);
@@ -1019,7 +1019,7 @@ void do_look(CharData* ch, char* argument)
 
     for (obj = ch->in_room->contents; obj != NULL; obj = obj->next_content) {
         if (can_see_obj(ch, obj)) {
-            pdesc = get_extra_descr(arg3, obj->extra_descr);
+            pdesc = get_extra_desc(arg3, obj->extra_desc);
             if (pdesc != NULL) {
                 if (++count == number) {
                     send_to_char(pdesc, ch);
@@ -1027,7 +1027,7 @@ void do_look(CharData* ch, char* argument)
                 }
             }
 
-            pdesc = get_extra_descr(arg3, obj->pIndexData->extra_descr);
+            pdesc = get_extra_desc(arg3, obj->pIndexData->extra_desc);
             if (pdesc != NULL) {
                 if (++count == number) {
                     send_to_char(pdesc, ch);
@@ -1045,7 +1045,7 @@ void do_look(CharData* ch, char* argument)
         }
     }
 
-    pdesc = get_extra_descr(arg3, ch->in_room->extra_descr);
+    pdesc = get_extra_desc(arg3, ch->in_room->extra_desc);
     if (pdesc != NULL) {
         if (++count == number) {
             send_to_char(pdesc, ch);
