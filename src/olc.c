@@ -145,12 +145,12 @@ const struct olc_comm_type room_olc_comm_table[] = {
     { "roomflags",	U(&xRoom.room_flags),	ed_flag_toggle,		U(room_flag_table)	},
     { "clan",	    U(&xRoom.clan),		    ed_int16lookup,		U(clan_lookup)	},
     { "sector",	    U(&xRoom.sector_type),	ed_flag_set_sh,		U(sector_flag_table)},
-    { "north",	    0,				        ed_direccion,		DIR_NORTH	    },
-    { "south",	    0,				        ed_direccion,		DIR_SOUTH	    },
-    { "east",	    0,				        ed_direccion,		DIR_EAST	    },
-    { "west",	    0,				        ed_direccion,		DIR_WEST	    },
-    { "up",	        0,				        ed_direccion,		DIR_UP		    },
-    { "down",	    0,				        ed_direccion,		DIR_DOWN	    },
+    { "north",	    0,				        ed_direction,		DIR_NORTH	    },
+    { "south",	    0,				        ed_direction,		DIR_SOUTH	    },
+    { "east",	    0,				        ed_direction,		DIR_EAST	    },
+    { "west",	    0,				        ed_direction,		DIR_WEST	    },
+    { "up",	        0,				        ed_direction,		DIR_UP		    },
+    { "down",	    0,				        ed_direction,		DIR_DOWN	    },
     { "rlist",	    0,				        ed_olded,		    U(redit_rlist)	},
     { "mlist",	    0,				        ed_olded,		    U(redit_mlist)	},
     { "olist",	    U(&xRoom.area),	        ed_olist,		    0		        },
@@ -937,7 +937,7 @@ void    display_resets(CharData* ch, RoomData* pRoom)
     for (pReset = pRoom->reset_first; pReset; pReset = pReset->next) {
         ObjectPrototype* pObj;
         MobPrototype* p_mob_proto;
-        ObjectPrototype* p_object_prototype;
+        ObjectPrototype* obj_proto;
         ObjectPrototype* pObjToIndex;
         RoomData* pRoomIndex;
 
@@ -985,14 +985,14 @@ void    display_resets(CharData* ch, RoomData* pRoom)
             break;
 
         case 'O':
-            if (!(p_object_prototype = get_object_prototype(pReset->arg1))) {
+            if (!(obj_proto = get_object_prototype(pReset->arg1))) {
                 sprintf(buf, "Load Object - Bad Object %d\n\r",
                     pReset->arg1);
                 strcat(final, buf);
                 continue;
             }
 
-            pObj = p_object_prototype;
+            pObj = obj_proto;
 
             if (!(pRoomIndex = get_room_data(pReset->arg3))) {
                 sprintf(buf, "Load Object - Bad Room %d\n\r", pReset->arg3);
@@ -1009,14 +1009,14 @@ void    display_resets(CharData* ch, RoomData* pRoom)
             break;
 
         case 'P':
-            if (!(p_object_prototype = get_object_prototype(pReset->arg1))) {
+            if (!(obj_proto = get_object_prototype(pReset->arg1))) {
                 sprintf(buf, "Put Object - Bad Object %d\n\r",
                     pReset->arg1);
                 strcat(final, buf);
                 continue;
             }
 
-            pObj = p_object_prototype;
+            pObj = obj_proto;
 
             if (!(pObjToIndex = get_object_prototype(pReset->arg3))) {
                 sprintf(buf, "Put Object - Bad To Object %d\n\r",
@@ -1039,14 +1039,14 @@ void    display_resets(CharData* ch, RoomData* pRoom)
 
         case 'G':
         case 'E':
-            if (!(p_object_prototype = get_object_prototype(pReset->arg1))) {
+            if (!(obj_proto = get_object_prototype(pReset->arg1))) {
                 sprintf(buf, "Give/Equip Object - Bad Object %d\n\r",
                     pReset->arg1);
                 strcat(final, buf);
                 continue;
             }
 
-            pObj = p_object_prototype;
+            pObj = obj_proto;
 
             if (!pMob) {
                 sprintf(buf, "Give/Equip Object - No Previous Mobile\n\r");
@@ -1076,7 +1076,7 @@ void    display_resets(CharData* ch, RoomData* pRoom)
             break;
 
             /*
-             * Doors are set in rs_flags don't need to be displayed.
+             * Doors are set in exit_reset_flags don't need to be displayed.
              * If you want to display them then uncomment the new_reset
              * line in the case 'D' in load_resets in db.c and here.
              */
@@ -1084,7 +1084,7 @@ void    display_resets(CharData* ch, RoomData* pRoom)
             pRoomIndex = get_room_data(pReset->arg1);
             sprintf(buf, "R[%5d] %s door of %-19.19s reset to %s\n\r",
                 pReset->arg1,
-                capitalize(dir_name[pReset->arg2]),
+                capitalize(dir_list[pReset->arg2].name),
                 pRoomIndex->name,
                 flag_string(door_resets, pReset->arg3));
             strcat(final, buf);

@@ -1043,7 +1043,7 @@ void do_rstat(CharData* ch, char* argument)
 
                     door,
                     (pexit->u1.to_room == NULL ? -1 : pexit->u1.to_room->vnum),
-                    pexit->key, pexit->exit_info, pexit->keyword,
+                    pexit->key, pexit->exit_flags, pexit->keyword,
                     pexit->description[0] != '\0' ? pexit->description
                                                   : "(none).\n\r");
             send_to_char(buf, ch);
@@ -1240,6 +1240,8 @@ void do_ostat(CharData* ch, char* argument)
             sprintf(buf, "Weight multiplier: %d%%\n\r", obj->value[4]);
             send_to_char(buf, ch);
         }
+        break;
+    default:
         break;
     }
 
@@ -1607,7 +1609,7 @@ void do_ofind(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    ObjectPrototype* p_object_prototype;
+    ObjectPrototype* obj_proto;
     VNUM vnum;
     int nMatch;
     bool fAll;
@@ -1630,12 +1632,12 @@ void do_ofind(CharData* ch, char* argument)
      * -- Furey
      */
     for (vnum = 0; nMatch < top_object_prototype; vnum++) {
-        if ((p_object_prototype = get_object_prototype(vnum)) != NULL) {
+        if ((obj_proto = get_object_prototype(vnum)) != NULL) {
             nMatch++;
-            if (fAll || is_name(argument, p_object_prototype->name)) {
+            if (fAll || is_name(argument, obj_proto->name)) {
                 found = true;
-                sprintf(buf, "[%5d] %s\n\r", p_object_prototype->vnum,
-                        p_object_prototype->short_descr);
+                sprintf(buf, "[%5d] %s\n\r", obj_proto->vnum,
+                        obj_proto->short_descr);
                 send_to_char(buf, ch);
             }
         }
@@ -2200,7 +2202,7 @@ void do_mload(CharData* ch, char* argument)
 void do_oload(CharData* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
-    ObjectPrototype* p_object_prototype;
+    ObjectPrototype* obj_proto;
     ObjectData* obj;
     LEVEL level;
 
@@ -2227,12 +2229,12 @@ void do_oload(CharData* ch, char* argument)
         }
     }
 
-    if ((p_object_prototype = get_object_prototype(STRTOVNUM(arg1))) == NULL) {
+    if ((obj_proto = get_object_prototype(STRTOVNUM(arg1))) == NULL) {
         send_to_char("No object has that vnum.\n\r", ch);
         return;
     }
 
-    obj = create_object(p_object_prototype, level);
+    obj = create_object(obj_proto, level);
     if (CAN_WEAR(obj, ITEM_TAKE))
         obj_to_char(obj, ch);
     else

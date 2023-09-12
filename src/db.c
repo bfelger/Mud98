@@ -31,6 +31,7 @@
 
 #include "act_move.h"
 #include "act_wiz.h"
+#include "ban.h"
 #include "comm.h"
 #include "handler.h"
 #include "lookup.h"
@@ -52,6 +53,8 @@
 #include "entities/player_data.h"
 #include "entities/reset_data.h"
 #include "entities/room_data.h"
+
+#include "data/direction.h"
 
 #include <ctype.h>
 #include <stdarg.h>
@@ -210,7 +213,6 @@ void load_shops args((FILE * fp));
 void load_socials args((FILE * fp));
 void load_specials args((FILE * fp));
 void load_notes args((void));
-void load_bans args((void));
 void load_mobprogs args((FILE * fp));
 void load_groups(void);
 
@@ -673,7 +675,7 @@ void load_helps(FILE* fp, char* fname)
  */
 void load_old_obj(FILE* fp)
 {
-    ObjectPrototype* p_object_prototype;
+    ObjectPrototype* obj_proto;
 
     if (!area_last) {
         bug("Load_objects: no #AREA seen yet.", 0);
@@ -701,39 +703,39 @@ void load_old_obj(FILE* fp)
         }
         fBootDb = true;
 
-        p_object_prototype = alloc_perm(sizeof(*p_object_prototype));
-        p_object_prototype->vnum = vnum;
-        p_object_prototype->area = area_last;    // OLC
-        p_object_prototype->new_format = false;
-        p_object_prototype->reset_num = 0;
-        p_object_prototype->name = fread_string(fp);
-        p_object_prototype->short_descr = fread_string(fp);
-        p_object_prototype->description = fread_string(fp);
+        obj_proto = alloc_perm(sizeof(*obj_proto));
+        obj_proto->vnum = vnum;
+        obj_proto->area = area_last;    // OLC
+        obj_proto->new_format = false;
+        obj_proto->reset_num = 0;
+        obj_proto->name = fread_string(fp);
+        obj_proto->short_descr = fread_string(fp);
+        obj_proto->description = fread_string(fp);
         /* Action description */ fread_string(fp);
 
-        p_object_prototype->short_descr[0] = LOWER(p_object_prototype->short_descr[0]);
-        p_object_prototype->description[0] = UPPER(p_object_prototype->description[0]);
-        p_object_prototype->material = str_dup("");
+        obj_proto->short_descr[0] = LOWER(obj_proto->short_descr[0]);
+        obj_proto->description[0] = UPPER(obj_proto->description[0]);
+        obj_proto->material = str_dup("");
 
-        p_object_prototype->item_type = (int16_t)fread_number(fp);
-        p_object_prototype->extra_flags = fread_flag(fp);
-        p_object_prototype->wear_flags = fread_flag(fp);
-        p_object_prototype->value[0] = fread_number(fp);
-        p_object_prototype->value[1] = fread_number(fp);
-        p_object_prototype->value[2] = fread_number(fp);
-        p_object_prototype->value[3] = fread_number(fp);
-        p_object_prototype->value[4] = 0;
-        p_object_prototype->level = 0;
-        p_object_prototype->condition = 100;
-        p_object_prototype->weight = (int16_t)fread_number(fp);
-        p_object_prototype->cost = fread_number(fp); /* Unused */
+        obj_proto->item_type = (int16_t)fread_number(fp);
+        obj_proto->extra_flags = fread_flag(fp);
+        obj_proto->wear_flags = fread_flag(fp);
+        obj_proto->value[0] = fread_number(fp);
+        obj_proto->value[1] = fread_number(fp);
+        obj_proto->value[2] = fread_number(fp);
+        obj_proto->value[3] = fread_number(fp);
+        obj_proto->value[4] = 0;
+        obj_proto->level = 0;
+        obj_proto->condition = 100;
+        obj_proto->weight = (int16_t)fread_number(fp);
+        obj_proto->cost = fread_number(fp); /* Unused */
         /* Cost per day */ fread_number(fp);
 
-        if (p_object_prototype->item_type == ITEM_WEAPON) {
-            if (is_name("two", p_object_prototype->name)
-                || is_name("two-handed", p_object_prototype->name)
-                || is_name("claymore", p_object_prototype->name))
-                SET_BIT(p_object_prototype->value[4], WEAPON_TWO_HANDS);
+        if (obj_proto->item_type == ITEM_WEAPON) {
+            if (is_name("two", obj_proto->name)
+                || is_name("two-handed", obj_proto->name)
+                || is_name("claymore", obj_proto->name))
+                SET_BIT(obj_proto->value[4], WEAPON_TWO_HANDS);
         }
 
         for (;;) {
@@ -750,8 +752,8 @@ void load_old_obj(FILE* fp)
                 paf->location = (int16_t)fread_number(fp);
                 paf->modifier = (int16_t)fread_number(fp);
                 paf->bitvector = 0;
-                paf->next = p_object_prototype->affected;
-                p_object_prototype->affected = paf;
+                paf->next = obj_proto->affected;
+                obj_proto->affected = paf;
                 top_affect++;
             }
 
@@ -761,8 +763,8 @@ void load_old_obj(FILE* fp)
                 ed = alloc_perm(sizeof(*ed));
                 ed->keyword = fread_string(fp);
                 ed->description = fread_string(fp);
-                ed->next = p_object_prototype->extra_desc;
-                p_object_prototype->extra_desc = ed;
+                ed->next = obj_proto->extra_desc;
+                obj_proto->extra_desc = ed;
                 top_ed++;
             }
 
@@ -773,33 +775,36 @@ void load_old_obj(FILE* fp)
         }
 
         /* fix armors */
-        if (p_object_prototype->item_type == ITEM_ARMOR) {
-            p_object_prototype->value[1] = p_object_prototype->value[0];
-            p_object_prototype->value[2] = p_object_prototype->value[1];
+        if (obj_proto->item_type == ITEM_ARMOR) {
+            obj_proto->value[1] = obj_proto->value[0];
+            obj_proto->value[2] = obj_proto->value[1];
         }
 
         /*
          * Translate spell "slot numbers" to internal "skill numbers."
          */
-        switch (p_object_prototype->item_type) {
+        switch (obj_proto->item_type) {
         case ITEM_PILL:
         case ITEM_POTION:
         case ITEM_SCROLL:
-            p_object_prototype->value[1] = skill_slot_lookup(p_object_prototype->value[1]);
-            p_object_prototype->value[2] = skill_slot_lookup(p_object_prototype->value[2]);
-            p_object_prototype->value[3] = skill_slot_lookup(p_object_prototype->value[3]);
-            p_object_prototype->value[4] = skill_slot_lookup(p_object_prototype->value[4]);
+            obj_proto->value[1] = skill_slot_lookup(obj_proto->value[1]);
+            obj_proto->value[2] = skill_slot_lookup(obj_proto->value[2]);
+            obj_proto->value[3] = skill_slot_lookup(obj_proto->value[3]);
+            obj_proto->value[4] = skill_slot_lookup(obj_proto->value[4]);
             break;
 
         case ITEM_STAFF:
         case ITEM_WAND:
-            p_object_prototype->value[3] = skill_slot_lookup(p_object_prototype->value[3]);
+            obj_proto->value[3] = skill_slot_lookup(obj_proto->value[3]);
+            break;
+
+        default:
             break;
         }
 
         iHash = vnum % MAX_KEY_HASH;
-        p_object_prototype->next = object_prototype_hash[iHash];
-        object_prototype_hash[iHash] = p_object_prototype;
+        obj_proto->next = object_prototype_hash[iHash];
+        object_prototype_hash[iHash] = obj_proto;
         top_object_prototype++;
         top_vnum_obj = top_vnum_obj < vnum ? vnum : top_vnum_obj;   // OLC
         assign_area_vnum( vnum );                                   // OLC
@@ -884,10 +889,10 @@ void load_resets(FILE* fp)
         case 'D':
             pRoomIndex = get_room_data((rVnum = pReset->arg1));
             if (pReset->arg2 < 0
-                || pReset->arg2 >= MAX_DIR
+                || pReset->arg2 >= DIR_MAX
                 || !pRoomIndex
                 || !(pexit = pRoomIndex->exit[pReset->arg2])
-                || !IS_SET(pexit->rs_flags, EX_ISDOOR)) {
+                || !IS_SET(pexit->exit_reset_flags, EX_ISDOOR)) {
                 bugf("Load_resets: 'D': exit %d, room %"PRVNUM" not door.", pReset->arg2, pReset->arg1);
                 exit(1);
             }
@@ -897,12 +902,12 @@ void load_resets(FILE* fp)
             case 0: 
                 break;
             case 1: 
-                SET_BIT(pexit->rs_flags, EX_CLOSED);
-                SET_BIT(pexit->exit_info, EX_CLOSED); 
+                SET_BIT(pexit->exit_reset_flags, EX_CLOSED);
+                SET_BIT(pexit->exit_flags, EX_CLOSED); 
                 break;
             case 2: 
-                SET_BIT(pexit->rs_flags, EX_CLOSED | EX_LOCKED);
-                SET_BIT(pexit->exit_info, EX_CLOSED | EX_LOCKED); 
+                SET_BIT(pexit->exit_reset_flags, EX_CLOSED | EX_LOCKED);
+                SET_BIT(pexit->exit_flags, EX_CLOSED | EX_LOCKED); 
                 break;
             }
             break;
@@ -1014,29 +1019,29 @@ void load_rooms(FILE* fp)
                 ExitData* pexit = alloc_perm(sizeof(ExitData));
                 pexit->description = fread_string(fp);
                 pexit->keyword = fread_string(fp);
-                pexit->exit_info = 0;
-                pexit->rs_flags = 0;        // OLC
+                pexit->exit_flags = 0;
+                pexit->exit_reset_flags = 0;        // OLC
                 locks = fread_number(fp);
                 pexit->key = (int16_t)fread_number(fp);
                 pexit->u1.vnum = fread_number(fp);
-                pexit->orig_door = door;    // OLC
+                pexit->orig_dir = door;    // OLC
 
                 switch (locks) {
                 case 1: 
-                    pexit->exit_info = EX_ISDOOR;
-                    pexit->rs_flags = EX_ISDOOR;
+                    pexit->exit_flags = EX_ISDOOR;
+                    pexit->exit_reset_flags = EX_ISDOOR;
                     break;
                 case 2: 
-                    pexit->exit_info = EX_ISDOOR | EX_PICKPROOF;
-                    pexit->rs_flags = EX_ISDOOR | EX_PICKPROOF;
+                    pexit->exit_flags = EX_ISDOOR | EX_PICKPROOF;
+                    pexit->exit_reset_flags = EX_ISDOOR | EX_PICKPROOF;
                     break;
                 case 3: 
-                    pexit->exit_info = EX_ISDOOR | EX_NOPASS;
-                    pexit->rs_flags = EX_ISDOOR | EX_NOPASS;
+                    pexit->exit_flags = EX_ISDOOR | EX_NOPASS;
+                    pexit->exit_reset_flags = EX_ISDOOR | EX_NOPASS;
                     break;
                 case 4: 
-                    pexit->exit_info = EX_ISDOOR | EX_NOPASS | EX_PICKPROOF;
-                    pexit->rs_flags = EX_ISDOOR | EX_NOPASS | EX_PICKPROOF;
+                    pexit->exit_flags = EX_ISDOOR | EX_NOPASS | EX_PICKPROOF;
+                    pexit->exit_reset_flags = EX_ISDOOR | EX_NOPASS | EX_PICKPROOF;
                     break;
                 }
 
@@ -1222,8 +1227,8 @@ void fix_exits(void)
 
                 case 'R':
                     get_room_data(pReset->arg1);
-                    if (pReset->arg2 < 0 || pReset->arg2 > MAX_DIR) {
-                        bugf("fix_exits : reset in room %d with arg2 %d >= MAX_DIR",
+                    if (pReset->arg2 < 0 || pReset->arg2 > DIR_MAX) {
+                        bugf("fix_exits : reset in room %d with arg2 %d >= DIR_MAX",
                             pRoomIndex->vnum, pReset->arg2);
                         exit(1);
                     }
@@ -1253,12 +1258,12 @@ void fix_exits(void)
             for (door = 0; door <= 5; door++) {
                 if ((pexit = pRoomIndex->exit[door]) != NULL
                     && (to_room = pexit->u1.to_room) != NULL
-                    && (pexit_rev = to_room->exit[rev_dir[door]]) != NULL
+                    && (pexit_rev = to_room->exit[dir_list[door].rev_dir]) != NULL
                     && pexit_rev->u1.to_room != pRoomIndex
                     && (pRoomIndex->vnum < 1200 || pRoomIndex->vnum > 1299)) {
                     sprintf(buf, "Fix_exits: %d:%d -> %d:%d -> %d.",
                             pRoomIndex->vnum, door, to_room->vnum,
-                            rev_dir[door],
+                            dir_list[door].rev_dir,
                             (pexit_rev->u1.to_room == NULL)
                                 ? 0
                                 : pexit_rev->u1.to_room->vnum);
@@ -1397,22 +1402,22 @@ void reset_room(RoomData* pRoom)
 
     last = false;
 
-    for (iExit = 0; iExit < MAX_DIR; iExit++) {
+    for (iExit = 0; iExit < DIR_MAX; iExit++) {
         ExitData* pExit;
         if ((pExit = pRoom->exit[iExit])
-            /*  && !IS_SET( pExit->exit_info, EX_BASHED )   ROM OLC */) {
-            pExit->exit_info = (int16_t)pExit->rs_flags;
+            /*  && !IS_SET( pExit->exit_flags, EX_BASHED )   ROM OLC */) {
+            pExit->exit_flags = pExit->exit_reset_flags;
             if ((pExit->u1.to_room != NULL)
-                && ((pExit = pExit->u1.to_room->exit[rev_dir[iExit]]))) {
+                && ((pExit = pExit->u1.to_room->exit[dir_list[iExit].rev_dir]))) {
                   /* nail the other side */
-                pExit->exit_info = (int16_t)pExit->rs_flags;
+                pExit->exit_flags = pExit->exit_reset_flags;
             }
         }
     }
 
     for (pReset = pRoom->reset_first; pReset != NULL; pReset = pReset->next) {
         MobPrototype* p_mob_proto;
-        ObjectPrototype* p_object_prototype;
+        ObjectPrototype* obj_proto;
         ObjectPrototype* pObjToIndex;
         RoomData* pRoomIndex;
         char buf[MAX_STRING_LENGTH];
@@ -1486,7 +1491,7 @@ void reset_room(RoomData* pRoom)
         }
 
         case 'O':
-            if (!(p_object_prototype = get_object_prototype(pReset->arg1))) {
+            if (!(obj_proto = get_object_prototype(pReset->arg1))) {
                 bug("Reset_room: 'O' 1 : bad vnum %"PRVNUM"", pReset->arg1);
                 sprintf(buf, "%"PRVNUM" %d %"PRVNUM" %d", pReset->arg1, pReset->arg2, pReset->arg3,
                     pReset->arg4);
@@ -1503,12 +1508,12 @@ void reset_room(RoomData* pRoom)
             }
 
             if (pRoom->area->nplayer > 0
-                || count_obj_list(p_object_prototype, pRoom->contents) > 0) {
+                || count_obj_list(obj_proto, pRoom->contents) > 0) {
                 last = false;
                 break;
             }
 
-            pObj = create_object(p_object_prototype, (int16_t)UMIN(number_fuzzy(level),
+            pObj = create_object(obj_proto, (int16_t)UMIN(number_fuzzy(level),
                 LEVEL_HERO - 1)); /* UMIN - ROM OLC */
             pObj->cost = 0;
             obj_to_room(pObj, pRoom);
@@ -1516,7 +1521,7 @@ void reset_room(RoomData* pRoom)
             break;
 
         case 'P':
-            if ((p_object_prototype = get_object_prototype(pReset->arg1)) == NULL) {
+            if ((obj_proto = get_object_prototype(pReset->arg1)) == NULL) {
                 bug("Reset_room: 'P': bad vnum %"PRVNUM".", pReset->arg1);
                 continue;
             }
@@ -1536,8 +1541,8 @@ void reset_room(RoomData* pRoom)
             if (pRoom->area->nplayer > 0
                 || (LastObj = get_obj_type(pObjToIndex)) == NULL
                 || (LastObj->in_room == NULL && !last)
-                || (p_object_prototype->count >= limit /* && number_range(0,4) != 0 */)
-                || (count = count_obj_list(p_object_prototype, LastObj->contains))
+                || (obj_proto->count >= limit /* && number_range(0,4) != 0 */)
+                || (count = count_obj_list(obj_proto, LastObj->contains))
                 > pReset->arg4) {
                 last = false;
                 break;
@@ -1545,10 +1550,10 @@ void reset_room(RoomData* pRoom)
             /* lastObj->level  -  ROM */
 
             while (count < pReset->arg4) {
-                pObj = create_object(p_object_prototype, (int16_t)number_fuzzy(LastObj->level));
+                pObj = create_object(obj_proto, (int16_t)number_fuzzy(LastObj->level));
                 obj_to_obj(pObj, LastObj);
                 count++;
-                if (p_object_prototype->count >= limit) break;
+                if (obj_proto->count >= limit) break;
             }
 
             /* fix object lock state! */
@@ -1558,7 +1563,7 @@ void reset_room(RoomData* pRoom)
 
         case 'G':
         case 'E':
-            if ((p_object_prototype = get_object_prototype(pReset->arg1)) == NULL) {
+            if ((obj_proto = get_object_prototype(pReset->arg1)) == NULL) {
                 bug("Reset_room: 'E' or 'G': bad vnum %"PRVNUM".", pReset->arg1);
                 continue;
             }
@@ -1576,18 +1581,18 @@ void reset_room(RoomData* pRoom)
                 LEVEL olevel = 0;
                 int i, j;
 
-                if (!p_object_prototype->new_format) {
-                    switch (p_object_prototype->item_type) {
+                if (!obj_proto->new_format) {
+                    switch (obj_proto->item_type) {
 
                     case ITEM_PILL:
                     case ITEM_POTION:
                     case ITEM_SCROLL:
                         olevel = 53;
                         for (i = 1; i < 5; i++) {
-                            if (p_object_prototype->value[i] > 0) {
+                            if (obj_proto->value[i] > 0) {
                                 for (j = 0; j < MAX_CLASS; j++) {
                                     olevel = UMIN(
-                                        olevel, skill_table[p_object_prototype->value[i]]
+                                        olevel, skill_table[obj_proto->value[i]]
                                         .skill_level[j]);
                                 }
                             }
@@ -1616,7 +1621,7 @@ void reset_room(RoomData* pRoom)
                     }
                 }
 
-                pObj = create_object(p_object_prototype, olevel);
+                pObj = create_object(obj_proto, olevel);
                 SET_BIT(pObj->extra_flags, ITEM_INVENTORY);
             }
             else {
@@ -1628,9 +1633,9 @@ void reset_room(RoomData* pRoom)
                 else
                     limit = pReset->arg2;
 
-                if (p_object_prototype->count < limit || number_range(0, 4) == 0) {
+                if (obj_proto->count < limit || number_range(0, 4) == 0) {
                     pObj = create_object(
-                        p_object_prototype, UMIN((LEVEL)number_fuzzy(level), LEVEL_HERO - 1));
+                        obj_proto, UMIN((LEVEL)number_fuzzy(level), LEVEL_HERO - 1));
                     /* error message if it is too high */
                     if (pObj->level > LastMob->level + 3
                         || (pObj->item_type == ITEM_WEAPON
@@ -2417,7 +2422,7 @@ void do_dump(CharData* ch, char* argument)
     MobPrototype* p_mob_proto;
     PlayerData* pc;
     ObjectData* obj;
-    ObjectPrototype* p_object_prototype;
+    ObjectPrototype* obj_proto;
     RoomData* room = NULL;
     ExitData* exit = NULL;
     DESCRIPTOR_DATA* d;
@@ -2473,14 +2478,14 @@ void do_dump(CharData* ch, char* argument)
 
     /* object prototypes */
     for (vnum = 0; nMatch < top_object_prototype; vnum++)
-        if ((p_object_prototype = get_object_prototype(vnum)) != NULL) {
-            for (af = p_object_prototype->affected; af != NULL; af = af->next)
+        if ((obj_proto = get_object_prototype(vnum)) != NULL) {
+            for (af = obj_proto->affected; af != NULL; af = af->next)
                 aff_count++;
             nMatch++;
         }
 
     fprintf(fp, "ObjProt	%4d (%8zu bytes)\n", top_object_prototype,
-            top_object_prototype * (sizeof(*p_object_prototype)));
+            top_object_prototype * (sizeof(*obj_proto)));
 
     /* objects */
     count = 0;
@@ -2534,11 +2539,11 @@ void do_dump(CharData* ch, char* argument)
     fprintf(fp, "---------------\n");
     nMatch = 0;
     for (vnum = 0; nMatch < top_object_prototype; vnum++)
-        if ((p_object_prototype = get_object_prototype(vnum)) != NULL) {
+        if ((obj_proto = get_object_prototype(vnum)) != NULL) {
             nMatch++;
-            fprintf(fp, "#%-4d %3d active %3d reset      %s\n", p_object_prototype->vnum,
-                    p_object_prototype->count, p_object_prototype->reset_num,
-                    p_object_prototype->short_descr);
+            fprintf(fp, "#%-4d %3d active %3d reset      %s\n", obj_proto->vnum,
+                    obj_proto->count, obj_proto->reset_num,
+                    obj_proto->short_descr);
         }
 
     /* close file */
@@ -2600,9 +2605,9 @@ int number_percent(void)
 /*
  * Generate a random door.
  */
-int number_door(void)
+Direction number_door()
 {
-    int door;
+    Direction door;
 
     while ((door = number_mm() & (8 - 1)) > 5)
         ;

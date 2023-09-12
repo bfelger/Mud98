@@ -27,7 +27,10 @@
 
 #include "interp.h"
 #include "spell_list.h"
-#include "merc.h"
+
+#include "entities/object_data.h"
+
+#include "data/item.h"
 
 #include <stdio.h>
 #include <sys/types.h>

@@ -497,7 +497,8 @@ int get_weapon_skill(CharData* ch, SKNUM sn)
 /* used to de-screw characters */
 void reset_char(CharData* ch)
 {
-    int loc, stat;
+    int loc;
+    int stat;
     int16_t mod;
     ObjectData* obj;
     AffectData* af;
@@ -508,7 +509,7 @@ void reset_char(CharData* ch)
     if (ch->pcdata->perm_hit == 0 || ch->pcdata->perm_mana == 0
         || ch->pcdata->perm_move == 0 || ch->pcdata->last_level == 0) {
         /* do a FULL reset */
-        for (loc = 0; loc < MAX_WEAR; loc++) {
+        for (loc = 0; loc < WEAR_MAX; loc++) {
             obj = get_eq_char(ch, loc);
             if (obj == NULL) continue;
             if (!obj->enchanted)
@@ -530,6 +531,8 @@ void reset_char(CharData* ch)
                     case APPLY_MOVE:
                         ch->max_move -= mod;
                         break;
+                    default:
+                        break;
                     }
                 }
 
@@ -547,6 +550,8 @@ void reset_char(CharData* ch)
                     break;
                 case APPLY_MOVE:
                     ch->max_move -= mod;
+                    break;
+                default:
                     break;
                 }
             }
@@ -583,7 +588,7 @@ void reset_char(CharData* ch)
     ch->saving_throw = 0;
 
     /* now start adding back the effects */
-    for (loc = 0; loc < MAX_WEAR; loc++) {
+    for (loc = 0; loc < WEAR_MAX; loc++) {
         obj = get_eq_char(ch, loc);
         if (obj == NULL)
             continue;
@@ -609,7 +614,6 @@ void reset_char(CharData* ch)
                 case APPLY_CON:
                     ch->mod_stat[STAT_CON] += mod;
                     break;
-
                 case APPLY_SEX:
                     ch->sex += mod;
                     break;
@@ -622,7 +626,6 @@ void reset_char(CharData* ch)
                 case APPLY_MOVE:
                     ch->max_move += mod;
                     break;
-
                 case APPLY_AC:
                     for (i = 0; i < 4; i++) ch->armor[i] += mod;
                     break;
@@ -632,7 +635,6 @@ void reset_char(CharData* ch)
                 case APPLY_DAMROLL:
                     ch->damroll += mod;
                     break;
-
                 case APPLY_SAVES:
                     ch->saving_throw += mod;
                     break;
@@ -647,6 +649,8 @@ void reset_char(CharData* ch)
                     break;
                 case APPLY_SAVING_SPELL:
                     ch->saving_throw += mod;
+                    break;
+                default:
                     break;
                 }
             }
@@ -709,6 +713,8 @@ void reset_char(CharData* ch)
             case APPLY_SAVING_SPELL:
                 ch->saving_throw += mod;
                 break;
+            default:
+                break;
             }
         }
     }
@@ -770,6 +776,8 @@ void reset_char(CharData* ch)
             break;
         case APPLY_SAVING_SPELL:
             ch->saving_throw += mod;
+            break;
+        default:
             break;
         }
     }
@@ -856,7 +864,7 @@ int can_carry_n(CharData* ch)
     if (IS_NPC(ch) && IS_SET(ch->act, ACT_PET))
         return 0;
 
-    return MAX_WEAR + 2 * get_curr_stat(ch, STAT_DEX) + ch->level;
+    return WEAR_MAX + 2 * get_curr_stat(ch, STAT_DEX) + ch->level;
 }
 
 /*
@@ -1258,14 +1266,14 @@ void unequip_char(CharData* ch, ObjectData* obj)
 /*
  * Count occurrences of an obj in a list.
  */
-int count_obj_list(ObjectPrototype* p_object_prototype, ObjectData* list)
+int count_obj_list(ObjectPrototype* obj_proto, ObjectData* list)
 {
     ObjectData* obj;
     int nMatch;
 
     nMatch = 0;
     for (obj = list; obj != NULL; obj = obj->next_content) {
-        if (obj->pIndexData == p_object_prototype) nMatch++;
+        if (obj->pIndexData == obj_proto) nMatch++;
     }
 
     return nMatch;
@@ -1571,12 +1579,12 @@ CharData* get_char_world(CharData* ch, char* argument)
  * Find some object with a given index data.
  * Used by area-reset 'P' command.
  */
-ObjectData* get_obj_type(ObjectPrototype* p_object_prototype)
+ObjectData* get_obj_type(ObjectPrototype* obj_proto)
 {
     ObjectData* obj;
 
     for (obj = object_list; obj != NULL; obj = obj->next) {
-        if (obj->pIndexData == p_object_prototype) return obj;
+        if (obj->pIndexData == obj_proto) return obj;
     }
 
     return NULL;
@@ -1966,103 +1974,6 @@ bool can_drop_obj(CharData* ch, ObjectData* obj)
     if (!IS_NPC(ch) && ch->level >= LEVEL_IMMORTAL) return true;
 
     return false;
-}
-
-/*
- * Return ascii name of an affect location.
- */
-char* affect_loc_name(int location)
-{
-    switch (location) {
-    case APPLY_NONE:
-        return "none";
-    case APPLY_STR:
-        return "strength";
-    case APPLY_DEX:
-        return "dexterity";
-    case APPLY_INT:
-        return "intelligence";
-    case APPLY_WIS:
-        return "wisdom";
-    case APPLY_CON:
-        return "constitution";
-    case APPLY_SEX:
-        return "sex";
-    case APPLY_CLASS:
-        return "class";
-    case APPLY_LEVEL:
-        return "level";
-    case APPLY_AGE:
-        return "age";
-    case APPLY_MANA:
-        return "mana";
-    case APPLY_HIT:
-        return "hp";
-    case APPLY_MOVE:
-        return "moves";
-    case APPLY_GOLD:
-        return "gold";
-    case APPLY_EXP:
-        return "experience";
-    case APPLY_AC:
-        return "armor class";
-    case APPLY_HITROLL:
-        return "hit roll";
-    case APPLY_DAMROLL:
-        return "damage roll";
-    case APPLY_SAVES:
-        return "saves";
-    case APPLY_SAVING_ROD:
-        return "save vs rod";
-    case APPLY_SAVING_PETRI:
-        return "save vs petrification";
-    case APPLY_SAVING_BREATH:
-        return "save vs breath";
-    case APPLY_SAVING_SPELL:
-        return "save vs spell";
-    case APPLY_SPELL_AFFECT:
-        return "none";
-    }
-
-    bug("Affect_location_name: unknown location %d.", location);
-    return "(unknown)";
-}
-
-/*
- * Return ascii name of an affect bit vector.
- */
-char* affect_bit_name(int vector)
-{
-    static char buf[512];
-
-    buf[0] = '\0';
-    if (vector & AFF_BLIND) strcat(buf, " blind");
-    if (vector & AFF_INVISIBLE) strcat(buf, " invisible");
-    if (vector & AFF_DETECT_EVIL) strcat(buf, " detect_evil");
-    if (vector & AFF_DETECT_GOOD) strcat(buf, " detect_good");
-    if (vector & AFF_DETECT_INVIS) strcat(buf, " detect_invis");
-    if (vector & AFF_DETECT_MAGIC) strcat(buf, " detect_magic");
-    if (vector & AFF_DETECT_HIDDEN) strcat(buf, " detect_hidden");
-    if (vector & AFF_SANCTUARY) strcat(buf, " sanctuary");
-    if (vector & AFF_FAERIE_FIRE) strcat(buf, " faerie_fire");
-    if (vector & AFF_INFRARED) strcat(buf, " infrared");
-    if (vector & AFF_CURSE) strcat(buf, " curse");
-    if (vector & AFF_POISON) strcat(buf, " poison");
-    if (vector & AFF_PROTECT_EVIL) strcat(buf, " prot_evil");
-    if (vector & AFF_PROTECT_GOOD) strcat(buf, " prot_good");
-    if (vector & AFF_SLEEP) strcat(buf, " sleep");
-    if (vector & AFF_SNEAK) strcat(buf, " sneak");
-    if (vector & AFF_HIDE) strcat(buf, " hide");
-    if (vector & AFF_CHARM) strcat(buf, " charm");
-    if (vector & AFF_FLYING) strcat(buf, " flying");
-    if (vector & AFF_PASS_DOOR) strcat(buf, " pass_door");
-    if (vector & AFF_BERSERK) strcat(buf, " berserk");
-    if (vector & AFF_CALM) strcat(buf, " calm");
-    if (vector & AFF_HASTE) strcat(buf, " haste");
-    if (vector & AFF_SLOW) strcat(buf, " slow");
-    if (vector & AFF_PLAGUE) strcat(buf, " plague");
-    if (vector & AFF_DARK_VISION) strcat(buf, " dark_vision");
-    return (buf[0] != '\0') ? buf + 1 : "none";
 }
 
 /*

@@ -48,38 +48,6 @@ int skhash_created;
 int skhash_allocated;
 int skhash_freed;
 
-/* stuff for recycling ban structures */
-BAN_DATA* ban_free;
-
-BAN_DATA* new_ban(void)
-{
-    static BAN_DATA ban_zero;
-    BAN_DATA* ban;
-
-    if (ban_free == NULL)
-        ban = alloc_perm(sizeof(*ban));
-    else {
-        ban = ban_free;
-        ban_free = ban_free->next;
-    }
-
-    *ban = ban_zero;
-    VALIDATE(ban);
-    ban->name = &str_empty[0];
-    return ban;
-}
-
-void free_ban(BAN_DATA* ban)
-{
-    if (!IS_VALID(ban)) return;
-
-    free_string(ban->name);
-    INVALIDATE(ban);
-
-    ban->next = ban_free;
-    ban_free = ban;
-}
-
 /* stuff for recycling descriptors */
 DESCRIPTOR_DATA* descriptor_free = NULL;
 

@@ -2294,33 +2294,35 @@ void do_dirt(CharData* ch, char* argument)
     /* terrain */
 
     switch (ch->in_room->sector_type) {
-    case (SECT_INSIDE):
+    case SECT_INSIDE:
         chance -= 20;
         break;
-    case (SECT_CITY):
+    case SECT_CITY:
         chance -= 10;
         break;
-    case (SECT_FIELD):
+    case SECT_FIELD:
         chance += 5;
         break;
-    case (SECT_FOREST):
+    case SECT_FOREST:
         break;
-    case (SECT_HILLS):
+    case SECT_HILLS:
         break;
-    case (SECT_MOUNTAIN):
+    case SECT_MOUNTAIN:
         chance -= 10;
         break;
-    case (SECT_WATER_SWIM):
+    case SECT_WATER_SWIM:
         chance = 0;
         break;
-    case (SECT_WATER_NOSWIM):
+    case SECT_WATER_NOSWIM:
         chance = 0;
         break;
-    case (SECT_AIR):
+    case SECT_AIR:
         chance = 0;
         break;
-    case (SECT_DESERT):
+    case SECT_DESERT:
         chance += 10;
+        break;
+    default:
         break;
     }
 
@@ -2491,7 +2493,8 @@ void do_kill(CharData* ch, char* argument)
         return;
     }
 
-    if (is_safe(ch, victim)) return;
+    if (is_safe(ch, victim))
+        return;
 
     if (victim->fighting != NULL && !is_same_group(ch, victim->fighting)) {
         send_to_char("Kill stealing is not permitted.\n\r", ch);
@@ -2603,7 +2606,8 @@ void do_backstab(CharData* ch, char* argument)
         return;
     }
 
-    if (is_safe(ch, victim)) return;
+    if (is_safe(ch, victim))
+        return;
 
     if (IS_NPC(victim) && victim->fighting != NULL
         && !is_same_group(ch, victim->fighting)) {
@@ -2651,13 +2655,13 @@ void do_flee(CharData* ch, char* argument)
     }
 
     was_in = ch->in_room;
-    for (attempt = 0; attempt < 6; attempt++) {
+    for (attempt = 0; attempt < DIR_MAX; attempt++) {
         ExitData* pexit;
         int door;
 
         door = number_door();
         if ((pexit = was_in->exit[door]) == 0 || pexit->u1.to_room == NULL
-            || IS_SET(pexit->exit_info, EX_CLOSED)
+            || IS_SET(pexit->exit_flags, EX_CLOSED)
             || number_range(0, ch->daze) != 0
             || (IS_NPC(ch)
                 && IS_SET(pexit->u1.to_room->room_flags, ROOM_NO_MOB)))

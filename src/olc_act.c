@@ -31,6 +31,7 @@
 #include "string_edit.h"
 #include "tables.h"
 
+#include "entities/exit_data.h"
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 #include "entities/room_data.h"
@@ -1062,7 +1063,7 @@ REDIT(redit_show)
     else
         add_buf(out, "none]\n\r");
 
-    for (cnt = 0; cnt < MAX_DIR; cnt++) {
+    for (cnt = 0; cnt < DIR_MAX; cnt++) {
         char* state;
         int i;
         size_t length;
@@ -1074,7 +1075,7 @@ REDIT(redit_show)
             continue;
 
         sprintf(BUF(line), "-%-5s to [%5d] Key: [%5d] ",
-            capitalize(dir_name[cnt]),
+            capitalize(dir_list[cnt].name),
             pRoom->exit[cnt]->u1.to_room ? pRoom->exit[cnt]->u1.to_room->vnum : 0,      /* ROM OLC */
             pRoom->exit[cnt]->key);
             add_buf(out, BUF(line));
@@ -1083,8 +1084,8 @@ REDIT(redit_show)
          * Format up the exit info.
          * Capitalize all flags that are not part of the reset info.
          */
-        strcpy(BUF(reset_state), flag_string(exit_flag_table, pRoom->exit[cnt]->rs_flags));
-        state = flag_string(exit_flag_table, pRoom->exit[cnt]->exit_info);
+        strcpy(BUF(reset_state), flag_string(exit_flag_table, pRoom->exit[cnt]->exit_reset_flags));
+        state = flag_string(exit_flag_table, pRoom->exit[cnt]->exit_flags);
         add_buf(out, " Exit flags: [");
         for (; ;) {
             state = one_argument(state, BUF(word));
@@ -1127,7 +1128,7 @@ REDIT(redit_show)
 }
 
 /* Local function. */
-bool change_exit(CharData* ch, char* argument, int door)
+bool change_exit(CharData* ch, char* argument, Direction door)
 {
     RoomData* pRoom;
     char command[MAX_INPUT_LENGTH];
@@ -1155,21 +1156,21 @@ bool change_exit(CharData* ch, char* argument, int door)
         /*
          * This room.
          */
-        TOGGLE_BIT(pExit->rs_flags, value);
+        TOGGLE_BIT(pExit->exit_reset_flags, value);
 
-        /* Don't toggle exit_info because it can be changed by players. */
-        pExit->exit_info = pExit->rs_flags;
+        /* Don't toggle exit_flags because it can be changed by players. */
+        pExit->exit_flags = pExit->exit_reset_flags;
 
         /*
          * Connected room.
          */
         pToRoom = pExit->u1.to_room;     /* ROM OLC */
-        rev = rev_dir[door];
+        rev = dir_list[door].rev_dir;
         pNExit = pToRoom->exit[rev];
 
         if (pNExit) {
-            TOGGLE_BIT(pNExit->rs_flags, value);
-            pNExit->exit_info = pNExit->rs_flags;
+            TOGGLE_BIT(pNExit->exit_reset_flags, value);
+            pNExit->exit_flags = pNExit->exit_reset_flags;
         }
 
         send_to_char("Exit flag toggled.\n\r", ch);
@@ -1212,7 +1213,7 @@ bool change_exit(CharData* ch, char* argument, int door)
          * Remove ToRoom Exit.
          */
         if (str_cmp(arg, "simple") && pToRoom) {
-            rev = rev_dir[door];
+            rev = dir_list[door].rev_dir;
             pNExit = pToRoom->exit[rev];
 
             if (pNExit) {
@@ -1231,13 +1232,13 @@ bool change_exit(CharData* ch, char* argument, int door)
          * Remove this exit.
          */
         printf_to_char(ch, "Exit %s to room %d deleted.\n\r",
-            dir_name[door], pRoom->vnum);
+            dir_list[door].name, pRoom->vnum);
         free_exit(pRoom->exit[door]);
         pRoom->exit[door] = NULL;
 
         if (rDeleted)
-            printf_to_char(ch, "Exit %s to room %d was also deleted.\n\r",
-                dir_name[rev_dir[door]], pToRoom->vnum);
+            printf_to_char(ch, "Exit %s to room %d was also deleted.\n\r", 
+                dir_list[dir_list[door].rev_dir].name, pToRoom->vnum);
 
         return true;
     }
@@ -1270,7 +1271,7 @@ bool change_exit(CharData* ch, char* argument, int door)
             return false;
         }
 
-        pExit = pRoomIndex->exit[rev_dir[door]];
+        pExit = pRoomIndex->exit[dir_list[door].rev_dir];
 
         if (pExit) {
             send_to_char("REdit:  Remote side's exit already exists.\n\r", ch);
@@ -1279,14 +1280,14 @@ bool change_exit(CharData* ch, char* argument, int door)
 
         pExit = new_exit();
         pExit->u1.to_room = pRoomIndex;
-        pExit->orig_door = door;
+        pExit->orig_dir = door;
         pRoom->exit[door] = pExit;
 
-        /* ahora el otro lado */
-        door = rev_dir[door];
+        // Now the other side
+        door = dir_list[door].rev_dir;
         pExit = new_exit();
         pExit->u1.to_room = pRoom;
-        pExit->orig_door = door;
+        pExit->orig_dir = door;
         pRoomIndex->exit[door] = pExit;
 
         SET_BIT(pRoom->area->area_flags, AREA_CHANGED);
@@ -1336,9 +1337,9 @@ bool change_exit(CharData* ch, char* argument, int door)
         }
 
         pExit->u1.to_room = target;
-        pExit->orig_door = door;
+        pExit->orig_dir = door;
 
-        if ((pExit = target->exit[rev_dir[door]]) != NULL
+        if ((pExit = target->exit[dir_list[door].rev_dir]) != NULL
             && pExit->u1.to_room != pRoom)
             printf_to_char(ch, "#WARNING#b : the exit to room %d does not return here.\n\r",
                 target->vnum);
@@ -1623,7 +1624,7 @@ int wear_bit(int loc)
 REDIT(redit_oreset)
 {
     RoomData* pRoom;
-    ObjectPrototype* p_object_prototype;
+    ObjectPrototype* obj_proto;
     ObjectData* newobj;
     ObjectData* to_obj;
     CharData* to_mob;
@@ -1647,12 +1648,12 @@ REDIT(redit_oreset)
         return false;
     }
 
-    if (!(p_object_prototype = get_object_prototype(atoi(arg1)))) {
+    if (!(obj_proto = get_object_prototype(atoi(arg1)))) {
         send_to_char("REdit: No object has that vnum.\n\r", ch);
         return false;
     }
 
-    if (p_object_prototype->area != pRoom->area) {
+    if (obj_proto->area != pRoom->area) {
         send_to_char("REdit: No such object in this area.\n\r", ch);
         return false;
     }
@@ -1663,18 +1664,18 @@ REDIT(redit_oreset)
     if (arg2[0] == '\0') {
         pReset = new_reset_data();
         pReset->command = 'O';
-        pReset->arg1 = p_object_prototype->vnum;
+        pReset->arg1 = obj_proto->vnum;
         pReset->arg2 = 0;
         pReset->arg3 = pRoom->vnum;
         pReset->arg4 = 0;
         add_reset(pRoom, pReset, 0/* Last slot*/);
 
-        newobj = create_object(p_object_prototype, (int16_t)number_fuzzy(olevel));
+        newobj = create_object(obj_proto, (int16_t)number_fuzzy(olevel));
         obj_to_room(newobj, pRoom);
 
         sprintf(output, "%s (%d) has been loaded and added to resets.\n\r",
-            capitalize(p_object_prototype->short_descr),
-            p_object_prototype->vnum);
+            capitalize(obj_proto->short_descr),
+            obj_proto->vnum);
         send_to_char(output, ch);
     }
     else
@@ -1685,13 +1686,13 @@ REDIT(redit_oreset)
             && ((to_obj = get_obj_list(ch, arg2, pRoom->contents)) != NULL)) {
             pReset = new_reset_data();
             pReset->command = 'P';
-            pReset->arg1 = p_object_prototype->vnum;
+            pReset->arg1 = obj_proto->vnum;
             pReset->arg2 = 0;
             pReset->arg3 = to_obj->pIndexData->vnum;
             pReset->arg4 = 1;
             add_reset(pRoom, pReset, 0/* Last slot*/);
 
-            newobj = create_object(p_object_prototype, (int16_t)number_fuzzy(olevel));
+            newobj = create_object(obj_proto, (int16_t)number_fuzzy(olevel));
             newobj->cost = 0;
             obj_to_obj(newobj, to_obj);
 
@@ -1721,12 +1722,12 @@ REDIT(redit_oreset)
                 /*
                  * Disallow loading a sword(WEAR_WIELD) into WEAR_HEAD.
                  */
-                if (!IS_SET(p_object_prototype->wear_flags, wear_bit(wearloc))) {
+                if (!IS_SET(obj_proto->wear_flags, wear_bit(wearloc))) {
                     sprintf(output,
                         "%s (%d) has wear flags: [%s]\n\r",
-                        capitalize(p_object_prototype->short_descr),
-                        p_object_prototype->vnum,
-                        flag_string(wear_flag_table, p_object_prototype->wear_flags));
+                        capitalize(obj_proto->short_descr),
+                        obj_proto->vnum,
+                        flag_string(wear_flag_table, obj_proto->wear_flags));
                     send_to_char(output, ch);
                     return false;
                 }
@@ -1740,7 +1741,7 @@ REDIT(redit_oreset)
                 }
 
                 pReset = new_reset_data();
-                pReset->arg1 = p_object_prototype->vnum;
+                pReset->arg1 = obj_proto->vnum;
                 pReset->arg2 = (int16_t)wearloc;
                 if (pReset->arg2 == WEAR_NONE)
                     pReset->command = 'G';
@@ -1751,11 +1752,11 @@ REDIT(redit_oreset)
                 add_reset(pRoom, pReset, 0/* Last slot*/);
 
                 olevel = URANGE(0, to_mob->level - 2, LEVEL_HERO);
-                newobj = create_object(p_object_prototype, (int16_t)number_fuzzy(olevel));
+                newobj = create_object(obj_proto, (int16_t)number_fuzzy(olevel));
 
                 if (to_mob->pIndexData->pShop)	/* Shop-keeper? */
                 {
-                    switch (p_object_prototype->item_type) {
+                    switch (obj_proto->item_type) {
                     default:		    olevel = 0;				                break;
                     case ITEM_PILL: 	olevel = (LEVEL)number_range(0, 10);	break;
                     case ITEM_POTION:	olevel = (LEVEL)number_range(0, 10);	break;
@@ -1771,12 +1772,12 @@ REDIT(redit_oreset)
                         break;
                     }
 
-                    newobj = create_object(p_object_prototype, olevel);
+                    newobj = create_object(obj_proto, olevel);
                     if (pReset->arg2 == WEAR_NONE)
                         SET_BIT(newobj->extra_flags, ITEM_INVENTORY);
                 }
                 else
-                    newobj = create_object(p_object_prototype, (int16_t)number_fuzzy(olevel));
+                    newobj = create_object(obj_proto, (int16_t)number_fuzzy(olevel));
 
                 obj_to_char(newobj, to_mob);
                 if (pReset->command == 'E')
@@ -1784,8 +1785,8 @@ REDIT(redit_oreset)
 
                 sprintf(output, "%s (%d) has been loaded "
                     "%s of %s (%d) and added to resets.\n\r",
-                    capitalize(p_object_prototype->short_descr),
-                    p_object_prototype->vnum,
+                    capitalize(obj_proto->short_descr),
+                    obj_proto->vnum,
                     flag_string(wear_loc_strings, pReset->arg3),
                     to_mob->short_descr,
                     to_mob->pIndexData->vnum);
@@ -4480,14 +4481,14 @@ ED_FUN_DEC(ed_docomm)
     return false;
 }
 
-ED_FUN_DEC(ed_direccion)
+ED_FUN_DEC(ed_direction)
 {
-    return change_exit(ch, argument, (int)par);
+    return change_exit(ch, argument, (Direction)par);
 }
 
 ED_FUN_DEC(ed_olist)
 {
-    ObjectPrototype* p_object_prototype;
+    ObjectPrototype* obj_proto;
     AreaData* pArea;
     char		buf[MAX_STRING_LENGTH];
     BUFFER* buf1;
@@ -4509,12 +4510,12 @@ ED_FUN_DEC(ed_olist)
     found = false;
 
     for (vnum = pArea->min_vnum; vnum <= pArea->max_vnum; vnum++) {
-        if ((p_object_prototype = get_object_prototype(vnum))) {
-            if (fAll || is_name(blarg, p_object_prototype->name)
-                || flag_value(type_flag_table, blarg) == p_object_prototype->item_type) {
+        if ((obj_proto = get_object_prototype(vnum))) {
+            if (fAll || is_name(blarg, obj_proto->name)
+                || flag_value(type_flag_table, blarg) == obj_proto->item_type) {
                 found = true;
                 sprintf(buf, "[%5d] %-17.16s",
-                    p_object_prototype->vnum, capitalize(p_object_prototype->short_descr));
+                    obj_proto->vnum, capitalize(obj_proto->short_descr));
                 add_buf(buf1, buf);
                 if (++col % 3 == 0)
                     add_buf(buf1, "\n\r");
@@ -4560,7 +4561,7 @@ REDIT(redit_limpiar)
     pRoom->name = str_dup("");
     pRoom->description = str_dup("");
 
-    for (i = 0; i < MAX_DIR; i++) {
+    for (i = 0; i < DIR_MAX; i++) {
         free_exit(pRoom->exit[i]);
         pRoom->exit[i] = NULL;
     }

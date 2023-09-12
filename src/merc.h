@@ -97,6 +97,16 @@ extern char area_dir[];
 // Custom Types
 ////////////////////////////////////////////////////////////////////////////////
 
+// Used for flags and other bit fields
+#define BIT(x) (1 << x)
+
+// Expand when you run out of bits
+#define FLAGS               uint32_t
+#define FLAGS_MAX           BIT(31)
+
+#define SHORT_FLAGS         uint16_t
+#define SHORT_FLAGS_MAX     BIT(
+
 #define LEVEL               int16_t
 
 #define SKNUM               int16_t
@@ -138,7 +148,6 @@ typedef int	LookupFunc(const char*);
 /*
  * Structure types.
  */
-typedef struct ban_data BAN_DATA;
 typedef struct buf_type BUFFER;
 typedef struct descriptor_data DESCRIPTOR_DATA;
 typedef struct kill_data KILL_DATA;
@@ -192,25 +201,6 @@ typedef struct weather_data WEATHER_DATA;
 #define ANGEL               (MAX_LEVEL - 7)
 #define AVATAR              (MAX_LEVEL - 8)
 #define HERO                LEVEL_HERO
-
-/*
- * Site ban structure.
- */
-
-#define BAN_SUFFIX    BIT(0)
-#define BAN_PREFIX    BIT(1)
-#define BAN_NEWBIES   BIT(2)
-#define BAN_ALL       BIT(3)
-#define BAN_PERMIT    BIT(4)
-#define BAN_PERMANENT BIT(5)
-
-struct ban_data {
-    BAN_DATA* next;
-    char* name;
-    int ban_flags;
-    LEVEL level;
-    bool valid;
-};
 
 struct buf_type {
     BUFFER* next;
@@ -405,14 +395,14 @@ struct race_type {
     char* who_name;
     char* skills[5];		/* bonus skills for the race */
     bool pc_race; /* can be chosen by pcs */
-    long act; /* act bits for the race */
-    long aff; /* aff bits for the race */
-    long off; /* off bits for the race */
-    long imm; /* imm bits for the race */
-    long res; /* res bits for the race */
-    long vuln; /* vuln bits for the race */
-    long form; /* default form flag for the race */
-    long parts; /* default parts for the race */
+    FLAGS act; /* act bits for the race */
+    FLAGS aff; /* aff bits for the race */
+    FLAGS off; /* off bits for the race */
+    FLAGS imm; /* imm bits for the race */
+    FLAGS res; /* res bits for the race */
+    FLAGS vuln; /* vuln bits for the race */
+    FLAGS form; /* default form flag for the race */
+    FLAGS parts; /* default parts for the race */
     int16_t race_id;
     int16_t points;			/* cost in points of the race */
     int16_t class_mult[MAX_CLASS];	/* exp multiplier for class, * 100 */
@@ -435,21 +425,6 @@ struct kill_data {
  *                   (Start of section ... start here)                     *
  *                                                                         *
  ***************************************************************************/
-
-/*
- * Well known mob virtual numbers.
- * Defined in #MOBILES.
- */
-#define MOB_VNUM_FIDO           3090
-#define MOB_VNUM_CITYGUARD      3060
-#define MOB_VNUM_VAMPIRE        3404
-
-#define MOB_VNUM_PATROLMAN      2106
-#define GROUP_VNUM_TROLLS       2100
-#define GROUP_VNUM_OGRES        2101
-
-// Used for flags and other bit fields
-#define BIT(x) (1 << x)
 
 /*
  * ACT bits for mobs.
@@ -640,41 +615,6 @@ struct kill_data {
 #define PART_TUSKS              BIT(24)
 
 /*
- * Bits for 'affected_by'.
- * Used in #MOBILES.
- */
-#define AFF_BLIND               BIT(0)
-#define AFF_INVISIBLE           BIT(1)
-#define AFF_DETECT_EVIL         BIT(2)
-#define AFF_DETECT_INVIS        BIT(3)
-#define AFF_DETECT_MAGIC        BIT(4)
-#define AFF_DETECT_HIDDEN       BIT(5)
-#define AFF_DETECT_GOOD         BIT(6)
-#define AFF_SANCTUARY           BIT(7)
-#define AFF_FAERIE_FIRE         BIT(8)
-#define AFF_INFRARED            BIT(9)
-#define AFF_CURSE               BIT(10)
-#define AFF_UNUSED_FLAG         BIT(11) /* unused */
-#define AFF_POISON              BIT(12)
-#define AFF_PROTECT_EVIL        BIT(13)
-#define AFF_PROTECT_GOOD        BIT(14)
-#define AFF_SNEAK               BIT(15)
-#define AFF_HIDE                BIT(16)
-#define AFF_SLEEP               BIT(17)
-#define AFF_CHARM               BIT(18)
-#define AFF_FLYING              BIT(19)
-#define AFF_PASS_DOOR           BIT(20)
-#define AFF_HASTE               BIT(21)
-#define AFF_CALM                BIT(22)
-#define AFF_PLAGUE              BIT(23)
-#define AFF_WEAKEN              BIT(24)
-#define AFF_DARK_VISION         BIT(25)
-#define AFF_BERSERK             BIT(26)
-#define AFF_SWIM                BIT(27)
-#define AFF_REGENERATION        BIT(28)
-#define AFF_SLOW                BIT(29)
-
-/*
  * Sex.
  * Used in #MOBILES.
  */
@@ -700,86 +640,6 @@ struct kill_data {
 #define SIZE_LARGE              3
 #define SIZE_HUGE               4
 #define SIZE_GIANT              5
-
-/*
- * Well known object virtual numbers.
- * Defined in #OBJECTS.
- */
-#define OBJ_VNUM_SILVER_ONE     1
-#define OBJ_VNUM_GOLD_ONE       2
-#define OBJ_VNUM_GOLD_SOME      3
-#define OBJ_VNUM_SILVER_SOME    4
-#define OBJ_VNUM_COINS          5
-
-#define OBJ_VNUM_CORPSE_NPC     10
-#define OBJ_VNUM_CORPSE_PC      11
-#define OBJ_VNUM_SEVERED_HEAD   12
-#define OBJ_VNUM_TORN_HEART     13
-#define OBJ_VNUM_SLICED_ARM     14
-#define OBJ_VNUM_SLICED_LEG     15
-#define OBJ_VNUM_GUTS           16
-#define OBJ_VNUM_BRAINS         17
-
-#define OBJ_VNUM_MUSHROOM       20
-#define OBJ_VNUM_LIGHT_BALL     21
-#define OBJ_VNUM_SPRING         22
-#define OBJ_VNUM_DISC           23
-#define OBJ_VNUM_PORTAL         25
-
-#define OBJ_VNUM_ROSE           1001
-
-#define OBJ_VNUM_PIT            3010
-
-#define OBJ_VNUM_SCHOOL_MACE    3700
-#define OBJ_VNUM_SCHOOL_DAGGER  3701
-#define OBJ_VNUM_SCHOOL_SWORD   3702
-#define OBJ_VNUM_SCHOOL_SPEAR   3717
-#define OBJ_VNUM_SCHOOL_STAFF   3718
-#define OBJ_VNUM_SCHOOL_AXE     3719
-#define OBJ_VNUM_SCHOOL_FLAIL   3720
-#define OBJ_VNUM_SCHOOL_WHIP    3721
-#define OBJ_VNUM_SCHOOL_POLEARM 3722
-
-#define OBJ_VNUM_SCHOOL_VEST    3703
-#define OBJ_VNUM_SCHOOL_SHIELD  3704
-#define OBJ_VNUM_SCHOOL_BANNER  3716
-#define OBJ_VNUM_MAP            3162
-
-#define OBJ_VNUM_WHISTLE        2116
-
-/*
- * Item types.
- * Used in #OBJECTS.
- */
-#define ITEM_LIGHT              1
-#define ITEM_SCROLL             2
-#define ITEM_WAND               3
-#define ITEM_STAFF              4
-#define ITEM_WEAPON             5
-#define ITEM_TREASURE           8
-#define ITEM_ARMOR              9
-#define ITEM_POTION             10
-#define ITEM_CLOTHING           11
-#define ITEM_FURNITURE          12
-#define ITEM_TRASH              13
-#define ITEM_CONTAINER          15
-#define ITEM_DRINK_CON          17
-#define ITEM_KEY                18
-#define ITEM_FOOD               19
-#define ITEM_MONEY              20
-#define ITEM_BOAT               22
-#define ITEM_CORPSE_NPC         23
-#define ITEM_CORPSE_PC          24
-#define ITEM_FOUNTAIN           25
-#define ITEM_PILL               26
-#define ITEM_PROTECT            27
-#define ITEM_MAP                28
-#define ITEM_PORTAL             29
-#define ITEM_WARP_STONE         30
-#define ITEM_ROOM_KEY           31
-#define ITEM_GEM                32
-#define ITEM_JEWELRY            33
-#define ITEM_JUKEBOX            34
 
 /*
  * Extra flags.
@@ -879,38 +739,6 @@ struct kill_data {
 #define PUT_INSIDE              BIT(15)
 
 /*
- * Apply types (for affects).
- * Used in #OBJECTS.
- */
-#define APPLY_NONE              0
-#define APPLY_STR               1
-#define APPLY_DEX               2
-#define APPLY_INT               3
-#define APPLY_WIS               4
-#define APPLY_CON               5
-#define APPLY_SEX               6
-#define APPLY_CLASS             7
-#define APPLY_LEVEL             8
-#define APPLY_AGE               9
-#define APPLY_HEIGHT            10
-#define APPLY_WEIGHT            11
-#define APPLY_MANA              12
-#define APPLY_HIT               13
-#define APPLY_MOVE              14
-#define APPLY_GOLD              15
-#define APPLY_EXP               16
-#define APPLY_AC                17
-#define APPLY_HITROLL           18
-#define APPLY_DAMROLL           19
-#define APPLY_SAVES             20
-#define APPLY_SAVING_PARA       20
-#define APPLY_SAVING_ROD        21
-#define APPLY_SAVING_PETRI      22
-#define APPLY_SAVING_BREATH     23
-#define APPLY_SAVING_SPELL      24
-#define APPLY_SPELL_AFFECT      25
-
-/*
  * Values for containers (value[1]).
  * Used in #OBJECTS.
  */
@@ -919,109 +747,6 @@ struct kill_data {
 #define CONT_CLOSED             4
 #define CONT_LOCKED             8
 #define CONT_PUT_ON             16
-
-/*
- * Well known room virtual numbers.
- * Defined in #ROOMS.
- */
-#define ROOM_VNUM_LIMBO         2
-#define ROOM_VNUM_CHAT          1200
-#define ROOM_VNUM_TEMPLE        3001
-#define ROOM_VNUM_ALTAR         3054
-#define ROOM_VNUM_SCHOOL        3700
-#define ROOM_VNUM_BALANCE       4500
-#define ROOM_VNUM_CIRCLE        4400
-#define ROOM_VNUM_DEMISE        4201
-#define ROOM_VNUM_HONOR         4300
-
-/*
- * Room flags.
- * Used in #ROOMS.
- */
-#define ROOM_DARK               BIT(0)
-#define ROOM_NO_MOB             BIT(2)
-#define ROOM_INDOORS            BIT(3)
-
-#define ROOM_PRIVATE            BIT(9)
-#define ROOM_SAFE               BIT(10)
-#define ROOM_SOLITARY           BIT(11)
-#define ROOM_PET_SHOP           BIT(12)
-#define ROOM_NO_RECALL          BIT(13)
-#define ROOM_IMP_ONLY           BIT(14)
-#define ROOM_GODS_ONLY          BIT(15)
-#define ROOM_HEROES_ONLY        BIT(16)
-#define ROOM_NEWBIES_ONLY       BIT(17)
-#define ROOM_LAW                BIT(18)
-#define ROOM_NOWHERE            BIT(19)
-
-/*
- * Directions.
- * Used in #ROOMS.
- */
-#define DIR_NORTH               0
-#define DIR_EAST                1
-#define DIR_SOUTH               2
-#define DIR_WEST                3
-#define DIR_UP                  4
-#define DIR_DOWN                5
-
-/*
- * Exit flags.
- * Used in #ROOMS.
- */
-#define EX_ISDOOR               BIT(0)
-#define EX_CLOSED               BIT(1)
-#define EX_LOCKED               BIT(2)
-#define EX_PICKPROOF            BIT(5)
-#define EX_NOPASS               BIT(6)
-#define EX_EASY                 BIT(7)
-#define EX_HARD                 BIT(8)
-#define EX_INFURIATING          BIT(9)
-#define EX_NOCLOSE              BIT(10)
-#define EX_NOLOCK               BIT(11)
-
-/*
- * Sector types.
- * Used in #ROOMS.
- */
-#define SECT_INSIDE             0
-#define SECT_CITY               1
-#define SECT_FIELD              2
-#define SECT_FOREST             3
-#define SECT_HILLS              4
-#define SECT_MOUNTAIN           5
-#define SECT_WATER_SWIM         6
-#define SECT_WATER_NOSWIM       7
-#define SECT_UNUSED             8
-#define SECT_AIR                9
-#define SECT_DESERT             10
-#define SECT_MAX                11
-
-/*
- * Equpiment wear locations.
- * Used in #RESETS.
- */
-#define WEAR_NONE               -1
-#define WEAR_LIGHT              0
-#define WEAR_FINGER_L           1
-#define WEAR_FINGER_R           2
-#define WEAR_NECK_1             3
-#define WEAR_NECK_2             4
-#define WEAR_BODY               5
-#define WEAR_HEAD               6
-#define WEAR_LEGS               7
-#define WEAR_FEET               8
-#define WEAR_HANDS              9
-#define WEAR_ARMS               10
-#define WEAR_SHIELD             11
-#define WEAR_ABOUT              12
-#define WEAR_WAIST              13
-#define WEAR_WRIST_L            14
-#define WEAR_WRIST_R            15
-#define WEAR_WIELD              16
-#define WEAR_HOLD               17
-#define WEAR_FLOAT              18
-#define MAX_WEAR                19
 
 /*
  * Command logging types.
@@ -1157,14 +882,6 @@ struct kill_data {
 #define WIZ_PREFIX              BIT(18)
 #define WIZ_SPAM                BIT(19)
 
-typedef struct color_config_t {
-    char* current_theme_name;   // For lazy-loading and discardability
-    bool hide_256;          // Whether to show these higher-bit themes. Some
-    bool hide_24bit;        // clients (like Windows CMD) can't handle them.
-    bool xterm;             // Use xterm semi-colons for 24-bit colors.
-    bool hide_rgb_help;     // Hide verbose 24-bit help at the end of THEME LIST.
-} ColorConfig;
-
 /* Data for generating characters -- only used during generation */
 struct gen_data {
     GEN_DATA* next;
@@ -1284,61 +1001,6 @@ struct mprog_code {
     }
 
 /*
- * Character macros.
- */
-#define IS_NPC(ch)            (IS_SET((ch)->act, ACT_IS_NPC))
-#define IS_IMMORTAL(ch)       (get_trust(ch) >= LEVEL_IMMORTAL)
-#define IS_HERO(ch)           (get_trust(ch) >= LEVEL_HERO)
-#define IS_TRUSTED(ch, level) (get_trust((ch)) >= (level))
-#define IS_AFFECTED(ch, sn)   (IS_SET((ch)->affected_by, (sn)))
-
-#define GET_AGE(ch)                                                            \
-    ((int)(17 + ((ch)->played + current_time - (ch)->logon) / 72000))
-
-#define IS_GOOD(ch)    (ch->alignment >= 350)
-#define IS_EVIL(ch)    (ch->alignment <= -350)
-#define IS_NEUTRAL(ch) (!IS_GOOD(ch) && !IS_EVIL(ch))
-
-#define IS_AWAKE(ch)   (ch->position > POS_SLEEPING)
-#define GET_AC(ch, type)                                                       \
-    ((ch)->armor[type]                                                         \
-     + (IS_AWAKE(ch) ? dex_app[get_curr_stat(ch, STAT_DEX)].defensive : 0))
-#define GET_HITROLL(ch)                                                        \
-    ((ch)->hitroll + str_app[get_curr_stat(ch, STAT_STR)].tohit)
-#define GET_DAMROLL(ch)                                                        \
-    ((ch)->damroll + str_app[get_curr_stat(ch, STAT_STR)].todam)
-
-#define IS_OUTSIDE(ch)         (!IS_SET((ch)->in_room->room_flags, ROOM_INDOORS))
-
-#define WAIT_STATE(ch, npulse) ((ch)->wait = UMAX((ch)->wait, (npulse)))
-#define DAZE_STATE(ch, npulse) ((ch)->daze = UMAX((ch)->daze, (npulse)))
-#define get_carry_weight(ch)                                                   \
-    ((ch)->carry_weight + (ch)->silver / 10 + (ch)->gold * 2 / 5)
-
-#define HAS_TRIGGER(ch, trig) (IS_SET((ch)->pIndexData->mprog_flags, (trig)))
-#define IS_SWITCHED(ch) (ch->desc && ch->desc->original)
-#define IS_BUILDER(ch, Area) (!IS_NPC(ch) && !IS_SWITCHED(ch) && \
-                (ch->pcdata->security >= Area->security \
-                || strstr(Area->builders, ch->name) \
-                || strstr(Area->builders, "All")))
-
-/*
- * Object macros.
- */
-#define CAN_WEAR(obj, part)       (IS_SET((obj)->wear_flags, (part)))
-#define IS_OBJ_STAT(obj, stat)    (IS_SET((obj)->extra_flags, (stat)))
-#define IS_WEAPON_STAT(obj, stat) (IS_SET((obj)->value[4], (stat)))
-#define WEIGHT_MULT(obj)                                                       \
-    ((obj)->item_type == ITEM_CONTAINER ? (obj)->value[4] : 100)
-
-/*
- * Description macros.
- */
-#define PERS(ch, looker)                                                       \
-    (can_see(looker, (ch)) ? (IS_NPC(ch) ? (ch)->short_descr : (ch)->name)     \
-                           : "someone")
-
-/*
  * Structure for a social in the socials table.
  */
 struct social_type {
@@ -1376,21 +1038,6 @@ extern char* const title_table[MAX_CLASS][MAX_LEVEL + 1][2];
  *                                    OLC                                    *
  *****************************************************************************/
 
-/*
- * Object defined in limbo.are
- * Used in save.c to load objects that don't exist.
- */
-#define OBJ_VNUM_DUMMY	30
-
-/*
- * Area flags.
- */
-#define AREA_NONE       0
-#define AREA_CHANGED    1	// Area has been modified.
-#define AREA_ADDED      2	// Area has been added to.
-#define AREA_LOADING    4	// Used for counting in db.c
-
-#define MAX_DIR	        6
 #define NO_FLAG         -99 // Must not be used in flags or stats.
 
 ////////////////////////////////////////////////////////////////////////////////

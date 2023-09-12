@@ -110,6 +110,45 @@ typedef struct char_data_t {
     bool valid;
 } CharData;
 
+#define IS_NPC(ch)            (IS_SET((ch)->act, ACT_IS_NPC))
+#define IS_IMMORTAL(ch)       (get_trust(ch) >= LEVEL_IMMORTAL)
+#define IS_HERO(ch)           (get_trust(ch) >= LEVEL_HERO)
+#define IS_TRUSTED(ch, level) (get_trust((ch)) >= (level))
+#define IS_AFFECTED(ch, sn)   (IS_SET((ch)->affected_by, (sn)))
+
+#define GET_AGE(ch)                                                            \
+    ((int)(17 + ((ch)->played + current_time - (ch)->logon) / 72000))
+
+#define IS_GOOD(ch)    (ch->alignment >= 350)
+#define IS_EVIL(ch)    (ch->alignment <= -350)
+#define IS_NEUTRAL(ch) (!IS_GOOD(ch) && !IS_EVIL(ch))
+
+#define IS_AWAKE(ch)   (ch->position > POS_SLEEPING)
+#define GET_AC(ch, type)                                                       \
+    ((ch)->armor[type]                                                         \
+     + (IS_AWAKE(ch) ? dex_app[get_curr_stat(ch, STAT_DEX)].defensive : 0))
+#define GET_HITROLL(ch)                                                        \
+    ((ch)->hitroll + str_app[get_curr_stat(ch, STAT_STR)].tohit)
+#define GET_DAMROLL(ch)                                                        \
+    ((ch)->damroll + str_app[get_curr_stat(ch, STAT_STR)].todam)
+
+#define IS_OUTSIDE(ch)         (!IS_SET((ch)->in_room->room_flags, ROOM_INDOORS))
+
+#define WAIT_STATE(ch, npulse) ((ch)->wait = UMAX((ch)->wait, (npulse)))
+#define DAZE_STATE(ch, npulse) ((ch)->daze = UMAX((ch)->daze, (npulse)))
+#define get_carry_weight(ch)                                                   \
+    ((ch)->carry_weight + (ch)->silver / 10 + (ch)->gold * 2 / 5)
+
+#define HAS_TRIGGER(ch, trig) (IS_SET((ch)->pIndexData->mprog_flags, (trig)))
+#define IS_SWITCHED(ch) (ch->desc && ch->desc->original)
+#define IS_BUILDER(ch, Area) (!IS_NPC(ch) && !IS_SWITCHED(ch) && \
+                (ch->pcdata->security >= Area->security \
+                || strstr(Area->builders, ch->name) \
+                || strstr(Area->builders, "All")))
+#define PERS(ch, looker)                                                       \
+    (can_see(looker, (ch)) ? (IS_NPC(ch) ? (ch)->short_descr : (ch)->name)     \
+                           : "someone")
+
 void free_char_data(CharData* ch);
 CharData* new_char_data();
 

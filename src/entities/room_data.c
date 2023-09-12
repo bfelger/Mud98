@@ -7,12 +7,11 @@
 
 #include "db.h"
 
+#include "exit_data.h"
 #include "extra_desc.h"
 #include "reset_data.h"
 
-// MOVE THESE LATER!
-void free_exit(ExitData* pExit);
-//
+const int16_t movement_loss[SECT_MAX] = { 1, 2, 2, 3, 4, 6, 4, 1, 6, 10, 6 };
 
 int top_room;
 VNUM top_vnum_room;
@@ -29,7 +28,7 @@ void free_room_index(RoomData* pRoom)
     free_string(pRoom->description);
     free_string(pRoom->owner);
 
-    for (i = 0; i < MAX_DIR; i++)
+    for (i = 0; i < DIR_MAX; i++)
         free_exit(pRoom->exit[i]);
 
     for (pExtra = pRoom->extra_desc; pExtra; pExtra = pExtra->next) {

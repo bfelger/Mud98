@@ -515,7 +515,7 @@ void do_mpoload(CharData* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char arg3[MAX_INPUT_LENGTH];
-    ObjectPrototype* p_object_prototype;
+    ObjectPrototype* obj_proto;
     ObjectData* obj;
     LEVEL level;
     bool fToroom = false;
@@ -562,13 +562,13 @@ void do_mpoload(CharData* ch, char* argument)
     else if (arg3[0] == 'W' || arg3[0] == 'w')
         fWear = true;
 
-    if ((p_object_prototype = get_object_prototype(STRTOVNUM(arg1))) == NULL) {
+    if ((obj_proto = get_object_prototype(STRTOVNUM(arg1))) == NULL) {
         bug("Mpoload - Bad vnum arg from vnum %"PRVNUM".",
             IS_NPC(ch) ? ch->pIndexData->vnum : 0);
         return;
     }
 
-    obj = create_object(p_object_prototype, level);
+    obj = create_object(obj_proto, level);
     if ((fWear || !fToroom) && CAN_WEAR(obj, ITEM_TAKE)) {
         obj_to_char(obj, ch);
         if (fWear)
@@ -1195,7 +1195,7 @@ void do_mpflee(CharData* ch, char* argument)
         door = number_door();
         if ((pexit = was_in->exit[door]) == 0
             || pexit->u1.to_room == NULL
-            || IS_SET(pexit->exit_info, EX_CLOSED)
+            || IS_SET(pexit->exit_flags, EX_CLOSED)
             || (IS_NPC(ch)
                 && IS_SET(pexit->u1.to_room->room_flags, ROOM_NO_MOB)))
             continue;

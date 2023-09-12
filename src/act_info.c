@@ -48,6 +48,8 @@
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
+#include "data/direction.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -422,7 +424,7 @@ void show_char_to_char_1(CharData* victim, CharData* ch)
     send_to_char(buf, ch);
 
     found = false;
-    for (iWear = 0; iWear < MAX_WEAR; iWear++) {
+    for (iWear = 0; iWear < WEAR_MAX; iWear++) {
         if ((obj = get_eq_char(victim, iWear)) != NULL
             && can_see_obj(ch, obj)) {
             if (!found) {
@@ -1093,10 +1095,10 @@ void do_look(CharData* ch, char* argument)
 
     if (pexit->keyword != NULL && pexit->keyword[0] != '\0'
         && pexit->keyword[0] != ' ') {
-        if (IS_SET(pexit->exit_info, EX_CLOSED)) {
+        if (IS_SET(pexit->exit_flags, EX_CLOSED)) {
             act("The $d is closed.", ch, NULL, pexit->keyword, TO_CHAR);
         }
-        else if (IS_SET(pexit->exit_info, EX_ISDOOR)) {
+        else if (IS_SET(pexit->exit_flags, EX_ISDOOR)) {
             act("The $d is open.", ch, NULL, pexit->keyword, TO_CHAR);
         }
     }
@@ -1197,15 +1199,15 @@ void do_exits(CharData* ch, char* argument)
     for (door = 0; door <= 5; door++) {
         if ((pexit = ch->in_room->exit[door]) != NULL
             && pexit->u1.to_room != NULL && can_see_room(ch, pexit->u1.to_room)
-            && !IS_SET(pexit->exit_info, EX_CLOSED)) {
+            && !IS_SET(pexit->exit_flags, EX_CLOSED)) {
             found = true;
             if (fAuto) {
                 strcat(buf, " ");
-                strcat(buf, dir_name[door]);
+                strcat(buf, dir_list[door].name);
             }
             else {
                 sprintf(
-                    buf + strlen(buf), "%-5s - %s", capitalize(dir_name[door]),
+                    buf + strlen(buf), "%-5s - %s", capitalize(dir_list[door].name),
                     room_is_dark(pexit->u1.to_room) ? "Too dark to tell"
                                                     : pexit->u1.to_room->name);
                 if (IS_IMMORTAL(ch))
@@ -1914,7 +1916,7 @@ void do_equipment(CharData* ch, char* argument)
 
     send_to_char("You are using:\n\r", ch);
     found = false;
-    for (iWear = 0; iWear < MAX_WEAR; iWear++) {
+    for (iWear = 0; iWear < WEAR_MAX; iWear++) {
         if ((obj = get_eq_char(ch, iWear)) == NULL) continue;
 
         send_to_char(where_name[iWear], ch);

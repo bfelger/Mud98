@@ -462,7 +462,6 @@ void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
         if (obj->value[3] > 0) {
             fprintf(fp, "Spell 3 '%s'\n", skill_table[obj->value[3]].name);
         }
-
         break;
 
     case ITEM_STAFF:
@@ -470,7 +469,9 @@ void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
         if (obj->value[3] > 0) {
             fprintf(fp, "Spell 3 '%s'\n", skill_table[obj->value[3]].name);
         }
+        break;
 
+    default:
         break;
     }
 

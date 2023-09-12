@@ -1144,8 +1144,7 @@ void do_eat(CharData* ch, char* argument)
     act("$n eats $p.", ch, obj, NULL, TO_ROOM);
     act("You eat $p.", ch, obj, NULL, TO_CHAR);
 
-    switch (obj->item_type) {
-    case ITEM_FOOD:
+    if (obj->item_type == ITEM_FOOD) {
         if (!IS_NPC(ch)) {
             int condition;
 
@@ -1174,13 +1173,11 @@ void do_eat(CharData* ch, char* argument)
             af.bitvector = AFF_POISON;
             affect_join(ch, &af);
         }
-        break;
-
-    case ITEM_PILL:
+    }
+    else if (obj->item_type == ITEM_PILL) {
         obj_cast_spell((SKNUM)obj->value[1], (LEVEL)obj->value[0], ch, ch, NULL);
         obj_cast_spell((SKNUM)obj->value[2], (LEVEL)obj->value[0], ch, ch, NULL);
         obj_cast_spell((SKNUM)obj->value[3], (LEVEL)obj->value[0], ch, ch, NULL);
-        break;
     }
 
     extract_obj(obj);

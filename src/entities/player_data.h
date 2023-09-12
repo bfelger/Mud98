@@ -3,6 +3,7 @@
 // Player character data
 ////////////////////////////////////////////////////////////////////////////////
 
+typedef struct color_config_t ColorConfig;
 typedef struct player_data_t PlayerData;
 
 #pragma once
@@ -14,6 +15,14 @@ typedef struct player_data_t PlayerData;
 #include "color.h"
 
 #include "char_data.h"
+
+typedef struct color_config_t {
+    char* current_theme_name;   // For lazy-loading and discardability
+    bool hide_256;          // Whether to show these higher-bit themes. Some
+    bool hide_24bit;        // clients (like Windows CMD) can't handle them.
+    bool xterm;             // Use xterm semi-colons for 24-bit colors.
+    bool hide_rgb_help;     // Hide verbose 24-bit help at the end of THEME LIST.
+} ColorConfig;
 
 typedef struct player_data_t {
     char* alias[MAX_ALIAS];

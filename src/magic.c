@@ -2664,13 +2664,12 @@ void spell_heat_metal(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
                 && !saves_spell(level, victim, DAM_FIRE)
                 && !IS_OBJ_STAT(obj_lose, ITEM_NONMETAL)
                 && !IS_OBJ_STAT(obj_lose, ITEM_BURN_PROOF)) {
-                switch (obj_lose->item_type) {
-                case ITEM_ARMOR:
+                if (obj_lose->item_type == ITEM_ARMOR) {
                     if (obj_lose->wear_loc != -1) /* remove the item */
                     {
                         if (can_drop_obj(victim, obj_lose)
                             && (obj_lose->weight / 10) < number_range(
-                                   1, 2 * get_curr_stat(victim, STAT_DEX))
+                                1, 2 * get_curr_stat(victim, STAT_DEX))
                             && remove_obj(victim, obj_lose->wear_loc, true)) {
                             act("$n yelps and throws $p to the ground!", victim,
                                 obj_lose, NULL, TO_ROOM);
@@ -2709,8 +2708,8 @@ void spell_heat_metal(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
                             fail = false;
                         }
                     }
-                    break;
-                case ITEM_WEAPON:
+                }
+                else if (obj_lose->item_type == ITEM_WEAPON) {
                     if (obj_lose->wear_loc != -1) /* try to drop it */
                     {
                         if (IS_WEAPON_STAT(obj_lose, WEAPON_FLAMING)) continue;
@@ -2756,7 +2755,6 @@ void spell_heat_metal(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
                             fail = false;
                         }
                     }
-                    break;
                 }
             }
         }
@@ -2767,7 +2765,8 @@ void spell_heat_metal(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
     }
     else /* damage! */
     {
-        if (saves_spell(level, victim, DAM_FIRE)) dam = 2 * dam / 3;
+        if (saves_spell(level, victim, DAM_FIRE)) 
+            dam = 2 * dam / 3;
         damage(ch, victim, dam, sn, DAM_FIRE, true);
     }
 }
@@ -2905,31 +2904,31 @@ void spell_identify(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
     case ITEM_WEAPON:
         send_to_char("Weapon type is ", ch);
         switch (obj->value[0]) {
-        case (WEAPON_EXOTIC):
+        case WEAPON_EXOTIC:
             send_to_char("exotic.\n\r", ch);
             break;
-        case (WEAPON_SWORD):
+        case WEAPON_SWORD:
             send_to_char("sword.\n\r", ch);
             break;
-        case (WEAPON_DAGGER):
+        case WEAPON_DAGGER:
             send_to_char("dagger.\n\r", ch);
             break;
-        case (WEAPON_SPEAR):
+        case WEAPON_SPEAR:
             send_to_char("spear/staff.\n\r", ch);
             break;
-        case (WEAPON_MACE):
+        case WEAPON_MACE:
             send_to_char("mace/club.\n\r", ch);
             break;
-        case (WEAPON_AXE):
+        case WEAPON_AXE:
             send_to_char("axe.\n\r", ch);
             break;
-        case (WEAPON_FLAIL):
+        case WEAPON_FLAIL:
             send_to_char("flail.\n\r", ch);
             break;
-        case (WEAPON_WHIP):
+        case WEAPON_WHIP:
             send_to_char("whip.\n\r", ch);
             break;
-        case (WEAPON_POLEARM):
+        case WEAPON_POLEARM:
             send_to_char("polearm.\n\r", ch);
             break;
         default:
@@ -2957,6 +2956,8 @@ void spell_identify(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
                 "magic.\n\r",
                 obj->value[0], obj->value[1], obj->value[2], obj->value[3]);
         send_to_char(buf, ch);
+        break;
+    default:
         break;
     }
 

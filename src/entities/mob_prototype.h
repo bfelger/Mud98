@@ -59,6 +59,14 @@ typedef struct mob_prototype_t {
     bool new_format;
 } MobPrototype;
 
+// Well-known mob IDs
+#define MOB_VNUM_FIDO           3090
+#define MOB_VNUM_CITYGUARD      3060
+#define MOB_VNUM_VAMPIRE        3404
+#define MOB_VNUM_PATROLMAN      2106
+#define GROUP_VNUM_TROLLS       2100
+#define GROUP_VNUM_OGRES        2101
+
 void convert_mobile(MobPrototype* p_mob_proto);
 CharData* create_mobile(MobPrototype* p_mob_proto);
 void free_mob_prototype(MobPrototype* p_mob_proto);

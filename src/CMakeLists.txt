@@ -22,6 +22,11 @@ if (MSVC)
         # Nonstandard extension, function/data pointer conversion in expression
         "C4152"     # For openssl/applink.c.
 
+        # enumerator 'X' in switch of enum 'Y' is not explicitly handled by a 
+        # case label
+        "C4061"     # If no default is specified, we get C4062 intead. That is
+                    # the only warning I care about.
+
          # Assignment within conditional expression
         "C4706"     # Microsoft can take my assigning conditionals out of my 
                     # cold, dead hands.
@@ -93,7 +98,11 @@ add_executable(Mud98 merc.h act_comm.c act_enter.c act_info.c act_move.c
     entities/help_data.c entities/help_data.h 
     entities/mob_memory.h entities/mob_memory.c
     entities/extra_desc.h entities/extra_desc.c
- "entities/affect_data.h" "entities/affect_data.c")
+    entities/affect_data.h entities/affect_data.c
+    
+    data/direction.h data/direction.c 
+    data/item.h
+)
 
 if (NOT MSVC)
     target_link_libraries(Mud98 Threads::Threads OpenSSL::SSL)

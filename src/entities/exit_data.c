@@ -26,11 +26,11 @@ ExitData* new_exit()
     pExit->u1.to_room = NULL;                  /* ROM OLC */
     pExit->next = NULL;
 /*  pExit->vnum         =   0;                        ROM OLC */
-    pExit->exit_info = 0;
+    pExit->exit_flags = 0;
     pExit->key = 0;
     pExit->keyword = &str_empty[0];
     pExit->description = &str_empty[0];
-    pExit->rs_flags = 0;
+    pExit->exit_reset_flags = 0;
 
     return pExit;
 }

@@ -34,6 +34,8 @@
 #include "entities/char_data.h"
 #include "entities/room_data.h"
 
+#include "data/direction.h"
+
 #include <stdio.h>
 
 /* macro for flag swapping */
@@ -68,7 +70,7 @@ void free_string(char* pstr);
 int number_fuzzy(int number);
 int number_range(int from, int to);
 int number_percent(void);
-int number_door(void);
+Direction number_door();
 int number_bits(int width);
 long number_mm(void);
 int dice(int number, int size);

@@ -968,9 +968,9 @@ void bust_a_prompt(CharData* ch)
                     && (can_see_room(ch, pexit->u1.to_room)
                         || (IS_AFFECTED(ch, AFF_INFRARED)
                             && !IS_AFFECTED(ch, AFF_BLIND)))
-                    && !IS_SET(pexit->exit_info, EX_CLOSED)) {
+                    && !IS_SET(pexit->exit_flags, EX_CLOSED)) {
                     found = true;
-                    strcat(doors, dir_name_abbr[door]);
+                    strcat(doors, dir_list[door].name_abbr);
                 }
             }
             if (!found) strcat(BUF(temp1), "none");

@@ -150,12 +150,12 @@ char* exits2str(void* point)
 
     buf[0] = '\0';
 
-    for (int j = 0; j < MAX_DIR; j++) {
+    for (int j = 0; j < DIR_MAX; j++) {
         if ((pexit = pexitarray[j]) == NULL)
             continue;
 
         sprintf(tmpbuf, "-%-5.5s to [%5d] ",
-            capitalize(dir_name[j]),
+            capitalize(dir_list[j].name),
             pexit->u1.to_room ? pexit->u1.to_room->vnum : 0);
         strcat(buf, tmpbuf);
 
@@ -168,8 +168,8 @@ char* exits2str(void* point)
          * Format up the exit info.
          * Capitalize all flags that are not part of the reset info.
          */
-        strcpy(reset_state, flag_string(exit_flag_table, pexit->rs_flags));
-        state = flag_string(exit_flag_table, pexit->exit_info);
+        strcpy(reset_state, flag_string(exit_flag_table, pexit->exit_reset_flags));
+        state = flag_string(exit_flag_table, pexit->exit_flags);
         strcat(buf, "Flags: [");
         for (; ;) {
             state = one_argument(state, word);

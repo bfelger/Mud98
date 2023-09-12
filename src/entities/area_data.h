@@ -16,6 +16,13 @@ typedef struct area_data_t AreaData;
 
 #include "help_data.h"
 
+typedef enum area_flags_t {
+    AREA_NONE       = BIT(0),
+    AREA_CHANGED    = BIT(1),	// Area has been modified.
+    AREA_ADDED      = BIT(2),	// Area has been added to.
+    AREA_LOADING    = BIT(3),	// Used for counting in db.c
+} AreaFlags;
+
 typedef struct area_data_t {
     AreaData* next;
     HelpArea* helps;
@@ -31,7 +38,7 @@ typedef struct area_data_t {
     bool empty;
     char* builders;     // OLC
     VNUM vnum;          // OLC
-    int area_flags;     // OLC
+    FLAGS area_flags;   // OLC
     int security;       // OLC Value 1-9
 } AreaData;
 

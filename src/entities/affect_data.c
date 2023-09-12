@@ -14,8 +14,43 @@
 
 AffectData* affect_free;
 
+// Return ascii name of an affect bit vector.
+char* affect_bit_name(int vector)
+{
+    static char buf[512];
+
+    buf[0] = '\0';
+    if (vector & AFF_BLIND) strcat(buf, " blind");
+    if (vector & AFF_INVISIBLE) strcat(buf, " invisible");
+    if (vector & AFF_DETECT_EVIL) strcat(buf, " detect_evil");
+    if (vector & AFF_DETECT_GOOD) strcat(buf, " detect_good");
+    if (vector & AFF_DETECT_INVIS) strcat(buf, " detect_invis");
+    if (vector & AFF_DETECT_MAGIC) strcat(buf, " detect_magic");
+    if (vector & AFF_DETECT_HIDDEN) strcat(buf, " detect_hidden");
+    if (vector & AFF_SANCTUARY) strcat(buf, " sanctuary");
+    if (vector & AFF_FAERIE_FIRE) strcat(buf, " faerie_fire");
+    if (vector & AFF_INFRARED) strcat(buf, " infrared");
+    if (vector & AFF_CURSE) strcat(buf, " curse");
+    if (vector & AFF_POISON) strcat(buf, " poison");
+    if (vector & AFF_PROTECT_EVIL) strcat(buf, " prot_evil");
+    if (vector & AFF_PROTECT_GOOD) strcat(buf, " prot_good");
+    if (vector & AFF_SLEEP) strcat(buf, " sleep");
+    if (vector & AFF_SNEAK) strcat(buf, " sneak");
+    if (vector & AFF_HIDE) strcat(buf, " hide");
+    if (vector & AFF_CHARM) strcat(buf, " charm");
+    if (vector & AFF_FLYING) strcat(buf, " flying");
+    if (vector & AFF_PASS_DOOR) strcat(buf, " pass_door");
+    if (vector & AFF_BERSERK) strcat(buf, " berserk");
+    if (vector & AFF_CALM) strcat(buf, " calm");
+    if (vector & AFF_HASTE) strcat(buf, " haste");
+    if (vector & AFF_SLOW) strcat(buf, " slow");
+    if (vector & AFF_PLAGUE) strcat(buf, " plague");
+    if (vector & AFF_DARK_VISION) strcat(buf, " dark_vision");
+    return (buf[0] != '\0') ? buf + 1 : "none";
+}
+
 // fix object affects when removing one
-void affect_check(CharData* ch, int where, int vector)
+void affect_check(CharData* ch, Where where, int vector)
 {
     AffectData* paf;
     ObjectData* obj;
@@ -36,6 +71,10 @@ void affect_check(CharData* ch, int where, int vector)
                 break;
             case TO_VULN:
                 SET_BIT(ch->vuln_flags, vector);
+                break;
+            case TO_WEAPON:
+            case TO_OBJECT:
+            default:
                 break;
             }
             return;
@@ -58,6 +97,11 @@ void affect_check(CharData* ch, int where, int vector)
                     break;
                 case TO_VULN:
                     SET_BIT(ch->vuln_flags, vector);
+                    break;
+                case TO_WEAPON:
+                case TO_OBJECT:
+                default:
+                    break;
                 }
                 return;
             }
@@ -78,6 +122,10 @@ void affect_check(CharData* ch, int where, int vector)
                     break;
                 case TO_VULN:
                     SET_BIT(ch->vuln_flags, vector);
+                    break;
+                case TO_WEAPON:
+                case TO_OBJECT:
+                default:
                     break;
                 }
                 return;
@@ -129,9 +177,18 @@ void affect_join(CharData* ch, AffectData* paf)
 
     for (paf_old = ch->affected; paf_old != NULL; paf_old = paf_old->next) {
         if (paf_old->type == paf->type) {
-            // TODO: Don't just take the average; figure out how to increase
-            //       level the right way.
-            paf->level = (paf->level + paf_old->level) / 2;
+            //paf->level = (paf->level += paf_old->level) / 2;
+            LEVEL level_mod;
+            // Add half the difference to the highest
+            if (paf->level > paf_old->level) {
+                level_mod = paf->level - paf_old->level;
+                paf->level += level_mod / 2;
+            }
+            else {
+                level_mod = paf_old->level - paf->level;
+                paf_old->level += level_mod / 2;
+            }
+
             paf->duration += paf_old->duration;
             paf->modifier += paf_old->modifier;
             affect_remove(ch, paf_old);
@@ -141,6 +198,69 @@ void affect_join(CharData* ch, AffectData* paf)
 
     affect_to_char(ch, paf);
     return;
+}
+
+
+// Return ascii name of an affect location.
+char* affect_loc_name(AffectLocation location)
+{
+    switch (location) {
+    case APPLY_NONE:
+        return "none";
+    case APPLY_STR:
+        return "strength";
+    case APPLY_DEX:
+        return "dexterity";
+    case APPLY_INT:
+        return "intelligence";
+    case APPLY_WIS:
+        return "wisdom";
+    case APPLY_CON:
+        return "constitution";
+    case APPLY_SEX:
+        return "sex";
+    case APPLY_CLASS:
+        return "class";
+    case APPLY_LEVEL:
+        return "level";
+    case APPLY_AGE:
+        return "age";
+    case APPLY_MANA:
+        return "mana";
+    case APPLY_HIT:
+        return "hp";
+    case APPLY_MOVE:
+        return "moves";
+    case APPLY_GOLD:
+        return "gold";
+    case APPLY_EXP:
+        return "experience";
+    case APPLY_AC:
+        return "armor class";
+    case APPLY_HITROLL:
+        return "hit roll";
+    case APPLY_DAMROLL:
+        return "damage roll";
+    case APPLY_SAVES:
+        return "saves";
+    case APPLY_SAVING_ROD:
+        return "save vs rod";
+    case APPLY_SAVING_PETRI:
+        return "save vs petrification";
+    case APPLY_SAVING_BREATH:
+        return "save vs breath";
+    case APPLY_SAVING_SPELL:
+        return "save vs spell";
+    case APPLY_SPELL_AFFECT:
+        return "none";
+    case APPLY_WEIGHT:
+        return "weight";
+    default:
+        break;
+    }
+
+    bug("Affect_location_name: unknown location %d.", location);
+    return "(unknown)";
 }
 
 // Apply or remove an affect to a character.
@@ -198,7 +318,6 @@ void affect_modify(CharData* ch, AffectData* paf, bool fAdd)
     default:
         bug("Affect_modify: unknown location %d.", paf->location);
         return;
-
     case APPLY_NONE:
         break;
     case APPLY_STR:
@@ -243,7 +362,8 @@ void affect_modify(CharData* ch, AffectData* paf, bool fAdd)
     case APPLY_EXP:
         break;
     case APPLY_AC:
-        for (i = 0; i < 4; i++) ch->armor[i] += mod;
+        for (i = 0; i < 4; i++)
+            ch->armor[i] += mod;
         break;
     case APPLY_HITROLL:
         ch->hitroll += mod;
@@ -265,8 +385,6 @@ void affect_modify(CharData* ch, AffectData* paf, bool fAdd)
         break;
     case APPLY_SAVING_SPELL:
         ch->saving_throw += mod;
-        break;
-    case APPLY_SPELL_AFFECT:
         break;
     }
 
@@ -295,7 +413,7 @@ void affect_modify(CharData* ch, AffectData* paf, bool fAdd)
 // Remove an affect from a char.
 void affect_remove(CharData* ch, AffectData* paf)
 {
-    int where;
+    Where where;
     int vector;
 
     if (ch->affected == NULL) {
@@ -307,7 +425,9 @@ void affect_remove(CharData* ch, AffectData* paf)
     where = paf->where;
     vector = paf->bitvector;
 
-    if (paf == ch->affected) { ch->affected = paf->next; }
+    if (paf == ch->affected) { 
+        ch->affected = paf->next; 
+    }
     else {
         AffectData* prev;
 
@@ -332,7 +452,8 @@ void affect_remove(CharData* ch, AffectData* paf)
 
 void affect_remove_obj(ObjectData* obj, AffectData* paf)
 {
-    int where, vector;
+    Where where;
+    int vector;
     if (obj->affected == NULL) {
         bug("Affect_remove_object: no affect.", 0);
         return;
@@ -353,10 +474,6 @@ void affect_remove_obj(ObjectData* obj, AffectData* paf)
         if (obj->item_type == ITEM_WEAPON)
             REMOVE_BIT(obj->value[4], paf->bitvector);
         break;
-    case TO_VULN:
-    case TO_RESIST:
-    case TO_IMMUNE:
-    case TO_AFFECTS:
     default:
         break;
     }
@@ -393,7 +510,8 @@ void affect_strip(CharData* ch, SKNUM sn)
 
     for (paf = ch->affected; paf != NULL; paf = paf_next) {
         paf_next = paf->next;
-        if (paf->type == sn) affect_remove(ch, paf);
+        if (paf->type == sn) 
+            affect_remove(ch, paf);
     }
 
     return;
@@ -430,28 +548,18 @@ void affect_to_obj(ObjectData* obj, AffectData* paf)
     obj->affected = paf_new;
 
     /* apply any affect vectors to the object's extra_flags */
-    if (paf->bitvector) switch (paf->where) {
-    case TO_OBJECT:
+    if (paf->bitvector && paf->where == TO_OBJECT)
         SET_BIT(obj->extra_flags, paf->bitvector);
-        break;
-    case TO_WEAPON:
-        if (obj->item_type == ITEM_WEAPON)
-            SET_BIT(obj->value[4], paf->bitvector);
-        break;
-    case TO_IMMUNE:
-    case TO_AFFECTS:
-    case TO_VULN:
-    case TO_RESIST:
-    default:
-        break;
-    }
+    else if (paf->where == TO_WEAPON && obj->item_type == ITEM_WEAPON)
+        SET_BIT(obj->value[4], paf->bitvector);
 
     return;
 }
 
 void free_affect(AffectData* af)
 {
-    if (!IS_VALID(af)) return;
+    if (!IS_VALID(af)) 
+        return;
 
     INVALIDATE(af);
     af->next = affect_free;
@@ -463,7 +571,8 @@ bool is_affected(CharData* ch, SKNUM sn)
     AffectData* paf;
 
     for (paf = ch->affected; paf != NULL; paf = paf->next) {
-        if (paf->type == sn) return true;
+        if (paf->type == sn) 
+            return true;
     }
 
     return false;
@@ -471,7 +580,7 @@ bool is_affected(CharData* ch, SKNUM sn)
 
 AffectData* new_affect()
 {
-    static AffectData af_zero;
+    static AffectData af_zero = { 0 };
     AffectData* af;
 
     if (affect_free == NULL)

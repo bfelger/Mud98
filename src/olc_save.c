@@ -303,21 +303,21 @@ void save_mobiles(FILE* fp, AreaData* pArea)
                 new ROM format saving -- Hugin
  Called by:	save_objects (below).
  ****************************************************************************/
-void save_object(FILE* fp, ObjectPrototype* p_object_prototype)
+void save_object(FILE* fp, ObjectPrototype* obj_proto)
 {
     char letter;
     AffectData* pAf;
     ExtraDesc* pEd;
     char buf[MAX_STRING_LENGTH];
 
-    fprintf(fp, "#%"PRVNUM"\n", p_object_prototype->vnum);
-    fprintf(fp, "%s~\n", p_object_prototype->name);
-    fprintf(fp, "%s~\n", p_object_prototype->short_descr);
-    fprintf(fp, "%s~\n", fix_string(p_object_prototype->description));
-    fprintf(fp, "%s~\n", p_object_prototype->material);
-    fprintf(fp, "%s ", item_name(p_object_prototype->item_type));
-    fprintf(fp, "%s ", fwrite_flag(p_object_prototype->extra_flags, buf));
-    fprintf(fp, "%s\n", fwrite_flag(p_object_prototype->wear_flags, buf));
+    fprintf(fp, "#%"PRVNUM"\n", obj_proto->vnum);
+    fprintf(fp, "%s~\n", obj_proto->name);
+    fprintf(fp, "%s~\n", obj_proto->short_descr);
+    fprintf(fp, "%s~\n", fix_string(obj_proto->description));
+    fprintf(fp, "%s~\n", obj_proto->material);
+    fprintf(fp, "%s ", item_name(obj_proto->item_type));
+    fprintf(fp, "%s ", fwrite_flag(obj_proto->extra_flags, buf));
+    fprintf(fp, "%s\n", fwrite_flag(obj_proto->wear_flags, buf));
 
 /*
  *  Using fwrite_flag to write most values gives a strange
@@ -325,141 +325,141 @@ void save_object(FILE* fp, ObjectPrototype* p_object_prototype)
  *  item type later.
  */
 
-    switch (p_object_prototype->item_type) {
+    switch (obj_proto->item_type) {
     default:
-        fprintf(fp, "%s ", fwrite_flag(p_object_prototype->value[0], buf));
-        fprintf(fp, "%s ", fwrite_flag(p_object_prototype->value[1], buf));
-        fprintf(fp, "%s ", fwrite_flag(p_object_prototype->value[2], buf));
-        fprintf(fp, "%s ", fwrite_flag(p_object_prototype->value[3], buf));
-        fprintf(fp, "%s\n", fwrite_flag(p_object_prototype->value[4], buf));
+        fprintf(fp, "%s ", fwrite_flag(obj_proto->value[0], buf));
+        fprintf(fp, "%s ", fwrite_flag(obj_proto->value[1], buf));
+        fprintf(fp, "%s ", fwrite_flag(obj_proto->value[2], buf));
+        fprintf(fp, "%s ", fwrite_flag(obj_proto->value[3], buf));
+        fprintf(fp, "%s\n", fwrite_flag(obj_proto->value[4], buf));
         break;
 
     case ITEM_LIGHT:
         fprintf(fp, "0 0 %d 0 0\n",
-            p_object_prototype->value[2] < 1 ? 999  /* infinite */
-            : p_object_prototype->value[2]);
+            obj_proto->value[2] < 1 ? 999  /* infinite */
+            : obj_proto->value[2]);
         break;
 
     case ITEM_MONEY:
         fprintf(fp, "%d %d 0 0 0\n",
-            p_object_prototype->value[0],
-            p_object_prototype->value[1]);
+            obj_proto->value[0],
+            obj_proto->value[1]);
         break;
 
     case ITEM_DRINK_CON:
         fprintf(fp, "%d %d '%s' %d 0\n",
-            p_object_prototype->value[0],
-            p_object_prototype->value[1],
-            liq_table[p_object_prototype->value[2]].liq_name,
-            p_object_prototype->value[3]);
+            obj_proto->value[0],
+            obj_proto->value[1],
+            liq_table[obj_proto->value[2]].liq_name,
+            obj_proto->value[3]);
         break;
 
     case ITEM_FOUNTAIN:
         fprintf(fp, "%d %d '%s' 0 0\n",
-            p_object_prototype->value[0],
-            p_object_prototype->value[1],
-            liq_table[p_object_prototype->value[2]].liq_name);
+            obj_proto->value[0],
+            obj_proto->value[1],
+            liq_table[obj_proto->value[2]].liq_name);
         break;
 
     case ITEM_CONTAINER:
         fprintf(fp, "%d %s %d %d %d\n",
-            p_object_prototype->value[0],
-            fwrite_flag(p_object_prototype->value[1], buf),
-            p_object_prototype->value[2],
-            p_object_prototype->value[3],
-            p_object_prototype->value[4]);
+            obj_proto->value[0],
+            fwrite_flag(obj_proto->value[1], buf),
+            obj_proto->value[2],
+            obj_proto->value[3],
+            obj_proto->value[4]);
         break;
 
     case ITEM_FOOD:
         fprintf(fp, "%d %d 0 %s 0\n",
-            p_object_prototype->value[0],
-            p_object_prototype->value[1],
-            fwrite_flag(p_object_prototype->value[3], buf));
+            obj_proto->value[0],
+            obj_proto->value[1],
+            fwrite_flag(obj_proto->value[3], buf));
         break;
 
     case ITEM_PORTAL:
         fprintf(fp, "%d %s %s %d 0\n",
-            p_object_prototype->value[0],
-            fwrite_flag(p_object_prototype->value[1], buf),
-            fwrite_flag(p_object_prototype->value[2], buf),
-            p_object_prototype->value[3]);
+            obj_proto->value[0],
+            fwrite_flag(obj_proto->value[1], buf),
+            fwrite_flag(obj_proto->value[2], buf),
+            obj_proto->value[3]);
         break;
 
     case ITEM_FURNITURE:
         fprintf(fp, "%d %d %s %d %d\n",
-            p_object_prototype->value[0],
-            p_object_prototype->value[1],
-            fwrite_flag(p_object_prototype->value[2], buf),
-            p_object_prototype->value[3],
-            p_object_prototype->value[4]);
+            obj_proto->value[0],
+            obj_proto->value[1],
+            fwrite_flag(obj_proto->value[2], buf),
+            obj_proto->value[3],
+            obj_proto->value[4]);
         break;
 
     case ITEM_WEAPON:
         fprintf(fp, "%s %d %d '%s' %s\n",
-            weapon_name(p_object_prototype->value[0]),
-            p_object_prototype->value[1],
-            p_object_prototype->value[2],
-            attack_table[p_object_prototype->value[3]].name,
-            fwrite_flag(p_object_prototype->value[4], buf));
+            weapon_name(obj_proto->value[0]),
+            obj_proto->value[1],
+            obj_proto->value[2],
+            attack_table[obj_proto->value[3]].name,
+            fwrite_flag(obj_proto->value[4], buf));
         break;
 
     case ITEM_ARMOR:
         fprintf(fp, "%d %d %d %d %d\n",
-            p_object_prototype->value[0],
-            p_object_prototype->value[1],
-            p_object_prototype->value[2],
-            p_object_prototype->value[3],
-            p_object_prototype->value[4]);
+            obj_proto->value[0],
+            obj_proto->value[1],
+            obj_proto->value[2],
+            obj_proto->value[3],
+            obj_proto->value[4]);
         break;
 
     case ITEM_PILL:
     case ITEM_POTION:
     case ITEM_SCROLL:
         fprintf(fp, "%d '%s' '%s' '%s' '%s'\n",
-            p_object_prototype->value[0] > 0 ? /* no negative numbers */
-            p_object_prototype->value[0]
+            obj_proto->value[0] > 0 ? /* no negative numbers */
+            obj_proto->value[0]
             : 0,
-            p_object_prototype->value[1] > 0 ?
-            skill_table[p_object_prototype->value[1]].name
+            obj_proto->value[1] > 0 ?
+            skill_table[obj_proto->value[1]].name
             : "",
-            p_object_prototype->value[2] > 0 ?
-            skill_table[p_object_prototype->value[2]].name
+            obj_proto->value[2] > 0 ?
+            skill_table[obj_proto->value[2]].name
             : "",
-            p_object_prototype->value[3] > 0 ?
-            skill_table[p_object_prototype->value[3]].name
+            obj_proto->value[3] > 0 ?
+            skill_table[obj_proto->value[3]].name
             : "",
-            p_object_prototype->value[4] > 0 ?
-            skill_table[p_object_prototype->value[4]].name
+            obj_proto->value[4] > 0 ?
+            skill_table[obj_proto->value[4]].name
             : "");
         break;
 
     case ITEM_STAFF:
     case ITEM_WAND:
-        fprintf(fp, "%d ", p_object_prototype->value[0]);
-        fprintf(fp, "%d ", p_object_prototype->value[1]);
+        fprintf(fp, "%d ", obj_proto->value[0]);
+        fprintf(fp, "%d ", obj_proto->value[1]);
         fprintf(fp, "%d '%s' 0\n",
-            p_object_prototype->value[2],
-            p_object_prototype->value[3] > 0 ?
-            skill_table[p_object_prototype->value[3]].name
+            obj_proto->value[2],
+            obj_proto->value[3] > 0 ?
+            skill_table[obj_proto->value[3]].name
             : "");
         break;
     }
 
-    fprintf(fp, "%d ", p_object_prototype->level);
-    fprintf(fp, "%d ", p_object_prototype->weight);
-    fprintf(fp, "%d ", p_object_prototype->cost);
+    fprintf(fp, "%d ", obj_proto->level);
+    fprintf(fp, "%d ", obj_proto->weight);
+    fprintf(fp, "%d ", obj_proto->cost);
 
-    if (p_object_prototype->condition > 90) letter = 'P';
-    else if (p_object_prototype->condition > 75) letter = 'G';
-    else if (p_object_prototype->condition > 50) letter = 'A';
-    else if (p_object_prototype->condition > 25) letter = 'W';
-    else if (p_object_prototype->condition > 10) letter = 'D';
-    else if (p_object_prototype->condition > 0) letter = 'B';
+    if (obj_proto->condition > 90) letter = 'P';
+    else if (obj_proto->condition > 75) letter = 'G';
+    else if (obj_proto->condition > 50) letter = 'A';
+    else if (obj_proto->condition > 25) letter = 'W';
+    else if (obj_proto->condition > 10) letter = 'D';
+    else if (obj_proto->condition > 0) letter = 'B';
     else                                   letter = 'R';
 
     fprintf(fp, "%c\n", letter);
 
-    for (pAf = p_object_prototype->affected; pAf; pAf = pAf->next) {
+    for (pAf = obj_proto->affected; pAf; pAf = pAf->next) {
         if (pAf->where == TO_OBJECT || pAf->bitvector == 0)
             fprintf(fp, "A\n%d %d\n", pAf->location, pAf->modifier);
         else {
@@ -490,7 +490,7 @@ void save_object(FILE* fp, ObjectPrototype* p_object_prototype)
         }
     }
 
-    for (pEd = p_object_prototype->extra_desc; pEd; pEd = pEd->next) {
+    for (pEd = obj_proto->extra_desc; pEd; pEd = pEd->next) {
         fprintf(fp, "E\n%s~\n%s~\n", pEd->keyword,
             fix_string(pEd->description));
     }
@@ -549,28 +549,28 @@ void save_rooms(FILE* fp, AreaData* pArea)
                         fix_string(pEd->description));
                 }
 
-                for (i = 0; i < MAX_DIR; i++) {
+                for (i = 0; i < DIR_MAX; i++) {
                     if ((pExit = pRoomIndex->exit[i]) == NULL)
                         continue;
 
                     if (pExit->u1.to_room) {
                         locks = 0;
 
-                        if (IS_SET(pExit->rs_flags, EX_CLOSED)
-                            || IS_SET(pExit->rs_flags, EX_LOCKED)
-                            || IS_SET(pExit->rs_flags, EX_PICKPROOF)
-                            || IS_SET(pExit->rs_flags, EX_NOPASS)
-                            || IS_SET(pExit->rs_flags, EX_EASY)
-                            || IS_SET(pExit->rs_flags, EX_HARD)
-                            || IS_SET(pExit->rs_flags, EX_INFURIATING)
-                            || IS_SET(pExit->rs_flags, EX_NOCLOSE)
-                            || IS_SET(pExit->rs_flags, EX_NOLOCK))
-                            SET_BIT(pExit->rs_flags, EX_ISDOOR);
+                        if (IS_SET(pExit->exit_reset_flags, EX_CLOSED)
+                            || IS_SET(pExit->exit_reset_flags, EX_LOCKED)
+                            || IS_SET(pExit->exit_reset_flags, EX_PICKPROOF)
+                            || IS_SET(pExit->exit_reset_flags, EX_NOPASS)
+                            || IS_SET(pExit->exit_reset_flags, EX_EASY)
+                            || IS_SET(pExit->exit_reset_flags, EX_HARD)
+                            || IS_SET(pExit->exit_reset_flags, EX_INFURIATING)
+                            || IS_SET(pExit->exit_reset_flags, EX_NOCLOSE)
+                            || IS_SET(pExit->exit_reset_flags, EX_NOLOCK))
+                            SET_BIT(pExit->exit_reset_flags, EX_ISDOOR);
 
-                        if (IS_SET(pExit->rs_flags, EX_ISDOOR))
-                            locks = IS_SET(pExit->rs_flags, EX_LOCKED) ? 2 : 1;
+                        if (IS_SET(pExit->exit_reset_flags, EX_ISDOOR))
+                            locks = IS_SET(pExit->exit_reset_flags, EX_LOCKED) ? 2 : 1;
 
-                        fprintf(fp, "D%d\n", pExit->orig_door);
+                        fprintf(fp, "D%d\n", pExit->orig_dir);
                         fprintf(fp, "%s~\n", fix_string(pExit->description));
                         fprintf(fp, "%s~\n", pExit->keyword);
                         fprintf(fp, "%d %d %"PRVNUM"\n", locks,
@@ -642,27 +642,27 @@ void save_door_resets(FILE* fp, AreaData* pArea)
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
         for (pRoomIndex = room_index_hash[iHash]; pRoomIndex; pRoomIndex = pRoomIndex->next) {
             if (pRoomIndex->area == pArea) {
-                for (i = 0; i < MAX_DIR; i++) {
+                for (i = 0; i < DIR_MAX; i++) {
                     if ((pExit = pRoomIndex->exit[i]) == NULL)
                         continue;
 
                     if (pExit->u1.to_room
-                        && (IS_SET(pExit->rs_flags, EX_CLOSED)
-                            || IS_SET(pExit->rs_flags, EX_LOCKED)))
+                        && (IS_SET(pExit->exit_reset_flags, EX_CLOSED)
+                            || IS_SET(pExit->exit_reset_flags, EX_LOCKED)))
 #if defined( VERBOSE )
                         fprintf(fp, "D 0 %"PRVNUM" %d %d The %s door of %s is %s\n",
                             pRoomIndex->vnum,
-                            pExit->orig_door,
-                            IS_SET(pExit->rs_flags, EX_LOCKED) ? 2 : 1,
-                            dir_name[pExit->orig_door],
+                            pExit->orig_dir,
+                            IS_SET(pExit->exit_reset_flags, EX_LOCKED) ? 2 : 1,
+                            dir_list[pExit->orig_dir].name,
                             pRoomIndex->name,
-                            IS_SET(pExit->rs_flags, EX_LOCKED) ? "closed and locked"
+                            IS_SET(pExit->exit_reset_flags, EX_LOCKED) ? "closed and locked"
                             : "closed");
 #else
                         fprintf(fp, "D 0 %"PRVNUM" %d %d\n",
                             pRoomIndex->vnum,
-                            pExit->orig_door,
-                            IS_SET(pExit->rs_flags, EX_LOCKED) ? 2 : 1);
+                            pExit->orig_dir,
+                            IS_SET(pExit->exit_reset_flags, EX_LOCKED) ? 2 : 1);
 #endif
                 }
             }

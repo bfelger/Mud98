@@ -31,13 +31,13 @@
 /*****************************************************************************
  Name:		flag_stat_table
  Purpose:	This table catagorizes the tables following the lookup
- 		functions below into stats and flags.  Flags can be toggled
- 		but stats can only be assigned.  Update this table when a
- 		new set of flags is installed.
+        functions below into stats and flags.  Flags can be toggled
+        but stats can only be assigned.  Update this table when a
+        new set of flags is installed.
  ****************************************************************************/
 const struct flag_stat_type flag_stat_table[] =
 {
-/*  { structure           stat	}, */
+/*  { structure                 stat	}, */
     { area_flag_table,		    false	},
     { exit_flag_table,		    false	},
     { door_resets,		        true	},
@@ -55,24 +55,24 @@ const struct flag_stat_type flag_stat_table[] =
 
 /* ROM specific flags: */
 
-    {   form_flag_table,        false   },
-    {   part_flag_table,        false   },
-    {   ac_type,                true    },
-    {   off_flag_table,         false   },
-    {   imm_flag_table,         false   },
-    {   res_flag_table,         false   },
-    {   vuln_flag_table,        false   },
-    {   weapon_class,           true    },
-    {   weapon_type2,           false   },
-    {	furniture_flag_table,	false	},
-    {   apply_types,		    true	},
-    {	target_table,		    true	},
-    {	dam_classes,		    true	},
-    {	log_flag_table,		    true	},
-    {	show_flag_table,		true	},
-    {	stat_table,		        true	},
-    {	mprog_flag_table,		false	},
-    {   0,			            0	    }
+    { form_flag_table,          false   },
+    { part_flag_table,          false   },
+    { ac_type,                  true    },
+    { off_flag_table,           false   },
+    { imm_flag_table,           false   },
+    { res_flag_table,           false   },
+    { vuln_flag_table,          false   },
+    { weapon_class,             true    },
+    { weapon_type2,             false   },
+    { furniture_flag_table,	    false	},
+    { apply_types,		        true	},
+    { target_table,		        true	},
+    { dam_classes,		        true	},
+    { log_flag_table,		    true	},
+    { show_flag_table,		    true	},
+    { stat_table,		        true	},
+    { mprog_flag_table,		    false	},
+    { 0,			            0	    }
 };
     
 /*****************************************************************************

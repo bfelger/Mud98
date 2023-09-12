@@ -66,43 +66,22 @@ void clone_object(ObjectData* parent, ObjectData* clone)
  Note:          Dug out of create_obj (db.c)
  Author:        Hugin
  ****************************************************************************/
-void convert_object(ObjectPrototype* p_object_prototype)
+void convert_object(ObjectPrototype* obj_proto)
 {
     LEVEL level;
     int number, type;  /* for dice-conversion */
 
-    if (!p_object_prototype || p_object_prototype->new_format) return;
+    if (!obj_proto || obj_proto->new_format) return;
 
-    level = p_object_prototype->level;
+    level = obj_proto->level;
 
-    p_object_prototype->level = UMAX(0, p_object_prototype->level); /* just to be sure */
-    p_object_prototype->cost = 10 * level;
+    obj_proto->level = UMAX(0, obj_proto->level); /* just to be sure */
+    obj_proto->cost = 10 * level;
 
-    switch (p_object_prototype->item_type) {
-    default:
-        bug("Obj_convert: vnum %"PRVNUM" bad type.", p_object_prototype->item_type);
-        break;
-
-    case ITEM_LIGHT:
-    case ITEM_TREASURE:
-    case ITEM_FURNITURE:
-    case ITEM_TRASH:
-    case ITEM_CONTAINER:
-    case ITEM_DRINK_CON:
-    case ITEM_KEY:
-    case ITEM_FOOD:
-    case ITEM_BOAT:
-    case ITEM_CORPSE_NPC:
-    case ITEM_CORPSE_PC:
-    case ITEM_FOUNTAIN:
-    case ITEM_MAP:
-    case ITEM_CLOTHING:
-    case ITEM_SCROLL:
-        break;
-
+    switch (obj_proto->item_type) {
     case ITEM_WAND:
     case ITEM_STAFF:
-        p_object_prototype->value[2] = p_object_prototype->value[1];
+        obj_proto->value[2] = obj_proto->value[1];
         break;
 
     case ITEM_WEAPON:
@@ -135,26 +114,26 @@ void convert_object(ObjectPrototype* p_object_prototype)
         number = UMIN(level / 4 + 1, 5);
         type = (level + 7) / number;
 
-        p_object_prototype->value[1] = number;
-        p_object_prototype->value[2] = type;
+        obj_proto->value[1] = number;
+        obj_proto->value[2] = type;
         break;
 
     case ITEM_ARMOR:
-        p_object_prototype->value[0] = level / 5 + 3;
-        p_object_prototype->value[1] = p_object_prototype->value[0];
-        p_object_prototype->value[2] = p_object_prototype->value[0];
-        break;
-
-    case ITEM_POTION:
-    case ITEM_PILL:
+        obj_proto->value[0] = level / 5 + 3;
+        obj_proto->value[1] = obj_proto->value[0];
+        obj_proto->value[2] = obj_proto->value[0];
         break;
 
     case ITEM_MONEY:
-        p_object_prototype->value[0] = p_object_prototype->cost;
+        obj_proto->value[0] = obj_proto->cost;
+        break;
+
+    default:
+        bug("Obj_convert: vnum %"PRVNUM" bad type.", obj_proto->item_type);
         break;
     }
 
-    p_object_prototype->new_format = true;
+    obj_proto->new_format = true;
     ++newobjs;
 
     return;
@@ -251,9 +230,6 @@ void convert_objects()
 
                     if (pMob->pShop) {
                         switch (pObj->item_type) {
-                        default:
-                            pObj->level = UMAX(0, pObj->level);
-                            break;
                         case ITEM_PILL:
                         case ITEM_POTION:
                             pObj->level = UMAX(5, pObj->level);
@@ -269,6 +245,9 @@ void convert_objects()
                             break;
                         case ITEM_STAFF:
                             pObj->level = UMAX(20, pObj->level);
+                            break;
+                        default:
+                            pObj->level = UMAX(0, pObj->level);
                             break;
                         }
                     }
@@ -292,45 +271,45 @@ void convert_objects()
     return;
 }
 
-ObjectData* create_object(ObjectPrototype* p_object_prototype, LEVEL level)
+ObjectData* create_object(ObjectPrototype* obj_proto, LEVEL level)
 {
     AffectData* paf;
     ObjectData* obj;
     int i;
 
-    if (p_object_prototype == NULL) {
-        bug("Create_object: NULL p_object_prototype.", 0);
+    if (obj_proto == NULL) {
+        bug("Create_object: NULL obj_proto.", 0);
         exit(1);
     }
 
     obj = new_object();
 
-    obj->pIndexData = p_object_prototype;
+    obj->pIndexData = obj_proto;
     obj->in_room = NULL;
     obj->enchanted = false;
 
-    if (p_object_prototype->new_format)
-        obj->level = p_object_prototype->level;
+    if (obj_proto->new_format)
+        obj->level = obj_proto->level;
     else
         obj->level = UMAX(0, level);
     obj->wear_loc = -1;
 
-    obj->name = str_dup(p_object_prototype->name);           /* OLC */
-    obj->short_descr = str_dup(p_object_prototype->short_descr);    /* OLC */
-    obj->description = str_dup(p_object_prototype->description);    /* OLC */
-    obj->material = str_dup(p_object_prototype->material);
-    obj->item_type = p_object_prototype->item_type;
-    obj->extra_flags = p_object_prototype->extra_flags;
-    obj->wear_flags = p_object_prototype->wear_flags;
-    obj->value[0] = p_object_prototype->value[0];
-    obj->value[1] = p_object_prototype->value[1];
-    obj->value[2] = p_object_prototype->value[2];
-    obj->value[3] = p_object_prototype->value[3];
-    obj->value[4] = p_object_prototype->value[4];
-    obj->weight = p_object_prototype->weight;
+    obj->name = str_dup(obj_proto->name);           /* OLC */
+    obj->short_descr = str_dup(obj_proto->short_descr);    /* OLC */
+    obj->description = str_dup(obj_proto->description);    /* OLC */
+    obj->material = str_dup(obj_proto->material);
+    obj->item_type = obj_proto->item_type;
+    obj->extra_flags = obj_proto->extra_flags;
+    obj->wear_flags = obj_proto->wear_flags;
+    obj->value[0] = obj_proto->value[0];
+    obj->value[1] = obj_proto->value[1];
+    obj->value[2] = obj_proto->value[2];
+    obj->value[3] = obj_proto->value[3];
+    obj->value[4] = obj_proto->value[4];
+    obj->weight = obj_proto->weight;
 
-    if (level == -1 || p_object_prototype->new_format)
-        obj->cost = p_object_prototype->cost;
+    if (level == -1 || obj_proto->new_format)
+        obj->cost = obj_proto->cost;
     else
         obj->cost
         = number_fuzzy(10) * number_fuzzy(level) * number_fuzzy(level);
@@ -339,10 +318,6 @@ ObjectData* create_object(ObjectPrototype* p_object_prototype, LEVEL level)
  * Mess with object properties.
  */
     switch (obj->item_type) {
-    default:
-        bug("Read_object: vnum %"PRVNUM" bad type.", p_object_prototype->vnum);
-        break;
-
     case ITEM_LIGHT:
         if (obj->value[2] == 999) obj->value[2] = -1;
         break;
@@ -360,14 +335,7 @@ ObjectData* create_object(ObjectPrototype* p_object_prototype, LEVEL level)
     case ITEM_MAP:
     case ITEM_CLOTHING:
     case ITEM_PORTAL:
-        if (!p_object_prototype->new_format) obj->cost /= 5;
-        break;
-
-    case ITEM_TREASURE:
-    case ITEM_WARP_STONE:
-    case ITEM_ROOM_KEY:
-    case ITEM_GEM:
-    case ITEM_JEWELRY:
+        if (!obj_proto->new_format) obj->cost /= 5;
         break;
 
     case ITEM_JUKEBOX:
@@ -375,29 +343,29 @@ ObjectData* create_object(ObjectPrototype* p_object_prototype, LEVEL level)
         break;
 
     case ITEM_SCROLL:
-        if (level != -1 && !p_object_prototype->new_format)
+        if (level != -1 && !obj_proto->new_format)
             obj->value[0] = number_fuzzy(obj->value[0]);
         break;
 
     case ITEM_WAND:
     case ITEM_STAFF:
-        if (level != -1 && !p_object_prototype->new_format) {
+        if (level != -1 && !obj_proto->new_format) {
             obj->value[0] = number_fuzzy(obj->value[0]);
             obj->value[1] = number_fuzzy(obj->value[1]);
             obj->value[2] = obj->value[1];
         }
-        if (!p_object_prototype->new_format) obj->cost *= 2;
+        if (!obj_proto->new_format) obj->cost *= 2;
         break;
 
     case ITEM_WEAPON:
-        if (level != -1 && !p_object_prototype->new_format) {
+        if (level != -1 && !obj_proto->new_format) {
             obj->value[1] = number_fuzzy(number_fuzzy(1 * level / 4 + 2));
             obj->value[2] = number_fuzzy(number_fuzzy(3 * level / 4 + 6));
         }
         break;
 
     case ITEM_ARMOR:
-        if (level != -1 && !p_object_prototype->new_format) {
+        if (level != -1 && !obj_proto->new_format) {
             obj->value[0] = number_fuzzy(level / 5 + 3);
             obj->value[1] = number_fuzzy(level / 5 + 3);
             obj->value[2] = number_fuzzy(level / 5 + 3);
@@ -406,21 +374,25 @@ ObjectData* create_object(ObjectPrototype* p_object_prototype, LEVEL level)
 
     case ITEM_POTION:
     case ITEM_PILL:
-        if (level != -1 && !p_object_prototype->new_format)
+        if (level != -1 && !obj_proto->new_format)
             obj->value[0] = number_fuzzy(number_fuzzy(obj->value[0]));
         break;
 
     case ITEM_MONEY:
-        if (!p_object_prototype->new_format) obj->value[0] = obj->cost;
+        if (!obj_proto->new_format) obj->value[0] = obj->cost;
+        break;
+
+    default:
         break;
     }
 
-    for (paf = p_object_prototype->affected; paf != NULL; paf = paf->next)
-        if (paf->location == APPLY_SPELL_AFFECT) affect_to_obj(obj, paf);
+    for (paf = obj_proto->affected; paf != NULL; paf = paf->next)
+        if (paf->location == APPLY_SPELL_AFFECT) 
+            affect_to_obj(obj, paf);
 
     obj->next = object_list;
     object_list = obj;
-    p_object_prototype->count++;
+    obj_proto->count++;
 
     return obj;
 }
@@ -482,11 +454,12 @@ void free_object_prototype(ObjectPrototype* pObj)
 // Hash table lookup.
 ObjectPrototype* get_object_prototype(VNUM vnum)
 {
-    ObjectPrototype* p_object_prototype;
+    ObjectPrototype* obj_proto;
 
-    for (p_object_prototype = object_prototype_hash[vnum % MAX_KEY_HASH]; p_object_prototype != NULL;
-        p_object_prototype = p_object_prototype->next) {
-        if (p_object_prototype->vnum == vnum) return p_object_prototype;
+    for (obj_proto = object_prototype_hash[vnum % MAX_KEY_HASH]; obj_proto != NULL;
+        obj_proto = obj_proto->next) {
+        if (obj_proto->vnum == vnum) 
+            return obj_proto;
     }
 
     if (fBootDb) {
@@ -502,7 +475,7 @@ ObjectPrototype* get_object_prototype(VNUM vnum)
  */
 void load_objects(FILE* fp)
 {
-    ObjectPrototype* p_object_prototype;
+    ObjectPrototype* obj_proto;
 
     if (!area_last)   /* OLC */
     {
@@ -531,98 +504,98 @@ void load_objects(FILE* fp)
         }
         fBootDb = true;
 
-        p_object_prototype = alloc_perm(sizeof(*p_object_prototype));
-        p_object_prototype->vnum = vnum;
-        p_object_prototype->area = area_last;    // OLC
-        p_object_prototype->new_format = true;
-        p_object_prototype->reset_num = 0;
+        obj_proto = alloc_perm(sizeof(*obj_proto));
+        obj_proto->vnum = vnum;
+        obj_proto->area = area_last;    // OLC
+        obj_proto->new_format = true;
+        obj_proto->reset_num = 0;
         newobjs++;
-        p_object_prototype->name = fread_string(fp);
-        p_object_prototype->short_descr = fread_string(fp);
-        p_object_prototype->description = fread_string(fp);
-        p_object_prototype->material = fread_string(fp);
+        obj_proto->name = fread_string(fp);
+        obj_proto->short_descr = fread_string(fp);
+        obj_proto->description = fread_string(fp);
+        obj_proto->material = fread_string(fp);
 
-        CHECK_POS(p_object_prototype->item_type, (int16_t)item_lookup(fread_word(fp)), "item_type");
-        p_object_prototype->extra_flags = fread_flag(fp);
-        p_object_prototype->wear_flags = fread_flag(fp);
-        switch (p_object_prototype->item_type) {
+        CHECK_POS(obj_proto->item_type, (int16_t)item_lookup(fread_word(fp)), "item_type");
+        obj_proto->extra_flags = fread_flag(fp);
+        obj_proto->wear_flags = fread_flag(fp);
+        switch (obj_proto->item_type) {
         case ITEM_WEAPON:
-            p_object_prototype->value[0] = weapon_type(fread_word(fp));
-            p_object_prototype->value[1] = fread_number(fp);
-            p_object_prototype->value[2] = fread_number(fp);
-            p_object_prototype->value[3] = attack_lookup(fread_word(fp));
-            p_object_prototype->value[4] = fread_flag(fp);
+            obj_proto->value[0] = weapon_type(fread_word(fp));
+            obj_proto->value[1] = fread_number(fp);
+            obj_proto->value[2] = fread_number(fp);
+            obj_proto->value[3] = attack_lookup(fread_word(fp));
+            obj_proto->value[4] = fread_flag(fp);
             break;
         case ITEM_CONTAINER:
-            p_object_prototype->value[0] = fread_number(fp);
-            p_object_prototype->value[1] = fread_flag(fp);
-            p_object_prototype->value[2] = fread_number(fp);
-            p_object_prototype->value[3] = fread_number(fp);
-            p_object_prototype->value[4] = fread_number(fp);
+            obj_proto->value[0] = fread_number(fp);
+            obj_proto->value[1] = fread_flag(fp);
+            obj_proto->value[2] = fread_number(fp);
+            obj_proto->value[3] = fread_number(fp);
+            obj_proto->value[4] = fread_number(fp);
             break;
         case ITEM_DRINK_CON:
         case ITEM_FOUNTAIN:
-            p_object_prototype->value[0] = fread_number(fp);
-            p_object_prototype->value[1] = fread_number(fp);
-            CHECK_POS(p_object_prototype->value[2], liq_lookup(fread_word(fp)), "liq_lookup");
-            p_object_prototype->value[3] = fread_number(fp);
-            p_object_prototype->value[4] = fread_number(fp);
+            obj_proto->value[0] = fread_number(fp);
+            obj_proto->value[1] = fread_number(fp);
+            CHECK_POS(obj_proto->value[2], liq_lookup(fread_word(fp)), "liq_lookup");
+            obj_proto->value[3] = fread_number(fp);
+            obj_proto->value[4] = fread_number(fp);
             break;
         case ITEM_WAND:
         case ITEM_STAFF:
-            p_object_prototype->value[0] = fread_number(fp);
-            p_object_prototype->value[1] = fread_number(fp);
-            p_object_prototype->value[2] = fread_number(fp);
-            p_object_prototype->value[3] = skill_lookup(fread_word(fp));
-            p_object_prototype->value[4] = fread_number(fp);
+            obj_proto->value[0] = fread_number(fp);
+            obj_proto->value[1] = fread_number(fp);
+            obj_proto->value[2] = fread_number(fp);
+            obj_proto->value[3] = skill_lookup(fread_word(fp));
+            obj_proto->value[4] = fread_number(fp);
             break;
         case ITEM_POTION:
         case ITEM_PILL:
         case ITEM_SCROLL:
-            p_object_prototype->value[0] = fread_number(fp);
-            p_object_prototype->value[1] = skill_lookup(fread_word(fp));
-            p_object_prototype->value[2] = skill_lookup(fread_word(fp));
-            p_object_prototype->value[3] = skill_lookup(fread_word(fp));
-            p_object_prototype->value[4] = skill_lookup(fread_word(fp));
+            obj_proto->value[0] = fread_number(fp);
+            obj_proto->value[1] = skill_lookup(fread_word(fp));
+            obj_proto->value[2] = skill_lookup(fread_word(fp));
+            obj_proto->value[3] = skill_lookup(fread_word(fp));
+            obj_proto->value[4] = skill_lookup(fread_word(fp));
             break;
         default:
-            p_object_prototype->value[0] = fread_flag(fp);
-            p_object_prototype->value[1] = fread_flag(fp);
-            p_object_prototype->value[2] = fread_flag(fp);
-            p_object_prototype->value[3] = fread_flag(fp);
-            p_object_prototype->value[4] = fread_flag(fp);
+            obj_proto->value[0] = fread_flag(fp);
+            obj_proto->value[1] = fread_flag(fp);
+            obj_proto->value[2] = fread_flag(fp);
+            obj_proto->value[3] = fread_flag(fp);
+            obj_proto->value[4] = fread_flag(fp);
             break;
         }
-        p_object_prototype->level = (int16_t)fread_number(fp);
-        p_object_prototype->weight = (int16_t)fread_number(fp);
-        p_object_prototype->cost = fread_number(fp);
+        obj_proto->level = (int16_t)fread_number(fp);
+        obj_proto->weight = (int16_t)fread_number(fp);
+        obj_proto->cost = fread_number(fp);
 
         /* condition */
         letter = fread_letter(fp);
         switch (letter) {
         case ('P'):
-            p_object_prototype->condition = 100;
+            obj_proto->condition = 100;
             break;
         case ('G'):
-            p_object_prototype->condition = 90;
+            obj_proto->condition = 90;
             break;
         case ('A'):
-            p_object_prototype->condition = 75;
+            obj_proto->condition = 75;
             break;
         case ('W'):
-            p_object_prototype->condition = 50;
+            obj_proto->condition = 50;
             break;
         case ('D'):
-            p_object_prototype->condition = 25;
+            obj_proto->condition = 25;
             break;
         case ('B'):
-            p_object_prototype->condition = 10;
+            obj_proto->condition = 10;
             break;
         case ('R'):
-            p_object_prototype->condition = 0;
+            obj_proto->condition = 0;
             break;
         default:
-            p_object_prototype->condition = 100;
+            obj_proto->condition = 100;
             break;
         }
 
@@ -635,13 +608,13 @@ void load_objects(FILE* fp)
                 paf = alloc_perm(sizeof(*paf));
                 paf->where = TO_OBJECT;
                 paf->type = -1;
-                paf->level = p_object_prototype->level;
+                paf->level = obj_proto->level;
                 paf->duration = -1;
                 paf->location = (int16_t)fread_number(fp);
                 paf->modifier = (int16_t)fread_number(fp);
                 paf->bitvector = 0;
-                paf->next = p_object_prototype->affected;
-                p_object_prototype->affected = paf;
+                paf->next = obj_proto->affected;
+                obj_proto->affected = paf;
                 top_affect++;
             }
 
@@ -668,13 +641,13 @@ void load_objects(FILE* fp)
                     exit(1);
                 }
                 paf->type = -1;
-                paf->level = p_object_prototype->level;
+                paf->level = obj_proto->level;
                 paf->duration = -1;
                 paf->location = (int16_t)fread_number(fp);
                 paf->modifier = (int16_t)fread_number(fp);
                 paf->bitvector = fread_flag(fp);
-                paf->next = p_object_prototype->affected;
-                p_object_prototype->affected = paf;
+                paf->next = obj_proto->affected;
+                obj_proto->affected = paf;
                 top_affect++;
             }
 
@@ -684,8 +657,8 @@ void load_objects(FILE* fp)
                 ed = alloc_perm(sizeof(*ed));
                 ed->keyword = fread_string(fp);
                 ed->description = fread_string(fp);
-                ed->next = p_object_prototype->extra_desc;
-                p_object_prototype->extra_desc = ed;
+                ed->next = obj_proto->extra_desc;
+                obj_proto->extra_desc = ed;
                 top_ed++;
             }
 
@@ -696,8 +669,8 @@ void load_objects(FILE* fp)
         }
 
         iHash = vnum % MAX_KEY_HASH;
-        p_object_prototype->next = object_prototype_hash[iHash];
-        object_prototype_hash[iHash] = p_object_prototype;
+        obj_proto->next = object_prototype_hash[iHash];
+        object_prototype_hash[iHash] = obj_proto;
         top_object_prototype++;
         top_vnum_obj = top_vnum_obj < vnum ? vnum : top_vnum_obj;   // OLC
         assign_area_vnum(vnum);                                     // OLC

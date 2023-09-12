@@ -42,12 +42,6 @@
 #define BUFFER_OVERFLOW 1
 #define BUFFER_FREED    2
 
-/* ban data recycling */
-#define BD BAN_DATA
-BD* new_ban args((void));
-void free_ban args((BAN_DATA * ban));
-#undef BD
-
 /* descriptor recycling */
 #define DD DESCRIPTOR_DATA
 DD* new_descriptor args((void));

@@ -83,9 +83,9 @@ void do_scan(CharData* ch, char* argument)
         return;
     }
 
-    act("You peer intently $T.", ch, NULL, dir_name[door], TO_CHAR);
-    act("$n peers intently $T.", ch, NULL, dir_name[door], TO_ROOM);
-    sprintf(buf, "Looking %s you see:\n\r", dir_name[door]);
+    act("You peer intently $T.", ch, NULL, dir_list[door].name, TO_CHAR);
+    act("$n peers intently $T.", ch, NULL, dir_list[door].name, TO_ROOM);
+    sprintf(buf, "Looking %s you see:\n\r", dir_list[door].name);
 
     scan_room = ch->in_room;
 
@@ -124,13 +124,13 @@ void scan_char(CharData* victim, CharData* ch, int16_t depth, int16_t door)
         sprintf(buf2, "right here.");
         break;
     case 1:
-        sprintf(buf2, "nearby to the %s.", dir_name[door]);
+        sprintf(buf2, "nearby to the %s.", dir_list[door].name);
         break;
     case 2:
-        sprintf(buf2, "not far %s.", dir_name[door]);
+        sprintf(buf2, "not far %s.", dir_list[door].name);
         break;
     case 4:
-        sprintf(buf2, "off in the distance %s.", dir_name[door]);
+        sprintf(buf2, "off in the distance %s.", dir_list[door].name);
         break;
     }
     strcat(buf, buf2);

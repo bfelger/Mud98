@@ -37,8 +37,12 @@
 #include "skills.h"
 #include "update.h"
 
+#include "entities/exit_data.h"
 #include "entities/object_data.h"
 #include "entities/player_data.h"
+#include "entities/room_data.h"
+
+#include "data/direction.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -47,13 +51,6 @@
 #ifndef _MSC_VER 
 #include <sys/time.h>
 #endif
-
-const char* dir_name[] = {"north", "east", "south", "west", "up", "down"};
-const char* dir_name_abbr[] = { "N", "E", "S", "W", "U", "D" };
-
-const int16_t rev_dir[] = {2, 3, 0, 1, 5, 4};
-
-const int16_t movement_loss[SECT_MAX] = {1, 2, 2, 3, 4, 6, 4, 1, 6, 10, 6};
 
 /*
  * Local functions.
@@ -86,9 +83,9 @@ void move_char(CharData* ch, int door, bool follow)
         return;
     }
 
-    if (IS_SET(pexit->exit_info, EX_CLOSED)
+    if (IS_SET(pexit->exit_flags, EX_CLOSED)
         && (!IS_AFFECTED(ch, AFF_PASS_DOOR)
-            || IS_SET(pexit->exit_info, EX_NOPASS))
+            || IS_SET(pexit->exit_flags, EX_NOPASS))
         && !IS_TRUSTED(ch, ANGEL)) {
         act("The $d is closed.", ch, NULL, pexit->keyword, TO_CHAR);
         return;
@@ -173,7 +170,7 @@ void move_char(CharData* ch, int door, bool follow)
     }
 
     if (!IS_AFFECTED(ch, AFF_SNEAK) && ch->invis_level < LEVEL_HERO)
-        act("$n leaves $T.", ch, NULL, dir_name[door], TO_ROOM);
+        act("$n leaves $T.", ch, NULL, dir_list[door].name, TO_ROOM);
 
     char_from_room(ch);
     char_to_room(ch, to_room);
@@ -277,7 +274,7 @@ int find_door(CharData* ch, char* arg)
     else {
         for (door = 0; door <= 5; door++) {
             if ((pexit = ch->in_room->exit[door]) != NULL
-                && IS_SET(pexit->exit_info, EX_ISDOOR) && pexit->keyword != NULL
+                && IS_SET(pexit->exit_flags, EX_ISDOOR) && pexit->keyword != NULL
                 && is_name(arg, pexit->keyword))
                 return door;
         }
@@ -290,7 +287,7 @@ int find_door(CharData* ch, char* arg)
         return -1;
     }
 
-    if (!IS_SET(pexit->exit_info, EX_ISDOOR)) {
+    if (!IS_SET(pexit->exit_flags, EX_ISDOOR)) {
         send_to_char("You can't do that.\n\r", ch);
         return -1;
     }
@@ -366,26 +363,26 @@ void do_open(CharData* ch, char* argument)
         ExitData* pexit_rev;
 
         pexit = ch->in_room->exit[door];
-        if (!IS_SET(pexit->exit_info, EX_CLOSED)) {
+        if (!IS_SET(pexit->exit_flags, EX_CLOSED)) {
             send_to_char("It's already open.\n\r", ch);
             return;
         }
-        if (IS_SET(pexit->exit_info, EX_LOCKED)) {
+        if (IS_SET(pexit->exit_flags, EX_LOCKED)) {
             send_to_char("It's locked.\n\r", ch);
             return;
         }
 
-        REMOVE_BIT(pexit->exit_info, EX_CLOSED);
+        REMOVE_BIT(pexit->exit_flags, EX_CLOSED);
         act("$n opens the $d.", ch, NULL, pexit->keyword, TO_ROOM);
         send_to_char("Ok.\n\r", ch);
 
         /* open the other side */
         if ((to_room = pexit->u1.to_room) != NULL
-            && (pexit_rev = to_room->exit[rev_dir[door]]) != NULL
+            && (pexit_rev = to_room->exit[dir_list[door].rev_dir]) != NULL
             && pexit_rev->u1.to_room == ch->in_room) {
             CharData* rch;
 
-            REMOVE_BIT(pexit_rev->exit_info, EX_CLOSED);
+            REMOVE_BIT(pexit_rev->exit_flags, EX_CLOSED);
             for (rch = to_room->people; rch != NULL; rch = rch->next_in_room)
                 act("The $d opens.", rch, NULL, pexit_rev->keyword, TO_CHAR);
         }
@@ -454,22 +451,22 @@ void do_close(CharData* ch, char* argument)
         ExitData* pexit_rev;
 
         pexit = ch->in_room->exit[door];
-        if (IS_SET(pexit->exit_info, EX_CLOSED)) {
+        if (IS_SET(pexit->exit_flags, EX_CLOSED)) {
             send_to_char("It's already closed.\n\r", ch);
             return;
         }
 
-        SET_BIT(pexit->exit_info, EX_CLOSED);
+        SET_BIT(pexit->exit_flags, EX_CLOSED);
         act("$n closes the $d.", ch, NULL, pexit->keyword, TO_ROOM);
         send_to_char("Ok.\n\r", ch);
 
         /* close the other side */
         if ((to_room = pexit->u1.to_room) != NULL
-            && (pexit_rev = to_room->exit[rev_dir[door]]) != 0
+            && (pexit_rev = to_room->exit[dir_list[door].rev_dir]) != 0
             && pexit_rev->u1.to_room == ch->in_room) {
             CharData* rch;
 
-            SET_BIT(pexit_rev->exit_info, EX_CLOSED);
+            SET_BIT(pexit_rev->exit_flags, EX_CLOSED);
             for (rch = to_room->people; rch != NULL; rch = rch->next_in_room)
                 act("The $d closes.", rch, NULL, pexit_rev->keyword, TO_CHAR);
         }
@@ -571,7 +568,7 @@ void do_lock(CharData* ch, char* argument)
         ExitData* pexit_rev;
 
         pexit = ch->in_room->exit[door];
-        if (!IS_SET(pexit->exit_info, EX_CLOSED)) {
+        if (!IS_SET(pexit->exit_flags, EX_CLOSED)) {
             send_to_char("It's not closed.\n\r", ch);
             return;
         }
@@ -583,20 +580,20 @@ void do_lock(CharData* ch, char* argument)
             send_to_char("You lack the key.\n\r", ch);
             return;
         }
-        if (IS_SET(pexit->exit_info, EX_LOCKED)) {
+        if (IS_SET(pexit->exit_flags, EX_LOCKED)) {
             send_to_char("It's already locked.\n\r", ch);
             return;
         }
 
-        SET_BIT(pexit->exit_info, EX_LOCKED);
+        SET_BIT(pexit->exit_flags, EX_LOCKED);
         send_to_char("*Click*\n\r", ch);
         act("$n locks the $d.", ch, NULL, pexit->keyword, TO_ROOM);
 
         /* lock the other side */
         if ((to_room = pexit->u1.to_room) != NULL
-            && (pexit_rev = to_room->exit[rev_dir[door]]) != 0
+            && (pexit_rev = to_room->exit[dir_list[door].rev_dir]) != 0
             && pexit_rev->u1.to_room == ch->in_room) {
-            SET_BIT(pexit_rev->exit_info, EX_LOCKED);
+            SET_BIT(pexit_rev->exit_flags, EX_LOCKED);
         }
     }
 
@@ -685,7 +682,7 @@ void do_unlock(CharData* ch, char* argument)
         ExitData* pexit_rev;
 
         pexit = ch->in_room->exit[door];
-        if (!IS_SET(pexit->exit_info, EX_CLOSED)) {
+        if (!IS_SET(pexit->exit_flags, EX_CLOSED)) {
             send_to_char("It's not closed.\n\r", ch);
             return;
         }
@@ -697,20 +694,20 @@ void do_unlock(CharData* ch, char* argument)
             send_to_char("You lack the key.\n\r", ch);
             return;
         }
-        if (!IS_SET(pexit->exit_info, EX_LOCKED)) {
+        if (!IS_SET(pexit->exit_flags, EX_LOCKED)) {
             send_to_char("It's already unlocked.\n\r", ch);
             return;
         }
 
-        REMOVE_BIT(pexit->exit_info, EX_LOCKED);
+        REMOVE_BIT(pexit->exit_flags, EX_LOCKED);
         send_to_char("*Click*\n\r", ch);
         act("$n unlocks the $d.", ch, NULL, pexit->keyword, TO_ROOM);
 
         /* unlock the other side */
         if ((to_room = pexit->u1.to_room) != NULL
-            && (pexit_rev = to_room->exit[rev_dir[door]]) != NULL
+            && (pexit_rev = to_room->exit[dir_list[door].rev_dir]) != NULL
             && pexit_rev->u1.to_room == ch->in_room) {
-            REMOVE_BIT(pexit_rev->exit_info, EX_LOCKED);
+            REMOVE_BIT(pexit_rev->exit_flags, EX_LOCKED);
         }
     }
 
@@ -814,7 +811,7 @@ void do_pick(CharData* ch, char* argument)
         ExitData* pexit_rev;
 
         pexit = ch->in_room->exit[door];
-        if (!IS_SET(pexit->exit_info, EX_CLOSED) && !IS_IMMORTAL(ch)) {
+        if (!IS_SET(pexit->exit_flags, EX_CLOSED) && !IS_IMMORTAL(ch)) {
             send_to_char("It's not closed.\n\r", ch);
             return;
         }
@@ -822,25 +819,25 @@ void do_pick(CharData* ch, char* argument)
             send_to_char("It can't be picked.\n\r", ch);
             return;
         }
-        if (!IS_SET(pexit->exit_info, EX_LOCKED)) {
+        if (!IS_SET(pexit->exit_flags, EX_LOCKED)) {
             send_to_char("It's already unlocked.\n\r", ch);
             return;
         }
-        if (IS_SET(pexit->exit_info, EX_PICKPROOF) && !IS_IMMORTAL(ch)) {
+        if (IS_SET(pexit->exit_flags, EX_PICKPROOF) && !IS_IMMORTAL(ch)) {
             send_to_char("You failed.\n\r", ch);
             return;
         }
 
-        REMOVE_BIT(pexit->exit_info, EX_LOCKED);
+        REMOVE_BIT(pexit->exit_flags, EX_LOCKED);
         send_to_char("*Click*\n\r", ch);
         act("$n picks the $d.", ch, NULL, pexit->keyword, TO_ROOM);
         check_improve(ch, gsn_pick_lock, true, 2);
 
         /* pick the other side */
         if ((to_room = pexit->u1.to_room) != NULL
-            && (pexit_rev = to_room->exit[rev_dir[door]]) != NULL
+            && (pexit_rev = to_room->exit[dir_list[door].rev_dir]) != NULL
             && pexit_rev->u1.to_room == ch->in_room) {
-            REMOVE_BIT(pexit_rev->exit_info, EX_LOCKED);
+            REMOVE_BIT(pexit_rev->exit_flags, EX_LOCKED);
         }
     }
 

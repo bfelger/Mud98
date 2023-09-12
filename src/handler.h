@@ -71,8 +71,6 @@ bool can_see(CharData* ch, CharData* victim);
 bool can_see_obj(CharData* ch, ObjectData* obj);
 bool can_see_room(CharData* ch, RoomData* pRoomIndex);
 bool can_drop_obj(CharData* ch, ObjectData* obj);
-char* affect_loc_name(int location);
-char* affect_bit_name(int vector);
 char* extra_bit_name(int extra_flags);
 char* wear_bit_name(int wear_flags);
 char* act_bit_name(int act_flags);
