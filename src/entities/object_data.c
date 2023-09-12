@@ -22,7 +22,7 @@ ObjectData* object_list;
 void clone_object(ObjectData* parent, ObjectData* clone)
 {
     int i;
-    AFFECT_DATA* paf;
+    AffectData* paf;
     ExtraDesc* ed, * ed_new;
 
     if (parent == NULL || clone == NULL) return;
@@ -294,7 +294,7 @@ void convert_objects()
 
 ObjectData* create_object(ObjectPrototype* p_object_prototype, LEVEL level)
 {
-    AFFECT_DATA* paf;
+    AffectData* paf;
     ObjectData* obj;
     int i;
 
@@ -427,8 +427,8 @@ ObjectData* create_object(ObjectPrototype* p_object_prototype, LEVEL level)
 
 void free_object(ObjectData* obj)
 {
-    AFFECT_DATA* paf;
-    AFFECT_DATA* paf_next = NULL;
+    AffectData* paf;
+    AffectData* paf_next = NULL;
     ExtraDesc* ed;
     ExtraDesc* ed_next = NULL;
 
@@ -459,7 +459,7 @@ void free_object(ObjectData* obj)
 void free_object_prototype(ObjectPrototype* pObj)
 {
     ExtraDesc* pExtra;
-    AFFECT_DATA* pAf;
+    AffectData* pAf;
 
     free_string(pObj->name);
     free_string(pObj->short_descr);
@@ -630,7 +630,7 @@ void load_objects(FILE* fp)
             letter = fread_letter(fp);
 
             if (letter == 'A') {
-                AFFECT_DATA* paf;
+                AffectData* paf;
 
                 paf = alloc_perm(sizeof(*paf));
                 paf->where = TO_OBJECT;
@@ -646,7 +646,7 @@ void load_objects(FILE* fp)
             }
 
             else if (letter == 'F') {
-                AFFECT_DATA* paf;
+                AffectData* paf;
 
                 paf = alloc_perm(sizeof(*paf));
                 letter = fread_letter(fp);

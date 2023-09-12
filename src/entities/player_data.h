@@ -3,11 +3,11 @@
 // Player character data
 ////////////////////////////////////////////////////////////////////////////////
 
+typedef struct player_data_t PlayerData;
+
 #pragma once
 #ifndef MUD98__ENTITIES__PLAYER_DATA_H
 #define MUD98__ENTITIES__PLAYER_DATA_H
-
-typedef struct player_data_t PlayerData;
 
 #include "merc.h"
 

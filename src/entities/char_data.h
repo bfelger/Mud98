@@ -36,7 +36,7 @@ typedef struct char_data_t {
     SpecFunc* spec_fun;
     MobPrototype* pIndexData;
     DESCRIPTOR_DATA* desc;
-    AFFECT_DATA* affected;
+    AffectData* affected;
     NoteData* pnote;
     ObjectData* carrying;
     ObjectData* on;

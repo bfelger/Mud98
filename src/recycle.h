@@ -60,12 +60,6 @@ GD* new_gen_data args((void));
 void free_gen_data args((GEN_DATA * gen));
 #undef GD
 
-/* affect recycling */
-#define AD AFFECT_DATA
-AD* new_affect args((void));
-void free_affect args((AFFECT_DATA * af));
-#undef AD
-
 long get_pc_id(void);
 
 /* buffer procedures */

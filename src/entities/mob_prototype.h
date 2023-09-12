@@ -3,11 +3,11 @@
 // Prototype data for mobile (NPC) CharData
 ////////////////////////////////////////////////////////////////////////////////
 
+typedef struct mob_prototype_t MobPrototype;
+
 #pragma once
 #ifndef MUD98__ENTITIES__MOB_PROTOTYPE_H
 #define MUD98__ENTITIES__MOB_PROTOTYPE_H
-
-typedef struct mob_prototype_t MobPrototype;
 
 #include "merc.h"
 

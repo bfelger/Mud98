@@ -714,12 +714,12 @@ const struct flag_type apply_types[] = {
 };
 
 const struct bit_type bitvector_type[] = {
-    { affect_flag_table,"affect"    },
-    { apply_flag_table, "apply"     },
-    { imm_flag_table,   "imm"       },
+    { affect_flag_table,    "affect"    },
+    { apply_flag_table,     "apply"     },
+    { imm_flag_table,       "imm"       },
     { res_flag_table,        "res"       },
     { vuln_flag_table,       "vuln"      },
-    { weapon_type2,     "weapon"    }
+    { weapon_type2,         "weapon"    }
 };
 
 const struct flag_type target_table[] = {

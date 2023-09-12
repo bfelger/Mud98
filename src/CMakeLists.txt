@@ -92,7 +92,8 @@ add_executable(Mud98 merc.h act_comm.c act_enter.c act_info.c act_move.c
     entities/area_data.h entities/area_data.c 
     entities/help_data.c entities/help_data.h 
     entities/mob_memory.h entities/mob_memory.c
- "entities/extra_desc.h" "entities/extra_desc.c")
+    entities/extra_desc.h entities/extra_desc.c
+ "entities/affect_data.h" "entities/affect_data.c")
 
 if (NOT MSVC)
     target_link_libraries(Mud98 Threads::Threads OpenSSL::SSL)

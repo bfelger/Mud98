@@ -153,7 +153,7 @@ void save_char_obj(CharData* ch)
  */
 void fwrite_char(CharData* ch, FILE* fp)
 {
-    AFFECT_DATA* paf;
+    AffectData* paf;
     int sn, gn, pos;
 
     fprintf(fp, "#%s\n", IS_NPC(ch) ? "MOB" : "PLAYER");
@@ -325,7 +325,7 @@ void fwrite_themes(CharData* ch, FILE* fp)
 /* write a pet */
 void fwrite_pet(CharData* pet, FILE* fp)
 {
-    AFFECT_DATA* paf;
+    AffectData* paf;
 
     fprintf(fp, "#PET\n");
 
@@ -391,7 +391,7 @@ void fwrite_pet(CharData* pet, FILE* fp)
 void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
 {
     ExtraDesc* ed;
-    AFFECT_DATA* paf;
+    AffectData* paf;
 
     /*
      * Slick recursion to write lists backwards,
@@ -784,7 +784,7 @@ void fread_char(CharData* ch, FILE* fp)
             }
 
             if (!str_cmp(word, "AffD")) {
-                AFFECT_DATA* paf;
+                AffectData* paf;
                 SKNUM sn;
 
                 paf = new_affect();
@@ -807,7 +807,7 @@ void fread_char(CharData* ch, FILE* fp)
             }
 
             if (!str_cmp(word, "Affc")) {
-                AFFECT_DATA* paf;
+                AffectData* paf;
                 SKNUM sn;
 
                 paf = new_affect();
@@ -1165,7 +1165,7 @@ void fread_pet(CharData* ch, FILE* fp)
             }
 
             if (!str_cmp(word, "AffD")) {
-                AFFECT_DATA* paf;
+                AffectData* paf;
                 SKNUM sn;
 
                 paf = new_affect();
@@ -1188,7 +1188,7 @@ void fread_pet(CharData* ch, FILE* fp)
             }
 
             if (!str_cmp(word, "Affc")) {
-                AFFECT_DATA* paf;
+                AffectData* paf;
                 SKNUM sn;
 
                 paf = new_affect();
@@ -1372,7 +1372,7 @@ void fread_obj(CharData* ch, FILE* fp)
 
         case 'A':
             if (!str_cmp(word, "AffD")) {
-                AFFECT_DATA* paf;
+                AffectData* paf;
                 SKNUM sn;
 
                 paf = new_affect();
@@ -1394,7 +1394,7 @@ void fread_obj(CharData* ch, FILE* fp)
                 break;
             }
             if (!str_cmp(word, "Affc")) {
-                AFFECT_DATA* paf;
+                AffectData* paf;
                 SKNUM sn;
 
                 paf = new_affect();

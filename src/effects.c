@@ -130,8 +130,8 @@ void acid_effect(void* vo, LEVEL level, int dam, int target)
 
         if (obj->item_type == ITEM_ARMOR) /* etch it */
         {
-            AFFECT_DATA* paf;
-            AFFECT_DATA* paf_next = NULL;
+            AffectData* paf;
+            AffectData* paf_next = NULL;
             bool af_found = false;
             int i;
 
@@ -215,7 +215,7 @@ void cold_effect(void* vo, LEVEL level, int dam, int target)
 
         /* chill touch effect */
         if (!saves_spell(level / 4 + (LEVEL)(dam / 20), victim, DAM_COLD)) {
-            AFFECT_DATA af = { 0 };
+            AffectData af = { 0 };
 
             act("$n turns blue and shivers.", victim, NULL, NULL, TO_ROOM);
             act("A chill sinks deep into your bones.", victim, NULL, NULL,
@@ -314,7 +314,7 @@ void fire_effect(void* vo, LEVEL level, int dam, int target)
         /* chance of blindness */
         if (!IS_AFFECTED(victim, AFF_BLIND)
             && !saves_spell(level / 4 + (LEVEL)(dam / 20), victim, DAM_FIRE)) {
-            AFFECT_DATA af = { 0 };
+            AffectData af = { 0 };
             act("$n is blinded by smoke!", victim, NULL, NULL, TO_ROOM);
             act("Your eyes tear up from smoke...you can't see a thing!", victim,
                 NULL, NULL, TO_CHAR);
@@ -446,7 +446,7 @@ void poison_effect(void* vo, LEVEL level, int dam, int target)
 
         /* chance of poisoning */
         if (!saves_spell(level / 4 + (LEVEL)(dam / 20), victim, DAM_POISON)) {
-            AFFECT_DATA af = { 0 };
+            AffectData af = { 0 };
 
             send_to_char("You feel poison coursing through your veins.\n\r",
                          victim);

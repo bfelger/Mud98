@@ -92,8 +92,12 @@ void close_socket(DESCRIPTOR_DATA* dclose);
 void write_to_buffer(DESCRIPTOR_DATA* d, const char* txt, size_t length);
 void send_to_char(const char* txt, CharData* ch);
 void page_to_char(const char* txt, CharData* ch);
+
+#define act(format, ch, arg1, arg2, type)                                      \
+    act_new((format), (ch), (arg1), (arg2), (type), POS_RESTING)
 void act_new(const char* format, CharData* ch, const void* arg1,
     const void* arg2, int type, int min_pos);
+
 void printf_to_char(CharData*, char*, ...);
 void bugf(char*, ...);
 void flog(char*, ...);

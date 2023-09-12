@@ -77,7 +77,6 @@ MPROG_CODE* pedit_prog(VNUM);
 
 // externals for counting purposes
 extern DESCRIPTOR_DATA* descriptor_free;
-extern AFFECT_DATA* affect_free;
 
 /*
  * Globals.
@@ -741,7 +740,7 @@ void load_old_obj(FILE* fp)
             letter = fread_letter(fp);
 
             if (letter == 'A') {
-                AFFECT_DATA* paf;
+                AffectData* paf;
 
                 paf = alloc_perm(sizeof(*paf));
                 paf->where = TO_OBJECT;
@@ -1701,7 +1700,7 @@ void reset_area(AreaData* pArea)
 void clone_mobile(CharData* parent, CharData* clone)
 {
     int i;
-    AFFECT_DATA* paf;
+    AffectData* paf;
 
     if (parent == NULL || clone == NULL || !IS_NPC(parent)) return;
 
@@ -2422,7 +2421,7 @@ void do_dump(CharData* ch, char* argument)
     RoomData* room = NULL;
     ExitData* exit = NULL;
     DESCRIPTOR_DATA* d;
-    AFFECT_DATA* af;
+    AffectData* af;
     FILE* fp;
     VNUM vnum;
     int nMatch = 0;

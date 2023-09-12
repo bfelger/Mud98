@@ -306,7 +306,7 @@ void save_mobiles(FILE* fp, AreaData* pArea)
 void save_object(FILE* fp, ObjectPrototype* p_object_prototype)
 {
     char letter;
-    AFFECT_DATA* pAf;
+    AffectData* pAf;
     ExtraDesc* pEd;
     char buf[MAX_STRING_LENGTH];
 
@@ -478,6 +478,8 @@ void save_object(FILE* fp, ObjectPrototype* p_object_prototype)
             case TO_VULN:
                 fprintf(fp, "V ");
                 break;
+            case TO_WEAPON:
+            case TO_OBJECT:
             default:
                 bug("olc_save: Invalid Affect->where", 0);
                 break;

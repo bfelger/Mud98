@@ -740,7 +740,7 @@ void do_give(CharData* ch, char* argument)
 void do_envenom(CharData* ch, char* argument)
 {
     ObjectData* obj;
-    AFFECT_DATA af = { 0 };
+    AffectData af = { 0 };
     int percent, skill;
 
     /* find out what */
@@ -1094,7 +1094,7 @@ void do_drink(CharData* ch, char* argument)
 
     if (obj->value[3] != 0) {
         /* The drink was poisoned ! */
-        AFFECT_DATA af = { 0 };
+        AffectData af = { 0 };
 
         act("$n chokes and gags.", ch, NULL, NULL, TO_ROOM);
         send_to_char("You choke and gag.\n\r", ch);
@@ -1160,7 +1160,7 @@ void do_eat(CharData* ch, char* argument)
 
         if (obj->value[3] != 0) {
             /* The food was poisoned! */
-            AFFECT_DATA af = { 0 };
+            AffectData af = { 0 };
 
             act("$n chokes and gags.", ch, 0, 0, TO_ROOM);
             send_to_char("You choke and gag.\n\r", ch);

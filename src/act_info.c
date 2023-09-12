@@ -1462,7 +1462,7 @@ void do_score(CharData* ch, char* argument)
 
 void do_affects(CharData* ch, char* argument)
 {
-    AFFECT_DATA *paf, *paf_last = NULL;
+    AffectData *paf, *paf_last = NULL;
     char buf[MAX_STRING_LENGTH];
 
     if (ch->affected != NULL) {

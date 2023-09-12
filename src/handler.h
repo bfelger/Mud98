@@ -11,11 +11,8 @@
 #include "entities/room_data.h"
 
 void all_colour(CharData* ch, char* argument);
-AFFECT_DATA* affect_find(AFFECT_DATA* paf, SKNUM sn);
-void affect_check(CharData* ch, int where, int vector);
 int count_users(ObjectData* obj);
 void deduct_cost(CharData* ch, int cost);
-void affect_enchant(ObjectData* obj);
 int check_immune(CharData* ch, DamageType dam_type);
 int material_lookup(const char* name);
 int weapon_lookup(const char* name);
@@ -40,13 +37,6 @@ int can_carry_n(CharData* ch);
 int can_carry_w(CharData* ch);
 bool is_name(char* str, char* namelist);
 bool is_exact_name(char* str, char* namelist);
-void affect_to_char(CharData* ch, AFFECT_DATA* paf);
-void affect_to_obj(ObjectData* obj, AFFECT_DATA* paf);
-void affect_remove(CharData* ch, AFFECT_DATA* paf);
-void affect_remove_obj(ObjectData* obj, AFFECT_DATA* paf);
-void affect_strip(CharData* ch, SKNUM sn);
-bool is_affected(CharData* ch, SKNUM sn);
-void affect_join(CharData* ch, AFFECT_DATA* paf);
 void char_from_room(CharData* ch);
 void char_to_room(CharData* ch, RoomData* pRoomIndex);
 void obj_to_char(ObjectData* obj, CharData* ch);

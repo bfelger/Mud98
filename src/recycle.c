@@ -147,36 +147,6 @@ void free_gen_data(GEN_DATA* gen)
     gen_data_free = gen;
 }
 
-/* stuff for recycling affects */
-AFFECT_DATA* affect_free;
-
-AFFECT_DATA* new_affect(void)
-{
-    static AFFECT_DATA af_zero;
-    AFFECT_DATA* af;
-
-    if (affect_free == NULL)
-        af = alloc_perm(sizeof(*af));
-    else {
-        af = affect_free;
-        affect_free = affect_free->next;
-    }
-
-    *af = af_zero;
-
-    VALIDATE(af);
-    return af;
-}
-
-void free_affect(AFFECT_DATA* af)
-{
-    if (!IS_VALID(af)) return;
-
-    INVALIDATE(af);
-    af->next = affect_free;
-    affect_free = af;
-}
-
 /* stuff for setting ids */
 long last_pc_id;
 

@@ -2321,7 +2321,7 @@ OEDIT(oedit_show)
 {
     ObjectPrototype* pObj;
     char buf[MAX_STRING_LENGTH];
-    AFFECT_DATA* paf;
+    AffectData* paf;
     int cnt;
 
     argument = one_argument(argument, buf);
@@ -2430,7 +2430,7 @@ OEDIT(oedit_addaffect)
 {
     int value;
     ObjectPrototype* pObj;
-    AFFECT_DATA* pAf;
+    AffectData* pAf;
     char loc[MAX_STRING_LENGTH];
     char mod[MAX_STRING_LENGTH];
 
@@ -2471,7 +2471,7 @@ OEDIT(oedit_addapply)
     bool rc = true;
     int value, bv, typ;
     ObjectPrototype* pObj;
-    AFFECT_DATA* pAf;
+    AffectData* pAf;
     INIT_BUF(loc, MAX_STRING_LENGTH);
     INIT_BUF(mod, MAX_STRING_LENGTH);
     INIT_BUF(type, MAX_STRING_LENGTH);
@@ -2547,8 +2547,8 @@ oedit_addapply_cleanup:
 OEDIT(oedit_delaffect)
 {
     ObjectPrototype* pObj;
-    AFFECT_DATA* pAf;
-    AFFECT_DATA* pAf_next;
+    AffectData* pAf;
+    AffectData* pAf_next;
     char affect[MAX_STRING_LENGTH];
     int  value;
     int  cnt = 0;
@@ -4205,7 +4205,7 @@ ED_FUN_DEC(ed_ed)
 ED_FUN_DEC(ed_addaffect)
 {
     int value;
-    AFFECT_DATA* pAf;
+    AffectData* pAf;
     ObjectPrototype* pObj = (ObjectPrototype*)arg;
     char loc[MAX_STRING_LENGTH];
     char mod[MAX_STRING_LENGTH];
@@ -4242,9 +4242,9 @@ ED_FUN_DEC(ed_addaffect)
 
 ED_FUN_DEC(ed_delaffect)
 {
-    AFFECT_DATA* pAf;
-    AFFECT_DATA* pAf_next;
-    AFFECT_DATA** pNaf = (AFFECT_DATA**)arg;
+    AffectData* pAf;
+    AffectData* pAf_next;
+    AffectData** pNaf = (AffectData**)arg;
     INIT_BUF(aff_name, MAX_STRING_LENGTH);
     int  value;
     int  cnt = 0;
@@ -4303,7 +4303,7 @@ ED_FUN_DEC(ed_addapply)
     bool rc = true;
     int value, bv, typ;
     ObjectPrototype* pObj = (ObjectPrototype*)arg;
-    AFFECT_DATA* pAf;
+    AffectData* pAf;
     INIT_BUF(loc, MAX_STRING_LENGTH);
     INIT_BUF(mod, MAX_STRING_LENGTH);
     INIT_BUF(type, MAX_STRING_LENGTH);

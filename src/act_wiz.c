@@ -1057,7 +1057,7 @@ void do_ostat(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    AFFECT_DATA* paf;
+    AffectData* paf;
     ObjectData* obj;
 
     one_argument(argument, arg);
@@ -1332,6 +1332,10 @@ void do_ostat(CharData* ch, char* argument)
                     sprintf(buf, "Adds vulnerability to %s.\n\r",
                             imm_bit_name(paf->bitvector));
                     break;
+                case TO_WEAPON:
+                    sprintf(buf, "Adds %s weapon flags.\n",
+                        weapon_bit_name(paf->bitvector));
+                    break;
                 default:
                     sprintf(buf, "Unknown bit %d: %d\n\r", paf->where,
                             paf->bitvector);
@@ -1348,7 +1352,7 @@ void do_mstat(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    AFFECT_DATA* paf;
+    AffectData* paf;
     CharData* victim;
 
     one_argument(argument, arg);

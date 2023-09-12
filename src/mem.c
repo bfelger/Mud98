@@ -26,11 +26,8 @@
 #include <sys/types.h>
 #include <time.h>
 
-ExtraDesc* extra_desc_free;
 SHOP_DATA* shop_free;
 
-void free_extra_desc(ExtraDesc* pExtra);
-void free_affect(AFFECT_DATA* af);
 
 SHOP_DATA* new_shop()
 {

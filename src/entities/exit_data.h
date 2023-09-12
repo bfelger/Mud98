@@ -3,11 +3,11 @@
 // Utilities to handle room exits
 ////////////////////////////////////////////////////////////////////////////////
 
+typedef struct exit_data_t ExitData;
+
 #pragma once
 #ifndef MUD98__ENTITIES__EXIT_DATA_H
 #define MUD98__ENTITIES__EXIT_DATA_H
-
-typedef struct exit_data_t ExitData;
 
 #include "merc.h"
 

@@ -20,8 +20,8 @@ void free_char_data(CharData* ch)
 {
     ObjectData* obj;
     ObjectData* obj_next = NULL;
-    AFFECT_DATA* paf;
-    AFFECT_DATA* paf_next = NULL;
+    AffectData* paf;
+    AffectData* paf_next = NULL;
 
     if (!IS_VALID(ch)) return;
 

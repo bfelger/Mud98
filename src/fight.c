@@ -589,8 +589,8 @@ void one_hit(CharData* ch, CharData* victim, SKNUM dt)
 
         if (ch->fighting == victim && IS_WEAPON_STAT(wield, WEAPON_POISON)) {
             LEVEL level;
-            AFFECT_DATA* poison;
-            AFFECT_DATA af = { 0 };
+            AffectData* poison;
+            AffectData af = { 0 };
 
             if ((poison = affect_find(wield->affected, gsn_poison)) == NULL)
                 level = wield->level;
@@ -2061,7 +2061,7 @@ void do_berserk(CharData* ch, char* argument)
     chance += 25 - hp_percent / 2;
 
     if (number_percent() < chance) {
-        AFFECT_DATA af = { 0 };
+        AffectData af = { 0 };
 
         WAIT_STATE(ch, PULSE_VIOLENCE);
         ch->mana -= 50;
@@ -2331,7 +2331,7 @@ void do_dirt(CharData* ch, char* argument)
 
     /* now the attack */
     if (number_percent() < chance) {
-        AFFECT_DATA af = { 0 };
+        AffectData af = { 0 };
         act("{5$n is blinded by the dirt in $s eyes!{x", victim, NULL, NULL,
             TO_ROOM);
         act("{5$n kicks dirt in your eyes!{x", ch, NULL, victim, TO_VICT);

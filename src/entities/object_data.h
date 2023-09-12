@@ -3,15 +3,16 @@
 // Utilities for handling in-game objects
 ////////////////////////////////////////////////////////////////////////////////
 
+typedef struct object_prototype_t ObjectPrototype;
+typedef struct object_data_t ObjectData;
+
 #pragma once
 #ifndef MUD98__ENTITIES__OBJECT_DATA_H
 #define MUD98__ENTITIES__OBJECT_DATA_H
 
-typedef struct object_prototype_t ObjectPrototype;
-typedef struct object_data_t ObjectData;
-
 #include "merc.h"
 
+#include "affect_data.h"
 #include "area_data.h"
 #include "char_data.h"
 #include "extra_desc.h"
@@ -25,7 +26,7 @@ typedef struct object_data_t ObjectData;
 typedef struct object_prototype_t {
     ObjectPrototype* next;
     ExtraDesc* extra_desc;
-    AFFECT_DATA* affected;
+    AffectData* affected;
     AreaData* area;        // OLC
     char* name;
     char* short_descr;
@@ -53,7 +54,7 @@ typedef struct object_data_t {
     ObjectData* on;
     CharData* carried_by;
     ExtraDesc* extra_desc;
-    AFFECT_DATA* affected;
+    AffectData* affected;
     ObjectPrototype* pIndexData;
     RoomData* in_room;
     char* owner;

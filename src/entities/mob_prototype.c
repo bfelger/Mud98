@@ -118,7 +118,7 @@ CharData* create_mobile(MobPrototype* p_mob_proto)
 {
     CharData* mob;
     int i;
-    AFFECT_DATA af = { 0 };
+    AffectData af = { 0 };
 
     mobile_count++;
 

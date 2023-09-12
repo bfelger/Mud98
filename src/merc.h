@@ -138,7 +138,6 @@ typedef int	LookupFunc(const char*);
 /*
  * Structure types.
  */
-typedef struct affect_data AFFECT_DATA;
 typedef struct ban_data BAN_DATA;
 typedef struct buf_type BUFFER;
 typedef struct descriptor_data DESCRIPTOR_DATA;
@@ -421,30 +420,6 @@ struct race_type {
     int16_t max_stats[MAX_STATS];	/* maximum stats */
     int16_t size;			/* aff bits for the race */
 };
-
-
-/*
- * An affect.
- */
-struct affect_data {
-    AFFECT_DATA* next;
-    bool valid;
-    int16_t where;
-    SKNUM type;
-    LEVEL level;
-    int16_t duration;
-    int16_t location;
-    int16_t modifier;
-    int bitvector;
-};
-
-/* where definitions */
-#define TO_AFFECTS 0
-#define TO_OBJECT  1
-#define TO_IMMUNE  2
-#define TO_RESIST  3
-#define TO_VULN    4
-#define TO_WEAPON  5
 
 /*
  * A kill structure (indexed by level).
@@ -1339,9 +1314,6 @@ struct mprog_code {
 #define DAZE_STATE(ch, npulse) ((ch)->daze = UMAX((ch)->daze, (npulse)))
 #define get_carry_weight(ch)                                                   \
     ((ch)->carry_weight + (ch)->silver / 10 + (ch)->gold * 2 / 5)
-
-#define act(format, ch, arg1, arg2, type)                                      \
-    act_new((format), (ch), (arg1), (arg2), (type), POS_RESTING)
 
 #define HAS_TRIGGER(ch, trig) (IS_SET((ch)->pIndexData->mprog_flags, (trig)))
 #define IS_SWITCHED(ch) (ch->desc && ch->desc->original)

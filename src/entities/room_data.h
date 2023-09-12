@@ -3,11 +3,11 @@
 // Utilities to handle navigable rooms
 ////////////////////////////////////////////////////////////////////////////////
 
+typedef struct room_data_t RoomData;
+
 #pragma once
 #ifndef MUD98__ENTITIES__ROOM_DATA_H
 #define MUD98__ENTITIES__ROOM_DATA_H
-
-typedef struct room_data_t RoomData;
 
 #include "merc.h"
 

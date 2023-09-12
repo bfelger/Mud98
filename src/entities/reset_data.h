@@ -3,11 +3,11 @@
 // Utilities to handle area resets of mobs and items
 ////////////////////////////////////////////////////////////////////////////////
 
+typedef struct reset_data_t ResetData;
+
 #pragma once
 #ifndef MUD98__ENTITIES__RESET_DATA_H
 #define MUD98__ENTITIES__RESET_DATA_H
-
-typedef struct reset_data_t ResetData;
 
 #include "merc.h"
 

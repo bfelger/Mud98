@@ -1266,7 +1266,7 @@ void do_wake(CharData* ch, char* argument)
 
 void do_sneak(CharData* ch, char* argument)
 {
-    AFFECT_DATA af = { 0 };
+    AffectData af = { 0 };
 
     send_to_char("You attempt to move silently.\n\r", ch);
     affect_strip(ch, gsn_sneak);

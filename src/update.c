@@ -594,8 +594,8 @@ void char_update(void)
     if (save_number > 29) save_number = 0;
 
     for (ch = char_list; ch != NULL; ch = ch_next) {
-        AFFECT_DATA* paf;
-        AFFECT_DATA* paf_next = NULL;
+        AffectData* paf;
+        AffectData* paf_next = NULL;
 
         ch_next = ch->next;
 
@@ -694,8 +694,8 @@ void char_update(void)
          */
 
         if (is_affected(ch, gsn_plague) && ch != NULL) {
-            AFFECT_DATA* af;
-            AFFECT_DATA plague = { 0 };
+            AffectData* af;
+            AffectData plague = { 0 };
             CharData* vch;
             int dam;
 
@@ -744,7 +744,7 @@ void char_update(void)
                  && !IS_AFFECTED(ch, AFF_SLOW))
 
         {
-            AFFECT_DATA* poison;
+            AffectData* poison;
 
             poison = affect_find(ch->affected, gsn_poison);
 
@@ -791,8 +791,8 @@ void obj_update(void)
 {
     ObjectData* obj;
     ObjectData* obj_next = NULL;
-    AFFECT_DATA* paf;
-    AFFECT_DATA* paf_next = NULL;
+    AffectData* paf;
+    AffectData* paf_next = NULL;
 
     for (obj = object_list; obj != NULL; obj = obj_next) {
         CharData* rch;
