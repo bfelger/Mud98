@@ -15,6 +15,8 @@ typedef struct mob_prototype_t MobPrototype;
 
 #include "area_data.h"
 
+#include "data/mobile.h"
+
 #include <stdbool.h>
 
 typedef struct mob_prototype_t {
@@ -28,17 +30,17 @@ typedef struct mob_prototype_t {
     char* long_descr;
     char* description;
     char* material;
-    int act;
-    int affected_by;
-    int off_flags;
-    int imm_flags;
-    int res_flags;
-    int vuln_flags;
-    int wealth;
-    int form;
-    int parts;
-    int mprog_flags;
+    FLAGS act_flags;
+    FLAGS affect_flags;
+    FLAGS atk_flags;
+    FLAGS imm_flags;
+    FLAGS res_flags;
+    FLAGS vuln_flags;
+    FLAGS form;
+    FLAGS parts;
+    FLAGS mprog_flags;
     VNUM vnum;
+    int wealth;
     int16_t hit[3];
     int16_t mana[3];
     int16_t damage[3];
@@ -50,8 +52,8 @@ typedef struct mob_prototype_t {
     int16_t level;
     int16_t hitroll;
     int16_t dam_type;
-    int16_t start_pos;
-    int16_t default_pos;
+    Position start_pos;
+    Position default_pos;
     int16_t sex;
     int16_t race;
     int16_t size;

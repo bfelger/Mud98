@@ -18,6 +18,8 @@
 
 #include "entities/player_data.h"
 
+#include "data/mobile.h"
+
 extern bool fBootDb;
 
 char* gsn_name(int16_t* pgsn);
@@ -29,7 +31,7 @@ int16_t* gsn_lookup(char* argument);
 
 struct skill_type* skill_table;
 SKNUM max_skill;
-struct skhash* skill_hash_table[26];
+SkillHash* skill_hash_table[26];
 
 void create_skills_hash_table(void);
 void delete_skills_hash_table(void);
@@ -258,7 +260,7 @@ void do_skedit(CharData* ch, char* argument)
     return;
 }
 
-void skill_list(BUFFER* pBuf)
+void skill_list(Buffer* pBuf)
 {
     char buf[MSL];
     int i;
@@ -282,7 +284,7 @@ void skill_list(BUFFER* pBuf)
         add_buf(pBuf, "\n\r");
 }
 
-void spell_list(BUFFER* pBuf)
+void spell_list(Buffer* pBuf)
 {
     char buf[MSL];
     int i;
@@ -305,7 +307,7 @@ void spell_list(BUFFER* pBuf)
         add_buf(pBuf, "\n\r");
 }
 
-void gsn_list(BUFFER* pBuf)
+void gsn_list(Buffer* pBuf)
 {
     char buf[MSL];
     int i;
@@ -328,7 +330,7 @@ void gsn_list(BUFFER* pBuf)
         add_buf(pBuf, "\n\r");
 }
 
-void slot_list(BUFFER* pBuf)
+void slot_list(Buffer* pBuf)
 {
     char buf[MSL];
     int i, cnt;
@@ -358,7 +360,7 @@ void slot_list(BUFFER* pBuf)
 
 SKEDIT(skedit_list)
 {
-    BUFFER* pBuf;
+    Buffer* pBuf;
 
     if (IS_NULLSTR(argument) || !is_name(argument, "gsns skills spells slots")) {
         send_to_char("Syntax : list [gsns/skills/spells/slots]\n\r", ch);
@@ -475,8 +477,8 @@ SKEDIT(skedit_show)
 void create_skills_hash_table(void)
 {
     int value;
-    struct skhash* data;
-    struct skhash* temp;
+    SkillHash* data;
+    SkillHash* temp;
     SKNUM sn;
 
     for (sn = 0; sn < max_skill; sn++) {
@@ -490,8 +492,8 @@ void create_skills_hash_table(void)
             exit(1);
         }
 
-        if ((data = new_skhash()) == NULL) {
-            perror("create_skills_hash_table: Could not allocate new skhash!");
+        if ((data = new_skill_hash()) == NULL) {
+            perror("create_skills_hash_table: Could not allocate new skill_hash!");
             exit(-1);
         }
         data->sn = sn;
@@ -521,14 +523,14 @@ void create_skills_hash_table(void)
 
 void delete_skills_hash_table(void)
 {
-    struct skhash* temp = NULL;
-    struct skhash* temp_next = NULL;
+    SkillHash* temp = NULL;
+    SkillHash* temp_next = NULL;
     int i;
 
     for (i = 0; i < 26; ++i) {
         for (temp = skill_hash_table[i]; temp; temp = temp_next) {
             temp_next = temp->next;
-            free_skhash(temp);
+            free_skill_hash(temp);
         }
         skill_hash_table[i] = NULL;
     }

@@ -33,6 +33,8 @@
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
+#include "data/mobile.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -192,10 +194,10 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
     fprintf(fp, "%s~\n", fix_string(p_mob_proto->description));
     fprintf(fp, "%s~\n", race_table[race].name);
 
-    temp = DIF(p_mob_proto->act, race_table[race].act);
+    temp = DIF(p_mob_proto->act_flags, race_table[race].act_flags);
     fprintf(fp, "%s ", fwrite_flag(temp, buf));
 
-    temp = DIF(p_mob_proto->affected_by, race_table[race].aff);
+    temp = DIF(p_mob_proto->affect_flags, race_table[race].aff);
     fprintf(fp, "%s ", fwrite_flag(temp, buf));
 
     fprintf(fp, "%d %d\n", p_mob_proto->alignment, p_mob_proto->group);
@@ -216,7 +218,7 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
         p_mob_proto->ac[AC_SLASH] / 10,
         p_mob_proto->ac[AC_EXOTIC] / 10);
 
-    temp = DIF(p_mob_proto->off_flags, race_table[race].off);
+    temp = DIF(p_mob_proto->atk_flags, race_table[race].off);
     fprintf(fp, "%s ", fwrite_flag(temp, buf));
 
     temp = DIF(p_mob_proto->imm_flags, race_table[race].imm);
@@ -243,13 +245,13 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
     fprintf(fp, "%s ", size_table[p_mob_proto->size].name);
     fprintf(fp, "'%s'\n", ((p_mob_proto->material[0] != '\0') ? p_mob_proto->material : "unknown"));
 
-    if ((temp = DIF(race_table[race].act, p_mob_proto->act)))
+    if ((temp = DIF(race_table[race].act_flags, p_mob_proto->act_flags)))
         fprintf(fp, "F act %s\n", fwrite_flag(temp, buf));
 
-    if ((temp = DIF(race_table[race].aff, p_mob_proto->affected_by)))
+    if ((temp = DIF(race_table[race].aff, p_mob_proto->affect_flags)))
         fprintf(fp, "F aff %s\n", fwrite_flag(temp, buf));
 
-    if ((temp = DIF(race_table[race].off, p_mob_proto->off_flags)))
+    if ((temp = DIF(race_table[race].off, p_mob_proto->atk_flags)))
         fprintf(fp, "F off %s\n", fwrite_flag(temp, buf));
 
     if ((temp = DIF(race_table[race].imm, p_mob_proto->imm_flags)))

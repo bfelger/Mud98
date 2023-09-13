@@ -13,6 +13,7 @@
 
 #include "entities/player_data.h"
 
+#include "data/mobile.h"
 
 #define GROUP_FILE DATA_DIR "groups"
 #define GEDIT(fun) bool fun(CharData *ch, char *argument)

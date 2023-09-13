@@ -74,7 +74,7 @@ bool can_drop_obj(CharData* ch, ObjectData* obj);
 char* extra_bit_name(int extra_flags);
 char* wear_bit_name(int wear_flags);
 char* act_bit_name(int act_flags);
-char* off_bit_name(int off_flags);
+char* off_bit_name(int atk_flags);
 char* imm_bit_name(int imm_flags);
 char* form_bit_name(int form_flags);
 char* part_bit_name(int part_flags);

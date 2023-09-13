@@ -30,6 +30,9 @@
 #include "entities/char_data.h"
 #include "entities/object_data.h"
 
+#include "data/mobile.h"
+#include "data/player.h"
+
 #include "act_move.h"
 #include "act_obj.h"
 #include "comm.h"
@@ -140,9 +143,9 @@ bool spec_troll_member(CharData* ch)
     for (vch = ch->in_room->people; vch != NULL; vch = vch->next_in_room) {
         if (!IS_NPC(vch) || ch == vch) continue;
 
-        if (vch->pIndexData->vnum == MOB_VNUM_PATROLMAN) return false;
+        if (vch->prototype->vnum == MOB_VNUM_PATROLMAN) return false;
 
-        if (vch->pIndexData->group == GROUP_VNUM_OGRES
+        if (vch->prototype->group == GROUP_VNUM_OGRES
             && ch->level > vch->level - 2 && !is_safe(ch, vch)) {
             if (number_range(0, count) == 0) victim = vch;
 
@@ -200,9 +203,9 @@ bool spec_ogre_member(CharData* ch)
     for (vch = ch->in_room->people; vch != NULL; vch = vch->next_in_room) {
         if (!IS_NPC(vch) || ch == vch) continue;
 
-        if (vch->pIndexData->vnum == MOB_VNUM_PATROLMAN) return false;
+        if (vch->prototype->vnum == MOB_VNUM_PATROLMAN) return false;
 
-        if (vch->pIndexData->group == GROUP_VNUM_TROLLS
+        if (vch->prototype->group == GROUP_VNUM_TROLLS
             && ch->level > vch->level - 2 && !is_safe(ch, vch)) {
             if (number_range(0, count) == 0) victim = vch;
 
@@ -273,9 +276,9 @@ bool spec_patrolman(CharData* ch)
         return false;
 
     if (((obj = get_eq_char(ch, WEAR_NECK_1)) != NULL
-         && obj->pIndexData->vnum == OBJ_VNUM_WHISTLE)
+         && obj->prototype->vnum == OBJ_VNUM_WHISTLE)
         || ((obj = get_eq_char(ch, WEAR_NECK_2)) != NULL
-            && obj->pIndexData->vnum == OBJ_VNUM_WHISTLE)) {
+            && obj->prototype->vnum == OBJ_VNUM_WHISTLE)) {
         act("You blow down hard on $p.", ch, obj, NULL, TO_CHAR);
         act("$n blows on $p, ***WHEEEEEEEEEEEET***", ch, obj, NULL, TO_ROOM);
 
@@ -768,13 +771,13 @@ bool spec_executioner(CharData* ch)
     for (victim = ch->in_room->people; victim != NULL; victim = v_next) {
         v_next = victim->next_in_room;
 
-        if (!IS_NPC(victim) && IS_SET(victim->act, PLR_KILLER)
+        if (!IS_NPC(victim) && IS_SET(victim->act_flags, PLR_KILLER)
             && can_see(ch, victim)) {
             crime = "KILLER";
             break;
         }
 
-        if (!IS_NPC(victim) && IS_SET(victim->act, PLR_THIEF)
+        if (!IS_NPC(victim) && IS_SET(victim->act_flags, PLR_THIEF)
             && can_see(ch, victim)) {
             crime = "THIEF";
             break;
@@ -835,13 +838,13 @@ bool spec_guard(CharData* ch)
     for (victim = ch->in_room->people; victim != NULL; victim = v_next) {
         v_next = victim->next_in_room;
 
-        if (!IS_NPC(victim) && IS_SET(victim->act, PLR_KILLER)
+        if (!IS_NPC(victim) && IS_SET(victim->act_flags, PLR_KILLER)
             && can_see(ch, victim)) {
             crime = "KILLER";
             break;
         }
 
-        if (!IS_NPC(victim) && IS_SET(victim->act, PLR_THIEF)
+        if (!IS_NPC(victim) && IS_SET(victim->act_flags, PLR_THIEF)
             && can_see(ch, victim)) {
             crime = "THIEF";
             break;

@@ -43,6 +43,9 @@
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
+#include "data/mobile.h"
+#include "data/player.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -199,6 +202,8 @@ bool saves_spell(LEVEL level, CharData* victim, DamageType dam_type)
         break;
     case IS_VULNERABLE:
         save -= 2;
+        break;
+    default:
         break;
     }
 
@@ -848,7 +853,7 @@ void spell_calm(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
         for (vch = ch->in_room->people; vch != NULL; vch = vch->next_in_room) {
             if (IS_NPC(vch)
                 && (IS_SET(vch->imm_flags, IMM_MAGIC)
-                    || IS_SET(vch->act, ACT_UNDEAD)))
+                    || IS_SET(vch->act_flags, ACT_UNDEAD)))
                 return;
 
             if (IS_AFFECTED(vch, AFF_CALM) || IS_AFFECTED(vch, AFF_BERSERK)
@@ -1856,7 +1861,7 @@ void spell_dispel_magic(SKNUM sn, LEVEL level, CharData* ch, void* vo, int targe
     if (IS_AFFECTED(victim, AFF_SANCTUARY)
         && !saves_dispel(level, victim->level, -1)
         && !is_affected(victim, skill_lookup("sanctuary"))) {
-        REMOVE_BIT(victim->affected_by, AFF_SANCTUARY);
+        REMOVE_BIT(victim->affect_flags, AFF_SANCTUARY);
         act("The white aura around $n's body vanishes.", victim, NULL, NULL,
             TO_ROOM);
         found = true;
@@ -1945,7 +1950,7 @@ void spell_enchant_armor(SKNUM sn, LEVEL level, CharData* ch, void* vo, int targ
     /* find the bonuses */
 
     if (!obj->enchanted)
-        for (paf = obj->pIndexData->affected; paf != NULL; paf = paf->next) {
+        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next) {
             if (paf->location == APPLY_AC) {
                 ac_bonus = paf->modifier;
                 ac_found = true;
@@ -2017,7 +2022,7 @@ void spell_enchant_armor(SKNUM sn, LEVEL level, CharData* ch, void* vo, int targ
         AffectData* af_new;
         obj->enchanted = true;
 
-        for (paf = obj->pIndexData->affected; paf != NULL; paf = paf->next) {
+        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next) {
             af_new = new_affect();
 
             af_new->next = obj->affected;
@@ -2107,7 +2112,7 @@ void spell_enchant_weapon(SKNUM sn, LEVEL level, CharData* ch, void* vo,
     /* find the bonuses */
 
     if (!obj->enchanted)
-        for (paf = obj->pIndexData->affected; paf != NULL; paf = paf->next) {
+        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next) {
             if (paf->location == APPLY_HITROLL) {
                 hit_bonus = paf->modifier;
                 hit_found = true;
@@ -2191,7 +2196,7 @@ void spell_enchant_weapon(SKNUM sn, LEVEL level, CharData* ch, void* vo,
         AffectData* af_new;
         obj->enchanted = true;
 
-        for (paf = obj->pIndexData->affected; paf != NULL; paf = paf->next) {
+        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next) {
             af_new = new_affect();
 
             af_new->next = obj->affected;
@@ -2398,9 +2403,9 @@ void spell_faerie_fog(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
         affect_strip(ich, gsn_invis);
         affect_strip(ich, gsn_mass_invis);
         affect_strip(ich, gsn_sneak);
-        REMOVE_BIT(ich->affected_by, AFF_HIDE);
-        REMOVE_BIT(ich->affected_by, AFF_INVISIBLE);
-        REMOVE_BIT(ich->affected_by, AFF_SNEAK);
+        REMOVE_BIT(ich->affect_flags, AFF_HIDE);
+        REMOVE_BIT(ich->affect_flags, AFF_INVISIBLE);
+        REMOVE_BIT(ich->affect_flags, AFF_SNEAK);
         act("$n is revealed!", ich, NULL, NULL, TO_ROOM);
         send_to_char("You are revealed!\n\r", ich);
     }
@@ -2601,7 +2606,7 @@ void spell_haste(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
     AffectData af = { 0 };
 
     if (is_affected(victim, sn) || IS_AFFECTED(victim, AFF_HASTE)
-        || IS_SET(victim->off_flags, OFF_FAST)) {
+        || IS_SET(victim->atk_flags, ATK_FAST)) {
         if (victim == ch)
             send_to_char("You can't move any faster!\n\r", ch);
         else
@@ -2935,7 +2940,7 @@ void spell_identify(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
             send_to_char("unknown.\n\r", ch);
             break;
         }
-        if (obj->pIndexData->new_format)
+        if (obj->prototype->new_format)
             sprintf(buf, "Damage is %dd%d (average %d).\n\r", obj->value[1],
                     obj->value[2], (1 + obj->value[2]) * obj->value[1] / 2);
         else
@@ -2962,7 +2967,7 @@ void spell_identify(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
     }
 
     if (!obj->enchanted)
-        for (paf = obj->pIndexData->affected; paf != NULL; paf = paf->next) {
+        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next) {
             if (paf->location != APPLY_NONE && paf->modifier != 0) {
                 sprintf(buf, "Affects %s by %d.\n\r",
                         affect_loc_name(paf->location), paf->modifier);
@@ -3174,7 +3179,7 @@ void spell_lightning_bolt(SKNUM sn, LEVEL level, CharData* ch, void* vo,
 void spell_locate_object(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 {
     char buf[MAX_INPUT_LENGTH];
-    BUFFER* buffer;
+    Buffer* buffer;
     ObjectData* obj;
     ObjectData* in_obj;
     bool found;
@@ -3328,7 +3333,7 @@ void spell_plague(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
     AffectData af = { 0 };
 
     if (saves_spell(level, victim, DAM_DISEASE)
-        || (IS_NPC(victim) && IS_SET(victim->act, ACT_UNDEAD))) {
+        || (IS_NPC(victim) && IS_SET(victim->act_flags, ACT_UNDEAD))) {
         if (ch == victim)
             send_to_char("You feel momentarily ill, but it passes.\n\r", ch);
         else
@@ -3735,7 +3740,7 @@ void spell_sleep(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
     AffectData af = { 0 };
 
     if (IS_AFFECTED(victim, AFF_SLEEP)
-        || (IS_NPC(victim) && IS_SET(victim->act, ACT_UNDEAD))
+        || (IS_NPC(victim) && IS_SET(victim->act_flags, ACT_UNDEAD))
         || (level + 2) < victim->level
         || saves_spell(level - 4, victim, DAM_CHARM))
         return;
@@ -3838,13 +3843,13 @@ void spell_summon(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
         || IS_SET(victim->in_room->room_flags, ROOM_PRIVATE)
         || IS_SET(victim->in_room->room_flags, ROOM_SOLITARY)
         || IS_SET(victim->in_room->room_flags, ROOM_NO_RECALL)
-        || (IS_NPC(victim) && IS_SET(victim->act, ACT_AGGRESSIVE))
+        || (IS_NPC(victim) && IS_SET(victim->act_flags, ACT_AGGRESSIVE))
         || victim->level >= level + 3
         || (!IS_NPC(victim) && victim->level >= LEVEL_IMMORTAL)
         || victim->fighting != NULL
         || (IS_NPC(victim) && IS_SET(victim->imm_flags, IMM_SUMMON))
-        || (IS_NPC(victim) && victim->pIndexData->pShop != NULL)
-        || (!IS_NPC(victim) && IS_SET(victim->act, PLR_NOSUMMON))
+        || (IS_NPC(victim) && victim->prototype->pShop != NULL)
+        || (!IS_NPC(victim) && IS_SET(victim->act_flags, PLR_NOSUMMON))
         || (IS_NPC(victim) && saves_spell(level, victim, DAM_OTHER)))
 
     {

@@ -45,6 +45,9 @@
 
 #include "entities/player_data.h"
 
+#include "data/mobile.h"
+#include "data/player.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -690,7 +693,7 @@ void do_say(CharData* ch, char* argument)
         for (mob = ch->in_room->people; mob != NULL; mob = mob_next) {
             mob_next = mob->next_in_room;
             if (IS_NPC(mob) && HAS_TRIGGER(mob, TRIG_SPEECH)
-                && mob->position == mob->pIndexData->default_pos)
+                && mob->position == mob->prototype->default_pos)
                 mp_act_trigger(argument, mob, ch, NULL, NULL, TRIG_SPEECH);
         }
     }
@@ -1279,14 +1282,14 @@ void do_follow(CharData* ch, char* argument)
         return;
     }
 
-    if (!IS_NPC(victim) && IS_SET(victim->act, PLR_NOFOLLOW)
+    if (!IS_NPC(victim) && IS_SET(victim->act_flags, PLR_NOFOLLOW)
         && !IS_IMMORTAL(ch)) {
         act("$N doesn't seem to want any followers.\n\r", ch, NULL, victim,
             TO_CHAR);
         return;
     }
 
-    REMOVE_BIT(ch->act, PLR_NOFOLLOW);
+    REMOVE_BIT(ch->act_flags, PLR_NOFOLLOW);
 
     if (ch->master != NULL) stop_follower(ch);
 
@@ -1320,7 +1323,7 @@ void stop_follower(CharData* ch)
     }
 
     if (IS_AFFECTED(ch, AFF_CHARM)) {
-        REMOVE_BIT(ch->affected_by, AFF_CHARM);
+        REMOVE_BIT(ch->affect_flags, AFF_CHARM);
         affect_strip(ch, gsn_charm_person);
     }
 
@@ -1681,8 +1684,8 @@ void do_colour(CharData* ch, char* argument)
     argument = one_argument(argument, arg);
 
     if (!*arg) {
-        if (!IS_SET(ch->act, PLR_COLOUR)) {
-            SET_BIT(ch->act, PLR_COLOUR);
+        if (!IS_SET(ch->act_flags, PLR_COLOUR)) {
+            SET_BIT(ch->act_flags, PLR_COLOUR);
             send_to_char(
                 "ColoUr is now ON, Way Cool!\n\r"
                 "Further syntax:\n\r   colour {c<{xfield{c> <{xcolour{c>{x\n\r"
@@ -1693,7 +1696,7 @@ void do_colour(CharData* ch, char* argument)
         }
         else {
             send_to_char_bw("ColoUr is now OFF, <sigh>\n\r", ch);
-            REMOVE_BIT(ch->act, PLR_COLOUR);
+            REMOVE_BIT(ch->act_flags, PLR_COLOUR);
         }
         return;
     }

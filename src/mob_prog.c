@@ -47,6 +47,8 @@
 #include "entities/char_data.h"
 #include "entities/object_data.h"
 
+#include "data/mobile.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -278,7 +280,7 @@ int count_people_room(CharData* mob, int iFlag)
                 || (iFlag == 1 && !IS_NPC(vch))
                 || (iFlag == 2 && IS_NPC(vch))
                 || (iFlag == 3 && IS_NPC(mob) && IS_NPC(vch)
-                    && mob->pIndexData->vnum == vch->pIndexData->vnum)
+                    && mob->prototype->vnum == vch->prototype->vnum)
                 || (iFlag == 4 && is_same_group(mob, vch)))
             && can_see(mob, vch))
             count++;
@@ -301,7 +303,7 @@ int get_order(CharData* ch)
         if (vch == ch)
             return i;
         if (IS_NPC(vch)
-            && vch->pIndexData->vnum == ch->pIndexData->vnum)
+            && vch->prototype->vnum == ch->prototype->vnum)
             i++;
     }
     return 0;
@@ -317,8 +319,8 @@ bool has_item(CharData* ch, VNUM vnum, int16_t item_type, bool fWear)
 {
     ObjectData* obj;
     for (obj = ch->carrying; obj; obj = obj->next_content)
-        if ((vnum == VNUM_NONE || obj->pIndexData->vnum == vnum)
-            && (item_type < 0 || obj->pIndexData->item_type == item_type)
+        if ((vnum == VNUM_NONE || obj->prototype->vnum == vnum)
+            && (item_type < 0 || obj->prototype->item_type == item_type)
             && (!fWear || obj->wear_loc != WEAR_NONE))
             return true;
     return false;
@@ -331,7 +333,7 @@ bool get_mob_vnum_room(CharData* ch, VNUM vnum)
 {
     CharData* mob;
     for (mob = ch->in_room->people; mob; mob = mob->next_in_room)
-        if (IS_NPC(mob) && mob->pIndexData->vnum == vnum)
+        if (IS_NPC(mob) && mob->prototype->vnum == vnum)
             return true;
     return false;
 }
@@ -343,7 +345,7 @@ bool get_obj_vnum_room(CharData* ch, VNUM vnum)
 {
     ObjectData* obj;
     for (obj = ch->in_room->contents; obj; obj = obj->next_content)
-        if (obj->pIndexData->vnum == vnum)
+        if (obj->prototype->vnum == vnum)
             return true;
     return false;
 }
@@ -532,16 +534,16 @@ int cmd_eval(VNUM vnum, char* line, int check,
     switch (check) {
     case CHK_AFFECTED:
         return(lval_char != NULL
-            && IS_SET(lval_char->affected_by, flag_lookup(buf, affect_flag_table)));
+            && IS_SET(lval_char->affect_flags, flag_lookup(buf, affect_flag_table)));
     case CHK_ACT:
         return(lval_char != NULL
-            && IS_SET(lval_char->act, flag_lookup(buf, act_flag_table)));
+            && IS_SET(lval_char->act_flags, flag_lookup(buf, act_flag_table)));
     case CHK_IMM:
         return(lval_char != NULL
             && IS_SET(lval_char->imm_flags, flag_lookup(buf, imm_flag_table)));
     case CHK_OFF:
         return(lval_char != NULL
-            && IS_SET(lval_char->off_flags, flag_lookup(buf, off_flag_table)));
+            && IS_SET(lval_char->atk_flags, flag_lookup(buf, off_flag_table)));
     case CHK_CARRIES:
         if (is_number(buf))
             return(lval_char != NULL && has_item(lval_char, STRTOVNUM(buf), -1, false));
@@ -604,12 +606,12 @@ int cmd_eval(VNUM vnum, char* line, int check,
         case 'r':
         case 'q':
             if (lval_char != NULL && IS_NPC(lval_char))
-                lval = lval_char->pIndexData->vnum;
+                lval = lval_char->prototype->vnum;
             break;
         case 'o':
         case 'p':
             if (lval_obj != NULL)
-                lval = lval_obj->pIndexData->vnum;
+                lval = lval_obj->prototype->vnum;
         }
         break;
     case CHK_HPCNT:
@@ -879,10 +881,10 @@ void program_flow(
     int state[MAX_NESTED_LEVEL] = { 0 }; /* Block state (BEGIN,IN,END) */
     int cond[MAX_NESTED_LEVEL] = { 0 };  /* Boolean value based on the last if-check */
 
-    VNUM mvnum = mob->pIndexData->vnum;
+    VNUM mvnum = mob->prototype->vnum;
 
     if (++call_level > MAX_CALL_LEVEL) {
-        bug("MOBprogs: MAX_CALL_LEVEL exceeded, vnum %"PRVNUM"", mob->pIndexData->vnum);
+        bug("MOBprogs: MAX_CALL_LEVEL exceeded, vnum %"PRVNUM"", mob->prototype->vnum);
         return;
     }
 
@@ -1070,7 +1072,7 @@ void mp_act_trigger(
 {
     MPROG_LIST* prg;
 
-    for (prg = mob->pIndexData->mprogs; prg != NULL; prg = prg->next) {
+    for (prg = mob->prototype->mprogs; prg != NULL; prg = prg->next) {
         if (prg->trig_type == type
             && strstr(argument, prg->trig_phrase) != NULL) {
             program_flow(prg->vnum, prg->code, mob, ch, arg1, arg2);
@@ -1090,7 +1092,7 @@ bool mp_percent_trigger(
 {
     MPROG_LIST* prg;
 
-    for (prg = mob->pIndexData->mprogs; prg != NULL; prg = prg->next) {
+    for (prg = mob->prototype->mprogs; prg != NULL; prg = prg->next) {
         if (prg->trig_type == type
             && number_percent() < atoi(prg->trig_phrase)) {
             program_flow(prg->vnum, prg->code, mob, ch, arg1, arg2);
@@ -1109,7 +1111,7 @@ void mp_bribe_trigger(CharData* mob, CharData* ch, int amount)
      * and give it to the mobile. WFT was that? Funcs in act_obj()
      * handle it just fine.
      */
-    for (prg = mob->pIndexData->mprogs; prg; prg = prg->next) {
+    for (prg = mob->prototype->mprogs; prg; prg = prg->next) {
         if (prg->trig_type == TRIG_BRIBE
             && amount >= atoi(prg->trig_phrase)) {
             program_flow(prg->vnum, prg->code, mob, ch, NULL, NULL);
@@ -1127,7 +1129,7 @@ bool mp_exit_trigger(CharData* ch, int dir)
     for (mob = ch->in_room->people; mob != NULL; mob = mob->next_in_room) {
         if (IS_NPC(mob)
             && (HAS_TRIGGER(mob, TRIG_EXIT) || HAS_TRIGGER(mob, TRIG_EXALL))) {
-            for (prg = mob->pIndexData->mprogs; prg; prg = prg->next) {
+            for (prg = mob->prototype->mprogs; prg; prg = prg->next) {
             /*
              * Exit trigger works only if the mobile is not busy
              * (fighting etc.). If you want to be sure all players
@@ -1135,7 +1137,7 @@ bool mp_exit_trigger(CharData* ch, int dir)
              */
                 if (prg->trig_type == TRIG_EXIT
                     && dir == atoi(prg->trig_phrase)
-                    && mob->position == mob->pIndexData->default_pos
+                    && mob->position == mob->prototype->default_pos
                     && can_see(mob, ch)) {
                     program_flow(prg->vnum, prg->code, mob, ch, NULL, NULL);
                     return true;
@@ -1158,14 +1160,14 @@ void mp_give_trigger(CharData* mob, CharData* ch, ObjectData* obj)
     char buf[MAX_INPUT_LENGTH], * p;
     MPROG_LIST* prg;
 
-    for (prg = mob->pIndexData->mprogs; prg; prg = prg->next)
+    for (prg = mob->prototype->mprogs; prg; prg = prg->next)
         if (prg->trig_type == TRIG_GIVE) {
             p = prg->trig_phrase;
             /*
              * Vnum argument
              */
             if (is_number(p)) {
-                if (obj->pIndexData->vnum == STRTOVNUM(p)) {
+                if (obj->prototype->vnum == STRTOVNUM(p)) {
                     program_flow(prg->vnum, prg->code, mob, ch, (void*)obj, NULL);
                     return;
                 }
@@ -1200,7 +1202,7 @@ void mp_greet_trigger(CharData* ch)
                  * GrAll trigger
                  */
             if (HAS_TRIGGER(mob, TRIG_GREET)
-                && mob->position == mob->pIndexData->default_pos
+                && mob->position == mob->prototype->default_pos
                 && can_see(mob, ch))
                 mp_percent_trigger(mob, ch, NULL, NULL, TRIG_GREET);
             else
@@ -1215,7 +1217,7 @@ void mp_hprct_trigger(CharData* mob, CharData* ch)
 {
     MPROG_LIST* prg;
 
-    for (prg = mob->pIndexData->mprogs; prg != NULL; prg = prg->next)
+    for (prg = mob->prototype->mprogs; prg != NULL; prg = prg->next)
         if ((prg->trig_type == TRIG_HPCNT)
             && ((100 * mob->hit / mob->max_hit) < atoi(prg->trig_phrase))) {
             program_flow(prg->vnum, prg->code, mob, ch, NULL, NULL);

@@ -45,6 +45,9 @@
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
+#include "data/mobile.h"
+#include "data/player.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -59,32 +62,37 @@ void affect_modify args((CharData * ch, AffectData* paf, bool fAdd));
 /* friend stuff -- for NPC's mostly */
 bool is_friend(CharData* ch, CharData* victim)
 {
-    if (is_same_group(ch, victim)) return true;
+    if (is_same_group(ch, victim)) 
+        return true;
 
-    if (!IS_NPC(ch)) return false;
+    if (!IS_NPC(ch)) 
+        return false;
 
     if (!IS_NPC(victim)) {
-        if (IS_SET(ch->off_flags, ASSIST_PLAYERS))
+        if (IS_SET(ch->atk_flags, ASSIST_PLAYERS))
             return true;
         else
             return false;
     }
 
-    if (IS_AFFECTED(ch, AFF_CHARM)) return false;
+    if (IS_AFFECTED(ch, AFF_CHARM)) 
+        return false;
 
-    if (IS_SET(ch->off_flags, ASSIST_ALL)) return true;
-
-    if (ch->group && ch->group == victim->group) return true;
-
-    if (IS_SET(ch->off_flags, ASSIST_VNUM)
-        && ch->pIndexData == victim->pIndexData)
+    if (IS_SET(ch->atk_flags, ASSIST_ALL)) 
         return true;
 
-    if (IS_SET(ch->off_flags, ASSIST_RACE) && ch->race == victim->race)
+    if (ch->group && ch->group == victim->group) 
         return true;
 
-    if (IS_SET(ch->off_flags, ASSIST_ALIGN) && !IS_SET(ch->act, ACT_NOALIGN)
-        && !IS_SET(victim->act, ACT_NOALIGN)
+    if (IS_SET(ch->atk_flags, ASSIST_VNUM)
+        && ch->prototype == victim->prototype)
+        return true;
+
+    if (IS_SET(ch->atk_flags, ASSIST_RACE) && ch->race == victim->race)
+        return true;
+
+    if (IS_SET(ch->atk_flags, ASSIST_ALIGN) && !IS_SET(ch->act_flags, ACT_NOALIGN)
+        && !IS_SET(victim->act_flags, ACT_NOALIGN)
         && ((IS_GOOD(ch) && IS_GOOD(victim)) || (IS_EVIL(ch) && IS_EVIL(victim))
             || (IS_NEUTRAL(ch) && IS_NEUTRAL(victim))))
         return true;
@@ -98,7 +106,8 @@ int count_users(ObjectData* obj)
     CharData* fch;
     int count = 0;
 
-    if (obj->in_room == NULL) return 0;
+    if (obj->in_room == NULL) 
+        return 0;
 
     for (fch = obj->in_room->people; fch != NULL; fch = fch->next_in_room)
         if (fch->on == obj) 
@@ -144,7 +153,8 @@ char* item_name(int item_type)
     int type;
 
     for (type = 0; item_table[type].name != NULL; type++)
-        if (item_type == item_table[type].type) return item_table[type].name;
+        if (item_type == item_table[type].type) 
+            return item_table[type].name;
     return "none";
 }
 
@@ -203,9 +213,9 @@ int16_t class_lookup(const char* name)
    the 'globals' (magic and weapons) may be overriden
    three other cases -- wood, silver, and iron -- are checked in fight.c */
 
-int check_immune(CharData* ch, DamageType dam_type)
+ResistType check_immune(CharData* ch, DamageType dam_type)
 {
-    int immune, def;
+    ResistType immune, def;
     int bit;
 
     immune = -1;
@@ -327,9 +337,9 @@ bool is_same_clan(CharData* ch, CharData* victim)
 /* checks mob format */
 bool is_old_mob(CharData* ch)
 {
-    if (ch->pIndexData == NULL)
+    if (ch->prototype == NULL)
         return false;
-    else if (ch->pIndexData->new_format)
+    else if (ch->prototype->new_format)
         return false;
     return true;
 }
@@ -361,43 +371,43 @@ int get_skill(CharData* ch, SKNUM sn)
         else if (sn == gsn_sneak || sn == gsn_hide)
             skill = ch->level * 2 + 20;
 
-        else if ((sn == gsn_dodge && IS_SET(ch->off_flags, OFF_DODGE))
-                 || (sn == gsn_parry && IS_SET(ch->off_flags, OFF_PARRY)))
+        else if ((sn == gsn_dodge && IS_SET(ch->atk_flags, ATK_DODGE))
+                 || (sn == gsn_parry && IS_SET(ch->atk_flags, ATK_PARRY)))
             skill = ch->level * 2;
 
         else if (sn == gsn_shield_block)
             skill = 10 + 2 * ch->level;
 
         else if (sn == gsn_second_attack
-                 && (IS_SET(ch->act, ACT_WARRIOR)
-                     || IS_SET(ch->act, ACT_THIEF)))
+                 && (IS_SET(ch->act_flags, ACT_WARRIOR)
+                     || IS_SET(ch->act_flags, ACT_THIEF)))
             skill = 10 + 3 * ch->level;
 
-        else if (sn == gsn_third_attack && IS_SET(ch->act, ACT_WARRIOR))
+        else if (sn == gsn_third_attack && IS_SET(ch->act_flags, ACT_WARRIOR))
             skill = 4 * ch->level - 40;
 
         else if (sn == gsn_hand_to_hand)
             skill = 40 + 2 * ch->level;
 
-        else if (sn == gsn_trip && IS_SET(ch->off_flags, OFF_TRIP))
+        else if (sn == gsn_trip && IS_SET(ch->atk_flags, ATK_TRIP))
             skill = 10 + 3 * ch->level;
 
-        else if (sn == gsn_bash && IS_SET(ch->off_flags, OFF_BASH))
+        else if (sn == gsn_bash && IS_SET(ch->atk_flags, ATK_BASH))
             skill = 10 + 3 * ch->level;
 
         else if (sn == gsn_disarm
-                 && (IS_SET(ch->off_flags, OFF_DISARM)
-                     || IS_SET(ch->act, ACT_WARRIOR)
-                     || IS_SET(ch->act, ACT_THIEF)))
+                 && (IS_SET(ch->atk_flags, ATK_DISARM)
+                     || IS_SET(ch->act_flags, ACT_WARRIOR)
+                     || IS_SET(ch->act_flags, ACT_THIEF)))
             skill = 20 + 3 * ch->level;
 
-        else if (sn == gsn_berserk && IS_SET(ch->off_flags, OFF_BERSERK))
+        else if (sn == gsn_berserk && IS_SET(ch->atk_flags, ATK_BERSERK))
             skill = 3 * ch->level;
 
         else if (sn == gsn_kick)
             skill = 10 + 3 * ch->level;
 
-        else if (sn == gsn_backstab && IS_SET(ch->act, ACT_THIEF))
+        else if (sn == gsn_backstab && IS_SET(ch->act_flags, ACT_THIEF))
             skill = 20 + 2 * ch->level;
 
         else if (sn == gsn_rescue)
@@ -513,7 +523,7 @@ void reset_char(CharData* ch)
             obj = get_eq_char(ch, loc);
             if (obj == NULL) continue;
             if (!obj->enchanted)
-                for (af = obj->pIndexData->affected; af != NULL;
+                for (af = obj->prototype->affected; af != NULL;
                      af = af->next) {
                     mod = af->modifier;
                     switch (af->location) {
@@ -596,7 +606,7 @@ void reset_char(CharData* ch)
             ch->armor[i] -= (int16_t)apply_ac(obj, loc, i);
 
         if (!obj->enchanted) {
-            for (af = obj->pIndexData->affected; af != NULL; af = af->next) {
+            for (af = obj->prototype->affected; af != NULL; af = af->next) {
                 mod = af->modifier;
                 switch (af->location) {
                 case APPLY_STR:
@@ -861,7 +871,7 @@ int can_carry_n(CharData* ch)
     if (!IS_NPC(ch) && ch->level >= LEVEL_IMMORTAL)
         return 1000;
 
-    if (IS_NPC(ch) && IS_SET(ch->act, ACT_PET))
+    if (IS_NPC(ch) && IS_SET(ch->act_flags, ACT_PET))
         return 0;
 
     return WEAR_MAX + 2 * get_curr_stat(ch, STAT_DEX) + ch->level;
@@ -875,7 +885,7 @@ int can_carry_w(CharData* ch)
     if (!IS_NPC(ch) && ch->level >= LEVEL_IMMORTAL)
         return 10000000;
 
-    if (IS_NPC(ch) && IS_SET(ch->act, ACT_PET))
+    if (IS_NPC(ch) && IS_SET(ch->act_flags, ACT_PET))
         return 0;
 
     return str_app[get_curr_stat(ch, STAT_STR)].carry * 10 + ch->level * 25;
@@ -1018,7 +1028,7 @@ void char_to_room(CharData* ch, RoomData* pRoomIndex)
         }
 
         if (af == NULL) {
-            REMOVE_BIT(ch->affected_by, AFF_PLAGUE);
+            REMOVE_BIT(ch->affect_flags, AFF_PLAGUE);
             return;
         }
 
@@ -1183,7 +1193,7 @@ void equip_char(CharData* ch, ObjectData* obj, int16_t iWear)
     obj->wear_loc = iWear;
 
     if (!obj->enchanted)
-        for (paf = obj->pIndexData->affected; paf != NULL; paf = paf->next)
+        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next)
             if (paf->location != APPLY_SPELL_AFFECT)
                 affect_modify(ch, paf, true);
     for (paf = obj->affected; paf != NULL; paf = paf->next)
@@ -1218,7 +1228,7 @@ void unequip_char(CharData* ch, ObjectData* obj)
     obj->wear_loc = -1;
 
     if (!obj->enchanted) {
-        for (paf = obj->pIndexData->affected; paf != NULL; paf = paf->next) {
+        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next) {
             if (paf->location == APPLY_SPELL_AFFECT) {
                 for (lpaf = ch->affected; lpaf != NULL; lpaf = lpaf_next) {
                     lpaf_next = lpaf->next;
@@ -1273,7 +1283,7 @@ int count_obj_list(ObjectPrototype* obj_proto, ObjectData* list)
 
     nMatch = 0;
     for (obj = list; obj != NULL; obj = obj->next_content) {
-        if (obj->pIndexData == obj_proto) nMatch++;
+        if (obj->prototype == obj_proto) nMatch++;
     }
 
     return nMatch;
@@ -1346,7 +1356,7 @@ void obj_to_obj(ObjectData* obj, ObjectData* obj_to)
     obj->in_obj = obj_to;
     obj->in_room = NULL;
     obj->carried_by = NULL;
-    if (obj_to->pIndexData->vnum == OBJ_VNUM_PIT) obj->cost = 0;
+    if (obj_to->prototype->vnum == OBJ_VNUM_PIT) obj->cost = 0;
 
     for (; obj_to != NULL; obj_to = obj_to->in_obj) {
         if (obj_to->carried_by != NULL) {
@@ -1438,12 +1448,12 @@ void extract_obj(ObjectData* obj)
         }
 
         if (prev == NULL) {
-            bug("Extract_obj: obj %d not found.", obj->pIndexData->vnum);
+            bug("Extract_obj: obj %d not found.", obj->prototype->vnum);
             return;
         }
     }
 
-    --obj->pIndexData->count;
+    --obj->prototype->count;
     free_object(obj);
     return;
 }
@@ -1489,7 +1499,7 @@ void extract_char(CharData* ch, bool fPull)
     }
 
     if (IS_NPC(ch)) 
-        --ch->pIndexData->count;
+        --ch->prototype->count;
 
     if (ch->desc != NULL && ch->desc->original != NULL) {
         do_function(ch, &do_return, "");
@@ -1584,7 +1594,7 @@ ObjectData* get_obj_type(ObjectPrototype* obj_proto)
     ObjectData* obj;
 
     for (obj = object_list; obj != NULL; obj = obj->next) {
-        if (obj->pIndexData == obj_proto) return obj;
+        if (obj->prototype == obj_proto) return obj;
     }
 
     return NULL;
@@ -1906,7 +1916,7 @@ bool can_see(CharData* ch, CharData* victim)
     if (get_trust(ch) < victim->incog_level && ch->in_room != victim->in_room)
         return false;
 
-    if ((!IS_NPC(ch) && IS_SET(ch->act, PLR_HOLYLIGHT))
+    if ((!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_HOLYLIGHT))
         || (IS_NPC(ch) && IS_IMMORTAL(ch)))
         return true;
 
@@ -1943,7 +1953,7 @@ bool can_see(CharData* ch, CharData* victim)
  */
 bool can_see_obj(CharData* ch, ObjectData* obj)
 {
-    if (!IS_NPC(ch) && IS_SET(ch->act, PLR_HOLYLIGHT)) return true;
+    if (!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_HOLYLIGHT)) return true;
 
     if (IS_SET(obj->extra_flags, ITEM_VIS_DEATH)) return false;
 
@@ -2238,33 +2248,33 @@ char* cont_bit_name(int cont_flags)
     return (buf[0] != '\0') ? buf + 1 : "none";
 }
 
-char* off_bit_name(int off_flags)
+char* off_bit_name(int atk_flags)
 {
     static char buf[512];
 
     buf[0] = '\0';
 
-    if (off_flags & OFF_AREA_ATTACK) strcat(buf, " area attack");
-    if (off_flags & OFF_BACKSTAB) strcat(buf, " backstab");
-    if (off_flags & OFF_BASH) strcat(buf, " bash");
-    if (off_flags & OFF_BERSERK) strcat(buf, " berserk");
-    if (off_flags & OFF_DISARM) strcat(buf, " disarm");
-    if (off_flags & OFF_DODGE) strcat(buf, " dodge");
-    if (off_flags & OFF_FADE) strcat(buf, " fade");
-    if (off_flags & OFF_FAST) strcat(buf, " fast");
-    if (off_flags & OFF_KICK) strcat(buf, " kick");
-    if (off_flags & OFF_KICK_DIRT) strcat(buf, " kick_dirt");
-    if (off_flags & OFF_PARRY) strcat(buf, " parry");
-    if (off_flags & OFF_RESCUE) strcat(buf, " rescue");
-    if (off_flags & OFF_TAIL) strcat(buf, " tail");
-    if (off_flags & OFF_TRIP) strcat(buf, " trip");
-    if (off_flags & OFF_CRUSH) strcat(buf, " crush");
-    if (off_flags & ASSIST_ALL) strcat(buf, " assist_all");
-    if (off_flags & ASSIST_ALIGN) strcat(buf, " assist_align");
-    if (off_flags & ASSIST_RACE) strcat(buf, " assist_race");
-    if (off_flags & ASSIST_PLAYERS) strcat(buf, " assist_players");
-    if (off_flags & ASSIST_GUARD) strcat(buf, " assist_guard");
-    if (off_flags & ASSIST_VNUM) strcat(buf, " assist_vnum");
+    if (atk_flags & ATK_AREA_ATTACK) strcat(buf, " area attack");
+    if (atk_flags & ATK_BACKSTAB) strcat(buf, " backstab");
+    if (atk_flags & ATK_BASH) strcat(buf, " bash");
+    if (atk_flags & ATK_BERSERK) strcat(buf, " berserk");
+    if (atk_flags & ATK_DISARM) strcat(buf, " disarm");
+    if (atk_flags & ATK_DODGE) strcat(buf, " dodge");
+    if (atk_flags & ATK_FADE) strcat(buf, " fade");
+    if (atk_flags & ATK_FAST) strcat(buf, " fast");
+    if (atk_flags & ATK_KICK) strcat(buf, " kick");
+    if (atk_flags & ATK_KICK_DIRT) strcat(buf, " kick_dirt");
+    if (atk_flags & ATK_PARRY) strcat(buf, " parry");
+    if (atk_flags & ATK_RESCUE) strcat(buf, " rescue");
+    if (atk_flags & ATK_TAIL) strcat(buf, " tail");
+    if (atk_flags & ATK_TRIP) strcat(buf, " trip");
+    if (atk_flags & ATK_CRUSH) strcat(buf, " crush");
+    if (atk_flags & ASSIST_ALL) strcat(buf, " assist_all");
+    if (atk_flags & ASSIST_ALIGN) strcat(buf, " assist_align");
+    if (atk_flags & ASSIST_RACE) strcat(buf, " assist_race");
+    if (atk_flags & ASSIST_PLAYERS) strcat(buf, " assist_players");
+    if (atk_flags & ASSIST_GUARD) strcat(buf, " assist_guard");
+    if (atk_flags & ASSIST_VNUM) strcat(buf, " assist_vnum");
 
     return (buf[0] != '\0') ? buf + 1 : "none";
 }

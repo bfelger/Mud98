@@ -36,6 +36,8 @@
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
+#include "data/mobile.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,7 +59,7 @@ RoomData* get_random_room(CharData* ch)
                 && !IS_SET(room->room_flags, ROOM_PRIVATE)
                 && !IS_SET(room->room_flags, ROOM_SOLITARY)
                 && !IS_SET(room->room_flags, ROOM_SAFE)
-                && (IS_NPC(ch) || IS_SET(ch->act, ACT_AGGRESSIVE)
+                && (IS_NPC(ch) || IS_SET(ch->act_flags, ACT_AGGRESSIVE)
                     || !IS_SET(room->room_flags, ROOM_LAW)))
                 break;
     }
@@ -118,7 +120,7 @@ void do_enter(CharData* ch, char* argument)
             return;
         }
 
-        if (IS_NPC(ch) && IS_SET(ch->act, ACT_AGGRESSIVE)
+        if (IS_NPC(ch) && IS_SET(ch->act_flags, ACT_AGGRESSIVE)
             && IS_SET(location->room_flags, ROOM_LAW)) {
             send_to_char("Something prevents you from leaving...\n\r", ch);
             return;
@@ -170,7 +172,7 @@ void do_enter(CharData* ch, char* argument)
 
             if (fch->master == ch && fch->position == POS_STANDING) {
                 if (IS_SET(ch->in_room->room_flags, ROOM_LAW)
-                    && (IS_NPC(fch) && IS_SET(fch->act, ACT_AGGRESSIVE))) {
+                    && (IS_NPC(fch) && IS_SET(fch->act_flags, ACT_AGGRESSIVE))) {
                     act("You can't bring $N into the city.", ch, NULL, fch,
                         TO_CHAR);
                     act("You aren't allowed in the city.", fch, NULL, NULL,

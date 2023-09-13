@@ -16,6 +16,8 @@
 
 #include "entities/player_data.h"
 
+#include "data/mobile.h"
+
 #define CMD_FILE DATA_DIR "commands"
 #define CMDEDIT( fun )	bool fun( CharData *ch, char *argument )
 
@@ -213,7 +215,7 @@ CMDEDIT(cmdedit_show)
     return false;
 }
 
-void list_functions(BUFFER* pBuf)
+void list_functions(Buffer* pBuf)
 {
     int i;
     char buf[MSL];
@@ -235,7 +237,7 @@ void list_functions(BUFFER* pBuf)
         add_buf(pBuf, "\n\r");
 }
 
-void list_commands(BUFFER* pBuf, int minlev, int maxlev)
+void list_commands(Buffer* pBuf, int minlev, int maxlev)
 {
     char buf[MSL];
     int i, cnt = 0;
@@ -268,7 +270,7 @@ void list_commands(BUFFER* pBuf, int minlev, int maxlev)
 
 CMDEDIT(cmdedit_list)
 {
-    BUFFER* pBuf;
+    Buffer* pBuf;
     char arg[MIL], arg2[MIL];
     int minlev, maxlev;
 

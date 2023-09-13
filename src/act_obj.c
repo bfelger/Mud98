@@ -44,6 +44,9 @@
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
+#include "data/mobile.h"
+#include "data/player.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -86,7 +89,7 @@ bool can_loot(CharData* ch, ObjectData* obj)
 
     if (!str_cmp(ch->name, owner->name)) return true;
 
-    if (!IS_NPC(owner) && IS_SET(owner->act, PLR_CANLOOT))
+    if (!IS_NPC(owner) && IS_SET(owner->act_flags, PLR_CANLOOT))
         return true;
 
     if (is_same_group(ch, owner))
@@ -134,13 +137,13 @@ void get_obj(CharData* ch, ObjectData* obj, ObjectData* container)
     }
 
     if (container != NULL) {
-        if (container->pIndexData->vnum == OBJ_VNUM_PIT
+        if (container->prototype->vnum == OBJ_VNUM_PIT
             && get_trust(ch) < obj->level) {
             send_to_char("You are not powerful enough to use it.\n\r", ch);
             return;
         }
 
-        if (container->pIndexData->vnum == OBJ_VNUM_PIT
+        if (container->prototype->vnum == OBJ_VNUM_PIT
             && !CAN_WEAR(container, ITEM_TAKE)
             && !IS_OBJ_STAT(obj, ITEM_HAD_TIMER))
             obj->timer = 0;
@@ -158,7 +161,7 @@ void get_obj(CharData* ch, ObjectData* obj, ObjectData* container)
     if (obj->item_type == ITEM_MONEY) {
         ch->silver += (int16_t)obj->value[0];
         ch->gold += (int16_t)obj->value[1];
-        if (IS_SET(ch->act, PLR_AUTOSPLIT)) { /* AUTOSPLIT code */
+        if (IS_SET(ch->act_flags, PLR_AUTOSPLIT)) { /* AUTOSPLIT code */
             members = 0;
             for (gch = ch->in_room->people; gch != NULL;
                  gch = gch->next_in_room) {
@@ -284,7 +287,7 @@ void do_get(CharData* ch, char* argument)
                 if ((arg1[3] == '\0' || is_name(&arg1[4], obj->name))
                     && can_see_obj(ch, obj)) {
                     found = true;
-                    if (container->pIndexData->vnum == OBJ_VNUM_PIT
+                    if (container->prototype->vnum == OBJ_VNUM_PIT
                         && !IS_IMMORTAL(ch)) {
                         send_to_char("Don't be so greedy!\n\r", ch);
                         return;
@@ -375,7 +378,7 @@ void do_put(CharData* ch, char* argument)
             return;
         }
 
-        if (container->pIndexData->vnum == OBJ_VNUM_PIT && !CAN_WEAR(container,
+        if (container->prototype->vnum == OBJ_VNUM_PIT && !CAN_WEAR(container,
             ITEM_TAKE)) {
             if (obj->timer)
                 SET_BIT(obj->extra_flags, ITEM_HAD_TIMER);
@@ -407,7 +410,7 @@ void do_put(CharData* ch, char* argument)
                 && get_obj_weight(obj) + get_true_weight(container)
                        <= (container->value[0] * 10)
                 && get_obj_weight(obj) < (container->value[3] * 10)) {
-                if (container->pIndexData->vnum == OBJ_VNUM_PIT && !CAN_WEAR(
+                if (container->prototype->vnum == OBJ_VNUM_PIT && !CAN_WEAR(
                     obj, ITEM_TAKE)) {
                     if (obj->timer)
                         SET_BIT(obj->extra_flags, ITEM_HAD_TIMER);
@@ -485,7 +488,7 @@ void do_drop(CharData* ch, char* argument)
         for (obj = ch->in_room->contents; obj != NULL; obj = obj_next) {
             obj_next = obj->next_content;
 
-            switch (obj->pIndexData->vnum) {
+            switch (obj->prototype->vnum) {
             case OBJ_VNUM_SILVER_ONE:
                 silver += 1;
                 extract_obj(obj);
@@ -642,7 +645,7 @@ void do_give(CharData* ch, char* argument)
             mp_bribe_trigger(victim, ch, silver ? amount : amount * 100);
 
 
-        if (IS_NPC(victim) && IS_SET(victim->act, ACT_IS_CHANGER)) {
+        if (IS_NPC(victim) && IS_SET(victim->act_flags, ACT_IS_CHANGER)) {
             int change;
 
             change = (silver ? 95 * amount / 100 / 100 : 95 * amount);
@@ -694,7 +697,7 @@ void do_give(CharData* ch, char* argument)
         return;
     }
 
-    if (IS_NPC(victim) && victim->pIndexData->pShop != NULL) {
+    if (IS_NPC(victim) && victim->prototype->pShop != NULL) {
         act("$N tells you 'Sorry, you'll have to sell that.'", ch, NULL, victim,
             TO_CHAR);
         ch->reply = victim;
@@ -1584,7 +1587,7 @@ void do_sacrifice(CharData* ch, char* argument)
 
     ch->silver += silver;
 
-    if (IS_SET(ch->act, PLR_AUTOSPLIT)) { /* AUTOSPLIT code */
+    if (IS_SET(ch->act_flags, PLR_AUTOSPLIT)) { /* AUTOSPLIT code */
         members = 0;
         for (gch = ch->in_room->people; gch != NULL; gch = gch->next_in_room) {
             if (is_same_group(gch, ch)) members++;
@@ -1901,7 +1904,7 @@ void do_steal(CharData* ch, char* argument)
          */
         send_to_char("Oops.\n\r", ch);
         affect_strip(ch, gsn_sneak);
-        REMOVE_BIT(ch->affected_by, AFF_SNEAK);
+        REMOVE_BIT(ch->affect_flags, AFF_SNEAK);
 
         act("$n tried to steal from you.\n\r", ch, NULL, victim, TO_VICT);
         act("$n tried to steal from $N.\n\r", ch, NULL, victim, TO_NOTVICT);
@@ -1930,8 +1933,8 @@ void do_steal(CharData* ch, char* argument)
             else {
                 sprintf(buf, "$N tried to steal from %s.", victim->name);
                 wiznet(buf, ch, NULL, WIZ_FLAGS, 0, 0);
-                if (!IS_SET(ch->act, PLR_THIEF)) {
-                    SET_BIT(ch->act, PLR_THIEF);
+                if (!IS_SET(ch->act_flags, PLR_THIEF)) {
+                    SET_BIT(ch->act_flags, PLR_THIEF);
                     send_to_char("*** You are now a THIEF!! ***\n\r", ch);
                     save_char_obj(ch);
                 }
@@ -2010,7 +2013,7 @@ CharData* find_keeper(CharData* ch)
 
     pShop = NULL;
     for (keeper = ch->in_room->people; keeper; keeper = keeper->next_in_room) {
-        if (IS_NPC(keeper) && (pShop = keeper->pIndexData->pShop) != NULL)
+        if (IS_NPC(keeper) && (pShop = keeper->prototype->pShop) != NULL)
             break;
     }
 
@@ -2022,7 +2025,7 @@ CharData* find_keeper(CharData* ch)
     /*
      * Undesirables.
      *
-    if ( !IS_NPC(ch) && IS_SET(ch->act, PLR_KILLER) )
+    if ( !IS_NPC(ch) && IS_SET(ch->act_flags, PLR_KILLER) )
     {
         do_function(keeper, &do_say, "Killers are not welcome!");
         sprintf(buf, "%s the KILLER is over here!\n\r", ch->name);
@@ -2030,7 +2033,7 @@ CharData* find_keeper(CharData* ch)
         return NULL;
     }
 
-    if ( !IS_NPC(ch) && IS_SET(ch->act, PLR_THIEF) )
+    if ( !IS_NPC(ch) && IS_SET(ch->act_flags, PLR_THIEF) )
     {
         do_function(keeper, &do_say, "Thieves are not welcome!");
         sprintf(buf, "%s the THIEF is over here!\n\r", ch->name);
@@ -2072,7 +2075,7 @@ void obj_to_keeper(ObjectData* obj, CharData* ch)
     for (t_obj = ch->carrying; t_obj != NULL; t_obj = t_obj_next) {
         t_obj_next = t_obj->next_content;
 
-        if (obj->pIndexData == t_obj->pIndexData
+        if (obj->prototype == t_obj->prototype
             && !str_cmp(obj->short_descr, t_obj->short_descr)) {
             /* if this is an unlimited item, destroy the new one */
             if (IS_OBJ_STAT(t_obj, ITEM_INVENTORY)) {
@@ -2118,7 +2121,7 @@ ObjectData* get_obj_keeper(CharData* ch, CharData* keeper, char* argument)
             /* skip other objects of the same name */
             while (
                 obj->next_content != NULL
-                && obj->pIndexData == obj->next_content->pIndexData
+                && obj->prototype == obj->next_content->prototype
                 && !str_cmp(obj->short_descr, obj->next_content->short_descr))
                 obj = obj->next_content;
         }
@@ -2132,7 +2135,7 @@ int get_cost(CharData* keeper, ObjectData* obj, bool fBuy)
     SHOP_DATA* pShop;
     int cost;
 
-    if (obj == NULL || (pShop = keeper->pIndexData->pShop) == NULL) return 0;
+    if (obj == NULL || (pShop = keeper->prototype->pShop) == NULL) return 0;
 
     if (fBuy) { cost = obj->cost * pShop->profit_buy / 100; }
     else {
@@ -2149,7 +2152,7 @@ int get_cost(CharData* keeper, ObjectData* obj, bool fBuy)
 
         if (!IS_OBJ_STAT(obj, ITEM_SELL_EXTRACT)) {
             for (obj2 = keeper->carrying; obj2; obj2 = obj2->next_content) {
-                if (obj->pIndexData == obj2->pIndexData 
+                if (obj->prototype == obj2->prototype 
                 && !str_cmp(obj->short_descr, obj2->short_descr)) {
                     if (IS_OBJ_STAT(obj2, ITEM_INVENTORY))
                         cost /= 2;
@@ -2209,7 +2212,7 @@ void do_buy(CharData* ch, char* argument)
         pet = get_char_room(ch, arg);
         ch->in_room = in_room;
 
-        if (pet == NULL || !IS_SET(pet->act, ACT_PET)) {
+        if (pet == NULL || !IS_SET(pet->act_flags, ACT_PET)) {
             send_to_char("Sorry, you can't buy that here.\n\r", ch);
             return;
         }
@@ -2242,9 +2245,9 @@ void do_buy(CharData* ch, char* argument)
         }
 
         deduct_cost(ch, cost);
-        pet = create_mobile(pet->pIndexData);
-        SET_BIT(pet->act, ACT_PET);
-        SET_BIT(pet->affected_by, AFF_CHARM);
+        pet = create_mobile(pet->prototype);
+        SET_BIT(pet->act_flags, ACT_PET);
+        SET_BIT(pet->affect_flags, AFF_CHARM);
         pet->comm = COMM_NOTELL | COMM_NOSHOUT | COMM_NOCHANNELS;
 
         argument = one_argument(argument, arg);
@@ -2294,7 +2297,7 @@ void do_buy(CharData* ch, char* argument)
         if (!IS_OBJ_STAT(obj, ITEM_INVENTORY)) {
             for (t_obj = obj->next_content; count < number && t_obj != NULL;
                  t_obj = t_obj->next_content) {
-                if (t_obj->pIndexData == obj->pIndexData
+                if (t_obj->prototype == obj->prototype
                     && !str_cmp(t_obj->short_descr, obj->short_descr))
                     count++;
                 else
@@ -2364,7 +2367,7 @@ void do_buy(CharData* ch, char* argument)
 
         for (count = 0; count < number; count++) {
             if (IS_SET(obj->extra_flags, ITEM_INVENTORY))
-                t_obj = create_object(obj->pIndexData, obj->level);
+                t_obj = create_object(obj->prototype, obj->level);
             else {
                 t_obj = obj;
                 obj = obj->next_content;
@@ -2403,7 +2406,7 @@ void do_list(CharData* ch, char* argument)
 
         found = false;
         for (pet = pRoomIndexNext->people; pet; pet = pet->next_in_room) {
-            if (IS_SET(pet->act, ACT_PET)) {
+            if (IS_SET(pet->act_flags, ACT_PET)) {
                 if (!found) {
                     found = true;
                     send_to_char("Pets for sale:\n\r", ch);
@@ -2443,7 +2446,7 @@ void do_list(CharData* ch, char* argument)
                     count = 1;
 
                     while (obj->next_content != NULL
-                           && obj->pIndexData == obj->next_content->pIndexData
+                           && obj->prototype == obj->next_content->prototype
                            && !str_cmp(obj->short_descr,
                                        obj->next_content->short_descr)) {
                         obj = obj->next_content;

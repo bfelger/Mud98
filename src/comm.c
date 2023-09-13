@@ -58,6 +58,9 @@
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
+#include "data/mobile.h"
+#include "data/player.h"
+
 #include <ctype.h>
 #include <errno.h>
 #include <signal.h>
@@ -1038,7 +1041,7 @@ void bust_a_prompt(CharData* ch)
         case 'r':
             if (ch->in_room != NULL)
                 sprintf(BUF(temp2), "%s",
-                    ((!IS_NPC(ch) && IS_SET(ch->act, PLR_HOLYLIGHT))
+                    ((!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_HOLYLIGHT))
                         || (!IS_AFFECTED(ch, AFF_BLIND)
                             && !room_is_dark(ch->in_room)))
                     ? ch->in_room->name
@@ -1207,7 +1210,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
         fOld = load_char_obj(d, argument);
         ch = d->character;
 
-        if (IS_SET(ch->act, PLR_DENY)) {
+        if (IS_SET(ch->act_flags, PLR_DENY)) {
             sprintf(log_buf, "Denying access to %s@%s.", argument, d->host);
             log_string(log_buf);
             write_to_buffer(d, "You are denied access.\n\r", 0);
@@ -1215,7 +1218,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
             return;
         }
 
-        if (check_ban(d->host, BAN_PERMIT) && !IS_SET(ch->act, PLR_PERMIT)) {
+        if (check_ban(d->host, BAN_PERMIT) && !IS_SET(ch->act_flags, PLR_PERMIT)) {
             write_to_buffer(d, "Your site has been banned from this mud.\n\r", 0);
             close_socket(d);
             return;
@@ -1431,7 +1434,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
         /* initialize stats */
         for (i = 0; i < MAX_STATS; i++)
             ch->perm_stat[i] = race_table[race].stats[i];
-        ch->affected_by = ch->affected_by | race_table[race].aff;
+        ch->affect_flags = ch->affect_flags | race_table[race].aff;
         ch->imm_flags = ch->imm_flags | race_table[race].imm;
         ch->res_flags = ch->res_flags | race_table[race].res;
         ch->vuln_flags = ch->vuln_flags | race_table[race].vuln;
@@ -1970,7 +1973,7 @@ void send_to_char(const char* txt, CharData * ch)
     BUF(temp)[0] = '\0';
     point2 = BUF(temp);
     if (txt && ch->desc) {
-        if (IS_SET(ch->act, PLR_COLOUR)) {
+        if (IS_SET(ch->act_flags, PLR_COLOUR)) {
             for (point = txt; *point; point++) {
                 if (*point == '{') {
                     point++;
@@ -2032,7 +2035,7 @@ void page_to_char(const char* txt, CharData * ch)
     BUF(temp)[0] = '\0';
     point2 = BUF(temp);
     if (txt && ch->desc) {
-        if (IS_SET(ch->act, PLR_COLOUR)) {
+        if (IS_SET(ch->act_flags, PLR_COLOUR)) {
             for (point = txt; *point; point++) {
                 if (*point == '{') {
                     point++;
@@ -2341,7 +2344,7 @@ void colourconv(char* buffer, const char* txt, CharData * ch)
     size_t skip = 0;
 
     if (ch->desc && txt) {
-        if (IS_SET(ch->act, PLR_COLOUR)) {
+        if (IS_SET(ch->act_flags, PLR_COLOUR)) {
             for (point = txt; *point; point++) {
                 if (*point == '{') {
                     point++;

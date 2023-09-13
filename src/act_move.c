@@ -43,6 +43,7 @@
 #include "entities/room_data.h"
 
 #include "data/direction.h"
+#include "data/mobile.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -192,7 +193,7 @@ void move_char(CharData* ch, int door, bool follow)
         if (fch->master == ch && fch->position == POS_STANDING
             && can_see_room(fch, to_room)) {
             if (IS_SET(ch->in_room->room_flags, ROOM_LAW)
-                && (IS_NPC(fch) && IS_SET(fch->act, ACT_AGGRESSIVE))) {
+                && (IS_NPC(fch) && IS_SET(fch->act_flags, ACT_AGGRESSIVE))) {
                 act("You can't bring $N into the city.", ch, NULL, fch,
                     TO_CHAR);
                 act("You aren't allowed in the city.", fch, NULL, NULL,
@@ -480,7 +481,7 @@ bool has_key(CharData* ch, int key)
     ObjectData* obj;
 
     for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
-        if (obj->pIndexData->vnum == key) return true;
+        if (obj->prototype->vnum == key) return true;
     }
 
     return false;
@@ -933,6 +934,25 @@ void do_stand(CharData* ch, char* argument)
     case POS_FIGHTING:
         send_to_char("You are already fighting!\n\r", ch);
         break;
+    
+    case POS_STUNNED:
+        send_to_char("You are stunned.\n\r", ch);
+        break;
+
+    case POS_INCAP:
+        send_to_char("You are incapacitated.\n\r", ch);
+        break;
+
+    case POS_DEAD:
+        send_to_char("You are dead.\n\r", ch);
+        break;
+
+    case POS_MORTAL:
+        send_to_char("You are mortally wounded, and cannot stand on your own.\n\r", ch);
+        break;
+
+    case POS_UNKNOWN:
+        break;
     }
 
     return;
@@ -1048,6 +1068,29 @@ void do_rest(CharData* ch, char* argument)
         }
         ch->position = POS_RESTING;
         break;
+
+    case POS_STUNNED:
+        send_to_char("You are stunned.\n\r", ch);
+        break;
+
+    case POS_INCAP:
+        send_to_char("You are incapacitated.\n\r", ch);
+        break;
+
+    case POS_DEAD:
+        send_to_char("You are dead.\n\r", ch);
+        break;
+
+    case POS_FIGHTING:
+        send_to_char("You can rest when you're dead.\n\r", ch);
+        break;
+
+    case POS_MORTAL:
+        send_to_char("You are mortally wounded. Soon you will rest forever.\n\r", ch);
+        break;
+
+    case POS_UNKNOWN:
+        break;
     }
 
     return;
@@ -1135,6 +1178,15 @@ void do_sit(CharData* ch, char* argument)
     case POS_SITTING:
         send_to_char("You are already sitting down.\n\r", ch);
         break;
+    case POS_MORTAL:
+        send_to_char("You can do little but bleed out on the ground.\n\r", ch);
+        break;
+    case POS_DEAD:
+        send_to_char("You are dead.\n\r", ch);
+        break;
+    case POS_INCAP:
+        send_to_char("You are incapacitated.\n\r", ch);
+        break;
     case POS_STANDING:
         if (obj == NULL) {
             send_to_char("You sit down.\n\r", ch);
@@ -1153,6 +1205,14 @@ void do_sit(CharData* ch, char* argument)
             act("$n sits down in $p.", ch, obj, NULL, TO_ROOM);
         }
         ch->position = POS_SITTING;
+        break;
+    case POS_STUNNED:
+        send_to_char("You are stunned.\n\r", ch);
+        break;
+    case POS_FIGHTING:
+        send_to_char("Finish your fight, then sit down.\n\r", ch);
+        break;
+    case POS_UNKNOWN:
         break;
     }
     return;
@@ -1217,8 +1277,27 @@ void do_sleep(CharData* ch, char* argument)
         }
         break;
 
+    case POS_STUNNED:
+        send_to_char("You are stunned.\n\r", ch);
+        break;
+
+    case POS_INCAP:
+        send_to_char("You are incapacitated.\n\r", ch);
+        break;
+
     case POS_FIGHTING:
-        send_to_char("You are already fighting!\n\r", ch);
+        send_to_char("You can rest when you're dead.\n\r", ch);
+        break;
+
+    case POS_MORTAL:
+        send_to_char("You can do little but bleed out on the ground.\n\r", ch);
+        break;
+
+    case POS_DEAD:
+        send_to_char("You are already sleeping. Permanently.\n\r", ch);
+        break;
+
+    case POS_UNKNOWN:
         break;
     }
 
@@ -1291,10 +1370,10 @@ void do_hide(CharData* ch, char* argument)
 {
     send_to_char("You attempt to hide.\n\r", ch);
 
-    if (IS_AFFECTED(ch, AFF_HIDE)) REMOVE_BIT(ch->affected_by, AFF_HIDE);
+    if (IS_AFFECTED(ch, AFF_HIDE)) REMOVE_BIT(ch->affect_flags, AFF_HIDE);
 
     if (number_percent() < get_skill(ch, gsn_hide)) {
-        SET_BIT(ch->affected_by, AFF_HIDE);
+        SET_BIT(ch->affect_flags, AFF_HIDE);
         check_improve(ch, gsn_hide, true, 3);
     }
     else
@@ -1311,9 +1390,9 @@ void do_visible(CharData* ch, char* argument)
     affect_strip(ch, gsn_invis);
     affect_strip(ch, gsn_mass_invis);
     affect_strip(ch, gsn_sneak);
-    REMOVE_BIT(ch->affected_by, AFF_HIDE);
-    REMOVE_BIT(ch->affected_by, AFF_INVISIBLE);
-    REMOVE_BIT(ch->affected_by, AFF_SNEAK);
+    REMOVE_BIT(ch->affect_flags, AFF_HIDE);
+    REMOVE_BIT(ch->affect_flags, AFF_INVISIBLE);
+    REMOVE_BIT(ch->affect_flags, AFF_SNEAK);
     send_to_char("Ok.\n\r", ch);
     return;
 }
@@ -1324,7 +1403,7 @@ void do_recall(CharData* ch, char* argument)
     CharData* victim;
     RoomData* location;
 
-    if (IS_NPC(ch) && !IS_SET(ch->act, ACT_PET)) {
+    if (IS_NPC(ch) && !IS_SET(ch->act_flags, ACT_PET)) {
         send_to_char("Only players can recall.\n\r", ch);
         return;
     }
@@ -1392,7 +1471,7 @@ void do_train(CharData* ch, char* argument)
      * Check for trainer.
      */
     for (mob = ch->in_room->people; mob; mob = mob->next_in_room) {
-        if (IS_NPC(mob) && IS_SET(mob->act, ACT_TRAIN)) break;
+        if (IS_NPC(mob) && IS_SET(mob->act_flags, ACT_TRAIN)) break;
     }
 
     if (mob == NULL) {

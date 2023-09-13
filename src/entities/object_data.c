@@ -284,7 +284,7 @@ ObjectData* create_object(ObjectPrototype* obj_proto, LEVEL level)
 
     obj = new_object();
 
-    obj->pIndexData = obj_proto;
+    obj->prototype = obj_proto;
     obj->in_room = NULL;
     obj->enchanted = false;
 

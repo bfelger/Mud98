@@ -31,6 +31,8 @@
 #include "handler.h"
 #include "tables.h"
 
+#include "data/mobile.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -62,17 +64,14 @@ int clan_lookup(const char* name)
     return 0;
 }
 
-int position_lookup(const char* name)
+Position position_lookup(const char* name)
 {
-    int pos;
-
-    for (pos = 0; position_table[pos].name != NULL; pos++) {
-        if (LOWER(name[0]) == LOWER(position_table[pos].name[0])
-            && !str_prefix(name, position_table[pos].name))
-            return pos;
+    for (int i = 0; i < POS_MAX; i++) {
+        if (!str_prefix(name, position_table[i].name))
+            return position_table[i].pos;
     }
 
-    return -1;
+    return POS_UNKNOWN;
 }
 
 int sex_lookup(const char* name)

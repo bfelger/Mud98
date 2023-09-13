@@ -143,7 +143,7 @@ void ban_site(CharData* ch, char* argument, bool fPerm)
     char buf[MAX_STRING_LENGTH], buf2[MAX_STRING_LENGTH];
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
     char* name;
-    BUFFER* buffer;
+    Buffer* buffer;
     BanData *pban, *prev;
     bool prefix = false, suffix = false;
     int type;

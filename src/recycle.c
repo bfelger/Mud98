@@ -43,10 +43,10 @@
 #include <sys/time.h>
 #endif
 
-struct skhash* skhash_free;
-int skhash_created;
-int skhash_allocated;
-int skhash_freed;
+SkillHash* skill_hash_free;
+int skill_hash_created;
+int skill_hash_allocated;
+int skill_hash_freed;
 
 /* stuff for recycling descriptors */
 DESCRIPTOR_DATA* descriptor_free = NULL;
@@ -80,12 +80,12 @@ void free_descriptor(DESCRIPTOR_DATA* d)
 }
 
 /* stuff for recycling gen_data */
-GEN_DATA* gen_data_free;
+CharGenData* gen_data_free;
 
-GEN_DATA* new_gen_data(void)
+CharGenData* new_gen_data(void)
 {
-    static GEN_DATA gen_zero;
-    GEN_DATA* gen;
+    static CharGenData gen_zero;
+    CharGenData* gen;
 
     if (gen_data_free == NULL)
         gen = alloc_perm(sizeof(*gen));
@@ -102,7 +102,7 @@ GEN_DATA* new_gen_data(void)
     return gen;
 }
 
-void free_gen_data(GEN_DATA* gen)
+void free_gen_data(CharGenData* gen)
 {
     if (!IS_VALID(gen)) return;
 
@@ -131,7 +131,7 @@ long get_pc_id(void)
 // Buffer recycling
 ////////////////////////////////////////////////////////////////////////////////
 
-BUFFER* buf_free;
+Buffer* buf_free;
 
 /* buffer sizes */
 const size_t buf_size[MAX_BUF_LIST] = {
@@ -155,9 +155,9 @@ static size_t get_size(size_t val)
     return SIZE_MAX;
 }
 
-BUFFER* new_buf()
+Buffer* new_buf()
 {
-    BUFFER* buffer;
+    Buffer* buffer;
 
     if (buf_free == NULL)
         buffer = alloc_perm(sizeof(*buffer));
@@ -177,9 +177,9 @@ BUFFER* new_buf()
     return buffer;
 }
 
-BUFFER* new_buf_size(int size)
+Buffer* new_buf_size(int size)
 {
-    BUFFER* buffer;
+    Buffer* buffer;
 
     if (buf_free == NULL)
         buffer = alloc_perm(sizeof(*buffer));
@@ -202,7 +202,7 @@ BUFFER* new_buf_size(int size)
     return buffer;
 }
 
-void free_buf(BUFFER* buffer)
+void free_buf(Buffer* buffer)
 {
     if (!IS_VALID(buffer)) return;
 
@@ -216,7 +216,7 @@ void free_buf(BUFFER* buffer)
     buf_free = buffer;
 }
 
-bool add_buf(BUFFER* buffer, char* string)
+bool add_buf(Buffer* buffer, char* string)
 {
     char* oldstr;
     size_t oldsize;
@@ -252,7 +252,7 @@ bool add_buf(BUFFER* buffer, char* string)
     return true;
 }
 
-void clear_buf(BUFFER* buffer)
+void clear_buf(Buffer* buffer)
 {
     buffer->string[0] = '\0';
     buffer->state = BUFFER_SAFE;
@@ -342,27 +342,27 @@ void free_boolarray(bool* temp)
     return;
 }
 
-struct skhash* new_skhash(void)
+SkillHash* new_skill_hash(void)
 {
-    struct skhash* temp;
-    static struct skhash tZero;
+    SkillHash* temp;
+    static SkillHash tZero;
 
-    if (skhash_free) {
-        temp = skhash_free;
-        skhash_free = skhash_free->next;
+    if (skill_hash_free) {
+        temp = skill_hash_free;
+        skill_hash_free = skill_hash_free->next;
     }
     else {
         temp = alloc_mem(sizeof(*temp));
-        skhash_allocated++;
+        skill_hash_allocated++;
     }
     *temp = tZero;
-    skhash_created++;
+    skill_hash_created++;
     return temp;
 }
 
-void free_skhash(struct skhash* temp)
+void free_skill_hash(SkillHash* temp)
 {
-    temp->next = skhash_free;
-    skhash_free = temp;
-    skhash_freed++;
+    temp->next = skill_hash_free;
+    skill_hash_free = temp;
+    skill_hash_freed++;
 }

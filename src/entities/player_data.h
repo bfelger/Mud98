@@ -4,6 +4,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef struct color_config_t ColorConfig;
+typedef struct char_gen_data_t CharGenData;
 typedef struct player_data_t PlayerData;
 
 #pragma once
@@ -13,6 +14,7 @@ typedef struct player_data_t PlayerData;
 #include "merc.h"
 
 #include "color.h"
+#include "recycle.h"
 
 #include "char_data.h"
 
@@ -24,6 +26,14 @@ typedef struct color_config_t {
     bool hide_rgb_help;     // Hide verbose 24-bit help at the end of THEME LIST.
 } ColorConfig;
 
+typedef struct char_gen_data_t {
+    CharGenData* next;
+    bool* skill_chosen;
+    bool* group_chosen;
+    int points_chosen;
+    bool valid;
+} CharGenData;
+
 typedef struct player_data_t {
     char* alias[MAX_ALIAS];
     char* alias_sub[MAX_ALIAS];
@@ -32,7 +42,7 @@ typedef struct player_data_t {
     CharData* ch;
     ColorConfig theme_config;
     PlayerData* next;
-    BUFFER* buffer;
+    Buffer* buffer;
     char* bamfin;
     char* bamfout;
     char* title;

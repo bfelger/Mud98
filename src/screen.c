@@ -20,6 +20,8 @@
 #include "entities/char_data.h"
 #include "entities/object_data.h"
 
+#include "data/mobile.h"
+
 char* areaname(void* point)
 {
     AreaData* area = *(AreaData**)point;
@@ -397,11 +399,11 @@ const struct olc_show_table_type medit_olc_show_table[] =
         39, 5, 38, 1, 1, U(ac2str)
     },
     {
-        "act", U(&xMob.act), "Act :", OLCS_FLAGSTR_INT,
+        "act", U(&xMob.act_flags), "Act :", OLCS_FLAGSTR_INT,
         1, 6, 74, 1, 1, U(act_flag_table)
     },
     {
-        "aff", U(&xMob.affected_by), "Aff :", OLCS_FLAGSTR_INT,
+        "aff", U(&xMob.affect_flags), "Aff :", OLCS_FLAGSTR_INT,
         1, 7, 74, 1, 1, U(affect_flag_table)
     },
     {
@@ -425,7 +427,7 @@ const struct olc_show_table_type medit_olc_show_table[] =
         1, 13, 74, 1, 1, U(vuln_flag_table)
     },
     {
-        "off", U(&xMob.off_flags), "Off:", OLCS_FLAGSTR_INT,
+        "off", U(&xMob.atk_flags), "Off:", OLCS_FLAGSTR_INT,
         1, 14, 74, 1, 1, U(off_flag_table)
     },
     {

@@ -35,6 +35,8 @@
 
 #include "entities/char_data.h"
 
+#include "data/mobile.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -55,7 +57,7 @@ void do_heal(CharData* ch, char* argument)
 
     /* check for healer */
     for (mob = ch->in_room->people; mob; mob = mob->next_in_room) {
-        if (IS_NPC(mob) && IS_SET(mob->act, ACT_IS_HEALER)) break;
+        if (IS_NPC(mob) && IS_SET(mob->act_flags, ACT_IS_HEALER)) break;
     }
 
     if (mob == NULL) {

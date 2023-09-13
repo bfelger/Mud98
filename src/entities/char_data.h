@@ -21,6 +21,8 @@ typedef struct char_data_t CharData;
 #include "player_data.h"
 #include "room_data.h"
 
+#include "data/mobile.h"
+
 #include <stdbool.h>
 
 typedef struct char_data_t {
@@ -34,7 +36,7 @@ typedef struct char_data_t {
     CharData* mprog_target;
     MobMemory* memory;
     SpecFunc* spec_fun;
-    MobPrototype* pIndexData;
+    MobPrototype* prototype;
     DESCRIPTOR_DATA* desc;
     AffectData* affected;
     NoteData* pnote;
@@ -44,7 +46,7 @@ typedef struct char_data_t {
     RoomData* was_in_room;
     AreaData* zone;
     PlayerData* pcdata;
-    GEN_DATA* gen_data;
+    CharGenData* gen_data;
     char* name;
     char* material;
     char* short_descr;
@@ -58,16 +60,16 @@ typedef struct char_data_t {
     int version;
     int lines; /* for the pager */
     int exp;
-    int act;
-    int comm;
-    int wiznet;
-    int imm_flags;
-    int res_flags;
-    int vuln_flags;
-    int affected_by;
-    int form;
-    int parts;
-    int off_flags;
+    FLAGS act_flags;
+    FLAGS comm;
+    FLAGS wiznet;
+    FLAGS imm_flags;
+    FLAGS res_flags;
+    FLAGS vuln_flags;
+    FLAGS affect_flags;
+    FLAGS form;
+    FLAGS parts;
+    FLAGS atk_flags;
     int wait;
     int16_t damage[3];
     int16_t dam_type;
@@ -82,7 +84,7 @@ typedef struct char_data_t {
     int16_t level;
     int16_t trust;
     int16_t size;
-    int16_t position;
+    Position position;
     int16_t practice;
     int16_t train;
     int16_t carry_weight;
@@ -110,11 +112,11 @@ typedef struct char_data_t {
     bool valid;
 } CharData;
 
-#define IS_NPC(ch)            (IS_SET((ch)->act, ACT_IS_NPC))
+#define IS_NPC(ch)            (IS_SET((ch)->act_flags, ACT_IS_NPC))
 #define IS_IMMORTAL(ch)       (get_trust(ch) >= LEVEL_IMMORTAL)
 #define IS_HERO(ch)           (get_trust(ch) >= LEVEL_HERO)
 #define IS_TRUSTED(ch, level) (get_trust((ch)) >= (level))
-#define IS_AFFECTED(ch, sn)   (IS_SET((ch)->affected_by, (sn)))
+#define IS_AFFECTED(ch, sn)   (IS_SET((ch)->affect_flags, (sn)))
 
 #define GET_AGE(ch)                                                            \
     ((int)(17 + ((ch)->played + current_time - (ch)->logon) / 72000))
@@ -139,7 +141,7 @@ typedef struct char_data_t {
 #define get_carry_weight(ch)                                                   \
     ((ch)->carry_weight + (ch)->silver / 10 + (ch)->gold * 2 / 5)
 
-#define HAS_TRIGGER(ch, trig) (IS_SET((ch)->pIndexData->mprog_flags, (trig)))
+#define HAS_TRIGGER(ch, trig) (IS_SET((ch)->prototype->mprog_flags, (trig)))
 #define IS_SWITCHED(ch) (ch->desc && ch->desc->original)
 #define IS_BUILDER(ch, Area) (!IS_NPC(ch) && !IS_SWITCHED(ch) && \
                 (ch->pcdata->security >= Area->security \

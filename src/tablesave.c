@@ -15,6 +15,8 @@
 #include "skills.h"
 #include "tables.h"
 
+#include "data/mobile.h"
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -249,7 +251,7 @@ const struct savetable_type socialsavetable[] = {
 const struct savetable_type racesavetable[] = {
     { "name",	    FIELD_STRING,		U(&tmp_race.name),	    0,		    0},
     { "pc",		    FIELD_BOOL,			U(&tmp_race.pc_race),	0,		    0},
-    { "act",	    FIELD_FLAGVECTOR,	U(&tmp_race.act),	    0,		    0},
+    { "act",	    FIELD_FLAGVECTOR,	U(&tmp_race.act_flags), 0,		    0},
     { "aff",	    FIELD_FLAGVECTOR,	U(&tmp_race.aff),	    0,		    0},
     { "off",	    FIELD_FLAGVECTOR,	U(&tmp_race.off),	    0,		    0},
     { "imm",	    FIELD_FLAGVECTOR,	U(&tmp_race.imm),	    0,		    0},

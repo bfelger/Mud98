@@ -25,11 +25,15 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+typedef struct buffer_t Buffer;
+
 #pragma once
 #ifndef MUD98__RECYCLE_H
 #define MUD98__RECYCLE_H
 
 #include "merc.h"
+
+#include "skills.h"
 
 /* stuff for providing a crash-proof buffer */
 
@@ -42,6 +46,14 @@
 #define BUFFER_OVERFLOW 1
 #define BUFFER_FREED    2
 
+typedef struct buffer_t {
+    Buffer* next;
+    char* string; /* buffer's string */
+    size_t size;  /* size in k */
+    int state; /* error state of the buffer */
+    bool valid;
+} Buffer;
+
 /* descriptor recycling */
 #define DD DESCRIPTOR_DATA
 DD* new_descriptor args((void));
@@ -49,22 +61,22 @@ void free_descriptor args((DESCRIPTOR_DATA * d));
 #undef DD
 
 /* char gen data recycling */
-#define GD GEN_DATA
+#define GD CharGenData
 GD* new_gen_data args((void));
-void free_gen_data args((GEN_DATA * gen));
+void free_gen_data args((CharGenData * gen));
 #undef GD
 
 long get_pc_id(void);
 
 /* buffer procedures */
 
-BUFFER* new_buf(void);
-BUFFER* new_buf_size(int size);
-void free_buf(BUFFER * buffer);
-bool add_buf(BUFFER * buffer, char* string);
-void clear_buf(BUFFER * buffer);
+Buffer* new_buf();
+Buffer* new_buf_size(int size);
+void free_buf(Buffer * buffer);
+bool add_buf(Buffer * buffer, char* string);
+void clear_buf(Buffer * buffer);
 
-#define INIT_BUF(b, sz) BUFFER* b = new_buf_size(sz)
+#define INIT_BUF(b, sz) Buffer* b = new_buf_size(sz)
 #define SET_BUF(b, s) clear_buf(b); add_buf(b, s)
 #define BUF(b) (b->string)
 
@@ -77,8 +89,8 @@ void free_learned(SKNUM*);
 bool* new_boolarray(size_t);
 void free_boolarray(bool*);
 
-struct skhash* new_skhash(); //allocfunc(struct skhash, skhash)
-void free_skhash(struct skhash*);
+SkillHash* new_skill_hash();
+void free_skill_hash(SkillHash*);
 
 /* externs */
 extern char str_empty[1];

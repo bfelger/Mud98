@@ -54,7 +54,7 @@ typedef struct object_data_t {
     CharData* carried_by;
     ExtraDesc* extra_desc;
     AffectData* affected;
-    ObjectPrototype* pIndexData;
+    ObjectPrototype* prototype;
     RoomData* in_room;
     char* owner;
     char* name;

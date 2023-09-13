@@ -49,6 +49,8 @@
 #include "entities/char_data.h"
 #include "entities/object_data.h"
 
+#include "data/mobile.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -124,7 +126,7 @@ void mob_interpret(CharData* ch, char* argument)
         }
     }
     sprintf(buf, "Mob_interpret: invalid cmd from mob %d: '%s'",
-        IS_NPC(ch) ? ch->pIndexData->vnum : 0, command);
+        IS_NPC(ch) ? ch->prototype->vnum : 0, command);
     bug(buf, 0);
 }
 
@@ -186,7 +188,7 @@ void do_mpstat(CharData* ch, char* argument)
     }
 
     sprintf(arg, "Mobile #%-6d [%s]\n\r",
-        victim->pIndexData->vnum, victim->short_descr);
+        victim->prototype->vnum, victim->short_descr);
     send_to_char(arg, ch);
 
     sprintf(arg, "Delay   %-6d [%s]\n\r",
@@ -195,12 +197,12 @@ void do_mpstat(CharData* ch, char* argument)
         ? "No target" : victim->mprog_target->name);
     send_to_char(arg, ch);
 
-    if (!victim->pIndexData->mprog_flags) {
+    if (!victim->prototype->mprog_flags) {
         send_to_char("[No programs set]\n\r", ch);
         return;
     }
 
-    for (i = 0, mprg = victim->pIndexData->mprogs; mprg != NULL;
+    for (i = 0, mprg = victim->prototype->mprogs; mprg != NULL;
         mprg = mprg->next)
 
     {
@@ -245,7 +247,7 @@ void do_mpgecho(CharData* ch, char* argument)
 
     if (argument[0] == '\0') {
         bug("MpGEcho: missing argument from vnum %"PRVNUM"",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -270,7 +272,7 @@ void do_mpzecho(CharData* ch, char* argument)
 
     if (argument[0] == '\0') {
         bug("MpZEcho: missing argument from vnum %"PRVNUM"",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -344,7 +346,7 @@ void do_mpkill(CharData* ch, char* argument)
 
     if (IS_AFFECTED(ch, AFF_CHARM) && ch->master == victim) {
         bug("MpKill - Charmed mob attacking master from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -496,7 +498,7 @@ void do_mpmload(CharData* ch, char* argument)
     vnum = STRTOVNUM(arg);
     if ((p_mob_proto = get_mob_prototype(vnum)) == NULL) {
         sprintf(arg, "Mpmload: bad mob index (%"PRVNUM") from mob %"PRVNUM".",
-            vnum, IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            vnum, IS_NPC(ch) ? ch->prototype->vnum : 0);
         bug(arg, 0);
         return;
     }
@@ -527,7 +529,7 @@ void do_mpoload(CharData* ch, char* argument)
 
     if (arg1[0] == '\0' || !is_number(arg1)) {
         bug("Mpoload - Bad syntax from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -540,13 +542,13 @@ void do_mpoload(CharData* ch, char* argument)
      */
         if (!is_number(arg2)) {
             bug("Mpoload - Bad syntax from vnum %"PRVNUM".",
-                IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+                IS_NPC(ch) ? ch->prototype->vnum : 0);
             return;
         }
         level = (LEVEL)atoi(arg2);
         if (level < 0 || level > get_trust(ch)) {
             bug("Mpoload - Bad level from vnum %"PRVNUM".",
-                IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+                IS_NPC(ch) ? ch->prototype->vnum : 0);
             return;
         }
     }
@@ -564,7 +566,7 @@ void do_mpoload(CharData* ch, char* argument)
 
     if ((obj_proto = get_object_prototype(STRTOVNUM(arg1))) == NULL) {
         bug("Mpoload - Bad vnum arg from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -604,7 +606,7 @@ void do_mppurge(CharData* ch, char* argument)
         for (victim = ch->in_room->people; victim != NULL; victim = vnext) {
             vnext = victim->next_in_room;
             if (IS_NPC(victim) && victim != ch
-                && !IS_SET(victim->act, ACT_NOPURGE))
+                && !IS_SET(victim->act_flags, ACT_NOPURGE))
                 extract_char(victim, true);
         }
 
@@ -623,14 +625,14 @@ void do_mppurge(CharData* ch, char* argument)
         }
         else {
             bug("Mppurge - Bad argument from vnum %"PRVNUM".",
-                IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+                IS_NPC(ch) ? ch->prototype->vnum : 0);
         }
         return;
     }
 
     if (!IS_NPC(victim)) {
         bug("Mppurge - Purging a PC from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     extract_char(victim, true);
@@ -651,13 +653,13 @@ void do_mpgoto(CharData* ch, char* argument)
     one_argument(argument, arg);
     if (arg[0] == '\0') {
         bug("Mpgoto - No argument from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
     if ((location = find_location(ch, arg)) == NULL) {
         bug("Mpgoto - No such location from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -687,13 +689,13 @@ void do_mpat(CharData* ch, char* argument)
 
     if (arg[0] == '\0' || argument[0] == '\0') {
         bug("Mpat - Bad argument from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
     if ((location = find_location(ch, arg)) == NULL) {
         bug("Mpat - No such location from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -738,7 +740,7 @@ void do_mptransfer(CharData* ch, char* argument)
 
     if (arg1[0] == '\0') {
         bug("Mptransfer - Bad syntax from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -764,7 +766,7 @@ void do_mptransfer(CharData* ch, char* argument)
     else {
         if ((location = find_location(ch, arg2)) == NULL) {
             bug("Mptransfer - No such location from vnum %"PRVNUM".",
-                IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+                IS_NPC(ch) ? ch->prototype->vnum : 0);
             return;
         }
 
@@ -806,7 +808,7 @@ void do_mpgtransfer(CharData* ch, char* argument)
 
     if (arg1[0] == '\0') {
         bug("Mpgtransfer - Bad syntax from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -837,7 +839,7 @@ void do_mpforce(CharData* ch, char* argument)
 
     if (arg[0] == '\0' || argument[0] == '\0') {
         bug("Mpforce - Bad syntax from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -886,7 +888,7 @@ void do_mpgforce(CharData* ch, char* argument)
 
     if (arg[0] == '\0' || argument[0] == '\0') {
         bug("MpGforce - Bad syntax from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -922,13 +924,13 @@ void do_mpvforce(CharData* ch, char* argument)
 
     if (arg[0] == '\0' || argument[0] == '\0') {
         bug("MpVforce - Bad syntax from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
     if (!is_number(arg)) {
         bug("MpVforce - Non-number argument vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -936,7 +938,7 @@ void do_mpvforce(CharData* ch, char* argument)
 
     for (victim = char_list; victim; victim = victim_next) {
         victim_next = victim->next;
-        if (IS_NPC(victim) && victim->pIndexData->vnum == vnum
+        if (IS_NPC(victim) && victim->prototype->vnum == vnum
             && ch != victim && victim->fighting == NULL)
             interpret(victim, argument);
     }
@@ -967,13 +969,13 @@ void do_mpcast(CharData* ch, char* argument)
 
     if (spell[0] == '\0') {
         bug("MpCast - Bad syntax from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
     if ((sn = skill_lookup(spell)) < 0) {
         bug("MpCast - No such spell from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     vch = get_char_room(ch, target);
@@ -1026,7 +1028,7 @@ void do_mpdamage(CharData* ch, char* argument)
 
     if (target[0] == '\0') {
         bug("MpDamage - Bad syntax from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     if (!str_cmp(target, "all"))
@@ -1038,14 +1040,14 @@ void do_mpdamage(CharData* ch, char* argument)
         low = STRTOVNUM(min);
     else {
         bug("MpDamage - Bad damage min vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     if (is_number(max))
         high = STRTOVNUM(max);
     else {
         bug("MpDamage - Bad damage max vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     one_argument(argument, target);
@@ -1089,7 +1091,7 @@ void do_mpremember(CharData* ch, char* argument)
         ch->mprog_target = get_char_world(ch, arg);
     else
         bug("MpRemember: missing argument from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
 }
 
 /*
@@ -1116,7 +1118,7 @@ void do_mpdelay(CharData* ch, char* argument)
     one_argument(argument, arg);
     if (!is_number(arg)) {
         bug("MpDelay: invalid arg from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     ch->mprog_delay = (int16_t)atoi(arg);
@@ -1151,12 +1153,12 @@ void do_mpcall(CharData* ch, char* argument)
     argument = one_argument(argument, arg);
     if (arg[0] == '\0') {
         bug("MpCall: missing arguments from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     if ((prg = get_mprog_index(STRTOVNUM(arg))) == NULL) {
         bug("MpCall: invalid prog from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     vch = NULL;
@@ -1222,13 +1224,13 @@ void do_mpotransfer(CharData* ch, char* argument)
     argument = one_argument(argument, arg);
     if (arg[0] == '\0') {
         bug("MpOTransfer - Missing argument from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     one_argument(argument, buf);
     if ((location = find_location(ch, buf)) == NULL) {
         bug("MpOTransfer - No such location from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     if ((obj = get_obj_here(ch, arg)) == NULL)
@@ -1267,7 +1269,7 @@ void do_mpremove(CharData* ch, char* argument)
         fAll = true;
     else if (!is_number(arg)) {
         bug("MpRemove: Invalid object from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     else
@@ -1275,7 +1277,7 @@ void do_mpremove(CharData* ch, char* argument)
 
     for (obj = victim->carrying; obj; obj = obj_next) {
         obj_next = obj->next_content;
-        if (fAll || obj->pIndexData->vnum == vnum) {
+        if (fAll || obj->prototype->vnum == vnum) {
             unequip_char(ch, obj);
             obj_from_char(obj);
             extract_obj(obj);

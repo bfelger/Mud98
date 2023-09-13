@@ -35,6 +35,8 @@
 
 #include "entities/player_data.h"
 
+#include "data/mobile.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -51,7 +53,8 @@ void do_flag(CharData* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH], arg3[MAX_INPUT_LENGTH];
     char word[MAX_INPUT_LENGTH];
     CharData* victim;
-    int *flag, old = 0, new = 0, marked = 0, pos;
+    FLAGS* flag, old = 0, new = 0;
+    int marked = 0, pos;
     char type;
     const struct flag_type* flag_table;
 
@@ -105,7 +108,7 @@ void do_flag(CharData* ch, char* argument)
                 return;
             }
 
-            flag = &victim->act;
+            flag = &victim->act_flags;
             flag_table = act_flag_table;
         }
 
@@ -115,12 +118,12 @@ void do_flag(CharData* ch, char* argument)
                 return;
             }
 
-            flag = &victim->act;
+            flag = &victim->act_flags;
             flag_table = plr_flag_table;
         }
 
         else if (!str_prefix(arg3, "aff")) {
-            flag = &victim->affected_by;
+            flag = &victim->affect_flags;
             flag_table = affect_flag_table;
         }
 

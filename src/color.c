@@ -14,6 +14,9 @@
 
 #include "entities/player_data.h"
 
+#include "data/mobile.h"
+#include "data/player.h"
+
 #include <stdint.h>
 #include <string.h>
 
@@ -1306,7 +1309,7 @@ void do_theme(CharData* ch, char* argument)
         return;
     }
 
-    if (!IS_SET(ch->act, PLR_COLOUR)) {
+    if (!IS_SET(ch->act_flags, PLR_COLOUR)) {
         send_to_char_bw("You have colors disabled. Use the COLOR command "
             "to enabled them before setting color themes.\n\r", ch);
         return;

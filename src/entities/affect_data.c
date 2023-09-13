@@ -12,6 +12,8 @@
 #include "char_data.h"
 #include "object_data.h"
 
+#include "data/mobile.h"
+
 AffectData* affect_free;
 
 // Return ascii name of an affect bit vector.
@@ -61,7 +63,7 @@ void affect_check(CharData* ch, Where where, int vector)
         if (paf->where == where && paf->bitvector == vector) {
             switch (where) {
             case TO_AFFECTS:
-                SET_BIT(ch->affected_by, vector);
+                SET_BIT(ch->affect_flags, vector);
                 break;
             case TO_IMMUNE:
                 SET_BIT(ch->imm_flags, vector);
@@ -87,7 +89,7 @@ void affect_check(CharData* ch, Where where, int vector)
             if (paf->where == where && paf->bitvector == vector) {
                 switch (where) {
                 case TO_AFFECTS:
-                    SET_BIT(ch->affected_by, vector);
+                    SET_BIT(ch->affect_flags, vector);
                     break;
                 case TO_IMMUNE:
                     SET_BIT(ch->imm_flags, vector);
@@ -108,11 +110,11 @@ void affect_check(CharData* ch, Where where, int vector)
 
         if (obj->enchanted) continue;
 
-        for (paf = obj->pIndexData->affected; paf != NULL; paf = paf->next)
+        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next)
             if (paf->where == where && paf->bitvector == vector) {
                 switch (where) {
                 case TO_AFFECTS:
-                    SET_BIT(ch->affected_by, vector);
+                    SET_BIT(ch->affect_flags, vector);
                     break;
                 case TO_IMMUNE:
                     SET_BIT(ch->imm_flags, vector);
@@ -141,7 +143,7 @@ void affect_enchant(ObjectData* obj)
         AffectData* paf, * af_new;
         obj->enchanted = true;
 
-        for (paf = obj->pIndexData->affected; paf != NULL; paf = paf->next) {
+        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next) {
             af_new = new_affect();
 
             af_new->next = obj->affected;
@@ -275,7 +277,7 @@ void affect_modify(CharData* ch, AffectData* paf, bool fAdd)
     if (fAdd) {
         switch (paf->where) {
         case TO_AFFECTS:
-            SET_BIT(ch->affected_by, paf->bitvector);
+            SET_BIT(ch->affect_flags, paf->bitvector);
             break;
         case TO_IMMUNE:
             SET_BIT(ch->imm_flags, paf->bitvector);
@@ -295,7 +297,7 @@ void affect_modify(CharData* ch, AffectData* paf, bool fAdd)
     else {
         switch (paf->where) {
         case TO_AFFECTS:
-            REMOVE_BIT(ch->affected_by, paf->bitvector);
+            REMOVE_BIT(ch->affect_flags, paf->bitvector);
             break;
         case TO_IMMUNE:
             REMOVE_BIT(ch->imm_flags, paf->bitvector);

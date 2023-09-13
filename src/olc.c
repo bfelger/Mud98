@@ -27,6 +27,8 @@
 #include "entities/player_data.h"
 #include "entities/reset_data.h"
 
+#include "data/mobile.h"
+
 #include <sys/types.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -70,9 +72,9 @@ const struct olc_comm_type mob_olc_comm_table[] = {
     { "imm",	    U(&xMob.imm_flags),	    ed_flag_toggle,		U(imm_flag_table)	},
     { "res",	    U(&xMob.res_flags),	    ed_flag_toggle,		U(res_flag_table)	},
     { "vuln",	    U(&xMob.vuln_flags),	ed_flag_toggle,		U(vuln_flag_table)	},
-    { "act",	    U(&xMob.act),		    ed_flag_toggle,		U(act_flag_table)	},
-    { "affect",	    U(&xMob.affected_by),	ed_flag_toggle,		U(affect_flag_table)},
-    { "off",	    U(&xMob.off_flags),	    ed_flag_toggle,		U(off_flag_table)	},
+    { "act",	    U(&xMob.act_flags),		ed_flag_toggle,		U(act_flag_table)	},
+    { "affect",	    U(&xMob.affect_flags),	ed_flag_toggle,		U(affect_flag_table)},
+    { "off",	    U(&xMob.atk_flags),	    ed_flag_toggle,		U(off_flag_table)	},
     { "form",	    U(&xMob.form),		    ed_flag_toggle,		U(form_flag_table)	},
     { "parts",	    U(&xMob.parts),		    ed_flag_toggle,		U(part_flag_table)	},
     { "shop",	    U(&xMob),			    ed_shop,		    0		        },
@@ -1441,7 +1443,7 @@ void    do_resets(CharData* ch, char* argument)
  Purpose:	Normal command to list areas and display area information.
  Called by:	interpreter(interp.c)
  ****************************************************************************/
-void    do_alist(CharData* ch, char* argument)
+void do_alist(CharData* ch, char* argument)
 {
     char    buf[MAX_STRING_LENGTH];
     char    result[MAX_STRING_LENGTH * 2];	/* May need tweaking. */

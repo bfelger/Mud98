@@ -36,6 +36,8 @@
 #include "entities/player_data.h"
 #include "entities/room_data.h"
 
+#include "data/mobile.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -341,7 +343,7 @@ REDIT(redit_rlist)
     RoomData* pRoomIndex;
     AreaData* pArea;
     char		buf[MAX_STRING_LENGTH];
-    BUFFER* buf1;
+    Buffer* buf1;
     char		arg[MAX_INPUT_LENGTH];
     bool found;
     VNUM vnum;
@@ -383,7 +385,7 @@ REDIT(redit_mlist)
     MobPrototype* p_mob_proto;
     AreaData* pArea;
     char		buf[MAX_STRING_LENGTH];
-    BUFFER* buf1;
+    Buffer* buf1;
     char		arg[MAX_INPUT_LENGTH];
     bool fAll, found;
     VNUM vnum;
@@ -1688,7 +1690,7 @@ REDIT(redit_oreset)
             pReset->command = 'P';
             pReset->arg1 = obj_proto->vnum;
             pReset->arg2 = 0;
-            pReset->arg3 = to_obj->pIndexData->vnum;
+            pReset->arg3 = to_obj->prototype->vnum;
             pReset->arg4 = 1;
             add_reset(pRoom, pReset, 0/* Last slot*/);
 
@@ -1699,9 +1701,9 @@ REDIT(redit_oreset)
             sprintf(output, "%s (%d) has been loaded into "
                 "%s (%d) and added to resets.\n\r",
                 capitalize(newobj->short_descr),
-                newobj->pIndexData->vnum,
+                newobj->prototype->vnum,
                 to_obj->short_descr,
-                to_obj->pIndexData->vnum);
+                to_obj->prototype->vnum);
             send_to_char(output, ch);
         }
         else
@@ -1754,7 +1756,7 @@ REDIT(redit_oreset)
                 olevel = URANGE(0, to_mob->level - 2, LEVEL_HERO);
                 newobj = create_object(obj_proto, (int16_t)number_fuzzy(olevel));
 
-                if (to_mob->pIndexData->pShop)	/* Shop-keeper? */
+                if (to_mob->prototype->pShop)	/* Shop-keeper? */
                 {
                     switch (obj_proto->item_type) {
                     default:		    olevel = 0;				                break;
@@ -1789,7 +1791,7 @@ REDIT(redit_oreset)
                     obj_proto->vnum,
                     flag_string(wear_loc_strings, pReset->arg3),
                     to_mob->short_descr,
-                    to_mob->pIndexData->vnum);
+                    to_mob->prototype->vnum);
                 send_to_char(output, ch);
             }
             else	/* Display Syntax */
@@ -2691,7 +2693,7 @@ MEDIT(medit_show)
     char buf[MAX_STRING_LENGTH];
     MPROG_LIST* list;
     int cnt;
-    BUFFER* buffer;
+    Buffer* buffer;
 
     argument = one_argument(argument, buf);
 
@@ -2726,7 +2728,7 @@ MEDIT(medit_show)
     add_buf(buffer, buf);
 
     sprintf(buf, "Act:         [%s]\n\r",
-        flag_string(act_flag_table, pMob->act));
+        flag_string(act_flag_table, pMob->act_flags));
     add_buf(buffer, buf);
 
     sprintf(buf, "Vnum:        [%5d] Sex:   [%6s]    Group: [%5d]\n\r"
@@ -2779,7 +2781,7 @@ MEDIT(medit_show)
     add_buf(buffer, buf);
 
     sprintf(buf, "Affected by: [%s]\n\r",
-        flag_string(affect_flag_table, pMob->affected_by));
+        flag_string(affect_flag_table, pMob->affect_flags));
     add_buf(buffer, buf);
 
 /* ROM values: */
@@ -2810,7 +2812,7 @@ MEDIT(medit_show)
     add_buf(buffer, buf);
 
     sprintf(buf, "Off:         [%s]\n\r",
-        flag_string(off_flag_table, pMob->off_flags));
+        flag_string(off_flag_table, pMob->atk_flags));
     add_buf(buffer, buf);
 
 /* ROM values end */
@@ -2890,7 +2892,7 @@ MEDIT(medit_group)
     char arg[MAX_STRING_LENGTH];
     char buf[MAX_STRING_LENGTH];
     int temp;
-    BUFFER* buffer;
+    Buffer* buffer;
     bool found = false;
 
     EDIT_MOB(ch, pMob);
@@ -2940,7 +2942,7 @@ MEDIT(medit_group)
 void show_liqlist(CharData* ch)
 {
     int liq;
-    BUFFER* buffer;
+    Buffer* buffer;
     char buf[MAX_STRING_LENGTH];
 
     buffer = new_buf();
@@ -2966,7 +2968,7 @@ void show_liqlist(CharData* ch)
 void show_damlist(CharData* ch)
 {
     int att;
-    BUFFER* buffer;
+    Buffer* buffer;
     char buf[MAX_STRING_LENGTH];
 
     buffer = new_buf();
@@ -2989,7 +2991,7 @@ void show_damlist(CharData* ch)
 void show_poslist(CharData* ch)
 {
     int pos;
-    BUFFER* buffer;
+    Buffer* buffer;
     char buf[MAX_STRING_LENGTH];
 
     buffer = new_buf();
@@ -3012,7 +3014,7 @@ void show_poslist(CharData* ch)
 void show_sexlist(CharData* ch)
 {
     int sex;
-    BUFFER* buffer;
+    Buffer* buffer;
     char buf[MAX_STRING_LENGTH];
 
     buffer = new_buf();
@@ -3036,7 +3038,7 @@ void show_sexlist(CharData* ch)
 void show_sizelist(CharData* ch)
 {
     int size;
-    BUFFER* buffer;
+    Buffer* buffer;
     char buf[MAX_STRING_LENGTH];
 
     buffer = new_buf();
@@ -3079,7 +3081,7 @@ REDIT(redit_owner)
     return true;
 }
 
-void showresets(CharData* ch, BUFFER* buf, AreaData* pArea, MobPrototype* mob, ObjectPrototype* obj)
+void showresets(CharData* ch, Buffer* buf, AreaData* pArea, MobPrototype* mob, ObjectPrototype* obj)
 {
     RoomData* room;
     MobPrototype* pLastMob;
@@ -3118,7 +3120,7 @@ void showresets(CharData* ch, BUFFER* buf, AreaData* pArea, MobPrototype* mob, O
             }
 }
 
-void listobjreset(CharData* ch, BUFFER* buf, AreaData* pArea)
+void listobjreset(CharData* ch, Buffer* buf, AreaData* pArea)
 {
     ObjectPrototype* obj;
     int key;
@@ -3131,7 +3133,7 @@ void listobjreset(CharData* ch, BUFFER* buf, AreaData* pArea)
                 showresets(ch, buf, pArea, 0, obj);
 }
 
-void listmobreset(CharData* ch, BUFFER* buf, AreaData* pArea)
+void listmobreset(CharData* ch, Buffer* buf, AreaData* pArea)
 {
     MobPrototype* mob;
     int key;
@@ -3148,7 +3150,7 @@ REDIT(redit_listreset)
 {
     AreaData* pArea;
     RoomData* pRoom;
-    BUFFER* buf;
+    Buffer* buf;
 
     EDIT_ROOM(ch, pRoom);
 
@@ -3316,8 +3318,8 @@ MEDIT(medit_copy)
     pMob->description = str_dup(mob2->description);
 
     pMob->group = mob2->group;
-    pMob->act = mob2->act;
-    pMob->affected_by = mob2->affected_by;
+    pMob->act_flags = mob2->act_flags;
+    pMob->affect_flags = mob2->affect_flags;
     pMob->alignment = mob2->alignment;
     pMob->level = mob2->level;
     pMob->hitroll = mob2->hitroll;
@@ -3327,7 +3329,7 @@ MEDIT(medit_copy)
     ARRAY_COPY(pMob->ac, mob2->ac, 4);
     pMob->dam_type = mob2->dam_type;
     pMob->size = mob2->size;
-    pMob->off_flags = mob2->off_flags;
+    pMob->atk_flags = mob2->atk_flags;
     pMob->imm_flags = mob2->imm_flags;
     pMob->res_flags = mob2->res_flags;
     pMob->vuln_flags = mob2->vuln_flags;
@@ -3722,7 +3724,7 @@ ED_FUN_DEC(ed_new_mob)
     pMob = new_mob_prototype();
     pMob->vnum = value;
     pMob->area = pArea;
-    pMob->act = ACT_IS_NPC;
+    pMob->act_flags = ACT_IS_NPC;
 
     if (value > top_vnum_mob)
         top_vnum_mob = value;
@@ -4436,9 +4438,9 @@ ED_FUN_DEC(ed_race)
     if (argument[0] != '\0'
         && (race = race_lookup(argument)) != 0) {
         pMob->race = race;
-        pMob->act |= race_table[race].act;
-        pMob->affected_by |= race_table[race].aff;
-        pMob->off_flags |= race_table[race].off;
+        pMob->act_flags |= race_table[race].act_flags;
+        pMob->affect_flags |= race_table[race].aff;
+        pMob->atk_flags |= race_table[race].off;
         pMob->imm_flags |= race_table[race].imm;
         pMob->res_flags |= race_table[race].res;
         pMob->vuln_flags |= race_table[race].vuln;
@@ -4491,7 +4493,7 @@ ED_FUN_DEC(ed_olist)
     ObjectPrototype* obj_proto;
     AreaData* pArea;
     char		buf[MAX_STRING_LENGTH];
-    BUFFER* buf1;
+    Buffer* buf1;
     char		blarg[MAX_INPUT_LENGTH];
     bool fAll, found;
     VNUM vnum;

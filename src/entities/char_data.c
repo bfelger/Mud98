@@ -11,6 +11,8 @@
 
 #include "object_data.h"
 
+#include "data/mobile.h"
+
 CharData* char_list;
 CharData* char_free;
 

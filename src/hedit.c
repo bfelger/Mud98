@@ -15,6 +15,8 @@
 #include "entities/area_data.h"
 #include "entities/player_data.h"
 
+#include "data/mobile.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -329,7 +331,7 @@ HEDIT(hedit_list)
     char buf[MIL];
     int cnt = 0;
     HelpData* pHelp;
-    BUFFER* buffer;
+    Buffer* buffer;
 
     EDIT_HELP(ch, pHelp);
 

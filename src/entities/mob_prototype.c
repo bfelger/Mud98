@@ -16,6 +16,8 @@
 
 #include "char_data.h"
 
+#include "data/mobile.h"
+
 MobPrototype* mob_prototype_hash[MAX_KEY_HASH];
 MobPrototype* mob_prototype_free;
 
@@ -41,7 +43,7 @@ void convert_mobile(MobPrototype* p_mob_proto)
 
     level = p_mob_proto->level;
 
-    p_mob_proto->act |= ACT_WARRIOR;
+    p_mob_proto->act_flags |= ACT_WARRIOR;
 
     /*
      * Calculate hit dice.  Gives close to the hitpoints
@@ -129,7 +131,7 @@ CharData* create_mobile(MobPrototype* p_mob_proto)
 
     mob = new_char_data();
 
-    mob->pIndexData = p_mob_proto;
+    mob->prototype = p_mob_proto;
 
     mob->name = str_dup(p_mob_proto->name);    /* OLC */
     mob->short_descr = str_dup(p_mob_proto->short_descr);    /* OLC */
@@ -156,9 +158,9 @@ CharData* create_mobile(MobPrototype* p_mob_proto)
     {
         /* read from prototype */
         mob->group = p_mob_proto->group;
-        mob->act = p_mob_proto->act;
+        mob->act_flags = p_mob_proto->act_flags;
         mob->comm = COMM_NOCHANNELS | COMM_NOSHOUT | COMM_NOTELL;
-        mob->affected_by = p_mob_proto->affected_by;
+        mob->affect_flags = p_mob_proto->affect_flags;
         mob->alignment = p_mob_proto->alignment;
         mob->level = p_mob_proto->level;
         mob->hitroll = p_mob_proto->hitroll;
@@ -186,7 +188,7 @@ CharData* create_mobile(MobPrototype* p_mob_proto)
             break; /* pierce */
         }
         for (i = 0; i < 4; i++) mob->armor[i] = p_mob_proto->ac[i];
-        mob->off_flags = p_mob_proto->off_flags;
+        mob->atk_flags = p_mob_proto->atk_flags;
         mob->imm_flags = p_mob_proto->imm_flags;
         mob->res_flags = p_mob_proto->res_flags;
         mob->vuln_flags = p_mob_proto->vuln_flags;
@@ -206,31 +208,31 @@ CharData* create_mobile(MobPrototype* p_mob_proto)
         for (i = 0; i < MAX_STATS; i++)
             mob->perm_stat[i] = UMIN(25, 11 + mob->level / 4);
 
-        if (IS_SET(mob->act, ACT_WARRIOR)) {
+        if (IS_SET(mob->act_flags, ACT_WARRIOR)) {
             mob->perm_stat[STAT_STR] += 3;
             mob->perm_stat[STAT_INT] -= 1;
             mob->perm_stat[STAT_CON] += 2;
         }
 
-        if (IS_SET(mob->act, ACT_THIEF)) {
+        if (IS_SET(mob->act_flags, ACT_THIEF)) {
             mob->perm_stat[STAT_DEX] += 3;
             mob->perm_stat[STAT_INT] += 1;
             mob->perm_stat[STAT_WIS] -= 1;
         }
 
-        if (IS_SET(mob->act, ACT_CLERIC)) {
+        if (IS_SET(mob->act_flags, ACT_CLERIC)) {
             mob->perm_stat[STAT_WIS] += 3;
             mob->perm_stat[STAT_DEX] -= 1;
             mob->perm_stat[STAT_STR] += 1;
         }
 
-        if (IS_SET(mob->act, ACT_MAGE)) {
+        if (IS_SET(mob->act_flags, ACT_MAGE)) {
             mob->perm_stat[STAT_INT] += 3;
             mob->perm_stat[STAT_STR] -= 1;
             mob->perm_stat[STAT_DEX] += 1;
         }
 
-        if (IS_SET(mob->off_flags, OFF_FAST)) mob->perm_stat[STAT_DEX] += 2;
+        if (IS_SET(mob->atk_flags, ATK_FAST)) mob->perm_stat[STAT_DEX] += 2;
 
         mob->perm_stat[STAT_STR] += mob->size - SIZE_MEDIUM;
         mob->perm_stat[STAT_CON] += (mob->size - SIZE_MEDIUM) / 2;
@@ -283,8 +285,8 @@ CharData* create_mobile(MobPrototype* p_mob_proto)
     }
     else /* read in old format and convert */
     {
-        mob->act = p_mob_proto->act;
-        mob->affected_by = p_mob_proto->affected_by;
+        mob->act_flags = p_mob_proto->act_flags;
+        mob->affect_flags = p_mob_proto->affect_flags;
         mob->alignment = p_mob_proto->alignment;
         mob->level = p_mob_proto->level;
         mob->hitroll = p_mob_proto->hitroll;
@@ -311,7 +313,7 @@ CharData* create_mobile(MobPrototype* p_mob_proto)
             mob->armor[i] = (int16_t)interpolate(mob->level, 100, -100);
         mob->armor[3] = (int16_t)interpolate(mob->level, 100, 0);
         mob->race = p_mob_proto->race;
-        mob->off_flags = p_mob_proto->off_flags;
+        mob->atk_flags = p_mob_proto->atk_flags;
         mob->imm_flags = p_mob_proto->imm_flags;
         mob->res_flags = p_mob_proto->res_flags;
         mob->vuln_flags = p_mob_proto->vuln_flags;
@@ -421,9 +423,9 @@ void load_mobiles(FILE* fp)
         p_mob_proto->long_descr[0] = UPPER(p_mob_proto->long_descr[0]);
         p_mob_proto->description[0] = UPPER(p_mob_proto->description[0]);
 
-        p_mob_proto->act
-            = fread_flag(fp) | ACT_IS_NPC | race_table[p_mob_proto->race].act;
-        p_mob_proto->affected_by
+        p_mob_proto->act_flags
+            = fread_flag(fp) | ACT_IS_NPC | race_table[p_mob_proto->race].act_flags;
+        p_mob_proto->affect_flags
             = fread_flag(fp) | race_table[p_mob_proto->race].aff;
         p_mob_proto->pShop = NULL;
         p_mob_proto->alignment = (int16_t)fread_number(fp);
@@ -461,7 +463,7 @@ void load_mobiles(FILE* fp)
         p_mob_proto->ac[AC_EXOTIC] = (int16_t)fread_number(fp) * 10;
 
         /* read flags and add in data from the race table */
-        p_mob_proto->off_flags = fread_flag(fp) | race_table[p_mob_proto->race].off;
+        p_mob_proto->atk_flags = fread_flag(fp) | race_table[p_mob_proto->race].off;
         p_mob_proto->imm_flags = fread_flag(fp) | race_table[p_mob_proto->race].imm;
         p_mob_proto->res_flags = fread_flag(fp) | race_table[p_mob_proto->race].res;
         p_mob_proto->vuln_flags
@@ -492,11 +494,11 @@ void load_mobiles(FILE* fp)
                 vector = fread_flag(fp);
 
                 if (!str_prefix(word, "act"))
-                    REMOVE_BIT(p_mob_proto->act, vector);
+                    REMOVE_BIT(p_mob_proto->act_flags, vector);
                 else if (!str_prefix(word, "aff"))
-                    REMOVE_BIT(p_mob_proto->affected_by, vector);
+                    REMOVE_BIT(p_mob_proto->affect_flags, vector);
                 else if (!str_prefix(word, "off"))
-                    REMOVE_BIT(p_mob_proto->off_flags, vector);
+                    REMOVE_BIT(p_mob_proto->atk_flags, vector);
                 else if (!str_prefix(word, "imm"))
                     REMOVE_BIT(p_mob_proto->imm_flags, vector);
                 else if (!str_prefix(word, "res"))
@@ -594,8 +596,8 @@ void load_old_mob(FILE* fp)
         p_mob_proto->long_descr[0] = UPPER(p_mob_proto->long_descr[0]);
         p_mob_proto->description[0] = UPPER(p_mob_proto->description[0]);
 
-        p_mob_proto->act = fread_flag(fp) | ACT_IS_NPC;
-        p_mob_proto->affected_by = fread_flag(fp);
+        p_mob_proto->act_flags = fread_flag(fp) | ACT_IS_NPC;
+        p_mob_proto->affect_flags = fread_flag(fp);
         p_mob_proto->pShop = NULL;
         p_mob_proto->alignment = (int16_t)fread_number(fp);
         letter = fread_letter(fp);
@@ -639,8 +641,8 @@ void load_old_mob(FILE* fp)
         if (name[0] == '\0' || (race = race_lookup(name)) == 0) {
             /* fill in with blanks */
             p_mob_proto->race = (int16_t)race_lookup("human");
-            p_mob_proto->off_flags
-                = OFF_DODGE | OFF_DISARM | OFF_TRIP | ASSIST_VNUM;
+            p_mob_proto->atk_flags
+                = ATK_DODGE | ATK_DISARM | ATK_TRIP | ASSIST_VNUM;
             p_mob_proto->imm_flags = 0;
             p_mob_proto->res_flags = 0;
             p_mob_proto->vuln_flags = 0;
@@ -651,7 +653,7 @@ void load_old_mob(FILE* fp)
         }
         else {
             p_mob_proto->race = (int16_t)race;
-            p_mob_proto->off_flags = OFF_DODGE | OFF_DISARM | OFF_TRIP
+            p_mob_proto->atk_flags = ATK_DODGE | ATK_DISARM | ATK_TRIP
                 | ASSIST_RACE | race_table[race].off;
             p_mob_proto->imm_flags = race_table[race].imm;
             p_mob_proto->res_flags = race_table[race].res;
@@ -705,8 +707,8 @@ MobPrototype* new_mob_prototype()
     pMob->killed = 0;
     pMob->sex = 0;
     pMob->level = 0;
-    pMob->act = ACT_IS_NPC;
-    pMob->affected_by = 0;
+    pMob->act_flags = ACT_IS_NPC;
+    pMob->affect_flags = 0;
     pMob->alignment = 0;
     pMob->hitroll = 0;
     pMob->race = (int16_t)race_lookup("human"); /* - Hugin */
@@ -716,7 +718,7 @@ MobPrototype* new_mob_prototype()
     pMob->res_flags = 0;           /* ROM patch -- Hugin */
     pMob->vuln_flags = 0;           /* ROM patch -- Hugin */
     pMob->material = str_dup("unknown"); /* -- Hugin */
-    pMob->off_flags = 0;           /* ROM patch -- Hugin */
+    pMob->atk_flags = 0;           /* ROM patch -- Hugin */
     pMob->size = SIZE_MEDIUM; /* ROM patch -- Hugin */
     pMob->ac[AC_PIERCE] = 0;           /* ROM patch -- Hugin */
     pMob->ac[AC_BASH] = 0;           /* ROM patch -- Hugin */
@@ -754,22 +756,22 @@ void recalc(MobPrototype* pMob)
 
     hplev = 0; aclev = 0; damlev = 0; hitbonus = 0;
 
-    if (IS_SET(pMob->act, ACT_WARRIOR)) {
+    if (IS_SET(pMob->act_flags, ACT_WARRIOR)) {
         hplev += 1;
         //clase[cnt++] = ACT_WARRIOR;
     }
 
-    if (IS_SET(pMob->act, ACT_THIEF)) {
+    if (IS_SET(pMob->act_flags, ACT_THIEF)) {
         hplev -= 1; aclev -= 1; damlev -= 1;
         //clase[cnt++] = ACT_THIEF;
     }
 
-    if (IS_SET(pMob->act, ACT_CLERIC)) {
+    if (IS_SET(pMob->act_flags, ACT_CLERIC)) {
         damlev -= 2;
         //clase[cnt++] = ACT_CLERIC;
     }
 
-    if (IS_SET(pMob->act, ACT_MAGE)) {
+    if (IS_SET(pMob->act_flags, ACT_MAGE)) {
 //		hplev -= 1; aclev -= 1; damlev -= 3;
         hplev -= 2; aclev -= 1; damlev -= 3;
         //clase[cnt++] = ACT_MAGE;
@@ -795,20 +797,20 @@ void recalc(MobPrototype* pMob)
     pMob->mana[DICE_TYPE] = 10 + (pMob->level / 8);
     pMob->mana[DICE_BONUS] = 100;
 
-    if (IS_SET(pMob->act, ACT_CLERIC) || IS_SET(pMob->act, ACT_MAGE))
+    if (IS_SET(pMob->act_flags, ACT_CLERIC) || IS_SET(pMob->act_flags, ACT_MAGE))
         pMob->mana[DICE_BONUS] *= (1 + pMob->level / 3);
 
     for (int i = 0; i < 3; i++)
         pMob->ac[i] = recval_table[aclev].ac * 10;
 
-    if (IS_SET(pMob->act, ACT_UNDEAD)
+    if (IS_SET(pMob->act_flags, ACT_UNDEAD)
         || IS_SET(pMob->form, FORM_UNDEAD)
         || IS_SET(pMob->form, FORM_MAGICAL))
         n = 0;
-    else if (IS_SET(pMob->act, ACT_MAGE))
+    else if (IS_SET(pMob->act_flags, ACT_MAGE))
         n = 1;
-    else if (IS_SET(pMob->act, ACT_THIEF)
-        || IS_SET(pMob->act, ACT_CLERIC))
+    else if (IS_SET(pMob->act_flags, ACT_THIEF)
+        || IS_SET(pMob->act_flags, ACT_CLERIC))
         n = 2;
     else
         n = 3;
@@ -817,11 +819,11 @@ void recalc(MobPrototype* pMob)
 
     pMob->ac[3] = recval_table[aclev].ac * 10;
 
-    if (IS_SET(pMob->act, ACT_WARRIOR))
+    if (IS_SET(pMob->act_flags, ACT_WARRIOR))
         hitbonus = pMob->level * 3 / 2;
-    else if (IS_SET(pMob->act, ACT_THIEF))
+    else if (IS_SET(pMob->act_flags, ACT_THIEF))
         hitbonus = pMob->level * 2 / 3;
-    else if (IS_SET(pMob->act, ACT_CLERIC) || IS_SET(pMob->act, ACT_MAGE))
+    else if (IS_SET(pMob->act_flags, ACT_CLERIC) || IS_SET(pMob->act_flags, ACT_MAGE))
         hitbonus = pMob->level / 2;
 
     pMob->hitroll = (int16_t)hitbonus;

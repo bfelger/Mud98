@@ -47,6 +47,9 @@
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
+#include "data/mobile.h"
+#include "data/player.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -481,7 +484,7 @@ void do_deny(CharData* ch, char* argument)
         return;
     }
 
-    SET_BIT(victim->act, PLR_DENY);
+    SET_BIT(victim->act_flags, PLR_DENY);
     send_to_char("You are denied access!\n\r", victim);
     sprintf(buf, "$N denies access to %s", victim->name);
     wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
@@ -566,8 +569,8 @@ void do_pardon(CharData* ch, char* argument)
     }
 
     if (!str_cmp(arg2, "killer")) {
-        if (IS_SET(victim->act, PLR_KILLER)) {
-            REMOVE_BIT(victim->act, PLR_KILLER);
+        if (IS_SET(victim->act_flags, PLR_KILLER)) {
+            REMOVE_BIT(victim->act_flags, PLR_KILLER);
             send_to_char("Killer flag removed.\n\r", ch);
             send_to_char("You are no longer a KILLER.\n\r", victim);
         }
@@ -575,8 +578,8 @@ void do_pardon(CharData* ch, char* argument)
     }
 
     if (!str_cmp(arg2, "thief")) {
-        if (IS_SET(victim->act, PLR_THIEF)) {
-            REMOVE_BIT(victim->act, PLR_THIEF);
+        if (IS_SET(victim->act_flags, PLR_THIEF)) {
+            REMOVE_BIT(victim->act_flags, PLR_THIEF);
             send_to_char("Thief flag removed.\n\r", ch);
             send_to_char("You are no longer a THIEF.\n\r", victim);
         }
@@ -1076,8 +1079,8 @@ void do_ostat(CharData* ch, char* argument)
     send_to_char(buf, ch);
 
     sprintf(buf, "Vnum: %d  Format: %s  Type: %s  Resets: %d\n\r",
-            obj->pIndexData->vnum, obj->pIndexData->new_format ? "new" : "old",
-            item_name(obj->item_type), obj->pIndexData->reset_num);
+            obj->prototype->vnum, obj->prototype->new_format ? "new" : "old",
+            item_name(obj->item_type), obj->prototype->reset_num);
     send_to_char(buf, ch);
 
     sprintf(buf, "Short description: %s\n\rLong description: %s\n\r",
@@ -1202,7 +1205,7 @@ void do_ostat(CharData* ch, char* argument)
             send_to_char("unknown\n\r", ch);
             break;
         }
-        if (obj->pIndexData->new_format)
+        if (obj->prototype->new_format)
             sprintf(buf, "Damage is %dd%d (average %d)\n\r", obj->value[1],
                     obj->value[2], (1 + obj->value[2]) * obj->value[1] / 2);
         else
@@ -1245,7 +1248,7 @@ void do_ostat(CharData* ch, char* argument)
         break;
     }
 
-    if (obj->extra_desc != NULL || obj->pIndexData->extra_desc != NULL) {
+    if (obj->extra_desc != NULL || obj->prototype->extra_desc != NULL) {
         ExtraDesc* ed;
 
         send_to_char("Extra description keywords: '", ch);
@@ -1255,7 +1258,7 @@ void do_ostat(CharData* ch, char* argument)
             if (ed->next != NULL) send_to_char(" ", ch);
         }
 
-        for (ed = obj->pIndexData->extra_desc; ed != NULL; ed = ed->next) {
+        for (ed = obj->prototype->extra_desc; ed != NULL; ed = ed->next) {
             send_to_char(ed->keyword, ch);
             if (ed->next != NULL) send_to_char(" ", ch);
         }
@@ -1308,7 +1311,7 @@ void do_ostat(CharData* ch, char* argument)
     }
 
     if (!obj->enchanted)
-        for (paf = obj->pIndexData->affected; paf != NULL; paf = paf->next) {
+        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next) {
             sprintf(buf, "Affects %s by %d, level %d.\n\r",
                     affect_loc_name(paf->location), paf->modifier, paf->level);
             send_to_char(buf, ch);
@@ -1374,16 +1377,16 @@ void do_mstat(CharData* ch, char* argument)
 
     sprintf(
         buf, "Vnum: %d  Format: %s  Race: %s  Group: %d  Sex: %s  Room: %d\n\r",
-        IS_NPC(victim) ? victim->pIndexData->vnum : 0,
-        IS_NPC(victim) ? victim->pIndexData->new_format ? "new" : "old" : "pc",
+        IS_NPC(victim) ? victim->prototype->vnum : 0,
+        IS_NPC(victim) ? victim->prototype->new_format ? "new" : "old" : "pc",
         race_table[victim->race].name, IS_NPC(victim) ? victim->group : 0,
         sex_table[victim->sex].name,
         victim->in_room == NULL ? 0 : victim->in_room->vnum);
     send_to_char(buf, ch);
 
     if (IS_NPC(victim)) {
-        sprintf(buf, "Count: %d  Killed: %d\n\r", victim->pIndexData->count,
-                victim->pIndexData->killed);
+        sprintf(buf, "Count: %d  Killed: %d\n\r", victim->prototype->count,
+                victim->prototype->killed);
         send_to_char(buf, ch);
     }
 
@@ -1422,7 +1425,7 @@ void do_mstat(CharData* ch, char* argument)
         victim->wimpy);
     send_to_char(buf, ch);
 
-    if (IS_NPC(victim) && victim->pIndexData->new_format) {
+    if (IS_NPC(victim) && victim->prototype->new_format) {
         sprintf(buf, "Damage: %dd%d  Message:  %s\n\r",
                 victim->damage[DICE_NUMBER], victim->damage[DICE_TYPE],
                 attack_table[victim->dam_type].noun);
@@ -1453,7 +1456,7 @@ void do_mstat(CharData* ch, char* argument)
         send_to_char(buf, ch);
     }
 
-    sprintf(buf, "Act: %s\n\r", act_bit_name(victim->act));
+    sprintf(buf, "Act: %s\n\r", act_bit_name(victim->act_flags));
     send_to_char(buf, ch);
 
     if (victim->comm) {
@@ -1461,8 +1464,8 @@ void do_mstat(CharData* ch, char* argument)
         send_to_char(buf, ch);
     }
 
-    if (IS_NPC(victim) && victim->off_flags) {
-        sprintf(buf, "Offense: %s\n\r", off_bit_name(victim->off_flags));
+    if (IS_NPC(victim) && victim->atk_flags) {
+        sprintf(buf, "Offense: %s\n\r", off_bit_name(victim->atk_flags));
         send_to_char(buf, ch);
     }
 
@@ -1485,9 +1488,9 @@ void do_mstat(CharData* ch, char* argument)
             part_bit_name(victim->parts));
     send_to_char(buf, ch);
 
-    if (victim->affected_by) {
+    if (victim->affect_flags) {
         sprintf(buf, "Affected by %s\n\r",
-                affect_bit_name(victim->affected_by));
+                affect_bit_name(victim->affect_flags));
         send_to_char(buf, ch);
     }
 
@@ -1651,7 +1654,7 @@ void do_ofind(CharData* ch, char* argument)
 void do_owhere(CharData* ch, char* argument)
 {
     char buf[MAX_INPUT_LENGTH];
-    BUFFER* buffer;
+    Buffer* buffer;
     ObjectData* obj;
     ObjectData* in_obj;
     bool found;
@@ -1708,7 +1711,7 @@ void do_owhere(CharData* ch, char* argument)
 void do_mwhere(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    BUFFER* buffer;
+    Buffer* buffer;
     CharData* victim;
     bool found;
     int count = 0;
@@ -1750,7 +1753,7 @@ void do_mwhere(CharData* ch, char* argument)
             found = true;
             count++;
             sprintf(buf, "%3d) [%5d] %-28s [%5d] %s\n\r", count,
-                    IS_NPC(victim) ? victim->pIndexData->vnum : 0,
+                    IS_NPC(victim) ? victim->prototype->vnum : 0,
                     IS_NPC(victim) ? victim->short_descr : victim->name,
                     victim->in_room->vnum, victim->in_room->name);
             add_buf(buffer, buf);
@@ -2030,7 +2033,7 @@ void recursive_clone(CharData* ch, ObjectData* obj, ObjectData* clone)
 
     for (c_obj = obj->contains; c_obj != NULL; c_obj = c_obj->next_content) {
         if (obj_check(ch, c_obj)) {
-            t_obj = create_object(c_obj->pIndexData, 0);
+            t_obj = create_object(c_obj->prototype, 0);
             clone_object(c_obj, t_obj);
             obj_to_obj(t_obj, clone);
             recursive_clone(ch, c_obj, t_obj);
@@ -2089,7 +2092,7 @@ void do_clone(CharData* ch, char* argument)
             return;
         }
 
-        clone = create_object(obj->pIndexData, 0);
+        clone = create_object(obj->prototype, 0);
         clone_object(obj, clone);
         if (obj->carried_by != NULL)
             obj_to_char(clone, ch);
@@ -2122,12 +2125,12 @@ void do_clone(CharData* ch, char* argument)
             return;
         }
 
-        clone = create_mobile(mob->pIndexData);
+        clone = create_mobile(mob->prototype);
         clone_mobile(mob, clone);
 
         for (obj = mob->carrying; obj != NULL; obj = obj->next_content) {
             if (obj_check(ch, obj)) {
-                new_object = create_object(obj->pIndexData, 0);
+                new_object = create_object(obj->prototype, 0);
                 clone_object(obj, new_object);
                 recursive_clone(ch, obj, new_object);
                 obj_to_char(new_object, clone);
@@ -2262,7 +2265,7 @@ void do_purge(CharData* ch, char* argument)
 
         for (victim = ch->in_room->people; victim != NULL; victim = vnext) {
             vnext = victim->next_in_room;
-            if (IS_NPC(victim) && !IS_SET(victim->act, ACT_NOPURGE)
+            if (IS_NPC(victim) && !IS_SET(victim->act_flags, ACT_NOPURGE)
                 && victim != ch /* safety precaution */)
                 extract_char(victim, true);
         }
@@ -2533,15 +2536,15 @@ void do_freeze(CharData* ch, char* argument)
         return;
     }
 
-    if (IS_SET(victim->act, PLR_FREEZE)) {
-        REMOVE_BIT(victim->act, PLR_FREEZE);
+    if (IS_SET(victim->act_flags, PLR_FREEZE)) {
+        REMOVE_BIT(victim->act_flags, PLR_FREEZE);
         send_to_char("You can play again.\n\r", victim);
         send_to_char("FREEZE removed.\n\r", ch);
         sprintf(buf, "$N thaws %s.", victim->name);
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
     else {
-        SET_BIT(victim->act, PLR_FREEZE);
+        SET_BIT(victim->act_flags, PLR_FREEZE);
         send_to_char("You can't do ANYthing!\n\r", victim);
         send_to_char("FREEZE set.\n\r", ch);
         sprintf(buf, "$N puts %s in the deep freeze.", victim->name);
@@ -2590,12 +2593,12 @@ void do_log(CharData* ch, char* argument)
     /*
      * No level check, gods can log anyone.
      */
-    if (IS_SET(victim->act, PLR_LOG)) {
-        REMOVE_BIT(victim->act, PLR_LOG);
+    if (IS_SET(victim->act_flags, PLR_LOG)) {
+        REMOVE_BIT(victim->act_flags, PLR_LOG);
         send_to_char("LOG removed.\n\r", ch);
     }
     else {
-        SET_BIT(victim->act, PLR_LOG);
+        SET_BIT(victim->act_flags, PLR_LOG);
         send_to_char("LOG set.\n\r", ch);
     }
 
@@ -2733,8 +2736,8 @@ void do_peace(CharData* ch, char* argument)
 
     for (rch = ch->in_room->people; rch != NULL; rch = rch->next_in_room) {
         if (rch->fighting != NULL) stop_fighting(rch, true);
-        if (IS_NPC(rch) && IS_SET(rch->act, ACT_AGGRESSIVE))
-            REMOVE_BIT(rch->act, ACT_AGGRESSIVE);
+        if (IS_NPC(rch) && IS_SET(rch->act_flags, ACT_AGGRESSIVE))
+            REMOVE_BIT(rch->act_flags, ACT_AGGRESSIVE);
     }
 
     send_to_char("Ok.\n\r", ch);
@@ -3801,12 +3804,12 @@ void do_holylight(CharData* ch, char* argument)
 {
     if (IS_NPC(ch)) return;
 
-    if (IS_SET(ch->act, PLR_HOLYLIGHT)) {
-        REMOVE_BIT(ch->act, PLR_HOLYLIGHT);
+    if (IS_SET(ch->act_flags, PLR_HOLYLIGHT)) {
+        REMOVE_BIT(ch->act_flags, PLR_HOLYLIGHT);
         send_to_char("Holy light mode off.\n\r", ch);
     }
     else {
-        SET_BIT(ch->act, PLR_HOLYLIGHT);
+        SET_BIT(ch->act_flags, PLR_HOLYLIGHT);
         send_to_char("Holy light mode on.\n\r", ch);
     }
 

@@ -36,6 +36,9 @@
 
 #include "entities/char_data.h"
 
+#include "data/mobile.h"
+#include "data/player.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -169,12 +172,12 @@ void interpret(CharData* ch, char* argument)
     /*
      * No hiding.
      */
-    REMOVE_BIT(ch->affected_by, AFF_HIDE);
+    REMOVE_BIT(ch->affect_flags, AFF_HIDE);
 
     /*
      * Implement freeze command.
      */
-    if (!IS_NPC(ch) && IS_SET(ch->act, PLR_FREEZE)) {
+    if (!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_FREEZE)) {
         send_to_char("You're totally frozen!\n\r", ch);
         return;
     }
@@ -217,7 +220,7 @@ void interpret(CharData* ch, char* argument)
     if (cmd_table[cmd].log == LOG_NEVER) 
         strcpy(logline, "");
 
-    if ((!IS_NPC(ch) && IS_SET(ch->act, PLR_LOG)) || fLogAll
+    if ((!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_LOG)) || fLogAll
         || cmd_table[cmd].log == LOG_ALWAYS) {
         sprintf(log_buf, "Log %s: %s", ch->name, logline);
         wiznet(log_buf, ch, NULL, WIZ_SECURE, 0, get_trust(ch));
@@ -271,6 +274,9 @@ void interpret(CharData* ch, char* argument)
 
         case POS_FIGHTING:
             send_to_char("No way!  You are still fighting!\n\r", ch);
+            break;
+
+        default:
             break;
         }
         return;
@@ -344,6 +350,9 @@ bool check_social(CharData* ch, char* command, char* argument)
         if (!str_cmp(social_table[cmd].name, "snore")) break;
         send_to_char("In your dreams, or what?\n\r", ch);
         return true;
+
+    default:
+        break;
     }
 
     one_argument(argument, arg);

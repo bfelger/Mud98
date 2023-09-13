@@ -148,12 +148,10 @@ typedef int	LookupFunc(const char*);
 /*
  * Structure types.
  */
-typedef struct buf_type BUFFER;
 typedef struct descriptor_data DESCRIPTOR_DATA;
 typedef struct kill_data KILL_DATA;
 typedef struct mprog_list MPROG_LIST;
 typedef struct mprog_code MPROG_CODE;
-typedef struct gen_data GEN_DATA;
 typedef struct shop_data SHOP_DATA;
 typedef struct time_info_data TIME_INFO_DATA;
 typedef struct weather_data WEATHER_DATA;
@@ -201,19 +199,6 @@ typedef struct weather_data WEATHER_DATA;
 #define ANGEL               (MAX_LEVEL - 7)
 #define AVATAR              (MAX_LEVEL - 8)
 #define HERO                LEVEL_HERO
-
-struct buf_type {
-    BUFFER* next;
-    char* string; /* buffer's string */
-    size_t size;  /* size in k */
-    int state; /* error state of the buffer */
-    bool valid;
-};
-
-struct skhash {
-    struct skhash* next;
-    SKNUM sn;
-};
 
 /*
  * Time and weather stuff.
@@ -395,7 +380,7 @@ struct race_type {
     char* who_name;
     char* skills[5];		/* bonus skills for the race */
     bool pc_race; /* can be chosen by pcs */
-    FLAGS act; /* act bits for the race */
+    FLAGS act_flags; /* act bits for the race */
     FLAGS aff; /* aff bits for the race */
     FLAGS off; /* off bits for the race */
     FLAGS imm; /* imm bits for the race */
@@ -427,194 +412,6 @@ struct kill_data {
  ***************************************************************************/
 
 /*
- * ACT bits for mobs.
- * Used in #MOBILES.
- */
-#define ACT_IS_NPC              BIT(0) /* Auto set for mobs	*/
-#define ACT_SENTINEL            BIT(1) /* Stays in one room	*/
-#define ACT_SCAVENGER           BIT(2) /* Picks up objects	*/
-#define ACT_AGGRESSIVE          BIT(5) /* Attacks PC's		*/
-#define ACT_STAY_AREA           BIT(6) /* Won't leave area	*/
-#define ACT_WIMPY               BIT(7)
-#define ACT_PET                 BIT(8) /* Auto set for pets	*/
-#define ACT_TRAIN               BIT(9) /* Can train PC's	*/
-#define ACT_PRACTICE            BIT(10) /* Can practice PC's	*/
-#define ACT_UNDEAD              BIT(14)
-#define ACT_CLERIC              BIT(16)
-#define ACT_MAGE                BIT(17)
-#define ACT_THIEF               BIT(18)
-#define ACT_WARRIOR             BIT(19)
-#define ACT_NOALIGN             BIT(20)
-#define ACT_NOPURGE             BIT(21)
-#define ACT_OUTDOORS            BIT(22)
-#define ACT_INDOORS             BIT(24)
-#define ACT_IS_HEALER           BIT(26)
-#define ACT_GAIN                BIT(27)
-#define ACT_UPDATE_ALWAYS       BIT(28)
-#define ACT_IS_CHANGER          BIT(29)
-
-/* OFF bits for mobiles */
-#define OFF_AREA_ATTACK         BIT(0)
-#define OFF_BACKSTAB            BIT(1)
-#define OFF_BASH                BIT(2)
-#define OFF_BERSERK             BIT(3)
-#define OFF_DISARM              BIT(4)
-#define OFF_DODGE               BIT(5)
-#define OFF_FADE                BIT(6)
-#define OFF_FAST                BIT(7)
-#define OFF_KICK                BIT(8)
-#define OFF_KICK_DIRT           BIT(9)
-#define OFF_PARRY               BIT(10)
-#define OFF_RESCUE              BIT(11)
-#define OFF_TAIL                BIT(12)
-#define OFF_TRIP                BIT(13)
-#define OFF_CRUSH               BIT(14)
-#define ASSIST_ALL              BIT(15)
-#define ASSIST_ALIGN            BIT(16)
-#define ASSIST_RACE             BIT(17)
-#define ASSIST_PLAYERS          BIT(18)
-#define ASSIST_GUARD            BIT(19)
-#define ASSIST_VNUM             BIT(20)
-
-/* return values for check_imm */
-#define IS_NORMAL               0
-#define IS_IMMUNE               1
-#define IS_RESISTANT            2
-#define IS_VULNERABLE           3
-
-/* IMM bits for mobs */
-#define IMM_SUMMON              BIT(0)
-#define IMM_CHARM               BIT(1)
-#define IMM_MAGIC               BIT(2)
-#define IMM_WEAPON              BIT(3)
-#define IMM_BASH                BIT(4)
-#define IMM_PIERCE              BIT(5)
-#define IMM_SLASH               BIT(6)
-#define IMM_FIRE                BIT(7)
-#define IMM_COLD                BIT(8)
-#define IMM_LIGHTNING           BIT(9)
-#define IMM_ACID                BIT(10)
-#define IMM_POISON              BIT(11)
-#define IMM_NEGATIVE            BIT(12)
-#define IMM_HOLY                BIT(13)
-#define IMM_ENERGY              BIT(14)
-#define IMM_MENTAL              BIT(15)
-#define IMM_DISEASE             BIT(16)
-#define IMM_DROWNING            BIT(17)
-#define IMM_LIGHT               BIT(18)
-#define IMM_SOUND               BIT(19)
-#define IMM_WOOD                BIT(23)
-#define IMM_SILVER              BIT(24)
-#define IMM_IRON                BIT(25)
-
-/* RES bits for mobs */
-#define RES_SUMMON              BIT(0)
-#define RES_CHARM               BIT(1)
-#define RES_MAGIC               BIT(2)
-#define RES_WEAPON              BIT(3)
-#define RES_BASH                BIT(4)
-#define RES_PIERCE              BIT(5)
-#define RES_SLASH               BIT(6)
-#define RES_FIRE                BIT(7)
-#define RES_COLD                BIT(8)
-#define RES_LIGHTNING           BIT(9)
-#define RES_ACID                BIT(10)
-#define RES_POISON              BIT(11)
-#define RES_NEGATIVE            BIT(12)
-#define RES_HOLY                BIT(13)
-#define RES_ENERGY              BIT(14)
-#define RES_MENTAL              BIT(15)
-#define RES_DISEASE             BIT(16)
-#define RES_DROWNING            BIT(17)
-#define RES_LIGHT               BIT(18)
-#define RES_SOUND               BIT(19)
-#define RES_WOOD                BIT(23)
-#define RES_SILVER              BIT(24)
-#define RES_IRON                BIT(25)
-
-/* VULN bits for mobs */
-#define VULN_SUMMON             BIT(0)
-#define VULN_CHARM              BIT(1)
-#define VULN_MAGIC              BIT(2)
-#define VULN_WEAPON             BIT(3)
-#define VULN_BASH               BIT(4)
-#define VULN_PIERCE             BIT(5)
-#define VULN_SLASH              BIT(6)
-#define VULN_FIRE               BIT(7)
-#define VULN_COLD               BIT(8)
-#define VULN_LIGHTNING          BIT(9)
-#define VULN_ACID               BIT(10)
-#define VULN_POISON             BIT(11)
-#define VULN_NEGATIVE           BIT(12)
-#define VULN_HOLY               BIT(13)
-#define VULN_ENERGY             BIT(14)
-#define VULN_MENTAL             BIT(15)
-#define VULN_DISEASE            BIT(16)
-#define VULN_DROWNING           BIT(17)
-#define VULN_LIGHT              BIT(18)
-#define VULN_SOUND              BIT(19)
-#define VULN_WOOD               BIT(23)
-#define VULN_SILVER             BIT(24)
-#define VULN_IRON               BIT(25)
-
-/* body form */
-#define FORM_EDIBLE             BIT(0)
-#define FORM_POISON             BIT(1)
-#define FORM_MAGICAL            BIT(2)
-#define FORM_INSTANT_DECAY      BIT(3)
-#define FORM_OTHER              BIT(4) /* defined by material bit */
-
-/* actual form */
-#define FORM_ANIMAL             BIT(6)
-#define FORM_SENTIENT           BIT(7)
-#define FORM_UNDEAD             BIT(8)
-#define FORM_CONSTRUCT          BIT(9)
-#define FORM_MIST               BIT(10)
-#define FORM_INTANGIBLE         BIT(11)
-
-#define FORM_BIPED              BIT(12)
-#define FORM_CENTAUR            BIT(13)
-#define FORM_INSECT             BIT(14)
-#define FORM_SPIDER             BIT(15)
-#define FORM_CRUSTACEAN         BIT(16)
-#define FORM_WORM               BIT(17)
-#define FORM_BLOB               BIT(18)
-
-#define FORM_MAMMAL             BIT(21)
-#define FORM_BIRD               BIT(22)
-#define FORM_REPTILE            BIT(23)
-#define FORM_SNAKE              BIT(24)
-#define FORM_DRAGON             BIT(25)
-#define FORM_AMPHIBIAN          BIT(26)
-#define FORM_FISH               BIT(27)
-#define FORM_COLD_BLOOD         BIT(28)
-
-/* body parts */
-#define PART_HEAD               BIT(0)
-#define PART_ARMS               BIT(1)
-#define PART_LEGS               BIT(2)
-#define PART_HEART              BIT(3)
-#define PART_BRAINS             BIT(4)
-#define PART_GUTS               BIT(5)
-#define PART_HANDS              BIT(6)
-#define PART_FEET               BIT(7)
-#define PART_FINGERS            BIT(8)
-#define PART_EAR                BIT(9)
-#define PART_EYE                BIT(10)
-#define PART_LONG_TONGUE        BIT(11)
-#define PART_EYESTALKS          BIT(12)
-#define PART_TENTACLES          BIT(13)
-#define PART_FINS               BIT(14)
-#define PART_WINGS              BIT(15)
-#define PART_TAIL               BIT(16)
-/* for combat */
-#define PART_CLAWS              BIT(20)
-#define PART_FANGS              BIT(21)
-#define PART_HORNS              BIT(22)
-#define PART_SCALES             BIT(23)
-#define PART_TUSKS              BIT(24)
-
-/*
  * Sex.
  * Used in #MOBILES.
  */
@@ -640,78 +437,6 @@ struct kill_data {
 #define SIZE_LARGE              3
 #define SIZE_HUGE               4
 #define SIZE_GIANT              5
-
-/*
- * Extra flags.
- * Used in #OBJECTS.
- */
-#define ITEM_GLOW               BIT(0)
-#define ITEM_HUM                BIT(1)
-#define ITEM_DARK               BIT(2)
-#define ITEM_LOCK               BIT(3)
-#define ITEM_EVIL               BIT(4)
-#define ITEM_INVIS              BIT(5)
-#define ITEM_MAGIC              BIT(6)
-#define ITEM_NODROP             BIT(7)
-#define ITEM_BLESS              BIT(8)
-#define ITEM_ANTI_GOOD          BIT(9)
-#define ITEM_ANTI_EVIL          BIT(10)
-#define ITEM_ANTI_NEUTRAL       BIT(11)
-#define ITEM_NOREMOVE           BIT(12)
-#define ITEM_INVENTORY          BIT(13)
-#define ITEM_NOPURGE            BIT(14)
-#define ITEM_ROT_DEATH          BIT(15)
-#define ITEM_VIS_DEATH          BIT(16)
-#define ITEM_NONMETAL           BIT(18)
-#define ITEM_NOLOCATE           BIT(19)
-#define ITEM_MELT_DROP          BIT(20)
-#define ITEM_HAD_TIMER          BIT(21)
-#define ITEM_SELL_EXTRACT       BIT(22)
-#define ITEM_BURN_PROOF         BIT(24)
-#define ITEM_NOUNCURSE          BIT(25)
-
-/*
- * Wear flags.
- * Used in #OBJECTS.
- */
-#define ITEM_TAKE               BIT(0)
-#define ITEM_WEAR_FINGER        BIT(1)
-#define ITEM_WEAR_NECK          BIT(2)
-#define ITEM_WEAR_BODY          BIT(3)
-#define ITEM_WEAR_HEAD          BIT(4)
-#define ITEM_WEAR_LEGS          BIT(5)
-#define ITEM_WEAR_FEET          BIT(6)
-#define ITEM_WEAR_HANDS         BIT(7)
-#define ITEM_WEAR_ARMS          BIT(8)
-#define ITEM_WEAR_SHIELD        BIT(9)
-#define ITEM_WEAR_ABOUT         BIT(10)
-#define ITEM_WEAR_WAIST         BIT(11)
-#define ITEM_WEAR_WRIST         BIT(12)
-#define ITEM_WIELD              BIT(13)
-#define ITEM_HOLD               BIT(14)
-#define ITEM_NO_SAC             BIT(15)
-#define ITEM_WEAR_FLOAT         BIT(16)
-
-/* weapon class */
-#define WEAPON_EXOTIC           0
-#define WEAPON_SWORD            1
-#define WEAPON_DAGGER           2
-#define WEAPON_SPEAR            3
-#define WEAPON_MACE             4
-#define WEAPON_AXE              5
-#define WEAPON_FLAIL            6
-#define WEAPON_WHIP             7
-#define WEAPON_POLEARM          8
-
-/* weapon types */
-#define WEAPON_FLAMING          BIT(0)
-#define WEAPON_FROST            BIT(1)
-#define WEAPON_VAMPIRIC         BIT(2)
-#define WEAPON_SHARP            BIT(3)
-#define WEAPON_VORPAL           BIT(4)
-#define WEAPON_TWO_HANDS        BIT(5)
-#define WEAPON_SHOCKING         BIT(6)
-#define WEAPON_POISON           BIT(7)
 
 /* gate flags */
 #define GATE_NORMAL_EXIT        BIT(0)
@@ -788,48 +513,6 @@ struct kill_data {
 #define COND_THIRST             2
 #define COND_HUNGER             3
 
-/*
- * Positions.
- */
-#define POS_DEAD                0
-#define POS_MORTAL              1
-#define POS_INCAP               2
-#define POS_STUNNED             3
-#define POS_SLEEPING            4
-#define POS_RESTING             5
-#define POS_SITTING             6
-#define POS_FIGHTING            7
-#define POS_STANDING            8
-
-/*
- * ACT bits for players.
- */
-#define PLR_IS_NPC              BIT(0) /* Don't EVER set.	*/
-
-/* RT auto flags */
-#define PLR_AUTOASSIST          BIT(2)
-#define PLR_AUTOEXIT            BIT(3)
-#define PLR_AUTOLOOT            BIT(4)
-#define PLR_AUTOSAC             BIT(5)
-#define PLR_AUTOGOLD            BIT(6)
-#define PLR_AUTOSPLIT           BIT(7)
-
-/* RT personal flags */
-#define PLR_HOLYLIGHT           BIT(13)
-#define PLR_CANLOOT             BIT(15)
-#define PLR_NOSUMMON            BIT(16)
-#define PLR_NOFOLLOW            BIT(17)
-#define PLR_COLOUR              BIT(19)
-/* 1 bit reserved, S */
-
-/* penalty flags */
-#define PLR_PERMIT              BIT(20)
-#define PLR_LOG                 BIT(22)
-#define PLR_DENY                BIT(23)
-#define PLR_FREEZE              BIT(24)
-#define PLR_THIEF               BIT(25)
-#define PLR_KILLER              BIT(26)
-
 /* RT comm flags -- may be used on both mobs and chars */
 #define COMM_QUIET              BIT(0)
 #define COMM_DEAF               BIT(1)
@@ -881,15 +564,6 @@ struct kill_data {
 #define WIZ_NEWBIE              BIT(17)
 #define WIZ_PREFIX              BIT(18)
 #define WIZ_SPAM                BIT(19)
-
-/* Data for generating characters -- only used during generation */
-struct gen_data {
-    GEN_DATA* next;
-    bool* skill_chosen;
-    bool* group_chosen;
-    int points_chosen;
-    bool valid;
-};
 
 /*
  * Liquids.

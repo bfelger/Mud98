@@ -2,6 +2,8 @@
 // skills.h
 ////////////////////////////////////////////////////////////////////////////////
 
+typedef struct skill_hash_t SkillHash;
+
 #pragma once
 #ifndef MUD98__SKILLS_H
 #define MUD98__SKILLS_H
@@ -33,6 +35,11 @@ struct skill_type {
     char* msg_off; /* Wear off message		*/
     char* msg_obj; /* Wear off message for obects	*/
 };
+
+typedef struct skill_hash_t {
+    SkillHash* next;
+    SKNUM sn;
+} SkillHash;
 
 bool parse_gen_groups(CharData* ch, char* argument);
 void list_group_costs(CharData* ch);

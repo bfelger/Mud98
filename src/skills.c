@@ -27,8 +27,6 @@
 
 #include "skills.h"
 
-#include "entities/char_data.h"
-#include "entities/player_data.h"
 
 #include "comm.h"
 #include "db.h"
@@ -38,6 +36,11 @@
 #include "spell_list.h"
 #include "recycle.h"
 #include "update.h"
+
+#include "entities/char_data.h"
+#include "entities/player_data.h"
+
+#include "data/mobile.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,7 +67,7 @@ void do_gain(CharData* ch, char* argument)
     /* find a trainer */
     for (trainer = ch->in_room->people; trainer != NULL;
          trainer = trainer->next_in_room)
-        if (IS_NPC(trainer) && IS_SET(trainer->act, ACT_GAIN)) break;
+        if (IS_NPC(trainer) && IS_SET(trainer->act_flags, ACT_GAIN)) break;
 
     if (trainer == NULL || !can_see(ch, trainer)) {
         send_to_char("You can't do that here.\n\r", ch);
@@ -283,8 +286,8 @@ void do_spells(CharData* ch, char* argument)
     }
 
     int range = 1 + max_lev - min_lev;
-    BUFFER** spell_buf;
-    if ((spell_buf = calloc(sizeof(BUFFER*), range)) == 0) {
+    Buffer** spell_buf;
+    if ((spell_buf = calloc(sizeof(Buffer*), range)) == 0) {
         send_to_char("Can't do that right now.\n\r", ch);
         perror("do_spells: Cannot allocate spell bufs!");
         return;
@@ -334,7 +337,7 @@ void do_spells(CharData* ch, char* argument)
         send_to_char("No spells found.\n\r", ch);
     }
     else {
-        BUFFER* buffer = new_buf();
+        Buffer* buffer = new_buf();
         for (level = min_lev; level <= max_lev; level++) {
             slot = level - min_lev;
             if (BUF(spell_buf[slot])[0] != '\0')
@@ -403,8 +406,8 @@ void do_skills(CharData* ch, char* argument)
     }
 
     int range = 1 + max_lev - min_lev;
-    BUFFER** skill_buf;
-    if ((skill_buf = calloc(sizeof(BUFFER*), range)) == 0) {
+    Buffer** skill_buf;
+    if ((skill_buf = calloc(sizeof(Buffer*), range)) == 0) {
         send_to_char("Can't do that right now.\n\r", ch);
         perror("do_skills: Cannot allocate skill bufs!");
         return;
@@ -453,7 +456,7 @@ void do_skills(CharData* ch, char* argument)
         send_to_char("No skills found.\n\r", ch);
     }
     else {
-        BUFFER* buffer = new_buf();
+        Buffer* buffer = new_buf();
         for (level = min_lev; level <= max_lev; level++) {
             slot = level - min_lev;
             if (BUF(skill_buf[slot])[0] != '\0')

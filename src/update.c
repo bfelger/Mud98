@@ -45,6 +45,8 @@
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
+#include "data/mobile.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -302,6 +304,8 @@ int move_gain(CharData* ch)
         case POS_RESTING:
             gain += get_curr_stat(ch, STAT_DEX) / 2;
             break;
+        default:
+            break;
         }
 
         if (ch->pcdata->condition[COND_HUNGER] == 0) gain /= 2;
@@ -372,7 +376,7 @@ void mobile_update(void)
         if (!IS_NPC(ch) || ch->in_room == NULL || IS_AFFECTED(ch, AFF_CHARM))
             continue;
 
-        if (ch->in_room->area->empty && !IS_SET(ch->act, ACT_UPDATE_ALWAYS))
+        if (ch->in_room->area->empty && !IS_SET(ch->act_flags, ACT_UPDATE_ALWAYS))
             continue;
 
         /* Examine call for special procedure */
@@ -380,18 +384,18 @@ void mobile_update(void)
             if ((*ch->spec_fun)(ch)) continue;
         }
 
-        if (ch->pIndexData->pShop != NULL) /* give him some gold */
-            if (((int)ch->gold * 100 + (int)ch->silver) < ch->pIndexData->wealth) {
+        if (ch->prototype->pShop != NULL) /* give him some gold */
+            if (((int)ch->gold * 100 + (int)ch->silver) < ch->prototype->wealth) {
                 ch->gold
-                    += (int16_t)(ch->pIndexData->wealth * number_range(1, 20) / 5000000);
+                    += (int16_t)(ch->prototype->wealth * number_range(1, 20) / 5000000);
                 ch->silver
-                    += (int16_t)(ch->pIndexData->wealth * number_range(1, 20) / 50000);
+                    += (int16_t)(ch->prototype->wealth * number_range(1, 20) / 50000);
             }
 
         /*
          * Check triggers only if mobile still in default position
          */
-        if (ch->position == ch->pIndexData->default_pos) {
+        if (ch->position == ch->prototype->default_pos) {
             /* Delay */
             if (HAS_TRIGGER(ch, TRIG_DELAY)
                 && ch->mprog_delay > 0) {
@@ -410,7 +414,7 @@ void mobile_update(void)
         if (ch->position != POS_STANDING) continue;
 
         /* Scavenge */
-        if (IS_SET(ch->act, ACT_SCAVENGER) && ch->in_room->contents != NULL
+        if (IS_SET(ch->act_flags, ACT_SCAVENGER) && ch->in_room->contents != NULL
             && number_bits(6) == 0) {
             ObjectData* obj;
             ObjectData* obj_best;
@@ -434,16 +438,16 @@ void mobile_update(void)
         }
 
         /* Wander */
-        if (!IS_SET(ch->act, ACT_SENTINEL) && number_bits(3) == 0
+        if (!IS_SET(ch->act_flags, ACT_SENTINEL) && number_bits(3) == 0
             && (door = number_bits(5)) <= 5
             && (pexit = ch->in_room->exit[door]) != NULL
             && pexit->u1.to_room != NULL && !IS_SET(pexit->exit_flags, EX_CLOSED)
             && !IS_SET(pexit->u1.to_room->room_flags, ROOM_NO_MOB)
-            && (!IS_SET(ch->act, ACT_STAY_AREA)
+            && (!IS_SET(ch->act_flags, ACT_STAY_AREA)
                 || pexit->u1.to_room->area == ch->in_room->area)
-            && (!IS_SET(ch->act, ACT_OUTDOORS)
+            && (!IS_SET(ch->act_flags, ACT_OUTDOORS)
                 || !IS_SET(pexit->u1.to_room->room_flags, ROOM_INDOORS))
-            && (!IS_SET(ch->act, ACT_INDOORS)
+            && (!IS_SET(ch->act_flags, ACT_INDOORS)
                 || IS_SET(pexit->u1.to_room->room_flags, ROOM_INDOORS))) {
             move_char(ch, door, false);
         }
@@ -709,7 +713,7 @@ void char_update(void)
             }
 
             if (af == NULL) {
-                REMOVE_BIT(ch->affected_by, AFF_PLAGUE);
+                REMOVE_BIT(ch->affect_flags, AFF_PLAGUE);
                 continue;
             }
 
@@ -870,7 +874,7 @@ void obj_update(void)
 
         if (obj->carried_by != NULL) {
             if (IS_NPC(obj->carried_by)
-                && obj->carried_by->pIndexData->pShop != NULL)
+                && obj->carried_by->prototype->pShop != NULL)
                 obj->carried_by->silver += (int16_t)obj->cost / 5;
             else {
                 act(message, obj->carried_by, obj, NULL, TO_CHAR);
@@ -879,7 +883,7 @@ void obj_update(void)
             }
         }
         else if (obj->in_room != NULL && (rch = obj->in_room->people) != NULL) {
-            if (!(obj->in_obj && obj->in_obj->pIndexData->vnum == OBJ_VNUM_PIT
+            if (!(obj->in_obj && obj->in_obj->prototype->vnum == OBJ_VNUM_PIT
                   && !CAN_WEAR(obj->in_obj, ITEM_TAKE))) {
                 act(message, rch, obj, NULL, TO_ROOM);
                 act(message, rch, obj, NULL, TO_CHAR);
@@ -946,11 +950,11 @@ void aggr_update(void)
         for (CharData* ch = wch->in_room->people; ch != NULL; ch = ch->next_in_room) {
             int count;
 
-            if (!IS_NPC(ch) || !IS_SET(ch->act, ACT_AGGRESSIVE)
+            if (!IS_NPC(ch) || !IS_SET(ch->act_flags, ACT_AGGRESSIVE)
                 || IS_SET(ch->in_room->room_flags, ROOM_SAFE)
                 || IS_AFFECTED(ch, AFF_CALM) || ch->fighting != NULL
                 || IS_AFFECTED(ch, AFF_CHARM) || !IS_AWAKE(ch)
-                || (IS_SET(ch->act, ACT_WIMPY) && IS_AWAKE(wch))
+                || (IS_SET(ch->act_flags, ACT_WIMPY) && IS_AWAKE(wch))
                 || !can_see(ch, wch) || number_bits(1) == 0)
                 continue;
 
@@ -964,7 +968,7 @@ void aggr_update(void)
             for (CharData* vch = wch->in_room->people; vch != NULL; vch = vch->next_in_room) {
                 if (!IS_NPC(vch) && vch->level < LEVEL_IMMORTAL
                     && ch->level >= vch->level - 5
-                    && (!IS_SET(ch->act, ACT_WIMPY) || !IS_AWAKE(vch))
+                    && (!IS_SET(ch->act_flags, ACT_WIMPY) || !IS_AWAKE(vch))
                     && can_see(ch, vch)) {
                     if (number_range(0, count) == 0) victim = vch;
                     count++;

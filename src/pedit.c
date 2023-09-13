@@ -14,6 +14,8 @@
 
 #include "entities/player_data.h"
 
+#include "data/mobile.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -187,7 +189,7 @@ void do_mplist(CharData* ch, char* argument)
     bool fAll = false;
     MPROG_CODE* mprg;
     char buf[MAX_STRING_LENGTH];
-    BUFFER* buffer;
+    Buffer* buffer;
     buffer = new_buf();
 
     if (IS_IMMORTAL(ch) && !str_cmp(argument, "all"))

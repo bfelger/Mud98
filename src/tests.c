@@ -14,6 +14,8 @@
 
 #include "entities/char_data.h"
 
+#include "data/mobile.h"
+
 extern void aggr_update();
 
 static void old_aggr_update()
@@ -37,11 +39,11 @@ static void old_aggr_update()
 
             ch_next = ch->next_in_room;
 
-            if (!IS_NPC(ch) || !IS_SET(ch->act, ACT_AGGRESSIVE)
+            if (!IS_NPC(ch) || !IS_SET(ch->act_flags, ACT_AGGRESSIVE)
                 || IS_SET(ch->in_room->room_flags, ROOM_SAFE)
                 || IS_AFFECTED(ch, AFF_CALM) || ch->fighting != NULL
                 || IS_AFFECTED(ch, AFF_CHARM) || !IS_AWAKE(ch)
-                || (IS_SET(ch->act, ACT_WIMPY) && IS_AWAKE(wch))
+                || (IS_SET(ch->act_flags, ACT_WIMPY) && IS_AWAKE(wch))
                 || !can_see(ch, wch) || number_bits(1) == 0)
                 continue;
 
@@ -52,7 +54,7 @@ static void old_aggr_update()
 
                 if (!IS_NPC(vch) && vch->level < LEVEL_IMMORTAL
                     && ch->level >= vch->level - 5
-                    && (!IS_SET(ch->act, ACT_WIMPY) || !IS_AWAKE(vch))
+                    && (!IS_SET(ch->act_flags, ACT_WIMPY) || !IS_AWAKE(vch))
                     && can_see(ch, vch)) {
                     if (number_range(0, count) == 0) victim = vch;
                     count++;

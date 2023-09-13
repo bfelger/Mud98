@@ -31,6 +31,8 @@
 
 #include "comm.h"
 
+#include "data/mobile.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -42,20 +44,6 @@ const struct clan_type clan_table[MAX_CLAN] = {
     { "",           "",             ROOM_VNUM_ALTAR,        true        },
     { "loner",      "[ Loner ] ",   ROOM_VNUM_ALTAR,        true        },
     { "rom",        "[  ROM  ] ",   ROOM_VNUM_ALTAR,        false       }
-};
-
-/* for position */
-const struct position_type position_table[]= {
-    { "dead",               "dead"  },           
-    { "mortally wounded",   "mort"  },
-    { "incapacitated",      "incap" }, 
-    { "stunned",            "stun"  },
-    { "sleeping",           "sleep" },      
-    { "resting",            "rest"  },
-    { "sitting",            "sit"   },         
-    { "fighting",           "fight" },
-    { "standing",           "stand" },      
-    { NULL,                 NULL    }
 };
 
 /* for sex */

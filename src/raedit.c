@@ -17,6 +17,8 @@
 
 #include "entities/player_data.h"
 
+#include "data/mobile.h"
+
 struct	race_type* race_table;
 int	maxrace;
 
@@ -34,7 +36,7 @@ const struct olc_comm_type race_olc_comm_table[] = {
     { "show",       0,                  ed_olded,           U(raedit_show)  },
     { "name",       U(&xRace.name),     ed_line_string,     0               },
     { "pcrace",     U(&xRace.pc_race),  ed_bool,            0               },
-    { "act",        U(&xRace.act),      ed_flag_toggle,     U(act_flag_table)   },
+    { "act",        U(&xRace.act_flags),      ed_flag_toggle,     U(act_flag_table)   },
     { "aff",        U(&xRace.aff),      ed_flag_toggle,     U(affect_flag_table)},
     { "off",        U(&xRace.off),      ed_flag_toggle,     U(off_flag_table)   },
     { "res",        U(&xRace.res),      ed_flag_toggle,     U(res_flag_table)   },
@@ -126,7 +128,7 @@ RAEDIT(raedit_show)
     send_to_char(buf, ch);
     sprintf(buf, "PC race?    : [%s]\n\r", pRace->pc_race ? "YES" : " NO");
     send_to_char(buf, ch);
-    sprintf(buf, "Act         : [%s]\n\r", flag_string(act_flag_table, pRace->act));
+    sprintf(buf, "Act         : [%s]\n\r", flag_string(act_flag_table, pRace->act_flags));
     send_to_char(buf, ch);
     sprintf(buf, "Aff         : [%s]\n\r", flag_string(affect_flag_table, pRace->aff));
     send_to_char(buf, ch);
@@ -184,7 +186,7 @@ RAEDIT(raedit_list)
 {
     int i;
     char buf[MSL];
-    BUFFER* fBuf;
+    Buffer* fBuf;
 
     fBuf = new_buf();
 
@@ -251,7 +253,7 @@ RAEDIT(raedit_new)
 
     race_table[maxRace - 1].name = str_dup("unique");
     race_table[maxRace - 1].pc_race = false;
-    race_table[maxRace - 1].act = 0;
+    race_table[maxRace - 1].act_flags = 0;
     race_table[maxRace - 1].aff = 0;
     race_table[maxRace - 1].off = 0;
     race_table[maxRace - 1].imm = 0;
@@ -264,7 +266,7 @@ RAEDIT(raedit_new)
 
     race_table[maxRace - 2].name = str_dup(argument);
     race_table[maxRace - 2].pc_race = false;
-    race_table[maxRace - 2].act = 0;
+    race_table[maxRace - 2].act_flags = 0;
     race_table[maxRace - 2].aff = 0;
     race_table[maxRace - 2].off = 0;
     race_table[maxRace - 2].imm = 0;

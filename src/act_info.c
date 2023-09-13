@@ -49,6 +49,8 @@
 #include "entities/player_data.h"
 
 #include "data/direction.h"
+#include "data/mobile.h"
+#include "data/player.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -128,7 +130,7 @@ void show_list_to_char(ObjectData* list, CharData* ch, bool fShort,
                        bool fShowNothing)
 {
     char buf[MAX_STRING_LENGTH];
-    BUFFER* output;
+    Buffer* output;
     char** prgpstrShow;
     int* prgnShow;
     char* pstrShow;
@@ -244,9 +246,9 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
     if (IS_GOOD(victim) && IS_AFFECTED(ch, AFF_DETECT_GOOD))
         strcat(buf, "(Golden Aura) ");
     if (IS_AFFECTED(victim, AFF_SANCTUARY)) strcat(buf, "(White Aura) ");
-    if (!IS_NPC(victim) && IS_SET(victim->act, PLR_KILLER))
+    if (!IS_NPC(victim) && IS_SET(victim->act_flags, PLR_KILLER))
         strcat(buf, "(KILLER) ");
-    if (!IS_NPC(victim) && IS_SET(victim->act, PLR_THIEF))
+    if (!IS_NPC(victim) && IS_SET(victim->act_flags, PLR_THIEF))
         strcat(buf, "(THIEF) ");
     if (victim->position == victim->start_pos
         && victim->long_descr[0] != '\0') {
@@ -364,6 +366,8 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
         else
             strcat(buf, "someone who left??");
         break;
+    case POS_UNKNOWN:
+        break;
     }
 
     strcat(buf, "\n\r");
@@ -468,7 +472,7 @@ void show_char_to_char(CharData* list, CharData* ch)
 
 bool check_blind(CharData* ch)
 {
-    if (!IS_NPC(ch) && IS_SET(ch->act, PLR_HOLYLIGHT)) return true;
+    if (!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_HOLYLIGHT)) return true;
 
     if (IS_AFFECTED(ch, AFF_BLIND)) {
         send_to_char("You can't see a thing!\n\r", ch);
@@ -579,37 +583,37 @@ void do_autolist(CharData* ch, char* argument)
     send_to_char("---------------------\n\r", ch);
 
     send_to_char("autoassist     ", ch);
-    if (IS_SET(ch->act, PLR_AUTOASSIST))
+    if (IS_SET(ch->act_flags, PLR_AUTOASSIST))
         send_to_char("ON\n\r", ch);
     else
         send_to_char("OFF\n\r", ch);
 
     send_to_char("autoexit       ", ch);
-    if (IS_SET(ch->act, PLR_AUTOEXIT))
+    if (IS_SET(ch->act_flags, PLR_AUTOEXIT))
         send_to_char("ON\n\r", ch);
     else
         send_to_char("OFF\n\r", ch);
 
     send_to_char("autogold       ", ch);
-    if (IS_SET(ch->act, PLR_AUTOGOLD))
+    if (IS_SET(ch->act_flags, PLR_AUTOGOLD))
         send_to_char("ON\n\r", ch);
     else
         send_to_char("OFF\n\r", ch);
 
     send_to_char("autoloot       ", ch);
-    if (IS_SET(ch->act, PLR_AUTOLOOT))
+    if (IS_SET(ch->act_flags, PLR_AUTOLOOT))
         send_to_char("ON\n\r", ch);
     else
         send_to_char("OFF\n\r", ch);
 
     send_to_char("autosac        ", ch);
-    if (IS_SET(ch->act, PLR_AUTOSAC))
+    if (IS_SET(ch->act_flags, PLR_AUTOSAC))
         send_to_char("ON\n\r", ch);
     else
         send_to_char("OFF\n\r", ch);
 
     send_to_char("autosplit      ", ch);
-    if (IS_SET(ch->act, PLR_AUTOSPLIT))
+    if (IS_SET(ch->act_flags, PLR_AUTOSPLIT))
         send_to_char("ON\n\r", ch);
     else
         send_to_char("OFF\n\r", ch);
@@ -632,17 +636,17 @@ void do_autolist(CharData* ch, char* argument)
     else
         send_to_char("OFF\n\r", ch);
 
-    if (!IS_SET(ch->act, PLR_CANLOOT))
+    if (!IS_SET(ch->act_flags, PLR_CANLOOT))
         send_to_char("Your corpse is safe from thieves.\n\r", ch);
     else
         send_to_char("Your corpse may be looted.\n\r", ch);
 
-    if (IS_SET(ch->act, PLR_NOSUMMON))
+    if (IS_SET(ch->act_flags, PLR_NOSUMMON))
         send_to_char("You cannot be summoned.\n\r", ch);
     else
         send_to_char("You can be summoned.\n\r", ch);
 
-    if (IS_SET(ch->act, PLR_NOFOLLOW))
+    if (IS_SET(ch->act_flags, PLR_NOFOLLOW))
         send_to_char("You do not welcome followers.\n\r", ch);
     else
         send_to_char("You accept followers.\n\r", ch);
@@ -652,13 +656,13 @@ void do_autoassist(CharData* ch, char* argument)
 {
     if (IS_NPC(ch)) return;
 
-    if (IS_SET(ch->act, PLR_AUTOASSIST)) {
+    if (IS_SET(ch->act_flags, PLR_AUTOASSIST)) {
         send_to_char("Autoassist removed.\n\r", ch);
-        REMOVE_BIT(ch->act, PLR_AUTOASSIST);
+        REMOVE_BIT(ch->act_flags, PLR_AUTOASSIST);
     }
     else {
         send_to_char("You will now assist when needed.\n\r", ch);
-        SET_BIT(ch->act, PLR_AUTOASSIST);
+        SET_BIT(ch->act_flags, PLR_AUTOASSIST);
     }
 }
 
@@ -666,13 +670,13 @@ void do_autoexit(CharData* ch, char* argument)
 {
     if (IS_NPC(ch)) return;
 
-    if (IS_SET(ch->act, PLR_AUTOEXIT)) {
+    if (IS_SET(ch->act_flags, PLR_AUTOEXIT)) {
         send_to_char("Exits will no longer be displayed.\n\r", ch);
-        REMOVE_BIT(ch->act, PLR_AUTOEXIT);
+        REMOVE_BIT(ch->act_flags, PLR_AUTOEXIT);
     }
     else {
         send_to_char("Exits will now be displayed.\n\r", ch);
-        SET_BIT(ch->act, PLR_AUTOEXIT);
+        SET_BIT(ch->act_flags, PLR_AUTOEXIT);
     }
 }
 
@@ -680,13 +684,13 @@ void do_autogold(CharData* ch, char* argument)
 {
     if (IS_NPC(ch)) return;
 
-    if (IS_SET(ch->act, PLR_AUTOGOLD)) {
+    if (IS_SET(ch->act_flags, PLR_AUTOGOLD)) {
         send_to_char("Autogold removed.\n\r", ch);
-        REMOVE_BIT(ch->act, PLR_AUTOGOLD);
+        REMOVE_BIT(ch->act_flags, PLR_AUTOGOLD);
     }
     else {
         send_to_char("Automatic gold looting set.\n\r", ch);
-        SET_BIT(ch->act, PLR_AUTOGOLD);
+        SET_BIT(ch->act_flags, PLR_AUTOGOLD);
     }
 }
 
@@ -694,13 +698,13 @@ void do_autoloot(CharData* ch, char* argument)
 {
     if (IS_NPC(ch)) return;
 
-    if (IS_SET(ch->act, PLR_AUTOLOOT)) {
+    if (IS_SET(ch->act_flags, PLR_AUTOLOOT)) {
         send_to_char("Autolooting removed.\n\r", ch);
-        REMOVE_BIT(ch->act, PLR_AUTOLOOT);
+        REMOVE_BIT(ch->act_flags, PLR_AUTOLOOT);
     }
     else {
         send_to_char("Automatic corpse looting set.\n\r", ch);
-        SET_BIT(ch->act, PLR_AUTOLOOT);
+        SET_BIT(ch->act_flags, PLR_AUTOLOOT);
     }
 }
 
@@ -708,13 +712,13 @@ void do_autosac(CharData* ch, char* argument)
 {
     if (IS_NPC(ch)) return;
 
-    if (IS_SET(ch->act, PLR_AUTOSAC)) {
+    if (IS_SET(ch->act_flags, PLR_AUTOSAC)) {
         send_to_char("Autosacrificing removed.\n\r", ch);
-        REMOVE_BIT(ch->act, PLR_AUTOSAC);
+        REMOVE_BIT(ch->act_flags, PLR_AUTOSAC);
     }
     else {
         send_to_char("Automatic corpse sacrificing set.\n\r", ch);
-        SET_BIT(ch->act, PLR_AUTOSAC);
+        SET_BIT(ch->act_flags, PLR_AUTOSAC);
     }
 }
 
@@ -722,13 +726,13 @@ void do_autosplit(CharData* ch, char* argument)
 {
     if (IS_NPC(ch)) return;
 
-    if (IS_SET(ch->act, PLR_AUTOSPLIT)) {
+    if (IS_SET(ch->act_flags, PLR_AUTOSPLIT)) {
         send_to_char("Autosplitting removed.\n\r", ch);
-        REMOVE_BIT(ch->act, PLR_AUTOSPLIT);
+        REMOVE_BIT(ch->act_flags, PLR_AUTOSPLIT);
     }
     else {
         send_to_char("Automatic gold splitting set.\n\r", ch);
-        SET_BIT(ch->act, PLR_AUTOSPLIT);
+        SET_BIT(ch->act_flags, PLR_AUTOSPLIT);
     }
 }
 
@@ -816,13 +820,13 @@ void do_noloot(CharData* ch, char* argument)
 {
     if (IS_NPC(ch)) return;
 
-    if (IS_SET(ch->act, PLR_CANLOOT)) {
+    if (IS_SET(ch->act_flags, PLR_CANLOOT)) {
         send_to_char("Your corpse is now safe from thieves.\n\r", ch);
-        REMOVE_BIT(ch->act, PLR_CANLOOT);
+        REMOVE_BIT(ch->act_flags, PLR_CANLOOT);
     }
     else {
         send_to_char("Your corpse may now be looted.\n\r", ch);
-        SET_BIT(ch->act, PLR_CANLOOT);
+        SET_BIT(ch->act_flags, PLR_CANLOOT);
     }
 }
 
@@ -830,13 +834,13 @@ void do_nofollow(CharData* ch, char* argument)
 {
     if (IS_NPC(ch)) return;
 
-    if (IS_SET(ch->act, PLR_NOFOLLOW)) {
+    if (IS_SET(ch->act_flags, PLR_NOFOLLOW)) {
         send_to_char("You now accept followers.\n\r", ch);
-        REMOVE_BIT(ch->act, PLR_NOFOLLOW);
+        REMOVE_BIT(ch->act_flags, PLR_NOFOLLOW);
     }
     else {
         send_to_char("You no longer accept followers.\n\r", ch);
-        SET_BIT(ch->act, PLR_NOFOLLOW);
+        SET_BIT(ch->act_flags, PLR_NOFOLLOW);
         die_follower(ch);
     }
 }
@@ -854,13 +858,13 @@ void do_nosummon(CharData* ch, char* argument)
         }
     }
     else {
-        if (IS_SET(ch->act, PLR_NOSUMMON)) {
+        if (IS_SET(ch->act_flags, PLR_NOSUMMON)) {
             send_to_char("You are no longer immune to summon.\n\r", ch);
-            REMOVE_BIT(ch->act, PLR_NOSUMMON);
+            REMOVE_BIT(ch->act_flags, PLR_NOSUMMON);
         }
         else {
             send_to_char("You are now immune to summoning.\n\r", ch);
-            SET_BIT(ch->act, PLR_NOSUMMON);
+            SET_BIT(ch->act_flags, PLR_NOSUMMON);
         }
     }
 }
@@ -892,7 +896,7 @@ void do_look(CharData* ch, char* argument)
 
     if (!check_blind(ch)) return;
 
-    if (!IS_NPC(ch) && !IS_SET(ch->act, PLR_HOLYLIGHT)
+    if (!IS_NPC(ch) && !IS_SET(ch->act_flags, PLR_HOLYLIGHT)
         && room_is_dark(ch->in_room)) {
         send_to_char("It is pitch black ... \n\r", ch);
         show_char_to_char(ch->in_room->people, ch);
@@ -909,7 +913,7 @@ void do_look(CharData* ch, char* argument)
         sprintf(buf, "{s%s", ch->in_room->name);
         send_to_char(buf, ch);
 
-        if ((IS_IMMORTAL(ch) && (IS_NPC(ch) || IS_SET(ch->act, PLR_HOLYLIGHT)))
+        if ((IS_IMMORTAL(ch) && (IS_NPC(ch) || IS_SET(ch->act_flags, PLR_HOLYLIGHT)))
             || IS_BUILDER(ch, ch->in_room->area)) {
             sprintf(buf, " {r[{RRoom %"PRVNUM"{r]", ch->in_room->vnum);
             send_to_char(buf, ch);
@@ -922,7 +926,7 @@ void do_look(CharData* ch, char* argument)
             send_to_char(buf, ch);
         }
 
-        if (!IS_NPC(ch) && IS_SET(ch->act, PLR_AUTOEXIT)) {
+        if (!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_AUTOEXIT)) {
             send_to_char("\n\r", ch);
             do_function(ch, &do_exits, "auto");
         }
@@ -998,7 +1002,7 @@ void do_look(CharData* ch, char* argument)
                 }
             }
 
-            pdesc = get_extra_desc(arg3, obj->pIndexData->extra_desc);
+            pdesc = get_extra_desc(arg3, obj->prototype->extra_desc);
             if (pdesc != NULL) {
                 if (++count == number) {
                     send_to_char(pdesc, ch);
@@ -1029,7 +1033,7 @@ void do_look(CharData* ch, char* argument)
                 }
             }
 
-            pdesc = get_extra_desc(arg3, obj->pIndexData->extra_desc);
+            pdesc = get_extra_desc(arg3, obj->prototype->extra_desc);
             if (pdesc != NULL) {
                 if (++count == number) {
                     send_to_char(pdesc, ch);
@@ -1346,6 +1350,8 @@ void do_score(CharData* ch, char* argument)
     case POS_FIGHTING:
         send_to_char("You are fighting.\n\r", ch);
         break;
+    case POS_UNKNOWN:
+        break;
     }
 
     /* print AC values */
@@ -1410,7 +1416,7 @@ void do_score(CharData* ch, char* argument)
     /* RT wizinvis and holy light */
     if (IS_IMMORTAL(ch)) {
         send_to_char("Holy Light: ", ch);
-        if (IS_SET(ch->act, PLR_HOLYLIGHT))
+        if (IS_SET(ch->act_flags, PLR_HOLYLIGHT))
             send_to_char("on", ch);
         else
             send_to_char("off", ch);
@@ -1578,7 +1584,7 @@ void do_weather(CharData* ch, char* argument)
 void do_help(CharData* ch, char* argument)
 {
     HelpData* pHelp;
-    BUFFER* output;
+    Buffer* output;
     bool found = false;
     char argall[MAX_INPUT_LENGTH] = "";
     char argone[MAX_INPUT_LENGTH] = "";
@@ -1638,7 +1644,7 @@ void do_help(CharData* ch, char* argument)
 void do_whois(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    BUFFER* output;
+    Buffer* output;
     char buf[MAX_STRING_LENGTH];
     DESCRIPTOR_DATA* d;
     bool found = false;
@@ -1687,8 +1693,8 @@ void do_whois(CharData* ch, char* argument)
                 wch->invis_level >= LEVEL_HERO ? "{_(Wizi){x " : "",
                 clan_table[wch->clan].who_name,
                 IS_SET(wch->comm, COMM_AFK) ? "[AFK] " : "",
-                IS_SET(wch->act, PLR_KILLER) ? "{_(KILLER){x " : "",
-                IS_SET(wch->act, PLR_THIEF) ? "{_(THIEF){x " : "", 
+                IS_SET(wch->act_flags, PLR_KILLER) ? "{_(KILLER){x " : "",
+                IS_SET(wch->act_flags, PLR_THIEF) ? "{_(THIEF){x " : "", 
                 wch->name, IS_NPC(wch) ? "" : wch->pcdata->title);
             add_buf(output, buf);
         }
@@ -1710,7 +1716,7 @@ void do_who(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH] = "";
     char buf2[MAX_STRING_LENGTH] = "";
-    BUFFER* output;
+    Buffer* output;
     DESCRIPTOR_DATA* d;
     int iClass;
     int iRace;
@@ -1859,8 +1865,8 @@ void do_who(CharData* ch, char* argument)
             wch->invis_level >= LEVEL_HERO ? "{_(Wizi){x " : "",
             clan_table[wch->clan].who_name,
             IS_SET(wch->comm, COMM_AFK) ? "[AFK] " : "",
-            IS_SET(wch->act, PLR_KILLER) ? "{_(KILLER){x " : "",
-            IS_SET(wch->act, PLR_THIEF) ? "{_(THIEF){x " : "", wch->name,
+            IS_SET(wch->act_flags, PLR_KILLER) ? "{_(KILLER){x " : "",
+            IS_SET(wch->act_flags, PLR_THIEF) ? "{_(THIEF){x " : "", wch->name,
             IS_NPC(wch) ? "" : wch->pcdata->title);
         add_buf(output, buf);
     }
@@ -1994,12 +2000,12 @@ void do_compare(CharData* ch, char* argument)
             break;
 
         case ITEM_WEAPON:
-            if (obj1->pIndexData->new_format)
+            if (obj1->prototype->new_format)
                 value1 = (1 + obj1->value[2]) * obj1->value[1];
             else
                 value1 = obj1->value[1] + obj1->value[2];
 
-            if (obj2->pIndexData->new_format)
+            if (obj2->prototype->new_format)
                 value2 = (1 + obj2->value[2]) * obj2->value[1];
             else
                 value2 = obj2->value[1] + obj2->value[2];
@@ -2294,7 +2300,7 @@ void do_practice(CharData* ch, char* argument)
         }
 
         for (mob = ch->in_room->people; mob != NULL; mob = mob->next_in_room) {
-            if (IS_NPC(mob) && IS_SET(mob->act, ACT_PRACTICE))
+            if (IS_NPC(mob) && IS_SET(mob->act_flags, ACT_PRACTICE))
                 break;
         }
 

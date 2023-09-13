@@ -55,6 +55,7 @@
 #include "entities/room_data.h"
 
 #include "data/direction.h"
+#include "data/mobile.h"
 
 #include <ctype.h>
 #include <stdarg.h>
@@ -1451,7 +1452,7 @@ void reset_room(RoomData* pRoom)
 
             count = 0;
             for (mob = pRoomIndex->people; mob != NULL; mob = mob->next_in_room)
-                if (mob->pIndexData == p_mob_proto) {
+                if (mob->prototype == p_mob_proto) {
                     count++;
                     if (count >= pReset->arg4) {
                         last = false;
@@ -1469,7 +1470,7 @@ void reset_room(RoomData* pRoom)
              * Some more hard coding.
              */
             if (room_is_dark(pRoom))
-                SET_BIT(pMob->affected_by, AFF_INFRARED);
+                SET_BIT(pMob->affect_flags, AFF_INFRARED);
 
             /*
              * Pet shop mobiles get ACT_PET set.
@@ -1480,7 +1481,7 @@ void reset_room(RoomData* pRoom)
                 pRoomIndexPrev = get_room_data(pRoom->vnum - 1);
                 if (pRoomIndexPrev
                     && IS_SET(pRoomIndexPrev->room_flags, ROOM_PET_SHOP))
-                    SET_BIT(pMob->act, ACT_PET);
+                    SET_BIT(pMob->act_flags, ACT_PET);
             }
 
             char_to_room(pMob, pRoom);
@@ -1557,7 +1558,7 @@ void reset_room(RoomData* pRoom)
             }
 
             /* fix object lock state! */
-            LastObj->value[1] = LastObj->pIndexData->value[1];
+            LastObj->value[1] = LastObj->prototype->value[1];
             last = true;
             break;
 
@@ -1577,7 +1578,7 @@ void reset_room(RoomData* pRoom)
                 break;
             }
 
-            if (LastMob->pIndexData->pShop != NULL) { // Shopkeeper?
+            if (LastMob->prototype->pShop != NULL) { // Shopkeeper?
                 LEVEL olevel = 0;
                 int i, j;
 
@@ -1643,9 +1644,9 @@ void reset_room(RoomData* pRoom)
                             && pObj->level < LastMob->level - 5 && pObj->level < 45))
                         fprintf(stderr,
                             "Err: obj %s (%"PRVNUM") -- %d, mob %s (%"PRVNUM") -- %d\n",
-                            pObj->short_descr, pObj->pIndexData->vnum,
+                            pObj->short_descr, pObj->prototype->vnum,
                             pObj->level, LastMob->short_descr,
-                            LastMob->pIndexData->vnum, LastMob->level);
+                            LastMob->prototype->vnum, LastMob->level);
                 }
                 else
                     break;
@@ -1732,13 +1733,13 @@ void clone_mobile(CharData* parent, CharData* clone)
     clone->gold = parent->gold;
     clone->silver = parent->silver;
     clone->exp = parent->exp;
-    clone->act = parent->act;
+    clone->act_flags = parent->act_flags;
     clone->comm = parent->comm;
     clone->imm_flags = parent->imm_flags;
     clone->res_flags = parent->res_flags;
     clone->vuln_flags = parent->vuln_flags;
     clone->invis_level = parent->invis_level;
-    clone->affected_by = parent->affected_by;
+    clone->affect_flags = parent->affect_flags;
     clone->position = parent->position;
     clone->practice = parent->practice;
     clone->train = parent->train;
@@ -1751,7 +1752,7 @@ void clone_mobile(CharData* parent, CharData* clone)
     clone->parts = parent->parts;
     clone->size = parent->size;
     clone->material = str_dup(parent->material);
-    clone->off_flags = parent->off_flags;
+    clone->atk_flags = parent->atk_flags;
     clone->dam_type = parent->dam_type;
     clone->start_pos = parent->start_pos;
     clone->default_pos = parent->default_pos;

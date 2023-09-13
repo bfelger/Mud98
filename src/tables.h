@@ -44,11 +44,6 @@ struct clan_type {
     bool independent; /* true for loners */
 };
 
-struct position_type {
-    char* name;
-    char* short_name;
-};
-
 struct sex_type {
     char* name;
 };
@@ -74,7 +69,6 @@ struct recval_type {
 
 /* game tables */
 extern const struct clan_type clan_table[MAX_CLAN];
-extern const struct position_type position_table[];
 extern const struct sex_type sex_table[];
 extern const struct size_type size_table[];
 

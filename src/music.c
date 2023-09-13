@@ -220,7 +220,7 @@ void do_play(CharData* ch, char* argument)
     }
 
     if (!str_cmp(arg, "list")) {
-        BUFFER* buffer;
+        Buffer* buffer;
         char buf[MAX_STRING_LENGTH];
         int col = 0;
         bool artist = false, match = false;

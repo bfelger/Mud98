@@ -37,6 +37,8 @@
 
 #include "entities/player_data.h"
 
+#include "data/mobile.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -491,7 +493,7 @@ void update_read(CharData* ch, NoteData* pnote)
 
 void parse_note(CharData* ch, char* argument, int16_t type)
 {
-    BUFFER* buffer;
+    Buffer* buffer;
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
     NoteData* pnote;
