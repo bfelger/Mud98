@@ -43,6 +43,7 @@ GSN(gsn_shield_block)
 GSN(gsn_spear)
 GSN(gsn_sword)
 GSN(gsn_whip)
+GSN(gsn_exotic)
  
 GSN(gsn_bash)
 GSN(gsn_berserk)

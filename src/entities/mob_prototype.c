@@ -165,29 +165,30 @@ CharData* create_mobile(MobPrototype* p_mob_proto)
         mob->level = p_mob_proto->level;
         mob->hitroll = p_mob_proto->hitroll;
         mob->damroll = p_mob_proto->damage[DICE_BONUS];
-        mob->max_hit
-            = (int16_t)dice(p_mob_proto->hit[DICE_NUMBER], p_mob_proto->hit[DICE_TYPE])
-            + p_mob_proto->hit[DICE_BONUS];
+        mob->max_hit = (int16_t)dice(p_mob_proto->hit[DICE_NUMBER], 
+            p_mob_proto->hit[DICE_TYPE]) + p_mob_proto->hit[DICE_BONUS];
         mob->hit = mob->max_hit;
-        mob->max_mana
-            = (int16_t)dice(p_mob_proto->mana[DICE_NUMBER], p_mob_proto->mana[DICE_TYPE])
-            + p_mob_proto->mana[DICE_BONUS];
+        mob->max_mana = (int16_t)dice(p_mob_proto->mana[DICE_NUMBER], 
+            p_mob_proto->mana[DICE_TYPE]) + p_mob_proto->mana[DICE_BONUS];
         mob->mana = mob->max_mana;
         mob->damage[DICE_NUMBER] = p_mob_proto->damage[DICE_NUMBER];
         mob->damage[DICE_TYPE] = p_mob_proto->damage[DICE_TYPE];
         mob->dam_type = p_mob_proto->dam_type;
-        if (mob->dam_type == 0) switch (number_range(1, 3)) {
-        case (1):
-            mob->dam_type = 3;
-            break; /* slash */
-        case (2):
-            mob->dam_type = 7;
-            break; /* pound */
-        case (3):
-            mob->dam_type = 11;
-            break; /* pierce */
+        if (mob->dam_type == 0) {
+            switch (number_range(1, 3)) {
+            case (1):
+                mob->dam_type = 3;
+                break; /* slash */
+            case (2):
+                mob->dam_type = 7;
+                break; /* pound */
+            case (3):
+                mob->dam_type = 11;
+                break; /* pierce */
+            }
         }
-        for (i = 0; i < 4; i++) mob->armor[i] = p_mob_proto->ac[i];
+        for (i = 0; i < 4; i++) 
+            mob->armor[i] = p_mob_proto->ac[i];
         mob->atk_flags = p_mob_proto->atk_flags;
         mob->imm_flags = p_mob_proto->imm_flags;
         mob->res_flags = p_mob_proto->res_flags;
@@ -195,8 +196,8 @@ CharData* create_mobile(MobPrototype* p_mob_proto)
         mob->start_pos = p_mob_proto->start_pos;
         mob->default_pos = p_mob_proto->default_pos;
         mob->sex = p_mob_proto->sex;
-        if (mob->sex == 3) /* random sex */
-            mob->sex = (int16_t)number_range(1, 2);
+        if (mob->sex == SEX_EITHER) /* random sex */
+            mob->sex = (Sex)number_range(1, 2);
         mob->race = p_mob_proto->race;
         mob->form = p_mob_proto->form;
         mob->parts = p_mob_proto->parts;
@@ -232,10 +233,11 @@ CharData* create_mobile(MobPrototype* p_mob_proto)
             mob->perm_stat[STAT_DEX] += 1;
         }
 
-        if (IS_SET(mob->atk_flags, ATK_FAST)) mob->perm_stat[STAT_DEX] += 2;
+        if (IS_SET(mob->atk_flags, ATK_FAST))
+            mob->perm_stat[STAT_DEX] += 2;
 
-        mob->perm_stat[STAT_STR] += mob->size - SIZE_MEDIUM;
-        mob->perm_stat[STAT_CON] += (mob->size - SIZE_MEDIUM) / 2;
+        mob->perm_stat[STAT_STR] += (int16_t)(mob->size - SIZE_MEDIUM);
+        mob->perm_stat[STAT_CON] += (int16_t)(mob->size - SIZE_MEDIUM) / 2;
 
         /* let's get some spell action */
         if (IS_AFFECTED(mob, AFF_SANCTUARY)) {
@@ -472,7 +474,7 @@ void load_mobiles(FILE* fp)
         /* vital statistics */
         p_mob_proto->start_pos = (int16_t)position_lookup(fread_word(fp));
         p_mob_proto->default_pos = (int16_t)position_lookup(fread_word(fp));
-        p_mob_proto->sex = (int16_t)sex_lookup(fread_word(fp));
+        p_mob_proto->sex = (Sex)sex_lookup(fread_word(fp));
 
         p_mob_proto->wealth = fread_number(fp);
 
@@ -633,7 +635,7 @@ void load_old_mob(FILE* fp)
         /*
          * Back to meaningful values.
          */
-        p_mob_proto->sex = (int16_t)fread_number(fp);
+        p_mob_proto->sex = (Sex)fread_number(fp);
 
         /* compute the race BS */
         one_argument(p_mob_proto->name, name);
@@ -705,7 +707,7 @@ MobPrototype* new_mob_prototype()
     pMob->vnum = 0;
     pMob->count = 0;
     pMob->killed = 0;
-    pMob->sex = 0;
+    pMob->sex = SEX_NEUTRAL;
     pMob->level = 0;
     pMob->act_flags = ACT_IS_NPC;
     pMob->affect_flags = 0;

@@ -1452,7 +1452,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
         ch->pcdata->points = race_table[race].points;
         ch->size = race_table[race].size;
 
-        write_to_buffer(d, "What is your sex (M/F)? ", 0);
+        write_to_buffer(d, "What is your sex (Male/Female/None/Either)? ", 0);
         d->connected = CON_GET_NEW_SEX;
         break;
 
@@ -1468,6 +1468,14 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
             ch->sex = SEX_FEMALE;
             ch->pcdata->true_sex = SEX_FEMALE;
             break;
+        case 'n':
+        case 'N':
+            ch->sex = SEX_NEUTRAL;
+            ch->pcdata->true_sex = SEX_NEUTRAL;
+        case 'e':
+        case 'E':
+            ch->sex = SEX_EITHER;
+            ch->pcdata->true_sex = SEX_EITHER;
         default:
             write_to_buffer(d, "That's not a sex.\n\rWhat IS your sex? ", 0);
             return;
@@ -1560,7 +1568,8 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
             write_to_buffer(
                 d, "Please pick a weapon from the following choices:\n\r", 0);
             buf[0] = '\0';
-            for (i = 0; weapon_table[i].name != NULL; i++)
+            // Skip exotic. No one is trained in it.
+            for (i = 1; i < WEAPON_MAX; i++)
                 if (ch->pcdata->learned[*weapon_table[i].gsn] > 0) {
                     strcat(buf, weapon_table[i].name);
                     strcat(buf, " ");
@@ -1578,12 +1587,12 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
     case CON_PICK_WEAPON:
         write_to_buffer(d, "\n\r", 2);
         weapon = weapon_lookup(argument);
-        if (weapon == -1
+        if (weapon == WEAPON_EXOTIC
             || ch->pcdata->learned[*weapon_table[weapon].gsn] <= 0) {
             write_to_buffer(d, "That's not a valid selection. Choices are:\n\r",
                 0);
             buf[0] = '\0';
-            for (i = 0; weapon_table[i].name != NULL; i++)
+            for (i = 1; i < WEAPON_MAX; i++)
                 if (ch->pcdata->learned[*weapon_table[i].gsn] > 0) {
                     strcat(buf, weapon_table[i].name);
                     strcat(buf, " ");
@@ -1629,7 +1638,7 @@ void nanny(DESCRIPTOR_DATA * d, char* argument)
             write_to_buffer(
                 d, "Please pick a weapon from the following choices:\n\r", 0);
             buf[0] = '\0';
-            for (i = 0; weapon_table[i].name != NULL; i++)
+            for (i = 0; i < WEAPON_MAX; i++)
                 if (ch->pcdata->learned[*weapon_table[i].gsn] > 0) {
                     strcat(buf, weapon_table[i].name);
                     strcat(buf, " ");
@@ -2128,23 +2137,19 @@ show_string_cleanup:
 /* quick sex fixer */
 void fix_sex(CharData * ch)
 {
-    if (ch->sex < 0 || ch->sex > 2)
+    if (ch->sex < 0 || ch->sex >= SEX_MAX)
         ch->sex = IS_NPC(ch) ? 0 : ch->pcdata->true_sex;
 }
 
 void act_new(const char* format, CharData * ch, const void* arg1,
     const void* arg2, int type, int min_pos)
 {
-    static char* const he_she[] = { "it", "he", "she" };
-    static char* const him_her[] = { "it", "him", "her" };
-    static char* const his_her[] = { "its", "his", "her" };
-
     CharData* to;
     CharData* vch = (CharData*)arg2;
     ObjectData* obj1 = (ObjectData*)arg1;
     ObjectData* obj2 = (ObjectData*)arg2;
     const char* str;
-    char* i = NULL;
+    const char* i = NULL;
     char* point;
     char* pbuff;
     char buffer[MAX_STRING_LENGTH * 2] = "";
@@ -2216,22 +2221,22 @@ void act_new(const char* format, CharData * ch, const void* arg1,
                     i = PERS(vch, to);
                     break;
                 case 'e':
-                    i = he_she[URANGE(0, ch->sex, 2)];
+                    i = sex_table[ch->sex].subj;
                     break;
                 case 'E':
-                    i = he_she[URANGE(0, vch->sex, 2)];
+                    i = sex_table[ch->sex].subj;
                     break;
                 case 'm':
-                    i = him_her[URANGE(0, ch->sex, 2)];
+                    i = sex_table[ch->sex].obj;
                     break;
                 case 'M':
-                    i = him_her[URANGE(0, vch->sex, 2)];
+                    i = sex_table[ch->sex].obj;
                     break;
                 case 's':
-                    i = his_her[URANGE(0, ch->sex, 2)];
+                    i = sex_table[ch->sex].poss;
                     break;
                 case 'S':
-                    i = his_her[URANGE(0, vch->sex, 2)];
+                    i = sex_table[ch->sex].poss;
                     break;
 
                 case 'p':

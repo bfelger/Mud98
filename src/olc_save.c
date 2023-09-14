@@ -242,7 +242,7 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
     temp = DIF(p_mob_proto->parts, race_table[race].parts);
     fprintf(fp, "%s ", fwrite_flag(temp, buf));
 
-    fprintf(fp, "%s ", size_table[p_mob_proto->size].name);
+    fprintf(fp, "%s ", mob_size_table[p_mob_proto->size].name);
     fprintf(fp, "'%s'\n", ((p_mob_proto->material[0] != '\0') ? p_mob_proto->material : "unknown"));
 
     if ((temp = DIF(race_table[race].act_flags, p_mob_proto->act_flags)))
@@ -317,7 +317,7 @@ void save_object(FILE* fp, ObjectPrototype* obj_proto)
     fprintf(fp, "%s~\n", obj_proto->short_descr);
     fprintf(fp, "%s~\n", fix_string(obj_proto->description));
     fprintf(fp, "%s~\n", obj_proto->material);
-    fprintf(fp, "%s ", item_name(obj_proto->item_type));
+    fprintf(fp, "%s ", item_table[obj_proto->item_type].name);
     fprintf(fp, "%s ", fwrite_flag(obj_proto->extra_flags, buf));
     fprintf(fp, "%s\n", fwrite_flag(obj_proto->wear_flags, buf));
 
@@ -352,7 +352,7 @@ void save_object(FILE* fp, ObjectPrototype* obj_proto)
         fprintf(fp, "%d %d '%s' %d 0\n",
             obj_proto->value[0],
             obj_proto->value[1],
-            liq_table[obj_proto->value[2]].liq_name,
+            liquid_table[obj_proto->value[2]].name,
             obj_proto->value[3]);
         break;
 
@@ -360,7 +360,7 @@ void save_object(FILE* fp, ObjectPrototype* obj_proto)
         fprintf(fp, "%d %d '%s' 0 0\n",
             obj_proto->value[0],
             obj_proto->value[1],
-            liq_table[obj_proto->value[2]].liq_name);
+            liquid_table[obj_proto->value[2]].name);
         break;
 
     case ITEM_CONTAINER:
@@ -398,7 +398,7 @@ void save_object(FILE* fp, ObjectPrototype* obj_proto)
 
     case ITEM_WEAPON:
         fprintf(fp, "%s %d %d '%s' %s\n",
-            weapon_name(obj_proto->value[0]),
+            weapon_table[obj_proto->value[0]].name,
             obj_proto->value[1],
             obj_proto->value[2],
             attack_table[obj_proto->value[3]].name,

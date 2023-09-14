@@ -951,8 +951,8 @@ void do_stand(CharData* ch, char* argument)
         send_to_char("You are mortally wounded, and cannot stand on your own.\n\r", ch);
         break;
 
-    case POS_UNKNOWN:
-        break;
+    //case POS_UNKNOWN:
+    //    break;
     }
 
     return;
@@ -1089,8 +1089,8 @@ void do_rest(CharData* ch, char* argument)
         send_to_char("You are mortally wounded. Soon you will rest forever.\n\r", ch);
         break;
 
-    case POS_UNKNOWN:
-        break;
+    //case POS_UNKNOWN:
+    //    break;
     }
 
     return;
@@ -1212,8 +1212,8 @@ void do_sit(CharData* ch, char* argument)
     case POS_FIGHTING:
         send_to_char("Finish your fight, then sit down.\n\r", ch);
         break;
-    case POS_UNKNOWN:
-        break;
+    //case POS_UNKNOWN:
+    //    break;
     }
     return;
 }
@@ -1297,8 +1297,8 @@ void do_sleep(CharData* ch, char* argument)
         send_to_char("You are already sleeping. Permanently.\n\r", ch);
         break;
 
-    case POS_UNKNOWN:
-        break;
+    //case POS_UNKNOWN:
+    //    break;
     }
 
     return;
@@ -1542,14 +1542,7 @@ void do_train(CharData* ch, char* argument)
             send_to_char(buf, ch);
         }
         else {
-            /*
-             * This message dedicated to Jordan ... you big stud!
-             */
-            act("You have nothing left to train, you $T!", ch, NULL,
-                ch->sex == SEX_MALE     ? "big stud"
-                : ch->sex == SEX_FEMALE ? "hot babe"
-                                        : "wild thing",
-                TO_CHAR);
+            send_to_char("You have nothing left to train.\n\r", ch);
         }
 
         return;

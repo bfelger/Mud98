@@ -10,15 +10,14 @@
 #include "entities/object_data.h"
 #include "entities/room_data.h"
 
+#include "data/damage.h"
+
 void all_colour(CharData* ch, char* argument);
 int count_users(ObjectData* obj);
 void deduct_cost(CharData* ch, int cost);
 int check_immune(CharData* ch, DamageType dam_type);
 int material_lookup(const char* name);
 int weapon_lookup(const char* name);
-int weapon_type(const char* name);
-char* weapon_name(int weapon_Type);
-char* item_name(int item_type);
 int attack_lookup(const char* name);
 int wiznet_lookup(const char* name);
 int16_t class_lookup(const char* name);

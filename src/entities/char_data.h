@@ -78,12 +78,12 @@ typedef struct char_data_t {
     int16_t mprog_delay;
     int16_t group;
     int16_t clan;
-    int16_t sex;
+    Sex sex;
     int16_t ch_class;
     int16_t race;
     int16_t level;
     int16_t trust;
-    int16_t size;
+    MobSize size;
     Position position;
     int16_t practice;
     int16_t train;

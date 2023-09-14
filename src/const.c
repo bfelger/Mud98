@@ -30,58 +30,12 @@
 
 #include "entities/object_data.h"
 
+#include "data/damage.h"
 #include "data/item.h"
 
 #include <stdio.h>
 #include <sys/types.h>
 #include <time.h>
-
-/* item type list */
-const struct item_type item_table[] = {
-    { ITEM_LIGHT,           "light"         },
-    { ITEM_SCROLL,          "scroll"        },
-    { ITEM_WAND,            "wand"          },
-    { ITEM_STAFF,           "staff"         },
-    { ITEM_WEAPON,          "weapon"        },
-    { ITEM_TREASURE,        "treasure"      },
-    { ITEM_ARMOR,           "armor"         },
-    { ITEM_POTION,          "potion"        },
-    { ITEM_CLOTHING,        "clothing"      },
-    { ITEM_FURNITURE,       "furniture"     },
-    { ITEM_TRASH,           "trash"         },
-    { ITEM_CONTAINER,       "container"     },
-    { ITEM_DRINK_CON,       "drink"         },
-    { ITEM_KEY,             "key"           },
-    { ITEM_FOOD,            "food"          },
-    { ITEM_MONEY,           "money"         },
-    { ITEM_BOAT,            "boat"          },
-    { ITEM_CORPSE_NPC,      "npc_corpse"    },
-    { ITEM_CORPSE_PC,       "pc_corpse"     },
-    { ITEM_FOUNTAIN,        "fountain"      },
-    { ITEM_PILL,            "pill"          },
-    { ITEM_PROTECT,         "protect"       },
-    { ITEM_MAP,             "map"           },
-    { ITEM_PORTAL,          "portal"        },
-    { ITEM_WARP_STONE,      "warp_stone"    },
-    { ITEM_ROOM_KEY,        "room_key"      },
-    { ITEM_GEM,             "gem"           },
-    { ITEM_JEWELRY,         "jewelry"       },
-    { ITEM_JUKEBOX,         "jukebox"       },
-    { 0,                    NULL            }
-};
-
-/* weapon selection table */
-const struct weapon_type weapon_table[] = {
-    { "sword",      &gsn_sword,     OBJ_VNUM_SCHOOL_SWORD,      WEAPON_SWORD,   },
-    { "mace",       &gsn_mace,      OBJ_VNUM_SCHOOL_MACE,       WEAPON_MACE,    },
-    { "dagger",     &gsn_dagger,    OBJ_VNUM_SCHOOL_DAGGER,     WEAPON_DAGGER,  },
-    { "axe",        &gsn_axe,       OBJ_VNUM_SCHOOL_AXE,        WEAPON_AXE,     },
-    { "staff",      &gsn_spear,     OBJ_VNUM_SCHOOL_STAFF,      WEAPON_SPEAR,   },
-    { "flail",      &gsn_flail,     OBJ_VNUM_SCHOOL_FLAIL,      WEAPON_FLAIL,   },
-    { "whip",       &gsn_whip,      OBJ_VNUM_SCHOOL_WHIP,       WEAPON_WHIP,    },
-    { "polearm",    &gsn_polearm,   OBJ_VNUM_SCHOOL_POLEARM,    WEAPON_POLEARM, },
-    { NULL,         NULL,           0,                          0,              }
-};
 
 /* wiznet table and prototype for future flag setting */
 const struct wiznet_type wiznet_table[] = {
@@ -106,51 +60,6 @@ const struct wiznet_type wiznet_table[] = {
     { "switches",   WIZ_SWITCHES,   L2  },
     { "secure",     WIZ_SECURE,     L1  },
     { NULL,         0,              0   }
-};
-
-/* attack table  -- not very organized :( */
-const struct attack_type attack_table[MAX_DAMAGE_MESSAGE] = {
-    { "none",       "hit",              -1              }, /*  0 */
-    { "slice",      "slice",            DAM_SLASH       },
-    { "stab",       "stab",             DAM_PIERCE      },
-    { "slash",      "slash",            DAM_SLASH       },
-    { "whip",       "whip",             DAM_SLASH       },
-    { "claw",       "claw",             DAM_SLASH       }, /*  5 */
-    { "blast",      "blast",            DAM_BASH        },
-    { "pound",      "pound",            DAM_BASH        },
-    { "crush",      "crush",            DAM_BASH        },
-    { "grep",       "grep",             DAM_SLASH       },
-    { "bite",       "bite",             DAM_PIERCE      }, /* 10 */
-    { "pierce",     "pierce",           DAM_PIERCE      },
-    { "suction",    "suction",          DAM_BASH        },
-    { "beating",    "beating",          DAM_BASH        },
-    { "digestion",  "digestion",        DAM_ACID        },
-    { "charge",     "charge",           DAM_BASH        }, /* 15 */
-    { "slap",       "slap",             DAM_BASH        },
-    { "punch",      "punch",            DAM_BASH        },
-    { "wrath",      "wrath",            DAM_ENERGY      },
-    { "magic",      "magic",            DAM_ENERGY      },
-    { "divine",     "divine power",     DAM_HOLY        }, /* 20 */
-    { "cleave",     "cleave",           DAM_SLASH       },
-    { "scratch",    "scratch",          DAM_PIERCE      },
-    { "peck",       "peck",             DAM_PIERCE      },
-    { "peckb",      "peck",             DAM_BASH        },
-    { "chop",       "chop",             DAM_SLASH       }, /* 25 */
-    { "sting",      "sting",            DAM_PIERCE      },
-    { "smash",      "smash",            DAM_BASH        },
-    { "shbite",     "shocking bite",    DAM_LIGHTNING   },
-    { "flbite",     "flaming bite",     DAM_FIRE        },
-    { "frbite",     "freezing bite",    DAM_COLD        }, /* 30 */
-    { "acbite",     "acidic bite",      DAM_ACID        },
-    { "chomp",      "chomp",            DAM_PIERCE      },
-    { "drain",      "life drain",       DAM_NEGATIVE    },
-    { "thrust",     "thrust",           DAM_PIERCE      },
-    { "slime",      "slime",            DAM_ACID        },
-    { "shock",      "shock",            DAM_LIGHTNING   },
-    { "thwack",     "thwack",           DAM_BASH        },
-    { "flame",      "flame",            DAM_FIRE        },
-    { "chill",      "chill",            DAM_COLD        },
-    { NULL,         NULL,               0               }
 };
 
 /*
@@ -579,54 +488,4 @@ const struct con_app_type con_app[26] = {
     {4, 99},  {5, 99},  {6, 99}, {7, 99}, {8, 99} /* 25 */
 };
 
-/*
- * Liquid properties.
- * Used in world.obj.
- */
-const struct liq_type liq_table[] = {
-    /*    name			color	proof, full, thirst, food, ssize */
-    {"water", "clear", {0, 1, 10, 0, 16}},
-    {"beer", "amber", {12, 1, 8, 1, 12}},
-    {"red wine", "burgundy", {30, 1, 8, 1, 5}},
-    {"ale", "brown", {15, 1, 8, 1, 12}},
-    {"dark ale", "dark", {16, 1, 8, 1, 12}},
-
-    {"whisky", "golden", {120, 1, 5, 0, 2}},
-    {"lemonade", "pink", {0, 1, 9, 2, 12}},
-    {"firebreather", "boiling", {190, 0, 4, 0, 2}},
-    {"local specialty", "clear", {151, 1, 3, 0, 2}},
-    {"slime mold juice", "green", {0, 2, -8, 1, 2}},
-
-    {"milk", "white", {0, 2, 9, 3, 12}},
-    {"tea", "tan", {0, 1, 8, 0, 6}},
-    {"coffee", "black", {0, 1, 8, 0, 6}},
-    {"blood", "red", {0, 2, -1, 2, 6}},
-    {"salt water", "clear", {0, 1, -2, 0, 1}},
-
-    {"coke", "brown", {0, 2, 9, 2, 12}},
-    {"root beer", "brown", {0, 2, 9, 2, 12}},
-    {"elvish wine", "green", {35, 2, 8, 1, 5}},
-    {"white wine", "golden", {28, 1, 8, 1, 5}},
-    {"champagne", "golden", {32, 1, 8, 1, 5}},
-
-    {"mead", "honey-colored", {34, 2, 8, 2, 12}},
-    {"rose wine", "pink", {26, 1, 8, 1, 5}},
-    {"benedictine wine", "burgundy", {40, 1, 8, 1, 5}},
-    {"vodka", "clear", {130, 1, 5, 0, 2}},
-    {"cranberry juice", "red", {0, 1, 9, 2, 12}},
-
-    {"orange juice", "orange", {0, 2, 9, 3, 12}},
-    {"absinthe", "green", {200, 1, 4, 0, 2}},
-    {"brandy", "golden", {80, 1, 5, 0, 4}},
-    {"aquavit", "clear", {140, 1, 5, 0, 2}},
-    {"schnapps", "clear", {90, 1, 5, 0, 2}},
-
-    {"icewine", "purple", {50, 2, 6, 1, 5}},
-    {"amontillado", "burgundy", {35, 2, 8, 1, 5}},
-    {"sherry", "red", {38, 2, 7, 1, 5}},
-    {"framboise", "red", {50, 1, 7, 1, 5}},
-    {"rum", "amber", {151, 1, 4, 0, 2}},
-
-    {"cordial", "clear", {100, 1, 5, 0, 2}},
-    {NULL, NULL, {0, 0, 0, 0, 0}}};
 

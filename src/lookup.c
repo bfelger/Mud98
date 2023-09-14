@@ -71,33 +71,29 @@ Position position_lookup(const char* name)
             return position_table[i].pos;
     }
 
-    return POS_UNKNOWN;
+    return POS_DEAD;
 }
 
-int sex_lookup(const char* name)
+Sex sex_lookup(const char* name)
 {
-    int sex;
-
-    for (sex = 0; sex_table[sex].name != NULL; sex++) {
-        if (LOWER(name[0]) == LOWER(sex_table[sex].name[0])
-            && !str_prefix(name, sex_table[sex].name))
-            return sex;
+    for (int i = 0; i < SEX_MAX; i++) {
+        if (LOWER(name[0]) == LOWER(sex_table[i].name[0])
+            && !str_prefix(name, sex_table[i].name))
+            return sex_table[i].sex;
     }
 
-    return -1;
+    return SEX_NEUTRAL;
 }
 
-int size_lookup(const char* name)
+MobSize size_lookup(const char* name)
 {
-    int size;
-
-    for (size = 0; size_table[size].name != NULL; size++) {
-        if (LOWER(name[0]) == LOWER(size_table[size].name[0])
-            && !str_prefix(name, size_table[size].name))
+    for (int size = 0; size < MOB_SIZE_MAX; size++) {
+        if (LOWER(name[0]) == LOWER(mob_size_table[size].name[0])
+            && !str_prefix(name, mob_size_table[size].name))
             return size;
     }
 
-    return -1;
+    return SIZE_MEDIUM;
 }
 
 /* returns race number */
@@ -112,11 +108,9 @@ int16_t race_lookup(const char* name)
     return 0;
 }
 
-int item_lookup(const char* name)
+ItemType item_lookup(const char* name)
 {
-    int type;
-
-    for (type = 0; item_table[type].name != NULL; type++) {
+    for (int type = 0; type < ITEM_MAX; type++) {
         if (LOWER(name[0]) == LOWER(item_table[type].name[0])
             && !str_prefix(name, item_table[type].name))
             return item_table[type].type;
@@ -125,13 +119,11 @@ int item_lookup(const char* name)
     return -1;
 }
 
-int liq_lookup(const char* name)
+int liquid_lookup(const char* name)
 {
-    int liq;
-
-    for (liq = 0; liq_table[liq].liq_name != NULL; liq++) {
-        if (LOWER(name[0]) == LOWER(liq_table[liq].liq_name[0])
-            && !str_prefix(name, liq_table[liq].liq_name))
+    for (int liq = 0; liq < LIQ_MAX; liq++) {
+        if (LOWER(name[0]) == LOWER(liquid_table[liq].name[0])
+            && !str_prefix(name, liquid_table[liq].name))
             return liq;
     }
 

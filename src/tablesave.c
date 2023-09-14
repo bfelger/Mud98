@@ -58,18 +58,18 @@ char* do_fun_str(void* temp)
     return cmd_func_name(*fun);
 }
 
-char* position_str(void* temp)
+const char* position_str(void* temp)
 {
-    int16_t* flags = (int16_t*)temp;
+    Position* flags = (Position*)temp;
 
     return position_table[*flags].name;
 }
 
-char* size_str(void* temp)
+const char* size_str(void* temp)
 {
-    int16_t* size = (int16_t*)temp;
+    MobSize* size = (MobSize*)temp;
 
-    return size_table[UMAX(0, *size)].name;
+    return mob_size_table[UMAX(0, *size)].name;
 }
 
 char* race_str(void* temp)
@@ -216,7 +216,7 @@ bool spell_fun_read(void* temp, char* arg)
 const struct savetable_type progcodesavetable[] = {
     { "vnum",		    FIELD_INT16,	            U(&tmp_pcode.vnum),	0,	0	},
     { "code",		    FIELD_STRING,	            U(&tmp_pcode.code),	0,	0	},
-    { NULL,		        0,				            0,			    0,	0	}
+    { NULL,		        0,				            0,			        0,	0	}
 };
 
 const struct savetable_type skillsavetable[] = {
@@ -233,7 +233,7 @@ const struct savetable_type skillsavetable[] = {
     {"noun_damage",	    FIELD_STRING,			    U(&tmp_sk.noun_damage),	    0,			    0	},
     {"msg_off",	        FIELD_STRING,			    U(&tmp_sk.msg_off),		    0,			    0	},
     {"msg_obj",	        FIELD_STRING,			    U(&tmp_sk.msg_obj),		    0,			    0	},
-    {NULL,		        0,				            0,				        0,			    0	}
+    {NULL,		        0,				            0,				            0,			    0	}
 };
 
 const struct savetable_type socialsavetable[] = {
@@ -245,7 +245,7 @@ const struct savetable_type socialsavetable[] = {
     { "vict_found",	    FIELD_STRING,	U(&tmp_soc.vict_found),	    0,      0},
     { "char_auto",	    FIELD_STRING,	U(&tmp_soc.char_auto),	    0,      0},
     { "others_auto",	FIELD_STRING,	U(&tmp_soc.others_auto),	0,      0},
-    { NULL,		        0,		        0,				        0,      0}
+    { NULL,		        0,		        0,				            0,      0}
 };
 
 const struct savetable_type racesavetable[] = {
@@ -266,7 +266,7 @@ const struct savetable_type racesavetable[] = {
     { "stats",	    FIELD_INT16_ARRAY,	U(&tmp_race.stats),		U(MAX_STATS),	0	},
     { "max_stats",	FIELD_INT16_ARRAY,	U(&tmp_race.max_stats),	U(MAX_STATS),	0	},
     { "size",		FIELD_FUNCTION_INT16_TO_STR,U(&tmp_race.size),	U(size_str),U(size_read)},
-    { NULL,		    0,				    0,			        0,		    0}
+    { NULL,		    0,				    0,			            0,		    0}
 };
 
 const struct savetable_type cmdsavetable[] = {
@@ -276,7 +276,7 @@ const struct savetable_type cmdsavetable[] = {
     { "level",	    FIELD_INT16,			    U(&tmp_cmd.level),	    0,		        0 },
     { "log",		FIELD_INT16_FLAGSTRING,		U(&tmp_cmd.log),	    U(log_flag_table),	0 },
     { "show",		FIELD_INT16_FLAGSTRING,		U(&tmp_cmd.show),	    U(show_flag_table),	0 },
-    { NULL,		    0,				            0,			        0,		        0 }
+    { NULL,		    0,				            0,			            0,		        0 }
 };
 
 void load_struct(FILE* fp, uintptr_t base_type, const struct savetable_type* table, const uintptr_t pointer)

@@ -31,6 +31,7 @@
 
 #include "comm.h"
 
+#include "data/damage.h"
 #include "data/mobile.h"
 
 #include <stdio.h>
@@ -44,26 +45,6 @@ const struct clan_type clan_table[MAX_CLAN] = {
     { "",           "",             ROOM_VNUM_ALTAR,        true        },
     { "loner",      "[ Loner ] ",   ROOM_VNUM_ALTAR,        true        },
     { "rom",        "[  ROM  ] ",   ROOM_VNUM_ALTAR,        false       }
-};
-
-/* for sex */
-const struct sex_type sex_table[] = {
-    { "none"    }, 
-    { "male"    }, 
-    { "female"  }, 
-    { "either"  }, 
-    { NULL      }
-};
-
-/* for sizes */
-const struct size_type size_table[] = {
-    { "tiny"    },                        
-    { "small"   },                   
-    { "medium"  },                      
-    { "large"   },
-    { "huge"    },
-    { "giant"   },
-    { NULL      }
 };
 
 /* various flag tables */
@@ -623,6 +604,7 @@ const struct flag_type res_flag_table[] = {
 };
 
 const struct flag_type vuln_flag_table[] = {
+    { "none",           VULN_NONE,          true    },
     { "summon",         VULN_SUMMON,        true    },
     { "charm",          VULN_CHARM,         true    },
     { "magic",          VULN_MAGIC,         true    },
@@ -705,8 +687,8 @@ const struct bit_type bitvector_type[] = {
     { affect_flag_table,    "affect"    },
     { apply_flag_table,     "apply"     },
     { imm_flag_table,       "imm"       },
-    { res_flag_table,        "res"       },
-    { vuln_flag_table,       "vuln"      },
+    { res_flag_table,       "res"       },
+    { vuln_flag_table,      "vuln"      },
     { weapon_type2,         "weapon"    }
 };
 
@@ -785,7 +767,10 @@ const struct recval_type recval_table[] = {
     {50,/*d*/ 10,/*+*/ 9500,    -30,  50,   10,   28   }  /* 60 */
 };
 
-const struct flag_type dam_classes[] = {
+// Ignores DAM_NONE, has null record at end.
+// Added DAM_MAX so it fails to compile if you add a new damage type and don't
+// add it here.
+const struct flag_type dam_classes[DAM_MAX] = {
     { "dam_bash",       DAM_BASH,           true    },
     { "dam_pierce",     DAM_PIERCE,         true    },
     { "dam_slash",      DAM_SLASH,          true    },

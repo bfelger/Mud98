@@ -366,8 +366,8 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
         else
             strcat(buf, "someone who left??");
         break;
-    case POS_UNKNOWN:
-        break;
+    //case POS_UNKNOWN:
+    //    break;
     }
 
     strcat(buf, "\n\r");
@@ -963,7 +963,7 @@ void do_look(CharData* ch, char* argument)
                     obj->value[1] < obj->value[0] / 4       ? "less than half-"
                     : obj->value[1] < 3 * obj->value[0] / 4 ? "about half-"
                                                             : "more than half-",
-                    liq_table[obj->value[2]].liq_color);
+                    liquid_table[obj->value[2]].color);
 
             send_to_char(buf, ch);
             break;
@@ -1269,9 +1269,7 @@ void do_score(CharData* ch, char* argument)
     }
 
     sprintf(buf, "Race: %s  Sex: %s  Class: %s\n\r", race_table[ch->race].name,
-            ch->sex == 0   ? "sexless"
-            : ch->sex == 1 ? "male"
-                           : "female",
+            sex_table[ch->sex].name,
             IS_NPC(ch) ? "mobile" : class_table[ch->ch_class].name);
     send_to_char(buf, ch);
 
@@ -1350,8 +1348,8 @@ void do_score(CharData* ch, char* argument)
     case POS_FIGHTING:
         send_to_char("You are fighting.\n\r", ch);
         break;
-    case POS_UNKNOWN:
-        break;
+    //case POS_UNKNOWN:
+    //    break;
     }
 
     /* print AC values */

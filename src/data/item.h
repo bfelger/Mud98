@@ -8,37 +8,9 @@
 
 #include "merc.h"
 
-typedef enum item_type_t {
-    ITEM_LIGHT              = 1,
-    ITEM_SCROLL             = 2,
-    ITEM_WAND               = 3,
-    ITEM_STAFF              = 4,
-    ITEM_WEAPON             = 5,
-    ITEM_TREASURE           = 8,
-    ITEM_ARMOR              = 9,
-    ITEM_POTION             = 10,
-    ITEM_CLOTHING           = 11,
-    ITEM_FURNITURE          = 12,
-    ITEM_TRASH              = 13,
-    ITEM_CONTAINER          = 15,
-    ITEM_DRINK_CON          = 17,
-    ITEM_KEY                = 18,
-    ITEM_FOOD               = 19,
-    ITEM_MONEY              = 20,
-    ITEM_BOAT               = 22,
-    ITEM_CORPSE_NPC         = 23,
-    ITEM_CORPSE_PC          = 24,
-    ITEM_FOUNTAIN           = 25,
-    ITEM_PILL               = 26,
-    ITEM_PROTECT            = 27,
-    ITEM_MAP                = 28,
-    ITEM_PORTAL             = 29,
-    ITEM_WARP_STONE         = 30,
-    ITEM_ROOM_KEY           = 31,
-    ITEM_GEM                = 32,
-    ITEM_JEWELRY            = 33,
-    ITEM_JUKEBOX            = 34,
-} ItemType;
+////////////////////////////////////////////////////////////////////////////////
+// Generic items
+////////////////////////////////////////////////////////////////////////////////
 
 typedef enum item_flags_t {
     ITEM_GLOW           = BIT(0),
@@ -67,6 +39,71 @@ typedef enum item_flags_t {
     ITEM_NOUNCURSE      = BIT(25),
 } ItemFlags;
 
+typedef enum item_type_t {
+    ITEM_NONE           = 0,
+    ITEM_LIGHT          = 1,
+    ITEM_SCROLL         = 2,
+    ITEM_WAND           = 3,
+    ITEM_STAFF          = 4,
+    ITEM_WEAPON         = 5,
+    ITEM_TREASURE       = 8,
+    ITEM_ARMOR          = 9,
+    ITEM_POTION         = 10,
+    ITEM_CLOTHING       = 11,
+    ITEM_FURNITURE      = 12,
+    ITEM_TRASH          = 13,
+    ITEM_CONTAINER      = 15,
+    ITEM_DRINK_CON      = 17,
+    ITEM_KEY            = 18,
+    ITEM_FOOD           = 19,
+    ITEM_MONEY          = 20,
+    ITEM_BOAT           = 22,
+    ITEM_CORPSE_NPC     = 23,
+    ITEM_CORPSE_PC      = 24,
+    ITEM_FOUNTAIN       = 25,
+    ITEM_PILL           = 26,
+    ITEM_PROTECT        = 27,
+    ITEM_MAP            = 28,
+    ITEM_PORTAL         = 29,
+    ITEM_WARP_STONE     = 30,
+    ITEM_ROOM_KEY       = 31,
+    ITEM_GEM            = 32,
+    ITEM_JEWELRY        = 33,
+    ITEM_JUKEBOX        = 34,
+} ItemType;
+
+#define ITEM_MAX 35
+
+typedef struct item_info_t {
+    const ItemType type;
+    const char* name;
+} ItemInfo;
+
+extern const ItemInfo item_table[ITEM_MAX];
+
+////////////////////////////////////////////////////////////////////////////////
+// Liquids
+////////////////////////////////////////////////////////////////////////////////
+
+#define LIQ_WATER 0
+#define LIQ_MAX 36
+
+typedef struct liquid_type_t {
+    const char* name;
+    const char* color;
+    const int16_t proof;
+    const int16_t full;
+    const int16_t thirst;
+    const int16_t food;
+    const int16_t sip_size;
+} LiquidData;
+
+extern const LiquidData liquid_table[LIQ_MAX];
+
+////////////////////////////////////////////////////////////////////////////////
+// Weapons
+////////////////////////////////////////////////////////////////////////////////
+
 typedef enum weapon_flags_t {
     WEAPON_FLAMING      = BIT(0),
     WEAPON_FROST        = BIT(1),
@@ -79,16 +116,29 @@ typedef enum weapon_flags_t {
 } WeaponFlags;
 
 typedef enum weapon_type_t {
-    WEAPON_EXOTIC = 0,
-    WEAPON_SWORD = 1,
-    WEAPON_DAGGER = 2,
-    WEAPON_SPEAR = 3,
-    WEAPON_MACE = 4,
-    WEAPON_AXE = 5,
-    WEAPON_FLAIL = 6,
-    WEAPON_WHIP = 7,
-    WEAPON_POLEARM = 8,
+    WEAPON_EXOTIC       = 0,
+    WEAPON_SWORD        = 1,
+    WEAPON_DAGGER       = 2,
+    WEAPON_SPEAR        = 3,
+    WEAPON_MACE         = 4,
+    WEAPON_AXE          = 5,
+    WEAPON_FLAIL        = 6,
+    WEAPON_WHIP         = 7,
+    WEAPON_POLEARM      = 8,
 } WeaponType;
+
+#define WEAPON_MAX 9
+
+typedef struct weapon_info_t {
+    const WeaponType type;
+    const char* name;
+    const SKNUM* gsn;
+    const VNUM vnum;
+} WeaponInfo;
+
+extern const WeaponInfo weapon_table[WEAPON_MAX];
+
+////////////////////////////////////////////////////////////////////////////////
 
 typedef enum wear_flags_t {
     ITEM_TAKE           = BIT(0),
@@ -130,8 +180,57 @@ typedef enum wear_location_t {
     WEAR_WRIST_R = 15,
     WEAR_WIELD = 16,
     WEAR_HOLD = 17,
-    WEAR_FLOAT = 18,
-    WEAR_MAX
+    WEAR_FLOAT = 18
 } WearLocation;
+
+#define WEAR_MAX 19
+
+////////////////////////////////////////////////////////////////////////////////
+// Static VNUMs
+////////////////////////////////////////////////////////////////////////////////
+
+#define OBJ_VNUM_SILVER_ONE     1
+#define OBJ_VNUM_GOLD_ONE       2
+#define OBJ_VNUM_GOLD_SOME      3
+#define OBJ_VNUM_SILVER_SOME    4
+#define OBJ_VNUM_COINS          5
+
+#define OBJ_VNUM_CORPSE_NPC     10
+#define OBJ_VNUM_CORPSE_PC      11
+#define OBJ_VNUM_SEVERED_HEAD   12
+#define OBJ_VNUM_TORN_HEART     13
+#define OBJ_VNUM_SLICED_ARM     14
+#define OBJ_VNUM_SLICED_LEG     15
+#define OBJ_VNUM_GUTS           16
+#define OBJ_VNUM_BRAINS         17
+
+#define OBJ_VNUM_MUSHROOM       20
+#define OBJ_VNUM_LIGHT_BALL     21
+#define OBJ_VNUM_SPRING         22
+#define OBJ_VNUM_DISC           23
+#define OBJ_VNUM_PORTAL         25
+
+#define OBJ_VNUM_DUMMY          30
+
+#define OBJ_VNUM_ROSE           1001
+
+#define OBJ_VNUM_PIT            3010
+
+#define OBJ_VNUM_SCHOOL_MACE    3700
+#define OBJ_VNUM_SCHOOL_DAGGER  3701
+#define OBJ_VNUM_SCHOOL_SWORD   3702
+#define OBJ_VNUM_SCHOOL_SPEAR   3717
+#define OBJ_VNUM_SCHOOL_STAFF   3718
+#define OBJ_VNUM_SCHOOL_AXE     3719
+#define OBJ_VNUM_SCHOOL_FLAIL   3720
+#define OBJ_VNUM_SCHOOL_WHIP    3721
+#define OBJ_VNUM_SCHOOL_POLEARM 3722
+
+#define OBJ_VNUM_SCHOOL_VEST    3703
+#define OBJ_VNUM_SCHOOL_SHIELD  3704
+#define OBJ_VNUM_SCHOOL_BANNER  3716
+#define OBJ_VNUM_MAP            3162
+
+#define OBJ_VNUM_WHISTLE        2116
 
 #endif // !MUD98__DATA__ITEM_H

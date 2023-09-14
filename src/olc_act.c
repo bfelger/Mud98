@@ -106,12 +106,12 @@ const struct olc_help_type help_table[] =
     {	"res",		    U(res_flag_table),	    "Mob resistance flags."		},
     {	"vuln",		    U(vuln_flag_table),	    "Mob vulnerability flags."	},
     {	"off",		    U(off_flag_table),	    "Mob offensive flags."	    },
-    {	"size",		    U(size_table),	        "Sizes."		            },
+    {	"size",		    U(mob_size_table),	    "Sizes."		            },
     {   "wclass",       U(weapon_class),        "Weapon classes."		    },
     {   "wtype",        U(weapon_type2),        "Weapon types."	            },
     {	"portal",	    U(portal_flag_table),	"Portal flags."		        },
     {	"furniture",    U(furniture_flag_table),"Furniture flags."		    },
-    {	"liquid",	    U(liq_table),	        "Liquid types."		        },
+    {	"liquid",	    U(liquid_table),	        "Liquid types."		        },
     {	"damtype",	    U(attack_table),	    "Damtypes."		            },
     {	"weapon",	    U(attack_table),	    NULL				        },
     {   "position",	    U(position_table),	    "Positions."			    },
@@ -281,7 +281,7 @@ bool show_help(CharData* ch, char* argument)
                 show_spec_cmds(ch);
                 return false;
             }
-            else if (help_table[cnt].structure == U(liq_table)) {
+            else if (help_table[cnt].structure == U(liquid_table)) {
                 show_liqlist(ch);
                 return false;
             }
@@ -297,7 +297,7 @@ bool show_help(CharData* ch, char* argument)
                 show_sexlist(ch);
                 return false;
             }
-            else if (help_table[cnt].structure == U(size_table)) {
+            else if (help_table[cnt].structure == U(mob_size_table)) {
                 show_sizelist(ch);
                 return false;
             }
@@ -1955,7 +1955,7 @@ void show_obj_values(CharData* ch, ObjectPrototype* obj)
             "[v3] Poisoned:     %s\n\r",
             obj->value[0],
             obj->value[1],
-            liq_table[obj->value[2]].liq_name,
+            liquid_table[obj->value[2]].name,
             obj->value[3] != 0 ? "Yes" : "No");
         send_to_char(buf, ch);
         break;
@@ -1967,7 +1967,7 @@ void show_obj_values(CharData* ch, ObjectPrototype* obj)
             "[v2] Liquid:       %s\n\r",
             obj->value[0],
             obj->value[1],
-            liq_table[obj->value[2]].liq_name);
+            liquid_table[obj->value[2]].name);
         send_to_char(buf, ch);
         break;
 
@@ -2246,8 +2246,8 @@ bool set_obj_values(CharData* ch, ObjectPrototype* pObj, int value_num, char* ar
             break;
         case 2:
             send_to_char("LIQUID TYPE SET.\n\r\n\r", ch);
-            pObj->value[2] = (liq_lookup(argument) != -1 ?
-                liq_lookup(argument) : 0);
+            pObj->value[2] = (liquid_lookup(argument) != -1 ?
+                liquid_lookup(argument) : 0);
             break;
         case 3:
             send_to_char("POISON VALUE TOGGLED.\n\r\n\r", ch);
@@ -2272,8 +2272,8 @@ bool set_obj_values(CharData* ch, ObjectPrototype* pObj, int value_num, char* ar
             break;
         case 2:
             send_to_char("LIQUID TYPE SET.\n\r\n\r", ch);
-            pObj->value[2] = (liq_lookup(argument) != -1 ?
-                liq_lookup(argument) : 0);
+            pObj->value[2] = (liquid_lookup(argument) != -1 ?
+                liquid_lookup(argument) : 0);
             break;
         }
         break;
@@ -2765,7 +2765,7 @@ MEDIT(medit_show)
         "Size:         [%16s]\n\r",
         race_table[pMob->race].name,
         ((pMob->size > -1 && pMob->size < 6) ?
-            size_table[pMob->size].name : "ERROR"));
+            mob_size_table[pMob->size].name : "ERROR"));
     add_buf(buffer, buf);
 
     sprintf(buf, "Material:    [%16s] "
@@ -2947,15 +2947,15 @@ void show_liqlist(CharData* ch)
 
     buffer = new_buf();
 
-    for (liq = 0; liq_table[liq].liq_name != NULL; liq++) {
+    for (liq = 0; liquid_table[liq].name != NULL; liq++) {
         if ((liq % 21) == 0)
             add_buf(buffer, "Name                 Color          Proof Full Thirst Food Ssize\n\r");
 
         sprintf(buf, "%-20s %-14s %5d %4d %6d %4d %5d\n\r",
-            liq_table[liq].liq_name, liq_table[liq].liq_color,
-            liq_table[liq].liq_affect[0], liq_table[liq].liq_affect[1],
-            liq_table[liq].liq_affect[2], liq_table[liq].liq_affect[3],
-            liq_table[liq].liq_affect[4]);
+            liquid_table[liq].name, liquid_table[liq].color,
+            liquid_table[liq].proof, liquid_table[liq].full,
+            liquid_table[liq].thirst, liquid_table[liq].food,
+            liquid_table[liq].sip_size);
         add_buf(buffer, buf);
     }
 
@@ -3043,12 +3043,11 @@ void show_sizelist(CharData* ch)
 
     buffer = new_buf();
 
-    for (size = 0; size_table[size].name != NULL; size++) {
+    for (size = 0; mob_size_table[size].name != NULL; size++) {
         if ((size % 3) == 0)
             add_buf(buffer, "\n\r");
 
-        sprintf(buf, "%-20s ",
-            size_table[size].name);
+        sprintf(buf, "%-20s ", mob_size_table[size].name);
         add_buf(buffer, buf);
     }
 

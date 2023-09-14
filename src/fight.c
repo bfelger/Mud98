@@ -427,7 +427,7 @@ void one_hit(CharData* ch, CharData* victim, SKNUM dt)
     else
         dam_type = attack_table[dt - TYPE_HIT].damage;
 
-    if (dam_type == DAM_NOT_FOUND) 
+    if (dam_type == DAM_NONE) 
         dam_type = DAM_BASH;
 
     /* get the weapon skill */
@@ -474,24 +474,6 @@ void one_hit(CharData* ch, CharData* victim, SKNUM dt)
     case DAM_SLASH:
         victim_ac = GET_AC(victim, AC_SLASH) / 10;
         break;
-    case DAM_NONE:
-    case DAM_FIRE:
-    case DAM_COLD:
-    case DAM_LIGHTNING:
-    case DAM_ACID:
-    case DAM_POISON:
-    case DAM_NEGATIVE:
-    case DAM_HOLY:
-    case DAM_ENERGY:
-    case DAM_MENTAL:
-    case DAM_DISEASE:
-    case DAM_DROWNING:
-    case DAM_LIGHT:
-    case DAM_OTHER:
-    case DAM_CHARM:
-    case DAM_HARM:
-    case DAM_SOUND:
-    case DAM_NOT_FOUND:
     default:
         victim_ac = GET_AC(victim, AC_EXOTIC) / 10;
         break;
@@ -1952,7 +1934,7 @@ void dam_message(CharData* ch, CharData* victim, int dam, int dt, bool immune)
     else {
         if (dt >= 0 && dt < max_skill)
             attack = skill_table[dt].noun_damage;
-        else if (dt >= TYPE_HIT && dt < TYPE_HIT + MAX_DAMAGE_MESSAGE)
+        else if (dt >= TYPE_HIT && dt < TYPE_HIT + MAX_ATTACK)
             attack = attack_table[dt - TYPE_HIT].noun;
         else {
             bug("Dam_message: bad dt %d.", dt);

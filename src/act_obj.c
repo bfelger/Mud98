@@ -891,10 +891,10 @@ void do_fill(CharData* ch, char* argument)
     }
 
     sprintf(buf, "You fill $p with %s from $P.",
-            liq_table[fountain->value[2]].liq_name);
+            liquid_table[fountain->value[2]].name);
     act(buf, ch, obj, fountain, TO_CHAR);
     sprintf(buf, "$n fills $p with %s from $P.",
-            liq_table[fountain->value[2]].liq_name);
+            liquid_table[fountain->value[2]].name);
     act(buf, ch, obj, fountain, TO_ROOM);
     obj->value[2] = fountain->value[2];
     obj->value[1] = obj->value[0];
@@ -934,11 +934,11 @@ void do_pour(CharData* ch, char* argument)
         out->value[1] = 0;
         out->value[3] = 0;
         sprintf(buf, "You invert $p, spilling %s all over the ground.",
-                liq_table[out->value[2]].liq_name);
+                liquid_table[out->value[2]].name);
         act(buf, ch, out, NULL, TO_CHAR);
 
         sprintf(buf, "$n inverts $p, spilling %s all over the ground.",
-                liq_table[out->value[2]].liq_name);
+                liquid_table[out->value[2]].name);
         act(buf, ch, out, NULL, TO_ROOM);
         return;
     }
@@ -986,27 +986,25 @@ void do_pour(CharData* ch, char* argument)
 
     amount = UMIN(out->value[1], in->value[0] - in->value[1]);
 
+    int liq = out->value[2];
+
     in->value[1] += amount;
     out->value[1] -= amount;
-    in->value[2] = out->value[2];
+    in->value[2] = liq;
+
 
     if (vch == NULL) {
-        sprintf(buf, "You pour %s from $p into $P.",
-                liq_table[out->value[2]].liq_name);
+        sprintf(buf, "You pour %s from $p into $P.", liquid_table[liq].name);
         act(buf, ch, out, in, TO_CHAR);
-        sprintf(buf, "$n pours %s from $p into $P.",
-                liq_table[out->value[2]].liq_name);
+        sprintf(buf, "$n pours %s from $p into $P.",  liquid_table[liq].name);
         act(buf, ch, out, in, TO_ROOM);
     }
     else {
-        sprintf(buf, "You pour some %s for $N.",
-                liq_table[out->value[2]].liq_name);
+        sprintf(buf, "You pour some %s for $N.", liquid_table[liq].name);
         act(buf, ch, NULL, vch, TO_CHAR);
-        sprintf(buf, "$n pours you some %s.",
-                liq_table[out->value[2]].liq_name);
+        sprintf(buf, "$n pours you some %s.", liquid_table[liq].name);
         act(buf, ch, NULL, vch, TO_VICT);
-        sprintf(buf, "$n pours some %s for $N.",
-                liq_table[out->value[2]].liq_name);
+        sprintf(buf, "$n pours some %s for $N.", liquid_table[liq].name);
         act(buf, ch, NULL, vch, TO_NOTVICT);
     }
 }
@@ -1052,7 +1050,7 @@ void do_drink(CharData* ch, char* argument)
             bug("Do_drink: bad liquid number %d.", liquid);
             liquid = obj->value[2] = 0;
         }
-        amount = liq_table[liquid].liq_affect[4] * 3;
+        amount = liquid_table[liquid].sip_size * 3;
         break;
 
     case ITEM_DRINK_CON:
@@ -1066,7 +1064,7 @@ void do_drink(CharData* ch, char* argument)
             liquid = obj->value[2] = 0;
         }
 
-        amount = liq_table[liquid].liq_affect[4];
+        amount = liquid_table[liquid].sip_size;
         amount = UMIN(amount, obj->value[1]);
         break;
     }
@@ -1076,17 +1074,13 @@ void do_drink(CharData* ch, char* argument)
         return;
     }
 
-    act("$n drinks $T from $p.", ch, obj, liq_table[liquid].liq_name, TO_ROOM);
-    act("You drink $T from $p.", ch, obj, liq_table[liquid].liq_name, TO_CHAR);
+    act("$n drinks $T from $p.", ch, obj, liquid_table[liquid].name, TO_ROOM);
+    act("You drink $T from $p.", ch, obj, liquid_table[liquid].name, TO_CHAR);
 
-    gain_condition(ch, COND_DRUNK,
-                   amount * liq_table[liquid].liq_affect[COND_DRUNK] / 36);
-    gain_condition(ch, COND_FULL,
-                   amount * liq_table[liquid].liq_affect[COND_FULL] / 4);
-    gain_condition(ch, COND_THIRST,
-                   amount * liq_table[liquid].liq_affect[COND_THIRST] / 10);
-    gain_condition(ch, COND_HUNGER,
-                   amount * liq_table[liquid].liq_affect[COND_HUNGER] / 2);
+    gain_condition(ch, COND_DRUNK, amount * liquid_table[liquid].proof / 36);
+    gain_condition(ch, COND_FULL, amount * liquid_table[liquid].full / 4);
+    gain_condition(ch, COND_THIRST, amount * liquid_table[liquid].thirst / 10);
+    gain_condition(ch, COND_HUNGER, amount * liquid_table[liquid].food / 2);
 
     if (!IS_NPC(ch) && ch->pcdata->condition[COND_DRUNK] > 10)
         send_to_char("You feel drunk.\n\r", ch);
@@ -1914,7 +1908,7 @@ void do_steal(CharData* ch, char* argument)
             break;
         case 1:
             sprintf(buf, "%s couldn't rob %s way out of a paper bag!", ch->name,
-                    (ch->sex == 2) ? "her" : "his");
+                    sex_table[ch->sex].poss);
             break;
         case 2:
             sprintf(buf, "%s tried to rob me!", ch->name);

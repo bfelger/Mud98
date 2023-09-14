@@ -81,51 +81,6 @@ typedef struct object_data_t {
 #define WEIGHT_MULT(obj)                                                       \
     ((obj)->item_type == ITEM_CONTAINER ? (obj)->value[4] : 100)
 
-// Well-known object IDs
-#define OBJ_VNUM_SILVER_ONE     1
-#define OBJ_VNUM_GOLD_ONE       2
-#define OBJ_VNUM_GOLD_SOME      3
-#define OBJ_VNUM_SILVER_SOME    4
-#define OBJ_VNUM_COINS          5
-
-#define OBJ_VNUM_CORPSE_NPC     10
-#define OBJ_VNUM_CORPSE_PC      11
-#define OBJ_VNUM_SEVERED_HEAD   12
-#define OBJ_VNUM_TORN_HEART     13
-#define OBJ_VNUM_SLICED_ARM     14
-#define OBJ_VNUM_SLICED_LEG     15
-#define OBJ_VNUM_GUTS           16
-#define OBJ_VNUM_BRAINS         17
-
-#define OBJ_VNUM_MUSHROOM       20
-#define OBJ_VNUM_LIGHT_BALL     21
-#define OBJ_VNUM_SPRING         22
-#define OBJ_VNUM_DISC           23
-#define OBJ_VNUM_PORTAL         25
-
-#define OBJ_VNUM_DUMMY          30
-
-#define OBJ_VNUM_ROSE           1001
-
-#define OBJ_VNUM_PIT            3010
-
-#define OBJ_VNUM_SCHOOL_MACE    3700
-#define OBJ_VNUM_SCHOOL_DAGGER  3701
-#define OBJ_VNUM_SCHOOL_SWORD   3702
-#define OBJ_VNUM_SCHOOL_SPEAR   3717
-#define OBJ_VNUM_SCHOOL_STAFF   3718
-#define OBJ_VNUM_SCHOOL_AXE     3719
-#define OBJ_VNUM_SCHOOL_FLAIL   3720
-#define OBJ_VNUM_SCHOOL_WHIP    3721
-#define OBJ_VNUM_SCHOOL_POLEARM 3722
-
-#define OBJ_VNUM_SCHOOL_VEST    3703
-#define OBJ_VNUM_SCHOOL_SHIELD  3704
-#define OBJ_VNUM_SCHOOL_BANNER  3716
-#define OBJ_VNUM_MAP            3162
-
-#define OBJ_VNUM_WHISTLE        2116
-
 void clone_object(ObjectData* parent, ObjectData* clone);
 void convert_object(ObjectPrototype* obj_proto);
 void convert_objects();

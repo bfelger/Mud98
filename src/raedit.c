@@ -36,7 +36,7 @@ const struct olc_comm_type race_olc_comm_table[] = {
     { "show",       0,                  ed_olded,           U(raedit_show)  },
     { "name",       U(&xRace.name),     ed_line_string,     0               },
     { "pcrace",     U(&xRace.pc_race),  ed_bool,            0               },
-    { "act",        U(&xRace.act_flags),      ed_flag_toggle,     U(act_flag_table)   },
+    { "act",        U(&xRace.act_flags),ed_flag_toggle,     U(act_flag_table)   },
     { "aff",        U(&xRace.aff),      ed_flag_toggle,     U(affect_flag_table)},
     { "off",        U(&xRace.off),      ed_flag_toggle,     U(off_flag_table)   },
     { "res",        U(&xRace.res),      ed_flag_toggle,     U(res_flag_table)   },
@@ -147,8 +147,7 @@ RAEDIT(raedit_show)
 
 #ifndef FIRST_BOOT
     sprintf(buf, "Points      : [%10d] Size   : [%-10.10s]\n\r",
-        pRace->points,
-        size_table[pRace->size].name);
+        pRace->points, mob_size_table[pRace->size].name);
     send_to_char(buf, ch);
 
     send_to_char("Name      CMu Exp       Name      CMu Exp       Name      CMu Exp\n\r", ch);

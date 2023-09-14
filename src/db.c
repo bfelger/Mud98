@@ -134,6 +134,7 @@ SKNUM gsn_shield_block;
 SKNUM gsn_spear;
 SKNUM gsn_sword;
 SKNUM gsn_whip;
+SKNUM gsn_exotic;
 
 SKNUM gsn_bash;
 SKNUM gsn_berserk;

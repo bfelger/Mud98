@@ -177,7 +177,6 @@ typedef struct weather_data WEATHER_DATA;
 #define MAX_CLASS           4
 #define MAX_PC_RACE         5
 #define MAX_CLAN            3
-#define MAX_DAMAGE_MESSAGE  41
 #define MAX_LEVEL           (LEVEL)60
 #define LEVEL_HERO          (MAX_LEVEL - 9)
 #define LEVEL_IMMORTAL      (MAX_LEVEL - 8)
@@ -247,31 +246,7 @@ struct weather_data {
 #define CON_READ_MOTD            14
 #define CON_BREAK_CONNECT        15
 
-/* damage classes */
-typedef enum {
-    DAM_NONE        = 0,
-    DAM_BASH        = 1,
-    DAM_PIERCE      = 2,
-    DAM_SLASH       = 3,
-    DAM_FIRE        = 4,
-    DAM_COLD        = 5,
-    DAM_LIGHTNING   = 6,
-    DAM_ACID        = 7,
-    DAM_POISON      = 8,
-    DAM_NEGATIVE    = 9,
-    DAM_HOLY        = 10,
-    DAM_ENERGY      = 11,
-    DAM_MENTAL      = 12,
-    DAM_DISEASE     = 13,
-    DAM_DROWNING    = 14,
-    DAM_LIGHT       = 15,
-    DAM_OTHER       = 16,
-    DAM_HARM        = 17,
-    DAM_CHARM       = 18,
-    DAM_SOUND       = 19,
-    
-    DAM_NOT_FOUND   = -1,
-} DamageType;
+
 
 /*
  * Attribute bonus structures.
@@ -351,28 +326,10 @@ struct class_type {
     char* default_group; /* default skills gained	*/
 };
 
-struct item_type {
-    int type;
-    char* name;
-};
-
-struct weapon_type {
-    char* name;
-    SKNUM* gsn;
-    VNUM vnum;
-    int type;
-};
-
 struct wiznet_type {
     char* name;
     long flag;
     LEVEL level;
-};
-
-struct attack_type {
-    char* name; /* name */
-    char* noun; /* message */
-    DamageType damage; /* damage class */
 };
 
 struct race_type {
@@ -411,14 +368,6 @@ struct kill_data {
  *                                                                         *
  ***************************************************************************/
 
-/*
- * Sex.
- * Used in #MOBILES.
- */
-#define SEX_NEUTRAL             0
-#define SEX_MALE                1
-#define SEX_FEMALE              2
-
 /* AC types */
 #define AC_PIERCE               0
 #define AC_BASH                 1
@@ -429,14 +378,6 @@ struct kill_data {
 #define DICE_NUMBER             0
 #define DICE_TYPE               1
 #define DICE_BONUS              2
-
-/* size */
-#define SIZE_TINY               0
-#define SIZE_SMALL              1
-#define SIZE_MEDIUM             2
-#define SIZE_LARGE              3
-#define SIZE_HUGE               4
-#define SIZE_GIANT              5
 
 /* gate flags */
 #define GATE_NORMAL_EXIT        BIT(0)
@@ -566,17 +507,6 @@ struct kill_data {
 #define WIZ_SPAM                BIT(19)
 
 /*
- * Liquids.
- */
-#define LIQ_WATER 0
-
-struct liq_type {
-    char* liq_name;
-    char* liq_color;
-    int16_t liq_affect[5];
-};
-
-/*
  * Types of attacks.
  * Must be non-overlapping with spell/skill types,
  * but may be arbitrary beyond that.
@@ -699,13 +629,9 @@ extern const struct dex_app_type dex_app[26];
 extern const struct con_app_type con_app[26];
 
 extern const struct class_type class_table[MAX_CLASS];
-extern const struct weapon_type weapon_table[];
-extern const struct item_type item_table[];
 extern const struct wiznet_type wiznet_table[];
-extern const struct attack_type attack_table[];
 extern       struct race_type* race_table;
 extern       struct social_type* social_table;
-extern const struct liq_type liq_table[];
 extern char* const title_table[MAX_CLASS][MAX_LEVEL + 1][2];
 
 /*****************************************************************************

@@ -54,9 +54,9 @@ typedef struct mob_prototype_t {
     int16_t dam_type;
     Position start_pos;
     Position default_pos;
-    int16_t sex;
+    Sex sex;
     int16_t race;
-    int16_t size;
+    MobSize size;
     int16_t reset_num;
     bool new_format;
 } MobPrototype;

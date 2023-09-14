@@ -520,7 +520,7 @@ void load_objects(FILE* fp)
         obj_proto->wear_flags = fread_flag(fp);
         switch (obj_proto->item_type) {
         case ITEM_WEAPON:
-            obj_proto->value[0] = weapon_type(fread_word(fp));
+            obj_proto->value[0] = weapon_lookup(fread_word(fp));
             obj_proto->value[1] = fread_number(fp);
             obj_proto->value[2] = fread_number(fp);
             obj_proto->value[3] = attack_lookup(fread_word(fp));
@@ -537,7 +537,7 @@ void load_objects(FILE* fp)
         case ITEM_FOUNTAIN:
             obj_proto->value[0] = fread_number(fp);
             obj_proto->value[1] = fread_number(fp);
-            CHECK_POS(obj_proto->value[2], liq_lookup(fread_word(fp)), "liq_lookup");
+            CHECK_POS(obj_proto->value[2], liquid_lookup(fread_word(fp)), "liquid_lookup");
             obj_proto->value[3] = fread_number(fp);
             obj_proto->value[4] = fread_number(fp);
             break;

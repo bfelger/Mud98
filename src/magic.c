@@ -1128,11 +1128,11 @@ void spell_change_sex(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
     if (saves_spell(level, victim, DAM_OTHER)) return;
     af.where = TO_AFFECTS;
     af.type = sn;
-    af.level = (int16_t)level;
+    af.level = level;
     af.duration = 2 * (int16_t)level;
     af.location = APPLY_SEX;
     do {
-        af.modifier = (int16_t)number_range(0, 2) - victim->sex;
+        af.modifier = (int16_t)number_range(0, 2) - (int16_t)victim->sex;
     }
     while (af.modifier == 0);
     af.bitvector = 0;
@@ -2835,7 +2835,7 @@ void spell_identify(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
     sprintf(buf,
             "Object '%s' is type %s, extra flags %s.\n\rWeight is %d, value is "
             "%d, level is %d.\n\r",
-            obj->name, item_name(obj->item_type),
+            obj->name, item_table[obj->item_type].name,
             extra_bit_name(obj->extra_flags), obj->weight / 10, obj->cost,
             obj->level);
     send_to_char(buf, ch);
@@ -2891,8 +2891,8 @@ void spell_identify(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
 
     case ITEM_DRINK_CON:
         sprintf(buf, "It holds %s-colored %s.\n\r",
-                liq_table[obj->value[2]].liq_color,
-                liq_table[obj->value[2]].liq_name);
+                liquid_table[obj->value[2]].color,
+                liquid_table[obj->value[2]].name);
         send_to_char(buf, ch);
         break;
 

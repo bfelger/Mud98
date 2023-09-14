@@ -44,6 +44,7 @@
 #include "update.h"
 
 #include "entities/area_data.h"
+#include "data/item.h"
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
@@ -256,7 +257,7 @@ void do_outfit(CharData* ch, char* argument)
         sn = 0;
         vnum = OBJ_VNUM_SCHOOL_SWORD; /* just in case! */
 
-        for (i = 0; weapon_table[i].name != NULL; i++) {
+        for (i = 0; i < WEAPON_MAX; i++) {
             if (ch->pcdata->learned[sn]
                 < ch->pcdata->learned[*weapon_table[i].gsn]) {
                 sn = *weapon_table[i].gsn;
@@ -1080,7 +1081,7 @@ void do_ostat(CharData* ch, char* argument)
 
     sprintf(buf, "Vnum: %d  Format: %s  Type: %s  Resets: %d\n\r",
             obj->prototype->vnum, obj->prototype->new_format ? "new" : "old",
-            item_name(obj->item_type), obj->prototype->reset_num);
+            item_table[obj->item_type].name, obj->prototype->reset_num);
     send_to_char(buf, ch);
 
     sprintf(buf, "Short description: %s\n\rLong description: %s\n\r",
@@ -1166,8 +1167,8 @@ void do_ostat(CharData* ch, char* argument)
 
     case ITEM_DRINK_CON:
         sprintf(buf, "It holds %s-colored %s.\n\r",
-                liq_table[obj->value[2]].liq_color,
-                liq_table[obj->value[2]].liq_name);
+                liquid_table[obj->value[2]].color,
+                liquid_table[obj->value[2]].name);
         send_to_char(buf, ch);
         break;
 
@@ -1214,7 +1215,7 @@ void do_ostat(CharData* ch, char* argument)
         send_to_char(buf, ch);
 
         sprintf(buf, "Damage noun is %s.\n\r",
-                (obj->value[3] > 0 && obj->value[3] < MAX_DAMAGE_MESSAGE)
+                (obj->value[3] > 0 && obj->value[3] < MAX_ATTACK)
                     ? attack_table[obj->value[3]].noun
                     : "undefined");
         send_to_char(buf, ch);
@@ -1417,11 +1418,17 @@ void do_mstat(CharData* ch, char* argument)
             GET_AC(victim, AC_SLASH), GET_AC(victim, AC_EXOTIC));
     send_to_char(buf, ch);
 
+    // Quick sanity check
+    if (victim->position >= POS_MAX)
+        victim->position = POS_STANDING;
+    else if (victim->position <= POS_DEAD)
+        victim->position = POS_DEAD;
+
     sprintf(
         buf,
         "Hit: %d  Dam: %d  Saves: %d  Size: %s  Position: %s  Wimpy: %d\n\r",
         GET_HITROLL(victim), GET_DAMROLL(victim), victim->saving_throw,
-        size_table[victim->size].name, position_table[victim->position].name,
+        mob_size_table[victim->size].name, position_table[victim->position].name,
         victim->wimpy);
     send_to_char(buf, ch);
 
@@ -3048,12 +3055,12 @@ void do_mset(CharData* ch, char* argument)
     }
 
     if (!str_prefix(arg2, "sex")) {
-        if (value < 0 || value > 2) {
-            send_to_char("Sex range is 0 to 2.\n\r", ch);
+        if (value < 0 || value >= SEX_MAX) {
+            printf_to_char(ch, "Sex range is 0 to %d.\n\r", SEX_MAX-1);
             return;
         }
-        victim->sex = (int16_t)value;
-        if (!IS_NPC(victim)) victim->pcdata->true_sex = (int16_t)value;
+        victim->sex = (Sex)value;
+        if (!IS_NPC(victim)) victim->pcdata->true_sex = (Sex)value;
         return;
     }
 

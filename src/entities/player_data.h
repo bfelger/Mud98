@@ -60,8 +60,8 @@ typedef struct player_data_t {
     int16_t perm_hit;
     int16_t perm_mana;
     int16_t perm_move;
-    int16_t true_sex;
-    int16_t condition[4];
+    Sex true_sex;
+    SHORT_FLAGS condition[4];
     int16_t points;
     bool confirm_delete;
     bool valid;

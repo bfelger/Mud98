@@ -45,6 +45,7 @@
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
+#include "data/item.h"
 #include "data/mobile.h"
 #include "data/player.h"
 
@@ -53,11 +54,6 @@
 #include <string.h>
 #include <sys/types.h>
 #include <time.h>
-
-/*
- * Local functions.
- */
-void affect_modify args((CharData * ch, AffectData* paf, bool fAdd));
 
 /* friend stuff -- for NPC's mostly */
 bool is_friend(CharData* ch, CharData* victim)
@@ -122,50 +118,15 @@ int material_lookup(const char* name)
     return 0;
 }
 
-int weapon_lookup(const char* name)
+WeaponType weapon_lookup(const char* name)
 {
-    int type;
-
-    for (type = 0; weapon_table[type].name != NULL; type++) {
-        if (LOWER(name[0]) == LOWER(weapon_table[type].name[0])
-            && !str_prefix(name, weapon_table[type].name))
-            return type;
-    }
-
-    return -1;
-}
-
-int weapon_type(const char* name)
-{
-    int type;
-
-    for (type = 0; weapon_table[type].name != NULL; type++) {
+    for (int type = 0; type < WEAPON_MAX; type++) {
         if (LOWER(name[0]) == LOWER(weapon_table[type].name[0])
             && !str_prefix(name, weapon_table[type].name))
             return weapon_table[type].type;
     }
 
     return WEAPON_EXOTIC;
-}
-
-char* item_name(int item_type)
-{
-    int type;
-
-    for (type = 0; item_table[type].name != NULL; type++)
-        if (item_type == item_table[type].type) 
-            return item_table[type].name;
-    return "none";
-}
-
-char* weapon_name(int weapon_type)
-{
-    int type;
-
-    for (type = 0; weapon_table[type].name != NULL; type++)
-        if (weapon_type == weapon_table[type].type)
-            return weapon_table[type].name;
-    return "exotic";
 }
 
 int attack_lookup(const char* name)
@@ -294,10 +255,6 @@ ResistType check_immune(CharData* ch, DamageType dam_type)
     case DAM_SOUND:
         bit = IMM_SOUND;
         break;
-    case DAM_OTHER:
-    case DAM_NONE:
-    case DAM_HARM:
-    case DAM_NOT_FOUND:
     default:
         return def;
     }
@@ -442,42 +399,12 @@ int get_skill(CharData* ch, SKNUM sn)
 SKNUM get_weapon_sn(CharData* ch)
 {
     ObjectData* wield;
-    SKNUM sn;
 
     wield = get_eq_char(ch, WEAR_WIELD);
     if (wield == NULL || wield->item_type != ITEM_WEAPON)
-        sn = gsn_hand_to_hand;
-    else
-        switch (wield->value[0]) {
-        default:
-            sn = -1;
-            break;
-        case (WEAPON_SWORD):
-            sn = gsn_sword;
-            break;
-        case (WEAPON_DAGGER):
-            sn = gsn_dagger;
-            break;
-        case (WEAPON_SPEAR):
-            sn = gsn_spear;
-            break;
-        case (WEAPON_MACE):
-            sn = gsn_mace;
-            break;
-        case (WEAPON_AXE):
-            sn = gsn_axe;
-            break;
-        case (WEAPON_FLAIL):
-            sn = gsn_flail;
-            break;
-        case (WEAPON_WHIP):
-            sn = gsn_whip;
-            break;
-        case (WEAPON_POLEARM):
-            sn = gsn_polearm;
-            break;
-        }
-    return sn;
+        return gsn_hand_to_hand;
+    
+    return *(weapon_table[wield->value[0]].gsn);
 }
 
 int get_weapon_skill(CharData* ch, SKNUM sn)
@@ -529,7 +456,7 @@ void reset_char(CharData* ch)
                     switch (af->location) {
                     case APPLY_SEX:
                         ch->sex -= mod;
-                        if (ch->sex < 0 || ch->sex > 2)
+                        if (ch->sex < 0 || ch->sex >= SEX_MAX)
                             ch->sex = IS_NPC(ch) ? 0 : ch->pcdata->true_sex;
                         break;
                     case APPLY_MANA:
@@ -572,10 +499,10 @@ void reset_char(CharData* ch)
         ch->pcdata->perm_move = ch->max_move;
         ch->pcdata->last_level = (int16_t)(ch->played / 3600);
         if (ch->pcdata->true_sex < 0 || ch->pcdata->true_sex > 2) {
-            if (ch->sex > 0 && ch->sex < 3)
+            if (ch->sex >= 0 && ch->sex < SEX_MAX)
                 ch->pcdata->true_sex = ch->sex;
             else
-                ch->pcdata->true_sex = 0;
+                ch->pcdata->true_sex = SEX_NEUTRAL;
         }
     }
 
@@ -793,7 +720,7 @@ void reset_char(CharData* ch)
     }
 
     /* make sure sex is RIGHT!!!! */
-    if (ch->sex < 0 || ch->sex > 2) 
+    if (ch->sex < 0 || ch->sex >= SEX_MAX) 
         ch->sex = ch->pcdata->true_sex;
 }
 

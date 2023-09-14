@@ -74,19 +74,18 @@ endif()
 
 include_directories(${CMAKE_SOURCE_DIR})
 
-add_executable(Mud98 merc.h act_comm.c act_enter.c act_info.c act_move.c 
-    act_obj.c act_wiz.c alias.c ban.c benchmark.c bit.c cmdedit.c color.h 
-    color.c comm.h comm.c const.c db.c db2.c digest.h digest.c effects.c fight.c
-    flags.c gedit.c handler.c healer.c  hedit.c  interp.c lookup.c magic.c 
-    magic2.c main.c mem.c  mob_cmds.c mob_prog.c music.c note.c olc.c olc_act.c 
-    olc_save.c pcg_basic.c pedit.c raedit.c  recycle.c save.c scan.c screen.c 
-    sedit.c skedit.c skills.c special.c string_edit.c tables.c tablesave.c 
-    tests.h tests.c update.c wizutil.v3.c
+add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c 
+    act_info.h act_info.c act_move.h act_move.c act_obj.h act_obj.c act_wiz.h 
+    act_wiz.c alias.h alias.c ban.h ban.c benchmark.h benchmark.c bit.h bit.c 
+    cmdedit.c color.h color.c comm.h comm.c const.c db.c db2.c digest.h digest.c
+    effects.h effects.c fight.h fight.c flags.c gedit.c handler.h handler.c 
+    healer.c hedit.c interp.c lookup.c magic.c magic2.c main.c mem.h mem.c 
+    mob_cmds.h mob_cmds.c mob_prog.h mob_prog.c music.c note.h note.c olc.h 
+    olc.c olc_act.c olc_save.c pcg_basic.c pedit.c raedit.c recycle.c save.h 
+    save.c scan.c screen.c sedit.c skedit.c skills.h skills.c special.h 
+    special.c spell_list.h string_edit.h string_edit.c tables.c tablesave.c 
+    tests.h tests.c update.h update.c wizutil.v3.c
 
-    act_comm.h spell_list.h handler.h act_enter.h act_info.h act_move.h
-    act_obj.h act_wiz.h alias.h ban.h effects.h fight.h mob_prog.h save.h
-    skills.h special.h string_edit.h update.h bit.h mem.h note.h
-    
     entities/player_data.h entities/player_data.c
     entities/char_data.h entities/char_data.c
     entities/mob_prototype.h entities/mob_prototype.c
@@ -100,10 +99,12 @@ add_executable(Mud98 merc.h act_comm.c act_enter.c act_info.c act_move.c
     entities/extra_desc.h entities/extra_desc.c
     entities/affect_data.h entities/affect_data.c
     
+    data/damage.h data/damage.c
     data/direction.h data/direction.c 
-    data/item.h
-    data/mobile.h
- "data/player.h" "data/mobile.c")
+    data/item.h data/item.c
+    data/mobile.h data/mobile.c
+    data/player.h
+)
 
 if (NOT MSVC)
     target_link_libraries(Mud98 Threads::Threads OpenSSL::SSL)

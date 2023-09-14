@@ -98,11 +98,11 @@ char* damtype2str(void* point)
     return attack_table[dtype].name;
 }
 
-char* size2str(void* point)
+const char* size2str(void* point)
 {
-    int16_t siz = *(int16_t*)point;
+    MobSize siz = *(MobSize*)point;
 
-    return size_table[siz].name;
+    return mob_size_table[siz].name;
 }
 
 char* ac2str(void* point)
@@ -134,9 +134,9 @@ char* race2str(void* point)
     return race_table[race].name;
 }
 
-char* pos2str(void* point)
+const char* pos2str(void* point)
 {
-    int16_t posic = *(int16_t*)point;
+    Position posic = *(Position*)point;
 
     return position_table[posic].short_name;
 }

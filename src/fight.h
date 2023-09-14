@@ -10,6 +10,8 @@
 
 #include "entities/char_data.h"
 
+#include "data/damage.h"
+
 bool is_safe(CharData* ch, CharData* victim);
 bool is_safe_spell(CharData* ch, CharData* victim, bool area);
 void violence_update(void);

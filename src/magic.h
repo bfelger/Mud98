@@ -11,6 +11,8 @@
 #include "entities/char_data.h"
 #include "entities/object_data.h"
 
+#include "data/damage.h"
+
 SKNUM find_spell(CharData* ch, const char* name);
 int mana_cost(CharData* ch, int min_mana, LEVEL level);
 SKNUM skill_lookup(const char* name);

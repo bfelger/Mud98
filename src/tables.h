@@ -31,6 +31,8 @@
 
 #include "entities/char_data.h"
 
+#include "data/damage.h"
+
 struct flag_type {
     char* name;
     int bit;
@@ -42,14 +44,6 @@ struct clan_type {
     char* who_name;
     int16_t hall;
     bool independent; /* true for loners */
-};
-
-struct sex_type {
-    char* name;
-};
-
-struct size_type {
-    char* name;
 };
 
 struct bit_type {
@@ -69,8 +63,6 @@ struct recval_type {
 
 /* game tables */
 extern const struct clan_type clan_table[MAX_CLAN];
-extern const struct sex_type sex_table[];
-extern const struct size_type size_table[];
 
 /* flag tables */
 extern const struct flag_type act_flag_table[];
@@ -113,7 +105,7 @@ extern const struct flag_type ac_type[];
 extern const struct bit_type bitvector_type[];
 extern const struct recval_type recval_table[];
 extern const struct flag_type target_table[];
-extern const struct flag_type dam_classes[];
+extern const struct flag_type dam_classes[DAM_MAX];
 extern const struct flag_type log_flag_table[];
 extern const struct flag_type show_flag_table[];
 extern const struct flag_type stat_table[];
