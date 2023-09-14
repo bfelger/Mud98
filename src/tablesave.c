@@ -35,11 +35,11 @@ struct savetable_type {
     const uintptr_t argument2;
 };
 
-struct cmd_type tmp_cmd;
+CmdInfo tmp_cmd;
 struct race_type tmp_race;
 struct social_type tmp_soc;
 struct skill_type tmp_sk;
-MPROG_CODE tmp_pcode;
+MobProgCode tmp_pcode;
 
 char* cmd_func_name(DoFunc*);
 DoFunc* cmd_func_lookup(char*);
@@ -542,8 +542,8 @@ void save_struct(FILE* fp, uintptr_t base_type, const struct savetable_type* tab
 void save_command_table()
 {
     FILE* fp;
-    const struct cmd_type* temp;
-    extern struct cmd_type* cmd_table;
+    const CmdInfo* temp;
+    extern CmdInfo* cmd_table;
     int cnt = 0;
 
     char cmd_file[256];
@@ -571,7 +571,7 @@ void save_command_table()
 void load_command_table(void)
 {
     FILE* fp;
-    extern struct cmd_type* cmd_table;
+    extern CmdInfo* cmd_table;
     extern int max_cmd;
     int i = 0;
     int size;
@@ -591,13 +591,13 @@ void load_command_table(void)
     max_cmd = size;
 
     flog("Creating cmd_table of length %d, size %zu", size + 1,
-        sizeof(struct cmd_type) * ((size_t)size + 1));
+        sizeof(CmdInfo) * ((size_t)size + 1));
 
-    if ((cmd_table = calloc(sizeof(struct cmd_type), (size_t)size + 1)) == NULL) {
+    if ((cmd_table = calloc(sizeof(CmdInfo), (size_t)size + 1)) == NULL) {
         perror("load_command_table: Could not allocate cmd_table!");
         exit(-1);
     }
-    //memset(cmd_table, 0, (size + 1) * sizeof(struct cmd_type));
+    //memset(cmd_table, 0, (size + 1) * sizeof(CmdInfo));
 
     i = 0;
 
@@ -880,7 +880,7 @@ void save_skills()
 void save_progs(VNUM minvnum, VNUM maxvnum)
 {
     FILE* fp;
-    MPROG_CODE* pMprog;
+    MobProgCode* pMprog;
     char buf[64];
 
     for (pMprog = mprog_list; pMprog; pMprog = pMprog->next)
@@ -902,10 +902,10 @@ void save_progs(VNUM minvnum, VNUM maxvnum)
         }
 }
 
-void load_prog(FILE* fp, MPROG_CODE** prog)
+void load_prog(FILE* fp, MobProgCode** prog)
 {
-    extern MPROG_CODE* mprog_list;
-    static MPROG_CODE mprog_zero = { 0 };
+    extern MobProgCode* mprog_list;
+    static MobProgCode mprog_zero = { 0 };
     char* word = fread_word(fp);
 
     if (str_cmp(word, "#PROG")) {
@@ -914,7 +914,7 @@ void load_prog(FILE* fp, MPROG_CODE** prog)
         return;
     }
 
-    *prog = alloc_perm(sizeof(MPROG_CODE));
+    *prog = alloc_perm(sizeof(MobProgCode));
 
     // Clear it
     **prog = mprog_zero;
@@ -931,8 +931,8 @@ void load_prog(FILE* fp, MPROG_CODE** prog)
             mprog_list = *prog;
         }
         else {
-            MPROG_CODE* temp;
-            MPROG_CODE* prev = mprog_list;
+            MobProgCode* temp;
+            MobProgCode* prev = mprog_list;
 
             for (temp = mprog_list->next; temp; temp = temp->next) {
                 if (temp->vnum > (*prog)->vnum)
@@ -945,10 +945,10 @@ void load_prog(FILE* fp, MPROG_CODE** prog)
     }
 }
 
-MPROG_CODE* pedit_prog(VNUM vnum)
+MobProgCode* pedit_prog(VNUM vnum)
 {
     FILE* fp;
-    MPROG_CODE* prog;
+    MobProgCode* prog;
     char buf[128];
     extern bool fBootDb;
 

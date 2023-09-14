@@ -12,8 +12,10 @@ typedef struct mob_prototype_t MobPrototype;
 #include "merc.h"
 
 #include "interp.h"
+#include "mob_prog.h"
 
 #include "area_data.h"
+#include "shop_data.h"
 
 #include "data/mobile.h"
 
@@ -22,8 +24,8 @@ typedef struct mob_prototype_t MobPrototype;
 typedef struct mob_prototype_t {
     MobPrototype* next;
     SpecFunc* spec_fun;
-    SHOP_DATA* pShop;
-    MPROG_LIST* mprogs;
+    ShopData* pShop;
+    MobProg* mprogs;
     AreaData* area;
     char* name;
     char* short_descr;

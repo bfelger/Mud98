@@ -60,9 +60,6 @@ const struct spell_type spell_table[] = {
     { NULL, NULL }
 };
 
-#undef SPELL
-#define SPELL(spell) DECLARE_SPELL_FUN(spell);
-
 #define GSN(x) { #x, &x },
 
 const struct gsn_type gsn_table[] = {

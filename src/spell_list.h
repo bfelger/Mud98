@@ -28,6 +28,11 @@
 // Don't put any extra code or includes, here other than more SPELL() entries. 
 // OLC pulls in headers willy-nilly and splices them into list initializors.
 
+#ifndef SPELL
+#include "merc.h"
+#define SPELL(spell)		    DECLARE_SPELL_FUN(spell);
+#endif
+
 // Header guard is also removed. We're ridin' dirty.
 
 /*
@@ -132,5 +137,7 @@ SPELL(spell_gas_breath)
 SPELL(spell_lightning_breath)
 SPELL(spell_general_purpose)
 SPELL(spell_high_explosive)
+
+#undef SPELL
 
 // Header guard removed

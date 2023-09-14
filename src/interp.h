@@ -31,6 +31,8 @@
 
 #include "merc.h"
 
+#include "data/mobile.h"
+
 #include <stdbool.h>
 
 /* for command types */
@@ -48,6 +50,12 @@
 
 #define COM_INGORE 1
 
+typedef enum log_type_t {
+    LOG_NORMAL = 0,
+    LOG_ALWAYS = 1,
+    LOG_NEVER = 2,
+} LogType;
+
 struct spec_type {
     char* name; /* special function name */
     SpecFunc* function; /* the function */
@@ -56,14 +64,14 @@ struct spec_type {
 /*
  * Structure for a command in the command lookup table.
  */
-struct cmd_type {
+typedef struct cmd_info_t {
     char* name;
     DoFunc* do_fun;
-    int16_t position;
-    int16_t level;
-    int16_t log;
+    Position position;
+    LEVEL level;
+    LogType log;
     int16_t show;
-};
+} CmdInfo;
 
 /* the command table itself */
 #include "command.h"
@@ -77,7 +85,7 @@ char* one_argument(char* argument, char* arg_first);
 /* wrapper function for safe command execution */
 void do_function(CharData* ch, DoFunc* do_fun, char* argument);
 
-extern struct cmd_type* cmd_table;
+extern CmdInfo* cmd_table;
 
 extern int max_cmd;
 extern bool fLogAll;

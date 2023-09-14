@@ -10,6 +10,7 @@ typedef struct skill_hash_t SkillHash;
 
 #include "merc.h"
 
+#include "gsn.h"
 #include "interp.h"
 
 #include "entities/char_data.h"

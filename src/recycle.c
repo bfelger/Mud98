@@ -229,41 +229,6 @@ void clear_buf(Buffer* buffer)
     buffer->state = BUFFER_SAFE;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// MobProg recycling
-////////////////////////////////////////////////////////////////////////////////
-
-MPROG_LIST* mprog_free = NULL;
-
-MPROG_LIST* new_mprog()
-{
-    MPROG_LIST* mp;
-
-    if (mprog_free == NULL)
-        mp = alloc_perm(sizeof(MPROG_LIST));
-    else {
-        mp = mprog_free;
-        mprog_free = mprog_free->next;
-    }
-
-    memset(mp, 0, sizeof(MPROG_LIST));
-    mp->vnum = 0;
-    mp->trig_type = 0;
-    mp->code = str_dup("");
-    VALIDATE(mp);
-    return mp;
-}
-
-void free_mprog(MPROG_LIST* mp)
-{
-    if (!IS_VALID(mp))
-        return;
-
-    INVALIDATE(mp);
-    mp->next = mprog_free;
-    mprog_free = mp;
-}
-
 
 int16_t* new_learned(void) // Return int16_t[max_skill]
 {

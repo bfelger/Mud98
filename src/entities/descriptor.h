@@ -68,5 +68,6 @@ void free_descriptor(Descriptor* d);
 Descriptor* new_descriptor();
 
 extern Descriptor* descriptor_list;
+extern Descriptor* descriptor_free;
 
 #endif // !MUD98__ENTITIES__DESCRIPTOR_H

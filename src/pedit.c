@@ -8,7 +8,6 @@
 #include "comm.h"
 #include "db.h"
 #include "handler.h"
-#include "mem.h"
 #include "olc.h"
 #include "recycle.h"
 
@@ -26,7 +25,7 @@
 
 #define MPEDIT( fun )           bool fun(CharData *ch, char*argument)
 
-extern MPROG_CODE xProg;
+extern MobProgCode xProg;
 
 DECLARE_OLC_FUN(pedit_create);
 DECLARE_OLC_FUN(pedit_show);
@@ -73,7 +72,7 @@ void pedit(CharData* ch, char* argument)
 
 void do_pedit(CharData* ch, char* argument)
 {
-    MPROG_CODE* pMcode;
+    MobProgCode* pMcode;
     char command[MAX_INPUT_LENGTH];
 
     if (IS_NPC(ch) || ch->desc == NULL)
@@ -124,7 +123,7 @@ void do_pedit(CharData* ch, char* argument)
 
 MPEDIT(pedit_create)
 {
-    MPROG_CODE* pMcode;
+    MobProgCode* pMcode;
     AreaData* pArea;
     int value;
 
@@ -170,7 +169,7 @@ MPEDIT(pedit_create)
 
 MPEDIT(pedit_show)
 {
-    MPROG_CODE* pMcode;
+    MobProgCode* pMcode;
     char buf[MAX_STRING_LENGTH];
 
     EDIT_PROG(ch, pMcode);
@@ -188,7 +187,7 @@ void do_mplist(CharData* ch, char* argument)
 {
     int count;
     bool fAll = false;
-    MPROG_CODE* mprg;
+    MobProgCode* mprg;
     char buf[MAX_STRING_LENGTH];
     Buffer* buffer;
     buffer = new_buf();

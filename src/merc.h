@@ -121,8 +121,6 @@ extern char area_dir[];
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef struct char_data_t CharData;
-typedef struct area_data_t AreaData;
-
 typedef void DoFunc(CharData* ch, char* argument);
 typedef bool SpecFunc(CharData* ch);
 typedef void SpellFunc(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target);
@@ -133,14 +131,6 @@ typedef int	LookupFunc(const char*);
 #define DECLARE_SPELL_FUN( fun )    SpellFunc fun
 #define DECLARE_LOOKUP_FUN( fun )   LookupFunc fun
 
-// OLC2
-#define SPELL(spell)		    DECLARE_SPELL_FUN(spell);
-#define SPELL_FUN_DEC(spell)	FRetVal spell(SKNUM sn, LEVEL level, Entity* caster, Entity* ent, int target)
-#define COMMAND(cmd)		    DECLARE_DO_FUN(cmd);
-#define DO_FUN_DEC(x)		    void x(CharData* ch, char* argument)
-#define NEW_DO_FUN_DEC(x)	    FRetVal x(Entity* ent, char* argument)
-#define DECLARE_SPELL_CB(x)	    FRetVal x(Entity* ent)
-
 /* ea */
 #define MSL MAX_STRING_LENGTH
 #define MIL MAX_INPUT_LENGTH
@@ -149,9 +139,6 @@ typedef int	LookupFunc(const char*);
  * Structure types.
  */
 typedef struct kill_data KILL_DATA;
-typedef struct mprog_list MPROG_LIST;
-typedef struct mprog_code MPROG_CODE;
-typedef struct shop_data SHOP_DATA;
 typedef struct time_info_data TIME_INFO_DATA;
 typedef struct weather_data WEATHER_DATA;
 
@@ -253,30 +240,6 @@ struct con_app_type {
 };
 
 /*
- * TO types for act.
- */
-#define TO_ROOM    0
-#define TO_NOTVICT 1
-#define TO_VICT    2
-#define TO_CHAR    3
-#define TO_ALL     4
-
-/*
- * Shop types.
- */
-#define MAX_TRADE 5
-
-struct shop_data {
-    SHOP_DATA* next; /* Next shop in list		*/
-    VNUM keeper; /* Vnum of shop keeper mob	*/
-    int16_t buy_type[MAX_TRADE]; /* Item types shop will buy	*/
-    int16_t profit_buy; /* Cost multiplier for buying	*/
-    int16_t profit_sell; /* Cost multiplier for selling	*/
-    int16_t open_hour; /* First opening hour		*/
-    int16_t close_hour; /* First closing hour		*/
-};
-
-/*
  * Per-class stuff.
  */
 #define MAX_GUILD 2
@@ -363,95 +326,12 @@ struct kill_data {
 #define GATE_BUGGY              BIT(3)
 #define GATE_RANDOM             BIT(4)
 
-/* furniture flags */
-#define STAND_AT                BIT(0)
-#define STAND_ON                BIT(1)
-#define STAND_IN                BIT(2)
-#define SIT_AT                  BIT(3)
-#define SIT_ON                  BIT(4)
-#define SIT_IN                  BIT(5)
-#define REST_AT                 BIT(6)
-#define REST_ON                 BIT(7)
-#define REST_IN                 BIT(8)
-#define SLEEP_AT                BIT(9)
-#define SLEEP_ON                BIT(10)
-#define SLEEP_IN                BIT(11)
-#define PUT_AT                  BIT(12)
-#define PUT_ON                  BIT(13)
-#define PUT_IN                  BIT(14)
-#define PUT_INSIDE              BIT(15)
-
-/*
- * Values for containers (value[1]).
- * Used in #OBJECTS.
- */
-#define CONT_CLOSEABLE          1
-#define CONT_PICKPROOF          2
-#define CONT_CLOSED             4
-#define CONT_LOCKED             8
-#define CONT_PUT_ON             16
-
-/*
- * Command logging types.
- */
-#define LOG_NORMAL	0
-#define LOG_ALWAYS	1
-#define LOG_NEVER	2
-
-/*
- * Command types.
- */
-#define TYP_NUL 0
-#define TYP_UNDEF 1
-#define TYP_CMM	10
-#define TYP_CBT	2
-#define TYP_SPC 3
-#define TYP_GRP 4
-#define TYP_OBJ 5
-#define TYP_INF 6
-#define TYP_OTH 7
-#define TYP_MVT 8
-#define TYP_CNF 9
-#define TYP_LNG 11
-#define TYP_PLR 12
-#define TYP_OLC 13
-
 /***************************************************************************
  *                                                                         *
  *                   VALUES OF INTEREST TO AREA BUILDERS                   *
  *                   (End of this section ... stop here)                   *
  *                                                                         *
  ***************************************************************************/
-
-/*
- * Conditions.
- */
-#define COND_DRUNK              0
-#define COND_FULL               1
-#define COND_THIRST             2
-#define COND_HUNGER             3
-
-/* WIZnet flags */
-#define WIZ_ON                  BIT(0)
-#define WIZ_TICKS               BIT(1)
-#define WIZ_LOGINS              BIT(2)
-#define WIZ_SITES               BIT(3)
-#define WIZ_LINKS               BIT(4)
-#define WIZ_DEATHS              BIT(5)
-#define WIZ_RESETS              BIT(6)
-#define WIZ_MOBDEATHS           BIT(7)
-#define WIZ_FLAGS               BIT(8)
-#define WIZ_PENALTIES           BIT(9)
-#define WIZ_SACCING             BIT(10)
-#define WIZ_LEVELS              BIT(11)
-#define WIZ_SECURE              BIT(12)
-#define WIZ_SWITCHES            BIT(13)
-#define WIZ_SNOOPS              BIT(14)
-#define WIZ_RESTORE             BIT(15)
-#define WIZ_LOAD                BIT(16)
-#define WIZ_NEWBIE              BIT(17)
-#define WIZ_PREFIX              BIT(18)
-#define WIZ_SPAM                BIT(19)
 
 /*
  *  Target types.
@@ -468,47 +348,6 @@ struct kill_data {
 #define TARGET_OBJ         1
 #define TARGET_ROOM        2
 #define TARGET_NONE        3
-
-/*
- * MOBprog definitions
- */
-#define TRIG_ACT	BIT(0)
-#define TRIG_BRIBE	BIT(1)
-#define TRIG_DEATH	BIT(2)
-#define TRIG_ENTRY	BIT(3)
-#define TRIG_FIGHT	BIT(4)
-#define TRIG_GIVE	BIT(5)
-#define TRIG_GREET	BIT(6)
-#define TRIG_GRALL	BIT(7)
-#define TRIG_KILL	BIT(8)
-#define TRIG_HPCNT	BIT(9)
-#define TRIG_RANDOM	BIT(10)
-#define TRIG_SPEECH	BIT(12)
-#define TRIG_EXIT	BIT(13)
-#define TRIG_EXALL	BIT(14)
-#define TRIG_DELAY	BIT(15)
-#define TRIG_SURR	BIT(16)
-
-struct mprog_list {
-    int trig_type;
-    char* trig_phrase;
-    VNUM vnum;
-    char* code;
-    MPROG_LIST* next;
-    bool valid;
-};
-
-struct mprog_code {
-    VNUM vnum;
-    bool changed;
-    char* code;
-    MPROG_CODE* next;
-};
- 
-// gsn
-#define GSN(x) extern SKNUM x;
-#include "gsn.h"
-#undef GSN
 
 /*
  * Utility macros.

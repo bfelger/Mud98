@@ -30,12 +30,8 @@ struct cmd_list_type {
 };
 
 int max_cmd;
-struct cmd_type* cmd_table;
+CmdInfo* cmd_table;
 void create_command_table();
-
-#if defined(COMMAND)
-#undef COMMAND
-#endif
 
 #define COMMAND(cmd)	{	#cmd,	cmd	},
 
@@ -44,10 +40,7 @@ const struct cmd_list_type cmd_list[] = {
     {	NULL,		NULL		}
 };
 
-#undef COMMAND
-#define COMMAND(cmd)	DECLARE_DO_FUN(cmd);
-
-extern struct cmd_type xCmd;
+extern CmdInfo xCmd;
 
 #ifdef U
 #define OLD_U U
@@ -144,7 +137,7 @@ void cmdedit(CharData* ch, char* argument)
 
 void do_cmdedit(CharData* ch, char* argument)
 {
-    const struct cmd_type* pCmd;
+    const CmdInfo* pCmd;
     char command[MSL];
     int iCmd = 0;
 
@@ -190,7 +183,7 @@ void do_cmdedit(CharData* ch, char* argument)
 
 CMDEDIT(cmdedit_show)
 {
-    struct cmd_type* pCmd;
+    CmdInfo* pCmd;
     char buf[MIL];
 
     EDIT_CMD(ch, pCmd);
@@ -325,7 +318,7 @@ void do_nothing(CharData* ch, char* argument)
 
 CMDEDIT(cmdedit_name)
 {
-    struct cmd_type* pCmd;
+    CmdInfo* pCmd;
     int cmd;
 
     EDIT_CMD(ch, pCmd);
@@ -359,7 +352,7 @@ CMDEDIT(cmdedit_new)
 {
     Descriptor* d;
     CharData* tch;
-    struct cmd_type* new_table;
+    CmdInfo* new_table;
     int cmd;
 
     if (IS_NULLSTR(argument)) {
@@ -385,7 +378,7 @@ CMDEDIT(cmdedit_new)
     /* reallocate the table */
 
     max_cmd++;
-    new_table = realloc(cmd_table, sizeof(struct cmd_type) * (size_t)(max_cmd + 1));
+    new_table = realloc(cmd_table, sizeof(CmdInfo) * (size_t)(max_cmd + 1));
 
     if (!new_table) /* realloc failed */
     {
@@ -397,10 +390,10 @@ CMDEDIT(cmdedit_new)
 
     cmd_table[max_cmd - 1].name = str_dup(argument);
     cmd_table[max_cmd - 1].do_fun = do_nothing;
-    cmd_table[max_cmd - 1].position = (int16_t)position_lookup("standing");
+    cmd_table[max_cmd - 1].position = position_lookup("standing");
     cmd_table[max_cmd - 1].level = MAX_LEVEL;
     cmd_table[max_cmd - 1].log = LOG_ALWAYS;
-    cmd_table[max_cmd - 1].show = TYP_NUL;
+    cmd_table[max_cmd - 1].show = 0;
 
     cmd_table[max_cmd].name = str_dup("");
 
@@ -423,7 +416,7 @@ CMDEDIT(cmdedit_delete)
     Descriptor* d;
     CharData* tch;
     int i, j, iCmd;
-    struct cmd_type* new_table;
+    CmdInfo* new_table;
 
     if (IS_NULLSTR(argument)) {
         send_to_char("Syntax : delete [name]\n\r", ch);
@@ -445,7 +438,7 @@ CMDEDIT(cmdedit_delete)
             edit_done(tch);
     }
 
-    if ((new_table = calloc(sizeof(struct cmd_type), (size_t)max_cmd + 1)) == NULL) {
+    if ((new_table = calloc(sizeof(CmdInfo), (size_t)max_cmd + 1)) == NULL) {
         perror("cmdedit_delete: Could not allocate new_table!");
         exit(-1);
     }
@@ -470,7 +463,7 @@ CMDEDIT(cmdedit_delete)
 
 CMDEDIT(cmdedit_function)
 {
-    struct cmd_type* pCmd;
+    CmdInfo* pCmd;
     DoFunc* function;
 
     EDIT_CMD(ch, pCmd);
@@ -492,7 +485,7 @@ CMDEDIT(cmdedit_function)
 
 CMDEDIT(cmdedit_level)
 {
-    struct cmd_type* pCmd;
+    CmdInfo* pCmd;
     LEVEL level;
 
     EDIT_CMD(ch, pCmd);

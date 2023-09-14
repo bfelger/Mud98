@@ -50,13 +50,6 @@
 bool check_social args((CharData * ch, char* command, char* argument));
 
 /*
- * Command logging types.
- */
-#define LOG_NORMAL 0
-#define LOG_ALWAYS 1
-#define LOG_NEVER  2
-
-/*
  * Log-all switch.
  */
 bool fLogAll = false;
@@ -71,8 +64,8 @@ void init_command_table(void)
     int maxcnt = 0;
     int cntl[27] = { 0 };
     char letter;
-    struct cmd_type* new_cmd_table;
-    struct cmd_type** temp_table;
+    CmdInfo* new_cmd_table;
+    CmdInfo** temp_table;
 
     for (i = 0; i < 27; ++i)
         cntl[i] = 0;
@@ -90,7 +83,7 @@ void init_command_table(void)
             maxcnt = cnt;
     }
 
-    temp_table = calloc(((size_t)maxcnt * 27), sizeof(struct cmd_type*));
+    temp_table = calloc(((size_t)maxcnt * 27), sizeof(CmdInfo*));
 
     for (i = 0; i < (maxcnt * 27); ++i)
         temp_table[i] = NULL;
@@ -109,7 +102,7 @@ void init_command_table(void)
         }
     }
 
-    if ((new_cmd_table = malloc(sizeof(struct cmd_type) * ((size_t)max_cmd + 1))) == NULL) {
+    if ((new_cmd_table = malloc(sizeof(CmdInfo) * ((size_t)max_cmd + 1))) == NULL) {
         perror("init_command_table: Could not allocate new_cmd_table!");
         exit(-1);
     }

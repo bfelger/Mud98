@@ -229,8 +229,8 @@ void string_add(CharData* ch, char* argument)
         if (ch->desc->editor == ED_PROG && ch->desc->pEdit) {
             int hash = 0;
             MobPrototype* mob;
-            MPROG_LIST* mp;
-            MPROG_CODE* mpc = (MPROG_CODE*)ch->desc->pEdit;
+            MobProg* mp;
+            MobProgCode* mpc = (MobProgCode*)ch->desc->pEdit;
 
             mpc->changed = true;
 

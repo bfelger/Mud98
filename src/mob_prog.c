@@ -56,8 +56,6 @@
 #include <sys/types.h>
 #include <time.h>
 
-extern int flag_lookup(const char* word, const struct flag_type* flag_table);
-
 /*
  * These defines correspond to the entries in fn_keyword[] table.
  * If you add a new if_check, you must also add a #define here.
@@ -124,6 +122,68 @@ extern int flag_lookup(const char* word, const struct flag_type* flag_table);
 #define EVAL_GT            3
 #define EVAL_LT            4
 #define EVAL_NE            5
+
+MobProg* mprog_free = NULL;
+
+MobProg* new_mprog()
+{
+    MobProg* mp;
+
+    if (mprog_free == NULL)
+        mp = alloc_perm(sizeof(MobProg));
+    else {
+        mp = mprog_free;
+        mprog_free = mprog_free->next;
+    }
+
+    memset(mp, 0, sizeof(MobProg));
+    mp->vnum = 0;
+    mp->trig_type = 0;
+    mp->code = str_dup("");
+    VALIDATE(mp);
+    return mp;
+}
+
+void free_mprog(MobProg* mp)
+{
+    if (!IS_VALID(mp))
+        return;
+
+    INVALIDATE(mp);
+    mp->next = mprog_free;
+    mprog_free = mp;
+}
+
+MobProgCode* mpcode_free;
+
+MobProgCode* new_mpcode()
+{
+    MobProgCode* NewCode;
+    extern int top_mprog_index;
+
+    if (!mpcode_free) {
+        NewCode = alloc_perm(sizeof(*NewCode));
+        top_mprog_index++;
+    }
+    else {
+        NewCode = mpcode_free;
+        mpcode_free = mpcode_free->next;
+    }
+
+    NewCode->vnum = 0;
+    NewCode->code = str_dup("");
+    NewCode->next = NULL;
+
+    return NewCode;
+}
+
+void free_mpcode(MobProgCode* pMcode)
+{
+    free_string(pMcode->code);
+    pMcode->next = mpcode_free;
+    mpcode_free = pMcode;
+    return;
+}
 
 /*
  * if-check keywords:
@@ -680,9 +740,6 @@ void expand_arg(char* buf,
     CharData* mob, CharData* ch,
     const void* arg1, const void* arg2, CharData* rch)
 {
-    static char* const he_she[] = { "it",  "he",  "she" };
-    static char* const him_her[] = { "it",  "him", "her" };
-    static char* const his_her[] = { "its", "his", "her" };
     const char* someone = "someone";
     const char* something = "something";
     const char* someones = "someone's";
@@ -761,60 +818,60 @@ void expand_arg(char* buf,
             i = (mob->mprog_target != NULL && can_see(mob, mob->mprog_target))
                 ? (IS_NPC(mob->mprog_target) ? mob->mprog_target->short_descr : mob->mprog_target->name)
                 : someone;                         		break;
-        case 'j': i = he_she[URANGE(0, mob->sex, 2)];     break;
+        case 'j': i = sex_table[mob->sex].subj; break;
         case 'e':
             i = (ch != NULL && can_see(mob, ch))
-                ? he_she[URANGE(0, ch->sex, 2)]
+                ? sex_table[ch->sex].subj
                 : someone;					break;
         case 'E':
             i = (vch != NULL && can_see(mob, vch))
-                ? he_she[URANGE(0, vch->sex, 2)]
+                ? sex_table[vch->sex].subj
                 : someone;					break;
         case 'J':
             i = (rch != NULL && can_see(mob, rch))
-                ? he_she[URANGE(0, rch->sex, 2)]
+                ? sex_table[rch->sex].subj
                 : someone;					break;
         case 'X':
             i = (mob->mprog_target != NULL && can_see(mob, mob->mprog_target))
-                ? he_she[URANGE(0, mob->mprog_target->sex, 2)]
+                ? sex_table[mob->mprog_target->sex].subj
                 : someone;					break;
-        case 'k': i = him_her[URANGE(0, mob->sex, 2)];	break;
+        case 'k': i = sex_table[mob->sex].obj; break;
         case 'm':
             i = (ch != NULL && can_see(mob, ch))
-                ? him_her[URANGE(0, ch->sex, 2)]
+                ? sex_table[ch->sex].obj
                 : someone;        				break;
         case 'M':
             i = (vch != NULL && can_see(mob, vch))
-                ? him_her[URANGE(0, vch->sex, 2)]
+                ? sex_table[vch->sex].obj
                 : someone;					break;
         case 'K':
             if (rch == NULL)
                 rch = get_random_char(mob);
             i = (rch != NULL && can_see(mob, rch))
-                ? him_her[URANGE(0, rch->sex, 2)]
+                ? sex_table[rch->sex].obj
                 : someone;					break;
         case 'Y':
             i = (mob->mprog_target != NULL && can_see(mob, mob->mprog_target))
-                ? him_her[URANGE(0, mob->mprog_target->sex, 2)]
+                ? sex_table[mob->mprog_target->sex].obj
                 : someone;					break;
-        case 'l': i = his_her[URANGE(0, mob->sex, 2)];    break;
+        case 'l': i = sex_table[mob->sex].poss; break;
         case 's':
             i = (ch != NULL && can_see(mob, ch))
-                ? his_her[URANGE(0, ch->sex, 2)]
+                ? sex_table[ch->sex].poss
                 : someones;					break;
         case 'S':
             i = (vch != NULL && can_see(mob, vch))
-                ? his_her[URANGE(0, vch->sex, 2)]
+                ? sex_table[vch->sex].poss
                 : someones;					break;
         case 'L':
             if (rch == NULL)
                 rch = get_random_char(mob);
             i = (rch != NULL && can_see(mob, rch))
-                ? his_her[URANGE(0, rch->sex, 2)]
+                ? sex_table[rch->sex].poss
                 : someones;					break;
         case 'Z':
             i = (mob->mprog_target != NULL && can_see(mob, mob->mprog_target))
-                ? his_her[URANGE(0, mob->mprog_target->sex, 2)]
+                ? sex_table[mob->mprog_target->sex].poss
                 : someones;					break;
         case 'o':
             i = something;
@@ -1070,7 +1127,7 @@ void mp_act_trigger(
     char* argument, CharData* mob, CharData* ch,
     const void* arg1, const void* arg2, int type)
 {
-    MPROG_LIST* prg;
+    MobProg* prg;
 
     for (prg = mob->prototype->mprogs; prg != NULL; prg = prg->next) {
         if (prg->trig_type == type
@@ -1090,7 +1147,7 @@ bool mp_percent_trigger(
     CharData* mob, CharData* ch,
     const void* arg1, const void* arg2, int type)
 {
-    MPROG_LIST* prg;
+    MobProg* prg;
 
     for (prg = mob->prototype->mprogs; prg != NULL; prg = prg->next) {
         if (prg->trig_type == type
@@ -1104,7 +1161,7 @@ bool mp_percent_trigger(
 
 void mp_bribe_trigger(CharData* mob, CharData* ch, int amount)
 {
-    MPROG_LIST* prg;
+    MobProg* prg;
 
     /*
      * Original MERC 2.2 MOBprograms used to create a money object
@@ -1124,7 +1181,7 @@ void mp_bribe_trigger(CharData* mob, CharData* ch, int amount)
 bool mp_exit_trigger(CharData* ch, int dir)
 {
     CharData* mob;
-    MPROG_LIST* prg;
+    MobProg* prg;
 
     for (mob = ch->in_room->people; mob != NULL; mob = mob->next_in_room) {
         if (IS_NPC(mob)
@@ -1158,7 +1215,7 @@ void mp_give_trigger(CharData* mob, CharData* ch, ObjectData* obj)
 {
 
     char buf[MAX_INPUT_LENGTH], * p;
-    MPROG_LIST* prg;
+    MobProg* prg;
 
     for (prg = mob->prototype->mprogs; prg; prg = prg->next)
         if (prg->trig_type == TRIG_GIVE) {
@@ -1215,7 +1272,7 @@ void mp_greet_trigger(CharData* ch)
 
 void mp_hprct_trigger(CharData* mob, CharData* ch)
 {
-    MPROG_LIST* prg;
+    MobProg* prg;
 
     for (prg = mob->prototype->mprogs; prg != NULL; prg = prg->next)
         if ((prg->trig_type == TRIG_HPCNT)

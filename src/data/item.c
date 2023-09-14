@@ -4,6 +4,8 @@
 
 #include "item.h"
 
+#include "gsn.h"
+
 const ItemInfo item_table[ITEM_MAX] = {
     { ITEM_NONE,            "none"          },
     { ITEM_LIGHT,           "light"         },

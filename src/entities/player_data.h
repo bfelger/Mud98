@@ -34,6 +34,15 @@ typedef struct char_gen_data_t {
     bool valid;
 } CharGenData;
 
+typedef enum condition_type_t {
+    COND_DRUNK  = 0,
+    COND_FULL   = 1,
+    COND_THIRST = 2,
+    COND_HUNGER = 3,
+} ConditionType;
+
+#define COND_MAX 4
+
 typedef struct player_data_t {
     char* alias[MAX_ALIAS];
     char* alias_sub[MAX_ALIAS];
@@ -61,7 +70,7 @@ typedef struct player_data_t {
     int16_t perm_mana;
     int16_t perm_move;
     Sex true_sex;
-    SHORT_FLAGS condition[4];
+    int16_t condition[COND_MAX];
     int16_t points;
     bool confirm_delete;
     bool valid;

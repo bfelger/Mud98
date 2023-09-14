@@ -10,7 +10,6 @@
 #include "handler.h"
 #include "lookup.h"
 #include "magic.h"
-#include "mem.h"
 #include "olc.h"
 #include "recycle.h"
 #include "tables.h"
@@ -347,8 +346,7 @@ void free_mob_prototype(MobPrototype* p_mob_proto)
     free_string(p_mob_proto->long_descr);
     free_string(p_mob_proto->description);
     free_mprog(p_mob_proto->mprogs);
-
-    free_shop(p_mob_proto->pShop);
+    free_shop_data(p_mob_proto->pShop);
 
     p_mob_proto->next = mob_prototype_free;
     mob_prototype_free = p_mob_proto;
@@ -518,7 +516,7 @@ void load_mobiles(FILE* fp)
                 }
             }
             else if (letter == 'M') {
-                MPROG_LIST* pMprog;
+                MobProg* pMprog;
                 char* word;
                 int trigger = 0;
 

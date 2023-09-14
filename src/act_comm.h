@@ -13,5 +13,6 @@ void stop_follower(CharData* ch);
 void nuke_pets(CharData* ch);
 void die_follower(CharData* ch);
 bool is_same_group(CharData* ach, CharData* bch);
+void do_clear(CharData* ch, char* argument);
 
 #endif // !MUD98__ACT_COMM_H

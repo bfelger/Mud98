@@ -14,6 +14,7 @@
 
 #include "merc.h"
 
+#include "act_comm.h"
 #include "act_move.h"
 #include "bit.h"
 #include "comm.h"
@@ -22,7 +23,6 @@
 #include "interp.h"
 #include "lookup.h"
 #include "magic.h"
-#include "mem.h"
 #include "mob_cmds.h"
 #include "olc.h"
 #include "recycle.h"
@@ -45,8 +45,6 @@
 #include <string.h>
 #include <sys/types.h>
 #include <time.h>
-
-COMMAND(do_clear)
 
 /* Return true if area changed, false if not. */
 #define REDIT(fun)    bool fun( CharData *ch, char *argument )
@@ -2692,7 +2690,7 @@ MEDIT(medit_show)
 {
     MobPrototype* pMob;
     char buf[MAX_STRING_LENGTH];
-    MPROG_LIST* list;
+    MobProg* list;
     int cnt;
     Buffer* buffer;
 
@@ -2832,7 +2830,7 @@ MEDIT(medit_show)
     add_buf(buffer, buf);
 
     if (pMob->pShop) {
-        SHOP_DATA* pShop;
+        ShopData* pShop;
         int iTrade;
 
         pShop = pMob->pShop;
@@ -3637,7 +3635,7 @@ ED_FUN_DEC(ed_shop)
             return false;
         }
 
-        pMob->pShop = new_shop();
+        pMob->pShop = new_shop_data();
         if (!shop_first)
             shop_first = pMob->pShop;
         if (shop_last)
@@ -3651,7 +3649,7 @@ ED_FUN_DEC(ed_shop)
     }
 
     if (!str_prefix(command, "remove")) {
-        SHOP_DATA* pShop;
+        ShopData* pShop;
 
         pShop = pMob->pShop;
         pMob->pShop = NULL;
@@ -3665,7 +3663,7 @@ ED_FUN_DEC(ed_shop)
                 shop_first = pShop->next;
         }
         else {
-            SHOP_DATA* ipShop;
+            ShopData* ipShop;
 
             for (ipShop = shop_first; ipShop; ipShop = ipShop->next) {
                 if (ipShop->next == pShop) {
@@ -3679,7 +3677,7 @@ ED_FUN_DEC(ed_shop)
             }
         }
 
-        free_shop(pShop);
+        free_shop_data(pShop);
 
         send_to_char("Mobile is no longer a shopkeeper.\n\r", ch);
         return true;
@@ -3955,8 +3953,8 @@ ED_FUN_DEC(ed_addprog)
 {
     int value;
     const struct flag_type* flagtable;
-    MPROG_LIST* list, ** mprogs = (MPROG_LIST**)arg;
-    MPROG_CODE* code;
+    MobProg* list, ** mprogs = (MobProg**)arg;
+    MobProgCode* code;
     MobPrototype* pMob;
     char trigger[MAX_STRING_LENGTH];
     char numb[MAX_STRING_LENGTH];
@@ -4010,9 +4008,9 @@ ED_FUN_DEC(ed_addprog)
 
 ED_FUN_DEC(ed_delprog)
 {
-    MPROG_LIST* list;
-    MPROG_LIST* list_next;
-    MPROG_LIST** mprogs = (MPROG_LIST**)arg;
+    MobProg* list;
+    MobProg* list_next;
+    MobProg** mprogs = (MobProg**)arg;
     MobPrototype* pMob;
     char mprog[MAX_STRING_LENGTH];
     int value;

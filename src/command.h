@@ -2,6 +2,11 @@
 // command.h
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef COMMAND
+#include "merc.h"
+#define COMMAND(cmd)		    DECLARE_DO_FUN(cmd);
+#endif
+
 /*
  * Command functions.
  * Defined in act_*.c (mostly).
@@ -263,3 +268,5 @@ COMMAND(do_gedit)
 COMMAND(do_cmdedit)
 COMMAND(do_nothing)
 COMMAND(do_olcx)
+
+#undef COMMAND

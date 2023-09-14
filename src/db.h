@@ -31,6 +31,8 @@
 
 #include "merc.h"
 
+#include "mob_prog.h"
+
 #include "entities/char_data.h"
 #include "entities/room_data.h"
 
@@ -52,7 +54,7 @@ void boot_db(void);
 void area_update(void);
 void clone_mobile(CharData* parent, CharData* clone);
 void clear_char(CharData* ch);
-MPROG_CODE* get_mprog_index(VNUM vnum);
+MobProgCode* get_mprog_index(VNUM vnum);
 char fread_letter(FILE* fp);
 int fread_number(FILE* fp);
 long fread_flag(FILE* fp);
@@ -92,11 +94,6 @@ extern int social_count;
 
 extern TIME_INFO_DATA time_info;
 extern WEATHER_DATA weather_info;
-
-extern SHOP_DATA* shop_first;
-extern SHOP_DATA* shop_last;
-
-extern MPROG_CODE* mprog_list;
 
 extern KILL_DATA kill_table[];
 

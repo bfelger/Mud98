@@ -25,6 +25,7 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+#include "comm.h"
 #include "interp.h"
 #include "spell_list.h"
 

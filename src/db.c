@@ -54,6 +54,7 @@
 #include "entities/player_data.h"
 #include "entities/reset_data.h"
 #include "entities/room_data.h"
+#include "entities/shop_data.h"
 
 #include "data/direction.h"
 #include "data/mobile.h"
@@ -76,20 +77,13 @@
 #include <unistd.h>
 #endif
 
-COMMAND(do_asave)
-
-MPROG_CODE* pedit_prog(VNUM);
-
-// externals for counting purposes
-extern Descriptor* descriptor_free;
+MobProgCode* pedit_prog(VNUM);
 
 /*
  * Globals.
  */
-SHOP_DATA* shop_first;
-SHOP_DATA* shop_last;
 
-MPROG_CODE* mprog_list;
+MobProgCode* mprog_list;
 
 char bug_buf[2 * MAX_INPUT_LENGTH];
 char* help_greeting;
@@ -98,60 +92,9 @@ KILL_DATA kill_table[MAX_LEVEL];
 TIME_INFO_DATA time_info;
 WEATHER_DATA weather_info;
 
-SKNUM gsn_backstab;
-SKNUM gsn_dodge;
-SKNUM gsn_envenom;
-SKNUM gsn_hide;
-SKNUM gsn_peek;
-SKNUM gsn_pick_lock;
-SKNUM gsn_sneak;
-SKNUM gsn_steal;
-
-SKNUM gsn_disarm;
-SKNUM gsn_enhanced_damage;
-SKNUM gsn_kick;
-SKNUM gsn_parry;
-SKNUM gsn_rescue;
-SKNUM gsn_second_attack;
-SKNUM gsn_third_attack;
-
-SKNUM gsn_blindness;
-SKNUM gsn_charm_person;
-SKNUM gsn_curse;
-SKNUM gsn_invis;
-SKNUM gsn_mass_invis;
-SKNUM gsn_poison;
-SKNUM gsn_plague;
-SKNUM gsn_sleep;
-SKNUM gsn_sanctuary;
-SKNUM gsn_fly;
-
-SKNUM gsn_axe;
-SKNUM gsn_dagger;
-SKNUM gsn_flail;
-SKNUM gsn_mace;
-SKNUM gsn_polearm;
-SKNUM gsn_shield_block;
-SKNUM gsn_spear;
-SKNUM gsn_sword;
-SKNUM gsn_whip;
-SKNUM gsn_exotic;
-
-SKNUM gsn_bash;
-SKNUM gsn_berserk;
-SKNUM gsn_dirt;
-SKNUM gsn_hand_to_hand;
-SKNUM gsn_trip;
-
-SKNUM gsn_fast_healing;
-SKNUM gsn_haggle;
-SKNUM gsn_lore;
-SKNUM gsn_meditation;
-
-SKNUM gsn_scrolls;
-SKNUM gsn_staves;
-SKNUM gsn_wands;
-SKNUM gsn_recall;
+#define GSN(x) SKNUM x;
+#include "gsn.h"
+#undef GSN
 
 /*
  * Locals.
@@ -165,7 +108,6 @@ char str_empty[1];
 int top_affect;
 int top_ed;
 int top_help;
-int top_shop;
 int	top_mprog_index;    // OLC
 
 /*
@@ -1093,13 +1035,13 @@ void load_rooms(FILE* fp)
  */
 void load_shops(FILE* fp)
 {
-    SHOP_DATA* pShop;
+    ShopData* pShop;
 
     for (;;) {
         MobPrototype* p_mob_proto;
         int iTrade;
 
-        if ((pShop = (SHOP_DATA*)alloc_perm(sizeof(*pShop))) == NULL) {
+        if ((pShop = (ShopData*)alloc_perm(sizeof(ShopData))) == NULL) {
             bug("load_shops: Failed to create shops.");
             exit(1);
         }
@@ -1319,7 +1261,7 @@ void area_update(void)
  */
 void load_mobprogs(FILE* fp)
 {
-    MPROG_CODE* pMprog;
+    MobProgCode* pMprog;
 
     if (area_last == NULL) {
         bug("Load_mobprogs: no #AREA seen yet.", 0);
@@ -1367,8 +1309,8 @@ void load_mobprogs(FILE* fp)
 void fix_mobprogs(void)
 {
     MobPrototype* p_mob_proto;
-    MPROG_LIST* list;
-    MPROG_CODE* prog;
+    MobProg* list;
+    MobProgCode* prog;
     int iHash;
 
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
@@ -1774,10 +1716,9 @@ void clone_mobile(CharData* parent, CharData* clone)
         affect_to_char(clone, paf);
 }
 
-MPROG_CODE* get_mprog_index(VNUM vnum)
+MobProgCode* get_mprog_index(VNUM vnum)
 {
-    MPROG_CODE* prg;
-    for (prg = mprog_list; prg; prg = prg->next) {
+    for (MobProgCode* prg = mprog_list; prg; prg = prg->next) {
         if (prg->vnum == vnum)
             return(prg);
     }

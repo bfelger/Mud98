@@ -2144,7 +2144,7 @@ void fix_sex(CharData * ch)
 }
 
 void act_new(const char* format, CharData * ch, const void* arg1,
-    const void* arg2, int type, int min_pos)
+    const void* arg2, ActTarget type, Position min_pos)
 {
     CharData* to;
     CharData* vch = (CharData*)arg2;
@@ -2161,10 +2161,12 @@ void act_new(const char* format, CharData * ch, const void* arg1,
     /*
      * Discard null and zero-length messages.
      */
-    if (!format || !*format) return;
+    if (!format || !*format)
+        return;
 
     /* discard null rooms and chars */
-    if (!ch || !ch->in_room) return;
+    if (!ch || !ch->in_room)
+        return;
 
     to = ch->in_room->people;
     if (type == TO_VICT) {
@@ -2173,7 +2175,8 @@ void act_new(const char* format, CharData * ch, const void* arg1,
             return;
         }
 
-        if (!vch->in_room) return;
+        if (!vch->in_room)
+            return;
 
         to = vch->in_room->people;
     }
@@ -2184,10 +2187,14 @@ void act_new(const char* format, CharData * ch, const void* arg1,
             || to->position < min_pos)
             continue;
 
-        if ((type == TO_CHAR) && to != ch) continue;
-        if (type == TO_VICT && (to != vch || to == ch)) continue;
-        if (type == TO_ROOM && to == ch) continue;
-        if (type == TO_NOTVICT && (to == ch || to == vch)) continue;
+        if ((type == TO_CHAR) && to != ch) 
+            continue;
+        if (type == TO_VICT && (to != vch || to == ch)) 
+            continue;
+        if (type == TO_ROOM && to == ch) 
+            continue;
+        if (type == TO_NOTVICT && (to == ch || to == vch)) 
+            continue;
 
         point = buf;
         str = format;

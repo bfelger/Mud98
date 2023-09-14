@@ -92,7 +92,7 @@ bool area_changed(void)
 
 void save_mobprogs(FILE* fp, AreaData* pArea)
 {
-    MPROG_CODE* pMprog;
+    MobProgCode* pMprog;
 
     fprintf(fp, "#MOBPROGS\n");
 
@@ -186,7 +186,7 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
     int16_t race = p_mob_proto->race;
     long temp;
     char buf[MAX_STRING_LENGTH];
-    MPROG_LIST* pMprog;
+    MobProg* pMprog;
 
     fprintf(fp, "#%"PRVNUM"\n", p_mob_proto->vnum);
     fprintf(fp, "%s~\n", p_mob_proto->name);
@@ -849,7 +849,7 @@ return;
  ****************************************************************************/
 void save_shops(FILE* fp, AreaData* pArea)
 {
-    SHOP_DATA* pShopIndex;
+    ShopData* pShopIndex;
     MobPrototype* p_mob_proto;
     int iTrade;
     int iHash;

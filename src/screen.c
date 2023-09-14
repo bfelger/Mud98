@@ -57,7 +57,7 @@ char* progs(void* point)
     static	char buf[MSL];
     char tmpbuf[MIL];
     int cnt;
-    MPROG_LIST* list = *(MPROG_LIST**)point;
+    MobProg* list = *(MobProg**)point;
 
     buf[0] = '\0';
     strcat(buf, "Progs:\n\r");
@@ -224,7 +224,7 @@ char* spec2str(void* point)
 
 char* shop2str(void* point)
 {
-    SHOP_DATA* pShop = *(SHOP_DATA**)point;
+    ShopData* pShop = *(ShopData**)point;
     int iTrade;
     static	char buf[MSL];
     char tmpbuf[MIL];

@@ -2,6 +2,11 @@
 // gsn.h
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef GSN
+#include "merc.h"
+#define GSN(x) extern SKNUM x;
+#endif
+
 /*
  * These are skill_lookup return values for common skills and spells.
  */
@@ -60,3 +65,5 @@ GSN(gsn_scrolls)
 GSN(gsn_staves)
 GSN(gsn_wands)
 GSN(gsn_recall)
+
+#undef GSN

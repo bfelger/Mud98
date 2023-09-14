@@ -82,6 +82,41 @@ typedef struct item_info_t {
 extern const ItemInfo item_table[ITEM_MAX];
 
 ////////////////////////////////////////////////////////////////////////////////
+// Containers
+////////////////////////////////////////////////////////////////////////////////
+
+typedef enum container_flags_t {
+    CONT_CLOSEABLE      = BIT(0),
+    CONT_PICKPROOF      = BIT(1),
+    CONT_CLOSED         = BIT(2),
+    CONT_LOCKED         = BIT(3),
+    CONT_PUT_ON         = BIT(4),
+} ContainerFlags;
+
+////////////////////////////////////////////////////////////////////////////////
+// Furniture
+////////////////////////////////////////////////////////////////////////////////
+
+typedef enum furniture_flags_t {
+    STAND_AT            = BIT(0),
+    STAND_ON            = BIT(1),
+    STAND_IN            = BIT(2),
+    SIT_AT              = BIT(3),
+    SIT_ON              = BIT(4),
+    SIT_IN              = BIT(5),
+    REST_AT             = BIT(6),
+    REST_ON             = BIT(7),
+    REST_IN             = BIT(8),
+    SLEEP_AT            = BIT(9),
+    SLEEP_ON            = BIT(10),
+    SLEEP_IN            = BIT(11),
+    PUT_AT              = BIT(12),
+    PUT_ON              = BIT(13),
+    PUT_IN              = BIT(14),
+    PUT_INSIDE          = BIT(15),
+} FurnitureFlags;
+
+////////////////////////////////////////////////////////////////////////////////
 // Liquids
 ////////////////////////////////////////////////////////////////////////////////
 

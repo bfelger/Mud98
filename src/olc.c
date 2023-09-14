@@ -13,6 +13,7 @@
 
 #include "olc.h"
 
+#include "act_comm.h"
 #include "act_move.h"
 #include "bit.h"
 #include "comm.h"
@@ -42,18 +43,15 @@
  */
 AreaData* get_area_data args((VNUM vnum));
 
-COMMAND(do_clear)
-COMMAND(do_purge)
-
 void UpdateOLCScreen(Descriptor*);
 
 MobPrototype		xMob;
 ObjectPrototype		xObj;
-RoomData		xRoom;
+RoomData            xRoom;
 struct	skill_type	xSkill;
 struct	race_type	xRace;
-MPROG_CODE		    xProg;
-struct	cmd_type	xCmd;
+MobProgCode          xProg;
+CmdType xCmd;
 struct	social_type	xSoc;
 
 #ifdef U
@@ -282,12 +280,12 @@ char* olc_ed_vnum(CharData* ch)
     RoomData* pRoom;
     ObjectPrototype* pObj;
     MobPrototype* pMob;
-    MPROG_CODE* pMcode;
+    MobProgCode* pMcode;
     HelpData* pHelp;
     struct race_type* pRace;
     struct social_type* pSocial;
     struct skill_type* pSkill;
-    struct cmd_type* pCmd;
+    CmdInfo* pCmd;
     static char buf[10];
 
     buf[0] = '\0';
@@ -309,7 +307,7 @@ char* olc_ed_vnum(CharData* ch)
         sprintf(buf, "%"PRVNUM, pMob ? pMob->vnum : 0);
         break;
     case ED_PROG:
-        pMcode = (MPROG_CODE*)ch->desc->pEdit;
+        pMcode = (MobProgCode*)ch->desc->pEdit;
         sprintf(buf, "%"PRVNUM, pMcode ? pMcode->vnum : 0);
         break;
     case ED_RACE:
@@ -325,7 +323,7 @@ char* olc_ed_vnum(CharData* ch)
         sprintf(buf, "%s", pSkill ? pSkill->name : "");
         break;
     case ED_CMD:
-        pCmd = (struct cmd_type*)ch->desc->pEdit;
+        pCmd = (CmdInfo*)ch->desc->pEdit;
         sprintf(buf, "%s", pCmd ? pCmd->name : "");
         break;
     case ED_HELP:
@@ -1477,9 +1475,9 @@ bool process_olc_command(CharData* ch, char* argument, const struct olc_comm_typ
     RoomData* pRoom;
     struct race_type* pRace;
     struct skill_type* pSkill;
-    struct cmd_type* pCmd;
+    CmdInfo* pCmd;
     AreaData* tArea;
-    MPROG_CODE* pProg;
+    MobProgCode* pProg;
     struct social_type* pSoc;
     int temp;
     uintptr_t pointer;
@@ -1590,7 +1588,7 @@ bool process_olc_command(CharData* ch, char* argument, const struct olc_comm_typ
     return false;
 }
 
-DO_FUN_DEC(do_page)
+void do_page(CharData* ch, char* argument)
 {
     int16_t num;
 

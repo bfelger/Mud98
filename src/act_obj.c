@@ -2004,7 +2004,7 @@ CharData* find_keeper(CharData* ch)
 {
     /*char buf[MAX_STRING_LENGTH];*/
     CharData* keeper;
-    SHOP_DATA* pShop;
+    ShopData* pShop;
 
     pShop = NULL;
     for (keeper = ch->in_room->people; keeper; keeper = keeper->next_in_room) {
@@ -2127,7 +2127,7 @@ ObjectData* get_obj_keeper(CharData* ch, CharData* keeper, char* argument)
 
 int get_cost(CharData* keeper, ObjectData* obj, bool fBuy)
 {
-    SHOP_DATA* pShop;
+    ShopData* pShop;
     int cost;
 
     if (obj == NULL || (pShop = keeper->prototype->pShop) == NULL) return 0;

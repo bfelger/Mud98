@@ -61,11 +61,6 @@
 #include <sys/time.h>
 #endif
 
-/*
- * Local functions.
- */
-RoomData* find_location(CharData* ch, char* arg);
-
 void do_wiznet(CharData* ch, char* argument)
 {
     int flag;

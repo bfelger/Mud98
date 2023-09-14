@@ -74,9 +74,6 @@ void clear_buf(Buffer * buffer);
 #define SET_BUF(b, s) clear_buf(b); add_buf(b, s)
 #define BUF(b) (b->string)
 
-MPROG_LIST* new_mprog();
-void free_mprog(MPROG_LIST* mp);
-
 SKNUM* new_learned();
 void free_learned(SKNUM*);
 

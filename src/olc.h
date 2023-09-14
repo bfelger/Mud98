@@ -364,10 +364,10 @@ DECLARE_ED_FUN(ed_objrecval);
 #define EDIT_RACE(Ch, Race)	( Race = (struct race_type *)Ch->desc->pEdit )
 #define EDIT_SOCIAL(Ch, Social)	( Social = (struct social_type *)Ch->desc->pEdit )
 #define EDIT_SKILL(Ch, Skill)	( Skill = (struct skill_type *)Ch->desc->pEdit )
-#define EDIT_CMD(Ch, Cmd)	( Cmd = (struct cmd_type *)Ch->desc->pEdit )
+#define EDIT_CMD(Ch, Cmd)	( Cmd = (CmdInfo *)Ch->desc->pEdit )
 #define EDIT_GROUP(Ch, Grp)	( Grp = (struct group_type *)Ch->desc->pEdit )
 #define EDIT_HELP(Ch, Help)	( Help = (HelpData *)Ch->desc->pEdit )
-#define EDIT_PROG(Ch, Code)	( Code = (MPROG_CODE*)Ch->desc->pEdit )
+#define EDIT_PROG(Ch, Code)	( Code = (MobProgCode*)Ch->desc->pEdit )
 
 
 void		    show_liqlist		args((CharData* ch));

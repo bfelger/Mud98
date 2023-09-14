@@ -33,6 +33,23 @@
 
 #include "data/damage.h"
 
+typedef enum cmd_type_t {
+    TYP_NUL         = 0,
+    TYP_UNDEF       = 1,
+    TYP_CBT	        = 2,
+    TYP_SPC         = 3,
+    TYP_GRP         = 4,
+    TYP_OBJ         = 5,
+    TYP_INF         = 6,
+    TYP_OTH         = 7,
+    TYP_MVT         = 8,
+    TYP_CNF         = 9,
+    TYP_CMM         = 10,
+    TYP_LNG         = 11,
+    TYP_PLR         = 12,
+    TYP_OLC         = 13,
+} CmdType;
+
 struct flag_type {
     char* name;
     int bit;

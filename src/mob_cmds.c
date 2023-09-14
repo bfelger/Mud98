@@ -33,11 +33,14 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "merc.h"
+
 #include "mob_cmds.h"
 
 #include "act_comm.h"
 #include "act_move.h"
 #include "act_obj.h"
+#include "act_wiz.h"
 #include "comm.h"
 #include "db.h"
 #include "fight.h"
@@ -56,9 +59,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-
-DECLARE_DO_FUN(do_look);
-extern RoomData* find_location(CharData*, char*);
 
 /*
  * Command table.
@@ -131,7 +131,7 @@ void mob_interpret(CharData* ch, char* argument)
     bug(buf, 0);
 }
 
-char* mprog_type_to_name(int type)
+char* mprog_type_to_name(MobProgTrigger type)
 {
     switch (type) {
     case TRIG_ACT:      return "ACT";
@@ -162,7 +162,7 @@ char* mprog_type_to_name(int type)
 void do_mpstat(CharData* ch, char* argument)
 {
     char        arg[MAX_STRING_LENGTH];
-    MPROG_LIST* mprg;
+    MobProg* mprg;
     CharData* victim;
     int i;
 
@@ -227,7 +227,7 @@ void do_mpstat(CharData* ch, char* argument)
 void do_mpdump(CharData* ch, char* argument)
 {
     char buf[MAX_INPUT_LENGTH];
-    MPROG_CODE* mprg;
+    MobProgCode* mprg;
 
     one_argument(argument, buf);
     if ((mprg = get_mprog_index(STRTOVNUM(buf))) == NULL) {
@@ -1149,7 +1149,7 @@ void do_mpcall(CharData* ch, char* argument)
     char arg[MAX_INPUT_LENGTH];
     CharData* vch;
     ObjectData* obj1, * obj2;
-    MPROG_CODE* prg;
+    MobProgCode* prg;
 
     argument = one_argument(argument, arg);
     if (arg[0] == '\0') {
