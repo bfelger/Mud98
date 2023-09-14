@@ -43,6 +43,7 @@
 #include "tables.h"
 #include "vt.h"
 
+#include "entities/descriptor.h"
 #include "entities/player_data.h"
 
 #include "data/mobile.h"
@@ -270,7 +271,7 @@ void do_replay(CharData* ch, char* argument)
 void do_auction(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     if (argument[0] == '\0') {
         if (IS_SET(ch->comm, COMM_NOAUCTION)) {
@@ -318,7 +319,7 @@ void do_auction(CharData* ch, char* argument)
 void do_gossip(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     if (argument[0] == '\0') {
         if (IS_SET(ch->comm, COMM_NOGOSSIP)) {
@@ -365,7 +366,7 @@ void do_gossip(CharData* ch, char* argument)
 void do_grats(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     if (argument[0] == '\0') {
         if (IS_SET(ch->comm, COMM_NOGRATS)) {
@@ -412,7 +413,7 @@ void do_grats(CharData* ch, char* argument)
 void do_quote(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     if (argument[0] == '\0') {
         if (IS_SET(ch->comm, COMM_NOQUOTE)) {
@@ -460,7 +461,7 @@ void do_quote(CharData* ch, char* argument)
 void do_question(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     if (argument[0] == '\0') {
         if (IS_SET(ch->comm, COMM_NOQUESTION)) {
@@ -508,7 +509,7 @@ void do_question(CharData* ch, char* argument)
 void do_answer(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     if (argument[0] == '\0') {
         if (IS_SET(ch->comm, COMM_NOQUESTION)) {
@@ -556,7 +557,7 @@ void do_answer(CharData* ch, char* argument)
 void do_music(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     if (argument[0] == '\0') {
         if (IS_SET(ch->comm, COMM_NOMUSIC)) {
@@ -605,7 +606,7 @@ void do_music(CharData* ch, char* argument)
 void do_clantalk(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     if (!is_clan(ch) || clan_table[ch->clan].independent) {
         send_to_char("You aren't in a clan.\n\r", ch);
@@ -648,7 +649,7 @@ void do_clantalk(CharData* ch, char* argument)
 
 void do_immtalk(CharData* ch, char* argument)
 {
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     if (argument[0] == '\0') {
         if (IS_SET(ch->comm, COMM_NOWIZ)) {
@@ -704,7 +705,7 @@ void do_say(CharData* ch, char* argument)
 // TODO: Make area-wide only. Add OOC channel? Pray? Whisper?
 void do_shout(CharData* ch, char* argument)
 {
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     if (argument[0] == '\0') {
         if (IS_SET(ch->comm, COMM_SHOUTSOFF)) {
@@ -897,7 +898,7 @@ void do_reply(CharData* ch, char* argument)
 
 void do_yell(CharData* ch, char* argument)
 {
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     if (IS_SET(ch->comm, COMM_NOSHOUT)) {
         send_to_char("You can't yell.\n\r", ch);
@@ -1194,8 +1195,8 @@ void do_qui(CharData* ch, char* argument)
 
 void do_quit(CharData* ch, char* argument)
 {
-    DESCRIPTOR_DATA* d;
-    DESCRIPTOR_DATA* d_next = NULL;
+    Descriptor* d;
+    Descriptor* d_next = NULL;
     int id;
 
     if (IS_NPC(ch)) return;

@@ -47,6 +47,7 @@
 #include "skills.h"
 
 #include "entities/char_data.h"
+#include "entities/descriptor.h"
 #include "entities/object_data.h"
 
 #include "data/mobile.h"
@@ -243,7 +244,7 @@ void do_mpdump(CharData* ch, char* argument)
  */
 void do_mpgecho(CharData* ch, char* argument)
 {
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     if (argument[0] == '\0') {
         bug("MpGEcho: missing argument from vnum %"PRVNUM"",
@@ -268,7 +269,7 @@ void do_mpgecho(CharData* ch, char* argument)
  */
 void do_mpzecho(CharData* ch, char* argument)
 {
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     if (argument[0] == '\0') {
         bug("MpZEcho: missing argument from vnum %"PRVNUM"",

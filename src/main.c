@@ -52,6 +52,8 @@
 #include "tests.h"
 #include "update.h"
 
+#include "entities/descriptor.h"
+
 #ifdef _MSC_VER
 #include <stdint.h>
 #include <io.h>

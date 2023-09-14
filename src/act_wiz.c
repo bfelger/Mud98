@@ -44,10 +44,11 @@
 #include "update.h"
 
 #include "entities/area_data.h"
-#include "data/item.h"
+#include "entities/descriptor.h"
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
+#include "data/item.h"
 #include "data/mobile.h"
 #include "data/player.h"
 
@@ -158,7 +159,7 @@ void do_wiznet(CharData* ch, char* argument)
 void wiznet(char* string, CharData* ch, ObjectData* obj, long flag,
             long flag_skip, int min_level)
 {
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     for (d = descriptor_list; d != NULL; d = d->next) {
         if (d->connected == CON_PLAYING && IS_IMMORTAL(d->character)
@@ -500,7 +501,7 @@ void do_deny(CharData* ch, char* argument)
 void do_disconnect(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
     CharData* victim;
 
     one_argument(argument, arg);
@@ -593,7 +594,7 @@ void do_pardon(CharData* ch, char* argument)
 
 void do_echo(CharData* ch, char* argument)
 {
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     if (argument[0] == '\0') {
         send_to_char("Global echo what?\n\r", ch);
@@ -614,7 +615,7 @@ void do_echo(CharData* ch, char* argument)
 
 void do_recho(CharData* ch, char* argument)
 {
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     if (argument[0] == '\0') {
         send_to_char("Local echo what?\n\r", ch);
@@ -637,7 +638,7 @@ void do_recho(CharData* ch, char* argument)
 
 void do_zecho(CharData* ch, char* argument)
 {
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     if (argument[0] == '\0') {
         send_to_char("Zone echo what?\n\r", ch);
@@ -705,7 +706,7 @@ void do_transfer(CharData* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     RoomData* location;
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
     CharData* victim;
 
     argument = one_argument(argument, arg1);
@@ -1724,7 +1725,7 @@ void do_mwhere(CharData* ch, char* argument)
     int count = 0;
 
     if (argument[0] == '\0') {
-        DESCRIPTOR_DATA* d;
+        Descriptor* d;
 
         /* show characters logged */
 
@@ -1787,8 +1788,8 @@ void do_reboot(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     extern bool merc_down;
-    DESCRIPTOR_DATA* d;
-    DESCRIPTOR_DATA* d_next = NULL;
+    Descriptor* d;
+    Descriptor* d_next = NULL;
     CharData* vch;
 
     if (ch->invis_level < LEVEL_HERO) {
@@ -1817,8 +1818,8 @@ void do_shutdown(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     extern bool merc_down;
-    DESCRIPTOR_DATA* d;
-    DESCRIPTOR_DATA* d_next = NULL;
+    Descriptor* d;
+    Descriptor* d_next = NULL;
     CharData* vch;
 
     if (ch->invis_level < LEVEL_HERO) sprintf(buf, "Shutdown by %s.", ch->name);
@@ -1867,7 +1868,7 @@ void do_protect(CharData* ch, char* argument)
 void do_snoop(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
     CharData* victim;
     char buf[MAX_STRING_LENGTH];
 
@@ -2261,7 +2262,7 @@ void do_purge(CharData* ch, char* argument)
     char buf[100];
     CharData* victim;
     ObjectData* obj;
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     one_argument(argument, arg);
 
@@ -2442,7 +2443,7 @@ void do_restore(CharData* ch, char* argument)
     char arg[MAX_INPUT_LENGTH], buf[MAX_STRING_LENGTH];
     CharData* victim;
     CharData* vch;
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     one_argument(argument, arg);
     if (arg[0] == '\0' || !str_cmp(arg, "room")) {
@@ -3572,7 +3573,7 @@ void do_sockets(CharData* ch, char* argument)
     char buf[2 * MAX_STRING_LENGTH] = "";
     char buf2[MAX_STRING_LENGTH] = "";
     char arg[MAX_INPUT_LENGTH] = "";
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
     int count;
 
     count = 0;

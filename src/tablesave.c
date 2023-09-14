@@ -15,6 +15,8 @@
 #include "skills.h"
 #include "tables.h"
 
+#include "entities/descriptor.h"
+
 #include "data/mobile.h"
 
 #include <stdint.h>

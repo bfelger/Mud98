@@ -104,7 +104,7 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     data/item.h data/item.c
     data/mobile.h data/mobile.c
     data/player.h
-)
+ "entities/descriptor.h" "entities/descriptor.c" "socket.h")
 
 if (NOT MSVC)
     target_link_libraries(Mud98 Threads::Threads OpenSSL::SSL)

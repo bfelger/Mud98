@@ -33,6 +33,7 @@
 #include "note.h"
 #include "tables.h"
 
+#include "entities/descriptor.h"
 #include "entities/player_data.h"
 
 #include "data/mobile.h"

@@ -27,6 +27,7 @@
 #include "handler.h"
 #include "olc.h"
 
+#include "entities/descriptor.h"
 #include "entities/player_data.h"
 
 #include "data/mobile.h"
@@ -189,7 +190,7 @@ SEDIT(sedit_show)
 
 SEDIT(sedit_new)
 {
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
     CharData* tch;
     struct social_type* new_table;
     int iSocial;
@@ -247,7 +248,7 @@ SEDIT(sedit_new)
 
 SEDIT(sedit_delete)
 {
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
     CharData* tch;
     int i, j, iSocial;
     struct social_type* new_table;

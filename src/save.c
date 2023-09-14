@@ -41,6 +41,7 @@
 #include "tables.h"
 #include "vt.h"
 
+#include "entities/descriptor.h"
 #include "entities/object_data.h"
 
 #include "data/mobile.h"
@@ -499,7 +500,7 @@ void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
 /*
  * Load a char and inventory into a new ch structure.
  */
-bool load_char_obj(DESCRIPTOR_DATA* d, char* name)
+bool load_char_obj(Descriptor* d, char* name)
 {
     char strsave[MAX_INPUT_LENGTH] = { 0 };
     CharData* ch;

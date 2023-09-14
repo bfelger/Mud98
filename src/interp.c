@@ -35,6 +35,7 @@
 #include "strings.h"
 
 #include "entities/char_data.h"
+#include "entities/descriptor.h"
 
 #include "data/mobile.h"
 #include "data/player.h"

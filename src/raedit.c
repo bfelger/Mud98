@@ -15,6 +15,7 @@
 #include "save.h"
 #include "tables.h"
 
+#include "entities/descriptor.h"
 #include "entities/player_data.h"
 
 #include "data/mobile.h"
@@ -211,7 +212,7 @@ RAEDIT(raedit_list)
 
 RAEDIT(raedit_new)
 {
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
     CharData* tch;
     struct race_type* new_table;
     size_t maxRace;

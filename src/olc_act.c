@@ -31,6 +31,7 @@
 #include "string_edit.h"
 #include "tables.h"
 
+#include "entities/descriptor.h"
 #include "entities/exit_data.h"
 #include "entities/object_data.h"
 #include "entities/player_data.h"

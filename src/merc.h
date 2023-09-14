@@ -134,12 +134,12 @@ typedef int	LookupFunc(const char*);
 #define DECLARE_LOOKUP_FUN( fun )   LookupFunc fun
 
 // OLC2
-#define SPELL(spell)		DECLARE_SPELL_FUN(spell);
+#define SPELL(spell)		    DECLARE_SPELL_FUN(spell);
 #define SPELL_FUN_DEC(spell)	FRetVal spell(SKNUM sn, LEVEL level, Entity* caster, Entity* ent, int target)
-#define COMMAND(cmd)		DECLARE_DO_FUN(cmd);
-#define DO_FUN_DEC(x)		void x(CharData* ch, char* argument)
-#define NEW_DO_FUN_DEC(x)	FRetVal x(Entity* ent, char* argument)
-#define DECLARE_SPELL_CB(x)	FRetVal x(Entity* ent)
+#define COMMAND(cmd)		    DECLARE_DO_FUN(cmd);
+#define DO_FUN_DEC(x)		    void x(CharData* ch, char* argument)
+#define NEW_DO_FUN_DEC(x)	    FRetVal x(Entity* ent, char* argument)
+#define DECLARE_SPELL_CB(x)	    FRetVal x(Entity* ent)
 
 /* ea */
 #define MSL MAX_STRING_LENGTH
@@ -148,7 +148,6 @@ typedef int	LookupFunc(const char*);
 /*
  * Structure types.
  */
-typedef struct descriptor_data DESCRIPTOR_DATA;
 typedef struct kill_data KILL_DATA;
 typedef struct mprog_list MPROG_LIST;
 typedef struct mprog_code MPROG_CODE;
@@ -225,28 +224,6 @@ struct weather_data {
     int sky;
     int sunlight;
 };
-
-/*
- * Connected state for a channel.
- */
-#define CON_PLAYING              0
-#define CON_GET_NAME             1
-#define CON_GET_OLD_PASSWORD     2
-#define CON_CONFIRM_NEW_NAME     3
-#define CON_GET_NEW_PASSWORD     4
-#define CON_CONFIRM_NEW_PASSWORD 5
-#define CON_GET_NEW_RACE         6
-#define CON_GET_NEW_SEX          7
-#define CON_GET_NEW_CLASS        8
-#define CON_GET_ALIGNMENT        9
-#define CON_DEFAULT_CHOICE       10
-#define CON_GEN_GROUPS           11
-#define CON_PICK_WEAPON          12
-#define CON_READ_IMOTD           13
-#define CON_READ_MOTD            14
-#define CON_BREAK_CONNECT        15
-
-
 
 /*
  * Attribute bonus structures.
@@ -507,14 +484,6 @@ struct kill_data {
 #define WIZ_SPAM                BIT(19)
 
 /*
- * Types of attacks.
- * Must be non-overlapping with spell/skill types,
- * but may be arbitrary beyond that.
- */
-#define TYPE_UNDEFINED     -1
-#define TYPE_HIT           1000
-
-/*
  *  Target types.
  */
 #define TAR_IGNORE         0
@@ -651,6 +620,6 @@ extern bool MOBtrigger;
 
 // db.c
 extern char str_empty[1];
-extern	bool fBootDb;
+extern bool fBootDb;
 
 #endif // !MUD98__MERC_H

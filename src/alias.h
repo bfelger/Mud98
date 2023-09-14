@@ -6,8 +6,8 @@
 #ifndef MUD98__ALIAS_H
 #define MUD98__ALIAS_H
 
-#include "comm.h"
+#include "entities/descriptor.h"
 
-void substitute_alias(DESCRIPTOR_DATA* d, char* input);
+void substitute_alias(Descriptor* d, char* input);
 
 #endif // !MUD98__ALIAS_H

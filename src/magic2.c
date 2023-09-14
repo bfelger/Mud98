@@ -33,6 +33,7 @@
 #include "spell_list.h"
 
 #include "entities/char_data.h"
+#include "entities/descriptor.h"
 #include "entities/object_data.h"
 
 #include "data/mobile.h"

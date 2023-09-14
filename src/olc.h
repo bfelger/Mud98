@@ -147,9 +147,9 @@ AreaData* get_vnum_area(VNUM vnum);
 AreaData* get_area_data(VNUM vnum);
 int	flag_value(const struct flag_type* flag_table, char* argument);
 void add_reset(RoomData*, ResetData*, int);
-void set_editor(DESCRIPTOR_DATA*, int, uintptr_t);
+void set_editor(Descriptor*, int, uintptr_t);
 
-bool run_olc_editor(DESCRIPTOR_DATA* d, char* incomm);
+bool run_olc_editor(Descriptor* d, char* incomm);
 char* olc_ed_name(CharData* ch);
 char* olc_ed_vnum(CharData* ch);
 
@@ -380,6 +380,6 @@ extern		    RoomData 	        xRoom;
 extern		    MobPrototype 		xMob;
 extern		    ObjectPrototype		xObj;
 
-extern void     InitScreen		    args((DESCRIPTOR_DATA*));
+extern void     InitScreen		    args((Descriptor*));
 
 #endif // !MUD98__OLC_H

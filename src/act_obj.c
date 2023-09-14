@@ -28,8 +28,8 @@
 #include "act_obj.h"
 
 #include "act_comm.h"
-#include "comm.h"
 #include "act_wiz.h"
+#include "comm.h"
 #include "db.h"
 #include "fight.h"
 #include "handler.h"
@@ -41,6 +41,7 @@
 #include "skills.h"
 #include "update.h"
 
+#include "entities/descriptor.h"
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 

@@ -12,6 +12,7 @@
 #include "save.h"
 #include "vt.h"
 
+#include "entities/descriptor.h"
 #include "entities/player_data.h"
 
 #include "data/mobile.h"
@@ -715,7 +716,7 @@ static void do_theme_list(CharData* ch, char* argument)
     found = false;
     ColorTheme* theme = NULL;
     if (shared) {
-        for (DESCRIPTOR_DATA* d = descriptor_list; d != NULL; d = d->next) {
+        for (Descriptor* d = descriptor_list; d != NULL; d = d->next) {
             if (d == ch->desc && priv)
                 continue;
 
@@ -1463,7 +1464,7 @@ ColorTheme* lookup_remote_color_theme(CharData* ch, char* arg)
 
         arg = one_argument(arg + 1, name);
 
-        for (DESCRIPTOR_DATA* d = descriptor_list; d != NULL; d = d->next) {
+        for (Descriptor* d = descriptor_list; d != NULL; d = d->next) {
             if (d->connected != CON_PLAYING || !can_see(ch, d->character))
                 continue;
 

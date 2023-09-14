@@ -42,6 +42,7 @@
 #include "skills.h"
 #include "update.h"
 
+#include "entities/descriptor.h"
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
@@ -90,15 +91,14 @@ bool check_dodge args((CharData * ch, CharData* victim));
 void check_killer args((CharData * ch, CharData* victim));
 bool check_parry args((CharData * ch, CharData* victim));
 bool check_shield_block args((CharData * ch, CharData* victim));
-void dam_message args((CharData * ch, CharData* victim, int dam, int dt,
-                       bool immune));
+void dam_message(CharData * ch, CharData* victim, int dam, int dt, bool immune);
 void death_cry args((CharData * ch));
 void group_gain args((CharData * ch, CharData* victim));
 int xp_compute args((CharData * gch, CharData* victim, int total_levels));
 bool is_safe args((CharData * ch, CharData* victim));
 void make_corpse args((CharData * ch));
-void one_hit(CharData * ch, CharData* victim, SKNUM dt);
-void mob_hit(CharData * ch, CharData* victim, SKNUM dt);
+void one_hit(CharData * ch, CharData* victim, int16_t dt);
+void mob_hit(CharData * ch, CharData* victim, int16_t dt);
 void raw_kill args((CharData * victim));
 void set_fighting args((CharData * ch, CharData* victim));
 void disarm args((CharData * ch, CharData* victim));
@@ -217,7 +217,7 @@ void check_assist(CharData* ch, CharData* victim)
 /*
  * Do one group of attacks.
  */
-void multi_hit(CharData* ch, CharData* victim, SKNUM dt)
+void multi_hit(CharData* ch, CharData* victim, int16_t dt)
 {
     int chance;
 
@@ -238,7 +238,8 @@ void multi_hit(CharData* ch, CharData* victim, SKNUM dt)
 
     if (ch->fighting != victim) return;
 
-    if (IS_AFFECTED(ch, AFF_HASTE)) one_hit(ch, victim, dt);
+    if (IS_AFFECTED(ch, AFF_HASTE))
+        one_hit(ch, victim, dt);
 
     if (ch->fighting != victim || dt == gsn_backstab) return;
 
@@ -249,13 +250,14 @@ void multi_hit(CharData* ch, CharData* victim, SKNUM dt)
     if (number_percent() < chance) {
         one_hit(ch, victim, dt);
         check_improve(ch, gsn_second_attack, true, 5);
-        if (ch->fighting != victim) return;
+        if (ch->fighting != victim) 
+            return;
     }
 
     chance = get_skill(ch, gsn_third_attack) / 4;
 
-    if (IS_AFFECTED(ch, AFF_SLOW)) chance = 0;
-    ;
+    if (IS_AFFECTED(ch, AFF_SLOW)) 
+        chance = 0;
 
     if (number_percent() < chance) {
         one_hit(ch, victim, dt);
@@ -267,7 +269,7 @@ void multi_hit(CharData* ch, CharData* victim, SKNUM dt)
 }
 
 /* procedure for all mobile attacks */
-void mob_hit(CharData* ch, CharData* victim, SKNUM dt)
+void mob_hit(CharData* ch, CharData* victim, int16_t dt)
 {
     int chance, number;
     CharData* vch;
@@ -282,7 +284,8 @@ void mob_hit(CharData* ch, CharData* victim, SKNUM dt)
     if (IS_SET(ch->atk_flags, ATK_AREA_ATTACK)) {
         for (vch = ch->in_room->people; vch != NULL; vch = vch_next) {
             vch_next = vch->next;
-            if ((vch != victim && vch->fighting == ch)) one_hit(ch, vch, dt);
+            if ((vch != victim && vch->fighting == ch))
+                one_hit(ch, vch, dt);
         }
     }
 
@@ -299,7 +302,8 @@ void mob_hit(CharData* ch, CharData* victim, SKNUM dt)
 
     if (number_percent() < chance) {
         one_hit(ch, victim, dt);
-        if (ch->fighting != victim) return;
+        if (ch->fighting != victim) 
+            return;
     }
 
     chance = get_skill(ch, gsn_third_attack) / 4;
@@ -309,12 +313,14 @@ void mob_hit(CharData* ch, CharData* victim, SKNUM dt)
 
     if (number_percent() < chance) {
         one_hit(ch, victim, dt);
-        if (ch->fighting != victim) return;
+        if (ch->fighting != victim) 
+            return;
     }
 
     /* oh boy!  Fun stuff! */
 
-    if (ch->wait > 0) return;
+    if (ch->wait > 0)
+        return;
 
     number = number_range(0, 2);
 
@@ -349,11 +355,13 @@ void mob_hit(CharData* ch, CharData* victim, SKNUM dt)
         break;
 
     case (3):
-        if (IS_SET(ch->atk_flags, ATK_KICK)) do_function(ch, &do_kick, "");
+        if (IS_SET(ch->atk_flags, ATK_KICK)) 
+            do_function(ch, &do_kick, "");
         break;
 
     case (4):
-        if (IS_SET(ch->atk_flags, ATK_KICK_DIRT)) do_function(ch, &do_dirt, "");
+        if (IS_SET(ch->atk_flags, ATK_KICK_DIRT)) 
+            do_function(ch, &do_dirt, "");
         break;
 
     case (5):
@@ -363,7 +371,8 @@ void mob_hit(CharData* ch, CharData* victim, SKNUM dt)
         break;
 
     case (6):
-        if (IS_SET(ch->atk_flags, ATK_TRIP)) do_function(ch, &do_trip, "");
+        if (IS_SET(ch->atk_flags, ATK_TRIP)) 
+            do_function(ch, &do_trip, "");
         break;
 
     case (7):
@@ -381,7 +390,7 @@ void mob_hit(CharData* ch, CharData* victim, SKNUM dt)
 /*
  * Hit one guy once.
  */
-void one_hit(CharData* ch, CharData* victim, SKNUM dt)
+void one_hit(CharData* ch, CharData* victim, int16_t dt)
 {
     ObjectData* wield;
     int victim_ac;
@@ -398,13 +407,15 @@ void one_hit(CharData* ch, CharData* victim, SKNUM dt)
     sn = -1;
 
     /* just in case */
-    if (victim == ch || ch == NULL || victim == NULL) return;
+    if (victim == ch || ch == NULL || victim == NULL) 
+        return;
 
     /*
      * Can't beat a dead char!
      * Guard against weird room-leavings.
      */
-    if (victim->position == POS_DEAD || ch->in_room != victim->in_room) return;
+    if (victim->position == POS_DEAD || ch->in_room != victim->in_room) 
+        return;
 
     /*
      * Figure out the type of damage message.
@@ -414,9 +425,9 @@ void one_hit(CharData* ch, CharData* victim, SKNUM dt)
     if (dt == TYPE_UNDEFINED) {
         dt = TYPE_HIT;
         if (wield != NULL && wield->item_type == ITEM_WEAPON)
-            dt += (SKNUM)wield->value[3];
+            dt += (int16_t)wield->value[3];
         else
-            dt += ch->dam_type;
+            dt += (int16_t)ch->dam_type;
     }
 
     if (dt < TYPE_HIT)
@@ -455,14 +466,17 @@ void one_hit(CharData* ch, CharData* victim, SKNUM dt)
     }
     thac0 = interpolate(ch->level, thac0_00, thac0_32);
 
-    if (thac0 < 0) thac0 = thac0 / 2;
+    if (thac0 < 0) 
+        thac0 = thac0 / 2;
 
-    if (thac0 < -5) thac0 = -5 + (thac0 + 5) / 2;
+    if (thac0 < -5) 
+        thac0 = -5 + (thac0 + 5) / 2;
 
     thac0 -= GET_HITROLL(ch) * skill / 100;
     thac0 += 5 * (100 - skill) / 100;
 
-    if (dt == gsn_backstab) thac0 -= 10 * (100 - get_skill(ch, gsn_backstab));
+    if (dt == gsn_backstab) 
+        thac0 -= 10 * (100 - get_skill(ch, gsn_backstab));
 
     switch (dam_type) {
     case DAM_PIERCE:
@@ -479,13 +493,17 @@ void one_hit(CharData* ch, CharData* victim, SKNUM dt)
         break;
     };
 
-    if (victim_ac < -15) victim_ac = (victim_ac + 15) / 5 - 15;
+    if (victim_ac < -15) 
+        victim_ac = (victim_ac + 15) / 5 - 15;
 
-    if (!can_see(ch, victim)) victim_ac -= 4;
+    if (!can_see(ch, victim)) 
+        victim_ac -= 4;
 
-    if (victim->position < POS_FIGHTING) victim_ac += 4;
+    if (victim->position < POS_FIGHTING)
+        victim_ac += 4;
 
-    if (victim->position < POS_RESTING) victim_ac += 6;
+    if (victim->position < POS_RESTING)
+        victim_ac += 6;
 
     /*
      * The moment of excitement!
@@ -495,7 +513,7 @@ void one_hit(CharData* ch, CharData* victim, SKNUM dt)
 
     if (diceroll == 0 || (diceroll != 19 && diceroll < thac0 - victim_ac)) {
         /* Miss. */
-        damage(ch, victim, 0, dt, dam_type, true);;
+        damage(ch, victim, 0, dt, dam_type, true);
         return;
     }
 
@@ -652,8 +670,7 @@ void one_hit(CharData* ch, CharData* victim, SKNUM dt)
 /*
  * Inflict damage from a hit.
  */
-bool damage(CharData* ch, CharData* victim, int dam, SKNUM dt, 
-    DamageType dam_type, bool show)
+bool damage(CharData* ch, CharData* victim, int dam, int16_t dt, DamageType dam_type, bool show)
 {
     ObjectData* corpse;
     bool immune;

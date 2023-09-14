@@ -30,6 +30,7 @@
 #include "tables.h"
 #include "tablesave.h"
 
+#include "entities/descriptor.h"
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 

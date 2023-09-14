@@ -41,6 +41,9 @@ typedef enum damage_type_t {
 
 #define DAM_MAX 20
 
+#define TYPE_UNDEFINED     -1
+#define TYPE_HIT           1000
+
 typedef struct damage_info_t {
     const DamageType type;
     const char* name;

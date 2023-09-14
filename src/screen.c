@@ -6,8 +6,8 @@
 
 #include "act_move.h"
 #include "bit.h"
-#include "db.h"
 #include "comm.h"
+#include "db.h"
 #include "handler.h"
 #include "mob_cmds.h"
 #include "olc.h"
@@ -18,6 +18,7 @@
 #include "vt.h"
 
 #include "entities/char_data.h"
+#include "entities/descriptor.h"
 #include "entities/object_data.h"
 
 #include "data/mobile.h"
@@ -509,7 +510,7 @@ const struct olc_show_table_type oedit_olc_show_table[] =
     }
 };
 
-void InitScreen(DESCRIPTOR_DATA* d)
+void InitScreen(Descriptor* d)
 {
     char buf[MIL];
     int size;
@@ -531,7 +532,7 @@ void InitScreen(DESCRIPTOR_DATA* d)
     }
 }
 
-void InitScreenMap(DESCRIPTOR_DATA* d)
+void InitScreenMap(Descriptor* d)
 {
     if (d->screenmap == NULL)
         d->screenmap = calloc(80 * ((size_t)(d->character->lines) - 3) + 1, sizeof(char));
@@ -545,7 +546,7 @@ void InitScreenMap(DESCRIPTOR_DATA* d)
         d->screenmap[i] = d->oldscreenmap[i] = ' ';
 }
 
-void UpdateOLCScreen(DESCRIPTOR_DATA* d)
+void UpdateOLCScreen(Descriptor* d)
 {
     INIT_BUF(buf, MSL * 2);
     INIT_BUF(buf2, MSL * 2);

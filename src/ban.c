@@ -33,6 +33,7 @@
 #include "recycle.h"
 
 #include "entities/char_data.h"
+#include "entities/descriptor.h"
 
 #include <stdio.h>
 #include <stdlib.h>

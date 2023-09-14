@@ -28,11 +28,12 @@
 #include "merc.h"
 
 #include "color.h"
-#include "comm.h"
 #include "db.h"
 #include "digest.h"
 #include "recycle.h"
 #include "skills.h"
+
+#include "entities/descriptor.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,36 +49,6 @@ int skill_hash_created;
 int skill_hash_allocated;
 int skill_hash_freed;
 
-/* stuff for recycling descriptors */
-DESCRIPTOR_DATA* descriptor_free = NULL;
-
-DESCRIPTOR_DATA* new_descriptor()
-{
-    static DESCRIPTOR_DATA d_zero;
-    DESCRIPTOR_DATA* d;
-
-    if (descriptor_free == NULL)
-        d = alloc_perm(sizeof(*d));
-    else {
-        d = descriptor_free;
-        descriptor_free = descriptor_free->next;
-    }
-
-    *d = d_zero;
-    VALIDATE(d);
-    return d;
-}
-
-void free_descriptor(DESCRIPTOR_DATA* d)
-{
-    if (!IS_VALID(d)) return;
-
-    free_string(d->host);
-    free_mem(d->outbuf, d->outsize);
-    INVALIDATE(d);
-    d->next = descriptor_free;
-    descriptor_free = d;
-}
 
 /* stuff for recycling gen_data */
 CharGenData* gen_data_free;

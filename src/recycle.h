@@ -54,12 +54,6 @@ typedef struct buffer_t {
     bool valid;
 } Buffer;
 
-/* descriptor recycling */
-#define DD DESCRIPTOR_DATA
-DD* new_descriptor args((void));
-void free_descriptor args((DESCRIPTOR_DATA * d));
-#undef DD
-
 /* char gen data recycling */
 #define GD CharGenData
 GD* new_gen_data args((void));

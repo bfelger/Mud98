@@ -34,6 +34,7 @@
 #include "recycle.h"
 
 #include "entities/char_data.h"
+#include "entities/descriptor.h"
 #include "entities/object_data.h"
 
 #include <stdio.h>
@@ -54,7 +55,7 @@ void song_update(void)
     ObjectData* obj;
     CharData* victim;
     RoomData* room;
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
     char buf[MAX_STRING_LENGTH];
     char* line;
     int i;

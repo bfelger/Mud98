@@ -10,6 +10,7 @@
 #include "handler.h"
 
 #include "char_data.h"
+#include "entities/descriptor.h"
 #include "object_data.h"
 
 #include "data/mobile.h"

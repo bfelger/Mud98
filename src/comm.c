@@ -55,6 +55,7 @@
 #include "vt.h"
 
 #include "entities/area_data.h"
+#include "entities/descriptor.h"
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
@@ -64,7 +65,9 @@
 #include <ctype.h>
 #include <errno.h>
 #include <signal.h>
+#include <stdbool.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -80,7 +83,6 @@
 #pragma comment(lib, "Ws2_32.lib")
 #include <windows.h>
 #include <winsock.h>
-#include <stdint.h>
 #include <io.h>
 #define CLOSE_SOCKET closesocket
 #define SOCKLEN int
@@ -101,8 +103,7 @@ const unsigned char echo_off_str[4] = { IAC, WILL, TELOPT_ECHO, 0 };
 const unsigned char echo_on_str[4] = { IAC, WONT, TELOPT_ECHO, 0 };
 const unsigned char go_ahead_str[3] = { IAC, GA, 0 };
 
-DESCRIPTOR_DATA* descriptor_list;           // All open descriptors
-DESCRIPTOR_DATA* d_next;                    // Next descriptor in loop
+Descriptor* d_next;                    // Next descriptor in loop
 
 typedef enum {
     THREAD_STATUS_NONE,
@@ -147,9 +148,9 @@ extern bool newlock;                        // Game is newlocked
 
 void bust_a_prompt(CharData* ch);
 bool check_parse_name(char* name);
-bool check_playing(DESCRIPTOR_DATA* d, char* name);
-bool check_reconnect(DESCRIPTOR_DATA* d, bool fConn);
-void send_to_desc(const char* txt, DESCRIPTOR_DATA* desc);
+bool check_playing(Descriptor* d, char* name);
+bool check_reconnect(Descriptor* d, bool fConn);
+void send_to_desc(const char* txt, Descriptor* desc);
 
 #ifdef _MSC_VER
 void PrintLastWinSockError()
@@ -320,7 +321,7 @@ void init_server(SockServer* server, int port)
     }
 }
 
-bool can_write(DESCRIPTOR_DATA* d, PollData* poll_data)
+bool can_write(Descriptor* d, PollData* poll_data)
 {
     return FD_ISSET(d->client.fd, &poll_data->out_set);
 }
@@ -357,7 +358,7 @@ bool has_new_conn(SockServer* server, PollData* poll_data)
 static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
 {
     char buf[MAX_STRING_LENGTH];
-    DESCRIPTOR_DATA* dnew;
+    Descriptor* dnew;
     struct sockaddr_in sock = { 0 };
     struct hostent* from;
     SOCKLEN size;
@@ -544,7 +545,7 @@ void handle_new_connection(SockServer* server)
 #endif
 }
 
-void close_socket(DESCRIPTOR_DATA* dclose)
+void close_socket(Descriptor* dclose)
 {
     if (dclose == NULL) {
         log_string("close_socket: NULL descriptor!");
@@ -567,7 +568,7 @@ void close_socket(DESCRIPTOR_DATA* dclose)
     }
 
     {
-        DESCRIPTOR_DATA* d;
+        Descriptor* d;
 
         for (d = descriptor_list; d != NULL; d = d->next) {
             if (d->snoop_by == dclose) d->snoop_by = NULL;
@@ -595,7 +596,7 @@ void close_socket(DESCRIPTOR_DATA* dclose)
         descriptor_list = descriptor_list->next;
     }
     else {
-        DESCRIPTOR_DATA* d;
+        Descriptor* d;
 
         for (d = descriptor_list; d && d->next != dclose; d = d->next)
             ;
@@ -610,7 +611,7 @@ void close_socket(DESCRIPTOR_DATA* dclose)
     return;
 }
 
-bool read_from_descriptor(DESCRIPTOR_DATA* d)
+bool read_from_descriptor(Descriptor* d)
 {
 #ifndef USE_RAW_SOCKETS
     int ssl_err;
@@ -671,7 +672,7 @@ bool read_from_descriptor(DESCRIPTOR_DATA* d)
 void process_client_input(SockServer* server, PollData* poll_data)
 {
     // Kick out the freaky folks.
-    for (DESCRIPTOR_DATA* d = descriptor_list; d != NULL; d = d_next) {
+    for (Descriptor* d = descriptor_list; d != NULL; d = d_next) {
         d_next = d->next;
         if (FD_ISSET(d->client.fd, &poll_data->exc_set)) {
             FD_CLR(d->client.fd, &poll_data->in_set);
@@ -684,7 +685,7 @@ void process_client_input(SockServer* server, PollData* poll_data)
     }
 
     // Process input.
-    for (DESCRIPTOR_DATA* d = descriptor_list; d != NULL; d = d_next) {
+    for (Descriptor* d = descriptor_list; d != NULL; d = d_next) {
         d_next = d->next;
         d->fcommand = false;
 
@@ -730,7 +731,7 @@ void process_client_input(SockServer* server, PollData* poll_data)
 /*
  * Transfer one line from input buffer to input line.
  */
-void read_from_buffer(DESCRIPTOR_DATA* d)
+void read_from_buffer(Descriptor* d)
 {
     int i, j, k;
 
@@ -822,7 +823,7 @@ void read_from_buffer(DESCRIPTOR_DATA* d)
 /*
  * Low level output function.
  */
-bool process_descriptor_output(DESCRIPTOR_DATA* d, bool fPrompt)
+bool process_descriptor_output(Descriptor* d, bool fPrompt)
 {
     /*
      * Bust a prompt.
@@ -1097,7 +1098,7 @@ bust_a_prompt_cleanup:
 }
 
 // Append onto an output buffer.
-void write_to_buffer(DESCRIPTOR_DATA* d, const char* txt, size_t length)
+void write_to_buffer(Descriptor* d, const char* txt, size_t length)
 {
     // Find length in case caller didn't.
     if (length <= 0) length = strlen(txt);
@@ -1133,52 +1134,12 @@ void write_to_buffer(DESCRIPTOR_DATA* d, const char* txt, size_t length)
 }
 
 /*
- * Lowest level output function.
- * Write a block of text to the file descriptor.
- * If this gives errors on very long blocks (like 'ofind all'),
- *   try lowering the max block size.
- */
-bool write_to_descriptor(DESCRIPTOR_DATA* d, char* txt, size_t length)
-{
-    size_t nWrite = 0;
-    int nBlock;
-#ifndef USE_RAW_SOCKETS
-    int ssl_err;
-#endif
-
-    if (length <= 0)
-        length = strlen(txt);
-
-    for (size_t iStart = 0; iStart < length; iStart += nWrite) {
-        nBlock = (int)UMIN(length - iStart, 4096);
-#ifndef USE_RAW_SOCKETS
-        if ((ssl_err = SSL_write_ex(d->client.ssl, txt + iStart, nBlock, &nWrite)) <= 0) {
-            ERR_print_errors_fp(stderr);
-            return false;
-        }
-#else
-#ifdef _MSC_VER
-        if ((nWrite = send(d->client.fd, txt + iStart, nBlock, 0)) < 0) {
-            PrintLastWinSockError();
-#else
-        if ((nWrite = write(d->client.fd, txt + iStart, nBlock)) < 0) {
-#endif
-            perror("Write_to_descriptor");
-            return false;
-        }
-#endif // !USE_RAW_SOCKETS
-    }
-
-    return true;
-}
-
-/*
  * Deal with sockets that haven't logged in yet.
  */
-void nanny(DESCRIPTOR_DATA * d, char* argument)
+void nanny(Descriptor * d, char* argument)
 {
-    DESCRIPTOR_DATA* d_old = NULL;
-    DESCRIPTOR_DATA* d_next_local = NULL;
+    Descriptor* d_old = NULL;
+    Descriptor* d_next_local = NULL;
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
     CharData* ch;
@@ -1737,7 +1698,7 @@ void poll_server(SockServer * server, PollData * poll_data)
     FD_ZERO(&poll_data->exc_set);
     FD_SET(server->control, &poll_data->in_set);
     poll_data->maxdesc = server->control;
-    for (DESCRIPTOR_DATA* d = descriptor_list; d; d = d->next) {
+    for (Descriptor* d = descriptor_list; d; d = d->next) {
         poll_data->maxdesc = UMAX(poll_data->maxdesc, d->client.fd);
         FD_SET(d->client.fd, &poll_data->in_set);
         FD_SET(d->client.fd, &poll_data->out_set);
@@ -1837,7 +1798,7 @@ bool check_parse_name(char* name)
 /*
  * Look for link-dead player to reconnect.
  */
-bool check_reconnect(DESCRIPTOR_DATA * d, bool fConn)
+bool check_reconnect(Descriptor * d, bool fConn)
 {
     CharData* ch;
 
@@ -1878,9 +1839,9 @@ bool check_reconnect(DESCRIPTOR_DATA * d, bool fConn)
 /*
  * Check if already playing.
  */
-bool check_playing(DESCRIPTOR_DATA * d, char* name)
+bool check_playing(Descriptor * d, char* name)
 {
-    DESCRIPTOR_DATA* dold;
+    Descriptor* dold;
 
     for (dold = descriptor_list; dold; dold = dold->next) {
         if (dold != d && dold->character != NULL
@@ -1913,9 +1874,50 @@ void stop_idling(CharData * ch)
     return;
 }
 
+
+/*
+ * Lowest level output function.
+ * Write a block of text to the file descriptor.
+ * If this gives errors on very long blocks (like 'ofind all'),
+ *   try lowering the max block size.
+ */
+bool write_to_descriptor(Descriptor* d, char* txt, size_t length)
+{
+    size_t nWrite = 0;
+    int nBlock;
+#ifndef USE_RAW_SOCKETS
+    int ssl_err;
+#endif
+
+    if (length <= 0)
+        length = strlen(txt);
+
+    for (size_t iStart = 0; iStart < length; iStart += nWrite) {
+        nBlock = (int)UMIN(length - iStart, 4096);
+#ifndef USE_RAW_SOCKETS
+        if ((ssl_err = SSL_write_ex(d->client.ssl, txt + iStart, nBlock, &nWrite)) <= 0) {
+            ERR_print_errors_fp(stderr);
+            return false;
+        }
+#else
+#ifdef _MSC_VER
+        if ((nWrite = send(d->client.fd, txt + iStart, nBlock, 0)) < 0) {
+            PrintLastWinSockError();
+#else
+        if ((nWrite = write(d->client.fd, txt + iStart, nBlock)) < 0) {
+#endif
+            perror("Write_to_descriptor");
+            return false;
+        }
+#endif // !USE_RAW_SOCKETS
+        }
+
+    return true;
+}
+
 void process_client_output(PollData * poll_data)
 {
-    for (DESCRIPTOR_DATA* d = descriptor_list; d != NULL; d = d_next) {
+    for (Descriptor* d = descriptor_list; d != NULL; d = d_next) {
         d_next = d->next;
 
         if ((d->fcommand || d->outtop > 0)
@@ -1931,7 +1933,7 @@ void process_client_output(PollData * poll_data)
 }
 
 // So we can send the greeting in color
-void send_to_desc(const char* txt, DESCRIPTOR_DATA* desc)
+void send_to_desc(const char* txt, Descriptor* desc)
 {
     const char* point;
     char* point2;
@@ -2082,7 +2084,7 @@ void page_to_char(const char* txt, CharData * ch)
 }
 
 /* string pager */
-void show_string(struct descriptor_data* d, char* input)
+void show_string(Descriptor* d, char* input)
 {
     INIT_BUF(temp1, MAX_STRING_LENGTH * 4);
     INIT_BUF(temp2, MAX_STRING_LENGTH);

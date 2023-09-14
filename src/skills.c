@@ -27,7 +27,6 @@
 
 #include "skills.h"
 
-
 #include "comm.h"
 #include "db.h"
 #include "handler.h"
@@ -38,6 +37,7 @@
 #include "update.h"
 
 #include "entities/char_data.h"
+#include "entities/descriptor.h"
 #include "entities/player_data.h"
 
 #include "data/mobile.h"

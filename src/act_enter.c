@@ -33,6 +33,7 @@
 #include "interp.h"
 #include "mob_prog.h"
 
+#include "entities/descriptor.h"
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 

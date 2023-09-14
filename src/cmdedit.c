@@ -14,6 +14,7 @@
 #include "olc.h"
 #include "recycle.h"
 
+#include "entities/descriptor.h"
 #include "entities/player_data.h"
 
 #include "data/mobile.h"
@@ -356,7 +357,7 @@ CMDEDIT(cmdedit_name)
 
 CMDEDIT(cmdedit_new)
 {
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
     CharData* tch;
     struct cmd_type* new_table;
     int cmd;
@@ -419,7 +420,7 @@ CMDEDIT(cmdedit_new)
 
 CMDEDIT(cmdedit_delete)
 {
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
     CharData* tch;
     int i, j, iCmd;
     struct cmd_type* new_table;

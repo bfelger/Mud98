@@ -15,12 +15,14 @@ typedef struct char_data_t CharData;
 #include "note.h"
 
 #include "area_data.h"
+#include "descriptor.h"
 #include "mob_memory.h"
 #include "mob_prototype.h"
 #include "object_data.h"
 #include "player_data.h"
 #include "room_data.h"
 
+#include "data/damage.h"
 #include "data/mobile.h"
 
 #include <stdbool.h>
@@ -37,7 +39,7 @@ typedef struct char_data_t {
     MobMemory* memory;
     SpecFunc* spec_fun;
     MobPrototype* prototype;
-    DESCRIPTOR_DATA* desc;
+    Descriptor* desc;
     AffectData* affected;
     NoteData* pnote;
     ObjectData* carrying;
@@ -72,9 +74,9 @@ typedef struct char_data_t {
     FLAGS atk_flags;
     int wait;
     int16_t damage[3];
-    int16_t dam_type;
-    int16_t start_pos;
-    int16_t default_pos;
+    DamageType dam_type;
+    Position start_pos;
+    Position default_pos;
     int16_t mprog_delay;
     int16_t group;
     int16_t clan;

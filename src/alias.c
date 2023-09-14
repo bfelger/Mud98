@@ -31,6 +31,7 @@
 #include "db.h"
 #include "olc.h"
 
+#include "entities/descriptor.h"
 #include "entities/player_data.h"
 
 #include "data/mobile.h"
@@ -41,7 +42,7 @@
 #include <time.h>
 
 /* does aliasing and other fun stuff */
-void substitute_alias(DESCRIPTOR_DATA* d, char* argument)
+void substitute_alias(Descriptor* d, char* argument)
 {
     CharData* ch;
     char buf[MAX_STRING_LENGTH], prefix[MAX_INPUT_LENGTH],

@@ -44,6 +44,8 @@
 #include "skills.h"
 #include "spell_list.h"
 
+#include "entities/descriptor.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

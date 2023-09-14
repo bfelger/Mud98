@@ -47,6 +47,7 @@
 #include "tables.h"
 
 #include "entities/area_data.h"
+#include "entities/descriptor.h"
 #include "entities/exit_data.h"
 #include "entities/mob_prototype.h"
 #include "entities/object_data.h"
@@ -80,7 +81,7 @@ COMMAND(do_asave)
 MPROG_CODE* pedit_prog(VNUM);
 
 // externals for counting purposes
-extern DESCRIPTOR_DATA* descriptor_free;
+extern Descriptor* descriptor_free;
 
 /*
  * Globals.
@@ -2427,7 +2428,7 @@ void do_dump(CharData* ch, char* argument)
     ObjectPrototype* obj_proto;
     RoomData* room = NULL;
     ExitData* exit = NULL;
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
     AffectData* af;
     FILE* fp;
     VNUM vnum;

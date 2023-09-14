@@ -6,9 +6,9 @@
 #ifndef MUD98__SCREEN_H
 #define MUD98__SCREEN_H
 
-void InitScreen(DESCRIPTOR_DATA *);
-void InitScreenMap(DESCRIPTOR_DATA *);
-void UpdateOLCScreen(DESCRIPTOR_DATA *);
+void InitScreen(Descriptor *);
+void InitScreenMap(Descriptor *);
+void UpdateOLCScreen(Descriptor *);
 
 #define OLCS_STRING			1
 #define OLCS_INT			2

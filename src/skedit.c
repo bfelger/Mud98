@@ -16,13 +16,14 @@
 #include "skills.h"
 #include "tables.h"
 
+#include "entities/descriptor.h"
 #include "entities/player_data.h"
 
 #include "data/mobile.h"
 
 extern bool fBootDb;
 
-char* gsn_name(int16_t* pgsn);
+char* gsn_name(SKNUM* pgsn);
 char* spell_name(SpellFunc* spell);
 SpellFunc* spell_function(char* argument);
 int16_t* gsn_lookup(char* argument);
@@ -708,7 +709,7 @@ SKEDIT(skedit_gsn)
 
 SKEDIT(skedit_new)
 {
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
     CharData* tch;
     struct skill_type* new_table;
     bool* tempgendata;

@@ -40,6 +40,7 @@
 #include "spell_list.h"
 #include "update.h"
 
+#include "entities/descriptor.h"
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 

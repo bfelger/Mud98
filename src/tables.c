@@ -31,6 +31,8 @@
 
 #include "comm.h"
 
+#include "entities/descriptor.h"
+
 #include "data/damage.h"
 #include "data/mobile.h"
 

@@ -4,8 +4,8 @@
 
 #include "merc.h"
 
-#include "db.h"
 #include "comm.h"
+#include "db.h"
 #include "lookup.h"
 #include "olc.h"
 #include "recycle.h"
@@ -13,6 +13,7 @@
 #include "tables.h"
 
 #include "entities/area_data.h"
+#include "entities/descriptor.h"
 #include "entities/player_data.h"
 
 #include "data/mobile.h"
@@ -274,7 +275,7 @@ HEDIT(hedit_delete)
 {
     HelpData* pHelp, * temp;
     HelpArea* had;
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
     bool found = false;
 
     EDIT_HELP(ch, pHelp);

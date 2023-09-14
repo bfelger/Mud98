@@ -27,14 +27,15 @@
 
 #include "merc.h"
 
-#include "comm.h"
 #include "db.h"
+#include "comm.h"
 #include "handler.h"
 #include "note.h"
 #include "recycle.h"
 #include "strings.h"
 #include "tables.h"
 
+#include "entities/descriptor.h"
 #include "entities/player_data.h"
 
 #include "data/mobile.h"

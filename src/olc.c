@@ -23,6 +23,7 @@
 #include "skills.h"
 #include "tables.h"
 
+#include "entities/descriptor.h"
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 #include "entities/reset_data.h"
@@ -44,7 +45,7 @@ AreaData* get_area_data args((VNUM vnum));
 COMMAND(do_clear)
 COMMAND(do_purge)
 
-void UpdateOLCScreen(DESCRIPTOR_DATA*);
+void UpdateOLCScreen(Descriptor*);
 
 MobPrototype		xMob;
 ObjectPrototype		xObj;
@@ -175,7 +176,7 @@ const struct olc_comm_type room_olc_comm_table[] = {
     { NULL,	        0,				        NULL,			    0		        }
 };
 
-void set_editor(DESCRIPTOR_DATA* d, int editor, uintptr_t param)
+void set_editor(Descriptor* d, int editor, uintptr_t param)
 {
     d->editor = (int16_t)editor;
     d->pEdit = param;
@@ -185,7 +186,7 @@ void set_editor(DESCRIPTOR_DATA* d, int editor, uintptr_t param)
 }
 
 /* Executed from comm.c.  Minimizes compiling when changes are made. */
-bool run_olc_editor(DESCRIPTOR_DATA* d, char* incomm)
+bool run_olc_editor(Descriptor* d, char* incomm)
 {
     switch (d->editor) {
     case ED_AREA:
@@ -473,7 +474,7 @@ AreaData* get_area_data(VNUM vnum)
  Purpose:	Resets builder information on completion.
  Called by:	aedit, redit, oedit, medit(olc.c)
  ****************************************************************************/
-bool  edit_done(CharData* ch)
+bool edit_done(CharData* ch)
 {
     if (ch->desc->editor != ED_NONE)
         send_to_char("Exiting the editor.\n\r", ch);

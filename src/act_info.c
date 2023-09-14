@@ -45,6 +45,7 @@
 #include "tables.h"
 
 #include "entities/area_data.h"
+#include "entities/descriptor.h"
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
@@ -1644,7 +1645,7 @@ void do_whois(CharData* ch, char* argument)
     char arg[MAX_INPUT_LENGTH];
     Buffer* output;
     char buf[MAX_STRING_LENGTH];
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
     bool found = false;
 
     one_argument(argument, arg);
@@ -1715,7 +1716,7 @@ void do_who(CharData* ch, char* argument)
     char buf[MAX_STRING_LENGTH] = "";
     char buf2[MAX_STRING_LENGTH] = "";
     Buffer* output;
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
     int iClass;
     int iRace;
     int iClan;
@@ -1879,7 +1880,7 @@ void do_who(CharData* ch, char* argument)
 void do_count(CharData* ch, char* argument)
 {
     int count;
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
     char buf[MAX_STRING_LENGTH];
 
     count = 0;
@@ -2039,7 +2040,7 @@ void do_where(CharData* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
     CharData* victim;
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
     bool found;
 
     one_argument(argument, arg);

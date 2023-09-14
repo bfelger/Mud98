@@ -12,6 +12,7 @@
 #include "olc.h"
 #include "recycle.h"
 
+#include "entities/descriptor.h"
 #include "entities/player_data.h"
 
 #include "data/mobile.h"

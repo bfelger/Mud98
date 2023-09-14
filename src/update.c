@@ -31,8 +31,8 @@
 #include "act_move.h"
 #include "act_obj.h"
 #include "act_wiz.h"
-#include "db.h"
 #include "comm.h"
+#include "db.h"
 #include "fight.h"
 #include "handler.h"
 #include "interp.h"
@@ -42,6 +42,7 @@
 #include "save.h"
 #include "skills.h"
 
+#include "entities/descriptor.h"
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
@@ -462,7 +463,7 @@ void mobile_update(void)
 void weather_update(void)
 {
     char buf[MAX_STRING_LENGTH] = "";
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
     int diff;
 
     buf[0] = '\0';
