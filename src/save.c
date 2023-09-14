@@ -200,7 +200,7 @@ void fwrite_char(CharData* ch, FILE* fp)
     if (ch->act_flags != 0) fprintf(fp, "Act  %s\n", print_flags(ch->act_flags));
     if (ch->affect_flags != 0)
         fprintf(fp, "AfBy %s\n", print_flags(ch->affect_flags));
-    fprintf(fp, "Comm %s\n", print_flags(ch->comm));
+    fprintf(fp, "Comm %s\n", print_flags(ch->comm_flags));
     if (ch->wiznet) fprintf(fp, "Wizn %s\n", print_flags(ch->wiznet));
     if (ch->invis_level) fprintf(fp, "Invi %d\n", ch->invis_level);
     if (ch->incog_level) fprintf(fp, "Inco %d\n", ch->incog_level);
@@ -358,7 +358,7 @@ void fwrite_pet(CharData* pet, FILE* fp)
         fprintf(fp, "Act  %s\n", print_flags(pet->act_flags));
     if (pet->affect_flags != pet->prototype->affect_flags)
         fprintf(fp, "AfBy %s\n", print_flags(pet->affect_flags));
-    if (pet->comm != 0) fprintf(fp, "Comm %s\n", print_flags(pet->comm));
+    if (pet->comm_flags != 0) fprintf(fp, "Comm %s\n", print_flags(pet->comm_flags));
     fprintf(fp, "Pos  %d\n",
             pet->position = POS_FIGHTING ? POS_STANDING : pet->position);
     if (pet->saving_throw != 0) fprintf(fp, "Save %d\n", pet->saving_throw);
@@ -517,7 +517,7 @@ bool load_char_obj(Descriptor* d, char* name)
     ch->id = get_pc_id();
     ch->race = race_lookup("human");
     ch->act_flags = PLR_NOSUMMON;
-    ch->comm = COMM_COMBINE | COMM_PROMPT;
+    ch->comm_flags = COMM_COMBINE | COMM_PROMPT;
     ch->prompt = str_dup("<%hhp %mm %vmv> ");
     ch->pcdata->confirm_delete = false;
     ch->pcdata->pwd_digest = NULL;
@@ -864,7 +864,7 @@ void fread_char(CharData* ch, FILE* fp)
             KEY("Class", ch->ch_class, (int16_t)fread_number(fp));
             KEY("Cla", ch->ch_class, (int16_t)fread_number(fp));
             KEY("Clan", ch->clan, (int16_t)clan_lookup(fread_string(fp)));
-            KEY("Comm", ch->comm, fread_flag(fp));
+            KEY("Comm", ch->comm_flags, fread_flag(fp));
 
             if (!str_cmp(word, "Condition") || !str_cmp(word, "Cond")) {
                 ch->pcdata->condition[0] = (int16_t)fread_number(fp);
@@ -1237,7 +1237,7 @@ void fread_pet(CharData* ch, FILE* fp)
 
         case 'C':
             KEY("Clan", pet->clan, (int16_t)clan_lookup(fread_string(fp)));
-            KEY("Comm", pet->comm, fread_flag(fp));
+            KEY("Comm", pet->comm_flags, fread_flag(fp));
             break;
 
         case 'D':

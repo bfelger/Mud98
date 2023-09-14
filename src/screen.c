@@ -516,14 +516,14 @@ void InitScreen(Descriptor* d)
     int size;
     CharData* ch = d->character;
 
-    if (!IS_SET(ch->comm, COMM_OLCX))
+    if (!IS_SET(ch->comm_flags, COMM_OLCX))
         return;
 
     size = IS_NPC(ch) ? PAGELEN : (ch->lines + 3);
 
     send_to_char(VT_HOMECLR, ch);
 
-    if (d->editor != ED_NONE && IS_SET(ch->comm, COMM_OLCX)) {
+    if (d->editor != ED_NONE && IS_SET(ch->comm_flags, COMM_OLCX)) {
         InitScreenMap(d);
         sprintf(buf, VT_MARGSET, size - 4, size);
         send_to_char(buf, ch);

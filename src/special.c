@@ -790,7 +790,7 @@ bool spec_executioner(CharData* ch)
 
     sprintf(buf, "%s is a %s!  PROTECT THE INNOCENT!  MORE BLOOOOD!!!",
             victim->name, crime);
-    REMOVE_BIT(ch->comm, COMM_NOSHOUT);
+    REMOVE_BIT(ch->comm_flags, COMM_NOSHOUT);
     do_function(ch, &do_yell, buf);
     multi_hit(ch, victim, TYPE_UNDEFINED);
     return true;
@@ -862,7 +862,7 @@ bool spec_guard(CharData* ch)
     if (victim != NULL) {
         sprintf(buf, "%s is a %s!  PROTECT THE INNOCENT!!  BANZAI!!",
                 victim->name, crime);
-        REMOVE_BIT(ch->comm, COMM_NOSHOUT);
+        REMOVE_BIT(ch->comm_flags, COMM_NOSHOUT);
         do_function(ch, &do_yell, buf);
         multi_hit(ch, victim, TYPE_UNDEFINED);
         return true;

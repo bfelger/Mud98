@@ -63,7 +63,7 @@ typedef struct char_data_t {
     int lines; /* for the pager */
     int exp;
     FLAGS act_flags;
-    FLAGS comm;
+    FLAGS comm_flags;
     FLAGS wiznet;
     FLAGS imm_flags;
     FLAGS res_flags;

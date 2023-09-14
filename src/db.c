@@ -1736,7 +1736,7 @@ void clone_mobile(CharData* parent, CharData* clone)
     clone->silver = parent->silver;
     clone->exp = parent->exp;
     clone->act_flags = parent->act_flags;
-    clone->comm = parent->comm;
+    clone->comm_flags = parent->comm_flags;
     clone->imm_flags = parent->imm_flags;
     clone->res_flags = parent->res_flags;
     clone->vuln_flags = parent->vuln_flags;

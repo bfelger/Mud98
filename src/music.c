@@ -90,8 +90,8 @@ void song_update(void)
                 victim = d->original ? d->original : d->character;
 
                 if (d->connected == CON_PLAYING
-                    && !IS_SET(victim->comm, COMM_NOMUSIC)
-                    && !IS_SET(victim->comm, COMM_QUIET))
+                    && !IS_SET(victim->comm_flags, COMM_NOMUSIC)
+                    && !IS_SET(victim->comm_flags, COMM_QUIET))
                     act_new("$t", d->character, buf, NULL, TO_CHAR,
                             POS_SLEEPING);
             }

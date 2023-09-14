@@ -5,6 +5,7 @@
 
 #include "mob_prototype.h"
 
+#include "comm.h"
 #include "db.h"
 #include "handler.h"
 #include "lookup.h"
@@ -159,7 +160,7 @@ CharData* create_mobile(MobPrototype* p_mob_proto)
         /* read from prototype */
         mob->group = p_mob_proto->group;
         mob->act_flags = p_mob_proto->act_flags;
-        mob->comm = COMM_NOCHANNELS | COMM_NOSHOUT | COMM_NOTELL;
+        mob->comm_flags = COMM_NOCHANNELS | COMM_NOSHOUT | COMM_NOTELL;
         mob->affect_flags = p_mob_proto->affect_flags;
         mob->alignment = p_mob_proto->alignment;
         mob->level = p_mob_proto->level;

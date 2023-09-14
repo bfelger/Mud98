@@ -306,8 +306,8 @@ void do_nochannels(CharData* ch, char* argument)
         return;
     }
 
-    if (IS_SET(victim->comm, COMM_NOCHANNELS)) {
-        REMOVE_BIT(victim->comm, COMM_NOCHANNELS);
+    if (IS_SET(victim->comm_flags, COMM_NOCHANNELS)) {
+        REMOVE_BIT(victim->comm_flags, COMM_NOCHANNELS);
         send_to_char("The gods have restored your channel priviliges.\n\r",
                      victim);
         send_to_char("NOCHANNELS removed.\n\r", ch);
@@ -315,7 +315,7 @@ void do_nochannels(CharData* ch, char* argument)
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
     else {
-        SET_BIT(victim->comm, COMM_NOCHANNELS);
+        SET_BIT(victim->comm_flags, COMM_NOCHANNELS);
         send_to_char("The gods have revoked your channel priviliges.\n\r",
                      victim);
         send_to_char("NOCHANNELS set.\n\r", ch);
@@ -334,7 +334,7 @@ void do_smote(CharData* ch, char* argument)
     char temp[MAX_STRING_LENGTH];
     size_t matches = 0;
 
-    if (!IS_NPC(ch) && IS_SET(ch->comm, COMM_NOEMOTE)) {
+    if (!IS_NPC(ch) && IS_SET(ch->comm_flags, COMM_NOEMOTE)) {
         send_to_char("You can't show your emotions.\n\r", ch);
         return;
     }
@@ -1467,8 +1467,8 @@ void do_mstat(CharData* ch, char* argument)
     sprintf(buf, "Act: %s\n\r", act_bit_name(victim->act_flags));
     send_to_char(buf, ch);
 
-    if (victim->comm) {
-        sprintf(buf, "Comm: %s\n\r", comm_bit_name(victim->comm));
+    if (victim->comm_flags) {
+        sprintf(buf, "Comm: %s\n\r", comm_bit_name(victim->comm_flags));
         send_to_char(buf, ch);
     }
 
@@ -1852,16 +1852,16 @@ void do_protect(CharData* ch, char* argument)
         return;
     }
 
-    if (IS_SET(victim->comm, COMM_SNOOP_PROOF)) {
+    if (IS_SET(victim->comm_flags, COMM_SNOOP_PROOF)) {
         act_new("$N is no longer snoop-proof.", ch, NULL, victim, TO_CHAR,
                 POS_DEAD);
         send_to_char("Your snoop-proofing was just removed.\n\r", victim);
-        REMOVE_BIT(victim->comm, COMM_SNOOP_PROOF);
+        REMOVE_BIT(victim->comm_flags, COMM_SNOOP_PROOF);
     }
     else {
         act_new("$N is now snoop-proof.", ch, NULL, victim, TO_CHAR, POS_DEAD);
         send_to_char("You are now immune to snooping.\n\r", victim);
-        SET_BIT(victim->comm, COMM_SNOOP_PROOF);
+        SET_BIT(victim->comm_flags, COMM_SNOOP_PROOF);
     }
 }
 
@@ -1911,7 +1911,7 @@ void do_snoop(CharData* ch, char* argument)
     }
 
     if (get_trust(victim) >= get_trust(ch)
-        || IS_SET(victim->comm, COMM_SNOOP_PROOF)) {
+        || IS_SET(victim->comm_flags, COMM_SNOOP_PROOF)) {
         send_to_char("You failed.\n\r", ch);
         return;
     }
@@ -1987,7 +1987,7 @@ void do_switch(CharData* ch, char* argument)
     ch->desc = NULL;
     /* change communications to match */
     if (ch->prompt != NULL) victim->prompt = str_dup(ch->prompt);
-    victim->comm = ch->comm;
+    victim->comm_flags = ch->comm_flags;
     victim->lines = ch->lines;
     send_to_char("Ok.\n\r", victim);
     return;
@@ -2635,15 +2635,15 @@ void do_noemote(CharData* ch, char* argument)
         return;
     }
 
-    if (IS_SET(victim->comm, COMM_NOEMOTE)) {
-        REMOVE_BIT(victim->comm, COMM_NOEMOTE);
+    if (IS_SET(victim->comm_flags, COMM_NOEMOTE)) {
+        REMOVE_BIT(victim->comm_flags, COMM_NOEMOTE);
         send_to_char("You can emote again.\n\r", victim);
         send_to_char("NOEMOTE removed.\n\r", ch);
         sprintf(buf, "$N restores emotes to %s.", victim->name);
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
     else {
-        SET_BIT(victim->comm, COMM_NOEMOTE);
+        SET_BIT(victim->comm_flags, COMM_NOEMOTE);
         send_to_char("You can't emote!\n\r", victim);
         send_to_char("NOEMOTE set.\n\r", ch);
         sprintf(buf, "$N revokes %s's emotes.", victim->name);
@@ -2680,15 +2680,15 @@ void do_noshout(CharData* ch, char* argument)
         return;
     }
 
-    if (IS_SET(victim->comm, COMM_NOSHOUT)) {
-        REMOVE_BIT(victim->comm, COMM_NOSHOUT);
+    if (IS_SET(victim->comm_flags, COMM_NOSHOUT)) {
+        REMOVE_BIT(victim->comm_flags, COMM_NOSHOUT);
         send_to_char("You can shout again.\n\r", victim);
         send_to_char("NOSHOUT removed.\n\r", ch);
         sprintf(buf, "$N restores shouts to %s.", victim->name);
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
     else {
-        SET_BIT(victim->comm, COMM_NOSHOUT);
+        SET_BIT(victim->comm_flags, COMM_NOSHOUT);
         send_to_char("You can't shout!\n\r", victim);
         send_to_char("NOSHOUT set.\n\r", ch);
         sprintf(buf, "$N revokes %s's shouts.", victim->name);
@@ -2720,15 +2720,15 @@ void do_notell(CharData* ch, char* argument)
         return;
     }
 
-    if (IS_SET(victim->comm, COMM_NOTELL)) {
-        REMOVE_BIT(victim->comm, COMM_NOTELL);
+    if (IS_SET(victim->comm_flags, COMM_NOTELL)) {
+        REMOVE_BIT(victim->comm_flags, COMM_NOTELL);
         send_to_char("You can tell again.\n\r", victim);
         send_to_char("NOTELL removed.\n\r", ch);
         sprintf(buf, "$N restores tells to %s.", victim->name);
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
     else {
-        SET_BIT(victim->comm, COMM_NOTELL);
+        SET_BIT(victim->comm_flags, COMM_NOTELL);
         send_to_char("You can't tell!\n\r", victim);
         send_to_char("NOTELL set.\n\r", ch);
         sprintf(buf, "$N revokes %s's tells.", victim->name);

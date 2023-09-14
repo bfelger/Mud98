@@ -169,7 +169,7 @@ void do_flag(CharData* ch, char* argument)
                 return;
             }
 
-            flag = &victim->comm;
+            flag = &victim->comm_flags;
             flag_table = comm_flag_table;
         }
 

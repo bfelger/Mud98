@@ -3446,7 +3446,7 @@ ED_FUN_DEC(ed_number_level)
 ED_FUN_DEC(ed_desc)
 {
     if (emptystring(argument)) {
-        if (IS_SET(ch->comm, COMM_OLCX))
+        if (IS_SET(ch->comm_flags, COMM_OLCX))
             do_clear(ch, "reset");
 
         string_append(ch, (char**)arg);

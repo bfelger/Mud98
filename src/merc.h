@@ -431,36 +431,6 @@ struct kill_data {
 #define COND_THIRST             2
 #define COND_HUNGER             3
 
-/* RT comm flags -- may be used on both mobs and chars */
-#define COMM_QUIET              BIT(0)
-#define COMM_DEAF               BIT(1)
-#define COMM_NOWIZ              BIT(2)
-#define COMM_NOAUCTION          BIT(3)
-#define COMM_NOGOSSIP           BIT(4)
-#define COMM_NOQUESTION         BIT(5)
-#define COMM_NOMUSIC            BIT(6)
-#define COMM_NOCLAN             BIT(7)
-#define COMM_NOQUOTE            BIT(8)
-#define COMM_SHOUTSOFF          BIT(9)
-#define COMM_OLCX               BIT(10)
-
-/* display flags */
-#define COMM_COMPACT            BIT(11)
-#define COMM_BRIEF              BIT(12)
-#define COMM_PROMPT             BIT(13)
-#define COMM_COMBINE            BIT(14)
-#define COMM_TELNET_GA          BIT(15)
-#define COMM_SHOW_AFFECTS       BIT(16)
-#define COMM_NOGRATS            BIT(17)
-
-/* penalties */
-#define COMM_NOEMOTE            BIT(19)
-#define COMM_NOSHOUT            BIT(20)
-#define COMM_NOTELL             BIT(21)
-#define COMM_NOCHANNELS         BIT(22)
-#define COMM_SNOOP_PROOF        BIT(24)
-#define COMM_AFK                BIT(25)
-
 /* WIZnet flags */
 #define WIZ_ON                  BIT(0)
 #define WIZ_TICKS               BIT(1)

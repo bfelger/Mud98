@@ -481,7 +481,7 @@ bool edit_done(CharData* ch)
     ch->desc->pEdit = 0;
     ch->desc->editor = ED_NONE;
     ch->desc->page = 0;
-    if (IS_SET(ch->comm, COMM_OLCX)) {
+    if (IS_SET(ch->comm_flags, COMM_OLCX)) {
         do_clear(ch, "reset");
         InitScreen(ch->desc);
     }

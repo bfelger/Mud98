@@ -2243,7 +2243,7 @@ void do_buy(CharData* ch, char* argument)
         pet = create_mobile(pet->prototype);
         SET_BIT(pet->act_flags, ACT_PET);
         SET_BIT(pet->affect_flags, AFF_CHARM);
-        pet->comm = COMM_NOTELL | COMM_NOSHOUT | COMM_NOCHANNELS;
+        pet->comm_flags = COMM_NOTELL | COMM_NOSHOUT | COMM_NOCHANNELS;
 
         argument = one_argument(argument, arg);
         if (arg[0] != '\0') {

@@ -324,7 +324,7 @@ bool check_social(CharData* ch, char* command, char* argument)
 
     if (!found) return false;
 
-    if (!IS_NPC(ch) && IS_SET(ch->comm, COMM_NOEMOTE)) {
+    if (!IS_NPC(ch) && IS_SET(ch->comm_flags, COMM_NOEMOTE)) {
         send_to_char("You are anti-social!\n\r", ch);
         return true;
     }

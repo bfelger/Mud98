@@ -18,6 +18,40 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+// Comm flags -- may be used on both mobs and chars
+typedef enum comm_flags_t {
+    COMM_QUIET              = BIT(0),
+    COMM_DEAF               = BIT(1),
+    COMM_NOWIZ              = BIT(2),
+    COMM_NOAUCTION          = BIT(3),
+    COMM_NOGOSSIP           = BIT(4),
+    COMM_NOQUESTION         = BIT(5),
+    COMM_NOMUSIC            = BIT(6),
+    COMM_NOCLAN             = BIT(7),
+    COMM_NOQUOTE            = BIT(8),
+    COMM_SHOUTSOFF          = BIT(9),
+    COMM_OLCX               = BIT(10),
+
+// Display flags
+    COMM_COMPACT            = BIT(11),
+    COMM_BRIEF              = BIT(12),
+    COMM_PROMPT             = BIT(13),
+    COMM_COMBINE            = BIT(14),
+    COMM_TELNET_GA          = BIT(15),
+    COMM_SHOW_AFFECTS       = BIT(16),
+    COMM_NOGRATS            = BIT(17),
+    // Unused                 BIT(18)
+
+// Penalties
+    COMM_NOEMOTE            = BIT(19),
+    COMM_NOSHOUT            = BIT(20),
+    COMM_NOTELL             = BIT(21),
+    COMM_NOCHANNELS         = BIT(22),
+    // Unused                 BIT(23)
+    COMM_SNOOP_PROOF        = BIT(24),
+    COMM_AFK                = BIT(25),
+} CommFlags;
+
 bool can_write(Descriptor* d, PollData* poll_data);
 void close_client(SockClient* client);
 void close_server(SockServer* server);

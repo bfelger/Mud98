@@ -875,16 +875,16 @@ bool process_descriptor_output(Descriptor* d, bool fPrompt)
                 }
 
                 ch = d->original ? d->original : d->character;
-                if (!IS_SET(ch->comm, COMM_COMPACT))
+                if (!IS_SET(ch->comm_flags, COMM_COMPACT))
                     write_to_buffer(d, "\n\r", 2);
 
-                if (IS_SET(ch->comm, COMM_PROMPT))
+                if (IS_SET(ch->comm_flags, COMM_PROMPT))
                     bust_a_prompt(d->character);
 
-                if (IS_SET(ch->comm, COMM_TELNET_GA))
+                if (IS_SET(ch->comm_flags, COMM_TELNET_GA))
                     write_to_buffer(d, (const char*)go_ahead_str, 0);
 
-                if (IS_SET(ch->comm, COMM_OLCX)
+                if (IS_SET(ch->comm_flags, COMM_OLCX)
                     && d->editor != ED_NONE
                     && d->pString == NULL)
                     UpdateOLCScreen(d);
@@ -948,7 +948,7 @@ void bust_a_prompt(CharData* ch)
         goto bust_a_prompt_cleanup;
     }
 
-    if (IS_SET(ch->comm, COMM_AFK)) {
+    if (IS_SET(ch->comm_flags, COMM_AFK)) {
         send_to_char("{p<AFK>{x ", ch);
         goto bust_a_prompt_cleanup;
     }

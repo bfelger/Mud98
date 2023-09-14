@@ -163,7 +163,7 @@ void show_list_to_char(ObjectData* list, CharData* ch, bool fShort,
 
             fCombine = false;
 
-            if (IS_NPC(ch) || IS_SET(ch->comm, COMM_COMBINE)) {
+            if (IS_NPC(ch) || IS_SET(ch->comm_flags, COMM_COMBINE)) {
                 /*
                  * Look for duplicates, case sensitive.
                  * Matches tend to be near end so run loop backwords.
@@ -197,7 +197,7 @@ void show_list_to_char(ObjectData* list, CharData* ch, bool fShort,
             continue;
         }
 
-        if (IS_NPC(ch) || IS_SET(ch->comm, COMM_COMBINE)) {
+        if (IS_NPC(ch) || IS_SET(ch->comm_flags, COMM_COMBINE)) {
             if (prgnShow[iShow] != 1) {
                 sprintf(buf, "(%2d) ", prgnShow[iShow]);
                 add_buf(output, buf);
@@ -212,7 +212,7 @@ void show_list_to_char(ObjectData* list, CharData* ch, bool fShort,
     }
 
     if (fShowNothing && nShow == 0) {
-        if (IS_NPC(ch) || IS_SET(ch->comm, COMM_COMBINE))
+        if (IS_NPC(ch) || IS_SET(ch->comm_flags, COMM_COMBINE))
             send_to_char("     ", ch);
         send_to_char("Nothing.\n\r", ch);
     }
@@ -235,7 +235,7 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
 
     buf[0] = '\0';
 
-    if (IS_SET(victim->comm, COMM_AFK)) strcat(buf, "[AFK] ");
+    if (IS_SET(victim->comm_flags, COMM_AFK)) strcat(buf, "[AFK] ");
     if (IS_AFFECTED(victim, AFF_INVISIBLE)) strcat(buf, "(Invis) ");
     if (victim->invis_level >= LEVEL_HERO) strcat(buf, "(Wizi) ");
     if (IS_AFFECTED(victim, AFF_HIDE)) strcat(buf, "(Hide) ");
@@ -259,7 +259,7 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
     }
 
     strcat(buf, PERS(victim, ch));
-    if (!IS_NPC(victim) && !IS_SET(ch->comm, COMM_BRIEF)
+    if (!IS_NPC(victim) && !IS_SET(ch->comm_flags, COMM_BRIEF)
         && victim->position == POS_STANDING && ch->on == NULL)
         strcat(buf, victim->pcdata->title);
 
@@ -620,19 +620,19 @@ void do_autolist(CharData* ch, char* argument)
         send_to_char("OFF\n\r", ch);
 
     send_to_char("compact mode   ", ch);
-    if (IS_SET(ch->comm, COMM_COMPACT))
+    if (IS_SET(ch->comm_flags, COMM_COMPACT))
         send_to_char("ON\n\r", ch);
     else
         send_to_char("OFF\n\r", ch);
 
     send_to_char("prompt         ", ch);
-    if (IS_SET(ch->comm, COMM_PROMPT))
+    if (IS_SET(ch->comm_flags, COMM_PROMPT))
         send_to_char("ON\n\r", ch);
     else
         send_to_char("OFF\n\r", ch);
 
     send_to_char("combine items  ", ch);
-    if (IS_SET(ch->comm, COMM_COMBINE))
+    if (IS_SET(ch->comm_flags, COMM_COMBINE))
         send_to_char("ON\n\r", ch);
     else
         send_to_char("OFF\n\r", ch);
@@ -739,37 +739,37 @@ void do_autosplit(CharData* ch, char* argument)
 
 void do_brief(CharData* ch, char* argument)
 {
-    if (IS_SET(ch->comm, COMM_BRIEF)) {
+    if (IS_SET(ch->comm_flags, COMM_BRIEF)) {
         send_to_char("Full descriptions activated.\n\r", ch);
-        REMOVE_BIT(ch->comm, COMM_BRIEF);
+        REMOVE_BIT(ch->comm_flags, COMM_BRIEF);
     }
     else {
         send_to_char("Short descriptions activated.\n\r", ch);
-        SET_BIT(ch->comm, COMM_BRIEF);
+        SET_BIT(ch->comm_flags, COMM_BRIEF);
     }
 }
 
 void do_compact(CharData* ch, char* argument)
 {
-    if (IS_SET(ch->comm, COMM_COMPACT)) {
+    if (IS_SET(ch->comm_flags, COMM_COMPACT)) {
         send_to_char("Compact mode removed.\n\r", ch);
-        REMOVE_BIT(ch->comm, COMM_COMPACT);
+        REMOVE_BIT(ch->comm_flags, COMM_COMPACT);
     }
     else {
         send_to_char("Compact mode set.\n\r", ch);
-        SET_BIT(ch->comm, COMM_COMPACT);
+        SET_BIT(ch->comm_flags, COMM_COMPACT);
     }
 }
 
 void do_show(CharData* ch, char* argument)
 {
-    if (IS_SET(ch->comm, COMM_SHOW_AFFECTS)) {
+    if (IS_SET(ch->comm_flags, COMM_SHOW_AFFECTS)) {
         send_to_char("Affects will no longer be shown in score.\n\r", ch);
-        REMOVE_BIT(ch->comm, COMM_SHOW_AFFECTS);
+        REMOVE_BIT(ch->comm_flags, COMM_SHOW_AFFECTS);
     }
     else {
         send_to_char("Affects will now be shown in score.\n\r", ch);
-        SET_BIT(ch->comm, COMM_SHOW_AFFECTS);
+        SET_BIT(ch->comm_flags, COMM_SHOW_AFFECTS);
     }
 }
 
@@ -778,13 +778,13 @@ void do_prompt(CharData* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
 
     if (argument[0] == '\0') {
-        if (IS_SET(ch->comm, COMM_PROMPT)) {
+        if (IS_SET(ch->comm_flags, COMM_PROMPT)) {
             send_to_char("You will no longer see prompts.\n\r", ch);
-            REMOVE_BIT(ch->comm, COMM_PROMPT);
+            REMOVE_BIT(ch->comm_flags, COMM_PROMPT);
         }
         else {
             send_to_char("You will now see prompts.\n\r", ch);
-            SET_BIT(ch->comm, COMM_PROMPT);
+            SET_BIT(ch->comm_flags, COMM_PROMPT);
         }
         return;
     }
@@ -807,13 +807,13 @@ void do_prompt(CharData* ch, char* argument)
 
 void do_combine(CharData* ch, char* argument)
 {
-    if (IS_SET(ch->comm, COMM_COMBINE)) {
+    if (IS_SET(ch->comm_flags, COMM_COMBINE)) {
         send_to_char("Long inventory selected.\n\r", ch);
-        REMOVE_BIT(ch->comm, COMM_COMBINE);
+        REMOVE_BIT(ch->comm_flags, COMM_COMBINE);
     }
     else {
         send_to_char("Combined inventory selected.\n\r", ch);
-        SET_BIT(ch->comm, COMM_COMBINE);
+        SET_BIT(ch->comm_flags, COMM_COMBINE);
     }
 }
 
@@ -922,7 +922,7 @@ void do_look(CharData* ch, char* argument)
 
         send_to_char("{x\n\r", ch);
 
-        if (arg1[0] == '\0' || (!IS_NPC(ch) && !IS_SET(ch->comm, COMM_BRIEF))) {
+        if (arg1[0] == '\0' || (!IS_NPC(ch) && !IS_SET(ch->comm_flags, COMM_BRIEF))) {
             sprintf(buf, "{S  %s{x", ch->in_room->description);
             send_to_char(buf, ch);
         }
@@ -1463,7 +1463,7 @@ void do_score(CharData* ch, char* argument)
     else
         send_to_char("satanic.\n\r", ch);
 
-    if (IS_SET(ch->comm, COMM_SHOW_AFFECTS)) 
+    if (IS_SET(ch->comm_flags, COMM_SHOW_AFFECTS)) 
         do_function(ch, &do_affects, "");
 }
 
@@ -1691,7 +1691,7 @@ void do_whois(CharData* ch, char* argument)
                 wch->incog_level >= LEVEL_HERO ? "{_(Incog){x " : "",
                 wch->invis_level >= LEVEL_HERO ? "{_(Wizi){x " : "",
                 clan_table[wch->clan].who_name,
-                IS_SET(wch->comm, COMM_AFK) ? "[AFK] " : "",
+                IS_SET(wch->comm_flags, COMM_AFK) ? "[AFK] " : "",
                 IS_SET(wch->act_flags, PLR_KILLER) ? "{_(KILLER){x " : "",
                 IS_SET(wch->act_flags, PLR_THIEF) ? "{_(THIEF){x " : "", 
                 wch->name, IS_NPC(wch) ? "" : wch->pcdata->title);
@@ -1863,7 +1863,7 @@ void do_who(CharData* ch, char* argument)
             class_, wch->incog_level >= LEVEL_HERO ? "{_(Incog){x " : "",
             wch->invis_level >= LEVEL_HERO ? "{_(Wizi){x " : "",
             clan_table[wch->clan].who_name,
-            IS_SET(wch->comm, COMM_AFK) ? "[AFK] " : "",
+            IS_SET(wch->comm_flags, COMM_AFK) ? "[AFK] " : "",
             IS_SET(wch->act_flags, PLR_KILLER) ? "{_(KILLER){x " : "",
             IS_SET(wch->act_flags, PLR_THIEF) ? "{_(THIEF){x " : "", wch->name,
             IS_NPC(wch) ? "" : wch->pcdata->title);
