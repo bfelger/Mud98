@@ -42,26 +42,26 @@ typedef struct descriptor_t {
     Descriptor* snoop_by;
     CharData* character;
     CharData* original;
-    bool valid;
     char* host;
     SockClient client;
     ConnectionState connected;
-    bool fcommand;
     char inbuf[4 * MAX_INPUT_LENGTH];
     char incomm[MAX_INPUT_LENGTH];
     char inlast[MAX_INPUT_LENGTH];
-    int repeat;
     char* outbuf;
     size_t outsize;
     ptrdiff_t outtop;
     char* showstr_head;
     char* showstr_point;
-    uintptr_t pEdit;    // OLC
     char** pString;     // OLC
-    int16_t editor;     // OLC
-    int16_t page;
+    uintptr_t pEdit;    // OLC
     char* screenmap;
     char* oldscreenmap;
+    int repeat;
+    int16_t editor;     // OLC
+    int16_t page;
+    bool fcommand;
+    bool valid;
 } Descriptor;
 
 void free_descriptor(Descriptor* d);

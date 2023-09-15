@@ -121,9 +121,11 @@ extern char area_dir[];
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef struct char_data_t CharData;
+typedef enum spell_target_t SpellTarget;
+
 typedef void DoFunc(CharData* ch, char* argument);
 typedef bool SpecFunc(CharData* ch);
-typedef void SpellFunc(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target);
+typedef void SpellFunc(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target);
 typedef int	LookupFunc(const char*);
 
 #define DECLARE_DO_FUN( fun )       DoFunc fun
@@ -332,22 +334,6 @@ struct kill_data {
  *                   (End of this section ... stop here)                   *
  *                                                                         *
  ***************************************************************************/
-
-/*
- *  Target types.
- */
-#define TAR_IGNORE         0
-#define TAR_CHAR_OFFENSIVE 1
-#define TAR_CHAR_DEFENSIVE 2
-#define TAR_CHAR_SELF      3
-#define TAR_OBJ_INV        4
-#define TAR_OBJ_CHAR_DEF   5
-#define TAR_OBJ_CHAR_OFF   6
-
-#define TARGET_CHAR        0
-#define TARGET_OBJ         1
-#define TARGET_ROOM        2
-#define TARGET_NONE        3
 
 /*
  * Utility macros.

@@ -167,7 +167,7 @@ const struct olc_comm_type room_olc_comm_table[] = {
     { "mshow",	    0,				        ed_olded,		    U(medit_show)	},
     { "oshow",	    0,				        ed_olded,		    U(oedit_show)	},
     { "purge",	    0,				        ed_docomm,		    U(do_purge)	    },
-    { "clear",	    0,				        ed_olded,		    U(redit_limpiar)},
+    { "clear",	    0,				        ed_olded,		    U(redit_clear)},
     { "commands",	0,				        ed_olded,		    U(show_commands)},
     { "?",		    0,				        ed_olded,		    U(show_help)	},
     { "version",	0,				        ed_olded,		    U(show_version)	},

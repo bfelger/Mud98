@@ -647,7 +647,7 @@ void load_races_table()
         exit(-1);
     }
 
-    // clear races
+    //// clear races
     //for (i = 0; i <= maxrace; i++) {
     //    race_table[i] = cRace;
     //    race_table[i].race_id = i;

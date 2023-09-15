@@ -911,7 +911,7 @@ void fread_char(CharData* ch, FILE* fp)
         case 'G':
             KEY("Gold", ch->gold, (int16_t)fread_number(fp));
             if (!str_cmp(word, "Group") || !str_cmp(word, "Gr")) {
-                int gn;
+                SKNUM gn;
                 char* temp;
 
                 temp = fread_word(fp);

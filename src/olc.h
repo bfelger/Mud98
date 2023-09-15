@@ -219,7 +219,7 @@ DECLARE_OLC_FUN(redit_checkmob);
 DECLARE_OLC_FUN(redit_checkobj);
 DECLARE_OLC_FUN(redit_copy);
 DECLARE_OLC_FUN(redit_checkrooms);
-DECLARE_OLC_FUN(redit_limpiar);
+DECLARE_OLC_FUN(redit_clear);
 
 /*
  * Object Editor Prototypes

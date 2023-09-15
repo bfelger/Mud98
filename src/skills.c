@@ -60,14 +60,16 @@ void do_gain(CharData* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
     CharData* trainer;
-    int gn = 0, sn = 0;
+    SKNUM gn = 0, sn = 0;
 
-    if (IS_NPC(ch)) return;
+    if (IS_NPC(ch)) 
+        return;
 
     /* find a trainer */
     for (trainer = ch->in_room->people; trainer != NULL;
          trainer = trainer->next_in_room)
-        if (IS_NPC(trainer) && IS_SET(trainer->act_flags, ACT_GAIN)) break;
+        if (IS_NPC(trainer) && IS_SET(trainer->act_flags, ACT_GAIN)) 
+            break;
 
     if (trainer == NULL || !can_see(ch, trainer)) {
         send_to_char("You can't do that here.\n\r", ch);
@@ -82,9 +84,7 @@ void do_gain(CharData* ch, char* argument)
     }
 
     if (!str_prefix(arg, "list")) {
-        int col;
-
-        col = 0;
+        int col = 0;
 
         sprintf(buf, "%-18s %-5s %-18s %-5s %-18s %-5s\n\r", "group", "cost",
                 "group", "cost", "group", "cost");
@@ -101,7 +101,8 @@ void do_gain(CharData* ch, char* argument)
                 if (++col % 3 == 0) send_to_char("\n\r", ch);
             }
         }
-        if (col % 3 != 0) send_to_char("\n\r", ch);
+        if (col % 3 != 0) 
+            send_to_char("\n\r", ch);
 
         send_to_char("\n\r", ch);
 
@@ -235,7 +236,9 @@ void do_spells(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char spell_columns[LEVEL_HERO + 1] = { 0 };
-    int sn, level, min_lev = 1, max_lev = LEVEL_HERO, mana;
+    SKNUM sn;
+    LEVEL level, min_lev = 1, max_lev = LEVEL_HERO;
+    int mana;
     bool fAll = false, found = false;
     char buf[MAX_STRING_LENGTH];
     int slot;
@@ -252,7 +255,7 @@ void do_spells(CharData* ch, char* argument)
                 send_to_char("Arguments must be numerical or all.\n\r", ch);
                 return;
             }
-            max_lev = atoi(arg);
+            max_lev = (LEVEL)atoi(arg);
 
             if (max_lev < 1 || max_lev > LEVEL_HERO) {
                 sprintf(buf, "Levels must be between 1 and %d.\n\r",
@@ -268,7 +271,7 @@ void do_spells(CharData* ch, char* argument)
                     return;
                 }
                 min_lev = max_lev;
-                max_lev = atoi(arg);
+                max_lev = (LEVEL)atoi(arg);
 
                 if (max_lev < 1 || max_lev > LEVEL_HERO) {
                     sprintf(buf, "Levels must be between 1 and %d.\n\r",
@@ -356,7 +359,8 @@ void do_skills(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char skill_columns[LEVEL_HERO + 1] = { 0 };
-    int sn, level, min_lev = 1, max_lev = LEVEL_HERO;
+    SKNUM sn;
+    LEVEL level, min_lev = 1, max_lev = LEVEL_HERO;
     bool fAll = false, found = false;
     char buf[MAX_STRING_LENGTH];
     int slot;
@@ -372,7 +376,7 @@ void do_skills(CharData* ch, char* argument)
                 send_to_char("Arguments must be numerical or all.\n\r", ch);
                 return;
             }
-            max_lev = atoi(arg);
+            max_lev = (LEVEL)atoi(arg);
 
             if (max_lev < 1 || max_lev > LEVEL_HERO) {
                 sprintf(buf, "Levels must be between 1 and %d.\n\r",
@@ -388,7 +392,7 @@ void do_skills(CharData* ch, char* argument)
                     return;
                 }
                 min_lev = max_lev;
-                max_lev = atoi(arg);
+                max_lev = (LEVEL)atoi(arg);
 
                 if (max_lev < 1 || max_lev > LEVEL_HERO) {
                     sprintf(buf, "Levels must be between 1 and %d.\n\r",
@@ -476,7 +480,8 @@ void do_skills(CharData* ch, char* argument)
 void list_group_costs(CharData* ch)
 {
     char buf[100];
-    int gn, sn, col;
+    SKNUM gn, sn;
+    int col;
 
     if (IS_NPC(ch)) return;
 
@@ -532,7 +537,8 @@ void list_group_costs(CharData* ch)
 void list_group_chosen(CharData* ch)
 {
     char buf[100];
-    int gn, sn, col;
+    SKNUM gn, sn;
+    int col;
 
     if (IS_NPC(ch)) return;
 
@@ -620,7 +626,8 @@ bool parse_gen_groups(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char buf[100];
-    int gn, sn, i;
+    SKNUM gn, sn;
+    int i;
 
     if (argument[0] == '\0') return false;
 
@@ -764,7 +771,8 @@ bool parse_gen_groups(CharData* ch, char* argument)
 void do_groups(CharData* ch, char* argument)
 {
     char buf[100];
-    int gn, sn, col;
+    SKNUM gn, sn;
+    int col;
 
     if (IS_NPC(ch)) return;
 
@@ -817,7 +825,7 @@ void do_groups(CharData* ch, char* argument)
 }
 
 /* checks for skill improvement */
-void check_improve(CharData* ch, int sn, bool success, int multiplier)
+void check_improve(CharData* ch, SKNUM sn, bool success, int multiplier)
 {
     int chance;
     char buf[100];
@@ -865,9 +873,9 @@ void check_improve(CharData* ch, int sn, bool success, int multiplier)
 }
 
 /* returns a group index number given the name */
-int group_lookup(const char* name)
+SKNUM group_lookup(const char* name)
 {
-    int gn;
+    SKNUM gn;
 
     for (gn = 0; gn < max_group; gn++) {
         if (group_table[gn].name == NULL) break;
@@ -880,26 +888,28 @@ int group_lookup(const char* name)
 }
 
 /* recursively adds a group given its number -- uses group_add */
-void gn_add(CharData* ch, int gn)
+void gn_add(CharData* ch, SKNUM gn)
 {
     int i;
 
     ch->pcdata->group_known[gn] = true;
     for (i = 0; i < MAX_IN_GROUP; i++) {
-        if (group_table[gn].spells[i] == NULL) break;
+        if (group_table[gn].spells[i] == NULL) 
+            break;
         group_add(ch, group_table[gn].spells[i], false);
     }
 }
 
 /* recusively removes a group given its number -- uses group_remove */
-void gn_remove(CharData* ch, int gn)
+void gn_remove(CharData* ch, SKNUM gn)
 {
     int i;
 
     ch->pcdata->group_known[gn] = false;
 
     for (i = 0; i < MAX_IN_GROUP; i++) {
-        if (group_table[gn].spells[i] == NULL) break;
+        if (group_table[gn].spells[i] == NULL) 
+            break;
         group_remove(ch, group_table[gn].spells[i]);
     }
 }
@@ -907,7 +917,7 @@ void gn_remove(CharData* ch, int gn)
 /* use for processing a skill or group for addition  */
 void group_add(CharData* ch, const char* name, bool deduct)
 {
-    int sn, gn;
+    SKNUM sn, gn;
 
     if (IS_NPC(ch)) /* NPCs do not have skills */
         return;
@@ -940,7 +950,7 @@ void group_add(CharData* ch, const char* name, bool deduct)
 
 void group_remove(CharData* ch, const char* name)
 {
-    int sn, gn;
+    SKNUM sn, gn;
 
     sn = skill_lookup(name);
 

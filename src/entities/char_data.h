@@ -83,7 +83,7 @@ typedef struct char_data_t {
     Sex sex;
     int16_t ch_class;
     int16_t race;
-    int16_t level;
+    LEVEL level;
     int16_t trust;
     MobSize size;
     Position position;

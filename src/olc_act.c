@@ -4227,7 +4227,7 @@ ED_FUN_DEC(ed_addaffect)
     }
 
     pAf = new_affect();
-    pAf->location = (int16_t)value;
+    pAf->location = (AffectLocation)value;
     pAf->modifier = (int16_t)atoi(mod);
     pAf->where = TO_OBJECT;
     pAf->type = -1;
@@ -4490,9 +4490,9 @@ ED_FUN_DEC(ed_olist)
 {
     ObjectPrototype* obj_proto;
     AreaData* pArea;
-    char		buf[MAX_STRING_LENGTH];
+    char buf[MAX_STRING_LENGTH];
     Buffer* buf1;
-    char		blarg[MAX_INPUT_LENGTH];
+    char blarg[MAX_INPUT_LENGTH];
     bool fAll, found;
     VNUM vnum;
     int  col = 0;
@@ -4537,7 +4537,7 @@ ED_FUN_DEC(ed_olist)
     return false;
 }
 
-REDIT(redit_limpiar)
+REDIT(redit_clear)
 {
     RoomData* pRoom;
     int i;
