@@ -18,6 +18,7 @@
 #include "entities/descriptor.h"
 
 #include "data/mobile.h"
+#include "data/race.h"
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -36,7 +37,7 @@ struct savetable_type {
 };
 
 CmdInfo tmp_cmd;
-struct race_type tmp_race;
+Race tmp_race;
 struct social_type tmp_soc;
 struct skill_type tmp_sk;
 MobProgCode tmp_pcode;
@@ -83,16 +84,16 @@ char* race_str(void* temp)
 
 char* clan_str(void* temp)
 {
-    int16_t* klan = (int16_t*)temp;
+    int16_t* clan = (int16_t*)temp;
 
-    return clan_table[*klan].name;
+    return clan_table[*clan].name;
 }
 
 char* class_str(void* temp)
 {
-    int16_t* class = (int16_t*)temp;
+    int16_t* class_ = (int16_t*)temp;
 
-    return class_table[*class].name;
+    return class_table[*class_].name;
 }
 
 char* pgsn_str(void* temp)
@@ -152,10 +153,10 @@ bool do_fun_read(void* temp, char* arg)
 
 bool position_read(void* temp, char* arg)
 {
-    int16_t* posic = (int16_t*)temp;
+    int16_t* pos = (int16_t*)temp;
     int16_t ffg = (int16_t)position_lookup(arg);
 
-    *posic = UMAX(0, ffg);
+    *pos = UMAX(0, ffg);
 
     if (ffg == -1)
         return false;
@@ -222,20 +223,20 @@ const struct savetable_type progcodesavetable[] = {
 };
 
 const struct savetable_type skillsavetable[] = {
-    {"name",		    FIELD_STRING,			    U(&tmp_sk.name),		    0,			    0	},
-    {"skill_level",	    FIELD_INT16_ARRAY,		    U(&tmp_sk.skill_level),	    U(MAX_CLASS),	0	},
-    {"rating",	        FIELD_INT16_ARRAY,		    U(&tmp_sk.rating),		    U(MAX_CLASS),	0	},
-    {"spell_fun",	    FIELD_FUNCTION_INT_TO_STR,	U(&tmp_sk.spell_fun),	    U(spell_fun_str),U(spell_fun_read)	},
-    {"target",	        FIELD_INT16_FLAGSTRING,		U(&tmp_sk.target),		    U(target_table),0	},
-    {"minimum_position",FIELD_FUNCTION_INT16_TO_STR,U(&tmp_sk.minimum_position),U(position_str),U(position_read)	},
-    {"pgsn",		    FIELD_FUNCTION_INT_TO_STR,	U(&tmp_sk.pgsn),		    U(pgsn_str),	U(pgsn_read)	},
-    {"slot",		    FIELD_INT16,			    U(&tmp_sk.slot),		    0,			    0	},
-    {"min_mana",	    FIELD_INT16,			    U(&tmp_sk.min_mana),	    0,			    0	},
-    {"beats",	        FIELD_INT16,			    U(&tmp_sk.beats),		    0,			    0	},
-    {"noun_damage",	    FIELD_STRING,			    U(&tmp_sk.noun_damage),	    0,			    0	},
-    {"msg_off",	        FIELD_STRING,			    U(&tmp_sk.msg_off),		    0,			    0	},
-    {"msg_obj",	        FIELD_STRING,			    U(&tmp_sk.msg_obj),		    0,			    0	},
-    {NULL,		        0,				            0,				            0,			    0	}
+    {"name",		    FIELD_STRING,			    U(&tmp_sk.name),		    0,			    0	                },
+    {"skill_level",	    FIELD_INT16_ARRAY,		    U(&tmp_sk.skill_level),	    U(MAX_CLASS),	0	                },
+    {"rating",	        FIELD_INT16_ARRAY,		    U(&tmp_sk.rating),		    U(MAX_CLASS),	0	                },
+    {"spell_fun",	    FIELD_FUNCTION_INT_TO_STR,	U(&tmp_sk.spell_fun),	    U(spell_fun_str),U(spell_fun_read)  },
+    {"target",	        FIELD_INT16_FLAGSTRING,		U(&tmp_sk.target),		    U(target_table),0	                },
+    {"minimum_position",FIELD_FUNCTION_INT16_TO_STR,U(&tmp_sk.minimum_position),U(position_str),U(position_read)    },
+    {"pgsn",		    FIELD_FUNCTION_INT_TO_STR,	U(&tmp_sk.pgsn),		    U(pgsn_str),	U(pgsn_read)	    },
+    {"slot",		    FIELD_INT16,			    U(&tmp_sk.slot),		    0,			    0	                },
+    {"min_mana",	    FIELD_INT16,			    U(&tmp_sk.min_mana),	    0,			    0	                },
+    {"beats",	        FIELD_INT16,			    U(&tmp_sk.beats),		    0,			    0	                },
+    {"noun_damage",	    FIELD_STRING,			    U(&tmp_sk.noun_damage),	    0,			    0	                },
+    {"msg_off",	        FIELD_STRING,			    U(&tmp_sk.msg_off),		    0,			    0	                },
+    {"msg_obj",	        FIELD_STRING,			    U(&tmp_sk.msg_obj),		    0,			    0	                },
+    {NULL,		        0,				            0,				            0,			    0	                }
 };
 
 const struct savetable_type socialsavetable[] = {
@@ -251,34 +252,34 @@ const struct savetable_type socialsavetable[] = {
 };
 
 const struct savetable_type racesavetable[] = {
-    { "name",	    FIELD_STRING,		U(&tmp_race.name),	    0,		    0},
-    { "pc",		    FIELD_BOOL,			U(&tmp_race.pc_race),	0,		    0},
-    { "act",	    FIELD_FLAGVECTOR,	U(&tmp_race.act_flags), 0,		    0},
-    { "aff",	    FIELD_FLAGVECTOR,	U(&tmp_race.aff),	    0,		    0},
-    { "off",	    FIELD_FLAGVECTOR,	U(&tmp_race.off),	    0,		    0},
-    { "imm",	    FIELD_FLAGVECTOR,	U(&tmp_race.imm),	    0,		    0},
-    { "res",	    FIELD_FLAGVECTOR,	U(&tmp_race.res),	    0,		    0},
-    { "vuln",	    FIELD_FLAGVECTOR,	U(&tmp_race.vuln),	    0,		    0},
-    { "form",	    FIELD_FLAGVECTOR,	U(&tmp_race.form),	    0,		    0},
-    { "parts",	    FIELD_FLAGVECTOR,	U(&tmp_race.parts),	    0,		    0},
-    { "points",	    FIELD_INT16,		U(&tmp_race.points),	0,			    0	},
-    { "class_mult",	FIELD_INT16_ARRAY,	U(&tmp_race.class_mult),U(MAX_CLASS),	0	},
-    { "who_name",	FIELD_STRING,		U(&tmp_race.who_name),	0,			    0	},
-    { "skills",	    FIELD_STRING_ARRAY,	U(&tmp_race.skills),	U(5),		    0	},
-    { "stats",	    FIELD_INT16_ARRAY,	U(&tmp_race.stats),		U(MAX_STATS),	0	},
-    { "max_stats",	FIELD_INT16_ARRAY,	U(&tmp_race.max_stats),	U(MAX_STATS),	0	},
-    { "size",		FIELD_FUNCTION_INT16_TO_STR,U(&tmp_race.size),	U(size_str),U(size_read)},
-    { NULL,		    0,				    0,			            0,		    0}
+    { "name",	    FIELD_STRING,		        U(&tmp_race.name),	        0,		        0           },
+    { "pc",		    FIELD_BOOL,			        U(&tmp_race.pc_race),	    0,		        0           },
+    { "act",	    FIELD_FLAGVECTOR,	        U(&tmp_race.act_flags),     0,		        0           },
+    { "aff",	    FIELD_FLAGVECTOR,	        U(&tmp_race.aff),	        0,		        0           },
+    { "off",	    FIELD_FLAGVECTOR,	        U(&tmp_race.off),	        0,		        0           },
+    { "imm",	    FIELD_FLAGVECTOR,	        U(&tmp_race.imm),	        0,		        0           },
+    { "res",	    FIELD_FLAGVECTOR,	        U(&tmp_race.res),	        0,		        0           },
+    { "vuln",	    FIELD_FLAGVECTOR,	        U(&tmp_race.vuln),	        0,		        0           },
+    { "form",	    FIELD_FLAGVECTOR,	        U(&tmp_race.form),	        0,		        0           },
+    { "parts",	    FIELD_FLAGVECTOR,	        U(&tmp_race.parts),	        0,		        0           },
+    { "points",	    FIELD_INT16,		        U(&tmp_race.points),	    0,			    0	        },
+    { "class_mult",	FIELD_INT16_ARRAY,	        U(&tmp_race.class_mult),    U(MAX_CLASS),	0	        },
+    { "who_name",	FIELD_STRING,		        U(&tmp_race.who_name),	    0,			    0	        },
+    { "skills",	    FIELD_STRING_ARRAY,	        U(&tmp_race.skills),	    U(5),		    0	        },
+    { "stats",	    FIELD_INT16_ARRAY,	        U(&tmp_race.stats),		    U(STAT_MAX),	0	        },
+    { "max_stats",	FIELD_INT16_ARRAY,	        U(&tmp_race.max_stats),	    U(STAT_MAX),	0	        },
+    { "size",		FIELD_FUNCTION_INT16_TO_STR,U(&tmp_race.size),	        U(size_str),    U(size_read)},
+    { NULL,		    0,				            0,			                0,		        0           }
 };
 
 const struct savetable_type cmdsavetable[] = {
-    { "name",		FIELD_STRING,			    U(&tmp_cmd.name),	    0,		        0 },
-    { "do_fun",	    FIELD_FUNCTION_INT_TO_STR,	U(&tmp_cmd.do_fun),	    U(do_fun_str),	U(do_fun_read) },
-    { "position",	FIELD_FUNCTION_INT16_TO_STR,U(&tmp_cmd.position),   U(position_str),U(position_read) },
-    { "level",	    FIELD_INT16,			    U(&tmp_cmd.level),	    0,		        0 },
-    { "log",		FIELD_INT16_FLAGSTRING,		U(&tmp_cmd.log),	    U(log_flag_table),	0 },
-    { "show",		FIELD_INT16_FLAGSTRING,		U(&tmp_cmd.show),	    U(show_flag_table),	0 },
-    { NULL,		    0,				            0,			            0,		        0 }
+    { "name",		FIELD_STRING,			    U(&tmp_cmd.name),	    0,		            0               },
+    { "do_fun",	    FIELD_FUNCTION_INT_TO_STR,	U(&tmp_cmd.do_fun),	    U(do_fun_str),	    U(do_fun_read)  },
+    { "position",	FIELD_FUNCTION_INT16_TO_STR,U(&tmp_cmd.position),   U(position_str),    U(position_read)},
+    { "level",	    FIELD_INT16,			    U(&tmp_cmd.level),	    0,		            0               },
+    { "log",		FIELD_INT16_FLAGSTRING,		U(&tmp_cmd.log),	    U(log_flag_table),	0               },
+    { "show",		FIELD_INT16_FLAGSTRING,		U(&tmp_cmd.show),	    U(show_flag_table),	0               },
+    { NULL,		    0,				            0,			            0,		            0               }
 };
 
 void load_struct(FILE* fp, uintptr_t base_type, const struct savetable_type* table, const uintptr_t pointer)
@@ -624,7 +625,6 @@ void load_command_table(void)
 void load_races_table()
 {
     FILE* fp;
-    extern int maxrace;
     char* word;
     int i;
 
@@ -637,21 +637,15 @@ void load_races_table()
         return;
     }
 
-    maxrace = fread_number(fp);
+    int maxrace = fread_number(fp);
 
-    size_t new_size = sizeof(struct race_type) * ((size_t)maxrace + 1);
+    size_t new_size = sizeof(Race) * ((size_t)maxrace + 1);
     flog("Creating race_table of length %d, size %zu", maxrace + 1, new_size);
 
-    if ((race_table = calloc(sizeof(struct race_type), (size_t)maxrace + 1)) == NULL) {
+    if ((race_table = calloc(sizeof(Race), (size_t)maxrace + 1)) == NULL) {
         perror("load_races_table(): Could not allocate race_table!");
         exit(-1);
     }
-
-    //// clear races
-    //for (i = 0; i <= maxrace; i++) {
-    //    race_table[i] = cRace;
-    //    race_table[i].race_id = i;
-    //}
 
     i = 0;
 
@@ -680,7 +674,7 @@ void load_socials_table()
     FILE* fp;
     int i;
     extern int maxSocial;
-    char* clave;
+    char* word;
 
     char social_file[256];
     sprintf(social_file, "%s%s", area_dir, SOCIAL_FILE);
@@ -705,9 +699,8 @@ void load_socials_table()
     }
 
     for (i = 0; i < maxSocial; i++) {
-        if (str_cmp((clave = fread_word(fp)), "#SOCIAL")) {
-            bugf("load_socials_table : section '%s' does not exist",
-                clave);
+        if (str_cmp((word = fread_word(fp)), "#SOCIAL")) {
+            bugf("load_socials_table : Expected '#SOCIAL', got '%s'.", word);
             exit(1);
         }
         load_struct(fp, U(&tmp_soc), socialsavetable, U(&social_table[i]));
@@ -785,8 +778,7 @@ void load_skills_table()
 void save_races(void)
 {
     FILE* fp;
-    const struct race_type* temp;
-    extern struct race_type* race_table;
+    const Race* temp;
     int cnt = 0;
 
     char tempraces_file[256];

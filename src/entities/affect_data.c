@@ -397,7 +397,7 @@ void affect_modify(CharData* ch, AffectData* paf, bool fAdd)
      */
     if (!IS_NPC(ch) && (wield = get_eq_char(ch, WEAR_WIELD)) != NULL
         && get_obj_weight(wield)
-        > (str_app[get_curr_stat(ch, STAT_STR)].wield * 10)) {
+        > (str_mod[get_curr_stat(ch, STAT_STR)].wield * 10)) {
         static int depth;
 
         if (depth == 0) {

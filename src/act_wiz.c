@@ -51,6 +51,7 @@
 #include "data/item.h"
 #include "data/mobile.h"
 #include "data/player.h"
+#include "data/race.h"
 
 #include <stdio.h>
 #include <stdlib.h>

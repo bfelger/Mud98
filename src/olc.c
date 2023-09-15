@@ -30,6 +30,7 @@
 #include "entities/reset_data.h"
 
 #include "data/mobile.h"
+#include "data/race.h"
 
 #include <sys/types.h>
 #include <ctype.h>
@@ -45,14 +46,14 @@ AreaData* get_area_data args((VNUM vnum));
 
 void UpdateOLCScreen(Descriptor*);
 
-MobPrototype		xMob;
-ObjectPrototype		xObj;
+MobPrototype        xMob;
+ObjectPrototype     xObj;
 RoomData            xRoom;
-struct	skill_type	xSkill;
-struct	race_type	xRace;
-MobProgCode          xProg;
-CmdType xCmd;
-struct	social_type	xSoc;
+struct skill_type   xSkill;
+Race                xRace;
+MobProgCode         xProg;
+CmdType             xCmd;
+struct social_type  xSoc;
 
 #ifdef U
 #define OLD_U U
@@ -282,7 +283,7 @@ char* olc_ed_vnum(CharData* ch)
     MobPrototype* pMob;
     MobProgCode* pMcode;
     HelpData* pHelp;
-    struct race_type* pRace;
+    Race* pRace;
     struct social_type* pSocial;
     struct skill_type* pSkill;
     CmdInfo* pCmd;
@@ -311,7 +312,7 @@ char* olc_ed_vnum(CharData* ch)
         sprintf(buf, "%"PRVNUM, pMcode ? pMcode->vnum : 0);
         break;
     case ED_RACE:
-        pRace = (struct race_type*)ch->desc->pEdit;
+        pRace = (Race*)ch->desc->pEdit;
         sprintf(buf, "%s", pRace ? pRace->name : "");
         break;
     case ED_SOCIAL:

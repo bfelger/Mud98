@@ -106,6 +106,8 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     data/item.h data/item.c
     data/mobile.h data/mobile.c
     data/player.h
+    data/race.h data/race.c 
+    data/stats.h data/stats.c
 )
 
 if (NOT MSVC)

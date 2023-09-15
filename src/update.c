@@ -47,6 +47,7 @@
 #include "entities/player_data.h"
 
 #include "data/mobile.h"
+#include "data/race.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -87,7 +88,7 @@ void advance_level(CharData* ch, bool hide)
             title_table[ch->ch_class][ch->level][ch->sex == SEX_FEMALE ? 1 : 0]);
     set_title(ch, buf);
 
-    add_hp = con_app[get_curr_stat(ch, STAT_CON)].hitp
+    add_hp = con_mod[get_curr_stat(ch, STAT_CON)].hitp
              + (int16_t)number_range(class_table[ch->ch_class].hp_min,
                             class_table[ch->ch_class].hp_max);
     add_mana = (int16_t)number_range(
@@ -95,7 +96,7 @@ void advance_level(CharData* ch, bool hide)
     if (!class_table[ch->ch_class].fMana) add_mana /= 2;
     add_move = (int16_t)number_range(
         1, (get_curr_stat(ch, STAT_CON) + get_curr_stat(ch, STAT_DEX)) / 6);
-    add_prac = wis_app[get_curr_stat(ch, STAT_WIS)].practice;
+    add_prac = wis_mod[get_curr_stat(ch, STAT_WIS)].practice;
 
     add_hp = add_hp * 9 / 10;
     add_mana = add_mana * 9 / 10;

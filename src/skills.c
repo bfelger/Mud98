@@ -41,6 +41,7 @@
 #include "entities/player_data.h"
 
 #include "data/mobile.h"
+#include "data/race.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -838,7 +839,7 @@ void check_improve(CharData* ch, SKNUM sn, bool success, int multiplier)
         return; /* skill is not known */
 
     /* check to see if the character has a chance to learn */
-    chance = 10 * int_app[get_curr_stat(ch, STAT_INT)].learn;
+    chance = 10 * int_mod[get_curr_stat(ch, STAT_INT)].learn;
     chance /= (multiplier * skill_table[sn].rating[ch->ch_class] * 4);
     chance += ch->level;
 

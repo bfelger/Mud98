@@ -215,42 +215,9 @@ struct weather_data {
 };
 
 /*
- * Attribute bonus structures.
- */
-struct str_app_type {
-    int16_t tohit;
-    int16_t todam;
-    int16_t carry;
-    int16_t wield;
-};
-
-struct int_app_type {
-    int16_t learn;
-};
-
-struct wis_app_type {
-    int16_t practice;
-};
-
-struct dex_app_type {
-    int16_t defensive;
-};
-
-struct con_app_type {
-    int16_t hitp;
-    int16_t shock;
-};
-
-/*
  * Per-class stuff.
  */
 #define MAX_GUILD 2
-#define MAX_STATS 5
-#define STAT_STR  0
-#define STAT_INT  1
-#define STAT_WIS  2
-#define STAT_DEX  3
-#define STAT_CON  4
 
 struct class_type {
     char* name; /* the full name of the class */
@@ -272,27 +239,6 @@ struct wiznet_type {
     char* name;
     long flag;
     LEVEL level;
-};
-
-struct race_type {
-    char* name; /* call name of the race */
-    char* who_name;
-    char* skills[5];		/* bonus skills for the race */
-    bool pc_race; /* can be chosen by pcs */
-    FLAGS act_flags; /* act bits for the race */
-    FLAGS aff; /* aff bits for the race */
-    FLAGS off; /* off bits for the race */
-    FLAGS imm; /* imm bits for the race */
-    FLAGS res; /* res bits for the race */
-    FLAGS vuln; /* vuln bits for the race */
-    FLAGS form; /* default form flag for the race */
-    FLAGS parts; /* default parts for the race */
-    int16_t race_id;
-    int16_t points;			/* cost in points of the race */
-    int16_t class_mult[MAX_CLASS];	/* exp multiplier for class, * 100 */
-    int16_t stats[MAX_STATS];	/* starting stats */
-    int16_t max_stats[MAX_STATS];	/* maximum stats */
-    int16_t size;			/* aff bits for the race */
 };
 
 /*
@@ -386,15 +332,9 @@ struct social_type {
 /*
  * Global constants.
  */
-extern const struct str_app_type str_app[26];
-extern const struct int_app_type int_app[26];
-extern const struct wis_app_type wis_app[26];
-extern const struct dex_app_type dex_app[26];
-extern const struct con_app_type con_app[26];
 
 extern const struct class_type class_table[MAX_CLASS];
 extern const struct wiznet_type wiznet_table[];
-extern       struct race_type* race_table;
 extern       struct social_type* social_table;
 extern char* const title_table[MAX_CLASS][MAX_LEVEL + 1][2];
 

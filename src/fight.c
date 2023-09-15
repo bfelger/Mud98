@@ -48,6 +48,7 @@
 
 #include "data/mobile.h"
 #include "data/player.h"
+#include "data/race.h"
 
 #include <stdio.h>
 #include <string.h>

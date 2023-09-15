@@ -52,6 +52,7 @@
 #include "data/direction.h"
 #include "data/mobile.h"
 #include "data/player.h"
+#include "data/race.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -2332,7 +2333,7 @@ void do_practice(CharData* ch, char* argument)
         else {
             ch->practice--;
             ch->pcdata->learned[sn]
-                += int_app[get_curr_stat(ch, STAT_INT)].learn
+                += int_mod[get_curr_stat(ch, STAT_INT)].learn
                    / (int16_t)skill_table[sn].rating[ch->ch_class];
             if (ch->pcdata->learned[sn] < adept) {
                 act("You practice $T.", ch, NULL, skill_table[sn].name,

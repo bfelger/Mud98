@@ -19,14 +19,12 @@
 #include "entities/player_data.h"
 
 #include "data/mobile.h"
-
-struct	race_type* race_table;
-int	maxrace;
+#include "data/race.h"
 
 #define RACE_FILE	DATA_DIR "races"
 #define RAEDIT( fun )		bool fun( CharData *ch, char *argument )
 
-extern struct race_type xRace;
+extern Race xRace;
 
 #ifdef U
 #define OLD_U U
@@ -118,7 +116,7 @@ void do_raedit(CharData* ch, char* argument)
 
 RAEDIT(raedit_show)
 {
-    struct race_type* pRace;
+    Race* pRace;
     char buf[MSL];
     static const char* Stats[] = { "Str", "Int", "Wis", "Dex", "Con" };
     int i = 0;
@@ -164,7 +162,7 @@ RAEDIT(raedit_show)
     if (i % 3)
         send_to_char("\n\r", ch);
 
-    for (i = 0; i < MAX_STATS; ++i) {
+    for (i = 0; i < STAT_MAX; ++i) {
         sprintf(buf, "%s:%2d(%2d) ", Stats[i], pRace->stats[i], pRace->max_stats[i]);
         send_to_char(buf, ch);
     }
@@ -214,7 +212,7 @@ RAEDIT(raedit_new)
 {
     Descriptor* d;
     CharData* tch;
-    struct race_type* new_table;
+    Race* new_table;
     size_t maxRace;
 
     if (IS_NULLSTR(argument)) {
@@ -241,7 +239,7 @@ RAEDIT(raedit_new)
         ;
 
     maxRace++;
-    new_table = realloc(race_table, sizeof(struct race_type) * (maxRace + 1));
+    new_table = realloc(race_table, sizeof(Race) * (maxRace + 1));
 
     if (!new_table) /* realloc failed */
     {
@@ -286,10 +284,10 @@ RAEDIT(raedit_new)
 
 RAEDIT(raedit_cmult)
 {
-    struct race_type* race;
+    Race* race;
     int mult;
-    int vclase;
-    char clase[MIL];
+    int class_idx;
+    char class_name[MIL];
 
     EDIT_RACE(ch, race);
 
@@ -298,9 +296,9 @@ RAEDIT(raedit_cmult)
         return false;
     }
 
-    argument = one_argument(argument, clase);
+    argument = one_argument(argument, class_name);
 
-    if ((vclase = class_lookup(clase)) == -1) {
+    if ((class_idx = class_lookup(class_name)) == -1) {
         send_to_char("RAEdit : That class does not exist.\n\r", ch);
         return false;
     }
@@ -317,14 +315,14 @@ RAEDIT(raedit_cmult)
         return false;
     }
 
-    race->class_mult[vclase] = (int16_t)mult;
+    race->class_mult[class_idx] = (int16_t)mult;
     send_to_char("Ok.\n\r", ch);
     return true;
 }
 
 RAEDIT(raedit_stats)
 {
-    struct race_type* race;
+    Race* race;
     int vstat, value;
     char stat[MIL];
 
@@ -363,7 +361,7 @@ RAEDIT(raedit_stats)
 
 RAEDIT(raedit_maxstats)
 {
-    struct race_type* race;
+    Race* race;
     int vstat, value;
     char stat[MIL];
 
@@ -402,8 +400,9 @@ RAEDIT(raedit_maxstats)
 
 RAEDIT(raedit_skills)
 {
-    struct race_type* race;
-    int sk, num;
+    Race* race;
+    SKNUM sk;
+    int num;
     char snum[MIL];
 
     EDIT_RACE(ch, race);

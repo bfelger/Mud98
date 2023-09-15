@@ -1704,7 +1704,7 @@ void clone_mobile(CharData* parent, CharData* clone)
 
     for (i = 0; i < 4; i++) clone->armor[i] = parent->armor[i];
 
-    for (i = 0; i < MAX_STATS; i++) {
+    for (i = 0; i < STAT_MAX; i++) {
         clone->perm_stat[i] = parent->perm_stat[i];
         clone->mod_stat[i] = parent->mod_stat[i];
     }
@@ -1750,7 +1750,7 @@ void clear_char(CharData* ch)
     ch->move = 100;
     ch->max_move = 100;
     ch->on = NULL;
-    for (i = 0; i < MAX_STATS; i++) {
+    for (i = 0; i < STAT_MAX; i++) {
         ch->perm_stat[i] = 13;
         ch->mod_stat[i] = 0;
     }

@@ -61,6 +61,7 @@
 
 #include "data/mobile.h"
 #include "data/player.h"
+#include "data/race.h"
 
 #include <ctype.h>
 #include <errno.h>
@@ -1351,7 +1352,8 @@ void nanny(Descriptor * d, char* argument)
         write_to_buffer(d, (const char*)echo_on_str, 0);
         write_to_buffer(d, "The following races are available:\n\r  ", 0);
         for (race = 1; race_table[race].name != NULL; race++) {
-            if (!race_table[race].pc_race) break;
+            if (!race_table[race].pc_race) 
+                break;
             write_to_buffer(d, race_table[race].name, 0);
             write_to_buffer(d, " ", 1);
         }
@@ -1393,7 +1395,7 @@ void nanny(Descriptor * d, char* argument)
 
         ch->race = (int16_t)race;
         /* initialize stats */
-        for (i = 0; i < MAX_STATS; i++)
+        for (i = 0; i < STAT_MAX; i++)
             ch->perm_stat[i] = race_table[race].stats[i];
         ch->affect_flags = ch->affect_flags | race_table[race].aff;
         ch->imm_flags = ch->imm_flags | race_table[race].imm;

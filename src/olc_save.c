@@ -35,6 +35,7 @@
 #include "entities/player_data.h"
 
 #include "data/mobile.h"
+#include "data/race.h"
 
 #include <ctype.h>
 #include <stdio.h>

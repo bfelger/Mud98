@@ -24,6 +24,7 @@ typedef struct char_data_t CharData;
 
 #include "data/damage.h"
 #include "data/mobile.h"
+#include "data/stats.h"
 
 #include <stdbool.h>
 
@@ -97,8 +98,8 @@ typedef struct char_data_t {
     int16_t damroll;
     int16_t armor[4];
     int16_t wimpy;
-    int16_t perm_stat[MAX_STATS];
-    int16_t mod_stat[MAX_STATS];
+    int16_t perm_stat[STAT_MAX];
+    int16_t mod_stat[STAT_MAX];
     int16_t invis_level;
     int16_t incog_level;
     int16_t timer;
@@ -130,11 +131,11 @@ typedef struct char_data_t {
 #define IS_AWAKE(ch)   (ch->position > POS_SLEEPING)
 #define GET_AC(ch, type)                                                       \
     ((ch)->armor[type]                                                         \
-     + (IS_AWAKE(ch) ? dex_app[get_curr_stat(ch, STAT_DEX)].defensive : 0))
+     + (IS_AWAKE(ch) ? dex_mod[get_curr_stat(ch, STAT_DEX)].defensive : 0))
 #define GET_HITROLL(ch)                                                        \
-    ((ch)->hitroll + str_app[get_curr_stat(ch, STAT_STR)].tohit)
+    ((ch)->hitroll + str_mod[get_curr_stat(ch, STAT_STR)].tohit)
 #define GET_DAMROLL(ch)                                                        \
-    ((ch)->damroll + str_app[get_curr_stat(ch, STAT_STR)].todam)
+    ((ch)->damroll + str_mod[get_curr_stat(ch, STAT_STR)].todam)
 
 #define IS_OUTSIDE(ch)         (!IS_SET((ch)->in_room->room_flags, ROOM_INDOORS))
 

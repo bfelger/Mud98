@@ -49,6 +49,7 @@
 #include "data/item.h"
 #include "data/mobile.h"
 #include "data/player.h"
+#include "data/race.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -508,7 +509,7 @@ void reset_char(CharData* ch)
     }
 
     /* now restore the character to his/her true condition */
-    for (stat = 0; stat < MAX_STATS; stat++)
+    for (stat = 0; stat < STAT_MAX; stat++)
         ch->mod_stat[stat] = 0;
 
     if (ch->pcdata->true_sex < 0 || ch->pcdata->true_sex > 2)
@@ -749,7 +750,7 @@ int get_age(CharData* ch)
 }
 
 /* command for retrieving stats */
-int get_curr_stat(CharData* ch, int stat)
+int get_curr_stat(CharData* ch, Stat stat)
 {
     int max;
 
@@ -816,7 +817,7 @@ int can_carry_w(CharData* ch)
     if (IS_NPC(ch) && IS_SET(ch->act_flags, ACT_PET))
         return 0;
 
-    return str_app[get_curr_stat(ch, STAT_STR)].carry * 10 + ch->level * 25;
+    return str_mod[get_curr_stat(ch, STAT_STR)].carry * 10 + ch->level * 25;
 }
 
 /*

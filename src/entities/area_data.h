@@ -29,8 +29,8 @@ typedef struct area_data_t {
     char* file_name;
     char* name;
     char* credits;
-    int16_t age;
     int nplayer;
+    int security;       // OLC Value 1-9
     LEVEL low_range;
     LEVEL high_range;
     VNUM min_vnum;
@@ -39,7 +39,7 @@ typedef struct area_data_t {
     char* builders;     // OLC
     VNUM vnum;          // OLC
     FLAGS area_flags;   // OLC
-    int security;       // OLC Value 1-9
+    int16_t age;
 } AreaData;
 
 AreaData* new_area();

@@ -17,6 +17,7 @@
 #include "char_data.h"
 
 #include "data/mobile.h"
+#include "data/race.h"
 
 MobPrototype* mob_prototype_hash[MAX_KEY_HASH];
 MobPrototype* mob_prototype_free;
@@ -206,7 +207,7 @@ CharData* create_mobile(MobPrototype* p_mob_proto)
 
         /* computed on the spot */
 
-        for (i = 0; i < MAX_STATS; i++)
+        for (i = 0; i < STAT_MAX; i++)
             mob->perm_stat[i] = UMIN(25, 11 + mob->level / 4);
 
         if (IS_SET(mob->act_flags, ACT_WARRIOR)) {
@@ -327,7 +328,7 @@ CharData* create_mobile(MobPrototype* p_mob_proto)
         mob->size = SIZE_MEDIUM;
         mob->material = "";
 
-        for (i = 0; i < MAX_STATS; i++) mob->perm_stat[i] = 11 + mob->level / 4;
+        for (i = 0; i < STAT_MAX; i++) mob->perm_stat[i] = 11 + mob->level / 4;
     }
 
     mob->position = mob->start_pos;

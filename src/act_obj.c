@@ -1398,7 +1398,7 @@ void wear_obj(CharData* ch, ObjectData* obj, bool fReplace)
 
         if (!IS_NPC(ch)
             && get_obj_weight(obj)
-                   > (str_app[get_curr_stat(ch, STAT_STR)].wield * 10)) {
+                   > (str_mod[get_curr_stat(ch, STAT_STR)].wield * 10)) {
             send_to_char("It is too heavy for you to wield.\n\r", ch);
             return;
         }

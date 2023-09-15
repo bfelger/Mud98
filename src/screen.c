@@ -22,6 +22,7 @@
 #include "entities/object_data.h"
 
 #include "data/mobile.h"
+#include "data/race.h"
 
 char* areaname(void* point)
 {
