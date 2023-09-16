@@ -4,4 +4,5 @@
 
 #include "race.h"
 
-Race* race_table;
+Race* race_table = NULL;
+int race_count = 0;

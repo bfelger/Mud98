@@ -80,6 +80,10 @@ char area_dir[256] = DEFAULT_AREA_DIR;
 
 void game_loop(SockServer* server);
 
+void save_groups();
+void save_races();
+void save_skills();
+
 #ifdef _MSC_VER
 struct timezone {
     int  dummy;
@@ -195,7 +199,6 @@ int main(int argc, char** argv)
         start_timer(&boot_timer);
 
     boot_db();
-
     if (rt_opt_benchmark) {
         stop_timer(&boot_timer);
         struct timespec timer_res = elapsed(&boot_timer);

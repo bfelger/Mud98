@@ -59,7 +59,7 @@
 
 extern int _filbuf args((FILE*));
 
-char* print_flags(int flag)
+char* print_flags(FLAGS flag)
 {
     int count, pos = 0;
     static char buf[52];
@@ -611,7 +611,7 @@ bool load_char_obj(Descriptor* d, char* name)
         ch->size = race_table[ch->race].size;
         ch->dam_type = 17; /*punch */
 
-        for (i = 0; i < 5; i++) {
+        for (i = 0; i < RACE_NUM_SKILLS; i++) {
             if (race_table[ch->race].skills[i] == NULL)
                 break;
             group_add(ch, race_table[ch->race].skills[i], false);

@@ -1,0 +1,70 @@
+4
+
+#CLASS
+name mage~
+wname Mag~
+basegrp mage basics~
+dfltgrp mage default~
+weap 3701
+guild 3018 9618 @
+pstat 1
+arch 0
+scap 75
+t0_0 20
+t0_32 6
+hpmin 6
+hpmax 8
+fmana true
+#END
+
+#CLASS
+name cleric~
+wname Cle~
+basegrp cleric basics~
+dfltgrp cleric default~
+weap 3700
+guild 3003 9619 @
+pstat 2
+arch 1
+scap 75
+t0_0 20
+t0_32 2
+hpmin 7
+hpmax 10
+fmana true
+#END
+
+#CLASS
+name thief~
+wname Thi~
+basegrp thief basics~
+dfltgrp thief default~
+weap 3701
+guild 3028 9639 @
+pstat 3
+arch 2
+scap 75
+t0_0 20
+t0_32 -4
+hpmin 8
+hpmax 13
+fmana false
+#END
+
+#CLASS
+name warrior~
+wname War~
+basegrp warrior basics~
+dfltgrp warrior default~
+weap 3702
+guild 3022 9633 @
+pstat 0
+arch 4
+scap 75
+t0_0 20
+t0_32 -10
+hpmin 11
+hpmax 15
+fmana false
+#END
+

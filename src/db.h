@@ -49,7 +49,7 @@
 void assign_area_vnum(VNUM vnum);       // OLC
 void reset_area(AreaData* pArea);      // OLC
 void reset_room(RoomData* pRoom);	    // OLC
-char* print_flags(int flag);
+char* print_flags(FLAGS flag);
 void boot_db(void);
 void area_update(void);
 void clone_mobile(CharData* parent, CharData* clone);

@@ -85,15 +85,16 @@ void advance_level(CharData* ch, bool hide)
         = (int16_t)((ch->played + (current_time - ch->logon)) / 3600);
 
     sprintf(buf, "the %s",
-            title_table[ch->ch_class][ch->level][ch->sex == SEX_FEMALE ? 1 : 0]);
+            title_table[class_table[ch->ch_class].arch][ch->level][ch->sex == SEX_FEMALE ? 1 : 0]);
     set_title(ch, buf);
 
     add_hp = con_mod[get_curr_stat(ch, STAT_CON)].hitp
              + (int16_t)number_range(class_table[ch->ch_class].hp_min,
                             class_table[ch->ch_class].hp_max);
-    add_mana = (int16_t)number_range(
-        2, (2 * get_curr_stat(ch, STAT_INT) + get_curr_stat(ch, STAT_WIS)) / 5);
-    if (!class_table[ch->ch_class].fMana) add_mana /= 2;
+    add_mana = (int16_t)number_range(2, 
+        (2 * get_curr_stat(ch, STAT_INT) + get_curr_stat(ch, STAT_WIS)) / 5);
+    if (!class_table[ch->ch_class].fMana) 
+        add_mana /= 2;
     add_move = (int16_t)number_range(
         1, (get_curr_stat(ch, STAT_CON) + get_curr_stat(ch, STAT_DEX)) / 6);
     add_prac = wis_mod[get_curr_stat(ch, STAT_WIS)].practice;

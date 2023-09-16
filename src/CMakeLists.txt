@@ -101,6 +101,7 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     entities/room_data.h entities/room_data.c
     entities/shop_data.h entities/shop_data.c
     
+    data/class.h data/class.c
     data/damage.h data/damage.c
     data/direction.h data/direction.c 
     data/item.h data/item.c

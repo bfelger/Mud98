@@ -253,7 +253,7 @@ bool show_help(CharData* ch, char* argument)
 
         for (cnt = 0; help_table[cnt].command != NULL; cnt++)
             if (help_table[cnt].desc) {
-                sprintf(buf, "#B%-9.9s#b - %-26.26s",
+                sprintf(buf, "{*%-9.9s{x - %-26.26s",
                     capitalize(help_table[cnt].command),
                     help_table[cnt].desc);
                 if (blah % 2 == 1)
@@ -1343,7 +1343,7 @@ bool change_exit(CharData* ch, char* argument, Direction door)
 
         if ((pExit = target->exit[dir_list[door].rev_dir]) != NULL
             && pExit->u1.to_room != pRoom)
-            printf_to_char(ch, "#WARNING#b : the exit to room %d does not return here.\n\r",
+            printf_to_char(ch, "{jWARNING{x : the exit to room %d does not return here.\n\r",
                 target->vnum);
 
         send_to_char("One-way link established.\n\r", ch);
@@ -3124,7 +3124,7 @@ void listobjreset(CharData* ch, Buffer* buf, AreaData* pArea)
     ObjectPrototype* obj;
     int key;
 
-    add_buf(buf, "#UVnum  Name            Room  On mob#u\n\r");
+    add_buf(buf, "{TVnum  Name            Room  On mob{x\n\r");
 
     for (key = 0; key < MAX_KEY_HASH; ++key)
         for (obj = object_prototype_hash[key]; obj; obj = obj->next)
@@ -3137,7 +3137,7 @@ void listmobreset(CharData* ch, Buffer* buf, AreaData* pArea)
     MobPrototype* mob;
     int key;
 
-    add_buf(buf, "#UVnum  Name            Room #u\n\r");
+    add_buf(buf, "{TVnum  Name            Room {x\n\r");
 
     for (key = 0; key < MAX_KEY_HASH; ++key)
         for (mob = mob_prototype_hash[key]; mob; mob = mob->next)
@@ -3189,7 +3189,7 @@ REDIT(redit_checkobj)
     for (key = 0; key < MAX_KEY_HASH; ++key)
         for (obj = object_prototype_hash[key]; obj; obj = obj->next)
             if (obj->reset_num == 0 && (fAll || obj->area == room->area))
-                printf_to_char(ch, "Obj #B%-5.5d#b [%-20.20s] is not reset.\n\r", obj->vnum, obj->name);
+                printf_to_char(ch, "Obj {*%-5.5d{x [%-20.20s] is not reset.\n\r", obj->vnum, obj->name);
 
     return false;
 }
@@ -3231,7 +3231,7 @@ REDIT(redit_checkmob)
     for (key = 0; key < MAX_KEY_HASH; ++key)
         for (mob = mob_prototype_hash[key]; mob; mob = mob->next)
             if (mob->reset_num == 0 && (fAll || mob->area == room->area))
-                printf_to_char(ch, "Mob #B%-5.5d#b [%-20.20s] has no resets.\n\r", mob->vnum, mob->name);
+                printf_to_char(ch, "Mob {*%-5.5d{x [%-20.20s] has no resets.\n\r", mob->vnum, mob->name);
 
     return false;
 }

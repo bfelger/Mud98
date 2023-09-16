@@ -231,10 +231,11 @@ void boot_db(void)
     }
 
     load_skills_table();
+    load_class_table();
     load_races_table();
     load_command_table();
     load_socials_table();
-    load_groups();
+    load_groups_table();
 
     /*
      * Set time and weather.
@@ -1535,7 +1536,7 @@ void reset_room(RoomData* pRoom)
                         olevel = 53;
                         for (i = 1; i < 5; i++) {
                             if (obj_proto->value[i] > 0) {
-                                for (j = 0; j < MAX_CLASS; j++) {
+                                for (j = 0; j < ARCH_COUNT; j++) {
                                     olevel = UMIN(
                                         olevel, skill_table[obj_proto->value[i]]
                                         .skill_level[j]);

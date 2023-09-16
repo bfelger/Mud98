@@ -48,6 +48,7 @@
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
+#include "data/class.h"
 #include "data/item.h"
 #include "data/mobile.h"
 #include "data/player.h"
@@ -3072,7 +3073,7 @@ void do_mset(CharData* ch, char* argument)
         ch_class = (int16_t)class_lookup(arg3);
         if (ch_class == -1) {
             strcpy(buf, "Possible classes are: ");
-            for (ch_class = 0; ch_class < MAX_CLASS; ch_class++) {
+            for (ch_class = 0; ch_class < class_count; ch_class++) {
                 if (ch_class > 0) 
                     strcat(buf, " ");
                 strcat(buf, class_table[ch_class].name);

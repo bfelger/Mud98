@@ -8,15 +8,19 @@
 
 #include "merc.h"
 
+#include "class.h"
+#include "mobile.h"
 #include "stats.h"
 
 #include <stdbool.h>
 #include <stdint.h>
 
+#define RACE_NUM_SKILLS 5
+
 typedef struct race_t {
     char* name; 
     char* who_name;
-    char* skills[5];
+    char* skills[RACE_NUM_SKILLS];
     FLAGS act_flags;
     FLAGS aff;
     FLAGS off;
@@ -27,14 +31,14 @@ typedef struct race_t {
     FLAGS parts;
     int16_t race_id;
     int16_t points;			        // cost in points of the race
-    int16_t class_mult[MAX_CLASS];	// exp multiplier for class, * 100
+    int16_t arch_mult[ARCH_COUNT];  // exp multiplier for class archetype * 100
     int16_t stats[STAT_MAX];	    // starting stats
     int16_t max_stats[STAT_MAX];	// maximum stats
-    int16_t size;			        
+    MobSize size;			        
     bool pc_race;                   // can be chosen by pcs */
 } Race;
 
-
+extern int race_count;
 extern Race* race_table;
 
 #endif // !MUD98__DATA__RACE_H

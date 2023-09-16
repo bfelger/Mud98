@@ -268,7 +268,7 @@ void skill_list(Buffer* pBuf)
     add_buf(pBuf, buf);
 
     for (i = 0; i < max_skill; ++i) {
-        sprintf(buf, "#B%3d#b %c %-20.20s", i,
+        sprintf(buf, "{*%3d{x %c %-20.20s", i,
             skill_table[i].spell_fun == spell_null ? '-' : '+',
             skill_table[i].name);
         if (i % 3 == 2)
@@ -292,7 +292,7 @@ void spell_list(Buffer* pBuf)
     add_buf(pBuf, buf);
 
     for (i = 0; spell_table[i].name; ++i) {
-        sprintf(buf, "#B%3d#b %-35.35s", i,
+        sprintf(buf, "{*%3d{x %-35.35s", i,
             spell_table[i].name);
         if (i % 2 == 1)
             strcat(buf, "\n\r");
@@ -315,7 +315,7 @@ void gsn_list(Buffer* pBuf)
     add_buf(pBuf, buf);
 
     for (i = 0; gsn_table[i].name; ++i) {
-        sprintf(buf, "#B%3d#b %-22.22s", i,
+        sprintf(buf, "{*%3d{x %-22.22s", i,
             gsn_table[i].name);
         if (i % 3 == 2)
             strcat(buf, "\n\r");
@@ -340,7 +340,7 @@ void slot_list(Buffer* pBuf)
     cnt = 0;
     for (i = 0; i < max_skill; ++i) {
         if (skill_table[i].slot) {
-            sprintf(buf, "#B%3d#b %-22.22s",
+            sprintf(buf, "{*%3d{x %-22.22s",
                 skill_table[i].slot,
                 skill_table[i].name);
             if (cnt % 3 == 2)
@@ -376,7 +376,7 @@ SKEDIT(skedit_list)
     else if (!str_prefix(argument, "gsns"))
         gsn_list(pBuf);
     else
-        add_buf(pBuf, "You may only list gsns/skills/spells/slots. Idiot.\n\r");
+        add_buf(pBuf, "You may only list gsns/skills/spells/slots.\n\r");
 
     page_to_char(BUF(pBuf), ch);
 
@@ -407,10 +407,10 @@ SKEDIT(skedit_show)
         send_to_char(buf, ch);
     }
 
-    sprintf(buf, "Class    + ");
+    sprintf(buf, "Archetype+ ");
 
-    for (i = 0; i < MAX_CLASS; ++i) {
-        strcat(buf, class_table[i].who_name);
+    for (i = 0; i < ARCH_COUNT; ++i) {
+        strcat(buf, arch_table[i].short_name);
         strcat(buf, " ");
     }
 
@@ -419,7 +419,7 @@ SKEDIT(skedit_show)
 
     sprintf(buf, "Level    | ");
 
-    for (i = 0; i < MAX_CLASS; ++i) {
+    for (i = 0; i < ARCH_COUNT; ++i) {
         sprintf(buf2, "%3d ", pSkill->skill_level[i]);
         strcat(buf, buf2);
     }
@@ -429,7 +429,7 @@ SKEDIT(skedit_show)
 
     sprintf(buf, "Rating   | ");
 
-    for (i = 0; i < MAX_CLASS; ++i) {
+    for (i = 0; i < ARCH_COUNT; ++i) {
         sprintf(buf2, "%3d ", pSkill->rating[i]);
         strcat(buf, buf2);
     }
@@ -455,7 +455,7 @@ SKEDIT(skedit_show)
     sprintf(buf, "Min Mana : [%d]\n\r", pSkill->min_mana);
     send_to_char(buf, ch);
 
-    sprintf(buf, "Beats    : [%d], #B%.2f#b segundo(s).\n\r",
+    sprintf(buf, "Beats    : [%d], %.2f seconds(s).\n\r",
         pSkill->beats,
         pSkill->beats / (float)PULSE_PER_SECOND);
     send_to_char(buf, ch);
@@ -588,20 +588,21 @@ SKEDIT(skedit_level)
 {
     struct skill_type* pSkill;
     char arg[MIL];
-    int clase;
     LEVEL level;
+    Archetype arch;
 
     EDIT_SKILL(ch, pSkill);
 
     argument = one_argument(argument, arg);
 
     if (IS_NULLSTR(argument) || IS_NULLSTR(arg) || !is_number(argument)) {
-        send_to_char("Sintaxis : level [class] [level]\n\r", ch);
+        send_to_char("SKEdit : level [archetype] [level]\n\r", ch);
         return false;
     }
 
-    if ((clase = class_lookup(arg)) == -1) {
-        send_to_char("SKEdit : That class does not exist.\n\r", ch);
+    if ((arch = archetype_lookup(arg)) == -1) {
+        send_to_char("SKEdit : That archetype does not exist.\n\r", ch);
+        list_archetypes(ch);
         return false;
     }
 
@@ -612,7 +613,7 @@ SKEDIT(skedit_level)
         return false;
     }
 
-    pSkill->skill_level[clase] = level;
+    pSkill->skill_level[arch] = level;
     send_to_char("Ok.\n\r", ch);
     return true;
 }
@@ -621,30 +622,33 @@ SKEDIT(skedit_rating)
 {
     struct skill_type* pSkill;
     char arg[MIL];
-    int rating, clase;
+    int16_t rating;
+
+    Archetype arch;
 
     EDIT_SKILL(ch, pSkill);
 
     argument = one_argument(argument, arg);
 
     if (IS_NULLSTR(argument) || IS_NULLSTR(arg) || !is_number(argument)) {
-        send_to_char("Syntax : rating [class] [level]\n\r", ch);
+        send_to_char("Syntax : rating [archetype] [level]\n\r", ch);
         return false;
     }
 
-    if ((clase = class_lookup(arg)) == -1) {
-        send_to_char("SKEdit : That class does not exist.\n\r", ch);
+    if ((arch = archetype_lookup(arg)) == -1) {
+        send_to_char("SKEdit : That archetype does not exist.\n\r", ch);
+        list_archetypes(ch);
         return false;
     }
 
-    rating = atoi(argument);
+    rating = (int16_t)atoi(argument);
 
     if (rating < 0) {
         send_to_char("SKEdit : Invalid rating.\n\r", ch);
         return false;
     }
 
-    pSkill->rating[clase] = rating;
+    pSkill->rating[arch] = rating;
     send_to_char("Ok.\n\r", ch);
     return true;
 }
@@ -682,7 +686,7 @@ SKEDIT(skedit_gsn)
     EDIT_SKILL(ch, pSkill);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Sintaxis : gsn [name]\n\r", ch);
+        send_to_char("SKedit : gsn [name]\n\r", ch);
         send_to_char("           gsn null\n\r", ch);
         return false;
     }
@@ -745,7 +749,7 @@ SKEDIT(skedit_new)
     skill_table = new_table;
 
     skill_table[max_skill - 1].name = str_dup(argument);
-    for (i = 0; i < MAX_CLASS; ++i) {
+    for (i = 0; i < ARCH_COUNT; ++i) {
         skill_table[max_skill - 1].skill_level[i] = 53;
         skill_table[max_skill - 1].rating[i] = 0;
     }

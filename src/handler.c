@@ -46,6 +46,7 @@
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
+#include "data/class.h"
 #include "data/item.h"
 #include "data/mobile.h"
 #include "data/player.h"
@@ -158,12 +159,23 @@ int wiznet_lookup(const char* name)
     return -1;
 }
 
+Archetype archetype_lookup(const char* name)
+{
+    for (int arch = 0; arch < ARCH_COUNT; arch++) {
+        if (LOWER(name[0]) == LOWER(arch_table[arch].name[0])
+            && !str_prefix(name, arch_table[arch].name))
+            return arch;
+    }
+
+    return -1;
+}
+
 /* returns class number */
 int16_t class_lookup(const char* name)
 {
     int16_t class;
 
-    for (class = 0; class < MAX_CLASS; class++) {
+    for (class = 0; class < class_count; class++) {
         if (LOWER(name[0]) == LOWER(class_table[class].name[0])
             && !str_prefix(name, class_table[class].name))
             return class;
@@ -317,7 +329,7 @@ int get_skill(CharData* ch, SKNUM sn)
         skill = 0;
     }
     else if (!IS_NPC(ch)) {
-        if (ch->level < skill_table[sn].skill_level[ch->ch_class])
+        if (ch->level < skill_table[sn].skill_level[class_table[ch->ch_class].arch])
             skill = 0;
         else
             skill = ch->pcdata->learned[sn];
@@ -760,7 +772,7 @@ int get_curr_stat(CharData* ch, Stat stat)
     else {
         max = race_table[ch->race].max_stats[stat] + 4;
 
-        if (class_table[ch->ch_class].attr_prime == stat)
+        if (class_table[ch->ch_class].prime_stat == stat)
             max += 2;
 
         if (ch->race == race_lookup("human")) 
@@ -782,7 +794,7 @@ int get_max_train(CharData* ch, int stat)
 
     max = race_table[ch->race].max_stats[stat];
 
-    if (class_table[ch->ch_class].attr_prime == stat) {
+    if (class_table[ch->ch_class].prime_stat == stat) {
         if (ch->race == race_lookup("human"))
             max += 3;
         else

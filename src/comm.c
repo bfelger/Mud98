@@ -59,6 +59,7 @@
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
+#include "data/class.h"
 #include "data/mobile.h"
 #include "data/player.h"
 #include "data/race.h"
@@ -1405,7 +1406,7 @@ void nanny(Descriptor * d, char* argument)
         ch->parts = race_table[race].parts;
 
         /* add skills */
-        for (i = 0; i < 5; i++) {
+        for (i = 0; i < RACE_NUM_SKILLS; i++) {
             if (race_table[race].skills[i] == NULL) 
                 break;
             group_add(ch, race_table[race].skills[i], false);
@@ -1445,8 +1446,9 @@ void nanny(Descriptor * d, char* argument)
         }
 
         strcpy(buf, "Select a class [");
-        for (iClass = 0; iClass < MAX_CLASS; iClass++) {
-            if (iClass > 0) strcat(buf, " ");
+        for (iClass = 0; iClass < class_count; iClass++) {
+            if (iClass > 0) 
+                strcat(buf, " ");
             strcat(buf, class_table[iClass].name);
         }
         strcat(buf, "]: ");
@@ -1640,7 +1642,7 @@ void nanny(Descriptor * d, char* argument)
         reset_char(ch);
 
         if (ch->level == 0) {
-            ch->perm_stat[class_table[ch->ch_class].attr_prime] += 3;
+            ch->perm_stat[class_table[ch->ch_class].prime_stat] += 3;
 
             ch->level = 1;
             ch->exp = exp_per_level(ch, ch->pcdata->points);
@@ -1650,7 +1652,7 @@ void nanny(Descriptor * d, char* argument)
             ch->train = 3;
             ch->practice = 5;
             sprintf(buf, "the %s",
-                title_table[ch->ch_class][ch->level]
+                title_table[class_table[ch->ch_class].arch][ch->level]
                 [ch->sex == SEX_FEMALE ? 1 : 0]);
             set_title(ch, buf);
 

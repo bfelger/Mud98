@@ -14,121 +14,15 @@
 #include "entities/descriptor.h"
 #include "entities/player_data.h"
 
+#include "data/class.h"
 #include "data/mobile.h"
 
-#define GROUP_FILE DATA_DIR "groups"
 #define GEDIT(fun) bool fun(CharData *ch, char *argument)
-
-void load_group(FILE* fp, struct group_type* group)
-{
-    int i;
-    char* temp;
-
-    group->name = fread_string(fp);
-
-    for (i = 0; i < MAX_CLASS; ++i)
-        group->rating[i] = fread_number(fp);
-
-    i = 0;
-
-    while (true) {
-        temp = fread_string(fp);
-        if (!str_cmp(temp, "End") || i >= MAX_IN_GROUP) {
-            while (i < MAX_IN_GROUP)
-                group->spells[i++] = str_dup("");
-            break;
-        }
-        else
-            group->spells[i++] = temp;
-    }
-}
-
-void load_groups(void)
-{
-    FILE* fp;
-    int i;
-
-    char group_file[256];
-    sprintf(group_file, "%s%s", area_dir, GROUP_FILE);
-    fp = fopen(group_file, "r");
-
-    if (!fp) {
-        bug("The group file " GROUP_FILE " cannot be found.", 0);
-        exit(1);
-    }
-
-    int tmp_max_group;
-    if (fscanf(fp, "%d\n", &tmp_max_group) < 1) {
-        perror("load_groups: Could not read number of groups!");
-        return;
-    }
-    max_group = tmp_max_group;
-
-    if ((group_table = calloc(sizeof(struct group_type), ((size_t)max_group + 1))) == NULL) {
-        perror("load_groups: Could not allocate group_table!");
-        return;
-    }
-
-    if (!group_table) {
-        bug("Error! Group_table == NULL, max_group : %d", max_group);
-        exit(1);
-    }
-
-    for (i = 0; i < max_group; ++i)
-        load_group(fp, &group_table[i]);
-
-    group_table[max_group].name = NULL;
-
-    fclose(fp);
-}
-
-void save_group(FILE* fp, const struct group_type* group)
-{
-    int i;
-
-    fprintf(fp, "%s~\n", CHECKNULLSTR(group->name));
-
-    for (i = 0; i < MAX_CLASS; ++i)
-        fprintf(fp, "%d ", group->rating[i]);
-    fprintf(fp, "\n");
-
-    for (i = 0; i < MAX_IN_GROUP && !IS_NULLSTR(group->spells[i]); ++i)
-        fprintf(fp, "%s~\n", CHECKNULLSTR(group->spells[i]));
-
-    fprintf(fp, "End~\n\n");
-}
-
-void save_groups()
-{
-    int i;
-    FILE* fp;
-    char buf[MIL];
-
-    fclose(fpReserve);
-
-    sprintf(buf, "%s%s", area_dir, GROUP_FILE);
-    fp = fopen(buf, "w");
-
-    if (!fp) {
-        bug("save_groups : the group file cannot be opened for writing.", 0);
-        fpReserve = fopen(NULL_FILE, "r");
-        return;
-    }
-
-    fprintf(fp, "%d\n", (int)max_group);
-
-    for (i = 0; i < max_group; ++i)
-        save_group(fp, &group_table[i]);
-
-    fclose(fp);
-
-    fpReserve = fopen(NULL_FILE, "r");
-}
 
 const struct olc_cmd_type gedit_table[] = {
     { "name",		gedit_name	    },
-    { "rating",	gedit_rating	},
-    { "spell",	gedit_spell	    },
+    { "rating",	    gedit_rating	},
+    { "spell",	    gedit_spell	    },
     { "list",		gedit_list	    },
     { "commands",	show_commands	},
     { "show",		gedit_show	    },
@@ -229,10 +123,10 @@ GEDIT(gedit_show)
     sprintf(buf, "Name      : [%s]\n\r", pGrp->name);
     send_to_char(buf, ch);
 
-    sprintf(buf, "Class    + ");
+    sprintf(buf, "Archetype+ ");
 
-    for (i = 0; i < MAX_CLASS; ++i) {
-        strcat(buf, class_table[i].who_name);
+    for (i = 0; i < ARCH_COUNT; ++i) {
+        strcat(buf, arch_table[i].name);
         strcat(buf, " ");
     }
 
@@ -241,7 +135,7 @@ GEDIT(gedit_show)
 
     sprintf(buf, "Rating   | ");
 
-    for (i = 0; i < MAX_CLASS; ++i) {
+    for (i = 0; i < ARCH_COUNT; ++i) {
         sprintf(buf2, "%3d ", pGrp->rating[i]);
         strcat(buf, buf2);
     }
@@ -252,7 +146,7 @@ GEDIT(gedit_show)
     i = 0;
 
     while (i < MAX_IN_GROUP && !IS_NULLSTR(pGrp->spells[i])) {
-        sprintf(buf, "%2d. #B%s#b\n\r", i, pGrp->spells[i]);
+        sprintf(buf, "%2d. {*%s{x\n\r", i, pGrp->spells[i]);
         send_to_char(buf, ch);
         i++;
     }
@@ -287,30 +181,32 @@ GEDIT(gedit_rating)
 {
     struct group_type* pGrp;
     char arg[MIL];
-    int rating, clase;
+    int16_t rating;
+    Archetype arch;
 
     EDIT_GROUP(ch, pGrp);
 
     argument = one_argument(argument, arg);
 
     if (IS_NULLSTR(argument) || IS_NULLSTR(arg) || !is_number(argument)) {
-        send_to_char("Syntax : rating [class] [cost]\n\r", ch);
+        send_to_char("Syntax : rating [archetype] [cost]\n\r", ch);
         return false;
     }
 
-    if ((clase = class_lookup(arg)) == -1) {
-        send_to_char("GEdit : That class does not exist.\n\r", ch);
+    if ((arch = archetype_lookup(arg)) == -1) {
+        send_to_char("GEdit : That archetype does not exist.\n\r", ch);
+        list_archetypes(ch);
         return false;
     }
 
-    rating = atoi(argument);
+    rating = (int16_t)atoi(argument);
 
     if (rating < -1) {
         send_to_char("GEdit : Rating must be at least 0.\n\r", ch);
         return false;
     }
 
-    pGrp->rating[clase] = rating;
+    pGrp->rating[arch] = rating;
     send_to_char("Ok.\n\r", ch);
     return true;
 }
@@ -392,7 +288,7 @@ GEDIT(gedit_list)
         if ((pGrp = &group_table[i]) == NULL)
             break;
 
-        sprintf(buf, "%2d. #B%20s#b ", i, group_table[i].name);
+        sprintf(buf, "%2d. {*%20s{x ", i, group_table[i].name);
 
         if (cnt++ % 2)
             strcat(buf, "\n\r");

@@ -214,12 +214,12 @@ void list_functions(Buffer* pBuf)
     int i;
     char buf[MSL];
 
-    sprintf(buf, "#UNum %-13.13s Num %-13.13s Num %-13.13s Num %-13.13s#u\n\r",
+    sprintf(buf, "{TNum %-13.13s Num %-13.13s Num %-13.13s Num %-13.13s{x\n\r",
         "Name", "Name", "Name", "Name");
     add_buf(pBuf, buf);
 
     for (i = 0; cmd_list[i].name; i++) {
-        sprintf(buf, "#B%3d#b %-13.13s", i, cmd_list[i].name);
+        sprintf(buf, "{*%3d{x %-13.13s", i, cmd_list[i].name);
         if (i % 4 == 3)
             strcat(buf, "\n\r");
         else
@@ -236,7 +236,7 @@ void list_commands(Buffer* pBuf, int minlev, int maxlev)
     char buf[MSL];
     int i, cnt = 0;
 
-    sprintf(buf, "#UNv %-12.12s %-13.13s Pos Log Nv %-12.12s %-13.13s Pos Log#u\n\r",
+    sprintf(buf, "{TNv %-12.12s %-13.13s Pos Log Nv %-12.12s %-13.13s Pos Log{x\n\r",
         "Name", "Function", "Name", "Function");
     add_buf(pBuf, buf);
 
@@ -244,7 +244,7 @@ void list_commands(Buffer* pBuf, int minlev, int maxlev)
         if (cmd_table[i].level < minlev || cmd_table[i].level > maxlev)
             continue;
 
-        sprintf(buf, "%2d #B%-12.12s#b %-13.13s %-3.3s %-3.3s",
+        sprintf(buf, "%2d {*%-12.12s{x %-13.13s %-3.3s %-3.3s",
             cmd_table[i].level,
             cmd_table[i].name,
             cmd_func_name(cmd_table[i].do_fun),

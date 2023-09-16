@@ -27,6 +27,8 @@
 
 #include "entities/mob_prototype.h"
 
+#include "data/race.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <inttypes.h>
@@ -145,7 +147,7 @@ struct editor_cmd_type {
  */
 AreaData* get_vnum_area(VNUM vnum);
 AreaData* get_area_data(VNUM vnum);
-int	flag_value(const struct flag_type* flag_table, char* argument);
+FLAGS flag_value(const struct flag_type* flag_table, char* argument);
 void add_reset(RoomData*, ResetData*, int);
 void set_editor(Descriptor*, int, uintptr_t);
 
@@ -242,7 +244,7 @@ DECLARE_OLC_FUN(medit_copy);
 DECLARE_OLC_FUN(raedit_show);
 DECLARE_OLC_FUN(raedit_new);
 DECLARE_OLC_FUN(raedit_list);
-DECLARE_OLC_FUN(raedit_cmult);
+DECLARE_OLC_FUN(raedit_amult);
 DECLARE_OLC_FUN(raedit_stats);
 DECLARE_OLC_FUN(raedit_maxstats);
 DECLARE_OLC_FUN(raedit_skills);
@@ -356,30 +358,30 @@ DECLARE_ED_FUN(ed_objrecval);
  */
 
 /* Return pointers to what is being edited. */
-#define EDIT_MOB(Ch, Mob)	( Mob = (MobPrototype *)Ch->desc->pEdit )
-#define EDIT_OBJ(Ch, Obj)	( Obj = (ObjectPrototype *)Ch->desc->pEdit )
-#define EDIT_ROOM(Ch, Room)	( Room = (RoomData *)Ch->desc->pEdit )
-#define EDIT_AREA(Ch, Area)	( Area = (AreaData *)Ch->desc->pEdit )
-#define EDIT_CLAN(Ch, Clan)	( Clan = (CLAN_TYPE *)Ch->desc->pEdit )
-#define EDIT_RACE(Ch, Race)	( Race = (struct race_type *)Ch->desc->pEdit )
-#define EDIT_SOCIAL(Ch, Social)	( Social = (struct social_type *)Ch->desc->pEdit )
-#define EDIT_SKILL(Ch, Skill)	( Skill = (struct skill_type *)Ch->desc->pEdit )
-#define EDIT_CMD(Ch, Cmd)	( Cmd = (CmdInfo *)Ch->desc->pEdit )
-#define EDIT_GROUP(Ch, Grp)	( Grp = (struct group_type *)Ch->desc->pEdit )
-#define EDIT_HELP(Ch, Help)	( Help = (HelpData *)Ch->desc->pEdit )
-#define EDIT_PROG(Ch, Code)	( Code = (MobProgCode*)Ch->desc->pEdit )
+#define EDIT_MOB(ch, mob)	    ( mob = (MobPrototype*)ch->desc->pEdit )
+#define EDIT_OBJ(ch, obj)	    ( obj = (ObjectPrototype*)ch->desc->pEdit )
+#define EDIT_ROOM(ch, room)	    ( room = (RoomData*)ch->desc->pEdit )
+#define EDIT_AREA(ch, area)	    ( area = (AreaData*)ch->desc->pEdit )
+#define EDIT_RACE(ch, race)	    ( race = (Race*)ch->desc->pEdit )
+#define EDIT_SOCIAL(ch, social)	( social = (struct social_type*)ch->desc->pEdit )
+#define EDIT_SKILL(ch, skill)	( skill = (struct skill_type*)ch->desc->pEdit )
+#define EDIT_CMD(ch, cmd)	    ( cmd = (CmdInfo*)ch->desc->pEdit )
+#define EDIT_GROUP(ch, grp)	    ( grp = (struct group_type*)ch->desc->pEdit )
+#define EDIT_HELP(ch, help)	    ( help = (HelpData*)ch->desc->pEdit )
+#define EDIT_PROG(ch, code)	    ( code = (MobProgCode*)ch->desc->pEdit )
 
 
-void		    show_liqlist		args((CharData* ch));
-void		    show_poslist		args((CharData* ch));
-void		    show_damlist		args((CharData* ch));
-void		    show_sexlist		args((CharData* ch));
-void		    show_sizelist		args((CharData* ch));
+void show_liqlist(CharData* ch);
+void show_poslist(CharData* ch);
+void show_damlist(CharData* ch);
+void show_sexlist(CharData* ch);
+void show_sizelist(CharData* ch);
 
-extern		    RoomData 	        xRoom;
-extern		    MobPrototype 		xMob;
-extern		    ObjectPrototype		xObj;
+extern RoomData xRoom;
+extern MobPrototype xMob;
+extern ObjectPrototype xObj;
 
-extern void     InitScreen		    args((Descriptor*));
+extern void InitScreen(Descriptor*);
+void list_archetypes(CharData* ch);
 
 #endif // !MUD98__OLC_H

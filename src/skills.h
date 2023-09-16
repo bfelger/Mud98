@@ -15,6 +15,8 @@ typedef struct skill_hash_t SkillHash;
 
 #include "entities/char_data.h"
 
+#include "data/class.h"
+
 typedef enum spell_target_t {
     TARGET_CHAR         = 0,
     TARGET_OBJ          = 1,
@@ -34,24 +36,24 @@ typedef enum skill_target_t {
 
 struct group_type {
     char* name;
-    int rating[MAX_CLASS];
+    int16_t rating[ARCH_COUNT];
     char* spells[MAX_IN_GROUP];
 };
 
 struct skill_type {
-    char* name; /* Name of skill		*/
-    LEVEL skill_level[MAX_CLASS]; /* Level needed by class	*/
-    int rating[MAX_CLASS]; /* How hard it is to learn	*/
-    SpellFunc* spell_fun; /* Spell pointer (for spells)	*/
-    SkillTarget target; /* Legal targets		*/
-    Position minimum_position; /* Position for caster / user	*/
-    SKNUM* pgsn; /* Pointer to associated gsn	*/
-    int slot; /* Slot for #OBJECT loading	*/
-    int min_mana; /* Minimum mana used		*/
-    int beats; /* Waiting time after use	*/
-    char* noun_damage; /* Damage message		*/
-    char* msg_off; /* Wear off message		*/
-    char* msg_obj; /* Wear off message for obects	*/
+    char* name;                     /* Name of skill		*/
+    LEVEL skill_level[ARCH_COUNT];  /* Level needed by class	*/
+    int16_t rating[ARCH_COUNT];     /* How hard it is to learn	*/
+    SpellFunc* spell_fun;           /* Spell pointer (for spells)	*/
+    SkillTarget target;             /* Legal targets		*/
+    Position minimum_position;      /* Position for caster / user	*/
+    SKNUM* pgsn;                    /* Pointer to associated gsn	*/
+    int slot;                       /* Slot for #OBJECT loading	*/
+    int min_mana;                   /* Minimum mana used		*/
+    int beats;                      /* Waiting time after use	*/
+    char* noun_damage;              /* Damage message		*/
+    char* msg_off;                  /* Wear off message		*/
+    char* msg_obj;                  /* Wear off message for obects	*/
 };
 
 typedef struct skill_hash_t {

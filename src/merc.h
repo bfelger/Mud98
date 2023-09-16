@@ -64,9 +64,11 @@ extern char area_dir[];
 #define DATA_DIR        "../data/"
 #define PROG_DIR        DATA_DIR "progs/"
 #define SOCIAL_FILE	    DATA_DIR "socials"
+#define GROUP_FILE      DATA_DIR "groups"
 #define SKILL_FILE      DATA_DIR "skills"
 #define COMMAND_FILE    DATA_DIR "commands"
 #define RACES_FILE      DATA_DIR "races"
+#define CLASSES_FILE    DATA_DIR "classes"
 #define AREA_LIST       "area.lst"      // List of areas
 #define BUG_FILE        "bugs.txt"      // For 'bug' and bug()
 #define TYPO_FILE       "typos.txt"     // For 'typo'
@@ -101,11 +103,11 @@ extern char area_dir[];
 #define BIT(x) (1 << x)
 
 // Expand when you run out of bits
-#define FLAGS               uint32_t
+#define FLAGS               int32_t
 #define FLAGS_MAX           BIT(31)
 
-#define SHORT_FLAGS         uint16_t
-#define SHORT_FLAGS_MAX     BIT(
+#define SHORT_FLAGS         int16_t
+#define SHORT_FLAGS_MAX     BIT(15)
 
 #define LEVEL               int16_t
 
@@ -157,13 +159,9 @@ typedef struct weather_data WEATHER_DATA;
  * Increase the max'es if you add more of something.
  * Adjust the pulse numbers to suit yourself.
  */
-#define MAX_SOCIALS         256
-
 #define MAX_IN_GROUP        15
 #define MAX_ALIAS           5
 #define MAX_THEMES          5
-#define MAX_CLASS           4
-#define MAX_PC_RACE         5
 #define MAX_CLAN            3
 #define MAX_LEVEL           (LEVEL)60
 #define LEVEL_HERO          (MAX_LEVEL - 9)
@@ -212,27 +210,6 @@ struct weather_data {
     int change;
     int sky;
     int sunlight;
-};
-
-/*
- * Per-class stuff.
- */
-#define MAX_GUILD 2
-
-struct class_type {
-    char* name; /* the full name of the class */
-    char who_name[4]; /* Three-letter name for 'who'	*/
-    int16_t attr_prime; /* Prime attribute		*/
-    int16_t weapon; /* First weapon			*/
-    int16_t guild[MAX_GUILD]; /* Vnum of guild rooms		*/
-    int16_t skill_adept; /* Maximum skill level		*/
-    int16_t thac0_00; /* Thac0 for level  0		*/
-    int16_t thac0_32; /* Thac0 for level 32		*/
-    int16_t hp_min; /* Min hp gained on leveling	*/
-    int16_t hp_max; /* Max hp gained on leveling	*/
-    bool fMana; /* Class gains mana on level	*/
-    char* base_group; /* base skills gained		*/
-    char* default_group; /* default skills gained	*/
 };
 
 struct wiznet_type {
@@ -333,16 +310,15 @@ struct social_type {
  * Global constants.
  */
 
-extern const struct class_type class_table[MAX_CLASS];
 extern const struct wiznet_type wiznet_table[];
 extern       struct social_type* social_table;
-extern char* const title_table[MAX_CLASS][MAX_LEVEL + 1][2];
 
 /*****************************************************************************
  *                                    OLC                                    *
  *****************************************************************************/
 
-#define NO_FLAG         -99 // Must not be used in flags or stats.
+//#define NO_FLAG         -99 // Must not be used in flags or stats.
+#define NO_FLAG BIT(31)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Global Vars

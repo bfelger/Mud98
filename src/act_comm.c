@@ -46,6 +46,7 @@
 #include "entities/descriptor.h"
 #include "entities/player_data.h"
 
+#include "data/class.h"
 #include "data/mobile.h"
 #include "data/player.h"
 
@@ -1022,7 +1023,7 @@ void do_pmote(CharData* ch, char* argument)
  * All the posing stuff.
  */
 struct pose_table_type {
-    char* message[2 * MAX_CLASS];
+    char* message[2 * ARCH_COUNT];
 };
 
 const struct pose_table_type pose_table[] = {

@@ -43,6 +43,7 @@
 #include "entities/player_data.h"
 #include "entities/room_data.h"
 
+#include "data/class.h"
 #include "data/direction.h"
 #include "data/mobile.h"
 
@@ -108,7 +109,7 @@ void move_char(CharData* ch, int door, bool follow)
         int iClass, iGuild;
         int move;
 
-        for (iClass = 0; iClass < MAX_CLASS; iClass++) {
+        for (iClass = 0; iClass < class_count; iClass++) {
             for (iGuild = 0; iGuild < MAX_GUILD; iGuild++) {
                 if (iClass != ch->ch_class
                     && to_room->vnum == class_table[iClass].guild[iGuild]) {
@@ -1489,31 +1490,36 @@ void do_train(CharData* ch, char* argument)
     cost = 1;
 
     if (!str_cmp(argument, "str")) {
-        if (class_table[ch->ch_class].attr_prime == STAT_STR) cost = 1;
+        if (class_table[ch->ch_class].prime_stat == STAT_STR) 
+            cost = 1;
         stat = STAT_STR;
         pOutput = "strength";
     }
 
     else if (!str_cmp(argument, "int")) {
-        if (class_table[ch->ch_class].attr_prime == STAT_INT) cost = 1;
+        if (class_table[ch->ch_class].prime_stat == STAT_INT) 
+            cost = 1;
         stat = STAT_INT;
         pOutput = "intelligence";
     }
 
     else if (!str_cmp(argument, "wis")) {
-        if (class_table[ch->ch_class].attr_prime == STAT_WIS) cost = 1;
+        if (class_table[ch->ch_class].prime_stat == STAT_WIS) 
+            cost = 1;
         stat = STAT_WIS;
         pOutput = "wisdom";
     }
 
     else if (!str_cmp(argument, "dex")) {
-        if (class_table[ch->ch_class].attr_prime == STAT_DEX) cost = 1;
+        if (class_table[ch->ch_class].prime_stat == STAT_DEX) 
+            cost = 1;
         stat = STAT_DEX;
         pOutput = "dexterity";
     }
 
     else if (!str_cmp(argument, "con")) {
-        if (class_table[ch->ch_class].attr_prime == STAT_CON) cost = 1;
+        if (class_table[ch->ch_class].prime_stat == STAT_CON) 
+            cost = 1;
         stat = STAT_CON;
         pOutput = "constitution";
     }

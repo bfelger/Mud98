@@ -98,11 +98,11 @@ bool is_stat(const struct flag_type* flag_table)
  Purpose:	Returns the value of the flags entered.  Multi-flags accepted.
  Called by:	olc.c and olc_act.c.
  ****************************************************************************/
-int flag_value(const struct flag_type* flag_table, char* argument)
+FLAGS flag_value(const struct flag_type* flag_table, char* argument)
 {
     char word[MAX_INPUT_LENGTH];
-    int  bit;
-    int  marked = 0;
+    int bit;
+    FLAGS marked = 0;
     bool found = false;
 
     if (is_stat(flag_table)) {
@@ -137,10 +137,10 @@ int flag_value(const struct flag_type* flag_table, char* argument)
  Purpose:	Returns string with name(s) of the flags or stat entered.
  Called by:	act_olc.c, olc.c, and olc_save.c.
  ****************************************************************************/
-char* flag_string(const struct flag_type* flag_table, long bits)
+char* flag_string(const struct flag_type* flag_table, FLAGS bits)
 {
     static char buf[10][MIL];
-    int  flag;
+    FLAGS  flag;
     static int toggle;
 
     toggle = (toggle + 1) % 10;

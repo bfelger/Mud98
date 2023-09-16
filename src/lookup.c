@@ -91,7 +91,7 @@ MobSize size_lookup(const char* name)
     for (int size = 0; size < MOB_SIZE_MAX; size++) {
         if (LOWER(name[0]) == LOWER(mob_size_table[size].name[0])
             && !str_prefix(name, mob_size_table[size].name))
-            return size;
+            return (MobSize)size;
     }
 
     return SIZE_MEDIUM;

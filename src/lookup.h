@@ -38,7 +38,7 @@
 int clan_lookup args((const char* name));
 Position position_lookup(const char* name);
 Sex sex_lookup(const char* name);
-int size_lookup args((const char* name));
+MobSize size_lookup(const char* name);
 int	flag_lookup	args((const char*, const struct flag_type*));
 HelpData* help_lookup args((char*));
 HelpArea* had_lookup args((char*));

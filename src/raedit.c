@@ -45,7 +45,7 @@ const struct olc_comm_type race_olc_comm_table[] = {
     { "part",       U(&xRace.parts),    ed_flag_toggle,     U(part_flag_table)  },
     { "who",        U(&xRace.who_name), ed_line_string,     0               },
     { "points",     U(&xRace.points),   ed_number_s_pos,    0               },
-    { "cmult",      0,                  ed_olded,           U(raedit_cmult) },
+    { "amult",      0,                  ed_olded,           U(raedit_amult) },
     { "stats",      0,                  ed_olded,           U(raedit_stats) },
     { "maxstats",   0,                  ed_olded,           U(raedit_maxstats)},
     { "skills",     0,                  ed_olded,           U(raedit_skills)},
@@ -90,7 +90,7 @@ void raedit(CharData* ch, char* argument)
 
 void do_raedit(CharData* ch, char* argument)
 {
-    const struct race_type* pRace;
+    const Race* pRace;
     int race;
 
     if (IS_NPC(ch) || ch->desc == NULL)
@@ -150,10 +150,10 @@ RAEDIT(raedit_show)
     send_to_char(buf, ch);
 
     send_to_char("Name      CMu Exp       Name      CMu Exp       Name      CMu Exp\n\r", ch);
-    for (i = 0; i < MAX_CLASS; ++i) {
+    for (i = 0; i < class_count; ++i) {
         sprintf(buf, "%-7.7s   %3d %4d(%3d)%s",
             capitalize(class_table[i].name),
-            pRace->class_mult[i],
+            pRace->arch_mult[class_table[i].arch],
             race_exp_per_level(pRace->race_id, i, get_points(pRace->race_id, i)),
             get_points(pRace->race_id, i),
             i % 3 == 2 ? "\n\r" : " ");
@@ -168,7 +168,7 @@ RAEDIT(raedit_show)
     }
     send_to_char("\n\r", ch);
 
-    for (i = 0; i < 5; ++i)
+    for (i = 0; i < RACE_NUM_SKILLS; ++i)
         if (!IS_NULLSTR(pRace->skills[i])) {
             sprintf(buf, "%2d. %s\n\r",
                 i,
@@ -189,7 +189,7 @@ RAEDIT(raedit_list)
     fBuf = new_buf();
 
     for (i = 0; race_table[i].name; i++) {
-        sprintf(buf, "%2d %c #B%-33.33s#b", i,
+        sprintf(buf, "%2d %c {*%-33.33s{x", i,
             race_table[i].pc_race ? '+' : '-',
             race_table[i].name);
         if (i % 2 == 1)
@@ -282,24 +282,24 @@ RAEDIT(raedit_new)
     return true;
 }
 
-RAEDIT(raedit_cmult)
+RAEDIT(raedit_amult)
 {
     Race* race;
     int mult;
-    int class_idx;
-    char class_name[MIL];
+    int arch_idx;
+    char arch_name[MIL];
 
     EDIT_RACE(ch, race);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax : cmult [class] [multiplier]\n\r", ch);
+        send_to_char("Syntax : amult [archetype] [multiplier]\n\r", ch);
         return false;
     }
 
-    argument = one_argument(argument, class_name);
+    argument = one_argument(argument, arch_name);
 
-    if ((class_idx = class_lookup(class_name)) == -1) {
-        send_to_char("RAEdit : That class does not exist.\n\r", ch);
+    if ((arch_idx = archetype_lookup(arch_name)) == -1) {
+        send_to_char("RAEdit : That archetype does not exist.\n\r", ch);
         return false;
     }
 
@@ -315,7 +315,7 @@ RAEDIT(raedit_cmult)
         return false;
     }
 
-    race->class_mult[class_idx] = (int16_t)mult;
+    race->arch_mult[arch_idx] = (int16_t)mult;
     send_to_char("Ok.\n\r", ch);
     return true;
 }

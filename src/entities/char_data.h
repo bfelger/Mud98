@@ -22,6 +22,7 @@ typedef struct char_data_t CharData;
 #include "player_data.h"
 #include "room_data.h"
 
+#include "data/class.h"
 #include "data/damage.h"
 #include "data/mobile.h"
 #include "data/stats.h"
@@ -153,6 +154,11 @@ typedef struct char_data_t {
 #define PERS(ch, looker)                                                       \
     (can_see(looker, (ch)) ? (IS_NPC(ch) ? (ch)->short_descr : (ch)->name)     \
                            : "someone")
+
+// We have to cast to int because MSVC's static analyzer isn't very good at 
+// mapping to int on its own. Many false positive for unbounded enum use even
+// with checks.
+#define GET_ARCH(ch)    (CHECK_ARCH((int)class_table[ch->ch_class].arch))
 
 void free_char_data(CharData* ch);
 CharData* new_char_data();

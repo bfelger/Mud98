@@ -220,8 +220,8 @@ void string_add(CharData* ch, char* argument)
 
         if (ch->desc->showstr_head) {
             write_to_buffer(ch->desc,
-                "[#B!!!#b] You received the following messages while you "
-                "were writing:\n\r",
+                "{j[{|!!!{j] You received the following messages while you "
+                "were writing:{x\n\r",
                 0);
             show_string(ch->desc, "");
         }
@@ -627,7 +627,7 @@ char* numlineas(char* string)
 
     while (*string) {
         string = get_line(string, tmpb);
-        sprintf(buf2, "#B%2d#b. %s\n\r", cnt++, tmpb);
+        sprintf(buf2, "{*%2d{x. %s\n\r", cnt++, tmpb);
         strcat(buf, buf2);
     }
 

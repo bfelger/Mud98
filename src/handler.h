@@ -85,5 +85,6 @@ char* itos(int);
 int get_vnum_mob_name_area(char*, AreaData*);
 int get_vnum_obj_name_area(char*, AreaData*);
 int get_points(int race, int args);
+Archetype archetype_lookup(const char* name);
 
 #endif // !MUD98__HANDLER_H

@@ -65,7 +65,7 @@ char* progs(void* point)
 
     for (cnt = 0; list; list = list->next) {
         if (cnt == 0)
-            strcat(buf, "#Num  Vnum  Trigger Phrase     #u\n\r");
+            strcat(buf, "#Num  Vnum  Trigger Phrase     {x\n\r");
 
         sprintf(tmpbuf, "%3d %5d %7.7s %s\n\r", cnt,
             list->vnum, mprog_type_to_name(list->trig_type),

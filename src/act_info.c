@@ -49,6 +49,7 @@
 #include "entities/object_data.h"
 #include "entities/player_data.h"
 
+#include "data/class.h"
 #include "data/direction.h"
 #include "data/mobile.h"
 #include "data/player.h"
@@ -1725,8 +1726,8 @@ void do_who(CharData* ch, char* argument)
     int iLevelUpper;
     int nNumber;
     int nMatch;
-    bool rgfClass[MAX_CLASS] = { 0 };
-    bool rgfRace[MAX_PC_RACE] = { 0 };
+    bool rgfClass[1000] = { 0 };     // I hope you never need more than this?
+    bool rgfRace[1000] = { 0 };
     bool rgfClan[MAX_CLAN] = { 0 };
     bool fClassRestrict = false;
     bool fClanRestrict = false;
@@ -1739,9 +1740,12 @@ void do_who(CharData* ch, char* argument)
      */
     iLevelLower = 0;
     iLevelUpper = MAX_LEVEL;
-    for (iClass = 0; iClass < MAX_CLASS; iClass++) rgfClass[iClass] = false;
-    for (iRace = 0; iRace < MAX_PC_RACE; iRace++) rgfRace[iRace] = false;
-    for (iClan = 0; iClan < MAX_CLAN; iClan++) rgfClan[iClan] = false;
+    //for (iClass = 0; iClass < class_count; iClass++) 
+    //    rgfClass[iClass] = false;
+    //for (iRace = 0; iRace < race_count; iRace++) 
+    //    rgfRace[iRace] = false;
+    //for (iClan = 0; iClan < MAX_CLAN; iClan++) 
+    //    rgfClan[iClan] = false;
 
     /*
      * Parse arguments.
@@ -1773,38 +1777,28 @@ void do_who(CharData* ch, char* argument)
             if (!str_prefix(arg, "immortals")) { 
                 fImmortalOnly = true; 
             }
-            else {
-                iClass = class_lookup(arg);
-                if (iClass == -1) {
-                    iRace = race_lookup(arg);
-
-                    if (iRace == 0 || iRace >= MAX_PC_RACE) {
-                        if (!str_prefix(arg, "clan")) {
-                            fClan = true;
-                        }
-                        else {
-                            iClan = clan_lookup(arg);
-                            if (iClan) {
-                                fClanRestrict = true;
-                                rgfClan[iClan] = true;
-                            }
-                            else {
-                                send_to_char("That's not a valid race, class, "
-                                             "or clan.\n\r",
-                                             ch);
-                                return;
-                            }
-                        }
+            else if ((iClass = class_lookup(arg)) == -1) {
+                if ((iRace = race_lookup(arg)) == 0 || iRace >= race_count) {
+                    if (!str_prefix(arg, "clan")) {
+                        fClan = true;
+                    }
+                    else if (iClan = clan_lookup(arg)) {
+                        fClanRestrict = true;
+                        rgfClan[iClan] = true;
                     }
                     else {
-                        fRaceRestrict = true;
-                        rgfRace[iRace] = true;
+                        send_to_char("That's not a valid race, class, or clan.\n\r", ch);
+                        return;
                     }
                 }
                 else {
-                    fClassRestrict = true;
-                    rgfClass[iClass] = true;
+                    fRaceRestrict = true;
+                    rgfRace[iRace] = true;
                 }
+            }
+            else {
+                fClassRestrict = true;
+                rgfClass[iClass] = true;
             }
         }
     }
@@ -2265,7 +2259,10 @@ void do_practice(CharData* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
     SKNUM sn;
 
-    if (IS_NPC(ch)) return;
+    if (IS_NPC(ch))
+        return;
+
+    int arch = GET_ARCH(ch);
 
     if (argument[0] == '\0') {
         int col;
@@ -2274,7 +2271,7 @@ void do_practice(CharData* ch, char* argument)
         for (sn = 0; sn < max_skill; sn++) {
             if (skill_table[sn].name == NULL)
                 break;
-            if (ch->level < skill_table[sn].skill_level[ch->ch_class]
+            if (ch->level < skill_table[sn].skill_level[arch]
                 || ch->pcdata->learned[sn] < 1 /* skill is not known */)
                 continue;
 
@@ -2316,14 +2313,14 @@ void do_practice(CharData* ch, char* argument)
 
         if ((sn = find_spell(ch, argument)) < 0
             || (!IS_NPC(ch)
-                && (ch->level < skill_table[sn].skill_level[ch->ch_class]
+                && (ch->level < skill_table[sn].skill_level[arch]
                     || ch->pcdata->learned[sn] < 1 /* skill is not known */
-                    || skill_table[sn].rating[ch->ch_class] == 0))) {
+                    || skill_table[sn].rating[arch] == 0))) {
             send_to_char("You can't practice that.\n\r", ch);
             return;
         }
 
-        adept = IS_NPC(ch) ? 100 : class_table[ch->ch_class].skill_adept;
+        adept = IS_NPC(ch) ? 100 : class_table[ch->ch_class].skill_cap;
 
         if (ch->pcdata->learned[sn] >= adept) {
             sprintf(buf, "You are already learned at %s.\n\r",
@@ -2334,7 +2331,7 @@ void do_practice(CharData* ch, char* argument)
             ch->practice--;
             ch->pcdata->learned[sn]
                 += int_mod[get_curr_stat(ch, STAT_INT)].learn
-                   / (int16_t)skill_table[sn].rating[ch->ch_class];
+                   / (int16_t)skill_table[sn].rating[arch];
             if (ch->pcdata->learned[sn] < adept) {
                 act("You practice $T.", ch, NULL, skill_table[sn].name,
                     TO_CHAR);

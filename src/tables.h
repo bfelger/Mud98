@@ -52,7 +52,7 @@ typedef enum cmd_type_t {
 
 struct flag_type {
     char* name;
-    int bit;
+    FLAGS bit;
     bool settable;
 };
 

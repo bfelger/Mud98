@@ -499,7 +499,7 @@ void aedit(CharData* ch, char* argument)
     char    command[MAX_INPUT_LENGTH];
     char    arg[MAX_INPUT_LENGTH];
     int     cmd;
-    int     value;
+    FLAGS     value;
 
     EDIT_AREA(ch, pArea);
 
@@ -1326,7 +1326,7 @@ void    do_resets(CharData* ch, char* argument)
                                  * --------------------------
                                  */
                             {
-                                int blah = flag_value(wear_loc_flag_table, arg4);
+                                FLAGS blah = flag_value(wear_loc_flag_table, arg4);
 
                                 if (blah == NO_FLAG) {
                                     send_to_char("Resets: '? wear-loc'\n\r", ch);
@@ -1474,7 +1474,7 @@ bool process_olc_command(CharData* ch, char* argument, const struct olc_comm_typ
     MobPrototype* pMob;
     ObjectPrototype* pObj;
     RoomData* pRoom;
-    struct race_type* pRace;
+    Race* pRace;
     struct skill_type* pSkill;
     CmdInfo* pCmd;
     AreaData* tArea;
@@ -1619,6 +1619,13 @@ void do_page(CharData* ch, char* argument)
 
     send_to_char("Changed editor scroll. If you don't see anything, change to another number.\n\r", ch);
     return;
+}
+
+void list_archetypes(CharData* ch)
+{
+    printf_to_char(ch, "{*Available archetypes:{x\n\r");
+    for (int i = 0; i < ARCH_COUNT; ++i)
+        printf_to_char(ch, "    {_%s{x\n\r", arch_table[i].name);
 }
 
 #undef U
