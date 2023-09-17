@@ -54,6 +54,7 @@
 #include "entities/object_data.h"
 
 #include "data/mobile.h"
+#include "data/skill.h"
 
 #include <stdio.h>
 #include <stdlib.h>

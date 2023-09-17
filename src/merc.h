@@ -67,8 +67,8 @@ extern char area_dir[];
 #define GROUP_FILE      DATA_DIR "groups"
 #define SKILL_FILE      DATA_DIR "skills"
 #define COMMAND_FILE    DATA_DIR "commands"
-#define RACES_FILE      DATA_DIR "races"
-#define CLASSES_FILE    DATA_DIR "classes"
+#define RACE_FILE       DATA_DIR "races"
+#define CLASS_FILE      DATA_DIR "classes"
 #define AREA_LIST       "area.lst"      // List of areas
 #define BUG_FILE        "bugs.txt"      // For 'bug' and bug()
 #define TYPO_FILE       "typos.txt"     // For 'typo'
@@ -212,12 +212,6 @@ struct weather_data {
     int sunlight;
 };
 
-struct wiznet_type {
-    char* name;
-    long flag;
-    LEVEL level;
-};
-
 /*
  * A kill structure (indexed by level).
  */
@@ -310,14 +304,11 @@ struct social_type {
  * Global constants.
  */
 
-extern const struct wiznet_type wiznet_table[];
 extern       struct social_type* social_table;
 
 /*****************************************************************************
  *                                    OLC                                    *
  *****************************************************************************/
-
-//#define NO_FLAG         -99 // Must not be used in flags or stats.
 #define NO_FLAG BIT(31)
 
 ////////////////////////////////////////////////////////////////////////////////

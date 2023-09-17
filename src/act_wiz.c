@@ -53,6 +53,7 @@
 #include "data/mobile.h"
 #include "data/player.h"
 #include "data/race.h"
+#include "data/skill.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,6 +63,30 @@
 #ifndef _MSC_VER 
 #include <sys/time.h>
 #endif
+
+const WizNet wiznet_table[] = {
+    { "on",         WIZ_ON,         IM  },
+    { "prefix",     WIZ_PREFIX,     IM  },
+    { "ticks",      WIZ_TICKS,      IM  },
+    { "logins",     WIZ_LOGINS,     IM  },
+    { "sites",      WIZ_SITES,      L4  },
+    { "links",      WIZ_LINKS,      L7  },
+    { "newbies",    WIZ_NEWBIE,     IM  },
+    { "spam",       WIZ_SPAM,       L5  },
+    { "deaths",     WIZ_DEATHS,     IM  },
+    { "resets",     WIZ_RESETS,     L4  },
+    { "mobdeaths",  WIZ_MOBDEATHS,  L4  },
+    { "flags",      WIZ_FLAGS,      L5  },
+    { "penalties",  WIZ_PENALTIES,  L5  },
+    { "saccing",    WIZ_SACCING,    L5  },
+    { "levels",     WIZ_LEVELS,     IM  },
+    { "load",       WIZ_LOAD,       L2  },
+    { "restore",    WIZ_RESTORE,    L2  },
+    { "snoops",     WIZ_SNOOPS,     L2  },
+    { "switches",   WIZ_SWITCHES,   L2  },
+    { "secure",     WIZ_SECURE,     L1  },
+    { NULL,         0,              0   }
+};
 
 void do_wiznet(CharData* ch, char* argument)
 {
@@ -153,8 +178,8 @@ void do_wiznet(CharData* ch, char* argument)
     }
 }
 
-void wiznet(char* string, CharData* ch, ObjectData* obj, long flag,
-            long flag_skip, int min_level)
+void wiznet(char* string, CharData* ch, ObjectData* obj, FLAGS flag,
+            FLAGS flag_skip, LEVEL min_level)
 {
     Descriptor* d;
 

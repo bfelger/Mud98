@@ -20,6 +20,8 @@
 #include "entities/char_data.h"
 #include "entities/descriptor.h"
 
+#include "data/skill.h"
+
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -214,7 +216,7 @@ void string_add(CharData* ch, char* argument)
 
         switch (ch->desc->editor) {
         case ED_SKILL:
-            save_skills();
+            save_skill_table();
             break;
         }
 

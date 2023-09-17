@@ -31,47 +31,14 @@
 // The following is for an indeterminate number of items bounded by @
 #define MAX_LOAD 1000
 
-typedef enum save_type_t {
-    FIELD_STRING			    = 0,
-    FIELD_FUNCTION_INT_TO_STR   = 1,
-    FIELD_INT16			        = 2,
-    FIELD_FLAGSTRING		    = 3,
-    FIELD_INT			        = 4,
-    FIELD_FLAGVECTOR		    = 5,
-    FIELD_BOOL			        = 6,
-    FIELD_INT16_ARRAY		    = 7,
-    FIELD_STRING_ARRAY		    = 8,
-    FIELD_FUNCTION_INT16_TO_STR = 9,
-    FIELD_INT16_FLAGSTRING      = 10,
-    FIELD_BOOL_ARRAY		    = 11,
-    FIELD_INUTIL			    = 12,
-    FIELD_VNUM                  = 13,
-    FIELD_VNUM_ARRAY            = 14,
-} SaveType;
-
-struct savetable_type {
-    char* field_name;
-    SaveType field_type;
-    uintptr_t field_ptr;
-    const uintptr_t argument;
-    const uintptr_t argument2;
-};
-
 CmdInfo tmp_cmd;
-Race tmp_race;
-Class tmp_class;
 struct social_type tmp_soc;
-struct skill_type tmp_sk;
 struct group_type tmp_grp;
 MobProgCode tmp_pcode;
 
 char* cmd_func_name(DoFunc*);
 DoFunc* cmd_func_lookup(char*);
 
-char* gsn_name(int16_t*);
-int16_t* gsn_lookup(char*);
-
-char* spell_name(SpellFunc*);
 SpellFunc* spell_function(char*);
 
 typedef char* STR_FUNC(void*);
@@ -82,20 +49,6 @@ char* do_fun_str(void* temp)
     DoFunc** fun = (DoFunc**)temp;
 
     return cmd_func_name(*fun);
-}
-
-const char* position_str(void* temp)
-{
-    Position* flags = (Position*)temp;
-
-    return position_table[*flags].name;
-}
-
-const char* size_str(void* temp)
-{
-    MobSize* size = (MobSize*)temp;
-
-    return mob_size_table[UMAX(0, *size)].name;
 }
 
 char* race_str(void* temp)
@@ -117,20 +70,6 @@ char* class_str(void* temp)
     int16_t* class_ = (int16_t*)temp;
 
     return class_table[*class_].name;
-}
-
-char* pgsn_str(void* temp)
-{
-    int16_t** pgsn = (int16_t**)temp;
-
-    return gsn_name(*pgsn);
-}
-
-char* spell_fun_str(void* temp)
-{
-    SpellFunc** spfun = (SpellFunc**)temp;
-
-    return spell_name(*spfun);
 }
 
 bool race_read(void* temp, char* arg)
@@ -174,87 +113,24 @@ bool do_fun_read(void* temp, char* arg)
     return true;
 }
 
-bool position_read(void* temp, char* arg)
-{
-    int16_t* pos = (int16_t*)temp;
-    int16_t ffg = (int16_t)position_lookup(arg);
-
-    *pos = UMAX(0, ffg);
-
-    if (ffg == -1)
-        return false;
-    else
-        return true;
-}
-
-bool size_read(void* temp, char* arg)
-{
-    int16_t* size = (int16_t*)temp;
-    int16_t ffg = (int16_t)size_lookup(arg);
-
-    *size = UMAX(0, ffg);
-
-    if (ffg == -1)
-        return false;
-    else
-        return true;
-}
-
-bool pgsn_read(void* temp, char* arg)
-{
-    int16_t** pgsn = (int16_t**)temp;
-    int16_t* blah = gsn_lookup(arg);
-
-    *pgsn = blah;
-
-    return !str_cmp(arg, "") || blah != NULL;
-}
-
-bool spell_fun_read(void* temp, char* arg)
-{
-    SpellFunc** spfun = (SpellFunc**)temp;
-    SpellFunc* blah = spell_function(arg);
-
-    *spfun = blah;
-
-    return !str_cmp(arg, "") || blah != NULL;
-}
-
 #ifdef U
 #define OLD_U U
 #endif
 #define U(x)    (uintptr_t)(x)
 
-const struct savetable_type progcodesavetable[] = {
+const SaveTableEntry progcodesavetable[] = {
     { "vnum",		    FIELD_VNUM,                 U(&tmp_pcode.vnum),	0,	0	},
     { "code",		    FIELD_STRING,	            U(&tmp_pcode.code),	0,	0	},
     { NULL,		        0,				            0,			        0,	0	}
 };
 
-const struct savetable_type groupsavetable[] = {
+const SaveTableEntry groupsavetable[] = {
     { "name",		    FIELD_STRING,			    U(&tmp_grp.name),           0,                  0	    },
     { "rating",	        FIELD_INT16_ARRAY,		    U(&tmp_grp.rating),         U(ARCH_COUNT),	    0	    },
     { "spells",	        FIELD_STRING_ARRAY,	        U(&tmp_grp.spells),	        U(MAX_IN_GROUP),    0	    },
 };
 
-const struct savetable_type skillsavetable[] = {
-    { "name",		        FIELD_STRING,			    U(&tmp_sk.name),		    0,			    0	                },
-    { "skill_level",	    FIELD_INT16_ARRAY,		    U(&tmp_sk.skill_level),	    U(ARCH_COUNT),	0	                },
-    { "rating",	            FIELD_INT16_ARRAY,		    U(&tmp_sk.rating),		    U(ARCH_COUNT),	0	                },
-    { "spell_fun",	        FIELD_FUNCTION_INT_TO_STR,	U(&tmp_sk.spell_fun),	    U(spell_fun_str),U(spell_fun_read)  },
-    { "target",	            FIELD_INT16_FLAGSTRING,		U(&tmp_sk.target),		    U(target_table),0	                },
-    { "minimum_position",   FIELD_FUNCTION_INT16_TO_STR,U(&tmp_sk.minimum_position),U(position_str),U(position_read)    },
-    { "pgsn",		        FIELD_FUNCTION_INT_TO_STR,	U(&tmp_sk.pgsn),		    U(pgsn_str),	U(pgsn_read)	    },
-    { "slot",		        FIELD_INT,			        U(&tmp_sk.slot),		    0,			    0	                },
-    { "min_mana",	        FIELD_INT,			        U(&tmp_sk.min_mana),	    0,			    0	                },
-    { "beats",	            FIELD_INT,			        U(&tmp_sk.beats),		    0,			    0	                },
-    { "noun_damage",	    FIELD_STRING,			    U(&tmp_sk.noun_damage),	    0,			    0	                },
-    { "msg_off",	        FIELD_STRING,			    U(&tmp_sk.msg_off),		    0,			    0	                },
-    { "msg_obj",	        FIELD_STRING,			    U(&tmp_sk.msg_obj),		    0,			    0	                },
-    { NULL,		            0,				            0,				            0,			    0	                }
-};
-
-const struct savetable_type socialsavetable[] = {
+const SaveTableEntry socialsavetable[] = {
     { "name",		    FIELD_STRING,	U(&tmp_soc.name),		    0,      0},
     { "char_no_arg",	FIELD_STRING,	U(&tmp_soc.char_no_arg), 	0,      0},
     { "others_no_arg",  FIELD_STRING,	U(&tmp_soc.others_no_arg),	0,      0},
@@ -266,47 +142,7 @@ const struct savetable_type socialsavetable[] = {
     { NULL,		        0,		        0,				            0,      0}
 };
 
-const struct savetable_type racesavetable[] = {
-    { "name",	    FIELD_STRING,		        U(&tmp_race.name),	        0,		            0           },
-    { "pc",		    FIELD_BOOL,			        U(&tmp_race.pc_race),	    0,		            0           },
-    { "act",	    FIELD_FLAGVECTOR,	        U(&tmp_race.act_flags),     0,		            0           },
-    { "aff",	    FIELD_FLAGVECTOR,	        U(&tmp_race.aff),	        0,		            0           },
-    { "off",	    FIELD_FLAGVECTOR,	        U(&tmp_race.off),	        0,		            0           },
-    { "imm",	    FIELD_FLAGVECTOR,	        U(&tmp_race.imm),	        0,		            0           },
-    { "res",	    FIELD_FLAGVECTOR,	        U(&tmp_race.res),	        0,		            0           },
-    { "vuln",	    FIELD_FLAGVECTOR,	        U(&tmp_race.vuln),	        0,		            0           },
-    { "form",	    FIELD_FLAGVECTOR,	        U(&tmp_race.form),	        0,		            0           },
-    { "parts",	    FIELD_FLAGVECTOR,	        U(&tmp_race.parts),	        0,		            0           },
-    { "points",	    FIELD_INT16,		        U(&tmp_race.points),	    0,			        0	        },
-    { "arch_mult",	FIELD_INT16_ARRAY,	        U(&tmp_race.arch_mult),     U(ARCH_COUNT),	    0	        },
-    { "who_name",	FIELD_STRING,		        U(&tmp_race.who_name),	    0,			        0	        },
-    { "skills",	    FIELD_STRING_ARRAY,	        U(&tmp_race.skills),	    U(RACE_NUM_SKILLS), 0	        },
-    { "stats",	    FIELD_INT16_ARRAY,	        U(&tmp_race.stats),		    U(STAT_MAX),	    0	        },
-    { "max_stats",	FIELD_INT16_ARRAY,	        U(&tmp_race.max_stats),	    U(STAT_MAX),	    0	        },
-    { "size",		FIELD_FUNCTION_INT16_TO_STR,U(&tmp_race.size),	        U(size_str),        U(size_read)},
-    { NULL,		    0,				            0,			                0,		            0           }
-};
-
-const struct savetable_type classsavetable[] = {
-    { "name",	    FIELD_STRING,		        U(&tmp_class.name),	        0,		        0           },
-    { "wname",	    FIELD_STRING,		        U(&tmp_class.who_name),	    0,		        0           },
-    { "basegrp",    FIELD_STRING,               U(&tmp_class.base_group),   0,              0           },
-    { "dfltgrp",    FIELD_STRING,               U(&tmp_class.default_group),0,              0           },
-    { "weap",       FIELD_VNUM,                 U(&tmp_class.weapon),       0,              0           },
-    { "guild",      FIELD_VNUM_ARRAY,           U(&tmp_class.guild),        U(MAX_GUILD),   0           },
-    { "pstat",      FIELD_INT16,                U(&tmp_class.prime_stat),   0,              0           },
-    { "arch",       FIELD_INT16,                U(&tmp_class.arch),         0,              0           },
-    { "scap",       FIELD_INT16,                U(&tmp_class.skill_cap),    0,              0           },
-    { "t0_0",       FIELD_INT16,                U(&tmp_class.thac0_00),     0,              0           },
-    { "t0_32",      FIELD_INT16,                U(&tmp_class.thac0_32),     0,              0           },
-    { "hpmin",      FIELD_INT16,                U(&tmp_class.hp_min),       0,              0           },
-    { "hpmax",      FIELD_INT16,                U(&tmp_class.hp_max),       0,              0           },
-    { "fmana",      FIELD_BOOL,                 U(&tmp_class.fMana),        0,              0           },
-    { NULL,		    0,				            0,			                0,		        0           }
-
-};
-
-const struct savetable_type cmdsavetable[] = {
+const SaveTableEntry cmdsavetable[] = {
     { "name",		FIELD_STRING,			    U(&tmp_cmd.name),	    0,		            0               },
     { "do_fun",	    FIELD_FUNCTION_INT_TO_STR,	U(&tmp_cmd.do_fun),	    U(do_fun_str),	    U(do_fun_read)  },
     { "position",	FIELD_FUNCTION_INT16_TO_STR,U(&tmp_cmd.position),   U(position_str),    U(position_read)},
@@ -316,10 +152,10 @@ const struct savetable_type cmdsavetable[] = {
     { NULL,		    0,				            0,			            0,		            0               }
 };
 
-void load_struct(FILE* fp, uintptr_t base_type, const struct savetable_type* table, const uintptr_t pointer)
+void load_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, const uintptr_t pointer)
 {
     char* word;
-    const struct savetable_type* temp;
+    const SaveTableEntry* temp;
     int16_t* pInt16;
     int* pBitVector;
     char** pString;
@@ -491,9 +327,9 @@ void load_struct(FILE* fp, uintptr_t base_type, const struct savetable_type* tab
     } // while
 }
 
-void save_struct(FILE* fp, uintptr_t base_type, const struct savetable_type* table, const uintptr_t pointer)
+void save_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, const uintptr_t pointer)
 {
-    const struct savetable_type* temp;
+    const SaveTableEntry* temp;
     char** pString;
     int16_t* pInt16;
     int* pInt;
@@ -694,102 +530,6 @@ void load_command_table(void)
     }
 }
 
-void load_class_table()
-{
-    FILE* fp;
-    char* word;
-    int i;
-
-    char classes_file[256];
-    sprintf(classes_file, "%s%s", area_dir, CLASSES_FILE);
-    fp = fopen(classes_file, "r");
-
-    if (!fp) {
-        perror("load_class_table");
-        return;
-    }
-
-    int maxclass = fread_number(fp);
-
-    size_t new_size = sizeof(Class) * ((size_t)maxclass + 1);
-    flog("Creating class of length %d, size %zu", maxclass + 1, new_size);
-
-    if ((class_table = calloc(sizeof(Class), (size_t)maxclass + 1)) == NULL) {
-        perror("load_class_table(): Could not allocate class_table!");
-        exit(-1);
-    }
-
-    i = 0;
-
-    while (true) {
-        word = fread_word(fp);
-
-        if (str_cmp(word, "#CLASS")) {
-            bugf("load_class_table : word %s", word);
-            fclose(fp);
-            return;
-        }
-
-        load_struct(fp, U(&tmp_class), classsavetable, U(&class_table[i++]));
-
-        if (i == maxclass) {
-            flog("Class table loaded.");
-            fclose(fp);
-            class_count = maxclass;
-            class_table[i].name = NULL;
-            return;
-        }
-    }
-}
-
-void load_races_table()
-{
-    FILE* fp;
-    char* word;
-    int i;
-
-    char races_file[256];
-    sprintf(races_file, "%s%s", area_dir, RACES_FILE);
-    fp = fopen(races_file, "r");
-
-    if (!fp) {
-        perror("load_races_table");
-        return;
-    }
-
-    int maxrace = fread_number(fp);
-
-    size_t new_size = sizeof(Race) * ((size_t)maxrace + 1);
-    flog("Creating race_table of length %d, size %zu", maxrace + 1, new_size);
-
-    if ((race_table = calloc(sizeof(Race), (size_t)maxrace + 1)) == NULL) {
-        perror("load_races_table(): Could not allocate race_table!");
-        exit(-1);
-    }
-
-    i = 0;
-
-    while (true) {
-        word = fread_word(fp);
-
-        if (str_cmp(word, "#race")) {
-            bugf("load_races_table : word %s", word);
-            fclose(fp);
-            return;
-        }
-
-        load_struct(fp, U(&tmp_race), racesavetable, U(&race_table[i++]));
-
-        if (i == maxrace) {
-            flog("Race table loaded.");
-            fclose(fp);
-            race_count = maxrace;
-            race_table[i].name = NULL;
-            return;
-        }
-    }
-}
-
 void load_socials_table()
 {
     FILE* fp;
@@ -892,150 +632,6 @@ void load_groups_table()
     flog("Groups table loaded.");
 }
 
-void load_skills_table()
-{
-    FILE* fp;
-    static struct skill_type skzero;
-    int i = 0;
-    char* word;
-    int tmp_max_skill;
-
-    char skill_file[256];
-    sprintf(skill_file, "%s%s", area_dir, SKILL_FILE);
-    fp = fopen(skill_file, "r");
-
-    if (!fp) {
-        bug("Skill file " SKILL_FILE " cannot be found.", 0);
-        exit(1);
-    }
-
-    if (fscanf(fp, "%d\n", &tmp_max_skill) < 1) {
-        bug("load_skills_table(): Could not read max_skill!");
-        return;
-    }
-
-    max_skill = (SKNUM)tmp_max_skill;
-
-    flog("Creating skill table of length %d, size %zu",
-        max_skill + 1, sizeof(struct skill_type) * ((size_t)max_skill + 1));
-    if ((skill_table = calloc(sizeof(struct skill_type), (size_t)max_skill + 1)) == NULL) {
-        bug("load_skills_table(): Could not allocate skill_table!");
-        exit(1);
-    }
-
-    for (; ; ) {
-        word = fread_word(fp);
-
-        if (!str_cmp(word, "#!"))
-            break;
-
-        if (str_cmp(word, "#SKILL")) {
-            bugf("Load_skills : non-existent section (%s)", word);
-            exit(1);
-        }
-
-        if (i >= max_skill) {
-            bug("Load_skills : the number of skills is greater than max_skill", 0);
-            exit(1);
-        }
-
-        skill_table[i] = skzero;
-        load_struct(fp, U(&tmp_sk), skillsavetable, U(&skill_table[i++]));
-    }
-
-    skill_table[max_skill].name = NULL;
-
-    fclose(fp);
-
-    flog("Skills table loaded.");
-}
-
-void save_classes()
-{
-    FILE* fp;
-    const Class* temp;
-    int cnt = 0;
-
-    char tempclasses_file[256];
-    sprintf(tempclasses_file, "%s%s", area_dir, DATA_DIR "tempclasses");
-    fp = fopen(tempclasses_file, "w");
-    if (!fp) {
-        bugf("save_classes : Can't open %s", tempclasses_file);
-        return;
-    }
-
-    for (temp = class_table; !IS_NULLSTR(temp->name); temp++)
-        cnt++;
-
-    fprintf(fp, "%d\n\n", cnt);
-
-    for (temp = class_table, cnt = 0; !IS_NULLSTR(temp->name); temp++) {
-        fprintf(fp, "#CLASS\n");
-        save_struct(fp, U(&tmp_class), classsavetable, U(temp));
-        fprintf(fp, "#END\n\n");
-    }
-
-    fclose(fp);
-
-    char classes_file[256];
-    sprintf(classes_file, "%s%s", area_dir, CLASSES_FILE);
-
-#ifdef _MSC_VER
-    if (!MoveFileExA(tempclasses_file, classes_file, MOVEFILE_REPLACE_EXISTING)) {
-        bugf("save_class : Could not rename %s to %s!", tempclasses_file, classes_file);
-        perror(classes_file);
-    }
-#else
-    if (rename(tempclasses_file, classes_file) != 0) {
-        bugf("save_class : Could not rename %s to %s!", tempclasses_file, classes_file);
-        perror(classes_file);
-    }
-#endif
-}
-
-void save_races()
-{
-    FILE* fp;
-    const Race* temp;
-    int cnt = 0;
-
-    char tempraces_file[256];
-    sprintf(tempraces_file, "%s%s", area_dir, DATA_DIR "tempraces");
-    fp = fopen(tempraces_file, "w");
-    if (!fp) {
-        bugf("save_races : Can't open %s", tempraces_file);
-        return;
-    }
-
-    for (temp = race_table; !IS_NULLSTR(temp->name); temp++)
-        cnt++;
-
-    fprintf(fp, "%d\n\n", cnt);
-
-    for (temp = race_table, cnt = 0; !IS_NULLSTR(temp->name); temp++) {
-        fprintf(fp, "#RACE\n");
-        save_struct(fp, U(&tmp_race), racesavetable, U(temp));
-        fprintf(fp, "#END\n\n");
-    }
-
-    fclose(fp);
-
-    char races_file[256];
-    sprintf(races_file, "%s%s", area_dir, RACES_FILE);
-
-#ifdef _MSC_VER
-    if (!MoveFileExA(tempraces_file, races_file, MOVEFILE_REPLACE_EXISTING)) {
-        bugf("save_race : Could not rename %s to %s!", tempraces_file, races_file);
-        perror(races_file);
-    }
-#else
-    if (rename(tempraces_file, races_file) != 0) {
-        bugf("save_race : Could not rename %s to %s!", tempraces_file, races_file);
-        perror(races_file);
-    }
-#endif
-}
-
 void save_socials(void)
 {
     FILE* fp;
@@ -1079,32 +675,6 @@ void save_groups()
     for (i = 0; i < max_group; ++i) {
         fprintf(fpn, "#GROUP\n");
         save_struct(fpn, U(&tmp_grp), groupsavetable, U(&group_table[i]));
-        fprintf(fpn, "#END\n\n");
-    }
-
-    fprintf(fpn, "#!\n");
-
-    fclose(fpn);
-}
-
-void save_skills()
-{
-    FILE* fpn;
-    int i;
-
-    char skill_file[256];
-    sprintf(skill_file, "%s%s", area_dir, SKILL_FILE);
-    fpn = fopen(skill_file, "w");
-    if (fpn == NULL) {
-        bugf("save_skills: Can't open %s", skill_file);
-        return;
-    }
-
-    fprintf(fpn, "%d\n\n", (int)max_skill);
-
-    for (i = 0; i < max_skill; ++i) {
-        fprintf(fpn, "#SKILL\n");
-        save_struct(fpn, U(&tmp_sk), skillsavetable, U(&skill_table[i]));
         fprintf(fpn, "#END\n\n");
     }
 

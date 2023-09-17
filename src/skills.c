@@ -42,6 +42,7 @@
 
 #include "data/mobile.h"
 #include "data/race.h"
+#include "data/skill.h"
 
 #include <stdio.h>
 #include <stdlib.h>

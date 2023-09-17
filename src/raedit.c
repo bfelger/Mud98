@@ -72,7 +72,7 @@ void raedit(CharData* ch, char* argument)
     }
 
     if (!str_cmp(argument, "save")) {
-        save_races();
+        save_race_table();
         return;
     }
 

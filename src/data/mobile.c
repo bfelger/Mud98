@@ -4,6 +4,8 @@
 
 #include "mobile.h"
 
+#include "lookup.h"
+
 const PositionInfo position_table[POS_MAX] = {
     { POS_DEAD,         "dead",             "dead"  },
     { POS_MORTAL,       "mortally wounded", "mort"  },
@@ -31,3 +33,43 @@ const MobSizeInfo mob_size_table[MOB_SIZE_MAX] = {
     { SIZE_HUGE,    "huge"    },
     { SIZE_GIANT,   "giant"   },
 };
+
+bool position_read(void* temp, char* arg)
+{
+    int16_t* pos = (int16_t*)temp;
+    int16_t ffg = (int16_t)position_lookup(arg);
+
+    *pos = UMAX(0, ffg);
+
+    if (ffg == -1)
+        return false;
+    else
+        return true;
+}
+
+const char* position_str(void* temp)
+{
+    Position* flags = (Position*)temp;
+    return position_table[*flags].name;
+}
+
+bool size_read(void* temp, char* arg)
+{
+    int16_t* size = (int16_t*)temp;
+    int16_t ffg = (int16_t)size_lookup(arg);
+
+    *size = UMAX(0, ffg);
+
+    if (ffg == -1)
+        return false;
+    else
+        return true;
+}
+
+const char* size_str(void* temp)
+{
+    MobSize* size = (MobSize*)temp;
+    return mob_size_table[UMAX(0, *size)].name;
+}
+
+

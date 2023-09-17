@@ -54,9 +54,11 @@ typedef struct class_t {
     bool fMana;                     // Class gains mana on level
 } Class;
 
+void load_class_table();
+void save_class_table();
+
 extern int class_count;
 extern Class* class_table;
-
 extern char* const title_table[ARCH_COUNT][MAX_LEVEL + 1][2];
 
 #endif // !MUD98__DATA__CLASS_H

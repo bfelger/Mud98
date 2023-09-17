@@ -149,6 +149,9 @@ typedef struct position_info_t {
     const char* short_name;
 } PositionInfo;
 
+bool position_read(void* temp, char* arg);
+const char* position_str(void* temp);
+
 extern const PositionInfo position_table[POS_MAX];
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -194,6 +197,9 @@ typedef struct mob_size_info_t {
     const MobSize size;
     const char* name;
 } MobSizeInfo;
+
+bool size_read(void* temp, char* arg);
+const char* size_str(void* temp);
 
 extern const MobSizeInfo mob_size_table[MOB_SIZE_MAX];
 

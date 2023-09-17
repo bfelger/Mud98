@@ -364,7 +364,7 @@ DECLARE_ED_FUN(ed_objrecval);
 #define EDIT_AREA(ch, area)	    ( area = (AreaData*)ch->desc->pEdit )
 #define EDIT_RACE(ch, race)	    ( race = (Race*)ch->desc->pEdit )
 #define EDIT_SOCIAL(ch, social)	( social = (struct social_type*)ch->desc->pEdit )
-#define EDIT_SKILL(ch, skill)	( skill = (struct skill_type*)ch->desc->pEdit )
+#define EDIT_SKILL(ch, skill)	( skill = (Skill*)ch->desc->pEdit )
 #define EDIT_CMD(ch, cmd)	    ( cmd = (CmdInfo*)ch->desc->pEdit )
 #define EDIT_GROUP(ch, grp)	    ( grp = (struct group_type*)ch->desc->pEdit )
 #define EDIT_HELP(ch, help)	    ( help = (HelpData*)ch->desc->pEdit )

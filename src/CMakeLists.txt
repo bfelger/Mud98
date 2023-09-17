@@ -77,7 +77,7 @@ include_directories(${CMAKE_SOURCE_DIR})
 add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c 
     act_info.h act_info.c act_move.h act_move.c act_obj.h act_obj.c act_wiz.h 
     act_wiz.c alias.h alias.c ban.h ban.c benchmark.h benchmark.c bit.h bit.c 
-    cmdedit.c color.h color.c comm.h comm.c const.c db.c db2.c digest.h digest.c
+    cmdedit.c color.h color.c comm.h comm.c db.c db2.c digest.h digest.c
     effects.h effects.c fight.h fight.c flags.c gedit.c handler.h handler.c 
     healer.c hedit.c interp.c lookup.c magic.c magic2.c main.c mob_cmds.h 
     mob_cmds.c mob_prog.h mob_prog.c music.c note.h note.c olc.h olc.c olc_act.c
@@ -109,7 +109,7 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     data/player.h
     data/race.h data/race.c 
     data/stats.h data/stats.c
-)
+ "data/skill.h" "data/skill.c" "data/spell.h" "data/spell.c")
 
 if (NOT MSVC)
     target_link_libraries(Mud98 Threads::Threads OpenSSL::SSL)

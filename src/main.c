@@ -80,10 +80,6 @@ char area_dir[256] = DEFAULT_AREA_DIR;
 
 void game_loop(SockServer* server);
 
-void save_groups();
-void save_races();
-void save_skills();
-
 #ifdef _MSC_VER
 struct timezone {
     int  dummy;

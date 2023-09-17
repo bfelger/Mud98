@@ -47,6 +47,7 @@
 #include "data/mobile.h"
 #include "data/player.h"
 #include "data/race.h"
+#include "data/skill.h"
 
 #include <ctype.h>
 #include <errno.h>

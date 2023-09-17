@@ -31,6 +31,7 @@
 
 #include "data/mobile.h"
 #include "data/race.h"
+#include "data/skill.h"
 
 #include <sys/types.h>
 #include <ctype.h>
@@ -49,7 +50,7 @@ void UpdateOLCScreen(Descriptor*);
 MobPrototype        xMob;
 ObjectPrototype     xObj;
 RoomData            xRoom;
-struct skill_type   xSkill;
+Skill               xSkill;
 Race                xRace;
 MobProgCode         xProg;
 CmdType             xCmd;
@@ -285,7 +286,7 @@ char* olc_ed_vnum(CharData* ch)
     HelpData* pHelp;
     Race* pRace;
     struct social_type* pSocial;
-    struct skill_type* pSkill;
+    Skill* pSkill;
     CmdInfo* pCmd;
     static char buf[10];
 
@@ -320,7 +321,7 @@ char* olc_ed_vnum(CharData* ch)
         sprintf(buf, "%s", pSocial ? pSocial->name : "");
         break;
     case ED_SKILL:
-        pSkill = (struct skill_type*)ch->desc->pEdit;
+        pSkill = (Skill*)ch->desc->pEdit;
         sprintf(buf, "%s", pSkill ? pSkill->name : "");
         break;
     case ED_CMD:
@@ -1475,7 +1476,7 @@ bool process_olc_command(CharData* ch, char* argument, const struct olc_comm_typ
     ObjectPrototype* pObj;
     RoomData* pRoom;
     Race* pRace;
-    struct skill_type* pSkill;
+    Skill* pSkill;
     CmdInfo* pCmd;
     AreaData* tArea;
     MobProgCode* pProg;
@@ -1535,7 +1536,7 @@ bool process_olc_command(CharData* ch, char* argument, const struct olc_comm_typ
                 else
                     pointer = 0;
                 if ((*table[temp].function) (table[temp].name, ch, argument, pointer, table[temp].parameter))
-                    save_skills();
+                    save_skill_table();
                 return true;
                 break;
 
@@ -1546,7 +1547,7 @@ bool process_olc_command(CharData* ch, char* argument, const struct olc_comm_typ
                 else
                     pointer = 0;
                 if ((*table[temp].function) (table[temp].name, ch, argument, pointer, table[temp].parameter))
-                    save_races();
+                    save_race_table();
                 return true;
                 break;
 

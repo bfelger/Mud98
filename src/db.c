@@ -56,8 +56,11 @@
 #include "entities/room_data.h"
 #include "entities/shop_data.h"
 
+#include "data/class.h"
 #include "data/direction.h"
 #include "data/mobile.h"
+#include "data/race.h"
+#include "data/skill.h"
 
 #include <ctype.h>
 #include <stdarg.h>
@@ -159,7 +162,6 @@ void load_socials args((FILE * fp));
 void load_specials args((FILE * fp));
 void load_notes args((void));
 void load_mobprogs args((FILE * fp));
-void load_groups(void);
 
 void fix_exits args((void));
 void fix_mobprogs args((void));
@@ -232,7 +234,7 @@ void boot_db(void)
 
     load_skills_table();
     load_class_table();
-    load_races_table();
+    load_race_table();
     load_command_table();
     load_socials_table();
     load_groups_table();

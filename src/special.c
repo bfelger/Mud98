@@ -27,12 +27,6 @@
 
 #include "special.h"
 
-#include "entities/char_data.h"
-#include "entities/object_data.h"
-
-#include "data/mobile.h"
-#include "data/player.h"
-
 #include "act_move.h"
 #include "act_obj.h"
 #include "comm.h"
@@ -44,7 +38,13 @@
 #include "skills.h"
 #include "spell_list.h"
 
+#include "entities/char_data.h"
 #include "entities/descriptor.h"
+#include "entities/object_data.h"
+
+#include "data/mobile.h"
+#include "data/player.h"
+#include "data/skill.h"
 
 #include <stdio.h>
 #include <stdlib.h>

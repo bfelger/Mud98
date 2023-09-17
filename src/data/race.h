@@ -38,6 +38,9 @@ typedef struct race_t {
     bool pc_race;                   // can be chosen by pcs */
 } Race;
 
+void load_race_table();
+void save_race_table();
+
 extern int race_count;
 extern Race* race_table;
 

@@ -28,6 +28,7 @@
 #include "handler.h"
 
 #include "act_comm.h"
+#include "act_wiz.h"
 #include "color.h"
 #include "comm.h"
 #include "db.h"
@@ -51,6 +52,7 @@
 #include "data/mobile.h"
 #include "data/player.h"
 #include "data/race.h"
+#include "data/skill.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -764,24 +766,30 @@ int get_age(CharData* ch)
 /* command for retrieving stats */
 int get_curr_stat(CharData* ch, Stat stat)
 {
-    int max;
+    int max_score;
+    int i = (int)stat;
+    
+    if (i < 0)
+        i = 0;
+    if (i >= STAT_MAX)
+        i = STAT_MAX - 1;
 
     if (IS_NPC(ch) || ch->level > LEVEL_IMMORTAL)
-        max = 25;
+        max_score = 25;
 
     else {
-        max = race_table[ch->race].max_stats[stat] + 4;
+        max_score = race_table[ch->race].max_stats[i] + 4;
 
         if (class_table[ch->ch_class].prime_stat == stat)
-            max += 2;
+            max_score += 2;
 
         if (ch->race == race_lookup("human")) 
-            max += 1;
+            max_score += 1;
 
-        max = UMIN(max, 25);
+        max_score = UMIN(max_score, 25);
     }
 
-    return URANGE(3, ch->perm_stat[stat] + ch->mod_stat[stat], max);
+    return URANGE(3, ch->perm_stat[i] + ch->mod_stat[i], max_score);
 }
 
 /* command for returning max training score */
@@ -849,23 +857,26 @@ bool is_name(char* str, char* namelist)
 
     string = str;
     /* we need ALL parts of string to match part of namelist */
-    for (;;) /* start parsing string */
-    {
+    // start parsing string
+    for (;;) {
         str = one_argument(str, part);
 
-        if (part[0] == '\0') return true;
+        if (part[0] == '\0')
+            return true;
 
         /* check to see if this is part of namelist */
         list = namelist;
-        for (;;) /* start parsing namelist */
-        {
+        // Start parsing namelist
+        for (;;) {
             list = one_argument(list, name);
             if (name[0] == '\0') /* this name was not found */
                 return false;
 
-            if (!str_prefix(string, name)) return true; /* full pattern match */
+            if (!str_prefix(string, name)) 
+                return true; /* full pattern match */
 
-            if (!str_prefix(part, name)) break;
+            if (!str_prefix(part, name)) 
+                break;
         }
     }
 }

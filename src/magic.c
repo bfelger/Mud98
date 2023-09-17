@@ -46,6 +46,7 @@
 
 #include "data/mobile.h"
 #include "data/player.h"
+#include "data/skill.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,23 +62,6 @@ void say_spell(CharData * ch, SKNUM sn);
 /* imported functions */
 bool remove_obj(CharData* ch, int iWear, bool fReplace);
 void wear_obj(CharData* ch, ObjectData* obj, bool fReplace);
-
-/*
- * Lookup a skill by name.
- */
-SKNUM skill_lookup(const char* name)
-{
-    SKNUM sn;
-
-    for (sn = 0; sn < max_skill; sn++) {
-        if (skill_table[sn].name == NULL) break;
-        if (LOWER(name[0]) == LOWER(skill_table[sn].name[0])
-            && !str_prefix(name, skill_table[sn].name))
-            return sn;
-    }
-
-    return -1;
-}
 
 SKNUM find_spell(CharData* ch, const char* name)
 {
