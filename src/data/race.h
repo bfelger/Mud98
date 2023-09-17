@@ -32,8 +32,8 @@ typedef struct race_t {
     int16_t race_id;
     int16_t points;			        // cost in points of the race
     int16_t arch_mult[ARCH_COUNT];  // exp multiplier for class archetype * 100
-    int16_t stats[STAT_MAX];	    // starting stats
-    int16_t max_stats[STAT_MAX];	// maximum stats
+    int16_t stats[STAT_COUNT];	    // starting stats
+    int16_t max_stats[STAT_COUNT];	// maximum stats
     MobSize size;			        
     bool pc_race;                   // can be chosen by pcs */
 } Race;

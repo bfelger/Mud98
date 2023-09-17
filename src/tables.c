@@ -648,11 +648,11 @@ const struct flag_type position_flag_table[] = {
 };
 
 const struct flag_type portal_flag_table [] = {
-    { "normal_exit",    GATE_NORMAL_EXIT,   true    },
-    { "no_curse",       GATE_NOCURSE,       true    },
-    { "go_with",        GATE_GOWITH,        true    },
-    { "buggy",          GATE_BUGGY,         true    },
-    { "random",         GATE_RANDOM,        true    },
+    { "normal_exit",    PORTAL_NORMAL_EXIT,   true    },
+    { "no_curse",       PORTAL_NOCURSE,       true    },
+    { "go_with",        PORTAL_GOWITH,        true    },
+    { "buggy",          PORTAL_BUGGY,         true    },
+    { "random",         PORTAL_RANDOM,        true    },
     { NULL,             0,                  0       }
 };
 

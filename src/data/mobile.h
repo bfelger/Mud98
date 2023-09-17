@@ -8,6 +8,15 @@
 
 #include "merc.h"
 
+typedef enum armor_type_t {
+    AC_PIERCE       = 0,
+    AC_BASH         = 1,
+    AC_SLASH        = 2,
+    AC_EXOTIC       = 3,
+} ArmorType;
+
+#define AC_COUNT 4
+
 typedef enum mob_act_flags_t {
     ACT_IS_NPC              = BIT(0),   // Auto set for mobs
     ACT_SENTINEL            = BIT(1),   // Stays in one room

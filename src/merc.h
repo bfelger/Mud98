@@ -139,11 +139,6 @@ typedef int	LookupFunc(const char*);
 #define MIL MAX_INPUT_LENGTH
 
 /*
- * Structure types.
- */
-typedef struct kill_data KILL_DATA;
-
-/*
  * String and memory management parameters.
  */
 #define MAX_KEY_HASH        1024
@@ -183,46 +178,6 @@ typedef struct kill_data KILL_DATA;
 #define HERO                LEVEL_HERO
 
 /*
- * A kill structure (indexed by level).
- */
-struct kill_data {
-    int16_t number;
-    int16_t killed;
-};
-
-/***************************************************************************
- *                                                                         *
- *                   VALUES OF INTEREST TO AREA BUILDERS                   *
- *                   (Start of section ... start here)                     *
- *                                                                         *
- ***************************************************************************/
-
-/* AC types */
-#define AC_PIERCE               0
-#define AC_BASH                 1
-#define AC_SLASH                2
-#define AC_EXOTIC               3
-
-/* dice */
-#define DICE_NUMBER             0
-#define DICE_TYPE               1
-#define DICE_BONUS              2
-
-/* gate flags */
-#define GATE_NORMAL_EXIT        BIT(0)
-#define GATE_NOCURSE            BIT(1)
-#define GATE_GOWITH             BIT(2)
-#define GATE_BUGGY              BIT(3)
-#define GATE_RANDOM             BIT(4)
-
-/***************************************************************************
- *                                                                         *
- *                   VALUES OF INTEREST TO AREA BUILDERS                   *
- *                   (End of this section ... stop here)                   *
- *                                                                         *
- ***************************************************************************/
-
-/*
  * Utility macros.
  */
 #define IS_VALID(data)       ((data) != NULL && (data)->valid)
@@ -254,8 +209,6 @@ struct kill_data {
         for (_xxx_ = 0; _xxx_ < len; _xxx_++) \
             array1[_xxx_] = array2[_xxx_]; \
     }
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Global Vars

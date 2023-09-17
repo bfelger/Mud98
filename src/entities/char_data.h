@@ -97,10 +97,10 @@ typedef struct char_data_t {
     int16_t alignment;
     int16_t hitroll;
     int16_t damroll;
-    int16_t armor[4];
+    int16_t armor[AC_COUNT];
     int16_t wimpy;
-    int16_t perm_stat[STAT_MAX];
-    int16_t mod_stat[STAT_MAX];
+    int16_t perm_stat[STAT_COUNT];
+    int16_t mod_stat[STAT_COUNT];
     int16_t invis_level;
     int16_t incog_level;
     int16_t timer;

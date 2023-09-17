@@ -1396,7 +1396,7 @@ void nanny(Descriptor * d, char* argument)
 
         ch->race = (int16_t)race;
         /* initialize stats */
-        for (i = 0; i < STAT_MAX; i++)
+        for (i = 0; i < STAT_COUNT; i++)
             ch->perm_stat[i] = race_table[race].stats[i];
         ch->affect_flags = ch->affect_flags | race_table[race].aff;
         ch->imm_flags = ch->imm_flags | race_table[race].imm;

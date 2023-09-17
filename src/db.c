@@ -93,7 +93,7 @@ MobProgCode* mprog_list;
 char bug_buf[2 * MAX_INPUT_LENGTH];
 char* help_greeting;
 char log_buf[2 * MAX_INPUT_LENGTH];
-KILL_DATA kill_table[MAX_LEVEL];
+KillData kill_table[MAX_LEVEL];
 
 #define GSN(x) SKNUM x;
 #include "gsn.h"
@@ -1667,14 +1667,16 @@ void clone_mobile(CharData* parent, CharData* clone)
     clone->default_pos = parent->default_pos;
     clone->spec_fun = parent->spec_fun;
 
-    for (i = 0; i < 4; i++) clone->armor[i] = parent->armor[i];
+    for (i = 0; i < AC_COUNT; i++) 
+        clone->armor[i] = parent->armor[i];
 
-    for (i = 0; i < STAT_MAX; i++) {
+    for (i = 0; i < STAT_COUNT; i++) {
         clone->perm_stat[i] = parent->perm_stat[i];
         clone->mod_stat[i] = parent->mod_stat[i];
     }
 
-    for (i = 0; i < 3; i++) clone->damage[i] = parent->damage[i];
+    for (i = 0; i < 3; i++) 
+        clone->damage[i] = parent->damage[i];
 
     /* now add the affects */
     for (paf = parent->affected; paf != NULL; paf = paf->next)
@@ -1715,7 +1717,7 @@ void clear_char(CharData* ch)
     ch->move = 100;
     ch->max_move = 100;
     ch->on = NULL;
-    for (i = 0; i < STAT_MAX; i++) {
+    for (i = 0; i < STAT_COUNT; i++) {
         ch->perm_stat[i] = 13;
         ch->mod_stat[i] = 0;
     }

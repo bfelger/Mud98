@@ -90,7 +90,7 @@ const struct olc_comm_type mob_olc_comm_table[] = {
     { "damtype",	U(&xMob.dam_type),	    ed_int16poslookup,	U(attack_lookup)},
     { "race",	    U(&xMob),			    ed_race,		    0		        },
     { "armor",	    U(&xMob),			    ed_ac,			    0		        },
-    { "hitdice",	U(&xMob.hit[0]),		ed_dice,		    0		        },
+    { "hitdice",	U(&xMob.hit[0]),        ed_dice,		    0		        },
     { "manadice",	U(&xMob.mana[0]),		ed_dice,		    0		        },
     { "damdice",	U(&xMob.damage[0]),	    ed_dice,		    0		        },
     { "hitroll",	U(&xMob.hitroll),		ed_number_s_pos,	0		        },

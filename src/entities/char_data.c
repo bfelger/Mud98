@@ -86,7 +86,7 @@ CharData* new_char_data()
     ch->max_mana = 100;
     ch->move = 100;
     ch->max_move = 100;
-    for (i = 0; i < STAT_MAX; i++) {
+    for (i = 0; i < STAT_COUNT; i++) {
         ch->perm_stat[i] = 13;
         ch->mod_stat[i] = 0;
     }

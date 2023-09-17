@@ -16,7 +16,7 @@ typedef enum stat_t {
     STAT_CON    = 4,
 } Stat;
 
-#define STAT_MAX 5
+#define STAT_COUNT 5
 
 #define STAT_MAX_LVL 26
 

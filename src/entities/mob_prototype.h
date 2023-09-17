@@ -17,6 +17,7 @@ typedef struct mob_prototype_t MobPrototype;
 #include "area_data.h"
 #include "shop_data.h"
 
+#include "data/damage.h"
 #include "data/mobile.h"
 
 #include <stdbool.h>
@@ -46,7 +47,7 @@ typedef struct mob_prototype_t {
     int16_t hit[3];
     int16_t mana[3];
     int16_t damage[3];
-    int16_t ac[4];
+    int16_t ac[AC_COUNT];
     int16_t group;
     int16_t count;
     int16_t killed;

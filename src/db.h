@@ -88,13 +88,14 @@ void append_file(CharData* ch, char* file, char* str);
 void bug(const char* fmt, ...);
 void log_string(const char* str);
 
+typedef struct kill_data_t {
+    int16_t number;
+    int16_t killed;
+} KillData;
+
+extern KillData kill_table[MAX_LEVEL];
+
 /* vals from db.c */
-extern int top_affect;
-extern int top_ed;
-extern int social_count;
-
-extern KILL_DATA kill_table[];
-
 extern char bug_buf[];
 extern char log_buf[];
 

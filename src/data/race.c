@@ -33,8 +33,8 @@ const SaveTableEntry race_save_table[] = {
     { "arch_mult",	FIELD_INT16_ARRAY,	        U(&tmp_race.arch_mult),     U(ARCH_COUNT),	    0	        },
     { "who_name",	FIELD_STRING,		        U(&tmp_race.who_name),	    0,			        0	        },
     { "skills",	    FIELD_STRING_ARRAY,	        U(&tmp_race.skills),	    U(RACE_NUM_SKILLS), 0	        },
-    { "stats",	    FIELD_INT16_ARRAY,	        U(&tmp_race.stats),		    U(STAT_MAX),	    0	        },
-    { "max_stats",	FIELD_INT16_ARRAY,	        U(&tmp_race.max_stats),	    U(STAT_MAX),	    0	        },
+    { "stats",	    FIELD_INT16_ARRAY,	        U(&tmp_race.stats),		    U(STAT_COUNT),	    0	        },
+    { "max_stats",	FIELD_INT16_ARRAY,	        U(&tmp_race.max_stats),	    U(STAT_COUNT),	    0	        },
     { "size",		FIELD_FUNCTION_INT16_TO_STR,U(&tmp_race.size),	        U(size_str),        U(size_read)},
     { NULL,		    0,				            0,			                0,		            0           }
 };

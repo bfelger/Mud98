@@ -524,7 +524,7 @@ void reset_char(CharData* ch)
     }
 
     /* now restore the character to his/her true condition */
-    for (stat = 0; stat < STAT_MAX; stat++)
+    for (stat = 0; stat < STAT_COUNT; stat++)
         ch->mod_stat[stat] = 0;
 
     if (ch->pcdata->true_sex < 0 || ch->pcdata->true_sex > 2)
@@ -772,8 +772,8 @@ int get_curr_stat(CharData* ch, Stat stat)
     
     if (i < 0)
         i = 0;
-    if (i >= STAT_MAX)
-        i = STAT_MAX - 1;
+    if (i >= STAT_COUNT)
+        i = STAT_COUNT - 1;
 
     if (IS_NPC(ch) || ch->level > LEVEL_IMMORTAL)
         max_score = 25;

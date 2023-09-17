@@ -527,7 +527,7 @@ bool load_char_obj(Descriptor* d, char* name)
     ch->pcdata->bamfin = str_dup("");
     ch->pcdata->bamfout = str_dup("");
     ch->pcdata->title = str_dup("");
-    for (stat = 0; stat < STAT_MAX; stat++)
+    for (stat = 0; stat < STAT_COUNT; stat++)
         ch->perm_stat[stat] = 13;
     ch->pcdata->condition[COND_THIRST] = 48;
     ch->pcdata->condition[COND_FULL] = 48;
@@ -839,7 +839,7 @@ void fread_char(CharData* ch, FILE* fp)
 
             if (!str_cmp(word, "AttrMod") || !str_cmp(word, "AMod")) {
                 int stat;
-                for (stat = 0; stat < STAT_MAX; stat++)
+                for (stat = 0; stat < STAT_COUNT; stat++)
                     ch->mod_stat[stat] = (int16_t)fread_number(fp);
                 fMatch = true;
                 break;
@@ -848,7 +848,7 @@ void fread_char(CharData* ch, FILE* fp)
             if (!str_cmp(word, "AttrPerm") || !str_cmp(word, "Attr")) {
                 int stat;
 
-                for (stat = 0; stat < STAT_MAX; stat++)
+                for (stat = 0; stat < STAT_COUNT; stat++)
                     ch->perm_stat[stat] = (int16_t)fread_number(fp);
                 fMatch = true;
                 break;
@@ -1221,7 +1221,7 @@ void fread_pet(CharData* ch, FILE* fp)
             if (!str_cmp(word, "AMod")) {
                 int stat;
 
-                for (stat = 0; stat < STAT_MAX; stat++)
+                for (stat = 0; stat < STAT_COUNT; stat++)
                     pet->mod_stat[stat] = (int16_t)fread_number(fp);
                 fMatch = true;
                 break;
@@ -1230,7 +1230,7 @@ void fread_pet(CharData* ch, FILE* fp)
             if (!str_cmp(word, "Attr")) {
                 int stat;
 
-                for (stat = 0; stat < STAT_MAX; stat++)
+                for (stat = 0; stat < STAT_COUNT; stat++)
                     pet->perm_stat[stat] = (int16_t)fread_number(fp);
                 fMatch = true;
                 break;

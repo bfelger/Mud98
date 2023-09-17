@@ -162,7 +162,7 @@ RAEDIT(raedit_show)
     if (i % 3)
         send_to_char("\n\r", ch);
 
-    for (i = 0; i < STAT_MAX; ++i) {
+    for (i = 0; i < STAT_COUNT; ++i) {
         sprintf(buf, "%s:%2d(%2d) ", Stats[i], pRace->stats[i], pRace->max_stats[i]);
         send_to_char(buf, ch);
     }

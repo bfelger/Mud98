@@ -98,18 +98,18 @@ void do_enter(CharData* ch, char* argument)
             return;
         }
 
-        if (!IS_TRUSTED(ch, ANGEL) && !IS_SET(portal->value[2], GATE_NOCURSE)
+        if (!IS_TRUSTED(ch, ANGEL) && !IS_SET(portal->value[2], PORTAL_NOCURSE)
             && (IS_AFFECTED(ch, AFF_CURSE)
                 || IS_SET(old_room->room_flags, ROOM_NO_RECALL))) {
             send_to_char("Something prevents you from leaving...\n\r", ch);
             return;
         }
 
-        if (IS_SET(portal->value[2], GATE_RANDOM) || portal->value[3] == -1) {
+        if (IS_SET(portal->value[2], PORTAL_RANDOM) || portal->value[3] == -1) {
             location = get_random_room(ch);
             portal->value[3] = location->vnum; /* for record keeping :) */
         }
-        else if (IS_SET(portal->value[2], GATE_BUGGY) && (number_percent() < 5))
+        else if (IS_SET(portal->value[2], PORTAL_BUGGY) && (number_percent() < 5))
             location = get_random_room(ch);
         else
             location = get_room_data(portal->value[3]);
@@ -129,7 +129,7 @@ void do_enter(CharData* ch, char* argument)
 
         act("$n steps into $p.", ch, portal, NULL, TO_ROOM);
 
-        if (IS_SET(portal->value[2], GATE_NORMAL_EXIT))
+        if (IS_SET(portal->value[2], PORTAL_NORMAL_EXIT))
             act("You enter $p.", ch, portal, NULL, TO_CHAR);
         else
             act("You walk through $p and find yourself somewhere else...", ch,
@@ -138,13 +138,13 @@ void do_enter(CharData* ch, char* argument)
         char_from_room(ch);
         char_to_room(ch, location);
 
-        if (IS_SET(portal->value[2], GATE_GOWITH)) /* take the gate along */
+        if (IS_SET(portal->value[2], PORTAL_GOWITH)) /* take the gate along */
         {
             obj_from_room(portal);
             obj_to_room(portal, location);
         }
 
-        if (IS_SET(portal->value[2], GATE_NORMAL_EXIT))
+        if (IS_SET(portal->value[2], PORTAL_NORMAL_EXIT))
             act("$n has arrived.", ch, portal, NULL, TO_ROOM);
         else
             act("$n has arrived through $p.", ch, portal, NULL, TO_ROOM);
