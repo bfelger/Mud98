@@ -34,6 +34,8 @@
 #include "entities/mob_prototype.h"
 #include "entities/object_data.h"
 
+#include "data/social.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,17 +49,13 @@
 
 extern int flag_lookup(const char* name, const struct flag_type* flag_table);
 
-/* values for db2.c */
-struct social_type* social_table;
-int social_count;
-
 /* snarf a socials file */
-void load_socials(FILE* fp)
+void load_social(FILE* fp)
 {
     extern int maxSocial;
 
     for (;;) {
-        struct social_type social = { 0 };
+        Social social = { 0 };
         char* temp;
         /* clear social */
         social.char_no_arg = NULL;

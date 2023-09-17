@@ -13,6 +13,8 @@ typedef struct skill_t Skill;
 #include "class.h"
 #include "mobile.h"
 
+
+
 typedef enum spell_target_t {
     TARGET_CHAR = 0,
     TARGET_OBJ = 1,

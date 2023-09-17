@@ -39,6 +39,7 @@
 
 #include "data/mobile.h"
 #include "data/player.h"
+#include "data/social.h"
 
 #include <ctype.h>
 #include <stdio.h>

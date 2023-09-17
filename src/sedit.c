@@ -31,6 +31,7 @@
 #include "entities/player_data.h"
 
 #include "data/mobile.h"
+#include "data/social.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -41,10 +42,9 @@
 
 #define SEDIT(fun) bool fun(CharData *ch, char *argument)
 
-extern struct social_type xSoc;
+extern Social xSoc;
 
 int maxSocial; /* max number of socials */
-extern struct social_type* social_table;    /* and social table */
 
 #ifdef U
 #define OLD_U U
@@ -106,7 +106,7 @@ void sedit(CharData* ch, char* argument)
 
 void do_sedit(CharData* ch, char* argument)
 {
-    struct social_type* pSocial;
+    Social* pSocial;
     char command[MIL];
     int social;
 
@@ -129,13 +129,13 @@ void do_sedit(CharData* ch, char* argument)
 
     if (!str_cmp(command, "new")) {
         if (sedit_new(ch, argument))
-            save_socials();
+            save_social_table();
         return;
     }
 
     if (!str_cmp(command, "delete")) {
         if (sedit_delete(ch, argument))
-            save_socials();
+            save_social_table();
         return;
     }
 
@@ -154,7 +154,7 @@ void do_sedit(CharData* ch, char* argument)
 
 SEDIT(sedit_show)
 {
-    struct social_type* pSocial;
+    Social* pSocial;
     char buf[MSL];
 
     EDIT_SOCIAL(ch, pSocial);
@@ -192,7 +192,7 @@ SEDIT(sedit_new)
 {
     Descriptor* d;
     CharData* tch;
-    struct social_type* new_table;
+    Social* new_table;
     int iSocial;
 
     if (IS_NULLSTR(argument)) {
@@ -219,7 +219,7 @@ SEDIT(sedit_new)
     /* Note that the table contains maxSocial socials PLUS one empty spot! */
 
     maxSocial++;
-    new_table = realloc(social_table, sizeof(struct social_type) * ((size_t)maxSocial + 1));
+    new_table = realloc(social_table, sizeof(Social) * ((size_t)maxSocial + 1));
 
     if (!new_table) /* realloc failed */
     {
@@ -251,7 +251,7 @@ SEDIT(sedit_delete)
     Descriptor* d;
     CharData* tch;
     int i, j, iSocial;
-    struct social_type* new_table;
+    Social* new_table;
 
     if (IS_NULLSTR(argument)) {
         send_to_char("Syntax : delete [name]\n\r", ch);
@@ -273,7 +273,7 @@ SEDIT(sedit_delete)
             edit_done(ch);
     }
 
-    new_table = malloc(sizeof(struct social_type) * maxSocial);
+    new_table = malloc(sizeof(Social) * maxSocial);
 
     if (!new_table) {
         send_to_char("Memory allocation failed. Brace for impact...\n\r", ch);

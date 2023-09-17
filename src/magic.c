@@ -39,6 +39,7 @@
 #include "skills.h"
 #include "spell_list.h"
 #include "update.h"
+#include "weather.h"
 
 #include "entities/descriptor.h"
 #include "entities/object_data.h"

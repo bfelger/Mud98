@@ -37,6 +37,7 @@
 #include "magic.h"
 #include "skills.h"
 #include "spell_list.h"
+#include "weather.h"
 
 #include "entities/char_data.h"
 #include "entities/descriptor.h"

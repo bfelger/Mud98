@@ -104,10 +104,9 @@ extern char area_dir[];
 
 // Expand when you run out of bits
 #define FLAGS               int32_t
-#define FLAGS_MAX           BIT(31)
+#define NO_FLAG             (FLAGS)BIT(31)
 
 #define SHORT_FLAGS         int16_t
-#define SHORT_FLAGS_MAX     BIT(15)
 
 #define LEVEL               int16_t
 
@@ -143,8 +142,6 @@ typedef int	LookupFunc(const char*);
  * Structure types.
  */
 typedef struct kill_data KILL_DATA;
-typedef struct time_info_data TIME_INFO_DATA;
-typedef struct weather_data WEATHER_DATA;
 
 /*
  * String and memory management parameters.
@@ -184,33 +181,6 @@ typedef struct weather_data WEATHER_DATA;
 #define ANGEL               (MAX_LEVEL - 7)
 #define AVATAR              (MAX_LEVEL - 8)
 #define HERO                LEVEL_HERO
-
-/*
- * Time and weather stuff.
- */
-#define SUN_DARK      0
-#define SUN_RISE      1
-#define SUN_LIGHT     2
-#define SUN_SET       3
-
-#define SKY_CLOUDLESS 0
-#define SKY_CLOUDY    1
-#define SKY_RAINING   2
-#define SKY_LIGHTNING 3
-
-struct time_info_data {
-    int hour;
-    int day;
-    int month;
-    int year;
-};
-
-struct weather_data {
-    int mmhg;
-    int change;
-    int sky;
-    int sunlight;
-};
 
 /*
  * A kill structure (indexed by level).
@@ -285,31 +255,7 @@ struct kill_data {
             array1[_xxx_] = array2[_xxx_]; \
     }
 
-/*
- * Structure for a social in the socials table.
- */
-struct social_type {
-    char* name;
-    char* char_no_arg;
-    char* others_no_arg;
-    char* char_found;
-    char* others_found;
-    char* vict_found;
-    char* char_not_found;
-    char* char_auto;
-    char* others_auto;
-};
 
-/*
- * Global constants.
- */
-
-extern       struct social_type* social_table;
-
-/*****************************************************************************
- *                                    OLC                                    *
- *****************************************************************************/
-#define NO_FLAG BIT(31)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Global Vars

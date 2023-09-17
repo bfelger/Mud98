@@ -32,7 +32,6 @@
 #define MAX_LOAD 1000
 
 CmdInfo tmp_cmd;
-struct social_type tmp_soc;
 MobProgCode tmp_pcode;
 
 char* cmd_func_name(DoFunc*);
@@ -119,18 +118,6 @@ const SaveTableEntry progcodesavetable[] = {
     { "vnum",		    FIELD_VNUM,                 U(&tmp_pcode.vnum),	0,	0	},
     { "code",		    FIELD_STRING,	            U(&tmp_pcode.code),	0,	0	},
     { NULL,		        0,				            0,			        0,	0	}
-};
-
-const SaveTableEntry socialsavetable[] = {
-    { "name",		    FIELD_STRING,	U(&tmp_soc.name),		    0,      0},
-    { "char_no_arg",	FIELD_STRING,	U(&tmp_soc.char_no_arg), 	0,      0},
-    { "others_no_arg",  FIELD_STRING,	U(&tmp_soc.others_no_arg),	0,      0},
-    { "char_found",	    FIELD_STRING,	U(&tmp_soc.char_found),	    0,      0},
-    { "others_found",	FIELD_STRING,	U(&tmp_soc.others_found),	0,      0},
-    { "vict_found",	    FIELD_STRING,	U(&tmp_soc.vict_found),	    0,      0},
-    { "char_auto",	    FIELD_STRING,	U(&tmp_soc.char_auto),	    0,      0},
-    { "others_auto",	FIELD_STRING,	U(&tmp_soc.others_auto),	0,      0},
-    { NULL,		        0,		        0,				            0,      0}
 };
 
 const SaveTableEntry cmdsavetable[] = {
@@ -520,77 +507,6 @@ void load_command_table(void)
         }
     }
 }
-
-void load_socials_table()
-{
-    FILE* fp;
-    int i;
-    extern int maxSocial;
-    char* word;
-
-    char social_file[256];
-    sprintf(social_file, "%s%s", area_dir, SOCIAL_FILE);
-    fp = fopen(social_file, "r");
-
-    if (!fp) {
-        perror(SOCIAL_FILE);
-        exit(1);
-    }
-
-    if (fscanf(fp, "%d\n", &maxSocial) < 1) {
-        bug("load_socials_table: Could not read maxSocial!");
-        return;
-    }
-
-    flog("Creating social_table of length %d, size %zu", maxSocial + 1,
-        sizeof(struct social_type) * ((size_t)maxSocial + 1));
-    /* IMPORTANT to use malloc so we can realloc later on */
-    if ((social_table = calloc(sizeof(struct social_type), (size_t)maxSocial + 1)) == NULL) {
-        bug("load_social_table: Could not allocate social_table!");
-        return;
-    }
-
-    for (i = 0; i < maxSocial; i++) {
-        if (str_cmp((word = fread_word(fp)), "#SOCIAL")) {
-            bugf("load_socials_table : Expected '#SOCIAL', got '%s'.", word);
-            exit(1);
-        }
-        load_struct(fp, U(&tmp_soc), socialsavetable, U(&social_table[i]));
-    }
-
-    /* For backwards compatibility */
-    social_table[maxSocial].name = str_dup(""); /* empty! */
-
-    fclose(fp);
-
-    flog("Social table loaded.");
-}
-
-void save_socials(void)
-{
-    FILE* fp;
-    int i;
-    extern int maxSocial;
-
-    char social_file[256];
-    sprintf(social_file, "%s%s", area_dir, SOCIAL_FILE);
-    fp = fopen(social_file, "w");
-    if (!fp) {
-        bugf("save_socials: Can't open %s", social_file);
-        return;
-    }
-
-    fprintf(fp, "%d\n\n", maxSocial);
-
-    for (i = 0; i < maxSocial; i++) {
-        fprintf(fp, "#SOCIAL\n");
-        save_struct(fp, U(&tmp_soc), socialsavetable, U(&social_table[i]));
-        fprintf(fp, "#END\n\n");
-    }
-
-    fclose(fp);
-}
-
 void save_progs(VNUM minvnum, VNUM maxvnum)
 {
     FILE* fp;

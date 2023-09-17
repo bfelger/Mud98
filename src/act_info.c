@@ -43,6 +43,7 @@
 #include "skills.h"
 #include "strings.h"
 #include "tables.h"
+#include "weather.h"
 
 #include "entities/area_data.h"
 #include "entities/descriptor.h"
@@ -55,6 +56,7 @@
 #include "data/player.h"
 #include "data/race.h"
 #include "data/skill.h"
+#include "data/social.h"
 
 #include <ctype.h>
 #include <stdio.h>

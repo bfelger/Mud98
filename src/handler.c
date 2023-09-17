@@ -41,6 +41,7 @@
 #include "spell_list.h"
 #include "tables.h"
 #include "vt.h"
+#include "weather.h"
 
 #include "entities/area_data.h"
 #include "entities/descriptor.h"

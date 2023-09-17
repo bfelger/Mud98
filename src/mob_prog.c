@@ -43,6 +43,7 @@
 #include "mob_cmds.h"
 #include "tables.h"
 #include "lookup.h"
+#include "weather.h"
 
 #include "entities/char_data.h"
 #include "entities/object_data.h"

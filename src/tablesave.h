@@ -34,6 +34,8 @@ typedef struct save_table_entry_t {
     const uintptr_t argument2;
 } SaveTableEntry;
 
+void load_table(FILE* fp, uintptr_t base_type, const SaveTableEntry* table,
+    const uintptr_t pointer);
 void load_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, 
     const uintptr_t pointer);
 void save_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table,
@@ -41,9 +43,7 @@ void save_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table,
 
 void save_progs(VNUM minvnum, VNUM maxvnum);
 void save_command_table();
-void save_socials();
 MobProgCode* pedit_prog(VNUM vnum);
 void load_command_table();
-void load_socials_table();
 
 #endif // !MUD98__TABLESAVE_H

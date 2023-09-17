@@ -32,6 +32,7 @@
 #include "data/mobile.h"
 #include "data/race.h"
 #include "data/skill.h"
+#include "data/social.h"
 
 #include <sys/types.h>
 #include <ctype.h>
@@ -54,7 +55,7 @@ Skill               xSkill;
 Race                xRace;
 MobProgCode         xProg;
 CmdType             xCmd;
-struct social_type  xSoc;
+Social              xSoc;
 
 #ifdef U
 #define OLD_U U
@@ -285,7 +286,7 @@ char* olc_ed_vnum(CharData* ch)
     MobProgCode* pMcode;
     HelpData* pHelp;
     Race* pRace;
-    struct social_type* pSocial;
+    Social* pSocial;
     Skill* pSkill;
     CmdInfo* pCmd;
     static char buf[10];
@@ -317,7 +318,7 @@ char* olc_ed_vnum(CharData* ch)
         sprintf(buf, "%s", pRace ? pRace->name : "");
         break;
     case ED_SOCIAL:
-        pSocial = (struct social_type*)ch->desc->pEdit;
+        pSocial = (Social*)ch->desc->pEdit;
         sprintf(buf, "%s", pSocial ? pSocial->name : "");
         break;
     case ED_SKILL:
@@ -1480,7 +1481,7 @@ bool process_olc_command(CharData* ch, char* argument, const struct olc_comm_typ
     CmdInfo* pCmd;
     AreaData* tArea;
     MobProgCode* pProg;
-    struct social_type* pSoc;
+    Social* pSoc;
     int temp;
     uintptr_t pointer;
 
@@ -1580,7 +1581,7 @@ bool process_olc_command(CharData* ch, char* argument, const struct olc_comm_typ
                 else
                     pointer = 0;
                 if ((*table[temp].function) (table[temp].name, ch, argument, pointer, table[temp].parameter))
-                    save_socials();
+                    save_social_table();
                 return true;
                 break;
             }

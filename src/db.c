@@ -45,6 +45,7 @@
 #include "special.h"
 #include "strings.h"
 #include "tables.h"
+#include "weather.h"
 
 #include "entities/area_data.h"
 #include "entities/descriptor.h"
@@ -61,6 +62,7 @@
 #include "data/mobile.h"
 #include "data/race.h"
 #include "data/skill.h"
+#include "data/social.h"
 
 #include <ctype.h>
 #include <stdarg.h>
@@ -92,8 +94,6 @@ char bug_buf[2 * MAX_INPUT_LENGTH];
 char* help_greeting;
 char log_buf[2 * MAX_INPUT_LENGTH];
 KILL_DATA kill_table[MAX_LEVEL];
-TIME_INFO_DATA time_info;
-WEATHER_DATA weather_info;
 
 #define GSN(x) SKNUM x;
 #include "gsn.h"
@@ -158,7 +158,6 @@ void load_objects args((FILE * fp));
 void load_resets args((FILE * fp));
 void load_rooms args((FILE * fp));
 void load_shops args((FILE * fp));
-void load_socials args((FILE * fp));
 void load_specials args((FILE * fp));
 void load_notes args((void));
 void load_mobprogs args((FILE * fp));
@@ -236,50 +235,13 @@ void boot_db(void)
     load_class_table();
     load_race_table();
     load_command_table();
-    load_socials_table();
+    load_social_table();
     load_skill_group_table();
 
     /*
      * Set time and weather.
      */
-    {
-        long lhour = (long)((current_time - 1684281600) 
-            / (PULSE_TICK / PULSE_PER_SECOND));
-        long lday = lhour / 24;
-        long lmonth = lday / 35;
-
-        time_info.hour = lhour % 24;
-        time_info.day = lday % 35;
-        time_info.month = lmonth % 17;
-        time_info.year = lmonth / 17;
-
-        if (time_info.hour < 5)
-            weather_info.sunlight = SUN_DARK;
-        else if (time_info.hour < 6)
-            weather_info.sunlight = SUN_RISE;
-        else if (time_info.hour < 19)
-            weather_info.sunlight = SUN_LIGHT;
-        else if (time_info.hour < 20)
-            weather_info.sunlight = SUN_SET;
-        else
-            weather_info.sunlight = SUN_DARK;
-
-        weather_info.change = 0;
-        weather_info.mmhg = 960;
-        if (time_info.month >= 7 && time_info.month <= 12)
-            weather_info.mmhg += number_range(1, 50);
-        else
-            weather_info.mmhg += number_range(1, 80);
-
-        if (weather_info.mmhg <= 980)
-            weather_info.sky = SKY_LIGHTNING;
-        else if (weather_info.mmhg <= 1000)
-            weather_info.sky = SKY_RAINING;
-        else if (weather_info.mmhg <= 1020)
-            weather_info.sky = SKY_CLOUDY;
-        else
-            weather_info.sky = SKY_CLOUDLESS;
-    }
+    init_weather_info();
 
     /*
      * Assign gsn's for skills which have them.
@@ -358,7 +320,7 @@ void boot_db(void)
                 else if (!str_cmp(word, "SHOPS"))
                     load_shops(fpArea);
                 else if (!str_cmp(word, "SOCIALS"))
-                    load_socials(fpArea);
+                    load_social(fpArea);
                 else if (!str_cmp(word, "SPECIALS"))
                     load_specials(fpArea);
                 else {

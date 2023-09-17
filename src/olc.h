@@ -28,6 +28,7 @@
 #include "entities/mob_prototype.h"
 
 #include "data/race.h"
+#include "data/social.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -363,7 +364,7 @@ DECLARE_ED_FUN(ed_objrecval);
 #define EDIT_ROOM(ch, room)	    ( room = (RoomData*)ch->desc->pEdit )
 #define EDIT_AREA(ch, area)	    ( area = (AreaData*)ch->desc->pEdit )
 #define EDIT_RACE(ch, race)	    ( race = (Race*)ch->desc->pEdit )
-#define EDIT_SOCIAL(ch, social)	( social = (struct social_type*)ch->desc->pEdit )
+#define EDIT_SOCIAL(ch, social)	( social = (Social*)ch->desc->pEdit )
 #define EDIT_SKILL(ch, skill)	( skill = (Skill*)ch->desc->pEdit )
 #define EDIT_CMD(ch, cmd)	    ( cmd = (CmdInfo*)ch->desc->pEdit )
 #define EDIT_GROUP(ch, grp)	    ( grp = (SkillGroup*)ch->desc->pEdit )

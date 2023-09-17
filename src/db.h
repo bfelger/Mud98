@@ -69,6 +69,7 @@ void* alloc_perm(size_t sMem);
 void free_mem(void* pMem, size_t sMem);
 char* str_dup(const char* str);
 void free_string(char* pstr);
+void load_social(FILE* fp);
 int number_fuzzy(int number);
 int number_range(int from, int to);
 int number_percent(void);
@@ -91,9 +92,6 @@ void log_string(const char* str);
 extern int top_affect;
 extern int top_ed;
 extern int social_count;
-
-extern TIME_INFO_DATA time_info;
-extern WEATHER_DATA weather_info;
 
 extern KILL_DATA kill_table[];
 
