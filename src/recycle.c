@@ -69,7 +69,7 @@ CharGenData* new_gen_data(void)
     *gen = gen_zero;
 
     gen->skill_chosen = new_boolarray(max_skill);
-    gen->group_chosen = new_boolarray(max_group);
+    gen->group_chosen = new_boolarray(max_skill_group);
 
     VALIDATE(gen);
     return gen;

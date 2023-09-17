@@ -46,13 +46,24 @@ typedef struct skill_t {
     char* msg_obj;                  /* Wear off message for obects	*/
 } Skill;
 
-void load_skills_table();
+typedef struct skill_group_t {
+    char* name;
+    int16_t rating[ARCH_COUNT];
+    char* skills[MAX_IN_GROUP];
+} SkillGroup;
+
+void load_skill_table();
+void load_skill_group_table();
 void save_skill_table();
+void save_skill_group_table();
 SKNUM skill_lookup(const char* name);
 SKNUM* gsn_lookup(char* argument);
 char* gsn_name(SKNUM* pgsn);
 
 extern Skill* skill_table;
 extern int max_skill;
+
+extern SkillGroup* skill_group_table;
+extern int max_skill_group;
 
 #endif // !MUD86__DATA__SKILL_H

@@ -272,9 +272,9 @@ void fwrite_char(CharData* ch, FILE* fp)
             }
         }
 
-        for (gn = 0; gn < max_group; gn++) {
-            if (group_table[gn].name != NULL && ch->pcdata->group_known[gn]) {
-                fprintf(fp, "Gr '%s'\n", group_table[gn].name);
+        for (gn = 0; gn < max_skill_group; gn++) {
+            if (skill_group_table[gn].name != NULL && ch->pcdata->group_known[gn]) {
+                fprintf(fp, "Gr '%s'\n", skill_group_table[gn].name);
             }
         }
     }

@@ -366,7 +366,7 @@ DECLARE_ED_FUN(ed_objrecval);
 #define EDIT_SOCIAL(ch, social)	( social = (struct social_type*)ch->desc->pEdit )
 #define EDIT_SKILL(ch, skill)	( skill = (Skill*)ch->desc->pEdit )
 #define EDIT_CMD(ch, cmd)	    ( cmd = (CmdInfo*)ch->desc->pEdit )
-#define EDIT_GROUP(ch, grp)	    ( grp = (struct group_type*)ch->desc->pEdit )
+#define EDIT_GROUP(ch, grp)	    ( grp = (SkillGroup*)ch->desc->pEdit )
 #define EDIT_HELP(ch, help)	    ( help = (HelpData*)ch->desc->pEdit )
 #define EDIT_PROG(ch, code)	    ( code = (MobProgCode*)ch->desc->pEdit )
 

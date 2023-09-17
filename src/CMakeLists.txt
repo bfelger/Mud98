@@ -108,8 +108,10 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     data/mobile.h data/mobile.c
     data/player.h
     data/race.h data/race.c 
+    data/skill.h data/skill.c 
+    data/spell.h data/spell.c
     data/stats.h data/stats.c
- "data/skill.h" "data/skill.c" "data/spell.h" "data/spell.c")
+)
 
 if (NOT MSVC)
     target_link_libraries(Mud98 Threads::Threads OpenSSL::SSL)

@@ -42,10 +42,8 @@ void save_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table,
 void save_progs(VNUM minvnum, VNUM maxvnum);
 void save_command_table();
 void save_socials();
-void save_groups();
 MobProgCode* pedit_prog(VNUM vnum);
 void load_command_table();
 void load_socials_table();
-void load_groups_table();
 
 #endif // !MUD98__TABLESAVE_H

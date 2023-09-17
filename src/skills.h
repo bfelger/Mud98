@@ -17,14 +17,6 @@ typedef struct skill_hash_t SkillHash;
 
 #include "data/class.h"
 
-
-
-struct group_type {
-    char* name;
-    int16_t rating[ARCH_COUNT];
-    char* spells[MAX_IN_GROUP];
-};
-
 typedef struct skill_hash_t {
     SkillHash* next;
     SKNUM sn;
@@ -39,9 +31,5 @@ void gn_add(CharData* ch, SKNUM gn);
 void gn_remove(CharData* ch, SKNUM gn);
 void group_add(CharData* ch, const char* name, bool deduct);
 void group_remove(CharData* ch, const char* name);
-
-extern struct group_type* group_table;
-
-extern int max_group;
 
 #endif // !MUD98__SKILLS_H

@@ -2406,5 +2406,5 @@ int get_points(int race, int class)
         return -1;
     }
 
-    return group_table[x].rating[class] + race_table[race].points;
+    return skill_group_table[x].rating[class] + race_table[race].points;
 }

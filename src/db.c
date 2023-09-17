@@ -232,12 +232,12 @@ void boot_db(void)
         init_mm();
     }
 
-    load_skills_table();
+    load_skill_table();
     load_class_table();
     load_race_table();
     load_command_table();
     load_socials_table();
-    load_groups_table();
+    load_skill_group_table();
 
     /*
      * Set time and weather.

@@ -53,9 +53,6 @@
 #include <sys/time.h>
 #endif
 
-int max_group;
-struct group_type* group_table;
-
 /* used to get new skills */
 void do_gain(CharData* ch, char* argument)
 {
@@ -94,13 +91,13 @@ void do_gain(CharData* ch, char* argument)
                 "group", "cost", "group", "cost");
         send_to_char(buf, ch);
 
-        for (gn = 0; gn < max_group; gn++) {
-            if (group_table[gn].name == NULL) break;
+        for (gn = 0; gn < max_skill_group; gn++) {
+            if (skill_group_table[gn].name == NULL) break;
 
             if (!ch->pcdata->group_known[gn]
-                && group_table[gn].rating[arch] > 0) {
-                sprintf(buf, "%-18s %-5d ", group_table[gn].name,
-                        group_table[gn].rating[arch]);
+                && skill_group_table[gn].rating[arch] > 0) {
+                sprintf(buf, "%-18s %-5d ", skill_group_table[gn].name,
+                        skill_group_table[gn].rating[arch]);
                 send_to_char(buf, ch);
                 if (++col % 3 == 0) send_to_char("\n\r", ch);
             }
@@ -180,13 +177,13 @@ void do_gain(CharData* ch, char* argument)
             return;
         }
 
-        if (group_table[gn].rating[arch] <= 0) {
+        if (skill_group_table[gn].rating[arch] <= 0) {
             act("$N tells you 'That group is beyond your powers.'", ch, NULL,
                 trainer, TO_CHAR);
             return;
         }
 
-        if (ch->train < group_table[gn].rating[arch]) {
+        if (ch->train < skill_group_table[gn].rating[arch]) {
             act("$N tells you 'You are not yet ready for that group.'", ch,
                 NULL, trainer, TO_CHAR);
             return;
@@ -194,9 +191,9 @@ void do_gain(CharData* ch, char* argument)
 
         /* add the group */
         gn_add(ch, gn);
-        act("$N trains you in the art of $t", ch, group_table[gn].name, trainer,
+        act("$N trains you in the art of $t", ch, skill_group_table[gn].name, trainer,
             TO_CHAR);
-        ch->train -= (int16_t)group_table[gn].rating[arch];
+        ch->train -= (int16_t)skill_group_table[gn].rating[arch];
         return;
     }
 
@@ -505,13 +502,13 @@ void list_group_costs(CharData* ch)
             "cp", "group", "cp");
     send_to_char(buf, ch);
 
-    for (gn = 0; gn < max_group; gn++) {
-        if (group_table[gn].name == NULL) break;
+    for (gn = 0; gn < max_skill_group; gn++) {
+        if (skill_group_table[gn].name == NULL) break;
 
         if (!ch->gen_data->group_chosen[gn] && !ch->pcdata->group_known[gn]
-            && group_table[gn].rating[arch] > 0) {
-            sprintf(buf, "%-18s %-5d ", group_table[gn].name,
-                    group_table[gn].rating[arch]);
+            && skill_group_table[gn].rating[arch] > 0) {
+            sprintf(buf, "%-18s %-5d ", skill_group_table[gn].name,
+                    skill_group_table[gn].rating[arch]);
             send_to_char(buf, ch);
             if (++col % 3 == 0) send_to_char("\n\r", ch);
         }
@@ -564,13 +561,13 @@ void list_group_chosen(CharData* ch)
             "cp", "group", "cp\n\r");
     send_to_char(buf, ch);
 
-    for (gn = 0; gn < max_group; gn++) {
-        if (group_table[gn].name == NULL) break;
+    for (gn = 0; gn < max_skill_group; gn++) {
+        if (skill_group_table[gn].name == NULL) break;
 
         if (ch->gen_data->group_chosen[gn]
-            && group_table[gn].rating[arch] > 0) {
-            sprintf(buf, "%-18s %-5d ", group_table[gn].name,
-                    group_table[gn].rating[arch]);
+            && skill_group_table[gn].rating[arch] > 0) {
+            sprintf(buf, "%-18s %-5d ", skill_group_table[gn].name,
+                    skill_group_table[gn].rating[arch]);
             send_to_char(buf, ch);
             if (++col % 3 == 0) send_to_char("\n\r", ch);
         }
@@ -678,25 +675,25 @@ bool parse_gen_groups(CharData* ch, char* argument)
                 return true;
             }
 
-            if (group_table[gn].rating[arch] < 1) {
+            if (skill_group_table[gn].rating[arch] < 1) {
                 send_to_char("That group is not available.\n\r", ch);
                 return true;
             }
 
             /* Close security hole */
-            if (ch->gen_data->points_chosen + group_table[gn].rating[arch]
+            if (ch->gen_data->points_chosen + skill_group_table[gn].rating[arch]
                 > 300) {
                 send_to_char(
                     "You cannot take more than 300 creation points.\n\r", ch);
                 return true;
             }
 
-            sprintf(buf, "%s group added\n\r", group_table[gn].name);
+            sprintf(buf, "%s group added\n\r", skill_group_table[gn].name);
             send_to_char(buf, ch);
             ch->gen_data->group_chosen[gn] = true;
-            ch->gen_data->points_chosen += group_table[gn].rating[arch];
+            ch->gen_data->points_chosen += skill_group_table[gn].rating[arch];
             gn_add(ch, gn);
-            ch->pcdata->points += (int16_t)group_table[gn].rating[arch];
+            ch->pcdata->points += (int16_t)skill_group_table[gn].rating[arch];
             return true;
         }
 
@@ -743,12 +740,12 @@ bool parse_gen_groups(CharData* ch, char* argument)
         if (gn != -1 && ch->gen_data->group_chosen[gn]) {
             send_to_char("Group dropped.\n\r", ch);
             ch->gen_data->group_chosen[gn] = false;
-            ch->gen_data->points_chosen -= group_table[gn].rating[arch];
+            ch->gen_data->points_chosen -= skill_group_table[gn].rating[arch];
             gn_remove(ch, gn);
-            for (i = 0; i < max_group; i++) {
+            for (i = 0; i < max_skill_group; i++) {
                 if (ch->gen_data->group_chosen[gn]) gn_add(ch, gn);
             }
-            ch->pcdata->points -= (int16_t)group_table[gn].rating[arch];
+            ch->pcdata->points -= (int16_t)skill_group_table[gn].rating[arch];
             return true;
         }
 
@@ -802,10 +799,10 @@ void do_groups(CharData* ch, char* argument)
 
     if (argument[0] == '\0') { /* show all groups */
 
-        for (gn = 0; gn < max_group; gn++) {
-            if (group_table[gn].name == NULL) break;
+        for (gn = 0; gn < max_skill_group; gn++) {
+            if (skill_group_table[gn].name == NULL) break;
             if (ch->pcdata->group_known[gn]) {
-                sprintf(buf, "%-20s ", group_table[gn].name);
+                sprintf(buf, "%-20s ", skill_group_table[gn].name);
                 send_to_char(buf, ch);
                 if (++col % 3 == 0) send_to_char("\n\r", ch);
             }
@@ -818,9 +815,9 @@ void do_groups(CharData* ch, char* argument)
 
     if (!str_cmp(argument, "all")) /* show all groups */
     {
-        for (gn = 0; gn < max_group; gn++) {
-            if (group_table[gn].name == NULL) break;
-            sprintf(buf, "%-20s ", group_table[gn].name);
+        for (gn = 0; gn < max_skill_group; gn++) {
+            if (skill_group_table[gn].name == NULL) break;
+            sprintf(buf, "%-20s ", skill_group_table[gn].name);
             send_to_char(buf, ch);
             if (++col % 3 == 0) send_to_char("\n\r", ch);
         }
@@ -838,8 +835,8 @@ void do_groups(CharData* ch, char* argument)
     }
 
     for (sn = 0; sn < MAX_IN_GROUP; sn++) {
-        if (group_table[gn].spells[sn] == NULL) break;
-        sprintf(buf, "%-20s ", group_table[gn].spells[sn]);
+        if (skill_group_table[gn].skills[sn] == NULL) break;
+        sprintf(buf, "%-20s ", skill_group_table[gn].skills[sn]);
         send_to_char(buf, ch);
         if (++col % 3 == 0) send_to_char("\n\r", ch);
     }
@@ -902,10 +899,10 @@ SKNUM group_lookup(const char* name)
 {
     SKNUM gn;
 
-    for (gn = 0; gn < max_group; gn++) {
-        if (group_table[gn].name == NULL) break;
-        if (LOWER(name[0]) == LOWER(group_table[gn].name[0])
-            && !str_prefix(name, group_table[gn].name))
+    for (gn = 0; gn < max_skill_group; gn++) {
+        if (skill_group_table[gn].name == NULL) break;
+        if (LOWER(name[0]) == LOWER(skill_group_table[gn].name[0])
+            && !str_prefix(name, skill_group_table[gn].name))
             return gn;
     }
 
@@ -919,9 +916,9 @@ void gn_add(CharData* ch, SKNUM gn)
 
     ch->pcdata->group_known[gn] = true;
     for (i = 0; i < MAX_IN_GROUP; i++) {
-        if (group_table[gn].spells[i] == NULL) 
+        if (skill_group_table[gn].skills[i] == NULL) 
             break;
-        group_add(ch, group_table[gn].spells[i], false);
+        group_add(ch, skill_group_table[gn].skills[i], false);
     }
 }
 
@@ -933,9 +930,9 @@ void gn_remove(CharData* ch, SKNUM gn)
     ch->pcdata->group_known[gn] = false;
 
     for (i = 0; i < MAX_IN_GROUP; i++) {
-        if (group_table[gn].spells[i] == NULL) 
+        if (skill_group_table[gn].skills[i] == NULL) 
             break;
-        group_remove(ch, group_table[gn].spells[i]);
+        group_remove(ch, skill_group_table[gn].skills[i]);
     }
 }
 
@@ -967,7 +964,7 @@ void group_add(CharData* ch, const char* name, bool deduct)
     if (gn != -1) {
         if (ch->pcdata->group_known[gn] == false) {
             ch->pcdata->group_known[gn] = true;
-            if (deduct) ch->pcdata->points += (int16_t)group_table[gn].rating[arch];
+            if (deduct) ch->pcdata->points += (int16_t)skill_group_table[gn].rating[arch];
         }
         gn_add(ch, gn); /* make sure all skills in the group are known */
     }

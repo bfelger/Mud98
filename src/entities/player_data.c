@@ -5,6 +5,8 @@
 
 #include "player_data.h"
 
+#include "data/skill.h"
+
 #include "color.h"
 #include "db.h"
 #include "digest.h"
@@ -37,7 +39,7 @@ PlayerData* new_player_data()
 
     pcdata->buffer = new_buf();
     pcdata->learned = new_learned();
-    pcdata->group_known = new_boolarray(max_group);
+    pcdata->group_known = new_boolarray(max_skill_group);
 
     VALIDATE(pcdata);
     return pcdata;

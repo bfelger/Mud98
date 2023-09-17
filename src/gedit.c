@@ -16,6 +16,7 @@
 
 #include "data/class.h"
 #include "data/mobile.h"
+#include "data/skill.h"
 
 #define GEDIT(fun) bool fun(CharData *ch, char *argument)
 
@@ -55,14 +56,14 @@ void gedit(CharData* ch, char* argument)
     }
 
     if (!str_cmp(command, "save")) {
-        save_groups();
+        save_skill_group_table();
         return;
     }
 
     for (cmd = 0; gedit_table[cmd].name != NULL; cmd++) {
         if (!str_prefix(command, gedit_table[cmd].name)) {
             if ((*gedit_table[cmd].olc_fun) (ch, argument))
-                save_groups();
+                save_skill_group_table();
             return;
         }
     }
@@ -73,7 +74,7 @@ void gedit(CharData* ch, char* argument)
 
 void do_gedit(CharData* ch, char* argument)
 {
-    const struct group_type* pGroup;
+    const SkillGroup* pGroup;
     char command[MSL];
     int group;
 
@@ -104,7 +105,7 @@ void do_gedit(CharData* ch, char* argument)
         return;
     }
 
-    pGroup = &group_table[group];
+    pGroup = &skill_group_table[group];
 
     ch->desc->pEdit = (uintptr_t)pGroup;
     ch->desc->editor = ED_GROUP;
@@ -114,7 +115,7 @@ void do_gedit(CharData* ch, char* argument)
 
 GEDIT(gedit_show)
 {
-    struct group_type* pGrp;
+    SkillGroup* pGrp;
     char buf[MIL], buf2[MIL];
     int i;
 
@@ -145,8 +146,8 @@ GEDIT(gedit_show)
 
     i = 0;
 
-    while (i < MAX_IN_GROUP && !IS_NULLSTR(pGrp->spells[i])) {
-        sprintf(buf, "%2d. {*%s{x\n\r", i, pGrp->spells[i]);
+    while (i < MAX_IN_GROUP && !IS_NULLSTR(pGrp->skills[i])) {
+        sprintf(buf, "%2d. {*%s{x\n\r", i, pGrp->skills[i]);
         send_to_char(buf, ch);
         i++;
     }
@@ -156,7 +157,7 @@ GEDIT(gedit_show)
 
 GEDIT(gedit_name)
 {
-    struct group_type* pGrp;
+    SkillGroup* pGrp;
 
     EDIT_GROUP(ch, pGrp);
 
@@ -179,7 +180,7 @@ GEDIT(gedit_name)
 
 GEDIT(gedit_rating)
 {
-    struct group_type* pGrp;
+    SkillGroup* pGrp;
     char arg[MIL];
     int16_t rating;
     Archetype arch;
@@ -213,7 +214,7 @@ GEDIT(gedit_rating)
 
 GEDIT(gedit_spell)
 {
-    struct group_type* pGrp;
+    SkillGroup* pGrp;
     char arg[MSL];
     int i = 0, j = 0;
 
@@ -229,7 +230,7 @@ GEDIT(gedit_spell)
     argument = one_argument(argument, arg);
 
     if (!str_cmp(arg, "new")) {
-        for (i = 0; !IS_NULLSTR(pGrp->spells[i]) && (i < MAX_IN_GROUP); ++i)
+        for (i = 0; !IS_NULLSTR(pGrp->skills[i]) && (i < MAX_IN_GROUP); ++i)
             ;
 
         if (i == MAX_IN_GROUP) {
@@ -242,8 +243,8 @@ GEDIT(gedit_spell)
             return false;
         }
 
-        free_string(pGrp->spells[i]);
-        pGrp->spells[i] = str_dup(argument);
+        free_string(pGrp->skills[i]);
+        pGrp->skills[i] = str_dup(argument);
         send_to_char("Ok.\n\r", ch);
         return true;
     }
@@ -256,14 +257,14 @@ GEDIT(gedit_spell)
             return false;
         }
 
-        while (i < MAX_IN_GROUP && !IS_NULLSTR(pGrp->spells[i])) {
-            if (i == num || !str_cmp(pGrp->spells[i], argument)) {
+        while (i < MAX_IN_GROUP && !IS_NULLSTR(pGrp->skills[i])) {
+            if (i == num || !str_cmp(pGrp->skills[i], argument)) {
                 for (j = i; j < MAX_IN_GROUP - 1; ++j) {
-                    free_string(pGrp->spells[j]);
-                    pGrp->spells[j] = str_dup(pGrp->spells[j + 1]);
+                    free_string(pGrp->skills[j]);
+                    pGrp->skills[j] = str_dup(pGrp->skills[j + 1]);
                 }
-                free_string(pGrp->spells[MAX_IN_GROUP - 1]);
-                pGrp->spells[MAX_IN_GROUP - 1] = str_dup("");
+                free_string(pGrp->skills[MAX_IN_GROUP - 1]);
+                pGrp->skills[MAX_IN_GROUP - 1] = str_dup("");
                 send_to_char("Ok.\n\r", ch);
                 return true;
             }
@@ -280,15 +281,15 @@ GEDIT(gedit_spell)
 
 GEDIT(gedit_list)
 {
-    const struct group_type* pGrp;
+    const SkillGroup* pGrp;
     int i, cnt = 0;
     char buf[MIL];
 
-    for (i = 0; i < max_group; ++i) {
-        if ((pGrp = &group_table[i]) == NULL)
+    for (i = 0; i < max_skill_group; ++i) {
+        if ((pGrp = &skill_group_table[i]) == NULL)
             break;
 
-        sprintf(buf, "%2d. {*%20s{x ", i, group_table[i].name);
+        sprintf(buf, "%2d. {*%20s{x ", i, skill_group_table[i].name);
 
         if (cnt++ % 2)
             strcat(buf, "\n\r");

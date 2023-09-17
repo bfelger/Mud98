@@ -33,13 +33,10 @@
 
 CmdInfo tmp_cmd;
 struct social_type tmp_soc;
-struct group_type tmp_grp;
 MobProgCode tmp_pcode;
 
 char* cmd_func_name(DoFunc*);
 DoFunc* cmd_func_lookup(char*);
-
-SpellFunc* spell_function(char*);
 
 typedef char* STR_FUNC(void*);
 typedef bool STR_READ_FUNC(void*, char*);
@@ -122,12 +119,6 @@ const SaveTableEntry progcodesavetable[] = {
     { "vnum",		    FIELD_VNUM,                 U(&tmp_pcode.vnum),	0,	0	},
     { "code",		    FIELD_STRING,	            U(&tmp_pcode.code),	0,	0	},
     { NULL,		        0,				            0,			        0,	0	}
-};
-
-const SaveTableEntry groupsavetable[] = {
-    { "name",		    FIELD_STRING,			    U(&tmp_grp.name),           0,                  0	    },
-    { "rating",	        FIELD_INT16_ARRAY,		    U(&tmp_grp.rating),         U(ARCH_COUNT),	    0	    },
-    { "spells",	        FIELD_STRING_ARRAY,	        U(&tmp_grp.spells),	        U(MAX_IN_GROUP),    0	    },
 };
 
 const SaveTableEntry socialsavetable[] = {
@@ -575,63 +566,6 @@ void load_socials_table()
     flog("Social table loaded.");
 }
 
-void load_groups_table()
-{
-    FILE* fp;
-    int i = 0;
-    char* word;
-    static struct group_type grzero;
-
-    char group_file[256];
-    sprintf(group_file, "%s%s", area_dir, GROUP_FILE);
-    fp = fopen(group_file, "r");
-
-    if (!fp) {
-        bug("Group file " GROUP_FILE " cannot be found.", 0);
-        exit(1);
-    }
-
-    int tmp_max_group;
-    if (fscanf(fp, "%d\n", &tmp_max_group) < 1) {
-        perror("load_groups_table: Could not read max_group!");
-        return;
-    }
-    max_group = tmp_max_group;
-
-    flog("Creating group table of length %d, size %zu",
-        max_group + 1, sizeof(struct group_type) * ((size_t)max_group + 1));
-    if ((group_table = calloc(sizeof(struct group_type), (size_t)max_group + 1)) == NULL) {
-        bug("load_groups_table(): Could not allocate group_table!");
-        exit(1);
-    }
-
-    for (; ; ) {
-        word = fread_word(fp);
-
-        if (!str_cmp(word, "#!"))
-            break;
-
-        if (str_cmp(word, "#GROUP")) {
-            bugf("Load_groups : non-existent section (%s)", word);
-            exit(1);
-        }
-
-        if (i >= max_group) {
-            bug("Load_groups : the number of groups is greater than max_group", 0);
-            exit(1);
-        }
-
-        group_table[i] = grzero;
-        load_struct(fp, U(&tmp_grp), groupsavetable, U(&group_table[i++]));
-    }
-
-    group_table[max_group].name = NULL;
-
-    fclose(fp);
-
-    flog("Groups table loaded.");
-}
-
 void save_socials(void)
 {
     FILE* fp;
@@ -655,32 +589,6 @@ void save_socials(void)
     }
 
     fclose(fp);
-}
-
-void save_groups()
-{
-    FILE* fpn;
-    int i;
-
-    char group_file[256];
-    sprintf(group_file, "%s%s", area_dir, GROUP_FILE);
-    fpn = fopen(group_file, "w");
-    if (fpn == NULL) {
-        bugf("save_groups: Can't open %s", group_file);
-        return;
-    }
-
-    fprintf(fpn, "%d\n\n", (int)max_group);
-
-    for (i = 0; i < max_group; ++i) {
-        fprintf(fpn, "#GROUP\n");
-        save_struct(fpn, U(&tmp_grp), groupsavetable, U(&group_table[i]));
-        fprintf(fpn, "#END\n\n");
-    }
-
-    fprintf(fpn, "#!\n");
-
-    fclose(fpn);
 }
 
 void save_progs(VNUM minvnum, VNUM maxvnum)
