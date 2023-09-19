@@ -125,21 +125,21 @@ extern char area_dir[];
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef enum skill_target_t {
-    TAR_ALL = -1,               // Used for displaying all skills to user
-    TAR_IGNORE = 0,
-    TAR_CHAR_OFFENSIVE = 1,
-    TAR_CHAR_DEFENSIVE = 2,
-    TAR_CHAR_SELF = 3,
-    TAR_OBJ_INV = 4,
-    TAR_OBJ_CHAR_DEF = 5,
-    TAR_OBJ_CHAR_OFF = 6,
+    SKILL_TARGET_ALL                = -1,   // Used for display all to user
+    SKILL_TARGET_IGNORE             = 0,
+    SKILL_TARGET_CHAR_OFFENSIVE     = 1,
+    SKILL_TARGET_CHAR_DEFENSIVE     = 2,
+    SKILL_TARGET_CHAR_SELF          = 3,
+    SKILL_TARGET_OBJ_INV            = 4,
+    SKILL_TARGET_OBJ_CHAR_DEF       = 5,
+    SKILL_TARGET_OBJ_CHAR_OFF       = 6,
 } SkillTarget;
 
 typedef enum spell_target_t {
-    TARGET_CHAR = 0,
-    TARGET_OBJ = 1,
-    TARGET_ROOM = 2,
-    TARGET_NONE = 3,
+    SPELL_TARGET_CHAR               = 0,
+    SPELL_TARGET_OBJ                = 1,
+    SPELL_TARGET_ROOM               = 2,
+    SPELL_TARGET_NONE               = 3,
 } SpellTarget;
 
 ////////////////////////////////////////////////////////////////////////////////

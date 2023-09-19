@@ -308,17 +308,17 @@ void do_cast(CharData* ch, char* argument)
     victim = NULL;
     obj = NULL;
     vo = NULL;
-    target = TARGET_NONE;
+    target = SPELL_TARGET_NONE;
 
     switch (skill_table[sn].target) {
     default:
         bug("Do_cast: bad target for sn %d.", sn);
         return;
 
-    case TAR_IGNORE:
+    case SKILL_TARGET_IGNORE:
         break;
 
-    case TAR_CHAR_OFFENSIVE:
+    case SKILL_TARGET_CHAR_OFFENSIVE:
         if (arg2[0] == '\0') {
             if ((victim = ch->fighting) == NULL) {
                 send_to_char("Cast the spell on whom?\n\r", ch);
@@ -353,10 +353,10 @@ void do_cast(CharData* ch, char* argument)
         }
 
         vo = (void*)victim;
-        target = TARGET_CHAR;
+        target = SPELL_TARGET_CHAR;
         break;
 
-    case TAR_CHAR_DEFENSIVE:
+    case SKILL_TARGET_CHAR_DEFENSIVE:
         if (arg2[0] == '\0') { victim = ch; }
         else {
             if ((victim = get_char_room(ch, target_name)) == NULL) {
@@ -366,20 +366,20 @@ void do_cast(CharData* ch, char* argument)
         }
 
         vo = (void*)victim;
-        target = TARGET_CHAR;
+        target = SPELL_TARGET_CHAR;
         break;
 
-    case TAR_CHAR_SELF:
+    case SKILL_TARGET_CHAR_SELF:
         if (arg2[0] != '\0' && !is_name(target_name, ch->name)) {
             send_to_char("You cannot cast this spell on another.\n\r", ch);
             return;
         }
 
         vo = (void*)ch;
-        target = TARGET_CHAR;
+        target = SPELL_TARGET_CHAR;
         break;
 
-    case TAR_OBJ_INV:
+    case SKILL_TARGET_OBJ_INV:
         if (arg2[0] == '\0') {
             send_to_char("What should the spell be cast upon?\n\r", ch);
             return;
@@ -391,23 +391,23 @@ void do_cast(CharData* ch, char* argument)
         }
 
         vo = (void*)obj;
-        target = TARGET_OBJ;
+        target = SPELL_TARGET_OBJ;
         break;
 
-    case TAR_OBJ_CHAR_OFF:
+    case SKILL_TARGET_OBJ_CHAR_OFF:
         if (arg2[0] == '\0') {
             if ((victim = ch->fighting) == NULL) {
                 send_to_char("Cast the spell on whom or what?\n\r", ch);
                 return;
             }
 
-            target = TARGET_CHAR;
+            target = SPELL_TARGET_CHAR;
         }
         else if ((victim = get_char_room(ch, target_name)) != NULL) {
-            target = TARGET_CHAR;
+            target = SPELL_TARGET_CHAR;
         }
 
-        if (target == TARGET_CHAR) {
+        if (target == SPELL_TARGET_CHAR) {
             /* check the sanity of the attack */
             if (is_safe_spell(ch, victim, false) && victim != ch) {
                 send_to_char("Not on that target.\n\r", ch);
@@ -426,7 +426,7 @@ void do_cast(CharData* ch, char* argument)
         }
         else if ((obj = get_obj_here(ch, target_name)) != NULL) {
             vo = (void*)obj;
-            target = TARGET_OBJ;
+            target = SPELL_TARGET_OBJ;
         }
         else {
             send_to_char("You don't see that here.\n\r", ch);
@@ -434,18 +434,18 @@ void do_cast(CharData* ch, char* argument)
         }
         break;
 
-    case TAR_OBJ_CHAR_DEF:
+    case SKILL_TARGET_OBJ_CHAR_DEF:
         if (arg2[0] == '\0') {
             vo = (void*)ch;
-            target = TARGET_CHAR;
+            target = SPELL_TARGET_CHAR;
         }
         else if ((victim = get_char_room(ch, target_name)) != NULL) {
             vo = (void*)victim;
-            target = TARGET_CHAR;
+            target = SPELL_TARGET_CHAR;
         }
         else if ((obj = get_obj_carry(ch, target_name, ch)) != NULL) {
             vo = (void*)obj;
-            target = TARGET_OBJ;
+            target = SPELL_TARGET_OBJ;
         }
         else {
             send_to_char("You don't see that here.\n\r", ch);
@@ -477,9 +477,9 @@ void do_cast(CharData* ch, char* argument)
         check_improve(ch, sn, true, 1);
     }
 
-    if ((skill_table[sn].target == TAR_CHAR_OFFENSIVE
-         || (skill_table[sn].target == TAR_OBJ_CHAR_OFF
-             && target == TARGET_CHAR))
+    if ((skill_table[sn].target == SKILL_TARGET_CHAR_OFFENSIVE
+         || (skill_table[sn].target == SKILL_TARGET_OBJ_CHAR_OFF
+             && target == SPELL_TARGET_CHAR))
         && victim != ch && victim->master != ch) {
         CharData* vch;
         CharData* vch_next = NULL;
@@ -504,7 +504,7 @@ void obj_cast_spell(SKNUM sn, LEVEL level, CharData* ch, CharData* victim,
                     ObjectData* obj)
 {
     void* vo;
-    int target = TARGET_NONE;
+    int target = SPELL_TARGET_NONE;
 
     if (sn <= 0) return;
 
@@ -518,11 +518,11 @@ void obj_cast_spell(SKNUM sn, LEVEL level, CharData* ch, CharData* victim,
         bug("Obj_cast_spell: bad target for sn %d.", sn);
         return;
 
-    case TAR_IGNORE:
+    case SKILL_TARGET_IGNORE:
         vo = NULL;
         break;
 
-    case TAR_CHAR_OFFENSIVE:
+    case SKILL_TARGET_CHAR_OFFENSIVE:
         if (victim == NULL) victim = ch->fighting;
         if (victim == NULL) {
             send_to_char("You can't do that.\n\r", ch);
@@ -533,26 +533,26 @@ void obj_cast_spell(SKNUM sn, LEVEL level, CharData* ch, CharData* victim,
             return;
         }
         vo = (void*)victim;
-        target = TARGET_CHAR;
+        target = SPELL_TARGET_CHAR;
         break;
 
-    case TAR_CHAR_DEFENSIVE:
-    case TAR_CHAR_SELF:
+    case SKILL_TARGET_CHAR_DEFENSIVE:
+    case SKILL_TARGET_CHAR_SELF:
         if (victim == NULL) victim = ch;
         vo = (void*)victim;
-        target = TARGET_CHAR;
+        target = SPELL_TARGET_CHAR;
         break;
 
-    case TAR_OBJ_INV:
+    case SKILL_TARGET_OBJ_INV:
         if (obj == NULL) {
             send_to_char("You can't do that.\n\r", ch);
             return;
         }
         vo = (void*)obj;
-        target = TARGET_OBJ;
+        target = SPELL_TARGET_OBJ;
         break;
 
-    case TAR_OBJ_CHAR_OFF:
+    case SKILL_TARGET_OBJ_CHAR_OFF:
         if (victim == NULL && obj == NULL) {
             if (ch->fighting != NULL)
                 victim = ch->fighting;
@@ -569,26 +569,26 @@ void obj_cast_spell(SKNUM sn, LEVEL level, CharData* ch, CharData* victim,
             }
 
             vo = (void*)victim;
-            target = TARGET_CHAR;
+            target = SPELL_TARGET_CHAR;
         }
         else {
             vo = (void*)obj;
-            target = TARGET_OBJ;
+            target = SPELL_TARGET_OBJ;
         }
         break;
 
-    case TAR_OBJ_CHAR_DEF:
+    case SKILL_TARGET_OBJ_CHAR_DEF:
         if (victim == NULL && obj == NULL) {
             vo = (void*)ch;
-            target = TARGET_CHAR;
+            target = SPELL_TARGET_CHAR;
         }
         else if (victim != NULL) {
             vo = (void*)victim;
-            target = TARGET_CHAR;
+            target = SPELL_TARGET_CHAR;
         }
         else {
             vo = (void*)obj;
-            target = TARGET_OBJ;
+            target = SPELL_TARGET_OBJ;
         }
 
         break;
@@ -597,9 +597,9 @@ void obj_cast_spell(SKNUM sn, LEVEL level, CharData* ch, CharData* victim,
     target_name = "";
     (*skill_table[sn].spell_fun)(sn, level, ch, vo, target);
 
-    if ((skill_table[sn].target == TAR_CHAR_OFFENSIVE
-         || (skill_table[sn].target == TAR_OBJ_CHAR_OFF
-             && target == TARGET_CHAR))
+    if ((skill_table[sn].target == SKILL_TARGET_CHAR_OFFENSIVE
+         || (skill_table[sn].target == SKILL_TARGET_OBJ_CHAR_OFF
+             && target == SPELL_TARGET_CHAR))
         && victim != ch && victim->master != ch) {
         CharData* vch;
         CharData* vch_next = NULL;
@@ -664,7 +664,7 @@ void spell_bless(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget targ
     AffectData af = { 0 };
 
     /* deal with the object case first */
-    if (target == TARGET_OBJ) {
+    if (target == SPELL_TARGET_OBJ) {
         obj = (ObjectData*)vo;
         if (IS_OBJ_STAT(obj, ITEM_BLESS)) {
             act("$p is already blessed.", ch, obj, NULL, TO_CHAR);
@@ -1221,7 +1221,7 @@ void spell_colour_spray(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
         dam /= 2;
     else
         spell_blindness(skill_lookup("blindness"), level / 2, ch, (void*)victim,
-                        TARGET_CHAR);
+                        SPELL_TARGET_CHAR);
 
     damage(ch, victim, dam, sn, DAM_LIGHT, true);
     return;
@@ -1447,7 +1447,7 @@ void spell_curse(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget targ
     AffectData af = { 0 };
 
     /* deal with the object case first */
-    if (target == TARGET_OBJ) {
+    if (target == SPELL_TARGET_OBJ) {
         obj = (ObjectData*)vo;
         if (IS_OBJ_STAT(obj, ITEM_EVIL)) {
             act("$p is already filled with evil.", ch, obj, NULL, TO_CHAR);
@@ -1536,7 +1536,7 @@ void spell_demonfire(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget 
     dam = dice(level, 10);
     if (saves_spell(level, victim, DAM_NEGATIVE)) dam /= 2;
     damage(ch, victim, dam, sn, DAM_NEGATIVE, true);
-    spell_curse(gsn_curse, 3 * level / 4, ch, (void*)victim, TARGET_CHAR);
+    spell_curse(gsn_curse, 3 * level / 4, ch, (void*)victim, SPELL_TARGET_CHAR);
 }
 
 void spell_detect_evil(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
@@ -2783,14 +2783,14 @@ void spell_holy_word(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget 
         if ((IS_GOOD(ch) && IS_GOOD(vch)) || (IS_EVIL(ch) && IS_EVIL(vch))
             || (IS_NEUTRAL(ch) && IS_NEUTRAL(vch))) {
             send_to_char("You feel full more powerful.\n\r", vch);
-            spell_frenzy(frenzy_num, level, ch, (void*)vch, TARGET_CHAR);
-            spell_bless(bless_num, level, ch, (void*)vch, TARGET_CHAR);
+            spell_frenzy(frenzy_num, level, ch, (void*)vch, SPELL_TARGET_CHAR);
+            spell_bless(bless_num, level, ch, (void*)vch, SPELL_TARGET_CHAR);
         }
 
         else if ((IS_GOOD(ch) && IS_EVIL(vch))
                  || (IS_EVIL(ch) && IS_GOOD(vch))) {
             if (!is_safe_spell(ch, vch, true)) {
-                spell_curse(curse_num, level, ch, (void*)vch, TARGET_CHAR);
+                spell_curse(curse_num, level, ch, (void*)vch, SPELL_TARGET_CHAR);
                 send_to_char("You are struck down!\n\r", vch);
                 dam = dice(level, 6);
                 damage(ch, vch, dam, sn, DAM_ENERGY, true);
@@ -2799,7 +2799,7 @@ void spell_holy_word(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget 
 
         else if (IS_NEUTRAL(ch)) {
             if (!is_safe_spell(ch, vch, true)) {
-                spell_curse(curse_num, level / 2, ch, (void*)vch, TARGET_CHAR);
+                spell_curse(curse_num, level / 2, ch, (void*)vch, SPELL_TARGET_CHAR);
                 send_to_char("You are struck down!\n\r", vch);
                 dam = dice(level, 4);
                 damage(ch, vch, dam, sn, DAM_ENERGY, true);
@@ -3076,7 +3076,7 @@ void spell_invis(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget targ
     AffectData af = { 0 };
 
     /* object invisibility */
-    if (target == TARGET_OBJ) {
+    if (target == SPELL_TARGET_OBJ) {
         obj = (ObjectData*)vo;
 
         if (IS_OBJ_STAT(obj, ITEM_INVIS)) {
@@ -3245,8 +3245,8 @@ void spell_mass_healing(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
 
     for (gch = ch->in_room->people; gch != NULL; gch = gch->next_in_room) {
         if ((IS_NPC(ch) && IS_NPC(gch)) || (!IS_NPC(ch) && !IS_NPC(gch))) {
-            spell_heal(heal_num, level, ch, (void*)gch, TARGET_CHAR);
-            spell_refresh(refresh_num, level, ch, (void*)gch, TARGET_CHAR);
+            spell_heal(heal_num, level, ch, (void*)gch, SPELL_TARGET_CHAR);
+            spell_refresh(refresh_num, level, ch, (void*)gch, SPELL_TARGET_CHAR);
         }
     }
 }
@@ -3347,7 +3347,7 @@ void spell_poison(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget tar
     ObjectData* obj;
     AffectData af = { 0 };
 
-    if (target == TARGET_OBJ) {
+    if (target == SPELL_TARGET_OBJ) {
         obj = (ObjectData*)vo;
 
         if (obj->item_type == ITEM_FOOD || obj->item_type == ITEM_DRINK_CON) {
@@ -3510,7 +3510,7 @@ void spell_ray_of_truth(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
 
     damage(ch, victim, dam, sn, DAM_HOLY, true);
     spell_blindness(gsn_blindness, 3 * level / 4, ch, (void*)victim,
-                    TARGET_CHAR);
+                    SPELL_TARGET_CHAR);
 }
 
 void spell_recharge(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
@@ -3601,7 +3601,7 @@ void spell_remove_curse(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
     bool found = false;
 
     /* do object cases first */
-    if (target == TARGET_OBJ) {
+    if (target == SPELL_TARGET_OBJ) {
         obj = (ObjectData*)vo;
 
         if (IS_OBJ_STAT(obj, ITEM_NODROP) || IS_OBJ_STAT(obj, ITEM_NOREMOVE)) {
@@ -3965,11 +3965,11 @@ void spell_acid_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
     dam = UMAX(hp_dam + dice_dam / 10, dice_dam + hp_dam / 10);
 
     if (saves_spell(level, victim, DAM_ACID)) {
-        acid_effect(victim, level / 2, dam / 4, TARGET_CHAR);
+        acid_effect(victim, level / 2, dam / 4, SPELL_TARGET_CHAR);
         damage(ch, victim, dam / 2, sn, DAM_ACID, true);
     }
     else {
-        acid_effect(victim, level, dam, TARGET_CHAR);
+        acid_effect(victim, level, dam, SPELL_TARGET_CHAR);
         damage(ch, victim, dam, sn, DAM_ACID, true);
     }
 }
@@ -3991,7 +3991,7 @@ void spell_fire_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
     dice_dam = dice(level, 20);
 
     dam = UMAX(hp_dam + dice_dam / 10, dice_dam + hp_dam / 10);
-    fire_effect(victim->in_room, level, dam / 2, TARGET_ROOM);
+    fire_effect(victim->in_room, level, dam / 2, SPELL_TARGET_ROOM);
 
     for (vch = victim->in_room->people; vch != NULL; vch = vch_next) {
         vch_next = vch->next_in_room;
@@ -4004,22 +4004,22 @@ void spell_fire_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
         if (vch == victim) /* full damage */
         {
             if (saves_spell(level, vch, DAM_FIRE)) {
-                fire_effect(vch, level / 2, dam / 4, TARGET_CHAR);
+                fire_effect(vch, level / 2, dam / 4, SPELL_TARGET_CHAR);
                 damage(ch, vch, dam / 2, sn, DAM_FIRE, true);
             }
             else {
-                fire_effect(vch, level, dam, TARGET_CHAR);
+                fire_effect(vch, level, dam, SPELL_TARGET_CHAR);
                 damage(ch, vch, dam, sn, DAM_FIRE, true);
             }
         }
         else /* partial damage */
         {
             if (saves_spell(level - 2, vch, DAM_FIRE)) {
-                fire_effect(vch, level / 4, dam / 8, TARGET_CHAR);
+                fire_effect(vch, level / 4, dam / 8, SPELL_TARGET_CHAR);
                 damage(ch, vch, dam / 4, sn, DAM_FIRE, true);
             }
             else {
-                fire_effect(vch, level / 2, dam / 4, TARGET_CHAR);
+                fire_effect(vch, level / 2, dam / 4, SPELL_TARGET_CHAR);
                 damage(ch, vch, dam / 2, sn, DAM_FIRE, true);
             }
         }
@@ -4044,7 +4044,7 @@ void spell_frost_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
     dice_dam = dice(level, 16);
 
     dam = UMAX(hp_dam + dice_dam / 10, dice_dam + hp_dam / 10);
-    cold_effect(victim->in_room, level, dam / 2, TARGET_ROOM);
+    cold_effect(victim->in_room, level, dam / 2, SPELL_TARGET_ROOM);
 
     for (vch = victim->in_room->people; vch != NULL; vch = vch_next) {
         vch_next = vch->next_in_room;
@@ -4057,21 +4057,21 @@ void spell_frost_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
         if (vch == victim) /* full damage */
         {
             if (saves_spell(level, vch, DAM_COLD)) {
-                cold_effect(vch, level / 2, dam / 4, TARGET_CHAR);
+                cold_effect(vch, level / 2, dam / 4, SPELL_TARGET_CHAR);
                 damage(ch, vch, dam / 2, sn, DAM_COLD, true);
             }
             else {
-                cold_effect(vch, level, dam, TARGET_CHAR);
+                cold_effect(vch, level, dam, SPELL_TARGET_CHAR);
                 damage(ch, vch, dam, sn, DAM_COLD, true);
             }
         }
         else {
             if (saves_spell(level - 2, vch, DAM_COLD)) {
-                cold_effect(vch, level / 4, dam / 8, TARGET_CHAR);
+                cold_effect(vch, level / 4, dam / 8, SPELL_TARGET_CHAR);
                 damage(ch, vch, dam / 4, sn, DAM_COLD, true);
             }
             else {
-                cold_effect(vch, level / 2, dam / 4, TARGET_CHAR);
+                cold_effect(vch, level / 2, dam / 4, SPELL_TARGET_CHAR);
                 damage(ch, vch, dam / 2, sn, DAM_COLD, true);
             }
         }
@@ -4092,7 +4092,7 @@ void spell_gas_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget
     dice_dam = dice(level, 12);
 
     dam = UMAX(hp_dam + dice_dam / 10, dice_dam + hp_dam / 10);
-    poison_effect(ch->in_room, level, dam, TARGET_ROOM);
+    poison_effect(ch->in_room, level, dam, SPELL_TARGET_ROOM);
 
     for (vch = ch->in_room->people; vch != NULL; vch = vch_next) {
         vch_next = vch->next_in_room;
@@ -4103,11 +4103,11 @@ void spell_gas_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget
             continue;
 
         if (saves_spell(level, vch, DAM_POISON)) {
-            poison_effect(vch, level / 2, dam / 4, TARGET_CHAR);
+            poison_effect(vch, level / 2, dam / 4, SPELL_TARGET_CHAR);
             damage(ch, vch, dam / 2, sn, DAM_POISON, true);
         }
         else {
-            poison_effect(vch, level, dam, TARGET_CHAR);
+            poison_effect(vch, level, dam, SPELL_TARGET_CHAR);
             damage(ch, vch, dam, sn, DAM_POISON, true);
         }
     }
@@ -4129,11 +4129,11 @@ void spell_lightning_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, Spell
     dam = UMAX(hp_dam + dice_dam / 10, dice_dam + hp_dam / 10);
 
     if (saves_spell(level, victim, DAM_LIGHTNING)) {
-        shock_effect(victim, level / 2, dam / 4, TARGET_CHAR);
+        shock_effect(victim, level / 2, dam / 4, SPELL_TARGET_CHAR);
         damage(ch, victim, dam / 2, sn, DAM_LIGHTNING, true);
     }
     else {
-        shock_effect(victim, level, dam, TARGET_CHAR);
+        shock_effect(victim, level, dam, SPELL_TARGET_CHAR);
         damage(ch, victim, dam, sn, DAM_LIGHTNING, true);
     }
 }

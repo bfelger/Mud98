@@ -397,7 +397,7 @@ bool dragon(CharData* ch, char* spell_name)
     if (victim == NULL) return false;
 
     if ((sn = skill_lookup(spell_name)) < 0) return false;
-    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim, TARGET_CHAR);
+    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim, SPELL_TARGET_CHAR);
     return true;
 }
 
@@ -449,7 +449,7 @@ bool spec_breath_gas(CharData* ch)
     if (ch->position != POS_FIGHTING) return false;
 
     if ((sn = skill_lookup("gas breath")) < 0) return false;
-    (*skill_table[sn].spell_fun)(sn, ch->level, ch, NULL, TARGET_CHAR);
+    (*skill_table[sn].spell_fun)(sn, ch->level, ch, NULL, SPELL_TARGET_CHAR);
     return true;
 }
 
@@ -477,45 +477,45 @@ bool spec_cast_adept(CharData* ch)
     switch (number_bits(4)) {
     case 0:
         act("$n utters the word 'abracek'.", ch, NULL, NULL, TO_ROOM);
-        spell_armor(skill_lookup("armor"), ch->level, ch, victim, TARGET_CHAR);
+        spell_armor(skill_lookup("armor"), ch->level, ch, victim, SPELL_TARGET_CHAR);
         return true;
 
     case 1:
         act("$n utters the word 'fido'.", ch, NULL, NULL, TO_ROOM);
-        spell_bless(skill_lookup("bless"), ch->level, ch, victim, TARGET_CHAR);
+        spell_bless(skill_lookup("bless"), ch->level, ch, victim, SPELL_TARGET_CHAR);
         return true;
 
     case 2:
         act("$n utters the words 'judicandus noselacri'.", ch, NULL, NULL,
             TO_ROOM);
         spell_cure_blindness(skill_lookup("cure blindness"), ch->level, ch,
-                             victim, TARGET_CHAR);
+                             victim, SPELL_TARGET_CHAR);
         return true;
 
     case 3:
         act("$n utters the words 'judicandus dies'.", ch, NULL, NULL, TO_ROOM);
         spell_cure_light(skill_lookup("cure light"), ch->level, ch, victim,
-                         TARGET_CHAR);
+                         SPELL_TARGET_CHAR);
         return true;
 
     case 4:
         act("$n utters the words 'judicandus sausabru'.", ch, NULL, NULL,
             TO_ROOM);
         spell_cure_poison(skill_lookup("cure poison"), ch->level, ch, victim,
-                          TARGET_CHAR);
+                          SPELL_TARGET_CHAR);
         return true;
 
     case 5:
         act("$n utters the word 'candusima'.", ch, NULL, NULL, TO_ROOM);
         spell_refresh(skill_lookup("refresh"), ch->level, ch, victim,
-                      TARGET_CHAR);
+                      SPELL_TARGET_CHAR);
         return true;
 
     case 6:
         act("$n utters the words 'judicandus eugzagz'.", ch, NULL, NULL,
             TO_ROOM);
         spell_cure_disease(skill_lookup("cure disease"), ch->level, ch, victim,
-                           TARGET_CHAR);
+                           SPELL_TARGET_CHAR);
     }
 
     return false;
@@ -593,7 +593,7 @@ bool spec_cast_cleric(CharData* ch)
     }
 
     if ((sn = skill_lookup(spell)) < 0) return false;
-    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim, TARGET_CHAR);
+    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim, SPELL_TARGET_CHAR);
     return true;
 }
 
@@ -615,7 +615,7 @@ bool spec_cast_judge(CharData* ch)
 
     spell = "high explosive";
     if ((sn = skill_lookup(spell)) < 0) return false;
-    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim, TARGET_CHAR);
+    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim, SPELL_TARGET_CHAR);
     return true;
 }
 
@@ -687,7 +687,7 @@ bool spec_cast_mage(CharData* ch)
     }
 
     if ((sn = skill_lookup(spell)) < 0) return false;
-    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim, TARGET_CHAR);
+    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim, SPELL_TARGET_CHAR);
     return true;
 }
 
@@ -757,7 +757,7 @@ bool spec_cast_undead(CharData* ch)
     }
 
     if ((sn = skill_lookup(spell)) < 0) return false;
-    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim, TARGET_CHAR);
+    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim, SPELL_TARGET_CHAR);
     return true;
 }
 
@@ -1007,7 +1007,7 @@ bool spec_poison(CharData* ch)
     act("You bite $N!", ch, NULL, victim, TO_CHAR);
     act("$n bites $N!", ch, NULL, victim, TO_NOTVICT);
     act("$n bites you!", ch, NULL, victim, TO_VICT);
-    spell_poison(gsn_poison, ch->level, ch, victim, TARGET_CHAR);
+    spell_poison(gsn_poison, ch->level, ch, victim, SPELL_TARGET_CHAR);
     return true;
 }
 

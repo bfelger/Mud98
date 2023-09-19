@@ -183,7 +183,7 @@ void show_skill_cmds(CharData* ch, SkillTarget tar)
             || skill_table[sn].spell_fun == spell_null)
             continue;
 
-        if (tar == TAR_ALL || skill_table[sn].target == tar) {
+        if (tar == SKILL_TARGET_ALL || skill_table[sn].target == tar) {
             sprintf(buf, "%-19.18s", skill_table[sn].name);
             strcat(buf1, buf);
             if (++col % 4 == 0)
@@ -313,17 +313,17 @@ bool show_help(CharData* ch, char* argument)
                 }
 
                 if (!str_prefix(spell, "all"))
-                    show_skill_cmds(ch, TAR_ALL);
+                    show_skill_cmds(ch, SKILL_TARGET_ALL);
                 else if (!str_prefix(spell, "ignore"))
-                    show_skill_cmds(ch, TAR_IGNORE);
+                    show_skill_cmds(ch, SKILL_TARGET_IGNORE);
                 else if (!str_prefix(spell, "attack"))
-                    show_skill_cmds(ch, TAR_CHAR_OFFENSIVE);
+                    show_skill_cmds(ch, SKILL_TARGET_CHAR_OFFENSIVE);
                 else if (!str_prefix(spell, "defend"))
-                    show_skill_cmds(ch, TAR_CHAR_DEFENSIVE);
+                    show_skill_cmds(ch, SKILL_TARGET_CHAR_DEFENSIVE);
                 else if (!str_prefix(spell, "self"))
-                    show_skill_cmds(ch, TAR_CHAR_SELF);
+                    show_skill_cmds(ch, SKILL_TARGET_CHAR_SELF);
                 else if (!str_prefix(spell, "object"))
-                    show_skill_cmds(ch, TAR_OBJ_INV);
+                    show_skill_cmds(ch, SKILL_TARGET_OBJ_INV);
                 else
                     send_to_char("Syntax:  ? spell "
                         "[ignore/attack/defend/self/object/all]\n\r", ch);

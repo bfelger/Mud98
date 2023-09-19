@@ -696,13 +696,13 @@ const struct bit_type bitvector_type[] = {
 };
 
 const struct flag_type target_table[] = {
-    { "tar_ignore",         TAR_IGNORE,         true},
-    { "tar_char_offensive", TAR_CHAR_OFFENSIVE, true},
-    { "tar_char_defensive", TAR_CHAR_DEFENSIVE, true},
-    { "tar_char_self",      TAR_CHAR_SELF,      true},
-    { "tar_obj_inv",        TAR_OBJ_INV,        true},
-    { "tar_obj_char_def",   TAR_OBJ_CHAR_DEF,   true},
-    { "tar_obj_char_off",   TAR_OBJ_CHAR_OFF,   true},
+    { "tar_ignore",         SKILL_TARGET_IGNORE,         true},
+    { "tar_char_offensive", SKILL_TARGET_CHAR_OFFENSIVE, true},
+    { "tar_char_defensive", SKILL_TARGET_CHAR_DEFENSIVE, true},
+    { "tar_char_self",      SKILL_TARGET_CHAR_SELF,      true},
+    { "tar_obj_inv",        SKILL_TARGET_OBJ_INV,        true},
+    { "tar_obj_char_def",   SKILL_TARGET_OBJ_CHAR_DEF,   true},
+    { "tar_obj_char_off",   SKILL_TARGET_OBJ_CHAR_OFF,   true},
     { NULL,                 0,                  true}
 };
 

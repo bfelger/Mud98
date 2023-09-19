@@ -1740,19 +1740,19 @@ void do_brandish(CharData* ch, char* argument)
                     bug("Do_brandish: bad target for sn %d.", sn);
                     return;
 
-                case TAR_IGNORE:
+                case SKILL_TARGET_IGNORE:
                     if (vch != ch) continue;
                     break;
 
-                case TAR_CHAR_OFFENSIVE:
+                case SKILL_TARGET_CHAR_OFFENSIVE:
                     if (IS_NPC(ch) ? IS_NPC(vch) : !IS_NPC(vch)) continue;
                     break;
 
-                case TAR_CHAR_DEFENSIVE:
+                case SKILL_TARGET_CHAR_DEFENSIVE:
                     if (IS_NPC(ch) ? !IS_NPC(vch) : IS_NPC(vch)) continue;
                     break;
 
-                case TAR_CHAR_SELF:
+                case SKILL_TARGET_CHAR_SELF:
                     if (vch != ch) continue;
                     break;
                 }

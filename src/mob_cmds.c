@@ -965,7 +965,7 @@ void do_mpcast(CharData* ch, char* argument)
     char arg_spell[MAX_INPUT_LENGTH];
     char arg_target[MAX_INPUT_LENGTH];
     SKNUM sn;
-    SpellTarget spell_target;
+    SpellTarget spell_target = SPELL_TARGET_NONE;
 
     argument = one_argument(argument, arg_spell);
     one_argument(argument, arg_target);
@@ -986,37 +986,37 @@ void do_mpcast(CharData* ch, char* argument)
     switch (skill_table[sn].target) {
     default: 
         return;
-    case TAR_IGNORE:
+    case SKILL_TARGET_IGNORE:
         break;
-    case TAR_CHAR_OFFENSIVE:
+    case SKILL_TARGET_CHAR_OFFENSIVE:
         if (vch == NULL || vch == ch)
             return;
         victim = (void*)vch;
-        spell_target = TARGET_CHAR;
+        spell_target = SPELL_TARGET_CHAR;
         break;
-    case TAR_CHAR_DEFENSIVE:
+    case SKILL_TARGET_CHAR_DEFENSIVE:
         victim = vch == NULL ? (void*)ch : (void*)vch; 
-        spell_target = TARGET_CHAR;
+        spell_target = SPELL_TARGET_CHAR;
         break;
-    case TAR_CHAR_SELF:
+    case SKILL_TARGET_CHAR_SELF:
         victim = (void*)ch; 
-        spell_target = TARGET_CHAR;
+        spell_target = SPELL_TARGET_CHAR;
         break;
-    case TAR_OBJ_CHAR_DEF:
-    case TAR_OBJ_CHAR_OFF:
+    case SKILL_TARGET_OBJ_CHAR_DEF:
+    case SKILL_TARGET_OBJ_CHAR_OFF:
         if (vch != NULL) {
             victim = (void*)vch;
-            spell_target = TARGET_CHAR;
+            spell_target = SPELL_TARGET_CHAR;
             break;
         }
         victim = (void*)obj;
-        spell_target = TARGET_OBJ;
+        spell_target = SPELL_TARGET_OBJ;
         break;
-    case TAR_OBJ_INV:
+    case SKILL_TARGET_OBJ_INV:
         if ((obj = get_obj_carry(ch, arg_target, ch)) == NULL) 
             return;
         victim = (void*)obj;
-        spell_target = TARGET_OBJ;
+        spell_target = SPELL_TARGET_OBJ;
     }
     (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim, spell_target);
     return;

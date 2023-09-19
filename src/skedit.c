@@ -671,7 +671,7 @@ SKEDIT(skedit_new)
         skill_table[max_skill - 1].rating[i] = 0;
     }
     skill_table[max_skill - 1].spell_fun = spell_null;
-    skill_table[max_skill - 1].target = TAR_IGNORE;
+    skill_table[max_skill - 1].target = SKILL_TARGET_IGNORE;
     skill_table[max_skill - 1].minimum_position = POS_STANDING;
     skill_table[max_skill - 1].pgsn = NULL;
     skill_table[max_skill - 1].slot = 0;
