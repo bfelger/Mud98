@@ -7,7 +7,6 @@
 #define MUD98__DATA__SPELL_H
 
 #include "merc.h"
-
 #include "recycle.h"
 
 typedef struct spell_t {

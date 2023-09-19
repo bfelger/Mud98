@@ -1,22 +1,27 @@
 #!/bin/bash
 
 build_cfg="Debug"
+bench=""
 
 for arg in "$@" 
 do
-if [[ ${ARG,,} == "release" ]] || [[ ${ARG,,} == "rel" ]]
+if [[ ${arg,,} == "release" ]] || [[ ${arg,,} == "rel" ]]
     then
         build_cfg="Release"
-    elif [[ ${ARG,,} == "debug" ]] || [[ ${ARG,,} == "deb" ]]
+    elif [[ ${arg,,} == "debug" ]] || [[ ${arg,,} == "deb" ]]
     then
         build_cfg="Debug"
-    elif [[ ${ARG,,} == "relwithdebinfo" ]] || [[ ${ARG,,} == "relwithdeb" ]] || [[ ${ARG,,} == "reldeb" ]]
+    elif [[ ${arg,,} == "relwithdebinfo" ]] || [[ ${arg,,} == "relwithdeb" ]] || [[ ${arg,,} == "reldeb" ]]
     then
         build_cfg="RelWithDebInfo"
+    elif [[ ${arg,,} == "benchonly" ]]
+    then
+        bench="-B"
     else
-        echo "Unknown argument '${ARG,,}'."
+        echo "Unknown argument '${arg,,}'."
         exit
     fi
 done
 
-./.build/$build_cfg/rom --area-dir=../area --port=4000
+./.build/$build_cfg/Mud98 --area-dir=../area --port=4000 $bench
+

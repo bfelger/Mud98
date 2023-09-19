@@ -8,52 +8,6 @@
 
 #include "merc.h"
 
-typedef enum immune_flags_t ImmuneFlags;
-typedef enum resist_flags_t ResistFlags;
-typedef enum vuln_flags_t VulnFlags;
-
-////////////////////////////////////////////////////////////////////////////////
-// Damage
-////////////////////////////////////////////////////////////////////////////////
-
-typedef enum damage_type_t {
-    DAM_NONE                = 0,
-    DAM_BASH                = 1,
-    DAM_PIERCE              = 2,
-    DAM_SLASH               = 3,
-    DAM_FIRE                = 4,
-    DAM_COLD                = 5,
-    DAM_LIGHTNING           = 6,
-    DAM_ACID                = 7,
-    DAM_POISON              = 8,
-    DAM_NEGATIVE            = 9,
-    DAM_HOLY                = 10,
-    DAM_ENERGY              = 11,
-    DAM_MENTAL              = 12,
-    DAM_DISEASE             = 13,
-    DAM_DROWNING            = 14,
-    DAM_LIGHT               = 15,
-    DAM_OTHER               = 16,
-    DAM_HARM                = 17,
-    DAM_CHARM               = 18,
-    DAM_SOUND               = 19,
-} DamageType;
-
-#define DAM_MAX 20
-
-#define TYPE_UNDEFINED     -1
-#define TYPE_HIT           1000
-
-typedef struct damage_info_t {
-    const DamageType type;
-    const char* name;
-    const ImmuneFlags imm;
-    const ResistFlags res;
-    const VulnFlags vuln;
-} DamageInfo;
-
-extern const DamageInfo damage_table[DAM_MAX];
-
 ////////////////////////////////////////////////////////////////////////////////
 // Resistances
 ////////////////////////////////////////////////////////////////////////////////
@@ -154,6 +108,48 @@ typedef enum vuln_flags_t {
     VULN_SILVER             = BIT(24),
     VULN_IRON               = BIT(25),
 } VulnFlags;
+
+////////////////////////////////////////////////////////////////////////////////
+// Damage
+////////////////////////////////////////////////////////////////////////////////
+
+typedef enum damage_type_t {
+    DAM_NONE                = 0,
+    DAM_BASH                = 1,
+    DAM_PIERCE              = 2,
+    DAM_SLASH               = 3,
+    DAM_FIRE                = 4,
+    DAM_COLD                = 5,
+    DAM_LIGHTNING           = 6,
+    DAM_ACID                = 7,
+    DAM_POISON              = 8,
+    DAM_NEGATIVE            = 9,
+    DAM_HOLY                = 10,
+    DAM_ENERGY              = 11,
+    DAM_MENTAL              = 12,
+    DAM_DISEASE             = 13,
+    DAM_DROWNING            = 14,
+    DAM_LIGHT               = 15,
+    DAM_OTHER               = 16,
+    DAM_HARM                = 17,
+    DAM_CHARM               = 18,
+    DAM_SOUND               = 19,
+} DamageType;
+
+#define DAM_MAX 20
+
+#define TYPE_UNDEFINED     -1
+#define TYPE_HIT           1000
+
+typedef struct damage_info_t {
+    const DamageType type;
+    const char* name;
+    const ImmuneFlags imm;
+    const ResistFlags res;
+    const VulnFlags vuln;
+} DamageInfo;
+
+extern const DamageInfo damage_table[DAM_MAX];
 
 ////////////////////////////////////////////////////////////////////////////////
 // Attacks

@@ -415,7 +415,7 @@ void do_mpjunk(CharData* ch, char* argument)
         for (obj = ch->carrying; obj != NULL; obj = obj_next) {
             obj_next = obj->next_content;
             if (arg[3] == '\0' || is_name(&arg[4], obj->name)) {
-                if (obj->wear_loc != WEAR_NONE)
+                if (obj->wear_loc != WEAR_UNHELD)
                     unequip_char(ch, obj);
                 extract_obj(obj);
             }
@@ -962,48 +962,63 @@ void do_mpcast(CharData* ch, char* argument)
     CharData* vch;
     ObjectData* obj;
     void* victim = NULL;
-    char spell[MAX_INPUT_LENGTH],
-        target[MAX_INPUT_LENGTH];
+    char arg_spell[MAX_INPUT_LENGTH];
+    char arg_target[MAX_INPUT_LENGTH];
     SKNUM sn;
+    SpellTarget spell_target;
 
-    argument = one_argument(argument, spell);
-    one_argument(argument, target);
+    argument = one_argument(argument, arg_spell);
+    one_argument(argument, arg_target);
 
-    if (spell[0] == '\0') {
+    if (arg_spell[0] == '\0') {
         bug("MpCast - Bad syntax from vnum %"PRVNUM".",
             IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
-    if ((sn = skill_lookup(spell)) < 0) {
+    if ((sn = skill_lookup(arg_spell)) < 0) {
         bug("MpCast - No such spell from vnum %"PRVNUM".",
             IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
-    vch = get_char_room(ch, target);
-    obj = get_obj_here(ch, target);
+    vch = get_char_room(ch, arg_target);
+    obj = get_obj_here(ch, arg_target);
     switch (skill_table[sn].target) {
-    default: return;
+    default: 
+        return;
     case TAR_IGNORE:
         break;
     case TAR_CHAR_OFFENSIVE:
         if (vch == NULL || vch == ch)
             return;
         victim = (void*)vch;
+        spell_target = TARGET_CHAR;
         break;
     case TAR_CHAR_DEFENSIVE:
-        victim = vch == NULL ? (void*)ch : (void*)vch; break;
+        victim = vch == NULL ? (void*)ch : (void*)vch; 
+        spell_target = TARGET_CHAR;
+        break;
     case TAR_CHAR_SELF:
-        victim = (void*)ch; break;
+        victim = (void*)ch; 
+        spell_target = TARGET_CHAR;
+        break;
     case TAR_OBJ_CHAR_DEF:
     case TAR_OBJ_CHAR_OFF:
+        if (vch != NULL) {
+            victim = (void*)vch;
+            spell_target = TARGET_CHAR;
+            break;
+        }
+        victim = (void*)obj;
+        spell_target = TARGET_OBJ;
+        break;
     case TAR_OBJ_INV:
-        if (obj == NULL)
+        if ((obj = get_obj_carry(ch, arg_target, ch)) == NULL) 
             return;
         victim = (void*)obj;
+        spell_target = TARGET_OBJ;
     }
-    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim,
-        skill_table[sn].target);
+    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim, spell_target);
     return;
 }
 
@@ -1240,7 +1255,7 @@ void do_mpotransfer(CharData* ch, char* argument)
     if (obj->carried_by == NULL)
         obj_from_room(obj);
     else {
-        if (obj->wear_loc != WEAR_NONE)
+        if (obj->wear_loc != WEAR_UNHELD)
             unequip_char(ch, obj);
         obj_from_char(obj);
     }

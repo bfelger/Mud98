@@ -6,7 +6,7 @@
 
 #include "gsn.h"
 
-const ItemInfo item_table[ITEM_MAX] = {
+const ItemInfo item_table[ITEM_TYPE_COUNT] = {
     { ITEM_NONE,            "none"          },
     { ITEM_LIGHT,           "light"         },
     { ITEM_SCROLL,          "scroll"        },
@@ -39,7 +39,7 @@ const ItemInfo item_table[ITEM_MAX] = {
     { ITEM_JUKEBOX,         "jukebox"       },
 };
 
-const LiquidData liquid_table[LIQ_MAX] = {
+const LiquidInfo liquid_table[LIQ_COUNT] = {
     // name			        color	           proof full thirst food ssize
     { "water",              "clear",            0,    1,    10,   0,   16   },
     { "beer",               "amber",            12,   1,    8,    1,   12   },

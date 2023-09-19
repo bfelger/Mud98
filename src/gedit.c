@@ -194,7 +194,7 @@ GEDIT(gedit_rating)
         return false;
     }
 
-    if ((arch = archetype_lookup(arg)) == -1) {
+    if ((arch = archetype_lookup(arg)) == ARCH_NOT_FOUND) {
         send_to_char("GEdit : That archetype does not exist.\n\r", ch);
         list_archetypes(ch);
         return false;

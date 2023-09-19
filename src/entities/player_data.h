@@ -82,4 +82,7 @@ void free_player_data(PlayerData* pcdata);
 extern PlayerData* player_list;
 extern PlayerData* player_free;
 
+extern void free_gen_data(CharGenData* gen);
+extern CharGenData* new_gen_data();
+
 #endif // !MUD98__ENTITIES__PLAYER_DATA_H

@@ -56,9 +56,9 @@ MobProgCode* new_mpcode();
 void program_flow(VNUM vnum, char* source, CharData* mob, CharData* ch, 
     const void* arg1, const void* arg2);
 void mp_act_trigger(char* argument, CharData* mob, CharData* ch, 
-    const void* arg1, const void* arg2, int type);
+    const void* arg1, const void* arg2, MobProgTrigger trig_type);
 bool mp_percent_trigger(CharData* mob, CharData* ch, const void* arg1,
-    const void* arg2, int type);
+    const void* arg2, MobProgTrigger trig_type);
 void mp_bribe_trigger(CharData* mob, CharData* ch, int amount);
 bool mp_exit_trigger(CharData* ch, int dir);
 void mp_give_trigger(CharData* mob, CharData* ch, ObjectData* obj);

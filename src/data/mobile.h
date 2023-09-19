@@ -174,7 +174,9 @@ typedef enum sex_t {
     SEX_EITHER              = 3,
 } Sex;
 
-#define SEX_MAX 4
+#define SEX_MIN SEX_NEUTRAL
+#define SEX_MAX SEX_EITHER
+#define SEX_COUNT 4
 
 typedef struct sex_info_t {
     const Sex sex;
@@ -185,7 +187,7 @@ typedef struct sex_info_t {
     const char* poss;
 } SexInfo;
 
-extern const SexInfo sex_table[SEX_MAX];
+extern const SexInfo sex_table[SEX_COUNT];
 
 ////////////////////////////////////////////////////////////////////////////////
 // Size
@@ -200,7 +202,9 @@ typedef enum mob_size_t {
     SIZE_GIANT              = 5,
 } MobSize;
 
-#define MOB_SIZE_MAX 6
+#define MOB_SIZE_MIN SIZE_TINY
+#define MOB_SIZE_MAX SIZE_GIANT
+#define MOB_SIZE_COUNT 6
 
 typedef struct mob_size_info_t {
     const MobSize size;
@@ -210,7 +214,7 @@ typedef struct mob_size_info_t {
 bool size_read(void* temp, char* arg);
 const char* size_str(void* temp);
 
-extern const MobSizeInfo mob_size_table[MOB_SIZE_MAX];
+extern const MobSizeInfo mob_size_table[MOB_SIZE_COUNT];
 
 ////////////////////////////////////////////////////////////////////////////////
 

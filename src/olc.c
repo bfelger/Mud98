@@ -1072,7 +1072,7 @@ void    display_resets(CharData* ch, RoomData* pRoom)
                     pReset->arg1,
                     pObj->short_descr,
                     (pReset->command == 'G') ?
-                    flag_string(wear_loc_strings, WEAR_NONE)
+                    flag_string(wear_loc_strings, WEAR_UNHELD)
                     : flag_string(wear_loc_strings, pReset->arg3),
                     pMob->vnum,
                     pMob->short_descr);
@@ -1341,7 +1341,7 @@ void    do_resets(CharData* ch, char* argument)
                                 pReset = new_reset_data();
                                 pReset->arg1 = atoi(arg3);
                                 pReset->arg3 = blah;
-                                if (pReset->arg3 == WEAR_NONE)
+                                if (pReset->arg3 == WEAR_UNHELD)
                                     pReset->command = 'G';
                                 else
                                     pReset->command = 'E';

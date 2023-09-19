@@ -3,11 +3,11 @@
 // Character data
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef struct char_data_t CharData;
-
 #pragma once
 #ifndef MUD98__ENTITIES__CHAR_DATA_H
 #define MUD98__ENTITIES__CHAR_DATA_H
+
+typedef struct char_data_t CharData;
 
 #include "merc.h"
 

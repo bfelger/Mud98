@@ -476,7 +476,7 @@ const struct flag_type apply_flag_table[] = {
 
 // What is seen.
 const struct flag_type wear_loc_strings[] = {
-    { "in the inventory",   WEAR_NONE,      true    },
+    { "in the inventory",   WEAR_UNHELD,      true    },
     { "as a light",         WEAR_LIGHT,     true    },
     { "on the left finger", WEAR_FINGER_L,  true    },
     { "on the right finger",WEAR_FINGER_R,  true    },
@@ -500,7 +500,7 @@ const struct flag_type wear_loc_strings[] = {
 };
 
 const struct flag_type wear_loc_flag_table[] = {
-    { "none",           WEAR_NONE,          true    },
+    { "none",           WEAR_UNHELD,          true    },
     { "light",          WEAR_LIGHT,         true    },
     { "lfinger",        WEAR_FINGER_L,      true    },
     { "rfinger",        WEAR_FINGER_R,      true    },

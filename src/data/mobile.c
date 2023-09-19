@@ -18,14 +18,14 @@ const PositionInfo position_table[POS_MAX] = {
     { POS_STANDING,     "standing",         "stand" },
 };
 
-const SexInfo sex_table[SEX_MAX] = {
+const SexInfo sex_table[SEX_COUNT] = {
     { SEX_NEUTRAL,  "none",     "it",   "It",   "it",   "its",     },
     { SEX_MALE,     "male",     "he",   "He",   "him",  "his",     },
     { SEX_FEMALE,   "female",   "she",  "She",  "her",  "her",     },
     { SEX_EITHER,   "either",   "they", "They", "them", "their",   },
 };
 
-const MobSizeInfo mob_size_table[MOB_SIZE_MAX] = {
+const MobSizeInfo mob_size_table[MOB_SIZE_COUNT] = {
     { SIZE_TINY,    "tiny"    },
     { SIZE_SMALL,   "small"   },
     { SIZE_MEDIUM,  "medium"  },

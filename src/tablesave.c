@@ -211,8 +211,11 @@ void load_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, con
                     flagtable = (struct flag_type*)temp->argument;
                     pInt16 = (int16_t*)(temp->field_ptr - base_type + pointer);
                     string = fread_string(fp);
-                    if ((*pInt16 = (int16_t)flag_value(flagtable, string)) == NO_FLAG)
+                    FLAGS flags = flag_value(flagtable, string);
+                    if (flags == NO_FLAG)
                         *pInt16 = 0;
+                    else
+                        *pInt16 = (int16_t)flags;
                     free_string(string);
                     found = true, cnt++;
                     break;

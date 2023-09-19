@@ -4,7 +4,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef struct room_data_t RoomData;
-typedef enum sector_t Sector;
 
 #pragma once
 #ifndef MUD98__ENTITIES__ROOM_DATA_H

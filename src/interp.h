@@ -31,7 +31,11 @@
 
 #include "merc.h"
 
+#include "data/damage.h"
 #include "data/mobile.h"
+#include "data/skill.h"
+
+#include "special.h"
 
 #include <stdbool.h>
 
@@ -55,11 +59,6 @@ typedef enum log_type_t {
     LOG_ALWAYS = 1,
     LOG_NEVER = 2,
 } LogType;
-
-struct spec_type {
-    char* name; /* special function name */
-    SpecFunc* function; /* the function */
-};
 
 /*
  * Structure for a command in the command lookup table.

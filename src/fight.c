@@ -1618,7 +1618,7 @@ void group_gain(CharData* ch, CharData* victim)
 
         for (obj = ch->carrying; obj != NULL; obj = obj_next) {
             obj_next = obj->next_content;
-            if (obj->wear_loc == WEAR_NONE) continue;
+            if (obj->wear_loc == WEAR_UNHELD) continue;
 
             if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch))
                 || (IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch))

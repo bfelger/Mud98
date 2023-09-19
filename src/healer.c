@@ -36,6 +36,7 @@
 #include "entities/char_data.h"
 #include "entities/descriptor.h"
 
+#include "data/damage.h"
 #include "data/mobile.h"
 #include "data/skill.h"
 

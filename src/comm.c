@@ -1436,10 +1436,12 @@ void nanny(Descriptor * d, char* argument)
         case 'N':
             ch->sex = SEX_NEUTRAL;
             ch->pcdata->true_sex = SEX_NEUTRAL;
+            break;
         case 'e':
         case 'E':
             ch->sex = SEX_EITHER;
             ch->pcdata->true_sex = SEX_EITHER;
+            break;
         default:
             write_to_buffer(d, "That's not a sex.\n\rWhat IS your sex? ", 0);
             return;
@@ -2143,7 +2145,7 @@ show_string_cleanup:
 /* quick sex fixer */
 void fix_sex(CharData * ch)
 {
-    if (ch->sex < 0 || ch->sex >= SEX_MAX)
+    if (ch->sex < 0 || ch->sex >= SEX_COUNT)
         ch->sex = IS_NPC(ch) ? 0 : ch->pcdata->true_sex;
 }
 

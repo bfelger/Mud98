@@ -39,7 +39,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-int flag_lookup(const char* name, const struct flag_type* flag_table)
+FLAGS flag_lookup(const char* name, const struct flag_type* flag_table)
 {
     int flag;
 
@@ -77,7 +77,7 @@ Position position_lookup(const char* name)
 
 Sex sex_lookup(const char* name)
 {
-    for (int i = 0; i < SEX_MAX; i++) {
+    for (int i = 0; i < SEX_COUNT; i++) {
         if (LOWER(name[0]) == LOWER(sex_table[i].name[0])
             && !str_prefix(name, sex_table[i].name))
             return sex_table[i].sex;
@@ -88,7 +88,7 @@ Sex sex_lookup(const char* name)
 
 MobSize size_lookup(const char* name)
 {
-    for (int size = 0; size < MOB_SIZE_MAX; size++) {
+    for (int size = 0; size < MOB_SIZE_COUNT; size++) {
         if (LOWER(name[0]) == LOWER(mob_size_table[size].name[0])
             && !str_prefix(name, mob_size_table[size].name))
             return (MobSize)size;
@@ -111,7 +111,7 @@ int16_t race_lookup(const char* name)
 
 ItemType item_lookup(const char* name)
 {
-    for (int type = 0; type < ITEM_MAX; type++) {
+    for (int type = 0; type < ITEM_TYPE_COUNT; type++) {
         if (LOWER(name[0]) == LOWER(item_table[type].name[0])
             && !str_prefix(name, item_table[type].name))
             return item_table[type].type;
@@ -122,7 +122,7 @@ ItemType item_lookup(const char* name)
 
 int liquid_lookup(const char* name)
 {
-    for (int liq = 0; liq < LIQ_MAX; liq++) {
+    for (int liq = 0; liq < LIQ_COUNT; liq++) {
         if (LOWER(name[0]) == LOWER(liquid_table[liq].name[0])
             && !str_prefix(name, liquid_table[liq].name))
             return liq;

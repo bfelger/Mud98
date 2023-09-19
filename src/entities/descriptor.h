@@ -2,7 +2,6 @@
 // descriptor.h
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef enum connection_state_t ConnectionState;
 typedef struct descriptor_t Descriptor;
 
 #pragma once

@@ -46,7 +46,7 @@
 
 extern char* target_name;
 
-void spell_farsight(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
+void spell_farsight(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
 {
     if (IS_AFFECTED(ch, AFF_BLIND)) {
         send_to_char("Maybe it would help if you could see?\n\r", ch);
@@ -56,7 +56,7 @@ void spell_farsight(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
     do_function(ch, &do_scan, target_name);
 }
 
-void spell_portal(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
+void spell_portal(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
 {
     CharData* victim;
     ObjectData *portal, *stone;
@@ -100,7 +100,7 @@ void spell_portal(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
     act("$p rises up before you.", ch, portal, NULL, TO_CHAR);
 }
 
-void spell_nexus(SKNUM sn, LEVEL level, CharData* ch, void* vo, int target)
+void spell_nexus(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
 {
     CharData* victim;
     ObjectData *portal, *stone;

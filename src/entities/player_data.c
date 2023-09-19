@@ -15,6 +15,7 @@
 
 PlayerData* player_list = NULL;
 PlayerData* player_free = NULL;
+CharGenData* gen_data_free = NULL;
 
 PlayerData* new_player_data()
 {
@@ -92,4 +93,37 @@ void free_player_data(PlayerData* pcdata)
     player_free = pcdata;
 
     return;
+}
+
+CharGenData* new_gen_data()
+{
+    static CharGenData gen_zero;
+    CharGenData* gen;
+
+    if (gen_data_free == NULL)
+        gen = alloc_perm(sizeof(*gen));
+    else {
+        gen = gen_data_free;
+        gen_data_free = gen_data_free->next;
+    }
+    *gen = gen_zero;
+
+    gen->skill_chosen = new_boolarray(max_skill);
+    gen->group_chosen = new_boolarray(max_skill_group);
+
+    VALIDATE(gen);
+    return gen;
+}
+
+void free_gen_data(CharGenData* gen)
+{
+    if (!IS_VALID(gen)) return;
+
+    INVALIDATE(gen);
+
+    free_boolarray(gen->skill_chosen);
+    free_boolarray(gen->group_chosen);
+
+    gen->next = gen_data_free;
+    gen_data_free = gen;
 }

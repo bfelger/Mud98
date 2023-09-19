@@ -35,15 +35,15 @@
 
 #include "data/mobile.h"
 
-int clan_lookup args((const char* name));
+int clan_lookup(const char* name);
 Position position_lookup(const char* name);
 Sex sex_lookup(const char* name);
 MobSize size_lookup(const char* name);
-int	flag_lookup	args((const char*, const struct flag_type*));
-HelpData* help_lookup args((char*));
-HelpArea* had_lookup args((char*));
+FLAGS flag_lookup(const char*, const struct flag_type*);
+HelpData* help_lookup(char*);
+HelpArea* had_lookup(char*);
 int16_t race_lookup(const char* name);
-int item_lookup(const char* name);
+ItemType item_lookup(const char* name);
 int liquid_lookup(const char* name);
 
 #endif // !MUD98__LOOKUP_H

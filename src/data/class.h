@@ -14,6 +14,7 @@
 #include <stdbool.h>
 
 typedef enum archetype_t {
+    ARCH_NOT_FOUND  = -1,
     ARCH_ARCANE     = 0,
     ARCH_DIVINE     = 1,
     ARCH_ROGUE      = 2,

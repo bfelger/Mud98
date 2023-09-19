@@ -51,43 +51,6 @@ int skill_hash_created;
 int skill_hash_allocated;
 int skill_hash_freed;
 
-
-/* stuff for recycling gen_data */
-CharGenData* gen_data_free;
-
-CharGenData* new_gen_data(void)
-{
-    static CharGenData gen_zero;
-    CharGenData* gen;
-
-    if (gen_data_free == NULL)
-        gen = alloc_perm(sizeof(*gen));
-    else {
-        gen = gen_data_free;
-        gen_data_free = gen_data_free->next;
-    }
-    *gen = gen_zero;
-
-    gen->skill_chosen = new_boolarray(max_skill);
-    gen->group_chosen = new_boolarray(max_skill_group);
-
-    VALIDATE(gen);
-    return gen;
-}
-
-void free_gen_data(CharGenData* gen)
-{
-    if (!IS_VALID(gen)) return;
-
-    INVALIDATE(gen);
-
-    free_boolarray(gen->skill_chosen);
-    free_boolarray(gen->group_chosen);
-
-    gen->next = gen_data_free;
-    gen_data_free = gen;
-}
-
 /* stuff for setting ids */
 long last_pc_id;
 

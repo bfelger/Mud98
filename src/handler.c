@@ -54,6 +54,7 @@
 #include "data/player.h"
 #include "data/race.h"
 #include "data/skill.h"
+#include "data/spell.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -194,14 +195,16 @@ int16_t class_lookup(const char* name)
 ResistType check_immune(CharData* ch, DamageType dam_type)
 {
     ResistType immune, def;
-    int bit;
+    FLAGS bit;
 
-    immune = -1;
+    immune = IS_NORMAL;
     def = IS_NORMAL;
 
-    if (dam_type == DAM_NONE) return immune;
+    if (dam_type == DAM_NONE)
+        return immune;
 
-    if (dam_type <= 3) {
+    if (dam_type <= (DamageType)3) {
+        // Physical attack
         if (IS_SET(ch->imm_flags, IMM_WEAPON))
             def = IS_IMMUNE;
         else if (IS_SET(ch->res_flags, RES_WEAPON))
@@ -209,8 +212,8 @@ ResistType check_immune(CharData* ch, DamageType dam_type)
         else if (IS_SET(ch->vuln_flags, VULN_WEAPON))
             def = IS_VULNERABLE;
     }
-    else /* magical attack */
-    {
+    else {
+        // Magic attack
         if (IS_SET(ch->imm_flags, IMM_MAGIC))
             def = IS_IMMUNE;
         else if (IS_SET(ch->res_flags, RES_MAGIC))
@@ -289,7 +292,7 @@ ResistType check_immune(CharData* ch, DamageType dam_type)
             immune = IS_VULNERABLE;
     }
 
-    if (immune == -1)
+    if (immune == IS_NORMAL)
         return def;
     else
         return immune;
@@ -463,7 +466,7 @@ void reset_char(CharData* ch)
     if (ch->pcdata->perm_hit == 0 || ch->pcdata->perm_mana == 0
         || ch->pcdata->perm_move == 0 || ch->pcdata->last_level == 0) {
         /* do a FULL reset */
-        for (loc = 0; loc < WEAR_MAX; loc++) {
+        for (loc = 0; loc < WEAR_COUNT; loc++) {
             obj = get_eq_char(ch, loc);
             if (obj == NULL) continue;
             if (!obj->enchanted)
@@ -473,7 +476,7 @@ void reset_char(CharData* ch)
                     switch (af->location) {
                     case APPLY_SEX:
                         ch->sex -= mod;
-                        if (ch->sex < 0 || ch->sex >= SEX_MAX)
+                        if (ch->sex < 0 || ch->sex >= SEX_COUNT)
                             ch->sex = IS_NPC(ch) ? 0 : ch->pcdata->true_sex;
                         break;
                     case APPLY_MANA:
@@ -516,7 +519,7 @@ void reset_char(CharData* ch)
         ch->pcdata->perm_move = ch->max_move;
         ch->pcdata->last_level = (int16_t)(ch->played / 3600);
         if (ch->pcdata->true_sex < 0 || ch->pcdata->true_sex > 2) {
-            if (ch->sex >= 0 && ch->sex < SEX_MAX)
+            if (ch->sex >= 0 && ch->sex < SEX_COUNT)
                 ch->pcdata->true_sex = ch->sex;
             else
                 ch->pcdata->true_sex = SEX_NEUTRAL;
@@ -542,7 +545,7 @@ void reset_char(CharData* ch)
     ch->saving_throw = 0;
 
     /* now start adding back the effects */
-    for (loc = 0; loc < WEAR_MAX; loc++) {
+    for (loc = 0; loc < WEAR_COUNT; loc++) {
         obj = get_eq_char(ch, loc);
         if (obj == NULL)
             continue;
@@ -737,7 +740,7 @@ void reset_char(CharData* ch)
     }
 
     /* make sure sex is RIGHT!!!! */
-    if (ch->sex < 0 || ch->sex >= SEX_MAX) 
+    if (ch->sex < 0 || ch->sex >= SEX_COUNT) 
         ch->sex = ch->pcdata->true_sex;
 }
 
@@ -776,7 +779,7 @@ int get_curr_stat(CharData* ch, Stat stat)
         i = STAT_COUNT - 1;
 
     if (IS_NPC(ch) || ch->level > LEVEL_IMMORTAL)
-        max_score = 25;
+        max_score = STAT_MAX;
 
     else {
         max_score = race_table[ch->race].max_stats[i] + 4;
@@ -787,19 +790,19 @@ int get_curr_stat(CharData* ch, Stat stat)
         if (ch->race == race_lookup("human")) 
             max_score += 1;
 
-        max_score = UMIN(max_score, 25);
+        max_score = UMIN(max_score, STAT_MAX);
     }
 
     return URANGE(3, ch->perm_stat[i] + ch->mod_stat[i], max_score);
 }
 
 /* command for returning max training score */
-int get_max_train(CharData* ch, int stat)
+int get_max_train(CharData* ch, Stat stat)
 {
     int max;
 
     if (IS_NPC(ch) || ch->level > LEVEL_IMMORTAL)
-        return 25;
+        return STAT_MAX;
 
     max = race_table[ch->race].max_stats[stat];
 
@@ -810,7 +813,7 @@ int get_max_train(CharData* ch, int stat)
             max += 2;
     }
 
-    return UMIN(max, 25);
+    return UMIN(max, STAT_MAX);
 }
 
 /*
@@ -824,7 +827,7 @@ int can_carry_n(CharData* ch)
     if (IS_NPC(ch) && IS_SET(ch->act_flags, ACT_PET))
         return 0;
 
-    return WEAR_MAX + 2 * get_curr_stat(ch, STAT_DEX) + ch->level;
+    return WEAR_COUNT + 2 * get_curr_stat(ch, STAT_DEX) + ch->level;
 }
 
 /*
@@ -1035,7 +1038,7 @@ void obj_from_char(ObjectData* obj)
         return;
     }
 
-    if (obj->wear_loc != WEAR_NONE) unequip_char(ch, obj);
+    if (obj->wear_loc != WEAR_UNHELD) unequip_char(ch, obj);
 
     if (ch->carrying == obj) { ch->carrying = obj->next_content; }
     else {
@@ -1172,7 +1175,7 @@ void unequip_char(CharData* ch, ObjectData* obj)
     AffectData* lpaf_next = NULL;
     int i;
 
-    if (obj->wear_loc == WEAR_NONE) {
+    if (obj->wear_loc == WEAR_UNHELD) {
         bug("Unequip_char: already unequipped.", 0);
         return;
     }
@@ -1587,7 +1590,7 @@ ObjectData* get_obj_carry(CharData* ch, char* argument, CharData* viewer)
     number = number_argument(argument, arg);
     count = 0;
     for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
-        if (obj->wear_loc == WEAR_NONE && (can_see_obj(viewer, obj))
+        if (obj->wear_loc == WEAR_UNHELD && (can_see_obj(viewer, obj))
             && is_name(arg, obj->name)) {
             if (++count == number) return obj;
         }
@@ -1609,7 +1612,7 @@ ObjectData* get_obj_wear(CharData* ch, char* argument)
     number = number_argument(argument, arg);
     count = 0;
     for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
-        if (obj->wear_loc != WEAR_NONE && can_see_obj(ch, obj)
+        if (obj->wear_loc != WEAR_UNHELD && can_see_obj(ch, obj)
             && is_name(arg, obj->name)) {
             if (++count == number) return obj;
         }

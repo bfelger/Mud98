@@ -72,14 +72,14 @@ typedef enum item_type_t {
     ITEM_JUKEBOX        = 34,
 } ItemType;
 
-#define ITEM_MAX 35
+#define ITEM_TYPE_COUNT 35
 
 typedef struct item_info_t {
     const ItemType type;
     const char* name;
 } ItemInfo;
 
-extern const ItemInfo item_table[ITEM_MAX];
+extern const ItemInfo item_table[ITEM_TYPE_COUNT];
 
 ////////////////////////////////////////////////////////////////////////////////
 // Containers
@@ -121,9 +121,9 @@ typedef enum furniture_flags_t {
 ////////////////////////////////////////////////////////////////////////////////
 
 #define LIQ_WATER 0
-#define LIQ_MAX 36
+#define LIQ_COUNT 36
 
-typedef struct liquid_type_t {
+typedef struct liquid_info_t {
     const char* name;
     const char* color;
     const int16_t proof;
@@ -131,9 +131,9 @@ typedef struct liquid_type_t {
     const int16_t thirst;
     const int16_t food;
     const int16_t sip_size;
-} LiquidData;
+} LiquidInfo;
 
-extern const LiquidData liquid_table[LIQ_MAX];
+extern const LiquidInfo liquid_table[LIQ_COUNT];
 
 ////////////////////////////////////////////////////////////////////////////////
 // Portals
@@ -205,32 +205,33 @@ typedef enum wear_flags_t {
     ITEM_HOLD           = BIT(14),
     ITEM_NO_SAC         = BIT(15),
     ITEM_WEAR_FLOAT     = BIT(16),
+    ITEM_WEAR_NONE      = NO_FLAG,
 } WearFlags;
 
 typedef enum wear_location_t {
-    WEAR_NONE = -1,
-    WEAR_LIGHT = 0,
-    WEAR_FINGER_L = 1,
-    WEAR_FINGER_R = 2,
-    WEAR_NECK_1 = 3,
-    WEAR_NECK_2 = 4,
-    WEAR_BODY = 5,
-    WEAR_HEAD = 6,
-    WEAR_LEGS = 7,
-    WEAR_FEET = 8,
-    WEAR_HANDS = 9,
-    WEAR_ARMS = 10,
-    WEAR_SHIELD = 11,
-    WEAR_ABOUT = 12,
-    WEAR_WAIST = 13,
-    WEAR_WRIST_L = 14,
-    WEAR_WRIST_R = 15,
-    WEAR_WIELD = 16,
-    WEAR_HOLD = 17,
-    WEAR_FLOAT = 18
+    WEAR_UNHELD         = -1,
+    WEAR_LIGHT          = 0,
+    WEAR_FINGER_L       = 1,
+    WEAR_FINGER_R       = 2,
+    WEAR_NECK_1         = 3,
+    WEAR_NECK_2         = 4,
+    WEAR_BODY           = 5,
+    WEAR_HEAD           = 6,
+    WEAR_LEGS           = 7,
+    WEAR_FEET           = 8,
+    WEAR_HANDS          = 9,
+    WEAR_ARMS           = 10,
+    WEAR_SHIELD         = 11,
+    WEAR_ABOUT          = 12,
+    WEAR_WAIST          = 13,
+    WEAR_WRIST_L        = 14,
+    WEAR_WRIST_R        = 15,
+    WEAR_WIELD          = 16,
+    WEAR_HOLD           = 17,
+    WEAR_FLOAT          = 18,
 } WearLocation;
 
-#define WEAR_MAX 19
+#define WEAR_COUNT 19
 
 ////////////////////////////////////////////////////////////////////////////////
 // Static VNUMs

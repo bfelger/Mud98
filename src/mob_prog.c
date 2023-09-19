@@ -376,13 +376,13 @@ int get_order(CharData* ch)
  * item_type: item type or -1
  * fWear: true: item must be worn, false: don't care
  */
-bool has_item(CharData* ch, VNUM vnum, int16_t item_type, bool fWear)
+bool has_item(CharData* ch, VNUM vnum, ItemType item_type, bool fWear)
 {
     ObjectData* obj;
     for (obj = ch->carrying; obj; obj = obj->next_content)
         if ((vnum == VNUM_NONE || obj->prototype->vnum == vnum)
             && (item_type < 0 || obj->prototype->item_type == item_type)
-            && (!fWear || obj->wear_loc != WEAR_NONE))
+            && (!fWear || obj->wear_loc != WEAR_UNHELD))
             return true;
     return false;
 }
@@ -769,32 +769,41 @@ void expand_arg(char* buf,
         ++str;
 
         switch (*str) {
-        default:  bug("Expand_arg: bad code %d.", *str);
-            i = " <@@@> ";                        break;
+        default:
+            bug("Expand_arg: bad code %d.", *str);
+            i = " <@@@> ";
+            break;
         case 'i':
             one_argument(mob->name, fname);
-            i = fname;                         		break;
-        case 'I': i = mob->short_descr;                     break;
+            i = fname;
+            break;
+        case 'I': 
+            i = mob->short_descr;
+            break;
         case 'n':
             i = someone;
             if (ch != NULL && can_see(mob, ch)) {
                 one_argument(ch->name, fname);
                 i = capitalize(fname);
-            }						break;
+            }
+            break;
         case 'N':
             i = (ch != NULL && can_see(mob, ch))
                 ? (IS_NPC(ch) ? ch->short_descr : ch->name)
-                : someone;                         		break;
+                : someone;
+            break;
         case 't':
             i = someone;
             if (vch != NULL && can_see(mob, vch)) {
                 one_argument(vch->name, fname);
                 i = capitalize(fname);
-            }						break;
+            }
+            break;
         case 'T':
             i = (vch != NULL && can_see(mob, vch))
                 ? (IS_NPC(vch) ? vch->short_descr : vch->name)
-                : someone;                         		break;
+                : someone;
+            break;
         case 'r':
             if (rch == NULL)
                 rch = get_random_char(mob);
@@ -802,98 +811,112 @@ void expand_arg(char* buf,
             if (rch != NULL && can_see(mob, rch)) {
                 one_argument(rch->name, fname);
                 i = capitalize(fname);
-            } 						break;
+            }
+            break;
         case 'R':
             if (rch == NULL)
                 rch = get_random_char(mob);
             i = (rch != NULL && can_see(mob, rch))
-                ? (IS_NPC(ch) ? ch->short_descr : ch->name)
-                : someone;					break;
+                ? (IS_NPC(ch) ? ch->short_descr : ch->name) : someone;
+            break;
         case 'q':
             i = someone;
             if (mob->mprog_target != NULL && can_see(mob, mob->mprog_target)) {
                 one_argument(mob->mprog_target->name, fname);
                 i = capitalize(fname);
-            } 						break;
+            } 			
+            break;
         case 'Q':
             i = (mob->mprog_target != NULL && can_see(mob, mob->mprog_target))
-                ? (IS_NPC(mob->mprog_target) ? mob->mprog_target->short_descr : mob->mprog_target->name)
-                : someone;                         		break;
-        case 'j': i = sex_table[mob->sex].subj; break;
+                ? (IS_NPC(mob->mprog_target) ? mob->mprog_target->short_descr 
+                : mob->mprog_target->name) : someone;
+                break;
+        case 'j': 
+            i = sex_table[mob->sex].subj;
+            break;
         case 'e':
-            i = (ch != NULL && can_see(mob, ch))
-                ? sex_table[ch->sex].subj
-                : someone;					break;
+            i = (ch != NULL && can_see(mob, ch)) ? sex_table[ch->sex].subj 
+                : someone;
+            break;
         case 'E':
-            i = (vch != NULL && can_see(mob, vch))
-                ? sex_table[vch->sex].subj
-                : someone;					break;
+            i = (vch != NULL && can_see(mob, vch)) ? sex_table[vch->sex].subj 
+                : someone;
+            break;
         case 'J':
-            i = (rch != NULL && can_see(mob, rch))
-                ? sex_table[rch->sex].subj
-                : someone;					break;
+            i = (rch != NULL && can_see(mob, rch)) ? sex_table[rch->sex].subj
+                : someone;
+            break;
         case 'X':
             i = (mob->mprog_target != NULL && can_see(mob, mob->mprog_target))
-                ? sex_table[mob->mprog_target->sex].subj
-                : someone;					break;
+                ? sex_table[mob->mprog_target->sex].subj : someone;
+            break;
         case 'k': i = sex_table[mob->sex].obj; break;
         case 'm':
-            i = (ch != NULL && can_see(mob, ch))
-                ? sex_table[ch->sex].obj
-                : someone;        				break;
+            i = (ch != NULL && can_see(mob, ch)) ? sex_table[ch->sex].obj 
+                : someone;
+            break;
         case 'M':
-            i = (vch != NULL && can_see(mob, vch))
-                ? sex_table[vch->sex].obj
-                : someone;					break;
+            i = (vch != NULL && can_see(mob, vch)) ? sex_table[vch->sex].obj
+                : someone;
+            break;
         case 'K':
             if (rch == NULL)
                 rch = get_random_char(mob);
-            i = (rch != NULL && can_see(mob, rch))
-                ? sex_table[rch->sex].obj
-                : someone;					break;
+            i = (rch != NULL && can_see(mob, rch)) ? sex_table[rch->sex].obj
+                : someone;
+            break;
         case 'Y':
             i = (mob->mprog_target != NULL && can_see(mob, mob->mprog_target))
                 ? sex_table[mob->mprog_target->sex].obj
-                : someone;					break;
-        case 'l': i = sex_table[mob->sex].poss; break;
+                : someone;
+            break;
+        case 'l': 
+            i = sex_table[mob->sex].poss;
+            break;
         case 's':
             i = (ch != NULL && can_see(mob, ch))
                 ? sex_table[ch->sex].poss
-                : someones;					break;
+                : someones;
+            break;
         case 'S':
             i = (vch != NULL && can_see(mob, vch))
                 ? sex_table[vch->sex].poss
-                : someones;					break;
+                : someones;
+            break;
         case 'L':
             if (rch == NULL)
                 rch = get_random_char(mob);
-            i = (rch != NULL && can_see(mob, rch))
-                ? sex_table[rch->sex].poss
-                : someones;					break;
+            i = (rch != NULL && can_see(mob, rch)) ? sex_table[rch->sex].poss
+                : someones;
+            break;
         case 'Z':
             i = (mob->mprog_target != NULL && can_see(mob, mob->mprog_target))
                 ? sex_table[mob->mprog_target->sex].poss
-                : someones;					break;
+                : someones;
+            break;
         case 'o':
             i = something;
             if (obj1 != NULL && can_see_obj(mob, obj1)) {
                 one_argument(obj1->name, fname);
                 i = fname;
-            } 						break;
+            }
+            break;
         case 'O':
-            i = (obj1 != NULL && can_see_obj(mob, obj1))
-                ? obj1->short_descr
-                : something;					break;
+            i = (obj1 != NULL && can_see_obj(mob, obj1)) ? obj1->short_descr
+                : something;
+            break;
         case 'p':
             i = something;
             if (obj2 != NULL && can_see_obj(mob, obj2)) {
                 one_argument(obj2->name, fname);
                 i = fname;
-            } 						break;
+            }
+            break;
         case 'P':
             i = (obj2 != NULL && can_see_obj(mob, obj2))
                 ? obj2->short_descr
-                : something;					break;
+                : something;
+            break;
         }
 
         ++str;
@@ -1032,7 +1055,8 @@ void program_flow(
                 bug(buf, 0);
                 return;
             }
-            if (level && cond[level - 1] == false) continue;
+            if (level && cond[level - 1] == false)
+                continue;
             line = one_argument(line, control);
             if ((check = keyword_lookup(fn_keyword, control)) >= 0) {
                 eval = cmd_eval(pvnum, line, check, mob, ch, arg1, arg2, rch);
@@ -1052,7 +1076,8 @@ void program_flow(
                 bug(buf, 0);
                 return;
             }
-            if (level && cond[level - 1] == false) continue;
+            if (level && cond[level - 1] == false)
+                continue;
             line = one_argument(line, control);
             if ((check = keyword_lookup(fn_keyword, control)) >= 0) {
                 eval = cmd_eval(pvnum, line, check, mob, ch, arg1, arg2, rch);
@@ -1126,12 +1151,12 @@ void program_flow(
  */
 void mp_act_trigger(
     char* argument, CharData* mob, CharData* ch,
-    const void* arg1, const void* arg2, int type)
+    const void* arg1, const void* arg2, MobProgTrigger trig_type)
 {
     MobProg* prg;
 
     for (prg = mob->prototype->mprogs; prg != NULL; prg = prg->next) {
-        if (prg->trig_type == type
+        if (prg->trig_type == trig_type
             && strstr(argument, prg->trig_phrase) != NULL) {
             program_flow(prg->vnum, prg->code, mob, ch, arg1, arg2);
             break;
@@ -1146,12 +1171,12 @@ void mp_act_trigger(
  */
 bool mp_percent_trigger(
     CharData* mob, CharData* ch,
-    const void* arg1, const void* arg2, int type)
+    const void* arg1, const void* arg2, MobProgTrigger trig_type)
 {
     MobProg* prg;
 
     for (prg = mob->prototype->mprogs; prg != NULL; prg = prg->next) {
-        if (prg->trig_type == type
+        if (prg->trig_type == trig_type
             && number_percent() < atoi(prg->trig_phrase)) {
             program_flow(prg->vnum, prg->code, mob, ch, arg1, arg2);
             return (true);

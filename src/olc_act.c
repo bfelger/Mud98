@@ -49,10 +49,12 @@
 #include <time.h>
 
 /* Return true if area changed, false if not. */
-#define REDIT(fun)    bool fun( CharData *ch, char *argument )
-#define OEDIT(fun)    bool fun( CharData *ch, char *argument )
-#define MEDIT(fun)    bool fun( CharData *ch, char *argument )
-#define AEDIT(fun)    bool fun( CharData *ch, char *argument )
+#define REDIT(fun) bool fun( CharData *ch, char *argument )
+#define OEDIT(fun) bool fun( CharData *ch, char *argument )
+#define MEDIT(fun) bool fun( CharData *ch, char *argument )
+#define AEDIT(fun) bool fun( CharData *ch, char *argument )
+
+typedef int LookupFunc(const char*);
 
 struct olc_help_type {
     char* command;
@@ -85,50 +87,50 @@ bool show_version(CharData* ch, char* argument)
  */
 const struct olc_help_type help_table[] =
 {
-    {	"area",		    U(area_flag_table),	    "Area flags."		        },
-    {	"room",		    U(room_flag_table),	    "Room flags."		        },
-    {	"sector",	    U(sector_flag_table),	"Sector flags."	            },
-    {	"exit",		    U(exit_flag_table),	    "Exit flags."		        },
-    {	"type",		    U(type_flag_table),	    "Object types."		        },
-    {	"extra",	    U(extra_flag_table),    "Object extra flags."		},
-    {	"wear",		    U(wear_flag_table),	    "Object wear flags."		},
-    {	"spec",		    U(spec_table),	        "Special procedures."	    },
-    {	"sex",		    U(sex_table),	        "Sexes."			        },
-    {	"act",		    U(act_flag_table),	    "Mobile act flags."		    },
-    {	"affect",	    U(affect_flag_table),	"Mob affect flags"		    },
-    {	"wear-loc",	    U(wear_loc_flag_table),	"Wear loc flags."	        },
-    {	"spells",	    0,		                "Spell names."		        },
-    {	"container",    U(container_flag_table),"Container flags."		    },
-    {	"armor",	    U(ac_type),	            "Ac types."	                },
-    {   "apply",	    U(apply_flag_table),	"Apply types."		        },
-    {	"form",		    U(form_flag_table),	    "Mob form flags."		    },
-    {	"part",		    U(part_flag_table),	    "Mob part flags."		    },
-    {	"imm",		    U(imm_flag_table),	    "Mob immunity flags."		},
-    {	"res",		    U(res_flag_table),	    "Mob resistance flags."		},
-    {	"vuln",		    U(vuln_flag_table),	    "Mob vulnerability flags."	},
-    {	"off",		    U(off_flag_table),	    "Mob offensive flags."	    },
-    {	"size",		    U(mob_size_table),	    "Sizes."		            },
-    {   "wclass",       U(weapon_class),        "Weapon classes."		    },
-    {   "wtype",        U(weapon_type2),        "Weapon types."	            },
-    {	"portal",	    U(portal_flag_table),	"Portal flags."		        },
-    {	"furniture",    U(furniture_flag_table),"Furniture flags."		    },
-    {	"liquid",	    U(liquid_table),	        "Liquid types."		        },
-    {	"damtype",	    U(attack_table),	    "Damtypes."		            },
-    {	"weapon",	    U(attack_table),	    NULL				        },
-    {   "position",	    U(position_table),	    "Positions."			    },
-    {	"mprog",	    U(mprog_flag_table),	"Mprog flags."		        },
-    {	"apptype",	    U(apply_types),	        "Apply types (2)."		    },
-    {	"target",	    U(target_table),	    "Spell target table."		},
-    {	"damclass",	    U(dam_classes),	        "Damage classes."		    },
-    {	"log",		    U(log_flag_table),	    "Log flags."			    },
-    {	"show",		    U(show_flag_table),	    "Command display flags."	},
-    {	NULL,		    0,		                NULL				        }
+    { "area",       U(area_flag_table),         "Area flags."               },
+    { "room",       U(room_flag_table),         "Room flags."               },
+    { "sector",     U(sector_flag_table),       "Sector flags."             },
+    { "exit",       U(exit_flag_table),         "Exit flags."               },
+    { "type",       U(type_flag_table),         "Object types."             },
+    { "extra",      U(extra_flag_table),        "Object extra flags."       },
+    { "wear",       U(wear_flag_table),         "Object wear flags."        },
+    { "spec",       U(spec_table),              "Special procedures."       },
+    { "sex",        U(sex_table),               "Sexes."                    },
+    { "act",        U(act_flag_table),          "Mobile act flags."         },
+    { "affect",     U(affect_flag_table),       "Mob affect flags"          },
+    { "wear-loc",   U(wear_loc_flag_table),     "Wear loc flags."           },
+    { "spells",     0,                          "Spell names."              },
+    { "container",  U(container_flag_table),    "Container flags."          },
+    { "armor",      U(ac_type),                 "Armor types."              },
+    { "apply",      U(apply_flag_table),        "Apply types."              },
+    { "form",       U(form_flag_table),         "Mob form flags."           },
+    { "part",       U(part_flag_table),         "Mob part flags."           },
+    { "imm",        U(imm_flag_table),          "Mob immunity flags."       },
+    { "res",        U(res_flag_table),          "Mob resistance flags."     },
+    { "vuln",       U(vuln_flag_table),         "Mob vulnerability flags."  },
+    { "off",        U(off_flag_table),          "Mob offensive flags."      },
+    { "size",       U(mob_size_table),          "Sizes."                    },
+    { "wclass",     U(weapon_class),            "Weapon classes."           },
+    { "wtype",      U(weapon_type2),            "Weapon types."             },
+    { "portal",     U(portal_flag_table),       "Portal flags."             },
+    { "furniture",  U(furniture_flag_table),    "Furniture flags."          },
+    { "liquid",     U(liquid_table),            "Liquid types."             },
+    { "damtype",    U(attack_table),            "Damtypes."                 },
+    { "weapon",     U(attack_table),            NULL                        },
+    { "position",   U(position_table),          "Positions."                },
+    { "mprog",      U(mprog_flag_table),        "Mprog flags."              },
+    { "apptype",    U(apply_types),             "Apply types (2)."          },
+    { "target",     U(target_table),            "Spell target table."       },
+    { "damclass",   U(dam_classes),             "Damage classes."           },
+    { "log",        U(log_flag_table),          "Log flags."                },
+    { "show",       U(show_flag_table),         "Command display flags."    },
+    { NULL,         0,                          NULL                        }
 };
 
 /*****************************************************************************
- Name:		show_flag_cmds
- Purpose:	Displays settable flags and stats.
- Called by:	show_help(olc_act.c).
+ Name:        show_flag_cmds
+ Purpose:    Displays settable flags and stats.
+ Called by:    show_help(olc_act.c).
  ****************************************************************************/
 void show_flag_cmds(CharData* ch, const struct flag_type* flag_table)
 {
@@ -156,15 +158,15 @@ void show_flag_cmds(CharData* ch, const struct flag_type* flag_table)
 }
 
 /*****************************************************************************
- Name:		show_skill_cmds
- Purpose:	Displays all skill functions.
+ Name:        show_skill_cmds
+ Purpose:    Displays all skill functions.
         Does remove those damn immortal commands from the list.
         Could be improved by:
         (1) Adding a check for a particular class.
         (2) Adding a check for a level range.
- Called by:	show_help(olc_act.c).
+ Called by:    show_help(olc_act.c).
  ****************************************************************************/
-void show_skill_cmds(CharData* ch, int tar)
+void show_skill_cmds(CharData* ch, SkillTarget tar)
 {
     char buf[MAX_STRING_LENGTH] = "";
     char buf1[MAX_STRING_LENGTH * 2] = "";
@@ -181,7 +183,7 @@ void show_skill_cmds(CharData* ch, int tar)
             || skill_table[sn].spell_fun == spell_null)
             continue;
 
-        if (tar == -1 || skill_table[sn].target == tar) {
+        if (tar == TAR_ALL || skill_table[sn].target == tar) {
             sprintf(buf, "%-19.18s", skill_table[sn].name);
             strcat(buf1, buf);
             if (++col % 4 == 0)
@@ -197,9 +199,9 @@ void show_skill_cmds(CharData* ch, int tar)
 }
 
 /*****************************************************************************
- Name:		show_spec_cmds
- Purpose:	Displays settable special functions.
- Called by:	show_help(olc_act.c).
+ Name:        show_spec_cmds
+ Purpose:    Displays settable special functions.
+ Called by:    show_help(olc_act.c).
  ****************************************************************************/
 void show_spec_cmds(CharData* ch)
 {
@@ -226,9 +228,9 @@ void show_spec_cmds(CharData* ch)
 }
 
 /*****************************************************************************
- Name:		show_help
- Purpose:	Displays help for many tables used in OLC.
- Called by:	olc interpreters.
+ Name:        show_help
+ Purpose:    Displays help for many tables used in OLC.
+ Called by:    olc interpreters.
  ****************************************************************************/
 bool show_help(CharData* ch, char* argument)
 {
@@ -311,7 +313,7 @@ bool show_help(CharData* ch, char* argument)
                 }
 
                 if (!str_prefix(spell, "all"))
-                    show_skill_cmds(ch, -1);
+                    show_skill_cmds(ch, TAR_ALL);
                 else if (!str_prefix(spell, "ignore"))
                     show_skill_cmds(ch, TAR_IGNORE);
                 else if (!str_prefix(spell, "attack"))
@@ -343,9 +345,9 @@ REDIT(redit_rlist)
 {
     RoomData* pRoomIndex;
     AreaData* pArea;
-    char		buf[MAX_STRING_LENGTH];
+    char        buf[MAX_STRING_LENGTH];
     Buffer* buf1;
-    char		arg[MAX_INPUT_LENGTH];
+    char        arg[MAX_INPUT_LENGTH];
     bool found;
     VNUM vnum;
     int  col = 0;
@@ -385,9 +387,9 @@ REDIT(redit_mlist)
 {
     MobPrototype* p_mob_proto;
     AreaData* pArea;
-    char		buf[MAX_STRING_LENGTH];
+    char        buf[MAX_STRING_LENGTH];
     Buffer* buf1;
-    char		arg[MAX_INPUT_LENGTH];
+    char        arg[MAX_INPUT_LENGTH];
     bool fAll, found;
     VNUM vnum;
     int  col = 0;
@@ -432,9 +434,9 @@ REDIT(redit_mlist)
 
 
 /*****************************************************************************
- Name:		check_range( lower vnum, upper vnum )
- Purpose:	Ensures the range spans only one area.
- Called by:	aedit_vnum(olc_act.c).
+ Name:        check_range( lower vnum, upper vnum )
+ Purpose:    Ensures the range spans only one area.
+ Called by:    aedit_vnum(olc_act.c).
  ****************************************************************************/
 bool check_range(VNUM lower, VNUM upper)
 {
@@ -549,7 +551,7 @@ AEDIT(aedit_create)
 
     pArea = new_area();
     area_last->next = pArea;
-    area_last = pArea;	/* Thanks, Walker. */
+    area_last = pArea;    /* Thanks, Walker. */
 
     set_editor(ch->desc, ED_AREA, U(pArea));
 /*    ch->desc->pEdit     =   (void *)pArea; */
@@ -605,7 +607,7 @@ AEDIT(aedit_file)
 
     EDIT_AREA(ch, pArea);
 
-    one_argument(argument, file);	/* Forces Lowercase */
+    one_argument(argument, file);    /* Forces Lowercase */
 
     if (argument[0] == '\0') {
         send_to_char("Syntax:  filename [$file]\n\r", ch);
@@ -880,7 +882,7 @@ AEDIT(aedit_vnum)
     if (get_vnum_area(iupper)
         && get_vnum_area(iupper) != pArea) {
         send_to_char("AEdit:  Upper vnum already assigned.\n\r", ch);
-        return true;	/* The lower value has been set. */
+        return true;    /* The lower value has been set. */
     }
 
     pArea->max_vnum = iupper;
@@ -978,8 +980,8 @@ REDIT(redit_show)
     RoomData* pRoom;
     ObjectData* obj;
     CharData* rch;
-    int			cnt = 0;
-    bool		fcnt;
+    int            cnt = 0;
+    bool        fcnt;
 
     INIT_BUF(line, MAX_STRING_LENGTH);
     INIT_BUF(out, 2 * MAX_STRING_LENGTH);
@@ -1186,7 +1188,7 @@ bool change_exit(CharData* ch, char* argument, Direction door)
     argument = one_argument(argument, command);
     one_argument(argument, arg);
 
-    if (command[0] == '\0' && argument[0] == '\0')	/* Move command. */
+    if (command[0] == '\0' && argument[0] == '\0')    /* Move command. */
     {
         move_char(ch, door, true);                    /* ROM OLC */
         return false;
@@ -1473,7 +1475,7 @@ REDIT(redit_create)
     room_index_hash[iHash] = pRoom;
 
     set_editor(ch->desc, ED_ROOM, U(pRoom));
-/*    ch->desc->pEdit		= (void *)pRoom; */
+/*    ch->desc->pEdit        = (void *)pRoom; */
 
     send_to_char("Room created.\n\r", ch);
     return true;
@@ -1496,11 +1498,11 @@ REDIT(redit_mreset)
     RoomData* pRoom;
     MobPrototype* p_mob_proto;
     CharData* newmob;
-    char		arg[MAX_INPUT_LENGTH];
-    char		arg2[MAX_INPUT_LENGTH];
+    char        arg[MAX_INPUT_LENGTH];
+    char        arg2[MAX_INPUT_LENGTH];
 
     ResetData* pReset;
-    char		output[MAX_STRING_LENGTH];
+    char        output[MAX_STRING_LENGTH];
 
     EDIT_ROOM(ch, pRoom);
 
@@ -1550,46 +1552,39 @@ REDIT(redit_mreset)
     return true;
 }
 
-
-
 struct wear_type {
-    int	wear_loc;
-    int	wear_bit;
+    WearLocation wear_loc;
+    WearFlags wear_bit;
 };
 
-
-
-const struct wear_type wear_table[] =
-{
-    {	WEAR_NONE,	ITEM_TAKE		},
-    {	WEAR_LIGHT,	ITEM_LIGHT		},
-    {	WEAR_FINGER_L,	ITEM_WEAR_FINGER	},
-    {	WEAR_FINGER_R,	ITEM_WEAR_FINGER	},
-    {	WEAR_NECK_1,	ITEM_WEAR_NECK		},
-    {	WEAR_NECK_2,	ITEM_WEAR_NECK		},
-    {	WEAR_BODY,	ITEM_WEAR_BODY		},
-    {	WEAR_HEAD,	ITEM_WEAR_HEAD		},
-    {	WEAR_LEGS,	ITEM_WEAR_LEGS		},
-    {	WEAR_FEET,	ITEM_WEAR_FEET		},
-    {	WEAR_HANDS,	ITEM_WEAR_HANDS		},
-    {	WEAR_ARMS,	ITEM_WEAR_ARMS		},
-    {	WEAR_SHIELD,	ITEM_WEAR_SHIELD	},
-    {	WEAR_ABOUT,	ITEM_WEAR_ABOUT		},
-    {	WEAR_WAIST,	ITEM_WEAR_WAIST		},
-    {	WEAR_WRIST_L,	ITEM_WEAR_WRIST		},
-    {	WEAR_WRIST_R,	ITEM_WEAR_WRIST		},
-    {	WEAR_WIELD,	ITEM_WIELD		},
-    {	WEAR_HOLD,	ITEM_HOLD		},
-    {	NO_FLAG,	NO_FLAG			}
+const struct wear_type wear_table[] = {
+    { WEAR_UNHELD,      ITEM_TAKE           },
+    { WEAR_LIGHT,       ITEM_TAKE           }, 
+    { WEAR_FINGER_L,    ITEM_WEAR_FINGER    },
+    { WEAR_FINGER_R,    ITEM_WEAR_FINGER    },
+    { WEAR_NECK_1,      ITEM_WEAR_NECK      },
+    { WEAR_NECK_2,      ITEM_WEAR_NECK      },
+    { WEAR_BODY,        ITEM_WEAR_BODY      },
+    { WEAR_HEAD,        ITEM_WEAR_HEAD      },
+    { WEAR_LEGS,        ITEM_WEAR_LEGS      },
+    { WEAR_FEET,        ITEM_WEAR_FEET      },
+    { WEAR_HANDS,       ITEM_WEAR_HANDS     },
+    { WEAR_ARMS,        ITEM_WEAR_ARMS      },
+    { WEAR_SHIELD,      ITEM_WEAR_SHIELD    },
+    { WEAR_ABOUT,       ITEM_WEAR_ABOUT     },
+    { WEAR_WAIST,       ITEM_WEAR_WAIST     },
+    { WEAR_WRIST_L,     ITEM_WEAR_WRIST     },
+    { WEAR_WRIST_R,     ITEM_WEAR_WRIST     },
+    { WEAR_WIELD,       ITEM_WIELD          },
+    { WEAR_HOLD,        ITEM_HOLD           },
+    { WEAR_UNHELD,      ITEM_WEAR_NONE      }
 };
-
-
 
 /*****************************************************************************
- Name:		wear_loc
- Purpose:	Returns the location of the bit that matches the count.
+ Name:        wear_loc
+ Purpose:    Returns the location of the bit that matches the count.
         1 = first match, 2 = second match etc.
- Called by:	oedit_reset(olc_act.c).
+ Called by:    oedit_reset(olc_act.c).
  ****************************************************************************/
 int wear_loc(int bits, int count)
 {
@@ -1606,9 +1601,9 @@ int wear_loc(int bits, int count)
 
 
 /*****************************************************************************
- Name:		wear_bit
- Purpose:	Converts a wear_loc into a bit.
- Called by:	redit_oreset(olc_act.c).
+ Name:        wear_bit
+ Purpose:    Converts a wear_loc into a bit.
+ Called by:    redit_oreset(olc_act.c).
  ****************************************************************************/
 int wear_bit(int loc)
 {
@@ -1636,7 +1631,7 @@ REDIT(redit_oreset)
     LEVEL olevel = 0;
 
     ResetData* pReset;
-    char		output[MAX_STRING_LENGTH];
+    char        output[MAX_STRING_LENGTH];
 
     EDIT_ROOM(ch, pRoom);
 
@@ -1746,7 +1741,7 @@ REDIT(redit_oreset)
                 pReset = new_reset_data();
                 pReset->arg1 = obj_proto->vnum;
                 pReset->arg2 = (int16_t)wearloc;
-                if (pReset->arg2 == WEAR_NONE)
+                if (pReset->arg2 == WEAR_UNHELD)
                     pReset->command = 'G';
                 else
                     pReset->command = 'E';
@@ -1757,17 +1752,17 @@ REDIT(redit_oreset)
                 olevel = URANGE(0, to_mob->level - 2, LEVEL_HERO);
                 newobj = create_object(obj_proto, (int16_t)number_fuzzy(olevel));
 
-                if (to_mob->prototype->pShop)	/* Shop-keeper? */
+                if (to_mob->prototype->pShop)    /* Shop-keeper? */
                 {
                     switch (obj_proto->item_type) {
-                    default:		    olevel = 0;				                break;
-                    case ITEM_PILL: 	olevel = (LEVEL)number_range(0, 10);	break;
-                    case ITEM_POTION:	olevel = (LEVEL)number_range(0, 10);	break;
-                    case ITEM_SCROLL:	olevel = (LEVEL)number_range(5, 15);	break;
-                    case ITEM_WAND:	    olevel = (LEVEL)number_range(10, 20);	break;
-                    case ITEM_STAFF:	olevel = (LEVEL)number_range(15, 25);	break;
-                    case ITEM_ARMOR:	olevel = (LEVEL)number_range(5, 15);	break;
-                    case ITEM_WEAPON:	
+                    default:            olevel = 0;                                break;
+                    case ITEM_PILL:     olevel = (LEVEL)number_range(0, 10);    break;
+                    case ITEM_POTION:    olevel = (LEVEL)number_range(0, 10);    break;
+                    case ITEM_SCROLL:    olevel = (LEVEL)number_range(5, 15);    break;
+                    case ITEM_WAND:        olevel = (LEVEL)number_range(10, 20);    break;
+                    case ITEM_STAFF:    olevel = (LEVEL)number_range(15, 25);    break;
+                    case ITEM_ARMOR:    olevel = (LEVEL)number_range(5, 15);    break;
+                    case ITEM_WEAPON:    
                         if (pReset->command == 'G')
                             olevel = (LEVEL)number_range(5, 15);
                         else
@@ -1776,7 +1771,7 @@ REDIT(redit_oreset)
                     }
 
                     newobj = create_object(obj_proto, olevel);
-                    if (pReset->arg2 == WEAR_NONE)
+                    if (pReset->arg2 == WEAR_UNHELD)
                         SET_BIT(newobj->extra_flags, ITEM_INVENTORY);
                 }
                 else
@@ -1795,7 +1790,7 @@ REDIT(redit_oreset)
                     to_mob->prototype->vnum);
                 send_to_char(output, ch);
             }
-            else	/* Display Syntax */
+            else    /* Display Syntax */
             {
                 send_to_char("REdit:  That mobile isn't here.\n\r", ch);
                 return false;
@@ -1815,7 +1810,7 @@ void show_obj_values(CharData* ch, ObjectPrototype* obj)
     char buf[MAX_STRING_LENGTH];
 
     switch (obj->item_type) {
-    default:	/* No values. */
+    default:    /* No values. */
         break;
 
     case ITEM_LIGHT:
@@ -2235,7 +2230,7 @@ bool set_obj_values(CharData* ch, ObjectPrototype* pObj, int value_num, char* ar
         switch (value_num) {
         default:
             do_help(ch, "ITEM_DRINK");
-/* OLC		    do_help( ch, "liquids" );    */
+/* OLC            do_help( ch, "liquids" );    */
             return false;
         case 0:
             send_to_char("MAXIMUM AMOUT OF LIQUID HOURS SET.\n\r\n\r", ch);
@@ -2261,7 +2256,7 @@ bool set_obj_values(CharData* ch, ObjectPrototype* pObj, int value_num, char* ar
         switch (value_num) {
         default:
             do_help(ch, "ITEM_FOUNTAIN");
-/* OLC		    do_help( ch, "liquids" );    */
+/* OLC            do_help( ch, "liquids" );    */
             return false;
         case 0:
             send_to_char("LIQUID MAXIMUM SET.\n\r\n\r", ch);
@@ -2578,18 +2573,18 @@ OEDIT(oedit_delaffect)
         return false;
     }
 
-    if (value == 0)	/* First case: Remove first affect */
+    if (value == 0)    /* First case: Remove first affect */
     {
         pAf = pObj->affected;
         pObj->affected = pAf->next;
         free_affect(pAf);
     }
-    else		/* Affect to remove is not the first */
+    else        /* Affect to remove is not the first */
     {
         while ((pAf_next = pAf->next) && (++cnt < value))
             pAf = pAf_next;
 
-        if (pAf_next)		/* See if it's the next affect */
+        if (pAf_next)        /* See if it's the next affect */
         {
             pAf->next = pAf_next->next;
             free_affect(pAf_next);
@@ -2621,9 +2616,9 @@ bool set_value(CharData* ch, ObjectPrototype* pObj, char* argument, int value)
 
 
 /*****************************************************************************
- Name:		oedit_values
- Purpose:	Finds the object and sets its value.
- Called by:	The four valueX functions below. (now five -- Hugin )
+ Name:        oedit_values
+ Purpose:    Finds the object and sets its value.
+ Called by:    The four valueX functions below. (now five -- Hugin )
  ****************************************************************************/
 bool oedit_values(CharData* ch, char* argument, int value)
 {
@@ -2679,7 +2674,7 @@ OEDIT(oedit_create)
     object_prototype_hash[iHash] = pObj;
 
     set_editor(ch->desc, ED_OBJECT, U(pObj));
-/*    ch->desc->pEdit		= (void *)pObj; */
+/*    ch->desc->pEdit        = (void *)pObj; */
 
     send_to_char("Object Created.\n\r", ch);
     return true;
@@ -2735,7 +2730,7 @@ MEDIT(medit_show)
     sprintf(buf, "Vnum:        [%5d] Sex:   [%6s]    Group: [%5d]\n\r"
         "Level:       [%2d]    Align: [%4d]   Dam type: [%s]\n\r",
         pMob->vnum,
-        ((pMob->sex > -1 && pMob->sex < 4) ? sex_table[pMob->sex].name : "ERROR"),
+        ((pMob->sex >= SEX_MIN && pMob->sex <= SEX_MAX) ? sex_table[pMob->sex].name : "ERROR"),
         pMob->group,
         pMob->level,
         pMob->alignment,
@@ -2762,10 +2757,10 @@ MEDIT(medit_show)
 
 /* ROM values end */
 
-    sprintf(buf, "Race:        [%16s] "		/* ROM OLC */
+    sprintf(buf, "Race:        [%16s] "        /* ROM OLC */
         "Size:         [%16s]\n\r",
         race_table[pMob->race].name,
-        ((pMob->size > -1 && pMob->size < 6) ?
+        ((pMob->size >= MOB_SIZE_MIN && pMob->size <= MOB_SIZE_MAX) ?
             mob_size_table[pMob->size].name : "ERROR"));
     add_buf(buffer, buf);
 
@@ -3736,7 +3731,7 @@ ED_FUN_DEC(ed_new_mob)
     mob_prototype_hash[iHash] = pMob;
 
     set_editor(ch->desc, ED_MOBILE, U(pMob));
-/*    ch->desc->pEdit		= (void *)pMob; */
+/*    ch->desc->pEdit        = (void *)pMob; */
 
     send_to_char("Mob created.\n\r", ch);
 
@@ -3922,18 +3917,23 @@ ED_FUN_DEC(ed_dice)
 
     numb_str = cp = argument;
 
-    while (isdigit(*cp)) ++cp;
-    while (*cp != '\0' && !isdigit(*cp))  *(cp++) = '\0';
+    while (isdigit(*cp))
+        ++cp;
+    while (*cp != '\0' && !isdigit(*cp))
+        *(cp++) = '\0';
 
     type_str = cp;
 
-    while (isdigit(*cp)) ++cp;
-    while (*cp != '\0' && !isdigit(*cp)) *(cp++) = '\0';
+    while (isdigit(*cp))
+        ++cp;
+    while (*cp != '\0' && !isdigit(*cp))
+        *(cp++) = '\0';
 
     bonus_str = cp;
 
-    while (isdigit(*cp)) ++cp;
-    if (*cp != '\0') *cp = '\0';
+    while (isdigit(*cp)) 
+        ++cp;
+    *cp = '\0';
 
     if ((!is_number(numb_str) || (numb = (int16_t)atoi(numb_str)) < 1)
         || (!is_number(type_str) || (type = (int16_t)atoi(type_str)) < 1)
@@ -3970,10 +3970,10 @@ ED_FUN_DEC(ed_addprog)
     }
 
     switch (ch->desc->editor) {
-    case ED_MOBILE:	
+    case ED_MOBILE:    
         flagtable = mprog_flag_table;
         break;
-    default:	
+    default:    
         send_to_char("ERROR : Invalid editor.\n\r", ch);
         return false;
     }
@@ -4221,8 +4221,7 @@ ED_FUN_DEC(ed_addaffect)
         return false;
     }
 
-    if ((value = flag_value(apply_flag_table, loc)) == NO_FLAG) /* Hugin */
-    {
+    if ((value = flag_value(apply_flag_table, loc)) == NO_FLAG) {
         send_to_char("Valid affects are:\n\r", ch);
         show_help(ch, "apply");
         return false;
@@ -4271,18 +4270,18 @@ ED_FUN_DEC(ed_delaffect)
         return false;
     }
 
-    if (value == 0)	/* First case: Remove first affect */
-    {
+    if (value == 0) {
+        /* First case: Remove first affect */
         pAf = *pNaf;
         *pNaf = pAf->next;
         free_affect(pAf);
     }
-    else		/* Affect to remove is not the first */
-    {
+    else {
+        /* Affect to remove is not the first */
         while ((pAf_next = pAf->next) && (++cnt < value))
             pAf = pAf_next;
 
-        if (pAf_next)		/* See if it's the next affect */
+        if (pAf_next)        /* See if it's the next affect */
         {
             pAf->next = pAf_next->next;
             free_affect(pAf_next);
@@ -4422,8 +4421,8 @@ ED_FUN_DEC(ed_new_obj)
     object_prototype_hash[iHash] = pObj;
 
     set_editor(ch->desc, ED_OBJECT, U(pObj));
-/*    ch->desc->pEdit		= (void *)pObj;
-    ch->desc->editor		= ED_OBJECT; */
+/*    ch->desc->pEdit        = (void *)pObj;
+    ch->desc->editor        = ED_OBJECT; */
 
     send_to_char("Object Created.\n\r", ch);
 
@@ -4514,7 +4513,7 @@ ED_FUN_DEC(ed_olist)
     for (vnum = pArea->min_vnum; vnum <= pArea->max_vnum; vnum++) {
         if ((obj_proto = get_object_prototype(vnum))) {
             if (fAll || is_name(blarg, obj_proto->name)
-                || flag_value(type_flag_table, blarg) == obj_proto->item_type) {
+                || (ItemType)flag_value(type_flag_table, blarg) == obj_proto->item_type) {
                 found = true;
                 sprintf(buf, "[%5d] %-17.16s",
                     obj_proto->vnum, capitalize(obj_proto->short_descr));

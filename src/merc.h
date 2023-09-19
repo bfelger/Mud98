@@ -80,10 +80,11 @@ extern char area_dir[];
 #define SHUTDOWN_FILE   "shutdown.txt"  // For 'shutdown'
 #define BAN_FILE        "ban.txt"
 #define MUSIC_FILE      "music.txt"
+
 #ifndef _MSC_VER
-#define NULL_FILE       "/dev/null"     // To reserve one stream
+    #define NULL_FILE   "/dev/null"     // To reserve one stream
 #else
-#define NULL_FILE       "nul"
+    #define NULL_FILE   "nul"
 #endif
 
 #ifndef USE_RAW_SOCKETS
@@ -96,14 +97,14 @@ extern char area_dir[];
 #define args( list )                list
 
 ////////////////////////////////////////////////////////////////////////////////
-// Custom Types
-////////////////////////////////////////////////////////////////////////////////
-
-// Used for flags and other bit fields
-#define BIT(x) (1 << x)
 
 // Expand when you run out of bits
 #define FLAGS               int32_t
+
+// Used for flags and other bit fields. Unsigned with cast back to signed so we 
+// can use BIT(31) for enums (which must be signed) under -pedantic.
+#define BIT(x)              (FLAGS)(1u << (x))
+
 #define NO_FLAG             (FLAGS)BIT(31)
 
 #define SHORT_FLAGS         int16_t
@@ -120,19 +121,42 @@ extern char area_dir[];
 #define VNUM_NONE           -1
 
 ////////////////////////////////////////////////////////////////////////////////
+// Target Info
+////////////////////////////////////////////////////////////////////////////////
+
+typedef enum skill_target_t {
+    TAR_ALL = -1,               // Used for displaying all skills to user
+    TAR_IGNORE = 0,
+    TAR_CHAR_OFFENSIVE = 1,
+    TAR_CHAR_DEFENSIVE = 2,
+    TAR_CHAR_SELF = 3,
+    TAR_OBJ_INV = 4,
+    TAR_OBJ_CHAR_DEF = 5,
+    TAR_OBJ_CHAR_OFF = 6,
+} SkillTarget;
+
+typedef enum spell_target_t {
+    TARGET_CHAR = 0,
+    TARGET_OBJ = 1,
+    TARGET_ROOM = 2,
+    TARGET_NONE = 3,
+} SpellTarget;
+
+////////////////////////////////////////////////////////////////////////////////
+// Func Helpers
+////////////////////////////////////////////////////////////////////////////////
 
 typedef struct char_data_t CharData;
-typedef enum spell_target_t SpellTarget;
 
 typedef void DoFunc(CharData* ch, char* argument);
 typedef bool SpecFunc(CharData* ch);
 typedef void SpellFunc(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target);
-typedef int	LookupFunc(const char*);
 
 #define DECLARE_DO_FUN( fun )       DoFunc fun
 #define DECLARE_SPEC_FUN( fun )     SpecFunc fun
 #define DECLARE_SPELL_FUN( fun )    SpellFunc fun
-#define DECLARE_LOOKUP_FUN( fun )   LookupFunc fun
+
+////////////////////////////////////////////////////////////////////////////////
 
 /* ea */
 #define MSL MAX_STRING_LENGTH
@@ -151,6 +175,7 @@ typedef int	LookupFunc(const char*);
  * Increase the max'es if you add more of something.
  * Adjust the pulse numbers to suit yourself.
  */
+
 #define MAX_IN_GROUP        15
 #define MAX_ALIAS           5
 #define MAX_THEMES          5

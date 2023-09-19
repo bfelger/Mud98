@@ -10,6 +10,8 @@ typedef struct shop_data_t ShopData;
 
 #include "merc.h"
 
+#include "data/item.h"
+
 #include <stdint.h>
 
 #define MAX_TRADE 5
@@ -17,7 +19,7 @@ typedef struct shop_data_t ShopData;
 typedef struct shop_data_t {
     ShopData* next; /* Next shop in list		*/
     VNUM keeper; /* Vnum of shop keeper mob	*/
-    int16_t buy_type[MAX_TRADE]; /* Item types shop will buy	*/
+    ItemType buy_type[MAX_TRADE]; /* Item types shop will buy	*/
     int16_t profit_buy; /* Cost multiplier for buying	*/
     int16_t profit_sell; /* Cost multiplier for selling	*/
     int16_t open_hour; /* First opening hour		*/

@@ -408,7 +408,7 @@ void do_put(CharData* ch, char* argument)
 
             if ((arg1[3] == '\0' || is_name(&arg1[4], obj->name))
                 && can_see_obj(ch, obj) && WEIGHT_MULT(obj) == 100
-                && obj->wear_loc == WEAR_NONE && obj != container
+                && obj->wear_loc == WEAR_UNHELD && obj != container
                 && can_drop_obj(ch, obj)
                 && get_obj_weight(obj) + get_true_weight(container)
                        <= (container->value[0] * 10)
@@ -555,7 +555,7 @@ void do_drop(CharData* ch, char* argument)
             obj_next = obj->next_content;
 
             if ((arg[3] == '\0' || is_name(&arg[4], obj->name))
-                && can_see_obj(ch, obj) && obj->wear_loc == WEAR_NONE
+                && can_see_obj(ch, obj) && obj->wear_loc == WEAR_UNHELD
                 && can_drop_obj(ch, obj)) {
                 found = true;
                 obj_from_char(obj);
@@ -690,7 +690,7 @@ void do_give(CharData* ch, char* argument)
         return;
     }
 
-    if (obj->wear_loc != WEAR_NONE) {
+    if (obj->wear_loc != WEAR_UNHELD) {
         send_to_char("You must remove it first.\n\r", ch);
         return;
     }
@@ -1482,7 +1482,7 @@ void do_wear(CharData* ch, char* argument)
 
         for (obj = ch->carrying; obj != NULL; obj = obj_next) {
             obj_next = obj->next_content;
-            if (obj->wear_loc == WEAR_NONE && can_see_obj(ch, obj))
+            if (obj->wear_loc == WEAR_UNHELD && can_see_obj(ch, obj))
                 wear_obj(ch, obj, false);
         }
         return;
@@ -2111,7 +2111,7 @@ ObjectData* get_obj_keeper(CharData* ch, CharData* keeper, char* argument)
     number = number_argument(argument, arg);
     count = 0;
     for (obj = keeper->carrying; obj != NULL; obj = obj->next_content) {
-        if (obj->wear_loc == WEAR_NONE && can_see_obj(keeper, obj)
+        if (obj->wear_loc == WEAR_UNHELD && can_see_obj(keeper, obj)
             && can_see_obj(ch, obj) && is_name(arg, obj->name)) {
             if (++count == number) return obj;
 
@@ -2428,7 +2428,7 @@ void do_list(CharData* ch, char* argument)
 
         found = false;
         for (obj = keeper->carrying; obj; obj = obj->next_content) {
-            if (obj->wear_loc == WEAR_NONE && can_see_obj(ch, obj)
+            if (obj->wear_loc == WEAR_UNHELD && can_see_obj(ch, obj)
                 && (cost = get_cost(keeper, obj, true)) > 0
                 && (arg[0] == '\0' || is_name(arg, obj->name))) {
                 if (!found) {

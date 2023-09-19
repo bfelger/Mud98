@@ -47,7 +47,7 @@
 #include <sys/time.h>
 #endif
 
-extern int flag_lookup(const char* name, const struct flag_type* flag_table);
+extern FLAGS flag_lookup(const char* name, const struct flag_type* flag_table);
 
 /* snarf a socials file */
 void load_social(FILE* fp)

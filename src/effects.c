@@ -47,7 +47,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-void acid_effect(void* vo, LEVEL level, int dam, int target)
+void acid_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 {
     if (target == TARGET_ROOM) /* nail objects on the floor */
     {
@@ -90,10 +90,13 @@ void acid_effect(void* vo, LEVEL level, int dam, int target)
 
         chance = level / 4 + dam / 10;
 
-        if (chance > 25) chance = (chance - 25) / 2 + 25;
-        if (chance > 50) chance = (chance - 50) / 2 + 50;
+        if (chance > 25) 
+            chance = (chance - 25) / 2 + 25;
+        if (chance > 50) 
+            chance = (chance - 50) / 2 + 50;
 
-        if (IS_OBJ_STAT(obj, ITEM_BLESS)) chance -= 5;
+        if (IS_OBJ_STAT(obj, ITEM_BLESS)) 
+            chance -= 5;
 
         chance -= obj->level * 2;
 
@@ -132,8 +135,8 @@ void acid_effect(void* vo, LEVEL level, int dam, int target)
         else if (obj->in_room != NULL && obj->in_room->people != NULL)
             act(msg, obj->in_room->people, obj, NULL, TO_ALL);
 
-        if (obj->item_type == ITEM_ARMOR) /* etch it */
-        {
+        if (obj->item_type == ITEM_ARMOR) {
+            /* etch it */
             AffectData* paf;
             AffectData* paf_next = NULL;
             bool af_found = false;
@@ -147,7 +150,7 @@ void acid_effect(void* vo, LEVEL level, int dam, int target)
                     af_found = true;
                     paf->type = -1;
                     paf->modifier += 1;
-                    paf->level = UMAX(paf->level, (int16_t)level);
+                    paf->level = UMAX(paf->level, level);
                     break;
                 }
             }
@@ -158,7 +161,7 @@ void acid_effect(void* vo, LEVEL level, int dam, int target)
                 paf = new_affect();
 
                 paf->type = -1;
-                paf->level = (int16_t)level;
+                paf->level = level;
                 paf->duration = -1;
                 paf->location = APPLY_AC;
                 paf->modifier = 1;
@@ -167,14 +170,15 @@ void acid_effect(void* vo, LEVEL level, int dam, int target)
                 obj->affected = paf;
             }
 
-            if (obj->carried_by != NULL && obj->wear_loc != WEAR_NONE)
-                for (i = 0; i < 4; i++) obj->carried_by->armor[i] += 1;
+            if (obj->carried_by != NULL && obj->wear_loc != WEAR_UNHELD)
+                for (i = 0; i < 4; i++) 
+                    obj->carried_by->armor[i] += 1;
             return;
         }
 
         /* get rid of the object */
-        if (obj->contains) /* dump contents */
-        {
+        if (obj->contains) {
+            /* dump contents */
             for (t_obj = obj->contains; t_obj != NULL; t_obj = n_obj) {
                 n_obj = t_obj->next_content;
                 obj_from_obj(t_obj);
@@ -196,7 +200,7 @@ void acid_effect(void* vo, LEVEL level, int dam, int target)
     }
 }
 
-void cold_effect(void* vo, LEVEL level, int dam, int target)
+void cold_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 {
     if (target == TARGET_ROOM) /* nail objects on the floor */
     {
@@ -294,7 +298,7 @@ void cold_effect(void* vo, LEVEL level, int dam, int target)
     }
 }
 
-void fire_effect(void* vo, LEVEL level, int dam, int target)
+void fire_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 {
     if (target == TARGET_ROOM) /* nail objects on the floor */
     {
@@ -427,7 +431,7 @@ void fire_effect(void* vo, LEVEL level, int dam, int target)
     }
 }
 
-void poison_effect(void* vo, LEVEL level, int dam, int target)
+void poison_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 {
     if (target == TARGET_ROOM) /* nail objects on the floor */
     {
@@ -508,7 +512,7 @@ void poison_effect(void* vo, LEVEL level, int dam, int target)
     }
 }
 
-void shock_effect(void* vo, LEVEL level, int dam, int target)
+void shock_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 {
     if (target == TARGET_ROOM) {
         RoomData* room = (RoomData*)vo;

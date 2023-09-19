@@ -54,12 +54,6 @@ typedef struct buffer_t {
     bool valid;
 } Buffer;
 
-/* char gen data recycling */
-#define GD CharGenData
-GD* new_gen_data args((void));
-void free_gen_data args((CharGenData * gen));
-#undef GD
-
 long get_pc_id(void);
 
 /* buffer procedures */

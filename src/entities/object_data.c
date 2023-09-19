@@ -495,7 +495,8 @@ void load_objects(FILE* fp)
         }
 
         vnum = fread_number(fp);
-        if (vnum == 0) break;
+        if (vnum == 0) 
+            break;
 
         fBootDb = false;
         if (get_object_prototype(vnum) != NULL) {

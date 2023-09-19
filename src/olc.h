@@ -28,6 +28,8 @@
 #include "entities/mob_prototype.h"
 
 #include "data/race.h"
+#include "data/skill.h"
+#include "data/spell.h"
 #include "data/social.h"
 
 #include <stdbool.h>

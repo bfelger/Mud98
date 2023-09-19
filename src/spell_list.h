@@ -30,7 +30,7 @@
 
 #ifndef SPELL
 #include "merc.h"
-#define SPELL(spell)		    DECLARE_SPELL_FUN(spell);
+#define SPELL(spell)                DECLARE_SPELL_FUN(spell);
 #endif
 
 // Header guard is also removed. We're ridin' dirty.

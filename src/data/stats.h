@@ -18,6 +18,7 @@ typedef enum stat_t {
 
 #define STAT_COUNT 5
 
+#define STAT_MAX 25
 #define STAT_MAX_LVL 26
 
 typedef struct str_mod_t {

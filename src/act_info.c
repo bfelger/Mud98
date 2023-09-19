@@ -108,15 +108,15 @@ char* format_obj_to_char(ObjectData* obj, CharData* ch, bool fShort)
         || (obj->description == NULL || obj->description[0] == '\0'))
         return buf;
 
-    if (IS_OBJ_STAT(obj, ITEM_INVIS)) strcat(buf, "(Invis) ");
+    if (IS_OBJ_STAT(obj, ITEM_INVIS)) strcat(buf, "{*(Invis){x ");
     if (IS_AFFECTED(ch, AFF_DETECT_EVIL) && IS_OBJ_STAT(obj, ITEM_EVIL))
-        strcat(buf, "(Red Aura) ");
+        strcat(buf, "{r(Red Aura){x ");
     if (IS_AFFECTED(ch, AFF_DETECT_GOOD) && IS_OBJ_STAT(obj, ITEM_BLESS))
-        strcat(buf, "(Blue Aura) ");
+        strcat(buf, "{B(Blue Aura){x ");
     if (IS_AFFECTED(ch, AFF_DETECT_MAGIC) && IS_OBJ_STAT(obj, ITEM_MAGIC))
-        strcat(buf, "(Magical) ");
-    if (IS_OBJ_STAT(obj, ITEM_GLOW)) strcat(buf, "(Glowing) ");
-    if (IS_OBJ_STAT(obj, ITEM_HUM)) strcat(buf, "(Humming) ");
+        strcat(buf, "{*(Magical){x ");
+    if (IS_OBJ_STAT(obj, ITEM_GLOW)) strcat(buf, "{_(Glowing){x ");
+    if (IS_OBJ_STAT(obj, ITEM_HUM)) strcat(buf, "{_(Humming){x ");
 
     if (fShort) {
         if (obj->short_descr != NULL) strcat(buf, obj->short_descr);
@@ -163,7 +163,7 @@ void show_list_to_char(ObjectData* list, CharData* ch, bool fShort,
      * Format the list of objects.
      */
     for (obj = list; obj != NULL; obj = obj->next_content) {
-        if (obj->wear_loc == WEAR_NONE && can_see_obj(ch, obj)) {
+        if (obj->wear_loc == WEAR_UNHELD && can_see_obj(ch, obj)) {
             pstrShow = format_obj_to_char(obj, ch, fShort);
 
             fCombine = false;
@@ -240,22 +240,22 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
 
     buf[0] = '\0';
 
-    if (IS_SET(victim->comm_flags, COMM_AFK)) strcat(buf, "[AFK] ");
-    if (IS_AFFECTED(victim, AFF_INVISIBLE)) strcat(buf, "(Invis) ");
-    if (victim->invis_level >= LEVEL_HERO) strcat(buf, "(Wizi) ");
-    if (IS_AFFECTED(victim, AFF_HIDE)) strcat(buf, "(Hide) ");
-    if (IS_AFFECTED(victim, AFF_CHARM)) strcat(buf, "(Charmed) ");
-    if (IS_AFFECTED(victim, AFF_PASS_DOOR)) strcat(buf, "(Translucent) ");
-    if (IS_AFFECTED(victim, AFF_FAERIE_FIRE)) strcat(buf, "(Pink Aura) ");
+    if (IS_SET(victim->comm_flags, COMM_AFK)) strcat(buf, "{_[AFK]{x ");
+    if (IS_AFFECTED(victim, AFF_INVISIBLE)) strcat(buf, "{*(Invis){x ");
+    if (victim->invis_level >= LEVEL_HERO) strcat(buf, "{*(Wizi){x ");
+    if (IS_AFFECTED(victim, AFF_HIDE)) strcat(buf, "{*(Hide){x ");
+    if (IS_AFFECTED(victim, AFF_CHARM)) strcat(buf, "{*(Charmed){x ");
+    if (IS_AFFECTED(victim, AFF_PASS_DOOR)) strcat(buf, "{*(Translucent){x ");
+    if (IS_AFFECTED(victim, AFF_FAERIE_FIRE)) strcat(buf, "{R(Pink Aura){x ");
     if (IS_EVIL(victim) && IS_AFFECTED(ch, AFF_DETECT_EVIL))
-        strcat(buf, "(Red Aura) ");
+        strcat(buf, "{r(Red Aura){x ");
     if (IS_GOOD(victim) && IS_AFFECTED(ch, AFF_DETECT_GOOD))
-        strcat(buf, "(Golden Aura) ");
-    if (IS_AFFECTED(victim, AFF_SANCTUARY)) strcat(buf, "(White Aura) ");
+        strcat(buf, "{Y(Golden Aura){x ");
+    if (IS_AFFECTED(victim, AFF_SANCTUARY)) strcat(buf, "{W(White Aura){x ");
     if (!IS_NPC(victim) && IS_SET(victim->act_flags, PLR_KILLER))
-        strcat(buf, "(KILLER) ");
+        strcat(buf, "{R(KILLER){x ");
     if (!IS_NPC(victim) && IS_SET(victim->act_flags, PLR_THIEF))
-        strcat(buf, "(THIEF) ");
+        strcat(buf, "{R(THIEF){x ");
     if (victim->position == victim->start_pos
         && victim->long_descr[0] != '\0') {
         strcat(buf, victim->long_descr);
@@ -434,7 +434,7 @@ void show_char_to_char_1(CharData* victim, CharData* ch)
     send_to_char(buf, ch);
 
     found = false;
-    for (iWear = 0; iWear < WEAR_MAX; iWear++) {
+    for (iWear = 0; iWear < WEAR_COUNT; iWear++) {
         if ((obj = get_eq_char(victim, iWear)) != NULL
             && can_see_obj(ch, obj)) {
             if (!found) {
@@ -463,11 +463,15 @@ void show_char_to_char(CharData* list, CharData* ch)
     CharData* rch;
 
     for (rch = list; rch != NULL; rch = rch->next_in_room) {
-        if (rch == ch) continue;
+        if (rch == ch)
+            continue;
 
-        if (get_trust(ch) < rch->invis_level) continue;
+        if (get_trust(ch) < rch->invis_level) 
+            continue;
 
-        if (can_see(ch, rch)) { show_char_to_char_0(rch, ch); }
+        if (can_see(ch, rch)) { 
+            show_char_to_char_0(rch, ch); 
+        }
         else if (room_is_dark(ch->in_room) && IS_AFFECTED(rch, AFF_INFRARED)) {
             send_to_char("You see glowing red eyes watching YOU!\n\r", ch);
         }
@@ -585,62 +589,62 @@ void do_autolist(CharData* ch, char* argument)
     /* lists most player flags */
     if (IS_NPC(ch)) return;
 
-    send_to_char("   action     status\n\r", ch);
-    send_to_char("---------------------\n\r", ch);
+    send_to_char("{T   action     status\n\r", ch);
+    send_to_char("{----------------------{x\n\r", ch);
 
     send_to_char("autoassist     ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOASSIST))
-        send_to_char("ON\n\r", ch);
+        send_to_char("{GON{x\n\r", ch);
     else
-        send_to_char("OFF\n\r", ch);
+        send_to_char("{ROFF{x\n\r", ch);
 
     send_to_char("autoexit       ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOEXIT))
-        send_to_char("ON\n\r", ch);
+        send_to_char("{GON{x\n\r", ch);
     else
-        send_to_char("OFF\n\r", ch);
+        send_to_char("{ROFF{x\n\r", ch);
 
     send_to_char("autogold       ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOGOLD))
-        send_to_char("ON\n\r", ch);
+        send_to_char("{GON{x\n\r", ch);
     else
-        send_to_char("OFF\n\r", ch);
+        send_to_char("{ROFF{x\n\r", ch);
 
     send_to_char("autoloot       ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOLOOT))
-        send_to_char("ON\n\r", ch);
+        send_to_char("{GON{x\n\r", ch);
     else
-        send_to_char("OFF\n\r", ch);
+        send_to_char("{ROFF{x\n\r", ch);
 
     send_to_char("autosac        ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOSAC))
-        send_to_char("ON\n\r", ch);
+        send_to_char("{GON{x\n\r", ch);
     else
-        send_to_char("OFF\n\r", ch);
+        send_to_char("{ROFF{x\n\r", ch);
 
     send_to_char("autosplit      ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOSPLIT))
-        send_to_char("ON\n\r", ch);
+        send_to_char("{GON{x\n\r", ch);
     else
-        send_to_char("OFF\n\r", ch);
+        send_to_char("{ROFF{x\n\r", ch);
 
     send_to_char("compact mode   ", ch);
     if (IS_SET(ch->comm_flags, COMM_COMPACT))
-        send_to_char("ON\n\r", ch);
+        send_to_char("{GON{x\n\r", ch);
     else
-        send_to_char("OFF\n\r", ch);
+        send_to_char("{ROFF{x\n\r", ch);
 
     send_to_char("prompt         ", ch);
     if (IS_SET(ch->comm_flags, COMM_PROMPT))
-        send_to_char("ON\n\r", ch);
+        send_to_char("{GON{x\n\r", ch);
     else
-        send_to_char("OFF\n\r", ch);
+        send_to_char("{ROFF{x\n\r", ch);
 
     send_to_char("combine items  ", ch);
     if (IS_SET(ch->comm_flags, COMM_COMBINE))
-        send_to_char("ON\n\r", ch);
+        send_to_char("{GON{x\n\r", ch);
     else
-        send_to_char("OFF\n\r", ch);
+        send_to_char("{ROFF{x\n\r", ch);
 
     if (!IS_SET(ch->act_flags, PLR_CANLOOT))
         send_to_char("Your corpse is safe from thieves.\n\r", ch);
@@ -1785,7 +1789,7 @@ void do_who(CharData* ch, char* argument)
                     if (!str_prefix(arg, "clan")) {
                         fClan = true;
                     }
-                    else if (iClan = clan_lookup(arg)) {
+                    else if ((iClan = clan_lookup(arg)) > 0) {
                         fClanRestrict = true;
                         rgfClan[iClan] = true;
                     }
@@ -1919,8 +1923,9 @@ void do_equipment(CharData* ch, char* argument)
 
     send_to_char("You are using:\n\r", ch);
     found = false;
-    for (iWear = 0; iWear < WEAR_MAX; iWear++) {
-        if ((obj = get_eq_char(ch, iWear)) == NULL) continue;
+    for (iWear = 0; iWear < WEAR_COUNT; iWear++) {
+        if ((obj = get_eq_char(ch, iWear)) == NULL) 
+            continue;
 
         send_to_char(where_name[iWear], ch);
         if (can_see_obj(ch, obj)) {
@@ -1963,7 +1968,7 @@ void do_compare(CharData* ch, char* argument)
 
     if (arg2[0] == '\0') {
         for (obj2 = ch->carrying; obj2 != NULL; obj2 = obj2->next_content) {
-            if (obj2->wear_loc != WEAR_NONE && can_see_obj(ch, obj2)
+            if (obj2->wear_loc != WEAR_UNHELD && can_see_obj(ch, obj2)
                 && obj1->item_type == obj2->item_type
                 && (obj1->wear_flags & obj2->wear_flags & ~ITEM_TAKE) != 0)
                 break;

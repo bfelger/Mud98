@@ -74,17 +74,17 @@ endif()
 
 include_directories(${CMAKE_SOURCE_DIR})
 
-add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c 
-    act_info.h act_info.c act_move.h act_move.c act_obj.h act_obj.c act_wiz.h 
-    act_wiz.c alias.h alias.c ban.h ban.c benchmark.h benchmark.c bit.h bit.c 
+add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
+    act_info.h act_info.c act_move.h act_move.c act_obj.h act_obj.c act_wiz.h
+    act_wiz.c alias.h alias.c ban.h ban.c benchmark.h benchmark.c bit.h bit.c
     cmdedit.c color.h color.c comm.h comm.c db.c db2.c digest.h digest.c
-    effects.h effects.c fight.h fight.c flags.c gedit.c handler.h handler.c 
-    healer.c hedit.c interp.c lookup.c magic.c magic2.c main.c mob_cmds.h 
+    effects.h effects.c fight.h fight.c flags.c gedit.c handler.h handler.c
+    healer.c hedit.c interp.c lookup.c magic.c magic2.c main.c mob_cmds.h
     mob_cmds.c mob_prog.h mob_prog.c music.c note.h note.c olc.h olc.c olc_act.c
-    olc_save.c pcg_basic.c pedit.c raedit.c recycle.c save.h save.c scan.c 
-    screen.c sedit.c skedit.c skills.h skills.c socket.h special.h special.c 
-    spell_list.h string_edit.h string_edit.c tables.c tablesave.c tests.h 
-    tests.c update.h update.c wizutil.v3.c
+    olc_save.c pcg_basic.c pedit.c raedit.c recycle.c save.h save.c scan.c
+    screen.c sedit.c skedit.c skills.h skills.c socket.h special.h special.c
+    spell_list.h string_edit.h string_edit.c tables.c tablesave.c tests.h
+    tests.c update.h update.c weather.h weather.c wizutil.v3.c
     
     entities/affect_data.h entities/affect_data.c
     entities/area_data.h entities/area_data.c 
@@ -92,7 +92,7 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     entities/descriptor.h entities/descriptor.c
     entities/exit_data.h entities/exit_data.c
     entities/extra_desc.h entities/extra_desc.c
-    entities/help_data.c entities/help_data.h 
+    entities/help_data.h entities/help_data.c
     entities/mob_memory.h entities/mob_memory.c
     entities/mob_prototype.h entities/mob_prototype.c
     entities/object_data.h entities/object_data.c
@@ -103,15 +103,16 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     
     data/class.h data/class.c
     data/damage.h data/damage.c
-    data/direction.h data/direction.c 
+    data/direction.h data/direction.c
     data/item.h data/item.c
     data/mobile.h data/mobile.c
     data/player.h
-    data/race.h data/race.c 
-    data/skill.h data/skill.c 
+    data/race.h data/race.c
+    data/skill.h data/skill.c
+    data/social.h data/social.c
     data/spell.h data/spell.c
     data/stats.h data/stats.c
- "weather.h" "weather.c" "data/social.h" "data/social.c")
+)
 
 if (NOT MSVC)
     target_link_libraries(Mud98 Threads::Threads OpenSSL::SSL)

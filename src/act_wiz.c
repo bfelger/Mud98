@@ -3078,8 +3078,8 @@ void do_mset(CharData* ch, char* argument)
     }
 
     if (!str_prefix(arg2, "sex")) {
-        if (value < 0 || value >= SEX_MAX) {
-            printf_to_char(ch, "Sex range is 0 to %d.\n\r", SEX_MAX-1);
+        if (value < 0 || value >= SEX_COUNT) {
+            printf_to_char(ch, "Sex range is 0 to %d.\n\r", SEX_COUNT-1);
             return;
         }
         victim->sex = (Sex)value;
