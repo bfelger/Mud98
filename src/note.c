@@ -324,9 +324,11 @@ void append_note(NoteData* pnote)
 
 bool is_note_to(CharData* ch, NoteData* pnote)
 {
-    if (!str_cmp(ch->name, pnote->sender)) return true;
+    if (!str_cmp(ch->name, pnote->sender))
+        return true;
 
-    if (is_exact_name("all", pnote->to_list)) return true;
+    if (is_exact_name("all", pnote->to_list))
+        return true;
 
     if (IS_IMMORTAL(ch) && is_exact_name("immortal", pnote->to_list))
         return true;
@@ -334,7 +336,8 @@ bool is_note_to(CharData* ch, NoteData* pnote)
     if (ch->clan && is_exact_name(clan_table[ch->clan].name, pnote->to_list))
         return true;
 
-    if (is_exact_name(ch->name, pnote->to_list)) return true;
+    if (is_exact_name(ch->name, pnote->to_list))
+        return true;
 
     return false;
 }
@@ -412,7 +415,8 @@ void note_remove(CharData* ch, NoteData* pnote, bool delete)
     if (pnote == *list) { *list = pnote->next; }
     else {
         for (prev = *list; prev != NULL; prev = prev->next) {
-            if (prev->next == pnote) break;
+            if (prev->next == pnote) 
+                break;
         }
 
         if (prev == NULL) {
@@ -432,7 +436,8 @@ bool hide_note(CharData* ch, NoteData* pnote)
 {
     time_t last_read;
 
-    if (IS_NPC(ch)) return true;
+    if (IS_NPC(ch)) 
+        return true;
 
     switch (pnote->type) {
     default:
@@ -454,11 +459,14 @@ bool hide_note(CharData* ch, NoteData* pnote)
         break;
     }
 
-    if (pnote->date_stamp <= last_read) return true;
+    if (pnote->date_stamp <= last_read) 
+        return true;
 
-    if (!str_cmp(ch->name, pnote->sender)) return true;
+    if (!str_cmp(ch->name, pnote->sender)) 
+        return true;
 
-    if (!is_note_to(ch, pnote)) return true;
+    if (!is_note_to(ch, pnote)) 
+        return true;
 
     return false;
 }
@@ -467,7 +475,8 @@ void update_read(CharData* ch, NoteData* pnote)
 {
     time_t stamp;
 
-    if (IS_NPC(ch)) return;
+    if (IS_NPC(ch)) 
+        return;
 
     stamp = pnote->date_stamp;
 
@@ -503,7 +512,8 @@ void parse_note(CharData* ch, char* argument, int16_t type)
     VNUM vnum;
     int anum;
 
-    if (IS_NPC(ch)) return;
+    if (IS_NPC(ch)) 
+        return;
 
     switch (type) {
     default:
@@ -540,10 +550,8 @@ void parse_note(CharData* ch, char* argument, int16_t type)
             fAll = true;
             anum = 0;
         }
-
-        else if (argument[0] == '\0' || !str_prefix(argument, "next"))
-        /* read next unread note */
-        {
+        else if (argument[0] == '\0' || !str_prefix(argument, "next")) {
+            // read next unread note
             vnum = 0;
             for (pnote = *list; pnote != NULL; pnote = pnote->next) {
                 if (!hide_note(ch, pnote)) {
@@ -697,8 +705,7 @@ void parse_note(CharData* ch, char* argument, int16_t type)
     if (!str_cmp(arg, "+")) {
         note_attach(ch, type);
         if (ch->pnote->type != type) {
-            send_to_char("You already have a different note in progress.\n\r",
-                         ch);
+            send_to_char("You already have a different note in progress.\n\r", ch);
             return;
         }
 
@@ -724,8 +731,7 @@ void parse_note(CharData* ch, char* argument, int16_t type)
 
         note_attach(ch, type);
         if (ch->pnote->type != type) {
-            send_to_char("You already have a different note in progress.\n\r",
-                         ch);
+            send_to_char("You already have a different note in progress.\n\r", ch);
             return;
         }
 
@@ -738,13 +744,14 @@ void parse_note(CharData* ch, char* argument, int16_t type)
 
         for (size_t len = strlen(buf); len > 0; len--) {
             if (buf[len] == '\r') {
-                if (!found) /* back it up */
-                {
-                    if (len > 0) len--;
+                if (!found) {
+                    /* back it up */
+                    if (len > 0) 
+                        len--;
                     found = true;
                 }
-                else /* found the second one */
-                {
+                else {
+                    /* found the second one */
                     buf[len + 1] = '\0';
                     free_string(ch->pnote->text);
                     ch->pnote->text = str_dup(buf);
@@ -761,8 +768,7 @@ void parse_note(CharData* ch, char* argument, int16_t type)
     if (!str_prefix(arg, "subject")) {
         note_attach(ch, type);
         if (ch->pnote->type != type) {
-            send_to_char("You already have a different note in progress.\n\r",
-                         ch);
+            send_to_char("You already have a different note in progress.\n\r", ch);
             return;
         }
 
@@ -775,8 +781,7 @@ void parse_note(CharData* ch, char* argument, int16_t type)
     if (!str_prefix(arg, "to")) {
         note_attach(ch, type);
         if (ch->pnote->type != type) {
-            send_to_char("You already have a different note in progress.\n\r",
-                         ch);
+            send_to_char("You already have a different note in progress.\n\r", ch);
             return;
         }
         free_string(ch->pnote->to_list);
@@ -828,8 +833,7 @@ void parse_note(CharData* ch, char* argument, int16_t type)
 
         if (!str_cmp(ch->pnote->to_list, "")) {
             send_to_char(
-                "You need to provide a recipient (name, all, or immortal).\n\r",
-                ch);
+                "You need to provide a recipient (name, all, or immortal).\n\r", ch);
             return;
         }
 

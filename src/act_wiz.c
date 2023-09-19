@@ -280,7 +280,7 @@ void do_outfit(CharData* ch, char* argument)
         sn = 0;
         vnum = OBJ_VNUM_SCHOOL_SWORD; /* just in case! */
 
-        for (i = 0; i < WEAPON_MAX; i++) {
+        for (i = 0; i < WEAPON_TYPE_COUNT; i++) {
             if (ch->pcdata->learned[sn]
                 < ch->pcdata->learned[*weapon_table[i].gsn]) {
                 sn = *weapon_table[i].gsn;
@@ -1146,25 +1146,25 @@ void do_ostat(CharData* ch, char* argument)
         sprintf(buf, "Level %d spells of:", obj->value[0]);
         send_to_char(buf, ch);
 
-        if (obj->value[1] >= 0 && obj->value[1] < max_skill) {
+        if (obj->value[1] >= 0 && obj->value[1] < skill_count) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[1]].name, ch);
             send_to_char("'", ch);
         }
 
-        if (obj->value[2] >= 0 && obj->value[2] < max_skill) {
+        if (obj->value[2] >= 0 && obj->value[2] < skill_count) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[2]].name, ch);
             send_to_char("'", ch);
         }
 
-        if (obj->value[3] >= 0 && obj->value[3] < max_skill) {
+        if (obj->value[3] >= 0 && obj->value[3] < skill_count) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[3]].name, ch);
             send_to_char("'", ch);
         }
 
-        if (obj->value[4] >= 0 && obj->value[4] < max_skill) {
+        if (obj->value[4] >= 0 && obj->value[4] < skill_count) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[4]].name, ch);
             send_to_char("'", ch);
@@ -1179,7 +1179,7 @@ void do_ostat(CharData* ch, char* argument)
                 obj->value[2], obj->value[0]);
         send_to_char(buf, ch);
 
-        if (obj->value[3] >= 0 && obj->value[3] < max_skill) {
+        if (obj->value[3] >= 0 && obj->value[3] < skill_count) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[3]].name, ch);
             send_to_char("'", ch);
@@ -1238,7 +1238,7 @@ void do_ostat(CharData* ch, char* argument)
         send_to_char(buf, ch);
 
         sprintf(buf, "Damage noun is %s.\n\r",
-                (obj->value[3] > 0 && obj->value[3] < MAX_ATTACK)
+                (obj->value[3] > 0 && obj->value[3] < ATTACK_COUNT)
                     ? attack_table[obj->value[3]].noun
                     : "undefined");
         send_to_char(buf, ch);
@@ -2823,7 +2823,7 @@ void do_slookup(CharData* ch, char* argument)
     }
 
     if (!str_cmp(arg, "all")) {
-        for (sn = 0; sn < max_skill; sn++) {
+        for (sn = 0; sn < skill_count; sn++) {
             if (skill_table[sn].name == NULL) break;
             sprintf(buf, "Sn: %3d  Slot: %3d  Skill/spell: '%s'\n\r", sn,
                     skill_table[sn].slot, skill_table[sn].name);
@@ -2938,7 +2938,7 @@ void do_sset(CharData* ch, char* argument)
     }
 
     if (fAll) {
-        for (sn = 0; sn < max_skill; sn++) {
+        for (sn = 0; sn < skill_count; sn++) {
             if (skill_table[sn].name != NULL)
                 victim->pcdata->learned[sn] = (int16_t)value;
         }

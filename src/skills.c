@@ -91,7 +91,7 @@ void do_gain(CharData* ch, char* argument)
                 "group", "cost", "group", "cost");
         send_to_char(buf, ch);
 
-        for (gn = 0; gn < max_skill_group; gn++) {
+        for (gn = 0; gn < skill_group_count; gn++) {
             if (skill_group_table[gn].name == NULL) break;
 
             if (!ch->pcdata->group_known[gn]
@@ -113,7 +113,7 @@ void do_gain(CharData* ch, char* argument)
                 "skill", "cost", "skill", "cost");
         send_to_char(buf, ch);
 
-        for (sn = 0; sn < max_skill; sn++) {
+        for (sn = 0; sn < skill_count; sn++) {
             if (skill_table[sn].name == NULL) break;
 
             if (!ch->pcdata->learned[sn]
@@ -308,7 +308,7 @@ void do_spells(CharData* ch, char* argument)
         spell_columns[level] = 0;
     }
 
-    for (sn = 0; sn < max_skill; sn++) {
+    for (sn = 0; sn < skill_count; sn++) {
         if (skill_table[sn].name == NULL) break;
 
         if ((level = skill_table[sn].skill_level[arch]) < LEVEL_HERO + 1
@@ -432,7 +432,7 @@ void do_skills(CharData* ch, char* argument)
         skill_columns[level] = 0;
     }
 
-    for (sn = 0; sn < max_skill; sn++) {
+    for (sn = 0; sn < skill_count; sn++) {
         if (skill_table[sn].name == NULL) break;
 
         if ((level = skill_table[sn].skill_level[arch]) < LEVEL_HERO + 1
@@ -502,7 +502,7 @@ void list_group_costs(CharData* ch)
             "cp", "group", "cp");
     send_to_char(buf, ch);
 
-    for (gn = 0; gn < max_skill_group; gn++) {
+    for (gn = 0; gn < skill_group_count; gn++) {
         if (skill_group_table[gn].name == NULL) break;
 
         if (!ch->gen_data->group_chosen[gn] && !ch->pcdata->group_known[gn]
@@ -522,7 +522,7 @@ void list_group_costs(CharData* ch)
             "cp", "skill", "cp");
     send_to_char(buf, ch);
 
-    for (sn = 0; sn < max_skill; sn++) {
+    for (sn = 0; sn < skill_count; sn++) {
         if (skill_table[sn].name == NULL) break;
 
         if (!ch->gen_data->skill_chosen[sn] && ch->pcdata->learned[sn] == 0
@@ -561,7 +561,7 @@ void list_group_chosen(CharData* ch)
             "cp", "group", "cp\n\r");
     send_to_char(buf, ch);
 
-    for (gn = 0; gn < max_skill_group; gn++) {
+    for (gn = 0; gn < skill_group_count; gn++) {
         if (skill_group_table[gn].name == NULL) break;
 
         if (ch->gen_data->group_chosen[gn]
@@ -581,7 +581,7 @@ void list_group_chosen(CharData* ch)
             "cp", "skill", "cp\n\r");
     send_to_char(buf, ch);
 
-    for (sn = 0; sn < max_skill; sn++) {
+    for (sn = 0; sn < skill_count; sn++) {
         if (skill_table[sn].name == NULL) break;
 
         if (ch->gen_data->skill_chosen[sn]
@@ -742,7 +742,7 @@ bool parse_gen_groups(CharData* ch, char* argument)
             ch->gen_data->group_chosen[gn] = false;
             ch->gen_data->points_chosen -= skill_group_table[gn].rating[arch];
             gn_remove(ch, gn);
-            for (i = 0; i < max_skill_group; i++) {
+            for (i = 0; i < skill_group_count; i++) {
                 if (ch->gen_data->group_chosen[gn]) gn_add(ch, gn);
             }
             ch->pcdata->points -= (int16_t)skill_group_table[gn].rating[arch];
@@ -799,7 +799,7 @@ void do_groups(CharData* ch, char* argument)
 
     if (argument[0] == '\0') { /* show all groups */
 
-        for (gn = 0; gn < max_skill_group; gn++) {
+        for (gn = 0; gn < skill_group_count; gn++) {
             if (skill_group_table[gn].name == NULL) break;
             if (ch->pcdata->group_known[gn]) {
                 sprintf(buf, "%-20s ", skill_group_table[gn].name);
@@ -815,7 +815,7 @@ void do_groups(CharData* ch, char* argument)
 
     if (!str_cmp(argument, "all")) /* show all groups */
     {
-        for (gn = 0; gn < max_skill_group; gn++) {
+        for (gn = 0; gn < skill_group_count; gn++) {
             if (skill_group_table[gn].name == NULL) break;
             sprintf(buf, "%-20s ", skill_group_table[gn].name);
             send_to_char(buf, ch);
@@ -899,7 +899,7 @@ SKNUM group_lookup(const char* name)
 {
     SKNUM gn;
 
-    for (gn = 0; gn < max_skill_group; gn++) {
+    for (gn = 0; gn < skill_group_count; gn++) {
         if (skill_group_table[gn].name == NULL) break;
         if (LOWER(name[0]) == LOWER(skill_group_table[gn].name[0])
             && !str_prefix(name, skill_group_table[gn].name))

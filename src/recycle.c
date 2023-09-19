@@ -195,17 +195,17 @@ void clear_buf(Buffer* buffer)
 }
 
 
-int16_t* new_learned(void) // Return int16_t[max_skill]
+int16_t* new_learned(void) // Return int16_t[skill_count]
 {
     int16_t* temp;
     int i;
 
-    if ((temp = (int16_t*)malloc(sizeof(int16_t) * max_skill)) == NULL) {
+    if ((temp = (int16_t*)malloc(sizeof(int16_t) * skill_count)) == NULL) {
         perror("malloc() failed in new_learned()");
         exit(-1);
     }
 
-    for (i = 0; i < max_skill; ++i)
+    for (i = 0; i < skill_count; ++i)
         temp[i] = 0;
 
     return temp;

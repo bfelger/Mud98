@@ -207,7 +207,7 @@ void skill_list(Buffer* pBuf)
         "Name", "Name", "Name");
     add_buf(pBuf, buf);
 
-    for (i = 0; i < max_skill; ++i) {
+    for (i = 0; i < skill_count; ++i) {
         sprintf(buf, "{*%3d{x %c %-20.20s", i,
             skill_table[i].spell_fun == spell_null ? '-' : '+',
             skill_table[i].name);
@@ -255,7 +255,7 @@ void slot_list(Buffer* pBuf)
     add_buf(pBuf, buf);
 
     cnt = 0;
-    for (i = 0; i < max_skill; ++i) {
+    for (i = 0; i < skill_count; ++i) {
         if (skill_table[i].slot) {
             sprintf(buf, "{*%3d{x %-22.22s",
                 skill_table[i].slot,
@@ -316,11 +316,11 @@ SKEDIT(skedit_show)
         pSkill->name);
     send_to_char(buf, ch);
 
-    while ((sn < max_skill) && (pSkill != &skill_table[sn]))
+    while ((sn < skill_count) && (pSkill != &skill_table[sn]))
         sn++;
 
-    if (sn != max_skill) {
-        sprintf(buf, "Sn       : [%3d/%3d]\n\r", sn, max_skill);
+    if (sn != skill_count) {
+        sprintf(buf, "Sn       : [%3d/%3d]\n\r", sn, skill_count);
         send_to_char(buf, ch);
     }
 
@@ -396,7 +396,7 @@ void create_skills_hash_table(void)
     SkillHash* temp;
     SKNUM sn;
 
-    for (sn = 0; sn < max_skill; sn++) {
+    for (sn = 0; sn < skill_count; sn++) {
         if (IS_NULLSTR(skill_table[sn].name))
             continue;
 
@@ -616,7 +616,7 @@ SKEDIT(skedit_gsn)
     }
 
     pSkill->pgsn = gsn;
-    for (sn = 0; sn < max_skill; sn++) {
+    for (sn = 0; sn < skill_count; sn++) {
         if (skill_table[sn].pgsn != NULL)
             *skill_table[sn].pgsn = sn;
     }
@@ -653,8 +653,8 @@ SKEDIT(skedit_new)
     }
 
     /* reallocate the table */
-    max_skill++;
-    new_table = realloc(skill_table, sizeof(Skill) * ((size_t)max_skill + 1));
+    skill_count++;
+    new_table = realloc(skill_table, sizeof(Skill) * ((size_t)skill_count + 1));
 
     if (!new_table) /* realloc failed */
     {
@@ -665,23 +665,23 @@ SKEDIT(skedit_new)
 
     skill_table = new_table;
 
-    skill_table[max_skill - 1].name = str_dup(argument);
+    skill_table[skill_count - 1].name = str_dup(argument);
     for (i = 0; i < ARCH_COUNT; ++i) {
-        skill_table[max_skill - 1].skill_level[i] = 53;
-        skill_table[max_skill - 1].rating[i] = 0;
+        skill_table[skill_count - 1].skill_level[i] = 53;
+        skill_table[skill_count - 1].rating[i] = 0;
     }
-    skill_table[max_skill - 1].spell_fun = spell_null;
-    skill_table[max_skill - 1].target = SKILL_TARGET_IGNORE;
-    skill_table[max_skill - 1].minimum_position = POS_STANDING;
-    skill_table[max_skill - 1].pgsn = NULL;
-    skill_table[max_skill - 1].slot = 0;
-    skill_table[max_skill - 1].min_mana = 0;
-    skill_table[max_skill - 1].beats = 0;
-    skill_table[max_skill - 1].noun_damage = str_dup("");
-    skill_table[max_skill - 1].msg_off = str_dup("");
-    skill_table[max_skill - 1].msg_obj = str_dup("");
+    skill_table[skill_count - 1].spell_fun = spell_null;
+    skill_table[skill_count - 1].target = SKILL_TARGET_IGNORE;
+    skill_table[skill_count - 1].minimum_position = POS_STANDING;
+    skill_table[skill_count - 1].pgsn = NULL;
+    skill_table[skill_count - 1].slot = 0;
+    skill_table[skill_count - 1].min_mana = 0;
+    skill_table[skill_count - 1].beats = 0;
+    skill_table[skill_count - 1].noun_damage = str_dup("");
+    skill_table[skill_count - 1].msg_off = str_dup("");
+    skill_table[skill_count - 1].msg_obj = str_dup("");
 
-    skill_table[max_skill].name = NULL;
+    skill_table[skill_count].name = NULL;
 
     for (d = descriptor_list; d; d = d->next) {
         if ((d->connected == CON_PLAYING)
@@ -689,14 +689,14 @@ SKEDIT(skedit_new)
             || (tch->gen_data == NULL))
             continue;
 
-        tempgendata = realloc(tch->gen_data->skill_chosen, sizeof(bool) * max_skill);
+        tempgendata = realloc(tch->gen_data->skill_chosen, sizeof(bool) * skill_count);
         if (!tempgendata) {
             perror("skedit_new (2): Falled to reallocate tempgendata!");
             send_to_char("Realloc failed. Prepare for impact. (2)\n\r", ch);
             return false;
         }
         tch->gen_data->skill_chosen = tempgendata;
-        tch->gen_data->skill_chosen[max_skill - 1] = 0;
+        tch->gen_data->skill_chosen[skill_count - 1] = 0;
     }
 
     for (tch = char_list; tch; tch = tch->next)
@@ -704,7 +704,7 @@ SKEDIT(skedit_new)
             templearned = new_learned();
 
             /* copiamos los valuees */
-            for (i = 0; i < max_skill - 1; ++i)
+            for (i = 0; i < skill_count - 1; ++i)
                 templearned[i] = tch->pcdata->learned[i];
 
             free_learned(tch->pcdata->learned);
@@ -714,7 +714,7 @@ SKEDIT(skedit_new)
     delete_skills_hash_table();
     create_skills_hash_table();
     ch->desc->editor = ED_SKILL;
-    ch->desc->pEdit = U(&skill_table[max_skill - 1]);
+    ch->desc->pEdit = U(&skill_table[skill_count - 1]);
 
     send_to_char("Skill created.\n\r", ch);
     return true;

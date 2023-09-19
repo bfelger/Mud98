@@ -116,16 +116,16 @@ extern const struct flag_type weapon_class[];
 extern const struct flag_type apply_types[];
 extern const struct flag_type weapon_type2[];
 extern const struct flag_type apply_types[];
-extern const struct flag_type size_flag_table[];
+extern const struct flag_type size_flag_table[MOB_SIZE_COUNT+1];
 extern const struct flag_type position_flag_table[];
 extern const struct flag_type ac_type[];
 extern const struct bit_type bitvector_type[];
 extern const struct recval_type recval_table[];
 extern const struct flag_type target_table[];
-extern const struct flag_type dam_classes[DAM_MAX];
+extern const struct flag_type dam_classes[DAM_TYPE_COUNT];
 extern const struct flag_type log_flag_table[];
 extern const struct flag_type show_flag_table[];
-extern const struct flag_type stat_table[];
+extern const struct flag_type stat_table[STAT_COUNT+1];
 
 void show_flags_to_char(CharData* ch, const struct flag_type* flags);
 

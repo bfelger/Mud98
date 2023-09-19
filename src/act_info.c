@@ -434,7 +434,7 @@ void show_char_to_char_1(CharData* victim, CharData* ch)
     send_to_char(buf, ch);
 
     found = false;
-    for (iWear = 0; iWear < WEAR_COUNT; iWear++) {
+    for (iWear = 0; iWear < WEAR_LOC_COUNT; iWear++) {
         if ((obj = get_eq_char(victim, iWear)) != NULL
             && can_see_obj(ch, obj)) {
             if (!found) {
@@ -1923,7 +1923,7 @@ void do_equipment(CharData* ch, char* argument)
 
     send_to_char("You are using:\n\r", ch);
     found = false;
-    for (iWear = 0; iWear < WEAR_COUNT; iWear++) {
+    for (iWear = 0; iWear < WEAR_LOC_COUNT; iWear++) {
         if ((obj = get_eq_char(ch, iWear)) == NULL) 
             continue;
 
@@ -2276,7 +2276,7 @@ void do_practice(CharData* ch, char* argument)
         int col;
 
         col = 0;
-        for (sn = 0; sn < max_skill; sn++) {
+        for (sn = 0; sn < skill_count; sn++) {
             if (skill_table[sn].name == NULL)
                 break;
             if (ch->level < skill_table[sn].skill_level[arch]

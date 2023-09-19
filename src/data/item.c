@@ -79,7 +79,7 @@ const LiquidInfo liquid_table[LIQ_COUNT] = {
     { "cordial",            "clear",            100,  1,    5,    0,   2    },
 };
 
-const WeaponInfo weapon_table[WEAPON_MAX] = {
+const WeaponInfo weapon_table[WEAPON_TYPE_COUNT] = {
     { WEAPON_EXOTIC,    "exotic",       &gsn_exotic,    OBJ_VNUM_SCHOOL_SWORD   },
     { WEAPON_SWORD,     "sword",        &gsn_sword,     OBJ_VNUM_SCHOOL_SWORD   },
     { WEAPON_MACE,      "mace",         &gsn_mace,      OBJ_VNUM_SCHOOL_MACE    },

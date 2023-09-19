@@ -12,11 +12,11 @@
 #include "tablesave.h"
 
 Skill* skill_table = NULL;
-int max_skill = 0;
+int skill_count = 0;
 Skill tmp_sk;
 
 SkillGroup* skill_group_table = NULL;
-int max_skill_group = 0;
+int skill_group_count = 0;
 SkillGroup tmp_grp;
 
 bool pgsn_read(void* temp, char* arg);
@@ -69,14 +69,14 @@ void load_skill_group_table()
 
     int tmp_max_group;
     if (fscanf(fp, "%d\n", &tmp_max_group) < 1) {
-        perror("load_groups_table: Could not read max_skill_group!");
+        perror("load_groups_table: Could not read skill_group_count!");
         return;
     }
-    max_skill_group = tmp_max_group;
+    skill_group_count = tmp_max_group;
 
     flog("Creating group table of length %d, size %zu",
-        max_skill_group + 1, sizeof(SkillGroup) * ((size_t)max_skill_group + 1));
-    if ((skill_group_table = calloc(sizeof(SkillGroup), (size_t)max_skill_group + 1)) == NULL) {
+        skill_group_count + 1, sizeof(SkillGroup) * ((size_t)skill_group_count + 1));
+    if ((skill_group_table = calloc(sizeof(SkillGroup), (size_t)skill_group_count + 1)) == NULL) {
         bug("load_groups_table(): Could not allocate skill_group_table!");
         exit(1);
     }
@@ -92,8 +92,8 @@ void load_skill_group_table()
             exit(1);
         }
 
-        if (i >= max_skill_group) {
-            bug("Load_groups : the number of groups is greater than max_skill_group", 0);
+        if (i >= skill_group_count) {
+            bug("Load_groups : the number of groups is greater than skill_group_count", 0);
             exit(1);
         }
 
@@ -101,7 +101,7 @@ void load_skill_group_table()
         load_struct(fp, U(&tmp_grp), skill_group_save_table, U(&skill_group_table[i++]));
     }
 
-    skill_group_table[max_skill_group].name = NULL;
+    skill_group_table[skill_group_count].name = NULL;
 
     fclose(fp);
 
@@ -126,15 +126,15 @@ void load_skill_table()
     }
 
     if (fscanf(fp, "%d\n", &tmp_max_skill) < 1) {
-        bug("load_skill_table(): Could not read max_skill!");
+        bug("load_skill_table(): Could not read skill_count!");
         return;
     }
 
-    max_skill = (SKNUM)tmp_max_skill;
+    skill_count = (SKNUM)tmp_max_skill;
 
     flog("Creating skill table of length %d, size %zu",
-        max_skill + 1, sizeof(Skill) * ((size_t)max_skill + 1));
-    if ((skill_table = calloc(sizeof(Skill), (size_t)max_skill + 1)) == NULL) {
+        skill_count + 1, sizeof(Skill) * ((size_t)skill_count + 1));
+    if ((skill_table = calloc(sizeof(Skill), (size_t)skill_count + 1)) == NULL) {
         bug("load_skill_table(): Could not allocate skill_table!");
         exit(1);
     }
@@ -150,8 +150,8 @@ void load_skill_table()
             exit(1);
         }
 
-        if (i >= max_skill) {
-            bug("Load_skills : the number of skills is greater than max_skill", 0);
+        if (i >= skill_count) {
+            bug("Load_skills : the number of skills is greater than skill_count", 0);
             exit(1);
         }
 
@@ -159,7 +159,7 @@ void load_skill_table()
         load_struct(fp, U(&tmp_sk), skill_save_table, U(&skill_table[i++]));
     }
 
-    skill_table[max_skill].name = NULL;
+    skill_table[skill_count].name = NULL;
 
     fclose(fp);
 
@@ -179,9 +179,9 @@ void save_skill_group_table()
         return;
     }
 
-    fprintf(fpn, "%d\n\n", (int)max_skill_group);
+    fprintf(fpn, "%d\n\n", (int)skill_group_count);
 
-    for (i = 0; i < max_skill_group; ++i) {
+    for (i = 0; i < skill_group_count; ++i) {
         fprintf(fpn, "#GROUP\n");
         save_struct(fpn, U(&tmp_grp), skill_group_save_table, U(&skill_group_table[i]));
         fprintf(fpn, "#END\n\n");
@@ -205,9 +205,9 @@ void save_skill_table()
         return;
     }
 
-    fprintf(fpn, "%d\n\n", (int)max_skill);
+    fprintf(fpn, "%d\n\n", (int)skill_count);
 
-    for (i = 0; i < max_skill; ++i) {
+    for (i = 0; i < skill_count; ++i) {
         fprintf(fpn, "#SKILL\n");
         save_struct(fpn, U(&tmp_sk), skill_save_table, U(&skill_table[i]));
         fprintf(fpn, "#END\n\n");
@@ -222,7 +222,7 @@ SKNUM skill_lookup(const char* name)
 {
     SKNUM sn;
 
-    for (sn = 0; sn < max_skill; sn++) {
+    for (sn = 0; sn < skill_count; sn++) {
         if (skill_table[sn].name == NULL) break;
         if (LOWER(name[0]) == LOWER(skill_table[sn].name[0])
             && !str_prefix(name, skill_table[sn].name))

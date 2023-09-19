@@ -175,7 +175,7 @@ void show_skill_cmds(CharData* ch, SkillTarget tar)
 
     buf1[0] = '\0';
     col = 0;
-    for (sn = 0; sn < max_skill; sn++) {
+    for (sn = 0; sn < skill_count; sn++) {
         if (!skill_table[sn].name)
             break;
 

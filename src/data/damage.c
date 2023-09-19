@@ -4,7 +4,7 @@
 
 #include "damage.h"
 
-const DamageInfo damage_table[DAM_MAX] = {
+const DamageInfo damage_table[DAM_TYPE_COUNT] = {
     { DAM_NONE,       "none",       IMM_NONE,       RES_NONE,       VULN_NONE,      },
     { DAM_BASH,       "bash",       IMM_BASH,       RES_BASH,       VULN_BASH,      },
     { DAM_PIERCE,     "pierce",     IMM_PIERCE,     RES_PIERCE,     VULN_PIERCE,    },
@@ -27,7 +27,7 @@ const DamageInfo damage_table[DAM_MAX] = {
     { DAM_SOUND,      "sound",      IMM_SOUND,      RES_SOUND,      VULN_SOUND,     },
 };
 
-const AttackInfo attack_table[MAX_ATTACK] = {
+const AttackInfo attack_table[ATTACK_COUNT] = {
     { "none",       "hit",              DAM_NONE        },
     { "slice",      "slice",            DAM_SLASH       },
     { "stab",       "stab",             DAM_PIERCE      },

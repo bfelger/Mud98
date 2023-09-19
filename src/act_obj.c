@@ -1713,7 +1713,7 @@ void do_brandish(CharData* ch, char* argument)
         return;
     }
 
-    if ((sn = (SKNUM)staff->value[3]) < 0 || sn >= max_skill
+    if ((sn = (SKNUM)staff->value[3]) < 0 || sn >= skill_count
         || skill_table[sn].spell_fun == 0) {
         bug("Do_brandish: bad sn %d.", sn);
         return;

@@ -285,7 +285,7 @@ GEDIT(gedit_list)
     int i, cnt = 0;
     char buf[MIL];
 
-    for (i = 0; i < max_skill_group; ++i) {
+    for (i = 0; i < skill_group_count; ++i) {
         if ((pGrp = &skill_group_table[i]) == NULL)
             break;
 

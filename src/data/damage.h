@@ -136,7 +136,7 @@ typedef enum damage_type_t {
     DAM_SOUND               = 19,
 } DamageType;
 
-#define DAM_MAX 20
+#define DAM_TYPE_COUNT 20
 
 #define TYPE_UNDEFINED     -1
 #define TYPE_HIT           1000
@@ -149,13 +149,13 @@ typedef struct damage_info_t {
     const VulnFlags vuln;
 } DamageInfo;
 
-extern const DamageInfo damage_table[DAM_MAX];
+extern const DamageInfo damage_table[DAM_TYPE_COUNT];
 
 ////////////////////////////////////////////////////////////////////////////////
 // Attacks
 ////////////////////////////////////////////////////////////////////////////////
 
-#define MAX_ATTACK  41
+#define ATTACK_COUNT 41
 
 typedef struct attack_info_t {
     char* name;
@@ -163,7 +163,7 @@ typedef struct attack_info_t {
     DamageType damage;
 } AttackInfo;
 
-extern const AttackInfo attack_table[MAX_ATTACK];
+extern const AttackInfo attack_table[ATTACK_COUNT];
 
 ////////////////////////////////////////////////////////////////////////////////
 // Dice

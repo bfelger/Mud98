@@ -127,7 +127,7 @@ int material_lookup(const char* name)
 
 WeaponType weapon_lookup(const char* name)
 {
-    for (int type = 0; type < WEAPON_MAX; type++) {
+    for (int type = 0; type < WEAPON_TYPE_COUNT; type++) {
         if (LOWER(name[0]) == LOWER(weapon_table[type].name[0])
             && !str_prefix(name, weapon_table[type].name))
             return weapon_table[type].type;
@@ -140,7 +140,7 @@ int attack_lookup(const char* name)
 {
     int att;
 
-    for (att = 0; attack_table[att].name != NULL; att++) {
+    for (att = 0; att < ATTACK_COUNT; att++) {
         if (LOWER(name[0]) == LOWER(attack_table[att].name[0])
             && !str_prefix(name, attack_table[att].name))
             return att;
@@ -330,7 +330,7 @@ int get_skill(CharData* ch, SKNUM sn)
     {
         skill = ch->level * 5 / 2;
     }
-    else if (sn < -1 || sn > max_skill) {
+    else if (sn < -1 || sn > skill_count) {
         bug("Bad sn %d in get_skill.", sn);
         skill = 0;
     }
@@ -466,7 +466,7 @@ void reset_char(CharData* ch)
     if (ch->pcdata->perm_hit == 0 || ch->pcdata->perm_mana == 0
         || ch->pcdata->perm_move == 0 || ch->pcdata->last_level == 0) {
         /* do a FULL reset */
-        for (loc = 0; loc < WEAR_COUNT; loc++) {
+        for (loc = 0; loc < WEAR_LOC_COUNT; loc++) {
             obj = get_eq_char(ch, loc);
             if (obj == NULL) continue;
             if (!obj->enchanted)
@@ -545,7 +545,7 @@ void reset_char(CharData* ch)
     ch->saving_throw = 0;
 
     /* now start adding back the effects */
-    for (loc = 0; loc < WEAR_COUNT; loc++) {
+    for (loc = 0; loc < WEAR_LOC_COUNT; loc++) {
         obj = get_eq_char(ch, loc);
         if (obj == NULL)
             continue;
@@ -827,7 +827,7 @@ int can_carry_n(CharData* ch)
     if (IS_NPC(ch) && IS_SET(ch->act_flags, ACT_PET))
         return 0;
 
-    return WEAR_COUNT + 2 * get_curr_stat(ch, STAT_DEX) + ch->level;
+    return WEAR_LOC_COUNT + 2 * get_curr_stat(ch, STAT_DEX) + ch->level;
 }
 
 /*
@@ -854,10 +854,12 @@ bool is_name(char* str, char* namelist)
     char *list, *string;
 
     /* fix crash on NULL namelist */
-    if (namelist == NULL || namelist[0] == '\0') return false;
+    if (namelist == NULL || namelist[0] == '\0') 
+        return false;
 
     /* fixed to prevent is_name on "" returning true */
-    if (str[0] == '\0') return false;
+    if (str[0] == '\0') 
+        return false;
 
     string = str;
     /* we need ALL parts of string to match part of namelist */
@@ -889,12 +891,17 @@ bool is_exact_name(char* str, char* namelist)
 {
     char name[MAX_INPUT_LENGTH];
 
-    if (namelist == NULL) return false;
+    if (namelist == NULL) 
+        return false;
 
     for (;;) {
         namelist = one_argument(namelist, name);
-        if (name[0] == '\0') return false;
-        if (!str_cmp(str, name)) return true;
+
+        if (name[0] == '\0') 
+            return false;
+
+        if (!str_cmp(str, name)) 
+            return true;
     }
 }
 

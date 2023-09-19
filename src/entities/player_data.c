@@ -40,7 +40,7 @@ PlayerData* new_player_data()
 
     pcdata->buffer = new_buf();
     pcdata->learned = new_learned();
-    pcdata->group_known = new_boolarray(max_skill_group);
+    pcdata->group_known = new_boolarray(skill_group_count);
 
     VALIDATE(pcdata);
     return pcdata;
@@ -108,8 +108,8 @@ CharGenData* new_gen_data()
     }
     *gen = gen_zero;
 
-    gen->skill_chosen = new_boolarray(max_skill);
-    gen->group_chosen = new_boolarray(max_skill_group);
+    gen->skill_chosen = new_boolarray(skill_count);
+    gen->group_chosen = new_boolarray(skill_group_count);
 
     VALIDATE(gen);
     return gen;

@@ -265,14 +265,14 @@ void fwrite_char(CharData* ch, FILE* fp)
                     ch->pcdata->alias_sub[pos]);
         }
 
-        for (sn = 0; sn < max_skill; sn++) {
+        for (sn = 0; sn < skill_count; sn++) {
             if (skill_table[sn].name != NULL && ch->pcdata->learned[sn] > 0) {
                 fprintf(fp, "Sk %d '%s'\n", ch->pcdata->learned[sn],
                         skill_table[sn].name);
             }
         }
 
-        for (gn = 0; gn < max_skill_group; gn++) {
+        for (gn = 0; gn < skill_group_count; gn++) {
             if (skill_group_table[gn].name != NULL && ch->pcdata->group_known[gn]) {
                 fprintf(fp, "Gr '%s'\n", skill_group_table[gn].name);
             }
@@ -280,7 +280,7 @@ void fwrite_char(CharData* ch, FILE* fp)
     }
 
     for (paf = ch->affected; paf != NULL; paf = paf->next) {
-        if (paf->type < 0 || paf->type >= max_skill) continue;
+        if (paf->type < 0 || paf->type >= skill_count) continue;
 
         fprintf(fp, "Affc '%s' %3d %3d %3d %3d %3d %10d\n",
                 skill_table[paf->type].name, paf->where, paf->level,
@@ -380,7 +380,7 @@ void fwrite_pet(CharData* pet, FILE* fp)
             pet->mod_stat[STAT_DEX], pet->mod_stat[STAT_CON]);
 
     for (paf = pet->affected; paf != NULL; paf = paf->next) {
-        if (paf->type < 0 || paf->type >= max_skill) continue;
+        if (paf->type < 0 || paf->type >= skill_count) continue;
 
         fprintf(fp, "Affc '%s' %3d %3d %3d %3d %3d %10d\n",
                 skill_table[paf->type].name, paf->where, paf->level,
@@ -482,7 +482,7 @@ void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
     }
 
     for (paf = obj->affected; paf != NULL; paf = paf->next) {
-        if (paf->type < 0 || paf->type >= max_skill) continue;
+        if (paf->type < 0 || paf->type >= skill_count) continue;
         fprintf(fp, "Affc '%s' %3d %3d %3d %3d %3d %10d\n",
                 skill_table[paf->type].name, paf->where, paf->level,
                 paf->duration, paf->modifier, paf->location, paf->bitvector);

@@ -75,7 +75,7 @@ SKNUM find_spell(CharData* ch, const char* name)
 
     int arch = GET_ARCH(ch);
 
-    for (sn = 0; sn < max_skill; sn++) {
+    for (sn = 0; sn < skill_count; sn++) {
         if (skill_table[sn].name == NULL) 
             break;
         if (LOWER(name[0]) == LOWER(skill_table[sn].name[0])
@@ -101,7 +101,7 @@ SKNUM skill_slot_lookup(int slot)
 
     if (slot <= 0) return -1;
 
-    for (sn = 0; sn < max_skill; sn++) {
+    for (sn = 0; sn < skill_count; sn++) {
         if (slot == skill_table[sn].slot) return sn;
     }
 
@@ -508,7 +508,7 @@ void obj_cast_spell(SKNUM sn, LEVEL level, CharData* ch, CharData* victim,
 
     if (sn <= 0) return;
 
-    if (sn >= max_skill || skill_table[sn].spell_fun == 0) {
+    if (sn >= skill_count || skill_table[sn].spell_fun == 0) {
         bug("Obj_cast_spell: bad sn %d.", sn);
         return;
     }
@@ -2833,25 +2833,25 @@ void spell_identify(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget t
         sprintf(buf, "Level %d spells of:", obj->value[0]);
         send_to_char(buf, ch);
 
-        if (obj->value[1] >= 0 && obj->value[1] < max_skill) {
+        if (obj->value[1] >= 0 && obj->value[1] < skill_count) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[1]].name, ch);
             send_to_char("'", ch);
         }
 
-        if (obj->value[2] >= 0 && obj->value[2] < max_skill) {
+        if (obj->value[2] >= 0 && obj->value[2] < skill_count) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[2]].name, ch);
             send_to_char("'", ch);
         }
 
-        if (obj->value[3] >= 0 && obj->value[3] < max_skill) {
+        if (obj->value[3] >= 0 && obj->value[3] < skill_count) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[3]].name, ch);
             send_to_char("'", ch);
         }
 
-        if (obj->value[4] >= 0 && obj->value[4] < max_skill) {
+        if (obj->value[4] >= 0 && obj->value[4] < skill_count) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[4]].name, ch);
             send_to_char("'", ch);
@@ -2866,7 +2866,7 @@ void spell_identify(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget t
                 obj->value[0]);
         send_to_char(buf, ch);
 
-        if (obj->value[3] >= 0 && obj->value[3] < max_skill) {
+        if (obj->value[3] >= 0 && obj->value[3] < skill_count) {
             send_to_char(" '", ch);
             send_to_char(skill_table[obj->value[3]].name, ch);
             send_to_char("'", ch);

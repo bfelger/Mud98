@@ -174,7 +174,7 @@ typedef enum weapon_type_t {
     WEAPON_POLEARM      = 8,
 } WeaponType;
 
-#define WEAPON_MAX 9
+#define WEAPON_TYPE_COUNT 9
 
 typedef struct weapon_info_t {
     const WeaponType type;
@@ -183,7 +183,7 @@ typedef struct weapon_info_t {
     const VNUM vnum;
 } WeaponInfo;
 
-extern const WeaponInfo weapon_table[WEAPON_MAX];
+extern const WeaponInfo weapon_table[WEAPON_TYPE_COUNT];
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -231,7 +231,7 @@ typedef enum wear_location_t {
     WEAR_FLOAT          = 18,
 } WearLocation;
 
-#define WEAR_COUNT 19
+#define WEAR_LOC_COUNT 19
 
 ////////////////////////////////////////////////////////////////////////////////
 // Static VNUMs

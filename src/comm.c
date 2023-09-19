@@ -1536,7 +1536,7 @@ void nanny(Descriptor * d, char* argument)
                 d, "Please pick a weapon from the following choices:\n\r", 0);
             buf[0] = '\0';
             // Skip exotic. No one is trained in it.
-            for (i = 1; i < WEAPON_MAX; i++)
+            for (i = 1; i < WEAPON_TYPE_COUNT; i++)
                 if (ch->pcdata->learned[*weapon_table[i].gsn] > 0) {
                     strcat(buf, weapon_table[i].name);
                     strcat(buf, " ");
@@ -1559,7 +1559,7 @@ void nanny(Descriptor * d, char* argument)
             write_to_buffer(d, "That's not a valid selection. Choices are:\n\r",
                 0);
             buf[0] = '\0';
-            for (i = 1; i < WEAPON_MAX; i++)
+            for (i = 1; i < WEAPON_TYPE_COUNT; i++)
                 if (ch->pcdata->learned[*weapon_table[i].gsn] > 0) {
                     strcat(buf, weapon_table[i].name);
                     strcat(buf, " ");
@@ -1605,7 +1605,7 @@ void nanny(Descriptor * d, char* argument)
             write_to_buffer(
                 d, "Please pick a weapon from the following choices:\n\r", 0);
             buf[0] = '\0';
-            for (i = 0; i < WEAPON_MAX; i++)
+            for (i = 0; i < WEAPON_TYPE_COUNT; i++)
                 if (ch->pcdata->learned[*weapon_table[i].gsn] > 0) {
                     strcat(buf, weapon_table[i].name);
                     strcat(buf, " ");

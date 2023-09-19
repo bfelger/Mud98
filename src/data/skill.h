@@ -43,9 +43,9 @@ SKNUM* gsn_lookup(char* argument);
 char* gsn_name(SKNUM* pgsn);
 
 extern Skill* skill_table;
-extern int max_skill;
+extern int skill_count;
 
 extern SkillGroup* skill_group_table;
-extern int max_skill_group;
+extern int skill_group_count;
 
 #endif // !MUD86__DATA__SKILL_H

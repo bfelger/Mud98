@@ -544,14 +544,14 @@ const struct flag_type ac_type[] = {
     { NULL,             0,                  0       }
 };
 
-const struct flag_type size_flag_table[] = {
+const struct flag_type size_flag_table[MOB_SIZE_COUNT+1] = {
     { "tiny",           SIZE_TINY,          true    },
     { "small",          SIZE_SMALL,         true    },
     { "medium",         SIZE_MEDIUM,        true    },
     { "large",          SIZE_LARGE,         true    },
     { "huge",           SIZE_HUGE,          true    },
     { "giant",          SIZE_GIANT,         true    },
-    { NULL,             0,                  0       },
+    { NULL,             0,                  0       }
 };
 
 const struct flag_type weapon_class[] = {
@@ -696,14 +696,14 @@ const struct bit_type bitvector_type[] = {
 };
 
 const struct flag_type target_table[] = {
-    { "tar_ignore",         SKILL_TARGET_IGNORE,         true},
-    { "tar_char_offensive", SKILL_TARGET_CHAR_OFFENSIVE, true},
-    { "tar_char_defensive", SKILL_TARGET_CHAR_DEFENSIVE, true},
-    { "tar_char_self",      SKILL_TARGET_CHAR_SELF,      true},
-    { "tar_obj_inv",        SKILL_TARGET_OBJ_INV,        true},
-    { "tar_obj_char_def",   SKILL_TARGET_OBJ_CHAR_DEF,   true},
-    { "tar_obj_char_off",   SKILL_TARGET_OBJ_CHAR_OFF,   true},
-    { NULL,                 0,                  true}
+    { "tar_ignore",         SKILL_TARGET_IGNORE,            true},
+    { "tar_char_offensive", SKILL_TARGET_CHAR_OFFENSIVE,    true},
+    { "tar_char_defensive", SKILL_TARGET_CHAR_DEFENSIVE,    true},
+    { "tar_char_self",      SKILL_TARGET_CHAR_SELF,         true},
+    { "tar_obj_inv",        SKILL_TARGET_OBJ_INV,           true},
+    { "tar_obj_char_def",   SKILL_TARGET_OBJ_CHAR_DEF,      true},
+    { "tar_obj_char_off",   SKILL_TARGET_OBJ_CHAR_OFF,      true},
+    { NULL,                 0,                              true}
 };
 
 const struct recval_type recval_table[] = {
@@ -771,9 +771,9 @@ const struct recval_type recval_table[] = {
 };
 
 // Ignores DAM_NONE, has null record at end.
-// Added DAM_MAX so it fails to compile if you add a new damage type and don't
+// Added DAM_TYPE_COUNT so it fails to compile if you add a new damage type and don't
 // add it here.
-const struct flag_type dam_classes[DAM_MAX] = {
+const struct flag_type dam_classes[DAM_TYPE_COUNT] = {
     { "dam_bash",       DAM_BASH,           true    },
     { "dam_pierce",     DAM_PIERCE,         true    },
     { "dam_slash",      DAM_SLASH,          true    },
@@ -820,7 +820,7 @@ const struct flag_type show_flag_table[] = {
     { NULL,             0,                  true    }
 };
 
-const struct flag_type stat_table[] = {
+const struct flag_type stat_table[STAT_COUNT+1] = {
     { "str",            STAT_STR,           true    },
     { "int",            STAT_INT,           true    },
     { "wis",            STAT_WIS,           true    },

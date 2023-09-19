@@ -1952,9 +1952,9 @@ void dam_message(CharData* ch, CharData* victim, int dam, int dt, bool immune)
         }
     }
     else {
-        if (dt >= 0 && dt < max_skill)
+        if (dt >= 0 && dt < skill_count)
             attack = skill_table[dt].noun_damage;
-        else if (dt >= TYPE_HIT && dt < TYPE_HIT + MAX_ATTACK)
+        else if (dt >= TYPE_HIT && dt < TYPE_HIT + ATTACK_COUNT)
             attack = attack_table[dt - TYPE_HIT].noun;
         else {
             bug("Dam_message: bad dt %d.", dt);

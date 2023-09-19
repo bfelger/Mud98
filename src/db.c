@@ -249,7 +249,7 @@ void boot_db(void)
     {
         SKNUM sn;
 
-        for (sn = 0; sn < max_skill; sn++) {
+        for (sn = 0; sn < skill_count; sn++) {
             if (skill_table[sn].pgsn != NULL) 
                 *skill_table[sn].pgsn = sn;
         }
