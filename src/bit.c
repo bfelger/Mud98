@@ -17,7 +17,7 @@
  implementing a system like below with such functions. -Jason Dinkel
  */
 
-#include "merc.h"
+#include "bit.h"
 
 #include "tables.h"
 #include "lookup.h"
@@ -28,21 +28,16 @@
 #include <sys/types.h>
 #include <time.h>
 
-struct flag_stat_type {
-    const struct flag_type *structure;
-    bool stat;
-};
-
 /*****************************************************************************
  Name:		flag_stat_table
  Purpose:	This table catagorizes the tables following the lookup
- 		functions below into stats and flags.  Flags can be toggled
- 		but stats can only be assigned.  Update this table when a
- 		new set of flags is installed.
+        functions below into stats and flags.  Flags can be toggled
+        but stats can only be assigned.  Update this table when a
+        new set of flags is installed.
  ****************************************************************************/
 const struct flag_stat_type flag_stat_table[] =
 {
-/*  { structure           stat	}, */
+/*  { structure                 stat	}, */
     { area_flag_table,		    false	},
     { exit_flag_table,		    false	},
     { door_resets,		        true	},
@@ -60,28 +55,26 @@ const struct flag_stat_type flag_stat_table[] =
 
 /* ROM specific flags: */
 
-    {   form_flag_table,        false   },
-    {   part_flag_table,        false   },
-    {   ac_type,                true    },
-    {   off_flag_table,         false   },
-    {   imm_flag_table,         false   },
-    {   res_flag_table,         false   },
-    {   vuln_flag_table,        false   },
-    {   weapon_class,           true    },
-    {   weapon_type2,           false   },
-    {	furniture_flag_table,	false	},
-    {   apply_types,		    true	},
-    {	target_table,		    true	},
-    {	dam_classes,		    true	},
-    {	log_flag_table,		    true	},
-    {	show_flag_table,		true	},
-    {	stat_table,		        true	},
-    {	mprog_flag_table,		false	},
-    {   0,			            0	    }
+    { form_flag_table,          false   },
+    { part_flag_table,          false   },
+    { ac_type,                  true    },
+    { off_flag_table,           false   },
+    { imm_flag_table,           false   },
+    { res_flag_table,           false   },
+    { vuln_flag_table,          false   },
+    { weapon_class,             true    },
+    { weapon_type2,             false   },
+    { furniture_flag_table,	    false	},
+    { apply_types,		        true	},
+    { target_table,		        true	},
+    { dam_classes,		        true	},
+    { log_flag_table,		    true	},
+    { show_flag_table,		    true	},
+    { stat_table,		        true	},
+    { mprog_flag_table,		    false	},
+    { 0,			            0	    }
 };
     
-
-
 /*****************************************************************************
  Name:		is_stat( table )
  Purpose:	Returns true if the table is a stat table and false if flag.
@@ -105,11 +98,11 @@ bool is_stat(const struct flag_type* flag_table)
  Purpose:	Returns the value of the flags entered.  Multi-flags accepted.
  Called by:	olc.c and olc_act.c.
  ****************************************************************************/
-int flag_value(const struct flag_type* flag_table, char* argument)
+FLAGS flag_value(const struct flag_type* flag_table, char* argument)
 {
     char word[MAX_INPUT_LENGTH];
-    int  bit;
-    int  marked = 0;
+    int bit;
+    FLAGS marked = 0;
     bool found = false;
 
     if (is_stat(flag_table)) {
@@ -144,10 +137,10 @@ int flag_value(const struct flag_type* flag_table, char* argument)
  Purpose:	Returns string with name(s) of the flags or stat entered.
  Called by:	act_olc.c, olc.c, and olc_save.c.
  ****************************************************************************/
-char* flag_string(const struct flag_type* flag_table, long bits)
+char* flag_string(const struct flag_type* flag_table, FLAGS bits)
 {
     static char buf[10][MIL];
-    int  flag;
+    FLAGS  flag;
     static int toggle;
 
     toggle = (toggle + 1) % 10;

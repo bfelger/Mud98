@@ -6,8 +6,15 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "olc.h"
 #include "recycle.h"
+
+#include "entities/descriptor.h"
+#include "entities/player_data.h"
+
+#include "data/mobile.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -16,9 +23,9 @@
 #include <sys/types.h>
 #include <time.h>
 
-#define MPEDIT( fun )           bool fun(CHAR_DATA *ch, char*argument)
+#define MPEDIT( fun )           bool fun(CharData *ch, char*argument)
 
-extern MPROG_CODE xProg;
+extern MobProgCode xProg;
 
 DECLARE_OLC_FUN(pedit_create);
 DECLARE_OLC_FUN(pedit_show);
@@ -39,7 +46,7 @@ const struct olc_comm_type prog_olc_comm_table[] =
     { 	NULL,		0,			    0,		    0		        }
 };
 
-void pedit(CHAR_DATA* ch, char* argument)
+void pedit(CharData* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_PEDIT_SECURITY) {
         send_to_char("MPEdit : You do not have enough security to edit prog.\n\r", ch);
@@ -63,9 +70,9 @@ void pedit(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_pedit(CHAR_DATA* ch, char* argument)
+void do_pedit(CharData* ch, char* argument)
 {
-    MPROG_CODE* pMcode;
+    MobProgCode* pMcode;
     char command[MAX_INPUT_LENGTH];
 
     if (IS_NPC(ch) || ch->desc == NULL)
@@ -79,7 +86,7 @@ void do_pedit(CHAR_DATA* ch, char* argument)
     argument = one_argument(argument, command);
 
     if (is_number(command)) {
-        AREA_DATA* pArea;
+        AreaData* pArea;
 
         if ((pArea = get_vnum_area(atoi(command))) == NULL) {
             send_to_char("PEdit : That vnum is not assigned to an area.\n\r", ch);
@@ -116,8 +123,8 @@ void do_pedit(CHAR_DATA* ch, char* argument)
 
 MPEDIT(pedit_create)
 {
-    MPROG_CODE* pMcode;
-    AREA_DATA* pArea;
+    MobProgCode* pMcode;
+    AreaData* pArea;
     int value;
 
     value = atoi(argument);
@@ -162,7 +169,7 @@ MPEDIT(pedit_create)
 
 MPEDIT(pedit_show)
 {
-    MPROG_CODE* pMcode;
+    MobProgCode* pMcode;
     char buf[MAX_STRING_LENGTH];
 
     EDIT_PROG(ch, pMcode);
@@ -176,13 +183,13 @@ MPEDIT(pedit_show)
     return false;
 }
 
-void do_mplist(CHAR_DATA* ch, char* argument)
+void do_mplist(CharData* ch, char* argument)
 {
     int count;
     bool fAll = false;
-    MPROG_CODE* mprg;
+    MobProgCode* mprg;
     char buf[MAX_STRING_LENGTH];
-    BUFFER* buffer;
+    Buffer* buffer;
     buffer = new_buf();
 
     if (IS_IMMORTAL(ch) && !str_cmp(argument, "all"))

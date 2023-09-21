@@ -4,31 +4,34 @@
 
 #include "merc.h"
 
+#include "bit.h"
 #include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "interp.h"
 #include "tables.h"
 #include "lookup.h"
 #include "olc.h"
 #include "recycle.h"
 
+#include "entities/descriptor.h"
+#include "entities/player_data.h"
+
+#include "data/mobile.h"
+
 #define CMD_FILE DATA_DIR "commands"
-#define CMDEDIT( fun )	bool fun( CHAR_DATA *ch, char *argument )
+#define CMDEDIT( fun )	bool fun( CharData *ch, char *argument )
 
 void save_command_table(void);
 
 struct cmd_list_type {
     char* name;
-    DO_FUN* function;
+    DoFunc* function;
 };
 
-extern	bool fBootDb;
 int max_cmd;
-struct cmd_type* cmd_table;
+CmdInfo* cmd_table;
 void create_command_table();
-
-#if defined(COMMAND)
-#undef COMMAND
-#endif
 
 #define COMMAND(cmd)	{	#cmd,	cmd	},
 
@@ -37,10 +40,7 @@ const struct cmd_list_type cmd_list[] = {
     {	NULL,		NULL		}
 };
 
-#undef COMMAND
-#define COMMAND(cmd)	DECLARE_DO_FUN(cmd);
-
-extern struct cmd_type xCmd;
+extern CmdInfo xCmd;
 
 #ifdef U
 #define OLD_U U
@@ -52,8 +52,8 @@ const struct olc_comm_type cmd_olc_comm_table[] = {
     { "function",	0,		            ed_olded,	        U(cmdedit_function)	},
     { "level",	    0,		            ed_olded,	        U(cmdedit_level)	},
     { "posicion",	U(&xCmd.position),	ed_int16lookup,	    U(position_lookup)	},
-    { "log",	    U(&xCmd.log),	    ed_flag_set_long,   U(log_flag_table)	    },
-    { "type",	    U(&xCmd.show),	    ed_flag_set_long,   U(show_flag_table)	    },
+    { "log",	    U(&xCmd.log),	    ed_flag_set_long,   U(log_flag_table)   },
+    { "type",	    U(&xCmd.show),	    ed_flag_set_long,   U(show_flag_table)  },
     { "new",	    0,		            ed_olded,	        U(cmdedit_new)	    },
     { "delete",	    0,		            ed_olded,	        U(cmdedit_delete)	},
     { "list",	    0,  		        ed_olded,	        U(cmdedit_list)	    },
@@ -64,7 +64,7 @@ const struct olc_comm_type cmd_olc_comm_table[] = {
     { NULL,		    0,  		        NULL,		        0		            }
 };
 
-char* cmd_func_name(DO_FUN* command)
+char* cmd_func_name(DoFunc* command)
 {
     int cmd;
 
@@ -75,7 +75,7 @@ char* cmd_func_name(DO_FUN* command)
     return "";
 }
 
-DO_FUN* cmd_func_lookup(char* arg)
+DoFunc* cmd_func_lookup(char* arg)
 {
     int cmd;
 
@@ -103,7 +103,7 @@ int cmd_lookup(char* arg)
     return -1;
 }
 
-void cmdedit(CHAR_DATA* ch, char* argument)
+void cmdedit(CharData* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_CMDEDIT_SECURITY) {
         send_to_char("CMDEdit: You do not have enough security to edit commands.\n\r", ch);
@@ -135,9 +135,9 @@ void cmdedit(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_cmdedit(CHAR_DATA* ch, char* argument)
+void do_cmdedit(CharData* ch, char* argument)
 {
-    const struct cmd_type* pCmd;
+    const CmdInfo* pCmd;
     char command[MSL];
     int iCmd = 0;
 
@@ -183,7 +183,7 @@ void do_cmdedit(CHAR_DATA* ch, char* argument)
 
 CMDEDIT(cmdedit_show)
 {
-    struct cmd_type* pCmd;
+    CmdInfo* pCmd;
     char buf[MIL];
 
     EDIT_CMD(ch, pCmd);
@@ -209,17 +209,17 @@ CMDEDIT(cmdedit_show)
     return false;
 }
 
-void list_functions(BUFFER* pBuf)
+void list_functions(Buffer* pBuf)
 {
     int i;
     char buf[MSL];
 
-    sprintf(buf, "#UNum %-13.13s Num %-13.13s Num %-13.13s Num %-13.13s#u\n\r",
+    sprintf(buf, "{TNum %-13.13s Num %-13.13s Num %-13.13s Num %-13.13s{x\n\r",
         "Name", "Name", "Name", "Name");
     add_buf(pBuf, buf);
 
     for (i = 0; cmd_list[i].name; i++) {
-        sprintf(buf, "#B%3d#b %-13.13s", i, cmd_list[i].name);
+        sprintf(buf, "{*%3d{x %-13.13s", i, cmd_list[i].name);
         if (i % 4 == 3)
             strcat(buf, "\n\r");
         else
@@ -231,12 +231,12 @@ void list_functions(BUFFER* pBuf)
         add_buf(pBuf, "\n\r");
 }
 
-void list_commands(BUFFER* pBuf, int minlev, int maxlev)
+void list_commands(Buffer* pBuf, int minlev, int maxlev)
 {
     char buf[MSL];
     int i, cnt = 0;
 
-    sprintf(buf, "#UNv %-12.12s %-13.13s Pos Log Nv %-12.12s %-13.13s Pos Log#u\n\r",
+    sprintf(buf, "{TNv %-12.12s %-13.13s Pos Log Nv %-12.12s %-13.13s Pos Log{x\n\r",
         "Name", "Function", "Name", "Function");
     add_buf(pBuf, buf);
 
@@ -244,7 +244,7 @@ void list_commands(BUFFER* pBuf, int minlev, int maxlev)
         if (cmd_table[i].level < minlev || cmd_table[i].level > maxlev)
             continue;
 
-        sprintf(buf, "%2d #B%-12.12s#b %-13.13s %-3.3s %-3.3s",
+        sprintf(buf, "%2d {*%-12.12s{x %-13.13s %-3.3s %-3.3s",
             cmd_table[i].level,
             cmd_table[i].name,
             cmd_func_name(cmd_table[i].do_fun),
@@ -264,7 +264,7 @@ void list_commands(BUFFER* pBuf, int minlev, int maxlev)
 
 CMDEDIT(cmdedit_list)
 {
-    BUFFER* pBuf;
+    Buffer* pBuf;
     char arg[MIL], arg2[MIL];
     int minlev, maxlev;
 
@@ -311,14 +311,14 @@ CMDEDIT(cmdedit_list)
     return false;
 }
 
-void do_nothing(CHAR_DATA* ch, char* argument)
+void do_nothing(CharData* ch, char* argument)
 {
     return;
 }
 
 CMDEDIT(cmdedit_name)
 {
-    struct cmd_type* pCmd;
+    CmdInfo* pCmd;
     int cmd;
 
     EDIT_CMD(ch, pCmd);
@@ -350,9 +350,9 @@ CMDEDIT(cmdedit_name)
 
 CMDEDIT(cmdedit_new)
 {
-    DESCRIPTOR_DATA* d;
-    CHAR_DATA* tch;
-    struct cmd_type* new_table;
+    Descriptor* d;
+    CharData* tch;
+    CmdInfo* new_table;
     int cmd;
 
     if (IS_NULLSTR(argument)) {
@@ -378,7 +378,7 @@ CMDEDIT(cmdedit_new)
     /* reallocate the table */
 
     max_cmd++;
-    new_table = realloc(cmd_table, sizeof(struct cmd_type) * (size_t)(max_cmd + 1));
+    new_table = realloc(cmd_table, sizeof(CmdInfo) * (size_t)(max_cmd + 1));
 
     if (!new_table) /* realloc failed */
     {
@@ -390,10 +390,10 @@ CMDEDIT(cmdedit_new)
 
     cmd_table[max_cmd - 1].name = str_dup(argument);
     cmd_table[max_cmd - 1].do_fun = do_nothing;
-    cmd_table[max_cmd - 1].position = (int16_t)position_lookup("standing");
+    cmd_table[max_cmd - 1].position = position_lookup("standing");
     cmd_table[max_cmd - 1].level = MAX_LEVEL;
     cmd_table[max_cmd - 1].log = LOG_ALWAYS;
-    cmd_table[max_cmd - 1].show = TYP_NUL;
+    cmd_table[max_cmd - 1].show = 0;
 
     cmd_table[max_cmd].name = str_dup("");
 
@@ -413,10 +413,10 @@ CMDEDIT(cmdedit_new)
 
 CMDEDIT(cmdedit_delete)
 {
-    DESCRIPTOR_DATA* d;
-    CHAR_DATA* tch;
+    Descriptor* d;
+    CharData* tch;
     int i, j, iCmd;
-    struct cmd_type* new_table;
+    CmdInfo* new_table;
 
     if (IS_NULLSTR(argument)) {
         send_to_char("Syntax : delete [name]\n\r", ch);
@@ -438,7 +438,7 @@ CMDEDIT(cmdedit_delete)
             edit_done(tch);
     }
 
-    if ((new_table = calloc(sizeof(struct cmd_type), (size_t)max_cmd + 1)) == NULL) {
+    if ((new_table = calloc(sizeof(CmdInfo), (size_t)max_cmd + 1)) == NULL) {
         perror("cmdedit_delete: Could not allocate new_table!");
         exit(-1);
     }
@@ -463,8 +463,8 @@ CMDEDIT(cmdedit_delete)
 
 CMDEDIT(cmdedit_function)
 {
-    struct cmd_type* pCmd;
-    DO_FUN* function;
+    CmdInfo* pCmd;
+    DoFunc* function;
 
     EDIT_CMD(ch, pCmd);
 
@@ -485,7 +485,7 @@ CMDEDIT(cmdedit_function)
 
 CMDEDIT(cmdedit_level)
 {
-    struct cmd_type* pCmd;
+    CmdInfo* pCmd;
     LEVEL level;
 
     EDIT_CMD(ch, pCmd);

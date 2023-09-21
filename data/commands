@@ -1,4 +1,4 @@
-260
+261
 
 #COMMAND
 name .~
@@ -1967,6 +1967,15 @@ name smote~
 do_fun do_smote~
 position dead~
 level 52
+log log_normal~
+show undef~
+#END
+
+#COMMAND
+name sklist~
+do_fun do_sklist~
+position dead~
+level 0
 log log_normal~
 show undef~
 #END

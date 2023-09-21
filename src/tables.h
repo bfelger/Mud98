@@ -29,11 +29,30 @@
 #ifndef MUD98__TABLES_H
 #define MUD98__TABLES_H
 
-#include "merc.h"
+#include "entities/char_data.h"
+
+#include "data/damage.h"
+
+typedef enum cmd_type_t {
+    TYP_NUL         = 0,
+    TYP_UNDEF       = 1,
+    TYP_CBT	        = 2,
+    TYP_SPC         = 3,
+    TYP_GRP         = 4,
+    TYP_OBJ         = 5,
+    TYP_INF         = 6,
+    TYP_OTH         = 7,
+    TYP_MVT         = 8,
+    TYP_CNF         = 9,
+    TYP_CMM         = 10,
+    TYP_LNG         = 11,
+    TYP_PLR         = 12,
+    TYP_OLC         = 13,
+} CmdType;
 
 struct flag_type {
     char* name;
-    int bit;
+    FLAGS bit;
     bool settable;
 };
 
@@ -42,19 +61,6 @@ struct clan_type {
     char* who_name;
     int16_t hall;
     bool independent; /* true for loners */
-};
-
-struct position_type {
-    char* name;
-    char* short_name;
-};
-
-struct sex_type {
-    char* name;
-};
-
-struct size_type {
-    char* name;
 };
 
 struct bit_type {
@@ -74,9 +80,6 @@ struct recval_type {
 
 /* game tables */
 extern const struct clan_type clan_table[MAX_CLAN];
-extern const struct position_type position_table[];
-extern const struct sex_type sex_table[];
-extern const struct size_type size_table[];
 
 /* flag tables */
 extern const struct flag_type act_flag_table[];
@@ -113,17 +116,17 @@ extern const struct flag_type weapon_class[];
 extern const struct flag_type apply_types[];
 extern const struct flag_type weapon_type2[];
 extern const struct flag_type apply_types[];
-extern const struct flag_type size_flag_table[];
+extern const struct flag_type size_flag_table[MOB_SIZE_COUNT+1];
 extern const struct flag_type position_flag_table[];
 extern const struct flag_type ac_type[];
 extern const struct bit_type bitvector_type[];
 extern const struct recval_type recval_table[];
 extern const struct flag_type target_table[];
-extern const struct flag_type dam_classes[];
+extern const struct flag_type dam_classes[DAM_TYPE_COUNT];
 extern const struct flag_type log_flag_table[];
 extern const struct flag_type show_flag_table[];
-extern const struct flag_type stat_table[];
+extern const struct flag_type stat_table[STAT_COUNT+1];
 
-void show_flags_to_char(CHAR_DATA* ch, const struct flag_type* flags);
+void show_flags_to_char(CharData* ch, const struct flag_type* flags);
 
 #endif // !MUD98__TABLES_H

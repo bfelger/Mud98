@@ -22,6 +22,11 @@ if (MSVC)
         # Nonstandard extension, function/data pointer conversion in expression
         "C4152"     # For openssl/applink.c.
 
+        # enumerator 'X' in switch of enum 'Y' is not explicitly handled by a 
+        # case label
+        "C4061"     # If no default is specified, we get C4062 intead. That is
+                    # the only warning I care about.
+
          # Assignment within conditional expression
         "C4706"     # Microsoft can take my assigning conditionals out of my 
                     # cold, dead hands.
@@ -67,14 +72,47 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU"
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unknown-pragmas")
 endif()
 
-add_executable(Mud98 merc.h act_comm.c act_enter.c act_info.c act_move.c 
-    act_obj.c act_wiz.c alias.c ban.c benchmark.c bit.c cmdedit.c color.h 
-    color.c comm.h comm.c const.c db.c db2.c digest.h digest.c effects.c fight.c
-    flags.c gedit.c handler.c healer.c  hedit.c  interp.c lookup.c magic.c 
-    magic2.c main.c mem.c  mob_cmds.c mob_prog.c music.c note.c olc.c olc_act.c 
-    olc_save.c pcg_basic.c pedit.c raedit.c  recycle.c save.c scan.c screen.c 
-    sedit.c skedit.c skills.c special.c string_edit.c tables.c tablesave.c 
-    tests.h tests.c update.c wizutil.v3.c)
+include_directories(${CMAKE_SOURCE_DIR})
+
+add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
+    act_info.h act_info.c act_move.h act_move.c act_obj.h act_obj.c act_wiz.h
+    act_wiz.c alias.h alias.c array.h ban.h ban.c benchmark.h benchmark.c bit.h 
+    bit.c cmdedit.c color.h color.c comm.h comm.c db.c db2.c digest.h digest.c
+    effects.h effects.c fight.h fight.c flags.c gedit.c handler.h handler.c
+    healer.c hedit.c interp.c lookup.c magic.c magic2.c main.c mob_cmds.h
+    mob_cmds.c mob_prog.h mob_prog.c music.c note.h note.c olc.h olc.c olc_act.c
+    olc_save.c pcg_basic.c pedit.c raedit.c recycle.c save.h save.c scan.c
+    screen.c sedit.c skedit.c skills.h skills.c socket.h special.h special.c
+    spell_list.h string_edit.h string_edit.c tables.c tablesave.c tests.h
+    tests.c update.h update.c weather.h weather.c wizutil.v3.c
+    
+    entities/affect_data.h entities/affect_data.c
+    entities/area_data.h entities/area_data.c 
+    entities/char_data.h entities/char_data.c
+    entities/descriptor.h entities/descriptor.c
+    entities/exit_data.h entities/exit_data.c
+    entities/extra_desc.h entities/extra_desc.c
+    entities/help_data.h entities/help_data.c
+    entities/mob_memory.h entities/mob_memory.c
+    entities/mob_prototype.h entities/mob_prototype.c
+    entities/object_data.h entities/object_data.c
+    entities/player_data.h entities/player_data.c
+    entities/reset_data.h entities/reset_data.c 
+    entities/room_data.h entities/room_data.c
+    entities/shop_data.h entities/shop_data.c
+    
+    data/class.h data/class.c
+    data/damage.h data/damage.c
+    data/direction.h data/direction.c
+    data/item.h data/item.c
+    data/mobile.h data/mobile.c
+    data/player.h
+    data/race.h data/race.c
+    data/skill.h data/skill.c
+    data/social.h data/social.c
+    data/spell.h data/spell.c
+    data/stats.h data/stats.c
+ )
 
 if (NOT MSVC)
     target_link_libraries(Mud98 Threads::Threads OpenSSL::SSL)

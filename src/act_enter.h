@@ -1,0 +1,14 @@
+////////////////////////////////////////////////////////////////////////////////
+// act_enter.h
+////////////////////////////////////////////////////////////////////////////////
+
+#pragma once
+#ifndef MUD98__ACT_ENTER_H
+#define MUD98__ACT_ENTER_H
+
+#include "entities/char_data.h"
+#include "entities/room_data.h"
+
+RoomData* get_random_room(CharData* ch);
+
+#endif // !MUD98__ACT_ENTER_H

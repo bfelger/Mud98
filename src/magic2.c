@@ -25,9 +25,18 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "interp.h"
 #include "magic.h"
-#include "merc.h"
+
+#include "comm.h"
+#include "handler.h"
+#include "interp.h"
+#include "spell_list.h"
+
+#include "entities/char_data.h"
+#include "entities/descriptor.h"
+#include "entities/object_data.h"
+
+#include "data/mobile.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,7 +46,7 @@
 
 extern char* target_name;
 
-void spell_farsight(SKNUM sn, LEVEL level, CHAR_DATA* ch, void* vo, int target)
+void spell_farsight(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
 {
     if (IS_AFFECTED(ch, AFF_BLIND)) {
         send_to_char("Maybe it would help if you could see?\n\r", ch);
@@ -47,10 +56,10 @@ void spell_farsight(SKNUM sn, LEVEL level, CHAR_DATA* ch, void* vo, int target)
     do_function(ch, &do_scan, target_name);
 }
 
-void spell_portal(SKNUM sn, LEVEL level, CHAR_DATA* ch, void* vo, int target)
+void spell_portal(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
 {
-    CHAR_DATA* victim;
-    OBJ_DATA *portal, *stone;
+    CharData* victim;
+    ObjectData *portal, *stone;
 
     if ((victim = get_char_world(ch, target_name)) == NULL || victim == ch
         || victim->in_room == NULL || !can_see_room(ch, victim->in_room)
@@ -81,7 +90,7 @@ void spell_portal(SKNUM sn, LEVEL level, CHAR_DATA* ch, void* vo, int target)
         extract_obj(stone);
     }
 
-    portal = create_object(get_obj_index(OBJ_VNUM_PORTAL), 0);
+    portal = create_object(get_object_prototype(OBJ_VNUM_PORTAL), 0);
     portal->timer = 2 + (int16_t)level / 25;
     portal->value[3] = victim->in_room->vnum;
 
@@ -91,11 +100,11 @@ void spell_portal(SKNUM sn, LEVEL level, CHAR_DATA* ch, void* vo, int target)
     act("$p rises up before you.", ch, portal, NULL, TO_CHAR);
 }
 
-void spell_nexus(SKNUM sn, LEVEL level, CHAR_DATA* ch, void* vo, int target)
+void spell_nexus(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
 {
-    CHAR_DATA* victim;
-    OBJ_DATA *portal, *stone;
-    ROOM_INDEX_DATA *to_room, *from_room;
+    CharData* victim;
+    ObjectData *portal, *stone;
+    RoomData *to_room, *from_room;
 
     from_room = ch->in_room;
 
@@ -131,7 +140,7 @@ void spell_nexus(SKNUM sn, LEVEL level, CHAR_DATA* ch, void* vo, int target)
     }
 
     /* portal one */
-    portal = create_object(get_obj_index(OBJ_VNUM_PORTAL), 0);
+    portal = create_object(get_object_prototype(OBJ_VNUM_PORTAL), 0);
     portal->timer = 1 + (int16_t)level / 10;
     portal->value[3] = to_room->vnum;
 
@@ -144,7 +153,7 @@ void spell_nexus(SKNUM sn, LEVEL level, CHAR_DATA* ch, void* vo, int target)
     if (to_room == from_room) return;
 
     /* portal two */
-    portal = create_object(get_obj_index(OBJ_VNUM_PORTAL), 0);
+    portal = create_object(get_object_prototype(OBJ_VNUM_PORTAL), 0);
     portal->timer = 1 + (int16_t)level / 10;
     portal->value[3] = from_room->vnum;
 

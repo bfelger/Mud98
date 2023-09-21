@@ -25,11 +25,31 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "merc.h"
+#include "update.h"
 
+#include "act_info.h"
+#include "act_move.h"
+#include "act_obj.h"
+#include "act_wiz.h"
 #include "comm.h"
+#include "db.h"
+#include "fight.h"
+#include "handler.h"
 #include "interp.h"
+#include "magic.h"
+#include "mob_prog.h"
 #include "music.h"
+#include "save.h"
+#include "skills.h"
+#include "weather.h"
+
+#include "entities/descriptor.h"
+#include "entities/object_data.h"
+#include "entities/player_data.h"
+
+#include "data/mobile.h"
+#include "data/race.h"
+#include "data/skill.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -39,11 +59,10 @@
 /*
  * Local functions.
  */
-int hit_gain args((CHAR_DATA * ch));
-int mana_gain args((CHAR_DATA * ch));
-int move_gain args((CHAR_DATA * ch));
+int hit_gain args((CharData * ch));
+int mana_gain args((CharData * ch));
+int move_gain args((CharData * ch));
 void mobile_update args((void));
-void weather_update args((void));
 void char_update args((void));
 void obj_update args((void));
 void aggr_update();
@@ -55,7 +74,7 @@ int save_number = 0;
 /*
  * Advancement stuff.
  */
-void advance_level(CHAR_DATA* ch, bool hide)
+void advance_level(CharData* ch, bool hide)
 {
     char buf[MAX_STRING_LENGTH];
     int16_t add_hp;
@@ -66,19 +85,22 @@ void advance_level(CHAR_DATA* ch, bool hide)
     ch->pcdata->last_level
         = (int16_t)((ch->played + (current_time - ch->logon)) / 3600);
 
-    sprintf(buf, "the %s",
-            title_table[ch->ch_class][ch->level][ch->sex == SEX_FEMALE ? 1 : 0]);
-    set_title(ch, buf);
+    const char* title = class_table[ch->ch_class].titles[ch->level][ch->sex == SEX_FEMALE ? 1 : 0];
+    if (title && title[0]) {
+        sprintf(buf, "the %s", title);
+        set_title(ch, buf);
+    }
 
-    add_hp = con_app[get_curr_stat(ch, STAT_CON)].hitp
+    add_hp = con_mod[get_curr_stat(ch, STAT_CON)].hitp
              + (int16_t)number_range(class_table[ch->ch_class].hp_min,
                             class_table[ch->ch_class].hp_max);
-    add_mana = (int16_t)number_range(
-        2, (2 * get_curr_stat(ch, STAT_INT) + get_curr_stat(ch, STAT_WIS)) / 5);
-    if (!class_table[ch->ch_class].fMana) add_mana /= 2;
+    add_mana = (int16_t)number_range(2, 
+        (2 * get_curr_stat(ch, STAT_INT) + get_curr_stat(ch, STAT_WIS)) / 5);
+    if (!class_table[ch->ch_class].fMana) 
+        add_mana /= 2;
     add_move = (int16_t)number_range(
         1, (get_curr_stat(ch, STAT_CON) + get_curr_stat(ch, STAT_DEX)) / 6);
-    add_prac = wis_app[get_curr_stat(ch, STAT_WIS)].practice;
+    add_prac = wis_mod[get_curr_stat(ch, STAT_WIS)].practice;
 
     add_hp = add_hp * 9 / 10;
     add_mana = add_mana * 9 / 10;
@@ -109,7 +131,7 @@ void advance_level(CHAR_DATA* ch, bool hide)
     return;
 }
 
-void gain_exp(CHAR_DATA* ch, int gain)
+void gain_exp(CharData* ch, int gain)
 {
     char buf[MAX_STRING_LENGTH];
 
@@ -135,7 +157,7 @@ void gain_exp(CHAR_DATA* ch, int gain)
 /*
  * Regeneration stuff.
  */
-int hit_gain(CHAR_DATA* ch)
+int hit_gain(CharData* ch)
 {
     int gain;
     int number;
@@ -203,7 +225,7 @@ int hit_gain(CHAR_DATA* ch)
     return UMIN(gain, ch->max_hit - ch->hit);
 }
 
-int mana_gain(CHAR_DATA* ch)
+int mana_gain(CharData* ch)
 {
     int gain;
     int number;
@@ -271,7 +293,7 @@ int mana_gain(CHAR_DATA* ch)
     return UMIN(gain, ch->max_mana - ch->mana);
 }
 
-int move_gain(CHAR_DATA* ch)
+int move_gain(CharData* ch)
 {
     int gain;
 
@@ -287,6 +309,8 @@ int move_gain(CHAR_DATA* ch)
             break;
         case POS_RESTING:
             gain += get_curr_stat(ch, STAT_DEX) / 2;
+            break;
+        default:
             break;
         }
 
@@ -309,7 +333,7 @@ int move_gain(CHAR_DATA* ch)
     return UMIN(gain, ch->max_move - ch->move);
 }
 
-void gain_condition(CHAR_DATA* ch, int iCond, int value)
+void gain_condition(CharData* ch, int iCond, int value)
 {
     int condition;
 
@@ -346,9 +370,9 @@ void gain_condition(CHAR_DATA* ch, int iCond, int value)
  */
 void mobile_update(void)
 {
-    CHAR_DATA* ch = NULL;
-    CHAR_DATA* ch_next = NULL;
-    EXIT_DATA* pexit = NULL;
+    CharData* ch = NULL;
+    CharData* ch_next = NULL;
+    ExitData* pexit = NULL;
     int door;
 
     /* Examine all mobs. */
@@ -358,7 +382,7 @@ void mobile_update(void)
         if (!IS_NPC(ch) || ch->in_room == NULL || IS_AFFECTED(ch, AFF_CHARM))
             continue;
 
-        if (ch->in_room->area->empty && !IS_SET(ch->act, ACT_UPDATE_ALWAYS))
+        if (ch->in_room->area->empty && !IS_SET(ch->act_flags, ACT_UPDATE_ALWAYS))
             continue;
 
         /* Examine call for special procedure */
@@ -366,18 +390,18 @@ void mobile_update(void)
             if ((*ch->spec_fun)(ch)) continue;
         }
 
-        if (ch->pIndexData->pShop != NULL) /* give him some gold */
-            if (((int)ch->gold * 100 + (int)ch->silver) < ch->pIndexData->wealth) {
+        if (ch->prototype->pShop != NULL) /* give him some gold */
+            if (((int)ch->gold * 100 + (int)ch->silver) < ch->prototype->wealth) {
                 ch->gold
-                    += (int16_t)(ch->pIndexData->wealth * number_range(1, 20) / 5000000);
+                    += (int16_t)(ch->prototype->wealth * number_range(1, 20) / 5000000);
                 ch->silver
-                    += (int16_t)(ch->pIndexData->wealth * number_range(1, 20) / 50000);
+                    += (int16_t)(ch->prototype->wealth * number_range(1, 20) / 50000);
             }
 
         /*
          * Check triggers only if mobile still in default position
          */
-        if (ch->position == ch->pIndexData->default_pos) {
+        if (ch->position == ch->prototype->default_pos) {
             /* Delay */
             if (HAS_TRIGGER(ch, TRIG_DELAY)
                 && ch->mprog_delay > 0) {
@@ -396,10 +420,10 @@ void mobile_update(void)
         if (ch->position != POS_STANDING) continue;
 
         /* Scavenge */
-        if (IS_SET(ch->act, ACT_SCAVENGER) && ch->in_room->contents != NULL
+        if (IS_SET(ch->act_flags, ACT_SCAVENGER) && ch->in_room->contents != NULL
             && number_bits(6) == 0) {
-            OBJ_DATA* obj;
-            OBJ_DATA* obj_best;
+            ObjectData* obj;
+            ObjectData* obj_best;
             int max;
 
             max = 1;
@@ -420,143 +444,18 @@ void mobile_update(void)
         }
 
         /* Wander */
-        if (!IS_SET(ch->act, ACT_SENTINEL) && number_bits(3) == 0
+        if (!IS_SET(ch->act_flags, ACT_SENTINEL) && number_bits(3) == 0
             && (door = number_bits(5)) <= 5
             && (pexit = ch->in_room->exit[door]) != NULL
-            && pexit->u1.to_room != NULL && !IS_SET(pexit->exit_info, EX_CLOSED)
+            && pexit->u1.to_room != NULL && !IS_SET(pexit->exit_flags, EX_CLOSED)
             && !IS_SET(pexit->u1.to_room->room_flags, ROOM_NO_MOB)
-            && (!IS_SET(ch->act, ACT_STAY_AREA)
+            && (!IS_SET(ch->act_flags, ACT_STAY_AREA)
                 || pexit->u1.to_room->area == ch->in_room->area)
-            && (!IS_SET(ch->act, ACT_OUTDOORS)
+            && (!IS_SET(ch->act_flags, ACT_OUTDOORS)
                 || !IS_SET(pexit->u1.to_room->room_flags, ROOM_INDOORS))
-            && (!IS_SET(ch->act, ACT_INDOORS)
+            && (!IS_SET(ch->act_flags, ACT_INDOORS)
                 || IS_SET(pexit->u1.to_room->room_flags, ROOM_INDOORS))) {
             move_char(ch, door, false);
-        }
-    }
-
-    return;
-}
-
-/*
- * Update the weather.
- */
-void weather_update(void)
-{
-    char buf[MAX_STRING_LENGTH] = "";
-    DESCRIPTOR_DATA* d;
-    int diff;
-
-    buf[0] = '\0';
-
-    switch (++time_info.hour) {
-    case 5:
-        weather_info.sunlight = SUN_LIGHT;
-        strcat(buf, "The day has begun.\n\r");
-        break;
-
-    case 6:
-        weather_info.sunlight = SUN_RISE;
-        strcat(buf, "The sun rises in the east.\n\r");
-        break;
-
-    case 19:
-        weather_info.sunlight = SUN_SET;
-        strcat(buf, "The sun slowly disappears in the west.\n\r");
-        break;
-
-    case 20:
-        weather_info.sunlight = SUN_DARK;
-        strcat(buf, "The night has begun.\n\r");
-        break;
-
-    case 24:
-        time_info.hour = 0;
-        time_info.day++;
-        break;
-    }
-
-    if (time_info.day >= 35) {
-        time_info.day = 0;
-        time_info.month++;
-    }
-
-    if (time_info.month >= 17) {
-        time_info.month = 0;
-        time_info.year++;
-    }
-
-    /*
-     * Weather change.
-     */
-    if (time_info.month >= 9 && time_info.month <= 16)
-        diff = weather_info.mmhg > 985 ? -2 : 2;
-    else
-        diff = weather_info.mmhg > 1015 ? -2 : 2;
-
-    weather_info.change += diff * dice(1, 4) + dice(2, 6) - dice(2, 6);
-    weather_info.change = UMAX(weather_info.change, -12);
-    weather_info.change = UMIN(weather_info.change, 12);
-
-    weather_info.mmhg += weather_info.change;
-    weather_info.mmhg = UMAX(weather_info.mmhg, 960);
-    weather_info.mmhg = UMIN(weather_info.mmhg, 1040);
-
-    switch (weather_info.sky) {
-    default:
-        bug("Weather_update: bad sky %d.", weather_info.sky);
-        weather_info.sky = SKY_CLOUDLESS;
-        break;
-
-    case SKY_CLOUDLESS:
-        if (weather_info.mmhg < 990
-            || (weather_info.mmhg < 1010 && number_bits(2) == 0)) {
-            strcat(buf, "The sky is getting cloudy.\n\r");
-            weather_info.sky = SKY_CLOUDY;
-        }
-        break;
-
-    case SKY_CLOUDY:
-        if (weather_info.mmhg < 970
-            || (weather_info.mmhg < 990 && number_bits(2) == 0)) {
-            strcat(buf, "It starts to rain.\n\r");
-            weather_info.sky = SKY_RAINING;
-        }
-
-        if (weather_info.mmhg > 1030 && number_bits(2) == 0) {
-            strcat(buf, "The clouds disappear.\n\r");
-            weather_info.sky = SKY_CLOUDLESS;
-        }
-        break;
-
-    case SKY_RAINING:
-        if (weather_info.mmhg < 970 && number_bits(2) == 0) {
-            strcat(buf, "Lightning flashes in the sky.\n\r");
-            weather_info.sky = SKY_LIGHTNING;
-        }
-
-        if (weather_info.mmhg > 1030
-            || (weather_info.mmhg > 1010 && number_bits(2) == 0)) {
-            strcat(buf, "The rain stopped.\n\r");
-            weather_info.sky = SKY_CLOUDY;
-        }
-        break;
-
-    case SKY_LIGHTNING:
-        if (weather_info.mmhg > 1010
-            || (weather_info.mmhg > 990 && number_bits(2) == 0)) {
-            strcat(buf, "The lightning has stopped.\n\r");
-            weather_info.sky = SKY_RAINING;
-            break;
-        }
-        break;
-    }
-
-    if (buf[0] != '\0') {
-        for (d = descriptor_list; d != NULL; d = d->next) {
-            if (d->connected == CON_PLAYING && IS_OUTSIDE(d->character)
-                && IS_AWAKE(d->character))
-                send_to_char(buf, d->character);
         }
     }
 
@@ -568,9 +467,9 @@ void weather_update(void)
  */
 void char_update(void)
 {
-    CHAR_DATA* ch;
-    CHAR_DATA* ch_next = NULL;
-    CHAR_DATA* ch_quit = NULL;
+    CharData* ch;
+    CharData* ch_next = NULL;
+    CharData* ch_quit = NULL;
 
     ch_quit = NULL;
 
@@ -580,8 +479,8 @@ void char_update(void)
     if (save_number > 29) save_number = 0;
 
     for (ch = char_list; ch != NULL; ch = ch_next) {
-        AFFECT_DATA* paf;
-        AFFECT_DATA* paf_next = NULL;
+        AffectData* paf;
+        AffectData* paf_next = NULL;
 
         ch_next = ch->next;
 
@@ -616,7 +515,7 @@ void char_update(void)
         if (ch->position == POS_STUNNED) update_pos(ch);
 
         if (!IS_NPC(ch) && ch->level < LEVEL_IMMORTAL) {
-            OBJ_DATA* obj;
+            ObjectData* obj;
 
             if ((obj = get_eq_char(ch, WEAR_LIGHT)) != NULL
                 && obj->item_type == ITEM_LIGHT && obj->value[2] > 0) {
@@ -641,7 +540,7 @@ void char_update(void)
                     send_to_char("You disappear into the void.\n\r", ch);
                     if (ch->level > 1) save_char_obj(ch);
                     char_from_room(ch);
-                    char_to_room(ch, get_room_index(ROOM_VNUM_LIMBO));
+                    char_to_room(ch, get_room_data(ROOM_VNUM_LIMBO));
                 }
             }
 
@@ -680,9 +579,9 @@ void char_update(void)
          */
 
         if (is_affected(ch, gsn_plague) && ch != NULL) {
-            AFFECT_DATA* af;
-            AFFECT_DATA plague = { 0 };
-            CHAR_DATA* vch;
+            AffectData* af;
+            AffectData plague = { 0 };
+            CharData* vch;
             int dam;
 
             if (ch->in_room == NULL) continue;
@@ -695,7 +594,7 @@ void char_update(void)
             }
 
             if (af == NULL) {
-                REMOVE_BIT(ch->affected_by, AFF_PLAGUE);
+                REMOVE_BIT(ch->affect_flags, AFF_PLAGUE);
                 continue;
             }
 
@@ -730,7 +629,7 @@ void char_update(void)
                  && !IS_AFFECTED(ch, AFF_SLOW))
 
         {
-            AFFECT_DATA* poison;
+            AffectData* poison;
 
             poison = affect_find(ch->affected, gsn_poison);
 
@@ -775,13 +674,13 @@ void char_update(void)
  */
 void obj_update(void)
 {
-    OBJ_DATA* obj;
-    OBJ_DATA* obj_next = NULL;
-    AFFECT_DATA* paf;
-    AFFECT_DATA* paf_next = NULL;
+    ObjectData* obj;
+    ObjectData* obj_next = NULL;
+    AffectData* paf;
+    AffectData* paf_next = NULL;
 
     for (obj = object_list; obj != NULL; obj = obj_next) {
-        CHAR_DATA* rch;
+        CharData* rch;
         char* message;
 
         obj_next = obj->next;
@@ -856,7 +755,7 @@ void obj_update(void)
 
         if (obj->carried_by != NULL) {
             if (IS_NPC(obj->carried_by)
-                && obj->carried_by->pIndexData->pShop != NULL)
+                && obj->carried_by->prototype->pShop != NULL)
                 obj->carried_by->silver += (int16_t)obj->cost / 5;
             else {
                 act(message, obj->carried_by, obj, NULL, TO_CHAR);
@@ -865,7 +764,7 @@ void obj_update(void)
             }
         }
         else if (obj->in_room != NULL && (rch = obj->in_room->people) != NULL) {
-            if (!(obj->in_obj && obj->in_obj->pIndexData->vnum == OBJ_VNUM_PIT
+            if (!(obj->in_obj && obj->in_obj->prototype->vnum == OBJ_VNUM_PIT
                   && !CAN_WEAR(obj->in_obj, ITEM_TAKE))) {
                 act(message, rch, obj, NULL, TO_ROOM);
                 act(message, rch, obj, NULL, TO_CHAR);
@@ -874,8 +773,8 @@ void obj_update(void)
 
         if ((obj->item_type == ITEM_CORPSE_PC || obj->wear_loc == WEAR_FLOAT)
             && obj->contains) { /* save the contents */
-            OBJ_DATA* t_obj;
-            OBJ_DATA* next_obj = NULL;
+            ObjectData* t_obj;
+            ObjectData* next_obj = NULL;
 
             for (t_obj = obj->contains; t_obj != NULL; t_obj = next_obj) {
                 next_obj = t_obj->next_content;
@@ -923,20 +822,20 @@ void obj_update(void)
  */
 void aggr_update(void)
 {
-    for (PC_DATA* wpc = pc_list; wpc != NULL; wpc = wpc->next) {
-        CHAR_DATA* wch = wpc->ch;
+    for (PlayerData* wpc = player_list; wpc != NULL; wpc = wpc->next) {
+        CharData* wch = wpc->ch;
 
         if (wch->level >= LEVEL_IMMORTAL || wch->in_room == NULL)
             continue;
 
-        for (CHAR_DATA* ch = wch->in_room->people; ch != NULL; ch = ch->next_in_room) {
+        for (CharData* ch = wch->in_room->people; ch != NULL; ch = ch->next_in_room) {
             int count;
 
-            if (!IS_NPC(ch) || !IS_SET(ch->act, ACT_AGGRESSIVE)
+            if (!IS_NPC(ch) || !IS_SET(ch->act_flags, ACT_AGGRESSIVE)
                 || IS_SET(ch->in_room->room_flags, ROOM_SAFE)
                 || IS_AFFECTED(ch, AFF_CALM) || ch->fighting != NULL
                 || IS_AFFECTED(ch, AFF_CHARM) || !IS_AWAKE(ch)
-                || (IS_SET(ch->act, ACT_WIMPY) && IS_AWAKE(wch))
+                || (IS_SET(ch->act_flags, ACT_WIMPY) && IS_AWAKE(wch))
                 || !can_see(ch, wch) || number_bits(1) == 0)
                 continue;
 
@@ -946,11 +845,11 @@ void aggr_update(void)
              *   giving each 'vch' an equal chance of selection.
              */
             count = 0;
-            CHAR_DATA* victim = NULL;
-            for (CHAR_DATA* vch = wch->in_room->people; vch != NULL; vch = vch->next_in_room) {
+            CharData* victim = NULL;
+            for (CharData* vch = wch->in_room->people; vch != NULL; vch = vch->next_in_room) {
                 if (!IS_NPC(vch) && vch->level < LEVEL_IMMORTAL
                     && ch->level >= vch->level - 5
-                    && (!IS_SET(ch->act, ACT_WIMPY) || !IS_AWAKE(vch))
+                    && (!IS_SET(ch->act_flags, ACT_WIMPY) || !IS_AWAKE(vch))
                     && can_see(ch, vch)) {
                     if (number_range(0, count) == 0) victim = vch;
                     count++;
@@ -1005,7 +904,7 @@ void update_handler(void)
         wiznet("TICK!", NULL, NULL, WIZ_TICKS, 0, 0);
         pulse_point = PULSE_TICK;
         /* number_range( PULSE_TICK / 2, 3 * PULSE_TICK / 2 ); */
-        weather_update();
+        update_weather_info();
         char_update();
         obj_update();
     }

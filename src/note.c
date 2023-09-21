@@ -26,9 +26,19 @@
  ***************************************************************************/
 
 #include "merc.h"
+
+#include "db.h"
+#include "comm.h"
+#include "handler.h"
+#include "note.h"
 #include "recycle.h"
 #include "strings.h"
 #include "tables.h"
+
+#include "entities/descriptor.h"
+#include "entities/player_data.h"
+
+#include "data/mobile.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -42,26 +52,22 @@
 #include <sys/time.h>
 #endif
 
-/* globals from db.c for load_notes */
-extern int _filbuf args((FILE*));
-extern FILE* fpArea;
-extern char strArea[MAX_INPUT_LENGTH];
-
 /* local procedures */
-void load_thread(char* name, NOTE_DATA** list, int16_t type, time_t free_time);
-void parse_note(CHAR_DATA* ch, char* argument, int16_t type);
-bool hide_note(CHAR_DATA* ch, NOTE_DATA* pnote);
+void load_thread(char* name, NoteData** list, int16_t type, time_t free_time);
+void parse_note(CharData* ch, char* argument, int16_t type);
+bool hide_note(CharData* ch, NoteData* pnote);
 
-NOTE_DATA* note_list;
-NOTE_DATA* idea_list;
-NOTE_DATA* penalty_list;
-NOTE_DATA* news_list;
-NOTE_DATA* changes_list;
+NoteData* note_list;
+NoteData* idea_list;
+NoteData* penalty_list;
+NoteData* news_list;
+NoteData* changes_list;
+NoteData* note_free;
 
-int count_spool(CHAR_DATA* ch, NOTE_DATA* spool)
+int count_spool(CharData* ch, NoteData* spool)
 {
     int count = 0;
-    NOTE_DATA* pnote;
+    NoteData* pnote;
 
     for (pnote = spool; pnote != NULL; pnote = pnote->next)
         if (!hide_note(ch, pnote)) count++;
@@ -69,7 +75,7 @@ int count_spool(CHAR_DATA* ch, NOTE_DATA* spool)
     return count;
 }
 
-void do_unread(CHAR_DATA* ch)
+void do_unread(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     int count;
@@ -111,27 +117,27 @@ void do_unread(CHAR_DATA* ch)
     if (!found) send_to_char("You have no unread notes.\n\r", ch);
 }
 
-void do_note(CHAR_DATA* ch, char* argument)
+void do_note(CharData* ch, char* argument)
 {
     parse_note(ch, argument, NOTE_NOTE);
 }
 
-void do_idea(CHAR_DATA* ch, char* argument)
+void do_idea(CharData* ch, char* argument)
 {
     parse_note(ch, argument, NOTE_IDEA);
 }
 
-void do_penalty(CHAR_DATA* ch, char* argument)
+void do_penalty(CharData* ch, char* argument)
 {
     parse_note(ch, argument, NOTE_PENALTY);
 }
 
-void do_news(CHAR_DATA* ch, char* argument)
+void do_news(CharData* ch, char* argument)
 {
     parse_note(ch, argument, NOTE_NEWS);
 }
 
-void do_changes(CHAR_DATA* ch, char* argument)
+void do_changes(CharData* ch, char* argument)
 {
     parse_note(ch, argument, NOTE_CHANGES);
 }
@@ -140,7 +146,7 @@ void save_notes(int type)
 {
     FILE* fp;
     char* name;
-    NOTE_DATA* pnote;
+    NoteData* pnote;
 
     switch (type) {
     default:
@@ -194,10 +200,10 @@ void load_notes(void)
     load_thread(CHANGES_FILE, &changes_list, NOTE_CHANGES, 0);
 }
 
-void load_thread(char* name, NOTE_DATA** list, int16_t type, time_t free_time)
+void load_thread(char* name, NoteData** list, int16_t type, time_t free_time)
 {
     FILE* fp;
-    NOTE_DATA* pnotelast;
+    NoteData* pnotelast;
 
     char filename[256];
     sprintf(filename, "%s%s", area_dir, name);
@@ -205,7 +211,7 @@ void load_thread(char* name, NOTE_DATA** list, int16_t type, time_t free_time)
 
     pnotelast = NULL;
     for (;;) {
-        NOTE_DATA* pnote;
+        NoteData* pnote;
         char letter;
 
         do {
@@ -260,12 +266,12 @@ void load_thread(char* name, NOTE_DATA** list, int16_t type, time_t free_time)
     return;
 }
 
-void append_note(NOTE_DATA* pnote)
+void append_note(NoteData* pnote)
 {
     FILE* fp;
     char* name;
-    NOTE_DATA** list;
-    NOTE_DATA* last;
+    NoteData** list;
+    NoteData* last;
 
     switch (pnote->type) {
     default:
@@ -316,11 +322,13 @@ void append_note(NOTE_DATA* pnote)
     fpReserve = fopen(NULL_FILE, "r");
 }
 
-bool is_note_to(CHAR_DATA* ch, NOTE_DATA* pnote)
+bool is_note_to(CharData* ch, NoteData* pnote)
 {
-    if (!str_cmp(ch->name, pnote->sender)) return true;
+    if (!str_cmp(ch->name, pnote->sender))
+        return true;
 
-    if (is_exact_name("all", pnote->to_list)) return true;
+    if (is_exact_name("all", pnote->to_list))
+        return true;
 
     if (IS_IMMORTAL(ch) && is_exact_name("immortal", pnote->to_list))
         return true;
@@ -328,14 +336,15 @@ bool is_note_to(CHAR_DATA* ch, NOTE_DATA* pnote)
     if (ch->clan && is_exact_name(clan_table[ch->clan].name, pnote->to_list))
         return true;
 
-    if (is_exact_name(ch->name, pnote->to_list)) return true;
+    if (is_exact_name(ch->name, pnote->to_list))
+        return true;
 
     return false;
 }
 
-void note_attach(CHAR_DATA* ch, int16_t type)
+void note_attach(CharData* ch, int16_t type)
 {
-    NOTE_DATA* pnote;
+    NoteData* pnote;
 
     if (ch->pnote != NULL) return;
 
@@ -352,12 +361,12 @@ void note_attach(CHAR_DATA* ch, int16_t type)
     return;
 }
 
-void note_remove(CHAR_DATA* ch, NOTE_DATA* pnote, bool delete)
+void note_remove(CharData* ch, NoteData* pnote, bool delete)
 {
     char to_new[MAX_INPUT_LENGTH] = "";
     char to_one[MAX_INPUT_LENGTH] = "";
-    NOTE_DATA* prev;
-    NOTE_DATA** list;
+    NoteData* prev;
+    NoteData** list;
     char* to_list;
 
     if (!delete) {
@@ -406,7 +415,8 @@ void note_remove(CHAR_DATA* ch, NOTE_DATA* pnote, bool delete)
     if (pnote == *list) { *list = pnote->next; }
     else {
         for (prev = *list; prev != NULL; prev = prev->next) {
-            if (prev->next == pnote) break;
+            if (prev->next == pnote) 
+                break;
         }
 
         if (prev == NULL) {
@@ -422,11 +432,12 @@ void note_remove(CHAR_DATA* ch, NOTE_DATA* pnote, bool delete)
     return;
 }
 
-bool hide_note(CHAR_DATA* ch, NOTE_DATA* pnote)
+bool hide_note(CharData* ch, NoteData* pnote)
 {
     time_t last_read;
 
-    if (IS_NPC(ch)) return true;
+    if (IS_NPC(ch)) 
+        return true;
 
     switch (pnote->type) {
     default:
@@ -448,20 +459,24 @@ bool hide_note(CHAR_DATA* ch, NOTE_DATA* pnote)
         break;
     }
 
-    if (pnote->date_stamp <= last_read) return true;
+    if (pnote->date_stamp <= last_read) 
+        return true;
 
-    if (!str_cmp(ch->name, pnote->sender)) return true;
+    if (!str_cmp(ch->name, pnote->sender)) 
+        return true;
 
-    if (!is_note_to(ch, pnote)) return true;
+    if (!is_note_to(ch, pnote)) 
+        return true;
 
     return false;
 }
 
-void update_read(CHAR_DATA* ch, NOTE_DATA* pnote)
+void update_read(CharData* ch, NoteData* pnote)
 {
     time_t stamp;
 
-    if (IS_NPC(ch)) return;
+    if (IS_NPC(ch)) 
+        return;
 
     stamp = pnote->date_stamp;
 
@@ -486,18 +501,19 @@ void update_read(CHAR_DATA* ch, NOTE_DATA* pnote)
     }
 }
 
-void parse_note(CHAR_DATA* ch, char* argument, int16_t type)
+void parse_note(CharData* ch, char* argument, int16_t type)
 {
-    BUFFER* buffer;
+    Buffer* buffer;
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    NOTE_DATA* pnote;
-    NOTE_DATA** list;
+    NoteData* pnote;
+    NoteData** list;
     char* list_name;
     VNUM vnum;
     int anum;
 
-    if (IS_NPC(ch)) return;
+    if (IS_NPC(ch)) 
+        return;
 
     switch (type) {
     default:
@@ -534,10 +550,8 @@ void parse_note(CHAR_DATA* ch, char* argument, int16_t type)
             fAll = true;
             anum = 0;
         }
-
-        else if (argument[0] == '\0' || !str_prefix(argument, "next"))
-        /* read next unread note */
-        {
+        else if (argument[0] == '\0' || !str_prefix(argument, "next")) {
+            // read next unread note
             vnum = 0;
             for (pnote = *list; pnote != NULL; pnote = pnote->next) {
                 if (!hide_note(ch, pnote)) {
@@ -691,8 +705,7 @@ void parse_note(CHAR_DATA* ch, char* argument, int16_t type)
     if (!str_cmp(arg, "+")) {
         note_attach(ch, type);
         if (ch->pnote->type != type) {
-            send_to_char("You already have a different note in progress.\n\r",
-                         ch);
+            send_to_char("You already have a different note in progress.\n\r", ch);
             return;
         }
 
@@ -718,8 +731,7 @@ void parse_note(CHAR_DATA* ch, char* argument, int16_t type)
 
         note_attach(ch, type);
         if (ch->pnote->type != type) {
-            send_to_char("You already have a different note in progress.\n\r",
-                         ch);
+            send_to_char("You already have a different note in progress.\n\r", ch);
             return;
         }
 
@@ -732,13 +744,14 @@ void parse_note(CHAR_DATA* ch, char* argument, int16_t type)
 
         for (size_t len = strlen(buf); len > 0; len--) {
             if (buf[len] == '\r') {
-                if (!found) /* back it up */
-                {
-                    if (len > 0) len--;
+                if (!found) {
+                    /* back it up */
+                    if (len > 0) 
+                        len--;
                     found = true;
                 }
-                else /* found the second one */
-                {
+                else {
+                    /* found the second one */
                     buf[len + 1] = '\0';
                     free_string(ch->pnote->text);
                     ch->pnote->text = str_dup(buf);
@@ -755,8 +768,7 @@ void parse_note(CHAR_DATA* ch, char* argument, int16_t type)
     if (!str_prefix(arg, "subject")) {
         note_attach(ch, type);
         if (ch->pnote->type != type) {
-            send_to_char("You already have a different note in progress.\n\r",
-                         ch);
+            send_to_char("You already have a different note in progress.\n\r", ch);
             return;
         }
 
@@ -769,8 +781,7 @@ void parse_note(CHAR_DATA* ch, char* argument, int16_t type)
     if (!str_prefix(arg, "to")) {
         note_attach(ch, type);
         if (ch->pnote->type != type) {
-            send_to_char("You already have a different note in progress.\n\r",
-                         ch);
+            send_to_char("You already have a different note in progress.\n\r", ch);
             return;
         }
         free_string(ch->pnote->to_list);
@@ -822,8 +833,7 @@ void parse_note(CHAR_DATA* ch, char* argument, int16_t type)
 
         if (!str_cmp(ch->pnote->to_list, "")) {
             send_to_char(
-                "You need to provide a recipient (name, all, or immortal).\n\r",
-                ch);
+                "You need to provide a recipient (name, all, or immortal).\n\r", ch);
             return;
         }
 
@@ -845,4 +855,33 @@ void parse_note(CHAR_DATA* ch, char* argument, int16_t type)
 
     send_to_char("You can't do that.\n\r", ch);
     return;
+}
+
+NoteData* new_note()
+{
+    NoteData* note;
+
+    if (note_free == NULL)
+        note = alloc_perm(sizeof(*note));
+    else {
+        note = note_free;
+        note_free = note_free->next;
+    }
+    VALIDATE(note);
+    return note;
+}
+
+void free_note(NoteData* note)
+{
+    if (!IS_VALID(note)) return;
+
+    free_string(note->text);
+    free_string(note->subject);
+    free_string(note->to_list);
+    free_string(note->date);
+    free_string(note->sender);
+    INVALIDATE(note);
+
+    note->next = note_free;
+    note_free = note;
 }

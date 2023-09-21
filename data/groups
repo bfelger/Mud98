@@ -1,279 +1,183 @@
 30
-rom basics~
-0 0 0 0 
-scrolls~
-staves~
-wands~
-recall~
-End~
 
-mage basics~
-0 -1 -1 -1 
-dagger~
-End~
+#GROUP
+name rom basics~
+rating 0 0 0 0 @
+skills scrolls~ staves~ wands~ recall~ @~
+#END
 
-cleric basics~
--1 0 -1 -1 
-mace~
-End~
+#GROUP
+name mage basics~
+rating 0 -1 -1 -1 @
+skills dagger~ @~
+#END
 
-thief basics~
--1 -1 0 -1 
-dagger~
-steal~
-End~
+#GROUP
+name cleric basics~
+rating -1 0 -1 -1 @
+skills mace~ @~
+#END
 
-warrior basics~
--1 -1 -1 0 
-sword~
-second attack~
-End~
+#GROUP
+name thief basics~
+rating -1 -1 0 -1 @
+skills dagger~ steal~ @~
+#END
 
-mage default~
-40 -1 -1 -1 
-lore~
-beguiling~
-combat~
-detection~
-enhancement~
-illusion~
-maladictions~
-protective~
-transportation~
-weather~
-End~
+#GROUP
+name warrior basics~
+rating -1 -1 -1 0 @
+skills sword~ second attack~ @~
+#END
 
-cleric default~
--1 40 -1 -1 
-flail~
-attack~
-creation~
-curative~
-benedictions~
-detection~
-healing~
-maladictions~
-protective~
-shield block~
-transportation~
-weather~
-End~
+#GROUP
+name mage default~
+rating 40 -1 -1 -1 @
+skills lore~ beguiling~ combat~ detection~ enhancement~ illusion~ maladictions~ protective~ transportation~ weather~ @~
+#END
 
-thief default~
--1 -1 40 -1 
-mace~
-sword~
-backstab~
-disarm~
-dodge~
-second attack~
-trip~
-hide~
-peek~
-pick lock~
-sneak~
-End~
+#GROUP
+name cleric default~
+rating -1 40 -1 -1 @
+skills flail~ attack~ creation~ curative~ benedictions~ detection~ healing~ maladictions~ protective~ shield block~ transportation~ weather~ @~
+#END
 
-warrior default~
--1 -1 -1 40 
-weaponsmaster~
-shield block~
-bash~
-disarm~
-enhanced damage~
-parry~
-rescue~
-third attack~
-End~
+#GROUP
+name thief default~
+rating -1 -1 40 -1 @
+skills mace~ sword~ backstab~ disarm~ dodge~ second attack~ trip~ hide~ peek~ pick lock~ sneak~ @~
+#END
 
-weaponsmaster~
-40 40 40 20 
-axe~
-dagger~
-flail~
-mace~
-polearm~
-spear~
-sword~
-whip~
-End~
+#GROUP
+name warrior default~
+rating -1 -1 -1 40 @
+skills weaponsmaster~ shield block~ bash~ disarm~ enhanced damage~ parry~ rescue~ third attack~ @~
+#END
 
-attack~
--1 5 -1 8 
-demonfire~
-dispel evil~
-dispel good~
-earthquake~
-flamestrike~
-heat metal~
-ray of truth~
-End~
+#GROUP
+name weaponsmaster~
+rating 40 40 40 20 @
+skills axe~ dagger~ flail~ mace~ polearm~ spear~ sword~ whip~ @~
+#END
 
-beguiling~
-4 -1 6 -1 
-calm~
-charm person~
-sleep~
-End~
+#GROUP
+name attack~
+rating -1 5 -1 8 @
+skills demonfire~ dispel evil~ dispel good~ earthquake~ flamestrike~ heat metal~ ray of truth~ @~
+#END
 
-benedictions~
--1 4 -1 8 
-bless~
-calm~
-frenzy~
-holy word~
-remove curse~
-End~
+#GROUP
+name beguiling~
+rating 4 -1 6 -1 @
+skills calm~ charm person~ sleep~ @~
+#END
 
-combat~
-6 -1 10 9 
-acid blast~
-burning hands~
-chain lightning~
-chill touch~
-colour spray~
-fireball~
-lightning bolt~
-magic missile~
-shocking grasp~
-End~
+#GROUP
+name benedictions~
+rating -1 4 -1 8 @
+skills bless~ calm~ frenzy~ holy word~ remove curse~ @~
+#END
 
-creation~
-4 4 8 8 
-continual light~
-create food~
-create spring~
-create water~
-create rose~
-floating disc~
-End~
+#GROUP
+name combat~
+rating 6 -1 10 9 @
+skills acid blast~ burning hands~ chain lightning~ chill touch~ colour spray~ fireball~ lightning bolt~ magic missile~ shocking grasp~ @~
+#END
 
-curative~
--1 4 -1 8 
-cure blindness~
-cure disease~
-cure poison~
-End~
+#GROUP
+name creation~
+rating 4 4 8 8 @
+skills continual light~ create food~ create spring~ create water~ create rose~ floating disc~ @~
+#END
 
-detection~
-4 3 6 -1 
-detect evil~
-detect good~
-detect hidden~
-detect invis~
-detect magic~
-detect poison~
-farsight~
-identify~
-know alignment~
-locate object~
-End~
+#GROUP
+name curative~
+rating -1 4 -1 8 @
+skills cure blindness~ cure disease~ cure poison~ @~
+#END
 
-draconian~
-8 -1 -1 -1 
-acid breath~
-fire breath~
-frost breath~
-gas breath~
-lightning breath~
-End~
+#GROUP
+name detection~
+rating 4 3 6 -1 @
+skills detect evil~ detect good~ detect hidden~ detect invis~ detect magic~ detect poison~ farsight~ identify~ know alignment~ locate object~ @~
+#END
 
-enchantment~
-6 -1 -1 -1 
-enchant armor~
-enchant weapon~
-fireproof~
-recharge~
-End~
+#GROUP
+name draconian~
+rating 8 -1 -1 -1 @
+skills acid breath~ fire breath~ frost breath~ gas breath~ lightning breath~ @~
+#END
 
-enhancement~
-5 -1 9 9 
-giant strength~
-haste~
-infravision~
-refresh~
-End~
+#GROUP
+name enchantment~
+rating 6 -1 -1 -1 @
+skills enchant armor~ enchant weapon~ fireproof~ recharge~ @~
+#END
 
-harmful~
--1 3 -1 6 
-cause critical~
-cause light~
-cause serious~
-harm~
-End~
+#GROUP
+name enhancement~
+rating 5 -1 9 9 @
+skills giant strength~ haste~ infravision~ refresh~ @~
+#END
 
-healing~
--1 3 -1 6 
-cure critical~
-cure light~
-cure serious~
-heal~
-mass healing~
-refresh~
-End~
+#GROUP
+name harmful~
+rating -1 3 -1 6 @
+skills cause critical~ cause light~ cause serious~ harm~ @~
+#END
 
-illusion~
-4 -1 7 -1 
-invis~
-mass invis~
-ventriloquate~
-End~
+#GROUP
+name healing~
+rating -1 3 -1 6 @
+skills cure critical~ cure light~ cure serious~ heal~ mass healing~ refresh~ @~
+#END
 
-maladictions~
-5 5 9 9 
-blindness~
-change sex~
-curse~
-energy drain~
-plague~
-poison~
-slow~
-weaken~
-End~
+#GROUP
+name illusion~
+rating 4 -1 7 -1 @
+skills invis~ mass invis~ ventriloquate~ @~
+#END
 
-protective~
-4 4 7 8 
-armor~
-cancellation~
-dispel magic~
-fireproof~
-protection evil~
-protection good~
-sanctuary~
-shield~
-stone skin~
-End~
+#GROUP
+name maladictions~
+rating 5 5 9 9 @
+skills blindness~ change sex~ curse~ energy drain~ plague~ poison~ slow~ weaken~ @~
+#END
 
-transportation~
-4 4 8 9 
-fly~
-gate~
-nexus~
-pass door~
-portal~
-summon~
-teleport~
-word of recall~
-End~
+#GROUP
+name protective~
+rating 4 4 7 8 @
+skills armor~ cancellation~ dispel magic~ fireproof~ protection evil~ protection good~ sanctuary~ shield~ stone skin~ @~
+#END
 
-weather~
-4 4 8 8 
-call lightning~
-control weather~
-faerie fire~
-faerie fog~
-lightning bolt~
-End~
+#GROUP
+name transportation~
+rating 4 4 8 9 @
+skills fly~ gate~ nexus~ pass door~ portal~ summon~ teleport~ word of recall~ @~
+#END
 
-~
-0 0 0 0 
-End~
+#GROUP
+name weather~
+rating 4 4 8 8 @
+skills call lightning~ control weather~ faerie fire~ faerie fog~ lightning bolt~ @~
+#END
 
-~
-0 0 0 0 
-End~
+#GROUP
+name ~
+rating 0 0 0 0 @
+skills @~
+#END
 
-~
-0 0 0 0 
-End~
+#GROUP
+name ~
+rating 0 0 0 0 @
+skills @~
+#END
 
+#GROUP
+name ~
+rating 0 0 0 0 @
+skills @~
+#END
+
+#!

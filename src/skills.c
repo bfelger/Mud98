@@ -25,10 +25,24 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+#include "skills.h"
+
+#include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "interp.h"
 #include "magic.h"
-#include "merc.h"
+#include "spell_list.h"
 #include "recycle.h"
+#include "update.h"
+
+#include "entities/char_data.h"
+#include "entities/descriptor.h"
+#include "entities/player_data.h"
+
+#include "data/mobile.h"
+#include "data/race.h"
+#include "data/skill.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,19 +54,21 @@
 #endif
 
 /* used to get new skills */
-void do_gain(CHAR_DATA* ch, char* argument)
+void do_gain(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* trainer;
-    int gn = 0, sn = 0;
+    CharData* trainer;
+    SKNUM gn = 0, sn = 0;
 
-    if (IS_NPC(ch)) return;
+    if (IS_NPC(ch)) 
+        return;
 
     /* find a trainer */
     for (trainer = ch->in_room->people; trainer != NULL;
          trainer = trainer->next_in_room)
-        if (IS_NPC(trainer) && IS_SET(trainer->act, ACT_GAIN)) break;
+        if (IS_NPC(trainer) && IS_SET(trainer->act_flags, ACT_GAIN)) 
+            break;
 
     if (trainer == NULL || !can_see(ch, trainer)) {
         send_to_char("You can't do that here.\n\r", ch);
@@ -67,26 +83,25 @@ void do_gain(CHAR_DATA* ch, char* argument)
     }
 
     if (!str_prefix(arg, "list")) {
-        int col;
-
-        col = 0;
+        int col = 0;
 
         sprintf(buf, "%-18s %-5s %-18s %-5s %-18s %-5s\n\r", "group", "cost",
                 "group", "cost", "group", "cost");
         send_to_char(buf, ch);
 
-        for (gn = 0; gn < max_group; gn++) {
-            if (group_table[gn].name == NULL) break;
+        for (gn = 0; gn < skill_group_count; gn++) {
+            if (skill_group_table[gn].name == NULL) break;
 
             if (!ch->pcdata->group_known[gn]
-                && group_table[gn].rating[ch->ch_class] > 0) {
-                sprintf(buf, "%-18s %-5d ", group_table[gn].name,
-                        group_table[gn].rating[ch->ch_class]);
+                && SKILL_GROUP_RATING(gn, ch) > 0) {
+                sprintf(buf, "%-18s %-5d ", skill_group_table[gn].name,
+                    SKILL_GROUP_RATING(gn, ch));
                 send_to_char(buf, ch);
                 if (++col % 3 == 0) send_to_char("\n\r", ch);
             }
         }
-        if (col % 3 != 0) send_to_char("\n\r", ch);
+        if (col % 3 != 0) 
+            send_to_char("\n\r", ch);
 
         send_to_char("\n\r", ch);
 
@@ -96,19 +111,21 @@ void do_gain(CHAR_DATA* ch, char* argument)
                 "skill", "cost", "skill", "cost");
         send_to_char(buf, ch);
 
-        for (sn = 0; sn < max_skill; sn++) {
+        for (sn = 0; sn < skill_count; sn++) {
             if (skill_table[sn].name == NULL) break;
 
             if (!ch->pcdata->learned[sn]
-                && skill_table[sn].rating[ch->ch_class] > 0
+                && SKILL_RATING(sn, ch) > 0
                 && skill_table[sn].spell_fun == spell_null) {
                 sprintf(buf, "%-18s %-5d ", skill_table[sn].name,
-                        skill_table[sn].rating[ch->ch_class]);
+                        SKILL_RATING(sn, ch));
                 send_to_char(buf, ch);
-                if (++col % 3 == 0) send_to_char("\n\r", ch);
+                if (++col % 3 == 0) 
+                    send_to_char("\n\r", ch);
             }
         }
-        if (col % 3 != 0) send_to_char("\n\r", ch);
+        if (col % 3 != 0) 
+            send_to_char("\n\r", ch);
         return;
     }
 
@@ -158,13 +175,13 @@ void do_gain(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        if (group_table[gn].rating[ch->ch_class] <= 0) {
+        if (SKILL_GROUP_RATING(gn, ch) <= 0) {
             act("$N tells you 'That group is beyond your powers.'", ch, NULL,
                 trainer, TO_CHAR);
             return;
         }
 
-        if (ch->train < group_table[gn].rating[ch->ch_class]) {
+        if (ch->train < SKILL_GROUP_RATING(gn, ch)) {
             act("$N tells you 'You are not yet ready for that group.'", ch,
                 NULL, trainer, TO_CHAR);
             return;
@@ -172,9 +189,9 @@ void do_gain(CHAR_DATA* ch, char* argument)
 
         /* add the group */
         gn_add(ch, gn);
-        act("$N trains you in the art of $t", ch, group_table[gn].name, trainer,
+        act("$N trains you in the art of $t", ch, skill_group_table[gn].name, trainer,
             TO_CHAR);
-        ch->train -= (int16_t)group_table[gn].rating[ch->ch_class];
+        ch->train -= SKILL_GROUP_RATING(gn, ch);
         return;
     }
 
@@ -192,13 +209,13 @@ void do_gain(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        if (skill_table[sn].rating[ch->ch_class] <= 0) {
+        if (SKILL_RATING(sn, ch) <= 0) {
             act("$N tells you 'That skill is beyond your powers.'", ch, NULL,
                 trainer, TO_CHAR);
             return;
         }
 
-        if (ch->train < skill_table[sn].rating[ch->ch_class]) {
+        if (ch->train < SKILL_RATING(sn, ch)) {
             act("$N tells you 'You are not yet ready for that skill.'", ch,
                 NULL, trainer, TO_CHAR);
             return;
@@ -208,7 +225,7 @@ void do_gain(CHAR_DATA* ch, char* argument)
         ch->pcdata->learned[sn] = 1;
         act("$N trains you in the art of $t", ch, skill_table[sn].name, trainer,
             TO_CHAR);
-        ch->train -= (int16_t)skill_table[sn].rating[ch->ch_class];
+        ch->train -= SKILL_RATING(sn, ch);
         return;
     }
 
@@ -216,11 +233,13 @@ void do_gain(CHAR_DATA* ch, char* argument)
 }
 
 /* RT spells and skills show the players spells (or skills) */
-void do_spells(CHAR_DATA* ch, char* argument)
+void do_spells(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char spell_columns[LEVEL_HERO + 1] = { 0 };
-    int sn, level, min_lev = 1, max_lev = LEVEL_HERO, mana;
+    SKNUM sn;
+    LEVEL level, min_lev = 1, max_lev = LEVEL_HERO;
+    int mana;
     bool fAll = false, found = false;
     char buf[MAX_STRING_LENGTH];
     int slot;
@@ -237,7 +256,7 @@ void do_spells(CHAR_DATA* ch, char* argument)
                 send_to_char("Arguments must be numerical or all.\n\r", ch);
                 return;
             }
-            max_lev = atoi(arg);
+            max_lev = (LEVEL)atoi(arg);
 
             if (max_lev < 1 || max_lev > LEVEL_HERO) {
                 sprintf(buf, "Levels must be between 1 and %d.\n\r",
@@ -253,7 +272,7 @@ void do_spells(CHAR_DATA* ch, char* argument)
                     return;
                 }
                 min_lev = max_lev;
-                max_lev = atoi(arg);
+                max_lev = (LEVEL)atoi(arg);
 
                 if (max_lev < 1 || max_lev > LEVEL_HERO) {
                     sprintf(buf, "Levels must be between 1 and %d.\n\r",
@@ -271,8 +290,8 @@ void do_spells(CHAR_DATA* ch, char* argument)
     }
 
     int range = 1 + max_lev - min_lev;
-    BUFFER** spell_buf;
-    if ((spell_buf = calloc(sizeof(BUFFER*), range)) == 0) {
+    Buffer** spell_buf;
+    if ((spell_buf = calloc(sizeof(Buffer*), range)) == 0) {
         send_to_char("Can't do that right now.\n\r", ch);
         perror("do_spells: Cannot allocate spell bufs!");
         return;
@@ -285,15 +304,15 @@ void do_spells(CHAR_DATA* ch, char* argument)
         spell_columns[level] = 0;
     }
 
-    for (sn = 0; sn < max_skill; sn++) {
-        if (skill_table[sn].name == NULL) break;
+    for (sn = 0; sn < skill_count; sn++) {
+        if (skill_table[sn].name == NULL) 
+            break;
 
-        if ((level = skill_table[sn].skill_level[ch->ch_class]) < LEVEL_HERO + 1
+        if ((level = SKILL_LEVEL(sn, ch)) < LEVEL_HERO + 1
             && (fAll || level <= ch->level) && level >= min_lev
             && level <= max_lev && skill_table[sn].spell_fun != spell_null
             && ch->pcdata->learned[sn] > 0) {
             found = true;
-            level = skill_table[sn].skill_level[ch->ch_class];
 
             slot = level - min_lev;
 
@@ -322,7 +341,7 @@ void do_spells(CHAR_DATA* ch, char* argument)
         send_to_char("No spells found.\n\r", ch);
     }
     else {
-        BUFFER* buffer = new_buf();
+        Buffer* buffer = new_buf();
         for (level = min_lev; level <= max_lev; level++) {
             slot = level - min_lev;
             if (BUF(spell_buf[slot])[0] != '\0')
@@ -337,16 +356,18 @@ void do_spells(CHAR_DATA* ch, char* argument)
     free(spell_buf);
 }
 
-void do_skills(CHAR_DATA* ch, char* argument)
+void do_skills(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char skill_columns[LEVEL_HERO + 1] = { 0 };
-    int sn, level, min_lev = 1, max_lev = LEVEL_HERO;
+    SKNUM sn;
+    LEVEL level, min_lev = 1, max_lev = LEVEL_HERO;
     bool fAll = false, found = false;
     char buf[MAX_STRING_LENGTH];
     int slot;
 
-    if (IS_NPC(ch)) return;
+    if (IS_NPC(ch))
+        return;
 
     if (argument[0] != '\0') {
         fAll = true;
@@ -357,7 +378,7 @@ void do_skills(CHAR_DATA* ch, char* argument)
                 send_to_char("Arguments must be numerical or all.\n\r", ch);
                 return;
             }
-            max_lev = atoi(arg);
+            max_lev = (LEVEL)atoi(arg);
 
             if (max_lev < 1 || max_lev > LEVEL_HERO) {
                 sprintf(buf, "Levels must be between 1 and %d.\n\r",
@@ -373,7 +394,7 @@ void do_skills(CHAR_DATA* ch, char* argument)
                     return;
                 }
                 min_lev = max_lev;
-                max_lev = atoi(arg);
+                max_lev = (LEVEL)atoi(arg);
 
                 if (max_lev < 1 || max_lev > LEVEL_HERO) {
                     sprintf(buf, "Levels must be between 1 and %d.\n\r",
@@ -391,8 +412,8 @@ void do_skills(CHAR_DATA* ch, char* argument)
     }
 
     int range = 1 + max_lev - min_lev;
-    BUFFER** skill_buf;
-    if ((skill_buf = calloc(sizeof(BUFFER*), range)) == 0) {
+    Buffer** skill_buf;
+    if ((skill_buf = calloc(sizeof(Buffer*), range)) == 0) {
         send_to_char("Can't do that right now.\n\r", ch);
         perror("do_skills: Cannot allocate skill bufs!");
         return;
@@ -405,15 +426,14 @@ void do_skills(CHAR_DATA* ch, char* argument)
         skill_columns[level] = 0;
     }
 
-    for (sn = 0; sn < max_skill; sn++) {
+    for (sn = 0; sn < skill_count; sn++) {
         if (skill_table[sn].name == NULL) break;
 
-        if ((level = skill_table[sn].skill_level[ch->ch_class]) < LEVEL_HERO + 1
+        if ((level = SKILL_RATING(sn, ch)) < LEVEL_HERO + 1
             && (fAll || level <= ch->level) && level >= min_lev
             && level <= max_lev && skill_table[sn].spell_fun == spell_null
             && ch->pcdata->learned[sn] > 0) {
             found = true;
-            level = skill_table[sn].skill_level[ch->ch_class];
 
             slot = level - min_lev;
 
@@ -441,7 +461,7 @@ void do_skills(CHAR_DATA* ch, char* argument)
         send_to_char("No skills found.\n\r", ch);
     }
     else {
-        BUFFER* buffer = new_buf();
+        Buffer* buffer = new_buf();
         for (level = min_lev; level <= max_lev; level++) {
             slot = level - min_lev;
             if (BUF(skill_buf[slot])[0] != '\0')
@@ -458,12 +478,14 @@ void do_skills(CHAR_DATA* ch, char* argument)
 }
 
 /* shows skills, groups and costs (only if not bought) */
-void list_group_costs(CHAR_DATA* ch)
+void list_group_costs(CharData* ch)
 {
     char buf[100];
-    int gn, sn, col;
+    SKNUM gn, sn;
+    int col;
 
-    if (IS_NPC(ch)) return;
+    if (IS_NPC(ch)) 
+        return;
 
     col = 0;
 
@@ -471,13 +493,13 @@ void list_group_costs(CHAR_DATA* ch)
             "cp", "group", "cp");
     send_to_char(buf, ch);
 
-    for (gn = 0; gn < max_group; gn++) {
-        if (group_table[gn].name == NULL) break;
+    for (gn = 0; gn < skill_group_count; gn++) {
+        if (skill_group_table[gn].name == NULL) break;
 
         if (!ch->gen_data->group_chosen[gn] && !ch->pcdata->group_known[gn]
-            && group_table[gn].rating[ch->ch_class] > 0) {
-            sprintf(buf, "%-18s %-5d ", group_table[gn].name,
-                    group_table[gn].rating[ch->ch_class]);
+            && SKILL_GROUP_RATING(gn, ch) > 0) {
+            sprintf(buf, "%-18s %-5d ", skill_group_table[gn].name,
+                    SKILL_GROUP_RATING(gn, ch));
             send_to_char(buf, ch);
             if (++col % 3 == 0) send_to_char("\n\r", ch);
         }
@@ -491,14 +513,14 @@ void list_group_costs(CHAR_DATA* ch)
             "cp", "skill", "cp");
     send_to_char(buf, ch);
 
-    for (sn = 0; sn < max_skill; sn++) {
+    for (sn = 0; sn < skill_count; sn++) {
         if (skill_table[sn].name == NULL) break;
 
         if (!ch->gen_data->skill_chosen[sn] && ch->pcdata->learned[sn] == 0
             && skill_table[sn].spell_fun == spell_null
-            && skill_table[sn].rating[ch->ch_class] > 0) {
+            && SKILL_RATING(sn, ch) > 0) {
             sprintf(buf, "%-18s %-5d ", skill_table[sn].name,
-                    skill_table[sn].rating[ch->ch_class]);
+                SKILL_RATING(sn, ch));
             send_to_char(buf, ch);
             if (++col % 3 == 0) send_to_char("\n\r", ch);
         }
@@ -514,10 +536,11 @@ void list_group_costs(CHAR_DATA* ch)
     return;
 }
 
-void list_group_chosen(CHAR_DATA* ch)
+void list_group_chosen(CharData* ch)
 {
     char buf[100];
-    int gn, sn, col;
+    SKNUM gn, sn;
+    int col;
 
     if (IS_NPC(ch)) return;
 
@@ -527,13 +550,13 @@ void list_group_chosen(CHAR_DATA* ch)
             "cp", "group", "cp\n\r");
     send_to_char(buf, ch);
 
-    for (gn = 0; gn < max_group; gn++) {
-        if (group_table[gn].name == NULL) break;
+    for (gn = 0; gn < skill_group_count; gn++) {
+        if (skill_group_table[gn].name == NULL) break;
 
         if (ch->gen_data->group_chosen[gn]
-            && group_table[gn].rating[ch->ch_class] > 0) {
-            sprintf(buf, "%-18s %-5d ", group_table[gn].name,
-                    group_table[gn].rating[ch->ch_class]);
+            && SKILL_GROUP_RATING(gn, ch) > 0) {
+            sprintf(buf, "%-18s %-5d ", skill_group_table[gn].name,
+                    SKILL_GROUP_RATING(gn, ch));
             send_to_char(buf, ch);
             if (++col % 3 == 0) send_to_char("\n\r", ch);
         }
@@ -547,13 +570,13 @@ void list_group_chosen(CHAR_DATA* ch)
             "cp", "skill", "cp\n\r");
     send_to_char(buf, ch);
 
-    for (sn = 0; sn < max_skill; sn++) {
+    for (sn = 0; sn < skill_count; sn++) {
         if (skill_table[sn].name == NULL) break;
 
         if (ch->gen_data->skill_chosen[sn]
-            && skill_table[sn].rating[ch->ch_class] > 0) {
+            && SKILL_RATING(sn, ch) > 0) {
             sprintf(buf, "%-18s %-5d ", skill_table[sn].name,
-                    skill_table[sn].rating[ch->ch_class]);
+                SKILL_RATING(sn, ch));
             send_to_char(buf, ch);
             if (++col % 3 == 0) send_to_char("\n\r", ch);
         }
@@ -569,18 +592,21 @@ void list_group_chosen(CHAR_DATA* ch)
     return;
 }
 
-int exp_per_level(CHAR_DATA* ch, int points)
+int exp_per_level(CharData* ch, int points)
 {
     int expl, inc;
 
-    if (IS_NPC(ch)) return 1000;
+    if (IS_NPC(ch)) 
+        return 1000;
 
     expl = 1000;
     inc = 500;
 
+    int mult = GET_ELEM(&race_table[ch->race].class_mult, ch->ch_class);
+
     if (points < 40)
-        return 1000 * (race_table[ch->race].class_mult[ch->ch_class] ?
-            race_table[ch->race].class_mult[ch->ch_class] / 100 : 1);
+        return 1000 * (mult ?
+            mult / 100 : 1);
 
     /* processing */
     points -= 40;
@@ -597,17 +623,19 @@ int exp_per_level(CHAR_DATA* ch, int points)
 
     expl += points * inc / 10;
 
-    return expl * race_table[ch->race].class_mult[ch->ch_class] / 100;
+    return expl * mult / 100;
 }
 
 /* this procedure handles the input parsing for the skill generator */
-bool parse_gen_groups(CHAR_DATA* ch, char* argument)
+bool parse_gen_groups(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char buf[100];
-    int gn, sn, i;
+    SKNUM gn, sn;
+    int i;
 
-    if (argument[0] == '\0') return false;
+    if (argument[0] == '\0')
+        return false;
 
     argument = one_argument(argument, arg);
 
@@ -634,25 +662,23 @@ bool parse_gen_groups(CHAR_DATA* ch, char* argument)
                 return true;
             }
 
-            if (group_table[gn].rating[ch->ch_class] < 1) {
+            if (SKILL_GROUP_RATING(gn, ch) < 1) {
                 send_to_char("That group is not available.\n\r", ch);
                 return true;
             }
 
             /* Close security hole */
-            if (ch->gen_data->points_chosen + group_table[gn].rating[ch->ch_class]
-                > 300) {
-                send_to_char(
-                    "You cannot take more than 300 creation points.\n\r", ch);
+            if (ch->gen_data->points_chosen + SKILL_GROUP_RATING(gn, ch) > 300) {
+                send_to_char("You cannot take more than 300 creation points.\n\r", ch);
                 return true;
             }
 
-            sprintf(buf, "%s group added\n\r", group_table[gn].name);
+            sprintf(buf, "%s group added\n\r", skill_group_table[gn].name);
             send_to_char(buf, ch);
             ch->gen_data->group_chosen[gn] = true;
-            ch->gen_data->points_chosen += group_table[gn].rating[ch->ch_class];
+            ch->gen_data->points_chosen += SKILL_GROUP_RATING(gn, ch);
             gn_add(ch, gn);
-            ch->pcdata->points += (int16_t)group_table[gn].rating[ch->ch_class];
+            ch->pcdata->points += SKILL_GROUP_RATING(gn, ch);
             return true;
         }
 
@@ -663,25 +689,23 @@ bool parse_gen_groups(CHAR_DATA* ch, char* argument)
                 return true;
             }
 
-            if (skill_table[sn].rating[ch->ch_class] < 1
+            if (SKILL_RATING(sn, ch) < 1
                 || skill_table[sn].spell_fun != spell_null) {
                 send_to_char("That skill is not available.\n\r", ch);
                 return true;
             }
 
             /* Close security hole */
-            if (ch->gen_data->points_chosen + skill_table[sn].rating[ch->ch_class]
-                > 300) {
-                send_to_char(
-                    "You cannot take more than 300 creation points.\n\r", ch);
+            if (ch->gen_data->points_chosen + SKILL_RATING(sn, ch) > 300) {
+                send_to_char("You cannot take more than 300 creation points.\n\r", ch);
                 return true;
             }
             sprintf(buf, "%s skill added\n\r", skill_table[sn].name);
             send_to_char(buf, ch);
             ch->gen_data->skill_chosen[sn] = true;
-            ch->gen_data->points_chosen += skill_table[sn].rating[ch->ch_class];
+            ch->gen_data->points_chosen += SKILL_RATING(sn, ch);
             ch->pcdata->learned[sn] = 1;
-            ch->pcdata->points += (int16_t)skill_table[sn].rating[ch->ch_class];
+            ch->pcdata->points += SKILL_RATING(sn, ch);
             return true;
         }
 
@@ -699,12 +723,12 @@ bool parse_gen_groups(CHAR_DATA* ch, char* argument)
         if (gn != -1 && ch->gen_data->group_chosen[gn]) {
             send_to_char("Group dropped.\n\r", ch);
             ch->gen_data->group_chosen[gn] = false;
-            ch->gen_data->points_chosen -= group_table[gn].rating[ch->ch_class];
+            ch->gen_data->points_chosen -= SKILL_GROUP_RATING(gn, ch);
             gn_remove(ch, gn);
-            for (i = 0; i < max_group; i++) {
+            for (i = 0; i < skill_group_count; i++) {
                 if (ch->gen_data->group_chosen[gn]) gn_add(ch, gn);
             }
-            ch->pcdata->points -= (int16_t)group_table[gn].rating[ch->ch_class];
+            ch->pcdata->points -= SKILL_GROUP_RATING(gn, ch);
             return true;
         }
 
@@ -712,9 +736,9 @@ bool parse_gen_groups(CHAR_DATA* ch, char* argument)
         if (sn != -1 && ch->gen_data->skill_chosen[sn]) {
             send_to_char("Skill dropped.\n\r", ch);
             ch->gen_data->skill_chosen[sn] = false;
-            ch->gen_data->points_chosen -= skill_table[sn].rating[ch->ch_class];
+            ch->gen_data->points_chosen -= SKILL_RATING(sn, ch);
             ch->pcdata->learned[sn] = 0;
-            ch->pcdata->points -= (int16_t)skill_table[sn].rating[ch->ch_class];
+            ch->pcdata->points -= SKILL_RATING(sn, ch);
             return true;
         }
 
@@ -746,10 +770,11 @@ bool parse_gen_groups(CHAR_DATA* ch, char* argument)
 }
 
 /* shows all groups, or the sub-members of a group */
-void do_groups(CHAR_DATA* ch, char* argument)
+void do_groups(CharData* ch, char* argument)
 {
     char buf[100];
-    int gn, sn, col;
+    SKNUM gn, sn;
+    int col;
 
     if (IS_NPC(ch)) return;
 
@@ -757,10 +782,10 @@ void do_groups(CHAR_DATA* ch, char* argument)
 
     if (argument[0] == '\0') { /* show all groups */
 
-        for (gn = 0; gn < max_group; gn++) {
-            if (group_table[gn].name == NULL) break;
+        for (gn = 0; gn < skill_group_count; gn++) {
+            if (skill_group_table[gn].name == NULL) break;
             if (ch->pcdata->group_known[gn]) {
-                sprintf(buf, "%-20s ", group_table[gn].name);
+                sprintf(buf, "%-20s ", skill_group_table[gn].name);
                 send_to_char(buf, ch);
                 if (++col % 3 == 0) send_to_char("\n\r", ch);
             }
@@ -773,9 +798,9 @@ void do_groups(CHAR_DATA* ch, char* argument)
 
     if (!str_cmp(argument, "all")) /* show all groups */
     {
-        for (gn = 0; gn < max_group; gn++) {
-            if (group_table[gn].name == NULL) break;
-            sprintf(buf, "%-20s ", group_table[gn].name);
+        for (gn = 0; gn < skill_group_count; gn++) {
+            if (skill_group_table[gn].name == NULL) break;
+            sprintf(buf, "%-20s ", skill_group_table[gn].name);
             send_to_char(buf, ch);
             if (++col % 3 == 0) send_to_char("\n\r", ch);
         }
@@ -793,8 +818,8 @@ void do_groups(CHAR_DATA* ch, char* argument)
     }
 
     for (sn = 0; sn < MAX_IN_GROUP; sn++) {
-        if (group_table[gn].spells[sn] == NULL) break;
-        sprintf(buf, "%-20s ", group_table[gn].spells[sn]);
+        if (skill_group_table[gn].skills[sn] == NULL) break;
+        sprintf(buf, "%-20s ", skill_group_table[gn].skills[sn]);
         send_to_char(buf, ch);
         if (++col % 3 == 0) send_to_char("\n\r", ch);
     }
@@ -802,24 +827,26 @@ void do_groups(CHAR_DATA* ch, char* argument)
 }
 
 /* checks for skill improvement */
-void check_improve(CHAR_DATA* ch, int sn, bool success, int multiplier)
+void check_improve(CharData* ch, SKNUM sn, bool success, int multiplier)
 {
     int chance;
     char buf[100];
 
-    if (IS_NPC(ch)) return;
+    if (IS_NPC(ch))
+        return;
 
-    if (ch->level < skill_table[sn].skill_level[ch->ch_class]
-        || skill_table[sn].rating[ch->ch_class] == 0
+    if (ch->level < SKILL_RATING(sn, ch)
+        || SKILL_RATING(sn, ch) == 0
         || ch->pcdata->learned[sn] == 0 || ch->pcdata->learned[sn] == 100)
         return; /* skill is not known */
 
     /* check to see if the character has a chance to learn */
-    chance = 10 * int_app[get_curr_stat(ch, STAT_INT)].learn;
-    chance /= (multiplier * skill_table[sn].rating[ch->ch_class] * 4);
+    chance = 10 * int_mod[get_curr_stat(ch, STAT_INT)].learn;
+    chance /= (multiplier * SKILL_RATING(sn, ch) * 4);
     chance += ch->level;
 
-    if (number_range(1, 1000) > chance) return;
+    if (number_range(1, 1000) > chance) 
+        return;
 
     /* now that the character has a CHANCE to learn, see if they really have */
 
@@ -830,7 +857,7 @@ void check_improve(CHAR_DATA* ch, int sn, bool success, int multiplier)
                     skill_table[sn].name);
             send_to_char(buf, ch);
             ch->pcdata->learned[sn]++;
-            gain_exp(ch, 2 * skill_table[sn].rating[ch->ch_class]);
+            gain_exp(ch, 2 * SKILL_RATING(sn, ch));
         }
     }
 
@@ -844,20 +871,20 @@ void check_improve(CHAR_DATA* ch, int sn, bool success, int multiplier)
             send_to_char(buf, ch);
             ch->pcdata->learned[sn] += (int16_t)number_range(1, 3);
             ch->pcdata->learned[sn] = UMIN(ch->pcdata->learned[sn], 100);
-            gain_exp(ch, 2 * skill_table[sn].rating[ch->ch_class]);
+            gain_exp(ch, 2 * SKILL_RATING(sn, ch));
         }
     }
 }
 
 /* returns a group index number given the name */
-int group_lookup(const char* name)
+SKNUM group_lookup(const char* name)
 {
-    int gn;
+    SKNUM gn;
 
-    for (gn = 0; gn < max_group; gn++) {
-        if (group_table[gn].name == NULL) break;
-        if (LOWER(name[0]) == LOWER(group_table[gn].name[0])
-            && !str_prefix(name, group_table[gn].name))
+    for (gn = 0; gn < skill_group_count; gn++) {
+        if (skill_group_table[gn].name == NULL) break;
+        if (LOWER(name[0]) == LOWER(skill_group_table[gn].name[0])
+            && !str_prefix(name, skill_group_table[gn].name))
             return gn;
     }
 
@@ -865,34 +892,36 @@ int group_lookup(const char* name)
 }
 
 /* recursively adds a group given its number -- uses group_add */
-void gn_add(CHAR_DATA* ch, int gn)
+void gn_add(CharData* ch, SKNUM gn)
 {
     int i;
 
     ch->pcdata->group_known[gn] = true;
     for (i = 0; i < MAX_IN_GROUP; i++) {
-        if (group_table[gn].spells[i] == NULL) break;
-        group_add(ch, group_table[gn].spells[i], false);
+        if (skill_group_table[gn].skills[i] == NULL) 
+            break;
+        group_add(ch, skill_group_table[gn].skills[i], false);
     }
 }
 
 /* recusively removes a group given its number -- uses group_remove */
-void gn_remove(CHAR_DATA* ch, int gn)
+void gn_remove(CharData* ch, SKNUM gn)
 {
     int i;
 
     ch->pcdata->group_known[gn] = false;
 
     for (i = 0; i < MAX_IN_GROUP; i++) {
-        if (group_table[gn].spells[i] == NULL) break;
-        group_remove(ch, group_table[gn].spells[i]);
+        if (skill_group_table[gn].skills[i] == NULL) 
+            break;
+        group_remove(ch, skill_group_table[gn].skills[i]);
     }
 }
 
 /* use for processing a skill or group for addition  */
-void group_add(CHAR_DATA* ch, const char* name, bool deduct)
+void group_add(CharData* ch, const char* name, bool deduct)
 {
-    int sn, gn;
+    SKNUM sn, gn;
 
     if (IS_NPC(ch)) /* NPCs do not have skills */
         return;
@@ -900,10 +929,11 @@ void group_add(CHAR_DATA* ch, const char* name, bool deduct)
     sn = skill_lookup(name);
 
     if (sn != -1) {
-        if (ch->pcdata->learned[sn] == 0) /* i.e. not known */
-        {
+        if (ch->pcdata->learned[sn] == 0) {
+            /* i.e. not known */
             ch->pcdata->learned[sn] = 1;
-            if (deduct) ch->pcdata->points += (int16_t)skill_table[sn].rating[ch->ch_class];
+            if (deduct) 
+                ch->pcdata->points += SKILL_RATING(sn, ch);
         }
         return;
     }
@@ -915,7 +945,8 @@ void group_add(CHAR_DATA* ch, const char* name, bool deduct)
     if (gn != -1) {
         if (ch->pcdata->group_known[gn] == false) {
             ch->pcdata->group_known[gn] = true;
-            if (deduct) ch->pcdata->points += (int16_t)group_table[gn].rating[ch->ch_class];
+            if (deduct) 
+                ch->pcdata->points += SKILL_GROUP_RATING(gn, ch);
         }
         gn_add(ch, gn); /* make sure all skills in the group are known */
     }
@@ -923,9 +954,9 @@ void group_add(CHAR_DATA* ch, const char* name, bool deduct)
 
 /* used for processing a skill or group for deletion -- no points back! */
 
-void group_remove(CHAR_DATA* ch, const char* name)
+void group_remove(CharData* ch, const char* name)
 {
-    int sn, gn;
+    SKNUM sn, gn;
 
     sn = skill_lookup(name);
 
@@ -944,16 +975,15 @@ void group_remove(CHAR_DATA* ch, const char* name)
     }
 }
 
-int race_exp_per_level(int race, int class, int points)
+int race_exp_per_level(int race, int class_, int points)
 {
     int expl, inc;
-
     expl = 1000;
     inc = 500;
-
+    int mult = GET_ELEM(&race_table[race].class_mult, class_);
+    
     if (points < 40)
-        return 1000 * (race_table[race].class_mult[class] ?
-            race_table[race].class_mult[class] / 100 : 1);
+        return 1000 * (mult ? mult / 100 : 1);
 
  /* processing */
     points -= 40;
@@ -970,5 +1000,5 @@ int race_exp_per_level(int race, int class, int points)
 
     expl += points * inc / 10;
 
-    return expl * race_table[race].class_mult[class] / 100;
+    return expl * mult / 100;
 }

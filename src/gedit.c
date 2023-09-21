@@ -5,131 +5,32 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "db.h"
+#include "handler.h"
+#include "magic.h"
 #include "olc.h"
+#include "skills.h"
 
-int max_group;
-struct group_type* group_table;
+#include "entities/descriptor.h"
+#include "entities/player_data.h"
 
-#define GROUP_FILE DATA_DIR "groups"
-#define GEDIT(fun) bool fun(CHAR_DATA *ch, char *argument)
+#include "data/class.h"
+#include "data/mobile.h"
+#include "data/skill.h"
 
-void load_group(FILE* fp, struct group_type* group)
-{
-    int i;
-    char* temp;
-
-    group->name = fread_string(fp);
-
-    for (i = 0; i < MAX_CLASS; ++i)
-        group->rating[i] = fread_number(fp);
-
-    i = 0;
-
-    while (true) {
-        temp = fread_string(fp);
-        if (!str_cmp(temp, "End") || i >= MAX_IN_GROUP) {
-            while (i < MAX_IN_GROUP)
-                group->spells[i++] = str_dup("");
-            break;
-        }
-        else
-            group->spells[i++] = temp;
-    }
-}
-
-void load_groups(void)
-{
-    FILE* fp;
-    int i;
-
-    char group_file[256];
-    sprintf(group_file, "%s%s", area_dir, GROUP_FILE);
-    fp = fopen(group_file, "r");
-
-    if (!fp) {
-        bug("The group file " GROUP_FILE " cannot be found.", 0);
-        exit(1);
-    }
-
-    int tmp_max_group;
-    if (fscanf(fp, "%d\n", &tmp_max_group) < 1) {
-        perror("load_groups: Could not read number of groups!");
-        return;
-    }
-    max_group = tmp_max_group;
-
-    if ((group_table = calloc(sizeof(struct group_type), ((size_t)max_group + 1))) == NULL) {
-        perror("load_groups: Could not allocate group_table!");
-        return;
-    }
-
-    if (!group_table) {
-        bug("Error! Group_table == NULL, max_group : %d", max_group);
-        exit(1);
-    }
-
-    for (i = 0; i < max_group; ++i)
-        load_group(fp, &group_table[i]);
-
-    group_table[max_group].name = NULL;
-
-    fclose(fp);
-}
-
-void save_group(FILE* fp, const struct group_type* group)
-{
-    int i;
-
-    fprintf(fp, "%s~\n", CHECKNULLSTR(group->name));
-
-    for (i = 0; i < MAX_CLASS; ++i)
-        fprintf(fp, "%d ", group->rating[i]);
-    fprintf(fp, "\n");
-
-    for (i = 0; i < MAX_IN_GROUP && !IS_NULLSTR(group->spells[i]); ++i)
-        fprintf(fp, "%s~\n", CHECKNULLSTR(group->spells[i]));
-
-    fprintf(fp, "End~\n\n");
-}
-
-void save_groups()
-{
-    int i;
-    FILE* fp;
-    char buf[MIL];
-
-    fclose(fpReserve);
-
-    sprintf(buf, "%s%s", area_dir, GROUP_FILE);
-    fp = fopen(buf, "w");
-
-    if (!fp) {
-        bug("save_groups : the group file cannot be opened for writing.", 0);
-        fpReserve = fopen(NULL_FILE, "r");
-        return;
-    }
-
-    fprintf(fp, "%d\n", (int)max_group);
-
-    for (i = 0; i < max_group; ++i)
-        save_group(fp, &group_table[i]);
-
-    fclose(fp);
-
-    fpReserve = fopen(NULL_FILE, "r");
-}
+#define GEDIT(fun) bool fun(CharData *ch, char *argument)
 
 const struct olc_cmd_type gedit_table[] = {
     { "name",		gedit_name	    },
-    { "rating",	gedit_rating	},
-    { "spell",	gedit_spell	    },
+    { "rating",	    gedit_rating	},
+    { "spell",	    gedit_spell	    },
     { "list",		gedit_list	    },
     { "commands",	show_commands	},
     { "show",		gedit_show	    },
-    { NULL,		0		        }
+    { NULL,		    0		        }
 };
 
-void gedit(CHAR_DATA* ch, char* argument)
+void gedit(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char command[MAX_INPUT_LENGTH];
@@ -138,7 +39,7 @@ void gedit(CHAR_DATA* ch, char* argument)
     strcpy(arg, argument);
     argument = one_argument(argument, command);
 
-    if (ch->pcdata->security < 5) {
+    if (ch->pcdata->security < MIN_SKEDIT_SECURITY) {
         send_to_char("SKEdit: You do not have enough security to edit groups.\n\r", ch);
         edit_done(ch);
         return;
@@ -155,14 +56,14 @@ void gedit(CHAR_DATA* ch, char* argument)
     }
 
     if (!str_cmp(command, "save")) {
-        save_groups();
+        save_skill_group_table();
         return;
     }
 
     for (cmd = 0; gedit_table[cmd].name != NULL; cmd++) {
         if (!str_prefix(command, gedit_table[cmd].name)) {
             if ((*gedit_table[cmd].olc_fun) (ch, argument))
-                save_groups();
+                save_skill_group_table();
             return;
         }
     }
@@ -171,9 +72,9 @@ void gedit(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_gedit(CHAR_DATA* ch, char* argument)
+void do_gedit(CharData* ch, char* argument)
 {
-    const struct group_type* pGroup;
+    const SkillGroup* pGroup;
     char command[MSL];
     int group;
 
@@ -181,30 +82,23 @@ void do_gedit(CHAR_DATA* ch, char* argument)
         return;
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax : GEdit [grupo]\n\r", ch);
+        send_to_char("Syntax : GEdit [group]\n\r", ch);
         return;
     }
 
-    if (ch->pcdata->security < 5) {
+    if (ch->pcdata->security < MIN_SKEDIT_SECURITY) {
         send_to_char("GEdit : You do not have enough security to edit groups.\n\r", ch);
         return;
     }
 
     argument = one_argument(argument, command);
 
-/*  if ( !str_cmp( command, "new" ) )
-    {
-    if ( gedit_new(ch, argument) )
-        save_groups();
-    return;
-    } */
-
     if ((group = group_lookup(command)) == -1) {
         send_to_char("GEdit : That group does not exist\n\r", ch);
         return;
     }
 
-    pGroup = &group_table[group];
+    pGroup = &skill_group_table[group];
 
     ch->desc->pEdit = (uintptr_t)pGroup;
     ch->desc->editor = ED_GROUP;
@@ -214,7 +108,7 @@ void do_gedit(CHAR_DATA* ch, char* argument)
 
 GEDIT(gedit_show)
 {
-    struct group_type* pGrp;
+    SkillGroup* pGrp;
     char buf[MIL], buf2[MIL];
     int i;
 
@@ -225,8 +119,8 @@ GEDIT(gedit_show)
 
     sprintf(buf, "Class    + ");
 
-    for (i = 0; i < MAX_CLASS; ++i) {
-        strcat(buf, class_table[i].who_name);
+    for (i = 0; i < class_count; ++i) {
+        strcat(buf, class_table[i].name);
         strcat(buf, " ");
     }
 
@@ -235,8 +129,8 @@ GEDIT(gedit_show)
 
     sprintf(buf, "Rating   | ");
 
-    for (i = 0; i < MAX_CLASS; ++i) {
-        sprintf(buf2, "%3d ", pGrp->rating[i]);
+    for (i = 0; i < class_count; ++i) {
+        sprintf(buf2, "%3d ", GET_ELEM(&pGrp->rating, i));
         strcat(buf, buf2);
     }
 
@@ -245,8 +139,8 @@ GEDIT(gedit_show)
 
     i = 0;
 
-    while (i < MAX_IN_GROUP && !IS_NULLSTR(pGrp->spells[i])) {
-        sprintf(buf, "%2d. #B%s#b\n\r", i, pGrp->spells[i]);
+    while (i < MAX_IN_GROUP && !IS_NULLSTR(pGrp->skills[i])) {
+        sprintf(buf, "%2d. {*%s{x\n\r", i, pGrp->skills[i]);
         send_to_char(buf, ch);
         i++;
     }
@@ -256,7 +150,7 @@ GEDIT(gedit_show)
 
 GEDIT(gedit_name)
 {
-    struct group_type* pGrp;
+    SkillGroup* pGrp;
 
     EDIT_GROUP(ch, pGrp);
 
@@ -279,39 +173,40 @@ GEDIT(gedit_name)
 
 GEDIT(gedit_rating)
 {
-    struct group_type* pGrp;
+    SkillGroup* pGrp;
     char arg[MIL];
-    int rating, clase;
+    SkillRating rating;
+    int16_t class_;
 
     EDIT_GROUP(ch, pGrp);
 
     argument = one_argument(argument, arg);
 
     if (IS_NULLSTR(argument) || IS_NULLSTR(arg) || !is_number(argument)) {
-        send_to_char("Syntax : rating [class] [cost]\n\r", ch);
+        send_to_char("Syntax : rating [archetype] [cost]\n\r", ch);
         return false;
     }
 
-    if ((clase = class_lookup(arg)) == -1) {
+    if ((class_ = class_lookup(arg)) < 0) {
         send_to_char("GEdit : That class does not exist.\n\r", ch);
         return false;
     }
 
-    rating = atoi(argument);
+    rating = (SkillRating)atoi(argument);
 
     if (rating < -1) {
         send_to_char("GEdit : Rating must be at least 0.\n\r", ch);
         return false;
     }
 
-    pGrp->rating[clase] = rating;
+    SET_ELEM(pGrp->rating, class_, rating);
     send_to_char("Ok.\n\r", ch);
     return true;
 }
 
 GEDIT(gedit_spell)
 {
-    struct group_type* pGrp;
+    SkillGroup* pGrp;
     char arg[MSL];
     int i = 0, j = 0;
 
@@ -327,7 +222,7 @@ GEDIT(gedit_spell)
     argument = one_argument(argument, arg);
 
     if (!str_cmp(arg, "new")) {
-        for (i = 0; !IS_NULLSTR(pGrp->spells[i]) && (i < MAX_IN_GROUP); ++i)
+        for (i = 0; !IS_NULLSTR(pGrp->skills[i]) && (i < MAX_IN_GROUP); ++i)
             ;
 
         if (i == MAX_IN_GROUP) {
@@ -340,8 +235,8 @@ GEDIT(gedit_spell)
             return false;
         }
 
-        free_string(pGrp->spells[i]);
-        pGrp->spells[i] = str_dup(argument);
+        free_string(pGrp->skills[i]);
+        pGrp->skills[i] = str_dup(argument);
         send_to_char("Ok.\n\r", ch);
         return true;
     }
@@ -354,14 +249,14 @@ GEDIT(gedit_spell)
             return false;
         }
 
-        while (i < MAX_IN_GROUP && !IS_NULLSTR(pGrp->spells[i])) {
-            if (i == num || !str_cmp(pGrp->spells[i], argument)) {
+        while (i < MAX_IN_GROUP && !IS_NULLSTR(pGrp->skills[i])) {
+            if (i == num || !str_cmp(pGrp->skills[i], argument)) {
                 for (j = i; j < MAX_IN_GROUP - 1; ++j) {
-                    free_string(pGrp->spells[j]);
-                    pGrp->spells[j] = str_dup(pGrp->spells[j + 1]);
+                    free_string(pGrp->skills[j]);
+                    pGrp->skills[j] = str_dup(pGrp->skills[j + 1]);
                 }
-                free_string(pGrp->spells[MAX_IN_GROUP - 1]);
-                pGrp->spells[MAX_IN_GROUP - 1] = str_dup("");
+                free_string(pGrp->skills[MAX_IN_GROUP - 1]);
+                pGrp->skills[MAX_IN_GROUP - 1] = str_dup("");
                 send_to_char("Ok.\n\r", ch);
                 return true;
             }
@@ -378,15 +273,15 @@ GEDIT(gedit_spell)
 
 GEDIT(gedit_list)
 {
-    const struct group_type* pGrp;
+    const SkillGroup* pGrp;
     int i, cnt = 0;
     char buf[MIL];
 
-    for (i = 0; i < max_group; ++i) {
-        if ((pGrp = &group_table[i]) == NULL)
+    for (i = 0; i < skill_group_count; ++i) {
+        if ((pGrp = &skill_group_table[i]) == NULL)
             break;
 
-        sprintf(buf, "%2d. #B%20s#b ", i, group_table[i].name);
+        sprintf(buf, "%2d. {*%20s{x ", i, skill_group_table[i].name);
 
         if (cnt++ % 2)
             strcat(buf, "\n\r");

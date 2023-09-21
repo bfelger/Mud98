@@ -25,8 +25,19 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+#include "act_enter.h"
+
+#include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "interp.h"
-#include "merc.h"
+#include "mob_prog.h"
+
+#include "entities/descriptor.h"
+#include "entities/object_data.h"
+#include "entities/player_data.h"
+
+#include "data/mobile.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,18 +49,18 @@
 #endif
 
 /* random room generation procedure */
-ROOM_INDEX_DATA* get_random_room(CHAR_DATA* ch)
+RoomData* get_random_room(CharData* ch)
 {
-    ROOM_INDEX_DATA* room;
+    RoomData* room;
 
     for (;;) {
-        room = get_room_index(number_range(0, 65535));
+        room = get_room_data(number_range(0, 65535));
         if (room != NULL)
             if (can_see_room(ch, room) && !room_is_private(room)
                 && !IS_SET(room->room_flags, ROOM_PRIVATE)
                 && !IS_SET(room->room_flags, ROOM_SOLITARY)
                 && !IS_SET(room->room_flags, ROOM_SAFE)
-                && (IS_NPC(ch) || IS_SET(ch->act, ACT_AGGRESSIVE)
+                && (IS_NPC(ch) || IS_SET(ch->act_flags, ACT_AGGRESSIVE)
                     || !IS_SET(room->room_flags, ROOM_LAW)))
                 break;
     }
@@ -58,17 +69,18 @@ ROOM_INDEX_DATA* get_random_room(CHAR_DATA* ch)
 }
 
 /* RT Enter portals */
-void do_enter(CHAR_DATA* ch, char* argument)
+void do_enter(CharData* ch, char* argument)
 {
-    ROOM_INDEX_DATA* location;
+    RoomData* location;
 
     if (ch->fighting != NULL) return;
 
     /* nifty portal stuff */
     if (argument[0] != '\0') {
-        ROOM_INDEX_DATA* old_room;
-        OBJ_DATA* portal;
-        CHAR_DATA *fch, *fch_next;
+        RoomData* old_room;
+        ObjectData* portal;
+        CharData* fch;
+        CharData* fch_next = NULL;
 
         old_room = ch->in_room;
 
@@ -86,21 +98,21 @@ void do_enter(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        if (!IS_TRUSTED(ch, ANGEL) && !IS_SET(portal->value[2], GATE_NOCURSE)
+        if (!IS_TRUSTED(ch, ANGEL) && !IS_SET(portal->value[2], PORTAL_NOCURSE)
             && (IS_AFFECTED(ch, AFF_CURSE)
                 || IS_SET(old_room->room_flags, ROOM_NO_RECALL))) {
             send_to_char("Something prevents you from leaving...\n\r", ch);
             return;
         }
 
-        if (IS_SET(portal->value[2], GATE_RANDOM) || portal->value[3] == -1) {
+        if (IS_SET(portal->value[2], PORTAL_RANDOM) || portal->value[3] == -1) {
             location = get_random_room(ch);
             portal->value[3] = location->vnum; /* for record keeping :) */
         }
-        else if (IS_SET(portal->value[2], GATE_BUGGY) && (number_percent() < 5))
+        else if (IS_SET(portal->value[2], PORTAL_BUGGY) && (number_percent() < 5))
             location = get_random_room(ch);
         else
-            location = get_room_index(portal->value[3]);
+            location = get_room_data(portal->value[3]);
 
         if (location == NULL || location == old_room
             || !can_see_room(ch, location)
@@ -109,7 +121,7 @@ void do_enter(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        if (IS_NPC(ch) && IS_SET(ch->act, ACT_AGGRESSIVE)
+        if (IS_NPC(ch) && IS_SET(ch->act_flags, ACT_AGGRESSIVE)
             && IS_SET(location->room_flags, ROOM_LAW)) {
             send_to_char("Something prevents you from leaving...\n\r", ch);
             return;
@@ -117,7 +129,7 @@ void do_enter(CHAR_DATA* ch, char* argument)
 
         act("$n steps into $p.", ch, portal, NULL, TO_ROOM);
 
-        if (IS_SET(portal->value[2], GATE_NORMAL_EXIT))
+        if (IS_SET(portal->value[2], PORTAL_NORMAL_EXIT))
             act("You enter $p.", ch, portal, NULL, TO_CHAR);
         else
             act("You walk through $p and find yourself somewhere else...", ch,
@@ -126,13 +138,13 @@ void do_enter(CHAR_DATA* ch, char* argument)
         char_from_room(ch);
         char_to_room(ch, location);
 
-        if (IS_SET(portal->value[2], GATE_GOWITH)) /* take the gate along */
+        if (IS_SET(portal->value[2], PORTAL_GOWITH)) /* take the gate along */
         {
             obj_from_room(portal);
             obj_to_room(portal, location);
         }
 
-        if (IS_SET(portal->value[2], GATE_NORMAL_EXIT))
+        if (IS_SET(portal->value[2], PORTAL_NORMAL_EXIT))
             act("$n has arrived.", ch, portal, NULL, TO_ROOM);
         else
             act("$n has arrived through $p.", ch, portal, NULL, TO_ROOM);
@@ -161,7 +173,7 @@ void do_enter(CHAR_DATA* ch, char* argument)
 
             if (fch->master == ch && fch->position == POS_STANDING) {
                 if (IS_SET(ch->in_room->room_flags, ROOM_LAW)
-                    && (IS_NPC(fch) && IS_SET(fch->act, ACT_AGGRESSIVE))) {
+                    && (IS_NPC(fch) && IS_SET(fch->act_flags, ACT_AGGRESSIVE))) {
                     act("You can't bring $N into the city.", ch, NULL, fch,
                         TO_CHAR);
                     act("You aren't allowed in the city.", fch, NULL, NULL,

@@ -47,8 +47,12 @@
 
 #include "benchmark.h"
 #include "comm.h"
+#include "db.h"
 #include "strings.h"
 #include "tests.h"
+#include "update.h"
+
+#include "entities/descriptor.h"
 
 #ifdef _MSC_VER
 #include <stdint.h>
@@ -191,7 +195,6 @@ int main(int argc, char** argv)
         start_timer(&boot_timer);
 
     boot_db();
-
     if (rt_opt_benchmark) {
         stop_timer(&boot_timer);
         struct timespec timer_res = elapsed(&boot_timer);

@@ -31,37 +31,80 @@
 
 #include "merc.h"
 
+#include "mob_prog.h"
+
+#include "entities/char_data.h"
+#include "entities/room_data.h"
+
+#include "data/direction.h"
+
+#include <stdio.h>
+
 /* macro for flag swapping */
 #define GET_UNSET(flag1, flag2) (~(flag1) & ((flag1) | (flag2)))
 
 /* Magic number for memory allocation */
 #define MAGIC_NUM               52571214
 
-/* func from db.c */
-extern void assign_area_vnum(VNUM vnum);             // OLC
+void assign_area_vnum(VNUM vnum);       // OLC
+void reset_area(AreaData* pArea);      // OLC
+void reset_room(RoomData* pRoom);	    // OLC
+char* print_flags(FLAGS flag);
+void boot_db(void);
+void area_update(void);
+void clone_mobile(CharData* parent, CharData* clone);
+void clear_char(CharData* ch);
+MobProgCode* get_mprog_index(VNUM vnum);
+char fread_letter(FILE* fp);
+int fread_number(FILE* fp);
+long fread_flag(FILE* fp);
+char* fread_string(FILE* fp);
+char* fread_string_eol(FILE* fp);
+void fread_to_eol(FILE* fp);
+VNUM fread_vnum(FILE* fp);
+char* fread_word(FILE* fp);
+long flag_convert(char letter);
+void* alloc_mem(size_t sMem);
+void* alloc_perm(size_t sMem);
+void free_mem(void* pMem, size_t sMem);
+char* str_dup(const char* str);
+void free_string(char* pstr);
+void load_social(FILE* fp);
+int number_fuzzy(int number);
+int number_range(int from, int to);
+int number_percent(void);
+Direction number_door();
+int number_bits(int width);
+long number_mm(void);
+int dice(int number, int size);
+int interpolate(int level, int value_00, int value_32);
+void smash_tilde(char* str);
+bool str_cmp(const char* astr, const char* bstr);
+bool str_prefix(const char* astr, const char* bstr);
+bool str_infix(const char* astr, const char* bstr);
+bool str_suffix(const char* astr, const char* bstr);
+char* capitalize(const char* str);
+void append_file(CharData* ch, char* file, char* str);
+void bug(const char* fmt, ...);
+void log_string(const char* str);
 
-/* from db2.c */
-void convert_mobile(MOB_INDEX_DATA * pMobIndex);    // OLC
-void convert_objects(void);                         // OLC
-void convert_object(OBJ_INDEX_DATA * pObjIndex);    // OLC
+typedef struct kill_data_t {
+    int16_t number;
+    int16_t killed;
+} KillData;
 
-/* conversion from db.h */
-void convert_mob(MOB_INDEX_DATA* mob);
-void convert_obj(OBJ_INDEX_DATA* obj);
+extern KillData kill_table[MAX_LEVEL];
 
 /* vals from db.c */
-extern bool fBootDb;
-extern int newmobs;
-extern int newobjs;
-extern MOB_INDEX_DATA* mob_index_hash[MAX_KEY_HASH];
-extern OBJ_INDEX_DATA* obj_index_hash[MAX_KEY_HASH];
-extern int top_mob_index;
-extern int top_obj_index;
+extern char bug_buf[];
+extern char log_buf[];
+
 extern int top_affect;
 extern int top_ed;
-extern AREA_DATA* area_first;
+extern int top_shop;
 
-/* from db2.c */
-extern int social_count;
+extern int _filbuf(FILE*);
+extern FILE* fpArea;
+extern char strArea[MAX_INPUT_LENGTH];
 
 #endif // !MUD98__DB_H

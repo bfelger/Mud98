@@ -25,9 +25,16 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "merc.h"
+#include "alias.h"
 
 #include "comm.h"
+#include "db.h"
+#include "olc.h"
+
+#include "entities/descriptor.h"
+#include "entities/player_data.h"
+
+#include "data/mobile.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -35,9 +42,9 @@
 #include <time.h>
 
 /* does aliasing and other fun stuff */
-void substitute_alias(DESCRIPTOR_DATA* d, char* argument)
+void substitute_alias(Descriptor* d, char* argument)
 {
-    CHAR_DATA* ch;
+    CharData* ch;
     char buf[MAX_STRING_LENGTH], prefix[MAX_INPUT_LENGTH],
         name[MAX_INPUT_LENGTH];
     char* point;
@@ -90,17 +97,18 @@ void substitute_alias(DESCRIPTOR_DATA* d, char* argument)
         interpret(d->character, buf);
 }
 
-void do_alia(CHAR_DATA* ch, char* argument)
+void do_alia(CharData* ch, char* argument)
 {
     send_to_char("I'm sorry, alias must be entered in full.\n\r", ch);
     return;
 }
 
-void do_alias(CHAR_DATA* ch, char* argument)
+void do_alias(CharData* ch, char* argument)
 {
-    CHAR_DATA* rch;
-    char arg[MAX_INPUT_LENGTH], buf[MAX_STRING_LENGTH];
-    int pos;
+    CharData* rch;
+    char arg[MAX_INPUT_LENGTH];
+    char buf[MAX_STRING_LENGTH];
+    int idx;
 
     smash_tilde(argument);
 
@@ -120,13 +128,13 @@ void do_alias(CHAR_DATA* ch, char* argument)
         }
         send_to_char("Your current aliases are:\n\r", ch);
 
-        for (pos = 0; pos < MAX_ALIAS; pos++) {
-            if (rch->pcdata->alias[pos] == NULL
-                || rch->pcdata->alias_sub[pos] == NULL)
+        for (idx = 0; idx < MAX_ALIAS; idx++) {
+            if (rch->pcdata->alias[idx] == NULL
+                || rch->pcdata->alias_sub[idx] == NULL)
                 break;
 
-            sprintf(buf, "    %s:  %s\n\r", rch->pcdata->alias[pos],
-                    rch->pcdata->alias_sub[pos]);
+            sprintf(buf, "    %s:  %s\n\r", rch->pcdata->alias[idx],
+                    rch->pcdata->alias_sub[idx]);
             send_to_char(buf, ch);
         }
         return;
@@ -138,14 +146,14 @@ void do_alias(CHAR_DATA* ch, char* argument)
     }
 
     if (argument[0] == '\0') {
-        for (pos = 0; pos < MAX_ALIAS; pos++) {
-            if (rch->pcdata->alias[pos] == NULL
-                || rch->pcdata->alias_sub[pos] == NULL)
+        for (idx = 0; idx < MAX_ALIAS; idx++) {
+            if (rch->pcdata->alias[idx] == NULL
+                || rch->pcdata->alias_sub[idx] == NULL)
                 break;
 
-            if (!str_cmp(arg, rch->pcdata->alias[pos])) {
-                sprintf(buf, "%s aliases to '%s'.\n\r", rch->pcdata->alias[pos],
-                        rch->pcdata->alias_sub[pos]);
+            if (!str_cmp(arg, rch->pcdata->alias[idx])) {
+                sprintf(buf, "%s aliases to '%s'.\n\r", rch->pcdata->alias[idx],
+                        rch->pcdata->alias_sub[idx]);
                 send_to_char(buf, ch);
                 return;
             }
@@ -160,36 +168,36 @@ void do_alias(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    for (pos = 0; pos < MAX_ALIAS; pos++) {
-        if (rch->pcdata->alias[pos] == NULL) break;
+    for (idx = 0; idx < MAX_ALIAS; idx++) {
+        if (rch->pcdata->alias[idx] == NULL) break;
 
-        if (!str_cmp(arg, rch->pcdata->alias[pos])) /* redefine an alias */
+        if (!str_cmp(arg, rch->pcdata->alias[idx])) /* redefine an alias */
         {
-            free_string(rch->pcdata->alias_sub[pos]);
-            rch->pcdata->alias_sub[pos] = str_dup(argument);
+            free_string(rch->pcdata->alias_sub[idx]);
+            rch->pcdata->alias_sub[idx] = str_dup(argument);
             sprintf(buf, "%s is now realiased to '%s'.\n\r", arg, argument);
             send_to_char(buf, ch);
             return;
         }
     }
 
-    if (pos >= MAX_ALIAS) {
+    if (idx >= MAX_ALIAS) {
         send_to_char("Sorry, you have reached the alias limit.\n\r", ch);
         return;
     }
 
     /* make a new alias */
-    rch->pcdata->alias[pos] = str_dup(arg);
-    rch->pcdata->alias_sub[pos] = str_dup(argument);
+    rch->pcdata->alias[idx] = str_dup(arg);
+    rch->pcdata->alias_sub[idx] = str_dup(argument);
     sprintf(buf, "%s is now aliased to '%s'.\n\r", arg, argument);
     send_to_char(buf, ch);
 }
 
-void do_unalias(CHAR_DATA* ch, char* argument)
+void do_unalias(CharData* ch, char* argument)
 {
-    CHAR_DATA* rch;
+    CharData* rch;
     char arg[MAX_INPUT_LENGTH];
-    int pos;
+    int idx;
     bool found = false;
 
     if (ch->desc == NULL)
@@ -206,23 +214,23 @@ void do_unalias(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    for (pos = 0; pos < MAX_ALIAS; pos++) {
-        if (rch->pcdata->alias[pos] == NULL) break;
+    for (idx = 0; idx < MAX_ALIAS; idx++) {
+        if (rch->pcdata->alias[idx] == NULL) break;
 
         if (found) {
-            rch->pcdata->alias[pos - 1] = rch->pcdata->alias[pos];
-            rch->pcdata->alias_sub[pos - 1] = rch->pcdata->alias_sub[pos];
-            rch->pcdata->alias[pos] = NULL;
-            rch->pcdata->alias_sub[pos] = NULL;
+            rch->pcdata->alias[idx - 1] = rch->pcdata->alias[idx];
+            rch->pcdata->alias_sub[idx - 1] = rch->pcdata->alias_sub[idx];
+            rch->pcdata->alias[idx] = NULL;
+            rch->pcdata->alias_sub[idx] = NULL;
             continue;
         }
 
-        if (!strcmp(arg, rch->pcdata->alias[pos])) {
+        if (!strcmp(arg, rch->pcdata->alias[idx])) {
             send_to_char("Alias removed.\n\r", ch);
-            free_string(rch->pcdata->alias[pos]);
-            free_string(rch->pcdata->alias_sub[pos]);
-            rch->pcdata->alias[pos] = NULL;
-            rch->pcdata->alias_sub[pos] = NULL;
+            free_string(rch->pcdata->alias[idx]);
+            free_string(rch->pcdata->alias_sub[idx]);
+            rch->pcdata->alias[idx] = NULL;
+            rch->pcdata->alias_sub[idx] = NULL;
             found = true;
         }
     }

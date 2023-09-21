@@ -23,7 +23,15 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "olc.h"
+
+#include "entities/descriptor.h"
+#include "entities/player_data.h"
+
+#include "data/mobile.h"
+#include "data/social.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -32,12 +40,11 @@
 #include <sys/types.h>
 #include <time.h>
 
-#define SEDIT(fun) bool fun(CHAR_DATA *ch, char *argument)
+#define SEDIT(fun) bool fun(CharData *ch, char *argument)
 
-extern struct social_type xSoc;
+extern Social xSoc;
 
 int maxSocial; /* max number of socials */
-extern struct social_type* social_table;    /* and social table */
 
 #ifdef U
 #define OLD_U U
@@ -73,7 +80,7 @@ int social_lookup(const char* name)
     return -1;
 }
 
-void sedit(CHAR_DATA* ch, char* argument)
+void sedit(CharData* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_SEDIT_SECURITY) {
         send_to_char("SEdit: You do not have enough security to edit socials.\n\r", ch);
@@ -97,9 +104,9 @@ void sedit(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_sedit(CHAR_DATA* ch, char* argument)
+void do_sedit(CharData* ch, char* argument)
 {
-    struct social_type* pSocial;
+    Social* pSocial;
     char command[MIL];
     int social;
 
@@ -122,13 +129,13 @@ void do_sedit(CHAR_DATA* ch, char* argument)
 
     if (!str_cmp(command, "new")) {
         if (sedit_new(ch, argument))
-            save_socials();
+            save_social_table();
         return;
     }
 
     if (!str_cmp(command, "delete")) {
         if (sedit_delete(ch, argument))
-            save_socials();
+            save_social_table();
         return;
     }
 
@@ -147,7 +154,7 @@ void do_sedit(CHAR_DATA* ch, char* argument)
 
 SEDIT(sedit_show)
 {
-    struct social_type* pSocial;
+    Social* pSocial;
     char buf[MSL];
 
     EDIT_SOCIAL(ch, pSocial);
@@ -183,9 +190,9 @@ SEDIT(sedit_show)
 
 SEDIT(sedit_new)
 {
-    DESCRIPTOR_DATA* d;
-    CHAR_DATA* tch;
-    struct social_type* new_table;
+    Descriptor* d;
+    CharData* tch;
+    Social* new_table;
     int iSocial;
 
     if (IS_NULLSTR(argument)) {
@@ -212,7 +219,7 @@ SEDIT(sedit_new)
     /* Note that the table contains maxSocial socials PLUS one empty spot! */
 
     maxSocial++;
-    new_table = realloc(social_table, sizeof(struct social_type) * ((size_t)maxSocial + 1));
+    new_table = realloc(social_table, sizeof(Social) * ((size_t)maxSocial + 1));
 
     if (!new_table) /* realloc failed */
     {
@@ -241,10 +248,10 @@ SEDIT(sedit_new)
 
 SEDIT(sedit_delete)
 {
-    DESCRIPTOR_DATA* d;
-    CHAR_DATA* tch;
+    Descriptor* d;
+    CharData* tch;
     int i, j, iSocial;
-    struct social_type* new_table;
+    Social* new_table;
 
     if (IS_NULLSTR(argument)) {
         send_to_char("Syntax : delete [name]\n\r", ch);
@@ -266,7 +273,7 @@ SEDIT(sedit_delete)
             edit_done(ch);
     }
 
-    new_table = malloc(sizeof(struct social_type) * maxSocial);
+    new_table = malloc(sizeof(Social) * maxSocial);
 
     if (!new_table) {
         send_to_char("Memory allocation failed. Brace for impact...\n\r", ch);

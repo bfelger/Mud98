@@ -10,81 +10,114 @@
 
 #include "merc.h"
 
-#ifndef USE_RAW_SOCKETS
-#include <openssl/ssl.h>
-#endif
+#include "entities/char_data.h"
+#include "entities/descriptor.h"
 
-#ifdef _MSC_VER
-#include <winsock.h>
-#else
-#include <sys/select.h>
-#define SOCKET int
-#endif
+#include "data/damage.h"
 
-typedef struct sock_client_t {
-    SOCKET fd;
-#ifndef USE_RAW_SOCKETS
-    SSL* ssl;
-#endif
-} SockClient;
+#include "socket.h"
 
-typedef struct sock_server_t {
-    SOCKET control;
-#ifndef USE_RAW_SOCKETS
-    SSL_CTX* ssl_ctx;
-#endif
-} SockServer;
+#include <stdint.h>
+#include <stdbool.h>
 
-typedef struct poll_data_t {
-    fd_set in_set;
-    fd_set out_set;
-    fd_set exc_set;
-    SOCKET maxdesc;
-} PollData;
+typedef enum act_target_t {
+    TO_ROOM = 0,
+    TO_NOTVICT = 1,
+    TO_VICT = 2,
+    TO_CHAR = 3,
+    TO_ALL = 4,
+} ActTarget;
 
-// Descriptor (channel) structure.
-typedef struct descriptor_data {
-    struct descriptor_data* next;
-    struct descriptor_data* snoop_by;
-    CHAR_DATA* character;
-    CHAR_DATA* original;
-    bool valid;
-    char* host;
-    SockClient client;
-    int16_t connected;
-    bool fcommand;
-    char inbuf[4 * MAX_INPUT_LENGTH];
-    char incomm[MAX_INPUT_LENGTH];
-    char inlast[MAX_INPUT_LENGTH];
-    int repeat;
-    char* outbuf;
-    size_t outsize;
-    ptrdiff_t outtop;
-    char* showstr_head;
-    char* showstr_point;
-    uintptr_t pEdit;    // OLC
-    char** pString;     // OLC
-    int16_t editor;     // OLC
-    int16_t page;
-    char* screenmap;
-    char* oldscreenmap;
-} DESCRIPTOR_DATA;
+// Comm flags -- may be used on both mobs and chars
+typedef enum comm_flags_t {
+    COMM_QUIET              = BIT(0),
+    COMM_DEAF               = BIT(1),
+    COMM_NOWIZ              = BIT(2),
+    COMM_NOAUCTION          = BIT(3),
+    COMM_NOGOSSIP           = BIT(4),
+    COMM_NOQUESTION         = BIT(5),
+    COMM_NOMUSIC            = BIT(6),
+    COMM_NOCLAN             = BIT(7),
+    COMM_NOQUOTE            = BIT(8),
+    COMM_SHOUTSOFF          = BIT(9),
+    COMM_OLCX               = BIT(10),
 
-bool can_write(DESCRIPTOR_DATA* d, PollData* poll_data);
+// Display flags
+    COMM_COMPACT            = BIT(11),
+    COMM_BRIEF              = BIT(12),
+    COMM_PROMPT             = BIT(13),
+    COMM_COMBINE            = BIT(14),
+    COMM_TELNET_GA          = BIT(15),
+    COMM_SHOW_AFFECTS       = BIT(16),
+    COMM_NOGRATS            = BIT(17),
+    // Unused                 BIT(18)
+
+// Penalties
+    COMM_NOEMOTE            = BIT(19),
+    COMM_NOSHOUT            = BIT(20),
+    COMM_NOTELL             = BIT(21),
+    COMM_NOCHANNELS         = BIT(22),
+    // Unused                 BIT(23)
+    COMM_SNOOP_PROOF        = BIT(24),
+    COMM_AFK                = BIT(25),
+} CommFlags;
+
+typedef enum wiznet_flags_t {
+    WIZ_ON                  = BIT(0),
+    WIZ_TICKS               = BIT(1),
+    WIZ_LOGINS              = BIT(2),
+    WIZ_SITES               = BIT(3),
+    WIZ_LINKS               = BIT(4),
+    WIZ_DEATHS              = BIT(5),
+    WIZ_RESETS              = BIT(6),
+    WIZ_MOBDEATHS           = BIT(7),
+    WIZ_FLAGS               = BIT(8),
+    WIZ_PENALTIES           = BIT(9),
+    WIZ_SACCING             = BIT(10),
+    WIZ_LEVELS              = BIT(11),
+    WIZ_SECURE              = BIT(12),
+    WIZ_SWITCHES            = BIT(13),
+    WIZ_SNOOPS              = BIT(14),
+    WIZ_RESTORE             = BIT(15),
+    WIZ_LOAD                = BIT(16),
+    WIZ_NEWBIE              = BIT(17),
+    WIZ_PREFIX              = BIT(18),
+    WIZ_SPAM                = BIT(19),
+} WiznetFlags;
+
+bool can_write(Descriptor* d, PollData* poll_data);
 void close_client(SockClient* client);
 void close_server(SockServer* server);
 bool has_new_conn(SockServer* server, PollData* poll_data);
 void handle_new_connection(SockServer* server);
 void init_server(SockServer* server, int port);
-void nanny(DESCRIPTOR_DATA* d, char* argument);
+void nanny(Descriptor* d, char* argument);
 void poll_server(SockServer* server, PollData* poll_data);
 void process_client_input(SockServer* server, PollData* poll_data);
 void process_client_output(PollData* poll_data);
-bool process_descriptor_output(DESCRIPTOR_DATA* d, bool fPrompt);
-void read_from_buffer(DESCRIPTOR_DATA* d);
-bool read_from_descriptor(DESCRIPTOR_DATA* d);
-void stop_idling(CHAR_DATA* ch);
-bool write_to_descriptor(DESCRIPTOR_DATA* d, char* txt, size_t length);
+bool process_descriptor_output(Descriptor* d, bool fPrompt);
+void read_from_buffer(Descriptor* d);
+bool read_from_descriptor(Descriptor* d);
+void stop_idling(CharData* ch);
+bool write_to_descriptor(Descriptor* d, char* txt, size_t length);
+void show_string(Descriptor* d, char* input);
+void close_socket(Descriptor* dclose);
+void write_to_buffer(Descriptor* d, const char* txt, size_t length);
+void send_to_char(const char* txt, CharData* ch);
+void page_to_char(const char* txt, CharData* ch);
+
+#define act(format, ch, arg1, arg2, type)                                      \
+    act_new((format), (ch), (arg1), (arg2), (type), POS_RESTING)
+void act_new(const char* format, CharData* ch, const void* arg1,
+    const void* arg2, ActTarget type, Position min_pos);
+
+void printf_to_char(CharData*, char*, ...);
+void bugf(char*, ...);
+void flog(char*, ...);
+size_t colour(char type, CharData* ch, char* string);
+void colourconv(char* buffer, const char* txt, CharData* ch);
+void send_to_char_bw(const char* txt, CharData* ch);
+void page_to_char_bw(const char* txt, CharData* ch);
 
 #ifdef _MSC_VER
 void PrintLastWinSockError();

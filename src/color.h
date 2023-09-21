@@ -3,14 +3,17 @@
 // Functions to handle VT102 SGR colors
 ////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+typedef struct color_t Color;
+typedef struct color_theme_t ColorTheme;
+
 #ifndef MUD98__COLOR_H
 #define MUD98__COLOR_H
 
 #include "merc.h"
 
-#include "color.h"
 #include "vt.h"
+
+#include "entities/char_data.h"
 
 #include <stdint.h>
 
@@ -21,7 +24,7 @@ typedef enum {
     COLOR_MODE_PAL_IDX  = 3,    // Indexed against theme palette
 } ColorMode;
 
-typedef struct {
+typedef struct color_t {
     ColorMode mode;
     uint8_t code[3];
     char* cache;
@@ -149,17 +152,17 @@ char* color_to_str(ColorTheme* theme, Color* color, bool xterm);
 ColorTheme* dup_color_theme(const ColorTheme* theme);
 void free_color_theme(ColorTheme* theme);
 ColorMode lookup_color_mode(const char* arg);
-ColorTheme* lookup_color_theme(CHAR_DATA* ch, char* arg);
-ColorTheme* lookup_local_color_theme(CHAR_DATA* ch, char* arg);
-ColorTheme* lookup_remote_color_theme(CHAR_DATA* ch, char* arg);
-ColorTheme* lookup_system_color_theme(CHAR_DATA* ch, char* arg);
-ColorTheme* lookup_local_color_theme(CHAR_DATA* ch, char* arg);
+ColorTheme* lookup_color_theme(CharData* ch, char* arg);
+ColorTheme* lookup_local_color_theme(CharData* ch, char* arg);
+ColorTheme* lookup_remote_color_theme(CharData* ch, char* arg);
+ColorTheme* lookup_system_color_theme(CharData* ch, char* arg);
+ColorTheme* lookup_local_color_theme(CharData* ch, char* arg);
 ColorTheme* new_color_theme();
 void set_color_ansi(Color* color, uint8_t light, uint8_t index);
 void set_color_256(Color* color, uint8_t index);
 void set_color_palette_ref(Color* color, uint8_t index);
 void set_color_rgb(Color* color, uint8_t r, uint8_t g, uint8_t b);
-void set_default_colors(CHAR_DATA* ch);
+void set_default_colors(CharData* ch);
 
 #define LOOKUP_COLOR_SLOT_CODE(s, c)                                        \
     for (int i_c = 0; i_c < SLOT_MAX; ++i_c)                                \

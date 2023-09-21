@@ -4,16 +4,29 @@
 
 #include "merc.h"
 
+#include "act_move.h"
+#include "bit.h"
 #include "comm.h"
+#include "db.h"
+#include "handler.h"
+#include "mob_cmds.h"
 #include "olc.h"
 #include "recycle.h"
 #include "screen.h"
+#include "special.h"
 #include "tables.h"
 #include "vt.h"
 
+#include "entities/char_data.h"
+#include "entities/descriptor.h"
+#include "entities/object_data.h"
+
+#include "data/mobile.h"
+#include "data/race.h"
+
 char* areaname(void* point)
 {
-    AREA_DATA* area = *(AREA_DATA**)point;
+    AreaData* area = *(AreaData**)point;
 
     return area->name;
 }
@@ -28,7 +41,7 @@ char* clan2str(void* point)
 char* extradescr2str(void* point)
 {
     static	char buf[MIL];
-    EXTRA_DESCR_DATA* ed = *(EXTRA_DESCR_DATA**)point;
+    ExtraDesc* ed = *(ExtraDesc**)point;
 
     buf[0] = '\0';
     for (; ed; ed = ed->next) {
@@ -45,14 +58,14 @@ char* progs(void* point)
     static	char buf[MSL];
     char tmpbuf[MIL];
     int cnt;
-    MPROG_LIST* list = *(MPROG_LIST**)point;
+    MobProg* list = *(MobProg**)point;
 
     buf[0] = '\0';
     strcat(buf, "Progs:\n\r");
 
     for (cnt = 0; list; list = list->next) {
         if (cnt == 0)
-            strcat(buf, "#Num  Vnum  Trigger Phrase     #u\n\r");
+            strcat(buf, "#Num  Vnum  Trigger Phrase     {x\n\r");
 
         sprintf(tmpbuf, "%3d %5d %7.7s %s\n\r", cnt,
             list->vnum, mprog_type_to_name(list->trig_type),
@@ -87,11 +100,11 @@ char* damtype2str(void* point)
     return attack_table[dtype].name;
 }
 
-char* size2str(void* point)
+const char* size2str(void* point)
 {
-    int16_t siz = *(int16_t*)point;
+    MobSize siz = *(MobSize*)point;
 
-    return size_table[siz].name;
+    return mob_size_table[siz].name;
 }
 
 char* ac2str(void* point)
@@ -123,17 +136,17 @@ char* race2str(void* point)
     return race_table[race].name;
 }
 
-char* pos2str(void* point)
+const char* pos2str(void* point)
 {
-    int16_t posic = *(int16_t*)point;
+    Position posic = *(Position*)point;
 
     return position_table[posic].short_name;
 }
 
 char* exits2str(void* point)
 {
-    EXIT_DATA** pexitarray = (EXIT_DATA**)point;
-    EXIT_DATA* pexit;
+    ExitData** pexitarray = (ExitData**)point;
+    ExitData* pexit;
     static char buf[MSL];
     char word[MIL], reset_state[MIL], tmpbuf[MIL];
     char* state;
@@ -141,12 +154,12 @@ char* exits2str(void* point)
 
     buf[0] = '\0';
 
-    for (int j = 0; j < MAX_DIR; j++) {
+    for (int j = 0; j < DIR_MAX; j++) {
         if ((pexit = pexitarray[j]) == NULL)
             continue;
 
         sprintf(tmpbuf, "-%-5.5s to [%5d] ",
-            capitalize(dir_name[j]),
+            capitalize(dir_list[j].name),
             pexit->u1.to_room ? pexit->u1.to_room->vnum : 0);
         strcat(buf, tmpbuf);
 
@@ -159,8 +172,8 @@ char* exits2str(void* point)
          * Format up the exit info.
          * Capitalize all flags that are not part of the reset info.
          */
-        strcpy(reset_state, flag_string(exit_flag_table, pexit->rs_flags));
-        state = flag_string(exit_flag_table, pexit->exit_info);
+        strcpy(reset_state, flag_string(exit_flag_table, pexit->exit_reset_flags));
+        state = flag_string(exit_flag_table, pexit->exit_flags);
         strcat(buf, "Flags: [");
         for (; ;) {
             state = one_argument(state, word);
@@ -205,14 +218,14 @@ char* exits2str(void* point)
 
 char* spec2str(void* point)
 {
-    SPEC_FUN* spec = *(SPEC_FUN**)point;
+    SpecFunc* spec = *(SpecFunc**)point;
 
     return spec_name(spec);
 }
 
 char* shop2str(void* point)
 {
-    SHOP_DATA* pShop = *(SHOP_DATA**)point;
+    ShopData* pShop = *(ShopData**)point;
     int iTrade;
     static	char buf[MSL];
     char tmpbuf[MIL];
@@ -276,7 +289,7 @@ const struct olc_show_table_type redit_olc_show_table[] = {
         1, 3, 73, 1, 1, U(room_flag_table)
     },
     {
-        "extradesc", U(&xRoom.extra_descr), "Extra desc:", OLCS_STRFUNC,
+        "extradesc", U(&xRoom.extra_desc), "Extra desc:", OLCS_STRFUNC,
         1, 4, 67, 1, 1, U(extradescr2str)
     },
     {
@@ -308,7 +321,7 @@ const struct olc_show_table_type redit_olc_show_table[] = {
 const struct olc_show_table_type medit_olc_show_table[] =
 {
     {
-        "name", U(&xMob.player_name), "Name:", OLCS_STRING,
+        "name", U(&xMob.name), "Name:", OLCS_STRING,
         1, 1, 31, 1, 1, 0
     },
     {
@@ -388,11 +401,11 @@ const struct olc_show_table_type medit_olc_show_table[] =
         39, 5, 38, 1, 1, U(ac2str)
     },
     {
-        "act", U(&xMob.act), "Act :", OLCS_FLAGSTR_INT,
+        "act", U(&xMob.act_flags), "Act :", OLCS_FLAGSTR_INT,
         1, 6, 74, 1, 1, U(act_flag_table)
     },
     {
-        "aff", U(&xMob.affected_by), "Aff :", OLCS_FLAGSTR_INT,
+        "aff", U(&xMob.affect_flags), "Aff :", OLCS_FLAGSTR_INT,
         1, 7, 74, 1, 1, U(affect_flag_table)
     },
     {
@@ -416,7 +429,7 @@ const struct olc_show_table_type medit_olc_show_table[] =
         1, 13, 74, 1, 1, U(vuln_flag_table)
     },
     {
-        "off", U(&xMob.off_flags), "Off:", OLCS_FLAGSTR_INT,
+        "off", U(&xMob.atk_flags), "Off:", OLCS_FLAGSTR_INT,
         1, 14, 74, 1, 1, U(off_flag_table)
     },
     {
@@ -485,7 +498,7 @@ const struct olc_show_table_type oedit_olc_show_table[] =
         1, 5, 72, 1, 1, 0
     },
     {
-        "extra_descr", U(&xObj.extra_descr), "ExDesc:", OLCS_STRFUNC,
+        "extra_desc", U(&xObj.extra_desc), "ExDesc:", OLCS_STRFUNC,
         1, 6, 72, 1, 1, U(extradescr2str)
     },
     {
@@ -498,20 +511,20 @@ const struct olc_show_table_type oedit_olc_show_table[] =
     }
 };
 
-void InitScreen(DESCRIPTOR_DATA* d)
+void InitScreen(Descriptor* d)
 {
     char buf[MIL];
     int size;
-    CHAR_DATA* ch = d->character;
+    CharData* ch = d->character;
 
-    if (!IS_SET(ch->comm, COMM_OLCX))
+    if (!IS_SET(ch->comm_flags, COMM_OLCX))
         return;
 
     size = IS_NPC(ch) ? PAGELEN : (ch->lines + 3);
 
     send_to_char(VT_HOMECLR, ch);
 
-    if (d->editor != ED_NONE && IS_SET(ch->comm, COMM_OLCX)) {
+    if (d->editor != ED_NONE && IS_SET(ch->comm_flags, COMM_OLCX)) {
         InitScreenMap(d);
         sprintf(buf, VT_MARGSET, size - 4, size);
         send_to_char(buf, ch);
@@ -520,7 +533,7 @@ void InitScreen(DESCRIPTOR_DATA* d)
     }
 }
 
-void InitScreenMap(DESCRIPTOR_DATA* d)
+void InitScreenMap(Descriptor* d)
 {
     if (d->screenmap == NULL)
         d->screenmap = calloc(80 * ((size_t)(d->character->lines) - 3) + 1, sizeof(char));
@@ -534,7 +547,7 @@ void InitScreenMap(DESCRIPTOR_DATA* d)
         d->screenmap[i] = d->oldscreenmap[i] = ' ';
 }
 
-void UpdateOLCScreen(DESCRIPTOR_DATA* d)
+void UpdateOLCScreen(Descriptor* d)
 {
     INIT_BUF(buf, MSL * 2);
     INIT_BUF(buf2, MSL * 2);
@@ -545,7 +558,7 @@ void UpdateOLCScreen(DESCRIPTOR_DATA* d)
     size_t j;
     uintptr_t blah;
     size_t size;
-    extern ROOM_INDEX_DATA xRoom;
+    extern RoomData xRoom;
     STRFUNC* func;
     char* tmpstr;
     const struct flag_type* flagt;

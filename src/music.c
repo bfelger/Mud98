@@ -28,8 +28,14 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "music.h"
 #include "recycle.h"
+
+#include "entities/char_data.h"
+#include "entities/descriptor.h"
+#include "entities/object_data.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,10 +52,10 @@ struct song_data song_table[MAX_SONGS];
 
 void song_update(void)
 {
-    OBJ_DATA* obj;
-    CHAR_DATA* victim;
-    ROOM_INDEX_DATA* room;
-    DESCRIPTOR_DATA* d;
+    ObjectData* obj;
+    CharData* victim;
+    RoomData* room;
+    Descriptor* d;
     char buf[MAX_STRING_LENGTH];
     char* line;
     int i;
@@ -84,8 +90,8 @@ void song_update(void)
                 victim = d->original ? d->original : d->character;
 
                 if (d->connected == CON_PLAYING
-                    && !IS_SET(victim->comm, COMM_NOMUSIC)
-                    && !IS_SET(victim->comm, COMM_QUIET))
+                    && !IS_SET(victim->comm_flags, COMM_NOMUSIC)
+                    && !IS_SET(victim->comm_flags, COMM_QUIET))
                     act_new("$t", d->character, buf, NULL, TO_CHAR,
                             POS_SLEEPING);
             }
@@ -192,9 +198,9 @@ void load_songs(void)
     }
 }
 
-void do_play(CHAR_DATA* ch, char* argument)
+void do_play(CharData* ch, char* argument)
 {
-    OBJ_DATA* juke;
+    ObjectData* juke;
     char *str, arg[MAX_INPUT_LENGTH];
     int song, i;
     bool global = false;
@@ -215,7 +221,7 @@ void do_play(CHAR_DATA* ch, char* argument)
     }
 
     if (!str_cmp(arg, "list")) {
-        BUFFER* buffer;
+        Buffer* buffer;
         char buf[MAX_STRING_LENGTH];
         int col = 0;
         bool artist = false, match = false;

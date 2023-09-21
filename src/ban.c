@@ -25,8 +25,15 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
-#include "merc.h"
+#include "ban.h"
+
+#include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "recycle.h"
+
+#include "entities/char_data.h"
+#include "entities/descriptor.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,11 +47,12 @@
 #define unlink _unlink
 #endif
 
-BAN_DATA* ban_list;
+BanData* ban_list;
+BanData* ban_free;
 
-void save_bans(void)
+void save_bans()
 {
-    BAN_DATA* pban;
+    BanData* pban;
     FILE* fp = NULL;
     bool found = false;
 
@@ -72,17 +80,17 @@ void save_bans(void)
         unlink(ban_file);
 }
 
-void load_bans(void)
+void load_bans()
 {
     FILE* fp;
-    BAN_DATA* ban_last = NULL;
+    BanData* ban_last = NULL;
 
     char ban_file[256];
     sprintf(ban_file, "%s%s", area_dir, BAN_FILE);
     if ((fp = fopen(ban_file, "r")) == NULL) return;
 
     for (;;) {
-        BAN_DATA* pban;
+        BanData* pban;
         if (feof(fp)) {
             fclose(fp);
             return;
@@ -105,7 +113,7 @@ void load_bans(void)
 
 bool check_ban(char* site, int type)
 {
-    BAN_DATA* pban;
+    BanData* pban;
     char host[MAX_STRING_LENGTH];
 
     strcpy(host, capitalize(site));
@@ -131,13 +139,13 @@ bool check_ban(char* site, int type)
     return false;
 }
 
-void ban_site(CHAR_DATA* ch, char* argument, bool fPerm)
+void ban_site(CharData* ch, char* argument, bool fPerm)
 {
     char buf[MAX_STRING_LENGTH], buf2[MAX_STRING_LENGTH];
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
     char* name;
-    BUFFER* buffer;
-    BAN_DATA *pban, *prev;
+    Buffer* buffer;
+    BanData *pban, *prev;
     bool prefix = false, suffix = false;
     int type;
 
@@ -236,22 +244,22 @@ void ban_site(CHAR_DATA* ch, char* argument, bool fPerm)
     return;
 }
 
-void do_ban(CHAR_DATA* ch, char* argument)
+void do_ban(CharData* ch, char* argument)
 {
     ban_site(ch, argument, false);
 }
 
-void do_permban(CHAR_DATA* ch, char* argument)
+void do_permban(CharData* ch, char* argument)
 {
     ban_site(ch, argument, true);
 }
 
-void do_allow(CHAR_DATA* ch, char* argument)
+void do_allow(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
-    BAN_DATA* prev;
-    BAN_DATA* curr;
+    BanData* prev;
+    BanData* curr;
 
     one_argument(argument, arg);
 
@@ -283,4 +291,33 @@ void do_allow(CHAR_DATA* ch, char* argument)
 
     send_to_char("Site is not banned.\n\r", ch);
     return;
+}
+
+BanData* new_ban(void)
+{
+    static BanData ban_zero;
+    BanData* ban;
+
+    if (ban_free == NULL)
+        ban = alloc_perm(sizeof(*ban));
+    else {
+        ban = ban_free;
+        ban_free = ban_free->next;
+    }
+
+    *ban = ban_zero;
+    VALIDATE(ban);
+    ban->name = &str_empty[0];
+    return ban;
+}
+
+void free_ban(BanData* ban)
+{
+    if (!IS_VALID(ban)) return;
+
+    free_string(ban->name);
+    INVALIDATE(ban);
+
+    ban->next = ban_free;
+    ban_free = ban;
 }

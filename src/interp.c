@@ -27,9 +27,19 @@
 
 #include "merc.h"
 
+#include "act_wiz.h"
 #include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "interp.h"
 #include "strings.h"
+
+#include "entities/char_data.h"
+#include "entities/descriptor.h"
+
+#include "data/mobile.h"
+#include "data/player.h"
+#include "data/social.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -38,14 +48,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-bool check_social args((CHAR_DATA * ch, char* command, char* argument));
-
-/*
- * Command logging types.
- */
-#define LOG_NORMAL 0
-#define LOG_ALWAYS 1
-#define LOG_NEVER  2
+bool check_social args((CharData * ch, char* command, char* argument));
 
 /*
  * Log-all switch.
@@ -62,8 +65,8 @@ void init_command_table(void)
     int maxcnt = 0;
     int cntl[27] = { 0 };
     char letter;
-    struct cmd_type* new_cmd_table;
-    struct cmd_type** temp_table;
+    CmdInfo* new_cmd_table;
+    CmdInfo** temp_table;
 
     for (i = 0; i < 27; ++i)
         cntl[i] = 0;
@@ -81,7 +84,7 @@ void init_command_table(void)
             maxcnt = cnt;
     }
 
-    temp_table = calloc(((size_t)maxcnt * 27), sizeof(struct cmd_type*));
+    temp_table = calloc(((size_t)maxcnt * 27), sizeof(CmdInfo*));
 
     for (i = 0; i < (maxcnt * 27); ++i)
         temp_table[i] = NULL;
@@ -100,7 +103,7 @@ void init_command_table(void)
         }
     }
 
-    if ((new_cmd_table = malloc(sizeof(struct cmd_type) * ((size_t)max_cmd + 1))) == NULL) {
+    if ((new_cmd_table = malloc(sizeof(CmdInfo) * ((size_t)max_cmd + 1))) == NULL) {
         perror("init_command_table: Could not allocate new_cmd_table!");
         exit(-1);
     }
@@ -145,7 +148,7 @@ void create_command_table()
  * The main entry point for executing commands.
  * Can be recursively called from 'at', 'order', 'force'.
  */
-void interpret(CHAR_DATA* ch, char* argument)
+void interpret(CharData* ch, char* argument)
 {
     char command[MAX_INPUT_LENGTH] = "";
     char logline[MAX_INPUT_LENGTH] = "";
@@ -164,12 +167,12 @@ void interpret(CHAR_DATA* ch, char* argument)
     /*
      * No hiding.
      */
-    REMOVE_BIT(ch->affected_by, AFF_HIDE);
+    REMOVE_BIT(ch->affect_flags, AFF_HIDE);
 
     /*
      * Implement freeze command.
      */
-    if (!IS_NPC(ch) && IS_SET(ch->act, PLR_FREEZE)) {
+    if (!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_FREEZE)) {
         send_to_char("You're totally frozen!\n\r", ch);
         return;
     }
@@ -212,7 +215,7 @@ void interpret(CHAR_DATA* ch, char* argument)
     if (cmd_table[cmd].log == LOG_NEVER) 
         strcpy(logline, "");
 
-    if ((!IS_NPC(ch) && IS_SET(ch->act, PLR_LOG)) || fLogAll
+    if ((!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_LOG)) || fLogAll
         || cmd_table[cmd].log == LOG_ALWAYS) {
         sprintf(log_buf, "Log %s: %s", ch->name, logline);
         wiznet(log_buf, ch, NULL, WIZ_SECURE, 0, get_trust(ch));
@@ -267,6 +270,9 @@ void interpret(CHAR_DATA* ch, char* argument)
         case POS_FIGHTING:
             send_to_char("No way!  You are still fighting!\n\r", ch);
             break;
+
+        default:
+            break;
         }
         return;
     }
@@ -280,7 +286,7 @@ void interpret(CHAR_DATA* ch, char* argument)
 }
 
 /* function to keep argument safe in all commands -- no static strings */
-void do_function(CHAR_DATA* ch, DO_FUN* do_fun, char* argument)
+void do_function(CharData* ch, DoFunc* do_fun, char* argument)
 {
     char* command_string;
 
@@ -294,10 +300,10 @@ void do_function(CHAR_DATA* ch, DO_FUN* do_fun, char* argument)
     free_string(command_string);
 }
 
-bool check_social(CHAR_DATA* ch, char* command, char* argument)
+bool check_social(CharData* ch, char* command, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
+    CharData* victim;
     int cmd;
     bool found;
 
@@ -312,7 +318,7 @@ bool check_social(CHAR_DATA* ch, char* command, char* argument)
 
     if (!found) return false;
 
-    if (!IS_NPC(ch) && IS_SET(ch->comm, COMM_NOEMOTE)) {
+    if (!IS_NPC(ch) && IS_SET(ch->comm_flags, COMM_NOEMOTE)) {
         send_to_char("You are anti-social!\n\r", ch);
         return true;
     }
@@ -339,6 +345,9 @@ bool check_social(CHAR_DATA* ch, char* command, char* argument)
         if (!str_cmp(social_table[cmd].name, "snore")) break;
         send_to_char("In your dreams, or what?\n\r", ch);
         return true;
+
+    default:
+        break;
     }
 
     one_argument(argument, arg);
@@ -486,7 +495,7 @@ char* one_argument(char* argument, char* arg_first)
 /*
  * Contributed by Alander.
  */
-void do_commands(CHAR_DATA* ch, char* argument)
+void do_commands(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     int cmd;
@@ -506,7 +515,7 @@ void do_commands(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_wizhelp(CHAR_DATA* ch, char* argument)
+void do_wizhelp(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     int cmd;

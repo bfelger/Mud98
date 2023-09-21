@@ -35,16 +35,31 @@
 
 #include "merc.h"
 
-#include "comm.h"
 #include "mob_cmds.h"
 
-#include <sys/types.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include "act_comm.h"
+#include "act_move.h"
+#include "act_obj.h"
+#include "act_wiz.h"
+#include "comm.h"
+#include "db.h"
+#include "fight.h"
+#include "handler.h"
+#include "magic.h"
+#include "mob_prog.h"
+#include "skills.h"
 
-DECLARE_DO_FUN(do_look);
-extern ROOM_INDEX_DATA* find_location(CHAR_DATA*, char*);
+#include "entities/char_data.h"
+#include "entities/descriptor.h"
+#include "entities/object_data.h"
+
+#include "data/mobile.h"
+#include "data/skill.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
 
 /*
  * Command table.
@@ -82,7 +97,7 @@ const struct mob_cmd_type mob_cmd_table[] = {
     { "",           0               }
 };
 
-void do_mob(CHAR_DATA* ch, char* argument)
+void do_mob(CharData* ch, char* argument)
 {
     /*
      * Security check!
@@ -95,7 +110,7 @@ void do_mob(CHAR_DATA* ch, char* argument)
  * Mob command interpreter. Implemented separately for security and speed
  * reasons. A trivial hack of interpret()
  */
-void mob_interpret(CHAR_DATA* ch, char* argument)
+void mob_interpret(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH], command[MAX_INPUT_LENGTH];
     int cmd;
@@ -113,11 +128,11 @@ void mob_interpret(CHAR_DATA* ch, char* argument)
         }
     }
     sprintf(buf, "Mob_interpret: invalid cmd from mob %d: '%s'",
-        IS_NPC(ch) ? ch->pIndexData->vnum : 0, command);
+        IS_NPC(ch) ? ch->prototype->vnum : 0, command);
     bug(buf, 0);
 }
 
-char* mprog_type_to_name(int type)
+char* mprog_type_to_name(MobProgTrigger type)
 {
     switch (type) {
     case TRIG_ACT:      return "ACT";
@@ -145,11 +160,11 @@ char* mprog_type_to_name(int type)
  *
  * Syntax: mpstat [name]
  */
-void do_mpstat(CHAR_DATA* ch, char* argument)
+void do_mpstat(CharData* ch, char* argument)
 {
     char        arg[MAX_STRING_LENGTH];
-    MPROG_LIST* mprg;
-    CHAR_DATA* victim;
+    MobProg* mprg;
+    CharData* victim;
     int i;
 
     one_argument(argument, arg);
@@ -175,7 +190,7 @@ void do_mpstat(CHAR_DATA* ch, char* argument)
     }
 
     sprintf(arg, "Mobile #%-6d [%s]\n\r",
-        victim->pIndexData->vnum, victim->short_descr);
+        victim->prototype->vnum, victim->short_descr);
     send_to_char(arg, ch);
 
     sprintf(arg, "Delay   %-6d [%s]\n\r",
@@ -184,12 +199,12 @@ void do_mpstat(CHAR_DATA* ch, char* argument)
         ? "No target" : victim->mprog_target->name);
     send_to_char(arg, ch);
 
-    if (!victim->pIndexData->mprog_flags) {
+    if (!victim->prototype->mprog_flags) {
         send_to_char("[No programs set]\n\r", ch);
         return;
     }
 
-    for (i = 0, mprg = victim->pIndexData->mprogs; mprg != NULL;
+    for (i = 0, mprg = victim->prototype->mprogs; mprg != NULL;
         mprg = mprg->next)
 
     {
@@ -210,10 +225,10 @@ void do_mpstat(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mpdump [vnum]
  */
-void do_mpdump(CHAR_DATA* ch, char* argument)
+void do_mpdump(CharData* ch, char* argument)
 {
     char buf[MAX_INPUT_LENGTH];
-    MPROG_CODE* mprg;
+    MobProgCode* mprg;
 
     one_argument(argument, buf);
     if ((mprg = get_mprog_index(STRTOVNUM(buf))) == NULL) {
@@ -228,13 +243,13 @@ void do_mpdump(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob gecho [string]
  */
-void do_mpgecho(CHAR_DATA* ch, char* argument)
+void do_mpgecho(CharData* ch, char* argument)
 {
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     if (argument[0] == '\0') {
         bug("MpGEcho: missing argument from vnum %"PRVNUM"",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -253,13 +268,13 @@ void do_mpgecho(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob zecho [string]
  */
-void do_mpzecho(CHAR_DATA* ch, char* argument)
+void do_mpzecho(CharData* ch, char* argument)
 {
-    DESCRIPTOR_DATA* d;
+    Descriptor* d;
 
     if (argument[0] == '\0') {
         bug("MpZEcho: missing argument from vnum %"PRVNUM"",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -283,10 +298,10 @@ void do_mpzecho(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob asound [string]
  */
-void do_mpasound(CHAR_DATA* ch, char* argument)
+void do_mpasound(CharData* ch, char* argument)
 {
 
-    ROOM_INDEX_DATA* was_in_room;
+    RoomData* was_in_room;
     int              door;
 
     if (argument[0] == '\0')
@@ -294,7 +309,7 @@ void do_mpasound(CHAR_DATA* ch, char* argument)
 
     was_in_room = ch->in_room;
     for (door = 0; door < 6; door++) {
-        EXIT_DATA* pexit;
+        ExitData* pexit;
 
         if ((pexit = was_in_room->exit[door]) != NULL
             && pexit->u1.to_room != NULL
@@ -315,10 +330,10 @@ void do_mpasound(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob kill [victim]
  */
-void do_mpkill(CHAR_DATA* ch, char* argument)
+void do_mpkill(CharData* ch, char* argument)
 {
     char      arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
+    CharData* victim;
 
     one_argument(argument, arg);
 
@@ -333,7 +348,7 @@ void do_mpkill(CHAR_DATA* ch, char* argument)
 
     if (IS_AFFECTED(ch, AFF_CHARM) && ch->master == victim) {
         bug("MpKill - Charmed mob attacking master from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -346,10 +361,10 @@ void do_mpkill(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob assist [character]
  */
-void do_mpassist(CHAR_DATA* ch, char* argument)
+void do_mpassist(CharData* ch, char* argument)
 {
     char      arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
+    CharData* victim;
 
     one_argument(argument, arg);
 
@@ -375,11 +390,11 @@ void do_mpassist(CHAR_DATA* ch, char* argument)
  * Syntax: mob junk [item]
  */
 
-void do_mpjunk(CHAR_DATA* ch, char* argument)
+void do_mpjunk(CharData* ch, char* argument)
 {
     char      arg[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
-    OBJ_DATA* obj_next = NULL;
+    ObjectData* obj;
+    ObjectData* obj_next = NULL;
 
     one_argument(argument, arg);
 
@@ -400,7 +415,7 @@ void do_mpjunk(CHAR_DATA* ch, char* argument)
         for (obj = ch->carrying; obj != NULL; obj = obj_next) {
             obj_next = obj->next_content;
             if (arg[3] == '\0' || is_name(&arg[4], obj->name)) {
-                if (obj->wear_loc != WEAR_NONE)
+                if (obj->wear_loc != WEAR_UNHELD)
                     unequip_char(ch, obj);
                 extract_obj(obj);
             }
@@ -416,10 +431,10 @@ void do_mpjunk(CHAR_DATA* ch, char* argument)
  * Syntax: mob echoaround [victim] [string]
  */
 
-void do_mpechoaround(CHAR_DATA* ch, char* argument)
+void do_mpechoaround(CharData* ch, char* argument)
 {
     char       arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
+    CharData* victim;
 
     argument = one_argument(argument, arg);
 
@@ -437,10 +452,10 @@ void do_mpechoaround(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob echoat [victim] [string]
  */
-void do_mpechoat(CHAR_DATA* ch, char* argument)
+void do_mpechoat(CharData* ch, char* argument)
 {
     char       arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
+    CharData* victim;
 
     argument = one_argument(argument, arg);
 
@@ -458,7 +473,7 @@ void do_mpechoat(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mpecho [string]
  */
-void do_mpecho(CHAR_DATA* ch, char* argument)
+void do_mpecho(CharData* ch, char* argument)
 {
     if (argument[0] == '\0')
         return;
@@ -470,11 +485,11 @@ void do_mpecho(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob mload [vnum]
  */
-void do_mpmload(CHAR_DATA* ch, char* argument)
+void do_mpmload(CharData* ch, char* argument)
 {
     char            arg[MAX_INPUT_LENGTH];
-    MOB_INDEX_DATA* pMobIndex;
-    CHAR_DATA* victim;
+    MobPrototype* p_mob_proto;
+    CharData* victim;
     VNUM vnum;
 
     one_argument(argument, arg);
@@ -483,13 +498,13 @@ void do_mpmload(CHAR_DATA* ch, char* argument)
         return;
 
     vnum = STRTOVNUM(arg);
-    if ((pMobIndex = get_mob_index(vnum)) == NULL) {
+    if ((p_mob_proto = get_mob_prototype(vnum)) == NULL) {
         sprintf(arg, "Mpmload: bad mob index (%"PRVNUM") from mob %"PRVNUM".",
-            vnum, IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            vnum, IS_NPC(ch) ? ch->prototype->vnum : 0);
         bug(arg, 0);
         return;
     }
-    victim = create_mobile(pMobIndex);
+    victim = create_mobile(p_mob_proto);
     char_to_room(victim, ch->in_room);
     return;
 }
@@ -499,13 +514,13 @@ void do_mpmload(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob oload [vnum] [level] {R}
  */
-void do_mpoload(CHAR_DATA* ch, char* argument)
+void do_mpoload(CharData* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char arg3[MAX_INPUT_LENGTH];
-    OBJ_INDEX_DATA* pObjIndex;
-    OBJ_DATA* obj;
+    ObjectPrototype* obj_proto;
+    ObjectData* obj;
     LEVEL level;
     bool fToroom = false;
     bool fWear = false;
@@ -516,7 +531,7 @@ void do_mpoload(CHAR_DATA* ch, char* argument)
 
     if (arg1[0] == '\0' || !is_number(arg1)) {
         bug("Mpoload - Bad syntax from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -529,13 +544,13 @@ void do_mpoload(CHAR_DATA* ch, char* argument)
      */
         if (!is_number(arg2)) {
             bug("Mpoload - Bad syntax from vnum %"PRVNUM".",
-                IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+                IS_NPC(ch) ? ch->prototype->vnum : 0);
             return;
         }
         level = (LEVEL)atoi(arg2);
         if (level < 0 || level > get_trust(ch)) {
             bug("Mpoload - Bad level from vnum %"PRVNUM".",
-                IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+                IS_NPC(ch) ? ch->prototype->vnum : 0);
             return;
         }
     }
@@ -551,13 +566,13 @@ void do_mpoload(CHAR_DATA* ch, char* argument)
     else if (arg3[0] == 'W' || arg3[0] == 'w')
         fWear = true;
 
-    if ((pObjIndex = get_obj_index(STRTOVNUM(arg1))) == NULL) {
+    if ((obj_proto = get_object_prototype(STRTOVNUM(arg1))) == NULL) {
         bug("Mpoload - Bad vnum arg from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
-    obj = create_object(pObjIndex, level);
+    obj = create_object(obj_proto, level);
     if ((fWear || !fToroom) && CAN_WEAR(obj, ITEM_TAKE)) {
         obj_to_char(obj, ch);
         if (fWear)
@@ -577,23 +592,23 @@ void do_mpoload(CHAR_DATA* ch, char* argument)
  *
  * syntax mob purge {target}
  */
-void do_mppurge(CHAR_DATA* ch, char* argument)
+void do_mppurge(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
-    OBJ_DATA* obj;
+    CharData* victim;
+    ObjectData* obj;
 
     one_argument(argument, arg);
 
     if (arg[0] == '\0') {
         /* 'purge' */
-        CHAR_DATA* vnext = NULL;
-        OBJ_DATA* obj_next = NULL;
+        CharData* vnext = NULL;
+        ObjectData* obj_next = NULL;
 
         for (victim = ch->in_room->people; victim != NULL; victim = vnext) {
             vnext = victim->next_in_room;
             if (IS_NPC(victim) && victim != ch
-                && !IS_SET(victim->act, ACT_NOPURGE))
+                && !IS_SET(victim->act_flags, ACT_NOPURGE))
                 extract_char(victim, true);
         }
 
@@ -612,14 +627,14 @@ void do_mppurge(CHAR_DATA* ch, char* argument)
         }
         else {
             bug("Mppurge - Bad argument from vnum %"PRVNUM".",
-                IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+                IS_NPC(ch) ? ch->prototype->vnum : 0);
         }
         return;
     }
 
     if (!IS_NPC(victim)) {
         bug("Mppurge - Purging a PC from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     extract_char(victim, true);
@@ -632,21 +647,21 @@ void do_mppurge(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob goto [location]
  */
-void do_mpgoto(CHAR_DATA* ch, char* argument)
+void do_mpgoto(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    ROOM_INDEX_DATA* location;
+    RoomData* location;
 
     one_argument(argument, arg);
     if (arg[0] == '\0') {
         bug("Mpgoto - No argument from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
     if ((location = find_location(ch, arg)) == NULL) {
         bug("Mpgoto - No such location from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -664,25 +679,25 @@ void do_mpgoto(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob at [location] [commands]
  */
-void do_mpat(CHAR_DATA* ch, char* argument)
+void do_mpat(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    ROOM_INDEX_DATA* location;
-    ROOM_INDEX_DATA* original;
-    CHAR_DATA* wch;
-    OBJ_DATA* on;
+    RoomData* location;
+    RoomData* original;
+    CharData* wch;
+    ObjectData* on;
 
     argument = one_argument(argument, arg);
 
     if (arg[0] == '\0' || argument[0] == '\0') {
         bug("Mpat - Bad argument from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
     if ((location = find_location(ch, arg)) == NULL) {
         bug("Mpat - No such location from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -714,25 +729,25 @@ void do_mpat(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob transfer [target|'all'] [location]
  */
-void do_mptransfer(CHAR_DATA* ch, char* argument)
+void do_mptransfer(CharData* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
-    ROOM_INDEX_DATA* location;
-    CHAR_DATA* victim;
+    RoomData* location;
+    CharData* victim;
 
     argument = one_argument(argument, arg1);
     argument = one_argument(argument, arg2);
 
     if (arg1[0] == '\0') {
         bug("Mptransfer - Bad syntax from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
     if (!str_cmp(arg1, "all")) {
-        CHAR_DATA* victim_next = NULL;
+        CharData* victim_next = NULL;
 
         for (victim = ch->in_room->people; victim != NULL; victim = victim_next) {
             victim_next = victim->next_in_room;
@@ -753,7 +768,7 @@ void do_mptransfer(CHAR_DATA* ch, char* argument)
     else {
         if ((location = find_location(ch, arg2)) == NULL) {
             bug("Mptransfer - No such location from vnum %"PRVNUM".",
-                IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+                IS_NPC(ch) ? ch->prototype->vnum : 0);
             return;
         }
 
@@ -781,21 +796,21 @@ void do_mptransfer(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob gtransfer [victim] [location]
  */
-void do_mpgtransfer(CHAR_DATA* ch, char* argument)
+void do_mpgtransfer(CharData* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
-    CHAR_DATA* who; 
-    CHAR_DATA* victim;
-    CHAR_DATA* victim_next = NULL;
+    CharData* who; 
+    CharData* victim;
+    CharData* victim_next = NULL;
 
     argument = one_argument(argument, arg1);
     argument = one_argument(argument, arg2);
 
     if (arg1[0] == '\0') {
         bug("Mpgtransfer - Bad syntax from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -818,7 +833,7 @@ void do_mpgtransfer(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob force [victim] [commands]
  */
-void do_mpforce(CHAR_DATA* ch, char* argument)
+void do_mpforce(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
 
@@ -826,13 +841,13 @@ void do_mpforce(CHAR_DATA* ch, char* argument)
 
     if (arg[0] == '\0' || argument[0] == '\0') {
         bug("Mpforce - Bad syntax from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
     if (!str_cmp(arg, "all")) {
-        CHAR_DATA* vch;
-        CHAR_DATA* vch_next = NULL;
+        CharData* vch;
+        CharData* vch_next = NULL;
 
         for (vch = char_list; vch != NULL; vch = vch_next) {
             vch_next = vch->next;
@@ -845,7 +860,7 @@ void do_mpforce(CHAR_DATA* ch, char* argument)
         }
     }
     else {
-        CHAR_DATA* victim;
+        CharData* victim;
 
         if ((victim = get_char_room(ch, arg)) == NULL)
             return;
@@ -864,18 +879,18 @@ void do_mpforce(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob gforce [victim] [commands]
  */
-void do_mpgforce(CHAR_DATA* ch, char* argument)
+void do_mpgforce(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
-    CHAR_DATA* vch;
-    CHAR_DATA* vch_next = NULL;
+    CharData* victim;
+    CharData* vch;
+    CharData* vch_next = NULL;
 
     argument = one_argument(argument, arg);
 
     if (arg[0] == '\0' || argument[0] == '\0') {
         bug("MpGforce - Bad syntax from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -900,10 +915,10 @@ void do_mpgforce(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob vforce [vnum] [commands]
  */
-void do_mpvforce(CHAR_DATA* ch, char* argument)
+void do_mpvforce(CharData* ch, char* argument)
 {
-    CHAR_DATA* victim;
-    CHAR_DATA* victim_next = NULL;
+    CharData* victim;
+    CharData* victim_next = NULL;
     char arg[MAX_INPUT_LENGTH];
     VNUM vnum;
 
@@ -911,13 +926,13 @@ void do_mpvforce(CHAR_DATA* ch, char* argument)
 
     if (arg[0] == '\0' || argument[0] == '\0') {
         bug("MpVforce - Bad syntax from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
     if (!is_number(arg)) {
         bug("MpVforce - Non-number argument vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
@@ -925,7 +940,7 @@ void do_mpvforce(CHAR_DATA* ch, char* argument)
 
     for (victim = char_list; victim; victim = victim_next) {
         victim_next = victim->next;
-        if (IS_NPC(victim) && victim->pIndexData->vnum == vnum
+        if (IS_NPC(victim) && victim->prototype->vnum == vnum
             && ch != victim && victim->fighting == NULL)
             interpret(victim, argument);
     }
@@ -942,53 +957,68 @@ void do_mpvforce(CHAR_DATA* ch, char* argument)
  * Syntax: mob cast [spell] {target}
  */
 
-void do_mpcast(CHAR_DATA* ch, char* argument)
+void do_mpcast(CharData* ch, char* argument)
 {
-    CHAR_DATA* vch;
-    OBJ_DATA* obj;
+    CharData* vch;
+    ObjectData* obj;
     void* victim = NULL;
-    char spell[MAX_INPUT_LENGTH],
-        target[MAX_INPUT_LENGTH];
+    char arg_spell[MAX_INPUT_LENGTH];
+    char arg_target[MAX_INPUT_LENGTH];
     SKNUM sn;
+    SpellTarget spell_target = SPELL_TARGET_NONE;
 
-    argument = one_argument(argument, spell);
-    one_argument(argument, target);
+    argument = one_argument(argument, arg_spell);
+    one_argument(argument, arg_target);
 
-    if (spell[0] == '\0') {
+    if (arg_spell[0] == '\0') {
         bug("MpCast - Bad syntax from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
 
-    if ((sn = skill_lookup(spell)) < 0) {
+    if ((sn = skill_lookup(arg_spell)) < 0) {
         bug("MpCast - No such spell from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
-    vch = get_char_room(ch, target);
-    obj = get_obj_here(ch, target);
+    vch = get_char_room(ch, arg_target);
+    obj = get_obj_here(ch, arg_target);
     switch (skill_table[sn].target) {
-    default: return;
-    case TAR_IGNORE:
+    default: 
+        return;
+    case SKILL_TARGET_IGNORE:
         break;
-    case TAR_CHAR_OFFENSIVE:
+    case SKILL_TARGET_CHAR_OFFENSIVE:
         if (vch == NULL || vch == ch)
             return;
         victim = (void*)vch;
+        spell_target = SPELL_TARGET_CHAR;
         break;
-    case TAR_CHAR_DEFENSIVE:
-        victim = vch == NULL ? (void*)ch : (void*)vch; break;
-    case TAR_CHAR_SELF:
-        victim = (void*)ch; break;
-    case TAR_OBJ_CHAR_DEF:
-    case TAR_OBJ_CHAR_OFF:
-    case TAR_OBJ_INV:
-        if (obj == NULL)
+    case SKILL_TARGET_CHAR_DEFENSIVE:
+        victim = vch == NULL ? (void*)ch : (void*)vch; 
+        spell_target = SPELL_TARGET_CHAR;
+        break;
+    case SKILL_TARGET_CHAR_SELF:
+        victim = (void*)ch; 
+        spell_target = SPELL_TARGET_CHAR;
+        break;
+    case SKILL_TARGET_OBJ_CHAR_DEF:
+    case SKILL_TARGET_OBJ_CHAR_OFF:
+        if (vch != NULL) {
+            victim = (void*)vch;
+            spell_target = SPELL_TARGET_CHAR;
+            break;
+        }
+        victim = (void*)obj;
+        spell_target = SPELL_TARGET_OBJ;
+        break;
+    case SKILL_TARGET_OBJ_INV:
+        if ((obj = get_obj_carry(ch, arg_target, ch)) == NULL) 
             return;
         victim = (void*)obj;
+        spell_target = SPELL_TARGET_OBJ;
     }
-    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim,
-        skill_table[sn].target);
+    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim, spell_target);
     return;
 }
 
@@ -998,10 +1028,10 @@ void do_mpcast(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob damage [victim] [min] [max] {kill}
  */
-void do_mpdamage(CHAR_DATA* ch, char* argument)
+void do_mpdamage(CharData* ch, char* argument)
 {
-    CHAR_DATA* victim = NULL;
-    CHAR_DATA* victim_next = NULL;
+    CharData* victim = NULL;
+    CharData* victim_next = NULL;
     char target[MAX_INPUT_LENGTH];
     char min[MAX_INPUT_LENGTH];
     char max[MAX_INPUT_LENGTH];
@@ -1015,7 +1045,7 @@ void do_mpdamage(CHAR_DATA* ch, char* argument)
 
     if (target[0] == '\0') {
         bug("MpDamage - Bad syntax from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     if (!str_cmp(target, "all"))
@@ -1027,14 +1057,14 @@ void do_mpdamage(CHAR_DATA* ch, char* argument)
         low = STRTOVNUM(min);
     else {
         bug("MpDamage - Bad damage min vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     if (is_number(max))
         high = STRTOVNUM(max);
     else {
         bug("MpDamage - Bad damage max vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     one_argument(argument, target);
@@ -1070,7 +1100,7 @@ void do_mpdamage(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob remember [victim]
  */
-void do_mpremember(CHAR_DATA* ch, char* argument)
+void do_mpremember(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     one_argument(argument, arg);
@@ -1078,7 +1108,7 @@ void do_mpremember(CHAR_DATA* ch, char* argument)
         ch->mprog_target = get_char_world(ch, arg);
     else
         bug("MpRemember: missing argument from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
 }
 
 /*
@@ -1086,7 +1116,7 @@ void do_mpremember(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob forget
  */
-void do_mpforget(CHAR_DATA* ch, char* argument)
+void do_mpforget(CharData* ch, char* argument)
 {
     ch->mprog_target = NULL;
 }
@@ -1098,14 +1128,14 @@ void do_mpforget(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob delay [pulses]
  */
-void do_mpdelay(CHAR_DATA* ch, char* argument)
+void do_mpdelay(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
 
     one_argument(argument, arg);
     if (!is_number(arg)) {
         bug("MpDelay: invalid arg from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     ch->mprog_delay = (int16_t)atoi(arg);
@@ -1116,7 +1146,7 @@ void do_mpdelay(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob cancel
  */
-void do_mpcancel(CHAR_DATA* ch, char* argument)
+void do_mpcancel(CharData* ch, char* argument)
 {
     ch->mprog_delay = -1;
 }
@@ -1130,23 +1160,22 @@ void do_mpcancel(CHAR_DATA* ch, char* argument)
  * Syntax: mob call [vnum] [victim|'null'] [object1|'null'] [object2|'null']
  *
  */
-void do_mpcall(CHAR_DATA* ch, char* argument)
+void do_mpcall(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* vch;
-    OBJ_DATA* obj1, * obj2;
-    MPROG_CODE* prg;
-    extern void program_flow(VNUM, char*, CHAR_DATA*, CHAR_DATA*, const void*, const void*);
+    CharData* vch;
+    ObjectData* obj1, * obj2;
+    MobProgCode* prg;
 
     argument = one_argument(argument, arg);
     if (arg[0] == '\0') {
         bug("MpCall: missing arguments from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     if ((prg = get_mprog_index(STRTOVNUM(arg))) == NULL) {
         bug("MpCall: invalid prog from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     vch = NULL;
@@ -1169,10 +1198,10 @@ void do_mpcall(CHAR_DATA* ch, char* argument)
  * Syntax: mob flee
  *
  */
-void do_mpflee(CHAR_DATA* ch, char* argument)
+void do_mpflee(CharData* ch, char* argument)
 {
-    ROOM_INDEX_DATA* was_in;
-    EXIT_DATA* pexit;
+    RoomData* was_in;
+    ExitData* pexit;
     int door, attempt;
 
     if (ch->fighting != NULL)
@@ -1185,7 +1214,7 @@ void do_mpflee(CHAR_DATA* ch, char* argument)
         door = number_door();
         if ((pexit = was_in->exit[door]) == 0
             || pexit->u1.to_room == NULL
-            || IS_SET(pexit->exit_info, EX_CLOSED)
+            || IS_SET(pexit->exit_flags, EX_CLOSED)
             || (IS_NPC(ch)
                 && IS_SET(pexit->u1.to_room->room_flags, ROOM_NO_MOB)))
             continue;
@@ -1202,23 +1231,23 @@ void do_mpflee(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob otransfer [item name] [location]
  */
-void do_mpotransfer(CHAR_DATA* ch, char* argument)
+void do_mpotransfer(CharData* ch, char* argument)
 {
-    OBJ_DATA* obj;
-    ROOM_INDEX_DATA* location;
+    ObjectData* obj;
+    RoomData* location;
     char arg[MAX_INPUT_LENGTH];
     char buf[MAX_INPUT_LENGTH];
 
     argument = one_argument(argument, arg);
     if (arg[0] == '\0') {
         bug("MpOTransfer - Missing argument from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     one_argument(argument, buf);
     if ((location = find_location(ch, buf)) == NULL) {
         bug("MpOTransfer - No such location from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     if ((obj = get_obj_here(ch, arg)) == NULL)
@@ -1226,7 +1255,7 @@ void do_mpotransfer(CHAR_DATA* ch, char* argument)
     if (obj->carried_by == NULL)
         obj_from_room(obj);
     else {
-        if (obj->wear_loc != WEAR_NONE)
+        if (obj->wear_loc != WEAR_UNHELD)
             unequip_char(ch, obj);
         obj_from_char(obj);
     }
@@ -1239,11 +1268,11 @@ void do_mpotransfer(CHAR_DATA* ch, char* argument)
  *
  * Syntax: mob remove [victim] [object vnum|'all']
  */
-void do_mpremove(CHAR_DATA* ch, char* argument)
+void do_mpremove(CharData* ch, char* argument)
 {
-    CHAR_DATA* victim;
-    OBJ_DATA* obj;
-    OBJ_DATA* obj_next = NULL;
+    CharData* victim;
+    ObjectData* obj;
+    ObjectData* obj_next = NULL;
     VNUM vnum = 0;
     bool fAll = false;
     char arg[MAX_INPUT_LENGTH];
@@ -1257,7 +1286,7 @@ void do_mpremove(CHAR_DATA* ch, char* argument)
         fAll = true;
     else if (!is_number(arg)) {
         bug("MpRemove: Invalid object from vnum %"PRVNUM".",
-            IS_NPC(ch) ? ch->pIndexData->vnum : 0);
+            IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
     else
@@ -1265,7 +1294,7 @@ void do_mpremove(CHAR_DATA* ch, char* argument)
 
     for (obj = victim->carrying; obj; obj = obj_next) {
         obj_next = obj->next_content;
-        if (fAll || obj->pIndexData->vnum == vnum) {
+        if (fAll || obj->prototype->vnum == vnum) {
             unequip_char(ch, obj);
             obj_from_char(obj);
             extract_obj(obj);

@@ -4,19 +4,27 @@
 
 #include "merc.h"
 
+#include "bit.h"
 #include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "lookup.h"
+#include "magic.h"
 #include "olc.h"
 #include "recycle.h"
+#include "save.h"
 #include "tables.h"
 
-struct	race_type* race_table;
-int	maxrace;
+#include "entities/descriptor.h"
+#include "entities/player_data.h"
+
+#include "data/mobile.h"
+#include "data/race.h"
 
 #define RACE_FILE	DATA_DIR "races"
-#define RAEDIT( fun )		bool fun( CHAR_DATA *ch, char *argument )
+#define RAEDIT( fun )		bool fun( CharData *ch, char *argument )
 
-extern struct race_type xRace;
+extern Race xRace;
 
 #ifdef U
 #define OLD_U U
@@ -27,7 +35,7 @@ const struct olc_comm_type race_olc_comm_table[] = {
     { "show",       0,                  ed_olded,           U(raedit_show)  },
     { "name",       U(&xRace.name),     ed_line_string,     0               },
     { "pcrace",     U(&xRace.pc_race),  ed_bool,            0               },
-    { "act",        U(&xRace.act),      ed_flag_toggle,     U(act_flag_table)   },
+    { "act",        U(&xRace.act_flags),ed_flag_toggle,     U(act_flag_table)   },
     { "aff",        U(&xRace.aff),      ed_flag_toggle,     U(affect_flag_table)},
     { "off",        U(&xRace.off),      ed_flag_toggle,     U(off_flag_table)   },
     { "res",        U(&xRace.res),      ed_flag_toggle,     U(res_flag_table)   },
@@ -37,7 +45,7 @@ const struct olc_comm_type race_olc_comm_table[] = {
     { "part",       U(&xRace.parts),    ed_flag_toggle,     U(part_flag_table)  },
     { "who",        U(&xRace.who_name), ed_line_string,     0               },
     { "points",     U(&xRace.points),   ed_number_s_pos,    0               },
-    { "cmult",      0,                  ed_olded,           U(raedit_cmult) },
+    { "amult",      0,                  ed_olded,           U(raedit_amult) },
     { "stats",      0,                  ed_olded,           U(raedit_stats) },
     { "maxstats",   0,                  ed_olded,           U(raedit_maxstats)},
     { "skills",     0,                  ed_olded,           U(raedit_skills)},
@@ -50,9 +58,9 @@ const struct olc_comm_type race_olc_comm_table[] = {
     { NULL,         0,                  NULL,               0               }
 };
 
-void raedit(CHAR_DATA* ch, char* argument)
+void raedit(CharData* ch, char* argument)
 {
-    if (ch->pcdata->security < 7) {
+    if (ch->pcdata->security < MIN_RAEDIT_SECURITY) {
         send_to_char("RAEdit : You do not have enough security to edit races.\n\r", ch);
         edit_done(ch);
         return;
@@ -64,7 +72,7 @@ void raedit(CHAR_DATA* ch, char* argument)
     }
 
     if (!str_cmp(argument, "save")) {
-        save_races();
+        save_race_table();
         return;
     }
 
@@ -80,15 +88,15 @@ void raedit(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_raedit(CHAR_DATA* ch, char* argument)
+void do_raedit(CharData* ch, char* argument)
 {
-    const struct race_type* pRace;
+    const Race* pRace;
     int race;
 
     if (IS_NPC(ch) || ch->desc == NULL)
         return;
 
-    if (ch->pcdata->security < 7) {
+    if (ch->pcdata->security < MIN_RAEDIT_SECURITY) {
         send_to_char("RAEdit : You do not have enough security to edit races.\n\r", ch);
         return;
     }
@@ -108,7 +116,7 @@ void do_raedit(CHAR_DATA* ch, char* argument)
 
 RAEDIT(raedit_show)
 {
-    struct race_type* pRace;
+    Race* pRace;
     char buf[MSL];
     static const char* Stats[] = { "Str", "Int", "Wis", "Dex", "Con" };
     int i = 0;
@@ -119,7 +127,7 @@ RAEDIT(raedit_show)
     send_to_char(buf, ch);
     sprintf(buf, "PC race?    : [%s]\n\r", pRace->pc_race ? "YES" : " NO");
     send_to_char(buf, ch);
-    sprintf(buf, "Act         : [%s]\n\r", flag_string(act_flag_table, pRace->act));
+    sprintf(buf, "Act         : [%s]\n\r", flag_string(act_flag_table, pRace->act_flags));
     send_to_char(buf, ch);
     sprintf(buf, "Aff         : [%s]\n\r", flag_string(affect_flag_table, pRace->aff));
     send_to_char(buf, ch);
@@ -138,15 +146,14 @@ RAEDIT(raedit_show)
 
 #ifndef FIRST_BOOT
     sprintf(buf, "Points      : [%10d] Size   : [%-10.10s]\n\r",
-        pRace->points,
-        size_table[pRace->size].name);
+        pRace->points, mob_size_table[pRace->size].name);
     send_to_char(buf, ch);
 
     send_to_char("Name      CMu Exp       Name      CMu Exp       Name      CMu Exp\n\r", ch);
-    for (i = 0; i < MAX_CLASS; ++i) {
+    for (i = 0; i < class_count; ++i) {
         sprintf(buf, "%-7.7s   %3d %4d(%3d)%s",
             capitalize(class_table[i].name),
-            pRace->class_mult[i],
+            GET_ELEM(&pRace->class_mult, i),
             race_exp_per_level(pRace->race_id, i, get_points(pRace->race_id, i)),
             get_points(pRace->race_id, i),
             i % 3 == 2 ? "\n\r" : " ");
@@ -155,13 +162,13 @@ RAEDIT(raedit_show)
     if (i % 3)
         send_to_char("\n\r", ch);
 
-    for (i = 0; i < MAX_STATS; ++i) {
+    for (i = 0; i < STAT_COUNT; ++i) {
         sprintf(buf, "%s:%2d(%2d) ", Stats[i], pRace->stats[i], pRace->max_stats[i]);
         send_to_char(buf, ch);
     }
     send_to_char("\n\r", ch);
 
-    for (i = 0; i < 5; ++i)
+    for (i = 0; i < RACE_NUM_SKILLS; ++i)
         if (!IS_NULLSTR(pRace->skills[i])) {
             sprintf(buf, "%2d. %s\n\r",
                 i,
@@ -177,12 +184,12 @@ RAEDIT(raedit_list)
 {
     int i;
     char buf[MSL];
-    BUFFER* fBuf;
+    Buffer* fBuf;
 
     fBuf = new_buf();
 
     for (i = 0; race_table[i].name; i++) {
-        sprintf(buf, "%2d %c #B%-33.33s#b", i,
+        sprintf(buf, "%2d %c {*%-33.33s{x", i,
             race_table[i].pc_race ? '+' : '-',
             race_table[i].name);
         if (i % 2 == 1)
@@ -203,9 +210,9 @@ RAEDIT(raedit_list)
 
 RAEDIT(raedit_new)
 {
-    DESCRIPTOR_DATA* d;
-    CHAR_DATA* tch;
-    struct race_type* new_table;
+    Descriptor* d;
+    CharData* tch;
+    Race* new_table;
     size_t maxRace;
 
     if (IS_NULLSTR(argument)) {
@@ -232,7 +239,7 @@ RAEDIT(raedit_new)
         ;
 
     maxRace++;
-    new_table = realloc(race_table, sizeof(struct race_type) * (maxRace + 1));
+    new_table = realloc(race_table, sizeof(Race) * (maxRace + 1));
 
     if (!new_table) /* realloc failed */
     {
@@ -244,7 +251,7 @@ RAEDIT(raedit_new)
 
     race_table[maxRace - 1].name = str_dup("unique");
     race_table[maxRace - 1].pc_race = false;
-    race_table[maxRace - 1].act = 0;
+    race_table[maxRace - 1].act_flags = 0;
     race_table[maxRace - 1].aff = 0;
     race_table[maxRace - 1].off = 0;
     race_table[maxRace - 1].imm = 0;
@@ -257,7 +264,7 @@ RAEDIT(raedit_new)
 
     race_table[maxRace - 2].name = str_dup(argument);
     race_table[maxRace - 2].pc_race = false;
-    race_table[maxRace - 2].act = 0;
+    race_table[maxRace - 2].act_flags = 0;
     race_table[maxRace - 2].aff = 0;
     race_table[maxRace - 2].off = 0;
     race_table[maxRace - 2].imm = 0;
@@ -275,23 +282,23 @@ RAEDIT(raedit_new)
     return true;
 }
 
-RAEDIT(raedit_cmult)
+RAEDIT(raedit_amult)
 {
-    struct race_type* race;
-    int mult;
-    int vclase;
-    char clase[MIL];
+    Race* race;
+    ClassMult mult;
+    int class_;
+    char class_name[MIL];
 
     EDIT_RACE(ch, race);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax : cmult [class] [multiplier]\n\r", ch);
+        send_to_char("Syntax : amult [archetype] [multiplier]\n\r", ch);
         return false;
     }
 
-    argument = one_argument(argument, clase);
+    argument = one_argument(argument, class_name);
 
-    if ((vclase = class_lookup(clase)) == -1) {
+    if ((class_ = class_lookup(class_name)) == -1) {
         send_to_char("RAEdit : That class does not exist.\n\r", ch);
         return false;
     }
@@ -301,21 +308,21 @@ RAEDIT(raedit_cmult)
         return false;
     }
 
-    mult = atoi(argument);
+    mult = (ClassMult)atoi(argument);
 
     if (mult < 1 || mult > 200) {
         send_to_char("RAEdit : The multiplier must be between 1 and 200.\n\r", ch);
         return false;
     }
 
-    race->class_mult[vclase] = (int16_t)mult;
+    SET_ELEM(race->class_mult, class_, mult);
     send_to_char("Ok.\n\r", ch);
     return true;
 }
 
 RAEDIT(raedit_stats)
 {
-    struct race_type* race;
+    Race* race;
     int vstat, value;
     char stat[MIL];
 
@@ -354,7 +361,7 @@ RAEDIT(raedit_stats)
 
 RAEDIT(raedit_maxstats)
 {
-    struct race_type* race;
+    Race* race;
     int vstat, value;
     char stat[MIL];
 
@@ -393,8 +400,9 @@ RAEDIT(raedit_maxstats)
 
 RAEDIT(raedit_skills)
 {
-    struct race_type* race;
-    int sk, num;
+    Race* race;
+    SKNUM sk;
+    int num;
     char snum[MIL];
 
     EDIT_RACE(ch, race);

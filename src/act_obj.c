@@ -25,8 +25,30 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+#include "act_obj.h"
+
+#include "act_comm.h"
+#include "act_wiz.h"
+#include "comm.h"
+#include "db.h"
+#include "fight.h"
+#include "handler.h"
 #include "interp.h"
-#include "merc.h"
+#include "magic.h"
+#include "mob_prog.h"
+#include "note.h"
+#include "save.h"
+#include "skills.h"
+#include "update.h"
+#include "weather.h"
+
+#include "entities/descriptor.h"
+#include "entities/object_data.h"
+#include "entities/player_data.h"
+
+#include "data/mobile.h"
+#include "data/player.h"
+#include "data/skill.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,23 +62,23 @@
 /*
  * Local functions.
  */
-#define CD CHAR_DATA
-#define OD OBJ_DATA
-bool remove_obj args((CHAR_DATA * ch, int iWear, bool fReplace));
-void wear_obj args((CHAR_DATA * ch, OBJ_DATA* obj, bool fReplace));
-CD* find_keeper args((CHAR_DATA * ch));
-int get_cost args((CHAR_DATA * keeper, OBJ_DATA* obj, bool fBuy));
-void obj_to_keeper args((OBJ_DATA * obj, CHAR_DATA* ch));
-OD* get_obj_keeper args((CHAR_DATA * ch, CHAR_DATA* keeper, char* argument));
+#define CD CharData
+#define OD ObjectData
+bool remove_obj args((CharData * ch, int iWear, bool fReplace));
+void wear_obj args((CharData * ch, ObjectData* obj, bool fReplace));
+CD* find_keeper args((CharData * ch));
+int get_cost args((CharData * keeper, ObjectData* obj, bool fBuy));
+void obj_to_keeper args((ObjectData * obj, CharData* ch));
+OD* get_obj_keeper args((CharData * ch, CharData* keeper, char* argument));
 
 #undef OD
 #undef CD
 
 /* RT part of the corpse looting code */
 
-bool can_loot(CHAR_DATA* ch, OBJ_DATA* obj)
+bool can_loot(CharData* ch, ObjectData* obj)
 {
-    CHAR_DATA *owner, *wch;
+    CharData *owner, *wch;
 
     if (IS_IMMORTAL(ch)) return true;
 
@@ -70,7 +92,7 @@ bool can_loot(CHAR_DATA* ch, OBJ_DATA* obj)
 
     if (!str_cmp(ch->name, owner->name)) return true;
 
-    if (!IS_NPC(owner) && IS_SET(owner->act, PLR_CANLOOT))
+    if (!IS_NPC(owner) && IS_SET(owner->act_flags, PLR_CANLOOT))
         return true;
 
     if (is_same_group(ch, owner))
@@ -79,10 +101,10 @@ bool can_loot(CHAR_DATA* ch, OBJ_DATA* obj)
     return false;
 }
 
-void get_obj(CHAR_DATA* ch, OBJ_DATA* obj, OBJ_DATA* container)
+void get_obj(CharData* ch, ObjectData* obj, ObjectData* container)
 {
     /* variables for AUTOSPLIT */
-    CHAR_DATA* gch;
+    CharData* gch;
     int members;
     char buffer[100];
 
@@ -118,13 +140,13 @@ void get_obj(CHAR_DATA* ch, OBJ_DATA* obj, OBJ_DATA* container)
     }
 
     if (container != NULL) {
-        if (container->pIndexData->vnum == OBJ_VNUM_PIT
+        if (container->prototype->vnum == OBJ_VNUM_PIT
             && get_trust(ch) < obj->level) {
             send_to_char("You are not powerful enough to use it.\n\r", ch);
             return;
         }
 
-        if (container->pIndexData->vnum == OBJ_VNUM_PIT
+        if (container->prototype->vnum == OBJ_VNUM_PIT
             && !CAN_WEAR(container, ITEM_TAKE)
             && !IS_OBJ_STAT(obj, ITEM_HAD_TIMER))
             obj->timer = 0;
@@ -142,7 +164,7 @@ void get_obj(CHAR_DATA* ch, OBJ_DATA* obj, OBJ_DATA* container)
     if (obj->item_type == ITEM_MONEY) {
         ch->silver += (int16_t)obj->value[0];
         ch->gold += (int16_t)obj->value[1];
-        if (IS_SET(ch->act, PLR_AUTOSPLIT)) { /* AUTOSPLIT code */
+        if (IS_SET(ch->act_flags, PLR_AUTOSPLIT)) { /* AUTOSPLIT code */
             members = 0;
             for (gch = ch->in_room->people; gch != NULL;
                  gch = gch->next_in_room) {
@@ -165,13 +187,13 @@ void get_obj(CHAR_DATA* ch, OBJ_DATA* obj, OBJ_DATA* container)
     return;
 }
 
-void do_get(CHAR_DATA* ch, char* argument)
+void do_get(CharData* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
-    OBJ_DATA* obj_next = NULL;
-    OBJ_DATA* container;
+    ObjectData* obj;
+    ObjectData* obj_next = NULL;
+    ObjectData* container;
     bool found;
 
     argument = one_argument(argument, arg1);
@@ -268,7 +290,7 @@ void do_get(CHAR_DATA* ch, char* argument)
                 if ((arg1[3] == '\0' || is_name(&arg1[4], obj->name))
                     && can_see_obj(ch, obj)) {
                     found = true;
-                    if (container->pIndexData->vnum == OBJ_VNUM_PIT
+                    if (container->prototype->vnum == OBJ_VNUM_PIT
                         && !IS_IMMORTAL(ch)) {
                         send_to_char("Don't be so greedy!\n\r", ch);
                         return;
@@ -290,13 +312,13 @@ void do_get(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_put(CHAR_DATA* ch, char* argument)
+void do_put(CharData* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
-    OBJ_DATA* container;
-    OBJ_DATA* obj;
-    OBJ_DATA* obj_next = NULL;
+    ObjectData* container;
+    ObjectData* obj;
+    ObjectData* obj_next = NULL;
 
     argument = one_argument(argument, arg1);
     argument = one_argument(argument, arg2);
@@ -359,7 +381,7 @@ void do_put(CHAR_DATA* ch, char* argument)
             return;
         }
 
-        if (container->pIndexData->vnum == OBJ_VNUM_PIT && !CAN_WEAR(container,
+        if (container->prototype->vnum == OBJ_VNUM_PIT && !CAN_WEAR(container,
             ITEM_TAKE)) {
             if (obj->timer)
                 SET_BIT(obj->extra_flags, ITEM_HAD_TIMER);
@@ -386,12 +408,12 @@ void do_put(CHAR_DATA* ch, char* argument)
 
             if ((arg1[3] == '\0' || is_name(&arg1[4], obj->name))
                 && can_see_obj(ch, obj) && WEIGHT_MULT(obj) == 100
-                && obj->wear_loc == WEAR_NONE && obj != container
+                && obj->wear_loc == WEAR_UNHELD && obj != container
                 && can_drop_obj(ch, obj)
                 && get_obj_weight(obj) + get_true_weight(container)
                        <= (container->value[0] * 10)
                 && get_obj_weight(obj) < (container->value[3] * 10)) {
-                if (container->pIndexData->vnum == OBJ_VNUM_PIT && !CAN_WEAR(
+                if (container->prototype->vnum == OBJ_VNUM_PIT && !CAN_WEAR(
                     obj, ITEM_TAKE)) {
                     if (obj->timer)
                         SET_BIT(obj->extra_flags, ITEM_HAD_TIMER);
@@ -416,11 +438,11 @@ void do_put(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_drop(CHAR_DATA* ch, char* argument)
+void do_drop(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
-    OBJ_DATA* obj_next = NULL;
+    ObjectData* obj;
+    ObjectData* obj_next = NULL;
     bool found;
 
     argument = one_argument(argument, arg);
@@ -469,7 +491,7 @@ void do_drop(CHAR_DATA* ch, char* argument)
         for (obj = ch->in_room->contents; obj != NULL; obj = obj_next) {
             obj_next = obj->next_content;
 
-            switch (obj->pIndexData->vnum) {
+            switch (obj->prototype->vnum) {
             case OBJ_VNUM_SILVER_ONE:
                 silver += 1;
                 extract_obj(obj);
@@ -533,7 +555,7 @@ void do_drop(CHAR_DATA* ch, char* argument)
             obj_next = obj->next_content;
 
             if ((arg[3] == '\0' || is_name(&arg[4], obj->name))
-                && can_see_obj(ch, obj) && obj->wear_loc == WEAR_NONE
+                && can_see_obj(ch, obj) && obj->wear_loc == WEAR_UNHELD
                 && can_drop_obj(ch, obj)) {
                 found = true;
                 obj_from_char(obj);
@@ -559,13 +581,13 @@ void do_drop(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_give(CHAR_DATA* ch, char* argument)
+void do_give(CharData* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
-    CHAR_DATA* victim;
-    OBJ_DATA* obj;
+    CharData* victim;
+    ObjectData* obj;
 
     argument = one_argument(argument, arg1);
     argument = one_argument(argument, arg2);
@@ -626,7 +648,7 @@ void do_give(CHAR_DATA* ch, char* argument)
             mp_bribe_trigger(victim, ch, silver ? amount : amount * 100);
 
 
-        if (IS_NPC(victim) && IS_SET(victim->act, ACT_IS_CHANGER)) {
+        if (IS_NPC(victim) && IS_SET(victim->act_flags, ACT_IS_CHANGER)) {
             int change;
 
             change = (silver ? 95 * amount / 100 / 100 : 95 * amount);
@@ -668,7 +690,7 @@ void do_give(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if (obj->wear_loc != WEAR_NONE) {
+    if (obj->wear_loc != WEAR_UNHELD) {
         send_to_char("You must remove it first.\n\r", ch);
         return;
     }
@@ -678,7 +700,7 @@ void do_give(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if (IS_NPC(victim) && victim->pIndexData->pShop != NULL) {
+    if (IS_NPC(victim) && victim->prototype->pShop != NULL) {
         act("$N tells you 'Sorry, you'll have to sell that.'", ch, NULL, victim,
             TO_CHAR);
         ch->reply = victim;
@@ -721,10 +743,10 @@ void do_give(CHAR_DATA* ch, char* argument)
 }
 
 /* for poisoning weapons and food/drink */
-void do_envenom(CHAR_DATA* ch, char* argument)
+void do_envenom(CharData* ch, char* argument)
 {
-    OBJ_DATA* obj;
-    AFFECT_DATA af = { 0 };
+    ObjectData* obj;
+    AffectData af = { 0 };
     int percent, skill;
 
     /* find out what */
@@ -822,12 +844,12 @@ void do_envenom(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_fill(CHAR_DATA* ch, char* argument)
+void do_fill(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
-    OBJ_DATA* obj;
-    OBJ_DATA* fountain;
+    ObjectData* obj;
+    ObjectData* fountain;
     bool found;
 
     one_argument(argument, arg);
@@ -872,21 +894,21 @@ void do_fill(CHAR_DATA* ch, char* argument)
     }
 
     sprintf(buf, "You fill $p with %s from $P.",
-            liq_table[fountain->value[2]].liq_name);
+            liquid_table[fountain->value[2]].name);
     act(buf, ch, obj, fountain, TO_CHAR);
     sprintf(buf, "$n fills $p with %s from $P.",
-            liq_table[fountain->value[2]].liq_name);
+            liquid_table[fountain->value[2]].name);
     act(buf, ch, obj, fountain, TO_ROOM);
     obj->value[2] = fountain->value[2];
     obj->value[1] = obj->value[0];
     return;
 }
 
-void do_pour(CHAR_DATA* ch, char* argument)
+void do_pour(CharData* ch, char* argument)
 {
     char arg[MAX_STRING_LENGTH], buf[MAX_STRING_LENGTH];
-    OBJ_DATA *out, *in;
-    CHAR_DATA* vch = NULL;
+    ObjectData *out, *in;
+    CharData* vch = NULL;
     int amount;
 
     argument = one_argument(argument, arg);
@@ -915,11 +937,11 @@ void do_pour(CHAR_DATA* ch, char* argument)
         out->value[1] = 0;
         out->value[3] = 0;
         sprintf(buf, "You invert $p, spilling %s all over the ground.",
-                liq_table[out->value[2]].liq_name);
+                liquid_table[out->value[2]].name);
         act(buf, ch, out, NULL, TO_CHAR);
 
         sprintf(buf, "$n inverts $p, spilling %s all over the ground.",
-                liq_table[out->value[2]].liq_name);
+                liquid_table[out->value[2]].name);
         act(buf, ch, out, NULL, TO_ROOM);
         return;
     }
@@ -967,35 +989,33 @@ void do_pour(CHAR_DATA* ch, char* argument)
 
     amount = UMIN(out->value[1], in->value[0] - in->value[1]);
 
+    int liq = out->value[2];
+
     in->value[1] += amount;
     out->value[1] -= amount;
-    in->value[2] = out->value[2];
+    in->value[2] = liq;
+
 
     if (vch == NULL) {
-        sprintf(buf, "You pour %s from $p into $P.",
-                liq_table[out->value[2]].liq_name);
+        sprintf(buf, "You pour %s from $p into $P.", liquid_table[liq].name);
         act(buf, ch, out, in, TO_CHAR);
-        sprintf(buf, "$n pours %s from $p into $P.",
-                liq_table[out->value[2]].liq_name);
+        sprintf(buf, "$n pours %s from $p into $P.",  liquid_table[liq].name);
         act(buf, ch, out, in, TO_ROOM);
     }
     else {
-        sprintf(buf, "You pour some %s for $N.",
-                liq_table[out->value[2]].liq_name);
+        sprintf(buf, "You pour some %s for $N.", liquid_table[liq].name);
         act(buf, ch, NULL, vch, TO_CHAR);
-        sprintf(buf, "$n pours you some %s.",
-                liq_table[out->value[2]].liq_name);
+        sprintf(buf, "$n pours you some %s.", liquid_table[liq].name);
         act(buf, ch, NULL, vch, TO_VICT);
-        sprintf(buf, "$n pours some %s for $N.",
-                liq_table[out->value[2]].liq_name);
+        sprintf(buf, "$n pours some %s for $N.", liquid_table[liq].name);
         act(buf, ch, NULL, vch, TO_NOTVICT);
     }
 }
 
-void do_drink(CHAR_DATA* ch, char* argument)
+void do_drink(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
+    ObjectData* obj;
     int amount;
     int liquid;
 
@@ -1033,7 +1053,7 @@ void do_drink(CHAR_DATA* ch, char* argument)
             bug("Do_drink: bad liquid number %d.", liquid);
             liquid = obj->value[2] = 0;
         }
-        amount = liq_table[liquid].liq_affect[4] * 3;
+        amount = liquid_table[liquid].sip_size * 3;
         break;
 
     case ITEM_DRINK_CON:
@@ -1047,7 +1067,7 @@ void do_drink(CHAR_DATA* ch, char* argument)
             liquid = obj->value[2] = 0;
         }
 
-        amount = liq_table[liquid].liq_affect[4];
+        amount = liquid_table[liquid].sip_size;
         amount = UMIN(amount, obj->value[1]);
         break;
     }
@@ -1057,17 +1077,13 @@ void do_drink(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    act("$n drinks $T from $p.", ch, obj, liq_table[liquid].liq_name, TO_ROOM);
-    act("You drink $T from $p.", ch, obj, liq_table[liquid].liq_name, TO_CHAR);
+    act("$n drinks $T from $p.", ch, obj, liquid_table[liquid].name, TO_ROOM);
+    act("You drink $T from $p.", ch, obj, liquid_table[liquid].name, TO_CHAR);
 
-    gain_condition(ch, COND_DRUNK,
-                   amount * liq_table[liquid].liq_affect[COND_DRUNK] / 36);
-    gain_condition(ch, COND_FULL,
-                   amount * liq_table[liquid].liq_affect[COND_FULL] / 4);
-    gain_condition(ch, COND_THIRST,
-                   amount * liq_table[liquid].liq_affect[COND_THIRST] / 10);
-    gain_condition(ch, COND_HUNGER,
-                   amount * liq_table[liquid].liq_affect[COND_HUNGER] / 2);
+    gain_condition(ch, COND_DRUNK, amount * liquid_table[liquid].proof / 36);
+    gain_condition(ch, COND_FULL, amount * liquid_table[liquid].full / 4);
+    gain_condition(ch, COND_THIRST, amount * liquid_table[liquid].thirst / 10);
+    gain_condition(ch, COND_HUNGER, amount * liquid_table[liquid].food / 2);
 
     if (!IS_NPC(ch) && ch->pcdata->condition[COND_DRUNK] > 10)
         send_to_char("You feel drunk.\n\r", ch);
@@ -1078,7 +1094,7 @@ void do_drink(CHAR_DATA* ch, char* argument)
 
     if (obj->value[3] != 0) {
         /* The drink was poisoned ! */
-        AFFECT_DATA af = { 0 };
+        AffectData af = { 0 };
 
         act("$n chokes and gags.", ch, NULL, NULL, TO_ROOM);
         send_to_char("You choke and gag.\n\r", ch);
@@ -1097,10 +1113,10 @@ void do_drink(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_eat(CHAR_DATA* ch, char* argument)
+void do_eat(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     one_argument(argument, arg);
     if (arg[0] == '\0') {
@@ -1128,8 +1144,7 @@ void do_eat(CHAR_DATA* ch, char* argument)
     act("$n eats $p.", ch, obj, NULL, TO_ROOM);
     act("You eat $p.", ch, obj, NULL, TO_CHAR);
 
-    switch (obj->item_type) {
-    case ITEM_FOOD:
+    if (obj->item_type == ITEM_FOOD) {
         if (!IS_NPC(ch)) {
             int condition;
 
@@ -1144,7 +1159,7 @@ void do_eat(CHAR_DATA* ch, char* argument)
 
         if (obj->value[3] != 0) {
             /* The food was poisoned! */
-            AFFECT_DATA af = { 0 };
+            AffectData af = { 0 };
 
             act("$n chokes and gags.", ch, 0, 0, TO_ROOM);
             send_to_char("You choke and gag.\n\r", ch);
@@ -1158,13 +1173,11 @@ void do_eat(CHAR_DATA* ch, char* argument)
             af.bitvector = AFF_POISON;
             affect_join(ch, &af);
         }
-        break;
-
-    case ITEM_PILL:
+    }
+    else if (obj->item_type == ITEM_PILL) {
         obj_cast_spell((SKNUM)obj->value[1], (LEVEL)obj->value[0], ch, ch, NULL);
         obj_cast_spell((SKNUM)obj->value[2], (LEVEL)obj->value[0], ch, ch, NULL);
         obj_cast_spell((SKNUM)obj->value[3], (LEVEL)obj->value[0], ch, ch, NULL);
-        break;
     }
 
     extract_obj(obj);
@@ -1174,9 +1187,9 @@ void do_eat(CHAR_DATA* ch, char* argument)
 /*
  * Remove an object.
  */
-bool remove_obj(CHAR_DATA* ch, int iWear, bool fReplace)
+bool remove_obj(CharData* ch, int iWear, bool fReplace)
 {
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     if ((obj = get_eq_char(ch, iWear)) == NULL) return true;
 
@@ -1198,7 +1211,7 @@ bool remove_obj(CHAR_DATA* ch, int iWear, bool fReplace)
  * Optional replacement of existing objects.
  * Big repetitive code, ick.
  */
-void wear_obj(CHAR_DATA* ch, OBJ_DATA* obj, bool fReplace)
+void wear_obj(CharData* ch, ObjectData* obj, bool fReplace)
 {
     char buf[MAX_STRING_LENGTH];
 
@@ -1362,7 +1375,7 @@ void wear_obj(CHAR_DATA* ch, OBJ_DATA* obj, bool fReplace)
     }
 
     if (CAN_WEAR(obj, ITEM_WEAR_SHIELD)) {
-        OBJ_DATA* weapon;
+        ObjectData* weapon;
 
         if (!remove_obj(ch, WEAR_SHIELD, fReplace)) return;
 
@@ -1387,7 +1400,7 @@ void wear_obj(CHAR_DATA* ch, OBJ_DATA* obj, bool fReplace)
 
         if (!IS_NPC(ch)
             && get_obj_weight(obj)
-                   > (str_app[get_curr_stat(ch, STAT_STR)].wield * 10)) {
+                   > (str_mod[get_curr_stat(ch, STAT_STR)].wield * 10)) {
             send_to_char("It is too heavy for you to wield.\n\r", ch);
             return;
         }
@@ -1452,10 +1465,10 @@ void wear_obj(CHAR_DATA* ch, OBJ_DATA* obj, bool fReplace)
     return;
 }
 
-void do_wear(CHAR_DATA* ch, char* argument)
+void do_wear(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     one_argument(argument, arg);
 
@@ -1465,11 +1478,11 @@ void do_wear(CHAR_DATA* ch, char* argument)
     }
 
     if (!str_cmp(arg, "all")) {
-        OBJ_DATA* obj_next = NULL;
+        ObjectData* obj_next = NULL;
 
         for (obj = ch->carrying; obj != NULL; obj = obj_next) {
             obj_next = obj->next_content;
-            if (obj->wear_loc == WEAR_NONE && can_see_obj(ch, obj))
+            if (obj->wear_loc == WEAR_UNHELD && can_see_obj(ch, obj))
                 wear_obj(ch, obj, false);
         }
         return;
@@ -1486,10 +1499,10 @@ void do_wear(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_remove(CHAR_DATA* ch, char* argument)
+void do_remove(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     one_argument(argument, arg);
 
@@ -1507,15 +1520,15 @@ void do_remove(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_sacrifice(CHAR_DATA* ch, char* argument)
+void do_sacrifice(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
-    OBJ_DATA* obj;
+    ObjectData* obj;
     int16_t silver;
 
     /* variables for AUTOSPLIT */
-    CHAR_DATA* gch;
+    CharData* gch;
     int members;
     char buffer[100];
 
@@ -1571,7 +1584,7 @@ void do_sacrifice(CHAR_DATA* ch, char* argument)
 
     ch->silver += silver;
 
-    if (IS_SET(ch->act, PLR_AUTOSPLIT)) { /* AUTOSPLIT code */
+    if (IS_SET(ch->act_flags, PLR_AUTOSPLIT)) { /* AUTOSPLIT code */
         members = 0;
         for (gch = ch->in_room->people; gch != NULL; gch = gch->next_in_room) {
             if (is_same_group(gch, ch)) members++;
@@ -1589,10 +1602,10 @@ void do_sacrifice(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_quaff(CHAR_DATA* ch, char* argument)
+void do_quaff(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
+    ObjectData* obj;
 
     one_argument(argument, arg);
 
@@ -1627,13 +1640,13 @@ void do_quaff(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_recite(CHAR_DATA* ch, char* argument)
+void do_recite(CharData* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
-    OBJ_DATA* scroll;
-    OBJ_DATA* obj;
+    CharData* victim;
+    ObjectData* scroll;
+    ObjectData* obj;
 
     argument = one_argument(argument, arg1);
     argument = one_argument(argument, arg2);
@@ -1683,11 +1696,11 @@ void do_recite(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_brandish(CHAR_DATA* ch, char* argument)
+void do_brandish(CharData* ch, char* argument)
 {
-    CHAR_DATA* vch;
-    CHAR_DATA* vch_next = NULL;
-    OBJ_DATA* staff;
+    CharData* vch;
+    CharData* vch_next = NULL;
+    ObjectData* staff;
     SKNUM sn;
 
     if ((staff = get_eq_char(ch, WEAR_HOLD)) == NULL) {
@@ -1700,7 +1713,7 @@ void do_brandish(CHAR_DATA* ch, char* argument)
         return;
     }
 
-    if ((sn = (SKNUM)staff->value[3]) < 0 || sn >= max_skill
+    if ((sn = (SKNUM)staff->value[3]) < 0 || sn >= skill_count
         || skill_table[sn].spell_fun == 0) {
         bug("Do_brandish: bad sn %d.", sn);
         return;
@@ -1727,19 +1740,19 @@ void do_brandish(CHAR_DATA* ch, char* argument)
                     bug("Do_brandish: bad target for sn %d.", sn);
                     return;
 
-                case TAR_IGNORE:
+                case SKILL_TARGET_IGNORE:
                     if (vch != ch) continue;
                     break;
 
-                case TAR_CHAR_OFFENSIVE:
+                case SKILL_TARGET_CHAR_OFFENSIVE:
                     if (IS_NPC(ch) ? IS_NPC(vch) : !IS_NPC(vch)) continue;
                     break;
 
-                case TAR_CHAR_DEFENSIVE:
+                case SKILL_TARGET_CHAR_DEFENSIVE:
                     if (IS_NPC(ch) ? !IS_NPC(vch) : IS_NPC(vch)) continue;
                     break;
 
-                case TAR_CHAR_SELF:
+                case SKILL_TARGET_CHAR_SELF:
                     if (vch != ch) continue;
                     break;
                 }
@@ -1758,12 +1771,12 @@ void do_brandish(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_zap(CHAR_DATA* ch, char* argument)
+void do_zap(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
-    OBJ_DATA* wand;
-    OBJ_DATA* obj;
+    CharData* victim;
+    ObjectData* wand;
+    ObjectData* obj;
 
     one_argument(argument, arg);
     if (arg[0] == '\0' && ch->fighting == NULL) {
@@ -1833,13 +1846,13 @@ void do_zap(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_steal(CHAR_DATA* ch, char* argument)
+void do_steal(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
-    CHAR_DATA* victim;
-    OBJ_DATA* obj;
+    CharData* victim;
+    ObjectData* obj;
     int percent;
 
     argument = one_argument(argument, arg1);
@@ -1888,7 +1901,7 @@ void do_steal(CHAR_DATA* ch, char* argument)
          */
         send_to_char("Oops.\n\r", ch);
         affect_strip(ch, gsn_sneak);
-        REMOVE_BIT(ch->affected_by, AFF_SNEAK);
+        REMOVE_BIT(ch->affect_flags, AFF_SNEAK);
 
         act("$n tried to steal from you.\n\r", ch, NULL, victim, TO_VICT);
         act("$n tried to steal from $N.\n\r", ch, NULL, victim, TO_NOTVICT);
@@ -1898,7 +1911,7 @@ void do_steal(CHAR_DATA* ch, char* argument)
             break;
         case 1:
             sprintf(buf, "%s couldn't rob %s way out of a paper bag!", ch->name,
-                    (ch->sex == 2) ? "her" : "his");
+                    sex_table[ch->sex].poss);
             break;
         case 2:
             sprintf(buf, "%s tried to rob me!", ch->name);
@@ -1917,8 +1930,8 @@ void do_steal(CHAR_DATA* ch, char* argument)
             else {
                 sprintf(buf, "$N tried to steal from %s.", victim->name);
                 wiznet(buf, ch, NULL, WIZ_FLAGS, 0, 0);
-                if (!IS_SET(ch->act, PLR_THIEF)) {
-                    SET_BIT(ch->act, PLR_THIEF);
+                if (!IS_SET(ch->act_flags, PLR_THIEF)) {
+                    SET_BIT(ch->act_flags, PLR_THIEF);
                     send_to_char("*** You are now a THIEF!! ***\n\r", ch);
                     save_char_obj(ch);
                 }
@@ -1989,15 +2002,15 @@ void do_steal(CHAR_DATA* ch, char* argument)
 /*
  * Shopping commands.
  */
-CHAR_DATA* find_keeper(CHAR_DATA* ch)
+CharData* find_keeper(CharData* ch)
 {
     /*char buf[MAX_STRING_LENGTH];*/
-    CHAR_DATA* keeper;
-    SHOP_DATA* pShop;
+    CharData* keeper;
+    ShopData* pShop;
 
     pShop = NULL;
     for (keeper = ch->in_room->people; keeper; keeper = keeper->next_in_room) {
-        if (IS_NPC(keeper) && (pShop = keeper->pIndexData->pShop) != NULL)
+        if (IS_NPC(keeper) && (pShop = keeper->prototype->pShop) != NULL)
             break;
     }
 
@@ -2009,7 +2022,7 @@ CHAR_DATA* find_keeper(CHAR_DATA* ch)
     /*
      * Undesirables.
      *
-    if ( !IS_NPC(ch) && IS_SET(ch->act, PLR_KILLER) )
+    if ( !IS_NPC(ch) && IS_SET(ch->act_flags, PLR_KILLER) )
     {
         do_function(keeper, &do_say, "Killers are not welcome!");
         sprintf(buf, "%s the KILLER is over here!\n\r", ch->name);
@@ -2017,7 +2030,7 @@ CHAR_DATA* find_keeper(CHAR_DATA* ch)
         return NULL;
     }
 
-    if ( !IS_NPC(ch) && IS_SET(ch->act, PLR_THIEF) )
+    if ( !IS_NPC(ch) && IS_SET(ch->act_flags, PLR_THIEF) )
     {
         do_function(keeper, &do_say, "Thieves are not welcome!");
         sprintf(buf, "%s the THIEF is over here!\n\r", ch->name);
@@ -2050,16 +2063,16 @@ CHAR_DATA* find_keeper(CHAR_DATA* ch)
 }
 
 /* insert an object at the right spot for the keeper */
-void obj_to_keeper(OBJ_DATA* obj, CHAR_DATA* ch)
+void obj_to_keeper(ObjectData* obj, CharData* ch)
 {
-    OBJ_DATA* t_obj;
-    OBJ_DATA* t_obj_next = NULL;
+    ObjectData* t_obj;
+    ObjectData* t_obj_next = NULL;
 
     /* see if any duplicates are found */
     for (t_obj = ch->carrying; t_obj != NULL; t_obj = t_obj_next) {
         t_obj_next = t_obj->next_content;
 
-        if (obj->pIndexData == t_obj->pIndexData
+        if (obj->prototype == t_obj->prototype
             && !str_cmp(obj->short_descr, t_obj->short_descr)) {
             /* if this is an unlimited item, destroy the new one */
             if (IS_OBJ_STAT(t_obj, ITEM_INVENTORY)) {
@@ -2088,24 +2101,24 @@ void obj_to_keeper(OBJ_DATA* obj, CHAR_DATA* ch)
 }
 
 /* get an object from a shopkeeper's list */
-OBJ_DATA* get_obj_keeper(CHAR_DATA* ch, CHAR_DATA* keeper, char* argument)
+ObjectData* get_obj_keeper(CharData* ch, CharData* keeper, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    OBJ_DATA* obj;
+    ObjectData* obj;
     int number;
     int count;
 
     number = number_argument(argument, arg);
     count = 0;
     for (obj = keeper->carrying; obj != NULL; obj = obj->next_content) {
-        if (obj->wear_loc == WEAR_NONE && can_see_obj(keeper, obj)
+        if (obj->wear_loc == WEAR_UNHELD && can_see_obj(keeper, obj)
             && can_see_obj(ch, obj) && is_name(arg, obj->name)) {
             if (++count == number) return obj;
 
             /* skip other objects of the same name */
             while (
                 obj->next_content != NULL
-                && obj->pIndexData == obj->next_content->pIndexData
+                && obj->prototype == obj->next_content->prototype
                 && !str_cmp(obj->short_descr, obj->next_content->short_descr))
                 obj = obj->next_content;
         }
@@ -2114,16 +2127,16 @@ OBJ_DATA* get_obj_keeper(CHAR_DATA* ch, CHAR_DATA* keeper, char* argument)
     return NULL;
 }
 
-int get_cost(CHAR_DATA* keeper, OBJ_DATA* obj, bool fBuy)
+int get_cost(CharData* keeper, ObjectData* obj, bool fBuy)
 {
-    SHOP_DATA* pShop;
+    ShopData* pShop;
     int cost;
 
-    if (obj == NULL || (pShop = keeper->pIndexData->pShop) == NULL) return 0;
+    if (obj == NULL || (pShop = keeper->prototype->pShop) == NULL) return 0;
 
     if (fBuy) { cost = obj->cost * pShop->profit_buy / 100; }
     else {
-        OBJ_DATA* obj2;
+        ObjectData* obj2;
         int itype;
 
         cost = 0;
@@ -2136,7 +2149,7 @@ int get_cost(CHAR_DATA* keeper, OBJ_DATA* obj, bool fBuy)
 
         if (!IS_OBJ_STAT(obj, ITEM_SELL_EXTRACT)) {
             for (obj2 = keeper->carrying; obj2; obj2 = obj2->next_content) {
-                if (obj->pIndexData == obj2->pIndexData 
+                if (obj->prototype == obj2->prototype 
                 && !str_cmp(obj->short_descr, obj2->short_descr)) {
                     if (IS_OBJ_STAT(obj2, ITEM_INVENTORY))
                         cost /= 2;
@@ -2157,7 +2170,7 @@ int get_cost(CHAR_DATA* keeper, OBJ_DATA* obj, bool fBuy)
     return cost;
 }
 
-void do_buy(CHAR_DATA* ch, char* argument)
+void do_buy(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     //char buf[MAX_STRING_LENGTH];
@@ -2170,9 +2183,9 @@ void do_buy(CHAR_DATA* ch, char* argument)
 
     if (IS_SET(ch->in_room->room_flags, ROOM_PET_SHOP)) {
         char arg[MAX_INPUT_LENGTH];
-        CHAR_DATA* pet;
-        ROOM_INDEX_DATA* pRoomIndexNext;
-        ROOM_INDEX_DATA* in_room;
+        CharData* pet;
+        RoomData* pRoomIndexNext;
+        RoomData* in_room;
 
         smash_tilde(argument);
 
@@ -2182,9 +2195,9 @@ void do_buy(CHAR_DATA* ch, char* argument)
 
         /* hack to make new thalos pets work */
         if (ch->in_room->vnum == 9621)
-            pRoomIndexNext = get_room_index(9706);
+            pRoomIndexNext = get_room_data(9706);
         else
-            pRoomIndexNext = get_room_index(ch->in_room->vnum + 1);
+            pRoomIndexNext = get_room_data(ch->in_room->vnum + 1);
         if (pRoomIndexNext == NULL) {
             bug("Do_buy: bad pet shop at vnum %"PRVNUM".", ch->in_room->vnum);
             send_to_char("Sorry, you can't buy that here.\n\r", ch);
@@ -2196,7 +2209,7 @@ void do_buy(CHAR_DATA* ch, char* argument)
         pet = get_char_room(ch, arg);
         ch->in_room = in_room;
 
-        if (pet == NULL || !IS_SET(pet->act, ACT_PET)) {
+        if (pet == NULL || !IS_SET(pet->act_flags, ACT_PET)) {
             send_to_char("Sorry, you can't buy that here.\n\r", ch);
             return;
         }
@@ -2229,10 +2242,10 @@ void do_buy(CHAR_DATA* ch, char* argument)
         }
 
         deduct_cost(ch, cost);
-        pet = create_mobile(pet->pIndexData);
-        SET_BIT(pet->act, ACT_PET);
-        SET_BIT(pet->affected_by, AFF_CHARM);
-        pet->comm = COMM_NOTELL | COMM_NOSHOUT | COMM_NOCHANNELS;
+        pet = create_mobile(pet->prototype);
+        SET_BIT(pet->act_flags, ACT_PET);
+        SET_BIT(pet->affect_flags, AFF_CHARM);
+        pet->comm_flags = COMM_NOTELL | COMM_NOSHOUT | COMM_NOCHANNELS;
 
         argument = one_argument(argument, arg);
         if (arg[0] != '\0') {
@@ -2255,8 +2268,8 @@ void do_buy(CHAR_DATA* ch, char* argument)
         return;
     }
     else {
-        CHAR_DATA* keeper;
-        OBJ_DATA *obj, *t_obj;
+        CharData* keeper;
+        ObjectData *obj, *t_obj;
         char arg[MAX_INPUT_LENGTH];
         int number, count = 1;
 
@@ -2281,7 +2294,7 @@ void do_buy(CHAR_DATA* ch, char* argument)
         if (!IS_OBJ_STAT(obj, ITEM_INVENTORY)) {
             for (t_obj = obj->next_content; count < number && t_obj != NULL;
                  t_obj = t_obj->next_content) {
-                if (t_obj->pIndexData == obj->pIndexData
+                if (t_obj->prototype == obj->prototype
                     && !str_cmp(t_obj->short_descr, obj->short_descr))
                     count++;
                 else
@@ -2351,7 +2364,7 @@ void do_buy(CHAR_DATA* ch, char* argument)
 
         for (count = 0; count < number; count++) {
             if (IS_SET(obj->extra_flags, ITEM_INVENTORY))
-                t_obj = create_object(obj->pIndexData, obj->level);
+                t_obj = create_object(obj->prototype, obj->level);
             else {
                 t_obj = obj;
                 obj = obj->next_content;
@@ -2367,20 +2380,20 @@ void do_buy(CHAR_DATA* ch, char* argument)
     }
 }
 
-void do_list(CHAR_DATA* ch, char* argument)
+void do_list(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
 
     if (IS_SET(ch->in_room->room_flags, ROOM_PET_SHOP)) {
-        ROOM_INDEX_DATA* pRoomIndexNext;
-        CHAR_DATA* pet;
+        RoomData* pRoomIndexNext;
+        CharData* pet;
         bool found;
 
         /* hack to make new thalos pets work */
         if (ch->in_room->vnum == 9621)
-            pRoomIndexNext = get_room_index(9706);
+            pRoomIndexNext = get_room_data(9706);
         else
-            pRoomIndexNext = get_room_index(ch->in_room->vnum + 1);
+            pRoomIndexNext = get_room_data(ch->in_room->vnum + 1);
 
         if (pRoomIndexNext == NULL) {
             bug("Do_list: bad pet shop at vnum %"PRVNUM".", ch->in_room->vnum);
@@ -2390,7 +2403,7 @@ void do_list(CHAR_DATA* ch, char* argument)
 
         found = false;
         for (pet = pRoomIndexNext->people; pet; pet = pet->next_in_room) {
-            if (IS_SET(pet->act, ACT_PET)) {
+            if (IS_SET(pet->act_flags, ACT_PET)) {
                 if (!found) {
                     found = true;
                     send_to_char("Pets for sale:\n\r", ch);
@@ -2404,8 +2417,8 @@ void do_list(CHAR_DATA* ch, char* argument)
         return;
     }
     else {
-        CHAR_DATA* keeper;
-        OBJ_DATA* obj;
+        CharData* keeper;
+        ObjectData* obj;
         int cost, count;
         bool found;
         char arg[MAX_INPUT_LENGTH];
@@ -2415,7 +2428,7 @@ void do_list(CHAR_DATA* ch, char* argument)
 
         found = false;
         for (obj = keeper->carrying; obj; obj = obj->next_content) {
-            if (obj->wear_loc == WEAR_NONE && can_see_obj(ch, obj)
+            if (obj->wear_loc == WEAR_UNHELD && can_see_obj(ch, obj)
                 && (cost = get_cost(keeper, obj, true)) > 0
                 && (arg[0] == '\0' || is_name(arg, obj->name))) {
                 if (!found) {
@@ -2430,7 +2443,7 @@ void do_list(CHAR_DATA* ch, char* argument)
                     count = 1;
 
                     while (obj->next_content != NULL
-                           && obj->pIndexData == obj->next_content->pIndexData
+                           && obj->prototype == obj->next_content->prototype
                            && !str_cmp(obj->short_descr,
                                        obj->next_content->short_descr)) {
                         obj = obj->next_content;
@@ -2448,12 +2461,12 @@ void do_list(CHAR_DATA* ch, char* argument)
     }
 }
 
-void do_sell(CHAR_DATA* ch, char* argument)
+void do_sell(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* keeper;
-    OBJ_DATA* obj;
+    CharData* keeper;
+    ObjectData* obj;
     int cost, roll;
 
     one_argument(argument, arg);
@@ -2527,12 +2540,12 @@ void do_sell(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_value(CHAR_DATA* ch, char* argument)
+void do_value(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    CHAR_DATA* keeper;
-    OBJ_DATA* obj;
+    CharData* keeper;
+    ObjectData* obj;
     int cost;
 
     one_argument(argument, arg);

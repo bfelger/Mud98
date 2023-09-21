@@ -27,7 +27,18 @@
 
 #include "merc.h"
 
+#include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "magic.h"
+#include "spell_list.h"
+
+#include "entities/char_data.h"
+#include "entities/descriptor.h"
+
+#include "data/damage.h"
+#include "data/mobile.h"
+#include "data/skill.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,18 +49,18 @@
 #include <sys/time.h>
 #endif
 
-void do_heal(CHAR_DATA* ch, char* argument)
+void do_heal(CharData* ch, char* argument)
 {
-    CHAR_DATA* mob;
+    CharData* mob;
     char arg[MAX_INPUT_LENGTH];
     int cost;
     SKNUM sn;
-    SPELL_FUN* spell;
+    SpellFunc* spell;
     char* words;
 
     /* check for healer */
     for (mob = ch->in_room->people; mob; mob = mob->next_in_room) {
-        if (IS_NPC(mob) && IS_SET(mob->act, ACT_IS_HEALER)) break;
+        if (IS_NPC(mob) && IS_SET(mob->act_flags, ACT_IS_HEALER)) break;
     }
 
     if (mob == NULL) {
@@ -176,5 +187,5 @@ void do_heal(CHAR_DATA* ch, char* argument)
     if (sn == -1)
         return;
 
-    spell(sn, mob->level, mob, ch, TARGET_CHAR);
+    spell(sn, mob->level, mob, ch, SPELL_TARGET_CHAR);
 }

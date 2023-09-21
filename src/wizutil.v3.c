@@ -18,7 +18,15 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "interp.h"
+#include "save.h"
+
+#include "entities/char_data.h"
+#include "entities/descriptor.h"
+
+#include "data/mobile.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -56,7 +64,7 @@ http://www.andreasen.org/
   Various administrative utility commands.
   Version: 3 - Last update: January 1996.
 
-  To use these 2 commands you will have to add a filename field to AREA_DATA.
+  To use these 2 commands you will have to add a filename field to AreaData.
   This value can be found easily in load_area while booting - the filename
   of the current area boot_db is reading from is in the strArea global.
 
@@ -74,7 +82,7 @@ http://www.andreasen.org/
 // To have VLIST show more than vnum 0 - 9900, change the number below:
 #define MAX_SHOW_VNUM   99 // Show only 1 - 100*100 */
 
-extern ROOM_INDEX_DATA* room_index_hash[];	// db.c
+extern RoomData* room_index_hash[];	// db.c
 
 /* opposite directions */
 const int16_t opposite_dir[6] = {
@@ -82,9 +90,9 @@ const int16_t opposite_dir[6] = {
 };
 
 // Cut the 'short' name of an area (e.g. MIDGAARD, MIRROR, etc.)
-// Assumes that the filename saved in the AREA_DATA struct is something like 
+// Assumes that the filename saved in the AreaData struct is something like 
 // "midgaard.are"
-char* get_area_name(AREA_DATA* pArea)
+char* get_area_name(AreaData* pArea)
 {
     static char buffer[256];
     char* period;
@@ -105,7 +113,7 @@ typedef enum {
 } exit_status;
 
 // Depending on status print > or < or <> between the 2 rooms
-void room_pair(ROOM_INDEX_DATA* left, ROOM_INDEX_DATA* right, exit_status ex,
+void room_pair(RoomData* left, RoomData* right, exit_status ex,
     char* buffer)
 {
     char* sExit;
@@ -132,12 +140,12 @@ void room_pair(ROOM_INDEX_DATA* left, ROOM_INDEX_DATA* right, exit_status ex,
 }
 
 // For every exit in 'room' which leads to or from pArea but NOT both, print it
-void check_exits(ROOM_INDEX_DATA* room, AREA_DATA* pArea, char* buffer)
+void check_exits(RoomData* room, AreaData* pArea, char* buffer)
 {
     char buf[MAX_STRING_LENGTH];
     int i;
-    EXIT_DATA* exit;
-    ROOM_INDEX_DATA* to_room;
+    ExitData* exit;
+    RoomData* to_room;
 
     strcpy(buffer, "");
     for (i = 0; i < 6; i++) {
@@ -175,12 +183,12 @@ void check_exits(ROOM_INDEX_DATA* room, AREA_DATA* pArea, char* buffer)
 }
 
 // For now, no arguments, just list the current area
-void do_exlist(CHAR_DATA* ch, char* argument)
+void do_exlist(CharData* ch, char* argument)
 {
-    ROOM_INDEX_DATA* room;
+    RoomData* room;
     char buffer[MAX_STRING_LENGTH];
 
-    AREA_DATA* pArea = ch->in_room->area; // This is the area we want info on 
+    AreaData* pArea = ch->in_room->area; // This is the area we want info on 
     for (int i = 0; i < MAX_KEY_HASH; i++) {
         // Room index hash table
         for (room = room_index_hash[i]; room != NULL; room = room->next) {
@@ -195,12 +203,12 @@ void do_exlist(CHAR_DATA* ch, char* argument)
 #define COLUMNS 5   // number of columns */
 #define MAX_ROW ((MAX_SHOW_VNUM / COLUMNS)+1) // rows
 
-void do_vlist(CHAR_DATA* ch, char* argument)
+void do_vlist(CharData* ch, char* argument)
 {
     VNUM i;
     VNUM j;
     VNUM vnum;
-    ROOM_INDEX_DATA* room;
+    RoomData* room;
     char buffer[MAX_ROW * 100]; // Should be plenty */
     char buf2[100];
 
@@ -210,7 +218,7 @@ void do_vlist(CHAR_DATA* ch, char* argument)
             vnum = ((j * MAX_ROW) + i); /* find a vnum which should be there */
             if (vnum < MAX_SHOW_VNUM) {
                 /* each zone has to have a XXX01 room */
-                room = get_room_index(vnum * 100 + 1);
+                room = get_room_data(vnum * 100 + 1);
                 sprintf(buf2, "%"PRVNUM" %-8.8s  ", vnum,
                     room ? get_area_name(room->area) : "-");
                 /* something there or unused ? */
@@ -234,13 +242,13 @@ void do_vlist(CHAR_DATA* ch, char* argument)
 
 bool check_parse_name(char* name);  // comm.c
 
-void do_rename(CHAR_DATA* ch, char* argument)
+void do_rename(CharData* ch, char* argument)
 {
     char old_name[MAX_INPUT_LENGTH] = { 0 };
     char new_name[MAX_INPUT_LENGTH] = { 0 };
     char strsave[MAX_INPUT_LENGTH] = { 0 };
 
-    CHAR_DATA* victim;
+    CharData* victim;
     FILE* file;
 
     argument = one_argument(argument, old_name); /* find new/old name */
@@ -384,10 +392,10 @@ target in them. Private rooms are not violated.
 
 // Expand the name of a character into a string that identifies THAT character 
 // within a room. E.g. the second 'guard' -> 2. guard 
-const char* name_expand(CHAR_DATA* ch)
+const char* name_expand(CharData* ch)
 {
     int count = 1;
-    CHAR_DATA* rch;
+    CharData* rch;
     char name[MAX_INPUT_LENGTH]; /*  HOPEFULLY no mob has a name longer than THAT */
 
     static char outbuf[MAX_INPUT_LENGTH * 2];
@@ -411,14 +419,14 @@ const char* name_expand(CHAR_DATA* ch)
     return outbuf;
 }
 
-void do_for(CHAR_DATA* ch, char* argument)
+void do_for(CharData* ch, char* argument)
 {
     char range[MAX_INPUT_LENGTH] = { 0 };
     char buf[MAX_STRING_LENGTH] = { 0 };
     bool fGods = false, fMortals = false, fMobs = false, fEverywhere = false, found;
-    ROOM_INDEX_DATA* room, * old_room;
-    CHAR_DATA* p;
-    CHAR_DATA* p_next = NULL;
+    RoomData* room, * old_room;
+    CharData* p;
+    CharData* p_next = NULL;
     int i;
 
     argument = one_argument(argument, range);

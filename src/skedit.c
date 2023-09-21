@@ -4,54 +4,38 @@
 
 #include "merc.h"
 
+#include "bit.h"
 #include "comm.h"
+#include "db.h"
+#include "handler.h"
 #include "lookup.h"
 #include "magic.h"
+#include "spell_list.h"
 #include "olc.h"
 #include "recycle.h"
+#include "skills.h"
 #include "tables.h"
+
+#include "entities/descriptor.h"
+#include "entities/player_data.h"
+
+#include "data/mobile.h"
+#include "data/skill.h"
+#include "data/spell.h"
 
 extern bool fBootDb;
 
-char* gsn_name(int16_t* pgsn);
-char* spell_name(SPELL_FUN* spell);
-SPELL_FUN* spell_function(char* argument);
-int16_t* gsn_lookup(char* argument);
+#define SKEDIT(fun) bool fun(CharData *ch, char *argument)
 
-#define SKEDIT(fun) bool fun(CHAR_DATA *ch, char *argument)
-
-struct skill_type* skill_table;
-SKNUM max_skill;
-struct skhash* skill_hash_table[26];
+SkillHash* skill_hash_table[26];
 
 void create_skills_hash_table(void);
 void delete_skills_hash_table(void);
-
-#define SKILL_FILE DATA_DIR "skills"
 
 struct gsn_type {
     char* name;
     SKNUM* pgsn;
 };
-
-struct spell_type {
-    char* name;
-    SPELL_FUN* spell;
-};
-
-#if defined(SPELL)
-#undef SPELL
-#endif
-#define SPELL(spell)    { #spell,  spell },
-
-const struct spell_type spell_table[] = {
-// I hate everything about this.
-#include "magic.h"
-    { NULL, NULL }
-};
-
-#undef SPELL
-#define SPELL(spell) DECLARE_SPELL_FUN(spell);
 
 #define GSN(x) { #x, &x },
 
@@ -60,7 +44,7 @@ const struct gsn_type gsn_table[] = {
     { NULL, NULL }
 };
 
-extern struct skill_type xSkill;
+extern Skill xSkill;
 
 #ifdef U
 #define OLD_U U
@@ -90,24 +74,6 @@ const struct olc_comm_type skill_olc_comm_table[] = {
     { NULL,         0,                          0,              0               }
 };
 
-char* spell_name(SPELL_FUN* spell)
-{
-    int i = 0;
-
-    if (spell == NULL)
-        return "";
-
-    while (spell_table[i].name)
-        if (spell_table[i].spell == spell)
-            return spell_table[i].name;
-        else
-            i++;
-
-    if (fBootDb)
-        bug("spell_name : spell_fun does not exist", 0);
-
-    return "";
-}
 
 char* gsn_name(SKNUM* pgsn)
 {
@@ -128,25 +94,6 @@ char* gsn_name(SKNUM* pgsn)
     return "";
 }
 
-SPELL_FUN* spell_function(char* argument)
-{
-    int i;
-    char buf[MSL];
-
-    if (IS_NULLSTR(argument))
-        return NULL;
-
-    for (i = 0; spell_table[i].name; ++i)
-        if (!str_cmp(spell_table[i].name, argument))
-            return spell_table[i].spell;
-
-    if (fBootDb) {
-        sprintf(buf, "spell_function : spell %s does not exist", argument);
-        bug(buf, 0);
-    }
-
-    return spell_null;
-}
 
 void check_gsns(void)
 {
@@ -180,7 +127,7 @@ SKNUM* gsn_lookup(char* argument)
     return NULL;
 }
 
-void skedit(CHAR_DATA* ch, char* argument)
+void skedit(CharData* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_SKEDIT_SECURITY) {
         send_to_char("SKEdit : You do not have enough security to edit skills.\n\r", ch);
@@ -194,7 +141,7 @@ void skedit(CHAR_DATA* ch, char* argument)
     }
 
     if (!str_cmp(argument, "save")) {
-        save_skills();
+        save_skill_table();
         return;
     }
 
@@ -210,9 +157,70 @@ void skedit(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void do_skedit(CHAR_DATA* ch, char* argument)
+void do_sklist(CharData* ch, char* argument)
 {
-    const struct skill_type* pSkill;
+    static char* help = "{jSyntax : {*SKLIST <OPTION>{x\n\r\n\r"
+        "{*<OPTION>{x can be one of the following:\n\r"
+        "    {*RATING{x - List rating by class.\n\r"
+        "    {*LEVEL{x - List minimum level by class.\n\r\n\r";
+
+    INIT_BUF(page, MSL);
+
+    if (ch->pcdata->security < MIN_SKEDIT_SECURITY) {
+        send_to_char("{jSKList : You do not have enough security to list skills.{x\n\r", ch);
+        return;
+    }
+
+    if (IS_NULLSTR(argument)) {
+        send_to_char(help, ch);
+        return;
+    }
+
+    char command[MIL];
+    
+    bool show_rating = false;
+    bool show_level = false;
+
+    argument = one_argument(argument, command);
+
+    if (!str_prefix(command, "RATING")) {
+        show_rating = true;
+    }
+    else if (!str_prefix(command, "LEVEL")) {
+        show_level = true;
+    }
+    else {
+        send_to_char(help, ch);
+        return;
+    }
+
+    addf_buf(page, "\n\r{T%-20s", "Skill");
+    for (int j = 0; j < class_count; ++j) {
+        addf_buf(page, "  %3s", class_table[j].who_name);
+    }
+    add_buf(page, "\n\r");
+    for (int i = 0; i < skill_count; ++i) {
+        if (!skill_table[i].name[0])
+            break;
+        addf_buf(page, "{*%-20s{x", skill_table[i].name);
+        for (int j = 0; j < class_count; ++j) {
+            if (show_rating)
+                addf_buf(page, "%4d ", GET_ELEM(&skill_table[i].rating, j));
+            else if (show_level)
+                addf_buf(page, "%4d ", GET_ELEM(&skill_table[i].skill_level, j));
+        }
+        add_buf(page, "\n\r");
+    }
+    add_buf(page, "\n\r");
+
+    page_to_char(page->string, ch);
+
+    free_buf(page);
+}
+
+void do_skedit(CharData* ch, char* argument)
+{
+    const Skill* pSkill;
     char command[MSL];
     SKNUM skill;
 
@@ -234,7 +242,7 @@ void do_skedit(CHAR_DATA* ch, char* argument)
     if (!str_cmp(command, "new")) {
         argument = one_argument(argument, command);
         if (skedit_new(ch, argument))
-            save_skills();
+            save_skill_table();
         return;
     }
 
@@ -251,7 +259,7 @@ void do_skedit(CHAR_DATA* ch, char* argument)
     return;
 }
 
-void skill_list(BUFFER* pBuf)
+void skill_list(Buffer* pBuf)
 {
     char buf[MSL];
     int i;
@@ -260,8 +268,8 @@ void skill_list(BUFFER* pBuf)
         "Name", "Name", "Name");
     add_buf(pBuf, buf);
 
-    for (i = 0; i < max_skill; ++i) {
-        sprintf(buf, "#B%3d#b %c %-20.20s", i,
+    for (i = 0; i < skill_count; ++i) {
+        sprintf(buf, "{*%3d{x %c %-20.20s", i,
             skill_table[i].spell_fun == spell_null ? '-' : '+',
             skill_table[i].name);
         if (i % 3 == 2)
@@ -275,30 +283,7 @@ void skill_list(BUFFER* pBuf)
         add_buf(pBuf, "\n\r");
 }
 
-void spell_list(BUFFER* pBuf)
-{
-    char buf[MSL];
-    int i;
-
-    sprintf(buf, "Num %-35.35s Num %-35.35s\n\r",
-        "Name", "Name");
-    add_buf(pBuf, buf);
-
-    for (i = 0; spell_table[i].name; ++i) {
-        sprintf(buf, "#B%3d#b %-35.35s", i,
-            spell_table[i].name);
-        if (i % 2 == 1)
-            strcat(buf, "\n\r");
-        else
-            strcat(buf, " ");
-        add_buf(pBuf, buf);
-    }
-
-    if (i % 2 != 0)
-        add_buf(pBuf, "\n\r");
-}
-
-void gsn_list(BUFFER* pBuf)
+void gsn_list(Buffer* pBuf)
 {
     char buf[MSL];
     int i;
@@ -308,7 +293,7 @@ void gsn_list(BUFFER* pBuf)
     add_buf(pBuf, buf);
 
     for (i = 0; gsn_table[i].name; ++i) {
-        sprintf(buf, "#B%3d#b %-22.22s", i,
+        sprintf(buf, "{*%3d{x %-22.22s", i,
             gsn_table[i].name);
         if (i % 3 == 2)
             strcat(buf, "\n\r");
@@ -321,7 +306,7 @@ void gsn_list(BUFFER* pBuf)
         add_buf(pBuf, "\n\r");
 }
 
-void slot_list(BUFFER* pBuf)
+void slot_list(Buffer* pBuf)
 {
     char buf[MSL];
     int i, cnt;
@@ -331,9 +316,9 @@ void slot_list(BUFFER* pBuf)
     add_buf(pBuf, buf);
 
     cnt = 0;
-    for (i = 0; i < max_skill; ++i) {
+    for (i = 0; i < skill_count; ++i) {
         if (skill_table[i].slot) {
-            sprintf(buf, "#B%3d#b %-22.22s",
+            sprintf(buf, "{*%3d{x %-22.22s",
                 skill_table[i].slot,
                 skill_table[i].name);
             if (cnt % 3 == 2)
@@ -351,7 +336,7 @@ void slot_list(BUFFER* pBuf)
 
 SKEDIT(skedit_list)
 {
-    BUFFER* pBuf;
+    Buffer* pBuf;
 
     if (IS_NULLSTR(argument) || !is_name(argument, "gsns skills spells slots")) {
         send_to_char("Syntax : list [gsns/skills/spells/slots]\n\r", ch);
@@ -369,7 +354,7 @@ SKEDIT(skedit_list)
     else if (!str_prefix(argument, "gsns"))
         gsn_list(pBuf);
     else
-        add_buf(pBuf, "You may only list gsns/skills/spells/slots. Idiot.\n\r");
+        add_buf(pBuf, "You may only list gsns/skills/spells/slots.\n\r");
 
     page_to_char(BUF(pBuf), ch);
 
@@ -380,7 +365,7 @@ SKEDIT(skedit_list)
 
 SKEDIT(skedit_show)
 {
-    struct skill_type* pSkill;
+    Skill* pSkill;
     char buf[MAX_STRING_LENGTH];
     char buf2[MSL];
     int i;
@@ -392,17 +377,17 @@ SKEDIT(skedit_show)
         pSkill->name);
     send_to_char(buf, ch);
 
-    while ((sn < max_skill) && (pSkill != &skill_table[sn]))
+    while ((sn < skill_count) && (pSkill != &skill_table[sn]))
         sn++;
 
-    if (sn != max_skill) {
-        sprintf(buf, "Sn       : [%3d/%3d]\n\r", sn, max_skill);
+    if (sn != skill_count) {
+        sprintf(buf, "Sn       : [%3d/%3d]\n\r", sn, skill_count);
         send_to_char(buf, ch);
     }
 
     sprintf(buf, "Class    + ");
 
-    for (i = 0; i < MAX_CLASS; ++i) {
+    for (i = 0; i < class_count; ++i) {
         strcat(buf, class_table[i].who_name);
         strcat(buf, " ");
     }
@@ -412,8 +397,8 @@ SKEDIT(skedit_show)
 
     sprintf(buf, "Level    | ");
 
-    for (i = 0; i < MAX_CLASS; ++i) {
-        sprintf(buf2, "%3d ", pSkill->skill_level[i]);
+    for (i = 0; i < class_count; ++i) {
+        sprintf(buf2, "%3d ", GET_ELEM(&pSkill->skill_level, i));
         strcat(buf, buf2);
     }
 
@@ -422,8 +407,8 @@ SKEDIT(skedit_show)
 
     sprintf(buf, "Rating   | ");
 
-    for (i = 0; i < MAX_CLASS; ++i) {
-        sprintf(buf2, "%3d ", pSkill->rating[i]);
+    for (i = 0; i < class_count; ++i) {
+        sprintf(buf2, "%3d ", GET_ELEM(&pSkill->rating, i));
         strcat(buf, buf2);
     }
 
@@ -448,7 +433,7 @@ SKEDIT(skedit_show)
     sprintf(buf, "Min Mana : [%d]\n\r", pSkill->min_mana);
     send_to_char(buf, ch);
 
-    sprintf(buf, "Beats    : [%d], #B%.2f#b segundo(s).\n\r",
+    sprintf(buf, "Beats    : [%d], %.2f seconds(s).\n\r",
         pSkill->beats,
         pSkill->beats / (float)PULSE_PER_SECOND);
     send_to_char(buf, ch);
@@ -468,11 +453,11 @@ SKEDIT(skedit_show)
 void create_skills_hash_table(void)
 {
     int value;
-    struct skhash* data;
-    struct skhash* temp;
+    SkillHash* data;
+    SkillHash* temp;
     SKNUM sn;
 
-    for (sn = 0; sn < max_skill; sn++) {
+    for (sn = 0; sn < skill_count; sn++) {
         if (IS_NULLSTR(skill_table[sn].name))
             continue;
 
@@ -483,8 +468,8 @@ void create_skills_hash_table(void)
             exit(1);
         }
 
-        if ((data = new_skhash()) == NULL) {
-            perror("create_skills_hash_table: Could not allocate new skhash!");
+        if ((data = new_skill_hash()) == NULL) {
+            perror("create_skills_hash_table: Could not allocate new skill_hash!");
             exit(-1);
         }
         data->sn = sn;
@@ -514,14 +499,14 @@ void create_skills_hash_table(void)
 
 void delete_skills_hash_table(void)
 {
-    struct skhash* temp = NULL;
-    struct skhash* temp_next = NULL;
+    SkillHash* temp = NULL;
+    SkillHash* temp_next = NULL;
     int i;
 
     for (i = 0; i < 26; ++i) {
         for (temp = skill_hash_table[i]; temp; temp = temp_next) {
             temp_next = temp->next;
-            free_skhash(temp);
+            free_skill_hash(temp);
         }
         skill_hash_table[i] = NULL;
     }
@@ -529,7 +514,7 @@ void delete_skills_hash_table(void)
 
 SKEDIT(skedit_name)
 {
-    struct skill_type* pSkill;
+    Skill* pSkill;
 
     EDIT_SKILL(ch, pSkill);
 
@@ -555,7 +540,7 @@ SKEDIT(skedit_name)
 
 SKEDIT(skedit_slot)
 {
-    struct skill_type* pSkill;
+    Skill* pSkill;
 
     EDIT_SKILL(ch, pSkill);
 
@@ -579,21 +564,21 @@ SKEDIT(skedit_slot)
 
 SKEDIT(skedit_level)
 {
-    struct skill_type* pSkill;
+    Skill* pSkill;
     char arg[MIL];
-    int clase;
     LEVEL level;
+    int16_t class_;
 
     EDIT_SKILL(ch, pSkill);
 
     argument = one_argument(argument, arg);
 
     if (IS_NULLSTR(argument) || IS_NULLSTR(arg) || !is_number(argument)) {
-        send_to_char("Sintaxis : level [class] [level]\n\r", ch);
+        send_to_char("SKEdit : level [class] [level]\n\r", ch);
         return false;
     }
 
-    if ((clase = class_lookup(arg)) == -1) {
+    if ((class_ = class_lookup(arg)) == -1) {
         send_to_char("SKEdit : That class does not exist.\n\r", ch);
         return false;
     }
@@ -605,16 +590,17 @@ SKEDIT(skedit_level)
         return false;
     }
 
-    pSkill->skill_level[clase] = level;
+    SET_ELEM(pSkill->skill_level, class_, level);
     send_to_char("Ok.\n\r", ch);
     return true;
 }
 
 SKEDIT(skedit_rating)
 {
-    struct skill_type* pSkill;
+    Skill* pSkill;
     char arg[MIL];
-    int rating, clase;
+    int16_t rating;
+    int16_t class_;
 
     EDIT_SKILL(ch, pSkill);
 
@@ -625,27 +611,27 @@ SKEDIT(skedit_rating)
         return false;
     }
 
-    if ((clase = class_lookup(arg)) == -1) {
+    if ((class_ = class_lookup(arg)) == -1) {
         send_to_char("SKEdit : That class does not exist.\n\r", ch);
         return false;
     }
 
-    rating = atoi(argument);
+    rating = (int16_t)atoi(argument);
 
     if (rating < 0) {
         send_to_char("SKEdit : Invalid rating.\n\r", ch);
         return false;
     }
 
-    pSkill->rating[clase] = rating;
+    SET_ELEM(pSkill->rating, class_, rating);
     send_to_char("Ok.\n\r", ch);
     return true;
 }
 
 SKEDIT(skedit_spell)
 {
-    struct skill_type* pSkill;
-    SPELL_FUN* spell;
+    Skill* pSkill;
+    SpellFunc* spell;
 
     EDIT_SKILL(ch, pSkill);
 
@@ -668,14 +654,14 @@ SKEDIT(skedit_spell)
 
 SKEDIT(skedit_gsn)
 {
-    struct skill_type* pSkill;
+    Skill* pSkill;
     SKNUM* gsn;
     SKNUM sn;
 
     EDIT_SKILL(ch, pSkill);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Sintaxis : gsn [name]\n\r", ch);
+        send_to_char("SKedit : gsn [name]\n\r", ch);
         send_to_char("           gsn null\n\r", ch);
         return false;
     }
@@ -688,7 +674,7 @@ SKEDIT(skedit_gsn)
     }
 
     pSkill->pgsn = gsn;
-    for (sn = 0; sn < max_skill; sn++) {
+    for (sn = 0; sn < skill_count; sn++) {
         if (skill_table[sn].pgsn != NULL)
             *skill_table[sn].pgsn = sn;
     }
@@ -699,9 +685,9 @@ SKEDIT(skedit_gsn)
 
 SKEDIT(skedit_new)
 {
-    DESCRIPTOR_DATA* d;
-    CHAR_DATA* tch;
-    struct skill_type* new_table;
+    Descriptor* d;
+    CharData* tch;
+    Skill* new_table;
     bool* tempgendata;
     SKNUM* templearned;
     int i;
@@ -725,8 +711,8 @@ SKEDIT(skedit_new)
     }
 
     /* reallocate the table */
-    max_skill++;
-    new_table = realloc(skill_table, sizeof(struct skill_type) * ((size_t)max_skill + 1));
+    skill_count++;
+    new_table = realloc(skill_table, sizeof(Skill) * ((size_t)skill_count + 1));
 
     if (!new_table) /* realloc failed */
     {
@@ -737,23 +723,23 @@ SKEDIT(skedit_new)
 
     skill_table = new_table;
 
-    skill_table[max_skill - 1].name = str_dup(argument);
-    for (i = 0; i < MAX_CLASS; ++i) {
-        skill_table[max_skill - 1].skill_level[i] = 53;
-        skill_table[max_skill - 1].rating[i] = 0;
+    skill_table[skill_count - 1].name = str_dup(argument);
+    for (i = 0; i < class_count; ++i) {
+        CREATE_ELEM(skill_table[skill_count - 1].skill_level);
+        CREATE_ELEM(skill_table[skill_count - 1].rating);
     }
-    skill_table[max_skill - 1].spell_fun = spell_null;
-    skill_table[max_skill - 1].target = TAR_IGNORE;
-    skill_table[max_skill - 1].minimum_position = POS_STANDING;
-    skill_table[max_skill - 1].pgsn = NULL;
-    skill_table[max_skill - 1].slot = 0;
-    skill_table[max_skill - 1].min_mana = 0;
-    skill_table[max_skill - 1].beats = 0;
-    skill_table[max_skill - 1].noun_damage = str_dup("");
-    skill_table[max_skill - 1].msg_off = str_dup("");
-    skill_table[max_skill - 1].msg_obj = str_dup("");
+    skill_table[skill_count - 1].spell_fun = spell_null;
+    skill_table[skill_count - 1].target = SKILL_TARGET_IGNORE;
+    skill_table[skill_count - 1].minimum_position = POS_STANDING;
+    skill_table[skill_count - 1].pgsn = NULL;
+    skill_table[skill_count - 1].slot = 0;
+    skill_table[skill_count - 1].min_mana = 0;
+    skill_table[skill_count - 1].beats = 0;
+    skill_table[skill_count - 1].noun_damage = str_dup("");
+    skill_table[skill_count - 1].msg_off = str_dup("");
+    skill_table[skill_count - 1].msg_obj = str_dup("");
 
-    skill_table[max_skill].name = NULL;
+    skill_table[skill_count].name = NULL;
 
     for (d = descriptor_list; d; d = d->next) {
         if ((d->connected == CON_PLAYING)
@@ -761,14 +747,14 @@ SKEDIT(skedit_new)
             || (tch->gen_data == NULL))
             continue;
 
-        tempgendata = realloc(tch->gen_data->skill_chosen, sizeof(bool) * max_skill);
+        tempgendata = realloc(tch->gen_data->skill_chosen, sizeof(bool) * skill_count);
         if (!tempgendata) {
             perror("skedit_new (2): Falled to reallocate tempgendata!");
             send_to_char("Realloc failed. Prepare for impact. (2)\n\r", ch);
             return false;
         }
         tch->gen_data->skill_chosen = tempgendata;
-        tch->gen_data->skill_chosen[max_skill - 1] = 0;
+        tch->gen_data->skill_chosen[skill_count - 1] = 0;
     }
 
     for (tch = char_list; tch; tch = tch->next)
@@ -776,7 +762,7 @@ SKEDIT(skedit_new)
             templearned = new_learned();
 
             /* copiamos los valuees */
-            for (i = 0; i < max_skill - 1; ++i)
+            for (i = 0; i < skill_count - 1; ++i)
                 templearned[i] = tch->pcdata->learned[i];
 
             free_learned(tch->pcdata->learned);
@@ -786,7 +772,7 @@ SKEDIT(skedit_new)
     delete_skills_hash_table();
     create_skills_hash_table();
     ch->desc->editor = ED_SKILL;
-    ch->desc->pEdit = U(&skill_table[max_skill - 1]);
+    ch->desc->pEdit = U(&skill_table[skill_count - 1]);
 
     send_to_char("Skill created.\n\r", ch);
     return true;

@@ -1,6 +1,6 @@
 30
 
-#race
+#RACE
 name unique~
 pc false
 act 0
@@ -14,13 +14,13 @@ parts 0
 points 0
 class_mult 100 100 100 100 @
 who_name ~
-skills ~ ~ ~ ~ ~ @~
+skills @~
 stats 13 13 13 13 13 @
 max_stats 18 18 18 18 18 @
 size tiny~
 #END
 
-#race
+#RACE
 name human~
 pc true
 act 0
@@ -34,13 +34,13 @@ parts ABCDEFGHIJK
 points 0
 class_mult 100 100 100 100 @
 who_name Human~
-skills ~ ~ ~ ~ ~ @~
+skills @~
 stats 13 13 13 13 13 @
 max_stats 18 18 18 18 18 @
 size medium~
 #END
 
-#race
+#RACE
 name elf~
 pc true
 act 0
@@ -53,14 +53,14 @@ form AHMV
 parts ABCDEFGHIJK
 points 5
 class_mult 100 125 100 120 @
-who_name  Elf ~
-skills sneak~ hide~ ~ ~ ~ @~
+who_name Elf ~
+skills sneak~ hide~ @~
 stats 12 14 13 15 11 @
 max_stats 16 20 18 21 15 @
 size small~
 #END
 
-#race
+#RACE
 name dwarf~
 pc true
 act 0
@@ -74,13 +74,13 @@ parts ABCDEFGHIJK
 points 8
 class_mult 150 100 125 100 @
 who_name Dwarf~
-skills berserk~ ~ ~ ~ ~ @~
+skills berserk~ @~
 stats 14 12 14 10 15 @
 max_stats 20 16 19 14 21 @
 size medium~
 #END
 
-#race
+#RACE
 name giant~
 pc true
 act 0
@@ -94,13 +94,13 @@ parts ABCDEFGHIJK
 points 6
 class_mult 200 150 150 105 @
 who_name Giant~
-skills bash~ fast healing~ ~ ~ ~ @~
+skills bash~ fast healing~ @~
 stats 16 11 13 11 14 @
 max_stats 22 15 18 15 20 @
 size large~
 #END
 
-#race
+#RACE
 name bat~
 pc false
 act 0
@@ -111,9 +111,16 @@ res 0
 vuln S
 form AGV
 parts ACDEFHJKP
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name bear~
 pc false
 act 0
@@ -124,9 +131,16 @@ res EI
 vuln 0
 form AGV
 parts ABCDEFHJKUV
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name cat~
 pc false
 act 0
@@ -137,9 +151,16 @@ res 0
 vuln 0
 form AGV
 parts ACDEFHJKQUV
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name centipede~
 pc false
 act 0
@@ -150,9 +171,16 @@ res FI
 vuln E
 form ABGO
 parts ACK
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name dog~
 pc false
 act 0
@@ -163,9 +191,16 @@ res 0
 vuln 0
 form AGV
 parts ACDEFHJKUV
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name doll~
 pc false
 act 0
@@ -176,9 +211,16 @@ res ES
 vuln GHJKO
 form EJMc
 parts ABCGHK
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name dragon~
 pc false
 act 0
@@ -189,9 +231,16 @@ res BEH
 vuln FI
 form AHZ
 parts ACDEFGHIJKPQUVX
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name fido~
 pc false
 act 0
@@ -202,9 +251,16 @@ res 0
 vuln C
 form ABGV
 parts ACDEFHJKQV
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name fox~
 pc false
 act 0
@@ -215,9 +271,16 @@ res 0
 vuln 0
 form AGV
 parts ACDEFHJKQV
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name goblin~
 pc false
 act 0
@@ -228,9 +291,16 @@ res Q
 vuln C
 form AHMV
 parts ABCDEFGHIJK
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name hobgoblin~
 pc false
 act 0
@@ -241,9 +311,16 @@ res LQ
 vuln 0
 form AHMV
 parts ABCDEFGHIJKY
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name kobold~
 pc false
 act 0
@@ -254,9 +331,16 @@ res L
 vuln C
 form ABHMV
 parts ABCDEFGHIJKQ
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name lizard~
 pc false
 act 0
@@ -267,9 +351,16 @@ res L
 vuln I
 form AGXc
 parts ACDEFHKQV
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name modron~
 pc false
 act 0
@@ -280,9 +371,16 @@ res HIK
 vuln 0
 form H
 parts ABCGHJK
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name orc~
 pc false
 act 0
@@ -293,9 +391,16 @@ res Q
 vuln S
 form AHMV
 parts ABCDEFGHIJK
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name pig~
 pc false
 act 0
@@ -306,9 +411,16 @@ res 0
 vuln 0
 form AGV
 parts ACDEFHJK
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name rabbit~
 pc false
 act 0
@@ -319,9 +431,16 @@ res 0
 vuln 0
 form AGV
 parts ACDEFHJK
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name school monster~
 pc false
 act U
@@ -332,9 +451,16 @@ res 0
 vuln C
 form AMV
 parts ABCDEFHJKQU
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name snake~
 pc false
 act 0
@@ -345,9 +471,16 @@ res L
 vuln I
 form AGXYc
 parts ADEFKLQVX
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name song bird~
 pc false
 act 0
@@ -358,9 +491,16 @@ res 0
 vuln 0
 form AGW
 parts ACDEFHKP
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name troll~
 pc false
 act 0
@@ -371,9 +511,16 @@ res BE
 vuln HK
 form ABHMV
 parts ABCDEFGHIJKUV
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name water fowl~
 pc false
 act 0
@@ -384,9 +531,16 @@ res R
 vuln 0
 form AGW
 parts ACDEFHKP
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name wolf~
 pc false
 act 0
@@ -397,9 +551,16 @@ res 0
 vuln 0
 form AGV
 parts ACDEFJKQV
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name wyvern~
 pc false
 act 0
@@ -410,9 +571,16 @@ res 0
 vuln S
 form ABGZ
 parts ACDEFHJKQVX
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 
-#race
+#RACE
 name unique~
 pc false
 act 0
@@ -423,5 +591,12 @@ res 0
 vuln 0
 form 0
 parts 0
+points 0
+class_mult 0 0 0 0 @
+who_name ~
+skills @~
+stats 0 0 0 0 0 @
+max_stats 0 0 0 0 0 @
+size tiny~
 #END
 

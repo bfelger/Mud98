@@ -25,11 +25,15 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+typedef struct buffer_t Buffer;
+
 #pragma once
 #ifndef MUD98__RECYCLE_H
 #define MUD98__RECYCLE_H
 
 #include "merc.h"
+
+#include "skills.h"
 
 /* stuff for providing a crash-proof buffer */
 
@@ -42,83 +46,28 @@
 #define BUFFER_OVERFLOW 1
 #define BUFFER_FREED    2
 
-/* note recycling */
-#define ND              NOTE_DATA
-ND* new_note args((void));
-void free_note args((NOTE_DATA * note));
-#undef ND
+typedef struct buffer_t {
+    Buffer* next;
+    char* string; /* buffer's string */
+    size_t size;  /* size in k */
+    int state; /* error state of the buffer */
+    bool valid;
+} Buffer;
 
-/* ban data recycling */
-#define BD BAN_DATA
-BD* new_ban args((void));
-void free_ban args((BAN_DATA * ban));
-#undef BD
-
-/* descriptor recycling */
-#define DD DESCRIPTOR_DATA
-DD* new_descriptor args((void));
-void free_descriptor args((DESCRIPTOR_DATA * d));
-#undef DD
-
-/* char gen data recycling */
-#define GD GEN_DATA
-GD* new_gen_data args((void));
-void free_gen_data args((GEN_DATA * gen));
-#undef GD
-
-/* extra descr recycling */
-#define ED EXTRA_DESCR_DATA
-ED* new_extra_descr args((void));
-void free_extra_descr args((EXTRA_DESCR_DATA * ed));
-#undef ED
-
-/* affect recycling */
-#define AD AFFECT_DATA
-AD* new_affect args((void));
-void free_affect args((AFFECT_DATA * af));
-#undef AD
-
-/* object recycling */
-#define OD OBJ_DATA
-OD* new_obj args((void));
-void free_obj args((OBJ_DATA * obj));
-#undef OD
-
-/* character recyling */
-#define CD CHAR_DATA
-#define PD PC_DATA
-CD* new_char args((void));
-void free_char args((CHAR_DATA * ch));
-PD* new_pcdata();
-void free_pcdata args((PC_DATA * pcdata));
-#undef PD
-#undef CD
-
-/* mob id and memory procedures */
-#define MD MEM_DATA
-long get_pc_id args((void));
-long get_mob_id args((void));
-MD* new_mem_data args((void));
-void free_mem_data args((MEM_DATA * memory));
-MD* find_memory args((MEM_DATA * memory, long id));
-#undef MD
+long get_pc_id(void);
 
 /* buffer procedures */
 
-BUFFER* new_buf(void);
-BUFFER* new_buf_size(int size);
-void free_buf(BUFFER * buffer);
-bool add_buf(BUFFER * buffer, char* string);
-void clear_buf(BUFFER * buffer);
+Buffer* new_buf();
+Buffer* new_buf_size(int size);
+void free_buf(Buffer * buffer);
+bool addf_buf(Buffer* buffer, const char* format, ...);
+bool add_buf(Buffer* buffer, char* string);
+void clear_buf(Buffer * buffer);
 
-#define INIT_BUF(b, sz) BUFFER* b = new_buf_size(sz)
+#define INIT_BUF(b, sz) Buffer* b = new_buf_size(sz)
 #define SET_BUF(b, s) clear_buf(b); add_buf(b, s)
 #define BUF(b) (b->string)
-
-// OLC procedures
-HELP_AREA* new_had args((void));
-HELP_DATA* new_help args((void));
-void free_help args((HELP_DATA*));
 
 SKNUM* new_learned();
 void free_learned(SKNUM*);
@@ -126,11 +75,10 @@ void free_learned(SKNUM*);
 bool* new_boolarray(size_t);
 void free_boolarray(bool*);
 
-struct skhash* new_skhash(); //allocfunc(struct skhash, skhash)
-void free_skhash(struct skhash*);
+SkillHash* new_skill_hash();
+void free_skill_hash(SkillHash*);
 
 /* externs */
 extern char str_empty[1];
-extern int mobile_count;
 
 #endif // !MUD98__RECYCLE_H

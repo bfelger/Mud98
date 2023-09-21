@@ -31,7 +31,13 @@
 
 #include "merc.h"
 
-/* this is a listing of all the commands and command related data */
+#include "data/damage.h"
+#include "data/mobile.h"
+#include "data/skill.h"
+
+#include "special.h"
+
+#include <stdbool.h>
 
 /* for command types */
 #define ML         MAX_LEVEL /* implementor */
@@ -48,26 +54,39 @@
 
 #define COM_INGORE 1
 
+typedef enum log_type_t {
+    LOG_NORMAL = 0,
+    LOG_ALWAYS = 1,
+    LOG_NEVER = 2,
+} LogType;
+
 /*
  * Structure for a command in the command lookup table.
  */
-struct cmd_type {
+typedef struct cmd_info_t {
     char* name;
-    DO_FUN* do_fun;
-    int16_t position;
-    int16_t level;
-    int16_t log;
+    DoFunc* do_fun;
+    Position position;
+    LEVEL level;
+    LogType log;
     int16_t show;
-};
-
-/* wrapper function for safe command execution */
-void do_function args((CHAR_DATA * ch, DO_FUN* do_fun, char* argument));
+} CmdInfo;
 
 /* the command table itself */
-extern struct cmd_type* cmd_table;
+#include "command.h"
+
+void interpret(CharData* ch, char* argument);
+bool is_number(char* arg);
+int number_argument(char* argument, char* arg);
+int mult_argument(char* argument, char* arg);
+char* one_argument(char* argument, char* arg_first);
+
+/* wrapper function for safe command execution */
+void do_function(CharData* ch, DoFunc* do_fun, char* argument);
+
+extern CmdInfo* cmd_table;
 
 extern int max_cmd;
-
-#include "command.h"
+extern bool fLogAll;
 
 #endif // !MUD98__INTERP_H

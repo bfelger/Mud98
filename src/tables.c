@@ -26,7 +26,16 @@
  ***************************************************************************/
 
 #include "merc.h"
+
 #include "tables.h"
+
+#include "comm.h"
+
+#include "entities/descriptor.h"
+
+#include "data/damage.h"
+#include "data/mobile.h"
+#include "data/skill.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -39,40 +48,6 @@ const struct clan_type clan_table[MAX_CLAN] = {
     { "",           "",             ROOM_VNUM_ALTAR,        true        },
     { "loner",      "[ Loner ] ",   ROOM_VNUM_ALTAR,        true        },
     { "rom",        "[  ROM  ] ",   ROOM_VNUM_ALTAR,        false       }
-};
-
-/* for position */
-const struct position_type position_table[]= {
-    { "dead",               "dead"  },           
-    { "mortally wounded",   "mort"  },
-    { "incapacitated",      "incap" }, 
-    { "stunned",            "stun"  },
-    { "sleeping",           "sleep" },      
-    { "resting",            "rest"  },
-    { "sitting",            "sit"   },         
-    { "fighting",           "fight" },
-    { "standing",           "stand" },      
-    { NULL,                 NULL    }
-};
-
-/* for sex */
-const struct sex_type sex_table[] = {
-    { "none"    }, 
-    { "male"    }, 
-    { "female"  }, 
-    { "either"  }, 
-    { NULL      }
-};
-
-/* for sizes */
-const struct size_type size_table[] = {
-    { "tiny"    },                        
-    { "small"   },                   
-    { "medium"  },                      
-    { "large"   },
-    { "huge"    },
-    { "giant"   },
-    { NULL      }
 };
 
 /* various flag tables */
@@ -501,7 +476,7 @@ const struct flag_type apply_flag_table[] = {
 
 // What is seen.
 const struct flag_type wear_loc_strings[] = {
-    { "in the inventory",   WEAR_NONE,      true    },
+    { "in the inventory",   WEAR_UNHELD,      true    },
     { "as a light",         WEAR_LIGHT,     true    },
     { "on the left finger", WEAR_FINGER_L,  true    },
     { "on the right finger",WEAR_FINGER_R,  true    },
@@ -525,7 +500,7 @@ const struct flag_type wear_loc_strings[] = {
 };
 
 const struct flag_type wear_loc_flag_table[] = {
-    { "none",           WEAR_NONE,          true    },
+    { "none",           WEAR_UNHELD,          true    },
     { "light",          WEAR_LIGHT,         true    },
     { "lfinger",        WEAR_FINGER_L,      true    },
     { "rfinger",        WEAR_FINGER_R,      true    },
@@ -569,14 +544,14 @@ const struct flag_type ac_type[] = {
     { NULL,             0,                  0       }
 };
 
-const struct flag_type size_flag_table[] = {
+const struct flag_type size_flag_table[MOB_SIZE_COUNT+1] = {
     { "tiny",           SIZE_TINY,          true    },
     { "small",          SIZE_SMALL,         true    },
     { "medium",         SIZE_MEDIUM,        true    },
     { "large",          SIZE_LARGE,         true    },
     { "huge",           SIZE_HUGE,          true    },
     { "giant",          SIZE_GIANT,         true    },
-    { NULL,             0,                  0       },
+    { NULL,             0,                  0       }
 };
 
 const struct flag_type weapon_class[] = {
@@ -632,6 +607,7 @@ const struct flag_type res_flag_table[] = {
 };
 
 const struct flag_type vuln_flag_table[] = {
+    { "none",           VULN_NONE,          true    },
     { "summon",         VULN_SUMMON,        true    },
     { "charm",          VULN_CHARM,         true    },
     { "magic",          VULN_MAGIC,         true    },
@@ -672,11 +648,11 @@ const struct flag_type position_flag_table[] = {
 };
 
 const struct flag_type portal_flag_table [] = {
-    { "normal_exit",    GATE_NORMAL_EXIT,   true    },
-    { "no_curse",       GATE_NOCURSE,       true    },
-    { "go_with",        GATE_GOWITH,        true    },
-    { "buggy",          GATE_BUGGY,         true    },
-    { "random",         GATE_RANDOM,        true    },
+    { "normal_exit",    PORTAL_NORMAL_EXIT,   true    },
+    { "no_curse",       PORTAL_NOCURSE,       true    },
+    { "go_with",        PORTAL_GOWITH,        true    },
+    { "buggy",          PORTAL_BUGGY,         true    },
+    { "random",         PORTAL_RANDOM,        true    },
     { NULL,             0,                  0       }
 };
 
@@ -711,23 +687,23 @@ const struct flag_type apply_types[] = {
 };
 
 const struct bit_type bitvector_type[] = {
-    { affect_flag_table,"affect"    },
-    { apply_flag_table, "apply"     },
-    { imm_flag_table,   "imm"       },
-    { res_flag_table,        "res"       },
-    { vuln_flag_table,       "vuln"      },
-    { weapon_type2,     "weapon"    }
+    { affect_flag_table,    "affect"    },
+    { apply_flag_table,     "apply"     },
+    { imm_flag_table,       "imm"       },
+    { res_flag_table,       "res"       },
+    { vuln_flag_table,      "vuln"      },
+    { weapon_type2,         "weapon"    }
 };
 
 const struct flag_type target_table[] = {
-    { "tar_ignore",         TAR_IGNORE,         true},
-    { "tar_char_offensive", TAR_CHAR_OFFENSIVE, true},
-    { "tar_char_defensive", TAR_CHAR_DEFENSIVE, true},
-    { "tar_char_self",      TAR_CHAR_SELF,      true},
-    { "tar_obj_inv",        TAR_OBJ_INV,        true},
-    { "tar_obj_char_def",   TAR_OBJ_CHAR_DEF,   true},
-    { "tar_obj_char_off",   TAR_OBJ_CHAR_OFF,   true},
-    { NULL,                 0,                  true}
+    { "tar_ignore",         SKILL_TARGET_IGNORE,            true},
+    { "tar_char_offensive", SKILL_TARGET_CHAR_OFFENSIVE,    true},
+    { "tar_char_defensive", SKILL_TARGET_CHAR_DEFENSIVE,    true},
+    { "tar_char_self",      SKILL_TARGET_CHAR_SELF,         true},
+    { "tar_obj_inv",        SKILL_TARGET_OBJ_INV,           true},
+    { "tar_obj_char_def",   SKILL_TARGET_OBJ_CHAR_DEF,      true},
+    { "tar_obj_char_off",   SKILL_TARGET_OBJ_CHAR_OFF,      true},
+    { NULL,                 0,                              true}
 };
 
 const struct recval_type recval_table[] = {
@@ -794,7 +770,10 @@ const struct recval_type recval_table[] = {
     {50,/*d*/ 10,/*+*/ 9500,    -30,  50,   10,   28   }  /* 60 */
 };
 
-const struct flag_type dam_classes[] = {
+// Ignores DAM_NONE, has null record at end.
+// Added DAM_TYPE_COUNT so it fails to compile if you add a new damage type and don't
+// add it here.
+const struct flag_type dam_classes[DAM_TYPE_COUNT] = {
     { "dam_bash",       DAM_BASH,           true    },
     { "dam_pierce",     DAM_PIERCE,         true    },
     { "dam_slash",      DAM_SLASH,          true    },
@@ -841,7 +820,7 @@ const struct flag_type show_flag_table[] = {
     { NULL,             0,                  true    }
 };
 
-const struct flag_type stat_table[] = {
+const struct flag_type stat_table[STAT_COUNT+1] = {
     { "str",            STAT_STR,           true    },
     { "int",            STAT_INT,           true    },
     { "wis",            STAT_WIS,           true    },
@@ -850,7 +829,7 @@ const struct flag_type stat_table[] = {
     { NULL,             0,                  true    }
 };
 
-void show_flags_to_char(CHAR_DATA* ch, const struct flag_type* flags)
+void show_flags_to_char(CharData* ch, const struct flag_type* flags)
 {
     char line[25];
     int col = 0;
