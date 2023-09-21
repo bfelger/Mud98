@@ -109,7 +109,10 @@ void	hedit		(CharData* ch, char* argument);
 #define	MIN_PEDIT_SECURITY	    1
 #define	MIN_SKEDIT_SECURITY	    5
 #define MIN_CMDEDIT_SECURITY	7
+#define MIN_HEDIT_SECURITY      5
 #define MIN_SEDIT_SECURITY	    3
+#define MIN_AEDIT_SECURITY      5
+#define MIN_RAEDIT_SECURITY     7
 
 /*
  * Structure for an OLC editor command.
@@ -385,6 +388,5 @@ extern MobPrototype xMob;
 extern ObjectPrototype xObj;
 
 extern void InitScreen(Descriptor*);
-void list_archetypes(CharData* ch);
 
 #endif // !MUD98__OLC_H

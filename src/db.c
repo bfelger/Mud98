@@ -238,6 +238,12 @@ void boot_db(void)
     load_social_table();
     load_skill_group_table();
 
+    // I uncomment these as I transmogrify file formats.
+    //save_class_table();
+    //save_race_table();
+    //save_skill_group_table();
+    //save_skill_table();
+
     /*
      * Set time and weather.
      */
@@ -366,10 +372,10 @@ void load_area(FILE* fp)
     pArea = alloc_perm(sizeof(*pArea));
     pArea->file_name = fread_string(fp);
 
-    pArea->area_flags = AREA_LOADING;   // OLC
-    pArea->security = 9;                // OLC 9 -- Hugin */
-    pArea->builders = str_dup("None");  // OLC
-    pArea->vnum = top_area;             // OLC
+    pArea->area_flags = AREA_LOADING;
+    pArea->security = 9;
+    pArea->builders = str_dup("None");
+    pArea->vnum = top_area;
 
     pArea->name = fread_string(fp);
     pArea->credits = fread_string(fp);
@@ -384,7 +390,7 @@ void load_area(FILE* fp)
 
     if (area_last != NULL) {
         area_last->next = pArea;
-        REMOVE_BIT(area_last->area_flags, AREA_LOADING);    // OLC
+        REMOVE_BIT(area_last->area_flags, AREA_LOADING);
     }
 
     area_last = pArea;
@@ -440,7 +446,7 @@ void new_load_area(FILE* fp)
     pArea->vnum = top_area;
     pArea->name = str_dup("New Area");
     pArea->builders = str_dup("");
-    pArea->security = 9;                    /* 9 -- Hugin */
+    pArea->security = 9;
     pArea->min_vnum = 0;
     pArea->max_vnum = 0;
     pArea->area_flags = 0;
@@ -1500,10 +1506,9 @@ void reset_room(RoomData* pRoom)
                         olevel = 53;
                         for (i = 1; i < 5; i++) {
                             if (obj_proto->value[i] > 0) {
-                                for (j = 0; j < ARCH_COUNT; j++) {
+                                for (j = 0; j < class_count; j++) {
                                     olevel = UMIN(
-                                        olevel, skill_table[obj_proto->value[i]]
-                                        .skill_level[j]);
+                                        olevel, GET_ELEM(&skill_table[obj_proto->value[i]].skill_level, j));
                                 }
                             }
                         }

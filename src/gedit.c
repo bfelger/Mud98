@@ -27,7 +27,7 @@ const struct olc_cmd_type gedit_table[] = {
     { "list",		gedit_list	    },
     { "commands",	show_commands	},
     { "show",		gedit_show	    },
-    { NULL,		0		        }
+    { NULL,		    0		        }
 };
 
 void gedit(CharData* ch, char* argument)
@@ -39,7 +39,7 @@ void gedit(CharData* ch, char* argument)
     strcpy(arg, argument);
     argument = one_argument(argument, command);
 
-    if (ch->pcdata->security < 5) {
+    if (ch->pcdata->security < MIN_SKEDIT_SECURITY) {
         send_to_char("SKEdit: You do not have enough security to edit groups.\n\r", ch);
         edit_done(ch);
         return;
@@ -82,23 +82,16 @@ void do_gedit(CharData* ch, char* argument)
         return;
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax : GEdit [grupo]\n\r", ch);
+        send_to_char("Syntax : GEdit [group]\n\r", ch);
         return;
     }
 
-    if (ch->pcdata->security < 5) {
+    if (ch->pcdata->security < MIN_SKEDIT_SECURITY) {
         send_to_char("GEdit : You do not have enough security to edit groups.\n\r", ch);
         return;
     }
 
     argument = one_argument(argument, command);
-
-/*  if ( !str_cmp( command, "new" ) )
-    {
-    if ( gedit_new(ch, argument) )
-        save_groups();
-    return;
-    } */
 
     if ((group = group_lookup(command)) == -1) {
         send_to_char("GEdit : That group does not exist\n\r", ch);
@@ -124,10 +117,10 @@ GEDIT(gedit_show)
     sprintf(buf, "Name      : [%s]\n\r", pGrp->name);
     send_to_char(buf, ch);
 
-    sprintf(buf, "Archetype+ ");
+    sprintf(buf, "Class    + ");
 
-    for (i = 0; i < ARCH_COUNT; ++i) {
-        strcat(buf, arch_table[i].name);
+    for (i = 0; i < class_count; ++i) {
+        strcat(buf, class_table[i].name);
         strcat(buf, " ");
     }
 
@@ -136,8 +129,8 @@ GEDIT(gedit_show)
 
     sprintf(buf, "Rating   | ");
 
-    for (i = 0; i < ARCH_COUNT; ++i) {
-        sprintf(buf2, "%3d ", pGrp->rating[i]);
+    for (i = 0; i < class_count; ++i) {
+        sprintf(buf2, "%3d ", GET_ELEM(&pGrp->rating, i));
         strcat(buf, buf2);
     }
 
@@ -182,8 +175,8 @@ GEDIT(gedit_rating)
 {
     SkillGroup* pGrp;
     char arg[MIL];
-    int16_t rating;
-    Archetype arch;
+    SkillRating rating;
+    int16_t class_;
 
     EDIT_GROUP(ch, pGrp);
 
@@ -194,20 +187,19 @@ GEDIT(gedit_rating)
         return false;
     }
 
-    if ((arch = archetype_lookup(arg)) == ARCH_NOT_FOUND) {
-        send_to_char("GEdit : That archetype does not exist.\n\r", ch);
-        list_archetypes(ch);
+    if ((class_ = class_lookup(arg)) < 0) {
+        send_to_char("GEdit : That class does not exist.\n\r", ch);
         return false;
     }
 
-    rating = (int16_t)atoi(argument);
+    rating = (SkillRating)atoi(argument);
 
     if (rating < -1) {
         send_to_char("GEdit : Rating must be at least 0.\n\r", ch);
         return false;
     }
 
-    pGrp->rating[arch] = rating;
+    SET_ELEM(pGrp->rating, class_, rating);
     send_to_char("Ok.\n\r", ch);
     return true;
 }

@@ -719,7 +719,7 @@ void do_aedit(CharData* ch, char* argument)
             pArea = area_last;
     }
 
-    if (!IS_BUILDER(ch, pArea) || ch->pcdata->security < 9) {
+    if (!IS_BUILDER(ch, pArea) || ch->pcdata->security < MIN_AEDIT_SECURITY) {
         send_to_char("You do not have enough security to edit areas.\n\r", ch);
         return;
     }
@@ -1621,13 +1621,6 @@ void do_page(CharData* ch, char* argument)
 
     send_to_char("Changed editor scroll. If you don't see anything, change to another number.\n\r", ch);
     return;
-}
-
-void list_archetypes(CharData* ch)
-{
-    printf_to_char(ch, "{*Available archetypes:{x\n\r");
-    for (int i = 0; i < ARCH_COUNT; ++i)
-        printf_to_char(ch, "    {_%s{x\n\r", arch_table[i].name);
 }
 
 #undef U

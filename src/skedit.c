@@ -157,6 +157,67 @@ void skedit(CharData* ch, char* argument)
     return;
 }
 
+void do_sklist(CharData* ch, char* argument)
+{
+    static char* help = "{jSyntax : {*SKLIST <OPTION>{x\n\r\n\r"
+        "{*<OPTION>{x can be one of the following:\n\r"
+        "    {*RATING{x - List rating by class.\n\r"
+        "    {*LEVEL{x - List minimum level by class.\n\r\n\r";
+
+    INIT_BUF(page, MSL);
+
+    if (ch->pcdata->security < MIN_SKEDIT_SECURITY) {
+        send_to_char("{jSKList : You do not have enough security to list skills.{x\n\r", ch);
+        return;
+    }
+
+    if (IS_NULLSTR(argument)) {
+        send_to_char(help, ch);
+        return;
+    }
+
+    char command[MIL];
+    
+    bool show_rating = false;
+    bool show_level = false;
+
+    argument = one_argument(argument, command);
+
+    if (!str_prefix(command, "RATING")) {
+        show_rating = true;
+    }
+    else if (!str_prefix(command, "LEVEL")) {
+        show_level = true;
+    }
+    else {
+        send_to_char(help, ch);
+        return;
+    }
+
+    addf_buf(page, "\n\r{T%-20s", "Skill");
+    for (int j = 0; j < class_count; ++j) {
+        addf_buf(page, "  %3s", class_table[j].who_name);
+    }
+    add_buf(page, "\n\r");
+    for (int i = 0; i < skill_count; ++i) {
+        if (!skill_table[i].name[0])
+            break;
+        addf_buf(page, "{*%-20s{x", skill_table[i].name);
+        for (int j = 0; j < class_count; ++j) {
+            if (show_rating)
+                addf_buf(page, "%4d ", GET_ELEM(&skill_table[i].rating, j));
+            else if (show_level)
+                addf_buf(page, "%4d ", GET_ELEM(&skill_table[i].skill_level, j));
+        }
+        add_buf(page, "\n\r");
+    }
+    add_buf(page, "\n\r");
+
+    page_to_char(page->string, ch);
+
+    free_buf(page);
+}
+
 void do_skedit(CharData* ch, char* argument)
 {
     const Skill* pSkill;
@@ -324,10 +385,10 @@ SKEDIT(skedit_show)
         send_to_char(buf, ch);
     }
 
-    sprintf(buf, "Archetype+ ");
+    sprintf(buf, "Class    + ");
 
-    for (i = 0; i < ARCH_COUNT; ++i) {
-        strcat(buf, arch_table[i].short_name);
+    for (i = 0; i < class_count; ++i) {
+        strcat(buf, class_table[i].who_name);
         strcat(buf, " ");
     }
 
@@ -336,8 +397,8 @@ SKEDIT(skedit_show)
 
     sprintf(buf, "Level    | ");
 
-    for (i = 0; i < ARCH_COUNT; ++i) {
-        sprintf(buf2, "%3d ", pSkill->skill_level[i]);
+    for (i = 0; i < class_count; ++i) {
+        sprintf(buf2, "%3d ", GET_ELEM(&pSkill->skill_level, i));
         strcat(buf, buf2);
     }
 
@@ -346,8 +407,8 @@ SKEDIT(skedit_show)
 
     sprintf(buf, "Rating   | ");
 
-    for (i = 0; i < ARCH_COUNT; ++i) {
-        sprintf(buf2, "%3d ", pSkill->rating[i]);
+    for (i = 0; i < class_count; ++i) {
+        sprintf(buf2, "%3d ", GET_ELEM(&pSkill->rating, i));
         strcat(buf, buf2);
     }
 
@@ -506,20 +567,19 @@ SKEDIT(skedit_level)
     Skill* pSkill;
     char arg[MIL];
     LEVEL level;
-    Archetype arch;
+    int16_t class_;
 
     EDIT_SKILL(ch, pSkill);
 
     argument = one_argument(argument, arg);
 
     if (IS_NULLSTR(argument) || IS_NULLSTR(arg) || !is_number(argument)) {
-        send_to_char("SKEdit : level [archetype] [level]\n\r", ch);
+        send_to_char("SKEdit : level [class] [level]\n\r", ch);
         return false;
     }
 
-    if ((arch = archetype_lookup(arg)) == -1) {
-        send_to_char("SKEdit : That archetype does not exist.\n\r", ch);
-        list_archetypes(ch);
+    if ((class_ = class_lookup(arg)) == -1) {
+        send_to_char("SKEdit : That class does not exist.\n\r", ch);
         return false;
     }
 
@@ -530,7 +590,7 @@ SKEDIT(skedit_level)
         return false;
     }
 
-    pSkill->skill_level[arch] = level;
+    SET_ELEM(pSkill->skill_level, class_, level);
     send_to_char("Ok.\n\r", ch);
     return true;
 }
@@ -540,21 +600,19 @@ SKEDIT(skedit_rating)
     Skill* pSkill;
     char arg[MIL];
     int16_t rating;
-
-    Archetype arch;
+    int16_t class_;
 
     EDIT_SKILL(ch, pSkill);
 
     argument = one_argument(argument, arg);
 
     if (IS_NULLSTR(argument) || IS_NULLSTR(arg) || !is_number(argument)) {
-        send_to_char("Syntax : rating [archetype] [level]\n\r", ch);
+        send_to_char("Syntax : rating [class] [level]\n\r", ch);
         return false;
     }
 
-    if ((arch = archetype_lookup(arg)) == -1) {
-        send_to_char("SKEdit : That archetype does not exist.\n\r", ch);
-        list_archetypes(ch);
+    if ((class_ = class_lookup(arg)) == -1) {
+        send_to_char("SKEdit : That class does not exist.\n\r", ch);
         return false;
     }
 
@@ -565,7 +623,7 @@ SKEDIT(skedit_rating)
         return false;
     }
 
-    pSkill->rating[arch] = rating;
+    SET_ELEM(pSkill->rating, class_, rating);
     send_to_char("Ok.\n\r", ch);
     return true;
 }
@@ -666,9 +724,9 @@ SKEDIT(skedit_new)
     skill_table = new_table;
 
     skill_table[skill_count - 1].name = str_dup(argument);
-    for (i = 0; i < ARCH_COUNT; ++i) {
-        skill_table[skill_count - 1].skill_level[i] = 53;
-        skill_table[skill_count - 1].rating[i] = 0;
+    for (i = 0; i < class_count; ++i) {
+        CREATE_ELEM(skill_table[skill_count - 1].skill_level);
+        CREATE_ELEM(skill_table[skill_count - 1].rating);
     }
     skill_table[skill_count - 1].spell_fun = spell_null;
     skill_table[skill_count - 1].target = SKILL_TARGET_IGNORE;

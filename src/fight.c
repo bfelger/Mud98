@@ -2038,13 +2038,12 @@ void disarm(CharData* ch, CharData* victim)
 void do_berserk(CharData* ch, char* argument)
 {
     int chance, hp_percent;
-
-    Archetype arch = class_table[ch->ch_class].arch;
+    
 
     if ((chance = get_skill(ch, gsn_berserk)) == 0
         || (IS_NPC(ch) && !IS_SET(ch->atk_flags, ATK_BERSERK))
         || (!IS_NPC(ch)
-            && ch->level < skill_table[gsn_berserk].skill_level[arch])) {
+            && ch->level < SKILL_LEVEL(gsn_berserk, ch))) {
         send_to_char("You turn red in the face, but nothing happens.\n\r", ch);
         return;
     }
@@ -2125,12 +2124,10 @@ void do_bash(CharData* ch, char* argument)
 
     one_argument(argument, arg);
 
-    Archetype arch = class_table[ch->ch_class].arch;
-
     if ((chance = get_skill(ch, gsn_bash)) == 0
         || (IS_NPC(ch) && !IS_SET(ch->atk_flags, ATK_BASH))
         || (!IS_NPC(ch)
-            && ch->level < skill_table[gsn_bash].skill_level[arch])) {
+            && ch->level < SKILL_LEVEL(gsn_bash, ch))) {
         send_to_char("Bashing? What's that?\n\r", ch);
         return;
     }
@@ -2245,12 +2242,10 @@ void do_dirt(CharData* ch, char* argument)
 
     one_argument(argument, arg);
 
-    Archetype arch = class_table[ch->ch_class].arch;
-
     if ((chance = get_skill(ch, gsn_dirt)) == 0
         || (IS_NPC(ch) && !IS_SET(ch->atk_flags, ATK_KICK_DIRT))
         || (!IS_NPC(ch)
-            && ch->level < skill_table[gsn_dirt].skill_level[arch])) {
+            && ch->level < SKILL_LEVEL(gsn_dirt, ch))) {
         send_to_char("You get your feet dirty.\n\r", ch);
         return;
     }
@@ -2386,12 +2381,10 @@ void do_trip(CharData* ch, char* argument)
 
     one_argument(argument, arg);
 
-    Archetype arch = class_table[ch->ch_class].arch;
-
     if ((chance = get_skill(ch, gsn_trip)) == 0
         || (IS_NPC(ch) && !IS_SET(ch->atk_flags, ATK_TRIP))
         || (!IS_NPC(ch)
-            && ch->level < skill_table[gsn_trip].skill_level[arch])) {
+            && ch->level < SKILL_LEVEL(gsn_trip, ch))) {
         send_to_char("Tripping?  What's that?\n\r", ch);
         return;
     }
@@ -2780,7 +2773,7 @@ void do_kick(CharData* ch, char* argument)
     CharData* victim;
 
     if (!IS_NPC(ch)
-        && ch->level < skill_table[gsn_kick].skill_level[class_table[ch->ch_class].arch]) {
+        && ch->level < SKILL_LEVEL(gsn_kick, ch)) {
         send_to_char("You better leave the martial arts to fighters.\n\r", ch);
         return;
     }

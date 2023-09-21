@@ -85,9 +85,11 @@ void advance_level(CharData* ch, bool hide)
     ch->pcdata->last_level
         = (int16_t)((ch->played + (current_time - ch->logon)) / 3600);
 
-    sprintf(buf, "the %s",
-            title_table[class_table[ch->ch_class].arch][ch->level][ch->sex == SEX_FEMALE ? 1 : 0]);
-    set_title(ch, buf);
+    const char* title = class_table[ch->ch_class].titles[ch->level][ch->sex == SEX_FEMALE ? 1 : 0];
+    if (title && title[0]) {
+        sprintf(buf, "the %s", title);
+        set_title(ch, buf);
+    }
 
     add_hp = con_mod[get_curr_stat(ch, STAT_CON)].hitp
              + (int16_t)number_range(class_table[ch->ch_class].hp_min,

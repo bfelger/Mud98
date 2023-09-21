@@ -60,7 +60,7 @@ const struct olc_comm_type race_olc_comm_table[] = {
 
 void raedit(CharData* ch, char* argument)
 {
-    if (ch->pcdata->security < 7) {
+    if (ch->pcdata->security < MIN_RAEDIT_SECURITY) {
         send_to_char("RAEdit : You do not have enough security to edit races.\n\r", ch);
         edit_done(ch);
         return;
@@ -96,7 +96,7 @@ void do_raedit(CharData* ch, char* argument)
     if (IS_NPC(ch) || ch->desc == NULL)
         return;
 
-    if (ch->pcdata->security < 7) {
+    if (ch->pcdata->security < MIN_RAEDIT_SECURITY) {
         send_to_char("RAEdit : You do not have enough security to edit races.\n\r", ch);
         return;
     }
@@ -153,7 +153,7 @@ RAEDIT(raedit_show)
     for (i = 0; i < class_count; ++i) {
         sprintf(buf, "%-7.7s   %3d %4d(%3d)%s",
             capitalize(class_table[i].name),
-            pRace->arch_mult[class_table[i].arch],
+            GET_ELEM(&pRace->class_mult, i),
             race_exp_per_level(pRace->race_id, i, get_points(pRace->race_id, i)),
             get_points(pRace->race_id, i),
             i % 3 == 2 ? "\n\r" : " ");
@@ -285,9 +285,9 @@ RAEDIT(raedit_new)
 RAEDIT(raedit_amult)
 {
     Race* race;
-    int mult;
-    int arch_idx;
-    char arch_name[MIL];
+    ClassMult mult;
+    int class_;
+    char class_name[MIL];
 
     EDIT_RACE(ch, race);
 
@@ -296,10 +296,10 @@ RAEDIT(raedit_amult)
         return false;
     }
 
-    argument = one_argument(argument, arch_name);
+    argument = one_argument(argument, class_name);
 
-    if ((arch_idx = archetype_lookup(arch_name)) == -1) {
-        send_to_char("RAEdit : That archetype does not exist.\n\r", ch);
+    if ((class_ = class_lookup(class_name)) == -1) {
+        send_to_char("RAEdit : That class does not exist.\n\r", ch);
         return false;
     }
 
@@ -308,14 +308,14 @@ RAEDIT(raedit_amult)
         return false;
     }
 
-    mult = atoi(argument);
+    mult = (ClassMult)atoi(argument);
 
     if (mult < 1 || mult > 200) {
         send_to_char("RAEdit : The multiplier must be between 1 and 200.\n\r", ch);
         return false;
     }
 
-    race->arch_mult[arch_idx] = (int16_t)mult;
+    SET_ELEM(race->class_mult, class_, mult);
     send_to_char("Ok.\n\r", ch);
     return true;
 }

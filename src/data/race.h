@@ -12,10 +12,15 @@
 #include "mobile.h"
 #include "stats.h"
 
+#include "array.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 
 #define RACE_NUM_SKILLS 5
+
+typedef int16_t ClassMult;
+DEFINE_ARRAY(ClassMult, 100);
 
 typedef struct race_t {
     char* name; 
@@ -31,7 +36,7 @@ typedef struct race_t {
     FLAGS parts;
     int16_t race_id;
     int16_t points;			        // cost in points of the race
-    int16_t arch_mult[ARCH_COUNT];  // exp multiplier for class archetype * 100
+    ARRAY(ClassMult) class_mult;    // exp multiplier for class * 100
     int16_t stats[STAT_COUNT];	    // starting stats
     int16_t max_stats[STAT_COUNT];	// maximum stats
     MobSize size;			        

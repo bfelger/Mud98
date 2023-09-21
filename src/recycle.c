@@ -37,6 +37,7 @@
 
 #include "data/skill.h"
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -150,6 +151,17 @@ void free_buf(Buffer* buffer)
 
     buffer->next = buf_free;
     buf_free = buffer;
+}
+
+bool addf_buf(Buffer* buffer, const char* format, ...)
+{
+    char buf[MAX_STRING_LENGTH];
+
+    va_list args;
+    va_start(args, format);
+
+    vsprintf(buf, format, args);
+    return add_buf(buffer, buf);
 }
 
 bool add_buf(Buffer* buffer, char* string)

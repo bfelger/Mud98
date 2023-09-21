@@ -268,5 +268,6 @@ COMMAND(do_gedit)
 COMMAND(do_cmdedit)
 COMMAND(do_nothing)
 COMMAND(do_olcx)
+COMMAND(do_sklist)
 
 #undef COMMAND

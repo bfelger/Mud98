@@ -2143,8 +2143,11 @@ void set_title(CharData* ch, char* title)
         return;
     }
 
-    if (title[0] != '.' && title[0] != ',' && title[0] != '!'
-        && title[0] != '?') {
+    // Support sparse title lists
+    if (!title || !title[0])
+        return;
+
+    if (title[0] != '.' && title[0] != ',' && title[0] != '!' && title[0] != '?') {
         buf[0] = ' ';
         strcpy(buf + 1, title);
     }
@@ -2270,8 +2273,6 @@ void do_practice(CharData* ch, char* argument)
     if (IS_NPC(ch))
         return;
 
-    int arch = GET_ARCH(ch);
-
     if (argument[0] == '\0') {
         int col;
 
@@ -2279,7 +2280,7 @@ void do_practice(CharData* ch, char* argument)
         for (sn = 0; sn < skill_count; sn++) {
             if (skill_table[sn].name == NULL)
                 break;
-            if (ch->level < skill_table[sn].skill_level[arch]
+            if (ch->level < SKILL_LEVEL(sn, ch)
                 || ch->pcdata->learned[sn] < 1 /* skill is not known */)
                 continue;
 
@@ -2321,9 +2322,9 @@ void do_practice(CharData* ch, char* argument)
 
         if ((sn = find_spell(ch, argument)) < 0
             || (!IS_NPC(ch)
-                && (ch->level < skill_table[sn].skill_level[arch]
+                && (ch->level < SKILL_LEVEL(sn, ch)
                     || ch->pcdata->learned[sn] < 1 /* skill is not known */
-                    || skill_table[sn].rating[arch] == 0))) {
+                    || SKILL_RATING(sn, ch) == 0))) {
             send_to_char("You can't practice that.\n\r", ch);
             return;
         }
@@ -2337,9 +2338,9 @@ void do_practice(CharData* ch, char* argument)
         }
         else {
             ch->practice--;
-            ch->pcdata->learned[sn]
-                += int_mod[get_curr_stat(ch, STAT_INT)].learn
-                   / (int16_t)skill_table[sn].rating[arch];
+            ch->pcdata->learned[sn] += 
+                int_mod[get_curr_stat(ch, STAT_INT)].learn 
+                / SKILL_RATING(sn, ch);
             if (ch->pcdata->learned[sn] < adept) {
                 act("You practice $T.", ch, NULL, skill_table[sn].name,
                     TO_CHAR);

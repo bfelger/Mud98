@@ -544,7 +544,7 @@ AEDIT(aedit_create)
 {
     AreaData* pArea;
 
-    if (IS_NPC(ch) || ch->pcdata->security < 9) {
+    if (IS_NPC(ch) || ch->pcdata->security < MIN_AEDIT_SECURITY) {
         send_to_char("You do not have enough security to edit areas.\n\r", ch);
         return false;
     }
@@ -4421,8 +4421,6 @@ ED_FUN_DEC(ed_new_obj)
     object_prototype_hash[iHash] = pObj;
 
     set_editor(ch->desc, ED_OBJECT, U(pObj));
-/*    ch->desc->pEdit        = (void *)pObj;
-    ch->desc->editor        = ED_OBJECT; */
 
     send_to_char("Object Created.\n\r", ch);
 

@@ -293,6 +293,43 @@ void load_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, con
                     }
                     found = true, cnt++;
                     break;
+
+                case FIELD_RATING_DYNARRAY: {
+                        ARRAY(SkillRating)* a = (ARRAY(SkillRating)*)(temp->field_ptr - base_type + pointer);
+                        INIT_ARRAY(*a, SkillRating);
+
+                        while (str_cmp((string = fread_word(fp)), "@")) {
+                            SkillRating* p_i = CREATE_ELEM((*a));
+                            *p_i = (SkillRating)atoi(string);
+                        }
+                        found = true, cnt++;
+                        break;
+                    }
+
+                case FIELD_LEVEL_DYNARRAY: {
+                        ARRAY(LEVEL)* a = (ARRAY(LEVEL)*)(temp->field_ptr - base_type + pointer);
+                        INIT_ARRAY(*a, LEVEL);
+
+                        while (str_cmp((string = fread_word(fp)), "@")) {
+                            LEVEL* p_i = CREATE_ELEM(*a);
+                            *p_i = (LEVEL)atoi(string);
+                        }
+                        found = true, cnt++;
+                        break;
+                    }
+
+                case FIELD_MULT_DYNARRAY: {
+                        ARRAY(ClassMult)* a = (ARRAY(ClassMult)*)(temp->field_ptr - base_type + pointer);
+                        INIT_ARRAY(*a, ClassMult);
+
+                        while (str_cmp((string = fread_word(fp)), "@")) {
+                            ClassMult* p_i = CREATE_ELEM(*a);
+                            *p_i = (ClassMult)atoi(string);
+                        }
+                        found = true, cnt++;
+                        break;
+                    }
+
                 } // switch
                 if (found == true)
                     break;
@@ -423,6 +460,33 @@ void save_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, con
 
         case FIELD_INUTIL:
             break;
+
+        case FIELD_RATING_DYNARRAY: {
+                ARRAY(SkillRating)* a = (ARRAY(SkillRating)*)(temp->field_ptr - base_type + pointer);
+                fprintf(fp, "%s ", temp->field_name);
+                for (size_t j = 0; j < a->count; j++)
+                    fprintf(fp, "%d ", a->elems[j]);
+                fprintf(fp, "@\n");
+                break;
+            }
+
+        case FIELD_LEVEL_DYNARRAY: {
+                ARRAY(LEVEL)* a = (ARRAY(LEVEL)*)(temp->field_ptr - base_type + pointer);
+                fprintf(fp, "%s ", temp->field_name);
+                for (size_t j = 0; j < a->count; j++)
+                    fprintf(fp, "%d ", a->elems[j]);
+                fprintf(fp, "@\n");
+                break;
+            }
+
+        case FIELD_MULT_DYNARRAY: {
+                ARRAY(ClassMult)* a = (ARRAY(ClassMult)*)(temp->field_ptr - base_type + pointer);
+                fprintf(fp, "%s ", temp->field_name);
+                for (size_t j = 0; j < a->count; j++)
+                    fprintf(fp, "%d ", a->elems[j]);
+                fprintf(fp, "@\n");
+                break;
+            }
         }
 
         cnt++;

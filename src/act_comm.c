@@ -1023,7 +1023,7 @@ void do_pmote(CharData* ch, char* argument)
  * All the posing stuff.
  */
 struct pose_table_type {
-    char* message[2 * ARCH_COUNT];
+    char* message[2 * 4];
 };
 
 const struct pose_table_type pose_table[] = {
@@ -1155,11 +1155,14 @@ void do_pose(CharData* ch, char* argument)
 
     if (IS_NPC(ch)) return;
 
-    level = UMIN(ch->level, 16); //sizeof(pose_table) / sizeof(pose_table[0]) - 1);
+    level = UMIN(ch->level, 16);
     pose = number_range(0, level);
 
-    act(pose_table[pose].message[2 * ch->ch_class + 0], ch, NULL, NULL, TO_CHAR);
-    act(pose_table[pose].message[2 * ch->ch_class + 1], ch, NULL, NULL, TO_ROOM);
+    // Yeah, it's random, now. 
+    int class_ = number_range(0, 4);
+
+    act(pose_table[pose].message[2 * class_ + 0], ch, NULL, NULL, TO_CHAR);
+    act(pose_table[pose].message[2 * class_ + 1], ch, NULL, NULL, TO_ROOM);
 
     return;
 }

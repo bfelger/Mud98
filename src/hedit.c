@@ -225,7 +225,7 @@ void hedit(CharData* ch, char* argument)
         return;
     }
 
-    if (ch->pcdata->security < 9) {
+    if (ch->pcdata->security < MIN_HEDIT_SECURITY) {
         send_to_char("HEdit: You do not have enough security to edit helpfiles.\n\r", ch);
         edit_done(ch);
         return;

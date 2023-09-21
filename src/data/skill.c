@@ -29,8 +29,8 @@ char* pgsn_str(void* temp);
 
 const SaveTableEntry skill_save_table[] = {
     { "name",		        FIELD_STRING,			    U(&tmp_sk.name),		    0,			        0	                },
-    { "skill_level",	    FIELD_INT16_ARRAY,		    U(&tmp_sk.skill_level),	    U(ARCH_COUNT),	    0	                },
-    { "rating",	            FIELD_INT16_ARRAY,		    U(&tmp_sk.rating),		    U(ARCH_COUNT),	    0	                },
+    { "skill_level",	    FIELD_LEVEL_DYNARRAY,		U(&tmp_sk.skill_level),	    0,	                0	                },
+    { "rating",	            FIELD_RATING_DYNARRAY,		U(&tmp_sk.rating),		    0,	                0	                },
     { "spell_fun",	        FIELD_FUNCTION_INT_TO_STR,	U(&tmp_sk.spell_fun),	    U(spell_fun_str),   U(spell_fun_read)   },
     { "target",	            FIELD_INT16_FLAGSTRING,		U(&tmp_sk.target),		    U(target_table),    0	                },
     { "minimum_position",   FIELD_FUNCTION_INT16_TO_STR,U(&tmp_sk.minimum_position),U(position_str),    U(position_read)    },
@@ -46,7 +46,7 @@ const SaveTableEntry skill_save_table[] = {
 
 const SaveTableEntry skill_group_save_table[] = {
     { "name",		        FIELD_STRING,			    U(&tmp_grp.name),           0,                  0	                },
-    { "rating",	            FIELD_INT16_ARRAY,		    U(&tmp_grp.rating),         U(ARCH_COUNT),	    0	                },
+    { "rating",	            FIELD_RATING_DYNARRAY,		U(&tmp_grp.rating),         0,	                0	                },
     { "skills",             FIELD_STRING_ARRAY,	        U(&tmp_grp.skills),         U(MAX_IN_GROUP),    0	                },
     { NULL,		            0,				            0,				            0,			        0	                }
 };

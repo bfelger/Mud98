@@ -30,7 +30,7 @@ const SaveTableEntry race_save_table[] = {
     { "form",	    FIELD_FLAGVECTOR,	        U(&tmp_race.form),	        0,		            0           },
     { "parts",	    FIELD_FLAGVECTOR,	        U(&tmp_race.parts),	        0,		            0           },
     { "points",	    FIELD_INT16,		        U(&tmp_race.points),	    0,			        0	        },
-    { "arch_mult",	FIELD_INT16_ARRAY,	        U(&tmp_race.arch_mult),     U(ARCH_COUNT),	    0	        },
+    { "class_mult", FIELD_MULT_DYNARRAY,        U(&tmp_race.class_mult),    0,                  0           },
     { "who_name",	FIELD_STRING,		        U(&tmp_race.who_name),	    0,			        0	        },
     { "skills",	    FIELD_STRING_ARRAY,	        U(&tmp_race.skills),	    U(RACE_NUM_SKILLS), 0	        },
     { "stats",	    FIELD_INT16_ARRAY,	        U(&tmp_race.stats),		    U(STAT_COUNT),	    0	        },

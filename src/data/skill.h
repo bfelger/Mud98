@@ -8,14 +8,26 @@
 
 #include "merc.h"
 
+#include "array.h"
 #include "class.h"
 #include "mobile.h"
 #include "spell.h"
 
+#define DEFAULT_SKILL_RATING 0
+#define DEFAULT_SKILL_LEVEL 53
+
+typedef int16_t SkillRating;
+DEFINE_ARRAY(SkillRating, DEFAULT_SKILL_RATING);
+DEFINE_ARRAY(LEVEL, DEFAULT_SKILL_LEVEL);
+
+#define SKILL_LEVEL(skill, ch) GET_ELEM(&skill_table[skill].skill_level, ch->ch_class)
+#define SKILL_RATING(skill, ch) GET_ELEM(&skill_table[skill].rating, ch->ch_class)
+#define SKILL_GROUP_RATING(skill, ch) GET_ELEM(&skill_group_table[skill].rating, ch->ch_class)
+
 typedef struct skill_t {
     char* name;                     // Name of skill
-    LEVEL skill_level[ARCH_COUNT];  // Level needed by class
-    int16_t rating[ARCH_COUNT];     // How hard it is to learn
+    ARRAY(LEVEL) skill_level;       // Level needed by class
+    ARRAY(SkillRating) rating;      // How hard it is to learn
     SpellFunc* spell_fun;           // Spell pointer (for spells)
     SkillTarget target;             // Legal targets
     Position minimum_position;      // Position for caster / user
@@ -30,7 +42,7 @@ typedef struct skill_t {
 
 typedef struct skill_group_t {
     char* name;
-    int16_t rating[ARCH_COUNT];
+    ARRAY(SkillRating) rating;      // How hard it is to learn
     char* skills[MAX_IN_GROUP];
 } SkillGroup;
 

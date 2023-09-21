@@ -24,6 +24,9 @@ typedef enum save_type_t {
     FIELD_INUTIL = 12,
     FIELD_VNUM = 13,
     FIELD_VNUM_ARRAY = 14,
+    FIELD_RATING_DYNARRAY = 15,
+    FIELD_LEVEL_DYNARRAY = 16,
+    FIELD_MULT_DYNARRAY = 17,
 } SaveType;
 
 typedef struct save_table_entry_t {
@@ -34,8 +37,6 @@ typedef struct save_table_entry_t {
     const uintptr_t argument2;
 } SaveTableEntry;
 
-void load_table(FILE* fp, uintptr_t base_type, const SaveTableEntry* table,
-    const uintptr_t pointer);
 void load_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, 
     const uintptr_t pointer);
 void save_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table,

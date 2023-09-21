@@ -1654,8 +1654,7 @@ void nanny(Descriptor * d, char* argument)
             ch->train = 3;
             ch->practice = 5;
             sprintf(buf, "the %s",
-                title_table[class_table[ch->ch_class].arch][ch->level]
-                [ch->sex == SEX_FEMALE ? 1 : 0]);
+                class_table[ch->ch_class].titles[ch->level][ch->sex == SEX_FEMALE ? 1 : 0]);
             set_title(ch, buf);
 
             do_function(ch, &do_outfit, "");

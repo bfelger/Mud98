@@ -61,7 +61,8 @@ long get_pc_id(void);
 Buffer* new_buf();
 Buffer* new_buf_size(int size);
 void free_buf(Buffer * buffer);
-bool add_buf(Buffer * buffer, char* string);
+bool addf_buf(Buffer* buffer, const char* format, ...);
+bool add_buf(Buffer* buffer, char* string);
 void clear_buf(Buffer * buffer);
 
 #define INIT_BUF(b, sz) Buffer* b = new_buf_size(sz)

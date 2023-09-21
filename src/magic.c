@@ -73,8 +73,6 @@ SKNUM find_spell(CharData* ch, const char* name)
     if (IS_NPC(ch)) 
         return skill_lookup(name);
 
-    int arch = GET_ARCH(ch);
-
     for (sn = 0; sn < skill_count; sn++) {
         if (skill_table[sn].name == NULL) 
             break;
@@ -82,7 +80,7 @@ SKNUM find_spell(CharData* ch, const char* name)
             && !str_prefix(name, skill_table[sn].name)) {
             if (found == -1) 
                 found = sn;
-            if (ch->level >= skill_table[sn].skill_level[arch]
+            if (ch->level >= SKILL_LEVEL(sn, ch)
                 && ch->pcdata->learned[sn] > 0)
                 return sn;
         }
@@ -261,7 +259,7 @@ void do_cast(CharData* ch, char* argument)
     ObjectData* obj;
     void* vo;
     int mana;
-    SKNUM sn;
+    SKNUM sn = -1;
     SpellTarget target;
 
     /*
@@ -269,9 +267,6 @@ void do_cast(CharData* ch, char* argument)
      */
     if (IS_NPC(ch) && ch->desc == NULL)
         return;
-
-    Archetype arch = GET_ARCH(ch);
-    arch = CHECK_ARCH(arch);
 
     target_name = one_argument(argument, arg1);
     one_argument(target_name, arg2);
@@ -281,10 +276,12 @@ void do_cast(CharData* ch, char* argument)
         return;
     }
 
+    LEVEL skill_level = -1;
+
     if ((sn = find_spell(ch, arg1)) < 1
         || skill_table[sn].spell_fun == spell_null
         || (!IS_NPC(ch)
-            && (ch->level < skill_table[sn].skill_level[arch]
+            && (ch->level < (skill_level = SKILL_LEVEL(sn, ch))
                 || ch->pcdata->learned[sn] == 0))) {
         send_to_char("You don't know any spells of that name.\n\r", ch);
         return;
@@ -295,12 +292,12 @@ void do_cast(CharData* ch, char* argument)
         return;
     }
 
-    if (ch->level + 2 == skill_table[sn].skill_level[arch])
+    if (ch->level + 2 == skill_level)
         mana = 50;
     else
         mana = UMAX(
             skill_table[sn].min_mana,
-            100 / (2 + ch->level - skill_table[sn].skill_level[arch]));
+            100 / (2 + ch->level - skill_level));
 
     /*
      * Locate targets.

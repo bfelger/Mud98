@@ -163,17 +163,6 @@ int wiznet_lookup(const char* name)
     return -1;
 }
 
-Archetype archetype_lookup(const char* name)
-{
-    for (int arch = 0; arch < ARCH_COUNT; arch++) {
-        if (LOWER(name[0]) == LOWER(arch_table[arch].name[0])
-            && !str_prefix(name, arch_table[arch].name))
-            return arch;
-    }
-
-    return -1;
-}
-
 /* returns class number */
 int16_t class_lookup(const char* name)
 {
@@ -335,7 +324,7 @@ int get_skill(CharData* ch, SKNUM sn)
         skill = 0;
     }
     else if (!IS_NPC(ch)) {
-        if (ch->level < skill_table[sn].skill_level[class_table[ch->ch_class].arch])
+        if (ch->level < SKILL_LEVEL(sn, ch))
             skill = 0;
         else
             skill = ch->pcdata->learned[sn];
@@ -2404,18 +2393,17 @@ int get_vnum_obj_name_area(char* name, AreaData* pArea)
     return 0;
 }
 
-int get_points(int race, int class)
+int get_points(int race, int class_)
 {
     int x;
 
-    x = group_lookup(class_table[class].default_group);
+    x = group_lookup(class_table[class_].default_group);
 
     if (x == -1) {
         bugf("get_points : skill group %s doesn't exist, race %d, class %d",
-            class_table[class].default_group,
-            race, class);
+            class_table[class_].default_group, race, class_);
         return -1;
     }
 
-    return skill_group_table[x].rating[class] + race_table[race].points;
+    return GET_ELEM(&skill_group_table[x].rating, class_) + race_table[race].points;
 }
