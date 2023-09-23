@@ -30,7 +30,7 @@
 
 #define HEDIT(fun) bool fun(CharData *ch, char*argument)
 
-const struct olc_cmd_type hedit_table[] = {
+const OlcCmd hedit_table[] = {
 /*	{	command		function	}, */
     {	"keyword",	hedit_keyword	},
     {	"text",		hedit_text	},

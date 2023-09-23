@@ -153,14 +153,16 @@ void free_buf(Buffer* buffer)
     buf_free = buffer;
 }
 
-bool addf_buf(Buffer* buffer, const char* format, ...)
+bool addf_buf(Buffer* buffer, char* format, ...)
 {
     char buf[MAX_STRING_LENGTH];
 
     va_list args;
-    va_start(args, format);
 
+    va_start(args, format);
     vsprintf(buf, format, args);
+    va_end(args);
+
     return add_buf(buffer, buf);
 }
 

@@ -10,9 +10,10 @@
 #include "handler.h"
 #include "lookup.h"
 #include "magic.h"
-#include "olc.h"
 #include "recycle.h"
 #include "tables.h"
+
+#include "olc/olc.h"
 
 #include "char_data.h"
 

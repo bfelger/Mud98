@@ -20,7 +20,7 @@
 
 #define GEDIT(fun) bool fun(CharData *ch, char *argument)
 
-const struct olc_cmd_type gedit_table[] = {
+const OlcCmd gedit_table[] = {
     { "name",		gedit_name	    },
     { "rating",	    gedit_rating	},
     { "spell",	    gedit_spell	    },
@@ -40,7 +40,7 @@ void gedit(CharData* ch, char* argument)
     argument = one_argument(argument, command);
 
     if (ch->pcdata->security < MIN_SKEDIT_SECURITY) {
-        send_to_char("SKEdit: You do not have enough security to edit groups.\n\r", ch);
+        send_to_char("GEdit: You do not have enough security to edit groups.\n\r", ch);
         edit_done(ch);
         return;
     }
@@ -183,7 +183,7 @@ GEDIT(gedit_rating)
     argument = one_argument(argument, arg);
 
     if (IS_NULLSTR(argument) || IS_NULLSTR(arg) || !is_number(argument)) {
-        send_to_char("Syntax : rating [archetype] [cost]\n\r", ch);
+        send_to_char("Syntax : rating [class] [cost]\n\r", ch);
         return false;
     }
 

@@ -38,7 +38,6 @@
 #include "magic.h"
 #include "music.h"
 #include "note.h"
-#include "olc.h"
 #include "pcg_basic.h"
 #include "recycle.h"
 #include "skills.h"
@@ -46,6 +45,8 @@
 #include "strings.h"
 #include "tables.h"
 #include "weather.h"
+
+#include "olc/olc.h"
 
 #include "entities/area_data.h"
 #include "entities/descriptor.h"

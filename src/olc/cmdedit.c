@@ -19,15 +19,14 @@
 
 #include "data/mobile.h"
 
-#define CMD_FILE DATA_DIR "commands"
-#define CMDEDIT( fun )	bool fun( CharData *ch, char *argument )
+#define CMDEDIT(fun)bool fun( CharData *ch, char *argument )
 
 void save_command_table(void);
 
-struct cmd_list_type {
+typedef struct cmd_entry_t {
     char* name;
     DoFunc* function;
-};
+} CmdEntry;
 
 int max_cmd;
 CmdInfo* cmd_table;
@@ -35,7 +34,7 @@ void create_command_table();
 
 #define COMMAND(cmd)	{	#cmd,	cmd	},
 
-const struct cmd_list_type cmd_list[] = {
+const CmdEntry cmd_list[] = {
 #include "command.h"
     {	NULL,		NULL		}
 };
@@ -47,11 +46,11 @@ extern CmdInfo xCmd;
 #endif
 #define U(x)    (uintptr_t)(x)
 
-const struct olc_comm_type cmd_olc_comm_table[] = {
+const OlcCmdEntry cmd_olc_comm_table[] = {
     { "name",	    0,		            ed_olded,	        U(cmdedit_name)	    },
     { "function",	0,		            ed_olded,	        U(cmdedit_function)	},
     { "level",	    0,		            ed_olded,	        U(cmdedit_level)	},
-    { "posicion",	U(&xCmd.position),	ed_int16lookup,	    U(position_lookup)	},
+    { "position",	U(&xCmd.position),	ed_int16lookup,	    U(position_lookup)	},
     { "log",	    U(&xCmd.log),	    ed_flag_set_long,   U(log_flag_table)   },
     { "type",	    U(&xCmd.show),	    ed_flag_set_long,   U(show_flag_table)  },
     { "new",	    0,		            ed_olded,	        U(cmdedit_new)	    },

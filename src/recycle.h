@@ -61,7 +61,7 @@ long get_pc_id(void);
 Buffer* new_buf();
 Buffer* new_buf_size(int size);
 void free_buf(Buffer * buffer);
-bool addf_buf(Buffer* buffer, const char* format, ...);
+bool addf_buf(Buffer* buffer, char* format, ...);
 bool add_buf(Buffer* buffer, char* string);
 void clear_buf(Buffer * buffer);
 

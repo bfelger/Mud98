@@ -21,7 +21,6 @@
 #include "data/mobile.h"
 #include "data/race.h"
 
-#define RACE_FILE	DATA_DIR "races"
 #define RAEDIT( fun )		bool fun( CharData *ch, char *argument )
 
 extern Race xRace;
@@ -31,7 +30,7 @@ extern Race xRace;
 #endif
 #define U(x)    (uintptr_t)(x)
 
-const struct olc_comm_type race_olc_comm_table[] = {
+const OlcCmdEntry race_olc_comm_table[] = {
     { "show",       0,                  ed_olded,           U(raedit_show)  },
     { "name",       U(&xRace.name),     ed_line_string,     0               },
     { "pcrace",     U(&xRace.pc_race),  ed_bool,            0               },
@@ -50,7 +49,7 @@ const struct olc_comm_type race_olc_comm_table[] = {
     { "maxstats",   0,                  ed_olded,           U(raedit_maxstats)},
     { "skills",     0,                  ed_olded,           U(raedit_skills)},
     { "size",       U(&xRace.size),     ed_int16poslookup,  U(size_lookup)  },
-//  { "new",        0,                  ed_olded,           U(raedit_new)   },
+    { "new",        0,                  ed_olded,           U(raedit_new)   },
     { "list",       0,                  ed_olded,           U(raedit_list)  },
     { "commands",   0,                  ed_olded,           U(show_commands)},
     { "?",          0,                  ed_olded,           U(show_help)    },
@@ -92,12 +91,22 @@ void do_raedit(CharData* ch, char* argument)
 {
     const Race* pRace;
     int race;
+    char arg[MSL];
 
     if (IS_NPC(ch) || ch->desc == NULL)
         return;
 
     if (ch->pcdata->security < MIN_RAEDIT_SECURITY) {
         send_to_char("RAEdit : You do not have enough security to edit races.\n\r", ch);
+        return;
+    }
+
+    one_argument(argument, arg);
+
+    if (!str_cmp(arg, "new")) {
+        argument = one_argument(argument, arg);
+        if (raedit_new(ch, argument))
+            save_race_table();
         return;
     }
 
@@ -123,31 +132,18 @@ RAEDIT(raedit_show)
 
     EDIT_RACE(ch, pRace);
 
-    sprintf(buf, "Name        : [%s]\n\r", pRace->name);
-    send_to_char(buf, ch);
-    sprintf(buf, "PC race?    : [%s]\n\r", pRace->pc_race ? "YES" : " NO");
-    send_to_char(buf, ch);
-    sprintf(buf, "Act         : [%s]\n\r", flag_string(act_flag_table, pRace->act_flags));
-    send_to_char(buf, ch);
-    sprintf(buf, "Aff         : [%s]\n\r", flag_string(affect_flag_table, pRace->aff));
-    send_to_char(buf, ch);
-    sprintf(buf, "Off         : [%s]\n\r", flag_string(off_flag_table, pRace->off));
-    send_to_char(buf, ch);
-    sprintf(buf, "Imm         : [%s]\n\r", flag_string(imm_flag_table, pRace->imm));
-    send_to_char(buf, ch);
-    sprintf(buf, "Res         : [%s]\n\r", flag_string(res_flag_table, pRace->res));
-    send_to_char(buf, ch);
-    sprintf(buf, "Vuln        : [%s]\n\r", flag_string(vuln_flag_table, pRace->vuln));
-    send_to_char(buf, ch);
-    sprintf(buf, "Form        : [%s]\n\r", flag_string(form_flag_table, pRace->form));
-    send_to_char(buf, ch);
-    sprintf(buf, "Parts       : [%s]\n\r", flag_string(part_flag_table, pRace->parts));
-    send_to_char(buf, ch);
-
-#ifndef FIRST_BOOT
-    sprintf(buf, "Points      : [%10d] Size   : [%-10.10s]\n\r",
+    printf_to_char(ch, "Name        : [%s]\n\r", pRace->name);
+    printf_to_char(ch, "PC race?    : [%s]\n\r", pRace->pc_race ? "YES" : " NO");
+    printf_to_char(ch, "Act         : [%s]\n\r", flag_string(act_flag_table, pRace->act_flags));
+    printf_to_char(ch, "Aff         : [%s]\n\r", flag_string(affect_flag_table, pRace->aff));
+    printf_to_char(ch, "Off         : [%s]\n\r", flag_string(off_flag_table, pRace->off));
+    printf_to_char(ch, "Imm         : [%s]\n\r", flag_string(imm_flag_table, pRace->imm));
+    printf_to_char(ch, "Res         : [%s]\n\r", flag_string(res_flag_table, pRace->res));
+    printf_to_char(ch, "Vuln        : [%s]\n\r", flag_string(vuln_flag_table, pRace->vuln));
+    printf_to_char(ch, "Form        : [%s]\n\r", flag_string(form_flag_table, pRace->form));
+    printf_to_char(ch, "Parts       : [%s]\n\r", flag_string(part_flag_table, pRace->parts));
+    printf_to_char(ch, "Points      : [%10d] Size   : [%-10.10s]\n\r",
         pRace->points, mob_size_table[pRace->size].name);
-    send_to_char(buf, ch);
 
     send_to_char("Name      CMu Exp       Name      CMu Exp       Name      CMu Exp\n\r", ch);
     for (i = 0; i < class_count; ++i) {
@@ -170,12 +166,8 @@ RAEDIT(raedit_show)
 
     for (i = 0; i < RACE_NUM_SKILLS; ++i)
         if (!IS_NULLSTR(pRace->skills[i])) {
-            sprintf(buf, "%2d. %s\n\r",
-                i,
-                pRace->skills[i]);
-            send_to_char(buf, ch);
+            printf_to_char(ch, "%2d. %s\n\r", i, pRace->skills[i]);
         }
-#endif
 
     return false;
 }
@@ -292,7 +284,7 @@ RAEDIT(raedit_amult)
     EDIT_RACE(ch, race);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax : amult [archetype] [multiplier]\n\r", ch);
+        send_to_char("Syntax : amult [class] [multiplier]\n\r", ch);
         return false;
     }
 

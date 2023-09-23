@@ -13,12 +13,13 @@
 #include "mobile.h"
 #include "spell.h"
 
-#define DEFAULT_SKILL_RATING 0
-#define DEFAULT_SKILL_LEVEL 53
+#define DEFAULT_SKILL_RATING    0
+#define DEFAULT_SKILL_LEVEL     53
+#define DEFAULT_SKILL_CAP       75
 
 typedef int16_t SkillRating;
-DEFINE_ARRAY(SkillRating, DEFAULT_SKILL_RATING);
-DEFINE_ARRAY(LEVEL, DEFAULT_SKILL_LEVEL);
+DEFINE_ARRAY(SkillRating, DEFAULT_SKILL_RATING)
+DEFINE_ARRAY(LEVEL, DEFAULT_SKILL_LEVEL)
 
 #define SKILL_LEVEL(skill, ch) GET_ELEM(&skill_table[skill].skill_level, ch->ch_class)
 #define SKILL_RATING(skill, ch) GET_ELEM(&skill_table[skill].rating, ch->ch_class)

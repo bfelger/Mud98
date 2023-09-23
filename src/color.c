@@ -135,8 +135,8 @@ char* color_to_str(ColorTheme* theme, Color* color, bool xterm)
 
 static void list_theme_entry(CharData* ch, ColorTheme* theme, const char* owner, bool show_public)
 {
-    char out[MAX_STRING_LENGTH];
-    char buf[500];
+    INIT_BUF(out, MAX_STRING_LENGTH);
+    char buf[MAX_STRING_LENGTH];
     bool xterm = ch->pcdata->theme_config.xterm;
 
     char bg_code[50];
@@ -157,7 +157,7 @@ static void list_theme_entry(CharData* ch, ColorTheme* theme, const char* owner,
         sprintf(mode, "(error) ");
     }
 
-    char public_buf[20] = { 0 };
+    char public_buf[MSL] = { 0 };
     if (show_public && theme->is_public) {
         sprintf(public_buf, "%s (public)", COLOR2STR(theme, SLOT_ALT_TEXT_2, xterm));
     }
@@ -167,14 +167,14 @@ static void list_theme_entry(CharData* ch, ColorTheme* theme, const char* owner,
     sprintf(bg_code, "%s", BGCOLOR2STR(theme, xterm));
 
     // First line, blank BG color
-    sprintf(out, "%s                                                                      {x\n\r", bg_code);
+    addf_buf(out, "%s                                                                      {x\n\r", bg_code);
 
     // Second line, name and first row of color boxes
     char name[50] = { 0 };
     strcat(name, theme->name);
     if (owner != NULL) {
         size_t pad = strlen(owner) + strlen(name) + 2;
-        char owner_buf[70] = { 0 };
+        char owner_buf[MAX_STRING_LENGTH] = { 0 };
         sprintf(owner_buf, "%s@%s%s", COLOR2STR(theme, SLOT_ALT_TEXT_1, xterm), owner, fg_code);
         snprintf(buf, 500, "%s%s    %s %s", bg_code, fg_code, owner_buf, name);
         for (size_t i = pad; i < 30; ++i)
@@ -182,16 +182,14 @@ static void list_theme_entry(CharData* ch, ColorTheme* theme, const char* owner,
     }
     else
         sprintf(buf, "%s%s    %-30s", bg_code, fg_code, name);
-    strcat(out, buf);
+    add_buf(out, buf);
     for (int i = 0; i < PALETTE_SIZE; i += 2) {
         if (i <= theme->palette_max)
-            sprintf(buf, "%s    ", bg_color_to_str(theme, &theme->palette[i], xterm));
+            addf_buf(out, "%s    ", bg_color_to_str(theme, &theme->palette[i], xterm));
         else
-            sprintf(buf, "%s    ", bg_code); 
-        strcat(out, buf);
+            addf_buf(out, "%s    ", bg_code); 
     }
-    sprintf(buf, "%s    {x\n\r", bg_code);
-    strcat(out, buf);
+    addf_buf(out, "%s    {x\n\r", bg_code);
 
     // Third line, mode type and second row of color boxes
     if (show_public && theme->is_public) {
@@ -202,22 +200,22 @@ static void list_theme_entry(CharData* ch, ColorTheme* theme, const char* owner,
     }
     else
         sprintf(buf, "%s%s    %-30s", COLOR2STR(theme, SLOT_ALT_TEXT_1, xterm), bg_code, mode);
-    strcat(out, buf);
+    add_buf(out, buf);
     for (int i = 1; i < PALETTE_SIZE; i += 2) {
         if (i <= theme->palette_max)
             sprintf(buf, "%s    ", bg_color_to_str(theme, &theme->palette[i], xterm));
         else
             sprintf(buf, "%s    ", bg_code);
-        strcat(out, buf);
+        add_buf(out, buf);
     }
-    sprintf(buf, "%s    {x\n\r", bg_code);
-    strcat(out, buf);
+    addf_buf(out, "%s    {x\n\r", bg_code);
 
     // Fourth line, blank BG color
-    sprintf(buf, "%s                                                                      {x\n\r\n\r", bg_code);
-    strcat(out, buf);
+    addf_buf(out, "%s                                                                      {x\n\r\n\r", bg_code);
 
-    send_to_char(out, ch);
+    send_to_char(out->string, ch);
+
+    free_buf(out);
 }
 
 static inline void send_256_color_list(CharData* ch)

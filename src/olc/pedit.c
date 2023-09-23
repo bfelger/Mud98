@@ -35,7 +35,7 @@ DECLARE_OLC_FUN(pedit_show);
 #endif
 #define U(x)    (uintptr_t)(x)
 
-const struct olc_comm_type prog_olc_comm_table[] =
+const OlcCmdEntry prog_olc_comm_table[] =
 {
     {	"create",	0,			    ed_olded,	U(pedit_create) },
     {	"code",		U(&xProg.code),	ed_desc,	0		        },

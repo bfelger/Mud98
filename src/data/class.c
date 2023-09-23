@@ -34,7 +34,7 @@ const SaveTableEntry class_save_table[] = {
     { "hpmin",      FIELD_INT16,            U(&tmp_class.hp_min),       0,                  0   },
     { "hpmax",      FIELD_INT16,            U(&tmp_class.hp_max),       0,                  0   },
     { "fmana",      FIELD_BOOL,             U(&tmp_class.fMana),        0,                  0   },
-    { "titles",     FIELD_STRING_ARRAY,     U(&tmp_class.titles),       U(MAX_LEVEL * 2),   0   },
+    { "titles",     FIELD_N_STRING_ARRAY,   U(&tmp_class.titles),       U((MAX_LEVEL+1)*2), 0   },
     { NULL,		    0,				        0,			                0,		            0   }
 };
 
@@ -90,7 +90,6 @@ void save_class_table()
 {
     FILE* fp;
     const Class* temp;
-    int cnt = 0;
 
     char tempclasses_file[256];
     sprintf(tempclasses_file, "%s%s", area_dir, DATA_DIR "tempclasses");
@@ -100,12 +99,10 @@ void save_class_table()
         return;
     }
 
-    for (temp = class_table; !IS_NULLSTR(temp->name); temp++)
-        cnt++;
+    fprintf(fp, "%d\n\n", class_count);
 
-    fprintf(fp, "%d\n\n", cnt);
-
-    for (temp = class_table, cnt = 0; !IS_NULLSTR(temp->name); temp++) {
+    int i;
+    for (temp = class_table, i = 0; i < class_count; ++i, ++temp) {
         fprintf(fp, "#CLASS\n");
         save_struct(fp, U(&tmp_class), class_save_table, U(temp));
         fprintf(fp, "#END\n\n");

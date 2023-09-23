@@ -43,6 +43,7 @@ FLAGS flag_lookup(const char*, const struct flag_type*);
 HelpData* help_lookup(char*);
 HelpArea* had_lookup(char*);
 int16_t race_lookup(const char* name);
+Stat stat_lookup(const char* name);
 ItemType item_lookup(const char* name);
 int liquid_lookup(const char* name);
 

@@ -29,7 +29,8 @@
 
 #include "comm.h"
 #include "db.h"
-#include "olc.h"
+
+#include "olc/olc.h"
 
 #include "entities/descriptor.h"
 #include "entities/player_data.h"

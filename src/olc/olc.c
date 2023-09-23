@@ -44,7 +44,7 @@
 /*
  * Local functions.
  */
-AreaData* get_area_data args((VNUM vnum));
+AreaData* get_area_data(VNUM vnum);
 
 void UpdateOLCScreen(Descriptor*);
 
@@ -56,13 +56,14 @@ Race                xRace;
 MobProgCode         xProg;
 CmdType             xCmd;
 Social              xSoc;
+Class               xClass;
 
 #ifdef U
 #define OLD_U U
 #endif
 #define U(x)    (uintptr_t)(x)
 
-const struct olc_comm_type mob_olc_comm_table[] = {
+const OlcCmdEntry mob_olc_comm_table[] = {
     { "name",	    U(&xMob.name),          ed_line_string,		0		        },
     { "short",	    U(&xMob.short_descr),	ed_line_string,		0		        },
     { "long",	    U(&xMob.long_descr),	ed_line_string,		U(1)	        },
@@ -107,7 +108,7 @@ const struct olc_comm_type mob_olc_comm_table[] = {
     { NULL,	        0,				        NULL,			    0		        }
 };
 
-const struct olc_comm_type obj_olc_comm_table[] = {
+const OlcCmdEntry obj_olc_comm_table[] = {
     { "name",	    U(&xObj.name),		    ed_line_string,		0		        },
     { "short",	    U(&xObj.short_descr),	ed_line_string,		0		        },
     { "long",	    U(&xObj.description),	ed_line_string,		0		        },
@@ -139,7 +140,7 @@ const struct olc_comm_type obj_olc_comm_table[] = {
     { NULL,	        0,				        NULL,			    0		        }
 };
 
-const struct olc_comm_type room_olc_comm_table[] = {
+const OlcCmdEntry room_olc_comm_table[] = {
     { "name",	    U(&xRoom.name),		    ed_line_string,		0		        },
     { "desc",	    U(&xRoom.description),	ed_desc,		    0		        },
     { "ed",	        U(&xRoom.extra_desc),	ed_ed,			    0		        },
@@ -223,6 +224,9 @@ bool run_olc_editor(Descriptor* d, char* incomm)
     case ED_HELP:
         hedit(d->character, incomm);
         break;
+    case ED_CLASS:
+        cedit(d->character, incomm);
+        break;
     default:
         return false;
     }
@@ -262,6 +266,9 @@ char* olc_ed_name(CharData* ch)
     case ED_CMD:
         sprintf(buf, "CMDEdit");
         break;
+    case ED_CLASS:
+        sprintf(buf, "CEdit");
+        break;
     case ED_GROUP:
         sprintf(buf, "GEdit");
         break;
@@ -276,7 +283,6 @@ char* olc_ed_name(CharData* ch)
 }
 
 
-
 char* olc_ed_vnum(CharData* ch)
 {
     AreaData* pArea;
@@ -288,6 +294,7 @@ char* olc_ed_vnum(CharData* ch)
     Race* pRace;
     Social* pSocial;
     Skill* pSkill;
+    Class* pClass;
     CmdInfo* pCmd;
     static char buf[10];
 
@@ -333,6 +340,9 @@ char* olc_ed_vnum(CharData* ch)
         pHelp = (HelpData*)ch->desc->pEdit;
         sprintf(buf, "%s", pHelp ? pHelp->keyword : "");
         break;
+    case ED_CLASS:
+        pClass = (Class*)ch->desc->pEdit;
+        sprintf(buf, "%s", pClass ? pClass->name : "");
     default:
         sprintf(buf, " ");
         break;
@@ -341,7 +351,7 @@ char* olc_ed_vnum(CharData* ch)
     return buf;
 }
 
-const struct olc_comm_type* get_olc_table(int editor)
+const OlcCmdEntry* get_olc_table(int editor)
 {
     switch (editor) {
     case ED_MOBILE:	return mob_olc_comm_table;
@@ -352,6 +362,7 @@ const struct olc_comm_type* get_olc_table(int editor)
     case ED_CMD:	return cmd_olc_comm_table;
     case ED_PROG:	return prog_olc_comm_table;
     case ED_SOCIAL:	return social_olc_comm_table;
+    case ED_CLASS:  return class_olc_comm_table;
     }
     return NULL;
 }
@@ -365,7 +376,7 @@ void show_olc_cmds(CharData* ch)
 {
     char    buf[MAX_STRING_LENGTH] = "";
     char    buf1[MAX_STRING_LENGTH] = "";
-    const struct olc_comm_type* table;
+    const OlcCmdEntry* table;
     int     col;
 
     buf1[0] = '\0';
@@ -424,7 +435,7 @@ bool show_commands(CharData* ch, char* argument)
 /*****************************************************************************
  *                           Interpreter Tables.                             *
  *****************************************************************************/
-const struct olc_cmd_type aedit_table[] =
+const OlcCmd aedit_table[] =
 {
 // { command		function	    },
    { "age", 		aedit_age	    },
@@ -647,7 +658,7 @@ void    medit(CharData* ch, char* argument)
 
 
 
-const struct editor_cmd_type editor_table[] =
+const EditCmd editor_table[] =
 {
 /* {	command		function	}, */
 
@@ -661,17 +672,17 @@ const struct editor_cmd_type editor_table[] =
    {	"skill",	do_skedit	},
    {	"command",	do_cmdedit	},
    {	"group",	do_gedit	},
+   {    "class",    do_cedit    },
    {	"help",		do_hedit	},
-
-   {	NULL,		0		}
+   {	NULL,		0		    }
 };
 
 
 /* Entry point for all editors. */
-void    do_olc(CharData* ch, char* argument)
+void do_olc(CharData* ch, char* argument)
 {
-    char    command[MAX_INPUT_LENGTH];
-    int     cmd;
+    char command[MAX_INPUT_LENGTH];
+    int cmd;
 
     argument = one_argument(argument, command);
 
@@ -1160,7 +1171,7 @@ void    add_reset(RoomData* room, ResetData* pReset, int indice)
     return;
 }
 
-void    do_resets(CharData* ch, char* argument)
+void do_resets(CharData* ch, char* argument)
 {
     char    arg1[MAX_INPUT_LENGTH];
     char    arg2[MAX_INPUT_LENGTH];
@@ -1470,7 +1481,7 @@ void do_alist(CharData* ch, char* argument)
     return;
 }
 
-bool process_olc_command(CharData* ch, char* argument, const struct olc_comm_type* table)
+bool process_olc_command(CharData* ch, char* argument, const OlcCmdEntry* table)
 {
     char arg[MIL];
     MobPrototype* pMob;
@@ -1479,6 +1490,7 @@ bool process_olc_command(CharData* ch, char* argument, const struct olc_comm_typ
     Race* pRace;
     Skill* pSkill;
     CmdInfo* pCmd;
+    Class* pClass;
     AreaData* tArea;
     MobProgCode* pProg;
     Social* pSoc;
@@ -1549,6 +1561,17 @@ bool process_olc_command(CharData* ch, char* argument, const struct olc_comm_typ
                     pointer = 0;
                 if ((*table[temp].function) (table[temp].name, ch, argument, pointer, table[temp].parameter))
                     save_race_table();
+                return true;
+                break;
+
+            case ED_CLASS:
+                EDIT_CLASS(ch, pClass);
+                if (table[temp].argument)
+                    pointer = (table[temp].argument - U(&xClass) + U(pClass));
+                else
+                    pointer = 0;
+                if ((*table[temp].function) (table[temp].name, ch, argument, pointer, table[temp].parameter))
+                    save_class_table();
                 return true;
                 break;
 

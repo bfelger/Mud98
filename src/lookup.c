@@ -109,6 +109,16 @@ int16_t race_lookup(const char* name)
     return 0;
 }
 
+Stat stat_lookup(const char* name)
+{
+    for (int i = 0; i < STAT_COUNT; i++) {
+        if (!str_prefix(name, stat_table[i].name))
+            return stat_table[i].bit;
+    }
+
+    return -1;
+}
+
 ItemType item_lookup(const char* name)
 {
     for (int type = 0; type < ITEM_TYPE_COUNT; type++) {

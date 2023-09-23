@@ -39,9 +39,10 @@
 #include "mob_prog.h"
 #include "recycle.h"
 #include "save.h"
-#include "screen.h"
 #include "tables.h"
 #include "vt.h"
+
+#include "olc/screen.h"
 
 #include "entities/descriptor.h"
 #include "entities/player_data.h"
