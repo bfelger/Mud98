@@ -27,6 +27,7 @@
 
 #include "entities/mob_prototype.h"
 
+#include "data/class.h"
 #include "data/race.h"
 #include "data/skill.h"
 #include "data/spell.h"
@@ -56,14 +57,14 @@
 /*
  * New typedefs.
  */
-typedef	bool OLC_FUN(CharData* ch, char* argument);
-#define DECLARE_OLC_FUN( fun )	OLC_FUN fun
+typedef	bool OlcFunc(CharData* ch, char* argument);
+#define DECLARE_OLC_FUN(fun)    OlcFunc fun
 
-typedef bool ED_FUN(char*, CharData*, char*, uintptr_t, const uintptr_t);
-#define DECLARE_ED_FUN( fun )	ED_FUN fun
+typedef bool EditFunc(char*, CharData*, char*, uintptr_t, const uintptr_t);
+#define DECLARE_ED_FUN(fun)     EditFunc fun
 
-#define ED_FUN_DEC(blah)	bool blah (char* n_fun, CharData* ch,        \
-                            char* argument, uintptr_t arg, const uintptr_t par)
+#define ED_FUN_DEC(blah)        bool blah (char* n_fun, CharData* ch, \
+    char* argument, uintptr_t arg, const uintptr_t par)
 
 /* Command procedures needed ROM OLC */
 DECLARE_DO_FUN(do_help);
@@ -72,19 +73,24 @@ DECLARE_SPELL_FUN(spell_null);
 /*
  * Connected states for editor.
  */
-#define ED_NONE		0
-#define	ED_AREA		1
-#define	ED_ROOM		2
-#define	ED_OBJECT	3
-#define	ED_MOBILE	4
-#define	ED_PROG		5
-#define	ED_CLAN		6
-#define	ED_RACE		7
-#define	ED_SOCIAL	8
-#define ED_SKILL	9
-#define ED_CMD		10
-#define ED_GROUP	11
-#define ED_HELP		13
+
+typedef enum editor_t {
+    ED_NONE     = 0,
+    ED_AREA     = 1,
+    ED_ROOM     = 2,
+    ED_OBJECT   = 3,
+    ED_MOBILE	= 4,
+    ED_PROG     = 5,
+    ED_CLAN     = 6,
+    ED_RACE     = 7,
+    ED_SOCIAL   = 8,
+    ED_SKILL    = 9,
+    ED_CMD      = 10,
+    ED_GROUP    = 11,
+    ED_CLASS    = 12,
+    ED_HELP     = 13,
+} EditorType;
+
 
 /*
  * Interpreter Prototypes
@@ -100,6 +106,7 @@ void	skedit		(CharData* ch, char* argument);
 void	cmdedit		(CharData* ch, char* argument);
 void	gedit		(CharData* ch, char* argument);
 void	hedit		(CharData* ch, char* argument);
+void    cedit       (CharData* ch, char* argument);
 
 /*
  * OLC Constants
@@ -113,40 +120,42 @@ void	hedit		(CharData* ch, char* argument);
 #define MIN_SEDIT_SECURITY	    3
 #define MIN_AEDIT_SECURITY      5
 #define MIN_RAEDIT_SECURITY     7
+#define MIN_CEDIT_SECURITY      7
 
 /*
  * Structure for an OLC editor command.
  */
-struct olc_cmd_type {
+typedef struct olc_cmd_t {
     char* const	name;
-    OLC_FUN* olc_fun;
-};
+    OlcFunc* olc_fun;
+} OlcCmd;
 
-struct olc_comm_type {
+typedef struct olc_cmd_entry_t {
     char* name;
     uintptr_t argument;
-    ED_FUN* function;
+    EditFunc* function;
     const uintptr_t parameter;
-};
+} OlcCmdEntry;
 
-extern const struct olc_comm_type mob_olc_comm_table[];
-extern const struct olc_comm_type obj_olc_comm_table[];
-extern const struct olc_comm_type room_olc_comm_table[];
-extern const struct olc_comm_type skill_olc_comm_table[];
-extern const struct olc_comm_type race_olc_comm_table[];
-extern const struct olc_comm_type cmd_olc_comm_table[];
-extern const struct olc_comm_type prog_olc_comm_table[];
-extern const struct olc_comm_type social_olc_comm_table[];
+extern const OlcCmdEntry mob_olc_comm_table[];
+extern const OlcCmdEntry obj_olc_comm_table[];
+extern const OlcCmdEntry room_olc_comm_table[];
+extern const OlcCmdEntry skill_olc_comm_table[];
+extern const OlcCmdEntry race_olc_comm_table[];
+extern const OlcCmdEntry cmd_olc_comm_table[];
+extern const OlcCmdEntry prog_olc_comm_table[];
+extern const OlcCmdEntry social_olc_comm_table[];
+extern const OlcCmdEntry class_olc_comm_table[];
 
-bool process_olc_command(CharData*, char* argument, const struct olc_comm_type*);
+bool process_olc_command(CharData*, char* argument, const OlcCmdEntry*);
 
 /*
  * Structure for an OLC editor startup command.
  */
-struct editor_cmd_type {
+typedef struct editor_cmd_t {
     char* const	name;
     DoFunc* do_fun;
-};
+} EditCmd;
 
 /*
  * Utils.
@@ -164,10 +173,11 @@ char* olc_ed_vnum(CharData* ch);
 /*
  * Interpreter Table Prototypes
  */
-extern const struct olc_cmd_type aedit_table[];
-extern const struct olc_cmd_type raedit_table[];
-extern const struct olc_cmd_type gedit_table[];
-extern const struct olc_cmd_type hedit_table[];
+extern const OlcCmd aedit_table[];
+extern const OlcCmd raedit_table[];
+extern const OlcCmd gedit_table[];
+extern const OlcCmd hedit_table[];
+extern const OlcCmd cedit_table[];
 
 /*
  * Editor Commands.
@@ -183,14 +193,15 @@ DECLARE_DO_FUN(do_skedit);
 DECLARE_DO_FUN(do_cmdedit);
 DECLARE_DO_FUN(do_gedit);
 DECLARE_DO_FUN(do_hedit);
+DECLARE_DO_FUN(do_cedit);
 
 /*
  * General Functions
  */
-bool show_commands		args((CharData* ch, char* argument));
-bool show_help			args((CharData* ch, char* argument));
-bool edit_done			args((CharData* ch));
-bool show_version		args((CharData* ch, char* argument));
+bool show_commands(CharData* ch, char* argument);
+bool show_help(CharData* ch, char* argument);
+bool edit_done(CharData* ch);
+bool show_version(CharData* ch, char* argument);
 
 /*
  * Area Editor Prototypes
@@ -256,6 +267,21 @@ DECLARE_OLC_FUN(raedit_maxstats);
 DECLARE_OLC_FUN(raedit_skills);
 
 /*
+ * Class editor.
+ */
+DECLARE_OLC_FUN(cedit_show);
+DECLARE_OLC_FUN(cedit_weapon);
+DECLARE_OLC_FUN(cedit_guild);
+DECLARE_OLC_FUN(cedit_skillcap);
+DECLARE_OLC_FUN(cedit_thac0_00);
+DECLARE_OLC_FUN(cedit_thac0_32);
+DECLARE_OLC_FUN(cedit_hpmin);
+DECLARE_OLC_FUN(cedit_hpmax);
+DECLARE_OLC_FUN(cedit_title);
+DECLARE_OLC_FUN(cedit_new);
+DECLARE_OLC_FUN(cedit_list);
+
+/*
  * Social editor.
  */
 DECLARE_OLC_FUN(sedit_show);
@@ -289,7 +315,7 @@ DECLARE_OLC_FUN(skedit_cmsg);
 DECLARE_OLC_FUN(skedit_callback);
 
 /*
- * Comman editor.
+ * Command editor.
  */
 DECLARE_OLC_FUN(cmdedit_show);
 DECLARE_OLC_FUN(cmdedit_name);
@@ -325,6 +351,7 @@ DECLARE_OLC_FUN(hedit_list);
 DECLARE_ED_FUN(ed_line_string);
 DECLARE_ED_FUN(ed_desc);
 DECLARE_ED_FUN(ed_bool);
+DECLARE_ED_FUN(ed_skillgroup);
 DECLARE_ED_FUN(ed_flag_toggle);
 DECLARE_ED_FUN(ed_flag_set_long);
 DECLARE_ED_FUN(ed_flag_set_sh);
@@ -375,6 +402,7 @@ DECLARE_ED_FUN(ed_objrecval);
 #define EDIT_GROUP(ch, grp)	    ( grp = (SkillGroup*)ch->desc->pEdit )
 #define EDIT_HELP(ch, help)	    ( help = (HelpData*)ch->desc->pEdit )
 #define EDIT_PROG(ch, code)	    ( code = (MobProgCode*)ch->desc->pEdit )
+#define EDIT_CLASS(ch, class_)  ( class_ = (Class*)ch->desc->pEdit )
 
 
 void show_liqlist(CharData* ch);

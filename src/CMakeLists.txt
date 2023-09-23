@@ -76,15 +76,19 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     act_info.h act_info.c act_move.h act_move.c act_obj.h act_obj.c act_wiz.h
-    act_wiz.c alias.h alias.c array.h ban.h ban.c benchmark.h benchmark.c bit.h 
-    bit.c cmdedit.c color.h color.c comm.h comm.c db.c db2.c digest.h digest.c
-    effects.h effects.c fight.h fight.c flags.c gedit.c handler.h handler.c
-    healer.c hedit.c interp.c lookup.c magic.c magic2.c main.c mob_cmds.h
-    mob_cmds.c mob_prog.h mob_prog.c music.c note.h note.c olc.h olc.c olc_act.c
-    olc_save.c pcg_basic.c pedit.c raedit.c recycle.c save.h save.c scan.c
-    screen.c sedit.c skedit.c skills.h skills.c socket.h special.h special.c
-    spell_list.h string_edit.h string_edit.c tables.c tablesave.c tests.h
+    act_wiz.c alias.h alias.c array.h ban.h ban.c benchmark.h benchmark.c 
+    color.h color.c comm.h comm.c db.c db2.c digest.h digest.c
+    effects.h effects.c fight.h fight.c flags.c handler.h handler.c
+    healer.c interp.c lookup.c magic.c magic2.c main.c mob_cmds.h
+    mob_cmds.c mob_prog.h mob_prog.c music.c note.h note.c
+    pcg_basic.c recycle.c save.h save.c scan.c
+    skills.h skills.c socket.h special.h special.c
+    spell_list.h tables.c tablesave.c tests.h
     tests.c update.h update.c weather.h weather.c wizutil.v3.c
+
+    olc/bit.h olc/bit.c olc/cmdedit.c olc/gedit.c olc/hedit.c olc/olc.h 
+    olc/olc.c olc/olc_act.c olc/olc_save.c olc/pedit.c olc/raedit.c olc/screen.h
+    olc/screen.c olc/sedit.c olc/skedit.c olc/string_edit.h olc/string_edit.c
     
     entities/affect_data.h entities/affect_data.c
     entities/area_data.h entities/area_data.c 
@@ -112,7 +116,7 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     data/social.h data/social.c
     data/spell.h data/spell.c
     data/stats.h data/stats.c
- )
+  "olc/cedit.c")
 
 if (NOT MSVC)
     target_link_libraries(Mud98 Threads::Threads OpenSSL::SSL)

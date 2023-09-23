@@ -4,16 +4,17 @@
 
 #include "merc.h"
 
-#include "bit.h"
 #include "comm.h"
 #include "db.h"
 #include "handler.h"
 #include "interp.h"
 #include "lookup.h"
-#include "olc.h"
 #include "recycle.h"
 #include "skills.h"
 #include "tables.h"
+
+#include "olc/bit.h"
+#include "olc/olc.h"
 
 #include "entities/descriptor.h"
 
@@ -260,6 +261,7 @@ void load_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, con
                     break;
 
                 case FIELD_STRING_ARRAY:
+                case FIELD_N_STRING_ARRAY:
                     pString = (char**)(temp->field_ptr - base_type + pointer);
                     i = 0;
                     while (str_cmp((string = fread_string(fp)), "@")) {
@@ -440,12 +442,14 @@ void save_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, con
             break;
 
         case FIELD_STRING_ARRAY:
+        case FIELD_N_STRING_ARRAY:
             pString = (char**)(temp->field_ptr - base_type + pointer);
             fprintf(fp, "%s ", temp->field_name);
             for (i = 0; i < (int)temp->argument; i++) {
-                if (IS_NULLSTR(pString[i]))
+                if (temp->field_type != FIELD_N_STRING_ARRAY 
+                    && IS_NULLSTR(pString[i]))
                     break;
-                fprintf(fp, "%s~ ", pString[i]);
+                fprintf(fp, "%s~ ", (pString[i] ? pString[i] : ""));
             }
             fprintf(fp, "@~\n");
             break;

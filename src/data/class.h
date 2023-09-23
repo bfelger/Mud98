@@ -29,7 +29,7 @@ typedef struct class_t {
     int16_t hp_min;                 // Min hp gained on leveling
     int16_t hp_max;                 // Max hp gained on leveling
     bool fMana;                     // Class gains mana on level
-    const char* titles[MAX_LEVEL + 1][2];
+    char* titles[MAX_LEVEL + 1][2];
 } Class;
 
 void load_class_table();

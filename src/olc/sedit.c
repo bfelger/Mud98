@@ -51,7 +51,7 @@ int maxSocial; /* max number of socials */
 #endif
 #define U(x)    (uintptr_t)(x)
 
-const struct olc_comm_type social_olc_comm_table[] = {
+const OlcCmdEntry social_olc_comm_table[] = {
     { "cnoarg",     U(&xSoc.char_no_arg),   ed_line_string, 0                   },
     { "onoarg",     U(&xSoc.others_no_arg), ed_line_string, 0                   },
     { "cfound",     U(&xSoc.char_found),    ed_line_string, 0                   },

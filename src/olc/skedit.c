@@ -51,7 +51,7 @@ extern Skill xSkill;
 #endif
 #define U(x)    (uintptr_t)(x)
 
-const struct olc_comm_type skill_olc_comm_table[] = {
+const OlcCmdEntry skill_olc_comm_table[] = {
     { "name",       0,                          ed_olded,       U(skedit_name)  },
     { "beats",      U(&xSkill.beats),           ed_number_s_pos,0               },
     { "position",   U(&xSkill.minimum_position),ed_int16lookup, U(position_lookup)},

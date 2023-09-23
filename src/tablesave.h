@@ -24,9 +24,10 @@ typedef enum save_type_t {
     FIELD_INUTIL = 12,
     FIELD_VNUM = 13,
     FIELD_VNUM_ARRAY = 14,
-    FIELD_RATING_DYNARRAY = 15,
-    FIELD_LEVEL_DYNARRAY = 16,
-    FIELD_MULT_DYNARRAY = 17,
+    FIELD_RATING_DYNARRAY = 15,     // Dynamic malloc'd arrays
+    FIELD_LEVEL_DYNARRAY = 16,      // Dynamic malloc'd arrays
+    FIELD_MULT_DYNARRAY = 17,       // Dynamic malloc'd arrays
+    FIELD_N_STRING_ARRAY = 18,      // Don't break for empty strings
 } SaveType;
 
 typedef struct save_table_entry_t {

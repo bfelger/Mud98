@@ -3460,17 +3460,37 @@ ED_FUN_DEC(ed_bool)
         return false;
     }
 
-    if (!str_cmp(argument, "true"))
+    if (!str_cmp(argument, "true") || !str_cmp(argument, "yes"))
         *(bool*)arg = true;
     else
-        if (!str_cmp(argument, "false"))
+        if (!str_cmp(argument, "false") || !str_cmp(argument, "no"))
             *(bool*)arg = false;
         else {
-            send_to_char("ERROR : Argument must be true or false.\n\r", ch);
+            send_to_char("{jArgument must be true or false.{x\n\r", ch);
             return false;
         }
 
     send_to_char("Ok.\n\r", ch);
+    return true;
+}
+
+ED_FUN_DEC(ed_skillgroup)
+{
+    SKNUM gn;
+
+    if (emptystring(argument)) {
+        printf_to_char(ch, "Syntax : {*%s <skill group>{x\n\r", n_fun);
+        return false;
+    }
+
+    if ((gn = group_lookup(argument)) < 0) {
+        printf_to_char(ch, "{jCould not find group '{*%s{j'{x\n\r", argument);
+        return false;
+    }
+
+    char** group_name = (char**)arg;
+    free_string(*group_name);
+    *group_name = str_dup(skill_group_table[gn].name);
     return true;
 }
 
@@ -3489,7 +3509,7 @@ ED_FUN_DEC(ed_flag_toggle)
         }
     }
 
-    printf_to_char(ch, "Syntax : %s [flags]\n\r", n_fun);
+    printf_to_char(ch, "Syntax : {*%s [flags]{x\n\r", n_fun);
 
     return false;
 }
@@ -3509,7 +3529,7 @@ ED_FUN_DEC(ed_flag_set_long)
         }
     }
 
-    printf_to_char(ch, "Syntax : %s [flags]\n\r", n_fun);
+    printf_to_char(ch, "Syntax : {*%s [flags]{x\n\r", n_fun);
     show_flags_to_char(ch, (struct flag_type*)par);
 
     return false;
@@ -3545,12 +3565,12 @@ ED_FUN_DEC(ed_shop)
     argument = one_argument(argument, arg1);
 
     if (command[0] == '\0') {
-        send_to_char("Syntax : shop hours [open] [close]\n\r", ch);
+        send_to_char("Syntax : {*shop hours [open] [close]\n\r", ch);
         send_to_char("         shop profit [%% buy] [%% sell]\n\r", ch);
         send_to_char("         shop type [0-4] [obj type]\n\r", ch);
         send_to_char("         shop type [0-4] none\n\r", ch);
         send_to_char("         shop assign\n\r", ch);
-        send_to_char("         shop remove\n\r", ch);
+        send_to_char("         shop remove{x\n\r", ch);
 
         return false;
     }
@@ -3558,12 +3578,12 @@ ED_FUN_DEC(ed_shop)
     if (!str_cmp(command, "hours")) {
         if (arg1[0] == '\0' || !is_number(arg1)
             || argument[0] == '\0' || !is_number(argument)) {
-            send_to_char("Syntax : shop hours [open] [close]\n\r", ch);
+            send_to_char("Syntax : {*shop hours [open] [close]{x\n\r", ch);
             return false;
         }
 
         if (!pMob->pShop) {
-            send_to_char("ERROR : You must assign a shop first ('shop assign').\n\r", ch);
+            send_to_char("{jYou must assign a shop first ('{*shop assign{j').{x\n\r", ch);
             return false;
         }
 
@@ -3577,12 +3597,12 @@ ED_FUN_DEC(ed_shop)
     if (!str_cmp(command, "profit")) {
         if (arg1[0] == '\0' || !is_number(arg1)
             || argument[0] == '\0' || !is_number(argument)) {
-            send_to_char("Syntax : shop profit [%% buy] [%% sell]\n\r", ch);
+            send_to_char("Syntax : {*shop profit [%% buy] [%% sell]{x\n\r", ch);
             return false;
         }
 
         if (!pMob->pShop) {
-            send_to_char("ERROR : You must assign a shop first ('shop assign').\n\r", ch);
+            send_to_char("{jYou must assign a shop first ('{*shop assign{j').\n\r", ch);
             return false;
         }
 
@@ -3599,23 +3619,23 @@ ED_FUN_DEC(ed_shop)
 
         if (arg1[0] == '\0' || !is_number(arg1)
             || argument[0] == '\0') {
-            send_to_char("Syntax:  shop type [#x0-4] [item type]\n\r", ch);
+            send_to_char("Syntax:  {*shop type [#x0-4] [item type]{x\n\r", ch);
             return false;
         }
 
         if (atoi(arg1) >= MAX_TRADE) {
-            sprintf(buf, "MEdit:  May sell %d items max.\n\r", MAX_TRADE);
+            sprintf(buf, "{jMEdit:  May sell %d items max.{x\n\r", MAX_TRADE);
             send_to_char(buf, ch);
             return false;
         }
 
         if (!pMob->pShop) {
-            send_to_char("MEdit:  You must assign a shop first ('shop assign').\n\r", ch);
+            send_to_char("{jMEdit:  You must assign a shop first ('shop assign'){x.\n\r", ch);
             return false;
         }
 
         if (str_cmp(argument, "none") && (value = flag_value(type_flag_table, argument)) == NO_FLAG) {
-            send_to_char("MEdit:  That type of item does not exist.\n\r", ch);
+            send_to_char("{jMEdit:  That type of item does not exist.{x\n\r", ch);
             return false;
         }
 
@@ -4471,7 +4491,7 @@ ED_FUN_DEC(ed_race)
 
 ED_FUN_DEC(ed_olded)
 {
-    return (*(OLC_FUN*)par) (ch, argument);
+    return (*(OlcFunc*)par) (ch, argument);
 }
 
 ED_FUN_DEC(ed_docomm)

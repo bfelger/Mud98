@@ -1,4 +1,4 @@
-261
+262
 
 #COMMAND
 name .~
@@ -319,6 +319,15 @@ show undef~
 name cast~
 do_fun do_cast~
 position fighting~
+level 0
+log log_normal~
+show undef~
+#END
+
+#COMMAND
+name cedit~
+do_fun do_cedit~
+position dead~
 level 0
 log log_normal~
 show undef~
