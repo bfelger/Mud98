@@ -77,13 +77,13 @@ include_directories(${CMAKE_SOURCE_DIR})
 add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     act_info.h act_info.c act_move.h act_move.c act_obj.h act_obj.c act_wiz.h
     act_wiz.c alias.h alias.c array.h ban.h ban.c benchmark.h benchmark.c 
-    color.h color.c comm.h comm.c db.c db2.c digest.h digest.c effects.h 
-    effects.c fight.h fight.c flags.c handler.h handler.c healer.c interp.c 
-    lookup.c magic.c magic2.c main.c mob_cmds.h mob_cmds.c mob_prog.h mob_prog.c
-    music.c note.h note.c pcg_basic.c recycle.c save.h save.c scan.c skills.h 
-    skills.c socket.h special.h special.c spell_list.h tables.c tablesave.c 
-    tests.h tests.c   update.h update.c weather.h weather.c 
-    wizutil.v3.c
+    color.h color.c comm.h comm.c config.h config.c db.c db2.c digest.h digest.c
+    effects.h effects.c file.h file.c fight.h fight.c flags.c handler.h 
+    handler.c healer.c interp.c lookup.c magic.c magic2.c main.c mob_cmds.h 
+    mob_cmds.c mob_prog.h mob_prog.c music.c note.h note.c pcg_basic.c recycle.c
+    save.h save.c scan.c skills.h skills.c socket.h special.h special.c 
+    spell_list.h tables.c tablesave.c tests.h tests.c update.h update.c 
+    weather.h weather.c wizutil.v3.c
 
     olc/bit.h olc/bit.c olc/cedit.c olc/cmdedit.c olc/gedit.c olc/hedit.c 
     olc/olc.h olc/olc.c olc/olc_act.c olc/olc_save.c olc/pedit.c olc/raedit.c 
@@ -116,7 +116,7 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     data/social.h data/social.c
     data/spell.h data/spell.c
     data/stats.h data/stats.c
- "config.h" "config.c" "file.h" "file.c")
+)
 
 if (NOT MSVC)
     target_link_libraries(Mud98 Threads::Threads OpenSSL::SSL)
