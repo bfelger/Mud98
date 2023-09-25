@@ -15,21 +15,21 @@ do
 
 done
 
-if [ ! -f "rom-mud.key" ] || [ ! -f "rom-mud.csr" ]; then
+if [ ! -f "mud98.key" ] || [ ! -f "mud98.csr" ]; then
     echo "Creating private key and signing request."
-    openssl req -newkey rsa:2048 -nodes -keyout rom-mud.key -out rom-mud.csr
+    openssl req -newkey rsa:2048 -nodes -keyout mud98.key -out mud98.csr
 fi
 
-if [ ! -f "rom-mud.crt" ]; then
+if [ ! -f "mud98.crt" ]; then
     echo "Creating self-signed certificate."
-    openssl x509 -signkey rom-mud.key -in rom-mud.csr -req -days 365 -out rom-mud.crt
+    openssl x509 -signkey mud98.key -in mud98.csr -req -days 365 -out mud98.crt
 fi
 
-if [ ! -f "rom-mud.pem" ]; then
+if [ ! -f "mud98.pem" ]; then
     echo "Creating PEM file."
-    openssl x509 -in rom-mud.crt -out rom-mud.pem
+    openssl x509 -in mud98.crt -out mud98.pem
 fi
 
 echo "Server's self-signed cert:"
-openssl x509 -in rom-mud.pem -noout -text
+openssl x509 -in mud98.pem -noout -text
 

@@ -36,6 +36,7 @@
 #include "act_wiz.h"
 #include "ban.h"
 #include "color.h"
+#include "config.h"
 #include "db.h"
 #include "digest.h"
 #include "handler.h"
@@ -145,10 +146,6 @@ typedef struct thread_data_t {
 NewConnThread new_conn_threads[MAX_HANDSHAKES] = { 0 };
 ThreadData thread_data[MAX_HANDSHAKES] = { 0 };
 
-extern bool merc_down;                      // Shutdown
-extern bool wizlock;                        // Game is wizlocked
-extern bool newlock;                        // Game is newlocked
-
 void bust_a_prompt(CharData* ch);
 bool check_parse_name(char* name);
 bool check_playing(Descriptor* d, char* name);
@@ -194,10 +191,10 @@ void init_ssl_server(SockServer* server)
     }
 
     char cert_file[256];
-    sprintf(cert_file, "%s%s", area_dir, CERT_FILE);
+    sprintf(cert_file, "%s%s", cfg_get_keys_dir(), cfg_get_cert_file());
 
     char pkey_file[256];
-    sprintf(pkey_file, "%s%s", area_dir, PKEY_FILE);
+    sprintf(pkey_file, "%s%s", cfg_get_keys_dir(), cfg_get_pkey_file());
 
     /* Set the key and cert */
     if (SSL_CTX_use_certificate_file(server->ssl_ctx, cert_file,

@@ -18,6 +18,7 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "handler.h"
 #include "interp.h"
@@ -66,7 +67,7 @@ http://www.andreasen.org/
 
   To use these 2 commands you will have to add a filename field to AreaData.
   This value can be found easily in load_area while booting - the filename
-  of the current area boot_db is reading from is in the strArea global.
+  of the current area boot_db is reading from is in the fpArea global.
 
   Since version 2 following was added:
 
@@ -249,7 +250,6 @@ void do_rename(CharData* ch, char* argument)
     char strsave[MAX_INPUT_LENGTH] = { 0 };
 
     CharData* victim;
-    FILE* file;
 
     argument = one_argument(argument, old_name); /* find new/old name */
     one_argument(argument, new_name);
@@ -304,28 +304,20 @@ void do_rename(CharData* ch, char* argument)
     }
 
     /* First, check if there is a player named that off-line */
-    sprintf(strsave, "%s%s%s", area_dir, PLAYER_DIR, capitalize(new_name));
+    sprintf(strsave, "%s%s", cfg_get_player_dir(), capitalize(new_name));
 
-    fclose(fpReserve); /* close the reserve file */
-    if ((file = fopen(strsave, "r")) != NULL) {
+    if (file_exists(strsave)) {
         send_to_char("A player with that name already exists!\n\r", ch);
-        fclose(file);
-        fpReserve = fopen(NULL_FILE, "r"); /* is this really necessary these days? */
         return;
     }
-    fpReserve = fopen(NULL_FILE, "r");  /* reopen the extra file */
 
     /* Check .gz file ! */
-    sprintf(strsave, "%s%s%s%s", area_dir, PLAYER_DIR, capitalize(new_name), ".gz");
+    sprintf(strsave, "%s%s%s", cfg_get_player_dir(), capitalize(new_name), ".gz");
 
-    fclose(fpReserve);
-    if ((file = fopen(strsave, "r")) != NULL) {
+    if  (file_exists(strsave)) {
         send_to_char("A player with that name already exists in a compressed file!\n\r", ch);
-        fclose(file);
-        fpReserve = fopen(NULL_FILE, "r");
         return;
     }
-    fpReserve = fopen(NULL_FILE, "r");  /* reopen the extra file */
 
     /* check for playing level-1 non-saved */
     if (get_char_world(ch, new_name)) {
@@ -334,7 +326,7 @@ void do_rename(CharData* ch, char* argument)
     }
 
     // Save the filename of the old name
-    sprintf(strsave, "%s%s%s", area_dir, PLAYER_DIR, capitalize(new_name));
+    sprintf(strsave, "%s%s", cfg_get_player_dir(), capitalize(new_name));
 
     // Rename the character and save him to a new file.
     // NOTE: Players who are level 1 do NOT get saved under a new name.

@@ -1695,7 +1695,7 @@ void do_whois(CharData* ch, char* argument)
             }
 
             /* a little formatting */
-            sprintf(buf, "{=[{*%2d %6s %s{=]{x %s%s%s%s%s%s%s%s\n\r", 
+            sprintf(buf, "{|[{*%2d %6s{* %s{|]{x %s%s%s%s%s%s%s%s\n\r", 
                 wch->level, race_table[wch->race].who_name, class_, 
                 wch->incog_level >= LEVEL_HERO ? "{_(Incog){x " : "",
                 wch->invis_level >= LEVEL_HERO ? "{_(Wizi){x " : "",
@@ -1747,12 +1747,6 @@ void do_who(CharData* ch, char* argument)
      */
     iLevelLower = 0;
     iLevelUpper = MAX_LEVEL;
-    //for (iClass = 0; iClass < class_count; iClass++) 
-    //    rgfClass[iClass] = false;
-    //for (iRace = 0; iRace < race_count; iRace++) 
-    //    rgfRace[iRace] = false;
-    //for (iClan = 0; iClan < MAX_CLAN; iClan++) 
-    //    rgfClan[iClan] = false;
 
     /*
      * Parse arguments.
@@ -1860,7 +1854,7 @@ void do_who(CharData* ch, char* argument)
         /*
          * Format it up.
          */
-        sprintf(buf, "{|[{*%2d %6s %s{|]{x %s%s%s%s%s%s%s%s\n\r", wch->level,
+        sprintf(buf, "{|[{*%2d %6s{* %s{|]{x %s%s%s%s%s%s%s%s\n\r", wch->level,
             race_table[wch->race].who_name,
             class_, wch->incog_level >= LEVEL_HERO ? "{_(Incog){x " : "",
             wch->invis_level >= LEVEL_HERO ? "{_(Wizi){x " : "",

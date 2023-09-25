@@ -29,6 +29,7 @@
 
 #include "db.h"
 #include "comm.h"
+#include "config.h"
 #include "handler.h"
 #include "note.h"
 #include "recycle.h"
@@ -53,7 +54,7 @@
 #endif
 
 /* local procedures */
-void load_thread(char* name, NoteData** list, int16_t type, time_t free_time);
+void load_thread(const char* name, NoteData** list, int16_t type, time_t free_time);
 void parse_note(CharData* ch, char* argument, int16_t type);
 bool hide_note(CharData* ch, NoteData* pnote);
 
@@ -145,69 +146,67 @@ void do_changes(CharData* ch, char* argument)
 void save_notes(int type)
 {
     FILE* fp;
-    char* name;
     NoteData* pnote;
 
     switch (type) {
     default:
         return;
     case NOTE_NOTE:
-        name = NOTE_FILE;
+        OPEN_OR_RETURN(fp = open_append_note_file());
         pnote = note_list;
         break;
     case NOTE_IDEA:
-        name = IDEA_FILE;
+        OPEN_OR_RETURN(fp = open_append_idea_file());
         pnote = idea_list;
         break;
     case NOTE_PENALTY:
-        name = PENALTY_FILE;
+        OPEN_OR_RETURN(fp = open_append_penalty_file());
         pnote = penalty_list;
         break;
     case NOTE_NEWS:
-        name = NEWS_FILE;
+        OPEN_OR_RETURN(fp = open_append_news_file());
         pnote = news_list;
         break;
     case NOTE_CHANGES:
-        name = CHANGES_FILE;
+        OPEN_OR_RETURN(fp = open_append_changes_file());
         pnote = changes_list;
         break;
     }
 
-    fclose(fpReserve);
-    char filename[256];
-    sprintf(filename, "%s%s", area_dir, name);
-    if ((fp = fopen(filename, "w")) == NULL) { perror(name); }
-    else {
-        for (; pnote != NULL; pnote = pnote->next) {
-            fprintf(fp, "Sender  %s~\n", pnote->sender);
-            fprintf(fp, "Date    %s~\n", pnote->date);
-            fprintf(fp, "Stamp   "TIME_FMT"\n", pnote->date_stamp);
-            fprintf(fp, "To      %s~\n", pnote->to_list);
-            fprintf(fp, "Subject %s~\n", pnote->subject);
-            fprintf(fp, "Text\n%s~\n", pnote->text);
-        }
-        fclose(fp);
-        fpReserve = fopen(NULL_FILE, "r");
-        return;
+    for (; pnote != NULL; pnote = pnote->next) {
+        fprintf(fp, "Sender  %s~\n", pnote->sender);
+        fprintf(fp, "Date    %s~\n", pnote->date);
+        fprintf(fp, "Stamp   "TIME_FMT"\n", pnote->date_stamp);
+        fprintf(fp, "To      %s~\n", pnote->to_list);
+        fprintf(fp, "Subject %s~\n", pnote->subject);
+        fprintf(fp, "Text\n%s~\n", pnote->text);
     }
-}
-void load_notes(void)
-{
-    load_thread(NOTE_FILE, &note_list, NOTE_NOTE, (time_t)14 * 24 * 60 * 60);
-    load_thread(IDEA_FILE, &idea_list, NOTE_IDEA, (time_t)28 * 24 * 60 * 60);
-    load_thread(PENALTY_FILE, &penalty_list, NOTE_PENALTY, 0);
-    load_thread(NEWS_FILE, &news_list, NOTE_NEWS, 0);
-    load_thread(CHANGES_FILE, &changes_list, NOTE_CHANGES, 0);
+    
+    close_file(fp);
 }
 
-void load_thread(char* name, NoteData** list, int16_t type, time_t free_time)
+void load_notes()
+{
+    load_thread(cfg_get_note_file(), &note_list, NOTE_NOTE, (time_t)14 * 24 * 60 * 60);
+    load_thread(cfg_get_idea_file(), &idea_list, NOTE_IDEA, (time_t)28 * 24 * 60 * 60);
+    load_thread(cfg_get_penalty_file(), &penalty_list, NOTE_PENALTY, 0);
+    load_thread(cfg_get_news_file(), &news_list, NOTE_NEWS, 0);
+    load_thread(cfg_get_changes_file(), &changes_list, NOTE_CHANGES, 0);
+}
+
+void load_thread(const char* name, NoteData** list, int16_t type, time_t free_time)
 {
     FILE* fp;
     NoteData* pnotelast;
 
     char filename[256];
-    sprintf(filename, "%s%s", area_dir, name);
-    if ((fp = fopen(filename, "r")) == NULL) return;
+
+    sprintf(filename, "%s%s", cfg_get_area_dir(), name);
+
+    if (!file_exists(filename))
+        return;
+
+    OPEN_OR_RETURN(fp = open_read_file(filename));
 
     pnotelast = NULL;
     for (;;) {
@@ -217,7 +216,7 @@ void load_thread(char* name, NoteData** list, int16_t type, time_t free_time)
         do {
             letter = (char)getc(fp);
             if (feof(fp)) {
-                fclose(fp);
+                close_file(fp);
                 return;
             }
         }
@@ -226,22 +225,28 @@ void load_thread(char* name, NoteData** list, int16_t type, time_t free_time)
 
         pnote = alloc_perm(sizeof(*pnote));
 
-        if (str_cmp(fread_word(fp), "sender")) break;
+        if (str_cmp(fread_word(fp), "sender")) 
+            break;
         pnote->sender = fread_string(fp);
 
-        if (str_cmp(fread_word(fp), "date")) break;
+        if (str_cmp(fread_word(fp), "date")) 
+            break;
         pnote->date = fread_string(fp);
 
-        if (str_cmp(fread_word(fp), "stamp")) break;
+        if (str_cmp(fread_word(fp), "stamp")) 
+            break;
         pnote->date_stamp = fread_number(fp);
 
-        if (str_cmp(fread_word(fp), "to")) break;
+        if (str_cmp(fread_word(fp), "to")) 
+            break;
         pnote->to_list = fread_string(fp);
 
-        if (str_cmp(fread_word(fp), "subject")) break;
+        if (str_cmp(fread_word(fp), "subject")) 
+            break;
         pnote->subject = fread_string(fp);
 
-        if (str_cmp(fread_word(fp), "text")) break;
+        if (str_cmp(fread_word(fp), "text")) 
+            break;
         pnote->text = fread_string(fp);
 
         if (free_time && pnote->date_stamp < current_time - free_time) {
@@ -259,8 +264,6 @@ void load_thread(char* name, NoteData** list, int16_t type, time_t free_time)
         pnotelast = pnote;
     }
 
-    strcpy(strArea, NOTE_FILE);
-    fpArea = fp;
     bug("Load_notes: bad key word.", 0);
     exit(1);
     return;
@@ -269,7 +272,6 @@ void load_thread(char* name, NoteData** list, int16_t type, time_t free_time)
 void append_note(NoteData* pnote)
 {
     FILE* fp;
-    char* name;
     NoteData** list;
     NoteData* last;
 
@@ -277,23 +279,23 @@ void append_note(NoteData* pnote)
     default:
         return;
     case NOTE_NOTE:
-        name = NOTE_FILE;
+        OPEN_OR_RETURN(fp = open_append_note_file());
         list = &note_list;
         break;
     case NOTE_IDEA:
-        name = IDEA_FILE;
+        OPEN_OR_RETURN(fp = open_append_idea_file());
         list = &idea_list;
         break;
     case NOTE_PENALTY:
-        name = PENALTY_FILE;
+        OPEN_OR_RETURN(fp = open_append_penalty_file());
         list = &penalty_list;
         break;
     case NOTE_NEWS:
-        name = NEWS_FILE;
+        OPEN_OR_RETURN(fp = open_append_news_file());
         list = &news_list;
         break;
     case NOTE_CHANGES:
-        name = CHANGES_FILE;
+        OPEN_OR_RETURN(fp = open_append_changes_file());
         list = &changes_list;
         break;
     }
@@ -306,20 +308,14 @@ void append_note(NoteData* pnote)
         last->next = pnote;
     }
 
-    fclose(fpReserve);
-    char filename[256];
-    sprintf(filename, "%s%s", area_dir, name);
-    if ((fp = fopen(filename, "a")) == NULL) { perror(name); }
-    else {
-        fprintf(fp, "Sender  %s~\n", pnote->sender);
-        fprintf(fp, "Date    %s~\n", pnote->date);
-        fprintf(fp, "Stamp   "TIME_FMT"\n", pnote->date_stamp);
-        fprintf(fp, "To      %s~\n", pnote->to_list);
-        fprintf(fp, "Subject %s~\n", pnote->subject);
-        fprintf(fp, "Text\n%s~\n", pnote->text);
-        fclose(fp);
-    }
-    fpReserve = fopen(NULL_FILE, "r");
+    fprintf(fp, "Sender  %s~\n", pnote->sender);
+    fprintf(fp, "Date    %s~\n", pnote->date);
+    fprintf(fp, "Stamp   "TIME_FMT"\n", pnote->date_stamp);
+    fprintf(fp, "To      %s~\n", pnote->to_list);
+    fprintf(fp, "Subject %s~\n", pnote->subject);
+    fprintf(fp, "Text\n%s~\n", pnote->text);
+
+    close_file(fp);
 }
 
 bool is_note_to(CharData* ch, NoteData* pnote)

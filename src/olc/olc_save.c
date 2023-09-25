@@ -22,6 +22,7 @@
 #include "olc.h"
 
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "handler.h"
 #include "mob_cmds.h"
@@ -120,13 +121,7 @@ void save_area_list(void)
     AreaData* pArea;
     HelpArea* ha;
 
-    char area_list[256];
-    sprintf(area_list, "%s%s", area_dir, AREA_LIST);
-    if ((fp = fopen(area_list, "w")) == NULL) {
-        bugf("save_area_list: could not open %s.", area_list);
-        perror("area.lst");
-        return;
-    }
+    OPEN_OR_RETURN(fp = open_read_area_list());
 
     for (ha = help_area_list; ha; ha = ha->next)
         if (ha->area == NULL)
@@ -137,7 +132,8 @@ void save_area_list(void)
     }
 
     fprintf(fp, "$\n");
-    fclose(fp);
+    
+    close_file(fp);
 
     return;
 }
@@ -908,14 +904,9 @@ void save_other_helps(CharData* ch)
     for (ha = help_area_list; ha; ha = ha->next)
         if (ha->changed == true
             && ha->area == NULL) {
-            sprintf(buf, "%s%s", area_dir, ha->filename);
+            sprintf(buf, "%s%s", cfg_get_area_dir(), ha->filename);
 
-            fp = fopen(buf, "w");
-
-            if (!fp) {
-                perror(ha->filename);
-                return;
-            }
+            OPEN_OR_CONTINUE(fp = open_read_file(buf));
 
             save_helps(fp, ha);
 
@@ -923,7 +914,8 @@ void save_other_helps(CharData* ch)
                 printf_to_char(ch, "%s\n\r", ha->filename);
 
             fprintf(fp, "#$\n");
-            fclose(fp);
+            
+            close_file(fp);
         }
 
     return;
@@ -937,62 +929,54 @@ void save_other_helps(CharData* ch)
 void save_area(AreaData* pArea)
 {
     FILE* fp;
-    char buf[MIL];
-    char buf2[MIL];
+    char tmp[MIL];
+    char area_file[MIL];
 
-    fclose(fpReserve);
+    sprintf(tmp, "%s%s.tmp", cfg_get_area_dir(), pArea->file_name);
 
-    sprintf(buf, "%s%s.bak", area_dir, pArea->file_name);
+    sprintf(area_file, "%s%s", cfg_get_area_dir(), pArea->file_name);
 
-    sprintf(buf2, "%s%s", area_dir, pArea->file_name);
+    OPEN_OR_RETURN(fp = open_write_file(tmp));
 
-    if (!(fp = fopen(buf, "w"))) {
-        bug("Open_area: fopen", 0);
-        perror(pArea->file_name);
-    }
-    else {
-        fprintf(fp, "#AREADATA\n");
-        fprintf(fp, "Name %s~\n", pArea->name);
-        fprintf(fp, "Builders %s~\n", fix_string(pArea->builders));
-        fprintf(fp, "VNUMs %"PRVNUM" %"PRVNUM"\n", pArea->min_vnum, pArea->max_vnum);
-        fprintf(fp, "Credits %s~\n", pArea->credits);
-        fprintf(fp, "Security %d\n", pArea->security);
-        fprintf(fp, "Low %d\n", pArea->low_range);
-        fprintf(fp, "High %d\n", pArea->high_range);
-        fprintf(fp, "Version 1\n");
-        fprintf(fp, "End\n\n\n\n");
+    fprintf(fp, "#AREADATA\n");
+    fprintf(fp, "Name %s~\n", pArea->name);
+    fprintf(fp, "Builders %s~\n", fix_string(pArea->builders));
+    fprintf(fp, "VNUMs %"PRVNUM" %"PRVNUM"\n", pArea->min_vnum, pArea->max_vnum);
+    fprintf(fp, "Credits %s~\n", pArea->credits);
+    fprintf(fp, "Security %d\n", pArea->security);
+    fprintf(fp, "Low %d\n", pArea->low_range);
+    fprintf(fp, "High %d\n", pArea->high_range);
+    fprintf(fp, "Version 1\n");
+    fprintf(fp, "End\n\n\n\n");
 
-        save_mobiles(fp, pArea);
-        save_objects(fp, pArea);
-        save_rooms(fp, pArea);
-        save_specials(fp, pArea);
-        save_resets(fp, pArea);
-        save_shops(fp, pArea);
-    	save_mobprogs( fp, pArea );
-        save_progs(pArea->min_vnum, pArea->max_vnum);
+    save_mobiles(fp, pArea);
+    save_objects(fp, pArea);
+    save_rooms(fp, pArea);
+    save_specials(fp, pArea);
+    save_resets(fp, pArea);
+    save_shops(fp, pArea);
+    save_mobprogs( fp, pArea );
+    save_progs(pArea->min_vnum, pArea->max_vnum);
 
-        if (pArea->helps && pArea->helps->first)
-            save_helps(fp, pArea->helps);
+    if (pArea->helps && pArea->helps->first)
+        save_helps(fp, pArea->helps);
 
-        fprintf(fp, "#$\n");
+    fprintf(fp, "#$\n");
 
-        fclose(fp);
-    }
+    close_file(fp);
 
 #ifdef _MSC_VER
-    if (!MoveFileExA(buf, buf2, MOVEFILE_REPLACE_EXISTING)) {
-        bugf("save_area : Could not rename %s to %s!", buf2, buf);
-        perror(buf2);
+    if (!MoveFileExA(tmp, area_file, MOVEFILE_REPLACE_EXISTING)) {
+        bugf("save_area : Could not rename %s to %s!", area_file, tmp);
+        perror(area_file);
     }
 #else
-    if (rename(buf, buf2) != 0) {
-        bugf("save_area : Could not rename %s to %s!", buf, buf2);
-        perror(buf2);
+    if (rename(tmp, area_file) != 0) {
+        bugf("save_area : Could not rename %s to %s!", tmp, area_file);
+        perror(area_file);
     }
 #endif
 
-    fpReserve = fopen(NULL_FILE, "r");
-    return;
 }
 
 

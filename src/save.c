@@ -30,6 +30,7 @@
 #include "benchmark.h"
 #include "color.h"
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "digest.h"
 #include "handler.h"
@@ -113,45 +114,32 @@ void save_char_obj(CharData* ch)
     char strsave[MAX_INPUT_LENGTH];
     FILE* fp;
 
-    if (IS_NPC(ch)) return;
+    if (IS_NPC(ch)) 
+        return;
 
     if (ch->desc != NULL && ch->desc->original != NULL) ch = ch->desc->original;
 
     /* create god log */
     if (IS_IMMORTAL(ch) || ch->level >= LEVEL_IMMORTAL) {
-        fclose(fpReserve);
-        sprintf(strsave, "%s%s%s", area_dir, GOD_DIR, capitalize(ch->name));
-        if ((fp = fopen(strsave, "w")) == NULL) {
-            bug("Save_char_obj: fopen", 0);
-            perror(strsave);
-            return;
-        }
-        else {
-            fprintf(fp, "Lev %2d Trust %2d  %s%s\n", ch->level, get_trust(ch),
-                ch->name, ch->pcdata->title);
-            fclose(fp);
-            fpReserve = fopen(NULL_FILE, "r");
-        }
+        sprintf(strsave, "%s%s", cfg_get_gods_dir(), capitalize(ch->name));
+        OPEN_OR_RETURN(fp = open_write_file(strsave));
+        fprintf(fp, "Lev %2d Trust %2d  %s%s\n", ch->level, get_trust(ch),
+            ch->name, ch->pcdata->title);
+        close_file(fp);
     }
 
-    fclose(fpReserve);
-    sprintf(strsave, "%s%s%s", area_dir, PLAYER_DIR, capitalize(ch->name));
-    if ((fp = fopen(strsave, "w")) == NULL) {
-        bug("Save_char_obj: fopen", 0);
-        perror(strsave);
-    }
-    else {
-        fwrite_char(ch, fp);
-        if (ch->carrying != NULL) fwrite_obj(ch, ch->carrying, fp, 0);
-        /* save the pets */
-        if (ch->pet != NULL && ch->pet->in_room == ch->in_room)
-            fwrite_pet(ch->pet, fp);
-        fwrite_themes(ch, fp);
-        fprintf(fp, "#END\n");
-        fclose(fp);
-    }
-    fpReserve = fopen(NULL_FILE, "r");
-    return;
+    sprintf(strsave, "%s%s", cfg_get_player_dir(), capitalize(ch->name));
+    OPEN_OR_RETURN(fp = open_write_file(strsave));
+
+    fwrite_char(ch, fp);
+    if (ch->carrying != NULL) fwrite_obj(ch, ch->carrying, fp, 0);
+    /* save the pets */
+    if (ch->pet != NULL && ch->pet->in_room == ch->in_room)
+        fwrite_pet(ch->pet, fp);
+    fwrite_themes(ch, fp);
+    fprintf(fp, "#END\n");
+
+    close_file(fp);
 }
 
 /*
@@ -507,7 +495,6 @@ bool load_char_obj(Descriptor* d, char* name)
     char strsave[MAX_INPUT_LENGTH] = { 0 };
     CharData* ch;
     FILE* fp;
-    bool found;
     int stat;
 
     ch = new_char_data();
@@ -541,15 +528,11 @@ bool load_char_obj(Descriptor* d, char* name)
         ch->pcdata->color_themes[i] = NULL;
     }
 
-    found = false;
-    fclose(fpReserve);
-
 #ifndef _MSC_VER
     char buf[MAX_INPUT_LENGTH + 50] = { 0 };    // To handle strsave + format
     /* decompress if .gz file exists */
-    sprintf(strsave, "%s%s%s%s", area_dir, PLAYER_DIR, capitalize(name), ".gz");
-    if ((fp = fopen(strsave, "r")) != NULL) {
-        fclose(fp);
+    sprintf(strsave, "%s%s%s", cfg_get_player_dir(), capitalize(name), ".gz");
+    if (file_exists(strsave)) {
         sprintf(buf, "gzip -dfq %s", strsave);
         if (!system(buf)) {
             sprintf(buf, "ERROR: Failed to zip %s (Error Code: %d).", strsave, errno);
@@ -558,76 +541,73 @@ bool load_char_obj(Descriptor* d, char* name)
     }
 #endif
 
-    sprintf(strsave, "%s%s%s", area_dir, PLAYER_DIR, capitalize(name));
-    if ((fp = fopen(strsave, "r")) != NULL) {
-        int iNest;
+    sprintf(strsave, "%s%s", cfg_get_player_dir(), capitalize(name));
 
-        for (iNest = 0; iNest < MAX_NEST; iNest++) rgObjNest[iNest] = NULL;
+    OPEN_OR_RETURN_FALSE(fp = open_read_file(strsave));
 
-        found = true;
-        for (;;) {
-            char letter;
-            char* word;
+    int iNest;
 
-            letter = fread_letter(fp);
-            if (letter == '*') {
-                fread_to_eol(fp);
-                continue;
-            }
+    for (iNest = 0; iNest < MAX_NEST; iNest++)
+        rgObjNest[iNest] = NULL;
 
-            if (letter != '#') {
-                bug("Load_char_obj: # not found.", 0);
-                break;
-            }
+    for (;;) {
+        char letter;
+        char* word;
 
-            word = fread_word(fp);
-            if (!str_cmp(word, "PLAYER"))
-                fread_char(ch, fp);
-            else if (!str_cmp(word, "OBJECT"))
-                fread_obj(ch, fp);
-            else if (!str_cmp(word, "O"))
-                fread_obj(ch, fp);
-            else if (!str_cmp(word, "PET"))
-                fread_pet(ch, fp);
-            else if (!str_cmp(word, "THEME"))
-                fread_theme(ch, fp);
-            else if (!str_cmp(word, "END"))
-                break;
-            else {
-                bug("Load_char_obj: bad section.", 0);
-                break;
-            }
+        letter = fread_letter(fp);
+        if (letter == '*') {
+            fread_to_eol(fp);
+            continue;
         }
-        fclose(fp);
-    }
 
-    fpReserve = fopen(NULL_FILE, "r");
+        if (letter != '#') {
+            bug("Load_char_obj: # not found.", 0);
+            break;
+        }
+
+        word = fread_word(fp);
+        if (!str_cmp(word, "PLAYER"))
+            fread_char(ch, fp);
+        else if (!str_cmp(word, "OBJECT"))
+            fread_obj(ch, fp);
+        else if (!str_cmp(word, "O"))
+            fread_obj(ch, fp);
+        else if (!str_cmp(word, "PET"))
+            fread_pet(ch, fp);
+        else if (!str_cmp(word, "THEME"))
+            fread_theme(ch, fp);
+        else if (!str_cmp(word, "END"))
+            break;
+        else {
+            bug("Load_char_obj: bad section.", 0);
+            break;
+        }
+    }
+    close_file(fp);
 
     /* initialize race */
-    if (found) {
-        int i;
+    int i;
 
-        if (ch->race == 0) ch->race = race_lookup("human");
+    if (ch->race == 0) 
+        ch->race = race_lookup("human");
 
-        ch->size = race_table[ch->race].size;
-        ch->dam_type = 17; /*punch */
+    ch->size = race_table[ch->race].size;
+    ch->dam_type = DAM_BASH;
 
-        for (i = 0; i < RACE_NUM_SKILLS; i++) {
-            if (race_table[ch->race].skills[i] == NULL)
-                break;
-            group_add(ch, race_table[ch->race].skills[i], false);
-        }
-        ch->affect_flags = ch->affect_flags | race_table[ch->race].aff;
-        ch->imm_flags = ch->imm_flags | race_table[ch->race].imm;
-        ch->res_flags = ch->res_flags | race_table[ch->race].res;
-        ch->vuln_flags = ch->vuln_flags | race_table[ch->race].vuln;
-        ch->form = race_table[ch->race].form;
-        ch->parts = race_table[ch->race].parts;
+    for (i = 0; i < RACE_NUM_SKILLS; i++) {
+        if (race_table[ch->race].skills[i] == NULL)
+            break;
+        group_add(ch, race_table[ch->race].skills[i], false);
     }
+    ch->affect_flags = ch->affect_flags | race_table[ch->race].aff;
+    ch->imm_flags = ch->imm_flags | race_table[ch->race].imm;
+    ch->res_flags = ch->res_flags | race_table[ch->race].res;
+    ch->vuln_flags = ch->vuln_flags | race_table[ch->race].vuln;
+    ch->form = race_table[ch->race].form;
+    ch->parts = race_table[ch->race].parts;
 
-    /* RT initialize skills */
 
-    if (found && ch->version < 2) /* need to add the new skills */
+    if (ch->version < 2) /* need to add the new skills */
     {
         group_add(ch, "rom basics", false);
         group_add(ch, class_table[ch->ch_class].base_group, false);
@@ -636,7 +616,7 @@ bool load_char_obj(Descriptor* d, char* name)
     }
 
     /* fix levels */
-    if (found && ch->version < 3 && (ch->level > 35 || ch->trust > 35)) {
+    if (ch->version < 3 && (ch->level > 35 || ch->trust > 35)) {
         switch (ch->level) {
         case (40):
             ch->level = 60;
@@ -672,7 +652,7 @@ bool load_char_obj(Descriptor* d, char* name)
     }
 
     char* theme_name;
-    if (found && (theme_name = ch->pcdata->theme_config.current_theme_name)) {
+    if ((theme_name = ch->pcdata->theme_config.current_theme_name)) {
         ColorTheme* theme = lookup_color_theme(ch, theme_name);
         if (!theme) {
             free_string(theme_name);
@@ -686,8 +666,9 @@ bool load_char_obj(Descriptor* d, char* name)
     }
 
     /* ream gold */
-    if (found && ch->version < 4) { ch->gold /= 100; }
-    return found;
+    if (ch->version < 4) { ch->gold /= 100; }
+
+    return true;
 }
 
 /*

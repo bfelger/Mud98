@@ -1102,14 +1102,16 @@ int apply_ac(ObjectData* obj, int iWear, int type)
 /*
  * Find a piece of eq on a character.
  */
-ObjectData* get_eq_char(CharData* ch, int iWear)
+ObjectData* get_eq_char(CharData* ch, WearLocation iWear)
 {
     ObjectData* obj;
 
-    if (ch == NULL) return NULL;
+    if (ch == NULL) 
+        return NULL;
 
     for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
-        if (obj->wear_loc == iWear) return obj;
+        if (obj->wear_loc == iWear) 
+            return obj;
     }
 
     return NULL;
@@ -1118,7 +1120,7 @@ ObjectData* get_eq_char(CharData* ch, int iWear)
 /*
  * Equip a char with an obj.
  */
-void equip_char(CharData* ch, ObjectData* obj, int16_t iWear)
+void equip_char(CharData* ch, ObjectData* obj, WearLocation iWear)
 {
     AffectData* paf;
     int i;

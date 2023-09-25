@@ -5,6 +5,7 @@
 #include "social.h"
 
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "tables.h"
 #include "tablesave.h"
@@ -37,14 +38,7 @@ void load_social_table()
     extern int maxSocial;
     char* word;
 
-    char social_file[256];
-    sprintf(social_file, "%s%s", area_dir, SOCIAL_FILE);
-    fp = fopen(social_file, "r");
-
-    if (!fp) {
-        perror(SOCIAL_FILE);
-        exit(1);
-    }
+    OPEN_OR_DIE(fp = open_read_socials_file());
 
     if (fscanf(fp, "%d\n", &maxSocial) < 1) {
         bug("load_social_table: Could not read maxSocial!");
@@ -70,7 +64,7 @@ void load_social_table()
     /* For backwards compatibility */
     social_table[maxSocial].name = str_dup(""); /* empty! */
 
-    fclose(fp);
+    close_file(fp);
 
     flog("Social table loaded.");
 }
@@ -81,13 +75,7 @@ void save_social_table(void)
     int i;
     extern int maxSocial;
 
-    char social_file[256];
-    sprintf(social_file, "%s%s", area_dir, SOCIAL_FILE);
-    fp = fopen(social_file, "w");
-    if (!fp) {
-        bugf("save_socials: Can't open %s", social_file);
-        return;
-    }
+    OPEN_OR_RETURN(fp = open_write_socials_file());
 
     fprintf(fp, "%d\n\n", maxSocial);
 
@@ -97,9 +85,8 @@ void save_social_table(void)
         fprintf(fp, "#END\n\n");
     }
 
-    fclose(fp);
+    close_file(fp);
 }
-
 
 #undef U
 #ifdef OLD_U

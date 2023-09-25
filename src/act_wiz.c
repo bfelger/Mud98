@@ -29,6 +29,7 @@
 
 #include "act_info.h"
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "fight.h"
 #include "handler.h"
@@ -1809,7 +1810,6 @@ void do_reboo(CharData* ch, char* argument)
 void do_reboot(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    extern bool merc_down;
     Descriptor* d;
     Descriptor* d_next = NULL;
     CharData* vch;
@@ -1839,22 +1839,26 @@ void do_shutdow(CharData* ch, char* argument)
 void do_shutdown(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    extern bool merc_down;
     Descriptor* d;
     Descriptor* d_next = NULL;
     CharData* vch;
 
-    if (ch->invis_level < LEVEL_HERO) sprintf(buf, "Shutdown by %s.", ch->name);
+    if (ch->invis_level < LEVEL_HERO) 
+        sprintf(buf, "Shutdown by %s.", ch->name);
+
     char filename[256];
-    sprintf(filename, "%s%s", area_dir, SHUTDOWN_FILE);
+    sprintf(filename, "%s%s", cfg_get_area_dir(), cfg_get_shutdown_file());
     append_file(ch, filename, buf);
     strcat(buf, "\n\r");
-    if (ch->invis_level < LEVEL_HERO) { do_function(ch, &do_echo, buf); }
+    if (ch->invis_level < LEVEL_HERO) { 
+        do_function(ch, &do_echo, buf); 
+    }
     merc_down = true;
     for (d = descriptor_list; d != NULL; d = d_next) {
         d_next = d->next;
         vch = d->original ? d->original : d->character;
-        if (vch != NULL) save_char_obj(vch);
+        if (vch != NULL)
+            save_char_obj(vch);
         close_socket(d);
     }
     return;

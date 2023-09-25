@@ -46,8 +46,10 @@
 #include "merc.h"
 
 #include "benchmark.h"
+#include "config.h"
 #include "comm.h"
 #include "db.h"
+#include "file.h"
 #include "strings.h"
 #include "tests.h"
 #include "update.h"
@@ -65,7 +67,6 @@
 #endif
 
 // Global variables.
-FILE* fpReserve;                    // Reserved file handle
 bool god;                           // All new chars are gods!
 bool merc_down = false;             // Shutdown
 bool wizlock;                       // Game is wizlocked
@@ -76,7 +77,6 @@ bool MOBtrigger = true;             // act() switch
 
 bool rt_opt_benchmark = false;
 bool rt_opt_noloop = false;
-char area_dir[256] = DEFAULT_AREA_DIR;
 
 void game_loop(SockServer* server);
 
@@ -98,7 +98,8 @@ int main(int argc, char** argv)
     // Get the command line arguments.
     port = 4000;
     char* port_str = NULL;
-    char* area_dir_str = NULL;
+    char* cfg_str = NULL;
+    char area_dir[256] = { 0 };
 
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
@@ -115,11 +116,14 @@ int main(int argc, char** argv)
             }
             else if (!strcmp(argv[i], "-a")) {
                 if (++i < argc) {
-                    area_dir_str = argv[i];
+                    sprintf(area_dir, "%s", argv[i]);
                 }
             }
-            else if (!strncmp(argv[i], "--area-dir=", 7)) {
-                area_dir_str = argv[i] + 11;
+            else if (!strncmp(argv[i], "--cfg=", 6)) {
+                cfg_str = argv[i] + 6;
+            }
+            else if (!strncmp(argv[i], "--area-dir=", 11)) {
+                sprintf(area_dir, "%s", argv[i] + 11);
             }
             else if (!strcmp(argv[i], "--benchmark")) {
                 rt_opt_benchmark = true;
@@ -168,12 +172,11 @@ int main(int argc, char** argv)
         exit(1);
     }
 
-    if (area_dir_str) {
-        size_t len = strlen(area_dir_str);
-        if (area_dir_str[len - 1] != '/' && area_dir_str[len - 1] != '\\')
-            sprintf(area_dir, "%s/", area_dir_str);
-        else
-            sprintf(area_dir, "%s", area_dir_str);
+    if (area_dir[0]) {
+        //size_t len = strlen(area_dir);
+        //if (area_dir[len - 1] != '/' && area_dir[len - 1] != '\\')
+        //    strcat(area_dir, "/");
+        cfg_set_area_dir(area_dir);
     }
 
     // Init time.
@@ -181,11 +184,9 @@ int main(int argc, char** argv)
     current_time = (time_t)now_time.tv_sec;
     strcpy(str_boot_time, ctime(&current_time));
 
-    // Reserve one channel for our use.
-    if ((fpReserve = fopen(NULL_FILE, "r")) == NULL) {
-        perror(NULL_FILE);
-        exit(1);
-    }
+    open_reserve_file();
+
+    load_config();
 
     /*
      * Run the game.

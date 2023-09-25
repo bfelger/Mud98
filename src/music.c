@@ -28,6 +28,7 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "handler.h"
 #include "music.h"
@@ -152,20 +153,17 @@ void load_songs(void)
     char letter;
 
     /* reset global */
-    for (i = 0; i <= MAX_GLOBAL; i++) channel_songs[i] = -1;
+    for (i = 0; i <= MAX_GLOBAL; i++)
+        channel_songs[i] = -1;
 
-    char music_file[256];
-    sprintf(music_file, "%s%s", area_dir, MUSIC_FILE);
-    if ((fp = fopen(music_file, "r")) == NULL) {
-        bug("Couldn't open music file, no songs available.", 0);
-        return;
-    }
+    OPEN_OR_RETURN(fp = open_read_music_file());
 
     for (count = 0; count < MAX_SONGS; count++) {
         letter = fread_letter(fp);
         if (letter == '#') {
-            if (count < MAX_SONGS) song_table[count].name = NULL;
-            fclose(fp);
+            if (count < MAX_SONGS)
+                song_table[count].name = NULL;
+            close_file(fp);
             return;
         }
         else

@@ -28,6 +28,7 @@
 #include "ban.h"
 
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "handler.h"
 #include "recycle.h"
@@ -56,15 +57,10 @@ void save_bans()
     FILE* fp = NULL;
     bool found = false;
 
-    fclose(fpReserve);
-
-    char ban_file[256];
-    sprintf(ban_file, "%s%s", area_dir, BAN_FILE);
-    if ((fp = fopen(ban_file, "w")) == NULL) { 
-        perror(ban_file);
-        fpReserve = fopen(NULL_FILE, "r");
+    if (!ban_file_exists())
         return;
-    }
+
+    OPEN_OR_RETURN(fp = open_write_ban_file());
 
     for (pban = ban_list; pban != NULL; pban = pban->next) {
         if (IS_SET(pban->ban_flags, BAN_PERMANENT)) {
@@ -74,10 +70,13 @@ void save_bans()
         }
     }
 
-    fclose(fp);
-    fpReserve = fopen(NULL_FILE, "r");
-    if (!found) 
+    close_file(fp);
+
+    if (!found) {
+        char ban_file[256];
+        sprintf(ban_file, "%s%s", cfg_get_area_dir(), cfg_get_ban_file());
         unlink(ban_file);
+    }
 }
 
 void load_bans()
@@ -85,14 +84,15 @@ void load_bans()
     FILE* fp;
     BanData* ban_last = NULL;
 
-    char ban_file[256];
-    sprintf(ban_file, "%s%s", area_dir, BAN_FILE);
-    if ((fp = fopen(ban_file, "r")) == NULL) return;
+    if (!ban_file_exists())
+        return;
+
+    OPEN_OR_RETURN(fp = open_read_ban_file());
 
     for (;;) {
         BanData* pban;
         if (feof(fp)) {
-            fclose(fp);
+            close_file(fp);
             return;
         }
 
@@ -120,7 +120,8 @@ bool check_ban(char* site, int type)
     host[0] = LOWER(host[0]);
 
     for (pban = ban_list; pban != NULL; pban = pban->next) {
-        if (!IS_SET(pban->ban_flags, type)) continue;
+        if (!IS_SET(pban->ban_flags, type)) 
+            continue;
 
         if (IS_SET(pban->ban_flags, BAN_PREFIX)
             && IS_SET(pban->ban_flags, BAN_SUFFIX)

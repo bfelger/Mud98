@@ -7,6 +7,7 @@
 #include "spell.h"
 
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "tables.h"
 #include "tablesave.h"
@@ -58,14 +59,7 @@ void load_skill_group_table()
     char* word;
     static SkillGroup grzero;
 
-    char group_file[256];
-    sprintf(group_file, "%s%s", area_dir, GROUP_FILE);
-    fp = fopen(group_file, "r");
-
-    if (!fp) {
-        bug("Group file " GROUP_FILE " cannot be found.", 0);
-        exit(1);
-    }
+    OPEN_OR_DIE(fp = open_read_groups_file());
 
     int tmp_max_group;
     if (fscanf(fp, "%d\n", &tmp_max_group) < 1) {
@@ -103,7 +97,7 @@ void load_skill_group_table()
 
     skill_group_table[skill_group_count].name = NULL;
 
-    fclose(fp);
+    close_file(fp);
 
     flog("Groups table loaded.");
 }
@@ -116,14 +110,7 @@ void load_skill_table()
     char* word;
     int tmp_max_skill;
 
-    char skill_file[256];
-    sprintf(skill_file, "%s%s", area_dir, SKILL_FILE);
-    fp = fopen(skill_file, "r");
-
-    if (!fp) {
-        bug("Skill file " SKILL_FILE " cannot be found.", 0);
-        exit(1);
-    }
+    OPEN_OR_DIE(fp = open_read_skills_file());
 
     if (fscanf(fp, "%d\n", &tmp_max_skill) < 1) {
         bug("load_skill_table(): Could not read skill_count!");
@@ -161,7 +148,7 @@ void load_skill_table()
 
     skill_table[skill_count].name = NULL;
 
-    fclose(fp);
+    close_file(fp);
 
     flog("Skills table loaded.");
 }
@@ -171,13 +158,7 @@ void save_skill_group_table()
     FILE* fpn;
     int i;
 
-    char group_file[256];
-    sprintf(group_file, "%s%s", area_dir, GROUP_FILE);
-    fpn = fopen(group_file, "w");
-    if (fpn == NULL) {
-        bugf("save_groups: Can't open %s", group_file);
-        return;
-    }
+    OPEN_OR_RETURN(fpn = open_write_groups_file());
 
     fprintf(fpn, "%d\n\n", (int)skill_group_count);
 
@@ -189,7 +170,7 @@ void save_skill_group_table()
 
     fprintf(fpn, "#!\n");
 
-    fclose(fpn);
+    close_file(fpn);
 }
 
 void save_skill_table()
@@ -197,13 +178,7 @@ void save_skill_table()
     FILE* fpn;
     int i;
 
-    char skill_file[256];
-    sprintf(skill_file, "%s%s", area_dir, SKILL_FILE);
-    fpn = fopen(skill_file, "w");
-    if (fpn == NULL) {
-        bugf("save_skill_table: Can't open %s", skill_file);
-        return;
-    }
+    OPEN_OR_RETURN(fpn = open_write_skills_file());
 
     fprintf(fpn, "%d\n\n", (int)skill_count);
 
@@ -215,7 +190,7 @@ void save_skill_table()
 
     fprintf(fpn, "#!\n");
 
-    fclose(fpn);
+    close_file(fpn);
 }
 
 SKNUM skill_lookup(const char* name)

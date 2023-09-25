@@ -7,6 +7,7 @@
 #include "item.h"
 
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "tablesave.h"
 
@@ -44,14 +45,7 @@ void load_class_table()
     char* word;
     int i;
 
-    char classes_file[256];
-    sprintf(classes_file, "%s%s", area_dir, CLASS_FILE);
-    fp = fopen(classes_file, "r");
-
-    if (!fp) {
-        perror("load_class_table");
-        return;
-    }
+    OPEN_OR_DIE(fp = open_read_classes_file());
 
     int maxclass = fread_number(fp);
 
@@ -70,7 +64,7 @@ void load_class_table()
 
         if (str_cmp(word, "#CLASS")) {
             bugf("load_class_table : word %s", word);
-            fclose(fp);
+            close_file(fp);
             return;
         }
 
@@ -78,7 +72,7 @@ void load_class_table()
 
         if (i == maxclass) {
             flog("Class table loaded.");
-            fclose(fp);
+            close_file(fp);
             class_count = maxclass;
             class_table[i].name = NULL;
             return;
@@ -92,12 +86,9 @@ void save_class_table()
     const Class* temp;
 
     char tempclasses_file[256];
-    sprintf(tempclasses_file, "%s%s", area_dir, DATA_DIR "tempclasses");
-    fp = fopen(tempclasses_file, "w");
-    if (!fp) {
-        bugf("save_classes : Can't open %s", tempclasses_file);
-        return;
-    }
+    sprintf(tempclasses_file, "%s%s", cfg_get_data_dir(), "tempclasses");
+
+    OPEN_OR_RETURN(fp = open_write_file(tempclasses_file));
 
     fprintf(fp, "%d\n\n", class_count);
 
@@ -108,10 +99,10 @@ void save_class_table()
         fprintf(fp, "#END\n\n");
     }
 
-    fclose(fp);
+    close_file(fp);
 
     char classes_file[256];
-    sprintf(classes_file, "%s%s", area_dir, CLASS_FILE);
+    sprintf(classes_file, "%s%s", cfg_get_data_dir(), cfg_get_classes_file());
 
 #ifdef _MSC_VER
     if (!MoveFileExA(tempclasses_file, classes_file, MOVEFILE_REPLACE_EXISTING)) {

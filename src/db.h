@@ -104,7 +104,5 @@ extern int top_ed;
 extern int top_shop;
 
 extern int _filbuf(FILE*);
-extern FILE* fpArea;
-extern char strArea[MAX_INPUT_LENGTH];
 
 #endif // !MUD98__DB_H

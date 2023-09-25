@@ -61,7 +61,7 @@
 void say_spell(CharData * ch, SKNUM sn);
 
 /* imported functions */
-bool remove_obj(CharData* ch, int iWear, bool fReplace);
+bool remove_obj(CharData* ch, WearLocation iWear, bool fReplace);
 void wear_obj(CharData* ch, ObjectData* obj, bool fReplace);
 
 SKNUM find_spell(CharData* ch, const char* name)

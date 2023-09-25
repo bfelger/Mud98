@@ -33,6 +33,7 @@
 #include "act_wiz.h"
 #include "ban.h"
 #include "comm.h"
+#include "config.h"
 #include "handler.h"
 #include "lookup.h"
 #include "magic.h"
@@ -143,76 +144,36 @@ size_t sAllocPerm;
  * Semi-locals.
  */
 bool fBootDb;
-FILE* fpArea;
-char strArea[MAX_INPUT_LENGTH];
+FILE* strArea;
+char fpArea[MAX_INPUT_LENGTH];
 AreaData* current_area;
 
 /*
  * Local booting procedures.
  */
-void init_mm args((void));
-void load_area args((FILE * fp)); 
-void new_load_area args((FILE * fp));   // OOC
-void load_helps	args((FILE * fp, char* fname));
-void load_old_obj args((FILE * fp));
-void load_objects args((FILE * fp));
-void load_resets args((FILE * fp));
-void load_rooms args((FILE * fp));
-void load_shops args((FILE * fp));
-void load_specials args((FILE * fp));
-void load_notes args((void));
-void load_mobprogs args((FILE * fp));
+void init_mm();
+void load_area(FILE* fp); 
+void new_load_area(FILE* fp);   // OOC
+void load_helps(FILE* fp, char* fname);
+void load_old_obj(FILE* fp);
+void load_objects(FILE* fp);
+void load_resets(FILE* fp);
+void load_rooms(FILE* fp);
+void load_shops(FILE* fp);
+void load_specials(FILE* fp);
+void load_notes();
+void load_mobprogs(FILE* fp);
 
-void fix_exits args((void));
-void fix_mobprogs args((void));
+void fix_exits();
+void fix_mobprogs();
 
-void reset_area args((AreaData * pArea));
-
-static bool check_dir(const char* dir)
-{
-    char buf[256];
-    sprintf(buf, "%s%s", area_dir, dir);
-
-#ifdef _MSC_VER
-    if (CreateDirectoryA(buf, NULL) == 0)  {
-        if (GetLastError() != ERROR_ALREADY_EXISTS) {
-            bugf("Could not create directory: %s\n", buf);
-            return false;
-        }
-    }
-    else {
-        printf("Created directory: %s\n", buf);
-    }
-#else
-    struct stat st = { 0 };
-
-    if (stat(buf, &st) == -1) {
-        mkdir(buf, 0700);
-        if (stat(buf, &st) == -1) {
-            bugf("Could not create directory: %s\n", buf);
-            return false;
-        }
-        else {
-            printf("Created directory: %s\n", buf);
-        }
-    }
-
-#endif
-
-    return true;
-}
+void reset_area(AreaData * pArea);
 
 /*
  * Big mama top level function.
  */
-void boot_db(void)
+void boot_db()
 {
-    check_dir(PLAYER_DIR);
-    check_dir(GOD_DIR);
-    check_dir(TEMP_DIR);
-    check_dir(DATA_DIR);
-    check_dir(PROG_DIR);
-
     /*
      * Init some data space stuff.
      */
@@ -267,80 +228,68 @@ void boot_db(void)
      */
     {
         FILE* fpList;
-        char area_list[256];
         char area_file[256];
-        sprintf(area_list, "%s%s", area_dir, AREA_LIST);
-        if ((fpList = fopen(area_list, "r")) == NULL) {
-            perror(area_list);
-            exit(1);
-        }
+
+        OPEN_OR_DIE(fpList = open_read_area_list());
 
         current_area = NULL;
 
         for (;;) {
-            strcpy(strArea, fread_word(fpList));
-            if (strArea[0] == '$') break;
+            strcpy(fpArea, fread_word(fpList));
+            if (fpArea[0] == '$')
+                break;
 
-            if (strArea[0] == '-') {
-                fpArea = stdin; 
-            }
-            else {
-                sprintf(area_file, "%s%s", area_dir, strArea);
-                if ((fpArea = fopen(area_file, "r")) == NULL) {
-                    perror(area_file);
-                    exit(1);
-                }
-            }
+            sprintf(area_file, "%s%s", cfg_get_area_dir(), fpArea);
+            OPEN_OR_DIE(strArea = open_read_file(area_file));
 
             for (;;) {
                 char* word;
 
-                if (fread_letter(fpArea) != '#') {
+                if (fread_letter(strArea) != '#') {
                     bug("Boot_db: # not found.", 0);
                     exit(1);
                 }
 
-                word = fread_word(fpArea);
+                word = fread_word(strArea);
 
                 if (word[0] == '$')
                     break;
                 else if (!str_cmp(word, "AREA"))
-                    load_area(fpArea);
+                    load_area(strArea);
                 else if (!str_cmp(word, "AREADATA")) 
-                    new_load_area(fpArea);
+                    new_load_area(strArea);
                 else if (!str_cmp(word, "HELPS")) 
-                    load_helps(fpArea, strArea);
+                    load_helps(strArea, fpArea);
                 else if (!str_cmp(word, "MOBOLD"))
-                    load_old_mob(fpArea);
+                    load_old_mob(strArea);
                 else if (!str_cmp(word, "MOBILES"))
-                    load_mobiles(fpArea);
+                    load_mobiles(strArea);
                 else if (!str_cmp(word, "MOBPROGS"))
-                    load_mobprogs(fpArea);
+                    load_mobprogs(strArea);
                 else if (!str_cmp(word, "OBJOLD"))
-                    load_old_obj(fpArea);
+                    load_old_obj(strArea);
                 else if (!str_cmp(word, "OBJECTS"))
-                    load_objects(fpArea);
+                    load_objects(strArea);
                 else if (!str_cmp(word, "RESETS"))
-                    load_resets(fpArea);
+                    load_resets(strArea);
                 else if (!str_cmp(word, "ROOMS"))
-                    load_rooms(fpArea);
+                    load_rooms(strArea);
                 else if (!str_cmp(word, "SHOPS"))
-                    load_shops(fpArea);
+                    load_shops(strArea);
                 else if (!str_cmp(word, "SOCIALS"))
-                    load_social(fpArea);
+                    load_social(strArea);
                 else if (!str_cmp(word, "SPECIALS"))
-                    load_specials(fpArea);
+                    load_specials(strArea);
                 else {
                     bug("Boot_db: bad section name.", 0);
                     exit(1);
                 }
             }
 
-            if (fpArea != stdin) 
-                fclose(fpArea);
-            fpArea = NULL;
+            close_file(strArea);
+            strArea = NULL;
         }
-        fclose(fpList);
+        close_file(fpList);
     }
 
     /*
@@ -443,7 +392,7 @@ void new_load_area(FILE* fp)
     pArea = alloc_perm(sizeof(*pArea));
     pArea->age = 15;
     pArea->nplayer = 0;
-    pArea->file_name = str_dup(strArea);
+    pArea->file_name = str_dup(fpArea);
     pArea->vnum = top_area;
     pArea->name = str_dup("New Area");
     pArea->builders = str_dup("");
@@ -2348,13 +2297,7 @@ void do_dump(CharData* ch, char* argument)
     VNUM vnum;
     int nMatch = 0;
 
-    /* open file */
-    fclose(fpReserve);
-
-    char dump_file[256];
-
-    sprintf(dump_file, "%s%s", area_dir, TEMP_DIR "mem.dmp");
-    fp = fopen(dump_file, "w");
+    OPEN_OR_RETURN(fp = open_write_mem_dump_file());
 
     /* report use of data structures */
 
@@ -2431,11 +2374,12 @@ void do_dump(CharData* ch, char* argument)
     fprintf(fp, "Exits	%4d (%8zu bytes)\n", top_exit,
             top_exit * (sizeof(*exit)));
 
-    fclose(fp);
+    
+    close_file(fp);
 
     /* start printing out mobile data */
-    sprintf(dump_file, "%s%s", area_dir, TEMP_DIR "mob.dmp");
-    fp = fopen(dump_file, "w");
+
+    OPEN_OR_RETURN(fp = open_write_mob_dump_file());
 
     fprintf(fp, "\nMobile Analysis\n");
     fprintf(fp, "---------------\n");
@@ -2447,10 +2391,11 @@ void do_dump(CharData* ch, char* argument)
                     p_mob_proto->count, p_mob_proto->killed,
                     p_mob_proto->short_descr);
         }
-    fclose(fp);
+
+    close_file(fp);
 
     /* start printing out object data */
-    sprintf(dump_file, "%s%s", area_dir, TEMP_DIR "obj.dmp");
+    OPEN_OR_RETURN(fp = open_write_obj_dump_file());
 
     fprintf(fp, "\nObject Analysis\n");
     fprintf(fp, "---------------\n");
@@ -2464,8 +2409,7 @@ void do_dump(CharData* ch, char* argument)
         }
 
     /* close file */
-    fclose(fp);
-    fpReserve = fopen(NULL_FILE, "r");
+    close_file(fp);
 }
 
 /*
@@ -2700,21 +2644,14 @@ void append_file(CharData* ch, char* file, char* str)
 {
     FILE* fp;
 
-    if (IS_NPC(ch) || str[0] == '\0') return;
+    if (IS_NPC(ch) || str[0] == '\0')
+        return;
 
-    fclose(fpReserve);
-    if ((fp = fopen(file, "a")) == NULL) {
-        perror(file);
-        send_to_char("Could not open the file!\n\r", ch);
-    }
-    else {
-        fprintf(fp, "[%5d] %s: %s\n", ch->in_room ? ch->in_room->vnum : 0,
-                ch->name, str);
-        fclose(fp);
-    }
+    OPEN_OR_RETURN(fp = open_append_file(file));
 
-    fpReserve = fopen(NULL_FILE, "r");
-    return;
+    fprintf(fp, "[%5d] %s: %s\n", ch->in_room ? ch->in_room->vnum : 0, ch->name, str);
+
+    close_file(fp);
 }
 
 /*
@@ -2727,22 +2664,24 @@ void bug(const char* fmt, ...)
     va_list args;
     va_start(args, fmt);
 
-    if (fpArea != NULL) {
+    if (strArea != NULL) {
         int iLine;
         int iChar;
 
-        if (fpArea == stdin) { iLine = 0; }
+        if (strArea == stdin) { 
+            iLine = 0; 
+        }
         else {
-            iChar = ftell(fpArea);
-            fseek(fpArea, 0, 0);
-            for (iLine = 0; ftell(fpArea) < iChar; iLine++) {
-                while (getc(fpArea) != '\n')
+            iChar = ftell(strArea);
+            fseek(strArea, 0, 0);
+            for (iLine = 0; ftell(strArea) < iChar; iLine++) {
+                while (getc(strArea) != '\n')
                     ;
             }
-            fseek(fpArea, iChar, 0);
+            fseek(strArea, iChar, 0);
         }
 
-        sprintf(buf, "[*****] FILE: %s LINE: %d", strArea, iLine);
+        sprintf(buf, "[*****] FILE: %s LINE: %d", fpArea, iLine);
         log_string(buf);
     }
 

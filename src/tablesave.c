@@ -5,6 +5,7 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "handler.h"
 #include "interp.h"
@@ -504,13 +505,7 @@ void save_command_table()
     extern CmdInfo* cmd_table;
     int cnt = 0;
 
-    char cmd_file[256];
-    sprintf(cmd_file, "%s%s", area_dir, COMMAND_FILE);
-    fp = fopen(cmd_file, "w");
-    if (!fp) {
-        bugf("save_command_table: Could not open %s", cmd_file);
-        return;
-    }
+    OPEN_OR_RETURN(fp = open_write_commands_file());
 
     for (temp = cmd_table; !IS_NULLSTR(temp->name); temp++)
         cnt++;
@@ -523,7 +518,7 @@ void save_command_table()
         fprintf(fp, "#END\n\n");
     }
 
-    fclose(fp);
+    close_file(fp);
 }
 
 void load_command_table(void)
@@ -535,14 +530,7 @@ void load_command_table(void)
     int size;
     char* word;
 
-    char cmd_file[256];
-    sprintf(cmd_file, "%s%s", area_dir, COMMAND_FILE);
-    fp = fopen(cmd_file, "r");
-
-    if (fp == NULL) {
-        perror("load_command_table ");
-        return;
-    }
+    OPEN_OR_DIE(fp = open_read_commands_file());
 
     size = fread_number(fp);
 
@@ -564,7 +552,7 @@ void load_command_table(void)
 
         if (str_cmp(word, "#COMMAND")) {
             bugf("load_command_table : word %s", word);
-            fclose(fp);
+            close_file(fp);
             return;
         }
 
@@ -572,7 +560,7 @@ void load_command_table(void)
 
         if (i == size) {
             flog("Command table loaded.");
-            fclose(fp);
+            close_file(fp);
             cmd_table[i].name = str_dup("");
             return;
         }
@@ -587,17 +575,15 @@ void save_progs(VNUM minvnum, VNUM maxvnum)
     for (pMprog = mprog_list; pMprog; pMprog = pMprog->next)
         if (pMprog->changed == true
             && BETWEEN_I(minvnum, pMprog->vnum, maxvnum)) {
-            sprintf(buf, "%s%s%d.prg", area_dir, PROG_DIR, pMprog->vnum);
-            fp = fopen(buf, "w");
-            if (!fp) {
-                bugf("save_progs: Can't open %s", buf);
-                return;
-            }
+
+            sprintf(buf, "%s%s%d.prg", cfg_get_data_dir(), cfg_get_progs_dir(),
+                pMprog->vnum);
+            OPEN_OR_CONTINUE(fp = open_write_file(buf));
 
             fprintf(fp, "#PROG\n");
             save_struct(fp, U(&tmp_pcode), progcodesavetable, U(pMprog));
             fprintf(fp, "#END\n\n");
-            fclose(fp);
+            close_file(fp);
 
             pMprog->changed = false;
         }
@@ -658,19 +644,13 @@ MobProgCode* pedit_prog(VNUM vnum)
     if (prog != NULL)
         return prog;
 
-    sprintf(buf, "%s%s%d.prg", area_dir, PROG_DIR, vnum);
+    sprintf(buf, "%s%s%d.prg", cfg_get_data_dir(), cfg_get_progs_dir(), vnum);
 
-    fp = fopen(buf, "r");
-
-    if (!fp) {
-        if (fBootDb == true)
-            perror("pedit_prog");
-        return NULL;
-    }
+    OPEN_OR_RETURN_NULL(fp = open_read_file(buf));
 
     load_prog(fp, &prog);
 
-    fclose(fp);
+    close_file(fp);
 
     return prog;
 }

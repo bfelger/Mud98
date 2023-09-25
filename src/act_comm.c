@@ -32,6 +32,7 @@
 #include "act_wiz.h"
 #include "color.h"
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "fight.h"
 #include "handler.h"
@@ -84,7 +85,7 @@ void do_delete(CharData* ch, char* argument)
             return;
         }
         else {
-            sprintf(strsave, "%s%s%s", area_dir, PLAYER_DIR, capitalize(ch->name));
+            sprintf(strsave, "%s%s", cfg_get_player_dir(), capitalize(ch->name));
             wiznet("$N turns $Mself into line noise.", ch, NULL, 0, 0, 0);
             stop_fighting(ch, true);
             do_function(ch, &do_quit, "");
@@ -113,72 +114,73 @@ void do_channels(CharData* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
 
     /* lists all channels and their status */
-    send_to_char("   channel     status\n\r", ch);
-    send_to_char("---------------------\n\r", ch);
+    send_to_char("{T   channel     status\n\r", ch);
+    send_to_char("{=---------------------\n\r", ch);
 
     send_to_char("{dgossip{x         ", ch);
     if (!IS_SET(ch->comm_flags, COMM_NOGOSSIP))
-        send_to_char("ON\n\r", ch);
+        send_to_char("{GON{x\n\r", ch);
     else
-        send_to_char("OFF\n\r", ch);
+        send_to_char("{ROFF{x\n\r", ch);
 
     send_to_char("{aauction{x        ", ch);
     if (!IS_SET(ch->comm_flags, COMM_NOAUCTION))
-        send_to_char("ON\n\r", ch);
+        send_to_char("{GON{x\n\r", ch);
     else
-        send_to_char("OFF\n\r", ch);
+        send_to_char("{ROFF{x\n\r", ch);
 
     send_to_char("{emusic{x          ", ch);
     if (!IS_SET(ch->comm_flags, COMM_NOMUSIC))
-        send_to_char("ON\n\r", ch);
+        send_to_char("{GON{x\n\r", ch);
     else
-        send_to_char("OFF\n\r", ch);
+        send_to_char("{ROFF{x\n\r", ch);
 
     send_to_char("{qQ{x/{fA{x            ", ch);
     if (!IS_SET(ch->comm_flags, COMM_NOQUESTION))
-        send_to_char("ON\n\r", ch);
+        send_to_char("{GON{x\n\r", ch);
     else
-        send_to_char("OFF\n\r", ch);
+        send_to_char("{ROFF{x\n\r", ch);
 
     send_to_char("{hQuote{x          ", ch);
     if (!IS_SET(ch->comm_flags, COMM_NOQUOTE))
-        send_to_char("ON\n\r", ch);
+        send_to_char("{GON{x\n\r", ch);
     else
-        send_to_char("OFF\n\r", ch);
+        send_to_char("{ROFF{x\n\r", ch);
 
     send_to_char("{tgrats{x          ", ch);
     if (!IS_SET(ch->comm_flags, COMM_NOGRATS))
-        send_to_char("ON\n\r", ch);
+        send_to_char("{GON{x\n\r", ch);
     else
-        send_to_char("OFF\n\r", ch);
+        send_to_char("{ROFF{x\n\r", ch);
 
     if (IS_IMMORTAL(ch)) {
         send_to_char("{igod channel{x    ", ch);
         if (!IS_SET(ch->comm_flags, COMM_NOWIZ))
-            send_to_char("ON\n\r", ch);
+            send_to_char("{GON{x\n\r", ch);
         else
-            send_to_char("OFF\n\r", ch);
+            send_to_char("{ROFF{x\n\r", ch);
     }
 
     send_to_char("{tshouts{x         ", ch);
     if (!IS_SET(ch->comm_flags, COMM_SHOUTSOFF))
-        send_to_char("ON\n\r", ch);
+        send_to_char("{GON{x\n\r", ch);
     else
-        send_to_char("OFF\n\r", ch);
+        send_to_char("{ROFF{x\n\r", ch);
 
     send_to_char("{ktells{x          ", ch);
     if (!IS_SET(ch->comm_flags, COMM_DEAF))
-        send_to_char("ON\n\r", ch);
+        send_to_char("{GON{x\n\r", ch);
     else
-        send_to_char("OFF\n\r", ch);
+        send_to_char("{ROFF{x\n\r", ch);
 
     send_to_char("{tquiet mode{x     ", ch);
     if (IS_SET(ch->comm_flags, COMM_QUIET))
-        send_to_char("ON\n\r", ch);
+        send_to_char("{GON{x\n\r", ch);
     else
-        send_to_char("OFF\n\r", ch);
+        send_to_char("{ROFF{x\n\r", ch);
 
-    if (IS_SET(ch->comm_flags, COMM_AFK)) send_to_char("You are AFK.\n\r", ch);
+    if (IS_SET(ch->comm_flags, COMM_AFK)) 
+        send_to_char("You are AFK.\n\r", ch);
 
     if (IS_SET(ch->comm_flags, COMM_SNOOP_PROOF))
         send_to_char("You are immune to snooping.\n\r", ch);
@@ -1171,7 +1173,7 @@ void do_pose(CharData* ch, char* argument)
 void do_bug(CharData* ch, char* argument)
 {
     char bug_file[256];
-    sprintf(bug_file, "%s%s", area_dir, BUG_FILE);
+    sprintf(bug_file, "%s%s", cfg_get_area_dir(), cfg_get_bug_file());
     append_file(ch, bug_file, argument);
     send_to_char("Bug logged.\n\r", ch);
     return;
@@ -1180,7 +1182,7 @@ void do_bug(CharData* ch, char* argument)
 void do_typo(CharData* ch, char* argument)
 {
     char typo_file[256];
-    sprintf(typo_file, "%s%s", area_dir, TYPO_FILE);
+    sprintf(typo_file, "%s%s", cfg_get_area_dir(), cfg_get_typo_file());
     append_file(ch, typo_file, argument);
     send_to_char("Typo logged.\n\r", ch);
     return;
@@ -1219,8 +1221,7 @@ void do_quit(CharData* ch, char* argument)
     act("$n has left the game.", ch, NULL, NULL, TO_ROOM);
     sprintf(log_buf, "%s has quit.", ch->name);
     log_string(log_buf);
-    wiznet("$N rejoins the real world.", ch, NULL, WIZ_LOGINS, 0,
-           get_trust(ch));
+    wiznet("$N rejoins the real world.", ch, NULL, WIZ_LOGINS, 0, get_trust(ch));
 
     /*
      * After extract_char the ch is no longer valid!
@@ -1229,7 +1230,8 @@ void do_quit(CharData* ch, char* argument)
     id = ch->id;
     d = ch->desc;
     extract_char(ch, true);
-    if (d != NULL) close_socket(d);
+    if (d != NULL)
+        close_socket(d);
 
     /* toast evil cheating bastards */
     for (d = descriptor_list; d != NULL; d = d_next) {
@@ -1290,8 +1292,7 @@ void do_follow(CharData* ch, char* argument)
 
     if (!IS_NPC(victim) && IS_SET(victim->act_flags, PLR_NOFOLLOW)
         && !IS_IMMORTAL(ch)) {
-        act("$N doesn't seem to want any followers.\n\r", ch, NULL, victim,
-            TO_CHAR);
+        act("$N doesn't seem to want any followers.\n\r", ch, NULL, victim, TO_CHAR);
         return;
     }
 
@@ -1435,7 +1436,7 @@ void do_order(CharData* ch, char* argument)
     for (och = ch->in_room->people; och != NULL; och = och_next) {
         och_next = och->next_in_room;
 
-        if (IS_AFFECTED(och, AFF_CHARM) && och->master == ch
+        if (IS_AFFECTED(och, AFF_CHARM) && och->master == ch 
             && (fAll || och == victim)) {
             found = true;
             sprintf(buf, "$n orders you to '%s'.", argument);
@@ -1466,14 +1467,13 @@ void do_group(CharData* ch, char* argument)
         CharData* leader;
 
         leader = (ch->leader != NULL) ? ch->leader : ch;
-        sprintf(buf, "%s's group:\n\r", PERS(leader, ch));
+        sprintf(buf, "{T%s's group:{x\n\r", PERS(leader, ch));
         send_to_char(buf, ch);
 
         for (gch = char_list; gch != NULL; gch = gch->next) {
             if (is_same_group(gch, ch)) {
                 sprintf(buf,
-                        "[%2d %s] %-16s %4d/%4d hp %4d/%4d mana %4d/%4d mv %5d "
-                        "xp\n\r",
+                        "{|[{*%2d %s{|]{x %-16s {_%4d/%4d hp %4d/%4d mana %4d/%4d mv %5d xp{x\n\r",
                         gch->level,
                         IS_NPC(gch) ? "Mob" : class_table[gch->ch_class].who_name,
                         capitalize(PERS(gch, ch)), gch->hit, gch->max_hit,

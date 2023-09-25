@@ -5,6 +5,7 @@
 #include "race.h"
 
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "tablesave.h"
 
@@ -45,14 +46,7 @@ void load_race_table()
     char* word;
     int i;
 
-    char races_file[256];
-    sprintf(races_file, "%s%s", area_dir, RACE_FILE);
-    fp = fopen(races_file, "r");
-
-    if (!fp) {
-        perror("load_races_table");
-        return;
-    }
+    OPEN_OR_DIE(fp = open_read_races_file());
 
     int maxrace = fread_number(fp);
 
@@ -71,7 +65,7 @@ void load_race_table()
 
         if (str_cmp(word, "#race")) {
             bugf("load_races_table : word %s", word);
-            fclose(fp);
+            close_file(fp);
             return;
         }
 
@@ -79,14 +73,13 @@ void load_race_table()
 
         if (i == maxrace) {
             flog("Race table loaded.");
-            fclose(fp);
+            close_file(fp);
             race_count = maxrace;
             race_table[i].name = NULL;
             return;
         }
     }
 }
-
 
 void save_race_table()
 {
@@ -95,12 +88,9 @@ void save_race_table()
     int cnt = 0;
 
     char tempraces_file[256];
-    sprintf(tempraces_file, "%s%s", area_dir, DATA_DIR "tempraces");
-    fp = fopen(tempraces_file, "w");
-    if (!fp) {
-        bugf("save_races : Can't open %s", tempraces_file);
-        return;
-    }
+    sprintf(tempraces_file, "%s%s", cfg_get_data_dir(), "tempraces");
+
+    OPEN_OR_RETURN(fp = open_write_file(tempraces_file));
 
     for (temp = race_table; !IS_NULLSTR(temp->name); temp++)
         cnt++;
@@ -113,10 +103,10 @@ void save_race_table()
         fprintf(fp, "#END\n\n");
     }
 
-    fclose(fp);
+    close_file(fp);
 
     char races_file[256];
-    sprintf(races_file, "%s%s", area_dir, RACE_FILE);
+    sprintf(races_file, "%s%s", cfg_get_data_dir(), cfg_get_races_file());
 
 #ifdef _MSC_VER
     if (!MoveFileExA(tempraces_file, races_file, MOVEFILE_REPLACE_EXISTING)) {
