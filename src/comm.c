@@ -232,7 +232,7 @@ void init_ssl_server(SockServer* server)
 }
 #endif
 
-void init_server(SockServer* server, int port)
+void init_server(SockServer* server)
 {
     static struct sockaddr_in sa_zero;
     struct sockaddr_in sa;
@@ -300,7 +300,7 @@ void init_server(SockServer* server, int port)
 
     sa = sa_zero;
     sa.sin_family = AF_INET;
-    sa.sin_port = htons((u_short)port);
+    sa.sin_port = htons((u_short)cfg_get_tls_port());
 
     if (bind(server->control, (struct sockaddr*)&sa, sizeof(sa)) < 0) {
         perror("Init socket: bind");

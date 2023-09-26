@@ -62,7 +62,12 @@ DECLARE_FILE_CONFIG(mem_dump_file)
 DECLARE_FILE_CONFIG(mob_dump_file)
 DECLARE_FILE_CONFIG(obj_dump_file)
 
+DECLARE_CONFIG(bool, telnet_enabled)
+DECLARE_CONFIG(int, telnet_port)
+
 #ifndef USE_RAW_SOCKETS
+DECLARE_CONFIG(bool, tls_enabled)
+DECLARE_CONFIG(int, tls_port)
 DECLARE_CONFIG(char*, keys_dir)
 DECLARE_FILE_CONFIG(cert_file)
 DECLARE_FILE_CONFIG(pkey_file)

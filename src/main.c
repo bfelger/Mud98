@@ -67,16 +67,12 @@
 #endif
 
 // Global variables.
-bool god;                           // All new chars are gods!
 bool merc_down = false;             // Shutdown
 bool wizlock;                       // Game is wizlocked
 bool newlock;                       // Game is newlocked
 char str_boot_time[MAX_INPUT_LENGTH];
 time_t current_time;                // time of this pulse
 bool MOBtrigger = true;             // act() switch
-
-bool rt_opt_benchmark = false;
-bool rt_opt_noloop = false;
 
 void game_loop(SockServer* server);
 
@@ -97,9 +93,11 @@ int main(int argc, char** argv)
 
     // Get the command line arguments.
     port = 4000;
-    char* port_str = NULL;
-    char* cfg_str = NULL;
+    char port_str[256] = { 0 };
+    char run_dir[256] = { 0 };
     char area_dir[256] = { 0 };
+    bool rt_opt_benchmark = false;
+    bool rt_opt_noloop = false;
 
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
@@ -108,22 +106,30 @@ int main(int argc, char** argv)
             }
             else if (!strcmp(argv[i], "-p")) {
                 if (++i < argc) {
-                    port_str = argv[i];
+                    strcpy(port_str, argv[i]);
                 }
             }
             else if (!strncmp(argv[i], "--port=", 7)) {
-                port_str = argv[i] + 7;
+                strcpy(port_str, argv[i] + 7);
+            }
+            else if (!strncmp(argv[i], "--dir=", 6)) {
+                strcpy(run_dir, argv[i] + 6);
+            }
+            else if (!strncmp(argv[i], "--rundir=", 9)) {
+                strcpy(run_dir, argv[i] + 9);
+            }
+            else if (!strcmp(argv[i], "-d")) {
+                if (++i < argc) {
+                    strcpy(run_dir, argv[i]);
+                }
+            }
+            else if (!strncmp(argv[i], "--area-dir=", 11)) {
+                strcpy(area_dir, argv[i] + 11);
             }
             else if (!strcmp(argv[i], "-a")) {
                 if (++i < argc) {
-                    sprintf(area_dir, "%s", argv[i]);
+                    strcpy(area_dir, argv[i]);
                 }
-            }
-            else if (!strncmp(argv[i], "--cfg=", 6)) {
-                cfg_str = argv[i] + 6;
-            }
-            else if (!strncmp(argv[i], "--area-dir=", 11)) {
-                sprintf(area_dir, "%s", argv[i] + 11);
             }
             else if (!strcmp(argv[i], "--benchmark")) {
                 rt_opt_benchmark = true;
@@ -157,7 +163,7 @@ int main(int argc, char** argv)
         }
     }
 
-    if (port_str) {
+    if (port_str[0]) {
         if (is_number(port_str)) {
             port = atoi(port_str);
         }
@@ -173,11 +179,11 @@ int main(int argc, char** argv)
     }
 
     if (area_dir[0]) {
-        //size_t len = strlen(area_dir);
-        //if (area_dir[len - 1] != '/' && area_dir[len - 1] != '\\')
-        //    strcat(area_dir, "/");
         cfg_set_area_dir(area_dir);
     }
+
+    if (run_dir[0])
+        cfg_set_base_dir(run_dir);
 
     // Init time.
     gettimeofday(&now_time, NULL);
@@ -187,6 +193,9 @@ int main(int argc, char** argv)
     open_reserve_file();
 
     load_config();
+
+    if (port_str)
+        cfg_set_telnet_port(port);
 
     /*
      * Run the game.
@@ -206,8 +215,26 @@ int main(int argc, char** argv)
     }
 
     if (!rt_opt_noloop) {
-        init_server(&server, port);
-        sprintf(log_buf, MUD_NAME " is ready to rock on port %d.", port);
+        init_server(&server);
+        bool telnet = cfg_get_telnet_enabled();
+        bool tls = cfg_get_tls_enabled();
+        int telnet_port = cfg_get_telnet_port();
+        int tls_port = cfg_get_tls_port();
+        if (telnet && tls) {
+            sprintf(log_buf, MUD_NAME " is ready to rock on ports %d (telnet) "
+                "& %d (tls).", telnet_port, tls_port);
+        }
+        else if (telnet) {
+            sprintf(log_buf, MUD_NAME " is ready to rock on port %d (telnet). ",
+                telnet_port);
+        }
+        else if (tls) {
+            sprintf(log_buf, MUD_NAME " is ready to rock on port %d (tls). ",
+                tls_port);
+        }
+        else {
+            sprintf(log_buf, "You must enable either telnet or TLS in mud98.cfg.");
+        }
         log_string(log_buf);
         game_loop(&server);
 

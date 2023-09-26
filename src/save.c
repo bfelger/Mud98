@@ -391,7 +391,8 @@ void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
      * Slick recursion to write lists backwards,
      *   so loading them will load in forwards order.
      */
-    if (obj->next_content != NULL) fwrite_obj(ch, obj->next_content, fp, iNest);
+    if (obj->next_content != NULL) 
+        fwrite_obj(ch, obj->next_content, fp, iNest);
 
     /*
      * Castrate storage characters.
@@ -403,8 +404,10 @@ void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
 
     fprintf(fp, "#O\n");
     fprintf(fp, "Vnum %"PRVNUM"\n", obj->prototype->vnum);
-    if (!obj->prototype->new_format) fprintf(fp, "Oldstyle\n");
-    if (obj->enchanted) fprintf(fp, "Enchanted\n");
+    if (!obj->prototype->new_format) 
+        fprintf(fp, "Oldstyle\n");
+    if (obj->enchanted) 
+        fprintf(fp, "Enchanted\n");
     fprintf(fp, "Nest %d\n", iNest);
 
     /* these data are only used if they do not match the defaults */
@@ -431,7 +434,8 @@ void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
     fprintf(fp, "Wear %d\n", obj->wear_loc);
     if (obj->level != obj->prototype->level)
         fprintf(fp, "Lev  %d\n", obj->level);
-    if (obj->timer != 0) fprintf(fp, "Time %d\n", obj->timer);
+    if (obj->timer != 0) 
+        fprintf(fp, "Time %d\n", obj->timer);
     fprintf(fp, "Cost %d\n", obj->cost);
     if (obj->value[0] != obj->prototype->value[0]
         || obj->value[1] != obj->prototype->value[1]
@@ -470,7 +474,8 @@ void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
     }
 
     for (paf = obj->affected; paf != NULL; paf = paf->next) {
-        if (paf->type < 0 || paf->type >= skill_count) continue;
+        if (paf->type < 0 || paf->type >= skill_count) 
+            continue;
         fprintf(fp, "Affc '%s' %3d %3d %3d %3d %3d %10d\n",
                 skill_table[paf->type].name, paf->where, paf->level,
                 paf->duration, paf->modifier, paf->location, paf->bitvector);
@@ -482,7 +487,8 @@ void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
 
     fprintf(fp, "End\n\n");
 
-    if (obj->contains != NULL) fwrite_obj(ch, obj->contains, fp, iNest + 1);
+    if (obj->contains != NULL) 
+        fwrite_obj(ch, obj->contains, fp, iNest + 1);
 
     return;
 }
@@ -666,7 +672,9 @@ bool load_char_obj(Descriptor* d, char* name)
     }
 
     /* ream gold */
-    if (ch->version < 4) { ch->gold /= 100; }
+    if (ch->version < 4) { 
+        ch->gold /= 100; 
+    }
 
     return true;
 }

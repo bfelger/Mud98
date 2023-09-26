@@ -90,7 +90,7 @@ void close_client(SockClient* client);
 void close_server(SockServer* server);
 bool has_new_conn(SockServer* server, PollData* poll_data);
 void handle_new_connection(SockServer* server);
-void init_server(SockServer* server, int port);
+void init_server(SockServer* server);
 void nanny(Descriptor* d, char* argument);
 void poll_server(SockServer* server, PollData* poll_data);
 void process_client_input(SockServer* server, PollData* poll_data);
