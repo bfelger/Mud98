@@ -1168,6 +1168,21 @@ void write_to_buffer(Descriptor* d, const char* txt, size_t length)
     return;
 }
 
+static void nanny_weapon_prompt(Descriptor* d, CharData* ch)
+{
+    char buf[MAX_STRING_LENGTH] = "";
+    write_to_buffer(d, "\n\r", 2);
+    write_to_buffer(d, "Please pick a weapon from the following choices:\n\r", 0);
+    // Skip exotic. No one is trained in it.
+    for (int i = 1; i < WEAPON_TYPE_COUNT; i++)
+        if (ch->pcdata->learned[*weapon_table[i].gsn] > 0) {
+            strcat(buf, weapon_table[i].name);
+            strcat(buf, " ");
+        }
+    strcat(buf, "\n\rYour choice? ");
+    write_to_buffer(d, buf, 0);
+}
+
 /*
  * Deal with sockets that haven't logged in yet.
  */
@@ -1538,13 +1553,21 @@ void nanny(Descriptor * d, char* argument)
         group_add(ch, "rom basics", false);
         group_add(ch, class_table[ch->ch_class].base_group, false);
         ch->pcdata->learned[gsn_recall] = 50;
-        write_to_buffer(d, "Do you wish to customize this character?\n\r", 0);
-        write_to_buffer(d,
-            "Customization takes time, but allows a wider range of "
-            "skills and abilities.\n\r",
-            0);
-        write_to_buffer(d, "Customize (Y/N)? ", 0);
-        d->connected = CON_DEFAULT_CHOICE;
+
+        if (cfg_get_chargen_custom()) {
+            write_to_buffer(d, "Do you wish to customize this character?\n\r", 0);
+            write_to_buffer(d,
+                "Customization takes time, but allows a wider range of "
+                "skills and abilities.\n\r",
+                0);
+            write_to_buffer(d, "Customize (Y/N)? ", 0);
+            d->connected = CON_DEFAULT_CHOICE;
+        }
+        else {
+            group_add(ch, class_table[ch->ch_class].default_group, true);
+            nanny_weapon_prompt(d, ch);
+            d->connected = CON_PICK_WEAPON;
+        }
         break;
 
     case CON_DEFAULT_CHOICE:
@@ -1564,18 +1587,7 @@ void nanny(Descriptor * d, char* argument)
         case 'n':
         case 'N':
             group_add(ch, class_table[ch->ch_class].default_group, true);
-            write_to_buffer(d, "\n\r", 2);
-            write_to_buffer(
-                d, "Please pick a weapon from the following choices:\n\r", 0);
-            buf[0] = '\0';
-            // Skip exotic. No one is trained in it.
-            for (i = 1; i < WEAPON_TYPE_COUNT; i++)
-                if (ch->pcdata->learned[*weapon_table[i].gsn] > 0) {
-                    strcat(buf, weapon_table[i].name);
-                    strcat(buf, " ");
-                }
-            strcat(buf, "\n\rYour choice? ");
-            write_to_buffer(d, buf, 0);
+            nanny_weapon_prompt(d, ch);
             d->connected = CON_PICK_WEAPON;
             break;
         default:
@@ -1634,17 +1646,7 @@ void nanny(Descriptor * d, char* argument)
             free_gen_data(ch->gen_data);
             ch->gen_data = NULL;
             send_to_char(buf, ch);
-            write_to_buffer(d, "\n\r", 2);
-            write_to_buffer(
-                d, "Please pick a weapon from the following choices:\n\r", 0);
-            buf[0] = '\0';
-            for (i = 0; i < WEAPON_TYPE_COUNT; i++)
-                if (ch->pcdata->learned[*weapon_table[i].gsn] > 0) {
-                    strcat(buf, weapon_table[i].name);
-                    strcat(buf, " ");
-                }
-            strcat(buf, "\n\rYour choice? ");
-            write_to_buffer(d, buf, 0);
+            nanny_weapon_prompt(d, ch);
             d->connected = CON_PICK_WEAPON;
             break;
         }

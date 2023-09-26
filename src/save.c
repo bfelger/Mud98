@@ -549,6 +549,9 @@ bool load_char_obj(Descriptor* d, char* name)
 
     sprintf(strsave, "%s%s", cfg_get_player_dir(), capitalize(name));
 
+    if (!file_exists(strsave))
+        return false;
+
     OPEN_OR_RETURN_FALSE(fp = open_read_file(strsave));
 
     int iNest;

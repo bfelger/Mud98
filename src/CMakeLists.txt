@@ -3,8 +3,10 @@
 #
 cmake_minimum_required (VERSION 3.10)
 
+# MSVC will ignore this
 set (CMAKE_C_STANDARD 23)
 
+# Most recent C standard MSVC will pretend to follow
 set (MSVC_C_STD "/std:c17")
 
 project(Mud98)
@@ -121,10 +123,10 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
 if (NOT MSVC)
     target_link_libraries(Mud98 Threads::Threads OpenSSL::SSL)
 else()
-    target_link_libraries(Mud98 OpenSSL::Crypto OpenSSL::SSL OpenSSL::applink)
+    target_link_libraries(Mud98 PRIVATE OpenSSL::Crypto OpenSSL::SSL OpenSSL::applink)
 endif()
 
-message("Build summary:")
+message("Config summary:")
 message("")
 message("        Project name:     ${CMAKE_PROJECT_NAME}")
 message("        Host type:        ${CMAKE_SYSTEM_NAME}")

@@ -25,25 +25,25 @@
 
 #define BACKING_STR_SIZE        256
 
-#define DEFINE_BACKING(type, val, default_val)                                 \
+#define DEFINE_BACKING(val, type, default_val)                                 \
     static type _ ## val = default_val;
 
-#define DEFINE_GETTER(type, val)                                               \
+#define DEFINE_GETTER(val, type)                                               \
     const type cfg_get_ ## val()                                               \
     {                                                                          \
         return _ ## val;                                                       \
     }
 
-#define DEFINE_SETTER(type, val)                                               \
+#define DEFINE_SETTER(val, type)                                               \
     void cfg_set_ ## val(const type new_val)                                   \
     {                                                                          \
         _ ## val = new_val;                                                    \
     } 
 
-#define DEFINE_CONFIG(type, val, default_val)                                  \
-    DEFINE_BACKING(type, val, default_val)                                     \
-    DEFINE_GETTER(type, val)                                                   \
-    DEFINE_SETTER(type, val)
+#define DEFINE_CONFIG(val, type, default_val)                                  \
+    DEFINE_BACKING(val, type, default_val)                                     \
+    DEFINE_GETTER(val, type)                                                   \
+    DEFINE_SETTER(val, type)
 
 #define DEFINE_STR_BACKING(val)                                                \
     static char _ ## val[BACKING_STR_SIZE] = { 0 };
@@ -161,6 +161,9 @@
 DEFINE_DIR_CONFIG(base_dir,         DEFAULT_BASE_DIR)
 DEFINE_STR_CONFIG(config_file,      DEFAULT_CONFIG_FILE)
 
+DEFINE_DIR_CONFIG(player_dir, DEFAULT_PLAYER_DIR)
+DEFINE_DIR_CONFIG(gods_dir, DEFAULT_GODS_DIR)
+
 DEFINE_DIR_CONFIG(area_dir,         DEFAULT_AREA_DIR)
 DEFINE_FILE_CONFIG(area_list,       area_dir,   DEFAULT_AREA_LIST)
 DEFINE_FILE_CONFIG(music_file,      area_dir,   DEFAULT_MUSIC_FILE)
@@ -188,16 +191,15 @@ DEFINE_FILE_CONFIG(mem_dump_file,   temp_dir,   DEFAULT_MEM_DUMP_FILE)
 DEFINE_FILE_CONFIG(mob_dump_file,   temp_dir,   DEFAULT_MOB_DUMP_FILE)
 DEFINE_FILE_CONFIG(obj_dump_file,   temp_dir,   DEFAULT_OBJ_DUMP_FILE)
 
-DEFINE_CONFIG(bool, telnet_enabled, DEFAULT_TELNET_ENABLED)
-DEFINE_CONFIG(int,  telnet_port,    DEFAULT_TELNET_PORT)
-DEFINE_CONFIG(bool, tls_enabled,    DEFAULT_TLS_ENABLED)
-DEFINE_CONFIG(int,  tls_port,       DEFAULT_TLS_PORT)
+DEFINE_CONFIG(telnet_enabled,       bool,       DEFAULT_TELNET_ENABLED)
+DEFINE_CONFIG(telnet_port,          int,        DEFAULT_TELNET_PORT)
+DEFINE_CONFIG(tls_enabled,          bool,       DEFAULT_TLS_ENABLED)
+DEFINE_CONFIG(tls_port,             int,        DEFAULT_TLS_PORT)
 DEFINE_DIR_CONFIG(keys_dir,         DEFAULT_KEYS_DIR)
 DEFINE_FILE_CONFIG(cert_file,       keys_dir,   DEFAULT_CERT_FILE)
 DEFINE_FILE_CONFIG(pkey_file,       keys_dir,   DEFAULT_PKEY_FILE)
 
-DEFINE_DIR_CONFIG(player_dir,       DEFAULT_PLAYER_DIR)
-DEFINE_DIR_CONFIG(gods_dir,         DEFAULT_GODS_DIR)
+DEFINE_CONFIG(chargen_custom,       bool,       true)
 
 typedef enum config_type_t {
     CFG_STR,
@@ -255,7 +257,8 @@ const ConfigEntry config_entries[] = {
     { "pkey_file",      CFG_STR,        U(cfg_set_pkey_file)      },
     { "player_dir",     CFG_DIR,        U(cfg_set_player_dir)     },
     { "gods_dir",       CFG_DIR,        U(cfg_set_gods_dir)       },
-    { "",               0,              0                   },
+    { "chargen_custom", CFG_BOOL,       U(cfg_set_chargen_custom) },
+    { "",               0,              0                         },
 };
 
 #undef U
