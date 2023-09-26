@@ -74,7 +74,7 @@ char str_boot_time[MAX_INPUT_LENGTH];
 time_t current_time;                // time of this pulse
 bool MOBtrigger = true;             // act() switch
 
-void game_loop(SockServer* server);
+void game_loop(SockServer* telnet_server, TlsServer* tls_server);
 
 #ifdef _MSC_VER
 struct timezone {
@@ -89,7 +89,8 @@ int main(int argc, char** argv)
     struct timeval now_time = { 0 };
     int port;
 
-    SockServer server;
+    SockServer* telnet_server = NULL;
+    TlsServer* tls_server = NULL;
 
     // Get the command line arguments.
     port = 4000;
@@ -215,11 +216,24 @@ int main(int argc, char** argv)
     }
 
     if (!rt_opt_noloop) {
-        init_server(&server);
         bool telnet = cfg_get_telnet_enabled();
         bool tls = cfg_get_tls_enabled();
         int telnet_port = cfg_get_telnet_port();
         int tls_port = cfg_get_tls_port();
+
+        if (telnet) {
+            telnet_server = (SockServer*)alloc_mem(sizeof(SockServer));
+            memset(telnet_server, 0, sizeof(SockServer));
+            telnet_server->type = SOCK_TELNET;
+            init_server(telnet_server, telnet_port);
+        }
+        if (tls) {
+            tls_server = (TlsServer*)alloc_mem(sizeof(TlsServer));
+            memset(tls_server, 0, sizeof(TlsServer));
+            tls_server->type = SOCK_TLS;
+            init_server((SockServer*)tls_server, tls_port);
+        }
+
         if (telnet && tls) {
             sprintf(log_buf, MUD_NAME " is ready to rock on ports %d (telnet) "
                 "& %d (tls).", telnet_port, tls_port);
@@ -236,9 +250,12 @@ int main(int argc, char** argv)
             sprintf(log_buf, "You must enable either telnet or TLS in mud98.cfg.");
         }
         log_string(log_buf);
-        game_loop(&server);
+        game_loop(telnet_server, tls_server);
 
-        close_server(&server);
+        if (telnet_server)
+            close_server(telnet_server);
+        if (tls_server)
+            close_server((SockServer*)tls_server);
     }
 
     /*
@@ -277,7 +294,7 @@ int gettimeofday(struct timeval* tp, struct timezone* unused)
 ////////////////////////////////////////////////////////////////////////////////
 #endif
 
-void game_loop(SockServer* server)
+void game_loop(SockServer* telnet_server, TlsServer* tls_server)
 {
     struct timeval last_time;
     gettimeofday(&last_time, NULL);
@@ -285,21 +302,37 @@ void game_loop(SockServer* server)
 
     // Main loop
     while (!merc_down) {
-        PollData poll_data = { 0 };
+        PollData telnet_poll_data = { 0 };
+        PollData tls_poll_data = { 0 };
 
-        poll_server(server, &poll_data);
+        if (telnet_server) {
+            poll_server(telnet_server, &telnet_poll_data);
 
-        // New connection?
-        if (has_new_conn(server, &poll_data)) 
-            handle_new_connection(server);
+            // New connection?
+            if (has_new_conn(telnet_server, &telnet_poll_data))
+                handle_new_connection(telnet_server);
 
-        process_client_input(server, &poll_data);
+            process_client_input(telnet_server, &telnet_poll_data);
+        }
+
+        if (tls_server) {
+            poll_server((SockServer*)tls_server, &tls_poll_data);
+
+            // New connection?
+            if (has_new_conn((SockServer*)tls_server, &tls_poll_data))
+                handle_new_connection((SockServer*)tls_server);
+
+            process_client_input((SockServer*)tls_server, &tls_poll_data);
+        }
 
         // Autonomous game motion.
         update_handler();
 
         // Output.
-        process_client_output(&poll_data);
+        if (telnet_server)
+            process_client_output(&telnet_poll_data, SOCK_TELNET);
+        if (tls_server)
+            process_client_output(&tls_poll_data, SOCK_TLS);
 
         /*
          * Synchronize to a clock.

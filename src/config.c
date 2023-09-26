@@ -190,14 +190,11 @@ DEFINE_FILE_CONFIG(obj_dump_file,   temp_dir,   DEFAULT_OBJ_DUMP_FILE)
 
 DEFINE_CONFIG(bool, telnet_enabled, DEFAULT_TELNET_ENABLED)
 DEFINE_CONFIG(int,  telnet_port,    DEFAULT_TELNET_PORT)
-
-#ifndef USE_RAW_SOCKETS
 DEFINE_CONFIG(bool, tls_enabled,    DEFAULT_TLS_ENABLED)
 DEFINE_CONFIG(int,  tls_port,       DEFAULT_TLS_PORT)
 DEFINE_DIR_CONFIG(keys_dir,         DEFAULT_KEYS_DIR)
 DEFINE_FILE_CONFIG(cert_file,       keys_dir,   DEFAULT_CERT_FILE)
 DEFINE_FILE_CONFIG(pkey_file,       keys_dir,   DEFAULT_PKEY_FILE)
-#endif
 
 DEFINE_DIR_CONFIG(player_dir,       DEFAULT_PLAYER_DIR)
 DEFINE_DIR_CONFIG(gods_dir,         DEFAULT_GODS_DIR)
@@ -251,13 +248,11 @@ const ConfigEntry config_entries[] = {
     { "obj_dump_file",  CFG_STR,        U(cfg_set_obj_dump_file)  },
     { "telnet_enabled", CFG_BOOL,       U(cfg_set_telnet_enabled) },
     { "telnet_port",    CFG_INT,        U(cfg_set_telnet_port)    },
-#ifndef USE_RAW_SOCKETS
     { "tls_enabled",    CFG_BOOL,       U(cfg_set_tls_enabled)    },
     { "tls_port",       CFG_INT,        U(cfg_set_tls_port)       },
     { "keys_dir",       CFG_DIR,        U(cfg_set_keys_dir)       },
     { "cert_file",      CFG_STR,        U(cfg_set_cert_file)      },
     { "pkey_file",      CFG_STR,        U(cfg_set_pkey_file)      },
-#endif
     { "player_dir",     CFG_DIR,        U(cfg_set_player_dir)     },
     { "gods_dir",       CFG_DIR,        U(cfg_set_gods_dir)       },
     { "",               0,              0                   },

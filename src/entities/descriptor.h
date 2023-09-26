@@ -42,7 +42,7 @@ typedef struct descriptor_t {
     CharData* character;
     CharData* original;
     char* host;
-    SockClient client;
+    SockClient* client;
     ConnectionState connected;
     char inbuf[4 * MAX_INPUT_LENGTH];
     char incomm[MAX_INPUT_LENGTH];

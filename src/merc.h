@@ -43,57 +43,6 @@
 #include <stddef.h>
 #endif
 
-//////////////////////////////////////////////////////////////////////////////////
-//// Data files used by the server.
-//// 
-//// AREA_LIST contains a list of areas to boot.
-//// All files are read in completely at bootup.
-//// Most output files (bug, idea, typo, shutdown) are append-only.
-//// 
-//// The NULL_FILE is held open so that we have a stream handle in reserve, so
-//// players can go ahead and telnet to all the other descriptors. Then we close
-//// it whenever we need to open a file (e.g. a save file).
-//////////////////////////////////////////////////////////////////////////////////
-//
-//extern char area_dir[];
-//
-//#define DEFAULT_AREA_DIR "./"           // Default is legacy usage
-//#define PLAYER_DIR      "../player/"    // Player files
-//#define GOD_DIR         "../gods/"      // list of gods
-//#define TEMP_DIR        "../temp/"
-//#define DATA_DIR        "../data/"
-//#define PROG_DIR        DATA_DIR "progs/"
-//#define SOCIAL_FILE	    DATA_DIR "socials"
-//#define GROUP_FILE      DATA_DIR "groups"
-//#define SKILL_FILE      DATA_DIR "skills"
-//#define COMMAND_FILE    DATA_DIR "commands"
-//#define RACE_FILE       DATA_DIR "races"
-//#define CLASS_FILE      DATA_DIR "classes"
-//#define AREA_LIST       "area.lst"      // List of areas
-//#define BUG_FILE        "bugs.txt"      // For 'bug' and bug()
-//#define TYPO_FILE       "typos.txt"     // For 'typo'
-//#define NOTE_FILE       "notes.not"     // For 'notes'
-//#define IDEA_FILE       "ideas.not"
-//#define PENALTY_FILE    "penal.not"
-//#define NEWS_FILE       "news.not"
-//#define CHANGES_FILE    "chang.not"
-//#define SHUTDOWN_FILE   "shutdown.txt"  // For 'shutdown'
-//#define BAN_FILE        "ban.txt"
-//#define MUSIC_FILE      "music.txt"
-//
-//#ifndef _MSC_VER
-//    #define NULL_FILE   "/dev/null"     // To reserve one stream
-//#else
-//    #define NULL_FILE   "nul"
-//#endif
-//
-//#ifndef USE_RAW_SOCKETS
-//#define CERT_FILE       "../keys/rom-mud.pem"
-//#define PKEY_FILE       "../keys/rom-mud.key"
-//#endif
-
-////////////////////////////////////////////////////////////////////////////////
-
 #define args( list )                list
 
 ////////////////////////////////////////////////////////////////////////////////

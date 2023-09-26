@@ -451,7 +451,7 @@ static void do_theme_config(CharData* ch, char* argument)
         "Toggle certain themes, depending on your client's capabilities.\n\r"
         "Has the following arguments:\n\r"
         "       {*ENABLE    {x- Enables the given mode (on by default). \n\r"
-        "       {*DISABLE   {x- Hide themes of the given mode from {*LIST{x/\n\r\n\r"
+        "       {*DISABLE   {x- Hide themes of the given mode from {*LIST{x.\n\r\n\r"
         "       {*256       {x- Show/hide 256-color extended index palettes.\n\r"
         "       {*RGB       {x- Show/hide 24-bit RGB palettes.\n\r"
         "       {*XTERM     {x- Use {_xterm{x 24-bit color codes instead of VT100. This\n\r"
