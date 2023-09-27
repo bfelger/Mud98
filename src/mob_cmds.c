@@ -1301,5 +1301,3 @@ void do_mpremove(CharData* ch, char* argument)
         }
     }
 }
-
-
