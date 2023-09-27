@@ -96,7 +96,7 @@ Most settings in Mud98 can be configured in `mud98.cfg`, which resides in the ro
 
 Part of an on-going effort, Mud98 applies "modern" C best practices to ROM's legacy C code. This is a multi-prong effort:
 - Reorganization for smaller, focused code files with an eye toward Single Responsibility Principle.
-- Scrupulous application of more constistant (though admittedly opinionated) naming, syntax, and structure.
+- Scrupulous application of more constistent (though admittedly opinionated) naming, syntax, and structure.
 - Removal of legacy code that is unlikely to ever see usage on modern systems.
 
 <!-- OLC Expansion -->
@@ -122,8 +122,7 @@ Players can create new color themes and share them publicly with other players. 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+You can build and run Mud98 on virtually any desktop or server platform.
 
 ### Prerequisites
 
@@ -179,7 +178,9 @@ The following are optional, but **highly** recommended:
       ]
     ```
 
-    This will add the launch option, "Mud98.exe [with args]" that will run Mud98 from the `area` directory.
+    This will add the launch option, "Mud98.exe [with args]" that will run Mud98 from the root directory.
+
+    If you wish, you can still run Mud98 from the `area` directory as was custom in ROM.
 
     **For Windows CLI (MSVC)**
 
@@ -225,10 +226,9 @@ See the [open issues](https://github.com/github_username/repo_name/issues) for a
 <!-- CONTRIBUTING -->
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Please, please feel free to add this project. Or take it and do something completely different with it. ROM was responsible for my learning to love code in my youth, and I believe it yet has more to teach. Make it your own!
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
+How to contribute:
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
