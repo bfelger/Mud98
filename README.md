@@ -34,7 +34,11 @@
     <li>
       <a href="#features">Features</a>
       <ul>
-        <li><a href="#color-themes">Color Themes</a></li>
+        <li><a href="#tls-secure-sockets">TLS Secure Sockets</a></li>
+        <li><a href="#file-based-configuration">File-based Configuration</a></li>
+        <li><a href="#improved-code-quality">Improved Code Quality</a></li>
+        <li><a href="#olc-expansion">OLC Expansion</a></li>
+        <li><a href="#24-bit-color-themes">24-bit Color Themes</a></li>
       </ul>
     </li>
     <li>
@@ -62,7 +66,8 @@ Mud98 has the following improvements:
 
 - ROM 2.4b6 base with Lope's ColoUr and OLC 2.1.
 - Cross-platform compilation with CMake.
-- Builds without errors or warnings in GCC, Clang, and MSVC.
+- Builds without errors or warnings in GCC, Clang, MSVC, and Cygwin.
+  - Compiles with `-Wall -Werror -Wextra -pedantic`.
 - Continuing implementation of modern C (including newer C standards).
 - Secure telnet with TLS and password digests provided by OpenSSL.
 - User-defined, shareable color themes.
@@ -76,8 +81,31 @@ Other than the improvements listed above, Mud98 intends to be true to the spirit
 
 Here are some of the novel improvements to Mud98 over stock ROM:
 
-<!-- COLOR THEMES -->
-### Color Themes
+<!-- TLS Secure Sockets -->
+### TLS Secure Sockets
+
+OpenSSL provides secure sockets to Mud98. You can configure Mud98 to run TLS in tandem with clear-text telnet, or by itself.
+
+<!-- File-base Configuration -->
+### File-based Configuration
+
+Most settings in Mud98 can be configured in `mud98.cfg`, which resides in the root folder. This includes telnet/TLS settings, file settings, and a growing list of gameplay customization options.
+
+<!-- Improved Code Quality -->
+### Improved Code Quality
+
+Part of an on-going effort, Mud98 applies "modern" C best practices to ROM's legacy C code. This is a multi-prong effort:
+- Reorganization for smaller, focused code files with an eye toward Single Responsibility Principle.
+- Scrupulous application of more constistant (though admittedly opinionated) naming, syntax, and structure.
+- Removal of legacy code that is unlikely to ever see usage on modern systems.
+
+<!-- OLC Expansion -->
+### OLC Expansion
+
+Mud98 adds a class editor (`cedit`) to OLC 2 for ROM. Future plans are to expand on this and add more features editable via OLC.
+
+<!-- 24-BIT COLOR THEMES -->
+### 24-Bit Color Themes
 
 Players can create new color themes and share them publicly with other players. Mud98 supports traditional ANSI, extended 256 color, and 24-bit true color. True color support covers both standard SGR format (Mudlet) and `xterm` format (TinTin++). 
 
@@ -100,8 +128,12 @@ To get a local copy up and running follow these simple example steps.
 ### Prerequisites
 
 The following libraries and utilities are required to build Mud98:
-* CMake 3.10 or higher.
-* OpenSSL 3.x.
+* CMake 3.12 or higher.
+* Pthreads (Linux, Cygwin)
+
+The following are optional, but **highly** recommended:
+* OpenSSL 3.x+.
+  - Required for TLS server capability.
 * A certificate signed by a legitimate Certificate Authority (if you don't want users getting warnings about self-signed certificates).
 
 ### Building Mud98
@@ -123,7 +155,7 @@ The following libraries and utilities are required to build Mud98:
     **For GCC or Clang under Linux or Cygwin:**
    ```sh
    cd src
-   ./config && ./build
+   ./config && ./compile
    ```
 
     **For Visual Studio (MSVC)**:
@@ -142,8 +174,8 @@ The following libraries and utilities are required to build Mud98:
       "projectTarget": "Mud98.exe",
       "name": "Mud98.exe [with args]",
       "args": [
-        "-a",
-        "../../../../area/"
+        "-d",
+        "../../../../"
       ]
     ```
 
@@ -171,10 +203,10 @@ The following libraries and utilities are required to build Mud98:
 Once Mud98 is built, it can be run from the command-line like so:
 
 ```sh
-./Mud98 --area=$MUD98_AREA_DIR --port=$MUD98_PORT
+./Mud98
 ```
 
-Replace the variables as necessary.
+Use the `-d` argument to specify the folder to `mud98.cfg` if you don't run it from the base folder.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -209,7 +241,7 @@ Don't forget to give the project a star! Thanks again!
 <!-- LICENSE -->
 ## License
 
-Distributed under the Diku, Merc, and ROM licenses. See `LICENSE.txt` for more information.
+Distributed under the Diku, Merc, and ROM licenses. See `LICENSE.txt` for more information. I make no assumptions as to their enforceability (or even the feasability of compliance); use at your own risk.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
