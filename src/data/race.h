@@ -20,7 +20,7 @@
 #define RACE_NUM_SKILLS 5
 
 typedef int16_t ClassMult;
-DEFINE_ARRAY(ClassMult, 100);
+DECLARE_ARRAY(ClassMult)
 
 typedef struct race_t {
     char* name; 

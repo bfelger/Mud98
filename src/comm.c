@@ -47,7 +47,7 @@
 #include "recycle.h"
 #include "save.h"
 #include "skills.h"
-#include "strings.h"
+#include "stringutils.h"
 #include "tables.h"
 #include "telnet.h"
 #include "vt.h"
@@ -69,6 +69,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <signal.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -77,9 +78,11 @@
 #include <sys/types.h>
 #include <time.h>
 
+#ifndef NO_OPENSSL
 #include <openssl/err.h>
 #include <openssl/pem.h>
 #include <openssl/ssl.h>
+#endif
 
 #ifdef _MSC_VER
 #pragma comment(lib, "Ws2_32.lib")
@@ -173,6 +176,7 @@ void PrintLastWinSockError()
 }
 #endif
 
+#ifndef NO_OPENSSL
 void init_tls_server(TlsServer* server)
 {
     log_string("Initializing SSL server:");
@@ -229,6 +233,7 @@ void init_tls_server(TlsServer* server)
     SSL_CTX_set_options(server->ssl_ctx, SSL_OP_ALL | SSL_OP_NO_SSLv2
         | SSL_OP_NO_SSLv3);
 }
+#endif
 
 void init_server(SockServer* server, int port)
 {
@@ -236,8 +241,10 @@ void init_server(SockServer* server, int port)
     struct sockaddr_in sa;
     int x = 1;
 
+#ifndef NO_OPENSSL
     if (server->type == SOCK_TLS)
         init_tls_server((TlsServer*)server);
+#endif
 
     if (running_servers++ == 0) {
 #ifndef _MSC_VER
@@ -328,10 +335,12 @@ void close_server(SockServer* server)
 {
     CLOSE_SOCKET(server->control);
 
+#ifndef NO_OPENSSL
     if (server->type == SOCK_TLS) {
         TlsServer* tls = (TlsServer*)server;
         SSL_CTX_free(tls->ssl_ctx);
     }
+#endif
 
     --running_servers;
 #ifdef _MSC_VER
@@ -342,6 +351,7 @@ void close_server(SockServer* server)
 
 void close_client(SockClient* client)
 {
+#ifndef NO_OPENSSL
     if (client->type == SOCK_TLS) {
         TlsClient* tls = (TlsClient*)client;
         if (tls->ssl) {
@@ -349,6 +359,7 @@ void close_client(SockClient* client)
             SSL_free(tls->ssl);
         }
     }
+#endif
 
     CLOSE_SOCKET(client->fd);
 }
@@ -375,9 +386,11 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
         goto init_descriptor_finish;
     }
 
-    TlsServer* tls_server = (server->type == SOCK_TLS) ? (TlsServer*)server : NULL;
     SockClient* client = NULL;
+
+#ifndef NO_OPENSSL
     TlsClient* tls_client = NULL;
+    TlsServer* tls_server = (server->type == SOCK_TLS) ? (TlsServer*)server : NULL;
 
     if (tls_server) {
         tls_client = (TlsClient*)alloc_mem(sizeof(TlsClient));
@@ -388,6 +401,10 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
         client = (SockClient*)alloc_mem(sizeof(SockClient));
         client->type = SOCK_TELNET;
     }
+#else
+    client = (SockClient*)alloc_mem(sizeof(SockClient));
+    client->type = SOCK_TELNET;
+#endif
 
     if (client == NULL) {
         perror("New_descriptor: null client");
@@ -407,6 +424,7 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
     }
 #endif
 
+#ifndef NO_OPENSSL
     if (server->type == SOCK_TLS) {
         tls_client->ssl = SSL_new(tls_server->ssl_ctx);
         SSL_set_fd(tls_client->ssl, (int)tls_client->fd);
@@ -416,6 +434,7 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
             goto init_descriptor_finish;
         }
     }
+#endif
 
 #ifndef _MSC_VER
 #if !defined(FNDELAY)
@@ -655,6 +674,7 @@ bool read_from_descriptor(Descriptor* d)
     /* Snarf input. */
     for (;;) {
         size_t s_read = 0;
+#ifndef NO_OPENSSL
         if (d->client->type == SOCK_TLS) {
             int ssl_err;
             if ((ssl_err = SSL_read_ex(((TlsClient*)d->client)->ssl, d->inbuf + start,
@@ -664,12 +684,13 @@ bool read_from_descriptor(Descriptor* d)
             }
         }
         else {
+#endif
             int i_read;
 #ifdef _MSC_VER
             i_read = recv(d->client->fd, d->inbuf + start,
                 (int)(sizeof(d->inbuf) - 10 - start), 0);
 #else
-            i_read = read(d->client.fd, d->inbuf + start,
+            i_read = read(d->client->fd, d->inbuf + start,
                 sizeof(d->inbuf) - 10 - start);
 #endif
             if (i_read < 0) {
@@ -677,7 +698,9 @@ bool read_from_descriptor(Descriptor* d)
                 return false;
             }
             s_read = (size_t)i_read;
+#ifndef NO_OPENSSL
         }
+#endif
         if (errno == EWOULDBLOCK)
             break;
         else if (s_read > 0) {
@@ -1852,9 +1875,16 @@ bool check_reconnect(Descriptor * d, bool fConn)
             if (fConn == false) {
                 if (d->character->pcdata->pwd_digest != NULL)
                     free_digest(d->character->pcdata->pwd_digest);
+#ifndef NO_OPENSSL
                 d->character->pcdata->pwd_digest =
                     (unsigned char*)OPENSSL_memdup(ch->pcdata->pwd_digest,
                         ch->pcdata->pwd_digest_len);
+#else
+                d->character->pcdata->pwd_digest = (unsigned char*)malloc(
+                    ch->pcdata->pwd_digest_len);
+                memcpy(d->character->pcdata->pwd_digest, ch->pcdata->pwd_digest, 
+                    ch->pcdata->pwd_digest_len);
+#endif
                 d->character->pcdata->pwd_digest_len =
                     ch->pcdata->pwd_digest_len;
             }
@@ -1929,13 +1959,14 @@ bool write_to_descriptor(Descriptor* d, char* txt, size_t length)
 {
     size_t s_bytes = 0;
     int block;
-    int ssl_err;
 
     if (length <= 0)
         length = strlen(txt);
 
     for (size_t start = 0; start < length; start += s_bytes) {
         block = (int)UMIN(length - start, 4096);
+#ifndef NO_OPENSSL
+        int ssl_err;
         if (d->client->type == SOCK_TLS) {
             if ((ssl_err = SSL_write_ex(((TlsClient*)d->client)->ssl, txt + start, block, &s_bytes)) <= 0) {
                 ERR_print_errors_fp(stderr);
@@ -1943,8 +1974,9 @@ bool write_to_descriptor(Descriptor* d, char* txt, size_t length)
             }
         }
         else {
-#ifdef _MSC_VER
+#endif
             int i_bytes;
+#ifdef _MSC_VER
             if ((i_bytes = send(d->client->fd, txt + start, block, 0)) < 0) {
                 PrintLastWinSockError();
 #else
@@ -1954,7 +1986,9 @@ bool write_to_descriptor(Descriptor* d, char* txt, size_t length)
                 return false;
             }
             s_bytes += i_bytes;
+#ifndef NO_OPENSSL
         }
+#endif
     }
 
     return true;

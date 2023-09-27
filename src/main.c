@@ -50,7 +50,7 @@
 #include "comm.h"
 #include "db.h"
 #include "file.h"
-#include "strings.h"
+#include "stringutils.h"
 #include "tests.h"
 #include "update.h"
 
@@ -74,7 +74,13 @@ char str_boot_time[MAX_INPUT_LENGTH];
 time_t current_time;                // time of this pulse
 bool MOBtrigger = true;             // act() switch
 
-void game_loop(SockServer* telnet_server, TlsServer* tls_server);
+#ifndef NO_OPENSSL
+    #define GAME_LOOP_PARAMS SockServer* telnet_server, TlsServer* tls_server
+#else
+    #define GAME_LOOP_PARAMS SockServer* telnet_server
+#endif
+
+void game_loop(GAME_LOOP_PARAMS);
 
 #ifdef _MSC_VER
 struct timezone {
@@ -90,7 +96,10 @@ int main(int argc, char** argv)
     int port;
 
     SockServer* telnet_server = NULL;
+
+#ifndef NO_OPENSSL
     TlsServer* tls_server = NULL;
+#endif
 
     // Get the command line arguments.
     port = 4000;
@@ -195,7 +204,7 @@ int main(int argc, char** argv)
 
     load_config();
 
-    if (port_str)
+    if (port_str[0])
         cfg_set_telnet_port(port);
 
     /*
@@ -228,10 +237,16 @@ int main(int argc, char** argv)
             init_server(telnet_server, telnet_port);
         }
         if (tls) {
+#ifndef NO_OPENSSL
             tls_server = (TlsServer*)alloc_mem(sizeof(TlsServer));
             memset(tls_server, 0, sizeof(TlsServer));
             tls_server->type = SOCK_TLS;
             init_server((SockServer*)tls_server, tls_port);
+#else
+            fprintf(stderr, MUD_NAME " was not built with OpenSSL 3.x+, and "
+                "cannot create a TLS server.\n");
+            tls = false;
+#endif
         }
 
         if (telnet && tls) {
@@ -250,12 +265,19 @@ int main(int argc, char** argv)
             sprintf(log_buf, "You must enable either telnet or TLS in mud98.cfg.");
         }
         log_string(log_buf);
+#ifndef NO_OPENSSL
         game_loop(telnet_server, tls_server);
+#else
+        game_loop(telnet_server);
+#endif
 
         if (telnet_server)
             close_server(telnet_server);
+
+#ifndef NO_OPENSSL
         if (tls_server)
             close_server((SockServer*)tls_server);
+#endif
     }
 
     /*
@@ -294,7 +316,7 @@ int gettimeofday(struct timeval* tp, struct timezone* unused)
 ////////////////////////////////////////////////////////////////////////////////
 #endif
 
-void game_loop(SockServer* telnet_server, TlsServer* tls_server)
+void game_loop(GAME_LOOP_PARAMS)
 {
     struct timeval last_time;
     gettimeofday(&last_time, NULL);
@@ -303,7 +325,9 @@ void game_loop(SockServer* telnet_server, TlsServer* tls_server)
     // Main loop
     while (!merc_down) {
         PollData telnet_poll_data = { 0 };
+#ifndef NO_OPENSSL
         PollData tls_poll_data = { 0 };
+#endif
 
         if (telnet_server) {
             poll_server(telnet_server, &telnet_poll_data);
@@ -315,6 +339,7 @@ void game_loop(SockServer* telnet_server, TlsServer* tls_server)
             process_client_input(telnet_server, &telnet_poll_data);
         }
 
+#ifndef NO_OPENSSL
         if (tls_server) {
             poll_server((SockServer*)tls_server, &tls_poll_data);
 
@@ -324,6 +349,7 @@ void game_loop(SockServer* telnet_server, TlsServer* tls_server)
 
             process_client_input((SockServer*)tls_server, &tls_poll_data);
         }
+#endif
 
         // Autonomous game motion.
         update_handler();
@@ -331,8 +357,10 @@ void game_loop(SockServer* telnet_server, TlsServer* tls_server)
         // Output.
         if (telnet_server)
             process_client_output(&telnet_poll_data, SOCK_TELNET);
+#ifndef NO_OPENSSL
         if (tls_server)
             process_client_output(&tls_poll_data, SOCK_TLS);
+#endif
 
         /*
          * Synchronize to a clock.

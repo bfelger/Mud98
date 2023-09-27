@@ -15,9 +15,11 @@ void free_descriptor(Descriptor* d)
         return;
 
     if (d->client) {
+#ifndef NO_OPENSSL
         if (d->client->type == SOCK_TLS)
             free_mem(d->client, sizeof(TlsClient));
         else
+#endif
             free_mem(d->client, sizeof(SockClient));
     }
     free_string(d->host);

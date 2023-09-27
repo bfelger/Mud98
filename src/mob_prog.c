@@ -43,6 +43,7 @@
 #include "mob_cmds.h"
 #include "tables.h"
 #include "lookup.h"
+#include "stringutils.h"
 #include "weather.h"
 
 #include "entities/char_data.h"
@@ -989,11 +990,11 @@ void program_flow(
          * Get a command line. We sneakily get both the control word
          * (if/and/or) and the rest of the line in one pass.
          */
-        while (isspace(*code) && *code) code++;
+        while (ISSPACE(*code) && *code) code++;
         while (*code) {
             if (*code == '\n' || *code == '\r')
                 break;
-            else if (isspace(*code)) {
+            else if (ISSPACE(*code)) {
                 if (first_arg)
                     first_arg = false;
                 else

@@ -9,6 +9,8 @@
 #include "db.h"
 #include "tablesave.h"
 
+DEFINE_ARRAY(ClassMult, 100)
+
 Race* race_table = NULL;
 int race_count = 0;
 

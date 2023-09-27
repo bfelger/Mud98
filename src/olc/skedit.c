@@ -23,8 +23,6 @@
 #include "data/skill.h"
 #include "data/spell.h"
 
-extern bool fBootDb;
-
 #define SKEDIT(fun) bool fun(CharData *ch, char *argument)
 
 SkillHash* skill_hash_table[26];

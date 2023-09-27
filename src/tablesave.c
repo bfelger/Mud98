@@ -637,7 +637,6 @@ MobProgCode* pedit_prog(VNUM vnum)
     FILE* fp;
     MobProgCode* prog;
     char buf[128];
-    extern bool fBootDb;
 
     prog = get_mprog_index(vnum);
 

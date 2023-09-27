@@ -5,7 +5,7 @@
 #include "config.h"
 
 #include "file.h"
-#include "strings.h"
+#include "stringutils.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -17,8 +17,13 @@
 #ifdef _MSC_VER
 #include <winerror.h>
 #define strdup _strdup
-#define stricmp _stricmp
+#define strcasecmp _stricmp
+#else
+#include <strings.h>
 #endif
+
+#pragma GCC diagnostic push
+#pragma GCC ignored "-Wunused-variable"
 
 #define DEBUG                   false
 #define DEBUGF                  if (DEBUG) printf
@@ -29,7 +34,7 @@
     static type _ ## val = default_val;
 
 #define DEFINE_GETTER(val, type)                                               \
-    const type cfg_get_ ## val()                                               \
+    type cfg_get_ ## val()                                                     \
     {                                                                          \
         return _ ## val;                                                       \
     }
@@ -201,6 +206,8 @@ DEFINE_FILE_CONFIG(pkey_file,       keys_dir,   DEFAULT_PKEY_FILE)
 
 DEFINE_CONFIG(chargen_custom,       bool,       true)
 
+#pragma GCC diagnostic pop
+
 typedef enum config_type_t {
     CFG_STR,
     CFG_DIR,
@@ -350,7 +357,7 @@ char* read_file(FILE* f)
 
     int32_t len = ftell(f);
     rewind(f);
-    if (len == -1 || (uint32_t)len >= SIZE_MAX) {
+    if (len < 0) {
         return NULL;
     }
 
@@ -384,17 +391,17 @@ struct parse_ctx {
     bool error;
 } parser = { NULL, false };
 
-inline char peek()
+static inline char peek()
 {
     return *parser.pos;
 }
 
-inline char advance()
+static inline char advance()
 {
     return *parser.pos++;
 }
 
-static bool match(char c)
+static inline bool match(char c)
 {
     if (*parser.pos == c) {
         ++parser.pos;
@@ -404,7 +411,7 @@ static bool match(char c)
     return false;
 }
 
-inline void skip_ws()
+static inline void skip_ws()
 {
     while (match(' ') || match('\t') || match('\n') || match('\r'))
         ;
@@ -415,7 +422,7 @@ static char* parse_ident()
     char* start = parser.pos - 1;
     char c;
 
-    while (isalnum(c = peek()) || c == '_')
+    while (ISALNUM(c = peek()) || c == '_')
         advance();
 
     size_t len = parser.pos - start;
@@ -509,11 +516,11 @@ static void map_val(const ConfigEntry* entry, const char* val)
     case CFG_BOOL: {
         //bool* bool_val = (bool*)entry->target;
         bool b_val = false;
-        if (!stricmp(val, "yes") || !stricmp(val, "true")
-            || !stricmp(val, "enable") || !stricmp(val, "enabled"))
+        if (!strcmp(val, "yes") || !strcasecmp(val, "true")
+            || !strcasecmp(val, "enable") || !strcasecmp(val, "enabled"))
             b_val = true;
-        else if (!stricmp(val, "no") || !stricmp(val, "false")
-            || !stricmp(val, "disable") || !stricmp(val, "disabled"))
+        else if (!strcasecmp(val, "no") || !strcasecmp(val, "false")
+            || !strcasecmp(val, "disable") || !strcasecmp(val, "disabled"))
             b_val = false;
         CfgBoolSet* setter = (CfgBoolSet*)entry->target;
         (*setter)(b_val);
@@ -527,7 +534,7 @@ static void set_key_val(const char* key, const char* val)
     const ConfigEntry* entry = NULL;
     for (int i = 0; config_entries[i].field[0]; ++i) {
         entry = &config_entries[i];
-        if (!stricmp(key, entry->field)) {
+        if (!strcasecmp(key, entry->field)) {
             map_val(entry, val);
             return;
         }

@@ -32,7 +32,7 @@
 #include "db.h"
 #include "handler.h"
 #include "interp.h"
-#include "strings.h"
+#include "stringutils.h"
 
 #include "entities/char_data.h"
 #include "entities/descriptor.h"
@@ -90,7 +90,7 @@ void init_command_table(void)
         temp_table[i] = NULL;
 
     for (i = 0; i < max_cmd; ++i) {
-        if (!isalpha(cmd_table[i].name[0]))
+        if (!ISALPHA(cmd_table[i].name[0]))
             temp_table[cntl[0]++] = &cmd_table[i];
         else {
             letter = LOWER(cmd_table[i].name[0]);

@@ -16,6 +16,7 @@
 #include "comm.h"
 #include "db.h"
 #include "olc.h"
+#include "stringutils.h"
 
 #include "entities/char_data.h"
 #include "entities/descriptor.h"
@@ -532,20 +533,20 @@ char* rip_arg(char* argument, char* arg_first)
 {
     int type;
 
-    while (*argument && isspace(*argument))
+    while (*argument && ISSPACE(*argument))
         argument++;
 
-    if (isalpha(*argument))
+    if (ISALPHA(*argument))
         type = 0; /* letters */
-    else if (isdigit(*argument))
+    else if (ISDIGIT(*argument))
         type = 1; /* numbers */
     else
         type = 2; /* others */
 
     while (*argument) {
-        if ((isalpha(*argument) && type != 0) ||
-            (isdigit(*argument) && type != 1) ||
-            (!isalpha(*argument) && !isdigit(*argument) && type != 2))
+        if ((ISALPHA(*argument) && type != 0) ||
+            (ISDIGIT(*argument) && type != 1) ||
+            (!ISALPHA(*argument) && !ISDIGIT(*argument) && type != 2))
             break;
 
         *arg_first = LOWER(*argument);
@@ -555,7 +556,7 @@ char* rip_arg(char* argument, char* arg_first)
 
     *arg_first = '\0';
 
-    while (isspace(*argument))
+    while (ISSPACE(*argument))
         argument++;
 
     return argument;

@@ -38,7 +38,7 @@
 #include "magic.h"
 #include "recycle.h"
 #include "skills.h"
-#include "strings.h"
+#include "stringutils.h"
 #include "tables.h"
 #include "vt.h"
 

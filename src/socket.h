@@ -6,7 +6,11 @@
 #ifndef MUD98__SOCKET_H
 #define MUD98__SOCKET_H
 
+#include "merc.h"
+
+#ifndef NO_OPENSSL
 #include <openssl/ssl.h>
+#endif
 
 #ifdef _MSC_VER
 #include <winsock.h>
@@ -30,6 +34,7 @@ typedef struct sock_server_t {
     SOCKET control;
 } SockServer;
 
+#ifndef NO_OPENSSL
 typedef struct tls_client_t {
     SockType type;
     SOCKET fd;
@@ -41,6 +46,7 @@ typedef struct tls_server_t {
     SOCKET control;
     SSL_CTX* ssl_ctx;
 } TlsServer;
+#endif
 
 typedef struct poll_data_t {
     fd_set in_set;

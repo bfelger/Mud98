@@ -197,6 +197,5 @@ extern bool MOBtrigger;
 
 // db.c
 extern char str_empty[1];
-extern bool fBootDb;
 
 #endif // !MUD98__MERC_H
