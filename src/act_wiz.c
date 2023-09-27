@@ -538,7 +538,7 @@ void do_disconnect(CharData* ch, char* argument)
 
         desc = (SOCKET)atoi(arg);
         for (d = descriptor_list; d != NULL; d = d->next) {
-            if (d->client.fd == desc) {
+            if (d->client->fd == desc) {
                 close_socket(d);
                 send_to_char("Ok.\n\r", ch);
                 return;
@@ -3612,7 +3612,7 @@ void do_sockets(CharData* ch, char* argument)
                 || (d->original && is_name(arg, d->original->name)))) {
             count++;
             sprintf(buf + strlen(buf), "[%3ld %2d] %s@%s\n\r", 
-                    (long)d->client.fd,
+                    (long)d->client->fd,
                     d->connected,
                     d->original    ? d->original->name
                     : d->character ? d->character->name

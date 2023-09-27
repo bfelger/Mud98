@@ -12,6 +12,9 @@
 #include "tables.h"
 #include "tablesave.h"
 
+DEFINE_ARRAY(SkillRating, DEFAULT_SKILL_RATING)
+DEFINE_ARRAY(LEVEL, DEFAULT_SKILL_LEVEL)
+
 Skill* skill_table = NULL;
 int skill_count = 0;
 Skill tmp_sk;

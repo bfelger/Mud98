@@ -9,7 +9,7 @@
 #include "db.h"
 #include "fight.h"
 #include "handler.h"
-#include "strings.h"
+#include "stringutils.h"
 #include "tests.h"
 
 #include "entities/char_data.h"

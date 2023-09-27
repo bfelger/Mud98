@@ -5,7 +5,7 @@
 #include "config.h"
 
 #include "file.h"
-#include "strings.h"
+#include "stringutils.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -17,32 +17,38 @@
 #ifdef _MSC_VER
 #include <winerror.h>
 #define strdup _strdup
+#define strcasecmp _stricmp
+#else
+#include <strings.h>
 #endif
 
-#define DEBUG                   true
+#pragma GCC diagnostic push
+#pragma GCC ignored "-Wunused-variable"
+
+#define DEBUG                   false
 #define DEBUGF                  if (DEBUG) printf
 
 #define BACKING_STR_SIZE        256
 
-#define DEFINE_BACKING(type, val, default_val)                                 \
+#define DEFINE_BACKING(val, type, default_val)                                 \
     static type _ ## val = default_val;
 
-#define DEFINE_GETTER(type, val)                                               \
-    const type cfg_get_ ## val()                                               \
+#define DEFINE_GETTER(val, type)                                               \
+    type cfg_get_ ## val()                                                     \
     {                                                                          \
         return _ ## val;                                                       \
     }
 
-#define DEFINE_SETTER(type, val)                                               \
+#define DEFINE_SETTER(val, type)                                               \
     void cfg_set_ ## val(const type new_val)                                   \
     {                                                                          \
         _ ## val = new_val;                                                    \
     } 
 
-#define DEFINE_CONFIG(type, val, default_val)                                  \
-    DEFINE_BACKING(type, val, default_val)                                     \
-    DEFINE_GETTER(type, val)                                                   \
-    DEFINE_SETTER(type, val)
+#define DEFINE_CONFIG(val, type, default_val)                                  \
+    DEFINE_BACKING(val, type, default_val)                                     \
+    DEFINE_GETTER(val, type)                                                   \
+    DEFINE_SETTER(val, type)
 
 #define DEFINE_STR_BACKING(val)                                                \
     static char _ ## val[BACKING_STR_SIZE] = { 0 };
@@ -90,7 +96,6 @@
 #define DEFINE_FILE_EXISTS(val, subdir)                                        \
     bool val ## _exists()                                                      \
     {                                                                          \
-        char buf[256] = { 0 };                                                 \
         char temp[256] = { 0 };                                                \
         sprintf(temp, "%s%s",                                                  \
         cfg_get_ ## subdir(),                                                  \
@@ -152,8 +157,17 @@
 #define DEFAULT_PLAYER_DIR          "player/"
 #define DEFAULT_GODS_DIR            "gods/"
 
+#define DEFAULT_TELNET_ENABLED      false
+#define DEFAULT_TELNET_PORT         4000
+
+#define DEFAULT_TLS_ENABLED         true
+#define DEFAULT_TLS_PORT            4043
+
 DEFINE_DIR_CONFIG(base_dir,         DEFAULT_BASE_DIR)
-DEFINE_STR_CONFIG(config_file,     DEFAULT_CONFIG_FILE)
+DEFINE_STR_CONFIG(config_file,      DEFAULT_CONFIG_FILE)
+
+DEFINE_DIR_CONFIG(player_dir, DEFAULT_PLAYER_DIR)
+DEFINE_DIR_CONFIG(gods_dir, DEFAULT_GODS_DIR)
 
 DEFINE_DIR_CONFIG(area_dir,         DEFAULT_AREA_DIR)
 DEFINE_FILE_CONFIG(area_list,       area_dir,   DEFAULT_AREA_LIST)
@@ -182,14 +196,83 @@ DEFINE_FILE_CONFIG(mem_dump_file,   temp_dir,   DEFAULT_MEM_DUMP_FILE)
 DEFINE_FILE_CONFIG(mob_dump_file,   temp_dir,   DEFAULT_MOB_DUMP_FILE)
 DEFINE_FILE_CONFIG(obj_dump_file,   temp_dir,   DEFAULT_OBJ_DUMP_FILE)
 
-#ifndef USE_RAW_SOCKETS
+DEFINE_CONFIG(telnet_enabled,       bool,       DEFAULT_TELNET_ENABLED)
+DEFINE_CONFIG(telnet_port,          int,        DEFAULT_TELNET_PORT)
+DEFINE_CONFIG(tls_enabled,          bool,       DEFAULT_TLS_ENABLED)
+DEFINE_CONFIG(tls_port,             int,        DEFAULT_TLS_PORT)
 DEFINE_DIR_CONFIG(keys_dir,         DEFAULT_KEYS_DIR)
 DEFINE_FILE_CONFIG(cert_file,       keys_dir,   DEFAULT_CERT_FILE)
 DEFINE_FILE_CONFIG(pkey_file,       keys_dir,   DEFAULT_PKEY_FILE)
-#endif
 
-DEFINE_DIR_CONFIG(player_dir,       DEFAULT_PLAYER_DIR)
-DEFINE_DIR_CONFIG(gods_dir,         DEFAULT_GODS_DIR)
+DEFINE_CONFIG(chargen_custom,       bool,       true)
+
+#pragma GCC diagnostic pop
+
+typedef enum config_type_t {
+    CFG_STR,
+    CFG_DIR,
+    CFG_INT,
+    CFG_BOOL,
+} ConfigType;
+
+typedef struct config_entry_t {
+    const char* field;
+    const ConfigType type;
+    const uintptr_t target;
+} ConfigEntry;
+
+typedef void CfgStrSet(const char*);
+typedef void CfgIntSet(const int);
+typedef void CfgBoolSet(const bool);
+
+#ifdef U
+#define OLD_U U
+#endif
+#define U(x)    (uintptr_t)(x)
+
+const ConfigEntry config_entries[] = {
+    { "area_dir",       CFG_DIR,        U(cfg_set_area_dir)       },
+    { "area_list",      CFG_STR,        U(cfg_set_area_list)      },
+    { "music_file",     CFG_STR,        U(cfg_set_music_file)     },
+    { "bug_file",       CFG_STR,        U(cfg_set_bug_file)       },
+    { "typo_file",      CFG_STR,        U(cfg_set_typo_file)      },
+    { "note_file",      CFG_STR,        U(cfg_set_note_file)      },
+    { "idea_file",      CFG_STR,        U(cfg_set_idea_file)      },
+    { "penalty_file",   CFG_STR,        U(cfg_set_penalty_file)   },
+    { "news_file",      CFG_STR,        U(cfg_set_news_file)      },
+    { "changes_file",   CFG_STR,        U(cfg_set_changes_file)   },
+    { "shutdown_file",  CFG_STR,        U(cfg_set_shutdown_file)  },
+    { "ban_file",       CFG_STR,        U(cfg_set_ban_file)       },
+    { "data_dir",       CFG_DIR,        U(cfg_set_data_dir)       },
+    { "progs_dir",      CFG_DIR,        U(cfg_set_progs_dir)      },
+    { "socials_file",   CFG_STR,        U(cfg_set_socials_file)   },
+    { "groups_file",    CFG_STR,        U(cfg_set_groups_file)    },
+    { "skills_file",    CFG_STR,        U(cfg_set_skills_file)    },
+    { "commands_file",  CFG_STR,        U(cfg_set_commands_file)  },
+    { "races_file",     CFG_STR,        U(cfg_set_races_file)     },
+    { "classes_file",   CFG_STR,        U(cfg_set_classes_file)   },
+    { "temp_dir",       CFG_DIR,        U(cfg_set_temp_dir)       },
+    { "mem_dump_file",  CFG_STR,        U(cfg_set_mem_dump_file)  },
+    { "mob_dump_file",  CFG_STR,        U(cfg_set_mob_dump_file)  },
+    { "obj_dump_file",  CFG_STR,        U(cfg_set_obj_dump_file)  },
+    { "telnet_enabled", CFG_BOOL,       U(cfg_set_telnet_enabled) },
+    { "telnet_port",    CFG_INT,        U(cfg_set_telnet_port)    },
+    { "tls_enabled",    CFG_BOOL,       U(cfg_set_tls_enabled)    },
+    { "tls_port",       CFG_INT,        U(cfg_set_tls_port)       },
+    { "keys_dir",       CFG_DIR,        U(cfg_set_keys_dir)       },
+    { "cert_file",      CFG_STR,        U(cfg_set_cert_file)      },
+    { "pkey_file",      CFG_STR,        U(cfg_set_pkey_file)      },
+    { "player_dir",     CFG_DIR,        U(cfg_set_player_dir)     },
+    { "gods_dir",       CFG_DIR,        U(cfg_set_gods_dir)       },
+    { "chargen_custom", CFG_BOOL,       U(cfg_set_chargen_custom) },
+    { "",               0,              0                         },
+};
+
+#undef U
+#ifdef OLD_U
+#define U OLD_U
+#undef OLD_U
+#endif
 
 //static bool check_dir(const char* dir)
 //{
@@ -237,26 +320,26 @@ void load_config()
         cfg_set_area_dir("area/");
     }
 
-    if (!file_exists(cfg_get_config_file())) {
-        // Check to see if it was run from the area folder. Config may be one
-        // level up.
+    if (!file_exists(cfg_get_config_file()) && !_config_file[0] && !_base_dir[0]) {
+        // No config file or based dir was passed in. Maybe we're in the area
+        // folder? Look in the parent.
         sprintf(cfg_path, "%s%s", "../", cfg_get_config_file());
         if (file_exists(cfg_path))
             change_dir("../");
         else {
-            fprintf(stderr, "ERROR: No configuration file found.\n");
+            fprintf(stderr, "WARNING: No configuration file found; taking defaults.\n");
             return;
         }
     }
 
-    // Regardless, look for a config file. Maybe there's one in the area
-    // folder?
     cfg_fp = open_read_file(cfg_get_config_file());
 
     // No config file? Fine. Take the defaults (other than what was set on the 
     // command-line).
-    if (!cfg_fp)
+    if (!cfg_fp) {
+        fprintf(stderr, "WARNING: No configuration file found; taking defaults.\n");
         return;
+    }
 
     parse_file(cfg_fp);
 
@@ -274,7 +357,7 @@ char* read_file(FILE* f)
 
     int32_t len = ftell(f);
     rewind(f);
-    if (len == -1 || (uint32_t)len >= SIZE_MAX) {
+    if (len < 0) {
         return NULL;
     }
 
@@ -308,17 +391,17 @@ struct parse_ctx {
     bool error;
 } parser = { NULL, false };
 
-inline char peek()
+static inline char peek()
 {
     return *parser.pos;
 }
 
-inline char advance()
+static inline char advance()
 {
     return *parser.pos++;
 }
 
-static bool match(char c)
+static inline bool match(char c)
 {
     if (*parser.pos == c) {
         ++parser.pos;
@@ -328,7 +411,7 @@ static bool match(char c)
     return false;
 }
 
-inline void skip_ws()
+static inline void skip_ws()
 {
     while (match(' ') || match('\t') || match('\n') || match('\r'))
         ;
@@ -339,7 +422,7 @@ static char* parse_ident()
     char* start = parser.pos - 1;
     char c;
 
-    while (isalnum(c = peek()) || c == '_')
+    while (ISALNUM(c = peek()) || c == '_')
         advance();
 
     size_t len = parser.pos - start;
@@ -402,6 +485,64 @@ static char* parse_val()
     return value;
 }
 
+static void map_val(const ConfigEntry* entry, const char* val)
+{
+    //size_t len;
+    switch (entry->type) {
+    case CFG_DIR:
+    case CFG_STR: {
+        //char* dest = *(char**)entry->target;
+        //strcpy(dest, val);
+        CfgStrSet* setter = (CfgStrSet*)entry->target;
+        (*setter)(val);
+        return;
+    }
+    //case CFG_DIR: {
+    //    char* dest = *(char**)entry->target;
+    //    strcpy(dest, val);
+    //    len = strlen(val);
+    //    if (dest[len - 1] != '/' && dest[len - 1] != '\\')
+    //        strcat(dest, "/");
+    //    return;
+    //}
+    case CFG_INT: {
+        //int* int_val = (int*)entry->target;
+        //*int_val = atoi(val);
+        int int_val = atoi(val);
+        CfgIntSet* setter = (CfgIntSet*)entry->target;
+        (*setter)(int_val);
+        return;
+    }
+    case CFG_BOOL: {
+        //bool* bool_val = (bool*)entry->target;
+        bool b_val = false;
+        if (!strcmp(val, "yes") || !strcasecmp(val, "true")
+            || !strcasecmp(val, "enable") || !strcasecmp(val, "enabled"))
+            b_val = true;
+        else if (!strcasecmp(val, "no") || !strcasecmp(val, "false")
+            || !strcasecmp(val, "disable") || !strcasecmp(val, "disabled"))
+            b_val = false;
+        CfgBoolSet* setter = (CfgBoolSet*)entry->target;
+        (*setter)(b_val);
+        return;
+    }
+    }
+}
+
+static void set_key_val(const char* key, const char* val)
+{
+    const ConfigEntry* entry = NULL;
+    for (int i = 0; config_entries[i].field[0]; ++i) {
+        entry = &config_entries[i];
+        if (!strcasecmp(key, entry->field)) {
+            map_val(entry, val);
+            return;
+        }
+    }
+
+    fprintf(stderr, "Unknown config key '%s'.\n", key);
+}
+
 void parse_file(FILE* fp)
 {
     char* str = read_file(fp);
@@ -427,6 +568,7 @@ void parse_file(FILE* fp)
             }
             skip_ws();
             char* val = parse_val();
+            set_key_val(key, val);
             DEBUGF("PARSED: '%s' = '%s'\n", key, val);
             free(key);
             free(val);

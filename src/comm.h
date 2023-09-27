@@ -94,7 +94,7 @@ void init_server(SockServer* server, int port);
 void nanny(Descriptor* d, char* argument);
 void poll_server(SockServer* server, PollData* poll_data);
 void process_client_input(SockServer* server, PollData* poll_data);
-void process_client_output(PollData* poll_data);
+void process_client_output(PollData* poll_data, SockType type);
 bool process_descriptor_output(Descriptor* d, bool fPrompt);
 void read_from_buffer(Descriptor* d);
 bool read_from_descriptor(Descriptor* d);

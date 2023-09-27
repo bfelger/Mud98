@@ -9,6 +9,7 @@
 #include <stdlib.h>
 
 #ifndef _MSC_VER
+#include <unistd.h>
 #define NULL_FILE   "/dev/null"     // To reserve one stream
 #else
 #include <direct.h>

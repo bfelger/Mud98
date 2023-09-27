@@ -157,7 +157,7 @@ static void list_theme_entry(CharData* ch, ColorTheme* theme, const char* owner,
         sprintf(mode, "(error) ");
     }
 
-    char public_buf[MSL] = { 0 };
+    char public_buf[50] = { 0 };
     if (show_public && theme->is_public) {
         sprintf(public_buf, "%s (public)", COLOR2STR(theme, SLOT_ALT_TEXT_2, xterm));
     }
@@ -174,9 +174,9 @@ static void list_theme_entry(CharData* ch, ColorTheme* theme, const char* owner,
     strcat(name, theme->name);
     if (owner != NULL) {
         size_t pad = strlen(owner) + strlen(name) + 2;
-        char owner_buf[MAX_STRING_LENGTH] = { 0 };
-        sprintf(owner_buf, "%s@%s%s", COLOR2STR(theme, SLOT_ALT_TEXT_1, xterm), owner, fg_code);
-        snprintf(buf, 500, "%s%s    %s %s", bg_code, fg_code, owner_buf, name);
+        char owner_buf[150] = { 0 };
+        snprintf(owner_buf, 150, "%s@%s%s", COLOR2STR(theme, SLOT_ALT_TEXT_1, xterm), owner, fg_code);
+        sprintf(buf, "%s%s    %s %s", bg_code, fg_code, owner_buf, name);
         for (size_t i = pad; i < 30; ++i)
             strcat(buf, " ");
     }
@@ -451,7 +451,7 @@ static void do_theme_config(CharData* ch, char* argument)
         "Toggle certain themes, depending on your client's capabilities.\n\r"
         "Has the following arguments:\n\r"
         "       {*ENABLE    {x- Enables the given mode (on by default). \n\r"
-        "       {*DISABLE   {x- Hide themes of the given mode from {*LIST{x/\n\r\n\r"
+        "       {*DISABLE   {x- Hide themes of the given mode from {*LIST{x.\n\r\n\r"
         "       {*256       {x- Show/hide 256-color extended index palettes.\n\r"
         "       {*RGB       {x- Show/hide 24-bit RGB palettes.\n\r"
         "       {*XTERM     {x- Use {_xterm{x 24-bit color codes instead of VT100. This\n\r"

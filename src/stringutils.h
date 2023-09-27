@@ -16,13 +16,15 @@
 // with char* strings under -Wall.
 
 #if defined(__CYGWIN__) || defined(_MSC_VER)
-    #define ISALPHA(c) isalpha((unsigned char)c)
-    #define ISDIGIT(c) isdigit((unsigned char)c)
-    #define ISPRINT(c) isprint((unsigned char)c)
-    #define ISSPACE(c) isspace((unsigned char)c)
-    #define ISUPPER(c) isupper((unsigned char)c)
+    #define ISALPHA(c) isalpha((unsigned char)(c))
+    #define ISALNUM(c) isalnum((unsigned char)(c))
+    #define ISDIGIT(c) isdigit((unsigned char)(c))
+    #define ISPRINT(c) isprint((unsigned char)(c))
+    #define ISSPACE(c) isspace((unsigned char)(c))
+    #define ISUPPER(c) isupper((unsigned char)(c))
 #else
     #define ISALPHA(c) isalpha(c)
+    #define ISALNUM(c) isalnum(c)
     #define ISDIGIT(c) isdigit(c)
     #define ISPRINT(c) isprint(c)
     #define ISSPACE(c) isspace(c)

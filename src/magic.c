@@ -94,13 +94,14 @@ SKNUM find_spell(CharData* ch, const char* name)
  */
 SKNUM skill_slot_lookup(int slot)
 {
-    extern bool fBootDb;
     SKNUM sn;
 
-    if (slot <= 0) return -1;
+    if (slot <= 0)
+        return -1;
 
     for (sn = 0; sn < skill_count; sn++) {
-        if (slot == skill_table[sn].slot) return sn;
+        if (slot == skill_table[sn].slot) 
+            return sn;
     }
 
     if (fBootDb) {

@@ -10,8 +10,10 @@
 
 #include <string.h>
 
+#ifndef NO_OPENSSL
 #include <openssl/err.h>
 #include <openssl/evp.h>
+#endif 
 
 void bin_to_hex(char* dest, const uint8_t* data, size_t size)
 {
@@ -24,6 +26,7 @@ void bin_to_hex(char* dest, const uint8_t* data, size_t size)
 bool create_digest(const char* message, size_t message_len, 
     unsigned char** digest, unsigned int* digest_len)
 {
+#ifndef NO_OPENSSL
     EVP_MD_CTX* mdctx;
 
     if ((mdctx = EVP_MD_CTX_new()) == NULL)
@@ -51,22 +54,47 @@ digest_message_err:
     ERR_print_errors_fp(stderr);
     EVP_MD_CTX_free(mdctx);
     return false;
+#elif defined (NO_ENCRYPTION)
+    *digest = (unsigned char*)malloc(message_len);
+    if (!*digest)
+        return false;
+
+    memcpy(digest, message, message_len);
+    *digest_len = (unsigned int)message_len;
+    return true;
+#else
+    #error "You must compile with OpenSSL 3.x+, or set the NO_ENCRYPTION flag."
+    return false;
+#endif
 }
 
 void decode_digest(PlayerData* pc, const char* hex_str)
 {
+#ifndef NO_OPENSSL
     if (pc->pwd_digest != NULL)
         OPENSSL_free(pc->pwd_digest);
 
     pc->pwd_digest_len = EVP_MD_size(EVP_sha256());
     pc->pwd_digest = (unsigned char*)OPENSSL_malloc(pc->pwd_digest_len);
+#elif defined (NO_ENCRYPTION)
+    pc->pwd_digest_len = strlen(hex_str) / 2;
+    pc->pwd_digest = (unsigned char*)malloc(pc->pwd_digest_len);
+#else
+    #error "You must compile with OpenSSL 3.x+, or set the NO_ENCRYPTION flag."
+#endif
 
     hex_to_bin(pc->pwd_digest, hex_str, pc->pwd_digest_len);
 }
 
 void free_digest(unsigned char* digest)
 {
+#ifndef NO_OPENSSL
     OPENSSL_free(digest);
+#elif defined (NO_ENCRYPTION)
+    free(digest);
+#else
+    #error "You must compile with OpenSSL 3.x+, or set the NO_ENCRYPTION flag."
+#endif
 }
 
 void hex_to_bin(uint8_t* dest, const char* hex_str, size_t bin_size)

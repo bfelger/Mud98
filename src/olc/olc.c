@@ -343,6 +343,7 @@ char* olc_ed_vnum(CharData* ch)
     case ED_CLASS:
         pClass = (Class*)ch->desc->pEdit;
         sprintf(buf, "%s", pClass ? pClass->name : "");
+        break;
     default:
         sprintf(buf, " ");
         break;

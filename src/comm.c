@@ -47,7 +47,7 @@
 #include "recycle.h"
 #include "save.h"
 #include "skills.h"
-#include "strings.h"
+#include "stringutils.h"
 #include "tables.h"
 #include "telnet.h"
 #include "vt.h"
@@ -69,6 +69,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <signal.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -77,7 +78,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#ifndef USE_RAW_SOCKETS
+#ifndef NO_OPENSSL
 #include <openssl/err.h>
 #include <openssl/pem.h>
 #include <openssl/ssl.h>
@@ -152,6 +153,8 @@ bool check_playing(Descriptor* d, char* name);
 bool check_reconnect(Descriptor* d, bool fConn);
 void send_to_desc(const char* txt, Descriptor* desc);
 
+static int running_servers = 0;
+
 #ifdef _MSC_VER
 void PrintLastWinSockError()
 {
@@ -173,8 +176,8 @@ void PrintLastWinSockError()
 }
 #endif
 
-#ifndef USE_RAW_SOCKETS
-void init_ssl_server(SockServer* server)
+#ifndef NO_OPENSSL
+void init_tls_server(TlsServer* server)
 {
     log_string("Initializing SSL server:");
 
@@ -238,31 +241,33 @@ void init_server(SockServer* server, int port)
     struct sockaddr_in sa;
     int x = 1;
 
-#ifndef USE_RAW_SOCKETS
-    init_ssl_server(server);
+#ifndef NO_OPENSSL
+    if (server->type == SOCK_TLS)
+        init_tls_server((TlsServer*)server);
 #endif
 
+    if (running_servers++ == 0) {
 #ifndef _MSC_VER
-    signal(SIGPIPE, SIG_IGN);
+        signal(SIGPIPE, SIG_IGN);
 #else
-    WORD wVersionRequested;
-    WSADATA wsaData;
-    int err;
+        WORD wVersionRequested;
+        WSADATA wsaData;
+        int err;
 
-    // Use the MAKEWORD(lowbyte, highbyte) macro declared in Windef.h
-    wVersionRequested = MAKEWORD(2, 2);
+        // Use the MAKEWORD(lowbyte, highbyte) macro declared in Windef.h
+        wVersionRequested = MAKEWORD(2, 2);
 
-    err = WSAStartup(wVersionRequested, &wsaData);
-    if (err != 0) {
-        // Tell the user that we could not find a usable Winsock DLL.
-        printf("WSAStartup failed with error: %d\n", err);
-        exit(1);
-    }
+        err = WSAStartup(wVersionRequested, &wsaData);
+        if (err != 0) {
+            // Tell the user that we could not find a usable Winsock DLL.
+            printf("WSAStartup failed with error: %d\n", err);
+            exit(1);
+        }
 #endif
-
+    }
 
 #ifdef _MSC_VER
-    server->control = socket(AF_INET, SOCK_STREAM, 0);;
+    server->control = socket(AF_INET, SOCK_STREAM, 0);
 #else
     if ((server->control = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("Init_socket: socket");
@@ -323,30 +328,39 @@ void init_server(SockServer* server, int port)
 
 bool can_write(Descriptor* d, PollData* poll_data)
 {
-    return FD_ISSET(d->client.fd, &poll_data->out_set);
+    return FD_ISSET(d->client->fd, &poll_data->out_set);
 }
 
 void close_server(SockServer* server)
 {
     CLOSE_SOCKET(server->control);
 
-#ifndef USE_RAW_SOCKETS
-    SSL_CTX_free(server->ssl_ctx);
+#ifndef NO_OPENSSL
+    if (server->type == SOCK_TLS) {
+        TlsServer* tls = (TlsServer*)server;
+        SSL_CTX_free(tls->ssl_ctx);
+    }
 #endif
 
+    --running_servers;
 #ifdef _MSC_VER
-    WSACleanup();
+    if (running_servers == 0)
+        WSACleanup();
 #endif
 }
 
 void close_client(SockClient* client)
 {
-#ifndef USE_RAW_SOCKETS
-    if (client->ssl) {
-        SSL_shutdown(client->ssl);
-        SSL_free(client->ssl);
+#ifndef NO_OPENSSL
+    if (client->type == SOCK_TLS) {
+        TlsClient* tls = (TlsClient*)client;
+        if (tls->ssl) {
+            SSL_shutdown(tls->ssl);
+            SSL_free(tls->ssl);
+        }
     }
 #endif
+
     CLOSE_SOCKET(client->fd);
 }
 
@@ -362,32 +376,63 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
     struct sockaddr_in sock = { 0 };
     struct hostent* from;
     SOCKLEN size;
-    SockClient client = { 0 };
     THREAD_RET_T rc = THREAD_ERR;
 
     ThreadData* data = (ThreadData*)lp_data;
     SockServer* server = data->server;
+
+    if (server == NULL) {
+        perror("New_descriptor: null server");
+        goto init_descriptor_finish;
+    }
+
+    SockClient* client = NULL;
+
+#ifndef NO_OPENSSL
+    TlsClient* tls_client = NULL;
+    TlsServer* tls_server = (server->type == SOCK_TLS) ? (TlsServer*)server : NULL;
+
+    if (tls_server) {
+        tls_client = (TlsClient*)alloc_mem(sizeof(TlsClient));
+        tls_client->type = SOCK_TLS;
+        client = (SockClient*)tls_client;
+    }
+    else {
+        client = (SockClient*)alloc_mem(sizeof(SockClient));
+        client->type = SOCK_TELNET;
+    }
+#else
+    client = (SockClient*)alloc_mem(sizeof(SockClient));
+    client->type = SOCK_TELNET;
+#endif
+
+    if (client == NULL) {
+        perror("New_descriptor: null client");
+        goto init_descriptor_finish;
+    }
 
     size = sizeof(sock);
     getsockname(server->control, (struct sockaddr*)&sock, &size);
 
     new_conn_threads[thread_data->index].status = THREAD_STATUS_RUNNING;
 #ifdef _MSC_VER
-    client.fd = accept(server->control, (struct sockaddr*)&sock, &size);
+    client->fd = accept(server->control, (struct sockaddr*)&sock, &size);
 #else
-    if ((client.fd = accept(server->control, (struct sockaddr*)&sock, &size)) < 0) {
+    if ((client->fd = accept(server->control, (struct sockaddr*)&sock, &size)) < 0) {
         perror("New_descriptor: accept");
         goto init_descriptor_finish;
     }
 #endif
 
-#ifndef USE_RAW_SOCKETS
-    client.ssl = SSL_new(server->ssl_ctx);
-    SSL_set_fd(client.ssl, (int)client.fd);
+#ifndef NO_OPENSSL
+    if (server->type == SOCK_TLS) {
+        tls_client->ssl = SSL_new(tls_server->ssl_ctx);
+        SSL_set_fd(tls_client->ssl, (int)tls_client->fd);
 
-    if (SSL_accept(client.ssl) <= 0) {
-        ERR_print_errors_fp(stderr);
-        goto init_descriptor_finish;
+        if (SSL_accept(tls_client->ssl) <= 0) {
+            ERR_print_errors_fp(stderr);
+            goto init_descriptor_finish;
+        }
     }
 #endif
 
@@ -396,7 +441,7 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
 #define FNDELAY O_NDELAY
 #endif
 
-    if (fcntl(client.fd, F_SETFL, FNDELAY) == -1) {
+    if (fcntl(client->fd, F_SETFL, FNDELAY) == -1) {
         perror("New_descriptor: fcntl: FNDELAY");
         goto init_descriptor_finish;
     }
@@ -416,7 +461,7 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
     dnew->editor = 0;       // OLC
 
     size = sizeof(sock);
-    if (getpeername(dnew->client.fd, (struct sockaddr*)&sock, &size) < 0) {
+    if (getpeername(dnew->client->fd, (struct sockaddr*)&sock, &size) < 0) {
         perror("New_descriptor: getpeername");
         dnew->host = str_dup("(unknown)");
     }
@@ -452,7 +497,7 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
      */
     if (check_ban(dnew->host, BAN_ALL)) {
         write_to_descriptor(dnew, "Your site has been banned from this mud.\n\r", 0);
-        close_client(&dnew->client);
+        close_client(dnew->client);
         free_descriptor(dnew);
         goto init_descriptor_finish;
     }
@@ -606,23 +651,20 @@ void close_socket(Descriptor* dclose)
             bug("Close_socket: dclose not found.", 0);
     }
 
-    close_client(&dclose->client);
+    close_client(dclose->client);
     free_descriptor(dclose);
     return;
 }
 
 bool read_from_descriptor(Descriptor* d)
 {
-#ifndef USE_RAW_SOCKETS
-    int ssl_err;
-#endif
-
     /* Hold horses if pending command already. */
-    if (d->incomm[0] != '\0') return true;
+    if (d->incomm[0] != '\0')
+        return true;
 
     /* Check for overflow. */
-    size_t iStart = strlen(d->inbuf);
-    if (iStart >= sizeof(d->inbuf) - 10) {
+    size_t start = strlen(d->inbuf);
+    if (start >= sizeof(d->inbuf) - 10) {
         sprintf(log_buf, "%s input overflow!", d->host);
         log_string(log_buf);
         write_to_descriptor(d, "\n\r*** PUT A LID ON IT!!! ***\n\r", 0);
@@ -631,52 +673,62 @@ bool read_from_descriptor(Descriptor* d)
 
     /* Snarf input. */
     for (;;) {
-#ifndef USE_RAW_SOCKETS
-        size_t nRead;
-        if ((ssl_err = SSL_read_ex(d->client.ssl, d->inbuf + iStart,
-            sizeof(d->inbuf) - 10 - iStart, &nRead)) <= 0) {
-            ERR_print_errors_fp(stderr);
-            return false;
+        size_t s_read = 0;
+#ifndef NO_OPENSSL
+        if (d->client->type == SOCK_TLS) {
+            int ssl_err;
+            if ((ssl_err = SSL_read_ex(((TlsClient*)d->client)->ssl, d->inbuf + start,
+                sizeof(d->inbuf) - 10 - start, &s_read)) <= 0) {
+                ERR_print_errors_fp(stderr);
+                return false;
+            }
         }
-#else
-        int nRead;
-#ifdef _MSC_VER
-        nRead = recv(d->client.fd, d->inbuf + iStart,
-            (int)(sizeof(d->inbuf) - 10 - iStart), 0);
-#else
-        nRead = read(d->client.fd, d->inbuf + iStart,
-            sizeof(d->inbuf) - 10 - iStart);
+        else {
 #endif
-#endif // !USE_RAW_SOCKETS
-        if (nRead > 0) {
-            iStart += nRead;
-            if (d->inbuf[iStart - 1] == '\n' || d->inbuf[iStart - 1] == '\r')
+            int i_read;
+#ifdef _MSC_VER
+            i_read = recv(d->client->fd, d->inbuf + start,
+                (int)(sizeof(d->inbuf) - 10 - start), 0);
+#else
+            i_read = read(d->client->fd, d->inbuf + start,
+                sizeof(d->inbuf) - 10 - start);
+#endif
+            if (i_read < 0) {
+                perror("Read_from_descriptor");
+                return false;
+            }
+            s_read = (size_t)i_read;
+#ifndef NO_OPENSSL
+        }
+#endif
+        if (errno == EWOULDBLOCK)
+            break;
+        else if (s_read > 0) {
+            start += s_read;
+            if (d->inbuf[start - 1] == '\n' || d->inbuf[start - 1] == '\r')
                 break;
         }
-        else if (nRead == 0) {
+        else if (s_read == 0) {
             log_string("EOF encountered on read.");
             return false;
-        }
-        else if (errno == EWOULDBLOCK)
-            break;
-        else {
-            perror("Read_from_descriptor");
-            return false;
-        }
+        } 
     }
 
-    d->inbuf[iStart] = '\0';
+    d->inbuf[start] = '\0';
     return true;
 }
 
 void process_client_input(SockServer* server, PollData* poll_data)
 {
+    SockType type = server->type;
     // Kick out the freaky folks.
     for (Descriptor* d = descriptor_list; d != NULL; d = d_next) {
         d_next = d->next;
-        if (FD_ISSET(d->client.fd, &poll_data->exc_set)) {
-            FD_CLR(d->client.fd, &poll_data->in_set);
-            FD_CLR(d->client.fd, &poll_data->out_set);
+        if (d->client->type != type)
+            continue;
+        if (FD_ISSET(d->client->fd, &poll_data->exc_set)) {
+            FD_CLR(d->client->fd, &poll_data->in_set);
+            FD_CLR(d->client->fd, &poll_data->out_set);
             if (d->character && d->connected == CON_PLAYING)
                 save_char_obj(d->character);
             d->outtop = 0;
@@ -687,12 +739,14 @@ void process_client_input(SockServer* server, PollData* poll_data)
     // Process input.
     for (Descriptor* d = descriptor_list; d != NULL; d = d_next) {
         d_next = d->next;
+        if (d->client->type != type)
+            continue;
         d->fcommand = false;
 
-        if (FD_ISSET(d->client.fd, &poll_data->in_set)) {
+        if (FD_ISSET(d->client->fd, &poll_data->in_set)) {
             if (d->character != NULL) d->character->timer = 0;
             if (!read_from_descriptor(d)) {
-                FD_CLR(d->client.fd, &poll_data->out_set);
+                FD_CLR(d->client->fd, &poll_data->out_set);
                 if (d->character != NULL && d->connected == CON_PLAYING)
                     save_char_obj(d->character);
                 d->outtop = 0;
@@ -738,13 +792,15 @@ void read_from_buffer(Descriptor* d)
     /*
      * Hold horses if pending command already.
      */
-    if (d->incomm[0] != '\0') return;
+    if (d->incomm[0] != '\0')
+        return;
 
     /*
      * Look for at least one new line.
      */
     for (i = 0; d->inbuf[i] != '\n' && d->inbuf[i] != '\r'; i++) {
-        if (d->inbuf[i] == '\0') return;
+        if (d->inbuf[i] == '\0')
+            return;
     }
 
     /*
@@ -756,7 +812,8 @@ void read_from_buffer(Descriptor* d)
 
             /* skip the rest of the line */
             for (; d->inbuf[i] != '\0'; i++) {
-                if (d->inbuf[i] == '\n' || d->inbuf[i] == '\r') break;
+                if (d->inbuf[i] == '\n' || d->inbuf[i] == '\r')
+                    break;
             }
             d->inbuf[i] = '\n';
             d->inbuf[i + 1] = '\0';
@@ -772,7 +829,8 @@ void read_from_buffer(Descriptor* d)
     /*
      * Finish off the line.
      */
-    if (k == 0) d->incomm[k++] = ' ';
+    if (k == 0) 
+        d->incomm[k++] = ' ';
     d->incomm[k] = '\0';
 
     /*
@@ -1131,6 +1189,21 @@ void write_to_buffer(Descriptor* d, const char* txt, size_t length)
     strncpy(d->outbuf + d->outtop, txt, length);
     d->outtop += length;
     return;
+}
+
+static void nanny_weapon_prompt(Descriptor* d, CharData* ch)
+{
+    char buf[MAX_STRING_LENGTH] = "";
+    write_to_buffer(d, "\n\r", 2);
+    write_to_buffer(d, "Please pick a weapon from the following choices:\n\r", 0);
+    // Skip exotic. No one is trained in it.
+    for (int i = 1; i < WEAPON_TYPE_COUNT; i++)
+        if (ch->pcdata->learned[*weapon_table[i].gsn] > 0) {
+            strcat(buf, weapon_table[i].name);
+            strcat(buf, " ");
+        }
+    strcat(buf, "\n\rYour choice? ");
+    write_to_buffer(d, buf, 0);
 }
 
 /*
@@ -1503,13 +1576,21 @@ void nanny(Descriptor * d, char* argument)
         group_add(ch, "rom basics", false);
         group_add(ch, class_table[ch->ch_class].base_group, false);
         ch->pcdata->learned[gsn_recall] = 50;
-        write_to_buffer(d, "Do you wish to customize this character?\n\r", 0);
-        write_to_buffer(d,
-            "Customization takes time, but allows a wider range of "
-            "skills and abilities.\n\r",
-            0);
-        write_to_buffer(d, "Customize (Y/N)? ", 0);
-        d->connected = CON_DEFAULT_CHOICE;
+
+        if (cfg_get_chargen_custom()) {
+            write_to_buffer(d, "Do you wish to customize this character?\n\r", 0);
+            write_to_buffer(d,
+                "Customization takes time, but allows a wider range of "
+                "skills and abilities.\n\r",
+                0);
+            write_to_buffer(d, "Customize (Y/N)? ", 0);
+            d->connected = CON_DEFAULT_CHOICE;
+        }
+        else {
+            group_add(ch, class_table[ch->ch_class].default_group, true);
+            nanny_weapon_prompt(d, ch);
+            d->connected = CON_PICK_WEAPON;
+        }
         break;
 
     case CON_DEFAULT_CHOICE:
@@ -1529,18 +1610,7 @@ void nanny(Descriptor * d, char* argument)
         case 'n':
         case 'N':
             group_add(ch, class_table[ch->ch_class].default_group, true);
-            write_to_buffer(d, "\n\r", 2);
-            write_to_buffer(
-                d, "Please pick a weapon from the following choices:\n\r", 0);
-            buf[0] = '\0';
-            // Skip exotic. No one is trained in it.
-            for (i = 1; i < WEAPON_TYPE_COUNT; i++)
-                if (ch->pcdata->learned[*weapon_table[i].gsn] > 0) {
-                    strcat(buf, weapon_table[i].name);
-                    strcat(buf, " ");
-                }
-            strcat(buf, "\n\rYour choice? ");
-            write_to_buffer(d, buf, 0);
+            nanny_weapon_prompt(d, ch);
             d->connected = CON_PICK_WEAPON;
             break;
         default:
@@ -1599,17 +1669,7 @@ void nanny(Descriptor * d, char* argument)
             free_gen_data(ch->gen_data);
             ch->gen_data = NULL;
             send_to_char(buf, ch);
-            write_to_buffer(d, "\n\r", 2);
-            write_to_buffer(
-                d, "Please pick a weapon from the following choices:\n\r", 0);
-            buf[0] = '\0';
-            for (i = 0; i < WEAPON_TYPE_COUNT; i++)
-                if (ch->pcdata->learned[*weapon_table[i].gsn] > 0) {
-                    strcat(buf, weapon_table[i].name);
-                    strcat(buf, " ");
-                }
-            strcat(buf, "\n\rYour choice? ");
-            write_to_buffer(d, buf, 0);
+            nanny_weapon_prompt(d, ch);
             d->connected = CON_PICK_WEAPON;
             break;
         }
@@ -1691,9 +1751,11 @@ void nanny(Descriptor * d, char* argument)
     return;
 }
 
-void poll_server(SockServer * server, PollData * poll_data)
+void poll_server(SockServer* server, PollData* poll_data)
 {
     static struct timeval null_time = { 0 };
+
+    SockType type = server->type;
 
     // Poll all active descriptors.
     FD_ZERO(&poll_data->in_set);
@@ -1702,10 +1764,12 @@ void poll_server(SockServer * server, PollData * poll_data)
     FD_SET(server->control, &poll_data->in_set);
     poll_data->maxdesc = server->control;
     for (Descriptor* d = descriptor_list; d; d = d->next) {
-        poll_data->maxdesc = UMAX(poll_data->maxdesc, d->client.fd);
-        FD_SET(d->client.fd, &poll_data->in_set);
-        FD_SET(d->client.fd, &poll_data->out_set);
-        FD_SET(d->client.fd, &poll_data->exc_set);
+        if (d->client->type != type)
+            continue;
+        poll_data->maxdesc = UMAX(poll_data->maxdesc, d->client->fd);
+        FD_SET(d->client->fd, &poll_data->in_set);
+        FD_SET(d->client->fd, &poll_data->out_set);
+        FD_SET(d->client->fd, &poll_data->exc_set);
     }
 
     if (select((int)poll_data->maxdesc + 1, &poll_data->in_set,
@@ -1811,9 +1875,16 @@ bool check_reconnect(Descriptor * d, bool fConn)
             if (fConn == false) {
                 if (d->character->pcdata->pwd_digest != NULL)
                     free_digest(d->character->pcdata->pwd_digest);
+#ifndef NO_OPENSSL
                 d->character->pcdata->pwd_digest =
                     (unsigned char*)OPENSSL_memdup(ch->pcdata->pwd_digest,
                         ch->pcdata->pwd_digest_len);
+#else
+                d->character->pcdata->pwd_digest = (unsigned char*)malloc(
+                    ch->pcdata->pwd_digest_len);
+                memcpy(d->character->pcdata->pwd_digest, ch->pcdata->pwd_digest, 
+                    ch->pcdata->pwd_digest_len);
+#endif
                 d->character->pcdata->pwd_digest_len =
                     ch->pcdata->pwd_digest_len;
             }
@@ -1886,43 +1957,49 @@ void stop_idling(CharData * ch)
  */
 bool write_to_descriptor(Descriptor* d, char* txt, size_t length)
 {
-    size_t nWrite = 0;
-    int nBlock;
-#ifndef USE_RAW_SOCKETS
-    int ssl_err;
-#endif
+    size_t s_bytes = 0;
+    int block;
 
     if (length <= 0)
         length = strlen(txt);
 
-    for (size_t iStart = 0; iStart < length; iStart += nWrite) {
-        nBlock = (int)UMIN(length - iStart, 4096);
-#ifndef USE_RAW_SOCKETS
-        if ((ssl_err = SSL_write_ex(d->client.ssl, txt + iStart, nBlock, &nWrite)) <= 0) {
-            ERR_print_errors_fp(stderr);
-            return false;
+    for (size_t start = 0; start < length; start += s_bytes) {
+        block = (int)UMIN(length - start, 4096);
+#ifndef NO_OPENSSL
+        int ssl_err;
+        if (d->client->type == SOCK_TLS) {
+            if ((ssl_err = SSL_write_ex(((TlsClient*)d->client)->ssl, txt + start, block, &s_bytes)) <= 0) {
+                ERR_print_errors_fp(stderr);
+                return false;
+            }
         }
-#else
-#ifdef _MSC_VER
-        if ((nWrite = send(d->client.fd, txt + iStart, nBlock, 0)) < 0) {
-            PrintLastWinSockError();
-#else
-        if ((nWrite = write(d->client.fd, txt + iStart, nBlock)) < 0) {
+        else {
 #endif
-            perror("Write_to_descriptor");
-            return false;
+            int i_bytes;
+#ifdef _MSC_VER
+            if ((i_bytes = send(d->client->fd, txt + start, block, 0)) < 0) {
+                PrintLastWinSockError();
+#else
+            if ((i_bytes = write(d->client->fd, txt + start, block)) < 0) {
+#endif
+                perror("Write_to_descriptor");
+                return false;
+            }
+            s_bytes += i_bytes;
+#ifndef NO_OPENSSL
         }
-#endif // !USE_RAW_SOCKETS
-        }
+#endif
+    }
 
     return true;
 }
 
-void process_client_output(PollData * poll_data)
+void process_client_output(PollData * poll_data, SockType type)
 {
     for (Descriptor* d = descriptor_list; d != NULL; d = d_next) {
         d_next = d->next;
-
+        if (d->client->type != type)
+            continue;
         if ((d->fcommand || d->outtop > 0)
             && can_write(d, poll_data)) {
             if (!process_descriptor_output(d, true)) {

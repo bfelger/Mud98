@@ -98,7 +98,7 @@ extern KillData kill_table[MAX_LEVEL];
 /* vals from db.c */
 extern char bug_buf[];
 extern char log_buf[];
-
+extern bool fBootDb;
 extern int top_affect;
 extern int top_ed;
 extern int top_shop;

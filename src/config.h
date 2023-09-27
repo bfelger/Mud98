@@ -13,9 +13,9 @@
 
 void load_config();
 
-#define DECLARE_CONFIG(type, val)                                              \
-    void cfg_set_ ## val(const type new_val);                                  \
-    const type cfg_get_ ## val();
+#define DECLARE_CONFIG(val, type)                                              \
+    void cfg_set_ ## val(type new_val);                                        \
+    type cfg_get_ ## val();
 
 #define DECLARE_OPEN_CFG_FILE(val, rw)                                         \
     FILE* open_ ## rw ## _ ## val();
@@ -24,23 +24,25 @@ void load_config();
     bool val ## _exists();
 
 #define DECLARE_FILE_CONFIG(val)                                               \
-    DECLARE_CONFIG(char*, val)                                                 \
+    DECLARE_CONFIG(val, const char*)                                           \
     DECLARE_OPEN_CFG_FILE(val, read)                                           \
     DECLARE_OPEN_CFG_FILE(val, write)                                          \
     DECLARE_FILE_EXISTS(val)
 
 #define DECLARE_LOG_CONFIG(val)                                                \
-    DECLARE_CONFIG(char*, val)                                                 \
+    DECLARE_CONFIG(val, const char*)                                           \
     DECLARE_OPEN_CFG_FILE(val, append)                                         \
     DECLARE_FILE_EXISTS(val)
 
-DECLARE_CONFIG(char*, base_dir)
-DECLARE_CONFIG(char*, area_dir)
-DECLARE_CONFIG(char*, player_dir)
-DECLARE_CONFIG(char*, gods_dir)
-DECLARE_CONFIG(char*, temp_dir)
-DECLARE_CONFIG(char*, data_dir)
-DECLARE_CONFIG(char*, progs_dir)
+
+// Path configs
+DECLARE_CONFIG(base_dir, const char*)
+DECLARE_CONFIG(area_dir, const char*)
+DECLARE_CONFIG(player_dir, const char*)
+DECLARE_CONFIG(gods_dir, const char*)
+DECLARE_CONFIG(temp_dir, const char*)
+DECLARE_CONFIG(data_dir, const char*)
+DECLARE_CONFIG(progs_dir, const char*)
 DECLARE_FILE_CONFIG(socials_file)
 DECLARE_FILE_CONFIG(groups_file)
 DECLARE_FILE_CONFIG(skills_file)
@@ -62,10 +64,16 @@ DECLARE_FILE_CONFIG(mem_dump_file)
 DECLARE_FILE_CONFIG(mob_dump_file)
 DECLARE_FILE_CONFIG(obj_dump_file)
 
-#ifndef USE_RAW_SOCKETS
-DECLARE_CONFIG(char*, keys_dir)
+// Connection configs
+DECLARE_CONFIG(telnet_enabled, bool)
+DECLARE_CONFIG(telnet_port, int)
+DECLARE_CONFIG(tls_enabled, bool)
+DECLARE_CONFIG(tls_port, int)
+DECLARE_CONFIG(keys_dir, const char*)
 DECLARE_FILE_CONFIG(cert_file)
 DECLARE_FILE_CONFIG(pkey_file)
-#endif
+
+// Game configs
+DECLARE_CONFIG(chargen_custom, bool)
 
 #endif // !MUD98__CONFIG_H

@@ -33,7 +33,7 @@
 #include "handler.h"
 #include "note.h"
 #include "recycle.h"
-#include "strings.h"
+#include "stringutils.h"
 #include "tables.h"
 
 #include "entities/descriptor.h"

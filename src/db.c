@@ -43,7 +43,7 @@
 #include "recycle.h"
 #include "skills.h"
 #include "special.h"
-#include "strings.h"
+#include "stringutils.h"
 #include "tables.h"
 #include "weather.h"
 

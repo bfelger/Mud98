@@ -33,6 +33,10 @@
  *                                                                         *
  ***************************************************************************/
 
+#pragma once
+#ifndef MUD98__MOB_CMDS_H
+#define MUD98__MOB_CMDS_H
+
 #include "interp.h"
 
 #include "entities/char_data.h"
@@ -81,3 +85,5 @@ DECLARE_DO_FUN(do_mpremove);
 
 void mob_interpret(CharData* ch, char* argument);
 char* mprog_type_to_name(MobProgTrigger);
+
+#endif // !MUD98__MOB_CMDS_H

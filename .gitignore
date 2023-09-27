@@ -5,6 +5,7 @@
 player/*
 src/rom*
 src/.build
+src/build
 src/CMakeSettings.json
 src/out/
 temp/*

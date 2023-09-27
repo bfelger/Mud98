@@ -34,7 +34,7 @@
 // Default capacity of new arrays:
 #define ARRAY_START     8
 
-#define DEFINE_ARRAY(_Type, _DefaultVal)                                       \
+#define DECLARE_ARRAY(_Type)                                                   \
     typedef struct _Type ## _array_t {                                         \
         size_t count;                                                          \
         size_t capacity;                                                       \
@@ -42,8 +42,12 @@
         _Type default_val;                                                     \
         _Type* (*create_func)(struct _Type ## _array_t* arr);                  \
     } _Type ## Array;                                                          \
-    static _Type default_ ## _Type ## _val = _DefaultVal;                      \
-    inline _Type* new_ ## _Type(_Type ## Array* arr) {                         \
+    extern _Type default_ ## _Type ## _val;                                    \
+    _Type* new_ ## _Type(_Type ## Array* arr);                                 \
+
+#define DEFINE_ARRAY(_Type, _DefaultVal)                                       \
+    _Type default_ ## _Type ## _val = _DefaultVal;                             \
+    _Type* new_ ## _Type(_Type ## Array* arr) {                                \
         if (arr->elems == NULL) {                                              \
             arr->capacity = ARRAY_START;                                       \
             arr->elems = (_Type*)malloc(sizeof(_Type) * arr->capacity);        \

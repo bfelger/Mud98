@@ -1,24 +1,35 @@
 #
 # Mud98 CMakeLists.txt
 #
-cmake_minimum_required (VERSION 3.10)
+cmake_minimum_required (VERSION 3.12)
 
+# MSVC will ignore this
 set (CMAKE_C_STANDARD 23)
 
+# Most recent C standard MSVC will pretend to follow
 set (MSVC_C_STD "/std:c17")
 
 project(Mud98)
-
-set(OPENSSL_USE_STATIC_LIBS true)
-find_package(OpenSSL REQUIRED)
 
 if (NOT MSVC)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
     find_package(Threads REQUIRED)
 endif()
 
+set(OPENSSL_USE_STATIC_LIBS true)
+find_package(OpenSSL)
+
+if (NOT OPENSSL_FOUND OR OPENSSL_VERSION VERSION_LESS "3.0.0")
+    message(WARNING "OpenSSL 3.0 or higher not found. If you have it installed, set the OPENSSL_ROOT_DIR environment variable. "
+                    "If you proceed without OpenSSL, you will not have TLS capability.")
+    set(NO_OPENSSL true)
+endif()
+
 if (MSVC)
     set(MSVC_DISABLED_WARNINGS
+        # unknown pragma 'GCC'
+        "C4068"     # Equivalent to -Wno-unknown-pragmas
+
         # Nonstandard extension, function/data pointer conversion in expression
         "C4152"     # For openssl/applink.c.
 
@@ -72,6 +83,13 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU"
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unknown-pragmas")
 endif()
 
+if (NO_OPENSSL)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNO_OPENSSL")
+    if (CYGWIN)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNO_ENCRYPTION")
+    endif()
+endif()
+
 include_directories(${CMAKE_SOURCE_DIR})
 
 add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
@@ -118,13 +136,19 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     data/stats.h data/stats.c
 )
 
-if (NOT MSVC)
-    target_link_libraries(Mud98 Threads::Threads OpenSSL::SSL)
+if (NO_OPENSSL)
+    if (NOT MSVC)
+        target_link_libraries(Mud98 Threads::Threads)
+    endif()
 else()
-    target_link_libraries(Mud98 OpenSSL::Crypto OpenSSL::SSL OpenSSL::applink)
+    if (NOT MSVC)
+        target_link_libraries(Mud98 Threads::Threads OpenSSL::SSL)
+    else()
+        target_link_libraries(Mud98 PRIVATE OpenSSL::Crypto OpenSSL::SSL OpenSSL::applink)
+    endif()
 endif()
 
-message("Build summary:")
+message("Config summary:")
 message("")
 message("        Project name:     ${CMAKE_PROJECT_NAME}")
 message("        Host type:        ${CMAKE_SYSTEM_NAME}")

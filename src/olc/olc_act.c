@@ -29,6 +29,7 @@
 #include "skills.h"
 #include "special.h"
 #include "string_edit.h"
+#include "stringutils.h"
 #include "tables.h"
 
 #include "entities/descriptor.h"
@@ -627,7 +628,7 @@ AEDIT(aedit_file)
      * Allow only letters and numbers.
      */
     for (i = 0; i < (int)length; i++) {
-        if (!isalnum(file[i])) {
+        if (!ISALNUM(file[i])) {
             send_to_char("Only letters and numbers are valid.\n\r", ch);
             return false;
         }
@@ -3937,21 +3938,21 @@ ED_FUN_DEC(ed_dice)
 
     numb_str = cp = argument;
 
-    while (isdigit(*cp))
+    while (ISDIGIT(*cp))
         ++cp;
-    while (*cp != '\0' && !isdigit(*cp))
+    while (*cp != '\0' && !ISDIGIT(*cp))
         *(cp++) = '\0';
 
     type_str = cp;
 
-    while (isdigit(*cp))
+    while (ISDIGIT(*cp))
         ++cp;
-    while (*cp != '\0' && !isdigit(*cp))
+    while (*cp != '\0' && !ISDIGIT(*cp))
         *(cp++) = '\0';
 
     bonus_str = cp;
 
-    while (isdigit(*cp)) 
+    while (ISDIGIT(*cp)) 
         ++cp;
     *cp = '\0';
 

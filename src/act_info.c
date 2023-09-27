@@ -41,7 +41,7 @@
 #include "recycle.h"
 #include "save.h"
 #include "skills.h"
-#include "strings.h"
+#include "stringutils.h"
 #include "tables.h"
 #include "weather.h"
 
