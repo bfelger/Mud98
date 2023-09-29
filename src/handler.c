@@ -31,6 +31,7 @@
 #include "act_wiz.h"
 #include "color.h"
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "fight.h"
 #include "interp.h"
@@ -936,27 +937,58 @@ void char_from_room(CharData* ch)
     return;
 }
 
+static void update_mdsp_room(CharData* ch)
+{
+    char exits[MAX_INPUT_LENGTH];
+    ExitData* pexit;
+
+    sprintf(exits, "%c", MSDP_ARRAY_OPEN);
+    for (int door = 0; door < DIR_MAX; door++) {
+        if ((pexit = ch->in_room->exit[door]) != NULL
+            && pexit->u1.to_room != NULL
+            && (can_see_room(ch, pexit->u1.to_room)
+                || (IS_AFFECTED(ch, AFF_INFRARED)
+                    && !IS_AFFECTED(ch, AFF_BLIND)))) {
+            cat_sprintf(exits, "\001%s\002%d", dir_list[door].name_abbr, pexit->u1.to_room->vnum);
+        }
+    }
+    cat_sprintf(exits, "%c", MSDP_ARRAY_CLOSE);
+
+    msdp_update_var_instant(ch->desc, "ROOM", 
+        "%c\001%s\002%d\001%s\002%s\001%s\002%s\001%s\002%s\001%s\002%s%c",
+        MSDP_TABLE_OPEN,
+        "VNUM", ch->in_room->vnum,
+        "NAME", ch->in_room->name,
+        "AREA", ch->in_room->area->name,
+        "TERRAIN", sector_flag_table[ch->in_room->sector_type].name,
+        "EXITS", exits,
+        MSDP_TABLE_CLOSE);
+}
+
 /*
  * Move a char into a room.
  */
-void char_to_room(CharData* ch, RoomData* pRoomIndex)
+void char_to_room(CharData* ch, RoomData* room)
 {
     ObjectData* obj;
 
-    if (pRoomIndex == NULL) {
-        RoomData* room;
+    if (room == NULL) {
+        RoomData* temple;
 
         bug("Char_to_room: NULL.", 0);
 
-        if ((room = get_room_data(ROOM_VNUM_TEMPLE)) != NULL)
-            char_to_room(ch, room);
+        if ((temple = get_room_data(ROOM_VNUM_TEMPLE)) != NULL)
+            char_to_room(ch, temple);
 
         return;
     }
 
-    ch->in_room = pRoomIndex;
-    ch->next_in_room = pRoomIndex->people;
-    pRoomIndex->people = ch;
+    ch->in_room = room;
+    ch->next_in_room = room->people;
+    room->people = ch;
+
+    if (!IS_NPC(ch) && ch->desc->mth->msdp_data && cfg_get_msdp_enabled())
+        update_mdsp_room(ch);
 
     if (!IS_NPC(ch)) {
         if (ch->in_room->area->empty) {
@@ -984,7 +1016,8 @@ void char_to_room(CharData* ch, RoomData* pRoomIndex)
             return;
         }
 
-        if (af->level == 1) return;
+        if (af->level == 1)
+            return;
 
         plague.where = TO_AFFECTS;
         plague.type = gsn_plague;
@@ -1863,9 +1896,11 @@ bool can_see_room(CharData* ch, RoomData* pRoomIndex)
 bool can_see(CharData* ch, CharData* victim)
 {
     /* RT changed so that WIZ_INVIS has levels */
-    if (ch == victim) return true;
+    if (ch == victim)
+        return true;
 
-    if (get_trust(ch) < victim->invis_level) return false;
+    if (get_trust(ch) < victim->invis_level) 
+        return false;
 
     if (get_trust(ch) < victim->incog_level && ch->in_room != victim->in_room)
         return false;
@@ -1874,7 +1909,8 @@ bool can_see(CharData* ch, CharData* victim)
         || (IS_NPC(ch) && IS_IMMORTAL(ch)))
         return true;
 
-    if (IS_AFFECTED(ch, AFF_BLIND)) return false;
+    if (IS_AFFECTED(ch, AFF_BLIND))
+        return false;
 
     if (room_is_dark(ch->in_room) && !IS_AFFECTED(ch, AFF_INFRARED))
         return false;
@@ -1892,7 +1928,8 @@ bool can_see(CharData* ch, CharData* victim)
         chance -= get_curr_stat(ch, STAT_INT) * 2;
         chance -= ch->level - victim->level * 3 / 2;
 
-        if (number_percent() < chance) return false;
+        if (number_percent() < chance)
+            return false;
     }
 
     if (IS_AFFECTED(victim, AFF_HIDE) && !IS_AFFECTED(ch, AFF_DETECT_HIDDEN)

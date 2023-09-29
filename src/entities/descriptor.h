@@ -14,6 +14,8 @@ typedef struct descriptor_t Descriptor;
 
 #include "char_data.h"
 
+#include "mth/mth.h"
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -41,12 +43,13 @@ typedef struct descriptor_t {
     Descriptor* snoop_by;
     CharData* character;
     CharData* original;
+    MTH_DATA* mth;
     char* host;
     SockClient* client;
     ConnectionState connected;
-    char inbuf[4 * MAX_INPUT_LENGTH];
-    char incomm[MAX_INPUT_LENGTH];
-    char inlast[MAX_INPUT_LENGTH];
+    char inbuf[INPUT_BUFFER_SIZE];
+    char incomm[INPUT_BUFFER_SIZE];
+    char inlast[INPUT_BUFFER_SIZE];
     char* outbuf;
     size_t outsize;
     ptrdiff_t outtop;

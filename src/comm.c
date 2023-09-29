@@ -66,6 +66,8 @@
 #include "data/player.h"
 #include "data/race.h"
 
+#include "mth/mth.h"
+
 #include <ctype.h>
 #include <errno.h>
 #include <signal.h>
@@ -460,6 +462,8 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
     dnew->pString = NULL;   // OLC
     dnew->editor = 0;       // OLC
 
+    init_mth_socket(dnew);
+
     size = sizeof(sock);
     if (getpeername(dnew->client->fd, (struct sockaddr*)&sock, &size) < 0) {
         perror("New_descriptor: getpeername");
@@ -616,7 +620,8 @@ void close_socket(Descriptor* dclose)
         Descriptor* d;
 
         for (d = descriptor_list; d != NULL; d = d->next) {
-            if (d->snoop_by == dclose) d->snoop_by = NULL;
+            if (d->snoop_by == dclose) 
+                d->snoop_by = NULL;
         }
     }
 
@@ -651,6 +656,8 @@ void close_socket(Descriptor* dclose)
             bug("Close_socket: dclose not found.", 0);
     }
 
+    uninit_mth_socket(dclose);
+
     close_client(dclose->client);
     free_descriptor(dclose);
     return;
@@ -658,6 +665,11 @@ void close_socket(Descriptor* dclose)
 
 bool read_from_descriptor(Descriptor* d)
 {
+    char bufin[INPUT_BUFFER_SIZE] = { 0 };
+
+    if (!IS_VALID(d))
+        return false;
+
     /* Hold horses if pending command already. */
     if (d->incomm[0] != '\0')
         return true;
@@ -677,8 +689,8 @@ bool read_from_descriptor(Descriptor* d)
 #ifndef NO_OPENSSL
         if (d->client->type == SOCK_TLS) {
             int ssl_err;
-            if ((ssl_err = SSL_read_ex(((TlsClient*)d->client)->ssl, d->inbuf + start,
-                sizeof(d->inbuf) - 10 - start, &s_read)) <= 0) {
+            if ((ssl_err = SSL_read_ex(((TlsClient*)d->client)->ssl, bufin,
+                sizeof(bufin) - 10 - start, &s_read)) <= 0) {
                 ERR_print_errors_fp(stderr);
                 return false;
             }
@@ -687,11 +699,11 @@ bool read_from_descriptor(Descriptor* d)
 #endif
             int i_read;
 #ifdef _MSC_VER
-            i_read = recv(d->client->fd, d->inbuf + start,
-                (int)(sizeof(d->inbuf) - 10 - start), 0);
+            i_read = recv(d->client->fd, bufin,
+                (int)(sizeof(bufin) - 10 - start), 0);
 #else
-            i_read = read(d->client->fd, d->inbuf + start,
-                sizeof(d->inbuf) - 10 - start);
+            i_read = read(d->client->fd, bufin,
+                sizeof(bufin) - 10 - start);
 #endif
             if (i_read < 0) {
                 perror("Read_from_descriptor");
@@ -704,14 +716,15 @@ bool read_from_descriptor(Descriptor* d)
         if (errno == EWOULDBLOCK)
             break;
         else if (s_read > 0) {
-            start += s_read;
+            start += translate_telopts(d, (unsigned char*)bufin, s_read, (unsigned char*)d->inbuf, start);
             if (d->inbuf[start - 1] == '\n' || d->inbuf[start - 1] == '\r')
                 break;
         }
         else if (s_read == 0) {
             log_string("EOF encountered on read.");
+            d->valid = false;
             return false;
-        } 
+        }
     }
 
     d->inbuf[start] = '\0';
@@ -744,7 +757,8 @@ void process_client_input(SockServer* server, PollData* poll_data)
         d->fcommand = false;
 
         if (FD_ISSET(d->client->fd, &poll_data->in_set)) {
-            if (d->character != NULL) d->character->timer = 0;
+            if (d->character != NULL)
+                d->character->timer = 0;
             if (!read_from_descriptor(d)) {
                 FD_CLR(d->client->fd, &poll_data->out_set);
                 if (d->character != NULL && d->connected == CON_PLAYING)
@@ -950,14 +964,11 @@ bool process_descriptor_output(Descriptor* d, bool fPrompt)
         }
     }
 
-    /*
-     * Short-circuit if nothing to write.
-     */
-    if (d->outtop == 0) return true;
+    // Short-circuit if nothing to write.
+    if (d->outtop == 0)
+        return true;
 
-    /*
-     * Snoop-o-rama.
-     */
+    // Snoop-o-rama.
     if (d->snoop_by != NULL) {
         if (d->character != NULL)
             write_to_buffer(d->snoop_by, d->character->name, 0);
@@ -965,9 +976,6 @@ bool process_descriptor_output(Descriptor* d, bool fPrompt)
         write_to_buffer(d->snoop_by, d->outbuf, d->outtop);
     }
 
-    /*
-     * OS-dependent output.
-     */
     if (!write_to_descriptor(d, d->outbuf, d->outtop)) {
         d->outtop = 0;
         return false;
@@ -1024,7 +1032,7 @@ void bust_a_prompt(CharData* ch)
         case 'e':
             found = false;
             doors[0] = '\0';
-            for (door = 0; door < 6; door++) {
+            for (door = 0; door < DIR_MAX; door++) {
                 if ((pexit = ch->in_room->exit[door]) != NULL
                     && pexit->u1.to_room != NULL
                     && (can_see_room(ch, pexit->u1.to_room)
@@ -1035,7 +1043,8 @@ void bust_a_prompt(CharData* ch)
                     strcat(doors, dir_list[door].name_abbr);
                 }
             }
-            if (!found) strcat(BUF(temp1), "none");
+            if (!found) 
+                strcat(BUF(temp1), "none");
             sprintf(BUF(temp2), "%s", doors);
             i = BUF(temp2);
             break;
@@ -1159,7 +1168,8 @@ bust_a_prompt_cleanup:
 void write_to_buffer(Descriptor* d, const char* txt, size_t length)
 {
     // Find length in case caller didn't.
-    if (length <= 0) length = strlen(txt);
+    if (length <= 0) 
+        length = strlen(txt);
 
     // Initial \n\r if needed.
     if (d->outtop == 0 && !d->fcommand) {
@@ -1690,9 +1700,8 @@ void nanny(Descriptor * d, char* argument)
         break;
 
     case CON_READ_MOTD:
-        write_to_buffer(
-            d, "\n\rWelcome to " MUD_NAME " " MUD_VER ".  Please do not feed the mobiles.\n\r",
-            0);
+        sprintf(buf, "\n\rWelcome to %s. Please do not feed the mobiles.\n\r", cfg_get_mud_name());
+        write_to_buffer(d, buf, 0);
         ch->next = char_list;
         char_list = ch;
         ch->pcdata->next = player_list;
@@ -1838,7 +1847,8 @@ bool check_parse_name(char* name)
             if (LOWER(*pc) != 'i' && LOWER(*pc) != 'l') fIll = false;
         }
 
-        if (fIll) return false;
+        if (fIll)
+            return false;
 
         if (cleancaps || (total_caps > len / 2 && len < 3))
             return false;
@@ -1854,7 +1864,8 @@ bool check_parse_name(char* name)
         for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
             for (p_mob_proto = mob_prototype_hash[iHash]; p_mob_proto != NULL;
                 p_mob_proto = p_mob_proto->next) {
-                if (is_name(name, p_mob_proto->name)) return false;
+                if (is_name(name, p_mob_proto->name)) 
+                    return false;
             }
         }
     }
@@ -1945,9 +1956,7 @@ void stop_idling(CharData * ch)
     char_to_room(ch, ch->was_in_room);
     ch->was_in_room = NULL;
     act("$n has returned from the void.", ch, NULL, NULL, TO_ROOM);
-    return;
 }
-
 
 /*
  * Lowest level output function.
@@ -1960,8 +1969,16 @@ bool write_to_descriptor(Descriptor* d, char* txt, size_t length)
     size_t s_bytes = 0;
     int block;
 
+    if (!IS_VALID(d))
+        return false;
+
     if (length <= 0)
         length = strlen(txt);
+
+    if (d->mth->mccp2) {
+        write_mccp2(d, txt, length);
+        return true;
+    }
 
     for (size_t start = 0; start < length; start += s_bytes) {
         block = (int)UMIN(length - start, 4096);
@@ -2017,27 +2034,35 @@ void send_to_desc(const char* txt, Descriptor* desc)
 {
     const char* point;
     char* point2;
-    INIT_BUF(temp, MAX_STRING_LENGTH * 4);
+    char temp[MAX_STRING_LENGTH];
     size_t skip = 0;
+    int len = 0;
 
-    BUF(temp)[0] = '\0';
-    point2 = BUF(temp);
+    temp[0] = '\0';
+    point2 = temp;
     if (txt && desc) {
         for (point = txt; *point; point++) {
             if (*point == '{') {
                 point++;
                 skip = colour(*point, NULL, point2);
-                while (skip-- > 0) ++point2;
+                while (skip-- > 0) 
+                    ++point2;
                 continue;
             }
             *point2 = *point;
             *++point2 = '\0';
+            if (len++ >= MAX_STRING_LENGTH - 100 /*arbitrary*/) {
+                write_to_descriptor(desc, temp, point2 - temp);
+                temp[0] = '\0';
+                len = 0;
+                point2 = temp;
+            }
         }
-        *point2 = '\0';
-        write_to_buffer(desc, BUF(temp), point2 - BUF(temp)); 
-    }
 
-    free_buf(temp);
+        if (point2 != temp) {
+            write_to_descriptor(desc, temp, point2 - temp);
+        }
+    };
 }
 
 
@@ -2100,7 +2125,8 @@ void send_to_char(const char* txt, CharData * ch)
  */
 void page_to_char_bw(const char* txt, CharData * ch)
 {
-    if (txt == NULL || ch->desc == NULL) return;
+    if (txt == NULL || ch->desc == NULL) 
+        return;
 
     if (ch->lines == 0) {
         send_to_char_bw(txt, ch);
@@ -2489,7 +2515,7 @@ void bugf(char* fmt, ...)
     bug(buf, 0);
 }
 
-void flog(char* fmt, ...)
+void logf(char* fmt, ...)
 {
     char buf[2 * MSL];
     va_list args;

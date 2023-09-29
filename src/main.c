@@ -71,6 +71,7 @@ bool merc_down = false;             // Shutdown
 bool wizlock;                       // Game is wizlocked
 bool newlock;                       // Game is newlocked
 char str_boot_time[MAX_INPUT_LENGTH];
+time_t boot_time;                   // time of this pulse
 time_t current_time;                // time of this pulse
 bool MOBtrigger = true;             // act() switch
 
@@ -197,8 +198,9 @@ int main(int argc, char** argv)
 
     // Init time.
     gettimeofday(&now_time, NULL);
-    current_time = (time_t)now_time.tv_sec;
-    strcpy(str_boot_time, ctime(&current_time));
+    boot_time = (time_t)now_time.tv_sec;
+    current_time = boot_time;
+    strcpy(str_boot_time, ctime(&boot_time));
 
     open_reserve_file();
 
@@ -243,23 +245,23 @@ int main(int argc, char** argv)
             tls_server->type = SOCK_TLS;
             init_server((SockServer*)tls_server, tls_port);
 #else
-            fprintf(stderr, MUD_NAME " was not built with OpenSSL 3.x+, and "
-                "cannot create a TLS server.\n");
+            fprintf(stderr, "%s was not built with OpenSSL 3.x+, and "
+                "cannot create a TLS server.\n", cfg_get_mud_name());
             tls = false;
 #endif
         }
 
         if (telnet && tls) {
-            sprintf(log_buf, MUD_NAME " is ready to rock on ports %d (telnet) "
-                "& %d (tls).", telnet_port, tls_port);
+            sprintf(log_buf, "%s is ready to rock on ports %d (telnet) "
+                "& %d (tls).", cfg_get_mud_name(), telnet_port, tls_port);
         }
         else if (telnet) {
-            sprintf(log_buf, MUD_NAME " is ready to rock on port %d (telnet). ",
-                telnet_port);
+            sprintf(log_buf, "%s is ready to rock on port %d (telnet). ",
+                cfg_get_mud_name(), telnet_port);
         }
         else if (tls) {
-            sprintf(log_buf, MUD_NAME " is ready to rock on port %d (tls). ",
-                tls_port);
+            sprintf(log_buf, "%s is ready to rock on port %d (tls). ",
+                cfg_get_mud_name(), tls_port);
         }
         else {
             sprintf(log_buf, "You must enable either telnet or TLS in mud98.cfg.");
@@ -410,4 +412,9 @@ void game_loop(GAME_LOOP_PARAMS)
     }
 
     return;
+}
+
+int get_uptime()
+{
+    return (int)(current_time - boot_time);
 }

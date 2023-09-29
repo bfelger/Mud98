@@ -4,25 +4,48 @@
 cmake_minimum_required (VERSION 3.12)
 
 # MSVC will ignore this
-set (CMAKE_C_STANDARD 23)
+set(CMAKE_C_STANDARD 23)
 
 # Most recent C standard MSVC will pretend to follow
-set (MSVC_C_STD "/std:c17")
+set(MSVC_C_STD "/std:c17")
 
 project(Mud98)
+
+set(Mud98_LIBS "")
 
 if (NOT MSVC)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
     find_package(Threads REQUIRED)
+    #target_link_libraries(Mud98 PRIVATE Threads::Threads)
+    list(APPEND Mud98_LIBS Threads::Threads)
 endif()
 
-set(OPENSSL_USE_STATIC_LIBS true)
+set (OPENSSL_USE_STATIC_LIBS true)
 find_package(OpenSSL)
+
+if (OPENSSL_FOUND)
+    message("OpenSSL version ${OPENSSL_VERSION} found at ${OPENSSL_INLCUDE_DIRS}.")
+endif()
 
 if (NOT OPENSSL_FOUND OR OPENSSL_VERSION VERSION_LESS "3.0.0")
     message(WARNING "OpenSSL 3.0 or higher not found. If you have it installed, set the OPENSSL_ROOT_DIR environment variable. "
                     "If you proceed without OpenSSL, you will not have TLS capability.")
     set(NO_OPENSSL true)
+else()
+    if (MSVC)
+        #target_link_libraries(Mud98 PRIVATE OpenSSL::Crypto OpenSSL::SSL OpenSSL::applink)
+        list(APPEND Mud98_LIBS OpenSSL::Crypto OpenSSL::SSL OpenSSL::applink)
+    else()
+        #target_link_libraries(Mud98 PRIVATE OpenSSL::SSL)
+        list(APPEND Mud98_LIBS OpenSSL::SSL)
+    endif()
+endif()
+
+set (ZLIB_USE_STATIC_LIBS true)
+find_package(ZLIB)
+if (ZLIB_FOUND)
+    #target_link_libraries(Mud98 PRIVATE ZLIB::ZLIB)
+    list(APPEND Mud98_LIBS ZLIB::ZLIB)
 endif()
 
 if (MSVC)
@@ -73,14 +96,13 @@ if (MSVC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MSVC_C_STD} /Wall ${MSVC_DISABLED_WARNINGS_OPT}")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_CRT_SECURE_NO_WARNINGS -DNOCRYPT")
 elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -Wextra -pedantic -Wno-unused-parameter -std=gnu2x -D_GNU_SOURCE")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu2x")
 elseif (CMAKE_C_COMPILER_ID STREQUAL "Clang")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -Wextra -pedantic -Wno-unused-parameter -std=c2x -D_GNU_SOURCE")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c2x")
 endif()
 
-if (CMAKE_C_COMPILER_ID STREQUAL "GNU" 
-    OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unknown-pragmas")
+if (NOT MSVC)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -Wextra -pedantic -Wno-unused-parameter -Wno-unknown-pragmas -D_GNU_SOURCE")
 endif()
 
 if (NO_OPENSSL)
@@ -88,6 +110,10 @@ if (NO_OPENSSL)
     if (CYGWIN)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNO_ENCRYPTION")
     endif()
+endif()
+
+if (NOT ZLIB_FOUND)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNO_ZLIB")
 endif()
 
 include_directories(${CMAKE_SOURCE_DIR})
@@ -107,6 +133,8 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     olc/olc.h olc/olc.c olc/olc_act.c olc/olc_save.c olc/pedit.c olc/raedit.c 
     olc/screen.h olc/screen.c olc/sedit.c olc/skedit.c olc/string_edit.h 
     olc/string_edit.c
+
+    mth/mth.h mth/msdp.c mth/mth.c mth/telopt.c
     
     entities/affect_data.h entities/affect_data.c
     entities/area_data.h entities/area_data.c 
@@ -136,17 +164,7 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     data/stats.h data/stats.c
 )
 
-if (NO_OPENSSL)
-    if (NOT MSVC)
-        target_link_libraries(Mud98 Threads::Threads)
-    endif()
-else()
-    if (NOT MSVC)
-        target_link_libraries(Mud98 Threads::Threads OpenSSL::SSL)
-    else()
-        target_link_libraries(Mud98 PRIVATE OpenSSL::Crypto OpenSSL::SSL OpenSSL::applink)
-    endif()
-endif()
+target_link_libraries(Mud98 PRIVATE ${Mud98_LIBS})
 
 message("Config summary:")
 message("")
@@ -158,7 +176,9 @@ message("        CMAKE_VERSION:    ${CMAKE_VERSION}")
 message("        CFLAGS:           ${CMAKE_C_FLAGS}")
 message("        CFLAGS_DEBUG:     ${CMAKE_C_FLAGS_DEBUG}")
 message("        CPPFLAGS:         ${CMAKE_CXX_FLAGS}")
+message("        Linked Libs:      ${Mud98_LIBS}")
+message("        Include dirs:     ${CMAKE_INCLUDE_PATH}")
 message("        Build type:       ${CMAKE_BUILD_TYPE}")
 message("")
-message("        Install prefix:    ${CMAKE_INSTALL_PREFIX}")
+message("        Install prefix:   ${CMAKE_INSTALL_PREFIX}")
 message("")

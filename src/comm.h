@@ -113,7 +113,7 @@ void act_new(const char* format, CharData* ch, const void* arg1,
 
 void printf_to_char(CharData*, char*, ...);
 void bugf(char*, ...);
-void flog(char*, ...);
+void logf(char*, ...);
 size_t colour(char type, CharData* ch, char* string);
 void colourconv(char* buffer, const char* txt, CharData* ch);
 void send_to_char_bw(const char* txt, CharData* ch);

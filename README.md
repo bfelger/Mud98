@@ -35,6 +35,7 @@
       <a href="#features">Features</a>
       <ul>
         <li><a href="#tls-secure-sockets">TLS Secure Sockets</a></li>
+        <li><a hfef="#mccp--mssp--and-msdp">MCCP, MSSP, and MSDP</a></li>
         <li><a href="#file-based-configuration">File-based Configuration</a></li>
         <li><a href="#improved-code-quality">Improved Code Quality</a></li>
         <li><a href="#olc-expansion">OLC Expansion</a></li>
@@ -86,10 +87,15 @@ Here are some of the novel improvements to Mud98 over stock ROM:
 
 OpenSSL provides secure sockets to Mud98. You can configure Mud98 to run TLS in tandem with clear-text telnet, or by itself.
 
+<!-- MCCP  MSSP  and-MSDP -->
+### MCCP, MSSP, and MSDP
+
+Mud98 implements the MUD Client Compression Protocol (MCCP2 & MCCP3), the MUD Server State Protocol (MSSP), and the MUD Server Data Protocol (MSDP) through Scandum's MUD Telopt Handler (MTH). GMCP is also implemented.
+
 <!-- File-base Configuration -->
 ### File-based Configuration
 
-Most settings in Mud98 can be configured in `mud98.cfg`, which resides in the root folder. This includes telnet/TLS settings, file settings, and a growing list of gameplay customization options.
+Most settings in Mud98 can be configured in `mud98.cfg`, which resides in the root folder. This includes telnet/TLS settings, MCCP/MSDP/MSSP settings, file settings, and a growing list of gameplay customization options.
 
 <!-- Improved Code Quality -->
 ### Improved Code Quality

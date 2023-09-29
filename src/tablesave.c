@@ -536,7 +536,7 @@ void load_command_table(void)
 
     max_cmd = size;
 
-    flog("Creating cmd_table of length %d, size %zu", size + 1,
+    logf("Creating cmd_table of length %d, size %zu", size + 1,
         sizeof(CmdInfo) * ((size_t)size + 1));
 
     if ((cmd_table = calloc(sizeof(CmdInfo), (size_t)size + 1)) == NULL) {
@@ -559,7 +559,7 @@ void load_command_table(void)
         load_struct(fp, U(&tmp_cmd), cmdsavetable, U(&cmd_table[i++]));
 
         if (i == size) {
-            flog("Command table loaded.");
+            logf("Command table loaded.");
             close_file(fp);
             cmd_table[i].name = str_dup("");
             return;
