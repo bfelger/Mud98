@@ -114,6 +114,44 @@
     DEFINE_OPEN_CFG_FILE(val, subdir, append)                                  \
     DEFINE_FILE_EXISTS(val, subdir)
 
+#define DEFAULT_MUD_NAME            "Mud98"
+
+// Connection Info
+#define DEFAULT_HOSTNAME            "localhost"
+#define DEFAULT_TELNET_ENABLED      false
+#define DEFAULT_TELNET_PORT         4000
+#define DEFAULT_TLS_ENABLED         true
+#define DEFAULT_TLS_PORT            4043
+#define DEFAULT_KEYS_DIR            "keys/"
+#define DEFAULT_CERT_FILE           "mud98.pem"
+#define DEFAULT_PKEY_FILE           "mud98.key"
+
+// GMCP Values
+#define DEFAULT_GMCP_ENABLED        true
+
+// MCCP Values
+#define DEFAULT_MCCP2_ENABLED       true
+#define DEFAULT_MCCP3_ENABLED       true
+
+// MSDP Values
+#define DEFAULT_MSDP_ENABLED        true
+
+// MSSP Values
+#define DEFAULT_MSSP_ENABLED        true
+#define DEFAULT_CODEBASE            "Mud98"
+#define DEFAULT_CONTACT             "your@email.com"
+#define DEFAULT_CREATED             2023
+#define DEFAULT_ICON                "http://example.com/icon.gif"
+#define DEFAULT_LANGUAGE            "En-US"
+#define DEFAULT_LOCATION            "US"
+#define DEFAULT_MIN_AGE             13
+#define DEFAULT_WEBSITE             "https://github.com/bfelger/Mud98"
+#define DEFAULT_FAMILY              "ROM"
+#define DEFAULT_GENRE               "Fantasy"
+#define DEFAULT_GAMEPLAY            "Hack and Slash"
+#define DEFAULT_STATUS              "Live"
+#define DEFAULT_SUBGENRE            "High Fantasy"
+
 // Assume it is run from the area folder (as in the olden days of yore)
 #define DEFAULT_BASE_DIR            "../"
 #define DEFAULT_CONFIG_FILE         "mud98.cfg"
@@ -148,27 +186,54 @@
 #define DEFAULT_MOB_DUMP_FILE       "mob.dmp"
 #define DEFAULT_OBJ_DUMP_FILE       "obj.dmp"
 
-// SSL Files
-#define DEFAULT_KEYS_DIR            "keys/"
-#define DEFAULT_CERT_FILE           "mud98.pem"
-#define DEFAULT_PKEY_FILE           "mud98.key"
-
 // Other Top-Level Dirs
 #define DEFAULT_PLAYER_DIR          "player/"
 #define DEFAULT_GODS_DIR            "gods/"
 
-#define DEFAULT_TELNET_ENABLED      false
-#define DEFAULT_TELNET_PORT         4000
+DEFINE_STR_CONFIG(mud_name,         DEFAULT_MUD_NAME)
 
-#define DEFAULT_TLS_ENABLED         true
-#define DEFAULT_TLS_PORT            4043
+// Connnection Info
+DEFINE_STR_CONFIG(hostname,         DEFAULT_HOSTNAME)
+DEFINE_CONFIG(telnet_enabled,       bool,       DEFAULT_TELNET_ENABLED)
+DEFINE_CONFIG(telnet_port,          int,        DEFAULT_TELNET_PORT)
+DEFINE_CONFIG(tls_enabled,          bool,       DEFAULT_TLS_ENABLED)
+DEFINE_CONFIG(tls_port,             int,        DEFAULT_TLS_PORT)
+DEFINE_DIR_CONFIG(keys_dir,         DEFAULT_KEYS_DIR)
+DEFINE_FILE_CONFIG(cert_file,       keys_dir,   DEFAULT_CERT_FILE)
+DEFINE_FILE_CONFIG(pkey_file,       keys_dir,   DEFAULT_PKEY_FILE)
 
+// GMCP Values
+DEFINE_CONFIG(gmcp_enabled,         bool,       DEFAULT_GMCP_ENABLED)
+
+// MCCP Values
+DEFINE_CONFIG(mccp2_enabled,        bool,       DEFAULT_MCCP2_ENABLED)
+DEFINE_CONFIG(mccp3_enabled,        bool,       DEFAULT_MCCP3_ENABLED)
+
+// MSDP Values
+DEFINE_CONFIG(msdp_enabled,         bool,       DEFAULT_MSDP_ENABLED)
+
+// MSSP Values
+DEFINE_CONFIG(mssp_enabled,         bool,       DEFAULT_MSSP_ENABLED)
+DEFINE_STR_CONFIG(codebase,         DEFAULT_CODEBASE)
+DEFINE_STR_CONFIG(contact,          DEFAULT_CONTACT)
+DEFINE_CONFIG(created,              int,        DEFAULT_CREATED)
+DEFINE_STR_CONFIG(discord,          "")
+DEFINE_STR_CONFIG(icon,             DEFAULT_ICON)
+DEFINE_STR_CONFIG(language,         DEFAULT_LANGUAGE)
+DEFINE_STR_CONFIG(location,         DEFAULT_LOCATION)
+DEFINE_CONFIG(min_age,              int,        DEFAULT_MIN_AGE)
+DEFINE_STR_CONFIG(website,          DEFAULT_WEBSITE)
+DEFINE_STR_CONFIG(family,           DEFAULT_FAMILY)
+DEFINE_STR_CONFIG(genre,            DEFAULT_GENRE)
+DEFINE_STR_CONFIG(gameplay,         DEFAULT_GAMEPLAY)
+DEFINE_STR_CONFIG(status,           DEFAULT_STATUS)
+DEFINE_STR_CONFIG(subgenre,         DEFAULT_SUBGENRE)
+
+// Paths
 DEFINE_DIR_CONFIG(base_dir,         DEFAULT_BASE_DIR)
 DEFINE_STR_CONFIG(config_file,      DEFAULT_CONFIG_FILE)
-
-DEFINE_DIR_CONFIG(player_dir, DEFAULT_PLAYER_DIR)
-DEFINE_DIR_CONFIG(gods_dir, DEFAULT_GODS_DIR)
-
+DEFINE_DIR_CONFIG(player_dir,       DEFAULT_PLAYER_DIR)
+DEFINE_DIR_CONFIG(gods_dir,         DEFAULT_GODS_DIR)
 DEFINE_DIR_CONFIG(area_dir,         DEFAULT_AREA_DIR)
 DEFINE_FILE_CONFIG(area_list,       area_dir,   DEFAULT_AREA_LIST)
 DEFINE_FILE_CONFIG(music_file,      area_dir,   DEFAULT_MUSIC_FILE)
@@ -181,7 +246,6 @@ DEFINE_LOG_CONFIG(news_file,        area_dir,   DEFAULT_NEWS_FILE)
 DEFINE_LOG_CONFIG(changes_file,     area_dir,   DEFAULT_CHANGES_FILE)
 DEFINE_LOG_CONFIG(shutdown_file,    area_dir,   DEFAULT_SHUTDOWN_FILE)
 DEFINE_FILE_CONFIG(ban_file,        area_dir,   DEFAULT_BAN_FILE)
-
 DEFINE_DIR_CONFIG(data_dir,         DEFAULT_DATA_DIR)
 DEFINE_DIR_CONFIG(progs_dir,        DEFAULT_PROGS_DIR)
 DEFINE_FILE_CONFIG(socials_file,    data_dir,   DEFAULT_SOCIALS_FILE)
@@ -190,20 +254,12 @@ DEFINE_FILE_CONFIG(skills_file,     data_dir,   DEFAULT_SKILLS_FILE)
 DEFINE_FILE_CONFIG(commands_file,   data_dir,   DEFAULT_COMMANDS_FILE)
 DEFINE_FILE_CONFIG(races_file,      data_dir,   DEFAULT_RACES_FILE)
 DEFINE_FILE_CONFIG(classes_file,    data_dir,   DEFAULT_CLASSES_FILE)
-
 DEFINE_DIR_CONFIG(temp_dir,         DEFAULT_TEMP_DIR)
 DEFINE_FILE_CONFIG(mem_dump_file,   temp_dir,   DEFAULT_MEM_DUMP_FILE)
 DEFINE_FILE_CONFIG(mob_dump_file,   temp_dir,   DEFAULT_MOB_DUMP_FILE)
 DEFINE_FILE_CONFIG(obj_dump_file,   temp_dir,   DEFAULT_OBJ_DUMP_FILE)
 
-DEFINE_CONFIG(telnet_enabled,       bool,       DEFAULT_TELNET_ENABLED)
-DEFINE_CONFIG(telnet_port,          int,        DEFAULT_TELNET_PORT)
-DEFINE_CONFIG(tls_enabled,          bool,       DEFAULT_TLS_ENABLED)
-DEFINE_CONFIG(tls_port,             int,        DEFAULT_TLS_PORT)
-DEFINE_DIR_CONFIG(keys_dir,         DEFAULT_KEYS_DIR)
-DEFINE_FILE_CONFIG(cert_file,       keys_dir,   DEFAULT_CERT_FILE)
-DEFINE_FILE_CONFIG(pkey_file,       keys_dir,   DEFAULT_PKEY_FILE)
-
+// Gameplay Configs
 DEFINE_CONFIG(chargen_custom,       bool,       true)
 
 #pragma GCC diagnostic pop
@@ -231,41 +287,75 @@ typedef void CfgBoolSet(const bool);
 #define U(x)    (uintptr_t)(x)
 
 const ConfigEntry config_entries[] = {
-    { "area_dir",       CFG_DIR,        U(cfg_set_area_dir)       },
-    { "area_list",      CFG_STR,        U(cfg_set_area_list)      },
-    { "music_file",     CFG_STR,        U(cfg_set_music_file)     },
-    { "bug_file",       CFG_STR,        U(cfg_set_bug_file)       },
-    { "typo_file",      CFG_STR,        U(cfg_set_typo_file)      },
-    { "note_file",      CFG_STR,        U(cfg_set_note_file)      },
-    { "idea_file",      CFG_STR,        U(cfg_set_idea_file)      },
-    { "penalty_file",   CFG_STR,        U(cfg_set_penalty_file)   },
-    { "news_file",      CFG_STR,        U(cfg_set_news_file)      },
-    { "changes_file",   CFG_STR,        U(cfg_set_changes_file)   },
-    { "shutdown_file",  CFG_STR,        U(cfg_set_shutdown_file)  },
-    { "ban_file",       CFG_STR,        U(cfg_set_ban_file)       },
-    { "data_dir",       CFG_DIR,        U(cfg_set_data_dir)       },
-    { "progs_dir",      CFG_DIR,        U(cfg_set_progs_dir)      },
-    { "socials_file",   CFG_STR,        U(cfg_set_socials_file)   },
-    { "groups_file",    CFG_STR,        U(cfg_set_groups_file)    },
-    { "skills_file",    CFG_STR,        U(cfg_set_skills_file)    },
-    { "commands_file",  CFG_STR,        U(cfg_set_commands_file)  },
-    { "races_file",     CFG_STR,        U(cfg_set_races_file)     },
-    { "classes_file",   CFG_STR,        U(cfg_set_classes_file)   },
-    { "temp_dir",       CFG_DIR,        U(cfg_set_temp_dir)       },
-    { "mem_dump_file",  CFG_STR,        U(cfg_set_mem_dump_file)  },
-    { "mob_dump_file",  CFG_STR,        U(cfg_set_mob_dump_file)  },
-    { "obj_dump_file",  CFG_STR,        U(cfg_set_obj_dump_file)  },
-    { "telnet_enabled", CFG_BOOL,       U(cfg_set_telnet_enabled) },
-    { "telnet_port",    CFG_INT,        U(cfg_set_telnet_port)    },
-    { "tls_enabled",    CFG_BOOL,       U(cfg_set_tls_enabled)    },
-    { "tls_port",       CFG_INT,        U(cfg_set_tls_port)       },
-    { "keys_dir",       CFG_DIR,        U(cfg_set_keys_dir)       },
-    { "cert_file",      CFG_STR,        U(cfg_set_cert_file)      },
-    { "pkey_file",      CFG_STR,        U(cfg_set_pkey_file)      },
-    { "player_dir",     CFG_DIR,        U(cfg_set_player_dir)     },
-    { "gods_dir",       CFG_DIR,        U(cfg_set_gods_dir)       },
-    { "chargen_custom", CFG_BOOL,       U(cfg_set_chargen_custom) },
-    { "",               0,              0                         },
+    { "mud_name",       CFG_STR,        U(cfg_set_mud_name)         },
+
+    // Connection Info
+    { "hostname",       CFG_STR,        U(cfg_set_hostname)         },
+    { "telnet_enabled", CFG_BOOL,       U(cfg_set_telnet_enabled)   },
+    { "telnet_port",    CFG_INT,        U(cfg_set_telnet_port)      },
+    { "tls_enabled",    CFG_BOOL,       U(cfg_set_tls_enabled)      },
+    { "tls_port",       CFG_INT,        U(cfg_set_tls_port)         },
+    { "keys_dir",       CFG_DIR,        U(cfg_set_keys_dir)         },
+    { "cert_file",      CFG_STR,        U(cfg_set_cert_file)        },
+    { "pkey_file",      CFG_STR,        U(cfg_set_pkey_file)        },
+
+    // GMCP
+    { "gmcp_enabled",   CFG_BOOL,       U(cfg_set_gmcp_enabled)     },
+
+    // MCCP
+    { "mccp2_enabled",  CFG_BOOL,       U(cfg_set_mccp2_enabled)    },
+    { "mccp3_enabled",  CFG_BOOL,       U(cfg_set_mccp3_enabled)    },
+
+    // MSDP
+    { "msdp_enabled",   CFG_BOOL,       U(cfg_set_msdp_enabled)     },
+
+    // MSSP
+    { "mssp_enabled",   CFG_BOOL,       U(cfg_set_mssp_enabled)     },
+    { "codebase",       CFG_STR,        U(cfg_set_codebase)         },
+    { "contact",        CFG_STR,        U(cfg_set_contact)          },
+    { "created",        CFG_INT,        U(cfg_set_created)          },
+    { "icon",           CFG_STR,        U(cfg_set_icon)             },
+    { "language",       CFG_STR,        U(cfg_set_language)         },
+    { "location",       CFG_STR,        U(cfg_set_location)         },
+    { "min_age",        CFG_INT,        U(cfg_set_min_age)          },
+    { "website",        CFG_STR,        U(cfg_set_website)          },
+    { "family",         CFG_STR,        U(cfg_set_family)           },
+    { "genre",          CFG_STR,        U(cfg_set_genre)            },
+    { "gameplay",       CFG_STR,        U(cfg_set_gameplay)         },
+    { "status",         CFG_STR,        U(cfg_set_status)           },
+    { "subgenre",       CFG_STR,        U(cfg_set_subgenre)         },
+
+    // Filepaths
+    { "area_dir",       CFG_DIR,        U(cfg_set_area_dir)         },
+    { "area_list",      CFG_STR,        U(cfg_set_area_list)        },
+    { "music_file",     CFG_STR,        U(cfg_set_music_file)       },
+    { "bug_file",       CFG_STR,        U(cfg_set_bug_file)         },
+    { "typo_file",      CFG_STR,        U(cfg_set_typo_file)        },
+    { "note_file",      CFG_STR,        U(cfg_set_note_file)        },
+    { "idea_file",      CFG_STR,        U(cfg_set_idea_file)        },
+    { "penalty_file",   CFG_STR,        U(cfg_set_penalty_file)     },
+    { "news_file",      CFG_STR,        U(cfg_set_news_file)        },
+    { "changes_file",   CFG_STR,        U(cfg_set_changes_file)     },
+    { "shutdown_file",  CFG_STR,        U(cfg_set_shutdown_file)    },
+    { "ban_file",       CFG_STR,        U(cfg_set_ban_file)         },
+    { "data_dir",       CFG_DIR,        U(cfg_set_data_dir)         },
+    { "progs_dir",      CFG_DIR,        U(cfg_set_progs_dir)        },
+    { "socials_file",   CFG_STR,        U(cfg_set_socials_file)     },
+    { "groups_file",    CFG_STR,        U(cfg_set_groups_file)      },
+    { "skills_file",    CFG_STR,        U(cfg_set_skills_file)      },
+    { "commands_file",  CFG_STR,        U(cfg_set_commands_file)    },
+    { "races_file",     CFG_STR,        U(cfg_set_races_file)       },
+    { "classes_file",   CFG_STR,        U(cfg_set_classes_file)     },
+    { "temp_dir",       CFG_DIR,        U(cfg_set_temp_dir)         },
+    { "mem_dump_file",  CFG_STR,        U(cfg_set_mem_dump_file)    },
+    { "mob_dump_file",  CFG_STR,        U(cfg_set_mob_dump_file)    },
+    { "obj_dump_file",  CFG_STR,        U(cfg_set_obj_dump_file)    },
+    { "player_dir",     CFG_DIR,        U(cfg_set_player_dir)       },
+    { "gods_dir",       CFG_DIR,        U(cfg_set_gods_dir)         },
+
+    // Gameplay
+    { "chargen_custom", CFG_BOOL,       U(cfg_set_chargen_custom)   },
+    { "",               0,              0                           },
 };
 
 #undef U
@@ -487,34 +577,20 @@ static char* parse_val()
 
 static void map_val(const ConfigEntry* entry, const char* val)
 {
-    //size_t len;
     switch (entry->type) {
     case CFG_DIR:
     case CFG_STR: {
-        //char* dest = *(char**)entry->target;
-        //strcpy(dest, val);
         CfgStrSet* setter = (CfgStrSet*)entry->target;
         (*setter)(val);
         return;
     }
-    //case CFG_DIR: {
-    //    char* dest = *(char**)entry->target;
-    //    strcpy(dest, val);
-    //    len = strlen(val);
-    //    if (dest[len - 1] != '/' && dest[len - 1] != '\\')
-    //        strcat(dest, "/");
-    //    return;
-    //}
     case CFG_INT: {
-        //int* int_val = (int*)entry->target;
-        //*int_val = atoi(val);
         int int_val = atoi(val);
         CfgIntSet* setter = (CfgIntSet*)entry->target;
         (*setter)(int_val);
         return;
     }
     case CFG_BOOL: {
-        //bool* bool_val = (bool*)entry->target;
         bool b_val = false;
         if (!strcmp(val, "yes") || !strcasecmp(val, "true")
             || !strcasecmp(val, "enable") || !strcasecmp(val, "enabled"))

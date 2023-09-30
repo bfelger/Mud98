@@ -118,5 +118,6 @@ bool is_affected(CharData* ch, SKNUM sn);
 AffectData* new_affect();
 
 extern AffectData* affect_free;
+extern int top_affect;
 
 #endif // !MUD98__ENTITIES__AFFECT_DATA_H

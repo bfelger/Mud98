@@ -66,6 +66,8 @@
 #include "data/skill.h"
 #include "data/social.h"
 
+#include "mth/mth.h"
+
 #include <ctype.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -110,9 +112,7 @@ char* string_space;
 char* top_string;
 char str_empty[1];
 
-int top_affect;
 int top_ed;
-int top_help;
 int	top_mprog_index;    // OLC
 
 /*
@@ -122,17 +122,18 @@ int	top_mprog_index;    // OLC
  */
 #define MAX_STRING     1413120
 #define MAX_PERM_BLOCK 131072
-#define MAX_MEM_LIST   14
+#define MAX_MEM_LIST   15
 
 void* rgFreeList[MAX_MEM_LIST];
 const size_t rgSizeList[MAX_MEM_LIST] = {
     16, 32, 64, 128, 256, 1024, 2048, 4096,
-    MAX_STRING_LENGTH,      // vvv
+    MAX_STRING_LENGTH,          // vvv
     8192,
-    MAX_STRING_LENGTH * 2,    // Doesn't follow pattern, but frequently used.
+    MAX_STRING_LENGTH * 2,      // Doesn't follow pattern, but frequently used.
     16384,
-    MAX_STRING_LENGTH * 4,     // ^^^
-    32768 - 64
+    MAX_STRING_LENGTH * 4,      // ^^^
+    32768 - 64,
+    65536,
 };
 
 int nAllocString;
@@ -308,6 +309,8 @@ void boot_db()
         load_bans();
         load_songs();
     }
+
+    init_mth();
 
     return;
 }

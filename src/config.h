@@ -34,15 +34,56 @@ void load_config();
     DECLARE_OPEN_CFG_FILE(val, append)                                         \
     DECLARE_FILE_EXISTS(val)
 
+#define DECLARE_STR_CONFIG(val)                                                \
+    DECLARE_CONFIG(val, const char*)
+
+DECLARE_STR_CONFIG(mud_name)
+
+// Connection configs
+DECLARE_STR_CONFIG(hostname)
+DECLARE_CONFIG(telnet_enabled, bool)
+DECLARE_CONFIG(telnet_port, int)
+DECLARE_CONFIG(tls_enabled, bool)
+DECLARE_CONFIG(tls_port, int)
+DECLARE_STR_CONFIG(keys_dir)
+DECLARE_FILE_CONFIG(cert_file)
+DECLARE_FILE_CONFIG(pkey_file)
+
+// GMCP configs
+DECLARE_CONFIG(gmcp_enabled, bool)
+
+// MCCP configs
+DECLARE_CONFIG(mccp2_enabled, bool)
+DECLARE_CONFIG(mccp3_enabled, bool)
+
+// MSDP configs
+DECLARE_CONFIG(msdp_enabled, bool)
+
+// MSSP configs
+DECLARE_CONFIG(mssp_enabled, bool)
+DECLARE_STR_CONFIG(codebase)
+DECLARE_STR_CONFIG(contact)
+DECLARE_CONFIG(created, int)
+DECLARE_STR_CONFIG(discord)
+DECLARE_STR_CONFIG(icon)
+DECLARE_STR_CONFIG(language)
+DECLARE_STR_CONFIG(location)
+DECLARE_CONFIG(min_age, int)
+DECLARE_STR_CONFIG(website)
+DECLARE_STR_CONFIG(family)
+DECLARE_STR_CONFIG(genre)
+DECLARE_STR_CONFIG(gameplay)
+DECLARE_STR_CONFIG(status)
+DECLARE_STR_CONFIG(subgenre)
 
 // Path configs
-DECLARE_CONFIG(base_dir, const char*)
-DECLARE_CONFIG(area_dir, const char*)
-DECLARE_CONFIG(player_dir, const char*)
-DECLARE_CONFIG(gods_dir, const char*)
-DECLARE_CONFIG(temp_dir, const char*)
-DECLARE_CONFIG(data_dir, const char*)
-DECLARE_CONFIG(progs_dir, const char*)
+DECLARE_STR_CONFIG(base_dir)
+DECLARE_STR_CONFIG(area_dir)
+DECLARE_STR_CONFIG(player_dir)
+DECLARE_STR_CONFIG(gods_dir)
+DECLARE_STR_CONFIG(temp_dir)
+DECLARE_STR_CONFIG(data_dir)
+DECLARE_STR_CONFIG(progs_dir)
 DECLARE_FILE_CONFIG(socials_file)
 DECLARE_FILE_CONFIG(groups_file)
 DECLARE_FILE_CONFIG(skills_file)
@@ -63,15 +104,6 @@ DECLARE_FILE_CONFIG(ban_file)
 DECLARE_FILE_CONFIG(mem_dump_file)
 DECLARE_FILE_CONFIG(mob_dump_file)
 DECLARE_FILE_CONFIG(obj_dump_file)
-
-// Connection configs
-DECLARE_CONFIG(telnet_enabled, bool)
-DECLARE_CONFIG(telnet_port, int)
-DECLARE_CONFIG(tls_enabled, bool)
-DECLARE_CONFIG(tls_port, int)
-DECLARE_CONFIG(keys_dir, const char*)
-DECLARE_FILE_CONFIG(cert_file)
-DECLARE_FILE_CONFIG(pkey_file)
 
 // Game configs
 DECLARE_CONFIG(chargen_custom, bool)

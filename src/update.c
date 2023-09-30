@@ -32,6 +32,7 @@
 #include "act_obj.h"
 #include "act_wiz.h"
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "fight.h"
 #include "handler.h"
@@ -314,9 +315,11 @@ int move_gain(CharData* ch)
             break;
         }
 
-        if (ch->pcdata->condition[COND_HUNGER] == 0) gain /= 2;
+        if (ch->pcdata->condition[COND_HUNGER] == 0) 
+            gain /= 2;
 
-        if (ch->pcdata->condition[COND_THIRST] == 0) gain /= 2;
+        if (ch->pcdata->condition[COND_THIRST] == 0) 
+            gain /= 2;
     }
 
     gain = gain * ch->in_room->heal_rate / 100;
@@ -324,11 +327,14 @@ int move_gain(CharData* ch)
     if (ch->on != NULL && ch->on->item_type == ITEM_FURNITURE)
         gain = gain * ch->on->value[3] / 100;
 
-    if (IS_AFFECTED(ch, AFF_POISON)) gain /= 4;
+    if (IS_AFFECTED(ch, AFF_POISON)) 
+        gain /= 4;
 
-    if (IS_AFFECTED(ch, AFF_PLAGUE)) gain /= 8;
+    if (IS_AFFECTED(ch, AFF_PLAGUE)) 
+        gain /= 8;
 
-    if (IS_AFFECTED(ch, AFF_HASTE) || IS_AFFECTED(ch, AFF_SLOW)) gain /= 2;
+    if (IS_AFFECTED(ch, AFF_HASTE) || IS_AFFECTED(ch, AFF_SLOW)) 
+        gain /= 2;
 
     return UMIN(gain, ch->max_move - ch->move);
 }
@@ -337,10 +343,12 @@ void gain_condition(CharData* ch, int iCond, int value)
 {
     int condition;
 
-    if (value == 0 || IS_NPC(ch) || ch->level >= LEVEL_IMMORTAL) return;
+    if (value == 0 || IS_NPC(ch) || ch->level >= LEVEL_IMMORTAL) 
+        return;
 
     condition = ch->pcdata->condition[iCond];
-    if (condition == -1) return;
+    if (condition == -1) 
+        return;
     ch->pcdata->condition[iCond] = URANGE(0, (int16_t)(condition + value), 48);
 
     if (ch->pcdata->condition[iCond] == 0) {
@@ -363,6 +371,25 @@ void gain_condition(CharData* ch, int iCond, int value)
     return;
 }
 
+static void update_msdp_vars(Descriptor* d)
+{
+    msdp_update_var(d, "ALIGNMENT", "%d", CH(d)->alignment);
+    msdp_update_var(d, "EXPERIENCE", "%d", CH(d)->exp);
+    //msdp_update_var(d, "EXPERIENCE_MAX", "%d", exp_per_level(CH(d)->ch_class, CH(d)->level) - exp_per_level(CH(d)->ch_class, CH(d)->level - 1));
+    msdp_update_var(d, "EXPERIENCE_MAX", "%d", exp_per_level(CH(d), CH(d)->pcdata->points));
+    msdp_update_var(d, "HEALTH", "%d", CH(d)->hit);
+    msdp_update_var(d, "HEALTH_MAX", "%d", CH(d)->max_hit);
+    msdp_update_var(d, "LEVEL", "%d", CH(d)->level);
+    msdp_update_var(d, "MANA", "%d", CH(d)->mana);
+    msdp_update_var(d, "MANA_MAX", "%d", CH(d)->max_mana);
+    //msdp_update_var(d, "MONEY", "%d", CH(d)->gold);
+    msdp_update_var(d, "MONEY", "%f", (float)CH(d)->gold + ((float)CH(d)->silver) / 100.0f);
+    msdp_update_var(d, "MOVEMENT", "%d", CH(d)->move);
+    msdp_update_var(d, "MOVEMENT_MAX", "%d", CH(d)->max_move);
+
+    msdp_send_update(d);
+}
+
 /*
  * Mob autonomous action.
  * This function takes 25% to 35% of ALL Merc cpu time.
@@ -370,96 +397,108 @@ void gain_condition(CharData* ch, int iCond, int value)
  */
 void mobile_update(void)
 {
+    PlayerData* pc_next = NULL;
     CharData* ch = NULL;
     CharData* ch_next = NULL;
     ExitData* pexit = NULL;
     int door;
 
+    for (PlayerData* pc = player_list; pc != NULL; pc = pc_next) {
+        pc_next = pc->next;
+
+        if (!pc->ch || !pc->ch->in_room)
+            continue;
+
+        if (pc->ch->desc && pc->ch->desc->mth->msdp_data
+            && cfg_get_msdp_enabled()) {
+            update_msdp_vars(pc->ch->desc);
+        }
+
     /* Examine all mobs. */
-    for (ch = char_list; ch != NULL; ch = ch_next) {
-        ch_next = ch->next;
+        for (ch = pc->ch->in_room->people; ch != NULL; ch = ch_next) {
+            ch_next = ch->next_in_room;
 
-        if (!IS_NPC(ch) || ch->in_room == NULL || IS_AFFECTED(ch, AFF_CHARM))
-            continue;
+            if (ch == pc->ch || IS_AFFECTED(ch, AFF_CHARM))
+                continue;
 
-        if (ch->in_room->area->empty && !IS_SET(ch->act_flags, ACT_UPDATE_ALWAYS))
-            continue;
+            if (!IS_SET(ch->act_flags, ACT_UPDATE_ALWAYS))
+                continue;
 
-        /* Examine call for special procedure */
-        if (ch->spec_fun != 0) {
-            if ((*ch->spec_fun)(ch)) continue;
-        }
-
-        if (ch->prototype->pShop != NULL) /* give him some gold */
-            if (((int)ch->gold * 100 + (int)ch->silver) < ch->prototype->wealth) {
-                ch->gold
-                    += (int16_t)(ch->prototype->wealth * number_range(1, 20) / 5000000);
-                ch->silver
-                    += (int16_t)(ch->prototype->wealth * number_range(1, 20) / 50000);
+            /* Examine call for special procedure */
+            if (ch->spec_fun != 0) {
+                if ((*ch->spec_fun)(ch)) 
+                    continue;
             }
 
-        /*
-         * Check triggers only if mobile still in default position
-         */
-        if (ch->position == ch->prototype->default_pos) {
-            /* Delay */
-            if (HAS_TRIGGER(ch, TRIG_DELAY)
-                && ch->mprog_delay > 0) {
-                if (--ch->mprog_delay <= 0) {
-                    mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_DELAY);
-                    continue;
+            if (ch->prototype->pShop != NULL) /* give him some gold */
+                if (((int)ch->gold * 100 + (int)ch->silver) < ch->prototype->wealth) {
+                    ch->gold
+                        += (int16_t)(ch->prototype->wealth * number_range(1, 20) / 5000000);
+                    ch->silver
+                        += (int16_t)(ch->prototype->wealth * number_range(1, 20) / 50000);
                 }
-            }
-            if (HAS_TRIGGER(ch, TRIG_RANDOM)) {
-                if (mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_RANDOM))
-                    continue;
-            }
-        }
 
-        /* That's all for sleeping / busy monster, and empty zones */
-        if (ch->position != POS_STANDING) continue;
-
-        /* Scavenge */
-        if (IS_SET(ch->act_flags, ACT_SCAVENGER) && ch->in_room->contents != NULL
-            && number_bits(6) == 0) {
-            ObjectData* obj;
-            ObjectData* obj_best;
-            int max;
-
-            max = 1;
-            obj_best = 0;
-            for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
-                if (CAN_WEAR(obj, ITEM_TAKE) && can_loot(ch, obj)
-                    && obj->cost > max && obj->cost > 0) {
-                    obj_best = obj;
-                    max = obj->cost;
+            /*
+             * Check triggers only if mobile still in default position
+             */
+            if (ch->position == ch->prototype->default_pos) {
+                /* Delay */
+                if (HAS_TRIGGER(ch, TRIG_DELAY)
+                    && ch->mprog_delay > 0) {
+                    if (--ch->mprog_delay <= 0) {
+                        mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_DELAY);
+                        continue;
+                    }
+                }
+                if (HAS_TRIGGER(ch, TRIG_RANDOM)) {
+                    if (mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_RANDOM))
+                        continue;
                 }
             }
 
-            if (obj_best) {
-                obj_from_room(obj_best);
-                obj_to_char(obj_best, ch);
-                act("$n gets $p.", ch, obj_best, NULL, TO_ROOM);
-            }
-        }
+            /* That's all for sleeping / busy monster, and empty zones */
+            if (ch->position != POS_STANDING) continue;
 
-        /* Wander */
-        if (!IS_SET(ch->act_flags, ACT_SENTINEL) && number_bits(3) == 0
-            && (door = number_bits(5)) <= 5
-            && (pexit = ch->in_room->exit[door]) != NULL
-            && pexit->u1.to_room != NULL && !IS_SET(pexit->exit_flags, EX_CLOSED)
-            && !IS_SET(pexit->u1.to_room->room_flags, ROOM_NO_MOB)
-            && (!IS_SET(ch->act_flags, ACT_STAY_AREA)
-                || pexit->u1.to_room->area == ch->in_room->area)
-            && (!IS_SET(ch->act_flags, ACT_OUTDOORS)
-                || !IS_SET(pexit->u1.to_room->room_flags, ROOM_INDOORS))
-            && (!IS_SET(ch->act_flags, ACT_INDOORS)
-                || IS_SET(pexit->u1.to_room->room_flags, ROOM_INDOORS))) {
-            move_char(ch, door, false);
+            /* Scavenge */
+            if (IS_SET(ch->act_flags, ACT_SCAVENGER) && ch->in_room->contents != NULL
+                && number_bits(6) == 0) {
+                ObjectData* obj;
+                ObjectData* obj_best;
+                int max;
+
+                max = 1;
+                obj_best = 0;
+                for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
+                    if (CAN_WEAR(obj, ITEM_TAKE) && can_loot(ch, obj)
+                        && obj->cost > max && obj->cost > 0) {
+                        obj_best = obj;
+                        max = obj->cost;
+                    }
+                }
+
+                if (obj_best) {
+                    obj_from_room(obj_best);
+                    obj_to_char(obj_best, ch);
+                    act("$n gets $p.", ch, obj_best, NULL, TO_ROOM);
+                }
+            }
+
+            /* Wander */
+            if (!IS_SET(ch->act_flags, ACT_SENTINEL) && number_bits(3) == 0
+                && (door = number_bits(5)) <= 5
+                && (pexit = ch->in_room->exit[door]) != NULL
+                && pexit->u1.to_room != NULL && !IS_SET(pexit->exit_flags, EX_CLOSED)
+                && !IS_SET(pexit->u1.to_room->room_flags, ROOM_NO_MOB)
+                && (!IS_SET(ch->act_flags, ACT_STAY_AREA)
+                    || pexit->u1.to_room->area == ch->in_room->area)
+                && (!IS_SET(ch->act_flags, ACT_OUTDOORS)
+                    || !IS_SET(pexit->u1.to_room->room_flags, ROOM_INDOORS))
+                && (!IS_SET(ch->act_flags, ACT_INDOORS)
+                    || IS_SET(pexit->u1.to_room->room_flags, ROOM_INDOORS))) {
+                move_char(ch, door, false);
+            }
         }
     }
-
-    return;
 }
 
 /*
@@ -476,7 +515,8 @@ void char_update(void)
     /* update save counter */
     save_number++;
 
-    if (save_number > 29) save_number = 0;
+    if (save_number > 29)
+        save_number = 0;
 
     for (ch = char_list; ch != NULL; ch = ch_next) {
         AffectData* paf;

@@ -50,7 +50,7 @@ void load_class_table()
     int maxclass = fread_number(fp);
 
     size_t new_size = sizeof(Class) * ((size_t)maxclass + 1);
-    flog("Creating class of length %d, size %zu", maxclass + 1, new_size);
+    logf("Creating class of length %d, size %zu", maxclass + 1, new_size);
 
     if ((class_table = calloc(sizeof(Class), (size_t)maxclass + 1)) == NULL) {
         perror("load_class_table(): Could not allocate class_table!");
@@ -71,7 +71,7 @@ void load_class_table()
         load_struct(fp, U(&tmp_class), class_save_table, U(&class_table[i++]));
 
         if (i == maxclass) {
-            flog("Class table loaded.");
+            logf("Class table loaded.");
             close_file(fp);
             class_count = maxclass;
             class_table[i].name = NULL;

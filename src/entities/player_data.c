@@ -21,76 +21,76 @@ PlayerData* new_player_data()
 {
     int alias;
 
-    static PlayerData pcdata_zero;
-    PlayerData* pcdata;
+    static PlayerData player_zero = { 0 };
+    PlayerData* player;
 
     if (player_free == NULL)
-        pcdata = alloc_perm(sizeof(*pcdata));
+        player = alloc_perm(sizeof(*player));
     else {
-        pcdata = player_free;
+        player = player_free;
         player_free = player_free->next;
     }
 
-    *pcdata = pcdata_zero;
+    *player = player_zero;
 
     for (alias = 0; alias < MAX_ALIAS; alias++) {
-        pcdata->alias[alias] = NULL;
-        pcdata->alias_sub[alias] = NULL;
+        player->alias[alias] = NULL;
+        player->alias_sub[alias] = NULL;
     }
 
-    pcdata->buffer = new_buf();
-    pcdata->learned = new_learned();
-    pcdata->group_known = new_boolarray(skill_group_count);
+    player->buffer = new_buf();
+    player->learned = new_learned();
+    player->group_known = new_boolarray(skill_group_count);
 
-    VALIDATE(pcdata);
-    return pcdata;
+    VALIDATE(player);
+    return player;
 }
 
-void free_player_data(PlayerData* pcdata)
+void free_player_data(PlayerData* player)
 {
     int alias;
 
-    if (!IS_VALID(pcdata))
+    if (!IS_VALID(player))
         return;
 
-    if (pcdata == player_list) {
-        player_list = pcdata->next;
+    if (player == player_list) {
+        player_list = player->next;
     }
     else {
         PlayerData* prev;
 
         for (prev = player_list; prev != NULL; prev = prev->next) {
-            if (prev->next == pcdata) {
-                prev->next = pcdata->next;
+            if (prev->next == player) {
+                prev->next = player->next;
                 break;
             }
         }
 
         if (prev == NULL) {
-            bug("Free_pcdata: pcdata not found.", 0);
+            bug("free_player_data: player_data not found.", 0);
             return;
         }
     }
 
-    free_learned(pcdata->learned);
-    free_boolarray(pcdata->group_known);
-    free_digest(pcdata->pwd_digest);
-    free_color_theme(pcdata->current_theme);
+    free_learned(player->learned);
+    free_boolarray(player->group_known);
+    free_digest(player->pwd_digest);
+    free_color_theme(player->current_theme);
     for (int i = 0; i < MAX_THEMES; ++i)
-        if (pcdata->color_themes[i] != NULL)
-            free_color_theme(pcdata->color_themes[i]);
-    free_string(pcdata->bamfin);
-    free_string(pcdata->bamfout);
-    free_string(pcdata->title);
-    free_buf(pcdata->buffer);
+        if (player->color_themes[i] != NULL)
+            free_color_theme(player->color_themes[i]);
+    free_string(player->bamfin);
+    free_string(player->bamfout);
+    free_string(player->title);
+    free_buf(player->buffer);
 
     for (alias = 0; alias < MAX_ALIAS; alias++) {
-        free_string(pcdata->alias[alias]);
-        free_string(pcdata->alias_sub[alias]);
+        free_string(player->alias[alias]);
+        free_string(player->alias_sub[alias]);
     }
-    INVALIDATE(pcdata);
-    pcdata->next = player_free;
-    player_free = pcdata;
+    INVALIDATE(player);
+    player->next = player_free;
+    player_free = player;
 
     return;
 }

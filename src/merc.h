@@ -107,17 +107,16 @@ typedef void SpellFunc(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/* ea */
-#define MSL MAX_STRING_LENGTH
-#define MIL MAX_INPUT_LENGTH
-
-/*
- * String and memory management parameters.
- */
+// String and memory management parameters.
 #define MAX_KEY_HASH        1024
 #define MAX_STRING_LENGTH   4608
 #define MAX_INPUT_LENGTH    256
 #define PAGELEN             22
+
+#define MSL MAX_STRING_LENGTH
+#define MIL MAX_INPUT_LENGTH
+
+#define INPUT_BUFFER_SIZE   8192
 
 /*
  * Game parameters.
@@ -189,6 +188,8 @@ typedef void SpellFunc(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
 ////////////////////////////////////////////////////////////////////////////////
 
 // main.c
+int get_uptime();
+
 extern bool merc_down;                      // Shutdown
 extern bool wizlock;                        // Game is wizlocked
 extern bool newlock;                        // Game is newlocked

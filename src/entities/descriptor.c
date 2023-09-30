@@ -11,7 +11,7 @@ Descriptor* descriptor_list = NULL;
 
 void free_descriptor(Descriptor* d)
 {
-    if (!IS_VALID(d))
+    if (d == NULL)
         return;
 
     if (d->client) {

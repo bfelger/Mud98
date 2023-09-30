@@ -16,6 +16,8 @@ HelpData* help_first;
 HelpData* help_last;
 HelpArea* help_area_list;
 
+int top_help;
+
 HelpArea* new_help_area()
 {
     HelpArea* had;
