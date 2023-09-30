@@ -23,7 +23,7 @@
 
 #define RAEDIT( fun )		bool fun( CharData *ch, char *argument )
 
-extern Race xRace;
+Race xRace;
 
 #ifdef U
 #define OLD_U U

@@ -13,7 +13,7 @@
 
 #define CEDIT(fun)      bool fun(CharData *ch, char *argument)
 
-extern Class xClass;
+Class xClass;
 
 #ifdef U
 #define OLD_U U

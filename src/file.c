@@ -58,7 +58,10 @@ FILE* open_append_file(const char* filename)
         return NULL;
     }
     #ifdef _MSC_VER
-        int rc = _setmode(_fileno(fp), _O_BINARY);
+    if (_setmode(_fileno(fp), _O_BINARY) < 0) {
+        fprintf(stderr, "Couldn't set binary mode on '%s'.\n", filename);
+        fprintf(stderr, "File may have improper CRLF line endings.\n");
+    }
     #endif
     ++open_files;
     return fp;
@@ -87,7 +90,10 @@ FILE* open_write_file(const char* filename)
         return NULL;
     }
 #ifdef _MSC_VER
-    int rc = _setmode(_fileno(fp), _O_BINARY);
+    if (_setmode(_fileno(fp), _O_BINARY) < 0) {
+        fprintf(stderr, "Couldn't set binary mode on '%s'.\n", filename);
+        fprintf(stderr, "File may have improper CRLF line endings.\n");
+    }
 #endif
     ++open_files;
     return fp;

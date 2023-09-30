@@ -91,7 +91,6 @@ typedef enum editor_t {
     ED_HELP     = 13,
 } EditorType;
 
-
 /*
  * Interpreter Prototypes
  */
@@ -179,6 +178,17 @@ extern const OlcCmd gedit_table[];
 extern const OlcCmd hedit_table[];
 extern const OlcCmd cedit_table[];
 
+// Dummy objects needed for calc'ing field offsets
+extern Class xClass;
+extern CmdInfo xCmd;
+extern MobProgCode xProg;
+extern MobPrototype xMob;
+extern ObjectPrototype xObj;
+extern Race xRace;
+extern RoomData xRoom;
+extern Skill xSkill;
+extern Social xSoc;
+
 /*
  * Editor Commands.
  */
@@ -211,7 +221,6 @@ DECLARE_OLC_FUN(aedit_create);
 DECLARE_OLC_FUN(aedit_name);
 DECLARE_OLC_FUN(aedit_file);
 DECLARE_OLC_FUN(aedit_age);
-/* DECLARE_OLC_FUN( aedit_recall	);       ROM OLC */
 DECLARE_OLC_FUN(aedit_reset);
 DECLARE_OLC_FUN(aedit_security);
 DECLARE_OLC_FUN(aedit_builder);
@@ -404,16 +413,11 @@ DECLARE_ED_FUN(ed_objrecval);
 #define EDIT_PROG(ch, code)	    ( code = (MobProgCode*)ch->desc->pEdit )
 #define EDIT_CLASS(ch, class_)  ( class_ = (Class*)ch->desc->pEdit )
 
-
 void show_liqlist(CharData* ch);
 void show_poslist(CharData* ch);
 void show_damlist(CharData* ch);
 void show_sexlist(CharData* ch);
 void show_sizelist(CharData* ch);
-
-extern RoomData xRoom;
-extern MobPrototype xMob;
-extern ObjectPrototype xObj;
 
 extern void InitScreen(Descriptor*);
 
