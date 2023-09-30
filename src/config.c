@@ -190,6 +190,10 @@
 #define DEFAULT_PLAYER_DIR          "player/"
 #define DEFAULT_GODS_DIR            "gods/"
 
+// Gameplay Defaults
+#define DEFAULT_CHARGEN_CUSTOM      true
+#define DEFAULT_DEFAULT_RECALL      3001
+
 DEFINE_STR_CONFIG(mud_name,         DEFAULT_MUD_NAME)
 
 // Connnection Info
@@ -260,7 +264,8 @@ DEFINE_FILE_CONFIG(mob_dump_file,   temp_dir,   DEFAULT_MOB_DUMP_FILE)
 DEFINE_FILE_CONFIG(obj_dump_file,   temp_dir,   DEFAULT_OBJ_DUMP_FILE)
 
 // Gameplay Configs
-DEFINE_CONFIG(chargen_custom,       bool,       true)
+DEFINE_CONFIG(chargen_custom,       bool,       DEFAULT_CHARGEN_CUSTOM)
+DEFINE_CONFIG(default_recall,       int,        DEFAULT_DEFAULT_RECALL)
 
 #pragma GCC diagnostic pop
 
@@ -355,6 +360,7 @@ const ConfigEntry config_entries[] = {
 
     // Gameplay
     { "chargen_custom", CFG_BOOL,       U(cfg_set_chargen_custom)   },
+    { "default_recall", CFG_INT,        U(cfg_set_default_recall)   },
     { "",               0,              0                           },
 };
 

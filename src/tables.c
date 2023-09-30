@@ -340,6 +340,7 @@ const struct flag_type room_flag_table[] = {
     { "newbies_only",   ROOM_NEWBIES_ONLY,  true    },
     { "law",            ROOM_LAW,           true    },
     { "nowhere",        ROOM_NOWHERE,       true    },
+    { "recall",         ROOM_RECALL,        true    },
     { NULL,             0,                  0       }
 };
 
@@ -359,21 +360,28 @@ const struct flag_type sector_flag_table[] = {
 };
 
 const struct flag_type type_flag_table[] = {
+    { "none",           ITEM_NONE,          false   },
     { "light",          ITEM_LIGHT,         true    },
     { "scroll",         ITEM_SCROLL,        true    },
     { "wand",           ITEM_WAND,          true    },
     { "staff",          ITEM_STAFF,         true    },
     { "weapon",         ITEM_WEAPON,        true    },
+    { "reserved",       ITEM_NONE,          false   },
+    { "reserved",       ITEM_NONE,          false   },
     { "treasure",       ITEM_TREASURE,      true    },
     { "armor",          ITEM_ARMOR,         true    },
     { "potion",         ITEM_POTION,        true    },
+    { "clothing",       ITEM_CLOTHING,      true    },
     { "furniture",      ITEM_FURNITURE,     true    },
     { "trash",          ITEM_TRASH,         true    },
+    { "reserved",       ITEM_NONE,          false   },
     { "container",      ITEM_CONTAINER,     true    },
+    { "reserved",       ITEM_NONE,          false   },
     { "drinkcontainer", ITEM_DRINK_CON,     true    },
     { "key",            ITEM_KEY,           true    },
     { "food",           ITEM_FOOD,          true    },
     { "money",          ITEM_MONEY,         true    },
+    { "reserved",       ITEM_NONE,          false   },
     { "boat",           ITEM_BOAT,          true    },
     { "npccorpse",      ITEM_CORPSE_NPC,    true    },
     { "pc_corpse",      ITEM_CORPSE_PC,     false   },

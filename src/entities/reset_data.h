@@ -41,6 +41,18 @@ typedef struct reset_data_t {
 void free_reset_data(ResetData* pReset);
 ResetData* new_reset_data();
 
+//#define ADD_AFF_DATA(t, aff)                                                   \
+//    if (!t->affected) {                                                        \
+//        t->affected = aff;                                                     \
+//    }                                                                          \
+//    else {                                                                     \
+//        AffectData* i = t->affected;                                           \
+//        while (i->next != NULL)                                                \
+//            i = i->next;                                                       \
+//        i->next = aff;                                                         \
+//    }                                                                          \
+//    aff->next = NULL;
+
 extern int top_reset;
 
 #endif // !MUD98__ENTITIES__RESET_DATA_H

@@ -8,6 +8,7 @@
 #include "data/skill.h"
 
 #include "color.h"
+#include "config.h"
 #include "db.h"
 #include "digest.h"
 #include "recycle.h"
@@ -41,6 +42,8 @@ PlayerData* new_player_data()
     player->buffer = new_buf();
     player->learned = new_learned();
     player->group_known = new_boolarray(skill_group_count);
+
+    player->recall = cfg_get_default_recall();
 
     VALIDATE(player);
     return player;

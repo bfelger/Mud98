@@ -63,6 +63,7 @@ typedef struct player_data_t {
     time_t last_news;
     time_t last_changes;
     unsigned int pwd_digest_len;
+    VNUM recall;
     int security;                           // OLC Builder Security
     LEVEL last_level;
     SKNUM* learned;

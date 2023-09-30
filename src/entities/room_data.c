@@ -54,7 +54,8 @@ RoomData* get_room_data(VNUM vnum)
 
     for (pRoomIndex = room_index_hash[vnum % MAX_KEY_HASH]; pRoomIndex != NULL;
         pRoomIndex = pRoomIndex->next) {
-        if (pRoomIndex->vnum == vnum) return pRoomIndex;
+        if (pRoomIndex->vnum == vnum) 
+            return pRoomIndex;
     }
 
     if (fBootDb) {

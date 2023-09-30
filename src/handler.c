@@ -947,9 +947,10 @@ static void update_mdsp_room(CharData* ch)
         if ((pexit = ch->in_room->exit[door]) != NULL
             && pexit->u1.to_room != NULL
             && (can_see_room(ch, pexit->u1.to_room)
-                || (IS_AFFECTED(ch, AFF_INFRARED)
+                || (IS_AFFECTED(ch, AFF_INFRARED) 
                     && !IS_AFFECTED(ch, AFF_BLIND)))) {
-            cat_sprintf(exits, "\001%s\002%d", dir_list[door].name_abbr, pexit->u1.to_room->vnum);
+            cat_sprintf(exits, "\001%s\002%d", dir_list[door].name_abbr, 
+                pexit->u1.to_room->vnum);
         }
     }
     cat_sprintf(exits, "%c", MSDP_ARRAY_CLOSE);
@@ -977,7 +978,9 @@ void char_to_room(CharData* ch, RoomData* room)
 
         bug("Char_to_room: NULL.", 0);
 
-        if ((temple = get_room_data(ROOM_VNUM_TEMPLE)) != NULL)
+        VNUM recall = IS_NPC(ch) ? cfg_get_default_recall() : ch->pcdata->recall;
+
+        if ((temple = get_room_data(recall)) != NULL)
             char_to_room(ch, temple);
 
         return;
@@ -1067,9 +1070,12 @@ void obj_from_char(ObjectData* obj)
         return;
     }
 
-    if (obj->wear_loc != WEAR_UNHELD) unequip_char(ch, obj);
+    if (obj->wear_loc != WEAR_UNHELD) 
+        unequip_char(ch, obj);
 
-    if (ch->carrying == obj) { ch->carrying = obj->next_content; }
+    if (ch->carrying == obj) { 
+        ch->carrying = obj->next_content; 
+    }
     else {
         ObjectData* prev;
 
@@ -1080,7 +1086,8 @@ void obj_from_char(ObjectData* obj)
             }
         }
 
-        if (prev == NULL) bug("Obj_from_char: obj not in list.", 0);
+        if (prev == NULL) 
+            bug("Obj_from_char: obj not in list.", 0);
     }
 
     obj->carried_by = NULL;

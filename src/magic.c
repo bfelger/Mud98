@@ -3920,9 +3920,10 @@ void spell_word_of_recall(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
     CharData* victim = (CharData*)vo;
     RoomData* location;
 
-    if (IS_NPC(victim)) return;
+    if (IS_NPC(victim))
+        return;
 
-    if ((location = get_room_data(ROOM_VNUM_TEMPLE)) == NULL) {
+    if ((location = get_room_data(ch->pcdata->recall)) == NULL) {
         send_to_char("You are completely lost.\n\r", victim);
         return;
     }

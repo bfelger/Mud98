@@ -1739,7 +1739,7 @@ void nanny(Descriptor * d, char* argument)
             char_to_room(ch, get_room_data(ROOM_VNUM_CHAT));
         }
         else {
-            char_to_room(ch, get_room_data(ROOM_VNUM_TEMPLE));
+            char_to_room(ch, get_room_data(ch->pcdata->recall));
         }
 
         act("$n has entered the game.", ch, NULL, NULL, TO_ROOM);
@@ -2034,7 +2034,7 @@ void send_to_desc(const char* txt, Descriptor* desc)
 {
     const char* point;
     char* point2;
-    char temp[MAX_STRING_LENGTH];
+    char temp[MAX_STRING_LENGTH] = { 0 };
     size_t skip = 0;
     int len = 0;
 

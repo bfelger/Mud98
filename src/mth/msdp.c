@@ -24,7 +24,7 @@ void init_msdp_table()
 		{
 			if (*msdp_table[index + 1].name)
 			{
-				log_printf("\033[1;31minit_msdp_table: Improperly sorted variable: %s.\033[0m", msdp_table[index + 1].name);
+				logf("\033[1;31minit_msdp_table: Improperly sorted variable: %s.\033[0m", msdp_table[index + 1].name);
 			}
 		}
 	}
@@ -90,7 +90,7 @@ void msdp_update_var(Descriptor* d, char* var, char* fmt, ...)
 	index = msdp_find(var);
 
 	if (index == -1) {
-		log_printf("msdp_update_var: Unknown variable: %s.", var);
+		logf("msdp_update_var: Unknown variable: %s.", var);
 		return;
 	}
 
@@ -122,7 +122,7 @@ void msdp_update_var_instant(Descriptor* d, char* var, char* fmt, ...)
 	index = msdp_find(var);
 
 	if (index == -1) {
-		log_printf("msdp_update_var_instant: Unknown variable: %s.", var);
+		logf("msdp_update_var_instant: Unknown variable: %s.", var);
 
 		return;
 	}
@@ -189,7 +189,7 @@ char* msdp_get_var(Descriptor* d, char* var)
 	index = msdp_find(var);
 
 	if (index == -1) {
-		log_printf("msdp_get_var: Unknown variable: %s.", var);
+		logf("msdp_get_var: Unknown variable: %s.", var);
 		return NULL;
 	}
 
@@ -203,8 +203,6 @@ void process_msdp_index_val(Descriptor* d, int var_index, char* val)
 	int val_index;
 
 	val_index = msdp_find(val);
-
-//	log_printf("process_msdp_index_val(%d, %d, %s)", var_index, val_index, val);
 
 	if (val_index >= 0) {
 		if (msdp_table[var_index].fun) {
@@ -285,7 +283,6 @@ void process_msdp_varval(Descriptor* d, char* var, char* val)
 
 	if (HAS_BIT(msdp_table[var_index].flags, MSDP_FLAG_COMMAND)) {
 		if (*val == MSDP_ARRAY_OPEN) {
-//			log_printf("msdp_varval: %s array %s.", var, val);
 
 			process_msdp_array(d, var_index, val);
 		}

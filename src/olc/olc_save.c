@@ -544,14 +544,22 @@ void save_rooms(FILE* fp, AreaData* pArea)
                 fprintf(fp, "%s ", fwrite_flag(pRoomIndex->room_flags, buf));
                 fprintf(fp, "%d\n", pRoomIndex->sector_type);
 
-                for (pEd = pRoomIndex->extra_desc; pEd;
-                    pEd = pEd->next) {
+                for (pEd = pRoomIndex->extra_desc; pEd; pEd = pEd->next) {
                     fprintf(fp, "E\n%s~\n%s~\n", pEd->keyword,
                         fix_string(pEd->description));
                 }
 
-                for (i = 0; i < DIR_MAX; i++) {
+                // Put randomized rooms back in their original place to reduce
+                // file deltas on save.
+                ExitData* ex_to_save[DIR_MAX] = { NULL };
+                for (i = 0; i < DIR_MAX; ++i) {
                     if ((pExit = pRoomIndex->exit[i]) == NULL)
+                        continue;
+                    ex_to_save[pExit->orig_dir] = pExit;
+                }
+
+                for (i = 0; i < DIR_MAX; i++) {
+                    if ((pExit = ex_to_save[i]) == NULL)
                         continue;
 
                     if (pExit->u1.to_room) {
@@ -574,7 +582,8 @@ void save_rooms(FILE* fp, AreaData* pArea)
                         fprintf(fp, "D%d\n", pExit->orig_dir);
                         fprintf(fp, "%s~\n", fix_string(pExit->description));
                         fprintf(fp, "%s~\n", pExit->keyword);
-                        fprintf(fp, "%d %d %"PRVNUM"\n", locks,
+                        fprintf(fp, "%d %d %"PRVNUM"\n", 
+                            locks,
                             pExit->key,
                             pExit->u1.to_room->vnum);
                     }

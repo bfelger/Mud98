@@ -117,6 +117,18 @@ void free_affect(AffectData* af);
 bool is_affected(CharData* ch, SKNUM sn);
 AffectData* new_affect();
 
+#define ADD_AFF_DATA(t, aff)                                                   \
+    if (!t->affected) {                                                        \
+        t->affected = aff;                                                     \
+    }                                                                          \
+    else {                                                                     \
+        AffectData* i = t->affected;                                           \
+        while (i->next != NULL)                                                \
+            i = i->next;                                                       \
+        i->next = aff;                                                         \
+    }                                                                          \
+    aff->next = NULL;
+
 extern AffectData* affect_free;
 extern int top_affect;
 

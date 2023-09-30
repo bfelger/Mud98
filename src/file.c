@@ -15,6 +15,7 @@
 #include <direct.h>
 #include <errno.h>
 #include <io.h>
+#include <fcntl.h>
 #define NULL_FILE   "nul"
 #define F_OK 0
 #define access _access
@@ -54,7 +55,11 @@ FILE* open_append_file(const char* filename)
     if ((fp = fopen(filename, "a")) == NULL) {
         fprintf(stderr, "Couldn't open file '%s' for appending.\n", filename);
         open_reserve_file();
+        return NULL;
     }
+    #ifdef _MSC_VER
+        int rc = _setmode(_fileno(fp), _O_BINARY);
+    #endif
     ++open_files;
     return fp;
 }
@@ -66,6 +71,7 @@ FILE* open_read_file(const char* filename)
     if ((fp = fopen(filename, "r")) == NULL) {
         fprintf(stderr, "Couldn't open file '%s' for reading.\n", filename);
         open_reserve_file();
+        return NULL;
     }
     ++open_files;
     return fp;
@@ -78,7 +84,11 @@ FILE* open_write_file(const char* filename)
     if ((fp = fopen(filename, "w")) == NULL) {
         fprintf(stderr, "Couldn't open file '%s' for writing.\n", filename);
         open_reserve_file();
+        return NULL;
     }
+#ifdef _MSC_VER
+    int rc = _setmode(_fileno(fp), _O_BINARY);
+#endif
     ++open_files;
     return fp;
 }
