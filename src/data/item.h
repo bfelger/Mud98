@@ -46,17 +46,22 @@ typedef enum item_type_t {
     ITEM_WAND           = 3,
     ITEM_STAFF          = 4,
     ITEM_WEAPON         = 5,
+    // 6
+    // 7
     ITEM_TREASURE       = 8,
     ITEM_ARMOR          = 9,
     ITEM_POTION         = 10,
     ITEM_CLOTHING       = 11,
     ITEM_FURNITURE      = 12,
     ITEM_TRASH          = 13,
+    // 14
     ITEM_CONTAINER      = 15,
+    // 16
     ITEM_DRINK_CON      = 17,
     ITEM_KEY            = 18,
     ITEM_FOOD           = 19,
     ITEM_MONEY          = 20,
+    // 21
     ITEM_BOAT           = 22,
     ITEM_CORPSE_NPC     = 23,
     ITEM_CORPSE_PC      = 24,
@@ -72,7 +77,8 @@ typedef enum item_type_t {
     ITEM_JUKEBOX        = 34,
 } ItemType;
 
-#define ITEM_TYPE_COUNT 35
+// Add 1 because we started at 
+#define ITEM_TYPE_COUNT 36
 
 typedef struct item_info_t {
     const ItemType type;

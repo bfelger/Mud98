@@ -156,7 +156,7 @@ void fwrite_char(CharData* ch, FILE* fp)
     fprintf(fp, "Id   %d\n", ch->id);
     fprintf(fp, "LogO " TIME_FMT "\n", current_time);
     fprintf(fp, "Vers %d\n", 5);
-    if (ch->short_descr[0] != '\0') fprintf(fp, "ShD  %s~\n", ch->short_descr);
+    if (ch->short_descr[0] != '\0')fprintf(fp, "ShD  %s~\n", ch->short_descr);
     if (ch->long_descr[0] != '\0') fprintf(fp, "LnD  %s~\n", ch->long_descr);
     if (ch->description[0] != '\0') fprintf(fp, "Desc %s~\n", ch->description);
     if (ch->prompt != NULL || !str_cmp(ch->prompt, "<%hhp %mm %vmv> ")
@@ -175,11 +175,12 @@ void fwrite_char(CharData* ch, FILE* fp)
             ch->pcdata->last_note, ch->pcdata->last_idea, ch->pcdata->last_penalty,
             ch->pcdata->last_news, ch->pcdata->last_changes);
     fprintf(fp, "Scro %d\n", ch->lines);
+    fprintf(fp, "Recall %d\n", ch->pcdata->recall);
     fprintf(fp, "Room %d\n",
             (ch->in_room == get_room_data(ROOM_VNUM_LIMBO)
              && ch->was_in_room != NULL)
                 ? ch->was_in_room->vnum
-            : ch->in_room == NULL ? 3001
+            : ch->in_room == NULL ? ch->pcdata->recall
                                   : ch->in_room->vnum);
 
     fprintf(fp, "HMV  %d %d %d %d %d %d\n", ch->hit, ch->max_hit, ch->mana,
@@ -1018,7 +1019,15 @@ void fread_char(CharData* ch, FILE* fp)
             if (!str_cmp(word, "Room")) {
                 ch->in_room = get_room_data(fread_number(fp));
                 if (ch->in_room == NULL)
-                    ch->in_room = get_room_data(ROOM_VNUM_LIMBO);
+                    ch->in_room = get_room_data(ch->pcdata->recall);
+                fMatch = true;
+                break;
+            }
+
+            if (!str_cmp(word, "Recall")) {
+                ch->pcdata->recall = fread_number(fp);
+                if (ch->in_room == NULL)
+                    ch->in_room = get_room_data(ch->pcdata->recall);
                 fMatch = true;
                 break;
             }
@@ -1110,6 +1119,10 @@ void fread_char(CharData* ch, FILE* fp)
             bug(word, 0);
             fread_to_eol(fp);
         }
+    }
+
+    if (ch->in_room == NULL) {
+        ch->in_room = get_room_data(cfg_get_default_recall());
     }
 }
 

@@ -606,7 +606,9 @@ void load_objects(FILE* fp)
             if (letter == 'A') {
                 AffectData* paf;
 
-                paf = alloc_perm(sizeof(*paf));
+                paf = alloc_perm(sizeof(AffectData));
+                if (paf == NULL)
+                    exit(1);
                 paf->where = TO_OBJECT;
                 paf->type = -1;
                 paf->level = obj_proto->level;
@@ -614,15 +616,16 @@ void load_objects(FILE* fp)
                 paf->location = (int16_t)fread_number(fp);
                 paf->modifier = (int16_t)fread_number(fp);
                 paf->bitvector = 0;
-                paf->next = obj_proto->affected;
-                obj_proto->affected = paf;
+                ADD_AFF_DATA(obj_proto, paf)
                 top_affect++;
             }
 
             else if (letter == 'F') {
                 AffectData* paf;
 
-                paf = alloc_perm(sizeof(*paf));
+                paf = alloc_perm(sizeof(AffectData));
+                if (paf == NULL)
+                    exit(1);
                 letter = fread_letter(fp);
                 switch (letter) {
                 case 'A':
@@ -647,19 +650,19 @@ void load_objects(FILE* fp)
                 paf->location = (int16_t)fread_number(fp);
                 paf->modifier = (int16_t)fread_number(fp);
                 paf->bitvector = fread_flag(fp);
-                paf->next = obj_proto->affected;
-                obj_proto->affected = paf;
+                ADD_AFF_DATA(obj_proto, paf)
                 top_affect++;
             }
 
             else if (letter == 'E') {
                 ExtraDesc* ed;
 
-                ed = alloc_perm(sizeof(*ed));
+                ed = alloc_perm(sizeof(ExtraDesc));
+                if (ed == NULL)
+                    exit(1);
                 ed->keyword = fread_string(fp);
                 ed->description = fread_string(fp);
-                ed->next = obj_proto->extra_desc;
-                obj_proto->extra_desc = ed;
+                ADD_EXTRA_DESC(obj_proto, ed)
                 top_ed++;
             }
 

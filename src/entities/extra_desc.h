@@ -22,4 +22,16 @@ void free_extra_desc(ExtraDesc* ed);
 char* get_extra_desc(const char* name, ExtraDesc* ed);
 ExtraDesc* new_extra_desc();
 
+#define ADD_EXTRA_DESC(t, ed)                                                  \
+    if (!t->extra_desc) {                                             \
+        t->extra_desc = ed;                                           \
+    }                                                                          \
+    else {                                                                     \
+        ExtraDesc* i = t->extra_desc;                                 \
+        while (i->next != NULL)                                                \
+            i = i->next;                                                       \
+        i->next = ed;                                                          \
+    }                                                                          \
+    ed->next = NULL;
+
 #endif // !MUD98__ENTITIES__EXTRA_DESC_H

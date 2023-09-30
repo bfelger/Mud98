@@ -107,5 +107,6 @@ DECLARE_FILE_CONFIG(obj_dump_file)
 
 // Game configs
 DECLARE_CONFIG(chargen_custom, bool)
+DECLARE_CONFIG(default_recall, int)
 
 #endif // !MUD98__CONFIG_H

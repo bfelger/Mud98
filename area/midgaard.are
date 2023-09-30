@@ -4841,7 +4841,7 @@ mound upon which the temple is built and ends on the temple square below.
 SCHOOL.  (type 'up' to go to MUD SCHOOL.)  A small plaque is on this wall.
 ~
 0
-CDS 0
+CDSU 0
 E
 plaque~
 This entire world has been integrated, modified, debugged, and enhanced by

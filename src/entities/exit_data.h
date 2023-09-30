@@ -47,6 +47,18 @@ typedef struct exit_data_t {
 void free_exit(ExitData* pExit);
 ExitData* new_exit();
 
+#define ADD_EXIT_DESC(t, ed)                                                  \
+    if (!t->extra_desc) {                                             \
+        t->extra_desc = ed;                                           \
+    }                                                                          \
+    else {                                                                     \
+        ExtraDesc* i = t->extra_desc;                                 \
+        while (i->next != NULL)                                                \
+            i = i->next;                                                       \
+        i->next = ed;                                                          \
+    }                                                                          \
+    ed->next = NULL;
+
 extern int top_exit;
 
 #endif // !MUD98__ENTITIES__EXIT_DATA_H

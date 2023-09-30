@@ -850,7 +850,8 @@ void load_rooms(FILE* fp)
             SET_BIT(pRoomIndex->room_flags, ROOM_LAW);
         pRoomIndex->sector_type = (int16_t)fread_number(fp);
         pRoomIndex->light = 0;
-        for (door = 0; door <= 5; door++) pRoomIndex->exit[door] = NULL;
+        for (door = 0; door < DIR_MAX; door++)
+            pRoomIndex->exit[door] = NULL;
 
         /* defaults */
         pRoomIndex->heal_rate = 100;
@@ -880,7 +881,7 @@ void load_rooms(FILE* fp)
                 int locks;
 
                 door = fread_number(fp);
-                if (door < 0 || door > 5) {
+                if (door < 0 || door >= DIR_MAX) {
                     bug("Fread_rooms: vnum %"PRVNUM" has bad door number.", vnum);
                     exit(1);
                 }
@@ -919,12 +920,12 @@ void load_rooms(FILE* fp)
             }
             else if (letter == 'E') {
                 ExtraDesc* ed;
-
-                ed = alloc_perm(sizeof(*ed));
+                ed = alloc_perm(sizeof(ExtraDesc));
+                if (ed == NULL)
+                    exit(1);
                 ed->keyword = fread_string(fp);
                 ed->description = fread_string(fp);
-                ed->next = pRoomIndex->extra_desc;
-                pRoomIndex->extra_desc = ed;
+                ADD_EXTRA_DESC(pRoomIndex, ed)
                 top_ed++;
             }
 
@@ -1106,7 +1107,7 @@ void fix_exits(void)
             }
 
             fexit = false;
-            for (door = 0; door <= 5; door++) {
+            for (door = 0; door < DIR_MAX; door++) {
                 if ((pexit = pRoomIndex->exit[door]) != NULL) {
                     if (pexit->u1.vnum <= 0
                         || get_room_data(pexit->u1.vnum) == NULL)
@@ -1117,7 +1118,8 @@ void fix_exits(void)
                     }
                 }
             }
-            if (!fexit) SET_BIT(pRoomIndex->room_flags, ROOM_NO_MOB);
+            if (!fexit)
+                SET_BIT(pRoomIndex->room_flags, ROOM_NO_MOB);
         }
     }
 
@@ -2162,7 +2164,9 @@ void* alloc_perm(size_t sMem)
     static size_t iMemPerm;
     void* pMem;
 
-    while (sMem % sizeof(long) != 0) sMem++;
+    while (sMem % sizeof(long) != 0) 
+        sMem++;
+
     if (sMem > MAX_PERM_BLOCK) {
         bug("Alloc_perm: %zu too large.", sMem);
         exit(1);
@@ -2180,6 +2184,7 @@ void* alloc_perm(size_t sMem)
     iMemPerm += sMem;
     nAllocPerm += 1;
     sAllocPerm += sMem;
+
     return pMem;
 }
 

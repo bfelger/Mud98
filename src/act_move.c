@@ -28,6 +28,7 @@
 #include "act_move.h"
 
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "fight.h"
 #include "handler.h"
@@ -1411,14 +1412,34 @@ void do_recall(CharData* ch, char* argument)
         return;
     }
 
+    if (!str_cmp(argument, "set") && ch->pcdata) {
+        if (IS_SET(ch->in_room->room_flags, ROOM_RECALL)) {
+            printf_to_char(ch, "Your recall point is now set to %s.\n",
+                ch->in_room->name);
+            ch->pcdata->recall = ch->in_room->vnum;
+        }
+        else {
+            send_to_char("You can't use this location as your recall point.\n", ch);
+        }
+        return;
+    }
+
     act("$n prays for transportation!", ch, 0, 0, TO_ROOM);
 
-    if ((location = get_room_data(ROOM_VNUM_TEMPLE)) == NULL) {
+    VNUM recall = cfg_get_default_recall();
+
+    if (IS_NPC(ch) && IS_SET(ch->act_flags, ACT_PET) && !IS_NPC(ch->master))
+        recall = ch->master->pcdata->recall;
+    else if (!IS_NPC(ch))
+        recall = ch->pcdata->recall;
+
+    if ((location = get_room_data(recall)) == NULL) {
         send_to_char("You are completely lost.\n\r", ch);
         return;
     }
 
-    if (ch->in_room == location) return;
+    if (ch->in_room == location) 
+        return;
 
     if (IS_SET(ch->in_room->room_flags, ROOM_NO_RECALL)
         || IS_AFFECTED(ch, AFF_CURSE)) {
@@ -1468,13 +1489,15 @@ void do_train(CharData* ch, char* argument)
     char* pOutput = NULL;
     int cost;
 
-    if (IS_NPC(ch)) return;
+    if (IS_NPC(ch))
+        return;
 
     /*
      * Check for trainer.
      */
     for (mob = ch->in_room->people; mob; mob = mob->next_in_room) {
-        if (IS_NPC(mob) && IS_SET(mob->act_flags, ACT_TRAIN)) break;
+        if (IS_NPC(mob) && IS_SET(mob->act_flags, ACT_TRAIN)) 
+            break;
     }
 
     if (mob == NULL) {

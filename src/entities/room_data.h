@@ -22,7 +22,7 @@ typedef struct room_data_t RoomData;
 // Well-known room IDs
 #define ROOM_VNUM_LIMBO         2
 #define ROOM_VNUM_CHAT          1200
-#define ROOM_VNUM_TEMPLE        3001
+//#define ROOM_VNUM_TEMPLE      3001    -- Use ROOM_RECALL flag instead
 #define ROOM_VNUM_ALTAR         3054
 #define ROOM_VNUM_SCHOOL        3700
 #define ROOM_VNUM_BALANCE       4500
@@ -46,6 +46,7 @@ typedef enum room_flags_t {
     ROOM_NEWBIES_ONLY   = BIT(17),
     ROOM_LAW            = BIT(18),
     ROOM_NOWHERE        = BIT(19),
+    ROOM_RECALL         = BIT(20),
 } RoomFlags;
 
 // Sector
