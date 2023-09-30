@@ -25,7 +25,7 @@
 
 #define MPEDIT( fun )           bool fun(CharData *ch, char*argument)
 
-extern MobProgCode xProg;
+MobProgCode xProg;
 
 DECLARE_OLC_FUN(pedit_create);
 DECLARE_OLC_FUN(pedit_show);

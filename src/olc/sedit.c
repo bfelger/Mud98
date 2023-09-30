@@ -42,7 +42,7 @@
 
 #define SEDIT(fun) bool fun(CharData *ch, char *argument)
 
-extern Social xSoc;
+Social xSoc;
 
 int maxSocial; /* max number of socials */
 

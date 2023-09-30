@@ -39,7 +39,7 @@ const CmdEntry cmd_list[] = {
     {	NULL,		NULL		}
 };
 
-extern CmdInfo xCmd;
+CmdInfo xCmd;
 
 #ifdef U
 #define OLD_U U

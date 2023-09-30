@@ -13,22 +13,22 @@ const ItemInfo item_table[ITEM_TYPE_COUNT] = {
     { ITEM_WAND,            "wand"          },
     { ITEM_STAFF,           "staff"         },
     { ITEM_WEAPON,          "weapon"        },
-    { ITEM_NONE,            "reserved"      },
-    { ITEM_NONE,            "reserved"      },
+    { ITEM_NONE,            ""              },
+    { ITEM_NONE,            ""              },
     { ITEM_TREASURE,        "treasure"      },
     { ITEM_ARMOR,           "armor"         },
     { ITEM_POTION,          "potion"        },
     { ITEM_CLOTHING,        "clothing"      },
     { ITEM_FURNITURE,       "furniture"     },
     { ITEM_TRASH,           "trash"         },
-    { ITEM_NONE,            "reserved"      },
+    { ITEM_NONE,            ""              },
     { ITEM_CONTAINER,       "container"     },
-    { ITEM_NONE,            "reserved"      },
+    { ITEM_NONE,            ""              },
     { ITEM_DRINK_CON,       "drink"         },
     { ITEM_KEY,             "key"           },
     { ITEM_FOOD,            "food"          },
     { ITEM_MONEY,           "money"         },
-    { ITEM_NONE,            "reserved"      },
+    { ITEM_NONE,            ""              },
     { ITEM_BOAT,            "boat"          },
     { ITEM_CORPSE_NPC,      "npc_corpse"    },
     { ITEM_CORPSE_PC,       "pc_corpse"     },
@@ -95,3 +95,66 @@ const WeaponInfo weapon_table[WEAPON_TYPE_COUNT] = {
     { WEAPON_WHIP,      "whip",         &gsn_whip,      OBJ_VNUM_SCHOOL_WHIP    },
     { WEAPON_POLEARM,   "polearm",      &gsn_polearm,   OBJ_VNUM_SCHOOL_POLEARM },
 };
+
+struct wear_type {
+    WearLocation wear_loc;
+    WearFlags wear_bit;
+};
+
+const struct wear_type wear_table[] = {
+    { WEAR_UNHELD,      ITEM_TAKE           },
+    { WEAR_LIGHT,       ITEM_TAKE           },
+    { WEAR_FINGER_L,    ITEM_WEAR_FINGER    },
+    { WEAR_FINGER_R,    ITEM_WEAR_FINGER    },
+    { WEAR_NECK_1,      ITEM_WEAR_NECK      },
+    { WEAR_NECK_2,      ITEM_WEAR_NECK      },
+    { WEAR_BODY,        ITEM_WEAR_BODY      },
+    { WEAR_HEAD,        ITEM_WEAR_HEAD      },
+    { WEAR_LEGS,        ITEM_WEAR_LEGS      },
+    { WEAR_FEET,        ITEM_WEAR_FEET      },
+    { WEAR_HANDS,       ITEM_WEAR_HANDS     },
+    { WEAR_ARMS,        ITEM_WEAR_ARMS      },
+    { WEAR_SHIELD,      ITEM_WEAR_SHIELD    },
+    { WEAR_ABOUT,       ITEM_WEAR_ABOUT     },
+    { WEAR_WAIST,       ITEM_WEAR_WAIST     },
+    { WEAR_WRIST_L,     ITEM_WEAR_WRIST     },
+    { WEAR_WRIST_R,     ITEM_WEAR_WRIST     },
+    { WEAR_WIELD,       ITEM_WIELD          },
+    { WEAR_HOLD,        ITEM_HOLD           },
+    { NO_FLAG,          NO_FLAG             }
+};
+
+/*****************************************************************************
+ Name:          wear_bit
+ Purpose:       Converts a wear_loc into a bit.
+ Called by:     redit_oreset (redit.c).
+ ****************************************************************************/
+WearFlags wear_bit(WearLocation loc)
+{
+    int flag;
+
+    for (flag = 0; wear_table[flag].wear_loc != NO_FLAG; flag++) {
+        if (loc == wear_table[flag].wear_loc)
+            return wear_table[flag].wear_bit;
+    }
+
+    return 0;
+}
+
+/*****************************************************************************
+ Name:          wear_loc
+ Purpose:       Returns the location of the bit that matches the count.
+                1 = first match, 2 = second match etc.
+ Called by:     oedit_reset (oedit.c).
+ ****************************************************************************/
+WearLocation wear_loc(WearFlags bits, int count)
+{
+    int flag;
+
+    for (flag = 0; wear_table[flag].wear_bit != NO_FLAG; flag++) {
+        if (IS_SET(bits, wear_table[flag].wear_bit) && --count < 1)
+            return wear_table[flag].wear_loc;
+    }
+
+    return NO_FLAG;
+}

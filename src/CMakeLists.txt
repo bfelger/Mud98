@@ -129,10 +129,10 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     spell_list.h tables.c tablesave.c tests.h tests.c update.h update.c 
     weather.h weather.c wizutil.v3.c
 
-    olc/bit.h olc/bit.c olc/cedit.c olc/cmdedit.c olc/gedit.c olc/hedit.c 
-    olc/olc.h olc/olc.c olc/olc_act.c olc/olc_save.c olc/pedit.c olc/raedit.c 
-    olc/screen.h olc/screen.c olc/sedit.c olc/skedit.c olc/string_edit.h 
-    olc/string_edit.c
+    olc/aedit.c olc/bit.h olc/bit.c olc/cedit.c olc/cmdedit.c olc/gedit.c 
+    olc/hedit.c olc/medit.c olc/oedit.c olc/olc.h olc/olc.c olc/olc_act.c 
+    olc/olc_save.c olc/pedit.c olc/raedit.c olc/redit.c olc/screen.h 
+    olc/screen.c olc/sedit.c olc/skedit.c olc/string_edit.h olc/string_edit.c
 
     mth/mth.h mth/msdp.c mth/mth.c mth/telopt.c
     

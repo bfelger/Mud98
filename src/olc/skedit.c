@@ -42,7 +42,7 @@ const struct gsn_type gsn_table[] = {
     { NULL, NULL }
 };
 
-extern Skill xSkill;
+Skill xSkill;
 
 #ifdef U
 #define OLD_U U

@@ -898,6 +898,10 @@ void fread_char(CharData* ch, FILE* fp)
                     ch->mana += (ch->max_mana - ch->mana) * percent / 100;
                     ch->move += (ch->max_move - ch->move) * percent / 100;
                 }
+
+                if (ch->in_room == NULL) {
+                    ch->in_room = get_room_data(ch->pcdata->recall);
+                }
                 return;
             }
             KEY("Exp", ch->exp, fread_number(fp));
@@ -1018,16 +1022,12 @@ void fread_char(CharData* ch, FILE* fp)
 
             if (!str_cmp(word, "Room")) {
                 ch->in_room = get_room_data(fread_number(fp));
-                if (ch->in_room == NULL)
-                    ch->in_room = get_room_data(ch->pcdata->recall);
                 fMatch = true;
                 break;
             }
 
             if (!str_cmp(word, "Recall")) {
                 ch->pcdata->recall = fread_number(fp);
-                if (ch->in_room == NULL)
-                    ch->in_room = get_room_data(ch->pcdata->recall);
                 fMatch = true;
                 break;
             }
@@ -1047,15 +1047,13 @@ void fread_char(CharData* ch, FILE* fp)
             if (!str_cmp(word, "Skill") || !str_cmp(word, "Sk")) {
                 SKNUM sn;
                 int16_t value;
-                char* temp;
+                char* skill;
 
                 value = (int16_t)fread_number(fp);
-                temp = fread_word(fp);
-                sn = skill_lookup(temp);
-                /* sn    = skill_lookup( fread_word( fp ) ); */
+                skill = fread_word(fp);
+                sn = skill_lookup(skill);
                 if (sn < 0) {
-                    fprintf(stderr, "%s", temp);
-                    bug("Fread_char: unknown skill. ", 0);
+                    bug("fread_char: unknown skill '%s'. ", skill);
                 }
                 else
                     ch->pcdata->learned[sn] = value;
@@ -1119,10 +1117,6 @@ void fread_char(CharData* ch, FILE* fp)
             bug(word, 0);
             fread_to_eol(fp);
         }
-    }
-
-    if (ch->in_room == NULL) {
-        ch->in_room = get_room_data(cfg_get_default_recall());
     }
 }
 
