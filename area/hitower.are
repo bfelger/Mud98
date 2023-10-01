@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name High Tower~
-Builders None~
+Builders Skylar~
 VNUMs 1300 1499
-Credits {10 30} Skylar  High Tower of Sorcery~
+Credits [10 30] Skylar  High Tower of Sorcery~
 Security 9
-Low 0
-High 0
-Version 1
+Low 10
+High 30
 End
 
 
@@ -3440,7 +3440,7 @@ door iron~
 1 -1 1378
 D2
 ~
-door ~
+door~
 1 -1 1382
 D4
 ~

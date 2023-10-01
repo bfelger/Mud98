@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Holy Grove~
-Builders None~
+Builders Alfa~
 VNUMs 8900 8999
-Credits { 5 20} Alfa    Holy Grove~
+Credits [ 5 20] Alfa    Holy Grove~
 Security 9
-Low 0
-High 0
-Version 1
+Low 5
+High 20
 End
 
 

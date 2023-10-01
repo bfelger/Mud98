@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Mahn-Tor~
-Builders None~
+Builders Chris~
 VNUMs 2300 2399
-Credits { 5 35} Chris   The Keep of Mahn-Tor~
+Credits [ 5 35] Chris   The Keep of Mahn-Tor~
 Security 9
-Low 0
-High 0
-Version 1
+Low 5
+High 35
 End
 
 
@@ -680,7 +680,7 @@ A
 13 25
 #2312
 cape white billowing silk~
-a billowing white cape ~
+a billowing white cape~
 A pile of white silk lies here.~
 oldstyle~
 armor AG AC

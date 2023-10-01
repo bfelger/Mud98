@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Olympus~
-Builders None~
+Builders Generic~
 VNUMs 900 999
-Credits { 5 50} Generic Olympus~
+Credits [ 5 50] Generic Olympus~
 Security 9
-Low 0
-High 0
-Version 1
+Low 5
+High 50
 End
 
 

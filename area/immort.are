@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Valhalla~
-Builders None~
+Builders ROM~
 VNUMs 1200 1299
-Credits {51 60} ROM     Immortal Zone~
+Credits [51 60] ROM     Immortal Zone~
 Security 9
-Low 0
-High 0
-Version 1
+Low 51
+High 60
 End
 
 
@@ -121,7 +121,7 @@ If you want to know what is up there, you shall have to go look...
 0 -1 1
 S
 #1204
-Priscilla's Pleasure Palace ~
+Priscilla's Pleasure Palace~
 As you look around you, you see the largest collection of erotic toys
 in the world!!!  On a table in the middle of the room lies a book titled :
 "All You Ever Wanted to Know About Sex..But Were Afraid to Ask"

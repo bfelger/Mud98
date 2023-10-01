@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Plains~
-Builders None~
+Builders Copper~
 VNUMs 300 399
-Credits { 1 20} Copper  Plains of the North~
+Credits [ 1 20] Copper  Plains of the North~
 Security 9
-Low 0
-High 0
-Version 1
+Low 1
+High 20
 End
 
 

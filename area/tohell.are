@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Hell~
-Builders None~
+Builders Strahd~
 VNUMs 10400 10599
-Credits {32 51} Strahd  Descent to Hell~
+Credits [32 51] Strahd  Descent to Hell~
 Security 9
-Low 0
-High 0
-Version 1
+Low 32
+High 51
 End
 
 

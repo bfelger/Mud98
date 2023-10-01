@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Mega City One~
-Builders None~
+Builders Glop~
 VNUMs 8000 8099
-Credits { 5 35} Glop    Mega-City One ~
+Credits [ 5 35] Glop    Mega-City One~
 Security 9
-Low 0
-High 0
-Version 1
+Low 5
+High 35
 End
 
 
@@ -722,7 +722,7 @@ A large plaza is to the west.
 0 0 8006
 S
 #8013
-Ed Hilldreth Memorial Parkway ~
+Ed Hilldreth Memorial Parkway~
 The Parkway goes east and west.
 ~
 0

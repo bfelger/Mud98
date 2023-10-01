@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Smurfville~
-Builders None~
+Builders Generic~
 VNUMs 100 199
-Credits { 1 10} Generic Smurf Village~
+Credits [ 1 10] Generic Smurf Village~
 Security 9
-Low 0
-High 0
-Version 1
+Low 1
+High 10
 End
 
 

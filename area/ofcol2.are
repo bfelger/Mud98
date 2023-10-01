@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name New Ofcol~
-Builders None~
+Builders Hatchet~
 VNUMs 600 699
-Credits { 5 35} Hatchet New Ofcol~
+Credits [ 5 35] Hatchet New Ofcol~
 Security 9
-Low 0
-High 0
-Version 1
+Low 5
+High 35
 End
 
 

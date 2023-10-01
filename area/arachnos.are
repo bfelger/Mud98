@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Arachnos~
-Builders None~
+Builders Mahatma~
 VNUMs 6200 6399
-Credits { 5 20} Mahatma Arachnos~
+Credits [ 5 20] Mahatma Arachnos~
 Security 9
-Low 0
-High 0
-Version 1
+Low 5
+High 20
 End
 
 

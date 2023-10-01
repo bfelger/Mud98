@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Chapel~
-Builders None~
+Builders Copper~
 VNUMs 3400 3499
-Credits {15 25} Copper  Chapel Catacombs~
+Credits [15 25] Copper  Chapel Catacombs~
 Security 9
-Low 0
-High 0
-Version 1
+Low 15
+High 25
 End
 
 

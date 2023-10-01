@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Moria~
-Builders None~
+Builders Alfa~
 VNUMs 3900 4199
-Credits { 5 15} Alfa    Moria~
+Credits [ 5 15] Alfa    Moria~
 Security 9
-Low 0
-High 0
-Version 1
+Low 5
+High 15
 End
 
 

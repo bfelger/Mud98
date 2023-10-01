@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Thalos~
-Builders None~
+Builders Drkside~
 VNUMs 5200 5299
-Credits {10 25} Drkside Thalos~
+Credits [10 25] Drkside Thalos~
 Security 9
-Low 0
-High 0
-Version 1
+Low 10
+High 25
 End
 
 
