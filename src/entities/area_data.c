@@ -9,7 +9,7 @@
 
 #include "db.h"
 
-int top_area;
+int area_count;
 AreaData* area_first;
 AreaData* area_last;
 AreaData* area_free;
@@ -21,7 +21,7 @@ AreaData* new_area()
 
     if (!area_free) {
         pArea = alloc_perm(sizeof(*pArea));
-        top_area++;
+        area_count++;
     }
     else {
         pArea = area_free;
@@ -30,7 +30,6 @@ AreaData* new_area()
 
     pArea->next = NULL;
     pArea->name = str_dup("New area");
-/*    pArea->recall           =   ROOM_VNUM_TEMPLE;      ROM OLC */
     pArea->area_flags = AREA_ADDED;
     pArea->security = 1;
     pArea->builders = str_dup("None");
@@ -39,8 +38,8 @@ AreaData* new_area()
     pArea->max_vnum = 0;
     pArea->age = 0;
     pArea->nplayer = 0;
-    pArea->empty = true;              /* ROM patch */
-    pArea->vnum = top_area - 1;
+    pArea->empty = true;
+    pArea->vnum = area_count - 1;
     sprintf(buf, "area%"PRVNUM".are", pArea->vnum);
     pArea->file_name = str_dup(buf);
 

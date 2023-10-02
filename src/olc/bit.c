@@ -115,7 +115,7 @@ FLAGS flag_value(const struct flag_type* flag_table, char* argument)
      * Accept multiple flags.
      */
     for (; ;) {
-        argument = one_argument(argument, word);
+        READ_ARG(word);
 
         if (word[0] == '\0')
             break;

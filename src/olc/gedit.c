@@ -37,7 +37,7 @@ void gedit(CharData* ch, char* argument)
     int cmd;
 
     strcpy(arg, argument);
-    argument = one_argument(argument, command);
+    READ_ARG(command);
 
     if (ch->pcdata->security < MIN_SKEDIT_SECURITY) {
         send_to_char("GEdit: You do not have enough security to edit groups.\n\r", ch);
@@ -91,7 +91,7 @@ void do_gedit(CharData* ch, char* argument)
         return;
     }
 
-    argument = one_argument(argument, command);
+    READ_ARG(command);
 
     if ((group = group_lookup(command)) == -1) {
         send_to_char("GEdit : That group does not exist\n\r", ch);
@@ -180,7 +180,7 @@ GEDIT(gedit_rating)
 
     EDIT_GROUP(ch, pGrp);
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (IS_NULLSTR(argument) || IS_NULLSTR(arg) || !is_number(argument)) {
         send_to_char("Syntax : rating [class] [cost]\n\r", ch);
@@ -219,7 +219,7 @@ GEDIT(gedit_spell)
         return false;
     }
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (!str_cmp(arg, "new")) {
         for (i = 0; !IS_NULLSTR(pGrp->skills[i]) && (i < MAX_IN_GROUP); ++i)

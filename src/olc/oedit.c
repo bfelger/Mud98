@@ -69,7 +69,7 @@ void do_oedit(CharData* ch, char* argument)
     if (IS_NPC(ch) || ch->desc == NULL)
         return;
 
-    argument = one_argument(argument, arg1);
+    READ_ARG(arg1);
 
     if (is_number(arg1)) {
         value = atoi(arg1);
@@ -671,7 +671,7 @@ OEDIT(oedit_show)
     AffectData* paf;
     int cnt;
 
-    argument = one_argument(argument, buf);
+    READ_ARG(buf);
 
     if (IS_NULLSTR(buf)) {
         if (ch->desc->editor == ED_OBJECT)
@@ -783,7 +783,7 @@ OEDIT(oedit_addaffect)
 
     EDIT_OBJ(ch, pObj);
 
-    argument = one_argument(argument, loc);
+    READ_ARG(loc);
     one_argument(argument, mod);
 
     if (loc[0] == '\0' || mod[0] == '\0' || !is_number(mod)) {
@@ -832,9 +832,9 @@ OEDIT(oedit_addapply)
         goto oedit_addapply_cleanup;
     }
 
-    argument = one_argument(argument, BUF(type));
-    argument = one_argument(argument, BUF(loc));
-    argument = one_argument(argument, BUF(mod));
+    READ_ARG(BUF(type));
+    READ_ARG(BUF(loc));
+    READ_ARG(BUF(mod));
     one_argument(argument, BUF(bvector));
 
     if (BUF(type)[0] == '\0' || (typ = flag_value(apply_types, BUF(type))) == NO_FLAG) {
@@ -1063,9 +1063,9 @@ ED_FUN_DEC(ed_addapply)
         goto ed_addapply_cleanup;
     }
 
-    argument = one_argument(argument, BUF(type));
-    argument = one_argument(argument, BUF(loc));
-    argument = one_argument(argument, BUF(mod));
+    READ_ARG(BUF(type));
+    READ_ARG(BUF(loc));
+    READ_ARG(BUF(mod));
     one_argument(argument, BUF(bvector));
 
     if (BUF(type)[0] == '\0' || (typ = flag_value(apply_types, BUF(type))) == NO_FLAG) {

@@ -6,6 +6,7 @@
 
 #include "bit.h"
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "handler.h"
 #include "lookup.h"
@@ -44,7 +45,8 @@ const OlcCmdEntry race_olc_comm_table[] = {
     { "part",       U(&xRace.parts),    ed_flag_toggle,     U(part_flag_table)  },
     { "who",        U(&xRace.who_name), ed_line_string,     0               },
     { "points",     U(&xRace.points),   ed_number_s_pos,    0               },
-    { "amult",      0,                  ed_olded,           U(raedit_amult) },
+    { "start_loc",  0,                  ed_olded,           U(raedit_start_loc) },
+    { "cmult",      0,                  ed_olded,           U(raedit_cmult) },
     { "stats",      0,                  ed_olded,           U(raedit_stats) },
     { "maxstats",   0,                  ed_olded,           U(raedit_maxstats)},
     { "skills",     0,                  ed_olded,           U(raedit_skills)},
@@ -104,7 +106,7 @@ void do_raedit(CharData* ch, char* argument)
     one_argument(argument, arg);
 
     if (!str_cmp(arg, "new")) {
-        argument = one_argument(argument, arg);
+        READ_ARG(arg);
         if (raedit_new(ch, argument))
             save_race_table();
         return;
@@ -120,6 +122,8 @@ void do_raedit(CharData* ch, char* argument)
     ch->desc->pEdit = U(pRace);
     ch->desc->editor = ED_RACE;
 
+    raedit_show(ch, "");
+
     return;
 }
 
@@ -132,27 +136,41 @@ RAEDIT(raedit_show)
 
     EDIT_RACE(ch, pRace);
 
-    printf_to_char(ch, "Name        : [%s]\n\r", pRace->name);
-    printf_to_char(ch, "PC race?    : [%s]\n\r", pRace->pc_race ? "YES" : " NO");
-    printf_to_char(ch, "Act         : [%s]\n\r", flag_string(act_flag_table, pRace->act_flags));
-    printf_to_char(ch, "Aff         : [%s]\n\r", flag_string(affect_flag_table, pRace->aff));
-    printf_to_char(ch, "Off         : [%s]\n\r", flag_string(off_flag_table, pRace->off));
-    printf_to_char(ch, "Imm         : [%s]\n\r", flag_string(imm_flag_table, pRace->imm));
-    printf_to_char(ch, "Res         : [%s]\n\r", flag_string(res_flag_table, pRace->res));
-    printf_to_char(ch, "Vuln        : [%s]\n\r", flag_string(vuln_flag_table, pRace->vuln));
-    printf_to_char(ch, "Form        : [%s]\n\r", flag_string(form_flag_table, pRace->form));
-    printf_to_char(ch, "Parts       : [%s]\n\r", flag_string(part_flag_table, pRace->parts));
-    printf_to_char(ch, "Points      : [%10d] Size   : [%-10.10s]\n\r",
-        pRace->points, mob_size_table[pRace->size].name);
+    RoomData* room = NULL;
+    if (pRace->start_loc > 0)
+        room = get_room_data(pRace->start_loc);
 
-    send_to_char("Name      CMu Exp       Name      CMu Exp       Name      CMu Exp\n\r", ch);
+    printf_to_char(ch, "Name        : {|[{*%s{|]{x\n\r", pRace->name);
+    printf_to_char(ch, "PC race?    : {|[%s{|]{x\n\r", pRace->pc_race ? "{GYES" : "{RNO");
+    printf_to_char(ch, "Act         : {|[{*%s{|]{x\n\r", flag_string(act_flag_table, pRace->act_flags));
+    printf_to_char(ch, "Aff         : {|[{*%s{|]{x\n\r", flag_string(affect_flag_table, pRace->aff));
+    printf_to_char(ch, "Off         : {|[{*%s{|]{x\n\r", flag_string(off_flag_table, pRace->off));
+    printf_to_char(ch, "Imm         : {|[{*%s{|]{x\n\r", flag_string(imm_flag_table, pRace->imm));
+    printf_to_char(ch, "Res         : {|[{*%s{|]{x\n\r", flag_string(res_flag_table, pRace->res));
+    printf_to_char(ch, "Vuln        : {|[{*%s{|]{x\n\r", flag_string(vuln_flag_table, pRace->vuln));
+    printf_to_char(ch, "Form        : {|[{*%s{|]{x\n\r", flag_string(form_flag_table, pRace->form));
+    printf_to_char(ch, "Parts       : {|[{*%s{|]{x\n\r", flag_string(part_flag_table, pRace->parts));
+    printf_to_char(ch, "Points      : {|[{*%d{|]{x\n\r", pRace->points);
+    printf_to_char(ch, "Size        : {|[{*%s{|]{x\n\r", mob_size_table[pRace->size].name);
+    printf_to_char(ch, "Start Loc   : {|[{*%d{|] {_%s %s{x\n\r",
+        pRace->start_loc,
+        room ? room->name : "",
+        cfg_get_start_loc_by_race() ? "" : " {G(not used)");
+    printf_to_char(ch, "{T    Class      XPmult  XP/lvl(pts)   Start Loc{x\n\r");
     for (i = 0; i < class_count; ++i) {
-        sprintf(buf, "%-7.7s   %3d %4d(%3d)%s",
+        VNUM vnum = GET_ELEM(&pRace->class_start, i);
+        
+        if (vnum > 0)
+            room = get_room_data(vnum);
+        sprintf(buf, "    %-7.7s     %3d     %4d{|({*%3d{|){x    {|[{*%5d{|] {_%s %s{x\n\r",
             capitalize(class_table[i].name),
             GET_ELEM(&pRace->class_mult, i),
             race_exp_per_level(pRace->race_id, i, get_points(pRace->race_id, i)),
             get_points(pRace->race_id, i),
-            i % 3 == 2 ? "\n\r" : " ");
+            vnum, 
+            room ? room->name : "",
+            cfg_get_start_loc_by_class() && cfg_get_start_loc_by_race() ? "" : " {G(not used)"
+        );
         send_to_char(buf, ch);
     }
     if (i % 3)
@@ -274,7 +292,7 @@ RAEDIT(raedit_new)
     return true;
 }
 
-RAEDIT(raedit_amult)
+RAEDIT(raedit_cmult)
 {
     Race* race;
     ClassMult mult;
@@ -284,11 +302,11 @@ RAEDIT(raedit_amult)
     EDIT_RACE(ch, race);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax : amult [class] [multiplier]\n\r", ch);
+        send_to_char("Syntax : cmult [class] [multiplier]\n\r", ch);
         return false;
     }
 
-    argument = one_argument(argument, class_name);
+    READ_ARG(class_name);
 
     if ((class_ = class_lookup(class_name)) == -1) {
         send_to_char("RAEdit : That class does not exist.\n\r", ch);
@@ -325,7 +343,7 @@ RAEDIT(raedit_stats)
         return false;
     }
 
-    argument = one_argument(argument, stat);
+    READ_ARG(stat);
 
     vstat = flag_value(stat_table, stat);
 
@@ -364,7 +382,7 @@ RAEDIT(raedit_maxstats)
         return false;
     }
 
-    argument = one_argument(argument, stat);
+    READ_ARG(stat);
 
     vstat = flag_value(stat_table, stat);
 
@@ -404,7 +422,7 @@ RAEDIT(raedit_skills)
         return false;
     }
 
-    argument = one_argument(argument, snum);
+    READ_ARG(snum);
 
     if (!is_number(snum)) {
         send_to_char("RAEdit : Invalid number.\n\r", ch);
@@ -427,6 +445,38 @@ RAEDIT(raedit_skills)
 
     free_string(race->skills[num]);
     race->skills[num] = str_dup(argument);
+    send_to_char("Ok.\n\r", ch);
+    return true;
+}
+
+RAEDIT(raedit_start_loc)
+{
+    static const char* help = "Syntax : {*START_LOC <ROOM VNUM>{x\n\r\n\r";
+    Race* race;
+    char vnum_str[MIL];
+    VNUM room_vnum = -1;
+
+    EDIT_RACE(ch, race);
+
+    if (IS_NULLSTR(argument)) {
+        send_to_char(help, ch);
+        return false;
+    }
+
+    READ_ARG(vnum_str);
+
+    if (!is_number(vnum_str)) {
+        send_to_char(help, ch);
+        return false;
+    }
+
+    room_vnum = (VNUM)atoi(vnum_str);
+
+    if (room_vnum > 0 && !get_room_data(room_vnum)) {
+        send_to_char("{jThat is not a valid room VNUM.\n\r", ch);
+    }
+
+    race->start_loc = room_vnum;
     send_to_char("Ok.\n\r", ch);
     return true;
 }

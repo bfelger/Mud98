@@ -333,6 +333,18 @@ void load_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, con
                         break;
                     }
 
+                case FIELD_STARTLOC_DYNARRAY: {
+                        ARRAY(StartLoc)* a = (ARRAY(StartLoc)*)(temp->field_ptr - base_type + pointer);
+                        INIT_ARRAY(*a, StartLoc);
+
+                        while (str_cmp((string = fread_word(fp)), "@")) {
+                            StartLoc* p_i = CREATE_ELEM(*a);
+                            *p_i = (StartLoc)atoi(string);
+                        }
+                        found = true, cnt++;
+                        break;
+                    }
+
                 } // switch
                 if (found == true)
                     break;
@@ -492,6 +504,17 @@ void save_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, con
                 fprintf(fp, "@\n");
                 break;
             }
+
+        case FIELD_STARTLOC_DYNARRAY: {
+                ARRAY(StartLoc)* a = (ARRAY(StartLoc)*)(temp->field_ptr - base_type + pointer);
+                fprintf(fp, "%s ", temp->field_name);
+                for (size_t j = 0; j < a->count; j++)
+                    fprintf(fp, "%d ", a->elems[j]);
+                fprintf(fp, "@\n");
+                break;
+            }
+
+            // END SWITCH
         }
 
         cnt++;

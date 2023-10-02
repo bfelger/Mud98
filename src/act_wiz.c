@@ -209,8 +209,8 @@ void do_guild(CharData* ch, char* argument)
     CharData* victim;
     int clan;
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
 
     if (arg1[0] == '\0' || arg2[0] == '\0') {
         send_to_char("Syntax: guild <char> <cln name>\n\r", ch);
@@ -575,8 +575,8 @@ void do_pardon(CharData* ch, char* argument)
     char arg2[MAX_INPUT_LENGTH];
     CharData* victim;
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
 
     if (arg1[0] == '\0' || arg2[0] == '\0') {
         send_to_char("Syntax: pardon <character> <killer|thief>.\n\r", ch);
@@ -685,7 +685,7 @@ void do_pecho(CharData* ch, char* argument)
     char arg[MAX_INPUT_LENGTH];
     CharData* victim;
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (argument[0] == '\0' || arg[0] == '\0') {
         send_to_char("Personal echo what?\n\r", ch);
@@ -732,8 +732,8 @@ void do_transfer(CharData* ch, char* argument)
     Descriptor* d;
     CharData* victim;
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
 
     if (arg1[0] == '\0') {
         send_to_char("Transfer whom (and where)?\n\r", ch);
@@ -801,7 +801,7 @@ void do_at(CharData* ch, char* argument)
     ObjectData* on;
     CharData* wch;
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (arg[0] == '\0' || argument[0] == '\0') {
         send_to_char("At where what?\n\r", ch);
@@ -2186,7 +2186,7 @@ void do_load(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (arg[0] == '\0') {
         send_to_char("Syntax:\n\r", ch);
@@ -2243,7 +2243,7 @@ void do_oload(CharData* ch, char* argument)
     ObjectData* obj;
     LEVEL level;
 
-    argument = one_argument(argument, arg1);
+    READ_ARG(arg1);
     one_argument(argument, arg2);
 
     if (arg1[0] == '\0' || !is_number(arg1)) {
@@ -2356,8 +2356,8 @@ void do_advance(CharData* ch, char* argument)
     LEVEL level;
     int iLevel;
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
 
     if (arg1[0] == '\0' || arg2[0] == '\0' || !is_number(arg2)) {
         send_to_char("Syntax: advance <char> <level>.\n\r", ch);
@@ -2436,8 +2436,8 @@ void do_trust(CharData* ch, char* argument)
     CharData* victim;
     LEVEL level;
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
 
     if (arg1[0] == '\0' || arg2[0] == '\0' || !is_number(arg2)) {
         send_to_char("Syntax: trust <char> <level>.\n\r", ch);
@@ -2854,7 +2854,7 @@ void do_set(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (arg[0] == '\0') {
         send_to_char("Syntax:\n\r", ch);
@@ -2898,9 +2898,9 @@ void do_sset(CharData* ch, char* argument)
     SKNUM sn;
     bool fAll;
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
-    argument = one_argument(argument, arg3);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
+    READ_ARG(arg3);
 
     if (arg1[0] == '\0' || arg2[0] == '\0' || arg3[0] == '\0') {
         send_to_char("Syntax:\n\r", ch);
@@ -2964,8 +2964,8 @@ void do_mset(CharData* ch, char* argument)
     int value;
 
     smash_tilde(argument);
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
     strcpy(arg3, argument);
 
     if (arg1[0] == '\0' || arg2[0] == '\0' || arg3[0] == '\0') {
@@ -3304,9 +3304,9 @@ void do_string(CharData* ch, char* argument)
     ObjectData* obj;
 
     smash_tilde(argument);
-    argument = one_argument(argument, type);
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(type);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
     strcpy(arg3, argument);
 
     if (type[0] == '\0' || arg1[0] == '\0' || arg2[0] == '\0'
@@ -3413,7 +3413,7 @@ void do_string(CharData* ch, char* argument)
         if (!str_prefix(arg2, "ed") || !str_prefix(arg2, "extended")) {
             ExtraDesc* ed;
 
-            argument = one_argument(argument, arg3);
+            READ_ARG(arg3);
             if (argument == NULL) {
                 send_to_char("Syntax: oset <object> ed <keyword> <string>\n\r",
                              ch);
@@ -3445,8 +3445,8 @@ void do_oset(CharData* ch, char* argument)
     int value;
 
     smash_tilde(argument);
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
     strcpy(arg3, argument);
 
     if (arg1[0] == '\0' || arg2[0] == '\0' || arg3[0] == '\0') {
@@ -3542,8 +3542,8 @@ void do_rset(CharData* ch, char* argument)
     int value;
 
     smash_tilde(argument);
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
     strcpy(arg3, argument);
 
     if (arg1[0] == '\0' || arg2[0] == '\0' || arg3[0] == '\0') {
@@ -3640,7 +3640,7 @@ void do_force(CharData* ch, char* argument)
     char arg[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (arg[0] == '\0' || argument[0] == '\0') {
         send_to_char("Force whom to do what?\n\r", ch);

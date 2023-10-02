@@ -769,7 +769,7 @@ void do_tell(CharData* ch, char* argument)
         return;
     }
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (arg[0] == '\0' || argument[0] == '\0') {
         send_to_char("Tell whom what?\n\r", ch);
@@ -1391,7 +1391,7 @@ void do_order(CharData* ch, char* argument)
     bool found;
     bool fAll;
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
     one_argument(argument, arg2);
 
     if (!str_cmp(arg2, "delete") || !str_cmp(arg2, "mob")) {
@@ -1543,7 +1543,7 @@ void do_split(CharData* ch, char* argument)
     int16_t share_gold, share_silver;
     int16_t extra_gold, extra_silver;
 
-    argument = one_argument(argument, arg1);
+    READ_ARG(arg1);
     one_argument(argument, arg2);
 
     if (arg1[0] == '\0') {
@@ -1687,7 +1687,7 @@ void do_colour(CharData* ch, char* argument)
         return;
     }
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (!*arg) {
         if (!IS_SET(ch->act_flags, PLR_COLOUR)) {

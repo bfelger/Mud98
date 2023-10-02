@@ -121,7 +121,7 @@ void save_area_list(void)
     AreaData* pArea;
     HelpArea* ha;
 
-    OPEN_OR_RETURN(fp = open_read_area_list());
+    OPEN_OR_RETURN(fp = open_write_area_list());
 
     for (ha = help_area_list; ha; ha = ha->next)
         if (ha->area == NULL)
@@ -948,6 +948,7 @@ void save_area(AreaData* pArea)
     OPEN_OR_RETURN(fp = open_write_file(tmp));
 
     fprintf(fp, "#AREADATA\n");
+    fprintf(fp, "Version %d\n", AREA_VERSION);
     fprintf(fp, "Name %s~\n", pArea->name);
     fprintf(fp, "Builders %s~\n", fix_string(pArea->builders));
     fprintf(fp, "VNUMs %"PRVNUM" %"PRVNUM"\n", pArea->min_vnum, pArea->max_vnum);
@@ -955,7 +956,6 @@ void save_area(AreaData* pArea)
     fprintf(fp, "Security %d\n", pArea->security);
     fprintf(fp, "Low %d\n", pArea->low_range);
     fprintf(fp, "High %d\n", pArea->high_range);
-    fprintf(fp, "Version 1\n");
     fprintf(fp, "End\n\n\n\n");
 
     save_mobiles(fp, pArea);
@@ -1064,6 +1064,7 @@ void do_asave(CharData* ch, char* argument)
 
             save_area(pArea);
             REMOVE_BIT(pArea->area_flags, AREA_CHANGED);
+            REMOVE_BIT(pArea->area_flags, AREA_ADDED);
         }
 
         save_other_helps(ch);

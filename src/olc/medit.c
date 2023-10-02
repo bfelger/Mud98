@@ -83,7 +83,7 @@ void do_medit(CharData* ch, char* argument)
     if (IS_NPC(ch) || ch->desc == NULL)
         return;
 
-    argument = one_argument(argument, arg1);
+    READ_ARG(arg1);
 
     if (is_number(arg1)) {
         value = atoi(arg1);
@@ -177,7 +177,7 @@ MEDIT(medit_show)
     int cnt;
     Buffer* buffer;
 
-    argument = one_argument(argument, buf);
+    READ_ARG(buf);
 
     if (IS_NULLSTR(buf)) {
         if (ch->desc->editor == ED_MOBILE)
@@ -391,7 +391,7 @@ MEDIT(medit_group)
         return true;
     }
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (!strcmp(arg, "show") && is_number(argument)) {
         if (atoi(argument) == 0) {
@@ -562,8 +562,8 @@ ED_FUN_DEC(ed_shop)
     char command[MAX_INPUT_LENGTH];
     char arg1[MAX_INPUT_LENGTH];
 
-    argument = one_argument(argument, command);
-    argument = one_argument(argument, arg1);
+    READ_ARG(command);
+    READ_ARG(arg1);
 
     if (command[0] == '\0') {
         send_to_char("Syntax : {*shop hours [open] [close]\n\r", ch);
@@ -716,16 +716,16 @@ ED_FUN_DEC(ed_ac)
     {
         if (emptystring(argument))  break;
 
-        argument = one_argument(argument, blarg);
+        READ_ARG(blarg);
 
         if (!is_number(blarg))  break;
         pierce = (int16_t)atoi(blarg);
-        argument = one_argument(argument, blarg);
+        READ_ARG(blarg);
 
         if (blarg[0] != '\0') {
             if (!is_number(blarg))  break;
             bash = (int16_t)atoi(blarg);
-            argument = one_argument(argument, blarg);
+            READ_ARG(blarg);
         }
         else
             bash = pMob->ac[AC_BASH];
@@ -733,7 +733,7 @@ ED_FUN_DEC(ed_ac)
         if (blarg[0] != '\0') {
             if (!is_number(blarg))  break;
             slash = (int16_t)atoi(blarg);
-            argument = one_argument(argument, blarg);
+            READ_ARG(blarg);
         }
         else
             slash = pMob->ac[AC_SLASH];
@@ -771,8 +771,8 @@ ED_FUN_DEC(ed_addprog)
     char trigger[MAX_STRING_LENGTH];
     char numb[MAX_STRING_LENGTH];
 
-    argument = one_argument(argument, numb);
-    argument = one_argument(argument, trigger);
+    READ_ARG(numb);
+    READ_ARG(trigger);
 
     if (!is_number(numb) || trigger[0] == '\0' || argument[0] == '\0') {
         send_to_char("Syntax:   addmprog [vnum] [trigger] [phrase]\n\r", ch);

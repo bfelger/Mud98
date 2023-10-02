@@ -36,6 +36,8 @@ const OlcCmdEntry room_olc_comm_table[] = {
     { "mana",	    U(&xRoom.mana_rate),	ed_number_s_pos,	0		        },
     { "owner",	    U(&xRoom.owner),		ed_line_string,		0		        },
     { "roomflags",	U(&xRoom.room_flags),	ed_flag_toggle,		U(room_flag_table)	},
+    { "flags",	    U(&xRoom.room_flags),	ed_flag_toggle,		U(room_flag_table)	},
+    { "room_flags",	U(&xRoom.room_flags),	ed_flag_toggle,		U(room_flag_table)	},
     { "clan",	    U(&xRoom.clan),		    ed_int16lookup,		U(clan_lookup)	},
     { "sector",	    U(&xRoom.sector_type),	ed_flag_set_sh,		U(sector_flag_table)},
     { "north",	    0,				        ed_direction,		DIR_NORTH	    },
@@ -72,7 +74,7 @@ void do_redit(CharData* ch, char* argument)
     RoomData* pRoom;
     char arg1[MIL];
 
-    argument = one_argument(argument, arg1);
+    READ_ARG(arg1);
 
     pRoom = ch->in_room;
 
@@ -122,6 +124,8 @@ void do_redit(CharData* ch, char* argument)
     }
 
     set_editor(ch->desc, ED_ROOM, U(pRoom));
+
+    redit_show(ch, "");
 
     return;
 }
@@ -458,7 +462,7 @@ bool change_exit(CharData* ch, char* argument, Direction door)
     /*
      * Now parse the arguments.
      */
-    argument = one_argument(argument, command);
+    READ_ARG(command);
     one_argument(argument, arg);
 
     if (command[0] == '\0' && argument[0] == '\0')    /* Move command. */
@@ -778,8 +782,8 @@ REDIT(redit_mreset)
 
     EDIT_ROOM(ch, pRoom);
 
-    argument = one_argument(argument, arg);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg);
+    READ_ARG(arg2);
 
     if (arg[0] == '\0' || !is_number(arg)) {
         send_to_char("Syntax:  {*mreset <vnum> <max #x> <min #x>{x\n\r", ch);
@@ -840,8 +844,8 @@ REDIT(redit_oreset)
 
     EDIT_ROOM(ch, pRoom);
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
 
     if (arg1[0] == '\0' || !is_number(arg1)) {
         send_to_char("Syntax:  {*oreset <vnum> <args>{x\n\r", ch);
@@ -1513,13 +1517,13 @@ void do_resets(CharData* ch, char* argument)
     char arg7[MAX_INPUT_LENGTH];
     ResetData* pReset = NULL;
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
-    argument = one_argument(argument, arg3);
-    argument = one_argument(argument, arg4);
-    argument = one_argument(argument, arg5);
-    argument = one_argument(argument, arg6);
-    argument = one_argument(argument, arg7);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
+    READ_ARG(arg3);
+    READ_ARG(arg4);
+    READ_ARG(arg5);
+    READ_ARG(arg6);
+    READ_ARG(arg7);
 
     if (!IS_BUILDER(ch, ch->in_room->area)) {
         send_to_char("Resets: Invalid security for editing this area.\n\r",

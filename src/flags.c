@@ -59,14 +59,14 @@ void do_flag(CharData* ch, char* argument)
     char type;
     const struct flag_type* flag_table;
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
-    argument = one_argument(argument, arg3);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
+    READ_ARG(arg3);
 
     type = argument[0];
 
     if (type == '=' || type == '-' || type == '+')
-        argument = one_argument(argument, word);
+        READ_ARG(word);
 
     if (arg1[0] == '\0') {
         send_to_char("Syntax:\n\r", ch);
@@ -185,7 +185,7 @@ void do_flag(CharData* ch, char* argument)
 
         /* mark the words */
         for (;;) {
-            argument = one_argument(argument, word);
+            READ_ARG(word);
 
             if (word[0] == '\0') break;
 

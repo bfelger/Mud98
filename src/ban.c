@@ -150,8 +150,8 @@ void ban_site(CharData* ch, char* argument, bool fPerm)
     bool prefix = false, suffix = false;
     int type;
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
 
     if (arg1[0] == '\0') {
         if (ban_list == NULL) {

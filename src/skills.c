@@ -251,7 +251,7 @@ void do_spells(CharData* ch, char* argument)
         fAll = true;
 
         if (str_prefix(argument, "all")) {
-            argument = one_argument(argument, arg);
+            READ_ARG(arg);
             if (!is_number(arg)) {
                 send_to_char("Arguments must be numerical or all.\n\r", ch);
                 return;
@@ -266,7 +266,7 @@ void do_spells(CharData* ch, char* argument)
             }
 
             if (argument[0] != '\0') {
-                argument = one_argument(argument, arg);
+                READ_ARG(arg);
                 if (!is_number(arg)) {
                     send_to_char("Arguments must be numerical or all.\n\r", ch);
                     return;
@@ -373,7 +373,7 @@ void do_skills(CharData* ch, char* argument)
         fAll = true;
 
         if (str_prefix(argument, "all")) {
-            argument = one_argument(argument, arg);
+            READ_ARG(arg);
             if (!is_number(arg)) {
                 send_to_char("Arguments must be numerical or all.\n\r", ch);
                 return;
@@ -388,7 +388,7 @@ void do_skills(CharData* ch, char* argument)
             }
 
             if (argument[0] != '\0') {
-                argument = one_argument(argument, arg);
+                READ_ARG(arg);
                 if (!is_number(arg)) {
                     send_to_char("Arguments must be numerical or all.\n\r", ch);
                     return;
@@ -637,7 +637,7 @@ bool parse_gen_groups(CharData* ch, char* argument)
     if (argument[0] == '\0')
         return false;
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (!str_prefix(arg, "help")) {
         if (argument[0] == '\0') {

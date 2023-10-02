@@ -233,7 +233,7 @@ bool show_help(CharData* ch, char* argument)
     char spell[MAX_INPUT_LENGTH];
     int cnt;
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
     one_argument(argument, spell);
 
     /*
@@ -686,7 +686,8 @@ ED_FUN_DEC(ed_flag_set_sh)
         }
     }
 
-    printf_to_char(ch, "Syntax : %s [flags]\n\r", n_fun);
+    printf_to_char(ch, "Syntax : {*%s [flags]{x\n\r", n_fun);
+    show_flags_to_char(ch, (struct flag_type*)par);
 
     return false;
 }
@@ -822,8 +823,8 @@ ED_FUN_DEC(ed_ed)
     char command[MAX_INPUT_LENGTH];
     char keyword[MAX_INPUT_LENGTH];
 
-    argument = one_argument(argument, command);
-    argument = one_argument(argument, keyword);
+    READ_ARG(command);
+    READ_ARG(keyword);
 
     if (command[0] == '\0') {
         send_to_char("Syntax:  {*ed add [keyword]\n\r", ch);
@@ -959,7 +960,7 @@ ED_FUN_DEC(ed_addaffect)
     char loc[MAX_STRING_LENGTH];
     char mod[MAX_STRING_LENGTH];
 
-    argument = one_argument(argument, loc);
+    READ_ARG(loc);
     one_argument(argument, mod);
 
     if (loc[0] == '\0' || mod[0] == '\0' || !is_number(mod)) {

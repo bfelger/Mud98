@@ -125,7 +125,7 @@ void do_sedit(CharData* ch, char* argument)
         return;
     }
 
-    argument = one_argument(argument, command);
+    READ_ARG(command);
 
     if (!str_cmp(command, "new")) {
         if (sedit_new(ch, argument))

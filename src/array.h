@@ -79,7 +79,7 @@
     (((size_t)(idx) < (arr)->count) ? (arr)->elems[(idx)] : (arr)->default_val)
 
 #define SET_ELEM(arr, idx, val)                                                \
-    while ((size_t)idx >= arr.count) {                                                 \
+    while ((size_t)idx >= arr.count) {                                         \
         CREATE_ELEM(arr);                                                      \
     }                                                                          \
     arr.elems[idx] = val;
@@ -90,5 +90,37 @@
     (arr).elems = NULL;                                                        \
     (arr).default_val = default_ ## _Type ## _val;                             \
     (arr).create_func = &new_ ## _Type;
+
+////////////////////////////////////////////////////////////////////////////////
+
+// Generic utilities not necessarily tied to any of the macros above
+
+#define SWAP(a, b, temp)    temp = a; a = b; b = temp;
+#define SORT_ARRAY(Type, arr, arr_len, i_lt_lo_test, i_gt_hi_test)             \
+{                                                                              \
+    int first = 0;                                                             \
+    int last = arr_len - 1;                                                    \
+    Type temp;                                                                 \
+    while (first < last) {                                                     \
+        int hi = last;                                                         \
+        int lo = first;                                                        \
+        for (int i = first; i <= last; ++i) {                                  \
+            if (i_lt_lo_test)                                                  \
+                lo = i;                                                        \
+            if (i_gt_hi_test)                                                  \
+                hi = i;                                                        \
+        }                                                                      \
+        if (hi != last) {                                                      \
+            SWAP(arr[hi], arr[last], temp)                                     \
+            if (lo == last)                                                    \
+                lo = hi;                                                       \
+        }                                                                      \
+        if (lo != first) {                                                     \
+            SWAP(arr[lo], arr[first], temp)                                    \
+        }                                                                      \
+        --last;                                                                \
+        ++first;                                                               \
+    }                                                                          \
+}
 
 #endif // !MUD98__ARRAY_H

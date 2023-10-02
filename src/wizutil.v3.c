@@ -251,7 +251,7 @@ void do_rename(CharData* ch, char* argument)
 
     CharData* victim;
 
-    argument = one_argument(argument, old_name); /* find new/old name */
+    READ_ARG(old_name); /* find new/old name */
     one_argument(argument, new_name);
 
     /* Trivial checks */
@@ -421,7 +421,7 @@ void do_for(CharData* ch, char* argument)
     CharData* p_next = NULL;
     int i;
 
-    argument = one_argument(argument, range);
+    READ_ARG(range);
 
     /* invalid usage? */
     if (!range[0] || !argument[0]) {

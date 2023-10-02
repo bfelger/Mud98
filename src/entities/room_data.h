@@ -19,12 +19,12 @@ typedef struct room_data_t RoomData;
 
 #include "data/direction.h"
 
-// Well-known room IDs
+// Static room VNUMs
 #define ROOM_VNUM_LIMBO         2
 #define ROOM_VNUM_CHAT          1200
 //#define ROOM_VNUM_TEMPLE      3001    -- Use ROOM_RECALL flag instead
 #define ROOM_VNUM_ALTAR         3054
-#define ROOM_VNUM_SCHOOL        3700
+//#define ROOM_VNUM_SCHOOL      3700    -- Set by config/race/class
 #define ROOM_VNUM_BALANCE       4500
 #define ROOM_VNUM_CIRCLE        4400
 #define ROOM_VNUM_DEMISE        4201

@@ -100,7 +100,7 @@ typedef struct mud_data {
     int boot_time;
     int port;
     int total_plr;
-    int top_area;
+    int area_count;
     int top_help;
     int top_mob_index;
     int top_obj_index;

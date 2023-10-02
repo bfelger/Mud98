@@ -56,7 +56,7 @@ void do_scan(CharData* ch, char* argument)
     ExitData* pExit;
     int16_t door, depth;
 
-    argument = one_argument(argument, arg1);
+    READ_ARG(arg1);
 
     if (arg1[0] == '\0') {
         act("$n looks all around.", ch, NULL, NULL, TO_ROOM);

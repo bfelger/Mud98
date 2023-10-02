@@ -120,7 +120,7 @@ void do_alias(CharData* ch, char* argument)
 
     if (IS_NPC(rch)) return;
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (arg[0] == '\0') {
         if (rch->pcdata->alias[0] == NULL) {
@@ -208,7 +208,7 @@ void do_unalias(CharData* ch, char* argument)
 
     if (IS_NPC(rch)) return;
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (arg[0] == '\0') {
         send_to_char("Unalias what?\n\r", ch);
