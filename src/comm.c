@@ -1449,7 +1449,7 @@ void nanny(Descriptor * d, char* argument)
         one_argument(argument, arg);
 
         if (!strcmp(arg, "help")) {
-            argument = one_argument(argument, arg);
+            READ_ARG(arg);
             if (argument[0] == '\0')
                 do_function(ch, &do_help, "race help");
             else
@@ -1727,7 +1727,33 @@ void nanny(Descriptor * d, char* argument)
             do_function(ch, &do_outfit, "");
             obj_to_char(create_object(get_object_prototype(OBJ_VNUM_MAP), 0), ch);
 
-            char_to_room(ch, get_room_data(ROOM_VNUM_SCHOOL));
+            VNUM start_loc = 0;
+
+            // Do we look at racial start locations?
+            if (cfg_get_start_loc_by_race()) {
+                Race* p_race = &race_table[ch->race];
+
+                // Do we also look at classes?
+                if (cfg_get_start_loc_by_class()) {
+                    VNUM race_class_loc = GET_ELEM(&(p_race->class_start), ch->ch_class);
+                    if (race_class_loc > 0)
+                        start_loc = race_class_loc;
+                }
+
+                // Was there a special start location for the race/class combo?
+                // If not, load racial default.
+                if (start_loc == 0)
+                    start_loc = p_race->start_loc;
+            }
+            else if (cfg_get_start_loc_by_class()) {
+                start_loc = class_table[ch->ch_class].start_loc;
+            }
+
+            // No race or class start locations were available.
+            if (start_loc == 0)
+                start_loc = cfg_get_default_start_loc();
+
+            char_to_room(ch, get_room_data(start_loc));
             send_to_char("\n\r", ch);
             do_function(ch, &do_help, "newbie info");
             send_to_char("\n\r", ch);

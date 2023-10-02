@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Troll Den~
-Builders None~
+Builders ~
 VNUMs 2800 2899
-Credits {10 15} Merc    Troll Den~
+Credits Merc~
 Security 9
-Low 0
-High 0
-Version 1
+Low 10
+High 15
 End
 
 

@@ -83,7 +83,7 @@ void do_pedit(CharData* ch, char* argument)
         return;
     }
 
-    argument = one_argument(argument, command);
+    READ_ARG(command);
 
     if (is_number(command)) {
         AreaData* pArea;

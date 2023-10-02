@@ -153,7 +153,7 @@ void do_cmdedit(CharData* ch, char* argument)
         return;
     }
 
-    argument = one_argument(argument, command);
+    READ_ARG(command);
 
     if (!str_cmp(command, "new")) {
         if (cmdedit_new(ch, argument))
@@ -267,7 +267,7 @@ CMDEDIT(cmdedit_list)
     char arg[MIL], arg2[MIL];
     int minlev, maxlev;
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (IS_NULLSTR(arg) || !is_name(arg, "commands functions")) {
         send_to_char("Syntax : list [commands/functions] [min level] [max level]\n\r", ch);
@@ -278,7 +278,7 @@ CMDEDIT(cmdedit_list)
     maxlev = MAX_LEVEL;
 
     if (!IS_NULLSTR(argument)) {
-        argument = one_argument(argument, arg2);
+        READ_ARG(arg2);
 
         if (!is_number(arg2)) {
             send_to_char("CMDEdit : The level must be a number, obviously.\n\r", ch);

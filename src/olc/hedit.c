@@ -131,7 +131,7 @@ HEDIT(hedit_new)
     }
 
     strcpy(fullarg, argument);
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (!(had = had_lookup(arg))) {
         had = ch->in_room->area->helps;
@@ -213,7 +213,7 @@ void hedit(CharData* ch, char* argument)
 
     smash_tilde(argument);
     strcpy(arg, argument);
-    argument = one_argument(argument, command);
+    READ_ARG(command);
 
     EDIT_HELP(ch, pHelp);
 

@@ -226,7 +226,7 @@ void do_play(CharData* ch, char* argument)
 
         buffer = new_buf();
         argument = str;
-        argument = one_argument(argument, arg);
+        READ_ARG(arg);
 
         if (!str_cmp(arg, "artist")) artist = true;
 

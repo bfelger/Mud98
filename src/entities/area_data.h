@@ -44,7 +44,7 @@ typedef struct area_data_t {
 
 AreaData* new_area();
 
-extern int top_area;
+extern int area_count;
 extern AreaData* area_first;
 extern AreaData* area_last;
 

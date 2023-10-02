@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Miden'nir~
-Builders None~
+Builders ~
 VNUMs 3500 3599
-Credits { 5 15} Copper  Miden'nir~
+Credits Copper~
 Security 9
-Low 0
-High 0
-Version 1
+Low 5
+High 15
 End
 
 

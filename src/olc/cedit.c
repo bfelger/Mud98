@@ -97,7 +97,7 @@ void do_cedit(CharData* ch, char* argument)
         return;
     }
 
-    argument = one_argument(argument, command);
+    READ_ARG(command);
 
     if (!str_cmp(command, "new")) {
         if (cedit_new(ch, argument))
@@ -316,7 +316,7 @@ CEDIT(cedit_weapon)
         return false;
     }
 
-    argument = one_argument(argument, weapon_name);
+    READ_ARG(weapon_name);
 
     for (int i = 1; i < WEAPON_TYPE_COUNT; i++)
         if (!str_prefix(weapon_name, weapon_table[i].name))
@@ -333,6 +333,34 @@ CEDIT(cedit_weapon)
     return true;
 }
 
+CEDIT(cedit_start_loc)
+{
+    Class* class_;
+    EDIT_CLASS(ch, class_);
+    char vnum_str[MIL];
+    VNUM vnum = -1;
+
+    EDIT_CLASS(ch, class_);
+
+    READ_ARG(vnum_str);
+
+    if (!vnum_str[0] || !is_number(vnum_str)) {
+        send_to_char("Syntax : {*START_LOC <VNUM>{x\n\r\n\r", ch);
+        return false;
+    }
+
+    vnum = (VNUM)atoi(vnum_str);
+
+    if (!get_room_data(vnum)) {
+        printf("{jCEdit : There is no room with VNUM %d.{x\n\r", vnum);
+        return false;
+    }
+
+    class_->start_loc = vnum;
+    send_to_char("{jOk.{x\n\r", ch);
+    return true;
+}
+
 CEDIT(cedit_guild)
 {
     Class* class_;
@@ -343,8 +371,8 @@ CEDIT(cedit_guild)
 
     EDIT_CLASS(ch, class_);
 
-    argument = one_argument(argument, slot_str);
-    argument = one_argument(argument, vnum_str);
+    READ_ARG(slot_str);
+    READ_ARG(vnum_str);
 
     if (!slot_str[0] || !is_number(slot_str) || !vnum_str[0] || !is_number(vnum_str)) {
         send_to_char("Syntax : {*GUILD <SLOT> <VNUM>{x\n\r\n\r", ch);
@@ -380,8 +408,8 @@ CEDIT(cedit_title)
     
     EDIT_CLASS(ch, class_);
 
-    argument = one_argument(argument, lvl_arg);
-    argument = one_argument(argument, sex_arg);
+    READ_ARG(lvl_arg);
+    READ_ARG(sex_arg);
 
     if (!lvl_arg[0] || !is_number(lvl_arg) || !sex_arg[0] || !argument[0]) {
         send_to_char("Syntax : {*TITLE <LEVEL> <MALE/FEMALE/BOTH> <TITLE>{x\n\r\n\r", ch);

@@ -536,7 +536,7 @@ void parse_note(CharData* ch, char* argument, int16_t type)
         break;
     }
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
     smash_tilde(argument);
 
     if (arg[0] == '\0' || !str_prefix(arg, "read")) {

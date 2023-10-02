@@ -2,6 +2,8 @@
 // config.c
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "merc.h"
+
 #include "config.h"
 
 #include "file.h"
@@ -16,8 +18,6 @@
 
 #ifdef _MSC_VER
 #include <winerror.h>
-#define strdup _strdup
-#define strcasecmp _stricmp
 #else
 #include <strings.h>
 #endif
@@ -192,7 +192,8 @@
 
 // Gameplay Defaults
 #define DEFAULT_CHARGEN_CUSTOM      true
-#define DEFAULT_DEFAULT_RECALL      3001
+#define DEFAULT_RECALL              3001
+#define DEFAULT_START_LOC           3700
 
 DEFINE_STR_CONFIG(mud_name,         DEFAULT_MUD_NAME)
 
@@ -265,7 +266,10 @@ DEFINE_FILE_CONFIG(obj_dump_file,   temp_dir,   DEFAULT_OBJ_DUMP_FILE)
 
 // Gameplay Configs
 DEFINE_CONFIG(chargen_custom,       bool,       DEFAULT_CHARGEN_CUSTOM)
-DEFINE_CONFIG(default_recall,       int,        DEFAULT_DEFAULT_RECALL)
+DEFINE_CONFIG(default_recall,       int,        DEFAULT_RECALL)
+DEFINE_CONFIG(default_start_loc,    int,        DEFAULT_START_LOC)
+DEFINE_CONFIG(start_loc_by_race,    bool,       false)
+DEFINE_CONFIG(start_loc_by_class,   bool,       false)
 
 #pragma GCC diagnostic pop
 
@@ -292,76 +296,79 @@ typedef void CfgBoolSet(const bool);
 #define U(x)    (uintptr_t)(x)
 
 const ConfigEntry config_entries[] = {
-    { "mud_name",       CFG_STR,        U(cfg_set_mud_name)         },
+    { "mud_name",           CFG_STR,    U(cfg_set_mud_name)             },
 
     // Connection Info
-    { "hostname",       CFG_STR,        U(cfg_set_hostname)         },
-    { "telnet_enabled", CFG_BOOL,       U(cfg_set_telnet_enabled)   },
-    { "telnet_port",    CFG_INT,        U(cfg_set_telnet_port)      },
-    { "tls_enabled",    CFG_BOOL,       U(cfg_set_tls_enabled)      },
-    { "tls_port",       CFG_INT,        U(cfg_set_tls_port)         },
-    { "keys_dir",       CFG_DIR,        U(cfg_set_keys_dir)         },
-    { "cert_file",      CFG_STR,        U(cfg_set_cert_file)        },
-    { "pkey_file",      CFG_STR,        U(cfg_set_pkey_file)        },
+    { "hostname",           CFG_STR,    U(cfg_set_hostname)             },
+    { "telnet_enabled",     CFG_BOOL,   U(cfg_set_telnet_enabled)       },
+    { "telnet_port",        CFG_INT,    U(cfg_set_telnet_port)          },
+    { "tls_enabled",        CFG_BOOL,   U(cfg_set_tls_enabled)          },
+    { "tls_port",           CFG_INT,    U(cfg_set_tls_port)             },
+    { "keys_dir",           CFG_DIR,    U(cfg_set_keys_dir)             },
+    { "cert_file",          CFG_STR,    U(cfg_set_cert_file)            },
+    { "pkey_file",          CFG_STR,    U(cfg_set_pkey_file)            },
 
     // GMCP
-    { "gmcp_enabled",   CFG_BOOL,       U(cfg_set_gmcp_enabled)     },
+    { "gmcp_enabled",       CFG_BOOL,   U(cfg_set_gmcp_enabled)         },
 
     // MCCP
-    { "mccp2_enabled",  CFG_BOOL,       U(cfg_set_mccp2_enabled)    },
-    { "mccp3_enabled",  CFG_BOOL,       U(cfg_set_mccp3_enabled)    },
+    { "mccp2_enabled",      CFG_BOOL,   U(cfg_set_mccp2_enabled)        },
+    { "mccp3_enabled",      CFG_BOOL,   U(cfg_set_mccp3_enabled)        },
 
     // MSDP
-    { "msdp_enabled",   CFG_BOOL,       U(cfg_set_msdp_enabled)     },
+    { "msdp_enabled",       CFG_BOOL,   U(cfg_set_msdp_enabled)         },
 
     // MSSP
-    { "mssp_enabled",   CFG_BOOL,       U(cfg_set_mssp_enabled)     },
-    { "codebase",       CFG_STR,        U(cfg_set_codebase)         },
-    { "contact",        CFG_STR,        U(cfg_set_contact)          },
-    { "created",        CFG_INT,        U(cfg_set_created)          },
-    { "icon",           CFG_STR,        U(cfg_set_icon)             },
-    { "language",       CFG_STR,        U(cfg_set_language)         },
-    { "location",       CFG_STR,        U(cfg_set_location)         },
-    { "min_age",        CFG_INT,        U(cfg_set_min_age)          },
-    { "website",        CFG_STR,        U(cfg_set_website)          },
-    { "family",         CFG_STR,        U(cfg_set_family)           },
-    { "genre",          CFG_STR,        U(cfg_set_genre)            },
-    { "gameplay",       CFG_STR,        U(cfg_set_gameplay)         },
-    { "status",         CFG_STR,        U(cfg_set_status)           },
-    { "subgenre",       CFG_STR,        U(cfg_set_subgenre)         },
+    { "mssp_enabled",       CFG_BOOL,   U(cfg_set_mssp_enabled)         },
+    { "codebase",           CFG_STR,    U(cfg_set_codebase)             },
+    { "contact",            CFG_STR,    U(cfg_set_contact)              },
+    { "created",            CFG_INT,    U(cfg_set_created)              },
+    { "icon",               CFG_STR,    U(cfg_set_icon)                 },
+    { "language",           CFG_STR,    U(cfg_set_language)             },
+    { "location",           CFG_STR,    U(cfg_set_location)             },
+    { "min_age",            CFG_INT,    U(cfg_set_min_age)              },
+    { "website",            CFG_STR,    U(cfg_set_website)              },
+    { "family",             CFG_STR,    U(cfg_set_family)               },
+    { "genre",              CFG_STR,    U(cfg_set_genre)                },
+    { "gameplay",           CFG_STR,    U(cfg_set_gameplay)             },
+    { "status",             CFG_STR,    U(cfg_set_status)               },
+    { "subgenre",           CFG_STR,    U(cfg_set_subgenre)             },
 
     // Filepaths
-    { "area_dir",       CFG_DIR,        U(cfg_set_area_dir)         },
-    { "area_list",      CFG_STR,        U(cfg_set_area_list)        },
-    { "music_file",     CFG_STR,        U(cfg_set_music_file)       },
-    { "bug_file",       CFG_STR,        U(cfg_set_bug_file)         },
-    { "typo_file",      CFG_STR,        U(cfg_set_typo_file)        },
-    { "note_file",      CFG_STR,        U(cfg_set_note_file)        },
-    { "idea_file",      CFG_STR,        U(cfg_set_idea_file)        },
-    { "penalty_file",   CFG_STR,        U(cfg_set_penalty_file)     },
-    { "news_file",      CFG_STR,        U(cfg_set_news_file)        },
-    { "changes_file",   CFG_STR,        U(cfg_set_changes_file)     },
-    { "shutdown_file",  CFG_STR,        U(cfg_set_shutdown_file)    },
-    { "ban_file",       CFG_STR,        U(cfg_set_ban_file)         },
-    { "data_dir",       CFG_DIR,        U(cfg_set_data_dir)         },
-    { "progs_dir",      CFG_DIR,        U(cfg_set_progs_dir)        },
-    { "socials_file",   CFG_STR,        U(cfg_set_socials_file)     },
-    { "groups_file",    CFG_STR,        U(cfg_set_groups_file)      },
-    { "skills_file",    CFG_STR,        U(cfg_set_skills_file)      },
-    { "commands_file",  CFG_STR,        U(cfg_set_commands_file)    },
-    { "races_file",     CFG_STR,        U(cfg_set_races_file)       },
-    { "classes_file",   CFG_STR,        U(cfg_set_classes_file)     },
-    { "temp_dir",       CFG_DIR,        U(cfg_set_temp_dir)         },
-    { "mem_dump_file",  CFG_STR,        U(cfg_set_mem_dump_file)    },
-    { "mob_dump_file",  CFG_STR,        U(cfg_set_mob_dump_file)    },
-    { "obj_dump_file",  CFG_STR,        U(cfg_set_obj_dump_file)    },
-    { "player_dir",     CFG_DIR,        U(cfg_set_player_dir)       },
-    { "gods_dir",       CFG_DIR,        U(cfg_set_gods_dir)         },
+    { "area_dir",           CFG_DIR,    U(cfg_set_area_dir)             },
+    { "area_list",          CFG_STR,    U(cfg_set_area_list)            },
+    { "music_file",         CFG_STR,    U(cfg_set_music_file)           },
+    { "bug_file",           CFG_STR,    U(cfg_set_bug_file)             },
+    { "typo_file",          CFG_STR,    U(cfg_set_typo_file)            },
+    { "note_file",          CFG_STR,    U(cfg_set_note_file)            },
+    { "idea_file",          CFG_STR,    U(cfg_set_idea_file)            },
+    { "penalty_file",       CFG_STR,    U(cfg_set_penalty_file)         },
+    { "news_file",          CFG_STR,    U(cfg_set_news_file)            },
+    { "changes_file",       CFG_STR,    U(cfg_set_changes_file)         },
+    { "shutdown_file",      CFG_STR,    U(cfg_set_shutdown_file)        },
+    { "ban_file",           CFG_STR,    U(cfg_set_ban_file)             },
+    { "data_dir",           CFG_DIR,    U(cfg_set_data_dir)             },
+    { "progs_dir",          CFG_DIR,    U(cfg_set_progs_dir)            },
+    { "socials_file",       CFG_STR,    U(cfg_set_socials_file)         },
+    { "groups_file",        CFG_STR,    U(cfg_set_groups_file)          },
+    { "skills_file",        CFG_STR,    U(cfg_set_skills_file)          },
+    { "commands_file",      CFG_STR,    U(cfg_set_commands_file)        },
+    { "races_file",         CFG_STR,    U(cfg_set_races_file)           },
+    { "classes_file",       CFG_STR,    U(cfg_set_classes_file)         },
+    { "temp_dir",           CFG_DIR,    U(cfg_set_temp_dir)             },
+    { "mem_dump_file",      CFG_STR,    U(cfg_set_mem_dump_file)        },
+    { "mob_dump_file",      CFG_STR,    U(cfg_set_mob_dump_file)        },
+    { "obj_dump_file",      CFG_STR,    U(cfg_set_obj_dump_file)        },
+    { "player_dir",         CFG_DIR,    U(cfg_set_player_dir)           },
+    { "gods_dir",           CFG_DIR,    U(cfg_set_gods_dir)             },
 
     // Gameplay
-    { "chargen_custom", CFG_BOOL,       U(cfg_set_chargen_custom)   },
-    { "default_recall", CFG_INT,        U(cfg_set_default_recall)   },
-    { "",               0,              0                           },
+    { "chargen_custom",     CFG_BOOL,   U(cfg_set_chargen_custom)       },
+    { "default_recall",     CFG_INT,    U(cfg_set_default_recall)       },
+    { "default_start_loc",  CFG_INT,    U(cfg_set_default_start_loc)    },
+    { "start_loc_by_race",  CFG_BOOL,   U(cfg_set_start_loc_by_race)    },
+    { "start_loc_by_class", CFG_BOOL,   U(cfg_set_start_loc_by_class)   },
+    { "",                   0,          0                               },
 };
 
 #undef U

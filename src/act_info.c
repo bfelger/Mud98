@@ -913,8 +913,8 @@ void do_look(CharData* ch, char* argument)
         return;
     }
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
     number = number_argument(arg1, arg3);
     count = 0;
 
@@ -1605,7 +1605,7 @@ void do_help(CharData* ch, char* argument)
     /* this parts handles help a b so that it returns help 'a b' */
     argall[0] = '\0';
     while (argument[0] != '\0') {
-        argument = one_argument(argument, argone);
+        READ_ARG(argone);
         if (argall[0] != '\0') 
             strcat(argall, " ");
         strcat(argall, argone);
@@ -1755,7 +1755,7 @@ void do_who(CharData* ch, char* argument)
     for (;;) {
         char arg[MAX_STRING_LENGTH];
 
-        argument = one_argument(argument, arg);
+        READ_ARG(arg);
         if (arg[0] == '\0') break;
 
         if (is_number(arg)) {
@@ -1949,8 +1949,8 @@ void do_compare(CharData* ch, char* argument)
     int value2;
     char* msg;
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
     if (arg1[0] == '\0') {
         send_to_char("Compare what to what?\n\r", ch);
         return;

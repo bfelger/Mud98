@@ -153,8 +153,7 @@ AreaData* current_area;
  * Local booting procedures.
  */
 void init_mm();
-void load_area(FILE* fp); 
-void new_load_area(FILE* fp);   // OOC
+void load_area(FILE* fp);
 void load_helps(FILE* fp, char* fname);
 void load_old_obj(FILE* fp);
 void load_objects(FILE* fp);
@@ -255,10 +254,8 @@ void boot_db()
 
                 if (word[0] == '$')
                     break;
-                else if (!str_cmp(word, "AREA"))
-                    load_area(strArea);
                 else if (!str_cmp(word, "AREADATA")) 
-                    new_load_area(strArea);
+                    load_area(strArea);
                 else if (!str_cmp(word, "HELPS")) 
                     load_helps(strArea, fpArea);
                 else if (!str_cmp(word, "MOBOLD"))
@@ -316,50 +313,12 @@ void boot_db()
 }
 
 /*
- * Snarf an 'area' header line.
- */
-void load_area(FILE* fp)
-{
-    AreaData* pArea;
-
-    pArea = alloc_perm(sizeof(*pArea));
-    pArea->file_name = fread_string(fp);
-
-    pArea->area_flags = AREA_LOADING;
-    pArea->security = 9;
-    pArea->builders = str_dup("None");
-    pArea->vnum = top_area;
-
-    pArea->name = fread_string(fp);
-    pArea->credits = fread_string(fp);
-    pArea->min_vnum = fread_number(fp);
-    pArea->max_vnum = fread_number(fp);
-    pArea->age = 15;
-    pArea->nplayer = 0;
-    pArea->empty = false;
-
-    if (area_first == NULL) 
-        area_first = pArea;
-
-    if (area_last != NULL) {
-        area_last->next = pArea;
-        REMOVE_BIT(area_last->area_flags, AREA_LOADING);
-    }
-
-    area_last = pArea;
-    pArea->next = NULL;
-    current_area = pArea;
-
-    top_area++;
-    return;
-}
-
-/*
  * OLC
  * Use these macros to load any new area formats that you choose to
- * support on your MUD.  See the new_load_area format below for
+ * support on your MUD.  See the load_area format below for
  * a short example.
  */
+
 #if defined(KEY)
 #undef KEY
 #endif
@@ -387,39 +346,33 @@ void load_area(FILE* fp)
  * Recall 3001
  * End
  */
-void new_load_area(FILE* fp)
+void load_area(FILE* fp)
 {
     AreaData* pArea;
     char* word;
+    int version = 1;
 
     pArea = alloc_perm(sizeof(*pArea));
     pArea->age = 15;
     pArea->nplayer = 0;
     pArea->file_name = str_dup(fpArea);
-    pArea->vnum = top_area;
+    pArea->vnum = area_count;
     pArea->name = str_dup("New Area");
     pArea->builders = str_dup("");
     pArea->security = 9;
     pArea->min_vnum = 0;
     pArea->max_vnum = 0;
     pArea->area_flags = 0;
-/*  pArea->recall       = ROOM_VNUM_TEMPLE;        ROM OLC */
 
     for (; ; ) {
         word = feof(fp) ? "End" : fread_word(fp);
 
         switch (UPPER(word[0])) {
-        case 'N':
-            SKEY("Name", pArea->name);
+        case 'B':
+            SKEY("Builders", pArea->builders);
             break;
-        case 'S':
-            KEY("Security", pArea->security, fread_number(fp));
-            break;
-        case 'V':
-            if (!str_cmp(word, "VNUMs")) {
-                pArea->min_vnum = fread_number(fp);
-                pArea->max_vnum = fread_number(fp);
-            }
+        case 'C':
+            SKEY("Credits", pArea->credits);
             break;
         case 'E':
             if (!str_cmp(word, "End")) {
@@ -430,17 +383,31 @@ void new_load_area(FILE* fp)
                 area_last = pArea;
                 pArea->next = NULL;
                 current_area = pArea;
-                top_area++;
-
+                area_count++;
                 return;
             }
             break;
-        case 'B':
-            SKEY("Builders", pArea->builders);
+        case 'H':
+            KEY("High", pArea->high_range, (LEVEL)fread_number(fp));
             break;
-        case 'C':
-            SKEY("Credits", pArea->credits);
+        case 'L':
+            KEY("Low", pArea->low_range, (LEVEL)fread_number(fp));
             break;
+        case 'N':
+            SKEY("Name", pArea->name);
+            break;
+        case 'S':
+            KEY("Security", pArea->security, fread_number(fp));
+            break;
+        case 'V':
+            if (!str_cmp(word, "VNUMs")) {
+                pArea->min_vnum = fread_number(fp);
+                pArea->max_vnum = fread_number(fp);
+                break;
+            }
+            KEY("Version", version, fread_number(fp));
+            break;
+        // End switch
         }
     }
 }
@@ -1156,7 +1123,8 @@ void area_update(void)
     char buf[MAX_STRING_LENGTH];
 
     for (pArea = area_first; pArea != NULL; pArea = pArea->next) {
-        if (++pArea->age < 3) continue;
+        if (++pArea->age < 3) 
+            continue;
 
         /*
          * Check age and reset.
@@ -1170,8 +1138,9 @@ void area_update(void)
             sprintf(buf, "%s has just been reset.", pArea->name);
             wiznet(buf, NULL, NULL, WIZ_RESETS, 0, 0);
 
+            // TODO: Introduce per-area reset timers
             pArea->age = (int16_t)number_range(0, 3);
-            pRoomIndex = get_room_data(ROOM_VNUM_SCHOOL);
+            pRoomIndex = get_room_data(cfg_get_default_start_loc());
             if (pRoomIndex != NULL && pArea == pRoomIndex->area)
                 pArea->age = 15 - 2;
             else if (pArea->nplayer == 0)
@@ -2233,7 +2202,7 @@ void do_areas(CharData* ch, char* argument)
         return;
     }
 
-    iAreaHalf = (top_area + 1) / 2;
+    iAreaHalf = (area_count + 1) / 2;
     pArea1 = area_first;
     pArea2 = area_first;
     for (iArea = 0; iArea < iAreaHalf; iArea++) pArea2 = pArea2->next;
@@ -2255,7 +2224,7 @@ void do_memory(CharData* ch, char* argument)
 
     sprintf(buf, "Affects %5d\n\r", top_affect);
     send_to_char(buf, ch);
-    sprintf(buf, "Areas   %5d\n\r", top_area);
+    sprintf(buf, "Areas   %5d\n\r", area_count);
     send_to_char(buf, ch);
     sprintf(buf, "ExDes   %5d\n\r", top_ed);
     send_to_char(buf, ch);

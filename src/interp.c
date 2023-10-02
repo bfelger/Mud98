@@ -191,7 +191,7 @@ void interpret(CharData* ch, char* argument)
             argument++;
     }
     else {
-        argument = one_argument(argument, command);
+        READ_ARG(command);
     }
 
     /*

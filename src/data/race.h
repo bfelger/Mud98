@@ -22,10 +22,15 @@
 typedef int16_t ClassMult;
 DECLARE_ARRAY(ClassMult)
 
+typedef VNUM StartLoc;
+DECLARE_ARRAY(StartLoc)
+
 typedef struct race_t {
     char* name; 
     char* who_name;
     char* skills[RACE_NUM_SKILLS];
+    ARRAY(StartLoc) class_start;    // Special start locations per class
+    VNUM start_loc;
     FLAGS act_flags;
     FLAGS aff;
     FLAGS off;

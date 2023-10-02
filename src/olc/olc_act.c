@@ -233,7 +233,7 @@ bool show_help(CharData* ch, char* argument)
     char spell[MAX_INPUT_LENGTH];
     int cnt;
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
     one_argument(argument, spell);
 
     /*
@@ -608,11 +608,11 @@ ED_FUN_DEC(ed_skillgroup)
 
 ED_FUN_DEC(ed_flag_toggle)
 {
-    int value;
+    FLAGS value;
 
     if (!emptystring(argument)) {
         if ((value = flag_value((struct flag_type*)par, argument)) != NO_FLAG) {
-            *(long*)arg ^= value;
+            *(FLAGS*)arg ^= value;
 
             printf_to_char(ch, "%c%s flag toggled.\n\r",
                 toupper(n_fun[0]),
@@ -621,8 +621,32 @@ ED_FUN_DEC(ed_flag_toggle)
         }
     }
 
-    printf_to_char(ch, "Syntax : {*%s [flags]{x\n\r", n_fun);
+    INIT_BUF(set_out, MSL);
+    INIT_BUF(unset_out, MSL);
 
+    printf_to_char(ch, "Syntax : {*%s [flags]{x\n\r", n_fun);
+    
+    FLAGS current = *(FLAGS*)arg;
+
+    for (struct flag_type* flag = (struct flag_type*)par; flag->name != NULL; ++flag) {
+        if (IS_SET(current, flag->bit))
+            addf_buf(set_out, "    {*%-20s{x\n\r", flag->name);
+        else if (flag->settable)
+            addf_buf(unset_out, "    {*%-20s{x\n\r", flag->name);
+    }
+
+    if (set_out->size > 0) {
+        printf_to_char(ch, "\n\rCurrent Flags:\n\r%s", set_out->string);
+    }
+
+    if (unset_out->size > 0) {
+        printf_to_char(ch, "\n\rAvailable Flags:\n\r%s", unset_out->string);
+    }
+
+    send_to_char("\n\r", ch);
+
+    free_buf(set_out);
+    free_buf(unset_out);
     return false;
 }
 
@@ -662,7 +686,8 @@ ED_FUN_DEC(ed_flag_set_sh)
         }
     }
 
-    printf_to_char(ch, "Syntax : %s [flags]\n\r", n_fun);
+    printf_to_char(ch, "Syntax : {*%s [flags]{x\n\r", n_fun);
+    show_flags_to_char(ch, (struct flag_type*)par);
 
     return false;
 }
@@ -740,7 +765,7 @@ ED_FUN_DEC(ed_int16lookup)
 
 ED_FUN_DEC(ed_dice)
 {
-    static char syntax[] = "Syntax:  hitdice <number> d <type> + <bonus>\n\r";
+    static char syntax[] = "Syntax:  {*hitdice <number> d <type> + <bonus>{x\n\r";
     char* numb_str; 
     char* type_str; 
     char* bonus_str;
@@ -798,21 +823,21 @@ ED_FUN_DEC(ed_ed)
     char command[MAX_INPUT_LENGTH];
     char keyword[MAX_INPUT_LENGTH];
 
-    argument = one_argument(argument, command);
-    argument = one_argument(argument, keyword);
+    READ_ARG(command);
+    READ_ARG(keyword);
 
     if (command[0] == '\0') {
-        send_to_char("Syntax:  ed add [keyword]\n\r", ch);
+        send_to_char("Syntax:  {*ed add [keyword]\n\r", ch);
         send_to_char("         ed delete [keyword]\n\r", ch);
         send_to_char("         ed edit [keyword]\n\r", ch);
         send_to_char("         ed format [keyword]\n\r", ch);
-        send_to_char("         ed rename [keyword]\n\r", ch);
+        send_to_char("         ed rename [keyword]{x\n\r", ch);
         return false;
     }
 
     if (!str_cmp(command, "add")) {
         if (keyword[0] == '\0') {
-            send_to_char("Syntax:  ed add [keyword]\n\r", ch);
+            send_to_char("Syntax:  {*ed add [keyword]{x\n\r", ch);
             return false;
         }
 
@@ -828,7 +853,7 @@ ED_FUN_DEC(ed_ed)
 
     if (!str_cmp(command, "edit")) {
         if (keyword[0] == '\0') {
-            send_to_char("Syntax:  ed edit [keyword]\n\r", ch);
+            send_to_char("Syntax:  {*ed edit [keyword]{x\n\r", ch);
             return false;
         }
 
@@ -838,7 +863,7 @@ ED_FUN_DEC(ed_ed)
         }
 
         if (!ed) {
-            send_to_char("ERROR : There is no extra desc with that name.\n\r", ch);
+            send_to_char("{jERROR : There is no extra desc with that name.{x\n\r", ch);
             return false;
         }
 
@@ -851,7 +876,7 @@ ED_FUN_DEC(ed_ed)
         ExtraDesc* ped = NULL;
 
         if (keyword[0] == '\0') {
-            send_to_char("Syntax:  ed delete [keyword]\n\r", ch);
+            send_to_char("Syntax:  {*ed delete [keyword]{x\n\r", ch);
             return false;
         }
 
@@ -862,7 +887,7 @@ ED_FUN_DEC(ed_ed)
         }
 
         if (!ed) {
-            send_to_char("ERROR : There is no extra description with that name.\n\r", ch);
+            send_to_char("{jERROR : There is no extra description with that name.{x\n\r", ch);
             return false;
         }
 
@@ -873,14 +898,14 @@ ED_FUN_DEC(ed_ed)
 
         free_extra_desc(ed);
 
-        send_to_char("Extra description deleted.\n\r", ch);
+        send_to_char("{jExtra description deleted.{x\n\r", ch);
         return true;
     }
 
     if (!str_cmp(command, "format")) {
 
         if (keyword[0] == '\0') {
-            send_to_char("Syntax:  ed format [keyword]\n\r", ch);
+            send_to_char("Syntax:  {*ed format [keyword]{x\n\r", ch);
             return false;
         }
 
@@ -890,20 +915,20 @@ ED_FUN_DEC(ed_ed)
         }
 
         if (!ed) {
-            send_to_char("ERROR : There is no extra description with that name.\n\r", ch);
+            send_to_char("{jERROR : There is no extra description with that name.{x\n\r", ch);
             return false;
         }
 
         ed->description = format_string(ed->description);
 
-        send_to_char("Extra description formatted.\n\r", ch);
+        send_to_char("{jExtra description formatted.{x\n\r", ch);
         return true;
     }
 
     if (!str_cmp(command, "rename")) {
 
         if (keyword[0] == '\0') {
-            send_to_char("Syntax:  ed rename [old name] [new]\n\r", ch);
+            send_to_char("Syntax:  {*ed rename [old name] [new]{x\n\r", ch);
             return false;
         }
 
@@ -913,14 +938,14 @@ ED_FUN_DEC(ed_ed)
         }
 
         if (!ed) {
-            send_to_char("ERROR : There is no extra description with that name.\n\r", ch);
+            send_to_char("{jERROR : There is no extra description with that name.{x\n\r", ch);
             return false;
         }
 
         free_string(ed->keyword);
         ed->keyword = str_dup(argument);
 
-        send_to_char("Extra desc renamed.\n\r", ch);
+        send_to_char("{jExtra desc renamed.{x\n\r", ch);
         return true;
     }
 
@@ -935,11 +960,11 @@ ED_FUN_DEC(ed_addaffect)
     char loc[MAX_STRING_LENGTH];
     char mod[MAX_STRING_LENGTH];
 
-    argument = one_argument(argument, loc);
+    READ_ARG(loc);
     one_argument(argument, mod);
 
     if (loc[0] == '\0' || mod[0] == '\0' || !is_number(mod)) {
-        send_to_char("Syntax:  addaffect [location] [#xmod]\n\r", ch);
+        send_to_char("Syntax:  {*addaffect [location] [#xmod]{x\n\r", ch);
         return false;
     }
 
@@ -976,19 +1001,19 @@ ED_FUN_DEC(ed_delaffect)
     one_argument(argument, BUF(aff_name));
 
     if (!is_number(BUF(aff_name)) || BUF(aff_name)[0] == '\0') {
-        send_to_char("Syntax:  delaffect [#xaffect]\n\r", ch);
+        send_to_char("Syntax:  {*delaffect [#xaffect]{x\n\r", ch);
         return false;
     }
 
     value = atoi(BUF(aff_name));
 
     if (value < 0) {
-        send_to_char("Only non-negative affect-numbers allowed.\n\r", ch);
+        send_to_char("{jOnly non-negative affect-numbers allowed.{x\n\r", ch);
         return false;
     }
 
     if (!(pAf = *pNaf)) {
-        send_to_char("OEdit:  Non-existant affect.\n\r", ch);
+        send_to_char("{jOEdit:  Non-existant affect.{x\n\r", ch);
         return false;
     }
 
@@ -1010,12 +1035,12 @@ ED_FUN_DEC(ed_delaffect)
         }
         else                                 /* Doesn't exist */
         {
-            send_to_char("No such affect.\n\r", ch);
+            send_to_char("{jNo such affect.{x\n\r", ch);
             return false;
         }
     }
 
-    send_to_char("Affect removed.\n\r", ch);
+    send_to_char("{*Affect removed.{x\n\r", ch);
 
     free_buf(aff_name);
 

@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Midgaard~
-Builders None~
+Builders ~
 VNUMs 3000 3399
-Credits { All } Diku    Midgaard~
+Credits Diku~
 Security 9
-Low 0
-High 0
-Version 1
+Low 1
+High 60
 End
 
 
@@ -2268,7 +2268,7 @@ in the depths of Moria itself.                                |           |
 ~
 #3167
 map new thalos~
-a map of New Thalos ~
+a map of New Thalos~
 A rolled up map is here.~
 paper~
 map 0 A

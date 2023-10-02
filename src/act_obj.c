@@ -189,17 +189,18 @@ void get_obj(CharData* ch, ObjectData* obj, ObjectData* container)
 
 void do_get(CharData* ch, char* argument)
 {
-    char arg1[MAX_INPUT_LENGTH];
-    char arg2[MAX_INPUT_LENGTH];
+    char arg1[MAX_INPUT_LENGTH] = { 0 };
+    char arg2[MAX_INPUT_LENGTH] = { 0 };
     ObjectData* obj;
     ObjectData* obj_next = NULL;
     ObjectData* container;
     bool found;
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
 
-    if (!str_cmp(arg2, "from")) argument = one_argument(argument, arg2);
+    if (!str_cmp(arg2, "from")) 
+        READ_ARG(arg2);
 
     /* Get type. */
     if (arg1[0] == '\0') {
@@ -320,11 +321,11 @@ void do_put(CharData* ch, char* argument)
     ObjectData* obj;
     ObjectData* obj_next = NULL;
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
 
     if (!str_cmp(arg2, "in") || !str_cmp(arg2, "on"))
-        argument = one_argument(argument, arg2);
+        READ_ARG(arg2);
 
     if (arg1[0] == '\0' || arg2[0] == '\0') {
         send_to_char("Put what in what?\n\r", ch);
@@ -445,7 +446,7 @@ void do_drop(CharData* ch, char* argument)
     ObjectData* obj_next = NULL;
     bool found;
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (arg[0] == '\0') {
         send_to_char("Drop what?\n\r", ch);
@@ -459,7 +460,7 @@ void do_drop(CharData* ch, char* argument)
         int16_t silver = 0;
 
         amount = (int16_t)atoi(arg);
-        argument = one_argument(argument, arg);
+        READ_ARG(arg);
         if (amount <= 0
             || (str_cmp(arg, "coins") && str_cmp(arg, "coin")
                 && str_cmp(arg, "gold") && str_cmp(arg, "silver"))) {
@@ -589,8 +590,8 @@ void do_give(CharData* ch, char* argument)
     CharData* victim;
     ObjectData* obj;
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
 
     if (arg1[0] == '\0' || arg2[0] == '\0') {
         send_to_char("Give what to whom?\n\r", ch);
@@ -612,7 +613,7 @@ void do_give(CharData* ch, char* argument)
 
         silver = str_cmp(arg2, "gold");
 
-        argument = one_argument(argument, arg2);
+        READ_ARG(arg2);
         if (arg2[0] == '\0') {
             send_to_char("Give what to whom?\n\r", ch);
             return;
@@ -911,7 +912,7 @@ void do_pour(CharData* ch, char* argument)
     CharData* vch = NULL;
     int amount;
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (arg[0] == '\0' || argument[0] == '\0') {
         send_to_char("Pour what into what?\n\r", ch);
@@ -1660,8 +1661,8 @@ void do_recite(CharData* ch, char* argument)
     ObjectData* scroll;
     ObjectData* obj;
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
 
     if ((scroll = get_obj_carry(ch, arg1, ch)) == NULL) {
         send_to_char("You do not have that scroll.\n\r", ch);
@@ -1867,8 +1868,8 @@ void do_steal(CharData* ch, char* argument)
     ObjectData* obj;
     int percent;
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
 
     if (arg1[0] == '\0' || arg2[0] == '\0') {
         send_to_char("Steal what from whom?\n\r", ch);
@@ -2203,7 +2204,7 @@ void do_buy(CharData* ch, char* argument)
 
         if (IS_NPC(ch)) return;
 
-        argument = one_argument(argument, arg);
+        READ_ARG(arg);
 
         /* hack to make new thalos pets work */
         if (ch->in_room->vnum == 9621)
@@ -2259,7 +2260,7 @@ void do_buy(CharData* ch, char* argument)
         SET_BIT(pet->affect_flags, AFF_CHARM);
         pet->comm_flags = COMM_NOTELL | COMM_NOSHOUT | COMM_NOCHANNELS;
 
-        argument = one_argument(argument, arg);
+        READ_ARG(arg);
         if (arg[0] != '\0') {
             sprintf(buf, "%s %s", pet->name, arg);
             free_string(pet->name);

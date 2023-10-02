@@ -43,7 +43,9 @@
 #include <stddef.h>
 #endif
 
-#define args( list )                list
+#define args(list)          list
+
+#define AREA_VERSION        2
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -182,6 +184,12 @@ typedef void SpellFunc(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
         for (_xxx_ = 0; _xxx_ < len; _xxx_++) \
             array1[_xxx_] = array2[_xxx_]; \
     }
+#define READ_ARG(arg)       (argument = one_argument(argument, (arg)))
+
+#ifdef _MSC_VER
+    #define strdup _strdup
+    #define strcasecmp _stricmp
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // Global Vars

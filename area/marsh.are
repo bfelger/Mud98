@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Marsh~
-Builders None~
+Builders ~
 VNUMs 8300 8399
-Credits {15 25} Generic Old Marsh~
+Credits Generic~
 Security 9
-Low 0
-High 0
-Version 1
+Low 15
+High 25
 End
 
 
@@ -507,7 +507,7 @@ be taunting you towards the pool.
 0
 A 6
 E
-lights ~
+lights~
 From the stories you have heard, you recognize them as will-o-wisps.
 ~
 E

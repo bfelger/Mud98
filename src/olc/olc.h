@@ -270,10 +270,11 @@ DECLARE_OLC_FUN(medit_copy);
 DECLARE_OLC_FUN(raedit_show);
 DECLARE_OLC_FUN(raedit_new);
 DECLARE_OLC_FUN(raedit_list);
-DECLARE_OLC_FUN(raedit_amult);
+DECLARE_OLC_FUN(raedit_cmult);
 DECLARE_OLC_FUN(raedit_stats);
 DECLARE_OLC_FUN(raedit_maxstats);
 DECLARE_OLC_FUN(raedit_skills);
+DECLARE_OLC_FUN(raedit_start_loc);
 
 /*
  * Class editor.

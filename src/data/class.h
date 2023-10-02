@@ -8,6 +8,7 @@
 
 #include "merc.h"
 
+#include "array.h"
 #include "stats.h"
 
 #include <stdint.h>
@@ -20,6 +21,7 @@ typedef struct class_t {
     char* who_name; 
     char* base_group;
     char* default_group;
+    VNUM start_loc;
     VNUM weapon;                    // First weapon
     VNUM guild[MAX_GUILD];          // Vnum of guild rooms
     Stat prime_stat;

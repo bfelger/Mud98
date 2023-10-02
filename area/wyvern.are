@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Wyvern's Tower~
-Builders None~
+Builders ~
 VNUMs 1600 1799
-Credits { 5 30} Tyrst   Wyvern's Tower~
+Credits Tyrst~
 Security 9
-Low 0
-High 0
-Version 1
+Low 5
+High 30
 End
 
 

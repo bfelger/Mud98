@@ -4,6 +4,7 @@
 
 #include "merc.h"
 
+#include "array.h"
 #include "bit.h"
 #include "comm.h"
 #include "db.h"
@@ -37,12 +38,12 @@ const OlcCmd aedit_table[] = {
    { "reset", 	    aedit_reset	    },
    { "security", 	aedit_security	},
    { "show", 	    aedit_show	    },
-   { "vnum", 	    aedit_vnum	    },
+   { "vnums", 	    aedit_vnum	    },
    { "lvnum", 	    aedit_lvnum	    },
    { "uvnum", 	    aedit_uvnum	    },
    { "credits", 	aedit_credits	},
-   { "lowrange", 	aedit_lowrange	},
-   { "highrange", 	aedit_highrange	},
+   { "min_level", 	aedit_lowrange	},
+   { "max_level", 	aedit_highrange	},
    { "?",		    show_help	    },
    { "version", 	show_version	},
    { NULL, 		    0		        }
@@ -57,7 +58,7 @@ void do_aedit(CharData* ch, char* argument)
 
     pArea = ch->in_room->area;
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
     if (is_number(arg)) {
         vnum = STRTOVNUM(arg);
         if (!(pArea = get_area_data(vnum))) {
@@ -78,8 +79,9 @@ void do_aedit(CharData* ch, char* argument)
     }
 
     set_editor(ch->desc, ED_AREA, U(pArea));
-/*	ch->desc->pEdit = (void *) pArea;
-    ch->desc->editor = ED_AREA; */
+
+    aedit_show(ch, "");
+
     return;
 }
 
@@ -95,7 +97,7 @@ void aedit(CharData* ch, char* argument)
     EDIT_AREA(ch, pArea);
 
     strcpy(arg, argument);
-    argument = one_argument(argument, command);
+    READ_ARG(command);
 
     if (!IS_BUILDER(ch, pArea)) {
         send_to_char("AEdit:  Insufficient security to modify area.\n\r", ch);
@@ -156,43 +158,19 @@ AreaData* get_vnum_area(VNUM vnum)
 AEDIT(aedit_show)
 {
     AreaData* pArea;
-    char buf[MAX_STRING_LENGTH];
 
     EDIT_AREA(ch, pArea);
 
-    sprintf(buf, "Name:     [%"PRVNUM"] %s\n\r", pArea->vnum, pArea->name);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "File:     %s\n\r", pArea->file_name);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Vnums:    [%d-%d]\n\r", pArea->min_vnum, pArea->max_vnum);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Age:      [%d]\n\r", pArea->age);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Players:  [%d]\n\r", pArea->nplayer);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Security: [%d]\n\r", pArea->security);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Builders: [%s]\n\r", pArea->builders);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Credits : [%s]\n\r", pArea->credits);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Lo range: [%d]\n\r", pArea->low_range);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Hi range: [%d]\n\r", pArea->high_range);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Flags:    [%s]\n\r", flag_string(area_flag_table, pArea->area_flags));
-    send_to_char(buf, ch);
-
+    printf_to_char(ch, "Name:       {|[{*%"PRVNUM"{|] {_%s{x\n\r", pArea->vnum, pArea->name);
+    printf_to_char(ch, "File:       {*%s{x\n\r", pArea->file_name);
+    printf_to_char(ch, "Vnums:      {|[{*%d-%d{|]{x\n\r", pArea->min_vnum, pArea->max_vnum);
+    printf_to_char(ch, "Age:        {|[{*%d{|]{x\n\r", pArea->age);
+    printf_to_char(ch, "Security:   {|[{*%d{|]{x\n\r", pArea->security);
+    printf_to_char(ch, "Builders:   {|[{*%s{|]{x\n\r", pArea->builders);
+    printf_to_char(ch, "Credits :   {|[{*%s{|]{x\n\r", pArea->credits);
+    printf_to_char(ch, "Min_level:  {|[{*%d{|]{x\n\r", pArea->low_range);
+    printf_to_char(ch, "Max_level:  {|[{*%d{|]{x\n\r", pArea->high_range);
+    printf_to_char(ch, "Flags:      {|[{*%s{|]{x\n\r", flag_string(area_flag_table, pArea->area_flags));
     return false;
 }
 
@@ -217,6 +195,13 @@ AEDIT(aedit_create)
     }
 
     pArea = new_area();
+    free_string(pArea->builders);
+    pArea->builders = strdup(ch->name);
+    free_string(pArea->credits);
+    pArea->credits = strdup(ch->name);
+    pArea->low_range = 1;
+    pArea->high_range = MAX_LEVEL;
+    pArea->security = ch->pcdata->security;
     area_last->next = pArea;
     area_last = pArea;
 
@@ -503,7 +488,7 @@ AEDIT(aedit_vnum)
 
     EDIT_AREA(ch, pArea);
 
-    argument = one_argument(argument, lower);
+    READ_ARG(lower);
     one_argument(argument, upper);
 
     if (!is_number(lower) || lower[0] == '\0'
@@ -625,15 +610,53 @@ AEDIT(aedit_uvnum)
  ****************************************************************************/
 void do_alist(CharData* ch, char* argument)
 {
-    char    buf[MAX_STRING_LENGTH];
-    char    result[MAX_STRING_LENGTH * 2];	/* May need tweaking. */
-    AreaData* pArea;
+    static const char* help = "Syntax: {*ALIST\n\r"
+        "        ALIST ORDERBY (VNUM|NAME){x\n\r";
 
-    sprintf(result, "[%3s] [%-27s] (%-5s-%5s) [%-10s] %3s [%-10s]\n\r",
+    INIT_BUF(result, MAX_STRING_LENGTH);
+    char arg[MIL];
+    char sort[MIL];
+
+    addf_buf(result, "{|[{T%3s{|] [{T%-27s{|] ({T%-5s{|-{T%5s{|) {|[{T%-10s{|] {T%3s {|[{T%-10s{|]{x\n\r",
         "Num", "Area Name", "lvnum", "uvnum", "Filename", "Sec", "Builders");
 
-    for (pArea = area_first; pArea; pArea = pArea->next) {
-        sprintf(buf, "[%3d] %-29.29s (%-5d-%5d) %-12.12s [%d] [%-10.10s]\n\r",
+    size_t alist_size = sizeof(AreaData*) * area_count;
+    AreaData** alist = (AreaData**)alloc_mem(alist_size);
+
+    {
+        int i = 0;
+        for (AreaData* pArea = area_first; pArea; pArea = pArea->next) {
+            alist[i++] = pArea;
+        }
+    }
+
+    READ_ARG(arg);
+    if (arg[0]) {
+        if (str_prefix(arg, "orderby")) {
+            printf_to_char(ch, "{jUnknown option '{*%s{j'.{x\n\r\n\r%s", arg, help);
+            goto alist_cleanup;
+        }
+
+        READ_ARG(sort);
+        if (!str_cmp(sort, "vnum")) {
+            SORT_ARRAY(AreaData*, alist, area_count,
+                alist[i]->min_vnum < alist[lo]->min_vnum,
+                alist[i]->min_vnum > alist[hi]->min_vnum);
+        }
+        else if (!str_cmp(sort, "name")) {
+            SORT_ARRAY(AreaData*, alist, area_count,
+                strcasecmp(alist[i]->name, alist[lo]->name) < 0,
+                strcasecmp(alist[i]->name, alist[hi]->name) > 0);
+        }
+        else {
+            printf_to_char(ch, "{jUnknown sort option '{*%s{j'.{x\n\r\n\r%s", sort, help);
+            goto alist_cleanup;
+        }
+    }
+
+    for (int i = 0; i < area_count; ++i) {
+        AreaData* pArea = alist[i];
+        addf_buf( result, "{|[{*%3d{|]{x %-29.29s {|({*%-5d{|-{*%5d{|) {_%-12.12s {|[{*%d{|] [{*%-10.10s{|]{x\n\r",
             pArea->vnum,
             pArea->name,
             pArea->min_vnum,
@@ -641,10 +664,13 @@ void do_alist(CharData* ch, char* argument)
             pArea->file_name,
             pArea->security,
             pArea->builders);
-        strcat(result, buf);
     }
 
-    send_to_char(result, ch);
+    send_to_char(result->string, ch);
+
+alist_cleanup:
+    free_buf(result);
+    free_mem(alist, alist_size);
     return;
 }
 

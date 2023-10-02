@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Sewers~
-Builders None~
+Builders ~
 VNUMs 7000 7499
-Credits { 5 30} Diku    Sewer~
+Credits Diku~
 Security 9
-Low 0
-High 0
-Version 1
+Low 5
+High 30
 End
 
 

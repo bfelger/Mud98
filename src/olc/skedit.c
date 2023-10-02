@@ -179,7 +179,7 @@ void do_sklist(CharData* ch, char* argument)
     bool show_rating = false;
     bool show_level = false;
 
-    argument = one_argument(argument, command);
+    READ_ARG(command);
 
     if (!str_prefix(command, "RATING")) {
         show_rating = true;
@@ -238,7 +238,7 @@ void do_skedit(CharData* ch, char* argument)
     one_argument(argument, command);
 
     if (!str_cmp(command, "new")) {
-        argument = one_argument(argument, command);
+        READ_ARG(command);
         if (skedit_new(ch, argument))
             save_skill_table();
         return;
@@ -569,7 +569,7 @@ SKEDIT(skedit_level)
 
     EDIT_SKILL(ch, pSkill);
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (IS_NULLSTR(argument) || IS_NULLSTR(arg) || !is_number(argument)) {
         send_to_char("SKEdit : level [class] [level]\n\r", ch);
@@ -602,7 +602,7 @@ SKEDIT(skedit_rating)
 
     EDIT_SKILL(ch, pSkill);
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (IS_NULLSTR(argument) || IS_NULLSTR(arg) || !is_number(argument)) {
         send_to_char("Syntax : rating [class] [level]\n\r", ch);

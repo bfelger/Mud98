@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Shire~
-Builders None~
+Builders ~
 VNUMs 1100 1199
-Credits { 5 35} Poohb   The Shire~
+Credits Poohb~
 Security 9
-Low 0
-High 0
-Version 1
+Low 5
+High 35
 End
 
 

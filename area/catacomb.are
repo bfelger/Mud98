@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Catacombs~
-Builders None~
+Builders ~
 VNUMs 2000 2099
-Credits {10 20} Raff    Dwarven Catacombs~
+Credits Raff~
 Security 9
-Low 0
-High 0
-Version 1
+Low 10
+High 20
 End
 
 
@@ -87,7 +87,7 @@ EFNU 0 0 0
 stand stand none 10
 0 0 medium '0'
 #2006
-oldstyle ~
+oldstyle~
 It~
 ~
 ~

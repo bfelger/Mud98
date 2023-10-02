@@ -125,7 +125,7 @@ void string_add(CharData* ch, char* argument)
         char arg3[MAX_INPUT_LENGTH];
         char tmparg3[MIL];
 
-        argument = one_argument(argument, arg1);
+        READ_ARG(arg1);
         argument = first_arg(argument, arg2, false);
         strcpy(tmparg3, argument);
         argument = first_arg(argument, arg3, false);

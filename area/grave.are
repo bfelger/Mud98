@@ -1,12 +1,12 @@
 #AREADATA
+Version 2
 Name Graveyard~
-Builders None~
+Builders ~
 VNUMs 3600 3699
-Credits { 5 10} Alfa    Graveyard~
+Credits Alfa~
 Security 9
-Low 0
-High 0
-Version 1
+Low 5
+High 10
 End
 
 

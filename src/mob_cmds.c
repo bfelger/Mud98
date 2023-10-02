@@ -115,7 +115,7 @@ void mob_interpret(CharData* ch, char* argument)
     char buf[MAX_STRING_LENGTH], command[MAX_INPUT_LENGTH];
     int cmd;
 
-    argument = one_argument(argument, command);
+    READ_ARG(command);
 
     /*
      * Look for command in command table.
@@ -436,7 +436,7 @@ void do_mpechoaround(CharData* ch, char* argument)
     char       arg[MAX_INPUT_LENGTH];
     CharData* victim;
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (arg[0] == '\0')
         return;
@@ -457,7 +457,7 @@ void do_mpechoat(CharData* ch, char* argument)
     char       arg[MAX_INPUT_LENGTH];
     CharData* victim;
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (arg[0] == '\0' || argument[0] == '\0')
         return;
@@ -525,8 +525,8 @@ void do_mpoload(CharData* ch, char* argument)
     bool fToroom = false;
     bool fWear = false;
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
     one_argument(argument, arg3);
 
     if (arg1[0] == '\0' || !is_number(arg1)) {
@@ -687,7 +687,7 @@ void do_mpat(CharData* ch, char* argument)
     CharData* wch;
     ObjectData* on;
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (arg[0] == '\0' || argument[0] == '\0') {
         bug("Mpat - Bad argument from vnum %"PRVNUM".",
@@ -737,8 +737,8 @@ void do_mptransfer(CharData* ch, char* argument)
     RoomData* location;
     CharData* victim;
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
 
     if (arg1[0] == '\0') {
         bug("Mptransfer - Bad syntax from vnum %"PRVNUM".",
@@ -805,8 +805,8 @@ void do_mpgtransfer(CharData* ch, char* argument)
     CharData* victim;
     CharData* victim_next = NULL;
 
-    argument = one_argument(argument, arg1);
-    argument = one_argument(argument, arg2);
+    READ_ARG(arg1);
+    READ_ARG(arg2);
 
     if (arg1[0] == '\0') {
         bug("Mpgtransfer - Bad syntax from vnum %"PRVNUM".",
@@ -837,7 +837,7 @@ void do_mpforce(CharData* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (arg[0] == '\0' || argument[0] == '\0') {
         bug("Mpforce - Bad syntax from vnum %"PRVNUM".",
@@ -886,7 +886,7 @@ void do_mpgforce(CharData* ch, char* argument)
     CharData* vch;
     CharData* vch_next = NULL;
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (arg[0] == '\0' || argument[0] == '\0') {
         bug("MpGforce - Bad syntax from vnum %"PRVNUM".",
@@ -922,7 +922,7 @@ void do_mpvforce(CharData* ch, char* argument)
     char arg[MAX_INPUT_LENGTH];
     VNUM vnum;
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     if (arg[0] == '\0' || argument[0] == '\0') {
         bug("MpVforce - Bad syntax from vnum %"PRVNUM".",
@@ -967,7 +967,7 @@ void do_mpcast(CharData* ch, char* argument)
     SKNUM sn;
     SpellTarget spell_target = SPELL_TARGET_NONE;
 
-    argument = one_argument(argument, arg_spell);
+    READ_ARG(arg_spell);
     one_argument(argument, arg_target);
 
     if (arg_spell[0] == '\0') {
@@ -1039,9 +1039,9 @@ void do_mpdamage(CharData* ch, char* argument)
     VNUM high;
     bool fAll = false, fKill = false;
 
-    argument = one_argument(argument, target);
-    argument = one_argument(argument, min);
-    argument = one_argument(argument, max);
+    READ_ARG(target);
+    READ_ARG(min);
+    READ_ARG(max);
 
     if (target[0] == '\0') {
         bug("MpDamage - Bad syntax from vnum %"PRVNUM".",
@@ -1167,7 +1167,7 @@ void do_mpcall(CharData* ch, char* argument)
     ObjectData* obj1, * obj2;
     MobProgCode* prg;
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
     if (arg[0] == '\0') {
         bug("MpCall: missing arguments from vnum %"PRVNUM".",
             IS_NPC(ch) ? ch->prototype->vnum : 0);
@@ -1180,13 +1180,13 @@ void do_mpcall(CharData* ch, char* argument)
     }
     vch = NULL;
     obj1 = obj2 = NULL;
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
     if (arg[0] != '\0')
         vch = get_char_room(ch, arg);
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
     if (arg[0] != '\0')
         obj1 = get_obj_here(ch, arg);
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
     if (arg[0] != '\0')
         obj2 = get_obj_here(ch, arg);
     program_flow(prg->vnum, prg->code, ch, vch, (void*)obj1, (void*)obj2);
@@ -1238,7 +1238,7 @@ void do_mpotransfer(CharData* ch, char* argument)
     char arg[MAX_INPUT_LENGTH];
     char buf[MAX_INPUT_LENGTH];
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
     if (arg[0] == '\0') {
         bug("MpOTransfer - Missing argument from vnum %"PRVNUM".",
             IS_NPC(ch) ? ch->prototype->vnum : 0);
@@ -1277,7 +1277,7 @@ void do_mpremove(CharData* ch, char* argument)
     bool fAll = false;
     char arg[MAX_INPUT_LENGTH];
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
     if ((victim = get_char_room(ch, arg)) == NULL)
         return;
 

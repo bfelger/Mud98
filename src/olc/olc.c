@@ -350,7 +350,7 @@ void do_olc(CharData* ch, char* argument)
     char command[MAX_INPUT_LENGTH];
     int cmd;
 
-    argument = one_argument(argument, command);
+    READ_ARG(command);
 
     if (command[0] == '\0') {
         do_help(ch, "olc");
@@ -386,7 +386,7 @@ bool process_olc_command(CharData* ch, char* argument, const OlcCmdEntry* table)
     int temp;
     uintptr_t pointer;
 
-    argument = one_argument(argument, arg);
+    READ_ARG(arg);
 
     for (temp = 0; table[temp].name; temp++) {
         if (LOWER(arg[0]) == LOWER(table[temp].name[0])

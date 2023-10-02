@@ -263,7 +263,7 @@ static inline bool lookup_color(char* argument, Color* color, CharData* ch)
     }
 
     char color_arg[50];
-    argument = one_argument(argument, color_arg);
+    READ_ARG(color_arg);
 
     if (color_arg[0] == '#') {
         // Set it to an 24-bit RGB value.
@@ -277,7 +277,7 @@ static inline bool lookup_color(char* argument, Color* color, CharData* ch)
 
         if (color_arg[7] != ';' || color_arg[8] != '\0') {
             send_to_char("{jRGB color codes must be hexadecimal values of "
-                "the format {*#RRGGBB{j.{x\n\r", ch);
+                "the format {*#RRGGBB;{j.{x\n\r", ch);
             return false;
         }
 
@@ -291,7 +291,7 @@ static inline bool lookup_color(char* argument, Color* color, CharData* ch)
         int idx;
         int pal_max = ch->pcdata->current_theme->palette_max;
 
-        argument = one_argument(argument, pal_arg);
+        READ_ARG(pal_arg);
 
         if (!pal_arg[0] || !is_number(pal_arg)) {
             send_to_char("{jA palette space must be specified by number "
@@ -364,7 +364,7 @@ static void do_theme_channel(CharData* ch, char* argument)
     int chan = -1;
     ColorTheme* theme = ch->pcdata->current_theme;
 
-    argument = one_argument(argument, chan_arg);
+    READ_ARG(chan_arg);
     if (!chan_arg[0]) {
         send_to_char(help, ch);
         return;
@@ -464,13 +464,13 @@ static void do_theme_config(CharData* ch, char* argument)
     char opt[MAX_INPUT_LENGTH];
     bool enable = false;
 
-    argument = one_argument(argument, cmd);
+    READ_ARG(cmd);
     if (!cmd[0]) {
         send_to_char(help, ch);
         return;
     }
 
-    argument = one_argument(argument, opt);
+    READ_ARG(opt);
     if (!opt[0]) {
         send_to_char(help, ch);
         return;
@@ -532,7 +532,7 @@ static void do_theme_create(CharData* ch, char* argument)
         return;
     }
 
-    argument = one_argument(argument, mode_arg);
+    READ_ARG(mode_arg);
 
     if (!mode_arg[0] 
         || (mode = lookup_color_mode(mode_arg)) < COLOR_MODE_16
@@ -657,7 +657,7 @@ static void do_theme_list(CharData* ch, char* argument)
     bool shared = false;
     bool priv = false;
 
-    argument = one_argument(argument, opt);
+    READ_ARG(opt);
 
     if (!opt[0] || !str_prefix(opt, "all")) {
         priv = true;
@@ -784,7 +784,7 @@ static void do_theme_palette(CharData* ch, char* argument)
     ColorTheme* theme = ch->pcdata->current_theme;
 
     char arg1[MAX_INPUT_LENGTH];
-    argument = one_argument(argument, arg1);
+    READ_ARG(arg1);
 
     if (!is_number(arg1) && theme->mode == COLOR_MODE_256) {
         send_to_char("{jPalette index must be a number.{x\n\r", ch);
@@ -1085,7 +1085,7 @@ static void do_theme_set(CharData* ch, char* argument)
 
     char opt[50] = { 0 };
 
-    argument = one_argument(argument, opt);
+    READ_ARG(opt);
 
     if (!opt[0] || !str_prefix(opt, "help")) {
         send_to_char(help, ch);
@@ -1314,7 +1314,7 @@ void do_theme(CharData* ch, char* argument)
         return;
     }
 
-    argument = one_argument(argument, cmd);
+    READ_ARG(cmd);
 
     if (!str_prefix(cmd, "help")) {
         send_to_char(help, ch);
