@@ -98,8 +98,7 @@ void do_medit(CharData* ch, char* argument)
         }
 
         set_editor(ch->desc, ED_MOBILE, U(pMob));
-/*		ch->desc->pEdit = (void *) pMob;
-        ch->desc->editor = ED_MOBILE; */
+        medit_show(ch, "");
         return;
     }
     else {
@@ -125,6 +124,7 @@ void do_medit(CharData* ch, char* argument)
             if (ed_new_mob("create", ch, argument, 0, 0)) {
                 SET_BIT(pArea->area_flags, AREA_CHANGED);
                 ch->desc->editor = ED_MOBILE;
+                medit_show(ch, "");
             }
             return;
         }
@@ -135,7 +135,7 @@ void do_medit(CharData* ch, char* argument)
 }
 
 /* Mobile Interpreter, called by do_medit. */
-void    medit(CharData* ch, char* argument)
+void medit(CharData* ch, char* argument)
 {
     AreaData* pArea;
     MobPrototype* pMob;
@@ -172,63 +172,54 @@ void    medit(CharData* ch, char* argument)
 MEDIT(medit_show)
 {
     MobPrototype* pMob;
-    char buf[MAX_STRING_LENGTH];
+    char arg[MIL];
     MobProg* list;
     int cnt;
-    Buffer* buffer;
 
-    READ_ARG(buf);
+    READ_ARG(arg);
 
-    if (IS_NULLSTR(buf)) {
+    if (IS_NULLSTR(arg)) {
         if (ch->desc->editor == ED_MOBILE)
             EDIT_MOB(ch, pMob);
         else {
-            send_to_char("ERROR : You must specify a vnum to look at.\n\r", ch);
+            send_to_char("{jERROR: You must specify a vnum to look at.{x\n\r", ch);
             return false;
         }
     }
     else {
-        pMob = get_mob_prototype(atoi(buf));
+        pMob = get_mob_prototype(atoi(arg));
 
         if (!pMob) {
-            send_to_char("ERROR : That mob does not exist.\n\r", ch);
+            send_to_char("{jERROR: That mob does not exist.{x\n\r", ch);
             return false;
         }
 
         if (!IS_BUILDER(ch, pMob->area)) {
-            send_to_char("ERROR : You do not have access to the area that mob is in.\n\r", ch);
+            send_to_char("{jERROR: You do not have access to the area that mob is in.{x\n\r", ch);
             return false;
         }
     }
 
-    buffer = new_buf();
+    INIT_BUF(buffer, MSL);
 
-    sprintf(buf, "Name:        [%s]\n\rArea:        [%5d] %s\n\r",
-        pMob->name,
+    addf_buf(buffer, "Name:        {|[{*%s{|]{x\n\r", pMob->name);
+    addf_buf(buffer, "Vnum:        {|[{*%6d{|]{x\n\r", pMob->vnum);
+    addf_buf(buffer, "Area:        {|[{*%6d{|] {_%s{x\n\r",
         !pMob->area ? -1 : pMob->area->vnum,
         !pMob->area ? "No Area" : pMob->area->name);
-    add_buf(buffer, buf);
 
-    sprintf(buf, "Act:         [%s]\n\r",
-        flag_string(act_flag_table, pMob->act_flags));
-    add_buf(buffer, buf);
-
-    sprintf(buf, "Vnum:        [%5d] Sex:   [%6s]    Group: [%5d]\n\r"
-        "Level:       [%2d]    Align: [%4d]   Dam type: [%s]\n\r",
-        pMob->vnum,
+    addf_buf(buffer, "Level:       {|[{*%6d{|]{x Sex:     {|[{*%6s{|]{x Group:   {|[{*%5d{|]{x\n\r"
+        "Align:       {|[{*%6d{|]{x Hitroll: {|[{*%6d{|]{x Dam type: {|[{*%s{|]{x\n\r",
+        pMob->level,
         ((pMob->sex >= SEX_MIN && pMob->sex <= SEX_MAX) ? sex_table[pMob->sex].name : "ERROR"),
         pMob->group,
-        pMob->level,
         pMob->alignment,
+        pMob->hitroll,
         attack_table[pMob->dam_type].name);
-    add_buf(buffer, buf);
 
-/* ROM values: */
-
-    sprintf(buf, "Hit dice:    [%2dd%-3d+%4d] "
-        "Damage dice: [%2dd%-3d+%4d]\n\r"
-        "Mana dice:   [%2dd%-3d+%4d] "
-        "Hitroll:     [%d]\n\r",
+    addf_buf(buffer, 
+        "Hit dice:    {|[{*%3dd%-3d+%4d{|]{x Damage dice:  {|[{*%3dd%-3d+%4d{|]{x\n\r"
+        "Mana dice:   {|[{*%3dd%-3d+%4d{|]{x Material:     {|[{*%12s{|]{x\n\r",
         pMob->hit[DICE_NUMBER],
         pMob->hit[DICE_TYPE],
         pMob->hit[DICE_BONUS],
@@ -237,80 +228,47 @@ MEDIT(medit_show)
         pMob->damage[DICE_BONUS],
         pMob->mana[DICE_NUMBER],
         pMob->mana[DICE_TYPE],
-        pMob->mana[DICE_BONUS],
-        pMob->hitroll);
-    add_buf(buffer, buf);
-
-/* ROM values end */
-
-    sprintf(buf, "Race:        [%16s] "        /* ROM OLC */
-        "Size:         [%16s]\n\r",
+        pMob->mana[DICE_BONUS], 
+        pMob->material);
+ 
+    addf_buf(buffer, "Race:        {|[{*%12s{|]{x Size:         {|[{*%12s{|]{x\n\r",
         race_table[pMob->race].name,
         ((pMob->size >= MOB_SIZE_MIN && pMob->size <= MOB_SIZE_MAX) ?
             mob_size_table[pMob->size].name : "ERROR"));
-    add_buf(buffer, buf);
 
-    sprintf(buf, "Material:    [%16s] "
-        "Wealth:       [%5d]\n\r",
-        pMob->material,
-        pMob->wealth);
-    add_buf(buffer, buf);
-
-    sprintf(buf, "Start pos.:  [%16s] "
-        "Default pos.: [%16s]\n\r",
+    addf_buf(buffer, "Start pos.:  {|[{*%12s{|]{x Default pos.: {|[{*%12s{|]{x\n\r",
         position_table[pMob->start_pos].name,
         position_table[pMob->default_pos].name);
-    add_buf(buffer, buf);
 
-    sprintf(buf, "Affected by: [%s]\n\r",
-        flag_string(affect_flag_table, pMob->affect_flags));
-    add_buf(buffer, buf);
+    addf_buf(buffer, "Wealth:      {|[{*%5d{|]{x\n\r",
+        pMob->wealth);
 
-/* ROM values: */
-
-    sprintf(buf, "Armor:       [pierce: %d  bash: %d  slash: %d  magic: %d]\n\r",
+    addf_buf(buffer, "Armor:       {|[{_pierce: {*%d{_  bash: {*%d{_  slash: {*%d{_  magic: {*%d{|]{x\n\r",
         pMob->ac[AC_PIERCE], pMob->ac[AC_BASH],
         pMob->ac[AC_SLASH], pMob->ac[AC_EXOTIC]);
-    add_buf(buffer, buf);
 
-    sprintf(buf, "Form:        [%s]\n\r",
-        flag_string(form_flag_table, pMob->form));
-    add_buf(buffer, buf);
+    addf_buf(buffer, "Affected by: {|[{*%s{|]{x\n\r",
+        flag_string(affect_flag_table, pMob->affect_flags));
 
-    sprintf(buf, "Parts:       [%s]\n\r",
-        flag_string(part_flag_table, pMob->parts));
-    add_buf(buffer, buf);
+    addf_buf(buffer, "Act:         {|[{*%s{|]{x\n\r",
+        flag_string(act_flag_table, pMob->act_flags));
 
-    sprintf(buf, "Imm:         [%s]\n\r",
-        flag_string(imm_flag_table, pMob->imm_flags));
-    add_buf(buffer, buf);
-
-    sprintf(buf, "Res:         [%s]\n\r",
-        flag_string(res_flag_table, pMob->res_flags));
-    add_buf(buffer, buf);
-
-    sprintf(buf, "Vuln:        [%s]\n\r",
-        flag_string(vuln_flag_table, pMob->vuln_flags));
-    add_buf(buffer, buf);
-
-    sprintf(buf, "Off:         [%s]\n\r",
-        flag_string(off_flag_table, pMob->atk_flags));
-    add_buf(buffer, buf);
-
-/* ROM values end */
+    addf_buf(buffer, "Form:        {|[{*%s{|]{x\n\r", flag_string(form_flag_table, pMob->form));
+    addf_buf(buffer, "Parts:       {|[{*%s{|]{x\n\r", flag_string(part_flag_table, pMob->parts));
+    addf_buf(buffer, "Imm:         {|[{*%s{|]{x\n\r", flag_string(imm_flag_table, pMob->imm_flags));
+    addf_buf(buffer, "Res:         {|[{*%s{|]{x\n\r", flag_string(res_flag_table, pMob->res_flags));
+    addf_buf(buffer, "Vuln:        {|[{*%s{|]{x\n\r", flag_string(vuln_flag_table, pMob->vuln_flags));
+    addf_buf(buffer, "Off:         {|[{*%s{|]{x\n\r", flag_string(off_flag_table, pMob->atk_flags));
 
     if (pMob->spec_fun) {
-        sprintf(buf, "Spec fun:    [%s]\n\r", spec_name(pMob->spec_fun));
-        add_buf(buffer, buf);
+        addf_buf(buffer, "Spec fun:    {|[{*%s{|]{x\n\r", spec_name(pMob->spec_fun));
     }
 
-    sprintf(buf, "Short descr: %s\n\rLong descr:\n\r%s",
+    addf_buf(buffer, "Short descr: {_%s{x\n\rLong descr:\n\r{_%s{x",
         pMob->short_descr,
         pMob->long_descr);
-    add_buf(buffer, buf);
 
-    sprintf(buf, "Description:\n\r%s", pMob->description);
-    add_buf(buffer, buf);
+    addf_buf(buffer, "Description:\n\r{_%s{x", pMob->description);
 
     if (pMob->pShop) {
         ShopData* pShop;
@@ -318,49 +276,45 @@ MEDIT(medit_show)
 
         pShop = pMob->pShop;
 
-        sprintf(buf,
-            "Shop data for [%5d]:\n\r"
-            "  Markup for purchaser: %d%%\n\r"
-            "  Markdown for seller:  %d%%\n\r",
+        addf_buf(buffer,
+            "Shop data for {|[{*%5d{|]{x:\n\r"
+            "  Markup for purchaser: {*%d%%{x\n\r"
+            "  Markdown for seller:  {*%d%%{x\n\r",
             pShop->keeper, pShop->profit_buy, pShop->profit_sell);
-        add_buf(buffer, buf);
-        sprintf(buf, "  Hours: %d to %d.\n\r",
+        addf_buf(buffer, "  Hours: {_%d{x to {_%d{x.\n\r",
             pShop->open_hour, pShop->close_hour);
-        add_buf(buffer, buf);
 
         for (iTrade = 0; iTrade < MAX_TRADE; iTrade++) {
             if (pShop->buy_type[iTrade] != 0) {
                 if (iTrade == 0) {
-                    add_buf(buffer, "  Number Trades Type\n\r");
-                    add_buf(buffer, "  ------ -----------\n\r");
+                    add_buf(buffer, "  {TNumber Trades Type\n\r");
+                    add_buf(buffer, "  {=------ -----------{x\n\r");
                 }
-                sprintf(buf, "  [%4d] %s\n\r", iTrade,
+                addf_buf(buffer, "  {|[{*%4d{|]{x {_%s{x\n\r", iTrade,
                     flag_string(type_flag_table, pShop->buy_type[iTrade]));
-                add_buf(buffer, buf);
             }
         }
     }
 
     if (pMob->mprogs) {
-        sprintf(buf,
-            "\n\rMOBPrograms for [%5d]:\n\r", pMob->vnum);
-        add_buf(buffer, buf);
+        addf_buf(buffer,
+            "\n\rMOBPrograms for {|[{*%5d{|]{x:\n\r", pMob->vnum);
 
         for (cnt = 0, list = pMob->mprogs; list; list = list->next) {
             if (cnt == 0) {
-                add_buf(buffer, " Number Vnum Trigger Phrase\n\r");
-                add_buf(buffer, " ------ ---- ------- ------\n\r");
+                add_buf(buffer, " {TNumber Vnum Trigger Phrase\n\r");
+                add_buf(buffer, " {=------ ---- ------- ------\n\r");
             }
 
-            sprintf(buf, "[%5d] %4d %7s %s\n\r", cnt,
+            addf_buf(buffer, "{|[{*%5d{|] {*%4d %7s {_%s{x\n\r", cnt,
                 list->vnum, mprog_type_to_name(list->trig_type),
                 list->trig_phrase);
-            add_buf(buffer, buf);
             cnt++;
         }
     }
 
-    page_to_char(BUF(buffer), ch);
+    //page_to_char(BUF(buffer), ch);
+    send_to_char(BUF(buffer), ch);
 
     free_buf(buffer);
 
@@ -775,7 +729,7 @@ ED_FUN_DEC(ed_addprog)
     READ_ARG(trigger);
 
     if (!is_number(numb) || trigger[0] == '\0' || argument[0] == '\0') {
-        send_to_char("Syntax:   addmprog [vnum] [trigger] [phrase]\n\r", ch);
+        send_to_char("Syntax:   addprog [vnum] [trigger] [phrase]\n\r", ch);
         return false;
     }
 

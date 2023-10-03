@@ -1,3 +1,3 @@
 # Mud98
 
-- [Customizing Mud98](customization.md)
+- [Worldcrafting from Scratch &mdash; New Beginnings](customize-01.md)

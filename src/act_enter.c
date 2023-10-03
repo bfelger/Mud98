@@ -73,7 +73,8 @@ void do_enter(CharData* ch, char* argument)
 {
     RoomData* location;
 
-    if (ch->fighting != NULL) return;
+    if (ch->fighting != NULL)
+        return;
 
     /* nifty portal stuff */
     if (argument[0] != '\0') {

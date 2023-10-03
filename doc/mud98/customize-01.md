@@ -1,4 +1,4 @@
-# Customizing Mud98
+# Worldcrafting from Scratch Pt. 1 &mdash; New Beginnings
 
 Mud98 isn't a MUD; it's a MUD _codebase_. The task of crafting a MUD around it is up to you. The original area files are provided if you want to experience ROM at is was back in 1998; but they aren't very serious or cohesive, and there's a good chance you don't actually want the 1950's diner in Midgaard in your fantasy-themed setting.
 
@@ -153,6 +153,10 @@ Untracked files:
 
 That's it! I now have my new starting area, and I'm read to start adding to rooms to it.
 
+> You _are_ using `git` to keep track of your changes, right?
+> 
+> Right?
+
 ### Creating the starting room
 
 The command for editing rooms is `REDIT`, and it always helps to type `HELP REDIT` before you use it. Creating almost as simple as creating an area; all we need is the starting VNUM:
@@ -214,10 +218,6 @@ Typing `.h` for help yields a list of really helpul commands. In particular, `.f
 I will enter some nice, overwrought, pretentious prose:
 
 ```
-You step off the end of an old rope ladder at the base of Cuivealda, the
-Tree of Awakening. Your years in the nurturing hands of the Tetyayath have
-come to an end. Now you must go out into the world and find your destiny. 
-
 You stand next to the great old trunk of Cuivealda. The light is dim, as
 the dense, high canopy that forms Tauremar covers the sky. There is little
 ground cover, and the forest floor is a desolate place of perpetual
@@ -347,10 +347,6 @@ Where do we end up?
 
 ```
 The Awakening
-  You step off the end of an old rope ladder at the base of Cuivealda, the
-Tree of Awakening. Your years in the nurturing hands of the Tetyayath have
-come to an end. Now you must go out into the world and find your destiny.
- 
 You stand next to the great old trunk of Cuivealda. The light is dim, as
 the dense, high canopy that forms Tauremar covers the sky. There is little
 ground cover, and the forest floor is a desolate place of perpetual
@@ -360,3 +356,269 @@ You have no unread notes.
 ```
 
 Oops. I forgot to log out of my Imp. But now we have a solid start on building out a newbie zone for elves.
+
+### Creating a greeting for new characters
+
+I want to display a banner for new characters when they enter the game, but I only want it to display once. Rather than trying to create a new field, I'm going to add a trigger to do it. Right now, the only way to add triggers is on mobs, so first I'll need to make a triggerbot.
+
+#### Making the triggerbot
+
+The command to create mobiles is `MEDIT`. I will create my triggerbot with this command:
+
+```
+medit create 12000
+```
+
+> Note the re-use of the VNUM. VNUM's are only unique to a certain type of entity (`RoomData`, `MobPrototype`, `ObjPrototype`, etc), and can be shared _across_ them. To have keep things less confusing, for any given VNUM `X`, I try to keep them all in one place: the `ObjPrototype` with VNUM `X` will be held by the `MobPrototype` with VNUM `X`, in the `RoomData` with VNUM `X`. Consider spacing out room VNUMs to accomodate.
+
+Anyway, the command we entered creates a new `MobPrototype` (_not_ a `CharData`... not yet) and displays it as a blank slate:
+
+```
+
+Name:        [no name]
+Vnum:        [ 12000]
+Area:        [    48] Faladrin Forest
+Level:       [     0] Sex:     [  none] Group:   [    0]
+Align:       [     0] Hitroll: [     0] Dam type: [none]
+Hit dice:    [  0d0  +   0] Damage dice:  [  0d0  +   0]
+Mana dice:   [  0d0  +   0] Material:     [     unknown]
+Race:        [       human] Size:         [      medium]
+Start pos.:  [    standing] Default pos.: [    standing]
+Wealth:      [    0]
+Armor:       [pierce: 0  bash: 0  slash: 0  magic: 0]
+Affected by: [none]
+Act:         [npc]
+Form:        [none]
+Parts:       [none]
+Imm:         [none]
+Res:         [none]
+Vuln:        [none]
+Off:         [none]
+Short descr: (no short description)
+Long descr:
+(no long description)
+Description:
+```
+
+Because this is a triggerbot, I don't actually want much on this. I'll give it a name, make it `sentinal` so it doesn't wander, and make it invisible to players:
+
+```
+name triggerbot_12000
+act sentinel
+aff invis
+```
+
+That's it; that's all I care about. I'll save the bot with `done` and get cracking on making its Mob Prog.
+
+#### Creating the Mob Prog
+
+The command to create Mob Progs is `MPEDIT`:
+
+```
+mpedit create 12000
+```
+
+Now we are in the context of editting the Mob Prog:
+
+```
+Vnum:       [12000]
+Code:
+```
+
+The editor is a line editor, much like room descriptions, using the `code` command. I will use this script:
+
+```
+mob echoat $n {*You step off the end of an old rope ladder at the base of Cuivealda, the{/Tree of Awakening. Your years in the nurturing hands of the Tetyayath have{/come to an end.{/{/Now you must go out into the world and find your destiny...{/{x
+```
+
+The `mob echoat $n` command says that the mob executing the script will perform an "echo" (unquoted text) directly to the character that prompted the trigger. I added coloration to add some flair as a call-out. The `{/` color code is actually a new-line. When do doing mobprogs like this, you will need to keep track of your own line endings.
+
+I now close off the code with `@`, and finish the MobProg with `done`.
+
+Now I have the Mob Prog that I want `triggerbot_12000` to perform, but now I need to add the trigger.
+
+#### Making the triggerbot trigger
+
+I open up my triggerbot for editing again:
+
+```
+medit 12000
+```
+
+If I check `COMMANDS`, I see there is an `ADDPROG` command. A blind call yields this:
+
+```
+Syntax:   addprog [vnum] [trigger] [phrase]
+```
+
+Here's the command to add the trigger:
+
+```
+addprog 12000 act has entered the game
+```
+
+The first parameter is the VNUM of the Mob Prog (not the mob itself; we're already editing that), followed by the trigger, `act`. This means anything it can _see_. The rest of the command is an unquoted string (in this case, "has entered the game") that the triggerbot will look for in all "acts" (broadcasts to the room).
+
+As it just so happens, the first thing anyone sees of a new character in the start location is:
+
+```
+Bob has entered the game.
+```
+
+This trigger will activate _before_ the target receives the room description. This is very handy.
+
+Now we need to finish off `MEDIT` with `done`, and actually place the triggerbot in the room.
+
+#### Adding triggerbot to the room
+
+Edit the room again:
+
+```
+redit 12000
+```
+
+The command to load a mob into the room is `MRESET`.
+
+A blind call yields the syntax:
+
+```
+Syntax:  mreset <vnum> <max #x> <min #x>
+```
+
+I only ever want one, and always one, so I enter this:
+
+```
+mreset 12000 1 1
+```
+
+Ok, so now it's added, which we verify with the `RESETS` command:
+
+```
+Resets: M = mobile, R = room, O = object, P = pet, S = shopkeeper
+ No.  Loads    Description       Location         Vnum   Ar Rm Description
+==== ======== ============= =================== ======== ===== ===========
+[ 1] M[12000] (no short des                     R[12000]  1- 1 The Awakening  
+```
+
+It's in the room, but you won't see it, as it was marked invisible.
+
+#### Testing the triggerbot
+
+Now all we need to do is log in with a new character and see if the new intro text works:
+
+```
+Welcome to Mud98. Please do not feed the mobiles.
+
+You step off the end of an old rope ladder at the base of Cuivealda, the
+Tree of Awakening. Your years in the nurturing hands of the Tetyayath have
+come to an end.
+
+Now you must go out into the world and find your destiny...
+
+The Awakening
+  You stand next to the great old trunk of Cuivealda. The light is dim, as
+the dense, high canopy that forms Tauremar covers the sky. There is little
+ground cover, and the forest floor is a desolate place of perpetual
+twilight.
+You have no unread notes.
+```
+
+The first thing an elf character sees on this MUD now is a narrative introduction, and a framing story to guide them through the rest of the "MUD School" replacement.
+
+But there needs to be more. I need an "OOC" call-out telling them what to do next. 
+
+#### Delayed MobProgs
+
+There is some text I would like to display just after the room description; but the `GREET` trigger won't be triggered because we didn't "move" into the room, and the `ACT` trigger is resolved _before_ the room is shown to the PC (which I have taken advantage of).
+
+I will use a `DELAY` trigger.
+
+First, I need to modify the existing MobProg:
+
+```
+mpedit 12000
+code
+```
+
+...and append the following lines:
+
+```
+mob remember $n
+mob delay 1
+```
+
+`MOB REMEMBER` makes the mob stow away the trigger activator's name for later. Future triggers can pull it out and look for it.
+
+`MOB DELAY` creates a secondary trigger after the specified "mob pulses", which are approximately a fourth-of-a-second. I selected `1` (because `0` doesn't work) so that it occurs as soon after the prompt as possible.
+
+I will create a Mob Prog reset with the `DELAY` trigger; but first I need the Mob Prog itself:
+
+```
+mpedit create 12001
+code
+```
+
+... and this is the code I enter
+
+```
+if hastarget $i
+    mob echoat $q {_You have instructions to meet your old mentor in a clearing just to the east. There you{/will continue your training. Type '{*EXITS{_' to see what lies in that direction. Type '{*EAST{_'{/to go there.{x
+else
+    mob forget
+endif
+```
+
+Note that the `MOB ECHOAT` is one lone line. MobProgs are very rudimentary. I may address that in the future, but for now I will work with what I have.
+
+The first line demonstrates MobProgs simple `IF...Else...` logic. There is no "elif" logic. This version of MobProgs actually descends from a more capable, but much _buggier_ Mob Progs. This stripped down version is straightforward and fool-proof.
+
+> However, I now remember back in my Imp days, crafting many tiers of nested `IF`s with a final line of `ENDIF ENDIF ENDIF ENDIF ENDIF`. I think making a basic `ELIF` would be my first Mob Progs extension.
+
+`HASTARGET $i` is a simple test that checks to see if the name stored in the mob's memory belongs to anyone it can see. If it does, it performs `MOB ECHOAT $q`. Last time, we used `$n` to mean the person that triggered the Mob Prog. But in this case, the trigger was a `DELAY` timer. `$q` uses the name "remembered" by the mob.
+
+And if there's no such person, the mob forgets them.
+
+Finally I add the Mob Prog as a new reset:
+
+```
+medit 12000
+addprog 12001 delay 100
+done
+asave changed
+```
+
+Here are the MobProgs for the room, now:
+
+```
+MOBPrograms for [12000]:
+ Number Vnum Trigger Phrase
+ ------ ---- ------- ------
+[    0] 12001   DELAY 100
+[    1] 12000     ACT has entered the game
+```
+
+And how does it work? I log in with a new elf character and test it:
+
+```
+Welcome to Mud98. Please do not feed the mobiles.
+
+You step off the end of an old rope ladder at the base of Cuivealda, the
+Tree of Awakening. Your years in the nurturing hands of the Tetyayath have
+come to an end.
+
+Now you must go out into the world and find your destiny...
+
+The Awakening
+  You stand next to the great old trunk of Cuivealda. The light is dim, as
+the dense, high canopy that forms Tauremar covers the sky. There is little
+ground cover, and the forest floor is a desolate place of perpetual
+twilight.
+You have no unread notes.
+
+<20hp 100m 100mv>
+You have instructions to meet your old mentor in a clearing just to the east. There you
+will continue your training. Type 'EXITS' to see what lies in that direction. Type 'EAST'
+to go there.
+```
+
+The intro text and the OOC quest text are distinctively colored and useful, and I didn't have to contrive adding them to room descriptions like MUD school did. 

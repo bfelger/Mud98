@@ -156,7 +156,6 @@ CharData* create_mobile(MobPrototype* p_mob_proto)
     }
 
     if (p_mob_proto->new_format)
-    /* load in new style */
     {
         /* read from prototype */
         mob->group = p_mob_proto->group;

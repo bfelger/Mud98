@@ -395,108 +395,101 @@ static void update_msdp_vars(Descriptor* d)
  * This function takes 25% to 35% of ALL Merc cpu time.
  * -- Furey
  */
-void mobile_update(void)
+void mobile_update()
 {
-    PlayerData* pc_next = NULL;
     CharData* ch = NULL;
     CharData* ch_next = NULL;
     ExitData* pexit = NULL;
     int door;
 
-    for (PlayerData* pc = player_list; pc != NULL; pc = pc_next) {
-        pc_next = pc->next;
+    /* Examine all mobs. */
+    for (ch = char_list; ch != NULL; ch = ch_next) {
+        ch_next = ch->next;
 
-        if (!pc->ch || !pc->ch->in_room)
-            continue;
-
-        if (pc->ch->desc && pc->ch->desc->mth->msdp_data
+        if (ch->desc && ch->desc->mth->msdp_data
             && cfg_get_msdp_enabled()) {
-            update_msdp_vars(pc->ch->desc);
+            update_msdp_vars(ch->desc);
         }
 
-    /* Examine all mobs. */
-        for (ch = pc->ch->in_room->people; ch != NULL; ch = ch_next) {
-            ch_next = ch->next_in_room;
+        if (ch->pcdata || ch->in_room == NULL || IS_AFFECTED(ch, AFF_CHARM))
+            continue;
 
-            if (ch == pc->ch || IS_AFFECTED(ch, AFF_CHARM))
+        if (ch->in_room->area->empty && !IS_SET(ch->act_flags, ACT_UPDATE_ALWAYS))
+            continue;
+
+        /* Examine call for special procedure */
+        if (ch->spec_fun != 0) {
+            if ((*ch->spec_fun)(ch)) 
                 continue;
+        }
 
-            if (!IS_SET(ch->act_flags, ACT_UPDATE_ALWAYS))
-                continue;
+        if (ch->prototype->pShop != NULL) /* give him some gold */
+            if (((int)ch->gold * 100 + (int)ch->silver) < ch->prototype->wealth) {
+                ch->gold
+                    += (int16_t)(ch->prototype->wealth * number_range(1, 20) / 5000000);
+                ch->silver
+                    += (int16_t)(ch->prototype->wealth * number_range(1, 20) / 50000);
+            }
 
-            /* Examine call for special procedure */
-            if (ch->spec_fun != 0) {
-                if ((*ch->spec_fun)(ch)) 
+        /*
+            * Check triggers only if mobile still in default position
+            */
+        if (ch->position == ch->prototype->default_pos) {
+            /* Delay */
+            if (HAS_TRIGGER(ch, TRIG_DELAY)
+                && ch->mprog_delay > 0) {
+                if (--ch->mprog_delay <= 0) {
+                    mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_DELAY);
+                    continue;
+                }
+            }
+            if (HAS_TRIGGER(ch, TRIG_RANDOM)) {
+                if (mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_RANDOM))
                     continue;
             }
+        }
 
-            if (ch->prototype->pShop != NULL) /* give him some gold */
-                if (((int)ch->gold * 100 + (int)ch->silver) < ch->prototype->wealth) {
-                    ch->gold
-                        += (int16_t)(ch->prototype->wealth * number_range(1, 20) / 5000000);
-                    ch->silver
-                        += (int16_t)(ch->prototype->wealth * number_range(1, 20) / 50000);
-                }
+        /* That's all for sleeping / busy monster, and empty zones */
+        if (ch->position != POS_STANDING)
+            continue;
 
-            /*
-             * Check triggers only if mobile still in default position
-             */
-            if (ch->position == ch->prototype->default_pos) {
-                /* Delay */
-                if (HAS_TRIGGER(ch, TRIG_DELAY)
-                    && ch->mprog_delay > 0) {
-                    if (--ch->mprog_delay <= 0) {
-                        mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_DELAY);
-                        continue;
-                    }
-                }
-                if (HAS_TRIGGER(ch, TRIG_RANDOM)) {
-                    if (mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_RANDOM))
-                        continue;
+        /* Scavenge */
+        if (IS_SET(ch->act_flags, ACT_SCAVENGER) && ch->in_room->contents != NULL
+            && number_bits(6) == 0) {
+            ObjectData* obj;
+            ObjectData* obj_best;
+            int max;
+
+            max = 1;
+            obj_best = 0;
+            for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
+                if (CAN_WEAR(obj, ITEM_TAKE) && can_loot(ch, obj)
+                    && obj->cost > max && obj->cost > 0) {
+                    obj_best = obj;
+                    max = obj->cost;
                 }
             }
 
-            /* That's all for sleeping / busy monster, and empty zones */
-            if (ch->position != POS_STANDING) continue;
-
-            /* Scavenge */
-            if (IS_SET(ch->act_flags, ACT_SCAVENGER) && ch->in_room->contents != NULL
-                && number_bits(6) == 0) {
-                ObjectData* obj;
-                ObjectData* obj_best;
-                int max;
-
-                max = 1;
-                obj_best = 0;
-                for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
-                    if (CAN_WEAR(obj, ITEM_TAKE) && can_loot(ch, obj)
-                        && obj->cost > max && obj->cost > 0) {
-                        obj_best = obj;
-                        max = obj->cost;
-                    }
-                }
-
-                if (obj_best) {
-                    obj_from_room(obj_best);
-                    obj_to_char(obj_best, ch);
-                    act("$n gets $p.", ch, obj_best, NULL, TO_ROOM);
-                }
+            if (obj_best) {
+                obj_from_room(obj_best);
+                obj_to_char(obj_best, ch);
+                act("$n gets $p.", ch, obj_best, NULL, TO_ROOM);
             }
+        }
 
-            /* Wander */
-            if (!IS_SET(ch->act_flags, ACT_SENTINEL) && number_bits(3) == 0
-                && (door = number_bits(5)) <= 5
-                && (pexit = ch->in_room->exit[door]) != NULL
-                && pexit->u1.to_room != NULL && !IS_SET(pexit->exit_flags, EX_CLOSED)
-                && !IS_SET(pexit->u1.to_room->room_flags, ROOM_NO_MOB)
-                && (!IS_SET(ch->act_flags, ACT_STAY_AREA)
-                    || pexit->u1.to_room->area == ch->in_room->area)
-                && (!IS_SET(ch->act_flags, ACT_OUTDOORS)
-                    || !IS_SET(pexit->u1.to_room->room_flags, ROOM_INDOORS))
-                && (!IS_SET(ch->act_flags, ACT_INDOORS)
-                    || IS_SET(pexit->u1.to_room->room_flags, ROOM_INDOORS))) {
-                move_char(ch, door, false);
-            }
+        /* Wander */
+        if (!IS_SET(ch->act_flags, ACT_SENTINEL) && number_bits(3) == 0
+            && (door = number_bits(5)) <= 5
+            && (pexit = ch->in_room->exit[door]) != NULL
+            && pexit->u1.to_room != NULL && !IS_SET(pexit->exit_flags, EX_CLOSED)
+            && !IS_SET(pexit->u1.to_room->room_flags, ROOM_NO_MOB)
+            && (!IS_SET(ch->act_flags, ACT_STAY_AREA)
+                || pexit->u1.to_room->area == ch->in_room->area)
+            && (!IS_SET(ch->act_flags, ACT_OUTDOORS)
+                || !IS_SET(pexit->u1.to_room->room_flags, ROOM_INDOORS))
+            && (!IS_SET(ch->act_flags, ACT_INDOORS)
+                || IS_SET(pexit->u1.to_room->room_flags, ROOM_INDOORS))) {
+            move_char(ch, door, false);
         }
     }
 }

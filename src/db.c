@@ -1085,8 +1085,9 @@ void fix_exits(void)
                     }
                 }
             }
-            if (!fexit)
-                SET_BIT(pRoomIndex->room_flags, ROOM_NO_MOB);
+// Removed by Halivar
+//            if (!fexit)
+//                SET_BIT(pRoomIndex->room_flags, ROOM_NO_MOB);
         }
     }
 
