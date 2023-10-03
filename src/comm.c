@@ -1700,7 +1700,7 @@ void nanny(Descriptor * d, char* argument)
         break;
 
     case CON_READ_MOTD:
-        sprintf(buf, "\n\rWelcome to %s. Please do not feed the mobiles.\n\r", cfg_get_mud_name());
+        sprintf(buf, "\n\rWelcome to %s. Please do not feed the mobiles.\n\r\n\r", cfg_get_mud_name());
         write_to_buffer(d, buf, 0);
         ch->next = char_list;
         char_list = ch;

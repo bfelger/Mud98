@@ -1,0 +1,64 @@
+
+1. Why the mud crashes when I...?
+
+	Learn to use GDB. Read the ROM FAQ.
+
+2. How do I create new commands?
+
+	- Insert your do_something() in the appropriate file.
+	  (act_comm.c if it's for channels, etc)
+
+	- Add your declaration to the command.h file:
+
+	  COMMAND(do_something)
+
+	- make clean && make
+
+	- boot the mud, log in with your god and type:
+
+		cmdedit new something
+
+	- tweak your new command with the cmdeditor.
+
+3. How do I create new skills?
+
+	- Insert your spell_something() in magic.c or magic2.c.
+
+	- Add your declaration to the magic.h file:
+
+	  SPELL(spell_something)
+
+	- make clean && make
+
+	- boot the mud, log in with your god and type:
+
+		skedit new something
+
+	- tweak your new spell with the skeditor.
+
+4. How do I create new races?
+
+	- I'm working on it. In the meantime, check the '../data/races'
+	  file and the 'racesavetable' table in tablesave.c. You CAN
+	  modify your existing races though (raedit human).
+
+5. How do I create [socials/mobprogs/helps/groups]?
+
+	- Try to figure out how the editors (sedit, pedit, hedit, gedit)
+	  works. If you can't, check the source files. THESE SOURCE FILES
+	  ARE SMALL AND YOU SHOULD TRY TO UNDERSTAND HOW THEY WORK. PLEASE
+	  DON'T SPAM THE ROM LIST. LOOK AT THE CODE!
+
+6. What does 'Direccion inexistente' means?
+   What does <insert your favorite spanish words here> means?
+
+	- Point your browser to http://babelfish.altavista.com
+
+	- Or check the ROM LIST ARCHIVES for translations. I believe
+	  that there are some. DON'T ASK FOR THEM IN THE ROM LIST.
+
+7. Why the patchfile doesn't work with my mud?
+
+	- Probably because it's not stock Rom 2.4b6. The patchfile
+	  IS useless if you're not working with stock Rom. Hand patch
+	  it. Or try some of the 'color-olc-whatever' Rom derivatives.

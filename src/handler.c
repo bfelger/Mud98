@@ -1565,7 +1565,8 @@ CharData* get_char_world(CharData* ch, char* argument)
     int number;
     int count;
 
-    if ((wch = get_char_room(ch, argument)) != NULL) return wch;
+    if ((wch = get_char_room(ch, argument)) != NULL) 
+        return wch;
 
     number = number_argument(argument, arg);
     count = 0;
@@ -1573,7 +1574,8 @@ CharData* get_char_world(CharData* ch, char* argument)
         if (wch->in_room == NULL || !can_see(ch, wch)
             || !is_name(arg, wch->name))
             continue;
-        if (++count == number) return wch;
+        if (++count == number) 
+            return wch;
     }
 
     return NULL;

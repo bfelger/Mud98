@@ -21,6 +21,8 @@
 
 #define REDIT(fun) bool fun( CharData *ch, char *argument )
 
+void display_resets(CharData* ch, RoomData* pRoom);
+
 RoomData xRoom;
 
 #ifdef U
@@ -272,34 +274,23 @@ REDIT(redit_show)
 
     EDIT_ROOM(ch, pRoom);
 
-    sprintf(BUF(line), "Description:\n\r{_%s{x", pRoom->description);
-    add_buf(out, BUF(line));
-
-    sprintf(BUF(line), "Name:       {|[{*%s{|]{x\n\rArea:       {|[{*%5d{|] {_%s{x\n\r",
+    addf_buf(out, "Description:\n\r{_%s{x", pRoom->description);
+    addf_buf(out, "Name:       {|[{*%s{|]{x\n\rArea:       {|[{*%5d{|] {_%s{x\n\r",
         pRoom->name, pRoom->area->vnum, pRoom->area->name);
-    add_buf(out, BUF(line));
-
-    sprintf(BUF(line), "Vnum:       {|[{*%5d{|]{x\n\rSector:     {|[{*%s{|]{x\n\r",
+    addf_buf(out, "Vnum:       {|[{*%5d{|]{x\n\rSector:     {|[{*%s{|]{x\n\r",
         pRoom->vnum, flag_string(sector_flag_table, pRoom->sector_type));
-    add_buf(out, BUF(line));
-
-    sprintf(BUF(line), "Room flags: {|[{*%s{|]{x\n\r",
+    addf_buf(out, "Room flags: {|[{*%s{|]{x\n\r",
         flag_string(room_flag_table, pRoom->room_flags));
-    add_buf(out, BUF(line));
-
-    sprintf(BUF(line), "Heal rec:   {|[{*%d{|]{x\n\rMana rec:   {|[{*%d{|]{x\n\r",
+    addf_buf(out, "Heal rec:   {|[{*%d{|]{x\n\rMana rec:   {|[{*%d{|]{x\n\r",
         pRoom->heal_rate, pRoom->mana_rate);
-    add_buf(out, BUF(line));
 
     if (pRoom->clan) {
-        sprintf(BUF(line), "Clan:       {|[{*%d{|] {_%s{x\n\r", pRoom->clan,
+        addf_buf(out, "Clan:       {|[{*%d{|] {_%s{x\n\r", pRoom->clan,
             ((pRoom->clan > 0) ? clan_table[pRoom->clan].name : "none"));
-        add_buf(out, BUF(line));
     }
 
     if (pRoom->owner && pRoom->owner[0] != '\0') {
-        sprintf(BUF(line), "Owner:      {|[{*%s{|]{x\n\r", pRoom->owner);
-        add_buf(out, BUF(line));
+        addf_buf(out, "Owner:      {|[{*%s{|]{x\n\r", pRoom->owner);
     }
 
     if (pRoom->extra_desc) {
@@ -351,17 +342,13 @@ REDIT(redit_show)
         int i;
         size_t length;
 
-        BUF(word)[0] = '\0';
-        BUF(reset_state)[0] = '\0';
-
         if (pRoom->exit[cnt] == NULL)
             continue;
 
-        sprintf(BUF(line), "    %-5s:  {|[{*%5d{|]{x Key: {|[{*%5d{|]{x",
+        addf_buf(out, "    %-5s:  {|[{*%5d{|]{x Key: {|[{*%5d{|]{x",
             capitalize(dir_list[cnt].name),
             pRoom->exit[cnt]->u1.to_room ? pRoom->exit[cnt]->u1.to_room->vnum : 
             0, pRoom->exit[cnt]->key);
-        add_buf(out, BUF(line));
 
     /*
      * Format up the exit info.
@@ -405,6 +392,13 @@ REDIT(redit_show)
 
     free_buf(word);
     free_buf(reset_state);
+
+    if (ch->in_room->reset_first) {
+        send_to_char(
+            "Resets: M = mobile, R = room, O = object, "
+            "P = pet, S = shopkeeper\n\r", ch);
+        display_resets(ch, ch->in_room);
+    }
 
     return false;
 }
@@ -778,7 +772,6 @@ REDIT(redit_mreset)
     char arg2[MAX_INPUT_LENGTH];
 
     ResetData* pReset;
-    char output[MAX_STRING_LENGTH];
 
     EDIT_ROOM(ch, pRoom);
 
@@ -817,13 +810,12 @@ REDIT(redit_mreset)
     newmob = create_mobile(p_mob_proto);
     char_to_room(newmob, pRoom);
 
-    sprintf(output, "{j%s (%d) has been added to resets.\n\r"
+    printf_to_char(ch, "{j%s (%d) has been added to resets.\n\r"
         "There will be a maximum of %d in the area, and %d in this room.{x\n\r",
         capitalize(p_mob_proto->short_descr),
         p_mob_proto->vnum,
         pReset->arg2,
         pReset->arg4);
-    send_to_char(output, ch);
     act("$n has created $N!", ch, NULL, newmob, TO_ROOM);
     return true;
 }
@@ -1316,7 +1308,7 @@ void display_resets(CharData* ch, RoomData* pRoom)
             }
 
             pMob = p_mob_proto;
-            sprintf(buf, "M{|[{*%5d{|]{x %-13.13s on the ground       R{|[{*%5d{|]{x %2d-%2d %-15.15s\n\r",
+            sprintf(buf, "M{|[{*%5d{|]{x %-13.13s                     R{|[{*%5d{|]{x %2d-%2d %-15.15s\n\r",
                 pReset->arg1, pMob->short_descr, pReset->arg3,
                 pReset->arg2, pReset->arg4, pRoomIndex->name);
             strcat(final, buf);
@@ -1352,7 +1344,7 @@ void display_resets(CharData* ch, RoomData* pRoom)
                 continue;
             }
 
-            sprintf(buf, "O{|[{*%5d{|]{x %-13.13s on the ground       "
+            sprintf(buf, "O{|[{*%5d{|]{x %-13.13s                     "
                 "R{|[{*%5d{|]{x       %-15.15s\n\r",
                 pReset->arg1, pObj->short_descr,
                 pReset->arg3, pRoomIndex->name);
@@ -1508,6 +1500,14 @@ void    add_reset(RoomData* room, ResetData* pReset, int indice)
 
 void do_resets(CharData* ch, char* argument)
 {
+    static const char* help =
+        "Syntax: {*RESET <number> OBJ <vnum> <wear_loc>\n\r"
+        "        RESET <number> OBJ <vnum> inside <vnum> [limit] [count]\n\r"
+        "        RESET <number> OBJ <vnum> room\n\r"
+        "        RESET <number> MOB <vnum> [max #x area] [max #x room]\n\r"
+        "        RESET <number> DELETE\n\r"
+        "        RESET <number> RANDOM [#x exits]{x\n\r";
+
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char arg3[MAX_INPUT_LENGTH];
@@ -1544,6 +1544,7 @@ void do_resets(CharData* ch, char* argument)
         }
         else
             send_to_char("No resets in this room.\n\r", ch);
+        return;
     }
 
     /*
@@ -1711,76 +1712,71 @@ void do_resets(CharData* ch, char* argument)
                 send_to_char("Random exits reset added.\n\r", ch);
             }
             else {
-                send_to_char("Syntax: {*RESET <number> OBJ <vnum> <wear_loc>\n\r", ch);
-                send_to_char("        RESET <number> OBJ <vnum> inside <vnum> [limit] [count]\n\r", ch);
-                send_to_char("        RESET <number> OBJ <vnum> room\n\r", ch);
-                send_to_char("        RESET <number> MOB <vnum> [max #x area] [max #x room]\n\r", ch);
-                send_to_char("        RESET <number> DELETE\n\r", ch);
-                send_to_char("        RESET <number> RANDOM [#x exits]{x\n\r", ch);
+                send_to_char(help, ch);
             }
     }
-    else // arg1 no es un number
-    {
-        if (!str_cmp(arg1, "add")) {
-            int tvar = 0, found = 0;
-            char* arg;
+    if (!str_cmp(arg1, "add")) {
+        int tvar = 0, found = 0;
+        char* arg;
 
-            if (is_number(arg2)) {
-                send_to_char("{jInvalid syntax.{x\n\r"
-                    "Your options are:\n\r"
-                    "{*reset add mob [vnum/name]\n\r"
-                    "reset add obj [vnum/name]\n\r"
-                    "reset add [name]{x\n\r", ch);
-                return;
-            }
+        if (is_number(arg2)) {
+            send_to_char("{jInvalid syntax.{x\n\r"
+                "Your options are:\n\r"
+                "{*reset add mob [vnum/name]\n\r"
+                "reset add obj [vnum/name]\n\r"
+                "reset add [name]{x\n\r", ch);
+            return;
+        }
 
-            if (!str_cmp(arg2, "mob")) {
-                tvar = 1;
+        if (!str_cmp(arg2, "mob")) {
+            tvar = 1;
+            arg = arg3;
+        }
+        else
+            if (!str_cmp(arg2, "obj")) {
+                tvar = 2;
                 arg = arg3;
             }
             else
-                if (!str_cmp(arg2, "obj")) {
-                    tvar = 2;
-                    arg = arg3;
-                }
-                else
-                    arg = arg2;
+                arg = arg2;
 
-            if (tvar == 0 || tvar == 1) {
-                if (is_number(arg))
-                    found = get_mob_prototype(atoi(arg)) ? atoi(arg) : 0;
-                else
-                    found = get_vnum_mob_name_area(arg, ch->in_room->area);
-                if (found)
-                    tvar = 1;
-            }
+        if (tvar == 0 || tvar == 1) {
+            if (is_number(arg))
+                found = get_mob_prototype(atoi(arg)) ? atoi(arg) : 0;
+            else
+                found = get_vnum_mob_name_area(arg, ch->in_room->area);
+            if (found)
+                tvar = 1;
+        }
 
-            if (found == 0 && (tvar == 0 || tvar == 2)) {
-                if (is_number(arg))
-                    found = get_object_prototype(atoi(arg)) ? atoi(arg) : 0;
-                else
-                    found = get_vnum_obj_name_area(arg, ch->in_room->area);
-                if (found)
-                    tvar = 2;
-            }
+        if (found == 0 && (tvar == 0 || tvar == 2)) {
+            if (is_number(arg))
+                found = get_object_prototype(atoi(arg)) ? atoi(arg) : 0;
+            else
+                found = get_vnum_obj_name_area(arg, ch->in_room->area);
+            if (found)
+                tvar = 2;
+        }
 
-            if (found == 0) {
-                printf_to_char(ch, "%s was not found in the area.\n\r",
-                    (tvar == 0) ? "Mob/object" : ((tvar == 1) ? "Mob" : "Object"));
-                return;
-            }
-            pReset = new_reset_data();
-            pReset->command = tvar == 1 ? 'M' : 'O';
-            pReset->arg1 = found;
-            pReset->arg2 = (tvar == 2) ? 0 : MAX_MOB;	/* Max # */
-            pReset->arg3 = ch->in_room->vnum;
-            pReset->arg4 = (tvar == 2) ? 0 : MAX_MOB;	/* Min # */
+        if (found == 0) {
+            printf_to_char(ch, "%s was not found in the area.\n\r",
+                (tvar == 0) ? "Mob/object" : ((tvar == 1) ? "Mob" : "Object"));
+            return;
+        }
+        pReset = new_reset_data();
+        pReset->command = tvar == 1 ? 'M' : 'O';
+        pReset->arg1 = found;
+        pReset->arg2 = (tvar == 2) ? 0 : MAX_MOB;	/* Max # */
+        pReset->arg3 = ch->in_room->vnum;
+        pReset->arg4 = (tvar == 2) ? 0 : MAX_MOB;	/* Min # */
 
-            printf_to_char(ch, "Added reset of %s %d...", tvar == 1 ? "mob" : "object", found);
-            add_reset(ch->in_room, pReset, -1); // al final
-            SET_BIT(ch->in_room->area->area_flags, AREA_CHANGED);
-            send_to_char("Done.\n\r", ch);
-        } // anadir
+        printf_to_char(ch, "Added reset of %s %d...", tvar == 1 ? "mob" : "object", found);
+        add_reset(ch->in_room, pReset, -1); // al final
+        SET_BIT(ch->in_room->area->area_flags, AREA_CHANGED);
+        send_to_char("Done.\n\r", ch);
+    } 
+    else if (!str_cmp(arg1, "help") || !str_cmp(arg1, "?")) {
+        send_to_char(help, ch);
     }
 
     return;

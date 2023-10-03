@@ -1,8 +1,6 @@
 /* The following code is based on ILAB OLC by Jason Dinkel */
 /* Mobprogram code by Lordrom for Nevermore Mud */
 
-
-
 #include "merc.h"
 
 #include "comm.h"
@@ -49,7 +47,7 @@ const OlcCmdEntry prog_olc_comm_table[] =
 void pedit(CharData* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_PEDIT_SECURITY) {
-        send_to_char("MPEdit : You do not have enough security to edit prog.\n\r", ch);
+        send_to_char("PEdit : You do not have enough security to edit progs.\n\r", ch);
         edit_done(ch);
         return;
     }
@@ -102,6 +100,7 @@ void do_pedit(CharData* ch, char* argument)
         }
         ch->desc->pEdit = U(pMcode);
         ch->desc->editor = ED_PROG;
+        pedit_show(ch, "");
         return;
     }
 
@@ -112,6 +111,7 @@ void do_pedit(CharData* ch, char* argument)
         }
 
         pedit_create(ch, argument);
+        pedit_show(ch, "");
         return;
     }
 
