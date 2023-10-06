@@ -735,7 +735,7 @@ OEDIT(oedit_show)
 
         send_to_char("Ex desc kwd: ", ch);
 
-        for (ed = pObj->extra_desc; ed; ed = ed->next) {
+        FOR_EACH(ed, pObj->extra_desc) {
             send_to_char("[", ch);
             send_to_char(ed->keyword, ch);
             send_to_char("]", ch);
@@ -748,7 +748,7 @@ OEDIT(oedit_show)
         pObj->short_descr, pObj->description);
     send_to_char(buf, ch);
 
-    for (cnt = 0, paf = pObj->affected; paf; paf = paf->next) {
+    for (cnt = 0, paf = pObj->affected; paf; NEXT_LINK(paf)) {
         if (cnt == 0) {
             send_to_char("Number Modifier Affects      Adds\n\r", ch);
             send_to_char("------ -------- ------------ ----\n\r", ch);

@@ -20,7 +20,7 @@ ExitData* new_exit()
     }
     else {
         pExit = exit_free;
-        exit_free = exit_free->next;
+        NEXT_LINK(exit_free);
     }
 
     pExit->u1.to_room = NULL;                  /* ROM OLC */

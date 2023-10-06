@@ -240,6 +240,19 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
 
     buf[0] = '\0';
 
+    bool is_npc = IS_NPC(victim);
+
+    if (is_npc) {
+        QuestTarget* qt = get_quest_targ_mob(ch, victim->prototype->vnum);
+        if (qt) {
+            if (victim->prototype->vnum == qt->end_vnum 
+                && can_finish_quest(ch, qt->quest_vnum))
+                strcat(buf, "{*[{Y?{x{*]{x ");
+            else if (victim->prototype->vnum == qt->target_vnum)
+                strcat(buf, "{*[{Y!{x{*]{x ");
+        }
+    }
+
     if (IS_SET(victim->comm_flags, COMM_AFK)) strcat(buf, "{_[AFK]{x ");
     if (IS_AFFECTED(victim, AFF_INVISIBLE)) strcat(buf, "{*(Invis){x ");
     if (victim->invis_level >= LEVEL_HERO) strcat(buf, "{*(Wizi){x ");
@@ -252,9 +265,9 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
     if (IS_GOOD(victim) && IS_AFFECTED(ch, AFF_DETECT_GOOD))
         strcat(buf, "{Y(Golden Aura){x ");
     if (IS_AFFECTED(victim, AFF_SANCTUARY)) strcat(buf, "{W(White Aura){x ");
-    if (!IS_NPC(victim) && IS_SET(victim->act_flags, PLR_KILLER))
+    if (!is_npc && IS_SET(victim->act_flags, PLR_KILLER))
         strcat(buf, "{R(KILLER){x ");
-    if (!IS_NPC(victim) && IS_SET(victim->act_flags, PLR_THIEF))
+    if (!is_npc && IS_SET(victim->act_flags, PLR_THIEF))
         strcat(buf, "{R(THIEF){x ");
     if (victim->position == victim->start_pos
         && victim->long_descr[0] != '\0') {
@@ -264,7 +277,7 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
     }
 
     strcat(buf, PERS(victim, ch));
-    if (!IS_NPC(victim) && !IS_SET(ch->comm_flags, COMM_BRIEF)
+    if (!is_npc && !IS_SET(ch->comm_flags, COMM_BRIEF)
         && victim->position == POS_STANDING && ch->on == NULL)
         strcat(buf, victim->pcdata->title);
 
@@ -462,7 +475,7 @@ void show_char_to_char(CharData* list, CharData* ch)
 {
     CharData* rch;
 
-    for (rch = list; rch != NULL; rch = rch->next_in_room) {
+    FOR_EACH_IN_ROOM(rch, list) {
         if (rch == ch)
             continue;
 
@@ -1483,7 +1496,7 @@ void do_affects(CharData* ch, char* argument)
 
     if (ch->affected != NULL) {
         send_to_char("You are affected by the following spells:\n\r", ch);
-        for (paf = ch->affected; paf != NULL; paf = paf->next) {
+        FOR_EACH(paf, ch->affected) {
             if (paf_last != NULL && paf->type == paf_last->type) {
                 if (ch->level >= 20)
                     sprintf(buf, "                      ");
@@ -1611,7 +1624,7 @@ void do_help(CharData* ch, char* argument)
         strcat(argall, argone);
     }
 
-    for (pHelp = help_first; pHelp != NULL; pHelp = pHelp->next) {
+    FOR_EACH(pHelp, help_first) {
         level = (pHelp->level < 0) ? -1 * pHelp->level - 1 : pHelp->level;
 
         if (level > get_trust(ch)) continue;
@@ -1666,7 +1679,7 @@ void do_whois(CharData* ch, char* argument)
 
     output = new_buf();
 
-    for (d = descriptor_list; d != NULL; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         CharData* wch;
         char const* class_;
 
@@ -1810,7 +1823,7 @@ void do_who(CharData* ch, char* argument)
     nMatch = 0;
     buf[0] = '\0';
     output = new_buf();
-    for (d = descriptor_list; d != NULL; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         CharData* wch;
         char const* class_;
 
@@ -1882,7 +1895,7 @@ void do_count(CharData* ch, char* argument)
 
     count = 0;
 
-    for (d = descriptor_list; d != NULL; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         if (d->connected == CON_PLAYING && can_see(ch, d->character))
             count++;
     }
@@ -2046,7 +2059,7 @@ void do_where(CharData* ch, char* argument)
     if (arg[0] == '\0') {
         send_to_char("Players near you:\n\r", ch);
         found = false;
-        for (d = descriptor_list; d; d = d->next) {
+        FOR_EACH(d, descriptor_list) {
             if (d->connected == CON_PLAYING && (victim = d->character) != NULL
                 && !IS_NPC(victim) && victim->in_room != NULL
                 && !IS_SET(victim->in_room->room_flags, ROOM_NOWHERE)
@@ -2064,7 +2077,7 @@ void do_where(CharData* ch, char* argument)
     }
     else {
         found = false;
-        for (victim = char_list; victim != NULL; victim = victim->next) {
+        FOR_EACH(victim, char_list) {
             if (victim->in_room != NULL
                 && victim->in_room->area == ch->in_room->area
                 && !IS_AFFECTED(victim, AFF_HIDE)
@@ -2300,7 +2313,7 @@ void do_practice(CharData* ch, char* argument)
             return;
         }
 
-        for (mob = ch->in_room->people; mob != NULL; mob = mob->next_in_room) {
+        FOR_EACH_IN_ROOM(mob, ch->in_room->people) {
             if (IS_NPC(mob) && IS_SET(mob->act_flags, ACT_PRACTICE))
                 break;
         }

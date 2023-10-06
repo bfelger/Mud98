@@ -143,7 +143,7 @@ AreaData* get_vnum_area(VNUM vnum)
 {
     AreaData* pArea;
 
-    for (pArea = area_first; pArea; pArea = pArea->next) {
+    FOR_EACH(pArea, area_first) {
         if (vnum >= pArea->min_vnum
             && vnum <= pArea->max_vnum)
             return pArea;
@@ -466,7 +466,7 @@ bool check_range(VNUM lower, VNUM upper)
     AreaData* pArea;
     int cnt = 0;
 
-    for (pArea = area_first; pArea; pArea = pArea->next) {
+    FOR_EACH(pArea, area_first) {
         // lower < area < upper
         if ((lower <= pArea->min_vnum && pArea->min_vnum <= upper)
             || (lower <= pArea->max_vnum && pArea->max_vnum <= upper))
@@ -625,7 +625,7 @@ void do_alist(CharData* ch, char* argument)
 
     {
         int i = 0;
-        for (AreaData* pArea = area_first; pArea; pArea = pArea->next) {
+        for (AreaData* pArea = area_first; pArea; NEXT_LINK(pArea)) {
             alist[i++] = pArea;
         }
     }
@@ -683,7 +683,7 @@ AreaData* get_area_data(VNUM vnum)
 {
     AreaData* pArea;
 
-    for (pArea = area_first; pArea; pArea = pArea->next) {
+    FOR_EACH(pArea, area_first) {
         if (pArea->vnum == vnum)
             return pArea;
     }

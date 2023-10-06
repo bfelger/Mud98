@@ -68,7 +68,7 @@ But don't go that high; it will mess with the formatting.
 
 For purposes of this example, I'll choose VNUM `12000`. It's a nice, round number. I now also need an upper bound. Most existing areas have a range of 100 to 250 VNUMs. I think 100 is a good start. We can always expand it later (if we don't "VNUM stack" like some of the stock ROM areas do).
 
-### Creating a new area
+## Creating a new area
 
 Before creating your new area, type `HELP AEDIT` and get a rough idea of the information you will need. To get started, simply type this:
 
@@ -159,7 +159,7 @@ That's it! I now have my new starting area, and I'm read to start adding to room
 
 ### Creating the starting room
 
-The command for editing rooms is `REDIT`, and it always helps to type `HELP REDIT` before you use it. Creating almost as simple as creating an area; all we need is the starting VNUM:
+The command for editing rooms is `REDIT`, and it always helps to type `HELP REDIT` before you use it. Creating a room is almost as simple as creating an area; all we need is the starting VNUM:
 
 ```
 redit create 12000
@@ -275,7 +275,7 @@ Str:12(16) Int:14(20) Wis:13(18) Dex:15(21) Con:11(15)
  1. hide
 ```
 
-Notice under `Start Loc`, it says "(not used)". That means Mud98 isn't configured to use racial start locations. Be default, all non-stock-ROM behavior is disabled to provide a more authentic, legacy ROM experience out-of-the-box.
+Notice under `Start Loc`, it says "(not used)". That means Mud98 isn't configured to use racial start locations. By default, all non-stock-ROM behavior is disabled to provide a more authentic, legacy ROM experience out-of-the-box.
 
 Open up `mud98.cfg` in the root directory and change this setting (uncommenting it, if needed):
 
@@ -284,6 +284,8 @@ start_loc_by_race = yes
 ```
 
 Note that this is a completely safe flag; it has no effect on races that don't have a start location set, yet.
+
+> You may have noticed that there is also a class `start_loc` and a per-race-class-combo `start_loc`. These can be used with each other freely. You can have a single spawn point for mages, a single spawn point for elves, and separate spawn points for all the other race/class combos. It's meant to give you maximum flexibility in world-building. To take advantage of this, you need to also enable `start_loc_by_class` in `mud98.cfg`.
 
 Restart Mud98 and log back in with your Imp character. Then `raedit elf` again. Note that now `Start Loc` is `0`, but the warning that it won't be used is gone.
 
@@ -311,10 +313,10 @@ Points      : [5]
 Size        : [small]
 Start Loc   : [12000] The Awakening 
     Class      XPmult  XP/lvl(pts)   Start Loc
-    Mage        100     1000( 40)    [    0] The Awakening  (not used)
-    Cleric      125     1000( 40)    [    0] The Awakening  (not used)
-    Thief       100     1000( 40)    [    0] The Awakening  (not used)
-    Warrior     120     1000( 40)    [    0] The Awakening  (not used)
+    Mage        100     1000( 40)    [    0]  (not used)
+    Cleric      125     1000( 40)    [    0]  (not used)
+    Thief       100     1000( 40)    [    0]  (not used)
+    Warrior     120     1000( 40)    [    0]  (not used)
 
 Str:12(16) Int:14(20) Wis:13(18) Dex:15(21) Con:11(15) 
  0. sneak
@@ -431,7 +433,7 @@ The editor is a line editor, much like room descriptions, using the `code` comma
 mob echoat $n {*You step off the end of an old rope ladder at the base of Cuivealda, the{/Tree of Awakening. Your years in the nurturing hands of the Tetyayath have{/come to an end.{/{/Now you must go out into the world and find your destiny...{/{x
 ```
 
-The `mob echoat $n` command says that the mob executing the script will perform an "echo" (unquoted text) directly to the character that prompted the trigger. I added coloration to add some flair as a call-out. The `{/` color code is actually a new-line. When do doing mobprogs like this, you will need to keep track of your own line endings.
+The `mob echoat $n` command says that the mob executing the script will perform an "echo" (unquoted text) directly to the character that prompted the trigger. I added coloration to add some flair as a call-out. The `{/` color code is actually a new-line. When doing mobprogs like this, you will need to keep track of your own line endings.
 
 I now close off the code with `@`, and finish the MobProg with `done`.
 
@@ -558,7 +560,7 @@ mpedit create 12001
 code
 ```
 
-... and this is the code I enter
+...and this is the code I enter:
 
 ```
 if hastarget $i
@@ -622,3 +624,202 @@ to go there.
 ```
 
 The intro text and the OOC quest text are distinctively colored and useful, and I didn't have to contrive adding them to room descriptions like MUD school did. 
+
+## Quest-driven expansion
+
+I've already mentioned a clearing to the east. Now I need to make it. Here's a wonderful shorthand in OLC for building out areas:
+
+```
+redit 12000
+east dig 12005
+```
+
+This creates a new room (VNUM `12005`) and creates a two-way, east-west link between them. After "digging", you are now in the new room, editing it. 
+
+> IMXP, the best way to build an area is to sketch it out first, assigning VNUMs ahead of time. I space VNUM's by 5, but if rooms will be dense, I space by 10. This lets me group obj and mob VNUMs by room in a way that is predictable and easy to manage.
+>
+> Sketch out the area as uniform blocks. Even in my MUD days (late 90's) auto-mappers were ubiquitious, and players were more partial to area layouts that didn't muck with their maps.
+
+Set the new room's attributes as we did before, keeping in mind this is a clearing and there will be a quest mob, here.
+
+### Making the quest mob
+
+Since the room is VNUM `12005`, I'll make the quest mob have the same VNUM:
+
+```
+medit create 12005
+name findorian woodspeaker
+level 20
+race elf
+act sentinel
+off assist_race
+res weapon bash
+short Findorian, the Woodspeaker
+
+long Findorian, the Woodspeaker, kneels in the grassy clearing, gazing intently at
+the dark woods surrounding you.
+```
+
+His stats are pretty bland. You can try to figure out what his hitroll and dice, and all that should be, or you can set them to sensible defaults with:
+
+```
+recval
+```
+
+I don't know what that means. But it uses a lookup table in `tables.c` to set default values that the entire MUD, for the most part, adheres to. You can tweak to your preference.
+
+If you want to see these combat ratings on a sample of other mobs in the world, you can use the `MOBLIST` command (not to be confused with `MLIST`, which is only in OLC and is more bare-bones).
+
+Once you have the mob where you want him, you can set him in place:
+
+```
+done
+redit 12005
+mreset 12005 1 1
+done
+asave changed
+```
+
+Always save your work.
+
+### Creating the player's first quest
+
+The first quest the elf player will receive is to go see Findorian, who will dispense the next set of quests. Since our first triggerbot will initiate the first quest, I'll use that VNUM:
+
+```
+qedit create 12000
+```
+
+This creates a blank slate of a quest:
+
+```
+New quest created.
+VNUM:       [12000]
+Name:       (none)
+Area:       Faladrin Forest
+Type:       [visit_mob]
+Level:      [0]
+End:        [0] (none)
+Target:     [0] (none)
+XP:         [0]
+Entry:      [none]
+```
+
+I then fill in some information:
+
+```
+name An Old Friend
+level 1
+end 12005
+target 12005
+xp 100
+```
+
+I also add text for the quest log entry with the `ENTRY` command. Here;s what it looks like when finished:
+
+```
+VNUM:       [12000]
+Name:       An Old Friend
+Area:       Faladrin Forest
+Type:       [visit_mob]
+Level:      [1]
+End:        [12005] Findorian, the Woodspeaker
+Target:     [12005] Findorian, the Woodspeaker
+XP:         [100]
+Entry:
+Before you step out into the greater world, you must be trained.  To that
+end, your old mentor Findorian has has taken the responsibility to ensure
+you are properly made ready.  He waits for you just to the east of
+Cuivealda.  
+```
+
+The default type is `visit_mob`, which is just right for us right now. I need to go back and edit MobProg `12001` (the 1 pulse delayed action). This is the new, updated code:
+
+```
+if hastarget $i
+    mob echoat $q {_You have instructions to meet your old mentor in a clearing just to the east. There you will continue your training. Type '{*EXITS{_' to see what lies in that direction. Type '{*EAST{_' to go there.{x
+    if canquest $q 12000
+        mob quest grant $q 12000
+        mob echoat $q {jType '{*QUEST{j' to view your quest log.{x
+    endif
+else
+    mob forget
+endif
+```
+
+The quest system in Mud98 is a novel addition of my own. There is an existing quest system for ROM that was fairly popular back in the day, but it relies on hard-coded quests and had no OLC support. Mud98's quest system is entirely OLC-driven.
+
+In this example, the `canquest` condition checks to see if the player is eligible for the quest (at the time of this writing, this check is a level limit and an "already-completed" check). If eligible, the player is "granted" the quest, and it is now active for them. 
+
+This is what the player sees:
+
+```
+You have instructions to meet your old mentor in a clearing just to the east.
+There you will continue your training. Type 'EXITS' to see what lies in that 
+direction. Type 'EAST' to go there.
+You have started the quest, "An Old Friend".
+Type 'QUEST' to view your quest log.
+```
+
+Here is what they see when they type `QUEST`:
+
+```
+Active Quests in Faladrin Forest:
+
+1. An Old Friend [Level 1]
+Before you step out into the greater world, you must be trained.  To that
+end, your old mentor Findorian has has taken the responsibility to ensure you
+are properly made ready.  He waits for you just to the east of Cuivealda.
+```
+
+This list will obviously grow as the player progresses. World quests (those outside their immediate area) will be displayed as a collapsed list below. Completed quests are hidden.
+
+### Finishing the quest
+
+Findorian (mob VNUM `12005`) is our quest handler. We designated him both as the quest "target" and quest "end".  We need a new Mob Prog to receive and handle the quest:
+
+```
+mpedit create 12005
+code
+
+if canfinishquest $n 12000
+    say There you are, $n; I'm glad to see you. I wish I could ease you into the
+brutal World Below, but we have no such luck.
+    mob echo $I sighs.
+    say I need your help with something, and it's not going to be pleasant.
+    mob quest finish $n 12000
+endif
+@
+done
+```
+
+I then assign this Mob Prog with a `GREET` trigger:
+
+```
+medit 12005
+addprog 12005 greet 100
+done
+asave changed
+```
+
+So, how did we do? This is what a new character sees when they enter the room with Findorian:
+
+```
+The Training Ground
+  Dappled sunlight breaks through the canopy in this clearing.  A patch of
+grass grows, green and vibrant, in the center.  Dark pathways through to
+trees go out in all directions.  
+[?] Findorian, the Woodspeaker, kneels in the grassy clearing, gazing intently
+at the dark woods surrounding you.
+Findorian, the Woodspeaker says 'There you are, Elithir; I'm glad to see you. I
+wish I could ease you into the brutal World Below, but we have no such luck.'
+Findorian, the Woodspeaker sighs.
+Findorian, the Woodspeaker says 'I need your help with something, and it's not
+going to be pleasant.'
+You have completed the quest, "An Old Friend".
+You have been awarded 100 xp.
+```
+
+The player has now completed their first quest. I could have done a more "automated" way of handling quests that didn't involve Mob Progs, but I believe this method lets forces builders to create a more customized and narrative experience around levelling.
+
+The `[?]` symbol in front of Findorian's name is a short-hand from MMO's meaning "this person is ready to complete your quest." In this case, the process was automated. Other quests may require some interaction. It's up to you.

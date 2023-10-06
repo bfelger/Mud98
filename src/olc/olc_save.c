@@ -36,6 +36,7 @@
 #include "entities/player_data.h"
 
 #include "data/mobile.h"
+#include "data/quest.h"
 #include "data/race.h"
 #include "data/skill.h"
 
@@ -86,7 +87,7 @@ bool area_changed(void)
 {
     AreaData* pArea;
 
-    for (pArea = area_first; pArea; pArea = pArea->next)
+    FOR_EACH(pArea, area_first)
         if (IS_SET(pArea->area_flags, AREA_CHANGED))
             return true;
 
@@ -123,11 +124,11 @@ void save_area_list(void)
 
     OPEN_OR_RETURN(fp = open_write_area_list());
 
-    for (ha = help_area_list; ha; ha = ha->next)
+    FOR_EACH(ha, help_area_list)
         if (ha->area == NULL)
             fprintf(fp, "%s\n", ha->filename);
 
-    for (pArea = area_first; pArea; pArea = pArea->next) {
+    FOR_EACH(pArea, area_first) {
         fprintf(fp, "%s\n", pArea->file_name);
     }
 
@@ -268,7 +269,7 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
     if ((temp = DIF(race_table[race].parts, p_mob_proto->parts)))
         fprintf(fp, "F par %s\n", fwrite_flag(temp, buf));
 
-    for (pMprog = p_mob_proto->mprogs; pMprog; pMprog = pMprog->next) {
+    FOR_EACH(pMprog, p_mob_proto->mprogs) {
         fprintf(fp, "M '%s' %"PRVNUM" %s~\n",
             mprog_type_to_name(pMprog->trig_type), pMprog->vnum,
             pMprog->trig_phrase);
@@ -460,7 +461,7 @@ void save_object(FILE* fp, ObjectPrototype* obj_proto)
 
     fprintf(fp, "%c\n", letter);
 
-    for (pAf = obj_proto->affected; pAf; pAf = pAf->next) {
+    FOR_EACH(pAf, obj_proto->affected) {
         if (pAf->where == TO_OBJECT || pAf->bitvector == 0)
             fprintf(fp, "A\n%d %d\n", pAf->location, pAf->modifier);
         else {
@@ -491,7 +492,7 @@ void save_object(FILE* fp, ObjectPrototype* obj_proto)
         }
     }
 
-    for (pEd = obj_proto->extra_desc; pEd; pEd = pEd->next) {
+    FOR_EACH(pEd, obj_proto->extra_desc) {
         fprintf(fp, "E\n%s~\n%s~\n", pEd->keyword,
             fix_string(pEd->description));
     }
@@ -536,7 +537,7 @@ void save_rooms(FILE* fp, AreaData* pArea)
     fprintf(fp, "#ROOMS\n");
 
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
-        for (pRoomIndex = room_index_hash[iHash]; pRoomIndex; pRoomIndex = pRoomIndex->next) {
+        FOR_EACH(pRoomIndex, room_index_hash[iHash]) {
             if (pRoomIndex->area == pArea) {
                 fprintf(fp, "#%"PRVNUM"\n", pRoomIndex->vnum);
                 fprintf(fp, "%s~\n", pRoomIndex->name);
@@ -544,7 +545,7 @@ void save_rooms(FILE* fp, AreaData* pArea)
                 fprintf(fp, "%s ", fwrite_flag(pRoomIndex->room_flags, buf));
                 fprintf(fp, "%d\n", pRoomIndex->sector_type);
 
-                for (pEd = pRoomIndex->extra_desc; pEd; pEd = pEd->next) {
+                FOR_EACH(pEd, pRoomIndex->extra_desc) {
                     fprintf(fp, "E\n%s~\n%s~\n", pEd->keyword,
                         fix_string(pEd->description));
                 }
@@ -619,7 +620,7 @@ void save_specials(FILE* fp, AreaData* pArea)
     fprintf(fp, "#SPECIALS\n");
 
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
-        for (p_mob_proto = mob_prototype_hash[iHash]; p_mob_proto; p_mob_proto = p_mob_proto->next) {
+        FOR_EACH(p_mob_proto, mob_prototype_hash[iHash]) {
             if (p_mob_proto && p_mob_proto->area == pArea && p_mob_proto->spec_fun) {
 #if defined( VERBOSE )
                 fprintf(fp, "M %"PRVNUM" %s Load to: %s\n", p_mob_proto->vnum,
@@ -650,7 +651,7 @@ void save_door_resets(FILE* fp, AreaData* pArea)
     ExitData* pExit;
 
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
-        for (pRoomIndex = room_index_hash[iHash]; pRoomIndex; pRoomIndex = pRoomIndex->next) {
+        FOR_EACH(pRoomIndex, room_index_hash[iHash]) {
             if (pRoomIndex->area == pArea) {
                 for (i = 0; i < DIR_MAX; i++) {
                     if ((pExit = pRoomIndex->exit[i]) == NULL)
@@ -702,9 +703,9 @@ void save_resets(FILE* fp, AreaData* pArea)
     save_door_resets(fp, pArea);
 
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
-        for (pRoom = room_index_hash[iHash]; pRoom; pRoom = pRoom->next) {
+        FOR_EACH(pRoom, room_index_hash[iHash]) {
             if (pRoom->area == pArea) {
-                for (pReset = pRoom->reset_first; pReset; pReset = pReset->next) {
+                FOR_EACH(pReset, pRoom->reset_first) {
                     switch (pReset->command) {
                     default:
                         bug("Save_resets: bad command %c.", pReset->command);
@@ -864,7 +865,7 @@ void save_shops(FILE* fp, AreaData* pArea)
     fprintf(fp, "#SHOPS\n");
 
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
-        for (p_mob_proto = mob_prototype_hash[iHash]; p_mob_proto; p_mob_proto = p_mob_proto->next) {
+        FOR_EACH(p_mob_proto, mob_prototype_hash[iHash]) {
             if (p_mob_proto && p_mob_proto->area == pArea && p_mob_proto->pShop) {
                 pShopIndex = p_mob_proto->pShop;
 
@@ -910,7 +911,7 @@ void save_other_helps(CharData* ch)
     FILE* fp;
     char buf[MIL];
 
-    for (ha = help_area_list; ha; ha = ha->next)
+    FOR_EACH(ha, help_area_list)
         if (ha->changed == true
             && ha->area == NULL) {
             sprintf(buf, "%s%s", cfg_get_area_dir(), ha->filename);
@@ -966,6 +967,7 @@ void save_area(AreaData* pArea)
     save_shops(fp, pArea);
     save_mobprogs( fp, pArea );
     save_progs(pArea->min_vnum, pArea->max_vnum);
+    save_quests(fp, pArea);
 
     if (pArea->helps && pArea->helps->first)
         save_helps(fp, pArea->helps);
@@ -1008,7 +1010,7 @@ void do_asave(CharData* ch, char* argument)
     {
         save_area_list();
 
-        for (pArea = area_first; pArea; pArea = pArea->next)
+        FOR_EACH(pArea, area_first)
             if (str_cmp(argument, "changed")
                 || IS_SET(pArea->area_flags, AREA_CHANGED)) {
                 save_area(pArea);
@@ -1057,7 +1059,7 @@ void do_asave(CharData* ch, char* argument)
     /* -------------------------------------- */
     if (!str_cmp("world", arg1)) {
         save_area_list();
-        for (pArea = area_first; pArea; pArea = pArea->next) {
+        FOR_EACH(pArea, area_first) {
             /* Builder must be assigned this area. */
             if (!IS_BUILDER(ch, pArea))
                 continue;
@@ -1084,7 +1086,7 @@ void do_asave(CharData* ch, char* argument)
         send_to_char("Saved zones:\n\r", ch);
         sprintf(buf, "None.\n\r");
 
-        for (pArea = area_first; pArea; pArea = pArea->next) {
+        FOR_EACH(pArea, area_first) {
             /* Builder must be assigned this area. */
             if (!IS_BUILDER(ch, pArea))
                 continue;

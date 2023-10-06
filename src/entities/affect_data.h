@@ -124,7 +124,7 @@ AffectData* new_affect();
     else {                                                                     \
         AffectData* i = t->affected;                                           \
         while (i->next != NULL)                                                \
-            i = i->next;                                                       \
+            NEXT_LINK(i);                                                       \
         i->next = aff;                                                         \
     }                                                                          \
     aff->next = NULL;

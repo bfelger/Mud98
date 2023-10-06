@@ -29,7 +29,7 @@ ExtraDesc* new_extra_desc();
     else {                                                                     \
         ExtraDesc* i = t->extra_desc;                                 \
         while (i->next != NULL)                                                \
-            i = i->next;                                                       \
+            NEXT_LINK(i);                                                       \
         i->next = ed;                                                          \
     }                                                                          \
     ed->next = NULL;

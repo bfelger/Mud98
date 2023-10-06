@@ -476,7 +476,7 @@ void create_skills_hash_table(void)
         if (skill_hash_table[value] && (skill_table[sn].spell_fun == spell_null)) // skill
         {
             // Skills go last!
-            for (temp = skill_hash_table[value]; temp; temp = temp->next)
+            FOR_EACH(temp, skill_hash_table[value])
                 if (temp->next == NULL)
                     break;
 
@@ -700,7 +700,7 @@ SKEDIT(skedit_new)
         return false;
     }
 
-    for (d = descriptor_list; d; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         if (d->connected != CON_PLAYING || (tch = CH(d)) == NULL || tch->desc == NULL)
             continue;
 
@@ -739,7 +739,7 @@ SKEDIT(skedit_new)
 
     skill_table[skill_count].name = NULL;
 
-    for (d = descriptor_list; d; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         if ((d->connected == CON_PLAYING)
             || ((tch = CH(d)) == NULL)
             || (tch->gen_data == NULL))
@@ -755,7 +755,7 @@ SKEDIT(skedit_new)
         tch->gen_data->skill_chosen[skill_count - 1] = 0;
     }
 
-    for (tch = char_list; tch; tch = tch->next)
+    FOR_EACH(tch, char_list)
         if (!IS_NPC(tch)) {
             templearned = new_learned();
 

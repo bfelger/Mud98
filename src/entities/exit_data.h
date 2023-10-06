@@ -54,7 +54,7 @@ ExitData* new_exit();
     else {                                                                     \
         ExtraDesc* i = t->extra_desc;                                 \
         while (i->next != NULL)                                                \
-            i = i->next;                                                       \
+            NEXT_LINK(i);                                                       \
         i->next = ed;                                                          \
     }                                                                          \
     ed->next = NULL;

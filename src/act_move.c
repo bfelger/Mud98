@@ -388,7 +388,7 @@ void do_open(CharData* ch, char* argument)
             CharData* rch;
 
             REMOVE_BIT(pexit_rev->exit_flags, EX_CLOSED);
-            for (rch = to_room->people; rch != NULL; rch = rch->next_in_room)
+            FOR_EACH_IN_ROOM(rch, to_room->people)
                 act("The $d opens.", rch, NULL, pexit_rev->keyword, TO_CHAR);
         }
     }
@@ -472,7 +472,7 @@ void do_close(CharData* ch, char* argument)
             CharData* rch;
 
             SET_BIT(pexit_rev->exit_flags, EX_CLOSED);
-            for (rch = to_room->people; rch != NULL; rch = rch->next_in_room)
+            FOR_EACH_IN_ROOM(rch, to_room->people)
                 act("The $d closes.", rch, NULL, pexit_rev->keyword, TO_CHAR);
         }
     }

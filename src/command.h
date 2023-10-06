@@ -269,6 +269,9 @@ COMMAND(do_cedit)
 COMMAND(do_cmdedit)
 COMMAND(do_nothing)
 COMMAND(do_olcx)
+COMMAND(do_qedit)
 COMMAND(do_sklist)
+COMMAND(do_moblist)
+COMMAND(do_quest)
 
 #undef COMMAND

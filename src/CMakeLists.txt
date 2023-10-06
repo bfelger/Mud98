@@ -162,7 +162,7 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     data/social.h data/social.c
     data/spell.h data/spell.c
     data/stats.h data/stats.c
-)
+ "data/quest.h" "olc/qedit.c" "data/quest.c")
 
 target_link_libraries(Mud98 PRIVATE ${Mud98_LIBS})
 

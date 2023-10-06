@@ -62,7 +62,7 @@ void save_bans()
 
     OPEN_OR_RETURN(fp = open_write_ban_file());
 
-    for (pban = ban_list; pban != NULL; pban = pban->next) {
+    FOR_EACH(pban, ban_list) {
         if (IS_SET(pban->ban_flags, BAN_PERMANENT)) {
             found = true;
             fprintf(fp, "%-20s %-2d %s\n", pban->name, pban->level,
@@ -119,7 +119,7 @@ bool check_ban(char* site, int type)
     strcpy(host, capitalize(site));
     host[0] = LOWER(host[0]);
 
-    for (pban = ban_list; pban != NULL; pban = pban->next) {
+    FOR_EACH(pban, ban_list) {
         if (!IS_SET(pban->ban_flags, type)) 
             continue;
 
@@ -161,7 +161,7 @@ void ban_site(CharData* ch, char* argument, bool fPerm)
         buffer = new_buf();
 
         add_buf(buffer, "Banned sites  level  type     status\n\r");
-        for (pban = ban_list; pban != NULL; pban = pban->next) {
+        FOR_EACH(pban, ban_list) {
             sprintf(buf2, "%s%s%s",
                     IS_SET(pban->ban_flags, BAN_PREFIX) ? "*" : "", pban->name,
                     IS_SET(pban->ban_flags, BAN_SUFFIX) ? "*" : "");
@@ -210,7 +210,7 @@ void ban_site(CharData* ch, char* argument, bool fPerm)
     }
 
     prev = NULL;
-    for (pban = ban_list; pban != NULL; prev = pban, pban = pban->next) {
+    for (pban = ban_list; pban != NULL; prev = pban, NEXT_LINK(pban)) {
         if (!str_cmp(name, pban->name)) {
             if (pban->level > get_trust(ch)) {
                 send_to_char("That ban was set by a higher power.\n\r", ch);
@@ -270,7 +270,7 @@ void do_allow(CharData* ch, char* argument)
     }
 
     prev = NULL;
-    for (curr = ban_list; curr != NULL; prev = curr, curr = curr->next) {
+    for (curr = ban_list; curr != NULL; prev = curr, NEXT_LINK(curr)) {
         if (!str_cmp(arg, curr->name)) {
             if (curr->level > get_trust(ch)) {
                 send_to_char(
@@ -278,7 +278,7 @@ void do_allow(CharData* ch, char* argument)
                 return;
             }
             if (prev == NULL)
-                ban_list = ban_list->next;
+                NEXT_LINK(ban_list);
             else
                 prev->next = curr->next;
 
@@ -303,7 +303,7 @@ BanData* new_ban(void)
         ban = alloc_perm(sizeof(*ban));
     else {
         ban = ban_free;
-        ban_free = ban_free->next;
+        NEXT_LINK(ban_free);
     }
 
     *ban = ban_zero;

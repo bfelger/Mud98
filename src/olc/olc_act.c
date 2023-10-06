@@ -857,7 +857,7 @@ ED_FUN_DEC(ed_ed)
             return false;
         }
 
-        for (ed = *pEd; ed; ed = ed->next) {
+        FOR_EACH(ed, *pEd) {
             if (is_name(keyword, ed->keyword))
                 break;
         }
@@ -880,7 +880,7 @@ ED_FUN_DEC(ed_ed)
             return false;
         }
 
-        for (ed = *pEd; ed; ed = ed->next) {
+        FOR_EACH(ed, *pEd) {
             if (is_name(keyword, ed->keyword))
                 break;
             ped = ed;
@@ -909,7 +909,7 @@ ED_FUN_DEC(ed_ed)
             return false;
         }
 
-        for (ed = *pEd; ed; ed = ed->next) {
+        FOR_EACH(ed, *pEd) {
             if (is_name(keyword, ed->keyword))
                 break;
         }
@@ -932,7 +932,7 @@ ED_FUN_DEC(ed_ed)
             return false;
         }
 
-        for (ed = *pEd; ed; ed = ed->next) {
+        FOR_EACH(ed, *pEd) {
             if (is_name(keyword, ed->keyword))
                 break;
         }

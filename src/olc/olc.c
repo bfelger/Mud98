@@ -97,6 +97,9 @@ bool run_olc_editor(Descriptor* d, char* incomm)
     case ED_CLASS:
         cedit(d->character, incomm);
         break;
+    case ED_QUEST:
+        qedit(d->character, incomm);
+        break;
     default:
         return false;
     }
@@ -145,6 +148,9 @@ char* olc_ed_name(CharData* ch)
     case ED_HELP:
         sprintf(buf, "HEdit");
         break;
+    case ED_QUEST:
+        sprintf(buf, "QEdit");
+        break;
     default:
         sprintf(buf, " ");
         break;
@@ -166,6 +172,7 @@ char* olc_ed_vnum(CharData* ch)
     Skill* pSkill;
     Class* pClass;
     CmdInfo* pCmd;
+    Quest* pQuest;
     static char buf[10];
 
     buf[0] = '\0';
@@ -189,6 +196,10 @@ char* olc_ed_vnum(CharData* ch)
     case ED_PROG:
         pMcode = (MobProgCode*)ch->desc->pEdit;
         sprintf(buf, "%"PRVNUM, pMcode ? pMcode->vnum : 0);
+        break;
+    case ED_QUEST:
+        pQuest = (Quest*)ch->desc->pEdit;
+        sprintf(buf, "%d", pQuest ? pQuest->vnum : 0);
         break;
     case ED_RACE:
         pRace = (Race*)ch->desc->pEdit;
@@ -234,6 +245,7 @@ const OlcCmdEntry* get_olc_table(int editor)
     case ED_PROG:	return prog_olc_comm_table;
     case ED_SOCIAL:	return social_olc_comm_table;
     case ED_CLASS:  return class_olc_comm_table;
+    case ED_QUEST:  return quest_olc_comm_table;
     }
     return NULL;
 }
@@ -341,6 +353,7 @@ const EditCmd editor_table[] =
    {	"group",	do_gedit	},
    {    "class",    do_cedit    },
    {	"help",		do_hedit	},
+   {	"quest",    do_qedit	},
    {	NULL,		0		    }
 };
 
@@ -383,6 +396,7 @@ bool process_olc_command(CharData* ch, char* argument, const OlcCmdEntry* table)
     AreaData* tArea;
     MobProgCode* pProg;
     Social* pSoc;
+    Quest* pQuest;
     int temp;
     uintptr_t pointer;
 
@@ -423,6 +437,19 @@ bool process_olc_command(CharData* ch, char* argument, const OlcCmdEntry* table)
                 tArea = pRoom->area;
                 if (table[temp].argument)
                     pointer = (table[temp].argument - U(&xRoom) + U(pRoom));
+                else
+                    pointer = 0;
+                if ((*table[temp].function) (table[temp].name, ch, argument, pointer, table[temp].parameter)
+                    && tArea != NULL)
+                    SET_BIT(tArea->area_flags, AREA_CHANGED);
+                return true;
+                break;
+
+            case ED_QUEST:
+                EDIT_QUEST(ch, pQuest);
+                tArea = pQuest->area;
+                if (table[temp].argument)
+                    pointer = (table[temp].argument - U(&xQuest) + U(pQuest));
                 else
                     pointer = 0;
                 if ((*table[temp].function) (table[temp].name, ch, argument, pointer, table[temp].parameter)

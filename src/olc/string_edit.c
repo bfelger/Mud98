@@ -238,8 +238,8 @@ void string_add(CharData* ch, char* argument)
             mpc->changed = true;
 
             for (; hash < MAX_KEY_HASH; hash++) {
-                for (mob = mob_prototype_hash[hash]; mob; mob = mob->next)
-                    for (mp = mob->mprogs; mp; mp = mp->next)
+                FOR_EACH(mob, mob_prototype_hash[hash])
+                    FOR_EACH(mp, mob->mprogs)
                         if (mp->vnum == mpc->vnum) {
                             mp->code = mpc->code;
                             printf_to_char(ch, "Updated mob %d.\n\r", mob->vnum);

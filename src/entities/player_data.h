@@ -52,6 +52,7 @@ typedef struct player_data_t {
     ColorConfig theme_config;
     PlayerData* next;
     Buffer* buffer;
+    QuestLog* quest_log;
     char* bamfin;
     char* bamfout;
     char* title;

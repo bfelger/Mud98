@@ -25,7 +25,7 @@ AreaData* new_area()
     }
     else {
         pArea = area_free;
-        area_free = area_free->next;
+        NEXT_LINK(area_free);
     }
 
     pArea->next = NULL;
@@ -42,6 +42,7 @@ AreaData* new_area()
     pArea->vnum = area_count - 1;
     sprintf(buf, "area%"PRVNUM".are", pArea->vnum);
     pArea->file_name = str_dup(buf);
+    pArea->quests = NULL;
 
     return pArea;
 }

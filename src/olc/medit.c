@@ -300,7 +300,7 @@ MEDIT(medit_show)
         addf_buf(buffer,
             "\n\rMOBPrograms for {|[{*%5d{|]{x:\n\r", pMob->vnum);
 
-        for (cnt = 0, list = pMob->mprogs; list; list = list->next) {
+        for (cnt = 0, list = pMob->mprogs; list; NEXT_LINK(list)) {
             if (cnt == 0) {
                 add_buf(buffer, " {TNumber Vnum Trigger Phrase\n\r");
                 add_buf(buffer, " {=------ ---- ------- ------\n\r");
@@ -637,7 +637,7 @@ ED_FUN_DEC(ed_shop)
         else {
             ShopData* ipShop;
 
-            for (ipShop = shop_first; ipShop; ipShop = ipShop->next) {
+            FOR_EACH(ipShop, shop_first) {
                 if (ipShop->next == pShop) {
                     if (!pShop->next) {
                         shop_last = ipShop;

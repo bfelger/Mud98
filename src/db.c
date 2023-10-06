@@ -254,9 +254,9 @@ void boot_db()
 
                 if (word[0] == '$')
                     break;
-                else if (!str_cmp(word, "AREADATA")) 
+                else if (!str_cmp(word, "AREADATA"))
                     load_area(strArea);
-                else if (!str_cmp(word, "HELPS")) 
+                else if (!str_cmp(word, "HELPS"))
                     load_helps(strArea, fpArea);
                 else if (!str_cmp(word, "MOBOLD"))
                     load_old_mob(strArea);
@@ -278,6 +278,8 @@ void boot_db()
                     load_social(strArea);
                 else if (!str_cmp(word, "SPECIALS"))
                     load_specials(strArea);
+                else if (!str_cmp(word, "QUEST"))
+                    load_quest(strArea);
                 else {
                     bug("Boot_db: bad section name.", 0);
                     exit(1);
@@ -1017,13 +1019,13 @@ void fix_exits(void)
 
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
         for (pRoomIndex = room_index_hash[iHash]; pRoomIndex != NULL;
-             pRoomIndex = pRoomIndex->next) {
+             NEXT_LINK(pRoomIndex)) {
             bool fexit;
 
             iLastRoom = iLastObj = NULL;
 
             /* OLC : New reset check */
-            for (pReset = pRoomIndex->reset_first; pReset; pReset = pReset->next) {
+            FOR_EACH(pReset, pRoomIndex->reset_first) {
                 switch (pReset->command) {
                 default:
                     bugf("fix_exits : room %d with reset cmd %c", pRoomIndex->vnum, pReset->command);
@@ -1093,7 +1095,7 @@ void fix_exits(void)
 
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
         for (pRoomIndex = room_index_hash[iHash]; pRoomIndex != NULL;
-             pRoomIndex = pRoomIndex->next) {
+             NEXT_LINK(pRoomIndex)) {
             for (door = 0; door <= 5; door++) {
                 if ((pexit = pRoomIndex->exit[door]) != NULL
                     && (to_room = pexit->u1.to_room) != NULL
@@ -1123,7 +1125,7 @@ void area_update(void)
     AreaData* pArea;
     char buf[MAX_STRING_LENGTH];
 
-    for (pArea = area_first; pArea != NULL; pArea = pArea->next) {
+    FOR_EACH(pArea, area_first) {
         if (++pArea->age < 3) 
             continue;
 
@@ -1210,10 +1212,8 @@ void fix_mobprogs(void)
     int iHash;
 
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
-        for (p_mob_proto = mob_prototype_hash[iHash];
-            p_mob_proto != NULL;
-            p_mob_proto = p_mob_proto->next) {
-            for (list = p_mob_proto->mprogs; list != NULL; list = list->next) {
+        FOR_EACH(p_mob_proto, mob_prototype_hash[iHash]) {
+            FOR_EACH(list, p_mob_proto->mprogs) {
                 if ((prog = pedit_prog(list->vnum)) != NULL)
                     list->code = prog->code;
                 else {
@@ -1256,7 +1256,7 @@ void reset_room(RoomData* pRoom)
         }
     }
 
-    for (pReset = pRoom->reset_first; pReset != NULL; pReset = pReset->next) {
+    FOR_EACH(pReset, pRoom->reset_first) {
         MobPrototype* p_mob_proto;
         ObjectPrototype* obj_proto;
         ObjectPrototype* pObjToIndex;
@@ -1291,7 +1291,7 @@ void reset_room(RoomData* pRoom)
             /* */
 
             count = 0;
-            for (mob = pRoomIndex->people; mob != NULL; mob = mob->next_in_room)
+            FOR_EACH_IN_ROOM(mob, pRoomIndex->people)
                 if (mob->prototype == p_mob_proto) {
                     count++;
                     if (count >= pReset->arg4) {
@@ -1609,13 +1609,13 @@ void clone_mobile(CharData* parent, CharData* clone)
         clone->damage[i] = parent->damage[i];
 
     /* now add the affects */
-    for (paf = parent->affected; paf != NULL; paf = paf->next)
+    FOR_EACH(paf, parent->affected)
         affect_to_char(clone, paf);
 }
 
 MobProgCode* get_mprog_index(VNUM vnum)
 {
-    for (MobProgCode* prg = mprog_list; prg; prg = prg->next) {
+    for (MobProgCode* prg = mprog_list; prg; NEXT_LINK(prg)) {
         if (prg->vnum == vnum)
             return(prg);
     }
@@ -1830,7 +1830,8 @@ char* fread_string(FILE* fp)
     }
     while (ISSPACE(c));
 
-    if ((*plast++ = c) == '~') return &str_empty[0];
+    if ((*plast++ = c) == '~') 
+        return &str_empty[0];
 
     for (;;) {
         /*
@@ -2206,14 +2207,15 @@ void do_areas(CharData* ch, char* argument)
     iAreaHalf = (area_count + 1) / 2;
     pArea1 = area_first;
     pArea2 = area_first;
-    for (iArea = 0; iArea < iAreaHalf; iArea++) pArea2 = pArea2->next;
+    for (iArea = 0; iArea < iAreaHalf; iArea++) NEXT_LINK(pArea2);
 
     for (iArea = 0; iArea < iAreaHalf; iArea++) {
         sprintf(buf, "%-39s%-39s\n\r", pArea1->credits,
                 (pArea2 != NULL) ? pArea2->credits : "");
         send_to_char(buf, ch);
-        pArea1 = pArea1->next;
-        if (pArea2 != NULL) pArea2 = pArea2->next;
+        NEXT_LINK(pArea1);
+        if (pArea2 != NULL) 
+            NEXT_LINK(pArea2);
     }
 
     return;
@@ -2289,27 +2291,32 @@ void do_dump(CharData* ch, char* argument)
     /* mobs */
     count = 0;
     count2 = 0;
-    for (fch = char_list; fch != NULL; fch = fch->next) {
+    FOR_EACH(fch, char_list) {
         count++;
         if (fch->pcdata != NULL) num_pcs++;
-        for (af = fch->affected; af != NULL; af = af->next) aff_count++;
+        FOR_EACH(af, fch->affected) 
+            aff_count++;
     }
-    for (fch = char_free; fch != NULL; fch = fch->next) count2++;
+    FOR_EACH(fch, char_free) 
+        count2++;
 
     fprintf(fp, "Mobs   %4d (%8zu bytes), %2d free (%zu bytes)\n", count,
             count * (sizeof(*fch)), count2, count2 * (sizeof(*fch)));
 
     /* pcdata */
     count = 0;
-    for (pc = player_free; pc != NULL; pc = pc->next) count++;
+    FOR_EACH(pc, player_free) 
+        count++;
     fprintf(fp, "Pcdata	%4d (%8zu bytes), %2d free (%zu bytes)\n", num_pcs,
             num_pcs * (sizeof(*pc)), count, count * (sizeof(*pc)));
 
     /* descriptors */
     count = 0;
     count2 = 0;
-    for (d = descriptor_list; d != NULL; d = d->next) count++;
-    for (d = descriptor_free; d != NULL; d = d->next) count2++;
+    FOR_EACH(d, descriptor_list) 
+        count++;
+    FOR_EACH(d, descriptor_free) 
+        count2++;
 
     fprintf(fp, "Descs	%4d (%8zu bytes), %2d free (%zu bytes)\n", count,
             count * (sizeof(*d)), count2, count2 * (sizeof(*d)));
@@ -2317,7 +2324,7 @@ void do_dump(CharData* ch, char* argument)
     /* object prototypes */
     for (vnum = 0; nMatch < top_object_prototype; vnum++)
         if ((obj_proto = get_object_prototype(vnum)) != NULL) {
-            for (af = obj_proto->affected; af != NULL; af = af->next)
+            FOR_EACH(af, obj_proto->affected)
                 aff_count++;
             nMatch++;
         }
@@ -2328,18 +2335,18 @@ void do_dump(CharData* ch, char* argument)
     /* objects */
     count = 0;
     count2 = 0;
-    for (obj = object_list; obj != NULL; obj = obj->next) {
+    FOR_EACH(obj, object_list) {
         count++;
-        for (af = obj->affected; af != NULL; af = af->next) aff_count++;
+        FOR_EACH(af, obj->affected) aff_count++;
     }
-    for (obj = object_free; obj != NULL; obj = obj->next) count2++;
+    FOR_EACH(obj, object_free) count2++;
 
     fprintf(fp, "Objs	%4d (%8zu bytes), %2d free (%zu bytes)\n", count,
             count * (sizeof(*obj)), count2, count2 * (sizeof(*obj)));
 
     /* affects */
     count = 0;
-    for (af = affect_free; af != NULL; af = af->next) count++;
+    FOR_EACH(af, affect_free) count++;
 
     fprintf(fp, "Affects	%4d (%8zu bytes), %2d free (%zu bytes)\n", aff_count,
             aff_count * (sizeof(*af)), count, count * (sizeof(*af)));

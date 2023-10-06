@@ -714,7 +714,7 @@ static void do_theme_list(CharData* ch, char* argument)
     found = false;
     ColorTheme* theme = NULL;
     if (shared) {
-        for (Descriptor* d = descriptor_list; d != NULL; d = d->next) {
+        for (Descriptor* d = descriptor_list; d != NULL; NEXT_LINK(d)) {
             if (d == ch->desc && priv)
                 continue;
 
@@ -1462,7 +1462,7 @@ ColorTheme* lookup_remote_color_theme(CharData* ch, char* arg)
 
         arg = one_argument(arg + 1, name);
 
-        for (Descriptor* d = descriptor_list; d != NULL; d = d->next) {
+        for (Descriptor* d = descriptor_list; d != NULL; NEXT_LINK(d)) {
             if (d->connected != CON_PLAYING || !can_see(ch, d->character))
                 continue;
 

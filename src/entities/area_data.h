@@ -16,6 +16,8 @@ typedef struct area_data_t AreaData;
 
 #include "help_data.h"
 
+#include "data/quest.h"
+
 typedef enum area_flags_t {
     AREA_NONE       = BIT(0),
     AREA_CHANGED    = BIT(1),	// Area has been modified.
@@ -26,6 +28,7 @@ typedef enum area_flags_t {
 typedef struct area_data_t {
     AreaData* next;
     HelpArea* helps;
+    Quest* quests;
     char* file_name;
     char* name;
     char* credits;

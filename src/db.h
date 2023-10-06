@@ -88,6 +88,8 @@ void append_file(CharData* ch, char* file, char* str);
 void bug(const char* fmt, ...);
 void log_string(const char* str);
 
+#define ALLOC(T, v)     T* v = (T*)alloc_mem(sizeof(T))
+
 typedef struct kill_data_t {
     int16_t number;
     int16_t killed;

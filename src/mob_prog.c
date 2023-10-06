@@ -50,6 +50,7 @@
 #include "entities/object_data.h"
 
 #include "data/mobile.h"
+#include "data/quest.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -114,6 +115,9 @@
 #define CHK_OBJVAL3     (49)
 #define CHK_OBJVAL4     (50)
 #define CHK_GRPSIZE     (51)
+#define CHK_CANQUEST    (52)
+#define CHK_HASQUEST    (53)
+#define CHK_CANFINISHQUEST  (54)
 
 /*
  * These defines correspond to the entries in fn_evals[] table.
@@ -135,7 +139,7 @@ MobProg* new_mprog()
         mp = alloc_perm(sizeof(MobProg));
     else {
         mp = mprog_free;
-        mprog_free = mprog_free->next;
+        NEXT_LINK(mprog_free);
     }
 
     memset(mp, 0, sizeof(MobProg));
@@ -169,7 +173,7 @@ MobProgCode* new_mpcode()
     }
     else {
         NewCode = mpcode_free;
-        mpcode_free = mpcode_free->next;
+        NEXT_LINK(mpcode_free);
     }
 
     NewCode->vnum = 0;
@@ -191,11 +195,11 @@ void free_mpcode(MobProgCode* pMcode)
  * if-check keywords:
  */
 const char* fn_keyword[] = {
-    "rand",		    /* if rand 30		- if random number < 30 */
-    "mobhere",		/* if mobhere fido	- is there a 'fido' here */
+    "rand",		    /* if rand 30		    - if random number < 30 */
+    "mobhere",		/* if mobhere fido	    - is there a 'fido' here */
     "objhere",		/* if objhere bottle	- is there a 'bottle' here */
-                    /* if mobhere 1233	- is there mob vnum 1233 here */
-                    /* if objhere 1233	- is there obj vnum 1233 here */
+                    /* if mobhere 1233	    - is there mob vnum 1233 here */
+                    /* if objhere 1233	    - is there obj vnum 1233 here */
     "mobexists",	/* if mobexists fido	- is there a fido somewhere */
     "objexists",	/* if objexists sword	- is there a sword somewhere */
 
@@ -205,7 +209,6 @@ const char* fn_keyword[] = {
     "clones",		/* if clones > 3	- are there > 3 mobs of same vnum here */
     "order",		/* if order == 0	- is mob the first in room */
     "hour",		    /* if hour > 11		- is the time > 11 o'clock */
-
 
     "ispc",		    /* if ispc $n 		- is $n a pc */
     "isnpc",		/* if isnpc $n 		- is $n a mobile */
@@ -225,25 +228,25 @@ const char* fn_keyword[] = {
     "affected",		/* if affected $n blind - is $n affected by blind */
     "act",		    /* if act $i sentinel	- is $i flagged sentinel */
     "off",          /* if off $i berserk	- is $i flagged berserk */
-    "imm",          /* if imm $i fire	- is $i immune to fire */
+    "imm",          /* if imm $i fire	    - is $i immune to fire */
     "carries",		/* if carries $n sword	- does $n have a 'sword' */
                     /* if carries $n 1233	- does $n have obj vnum 1233 */
     "wears",		/* if wears $n lantern	- is $n wearing a 'lantern' */
-                    /* if wears $n 1233	- is $n wearing obj vnum 1233 */
-    "has",    		/* if has $n weapon	- does $n have obj of type weapon */
-    "uses",		    /* if uses $n armor	- is $n wearing obj of type armor */
-    "name",		    /* if name $n puff	- is $n's name 'puff' */
+                    /* if wears $n 1233	    - is $n wearing obj vnum 1233 */
+    "has",    		/* if has $n weapon	    - does $n have obj of type weapon */
+    "uses",		    /* if uses $n armor	    - is $n wearing obj of type armor */
+    "name",		    /* if name $n puff	    - is $n's name 'puff' */
     "pos",		    /* if pos $n standing	- is $n standing */
     "clan",		    /* if clan $n 'whatever'- does $n belong to clan 'whatever' */
     "race",		    /* if race $n dragon	- is $n of 'dragon' race */
-    "class",		/* if class $n mage	- is $n's class 'mage' */
+    "class",		/* if class $n mage	    - is $n's class 'mage' */
     "objtype",		/* if objtype $p scroll	- is $p a scroll */
 
     "vnum",		    /* if vnum $i == 1233  	- virtual number check */
-    "hpcnt",		/* if hpcnt $i > 30	- hit point percent check */
+    "hpcnt",		/* if hpcnt $i > 30	    - hit point percent check */
     "room",		    /* if room $i == 1233	- room virtual number */
-    "sex",		    /* if sex $i == 0	- sex check */
-    "level",		/* if level $n < 5	- level check */
+    "sex",		    /* if sex $i == 0	    - sex check */
+    "level",		/* if level $n < 5	    - level check */
     "align",		/* if align $n < -1000	- alignment check */
     "money",		/* if money $n */
     "objval0",		/* if objval0 > 1000 	- object value[] checks 0..4 */
@@ -253,6 +256,9 @@ const char* fn_keyword[] = {
     "objval4",
     "grpsize",		/* if grpsize $n > 6	- group size check */
 
+    "canquest",     // if canquest $i 1234  - target can be granted the quest
+    "hasquest",     // if hasquest $i 1234  - target has the quest
+    "canfinishquest",   // if canfinishquest $i 1234 - target can finish the quest
     "\n"		    /* Table terminator */
 };
 
@@ -606,6 +612,15 @@ int cmd_eval(VNUM vnum, char* line, int check,
     case CHK_OFF:
         return(lval_char != NULL
             && IS_SET(lval_char->atk_flags, flag_lookup(buf, off_flag_table)));
+    case CHK_CANQUEST:
+        return(lval_char != NULL
+            && can_quest(lval_char, STRTOVNUM(buf)));
+    case CHK_HASQUEST:
+        return(lval_char != NULL
+            && has_quest(lval_char, STRTOVNUM(buf)));
+    case CHK_CANFINISHQUEST:
+        return(lval_char != NULL
+            && can_finish_quest(lval_char, STRTOVNUM(buf)));
     case CHK_CARRIES:
         if (is_number(buf))
             return(lval_char != NULL && has_item(lval_char, STRTOVNUM(buf), -1, false));
@@ -1156,7 +1171,7 @@ void mp_act_trigger(
 {
     MobProg* prg;
 
-    for (prg = mob->prototype->mprogs; prg != NULL; prg = prg->next) {
+    FOR_EACH(prg, mob->prototype->mprogs) {
         if (prg->trig_type == trig_type
             && strstr(argument, prg->trig_phrase) != NULL) {
             program_flow(prg->vnum, prg->code, mob, ch, arg1, arg2);
@@ -1176,7 +1191,7 @@ bool mp_percent_trigger(
 {
     MobProg* prg;
 
-    for (prg = mob->prototype->mprogs; prg != NULL; prg = prg->next) {
+    FOR_EACH(prg, mob->prototype->mprogs) {
         if (prg->trig_type == trig_type
             && number_percent() < atoi(prg->trig_phrase)) {
             program_flow(prg->vnum, prg->code, mob, ch, arg1, arg2);
@@ -1195,7 +1210,7 @@ void mp_bribe_trigger(CharData* mob, CharData* ch, int amount)
      * and give it to the mobile. WFT was that? Funcs in act_obj()
      * handle it just fine.
      */
-    for (prg = mob->prototype->mprogs; prg; prg = prg->next) {
+    FOR_EACH(prg, mob->prototype->mprogs) {
         if (prg->trig_type == TRIG_BRIBE
             && amount >= atoi(prg->trig_phrase)) {
             program_flow(prg->vnum, prg->code, mob, ch, NULL, NULL);
@@ -1210,10 +1225,10 @@ bool mp_exit_trigger(CharData* ch, int dir)
     CharData* mob;
     MobProg* prg;
 
-    for (mob = ch->in_room->people; mob != NULL; mob = mob->next_in_room) {
+    FOR_EACH_IN_ROOM(mob, ch->in_room->people) {
         if (IS_NPC(mob)
             && (HAS_TRIGGER(mob, TRIG_EXIT) || HAS_TRIGGER(mob, TRIG_EXALL))) {
-            for (prg = mob->prototype->mprogs; prg; prg = prg->next) {
+            FOR_EACH(prg, mob->prototype->mprogs) {
             /*
              * Exit trigger works only if the mobile is not busy
              * (fighting etc.). If you want to be sure all players
@@ -1244,7 +1259,7 @@ void mp_give_trigger(CharData* mob, CharData* ch, ObjectData* obj)
     char buf[MAX_INPUT_LENGTH], * p;
     MobProg* prg;
 
-    for (prg = mob->prototype->mprogs; prg; prg = prg->next)
+    FOR_EACH(prg, mob->prototype->mprogs)
         if (prg->trig_type == TRIG_GIVE) {
             p = prg->trig_phrase;
             /*
@@ -1277,7 +1292,7 @@ void mp_greet_trigger(CharData* ch)
 {
     CharData* mob;
 
-    for (mob = ch->in_room->people; mob != NULL; mob = mob->next_in_room) {
+    FOR_EACH_IN_ROOM(mob, ch->in_room->people) {
         if (IS_NPC(mob)
             && (HAS_TRIGGER(mob, TRIG_GREET) || HAS_TRIGGER(mob, TRIG_GRALL))) {
                 /*
@@ -1301,7 +1316,7 @@ void mp_hprct_trigger(CharData* mob, CharData* ch)
 {
     MobProg* prg;
 
-    for (prg = mob->prototype->mprogs; prg != NULL; prg = prg->next)
+    FOR_EACH(prg, mob->prototype->mprogs)
         if ((prg->trig_type == TRIG_HPCNT)
             && ((100 * mob->hit / mob->max_hit) < atoi(prg->trig_phrase))) {
             program_flow(prg->vnum, prg->code, mob, ch, NULL, NULL);

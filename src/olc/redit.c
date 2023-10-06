@@ -297,7 +297,7 @@ REDIT(redit_show)
         ExtraDesc* ed;
 
         add_buf(out, "Desc Kwds:  {|[{*");
-        for (ed = pRoom->extra_desc; ed; ed = ed->next) {
+        FOR_EACH(ed, pRoom->extra_desc) {
             add_buf(out, ed->keyword);
             if (ed->next)
                 add_buf(out, " ");
@@ -440,7 +440,7 @@ bool change_exit(CharData* ch, char* argument, Direction door)
         /*
          * Connected room.
          */
-        pToRoom = pExit->u1.to_room;     /* ROM OLC */
+        pToRoom = pExit->u1.to_room;
         rev = dir_list[door].rev_dir;
         pNExit = pToRoom->exit[rev];
 
@@ -580,9 +580,24 @@ bool change_exit(CharData* ch, char* argument, Direction door)
             return false;
         }
 
+        // Create changes our currently edited room.
         redit_create(ch, arg);
+
+        // Remember the new room...
+        RoomData* new_room = (RoomData*)ch->desc->pEdit;
+
+        // ...go back to the old room and create the exit...
+        ch->desc->pEdit = U(pRoom);
         sprintf(buf, "link %s", arg);
         change_exit(ch, buf, door);
+
+        // ...then jump back to editing the new room.
+        char_from_room(ch);
+        char_to_room(ch, new_room);
+        set_editor(ch->desc, ED_ROOM, U(new_room));
+
+        redit_show(ch, "");
+
         return true;
     }
 
@@ -1032,12 +1047,12 @@ void showresets(CharData* ch, Buffer* buf, AreaData* pArea, MobPrototype* mob, O
     int key, lastmob;
 
     for (key = 0; key < MAX_KEY_HASH; ++key)
-        for (room = room_index_hash[key]; room; room = room->next)
+        FOR_EACH(room, room_index_hash[key])
             if (room->area == pArea) {
                 lastmob = -1;
                 pLastMob = NULL;
 
-                for (reset = room->reset_first; reset; reset = reset->next) {
+                FOR_EACH(reset, room->reset_first) {
                     if (reset->command == 'M') {
                         lastmob = reset->arg1;
                         pLastMob = get_mob_prototype(lastmob);
@@ -1070,7 +1085,7 @@ void listobjreset(CharData* ch, Buffer* buf, AreaData* pArea)
     add_buf(buf, "{TVnum  Name            Room  On mob{x\n\r");
 
     for (key = 0; key < MAX_KEY_HASH; ++key)
-        for (obj = object_prototype_hash[key]; obj; obj = obj->next)
+        FOR_EACH(obj, object_prototype_hash[key])
             if (obj->area == pArea)
                 showresets(ch, buf, pArea, 0, obj);
 }
@@ -1083,7 +1098,7 @@ void listmobreset(CharData* ch, Buffer* buf, AreaData* pArea)
     add_buf(buf, "{TVnum  Name            Room {x\n\r");
 
     for (key = 0; key < MAX_KEY_HASH; ++key)
-        for (mob = mob_prototype_hash[key]; mob; mob = mob->next)
+        FOR_EACH(mob, mob_prototype_hash[key])
             if (mob->area == pArea)
                 showresets(ch, buf, pArea, mob, 0);
 }
@@ -1130,7 +1145,7 @@ REDIT(redit_checkobj)
     EDIT_ROOM(ch, room);
 
     for (key = 0; key < MAX_KEY_HASH; ++key)
-        for (obj = object_prototype_hash[key]; obj; obj = obj->next)
+        FOR_EACH(obj, object_prototype_hash[key])
             if (obj->reset_num == 0 && (fAll || obj->area == room->area))
                 printf_to_char(ch, "Obj {*%-5.5d{x [%-20.20s] is not reset.\n\r", obj->vnum, obj->name);
 
@@ -1155,7 +1170,7 @@ REDIT(redit_checkrooms)
     EDIT_ROOM(ch, thisroom);
 
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++)
-        for (room = room_index_hash[iHash]; room; room = room->next)
+        FOR_EACH(room, room_index_hash[iHash])
             if (room->reset_num == 0 && (fAll || room->area == thisroom->area))
                 printf_to_char(ch, "Room %d has no resets.\n\r", room->vnum);
 
@@ -1172,7 +1187,7 @@ REDIT(redit_checkmob)
     EDIT_ROOM(ch, room);
 
     for (key = 0; key < MAX_KEY_HASH; ++key)
-        for (mob = mob_prototype_hash[key]; mob; mob = mob->next)
+        FOR_EACH(mob, mob_prototype_hash[key])
             if (mob->reset_num == 0 && (fAll || mob->area == room->area))
                 printf_to_char(ch, "Mob {*%-5.5d{x [%-20.20s] has no resets.\n\r", mob->vnum, mob->name);
 
@@ -1278,7 +1293,7 @@ void display_resets(CharData* ch, RoomData* pRoom)
         "{===== ======== ============= =================== ======== ===== ==========="
         "\n\r", ch);
 
-    for (pReset = pRoom->reset_first; pReset; pReset = pReset->next) {
+    FOR_EACH(pReset, pRoom->reset_first) {
         ObjectPrototype* pObj;
         MobPrototype* p_mob_proto;
         ObjectPrototype* obj_proto;
@@ -1486,7 +1501,7 @@ void    add_reset(RoomData* room, ResetData* pReset, int indice)
     /*
      * If negative slot( <= 0 selected) then this will find the last.
      */
-    for (reset = room->reset_first; reset->next; reset = reset->next) {
+    for (reset = room->reset_first; reset->next; NEXT_LINK(reset)) {
         if (++iReset == indice)
             break;
     }
@@ -1568,7 +1583,7 @@ void do_resets(CharData* ch, char* argument)
 
             if (insert_loc - 1 <= 0) {
                 pReset = pRoom->reset_first;
-                pRoom->reset_first = pRoom->reset_first->next;
+                NEXT_LINK(pRoom->reset_first);
                 if (!pRoom->reset_first)
                     pRoom->reset_last = NULL;
             }
@@ -1578,7 +1593,7 @@ void do_resets(CharData* ch, char* argument)
 
                 for (pReset = pRoom->reset_first;
                     pReset;
-                    pReset = pReset->next) {
+                    NEXT_LINK(pReset)) {
                     if (++iReset == insert_loc)
                         break;
                     prev = pReset;
@@ -1590,13 +1605,13 @@ void do_resets(CharData* ch, char* argument)
                 }
 
                 if (prev)
-                    prev->next = prev->next->next;
+                    NEXT_LINK(prev->next);
                 else
-                    pRoom->reset_first = pRoom->reset_first->next;
+                    NEXT_LINK(pRoom->reset_first);
 
                 for (pRoom->reset_last = pRoom->reset_first;
                     pRoom->reset_last->next;
-                    pRoom->reset_last = pRoom->reset_last->next);
+                    NEXT_LINK(pRoom->reset_last));
             }
 
             free_reset_data(pReset);
@@ -1780,4 +1795,87 @@ void do_resets(CharData* ch, char* argument)
     }
 
     return;
+}
+
+void do_moblist(CharData* ch, char* argument)
+{
+    static const char* help = "{jSyntax: MOBLIST AREA\n\r"
+        "          MOBLIST WORLD [low-level] [high-level]{x\n\r";
+    static const int max_disp = 100;
+    char opt[MIL] = { 0 };
+    char lo_str[MIL] = { 0 };
+    char hi_str[MIL] = { 0 };
+    char buf[MSL];
+    int count = 0;
+    LEVEL lo_lvl = 0;
+    LEVEL hi_lvl = MAX_LEVEL;
+    bool world = false;
+
+    INIT_BUF(out, MSL);
+
+    if (!IS_BUILDER(ch, ch->in_room->area)) {
+        send_to_char("{*Invalid security for editing this area.{x\n\r", ch);
+        return;
+    }
+
+    READ_ARG(opt);
+
+    if (!opt[0]) {
+        send_to_char(help, ch);
+        return;
+    }
+
+    if (!str_prefix(opt, "world")) {
+        READ_ARG(lo_str);
+        READ_ARG(hi_str);
+
+        if (!lo_str[0] || !is_number(lo_str) || !hi_str[0] || !is_number(hi_str)) {
+            send_to_char(help, ch);
+            return;
+        }
+
+        lo_lvl = (LEVEL)atoi(lo_str);
+        hi_lvl = (LEVEL)atoi(hi_str);
+        world = true;
+    }
+    else if (str_prefix(opt, "area")) {
+        send_to_char(help, ch);
+        return;
+    }
+    //               ################################################################################
+    addf_buf(out, "{TVNUM   Name       Lvl Hit Dice     Hit   Dam      Mana       Pie  Bas  Sla  Mag{x\n\r");
+    addf_buf(out, "{================================================================================{x\n\r");
+
+    VNUM hi_vnum = ch->in_room->area->max_vnum;
+    VNUM lo_vnum = ch->in_room->area->min_vnum;
+
+    for (int h = 0; h < MAX_KEY_HASH; ++h) {
+        MobPrototype* mob;
+        FOR_EACH(mob, mob_prototype_hash[h]) {
+            if (count > max_disp) {
+                addf_buf(out, "Max display threshold reached.\n\r");
+                goto max_disp_reached;
+            }
+            if (!world && (mob->vnum < lo_vnum || mob->vnum > hi_vnum))
+                continue;
+            if (world && (mob->level < lo_lvl || mob->level > hi_lvl))
+                continue;
+
+            //VNUM   Name       Lvl Hit Dice   Hit   Dam Dice   Mana       Pie Bas Sla Mag
+            //###### ########## ### ########## ##### ######## ########## ### ### ### ###
+            addf_buf(out, "{*%-6d{x %-10.10s {*%-3d ",
+                mob->vnum, mob->short_descr, mob->level);
+            sprintf(buf, "%dd%d+%d", mob->hit[0], mob->hit[1], mob->hit[2]);
+            addf_buf(out, "%-12.12s %-5d ", buf, mob->hitroll);
+            sprintf(buf, "%dd%d+%d", mob->damage[0], mob->damage[1], mob->damage[2]);
+            addf_buf(out, "%-8.8s ", buf);
+            sprintf(buf, "%dd%d+%d", mob->mana[0], mob->mana[1], mob->mana[2]);
+            addf_buf(out, "%-9.9s ", buf);
+            addf_buf(out, "%4d %4d %4d %4d{x\n\r", mob->ac[0], mob->ac[1], mob->ac[2], mob->ac[3]);
+        }
+    }
+max_disp_reached:
+    addf_buf(out, "\n\r");
+    page_to_char(BUF(out), ch);
+    free_buf(out);
 }

@@ -222,7 +222,7 @@ bool check_dispel(LEVEL dis_level, CharData* victim, SKNUM sn)
     AffectData* af;
 
     if (is_affected(victim, sn)) {
-        for (af = victim->affected; af != NULL; af = af->next) {
+        FOR_EACH(af, victim->affected) {
             if (af->type == sn) {
                 if (!saves_dispel(dis_level, af->level, af->duration)) {
                     affect_strip(victim, sn);
@@ -822,7 +822,7 @@ void spell_calm(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget targe
     AffectData af = { 0 };
 
     /* get sum of all mobile levels in the room */
-    for (vch = ch->in_room->people; vch != NULL; vch = vch->next_in_room) {
+    FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
         if (vch->position == POS_FIGHTING) {
             count++;
             if (IS_NPC(vch))
@@ -841,7 +841,7 @@ void spell_calm(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget targe
 
     if (number_range(0, chance) >= mlevel) /* hard to stop large fights */
     {
-        for (vch = ch->in_room->people; vch != NULL; vch = vch->next_in_room) {
+        FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
             if (IS_NPC(vch)
                 && (IS_SET(vch->imm_flags, IMM_MAGIC)
                     || IS_SET(vch->act_flags, ACT_UNDEAD)))
@@ -1936,7 +1936,7 @@ void spell_enchant_armor(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
     /* find the bonuses */
 
     if (!obj->enchanted)
-        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next) {
+        FOR_EACH(paf, obj->prototype->affected) {
             if (paf->location == APPLY_AC) {
                 ac_bonus = paf->modifier;
                 ac_found = true;
@@ -1947,7 +1947,7 @@ void spell_enchant_armor(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
                 fail += 20;
         }
 
-    for (paf = obj->affected; paf != NULL; paf = paf->next) {
+    FOR_EACH(paf, obj->affected) {
         if (paf->location == APPLY_AC) {
             ac_bonus = paf->modifier;
             ac_found = true;
@@ -2008,7 +2008,7 @@ void spell_enchant_armor(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
         AffectData* af_new;
         obj->enchanted = true;
 
-        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next) {
+        FOR_EACH(paf, obj->prototype->affected) {
             af_new = new_affect();
 
             af_new->next = obj->affected;
@@ -2047,7 +2047,7 @@ void spell_enchant_armor(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
         obj->level = UMIN(LEVEL_HERO - 1, obj->level + 1);
 
     if (ac_found) {
-        for (paf = obj->affected; paf != NULL; paf = paf->next) {
+        FOR_EACH(paf, obj->affected) {
             if (paf->location == APPLY_AC) {
                 paf->type = sn;
                 paf->modifier += (int16_t)added;
@@ -2097,7 +2097,7 @@ void spell_enchant_weapon(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
     /* find the bonuses */
 
     if (!obj->enchanted)
-        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next) {
+        FOR_EACH(paf, obj->prototype->affected) {
             if (paf->location == APPLY_HITROLL) {
                 hit_bonus = paf->modifier;
                 hit_found = true;
@@ -2114,7 +2114,7 @@ void spell_enchant_weapon(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
                 fail += 25;
         }
 
-    for (paf = obj->affected; paf != NULL; paf = paf->next) {
+    FOR_EACH(paf, obj->affected) {
         if (paf->location == APPLY_HITROLL) {
             hit_bonus = paf->modifier;
             hit_found = true;
@@ -2181,7 +2181,7 @@ void spell_enchant_weapon(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
         AffectData* af_new;
         obj->enchanted = true;
 
-        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next) {
+        FOR_EACH(paf, obj->prototype->affected) {
             af_new = new_affect();
 
             af_new->next = obj->affected;
@@ -2220,7 +2220,7 @@ void spell_enchant_weapon(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
         obj->level = UMIN(LEVEL_HERO - 1, obj->level + 1);
 
     if (dam_found) {
-        for (paf = obj->affected; paf != NULL; paf = paf->next) {
+        FOR_EACH(paf, obj->affected) {
             if (paf->location == APPLY_DAMROLL) {
                 paf->type = sn;
                 paf->modifier += (int16_t)added;
@@ -2245,7 +2245,7 @@ void spell_enchant_weapon(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
     }
 
     if (hit_found) {
-        for (paf = obj->affected; paf != NULL; paf = paf->next) {
+        FOR_EACH(paf, obj->affected) {
             if (paf->location == APPLY_HITROLL) {
                 paf->type = sn;
                 paf->modifier += (int16_t)added;
@@ -2380,7 +2380,7 @@ void spell_faerie_fog(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget
     act("$n conjures a cloud of purple smoke.", ch, NULL, NULL, TO_ROOM);
     send_to_char("You conjure a cloud of purple smoke.\n\r", ch);
 
-    for (ich = ch->in_room->people; ich != NULL; ich = ich->next_in_room) {
+    FOR_EACH_IN_ROOM(ich, ch->in_room->people) {
         if (ich->invis_level > 0) continue;
 
         if (ich == ch || saves_spell(level, ich, DAM_OTHER)) continue;
@@ -2951,7 +2951,7 @@ void spell_identify(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget t
     }
 
     if (!obj->enchanted)
-        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next) {
+        FOR_EACH(paf, obj->prototype->affected) {
             if (paf->location != APPLY_NONE && paf->modifier != 0) {
                 sprintf(buf, "Affects %s by %d.\n\r",
                         affect_loc_name(paf->location), paf->modifier);
@@ -2992,7 +2992,7 @@ void spell_identify(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget t
             }
         }
 
-    for (paf = obj->affected; paf != NULL; paf = paf->next) {
+    FOR_EACH(paf, obj->affected) {
         if (paf->location != APPLY_NONE && paf->modifier != 0) {
             sprintf(buf, "Affects %s by %d", affect_loc_name(paf->location),
                     paf->modifier);
@@ -3173,7 +3173,7 @@ void spell_locate_object(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
 
     buffer = new_buf();
 
-    for (obj = object_list; obj != NULL; obj = obj->next) {
+    FOR_EACH(obj, object_list) {
         if (!can_see_obj(ch, obj) || !is_name(target_name, obj->name)
             || IS_OBJ_STAT(obj, ITEM_NOLOCATE) || number_percent() > 2 * level
             || ch->level < obj->level)
@@ -3241,7 +3241,7 @@ void spell_mass_healing(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
     heal_num = skill_lookup("heal");
     refresh_num = skill_lookup("refresh");
 
-    for (gch = ch->in_room->people; gch != NULL; gch = gch->next_in_room) {
+    FOR_EACH_IN_ROOM(gch, ch->in_room->people) {
         if ((IS_NPC(ch) && IS_NPC(gch)) || (!IS_NPC(ch) && !IS_NPC(gch))) {
             spell_heal(heal_num, level, ch, (void*)gch, SPELL_TARGET_CHAR);
             spell_refresh(refresh_num, level, ch, (void*)gch, SPELL_TARGET_CHAR);
@@ -3254,7 +3254,7 @@ void spell_mass_invis(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget
     AffectData af = { 0 };
     CharData* gch;
 
-    for (gch = ch->in_room->people; gch != NULL; gch = gch->next_in_room) {
+    FOR_EACH_IN_ROOM(gch, ch->in_room->people) {
         if (!is_same_group(gch, ch) || IS_AFFECTED(gch, AFF_INVISIBLE))
             continue;
         act("$n slowly fades out of existence.", gch, NULL, NULL, TO_ROOM);
@@ -3884,7 +3884,7 @@ void spell_ventriloquate(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
     sprintf(buf2, "Someone makes %s say '%s'.\n\r", speaker, target_name);
     buf1[0] = UPPER(buf1[0]);
 
-    for (vch = ch->in_room->people; vch != NULL; vch = vch->next_in_room) {
+    FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
         if (!is_exact_name(speaker, vch->name) && IS_AWAKE(vch))
             send_to_char(saves_spell(level, vch, DAM_OTHER) ? buf2 : buf1, vch);
     }

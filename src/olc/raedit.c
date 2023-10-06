@@ -155,21 +155,23 @@ RAEDIT(raedit_show)
     printf_to_char(ch, "Start Loc   : {|[{*%d{|] {_%s %s{x\n\r",
         pRace->start_loc,
         room ? room->name : "",
-        cfg_get_start_loc_by_race() ? "" : " {G(not used)");
+        cfg_get_start_loc_by_race() ? "" : " {_(not used)");
     printf_to_char(ch, "{T    Class      XPmult  XP/lvl(pts)   Start Loc{x\n\r");
     for (i = 0; i < class_count; ++i) {
         VNUM vnum = GET_ELEM(&pRace->class_start, i);
         
         if (vnum > 0)
             room = get_room_data(vnum);
-        sprintf(buf, "    %-7.7s     %3d     %4d{|({*%3d{|){x    {|[{*%5d{|] {_%s %s{x\n\r",
+        else
+            room = NULL;
+        sprintf(buf, "    %-7.7s     {*%3d     %4d{|({*%3d{|){x    {|[{*%5d{|] {_%s %s{x\n\r",
             capitalize(class_table[i].name),
             GET_ELEM(&pRace->class_mult, i),
             race_exp_per_level(pRace->race_id, i, get_points(pRace->race_id, i)),
             get_points(pRace->race_id, i),
             vnum, 
             room ? room->name : "",
-            cfg_get_start_loc_by_class() && cfg_get_start_loc_by_race() ? "" : " {G(not used)"
+            cfg_get_start_loc_by_class() && cfg_get_start_loc_by_race() ? "" : " {_(not used)"
         );
         send_to_char(buf, ch);
     }
@@ -177,14 +179,14 @@ RAEDIT(raedit_show)
         send_to_char("\n\r", ch);
 
     for (i = 0; i < STAT_COUNT; ++i) {
-        sprintf(buf, "%s:%2d(%2d) ", Stats[i], pRace->stats[i], pRace->max_stats[i]);
+        sprintf(buf, "%s:{*%2d{|({*%2d{|){x ", Stats[i], pRace->stats[i], pRace->max_stats[i]);
         send_to_char(buf, ch);
     }
     send_to_char("\n\r", ch);
 
     for (i = 0; i < RACE_NUM_SKILLS; ++i)
         if (!IS_NULLSTR(pRace->skills[i])) {
-            printf_to_char(ch, "%2d. %s\n\r", i, pRace->skills[i]);
+            printf_to_char(ch, "%2d. {*%s{x\n\r", i, pRace->skills[i]);
         }
 
     return false;
@@ -235,7 +237,7 @@ RAEDIT(raedit_new)
         return false;
     }
 
-    for (d = descriptor_list; d; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         if (d->connected != CON_PLAYING || (tch = CH(d)) == NULL || tch->desc == NULL)
             continue;
 

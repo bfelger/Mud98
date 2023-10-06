@@ -82,6 +82,7 @@ DECLARE_DO_FUN(do_mpcall);
 DECLARE_DO_FUN(do_mpflee);
 DECLARE_DO_FUN(do_mpotransfer);
 DECLARE_DO_FUN(do_mpremove);
+DECLARE_DO_FUN(do_mpquest);
 
 void mob_interpret(CharData* ch, char* argument);
 char* mprog_type_to_name(MobProgTrigger);
