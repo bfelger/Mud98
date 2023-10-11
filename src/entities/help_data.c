@@ -24,7 +24,7 @@ HelpArea* new_help_area()
 
     if (help_area_free) {
         had = help_area_free;
-        help_area_free = help_area_free->next;
+        NEXT_LINK(help_area_free);
     }
     else
         had = alloc_perm(sizeof(HelpArea));
@@ -45,7 +45,7 @@ HelpData* new_help_data()
 
     if (help_free) {
         help = help_free;
-        help_free = help_free->next;
+        NEXT_LINK(help_free);
     }
     else
         help = alloc_perm(sizeof(HelpData));

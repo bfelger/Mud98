@@ -185,6 +185,53 @@ typedef void SpellFunc(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
             array1[_xxx_] = array2[_xxx_]; \
     }
 #define READ_ARG(arg)       (argument = one_argument(argument, (arg)))
+#define NEXT_LINK(n)        ((n) = (n)->next)
+#define FOR_EACH(i, l)      for ((i) = (l); (i) != NULL; NEXT_LINK(i))
+#define FOR_EACH_IN_ROOM(c, r) \
+    for ((c) = (r); (c) != NULL; (c) = c->next_in_room)
+#define ORDERED_INSERT(T, i, l, f)                                             \
+    if (!(l) || i->f < (l)->f) {                                               \
+        i->next = l;                                                           \
+        l = i;                                                                 \
+    } else {                                                                   \
+        T* temp_ ## i;                                                         \
+        FOR_EACH(temp_ ## i, (l)) {                                            \
+            if (!temp_ ## i->next || i->f < temp_ ## i->next->f) {             \
+                i->next = temp_ ## i->next;                                    \
+                temp_## i->next = i;                                           \
+                break;                                                         \
+            }                                                                  \
+        }                                                                      \
+    }
+#define UNORDERED_REMOVE(T, i, l, f, v)                                        \
+    if ((l)) {                                                                 \
+        if ((l)->f == v) {                                                     \
+            (i) = (l);                                                         \
+            NEXT_LINK(l);                                                      \
+        } else {                                                               \
+            T* temp_ ## i;                                                     \
+            FOR_EACH(temp_ ## i, (l)) {                                        \
+                if (!temp_ ## i->next) {                                       \
+                    break;                                                     \
+                } else if (temp_ ## i->next->f == v) {                         \
+                    (i) = temp_ ## i->next;                                    \
+                    temp_ ## i->next = (i)->next;                              \
+                    break;                                                     \
+                }                                                              \
+            }                                                                  \
+        }                                                                      \
+    }
+#define ORDERED_GET(T, i, l, f, v)                                             \
+    {                                                                          \
+        T* temp_ ## i;                                                         \
+        FOR_EACH(temp_ ## i, (l)) {                                            \
+            if (temp_ ## i->f == v)  {                                         \
+                i = temp_ ## i;                                                \
+                break;                                                         \
+            } else if (temp_ ## i->f > v)                                      \
+                break;                                                         \
+        }                                                                      \
+    }
 
 #ifdef _MSC_VER
     #define strdup _strdup

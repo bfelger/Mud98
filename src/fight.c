@@ -115,8 +115,11 @@ void violence_update(void)
     CharData* ch;
     CharData* victim;
 
-    for (ch = char_list; ch != NULL; ch = ch->next) {
-        if ((victim = ch->fighting) == NULL || ch->in_room == NULL) continue;
+    FOR_EACH(ch, char_list) {
+        if (ch->fighting == NULL || ch->in_room == NULL) 
+            continue;
+
+        victim = ch->fighting;
 
         if (IS_AWAKE(ch) && ch->in_room == victim->in_room)
             multi_hit(ch, victim, TYPE_UNDEFINED);
@@ -199,7 +202,7 @@ void check_assist(CharData* ch, CharData* victim)
 
                     target = NULL;
                     number = 0;
-                    for (vch = ch->in_room->people; vch; vch = vch->next) {
+                    FOR_EACH(vch, ch->in_room->people) {
                         if (can_see(rch, vch) && is_same_group(vch, victim)
                             && number_range(0, number) == 0) {
                             target = vch;
@@ -863,6 +866,18 @@ bool damage(CharData* ch, CharData* victim, int dam, int16_t dt, DamageType dam_
                           / 3)
                              + 50);
         }
+        else if (ch->pcdata) {
+            QuestTarget* qt;
+            QuestStatus* qs;
+            if ((qt = get_quest_targ_mob(ch, victim->prototype->vnum)) != NULL
+                && (qs = get_quest_status(ch, qt->quest_vnum)) != NULL) {
+                if (qs->quest->type == QUEST_KILL_MOB && qs->progress < qs->amount) {
+                    ++qs->progress;
+                    printf_to_char(ch, "{jQuest Progress: {x%s {|({*%d{|/{*%d{|){x\n\r",
+                        qs->quest->name, qs->progress, qs->amount);
+                }
+            }
+        }
 
         sprintf(log_buf, "%s got toasted by %s at %s [room %d]",
                 (IS_NPC(victim) ? victim->short_descr : victim->name),
@@ -1314,7 +1329,7 @@ void stop_fighting(CharData* ch, bool fBoth)
 {
     CharData* fch;
 
-    for (fch = char_list; fch != NULL; fch = fch->next) {
+    FOR_EACH(fch, char_list) {
         if (fch == ch || (fBoth && fch->fighting == ch)) {
             fch->fighting = NULL;
             fch->position = IS_NPC(fch) ? fch->default_pos : POS_STANDING;
@@ -1578,7 +1593,7 @@ void group_gain(CharData* ch, CharData* victim)
 
     members = 0;
     group_levels = 0;
-    for (gch = ch->in_room->people; gch != NULL; gch = gch->next_in_room) {
+    FOR_EACH_IN_ROOM(gch, ch->in_room->people) {
         if (is_same_group(gch, ch)) {
             members++;
             group_levels += IS_NPC(gch) ? gch->level / 2 : gch->level;
@@ -1591,7 +1606,7 @@ void group_gain(CharData* ch, CharData* victim)
         group_levels = ch->level;
     }
 
-    for (gch = ch->in_room->people; gch != NULL; gch = gch->next_in_room) {
+    FOR_EACH_IN_ROOM(gch, ch->in_room->people) {
         ObjectData* obj;
         ObjectData* obj_next = NULL;
 

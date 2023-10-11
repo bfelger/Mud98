@@ -17,7 +17,7 @@ MobMemory* new_mob_memory(void)
         memory = alloc_mem(sizeof(*memory));
     else {
         memory = mob_memory_free;
-        mob_memory_free = mob_memory_free->next;
+        NEXT_LINK(mob_memory_free);
     }
 
     memory->next = NULL;

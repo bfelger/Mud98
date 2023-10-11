@@ -268,7 +268,7 @@ void fwrite_char(CharData* ch, FILE* fp)
         }
     }
 
-    for (paf = ch->affected; paf != NULL; paf = paf->next) {
+    FOR_EACH(paf, ch->affected) {
         if (paf->type < 0 || paf->type >= skill_count) continue;
 
         fprintf(fp, "Affc '%s' %3d %3d %3d %3d %3d %10d\n",
@@ -368,7 +368,7 @@ void fwrite_pet(CharData* pet, FILE* fp)
             pet->mod_stat[STAT_INT], pet->mod_stat[STAT_WIS],
             pet->mod_stat[STAT_DEX], pet->mod_stat[STAT_CON]);
 
-    for (paf = pet->affected; paf != NULL; paf = paf->next) {
+    FOR_EACH(paf, pet->affected) {
         if (paf->type < 0 || paf->type >= skill_count) continue;
 
         fprintf(fp, "Affc '%s' %3d %3d %3d %3d %3d %10d\n",
@@ -474,7 +474,7 @@ void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
         break;
     }
 
-    for (paf = obj->affected; paf != NULL; paf = paf->next) {
+    FOR_EACH(paf, obj->affected) {
         if (paf->type < 0 || paf->type >= skill_count) 
             continue;
         fprintf(fp, "Affc '%s' %3d %3d %3d %3d %3d %10d\n",
@@ -482,7 +482,7 @@ void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
                 paf->duration, paf->modifier, paf->location, paf->bitvector);
     }
 
-    for (ed = obj->extra_desc; ed != NULL; ed = ed->next) {
+    FOR_EACH(ed, obj->extra_desc) {
         fprintf(fp, "ExDe %s~ %s~\n", ed->keyword, ed->description);
     }
 

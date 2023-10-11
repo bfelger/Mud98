@@ -16,7 +16,6 @@ set(Mud98_LIBS "")
 if (NOT MSVC)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
     find_package(Threads REQUIRED)
-    #target_link_libraries(Mud98 PRIVATE Threads::Threads)
     list(APPEND Mud98_LIBS Threads::Threads)
 endif()
 
@@ -33,10 +32,8 @@ if (NOT OPENSSL_FOUND OR OPENSSL_VERSION VERSION_LESS "3.0.0")
     set(NO_OPENSSL true)
 else()
     if (MSVC)
-        #target_link_libraries(Mud98 PRIVATE OpenSSL::Crypto OpenSSL::SSL OpenSSL::applink)
         list(APPEND Mud98_LIBS OpenSSL::Crypto OpenSSL::SSL OpenSSL::applink)
     else()
-        #target_link_libraries(Mud98 PRIVATE OpenSSL::SSL)
         list(APPEND Mud98_LIBS OpenSSL::SSL)
     endif()
 endif()
@@ -44,7 +41,6 @@ endif()
 set (ZLIB_USE_STATIC_LIBS true)
 find_package(ZLIB)
 if (ZLIB_FOUND)
-    #target_link_libraries(Mud98 PRIVATE ZLIB::ZLIB)
     list(APPEND Mud98_LIBS ZLIB::ZLIB)
 endif()
 
@@ -131,7 +127,7 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
 
     olc/aedit.c olc/bit.h olc/bit.c olc/cedit.c olc/cmdedit.c olc/gedit.c 
     olc/hedit.c olc/medit.c olc/oedit.c olc/olc.h olc/olc.c olc/olc_act.c 
-    olc/olc_save.c olc/pedit.c olc/raedit.c olc/redit.c olc/screen.h 
+    olc/olc_save.c olc/pedit.c olc/qedit.c olc/raedit.c olc/redit.c olc/screen.h 
     olc/screen.c olc/sedit.c olc/skedit.c olc/string_edit.h olc/string_edit.c
 
     mth/mth.h mth/msdp.c mth/mth.c mth/telopt.c
@@ -162,6 +158,7 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     data/social.h data/social.c
     data/spell.h data/spell.c
     data/stats.h data/stats.c
+    data/quest.h data/quest.c
 )
 
 target_link_libraries(Mud98 PRIVATE ${Mud98_LIBS})

@@ -29,7 +29,7 @@ PlayerData* new_player_data()
         player = alloc_perm(sizeof(*player));
     else {
         player = player_free;
-        player_free = player_free->next;
+        NEXT_LINK(player_free);
     }
 
     *player = player_zero;
@@ -42,6 +42,7 @@ PlayerData* new_player_data()
     player->buffer = new_buf();
     player->learned = new_learned();
     player->group_known = new_boolarray(skill_group_count);
+    player->quest_log = new_quest_log();
 
     player->recall = cfg_get_default_recall();
 
@@ -62,7 +63,7 @@ void free_player_data(PlayerData* player)
     else {
         PlayerData* prev;
 
-        for (prev = player_list; prev != NULL; prev = prev->next) {
+        FOR_EACH(prev, player_list) {
             if (prev->next == player) {
                 prev->next = player->next;
                 break;
@@ -86,6 +87,7 @@ void free_player_data(PlayerData* player)
     free_string(player->bamfout);
     free_string(player->title);
     free_buf(player->buffer);
+    free_quest_log(player->quest_log);
 
     for (alias = 0; alias < MAX_ALIAS; alias++) {
         free_string(player->alias[alias]);
@@ -107,7 +109,7 @@ CharGenData* new_gen_data()
         gen = alloc_perm(sizeof(*gen));
     else {
         gen = gen_data_free;
-        gen_data_free = gen_data_free->next;
+        NEXT_LINK(gen_data_free);
     }
     *gen = gen_zero;
 

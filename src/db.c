@@ -120,9 +120,10 @@ int	top_mprog_index;    // OLC
  * Increase MAX_STRING if you have too.
  * Tune the others only if you understand what you're doing.
  */
-#define MAX_STRING     1413120
-#define MAX_PERM_BLOCK 131072
-#define MAX_MEM_LIST   15
+//#define MAX_STRING     1413120
+#define MAX_STRING      2119680
+#define MAX_PERM_BLOCK  131072
+#define MAX_MEM_LIST    15
 
 void* rgFreeList[MAX_MEM_LIST];
 const size_t rgSizeList[MAX_MEM_LIST] = {
@@ -254,9 +255,9 @@ void boot_db()
 
                 if (word[0] == '$')
                     break;
-                else if (!str_cmp(word, "AREADATA")) 
+                else if (!str_cmp(word, "AREADATA"))
                     load_area(strArea);
-                else if (!str_cmp(word, "HELPS")) 
+                else if (!str_cmp(word, "HELPS"))
                     load_helps(strArea, fpArea);
                 else if (!str_cmp(word, "MOBOLD"))
                     load_old_mob(strArea);
@@ -278,6 +279,8 @@ void boot_db()
                     load_social(strArea);
                 else if (!str_cmp(word, "SPECIALS"))
                     load_specials(strArea);
+                else if (!str_cmp(word, "QUEST"))
+                    load_quest(strArea);
                 else {
                     bug("Boot_db: bad section name.", 0);
                     exit(1);
@@ -353,7 +356,7 @@ void load_area(FILE* fp)
     int version = 1;
 
     pArea = alloc_perm(sizeof(*pArea));
-    pArea->age = 15;
+    pArea->reset_thresh = 6;
     pArea->nplayer = 0;
     pArea->file_name = str_dup(fpArea);
     pArea->vnum = area_count;
@@ -363,11 +366,15 @@ void load_area(FILE* fp)
     pArea->min_vnum = 0;
     pArea->max_vnum = 0;
     pArea->area_flags = 0;
+    pArea->reset_timer = 0;
+    pArea->always_reset = false;
 
     for (; ; ) {
         word = feof(fp) ? "End" : fread_word(fp);
 
         switch (UPPER(word[0])) {
+        case 'A':
+            KEY("AlwaysReset", pArea->always_reset, (bool)fread_number(fp));
         case 'B':
             SKEY("Builders", pArea->builders);
             break;
@@ -380,6 +387,7 @@ void load_area(FILE* fp)
                     area_first = pArea;
                 if (area_last != NULL)
                     area_last->next = pArea;
+                pArea->reset_timer = pArea->reset_thresh;
                 area_last = pArea;
                 pArea->next = NULL;
                 current_area = pArea;
@@ -396,8 +404,12 @@ void load_area(FILE* fp)
         case 'N':
             SKEY("Name", pArea->name);
             break;
+        case 'R':
+            KEY("Reset", pArea->reset_thresh, (int16_t)fread_number(fp));
+            break;
         case 'S':
             KEY("Security", pArea->security, fread_number(fp));
+            KEY("Sector", pArea->sector, fread_number(fp));
             break;
         case 'V':
             if (!str_cmp(word, "VNUMs")) {
@@ -695,7 +707,8 @@ void load_resets(FILE* fp)
     for (;;) {
         char letter;
 
-        if ((letter = fread_letter(fp)) == 'S') break;
+        if ((letter = fread_letter(fp)) == 'S') 
+            break;
 
         if (letter == '*') {
             fread_to_eol(fp);
@@ -1017,13 +1030,13 @@ void fix_exits(void)
 
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
         for (pRoomIndex = room_index_hash[iHash]; pRoomIndex != NULL;
-             pRoomIndex = pRoomIndex->next) {
+             NEXT_LINK(pRoomIndex)) {
             bool fexit;
 
             iLastRoom = iLastObj = NULL;
 
             /* OLC : New reset check */
-            for (pReset = pRoomIndex->reset_first; pReset; pReset = pReset->next) {
+            FOR_EACH(pReset, pRoomIndex->reset_first) {
                 switch (pReset->command) {
                 default:
                     bugf("fix_exits : room %d with reset cmd %c", pRoomIndex->vnum, pReset->command);
@@ -1093,16 +1106,16 @@ void fix_exits(void)
 
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
         for (pRoomIndex = room_index_hash[iHash]; pRoomIndex != NULL;
-             pRoomIndex = pRoomIndex->next) {
+             NEXT_LINK(pRoomIndex)) {
             for (door = 0; door <= 5; door++) {
                 if ((pexit = pRoomIndex->exit[door]) != NULL
                     && (to_room = pexit->u1.to_room) != NULL
                     && (pexit_rev = to_room->exit[dir_list[door].rev_dir]) != NULL
                     && pexit_rev->u1.to_room != pRoomIndex
                     && (pRoomIndex->vnum < 1200 || pRoomIndex->vnum > 1299)) {
-                    sprintf(buf, "Fix_exits: %d:%d -> %d:%d -> %d.",
-                            pRoomIndex->vnum, door, to_room->vnum,
-                            dir_list[door].rev_dir,
+                    sprintf(buf, "Fix_exits: %d:%d(%s) -> %d:%d(%s) -> %d.",
+                            pRoomIndex->vnum, door, dir_list[door].name_abbr, to_room->vnum,
+                            dir_list[door].rev_dir, dir_list[dir_list[door].rev_dir].name_abbr,
                             (pexit_rev->u1.to_room == NULL)
                                 ? 0
                                 : pexit_rev->u1.to_room->vnum);
@@ -1118,34 +1131,24 @@ void fix_exits(void)
 /*
  * Repopulate areas periodically.
  */
-void area_update(void)
+void area_update()
 {
     AreaData* pArea;
     char buf[MAX_STRING_LENGTH];
 
-    for (pArea = area_first; pArea != NULL; pArea = pArea->next) {
-        if (++pArea->age < 3) 
-            continue;
+    FOR_EACH(pArea, area_first) {
+        int thresh = pArea->reset_thresh;
 
-        /*
-         * Check age and reset.
-         * Note: Mud School resets every 3 minutes (not 15).
-         */
-        if ((!pArea->empty && (pArea->nplayer == 0 || pArea->age >= 15))
-            || pArea->age >= 31) {
-            RoomData* pRoomIndex;
+        if (pArea->nplayer == 0)
+            thresh /= 2;
 
+        ++pArea->reset_timer;
+
+        if (pArea->reset_timer >= thresh) {
             reset_area(pArea);
             sprintf(buf, "%s has just been reset.", pArea->name);
             wiznet(buf, NULL, NULL, WIZ_RESETS, 0, 0);
-
-            // TODO: Introduce per-area reset timers
-            pArea->age = (int16_t)number_range(0, 3);
-            pRoomIndex = get_room_data(cfg_get_default_start_loc());
-            if (pRoomIndex != NULL && pArea == pRoomIndex->area)
-                pArea->age = 15 - 2;
-            else if (pArea->nplayer == 0)
-                pArea->empty = true;
+            pArea->reset_timer = 0;
         }
     }
 
@@ -1210,10 +1213,8 @@ void fix_mobprogs(void)
     int iHash;
 
     for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
-        for (p_mob_proto = mob_prototype_hash[iHash];
-            p_mob_proto != NULL;
-            p_mob_proto = p_mob_proto->next) {
-            for (list = p_mob_proto->mprogs; list != NULL; list = list->next) {
+        FOR_EACH(p_mob_proto, mob_prototype_hash[iHash]) {
+            FOR_EACH(list, p_mob_proto->mprogs) {
                 if ((prog = pedit_prog(list->vnum)) != NULL)
                     list->code = prog->code;
                 else {
@@ -1239,7 +1240,308 @@ void reset_room(RoomData* pRoom)
     int level = 0;
     bool last;
 
-    if (!pRoom) return;
+    if (!pRoom)
+        return;
+
+    last = false;
+
+    for (iExit = 0; iExit < DIR_MAX; iExit++) {
+        ExitData* pExit;
+        if ((pExit = pRoom->exit[iExit])
+            /*  && !IS_SET( pExit->exit_info, EX_BASHED )   ROM OLC */) {
+            pExit->exit_flags = pExit->exit_reset_flags;
+            if ((pExit->u1.to_room != NULL)
+                && ((pExit = pExit->u1.to_room->exit[dir_list[iExit].rev_dir]))) {
+                  /* nail the other side */
+                pExit->exit_flags = pExit->exit_reset_flags;
+            }
+        }
+    }
+
+    FOR_EACH(pReset, pRoom->reset_first) {
+        MobPrototype* pMobIndex;
+        ObjectPrototype* pObjIndex;
+        ObjectPrototype* pObjToIndex;
+        RoomData* pRoomIndex;
+        char buf[MAX_STRING_LENGTH];
+        int count, limit = 0;
+
+        switch (pReset->command) {
+        default:
+            bug("Reset_room: bad command %c.", pReset->command);
+            break;
+
+        case 'M':
+        {
+            CharData* mob;
+
+            if ((pMobIndex = get_mob_prototype(pReset->arg1)) == NULL) {
+                bug("Reset_room: 'M': bad vnum %"PRVNUM".", pReset->arg1);
+                continue;
+            }
+
+            if ((pRoomIndex = get_room_data(pReset->arg3)) == NULL) {
+                bug("Reset_area: 'R': bad vnum %"PRVNUM".", pReset->arg3);
+                continue;
+            }
+
+            if (pMobIndex->count >= pReset->arg2) {
+                last = false;
+                break;
+            }
+
+            /* */
+
+            count = 0;
+            for (mob = pRoomIndex->people; mob != NULL; mob = mob->next_in_room)
+                if (mob->prototype == pMobIndex) {
+                    count++;
+                    if (count >= pReset->arg4) {
+                        last = false;
+                        break;
+                    }
+                }
+
+            if (count >= pReset->arg4)
+                break;
+
+            /* */
+
+            pMob = create_mobile(pMobIndex);
+
+            /*
+             * Some more hard coding.
+             */
+            if (room_is_dark(pRoom))
+                SET_BIT(pMob->affect_flags, AFF_INFRARED);
+
+            /*
+             * Pet shop mobiles get ACT_PET set.
+             */
+            {
+                RoomData* pRoomIndexPrev;
+
+                pRoomIndexPrev = get_room_data(pRoom->vnum - 1);
+                if (pRoomIndexPrev
+                    && IS_SET(pRoomIndexPrev->room_flags, ROOM_PET_SHOP))
+                    SET_BIT(pMob->act_flags, ACT_PET);
+            }
+
+            char_to_room(pMob, pRoom);
+            LastMob = pMob;
+            level = URANGE(0, pMob->level - 2, LEVEL_HERO - 1); /* -1 ROM */
+            last = true;
+            break;
+        }
+
+        case 'O':
+            if (!(pObjIndex = get_object_prototype(pReset->arg1))) {
+                bug("Reset_room: 'O' 1 : bad vnum %"PRVNUM"", pReset->arg1);
+                sprintf(buf, "%"PRVNUM" %d %"PRVNUM" %d", pReset->arg1, pReset->arg2, pReset->arg3,
+                    pReset->arg4);
+                bug(buf, 1);
+                continue;
+            }
+
+            if (!(pRoomIndex = get_room_data(pReset->arg3))) {
+                bug("Reset_room: 'O' 2 : bad vnum %"PRVNUM".", pReset->arg3);
+                sprintf(buf, "%"PRVNUM" %d %"PRVNUM" %d", pReset->arg1, pReset->arg2, pReset->arg3,
+                    pReset->arg4);
+                bug(buf, 1);
+                continue;
+            }
+
+            if ((pRoom->area->nplayer > 0 && !pRoom->area->always_reset)
+                || count_obj_list(pObjIndex, pRoom->contents) > 0) {
+                last = false;
+                break;
+            }
+
+            pObj = create_object(pObjIndex, (LEVEL)UMIN(number_fuzzy(level),
+                LEVEL_HERO - 1)); /* UMIN - ROM OLC */
+            pObj->cost = 0;
+            obj_to_room(pObj, pRoom);
+            last = true;
+            break;
+
+        case 'P':
+            if ((pObjIndex = get_object_prototype(pReset->arg1)) == NULL) {
+                bug("Reset_room: 'P': bad vnum %"PRVNUM".", pReset->arg1);
+                continue;
+            }
+            if ((pObjToIndex = get_object_prototype(pReset->arg3)) == NULL) {
+                bug("Reset_room: 'P': bad vnum %"PRVNUM".", pReset->arg3);
+                continue;
+            }
+
+            if (pReset->arg2 > 50) /* old format */
+                limit = 6;
+            else if (pReset->arg2 <= 0) /* no limit */
+                limit = 999;
+            else
+                limit = pReset->arg2;
+
+            count = 0;
+            if ((pRoom->area->nplayer > 0 && !pRoom->area->always_reset)
+                || (LastObj = get_obj_type(pObjToIndex)) == NULL
+                || (LastObj->in_room == NULL && !last)
+                || (pObjIndex->count >= limit /* && number_range(0,4) != 0 */)
+                || (count = count_obj_list(pObjIndex, LastObj->contains))
+                > pReset->arg4) {
+                last = false;
+                break;
+            }
+
+            /* lastObj->level  -  ROM */
+            while (count < pReset->arg4) {
+                pObj = create_object(pObjIndex, (LEVEL)number_fuzzy(LastObj->level));
+                obj_to_obj(pObj, LastObj);
+                count++;
+                if (pObjIndex->count >= limit) 
+                    break;
+            }
+
+            /* fix object lock state! */
+            LastObj->value[1] = LastObj->prototype->value[1];
+            last = true;
+            break;
+
+        case 'G':
+        case 'E':
+            if ((pObjIndex = get_object_prototype(pReset->arg1)) == NULL) {
+                bug("Reset_room: 'E' or 'G': bad vnum %"PRVNUM".", pReset->arg1);
+                continue;
+            }
+
+            if (!last)
+                break;
+
+            if (!LastMob) {
+                bug("Reset_room: 'E' or 'G': null mob for vnum %"PRVNUM".",
+                    pReset->arg1);
+                last = false;
+                break;
+            }
+
+            if (LastMob->prototype->pShop != NULL) { // Shopkeeper?
+                int olevel = 0, i, j;
+
+                if (!pObjIndex->new_format) {
+                    switch (pObjIndex->item_type) {
+
+                    case ITEM_PILL:
+                    case ITEM_POTION:
+                    case ITEM_SCROLL:
+                        olevel = 53;
+                        for (i = 1; i < 5; i++) {
+                            if (pObjIndex->value[i] <= 0)
+                                continue;
+                            for (j = 0; j < class_count; j++) {
+                                olevel = UMIN(
+                                    olevel, GET_ELEM(&skill_table[pObjIndex->value[i]].skill_level, j));
+                            }
+                        }
+
+                        olevel = UMAX(0, (olevel * 3 / 4) - 2);
+                        break;
+                    case ITEM_WAND:
+                        olevel = number_range(10, 20);
+                        break;
+                    case ITEM_STAFF:
+                        olevel = number_range(15, 25);
+                        break;
+                    case ITEM_ARMOR:
+                        olevel = number_range(5, 15);
+                        break;
+                    case ITEM_WEAPON:
+                        olevel = number_range(5, 15);
+                        break;
+                    case ITEM_TREASURE:
+                        olevel = number_range(10, 20);
+                        break;
+                    default:
+                        olevel = 0;
+                        break;
+                    }
+                }
+
+                pObj = create_object(pObjIndex, (LEVEL)olevel);
+                SET_BIT(pObj->extra_flags, ITEM_INVENTORY);
+            }
+            else {
+                // ROM OLC
+                if (pReset->arg2 > 50) /* old format */
+                    limit = 6;
+                else if (pReset->arg2 == -1 || pReset->arg2 == 0) /* no limit */
+                    limit = 999;
+                else
+                    limit = pReset->arg2;
+
+                if (pObjIndex->count < limit || number_range(0, 4) == 0) {
+                    pObj = create_object(
+                        pObjIndex, (LEVEL)UMIN(number_fuzzy(level), LEVEL_HERO - 1));
+                    /* error message if it is too high */
+                    if (pObj->level > LastMob->level + 3
+                        || (pObj->item_type == ITEM_WEAPON
+                            && pReset->command == 'E'
+                            && pObj->level < LastMob->level - 5 && pObj->level < 45))
+                        fprintf(stderr,
+                            "Err: obj %s [%"PRVNUM"] Lvl %d -- mob %s [%"PRVNUM"] Lvl %d\n",
+                            pObj->short_descr, pObj->prototype->vnum,
+                            pObj->level, LastMob->short_descr,
+                            LastMob->prototype->vnum, LastMob->level);
+                }
+                else
+                    break;
+            }
+
+            obj_to_char(pObj, LastMob);
+            if (pReset->command == 'E')
+                equip_char(LastMob, pObj, pReset->arg3);
+            last = true;
+            break;
+
+        case 'D':
+            break;
+
+        case 'R':
+            if (!(pRoomIndex = get_room_data(pReset->arg1))) {
+                bug("Reset_room: 'R': bad vnum %"PRVNUM".", pReset->arg1);
+                continue;
+            }
+
+            {
+                ExitData* pExit;
+                int d0;
+                int d1;
+
+                for (d0 = 0; d0 < pReset->arg2 - 1; d0++) {
+                    d1 = number_range(d0, pReset->arg2 - 1);
+                    pExit = pRoomIndex->exit[d0];
+                    pRoomIndex->exit[d0] = pRoomIndex->exit[d1];
+                    pRoomIndex->exit[d1] = pExit;
+                }
+            }
+            break;
+        }
+    }
+
+    return;
+}
+#if 0
+void reset_room(RoomData* pRoom)
+{
+    ResetData* pReset;
+    CharData* pMob = NULL;
+    ObjectData* pObj;
+    CharData* LastMob = NULL;
+    ObjectData* LastObj = NULL;
+    int iExit;
+    int level = 0;
+    bool last;
+
+    if (!pRoom)
+        return;
 
     last = false;
 
@@ -1256,11 +1558,11 @@ void reset_room(RoomData* pRoom)
         }
     }
 
-    for (pReset = pRoom->reset_first; pReset != NULL; pReset = pReset->next) {
-        MobPrototype* p_mob_proto;
+    FOR_EACH(pReset, pRoom->reset_first) {
+        MobPrototype* mob_proto;
         ObjectPrototype* obj_proto;
         ObjectPrototype* pObjToIndex;
-        RoomData* pRoomIndex;
+        RoomData* reset_room;
         char buf[MAX_STRING_LENGTH];
         int count, limit = 0;
 
@@ -1271,19 +1573,17 @@ void reset_room(RoomData* pRoom)
 
         case 'M':
         {
-            CharData* mob;
-
-            if ((p_mob_proto = get_mob_prototype(pReset->arg1)) == NULL) {
+            if ((mob_proto = get_mob_prototype(pReset->arg1)) == NULL) {
                 bug("Reset_room: 'M': bad vnum %"PRVNUM".", pReset->arg1);
                 continue;
             }
 
-            if ((pRoomIndex = get_room_data(pReset->arg3)) == NULL) {
+            if ((reset_room = get_room_data(pReset->arg3)) == NULL) {
                 bug("Reset_area: 'R': bad vnum %"PRVNUM".", pReset->arg3);
                 continue;
             }
 
-            if (p_mob_proto->count >= pReset->arg2) {
+            if (mob_proto->count >= pReset->arg2) {
                 last = false;
                 break;
             }
@@ -1291,8 +1591,10 @@ void reset_room(RoomData* pRoom)
             /* */
 
             count = 0;
-            for (mob = pRoomIndex->people; mob != NULL; mob = mob->next_in_room)
-                if (mob->prototype == p_mob_proto) {
+
+            CharData* mob_in_room;
+            FOR_EACH_IN_ROOM(mob_in_room, reset_room->people)
+                if (mob_in_room->prototype == mob_proto) {
                     count++;
                     if (count >= pReset->arg4) {
                         last = false;
@@ -1300,11 +1602,12 @@ void reset_room(RoomData* pRoom)
                     }
                 }
 
-            if (count >= pReset->arg4) break;
+            if (count >= pReset->arg4) 
+                break;
 
             /* */
 
-            pMob = create_mobile(p_mob_proto);
+            pMob = create_mobile(mob_proto);
 
             /*
              * Some more hard coding.
@@ -1482,7 +1785,7 @@ void reset_room(RoomData* pRoom)
                             && pReset->command == 'E'
                             && pObj->level < LastMob->level - 5 && pObj->level < 45))
                         fprintf(stderr,
-                            "Err: obj %s (%"PRVNUM") -- %d, mob %s (%"PRVNUM") -- %d\n",
+                            "Err: obj %s [%"PRVNUM"] Lvl %d -- mob %s [%"PRVNUM"] Lvl %d\n",
                             pObj->short_descr, pObj->prototype->vnum,
                             pObj->level, LastMob->short_descr,
                             LastMob->prototype->vnum, LastMob->level);
@@ -1524,6 +1827,7 @@ void reset_room(RoomData* pRoom)
 
     return;
 }
+#endif
 
 /* OLC
  * Reset one area.
@@ -1609,13 +1913,13 @@ void clone_mobile(CharData* parent, CharData* clone)
         clone->damage[i] = parent->damage[i];
 
     /* now add the affects */
-    for (paf = parent->affected; paf != NULL; paf = paf->next)
+    FOR_EACH(paf, parent->affected)
         affect_to_char(clone, paf);
 }
 
 MobProgCode* get_mprog_index(VNUM vnum)
 {
-    for (MobProgCode* prg = mprog_list; prg; prg = prg->next) {
+    for (MobProgCode* prg = mprog_list; prg; NEXT_LINK(prg)) {
         if (prg->vnum == vnum)
             return(prg);
     }
@@ -1830,7 +2134,8 @@ char* fread_string(FILE* fp)
     }
     while (ISSPACE(c));
 
-    if ((*plast++ = c) == '~') return &str_empty[0];
+    if ((*plast++ = c) == '~') 
+        return &str_empty[0];
 
     for (;;) {
         /*
@@ -2206,14 +2511,15 @@ void do_areas(CharData* ch, char* argument)
     iAreaHalf = (area_count + 1) / 2;
     pArea1 = area_first;
     pArea2 = area_first;
-    for (iArea = 0; iArea < iAreaHalf; iArea++) pArea2 = pArea2->next;
+    for (iArea = 0; iArea < iAreaHalf; iArea++) NEXT_LINK(pArea2);
 
     for (iArea = 0; iArea < iAreaHalf; iArea++) {
         sprintf(buf, "%-39s%-39s\n\r", pArea1->credits,
                 (pArea2 != NULL) ? pArea2->credits : "");
         send_to_char(buf, ch);
-        pArea1 = pArea1->next;
-        if (pArea2 != NULL) pArea2 = pArea2->next;
+        NEXT_LINK(pArea1);
+        if (pArea2 != NULL) 
+            NEXT_LINK(pArea2);
     }
 
     return;
@@ -2221,40 +2527,24 @@ void do_areas(CharData* ch, char* argument)
 
 void do_memory(CharData* ch, char* argument)
 {
-    char buf[MAX_STRING_LENGTH];
+    printf_to_char(ch, "Affects %5d\n\r", top_affect);
+    printf_to_char(ch, "Areas   %5d\n\r", area_count);
+    printf_to_char(ch, "ExDes   %5d\n\r", top_ed);
+    printf_to_char(ch, "Exits   %5d\n\r", top_exit);
+    printf_to_char(ch, "Helps   %5d\n\r", top_help);
+    printf_to_char(ch, "Socials %5d\n\r", social_count);
+    printf_to_char(ch, "Mobs    %5d(%d new format)\n\r", top_mob_prototype, newmobs);
+    printf_to_char(ch, "(in use)%5d\n\r", mobile_count);
+    printf_to_char(ch, "Objs    %5d(%d new format)\n\r", top_object_prototype, newobjs);
+    printf_to_char(ch, "Resets  %5d\n\r", top_reset);
+    printf_to_char(ch, "Rooms   %5d\n\r", top_room);
+    printf_to_char(ch, "Shops   %5d\n\r", top_shop);
 
-    sprintf(buf, "Affects %5d\n\r", top_affect);
-    send_to_char(buf, ch);
-    sprintf(buf, "Areas   %5d\n\r", area_count);
-    send_to_char(buf, ch);
-    sprintf(buf, "ExDes   %5d\n\r", top_ed);
-    send_to_char(buf, ch);
-    sprintf(buf, "Exits   %5d\n\r", top_exit);
-    send_to_char(buf, ch);
-    sprintf(buf, "Helps   %5d\n\r", top_help);
-    send_to_char(buf, ch);
-    sprintf(buf, "Socials %5d\n\r", social_count);
-    send_to_char(buf, ch);
-    sprintf(buf, "Mobs    %5d(%d new format)\n\r", top_mob_prototype, newmobs);
-    send_to_char(buf, ch);
-    sprintf(buf, "(in use)%5d\n\r", mobile_count);
-    send_to_char(buf, ch);
-    sprintf(buf, "Objs    %5d(%d new format)\n\r", top_object_prototype, newobjs);
-    send_to_char(buf, ch);
-    sprintf(buf, "Resets  %5d\n\r", top_reset);
-    send_to_char(buf, ch);
-    sprintf(buf, "Rooms   %5d\n\r", top_room);
-    send_to_char(buf, ch);
-    sprintf(buf, "Shops   %5d\n\r", top_shop);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Strings %5d strings of %zu bytes (max %d).\n\r", nAllocString,
+    printf_to_char(ch, "Strings %5d strings of %zu bytes (max %d).\n\r", nAllocString,
             sAllocString, MAX_STRING);
-    send_to_char(buf, ch);
 
-    sprintf(buf, "Perms   %5d blocks  of %zu bytes.\n\r", nAllocPerm,
+    printf_to_char(ch, "Perms   %5d blocks  of %zu bytes.\n\r", nAllocPerm,
             sAllocPerm);
-    send_to_char(buf, ch);
 
     return;
 }
@@ -2289,27 +2579,32 @@ void do_dump(CharData* ch, char* argument)
     /* mobs */
     count = 0;
     count2 = 0;
-    for (fch = char_list; fch != NULL; fch = fch->next) {
+    FOR_EACH(fch, char_list) {
         count++;
         if (fch->pcdata != NULL) num_pcs++;
-        for (af = fch->affected; af != NULL; af = af->next) aff_count++;
+        FOR_EACH(af, fch->affected) 
+            aff_count++;
     }
-    for (fch = char_free; fch != NULL; fch = fch->next) count2++;
+    FOR_EACH(fch, char_free) 
+        count2++;
 
     fprintf(fp, "Mobs   %4d (%8zu bytes), %2d free (%zu bytes)\n", count,
             count * (sizeof(*fch)), count2, count2 * (sizeof(*fch)));
 
     /* pcdata */
     count = 0;
-    for (pc = player_free; pc != NULL; pc = pc->next) count++;
+    FOR_EACH(pc, player_free) 
+        count++;
     fprintf(fp, "Pcdata	%4d (%8zu bytes), %2d free (%zu bytes)\n", num_pcs,
             num_pcs * (sizeof(*pc)), count, count * (sizeof(*pc)));
 
     /* descriptors */
     count = 0;
     count2 = 0;
-    for (d = descriptor_list; d != NULL; d = d->next) count++;
-    for (d = descriptor_free; d != NULL; d = d->next) count2++;
+    FOR_EACH(d, descriptor_list) 
+        count++;
+    FOR_EACH(d, descriptor_free) 
+        count2++;
 
     fprintf(fp, "Descs	%4d (%8zu bytes), %2d free (%zu bytes)\n", count,
             count * (sizeof(*d)), count2, count2 * (sizeof(*d)));
@@ -2317,7 +2612,7 @@ void do_dump(CharData* ch, char* argument)
     /* object prototypes */
     for (vnum = 0; nMatch < top_object_prototype; vnum++)
         if ((obj_proto = get_object_prototype(vnum)) != NULL) {
-            for (af = obj_proto->affected; af != NULL; af = af->next)
+            FOR_EACH(af, obj_proto->affected)
                 aff_count++;
             nMatch++;
         }
@@ -2328,18 +2623,18 @@ void do_dump(CharData* ch, char* argument)
     /* objects */
     count = 0;
     count2 = 0;
-    for (obj = object_list; obj != NULL; obj = obj->next) {
+    FOR_EACH(obj, object_list) {
         count++;
-        for (af = obj->affected; af != NULL; af = af->next) aff_count++;
+        FOR_EACH(af, obj->affected) aff_count++;
     }
-    for (obj = object_free; obj != NULL; obj = obj->next) count2++;
+    FOR_EACH(obj, object_free) count2++;
 
     fprintf(fp, "Objs	%4d (%8zu bytes), %2d free (%zu bytes)\n", count,
             count * (sizeof(*obj)), count2, count2 * (sizeof(*obj)));
 
     /* affects */
     count = 0;
-    for (af = affect_free; af != NULL; af = af->next) count++;
+    FOR_EACH(af, affect_free) count++;
 
     fprintf(fp, "Affects	%4d (%8zu bytes), %2d free (%zu bytes)\n", aff_count,
             aff_count * (sizeof(*af)), count, count * (sizeof(*af)));
@@ -2415,9 +2710,11 @@ int number_range(int from, int to)
     int power;
     int number;
 
-    if (from == 0 && to == 0) return 0;
+    if (from == 0 && to == 0) 
+        return 0;
 
-    if ((to = to - from + 1) <= 1) return from;
+    if ((to = to - from + 1) <= 1) 
+        return from;
 
     for (power = 2; power < to; power <<= 1)
         ;
@@ -2508,7 +2805,8 @@ int interpolate(int level, int value_00, int value_32)
 void smash_tilde(char* str)
 {
     for (; *str != '\0'; str++) {
-        if (*str == '~') *str = '-';
+        if (*str == '~') 
+            *str = '-';
     }
 
     return;

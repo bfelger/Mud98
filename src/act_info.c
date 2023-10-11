@@ -30,6 +30,7 @@
 #include "act_comm.h"
 #include "act_move.h"
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "digest.h"
 #include "fight.h"
@@ -119,10 +120,12 @@ char* format_obj_to_char(ObjectData* obj, CharData* ch, bool fShort)
     if (IS_OBJ_STAT(obj, ITEM_HUM)) strcat(buf, "{_(Humming){x ");
 
     if (fShort) {
-        if (obj->short_descr != NULL) strcat(buf, obj->short_descr);
+        if (obj->short_descr != NULL) 
+            strcat(buf, obj->short_descr);
     }
     else {
-        if (obj->description != NULL) strcat(buf, obj->description);
+        if (obj->description != NULL) 
+            strcat(buf, obj->description);
     }
 
     return buf;
@@ -238,7 +241,22 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
     char buf[MAX_STRING_LENGTH] = "";
     char message[MAX_STRING_LENGTH] = "";
 
-    buf[0] = '\0';
+    strcat(buf, "  ");
+
+    bool is_npc = IS_NPC(victim);
+
+    if (is_npc) {
+        QuestTarget* qt = get_quest_targ_end(ch, victim->prototype->vnum);
+        if (qt && can_finish_quest(ch, qt->quest_vnum)) {
+            strcat(buf, "{*[{Y?{x{*]{x ");
+        }
+        else if ((qt = get_quest_targ_mob(ch, victim->prototype->vnum)) != NULL) {
+            if (qt->type != QUEST_KILL_MOB)
+                strcat(buf, "{*[{Y!{x{*]{x ");
+            else
+                strcat(buf, "{*[{RX{x{*]{x ");
+        }
+    }
 
     if (IS_SET(victim->comm_flags, COMM_AFK)) strcat(buf, "{_[AFK]{x ");
     if (IS_AFFECTED(victim, AFF_INVISIBLE)) strcat(buf, "{*(Invis){x ");
@@ -252,9 +270,9 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
     if (IS_GOOD(victim) && IS_AFFECTED(ch, AFF_DETECT_GOOD))
         strcat(buf, "{Y(Golden Aura){x ");
     if (IS_AFFECTED(victim, AFF_SANCTUARY)) strcat(buf, "{W(White Aura){x ");
-    if (!IS_NPC(victim) && IS_SET(victim->act_flags, PLR_KILLER))
+    if (!is_npc && IS_SET(victim->act_flags, PLR_KILLER))
         strcat(buf, "{R(KILLER){x ");
-    if (!IS_NPC(victim) && IS_SET(victim->act_flags, PLR_THIEF))
+    if (!is_npc && IS_SET(victim->act_flags, PLR_THIEF))
         strcat(buf, "{R(THIEF){x ");
     if (victim->position == victim->start_pos
         && victim->long_descr[0] != '\0') {
@@ -264,7 +282,7 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
     }
 
     strcat(buf, PERS(victim, ch));
-    if (!IS_NPC(victim) && !IS_SET(ch->comm_flags, COMM_BRIEF)
+    if (!is_npc && !IS_SET(ch->comm_flags, COMM_BRIEF)
         && victim->position == POS_STANDING && ch->on == NULL)
         strcat(buf, victim->pcdata->title);
 
@@ -462,7 +480,7 @@ void show_char_to_char(CharData* list, CharData* ch)
 {
     CharData* rch;
 
-    for (rch = list; rch != NULL; rch = rch->next_in_room) {
+    FOR_EACH_IN_ROOM(rch, list) {
         if (rch == ch)
             continue;
 
@@ -931,7 +949,7 @@ void do_look(CharData* ch, char* argument)
 
         send_to_char("{x\n\r", ch);
 
-        if (arg1[0] == '\0' || (!IS_NPC(ch) && !IS_SET(ch->comm_flags, COMM_BRIEF))) {
+        if (ch->in_room->description[0] && !IS_NPC(ch) && !IS_SET(ch->comm_flags, COMM_BRIEF)) {
             sprintf(buf, "{S  %s{x", ch->in_room->description);
             send_to_char(buf, ch);
         }
@@ -1483,7 +1501,7 @@ void do_affects(CharData* ch, char* argument)
 
     if (ch->affected != NULL) {
         send_to_char("You are affected by the following spells:\n\r", ch);
-        for (paf = ch->affected; paf != NULL; paf = paf->next) {
+        FOR_EACH(paf, ch->affected) {
             if (paf_last != NULL && paf->type == paf_last->type) {
                 if (ch->level >= 20)
                     sprintf(buf, "                      ");
@@ -1611,7 +1629,7 @@ void do_help(CharData* ch, char* argument)
         strcat(argall, argone);
     }
 
-    for (pHelp = help_first; pHelp != NULL; pHelp = pHelp->next) {
+    FOR_EACH(pHelp, help_first) {
         level = (pHelp->level < 0) ? -1 * pHelp->level - 1 : pHelp->level;
 
         if (level > get_trust(ch)) continue;
@@ -1666,7 +1684,7 @@ void do_whois(CharData* ch, char* argument)
 
     output = new_buf();
 
-    for (d = descriptor_list; d != NULL; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         CharData* wch;
         char const* class_;
 
@@ -1810,7 +1828,7 @@ void do_who(CharData* ch, char* argument)
     nMatch = 0;
     buf[0] = '\0';
     output = new_buf();
-    for (d = descriptor_list; d != NULL; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         CharData* wch;
         char const* class_;
 
@@ -1882,7 +1900,7 @@ void do_count(CharData* ch, char* argument)
 
     count = 0;
 
-    for (d = descriptor_list; d != NULL; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         if (d->connected == CON_PLAYING && can_see(ch, d->character))
             count++;
     }
@@ -2046,7 +2064,7 @@ void do_where(CharData* ch, char* argument)
     if (arg[0] == '\0') {
         send_to_char("Players near you:\n\r", ch);
         found = false;
-        for (d = descriptor_list; d; d = d->next) {
+        FOR_EACH(d, descriptor_list) {
             if (d->connected == CON_PLAYING && (victim = d->character) != NULL
                 && !IS_NPC(victim) && victim->in_room != NULL
                 && !IS_SET(victim->in_room->room_flags, ROOM_NOWHERE)
@@ -2064,7 +2082,7 @@ void do_where(CharData* ch, char* argument)
     }
     else {
         found = false;
-        for (victim = char_list; victim != NULL; victim = victim->next) {
+        FOR_EACH(victim, char_list) {
             if (victim->in_room != NULL
                 && victim->in_room->area == ch->in_room->area
                 && !IS_AFFECTED(victim, AFF_HIDE)
@@ -2292,7 +2310,6 @@ void do_practice(CharData* ch, char* argument)
         send_to_char(buf, ch);
     }
     else {
-        CharData* mob;
         int16_t adept;
 
         if (!IS_AWAKE(ch)) {
@@ -2300,14 +2317,17 @@ void do_practice(CharData* ch, char* argument)
             return;
         }
 
-        for (mob = ch->in_room->people; mob != NULL; mob = mob->next_in_room) {
-            if (IS_NPC(mob) && IS_SET(mob->act_flags, ACT_PRACTICE))
-                break;
-        }
+        if (!cfg_get_practice_anywhere()) {
+            CharData* mob;
+            FOR_EACH_IN_ROOM(mob, ch->in_room->people) {
+                if (IS_NPC(mob) && IS_SET(mob->act_flags, ACT_PRACTICE))
+                    break;
+            }
 
-        if (mob == NULL) {
-            send_to_char("You can't do that here.\n\r", ch);
-            return;
+            if (mob == NULL) {
+                send_to_char("You can't do that here.\n\r", ch);
+                return;
+            }
         }
 
         if (ch->practice <= 0) {

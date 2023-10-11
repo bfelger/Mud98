@@ -166,7 +166,7 @@ void update_weather_info()
     }
 
     if (buf[0] != '\0') {
-        for (d = descriptor_list; d != NULL; d = d->next) {
+        FOR_EACH(d, descriptor_list) {
             if (d->connected == CON_PLAYING && IS_OUTSIDE(d->character)
                 && IS_AWAKE(d->character))
                 send_to_char(buf, d->character);

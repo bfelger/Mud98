@@ -87,7 +87,7 @@ void song_update(void)
                 channel_songs[0]++;
             }
 
-            for (d = descriptor_list; d != NULL; d = d->next) {
+            FOR_EACH(d, descriptor_list) {
                 victim = d->original ? d->original : d->character;
 
                 if (d->connected == CON_PLAYING
@@ -99,7 +99,7 @@ void song_update(void)
         }
     }
 
-    for (obj = object_list; obj != NULL; obj = obj->next) {
+    FOR_EACH(obj, object_list) {
         if (obj->item_type != ITEM_JUKEBOX || obj->value[1] < 0) continue;
 
         if (obj->value[1] >= MAX_SONGS) {

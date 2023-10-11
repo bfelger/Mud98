@@ -48,6 +48,7 @@ DECLARE_CONFIG(tls_port, int)
 DECLARE_STR_CONFIG(keys_dir)
 DECLARE_FILE_CONFIG(cert_file)
 DECLARE_FILE_CONFIG(pkey_file)
+DECLARE_CONFIG(debug_telopt, bool)
 
 // GMCP configs
 DECLARE_CONFIG(gmcp_enabled, bool)
@@ -111,5 +112,7 @@ DECLARE_CONFIG(default_recall, int)
 DECLARE_CONFIG(default_start_loc, int)
 DECLARE_CONFIG(start_loc_by_race, bool)
 DECLARE_CONFIG(start_loc_by_class, bool)
+DECLARE_CONFIG(train_anywhere, bool)
+DECLARE_CONFIG(practice_anywhere, bool)
 
 #endif // !MUD98__CONFIG_H

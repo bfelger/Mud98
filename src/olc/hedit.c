@@ -49,7 +49,7 @@ HelpArea* get_help_area(HelpData* help)
     HelpArea* temp;
     HelpData* thelp;
 
-    for (temp = help_area_list; temp; temp = temp->next)
+    FOR_EACH(temp, help_area_list)
         for (thelp = temp->first; thelp; thelp = thelp->next_area)
             if (thelp == help)
                 return temp;
@@ -280,14 +280,14 @@ HEDIT(hedit_delete)
 
     EDIT_HELP(ch, pHelp);
 
-    for (d = descriptor_list; d; d = d->next)
+    FOR_EACH(d, descriptor_list)
         if (d->editor == ED_HELP && pHelp == (HelpData*)d->pEdit)
             edit_done(d->character);
 
     if (help_first == pHelp)
-        help_first = help_first->next;
+        NEXT_LINK(help_first);
     else {
-        for (temp = help_first; temp; temp = temp->next)
+        FOR_EACH(temp, help_first)
             if (temp->next == pHelp)
                 break;
 
@@ -299,7 +299,7 @@ HEDIT(hedit_delete)
         temp->next = pHelp->next;
     }
 
-    for (had = help_area_list; had; had = had->next)
+    FOR_EACH(had, help_area_list)
         if (pHelp == had->first) {
             found = true;
             had->first = had->first->next_area;
@@ -339,7 +339,7 @@ HEDIT(hedit_list)
     if (!str_cmp(argument, "all")) {
         buffer = new_buf();
 
-        for (pHelp = help_first; pHelp; pHelp = pHelp->next) {
+        FOR_EACH(pHelp, help_first) {
             sprintf(buf, "%3d. %-14.14s%s", cnt, pHelp->keyword,
                 cnt % 4 == 3 ? "\n\r" : " ");
             add_buf(buffer, buf);

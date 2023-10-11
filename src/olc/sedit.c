@@ -207,7 +207,7 @@ SEDIT(sedit_new)
         return false;
     }
 
-    for (d = descriptor_list; d; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         if (d->connected != CON_PLAYING || (tch = CH(d)) == NULL || tch->desc == NULL)
             continue;
 
@@ -265,7 +265,7 @@ SEDIT(sedit_delete)
         return false;
     }
 
-    for (d = descriptor_list; d; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         if (d->connected != CON_PLAYING || (tch = CH(d)) == NULL || tch->desc == NULL)
             continue;
 

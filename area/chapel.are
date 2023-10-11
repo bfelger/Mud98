@@ -1612,11 +1612,11 @@ D0
 ~
 ~
 0 0 3457
-D2
-You see unfathomable blackness to the south ...
+D1
+You see unfathomable blackness to the east...
 ~
 ~
-0 -1 3472
+0 0 3472
 D3
 Too dark to tell.
 ~
@@ -1898,6 +1898,10 @@ The fires of hell grow hotter to the north...
 ~
 ~
 0 0 10401
+D3
+~
+~
+0 0 3458
 S
 #3475
 Inside the coffin~

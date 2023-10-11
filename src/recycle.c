@@ -100,7 +100,7 @@ Buffer* new_buf()
         buffer = alloc_perm(sizeof(*buffer));
     else {
         buffer = buf_free;
-        buf_free = buf_free->next;
+        NEXT_LINK(buf_free);
     }
 
     buffer->next = NULL;
@@ -122,7 +122,7 @@ Buffer* new_buf_size(int size)
         buffer = alloc_perm(sizeof(*buffer));
     else {
         buffer = buf_free;
-        buf_free = buf_free->next;
+        NEXT_LINK(buf_free);
     }
 
     buffer->next = NULL;
@@ -264,7 +264,7 @@ SkillHash* new_skill_hash(void)
 
     if (skill_hash_free) {
         temp = skill_hash_free;
-        skill_hash_free = skill_hash_free->next;
+        NEXT_LINK(skill_hash_free);
     }
     else {
         temp = alloc_mem(sizeof(*temp));

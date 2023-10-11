@@ -843,7 +843,9 @@ void show_flags_to_char(CharData* ch, const struct flag_type* flags)
     int col = 0;
     char buf[MAX_STRING_LENGTH] = { 0 };
     for (int i = 0; flags[i].name != NULL; ++i) {
-        sprintf(line, "%15s", flags[i].name);
+        if (!flags[i].settable)
+            continue;
+        sprintf(line, "{*%15s{x", flags[i].name);
         strcat(buf, line);
         if (++col == 4) {
             col = 0;

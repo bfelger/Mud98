@@ -52,6 +52,7 @@ const OlcCmdEntry obj_olc_comm_table[] = {
     { "oshow",	    0,				        ed_olded,		    U(oedit_show)   },
     { "olist",	    U(&xObj.area),		    ed_olist,		    0		        },
     { "recval",	    U(&xObj),			    ed_objrecval,		0		        },
+    { "copy",	    0,				        ed_olded,		    U(oedit_copy)	},
     { "commands",	0,				        ed_olded,		    U(show_commands)},
     { "?",		    0,				        ed_olded,		    U(show_help)	},
     { "version",	0,				        ed_olded,		    U(show_version)	},
@@ -74,47 +75,49 @@ void do_oedit(CharData* ch, char* argument)
     if (is_number(arg1)) {
         value = atoi(arg1);
         if (!(pObj = get_object_prototype(value))) {
-            send_to_char("OEdit:  That vnum does not exist.\n\r", ch);
+            send_to_char("{jOEdit:  That vnum does not exist.{x\n\r", ch);
             return;
         }
 
         if (!IS_BUILDER(ch, pObj->area)) {
-            send_to_char("You do not have enough security to edit objects.\n\r", ch);
+            send_to_char("{jYou do not have enough security to edit objects.{x\n\r", ch);
             return;
         }
 
         set_editor(ch->desc, ED_OBJECT, U(pObj));
+        oedit_show(ch, "");
         return;
     }
     else {
         if (!str_cmp(arg1, "create")) {
             value = atoi(argument);
             if (argument[0] == '\0' || value == 0) {
-                send_to_char("Syntax:  edit object create [vnum]\n\r", ch);
+                send_to_char("{jSyntax:  {*EDIT OBJECT CREATE [VNUM]{x\n\r", ch);
                 return;
             }
 
             pArea = get_vnum_area(value);
 
             if (!pArea) {
-                send_to_char("OEdit:  That vnum is not assigned an area.\n\r", ch);
+                send_to_char("{jOEdit:  That vnum is not assigned an area.{x\n\r", ch);
                 return;
             }
 
             if (!IS_BUILDER(ch, pArea)) {
-                send_to_char("You do not have enough security to edit objects.\n\r", ch);
+                send_to_char("{jYou do not have enough security to edit objects.{x\n\r", ch);
                 return;
             }
 
             if (oedit_create(ch, argument)) {
                 SET_BIT(pArea->area_flags, AREA_CHANGED);
                 ch->desc->editor = ED_OBJECT;
+                oedit_show(ch, "");
             }
             return;
         }
     }
 
-    send_to_char("OEdit:  There is no default object to edit.\n\r", ch);
+    send_to_char("{jOEdit:  There is no default object to edit.{x\n\r", ch);
     return;
 }
 
@@ -128,7 +131,7 @@ void oedit(CharData* ch, char* argument)
     pArea = pObj->area;
 
     if (!IS_BUILDER(ch, pArea)) {
-        send_to_char("OEdit: Insufficient security to modify area.\n\r", ch);
+        send_to_char("{jOEdit: Insufficient security to modify area.{x\n\r", ch);
         edit_done(ch);
         return;
     }
@@ -155,190 +158,158 @@ void oedit(CharData* ch, char* argument)
  */
 void show_obj_values(CharData* ch, ObjectPrototype* obj)
 {
-    char buf[MAX_STRING_LENGTH];
-
     switch (obj->item_type) {
     default:    /* No values. */
         break;
 
     case ITEM_LIGHT:
         if (obj->value[2] == -1 || obj->value[2] == 999) /* ROM OLC */
-            sprintf(buf, "[v2] Light:  Infinite[-1]\n\r");
+            printf_to_char(ch, "{|[{*v2{|]{x Light:  {|[{*-1{|] {_(infinite){x\n\r");
         else
-            sprintf(buf, "[v2] Light:  [%d]\n\r", obj->value[2]);
-        send_to_char(buf, ch);
+            printf_to_char(ch, "{|[{*v2{|]{x Light:  {|[{*%d{|]{x\n\r", obj->value[2]);
         break;
 
     case ITEM_WAND:
     case ITEM_STAFF:
-        sprintf(buf,
-            "[v0] Level:          [%d]\n\r"
-            "[v1] Charges Total:  [%d]\n\r"
-            "[v2] Charges Left:   [%d]\n\r"
-            "[v3] Spell:          %s\n\r",
+        printf_to_char(ch,
+            "{|[{*v0{|]{x Level:          {|[{*%d{|]{x\n\r"
+            "{|[{*v1{|]{x Charges Total:  {|[{*%d{|]{x\n\r"
+            "{|[{*v2{|]{x Charges Left:   {|[{*%d{|]{x\n\r"
+            "{|[{*v3{|]{x Spell:          {_%s{x\n\r",
             obj->value[0],
             obj->value[1],
             obj->value[2],
             obj->value[3] != -1 ? skill_table[obj->value[3]].name
             : "none");
-        send_to_char(buf, ch);
         break;
 
     case ITEM_PORTAL:
-    {
-        char buf2[MIL];
-
-        sprintf(buf2, "%s", flag_string(exit_flag_table, obj->value[1]));
-
-        sprintf(buf,
-            "[v0] Charges:        [%d]\n\r"
-            "[v1] Exit Flags:     %s\n\r"
-            "[v2] Portal Flags:   %s\n\r"
-            "[v3] Goes to (vnum): [%d]\n\r",
+        printf_to_char(ch,
+            "{|[{*v0{|]{x Charges:        {|[{*%d{|]{x\n\r"
+            "{|[{*v1{|]{x Exit Flags:     {|[{*%s{|]{x\n\r"
+            "{|[{*v2{|]{x Portal Flags:   {|[{*%s{|]{x\n\r"
+            "{|[{*v3{|]{x Goes to VNUM:   {|[{*%d{|]{x\n\r",
             obj->value[0],
-            buf2,
+            flag_string(exit_flag_table, obj->value[1]),
             flag_string(portal_flag_table, obj->value[2]),
             obj->value[3]);
-        send_to_char(buf, ch);
-    }
-    break;
+        break;
 
     case ITEM_FURNITURE:
-        sprintf(buf,
-            "[v0] Max people:      [%d]\n\r"
-            "[v1] Max weight:      [%d]\n\r"
-            "[v2] Furniture Flags: %s\n\r"
-            "[v3] Heal bonus:      [%d]\n\r"
-            "[v4] Mana bonus:      [%d]\n\r",
+        printf_to_char(ch,
+            "{|[{*v0{|]{x Max people:      {|[{*%d{|]{x\n\r"
+            "{|[{*v1{|]{x Max weight:      {|[{*%d{|]{x\n\r"
+            "{|[{*v2{|]{x Furniture Flags: {|[{*%s{|]{x\n\r"
+            "{|[{*v3{|]{x Heal bonus:      {|[{*%d{|]{x\n\r"
+            "{|[{*v4{|]{x Mana bonus:      {|[{*%d{|]{x\n\r",
             obj->value[0],
             obj->value[1],
             flag_string(furniture_flag_table, obj->value[2]),
             obj->value[3],
             obj->value[4]);
-        send_to_char(buf, ch);
         break;
 
     case ITEM_SCROLL:
     case ITEM_POTION:
     case ITEM_PILL:
-        sprintf(buf,
-            "[v0] Level:  [%d]\n\r"
-            "[v1] Spell:  %s\n\r"
-            "[v2] Spell:  %s\n\r"
-            "[v3] Spell:  %s\n\r"
-            "[v4] Spell:  %s\n\r",
+        printf_to_char(ch,
+            "{|[{*v0{|]{x Level:  {|[{*%d{|]{x\n\r"
+            "{|[{*v1{|]{x Spell:  {_%s{x\n\r"
+            "{|[{*v2{|]{x Spell:  {_%s{x\n\r"
+            "{|[{*v3{|]{x Spell:  {_%s{x\n\r"
+            "{|[{*v4{|]{x Spell:  {_%s{x\n\r",
             obj->value[0],
-            obj->value[1] != -1 ? skill_table[obj->value[1]].name
-            : "none",
-            obj->value[2] != -1 ? skill_table[obj->value[2]].name
-            : "none",
-            obj->value[3] != -1 ? skill_table[obj->value[3]].name
-            : "none",
-            obj->value[4] != -1 ? skill_table[obj->value[4]].name
-            : "none");
-        send_to_char(buf, ch);
+            obj->value[1] != -1 ? skill_table[obj->value[1]].name : "none",
+            obj->value[2] != -1 ? skill_table[obj->value[2]].name : "none",
+            obj->value[3] != -1 ? skill_table[obj->value[3]].name : "none",
+            obj->value[4] != -1 ? skill_table[obj->value[4]].name : "none");
         break;
 
 /* ARMOR for ROM */
 
     case ITEM_ARMOR:
-        sprintf(buf,
-            "[v0] Ac pierce       [%d]\n\r"
-            "[v1] Ac bash         [%d]\n\r"
-            "[v2] Ac slash        [%d]\n\r"
-            "[v3] Ac exotic       [%d]\n\r",
+        printf_to_char(ch,
+            "{|[{*v0{|]{x AC pierce       {|[{*%d{|]{x\n\r"
+            "{|[{*v1{|]{x AC bash         {|[{*%d{|]{x\n\r"
+            "{|[{*v2{|]{x AC slash        {|[{*%d{|]{x\n\r"
+            "{|[{*v3{|]{x AC exotic       {|[{*%d{|]{x\n\r",
             obj->value[0],
             obj->value[1],
             obj->value[2],
             obj->value[3]);
-        send_to_char(buf, ch);
         break;
 
 /* WEAPON changed in ROM: */
 /* I had to split the output here, I have no idea why, but it helped -- Hugin */
 /* It somehow fixed a bug in showing scroll/pill/potions too ?! */
     case ITEM_WEAPON:
-        sprintf(buf, "[v0] Weapon class:   %s\n\r",
-            flag_string(weapon_class, obj->value[0]));
-        send_to_char(buf, ch);
-        sprintf(buf, "[v1] Number of dice: [%d]\n\r", obj->value[1]);
-        send_to_char(buf, ch);
-        sprintf(buf, "[v2] Type of dice:   [%d]\n\r", obj->value[2]);
-        send_to_char(buf, ch);
-        sprintf(buf, "[v3] Type:           %s\n\r",
-            attack_table[obj->value[3]].name);
-        send_to_char(buf, ch);
-        sprintf(buf, "[v4] Special type:   %s\n\r",
-            flag_string(weapon_type2, obj->value[4]));
-        send_to_char(buf, ch);
+        printf_to_char(ch, "{|[{*v0{|]{x Weapon class:   {|[{*%s{|]{x\n\r", flag_string(weapon_class, obj->value[0]));
+        printf_to_char(ch, "{|[{*v1{|]{x Number of dice: {|[{*%d{|]{x\n\r", obj->value[1]);
+        printf_to_char(ch, "{|[{*v2{|]{x Type of dice:   {|[{*%d{|]{x\n\r", obj->value[2]);
+        printf_to_char(ch, "{|[{*v3{|]{x Type:           {|[{*%s{|]{x\n\r", attack_table[obj->value[3]].name);
+        printf_to_char(ch, "{|[{*v4{|]{x Special type:   {|[{*%s{|]{x\n\r", flag_string(weapon_type2, obj->value[4]));
         break;
 
     case ITEM_CONTAINER:
-        sprintf(buf,
-            "[v0] Weight:     [%d kg]\n\r"
-            "[v1] Flags:      [%s]\n\r"
-            "[v2] Key:     %s [%d]\n\r"
-            "[v3] Capacity    [%d]\n\r"
-            "[v4] Weight Mult [%d]\n\r",
+        printf_to_char(ch,
+            "{|[{*v0{|]{x Weight:     {|[{*%d kg{|]{x\n\r"
+            "{|[{*v1{|]{x Flags:      {|[{*%s{|]{x\n\r"
+            "{|[{*v2{|]{x Key:        {|[{*%d{|]{_ %s{x\n\r"
+            "{|[{*v3{|]{x Capacity    {|[{*%d{|]{x\n\r"
+            "{|[{*v4{|]{x Weight Mult {|[{*%d{|]{x\n\r",
             obj->value[0],
             flag_string(container_flag_table, obj->value[1]),
+            obj->value[2],
             get_object_prototype(obj->value[2])
             ? get_object_prototype(obj->value[2])->short_descr
             : "none",
-            obj->value[2],
             obj->value[3],
             obj->value[4]);
-        send_to_char(buf, ch);
         break;
 
     case ITEM_DRINK_CON:
-        sprintf(buf,
-            "[v0] Liquid Total: [%d]\n\r"
-            "[v1] Liquid Left:  [%d]\n\r"
-            "[v2] Liquid:       %s\n\r"
-            "[v3] Poisoned:     %s\n\r",
+        printf_to_char(ch,
+            "{|[{*v0{|]{x Liquid Total: {|[{*%d{|]{x\n\r"
+            "{|[{*v1{|]{x Liquid Left:  {|[{*%d{|]{x\n\r"
+            "{|[{*v2{|]{x Liquid:       {|[{*%s{|]{x\n\r"
+            "{|[{*v3{|]{x Poisoned:     {|[{*%s{|]{x\n\r",
             obj->value[0],
             obj->value[1],
             liquid_table[obj->value[2]].name,
             obj->value[3] != 0 ? "Yes" : "No");
-        send_to_char(buf, ch);
         break;
 
     case ITEM_FOUNTAIN:
-        sprintf(buf,
-            "[v0] Liquid Total: [%d]\n\r"
-            "[v1] Liquid Left:  [%d]\n\r"
-            "[v2] Liquid:       %s\n\r",
+        printf_to_char(ch,
+            "{|[{*v0{|]{x Liquid Total: {|[{*%d{|]{x\n\r"
+            "{|[{*v1{|]{x Liquid Left:  {|[{*%d{|]{x\n\r"
+            "{|[{*v2{|]{x Liquid:       {|[{*%s{|]{x\n\r",
             obj->value[0],
             obj->value[1],
             liquid_table[obj->value[2]].name);
-        send_to_char(buf, ch);
         break;
 
     case ITEM_FOOD:
-        sprintf(buf,
-            "[v0] Food hours: [%d]\n\r"
-            "[v1] Full hours: [%d]\n\r"
-            "[v3] Poisoned:   %s\n\r",
+        printf_to_char(ch,
+            "{|[{*v0{|]{x Food hours:   {|[{*%d{|]{x\n\r"
+            "{|[{*v1{|]{x Full hours:   {|[{*%d{|]{x\n\r"
+            "{|[{*v3{|]{x Poisoned:     {|[{*%s{|]{x\n\r",
             obj->value[0],
             obj->value[1],
             obj->value[3] != 0 ? "Yes" : "No");
-        send_to_char(buf, ch);
         break;
 
     case ITEM_MONEY:
-        sprintf(buf, "[v0] Gold:   [%d]\n\r"
-            "[v1] Silver: [%d]\n\r",
+        printf_to_char(ch,
+            "{|[{*v0{|]{x Gold:         {|[{*%d{|]{x\n\r"
+            "{|[{*v1{|]{x Silver:       {|[{*%d{|]{x\n\r",
             obj->value[0],
             obj->value[1]);
-        send_to_char(buf, ch);
         break;
     }
 
     return;
 }
-
-
 
 bool set_obj_values(CharData* ch, ObjectPrototype* pObj, int value_num, char* argument)
 {
@@ -677,7 +648,7 @@ OEDIT(oedit_show)
         if (ch->desc->editor == ED_OBJECT)
             EDIT_OBJ(ch, pObj);
         else {
-            send_to_char("Syntax : oshow [vnum]\n\r", ch);
+            send_to_char("{jSyntax : {*OSHOW [VNUM]{x\n\r", ch);
             return false;
         }
     }
@@ -685,82 +656,55 @@ OEDIT(oedit_show)
         pObj = get_object_prototype(atoi(buf));
 
         if (!pObj) {
-            send_to_char("ERROR : That object does not exist.\n\r", ch);
+            send_to_char("{jERROR: That object does not exist.{x\n\r", ch);
             return false;
         }
 
         if (!IS_BUILDER(ch, pObj->area)) {
-            send_to_char("ERROR : You do not have access to the area that obj is in.\n\r", ch);
+            send_to_char("{jERROR: You do not have access to the area that obj is in.{x\n\r", ch);
             return false;
         }
     }
 
-    sprintf(buf, "Name:        [%s]\n\rArea:        [%5d] %s\n\r",
-        pObj->name,
+    printf_to_char(ch, "Name:        {|[{*%s{|]{x\n\r", pObj->name);
+    printf_to_char(ch, "Area:        {|[{*%5d{|]{_ %s{x\n\r",
         !pObj->area ? -1 : pObj->area->vnum,
         !pObj->area ? "No Area" : pObj->area->name);
-    send_to_char(buf, ch);
-
-
-    sprintf(buf, "Vnum:        [%5d]\n\rType:        [%s]\n\r",
-        pObj->vnum,
-        flag_string(type_flag_table, pObj->item_type));
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Level:       [%5d]\n\r", pObj->level);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Wear flags:  [%s]\n\r",
-        flag_string(wear_flag_table, pObj->wear_flags));
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Extra flags: [%s]\n\r",
-        flag_string(extra_flag_table, pObj->extra_flags));
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Material:    [%s]\n\r",                /* ROM */
-        pObj->material);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Condition:   [%5d]\n\r",               /* ROM */
-        pObj->condition);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Weight:      [%5d]\n\rCost:        [%5d]\n\r",
-        pObj->weight, pObj->cost);
-    send_to_char(buf, ch);
+    printf_to_char(ch, "Vnum:        {|[{*%5d{|]{x\n\r", pObj->vnum);
+    printf_to_char(ch, "Type:        {|[{*%s{|]{x\n\r", flag_string(type_flag_table, pObj->item_type));
+    printf_to_char(ch, "Level:       {|[{*%5d{|]{x\n\r", pObj->level);
+    printf_to_char(ch, "Wear flags:  {|[{*%s{|]{x\n\r", flag_string(wear_flag_table, pObj->wear_flags));
+    printf_to_char(ch, "Extra flags: {|[{*%s{|]{x\n\r", flag_string(extra_flag_table, pObj->extra_flags));
+    printf_to_char(ch, "Material:    {|[{*%s{|]{x\n\r", pObj->material);
+    printf_to_char(ch, "Condition:   {|[{*%5d{|]{x\n\r", pObj->condition);
+    printf_to_char(ch, "Weight:      {|[{*%5d{|]{x\n\r", pObj->weight);
+    printf_to_char(ch, "Cost:        {|[{*%5d{|]{x\n\r", pObj->cost);
 
     if (pObj->extra_desc) {
         ExtraDesc* ed;
 
         send_to_char("Ex desc kwd: ", ch);
 
-        for (ed = pObj->extra_desc; ed; ed = ed->next) {
-            send_to_char("[", ch);
+        FOR_EACH(ed, pObj->extra_desc) {
+            send_to_char("{|[{*", ch);
             send_to_char(ed->keyword, ch);
-            send_to_char("]", ch);
+            send_to_char("{|]{x", ch);
         }
 
         send_to_char("\n\r", ch);
     }
 
-    sprintf(buf, "Short desc:  %s\n\rLong desc:\n\r     %s\n\r",
-        pObj->short_descr, pObj->description);
-    send_to_char(buf, ch);
+    printf_to_char(ch, "Short desc:  {_%s{x\n\r", pObj->short_descr);
+    printf_to_char(ch, "Long desc:\n\r     {_%s{x\n\r", pObj->description);
 
-    for (cnt = 0, paf = pObj->affected; paf; paf = paf->next) {
+    for (cnt = 0, paf = pObj->affected; paf; NEXT_LINK(paf)) {
         if (cnt == 0) {
-            send_to_char("Number Modifier Affects      Adds\n\r", ch);
-            send_to_char("------ -------- ------------ ----\n\r", ch);
+            send_to_char("{TNumber Modifier Affects      Adds\n\r", ch);
+            send_to_char("{=------ -------- ------------ ----\n\r", ch);
         }
-        sprintf(buf, "[%4d] %-8d %-12s ", cnt,
-            paf->modifier,
-            flag_string(apply_flag_table, paf->location));
-        send_to_char(buf, ch);
-        sprintf(buf, "%s ", flag_string(bitvector_type[paf->where].table, paf->bitvector));
-        send_to_char(buf, ch);
-        sprintf(buf, "%s\n\r", flag_string(apply_types, paf->where));
-        send_to_char(buf, ch);
+        printf_to_char(ch, "{|[{*%4d{|]{* %-8d %-12s ", cnt, paf->modifier, flag_string(apply_flag_table, paf->location));
+        printf_to_char(ch, "%s ", flag_string(bitvector_type[paf->where].table, paf->bitvector));
+        printf_to_char(ch, "%s{x\n\r", flag_string(apply_types, paf->where));
         cnt++;
     }
 
@@ -769,10 +713,7 @@ OEDIT(oedit_show)
     return false;
 }
 
-
-/*
- * Need to issue warning if flag isn't valid. -- does so now -- Hugin.
- */
+// Need to issue warning if flag isn't valid. -- does so now -- Hugin.
 OEDIT(oedit_addaffect)
 {
     int value;
@@ -787,13 +728,12 @@ OEDIT(oedit_addaffect)
     one_argument(argument, mod);
 
     if (loc[0] == '\0' || mod[0] == '\0' || !is_number(mod)) {
-        send_to_char("Syntax:  addaffect [location] [#xmod]\n\r", ch);
+        send_to_char("{jSyntax:  ADDAFFECT [LOCATION] [# MOD]{x\n\r", ch);
         return false;
     }
 
-    if ((value = flag_value(apply_flag_table, loc)) == NO_FLAG) /* Hugin */
-    {
-        send_to_char("Valid affects are:\n\r", ch);
+    if ((value = flag_value(apply_flag_table, loc)) == NO_FLAG) {
+        send_to_char("{jValid affects are:{x\n\r", ch);
         show_help(ch, "apply");
         return false;
     }
@@ -809,7 +749,7 @@ OEDIT(oedit_addaffect)
     pAf->next = pObj->affected;
     pObj->affected = pAf;
 
-    send_to_char("Affect added.\n\r", ch);
+    send_to_char("{jAffect added.{x\n\r", ch);
     return true;
 }
 
@@ -827,7 +767,7 @@ OEDIT(oedit_addapply)
     EDIT_OBJ(ch, pObj);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax:  addapply [type] [location] [#xmod] [bitvector]\n\r", ch);
+        send_to_char("{jSyntax:  {*ADDAPPLY [TYPE] [LOCATION] [# MOD] [BITVECTOR]{x\n\r", ch);
         rc = false;
         goto oedit_addapply_cleanup;
     }
@@ -838,29 +778,29 @@ OEDIT(oedit_addapply)
     one_argument(argument, BUF(bvector));
 
     if (BUF(type)[0] == '\0' || (typ = flag_value(apply_types, BUF(type))) == NO_FLAG) {
-        send_to_char("Invalid apply type. Valid apply types are:\n\r", ch);
+        send_to_char("{jInvalid apply type. Valid apply types are:{x\n\r", ch);
         show_help(ch, "apptype");
         rc = false;
         goto oedit_addapply_cleanup;
     }
 
     if (BUF(loc)[0] == '\0' || (value = flag_value(apply_flag_table, BUF(loc))) == NO_FLAG) {
-        send_to_char("Valid applys are:\n\r", ch);
+        send_to_char("{jValid applys are:{x\n\r", ch);
         show_help(ch, "apply");
         rc = false;
         goto oedit_addapply_cleanup;
     }
 
     if (BUF(bvector)[0] == '\0' || (bv = flag_value(bitvector_type[typ].table, BUF(bvector))) == NO_FLAG) {
-        send_to_char("Invalid bitvector type.\n\r", ch);
-        send_to_char("Valid bitvector types are:\n\r", ch);
+        send_to_char("{jInvalid bitvector type.\n\r", ch);
+        send_to_char("Valid bitvector types are:{x\n\r", ch);
         show_help(ch, bitvector_type[typ].help);
         rc = false;
         goto oedit_addapply_cleanup;
     }
 
     if (BUF(mod)[0] == '\0' || !is_number(BUF(mod))) {
-        send_to_char("Syntax:  addapply [type] [location] [#xmod] [bitvector]\n\r", ch);
+        send_to_char("{jSyntax:  {*ADDAPPLY [TYPE] [LOCATION] [# MOD] [BITVECTOR]{x\n\r", ch);
         rc = false;
         goto oedit_addapply_cleanup;
     }
@@ -876,7 +816,7 @@ OEDIT(oedit_addapply)
     pAf->next = pObj->affected;
     pObj->affected = pAf;
 
-    send_to_char("Apply added.\n\r", ch);
+    send_to_char("{jApply added.{x\n\r", ch);
 
 oedit_addapply_cleanup:
     free_buf(loc);
@@ -887,10 +827,8 @@ oedit_addapply_cleanup:
     return rc;
 }
 
-/*
- * My thanks to Hans Hvidsten Birkeland and Noam Krendel(Walker)
- * for really teaching me how to manipulate pointers.
- */
+// My thanks to Hans Hvidsten Birkeland and Noam Krendel(Walker)
+// for really teaching me how to manipulate pointers.
 OEDIT(oedit_delaffect)
 {
     ObjectPrototype* pObj;
@@ -905,46 +843,46 @@ OEDIT(oedit_delaffect)
     one_argument(argument, affect);
 
     if (!is_number(affect) || affect[0] == '\0') {
-        send_to_char("Syntax:  delaffect [#xaffect]\n\r", ch);
+        send_to_char("{jSyntax:  DELAFFECT [# AFFECT]{*\n\r", ch);
         return false;
     }
 
     value = atoi(affect);
 
     if (value < 0) {
-        send_to_char("Only non-negative affect-numbers allowed.\n\r", ch);
+        send_to_char("{jAffect list references are only positive numbers.{x\n\r", ch);
         return false;
     }
 
     if (!(pAf = pObj->affected)) {
-        send_to_char("OEdit:  Non-existant affect.\n\r", ch);
+        send_to_char("{jOEdit: Non-existant affect.{x\n\r", ch);
         return false;
     }
 
-    if (value == 0)    /* First case: Remove first affect */
-    {
+    if (value == 0) {
+        // First case: Remove first affect
         pAf = pObj->affected;
         pObj->affected = pAf->next;
         free_affect(pAf);
     }
-    else        /* Affect to remove is not the first */
-    {
+    else {
+        // Affect to remove is not the first
         while ((pAf_next = pAf->next) && (++cnt < value))
             pAf = pAf_next;
 
-        if (pAf_next)        /* See if it's the next affect */
-        {
+        if (pAf_next) {
+            // See if it's the next affect
             pAf->next = pAf_next->next;
             free_affect(pAf_next);
         }
-        else                                 /* Doesn't exist */
-        {
-            send_to_char("No such affect.\n\r", ch);
+        else {
+            // Doesn't exist
+            send_to_char("{jNo such affect.{x\n\r", ch);
             return false;
         }
     }
 
-    send_to_char("Affect removed.\n\r", ch);
+    send_to_char("{jAffect removed.{x\n\r", ch);
     return true;
 }
 
@@ -960,8 +898,6 @@ bool set_value(CharData* ch, ObjectPrototype* pObj, char* argument, int value)
 
     return false;
 }
-
-
 
 /*****************************************************************************
  Name:        oedit_values
@@ -989,23 +925,23 @@ OEDIT(oedit_create)
 
     value = STRTOVNUM(argument);
     if (argument[0] == '\0' || value == 0) {
-        send_to_char("Syntax:  oedit create [vnum]\n\r", ch);
+        send_to_char("{jSyntax:  {*OEDIT CREATE [VNUM]{x\n\r", ch);
         return false;
     }
 
     pArea = get_vnum_area(value);
     if (!pArea) {
-        send_to_char("OEdit:  That vnum is not assigned an area.\n\r", ch);
+        send_to_char("{jOEdit:  That vnum is not assigned an area.{x\n\r", ch);
         return false;
     }
 
     if (!IS_BUILDER(ch, pArea)) {
-        send_to_char("OEdit:  Vnum in an area you cannot build in.\n\r", ch);
+        send_to_char("{jOEdit:  Vnum in an area you cannot build in.{x\n\r", ch);
         return false;
     }
 
     if (get_object_prototype(value)) {
-        send_to_char("OEdit:  Object vnum already exists.\n\r", ch);
+        send_to_char("{jOEdit:  Object vnum already exists.{x\n\r", ch);
         return false;
     }
 
@@ -1023,7 +959,7 @@ OEDIT(oedit_create)
 
     set_editor(ch->desc, ED_OBJECT, U(pObj));
 
-    send_to_char("Object Created.\n\r", ch);
+    send_to_char("{jObject Created.{x\n\r", ch);
     return true;
 }
 
@@ -1033,7 +969,7 @@ ED_FUN_DEC(ed_objrecval)
 
     switch (pObj->item_type) {
     default:
-        send_to_char("You cannot do that to a non-weapon.\n\r", ch);
+        send_to_char("{jYou cannot do that to a non-weapon.{x\n\r", ch);
         return false;
 
     case ITEM_WEAPON:
@@ -1042,7 +978,7 @@ ED_FUN_DEC(ed_objrecval)
         break;
     }
 
-    send_to_char("Ok.\n\r", ch);
+    send_to_char("{jOk.{x\n\r", ch);
     return true;
 }
 
@@ -1058,7 +994,7 @@ ED_FUN_DEC(ed_addapply)
     INIT_BUF(bvector, MAX_STRING_LENGTH);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax:  addapply [type] [location] [#xmod] [bitvector]\n\r", ch);
+        send_to_char("{jSyntax:  {*ADDAPPLY [TYPE] [LOCATION] [# MOD] [BITVECTOR]{x\n\r", ch);
         rc = false;
         goto ed_addapply_cleanup;
     }
@@ -1069,29 +1005,29 @@ ED_FUN_DEC(ed_addapply)
     one_argument(argument, BUF(bvector));
 
     if (BUF(type)[0] == '\0' || (typ = flag_value(apply_types, BUF(type))) == NO_FLAG) {
-        send_to_char("Invalid apply type. Valid apply types are:\n\r", ch);
+        send_to_char("{jInvalid apply type. Valid apply types are:{x\n\r", ch);
         show_help(ch, "apptype");
         rc = false;
         goto ed_addapply_cleanup;
     }
 
     if (BUF(loc)[0] == '\0' || (value = flag_value(apply_flag_table, BUF(loc))) == NO_FLAG) {
-        send_to_char("Valid applys are:\n\r", ch);
+        send_to_char("{jValid applys are:{x\n\r", ch);
         show_help(ch, "apply");
         rc = false;
         goto ed_addapply_cleanup;
     }
 
     if (BUF(bvector)[0] == '\0' || (bv = flag_value(bitvector_type[typ].table, BUF(bvector))) == NO_FLAG) {
-        send_to_char("Invalid bitvector type.\n\r", ch);
-        send_to_char("Valid bitvector types are:\n\r", ch);
+        send_to_char("{jInvalid bitvector type.\n\r", ch);
+        send_to_char("Valid bitvector types are:{x\n\r", ch);
         show_help(ch, bitvector_type[typ].help);
         rc = false;
         goto ed_addapply_cleanup;
     }
 
     if (BUF(mod)[0] == '\0' || !is_number(BUF(mod))) {
-        send_to_char("Syntax:  addapply [type] [location] [#xmod] [bitvector]\n\r", ch);
+        send_to_char("{jSyntax:  {*ADDAPPLY [TYPE] [LOCATION] [# MOD] [BITVECTOR]{x\n\r", ch);
         rc = false;
         goto ed_addapply_cleanup;
     }
@@ -1107,7 +1043,7 @@ ED_FUN_DEC(ed_addapply)
     pAf->next = pObj->affected;
     pObj->affected = pAf;
 
-    send_to_char("Apply added.\n\r", ch);
+    send_to_char("{jApply added.{x\n\r", ch);
 
 ed_addapply_cleanup:
     free_buf(loc);
@@ -1133,24 +1069,24 @@ ED_FUN_DEC(ed_new_obj)
     value = STRTOVNUM(argument);
 
     if (argument[0] == '\0' || value == 0) {
-        send_to_char("Syntax:  oedit create [vnum]\n\r", ch);
+        send_to_char("{jSyntax: OEDIT CREATE [VNUM]{x\n\r", ch);
         return false;
     }
 
     pArea = get_vnum_area(value);
 
     if (!pArea) {
-        send_to_char("OEdit:  That vnum is not assigned an area.\n\r", ch);
+        send_to_char("{jOEdit: That vnum is not assigned an area.{x\n\r", ch);
         return false;
     }
 
     if (!IS_BUILDER(ch, pArea)) {
-        send_to_char("OEdit:  Vnum in an area you cannot build in.\n\r", ch);
+        send_to_char("{jOEdit: Vnum in an area you cannot build in.{x\n\r", ch);
         return false;
     }
 
     if (get_object_prototype(value)) {
-        send_to_char("OEdit:  Object vnum already exists.\n\r", ch);
+        send_to_char("{jOEdit: Object vnum already exists.{x\n\r", ch);
         return false;
     }
 
@@ -1168,7 +1104,7 @@ ED_FUN_DEC(ed_new_obj)
 
     set_editor(ch->desc, ED_OBJECT, U(pObj));
 
-    send_to_char("Object Created.\n\r", ch);
+    send_to_char("{jObject Created.{x\n\r", ch);
 
     return true;
 }
@@ -1177,7 +1113,6 @@ ED_FUN_DEC(ed_olist)
 {
     ObjectPrototype* obj_proto;
     AreaData* pArea;
-    char buf[MAX_STRING_LENGTH];
     Buffer* buf1;
     char blarg[MAX_INPUT_LENGTH];
     bool fAll, found;
@@ -1187,7 +1122,7 @@ ED_FUN_DEC(ed_olist)
     one_argument(argument, blarg);
 
     if (blarg[0] == '\0') {
-        send_to_char("Syntax : olist <all/name/item_type>\n\r", ch);
+        send_to_char("{jSyntax: OLIST [ALL|<NAME>|<TYPE>]{x\n\r", ch);
         return false;
     }
 
@@ -1201,9 +1136,8 @@ ED_FUN_DEC(ed_olist)
             if (fAll || is_name(blarg, obj_proto->name)
                 || (ItemType)flag_value(type_flag_table, blarg) == obj_proto->item_type) {
                 found = true;
-                sprintf(buf, "[%5d] %-17.16s",
+                addf_buf(buf1, "{|[{*%5d{|]{x %-17.16s",
                     obj_proto->vnum, capitalize(obj_proto->short_descr));
-                add_buf(buf1, buf);
                 if (++col % 3 == 0)
                     add_buf(buf1, "\n\r");
             }
@@ -1211,7 +1145,7 @@ ED_FUN_DEC(ed_olist)
     }
 
     if (!found) {
-        send_to_char("Object(s) not found in this area.\n\r", ch);
+        send_to_char("{jObject(s) not found in this area.{x\n\r", ch);
         return false;
     }
 
@@ -1223,3 +1157,76 @@ ED_FUN_DEC(ed_olist)
 
     return false;
 }
+
+OEDIT(oedit_copy)
+{
+    VNUM vnum;
+    ObjectPrototype* obj;
+    ObjectPrototype* obj2;
+
+    EDIT_OBJ(ch, obj);
+
+    if (IS_NULLSTR(argument)) {
+        send_to_char("Syntax: copy [vnum]\n\r", ch);
+        return false;
+    }
+
+    if (!is_number(argument) || (vnum = STRTOVNUM(argument)) < 0) {
+        send_to_char("ERROR: VNUM must be greater than 0.\n\r", ch);
+        return false;
+    }
+
+    if ((obj2 = get_object_prototype(vnum)) == NULL) {
+        send_to_char("ERROR: That object does not exist.\n\r", ch);
+        return false;
+    }
+
+    if (!IS_BUILDER(ch, obj2->area)) {
+        send_to_char("ERROR: You do not have access to the area that object is in.\n\r", ch);
+        return false;
+    }
+
+    RESTRING(obj->name, obj2->name);
+    RESTRING(obj->short_descr, obj2->short_descr);
+    RESTRING(obj->description, obj2->description);
+    RESTRING(obj->material, obj2->material);
+
+    ExtraDesc* ed_next;
+    for (ExtraDesc* ed = obj->extra_desc; ed != NULL; ed = ed_next) {
+        ed_next = ed->next;
+        free_extra_desc(ed);
+    }
+    obj->extra_desc = NULL;
+
+    obj->item_type = obj2->item_type;
+    obj->extra_flags = obj2->extra_flags;
+    obj->wear_flags = obj2->wear_flags;
+    obj->weight = obj2->weight;
+    obj->cost = obj2->cost;
+    obj->level = obj2->level;
+    obj->condition = obj2->condition;
+
+    for (int i = 0; i < 5; ++i)
+        obj->value[i] = obj2->value[i];
+
+    AffectData* af;
+    FOR_EACH(af, obj->affected) {
+        AffectData* af_new = new_affect();
+        *af_new = *af;
+        af_new->next = obj->affected;
+        obj->affected = af_new;
+    }
+
+    ExtraDesc* ed;
+    FOR_EACH(ed, obj2->extra_desc) {
+        ExtraDesc* ed_new = new_extra_desc();
+        ed_new->keyword = str_dup(ed->keyword);
+        ed_new->description = str_dup(ed->description);
+        ed_new->next = obj->extra_desc;
+        obj->extra_desc = ed_new;
+    }
+
+    send_to_char("Ok.\n\r", ch);
+    return true;
+}
+

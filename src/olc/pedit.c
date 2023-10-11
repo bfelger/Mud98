@@ -110,8 +110,8 @@ void do_pedit(CharData* ch, char* argument)
             return;
         }
 
-        pedit_create(ch, argument);
-        pedit_show(ch, "");
+        if (pedit_create(ch, argument))
+            pedit_show(ch, "");
         return;
     }
 
@@ -195,7 +195,7 @@ void do_mplist(CharData* ch, char* argument)
     if (IS_IMMORTAL(ch) && !str_cmp(argument, "all"))
         fAll = true;
 
-    for (count = 1, mprg = mprog_list; mprg != NULL; mprg = mprg->next) {
+    for (count = 1, mprg = mprog_list; mprg != NULL; NEXT_LINK(mprg)) {
         if (fAll
             || (mprg->vnum >= ch->in_room->area->min_vnum
                 && mprg->vnum <= ch->in_room->area->max_vnum)) {

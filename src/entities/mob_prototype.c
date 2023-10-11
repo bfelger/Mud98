@@ -367,7 +367,7 @@ MobPrototype* get_mob_prototype(VNUM vnum)
     MobPrototype* p_mob_proto;
 
     for (p_mob_proto = mob_prototype_hash[vnum % MAX_KEY_HASH]; p_mob_proto != NULL;
-        p_mob_proto = p_mob_proto->next) {
+        NEXT_LINK(p_mob_proto)) {
         if (p_mob_proto->vnum == vnum) return p_mob_proto;
     }
 
@@ -693,7 +693,7 @@ MobPrototype* new_mob_prototype()
     }
     else {
         pMob = mob_prototype_free;
-        mob_prototype_free = mob_prototype_free->next;
+        NEXT_LINK(mob_prototype_free);
     }
 
     pMob->next = NULL;

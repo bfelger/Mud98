@@ -30,7 +30,7 @@ MobPrototype xMob;
 const OlcCmdEntry mob_olc_comm_table[] = {
     { "name",	    U(&xMob.name),          ed_line_string,		0		        },
     { "short",	    U(&xMob.short_descr),	ed_line_string,		0		        },
-    { "long",	    U(&xMob.long_descr),	ed_line_string,		U(1)	        },
+    { "long",	    U(&xMob.long_descr),	ed_line_string,		0	            },
     { "material",	U(&xMob.material),	    ed_line_string,		0		        },
     { "desc",	    U(&xMob.description),	ed_desc,		    0		        },
     { "level",	    U(&xMob.level),		    ed_number_level,    0		        },
@@ -300,7 +300,7 @@ MEDIT(medit_show)
         addf_buf(buffer,
             "\n\rMOBPrograms for {|[{*%5d{|]{x:\n\r", pMob->vnum);
 
-        for (cnt = 0, list = pMob->mprogs; list; list = list->next) {
+        for (cnt = 0, list = pMob->mprogs; list; NEXT_LINK(list)) {
             if (cnt == 0) {
                 add_buf(buffer, " {TNumber Vnum Trigger Phrase\n\r");
                 add_buf(buffer, " {=------ ---- ------- ------\n\r");
@@ -552,7 +552,7 @@ ED_FUN_DEC(ed_shop)
     if (!str_cmp(command, "profit")) {
         if (arg1[0] == '\0' || !is_number(arg1)
             || argument[0] == '\0' || !is_number(argument)) {
-            send_to_char("Syntax : {*shop profit [%% buy] [%% sell]{x\n\r", ch);
+            send_to_char("{jSyntax : {*shop profit [%% buy] [%% sell]{x\n\r", ch);
             return false;
         }
 
@@ -637,7 +637,7 @@ ED_FUN_DEC(ed_shop)
         else {
             ShopData* ipShop;
 
-            for (ipShop = shop_first; ipShop; ipShop = ipShop->next) {
+            FOR_EACH(ipShop, shop_first) {
                 if (ipShop->next == pShop) {
                     if (!pShop->next) {
                         shop_last = ipShop;

@@ -383,7 +383,7 @@ void save_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, con
 
         case FIELD_STRING:
             pString = (char**)(temp->field_ptr - base_type + pointer);
-            fprintf(fp, "%s %s~\n", temp->field_name, !IS_NULLSTR(*pString) ? *pString : "");
+            fprintf(fp, "%s %s~\n", temp->field_name, !IS_NULLSTR(*pString) ? fix_string(*pString) : "");
             break;
 
         case FIELD_INT16:
@@ -595,7 +595,7 @@ void save_progs(VNUM minvnum, VNUM maxvnum)
     MobProgCode* pMprog;
     char buf[64];
 
-    for (pMprog = mprog_list; pMprog; pMprog = pMprog->next)
+    FOR_EACH(pMprog, mprog_list)
         if (pMprog->changed == true
             && BETWEEN_I(minvnum, pMprog->vnum, maxvnum)) {
 
@@ -644,7 +644,7 @@ void load_prog(FILE* fp, MobProgCode** prog)
             MobProgCode* temp;
             MobProgCode* prev = mprog_list;
 
-            for (temp = mprog_list->next; temp; temp = temp->next) {
+            FOR_EACH(temp, mprog_list->next) {
                 if (temp->vnum > (*prog)->vnum)
                     break;
                 prev = temp;

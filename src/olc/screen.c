@@ -44,7 +44,7 @@ char* extradescr2str(void* point)
     ExtraDesc* ed = *(ExtraDesc**)point;
 
     buf[0] = '\0';
-    for (; ed; ed = ed->next) {
+    for (; ed; NEXT_LINK(ed)) {
         strcat(buf, ed->keyword);
         if (ed->next)
             strcat(buf, " ");
@@ -63,7 +63,7 @@ char* progs(void* point)
     buf[0] = '\0';
     strcat(buf, "Progs:\n\r");
 
-    for (cnt = 0; list; list = list->next) {
+    for (cnt = 0; list; NEXT_LINK(list)) {
         if (cnt == 0)
             strcat(buf, "#Num  Vnum  Trigger Phrase     {x\n\r");
 

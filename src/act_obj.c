@@ -85,7 +85,7 @@ bool can_loot(CharData* ch, ObjectData* obj)
     if (!obj->owner || obj->owner == NULL) return true;
 
     owner = NULL;
-    for (wch = char_list; wch != NULL; wch = wch->next)
+    FOR_EACH(wch, char_list)
         if (!str_cmp(wch->name, obj->owner)) owner = wch;
 
     if (owner == NULL) return true;
@@ -132,7 +132,7 @@ void get_obj(CharData* ch, ObjectData* obj, ObjectData* container)
     }
 
     if (obj->in_room != NULL) {
-        for (gch = obj->in_room->people; gch != NULL; gch = gch->next_in_room)
+        FOR_EACH_IN_ROOM(gch, obj->in_room->people)
             if (gch->on == obj) {
                 act("$N appears to be using $p.", ch, obj, gch, TO_CHAR);
                 return;
@@ -1574,7 +1574,7 @@ void do_sacrifice(CharData* ch, char* argument)
     }
 
     if (obj->in_room != NULL) {
-        for (gch = obj->in_room->people; gch != NULL; gch = gch->next_in_room)
+        FOR_EACH_IN_ROOM(gch, obj->in_room->people)
             if (gch->on == obj) {
                 act("$N appears to be using $p.", ch, obj, gch, TO_CHAR);
                 return;
@@ -1599,7 +1599,7 @@ void do_sacrifice(CharData* ch, char* argument)
 
     if (IS_SET(ch->act_flags, PLR_AUTOSPLIT)) { /* AUTOSPLIT code */
         members = 0;
-        for (gch = ch->in_room->people; gch != NULL; gch = gch->next_in_room) {
+        FOR_EACH_IN_ROOM(gch, ch->in_room->people) {
             if (is_same_group(gch, ch)) members++;
         }
 

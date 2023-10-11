@@ -20,7 +20,7 @@ ResetData* new_reset_data()
     }
     else {
         pReset = reset_free;
-        reset_free = reset_free->next;
+        NEXT_LINK(reset_free);
     }
 
     pReset->next = NULL;

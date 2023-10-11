@@ -23,7 +23,7 @@ ShopData* new_shop_data()
     }
     else {
         pShop = shop_free;
-        shop_free = shop_free->next;
+        NEXT_LINK(shop_free);
     }
 
     pShop->next = NULL;

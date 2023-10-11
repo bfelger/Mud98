@@ -97,6 +97,9 @@ bool run_olc_editor(Descriptor* d, char* incomm)
     case ED_CLASS:
         cedit(d->character, incomm);
         break;
+    case ED_QUEST:
+        qedit(d->character, incomm);
+        break;
     default:
         return false;
     }
@@ -145,6 +148,9 @@ char* olc_ed_name(CharData* ch)
     case ED_HELP:
         sprintf(buf, "HEdit");
         break;
+    case ED_QUEST:
+        sprintf(buf, "QEdit");
+        break;
     default:
         sprintf(buf, " ");
         break;
@@ -166,6 +172,7 @@ char* olc_ed_vnum(CharData* ch)
     Skill* pSkill;
     Class* pClass;
     CmdInfo* pCmd;
+    Quest* pQuest;
     static char buf[10];
 
     buf[0] = '\0';
@@ -189,6 +196,10 @@ char* olc_ed_vnum(CharData* ch)
     case ED_PROG:
         pMcode = (MobProgCode*)ch->desc->pEdit;
         sprintf(buf, "%"PRVNUM, pMcode ? pMcode->vnum : 0);
+        break;
+    case ED_QUEST:
+        pQuest = (Quest*)ch->desc->pEdit;
+        sprintf(buf, "%d", pQuest ? pQuest->vnum : 0);
         break;
     case ED_RACE:
         pRace = (Race*)ch->desc->pEdit;
@@ -225,6 +236,7 @@ char* olc_ed_vnum(CharData* ch)
 const OlcCmdEntry* get_olc_table(int editor)
 {
     switch (editor) {
+    case ED_AREA:   return area_olc_comm_table;
     case ED_MOBILE:	return mob_olc_comm_table;
     case ED_OBJECT:	return obj_olc_comm_table;
     case ED_ROOM:	return room_olc_comm_table;
@@ -234,6 +246,7 @@ const OlcCmdEntry* get_olc_table(int editor)
     case ED_PROG:	return prog_olc_comm_table;
     case ED_SOCIAL:	return social_olc_comm_table;
     case ED_CLASS:  return class_olc_comm_table;
+    case ED_QUEST:  return quest_olc_comm_table;
     }
     return NULL;
 }
@@ -253,21 +266,21 @@ void show_olc_cmds(CharData* ch)
     buf1[0] = '\0';
     col = 0;
 
-    if (ch->desc->editor == ED_AREA) {
-        // Areas have a cmd_type, not a comm_type
-        for (int cmd = 0; aedit_table[cmd].name != NULL; cmd++) {
-            sprintf(buf, "%-15.15s", aedit_table[cmd].name);
-            strcat(buf1, buf);
-            if (++col % 5 == 0)
-                strcat(buf1, "\n\r");
-        }
-
-        if (col % 5 != 0)
-            strcat(buf1, "\n\r");
-
-        send_to_char(buf1, ch);
-        return;
-    }
+    //if (ch->desc->editor == ED_AREA) {
+    //    // Areas have a cmd_type, not a comm_type
+    //    for (int cmd = 0; aedit_table[cmd].name != NULL; cmd++) {
+    //        sprintf(buf, "%-15.15s", aedit_table[cmd].name);
+    //        strcat(buf1, buf);
+    //        if (++col % 5 == 0)
+    //            strcat(buf1, "\n\r");
+    //    }
+    //
+    //    if (col % 5 != 0)
+    //        strcat(buf1, "\n\r");
+    //
+    //    send_to_char(buf1, ch);
+    //    return;
+    //}
 
     table = get_olc_table(ch->desc->editor);
 
@@ -341,6 +354,7 @@ const EditCmd editor_table[] =
    {	"group",	do_gedit	},
    {    "class",    do_cedit    },
    {	"help",		do_hedit	},
+   {	"quest",    do_qedit	},
    {	NULL,		0		    }
 };
 
@@ -373,6 +387,7 @@ void do_olc(CharData* ch, char* argument)
 bool process_olc_command(CharData* ch, char* argument, const OlcCmdEntry* table)
 {
     char arg[MIL];
+    AreaData* pArea;
     MobPrototype* pMob;
     ObjectPrototype* pObj;
     RoomData* pRoom;
@@ -383,6 +398,7 @@ bool process_olc_command(CharData* ch, char* argument, const OlcCmdEntry* table)
     AreaData* tArea;
     MobProgCode* pProg;
     Social* pSoc;
+    Quest* pQuest;
     int temp;
     uintptr_t pointer;
 
@@ -392,6 +408,18 @@ bool process_olc_command(CharData* ch, char* argument, const OlcCmdEntry* table)
         if (LOWER(arg[0]) == LOWER(table[temp].name[0])
             && !str_prefix(arg, table[temp].name)) {
             switch (ch->desc->editor) {
+            case ED_AREA:
+                EDIT_AREA(ch, pArea);
+                if (table[temp].argument)
+                    pointer = (table[temp].argument - U(&xArea) + U(pArea));
+                else
+                    pointer = 0;
+                if ((*table[temp].function) (table[temp].name, ch, argument, pointer, table[temp].parameter)
+                    && pArea)
+                    SET_BIT(pArea->area_flags, AREA_CHANGED);
+                return true;
+                break;
+
             case ED_MOBILE:
                 EDIT_MOB(ch, pMob);
                 tArea = pMob->area;
@@ -423,6 +451,19 @@ bool process_olc_command(CharData* ch, char* argument, const OlcCmdEntry* table)
                 tArea = pRoom->area;
                 if (table[temp].argument)
                     pointer = (table[temp].argument - U(&xRoom) + U(pRoom));
+                else
+                    pointer = 0;
+                if ((*table[temp].function) (table[temp].name, ch, argument, pointer, table[temp].parameter)
+                    && tArea != NULL)
+                    SET_BIT(tArea->area_flags, AREA_CHANGED);
+                return true;
+                break;
+
+            case ED_QUEST:
+                EDIT_QUEST(ch, pQuest);
+                tArea = pQuest->area;
+                if (table[temp].argument)
+                    pointer = (table[temp].argument - U(&xQuest) + U(pQuest));
                 else
                     pointer = 0;
                 if ((*table[temp].function) (table[temp].name, ch, argument, pointer, table[temp].parameter)

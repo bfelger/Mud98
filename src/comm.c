@@ -619,7 +619,7 @@ void close_socket(Descriptor* dclose)
     {
         Descriptor* d;
 
-        for (d = descriptor_list; d != NULL; d = d->next) {
+        FOR_EACH(d, descriptor_list) {
             if (d->snoop_by == dclose) 
                 d->snoop_by = NULL;
         }
@@ -640,15 +640,15 @@ void close_socket(Descriptor* dclose)
     }
 
     if (d_next == dclose)
-        d_next = d_next->next;
+        NEXT_LINK(d_next);
 
     if (dclose == descriptor_list) {
-        descriptor_list = descriptor_list->next;
+        NEXT_LINK(descriptor_list);
     }
     else {
         Descriptor* d;
 
-        for (d = descriptor_list; d && d->next != dclose; d = d->next)
+        for (d = descriptor_list; d && d->next != dclose; NEXT_LINK(d))
             ;
         if (d != NULL)
             d->next = dclose->next;
@@ -1798,7 +1798,7 @@ void poll_server(SockServer* server, PollData* poll_data)
     FD_ZERO(&poll_data->exc_set);
     FD_SET(server->control, &poll_data->in_set);
     poll_data->maxdesc = server->control;
-    for (Descriptor* d = descriptor_list; d; d = d->next) {
+    for (Descriptor* d = descriptor_list; d; NEXT_LINK(d)) {
         if (d->client->type != type)
             continue;
         poll_data->maxdesc = UMAX(poll_data->maxdesc, d->client->fd);
@@ -1889,7 +1889,7 @@ bool check_parse_name(char* name)
 
         for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
             for (p_mob_proto = mob_prototype_hash[iHash]; p_mob_proto != NULL;
-                p_mob_proto = p_mob_proto->next) {
+                NEXT_LINK(p_mob_proto)) {
                 if (is_name(name, p_mob_proto->name)) 
                     return false;
             }
@@ -1906,7 +1906,7 @@ bool check_reconnect(Descriptor * d, bool fConn)
 {
     CharData* ch;
 
-    for (ch = char_list; ch != NULL; ch = ch->next) {
+    FOR_EACH(ch, char_list) {
         if (!IS_NPC(ch) && (!fConn || ch->desc == NULL)
             && !str_cmp(d->character->name, ch->name)) {
             if (fConn == false) {
@@ -1954,7 +1954,7 @@ bool check_playing(Descriptor * d, char* name)
 {
     Descriptor* dold;
 
-    for (dold = descriptor_list; dold; dold = dold->next) {
+    FOR_EACH(dold, descriptor_list) {
         if (dold != d && dold->character != NULL
             && dold->connected != CON_GET_NAME
             && dold->connected != CON_GET_OLD_PASSWORD

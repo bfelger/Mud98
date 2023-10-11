@@ -26,7 +26,7 @@ void free_extra_desc(ExtraDesc* ed)
 
 char* get_extra_desc(const char* name, ExtraDesc* ed)
 {
-    for (; ed != NULL; ed = ed->next) {
+    for (; ed != NULL; NEXT_LINK(ed)) {
         if (is_name((char*)name, ed->keyword))
             return ed->description;
     }
@@ -41,7 +41,7 @@ ExtraDesc* new_extra_desc()
         ed = alloc_perm(sizeof(*ed));
     else {
         ed = extra_desc_free;
-        extra_desc_free = extra_desc_free->next;
+        NEXT_LINK(extra_desc_free);
     }
 
     ed->keyword = &str_empty[0];

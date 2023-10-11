@@ -65,7 +65,7 @@ CharData* new_char_data()
         ch = alloc_perm(sizeof(*ch));
     else {
         ch = char_free;
-        char_free = char_free->next;
+        NEXT_LINK(char_free);
     }
 
     *ch = ch_zero;

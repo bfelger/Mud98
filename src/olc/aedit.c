@@ -22,34 +22,37 @@
 
 #define AEDIT(fun) bool fun( CharData *ch, char *argument )
 
+AreaData xArea;
+
 #ifdef U
 #define OLD_U U
 #endif
 #define U(x)    (uintptr_t)(x)
 
-const OlcCmd aedit_table[] = {
-//   Command		Function
-   { "age", 		aedit_age	    },
-   { "builder", 	aedit_builder	},
-   { "commands", 	show_commands	},
-   { "create", 	    aedit_create	},
-   { "filename", 	aedit_file	    },
-   { "name", 	    aedit_name	    },
-   { "reset", 	    aedit_reset	    },
-   { "security", 	aedit_security	},
-   { "show", 	    aedit_show	    },
-   { "vnums", 	    aedit_vnum	    },
-   { "lvnum", 	    aedit_lvnum	    },
-   { "uvnum", 	    aedit_uvnum	    },
-   { "credits", 	aedit_credits	},
-   { "min_level", 	aedit_lowrange	},
-   { "max_level", 	aedit_highrange	},
-   { "?",		    show_help	    },
-   { "version", 	show_version	},
-   { NULL, 		    0		        }
+const OlcCmdEntry area_olc_comm_table[] = {
+    { "name", 	        U(&xArea.name),         ed_line_string,     0	                },
+    { "min_vnum", 	    0,                      ed_olded,           U(aedit_lvnum)	    },
+    { "max_vnum", 	    0,                      ed_olded,           U(aedit_uvnum)	    },
+    { "min_level", 	    U(&xArea.low_range),    ed_number_level,    0	                },
+    { "max_level", 	    U(&xArea.high_range),   ed_number_level,    0	                },
+    { "reset", 		    U(&xArea.reset_thresh), ed_number_s_pos,    0	                },
+    { "sector",	        U(&xArea.sector),	    ed_flag_set_sh,		U(sector_flag_table)},
+    { "credits", 	    U(&xArea.credits),      ed_line_string,     0                   },
+    { "alwaysreset",    U(&xArea.always_reset), ed_bool,            0                   },
+    { "builder", 	    0,                      ed_olded,           U(aedit_builder)	},
+    { "commands", 	    0,                      ed_olded,           U(show_commands)	},
+    { "create", 	    0,                      ed_olded,           U(aedit_create)	    },
+    { "filename", 	    0,                      ed_olded,           U(aedit_file)	    },
+    { "reset", 	        0,                      ed_olded,           U(aedit_reset)	    },
+    { "security", 	    0,                      ed_olded,           U(aedit_security)	},
+    { "show", 	        0,                      ed_olded,           U(aedit_show)	    },
+    { "vnums", 	        0,                      ed_olded,           U(aedit_vnums)	    },
+    { "levels",         0,                      ed_olded,           U(aedit_levels)     },
+    { "?",		        0,                      ed_olded,           U(show_help)	    },
+    { "version", 	    0,                      ed_olded,           U(show_version)	    },
+    { NULL, 		    0,                      NULL,               0		            }
 };
 
-/* Entry point for editing area_data. */
 void do_aedit(CharData* ch, char* argument)
 {
     AreaData* pArea;
@@ -89,15 +92,8 @@ void do_aedit(CharData* ch, char* argument)
 void aedit(CharData* ch, char* argument)
 {
     AreaData* pArea;
-    char    command[MAX_INPUT_LENGTH];
-    char    arg[MAX_INPUT_LENGTH];
-    int     cmd;
-    FLAGS     value;
 
     EDIT_AREA(ch, pArea);
-
-    strcpy(arg, argument);
-    READ_ARG(command);
 
     if (!IS_BUILDER(ch, pArea)) {
         send_to_char("AEdit:  Insufficient security to modify area.\n\r", ch);
@@ -105,37 +101,20 @@ void aedit(CharData* ch, char* argument)
         return;
     }
 
-    if (!str_cmp(command, "done")) {
+    if (!str_cmp(argument, "done")) {
         edit_done(ch);
         return;
     }
 
-    if (command[0] == '\0') {
+    if (emptystring(argument)) {
         aedit_show(ch, argument);
         return;
     }
 
-    if ((value = flag_value(area_flag_table, command)) != NO_FLAG) {
-        TOGGLE_BIT(pArea->area_flags, value);
-
-        send_to_char("Flag toggled.\n\r", ch);
-        return;
-    }
-
     /* Search Table and Dispatch Command. */
-    for (cmd = 0; aedit_table[cmd].name != NULL; cmd++) {
-        if (!str_prefix(command, aedit_table[cmd].name)) {
-            if ((*aedit_table[cmd].olc_fun) (ch, argument)) {
-                SET_BIT(pArea->area_flags, AREA_CHANGED);
-                return;
-            }
-            else
-                return;
-        }
-    }
+    if (!process_olc_command(ch, argument, area_olc_comm_table))
+        interpret(ch, argument);
 
-    /* Default to Standard Interpreter. */
-    interpret(ch, arg);
     return;
 }
 
@@ -143,7 +122,7 @@ AreaData* get_vnum_area(VNUM vnum)
 {
     AreaData* pArea;
 
-    for (pArea = area_first; pArea; pArea = pArea->next) {
+    FOR_EACH(pArea, area_first) {
         if (vnum >= pArea->min_vnum
             && vnum <= pArea->max_vnum)
             return pArea;
@@ -161,16 +140,18 @@ AEDIT(aedit_show)
 
     EDIT_AREA(ch, pArea);
 
-    printf_to_char(ch, "Name:       {|[{*%"PRVNUM"{|] {_%s{x\n\r", pArea->vnum, pArea->name);
-    printf_to_char(ch, "File:       {*%s{x\n\r", pArea->file_name);
-    printf_to_char(ch, "Vnums:      {|[{*%d-%d{|]{x\n\r", pArea->min_vnum, pArea->max_vnum);
-    printf_to_char(ch, "Age:        {|[{*%d{|]{x\n\r", pArea->age);
-    printf_to_char(ch, "Security:   {|[{*%d{|]{x\n\r", pArea->security);
-    printf_to_char(ch, "Builders:   {|[{*%s{|]{x\n\r", pArea->builders);
-    printf_to_char(ch, "Credits :   {|[{*%s{|]{x\n\r", pArea->credits);
-    printf_to_char(ch, "Min_level:  {|[{*%d{|]{x\n\r", pArea->low_range);
-    printf_to_char(ch, "Max_level:  {|[{*%d{|]{x\n\r", pArea->high_range);
-    printf_to_char(ch, "Flags:      {|[{*%s{|]{x\n\r", flag_string(area_flag_table, pArea->area_flags));
+    printf_to_char(ch, "Name:           {|[{*%"PRVNUM"{|] {_%s{x\n\r", pArea->vnum, pArea->name);
+    printf_to_char(ch, "File:           {*%s{x\n\r", pArea->file_name);
+    printf_to_char(ch, "Vnums:          {|[{*%d-%d{|]{x\n\r", pArea->min_vnum, pArea->max_vnum);
+    printf_to_char(ch, "Levels:         {|[{*%d-%d{|]{x\n\r", pArea->low_range, pArea->high_range);
+    printf_to_char(ch, "Sector:         {|[{*%s{|]{x\n\r", flag_string(sector_flag_table, pArea->sector));
+    printf_to_char(ch, "Reset:          {|[{*%d{|] {_x %d minutes; current at %d{x\n\r", 
+        pArea->reset_thresh, (PULSE_AREA / 60), pArea->reset_timer);
+    printf_to_char(ch, "Always Reset:   {|[%s{|]{x\n\r", pArea->always_reset ? "{GYES" : "{RNO");
+    printf_to_char(ch, "Security:       {|[{*%d{|]{x\n\r", pArea->security);
+    printf_to_char(ch, "Builders:       {|[{*%s{|]{x\n\r", pArea->builders);
+    printf_to_char(ch, "Credits :       {|[{*%s{|]{x\n\r", pArea->credits);
+    printf_to_char(ch, "Flags:          {|[{*%s{|]{x\n\r", flag_string(area_flag_table, pArea->area_flags));
     return false;
 }
 
@@ -185,6 +166,7 @@ AEDIT(aedit_reset)
 
     return false;
 }
+
 AEDIT(aedit_create)
 {
     AreaData* pArea;
@@ -211,43 +193,6 @@ AEDIT(aedit_create)
     send_to_char("Area Created.\n\r", ch);
     return true;
 }
-
-AEDIT(aedit_name)
-{
-    AreaData* pArea;
-
-    EDIT_AREA(ch, pArea);
-
-    if (argument[0] == '\0') {
-        send_to_char("Syntax:   name [$name]\n\r", ch);
-        return false;
-    }
-
-    free_string(pArea->name);
-    pArea->name = str_dup(argument);
-
-    send_to_char("Name set.\n\r", ch);
-    return true;
-}
-
-AEDIT(aedit_credits)
-{
-    AreaData* pArea;
-
-    EDIT_AREA(ch, pArea);
-
-    if (argument[0] == '\0') {
-        send_to_char("Syntax:   credits [$credits]\n\r", ch);
-        return false;
-    }
-
-    free_string(pArea->credits);
-    pArea->credits = str_dup(argument);
-
-    send_to_char("Credits set.\n\r", ch);
-    return true;
-}
-
 
 AEDIT(aedit_file)
 {
@@ -292,83 +237,35 @@ AEDIT(aedit_file)
     return true;
 }
 
-AEDIT(aedit_lowrange)
+AEDIT(aedit_levels)
 {
     AreaData* pArea;
-    LEVEL low_r;
+    char lower_str[MAX_STRING_LENGTH];
+    char upper_str[MAX_STRING_LENGTH];
+    LEVEL  lower;
+    LEVEL  upper;
 
     EDIT_AREA(ch, pArea);
 
-    if (argument[0] == '\0' || !is_number(argument)) {
-        send_to_char("Syntax : lowrange [min level]\n\r", ch);
+    READ_ARG(lower_str);
+    one_argument(argument, upper_str);
+
+    if (lower_str[0] == '\0' || !is_number(lower_str)
+        || upper_str[0] == '\0' || !is_number(upper_str)) {
+        send_to_char("Syntax:  levels [#xlower] [#xupper]\n\r", ch);
         return false;
     }
 
-    low_r = (LEVEL)atoi(argument);
-
-    if (low_r < 0 || low_r > MAX_LEVEL) {
-        send_to_char("Value must be between 0 and MAX_LEVEL.\n\r", ch);
+    if ((lower = (LEVEL)atoi(lower_str)) > (upper = (LEVEL)atoi(upper_str))) {
+        send_to_char("AEdit:  Upper must be larger than lower.\n\r", ch);
         return false;
     }
 
-    if (low_r > pArea->high_range) {
-        send_to_char("Value must be lower than the max level.\n\r", ch);
-        return false;
-    }
+    pArea->high_range = lower;
+    pArea->low_range = upper;
 
-    pArea->low_range = low_r;
+    printf_to_char(ch, "Level range set to %d-%d.\n\r", lower, upper);
 
-    send_to_char("Minimum level set.\n\r", ch);
-    return true;
-}
-
-AEDIT(aedit_highrange)
-{
-    AreaData* pArea;
-    LEVEL high_r;
-
-    EDIT_AREA(ch, pArea);
-
-    if (argument[0] == '\0' || !is_number(argument)) {
-        send_to_char("Syntax : highrange [max level]\n\r", ch);
-        return false;
-    }
-
-    high_r = (LEVEL)atoi(argument);
-
-    if (high_r < 0 || high_r > MAX_LEVEL) {
-        send_to_char("Value must be between 0 and MAX_LEVEL.\n\r", ch);
-        return false;
-    }
-
-    if (high_r < pArea->low_range) {
-        send_to_char("Value must be higher than the min level.\n\r", ch);
-        return false;
-    }
-
-    pArea->high_range = high_r;
-
-    send_to_char("Maximum level set.\n\r", ch);
-    return true;
-}
-
-AEDIT(aedit_age)
-{
-    AreaData* pArea;
-    char age[MAX_STRING_LENGTH];
-
-    EDIT_AREA(ch, pArea);
-
-    one_argument(argument, age);
-
-    if (!is_number(age) || age[0] == '\0') {
-        send_to_char("Syntax:  age [#xage]\n\r", ch);
-        return false;
-    }
-
-    pArea->age = (int16_t)atoi(age);
-
-    send_to_char("Age set.\n\r", ch);
     return true;
 }
 
@@ -459,14 +356,14 @@ AEDIT(aedit_builder)
 /*****************************************************************************
  Name:          check_range( lower vnum, upper vnum )
  Purpose:       Ensures the range spans only one area.
- Called by:     aedit_vnum (olc_act.c).
+ Called by:     aedit_vnums (olc_act.c).
  ****************************************************************************/
 bool check_range(VNUM lower, VNUM upper)
 {
     AreaData* pArea;
     int cnt = 0;
 
-    for (pArea = area_first; pArea; pArea = pArea->next) {
+    FOR_EACH(pArea, area_first) {
         // lower < area < upper
         if ((lower <= pArea->min_vnum && pArea->min_vnum <= upper)
             || (lower <= pArea->max_vnum && pArea->max_vnum <= upper))
@@ -478,7 +375,7 @@ bool check_range(VNUM lower, VNUM upper)
     return true;
 }
 
-AEDIT(aedit_vnum)
+AEDIT(aedit_vnums)
 {
     AreaData* pArea;
     char lower[MAX_STRING_LENGTH];
@@ -493,7 +390,7 @@ AEDIT(aedit_vnum)
 
     if (!is_number(lower) || lower[0] == '\0'
         || !is_number(upper) || upper[0] == '\0') {
-        send_to_char("Syntax:  vnum [#xlower] [#xupper]\n\r", ch);
+        send_to_char("Syntax:  VNUMS [#xlower] [#xupper]\n\r", ch);
         return false;
     }
 
@@ -509,21 +406,21 @@ AEDIT(aedit_vnum)
 
     if (get_vnum_area(ilower)
         && get_vnum_area(ilower) != pArea) {
-        send_to_char("AEdit:  Lower vnum already assigned.\n\r", ch);
+        send_to_char("AEdit:  Lower VNUM already assigned.\n\r", ch);
         return false;
     }
 
     pArea->min_vnum = ilower;
-    send_to_char("Lower vnum set.\n\r", ch);
+    send_to_char("Lower VNUM set.\n\r", ch);
 
     if (get_vnum_area(iupper)
         && get_vnum_area(iupper) != pArea) {
-        send_to_char("AEdit:  Upper vnum already assigned.\n\r", ch);
+        send_to_char("AEdit:  Upper VNUM already assigned.\n\r", ch);
         return true;    /* The lower value has been set. */
     }
 
     pArea->max_vnum = iupper;
-    send_to_char("Upper vnum set.\n\r", ch);
+    send_to_char("VNUMs set.\n\r", ch);
 
     return true;
 }
@@ -556,12 +453,12 @@ AEDIT(aedit_lvnum)
 
     if (get_vnum_area(ilower)
         && get_vnum_area(ilower) != pArea) {
-        send_to_char("AEdit:  Lower vnum already assigned.\n\r", ch);
+        send_to_char("AEdit:  Lower VNUM already assigned.\n\r", ch);
         return false;
     }
 
     pArea->min_vnum = ilower;
-    send_to_char("Lower vnum set.\n\r", ch);
+    send_to_char("Lower VNUM set.\n\r", ch);
     return true;
 }
 
@@ -593,12 +490,12 @@ AEDIT(aedit_uvnum)
 
     if (get_vnum_area(iupper)
         && get_vnum_area(iupper) != pArea) {
-        send_to_char("AEdit:  Upper vnum already assigned.\n\r", ch);
+        send_to_char("AEdit:  Upper VNUM already assigned.\n\r", ch);
         return false;
     }
 
     pArea->max_vnum = iupper;
-    send_to_char("Upper vnum set.\n\r", ch);
+    send_to_char("Upper VNUM set.\n\r", ch);
 
     return true;
 }
@@ -625,7 +522,7 @@ void do_alist(CharData* ch, char* argument)
 
     {
         int i = 0;
-        for (AreaData* pArea = area_first; pArea; pArea = pArea->next) {
+        for (AreaData* pArea = area_first; pArea; NEXT_LINK(pArea)) {
             alist[i++] = pArea;
         }
     }
@@ -683,7 +580,7 @@ AreaData* get_area_data(VNUM vnum)
 {
     AreaData* pArea;
 
-    for (pArea = area_first; pArea; pArea = pArea->next) {
+    FOR_EACH(pArea, area_first) {
         if (pArea->vnum == vnum)
             return pArea;
     }

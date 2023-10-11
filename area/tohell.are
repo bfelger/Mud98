@@ -4391,11 +4391,11 @@ You see a hall of the Mall from Hell.
 ~
 ~
 0 -1 10515
-D1
+D2
 You see a hall of the Mall from Hell.
 ~
 ~
-0 -1 10535
+0 0 10535
 S
 #10526
 Inside Big Mouth's Stomach~
@@ -4596,7 +4596,7 @@ D0
 You see a hall of the Mall from Hell.
 ~
 ~
-0 -1 10525
+0 0 10525
 D3
 You see a hall of the Mall from Hell.
 ~

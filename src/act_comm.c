@@ -305,7 +305,7 @@ void do_auction(CharData* ch, char* argument)
 
     sprintf(buf, "{aYou auction '{A%s{a'{x\n\r", argument);
     send_to_char(buf, ch);
-    for (d = descriptor_list; d != NULL; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         CharData* victim;
 
         victim = d->original ? d->original : d->character;
@@ -352,7 +352,7 @@ void do_gossip(CharData* ch, char* argument)
 
         sprintf(buf, "{dYou gossip '{9%s{d'{x\n\r", argument);
         send_to_char(buf, ch);
-        for (d = descriptor_list; d != NULL; d = d->next) {
+        FOR_EACH(d, descriptor_list) {
             CharData* victim;
 
             victim = d->original ? d->original : d->character;
@@ -399,7 +399,7 @@ void do_grats(CharData* ch, char* argument)
 
         sprintf(buf, "{tYou grats '%s'{x\n\r", argument);
         send_to_char(buf, ch);
-        for (d = descriptor_list; d != NULL; d = d->next) {
+        FOR_EACH(d, descriptor_list) {
             CharData* victim;
 
             victim = d->original ? d->original : d->character;
@@ -446,7 +446,7 @@ void do_quote(CharData* ch, char* argument)
 
         sprintf(buf, "{hYou quote '{H%s{h'{x\n\r", argument);
         send_to_char(buf, ch);
-        for (d = descriptor_list; d != NULL; d = d->next) {
+        FOR_EACH(d, descriptor_list) {
             CharData* victim;
 
             victim = d->original ? d->original : d->character;
@@ -494,7 +494,7 @@ void do_question(CharData* ch, char* argument)
 
         sprintf(buf, "{qYou question '{Q%s{q'{x\n\r", argument);
         send_to_char(buf, ch);
-        for (d = descriptor_list; d != NULL; d = d->next) {
+        FOR_EACH(d, descriptor_list) {
             CharData* victim;
 
             victim = d->original ? d->original : d->character;
@@ -542,7 +542,7 @@ void do_answer(CharData* ch, char* argument)
 
         sprintf(buf, "{fYou answer '{F%s{f'{x\n\r", argument);
         send_to_char(buf, ch);
-        for (d = descriptor_list; d != NULL; d = d->next) {
+        FOR_EACH(d, descriptor_list) {
             CharData* victim;
 
             victim = d->original ? d->original : d->character;
@@ -591,7 +591,7 @@ void do_music(CharData* ch, char* argument)
         sprintf(buf, "{eYou MUSIC: '{E%s{e'{x\n\r", argument);
         send_to_char(buf, ch);
         sprintf(buf, "$n MUSIC: '%s'", argument);
-        for (d = descriptor_list; d != NULL; d = d->next) {
+        FOR_EACH(d, descriptor_list) {
             CharData* victim;
 
             victim = d->original ? d->original : d->character;
@@ -638,7 +638,7 @@ void do_clantalk(CharData* ch, char* argument)
     sprintf(buf, "You clan '%s'{x\n\r", argument);
     send_to_char(buf, ch);
     sprintf(buf, "$n clans '%s'", argument);
-    for (d = descriptor_list; d != NULL; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         if (d->connected == CON_PLAYING && d->character != ch
             && is_same_clan(ch, d->character)
             && !IS_SET(d->character->comm_flags, COMM_NOCLAN)
@@ -670,7 +670,7 @@ void do_immtalk(CharData* ch, char* argument)
     REMOVE_BIT(ch->comm_flags, COMM_NOWIZ);
 
     act_new("{i[{I$n{i]: $t{x", ch, argument, NULL, TO_CHAR, POS_DEAD);
-    for (d = descriptor_list; d != NULL; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         if (d->connected == CON_PLAYING && IS_IMMORTAL(d->character)
             && !IS_SET(d->character->comm_flags, COMM_NOWIZ)) {
             act_new("{i[{I$n{i]: $t{x", ch, argument, d->character, TO_VICT,
@@ -733,7 +733,7 @@ void do_shout(CharData* ch, char* argument)
     WAIT_STATE(ch, 12);
 
     act("{dYou shout '{9$T{d'{x", ch, NULL, argument, TO_CHAR);
-    for (d = descriptor_list; d != NULL; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         CharData* victim;
 
         victim = d->original ? d->original : d->character;
@@ -915,7 +915,7 @@ void do_yell(CharData* ch, char* argument)
     }
 
     act("{dYou yell '{9$t{d'{x", ch, argument, NULL, TO_CHAR);
-    for (d = descriptor_list; d != NULL; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         if (d->connected == CON_PLAYING && d->character != ch
             && d->character->in_room != NULL
             && d->character->in_room->area == ch->in_room->area
@@ -966,7 +966,7 @@ void do_pmote(CharData* ch, char* argument)
 
     act("$n $t", ch, argument, NULL, TO_CHAR);
 
-    for (vch = ch->in_room->people; vch != NULL; vch = vch->next_in_room) {
+    FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
         if (vch->desc == NULL || vch == ch) continue;
 
         if ((letter = strstr(argument, vch->name)) == NULL) {
@@ -1250,10 +1250,11 @@ void do_quit(CharData* ch, char* argument)
 
 void do_save(CharData* ch, char* argument)
 {
-    if (IS_NPC(ch)) return;
+    if (IS_NPC(ch))
+        return;
 
     save_char_obj(ch);
-    send_to_char("Saving. Remember that ROM has automatic saving now.\n\r", ch);
+    printf_to_char(ch, "Saving. Remember that %s has automatic saving.\n\r", cfg_get_mud_name());
     WAIT_STATE(ch, 4 * PULSE_VIOLENCE);
     return;
 }
@@ -1372,7 +1373,7 @@ void die_follower(CharData* ch)
 
     ch->leader = NULL;
 
-    for (fch = char_list; fch != NULL; fch = fch->next) {
+    FOR_EACH(fch, char_list) {
         if (fch->master == ch) stop_follower(fch);
         if (fch->leader == ch) fch->leader = fch;
     }
@@ -1470,7 +1471,7 @@ void do_group(CharData* ch, char* argument)
         sprintf(buf, "{T%s's group:{x\n\r", PERS(leader, ch));
         send_to_char(buf, ch);
 
-        for (gch = char_list; gch != NULL; gch = gch->next) {
+        FOR_EACH(gch, char_list) {
             if (is_same_group(gch, ch)) {
                 sprintf(buf,
                         "{|[{*%2d %s{|]{x %-16s {_%4d/%4d hp %4d/%4d mana %4d/%4d mv %5d xp{x\n\r",
@@ -1572,7 +1573,7 @@ void do_split(CharData* ch, char* argument)
     }
 
     members = 0;
-    for (gch = ch->in_room->people; gch != NULL; gch = gch->next_in_room) {
+    FOR_EACH_IN_ROOM(gch, ch->in_room->people) {
         if (is_same_group(gch, ch) && !IS_AFFECTED(gch, AFF_CHARM)) members++;
     }
 
@@ -1625,7 +1626,7 @@ void do_split(CharData* ch, char* argument)
             amount_silver, amount_gold, share_silver, share_gold);
     }
 
-    for (gch = ch->in_room->people; gch != NULL; gch = gch->next_in_room) {
+    FOR_EACH_IN_ROOM(gch, ch->in_room->people) {
         if (gch != ch && is_same_group(gch, ch)
             && !IS_AFFECTED(gch, AFF_CHARM)) {
             act(buf, ch, NULL, gch, TO_VICT);
@@ -1651,7 +1652,7 @@ void do_gtell(CharData* ch, char* argument)
         return;
     }
 
-    for (gch = char_list; gch != NULL; gch = gch->next) {
+    FOR_EACH(gch, char_list) {
         if (is_same_group(gch, ch))
             act_new("$n tells the group '$t'", ch, argument, gch, TO_VICT,
                     POS_SLEEPING);
@@ -1668,10 +1669,13 @@ void do_gtell(CharData* ch, char* argument)
  */
 bool is_same_group(CharData* ach, CharData* bch)
 {
-    if (ach == NULL || bch == NULL) return false;
+    if (ach == NULL || bch == NULL)
+        return false;
 
-    if (ach->leader != NULL) ach = ach->leader;
-    if (bch->leader != NULL) bch = bch->leader;
+    if (ach->leader != NULL)
+        ach = ach->leader;
+    if (bch->leader != NULL)
+        bch = bch->leader;
     return ach == bch;
 }
 

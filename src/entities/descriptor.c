@@ -37,7 +37,7 @@ Descriptor* new_descriptor()
         d = alloc_perm(sizeof(*d));
     else {
         d = descriptor_free;
-        descriptor_free = descriptor_free->next;
+        NEXT_LINK(descriptor_free);
     }
 
     memset(d, 0, sizeof(Descriptor));

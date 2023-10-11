@@ -125,6 +125,7 @@
 #define DEFAULT_KEYS_DIR            "keys/"
 #define DEFAULT_CERT_FILE           "mud98.pem"
 #define DEFAULT_PKEY_FILE           "mud98.key"
+#define DEFAULT_DBG_TELOPT          false
 
 // GMCP Values
 #define DEFAULT_GMCP_ENABLED        true
@@ -206,6 +207,7 @@ DEFINE_CONFIG(tls_port,             int,        DEFAULT_TLS_PORT)
 DEFINE_DIR_CONFIG(keys_dir,         DEFAULT_KEYS_DIR)
 DEFINE_FILE_CONFIG(cert_file,       keys_dir,   DEFAULT_CERT_FILE)
 DEFINE_FILE_CONFIG(pkey_file,       keys_dir,   DEFAULT_PKEY_FILE)
+DEFINE_CONFIG(debug_telopt,         bool,       DEFAULT_DBG_TELOPT)
 
 // GMCP Values
 DEFINE_CONFIG(gmcp_enabled,         bool,       DEFAULT_GMCP_ENABLED)
@@ -270,6 +272,8 @@ DEFINE_CONFIG(default_recall,       int,        DEFAULT_RECALL)
 DEFINE_CONFIG(default_start_loc,    int,        DEFAULT_START_LOC)
 DEFINE_CONFIG(start_loc_by_race,    bool,       false)
 DEFINE_CONFIG(start_loc_by_class,   bool,       false)
+DEFINE_CONFIG(train_anywhere,       bool,       false)
+DEFINE_CONFIG(practice_anywhere,    bool,       false)
 
 #pragma GCC diagnostic pop
 
@@ -307,6 +311,7 @@ const ConfigEntry config_entries[] = {
     { "keys_dir",           CFG_DIR,    U(cfg_set_keys_dir)             },
     { "cert_file",          CFG_STR,    U(cfg_set_cert_file)            },
     { "pkey_file",          CFG_STR,    U(cfg_set_pkey_file)            },
+    { "debug_telopt",       CFG_BOOL,   U(cfg_set_debug_telopt)         },
 
     // GMCP
     { "gmcp_enabled",       CFG_BOOL,   U(cfg_set_gmcp_enabled)         },
@@ -368,6 +373,8 @@ const ConfigEntry config_entries[] = {
     { "default_start_loc",  CFG_INT,    U(cfg_set_default_start_loc)    },
     { "start_loc_by_race",  CFG_BOOL,   U(cfg_set_start_loc_by_race)    },
     { "start_loc_by_class", CFG_BOOL,   U(cfg_set_start_loc_by_class)   },
+    { "train_anywhere",     CFG_BOOL,   U(cfg_set_train_anywhere)       },
+    { "practice_anywhere",  CFG_BOOL,   U(cfg_set_practice_anywhere)    },
     { "",                   0,          0                               },
 };
 

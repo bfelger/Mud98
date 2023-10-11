@@ -192,7 +192,7 @@ void do_exlist(CharData* ch, char* argument)
     AreaData* pArea = ch->in_room->area; // This is the area we want info on 
     for (int i = 0; i < MAX_KEY_HASH; i++) {
         // Room index hash table
-        for (room = room_index_hash[i]; room != NULL; room = room->next) {
+        FOR_EACH(room, room_index_hash[i]) {
             // Run through all the rooms on the MUD
             check_exits(room, pArea, buffer);
             send_to_char(buffer, ch);
@@ -512,7 +512,7 @@ void do_for(CharData* ch, char* argument)
          /* just for every room with the appropriate people in it */
         for (i = 0; i < MAX_KEY_HASH; i++) {
             /* run through all the buckets */
-            for (room = room_index_hash[i]; room; room = room->next) {
+            FOR_EACH(room, room_index_hash[i]) {
                 found = false;
                 /* Anyone in here at all? */
                 if (fEverywhere)

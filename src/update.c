@@ -136,7 +136,8 @@ void gain_exp(CharData* ch, int gain)
 {
     char buf[MAX_STRING_LENGTH];
 
-    if (IS_NPC(ch) || ch->level >= LEVEL_HERO) return;
+    if (IS_NPC(ch) || ch->level >= LEVEL_HERO) 
+        return;
 
     ch->exp = UMAX(exp_per_level(ch, ch->pcdata->points), ch->exp + gain);
     while (ch->level < LEVEL_HERO
@@ -402,12 +403,13 @@ void mobile_update()
     ExitData* pexit = NULL;
     int door;
 
+    bool msdp_enabled = cfg_get_msdp_enabled();
+
     /* Examine all mobs. */
     for (ch = char_list; ch != NULL; ch = ch_next) {
         ch_next = ch->next;
 
-        if (ch->desc && ch->desc->mth->msdp_data
-            && cfg_get_msdp_enabled()) {
+        if (ch->desc && ch->desc->mth->msdp_data && msdp_enabled) {
             update_msdp_vars(ch->desc);
         }
 
@@ -622,7 +624,7 @@ void char_update(void)
             act("$n writhes in agony as plague sores erupt from $s skin.", ch,
                 NULL, NULL, TO_ROOM);
             send_to_char("You writhe in agony from the plague.\n\r", ch);
-            for (af = ch->affected; af != NULL; af = af->next) {
+            FOR_EACH(af, ch->affected) {
                 if (af->type == gsn_plague) break;
             }
 
@@ -855,7 +857,7 @@ void obj_update(void)
  */
 void aggr_update(void)
 {
-    for (PlayerData* wpc = player_list; wpc != NULL; wpc = wpc->next) {
+    for (PlayerData* wpc = player_list; wpc != NULL; NEXT_LINK(wpc)) {
         CharData* wch = wpc->ch;
 
         if (wch->level >= LEVEL_IMMORTAL || wch->in_room == NULL)
@@ -904,7 +906,7 @@ void aggr_update(void)
  * Random times to defeat tick-timing clients and players.
  */
 
-void update_handler(void)
+void update_handler()
 {
     static int pulse_area;
     static int pulse_mobile;

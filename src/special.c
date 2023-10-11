@@ -143,7 +143,7 @@ bool spec_troll_member(CharData* ch)
         return false;
 
     /* find an ogre to beat up */
-    for (vch = ch->in_room->people; vch != NULL; vch = vch->next_in_room) {
+    FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
         if (!IS_NPC(vch) || ch == vch) continue;
 
         if (vch->prototype->vnum == MOB_VNUM_PATROLMAN) return false;
@@ -203,7 +203,7 @@ bool spec_ogre_member(CharData* ch)
         return false;
 
     /* find an troll to beat up */
-    for (vch = ch->in_room->people; vch != NULL; vch = vch->next_in_room) {
+    FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
         if (!IS_NPC(vch) || ch == vch) continue;
 
         if (vch->prototype->vnum == MOB_VNUM_PATROLMAN) return false;
@@ -263,7 +263,7 @@ bool spec_patrolman(CharData* ch)
         return false;
 
     /* look for a fight in the room */
-    for (vch = ch->in_room->people; vch != NULL; vch = vch->next_in_room) {
+    FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
         if (vch == ch) continue;
 
         if (vch->fighting != NULL) /* break it up! */
@@ -285,7 +285,7 @@ bool spec_patrolman(CharData* ch)
         act("You blow down hard on $p.", ch, obj, NULL, TO_CHAR);
         act("$n blows on $p, ***WHEEEEEEEEEEEET***", ch, obj, NULL, TO_ROOM);
 
-        for (vch = char_list; vch != NULL; vch = vch->next) {
+        FOR_EACH(vch, char_list) {
             if (vch->in_room == NULL) continue;
 
             if (vch->in_room != ch->in_room

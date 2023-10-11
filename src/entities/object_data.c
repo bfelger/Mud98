@@ -25,7 +25,8 @@ void clone_object(ObjectData* parent, ObjectData* clone)
     AffectData* paf;
     ExtraDesc* ed, * ed_new;
 
-    if (parent == NULL || clone == NULL) return;
+    if (parent == NULL || clone == NULL)
+        return;
 
     /* start fixing the object */
     clone->name = str_dup(parent->name);
@@ -41,16 +42,17 @@ void clone_object(ObjectData* parent, ObjectData* clone)
     clone->material = str_dup(parent->material);
     clone->timer = parent->timer;
 
-    for (i = 0; i < 5; i++) clone->value[i] = parent->value[i];
+    for (i = 0; i < 5; i++) 
+        clone->value[i] = parent->value[i];
 
     /* affects */
     clone->enchanted = parent->enchanted;
 
-    for (paf = parent->affected; paf != NULL; paf = paf->next)
+    FOR_EACH(paf, parent->affected)
         affect_to_obj(clone, paf);
 
     /* extended desc */
-    for (ed = parent->extra_desc; ed != NULL; ed = ed->next) {
+    FOR_EACH(ed, parent->extra_desc) {
         ed_new = new_extra_desc();
         ed_new->keyword = str_dup(ed->keyword);
         ed_new->description = str_dup(ed->description);
@@ -161,11 +163,11 @@ void convert_objects()
 
     if (newobjs == top_object_prototype) return; /* all objects in new format */
 
-    for (pArea = area_first; pArea; pArea = pArea->next) {
+    FOR_EACH(pArea, area_first) {
         for (vnum = pArea->min_vnum; vnum <= pArea->max_vnum; vnum++) {
             if (!(pRoom = get_room_data(vnum))) continue;
 
-            for (pReset = pRoom->reset_first; pReset; pReset = pReset->next) {
+            FOR_EACH(pReset, pRoom->reset_first) {
                 switch (pReset->command) {
                 case 'M':
                     if (!(pMob = get_mob_prototype(pReset->arg1)))
@@ -262,7 +264,7 @@ void convert_objects()
 
     /* do the conversion: */
 
-    for (pArea = area_first; pArea; pArea = pArea->next)
+    FOR_EACH(pArea, area_first)
         for (vnum = pArea->min_vnum; vnum <= pArea->max_vnum; vnum++)
             if ((pObj = get_object_prototype(vnum)))
                 if (!pObj->new_format)
@@ -386,7 +388,7 @@ ObjectData* create_object(ObjectPrototype* obj_proto, LEVEL level)
         break;
     }
 
-    for (paf = obj_proto->affected; paf != NULL; paf = paf->next)
+    FOR_EACH(paf, obj_proto->affected)
         if (paf->location == APPLY_SPELL_AFFECT) 
             affect_to_obj(obj, paf);
 
@@ -437,11 +439,11 @@ void free_object_prototype(ObjectPrototype* pObj)
     free_string(pObj->short_descr);
     free_string(pObj->description);
 
-    for (pAf = pObj->affected; pAf; pAf = pAf->next) {
+    FOR_EACH(pAf, pObj->affected) {
         free_affect(pAf);
     }
 
-    for (pExtra = pObj->extra_desc; pExtra; pExtra = pExtra->next) {
+    FOR_EACH(pExtra, pObj->extra_desc) {
         free_extra_desc(pExtra);
     }
 
@@ -457,7 +459,7 @@ ObjectPrototype* get_object_prototype(VNUM vnum)
     ObjectPrototype* obj_proto;
 
     for (obj_proto = object_prototype_hash[vnum % MAX_KEY_HASH]; obj_proto != NULL;
-        obj_proto = obj_proto->next) {
+        NEXT_LINK(obj_proto)) {
         if (obj_proto->vnum == vnum) 
             return obj_proto;
     }
@@ -692,7 +694,7 @@ ObjectData* new_object()
         obj = alloc_perm(sizeof(*obj));
     else {
         obj = object_free;
-        object_free = object_free->next;
+        NEXT_LINK(object_free);
     }
     *obj = obj_zero;
     VALIDATE(obj);
@@ -711,7 +713,7 @@ ObjectPrototype* new_object_prototype()
     }
     else {
         pObj = object_prototype_free;
-        object_prototype_free = object_prototype_free->next;
+        NEXT_LINK(object_prototype_free);
     }
 
     pObj->next = NULL;

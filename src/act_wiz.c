@@ -184,7 +184,7 @@ void wiznet(char* string, CharData* ch, ObjectData* obj, FLAGS flag,
 {
     Descriptor* d;
 
-    for (d = descriptor_list; d != NULL; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         if (d->connected == CON_PLAYING && IS_IMMORTAL(d->character)
             && IS_SET(d->character->wiznet, WIZ_ON)
             && (!flag || IS_SET(d->character->wiznet, flag))
@@ -375,7 +375,7 @@ void do_smote(CharData* ch, char* argument)
     send_to_char(argument, ch);
     send_to_char("\n\r", ch);
 
-    for (vch = ch->in_room->people; vch != NULL; vch = vch->next_in_room) {
+    FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
         if (vch->desc == NULL || vch == ch) continue;
 
         if ((letter = strstr(argument, vch->name)) == NULL) {
@@ -537,7 +537,7 @@ void do_disconnect(CharData* ch, char* argument)
         SOCKET desc;
 
         desc = (SOCKET)atoi(arg);
-        for (d = descriptor_list; d != NULL; d = d->next) {
+        FOR_EACH(d, descriptor_list) {
             if (d->client->fd == desc) {
                 close_socket(d);
                 send_to_char("Ok.\n\r", ch);
@@ -556,7 +556,7 @@ void do_disconnect(CharData* ch, char* argument)
         return;
     }
 
-    for (d = descriptor_list; d != NULL; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         if (d == victim->desc) {
             close_socket(d);
             send_to_char("Ok.\n\r", ch);
@@ -624,7 +624,7 @@ void do_echo(CharData* ch, char* argument)
         return;
     }
 
-    for (d = descriptor_list; d; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         if (d->connected == CON_PLAYING) {
             if (get_trust(d->character) >= get_trust(ch))
                 send_to_char("global> ", d->character);
@@ -646,7 +646,7 @@ void do_recho(CharData* ch, char* argument)
         return;
     }
 
-    for (d = descriptor_list; d; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         if (d->connected == CON_PLAYING
             && d->character->in_room == ch->in_room) {
             if (get_trust(d->character) >= get_trust(ch))
@@ -668,7 +668,7 @@ void do_zecho(CharData* ch, char* argument)
         return;
     }
 
-    for (d = descriptor_list; d; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         if (d->connected == CON_PLAYING && d->character->in_room != NULL
             && ch->in_room != NULL
             && d->character->in_room->area == ch->in_room->area) {
@@ -741,7 +741,7 @@ void do_transfer(CharData* ch, char* argument)
     }
 
     if (!str_cmp(arg1, "all")) {
-        for (d = descriptor_list; d != NULL; d = d->next) {
+        FOR_EACH(d, descriptor_list) {
             if (d->connected == CON_PLAYING && d->character != ch
                 && d->character->in_room != NULL && can_see(ch, d->character)) {
                 char buf[MAX_STRING_LENGTH];
@@ -829,7 +829,7 @@ void do_at(CharData* ch, char* argument)
      * See if 'ch' still exists before continuing!
      * Handles 'at XXXX quit' case.
      */
-    for (wch = char_list; wch != NULL; wch = wch->next) {
+    FOR_EACH(wch, char_list) {
         if (wch == ch) {
             char_from_room(ch);
             char_to_room(ch, original);
@@ -858,7 +858,7 @@ void do_goto(CharData* ch, char* argument)
     }
 
     count = 0;
-    for (rch = location->people; rch != NULL; rch = rch->next_in_room) count++;
+    FOR_EACH_IN_ROOM(rch, location->people) count++;
 
     if (!is_room_owner(ch, location) && room_is_private(location)
         && (count > 1 || get_trust(ch) < MAX_LEVEL)) {
@@ -868,7 +868,7 @@ void do_goto(CharData* ch, char* argument)
 
     if (ch->fighting != NULL) stop_fighting(ch, true);
 
-    for (rch = ch->in_room->people; rch != NULL; rch = rch->next_in_room) {
+    FOR_EACH_IN_ROOM(rch, ch->in_room->people) {
         if (get_trust(rch) >= ch->invis_level) {
             if (ch->pcdata != NULL && ch->pcdata->bamfout[0] != '\0')
                 act("$t", ch, ch->pcdata->bamfout, rch, TO_VICT);
@@ -880,7 +880,7 @@ void do_goto(CharData* ch, char* argument)
     char_from_room(ch);
     char_to_room(ch, location);
 
-    for (rch = ch->in_room->people; rch != NULL; rch = rch->next_in_room) {
+    FOR_EACH_IN_ROOM(rch, ch->in_room->people) {
         if (get_trust(rch) >= ch->invis_level) {
             if (ch->pcdata != NULL && ch->pcdata->bamfin[0] != '\0')
                 act("$t", ch, ch->pcdata->bamfin, rch, TO_VICT);
@@ -915,7 +915,7 @@ void do_violate(CharData* ch, char* argument)
 
     if (ch->fighting != NULL) stop_fighting(ch, true);
 
-    for (rch = ch->in_room->people; rch != NULL; rch = rch->next_in_room) {
+    FOR_EACH_IN_ROOM(rch, ch->in_room->people) {
         if (get_trust(rch) >= ch->invis_level) {
             if (ch->pcdata != NULL && ch->pcdata->bamfout[0] != '\0')
                 act("$t", ch, ch->pcdata->bamfout, rch, TO_VICT);
@@ -927,7 +927,7 @@ void do_violate(CharData* ch, char* argument)
     char_from_room(ch);
     char_to_room(ch, location);
 
-    for (rch = ch->in_room->people; rch != NULL; rch = rch->next_in_room) {
+    FOR_EACH_IN_ROOM(rch, ch->in_room->people) {
         if (get_trust(rch) >= ch->invis_level) {
             if (ch->pcdata != NULL && ch->pcdata->bamfin[0] != '\0')
                 act("$t", ch, ch->pcdata->bamfin, rch, TO_VICT);
@@ -1037,7 +1037,7 @@ void do_rstat(CharData* ch, char* argument)
         ExtraDesc* ed;
 
         send_to_char("Extra description keywords: '", ch);
-        for (ed = location->extra_desc; ed; ed = ed->next) {
+        FOR_EACH(ed, location->extra_desc) {
             send_to_char(ed->keyword, ch);
             if (ed->next != NULL) send_to_char(" ", ch);
         }
@@ -1278,12 +1278,12 @@ void do_ostat(CharData* ch, char* argument)
 
         send_to_char("Extra description keywords: '", ch);
 
-        for (ed = obj->extra_desc; ed != NULL; ed = ed->next) {
+        FOR_EACH(ed, obj->extra_desc) {
             send_to_char(ed->keyword, ch);
             if (ed->next != NULL) send_to_char(" ", ch);
         }
 
-        for (ed = obj->prototype->extra_desc; ed != NULL; ed = ed->next) {
+        FOR_EACH(ed, obj->prototype->extra_desc) {
             send_to_char(ed->keyword, ch);
             if (ed->next != NULL) send_to_char(" ", ch);
         }
@@ -1291,7 +1291,7 @@ void do_ostat(CharData* ch, char* argument)
         send_to_char("'\n\r", ch);
     }
 
-    for (paf = obj->affected; paf != NULL; paf = paf->next) {
+    FOR_EACH(paf, obj->affected) {
         sprintf(buf, "Affects %s by %d, level %d",
                 affect_loc_name(paf->location), paf->modifier, paf->level);
         send_to_char(buf, ch);
@@ -1336,7 +1336,7 @@ void do_ostat(CharData* ch, char* argument)
     }
 
     if (!obj->enchanted)
-        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next) {
+        FOR_EACH(paf, obj->prototype->affected) {
             sprintf(buf, "Affects %s by %d, level %d.\n\r",
                     affect_loc_name(paf->location), paf->modifier, paf->level);
             send_to_char(buf, ch);
@@ -1547,7 +1547,7 @@ void do_mstat(CharData* ch, char* argument)
         send_to_char(buf, ch);
     }
 
-    for (paf = victim->affected; paf != NULL; paf = paf->next) {
+    FOR_EACH(paf, victim->affected) {
         sprintf(buf,
                 "Spell: '%s' modifies %s by %d for %d hours with bits %s, "
                 "level %d.\n\r",
@@ -1702,7 +1702,7 @@ void do_owhere(CharData* ch, char* argument)
         return;
     }
 
-    for (obj = object_list; obj != NULL; obj = obj->next) {
+    FOR_EACH(obj, object_list) {
         if (!can_see_obj(ch, obj) || !is_name(argument, obj->name)
             || ch->level < obj->level)
             continue;
@@ -1753,7 +1753,7 @@ void do_mwhere(CharData* ch, char* argument)
         /* show characters logged */
 
         buffer = new_buf();
-        for (d = descriptor_list; d != NULL; d = d->next) {
+        FOR_EACH(d, descriptor_list) {
             if (d->character != NULL && d->connected == CON_PLAYING
                 && d->character->in_room != NULL && can_see(ch, d->character)
                 && can_see_room(ch, d->character->in_room)) {
@@ -1779,7 +1779,7 @@ void do_mwhere(CharData* ch, char* argument)
 
     found = false;
     buffer = new_buf();
-    for (victim = char_list; victim != NULL; victim = victim->next) {
+    FOR_EACH(victim, char_list) {
         if (victim->in_room != NULL && is_name(argument, victim->name)) {
             found = true;
             count++;
@@ -1919,7 +1919,7 @@ void do_snoop(CharData* ch, char* argument)
         send_to_char("Cancelling all snoops.\n\r", ch);
         wiznet("$N stops being such a snoop.", ch, NULL, WIZ_SNOOPS, WIZ_SECURE,
                get_trust(ch));
-        for (d = descriptor_list; d != NULL; d = d->next) {
+        FOR_EACH(d, descriptor_list) {
             if (d->snoop_by == ch->desc) d->snoop_by = NULL;
         }
         return;
@@ -2475,7 +2475,7 @@ void do_restore(CharData* ch, char* argument)
     if (arg[0] == '\0' || !str_cmp(arg, "room")) {
         /* cure room */
 
-        for (vch = ch->in_room->people; vch != NULL; vch = vch->next_in_room) {
+        FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
             affect_strip(vch, gsn_plague);
             affect_strip(vch, gsn_poison);
             affect_strip(vch, gsn_blindness);
@@ -2499,7 +2499,7 @@ void do_restore(CharData* ch, char* argument)
     if (get_trust(ch) >= MAX_LEVEL - 1 && !str_cmp(arg, "all")) {
         /* cure all */
 
-        for (d = descriptor_list; d != NULL; d = d->next) {
+        FOR_EACH(d, descriptor_list) {
             victim = d->character;
 
             if (victim == NULL || IS_NPC(victim)) continue;
@@ -2768,7 +2768,7 @@ void do_peace(CharData* ch, char* argument)
 {
     CharData* rch;
 
-    for (rch = ch->in_room->people; rch != NULL; rch = rch->next_in_room) {
+    FOR_EACH_IN_ROOM(rch, ch->in_room->people) {
         if (rch->fighting != NULL) stop_fighting(rch, true);
         if (IS_NPC(rch) && IS_SET(rch->act_flags, ACT_AGGRESSIVE))
             REMOVE_BIT(rch->act_flags, ACT_AGGRESSIVE);
@@ -3606,7 +3606,7 @@ void do_sockets(CharData* ch, char* argument)
     buf[0] = '\0';
 
     one_argument(argument, arg);
-    for (d = descriptor_list; d != NULL; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         if (d->character != NULL && can_see(ch, d->character)
             && (arg[0] == '\0' || is_name(arg, d->character->name)
                 || (d->original && is_name(arg, d->original->name)))) {

@@ -156,7 +156,7 @@ HelpData* help_lookup(char* keyword)
         strcat(argall, temp);
     }
 
-    for (pHelp = help_first; pHelp != NULL; pHelp = pHelp->next)
+    FOR_EACH(pHelp, help_first)
         if (is_name(argall, pHelp->keyword))
             return pHelp;
 
@@ -167,7 +167,7 @@ HelpArea* had_lookup(char* arg)
 {
     HelpArea* temp;
 
-    for (temp = help_area_list; temp; temp = temp->next)
+    FOR_EACH(temp, help_area_list)
         if (!str_cmp(arg, temp->filename))
             return temp;
 

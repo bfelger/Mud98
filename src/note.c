@@ -70,7 +70,7 @@ int count_spool(CharData* ch, NoteData* spool)
     int count = 0;
     NoteData* pnote;
 
-    for (pnote = spool; pnote != NULL; pnote = pnote->next)
+    FOR_EACH(pnote, spool)
         if (!hide_note(ch, pnote)) count++;
 
     return count;
@@ -173,7 +173,7 @@ void save_notes(int type)
         break;
     }
 
-    for (; pnote != NULL; pnote = pnote->next) {
+    for (; pnote != NULL; NEXT_LINK(pnote)) {
         fprintf(fp, "Sender  %s~\n", pnote->sender);
         fprintf(fp, "Date    %s~\n", pnote->date);
         fprintf(fp, "Stamp   "TIME_FMT"\n", pnote->date_stamp);
@@ -303,7 +303,7 @@ void append_note(NoteData* pnote)
     if (*list == NULL)
         *list = pnote;
     else {
-        for (last = *list; last->next != NULL; last = last->next)
+        for (last = *list; last->next != NULL; NEXT_LINK(last))
             ;
         last->next = pnote;
     }
@@ -410,7 +410,7 @@ void note_remove(CharData* ch, NoteData* pnote, bool delete)
      */
     if (pnote == *list) { *list = pnote->next; }
     else {
-        for (prev = *list; prev != NULL; prev = prev->next) {
+        FOR_EACH(prev, *list) {
             if (prev->next == pnote) 
                 break;
         }
@@ -549,7 +549,7 @@ void parse_note(CharData* ch, char* argument, int16_t type)
         else if (argument[0] == '\0' || !str_prefix(argument, "next")) {
             // read next unread note
             vnum = 0;
-            for (pnote = *list; pnote != NULL; pnote = pnote->next) {
+            FOR_EACH(pnote, *list) {
                 if (!hide_note(ch, pnote)) {
                     sprintf(buf, "[%3d] %s: %s\n\r%s\n\rTo: %s\n\r", vnum,
                             pnote->sender, pnote->subject, pnote->date,
@@ -577,7 +577,7 @@ void parse_note(CharData* ch, char* argument, int16_t type)
         }
 
         vnum = 0;
-        for (pnote = *list; pnote != NULL; pnote = pnote->next) {
+        FOR_EACH(pnote, *list) {
             if (is_note_to(ch, pnote) && (vnum++ == anum || fAll)) {
                 sprintf(buf, "[%3d] %s: %s\n\r%s\n\rTo: %s\n\r", vnum - 1,
                         pnote->sender, pnote->subject, pnote->date,
@@ -596,7 +596,7 @@ void parse_note(CharData* ch, char* argument, int16_t type)
 
     if (!str_prefix(arg, "list")) {
         vnum = 0;
-        for (pnote = *list; pnote != NULL; pnote = pnote->next) {
+        FOR_EACH(pnote, *list) {
             if (is_note_to(ch, pnote)) {
                 sprintf(buf, "[%3d%s] %s: %s\n\r", vnum,
                         hide_note(ch, pnote) ? " " : "N", pnote->sender,
@@ -635,7 +635,7 @@ void parse_note(CharData* ch, char* argument, int16_t type)
 
         anum = atoi(argument);
         vnum = 0;
-        for (pnote = *list; pnote != NULL; pnote = pnote->next) {
+        FOR_EACH(pnote, *list) {
             if (is_note_to(ch, pnote) && vnum++ == anum) {
                 note_remove(ch, pnote, false);
                 send_to_char("Ok.\n\r", ch);
@@ -656,7 +656,7 @@ void parse_note(CharData* ch, char* argument, int16_t type)
 
         anum = atoi(argument);
         vnum = 0;
-        for (pnote = *list; pnote != NULL; pnote = pnote->next) {
+        FOR_EACH(pnote, *list) {
             if (is_note_to(ch, pnote) && vnum++ == anum) {
                 note_remove(ch, pnote, true);
                 send_to_char("Ok.\n\r", ch);
@@ -861,7 +861,7 @@ NoteData* new_note()
         note = alloc_perm(sizeof(*note));
     else {
         note = note_free;
-        note_free = note_free->next;
+        NEXT_LINK(note_free);
     }
     VALIDATE(note);
     return note;

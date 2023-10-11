@@ -94,6 +94,7 @@ const struct mob_cmd_type mob_cmd_table[] = {
     { "call",       do_mpcall       },
     { "flee",       do_mpflee       },
     { "remove",     do_mpremove     },
+    { "quest",      do_mpquest      },
     { "",           0               }
 };
 
@@ -162,7 +163,7 @@ char* mprog_type_to_name(MobProgTrigger type)
  */
 void do_mpstat(CharData* ch, char* argument)
 {
-    char        arg[MAX_STRING_LENGTH];
+    char arg[MAX_STRING_LENGTH];
     MobProg* mprg;
     CharData* victim;
     int i;
@@ -204,10 +205,8 @@ void do_mpstat(CharData* ch, char* argument)
         return;
     }
 
-    for (i = 0, mprg = victim->prototype->mprogs; mprg != NULL;
-        mprg = mprg->next)
-
-    {
+    i = 0;
+    FOR_EACH(mprg, victim->prototype->mprogs) {
         sprintf(arg, "[%2d] Trigger [%-8s] Program [%4d] Phrase [%s]\n\r",
             ++i,
             mprog_type_to_name(mprg->trig_type),
@@ -215,9 +214,6 @@ void do_mpstat(CharData* ch, char* argument)
             mprg->trig_phrase);
         send_to_char(arg, ch);
     }
-
-    return;
-
 }
 
 /*
@@ -253,7 +249,7 @@ void do_mpgecho(CharData* ch, char* argument)
         return;
     }
 
-    for (d = descriptor_list; d; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         if (d->connected == CON_PLAYING) {
             if (IS_IMMORTAL(d->character))
                 send_to_char("Mob echo> ", d->character);
@@ -281,7 +277,7 @@ void do_mpzecho(CharData* ch, char* argument)
     if (ch->in_room == NULL)
         return;
 
-    for (d = descriptor_list; d; d = d->next) {
+    FOR_EACH(d, descriptor_list) {
         if (d->connected == CON_PLAYING
             && d->character->in_room != NULL
             && d->character->in_room->area == ch->in_room->area) {
@@ -711,7 +707,7 @@ void do_mpat(CharData* ch, char* argument)
      * See if 'ch' still exists before continuing!
      * Handles 'at XXXX quit' case.
      */
-    for (wch = char_list; wch != NULL; wch = wch->next) {
+    FOR_EACH(wch, char_list) {
         if (wch == ch) {
             char_from_room(ch);
             char_to_room(ch, original);
@@ -946,7 +942,6 @@ void do_mpvforce(CharData* ch, char* argument)
     }
     return;
 }
-
 
 /*
  * Lets the mobile cast spells --
@@ -1299,5 +1294,44 @@ void do_mpremove(CharData* ch, char* argument)
             obj_from_char(obj);
             extract_obj(obj);
         }
+    }
+}
+
+void do_mpquest(CharData* ch, char* argument)
+{
+    char cmd[MIL];
+    char name[MIL];
+    char vnum_str[MIL];
+    CharData* vch;
+
+    READ_ARG(cmd);
+    if (!cmd[0])
+        return;
+
+    READ_ARG(name);
+    if ((vch = get_char_room(ch, name)) == NULL)
+        return;
+
+    if (!vch->pcdata)
+        return;
+
+    READ_ARG(vnum_str);
+    if (!vnum_str[0] || !is_number(vnum_str))
+        return;
+
+    VNUM vnum = STRTOVNUM(vnum_str);
+
+    Quest* q = get_quest(vnum);
+    QuestStatus* qs = get_quest_status(vch, vnum);
+
+    if (!str_cmp(cmd, "grant")) {
+        if (qs)
+            return;
+        grant_quest(vch, q);
+    }
+    else if (!str_cmp(cmd, "finish")) {
+        if (!qs)
+            return;
+        finish_quest(vch, q, qs);
     }
 }

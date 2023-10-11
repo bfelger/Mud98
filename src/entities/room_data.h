@@ -49,22 +49,6 @@ typedef enum room_flags_t {
     ROOM_RECALL         = BIT(20),
 } RoomFlags;
 
-// Sector
-typedef enum sector_t {
-    SECT_INSIDE         = 0,
-    SECT_CITY           = 1,
-    SECT_FIELD          = 2,
-    SECT_FOREST         = 3,
-    SECT_HILLS          = 4,
-    SECT_MOUNTAIN       = 5,
-    SECT_WATER_SWIM     = 6,
-    SECT_WATER_NOSWIM   = 7,
-    SECT_UNUSED         = 8,
-    SECT_AIR            = 9,
-    SECT_DESERT         = 10,
-    SECT_MAX
-} Sector;
-
 typedef struct room_data_t {
     RoomData* next;
     CharData* people;
@@ -92,7 +76,6 @@ RoomData* get_room_data(VNUM vnum);
 RoomData* new_room_index();
 
 extern RoomData* room_index_hash[MAX_KEY_HASH];
-extern const int16_t movement_loss[SECT_MAX];
 
 extern int top_room;
 extern VNUM top_vnum_room;

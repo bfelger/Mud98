@@ -113,7 +113,7 @@ int count_users(ObjectData* obj)
     if (obj->in_room == NULL) 
         return 0;
 
-    for (fch = obj->in_room->people; fch != NULL; fch = fch->next_in_room)
+    FOR_EACH_IN_ROOM(fch, obj->in_room->people)
         if (fch->on == obj) 
             count++;
 
@@ -461,7 +461,7 @@ void reset_char(CharData* ch)
             if (obj == NULL) continue;
             if (!obj->enchanted)
                 for (af = obj->prototype->affected; af != NULL;
-                     af = af->next) {
+                     NEXT_LINK(af)) {
                     mod = af->modifier;
                     switch (af->location) {
                     case APPLY_SEX:
@@ -483,7 +483,7 @@ void reset_char(CharData* ch)
                     }
                 }
 
-            for (af = obj->affected; af != NULL; af = af->next) {
+            FOR_EACH(af, obj->affected) {
                 mod = af->modifier;
                 switch (af->location) {
                 case APPLY_SEX:
@@ -543,7 +543,7 @@ void reset_char(CharData* ch)
             ch->armor[i] -= (int16_t)apply_ac(obj, loc, i);
 
         if (!obj->enchanted) {
-            for (af = obj->prototype->affected; af != NULL; af = af->next) {
+            FOR_EACH(af, obj->prototype->affected) {
                 mod = af->modifier;
                 switch (af->location) {
                 case APPLY_STR:
@@ -603,7 +603,7 @@ void reset_char(CharData* ch)
             }
         }
 
-        for (af = obj->affected; af != NULL; af = af->next) {
+        FOR_EACH(af, obj->affected) {
             mod = af->modifier;
             switch (af->location) {
             case APPLY_STR:
@@ -667,7 +667,7 @@ void reset_char(CharData* ch)
     }
 
     /* now add back spell effects */
-    for (af = ch->affected; af != NULL; af = af->next) {
+    FOR_EACH(af, ch->affected) {
         mod = af->modifier;
         switch (af->location) {
         case APPLY_STR:
@@ -994,11 +994,13 @@ void char_to_room(CharData* ch, RoomData* room)
         update_mdsp_room(ch);
 
     if (!IS_NPC(ch)) {
-        if (ch->in_room->area->empty) {
-            ch->in_room->area->empty = false;
-            ch->in_room->area->age = 0;
+        AreaData* area = ch->in_room->area;
+        if (area->empty) {
+            area->empty = false;
+            if (!area->always_reset)
+                area->reset_timer = 0;
         }
-        ++ch->in_room->area->nplayer;
+        ++area->nplayer;
     }
 
     if ((obj = get_eq_char(ch, WEAR_LIGHT)) != NULL
@@ -1010,7 +1012,7 @@ void char_to_room(CharData* ch, RoomData* room)
         AffectData plague = { 0 };
         CharData* vch;
 
-        for (af = ch->affected; af != NULL; af = af->next) {
+        FOR_EACH(af, ch->affected) {
             if (af->type == gsn_plague) break;
         }
 
@@ -1030,7 +1032,7 @@ void char_to_room(CharData* ch, RoomData* room)
         plague.modifier = -5;
         plague.bitvector = AFF_PLAGUE;
 
-        for (vch = ch->in_room->people; vch != NULL; vch = vch->next_in_room) {
+        FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
             if (!saves_spell(plague.level - 2, vch, DAM_DISEASE)
                 && !IS_IMMORTAL(vch) && !IS_AFFECTED(vch, AFF_PLAGUE)
                 && number_bits(6) == 0) {
@@ -1187,10 +1189,10 @@ void equip_char(CharData* ch, ObjectData* obj, WearLocation iWear)
     obj->wear_loc = iWear;
 
     if (!obj->enchanted)
-        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next)
+        FOR_EACH(paf, obj->prototype->affected)
             if (paf->location != APPLY_SPELL_AFFECT)
                 affect_modify(ch, paf, true);
-    for (paf = obj->affected; paf != NULL; paf = paf->next)
+    FOR_EACH(paf, obj->affected)
         if (paf->location == APPLY_SPELL_AFFECT)
             affect_to_char(ch, paf);
         else
@@ -1222,7 +1224,7 @@ void unequip_char(CharData* ch, ObjectData* obj)
     obj->wear_loc = -1;
 
     if (!obj->enchanted) {
-        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next) {
+        FOR_EACH(paf, obj->prototype->affected) {
             if (paf->location == APPLY_SPELL_AFFECT) {
                 for (lpaf = ch->affected; lpaf != NULL; lpaf = lpaf_next) {
                     lpaf_next = lpaf->next;
@@ -1240,7 +1242,7 @@ void unequip_char(CharData* ch, ObjectData* obj)
         }
     }
 
-    for (paf = obj->affected; paf != NULL; paf = paf->next) {
+    FOR_EACH(paf, obj->affected) {
         if (paf->location == APPLY_SPELL_AFFECT) {
             bug("Norm-Apply: %d", 0);
             for (lpaf = ch->affected; lpaf != NULL; lpaf = lpaf_next) {
@@ -1299,7 +1301,7 @@ void obj_from_room(ObjectData* obj)
         return;
     }
 
-    for (ch = in_room->people; ch != NULL; ch = ch->next_in_room)
+    FOR_EACH_IN_ROOM(ch, in_room->people)
         if (ch->on == obj)
             ch->on = NULL;
 
@@ -1434,7 +1436,7 @@ void extract_obj(ObjectData* obj)
     else {
         ObjectData* prev;
 
-        for (prev = object_list; prev != NULL; prev = prev->next) {
+        FOR_EACH(prev, object_list) {
             if (prev->next == obj) {
                 prev->next = obj->next;
                 break;
@@ -1500,7 +1502,7 @@ void extract_char(CharData* ch, bool fPull)
         ch->desc = NULL;
     }
 
-    for (wch = char_list; wch != NULL; wch = wch->next) {
+    FOR_EACH(wch, char_list) {
         if (wch->reply == ch) 
             wch->reply = NULL;
         // TODO: Is this right?
@@ -1515,7 +1517,7 @@ void extract_char(CharData* ch, bool fPull)
     else {
         CharData* prev;
 
-        for (prev = char_list; prev != NULL; prev = prev->next) {
+        FOR_EACH(prev, char_list) {
             if (prev->next == ch) {
                 prev->next = ch->next;
                 break;
@@ -1547,7 +1549,7 @@ CharData* get_char_room(CharData* ch, char* argument)
     number = number_argument(argument, arg);
     count = 0;
     if (!str_cmp(arg, "self")) return ch;
-    for (rch = ch->in_room->people; rch != NULL; rch = rch->next_in_room) {
+    FOR_EACH_IN_ROOM(rch, ch->in_room->people) {
         if (!can_see(ch, rch) || !is_name(arg, rch->name)) continue;
         if (++count == number) return rch;
     }
@@ -1570,7 +1572,7 @@ CharData* get_char_world(CharData* ch, char* argument)
 
     number = number_argument(argument, arg);
     count = 0;
-    for (wch = char_list; wch != NULL; wch = wch->next) {
+    FOR_EACH(wch, char_list) {
         if (wch->in_room == NULL || !can_see(ch, wch)
             || !is_name(arg, wch->name))
             continue;
@@ -1589,7 +1591,7 @@ ObjectData* get_obj_type(ObjectPrototype* obj_proto)
 {
     ObjectData* obj;
 
-    for (obj = object_list; obj != NULL; obj = obj->next) {
+    FOR_EACH(obj, object_list) {
         if (obj->prototype == obj_proto) return obj;
     }
 
@@ -1692,7 +1694,7 @@ ObjectData* get_obj_world(CharData* ch, char* argument)
 
     number = number_argument(argument, arg);
     count = 0;
-    for (obj = object_list; obj != NULL; obj = obj->next) {
+    FOR_EACH(obj, object_list) {
         if (can_see_obj(ch, obj) && is_name(arg, obj->name)) {
             if (++count == number) return obj;
         }
@@ -1863,7 +1865,7 @@ bool room_is_private(RoomData* pRoomIndex)
     if (pRoomIndex->owner != NULL && pRoomIndex->owner[0] != '\0') return true;
 
     count = 0;
-    for (rch = pRoomIndex->people; rch != NULL; rch = rch->next_in_room)
+    FOR_EACH_IN_ROOM(rch, pRoomIndex->people)
         count++;
 
     if (IS_SET(pRoomIndex->room_flags, ROOM_PRIVATE) && count >= 2) return true;
@@ -2419,7 +2421,7 @@ int get_vnum_mob_name_area(char* name, AreaData* pArea)
     MobPrototype* mob;
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++)
-        for (mob = mob_prototype_hash[hash]; mob; mob = mob->next)
+        FOR_EACH(mob, mob_prototype_hash[hash])
             if (mob->area == pArea
                 && !str_prefix(name, mob->name))
                 return mob->vnum;
@@ -2433,7 +2435,7 @@ int get_vnum_obj_name_area(char* name, AreaData* pArea)
     ObjectPrototype* obj;
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++)
-        for (obj = object_prototype_hash[hash]; obj; obj = obj->next)
+        FOR_EACH(obj, object_prototype_hash[hash])
             if (obj->area == pArea
                 && !str_prefix(name, obj->name))
                 return obj->vnum;

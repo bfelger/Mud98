@@ -61,7 +61,7 @@ void affect_check(CharData* ch, Where where, int vector)
 
     if (where == TO_OBJECT || where == TO_WEAPON || vector == 0) return;
 
-    for (paf = ch->affected; paf != NULL; paf = paf->next)
+    FOR_EACH(paf, ch->affected)
         if (paf->where == where && paf->bitvector == vector) {
             switch (where) {
             case TO_AFFECTS:
@@ -87,7 +87,7 @@ void affect_check(CharData* ch, Where where, int vector)
     for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
         if (obj->wear_loc == -1) continue;
 
-        for (paf = obj->affected; paf != NULL; paf = paf->next)
+        FOR_EACH(paf, obj->affected)
             if (paf->where == where && paf->bitvector == vector) {
                 switch (where) {
                 case TO_AFFECTS:
@@ -112,7 +112,7 @@ void affect_check(CharData* ch, Where where, int vector)
 
         if (obj->enchanted) continue;
 
-        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next)
+        FOR_EACH(paf, obj->prototype->affected)
             if (paf->where == where && paf->bitvector == vector) {
                 switch (where) {
                 case TO_AFFECTS:
@@ -145,7 +145,7 @@ void affect_enchant(ObjectData* obj)
         AffectData* paf, * af_new;
         obj->enchanted = true;
 
-        for (paf = obj->prototype->affected; paf != NULL; paf = paf->next) {
+        FOR_EACH(paf, obj->prototype->affected) {
             af_new = new_affect();
 
             af_new->next = obj->affected;
@@ -167,7 +167,7 @@ AffectData* affect_find(AffectData* paf, SKNUM sn)
 {
     AffectData* paf_find;
 
-    for (paf_find = paf; paf_find != NULL; paf_find = paf_find->next) {
+    FOR_EACH(paf_find, paf) {
         if (paf_find->type == sn) return paf_find;
     }
 
@@ -179,7 +179,7 @@ void affect_join(CharData* ch, AffectData* paf)
 {
     AffectData* paf_old;
 
-    for (paf_old = ch->affected; paf_old != NULL; paf_old = paf_old->next) {
+    FOR_EACH(paf_old, ch->affected) {
         if (paf_old->type == paf->type) {
             //paf->level = (paf->level += paf_old->level) / 2;
             LEVEL level_mod;
@@ -435,7 +435,7 @@ void affect_remove(CharData* ch, AffectData* paf)
     else {
         AffectData* prev;
 
-        for (prev = ch->affected; prev != NULL; prev = prev->next) {
+        FOR_EACH(prev, ch->affected) {
             if (prev->next == paf) {
                 prev->next = paf->next;
                 break;
@@ -486,7 +486,7 @@ void affect_remove_obj(ObjectData* obj, AffectData* paf)
     else {
         AffectData* prev;
 
-        for (prev = obj->affected; prev != NULL; prev = prev->next) {
+        FOR_EACH(prev, obj->affected) {
             if (prev->next == paf) {
                 prev->next = paf->next;
                 break;
@@ -574,7 +574,7 @@ bool is_affected(CharData* ch, SKNUM sn)
 {
     AffectData* paf;
 
-    for (paf = ch->affected; paf != NULL; paf = paf->next) {
+    FOR_EACH(paf, ch->affected) {
         if (paf->type == sn) 
             return true;
     }
@@ -591,7 +591,7 @@ AffectData* new_affect()
         af = alloc_perm(sizeof(*af));
     else {
         af = affect_free;
-        affect_free = affect_free->next;
+        NEXT_LINK(affect_free);
     }
 
     *af = af_zero;
