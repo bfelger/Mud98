@@ -192,8 +192,8 @@ It trickles along the ground and gets your feet wet.
 ~
 water fowl~
 AG 0 0 0
-8 0 2d7+96 4d9+100 1d7+2 none
-3 3 3 9
+22 0 5d10+400 22d12+100 4d4+6 none
+-5 -5 -5 -4
 EFNR 0 0 0
 stand stand none 11
 0 0 medium '0'
@@ -206,8 +206,8 @@ It smolders along the grass aimlessly.
 ~
 human~
 AG 0 0 0
-4 0 2d7+46 2d9+100 1d5+1 none
-6 6 6 9
+13 0 2d10+170 13d11+100 2d5+3 none
+-1 -1 -1 1
 EFNU 0 0 0
 stand stand none 7
 0 0 medium '0'
@@ -234,7 +234,7 @@ It seems to be a small living pebble!
 ~
 human~
 AG 0 0 0
-3 0 2d6+35 1d9+100 1d6+0 none
+4 0 2d6+35 1d9+100 1d6+0 none
 7 7 7 10
 EFNU 0 0 0
 stand stand none 4
@@ -248,8 +248,8 @@ Zipping from place to place at the speed of light is tough work.
 ~
 human~
 AG 0 0 0
-4 0 2d7+46 2d9+100 1d5+1 none
-6 6 6 9
+24 0 5d10+500 24d13+100 2d10+6 none
+-6 -6 -6 -5
 EFNU 0 0 0
 stand stand none 7
 0 0 medium '0'
@@ -346,8 +346,8 @@ The magical eddie current is a manifestation of an air elemental.
 ~
 human~
 AGS DF 0 0
-2 0 2d6+10 1d9+100 1d4+0 none
-9 9 9 10
+24 16 5d10+450 24d13+100 3d6+6 none
+-6 -6 -6 -5
 BEFJNU 0 0 0
 stand stand none 1
 0 0 medium '0'
@@ -389,8 +389,8 @@ A humanoid figure encased in ice but still apparently alive.
 ~
 human~
 ABGH P -250 0
-24 0 5d10+500 12d9+100 2d10+6 none
--6 -6 -6 6
+25 0 5d10+550 25d13+100 2d10+7 none
+-7 -7 -7 -5
 EFNU 0 0 0
 stand stand none 1500
 0 0 medium '0'
@@ -477,8 +477,8 @@ Rare herbs are rumored to grow only in the canyon.
 ~
 human~
 AGS DF -50 0
-13 0 2d10+150 6d9+100 1d10+3 none
-0 0 0 7
+24 16 5d10+450 24d13+100 3d6+6 none
+-6 -6 -6 -5
 BEFJNU 0 0 0
 stand stand none 95
 0 0 medium '0'
@@ -491,8 +491,8 @@ It's only a baby by dragon standards.
 ~
 human~
 ABG DF 0 0
-16 0 3d9+233 8d9+100 2d6+4 none
--2 -2 -2 7
+22 0 5d10+400 22d12+100 4d4+6 none
+-5 -5 -5 -4
 EFNU 0 0 0
 stand stand none 500
 0 0 medium '0'

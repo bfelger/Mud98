@@ -54,8 +54,8 @@ Justice Department.
 ~
 human~
 ABF D 0 0
-17 0 3d9+258 8d9+100 3d4+4 none
--3 -3 -3 7
+10 0 2d7+121 10d11+100 2d4+2 none
+1 1 1 4
 EFNU 0 0 0
 stand stand male 0
 0 0 medium '0'
@@ -334,8 +334,8 @@ a Hoover vacuum cleaner~
 A Hoover vacuum cleaner is here idling.~
 oldstyle~
 weapon B AN
-exotic 4 4 'suction' F
-15 100 2100 P
+exotic 4 5 'suction' F
+13 100 2100 P
 E
 vacuum cleaner~
 This vacuum looks well built and will last you many years of

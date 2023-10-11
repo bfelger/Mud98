@@ -611,14 +611,20 @@ ED_FUN_DEC(ed_flag_toggle)
     FLAGS value;
 
     if (!emptystring(argument)) {
-        if ((value = flag_value((struct flag_type*)par, argument)) != NO_FLAG) {
-            *(FLAGS*)arg ^= value;
-
-            printf_to_char(ch, "%c%s flag toggled.\n\r",
-                toupper(n_fun[0]),
-                &n_fun[1]);
-            return true;
+        char flag_str[MIL];
+        READ_ARG(flag_str);
+        bool found = false;
+        while (flag_str[0]) {
+            if ((value = flag_value((struct flag_type*)par, flag_str)) != NO_FLAG) {
+                *(FLAGS*)arg ^= value;
+                printf_to_char(ch, "%c%s flag toggled.\n\r", toupper(n_fun[0]), &n_fun[1]);
+                found = true;
+            }
+            else
+                printf_to_char(ch, "Unknown flag '%s'.\n\r", flag_str);
+            READ_ARG(flag_str);
         }
+        return found;
     }
 
     INIT_BUF(set_out, MSL);
@@ -686,7 +692,7 @@ ED_FUN_DEC(ed_flag_set_sh)
         }
     }
 
-    printf_to_char(ch, "Syntax : {*%s [flags]{x\n\r", n_fun);
+    printf_to_char(ch, "{jSyntax : {*%s [flags]{x\n\r", n_fun);
     show_flags_to_char(ch, (struct flag_type*)par);
 
     return false;

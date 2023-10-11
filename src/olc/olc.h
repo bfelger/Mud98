@@ -140,6 +140,7 @@ typedef struct olc_cmd_entry_t {
     const uintptr_t parameter;
 } OlcCmdEntry;
 
+extern const OlcCmdEntry area_olc_comm_table[];
 extern const OlcCmdEntry mob_olc_comm_table[];
 extern const OlcCmdEntry obj_olc_comm_table[];
 extern const OlcCmdEntry room_olc_comm_table[];
@@ -177,13 +178,13 @@ char* olc_ed_vnum(CharData* ch);
 /*
  * Interpreter Table Prototypes
  */
-extern const OlcCmd aedit_table[];
+//extern const OlcCmd aedit_table[];
 extern const OlcCmd raedit_table[];
 extern const OlcCmd gedit_table[];
 extern const OlcCmd hedit_table[];
-extern const OlcCmd cedit_table[];
 
 // Dummy objects needed for calc'ing field offsets
+extern AreaData xArea;
 extern Class xClass;
 extern CmdInfo xCmd;
 extern MobProgCode xProg;
@@ -225,16 +226,14 @@ bool show_version(CharData* ch, char* argument);
  */
 DECLARE_OLC_FUN(aedit_show);
 DECLARE_OLC_FUN(aedit_create);
-DECLARE_OLC_FUN(aedit_name);
 DECLARE_OLC_FUN(aedit_file);
-DECLARE_OLC_FUN(aedit_age);
 DECLARE_OLC_FUN(aedit_reset);
 DECLARE_OLC_FUN(aedit_security);
 DECLARE_OLC_FUN(aedit_builder);
-DECLARE_OLC_FUN(aedit_vnum);
+DECLARE_OLC_FUN(aedit_levels);
+DECLARE_OLC_FUN(aedit_vnums);
 DECLARE_OLC_FUN(aedit_lvnum);
 DECLARE_OLC_FUN(aedit_uvnum);
-DECLARE_OLC_FUN(aedit_credits);
 DECLARE_OLC_FUN(aedit_lowrange);
 DECLARE_OLC_FUN(aedit_highrange);
 
@@ -265,6 +264,7 @@ DECLARE_OLC_FUN(oedit_addaffect);
 DECLARE_OLC_FUN(oedit_delaffect);
 DECLARE_OLC_FUN(oedit_addapply);
 DECLARE_OLC_FUN(oedit_addoprog);
+DECLARE_OLC_FUN(oedit_copy);
 
 /* Mob editor. */
 DECLARE_OLC_FUN(medit_show);
@@ -368,6 +368,7 @@ DECLARE_OLC_FUN(hedit_list);
 DECLARE_OLC_FUN(qedit_create);
 DECLARE_OLC_FUN(qedit_show);
 DECLARE_OLC_FUN(qedit_target);
+DECLARE_OLC_FUN(qedit_upper);
 DECLARE_OLC_FUN(qedit_end);
 
 /*

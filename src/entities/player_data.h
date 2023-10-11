@@ -18,6 +18,8 @@ typedef struct player_data_t PlayerData;
 
 #include "char_data.h"
 
+#include "data/quest.h"
+
 typedef struct color_config_t {
     char* current_theme_name;   // For lazy-loading and discardability
     bool hide_256;          // Whether to show these higher-bit themes. Some

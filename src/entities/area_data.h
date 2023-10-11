@@ -15,7 +15,9 @@ typedef struct area_data_t AreaData;
 #include <stdio.h>
 
 #include "help_data.h"
+#include "room_data.h"
 
+#include "data/direction.h"
 #include "data/quest.h"
 
 typedef enum area_flags_t {
@@ -39,10 +41,13 @@ typedef struct area_data_t {
     VNUM min_vnum;
     VNUM max_vnum;
     bool empty;
-    char* builders;     // OLC
-    VNUM vnum;          // OLC
-    FLAGS area_flags;   // OLC
-    int16_t age;
+    char* builders;  
+    VNUM vnum;
+    Sector sector;
+    FLAGS area_flags;
+    int16_t reset_thresh;
+    int16_t reset_timer;
+    bool always_reset;
 } AreaData;
 
 AreaData* new_area();

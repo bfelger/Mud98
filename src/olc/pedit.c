@@ -110,8 +110,8 @@ void do_pedit(CharData* ch, char* argument)
             return;
         }
 
-        pedit_create(ch, argument);
-        pedit_show(ch, "");
+        if (pedit_create(ch, argument))
+            pedit_show(ch, "");
         return;
     }
 

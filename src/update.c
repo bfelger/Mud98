@@ -906,7 +906,7 @@ void aggr_update(void)
  * Random times to defeat tick-timing clients and players.
  */
 
-void update_handler(void)
+void update_handler()
 {
     static int pulse_area;
     static int pulse_mobile;

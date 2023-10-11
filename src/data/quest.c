@@ -16,6 +16,7 @@ int top_quest = 0;
 
 const struct flag_type quest_type_table[] = {
     { "visit_mob",      QUEST_VISIT_MOB,    true    },
+    { "kill_mob",       QUEST_KILL_MOB,     true    },
     { NULL,             0,                  0       }
 };
 
@@ -31,10 +32,12 @@ const SaveTableEntry quest_save_table[] = {
     { "vnum",	        FIELD_VNUM,             U(&tmp_quest.vnum),	        0,		            0   },
     { "entry",	        FIELD_STRING,           U(&tmp_quest.entry),	    0,		            0   },
     { "type",		    FIELD_INT16_FLAGSTRING,	U(&tmp_quest.type),	        U(quest_type_table),0   },
-    { "xp",             FIELD_INT,              U(&tmp_quest.xp),           0,                  0   },
+    { "xp",             FIELD_INT16,            U(&tmp_quest.xp),           0,                  0   },
     { "level",          FIELD_INT16,            U(&tmp_quest.level),        0,                  0   },
     { "end",            FIELD_VNUM,             U(&tmp_quest.end),          0,                  0   },
     { "target",         FIELD_VNUM,             U(&tmp_quest.target),       0,                  0   },
+    { "upper",          FIELD_VNUM,             U(&tmp_quest.target_upper), 0,                  0   },
+    { "count",          FIELD_INT16,            U(&tmp_quest.amount),       0,                  0   },
     { NULL,		        0,				        0,			                0,		            0   }
 };
 
@@ -67,7 +70,9 @@ Quest* new_quest()
 }
 QuestLog* new_quest_log()
 {
-    QuestLog* ql = alloc_mem(sizeof(QuestLog));
+    static QuestLog ql_zero = { 0 };
+    ALLOC(QuestLog, ql);
+    *ql = ql_zero;
     ql->target_mobs = NULL;
     ql->target_objs = NULL;
     return ql;
@@ -98,6 +103,12 @@ void free_quest_log(QuestLog* quest_log)
         free_mem(t, sizeof(QuestTarget));
     }
 
+    while (quest_log->target_ends) {
+        t = quest_log->target_ends;
+        NEXT_LINK(quest_log->target_ends);
+        free_mem(t, sizeof(QuestTarget));
+    }
+
     free_mem(quest_log, sizeof(QuestLog));
 }
 
@@ -121,7 +132,21 @@ QuestTarget* get_quest_targ_mob(CharData* ch, VNUM target_vnum)
     if (IS_NPC(ch) || !ch->pcdata)
         return 0;
 
-    ORDERED_GET(QuestTarget, qt, ch->pcdata->quest_log->target_mobs, target_vnum, target_vnum);
+    {
+        QuestTarget* temp_qt; 
+        FOR_EACH(temp_qt, ch->pcdata->quest_log->target_mobs) {
+            if (temp_qt->target_vnum == target_vnum 
+                || (temp_qt->type == QUEST_KILL_MOB 
+                    && temp_qt->target_upper > temp_qt->target_vnum
+                    && target_vnum >= temp_qt->target_vnum
+                    && target_vnum <= temp_qt->target_upper)) {
+                qt = temp_qt; 
+                break;
+            }
+            else if (temp_qt->target_vnum > target_vnum) 
+                break;
+        }
+    };
 
     if (qt == NULL)
         return 0;
@@ -144,14 +169,29 @@ QuestTarget* get_quest_targ_obj(CharData* ch, VNUM target_vnum)
     return qt;
 }
 
-QuestStatus* get_quest_status(CharData* ch, VNUM vnum)
+QuestTarget* get_quest_targ_end(CharData* ch, VNUM end_vnum)
+{
+    QuestTarget* qt = NULL;
+
+    if (IS_NPC(ch) || !ch->pcdata)
+        return 0;
+
+    ORDERED_GET(QuestTarget, qt, ch->pcdata->quest_log->target_ends, target_vnum, end_vnum);
+
+    if (qt == NULL)
+        return 0;
+
+    return qt;
+}
+
+QuestStatus* get_quest_status(CharData* ch, VNUM quest_vnum)
 {
     QuestStatus* qs = NULL;
 
     if (IS_NPC(ch) || !ch->pcdata)
         return NULL;
 
-    ORDERED_GET(QuestStatus, qs, ch->pcdata->quest_log->quests, vnum, vnum);
+    ORDERED_GET(QuestStatus, qs, ch->pcdata->quest_log->quests, vnum, quest_vnum);
 
     return qs;
 }
@@ -165,7 +205,16 @@ static void remove_quest_target(CharData* ch, Quest* quest)
         if (qt)
             free_mem(qt, sizeof(QuestTarget));
         break;
+    case QUEST_KILL_MOB:
+        UNORDERED_REMOVE(QuestTarget, qt, ch->pcdata->quest_log->target_mobs, quest_vnum, quest->vnum);
+        if (qt)
+            free_mem(qt, sizeof(QuestTarget));
+        break;
     }
+
+    UNORDERED_REMOVE(QuestTarget, qt, ch->pcdata->quest_log->target_ends, quest_vnum, quest->vnum);
+    if (qt)
+        free_mem(qt, sizeof(QuestTarget));
 }
 
 void finish_quest(CharData* ch, Quest* quest, QuestStatus* status)
@@ -174,7 +223,7 @@ void finish_quest(CharData* ch, Quest* quest, QuestStatus* status)
         return;
 
     status->state = QSTAT_COMPLETE;
-    printf_to_char(ch, "{_You have completed the quest, \"{*%s{_\".{x\n\r", quest->name);
+    printf_to_char(ch, "{jYou have completed the quest, \"{*%s{j\".{x\n\r", quest->name);
         
     remove_quest_target(ch, quest);
 
@@ -185,15 +234,31 @@ void finish_quest(CharData* ch, Quest* quest, QuestStatus* status)
         xp = quest->xp - (quest->xp * (ch->level - quest->level)) / 10;
 
     if (xp > 0) {
-        printf_to_char(ch, "{_You have been awarded {*%d{_ xp.{x\n\r", xp);
+        printf_to_char(ch, "{jYou have been awarded {*%d{j xp.{x\n\r", xp);
         gain_exp(ch, xp);
+    }
+}
+static QuestTarget x_qt = { 0 };
+
+static void add_target(QuestLog* qlog, Quest* quest, VNUM target_vnum)
+{
+    ALLOC(QuestTarget, qt);
+    *qt = x_qt;
+    qt->quest_vnum = quest->vnum;
+    qt->type = quest->type;
+    qt->target_vnum = target_vnum;
+
+    switch (quest->type) {
+    case QUEST_VISIT_MOB:
+    case QUEST_KILL_MOB:
+        ORDERED_INSERT(QuestTarget, qt, qlog->target_mobs, target_vnum);
+        break;
     }
 }
 
 void grant_quest(CharData* ch, Quest* quest)
 {
     static QuestStatus x_qs = { 0 };
-    static QuestTarget x_qt = { 0 };
 
     if (!quest)
         return;
@@ -203,26 +268,26 @@ void grant_quest(CharData* ch, Quest* quest)
     ALLOC(QuestStatus, qs);
     *qs = x_qs;
     qs->vnum = quest->vnum;
+    qs->quest = quest;
+    qs->amount = quest->amount;
     qs->state = QSTAT_ACCEPTED;
-
     ORDERED_INSERT(QuestStatus, qs, qlog->quests, vnum);
 
-    if (quest->target > 0) {
-        ALLOC(QuestTarget, qt);
-        *qt = x_qt;
-        qt->quest_vnum = quest->vnum;
-        qt->type = quest->type;
-        qt->target_vnum = quest->target;
-        qt->end_vnum = quest->end;
+    ALLOC(QuestTarget, qe);
+    *qe = x_qt;
+    qe->quest_vnum = quest->vnum;
+    qe->type = quest->type;
+    qe->target_vnum = quest->end;
+    ORDERED_INSERT(QuestTarget, qe, qlog->target_ends, target_vnum);
 
-        switch (quest->type) {
-        case QUEST_VISIT_MOB:
-            ORDERED_INSERT(QuestTarget, qt, qlog->target_mobs, target_vnum);
-            break;
+    if (quest->target > 0) {
+        if (quest->target_upper > quest->target) {
+            for (VNUM i = quest->target; i <= quest->target_upper; ++i)
+                add_target(qlog, quest, i);
         }
     }
 
-    printf_to_char(ch, "{_You have started the quest, \"{*%s{_\".{x\n\r", quest->name);
+    printf_to_char(ch, "{jYou have started the quest, \"{*%s{j\".{x\n\r", quest->name);
 }
 
 void load_quest(FILE* fp)
@@ -291,6 +356,9 @@ bool has_quest(CharData* ch, VNUM vnum)
 
 bool can_finish_quest(CharData* ch, VNUM vnum)
 {
+    if (!ch->pcdata)
+        return false;
+
     QuestStatus* qs = get_quest_status(ch, vnum);
 
     if (!qs || qs->state != QSTAT_ACCEPTED)
@@ -310,6 +378,10 @@ bool can_finish_quest(CharData* ch, VNUM vnum)
                 return true;
         }
         break;
+    }
+    case QUEST_KILL_MOB:
+    {
+        return ( qs->progress >= qs->amount);
     }
     
     // End switch
@@ -363,7 +435,7 @@ void do_quest(CharData* ch, char* argument)
         add_buf(out, BUF(world));
     }
 
-    if (!BUF(local)[0] && !BUF(world)) {
+    if (!BUF(local)[0] && !BUF(world)[0]) {
         send_to_char("You have no active quests.\n\r", ch);
     }
     

@@ -994,11 +994,13 @@ void char_to_room(CharData* ch, RoomData* room)
         update_mdsp_room(ch);
 
     if (!IS_NPC(ch)) {
-        if (ch->in_room->area->empty) {
-            ch->in_room->area->empty = false;
-            ch->in_room->area->age = 0;
+        AreaData* area = ch->in_room->area;
+        if (area->empty) {
+            area->empty = false;
+            if (!area->always_reset)
+                area->reset_timer = 0;
         }
-        ++ch->in_room->area->nplayer;
+        ++area->nplayer;
     }
 
     if ((obj = get_eq_char(ch, WEAR_LIGHT)) != NULL

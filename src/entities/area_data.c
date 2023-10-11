@@ -36,13 +36,16 @@ AreaData* new_area()
     pArea->credits = str_dup("None");
     pArea->min_vnum = 0;
     pArea->max_vnum = 0;
-    pArea->age = 0;
+    pArea->sector = SECT_INSIDE;
+    pArea->reset_thresh = 6;
+    pArea->reset_timer = 0;
     pArea->nplayer = 0;
     pArea->empty = true;
     pArea->vnum = area_count - 1;
     sprintf(buf, "area%"PRVNUM".are", pArea->vnum);
     pArea->file_name = str_dup(buf);
     pArea->quests = NULL;
+    pArea->always_reset = false;
 
     return pArea;
 }

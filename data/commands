@@ -1,4 +1,4 @@
-263
+264
 
 #COMMAND
 name .~
@@ -1695,6 +1695,15 @@ show undef~
 #COMMAND
 name redit~
 do_fun do_redit~
+position dead~
+level 0
+log log_normal~
+show undef~
+#END
+
+#COMMAND
+name objlist~
+do_fun do_objlist~
 position dead~
 level 0
 log log_normal~

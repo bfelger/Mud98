@@ -155,7 +155,7 @@ extern const DamageInfo damage_table[DAM_TYPE_COUNT];
 // Attacks
 ////////////////////////////////////////////////////////////////////////////////
 
-#define ATTACK_COUNT 41
+#define ATTACK_COUNT 40
 
 typedef struct attack_info_t {
     char* name;

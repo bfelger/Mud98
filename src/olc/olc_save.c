@@ -116,7 +116,7 @@ void save_mobprogs(FILE* fp, AreaData* pArea)
  Purpose:	Saves the listing of files to be loaded at startup.
  Called by:	do_asave(olc_save.c).
  ****************************************************************************/
-void save_area_list(void)
+void save_area_list()
 {
     FILE* fp;
     AreaData* pArea;
@@ -955,8 +955,11 @@ void save_area(AreaData* pArea)
     fprintf(fp, "VNUMs %"PRVNUM" %"PRVNUM"\n", pArea->min_vnum, pArea->max_vnum);
     fprintf(fp, "Credits %s~\n", pArea->credits);
     fprintf(fp, "Security %d\n", pArea->security);
+    fprintf(fp, "Sector %d\n", pArea->sector);
     fprintf(fp, "Low %d\n", pArea->low_range);
     fprintf(fp, "High %d\n", pArea->high_range);
+    fprintf(fp, "Reset %d\n", pArea->reset_thresh);
+    fprintf(fp, "AlwaysReset %d\n", (int)pArea->always_reset);
     fprintf(fp, "End\n\n\n\n");
 
     save_mobiles(fp, pArea);

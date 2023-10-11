@@ -56,12 +56,14 @@ static void old_aggr_update()
                     && ch->level >= vch->level - 5
                     && (!IS_SET(ch->act_flags, ACT_WIMPY) || !IS_AWAKE(vch))
                     && can_see(ch, vch)) {
-                    if (number_range(0, count) == 0) victim = vch;
+                    if (number_range(0, count) == 0)
+                        victim = vch;
                     count++;
                 }
             }
 
-            if (victim == NULL) continue;
+            if (victim == NULL)
+                continue;
 
             multi_hit(ch, victim, TYPE_UNDEFINED);
         }

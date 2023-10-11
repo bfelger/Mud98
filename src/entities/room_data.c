@@ -11,8 +11,6 @@
 #include "extra_desc.h"
 #include "reset_data.h"
 
-const int16_t movement_loss[SECT_MAX] = { 1, 2, 2, 3, 4, 6, 4, 1, 6, 10, 6 };
-
 int top_room;
 VNUM top_vnum_room;
 RoomData* room_index_free;

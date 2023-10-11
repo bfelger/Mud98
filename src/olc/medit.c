@@ -30,7 +30,7 @@ MobPrototype xMob;
 const OlcCmdEntry mob_olc_comm_table[] = {
     { "name",	    U(&xMob.name),          ed_line_string,		0		        },
     { "short",	    U(&xMob.short_descr),	ed_line_string,		0		        },
-    { "long",	    U(&xMob.long_descr),	ed_line_string,		U(1)	        },
+    { "long",	    U(&xMob.long_descr),	ed_line_string,		0	            },
     { "material",	U(&xMob.material),	    ed_line_string,		0		        },
     { "desc",	    U(&xMob.description),	ed_desc,		    0		        },
     { "level",	    U(&xMob.level),		    ed_number_level,    0		        },
@@ -552,7 +552,7 @@ ED_FUN_DEC(ed_shop)
     if (!str_cmp(command, "profit")) {
         if (arg1[0] == '\0' || !is_number(arg1)
             || argument[0] == '\0' || !is_number(argument)) {
-            send_to_char("Syntax : {*shop profit [%% buy] [%% sell]{x\n\r", ch);
+            send_to_char("{jSyntax : {*shop profit [%% buy] [%% sell]{x\n\r", ch);
             return false;
         }
 

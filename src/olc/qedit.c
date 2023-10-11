@@ -26,19 +26,21 @@ Quest xQuest;
 
 const OlcCmdEntry quest_olc_comm_table[] =
 {
-    { "create",     0,                  ed_olded,           U(qedit_create)     },
-    { "type",       U(&xQuest.type),    ed_flag_set_sh,     U(quest_type_table) },
-    { "xp",         U(&xQuest.xp),      ed_number_pos,      0                   },
-    { "level",      U(&xQuest.level),   ed_number_level,    0                   },
-    { "target",     U(&xQuest.target),  ed_olded,           U(qedit_target)     },
-    { "end",        U(&xQuest.end),     ed_number_pos,      U(qedit_end)        },
-    { "name",       U(&xQuest.name),    ed_line_string,     0                   },
-    { "entry",      U(&xQuest.entry),   ed_desc,            0                   },
-    { "show",       0,                  ed_olded,           U(qedit_show)       },
-    { "commands",   0,                  ed_olded,           U(show_commands)    },
-    { "?",          0,                  ed_olded,           U(show_help)        },
-    { "version",    0,                  ed_olded,           U(show_version)     },
-    { NULL,         0,                  0,                  0                   }
+    { "create",     0,                      ed_olded,           U(qedit_create)     },
+    { "type",       U(&xQuest.type),        ed_flag_set_sh,     U(quest_type_table) },
+    { "xp",         U(&xQuest.xp),          ed_number_pos,      0                   },
+    { "level",      U(&xQuest.level),       ed_number_level,    0                   },
+    { "target",     U(&xQuest.target),      ed_olded,           U(qedit_target)     },
+    { "upper",      U(&xQuest.target_upper),ed_olded,           U(qedit_upper)      },
+    { "amount",     U(&xQuest.amount),      ed_number_s_pos,    0                   },
+    { "end",        U(&xQuest.end),         ed_number_pos,      U(qedit_end)        },
+    { "name",       U(&xQuest.name),        ed_line_string,     0                   },
+    { "entry",      U(&xQuest.entry),       ed_desc,            0                   },
+    { "show",       0,                      ed_olded,           U(qedit_show)       },
+    { "commands",   0,                      ed_olded,           U(show_commands)    },
+    { "?",          0,                      ed_olded,           U(show_help)        },
+    { "version",    0,                      ed_olded,           U(show_version)     },
+    { NULL,         0,                      0,                  0                   }
 };
 
 void qedit(CharData* ch, char* argument)
@@ -106,8 +108,8 @@ void do_qedit(CharData* ch, char* argument)
             return;
         }
 
-        qedit_create(ch, argument);
-        qedit_show(ch, "");
+        if (qedit_create(ch, argument))
+            qedit_show(ch, "");
         return;
     }
 
@@ -163,20 +165,16 @@ QEDIT(qedit_create)
     return true;
 }
 
-QEDIT(qedit_show)
+static const char* get_targ_name(Quest* quest, VNUM vnum)
 {
-    Quest* quest;
     MobPrototype* mob;
-
-    EDIT_QUEST(ch, quest);
-
     char* target_name = NULL;
-    char* end_name = NULL;
 
-    if (quest->target > 0) {
+    if (vnum > 0) {
         switch (quest->type) {
         case QUEST_VISIT_MOB:
-            if (!(mob = get_mob_prototype(quest->target)))
+        case QUEST_KILL_MOB:
+            if (!(mob = get_mob_prototype(vnum)))
                 target_name = "(invalid)";  // Quest type may have changed
             else
                 target_name = mob->short_descr;
@@ -187,12 +185,22 @@ QEDIT(qedit_show)
         target_name = "(none)";
     }
 
-    if (quest->target > 0) {
-        if (!(mob = get_mob_prototype(quest->end)))
+    return target_name;
+}
+
+QEDIT(qedit_show)
+{
+    Quest* quest;
+    MobPrototype* end_mob;
+
+    EDIT_QUEST(ch, quest);
+
+    char* end_name = NULL;
+    if (quest->end > 0) {
+        if (!(end_mob = get_mob_prototype(quest->end)))
             end_name = "(invalid)";  // Quest type may have changed
         else
-            end_name = mob->short_descr;
-
+            end_name = end_mob->short_descr;
     }
     else {
         end_name = "(none)";
@@ -204,7 +212,22 @@ QEDIT(qedit_show)
     printf_to_char(ch, "Type:       {|[{*%s{|]{x\n\r", quest_type_table[quest->type].name);
     printf_to_char(ch, "Level:      {|[{*%d{|]{x\n\r", quest->level);
     printf_to_char(ch, "End:        {|[{*%d{|]{x {_%s{x\n\r", quest->end, end_name);
-    printf_to_char(ch, "Target:     {|[{*%d{|]{x {_%s{x\n\r", quest->target, target_name);
+    printf_to_char(ch, "Target:     {|[{*%d{|]{x {_%s{x", quest->target, get_targ_name(quest, quest->target));
+    if (quest->type == QUEST_KILL_MOB) {
+        if (quest->target_upper <= quest->target)
+            printf_to_char(ch, " {j(set {*UPPER{j to use a range of VNUMs){x");
+        else {
+            MobPrototype* targ_mob;
+            for (VNUM i = quest->target+1; i < quest->target_upper; ++i)
+                if ((targ_mob = get_mob_prototype(i)) != NULL)
+                    printf_to_char(ch, "\n\r            {|[{*%d{|]{x {_%s{x", 
+                        targ_mob->vnum, targ_mob->short_descr);
+            printf_to_char(ch, "\n\rUpper:      {|[{*%d{|]{x ", quest->target_upper);
+            if ((targ_mob = get_mob_prototype(quest->target_upper)) != NULL)
+                printf_to_char(ch, "{_%s{x", targ_mob->short_descr);
+        }
+        printf_to_char(ch, "\n\rAmount:     {|[{*%d{|]{x\n\r", quest->amount);
+    }
     printf_to_char(ch, "XP:         {|[{*%d{|]{x\n\r", quest->xp);
     if (quest->entry && quest->entry[0])
         printf_to_char(ch, "Entry:\n\r{_%s{x\n\r", quest->entry);
@@ -229,11 +252,13 @@ QEDIT(qedit_target)
         return false;
     }
 
-    VNUM vnum = (VNUM)atoi(arg);
+    // No area validation. Some quests can lead to other areas.
+    VNUM vnum = STRTOVNUM(arg);
 
     switch (quest->type) {
     case QUEST_VISIT_MOB:
-        if (!(mob = get_mob_prototype(vnum))) {
+    case QUEST_KILL_MOB:
+        if ((mob = get_mob_prototype(vnum)) == NULL) {
             send_to_char("{jQEDIT: No mobile has that VNUM.{x\n\r", ch);
             return false;
         }
@@ -244,6 +269,33 @@ QEDIT(qedit_target)
 
     return true;
 }
+
+QEDIT(qedit_upper)
+{
+    Quest* quest;
+    char arg[MAX_INPUT_LENGTH];
+
+    EDIT_QUEST(ch, quest);
+
+    READ_ARG(arg);
+
+    if (arg[0] == '\0' || !is_number(arg)) {
+        send_to_char("{jSyntax:  {*UPPER <VNUM>{x\n\r", ch);
+        return false;
+    }
+
+    VNUM vnum = STRTOVNUM(arg);
+
+    if (vnum < quest->target && vnum > 0) {
+        printf_to_char(ch, "{jUpper-bound on VNUM range must by greater than lower-bound %d.\n\r", quest->target);
+        return false;
+    }
+    
+    quest->target_upper = vnum;
+
+    return true;
+}
+
 
 QEDIT(qedit_end)
 {
@@ -260,7 +312,9 @@ QEDIT(qedit_end)
         return false;
     }
 
-    if (!(mob = get_mob_prototype(atoi(arg)))) {
+    VNUM vnum = STRTOVNUM(arg);
+
+    if ((mob = get_mob_prototype(vnum)) == NULL) {
         send_to_char("{jQEDIT: No mobile has that VNUM.{x\n\r", ch);
         return false;
     }

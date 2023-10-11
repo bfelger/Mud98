@@ -1430,7 +1430,7 @@ void do_recall(CharData* ch, char* argument)
 
     if (IS_NPC(ch) && IS_SET(ch->act_flags, ACT_PET) && !IS_NPC(ch->master))
         recall = ch->master->pcdata->recall;
-    else if (!IS_NPC(ch))
+    else if (ch->pcdata)
         recall = ch->pcdata->recall;
 
     if ((location = get_room_data(recall)) == NULL) {
@@ -1484,7 +1484,6 @@ void do_recall(CharData* ch, char* argument)
 void do_train(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    CharData* mob;
     int16_t stat = -1;
     char* pOutput = NULL;
     int cost;
@@ -1492,22 +1491,22 @@ void do_train(CharData* ch, char* argument)
     if (IS_NPC(ch))
         return;
 
-    /*
-     * Check for trainer.
-     */
-    for (mob = ch->in_room->people; mob; mob = mob->next_in_room) {
-        if (IS_NPC(mob) && IS_SET(mob->act_flags, ACT_TRAIN)) 
-            break;
-    }
+    if (!cfg_get_train_anywhere()) {
+        // Check for trainer.
+        CharData* mob;
+        FOR_EACH_IN_ROOM(mob, ch->in_room->people) {
+            if (IS_NPC(mob) && IS_SET(mob->act_flags, ACT_TRAIN))
+                break;
+        }
 
-    if (mob == NULL) {
-        send_to_char("You can't do that here.\n\r", ch);
-        return;
+        if (mob == NULL) {
+            send_to_char("You can't do that here.\n\r", ch);
+            return;
+        }
     }
 
     if (argument[0] == '\0') {
-        sprintf(buf, "You have %d training sessions.\n\r", ch->train);
-        send_to_char(buf, ch);
+        printf_to_char(ch, "You have %d training sessions.\n\r", ch->train);
         argument = "foo";
     }
 
@@ -1606,6 +1605,12 @@ void do_train(CharData* ch, char* argument)
         ch->mana += 10;
         act("Your power increases!", ch, NULL, NULL, TO_CHAR);
         act("$n's power increases!", ch, NULL, NULL, TO_ROOM);
+        return;
+    }
+
+    // Just in case.
+    if (stat < 0) {
+        bug("do_train: Bad index %d for option '%s'!", stat, argument);
         return;
     }
 

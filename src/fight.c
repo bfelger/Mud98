@@ -866,6 +866,18 @@ bool damage(CharData* ch, CharData* victim, int dam, int16_t dt, DamageType dam_
                           / 3)
                              + 50);
         }
+        else if (ch->pcdata) {
+            QuestTarget* qt;
+            QuestStatus* qs;
+            if ((qt = get_quest_targ_mob(ch, victim->prototype->vnum)) != NULL
+                && (qs = get_quest_status(ch, qt->quest_vnum)) != NULL) {
+                if (qs->quest->type == QUEST_KILL_MOB && qs->progress < qs->amount) {
+                    ++qs->progress;
+                    printf_to_char(ch, "{jQuest Progress: {x%s {|({*%d{|/{*%d{|){x\n\r",
+                        qs->quest->name, qs->progress, qs->amount);
+                }
+            }
+        }
 
         sprintf(log_buf, "%s got toasted by %s at %s [room %d]",
                 (IS_NPC(victim) ? victim->short_descr : victim->name),

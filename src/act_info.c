@@ -30,6 +30,7 @@
 #include "act_comm.h"
 #include "act_move.h"
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "digest.h"
 #include "fight.h"
@@ -119,10 +120,12 @@ char* format_obj_to_char(ObjectData* obj, CharData* ch, bool fShort)
     if (IS_OBJ_STAT(obj, ITEM_HUM)) strcat(buf, "{_(Humming){x ");
 
     if (fShort) {
-        if (obj->short_descr != NULL) strcat(buf, obj->short_descr);
+        if (obj->short_descr != NULL) 
+            strcat(buf, obj->short_descr);
     }
     else {
-        if (obj->description != NULL) strcat(buf, obj->description);
+        if (obj->description != NULL) 
+            strcat(buf, obj->description);
     }
 
     return buf;
@@ -238,18 +241,20 @@ void show_char_to_char_0(CharData* victim, CharData* ch)
     char buf[MAX_STRING_LENGTH] = "";
     char message[MAX_STRING_LENGTH] = "";
 
-    buf[0] = '\0';
+    strcat(buf, "  ");
 
     bool is_npc = IS_NPC(victim);
 
     if (is_npc) {
-        QuestTarget* qt = get_quest_targ_mob(ch, victim->prototype->vnum);
-        if (qt) {
-            if (victim->prototype->vnum == qt->end_vnum 
-                && can_finish_quest(ch, qt->quest_vnum))
-                strcat(buf, "{*[{Y?{x{*]{x ");
-            else if (victim->prototype->vnum == qt->target_vnum)
+        QuestTarget* qt = get_quest_targ_end(ch, victim->prototype->vnum);
+        if (qt && can_finish_quest(ch, qt->quest_vnum)) {
+            strcat(buf, "{*[{Y?{x{*]{x ");
+        }
+        else if ((qt = get_quest_targ_mob(ch, victim->prototype->vnum)) != NULL) {
+            if (qt->type != QUEST_KILL_MOB)
                 strcat(buf, "{*[{Y!{x{*]{x ");
+            else
+                strcat(buf, "{*[{RX{x{*]{x ");
         }
     }
 
@@ -944,7 +949,7 @@ void do_look(CharData* ch, char* argument)
 
         send_to_char("{x\n\r", ch);
 
-        if (arg1[0] == '\0' || (!IS_NPC(ch) && !IS_SET(ch->comm_flags, COMM_BRIEF))) {
+        if (ch->in_room->description[0] && !IS_NPC(ch) && !IS_SET(ch->comm_flags, COMM_BRIEF)) {
             sprintf(buf, "{S  %s{x", ch->in_room->description);
             send_to_char(buf, ch);
         }
@@ -2305,7 +2310,6 @@ void do_practice(CharData* ch, char* argument)
         send_to_char(buf, ch);
     }
     else {
-        CharData* mob;
         int16_t adept;
 
         if (!IS_AWAKE(ch)) {
@@ -2313,14 +2317,17 @@ void do_practice(CharData* ch, char* argument)
             return;
         }
 
-        FOR_EACH_IN_ROOM(mob, ch->in_room->people) {
-            if (IS_NPC(mob) && IS_SET(mob->act_flags, ACT_PRACTICE))
-                break;
-        }
+        if (!cfg_get_practice_anywhere()) {
+            CharData* mob;
+            FOR_EACH_IN_ROOM(mob, ch->in_room->people) {
+                if (IS_NPC(mob) && IS_SET(mob->act_flags, ACT_PRACTICE))
+                    break;
+            }
 
-        if (mob == NULL) {
-            send_to_char("You can't do that here.\n\r", ch);
-            return;
+            if (mob == NULL) {
+                send_to_char("You can't do that here.\n\r", ch);
+                return;
+            }
         }
 
         if (ch->practice <= 0) {

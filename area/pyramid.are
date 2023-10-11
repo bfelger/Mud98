@@ -929,10 +929,9 @@ You see the apex of the pyramid many yards above you.
 ~
 0 -1 8706
 D5
-This side of the pyramid has a dangerous drop before the sandy floor.
 ~
 ~
-0 -1 8707
+0 0 8708
 S
 #8706
 The Apex of the Great Pyramid~
@@ -961,10 +960,9 @@ It looks really dangerous.  I wouldn't go that way.
 ~
 0 -1 8707
 D1
-The east side of the pyramid slopes down into the sands.
 ~
 ~
-0 -1 8705
+0 0 8707
 D2
 The south side of the pyramid slopes down into the sands.
 It looks really dangerous.  I wouldn't go that way.
@@ -977,11 +975,6 @@ It looks really dangerous.  I wouldn't go that way.
 ~
 ~
 0 -1 8707
-D5
-You see some sandy stones pressed closely together to form a hard surface.
-~
-stones~
-1 -1 8708
 S
 #8707
 Climbing the Great Pyramid~
@@ -1012,10 +1005,9 @@ above your head.  With some effort you might be able to lift that
 section up and get outside!
 ~
 D4
-You see the sandy stones of the ceiling.
 ~
-stones~
-1 -1 8706
+~
+0 0 8705
 D5
 You see a small dusty chamber.
 ~
@@ -1215,7 +1207,7 @@ You fall for what seems like an eternity, and smash into the stones below...
 
 Under the Hole
    You are in a small chamber underneath the slippery hole, far below
-the pyramid now.   The floor is strewn with bones.  To the south is a
+the pyramid now.   The floor is strewn with bones.  To the east is a
 small rocky crevasse.
 ~
 0
@@ -1229,11 +1221,14 @@ bones~
 The bones have whitened and cracked in the dry air, apparently the remains 
 of adventurers, thieves, and creatures that did not survive the fall.
 ~
-D2
-You see a rocky crevasse that proceeds deep under the pyramid.
+D1
 ~
 ~
-0 -1 8719
+0 0 8717
+D3
+~
+~
+0 0 8717
 S
 #8718
 Under the Hole~
@@ -2269,8 +2264,6 @@ S
 
 
 #RESETS
-D 0 8706 5 1
-D 0 8708 4 1
 D 0 8709 3 1
 D 0 8710 1 1
 D 0 8722 2 2

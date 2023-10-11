@@ -16,19 +16,22 @@ typedef struct quest_log_t QuestLog;
 
 typedef enum quest_type_t {
     QUEST_VISIT_MOB,
+    QUEST_KILL_MOB,
 } QuestType;
 
 typedef struct quest_t {
     Quest* next;
     AreaData* area;
-    VNUM vnum;
-    QuestType type;
-    int xp;
-    LEVEL level;
-    VNUM end;
-    VNUM target;
     char* name;
     char* entry;
+    VNUM vnum;
+    VNUM end;
+    VNUM target;
+    VNUM target_upper;
+    LEVEL level;
+    QuestType type;
+    int16_t xp;
+    int16_t amount;
 } Quest;
 
 typedef enum quest_state_t {
@@ -38,7 +41,10 @@ typedef enum quest_state_t {
 
 typedef struct quest_status_t {
     QuestStatus* next;
+    Quest* quest;
     VNUM vnum;
+    int amount;
+    int progress;
     QuestState state;
 } QuestStatus;
 
@@ -47,13 +53,14 @@ typedef struct quest_target_t {
     QuestTarget* next;
     VNUM quest_vnum;
     VNUM target_vnum;
-    VNUM end_vnum;
+    VNUM target_upper;
     QuestType type;
 } QuestTarget;
 
 typedef struct quest_log_t {
     QuestTarget* target_objs;
     QuestTarget* target_mobs;
+    QuestTarget* target_ends;
     QuestStatus* quests;
 } QuestLog;
 
@@ -65,7 +72,8 @@ void free_quest_log(QuestLog* quest_log);
 Quest* get_quest(VNUM vnum);
 QuestTarget* get_quest_targ_mob(CharData* ch, VNUM target_vnum);
 QuestTarget* get_quest_targ_obj(CharData* ch, VNUM target_vnum);
-QuestStatus* get_quest_status(CharData* ch, VNUM vnum);
+QuestTarget* get_quest_targ_end(CharData* ch, VNUM end_vnum);
+QuestStatus* get_quest_status(CharData* ch, VNUM quest_vnum);
 void finish_quest(CharData* ch, Quest* quest, QuestStatus* status);
 void grant_quest(CharData* ch, Quest* quest);
 void save_quests(FILE* fp, AreaData* pArea); 

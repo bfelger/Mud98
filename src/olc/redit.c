@@ -17,6 +17,7 @@
 #include "string_edit.h"
 #include "tables.h"
 
+#include "entities/object_data.h"
 #include "entities/room_data.h"
 
 #define REDIT(fun) bool fun( CharData *ch, char *argument )
@@ -168,9 +169,9 @@ REDIT(redit_rlist)
 {
     RoomData* pRoomIndex;
     AreaData* pArea;
-    char        buf[MAX_STRING_LENGTH];
+    char buf[MAX_STRING_LENGTH] = { 0 };
     Buffer* buf1;
-    char        arg[MAX_INPUT_LENGTH];
+    char arg[MAX_INPUT_LENGTH]  = { 0 };
     bool found;
     VNUM vnum;
     int  col = 0;
@@ -184,9 +185,8 @@ REDIT(redit_rlist)
     for (vnum = pArea->min_vnum; vnum <= pArea->max_vnum; vnum++) {
         if ((pRoomIndex = get_room_data(vnum))) {
             found = true;
-            sprintf(buf, "{|[{*%5d{|]{x %-17.16s#n",
+            addf_buf(buf1, "{|[{*%5d{|]{x %-17.17s ",
                 vnum, capitalize(pRoomIndex->name));
-            add_buf(buf1, buf);
             if (++col % 3 == 0)
                 add_buf(buf1, "\n\r");
         }
@@ -232,7 +232,7 @@ REDIT(redit_mlist)
         if ((p_mob_proto = get_mob_prototype(vnum)) != NULL) {
             if (fAll || is_name(arg, p_mob_proto->name)) {
                 found = true;
-                sprintf(buf, "{|[{*%5d{|]{x %-17.16s",
+                sprintf(buf, "{|[{*%5d{|]{x %-17.17s",
                     p_mob_proto->vnum, capitalize(p_mob_proto->short_descr));
                 add_buf(buf1, buf);
                 if (++col % 3 == 0)
@@ -751,6 +751,7 @@ REDIT(redit_create)
     pRoom = new_room_index();
     pRoom->area = pArea;
     pRoom->vnum = value;
+    pRoom->sector_type = pArea->sector;
     pRoom->room_flags = 0;
 
     if (value > top_vnum_room)
@@ -1797,6 +1798,117 @@ void do_resets(CharData* ch, char* argument)
     return;
 }
 
+void do_objlist(CharData* ch, char* argument)
+{
+    static const char* help = "{jSyntax: OBJLIST AREA\n\r"
+        "          OBJLIST WORLD [low-level] [high-level]{x\n\r";
+    static const int max_disp = 100;
+    char opt[MIL] = { 0 };
+    char lo_str[MIL] = { 0 };
+    char hi_str[MIL] = { 0 };
+    char type_str[MIL] = { 0 };
+    int count = 0;
+    LEVEL lo_lvl = 0;
+    LEVEL hi_lvl = MAX_LEVEL;
+    bool world = false;
+
+    INIT_BUF(out, MSL);
+
+    if (!IS_BUILDER(ch, ch->in_room->area)) {
+        send_to_char("{*Invalid security for editing this area.{x\n\r", ch);
+        return;
+    }
+
+    READ_ARG(opt);
+
+    if (!opt[0]) {
+        send_to_char(help, ch);
+        return;
+    }
+
+    if (!str_prefix(opt, "world")) {
+        READ_ARG(lo_str);
+        READ_ARG(hi_str);
+
+        if (!lo_str[0] || !is_number(lo_str) || !hi_str[0] || !is_number(hi_str)) {
+            send_to_char(help, ch);
+            return;
+        }
+
+        lo_lvl = (LEVEL)atoi(lo_str);
+        hi_lvl = (LEVEL)atoi(hi_str);
+        world = true;
+    }
+    else if (str_prefix(opt, "area")) {
+        send_to_char(help, ch);
+        return;
+    }
+
+    READ_ARG(type_str);
+    int type = -1;
+
+    if (type_str[0]) {
+        for (int i = 0; i < ITEM_TYPE_COUNT; ++i)
+            if (!str_prefix(type_str, item_table[i].name)) {
+                type = item_table[i].type;
+                break;
+            }
+    }
+
+    //               ################################################################################
+    switch (type) {
+    case ITEM_ARMOR:
+        addf_buf(out, "{TVNUM   Lvl Name                AC:  Pierce  Bash    Slash   Exotic        {x\n\r");
+        break;    
+    case ITEM_CONTAINER:
+        addf_buf(out, "{TVNUM   Lvl Name                     Wght    Flags   Key     Cpcty   WtMult{x\n\r");
+        break;
+    default:
+        addf_buf(out, "{TVNUM   Lvl Name       Type          Val0    Val1    Val2    Val3    Val4  {x\n\r");
+    }
+    addf_buf(out, "{============================================================================{x\n\r");
+
+    VNUM hi_vnum = ch->in_room->area->max_vnum;
+    VNUM lo_vnum = ch->in_room->area->min_vnum;
+
+    for (int h = 0; h < MAX_KEY_HASH; ++h) {
+        ObjectPrototype* obj;
+        FOR_EACH(obj, object_prototype_hash[h]) {
+            if (count > max_disp) {
+                addf_buf(out, "Max display threshold reached.\n\r");
+                goto max_disp_reached;
+            }
+            if (!world && (obj->vnum < lo_vnum || obj->vnum > hi_vnum))
+                continue;
+            if (world && (obj->level < lo_lvl || obj->level > hi_lvl))
+                continue;
+            if (type > 0 && obj->item_type != type)
+                continue;
+
+            addf_buf(out, "{*%-6d {*%-3d{x ", obj->vnum, obj->level);
+
+            switch (type) {
+            case ITEM_ARMOR:
+            case ITEM_CONTAINER:
+                addf_buf(out, "%-23.23s  {|", obj->short_descr);
+                break;
+            default:
+                addf_buf(out, "%-10.10s %-12.12s {|", obj->short_descr, flag_string(type_flag_table, obj->item_type));
+            }
+
+            for (int i = 0; i < 5; ++i) {
+                addf_buf(out, "[{*%5d{|] ", obj->value[i]);
+            }
+
+            addf_buf(out, "{x\n\r");
+        }
+    }
+max_disp_reached:
+    addf_buf(out, "\n\r");
+    page_to_char(BUF(out), ch);
+    free_buf(out);
+}
+
 void do_moblist(CharData* ch, char* argument)
 {
     static const char* help = "{jSyntax: MOBLIST AREA\n\r"
@@ -1851,7 +1963,8 @@ void do_moblist(CharData* ch, char* argument)
 
     for (int h = 0; h < MAX_KEY_HASH; ++h) {
         MobPrototype* mob;
-        FOR_EACH(mob, mob_prototype_hash[h]) {
+        FOR_EACH(mob, mob_prototype_hash[h])
+        {
             if (count > max_disp) {
                 addf_buf(out, "Max display threshold reached.\n\r");
                 goto max_disp_reached;

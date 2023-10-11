@@ -20,8 +20,6 @@
 
 #include <stdint.h>
 
-#define TELOPT_DEBUG 1
-
 void debug_telopts(Descriptor* d, unsigned char* src, size_t srclen);
 size_t process_do_eor(Descriptor* d, unsigned char* src, size_t srclen);
 size_t process_will_ttype(Descriptor* d, unsigned char* src, size_t srclen);
@@ -416,7 +414,10 @@ size_t translate_telopts(Descriptor* d, unsigned char* src, size_t srclen, unsig
 
 void debug_telopts(Descriptor* d, unsigned char* src, size_t srclen)
 {
-	if (srclen > 1 && TELOPT_DEBUG)
+	if (!cfg_get_debug_telopt())
+		return;
+
+	if (srclen > 1)
 	{
 		switch (src[1])
 		{
@@ -558,7 +559,7 @@ size_t process_sb_ttype_is(Descriptor* d, unsigned char* src, size_t srclen)
 		case IAC:
 			*pto = 0;
 
-			if (TELOPT_DEBUG)
+			if (cfg_get_debug_telopt())
 			{
 				log_descriptor_printf(d, "INFO IAC SB TTYPE RCVD VAL %s.", val);
 			}
@@ -627,7 +628,7 @@ size_t process_sb_naws(Descriptor* d, unsigned char* src, size_t srclen)
 		}
 	}
 
-	if (TELOPT_DEBUG)
+	if (cfg_get_debug_telopt())
 	{
 		log_descriptor_printf(d, "INFO IAC SB NAWS RCVD ROWS %d COLS %d", d->mth->rows, d->mth->cols);
 	}
@@ -691,7 +692,7 @@ size_t process_sb_new_environ(Descriptor* d, unsigned char* src, size_t srclen)
 			}
 			*pto = 0;
 
-			if (TELOPT_DEBUG)
+			if (cfg_get_debug_telopt())
 			{
 				log_descriptor_printf(d, "INFO IAC SB NEW-ENVIRON RCVD %d VAR %s VAL %s", src[3], var, val);
 			}
@@ -761,7 +762,7 @@ size_t process_sb_charset(Descriptor* d, unsigned char* src, size_t srclen)
 		}
 		*pto = 0;
 
-		if (TELOPT_DEBUG)
+		if (cfg_get_debug_telopt())
 		{
 			log_descriptor_printf(d, "INFO IAC SB CHARSET RCVD %d VAL %s", src[3], val);
 		}

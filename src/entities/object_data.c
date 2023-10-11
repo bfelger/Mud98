@@ -25,7 +25,8 @@ void clone_object(ObjectData* parent, ObjectData* clone)
     AffectData* paf;
     ExtraDesc* ed, * ed_new;
 
-    if (parent == NULL || clone == NULL) return;
+    if (parent == NULL || clone == NULL)
+        return;
 
     /* start fixing the object */
     clone->name = str_dup(parent->name);
@@ -41,7 +42,8 @@ void clone_object(ObjectData* parent, ObjectData* clone)
     clone->material = str_dup(parent->material);
     clone->timer = parent->timer;
 
-    for (i = 0; i < 5; i++) clone->value[i] = parent->value[i];
+    for (i = 0; i < 5; i++) 
+        clone->value[i] = parent->value[i];
 
     /* affects */
     clone->enchanted = parent->enchanted;
