@@ -1669,10 +1669,13 @@ void do_gtell(CharData* ch, char* argument)
  */
 bool is_same_group(CharData* ach, CharData* bch)
 {
-    if (ach == NULL || bch == NULL) return false;
+    if (ach == NULL || bch == NULL)
+        return false;
 
-    if (ach->leader != NULL) ach = ach->leader;
-    if (bch->leader != NULL) bch = bch->leader;
+    if (ach->leader != NULL)
+        ach = ach->leader;
+    if (bch->leader != NULL)
+        bch = bch->leader;
     return ach == bch;
 }
 

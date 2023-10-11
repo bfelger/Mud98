@@ -1,30 +1,32 @@
-# Worldcrafting from Scratch Pt. 1 &mdash; New Beginnings
+# Worldcrafting from Scratch Pt. 2 &mdash; New Beginnings
 
-Mud98 isn't a MUD; it's a MUD _codebase_. The task of crafting a MUD around it is up to you. The original area files are provided if you want to experience ROM at is was back in 1998; but they aren't very serious or cohesive, and there's a good chance you don't actually want the 1950's diner in Midgaard in your fantasy-themed setting.
+### Table of Contents
+1. [Choosing a VNUM block](#choosing-a-vnum-block)
+1. [Creating a new area](#creating-a-new-area)
+1. [Creating the starting room](#creating-the-starting-room)
+1. [Setting racial starting location](#setting-racial-starting-location)
+1. [Creating a greeting for new characters](#creating-a-greeting-for-new-characters)
+    - [Making a triggerbot](#making-a-triggerbot)
+    - [Creating a Mob Prog](#creating-a-mob-prog)
+    - [Making the triggerbot trigger](#making-the-triggerbot-trigger)
+    - [Adding triggerbot to the room](#adding-triggerbot-to-the-room)
+    - [Testing the triggerbot](#testing-the-triggerbot)
+    - [Delayed MobProgs](#delayed-mobprogs)
+1. [Quest-driven expansion](#quest-driven-expansion)
+    - [Making the quest mob](#making-the-quest-mob)
+    - [Creating the player's first quest](#creating-the-players-first-quest)
+    - [Finishing the quest](#finishing-the-quest)
+1. [Newbie's first grind](#newbies-first-grind)
+    - [The quest area](#the-quest-area)
+    - [Cloning mobs](#cloning-mobs)
+    - [Creating a grind quest](#creating-a-grind-quest)
+    - [Testing](#testing)
+1. [Adding a tutorial](#adding-a-tutorial)
+    - [The training room](#the-training-room)
+    - [The equipping room](#the-equipping-room)
+1. [Completing newbie's first grind](#completing-newbies-first-grind)
 
-This document aims to create a step-by-step how-to to take a brand-new, vanilla Mud98, and build a brand-new MUD around it that is 100% yours.
-
-## Create an implementor
-
-You need to have a max-level character to begin customizing Mud98.
-
-1. Boot up Mud98.
-2. Log in as a new character, and complete character generation. The choices you make don't matter, as you will be able to change any aspect of your own character after leveling.
-3. After finishing character creation and getting dumped in the MUD school, `QUIT` the session.
-4. Open your player file (in the `player` folder) in a text editor.
-5. Set your level to 60 and your security to max by finding these lines:
-    ```
-    Levl 3
-    Sec  0
-    ```
-    ...and changing them to this:
-    ```
-    Levl 60
-    Sec  9
-    ```
-6. Log back into the game as the new character. Now this character is an Implementor with the highest online editing security setting.
-
-## Create a new starting area
+<br />
 
 Let's start with a brand new area. This can be the seed of a brand new network
 of areas that will define _your_ MUD. For the purposes of this example, we'll make this a new starting area for one of the races.
@@ -33,7 +35,7 @@ of areas that will define _your_ MUD. For the purposes of this example, we'll ma
 
 Before we create this new area, we need to find a block of VNUMs that are free to use. 
 
-### Choosing a VNUM block
+## Choosing a VNUM block
 
 Enter this command:
 
@@ -168,7 +170,7 @@ That's it! I now have my new starting area, and I'm read to start adding to room
 > 
 > Right?
 
-### Creating the starting room
+## Creating the starting room
 
 The command for editing rooms is `REDIT`, and it always helps to type `HELP REDIT` before you use it. Creating a room is almost as simple as creating an area; all we need is the starting VNUM:
 
@@ -243,7 +245,7 @@ The latter  is because I don't want people just recalling out of the start zone.
 
 Now I want to hook this room up as the starting area for elves.
 
-### Setting racial starting location
+## Setting racial starting location
 
 The command for editing races is `RAEDIT`. Unfortunately, there's no help for that command, yet (it wasn't a part of the orginal OLC). I'll put that on my bucket list.
 
@@ -363,11 +365,11 @@ You have no unread notes.
 
 Oops. I forgot to log out of my Imp. But now we have a solid start on building out a newbie zone for elves.
 
-### Creating a greeting for new characters
+## Creating a greeting for new characters
 
 I want to display a banner for new characters when they enter the game, but I only want it to display once. Rather than trying to create a new field, I'm going to add a trigger to do it. Right now, the only way to add triggers is on mobs, so first I'll need to make a triggerbot.
 
-#### Making the triggerbot
+### Making a triggerbot
 
 The command to create mobiles is `MEDIT`. I will create my triggerbot with this command:
 
@@ -416,7 +418,7 @@ aff invis
 
 That's it; that's all I care about. I'll save the bot with `done` and get cracking on making its Mob Prog.
 
-#### Creating the Mob Prog
+### Creating a Mob Prog
 
 The command to create Mob Progs is `MPEDIT`:
 
@@ -443,7 +445,7 @@ I now close off the code with `@`, and finish the MobProg with `done`.
 
 Now I have the Mob Prog that I want `triggerbot_12000` to perform, but now I need to add the trigger.
 
-#### Making the triggerbot trigger
+### Making the triggerbot trigger
 
 I open up my triggerbot for editing again:
 
@@ -475,7 +477,7 @@ This trigger will activate _before_ the target receives the room description. Th
 
 Now we need to finish off `MEDIT` with `done`, and actually place the triggerbot in the room.
 
-#### Adding triggerbot to the room
+### Adding triggerbot to the room
 
 Edit the room again:
 
@@ -508,7 +510,7 @@ Resets: M = mobile, R = room, O = object, P = pet, S = shopkeeper
 
 It's in the room, but you won't see it, as it was marked invisible.
 
-#### Testing the triggerbot
+### Testing the triggerbot
 
 Now all we need to do is log in with a new character and see if the new intro text works:
 
@@ -533,7 +535,7 @@ The first thing an elf character sees on this MUD now is a narrative introductio
 
 But there needs to be more. I need an "OOC" call-out telling them what to do next. 
 
-#### Delayed MobProgs
+### Delayed MobProgs
 
 There is some text I would like to display just after the room description; but the `GREET` trigger won't be triggered because we didn't "move" into the room, and the `ACT` trigger is resolved _before_ the room is shown to the PC (which I have taken advantage of).
 
@@ -828,7 +830,7 @@ The player has now completed their first quest. I could have done a more "automa
 
 The `[?]` symbol in front of Findorian's name is a short-hand from MMO's meaning "this person is ready to complete your quest." In this case, the process was automated. Other quests may require some interaction. It's up to you.
 
-### Newbie's first grind
+## Newbie's first grind
 
 In "MUD School", a PC needed to go kill a bunch of goblins in a pen for XP. The goblins were weak and cowering, and it was very difficult for the PC to get injured (it could happen, it was just hard). The idea was that you had a safe way to practice initiating combat without the danger of dying at level 1. It was pretty contrived, but it served its purpose.
 
@@ -836,7 +838,7 @@ Since the intention of this brand-new newbie area is to perform the same role, b
 
 So here it is: something is poisoning the forest, and a number of animals are getting sick and dying from it. The "what" is for a later quest, but the first one is conservation: humanely (elfly?) cull the sick animals. 
 
-##### The quest area
+### The quest area
 
 I'll start by making a 3x3 grid to the.... north? Sure. We'll say north. A darkened wood littered with sick animals.
 
@@ -926,7 +928,7 @@ Then we add it to room `12010`'s resets:
 mreset 12010 1 1
 ```
 
-##### Cloning mobs
+### Cloning mobs
 
 I want each room in the Poisoned Woods to be a unique creature, but I don't want to have to actually create them all one at a time. Thanks to `COPY`, I don't have to:
 
@@ -957,7 +959,7 @@ VNUM   Name       Lvl Hit Dice     Hit   Dam      Mana       Pie  Bas  Sla  Mag
 
 These stats are in line with the traditional MUD school monsters.
 
-#### Creating the quest
+### Creating a grind quest
 
 Findorian will be dispensing this quest, so it will follow his VNUM list:
 
@@ -1099,10 +1101,11 @@ You receive 148 experience points.
 Quest Progress: A Preserver's Burden (1/9)
 A sick deer spills its guts all over the floor.
 ```
-
-### Wait, I messed up; back up
+Wait, I messed up; back up
 
 That fight took _forever_. Why? Because my character had 1% in all skills and base ability scores. Also, no gear. That won't do.
+
+## Adding a tutorial 
 
 In MUD school, you `TRAIN` and `PRACTICE` before you fight. So I'm going to splice in some rooms between 12000 and 12005 to equip and train the player.
 
@@ -1116,11 +1119,13 @@ east dig 12003
 east link 12005
 ```
 
-I started with 12002 because MobProg #`12001` is already used by the triggerbot in room `12000`. As I said, I like to at least _try_ to keep my VNUMs in sync. The decision to start the second room at VNUM 12005 turns out to be wise, in retrospect, as (as I predicted) I might have needed to insert a room or two inbetween.
+The first `delete` breaks the link between rooms `12000` and `12005`. Then I dig two new rooms east of `12000`, and finally link it with `12005`.
+
+I started with 12002 because MobProg `12001` is already used by the triggerbot in room `12000`. As I said, I like to at least _try_ to keep my VNUMs in sync. The decision to start the second room at VNUM 12005 turns out to be wise, in retrospect, as (as I predicted) I might have needed to insert a room or two inbetween.
 
 We can successively dig serially like this because each `dig` moves us into the new room, and sets that as our edit point.
 
-#### The training room
+### The training room
 
 The first room will serve two purposes: to teach the player how to `READ` notes, and how to `TRAIN` and `PRACTICE`.
 
@@ -1179,7 +1184,7 @@ asave changed
 
 And with that, the player is now empowered to train abilities and practice skills.
 
-#### The equipping room
+### The equipping room
 
 To further get parity with the old MUD school, we need to get the player their starting equipment. Right now, all the starting equipment is from MUD school, which is a "sub-standard issue" set.
 
@@ -1233,7 +1238,7 @@ Most of these settings will be the same across items:
 ```
 oedit create 12001
 copy 12000
-wear body neck
+wear body around
 name cloak linen cuivealda
 short a linen cloak of Cuivealda
 long A linen cloak of Cuivealda is discarded here.
@@ -1384,7 +1389,7 @@ Now if we load into a new character, we can see the triggerbots in action; promp
 
 Now, with all of our equipment, we can finish testing the `kill_mob` quest.
 
-### Completing newbie's first grind
+## Completing newbie's first grind
 
 Continuing with our newbie char, we embark on Findorian's quest and start killing the deranged woodland creatures. We start seeing text like this:
 
