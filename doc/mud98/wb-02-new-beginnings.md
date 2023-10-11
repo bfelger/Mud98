@@ -37,13 +37,23 @@ Before we create this new area, we need to find a block of VNUMs that are free t
 
 ## Choosing a VNUM block
 
+What's a VNUM? A VNUM is just a number identifying each unique in-game entity definition. Rooms, objs, and mobs all have VNUMs. They can overlap _across_ entity type, but not _within_.
+
+That is to say, you can have a `RoomData` with VNUM `1000`, an `ObjectPrototype` with VNUM `1000`, and a `MobPrototype` with VNUM `1000`. But you _cannot_ have two `RoomData`'s with the same VNUM.
+
+Areas are defined by blocks of VNUMs that are guaranteed (by convention and bounds checking) to belong to a single area "file". For instnaces, "Limbo" is defined in `limbo.are` as covering VNUMs from `1` to `30`. Nothing in the game, whether a room, a mob, or even a mob prog, should exist with a VNUM in that space except insofar as it belongs to, and is defined by, `limbo.are`.
+
+The VNUM range is a _reservation_; by declaring it upon area creation, you guarantee that you have future expansion potential _at least_ up to that end VNUM for the area.
+
+So the first thing to decide is what the VNUM range of a new area will be.
+
 Enter this command:
 
 ```c
 alist orderby vnum
 ```
 
-You should see a list that looks like this, showing VNUMs in order, and displayer any gaps inbetween:
+You should see a list that looks like this, showing VNUMs in order, and displaying any gaps inbetween:
 
 ```
 [Num] [Area Name                  ] (lvnum-uvnum) [Filename  ] Sec [Builders  ]

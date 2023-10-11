@@ -169,7 +169,6 @@ REDIT(redit_rlist)
 {
     RoomData* pRoomIndex;
     AreaData* pArea;
-    char buf[MAX_STRING_LENGTH] = { 0 };
     Buffer* buf1;
     char arg[MAX_INPUT_LENGTH]  = { 0 };
     bool found;

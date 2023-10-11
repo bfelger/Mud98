@@ -577,6 +577,10 @@ size_t process_sb_ttype_is(Descriptor* d, unsigned char* src, size_t srclen)
 						SET_BIT(d->mth->comm_flags, COMM_FLAG_256COLORS);
 					}
 
+					if (HAS_BIT(d->mth->mtts, MTTS_FLAG_TRUECOLOR)) {
+						SET_BIT(d->mth->comm_flags, COMM_FLAG_TRUECOLOR);
+					}
+
 					if (HAS_BIT(d->mth->mtts, MTTS_FLAG_UTF8))
 					{
 						SET_BIT(d->mth->comm_flags, COMM_FLAG_UTF8);

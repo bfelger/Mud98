@@ -69,6 +69,7 @@ typedef struct mud_data MUD_DATA;
 #define COMM_FLAG_256COLORS     BV06
 #define COMM_FLAG_UTF8          BV07
 #define COMM_FLAG_GMCP          BV08
+#define COMM_FLAG_TRUECOLOR     BV09
 
 #define MSDP_FLAG_COMMAND       BV01
 #define MSDP_FLAG_LIST          BV02
