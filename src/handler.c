@@ -1477,7 +1477,8 @@ void extract_char(CharData* ch, bool fPull)
     nuke_pets(ch);
     ch->pet = NULL; /* just in case */
 
-    if (fPull) die_follower(ch);
+    if (fPull) 
+        die_follower(ch);
 
     stop_fighting(ch, true);
 
@@ -1505,9 +1506,7 @@ void extract_char(CharData* ch, bool fPull)
     FOR_EACH(wch, char_list) {
         if (wch->reply == ch) 
             wch->reply = NULL;
-        // TODO: Is this right?
-        // Or should we be checking wch->mprog_target == ch?
-        if (ch->mprog_target == wch)
+        if (wch->mprog_target == ch)
             wch->mprog_target = NULL;
     }
 

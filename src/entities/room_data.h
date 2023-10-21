@@ -30,6 +30,9 @@ typedef struct room_data_t RoomData;
 #define ROOM_VNUM_DEMISE        4201
 #define ROOM_VNUM_HONOR         4300
 
+#define ROOM_VNUM_PETSHOP       9621
+#define ROOM_VNUM_PETSHOP_INV   9706
+
 // Room flags
 typedef enum room_flags_t {
     ROOM_DARK           = BIT(0),
@@ -70,6 +73,9 @@ typedef struct room_data_t {
     int16_t clan;
     int16_t reset_num;
 } RoomData;
+
+#define FOR_EACH_IN_ROOM(c, r) \
+    for ((c) = (r); (c) != NULL; (c) = c->next_in_room)
 
 void free_room_index(RoomData* pRoom);
 RoomData* get_room_data(VNUM vnum);

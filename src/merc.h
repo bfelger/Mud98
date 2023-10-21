@@ -187,8 +187,6 @@ typedef void SpellFunc(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
 #define READ_ARG(arg)       (argument = one_argument(argument, (arg)))
 #define NEXT_LINK(n)        ((n) = (n)->next)
 #define FOR_EACH(i, l)      for ((i) = (l); (i) != NULL; NEXT_LINK(i))
-#define FOR_EACH_IN_ROOM(c, r) \
-    for ((c) = (r); (c) != NULL; (c) = c->next_in_room)
 #define ORDERED_INSERT(T, i, l, f)                                             \
     if (!(l) || i->f < (l)->f) {                                               \
         i->next = l;                                                           \

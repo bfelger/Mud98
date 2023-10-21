@@ -2197,8 +2197,8 @@ void do_buy(CharData* ch, char* argument)
     if (IS_SET(ch->in_room->room_flags, ROOM_PET_SHOP)) {
         char arg[MAX_INPUT_LENGTH];
         CharData* pet;
-        RoomData* pRoomIndexNext;
-        RoomData* in_room;
+        RoomData* petshop_inv;
+        RoomData* plr_in_room;
 
         smash_tilde(argument);
 
@@ -2207,20 +2207,20 @@ void do_buy(CharData* ch, char* argument)
         READ_ARG(arg);
 
         /* hack to make new thalos pets work */
-        if (ch->in_room->vnum == 9621)
-            pRoomIndexNext = get_room_data(9706);
+        if (ch->in_room->vnum == ROOM_VNUM_PETSHOP)
+            petshop_inv = get_room_data(ROOM_VNUM_PETSHOP_INV);
         else
-            pRoomIndexNext = get_room_data(ch->in_room->vnum + 1);
-        if (pRoomIndexNext == NULL) {
+            petshop_inv = get_room_data(ch->in_room->vnum + 1);
+        if (petshop_inv == NULL) {
             bug("Do_buy: bad pet shop at vnum %"PRVNUM".", ch->in_room->vnum);
             send_to_char("Sorry, you can't buy that here.\n\r", ch);
             return;
         }
 
-        in_room = ch->in_room;
-        ch->in_room = pRoomIndexNext;
+        plr_in_room = ch->in_room;
+        ch->in_room = petshop_inv;
         pet = get_char_room(ch, arg);
-        ch->in_room = in_room;
+        ch->in_room = plr_in_room;
 
         if (pet == NULL || !IS_SET(pet->act_flags, ACT_PET)) {
             send_to_char("Sorry, you can't buy that here.\n\r", ch);
@@ -2398,24 +2398,24 @@ void do_list(CharData* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
 
     if (IS_SET(ch->in_room->room_flags, ROOM_PET_SHOP)) {
-        RoomData* pRoomIndexNext;
+        RoomData* petshop_inv;
         CharData* pet;
         bool found;
 
         /* hack to make new thalos pets work */
-        if (ch->in_room->vnum == 9621)
-            pRoomIndexNext = get_room_data(9706);
+        if (ch->in_room->vnum == ROOM_VNUM_PETSHOP)
+            petshop_inv = get_room_data(ROOM_VNUM_PETSHOP_INV);
         else
-            pRoomIndexNext = get_room_data(ch->in_room->vnum + 1);
+            petshop_inv = get_room_data(ch->in_room->vnum + 1);
 
-        if (pRoomIndexNext == NULL) {
+        if (petshop_inv == NULL) {
             bug("Do_list: bad pet shop at vnum %"PRVNUM".", ch->in_room->vnum);
             send_to_char("You can't do that here.\n\r", ch);
             return;
         }
 
         found = false;
-        for (pet = pRoomIndexNext->people; pet; pet = pet->next_in_room) {
+        FOR_EACH_IN_ROOM(pet, petshop_inv->people) {
             if (IS_SET(pet->act_flags, ACT_PET)) {
                 if (!found) {
                     found = true;
@@ -2436,7 +2436,8 @@ void do_list(CharData* ch, char* argument)
         bool found;
         char arg[MAX_INPUT_LENGTH];
 
-        if ((keeper = find_keeper(ch)) == NULL) return;
+        if ((keeper = find_keeper(ch)) == NULL) 
+            return;
         one_argument(argument, arg);
 
         found = false;
@@ -2489,7 +2490,8 @@ void do_sell(CharData* ch, char* argument)
         return;
     }
 
-    if ((keeper = find_keeper(ch)) == NULL) return;
+    if ((keeper = find_keeper(ch)) == NULL)
+        return;
 
     if ((obj = get_obj_carry(ch, arg, ch)) == NULL) {
         act("$n tells you 'You don't have that item'.", keeper, NULL, ch,

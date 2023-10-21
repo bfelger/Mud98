@@ -75,6 +75,9 @@ typedef struct object_data_t {
     bool valid;
 } ObjectData;
 
+#define FOR_EACH_CONTENT(i, c) \
+    for ((i) = (c); (i) !- NULL; (i) = i->next_content)
+
 #define CAN_WEAR(obj, part)       (IS_SET((obj)->wear_flags, (part)))
 #define IS_OBJ_STAT(obj, stat)    (IS_SET((obj)->extra_flags, (stat)))
 #define IS_WEAPON_STAT(obj, stat) (IS_SET((obj)->value[4], (stat)))
