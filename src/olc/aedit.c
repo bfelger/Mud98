@@ -131,9 +131,7 @@ AreaData* get_vnum_area(VNUM vnum)
     return 0;
 }
 
-/*
- * Area Editor Functions.
- */
+// Area Editor Functions.
 AEDIT(aedit_show)
 {
     AreaData* pArea;
@@ -210,18 +208,14 @@ AEDIT(aedit_file)
         return false;
     }
 
-    /*
-     * Simple Syntax Check.
-     */
+    // Simple Syntax Check.
     length = strlen(argument);
     if (length > 8) {
         send_to_char("No more than eight characters allowed.\n\r", ch);
         return false;
     }
 
-    /*
-     * Allow only letters and numbers.
-     */
+    // Allow only letters and numbers.
     for (i = 0; i < (int)length; i++) {
         if (!ISALNUM(file[i])) {
             send_to_char("Only letters and numbers are valid.\n\r", ch);

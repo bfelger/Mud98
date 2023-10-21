@@ -61,9 +61,7 @@
 #include <string.h>
 #include <sys/types.h>
 
-/*
- * Command table.
- */
+// Command table.
 const struct mob_cmd_type mob_cmd_table[] = {
     { "asound",     do_mpasound     },
     { "gecho",      do_mpgecho      },
@@ -100,9 +98,7 @@ const struct mob_cmd_type mob_cmd_table[] = {
 
 void do_mob(CharData* ch, char* argument)
 {
-    /*
-     * Security check!
-     */
+    // Security check!
     if (ch->desc != NULL && get_trust(ch) < MAX_LEVEL)
         return;
     mob_interpret(ch, argument);
@@ -118,9 +114,7 @@ void mob_interpret(CharData* ch, char* argument)
 
     READ_ARG(command);
 
-    /*
-     * Look for command in command table.
-     */
+    // Look for command in command table.
     for (cmd = 0; mob_cmd_table[cmd].name[0] != '\0'; cmd++) {
         if (command[0] == mob_cmd_table[cmd].name[0]
             && !str_prefix(command, mob_cmd_table[cmd].name)) {
@@ -535,9 +529,7 @@ void do_mpoload(CharData* ch, char* argument)
         level = get_trust(ch);
     }
     else {
-    /*
-     * New feature from Alander.
-     */
+    // New feature from Alander.
         if (!is_number(arg2)) {
             bug("Mpoload - Bad syntax from vnum %"PRVNUM".",
                 IS_NPC(ch) ? ch->prototype->vnum : 0);
@@ -755,9 +747,7 @@ void do_mptransfer(CharData* ch, char* argument)
         return;
     }
 
-    /*
-     * Thanks to Grodyn for the optional location parameter.
-     */
+    // Thanks to Grodyn for the optional location parameter.
     if (arg2[0] == '\0') {
         location = ch->in_room;
     }

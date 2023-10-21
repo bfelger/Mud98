@@ -55,9 +55,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-/*
- * Local functions.
- */
+// Local functions.
 void say_spell(CharData * ch, SKNUM sn);
 
 /* imported functions */
@@ -112,9 +110,7 @@ SKNUM skill_slot_lookup(int slot)
     return -1;
 }
 
-/*
- * Utter mystical words for an sn.
- */
+// Utter mystical words for an sn.
 void say_spell(CharData* ch, SKNUM sn)
 {
     char buf[MAX_STRING_LENGTH] = "";
@@ -247,9 +243,7 @@ int mana_cost(CharData* ch, int min_mana, LEVEL level)
     return UMAX(min_mana, (100 / (2 + ch->level - level)));
 }
 
-/*
- * The kludgy global is for spells who want more stuff from command line.
- */
+// The kludgy global is for spells who want more stuff from command line.
 char* target_name;
 
 void do_cast(CharData* ch, char* argument)
@@ -263,9 +257,7 @@ void do_cast(CharData* ch, char* argument)
     SKNUM sn = -1;
     SpellTarget target;
 
-    /*
-     * Switched NPC's can cast spells, but others can't.
-     */
+    // Switched NPC's can cast spells, but others can't.
     if (IS_NPC(ch) && ch->desc == NULL)
         return;
 
@@ -300,9 +292,7 @@ void do_cast(CharData* ch, char* argument)
             skill_table[sn].min_mana,
             100 / (2 + ch->level - skill_level));
 
-    /*
-     * Locate targets.
-     */
+    // Locate targets.
     victim = NULL;
     obj = NULL;
     vo = NULL;
@@ -495,9 +485,7 @@ void do_cast(CharData* ch, char* argument)
     return;
 }
 
-/*
- * Cast spells at targets using a magical object.
- */
+// Cast spells at targets using a magical object.
 void obj_cast_spell(SKNUM sn, LEVEL level, CharData* ch, CharData* victim,
                     ObjectData* obj)
 {
@@ -615,9 +603,7 @@ void obj_cast_spell(SKNUM sn, LEVEL level, CharData* ch, CharData* victim,
     return;
 }
 
-/*
- * Spell functions.
- */
+// Spell functions.
 void spell_acid_blast(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
 {
     CharData* victim = (CharData*)vo;
@@ -2924,12 +2910,8 @@ void spell_identify(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget t
             send_to_char("unknown.\n\r", ch);
             break;
         }
-        if (obj->prototype->new_format)
-            sprintf(buf, "Damage is %dd%d (average %d).\n\r", obj->value[1],
-                    obj->value[2], (1 + obj->value[2]) * obj->value[1] / 2);
-        else
-            sprintf(buf, "Damage is %d to %d (average %d).\n\r", obj->value[1],
-                    obj->value[2], (obj->value[1] + obj->value[2]) / 2);
+        sprintf(buf, "Damage is %dd%d (average %d).\n\r", obj->value[1],
+                obj->value[2], (1 + obj->value[2]) * obj->value[1] / 2);
         send_to_char(buf, ch);
         if (obj->value[4]) /* weapon flags */
         {
@@ -3944,9 +3926,7 @@ void spell_word_of_recall(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
     do_function(victim, &do_look, "auto");
 }
 
-/*
- * NPC spells.
- */
+// NPC spells.
 void spell_acid_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
 {
     CharData* victim = (CharData*)vo;
@@ -4137,9 +4117,7 @@ void spell_lightning_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, Spell
     }
 }
 
-/*
- * Spells for mega1.are from Glop/Erkenbrand.
- */
+// Spells for mega1.are from Glop/Erkenbrand.
 void spell_general_purpose(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
 {
     CharData* victim = (CharData*)vo;

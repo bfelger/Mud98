@@ -153,9 +153,7 @@ void oedit(CharData* ch, char* argument)
     return;
 }
 
-/*
- * Object Editor Functions.
- */
+// Object Editor Functions.
 void show_obj_values(CharData* ch, ObjectPrototype* obj)
 {
     switch (obj->item_type) {

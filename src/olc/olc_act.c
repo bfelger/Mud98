@@ -236,9 +236,7 @@ bool show_help(CharData* ch, char* argument)
     READ_ARG(arg);
     one_argument(argument, spell);
 
-    /*
-     * Display syntax.
-     */
+    // Display syntax.
     if (arg[0] == '\0') {
         int blah = 0;
 

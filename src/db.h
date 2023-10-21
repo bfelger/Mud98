@@ -69,13 +69,13 @@ void* alloc_perm(size_t sMem);
 void free_mem(void* pMem, size_t sMem);
 char* str_dup(const char* str);
 void free_string(char* pstr);
-void load_social(FILE* fp);
 int number_fuzzy(int number);
 int number_range(int from, int to);
 int number_percent(void);
 Direction number_door();
 int number_bits(int width);
 long number_mm(void);
+void print_memory();
 int dice(int number, int size);
 int interpolate(int level, int value_00, int value_32);
 void smash_tilde(char* str);
@@ -101,8 +101,8 @@ extern KillData kill_table[MAX_LEVEL];
 extern char bug_buf[];
 extern char log_buf[];
 extern bool fBootDb;
-extern int top_ed;
-extern int top_shop;
+extern int extra_desc_count;
+extern int shop_count;
 
 extern int _filbuf(FILE*);
 

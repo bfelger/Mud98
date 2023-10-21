@@ -59,6 +59,6 @@ ExitData* new_exit();
     }                                                                          \
     ed->next = NULL;
 
-extern int top_exit;
+extern int exit_count;
 
 #endif // !MUD98__ENTITIES__EXIT_DATA_H

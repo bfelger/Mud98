@@ -12,7 +12,7 @@
 #include "update.h"
 
 Quest* quest_free = NULL;
-int top_quest = 0;
+int quest_count = 0;
 
 const struct flag_type quest_type_table[] = {
     { "visit_mob",      QUEST_VISIT_MOB,    true    },
@@ -48,7 +48,7 @@ Quest* new_quest()
 
     if (quest_free == NULL) {
         quest = alloc_perm(sizeof(Quest));
-        top_quest++;
+        quest_count++;
     }
     else {
         quest = quest_free;

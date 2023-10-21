@@ -83,7 +83,7 @@ RoomData* new_room_index();
 
 extern RoomData* room_index_hash[MAX_KEY_HASH];
 
-extern int top_room;
+extern int room_count;
 extern VNUM top_vnum_room;
 
 #endif // !MUD98__ENTITIES__ROOM_DATA_H

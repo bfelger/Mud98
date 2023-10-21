@@ -7,7 +7,7 @@
 
 #include "db.h"
 
-int top_exit;
+int exit_count;
 ExitData* exit_free;
 
 ExitData* new_exit()
@@ -16,7 +16,7 @@ ExitData* new_exit()
 
     if (!exit_free) {
         pExit = alloc_perm(sizeof(*pExit));
-        top_exit++;
+        exit_count++;
     }
     else {
         pExit = exit_free;

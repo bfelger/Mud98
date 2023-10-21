@@ -86,9 +86,7 @@ static const CorpseDesc corpse_descs[] = {
 #define SPRINTF_CORPSE_SDESC(b, t, n)   sprintf(b, "the %s of %s", corpse_descs[t].short_desc, n);
 #define SPRINTF_CORPSE_DESC(b, t, n)   sprintf(b, "%s%s%s", corpse_descs[t].desc1, n, corpse_descs[DESC_CORPSE].desc2);
 
-/*
- * Local functions.
- */
+// Local functions.
 void check_assist args((CharData * ch, CharData* victim));
 bool check_dodge args((CharData * ch, CharData* victim));
 void check_killer args((CharData * ch, CharData* victim));
@@ -110,7 +108,7 @@ void disarm args((CharData * ch, CharData* victim));
  * Control the fights going on.
  * Called periodically by update_handler.
  */
-void violence_update(void)
+void violence_update()
 {
     CharData* ch;
     CharData* victim;
@@ -126,11 +124,10 @@ void violence_update(void)
         else
             stop_fighting(ch, false);
 
-        if ((victim = ch->fighting) == NULL) continue;
+        if ((victim = ch->fighting) == NULL)
+            continue;
 
-        /*
-         * Fun for the whole family!
-         */
+        // Fun for the whole family!
         check_assist(ch, victim);
 
         if (IS_NPC(ch)) {
@@ -220,20 +217,20 @@ void check_assist(CharData* ch, CharData* victim)
     }
 }
 
-/*
- * Do one group of attacks.
- */
+// Do one group of attacks.
 void multi_hit(CharData* ch, CharData* victim, int16_t dt)
 {
     int chance;
 
     /* decrement the wait */
-    if (ch->desc == NULL) ch->wait = UMAX(0, ch->wait - PULSE_VIOLENCE);
-
-    if (ch->desc == NULL) ch->daze = UMAX(0, ch->daze - PULSE_VIOLENCE);
+    if (ch->desc == NULL) {
+        ch->wait = UMAX(0, ch->wait - PULSE_VIOLENCE);
+        ch->daze = UMAX(0, ch->daze - PULSE_VIOLENCE);
+    }
 
     /* no attacks for stunnies -- just a check */
-    if (ch->position < POS_RESTING) return;
+    if (ch->position < POS_RESTING)
+        return;
 
     if (IS_NPC(ch)) {
         mob_hit(ch, victim, dt);
@@ -242,16 +239,19 @@ void multi_hit(CharData* ch, CharData* victim, int16_t dt)
 
     one_hit(ch, victim, dt);
 
-    if (ch->fighting != victim) return;
+    if (ch->fighting != victim)
+        return;
 
     if (IS_AFFECTED(ch, AFF_HASTE))
         one_hit(ch, victim, dt);
 
-    if (ch->fighting != victim || dt == gsn_backstab) return;
+    if (ch->fighting != victim || dt == gsn_backstab)
+        return;
 
     chance = get_skill(ch, gsn_second_attack) / 2;
 
-    if (IS_AFFECTED(ch, AFF_SLOW)) chance /= 2;
+    if (IS_AFFECTED(ch, AFF_SLOW)) 
+        chance /= 2;
 
     if (number_percent() < chance) {
         one_hit(ch, victim, dt);
@@ -279,7 +279,6 @@ void mob_hit(CharData* ch, CharData* victim, int16_t dt)
 {
     int chance, number;
     CharData* vch;
-    CharData* vch_next = NULL;
 
     one_hit(ch, victim, dt);
 
@@ -288,8 +287,7 @@ void mob_hit(CharData* ch, CharData* victim, int16_t dt)
     /* Area attack -- BALLS nasty! */
 
     if (IS_SET(ch->atk_flags, ATK_AREA_ATTACK)) {
-        for (vch = ch->in_room->people; vch != NULL; vch = vch_next) {
-            vch_next = vch->next;
+        FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
             if ((vch != victim && vch->fighting == ch))
                 one_hit(ch, vch, dt);
         }
@@ -299,7 +297,8 @@ void mob_hit(CharData* ch, CharData* victim, int16_t dt)
         || (IS_SET(ch->atk_flags, ATK_FAST) && !IS_AFFECTED(ch, AFF_SLOW)))
         one_hit(ch, victim, dt);
 
-    if (ch->fighting != victim || dt == gsn_backstab) return;
+    if (ch->fighting != victim || dt == gsn_backstab) 
+        return;
 
     chance = get_skill(ch, gsn_second_attack) / 2;
 
@@ -393,9 +392,7 @@ void mob_hit(CharData* ch, CharData* victim, int16_t dt)
     }
 }
 
-/*
- * Hit one guy once.
- */
+// Hit one guy once.
 void one_hit(CharData* ch, CharData* victim, int16_t dt)
 {
     ObjectData* wield;
@@ -423,9 +420,7 @@ void one_hit(CharData* ch, CharData* victim, int16_t dt)
     if (victim->position == POS_DEAD || ch->in_room != victim->in_room) 
         return;
 
-    /*
-     * Figure out the type of damage message.
-     */
+    // Figure out the type of damage message.
     wield = get_eq_char(ch, WEAR_WIELD);
 
     if (dt == TYPE_UNDEFINED) {
@@ -451,9 +446,7 @@ void one_hit(CharData* ch, CharData* victim, int16_t dt)
     sn = get_weapon_sn(ch);
     skill = 20 + get_weapon_skill(ch, sn);
 
-    /*
-     * Calculate to-hit-armor-class-0 versus armor.
-     */
+    // Calculate to-hit-armor-class-0 versus armor.
     if (IS_NPC(ch)) {
         thac0_00 = 20;
         thac0_32 = -4; /* as good as a thief */
@@ -511,9 +504,7 @@ void one_hit(CharData* ch, CharData* victim, int16_t dt)
     if (victim->position < POS_RESTING)
         victim_ac += 6;
 
-    /*
-     * The moment of excitement!
-     */
+    // The moment of excitement!
     while ((diceroll = number_bits(5)) >= 20)
         ;
 
@@ -527,24 +518,14 @@ void one_hit(CharData* ch, CharData* victim, int16_t dt)
      * Hit.
      * Calc damage.
      */
-    if (IS_NPC(ch) && (!ch->prototype->new_format || wield == NULL)) {
-        if (!ch->prototype->new_format) {
-            dam = number_range(ch->level / 2, ch->level * 3 / 2);
-            if (wield != NULL)
-                dam += dam / 2;
-        }
-        else
-            dam = dice(ch->damage[DICE_NUMBER], ch->damage[DICE_TYPE]);
+    if (IS_NPC(ch) && wield == NULL) {
+        dam = dice(ch->damage[DICE_NUMBER], ch->damage[DICE_TYPE]);
     }
     else {
         if (sn != -1)
             check_improve(ch, sn, true, 5);
         if (wield != NULL) {
-            if (wield->prototype->new_format)
-                dam = dice(wield->value[1], wield->value[2]) * skill / 100;
-            else
-                dam = number_range(wield->value[1] * skill / 100,
-                                   wield->value[2] * skill / 100);
+            dam = dice(wield->value[1], wield->value[2]) * skill / 100;
 
             if (get_eq_char(ch, WEAR_SHIELD) == NULL) /* no shield = more */
                 dam = dam * 11 / 10;
@@ -563,9 +544,7 @@ void one_hit(CharData* ch, CharData* victim, int16_t dt)
         }
     }
 
-    /*
-     * Bonuses.
-     */
+    // Bonuses.
     if (get_skill(ch, gsn_enhanced_damage) > 0) {
         diceroll = number_percent();
         if (diceroll <= get_skill(ch, gsn_enhanced_damage)) {
@@ -673,9 +652,7 @@ void one_hit(CharData* ch, CharData* victim, int16_t dt)
     return;
 }
 
-/*
- * Inflict damage from a hit.
- */
+// Inflict damage from a hit.
 bool damage(CharData* ch, CharData* victim, int dam, int16_t dt, DamageType dam_type, bool show)
 {
     ObjectData* corpse;
@@ -683,9 +660,7 @@ bool damage(CharData* ch, CharData* victim, int dam, int16_t dt, DamageType dam_
 
     if (victim->position == POS_DEAD) return false;
 
-    /*
-     * Stop up any residual loopholes.
-     */
+    // Stop up any residual loopholes.
     if (dam > 1200 && dt >= TYPE_HIT) {
         bug("Damage: %d: more than 1200 points!", dam);
         dam = 1200;
@@ -723,15 +698,11 @@ bool damage(CharData* ch, CharData* victim, int dam, int16_t dt, DamageType dam_
             if (ch->fighting == NULL) set_fighting(ch, victim);
         }
 
-        /*
-         * More charm stuff.
-         */
+        // More charm stuff.
         if (victim->master == ch) stop_follower(victim);
     }
 
-    /*
-     * Inviso attacks ... not.
-     */
+    // Inviso attacks ... not.
     if (IS_AFFECTED(ch, AFF_INVISIBLE)) {
         affect_strip(ch, gsn_invis);
         affect_strip(ch, gsn_mass_invis);
@@ -739,9 +710,7 @@ bool damage(CharData* ch, CharData* victim, int dam, int16_t dt, DamageType dam_
         act("$n fades into existence.", ch, NULL, NULL, TO_ROOM);
     }
 
-    /*
-     * Damage modifiers.
-     */
+    // Damage modifiers.
 
     if (dam > 1 && !IS_NPC(victim)
         && victim->pcdata->condition[COND_DRUNK] > 10)
@@ -757,9 +726,7 @@ bool damage(CharData* ch, CharData* victim, int dam, int16_t dt, DamageType dam_
 
     immune = false;
 
-    /*
-     * Check for parry, and dodge.
-     */
+    // Check for parry, and dodge.
     if (dt >= TYPE_HIT && ch != victim) {
         if (check_parry(ch, victim)) 
             return false;
@@ -835,14 +802,10 @@ bool damage(CharData* ch, CharData* victim, int dam, int16_t dt, DamageType dam_
         break;
     }
 
-    /*
-     * Sleep spells and extremely wounded folks.
-     */
+    // Sleep spells and extremely wounded folks.
     if (!IS_AWAKE(victim)) stop_fighting(victim, false);
 
-    /*
-     * Payoff for killing things.
-     */
+    // Payoff for killing things.
     if (victim->position == POS_DEAD) {
         group_gain(ch, victim);
 
@@ -889,9 +852,7 @@ bool damage(CharData* ch, CharData* victim, int dam, int16_t dt, DamageType dam_
         else
             wiznet(log_buf, NULL, NULL, WIZ_DEATHS, 0, 0);
 
-        /*
-         * Death trigger
-         */
+        // Death trigger
         if (IS_NPC(victim) && HAS_TRIGGER(victim, TRIG_DEATH)) {
             victim->position = POS_STANDING;
             mp_percent_trigger(victim, ch, NULL, NULL, TRIG_DEATH);
@@ -948,9 +909,7 @@ bool damage(CharData* ch, CharData* victim, int dam, int16_t dt, DamageType dam_
 
     if (victim == ch) return true;
 
-    /*
-     * Take care of link dead people.
-     */
+    // Take care of link dead people.
     if (!IS_NPC(victim) && victim->desc == NULL) {
         if (number_range(0, victim->wait) == 0) {
             do_function(victim, &do_recall, "");
@@ -958,9 +917,7 @@ bool damage(CharData* ch, CharData* victim, int dam, int16_t dt, DamageType dam_
         }
     }
 
-    /*
-     * Wimp out?
-     */
+    // Wimp out?
     if (IS_NPC(victim) && dam > 0 && victim->wait < PULSE_VIOLENCE / 2) {
         if ((IS_SET(victim->act_flags, ACT_WIMPY) && number_bits(2) == 0
              && victim->hit < victim->max_hit / 5)
@@ -1143,9 +1100,7 @@ bool is_safe_spell(CharData* ch, CharData* victim, bool area)
     }
     return false;
 }
-/*
- * See if an attack justifies a KILLER flag.
- */
+// See if an attack justifies a KILLER flag.
 void check_killer(CharData* ch, CharData* victim)
 {
     char buf[MAX_STRING_LENGTH];
@@ -1164,9 +1119,7 @@ void check_killer(CharData* ch, CharData* victim)
         || IS_SET(victim->act_flags, PLR_THIEF))
         return;
 
-    /*
-     * Charm-o-rama.
-     */
+    // Charm-o-rama.
     if (IS_SET(ch->affect_flags, AFF_CHARM)) {
         if (ch->master == NULL) {
             sprintf(buf, "Check_killer: %s bad AFF_CHARM",
@@ -1204,9 +1157,7 @@ void check_killer(CharData* ch, CharData* victim)
     return;
 }
 
-/*
- * Check for parry.
- */
+// Check for parry.
 bool check_parry(CharData* ch, CharData* victim)
 {
     int chance;
@@ -1232,9 +1183,7 @@ bool check_parry(CharData* ch, CharData* victim)
     return true;
 }
 
-/*
- * Check for shield block.
- */
+// Check for shield block.
 bool check_shield_block(CharData* ch, CharData* victim)
 {
     int chance;
@@ -1253,9 +1202,7 @@ bool check_shield_block(CharData* ch, CharData* victim)
     return true;
 }
 
-/*
- * Check for dodge.
- */
+// Check for dodge.
 bool check_dodge(CharData* ch, CharData* victim)
 {
     int chance;
@@ -1274,9 +1221,7 @@ bool check_dodge(CharData* ch, CharData* victim)
     return true;
 }
 
-/*
- * Set position of a victim.
- */
+// Set position of a victim.
 void update_pos(CharData* victim)
 {
     if (victim->hit > 0) {
@@ -1304,9 +1249,7 @@ void update_pos(CharData* victim)
     return;
 }
 
-/*
- * Start fights.
- */
+// Start fights.
 void set_fighting(CharData* ch, CharData* victim)
 {
     if (ch->fighting != NULL) {
@@ -1322,9 +1265,7 @@ void set_fighting(CharData* ch, CharData* victim)
     return;
 }
 
-/*
- * Stop fights.
- */
+// Stop fights.
 void stop_fighting(CharData* ch, bool fBoth)
 {
     CharData* fch;
@@ -1340,9 +1281,7 @@ void stop_fighting(CharData* ch, bool fBoth)
     return;
 }
 
-/*
- * Make a corpse out of a character.
- */
+// Make a corpse out of a character.
 void make_corpse(CharData* ch)
 {
     char buf[MAX_STRING_LENGTH];
@@ -1441,9 +1380,7 @@ void make_corpse(CharData* ch)
     return;
 }
 
-/*
- * Improved Death_cry contributed by Diavolo.
- */
+// Improved Death_cry contributed by Diavolo.
 void death_cry(CharData* ch)
 {
     RoomData* was_in_room;

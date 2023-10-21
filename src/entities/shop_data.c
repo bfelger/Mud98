@@ -10,7 +10,7 @@ ShopData* shop_first;
 ShopData* shop_last;
 ShopData* shop_free;
 
-int top_shop;
+int shop_count;
 
 ShopData* new_shop_data()
 {
@@ -19,7 +19,7 @@ ShopData* new_shop_data()
 
     if (!shop_free) {
         pShop = alloc_perm(sizeof(*pShop));
-        top_shop++;
+        shop_count++;
     }
     else {
         pShop = shop_free;

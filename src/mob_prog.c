@@ -119,9 +119,7 @@
 #define CHK_HASQUEST    (53)
 #define CHK_CANFINISHQUEST  (54)
 
-/*
- * These defines correspond to the entries in fn_evals[] table.
- */
+// These defines correspond to the entries in fn_evals[] table.
 #define EVAL_EQ            0
 #define EVAL_GE            1
 #define EVAL_LE            2
@@ -191,9 +189,7 @@ void free_mpcode(MobProgCode* pMcode)
     return;
 }
 
-/*
- * if-check keywords:
- */
+// if-check keywords:
 const char* fn_keyword[] = {
     "rand",		    /* if rand 30		    - if random number < 30 */
     "mobhere",		/* if mobhere fido	    - is there a 'fido' here */
@@ -272,9 +268,7 @@ const char* fn_evals[] = {
     "\n"
 };
 
-/*
- * Return a valid keyword from a keyword table
- */
+// Return a valid keyword from a keyword table
 int keyword_lookup(const char** table, char* keyword)
 {
     register int i;
@@ -315,9 +309,7 @@ int num_eval(int lval, int oper, int rval)
  * ----------------------------------------------------------------------
  */
 
-/*
- * Get a random PC in the room (for $r parameter)
- */
+// Get a random PC in the room (for $r parameter)
 CharData* get_random_char(CharData* mob)
 {
     CharData* vch, * victim = NULL;
@@ -394,9 +386,7 @@ bool has_item(CharData* ch, VNUM vnum, ItemType item_type, bool fWear)
     return false;
 }
 
-/*
- * Check if there's a mob with given vnum in the room
- */
+// Check if there's a mob with given vnum in the room
 bool get_mob_vnum_room(CharData* ch, VNUM vnum)
 {
     CharData* mob;
@@ -406,9 +396,7 @@ bool get_mob_vnum_room(CharData* ch, VNUM vnum)
     return false;
 }
 
-/*
- * Check if there's an object with given vnum in the room
- */
+// Check if there's an object with given vnum in the room
 bool get_obj_vnum_room(CharData* ch, VNUM vnum)
 {
     ObjectData* obj;
@@ -450,16 +438,12 @@ int cmd_eval(VNUM vnum, char* line, int check,
     if (buf[0] == '\0' || mob == NULL)
         return false;
 
-        /*
-         * If this mobile has no target, let's assume our victim is the one
-         */
+        // If this mobile has no target, let's assume our victim is the one
     if (mob->mprog_target == NULL)
         mob->mprog_target = ch;
 
     switch (check) {
-    /*
-     * Case 1: keyword and value
-     */
+    // Case 1: keyword and value
     case CHK_RAND:
         return(atoi(buf) < number_percent());
     case CHK_MOBHERE:
@@ -495,9 +479,7 @@ int cmd_eval(VNUM vnum, char* line, int check,
     default:;
     }
 
-    /*
-     * Case 2 continued: evaluate expression
-     */
+    // Case 2 continued: evaluate expression
     if (rval >= 0) {
         if ((oper = keyword_lookup(fn_evals, buf)) < 0) {
             sprintf(buf, "Cmd_eval: prog %"PRVNUM" syntax error(2) '%s'",
@@ -511,9 +493,7 @@ int cmd_eval(VNUM vnum, char* line, int check,
         return(num_eval(lval, oper, rval));
     }
 
-    /*
-     * Case 3,4,5: Grab actors from $* codes
-     */
+    // Case 3,4,5: Grab actors from $* codes
     if (buf[0] != '$' || buf[1] == '\0') {
         sprintf(buf, "Cmd_eval: prog %"PRVNUM" syntax error(3) '%s'",
             vnum, original);
@@ -543,15 +523,11 @@ int cmd_eval(VNUM vnum, char* line, int check,
         bug(buf, 0);
         return false;
     }
-    /*
-     * From now on, we need an actor, so if none was found, bail out
-     */
+    // From now on, we need an actor, so if none was found, bail out
     if (lval_char == NULL && lval_obj == NULL)
         return false;
 
-    /*
-     * Case 3: Keyword, comparison and value
-     */
+    // Case 3: Keyword, comparison and value
     switch (check) {
     case CHK_ISPC:
         return(lval_char != NULL && !IS_NPC(lval_char));
@@ -595,9 +571,7 @@ int cmd_eval(VNUM vnum, char* line, int check,
     default:;
     }
 
-    /*
-     * Case 4: Keyword, actor and value
-     */
+    // Case 4: Keyword, actor and value
     line = one_argument(line, buf);
     switch (check) {
     case CHK_AFFECTED:
@@ -661,9 +635,7 @@ int cmd_eval(VNUM vnum, char* line, int check,
     default:;
     }
 
-    /*
-     * Case 5: Keyword, actor, comparison and value
-     */
+    // Case 5: Keyword, actor, comparison and value
     if ((oper = keyword_lookup(fn_evals, buf)) < 0) {
         sprintf(buf, "Cmd_eval: prog %"PRVNUM" syntax error(5): '%s'",
             vnum, original);
@@ -769,9 +741,7 @@ void expand_arg(char* buf,
     const char* i;
     char* point;
 
-    /*
-     * Discard null and zero-length messages.
-     */
+    // Discard null and zero-length messages.
     if (format == NULL || format[0] == '\0')
         return;
 
@@ -985,9 +955,7 @@ void program_flow(
         return;
     }
 
-    /*
-     * Reset "stack"
-     */
+    // Reset "stack"
     for (level = 0; level < MAX_NESTED_LEVEL; level++) {
         state[level] = IN_BLOCK;
         cond[level] = true;
@@ -995,9 +963,7 @@ void program_flow(
     level = 0;
 
     code = source;
-    /*
-     * Parse the MOBprog code
-     */
+    // Parse the MOBprog code
     while (*code) {
         bool first_arg = true;
         char* b = buf, * c = control, * d = data;
@@ -1031,9 +997,7 @@ void program_flow(
             continue;
 
         line = data;
-    /*
-     * Match control words
-     */
+    // Match control words
         if (!str_cmp(control, "if")) {
             if (state[level] == BEGIN_BLOCK) {
                 sprintf(buf, "Mobprog: misplaced if statement, mob %"PRVNUM" prog %"PRVNUM".",
@@ -1137,16 +1101,12 @@ void program_flow(
             state[level] = IN_BLOCK;
             expand_arg(data, buf, mob, ch, arg1, arg2, rch);
             if (!str_cmp(control, "mob")) {
-            /*
-             * Found a mob restricted command, pass it to mob interpreter
-             */
+            // Found a mob restricted command, pass it to mob interpreter
                 line = one_argument(data, control);
                 mob_interpret(mob, line);
             }
             else {
-            /*
-             * Found a normal mud command, pass it to interpreter
-             */
+            // Found a normal mud command, pass it to interpreter
                 interpret(mob, data);
             }
         }
@@ -1262,18 +1222,14 @@ void mp_give_trigger(CharData* mob, CharData* ch, ObjectData* obj)
     FOR_EACH(prg, mob->prototype->mprogs)
         if (prg->trig_type == TRIG_GIVE) {
             p = prg->trig_phrase;
-            /*
-             * Vnum argument
-             */
+            // Vnum argument
             if (is_number(p)) {
                 if (obj->prototype->vnum == STRTOVNUM(p)) {
                     program_flow(prg->vnum, prg->code, mob, ch, (void*)obj, NULL);
                     return;
                 }
             }
-            /*
-             * Object name argument, e.g. 'sword'
-             */
+            // Object name argument, e.g. 'sword'
             else {
                 while (*p) {
                     p = one_argument(p, buf);

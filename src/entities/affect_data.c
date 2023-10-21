@@ -16,7 +16,7 @@
 #include "data/mobile.h"
 
 AffectData* affect_free;
-int top_affect;
+int affect_count;
 
 // Return ascii name of an affect bit vector.
 char* affect_bit_name(int vector)

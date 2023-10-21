@@ -37,6 +37,6 @@ HelpData* new_help_data();
 extern HelpArea* help_area_list;
 extern HelpData* help_first;
 extern HelpData* help_last;
-extern int top_help;
+extern int help_count;
 
 #endif // !MUD98__ENTITIES__HELP_DATA_H

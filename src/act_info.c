@@ -88,9 +88,7 @@ char* const where_name[] = {
 /* for  keeping track of the player count */
 int max_on = 0;
 
-/*
- * Local functions.
- */
+// Local functions.
 char* format_obj_to_char args((ObjectData * obj, CharData* ch, bool fShort));
 void show_list_to_char args((ObjectData * list, CharData* ch, bool fShort,
                              bool fShowNothing));
@@ -151,9 +149,7 @@ void show_list_to_char(ObjectData* list, CharData* ch, bool fShort,
 
     if (ch->desc == NULL) return;
 
-    /*
-     * Alloc space for output lines.
-     */
+    // Alloc space for output lines.
     output = new_buf();
 
     count = 0;
@@ -162,9 +158,7 @@ void show_list_to_char(ObjectData* list, CharData* ch, bool fShort,
     prgnShow = alloc_mem(count * sizeof(int));
     nShow = 0;
 
-    /*
-     * Format the list of objects.
-     */
+    // Format the list of objects.
     for (obj = list; obj != NULL; obj = obj->next_content) {
         if (obj->wear_loc == WEAR_UNHELD && can_see_obj(ch, obj)) {
             pstrShow = format_obj_to_char(obj, ch, fShort);
@@ -185,9 +179,7 @@ void show_list_to_char(ObjectData* list, CharData* ch, bool fShort,
                 }
             }
 
-            /*
-             * Couldn't combine, or didn't want to.
-             */
+            // Couldn't combine, or didn't want to.
             if (!fCombine) {
                 prgpstrShow[nShow] = str_dup(pstrShow);
                 prgnShow[nShow] = 1;
@@ -196,9 +188,7 @@ void show_list_to_char(ObjectData* list, CharData* ch, bool fShort,
         }
     }
 
-    /*
-     * Output the formatted list.
-     */
+    // Output the formatted list.
     for (iShow = 0; iShow < nShow; iShow++) {
         if (prgpstrShow[iShow][0] == '\0') {
             free_string(prgpstrShow[iShow]);
@@ -226,9 +216,7 @@ void show_list_to_char(ObjectData* list, CharData* ch, bool fShort,
     }
     page_to_char(BUF(output), ch);
 
-    /*
-     * Clean up.
-     */
+    // Clean up.
     free_buf(output);
     free_mem(prgpstrShow, count * sizeof(char*));
     free_mem(prgnShow, count * sizeof(int));
@@ -1205,9 +1193,7 @@ void do_examine(CharData* ch, char* argument)
     return;
 }
 
-/*
- * Thanks to Zrin for auto-exit part.
- */
+// Thanks to Zrin for auto-exit part.
 void do_exits(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
@@ -1644,9 +1630,7 @@ void do_help(CharData* ch, char* argument)
                 add_buf(output, "\n\r");
             }
 
-            /*
-             * Strip leading '.' to allow initial blanks.
-             */
+            // Strip leading '.' to allow initial blanks.
             if (pHelp->text[0] == '.')
                 add_buf(output, pHelp->text + 1);
             else
@@ -1735,9 +1719,7 @@ void do_whois(CharData* ch, char* argument)
     free_buf(output);
 }
 
-/*
- * New 'who' command originally by Alander of Rivers of Mud.
- */
+// New 'who' command originally by Alander of Rivers of Mud.
 void do_who(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH] = "";
@@ -1760,15 +1742,11 @@ void do_who(CharData* ch, char* argument)
     bool fRaceRestrict = false;
     bool fImmortalOnly = false;
 
-    /*
-     * Set default arguments.
-     */
+    // Set default arguments.
     iLevelLower = 0;
     iLevelUpper = MAX_LEVEL;
 
-    /*
-     * Parse arguments.
-     */
+    // Parse arguments.
     nNumber = 0;
     for (;;) {
         char arg[MAX_STRING_LENGTH];
@@ -1790,9 +1768,7 @@ void do_who(CharData* ch, char* argument)
             }
         }
         else {
-            /*
-             * Look for classes to turn on.
-             */
+            // Look for classes to turn on.
             if (!str_prefix(arg, "immortals")) { 
                 fImmortalOnly = true; 
             }
@@ -1822,9 +1798,7 @@ void do_who(CharData* ch, char* argument)
         }
     }
 
-    /*
-     * Now show matching chars.
-     */
+    // Now show matching chars.
     nMatch = 0;
     buf[0] = '\0';
     output = new_buf();
@@ -1853,9 +1827,7 @@ void do_who(CharData* ch, char* argument)
 
         nMatch++;
 
-        /*
-         * Figure out what to print for class.
-         */
+        // Figure out what to print for class.
         class_ = class_table[wch->ch_class].who_name;
         switch (wch->level) {
         case MAX_LEVEL - 0: class_ = "{=IMP"; break;
@@ -1870,9 +1842,7 @@ void do_who(CharData* ch, char* argument)
         default: break;
         }
 
-        /*
-         * Format it up.
-         */
+        // Format it up.
         sprintf(buf, "{|[{*%2d %6s{* %s{|]{x %s%s%s%s%s%s%s%s\n\r", wch->level,
             race_table[wch->race].who_name,
             class_, wch->incog_level >= LEVEL_HERO ? "{_(Incog){x " : "",
@@ -2015,15 +1985,8 @@ void do_compare(CharData* ch, char* argument)
             break;
 
         case ITEM_WEAPON:
-            if (obj1->prototype->new_format)
-                value1 = (1 + obj1->value[2]) * obj1->value[1];
-            else
-                value1 = obj1->value[1] + obj1->value[2];
-
-            if (obj2->prototype->new_format)
-                value2 = (1 + obj2->value[2]) * obj2->value[1];
-            else
-                value2 = obj2->value[1] + obj2->value[2];
+            value1 = (1 + obj1->value[2]) * obj1->value[1];
+            value2 = (1 + obj2->value[2]) * obj2->value[1];
             break;
             
         default:
@@ -2374,9 +2337,7 @@ void do_practice(CharData* ch, char* argument)
     return;
 }
 
-/*
- * 'Wimpy' originally by Dionysos.
- */
+// 'Wimpy' originally by Dionysos.
 void do_wimpy(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];

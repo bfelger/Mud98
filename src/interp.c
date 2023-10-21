@@ -50,14 +50,10 @@
 
 bool check_social args((CharData * ch, char* command, char* argument));
 
-/*
- * Log-all switch.
- */
+// Log-all switch.
 bool fLogAll = false;
 
-/*
- * Command table.
- */
+// Command table.
 
 void init_command_table(void)
 {
@@ -156,22 +152,16 @@ void interpret(CharData* ch, char* argument)
     int trust;
     bool found;
 
-    /*
-     * Strip leading spaces.
-     */
+    // Strip leading spaces.
     while (ISSPACE(*argument)) 
         argument++;
     if (argument[0] == '\0') 
         return;
 
-    /*
-     * No hiding.
-     */
+    // No hiding.
     REMOVE_BIT(ch->affect_flags, AFF_HIDE);
 
-    /*
-     * Implement freeze command.
-     */
+    // Implement freeze command.
     if (!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_FREEZE)) {
         send_to_char("You're totally frozen!\n\r", ch);
         return;
@@ -194,9 +184,7 @@ void interpret(CharData* ch, char* argument)
         READ_ARG(command);
     }
 
-    /*
-     * Look for command in command table.
-     */
+    // Look for command in command table.
     found = false;
     trust = get_trust(ch);
     //for (cmd = 0; !IS_NULLSTR(social_table[cmd].name); cmd++) {
@@ -209,9 +197,7 @@ void interpret(CharData* ch, char* argument)
         }
     }
 
-    /*
-     * Log and snoop.
-     */
+    // Log and snoop.
     if (cmd_table[cmd].log == LOG_NEVER) 
         strcpy(logline, "");
 
@@ -229,17 +215,13 @@ void interpret(CharData* ch, char* argument)
     }
 
     if (!found) {
-        /*
-         * Look for command in socials table.
-         */
+        // Look for command in socials table.
         if (!check_social(ch, command, argument)) 
             send_to_char("Huh?\n\r", ch);
         return;
     }
 
-    /*
-     * Character not in position for command?
-     */
+    // Character not in position for command?
     if (ch->position < cmd_table[cmd].position) {
         switch (ch->position) {
         case POS_DEAD:
@@ -277,9 +259,7 @@ void interpret(CharData* ch, char* argument)
         return;
     }
 
-    /*
-     * Dispatch the command.
-     */
+    // Dispatch the command.
     (*cmd_table[cmd].do_fun)(ch, argument);
 
     return;
@@ -402,9 +382,7 @@ bool check_social(CharData* ch, char* command, char* argument)
     return true;
 }
 
-/*
- * Return true if an argument is completely numeric.
- */
+// Return true if an argument is completely numeric.
 bool is_number(char* arg)
 {
     if (*arg == '\0') return false;
@@ -418,9 +396,7 @@ bool is_number(char* arg)
     return true;
 }
 
-/*
- * Given a string like 14.foo, return 14 and 'foo'
- */
+// Given a string like 14.foo, return 14 and 'foo'
 int number_argument(char* argument, char* arg)
 {
     char* pdot;
@@ -440,9 +416,7 @@ int number_argument(char* argument, char* arg)
     return 1;
 }
 
-/*
- * Given a string like 14*foo, return 14 and 'foo'
- */
+// Given a string like 14*foo, return 14 and 'foo'
 int mult_argument(char* argument, char* arg)
 {
     char* pdot;
@@ -492,9 +466,7 @@ char* one_argument(char* argument, char* arg_first)
     return argument;
 }
 
-/*
- * Contributed by Alander.
- */
+// Contributed by Alander.
 void do_commands(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];

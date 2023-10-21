@@ -752,9 +752,7 @@ void do_transfer(CharData* ch, char* argument)
         return;
     }
 
-    /*
-     * Thanks to Grodyn for the optional location parameter.
-     */
+    // Thanks to Grodyn for the optional location parameter.
     if (arg2[0] == '\0') { 
         location = ch->in_room; 
     }
@@ -1103,8 +1101,8 @@ void do_ostat(CharData* ch, char* argument)
     sprintf(buf, "Name(s): %s\n\r", obj->name);
     send_to_char(buf, ch);
 
-    sprintf(buf, "Vnum: %d  Format: %s  Type: %s  Resets: %d\n\r",
-            obj->prototype->vnum, obj->prototype->new_format ? "new" : "old",
+    sprintf(buf, "Vnum: %d  Type: %s  Resets: %d\n\r",
+            obj->prototype->vnum, 
             item_table[obj->item_type].name, obj->prototype->reset_num);
     send_to_char(buf, ch);
 
@@ -1230,12 +1228,8 @@ void do_ostat(CharData* ch, char* argument)
             send_to_char("unknown\n\r", ch);
             break;
         }
-        if (obj->prototype->new_format)
-            sprintf(buf, "Damage is %dd%d (average %d)\n\r", obj->value[1],
-                    obj->value[2], (1 + obj->value[2]) * obj->value[1] / 2);
-        else
-            sprintf(buf, "Damage is %d to %d (average %d)\n\r", obj->value[1],
-                    obj->value[2], (obj->value[1] + obj->value[2]) / 2);
+        sprintf(buf, "Damage is %dd%d (average %d)\n\r", obj->value[1],
+                obj->value[2], (1 + obj->value[2]) * obj->value[1] / 2);
         send_to_char(buf, ch);
 
         sprintf(buf, "Damage noun is %s.\n\r",
@@ -1401,9 +1395,9 @@ void do_mstat(CharData* ch, char* argument)
     send_to_char(buf, ch);
 
     sprintf(
-        buf, "Vnum: %d  Format: %s  Race: %s  Group: %d  Sex: %s  Room: %d\n\r",
+        buf, "Vnum: %d  PC/NPC: %s  Race: %s  Group: %d  Sex: %s  Room: %d\n\r",
         IS_NPC(victim) ? victim->prototype->vnum : 0,
-        IS_NPC(victim) ? victim->prototype->new_format ? "new" : "old" : "pc",
+        IS_NPC(victim) ? "npc" : "pc",
         race_table[victim->race].name, IS_NPC(victim) ? victim->group : 0,
         sex_table[victim->sex].name,
         victim->in_room == NULL ? 0 : victim->in_room->vnum);
@@ -1456,7 +1450,7 @@ void do_mstat(CharData* ch, char* argument)
         victim->wimpy);
     send_to_char(buf, ch);
 
-    if (IS_NPC(victim) && victim->prototype->new_format) {
+    if (IS_NPC(victim)) {
         sprintf(buf, "Damage: %dd%d  Message:  %s\n\r",
                 victim->damage[DICE_NUMBER], victim->damage[DICE_TYPE],
                 attack_table[victim->dam_type].noun);
@@ -1622,7 +1616,7 @@ void do_mfind(CharData* ch, char* argument)
      * Do you?
      * -- Furey
      */
-    for (vnum = 0; nMatch < top_mob_prototype; vnum++) {
+    for (vnum = 0; nMatch < mob_proto_count; vnum++) {
         if ((p_mob_proto = get_mob_prototype(vnum)) != NULL) {
             nMatch++;
             if (fAll || is_name(argument, p_mob_proto->name)) {
@@ -1665,7 +1659,7 @@ void do_ofind(CharData* ch, char* argument)
      * Do you?
      * -- Furey
      */
-    for (vnum = 0; nMatch < top_object_prototype; vnum++) {
+    for (vnum = 0; nMatch < obj_proto_count; vnum++) {
         if ((obj_proto = get_object_prototype(vnum)) != NULL) {
             nMatch++;
             if (fAll || is_name(argument, obj_proto->name)) {
@@ -2624,9 +2618,7 @@ void do_log(CharData* ch, char* argument)
         return;
     }
 
-    /*
-     * No level check, gods can log anyone.
-     */
+    // No level check, gods can log anyone.
     if (IS_SET(victim->act_flags, PLR_LOG)) {
         REMOVE_BIT(victim->act_flags, PLR_LOG);
         send_to_char("LOG removed.\n\r", ch);
@@ -2927,9 +2919,7 @@ void do_sset(CharData* ch, char* argument)
         return;
     }
 
-    /*
-     * Snarf the value.
-     */
+    // Snarf the value.
     if (!is_number(arg3)) {
         send_to_char("Value must be numeric.\n\r", ch);
         return;
@@ -2987,14 +2977,10 @@ void do_mset(CharData* ch, char* argument)
     /* clear zones for mobs */
     victim->zone = NULL;
 
-    /*
-     * Snarf the value (which need not be numeric).
-     */
+    // Snarf the value (which need not be numeric).
     value = is_number(arg3) ? atoi(arg3) : -1;
 
-    /*
-     * Set something.
-     */
+    // Set something.
     if (!str_cmp(arg2, "security")) {   // OLC
         if (IS_NPC(ch)) {
             send_to_char("NPC's cannot set security.\n\r", ch);
@@ -3287,9 +3273,7 @@ void do_mset(CharData* ch, char* argument)
         return;
     }
 
-    /*
-     * Generate usage message.
-     */
+    // Generate usage message.
     do_function(ch, &do_mset, "");
     return;
 }
@@ -3463,14 +3447,10 @@ void do_oset(CharData* ch, char* argument)
         return;
     }
 
-    /*
-     * Snarf the value (which need not be numeric).
-     */
+    // Snarf the value (which need not be numeric).
     value = atoi(arg3);
 
-    /*
-     * Set something.
-     */
+    // Set something.
     if (!str_cmp(arg2, "value0") || !str_cmp(arg2, "v0")) {
         obj->value[0] = UMIN(50, value);
         return;
@@ -3526,9 +3506,7 @@ void do_oset(CharData* ch, char* argument)
         return;
     }
 
-    /*
-     * Generate usage message.
-     */
+    // Generate usage message.
     do_function(ch, &do_oset, "");
     return;
 }
@@ -3565,18 +3543,14 @@ void do_rset(CharData* ch, char* argument)
         return;
     }
 
-    /*
-     * Snarf the value.
-     */
+    // Snarf the value.
     if (!is_number(arg3)) {
         send_to_char("Value must be numeric.\n\r", ch);
         return;
     }
     value = atoi(arg3);
 
-    /*
-     * Set something.
-     */
+    // Set something.
     if (!str_prefix(arg2, "flags")) {
         location->room_flags = value;
         return;
@@ -3587,9 +3561,7 @@ void do_rset(CharData* ch, char* argument)
         return;
     }
 
-    /*
-     * Generate usage message.
-     */
+    // Generate usage message.
     do_function(ch, &do_rset, "");
     return;
 }
@@ -3631,9 +3603,7 @@ void do_sockets(CharData* ch, char* argument)
     return;
 }
 
-/*
- * Thanks to Grodyn for pointing out bugs in this function.
- */
+// Thanks to Grodyn for pointing out bugs in this function.
 void do_force(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
@@ -3751,9 +3721,7 @@ void do_force(CharData* ch, char* argument)
     return;
 }
 
-/*
- * New routines by Dionysos.
- */
+// New routines by Dionysos.
 void do_invis(CharData* ch, char* argument)
 {
     LEVEL level;

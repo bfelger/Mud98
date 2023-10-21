@@ -166,6 +166,6 @@ CharData* new_char_data();
 extern CharData* char_list;
 extern CharData* char_free;
 
-extern int mobile_count;
+extern int mob_count;
 
 #endif // !MUD98__ENTITIES__CHAR_DATA_H

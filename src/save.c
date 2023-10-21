@@ -86,15 +86,11 @@ char* print_flags(FLAGS flag)
     return buf;
 }
 
-/*
- * Array of containers read for proper re-nesting of objects.
- */
+// Array of containers read for proper re-nesting of objects.
 #define MAX_NEST 100
 static ObjectData* rgObjNest[MAX_NEST];
 
-/*
- * Local functions.
- */
+// Local functions.
 void fwrite_char(CharData * ch, FILE* fp);
 void fwrite_obj(CharData * ch, ObjectData* obj, FILE* fp, int iNest);
 void fwrite_pet(CharData * pet, FILE* fp);
@@ -142,9 +138,7 @@ void save_char_obj(CharData* ch)
     close_file(fp);
 }
 
-/*
- * Write the char.
- */
+// Write the char.
 void fwrite_char(CharData* ch, FILE* fp)
 {
     AffectData* paf;
@@ -380,9 +374,7 @@ void fwrite_pet(CharData* pet, FILE* fp)
     return;
 }
 
-/*
- * Write an object and its contents.
- */
+// Write an object and its contents.
 void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
 {
     ExtraDesc* ed;
@@ -395,9 +387,7 @@ void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
     if (obj->next_content != NULL) 
         fwrite_obj(ch, obj->next_content, fp, iNest);
 
-    /*
-     * Castrate storage characters.
-     */
+    // Castrate storage characters.
     if ((ch->level < obj->level - 2 && obj->item_type != ITEM_CONTAINER)
         || obj->item_type == ITEM_KEY
         || (obj->item_type == ITEM_MAP && !obj->value[0]))
@@ -405,8 +395,6 @@ void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
 
     fprintf(fp, "#O\n");
     fprintf(fp, "Vnum %"PRVNUM"\n", obj->prototype->vnum);
-    if (!obj->prototype->new_format) 
-        fprintf(fp, "Oldstyle\n");
     if (obj->enchanted) 
         fprintf(fp, "Enchanted\n");
     fprintf(fp, "Nest %d\n", iNest);
@@ -494,9 +482,7 @@ void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
     return;
 }
 
-/*
- * Load a char and inventory into a new ch structure.
- */
+// Load a char and inventory into a new ch structure.
 bool load_char_obj(Descriptor* d, char* name)
 {
     char strsave[MAX_INPUT_LENGTH] = { 0 };
@@ -683,9 +669,7 @@ bool load_char_obj(Descriptor* d, char* name)
     return true;
 }
 
-/*
- * Read in a char.
- */
+// Read in a char.
 
 #if defined(KEY)
 #undef KEY
@@ -1327,14 +1311,10 @@ void fread_obj(CharData* ch, FILE* fp)
     bool fNest;
     bool fVnum;
     bool first;
-    bool new_format; /* to prevent errors */
-    bool make_new; /* update object */
 
     fVnum = false;
     obj = NULL;
     first = true; /* used to counter fp offset */
-    new_format = false;
-    make_new = false;
 
     word = feof(fp) ? "End" : fread_word(fp);
     if (!str_cmp(word, "Vnum")) {
@@ -1347,7 +1327,6 @@ void fread_obj(CharData* ch, FILE* fp)
         }
         else {
             obj = create_object(get_object_prototype(vnum), -1);
-            new_format = true;
         }
     }
 
@@ -1469,26 +1448,6 @@ void fread_obj(CharData* ch, FILE* fp)
                         obj = create_object(get_object_prototype(OBJ_VNUM_DUMMY), 0);
                     }
 
-                    if (!new_format) {
-                        obj->next = object_list;
-                        object_list = obj;
-                        obj->prototype->count++;
-                    }
-
-                    if (!obj->prototype->new_format
-                        && obj->item_type == ITEM_ARMOR && obj->value[1] == 0) {
-                        obj->value[1] = obj->value[0];
-                        obj->value[2] = obj->value[0];
-                    }
-                    if (make_new) {
-                        int16_t wear;
-
-                        wear = obj->wear_loc;
-                        extract_obj(obj);
-
-                        obj = create_object(obj->prototype, 0);
-                        obj->wear_loc = wear;
-                    }
                     if (iNest == 0 || rgObjNest[iNest] == NULL)
                         obj_to_char(obj, ch);
                     else
@@ -1525,11 +1484,6 @@ void fread_obj(CharData* ch, FILE* fp)
             break;
 
         case 'O':
-            if (!str_cmp(word, "Oldstyle")) {
-                if (obj->prototype != NULL && obj->prototype->new_format)
-                    make_new = true;
-                fMatch = true;
-            }
             break;
 
         case 'S':

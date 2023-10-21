@@ -474,9 +474,7 @@ char* first_arg(char* argument, char* arg_first, bool fCase)
     return argument;
 }
 
-/*
- * Used in olc_act.c for aedit_builders.
- */
+// Used in olc_act.c for aedit_builders.
 char* string_unpad(char* argument)
 {
     char buf[MAX_STRING_LENGTH];

@@ -24,7 +24,6 @@ int wiznet_lookup(const char* name);
 int16_t class_lookup(const char* name);
 bool is_clan(CharData* ch);
 bool is_same_clan(CharData* ch, CharData* victim);
-bool is_old_mob(CharData* ch);
 int get_skill(CharData* ch, SKNUM sn);
 SKNUM get_weapon_sn(CharData* ch);
 int get_weapon_skill(CharData* ch, SKNUM sn);

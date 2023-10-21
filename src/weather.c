@@ -99,9 +99,7 @@ void update_weather_info()
         time_info.year++;
     }
 
-    /*
-     * Weather change.
-     */
+    // Weather change.
     if (time_info.month >= 9 && time_info.month <= 16)
         diff = weather_info.mmhg > 985 ? -2 : 2;
     else

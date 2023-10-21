@@ -26,9 +26,7 @@ typedef struct reset_data_t ResetData;
  *   'S': stop (end of list)
  */
 
-/*
- * Area-reset definition.
- */
+// Area-reset definition.
 typedef struct reset_data_t {
     ResetData* next;
     char command;
@@ -53,6 +51,6 @@ ResetData* new_reset_data();
 //    }                                                                          \
 //    aff->next = NULL;
 
-extern int top_reset;
+extern int reset_count;
 
 #endif // !MUD98__ENTITIES__RESET_DATA_H

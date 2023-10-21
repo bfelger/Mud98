@@ -254,9 +254,7 @@ REDIT(redit_mlist)
     return false;
 }
 
-/*
- * Room Editor Functions.
- */
+// Room Editor Functions.
 REDIT(redit_show)
 {
     RoomData* pRoom;
@@ -428,17 +426,13 @@ bool change_exit(CharData* ch, char* argument, Direction door)
             return false;
         }
 
-        /*
-         * This room.
-         */
+        // This room.
         TOGGLE_BIT(pExit->exit_reset_flags, value);
 
         /* Don't toggle exit_flags because it can be changed by players. */
         pExit->exit_flags = pExit->exit_reset_flags;
 
-        /*
-         * Connected room.
-         */
+        // Connected room.
         pToRoom = pExit->u1.to_room;
         rev = dir_list[door].rev_dir;
         pNExit = pToRoom->exit[rev];
@@ -452,9 +446,7 @@ bool change_exit(CharData* ch, char* argument, Direction door)
         return true;
     }
 
-    /*
-     * Now parse the arguments.
-     */
+    // Now parse the arguments.
     READ_ARG(command);
     one_argument(argument, arg);
 
@@ -484,9 +476,7 @@ bool change_exit(CharData* ch, char* argument, Direction door)
 
         pToRoom = pExit->u1.to_room;
 
-        /*
-         * Remove ToRoom Exit.
-         */
+        // Remove ToRoom Exit.
         if (str_cmp(arg, "simple") && pToRoom) {
             rev = dir_list[door].rev_dir;
             pNExit = pToRoom->exit[rev];
@@ -503,9 +493,7 @@ bool change_exit(CharData* ch, char* argument, Direction door)
             }
         }
 
-        /*
-         * Remove this exit.
-         */
+        // Remove this exit.
         printf_to_char(ch, "{jExit %s to room %d deleted.{x\n\r",
             dir_list[door].name, pRoom->vnum);
         free_exit(pRoom->exit[door]);
@@ -808,9 +796,7 @@ REDIT(redit_mreset)
         return false;
     }
 
-    /*
-     * Create the mobile reset.
-     */
+    // Create the mobile reset.
     pReset = new_reset_data();
     pReset->command = 'M';
     pReset->arg1 = p_mob_proto->vnum;
@@ -819,9 +805,7 @@ REDIT(redit_mreset)
     pReset->arg4 = is_number(argument) ? (int16_t)atoi(argument) : 1;
     add_reset(pRoom, pReset, 0/* Last slot*/);
 
-    /*
-     * Create the mobile.
-     */
+    // Create the mobile.
     newmob = create_mobile(p_mob_proto);
     char_to_room(newmob, pRoom);
 
@@ -872,9 +856,7 @@ REDIT(redit_oreset)
         return false;
     }
 
-    /*
-     * Load into room.
-     */
+    // Load into room.
     if (arg2[0] == '\0') {
         pReset = new_reset_data();
         pReset->command = 'O';
@@ -893,9 +875,7 @@ REDIT(redit_oreset)
         send_to_char(output, ch);
     }
     else
-    /*
-     * Load into object's inventory.
-     */
+    // Load into object's inventory.
         if (argument[0] == '\0'
             && ((to_obj = get_obj_list(ch, arg2, pRoom->contents)) != NULL)) {
             pReset = new_reset_data();
@@ -919,23 +899,17 @@ REDIT(redit_oreset)
             send_to_char(output, ch);
         }
         else
-        /*
-         * Load into mobile's inventory.
-         */
+        // Load into mobile's inventory.
             if ((to_mob = get_char_room(ch, arg2)) != NULL) {
                 int wearloc;
 
-                /*
-                 * Make sure the location on mobile is valid.
-                 */
+                // Make sure the location on mobile is valid.
                 if ((wearloc = flag_value(wear_loc_flag_table, argument)) == NO_FLAG) {
                     send_to_char("REdit: Invalid wear_loc.  '? wear-loc'\n\r", ch);
                     return false;
                 }
 
-                /*
-                 * Disallow loading a sword(WEAR_WIELD) into WEAR_HEAD.
-                 */
+                // Disallow loading a sword(WEAR_WIELD) into WEAR_HEAD.
                 if (!IS_SET(obj_proto->wear_flags, wear_bit(wearloc))) {
                     sprintf(output,
                         "%s (%d) has wear flags: [%s]\n\r",
@@ -946,9 +920,7 @@ REDIT(redit_oreset)
                     return false;
                 }
 
-                /*
-                 * Can't load into same position.
-                 */
+                // Can't load into same position.
                 if (get_eq_char(to_mob, wearloc)) {
                     send_to_char("REdit:  Object already equipped.\n\r", ch);
                     return false;
@@ -1449,9 +1421,7 @@ void display_resets(CharData* ch, RoomData* pRoom)
             strcat(final, buf);
 
             break;
-            /*
-             * End Doors Comment.
-             */
+            // End Doors Comment.
         case 'R':
             if (!(pRoomIndex = get_room_data(pReset->arg1))) {
                 sprintf(buf, "Randomize Exits - Bad Room %d\n\r",
@@ -1498,9 +1468,7 @@ void    add_reset(RoomData* room, ResetData* pReset, int indice)
         return;
     }
 
-    /*
-     * If negative slot( <= 0 selected) then this will find the last.
-     */
+    // If negative slot( <= 0 selected) then this will find the last.
     for (reset = room->reset_first; reset->next; NEXT_LINK(reset)) {
         if (++iReset == indice)
             break;

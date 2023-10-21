@@ -111,9 +111,7 @@ FLAGS flag_value(const struct flag_type* flag_table, char* argument)
         return flag_lookup(word, flag_table);
     }
 
-    /*
-     * Accept multiple flags.
-     */
+    // Accept multiple flags.
     for (; ;) {
         READ_ARG(word);
 

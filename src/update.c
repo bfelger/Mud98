@@ -57,9 +57,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-/*
- * Local functions.
- */
+// Local functions.
 int hit_gain args((CharData * ch));
 int mana_gain args((CharData * ch));
 int move_gain args((CharData * ch));
@@ -72,9 +70,7 @@ void aggr_update();
 
 int save_number = 0;
 
-/*
- * Advancement stuff.
- */
+// Advancement stuff.
 void advance_level(CharData* ch, bool hide)
 {
     char buf[MAX_STRING_LENGTH];
@@ -156,9 +152,7 @@ void gain_exp(CharData* ch, int gain)
     return;
 }
 
-/*
- * Regeneration stuff.
- */
+// Regeneration stuff.
 int hit_gain(CharData* ch)
 {
     int gain;
@@ -208,9 +202,11 @@ int hit_gain(CharData* ch)
             break;
         }
 
-        if (ch->pcdata->condition[COND_HUNGER] == 0) gain /= 2;
+        if (ch->pcdata->condition[COND_HUNGER] == 0) 
+            gain /= 2;
 
-        if (ch->pcdata->condition[COND_THIRST] == 0) gain /= 2;
+        if (ch->pcdata->condition[COND_THIRST] == 0) 
+            gain /= 2;
     }
 
     gain = gain * ch->in_room->heal_rate / 100;
@@ -218,11 +214,14 @@ int hit_gain(CharData* ch)
     if (ch->on != NULL && ch->on->item_type == ITEM_FURNITURE)
         gain = gain * ch->on->value[3] / 100;
 
-    if (IS_AFFECTED(ch, AFF_POISON)) gain /= 4;
+    if (IS_AFFECTED(ch, AFF_POISON)) 
+        gain /= 4;
 
-    if (IS_AFFECTED(ch, AFF_PLAGUE)) gain /= 8;
+    if (IS_AFFECTED(ch, AFF_PLAGUE)) 
+        gain /= 8;
 
-    if (IS_AFFECTED(ch, AFF_HASTE) || IS_AFFECTED(ch, AFF_SLOW)) gain /= 2;
+    if (IS_AFFECTED(ch, AFF_HASTE) || IS_AFFECTED(ch, AFF_SLOW)) 
+        gain /= 2;
 
     return UMIN(gain, ch->max_hit - ch->hit);
 }
@@ -496,9 +495,7 @@ void mobile_update()
     }
 }
 
-/*
- * Update all chars, including mobs.
- */
+// Update all chars, including mobs.
 void char_update(void)
 {
     CharData* ch;

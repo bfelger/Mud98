@@ -130,6 +130,6 @@ AffectData* new_affect();
     aff->next = NULL;
 
 extern AffectData* affect_free;
-extern int top_affect;
+extern int affect_count;
 
 #endif // !MUD98__ENTITIES__AFFECT_DATA_H

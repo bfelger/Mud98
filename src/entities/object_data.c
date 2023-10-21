@@ -12,9 +12,9 @@
 #include "recycle.h"
 
 ObjectPrototype* object_prototype_hash[MAX_KEY_HASH];
-int top_object_prototype;
-VNUM top_vnum_obj;      // OLC
-int newobjs = 0;
+int obj_proto_count;
+int obj_count;
+VNUM top_vnum_obj;
 ObjectPrototype* object_prototype_free;
 ObjectData* object_free;
 ObjectData* object_list;
@@ -61,217 +61,80 @@ void clone_object(ObjectData* parent, ObjectData* clone)
     }
 }
 
-/*****************************************************************************
- Name:		convert_object
- Purpose:	Converts an old_format obj to new_format
- Called by:	convert_objects (db2.c).
- Note:          Dug out of create_obj (db.c)
- Author:        Hugin
- ****************************************************************************/
-void convert_object(ObjectPrototype* obj_proto)
-{
-    LEVEL level;
-    int number, type;  /* for dice-conversion */
 
-    if (!obj_proto || obj_proto->new_format) return;
-
-    level = obj_proto->level;
-
-    obj_proto->level = UMAX(0, obj_proto->level); /* just to be sure */
-    obj_proto->cost = 10 * level;
-
-    switch (obj_proto->item_type) {
-    case ITEM_WAND:
-    case ITEM_STAFF:
-        obj_proto->value[2] = obj_proto->value[1];
-        break;
-
-    case ITEM_WEAPON:
-
-        /*
-         * The conversion below is based on the values generated
-         * in one_hit() (fight.c).  Since I don't want a lvl 50
-         * weapon to do 15d3 damage, the min value will be below
-         * the one in one_hit, and to make up for it, I've made
-         * the max value higher.
-         * (I don't want 15d2 because this will hardly ever roll
-         * 15 or 30, it will only roll damage close to 23.
-         * I can't do 4d8+11, because one_hit there is no dice-
-         * bounus value to set...)
-         *
-         * The conversion below gives:
-
-         level:   dice      min      max      mean
-           1:     1d8      1( 2)    8( 7)     5( 5)
-           2:     2d5      2( 3)   10( 8)     6( 6)
-           3:     2d5      2( 3)   10( 8)     6( 6)
-           5:     2d6      2( 3)   12(10)     7( 7)
-          10:     4d5      4( 5)   20(14)    12(10)
-          20:     5d5      5( 7)   25(21)    15(14)
-          30:     5d7      5(10)   35(29)    20(20)
-          50:     5d11     5(15)   55(44)    30(30)
-
-         */
-
-        number = UMIN(level / 4 + 1, 5);
-        type = (level + 7) / number;
-
-        obj_proto->value[1] = number;
-        obj_proto->value[2] = type;
-        break;
-
-    case ITEM_ARMOR:
-        obj_proto->value[0] = level / 5 + 3;
-        obj_proto->value[1] = obj_proto->value[0];
-        obj_proto->value[2] = obj_proto->value[0];
-        break;
-
-    case ITEM_MONEY:
-        obj_proto->value[0] = obj_proto->cost;
-        break;
-
-    default:
-        bug("Obj_convert: vnum %"PRVNUM" bad type.", obj_proto->item_type);
-        break;
-    }
-
-    obj_proto->new_format = true;
-    ++newobjs;
-
-    return;
-}
-
-/*****************************************************************************
- Name:	        convert_objects
- Purpose:	Converts all old format objects to new format
- Called by:	boot_db (db.c).
- Note:          Loops over all resets to find the level of the mob
-                loaded before the object to determine the level of
-                the object.
-        It might be better to update the levels in load_resets().
-        This function is not pretty.. Sorry about that :)
- Author:        Hugin
- ****************************************************************************/
-void convert_objects()
-{
-    VNUM vnum;
-    AreaData* pArea;
-    ResetData* pReset;
-    MobPrototype* pMob = NULL;
-    ObjectPrototype* pObj;
-    RoomData* pRoom;
-
-    if (newobjs == top_object_prototype) return; /* all objects in new format */
-
-    FOR_EACH(pArea, area_first) {
-        for (vnum = pArea->min_vnum; vnum <= pArea->max_vnum; vnum++) {
-            if (!(pRoom = get_room_data(vnum))) continue;
-
-            FOR_EACH(pReset, pRoom->reset_first) {
-                switch (pReset->command) {
-                case 'M':
-                    if (!(pMob = get_mob_prototype(pReset->arg1)))
-                        bug("Convert_objects: 'M': bad vnum %"PRVNUM".", pReset->arg1);
-                    break;
-
-                case 'O':
-                    if (!(pObj = get_object_prototype(pReset->arg1))) {
-                        bug("Convert_objects: 'O': bad vnum %"PRVNUM".", pReset->arg1);
-                        break;
-                    }
-
-                    if (pObj->new_format)
-                        continue;
-
-                    if (!pMob) {
-                        bug("Convert_objects: 'O': No mob reset yet.", 0);
-                        break;
-                    }
-
-                    pObj->level = pObj->level < 1 ? pMob->level - 2
-                        : UMIN(pObj->level, pMob->level - 2);
-                    break;
-
-                case 'P':
-                {
-                    ObjectPrototype* pObjTo;
-
-                    if (!(pObj = get_object_prototype(pReset->arg1))) {
-                        bug("Convert_objects: 'P': bad vnum %"PRVNUM".", pReset->arg1);
-                        break;
-                    }
-
-                    if (pObj->new_format)
-                        continue;
-
-                    if (!(pObjTo = get_object_prototype(pReset->arg3))) {
-                        bug("Convert_objects: 'P': bad vnum %"PRVNUM".", pReset->arg3);
-                        break;
-                    }
-
-                    pObj->level = pObj->level < 1 ? pObjTo->level
-                        : UMIN(pObj->level, pObjTo->level);
-                }
-                break;
-
-                case 'G':
-                case 'E':
-                    if (!(pObj = get_object_prototype(pReset->arg1))) {
-                        bug("Convert_objects: 'E' or 'G': bad vnum %"PRVNUM".", pReset->arg1);
-                        break;
-                    }
-
-                    if (!pMob) {
-                        bug("Convert_objects: 'E' or 'G': null mob for vnum %"PRVNUM".",
-                            pReset->arg1);
-                        break;
-                    }
-
-                    if (pObj->new_format)
-                        continue;
-
-                    if (pMob->pShop) {
-                        switch (pObj->item_type) {
-                        case ITEM_PILL:
-                        case ITEM_POTION:
-                            pObj->level = UMAX(5, pObj->level);
-                            break;
-                        case ITEM_SCROLL:
-                        case ITEM_ARMOR:
-                        case ITEM_WEAPON:
-                            pObj->level = UMAX(10, pObj->level);
-                            break;
-                        case ITEM_WAND:
-                        case ITEM_TREASURE:
-                            pObj->level = UMAX(15, pObj->level);
-                            break;
-                        case ITEM_STAFF:
-                            pObj->level = UMAX(20, pObj->level);
-                            break;
-                        default:
-                            pObj->level = UMAX(0, pObj->level);
-                            break;
-                        }
-                    }
-                    else
-                        pObj->level = pObj->level < 1 ? pMob->level
-                        : UMIN(pObj->level, pMob->level);
-                    break;
-                } /* switch ( pReset->command ) */
-            }
-        }
-    }
-
-    /* do the conversion: */
-
-    FOR_EACH(pArea, area_first)
-        for (vnum = pArea->min_vnum; vnum <= pArea->max_vnum; vnum++)
-            if ((pObj = get_object_prototype(vnum)))
-                if (!pObj->new_format)
-                    convert_object(pObj);
-
-    return;
-}
+// Preserved for historical reasons, and to demonstrate how current values were
+// arrived at. -- Halivar
+//void convert_object(ObjectPrototype* obj_proto)
+//{
+//    LEVEL level;
+//    int number, type;  /* for dice-conversion */
+//
+//    if (!obj_proto || obj_proto->new_format) return;
+//
+//    level = obj_proto->level;
+//
+//    obj_proto->level = UMAX(0, obj_proto->level); /* just to be sure */
+//    obj_proto->cost = 10 * level;
+//
+//    switch (obj_proto->item_type) {
+//    case ITEM_WAND:
+//    case ITEM_STAFF:
+//        obj_proto->value[2] = obj_proto->value[1];
+//        break;
+//
+//    case ITEM_WEAPON:
+//
+//        /*
+//         * The conversion below is based on the values generated
+//         * in one_hit() (fight.c).  Since I don't want a lvl 50
+//         * weapon to do 15d3 damage, the min value will be below
+//         * the one in one_hit, and to make up for it, I've made
+//         * the max value higher.
+//         * (I don't want 15d2 because this will hardly ever roll
+//         * 15 or 30, it will only roll damage close to 23.
+//         * I can't do 4d8+11, because one_hit there is no dice-
+//         * bounus value to set...)
+//         *
+//         * The conversion below gives:
+//
+//         level:   dice      min      max      mean
+//           1:     1d8      1( 2)    8( 7)     5( 5)
+//           2:     2d5      2( 3)   10( 8)     6( 6)
+//           3:     2d5      2( 3)   10( 8)     6( 6)
+//           5:     2d6      2( 3)   12(10)     7( 7)
+//          10:     4d5      4( 5)   20(14)    12(10)
+//          20:     5d5      5( 7)   25(21)    15(14)
+//          30:     5d7      5(10)   35(29)    20(20)
+//          50:     5d11     5(15)   55(44)    30(30)
+//
+//         */
+//
+//        number = UMIN(level / 4 + 1, 5);
+//        type = (level + 7) / number;
+//
+//        obj_proto->value[1] = number;
+//        obj_proto->value[2] = type;
+//        break;
+//
+//    case ITEM_ARMOR:
+//        obj_proto->value[0] = level / 5 + 3;
+//        obj_proto->value[1] = obj_proto->value[0];
+//        obj_proto->value[2] = obj_proto->value[0];
+//        break;
+//
+//    case ITEM_MONEY:
+//        obj_proto->value[0] = obj_proto->cost;
+//        break;
+//
+//    default:
+//        bug("Obj_convert: vnum %"PRVNUM" bad type.", obj_proto->item_type);
+//        break;
+//    }
+//
+//    obj_proto->new_format = true;
+//
+//    return;
+//}
 
 ObjectData* create_object(ObjectPrototype* obj_proto, LEVEL level)
 {
@@ -290,10 +153,7 @@ ObjectData* create_object(ObjectPrototype* obj_proto, LEVEL level)
     obj->in_room = NULL;
     obj->enchanted = false;
 
-    if (obj_proto->new_format)
-        obj->level = obj_proto->level;
-    else
-        obj->level = UMAX(0, level);
+    obj->level = obj_proto->level;
     obj->wear_loc = -1;
 
     obj->name = str_dup(obj_proto->name);           /* OLC */
@@ -310,78 +170,19 @@ ObjectData* create_object(ObjectPrototype* obj_proto, LEVEL level)
     obj->value[4] = obj_proto->value[4];
     obj->weight = obj_proto->weight;
 
-    if (level == -1 || obj_proto->new_format)
+    if (level == -1)
         obj->cost = obj_proto->cost;
     else
-        obj->cost
-        = number_fuzzy(10) * number_fuzzy(level) * number_fuzzy(level);
+        obj->cost = number_fuzzy(10) * number_fuzzy(level) * number_fuzzy(level);
 
-/*
- * Mess with object properties.
- */
+// Mess with object properties.
     switch (obj->item_type) {
     case ITEM_LIGHT:
         if (obj->value[2] == 999) obj->value[2] = -1;
         break;
 
-    case ITEM_FURNITURE:
-    case ITEM_TRASH:
-    case ITEM_CONTAINER:
-    case ITEM_DRINK_CON:
-    case ITEM_KEY:
-    case ITEM_FOOD:
-    case ITEM_BOAT:
-    case ITEM_CORPSE_NPC:
-    case ITEM_CORPSE_PC:
-    case ITEM_FOUNTAIN:
-    case ITEM_MAP:
-    case ITEM_CLOTHING:
-    case ITEM_PORTAL:
-        if (!obj_proto->new_format) obj->cost /= 5;
-        break;
-
     case ITEM_JUKEBOX:
         for (i = 0; i < 5; i++) obj->value[i] = -1;
-        break;
-
-    case ITEM_SCROLL:
-        if (level != -1 && !obj_proto->new_format)
-            obj->value[0] = number_fuzzy(obj->value[0]);
-        break;
-
-    case ITEM_WAND:
-    case ITEM_STAFF:
-        if (level != -1 && !obj_proto->new_format) {
-            obj->value[0] = number_fuzzy(obj->value[0]);
-            obj->value[1] = number_fuzzy(obj->value[1]);
-            obj->value[2] = obj->value[1];
-        }
-        if (!obj_proto->new_format) obj->cost *= 2;
-        break;
-
-    case ITEM_WEAPON:
-        if (level != -1 && !obj_proto->new_format) {
-            obj->value[1] = number_fuzzy(number_fuzzy(1 * level / 4 + 2));
-            obj->value[2] = number_fuzzy(number_fuzzy(3 * level / 4 + 6));
-        }
-        break;
-
-    case ITEM_ARMOR:
-        if (level != -1 && !obj_proto->new_format) {
-            obj->value[0] = number_fuzzy(level / 5 + 3);
-            obj->value[1] = number_fuzzy(level / 5 + 3);
-            obj->value[2] = number_fuzzy(level / 5 + 3);
-        }
-        break;
-
-    case ITEM_POTION:
-    case ITEM_PILL:
-        if (level != -1 && !obj_proto->new_format)
-            obj->value[0] = number_fuzzy(number_fuzzy(obj->value[0]));
-        break;
-
-    case ITEM_MONEY:
-        if (!obj_proto->new_format) obj->value[0] = obj->cost;
         break;
 
     default:
@@ -395,6 +196,7 @@ ObjectData* create_object(ObjectPrototype* obj_proto, LEVEL level)
     obj->next = object_list;
     object_list = obj;
     obj_proto->count++;
+    obj_count++;
 
     return obj;
 }
@@ -406,7 +208,8 @@ void free_object(ObjectData* obj)
     ExtraDesc* ed;
     ExtraDesc* ed_next = NULL;
 
-    if (!IS_VALID(obj)) return;
+    if (!IS_VALID(obj)) 
+        return;
 
     for (paf = obj->affected; paf != NULL; paf = paf_next) {
         paf_next = paf->next;
@@ -426,6 +229,7 @@ void free_object(ObjectData* obj)
     free_string(obj->owner);
     INVALIDATE(obj);
 
+    obj_count--;
     obj->next = object_free;
     object_free = obj;
 }
@@ -472,9 +276,7 @@ ObjectPrototype* get_object_prototype(VNUM vnum)
     return NULL;
 }
 
-/*
- * Snarf an obj section. new style
- */
+// Snarf an obj section. new style
 void load_objects(FILE* fp)
 {
     ObjectPrototype* obj_proto;
@@ -509,10 +311,8 @@ void load_objects(FILE* fp)
 
         obj_proto = alloc_perm(sizeof(*obj_proto));
         obj_proto->vnum = vnum;
-        obj_proto->area = area_last;    // OLC
-        obj_proto->new_format = true;
+        obj_proto->area = area_last;
         obj_proto->reset_num = 0;
-        newobjs++;
         obj_proto->name = fread_string(fp);
         obj_proto->short_descr = fread_string(fp);
         obj_proto->description = fread_string(fp);
@@ -619,7 +419,7 @@ void load_objects(FILE* fp)
                 paf->modifier = (int16_t)fread_number(fp);
                 paf->bitvector = 0;
                 ADD_AFF_DATA(obj_proto, paf)
-                top_affect++;
+                affect_count++;
             }
 
             else if (letter == 'F') {
@@ -653,7 +453,7 @@ void load_objects(FILE* fp)
                 paf->modifier = (int16_t)fread_number(fp);
                 paf->bitvector = fread_flag(fp);
                 ADD_AFF_DATA(obj_proto, paf)
-                top_affect++;
+                affect_count++;
             }
 
             else if (letter == 'E') {
@@ -665,7 +465,7 @@ void load_objects(FILE* fp)
                 ed->keyword = fread_string(fp);
                 ed->description = fread_string(fp);
                 ADD_EXTRA_DESC(obj_proto, ed)
-                top_ed++;
+                extra_desc_count++;
             }
 
             else {
@@ -677,7 +477,7 @@ void load_objects(FILE* fp)
         iHash = vnum % MAX_KEY_HASH;
         obj_proto->next = object_prototype_hash[iHash];
         object_prototype_hash[iHash] = obj_proto;
-        top_object_prototype++;
+        obj_proto_count++;
         top_vnum_obj = top_vnum_obj < vnum ? vnum : top_vnum_obj;   // OLC
         assign_area_vnum(vnum);                                     // OLC
     }
@@ -709,7 +509,7 @@ ObjectPrototype* new_object_prototype()
 
     if (!object_prototype_free) {
         pObj = alloc_perm(sizeof(*pObj));
-        top_object_prototype++;
+        obj_proto_count++;
     }
     else {
         pObj = object_prototype_free;
@@ -730,11 +530,9 @@ ObjectPrototype* new_object_prototype()
     pObj->count = 0;
     pObj->weight = 0;
     pObj->cost = 0;
-    pObj->condition = 100;			/* ROM */
-    for (value = 0; value < 5; value++)		/* 5 - ROM */
+    pObj->condition = 100;
+    for (value = 0; value < 5; value++)
         pObj->value[value] = 0;
-
-    pObj->new_format = true; /* ROM */
 
     return pObj;
 }

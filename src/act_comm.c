@@ -1022,9 +1022,7 @@ void do_pmote(CharData* ch, char* argument)
     return;
 }
 
-/*
- * All the posing stuff.
- */
+// All the posing stuff.
 struct pose_table_type {
     char* message[2 * 4];
 };
@@ -1223,9 +1221,7 @@ void do_quit(CharData* ch, char* argument)
     log_string(log_buf);
     wiznet("$N rejoins the real world.", ch, NULL, WIZ_LOGINS, 0, get_trust(ch));
 
-    /*
-     * After extract_char the ch is no longer valid!
-     */
+    // After extract_char the ch is no longer valid!
     save_char_obj(ch);
     id = ch->id;
     d = ch->desc;
@@ -1531,9 +1527,7 @@ void do_group(CharData* ch, char* argument)
     return;
 }
 
-/*
- * 'Split' originally by Gnort, God of Chaos.
- */
+// 'Split' originally by Gnort, God of Chaos.
 void do_split(CharData* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];

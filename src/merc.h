@@ -152,9 +152,7 @@ typedef void SpellFunc(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
 #define AVATAR              (MAX_LEVEL - 8)
 #define HERO                LEVEL_HERO
 
-/*
- * Utility macros.
- */
+// Utility macros.
 #define IS_VALID(data)       ((data) != NULL && (data)->valid)
 #define VALIDATE(data)       ((data)->valid = true)
 #define INVALIDATE(data)     ((data)->valid = false)

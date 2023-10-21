@@ -59,9 +59,7 @@
 #include <sys/time.h>
 #endif
 
-/*
- * Local functions.
- */
+// Local functions.
 #define CD CharData
 #define OD ObjectData
 bool remove_obj args((CharData * ch, int iWear, bool fReplace));
@@ -1185,9 +1183,7 @@ void do_eat(CharData* ch, char* argument)
     return;
 }
 
-/*
- * Remove an object.
- */
+// Remove an object.
 bool remove_obj(CharData* ch, WearLocation iWear, bool fReplace)
 {
     ObjectData* obj;
@@ -1909,9 +1905,7 @@ void do_steal(CharData* ch, char* argument)
          && !IS_NPC(victim) && !IS_NPC(ch))
         || (!IS_NPC(ch) && percent > get_skill(ch, gsn_steal))
         || (!IS_NPC(ch) && !is_clan(ch))) {
-        /*
-         * Failure.
-         */
+        // Failure.
         send_to_char("Oops.\n\r", ch);
         affect_strip(ch, gsn_sneak);
         REMOVE_BIT(ch->affect_flags, AFF_SNEAK);
@@ -2012,9 +2006,7 @@ void do_steal(CharData* ch, char* argument)
     return;
 }
 
-/*
- * Shopping commands.
- */
+// Shopping commands.
 CharData* find_keeper(CharData* ch)
 {
     /*char buf[MAX_STRING_LENGTH];*/
@@ -2051,9 +2043,7 @@ CharData* find_keeper(CharData* ch)
         return NULL;
     }
         */
-    /*
-     * Shop hours.
-     */
+    // Shop hours.
     if (time_info.hour < pShop->open_hour) {
         do_function(keeper, &do_say, "Sorry, I am closed. Come back later.");
         return NULL;
@@ -2064,9 +2054,7 @@ CharData* find_keeper(CharData* ch)
         return NULL;
     }
 
-    /*
-     * Invisible or hidden people.
-     */
+    // Invisible or hidden people.
     if (!can_see(keeper, ch)) {
         do_function(keeper, &do_say, "I don't trade with folks I can't see.");
         return NULL;

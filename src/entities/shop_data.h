@@ -32,6 +32,6 @@ void free_shop_data(ShopData* pShop);
 extern ShopData* shop_first;
 extern ShopData* shop_last;
 
-extern int top_shop;
+extern int shop_count;
 
 #endif // !MUD98__ENTITITES__SHOP_DATA_H

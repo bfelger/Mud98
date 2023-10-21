@@ -405,9 +405,7 @@ void note_remove(CharData* ch, NoteData* pnote, bool delete)
         break;
     }
 
-    /*
-     * Remove note from linked list.
-     */
+    // Remove note from linked list.
     if (pnote == *list) { *list = pnote->next; }
     else {
         FOR_EACH(prev, *list) {

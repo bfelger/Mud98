@@ -57,9 +57,7 @@
 #include <sys/time.h>
 #endif
 
-/*
- * Local functions.
- */
+// Local functions.
 int find_door args((CharData * ch, char* arg));
 bool has_key args((CharData * ch, int key));
 
@@ -135,9 +133,7 @@ void move_char(CharData* ch, int door, bool follow)
             ObjectData* obj;
             bool found;
 
-            /*
-             * Look for a boat.
-             */
+            // Look for a boat.
             found = false;
 
             if (IS_IMMORTAL(ch)) found = true;
@@ -1386,9 +1382,7 @@ void do_hide(CharData* ch, char* argument)
     return;
 }
 
-/*
- * Contributed by Alander.
- */
+// Contributed by Alander.
 void do_visible(CharData* ch, char* argument)
 {
     affect_strip(ch, gsn_invis);

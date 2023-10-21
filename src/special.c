@@ -53,9 +53,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-/*
- * The following special functions are available for mobiles.
- */
+// The following special functions are available for mobiles.
 DECLARE_SPEC_FUN(spec_breath_any);
 DECLARE_SPEC_FUN(spec_breath_acid);
 DECLARE_SPEC_FUN(spec_breath_fire);
@@ -105,9 +103,7 @@ const struct spec_type spec_table[]
        {"spec_patrolman", spec_patrolman},
        {NULL, NULL}};
 
-/*
- * Given a name, return the appropriate spec fun.
- */
+// Given a name, return the appropriate spec fun.
 SpecFunc* spec_lookup(const char* name)
 {
     int i;
@@ -378,9 +374,7 @@ bool spec_nasty(CharData* ch)
     }
 }
 
-/*
- * Core procedure for dragons.
- */
+// Core procedure for dragons.
 bool dragon(CharData* ch, char* spell_name)
 {
     CharData* victim;
@@ -401,9 +395,7 @@ bool dragon(CharData* ch, char* spell_name)
     return true;
 }
 
-/*
- * Special procedures for mobiles.
- */
+// Special procedures for mobiles.
 bool spec_breath_any(CharData* ch)
 {
     if (ch->position != POS_FIGHTING) return false;

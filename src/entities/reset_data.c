@@ -7,7 +7,7 @@
 
 #include "db.h"
 
-int top_reset;
+int reset_count;
 ResetData* reset_free;
 
 ResetData* new_reset_data()
@@ -16,7 +16,7 @@ ResetData* new_reset_data()
 
     if (!reset_free) {
         pReset = alloc_perm(sizeof(ResetData));
-        top_reset++;
+        reset_count++;
     }
     else {
         pReset = reset_free;

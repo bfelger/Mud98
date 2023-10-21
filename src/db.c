@@ -88,9 +88,7 @@
 
 MobProgCode* pedit_prog(VNUM);
 
-/*
- * Globals.
- */
+// Globals.
 
 MobProgCode* mprog_list;
 
@@ -103,16 +101,14 @@ KillData kill_table[MAX_LEVEL];
 #include "gsn.h"
 #undef GSN
 
-/*
- * Locals.
- */
+// Locals.
 char* string_hash[MAX_KEY_HASH];
 
 char* string_space;
 char* top_string;
 char str_empty[1];
 
-int top_ed;
+int extra_desc_count;
 int	top_mprog_index;    // OLC
 
 /*
@@ -142,17 +138,13 @@ size_t sAllocString;
 int nAllocPerm;
 size_t sAllocPerm;
 
-/*
- * Semi-locals.
- */
+// Semi-locals.
 bool fBootDb;
 FILE* strArea;
 char fpArea[MAX_INPUT_LENGTH];
 AreaData* current_area;
 
-/*
- * Local booting procedures.
- */
+// Local booting procedures.
 void init_mm();
 void load_area(FILE* fp);
 void load_helps(FILE* fp, char* fname);
@@ -170,14 +162,10 @@ void fix_mobprogs();
 
 void reset_area(AreaData * pArea);
 
-/*
- * Big mama top level function.
- */
+// Big mama top level function.
 void boot_db()
 {
-    /*
-     * Init some data space stuff.
-     */
+    // Init some data space stuff.
     {
         if ((string_space = calloc(1, MAX_STRING)) == NULL) {
             bug("Boot_db: can't alloc %d string space.", MAX_STRING);
@@ -187,9 +175,7 @@ void boot_db()
         fBootDb = true;
     }
 
-    /*
-     * Init random number generator.
-     */
+    // Init random number generator.
     {
         init_mm();
     }
@@ -207,14 +193,10 @@ void boot_db()
     //save_skill_group_table();
     //save_skill_table();
 
-    /*
-     * Set time and weather.
-     */
+    // Set time and weather.
     init_weather_info();
 
-    /*
-     * Assign gsn's for skills which have them.
-     */
+    // Assign gsn's for skills which have them.
     {
         SKNUM sn;
 
@@ -224,9 +206,7 @@ void boot_db()
         }
     }
 
-    /*
-     * Read in all the area files.
-     */
+    // Read in all the area files.
     {
         FILE* fpList;
         char area_file[256];
@@ -259,14 +239,10 @@ void boot_db()
                     load_area(strArea);
                 else if (!str_cmp(word, "HELPS"))
                     load_helps(strArea, fpArea);
-                else if (!str_cmp(word, "MOBOLD"))
-                    load_old_mob(strArea);
                 else if (!str_cmp(word, "MOBILES"))
                     load_mobiles(strArea);
                 else if (!str_cmp(word, "MOBPROGS"))
                     load_mobprogs(strArea);
-                else if (!str_cmp(word, "OBJOLD"))
-                    load_old_obj(strArea);
                 else if (!str_cmp(word, "OBJECTS"))
                     load_objects(strArea);
                 else if (!str_cmp(word, "RESETS"))
@@ -275,8 +251,6 @@ void boot_db()
                     load_rooms(strArea);
                 else if (!str_cmp(word, "SHOPS"))
                     load_shops(strArea);
-                else if (!str_cmp(word, "SOCIALS"))
-                    load_social(strArea);
                 else if (!str_cmp(word, "SPECIALS"))
                     load_specials(strArea);
                 else if (!str_cmp(word, "QUEST"))
@@ -303,7 +277,6 @@ void boot_db()
         fix_exits();
         fix_mobprogs();
         fBootDb = false;
-        convert_objects();  // OLC
         area_update();
         load_notes();
         load_bans();
@@ -424,9 +397,7 @@ void load_area(FILE* fp)
     }
 }
 
-/*
- * Sets vnum range for area using OLC protection features.
- */
+// Sets vnum range for area using OLC protection features.
 void assign_area_vnum(VNUM vnum)
 {
     if (area_last->min_vnum == 0 || area_last->max_vnum == 0)
@@ -440,9 +411,7 @@ void assign_area_vnum(VNUM vnum)
     return;
 }
 
-/*
- * Snarf a help section.
- */
+// Snarf a help section.
 void load_helps(FILE* fp, char* fname)
 {
     HelpData* pHelp;
@@ -512,15 +481,13 @@ void load_helps(FILE* fp, char* fname)
         had->last = pHelp;
         pHelp->next_area = NULL;
 
-        top_help++;
+        help_count++;
     }
 
     return;
 }
 
-/*
- * Snarf an obj section.  old style
- */
+// Snarf an obj section.  old style
 void load_old_obj(FILE* fp)
 {
     ObjectPrototype* obj_proto;
@@ -553,8 +520,7 @@ void load_old_obj(FILE* fp)
 
         obj_proto = alloc_perm(sizeof(*obj_proto));
         obj_proto->vnum = vnum;
-        obj_proto->area = area_last;    // OLC
-        obj_proto->new_format = false;
+        obj_proto->area = area_last;
         obj_proto->reset_num = 0;
         obj_proto->name = fread_string(fp);
         obj_proto->short_descr = fread_string(fp);
@@ -602,7 +568,7 @@ void load_old_obj(FILE* fp)
                 paf->bitvector = 0;
                 paf->next = obj_proto->affected;
                 obj_proto->affected = paf;
-                top_affect++;
+                affect_count++;
             }
 
             else if (letter == 'E') {
@@ -613,7 +579,7 @@ void load_old_obj(FILE* fp)
                 ed->description = fread_string(fp);
                 ed->next = obj_proto->extra_desc;
                 obj_proto->extra_desc = ed;
-                top_ed++;
+                extra_desc_count++;
             }
 
             else {
@@ -628,9 +594,7 @@ void load_old_obj(FILE* fp)
             obj_proto->value[2] = obj_proto->value[1];
         }
 
-        /*
-         * Translate spell "slot numbers" to internal "skill numbers."
-         */
+        // Translate spell "slot numbers" to internal "skill numbers."
         switch (obj_proto->item_type) {
         case ITEM_PILL:
         case ITEM_POTION:
@@ -653,7 +617,7 @@ void load_old_obj(FILE* fp)
         iHash = vnum % MAX_KEY_HASH;
         obj_proto->next = object_prototype_hash[iHash];
         object_prototype_hash[iHash] = obj_proto;
-        top_object_prototype++;
+        obj_proto_count++;
         top_vnum_obj = top_vnum_obj < vnum ? vnum : top_vnum_obj;   // OLC
         assign_area_vnum( vnum );                                   // OLC
     }
@@ -684,14 +648,12 @@ void new_reset(RoomData* pR, ResetData* pReset)
         pR->reset_last->next = NULL;
     }
 
-    // top_reset++; We aren't allocating memory!!!! 
+    // reset_count++; We aren't allocating memory!!!! 
 
     return;
 }
 
-/*
- * Snarf a reset section.
- */
+// Snarf a reset section.
 void load_resets(FILE* fp)
 {
     ResetData* pReset;
@@ -780,9 +742,7 @@ void load_resets(FILE* fp)
     return;
 }
 
-/*
- * Snarf a room section.
- */
+// Snarf a room section.
 void load_rooms(FILE* fp)
 {
     RoomData* pRoomIndex;
@@ -896,7 +856,7 @@ void load_rooms(FILE* fp)
                 }
 
                 pRoomIndex->exit[door] = pexit;
-                top_exit++;
+                exit_count++;
             }
             else if (letter == 'E') {
                 ExtraDesc* ed;
@@ -906,7 +866,7 @@ void load_rooms(FILE* fp)
                 ed->keyword = fread_string(fp);
                 ed->description = fread_string(fp);
                 ADD_EXTRA_DESC(pRoomIndex, ed)
-                top_ed++;
+                extra_desc_count++;
             }
 
             else if (letter == 'O') {
@@ -927,7 +887,7 @@ void load_rooms(FILE* fp)
         iHash = vnum % MAX_KEY_HASH;
         pRoomIndex->next = room_index_hash[iHash];
         room_index_hash[iHash] = pRoomIndex;
-        top_room++;
+        room_count++;
         top_vnum_room = top_vnum_room < vnum ? vnum : top_vnum_room;    // OLC
         assign_area_vnum(vnum);                                         // OLC
     }
@@ -935,9 +895,7 @@ void load_rooms(FILE* fp)
     return;
 }
 
-/*
- * Snarf a shop section.
- */
+// Snarf a shop section.
 void load_shops(FILE* fp)
 {
     ShopData* pShop;
@@ -970,15 +928,13 @@ void load_shops(FILE* fp)
         shop_last = pShop;
         if (pShop)
             pShop->next = NULL;
-        top_shop++;
+        shop_count++;
     }
 
     return;
 }
 
-/*
- * Snarf spec proc declarations.
- */
+// Snarf spec proc declarations.
 void load_specials(FILE* fp)
 {
     for (;;) {
@@ -1128,9 +1084,7 @@ void fix_exits(void)
     return;
 }
 
-/*
- * Repopulate areas periodically.
- */
+// Repopulate areas periodically.
 void area_update()
 {
     AreaData* pArea;
@@ -1155,9 +1109,7 @@ void area_update()
     return;
 }
 
-/*
- * Load mobprogs section
- */
+// Load mobprogs section
 void load_mobprogs(FILE* fp)
 {
     MobProgCode* pMprog;
@@ -1202,9 +1154,7 @@ void load_mobprogs(FILE* fp)
     return;
 }
 
-/*
- *  Translate mobprog vnums pointers to real code
- */
+//  Translate mobprog vnums pointers to real code
 void fix_mobprogs(void)
 {
     MobPrototype* p_mob_proto;
@@ -1247,8 +1197,7 @@ void reset_room(RoomData* pRoom)
 
     for (iExit = 0; iExit < DIR_MAX; iExit++) {
         ExitData* pExit;
-        if ((pExit = pRoom->exit[iExit])
-            /*  && !IS_SET( pExit->exit_info, EX_BASHED )   ROM OLC */) {
+        if ((pExit = pRoom->exit[iExit])) {
             pExit->exit_flags = pExit->exit_reset_flags;
             if ((pExit->u1.to_room != NULL)
                 && ((pExit = pExit->u1.to_room->exit[dir_list[iExit].rev_dir]))) {
@@ -1309,15 +1258,11 @@ void reset_room(RoomData* pRoom)
 
             pMob = create_mobile(pMobIndex);
 
-            /*
-             * Some more hard coding.
-             */
+            // Some more hard coding.
             if (room_is_dark(pRoom))
                 SET_BIT(pMob->affect_flags, AFF_INFRARED);
 
-            /*
-             * Pet shop mobiles get ACT_PET set.
-             */
+            // Pet shop mobiles get ACT_PET set.
             {
                 RoomData* pRoomIndexPrev;
 
@@ -1329,7 +1274,7 @@ void reset_room(RoomData* pRoom)
 
             char_to_room(pMob, pRoom);
             LastMob = pMob;
-            level = URANGE(0, pMob->level - 2, LEVEL_HERO - 1); /* -1 ROM */
+            level = URANGE(0, pMob->level - 2, LEVEL_HERO - 1);
             last = true;
             break;
         }
@@ -1424,47 +1369,7 @@ void reset_room(RoomData* pRoom)
             }
 
             if (LastMob->prototype->pShop != NULL) { // Shopkeeper?
-                int olevel = 0, i, j;
-
-                if (!pObjIndex->new_format) {
-                    switch (pObjIndex->item_type) {
-
-                    case ITEM_PILL:
-                    case ITEM_POTION:
-                    case ITEM_SCROLL:
-                        olevel = 53;
-                        for (i = 1; i < 5; i++) {
-                            if (pObjIndex->value[i] <= 0)
-                                continue;
-                            for (j = 0; j < class_count; j++) {
-                                olevel = UMIN(
-                                    olevel, GET_ELEM(&skill_table[pObjIndex->value[i]].skill_level, j));
-                            }
-                        }
-
-                        olevel = UMAX(0, (olevel * 3 / 4) - 2);
-                        break;
-                    case ITEM_WAND:
-                        olevel = number_range(10, 20);
-                        break;
-                    case ITEM_STAFF:
-                        olevel = number_range(15, 25);
-                        break;
-                    case ITEM_ARMOR:
-                        olevel = number_range(5, 15);
-                        break;
-                    case ITEM_WEAPON:
-                        olevel = number_range(5, 15);
-                        break;
-                    case ITEM_TREASURE:
-                        olevel = number_range(10, 20);
-                        break;
-                    default:
-                        olevel = 0;
-                        break;
-                    }
-                }
-
+                int olevel = 0;
                 pObj = create_object(pObjIndex, (LEVEL)olevel);
                 SET_BIT(pObj->extra_flags, ITEM_INVENTORY);
             }
@@ -1609,15 +1514,11 @@ void reset_room(RoomData* pRoom)
 
             pMob = create_mobile(mob_proto);
 
-            /*
-             * Some more hard coding.
-             */
+            // Some more hard coding.
             if (room_is_dark(pRoom))
                 SET_BIT(pMob->affect_flags, AFF_INFRARED);
 
-            /*
-             * Pet shop mobiles get ACT_PET set.
-             */
+            // Pet shop mobiles get ACT_PET set.
             {
                 RoomData* pRoomIndexPrev;
 
@@ -1926,9 +1827,7 @@ MobProgCode* get_mprog_index(VNUM vnum)
     return NULL;
 }
 
-/*
- * Clear a new character.
- */
+// Clear a new character.
 void clear_char(CharData* ch)
 {
     static CharData ch_zero;
@@ -1958,9 +1857,7 @@ void clear_char(CharData* ch)
     return;
 }
 
-/*
- * Read a letter from a file.
- */
+// Read a letter from a file.
 char fread_letter(FILE* fp)
 {
     char c;
@@ -1973,9 +1870,7 @@ char fread_letter(FILE* fp)
     return c;
 }
 
-/*
- * Read a VNUM from a file.
- */
+// Read a VNUM from a file.
 VNUM fread_vnum(FILE* fp)
 {
     VNUM number;
@@ -2003,9 +1898,7 @@ VNUM fread_vnum(FILE* fp)
     return number;
 }
 
-/*
- * Read a number from a file.
- */
+// Read a number from a file.
 int fread_number(FILE* fp)
 {
     int number;
@@ -2297,9 +2190,7 @@ char* fread_string_eol(FILE* fp)
     }
 }
 
-/*
- * Read to end of line (for comments).
- */
+// Read to end of line (for comments).
 void fread_to_eol(FILE* fp)
 {
     char c;
@@ -2318,9 +2209,7 @@ void fread_to_eol(FILE* fp)
     return;
 }
 
-/*
- * Read one word (into static buffer).
- */
+// Read one word (into static buffer).
 char* fread_word(FILE* fp)
 {
     static char word[MAX_INPUT_LENGTH];
@@ -2525,28 +2414,45 @@ void do_areas(CharData* ch, char* argument)
     return;
 }
 
+static void memory_to_buffer(Buffer* buf)
+{
+    addf_buf(buf, "Affects %5d\n\r", affect_count);
+    addf_buf(buf, "Areas   %5d\n\r", area_count);
+    addf_buf(buf, "ExDes   %5d\n\r", extra_desc_count);
+    addf_buf(buf, "Exits   %5d\n\r", exit_count);
+    addf_buf(buf, "Helps   %5d\n\r", help_count);
+    addf_buf(buf, "Socials %5d\n\r", social_count);
+    addf_buf(buf, "Mobs    %5d     Protos  %5d\n\r", mob_count, mob_proto_count);
+    addf_buf(buf, "Objs    %5d     Protos  %5d\n\r", obj_count, obj_proto_count);
+    addf_buf(buf, "Resets  %5d\n\r", reset_count);
+    addf_buf(buf, "Rooms   %5d\n\r", room_count);
+    addf_buf(buf, "Shops   %5d\n\r", shop_count);
+
+    addf_buf(buf, "Strings %5d strings of %zu bytes (max %d).\n\r", nAllocString,
+        sAllocString, MAX_STRING);
+
+    addf_buf(buf, "Perms   %5d blocks  of %zu bytes.\n\r", nAllocPerm,
+        sAllocPerm);
+}
+
+void print_memory()
+{
+    INIT_BUF(buf, MSL);
+
+    memory_to_buffer(buf);
+    printf("%s", buf->string);
+
+    free_buf(buf);
+}
+
 void do_memory(CharData* ch, char* argument)
 {
-    printf_to_char(ch, "Affects %5d\n\r", top_affect);
-    printf_to_char(ch, "Areas   %5d\n\r", area_count);
-    printf_to_char(ch, "ExDes   %5d\n\r", top_ed);
-    printf_to_char(ch, "Exits   %5d\n\r", top_exit);
-    printf_to_char(ch, "Helps   %5d\n\r", top_help);
-    printf_to_char(ch, "Socials %5d\n\r", social_count);
-    printf_to_char(ch, "Mobs    %5d(%d new format)\n\r", top_mob_prototype, newmobs);
-    printf_to_char(ch, "(in use)%5d\n\r", mobile_count);
-    printf_to_char(ch, "Objs    %5d(%d new format)\n\r", top_object_prototype, newobjs);
-    printf_to_char(ch, "Resets  %5d\n\r", top_reset);
-    printf_to_char(ch, "Rooms   %5d\n\r", top_room);
-    printf_to_char(ch, "Shops   %5d\n\r", top_shop);
+    INIT_BUF(buf, MSL);
 
-    printf_to_char(ch, "Strings %5d strings of %zu bytes (max %d).\n\r", nAllocString,
-            sAllocString, MAX_STRING);
+    memory_to_buffer(buf);
+    send_to_char(buf->string, ch);
 
-    printf_to_char(ch, "Perms   %5d blocks  of %zu bytes.\n\r", nAllocPerm,
-            sAllocPerm);
-
-    return;
+    free_buf(buf);
 }
 
 void do_dump(CharData* ch, char* argument)
@@ -2573,8 +2479,8 @@ void do_dump(CharData* ch, char* argument)
     aff_count = 0;
 
     /* mobile prototypes */
-    fprintf(fp, "MobProt    %4d (%8zu bytes)\n", top_mob_prototype,
-            top_mob_prototype * (sizeof(*p_mob_proto)));
+    fprintf(fp, "MobProt    %4d (%8zu bytes)\n", mob_proto_count,
+            mob_proto_count * (sizeof(*p_mob_proto)));
 
     /* mobs */
     count = 0;
@@ -2610,15 +2516,15 @@ void do_dump(CharData* ch, char* argument)
             count * (sizeof(*d)), count2, count2 * (sizeof(*d)));
 
     /* object prototypes */
-    for (vnum = 0; nMatch < top_object_prototype; vnum++)
+    for (vnum = 0; nMatch < obj_proto_count; vnum++)
         if ((obj_proto = get_object_prototype(vnum)) != NULL) {
             FOR_EACH(af, obj_proto->affected)
                 aff_count++;
             nMatch++;
         }
 
-    fprintf(fp, "ObjProt	%4d (%8zu bytes)\n", top_object_prototype,
-            top_object_prototype * (sizeof(*obj_proto)));
+    fprintf(fp, "ObjProto   %4d (%8zu bytes)\n", obj_proto_count,
+            obj_proto_count * (sizeof(*obj_proto)));
 
     /* objects */
     count = 0;
@@ -2640,12 +2546,12 @@ void do_dump(CharData* ch, char* argument)
             aff_count * (sizeof(*af)), count, count * (sizeof(*af)));
 
     /* rooms */
-    fprintf(fp, "Rooms	%4d (%8zu bytes)\n", top_room,
-            top_room * (sizeof(*room)));
+    fprintf(fp, "Rooms	%4d (%8zu bytes)\n", room_count,
+            room_count * (sizeof(*room)));
 
     /* exits */
-    fprintf(fp, "Exits	%4d (%8zu bytes)\n", top_exit,
-            top_exit * (sizeof(*exit)));
+    fprintf(fp, "Exits	%4d (%8zu bytes)\n", exit_count,
+            exit_count * (sizeof(*exit)));
 
     
     close_file(fp);
@@ -2657,7 +2563,7 @@ void do_dump(CharData* ch, char* argument)
     fprintf(fp, "\nMobile Analysis\n");
     fprintf(fp, "---------------\n");
     nMatch = 0;
-    for (vnum = 0; nMatch < top_mob_prototype; vnum++)
+    for (vnum = 0; nMatch < mob_proto_count; vnum++)
         if ((p_mob_proto = get_mob_prototype(vnum)) != NULL) {
             nMatch++;
             fprintf(fp, "#%-4d %3d active %3d killed     %s\n", p_mob_proto->vnum,
@@ -2673,7 +2579,7 @@ void do_dump(CharData* ch, char* argument)
     fprintf(fp, "\nObject Analysis\n");
     fprintf(fp, "---------------\n");
     nMatch = 0;
-    for (vnum = 0; nMatch < top_object_prototype; vnum++)
+    for (vnum = 0; nMatch < obj_proto_count; vnum++)
         if ((obj_proto = get_object_prototype(vnum)) != NULL) {
             nMatch++;
             fprintf(fp, "#%-4d %3d active %3d reset      %s\n", obj_proto->vnum,
@@ -2685,9 +2591,7 @@ void do_dump(CharData* ch, char* argument)
     close_file(fp);
 }
 
-/*
- * Stick a little fuzz on a number.
- */
+// Stick a little fuzz on a number.
 int number_fuzzy(int number)
 {
     switch (number_bits(2)) {
@@ -2702,9 +2606,7 @@ int number_fuzzy(int number)
     return UMAX(1, number);
 }
 
-/*
- * Generate a random number.
- */
+// Generate a random number.
 int number_range(int from, int to)
 {
     int power;
@@ -2725,9 +2627,7 @@ int number_range(int from, int to)
     return from + number;
 }
 
-/*
- * Generate a percentile roll.
- */
+// Generate a percentile roll.
 int number_percent(void)
 {
     int percent;
@@ -2738,9 +2638,7 @@ int number_percent(void)
     return 1 + percent;
 }
 
-/*
- * Generate a random door.
- */
+// Generate a random door.
 Direction number_door()
 {
     Direction door;
@@ -2769,9 +2667,7 @@ long number_mm(void)
     return pcg32_random();
 }
 
-/*
- * Roll some dice.
- */
+// Roll some dice.
 int dice(int number, int size)
 {
     int idice;
@@ -2790,9 +2686,7 @@ int dice(int number, int size)
     return sum;
 }
 
-/*
- * Simple linear interpolation.
- */
+// Simple linear interpolation.
 int interpolate(int level, int value_00, int value_32)
 {
     return value_00 + level * (value_32 - value_00) / 32;
@@ -2898,9 +2792,7 @@ bool str_suffix(const char* astr, const char* bstr)
         return true;
 }
 
-/*
- * Returns an initial-capped string.
- */
+// Returns an initial-capped string.
 char* capitalize(const char* str)
 {
     static char strcap[MAX_STRING_LENGTH];
@@ -2913,9 +2805,7 @@ char* capitalize(const char* str)
     return strcap;
 }
 
-/*
- * Append a string to a file.
- */
+// Append a string to a file.
 void append_file(CharData* ch, char* file, char* str)
 {
     FILE* fp;
@@ -2930,9 +2820,7 @@ void append_file(CharData* ch, char* file, char* str)
     close_file(fp);
 }
 
-/*
- * Reports a bug.
- */
+// Reports a bug.
 void bug(const char* fmt, ...)
 {
     char buf[MAX_STRING_LENGTH];
@@ -2968,9 +2856,7 @@ void bug(const char* fmt, ...)
     return;
 }
 
-/*
- * Writes a string to the log.
- */
+// Writes a string to the log.
 void log_string(const char* str)
 {
     char* strtime;

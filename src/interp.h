@@ -60,9 +60,7 @@ typedef enum log_type_t {
     LOG_NEVER = 2,
 } LogType;
 
-/*
- * Structure for a command in the command lookup table.
- */
+// Structure for a command in the command lookup table.
 typedef struct cmd_info_t {
     char* name;
     DoFunc* do_fun;

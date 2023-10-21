@@ -506,15 +506,11 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
         goto init_descriptor_finish;
     }
 
-    /*
-     * Init descriptor data.
-     */
+    // Init descriptor data.
     dnew->next = descriptor_list;
     descriptor_list = dnew;
 
-    /*
-     * Send the greeting.
-     */
+    // Send the greeting.
     {
         extern char* help_greeting;
         if (help_greeting[0] == '.')
@@ -796,30 +792,22 @@ void process_client_input(SockServer* server, PollData* poll_data)
     }
 }
 
-/*
- * Transfer one line from input buffer to input line.
- */
+// Transfer one line from input buffer to input line.
 void read_from_buffer(Descriptor* d)
 {
     int i, j, k;
 
-    /*
-     * Hold horses if pending command already.
-     */
+    // Hold horses if pending command already.
     if (d->incomm[0] != '\0')
         return;
 
-    /*
-     * Look for at least one new line.
-     */
+    // Look for at least one new line.
     for (i = 0; d->inbuf[i] != '\n' && d->inbuf[i] != '\r'; i++) {
         if (d->inbuf[i] == '\0')
             return;
     }
 
-    /*
-     * Canonical input processing.
-     */
+    // Canonical input processing.
     for (i = 0, k = 0; d->inbuf[i] != '\n' && d->inbuf[i] != '\r'; i++) {
         if (k >= MAX_INPUT_LENGTH - 2) {
             write_to_descriptor(d, "Line too long.\n\r", 0);
@@ -840,16 +828,12 @@ void read_from_buffer(Descriptor* d)
             d->incomm[k++] = d->inbuf[i];
     }
 
-    /*
-     * Finish off the line.
-     */
+    // Finish off the line.
     if (k == 0) 
         d->incomm[k++] = ' ';
     d->incomm[k] = '\0';
 
-    /*
-     * Deal with bozos with #repeat 1000 ...
-     */
+    // Deal with bozos with #repeat 1000 ...
 
     if (k > 1 || d->incomm[0] == '!') {
         if (d->incomm[0] != '!' && strcmp(d->incomm, d->inlast)) {
@@ -875,31 +859,23 @@ void read_from_buffer(Descriptor* d)
         }
     }
 
-    /*
-     * Do '!' substitution.
-     */
+    // Do '!' substitution.
     if (d->incomm[0] == '!')
         strcpy(d->incomm, d->inlast);
     else
         strcpy(d->inlast, d->incomm);
 
-    /*
-     * Shift the input buffer.
-     */
+    // Shift the input buffer.
     while (d->inbuf[i] == '\n' || d->inbuf[i] == '\r') i++;
     for (j = 0; (d->inbuf[j] = d->inbuf[i + j]) != '\0'; j++)
         ;
     return;
 }
 
-/*
- * Low level output function.
- */
+// Low level output function.
 bool process_descriptor_output(Descriptor* d, bool fPrompt)
 {
-    /*
-     * Bust a prompt.
-     */
+    // Bust a prompt.
     if (!merc_down) {
         if (d->showstr_point && *d->showstr_point != '\0')
             write_to_buffer(d, "[Hit Return to continue]\n\r", 0);
@@ -1216,9 +1192,7 @@ static void nanny_weapon_prompt(Descriptor* d, CharData* ch)
     write_to_buffer(d, buf, 0);
 }
 
-/*
- * Deal with sockets that haven't logged in yet.
- */
+// Deal with sockets that haven't logged in yet.
 void nanny(Descriptor * d, char* argument)
 {
     Descriptor* d_old = NULL;
@@ -1818,16 +1792,12 @@ void poll_server(SockServer* server, PollData* poll_data)
     }
 }
 
-/*
- * Parse a name for acceptability.
- */
+// Parse a name for acceptability.
 bool check_parse_name(char* name)
 {
     int clan;
 
-    /*
-     * Reserved words.
-     */
+    // Reserved words.
     if (is_exact_name(
         name, "all auto immortal self someone something the you loner none")) {
         return false;
@@ -1842,9 +1812,7 @@ bool check_parse_name(char* name)
 
     int len = (int)strlen(name);
 
-    /*
-     * Length restrictions.
-     */
+    // Length restrictions.
     if (len < 2 || len > 12) 
         return false;
 
@@ -1880,9 +1848,7 @@ bool check_parse_name(char* name)
             return false;
     }
 
-    /*
-     * Prevent players from naming themselves after mobs.
-     */
+    // Prevent players from naming themselves after mobs.
     {
         MobPrototype* p_mob_proto;
         int iHash;
@@ -1899,9 +1865,7 @@ bool check_parse_name(char* name)
     return true;
 }
 
-/*
- * Look for link-dead player to reconnect.
- */
+// Look for link-dead player to reconnect.
 bool check_reconnect(Descriptor * d, bool fConn)
 {
     CharData* ch;
@@ -1947,9 +1911,7 @@ bool check_reconnect(Descriptor * d, bool fConn)
     return false;
 }
 
-/*
- * Check if already playing.
- */
+// Check if already playing.
 bool check_playing(Descriptor * d, char* name)
 {
     Descriptor* dold;
@@ -2092,9 +2054,7 @@ void send_to_desc(const char* txt, Descriptor* desc)
 }
 
 
-/*
- * Write to one char.
- */
+// Write to one char.
 void send_to_char_bw(const char* txt, CharData * ch)
 {
     if (txt != NULL && ch->desc != NULL)
@@ -2102,9 +2062,7 @@ void send_to_char_bw(const char* txt, CharData * ch)
     return;
 }
 
-/*
- * Write to one char, new colour version, by Lope.
- */
+// Write to one char, new colour version, by Lope.
 void send_to_char(const char* txt, CharData * ch)
 {
     const char* point;
@@ -2146,9 +2104,7 @@ void send_to_char(const char* txt, CharData * ch)
     free_buf(temp);
 }
 
-/*
- * Send a page to one char.
- */
+// Send a page to one char.
 void page_to_char_bw(const char* txt, CharData * ch)
 {
     if (txt == NULL || ch->desc == NULL) 
@@ -2165,9 +2121,7 @@ void page_to_char_bw(const char* txt, CharData * ch)
     show_string(ch->desc, "");
 }
 
-/*
- * Page to one char, new colour version, by Lope.
- */
+// Page to one char, new colour version, by Lope.
 void page_to_char(const char* txt, CharData * ch)
 {
     INIT_BUF(temp, MAX_STRING_LENGTH * 4);
@@ -2290,9 +2244,7 @@ void act_new(const char* format, CharData * ch, const void* arg1,
     char buf[MAX_STRING_LENGTH] = "";
     char fname[MAX_INPUT_LENGTH] = "";
 
-    /*
-     * Discard null and zero-length messages.
-     */
+    // Discard null and zero-length messages.
     if (!format || !*format)
         return;
 

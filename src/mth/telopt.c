@@ -985,10 +985,10 @@ size_t process_do_mssp(Descriptor* d, unsigned char* src, size_t srclen)
 	cat_sprintf(buffer, "%c%s%c%s", MSSP_VAR, "SUBGENRE",			MSSP_VAL,	cfg_get_subgenre());
 
 	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "AREAS",				MSSP_VAL,	area_count);
-	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "HELPFILES",			MSSP_VAL,	top_help);
-	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "MOBILES",			MSSP_VAL,	top_mob_prototype);
-	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "OBJECTS",			MSSP_VAL,	top_object_prototype);
-	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "ROOMS",				MSSP_VAL,	top_room);
+	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "HELPFILES",			MSSP_VAL,	help_count);
+	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "MOBILES",			MSSP_VAL,	mob_proto_count);
+	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "OBJECTS",			MSSP_VAL,	obj_proto_count);
+	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "ROOMS",				MSSP_VAL,	room_count);
 
 	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "CLASSES",			MSSP_VAL,	class_count);
 	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "LEVELS",				MSSP_VAL,	MAX_LEVEL);

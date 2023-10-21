@@ -16,7 +16,7 @@
 CharData* char_list;
 CharData* char_free;
 
-int mobile_count = 0;
+int mob_count = 0;
 
 void free_char_data(CharData* ch)
 {
@@ -27,7 +27,8 @@ void free_char_data(CharData* ch)
 
     if (!IS_VALID(ch)) return;
 
-    if (IS_NPC(ch)) mobile_count--;
+    if (IS_NPC(ch))
+        mob_count--;
 
     for (obj = ch->carrying; obj != NULL; obj = obj_next) {
         obj_next = obj->next_content;

@@ -42,7 +42,6 @@ typedef struct object_prototype_t {
     int16_t count;
     int16_t weight;
     ItemType item_type;
-    bool new_format;
 } ObjectPrototype;
 
 typedef struct object_data_t {
@@ -76,7 +75,7 @@ typedef struct object_data_t {
 } ObjectData;
 
 #define FOR_EACH_CONTENT(i, c) \
-    for ((i) = (c); (i) !- NULL; (i) = i->next_content)
+    for ((i) = (c); (i) != NULL; (i) = i->next_content)
 
 #define CAN_WEAR(obj, part)       (IS_SET((obj)->wear_flags, (part)))
 #define IS_OBJ_STAT(obj, stat)    (IS_SET((obj)->extra_flags, (stat)))
@@ -85,8 +84,6 @@ typedef struct object_data_t {
     ((obj)->item_type == ITEM_CONTAINER ? (obj)->value[4] : 100)
 
 void clone_object(ObjectData* parent, ObjectData* clone);
-void convert_object(ObjectPrototype* obj_proto);
-void convert_objects();
 ObjectData* create_object(ObjectPrototype* obj_proto, LEVEL level);
 void free_object(ObjectData* obj);
 void free_object_prototype(ObjectPrototype* pObj);
@@ -97,8 +94,8 @@ ObjectPrototype* new_object_prototype();
 
 extern ObjectPrototype* object_prototype_hash[];
 extern VNUM top_vnum_obj;
-extern int top_object_prototype;
-extern int newobjs;
+extern int obj_proto_count;
+extern int obj_count;
 extern ObjectData* object_free;
 extern ObjectData* object_list;
 

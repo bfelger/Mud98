@@ -11,7 +11,7 @@
 #include "extra_desc.h"
 #include "reset_data.h"
 
-int top_room;
+int room_count;
 VNUM top_vnum_room;
 RoomData* room_index_free;
 RoomData* room_index_hash[MAX_KEY_HASH];
@@ -71,7 +71,7 @@ RoomData* new_room_index()
 
     if (!room_index_free) {
         pRoom = alloc_perm(sizeof(*pRoom));
-        top_room++;
+        room_count++;
     }
     else {
         pRoom = room_index_free;

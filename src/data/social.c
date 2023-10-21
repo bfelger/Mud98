@@ -35,25 +35,24 @@ void load_social_table()
 {
     FILE* fp;
     int i;
-    extern int maxSocial;
     char* word;
 
     OPEN_OR_DIE(fp = open_read_socials_file());
 
-    if (fscanf(fp, "%d\n", &maxSocial) < 1) {
-        bug("load_social_table: Could not read maxSocial!");
+    if (fscanf(fp, "%d\n", &social_count) < 1) {
+        bug("load_social_table: Could not read social_count!");
         return;
     }
 
-    logf("Creating social_table of length %d, size %zu", maxSocial + 1,
-        sizeof(Social) * ((size_t)maxSocial + 1));
+    logf("Creating social_table of length %d, size %zu", social_count + 1,
+        sizeof(Social) * ((size_t)social_count + 1));
     /* IMPORTANT to use malloc so we can realloc later on */
-    if ((social_table = calloc(sizeof(Social), (size_t)maxSocial + 1)) == NULL) {
+    if ((social_table = calloc(sizeof(Social), (size_t)social_count + 1)) == NULL) {
         bug("load_social_table: Could not allocate social_table!");
         return;
     }
 
-    for (i = 0; i < maxSocial; i++) {
+    for (i = 0; i < social_count; i++) {
         if (str_cmp((word = fread_word(fp)), "#SOCIAL")) {
             bugf("load_social_table : Expected '#SOCIAL', got '%s'.", word);
             exit(1);
@@ -62,7 +61,7 @@ void load_social_table()
     }
 
     /* For backwards compatibility */
-    social_table[maxSocial].name = str_dup(""); /* empty! */
+    social_table[social_count].name = str_dup(""); /* empty! */
 
     close_file(fp);
 
@@ -73,13 +72,12 @@ void save_social_table(void)
 {
     FILE* fp;
     int i;
-    extern int maxSocial;
 
     OPEN_OR_RETURN(fp = open_write_socials_file());
 
-    fprintf(fp, "%d\n\n", maxSocial);
+    fprintf(fp, "%d\n\n", social_count);
 
-    for (i = 0; i < maxSocial; i++) {
+    for (i = 0; i < social_count; i++) {
         fprintf(fp, "#SOCIAL\n");
         save_struct(fp, U(&tmp_soc), socialsavetable, U(&social_table[i]));
         fprintf(fp, "#END\n\n");

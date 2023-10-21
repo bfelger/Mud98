@@ -166,9 +166,7 @@ void medit(CharData* ch, char* argument)
     return;
 }
 
-/*
- * Mobile Editor Functions.
- */
+// Mobile Editor Functions.
 MEDIT(medit_show)
 {
     MobPrototype* pMob;
