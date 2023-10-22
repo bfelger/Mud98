@@ -56,13 +56,13 @@
                          "Locke(locke@lm.com)"
 
 // New typedefs.
-typedef	bool OlcFunc(CharData* ch, char* argument);
+typedef	bool OlcFunc(Mobile* ch, char* argument);
 #define DECLARE_OLC_FUN(fun)    OlcFunc fun
 
-typedef bool EditFunc(char*, CharData*, char*, uintptr_t, const uintptr_t);
+typedef bool EditFunc(char*, Mobile*, char*, uintptr_t, const uintptr_t);
 #define DECLARE_ED_FUN(fun)     EditFunc fun
 
-#define ED_FUN_DEC(blah)        bool blah (char* n_fun, CharData* ch, \
+#define ED_FUN_DEC(blah)        bool blah (char* n_fun, Mobile* ch, \
     char* argument, uintptr_t arg, const uintptr_t par)
 
 /* Command procedures needed ROM OLC */
@@ -90,19 +90,19 @@ typedef enum editor_t {
 } EditorType;
 
 // Interpreter Prototypes
-void    aedit       (CharData* ch, char* argument);
-void    cedit       (CharData* ch, char* argument);
-void	cmdedit		(CharData* ch, char* argument);
-void	gedit		(CharData* ch, char* argument);
-void	hedit		(CharData* ch, char* argument);
-void    medit       (CharData* ch, char* argument);
-void    oedit       (CharData* ch, char* argument);
-void    pedit       (CharData* ch, char* argument);
-void	raedit		(CharData* ch, char* argument);
-void    redit       (CharData* ch, char* argument);
-void	sedit		(CharData* ch, char* argument);
-void	skedit		(CharData* ch, char* argument);
-void    qedit       (CharData* ch, char* argument);
+void    aedit       (Mobile* ch, char* argument);
+void    cedit       (Mobile* ch, char* argument);
+void	cmdedit		(Mobile* ch, char* argument);
+void	gedit		(Mobile* ch, char* argument);
+void	hedit		(Mobile* ch, char* argument);
+void    medit       (Mobile* ch, char* argument);
+void    oedit       (Mobile* ch, char* argument);
+void    pedit       (Mobile* ch, char* argument);
+void	raedit		(Mobile* ch, char* argument);
+void    redit       (Mobile* ch, char* argument);
+void	sedit		(Mobile* ch, char* argument);
+void	skedit		(Mobile* ch, char* argument);
+void    qedit       (Mobile* ch, char* argument);
 
 // OLC Constants
 #define MAX_MOB	1		/* Default maximum number for resetting mobs */
@@ -142,7 +142,7 @@ extern const OlcCmdEntry social_olc_comm_table[];
 extern const OlcCmdEntry class_olc_comm_table[];
 extern const OlcCmdEntry quest_olc_comm_table[];
 
-bool process_olc_command(CharData*, char* argument, const OlcCmdEntry*);
+bool process_olc_command(Mobile*, char* argument, const OlcCmdEntry*);
 
 // Structure for an OLC editor startup command.
 typedef struct editor_cmd_t {
@@ -158,8 +158,8 @@ void add_reset(RoomData*, ResetData*, int);
 void set_editor(Descriptor*, int, uintptr_t);
 
 bool run_olc_editor(Descriptor* d, char* incomm);
-char* olc_ed_name(CharData* ch);
-char* olc_ed_vnum(CharData* ch);
+char* olc_ed_name(Mobile* ch);
+char* olc_ed_vnum(Mobile* ch);
 
 // Interpreter Table Prototypes
 //extern const OlcCmd aedit_table[];
@@ -173,7 +173,7 @@ extern Class xClass;
 extern CmdInfo xCmd;
 extern MobProgCode xProg;
 extern MobPrototype xMob;
-extern ObjectPrototype xObj;
+extern ObjPrototype xObj;
 extern Race xRace;
 extern RoomData xRoom;
 extern Skill xSkill;
@@ -196,10 +196,10 @@ DECLARE_DO_FUN(do_sedit);
 DECLARE_DO_FUN(do_skedit);
 
 // General Functions
-bool show_commands(CharData* ch, char* argument);
-bool show_help(CharData* ch, char* argument);
-bool edit_done(CharData* ch);
-bool show_version(CharData* ch, char* argument);
+bool show_commands(Mobile* ch, char* argument);
+bool show_help(Mobile* ch, char* argument);
+bool edit_done(Mobile* ch);
+bool show_version(Mobile* ch, char* argument);
 
 // Area Editor Prototypes
 DECLARE_OLC_FUN(aedit_show);
@@ -377,7 +377,7 @@ DECLARE_ED_FUN(ed_objrecval);
 #define EDIT_GROUP(ch, grp)	    ( grp = (SkillGroup*)ch->desc->pEdit )
 #define EDIT_HELP(ch, help)	    ( help = (HelpData*)ch->desc->pEdit )
 #define EDIT_MOB(ch, mob)	    ( mob = (MobPrototype*)ch->desc->pEdit )
-#define EDIT_OBJ(ch, obj)	    ( obj = (ObjectPrototype*)ch->desc->pEdit )
+#define EDIT_OBJ(ch, obj)	    ( obj = (ObjPrototype*)ch->desc->pEdit )
 #define EDIT_PROG(ch, code)	    ( code = (MobProgCode*)ch->desc->pEdit )
 #define EDIT_QUEST(ch, quest)   ( quest = (Quest*)ch->desc->pEdit )
 #define EDIT_RACE(ch, race)	    ( race = (Race*)ch->desc->pEdit )
@@ -385,11 +385,11 @@ DECLARE_ED_FUN(ed_objrecval);
 #define EDIT_SKILL(ch, skill)	( skill = (Skill*)ch->desc->pEdit )
 #define EDIT_SOCIAL(ch, social)	( social = (Social*)ch->desc->pEdit )
 
-void show_liqlist(CharData* ch);
-void show_poslist(CharData* ch);
-void show_damlist(CharData* ch);
-void show_sexlist(CharData* ch);
-void show_sizelist(CharData* ch);
+void show_liqlist(Mobile* ch);
+void show_poslist(Mobile* ch);
+void show_damlist(Mobile* ch);
+void show_sexlist(Mobile* ch);
+void show_sizelist(Mobile* ch);
 
 void InitScreen(Descriptor*);
 char* fix_string(const char* str);

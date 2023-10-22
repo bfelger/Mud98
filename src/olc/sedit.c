@@ -30,7 +30,7 @@
 #include "entities/descriptor.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/social.h"
 
 #include <ctype.h>
@@ -40,7 +40,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#define SEDIT(fun) bool fun(CharData *ch, char *argument)
+#define SEDIT(fun) bool fun(Mobile *ch, char *argument)
 
 Social xSoc;
 
@@ -78,7 +78,7 @@ int social_lookup(const char* name)
     return -1;
 }
 
-void sedit(CharData* ch, char* argument)
+void sedit(Mobile* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_SEDIT_SECURITY) {
         send_to_char("SEdit: You do not have enough security to edit socials.\n\r", ch);
@@ -102,7 +102,7 @@ void sedit(CharData* ch, char* argument)
     return;
 }
 
-void do_sedit(CharData* ch, char* argument)
+void do_sedit(Mobile* ch, char* argument)
 {
     Social* pSocial;
     char command[MIL];
@@ -189,7 +189,7 @@ SEDIT(sedit_show)
 SEDIT(sedit_new)
 {
     Descriptor* d;
-    CharData* tch;
+    Mobile* tch;
     Social* new_table;
     int iSocial;
 
@@ -247,7 +247,7 @@ SEDIT(sedit_new)
 SEDIT(sedit_delete)
 {
     Descriptor* d;
-    CharData* tch;
+    Mobile* tch;
     int i, j, iSocial;
     Social* new_table;
 

@@ -17,12 +17,12 @@
 #include "string_edit.h"
 #include "tables.h"
 
-#include "entities/object_data.h"
+#include "entities/object.h"
 #include "entities/room_data.h"
 
-#define REDIT(fun) bool fun( CharData *ch, char *argument )
+#define REDIT(fun) bool fun( Mobile *ch, char *argument )
 
-void display_resets(CharData* ch, RoomData* pRoom);
+void display_resets(Mobile* ch, RoomData* pRoom);
 
 RoomData xRoom;
 
@@ -72,7 +72,7 @@ const OlcCmdEntry room_olc_comm_table[] = {
 };
 
 /* Entry point for editing room_index_data. */
-void do_redit(CharData* ch, char* argument)
+void do_redit(Mobile* ch, char* argument)
 {
     RoomData* pRoom;
     char arg1[MIL];
@@ -134,7 +134,7 @@ void do_redit(CharData* ch, char* argument)
 }
 
 /* Room Interpreter, called by do_redit. */
-void redit(CharData* ch, char* argument)
+void redit(Mobile* ch, char* argument)
 {
     RoomData* pRoom;
     AreaData* pArea;
@@ -258,8 +258,8 @@ REDIT(redit_mlist)
 REDIT(redit_show)
 {
     RoomData* pRoom;
-    ObjectData* obj;
-    CharData* rch;
+    Object* obj;
+    Mobile* rch;
     int cnt = 0;
     bool fcnt;
 
@@ -401,7 +401,7 @@ REDIT(redit_show)
 }
 
 /* Local function. */
-bool change_exit(CharData* ch, char* argument, Direction door)
+bool change_exit(Mobile* ch, char* argument, Direction door)
 {
     RoomData* pRoom;
     char command[MAX_INPUT_LENGTH];
@@ -628,7 +628,7 @@ bool change_exit(CharData* ch, char* argument, Direction door)
 
     if (!str_cmp(command, "key")) {
         ExitData* pExit;
-        ObjectPrototype* pObj;
+        ObjPrototype* pObj;
 
         if (arg[0] == '\0' || !is_number(arg)) {
             send_to_char("Syntax:  {*[direction] key [vnum]{x\n\r", ch);
@@ -770,7 +770,7 @@ REDIT(redit_mreset)
 {
     RoomData* pRoom;
     MobPrototype* p_mob_proto;
-    CharData* newmob;
+    Mobile* newmob;
     char arg[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
 
@@ -822,10 +822,10 @@ REDIT(redit_mreset)
 REDIT(redit_oreset)
 {
     RoomData* pRoom;
-    ObjectPrototype* obj_proto;
-    ObjectData* newobj;
-    ObjectData* to_obj;
-    CharData* to_mob;
+    ObjPrototype* obj_proto;
+    Object* newobj;
+    Object* to_obj;
+    Mobile* to_mob;
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     LEVEL olevel = 0;
@@ -1010,7 +1010,7 @@ REDIT(redit_owner)
     return true;
 }
 
-void showresets(CharData* ch, Buffer* buf, AreaData* pArea, MobPrototype* mob, ObjectPrototype* obj)
+void showresets(Mobile* ch, Buffer* buf, AreaData* pArea, MobPrototype* mob, ObjPrototype* obj)
 {
     RoomData* room;
     MobPrototype* pLastMob;
@@ -1049,20 +1049,20 @@ void showresets(CharData* ch, Buffer* buf, AreaData* pArea, MobPrototype* mob, O
             }
 }
 
-void listobjreset(CharData* ch, Buffer* buf, AreaData* pArea)
+void listobjreset(Mobile* ch, Buffer* buf, AreaData* pArea)
 {
-    ObjectPrototype* obj;
+    ObjPrototype* obj;
     int key;
 
     add_buf(buf, "{TVnum  Name            Room  On mob{x\n\r");
 
     for (key = 0; key < MAX_KEY_HASH; ++key)
-        FOR_EACH(obj, object_prototype_hash[key])
+        FOR_EACH(obj, obj_proto_hash[key])
             if (obj->area == pArea)
                 showresets(ch, buf, pArea, 0, obj);
 }
 
-void listmobreset(CharData* ch, Buffer* buf, AreaData* pArea)
+void listmobreset(Mobile* ch, Buffer* buf, AreaData* pArea)
 {
     MobPrototype* mob;
     int key;
@@ -1109,7 +1109,7 @@ REDIT(redit_listreset)
 
 REDIT(redit_checkobj)
 {
-    ObjectPrototype* obj;
+    ObjPrototype* obj;
     int key;
     bool fAll = !str_cmp(argument, "all");
     RoomData* room;
@@ -1117,7 +1117,7 @@ REDIT(redit_checkobj)
     EDIT_ROOM(ch, room);
 
     for (key = 0; key < MAX_KEY_HASH; ++key)
-        FOR_EACH(obj, object_prototype_hash[key])
+        FOR_EACH(obj, obj_proto_hash[key])
             if (obj->reset_num == 0 && (fAll || obj->area == room->area))
                 printf_to_char(ch, "Obj {*%-5.5d{x [%-20.20s] is not reset.\n\r", obj->vnum, obj->name);
 
@@ -1249,7 +1249,7 @@ REDIT(redit_clear)
 }
 
 
-void display_resets(CharData* ch, RoomData* pRoom)
+void display_resets(Mobile* ch, RoomData* pRoom)
 {
     ResetData* pReset;
     MobPrototype* pMob = NULL;
@@ -1266,10 +1266,10 @@ void display_resets(CharData* ch, RoomData* pRoom)
         "\n\r", ch);
 
     FOR_EACH(pReset, pRoom->reset_first) {
-        ObjectPrototype* pObj;
+        ObjPrototype* pObj;
         MobPrototype* p_mob_proto;
-        ObjectPrototype* obj_proto;
-        ObjectPrototype* pObjToIndex;
+        ObjPrototype* obj_proto;
+        ObjPrototype* pObjToIndex;
         RoomData* pRoomIndex;
 
         final[0] = '\0';
@@ -1481,7 +1481,7 @@ void    add_reset(RoomData* room, ResetData* pReset, int indice)
     return;
 }
 
-void do_resets(CharData* ch, char* argument)
+void do_resets(Mobile* ch, char* argument)
 {
     static const char* help =
         "Syntax: {*RESET <number> OBJ <vnum> <wear_loc>\n\r"
@@ -1620,7 +1620,7 @@ void do_resets(CharData* ch, char* argument)
                          * ----------------------
                          */
                         if (!str_prefix(arg4, "inside")) {
-                            ObjectPrototype* temp;
+                            ObjPrototype* temp;
 
                             temp = get_object_prototype(is_number(arg5) ? (VNUM)atoi(arg5) : 1);
                             if ((temp->item_type != ITEM_CONTAINER) &&
@@ -1765,7 +1765,7 @@ void do_resets(CharData* ch, char* argument)
     return;
 }
 
-void do_objlist(CharData* ch, char* argument)
+void do_objlist(Mobile* ch, char* argument)
 {
     static const char* help = "{jSyntax: OBJLIST AREA\n\r"
         "          OBJLIST WORLD [low-level] [high-level]{x\n\r";
@@ -1839,8 +1839,8 @@ void do_objlist(CharData* ch, char* argument)
     VNUM lo_vnum = ch->in_room->area->min_vnum;
 
     for (int h = 0; h < MAX_KEY_HASH; ++h) {
-        ObjectPrototype* obj;
-        FOR_EACH(obj, object_prototype_hash[h]) {
+        ObjPrototype* obj;
+        FOR_EACH(obj, obj_proto_hash[h]) {
             if (count > max_disp) {
                 addf_buf(out, "Max display threshold reached.\n\r");
                 goto max_disp_reached;
@@ -1876,7 +1876,7 @@ max_disp_reached:
     free_buf(out);
 }
 
-void do_moblist(CharData* ch, char* argument)
+void do_moblist(Mobile* ch, char* argument)
 {
     static const char* help = "{jSyntax: MOBLIST AREA\n\r"
         "          MOBLIST WORLD [low-level] [high-level]{x\n\r";

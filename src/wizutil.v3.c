@@ -24,10 +24,10 @@
 #include "interp.h"
 #include "save.h"
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 #include "entities/descriptor.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -184,7 +184,7 @@ void check_exits(RoomData* room, AreaData* pArea, char* buffer)
 }
 
 // For now, no arguments, just list the current area
-void do_exlist(CharData* ch, char* argument)
+void do_exlist(Mobile* ch, char* argument)
 {
     RoomData* room;
     char buffer[MAX_STRING_LENGTH];
@@ -204,7 +204,7 @@ void do_exlist(CharData* ch, char* argument)
 #define COLUMNS 5   // number of columns */
 #define MAX_ROW ((MAX_SHOW_VNUM / COLUMNS)+1) // rows
 
-void do_vlist(CharData* ch, char* argument)
+void do_vlist(Mobile* ch, char* argument)
 {
     VNUM i;
     VNUM j;
@@ -243,13 +243,13 @@ void do_vlist(CharData* ch, char* argument)
 
 bool check_parse_name(char* name);  // comm.c
 
-void do_rename(CharData* ch, char* argument)
+void do_rename(Mobile* ch, char* argument)
 {
     char old_name[MAX_INPUT_LENGTH] = { 0 };
     char new_name[MAX_INPUT_LENGTH] = { 0 };
     char strsave[MAX_INPUT_LENGTH] = { 0 };
 
-    CharData* victim;
+    Mobile* victim;
 
     READ_ARG(old_name); /* find new/old name */
     one_argument(argument, new_name);
@@ -384,10 +384,10 @@ target in them. Private rooms are not violated.
 
 // Expand the name of a character into a string that identifies THAT character 
 // within a room. E.g. the second 'guard' -> 2. guard 
-const char* name_expand(CharData* ch)
+const char* name_expand(Mobile* ch)
 {
     int count = 1;
-    CharData* rch;
+    Mobile* rch;
     char name[MAX_INPUT_LENGTH]; /*  HOPEFULLY no mob has a name longer than THAT */
 
     static char outbuf[MAX_INPUT_LENGTH * 2];
@@ -411,14 +411,14 @@ const char* name_expand(CharData* ch)
     return outbuf;
 }
 
-void do_for(CharData* ch, char* argument)
+void do_for(Mobile* ch, char* argument)
 {
     char range[MAX_INPUT_LENGTH] = { 0 };
     char buf[MAX_STRING_LENGTH] = { 0 };
     bool fGods = false, fMortals = false, fMobs = false, fEverywhere = false, found;
     RoomData* room, * old_room;
-    CharData* p;
-    CharData* p_next = NULL;
+    Mobile* p;
+    Mobile* p_next = NULL;
     int i;
 
     READ_ARG(range);
@@ -457,7 +457,7 @@ void do_for(CharData* ch, char* argument)
 
     if (strchr(argument, '#')) {
         // replace # ?
-        for (p = char_list; p; p = p_next) {
+        for (p = mob_list; p; p = p_next) {
             p_next = p->next; /* In case someone DOES try to AT MOBS SLAY # */
             found = false;
 

@@ -45,10 +45,10 @@
 #include "weather.h"
 
 #include "entities/descriptor.h"
-#include "entities/object_data.h"
+#include "entities/object.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/race.h"
 #include "data/skill.h"
 
@@ -58,9 +58,9 @@
 #include <time.h>
 
 // Local functions.
-int hit_gain args((CharData * ch));
-int mana_gain args((CharData * ch));
-int move_gain args((CharData * ch));
+int hit_gain args((Mobile * ch));
+int mana_gain args((Mobile * ch));
+int move_gain args((Mobile * ch));
 void mobile_update args((void));
 void char_update args((void));
 void obj_update args((void));
@@ -71,7 +71,7 @@ void aggr_update();
 int save_number = 0;
 
 // Advancement stuff.
-void advance_level(CharData* ch, bool hide)
+void advance_level(Mobile* ch, bool hide)
 {
     char buf[MAX_STRING_LENGTH];
     int16_t add_hp;
@@ -128,7 +128,7 @@ void advance_level(CharData* ch, bool hide)
     return;
 }
 
-void gain_exp(CharData* ch, int gain)
+void gain_exp(Mobile* ch, int gain)
 {
     char buf[MAX_STRING_LENGTH];
 
@@ -153,7 +153,7 @@ void gain_exp(CharData* ch, int gain)
 }
 
 // Regeneration stuff.
-int hit_gain(CharData* ch)
+int hit_gain(Mobile* ch)
 {
     int gain;
     int number;
@@ -226,7 +226,7 @@ int hit_gain(CharData* ch)
     return UMIN(gain, ch->max_hit - ch->hit);
 }
 
-int mana_gain(CharData* ch)
+int mana_gain(Mobile* ch)
 {
     int gain;
     int number;
@@ -294,7 +294,7 @@ int mana_gain(CharData* ch)
     return UMIN(gain, ch->max_mana - ch->mana);
 }
 
-int move_gain(CharData* ch)
+int move_gain(Mobile* ch)
 {
     int gain;
 
@@ -339,7 +339,7 @@ int move_gain(CharData* ch)
     return UMIN(gain, ch->max_move - ch->move);
 }
 
-void gain_condition(CharData* ch, int iCond, int value)
+void gain_condition(Mobile* ch, int iCond, int value)
 {
     int condition;
 
@@ -397,15 +397,15 @@ static void update_msdp_vars(Descriptor* d)
  */
 void mobile_update()
 {
-    CharData* ch = NULL;
-    CharData* ch_next = NULL;
+    Mobile* ch = NULL;
+    Mobile* ch_next = NULL;
     ExitData* pexit = NULL;
     int door;
 
     bool msdp_enabled = cfg_get_msdp_enabled();
 
     /* Examine all mobs. */
-    for (ch = char_list; ch != NULL; ch = ch_next) {
+    for (ch = mob_list; ch != NULL; ch = ch_next) {
         ch_next = ch->next;
 
         if (ch->desc && ch->desc->mth->msdp_data && msdp_enabled) {
@@ -457,8 +457,8 @@ void mobile_update()
         /* Scavenge */
         if (IS_SET(ch->act_flags, ACT_SCAVENGER) && ch->in_room->contents != NULL
             && number_bits(6) == 0) {
-            ObjectData* obj;
-            ObjectData* obj_best;
+            Object* obj;
+            Object* obj_best;
             int max;
 
             max = 1;
@@ -498,9 +498,9 @@ void mobile_update()
 // Update all chars, including mobs.
 void char_update(void)
 {
-    CharData* ch;
-    CharData* ch_next = NULL;
-    CharData* ch_quit = NULL;
+    Mobile* ch;
+    Mobile* ch_next = NULL;
+    Mobile* ch_quit = NULL;
 
     ch_quit = NULL;
 
@@ -510,7 +510,7 @@ void char_update(void)
     if (save_number > 29)
         save_number = 0;
 
-    for (ch = char_list; ch != NULL; ch = ch_next) {
+    for (ch = mob_list; ch != NULL; ch = ch_next) {
         AffectData* paf;
         AffectData* paf_next = NULL;
 
@@ -547,7 +547,7 @@ void char_update(void)
         if (ch->position == POS_STUNNED) update_pos(ch);
 
         if (!IS_NPC(ch) && ch->level < LEVEL_IMMORTAL) {
-            ObjectData* obj;
+            Object* obj;
 
             if ((obj = get_eq_char(ch, WEAR_LIGHT)) != NULL
                 && obj->item_type == ITEM_LIGHT && obj->value[2] > 0) {
@@ -613,7 +613,7 @@ void char_update(void)
         if (is_affected(ch, gsn_plague) && ch != NULL) {
             AffectData* af;
             AffectData plague = { 0 };
-            CharData* vch;
+            Mobile* vch;
             int dam;
 
             if (ch->in_room == NULL) continue;
@@ -685,7 +685,7 @@ void char_update(void)
      * Autosave and autoquit.
      * Check that these chars still exist.
      */
-    for (ch = char_list; ch != NULL; ch = ch_next) {
+    for (ch = mob_list; ch != NULL; ch = ch_next) {
         ch_next = ch->next;
 
         if (ch->desc != NULL && (int)ch->desc->client->fd % 30 == save_number) {
@@ -706,13 +706,13 @@ void char_update(void)
  */
 void obj_update(void)
 {
-    ObjectData* obj;
-    ObjectData* obj_next = NULL;
+    Object* obj;
+    Object* obj_next = NULL;
     AffectData* paf;
     AffectData* paf_next = NULL;
 
-    for (obj = object_list; obj != NULL; obj = obj_next) {
-        CharData* rch;
+    for (obj = obj_list; obj != NULL; obj = obj_next) {
+        Mobile* rch;
         char* message;
 
         obj_next = obj->next;
@@ -805,8 +805,8 @@ void obj_update(void)
 
         if ((obj->item_type == ITEM_CORPSE_PC || obj->wear_loc == WEAR_FLOAT)
             && obj->contains) { /* save the contents */
-            ObjectData* t_obj;
-            ObjectData* next_obj = NULL;
+            Object* t_obj;
+            Object* next_obj = NULL;
 
             for (t_obj = obj->contains; t_obj != NULL; t_obj = next_obj) {
                 next_obj = t_obj->next_content;
@@ -855,12 +855,12 @@ void obj_update(void)
 void aggr_update(void)
 {
     for (PlayerData* wpc = player_list; wpc != NULL; NEXT_LINK(wpc)) {
-        CharData* wch = wpc->ch;
+        Mobile* wch = wpc->ch;
 
         if (wch->level >= LEVEL_IMMORTAL || wch->in_room == NULL)
             continue;
 
-        for (CharData* ch = wch->in_room->people; ch != NULL; ch = ch->next_in_room) {
+        for (Mobile* ch = wch->in_room->people; ch != NULL; ch = ch->next_in_room) {
             int count;
 
             if (!IS_NPC(ch) || !IS_SET(ch->act_flags, ACT_AGGRESSIVE)
@@ -877,8 +877,8 @@ void aggr_update(void)
              *   giving each 'vch' an equal chance of selection.
              */
             count = 0;
-            CharData* victim = NULL;
-            for (CharData* vch = wch->in_room->people; vch != NULL; vch = vch->next_in_room) {
+            Mobile* victim = NULL;
+            for (Mobile* vch = wch->in_room->people; vch != NULL; vch = vch->next_in_room) {
                 if (!IS_NPC(vch) && vch->level < LEVEL_IMMORTAL
                     && ch->level >= vch->level - 5
                     && (!IS_SET(ch->act_flags, ACT_WIMPY) || !IS_AWAKE(vch))
@@ -888,7 +888,8 @@ void aggr_update(void)
                 }
             }
 
-            if (victim == NULL) continue;
+            if (victim == NULL)
+                continue;
 
             multi_hit(ch, victim, TYPE_UNDEFINED);
         }

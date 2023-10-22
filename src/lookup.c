@@ -31,7 +31,7 @@
 #include "handler.h"
 #include "tables.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/race.h"
 
 #include <stdio.h>

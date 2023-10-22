@@ -19,11 +19,11 @@
 #include "entities/descriptor.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/skill.h"
 #include "data/spell.h"
 
-#define SKEDIT(fun) bool fun(CharData *ch, char *argument)
+#define SKEDIT(fun) bool fun(Mobile *ch, char *argument)
 
 SkillHash* skill_hash_table[26];
 
@@ -125,7 +125,7 @@ SKNUM* gsn_lookup(char* argument)
     return NULL;
 }
 
-void skedit(CharData* ch, char* argument)
+void skedit(Mobile* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_SKEDIT_SECURITY) {
         send_to_char("SKEdit : You do not have enough security to edit skills.\n\r", ch);
@@ -155,7 +155,7 @@ void skedit(CharData* ch, char* argument)
     return;
 }
 
-void do_sklist(CharData* ch, char* argument)
+void do_sklist(Mobile* ch, char* argument)
 {
     static char* help = "{jSyntax : {*SKLIST <OPTION>{x\n\r\n\r"
         "{*<OPTION>{x can be one of the following:\n\r"
@@ -216,7 +216,7 @@ void do_sklist(CharData* ch, char* argument)
     free_buf(page);
 }
 
-void do_skedit(CharData* ch, char* argument)
+void do_skedit(Mobile* ch, char* argument)
 {
     const Skill* pSkill;
     char command[MSL];
@@ -684,7 +684,7 @@ SKEDIT(skedit_gsn)
 SKEDIT(skedit_new)
 {
     Descriptor* d;
-    CharData* tch;
+    Mobile* tch;
     Skill* new_table;
     bool* tempgendata;
     SKNUM* templearned;
@@ -755,7 +755,7 @@ SKEDIT(skedit_new)
         tch->gen_data->skill_chosen[skill_count - 1] = 0;
     }
 
-    FOR_EACH(tch, char_list)
+    FOR_EACH(tch, mob_list)
         if (!IS_NPC(tch)) {
             templearned = new_learned();
 

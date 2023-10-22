@@ -6,8 +6,8 @@
 #ifndef MUD98__ACT_MOVE_H
 #define MUD98__ACT_MOVE_H
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 
-void move_char(CharData* ch, int door, bool follow);
+void move_char(Mobile* ch, int door, bool follow);
 
 #endif // !MUD98__ACT_MOVE_H

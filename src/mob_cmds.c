@@ -49,11 +49,11 @@
 #include "mob_prog.h"
 #include "skills.h"
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 #include "entities/descriptor.h"
-#include "entities/object_data.h"
+#include "entities/object.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/skill.h"
 
 #include <stdio.h>
@@ -96,7 +96,7 @@ const struct mob_cmd_type mob_cmd_table[] = {
     { "",           0               }
 };
 
-void do_mob(CharData* ch, char* argument)
+void do_mob(Mobile* ch, char* argument)
 {
     // Security check!
     if (ch->desc != NULL && get_trust(ch) < MAX_LEVEL)
@@ -107,7 +107,7 @@ void do_mob(CharData* ch, char* argument)
  * Mob command interpreter. Implemented separately for security and speed
  * reasons. A trivial hack of interpret()
  */
-void mob_interpret(CharData* ch, char* argument)
+void mob_interpret(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH], command[MAX_INPUT_LENGTH];
     int cmd;
@@ -155,11 +155,11 @@ char* mprog_type_to_name(MobProgTrigger type)
  *
  * Syntax: mpstat [name]
  */
-void do_mpstat(CharData* ch, char* argument)
+void do_mpstat(Mobile* ch, char* argument)
 {
     char arg[MAX_STRING_LENGTH];
     MobProg* mprg;
-    CharData* victim;
+    Mobile* victim;
     int i;
 
     one_argument(argument, arg);
@@ -215,7 +215,7 @@ void do_mpstat(CharData* ch, char* argument)
  *
  * Syntax: mpdump [vnum]
  */
-void do_mpdump(CharData* ch, char* argument)
+void do_mpdump(Mobile* ch, char* argument)
 {
     char buf[MAX_INPUT_LENGTH];
     MobProgCode* mprg;
@@ -233,7 +233,7 @@ void do_mpdump(CharData* ch, char* argument)
  *
  * Syntax: mob gecho [string]
  */
-void do_mpgecho(CharData* ch, char* argument)
+void do_mpgecho(Mobile* ch, char* argument)
 {
     Descriptor* d;
 
@@ -258,7 +258,7 @@ void do_mpgecho(CharData* ch, char* argument)
  *
  * Syntax: mob zecho [string]
  */
-void do_mpzecho(CharData* ch, char* argument)
+void do_mpzecho(Mobile* ch, char* argument)
 {
     Descriptor* d;
 
@@ -288,7 +288,7 @@ void do_mpzecho(CharData* ch, char* argument)
  *
  * Syntax: mob asound [string]
  */
-void do_mpasound(CharData* ch, char* argument)
+void do_mpasound(Mobile* ch, char* argument)
 {
 
     RoomData* was_in_room;
@@ -320,10 +320,10 @@ void do_mpasound(CharData* ch, char* argument)
  *
  * Syntax: mob kill [victim]
  */
-void do_mpkill(CharData* ch, char* argument)
+void do_mpkill(Mobile* ch, char* argument)
 {
     char      arg[MAX_INPUT_LENGTH];
-    CharData* victim;
+    Mobile* victim;
 
     one_argument(argument, arg);
 
@@ -351,10 +351,10 @@ void do_mpkill(CharData* ch, char* argument)
  *
  * Syntax: mob assist [character]
  */
-void do_mpassist(CharData* ch, char* argument)
+void do_mpassist(Mobile* ch, char* argument)
 {
     char      arg[MAX_INPUT_LENGTH];
-    CharData* victim;
+    Mobile* victim;
 
     one_argument(argument, arg);
 
@@ -380,11 +380,11 @@ void do_mpassist(CharData* ch, char* argument)
  * Syntax: mob junk [item]
  */
 
-void do_mpjunk(CharData* ch, char* argument)
+void do_mpjunk(Mobile* ch, char* argument)
 {
     char      arg[MAX_INPUT_LENGTH];
-    ObjectData* obj;
-    ObjectData* obj_next = NULL;
+    Object* obj;
+    Object* obj_next = NULL;
 
     one_argument(argument, arg);
 
@@ -421,10 +421,10 @@ void do_mpjunk(CharData* ch, char* argument)
  * Syntax: mob echoaround [victim] [string]
  */
 
-void do_mpechoaround(CharData* ch, char* argument)
+void do_mpechoaround(Mobile* ch, char* argument)
 {
     char       arg[MAX_INPUT_LENGTH];
-    CharData* victim;
+    Mobile* victim;
 
     READ_ARG(arg);
 
@@ -442,10 +442,10 @@ void do_mpechoaround(CharData* ch, char* argument)
  *
  * Syntax: mob echoat [victim] [string]
  */
-void do_mpechoat(CharData* ch, char* argument)
+void do_mpechoat(Mobile* ch, char* argument)
 {
     char       arg[MAX_INPUT_LENGTH];
-    CharData* victim;
+    Mobile* victim;
 
     READ_ARG(arg);
 
@@ -463,7 +463,7 @@ void do_mpechoat(CharData* ch, char* argument)
  *
  * Syntax: mpecho [string]
  */
-void do_mpecho(CharData* ch, char* argument)
+void do_mpecho(Mobile* ch, char* argument)
 {
     if (argument[0] == '\0')
         return;
@@ -475,11 +475,11 @@ void do_mpecho(CharData* ch, char* argument)
  *
  * Syntax: mob mload [vnum]
  */
-void do_mpmload(CharData* ch, char* argument)
+void do_mpmload(Mobile* ch, char* argument)
 {
     char            arg[MAX_INPUT_LENGTH];
     MobPrototype* p_mob_proto;
-    CharData* victim;
+    Mobile* victim;
     VNUM vnum;
 
     one_argument(argument, arg);
@@ -504,13 +504,13 @@ void do_mpmload(CharData* ch, char* argument)
  *
  * Syntax: mob oload [vnum] [level] {R}
  */
-void do_mpoload(CharData* ch, char* argument)
+void do_mpoload(Mobile* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char arg3[MAX_INPUT_LENGTH];
-    ObjectPrototype* obj_proto;
-    ObjectData* obj;
+    ObjPrototype* obj_proto;
+    Object* obj;
     LEVEL level;
     bool fToroom = false;
     bool fWear = false;
@@ -580,18 +580,18 @@ void do_mpoload(CharData* ch, char* argument)
  *
  * syntax mob purge {target}
  */
-void do_mppurge(CharData* ch, char* argument)
+void do_mppurge(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CharData* victim;
-    ObjectData* obj;
+    Mobile* victim;
+    Object* obj;
 
     one_argument(argument, arg);
 
     if (arg[0] == '\0') {
         /* 'purge' */
-        CharData* vnext = NULL;
-        ObjectData* obj_next = NULL;
+        Mobile* vnext = NULL;
+        Object* obj_next = NULL;
 
         for (victim = ch->in_room->people; victim != NULL; victim = vnext) {
             vnext = victim->next_in_room;
@@ -635,7 +635,7 @@ void do_mppurge(CharData* ch, char* argument)
  *
  * Syntax: mob goto [location]
  */
-void do_mpgoto(CharData* ch, char* argument)
+void do_mpgoto(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     RoomData* location;
@@ -667,13 +667,13 @@ void do_mpgoto(CharData* ch, char* argument)
  *
  * Syntax: mob at [location] [commands]
  */
-void do_mpat(CharData* ch, char* argument)
+void do_mpat(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     RoomData* location;
     RoomData* original;
-    CharData* wch;
-    ObjectData* on;
+    Mobile* wch;
+    Object* on;
 
     READ_ARG(arg);
 
@@ -699,7 +699,7 @@ void do_mpat(CharData* ch, char* argument)
      * See if 'ch' still exists before continuing!
      * Handles 'at XXXX quit' case.
      */
-    FOR_EACH(wch, char_list) {
+    FOR_EACH(wch, mob_list) {
         if (wch == ch) {
             char_from_room(ch);
             char_to_room(ch, original);
@@ -717,13 +717,13 @@ void do_mpat(CharData* ch, char* argument)
  *
  * Syntax: mob transfer [target|'all'] [location]
  */
-void do_mptransfer(CharData* ch, char* argument)
+void do_mptransfer(Mobile* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
     RoomData* location;
-    CharData* victim;
+    Mobile* victim;
 
     READ_ARG(arg1);
     READ_ARG(arg2);
@@ -735,7 +735,7 @@ void do_mptransfer(CharData* ch, char* argument)
     }
 
     if (!str_cmp(arg1, "all")) {
-        CharData* victim_next = NULL;
+        Mobile* victim_next = NULL;
 
         for (victim = ch->in_room->people; victim != NULL; victim = victim_next) {
             victim_next = victim->next_in_room;
@@ -782,14 +782,14 @@ void do_mptransfer(CharData* ch, char* argument)
  *
  * Syntax: mob gtransfer [victim] [location]
  */
-void do_mpgtransfer(CharData* ch, char* argument)
+void do_mpgtransfer(Mobile* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
-    CharData* who; 
-    CharData* victim;
-    CharData* victim_next = NULL;
+    Mobile* who; 
+    Mobile* victim;
+    Mobile* victim_next = NULL;
 
     READ_ARG(arg1);
     READ_ARG(arg2);
@@ -819,7 +819,7 @@ void do_mpgtransfer(CharData* ch, char* argument)
  *
  * Syntax: mob force [victim] [commands]
  */
-void do_mpforce(CharData* ch, char* argument)
+void do_mpforce(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
 
@@ -832,10 +832,10 @@ void do_mpforce(CharData* ch, char* argument)
     }
 
     if (!str_cmp(arg, "all")) {
-        CharData* vch;
-        CharData* vch_next = NULL;
+        Mobile* vch;
+        Mobile* vch_next = NULL;
 
-        for (vch = char_list; vch != NULL; vch = vch_next) {
+        for (vch = mob_list; vch != NULL; vch = vch_next) {
             vch_next = vch->next;
 
             if (vch->in_room == ch->in_room
@@ -846,7 +846,7 @@ void do_mpforce(CharData* ch, char* argument)
         }
     }
     else {
-        CharData* victim;
+        Mobile* victim;
 
         if ((victim = get_char_room(ch, arg)) == NULL)
             return;
@@ -865,12 +865,12 @@ void do_mpforce(CharData* ch, char* argument)
  *
  * Syntax: mob gforce [victim] [commands]
  */
-void do_mpgforce(CharData* ch, char* argument)
+void do_mpgforce(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CharData* victim;
-    CharData* vch;
-    CharData* vch_next = NULL;
+    Mobile* victim;
+    Mobile* vch;
+    Mobile* vch_next = NULL;
 
     READ_ARG(arg);
 
@@ -901,10 +901,10 @@ void do_mpgforce(CharData* ch, char* argument)
  *
  * Syntax: mob vforce [vnum] [commands]
  */
-void do_mpvforce(CharData* ch, char* argument)
+void do_mpvforce(Mobile* ch, char* argument)
 {
-    CharData* victim;
-    CharData* victim_next = NULL;
+    Mobile* victim;
+    Mobile* victim_next = NULL;
     char arg[MAX_INPUT_LENGTH];
     VNUM vnum;
 
@@ -924,7 +924,7 @@ void do_mpvforce(CharData* ch, char* argument)
 
     vnum = STRTOVNUM(arg);
 
-    for (victim = char_list; victim; victim = victim_next) {
+    for (victim = mob_list; victim; victim = victim_next) {
         victim_next = victim->next;
         if (IS_NPC(victim) && victim->prototype->vnum == vnum
             && ch != victim && victim->fighting == NULL)
@@ -942,10 +942,10 @@ void do_mpvforce(CharData* ch, char* argument)
  * Syntax: mob cast [spell] {target}
  */
 
-void do_mpcast(CharData* ch, char* argument)
+void do_mpcast(Mobile* ch, char* argument)
 {
-    CharData* vch;
-    ObjectData* obj;
+    Mobile* vch;
+    Object* obj;
     void* victim = NULL;
     char arg_spell[MAX_INPUT_LENGTH];
     char arg_target[MAX_INPUT_LENGTH];
@@ -1013,10 +1013,10 @@ void do_mpcast(CharData* ch, char* argument)
  *
  * Syntax: mob damage [victim] [min] [max] {kill}
  */
-void do_mpdamage(CharData* ch, char* argument)
+void do_mpdamage(Mobile* ch, char* argument)
 {
-    CharData* victim = NULL;
-    CharData* victim_next = NULL;
+    Mobile* victim = NULL;
+    Mobile* victim_next = NULL;
     char target[MAX_INPUT_LENGTH];
     char min[MAX_INPUT_LENGTH];
     char max[MAX_INPUT_LENGTH];
@@ -1085,7 +1085,7 @@ void do_mpdamage(CharData* ch, char* argument)
  *
  * Syntax: mob remember [victim]
  */
-void do_mpremember(CharData* ch, char* argument)
+void do_mpremember(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     one_argument(argument, arg);
@@ -1101,7 +1101,7 @@ void do_mpremember(CharData* ch, char* argument)
  *
  * Syntax: mob forget
  */
-void do_mpforget(CharData* ch, char* argument)
+void do_mpforget(Mobile* ch, char* argument)
 {
     ch->mprog_target = NULL;
 }
@@ -1113,7 +1113,7 @@ void do_mpforget(CharData* ch, char* argument)
  *
  * Syntax: mob delay [pulses]
  */
-void do_mpdelay(CharData* ch, char* argument)
+void do_mpdelay(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
 
@@ -1131,7 +1131,7 @@ void do_mpdelay(CharData* ch, char* argument)
  *
  * Syntax: mob cancel
  */
-void do_mpcancel(CharData* ch, char* argument)
+void do_mpcancel(Mobile* ch, char* argument)
 {
     ch->mprog_delay = -1;
 }
@@ -1145,11 +1145,11 @@ void do_mpcancel(CharData* ch, char* argument)
  * Syntax: mob call [vnum] [victim|'null'] [object1|'null'] [object2|'null']
  *
  */
-void do_mpcall(CharData* ch, char* argument)
+void do_mpcall(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CharData* vch;
-    ObjectData* obj1, * obj2;
+    Mobile* vch;
+    Object* obj1, * obj2;
     MobProgCode* prg;
 
     READ_ARG(arg);
@@ -1183,7 +1183,7 @@ void do_mpcall(CharData* ch, char* argument)
  * Syntax: mob flee
  *
  */
-void do_mpflee(CharData* ch, char* argument)
+void do_mpflee(Mobile* ch, char* argument)
 {
     RoomData* was_in;
     ExitData* pexit;
@@ -1216,9 +1216,9 @@ void do_mpflee(CharData* ch, char* argument)
  *
  * Syntax: mob otransfer [item name] [location]
  */
-void do_mpotransfer(CharData* ch, char* argument)
+void do_mpotransfer(Mobile* ch, char* argument)
 {
-    ObjectData* obj;
+    Object* obj;
     RoomData* location;
     char arg[MAX_INPUT_LENGTH];
     char buf[MAX_INPUT_LENGTH];
@@ -1253,11 +1253,11 @@ void do_mpotransfer(CharData* ch, char* argument)
  *
  * Syntax: mob remove [victim] [object vnum|'all']
  */
-void do_mpremove(CharData* ch, char* argument)
+void do_mpremove(Mobile* ch, char* argument)
 {
-    CharData* victim;
-    ObjectData* obj;
-    ObjectData* obj_next = NULL;
+    Mobile* victim;
+    Object* obj;
+    Object* obj_next = NULL;
     VNUM vnum = 0;
     bool fAll = false;
     char arg[MAX_INPUT_LENGTH];
@@ -1287,12 +1287,12 @@ void do_mpremove(CharData* ch, char* argument)
     }
 }
 
-void do_mpquest(CharData* ch, char* argument)
+void do_mpquest(Mobile* ch, char* argument)
 {
     char cmd[MIL];
     char name[MIL];
     char vnum_str[MIL];
-    CharData* vch;
+    Mobile* vch;
 
     READ_ARG(cmd);
     if (!cmd[0])

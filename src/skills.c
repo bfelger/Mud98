@@ -36,11 +36,11 @@
 #include "recycle.h"
 #include "update.h"
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 #include "entities/descriptor.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/race.h"
 #include "data/skill.h"
 
@@ -54,11 +54,11 @@
 #endif
 
 /* used to get new skills */
-void do_gain(CharData* ch, char* argument)
+void do_gain(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    CharData* trainer;
+    Mobile* trainer;
     SKNUM gn = 0, sn = 0;
 
     if (IS_NPC(ch)) 
@@ -233,7 +233,7 @@ void do_gain(CharData* ch, char* argument)
 }
 
 /* RT spells and skills show the players spells (or skills) */
-void do_spells(CharData* ch, char* argument)
+void do_spells(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char spell_columns[LEVEL_HERO + 1] = { 0 };
@@ -356,7 +356,7 @@ void do_spells(CharData* ch, char* argument)
     free(spell_buf);
 }
 
-void do_skills(CharData* ch, char* argument)
+void do_skills(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char skill_columns[LEVEL_HERO + 1] = { 0 };
@@ -478,7 +478,7 @@ void do_skills(CharData* ch, char* argument)
 }
 
 /* shows skills, groups and costs (only if not bought) */
-void list_group_costs(CharData* ch)
+void list_group_costs(Mobile* ch)
 {
     char buf[100];
     SKNUM gn, sn;
@@ -536,7 +536,7 @@ void list_group_costs(CharData* ch)
     return;
 }
 
-void list_group_chosen(CharData* ch)
+void list_group_chosen(Mobile* ch)
 {
     char buf[100];
     SKNUM gn, sn;
@@ -592,7 +592,7 @@ void list_group_chosen(CharData* ch)
     return;
 }
 
-int exp_per_level(CharData* ch, int points)
+int exp_per_level(Mobile* ch, int points)
 {
     int expl, inc;
 
@@ -627,7 +627,7 @@ int exp_per_level(CharData* ch, int points)
 }
 
 /* this procedure handles the input parsing for the skill generator */
-bool parse_gen_groups(CharData* ch, char* argument)
+bool parse_gen_groups(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char buf[100];
@@ -770,7 +770,7 @@ bool parse_gen_groups(CharData* ch, char* argument)
 }
 
 /* shows all groups, or the sub-members of a group */
-void do_groups(CharData* ch, char* argument)
+void do_groups(Mobile* ch, char* argument)
 {
     char buf[100];
     SKNUM gn, sn;
@@ -827,7 +827,7 @@ void do_groups(CharData* ch, char* argument)
 }
 
 /* checks for skill improvement */
-void check_improve(CharData* ch, SKNUM sn, bool success, int multiplier)
+void check_improve(Mobile* ch, SKNUM sn, bool success, int multiplier)
 {
     int chance;
     char buf[100];
@@ -892,7 +892,7 @@ SKNUM group_lookup(const char* name)
 }
 
 /* recursively adds a group given its number -- uses group_add */
-void gn_add(CharData* ch, SKNUM gn)
+void gn_add(Mobile* ch, SKNUM gn)
 {
     int i;
 
@@ -905,7 +905,7 @@ void gn_add(CharData* ch, SKNUM gn)
 }
 
 /* recusively removes a group given its number -- uses group_remove */
-void gn_remove(CharData* ch, SKNUM gn)
+void gn_remove(Mobile* ch, SKNUM gn)
 {
     int i;
 
@@ -919,7 +919,7 @@ void gn_remove(CharData* ch, SKNUM gn)
 }
 
 /* use for processing a skill or group for addition  */
-void group_add(CharData* ch, const char* name, bool deduct)
+void group_add(Mobile* ch, const char* name, bool deduct)
 {
     SKNUM sn, gn;
 
@@ -954,7 +954,7 @@ void group_add(CharData* ch, const char* name, bool deduct)
 
 /* used for processing a skill or group for deletion -- no points back! */
 
-void group_remove(CharData* ch, const char* name)
+void group_remove(Mobile* ch, const char* name)
 {
     SKNUM sn, gn;
 

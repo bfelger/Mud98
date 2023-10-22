@@ -18,7 +18,7 @@ bool create_digest(const char* message, size_t message_len,
 void decode_digest(PlayerData* pc, const char* hex_str);
 void free_digest(unsigned char* digest);
 void hex_to_bin(uint8_t* dest, const char* hex_str, size_t bin_size);
-bool set_password(char* pwd, CharData* ch);
-bool validate_password(char* pwd, CharData* ch);
+bool set_password(char* pwd, Mobile* ch);
+bool validate_password(char* pwd, Mobile* ch);
 
 #endif // !MUD98__DIGEST_H

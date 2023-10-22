@@ -11,7 +11,7 @@
 
 #include "data/class.h"
 
-#define CEDIT(fun)      bool fun(CharData *ch, char *argument)
+#define CEDIT(fun)      bool fun(Mobile *ch, char *argument)
 
 Class xClass;
 
@@ -44,7 +44,7 @@ const OlcCmdEntry class_olc_comm_table[] = {
     { NULL,         0,                          NULL,               0                   }
 };
 
-void cedit(CharData* ch, char* argument)
+void cedit(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char command[MAX_INPUT_LENGTH];
@@ -78,7 +78,7 @@ void cedit(CharData* ch, char* argument)
     return;
 }
 
-void do_cedit(CharData* ch, char* argument)
+void do_cedit(Mobile* ch, char* argument)
 {
     const Class* pClass;
     char command[MSL];
@@ -128,7 +128,7 @@ void do_cedit(CharData* ch, char* argument)
 CEDIT(cedit_new)
 {
     Descriptor* d;
-    CharData* tch;
+    Mobile* tch;
     Class* new_table;
 
     if (IS_NULLSTR(argument)) {
@@ -291,7 +291,7 @@ CEDIT(cedit_show)
     return false;
 }
 
-static void show_weapon_list(CharData* ch)
+static void show_weapon_list(Mobile* ch)
 {
     send_to_char("Choices include: ", ch);
     for (int i = 1; i < WEAPON_TYPE_COUNT; ++i) {

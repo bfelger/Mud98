@@ -97,11 +97,11 @@ typedef enum spell_target_t {
 // Func Helpers
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef struct char_data_t CharData;
+typedef struct mobile_t Mobile;
 
-typedef void DoFunc(CharData* ch, char* argument);
-typedef bool SpecFunc(CharData* ch);
-typedef void SpellFunc(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target);
+typedef void DoFunc(Mobile* ch, char* argument);
+typedef bool SpecFunc(Mobile* ch);
+typedef void SpellFunc(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target);
 
 #define DECLARE_DO_FUN( fun )       DoFunc fun
 #define DECLARE_SPEC_FUN( fun )     SpecFunc fun

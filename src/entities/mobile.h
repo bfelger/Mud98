@@ -1,13 +1,13 @@
 ////////////////////////////////////////////////////////////////////////////////
-// char_data.h
-// Character data
+// mobile.h
+// Mobiles
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#ifndef MUD98__ENTITIES__CHAR_DATA_H
-#define MUD98__ENTITIES__CHAR_DATA_H
+#ifndef MUD98__ENTITIES__MOBILE_H
+#define MUD98__ENTITIES__MOBILE_H
 
-typedef struct char_data_t CharData;
+typedef struct mobile_t Mobile;
 
 #include "merc.h"
 
@@ -18,34 +18,34 @@ typedef struct char_data_t CharData;
 #include "descriptor.h"
 #include "mob_memory.h"
 #include "mob_prototype.h"
-#include "object_data.h"
+#include "object.h"
 #include "player_data.h"
 #include "room_data.h"
 
 #include "data/class.h"
 #include "data/damage.h"
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/stats.h"
 
 #include <stdbool.h>
 
-typedef struct char_data_t {
-    CharData* next;
-    CharData* next_in_room;
-    CharData* master;
-    CharData* leader;
-    CharData* fighting;
-    CharData* reply;
-    CharData* pet;
-    CharData* mprog_target;
+typedef struct mobile_t {
+    Mobile* next;
+    Mobile* next_in_room;
+    Mobile* master;
+    Mobile* leader;
+    Mobile* fighting;
+    Mobile* reply;
+    Mobile* pet;
+    Mobile* mprog_target;
     MobMemory* memory;
     SpecFunc* spec_fun;
     MobPrototype* prototype;
     Descriptor* desc;
     AffectData* affected;
     NoteData* pnote;
-    ObjectData* carrying;
-    ObjectData* on;
+    Object* carrying;
+    Object* on;
     RoomData* in_room;
     RoomData* was_in_room;
     AreaData* zone;
@@ -114,7 +114,7 @@ typedef struct char_data_t {
     int16_t gold;
     int16_t silver;
     bool valid;
-} CharData;
+} Mobile;
 
 #define IS_NPC(ch)            (IS_SET((ch)->act_flags, ACT_IS_NPC))
 #define IS_IMMORTAL(ch)       (get_trust(ch) >= LEVEL_IMMORTAL)
@@ -160,11 +160,11 @@ typedef struct char_data_t {
 // with checks.
 #define GET_ARCH(ch)    (CHECK_ARCH((int)class_table[ch->ch_class].arch))
 
-void free_char_data(CharData* ch);
-CharData* new_char_data();
+void free_mobile(Mobile* ch);
+Mobile* new_mobile();
 
-extern CharData* char_list;
-extern CharData* char_free;
+extern Mobile* mob_list;
+extern Mobile* mob_free;
 
 extern int mob_count;
 

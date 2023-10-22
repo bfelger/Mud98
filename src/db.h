@@ -33,7 +33,7 @@
 
 #include "mob_prog.h"
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 #include "entities/room_data.h"
 
 #include "data/direction.h"
@@ -52,8 +52,8 @@ void reset_room(RoomData* pRoom);	    // OLC
 char* print_flags(FLAGS flag);
 void boot_db(void);
 void area_update(void);
-void clone_mobile(CharData* parent, CharData* clone);
-void clear_char(CharData* ch);
+void clone_mobile(Mobile* parent, Mobile* clone);
+void clear_char(Mobile* ch);
 MobProgCode* get_mprog_index(VNUM vnum);
 char fread_letter(FILE* fp);
 int fread_number(FILE* fp);
@@ -84,7 +84,7 @@ bool str_prefix(const char* astr, const char* bstr);
 bool str_infix(const char* astr, const char* bstr);
 bool str_suffix(const char* astr, const char* bstr);
 char* capitalize(const char* str);
-void append_file(CharData* ch, char* file, char* str);
+void append_file(Mobile* ch, char* file, char* str);
 void bug(const char* fmt, ...);
 void log_string(const char* str);
 

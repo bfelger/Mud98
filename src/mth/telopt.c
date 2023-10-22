@@ -15,7 +15,7 @@
 #include "data/race.h"
 #include "data/skill.h"
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 #include "entities/player_data.h"
 
 #include <stdint.h>

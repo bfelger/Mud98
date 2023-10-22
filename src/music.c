@@ -34,9 +34,9 @@
 #include "music.h"
 #include "recycle.h"
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 #include "entities/descriptor.h"
-#include "entities/object_data.h"
+#include "entities/object.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,8 +53,8 @@ struct song_data song_table[MAX_SONGS];
 
 void song_update(void)
 {
-    ObjectData* obj;
-    CharData* victim;
+    Object* obj;
+    Mobile* victim;
     RoomData* room;
     Descriptor* d;
     char buf[MAX_STRING_LENGTH];
@@ -99,7 +99,7 @@ void song_update(void)
         }
     }
 
-    FOR_EACH(obj, object_list) {
+    FOR_EACH(obj, obj_list) {
         if (obj->item_type != ITEM_JUKEBOX || obj->value[1] < 0) continue;
 
         if (obj->value[1] >= MAX_SONGS) {
@@ -196,9 +196,9 @@ void load_songs(void)
     }
 }
 
-void do_play(CharData* ch, char* argument)
+void do_play(Mobile* ch, char* argument)
 {
-    ObjectData* juke;
+    Object* juke;
     char *str, arg[MAX_INPUT_LENGTH];
     int song, i;
     bool global = false;

@@ -34,10 +34,10 @@
 #include "mob_prog.h"
 
 #include "entities/descriptor.h"
-#include "entities/object_data.h"
+#include "entities/object.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,7 +49,7 @@
 #endif
 
 /* random room generation procedure */
-RoomData* get_random_room(CharData* ch)
+RoomData* get_random_room(Mobile* ch)
 {
     RoomData* room;
 
@@ -69,7 +69,7 @@ RoomData* get_random_room(CharData* ch)
 }
 
 /* RT Enter portals */
-void do_enter(CharData* ch, char* argument)
+void do_enter(Mobile* ch, char* argument)
 {
     RoomData* location;
 
@@ -79,9 +79,9 @@ void do_enter(CharData* ch, char* argument)
     /* nifty portal stuff */
     if (argument[0] != '\0') {
         RoomData* old_room;
-        ObjectData* portal;
-        CharData* fch;
-        CharData* fch_next = NULL;
+        Object* portal;
+        Mobile* fch;
+        Mobile* fch_next = NULL;
 
         old_room = ch->in_room;
 

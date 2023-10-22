@@ -1,10 +1,10 @@
 ////////////////////////////////////////////////////////////////////////////////
-// mobile.h
+// mobile_data.h
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#ifndef MUD98__DATA__MOBILE_H
-#define MUD98__DATA__MOBILE_H
+#ifndef MUD98__DATA__MOBILE_DATA_H
+#define MUD98__DATA__MOBILE_DATA_H
 
 #include "merc.h"
 
@@ -218,4 +218,4 @@ extern const MobSizeInfo mob_size_table[MOB_SIZE_COUNT];
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // !MUD98__DATA__MOBILE_H
+#endif // !MUD98__DATA__MOBILE_DATA_H

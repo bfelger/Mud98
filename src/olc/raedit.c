@@ -19,10 +19,10 @@
 #include "entities/descriptor.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/race.h"
 
-#define RAEDIT( fun )		bool fun( CharData *ch, char *argument )
+#define RAEDIT( fun )		bool fun( Mobile *ch, char *argument )
 
 Race xRace;
 
@@ -59,7 +59,7 @@ const OlcCmdEntry race_olc_comm_table[] = {
     { NULL,         0,                  NULL,               0               }
 };
 
-void raedit(CharData* ch, char* argument)
+void raedit(Mobile* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_RAEDIT_SECURITY) {
         send_to_char("RAEdit : You do not have enough security to edit races.\n\r", ch);
@@ -89,7 +89,7 @@ void raedit(CharData* ch, char* argument)
     return;
 }
 
-void do_raedit(CharData* ch, char* argument)
+void do_raedit(Mobile* ch, char* argument)
 {
     const Race* pRace;
     int race;
@@ -223,7 +223,7 @@ RAEDIT(raedit_list)
 RAEDIT(raedit_new)
 {
     Descriptor* d;
-    CharData* tch;
+    Mobile* tch;
     Race* new_table;
     size_t maxRace;
 

@@ -34,10 +34,10 @@
 #include "interp.h"
 #include "stringutils.h"
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 #include "entities/descriptor.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/player.h"
 #include "data/social.h"
 
@@ -48,7 +48,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-bool check_social args((CharData * ch, char* command, char* argument));
+bool check_social args((Mobile * ch, char* command, char* argument));
 
 // Log-all switch.
 bool fLogAll = false;
@@ -144,7 +144,7 @@ void create_command_table()
  * The main entry point for executing commands.
  * Can be recursively called from 'at', 'order', 'force'.
  */
-void interpret(CharData* ch, char* argument)
+void interpret(Mobile* ch, char* argument)
 {
     char command[MAX_INPUT_LENGTH] = "";
     char logline[MAX_INPUT_LENGTH] = "";
@@ -266,7 +266,7 @@ void interpret(CharData* ch, char* argument)
 }
 
 /* function to keep argument safe in all commands -- no static strings */
-void do_function(CharData* ch, DoFunc* do_fun, char* argument)
+void do_function(Mobile* ch, DoFunc* do_fun, char* argument)
 {
     char* command_string;
 
@@ -280,10 +280,10 @@ void do_function(CharData* ch, DoFunc* do_fun, char* argument)
     free_string(command_string);
 }
 
-bool check_social(CharData* ch, char* command, char* argument)
+bool check_social(Mobile* ch, char* command, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CharData* victim;
+    Mobile* victim;
     int cmd;
     bool found;
 
@@ -467,7 +467,7 @@ char* one_argument(char* argument, char* arg_first)
 }
 
 // Contributed by Alander.
-void do_commands(CharData* ch, char* argument)
+void do_commands(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     int cmd;
@@ -487,7 +487,7 @@ void do_commands(CharData* ch, char* argument)
     return;
 }
 
-void do_wizhelp(CharData* ch, char* argument)
+void do_wizhelp(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     int cmd;

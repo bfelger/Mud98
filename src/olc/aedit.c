@@ -20,7 +20,7 @@
 
 #include "entities/area_data.h"
 
-#define AEDIT(fun) bool fun( CharData *ch, char *argument )
+#define AEDIT(fun) bool fun( Mobile *ch, char *argument )
 
 AreaData xArea;
 
@@ -53,7 +53,7 @@ const OlcCmdEntry area_olc_comm_table[] = {
     { NULL, 		    0,                      NULL,               0		            }
 };
 
-void do_aedit(CharData* ch, char* argument)
+void do_aedit(Mobile* ch, char* argument)
 {
     AreaData* pArea;
     VNUM vnum;
@@ -89,7 +89,7 @@ void do_aedit(CharData* ch, char* argument)
 }
 
 /* Area Interpreter, called by do_aedit. */
-void aedit(CharData* ch, char* argument)
+void aedit(Mobile* ch, char* argument)
 {
     AreaData* pArea;
 
@@ -499,7 +499,7 @@ AEDIT(aedit_uvnum)
  Purpose:	Normal command to list areas and display area information.
  Called by:	interpreter(interp.c)
  ****************************************************************************/
-void do_alist(CharData* ch, char* argument)
+void do_alist(Mobile* ch, char* argument)
 {
     static const char* help = "Syntax: {*ALIST\n\r"
         "        ALIST ORDERBY (VNUM|NAME){x\n\r";

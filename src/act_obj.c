@@ -43,10 +43,10 @@
 #include "weather.h"
 
 #include "entities/descriptor.h"
-#include "entities/object_data.h"
+#include "entities/object.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/player.h"
 #include "data/skill.h"
 
@@ -60,30 +60,30 @@
 #endif
 
 // Local functions.
-#define CD CharData
-#define OD ObjectData
-bool remove_obj args((CharData * ch, int iWear, bool fReplace));
-void wear_obj args((CharData * ch, ObjectData* obj, bool fReplace));
-CD* find_keeper args((CharData * ch));
-int get_cost args((CharData * keeper, ObjectData* obj, bool fBuy));
-void obj_to_keeper args((ObjectData * obj, CharData* ch));
-OD* get_obj_keeper args((CharData * ch, CharData* keeper, char* argument));
+#define CD Mobile
+#define OD Object
+bool remove_obj args((Mobile * ch, int iWear, bool fReplace));
+void wear_obj args((Mobile * ch, Object* obj, bool fReplace));
+CD* find_keeper args((Mobile * ch));
+int get_cost args((Mobile * keeper, Object* obj, bool fBuy));
+void obj_to_keeper args((Object * obj, Mobile* ch));
+OD* get_obj_keeper args((Mobile * ch, Mobile* keeper, char* argument));
 
 #undef OD
 #undef CD
 
 /* RT part of the corpse looting code */
 
-bool can_loot(CharData* ch, ObjectData* obj)
+bool can_loot(Mobile* ch, Object* obj)
 {
-    CharData *owner, *wch;
+    Mobile *owner, *wch;
 
     if (IS_IMMORTAL(ch)) return true;
 
     if (!obj->owner || obj->owner == NULL) return true;
 
     owner = NULL;
-    FOR_EACH(wch, char_list)
+    FOR_EACH(wch, mob_list)
         if (!str_cmp(wch->name, obj->owner)) owner = wch;
 
     if (owner == NULL) return true;
@@ -99,10 +99,10 @@ bool can_loot(CharData* ch, ObjectData* obj)
     return false;
 }
 
-void get_obj(CharData* ch, ObjectData* obj, ObjectData* container)
+void get_obj(Mobile* ch, Object* obj, Object* container)
 {
     /* variables for AUTOSPLIT */
-    CharData* gch;
+    Mobile* gch;
     int members;
     char buffer[100];
 
@@ -185,13 +185,13 @@ void get_obj(CharData* ch, ObjectData* obj, ObjectData* container)
     return;
 }
 
-void do_get(CharData* ch, char* argument)
+void do_get(Mobile* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH] = { 0 };
     char arg2[MAX_INPUT_LENGTH] = { 0 };
-    ObjectData* obj;
-    ObjectData* obj_next = NULL;
-    ObjectData* container;
+    Object* obj;
+    Object* obj_next = NULL;
+    Object* container;
     bool found;
 
     READ_ARG(arg1);
@@ -311,13 +311,13 @@ void do_get(CharData* ch, char* argument)
     return;
 }
 
-void do_put(CharData* ch, char* argument)
+void do_put(Mobile* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
-    ObjectData* container;
-    ObjectData* obj;
-    ObjectData* obj_next = NULL;
+    Object* container;
+    Object* obj;
+    Object* obj_next = NULL;
 
     READ_ARG(arg1);
     READ_ARG(arg2);
@@ -437,11 +437,11 @@ void do_put(CharData* ch, char* argument)
     return;
 }
 
-void do_drop(CharData* ch, char* argument)
+void do_drop(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    ObjectData* obj;
-    ObjectData* obj_next = NULL;
+    Object* obj;
+    Object* obj_next = NULL;
     bool found;
 
     READ_ARG(arg);
@@ -580,13 +580,13 @@ void do_drop(CharData* ch, char* argument)
     return;
 }
 
-void do_give(CharData* ch, char* argument)
+void do_give(Mobile* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
-    CharData* victim;
-    ObjectData* obj;
+    Mobile* victim;
+    Object* obj;
 
     READ_ARG(arg1);
     READ_ARG(arg2);
@@ -742,9 +742,9 @@ void do_give(CharData* ch, char* argument)
 }
 
 /* for poisoning weapons and food/drink */
-void do_envenom(CharData* ch, char* argument)
+void do_envenom(Mobile* ch, char* argument)
 {
-    ObjectData* obj;
+    Object* obj;
     AffectData af = { 0 };
     int percent, skill;
 
@@ -843,12 +843,12 @@ void do_envenom(CharData* ch, char* argument)
     return;
 }
 
-void do_fill(CharData* ch, char* argument)
+void do_fill(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
-    ObjectData* obj;
-    ObjectData* fountain;
+    Object* obj;
+    Object* fountain;
     bool found;
 
     one_argument(argument, arg);
@@ -903,11 +903,11 @@ void do_fill(CharData* ch, char* argument)
     return;
 }
 
-void do_pour(CharData* ch, char* argument)
+void do_pour(Mobile* ch, char* argument)
 {
     char arg[MAX_STRING_LENGTH], buf[MAX_STRING_LENGTH];
-    ObjectData *out, *in;
-    CharData* vch = NULL;
+    Object *out, *in;
+    Mobile* vch = NULL;
     int amount;
 
     READ_ARG(arg);
@@ -1011,10 +1011,10 @@ void do_pour(CharData* ch, char* argument)
     }
 }
 
-void do_drink(CharData* ch, char* argument)
+void do_drink(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    ObjectData* obj;
+    Object* obj;
     int amount;
     int liquid;
 
@@ -1112,10 +1112,10 @@ void do_drink(CharData* ch, char* argument)
     return;
 }
 
-void do_eat(CharData* ch, char* argument)
+void do_eat(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    ObjectData* obj;
+    Object* obj;
 
     one_argument(argument, arg);
     if (arg[0] == '\0') {
@@ -1184,9 +1184,9 @@ void do_eat(CharData* ch, char* argument)
 }
 
 // Remove an object.
-bool remove_obj(CharData* ch, WearLocation iWear, bool fReplace)
+bool remove_obj(Mobile* ch, WearLocation iWear, bool fReplace)
 {
-    ObjectData* obj;
+    Object* obj;
 
     if ((obj = get_eq_char(ch, iWear)) == NULL) 
         return true;
@@ -1210,7 +1210,7 @@ bool remove_obj(CharData* ch, WearLocation iWear, bool fReplace)
  * Optional replacement of existing objects.
  * Big repetitive code, ick.
  */
-void wear_obj(CharData* ch, ObjectData* obj, bool fReplace)
+void wear_obj(Mobile* ch, Object* obj, bool fReplace)
 {
     char buf[MAX_STRING_LENGTH];
 
@@ -1381,7 +1381,7 @@ void wear_obj(CharData* ch, ObjectData* obj, bool fReplace)
     }
 
     if (CAN_WEAR(obj, ITEM_WEAR_SHIELD)) {
-        ObjectData* weapon;
+        Object* weapon;
 
         if (!remove_obj(ch, WEAR_SHIELD, fReplace)) 
             return;
@@ -1474,10 +1474,10 @@ void wear_obj(CharData* ch, ObjectData* obj, bool fReplace)
     return;
 }
 
-void do_wear(CharData* ch, char* argument)
+void do_wear(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    ObjectData* obj;
+    Object* obj;
 
     one_argument(argument, arg);
 
@@ -1487,7 +1487,7 @@ void do_wear(CharData* ch, char* argument)
     }
 
     if (!str_cmp(arg, "all")) {
-        ObjectData* obj_next = NULL;
+        Object* obj_next = NULL;
 
         for (obj = ch->carrying; obj != NULL; obj = obj_next) {
             obj_next = obj->next_content;
@@ -1508,10 +1508,10 @@ void do_wear(CharData* ch, char* argument)
     return;
 }
 
-void do_remove(CharData* ch, char* argument)
+void do_remove(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    ObjectData* obj;
+    Object* obj;
 
     one_argument(argument, arg);
 
@@ -1529,15 +1529,15 @@ void do_remove(CharData* ch, char* argument)
     return;
 }
 
-void do_sacrifice(CharData* ch, char* argument)
+void do_sacrifice(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
-    ObjectData* obj;
+    Object* obj;
     int16_t silver;
 
     /* variables for AUTOSPLIT */
-    CharData* gch;
+    Mobile* gch;
     int members;
     char buffer[100];
 
@@ -1611,10 +1611,10 @@ void do_sacrifice(CharData* ch, char* argument)
     return;
 }
 
-void do_quaff(CharData* ch, char* argument)
+void do_quaff(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    ObjectData* obj;
+    Object* obj;
 
     one_argument(argument, arg);
 
@@ -1649,13 +1649,13 @@ void do_quaff(CharData* ch, char* argument)
     return;
 }
 
-void do_recite(CharData* ch, char* argument)
+void do_recite(Mobile* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
-    CharData* victim;
-    ObjectData* scroll;
-    ObjectData* obj;
+    Mobile* victim;
+    Object* scroll;
+    Object* obj;
 
     READ_ARG(arg1);
     READ_ARG(arg2);
@@ -1705,11 +1705,11 @@ void do_recite(CharData* ch, char* argument)
     return;
 }
 
-void do_brandish(CharData* ch, char* argument)
+void do_brandish(Mobile* ch, char* argument)
 {
-    CharData* vch;
-    CharData* vch_next = NULL;
-    ObjectData* staff;
+    Mobile* vch;
+    Mobile* vch_next = NULL;
+    Object* staff;
     SKNUM sn;
 
     if ((staff = get_eq_char(ch, WEAR_HOLD)) == NULL) {
@@ -1780,12 +1780,12 @@ void do_brandish(CharData* ch, char* argument)
     return;
 }
 
-void do_zap(CharData* ch, char* argument)
+void do_zap(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CharData* victim;
-    ObjectData* wand;
-    ObjectData* obj;
+    Mobile* victim;
+    Object* wand;
+    Object* obj;
 
     one_argument(argument, arg);
     if (arg[0] == '\0' && ch->fighting == NULL) {
@@ -1855,13 +1855,13 @@ void do_zap(CharData* ch, char* argument)
     return;
 }
 
-void do_steal(CharData* ch, char* argument)
+void do_steal(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
-    CharData* victim;
-    ObjectData* obj;
+    Mobile* victim;
+    Object* obj;
     int percent;
 
     READ_ARG(arg1);
@@ -2007,10 +2007,10 @@ void do_steal(CharData* ch, char* argument)
 }
 
 // Shopping commands.
-CharData* find_keeper(CharData* ch)
+Mobile* find_keeper(Mobile* ch)
 {
     /*char buf[MAX_STRING_LENGTH];*/
-    CharData* keeper;
+    Mobile* keeper;
     ShopData* pShop;
 
     pShop = NULL;
@@ -2064,10 +2064,10 @@ CharData* find_keeper(CharData* ch)
 }
 
 /* insert an object at the right spot for the keeper */
-void obj_to_keeper(ObjectData* obj, CharData* ch)
+void obj_to_keeper(Object* obj, Mobile* ch)
 {
-    ObjectData* t_obj;
-    ObjectData* t_obj_next = NULL;
+    Object* t_obj;
+    Object* t_obj_next = NULL;
 
     /* see if any duplicates are found */
     for (t_obj = ch->carrying; t_obj != NULL; t_obj = t_obj_next) {
@@ -2102,10 +2102,10 @@ void obj_to_keeper(ObjectData* obj, CharData* ch)
 }
 
 /* get an object from a shopkeeper's list */
-ObjectData* get_obj_keeper(CharData* ch, CharData* keeper, char* argument)
+Object* get_obj_keeper(Mobile* ch, Mobile* keeper, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    ObjectData* obj;
+    Object* obj;
     int number;
     int count;
 
@@ -2128,7 +2128,7 @@ ObjectData* get_obj_keeper(CharData* ch, CharData* keeper, char* argument)
     return NULL;
 }
 
-int get_cost(CharData* keeper, ObjectData* obj, bool fBuy)
+int get_cost(Mobile* keeper, Object* obj, bool fBuy)
 {
     ShopData* pShop;
     int cost;
@@ -2137,7 +2137,7 @@ int get_cost(CharData* keeper, ObjectData* obj, bool fBuy)
 
     if (fBuy) { cost = obj->cost * pShop->profit_buy / 100; }
     else {
-        ObjectData* obj2;
+        Object* obj2;
         int itype;
 
         cost = 0;
@@ -2171,7 +2171,7 @@ int get_cost(CharData* keeper, ObjectData* obj, bool fBuy)
     return cost;
 }
 
-void do_buy(CharData* ch, char* argument)
+void do_buy(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     //char buf[MAX_STRING_LENGTH];
@@ -2184,7 +2184,7 @@ void do_buy(CharData* ch, char* argument)
 
     if (IS_SET(ch->in_room->room_flags, ROOM_PET_SHOP)) {
         char arg[MAX_INPUT_LENGTH];
-        CharData* pet;
+        Mobile* pet;
         RoomData* petshop_inv;
         RoomData* plr_in_room;
 
@@ -2269,8 +2269,8 @@ void do_buy(CharData* ch, char* argument)
         return;
     }
     else {
-        CharData* keeper;
-        ObjectData *obj, *t_obj;
+        Mobile* keeper;
+        Object *obj, *t_obj;
         char arg[MAX_INPUT_LENGTH];
         int number, count = 1;
 
@@ -2381,13 +2381,13 @@ void do_buy(CharData* ch, char* argument)
     }
 }
 
-void do_list(CharData* ch, char* argument)
+void do_list(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
 
     if (IS_SET(ch->in_room->room_flags, ROOM_PET_SHOP)) {
         RoomData* petshop_inv;
-        CharData* pet;
+        Mobile* pet;
         bool found;
 
         /* hack to make new thalos pets work */
@@ -2418,8 +2418,8 @@ void do_list(CharData* ch, char* argument)
         return;
     }
     else {
-        CharData* keeper;
-        ObjectData* obj;
+        Mobile* keeper;
+        Object* obj;
         int cost, count;
         bool found;
         char arg[MAX_INPUT_LENGTH];
@@ -2463,12 +2463,12 @@ void do_list(CharData* ch, char* argument)
     }
 }
 
-void do_sell(CharData* ch, char* argument)
+void do_sell(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    CharData* keeper;
-    ObjectData* obj;
+    Mobile* keeper;
+    Object* obj;
     int cost, roll;
 
     one_argument(argument, arg);
@@ -2543,12 +2543,12 @@ void do_sell(CharData* ch, char* argument)
     return;
 }
 
-void do_value(CharData* ch, char* argument)
+void do_value(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    CharData* keeper;
-    ObjectData* obj;
+    Mobile* keeper;
+    Object* obj;
     int cost;
 
     one_argument(argument, arg);

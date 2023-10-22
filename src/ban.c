@@ -33,7 +33,7 @@
 #include "handler.h"
 #include "recycle.h"
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 #include "entities/descriptor.h"
 
 #include <stdio.h>
@@ -140,7 +140,7 @@ bool check_ban(char* site, int type)
     return false;
 }
 
-void ban_site(CharData* ch, char* argument, bool fPerm)
+void ban_site(Mobile* ch, char* argument, bool fPerm)
 {
     char buf[MAX_STRING_LENGTH], buf2[MAX_STRING_LENGTH];
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
@@ -245,17 +245,17 @@ void ban_site(CharData* ch, char* argument, bool fPerm)
     return;
 }
 
-void do_ban(CharData* ch, char* argument)
+void do_ban(Mobile* ch, char* argument)
 {
     ban_site(ch, argument, false);
 }
 
-void do_permban(CharData* ch, char* argument)
+void do_permban(Mobile* ch, char* argument)
 {
     ban_site(ch, argument, true);
 }
 
-void do_allow(CharData* ch, char* argument)
+void do_allow(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];

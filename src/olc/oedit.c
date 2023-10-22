@@ -15,11 +15,11 @@
 #include "save.h"
 #include "tables.h"
 
-#include "entities/object_data.h"
+#include "entities/object.h"
 
-#define OEDIT(fun) bool fun( CharData *ch, char *argument )
+#define OEDIT(fun) bool fun( Mobile *ch, char *argument )
 
-ObjectPrototype xObj;
+ObjPrototype xObj;
 
 #ifdef U
 #define OLD_U U
@@ -60,9 +60,9 @@ const OlcCmdEntry obj_olc_comm_table[] = {
 };
 
 /* Entry point for editing object_prototype_data. */
-void do_oedit(CharData* ch, char* argument)
+void do_oedit(Mobile* ch, char* argument)
 {
-    ObjectPrototype* pObj;
+    ObjPrototype* pObj;
     AreaData* pArea;
     char arg1[MAX_STRING_LENGTH];
     int  value;
@@ -122,10 +122,10 @@ void do_oedit(CharData* ch, char* argument)
 }
 
 /* Object Interpreter, called by do_oedit. */
-void oedit(CharData* ch, char* argument)
+void oedit(Mobile* ch, char* argument)
 {
     AreaData* pArea;
-    ObjectPrototype* pObj;
+    ObjPrototype* pObj;
 
     EDIT_OBJ(ch, pObj);
     pArea = pObj->area;
@@ -154,7 +154,7 @@ void oedit(CharData* ch, char* argument)
 }
 
 // Object Editor Functions.
-void show_obj_values(CharData* ch, ObjectPrototype* obj)
+void show_obj_values(Mobile* ch, ObjPrototype* obj)
 {
     switch (obj->item_type) {
     default:    /* No values. */
@@ -309,7 +309,7 @@ void show_obj_values(CharData* ch, ObjectPrototype* obj)
     return;
 }
 
-bool set_obj_values(CharData* ch, ObjectPrototype* pObj, int value_num, char* argument)
+bool set_obj_values(Mobile* ch, ObjPrototype* pObj, int value_num, char* argument)
 {
     int tmp;
 
@@ -635,7 +635,7 @@ bool set_obj_values(CharData* ch, ObjectPrototype* pObj, int value_num, char* ar
 
 OEDIT(oedit_show)
 {
-    ObjectPrototype* pObj;
+    ObjPrototype* pObj;
     char buf[MAX_STRING_LENGTH];
     AffectData* paf;
     int cnt;
@@ -715,7 +715,7 @@ OEDIT(oedit_show)
 OEDIT(oedit_addaffect)
 {
     int value;
-    ObjectPrototype* pObj;
+    ObjPrototype* pObj;
     AffectData* pAf;
     char loc[MAX_STRING_LENGTH];
     char mod[MAX_STRING_LENGTH];
@@ -755,7 +755,7 @@ OEDIT(oedit_addapply)
 {
     bool rc = true;
     int value, bv, typ;
-    ObjectPrototype* pObj;
+    ObjPrototype* pObj;
     AffectData* pAf;
     INIT_BUF(loc, MAX_STRING_LENGTH);
     INIT_BUF(mod, MAX_STRING_LENGTH);
@@ -829,7 +829,7 @@ oedit_addapply_cleanup:
 // for really teaching me how to manipulate pointers.
 OEDIT(oedit_delaffect)
 {
-    ObjectPrototype* pObj;
+    ObjPrototype* pObj;
     AffectData* pAf;
     AffectData* pAf_next;
     char affect[MAX_STRING_LENGTH];
@@ -884,7 +884,7 @@ OEDIT(oedit_delaffect)
     return true;
 }
 
-bool set_value(CharData* ch, ObjectPrototype* pObj, char* argument, int value)
+bool set_value(Mobile* ch, ObjPrototype* pObj, char* argument, int value)
 {
     if (argument[0] == '\0') {
         set_obj_values(ch, pObj, -1, "");     /* '\0' changed to "" -- Hugin */
@@ -902,9 +902,9 @@ bool set_value(CharData* ch, ObjectPrototype* pObj, char* argument, int value)
  Purpose:    Finds the object and sets its value.
  Called by:    The four valueX functions below. (now five -- Hugin )
  ****************************************************************************/
-bool oedit_values(CharData* ch, char* argument, int value)
+bool oedit_values(Mobile* ch, char* argument, int value)
 {
-    ObjectPrototype* pObj;
+    ObjPrototype* pObj;
 
     EDIT_OBJ(ch, pObj);
 
@@ -916,7 +916,7 @@ bool oedit_values(CharData* ch, char* argument, int value)
 
 OEDIT(oedit_create)
 {
-    ObjectPrototype* pObj;
+    ObjPrototype* pObj;
     AreaData* pArea;
     VNUM  value;
     int  iHash;
@@ -952,8 +952,8 @@ OEDIT(oedit_create)
         top_vnum_obj = value;
 
     iHash = value % MAX_KEY_HASH;
-    pObj->next = object_prototype_hash[iHash];
-    object_prototype_hash[iHash] = pObj;
+    pObj->next = obj_proto_hash[iHash];
+    obj_proto_hash[iHash] = pObj;
 
     set_editor(ch->desc, ED_OBJECT, U(pObj));
 
@@ -963,7 +963,7 @@ OEDIT(oedit_create)
 
 ED_FUN_DEC(ed_objrecval)
 {
-    ObjectPrototype* pObj = (ObjectPrototype*)arg;
+    ObjPrototype* pObj = (ObjPrototype*)arg;
 
     switch (pObj->item_type) {
     default:
@@ -984,7 +984,7 @@ ED_FUN_DEC(ed_addapply)
 {
     bool rc = true;
     int value, bv, typ;
-    ObjectPrototype* pObj = (ObjectPrototype*)arg;
+    ObjPrototype* pObj = (ObjPrototype*)arg;
     AffectData* pAf;
     INIT_BUF(loc, MAX_STRING_LENGTH);
     INIT_BUF(mod, MAX_STRING_LENGTH);
@@ -1059,7 +1059,7 @@ ED_FUN_DEC(ed_value)
 
 ED_FUN_DEC(ed_new_obj)
 {
-    ObjectPrototype* pObj;
+    ObjPrototype* pObj;
     AreaData* pArea;
     VNUM  value;
     int  iHash;
@@ -1097,8 +1097,8 @@ ED_FUN_DEC(ed_new_obj)
         top_vnum_obj = value;
 
     iHash = value % MAX_KEY_HASH;
-    pObj->next = object_prototype_hash[iHash];
-    object_prototype_hash[iHash] = pObj;
+    pObj->next = obj_proto_hash[iHash];
+    obj_proto_hash[iHash] = pObj;
 
     set_editor(ch->desc, ED_OBJECT, U(pObj));
 
@@ -1109,7 +1109,7 @@ ED_FUN_DEC(ed_new_obj)
 
 ED_FUN_DEC(ed_olist)
 {
-    ObjectPrototype* obj_proto;
+    ObjPrototype* obj_proto;
     AreaData* pArea;
     Buffer* buf1;
     char blarg[MAX_INPUT_LENGTH];
@@ -1159,8 +1159,8 @@ ED_FUN_DEC(ed_olist)
 OEDIT(oedit_copy)
 {
     VNUM vnum;
-    ObjectPrototype* obj;
-    ObjectPrototype* obj2;
+    ObjPrototype* obj;
+    ObjPrototype* obj2;
 
     EDIT_OBJ(ch, obj);
 

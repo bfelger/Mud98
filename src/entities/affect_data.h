@@ -11,8 +11,8 @@ typedef struct affect_data_t AffectData;
 
 #include "merc.h"
 
-#include "char_data.h"
-#include "object_data.h"
+#include "mobile.h"
+#include "object.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -102,19 +102,19 @@ typedef struct affect_data_t {
 } AffectData;
 
 char* affect_bit_name(int vector);
-void affect_check(CharData* ch, Where where, int vector);
-void affect_enchant(ObjectData* obj);
+void affect_check(Mobile* ch, Where where, int vector);
+void affect_enchant(Object* obj);
 AffectData* affect_find(AffectData* paf, SKNUM sn);
-void affect_join(CharData* ch, AffectData* paf);
+void affect_join(Mobile* ch, AffectData* paf);
 char* affect_loc_name(AffectLocation location);
-void affect_modify(CharData* ch, AffectData* paf, bool fAdd);
-void affect_remove(CharData* ch, AffectData* paf);
-void affect_remove_obj(ObjectData* obj, AffectData* paf);
-void affect_strip(CharData* ch, SKNUM sn);
-void affect_to_char(CharData* ch, AffectData* paf);
-void affect_to_obj(ObjectData* obj, AffectData* paf);
+void affect_modify(Mobile* ch, AffectData* paf, bool fAdd);
+void affect_remove(Mobile* ch, AffectData* paf);
+void affect_remove_obj(Object* obj, AffectData* paf);
+void affect_strip(Mobile* ch, SKNUM sn);
+void affect_to_char(Mobile* ch, AffectData* paf);
+void affect_to_obj(Object* obj, AffectData* paf);
 void free_affect(AffectData* af);
-bool is_affected(CharData* ch, SKNUM sn);
+bool is_affected(Mobile* ch, SKNUM sn);
 AffectData* new_affect();
 
 #define ADD_AFF_DATA(t, aff)                                                   \

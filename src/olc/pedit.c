@@ -12,7 +12,7 @@
 #include "entities/descriptor.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -21,7 +21,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#define MPEDIT( fun )           bool fun(CharData *ch, char*argument)
+#define MPEDIT( fun )           bool fun(Mobile *ch, char*argument)
 
 MobProgCode xProg;
 
@@ -44,7 +44,7 @@ const OlcCmdEntry prog_olc_comm_table[] =
     { 	NULL,		0,			    0,		    0		        }
 };
 
-void pedit(CharData* ch, char* argument)
+void pedit(Mobile* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_PEDIT_SECURITY) {
         send_to_char("PEdit : You do not have enough security to edit progs.\n\r", ch);
@@ -68,7 +68,7 @@ void pedit(CharData* ch, char* argument)
     return;
 }
 
-void do_pedit(CharData* ch, char* argument)
+void do_pedit(Mobile* ch, char* argument)
 {
     MobProgCode* pMcode;
     char command[MAX_INPUT_LENGTH];
@@ -183,7 +183,7 @@ MPEDIT(pedit_show)
     return false;
 }
 
-void do_mplist(CharData* ch, char* argument)
+void do_mplist(Mobile* ch, char* argument)
 {
     int count;
     bool fAll = false;

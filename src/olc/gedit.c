@@ -15,10 +15,10 @@
 #include "entities/player_data.h"
 
 #include "data/class.h"
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/skill.h"
 
-#define GEDIT(fun) bool fun(CharData *ch, char *argument)
+#define GEDIT(fun) bool fun(Mobile *ch, char *argument)
 
 const OlcCmd gedit_table[] = {
     { "name",		gedit_name	    },
@@ -30,7 +30,7 @@ const OlcCmd gedit_table[] = {
     { NULL,		    0		        }
 };
 
-void gedit(CharData* ch, char* argument)
+void gedit(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char command[MAX_INPUT_LENGTH];
@@ -72,7 +72,7 @@ void gedit(CharData* ch, char* argument)
     return;
 }
 
-void do_gedit(CharData* ch, char* argument)
+void do_gedit(Mobile* ch, char* argument)
 {
     const SkillGroup* pGroup;
     char command[MSL];

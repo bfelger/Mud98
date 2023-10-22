@@ -9,11 +9,11 @@
 #include "db.h"
 #include "handler.h"
 
-#include "char_data.h"
+#include "mobile.h"
 #include "entities/descriptor.h"
-#include "object_data.h"
+#include "object.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 
 AffectData* affect_free;
 int affect_count;
@@ -54,10 +54,10 @@ char* affect_bit_name(int vector)
 }
 
 // fix object affects when removing one
-void affect_check(CharData* ch, Where where, int vector)
+void affect_check(Mobile* ch, Where where, int vector)
 {
     AffectData* paf;
-    ObjectData* obj;
+    Object* obj;
 
     if (where == TO_OBJECT || where == TO_WEAPON || vector == 0) return;
 
@@ -138,7 +138,7 @@ void affect_check(CharData* ch, Where where, int vector)
 }
 
 // enchanted stuff for eq
-void affect_enchant(ObjectData* obj)
+void affect_enchant(Object* obj)
 {
     /* okay, move all the old flags into new vectors if we have to */
     if (!obj->enchanted) {
@@ -175,7 +175,7 @@ AffectData* affect_find(AffectData* paf, SKNUM sn)
 }
 
 // Add or enhance an affect.
-void affect_join(CharData* ch, AffectData* paf)
+void affect_join(Mobile* ch, AffectData* paf)
 {
     AffectData* paf_old;
 
@@ -268,9 +268,9 @@ char* affect_loc_name(AffectLocation location)
 }
 
 // Apply or remove an affect to a character.
-void affect_modify(CharData* ch, AffectData* paf, bool fAdd)
+void affect_modify(Mobile* ch, AffectData* paf, bool fAdd)
 {
-    ObjectData* wield;
+    Object* wield;
     int16_t mod;
     int i;
 
@@ -415,7 +415,7 @@ void affect_modify(CharData* ch, AffectData* paf, bool fAdd)
 }
 
 // Remove an affect from a char.
-void affect_remove(CharData* ch, AffectData* paf)
+void affect_remove(Mobile* ch, AffectData* paf)
 {
     Where where;
     int vector;
@@ -454,7 +454,7 @@ void affect_remove(CharData* ch, AffectData* paf)
     return;
 }
 
-void affect_remove_obj(ObjectData* obj, AffectData* paf)
+void affect_remove_obj(Object* obj, AffectData* paf)
 {
     Where where;
     int vector;
@@ -507,7 +507,7 @@ void affect_remove_obj(ObjectData* obj, AffectData* paf)
 }
 
 // Strip all affects of a given sn.
-void affect_strip(CharData* ch, SKNUM sn)
+void affect_strip(Mobile* ch, SKNUM sn)
 {
     AffectData* paf;
     AffectData* paf_next = NULL;
@@ -522,7 +522,7 @@ void affect_strip(CharData* ch, SKNUM sn)
 }
 
 // Give an affect to a char.
-void affect_to_char(CharData* ch, AffectData* paf)
+void affect_to_char(Mobile* ch, AffectData* paf)
 {
     AffectData* paf_new;
 
@@ -539,7 +539,7 @@ void affect_to_char(CharData* ch, AffectData* paf)
 }
 
 // give an affect to an object 
-void affect_to_obj(ObjectData* obj, AffectData* paf)
+void affect_to_obj(Object* obj, AffectData* paf)
 {
     AffectData* paf_new;
 
@@ -570,7 +570,7 @@ void free_affect(AffectData* af)
     affect_free = af;
 }
 
-bool is_affected(CharData* ch, SKNUM sn)
+bool is_affected(Mobile* ch, SKNUM sn)
 {
     AffectData* paf;
 

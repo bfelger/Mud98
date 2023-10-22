@@ -17,11 +17,11 @@
 #include "tables.h"
 #include "vt.h"
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 #include "entities/descriptor.h"
-#include "entities/object_data.h"
+#include "entities/object.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/race.h"
 
 char* areaname(void* point)
@@ -515,7 +515,7 @@ void InitScreen(Descriptor* d)
 {
     char buf[MIL];
     int size;
-    CharData* ch = d->character;
+    Mobile* ch = d->character;
 
     if (!IS_SET(ch->comm_flags, COMM_OLCX))
         return;

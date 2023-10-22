@@ -11,10 +11,10 @@ typedef struct room_data_t RoomData;
 
 #include "merc.h"
 
-#include "char_data.h"
+#include "mobile.h"
 #include "exit_data.h"
 #include "extra_desc.h"
-#include "object_data.h"
+#include "object.h"
 #include "reset_data.h"
 
 #include "data/direction.h"
@@ -54,8 +54,8 @@ typedef enum room_flags_t {
 
 typedef struct room_data_t {
     RoomData* next;
-    CharData* people;
-    ObjectData* contents;
+    Mobile* people;
+    Object* contents;
     ExtraDesc* extra_desc;
     AreaData* area;
     ExitData* exit[DIR_MAX];

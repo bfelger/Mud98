@@ -40,13 +40,13 @@
 
 #include "entities/descriptor.h"
 #include "entities/exit_data.h"
-#include "entities/object_data.h"
+#include "entities/object.h"
 #include "entities/player_data.h"
 #include "entities/room_data.h"
 
 #include "data/class.h"
 #include "data/direction.h"
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/skill.h"
 
 #include <stdio.h>
@@ -58,13 +58,13 @@
 #endif
 
 // Local functions.
-int find_door args((CharData * ch, char* arg));
-bool has_key args((CharData * ch, int key));
+int find_door args((Mobile * ch, char* arg));
+bool has_key args((Mobile * ch, int key));
 
-void move_char(CharData* ch, int door, bool follow)
+void move_char(Mobile* ch, int door, bool follow)
 {
-    CharData* fch;
-    CharData* fch_next = NULL;
+    Mobile* fch;
+    Mobile* fch_next = NULL;
     RoomData* in_room;
     RoomData* to_room;
     ExitData* pexit;
@@ -130,7 +130,7 @@ void move_char(CharData* ch, int door, bool follow)
         if ((in_room->sector_type == SECT_WATER_NOSWIM
              || to_room->sector_type == SECT_WATER_NOSWIM)
             && !IS_AFFECTED(ch, AFF_FLYING)) {
-            ObjectData* obj;
+            Object* obj;
             bool found;
 
             // Look for a boat.
@@ -219,43 +219,43 @@ void move_char(CharData* ch, int door, bool follow)
     return;
 }
 
-void do_north(CharData* ch, char* argument)
+void do_north(Mobile* ch, char* argument)
 {
     move_char(ch, DIR_NORTH, false);
     return;
 }
 
-void do_east(CharData* ch, char* argument)
+void do_east(Mobile* ch, char* argument)
 {
     move_char(ch, DIR_EAST, false);
     return;
 }
 
-void do_south(CharData* ch, char* argument)
+void do_south(Mobile* ch, char* argument)
 {
     move_char(ch, DIR_SOUTH, false);
     return;
 }
 
-void do_west(CharData* ch, char* argument)
+void do_west(Mobile* ch, char* argument)
 {
     move_char(ch, DIR_WEST, false);
     return;
 }
 
-void do_up(CharData* ch, char* argument)
+void do_up(Mobile* ch, char* argument)
 {
     move_char(ch, DIR_UP, false);
     return;
 }
 
-void do_down(CharData* ch, char* argument)
+void do_down(Mobile* ch, char* argument)
 {
     move_char(ch, DIR_DOWN, false);
     return;
 }
 
-int find_door(CharData* ch, char* arg)
+int find_door(Mobile* ch, char* arg)
 {
     ExitData* pexit;
     int door;
@@ -296,10 +296,10 @@ int find_door(CharData* ch, char* arg)
     return door;
 }
 
-void do_open(CharData* ch, char* argument)
+void do_open(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    ObjectData* obj;
+    Object* obj;
     int door;
 
     one_argument(argument, arg);
@@ -381,7 +381,7 @@ void do_open(CharData* ch, char* argument)
         if ((to_room = pexit->u1.to_room) != NULL
             && (pexit_rev = to_room->exit[dir_list[door].rev_dir]) != NULL
             && pexit_rev->u1.to_room == ch->in_room) {
-            CharData* rch;
+            Mobile* rch;
 
             REMOVE_BIT(pexit_rev->exit_flags, EX_CLOSED);
             FOR_EACH_IN_ROOM(rch, to_room->people)
@@ -392,10 +392,10 @@ void do_open(CharData* ch, char* argument)
     return;
 }
 
-void do_close(CharData* ch, char* argument)
+void do_close(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    ObjectData* obj;
+    Object* obj;
     int door;
 
     one_argument(argument, arg);
@@ -465,7 +465,7 @@ void do_close(CharData* ch, char* argument)
         if ((to_room = pexit->u1.to_room) != NULL
             && (pexit_rev = to_room->exit[dir_list[door].rev_dir]) != 0
             && pexit_rev->u1.to_room == ch->in_room) {
-            CharData* rch;
+            Mobile* rch;
 
             SET_BIT(pexit_rev->exit_flags, EX_CLOSED);
             FOR_EACH_IN_ROOM(rch, to_room->people)
@@ -476,9 +476,9 @@ void do_close(CharData* ch, char* argument)
     return;
 }
 
-bool has_key(CharData* ch, int key)
+bool has_key(Mobile* ch, int key)
 {
-    ObjectData* obj;
+    Object* obj;
 
     for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
         if (obj->prototype->vnum == key) return true;
@@ -487,10 +487,10 @@ bool has_key(CharData* ch, int key)
     return false;
 }
 
-void do_lock(CharData* ch, char* argument)
+void do_lock(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    ObjectData* obj;
+    Object* obj;
     int door;
 
     one_argument(argument, arg);
@@ -601,10 +601,10 @@ void do_lock(CharData* ch, char* argument)
     return;
 }
 
-void do_unlock(CharData* ch, char* argument)
+void do_unlock(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    ObjectData* obj;
+    Object* obj;
     int door;
 
     one_argument(argument, arg);
@@ -715,11 +715,11 @@ void do_unlock(CharData* ch, char* argument)
     return;
 }
 
-void do_pick(CharData* ch, char* argument)
+void do_pick(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CharData* gch;
-    ObjectData* obj;
+    Mobile* gch;
+    Object* obj;
     int door;
 
     one_argument(argument, arg);
@@ -845,9 +845,9 @@ void do_pick(CharData* ch, char* argument)
     return;
 }
 
-void do_stand(CharData* ch, char* argument)
+void do_stand(Mobile* ch, char* argument)
 {
-    ObjectData* obj = NULL;
+    Object* obj = NULL;
 
     if (argument[0] != '\0') {
         if (ch->position == POS_FIGHTING) {
@@ -958,9 +958,9 @@ void do_stand(CharData* ch, char* argument)
     return;
 }
 
-void do_rest(CharData* ch, char* argument)
+void do_rest(Mobile* ch, char* argument)
 {
-    ObjectData* obj = NULL;
+    Object* obj = NULL;
 
     if (ch->position == POS_FIGHTING) {
         send_to_char("You are already fighting!\n\r", ch);
@@ -1096,9 +1096,9 @@ void do_rest(CharData* ch, char* argument)
     return;
 }
 
-void do_sit(CharData* ch, char* argument)
+void do_sit(Mobile* ch, char* argument)
 {
-    ObjectData* obj = NULL;
+    Object* obj = NULL;
 
     if (ch->position == POS_FIGHTING) {
         send_to_char("Maybe you should finish this fight first?\n\r", ch);
@@ -1218,9 +1218,9 @@ void do_sit(CharData* ch, char* argument)
     return;
 }
 
-void do_sleep(CharData* ch, char* argument)
+void do_sleep(Mobile* ch, char* argument)
 {
-    ObjectData* obj = NULL;
+    Object* obj = NULL;
 
     switch (ch->position) {
     case POS_SLEEPING:
@@ -1304,10 +1304,10 @@ void do_sleep(CharData* ch, char* argument)
     return;
 }
 
-void do_wake(CharData* ch, char* argument)
+void do_wake(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CharData* victim;
+    Mobile* victim;
 
     one_argument(argument, arg);
     if (arg[0] == '\0') {
@@ -1340,7 +1340,7 @@ void do_wake(CharData* ch, char* argument)
     return;
 }
 
-void do_sneak(CharData* ch, char* argument)
+void do_sneak(Mobile* ch, char* argument)
 {
     AffectData af = { 0 };
 
@@ -1366,7 +1366,7 @@ void do_sneak(CharData* ch, char* argument)
     return;
 }
 
-void do_hide(CharData* ch, char* argument)
+void do_hide(Mobile* ch, char* argument)
 {
     send_to_char("You attempt to hide.\n\r", ch);
 
@@ -1383,7 +1383,7 @@ void do_hide(CharData* ch, char* argument)
 }
 
 // Contributed by Alander.
-void do_visible(CharData* ch, char* argument)
+void do_visible(Mobile* ch, char* argument)
 {
     affect_strip(ch, gsn_invis);
     affect_strip(ch, gsn_mass_invis);
@@ -1395,10 +1395,10 @@ void do_visible(CharData* ch, char* argument)
     return;
 }
 
-void do_recall(CharData* ch, char* argument)
+void do_recall(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    CharData* victim;
+    Mobile* victim;
     RoomData* location;
 
     if (IS_NPC(ch) && !IS_SET(ch->act_flags, ACT_PET)) {
@@ -1475,7 +1475,7 @@ void do_recall(CharData* ch, char* argument)
     return;
 }
 
-void do_train(CharData* ch, char* argument)
+void do_train(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     int16_t stat = -1;
@@ -1487,7 +1487,7 @@ void do_train(CharData* ch, char* argument)
 
     if (!cfg_get_train_anywhere()) {
         // Check for trainer.
-        CharData* mob;
+        Mobile* mob;
         FOR_EACH_IN_ROOM(mob, ch->in_room->people) {
             if (IS_NPC(mob) && IS_SET(mob->act_flags, ACT_TRAIN))
                 break;

@@ -15,7 +15,7 @@
 
 #include "data/quest.h"
 
-#define QEDIT(fun) bool fun(CharData *ch, char *argument)
+#define QEDIT(fun) bool fun(Mobile *ch, char *argument)
 
 Quest xQuest;
 
@@ -43,7 +43,7 @@ const OlcCmdEntry quest_olc_comm_table[] =
     { NULL,         0,                      0,                  0                   }
 };
 
-void qedit(CharData* ch, char* argument)
+void qedit(Mobile* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_QEDIT_SECURITY) {
         send_to_char("{jQEDIT: You do not have enough security to edit quests.{x\n\r", ch);
@@ -67,7 +67,7 @@ void qedit(CharData* ch, char* argument)
     return;
 }
 
-void do_qedit(CharData* ch, char* argument)
+void do_qedit(Mobile* ch, char* argument)
 {
     Quest* quest;
     AreaData* area;

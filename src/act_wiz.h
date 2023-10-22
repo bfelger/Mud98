@@ -8,8 +8,8 @@
 
 #include "merc.h"
 
-#include "entities/char_data.h"
-#include "entities/object_data.h"
+#include "entities/mobile.h"
+#include "entities/object.h"
 
 typedef struct wiznet_t {
     char* name;
@@ -19,8 +19,8 @@ typedef struct wiznet_t {
 
 extern const WizNet wiznet_table[];
 
-RoomData* find_location(CharData* ch, char* arg);
-void wiznet(char* string, CharData* ch, ObjectData* obj, FLAGS flag, 
+RoomData* find_location(Mobile* ch, char* arg);
+void wiznet(char* string, Mobile* ch, Object* obj, FLAGS flag, 
     FLAGS flag_skip, LEVEL min_level);
 
 #endif // !MUD98__ACT_WIZ_H

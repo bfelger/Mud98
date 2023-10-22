@@ -8,17 +8,17 @@
 
 #include "merc.h"
 
-#include "entities/char_data.h"
-#include "entities/object_data.h"
+#include "entities/mobile.h"
+#include "entities/object.h"
 
 #include "data/damage.h"
 
-SKNUM find_spell(CharData* ch, const char* name);
-int mana_cost(CharData* ch, int min_mana, LEVEL level);
+SKNUM find_spell(Mobile* ch, const char* name);
+int mana_cost(Mobile* ch, int min_mana, LEVEL level);
 SKNUM skill_lookup(const char* name);
 SKNUM skill_slot_lookup(int slot);
-bool saves_spell(LEVEL level, CharData* victim, DamageType dam_type);
-void obj_cast_spell(SKNUM sn, LEVEL level, CharData* ch, CharData* victim,
-    ObjectData* obj);
+bool saves_spell(LEVEL level, Mobile* victim, DamageType dam_type);
+void obj_cast_spell(SKNUM sn, LEVEL level, Mobile* ch, Mobile* victim,
+    Object* obj);
 
 #endif // !MUD98__MAGIC_H

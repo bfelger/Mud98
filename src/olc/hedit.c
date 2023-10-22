@@ -16,7 +16,7 @@
 #include "entities/descriptor.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -28,7 +28,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#define HEDIT(fun) bool fun(CharData *ch, char*argument)
+#define HEDIT(fun) bool fun(Mobile *ch, char*argument)
 
 const OlcCmd hedit_table[] = {
 /*	{	command		function	}, */
@@ -203,7 +203,7 @@ HEDIT(hedit_text)
     return true;
 }
 
-void hedit(CharData* ch, char* argument)
+void hedit(Mobile* ch, char* argument)
 {
     HelpData* pHelp;
     HelpArea* had;
@@ -253,7 +253,7 @@ void hedit(CharData* ch, char* argument)
     return;
 }
 
-void do_hedit(CharData* ch, char* argument)
+void do_hedit(Mobile* ch, char* argument)
 {
     HelpData* pHelp;
 

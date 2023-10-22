@@ -18,7 +18,7 @@
 
 #include "entities/mob_prototype.h"
 
-#define MEDIT(fun) bool fun( CharData *ch, char *argument )
+#define MEDIT(fun) bool fun( Mobile *ch, char *argument )
 
 MobPrototype xMob;
 
@@ -73,7 +73,7 @@ const OlcCmdEntry mob_olc_comm_table[] = {
 };
 
 /* Entry point for editing mob_prototype_data. */
-void do_medit(CharData* ch, char* argument)
+void do_medit(Mobile* ch, char* argument)
 {
     MobPrototype* pMob;
     AreaData* pArea;
@@ -135,7 +135,7 @@ void do_medit(CharData* ch, char* argument)
 }
 
 /* Mobile Interpreter, called by do_medit. */
-void medit(CharData* ch, char* argument)
+void medit(Mobile* ch, char* argument)
 {
     AreaData* pArea;
     MobPrototype* pMob;

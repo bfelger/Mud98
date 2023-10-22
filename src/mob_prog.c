@@ -46,10 +46,10 @@
 #include "stringutils.h"
 #include "weather.h"
 
-#include "entities/char_data.h"
-#include "entities/object_data.h"
+#include "entities/mobile.h"
+#include "entities/object.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/quest.h"
 
 #include <ctype.h>
@@ -310,9 +310,9 @@ int num_eval(int lval, int oper, int rval)
  */
 
 // Get a random PC in the room (for $r parameter)
-CharData* get_random_char(CharData* mob)
+Mobile* get_random_char(Mobile* mob)
 {
-    CharData* vch, * victim = NULL;
+    Mobile* vch, * victim = NULL;
     int now = 0, highest = 0;
     for (vch = mob->in_room->people; vch; vch = vch->next_in_room) {
         if (mob != vch
@@ -330,9 +330,9 @@ CharData* get_random_char(CharData* mob)
  * How many other players / mobs are there in the room
  * iFlag: 0: all, 1: players, 2: mobiles 3: mobs w/ same vnum 4: same group
  */
-int count_people_room(CharData* mob, int iFlag)
+int count_people_room(Mobile* mob, int iFlag)
 {
-    CharData* vch;
+    Mobile* vch;
     int count;
     for (count = 0, vch = mob->in_room->people; vch; vch = vch->next_in_room)
         if (mob != vch
@@ -352,9 +352,9 @@ int count_people_room(CharData* mob, int iFlag)
  * a room have the same trigger and you want only the first of them
  * to act
  */
-int get_order(CharData* ch)
+int get_order(Mobile* ch)
 {
-    CharData* vch;
+    Mobile* vch;
     int i;
 
     if (!IS_NPC(ch))
@@ -375,9 +375,9 @@ int get_order(CharData* ch)
  * item_type: item type or -1
  * fWear: true: item must be worn, false: don't care
  */
-bool has_item(CharData* ch, VNUM vnum, ItemType item_type, bool fWear)
+bool has_item(Mobile* ch, VNUM vnum, ItemType item_type, bool fWear)
 {
-    ObjectData* obj;
+    Object* obj;
     for (obj = ch->carrying; obj; obj = obj->next_content)
         if ((vnum == VNUM_NONE || obj->prototype->vnum == vnum)
             && (item_type < 0 || obj->prototype->item_type == item_type)
@@ -387,9 +387,9 @@ bool has_item(CharData* ch, VNUM vnum, ItemType item_type, bool fWear)
 }
 
 // Check if there's a mob with given vnum in the room
-bool get_mob_vnum_room(CharData* ch, VNUM vnum)
+bool get_mob_vnum_room(Mobile* ch, VNUM vnum)
 {
-    CharData* mob;
+    Mobile* mob;
     for (mob = ch->in_room->people; mob; mob = mob->next_in_room)
         if (IS_NPC(mob) && mob->prototype->vnum == vnum)
             return true;
@@ -397,9 +397,9 @@ bool get_mob_vnum_room(CharData* ch, VNUM vnum)
 }
 
 // Check if there's an object with given vnum in the room
-bool get_obj_vnum_room(CharData* ch, VNUM vnum)
+bool get_obj_vnum_room(Mobile* ch, VNUM vnum)
 {
-    ObjectData* obj;
+    Object* obj;
     for (obj = ch->in_room->contents; obj; obj = obj->next_content)
         if (obj->prototype->vnum == vnum)
             return true;
@@ -419,14 +419,14 @@ bool get_obj_vnum_room(CharData* ch, VNUM vnum)
  *----------------------------------------------------------------------
  */
 int cmd_eval(VNUM vnum, char* line, int check,
-    CharData* mob, CharData* ch,
-    const void* arg1, const void* arg2, CharData* rch)
+    Mobile* mob, Mobile* ch,
+    const void* arg1, const void* arg2, Mobile* rch)
 {
-    CharData* lval_char = mob;
-    CharData* vch = (CharData*)arg2;
-    ObjectData* obj1 = (ObjectData*)arg1;
-    ObjectData* obj2 = (ObjectData*)arg2;
-    ObjectData* lval_obj = NULL;
+    Mobile* lval_char = mob;
+    Mobile* vch = (Mobile*)arg2;
+    Object* obj1 = (Object*)arg1;
+    Object* obj2 = (Object*)arg2;
+    Object* lval_obj = NULL;
 
     char* original, buf[MAX_INPUT_LENGTH], code;
     int lval = 0;
@@ -726,17 +726,17 @@ int cmd_eval(VNUM vnum, char* line, int check,
  */
 void expand_arg(char* buf,
     const char* format,
-    CharData* mob, CharData* ch,
-    const void* arg1, const void* arg2, CharData* rch)
+    Mobile* mob, Mobile* ch,
+    const void* arg1, const void* arg2, Mobile* rch)
 {
     const char* someone = "someone";
     const char* something = "something";
     const char* someones = "someone's";
 
     char fname[MAX_INPUT_LENGTH];
-    CharData* vch = (CharData*)arg2;
-    ObjectData* obj1 = (ObjectData*)arg1;
-    ObjectData* obj2 = (ObjectData*)arg2;
+    Mobile* vch = (Mobile*)arg2;
+    Object* obj1 = (Object*)arg1;
+    Object* obj2 = (Object*)arg2;
     const char* str;
     const char* i;
     char* point;
@@ -934,9 +934,9 @@ void expand_arg(char* buf,
 void program_flow(
     VNUM pvnum,  /* For diagnostic purposes */
     char* source,  /* the actual MOBprog code */
-    CharData* mob, CharData* ch, const void* arg1, const void* arg2)
+    Mobile* mob, Mobile* ch, const void* arg1, const void* arg2)
 {
-    CharData* rch = NULL;
+    Mobile* rch = NULL;
     char* code, * line;
     char buf[MAX_STRING_LENGTH] = "";
     char control[MAX_INPUT_LENGTH] = "";
@@ -1126,7 +1126,7 @@ void program_flow(
  * phrase.
  */
 void mp_act_trigger(
-    char* argument, CharData* mob, CharData* ch,
+    char* argument, Mobile* mob, Mobile* ch,
     const void* arg1, const void* arg2, MobProgTrigger trig_type)
 {
     MobProg* prg;
@@ -1146,7 +1146,7 @@ void mp_act_trigger(
  * number is less than trigger phrase
  */
 bool mp_percent_trigger(
-    CharData* mob, CharData* ch,
+    Mobile* mob, Mobile* ch,
     const void* arg1, const void* arg2, MobProgTrigger trig_type)
 {
     MobProg* prg;
@@ -1161,7 +1161,7 @@ bool mp_percent_trigger(
     return (false);
 }
 
-void mp_bribe_trigger(CharData* mob, CharData* ch, int amount)
+void mp_bribe_trigger(Mobile* mob, Mobile* ch, int amount)
 {
     MobProg* prg;
 
@@ -1180,9 +1180,9 @@ void mp_bribe_trigger(CharData* mob, CharData* ch, int amount)
     return;
 }
 
-bool mp_exit_trigger(CharData* ch, int dir)
+bool mp_exit_trigger(Mobile* ch, int dir)
 {
-    CharData* mob;
+    Mobile* mob;
     MobProg* prg;
 
     FOR_EACH_IN_ROOM(mob, ch->in_room->people) {
@@ -1213,7 +1213,7 @@ bool mp_exit_trigger(CharData* ch, int dir)
     return false;
 }
 
-void mp_give_trigger(CharData* mob, CharData* ch, ObjectData* obj)
+void mp_give_trigger(Mobile* mob, Mobile* ch, Object* obj)
 {
 
     char buf[MAX_INPUT_LENGTH], * p;
@@ -1244,9 +1244,9 @@ void mp_give_trigger(CharData* mob, CharData* ch, ObjectData* obj)
         }
 }
 
-void mp_greet_trigger(CharData* ch)
+void mp_greet_trigger(Mobile* ch)
 {
-    CharData* mob;
+    Mobile* mob;
 
     FOR_EACH_IN_ROOM(mob, ch->in_room->people) {
         if (IS_NPC(mob)
@@ -1268,7 +1268,7 @@ void mp_greet_trigger(CharData* ch)
     return;
 }
 
-void mp_hprct_trigger(CharData* mob, CharData* ch)
+void mp_hprct_trigger(Mobile* mob, Mobile* ch)
 {
     MobProg* prg;
 

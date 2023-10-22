@@ -29,7 +29,7 @@
 #ifndef MUD98__TABLES_H
 #define MUD98__TABLES_H
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 
 #include "data/damage.h"
 
@@ -127,6 +127,6 @@ extern const struct flag_type log_flag_table[];
 extern const struct flag_type show_flag_table[];
 extern const struct flag_type stat_table[STAT_COUNT+1];
 
-void show_flags_to_char(CharData* ch, const struct flag_type* flags);
+void show_flags_to_char(Mobile* ch, const struct flag_type* flags);
 
 #endif // !MUD98__TABLES_H

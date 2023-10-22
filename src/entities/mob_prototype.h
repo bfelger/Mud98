@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // mob_prototype.h
-// Prototype data for mobile (NPC) CharData
+// Prototype data for mobile (NPC) Mobile
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef struct mob_prototype_t MobPrototype;
@@ -18,7 +18,7 @@ typedef struct mob_prototype_t MobPrototype;
 #include "shop_data.h"
 
 #include "data/damage.h"
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 
 #include <stdbool.h>
 
@@ -71,7 +71,7 @@ typedef struct mob_prototype_t {
 #define GROUP_VNUM_TROLLS       2100
 #define GROUP_VNUM_OGRES        2101
 
-CharData* create_mobile(MobPrototype* p_mob_proto);
+Mobile* create_mobile(MobPrototype* p_mob_proto);
 void free_mob_prototype(MobPrototype* p_mob_proto);
 long get_mob_id();
 MobPrototype* get_mob_prototype(VNUM vnum);

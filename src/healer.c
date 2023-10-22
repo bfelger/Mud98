@@ -33,11 +33,11 @@
 #include "magic.h"
 #include "spell_list.h"
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 #include "entities/descriptor.h"
 
 #include "data/damage.h"
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/skill.h"
 
 #include <stdio.h>
@@ -49,9 +49,9 @@
 #include <sys/time.h>
 #endif
 
-void do_heal(CharData* ch, char* argument)
+void do_heal(Mobile* ch, char* argument)
 {
-    CharData* mob;
+    Mobile* mob;
     char arg[MAX_INPUT_LENGTH];
     int cost;
     SKNUM sn;

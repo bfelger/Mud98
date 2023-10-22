@@ -34,10 +34,10 @@
 
 #include "entities/descriptor.h"
 #include "entities/exit_data.h"
-#include "entities/object_data.h"
+#include "entities/object.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/race.h"
 #include "data/skill.h"
 
@@ -56,7 +56,7 @@ struct olc_help_type {
     char* desc;
 };
 
-bool show_version(CharData* ch, char* argument)
+bool show_version(Mobile* ch, char* argument)
 {
     send_to_char(OLC_VERSION, ch);
     send_to_char("\n\r", ch);
@@ -126,7 +126,7 @@ const struct olc_help_type help_table[] =
  Purpose:       Displays settable flags and stats.
  Called by:     show_help(olc_act.c).
  ****************************************************************************/
-void show_flag_cmds(CharData* ch, const struct flag_type* flag_table)
+void show_flag_cmds(Mobile* ch, const struct flag_type* flag_table)
 {
     char buf[MAX_STRING_LENGTH] = "";
     char buf1[MAX_STRING_LENGTH] = "";
@@ -160,7 +160,7 @@ void show_flag_cmds(CharData* ch, const struct flag_type* flag_table)
                 (2) Adding a check for a level range.
  Called by:     show_help(olc_act.c).
  ****************************************************************************/
-void show_skill_cmds(CharData* ch, SkillTarget tar)
+void show_skill_cmds(Mobile* ch, SkillTarget tar)
 {
     char buf[MAX_STRING_LENGTH] = "";
     char buf1[MAX_STRING_LENGTH * 2] = "";
@@ -197,7 +197,7 @@ void show_skill_cmds(CharData* ch, SkillTarget tar)
  Purpose:       Displays settable special functions.
  Called by:     show_help(olc_act.c).
  ****************************************************************************/
-void show_spec_cmds(CharData* ch)
+void show_spec_cmds(Mobile* ch)
 {
     char buf[MAX_STRING_LENGTH] = "";
     char buf1[MAX_STRING_LENGTH] = "";
@@ -226,7 +226,7 @@ void show_spec_cmds(CharData* ch)
  Purpose:       Displays help for many tables used in OLC.
  Called by:     olc interpreters.
  ****************************************************************************/
-bool show_help(CharData* ch, char* argument)
+bool show_help(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
@@ -333,7 +333,7 @@ bool show_help(CharData* ch, char* argument)
     return false;
 }
 
-void show_liqlist(CharData* ch)
+void show_liqlist(Mobile* ch)
 {
     int liq;
     Buffer* buffer;
@@ -359,7 +359,7 @@ void show_liqlist(CharData* ch)
     return;
 }
 
-void show_damlist(CharData* ch)
+void show_damlist(Mobile* ch)
 {
     int att;
     Buffer* buffer;
@@ -382,7 +382,7 @@ void show_damlist(CharData* ch)
     return;
 }
 
-void show_poslist(CharData* ch)
+void show_poslist(Mobile* ch)
 {
     int pos;
     Buffer* buffer;
@@ -405,7 +405,7 @@ void show_poslist(CharData* ch)
     return;
 }
 
-void show_sexlist(CharData* ch)
+void show_sexlist(Mobile* ch)
 {
     int sex;
     Buffer* buffer;
@@ -429,7 +429,7 @@ void show_sexlist(CharData* ch)
     return;
 }
 
-void show_sizelist(CharData* ch)
+void show_sizelist(Mobile* ch)
 {
     int size;
     Buffer* buffer;
@@ -483,7 +483,7 @@ ED_FUN_DEC(ed_line_string)
 #define NUM_INT32 1
 #define NUM_LONG 2
 
-bool numedit(char* n_fun, CharData* ch, char* argument, uintptr_t arg, int16_t type, long min, long max)
+bool numedit(char* n_fun, Mobile* ch, char* argument, uintptr_t arg, int16_t type, long min, long max)
 {
     int temp;
     int* value = (int*)arg;
@@ -729,7 +729,7 @@ ED_FUN_DEC(ed_gamespec)
     return false;
 }
 
-bool templookup(char* n_fun, CharData* ch, char* argument, uintptr_t arg, const uintptr_t par, int temp)
+bool templookup(char* n_fun, Mobile* ch, char* argument, uintptr_t arg, const uintptr_t par, int temp)
 {
     int value;
     LookupFunc* blah = (LookupFunc*)par;
@@ -960,7 +960,7 @@ ED_FUN_DEC(ed_addaffect)
 {
     int value;
     AffectData* pAf;
-    ObjectPrototype* pObj = (ObjectPrototype*)arg;
+    ObjPrototype* pObj = (ObjPrototype*)arg;
     char loc[MAX_STRING_LENGTH];
     char mod[MAX_STRING_LENGTH];
 

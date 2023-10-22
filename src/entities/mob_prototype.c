@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // mob_prototype.c
-// Prototype data for mobile (NPC) CharData
+// Prototype data for mobile (NPC) Mobile
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "mob_prototype.h"
@@ -15,9 +15,9 @@
 
 #include "olc/olc.h"
 
-#include "char_data.h"
+#include "mobile.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/race.h"
 
 MobPrototype* mob_prototype_hash[MAX_KEY_HASH];
@@ -112,9 +112,9 @@ VNUM top_vnum_mob;      // OLC
 //    return;
 //}
 
-CharData* create_mobile(MobPrototype* p_mob_proto)
+Mobile* create_mobile(MobPrototype* p_mob_proto)
 {
-    CharData* mob;
+    Mobile* mob;
     int i;
     AffectData af = { 0 };
 
@@ -125,7 +125,7 @@ CharData* create_mobile(MobPrototype* p_mob_proto)
         exit(1);
     }
 
-    mob = new_char_data();
+    mob = new_mobile();
 
     mob->prototype = p_mob_proto;
 
@@ -281,8 +281,8 @@ CharData* create_mobile(MobPrototype* p_mob_proto)
     mob->position = mob->start_pos;
 
     /* link the mob to the world list */
-    mob->next = char_list;
-    char_list = mob;
+    mob->next = mob_list;
+    mob_list = mob;
     p_mob_proto->count++;
     return mob;
 }

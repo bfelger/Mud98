@@ -43,9 +43,9 @@
 #include "vt.h"
 
 #include "entities/descriptor.h"
-#include "entities/object_data.h"
+#include "entities/object.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/player.h"
 #include "data/race.h"
 #include "data/skill.h"
@@ -88,24 +88,24 @@ char* print_flags(FLAGS flag)
 
 // Array of containers read for proper re-nesting of objects.
 #define MAX_NEST 100
-static ObjectData* rgObjNest[MAX_NEST];
+static Object* rgObjNest[MAX_NEST];
 
 // Local functions.
-void fwrite_char(CharData * ch, FILE* fp);
-void fwrite_obj(CharData * ch, ObjectData* obj, FILE* fp, int iNest);
-void fwrite_pet(CharData * pet, FILE* fp);
-void fwrite_themes(CharData* ch, FILE* fp);
-void fread_char(CharData * ch, FILE* fp);
-void fread_pet(CharData * ch, FILE* fp);
-void fread_obj(CharData * ch, FILE* fp);
-void fread_theme(CharData* ch, FILE* fp);
+void fwrite_char(Mobile * ch, FILE* fp);
+void fwrite_obj(Mobile * ch, Object* obj, FILE* fp, int iNest);
+void fwrite_pet(Mobile * pet, FILE* fp);
+void fwrite_themes(Mobile* ch, FILE* fp);
+void fread_char(Mobile * ch, FILE* fp);
+void fread_pet(Mobile * ch, FILE* fp);
+void fread_obj(Mobile * ch, FILE* fp);
+void fread_theme(Mobile* ch, FILE* fp);
 
 /*
  * Save a character and inventory.
  * Would be cool to save NPC's too for quest purposes,
  *   some of the infrastructure is provided.
  */
-void save_char_obj(CharData* ch)
+void save_char_obj(Mobile* ch)
 {
     char strsave[MAX_INPUT_LENGTH];
     FILE* fp;
@@ -139,7 +139,7 @@ void save_char_obj(CharData* ch)
 }
 
 // Write the char.
-void fwrite_char(CharData* ch, FILE* fp)
+void fwrite_char(Mobile* ch, FILE* fp)
 {
     AffectData* paf;
     int sn, gn, pos;
@@ -288,7 +288,7 @@ static void fwrite_channel(Color* color, const char* channel, FILE* fp)
         color->code[1], color->code[2]);
 }
 
-void fwrite_themes(CharData* ch, FILE* fp)
+void fwrite_themes(Mobile* ch, FILE* fp)
 {
     for (int i = 0; i < MAX_THEMES; ++i) {
         if (ch->pcdata->color_themes[i] == NULL)
@@ -312,7 +312,7 @@ void fwrite_themes(CharData* ch, FILE* fp)
 }
 
 /* write a pet */
-void fwrite_pet(CharData* pet, FILE* fp)
+void fwrite_pet(Mobile* pet, FILE* fp)
 {
     AffectData* paf;
 
@@ -375,7 +375,7 @@ void fwrite_pet(CharData* pet, FILE* fp)
 }
 
 // Write an object and its contents.
-void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
+void fwrite_obj(Mobile* ch, Object* obj, FILE* fp, int iNest)
 {
     ExtraDesc* ed;
     AffectData* paf;
@@ -486,11 +486,11 @@ void fwrite_obj(CharData* ch, ObjectData* obj, FILE* fp, int iNest)
 bool load_char_obj(Descriptor* d, char* name)
 {
     char strsave[MAX_INPUT_LENGTH] = { 0 };
-    CharData* ch;
+    Mobile* ch;
     FILE* fp;
     int stat;
 
-    ch = new_char_data();
+    ch = new_mobile();
     ch->pcdata = new_player_data();
     ch->pcdata->ch = ch;
     d->character = ch;
@@ -695,7 +695,7 @@ bool load_char_obj(Descriptor* d, char* name)
         break;                                                                 \
     }
 
-void fread_char(CharData* ch, FILE* fp)
+void fread_char(Mobile* ch, FILE* fp)
 {
     char buf[MAX_STRING_LENGTH];
     char* word;
@@ -1105,10 +1105,10 @@ void fread_char(CharData* ch, FILE* fp)
 }
 
 /* load a pet from the forgotten reaches */
-void fread_pet(CharData* ch, FILE* fp)
+void fread_pet(Mobile* ch, FILE* fp)
 {
     char* word;
-    CharData* pet;
+    Mobile* pet;
     bool fMatch;
     time_t lastlogoff = current_time;
     int16_t percent;
@@ -1302,9 +1302,9 @@ void fread_pet(CharData* ch, FILE* fp)
     }
 }
 
-void fread_obj(CharData* ch, FILE* fp)
+void fread_obj(Mobile* ch, FILE* fp)
 {
-    ObjectData* obj;
+    Object* obj;
     char* word;
     int iNest;
     bool fMatch;
@@ -1568,7 +1568,7 @@ void fread_obj(CharData* ch, FILE* fp)
     }
 }
 
-void fread_theme(CharData* ch, FILE* fp)
+void fread_theme(Mobile* ch, FILE* fp)
 {
     ColorTheme theme = { 0 };
     bool fMatch;

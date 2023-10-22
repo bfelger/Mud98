@@ -125,7 +125,7 @@ Quest* get_quest(VNUM vnum)
     return quest;
 }
 
-QuestTarget* get_quest_targ_mob(CharData* ch, VNUM target_vnum)
+QuestTarget* get_quest_targ_mob(Mobile* ch, VNUM target_vnum)
 {
     QuestTarget* qt = NULL;
 
@@ -154,7 +154,7 @@ QuestTarget* get_quest_targ_mob(CharData* ch, VNUM target_vnum)
     return qt;
 }
 
-QuestTarget* get_quest_targ_obj(CharData* ch, VNUM target_vnum)
+QuestTarget* get_quest_targ_obj(Mobile* ch, VNUM target_vnum)
 {
     QuestTarget* qt = NULL;
 
@@ -169,7 +169,7 @@ QuestTarget* get_quest_targ_obj(CharData* ch, VNUM target_vnum)
     return qt;
 }
 
-QuestTarget* get_quest_targ_end(CharData* ch, VNUM end_vnum)
+QuestTarget* get_quest_targ_end(Mobile* ch, VNUM end_vnum)
 {
     QuestTarget* qt = NULL;
 
@@ -184,7 +184,7 @@ QuestTarget* get_quest_targ_end(CharData* ch, VNUM end_vnum)
     return qt;
 }
 
-QuestStatus* get_quest_status(CharData* ch, VNUM quest_vnum)
+QuestStatus* get_quest_status(Mobile* ch, VNUM quest_vnum)
 {
     QuestStatus* qs = NULL;
 
@@ -196,7 +196,7 @@ QuestStatus* get_quest_status(CharData* ch, VNUM quest_vnum)
     return qs;
 }
 
-static void remove_quest_target(CharData* ch, Quest* quest)
+static void remove_quest_target(Mobile* ch, Quest* quest)
 {
     QuestTarget* qt = NULL;
     switch (quest->type) {
@@ -217,7 +217,7 @@ static void remove_quest_target(CharData* ch, Quest* quest)
         free_mem(qt, sizeof(QuestTarget));
 }
 
-void finish_quest(CharData* ch, Quest* quest, QuestStatus* status)
+void finish_quest(Mobile* ch, Quest* quest, QuestStatus* status)
 {
     if (!ch || !ch->pcdata || !quest || !status)
         return;
@@ -256,7 +256,7 @@ static void add_target(QuestLog* qlog, Quest* quest, VNUM target_vnum)
     }
 }
 
-void grant_quest(CharData* ch, Quest* quest)
+void grant_quest(Mobile* ch, Quest* quest)
 {
     static QuestStatus x_qs = { 0 };
 
@@ -323,7 +323,7 @@ void save_quests(FILE* fp, AreaData* pArea)
     }
 }
 
-bool can_quest(CharData* ch, VNUM vnum)
+bool can_quest(Mobile* ch, VNUM vnum)
 {
     if (!ch->pcdata)
         return false;
@@ -338,7 +338,7 @@ bool can_quest(CharData* ch, VNUM vnum)
     return (get_quest_status(ch, vnum) == NULL);
 }
 
-bool has_quest(CharData* ch, VNUM vnum)
+bool has_quest(Mobile* ch, VNUM vnum)
 {
     if (!ch->pcdata)
         return false;
@@ -354,7 +354,7 @@ bool has_quest(CharData* ch, VNUM vnum)
     return true;
 }
 
-bool can_finish_quest(CharData* ch, VNUM vnum)
+bool can_finish_quest(Mobile* ch, VNUM vnum)
 {
     if (!ch->pcdata)
         return false;
@@ -372,7 +372,7 @@ bool can_finish_quest(CharData* ch, VNUM vnum)
     switch (q->type) {
     case QUEST_VISIT_MOB:
     {
-        CharData* vch;
+        Mobile* vch;
         FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
             if (vch->prototype && vch->prototype->vnum == q->target)
                 return true;
@@ -390,7 +390,7 @@ bool can_finish_quest(CharData* ch, VNUM vnum)
     return false;
 }
 
-void do_quest(CharData* ch, char* argument)
+void do_quest(Mobile* ch, char* argument)
 {
     if (!ch->pcdata)
         return;

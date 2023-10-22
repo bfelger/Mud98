@@ -53,7 +53,7 @@
 #include "entities/descriptor.h"
 #include "entities/exit_data.h"
 #include "entities/mob_prototype.h"
-#include "entities/object_data.h"
+#include "entities/object.h"
 #include "entities/player_data.h"
 #include "entities/reset_data.h"
 #include "entities/room_data.h"
@@ -61,7 +61,7 @@
 
 #include "data/class.h"
 #include "data/direction.h"
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/race.h"
 #include "data/skill.h"
 #include "data/social.h"
@@ -148,8 +148,6 @@ AreaData* current_area;
 void init_mm();
 void load_area(FILE* fp);
 void load_helps(FILE* fp, char* fname);
-void load_old_obj(FILE* fp);
-void load_objects(FILE* fp);
 void load_resets(FILE* fp);
 void load_rooms(FILE* fp);
 void load_shops(FILE* fp);
@@ -482,144 +480,6 @@ void load_helps(FILE* fp, char* fname)
         pHelp->next_area = NULL;
 
         help_count++;
-    }
-
-    return;
-}
-
-// Snarf an obj section.  old style
-void load_old_obj(FILE* fp)
-{
-    ObjectPrototype* obj_proto;
-
-    if (!area_last) {
-        bug("Load_objects: no #AREA seen yet.", 0);
-        exit(1);
-    }
-
-    for (;;) {
-        VNUM vnum;
-        char letter;
-        int iHash;
-
-        letter = fread_letter(fp);
-        if (letter != '#') {
-            bug("Load_objects: # not found.", 0);
-            exit(1);
-        }
-
-        vnum = fread_number(fp);
-        if (vnum == 0) break;
-
-        fBootDb = false;
-        if (get_object_prototype(vnum) != NULL) {
-            bug("Load_objects: vnum %"PRVNUM" duplicated.", vnum);
-            exit(1);
-        }
-        fBootDb = true;
-
-        obj_proto = alloc_perm(sizeof(*obj_proto));
-        obj_proto->vnum = vnum;
-        obj_proto->area = area_last;
-        obj_proto->reset_num = 0;
-        obj_proto->name = fread_string(fp);
-        obj_proto->short_descr = fread_string(fp);
-        obj_proto->description = fread_string(fp);
-        /* Action description */ fread_string(fp);
-
-        obj_proto->short_descr[0] = LOWER(obj_proto->short_descr[0]);
-        obj_proto->description[0] = UPPER(obj_proto->description[0]);
-        obj_proto->material = str_dup("");
-
-        obj_proto->item_type = (int16_t)fread_number(fp);
-        obj_proto->extra_flags = fread_flag(fp);
-        obj_proto->wear_flags = fread_flag(fp);
-        obj_proto->value[0] = fread_number(fp);
-        obj_proto->value[1] = fread_number(fp);
-        obj_proto->value[2] = fread_number(fp);
-        obj_proto->value[3] = fread_number(fp);
-        obj_proto->value[4] = 0;
-        obj_proto->level = 0;
-        obj_proto->condition = 100;
-        obj_proto->weight = (int16_t)fread_number(fp);
-        obj_proto->cost = fread_number(fp); /* Unused */
-        /* Cost per day */ fread_number(fp);
-
-        if (obj_proto->item_type == ITEM_WEAPON) {
-            if (is_name("two", obj_proto->name)
-                || is_name("two-handed", obj_proto->name)
-                || is_name("claymore", obj_proto->name))
-                SET_BIT(obj_proto->value[4], WEAPON_TWO_HANDS);
-        }
-
-        for (;;) {
-            letter = fread_letter(fp);
-
-            if (letter == 'A') {
-                AffectData* paf;
-
-                paf = alloc_perm(sizeof(*paf));
-                paf->where = TO_OBJECT;
-                paf->type = -1;
-                paf->level = 20; /* RT temp fix */
-                paf->duration = -1;
-                paf->location = (int16_t)fread_number(fp);
-                paf->modifier = (int16_t)fread_number(fp);
-                paf->bitvector = 0;
-                paf->next = obj_proto->affected;
-                obj_proto->affected = paf;
-                affect_count++;
-            }
-
-            else if (letter == 'E') {
-                ExtraDesc* ed;
-
-                ed = alloc_perm(sizeof(*ed));
-                ed->keyword = fread_string(fp);
-                ed->description = fread_string(fp);
-                ed->next = obj_proto->extra_desc;
-                obj_proto->extra_desc = ed;
-                extra_desc_count++;
-            }
-
-            else {
-                ungetc(letter, fp);
-                break;
-            }
-        }
-
-        /* fix armors */
-        if (obj_proto->item_type == ITEM_ARMOR) {
-            obj_proto->value[1] = obj_proto->value[0];
-            obj_proto->value[2] = obj_proto->value[1];
-        }
-
-        // Translate spell "slot numbers" to internal "skill numbers."
-        switch (obj_proto->item_type) {
-        case ITEM_PILL:
-        case ITEM_POTION:
-        case ITEM_SCROLL:
-            obj_proto->value[1] = skill_slot_lookup(obj_proto->value[1]);
-            obj_proto->value[2] = skill_slot_lookup(obj_proto->value[2]);
-            obj_proto->value[3] = skill_slot_lookup(obj_proto->value[3]);
-            obj_proto->value[4] = skill_slot_lookup(obj_proto->value[4]);
-            break;
-
-        case ITEM_STAFF:
-        case ITEM_WAND:
-            obj_proto->value[3] = skill_slot_lookup(obj_proto->value[3]);
-            break;
-
-        default:
-            break;
-        }
-
-        iHash = vnum % MAX_KEY_HASH;
-        obj_proto->next = object_prototype_hash[iHash];
-        object_prototype_hash[iHash] = obj_proto;
-        obj_proto_count++;
-        top_vnum_obj = top_vnum_obj < vnum ? vnum : top_vnum_obj;   // OLC
-        assign_area_vnum( vnum );                                   // OLC
     }
 
     return;
@@ -1182,10 +1042,10 @@ void fix_mobprogs(void)
 void reset_room(RoomData* pRoom)
 {
     ResetData* pReset;
-    CharData* pMob = NULL;
-    ObjectData* pObj;
-    CharData* LastMob = NULL;
-    ObjectData* LastObj = NULL;
+    Mobile* pMob = NULL;
+    Object* pObj;
+    Mobile* LastMob = NULL;
+    Object* LastObj = NULL;
     int iExit;
     int level = 0;
     bool last;
@@ -1209,8 +1069,8 @@ void reset_room(RoomData* pRoom)
 
     FOR_EACH(pReset, pRoom->reset_first) {
         MobPrototype* pMobIndex;
-        ObjectPrototype* pObjIndex;
-        ObjectPrototype* pObjToIndex;
+        ObjPrototype* pObjIndex;
+        ObjPrototype* pObjToIndex;
         RoomData* pRoomIndex;
         char buf[MAX_STRING_LENGTH];
         int count, limit = 0;
@@ -1222,7 +1082,7 @@ void reset_room(RoomData* pRoom)
 
         case 'M':
         {
-            CharData* mob;
+            Mobile* mob;
 
             if ((pMobIndex = get_mob_prototype(pReset->arg1)) == NULL) {
                 bug("Reset_room: 'M': bad vnum %"PRVNUM".", pReset->arg1);
@@ -1437,10 +1297,10 @@ void reset_room(RoomData* pRoom)
 void reset_room(RoomData* pRoom)
 {
     ResetData* pReset;
-    CharData* pMob = NULL;
-    ObjectData* pObj;
-    CharData* LastMob = NULL;
-    ObjectData* LastObj = NULL;
+    Mobile* pMob = NULL;
+    Object* pObj;
+    Mobile* LastMob = NULL;
+    Object* LastObj = NULL;
     int iExit;
     int level = 0;
     bool last;
@@ -1465,8 +1325,8 @@ void reset_room(RoomData* pRoom)
 
     FOR_EACH(pReset, pRoom->reset_first) {
         MobPrototype* mob_proto;
-        ObjectPrototype* obj_proto;
-        ObjectPrototype* pObjToIndex;
+        ObjPrototype* obj_proto;
+        ObjPrototype* pObjToIndex;
         RoomData* reset_room;
         char buf[MAX_STRING_LENGTH];
         int count, limit = 0;
@@ -1497,7 +1357,7 @@ void reset_room(RoomData* pRoom)
 
             count = 0;
 
-            CharData* mob_in_room;
+            Mobile* mob_in_room;
             FOR_EACH_IN_ROOM(mob_in_room, reset_room->people)
                 if (mob_in_room->prototype == mob_proto) {
                     count++;
@@ -1747,7 +1607,7 @@ void reset_area(AreaData* pArea)
 }
 
 /* duplicate a mobile exactly -- except inventory */
-void clone_mobile(CharData* parent, CharData* clone)
+void clone_mobile(Mobile* parent, Mobile* clone)
 {
     int i;
     AffectData* paf;
@@ -1828,9 +1688,9 @@ MobProgCode* get_mprog_index(VNUM vnum)
 }
 
 // Clear a new character.
-void clear_char(CharData* ch)
+void clear_char(Mobile* ch)
 {
-    static CharData ch_zero;
+    static Mobile ch_zero;
     int i;
 
     *ch = ch_zero;
@@ -2384,7 +2244,7 @@ void free_string(char* pstr)
     return;
 }
 
-void do_areas(CharData* ch, char* argument)
+void do_areas(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     AreaData* pArea1;
@@ -2445,7 +2305,7 @@ void print_memory()
     free_buf(buf);
 }
 
-void do_memory(CharData* ch, char* argument)
+void do_memory(Mobile* ch, char* argument)
 {
     INIT_BUF(buf, MSL);
 
@@ -2455,14 +2315,14 @@ void do_memory(CharData* ch, char* argument)
     free_buf(buf);
 }
 
-void do_dump(CharData* ch, char* argument)
+void do_dump(Mobile* ch, char* argument)
 {
     int count, count2, num_pcs, aff_count;
-    CharData* fch;
+    Mobile* fch;
     MobPrototype* p_mob_proto;
     PlayerData* pc;
-    ObjectData* obj;
-    ObjectPrototype* obj_proto;
+    Object* obj;
+    ObjPrototype* obj_proto;
     RoomData* room = NULL;
     ExitData* exit = NULL;
     Descriptor* d;
@@ -2485,13 +2345,13 @@ void do_dump(CharData* ch, char* argument)
     /* mobs */
     count = 0;
     count2 = 0;
-    FOR_EACH(fch, char_list) {
+    FOR_EACH(fch, mob_list) {
         count++;
         if (fch->pcdata != NULL) num_pcs++;
         FOR_EACH(af, fch->affected) 
             aff_count++;
     }
-    FOR_EACH(fch, char_free) 
+    FOR_EACH(fch, mob_free) 
         count2++;
 
     fprintf(fp, "Mobs   %4d (%8zu bytes), %2d free (%zu bytes)\n", count,
@@ -2529,11 +2389,11 @@ void do_dump(CharData* ch, char* argument)
     /* objects */
     count = 0;
     count2 = 0;
-    FOR_EACH(obj, object_list) {
+    FOR_EACH(obj, obj_list) {
         count++;
         FOR_EACH(af, obj->affected) aff_count++;
     }
-    FOR_EACH(obj, object_free) count2++;
+    FOR_EACH(obj, obj_free) count2++;
 
     fprintf(fp, "Objs	%4d (%8zu bytes), %2d free (%zu bytes)\n", count,
             count * (sizeof(*obj)), count2, count2 * (sizeof(*obj)));
@@ -2806,7 +2666,7 @@ char* capitalize(const char* str)
 }
 
 // Append a string to a file.
-void append_file(CharData* ch, char* file, char* str)
+void append_file(Mobile* ch, char* file, char* str)
 {
     FILE* fp;
 

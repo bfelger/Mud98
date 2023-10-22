@@ -58,11 +58,11 @@
 
 #include "entities/area_data.h"
 #include "entities/descriptor.h"
-#include "entities/object_data.h"
+#include "entities/object.h"
 #include "entities/player_data.h"
 
 #include "data/class.h"
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/player.h"
 #include "data/race.h"
 
@@ -149,7 +149,7 @@ typedef struct thread_data_t {
 NewConnThread new_conn_threads[MAX_HANDSHAKES] = { 0 };
 ThreadData thread_data[MAX_HANDSHAKES] = { 0 };
 
-void bust_a_prompt(CharData* ch);
+void bust_a_prompt(Mobile* ch);
 bool check_parse_name(char* name);
 bool check_playing(Descriptor* d, char* name);
 bool check_reconnect(Descriptor* d, bool fConn);
@@ -602,7 +602,7 @@ void close_socket(Descriptor* dclose)
         return;
     }
 
-    CharData* ch;
+    Mobile* ch;
 
     if (dclose->outtop > 0)
         process_descriptor_output(dclose, false);
@@ -631,7 +631,7 @@ void close_socket(Descriptor* dclose)
             ch->desc = NULL;
         }
         else {
-            free_char_data(dclose->original ? dclose->original : dclose->character);
+            free_mobile(dclose->original ? dclose->original : dclose->character);
         }
     }
 
@@ -883,8 +883,8 @@ bool process_descriptor_output(Descriptor* d, bool fPrompt)
             if (d->pString)
                 write_to_buffer(d, "> ", 2);    // OLC
             else {
-                CharData* ch;
-                CharData* victim;
+                Mobile* ch;
+                Mobile* victim;
 
                 ch = d->character;
 
@@ -966,7 +966,7 @@ bool process_descriptor_output(Descriptor* d, bool fPrompt)
  * Bust a prompt (player settable prompt)
  * coded by Morgenes for Aldara Mud
  */
-void bust_a_prompt(CharData* ch)
+void bust_a_prompt(Mobile* ch)
 {
     INIT_BUF(temp1, MAX_STRING_LENGTH);
     INIT_BUF(temp2, MAX_STRING_LENGTH);
@@ -1177,7 +1177,7 @@ void write_to_buffer(Descriptor* d, const char* txt, size_t length)
     return;
 }
 
-static void nanny_weapon_prompt(Descriptor* d, CharData* ch)
+static void nanny_weapon_prompt(Descriptor* d, Mobile* ch)
 {
     char buf[MAX_STRING_LENGTH] = "";
     write_to_buffer(d, "\n\r", 2);
@@ -1199,7 +1199,7 @@ void nanny(Descriptor * d, char* argument)
     Descriptor* d_next_local = NULL;
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    CharData* ch;
+    Mobile* ch;
     int iClass, race, i, weapon;
     bool fOld;
 
@@ -1330,7 +1330,7 @@ void nanny(Descriptor * d, char* argument)
             if (check_reconnect(d, true)) return;
             write_to_buffer(d, "Reconnect attempt failed.\n\rName: ", 0);
             if (d->character != NULL) {
-                free_char_data(d->character);
+                free_mobile(d->character);
                 d->character = NULL;
             }
             d->connected = CON_GET_NAME;
@@ -1340,7 +1340,7 @@ void nanny(Descriptor * d, char* argument)
         case 'N':
             write_to_buffer(d, "Name: ", 0);
             if (d->character != NULL) {
-                free_char_data(d->character);
+                free_mobile(d->character);
                 d->character = NULL;
             }
             d->connected = CON_GET_NAME;
@@ -1365,7 +1365,7 @@ void nanny(Descriptor * d, char* argument)
         case 'n':
         case 'N':
             write_to_buffer(d, "Ok, what IS it, then? ", 0);
-            free_char_data(d->character);
+            free_mobile(d->character);
             d->character = NULL;
             d->connected = CON_GET_NAME;
             break;
@@ -1676,8 +1676,8 @@ void nanny(Descriptor * d, char* argument)
     case CON_READ_MOTD:
         sprintf(buf, "\n\rWelcome to %s. Please do not feed the mobiles.\n\r\n\r", cfg_get_mud_name());
         write_to_buffer(d, buf, 0);
-        ch->next = char_list;
-        char_list = ch;
+        ch->next = mob_list;
+        mob_list = ch;
         ch->pcdata->next = player_list;
         player_list = ch->pcdata;
 
@@ -1868,9 +1868,9 @@ bool check_parse_name(char* name)
 // Look for link-dead player to reconnect.
 bool check_reconnect(Descriptor * d, bool fConn)
 {
-    CharData* ch;
+    Mobile* ch;
 
-    FOR_EACH(ch, char_list) {
+    FOR_EACH(ch, mob_list) {
         if (!IS_NPC(ch) && (!fConn || ch->desc == NULL)
             && !str_cmp(d->character->name, ch->name)) {
             if (fConn == false) {
@@ -1890,7 +1890,7 @@ bool check_reconnect(Descriptor * d, bool fConn)
                     ch->pcdata->pwd_digest_len;
             }
             else {
-                free_char_data(d->character);
+                free_mobile(d->character);
                 d->character = ch;
                 ch->desc = d;
                 ch->timer = 0;
@@ -1932,7 +1932,7 @@ bool check_playing(Descriptor * d, char* name)
     return false;
 }
 
-void stop_idling(CharData * ch)
+void stop_idling(Mobile * ch)
 {
     if (ch == NULL || ch->desc == NULL || ch->desc->connected != CON_PLAYING
         || ch->was_in_room == NULL
@@ -2055,7 +2055,7 @@ void send_to_desc(const char* txt, Descriptor* desc)
 
 
 // Write to one char.
-void send_to_char_bw(const char* txt, CharData * ch)
+void send_to_char_bw(const char* txt, Mobile * ch)
 {
     if (txt != NULL && ch->desc != NULL)
         write_to_buffer(ch->desc, txt, strlen(txt));
@@ -2063,7 +2063,7 @@ void send_to_char_bw(const char* txt, CharData * ch)
 }
 
 // Write to one char, new colour version, by Lope.
-void send_to_char(const char* txt, CharData * ch)
+void send_to_char(const char* txt, Mobile * ch)
 {
     const char* point;
     char* point2;
@@ -2105,7 +2105,7 @@ void send_to_char(const char* txt, CharData * ch)
 }
 
 // Send a page to one char.
-void page_to_char_bw(const char* txt, CharData * ch)
+void page_to_char_bw(const char* txt, Mobile * ch)
 {
     if (txt == NULL || ch->desc == NULL) 
         return;
@@ -2122,7 +2122,7 @@ void page_to_char_bw(const char* txt, CharData * ch)
 }
 
 // Page to one char, new colour version, by Lope.
-void page_to_char(const char* txt, CharData * ch)
+void page_to_char(const char* txt, Mobile * ch)
 {
     INIT_BUF(temp, MAX_STRING_LENGTH * 4);
     const char* point;
@@ -2223,19 +2223,19 @@ show_string_cleanup:
 }
 
 /* quick sex fixer */
-void fix_sex(CharData * ch)
+void fix_sex(Mobile * ch)
 {
     if (ch->sex < 0 || ch->sex >= SEX_COUNT)
         ch->sex = IS_NPC(ch) ? 0 : ch->pcdata->true_sex;
 }
 
-void act_new(const char* format, CharData * ch, const void* arg1,
+void act_new(const char* format, Mobile * ch, const void* arg1,
     const void* arg2, ActTarget type, Position min_pos)
 {
-    CharData* to;
-    CharData* vch = (CharData*)arg2;
-    ObjectData* obj1 = (ObjectData*)arg1;
-    ObjectData* obj2 = (ObjectData*)arg2;
+    Mobile* to;
+    Mobile* vch = (Mobile*)arg2;
+    Object* obj1 = (Object*)arg1;
+    Object* obj2 = (Object*)arg2;
     const char* str;
     const char* i = NULL;
     char* point;
@@ -2374,7 +2374,7 @@ void act_new(const char* format, CharData * ch, const void* arg1,
     return;
 }
 
-size_t colour(char type, CharData * ch, char* string)
+size_t colour(char type, Mobile * ch, char* string)
 {
     char code[50] = { 0 };
     bool xterm = ch->pcdata->theme_config.xterm;
@@ -2436,7 +2436,7 @@ size_t colour(char type, CharData * ch, char* string)
     return (strlen(code));
 }
 
-void colourconv(char* buffer, const char* txt, CharData * ch)
+void colourconv(char* buffer, const char* txt, Mobile * ch)
 {
     const char* point;
     size_t skip = 0;
@@ -2471,7 +2471,7 @@ void colourconv(char* buffer, const char* txt, CharData * ch)
 }
 
 // source: EOD, by John Booth <???> 
-void printf_to_char(CharData* ch, char* fmt, ...)
+void printf_to_char(Mobile* ch, char* fmt, ...)
 {
     char buf[MAX_STRING_LENGTH];
     va_list args;

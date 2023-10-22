@@ -32,10 +32,10 @@
 #include "tablesave.h"
 
 #include "entities/descriptor.h"
-#include "entities/object_data.h"
+#include "entities/object.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/quest.h"
 #include "data/race.h"
 #include "data/skill.h"
@@ -305,7 +305,7 @@ void save_mobiles(FILE* fp, AreaData* pArea)
                 new ROM format saving -- Hugin
  Called by:	save_objects (below).
  ****************************************************************************/
-void save_object(FILE* fp, ObjectPrototype* obj_proto)
+void save_object(FILE* fp, ObjPrototype* obj_proto)
 {
     char letter;
     AffectData* pAf;
@@ -508,7 +508,7 @@ void save_object(FILE* fp, ObjectPrototype* obj_proto)
  ****************************************************************************/
 void save_objects(FILE* fp, AreaData* pArea)
 {
-    ObjectPrototype* pObj;
+    ObjPrototype* pObj;
 
     fprintf(fp, "#OBJECTS\n");
 
@@ -692,7 +692,7 @@ void save_resets(FILE* fp, AreaData* pArea)
     ResetData* pReset;
     MobPrototype* pLastMob = NULL;
 #ifdef VERBOSE
-    ObjectPrototype* pLastObj;
+    ObjPrototype* pLastObj;
 #endif
     RoomData* pRoom;
     char buf[MAX_STRING_LENGTH];
@@ -905,7 +905,7 @@ void save_helps(FILE* fp, HelpArea* ha)
     return;
 }
 
-void save_other_helps(CharData* ch)
+void save_other_helps(Mobile* ch)
 {
     HelpArea* ha;
     FILE* fp;
@@ -999,7 +999,7 @@ void save_area(AreaData* pArea)
  Purpose:	Entry point for saving area data.
  Called by:	interpreter(interp.c)
  ****************************************************************************/
-void do_asave(CharData* ch, char* argument)
+void do_asave(Mobile* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     AreaData* pArea;
@@ -1137,7 +1137,7 @@ void do_asave(CharData* ch, char* argument)
             pArea = ch->in_room->area;
             break;
         case ED_OBJECT:
-            pArea = ((ObjectPrototype*)ch->desc->pEdit)->area;
+            pArea = ((ObjPrototype*)ch->desc->pEdit)->area;
             break;
         case ED_MOBILE:
             pArea = ((MobPrototype*)ch->desc->pEdit)->area;
