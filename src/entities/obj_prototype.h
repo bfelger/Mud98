@@ -12,15 +12,15 @@ typedef struct obj_prototype_t ObjPrototype;
 
 #include "data/item.h"
 
-#include "affect_data.h"
-#include "area_data.h"
+#include "affect.h"
+#include "area.h"
 #include "extra_desc.h"
 
 typedef struct obj_prototype_t {
     ObjPrototype* next;
     ExtraDesc* extra_desc;
-    AffectData* affected;
-    AreaData* area;
+    Affect* affected;
+    Area* area;
     char* name;
     char* short_descr;
     char* description;

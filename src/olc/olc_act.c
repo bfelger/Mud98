@@ -33,7 +33,7 @@
 #include "tables.h"
 
 #include "entities/descriptor.h"
-#include "entities/exit_data.h"
+#include "entities/room_exit.h"
 #include "entities/object.h"
 #include "entities/player_data.h"
 
@@ -959,7 +959,7 @@ ED_FUN_DEC(ed_ed)
 ED_FUN_DEC(ed_addaffect)
 {
     int value;
-    AffectData* pAf;
+    Affect* pAf;
     ObjPrototype* pObj = (ObjPrototype*)arg;
     char loc[MAX_STRING_LENGTH];
     char mod[MAX_STRING_LENGTH];
@@ -995,9 +995,9 @@ ED_FUN_DEC(ed_addaffect)
 
 ED_FUN_DEC(ed_delaffect)
 {
-    AffectData* pAf;
-    AffectData* pAf_next;
-    AffectData** pNaf = (AffectData**)arg;
+    Affect* pAf;
+    Affect* pAf_next;
+    Affect** pNaf = (Affect**)arg;
     INIT_BUF(aff_name, MAX_STRING_LENGTH);
     int  value;
     int  cnt = 0;

@@ -21,7 +21,7 @@ int mob_count = 0;
 void free_mobile(Mobile* ch)
 {
     Object* obj;
-    AffectData* paf;
+    Affect* paf;
 
     if (!IS_VALID(ch)) return;
 

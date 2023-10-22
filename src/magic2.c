@@ -104,7 +104,7 @@ void spell_nexus(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target
 {
     Mobile* victim;
     Object *portal, *stone;
-    RoomData *to_room, *from_room;
+    Room *to_room, *from_room;
 
     from_room = ch->in_room;
 

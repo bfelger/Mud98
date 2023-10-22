@@ -399,7 +399,7 @@ void mobile_update()
 {
     Mobile* ch = NULL;
     Mobile* ch_next = NULL;
-    ExitData* pexit = NULL;
+    RoomExit* room_exit = NULL;
     int door;
 
     bool msdp_enabled = cfg_get_msdp_enabled();
@@ -481,15 +481,15 @@ void mobile_update()
         /* Wander */
         if (!IS_SET(ch->act_flags, ACT_SENTINEL) && number_bits(3) == 0
             && (door = number_bits(5)) <= 5
-            && (pexit = ch->in_room->exit[door]) != NULL
-            && pexit->u1.to_room != NULL && !IS_SET(pexit->exit_flags, EX_CLOSED)
-            && !IS_SET(pexit->u1.to_room->room_flags, ROOM_NO_MOB)
+            && (room_exit = ch->in_room->exit[door]) != NULL
+            && room_exit->to_room != NULL && !IS_SET(room_exit->exit_flags, EX_CLOSED)
+            && !IS_SET(room_exit->to_room->room_flags, ROOM_NO_MOB)
             && (!IS_SET(ch->act_flags, ACT_STAY_AREA)
-                || pexit->u1.to_room->area == ch->in_room->area)
+                || room_exit->to_room->area == ch->in_room->area)
             && (!IS_SET(ch->act_flags, ACT_OUTDOORS)
-                || !IS_SET(pexit->u1.to_room->room_flags, ROOM_INDOORS))
+                || !IS_SET(room_exit->to_room->room_flags, ROOM_INDOORS))
             && (!IS_SET(ch->act_flags, ACT_INDOORS)
-                || IS_SET(pexit->u1.to_room->room_flags, ROOM_INDOORS))) {
+                || IS_SET(room_exit->to_room->room_flags, ROOM_INDOORS))) {
             move_char(ch, door, false);
         }
     }
@@ -511,8 +511,8 @@ void char_update(void)
         save_number = 0;
 
     for (ch = mob_list; ch != NULL; ch = ch_next) {
-        AffectData* paf;
-        AffectData* paf_next = NULL;
+        Affect* paf;
+        Affect* paf_next = NULL;
 
         ch_next = ch->next;
 
@@ -572,7 +572,7 @@ void char_update(void)
                     send_to_char("You disappear into the void.\n\r", ch);
                     if (ch->level > 1) save_char_obj(ch);
                     char_from_room(ch);
-                    char_to_room(ch, get_room_data(ROOM_VNUM_LIMBO));
+                    char_to_room(ch, get_room(ROOM_VNUM_LIMBO));
                 }
             }
 
@@ -611,8 +611,8 @@ void char_update(void)
          */
 
         if (is_affected(ch, gsn_plague) && ch != NULL) {
-            AffectData* af;
-            AffectData plague = { 0 };
+            Affect* af;
+            Affect plague = { 0 };
             Mobile* vch;
             int dam;
 
@@ -661,7 +661,7 @@ void char_update(void)
                  && !IS_AFFECTED(ch, AFF_SLOW))
 
         {
-            AffectData* poison;
+            Affect* poison;
 
             poison = affect_find(ch->affected, gsn_poison);
 
@@ -708,8 +708,8 @@ void obj_update(void)
 {
     Object* obj;
     Object* obj_next = NULL;
-    AffectData* paf;
-    AffectData* paf_next = NULL;
+    Affect* paf;
+    Affect* paf_next = NULL;
 
     for (obj = obj_list; obj != NULL; obj = obj_next) {
         Mobile* rch;

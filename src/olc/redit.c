@@ -18,13 +18,13 @@
 #include "tables.h"
 
 #include "entities/object.h"
-#include "entities/room_data.h"
+#include "entities/room.h"
 
 #define REDIT(fun) bool fun( Mobile *ch, char *argument )
 
-void display_resets(Mobile* ch, RoomData* pRoom);
+void display_resets(Mobile* ch, Room* pRoom);
 
-RoomData xRoom;
+Room xRoom;
 
 #ifdef U
 #define OLD_U U
@@ -74,7 +74,7 @@ const OlcCmdEntry room_olc_comm_table[] = {
 /* Entry point for editing room_index_data. */
 void do_redit(Mobile* ch, char* argument)
 {
-    RoomData* pRoom;
+    Room* pRoom;
     char arg1[MIL];
 
     READ_ARG(arg1);
@@ -99,13 +99,13 @@ void do_redit(Mobile* ch, char* argument)
 
         if (redit_create(ch, argument)) {
             char_from_room(ch);
-            char_to_room(ch, (RoomData*)ch->desc->pEdit);
+            char_to_room(ch, (Room*)ch->desc->pEdit);
             SET_BIT(pRoom->area->area_flags, AREA_CHANGED);
             pRoom = ch->in_room;
         }
     }
     else if (!IS_NULLSTR(arg1)) {
-        pRoom = get_room_data(atoi(arg1));
+        pRoom = get_room(atoi(arg1));
 
         if (pRoom == NULL) {
             send_to_char("{jThat room does not exist.{x\n\r", ch);
@@ -136,13 +136,13 @@ void do_redit(Mobile* ch, char* argument)
 /* Room Interpreter, called by do_redit. */
 void redit(Mobile* ch, char* argument)
 {
-    RoomData* pRoom;
-    AreaData* pArea;
+    Room* pRoom;
+    Area* area;
 
     EDIT_ROOM(ch, pRoom);
-    pArea = pRoom->area;
+    area = pRoom->area;
 
-    if (!IS_BUILDER(ch, pArea)) {
+    if (!IS_BUILDER(ch, area)) {
         send_to_char("{jREdit:  Insufficient security to modify room.{x\n\r", ch);
         edit_done(ch);
         return;
@@ -167,8 +167,8 @@ void redit(Mobile* ch, char* argument)
 
 REDIT(redit_rlist)
 {
-    RoomData* pRoomIndex;
-    AreaData* pArea;
+    Room* pRoomIndex;
+    Area* area;
     Buffer* buf1;
     char arg[MAX_INPUT_LENGTH]  = { 0 };
     bool found;
@@ -177,12 +177,12 @@ REDIT(redit_rlist)
 
     one_argument(argument, arg);
 
-    pArea = ch->in_room->area;
+    area = ch->in_room->area;
     buf1 = new_buf();
     found = false;
 
-    for (vnum = pArea->min_vnum; vnum <= pArea->max_vnum; vnum++) {
-        if ((pRoomIndex = get_room_data(vnum))) {
+    for (vnum = area->min_vnum; vnum <= area->max_vnum; vnum++) {
+        if ((pRoomIndex = get_room(vnum))) {
             found = true;
             addf_buf(buf1, "{|[{*%5d{|]{x %-17.17s ",
                 vnum, capitalize(pRoomIndex->name));
@@ -208,7 +208,7 @@ REDIT(redit_rlist)
 REDIT(redit_mlist)
 {
     MobPrototype* p_mob_proto;
-    AreaData* pArea;
+    Area* area;
     char        buf[MAX_STRING_LENGTH];
     Buffer* buf1;
     char        arg[MAX_INPUT_LENGTH];
@@ -223,11 +223,11 @@ REDIT(redit_mlist)
     }
 
     buf1 = new_buf();
-    pArea = ch->in_room->area;
+    area = ch->in_room->area;
     fAll = !str_cmp(arg, "all");
     found = false;
 
-    for (vnum = pArea->min_vnum; vnum <= pArea->max_vnum; vnum++) {
+    for (vnum = area->min_vnum; vnum <= area->max_vnum; vnum++) {
         if ((p_mob_proto = get_mob_prototype(vnum)) != NULL) {
             if (fAll || is_name(arg, p_mob_proto->name)) {
                 found = true;
@@ -257,7 +257,7 @@ REDIT(redit_mlist)
 // Room Editor Functions.
 REDIT(redit_show)
 {
-    RoomData* pRoom;
+    Room* pRoom;
     Object* obj;
     Mobile* rch;
     int cnt = 0;
@@ -344,7 +344,7 @@ REDIT(redit_show)
 
         addf_buf(out, "    %-5s:  {|[{*%5d{|]{x Key: {|[{*%5d{|]{x",
             capitalize(dir_list[cnt].name),
-            pRoom->exit[cnt]->u1.to_room ? pRoom->exit[cnt]->u1.to_room->vnum : 
+            pRoom->exit[cnt]->to_room ? pRoom->exit[cnt]->to_room->vnum : 
             0, pRoom->exit[cnt]->key);
 
     /*
@@ -403,7 +403,7 @@ REDIT(redit_show)
 /* Local function. */
 bool change_exit(Mobile* ch, char* argument, Direction door)
 {
-    RoomData* pRoom;
+    Room* pRoom;
     char command[MAX_INPUT_LENGTH];
     char arg[MAX_INPUT_LENGTH];
     int  value;
@@ -415,25 +415,25 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
      * ----------------------------------------
      */
     if ((value = flag_value(exit_flag_table, argument)) != NO_FLAG) {
-        RoomData* pToRoom;
-        ExitData* pExit, * pNExit;
+        Room* pToRoom;
+        RoomExit* room_exit, * pNExit;
         int16_t rev;                                    /* ROM OLC */
 
-        pExit = pRoom->exit[door];
+        room_exit = pRoom->exit[door];
 
-        if (!pExit) {
+        if (!room_exit) {
             send_to_char("{jThere is no exit in that direction.{x\n\r", ch);
             return false;
         }
 
         // This room.
-        TOGGLE_BIT(pExit->exit_reset_flags, value);
+        TOGGLE_BIT(room_exit->exit_reset_flags, value);
 
         /* Don't toggle exit_flags because it can be changed by players. */
-        pExit->exit_flags = pExit->exit_reset_flags;
+        room_exit->exit_flags = room_exit->exit_reset_flags;
 
         // Connected room.
-        pToRoom = pExit->u1.to_room;
+        pToRoom = room_exit->to_room;
         rev = dir_list[door].rev_dir;
         pNExit = pToRoom->exit[rev];
 
@@ -462,19 +462,19 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
     }
 
     if (!str_cmp(command, "delete")) {
-        RoomData* pToRoom;
-        ExitData* pExit, * pNExit;
+        Room* pToRoom;
+        RoomExit* room_exit, * pNExit;
         int16_t rev;
         bool rDeleted = false;
 
-        pExit = pRoom->exit[door];
+        room_exit = pRoom->exit[door];
 
-        if (!pExit) {
+        if (!room_exit) {
             send_to_char("{jREdit: Cannot delete a null exit.{x\n\r", ch);
             return false;
         }
 
-        pToRoom = pExit->u1.to_room;
+        pToRoom = room_exit->to_room;
 
         // Remove ToRoom Exit.
         if (str_cmp(arg, "simple") && pToRoom) {
@@ -482,9 +482,9 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
             pNExit = pToRoom->exit[rev];
 
             if (pNExit) {
-                if (pNExit->u1.to_room == pRoom) {
+                if (pNExit->to_room == pRoom) {
                     rDeleted = true;
-                    free_exit(pToRoom->exit[rev]);
+                    free_room_exit(pToRoom->exit[rev]);
                     pToRoom->exit[rev] = NULL;
                 }
                 else
@@ -496,7 +496,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         // Remove this exit.
         printf_to_char(ch, "{jExit %s to room %d deleted.{x\n\r",
             dir_list[door].name, pRoom->vnum);
-        free_exit(pRoom->exit[door]);
+        free_room_exit(pRoom->exit[door]);
         pRoom->exit[door] = NULL;
 
         if (rDeleted)
@@ -507,15 +507,15 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
     }
 
     if (!str_cmp(command, "link")) {
-        ExitData* pExit;
-        RoomData* pRoomIndex;
+        RoomExit* room_exit;
+        Room* pRoomIndex;
 
         if (arg[0] == '\0' || !is_number(arg)) {
             send_to_char("Syntax:  {*[direction] link [vnum]{x\n\r", ch);
             return false;
         }
 
-        pRoomIndex = get_room_data(atoi(arg));
+        pRoomIndex = get_room(atoi(arg));
 
         if (!pRoomIndex) {
             send_to_char("{jREdit:  Cannot link to non-existent room.{x\n\r", ch);
@@ -527,31 +527,31 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
             return false;
         }
 
-        pExit = pRoom->exit[door];
+        room_exit = pRoom->exit[door];
 
-        if (pExit) {
+        if (room_exit) {
             send_to_char("{jREdit : That exit already exists.{x\n\r", ch);
             return false;
         }
 
-        pExit = pRoomIndex->exit[dir_list[door].rev_dir];
+        room_exit = pRoomIndex->exit[dir_list[door].rev_dir];
 
-        if (pExit) {
+        if (room_exit) {
             send_to_char("{jREdit:  Remote side's exit already exists.{x\n\r", ch);
             return false;
         }
 
-        pExit = new_exit();
-        pExit->u1.to_room = pRoomIndex;
-        pExit->orig_dir = door;
-        pRoom->exit[door] = pExit;
+        room_exit = new_room_exit();
+        room_exit->to_room = pRoomIndex;
+        room_exit->orig_dir = door;
+        pRoom->exit[door] = room_exit;
 
         // Now the other side
         door = dir_list[door].rev_dir;
-        pExit = new_exit();
-        pExit->u1.to_room = pRoom;
-        pExit->orig_dir = door;
-        pRoomIndex->exit[door] = pExit;
+        room_exit = new_room_exit();
+        room_exit->to_room = pRoom;
+        room_exit->orig_dir = door;
+        pRoomIndex->exit[door] = room_exit;
 
         SET_BIT(pRoom->area->area_flags, AREA_CHANGED);
 
@@ -571,7 +571,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         redit_create(ch, arg);
 
         // Remember the new room...
-        RoomData* new_room = (RoomData*)ch->desc->pEdit;
+        Room* new_room = (Room*)ch->desc->pEdit;
 
         // ...go back to the old room and create the exit...
         ch->desc->pEdit = U(pRoom);
@@ -589,8 +589,8 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
     }
 
     if (!str_cmp(command, "room")) {
-        ExitData* pExit;
-        RoomData* target;
+        RoomExit* room_exit;
+        Room* target;
 
         if (arg[0] == '\0' || !is_number(arg)) {
             send_to_char("Syntax:  {*[direction] room [vnum]{x\n\r", ch);
@@ -599,7 +599,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
 
         value = atoi(arg);
 
-        if ((target = get_room_data(value)) == NULL) {
+        if ((target = get_room(value)) == NULL) {
             send_to_char("{jREdit:  Cannot link to non-existant room.{x\n\r", ch);
             return false;
         }
@@ -609,16 +609,16 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
             return false;
         }
 
-        if ((pExit = pRoom->exit[door]) == NULL) {
-            pExit = new_exit();
-            pRoom->exit[door] = pExit;
+        if ((room_exit = pRoom->exit[door]) == NULL) {
+            room_exit = new_room_exit();
+            pRoom->exit[door] = room_exit;
         }
 
-        pExit->u1.to_room = target;
-        pExit->orig_dir = door;
+        room_exit->to_room = target;
+        room_exit->orig_dir = door;
 
-        if ((pExit = target->exit[dir_list[door].rev_dir]) != NULL
-            && pExit->u1.to_room != pRoom)
+        if ((room_exit = target->exit[dir_list[door].rev_dir]) != NULL
+            && room_exit->to_room != pRoom)
             printf_to_char(ch, "{jWARNING{x : the exit to room %d does not return here.\n\r",
                 target->vnum);
 
@@ -627,7 +627,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
     }
 
     if (!str_cmp(command, "key")) {
-        ExitData* pExit;
+        RoomExit* room_exit;
         ObjPrototype* pObj;
 
         if (arg[0] == '\0' || !is_number(arg)) {
@@ -635,7 +635,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
             return false;
         }
 
-        if ((pExit = pRoom->exit[door]) == NULL) {
+        if ((room_exit = pRoom->exit[door]) == NULL) {
             send_to_char("{jThat exit does not exist.{x\n\r", ch);
             return false;
         }
@@ -652,14 +652,14 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
             return false;
         }
 
-        pExit->key = (int16_t)atoi(arg);
+        room_exit->key = (int16_t)atoi(arg);
 
         send_to_char("{jExit key set.{x\n\r", ch);
         return true;
     }
 
     if (!str_cmp(command, "name")) {
-        ExitData* pExit;
+        RoomExit* room_exit;
 
         if (arg[0] == '\0') {
             send_to_char("Syntax:  {*[direction] name [string]\n\r", ch);
@@ -667,32 +667,32 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
             return false;
         }
 
-        if ((pExit = pRoom->exit[door]) == NULL) {
+        if ((room_exit = pRoom->exit[door]) == NULL) {
             send_to_char("{jThat exit does not exist.{x\n\r", ch);
             return false;
         }
 
-        free_string(pExit->keyword);
+        free_string(room_exit->keyword);
 
         if (str_cmp(arg, "none"))
-            pExit->keyword = str_dup(arg);
+            room_exit->keyword = str_dup(arg);
         else
-            pExit->keyword = str_dup("");
+            room_exit->keyword = str_dup("");
 
         send_to_char("{jExit name set.{x\n\r", ch);
         return true;
     }
 
     if (!str_prefix(command, "description")) {
-        ExitData* pExit;
+        RoomExit* room_exit;
 
         if (arg[0] == '\0') {
-            if ((pExit = pRoom->exit[door]) == NULL) {
+            if ((room_exit = pRoom->exit[door]) == NULL) {
                 send_to_char("{jThat exit does not exist.{x\n\r", ch);
                 return false;
             }
 
-            string_append(ch, &pExit->description);
+            string_append(ch, &room_exit->description);
             return true;
         }
 
@@ -705,10 +705,10 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
 
 REDIT(redit_create)
 {
-    AreaData* pArea;
-    RoomData* pRoom;
+    Area* area;
+    Room* pRoom;
     VNUM value;
-    int iHash;
+    int hash;
 
     EDIT_ROOM(ch, pRoom);
 
@@ -719,34 +719,34 @@ REDIT(redit_create)
         return false;
     }
 
-    pArea = get_vnum_area(value);
-    if (!pArea) {
+    area = get_vnum_area(value);
+    if (!area) {
         send_to_char("{jREdit:  That vnum is not assigned an area.{x\n\r", ch);
         return false;
     }
 
-    if (!IS_BUILDER(ch, pArea)) {
+    if (!IS_BUILDER(ch, area)) {
         send_to_char("{jREdit:  Vnum in an area you cannot build in.{x\n\r", ch);
         return false;
     }
 
-    if (get_room_data(value)) {
+    if (get_room(value)) {
         send_to_char("{jREdit:  Room vnum already exists.{x\n\r", ch);
         return false;
     }
 
-    pRoom = new_room_index();
-    pRoom->area = pArea;
+    pRoom = new_room();
+    pRoom->area = area;
     pRoom->vnum = value;
-    pRoom->sector_type = pArea->sector;
+    pRoom->sector_type = area->sector;
     pRoom->room_flags = 0;
 
     if (value > top_vnum_room)
         top_vnum_room = value;
 
-    iHash = value % MAX_KEY_HASH;
-    pRoom->next = room_index_hash[iHash];
-    room_index_hash[iHash] = pRoom;
+    hash = value % MAX_KEY_HASH;
+    pRoom->next = room_vnum_hash[hash];
+    room_vnum_hash[hash] = pRoom;
 
     set_editor(ch->desc, ED_ROOM, U(pRoom));
 
@@ -756,7 +756,7 @@ REDIT(redit_create)
 
 REDIT(redit_format)
 {
-    RoomData* pRoom;
+    Room* pRoom;
 
     EDIT_ROOM(ch, pRoom);
 
@@ -768,13 +768,13 @@ REDIT(redit_format)
 
 REDIT(redit_mreset)
 {
-    RoomData* pRoom;
+    Room* pRoom;
     MobPrototype* p_mob_proto;
     Mobile* newmob;
     char arg[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
 
-    ResetData* pReset;
+    Reset* reset;
 
     EDIT_ROOM(ch, pRoom);
 
@@ -797,13 +797,13 @@ REDIT(redit_mreset)
     }
 
     // Create the mobile reset.
-    pReset = new_reset_data();
-    pReset->command = 'M';
-    pReset->arg1 = p_mob_proto->vnum;
-    pReset->arg2 = is_number(arg2) ? (int16_t)atoi(arg2) : MAX_MOB;
-    pReset->arg3 = pRoom->vnum;
-    pReset->arg4 = is_number(argument) ? (int16_t)atoi(argument) : 1;
-    add_reset(pRoom, pReset, 0/* Last slot*/);
+    reset = new_reset();
+    reset->command = 'M';
+    reset->arg1 = p_mob_proto->vnum;
+    reset->arg2 = is_number(arg2) ? (int16_t)atoi(arg2) : MAX_MOB;
+    reset->arg3 = pRoom->vnum;
+    reset->arg4 = is_number(argument) ? (int16_t)atoi(argument) : 1;
+    add_reset(pRoom, reset, 0/* Last slot*/);
 
     // Create the mobile.
     newmob = create_mobile(p_mob_proto);
@@ -813,15 +813,15 @@ REDIT(redit_mreset)
         "There will be a maximum of %d in the area, and %d in this room.{x\n\r",
         capitalize(p_mob_proto->short_descr),
         p_mob_proto->vnum,
-        pReset->arg2,
-        pReset->arg4);
+        reset->arg2,
+        reset->arg4);
     act("$n has created $N!", ch, NULL, newmob, TO_ROOM);
     return true;
 }
 
 REDIT(redit_oreset)
 {
-    RoomData* pRoom;
+    Room* pRoom;
     ObjPrototype* obj_proto;
     Object* newobj;
     Object* to_obj;
@@ -830,7 +830,7 @@ REDIT(redit_oreset)
     char arg2[MAX_INPUT_LENGTH];
     LEVEL olevel = 0;
 
-    ResetData* pReset;
+    Reset* reset;
     char output[MAX_STRING_LENGTH];
 
     EDIT_ROOM(ch, pRoom);
@@ -858,13 +858,13 @@ REDIT(redit_oreset)
 
     // Load into room.
     if (arg2[0] == '\0') {
-        pReset = new_reset_data();
-        pReset->command = 'O';
-        pReset->arg1 = obj_proto->vnum;
-        pReset->arg2 = 0;
-        pReset->arg3 = pRoom->vnum;
-        pReset->arg4 = 0;
-        add_reset(pRoom, pReset, 0/* Last slot*/);
+        reset = new_reset();
+        reset->command = 'O';
+        reset->arg1 = obj_proto->vnum;
+        reset->arg2 = 0;
+        reset->arg3 = pRoom->vnum;
+        reset->arg4 = 0;
+        add_reset(pRoom, reset, 0/* Last slot*/);
 
         newobj = create_object(obj_proto, (int16_t)number_fuzzy(olevel));
         obj_to_room(newobj, pRoom);
@@ -878,13 +878,13 @@ REDIT(redit_oreset)
     // Load into object's inventory.
         if (argument[0] == '\0'
             && ((to_obj = get_obj_list(ch, arg2, pRoom->contents)) != NULL)) {
-            pReset = new_reset_data();
-            pReset->command = 'P';
-            pReset->arg1 = obj_proto->vnum;
-            pReset->arg2 = 0;
-            pReset->arg3 = to_obj->prototype->vnum;
-            pReset->arg4 = 1;
-            add_reset(pRoom, pReset, 0/* Last slot*/);
+            reset = new_reset();
+            reset->command = 'P';
+            reset->arg1 = obj_proto->vnum;
+            reset->arg2 = 0;
+            reset->arg3 = to_obj->prototype->vnum;
+            reset->arg4 = 1;
+            add_reset(pRoom, reset, 0/* Last slot*/);
 
             newobj = create_object(obj_proto, (int16_t)number_fuzzy(olevel));
             newobj->cost = 0;
@@ -926,16 +926,16 @@ REDIT(redit_oreset)
                     return false;
                 }
 
-                pReset = new_reset_data();
-                pReset->arg1 = obj_proto->vnum;
-                pReset->arg2 = (int16_t)wearloc;
-                if (pReset->arg2 == WEAR_UNHELD)
-                    pReset->command = 'G';
+                reset = new_reset();
+                reset->arg1 = obj_proto->vnum;
+                reset->arg2 = (int16_t)wearloc;
+                if (reset->arg2 == WEAR_UNHELD)
+                    reset->command = 'G';
                 else
-                    pReset->command = 'E';
-                pReset->arg3 = wearloc;
+                    reset->command = 'E';
+                reset->arg3 = wearloc;
 
-                add_reset(pRoom, pReset, 0/* Last slot*/);
+                add_reset(pRoom, reset, 0/* Last slot*/);
 
                 olevel = URANGE(0, to_mob->level - 2, LEVEL_HERO);
                 newobj = create_object(obj_proto, (int16_t)number_fuzzy(olevel));
@@ -951,7 +951,7 @@ REDIT(redit_oreset)
                     case ITEM_STAFF:    olevel = (LEVEL)number_range(15, 25);    break;
                     case ITEM_ARMOR:    olevel = (LEVEL)number_range(5, 15);    break;
                     case ITEM_WEAPON:
-                        if (pReset->command == 'G')
+                        if (reset->command == 'G')
                             olevel = (LEVEL)number_range(5, 15);
                         else
                             olevel = (LEVEL)number_fuzzy(olevel);
@@ -959,21 +959,21 @@ REDIT(redit_oreset)
                     }
 
                     newobj = create_object(obj_proto, olevel);
-                    if (pReset->arg2 == WEAR_UNHELD)
+                    if (reset->arg2 == WEAR_UNHELD)
                         SET_BIT(newobj->extra_flags, ITEM_INVENTORY);
                 }
                 else
                     newobj = create_object(obj_proto, (int16_t)number_fuzzy(olevel));
 
                 obj_to_char(newobj, to_mob);
-                if (pReset->command == 'E')
-                    equip_char(to_mob, newobj, (int16_t)pReset->arg3);
+                if (reset->command == 'E')
+                    equip_char(to_mob, newobj, (int16_t)reset->arg3);
 
                 sprintf(output, "%s (%d) has been loaded "
                     "%s of %s (%d) and added to resets.\n\r",
                     capitalize(obj_proto->short_descr),
                     obj_proto->vnum,
-                    flag_string(wear_loc_strings, pReset->arg3),
+                    flag_string(wear_loc_strings, reset->arg3),
                     to_mob->short_descr,
                     to_mob->prototype->vnum);
                 send_to_char(output, ch);
@@ -990,7 +990,7 @@ REDIT(redit_oreset)
 
 REDIT(redit_owner)
 {
-    RoomData* pRoom;
+    Room* pRoom;
 
     EDIT_ROOM(ch, pRoom);
 
@@ -1010,17 +1010,17 @@ REDIT(redit_owner)
     return true;
 }
 
-void showresets(Mobile* ch, Buffer* buf, AreaData* pArea, MobPrototype* mob, ObjPrototype* obj)
+void showresets(Mobile* ch, Buffer* buf, Area* area, MobPrototype* mob, ObjPrototype* obj)
 {
-    RoomData* room;
+    Room* room;
     MobPrototype* pLastMob;
-    ResetData* reset;
+    Reset* reset;
     char buf2[MIL];
     int key, lastmob;
 
     for (key = 0; key < MAX_KEY_HASH; ++key)
-        FOR_EACH(room, room_index_hash[key])
-            if (room->area == pArea) {
+        FOR_EACH(room, room_vnum_hash[key])
+            if (room->area == area) {
                 lastmob = -1;
                 pLastMob = NULL;
 
@@ -1049,7 +1049,7 @@ void showresets(Mobile* ch, Buffer* buf, AreaData* pArea, MobPrototype* mob, Obj
             }
 }
 
-void listobjreset(Mobile* ch, Buffer* buf, AreaData* pArea)
+void listobjreset(Mobile* ch, Buffer* buf, Area* area)
 {
     ObjPrototype* obj;
     int key;
@@ -1058,11 +1058,11 @@ void listobjreset(Mobile* ch, Buffer* buf, AreaData* pArea)
 
     for (key = 0; key < MAX_KEY_HASH; ++key)
         FOR_EACH(obj, obj_proto_hash[key])
-            if (obj->area == pArea)
-                showresets(ch, buf, pArea, 0, obj);
+            if (obj->area == area)
+                showresets(ch, buf, area, 0, obj);
 }
 
-void listmobreset(Mobile* ch, Buffer* buf, AreaData* pArea)
+void listmobreset(Mobile* ch, Buffer* buf, Area* area)
 {
     MobPrototype* mob;
     int key;
@@ -1071,19 +1071,19 @@ void listmobreset(Mobile* ch, Buffer* buf, AreaData* pArea)
 
     for (key = 0; key < MAX_KEY_HASH; ++key)
         FOR_EACH(mob, mob_prototype_hash[key])
-            if (mob->area == pArea)
-                showresets(ch, buf, pArea, mob, 0);
+            if (mob->area == area)
+                showresets(ch, buf, area, mob, 0);
 }
 
 REDIT(redit_listreset)
 {
-    AreaData* pArea;
-    RoomData* pRoom;
+    Area* area;
+    Room* pRoom;
     Buffer* buf;
 
     EDIT_ROOM(ch, pRoom);
 
-    pArea = pRoom->area;
+    area = pRoom->area;
 
     if (IS_NULLSTR(argument)) {
         send_to_char("Syntax : listreset [obj/mob]\n\r", ch);
@@ -1093,9 +1093,9 @@ REDIT(redit_listreset)
     buf = new_buf();
 
     if (!str_cmp(argument, "obj"))
-        listobjreset(ch, buf, pArea);
+        listobjreset(ch, buf, area);
     else if (!str_cmp(argument, "mob"))
-        listmobreset(ch, buf, pArea);
+        listmobreset(ch, buf, area);
     else {
         send_to_char("AEdit : Argument must be either 'obj' or 'mob'.\n\r", ch);
         free_buf(buf);
@@ -1112,7 +1112,7 @@ REDIT(redit_checkobj)
     ObjPrototype* obj;
     int key;
     bool fAll = !str_cmp(argument, "all");
-    RoomData* room;
+    Room* room;
 
     EDIT_ROOM(ch, room);
 
@@ -1126,8 +1126,8 @@ REDIT(redit_checkobj)
 
 REDIT(redit_checkrooms)
 {
-    RoomData* room, * thisroom;
-    int iHash;
+    Room* room, * thisroom;
+    int hash;
     bool fAll = false;
 
     if (!str_cmp(argument, "all"))
@@ -1141,8 +1141,8 @@ REDIT(redit_checkrooms)
 
     EDIT_ROOM(ch, thisroom);
 
-    for (iHash = 0; iHash < MAX_KEY_HASH; iHash++)
-        FOR_EACH(room, room_index_hash[iHash])
+    for (hash = 0; hash < MAX_KEY_HASH; hash++)
+        FOR_EACH(room, room_vnum_hash[hash])
             if (room->reset_num == 0 && (fAll || room->area == thisroom->area))
                 printf_to_char(ch, "Room %d has no resets.\n\r", room->vnum);
 
@@ -1152,7 +1152,7 @@ REDIT(redit_checkrooms)
 REDIT(redit_checkmob)
 {
     MobPrototype* mob;
-    RoomData* room;
+    Room* room;
     int key;
     bool fAll = !str_cmp(argument, "all");
 
@@ -1168,7 +1168,7 @@ REDIT(redit_checkmob)
 
 REDIT(redit_copy)
 {
-    RoomData* this, * that;
+    Room* this, * that;
     VNUM vnum;
 
     EDIT_ROOM(ch, this);
@@ -1185,7 +1185,7 @@ REDIT(redit_copy)
         return false;
     }
 
-    that = get_room_data(vnum);
+    that = get_room(vnum);
 
     if (!that || !IS_BUILDER(ch, that->area) || that == this) {
         send_to_char("REdit : That room does not exist, or cannot be copied by you.\n\r", ch);
@@ -1217,7 +1217,7 @@ ED_FUN_DEC(ed_direction)
 
 REDIT(redit_clear)
 {
-    RoomData* pRoom;
+    Room* pRoom;
     int i;
 
     if (!IS_NULLSTR(argument)) {
@@ -1240,7 +1240,7 @@ REDIT(redit_clear)
     pRoom->description = str_dup("");
 
     for (i = 0; i < DIR_MAX; i++) {
-        free_exit(pRoom->exit[i]);
+        free_room_exit(pRoom->exit[i]);
         pRoom->exit[i] = NULL;
     }
 
@@ -1249,9 +1249,9 @@ REDIT(redit_clear)
 }
 
 
-void display_resets(Mobile* ch, RoomData* pRoom)
+void display_resets(Mobile* ch, Room* pRoom)
 {
-    ResetData* pReset;
+    Reset* reset;
     MobPrototype* pMob = NULL;
     char    buf[MAX_STRING_LENGTH] = "";
     char    final[MAX_STRING_LENGTH] = "";
@@ -1265,39 +1265,39 @@ void display_resets(Mobile* ch, RoomData* pRoom)
         "{===== ======== ============= =================== ======== ===== ==========="
         "\n\r", ch);
 
-    FOR_EACH(pReset, pRoom->reset_first) {
+    FOR_EACH(reset, pRoom->reset_first) {
         ObjPrototype* pObj;
         MobPrototype* p_mob_proto;
         ObjPrototype* obj_proto;
         ObjPrototype* pObjToIndex;
-        RoomData* pRoomIndex;
+        Room* pRoomIndex;
 
         final[0] = '\0';
         sprintf(final, "{|[{*%2d{|]{x ", ++iReset);
 
-        switch (pReset->command) {
+        switch (reset->command) {
         default:
-            sprintf(buf, "Bad reset command: %c.", pReset->command);
+            sprintf(buf, "Bad reset command: %c.", reset->command);
             strcat(final, buf);
             break;
 
         case 'M':
-            if (!(p_mob_proto = get_mob_prototype(pReset->arg1))) {
-                sprintf(buf, "Load Mobile - Bad Mob %d\n\r", pReset->arg1);
+            if (!(p_mob_proto = get_mob_prototype(reset->arg1))) {
+                sprintf(buf, "Load Mobile - Bad Mob %d\n\r", reset->arg1);
                 strcat(final, buf);
                 continue;
             }
 
-            if (!(pRoomIndex = get_room_data(pReset->arg3))) {
-                sprintf(buf, "Load Mobile - Bad Room %d\n\r", pReset->arg3);
+            if (!(pRoomIndex = get_room(reset->arg3))) {
+                sprintf(buf, "Load Mobile - Bad Room %d\n\r", reset->arg3);
                 strcat(final, buf);
                 continue;
             }
 
             pMob = p_mob_proto;
             sprintf(buf, "M{|[{*%5d{|]{x %-13.13s                     R{|[{*%5d{|]{x %2d-%2d %-15.15s\n\r",
-                pReset->arg1, pMob->short_descr, pReset->arg3,
-                pReset->arg2, pReset->arg4, pRoomIndex->name);
+                reset->arg1, pMob->short_descr, reset->arg3,
+                reset->arg2, reset->arg4, pRoomIndex->name);
             strcat(final, buf);
 
             /*
@@ -1305,9 +1305,9 @@ void display_resets(Mobile* ch, RoomData* pRoom)
              * -------------------
              */
             {
-                RoomData* pRoomIndexPrev;
+                Room* pRoomIndexPrev;
 
-                pRoomIndexPrev = get_room_data(pRoomIndex->vnum - 1);
+                pRoomIndexPrev = get_room(pRoomIndex->vnum - 1);
                 if (pRoomIndexPrev
                     && IS_SET(pRoomIndexPrev->room_flags, ROOM_PET_SHOP))
                     final[5] = 'P';
@@ -1316,53 +1316,53 @@ void display_resets(Mobile* ch, RoomData* pRoom)
             break;
 
         case 'O':
-            if (!(obj_proto = get_object_prototype(pReset->arg1))) {
+            if (!(obj_proto = get_object_prototype(reset->arg1))) {
                 sprintf(buf, "Load Object - Bad Object %d\n\r",
-                    pReset->arg1);
+                    reset->arg1);
                 strcat(final, buf);
                 continue;
             }
 
             pObj = obj_proto;
 
-            if (!(pRoomIndex = get_room_data(pReset->arg3))) {
-                sprintf(buf, "Load Object - Bad Room %d\n\r", pReset->arg3);
+            if (!(pRoomIndex = get_room(reset->arg3))) {
+                sprintf(buf, "Load Object - Bad Room %d\n\r", reset->arg3);
                 strcat(final, buf);
                 continue;
             }
 
             sprintf(buf, "O{|[{*%5d{|]{x %-13.13s                     "
                 "R{|[{*%5d{|]{x       %-15.15s\n\r",
-                pReset->arg1, pObj->short_descr,
-                pReset->arg3, pRoomIndex->name);
+                reset->arg1, pObj->short_descr,
+                reset->arg3, pRoomIndex->name);
             strcat(final, buf);
 
             break;
 
         case 'P':
-            if (!(obj_proto = get_object_prototype(pReset->arg1))) {
+            if (!(obj_proto = get_object_prototype(reset->arg1))) {
                 sprintf(buf, "Put Object - Bad Object %d\n\r",
-                    pReset->arg1);
+                    reset->arg1);
                 strcat(final, buf);
                 continue;
             }
 
             pObj = obj_proto;
 
-            if (!(pObjToIndex = get_object_prototype(pReset->arg3))) {
+            if (!(pObjToIndex = get_object_prototype(reset->arg3))) {
                 sprintf(buf, "Put Object - Bad To Object %d\n\r",
-                    pReset->arg3);
+                    reset->arg3);
                 strcat(final, buf);
                 continue;
             }
 
             sprintf(buf,
                 "O{|[{*%5d{|]{x %-13.13s inside              O{|[{*%5d{|]{x %2d-%2d %-15.15s\n\r",
-                pReset->arg1,
+                reset->arg1,
                 pObj->short_descr,
-                pReset->arg3,
-                pReset->arg2,
-                pReset->arg4,
+                reset->arg3,
+                reset->arg2,
+                reset->arg4,
                 pObjToIndex->short_descr);
             strcat(final, buf);
 
@@ -1370,9 +1370,9 @@ void display_resets(Mobile* ch, RoomData* pRoom)
 
         case 'G':
         case 'E':
-            if (!(obj_proto = get_object_prototype(pReset->arg1))) {
+            if (!(obj_proto = get_object_prototype(reset->arg1))) {
                 sprintf(buf, "Give/Equip Object - Bad Object %d\n\r",
-                    pReset->arg1);
+                    reset->arg1);
                 strcat(final, buf);
                 continue;
             }
@@ -1388,7 +1388,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
             if (pMob->pShop) {
                 sprintf(buf,
                     "O{|[{*%5d{|]{x %-13.13s in the inventory of S{|[{*%5d{|]{x       %-15.15s\n\r",
-                    pReset->arg1,
+                    reset->arg1,
                     pObj->short_descr,
                     pMob->vnum,
                     pMob->short_descr);
@@ -1396,11 +1396,11 @@ void display_resets(Mobile* ch, RoomData* pRoom)
             else
                 sprintf(buf,
                     "O{|[{*%5d{|]{x %-13.13s %-19.19s M{|[{*%5d{|]{x       %-15.15s\n\r",
-                    pReset->arg1,
+                    reset->arg1,
                     pObj->short_descr,
-                    (pReset->command == 'G') ?
+                    (reset->command == 'G') ?
                     flag_string(wear_loc_strings, WEAR_UNHELD)
-                    : flag_string(wear_loc_strings, pReset->arg3),
+                    : flag_string(wear_loc_strings, reset->arg3),
                     pMob->vnum,
                     pMob->short_descr);
             strcat(final, buf);
@@ -1412,26 +1412,26 @@ void display_resets(Mobile* ch, RoomData* pRoom)
              * line in the case 'D' in load_resets in db.c and here.
              */
         case 'D':
-            pRoomIndex = get_room_data(pReset->arg1);
+            pRoomIndex = get_room(reset->arg1);
             sprintf(buf, "R{|[{*%5d{|]{x %s door of %-19.19s reset to %s\n\r",
-                pReset->arg1,
-                capitalize(dir_list[pReset->arg2].name),
+                reset->arg1,
+                capitalize(dir_list[reset->arg2].name),
                 pRoomIndex->name,
-                flag_string(door_resets, pReset->arg3));
+                flag_string(door_resets, reset->arg3));
             strcat(final, buf);
 
             break;
             // End Doors Comment.
         case 'R':
-            if (!(pRoomIndex = get_room_data(pReset->arg1))) {
+            if (!(pRoomIndex = get_room(reset->arg1))) {
                 sprintf(buf, "Randomize Exits - Bad Room %d\n\r",
-                    pReset->arg1);
+                    reset->arg1);
                 strcat(final, buf);
                 continue;
             }
 
             sprintf(buf, "R{|[{*%5d{|]{x Exits are randomized in %s\n\r",
-                pReset->arg1, pRoomIndex->name);
+                reset->arg1, pRoomIndex->name);
             strcat(final, buf);
 
             break;
@@ -1447,37 +1447,37 @@ void display_resets(Mobile* ch, RoomData* pRoom)
  Purpose:	Inserts a new reset in the given index slot.
  Called by:	do_resets(olc.c).
  ****************************************************************************/
-void    add_reset(RoomData* room, ResetData* pReset, int indice)
+void add_reset(Room* room, Reset* reset, int index)
 {
-    ResetData* reset;
-    int     iReset = 0;
+    Reset* room_reset;
+    int curr_idx = 0;
 
     if (!room->reset_first) {
-        room->reset_first = pReset;
-        room->reset_last = pReset;
-        pReset->next = NULL;
+        room->reset_first = reset;
+        room->reset_last = reset;
+        reset->next = NULL;
         return;
     }
 
-    indice--;
+    index--;
 
-    if (indice == 0)				/* First slot (1) selected. */
+    if (index == 0) // First slot (1) selected.
     {
-        pReset->next = room->reset_first;
-        room->reset_first = pReset;
+        reset->next = room->reset_first;
+        room->reset_first = reset;
         return;
     }
 
     // If negative slot( <= 0 selected) then this will find the last.
-    for (reset = room->reset_first; reset->next; NEXT_LINK(reset)) {
-        if (++iReset == indice)
+    FOR_EACH(room_reset, room->reset_first) {
+        if (++curr_idx == index)
             break;
     }
 
-    pReset->next = reset->next;
-    reset->next = pReset;
-    if (!pReset->next)
-        room->reset_last = pReset;
+    reset->next = reset->next;
+    reset->next = reset;
+    if (!reset->next)
+        room->reset_last = reset;
     return;
 }
 
@@ -1498,7 +1498,7 @@ void do_resets(Mobile* ch, char* argument)
     char arg5[MAX_INPUT_LENGTH];
     char arg6[MAX_INPUT_LENGTH];
     char arg7[MAX_INPUT_LENGTH];
-    ResetData* pReset = NULL;
+    Reset* reset = NULL;
 
     READ_ARG(arg1);
     READ_ARG(arg2);
@@ -1535,7 +1535,7 @@ void do_resets(Mobile* ch, char* argument)
      * ------------------------------------------
      */
     if (is_number(arg1)) {
-        RoomData* pRoom = ch->in_room;
+        Room* pRoom = ch->in_room;
 
         /*
          * Delete a reset.
@@ -1550,24 +1550,24 @@ void do_resets(Mobile* ch, char* argument)
             }
 
             if (insert_loc - 1 <= 0) {
-                pReset = pRoom->reset_first;
+                reset = pRoom->reset_first;
                 NEXT_LINK(pRoom->reset_first);
                 if (!pRoom->reset_first)
                     pRoom->reset_last = NULL;
             }
             else {
                 int     iReset = 0;
-                ResetData* prev = NULL;
+                Reset* prev = NULL;
 
-                for (pReset = pRoom->reset_first;
-                    pReset;
-                    NEXT_LINK(pReset)) {
+                for (reset = pRoom->reset_first;
+                    reset;
+                    NEXT_LINK(reset)) {
                     if (++iReset == insert_loc)
                         break;
-                    prev = pReset;
+                    prev = reset;
                 }
 
-                if (!pReset) {
+                if (!reset) {
                     send_to_char("Reset not found.\n\r", ch);
                     return;
                 }
@@ -1582,7 +1582,7 @@ void do_resets(Mobile* ch, char* argument)
                     NEXT_LINK(pRoom->reset_last));
             }
 
-            free_reset_data(pReset);
+            free_reset(reset);
             send_to_char("Reset deleted.\n\r", ch);
             SET_BIT(ch->in_room->area->area_flags, AREA_CHANGED);
         }
@@ -1602,12 +1602,12 @@ void do_resets(Mobile* ch, char* argument)
                         send_to_char("That mob does not exist.\n\r", ch);
                         return;
                     }
-                    pReset = new_reset_data();
-                    pReset->command = 'M';
-                    pReset->arg1 = (VNUM)atoi(arg3);
-                    pReset->arg2 = is_number(arg4) ? (int16_t)atoi(arg4) : 1;	/* Max # */
-                    pReset->arg3 = ch->in_room->vnum;
-                    pReset->arg4 = is_number(arg5) ? (int16_t)atoi(arg5) : 1;	/* Min # */
+                    reset = new_reset();
+                    reset->command = 'M';
+                    reset->arg1 = (VNUM)atoi(arg3);
+                    reset->arg2 = is_number(arg4) ? (int16_t)atoi(arg4) : 1;	/* Max # */
+                    reset->arg3 = ch->in_room->vnum;
+                    reset->arg4 = is_number(arg5) ? (int16_t)atoi(arg5) : 1;	/* Min # */
                 }
                 else
                     /*
@@ -1628,12 +1628,12 @@ void do_resets(Mobile* ch, char* argument)
                                 send_to_char("Object 2 is not a container.\n\r", ch);
                                 return;
                             }
-                            pReset = new_reset_data();
-                            pReset->arg1 = (VNUM)atoi(arg3);
-                            pReset->command = 'P';
-                            pReset->arg2 = is_number(arg6) ? (int16_t)atoi(arg6) : 1;
-                            pReset->arg3 = is_number(arg5) ? (VNUM)atoi(arg5) : 1;
-                            pReset->arg4 = is_number(arg7) ? (int16_t)atoi(arg7) : 1;
+                            reset = new_reset();
+                            reset->arg1 = (VNUM)atoi(arg3);
+                            reset->command = 'P';
+                            reset->arg2 = is_number(arg6) ? (int16_t)atoi(arg6) : 1;
+                            reset->arg3 = is_number(arg5) ? (VNUM)atoi(arg5) : 1;
+                            reset->arg4 = is_number(arg7) ? (int16_t)atoi(arg7) : 1;
                         }
                         else
                             /*
@@ -1645,12 +1645,12 @@ void do_resets(Mobile* ch, char* argument)
                                     send_to_char("That object does not exist.\n\r", ch);
                                     return;
                                 }
-                                pReset = new_reset_data();
-                                pReset->arg1 = (VNUM)atoi(arg3);
-                                pReset->command = 'O';
-                                pReset->arg2 = 0;
-                                pReset->arg3 = ch->in_room->vnum;
-                                pReset->arg4 = 0;
+                                reset = new_reset();
+                                reset->arg1 = (VNUM)atoi(arg3);
+                                reset->command = 'O';
+                                reset->arg2 = 0;
+                                reset->arg3 = ch->in_room->vnum;
+                                reset->arg4 = 0;
                             }
                             else
                                 /*
@@ -1668,16 +1668,16 @@ void do_resets(Mobile* ch, char* argument)
                                     send_to_char("That vnum does not exist.\n\r", ch);
                                     return;
                                 }
-                                pReset = new_reset_data();
-                                pReset->arg1 = atoi(arg3);
-                                pReset->arg3 = blah;
-                                if (pReset->arg3 == WEAR_UNHELD)
-                                    pReset->command = 'G';
+                                reset = new_reset();
+                                reset->arg1 = atoi(arg3);
+                                reset->arg3 = blah;
+                                if (reset->arg3 == WEAR_UNHELD)
+                                    reset->command = 'G';
                                 else
-                                    pReset->command = 'E';
+                                    reset->command = 'E';
                             }
                     }
-                add_reset(ch->in_room, pReset, atoi(arg1));
+                add_reset(ch->in_room, reset, atoi(arg1));
                 SET_BIT(ch->in_room->area->area_flags, AREA_CHANGED);
                 send_to_char("Reset added.\n\r", ch);
             }
@@ -1686,11 +1686,11 @@ void do_resets(Mobile* ch, char* argument)
                     send_to_char("Invalid argument.\n\r", ch);
                     return;
                 }
-                pReset = new_reset_data();
-                pReset->command = 'R';
-                pReset->arg1 = ch->in_room->vnum;
-                pReset->arg2 = (int16_t)atoi(arg3);
-                add_reset(ch->in_room, pReset, atoi(arg1));
+                reset = new_reset();
+                reset->command = 'R';
+                reset->arg1 = ch->in_room->vnum;
+                reset->arg2 = (int16_t)atoi(arg3);
+                add_reset(ch->in_room, reset, atoi(arg1));
                 SET_BIT(ch->in_room->area->area_flags, AREA_CHANGED);
                 send_to_char("Random exits reset added.\n\r", ch);
             }
@@ -1746,15 +1746,15 @@ void do_resets(Mobile* ch, char* argument)
                 (tvar == 0) ? "Mob/object" : ((tvar == 1) ? "Mob" : "Object"));
             return;
         }
-        pReset = new_reset_data();
-        pReset->command = tvar == 1 ? 'M' : 'O';
-        pReset->arg1 = found;
-        pReset->arg2 = (tvar == 2) ? 0 : MAX_MOB;	/* Max # */
-        pReset->arg3 = ch->in_room->vnum;
-        pReset->arg4 = (tvar == 2) ? 0 : MAX_MOB;	/* Min # */
+        reset = new_reset();
+        reset->command = tvar == 1 ? 'M' : 'O';
+        reset->arg1 = found;
+        reset->arg2 = (tvar == 2) ? 0 : MAX_MOB;	/* Max # */
+        reset->arg3 = ch->in_room->vnum;
+        reset->arg4 = (tvar == 2) ? 0 : MAX_MOB;	/* Min # */
 
         printf_to_char(ch, "Added reset of %s %d...", tvar == 1 ? "mob" : "object", found);
-        add_reset(ch->in_room, pReset, -1); // al final
+        add_reset(ch->in_room, reset, -1); // al final
         SET_BIT(ch->in_room->area->area_flags, AREA_CHANGED);
         send_to_char("Done.\n\r", ch);
     } 

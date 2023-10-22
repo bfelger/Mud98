@@ -11,12 +11,12 @@ typedef struct object_t Object;
 
 #include "merc.h"
 
-#include "affect_data.h"
-#include "area_data.h"
+#include "affect.h"
+#include "area.h"
 #include "extra_desc.h"
 #include "mobile.h"
 #include "obj_prototype.h"
-#include "room_data.h"
+#include "room.h"
 
 #include "data/item.h"
 
@@ -30,9 +30,9 @@ typedef struct object_t {
     Object* on;
     Mobile* carried_by;
     ExtraDesc* extra_desc;
-    AffectData* affected;
+    Affect* affected;
     ObjPrototype* prototype;
-    RoomData* in_room;
+    Room* in_room;
     char* owner;
     char* name;
     char* short_descr;

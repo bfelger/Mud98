@@ -26,7 +26,7 @@
 
 char* areaname(void* point)
 {
-    AreaData* area = *(AreaData**)point;
+    Area* area = *(Area**)point;
 
     return area->name;
 }
@@ -145,8 +145,8 @@ const char* pos2str(void* point)
 
 char* exits2str(void* point)
 {
-    ExitData** pexitarray = (ExitData**)point;
-    ExitData* pexit;
+    RoomExit** pexitarray = (RoomExit**)point;
+    RoomExit* room_exit;
     static char buf[MSL];
     char word[MIL], reset_state[MIL], tmpbuf[MIL];
     char* state;
@@ -155,16 +155,16 @@ char* exits2str(void* point)
     buf[0] = '\0';
 
     for (int j = 0; j < DIR_MAX; j++) {
-        if ((pexit = pexitarray[j]) == NULL)
+        if ((room_exit = pexitarray[j]) == NULL)
             continue;
 
         sprintf(tmpbuf, "-%-5.5s to [%5d] ",
             capitalize(dir_list[j].name),
-            pexit->u1.to_room ? pexit->u1.to_room->vnum : 0);
+            room_exit->to_room ? room_exit->to_room->vnum : 0);
         strcat(buf, tmpbuf);
 
-        if (pexit->key > 0) {
-            sprintf(tmpbuf, "Key:%d ", pexit->key);
+        if (room_exit->key > 0) {
+            sprintf(tmpbuf, "Key:%d ", room_exit->key);
             strcat(buf, tmpbuf);
         }
 
@@ -172,8 +172,8 @@ char* exits2str(void* point)
          * Format up the exit info.
          * Capitalize all flags that are not part of the reset info.
          */
-        strcpy(reset_state, flag_string(exit_flag_table, pexit->exit_reset_flags));
-        state = flag_string(exit_flag_table, pexit->exit_flags);
+        strcpy(reset_state, flag_string(exit_flag_table, room_exit->exit_reset_flags));
+        state = flag_string(exit_flag_table, room_exit->exit_flags);
         strcat(buf, "Flags: [");
         for (; ;) {
             state = one_argument(state, word);
@@ -183,9 +183,9 @@ char* exits2str(void* point)
 
                 end = strlen(buf) - 1;
                 buf[end] = ']';
-                if (pexit->keyword)
+                if (room_exit->keyword)
                     strcat(buf, "(K)");
-                if (pexit->description)
+                if (room_exit->description)
                     strcat(buf, "(D)");
                 strcat(buf, "\n\r");
                 break;
@@ -201,14 +201,14 @@ char* exits2str(void* point)
             strcat(buf, " ");
         }
 
-/*	    if ( pexit->keyword && pexit->keyword[0] != '\0' )
+/*	    if ( room_exit->keyword && room_exit->keyword[0] != '\0' )
         {
-        sprintf( tmpbuf, "Kwds: [%s]\n\r", pexit->keyword );
+        sprintf( tmpbuf, "Kwds: [%s]\n\r", room_exit->keyword );
         strcat( buf, tmpbuf );
         }
-        if ( pexit->description && pexit->description[0] != '\0' )
+        if ( room_exit->description && room_exit->description[0] != '\0' )
         {
-        sprintf( tmpbuf, "%s", pexit->description );
+        sprintf( tmpbuf, "%s", room_exit->description );
         strcat( buf, tmpbuf );
         } */
     }
@@ -558,7 +558,7 @@ void UpdateOLCScreen(Descriptor* d)
     size_t j;
     uintptr_t blah;
     size_t size;
-    extern RoomData xRoom;
+    extern Room xRoom;
     STRFUNC* func;
     char* tmpstr;
     const struct flag_type* flagt;

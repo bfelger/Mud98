@@ -65,7 +65,7 @@ http://www.andreasen.org/
   Various administrative utility commands.
   Version: 3 - Last update: January 1996.
 
-  To use these 2 commands you will have to add a filename field to AreaData.
+  To use these 2 commands you will have to add a filename field to Area.
   This value can be found easily in load_area while booting - the filename
   of the current area boot_db is reading from is in the fpArea global.
 
@@ -83,7 +83,7 @@ http://www.andreasen.org/
 // To have VLIST show more than vnum 0 - 9900, change the number below:
 #define MAX_SHOW_VNUM   99 // Show only 1 - 100*100 */
 
-extern RoomData* room_index_hash[];	// db.c
+extern Room* room_vnum_hash[];	// db.c
 
 /* opposite directions */
 const int16_t opposite_dir[6] = {
@@ -91,17 +91,17 @@ const int16_t opposite_dir[6] = {
 };
 
 // Cut the 'short' name of an area (e.g. MIDGAARD, MIRROR, etc.)
-// Assumes that the filename saved in the AreaData struct is something like 
+// Assumes that the filename saved in the Area struct is something like 
 // "midgaard.are"
-char* get_area_name(AreaData* pArea)
+char* get_area_name(Area* area)
 {
     static char buffer[256];
     char* period;
 
-    assert(pArea != NULL);
+    assert(area != NULL);
 
     // Terminate the string at the period, if it exists
-    sprintf(buffer, "%s", pArea->file_name);
+    sprintf(buffer, "%s", area->file_name);
     period = strchr(buffer, '.');
     if (period)
         *period = '\0';
@@ -114,7 +114,7 @@ typedef enum {
 } exit_status;
 
 // Depending on status print > or < or <> between the 2 rooms
-void room_pair(RoomData* left, RoomData* right, exit_status ex,
+void room_pair(Room* left, Room* right, exit_status ex,
     char* buffer)
 {
     char* sExit;
@@ -140,13 +140,13 @@ void room_pair(RoomData* left, RoomData* right, exit_status ex,
     );
 }
 
-// For every exit in 'room' which leads to or from pArea but NOT both, print it
-void check_exits(RoomData* room, AreaData* pArea, char* buffer)
+// For every exit in 'room' which leads to or from area but NOT both, print it
+void check_exits(Room* room, Area* area, char* buffer)
 {
     char buf[MAX_STRING_LENGTH];
     int i;
-    ExitData* exit;
-    RoomData* to_room;
+    RoomExit* exit;
+    Room* to_room;
 
     strcpy(buffer, "");
     for (i = 0; i < 6; i++) {
@@ -154,25 +154,25 @@ void check_exits(RoomData* room, AreaData* pArea, char* buffer)
         if (!exit)
             continue;
         else
-            to_room = exit->u1.to_room;
+            to_room = exit->to_room;
 
         if (to_room) {
             // There is something on the other side
-            if ((room->area == pArea) && (to_room->area != pArea)) {
+            if ((room->area == area) && (to_room->area != area)) {
                 // An exit from our area to another area/
                 // check first if it is a two-way exit */
                 if (to_room->exit[opposite_dir[i]] &&
-                    to_room->exit[opposite_dir[i]]->u1.to_room == room)
+                    to_room->exit[opposite_dir[i]]->to_room == room)
                     room_pair(room, to_room, exit_both, buf);	// <>
                 else
                     room_pair(room, to_room, exit_to, buf);		// >
 
                 strcat(buffer, buf);
             }
-            else if ((room->area != pArea) && (exit->u1.to_room->area == pArea)) {
+            else if ((room->area != area) && (exit->to_room->area == area)) {
                 // an exit from another area to our area */
                 if (!(to_room->exit[opposite_dir[i]] &&
-                    to_room->exit[opposite_dir[i]]->u1.to_room == room)) {
+                    to_room->exit[opposite_dir[i]]->to_room == room)) {
                     // two-way exits are handled in the other if 
                     room_pair(to_room, room, exit_from, buf);
                     strcat(buffer, buf);
@@ -186,15 +186,15 @@ void check_exits(RoomData* room, AreaData* pArea, char* buffer)
 // For now, no arguments, just list the current area
 void do_exlist(Mobile* ch, char* argument)
 {
-    RoomData* room;
+    Room* room;
     char buffer[MAX_STRING_LENGTH];
 
-    AreaData* pArea = ch->in_room->area; // This is the area we want info on 
+    Area* area = ch->in_room->area; // This is the area we want info on 
     for (int i = 0; i < MAX_KEY_HASH; i++) {
         // Room index hash table
-        FOR_EACH(room, room_index_hash[i]) {
+        FOR_EACH(room, room_vnum_hash[i]) {
             // Run through all the rooms on the MUD
-            check_exits(room, pArea, buffer);
+            check_exits(room, area, buffer);
             send_to_char(buffer, ch);
         }
     }
@@ -209,7 +209,7 @@ void do_vlist(Mobile* ch, char* argument)
     VNUM i;
     VNUM j;
     VNUM vnum;
-    RoomData* room;
+    Room* room;
     char buffer[MAX_ROW * 100]; // Should be plenty */
     char buf2[100];
 
@@ -219,7 +219,7 @@ void do_vlist(Mobile* ch, char* argument)
             vnum = ((j * MAX_ROW) + i); /* find a vnum which should be there */
             if (vnum < MAX_SHOW_VNUM) {
                 /* each zone has to have a XXX01 room */
-                room = get_room_data(vnum * 100 + 1);
+                room = get_room(vnum * 100 + 1);
                 sprintf(buf2, "%"PRVNUM" %-8.8s  ", vnum,
                     room ? get_area_name(room->area) : "-");
                 /* something there or unused ? */
@@ -416,7 +416,7 @@ void do_for(Mobile* ch, char* argument)
     char range[MAX_INPUT_LENGTH] = { 0 };
     char buf[MAX_STRING_LENGTH] = { 0 };
     bool fGods = false, fMortals = false, fMobs = false, fEverywhere = false, found;
-    RoomData* room, * old_room;
+    Room* room, * old_room;
     Mobile* p;
     Mobile* p_next = NULL;
     int i;
@@ -512,7 +512,7 @@ void do_for(Mobile* ch, char* argument)
          /* just for every room with the appropriate people in it */
         for (i = 0; i < MAX_KEY_HASH; i++) {
             /* run through all the buckets */
-            FOR_EACH(room, room_index_hash[i]) {
+            FOR_EACH(room, room_vnum_hash[i]) {
                 found = false;
                 /* Anyone in here at all? */
                 if (fEverywhere)

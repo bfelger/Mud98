@@ -63,7 +63,7 @@ const OlcCmdEntry obj_olc_comm_table[] = {
 void do_oedit(Mobile* ch, char* argument)
 {
     ObjPrototype* pObj;
-    AreaData* pArea;
+    Area* area;
     char arg1[MAX_STRING_LENGTH];
     int  value;
 
@@ -96,20 +96,20 @@ void do_oedit(Mobile* ch, char* argument)
                 return;
             }
 
-            pArea = get_vnum_area(value);
+            area = get_vnum_area(value);
 
-            if (!pArea) {
+            if (!area) {
                 send_to_char("{jOEdit:  That vnum is not assigned an area.{x\n\r", ch);
                 return;
             }
 
-            if (!IS_BUILDER(ch, pArea)) {
+            if (!IS_BUILDER(ch, area)) {
                 send_to_char("{jYou do not have enough security to edit objects.{x\n\r", ch);
                 return;
             }
 
             if (oedit_create(ch, argument)) {
-                SET_BIT(pArea->area_flags, AREA_CHANGED);
+                SET_BIT(area->area_flags, AREA_CHANGED);
                 ch->desc->editor = ED_OBJECT;
                 oedit_show(ch, "");
             }
@@ -124,13 +124,13 @@ void do_oedit(Mobile* ch, char* argument)
 /* Object Interpreter, called by do_oedit. */
 void oedit(Mobile* ch, char* argument)
 {
-    AreaData* pArea;
+    Area* area;
     ObjPrototype* pObj;
 
     EDIT_OBJ(ch, pObj);
-    pArea = pObj->area;
+    area = pObj->area;
 
-    if (!IS_BUILDER(ch, pArea)) {
+    if (!IS_BUILDER(ch, area)) {
         send_to_char("{jOEdit: Insufficient security to modify area.{x\n\r", ch);
         edit_done(ch);
         return;
@@ -637,7 +637,7 @@ OEDIT(oedit_show)
 {
     ObjPrototype* pObj;
     char buf[MAX_STRING_LENGTH];
-    AffectData* paf;
+    Affect* paf;
     int cnt;
 
     READ_ARG(buf);
@@ -716,7 +716,7 @@ OEDIT(oedit_addaffect)
 {
     int value;
     ObjPrototype* pObj;
-    AffectData* pAf;
+    Affect* pAf;
     char loc[MAX_STRING_LENGTH];
     char mod[MAX_STRING_LENGTH];
 
@@ -756,7 +756,7 @@ OEDIT(oedit_addapply)
     bool rc = true;
     int value, bv, typ;
     ObjPrototype* pObj;
-    AffectData* pAf;
+    Affect* pAf;
     INIT_BUF(loc, MAX_STRING_LENGTH);
     INIT_BUF(mod, MAX_STRING_LENGTH);
     INIT_BUF(type, MAX_STRING_LENGTH);
@@ -830,8 +830,8 @@ oedit_addapply_cleanup:
 OEDIT(oedit_delaffect)
 {
     ObjPrototype* pObj;
-    AffectData* pAf;
-    AffectData* pAf_next;
+    Affect* pAf;
+    Affect* pAf_next;
     char affect[MAX_STRING_LENGTH];
     int  value;
     int  cnt = 0;
@@ -917,9 +917,9 @@ bool oedit_values(Mobile* ch, char* argument, int value)
 OEDIT(oedit_create)
 {
     ObjPrototype* pObj;
-    AreaData* pArea;
+    Area* area;
     VNUM  value;
-    int  iHash;
+    int  hash;
 
     value = STRTOVNUM(argument);
     if (argument[0] == '\0' || value == 0) {
@@ -927,13 +927,13 @@ OEDIT(oedit_create)
         return false;
     }
 
-    pArea = get_vnum_area(value);
-    if (!pArea) {
+    area = get_vnum_area(value);
+    if (!area) {
         send_to_char("{jOEdit:  That vnum is not assigned an area.{x\n\r", ch);
         return false;
     }
 
-    if (!IS_BUILDER(ch, pArea)) {
+    if (!IS_BUILDER(ch, area)) {
         send_to_char("{jOEdit:  Vnum in an area you cannot build in.{x\n\r", ch);
         return false;
     }
@@ -945,15 +945,15 @@ OEDIT(oedit_create)
 
     pObj = new_object_prototype();
     pObj->vnum = value;
-    pObj->area = pArea;
+    pObj->area = area;
     pObj->extra_flags = 0;
 
     if (value > top_vnum_obj)
         top_vnum_obj = value;
 
-    iHash = value % MAX_KEY_HASH;
-    pObj->next = obj_proto_hash[iHash];
-    obj_proto_hash[iHash] = pObj;
+    hash = value % MAX_KEY_HASH;
+    pObj->next = obj_proto_hash[hash];
+    obj_proto_hash[hash] = pObj;
 
     set_editor(ch->desc, ED_OBJECT, U(pObj));
 
@@ -985,7 +985,7 @@ ED_FUN_DEC(ed_addapply)
     bool rc = true;
     int value, bv, typ;
     ObjPrototype* pObj = (ObjPrototype*)arg;
-    AffectData* pAf;
+    Affect* pAf;
     INIT_BUF(loc, MAX_STRING_LENGTH);
     INIT_BUF(mod, MAX_STRING_LENGTH);
     INIT_BUF(type, MAX_STRING_LENGTH);
@@ -1060,9 +1060,9 @@ ED_FUN_DEC(ed_value)
 ED_FUN_DEC(ed_new_obj)
 {
     ObjPrototype* pObj;
-    AreaData* pArea;
+    Area* area;
     VNUM  value;
-    int  iHash;
+    int  hash;
 
     value = STRTOVNUM(argument);
 
@@ -1071,14 +1071,14 @@ ED_FUN_DEC(ed_new_obj)
         return false;
     }
 
-    pArea = get_vnum_area(value);
+    area = get_vnum_area(value);
 
-    if (!pArea) {
+    if (!area) {
         send_to_char("{jOEdit: That vnum is not assigned an area.{x\n\r", ch);
         return false;
     }
 
-    if (!IS_BUILDER(ch, pArea)) {
+    if (!IS_BUILDER(ch, area)) {
         send_to_char("{jOEdit: Vnum in an area you cannot build in.{x\n\r", ch);
         return false;
     }
@@ -1090,15 +1090,15 @@ ED_FUN_DEC(ed_new_obj)
 
     pObj = new_object_prototype();
     pObj->vnum = value;
-    pObj->area = pArea;
+    pObj->area = area;
     pObj->extra_flags = 0;
 
     if (value > top_vnum_obj)
         top_vnum_obj = value;
 
-    iHash = value % MAX_KEY_HASH;
-    pObj->next = obj_proto_hash[iHash];
-    obj_proto_hash[iHash] = pObj;
+    hash = value % MAX_KEY_HASH;
+    pObj->next = obj_proto_hash[hash];
+    obj_proto_hash[hash] = pObj;
 
     set_editor(ch->desc, ED_OBJECT, U(pObj));
 
@@ -1110,7 +1110,7 @@ ED_FUN_DEC(ed_new_obj)
 ED_FUN_DEC(ed_olist)
 {
     ObjPrototype* obj_proto;
-    AreaData* pArea;
+    Area* area;
     Buffer* buf1;
     char blarg[MAX_INPUT_LENGTH];
     bool fAll, found;
@@ -1124,12 +1124,12 @@ ED_FUN_DEC(ed_olist)
         return false;
     }
 
-    pArea = *(AreaData**)arg;
+    area = *(Area**)arg;
     buf1 = new_buf();
     fAll = !str_cmp(blarg, "all");
     found = false;
 
-    for (vnum = pArea->min_vnum; vnum <= pArea->max_vnum; vnum++) {
+    for (vnum = area->min_vnum; vnum <= area->max_vnum; vnum++) {
         if ((obj_proto = get_object_prototype(vnum))) {
             if (fAll || is_name(blarg, obj_proto->name)
                 || (ItemType)flag_value(type_flag_table, blarg) == obj_proto->item_type) {
@@ -1207,9 +1207,9 @@ OEDIT(oedit_copy)
     for (int i = 0; i < 5; ++i)
         obj->value[i] = obj2->value[i];
 
-    AffectData* af;
+    Affect* af;
     FOR_EACH(af, obj->affected) {
-        AffectData* af_new = new_affect();
+        Affect* af_new = new_affect();
         *af_new = *af;
         af_new->next = obj->affected;
         obj->affected = af_new;

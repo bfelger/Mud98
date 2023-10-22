@@ -44,7 +44,7 @@
 #include "vt.h"
 #include "weather.h"
 
-#include "entities/area_data.h"
+#include "entities/area.h"
 #include "entities/descriptor.h"
 #include "entities/object.h"
 #include "entities/player_data.h"
@@ -438,7 +438,7 @@ void reset_char(Mobile* ch)
     int stat;
     int16_t mod;
     Object* obj;
-    AffectData* af;
+    Affect* af;
     int i;
 
     if (IS_NPC(ch)) return;
@@ -918,17 +918,17 @@ void char_from_room(Mobile* ch)
 static void update_mdsp_room(Mobile* ch)
 {
     char exits[MAX_INPUT_LENGTH];
-    ExitData* pexit;
+    RoomExit* room_exit;
 
     sprintf(exits, "%c", MSDP_ARRAY_OPEN);
     for (int door = 0; door < DIR_MAX; door++) {
-        if ((pexit = ch->in_room->exit[door]) != NULL
-            && pexit->u1.to_room != NULL
-            && (can_see_room(ch, pexit->u1.to_room)
+        if ((room_exit = ch->in_room->exit[door]) != NULL
+            && room_exit->to_room != NULL
+            && (can_see_room(ch, room_exit->to_room)
                 || (IS_AFFECTED(ch, AFF_INFRARED) 
                     && !IS_AFFECTED(ch, AFF_BLIND)))) {
             cat_sprintf(exits, "\001%s\002%d", dir_list[door].name_abbr, 
-                pexit->u1.to_room->vnum);
+                room_exit->to_room->vnum);
         }
     }
     cat_sprintf(exits, "%c", MSDP_ARRAY_CLOSE);
@@ -945,18 +945,18 @@ static void update_mdsp_room(Mobile* ch)
 }
 
 // Move a char into a room.
-void char_to_room(Mobile* ch, RoomData* room)
+void char_to_room(Mobile* ch, Room* room)
 {
     Object* obj;
 
     if (room == NULL) {
-        RoomData* temple;
+        Room* temple;
 
         bug("Char_to_room: NULL.", 0);
 
         VNUM recall = IS_NPC(ch) ? cfg_get_default_recall() : ch->pcdata->recall;
 
-        if ((temple = get_room_data(recall)) != NULL)
+        if ((temple = get_room(recall)) != NULL)
             char_to_room(ch, temple);
 
         return;
@@ -970,7 +970,7 @@ void char_to_room(Mobile* ch, RoomData* room)
         update_mdsp_room(ch);
 
     if (!IS_NPC(ch)) {
-        AreaData* area = ch->in_room->area;
+        Area* area = ch->in_room->area;
         if (area->empty) {
             area->empty = false;
             if (!area->always_reset)
@@ -984,8 +984,8 @@ void char_to_room(Mobile* ch, RoomData* room)
         ++ch->in_room->light;
 
     if (IS_AFFECTED(ch, AFF_PLAGUE)) {
-        AffectData* af;
-        AffectData plague = { 0 };
+        Affect* af;
+        Affect plague = { 0 };
         Mobile* vch;
 
         FOR_EACH(af, ch->affected) {
@@ -1130,7 +1130,7 @@ Object* get_eq_char(Mobile* ch, WearLocation iWear)
 // Equip a char with an obj.
 void equip_char(Mobile* ch, Object* obj, WearLocation iWear)
 {
-    AffectData* paf;
+    Affect* paf;
     int i;
 
     if (get_eq_char(ch, iWear) != NULL) {
@@ -1172,9 +1172,9 @@ void equip_char(Mobile* ch, Object* obj, WearLocation iWear)
 // Unequip a char with an obj.
 void unequip_char(Mobile* ch, Object* obj)
 {
-    AffectData* paf = NULL;
-    AffectData* lpaf = NULL;
-    AffectData* lpaf_next = NULL;
+    Affect* paf = NULL;
+    Affect* lpaf = NULL;
+    Affect* lpaf_next = NULL;
     int i;
 
     if (obj->wear_loc == WEAR_UNHELD) {
@@ -1248,7 +1248,7 @@ int count_obj_list(ObjPrototype* obj_proto, Object* list)
 // Move an obj out of a room.
 void obj_from_room(Object* obj)
 {
-    RoomData* in_room;
+    Room* in_room;
     Mobile* ch;
 
     if (obj == NULL)
@@ -1288,7 +1288,7 @@ void obj_from_room(Object* obj)
 }
 
 // Move an obj into a room.
-void obj_to_room(Object* obj, RoomData* pRoomIndex)
+void obj_to_room(Object* obj, Room* pRoomIndex)
 {
     obj->next_content = pRoomIndex->contents;
     pRoomIndex->contents = obj;
@@ -1440,7 +1440,7 @@ void extract_char(Mobile* ch, bool fPull)
 
     /* Death room is set in the clan tabe now */
     if (!fPull) {
-        char_to_room(ch, get_room_data(clan_table[ch->clan].hall));
+        char_to_room(ch, get_room(clan_table[ch->clan].hall));
         return;
     }
 
@@ -1763,7 +1763,7 @@ int get_true_weight(Object* obj)
 }
 
 // true if room is dark.
-bool room_is_dark(RoomData* pRoomIndex)
+bool room_is_dark(Room* pRoomIndex)
 {
     if (pRoomIndex->light > 0) return false;
 
@@ -1779,7 +1779,7 @@ bool room_is_dark(RoomData* pRoomIndex)
     return false;
 }
 
-bool is_room_owner(Mobile* ch, RoomData* room)
+bool is_room_owner(Mobile* ch, Room* room)
 {
     if (room->owner == NULL || room->owner[0] == '\0') 
         return false;
@@ -1788,7 +1788,7 @@ bool is_room_owner(Mobile* ch, RoomData* room)
 }
 
 // true if room is private.
-bool room_is_private(RoomData* pRoomIndex)
+bool room_is_private(Room* pRoomIndex)
 {
     Mobile* rch;
     int count;
@@ -1812,7 +1812,7 @@ bool room_is_private(RoomData* pRoomIndex)
 }
 
 /* visibility on a room -- for entering and exits */
-bool can_see_room(Mobile* ch, RoomData* pRoomIndex)
+bool can_see_room(Mobile* ch, Room* pRoomIndex)
 {
     if (IS_SET(pRoomIndex->room_flags, ROOM_IMP_ONLY)
         && get_trust(ch) < MAX_LEVEL)
@@ -2344,28 +2344,28 @@ char* itos(int temp)
     return buf;
 }
 
-int get_vnum_mob_name_area(char* name, AreaData* pArea)
+int get_vnum_mob_name_area(char* name, Area* area)
 {
     int hash;
     MobPrototype* mob;
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++)
         FOR_EACH(mob, mob_prototype_hash[hash])
-            if (mob->area == pArea
+            if (mob->area == area
                 && !str_prefix(name, mob->name))
                 return mob->vnum;
 
     return 0;
 }
 
-int get_vnum_obj_name_area(char* name, AreaData* pArea)
+int get_vnum_obj_name_area(char* name, Area* area)
 {
     int hash;
     ObjPrototype* obj;
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++)
         FOR_EACH(obj, obj_proto_hash[hash])
-            if (obj->area == pArea
+            if (obj->area == area
                 && !str_prefix(name, obj->name))
                 return obj->vnum;
 

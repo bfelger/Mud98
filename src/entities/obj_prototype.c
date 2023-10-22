@@ -18,7 +18,7 @@ VNUM top_vnum_obj;
 void free_object_prototype(ObjPrototype* obj_proto)
 {
     ExtraDesc* pExtra;
-    AffectData* pAf;
+    Affect* pAf;
 
     free_string(obj_proto->name);
     free_string(obj_proto->short_descr);
@@ -70,7 +70,7 @@ void load_objects(FILE* fp)
     for (;;) {
         VNUM vnum;
         char letter;
-        int iHash;
+        int hash;
 
         letter = fread_letter(fp);
         if (letter != '#') {
@@ -186,9 +186,9 @@ void load_objects(FILE* fp)
             letter = fread_letter(fp);
 
             if (letter == 'A') {
-                AffectData* paf;
+                Affect* paf;
 
-                paf = alloc_perm(sizeof(AffectData));
+                paf = alloc_perm(sizeof(Affect));
                 if (paf == NULL)
                     exit(1);
                 paf->where = TO_OBJECT;
@@ -198,14 +198,14 @@ void load_objects(FILE* fp)
                 paf->location = (int16_t)fread_number(fp);
                 paf->modifier = (int16_t)fread_number(fp);
                 paf->bitvector = 0;
-                ADD_AFF_DATA(obj_proto, paf)
+                ADD_AFFECT(obj_proto, paf)
                     affect_count++;
             }
 
             else if (letter == 'F') {
-                AffectData* paf;
+                Affect* paf;
 
-                paf = alloc_perm(sizeof(AffectData));
+                paf = alloc_perm(sizeof(Affect));
                 if (paf == NULL)
                     exit(1);
                 letter = fread_letter(fp);
@@ -232,7 +232,7 @@ void load_objects(FILE* fp)
                 paf->location = (int16_t)fread_number(fp);
                 paf->modifier = (int16_t)fread_number(fp);
                 paf->bitvector = fread_flag(fp);
-                ADD_AFF_DATA(obj_proto, paf)
+                ADD_AFFECT(obj_proto, paf)
                     affect_count++;
             }
 
@@ -254,9 +254,9 @@ void load_objects(FILE* fp)
             }
         }
 
-        iHash = vnum % MAX_KEY_HASH;
-        obj_proto->next = obj_proto_hash[iHash];
-        obj_proto_hash[iHash] = obj_proto;
+        hash = vnum % MAX_KEY_HASH;
+        obj_proto->next = obj_proto_hash[hash];
+        obj_proto_hash[hash] = obj_proto;
         obj_proto_count++;
         top_vnum_obj = top_vnum_obj < vnum ? vnum : top_vnum_obj;
         assign_area_vnum(vnum);
@@ -269,7 +269,6 @@ ObjPrototype* new_object_prototype()
 {
     static ObjPrototype zero = { 0 };
     ObjPrototype* obj_proto;
-    int value;
 
     if (!obj_proto_free) {
         obj_proto = alloc_perm(sizeof(*obj_proto));

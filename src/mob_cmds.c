@@ -291,7 +291,7 @@ void do_mpzecho(Mobile* ch, char* argument)
 void do_mpasound(Mobile* ch, char* argument)
 {
 
-    RoomData* was_in_room;
+    Room* was_in_room;
     int              door;
 
     if (argument[0] == '\0')
@@ -299,12 +299,12 @@ void do_mpasound(Mobile* ch, char* argument)
 
     was_in_room = ch->in_room;
     for (door = 0; door < 6; door++) {
-        ExitData* pexit;
+        RoomExit* room_exit;
 
-        if ((pexit = was_in_room->exit[door]) != NULL
-            && pexit->u1.to_room != NULL
-            && pexit->u1.to_room != was_in_room) {
-            ch->in_room = pexit->u1.to_room;
+        if ((room_exit = was_in_room->exit[door]) != NULL
+            && room_exit->to_room != NULL
+            && room_exit->to_room != was_in_room) {
+            ch->in_room = room_exit->to_room;
             MOBtrigger = false;
             act(argument, ch, NULL, NULL, TO_ROOM);
             MOBtrigger = true;
@@ -638,7 +638,7 @@ void do_mppurge(Mobile* ch, char* argument)
 void do_mpgoto(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    RoomData* location;
+    Room* location;
 
     one_argument(argument, arg);
     if (arg[0] == '\0') {
@@ -670,8 +670,8 @@ void do_mpgoto(Mobile* ch, char* argument)
 void do_mpat(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    RoomData* location;
-    RoomData* original;
+    Room* location;
+    Room* original;
     Mobile* wch;
     Object* on;
 
@@ -722,7 +722,7 @@ void do_mptransfer(Mobile* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
-    RoomData* location;
+    Room* location;
     Mobile* victim;
 
     READ_ARG(arg1);
@@ -1185,8 +1185,8 @@ void do_mpcall(Mobile* ch, char* argument)
  */
 void do_mpflee(Mobile* ch, char* argument)
 {
-    RoomData* was_in;
-    ExitData* pexit;
+    Room* was_in;
+    RoomExit* room_exit;
     int door, attempt;
 
     if (ch->fighting != NULL)
@@ -1197,11 +1197,11 @@ void do_mpflee(Mobile* ch, char* argument)
 
     for (attempt = 0; attempt < 6; attempt++) {
         door = number_door();
-        if ((pexit = was_in->exit[door]) == 0
-            || pexit->u1.to_room == NULL
-            || IS_SET(pexit->exit_flags, EX_CLOSED)
+        if ((room_exit = was_in->exit[door]) == 0
+            || room_exit->to_room == NULL
+            || IS_SET(room_exit->exit_flags, EX_CLOSED)
             || (IS_NPC(ch)
-                && IS_SET(pexit->u1.to_room->room_flags, ROOM_NO_MOB)))
+                && IS_SET(room_exit->to_room->room_flags, ROOM_NO_MOB)))
             continue;
 
         move_char(ch, door, false);
@@ -1219,7 +1219,7 @@ void do_mpflee(Mobile* ch, char* argument)
 void do_mpotransfer(Mobile* ch, char* argument)
 {
     Object* obj;
-    RoomData* location;
+    Room* location;
     char arg[MAX_INPUT_LENGTH];
     char buf[MAX_INPUT_LENGTH];
 

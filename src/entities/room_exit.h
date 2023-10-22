@@ -1,17 +1,17 @@
 ////////////////////////////////////////////////////////////////////////////////
-// exit_data.h
+// room_exit.h
 // Utilities to handle room exits
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef struct exit_data_t ExitData;
+typedef struct room_exit_t RoomExit;
 
 #pragma once
-#ifndef MUD98__ENTITIES__EXIT_DATA_H
-#define MUD98__ENTITIES__EXIT_DATA_H
+#ifndef MUD98__ENTITIES__ROOM_EXIT_H
+#define MUD98__ENTITIES__ROOM_EXIT_H
 
 #include "merc.h"
 
-#include "room_data.h"
+#include "room.h"
 
 #include "data/direction.h"
 
@@ -30,35 +30,33 @@ typedef enum exit_flags_t {
     EX_NOLOCK           = BIT(11),
 } ExitFlags;
 
-typedef struct exit_data_t {
-    union {
-        RoomData* to_room;
-        VNUM vnum;
-    } u1;
+typedef struct room_exit_t {
+    RoomExit* next;
+    Room* to_room;
+    VNUM to_vnum;
     char* keyword;
     char* description;
-    ExitData* next;
     Direction orig_dir;
     SHORT_FLAGS exit_reset_flags;
     SHORT_FLAGS exit_flags;
     int16_t key;
-} ExitData;
+} RoomExit;
 
-void free_exit(ExitData* pExit);
-ExitData* new_exit();
+void free_room_exit(RoomExit* room_exit);
+RoomExit* new_room_exit();
 
-#define ADD_EXIT_DESC(t, ed)                                                  \
-    if (!t->extra_desc) {                                             \
-        t->extra_desc = ed;                                           \
+#define ADD_EXIT_DESC(t, ed)                                                   \
+    if (!t->extra_desc) {                                                      \
+        t->extra_desc = ed;                                                    \
     }                                                                          \
     else {                                                                     \
-        ExtraDesc* i = t->extra_desc;                                 \
+        ExtraDesc* i = t->extra_desc;                                          \
         while (i->next != NULL)                                                \
-            NEXT_LINK(i);                                                       \
+            NEXT_LINK(i);                                                      \
         i->next = ed;                                                          \
     }                                                                          \
     ed->next = NULL;
 
-extern int exit_count;
+extern int room_exit_count;
 
-#endif // !MUD98__ENTITIES__EXIT_DATA_H
+#endif // !MUD98__ENTITIES__ROOM_EXIT_H

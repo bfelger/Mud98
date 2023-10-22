@@ -46,7 +46,7 @@
 #include "tables.h"
 #include "weather.h"
 
-#include "entities/area_data.h"
+#include "entities/area.h"
 #include "entities/descriptor.h"
 #include "entities/object.h"
 #include "entities/player_data.h"
@@ -891,7 +891,7 @@ void do_look(Mobile* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char arg3[MAX_INPUT_LENGTH];
-    ExitData* pexit;
+    RoomExit* room_exit;
     Mobile* victim;
     Object* obj;
     char* pdesc;
@@ -1103,23 +1103,23 @@ void do_look(Mobile* ch, char* argument)
     }
 
     /* 'look direction' */
-    if ((pexit = ch->in_room->exit[door]) == NULL) {
+    if ((room_exit = ch->in_room->exit[door]) == NULL) {
         send_to_char("Nothing special there.\n\r", ch);
         return;
     }
 
-    if (pexit->description != NULL && pexit->description[0] != '\0')
-        send_to_char(pexit->description, ch);
+    if (room_exit->description != NULL && room_exit->description[0] != '\0')
+        send_to_char(room_exit->description, ch);
     else
         send_to_char("Nothing special there.\n\r", ch);
 
-    if (pexit->keyword != NULL && pexit->keyword[0] != '\0'
-        && pexit->keyword[0] != ' ') {
-        if (IS_SET(pexit->exit_flags, EX_CLOSED)) {
-            act("The $d is closed.", ch, NULL, pexit->keyword, TO_CHAR);
+    if (room_exit->keyword != NULL && room_exit->keyword[0] != '\0'
+        && room_exit->keyword[0] != ' ') {
+        if (IS_SET(room_exit->exit_flags, EX_CLOSED)) {
+            act("The $d is closed.", ch, NULL, room_exit->keyword, TO_CHAR);
         }
-        else if (IS_SET(pexit->exit_flags, EX_ISDOOR)) {
-            act("The $d is open.", ch, NULL, pexit->keyword, TO_CHAR);
+        else if (IS_SET(room_exit->exit_flags, EX_ISDOOR)) {
+            act("The $d is open.", ch, NULL, room_exit->keyword, TO_CHAR);
         }
     }
 
@@ -1197,7 +1197,7 @@ void do_examine(Mobile* ch, char* argument)
 void do_exits(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    ExitData* pexit;
+    RoomExit* room_exit;
     bool found;
     bool fAuto;
     int door;
@@ -1215,9 +1215,9 @@ void do_exits(Mobile* ch, char* argument)
 
     found = false;
     for (door = 0; door <= 5; door++) {
-        if ((pexit = ch->in_room->exit[door]) != NULL
-            && pexit->u1.to_room != NULL && can_see_room(ch, pexit->u1.to_room)
-            && !IS_SET(pexit->exit_flags, EX_CLOSED)) {
+        if ((room_exit = ch->in_room->exit[door]) != NULL
+            && room_exit->to_room != NULL && can_see_room(ch, room_exit->to_room)
+            && !IS_SET(room_exit->exit_flags, EX_CLOSED)) {
             found = true;
             if (fAuto) {
                 strcat(buf, " ");
@@ -1226,11 +1226,11 @@ void do_exits(Mobile* ch, char* argument)
             else {
                 sprintf(
                     buf + strlen(buf), "%-5s - %s", capitalize(dir_list[door].name),
-                    room_is_dark(pexit->u1.to_room) ? "Too dark to tell"
-                                                    : pexit->u1.to_room->name);
+                    room_is_dark(room_exit->to_room) ? "Too dark to tell"
+                                                    : room_exit->to_room->name);
                 if (IS_IMMORTAL(ch))
                     sprintf(buf + strlen(buf), " (room %d)\n\r",
-                            pexit->u1.to_room->vnum);
+                            room_exit->to_room->vnum);
                 else
                     sprintf(buf + strlen(buf), "\n\r");
             }
@@ -1482,7 +1482,7 @@ void do_score(Mobile* ch, char* argument)
 
 void do_affects(Mobile* ch, char* argument)
 {
-    AffectData *paf, *paf_last = NULL;
+    Affect *paf, *paf_last = NULL;
     char buf[MAX_STRING_LENGTH];
 
     if (ch->affected != NULL) {

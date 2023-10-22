@@ -577,8 +577,8 @@ void one_hit(Mobile* ch, Mobile* victim, int16_t dt)
 
         if (ch->fighting == victim && IS_WEAPON_STAT(wield, WEAPON_POISON)) {
             LEVEL level;
-            AffectData* poison;
-            AffectData af = { 0 };
+            Affect* poison;
+            Affect af = { 0 };
 
             if ((poison = affect_find(wield->affected, gsn_poison)) == NULL)
                 level = wield->level;
@@ -1383,7 +1383,7 @@ void make_corpse(Mobile* ch)
 // Improved Death_cry contributed by Diavolo.
 void death_cry(Mobile* ch)
 {
-    RoomData* was_in_room;
+    Room* was_in_room;
     char* msg;
     int door;
     VNUM vnum;
@@ -1473,11 +1473,11 @@ void death_cry(Mobile* ch)
 
     was_in_room = ch->in_room;
     for (door = 0; door <= 5; door++) {
-        ExitData* pexit;
+        RoomExit* room_exit;
 
-        if ((pexit = was_in_room->exit[door]) != NULL
-            && pexit->u1.to_room != NULL && pexit->u1.to_room != was_in_room) {
-            ch->in_room = pexit->u1.to_room;
+        if ((room_exit = was_in_room->exit[door]) != NULL
+            && room_exit->to_room != NULL && room_exit->to_room != was_in_room) {
+            ch->in_room = room_exit->to_room;
             act(msg, ch, NULL, NULL, TO_ROOM);
         }
     }
@@ -2026,7 +2026,7 @@ void do_berserk(Mobile* ch, char* argument)
     chance += 25 - hp_percent / 2;
 
     if (number_percent() < chance) {
-        AffectData af = { 0 };
+        Affect af = { 0 };
 
         WAIT_STATE(ch, PULSE_VIOLENCE);
         ch->mana -= 50;
@@ -2298,7 +2298,7 @@ void do_dirt(Mobile* ch, char* argument)
 
     /* now the attack */
     if (number_percent() < chance) {
-        AffectData af = { 0 };
+        Affect af = { 0 };
         act("{5$n is blinded by the dirt in $s eyes!{x", victim, NULL, NULL,
             TO_ROOM);
         act("{5$n kicks dirt in your eyes!{x", ch, NULL, victim, TO_VICT);
@@ -2608,8 +2608,8 @@ void do_backstab(Mobile* ch, char* argument)
 
 void do_flee(Mobile* ch, char* argument)
 {
-    RoomData* was_in;
-    RoomData* now_in;
+    Room* was_in;
+    Room* now_in;
     Mobile* victim;
     int attempt;
 
@@ -2621,15 +2621,15 @@ void do_flee(Mobile* ch, char* argument)
 
     was_in = ch->in_room;
     for (attempt = 0; attempt < DIR_MAX; attempt++) {
-        ExitData* pexit;
+        RoomExit* room_exit;
         int door;
 
         door = number_door();
-        if ((pexit = was_in->exit[door]) == 0 || pexit->u1.to_room == NULL
-            || IS_SET(pexit->exit_flags, EX_CLOSED)
+        if ((room_exit = was_in->exit[door]) == 0 || room_exit->to_room == NULL
+            || IS_SET(room_exit->exit_flags, EX_CLOSED)
             || number_range(0, ch->daze) != 0
             || (IS_NPC(ch)
-                && IS_SET(pexit->u1.to_room->room_flags, ROOM_NO_MOB)))
+                && IS_SET(room_exit->to_room->room_flags, ROOM_NO_MOB)))
             continue;
 
         move_char(ch, door, false);

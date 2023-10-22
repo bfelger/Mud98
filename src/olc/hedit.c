@@ -12,7 +12,7 @@
 #include "string_edit.h"
 #include "tables.h"
 
-#include "entities/area_data.h"
+#include "entities/area.h"
 #include "entities/descriptor.h"
 #include "entities/player_data.h"
 

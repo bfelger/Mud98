@@ -34,7 +34,7 @@
 #include "mob_prog.h"
 
 #include "entities/mobile.h"
-#include "entities/room_data.h"
+#include "entities/room.h"
 
 #include "data/direction.h"
 
@@ -47,8 +47,8 @@
 #define MAGIC_NUM               52571214
 
 void assign_area_vnum(VNUM vnum);       // OLC
-void reset_area(AreaData* pArea);      // OLC
-void reset_room(RoomData* pRoom);	    // OLC
+void reset_area(Area* area);      // OLC
+void reset_room(Room* pRoom);	    // OLC
 char* print_flags(FLAGS flag);
 void boot_db(void);
 void area_update(void);

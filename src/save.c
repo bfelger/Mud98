@@ -141,7 +141,7 @@ void save_char_obj(Mobile* ch)
 // Write the char.
 void fwrite_char(Mobile* ch, FILE* fp)
 {
-    AffectData* paf;
+    Affect* paf;
     int sn, gn, pos;
 
     fprintf(fp, "#%s\n", IS_NPC(ch) ? "MOB" : "PLAYER");
@@ -171,7 +171,7 @@ void fwrite_char(Mobile* ch, FILE* fp)
     fprintf(fp, "Scro %d\n", ch->lines);
     fprintf(fp, "Recall %d\n", ch->pcdata->recall);
     fprintf(fp, "Room %d\n",
-            (ch->in_room == get_room_data(ROOM_VNUM_LIMBO)
+            (ch->in_room == get_room(ROOM_VNUM_LIMBO)
              && ch->was_in_room != NULL)
                 ? ch->was_in_room->vnum
             : ch->in_room == NULL ? ch->pcdata->recall
@@ -314,7 +314,7 @@ void fwrite_themes(Mobile* ch, FILE* fp)
 /* write a pet */
 void fwrite_pet(Mobile* pet, FILE* fp)
 {
-    AffectData* paf;
+    Affect* paf;
 
     fprintf(fp, "#PET\n");
 
@@ -378,7 +378,7 @@ void fwrite_pet(Mobile* pet, FILE* fp)
 void fwrite_obj(Mobile* ch, Object* obj, FILE* fp, int iNest)
 {
     ExtraDesc* ed;
-    AffectData* paf;
+    Affect* paf;
 
     /*
      * Slick recursion to write lists backwards,
@@ -768,7 +768,7 @@ void fread_char(Mobile* ch, FILE* fp)
             }
 
             if (!str_cmp(word, "AffD")) {
-                AffectData* paf;
+                Affect* paf;
                 SKNUM sn;
 
                 paf = new_affect();
@@ -791,7 +791,7 @@ void fread_char(Mobile* ch, FILE* fp)
             }
 
             if (!str_cmp(word, "Affc")) {
-                AffectData* paf;
+                Affect* paf;
                 SKNUM sn;
 
                 paf = new_affect();
@@ -884,7 +884,7 @@ void fread_char(Mobile* ch, FILE* fp)
                 }
 
                 if (ch->in_room == NULL) {
-                    ch->in_room = get_room_data(ch->pcdata->recall);
+                    ch->in_room = get_room(ch->pcdata->recall);
                 }
                 return;
             }
@@ -1005,7 +1005,7 @@ void fread_char(Mobile* ch, FILE* fp)
             KEY("Race", ch->race, race_lookup(fread_string(fp)));
 
             if (!str_cmp(word, "Room")) {
-                ch->in_room = get_room_data(fread_number(fp));
+                ch->in_room = get_room(fread_number(fp));
                 fMatch = true;
                 break;
             }
@@ -1155,7 +1155,7 @@ void fread_pet(Mobile* ch, FILE* fp)
             }
 
             if (!str_cmp(word, "AffD")) {
-                AffectData* paf;
+                Affect* paf;
                 SKNUM sn;
 
                 paf = new_affect();
@@ -1178,7 +1178,7 @@ void fread_pet(Mobile* ch, FILE* fp)
             }
 
             if (!str_cmp(word, "Affc")) {
-                AffectData* paf;
+                Affect* paf;
                 SKNUM sn;
 
                 paf = new_affect();
@@ -1357,7 +1357,7 @@ void fread_obj(Mobile* ch, FILE* fp)
 
         case 'A':
             if (!str_cmp(word, "AffD")) {
-                AffectData* paf;
+                Affect* paf;
                 SKNUM sn;
 
                 paf = new_affect();
@@ -1379,7 +1379,7 @@ void fread_obj(Mobile* ch, FILE* fp)
                 break;
             }
             if (!str_cmp(word, "Affc")) {
-                AffectData* paf;
+                Affect* paf;
                 SKNUM sn;
 
                 paf = new_affect();

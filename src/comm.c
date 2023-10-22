@@ -56,7 +56,7 @@
 #include "olc/screen.h"
 #include "olc/string_edit.h"
 
-#include "entities/area_data.h"
+#include "entities/area.h"
 #include "entities/descriptor.h"
 #include "entities/object.h"
 #include "entities/player_data.h"
@@ -977,7 +977,7 @@ void bust_a_prompt(Mobile* ch)
     char* point;
     char* pbuff;
     char doors[MAX_INPUT_LENGTH] = "";
-    ExitData* pexit;
+    RoomExit* room_exit;
     bool found;
     int door;
 
@@ -1009,12 +1009,12 @@ void bust_a_prompt(Mobile* ch)
             found = false;
             doors[0] = '\0';
             for (door = 0; door < DIR_MAX; door++) {
-                if ((pexit = ch->in_room->exit[door]) != NULL
-                    && pexit->u1.to_room != NULL
-                    && (can_see_room(ch, pexit->u1.to_room)
+                if ((room_exit = ch->in_room->exit[door]) != NULL
+                    && room_exit->to_room != NULL
+                    && (can_see_room(ch, room_exit->to_room)
                         || (IS_AFFECTED(ch, AFF_INFRARED)
                             && !IS_AFFECTED(ch, AFF_BLIND)))
-                    && !IS_SET(pexit->exit_flags, EX_CLOSED)) {
+                    && !IS_SET(room_exit->exit_flags, EX_CLOSED)) {
                     found = true;
                     strcat(doors, dir_list[door].name_abbr);
                 }
@@ -1727,7 +1727,7 @@ void nanny(Descriptor * d, char* argument)
             if (start_loc == 0)
                 start_loc = cfg_get_default_start_loc();
 
-            char_to_room(ch, get_room_data(start_loc));
+            char_to_room(ch, get_room(start_loc));
             send_to_char("\n\r", ch);
             do_function(ch, &do_help, "newbie info");
             send_to_char("\n\r", ch);
@@ -1736,10 +1736,10 @@ void nanny(Descriptor * d, char* argument)
             char_to_room(ch, ch->in_room);
         }
         else if (IS_IMMORTAL(ch)) {
-            char_to_room(ch, get_room_data(ROOM_VNUM_CHAT));
+            char_to_room(ch, get_room(ROOM_VNUM_CHAT));
         }
         else {
-            char_to_room(ch, get_room_data(ch->pcdata->recall));
+            char_to_room(ch, get_room(ch->pcdata->recall));
         }
 
         act("$n has entered the game.", ch, NULL, NULL, TO_ROOM);
@@ -1851,10 +1851,10 @@ bool check_parse_name(char* name)
     // Prevent players from naming themselves after mobs.
     {
         MobPrototype* p_mob_proto;
-        int iHash;
+        int hash;
 
-        for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
-            for (p_mob_proto = mob_prototype_hash[iHash]; p_mob_proto != NULL;
+        for (hash = 0; hash < MAX_KEY_HASH; hash++) {
+            for (p_mob_proto = mob_prototype_hash[hash]; p_mob_proto != NULL;
                 NEXT_LINK(p_mob_proto)) {
                 if (is_name(name, p_mob_proto->name)) 
                     return false;
@@ -1936,7 +1936,7 @@ void stop_idling(Mobile * ch)
 {
     if (ch == NULL || ch->desc == NULL || ch->desc->connected != CON_PLAYING
         || ch->was_in_room == NULL
-        || ch->in_room != get_room_data(ROOM_VNUM_LIMBO))
+        || ch->in_room != get_room(ROOM_VNUM_LIMBO))
         return;
 
     ch->timer = 0;

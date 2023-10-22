@@ -8,7 +8,7 @@
 
 #include "entities/mobile.h"
 #include "entities/object.h"
-#include "entities/room_data.h"
+#include "entities/room.h"
 
 #include "data/damage.h"
 #include "data/item.h"
@@ -37,7 +37,7 @@ int can_carry_w(Mobile* ch);
 bool is_name(char* str, char* namelist);
 bool is_exact_name(char* str, char* namelist);
 void char_from_room(Mobile* ch);
-void char_to_room(Mobile* ch, RoomData* pRoomIndex);
+void char_to_room(Mobile* ch, Room* pRoomIndex);
 void obj_to_char(Object* obj, Mobile* ch);
 void obj_from_char(Object* obj);
 int apply_ac(Object* obj, int iWear, int type);
@@ -46,7 +46,7 @@ void equip_char(Mobile* ch, Object* obj, WearLocation iWear);
 void unequip_char(Mobile* ch, Object* obj);
 int count_obj_list(ObjPrototype* obj, Object* list);
 void obj_from_room(Object* obj);
-void obj_to_room(Object* obj, RoomData* pRoomIndex);
+void obj_to_room(Object* obj, Room* pRoomIndex);
 void obj_to_obj(Object* obj, Object* obj_to);
 void obj_from_obj(Object* obj);
 void extract_obj(Object* obj);
@@ -63,12 +63,12 @@ Object* create_money(int16_t gold, int16_t silver);
 int get_obj_number(Object* obj);
 int get_obj_weight(Object* obj);
 int get_true_weight(Object* obj);
-bool room_is_dark(RoomData* pRoomIndex);
-bool is_room_owner(Mobile* ch, RoomData* room);
-bool room_is_private(RoomData* pRoomIndex);
+bool room_is_dark(Room* pRoomIndex);
+bool is_room_owner(Mobile* ch, Room* room);
+bool room_is_private(Room* pRoomIndex);
 bool can_see(Mobile* ch, Mobile* victim);
 bool can_see_obj(Mobile* ch, Object* obj);
-bool can_see_room(Mobile* ch, RoomData* pRoomIndex);
+bool can_see_room(Mobile* ch, Room* pRoomIndex);
 bool can_drop_obj(Mobile* ch, Object* obj);
 char* extra_bit_name(int extra_flags);
 char* wear_bit_name(int wear_flags);
@@ -82,8 +82,8 @@ char* comm_bit_name(int comm_flags);
 char* cont_bit_name(int cont_flags);
 bool emptystring(const char*);
 char* itos(int);
-int get_vnum_mob_name_area(char*, AreaData*);
-int get_vnum_obj_name_area(char*, AreaData*);
+int get_vnum_mob_name_area(char*, Area*);
+int get_vnum_obj_name_area(char*, Area*);
 int get_points(int race, int args);
 
 #endif // !MUD98__HANDLER_H

@@ -151,10 +151,10 @@ typedef struct editor_cmd_t {
 } EditCmd;
 
 // Utils.
-AreaData* get_vnum_area(VNUM vnum);
-AreaData* get_area_data(VNUM vnum);
+Area* get_vnum_area(VNUM vnum);
+Area* get_area_data(VNUM vnum);
 FLAGS flag_value(const struct flag_type* flag_table, char* argument);
-void add_reset(RoomData*, ResetData*, int);
+void add_reset(Room*, Reset*, int);
 void set_editor(Descriptor*, int, uintptr_t);
 
 bool run_olc_editor(Descriptor* d, char* incomm);
@@ -168,14 +168,14 @@ extern const OlcCmd gedit_table[];
 extern const OlcCmd hedit_table[];
 
 // Dummy objects needed for calc'ing field offsets
-extern AreaData xArea;
+extern Area xArea;
 extern Class xClass;
 extern CmdInfo xCmd;
 extern MobProgCode xProg;
 extern MobPrototype xMob;
 extern ObjPrototype xObj;
 extern Race xRace;
-extern RoomData xRoom;
+extern Room xRoom;
 extern Skill xSkill;
 extern Social xSoc;
 extern Quest xQuest;
@@ -371,7 +371,7 @@ DECLARE_ED_FUN(ed_objrecval);
 // Macros
 
 /* Return pointers to what is being edited. */
-#define EDIT_AREA(ch, area)	    ( area = (AreaData*)ch->desc->pEdit )
+#define EDIT_AREA(ch, area)	    ( area = (Area*)ch->desc->pEdit )
 #define EDIT_CLASS(ch, class_)  ( class_ = (Class*)ch->desc->pEdit )
 #define EDIT_CMD(ch, cmd)	    ( cmd = (CmdInfo*)ch->desc->pEdit )
 #define EDIT_GROUP(ch, grp)	    ( grp = (SkillGroup*)ch->desc->pEdit )
@@ -381,7 +381,7 @@ DECLARE_ED_FUN(ed_objrecval);
 #define EDIT_PROG(ch, code)	    ( code = (MobProgCode*)ch->desc->pEdit )
 #define EDIT_QUEST(ch, quest)   ( quest = (Quest*)ch->desc->pEdit )
 #define EDIT_RACE(ch, race)	    ( race = (Race*)ch->desc->pEdit )
-#define EDIT_ROOM(ch, room)	    ( room = (RoomData*)ch->desc->pEdit )
+#define EDIT_ROOM(ch, room)	    ( room = (Room*)ch->desc->pEdit )
 #define EDIT_SKILL(ch, skill)	( skill = (Skill*)ch->desc->pEdit )
 #define EDIT_SOCIAL(ch, social)	( social = (Social*)ch->desc->pEdit )
 

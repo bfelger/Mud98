@@ -84,13 +84,13 @@ void do_pedit(Mobile* ch, char* argument)
     READ_ARG(command);
 
     if (is_number(command)) {
-        AreaData* pArea;
+        Area* area;
 
-        if ((pArea = get_vnum_area(atoi(command))) == NULL) {
+        if ((area = get_vnum_area(atoi(command))) == NULL) {
             send_to_char("PEdit : That vnum is not assigned to an area.\n\r", ch);
             return;
         }
-        if (!IS_BUILDER(ch, pArea)) {
+        if (!IS_BUILDER(ch, area)) {
             send_to_char("PEdit : You do not have access to this area.\n\r", ch);
             return;
         }
@@ -124,7 +124,7 @@ void do_pedit(Mobile* ch, char* argument)
 MPEDIT(pedit_create)
 {
     MobProgCode* pMcode;
-    AreaData* pArea;
+    Area* area;
     int value;
 
     value = atoi(argument);
@@ -139,12 +139,12 @@ MPEDIT(pedit_create)
         return false;
     }
 
-    if ((pArea = get_vnum_area(value)) == NULL) {
+    if ((area = get_vnum_area(value)) == NULL) {
         send_to_char("PEdit: That vnum has not been assigned to an area.\n\r", ch);
         return false;
     }
 
-    if (!IS_BUILDER(ch, pArea)) {
+    if (!IS_BUILDER(ch, area)) {
         send_to_char("PEdit: You do not have access to this area.\n\r", ch);
         return false;
     }

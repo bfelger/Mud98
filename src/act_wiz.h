@@ -19,7 +19,7 @@ typedef struct wiznet_t {
 
 extern const WizNet wiznet_table[];
 
-RoomData* find_location(Mobile* ch, char* arg);
+Room* find_location(Mobile* ch, char* arg);
 void wiznet(char* string, Mobile* ch, Object* obj, FLAGS flag, 
     FLAGS flag_skip, LEVEL min_level);
 

@@ -49,12 +49,12 @@
 #endif
 
 /* random room generation procedure */
-RoomData* get_random_room(Mobile* ch)
+Room* get_random_room(Mobile* ch)
 {
-    RoomData* room;
+    Room* room;
 
     for (;;) {
-        room = get_room_data(number_range(0, 65535));
+        room = get_room(number_range(0, 65535));
         if (room != NULL)
             if (can_see_room(ch, room) && !room_is_private(room)
                 && !IS_SET(room->room_flags, ROOM_PRIVATE)
@@ -71,14 +71,14 @@ RoomData* get_random_room(Mobile* ch)
 /* RT Enter portals */
 void do_enter(Mobile* ch, char* argument)
 {
-    RoomData* location;
+    Room* location;
 
     if (ch->fighting != NULL)
         return;
 
     /* nifty portal stuff */
     if (argument[0] != '\0') {
-        RoomData* old_room;
+        Room* old_room;
         Object* portal;
         Mobile* fch;
         Mobile* fch_next = NULL;
@@ -113,7 +113,7 @@ void do_enter(Mobile* ch, char* argument)
         else if (IS_SET(portal->value[2], PORTAL_BUGGY) && (number_percent() < 5))
             location = get_random_room(ch);
         else
-            location = get_room_data(portal->value[3]);
+            location = get_room(portal->value[3]);
 
         if (location == NULL || location == old_room
             || !can_see_room(ch, location)

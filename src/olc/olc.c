@@ -27,7 +27,7 @@
 #include "entities/descriptor.h"
 #include "entities/object.h"
 #include "entities/player_data.h"
-#include "entities/reset_data.h"
+#include "entities/reset.h"
 
 #include "data/mobile_data.h"
 #include "data/race.h"
@@ -161,8 +161,8 @@ char* olc_ed_name(Mobile* ch)
 
 char* olc_ed_vnum(Mobile* ch)
 {
-    AreaData* pArea;
-    RoomData* pRoom;
+    Area* area;
+    Room* pRoom;
     ObjPrototype* pObj;
     MobPrototype* pMob;
     MobProgCode* pMcode;
@@ -178,8 +178,8 @@ char* olc_ed_vnum(Mobile* ch)
     buf[0] = '\0';
     switch (ch->desc->editor) {
     case ED_AREA:
-        pArea = (AreaData*)ch->desc->pEdit;
-        sprintf(buf, "%"PRVNUM, pArea ? pArea->vnum : 0);
+        area = (Area*)ch->desc->pEdit;
+        sprintf(buf, "%"PRVNUM, area ? area->vnum : 0);
         break;
     case ED_ROOM:
         pRoom = ch->in_room;
@@ -387,15 +387,15 @@ void do_olc(Mobile* ch, char* argument)
 bool process_olc_command(Mobile* ch, char* argument, const OlcCmdEntry* table)
 {
     char arg[MIL];
-    AreaData* pArea;
+    Area* area;
     MobPrototype* pMob;
     ObjPrototype* pObj;
-    RoomData* pRoom;
+    Room* pRoom;
     Race* pRace;
     Skill* pSkill;
     CmdInfo* pCmd;
     Class* pClass;
-    AreaData* tArea;
+    Area* tArea;
     MobProgCode* pProg;
     Social* pSoc;
     Quest* pQuest;
@@ -409,14 +409,14 @@ bool process_olc_command(Mobile* ch, char* argument, const OlcCmdEntry* table)
             && !str_prefix(arg, table[temp].name)) {
             switch (ch->desc->editor) {
             case ED_AREA:
-                EDIT_AREA(ch, pArea);
+                EDIT_AREA(ch, area);
                 if (table[temp].argument)
-                    pointer = (table[temp].argument - U(&xArea) + U(pArea));
+                    pointer = (table[temp].argument - U(&xArea) + U(area));
                 else
                     pointer = 0;
                 if ((*table[temp].function) (table[temp].name, ch, argument, pointer, table[temp].parameter)
-                    && pArea)
-                    SET_BIT(pArea->area_flags, AREA_CHANGED);
+                    && area)
+                    SET_BIT(area->area_flags, AREA_CHANGED);
                 return true;
                 break;
 

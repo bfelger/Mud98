@@ -14,13 +14,13 @@ typedef struct mobile_t Mobile;
 #include "interp.h"
 #include "note.h"
 
-#include "area_data.h"
+#include "area.h"
 #include "descriptor.h"
 #include "mob_memory.h"
 #include "mob_prototype.h"
 #include "object.h"
 #include "player_data.h"
-#include "room_data.h"
+#include "room.h"
 
 #include "data/class.h"
 #include "data/damage.h"
@@ -42,13 +42,13 @@ typedef struct mobile_t {
     SpecFunc* spec_fun;
     MobPrototype* prototype;
     Descriptor* desc;
-    AffectData* affected;
+    Affect* affected;
     NoteData* pnote;
     Object* carrying;
     Object* on;
-    RoomData* in_room;
-    RoomData* was_in_room;
-    AreaData* zone;
+    Room* in_room;
+    Room* was_in_room;
+    Area* zone;
     PlayerData* pcdata;
     CharGenData* gen_data;
     char* name;

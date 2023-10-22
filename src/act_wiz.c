@@ -44,7 +44,7 @@
 #include "tables.h"
 #include "update.h"
 
-#include "entities/area_data.h"
+#include "entities/area.h"
 #include "entities/descriptor.h"
 #include "entities/object.h"
 #include "entities/player_data.h"
@@ -707,13 +707,13 @@ void do_pecho(Mobile* ch, char* argument)
     send_to_char("\n\r", ch);
 }
 
-RoomData* find_location(Mobile* ch, char* arg)
+Room* find_location(Mobile* ch, char* arg)
 {
     Mobile* victim;
     Object* obj;
 
     if (is_number(arg)) 
-        return get_room_data(STRTOVNUM(arg));
+        return get_room(STRTOVNUM(arg));
 
     if ((victim = get_char_world(ch, arg)) != NULL) 
         return victim->in_room;
@@ -728,7 +728,7 @@ void do_transfer(Mobile* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
-    RoomData* location;
+    Room* location;
     Descriptor* d;
     Mobile* victim;
 
@@ -794,8 +794,8 @@ void do_transfer(Mobile* ch, char* argument)
 void do_at(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    RoomData* location;
-    RoomData* original;
+    Room* location;
+    Room* original;
     Object* on;
     Mobile* wch;
 
@@ -841,7 +841,7 @@ void do_at(Mobile* ch, char* argument)
 
 void do_goto(Mobile* ch, char* argument)
 {
-    RoomData* location;
+    Room* location;
     Mobile* rch;
     int count = 0;
 
@@ -893,7 +893,7 @@ void do_goto(Mobile* ch, char* argument)
 
 void do_violate(Mobile* ch, char* argument)
 {
-    RoomData* location;
+    Room* location;
     Mobile* rch;
 
     if (argument[0] == '\0') {
@@ -945,7 +945,7 @@ void do_stat(Mobile* ch, char* argument)
     char arg[MAX_INPUT_LENGTH];
     char* string;
     Object* obj;
-    RoomData* location;
+    Room* location;
     Mobile* victim;
 
     string = one_argument(argument, arg);
@@ -1000,7 +1000,7 @@ void do_rstat(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    RoomData* location;
+    Room* location;
     Object* obj;
     Mobile* rch;
     int door;
@@ -1060,17 +1060,17 @@ void do_rstat(Mobile* ch, char* argument)
     send_to_char(".\n\r", ch);
 
     for (door = 0; door <= 5; door++) {
-        ExitData* pexit;
+        RoomExit* room_exit;
 
-        if ((pexit = location->exit[door]) != NULL) {
+        if ((room_exit = location->exit[door]) != NULL) {
             sprintf(buf,
                     "Door: %d.  To: %d.  Key: %d.  Exit flags: %d.\n\rKeyword: "
                     "'%s'.  Description: %s",
 
                     door,
-                    (pexit->u1.to_room == NULL ? -1 : pexit->u1.to_room->vnum),
-                    pexit->key, pexit->exit_flags, pexit->keyword,
-                    pexit->description[0] != '\0' ? pexit->description
+                    (room_exit->to_room == NULL ? -1 : room_exit->to_room->vnum),
+                    room_exit->key, room_exit->exit_flags, room_exit->keyword,
+                    room_exit->description[0] != '\0' ? room_exit->description
                                                   : "(none).\n\r");
             send_to_char(buf, ch);
         }
@@ -1083,7 +1083,7 @@ void do_ostat(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    AffectData* paf;
+    Affect* paf;
     Object* obj;
 
     one_argument(argument, arg);
@@ -1376,7 +1376,7 @@ void do_mstat(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    AffectData* paf;
+    Affect* paf;
     Mobile* victim;
 
     one_argument(argument, arg);
@@ -3516,7 +3516,7 @@ void do_rset(Mobile* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     char arg3[MAX_INPUT_LENGTH];
-    RoomData* location;
+    Room* location;
     int value;
 
     smash_tilde(argument);

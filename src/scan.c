@@ -43,7 +43,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-void scan_list args((RoomData * scan_room, Mobile* ch, int16_t depth,
+void scan_list args((Room * scan_room, Mobile* ch, int16_t depth,
                      int16_t door));
 
 void scan_char args((Mobile * victim, Mobile* ch, int16_t depth,
@@ -52,8 +52,8 @@ void scan_char args((Mobile * victim, Mobile* ch, int16_t depth,
 void do_scan(Mobile* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH], buf[MAX_INPUT_LENGTH];
-    RoomData* scan_room;
-    ExitData* pExit;
+    Room* scan_room;
+    RoomExit* room_exit;
     int16_t door, depth;
 
     READ_ARG(arg1);
@@ -64,8 +64,8 @@ void do_scan(Mobile* ch, char* argument)
         scan_list(ch->in_room, ch, 0, -1);
 
         for (door = 0; door < 6; door++) {
-            if ((pExit = ch->in_room->exit[door]) != NULL)
-                scan_list(pExit->u1.to_room, ch, 1, door);
+            if ((room_exit = ch->in_room->exit[door]) != NULL)
+                scan_list(room_exit->to_room, ch, 1, door);
         }
         return;
     }
@@ -93,15 +93,15 @@ void do_scan(Mobile* ch, char* argument)
     scan_room = ch->in_room;
 
     for (depth = 1; depth < 4; depth++) {
-        if ((pExit = scan_room->exit[door]) != NULL) {
-            scan_room = pExit->u1.to_room;
-            scan_list(pExit->u1.to_room, ch, depth, door);
+        if ((room_exit = scan_room->exit[door]) != NULL) {
+            scan_room = room_exit->to_room;
+            scan_list(room_exit->to_room, ch, depth, door);
         }
     }
     return;
 }
 
-void scan_list(RoomData* scan_room, Mobile* ch, int16_t depth,
+void scan_list(Room* scan_room, Mobile* ch, int16_t depth,
                int16_t door)
 {
     Mobile* rch;

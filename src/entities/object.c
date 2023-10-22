@@ -19,7 +19,7 @@ Object* obj_list;
 void clone_object(Object* parent, Object* clone)
 {
     int i;
-    AffectData* paf;
+    Affect* paf;
     ExtraDesc* ed, * ed_new;
 
     if (parent == NULL || clone == NULL)
@@ -135,7 +135,7 @@ void clone_object(Object* parent, Object* clone)
 
 Object* create_object(ObjPrototype* obj_proto, LEVEL level)
 {
-    AffectData* paf;
+    Affect* paf;
     Object* obj;
     int i;
 
@@ -200,8 +200,8 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level)
 
 void free_object(Object* obj)
 {
-    AffectData* paf;
-    AffectData* paf_next = NULL;
+    Affect* paf;
+    Affect* paf_next = NULL;
     ExtraDesc* ed;
     ExtraDesc* ed_next = NULL;
 

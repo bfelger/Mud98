@@ -70,7 +70,7 @@ void qedit(Mobile* ch, char* argument)
 void do_qedit(Mobile* ch, char* argument)
 {
     Quest* quest;
-    AreaData* area;
+    Area* area;
     char command[MAX_STRING_LENGTH];
     VNUM  vnum;
 
@@ -122,7 +122,7 @@ void do_qedit(Mobile* ch, char* argument)
 QEDIT(qedit_create)
 {
     Quest* quest;
-    AreaData* area;
+    Area* area;
 
     VNUM vnum = (VNUM)atoi(argument);
 

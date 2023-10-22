@@ -136,9 +136,9 @@ RAEDIT(raedit_show)
 
     EDIT_RACE(ch, pRace);
 
-    RoomData* room = NULL;
+    Room* room = NULL;
     if (pRace->start_loc > 0)
-        room = get_room_data(pRace->start_loc);
+        room = get_room(pRace->start_loc);
 
     printf_to_char(ch, "Name        : {|[{*%s{|]{x\n\r", pRace->name);
     printf_to_char(ch, "PC race?    : {|[%s{|]{x\n\r", pRace->pc_race ? "{GYES" : "{RNO");
@@ -161,7 +161,7 @@ RAEDIT(raedit_show)
         VNUM vnum = GET_ELEM(&pRace->class_start, i);
         
         if (vnum > 0)
-            room = get_room_data(vnum);
+            room = get_room(vnum);
         else
             room = NULL;
         sprintf(buf, "    %-7.7s     {*%3d     %4d{|({*%3d{|){x    {|[{*%5d{|] {_%s %s{x\n\r",
@@ -474,7 +474,7 @@ RAEDIT(raedit_start_loc)
 
     room_vnum = (VNUM)atoi(vnum_str);
 
-    if (room_vnum > 0 && !get_room_data(room_vnum)) {
+    if (room_vnum > 0 && !get_room(room_vnum)) {
         send_to_char("{jThat is not a valid room VNUM.\n\r", ch);
     }
 

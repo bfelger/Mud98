@@ -51,7 +51,7 @@ void acid_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 {
     if (target == SPELL_TARGET_ROOM) /* nail objects on the floor */
     {
-        RoomData* room = (RoomData*)vo;
+        Room* room = (Room*)vo;
         Object* obj;
         Object* obj_next = NULL;
 
@@ -137,8 +137,8 @@ void acid_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 
         if (obj->item_type == ITEM_ARMOR) {
             /* etch it */
-            AffectData* paf;
-            AffectData* paf_next = NULL;
+            Affect* paf;
+            Affect* paf_next = NULL;
             bool af_found = false;
             int i;
 
@@ -204,7 +204,7 @@ void cold_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 {
     if (target == SPELL_TARGET_ROOM) /* nail objects on the floor */
     {
-        RoomData* room = (RoomData*)vo;
+        Room* room = (Room*)vo;
         Object* obj;
         Object* obj_next = NULL;
 
@@ -223,7 +223,7 @@ void cold_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 
         /* chill touch effect */
         if (!saves_spell(level / 4 + (LEVEL)(dam / 20), victim, DAM_COLD)) {
-            AffectData af = { 0 };
+            Affect af = { 0 };
 
             act("$n turns blue and shivers.", victim, NULL, NULL, TO_ROOM);
             act("A chill sinks deep into your bones.", victim, NULL, NULL,
@@ -302,7 +302,7 @@ void fire_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 {
     if (target == SPELL_TARGET_ROOM) /* nail objects on the floor */
     {
-        RoomData* room = (RoomData*)vo;
+        Room* room = (Room*)vo;
         Object* obj;
         Object* obj_next = NULL;
 
@@ -322,7 +322,7 @@ void fire_effect(void* vo, LEVEL level, int dam, SpellTarget target)
         /* chance of blindness */
         if (!IS_AFFECTED(victim, AFF_BLIND)
             && !saves_spell(level / 4 + (LEVEL)(dam / 20), victim, DAM_FIRE)) {
-            AffectData af = { 0 };
+            Affect af = { 0 };
             act("$n is blinded by smoke!", victim, NULL, NULL, TO_ROOM);
             act("Your eyes tear up from smoke...you can't see a thing!", victim,
                 NULL, NULL, TO_CHAR);
@@ -435,7 +435,7 @@ void poison_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 {
     if (target == SPELL_TARGET_ROOM) /* nail objects on the floor */
     {
-        RoomData* room = (RoomData*)vo;
+        Room* room = (Room*)vo;
         Object* obj;
         Object* obj_next = NULL;
 
@@ -454,7 +454,7 @@ void poison_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 
         /* chance of poisoning */
         if (!saves_spell(level / 4 + (LEVEL)(dam / 20), victim, DAM_POISON)) {
-            AffectData af = { 0 };
+            Affect af = { 0 };
 
             send_to_char("You feel poison coursing through your veins.\n\r",
                          victim);
@@ -515,7 +515,7 @@ void poison_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 void shock_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 {
     if (target == SPELL_TARGET_ROOM) {
-        RoomData* room = (RoomData*)vo;
+        Room* room = (Room*)vo;
         Object* obj;
         Object* obj_next = NULL;
 

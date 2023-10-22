@@ -1,21 +1,21 @@
 ////////////////////////////////////////////////////////////////////////////////
-// room_data.h
+// room.h
 // Utilities to handle navigable rooms
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef struct room_data_t RoomData;
+typedef struct room_t Room;
 
 #pragma once
-#ifndef MUD98__ENTITIES__ROOM_DATA_H
-#define MUD98__ENTITIES__ROOM_DATA_H
+#ifndef MUD98__ENTITIES__ROOM_H
+#define MUD98__ENTITIES__ROOM_H
 
 #include "merc.h"
 
 #include "mobile.h"
-#include "exit_data.h"
+#include "room_exit.h"
 #include "extra_desc.h"
 #include "object.h"
-#include "reset_data.h"
+#include "reset.h"
 
 #include "data/direction.h"
 
@@ -52,15 +52,15 @@ typedef enum room_flags_t {
     ROOM_RECALL         = BIT(20),
 } RoomFlags;
 
-typedef struct room_data_t {
-    RoomData* next;
+typedef struct room_t {
+    Room* next;
     Mobile* people;
     Object* contents;
     ExtraDesc* extra_desc;
-    AreaData* area;
-    ExitData* exit[DIR_MAX];
-    ResetData* reset_first;    // OLC
-    ResetData* reset_last;     // OLC
+    Area* area;
+    RoomExit* exit[DIR_MAX];
+    Reset* reset_first;
+    Reset* reset_last;
     char* name;
     char* description;
     char* owner;
@@ -72,18 +72,18 @@ typedef struct room_data_t {
     int16_t mana_rate;
     int16_t clan;
     int16_t reset_num;
-} RoomData;
+} Room;
 
 #define FOR_EACH_IN_ROOM(c, r) \
     for ((c) = (r); (c) != NULL; (c) = c->next_in_room)
 
-void free_room_index(RoomData* pRoom);
-RoomData* get_room_data(VNUM vnum);
-RoomData* new_room_index();
+void free_room(Room* pRoom);
+Room* get_room(VNUM vnum);
+Room* new_room();
 
-extern RoomData* room_index_hash[MAX_KEY_HASH];
+extern Room* room_vnum_hash[MAX_KEY_HASH];
 
 extern int room_count;
 extern VNUM top_vnum_room;
 
-#endif // !MUD98__ENTITIES__ROOM_DATA_H
+#endif // !MUD98__ENTITIES__ROOM_H

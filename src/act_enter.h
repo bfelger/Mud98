@@ -7,8 +7,8 @@
 #define MUD98__ACT_ENTER_H
 
 #include "entities/mobile.h"
-#include "entities/room_data.h"
+#include "entities/room.h"
 
-RoomData* get_random_room(Mobile* ch);
+Room* get_random_room(Mobile* ch);
 
 #endif // !MUD98__ACT_ENTER_H

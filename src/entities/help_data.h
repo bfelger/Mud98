@@ -10,7 +10,7 @@ typedef struct help_area_t HelpArea;
 #ifndef MUD98__ENTITIES__HELP_DATA_H
 #define MUD98__ENTITIES__HELP_DATA_H
 
-#include "area_data.h"
+#include "area.h"
 #include "merc.h"
 
 typedef struct help_data_t {
@@ -25,7 +25,7 @@ typedef struct help_area_t {
     HelpArea* next;
     HelpData* first;
     HelpData* last;
-    AreaData* area;
+    Area* area;
     char* filename;
     bool changed;
 } HelpArea;

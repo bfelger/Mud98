@@ -55,7 +55,7 @@ void song_update(void)
 {
     Object* obj;
     Mobile* victim;
-    RoomData* room;
+    Room* room;
     Descriptor* d;
     char buf[MAX_STRING_LENGTH];
     char* line;

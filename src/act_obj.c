@@ -745,7 +745,7 @@ void do_give(Mobile* ch, char* argument)
 void do_envenom(Mobile* ch, char* argument)
 {
     Object* obj;
-    AffectData af = { 0 };
+    Affect af = { 0 };
     int percent, skill;
 
     /* find out what */
@@ -1093,7 +1093,7 @@ void do_drink(Mobile* ch, char* argument)
 
     if (obj->value[3] != 0) {
         /* The drink was poisoned ! */
-        AffectData af = { 0 };
+        Affect af = { 0 };
 
         act("$n chokes and gags.", ch, NULL, NULL, TO_ROOM);
         send_to_char("You choke and gag.\n\r", ch);
@@ -1158,7 +1158,7 @@ void do_eat(Mobile* ch, char* argument)
 
         if (obj->value[3] != 0) {
             /* The food was poisoned! */
-            AffectData af = { 0 };
+            Affect af = { 0 };
 
             act("$n chokes and gags.", ch, 0, 0, TO_ROOM);
             send_to_char("You choke and gag.\n\r", ch);
@@ -2185,8 +2185,8 @@ void do_buy(Mobile* ch, char* argument)
     if (IS_SET(ch->in_room->room_flags, ROOM_PET_SHOP)) {
         char arg[MAX_INPUT_LENGTH];
         Mobile* pet;
-        RoomData* petshop_inv;
-        RoomData* plr_in_room;
+        Room* petshop_inv;
+        Room* plr_in_room;
 
         smash_tilde(argument);
 
@@ -2196,9 +2196,9 @@ void do_buy(Mobile* ch, char* argument)
 
         /* hack to make new thalos pets work */
         if (ch->in_room->vnum == ROOM_VNUM_PETSHOP)
-            petshop_inv = get_room_data(ROOM_VNUM_PETSHOP_INV);
+            petshop_inv = get_room(ROOM_VNUM_PETSHOP_INV);
         else
-            petshop_inv = get_room_data(ch->in_room->vnum + 1);
+            petshop_inv = get_room(ch->in_room->vnum + 1);
         if (petshop_inv == NULL) {
             bug("Do_buy: bad pet shop at vnum %"PRVNUM".", ch->in_room->vnum);
             send_to_char("Sorry, you can't buy that here.\n\r", ch);
@@ -2386,15 +2386,15 @@ void do_list(Mobile* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
 
     if (IS_SET(ch->in_room->room_flags, ROOM_PET_SHOP)) {
-        RoomData* petshop_inv;
+        Room* petshop_inv;
         Mobile* pet;
         bool found;
 
         /* hack to make new thalos pets work */
         if (ch->in_room->vnum == ROOM_VNUM_PETSHOP)
-            petshop_inv = get_room_data(ROOM_VNUM_PETSHOP_INV);
+            petshop_inv = get_room(ROOM_VNUM_PETSHOP_INV);
         else
-            petshop_inv = get_room_data(ch->in_room->vnum + 1);
+            petshop_inv = get_room(ch->in_room->vnum + 1);
 
         if (petshop_inv == NULL) {
             bug("Do_list: bad pet shop at vnum %"PRVNUM".", ch->in_room->vnum);

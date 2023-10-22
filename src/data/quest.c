@@ -114,7 +114,7 @@ void free_quest_log(QuestLog* quest_log)
 
 Quest* get_quest(VNUM vnum)
 {
-    AreaData* area = get_vnum_area(vnum);
+    Area* area = get_vnum_area(vnum);
     Quest* quest = NULL;
     
     if (!area)
@@ -311,11 +311,11 @@ void load_quest(FILE* fp)
     return;
 }
 
-void save_quests(FILE* fp, AreaData* pArea)
+void save_quests(FILE* fp, Area* area)
 {
     Quest* q;
 
-    FOR_EACH(q, pArea->quests)
+    FOR_EACH(q, area->quests)
     {
         fprintf(fp, "#QUEST\n");
         save_struct(fp, U(&tmp_quest), quest_save_table, U(q));
@@ -401,7 +401,7 @@ void do_quest(Mobile* ch, char* argument)
     INIT_BUF(world, MSL);
     INIT_BUF(out, MSL);
 
-    AreaData* area = ch->in_room ? ch->in_room->area : NULL;
+    Area* area = ch->in_room ? ch->in_room->area : NULL;
 
     int i = 0;
 

@@ -76,7 +76,7 @@ const OlcCmdEntry mob_olc_comm_table[] = {
 void do_medit(Mobile* ch, char* argument)
 {
     MobPrototype* pMob;
-    AreaData* pArea;
+    Area* area;
     int     value;
     char    arg1[MAX_STRING_LENGTH];
 
@@ -109,20 +109,20 @@ void do_medit(Mobile* ch, char* argument)
                 return;
             }
 
-            pArea = get_vnum_area(value);
+            area = get_vnum_area(value);
 
-            if (!pArea) {
+            if (!area) {
                 send_to_char("MEdit:  That vnum is not assigned an area.\n\r", ch);
                 return;
             }
 
-            if (!IS_BUILDER(ch, pArea)) {
+            if (!IS_BUILDER(ch, area)) {
                 send_to_char("You do not have enough security to edit mobs.\n\r", ch);
                 return;
             }
 
             if (ed_new_mob("create", ch, argument, 0, 0)) {
-                SET_BIT(pArea->area_flags, AREA_CHANGED);
+                SET_BIT(area->area_flags, AREA_CHANGED);
                 ch->desc->editor = ED_MOBILE;
                 medit_show(ch, "");
             }
@@ -137,13 +137,13 @@ void do_medit(Mobile* ch, char* argument)
 /* Mobile Interpreter, called by do_medit. */
 void medit(Mobile* ch, char* argument)
 {
-    AreaData* pArea;
+    Area* area;
     MobPrototype* pMob;
 
     EDIT_MOB(ch, pMob);
-    pArea = pMob->area;
+    area = pMob->area;
 
-    if (!IS_BUILDER(ch, pArea)) {
+    if (!IS_BUILDER(ch, area)) {
         send_to_char("MEdit: Insufficient security to modify area.\n\r", ch);
         edit_done(ch);
         return;
@@ -442,9 +442,9 @@ MEDIT(medit_copy)
 ED_FUN_DEC(ed_new_mob)
 {
     MobPrototype* pMob;
-    AreaData* pArea;
+    Area* area;
     VNUM  value;
-    int  iHash;
+    int  hash;
 
     value = STRTOVNUM(argument);
 
@@ -453,14 +453,14 @@ ED_FUN_DEC(ed_new_mob)
         return false;
     }
 
-    pArea = get_vnum_area(value);
+    area = get_vnum_area(value);
 
-    if (!pArea) {
+    if (!area) {
         send_to_char("MEdit : That vnum is not assigned to an area.\n\r", ch);
         return false;
     }
 
-    if (!IS_BUILDER(ch, pArea)) {
+    if (!IS_BUILDER(ch, area)) {
         send_to_char("MEdit : You do not have access to that area.\n\r", ch);
         return false;
     }
@@ -472,17 +472,17 @@ ED_FUN_DEC(ed_new_mob)
 
     pMob = new_mob_prototype();
     pMob->vnum = value;
-    pMob->area = pArea;
+    pMob->area = area;
     pMob->act_flags = ACT_IS_NPC;
 
     if (value > top_vnum_mob)
         top_vnum_mob = value;
 
-    SET_BIT(pArea->area_flags, AREA_CHANGED);
+    SET_BIT(area->area_flags, AREA_CHANGED);
 
-    iHash = value % MAX_KEY_HASH;
-    pMob->next = mob_prototype_hash[iHash];
-    mob_prototype_hash[iHash] = pMob;
+    hash = value % MAX_KEY_HASH;
+    pMob->next = mob_prototype_hash[hash];
+    mob_prototype_hash[hash] = pMob;
 
     set_editor(ch->desc, ED_MOBILE, U(pMob));
 /*    ch->desc->pEdit        = (void *)pMob; */

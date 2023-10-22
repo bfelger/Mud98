@@ -132,10 +132,9 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
 
     mth/mth.h mth/msdp.c mth/mth.c mth/telopt.c
     
-    entities/affect_data.h entities/affect_data.c
-    entities/area_data.h entities/area_data.c
+    entities/affect.h entities/affect.c
+    entities/area.h entities/area.c
     entities/descriptor.h entities/descriptor.c
-    entities/exit_data.h entities/exit_data.c
     entities/extra_desc.h entities/extra_desc.c
     entities/help_data.h entities/help_data.c
     entities/mob_memory.h entities/mob_memory.c
@@ -144,8 +143,9 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     entities/obj_prototype.h entities/obj_prototype.c
     entities/object.h entities/object.c
     entities/player_data.h entities/player_data.c
-    entities/reset_data.h entities/reset_data.c 
-    entities/room_data.h entities/room_data.c
+    entities/reset.h entities/reset.c 
+    entities/room.h entities/room.c
+    entities/room_exit.h entities/room_exit.c
     entities/shop_data.h entities/shop_data.c
     
     data/class.h data/class.c

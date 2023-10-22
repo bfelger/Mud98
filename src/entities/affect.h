@@ -1,13 +1,13 @@
 ////////////////////////////////////////////////////////////////////////////////
-// affect_data.h
+// affect.h
 // Utilities to handle special conditions and status affects
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef struct affect_data_t AffectData;
+typedef struct affect_t Affect;
 
 #pragma once
-#ifndef MUD98__ENTITIES__AFFECT_DATA_H
-#define MUD98__ENTITIES__AFFECT_DATA_H
+#ifndef MUD98__ENTITIES__AFFECT_H
+#define MUD98__ENTITIES__AFFECT_H
 
 #include "merc.h"
 
@@ -89,8 +89,8 @@ typedef enum where_t {
     TO_WEAPON   = 5,
 } Where;
 
-typedef struct affect_data_t {
-    AffectData* next;
+typedef struct affect_t {
+    Affect* next;
     int bitvector;
     SKNUM type;
     Where where;
@@ -99,37 +99,37 @@ typedef struct affect_data_t {
     int16_t duration;
     int16_t modifier;
     bool valid;
-} AffectData;
+} Affect;
 
 char* affect_bit_name(int vector);
 void affect_check(Mobile* ch, Where where, int vector);
 void affect_enchant(Object* obj);
-AffectData* affect_find(AffectData* paf, SKNUM sn);
-void affect_join(Mobile* ch, AffectData* paf);
+Affect* affect_find(Affect* paf, SKNUM sn);
+void affect_join(Mobile* ch, Affect* paf);
 char* affect_loc_name(AffectLocation location);
-void affect_modify(Mobile* ch, AffectData* paf, bool fAdd);
-void affect_remove(Mobile* ch, AffectData* paf);
-void affect_remove_obj(Object* obj, AffectData* paf);
+void affect_modify(Mobile* ch, Affect* paf, bool fAdd);
+void affect_remove(Mobile* ch, Affect* paf);
+void affect_remove_obj(Object* obj, Affect* paf);
 void affect_strip(Mobile* ch, SKNUM sn);
-void affect_to_char(Mobile* ch, AffectData* paf);
-void affect_to_obj(Object* obj, AffectData* paf);
-void free_affect(AffectData* af);
+void affect_to_char(Mobile* ch, Affect* paf);
+void affect_to_obj(Object* obj, Affect* paf);
+void free_affect(Affect* af);
 bool is_affected(Mobile* ch, SKNUM sn);
-AffectData* new_affect();
+Affect* new_affect();
 
-#define ADD_AFF_DATA(t, aff)                                                   \
+#define ADD_AFFECT(t, aff)                                                   \
     if (!t->affected) {                                                        \
         t->affected = aff;                                                     \
     }                                                                          \
     else {                                                                     \
-        AffectData* i = t->affected;                                           \
+        Affect* i = t->affected;                                           \
         while (i->next != NULL)                                                \
             NEXT_LINK(i);                                                       \
         i->next = aff;                                                         \
     }                                                                          \
     aff->next = NULL;
 
-extern AffectData* affect_free;
+extern Affect* affect_free;
 extern int affect_count;
 
-#endif // !MUD98__ENTITIES__AFFECT_DATA_H
+#endif // !MUD98__ENTITIES__AFFECT_H

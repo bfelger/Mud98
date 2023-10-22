@@ -116,7 +116,7 @@ Mobile* create_mobile(MobPrototype* p_mob_proto)
 {
     Mobile* mob;
     int i;
-    AffectData af = { 0 };
+    Affect af = { 0 };
 
     mob_count++;
 
@@ -340,7 +340,7 @@ void load_mobiles(FILE* fp)
     for (;;) {
         VNUM vnum;
         char letter;
-        int iHash;
+        int hash;
 
         letter = fread_letter(fp);
         if (letter != '#') {
@@ -486,9 +486,9 @@ void load_mobiles(FILE* fp)
             }
         }
 
-        iHash = vnum % MAX_KEY_HASH;
-        p_mob_proto->next = mob_prototype_hash[iHash];
-        mob_prototype_hash[iHash] = p_mob_proto;
+        hash = vnum % MAX_KEY_HASH;
+        p_mob_proto->next = mob_prototype_hash[hash];
+        mob_prototype_hash[hash] = p_mob_proto;
         mob_proto_count++;
         top_vnum_mob = top_vnum_mob < vnum ? vnum : top_vnum_mob;   // OLC
         assign_area_vnum(vnum);                                     // OLC

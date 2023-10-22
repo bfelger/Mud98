@@ -39,10 +39,10 @@
 #include "update.h"
 
 #include "entities/descriptor.h"
-#include "entities/exit_data.h"
+#include "entities/room_exit.h"
 #include "entities/object.h"
 #include "entities/player_data.h"
-#include "entities/room_data.h"
+#include "entities/room.h"
 
 #include "data/class.h"
 #include "data/direction.h"
@@ -65,9 +65,9 @@ void move_char(Mobile* ch, int door, bool follow)
 {
     Mobile* fch;
     Mobile* fch_next = NULL;
-    RoomData* in_room;
-    RoomData* to_room;
-    ExitData* pexit;
+    Room* in_room;
+    Room* to_room;
+    RoomExit* room_exit;
 
     if (door < 0 || door > 5) {
         bug("Do_move: bad door %d.", door);
@@ -79,18 +79,18 @@ void move_char(Mobile* ch, int door, bool follow)
         return;
 
     in_room = ch->in_room;
-    if ((pexit = in_room->exit[door]) == NULL
-        || (to_room = pexit->u1.to_room) == NULL
-        || !can_see_room(ch, pexit->u1.to_room)) {
+    if ((room_exit = in_room->exit[door]) == NULL
+        || (to_room = room_exit->to_room) == NULL
+        || !can_see_room(ch, room_exit->to_room)) {
         send_to_char("Alas, you cannot go that way.\n\r", ch);
         return;
     }
 
-    if (IS_SET(pexit->exit_flags, EX_CLOSED)
+    if (IS_SET(room_exit->exit_flags, EX_CLOSED)
         && (!IS_AFFECTED(ch, AFF_PASS_DOOR)
-            || IS_SET(pexit->exit_flags, EX_NOPASS))
+            || IS_SET(room_exit->exit_flags, EX_NOPASS))
         && !IS_TRUSTED(ch, ANGEL)) {
-        act("The $d is closed.", ch, NULL, pexit->keyword, TO_CHAR);
+        act("The $d is closed.", ch, NULL, room_exit->keyword, TO_CHAR);
         return;
     }
 
@@ -257,7 +257,7 @@ void do_down(Mobile* ch, char* argument)
 
 int find_door(Mobile* ch, char* arg)
 {
-    ExitData* pexit;
+    RoomExit* room_exit;
     int door;
 
     if (!str_cmp(arg, "n") || !str_cmp(arg, "north"))
@@ -274,21 +274,21 @@ int find_door(Mobile* ch, char* arg)
         door = 5;
     else {
         for (door = 0; door <= 5; door++) {
-            if ((pexit = ch->in_room->exit[door]) != NULL
-                && IS_SET(pexit->exit_flags, EX_ISDOOR) && pexit->keyword != NULL
-                && is_name(arg, pexit->keyword))
+            if ((room_exit = ch->in_room->exit[door]) != NULL
+                && IS_SET(room_exit->exit_flags, EX_ISDOOR) && room_exit->keyword != NULL
+                && is_name(arg, room_exit->keyword))
                 return door;
         }
         act("I see no $T here.", ch, NULL, arg, TO_CHAR);
         return -1;
     }
 
-    if ((pexit = ch->in_room->exit[door]) == NULL) {
+    if ((room_exit = ch->in_room->exit[door]) == NULL) {
         act("I see no door $T here.", ch, NULL, arg, TO_CHAR);
         return -1;
     }
 
-    if (!IS_SET(pexit->exit_flags, EX_ISDOOR)) {
+    if (!IS_SET(room_exit->exit_flags, EX_ISDOOR)) {
         send_to_char("You can't do that.\n\r", ch);
         return -1;
     }
@@ -359,33 +359,33 @@ void do_open(Mobile* ch, char* argument)
 
     if ((door = find_door(ch, arg)) >= 0) {
         /* 'open door' */
-        RoomData* to_room;
-        ExitData* pexit;
-        ExitData* pexit_rev;
+        Room* to_room;
+        RoomExit* room_exit;
+        RoomExit* room_exit_rev;
 
-        pexit = ch->in_room->exit[door];
-        if (!IS_SET(pexit->exit_flags, EX_CLOSED)) {
+        room_exit = ch->in_room->exit[door];
+        if (!IS_SET(room_exit->exit_flags, EX_CLOSED)) {
             send_to_char("It's already open.\n\r", ch);
             return;
         }
-        if (IS_SET(pexit->exit_flags, EX_LOCKED)) {
+        if (IS_SET(room_exit->exit_flags, EX_LOCKED)) {
             send_to_char("It's locked.\n\r", ch);
             return;
         }
 
-        REMOVE_BIT(pexit->exit_flags, EX_CLOSED);
-        act("$n opens the $d.", ch, NULL, pexit->keyword, TO_ROOM);
+        REMOVE_BIT(room_exit->exit_flags, EX_CLOSED);
+        act("$n opens the $d.", ch, NULL, room_exit->keyword, TO_ROOM);
         send_to_char("Ok.\n\r", ch);
 
         /* open the other side */
-        if ((to_room = pexit->u1.to_room) != NULL
-            && (pexit_rev = to_room->exit[dir_list[door].rev_dir]) != NULL
-            && pexit_rev->u1.to_room == ch->in_room) {
+        if ((to_room = room_exit->to_room) != NULL
+            && (room_exit_rev = to_room->exit[dir_list[door].rev_dir]) != NULL
+            && room_exit_rev->to_room == ch->in_room) {
             Mobile* rch;
 
-            REMOVE_BIT(pexit_rev->exit_flags, EX_CLOSED);
+            REMOVE_BIT(room_exit_rev->exit_flags, EX_CLOSED);
             FOR_EACH_IN_ROOM(rch, to_room->people)
-                act("The $d opens.", rch, NULL, pexit_rev->keyword, TO_CHAR);
+                act("The $d opens.", rch, NULL, room_exit_rev->keyword, TO_CHAR);
         }
     }
 
@@ -447,29 +447,29 @@ void do_close(Mobile* ch, char* argument)
 
     if ((door = find_door(ch, arg)) >= 0) {
         /* 'close door' */
-        RoomData* to_room;
-        ExitData* pexit;
-        ExitData* pexit_rev;
+        Room* to_room;
+        RoomExit* room_exit;
+        RoomExit* room_exit_rev;
 
-        pexit = ch->in_room->exit[door];
-        if (IS_SET(pexit->exit_flags, EX_CLOSED)) {
+        room_exit = ch->in_room->exit[door];
+        if (IS_SET(room_exit->exit_flags, EX_CLOSED)) {
             send_to_char("It's already closed.\n\r", ch);
             return;
         }
 
-        SET_BIT(pexit->exit_flags, EX_CLOSED);
-        act("$n closes the $d.", ch, NULL, pexit->keyword, TO_ROOM);
+        SET_BIT(room_exit->exit_flags, EX_CLOSED);
+        act("$n closes the $d.", ch, NULL, room_exit->keyword, TO_ROOM);
         send_to_char("Ok.\n\r", ch);
 
         /* close the other side */
-        if ((to_room = pexit->u1.to_room) != NULL
-            && (pexit_rev = to_room->exit[dir_list[door].rev_dir]) != 0
-            && pexit_rev->u1.to_room == ch->in_room) {
+        if ((to_room = room_exit->to_room) != NULL
+            && (room_exit_rev = to_room->exit[dir_list[door].rev_dir]) != 0
+            && room_exit_rev->to_room == ch->in_room) {
             Mobile* rch;
 
-            SET_BIT(pexit_rev->exit_flags, EX_CLOSED);
+            SET_BIT(room_exit_rev->exit_flags, EX_CLOSED);
             FOR_EACH_IN_ROOM(rch, to_room->people)
-                act("The $d closes.", rch, NULL, pexit_rev->keyword, TO_CHAR);
+                act("The $d closes.", rch, NULL, room_exit_rev->keyword, TO_CHAR);
         }
     }
 
@@ -564,37 +564,37 @@ void do_lock(Mobile* ch, char* argument)
 
     if ((door = find_door(ch, arg)) >= 0) {
         /* 'lock door' */
-        RoomData* to_room;
-        ExitData* pexit;
-        ExitData* pexit_rev;
+        Room* to_room;
+        RoomExit* room_exit;
+        RoomExit* room_exit_rev;
 
-        pexit = ch->in_room->exit[door];
-        if (!IS_SET(pexit->exit_flags, EX_CLOSED)) {
+        room_exit = ch->in_room->exit[door];
+        if (!IS_SET(room_exit->exit_flags, EX_CLOSED)) {
             send_to_char("It's not closed.\n\r", ch);
             return;
         }
-        if (pexit->key < 0) {
+        if (room_exit->key < 0) {
             send_to_char("It can't be locked.\n\r", ch);
             return;
         }
-        if (!has_key(ch, pexit->key)) {
+        if (!has_key(ch, room_exit->key)) {
             send_to_char("You lack the key.\n\r", ch);
             return;
         }
-        if (IS_SET(pexit->exit_flags, EX_LOCKED)) {
+        if (IS_SET(room_exit->exit_flags, EX_LOCKED)) {
             send_to_char("It's already locked.\n\r", ch);
             return;
         }
 
-        SET_BIT(pexit->exit_flags, EX_LOCKED);
+        SET_BIT(room_exit->exit_flags, EX_LOCKED);
         send_to_char("*Click*\n\r", ch);
-        act("$n locks the $d.", ch, NULL, pexit->keyword, TO_ROOM);
+        act("$n locks the $d.", ch, NULL, room_exit->keyword, TO_ROOM);
 
         /* lock the other side */
-        if ((to_room = pexit->u1.to_room) != NULL
-            && (pexit_rev = to_room->exit[dir_list[door].rev_dir]) != 0
-            && pexit_rev->u1.to_room == ch->in_room) {
-            SET_BIT(pexit_rev->exit_flags, EX_LOCKED);
+        if ((to_room = room_exit->to_room) != NULL
+            && (room_exit_rev = to_room->exit[dir_list[door].rev_dir]) != 0
+            && room_exit_rev->to_room == ch->in_room) {
+            SET_BIT(room_exit_rev->exit_flags, EX_LOCKED);
         }
     }
 
@@ -678,37 +678,37 @@ void do_unlock(Mobile* ch, char* argument)
 
     if ((door = find_door(ch, arg)) >= 0) {
         /* 'unlock door' */
-        RoomData* to_room;
-        ExitData* pexit;
-        ExitData* pexit_rev;
+        Room* to_room;
+        RoomExit* room_exit;
+        RoomExit* room_exit_rev;
 
-        pexit = ch->in_room->exit[door];
-        if (!IS_SET(pexit->exit_flags, EX_CLOSED)) {
+        room_exit = ch->in_room->exit[door];
+        if (!IS_SET(room_exit->exit_flags, EX_CLOSED)) {
             send_to_char("It's not closed.\n\r", ch);
             return;
         }
-        if (pexit->key < 0) {
+        if (room_exit->key < 0) {
             send_to_char("It can't be unlocked.\n\r", ch);
             return;
         }
-        if (!has_key(ch, pexit->key)) {
+        if (!has_key(ch, room_exit->key)) {
             send_to_char("You lack the key.\n\r", ch);
             return;
         }
-        if (!IS_SET(pexit->exit_flags, EX_LOCKED)) {
+        if (!IS_SET(room_exit->exit_flags, EX_LOCKED)) {
             send_to_char("It's already unlocked.\n\r", ch);
             return;
         }
 
-        REMOVE_BIT(pexit->exit_flags, EX_LOCKED);
+        REMOVE_BIT(room_exit->exit_flags, EX_LOCKED);
         send_to_char("*Click*\n\r", ch);
-        act("$n unlocks the $d.", ch, NULL, pexit->keyword, TO_ROOM);
+        act("$n unlocks the $d.", ch, NULL, room_exit->keyword, TO_ROOM);
 
         /* unlock the other side */
-        if ((to_room = pexit->u1.to_room) != NULL
-            && (pexit_rev = to_room->exit[dir_list[door].rev_dir]) != NULL
-            && pexit_rev->u1.to_room == ch->in_room) {
-            REMOVE_BIT(pexit_rev->exit_flags, EX_LOCKED);
+        if ((to_room = room_exit->to_room) != NULL
+            && (room_exit_rev = to_room->exit[dir_list[door].rev_dir]) != NULL
+            && room_exit_rev->to_room == ch->in_room) {
+            REMOVE_BIT(room_exit_rev->exit_flags, EX_LOCKED);
         }
     }
 
@@ -807,38 +807,38 @@ void do_pick(Mobile* ch, char* argument)
 
     if ((door = find_door(ch, arg)) >= 0) {
         /* 'pick door' */
-        RoomData* to_room;
-        ExitData* pexit;
-        ExitData* pexit_rev;
+        Room* to_room;
+        RoomExit* room_exit;
+        RoomExit* room_exit_rev;
 
-        pexit = ch->in_room->exit[door];
-        if (!IS_SET(pexit->exit_flags, EX_CLOSED) && !IS_IMMORTAL(ch)) {
+        room_exit = ch->in_room->exit[door];
+        if (!IS_SET(room_exit->exit_flags, EX_CLOSED) && !IS_IMMORTAL(ch)) {
             send_to_char("It's not closed.\n\r", ch);
             return;
         }
-        if (pexit->key < 0 && !IS_IMMORTAL(ch)) {
+        if (room_exit->key < 0 && !IS_IMMORTAL(ch)) {
             send_to_char("It can't be picked.\n\r", ch);
             return;
         }
-        if (!IS_SET(pexit->exit_flags, EX_LOCKED)) {
+        if (!IS_SET(room_exit->exit_flags, EX_LOCKED)) {
             send_to_char("It's already unlocked.\n\r", ch);
             return;
         }
-        if (IS_SET(pexit->exit_flags, EX_PICKPROOF) && !IS_IMMORTAL(ch)) {
+        if (IS_SET(room_exit->exit_flags, EX_PICKPROOF) && !IS_IMMORTAL(ch)) {
             send_to_char("You failed.\n\r", ch);
             return;
         }
 
-        REMOVE_BIT(pexit->exit_flags, EX_LOCKED);
+        REMOVE_BIT(room_exit->exit_flags, EX_LOCKED);
         send_to_char("*Click*\n\r", ch);
-        act("$n picks the $d.", ch, NULL, pexit->keyword, TO_ROOM);
+        act("$n picks the $d.", ch, NULL, room_exit->keyword, TO_ROOM);
         check_improve(ch, gsn_pick_lock, true, 2);
 
         /* pick the other side */
-        if ((to_room = pexit->u1.to_room) != NULL
-            && (pexit_rev = to_room->exit[dir_list[door].rev_dir]) != NULL
-            && pexit_rev->u1.to_room == ch->in_room) {
-            REMOVE_BIT(pexit_rev->exit_flags, EX_LOCKED);
+        if ((to_room = room_exit->to_room) != NULL
+            && (room_exit_rev = to_room->exit[dir_list[door].rev_dir]) != NULL
+            && room_exit_rev->to_room == ch->in_room) {
+            REMOVE_BIT(room_exit_rev->exit_flags, EX_LOCKED);
         }
     }
 
@@ -1342,7 +1342,7 @@ void do_wake(Mobile* ch, char* argument)
 
 void do_sneak(Mobile* ch, char* argument)
 {
-    AffectData af = { 0 };
+    Affect af = { 0 };
 
     send_to_char("You attempt to move silently.\n\r", ch);
     affect_strip(ch, gsn_sneak);
@@ -1399,7 +1399,7 @@ void do_recall(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     Mobile* victim;
-    RoomData* location;
+    Room* location;
 
     if (IS_NPC(ch) && !IS_SET(ch->act_flags, ACT_PET)) {
         send_to_char("Only players can recall.\n\r", ch);
@@ -1427,7 +1427,7 @@ void do_recall(Mobile* ch, char* argument)
     else if (ch->pcdata)
         recall = ch->pcdata->recall;
 
-    if ((location = get_room_data(recall)) == NULL) {
+    if ((location = get_room(recall)) == NULL) {
         send_to_char("You are completely lost.\n\r", ch);
         return;
     }
