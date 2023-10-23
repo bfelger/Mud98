@@ -209,14 +209,13 @@ int main(int argc, char** argv)
     if (port_str[0])
         cfg_set_telnet_port(port);
 
-    /*
-     * Run the game.
-     */
+    // Run the game.
     Timer boot_timer = { 0 };
     if (rt_opt_benchmark)
         start_timer(&boot_timer);
 
     boot_db();
+    print_memory();
     if (rt_opt_benchmark) {
         stop_timer(&boot_timer);
         struct timespec timer_res = elapsed(&boot_timer);
@@ -282,9 +281,7 @@ int main(int argc, char** argv)
 #endif
     }
 
-    /*
-     * That's all, folks.
-     */
+    // That's all, folks.
     log_string("Normal termination of game.");
     exit(0);
 }

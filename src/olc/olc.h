@@ -55,25 +55,21 @@
 #define OLC_CREDITS	"     Original by Surreality(cxw197@psu.edu) and  "     \
                          "Locke(locke@lm.com)"
 
-/*
- * New typedefs.
- */
-typedef	bool OlcFunc(CharData* ch, char* argument);
+// New typedefs.
+typedef	bool OlcFunc(Mobile* ch, char* argument);
 #define DECLARE_OLC_FUN(fun)    OlcFunc fun
 
-typedef bool EditFunc(char*, CharData*, char*, uintptr_t, const uintptr_t);
+typedef bool EditFunc(char*, Mobile*, char*, uintptr_t, const uintptr_t);
 #define DECLARE_ED_FUN(fun)     EditFunc fun
 
-#define ED_FUN_DEC(blah)        bool blah (char* n_fun, CharData* ch, \
+#define ED_FUN_DEC(blah)        bool blah (char* n_fun, Mobile* ch, \
     char* argument, uintptr_t arg, const uintptr_t par)
 
 /* Command procedures needed ROM OLC */
 DECLARE_DO_FUN(do_help);
 DECLARE_SPELL_FUN(spell_null);
 
-/*
- * Connected states for editor.
- */
+// Connected states for editor.
 
 typedef enum editor_t {
     ED_NONE     = 0,
@@ -93,26 +89,22 @@ typedef enum editor_t {
     ED_QUEST    = 14,
 } EditorType;
 
-/*
- * Interpreter Prototypes
- */
-void    aedit       (CharData* ch, char* argument);
-void    cedit       (CharData* ch, char* argument);
-void	cmdedit		(CharData* ch, char* argument);
-void	gedit		(CharData* ch, char* argument);
-void	hedit		(CharData* ch, char* argument);
-void    medit       (CharData* ch, char* argument);
-void    oedit       (CharData* ch, char* argument);
-void    pedit       (CharData* ch, char* argument);
-void	raedit		(CharData* ch, char* argument);
-void    redit       (CharData* ch, char* argument);
-void	sedit		(CharData* ch, char* argument);
-void	skedit		(CharData* ch, char* argument);
-void    qedit       (CharData* ch, char* argument);
+// Interpreter Prototypes
+void    aedit       (Mobile* ch, char* argument);
+void    cedit       (Mobile* ch, char* argument);
+void	cmdedit		(Mobile* ch, char* argument);
+void	gedit		(Mobile* ch, char* argument);
+void	hedit		(Mobile* ch, char* argument);
+void    medit       (Mobile* ch, char* argument);
+void    oedit       (Mobile* ch, char* argument);
+void    pedit       (Mobile* ch, char* argument);
+void	raedit		(Mobile* ch, char* argument);
+void    redit       (Mobile* ch, char* argument);
+void	sedit		(Mobile* ch, char* argument);
+void	skedit		(Mobile* ch, char* argument);
+void    qedit       (Mobile* ch, char* argument);
 
-/*
- * OLC Constants
- */
+// OLC Constants
 #define MAX_MOB	1		/* Default maximum number for resetting mobs */
 
 #define MIN_AEDIT_SECURITY      5
@@ -125,9 +117,7 @@ void    qedit       (CharData* ch, char* argument);
 #define MIN_SEDIT_SECURITY	    3
 #define MIN_QEDIT_SECURITY      3
 
-/*
- * Structure for an OLC editor command.
- */
+// Structure for an OLC editor command.
 typedef struct olc_cmd_t {
     char* const	name;
     OlcFunc* olc_fun;
@@ -152,53 +142,45 @@ extern const OlcCmdEntry social_olc_comm_table[];
 extern const OlcCmdEntry class_olc_comm_table[];
 extern const OlcCmdEntry quest_olc_comm_table[];
 
-bool process_olc_command(CharData*, char* argument, const OlcCmdEntry*);
+bool process_olc_command(Mobile*, char* argument, const OlcCmdEntry*);
 
-/*
- * Structure for an OLC editor startup command.
- */
+// Structure for an OLC editor startup command.
 typedef struct editor_cmd_t {
     char* const	name;
     DoFunc* do_fun;
 } EditCmd;
 
-/*
- * Utils.
- */
-AreaData* get_vnum_area(VNUM vnum);
-AreaData* get_area_data(VNUM vnum);
+// Utils.
+Area* get_vnum_area(VNUM vnum);
+Area* get_area_data(VNUM vnum);
 FLAGS flag_value(const struct flag_type* flag_table, char* argument);
-void add_reset(RoomData*, ResetData*, int);
+void add_reset(Room*, Reset*, int);
 void set_editor(Descriptor*, int, uintptr_t);
 
 bool run_olc_editor(Descriptor* d, char* incomm);
-char* olc_ed_name(CharData* ch);
-char* olc_ed_vnum(CharData* ch);
+char* olc_ed_name(Mobile* ch);
+char* olc_ed_vnum(Mobile* ch);
 
-/*
- * Interpreter Table Prototypes
- */
+// Interpreter Table Prototypes
 //extern const OlcCmd aedit_table[];
 extern const OlcCmd raedit_table[];
 extern const OlcCmd gedit_table[];
 extern const OlcCmd hedit_table[];
 
 // Dummy objects needed for calc'ing field offsets
-extern AreaData xArea;
+extern Area xArea;
 extern Class xClass;
 extern CmdInfo xCmd;
 extern MobProgCode xProg;
 extern MobPrototype xMob;
-extern ObjectPrototype xObj;
+extern ObjPrototype xObj;
 extern Race xRace;
-extern RoomData xRoom;
+extern Room xRoom;
 extern Skill xSkill;
 extern Social xSoc;
 extern Quest xQuest;
 
-/*
- * Editor Commands.
- */
+// Editor Commands.
 DECLARE_DO_FUN(do_aedit);
 DECLARE_DO_FUN(do_cedit);
 DECLARE_DO_FUN(do_cmdedit);
@@ -213,17 +195,13 @@ DECLARE_DO_FUN(do_redit);
 DECLARE_DO_FUN(do_sedit);
 DECLARE_DO_FUN(do_skedit);
 
-/*
- * General Functions
- */
-bool show_commands(CharData* ch, char* argument);
-bool show_help(CharData* ch, char* argument);
-bool edit_done(CharData* ch);
-bool show_version(CharData* ch, char* argument);
+// General Functions
+bool show_commands(Mobile* ch, char* argument);
+bool show_help(Mobile* ch, char* argument);
+bool edit_done(Mobile* ch);
+bool show_version(Mobile* ch, char* argument);
 
-/*
- * Area Editor Prototypes
- */
+// Area Editor Prototypes
 DECLARE_OLC_FUN(aedit_show);
 DECLARE_OLC_FUN(aedit_create);
 DECLARE_OLC_FUN(aedit_file);
@@ -237,9 +215,7 @@ DECLARE_OLC_FUN(aedit_uvnum);
 DECLARE_OLC_FUN(aedit_lowrange);
 DECLARE_OLC_FUN(aedit_highrange);
 
-/*
- * Room Editor Prototypes
- */
+// Room Editor Prototypes
 DECLARE_OLC_FUN(redit_show);
 DECLARE_OLC_FUN(redit_create);
 DECLARE_OLC_FUN(redit_format);
@@ -255,9 +231,7 @@ DECLARE_OLC_FUN(redit_copy);
 DECLARE_OLC_FUN(redit_checkrooms);
 DECLARE_OLC_FUN(redit_clear);
 
-/*
- * Object Editor Prototypes
- */
+// Object Editor Prototypes
 DECLARE_OLC_FUN(oedit_show);
 DECLARE_OLC_FUN(oedit_create);
 DECLARE_OLC_FUN(oedit_addaffect);
@@ -271,9 +245,7 @@ DECLARE_OLC_FUN(medit_show);
 DECLARE_OLC_FUN(medit_group);
 DECLARE_OLC_FUN(medit_copy);
 
-/*
- * Race editor.
- */
+// Race editor.
 DECLARE_OLC_FUN(raedit_show);
 DECLARE_OLC_FUN(raedit_new);
 DECLARE_OLC_FUN(raedit_list);
@@ -283,9 +255,7 @@ DECLARE_OLC_FUN(raedit_maxstats);
 DECLARE_OLC_FUN(raedit_skills);
 DECLARE_OLC_FUN(raedit_start_loc);
 
-/*
- * Class editor.
- */
+// Class editor.
 DECLARE_OLC_FUN(cedit_show);
 DECLARE_OLC_FUN(cedit_weapon);
 DECLARE_OLC_FUN(cedit_guild);
@@ -298,9 +268,7 @@ DECLARE_OLC_FUN(cedit_title);
 DECLARE_OLC_FUN(cedit_new);
 DECLARE_OLC_FUN(cedit_list);
 
-/*
- * Social editor.
- */
+// Social editor.
 DECLARE_OLC_FUN(sedit_show);
 DECLARE_OLC_FUN(sedit_cnoarg);
 DECLARE_OLC_FUN(sedit_onoarg);
@@ -312,9 +280,7 @@ DECLARE_OLC_FUN(sedit_oself);
 DECLARE_OLC_FUN(sedit_new);
 DECLARE_OLC_FUN(sedit_delete);
 
-/*
- * Skill editor.
- */
+// Skill editor.
 DECLARE_OLC_FUN(skedit_show);
 DECLARE_OLC_FUN(skedit_name);
 DECLARE_OLC_FUN(skedit_nombre);
@@ -331,9 +297,7 @@ DECLARE_OLC_FUN(skedit_free);
 DECLARE_OLC_FUN(skedit_cmsg);
 DECLARE_OLC_FUN(skedit_callback);
 
-/*
- * Command editor.
- */
+// Command editor.
 DECLARE_OLC_FUN(cmdedit_show);
 DECLARE_OLC_FUN(cmdedit_name);
 DECLARE_OLC_FUN(cmdedit_function);
@@ -342,18 +306,14 @@ DECLARE_OLC_FUN(cmdedit_list);
 DECLARE_OLC_FUN(cmdedit_new);
 DECLARE_OLC_FUN(cmdedit_delete);
 
-/*
- * Group editor.
- */
+// Group editor.
 DECLARE_OLC_FUN(gedit_show);
 DECLARE_OLC_FUN(gedit_name);
 DECLARE_OLC_FUN(gedit_rating);
 DECLARE_OLC_FUN(gedit_spell);
 DECLARE_OLC_FUN(gedit_list);
 
-/*
- * Help Editor.
- */
+// Help Editor.
 DECLARE_OLC_FUN(hedit_show);
 DECLARE_OLC_FUN(hedit_keyword);
 DECLARE_OLC_FUN(hedit_text);
@@ -362,18 +322,14 @@ DECLARE_OLC_FUN(hedit_level);
 DECLARE_OLC_FUN(hedit_delete);
 DECLARE_OLC_FUN(hedit_list);
 
-/*
- * Quest Editor.
- */
+// Quest Editor.
 DECLARE_OLC_FUN(qedit_create);
 DECLARE_OLC_FUN(qedit_show);
 DECLARE_OLC_FUN(qedit_target);
 DECLARE_OLC_FUN(qedit_upper);
 DECLARE_OLC_FUN(qedit_end);
 
-/*
- * Editors.
- */
+// Editors.
 DECLARE_ED_FUN(ed_line_string);
 DECLARE_ED_FUN(ed_desc);
 DECLARE_ED_FUN(ed_bool);
@@ -412,30 +368,28 @@ DECLARE_ED_FUN(ed_docomm);
 DECLARE_ED_FUN(ed_olist);
 DECLARE_ED_FUN(ed_objrecval);
 
-/*
- * Macros
- */
+// Macros
 
 /* Return pointers to what is being edited. */
-#define EDIT_AREA(ch, area)	    ( area = (AreaData*)ch->desc->pEdit )
+#define EDIT_AREA(ch, area)	    ( area = (Area*)ch->desc->pEdit )
 #define EDIT_CLASS(ch, class_)  ( class_ = (Class*)ch->desc->pEdit )
 #define EDIT_CMD(ch, cmd)	    ( cmd = (CmdInfo*)ch->desc->pEdit )
 #define EDIT_GROUP(ch, grp)	    ( grp = (SkillGroup*)ch->desc->pEdit )
 #define EDIT_HELP(ch, help)	    ( help = (HelpData*)ch->desc->pEdit )
 #define EDIT_MOB(ch, mob)	    ( mob = (MobPrototype*)ch->desc->pEdit )
-#define EDIT_OBJ(ch, obj)	    ( obj = (ObjectPrototype*)ch->desc->pEdit )
+#define EDIT_OBJ(ch, obj)	    ( obj = (ObjPrototype*)ch->desc->pEdit )
 #define EDIT_PROG(ch, code)	    ( code = (MobProgCode*)ch->desc->pEdit )
 #define EDIT_QUEST(ch, quest)   ( quest = (Quest*)ch->desc->pEdit )
 #define EDIT_RACE(ch, race)	    ( race = (Race*)ch->desc->pEdit )
-#define EDIT_ROOM(ch, room)	    ( room = (RoomData*)ch->desc->pEdit )
+#define EDIT_ROOM(ch, room)	    ( room = (Room*)ch->desc->pEdit )
 #define EDIT_SKILL(ch, skill)	( skill = (Skill*)ch->desc->pEdit )
 #define EDIT_SOCIAL(ch, social)	( social = (Social*)ch->desc->pEdit )
 
-void show_liqlist(CharData* ch);
-void show_poslist(CharData* ch);
-void show_damlist(CharData* ch);
-void show_sexlist(CharData* ch);
-void show_sizelist(CharData* ch);
+void show_liqlist(Mobile* ch);
+void show_poslist(Mobile* ch);
+void show_damlist(Mobile* ch);
+void show_sexlist(Mobile* ch);
+void show_sizelist(Mobile* ch);
 
 void InitScreen(Descriptor*);
 char* fix_string(const char* str);

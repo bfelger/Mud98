@@ -39,11 +39,11 @@
 #include "spell_list.h"
 #include "weather.h"
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 #include "entities/descriptor.h"
-#include "entities/object_data.h"
+#include "entities/object.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/player.h"
 #include "data/skill.h"
 
@@ -53,9 +53,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-/*
- * The following special functions are available for mobiles.
- */
+// The following special functions are available for mobiles.
 DECLARE_SPEC_FUN(spec_breath_any);
 DECLARE_SPEC_FUN(spec_breath_acid);
 DECLARE_SPEC_FUN(spec_breath_fire);
@@ -105,9 +103,7 @@ const struct spec_type spec_table[]
        {"spec_patrolman", spec_patrolman},
        {NULL, NULL}};
 
-/*
- * Given a name, return the appropriate spec fun.
- */
+// Given a name, return the appropriate spec fun.
 SpecFunc* spec_lookup(const char* name)
 {
     int i;
@@ -132,9 +128,9 @@ char* spec_name(SpecFunc* function)
     return NULL;
 }
 
-bool spec_troll_member(CharData* ch)
+bool spec_troll_member(Mobile* ch)
 {
-    CharData *vch, *victim = NULL;
+    Mobile *vch, *victim = NULL;
     int count = 0;
     char* message;
 
@@ -192,9 +188,9 @@ bool spec_troll_member(CharData* ch)
     return true;
 }
 
-bool spec_ogre_member(CharData* ch)
+bool spec_ogre_member(Mobile* ch)
 {
-    CharData *vch, *victim = NULL;
+    Mobile *vch, *victim = NULL;
     int count = 0;
     char* message;
 
@@ -251,10 +247,10 @@ bool spec_ogre_member(CharData* ch)
     return true;
 }
 
-bool spec_patrolman(CharData* ch)
+bool spec_patrolman(Mobile* ch)
 {
-    CharData *vch, *victim = NULL;
-    ObjectData* obj;
+    Mobile *vch, *victim = NULL;
+    Object* obj;
     char* message;
     int count = 0;
 
@@ -285,7 +281,7 @@ bool spec_patrolman(CharData* ch)
         act("You blow down hard on $p.", ch, obj, NULL, TO_CHAR);
         act("$n blows on $p, ***WHEEEEEEEEEEEET***", ch, obj, NULL, TO_ROOM);
 
-        FOR_EACH(vch, char_list) {
+        FOR_EACH(vch, mob_list) {
             if (vch->in_room == NULL) continue;
 
             if (vch->in_room != ch->in_room
@@ -328,10 +324,10 @@ bool spec_patrolman(CharData* ch)
     return true;
 }
 
-bool spec_nasty(CharData* ch)
+bool spec_nasty(Mobile* ch)
 {
-    CharData* victim;
-    CharData* v_next = NULL;
+    Mobile* victim;
+    Mobile* v_next = NULL;
     int16_t gold;
 
     if (!IS_AWAKE(ch)) { return false; }
@@ -378,13 +374,11 @@ bool spec_nasty(CharData* ch)
     }
 }
 
-/*
- * Core procedure for dragons.
- */
-bool dragon(CharData* ch, char* spell_name)
+// Core procedure for dragons.
+bool dragon(Mobile* ch, char* spell_name)
 {
-    CharData* victim;
-    CharData* v_next = NULL;
+    Mobile* victim;
+    Mobile* v_next = NULL;
     SKNUM sn;
 
     if (ch->position != POS_FIGHTING) return false;
@@ -401,10 +395,8 @@ bool dragon(CharData* ch, char* spell_name)
     return true;
 }
 
-/*
- * Special procedures for mobiles.
- */
-bool spec_breath_any(CharData* ch)
+// Special procedures for mobiles.
+bool spec_breath_any(Mobile* ch)
 {
     if (ch->position != POS_FIGHTING) return false;
 
@@ -427,22 +419,22 @@ bool spec_breath_any(CharData* ch)
     return false;
 }
 
-bool spec_breath_acid(CharData* ch)
+bool spec_breath_acid(Mobile* ch)
 {
     return dragon(ch, "acid breath");
 }
 
-bool spec_breath_fire(CharData* ch)
+bool spec_breath_fire(Mobile* ch)
 {
     return dragon(ch, "fire breath");
 }
 
-bool spec_breath_frost(CharData* ch)
+bool spec_breath_frost(Mobile* ch)
 {
     return dragon(ch, "frost breath");
 }
 
-bool spec_breath_gas(CharData* ch)
+bool spec_breath_gas(Mobile* ch)
 {
     SKNUM sn;
 
@@ -453,15 +445,15 @@ bool spec_breath_gas(CharData* ch)
     return true;
 }
 
-bool spec_breath_lightning(CharData* ch)
+bool spec_breath_lightning(Mobile* ch)
 {
     return dragon(ch, "lightning breath");
 }
 
-bool spec_cast_adept(CharData* ch)
+bool spec_cast_adept(Mobile* ch)
 {
-    CharData* victim;
-    CharData* v_next = NULL;
+    Mobile* victim;
+    Mobile* v_next = NULL;
 
     if (!IS_AWAKE(ch)) return false;
 
@@ -521,10 +513,10 @@ bool spec_cast_adept(CharData* ch)
     return false;
 }
 
-bool spec_cast_cleric(CharData* ch)
+bool spec_cast_cleric(Mobile* ch)
 {
-    CharData* victim;
-    CharData* v_next = NULL;
+    Mobile* victim;
+    Mobile* v_next = NULL;
     char* spell;
     SKNUM sn;
 
@@ -597,10 +589,10 @@ bool spec_cast_cleric(CharData* ch)
     return true;
 }
 
-bool spec_cast_judge(CharData* ch)
+bool spec_cast_judge(Mobile* ch)
 {
-    CharData* victim;
-    CharData* v_next = NULL;
+    Mobile* victim;
+    Mobile* v_next = NULL;
     char* spell;
     SKNUM sn;
 
@@ -619,10 +611,10 @@ bool spec_cast_judge(CharData* ch)
     return true;
 }
 
-bool spec_cast_mage(CharData* ch)
+bool spec_cast_mage(Mobile* ch)
 {
-    CharData* victim;
-    CharData* v_next = NULL;
+    Mobile* victim;
+    Mobile* v_next = NULL;
     char* spell;
     SKNUM sn;
 
@@ -691,10 +683,10 @@ bool spec_cast_mage(CharData* ch)
     return true;
 }
 
-bool spec_cast_undead(CharData* ch)
+bool spec_cast_undead(Mobile* ch)
 {
-    CharData* victim;
-    CharData* v_next = NULL;
+    Mobile* victim;
+    Mobile* v_next = NULL;
     char* spell;
     SKNUM sn;
 
@@ -761,11 +753,11 @@ bool spec_cast_undead(CharData* ch)
     return true;
 }
 
-bool spec_executioner(CharData* ch)
+bool spec_executioner(Mobile* ch)
 {
     char buf[MAX_STRING_LENGTH];
-    CharData* victim;
-    CharData* v_next = NULL;
+    Mobile* victim;
+    Mobile* v_next = NULL;
     char* crime;
 
     if (!IS_AWAKE(ch) || ch->fighting != NULL) return false;
@@ -797,12 +789,12 @@ bool spec_executioner(CharData* ch)
     return true;
 }
 
-bool spec_fido(CharData* ch)
+bool spec_fido(Mobile* ch)
 {
-    ObjectData* corpse;
-    ObjectData* c_next = NULL;
-    ObjectData* obj;
-    ObjectData* obj_next = NULL;
+    Object* corpse;
+    Object* c_next = NULL;
+    Object* obj;
+    Object* obj_next = NULL;
 
     if (!IS_AWAKE(ch)) return false;
 
@@ -823,12 +815,12 @@ bool spec_fido(CharData* ch)
     return false;
 }
 
-bool spec_guard(CharData* ch)
+bool spec_guard(Mobile* ch)
 {
     char buf[MAX_STRING_LENGTH];
-    CharData* victim;
-    CharData* v_next = NULL;
-    CharData* ech;
+    Mobile* victim;
+    Mobile* v_next = NULL;
+    Mobile* ech;
     char* crime;
     int max_evil;
 
@@ -879,10 +871,10 @@ bool spec_guard(CharData* ch)
     return false;
 }
 
-bool spec_janitor(CharData* ch)
+bool spec_janitor(Mobile* ch)
 {
-    ObjectData* trash;
-    ObjectData* trash_next = NULL;
+    Object* trash;
+    Object* trash_next = NULL;
 
     if (!IS_AWAKE(ch)) return false;
 
@@ -902,7 +894,7 @@ bool spec_janitor(CharData* ch)
     return false;
 }
 
-bool spec_mayor(CharData* ch)
+bool spec_mayor(Mobile* ch)
 {
     static const char open_path[]
         = "W3a3003b33000c111d0d111Oe333333Oe22c222112212111a1S.";
@@ -996,9 +988,9 @@ bool spec_mayor(CharData* ch)
     return false;
 }
 
-bool spec_poison(CharData* ch)
+bool spec_poison(Mobile* ch)
 {
-    CharData* victim;
+    Mobile* victim;
 
     if (ch->position != POS_FIGHTING || (victim = ch->fighting) == NULL
         || number_percent() > 2 * ch->level)
@@ -1011,10 +1003,10 @@ bool spec_poison(CharData* ch)
     return true;
 }
 
-bool spec_thief(CharData* ch)
+bool spec_thief(Mobile* ch)
 {
-    CharData* victim;
-    CharData* v_next = NULL;
+    Mobile* victim;
+    Mobile* v_next = NULL;
     int16_t gold, silver;
 
     if (ch->position != POS_STANDING) return false;

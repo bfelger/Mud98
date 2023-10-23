@@ -12,7 +12,7 @@ typedef struct descriptor_t Descriptor;
 
 #include "socket.h"
 
-#include "char_data.h"
+#include "mobile.h"
 
 #include "mth/mth.h"
 
@@ -41,8 +41,8 @@ typedef enum connection_state_t {
 typedef struct descriptor_t {
     Descriptor* next;
     Descriptor* snoop_by;
-    CharData* character;
-    CharData* original;
+    Mobile* character;
+    Mobile* original;
     MTH_DATA* mth;
     char* host;
     SockClient* client;

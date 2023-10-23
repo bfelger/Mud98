@@ -16,7 +16,7 @@ typedef struct player_data_t PlayerData;
 #include "color.h"
 #include "recycle.h"
 
-#include "char_data.h"
+#include "mobile.h"
 
 #include "data/quest.h"
 
@@ -50,7 +50,7 @@ typedef struct player_data_t {
     char* alias_sub[MAX_ALIAS];
     ColorTheme* color_themes[MAX_THEMES];   // Personal themes
     ColorTheme* current_theme;              // Channel color assignments
-    CharData* ch;
+    Mobile* ch;
     ColorConfig theme_config;
     PlayerData* next;
     Buffer* buffer;

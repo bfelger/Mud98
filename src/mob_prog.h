@@ -11,8 +11,8 @@ typedef struct mob_prog_code_t MobProgCode;
 
 #include "merc.h"
 
-#include "entities/char_data.h"
-#include "entities/object_data.h"
+#include "entities/mobile.h"
+#include "entities/object.h"
 
 typedef enum mob_prog_trigger_t {
     TRIG_ACT    = BIT(0),
@@ -53,17 +53,17 @@ MobProg* new_mprog();
 void free_mprog(MobProg* mp);
 MobProgCode* new_mpcode();
 
-void program_flow(VNUM vnum, char* source, CharData* mob, CharData* ch, 
+void program_flow(VNUM vnum, char* source, Mobile* mob, Mobile* ch, 
     const void* arg1, const void* arg2);
-void mp_act_trigger(char* argument, CharData* mob, CharData* ch, 
+void mp_act_trigger(char* argument, Mobile* mob, Mobile* ch, 
     const void* arg1, const void* arg2, MobProgTrigger trig_type);
-bool mp_percent_trigger(CharData* mob, CharData* ch, const void* arg1,
+bool mp_percent_trigger(Mobile* mob, Mobile* ch, const void* arg1,
     const void* arg2, MobProgTrigger trig_type);
-void mp_bribe_trigger(CharData* mob, CharData* ch, int amount);
-bool mp_exit_trigger(CharData* ch, int dir);
-void mp_give_trigger(CharData* mob, CharData* ch, ObjectData* obj);
-void mp_greet_trigger(CharData* ch);
-void mp_hprct_trigger(CharData* mob, CharData* ch);
+void mp_bribe_trigger(Mobile* mob, Mobile* ch, int amount);
+bool mp_exit_trigger(Mobile* ch, int dir);
+void mp_give_trigger(Mobile* mob, Mobile* ch, Object* obj);
+void mp_greet_trigger(Mobile* ch);
+void mp_hprct_trigger(Mobile* mob, Mobile* ch);
 
 extern MobProgCode* mprog_list;
 

@@ -34,11 +34,11 @@
 #include "recycle.h"
 #include "update.h"
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 #include "entities/descriptor.h"
-#include "entities/object_data.h"
+#include "entities/object.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/skill.h"
 
 #include <stdio.h>
@@ -51,9 +51,9 @@ void acid_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 {
     if (target == SPELL_TARGET_ROOM) /* nail objects on the floor */
     {
-        RoomData* room = (RoomData*)vo;
-        ObjectData* obj;
-        ObjectData* obj_next = NULL;
+        Room* room = (Room*)vo;
+        Object* obj;
+        Object* obj_next = NULL;
 
         for (obj = room->contents; obj != NULL; obj = obj_next) {
             obj_next = obj->next_content;
@@ -64,9 +64,9 @@ void acid_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 
     if (target == SPELL_TARGET_CHAR) /* do the effect on a victim */
     {
-        CharData* victim = (CharData*)vo;
-        ObjectData* obj;
-        ObjectData* obj_next = NULL;
+        Mobile* victim = (Mobile*)vo;
+        Object* obj;
+        Object* obj_next = NULL;
 
         /* let's toast some gear */
         for (obj = victim->carrying; obj != NULL; obj = obj_next) {
@@ -78,9 +78,9 @@ void acid_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 
     if (target == SPELL_TARGET_OBJ) /* toast an object */
     {
-        ObjectData* obj = (ObjectData*)vo;
-        ObjectData* t_obj;
-        ObjectData* n_obj = NULL;
+        Object* obj = (Object*)vo;
+        Object* t_obj;
+        Object* n_obj = NULL;
         int chance;
         char* msg;
 
@@ -137,20 +137,20 @@ void acid_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 
         if (obj->item_type == ITEM_ARMOR) {
             /* etch it */
-            AffectData* paf;
-            AffectData* paf_next = NULL;
+            Affect* affect;
+            Affect* paf_next = NULL;
             bool af_found = false;
             int i;
 
             affect_enchant(obj);
 
-            for (paf = obj->affected; paf != NULL; paf = paf_next) {
-                paf_next = paf->next;
-                if (paf->location == APPLY_AC) {
+            for (affect = obj->affected; affect != NULL; affect = paf_next) {
+                paf_next = affect->next;
+                if (affect->location == APPLY_AC) {
                     af_found = true;
-                    paf->type = -1;
-                    paf->modifier += 1;
-                    paf->level = UMAX(paf->level, level);
+                    affect->type = -1;
+                    affect->modifier += 1;
+                    affect->level = UMAX(affect->level, level);
                     break;
                 }
             }
@@ -158,16 +158,16 @@ void acid_effect(void* vo, LEVEL level, int dam, SpellTarget target)
             if (!af_found)
             /* needs a new affect */
             {
-                paf = new_affect();
+                affect = new_affect();
 
-                paf->type = -1;
-                paf->level = level;
-                paf->duration = -1;
-                paf->location = APPLY_AC;
-                paf->modifier = 1;
-                paf->bitvector = 0;
-                paf->next = obj->affected;
-                obj->affected = paf;
+                affect->type = -1;
+                affect->level = level;
+                affect->duration = -1;
+                affect->location = APPLY_AC;
+                affect->modifier = 1;
+                affect->bitvector = 0;
+                affect->next = obj->affected;
+                obj->affected = affect;
             }
 
             if (obj->carried_by != NULL && obj->wear_loc != WEAR_UNHELD)
@@ -204,9 +204,9 @@ void cold_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 {
     if (target == SPELL_TARGET_ROOM) /* nail objects on the floor */
     {
-        RoomData* room = (RoomData*)vo;
-        ObjectData* obj;
-        ObjectData* obj_next = NULL;
+        Room* room = (Room*)vo;
+        Object* obj;
+        Object* obj_next = NULL;
 
         for (obj = room->contents; obj != NULL; obj = obj_next) {
             obj_next = obj->next_content;
@@ -217,13 +217,13 @@ void cold_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 
     if (target == SPELL_TARGET_CHAR) /* whack a character */
     {
-        CharData* victim = (CharData*)vo;
-        ObjectData* obj;
-        ObjectData* obj_next = NULL;
+        Mobile* victim = (Mobile*)vo;
+        Object* obj;
+        Object* obj_next = NULL;
 
         /* chill touch effect */
         if (!saves_spell(level / 4 + (LEVEL)(dam / 20), victim, DAM_COLD)) {
-            AffectData af = { 0 };
+            Affect af = { 0 };
 
             act("$n turns blue and shivers.", victim, NULL, NULL, TO_ROOM);
             act("A chill sinks deep into your bones.", victim, NULL, NULL,
@@ -252,7 +252,7 @@ void cold_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 
     if (target == SPELL_TARGET_OBJ) /* toast an object */
     {
-        ObjectData* obj = (ObjectData*)vo;
+        Object* obj = (Object*)vo;
         int chance;
         char* msg;
 
@@ -302,9 +302,9 @@ void fire_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 {
     if (target == SPELL_TARGET_ROOM) /* nail objects on the floor */
     {
-        RoomData* room = (RoomData*)vo;
-        ObjectData* obj;
-        ObjectData* obj_next = NULL;
+        Room* room = (Room*)vo;
+        Object* obj;
+        Object* obj_next = NULL;
 
         for (obj = room->contents; obj != NULL; obj = obj_next) {
             obj_next = obj->next_content;
@@ -315,14 +315,14 @@ void fire_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 
     if (target == SPELL_TARGET_CHAR) /* do the effect on a victim */
     {
-        CharData* victim = (CharData*)vo;
-        ObjectData* obj;
-        ObjectData* obj_next = NULL;
+        Mobile* victim = (Mobile*)vo;
+        Object* obj;
+        Object* obj_next = NULL;
 
         /* chance of blindness */
         if (!IS_AFFECTED(victim, AFF_BLIND)
             && !saves_spell(level / 4 + (LEVEL)(dam / 20), victim, DAM_FIRE)) {
-            AffectData af = { 0 };
+            Affect af = { 0 };
             act("$n is blinded by smoke!", victim, NULL, NULL, TO_ROOM);
             act("Your eyes tear up from smoke...you can't see a thing!", victim,
                 NULL, NULL, TO_CHAR);
@@ -352,7 +352,7 @@ void fire_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 
     if (target == SPELL_TARGET_OBJ) /* toast an object */
     {
-        ObjectData* obj = (ObjectData*)vo;
+        Object* obj = (Object*)vo;
         int chance;
         char* msg;
 
@@ -409,8 +409,8 @@ void fire_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 
         if (obj->contains) {
             /* dump the contents */
-            ObjectData* t_obj;
-            ObjectData* n_obj = NULL;
+            Object* t_obj;
+            Object* n_obj = NULL;
             for (t_obj = obj->contains; t_obj != NULL; t_obj = n_obj) {
                 n_obj = t_obj->next_content;
                 obj_from_obj(t_obj);
@@ -435,9 +435,9 @@ void poison_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 {
     if (target == SPELL_TARGET_ROOM) /* nail objects on the floor */
     {
-        RoomData* room = (RoomData*)vo;
-        ObjectData* obj;
-        ObjectData* obj_next = NULL;
+        Room* room = (Room*)vo;
+        Object* obj;
+        Object* obj_next = NULL;
 
         for (obj = room->contents; obj != NULL; obj = obj_next) {
             obj_next = obj->next_content;
@@ -448,13 +448,13 @@ void poison_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 
     if (target == SPELL_TARGET_CHAR) /* do the effect on a victim */
     {
-        CharData* victim = (CharData*)vo;
-        ObjectData* obj;
-        ObjectData* obj_next = NULL;
+        Mobile* victim = (Mobile*)vo;
+        Object* obj;
+        Object* obj_next = NULL;
 
         /* chance of poisoning */
         if (!saves_spell(level / 4 + (LEVEL)(dam / 20), victim, DAM_POISON)) {
-            AffectData af = { 0 };
+            Affect af = { 0 };
 
             send_to_char("You feel poison coursing through your veins.\n\r",
                          victim);
@@ -480,7 +480,7 @@ void poison_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 
     if (target == SPELL_TARGET_OBJ) /* do some poisoning */
     {
-        ObjectData* obj = (ObjectData*)vo;
+        Object* obj = (Object*)vo;
         int chance;
 
         if (IS_OBJ_STAT(obj, ITEM_BURN_PROOF) || IS_OBJ_STAT(obj, ITEM_BLESS)
@@ -515,9 +515,9 @@ void poison_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 void shock_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 {
     if (target == SPELL_TARGET_ROOM) {
-        RoomData* room = (RoomData*)vo;
-        ObjectData* obj;
-        ObjectData* obj_next = NULL;
+        Room* room = (Room*)vo;
+        Object* obj;
+        Object* obj_next = NULL;
 
         for (obj = room->contents; obj != NULL; obj = obj_next) {
             obj_next = obj->next_content;
@@ -527,9 +527,9 @@ void shock_effect(void* vo, LEVEL level, int dam, SpellTarget target)
     }
 
     if (target == SPELL_TARGET_CHAR) {
-        CharData* victim = (CharData*)vo;
-        ObjectData* obj;
-        ObjectData* obj_next = NULL;
+        Mobile* victim = (Mobile*)vo;
+        Object* obj;
+        Object* obj_next = NULL;
 
         /* daze and confused? */
         if (!saves_spell(level / 4 + (LEVEL)(dam / 20), victim, DAM_LIGHTNING)) {
@@ -546,7 +546,7 @@ void shock_effect(void* vo, LEVEL level, int dam, SpellTarget target)
     }
 
     if (target == SPELL_TARGET_OBJ) {
-        ObjectData* obj = (ObjectData*)vo;
+        Object* obj = (Object*)vo;
         int chance;
         char* msg;
 

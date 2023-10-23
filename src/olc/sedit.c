@@ -30,7 +30,7 @@
 #include "entities/descriptor.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/social.h"
 
 #include <ctype.h>
@@ -40,11 +40,9 @@
 #include <sys/types.h>
 #include <time.h>
 
-#define SEDIT(fun) bool fun(CharData *ch, char *argument)
+#define SEDIT(fun) bool fun(Mobile *ch, char *argument)
 
 Social xSoc;
-
-int maxSocial; /* max number of socials */
 
 #ifdef U
 #define OLD_U U
@@ -73,14 +71,14 @@ int social_lookup(const char* name)
 {
     int i;
 
-    for (i = 0; i < maxSocial; i++)
+    for (i = 0; i < social_count; i++)
         if (!str_cmp(name, social_table[i].name))
             return i;
 
     return -1;
 }
 
-void sedit(CharData* ch, char* argument)
+void sedit(Mobile* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_SEDIT_SECURITY) {
         send_to_char("SEdit: You do not have enough security to edit socials.\n\r", ch);
@@ -104,7 +102,7 @@ void sedit(CharData* ch, char* argument)
     return;
 }
 
-void do_sedit(CharData* ch, char* argument)
+void do_sedit(Mobile* ch, char* argument)
 {
     Social* pSocial;
     char command[MIL];
@@ -191,7 +189,7 @@ SEDIT(sedit_show)
 SEDIT(sedit_new)
 {
     Descriptor* d;
-    CharData* tch;
+    Mobile* tch;
     Social* new_table;
     int iSocial;
 
@@ -216,10 +214,10 @@ SEDIT(sedit_new)
     }
 
     /* reallocate the table */
-    /* Note that the table contains maxSocial socials PLUS one empty spot! */
+    /* Note that the table contains social_count socials PLUS one empty spot! */
 
-    maxSocial++;
-    new_table = realloc(social_table, sizeof(Social) * ((size_t)maxSocial + 1));
+    social_count++;
+    new_table = realloc(social_table, sizeof(Social) * ((size_t)social_count + 1));
 
     if (!new_table) /* realloc failed */
     {
@@ -229,18 +227,18 @@ SEDIT(sedit_new)
 
     social_table = new_table;
 
-    social_table[maxSocial - 1].name = str_dup(argument);
-    social_table[maxSocial - 1].char_no_arg = str_dup("");
-    social_table[maxSocial - 1].others_no_arg = str_dup("");
-    social_table[maxSocial - 1].char_found = str_dup("");
-    social_table[maxSocial - 1].others_found = str_dup("");
-    social_table[maxSocial - 1].vict_found = str_dup("");
-    social_table[maxSocial - 1].char_auto = str_dup("");
-    social_table[maxSocial - 1].others_auto = str_dup("");
-    social_table[maxSocial].name = str_dup(""); /* 'terminating' empty string */
+    social_table[social_count - 1].name = str_dup(argument);
+    social_table[social_count - 1].char_no_arg = str_dup("");
+    social_table[social_count - 1].others_no_arg = str_dup("");
+    social_table[social_count - 1].char_found = str_dup("");
+    social_table[social_count - 1].others_found = str_dup("");
+    social_table[social_count - 1].vict_found = str_dup("");
+    social_table[social_count - 1].char_auto = str_dup("");
+    social_table[social_count - 1].others_auto = str_dup("");
+    social_table[social_count].name = str_dup(""); /* 'terminating' empty string */
 
     ch->desc->editor = ED_SOCIAL;
-    ch->desc->pEdit = U(&social_table[maxSocial - 1]);
+    ch->desc->pEdit = U(&social_table[social_count - 1]);
 
     send_to_char("New social created.\n\r", ch);
     return true;
@@ -249,7 +247,7 @@ SEDIT(sedit_new)
 SEDIT(sedit_delete)
 {
     Descriptor* d;
-    CharData* tch;
+    Mobile* tch;
     int i, j, iSocial;
     Social* new_table;
 
@@ -273,7 +271,7 @@ SEDIT(sedit_delete)
             edit_done(ch);
     }
 
-    new_table = malloc(sizeof(Social) * maxSocial);
+    new_table = malloc(sizeof(Social) * social_count);
 
     if (!new_table) {
         send_to_char("Memory allocation failed. Brace for impact...\n\r", ch);
@@ -281,7 +279,7 @@ SEDIT(sedit_delete)
     }
 
     /* Copy all elements of old table into new table, except the deleted social */
-    for (i = 0, j = 0; i < maxSocial + 1; i++)
+    for (i = 0, j = 0; i < social_count + 1; i++)
         if (i != iSocial) /* copy, increase only if copied */
         {
             new_table[j] = social_table[i];
@@ -291,7 +289,7 @@ SEDIT(sedit_delete)
     free(social_table);
     social_table = new_table;
 
-    maxSocial--; /* Important :() */
+    social_count--; /* Important :() */
 
     send_to_char("That social is history!\n\r", ch);
     return true;

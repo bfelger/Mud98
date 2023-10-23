@@ -12,7 +12,7 @@ typedef struct quest_log_t QuestLog;
 
 #include "merc.h"
 
-#include "entities/area_data.h"
+#include "entities/area.h"
 
 typedef enum quest_type_t {
     QUEST_VISIT_MOB,
@@ -21,7 +21,7 @@ typedef enum quest_type_t {
 
 typedef struct quest_t {
     Quest* next;
-    AreaData* area;
+    Area* area;
     char* name;
     char* entry;
     VNUM vnum;
@@ -70,16 +70,16 @@ QuestLog* new_quest_log();
 void free_quest(Quest* quest);
 void free_quest_log(QuestLog* quest_log);
 Quest* get_quest(VNUM vnum);
-QuestTarget* get_quest_targ_mob(CharData* ch, VNUM target_vnum);
-QuestTarget* get_quest_targ_obj(CharData* ch, VNUM target_vnum);
-QuestTarget* get_quest_targ_end(CharData* ch, VNUM end_vnum);
-QuestStatus* get_quest_status(CharData* ch, VNUM quest_vnum);
-void finish_quest(CharData* ch, Quest* quest, QuestStatus* status);
-void grant_quest(CharData* ch, Quest* quest);
-void save_quests(FILE* fp, AreaData* pArea); 
-bool can_quest(CharData* ch, VNUM vnum);
-bool has_quest(CharData* ch, VNUM vnum);
-bool can_finish_quest(CharData* ch, VNUM vnum);
+QuestTarget* get_quest_targ_mob(Mobile* ch, VNUM target_vnum);
+QuestTarget* get_quest_targ_obj(Mobile* ch, VNUM target_vnum);
+QuestTarget* get_quest_targ_end(Mobile* ch, VNUM end_vnum);
+QuestStatus* get_quest_status(Mobile* ch, VNUM quest_vnum);
+void finish_quest(Mobile* ch, Quest* quest, QuestStatus* status);
+void grant_quest(Mobile* ch, Quest* quest);
+void save_quests(FILE* fp, Area* area); 
+bool can_quest(Mobile* ch, VNUM vnum);
+bool has_quest(Mobile* ch, VNUM vnum);
+bool can_finish_quest(Mobile* ch, VNUM vnum);
 
 extern const struct flag_type quest_type_table[];
 

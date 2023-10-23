@@ -12,23 +12,23 @@
 #include "stringutils.h"
 #include "tests.h"
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 
 extern void aggr_update();
 
 static void old_aggr_update()
 {
-    CharData* wch;
-    CharData* wch_next = NULL;
-    CharData* ch;
-    CharData* ch_next = NULL;
-    CharData* vch;
-    CharData* vch_next = NULL;
-    CharData* victim;
+    Mobile* wch;
+    Mobile* wch_next = NULL;
+    Mobile* ch;
+    Mobile* ch_next = NULL;
+    Mobile* vch;
+    Mobile* vch_next = NULL;
+    Mobile* victim;
 
-    for (wch = char_list; wch != NULL; wch = wch_next) {
+    for (wch = mob_list; wch != NULL; wch = wch_next) {
         wch_next = wch->next;
         if (IS_NPC(wch) || wch->level >= LEVEL_IMMORTAL || wch->in_room == NULL
             || wch->in_room->area->empty)

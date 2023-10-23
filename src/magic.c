@@ -42,10 +42,10 @@
 #include "weather.h"
 
 #include "entities/descriptor.h"
-#include "entities/object_data.h"
+#include "entities/object.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/player.h"
 #include "data/skill.h"
 
@@ -55,16 +55,14 @@
 #include <sys/types.h>
 #include <time.h>
 
-/*
- * Local functions.
- */
-void say_spell(CharData * ch, SKNUM sn);
+// Local functions.
+void say_spell(Mobile * ch, SKNUM sn);
 
 /* imported functions */
-bool remove_obj(CharData* ch, WearLocation iWear, bool fReplace);
-void wear_obj(CharData* ch, ObjectData* obj, bool fReplace);
+bool remove_obj(Mobile* ch, WearLocation iWear, bool fReplace);
+void wear_obj(Mobile* ch, Object* obj, bool fReplace);
 
-SKNUM find_spell(CharData* ch, const char* name)
+SKNUM find_spell(Mobile* ch, const char* name)
 {
     /* finds a spell the character can cast if possible */
     SKNUM sn;
@@ -112,14 +110,12 @@ SKNUM skill_slot_lookup(int slot)
     return -1;
 }
 
-/*
- * Utter mystical words for an sn.
- */
-void say_spell(CharData* ch, SKNUM sn)
+// Utter mystical words for an sn.
+void say_spell(Mobile* ch, SKNUM sn)
 {
     char buf[MAX_STRING_LENGTH] = "";
     char buf2[MAX_STRING_LENGTH] = "";
-    CharData* rch;
+    Mobile* rch;
     char* pName;
     size_t length = 0;
 
@@ -175,7 +171,7 @@ void say_spell(CharData* ch, SKNUM sn)
  * Compute a saving throw.
  * Negative apply's make saving throw better.
  */
-bool saves_spell(LEVEL level, CharData* victim, DamageType dam_type)
+bool saves_spell(LEVEL level, Mobile* victim, DamageType dam_type)
 {
     int save;
 
@@ -217,9 +213,9 @@ bool saves_dispel(LEVEL dis_level, LEVEL spell_level, int duration)
 
 /* co-routine for dispel magic and cancellation */
 
-bool check_dispel(LEVEL dis_level, CharData* victim, SKNUM sn)
+bool check_dispel(LEVEL dis_level, Mobile* victim, SKNUM sn)
 {
-    AffectData* af;
+    Affect* af;
 
     if (is_affected(victim, sn)) {
         FOR_EACH(af, victim->affected) {
@@ -241,31 +237,27 @@ bool check_dispel(LEVEL dis_level, CharData* victim, SKNUM sn)
 }
 
 /* for finding mana costs -- temporary version */
-int mana_cost(CharData* ch, int min_mana, LEVEL level)
+int mana_cost(Mobile* ch, int min_mana, LEVEL level)
 {
     if (ch->level + 2 == level) return 1000;
     return UMAX(min_mana, (100 / (2 + ch->level - level)));
 }
 
-/*
- * The kludgy global is for spells who want more stuff from command line.
- */
+// The kludgy global is for spells who want more stuff from command line.
 char* target_name;
 
-void do_cast(CharData* ch, char* argument)
+void do_cast(Mobile* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
-    CharData* victim;
-    ObjectData* obj;
+    Mobile* victim;
+    Object* obj;
     void* vo;
     int mana;
     SKNUM sn = -1;
     SpellTarget target;
 
-    /*
-     * Switched NPC's can cast spells, but others can't.
-     */
+    // Switched NPC's can cast spells, but others can't.
     if (IS_NPC(ch) && ch->desc == NULL)
         return;
 
@@ -300,9 +292,7 @@ void do_cast(CharData* ch, char* argument)
             skill_table[sn].min_mana,
             100 / (2 + ch->level - skill_level));
 
-    /*
-     * Locate targets.
-     */
+    // Locate targets.
     victim = NULL;
     obj = NULL;
     vo = NULL;
@@ -479,8 +469,8 @@ void do_cast(CharData* ch, char* argument)
          || (skill_table[sn].target == SKILL_TARGET_OBJ_CHAR_OFF
              && target == SPELL_TARGET_CHAR))
         && victim != ch && victim->master != ch) {
-        CharData* vch;
-        CharData* vch_next = NULL;
+        Mobile* vch;
+        Mobile* vch_next = NULL;
 
         for (vch = ch->in_room->people; vch; vch = vch_next) {
             vch_next = vch->next_in_room;
@@ -495,11 +485,9 @@ void do_cast(CharData* ch, char* argument)
     return;
 }
 
-/*
- * Cast spells at targets using a magical object.
- */
-void obj_cast_spell(SKNUM sn, LEVEL level, CharData* ch, CharData* victim,
-                    ObjectData* obj)
+// Cast spells at targets using a magical object.
+void obj_cast_spell(SKNUM sn, LEVEL level, Mobile* ch, Mobile* victim,
+                    Object* obj)
 {
     void* vo;
     int target = SPELL_TARGET_NONE;
@@ -599,8 +587,8 @@ void obj_cast_spell(SKNUM sn, LEVEL level, CharData* ch, CharData* victim,
          || (skill_table[sn].target == SKILL_TARGET_OBJ_CHAR_OFF
              && target == SPELL_TARGET_CHAR))
         && victim != ch && victim->master != ch) {
-        CharData* vch;
-        CharData* vch_next = NULL;
+        Mobile* vch;
+        Mobile* vch_next = NULL;
 
         for (vch = ch->in_room->people; vch; vch = vch_next) {
             vch_next = vch->next_in_room;
@@ -615,12 +603,10 @@ void obj_cast_spell(SKNUM sn, LEVEL level, CharData* ch, CharData* victim,
     return;
 }
 
-/*
- * Spell functions.
- */
-void spell_acid_blast(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+// Spell functions.
+void spell_acid_blast(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     int dam;
 
     dam = dice(level, 12);
@@ -629,10 +615,10 @@ void spell_acid_blast(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget
     return;
 }
 
-void spell_armor(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_armor(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (is_affected(victim, sn)) {
         if (victim == ch)
@@ -655,27 +641,27 @@ void spell_armor(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget targ
     return;
 }
 
-void spell_bless(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_bless(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim;
-    ObjectData* obj;
-    AffectData af = { 0 };
+    Mobile* victim;
+    Object* obj;
+    Affect af = { 0 };
 
     /* deal with the object case first */
     if (target == SPELL_TARGET_OBJ) {
-        obj = (ObjectData*)vo;
+        obj = (Object*)vo;
         if (IS_OBJ_STAT(obj, ITEM_BLESS)) {
             act("$p is already blessed.", ch, obj, NULL, TO_CHAR);
             return;
         }
 
         if (IS_OBJ_STAT(obj, ITEM_EVIL)) {
-            AffectData* paf;
+            Affect* affect;
 
-            paf = affect_find(obj->affected, gsn_curse);
-            if (!saves_dispel(level, paf != NULL ? paf->level : obj->level,
+            affect = affect_find(obj->affected, gsn_curse);
+            if (!saves_dispel(level, affect != NULL ? affect->level : obj->level,
                               0)) {
-                if (paf != NULL) affect_remove_obj(obj, paf);
+                if (affect != NULL) affect_remove_obj(obj, affect);
                 act("$p glows a pale blue.", ch, obj, NULL, TO_ALL);
                 REMOVE_BIT(obj->extra_flags, ITEM_EVIL);
                 return;
@@ -703,7 +689,7 @@ void spell_bless(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget targ
     }
 
     /* character target */
-    victim = (CharData*)vo;
+    victim = (Mobile*)vo;
 
     if (victim->position == POS_FIGHTING || is_affected(victim, sn)) {
         if (victim == ch)
@@ -731,10 +717,10 @@ void spell_bless(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget targ
     return;
 }
 
-void spell_blindness(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_blindness(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (IS_AFFECTED(victim, AFF_BLIND) || saves_spell(level, victim, DAM_OTHER))
         return;
@@ -752,9 +738,9 @@ void spell_blindness(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget 
     return;
 }
 
-void spell_burning_hands(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_burning_hands(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     static const int16_t dam_each[]
         = {0,  0,  0,  0,  0,  14, 17, 20, 23, 26, 29, 29, 29, 30, 30, 31, 31,
            32, 32, 33, 33, 34, 34, 35, 35, 36, 36, 37, 37, 38, 38, 39, 39, 40,
@@ -769,10 +755,10 @@ void spell_burning_hands(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
     return;
 }
 
-void spell_call_lightning(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_call_lightning(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* vch;
-    CharData* vch_next = NULL;
+    Mobile* vch;
+    Mobile* vch_next = NULL;
     int dam;
 
     if (!IS_OUTSIDE(ch)) {
@@ -791,7 +777,7 @@ void spell_call_lightning(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
     act("$n calls Mota's lightning to strike $s foes!", ch, NULL, NULL,
         TO_ROOM);
 
-    for (vch = char_list; vch != NULL; vch = vch_next) {
+    for (vch = mob_list; vch != NULL; vch = vch_next) {
         vch_next = vch->next;
         if (vch->in_room == NULL) continue;
         if (vch->in_room == ch->in_room) {
@@ -812,14 +798,14 @@ void spell_call_lightning(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
 
 /* RT calm spell stops all fighting in the room */
 
-void spell_calm(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_calm(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* vch;
+    Mobile* vch;
     int mlevel = 0;
     int count = 0;
     int high_level = 0;
     int chance;
-    AffectData af = { 0 };
+    Affect af = { 0 };
 
     /* get sum of all mobile levels in the room */
     FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
@@ -874,9 +860,9 @@ void spell_calm(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget targe
     }
 }
 
-void spell_cancellation(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_cancellation(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     bool found = false;
 
     level += 2;
@@ -1015,30 +1001,30 @@ void spell_cancellation(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
         send_to_char("Spell failed.\n\r", ch);
 }
 
-void spell_cause_light(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_cause_light(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    damage(ch, (CharData*)vo, dice(1, 8) + level / 3, sn, DAM_HARM, true);
+    damage(ch, (Mobile*)vo, dice(1, 8) + level / 3, sn, DAM_HARM, true);
     return;
 }
 
-void spell_cause_critical(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_cause_critical(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    damage(ch, (CharData*)vo, dice(3, 8) + level - 6, sn, DAM_HARM, true);
+    damage(ch, (Mobile*)vo, dice(3, 8) + level - 6, sn, DAM_HARM, true);
     return;
 }
 
-void spell_cause_serious(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_cause_serious(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    damage(ch, (CharData*)vo, dice(2, 8) + level / 2, sn, DAM_HARM, true);
+    damage(ch, (Mobile*)vo, dice(2, 8) + level / 2, sn, DAM_HARM, true);
     return;
 }
 
-void spell_chain_lightning(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_chain_lightning(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    CharData* tmp_vict;
-    CharData* last_vict;
-    CharData* next_vict = NULL;
+    Mobile* victim = (Mobile*)vo;
+    Mobile* tmp_vict;
+    Mobile* last_vict;
+    Mobile* next_vict = NULL;
     bool found;
     int dam;
 
@@ -1101,10 +1087,10 @@ void spell_chain_lightning(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellT
     }
 }
 
-void spell_change_sex(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_change_sex(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (is_affected(victim, sn)) {
         if (victim == ch)
@@ -1131,10 +1117,10 @@ void spell_change_sex(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget
     return;
 }
 
-void spell_charm_person(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_charm_person(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (is_safe(ch, victim)) return;
 
@@ -1171,14 +1157,14 @@ void spell_charm_person(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
     return;
 }
 
-void spell_chill_touch(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_chill_touch(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     static const int16_t dam_each[]
         = {0,  0,  0,  6,  7,  8,  9,  12, 13, 13, 13, 14, 14, 14, 15, 15, 15,
            16, 16, 16, 17, 17, 17, 18, 18, 18, 19, 19, 19, 20, 20, 20, 21, 21,
            21, 22, 22, 22, 23, 23, 23, 24, 24, 24, 25, 25, 25, 26, 26, 26, 27};
-    AffectData af = { 0 };
+    Affect af = { 0 };
     int dam;
 
     level = UMIN(level, (int)sizeof(dam_each) / (int)sizeof(dam_each[0]) - 1);
@@ -1203,9 +1189,9 @@ void spell_chill_touch(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
     return;
 }
 
-void spell_colour_spray(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_colour_spray(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     static const int16_t dam_each[]
         = {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  30, 35, 40, 45, 50, 55,
            55, 55, 56, 57, 58, 58, 59, 60, 61, 61, 62, 63, 64, 64, 65, 66, 67,
@@ -1225,9 +1211,9 @@ void spell_colour_spray(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
     return;
 }
 
-void spell_continual_light(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_continual_light(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    ObjectData* light;
+    Object* light;
 
     if (target_name[0] != '\0') /* do a glow on some object */
     {
@@ -1255,7 +1241,7 @@ void spell_continual_light(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellT
     return;
 }
 
-void spell_control_weather(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_control_weather(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
     if (!str_cmp(target_name, "better"))
         weather_info.change += dice(level / 3, 4);
@@ -1268,9 +1254,9 @@ void spell_control_weather(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellT
     return;
 }
 
-void spell_create_food(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_create_food(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    ObjectData* mushroom;
+    Object* mushroom;
 
     mushroom = create_object(get_object_prototype(OBJ_VNUM_MUSHROOM), 0);
     mushroom->value[0] = level / 2;
@@ -1281,9 +1267,9 @@ void spell_create_food(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
     return;
 }
 
-void spell_create_rose(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_create_rose(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    ObjectData* rose;
+    Object* rose;
     rose = create_object(get_object_prototype(OBJ_VNUM_ROSE), 0);
     act("$n has created a beautiful red rose.", ch, rose, NULL, TO_ROOM);
     send_to_char("You create a beautiful red rose.\n\r", ch);
@@ -1291,9 +1277,9 @@ void spell_create_rose(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
     return;
 }
 
-void spell_create_spring(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_create_spring(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    ObjectData* spring;
+    Object* spring;
 
     spring = create_object(get_object_prototype(OBJ_VNUM_SPRING), 0);
     spring->timer = (int16_t)level;
@@ -1303,9 +1289,9 @@ void spell_create_spring(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
     return;
 }
 
-void spell_create_water(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_create_water(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    ObjectData* obj = (ObjectData*)vo;
+    Object* obj = (Object*)vo;
     int water;
 
     if (obj->item_type != ITEM_DRINK_CON) {
@@ -1337,9 +1323,9 @@ void spell_create_water(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
     return;
 }
 
-void spell_cure_blindness(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_cure_blindness(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
 
     if (!is_affected(victim, gsn_blindness)) {
         if (victim == ch)
@@ -1357,9 +1343,9 @@ void spell_cure_blindness(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
         send_to_char("Spell failed.\n\r", ch);
 }
 
-void spell_cure_critical(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_cure_critical(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     int16_t heal;
 
     heal = (int16_t)dice(3, 8) + level - 6;
@@ -1371,9 +1357,9 @@ void spell_cure_critical(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
 }
 
 /* RT added to cure plague */
-void spell_cure_disease(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_cure_disease(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
 
     if (!is_affected(victim, gsn_plague)) {
         if (victim == ch)
@@ -1392,9 +1378,9 @@ void spell_cure_disease(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
         send_to_char("Spell failed.\n\r", ch);
 }
 
-void spell_cure_light(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_cure_light(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     int16_t heal;
 
     heal = (int16_t)dice(1, 8) + level / 3;
@@ -1405,9 +1391,9 @@ void spell_cure_light(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget
     return;
 }
 
-void spell_cure_poison(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_cure_poison(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
 
     if (!is_affected(victim, gsn_poison)) {
         if (victim == ch)
@@ -1425,9 +1411,9 @@ void spell_cure_poison(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
         send_to_char("Spell failed.\n\r", ch);
 }
 
-void spell_cure_serious(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_cure_serious(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     int16_t heal;
 
     heal = (int16_t)dice(2, 8) + level / 2;
@@ -1438,27 +1424,27 @@ void spell_cure_serious(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
     return;
 }
 
-void spell_curse(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_curse(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim;
-    ObjectData* obj;
-    AffectData af = { 0 };
+    Mobile* victim;
+    Object* obj;
+    Affect af = { 0 };
 
     /* deal with the object case first */
     if (target == SPELL_TARGET_OBJ) {
-        obj = (ObjectData*)vo;
+        obj = (Object*)vo;
         if (IS_OBJ_STAT(obj, ITEM_EVIL)) {
             act("$p is already filled with evil.", ch, obj, NULL, TO_CHAR);
             return;
         }
 
         if (IS_OBJ_STAT(obj, ITEM_BLESS)) {
-            AffectData* paf;
+            Affect* affect;
 
-            paf = affect_find(obj->affected, skill_lookup("bless"));
-            if (!saves_dispel(level, paf != NULL ? paf->level : obj->level,
+            affect = affect_find(obj->affected, skill_lookup("bless"));
+            if (!saves_dispel(level, affect != NULL ? affect->level : obj->level,
                               0)) {
-                if (paf != NULL) affect_remove_obj(obj, paf);
+                if (affect != NULL) affect_remove_obj(obj, affect);
                 act("$p glows with a red aura.", ch, obj, NULL, TO_ALL);
                 REMOVE_BIT(obj->extra_flags, ITEM_BLESS);
                 return;
@@ -1486,7 +1472,7 @@ void spell_curse(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget targ
     }
 
     /* character curses */
-    victim = (CharData*)vo;
+    victim = (Mobile*)vo;
 
     if (IS_AFFECTED(victim, AFF_CURSE)
         || saves_spell(level, victim, DAM_NEGATIVE))
@@ -1512,9 +1498,9 @@ void spell_curse(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget targ
 
 /* RT replacement demonfire spell */
 
-void spell_demonfire(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_demonfire(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     int dam;
 
     if (!IS_NPC(ch) && !IS_EVIL(ch)) {
@@ -1537,10 +1523,10 @@ void spell_demonfire(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget 
     spell_curse(gsn_curse, 3 * level / 4, ch, (void*)victim, SPELL_TARGET_CHAR);
 }
 
-void spell_detect_evil(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_detect_evil(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (IS_AFFECTED(victim, AFF_DETECT_EVIL)) {
         if (victim == ch)
@@ -1562,10 +1548,10 @@ void spell_detect_evil(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
     return;
 }
 
-void spell_detect_good(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_detect_good(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (IS_AFFECTED(victim, AFF_DETECT_GOOD)) {
         if (victim == ch)
@@ -1587,10 +1573,10 @@ void spell_detect_good(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
     return;
 }
 
-void spell_detect_hidden(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_detect_hidden(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (IS_AFFECTED(victim, AFF_DETECT_HIDDEN)) {
         if (victim == ch)
@@ -1613,10 +1599,10 @@ void spell_detect_hidden(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
     return;
 }
 
-void spell_detect_invis(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_detect_invis(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (IS_AFFECTED(victim, AFF_DETECT_INVIS)) {
         if (victim == ch)
@@ -1640,10 +1626,10 @@ void spell_detect_invis(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
     return;
 }
 
-void spell_detect_magic(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_detect_magic(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (IS_AFFECTED(victim, AFF_DETECT_MAGIC)) {
         if (victim == ch)
@@ -1666,9 +1652,9 @@ void spell_detect_magic(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
     return;
 }
 
-void spell_detect_poison(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_detect_poison(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    ObjectData* obj = (ObjectData*)vo;
+    Object* obj = (Object*)vo;
 
     if (obj->item_type == ITEM_DRINK_CON || obj->item_type == ITEM_FOOD) {
         if (obj->value[3] != 0)
@@ -1683,9 +1669,9 @@ void spell_detect_poison(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
     return;
 }
 
-void spell_dispel_evil(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_dispel_evil(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     int dam;
 
     if (!IS_NPC(ch) && IS_EVIL(ch)) victim = ch;
@@ -1709,9 +1695,9 @@ void spell_dispel_evil(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
     return;
 }
 
-void spell_dispel_good(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_dispel_good(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     int dam;
 
     if (!IS_NPC(ch) && IS_GOOD(ch)) victim = ch;
@@ -1737,9 +1723,9 @@ void spell_dispel_good(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
 
 /* modified for enhanced use */
 
-void spell_dispel_magic(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_dispel_magic(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     bool found = false;
 
     if (saves_spell(level, victim, DAM_OTHER)) {
@@ -1883,15 +1869,15 @@ void spell_dispel_magic(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
     return;
 }
 
-void spell_earthquake(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_earthquake(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* vch;
-    CharData* vch_next = NULL;
+    Mobile* vch;
+    Mobile* vch_next = NULL;
 
     send_to_char("The earth trembles beneath your feet!\n\r", ch);
     act("$n makes the earth tremble and shiver.", ch, NULL, NULL, TO_ROOM);
 
-    for (vch = char_list; vch != NULL; vch = vch_next) {
+    for (vch = mob_list; vch != NULL; vch = vch_next) {
         vch_next = vch->next;
         if (vch->in_room == NULL) continue;
         if (vch->in_room == ch->in_room) {
@@ -1911,10 +1897,10 @@ void spell_earthquake(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget
     return;
 }
 
-void spell_enchant_armor(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_enchant_armor(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    ObjectData* obj = (ObjectData*)vo;
-    AffectData* paf;
+    Object* obj = (Object*)vo;
+    Affect* affect;
     int result, fail;
     int ac_bonus, added;
     bool ac_found = false;
@@ -1936,9 +1922,9 @@ void spell_enchant_armor(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
     /* find the bonuses */
 
     if (!obj->enchanted)
-        FOR_EACH(paf, obj->prototype->affected) {
-            if (paf->location == APPLY_AC) {
-                ac_bonus = paf->modifier;
+        FOR_EACH(affect, obj->prototype->affected) {
+            if (affect->location == APPLY_AC) {
+                ac_bonus = affect->modifier;
                 ac_found = true;
                 fail += 5 * (ac_bonus * ac_bonus);
             }
@@ -1947,9 +1933,9 @@ void spell_enchant_armor(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
                 fail += 20;
         }
 
-    FOR_EACH(paf, obj->affected) {
-        if (paf->location == APPLY_AC) {
-            ac_bonus = paf->modifier;
+    FOR_EACH(affect, obj->affected) {
+        if (affect->location == APPLY_AC) {
+            ac_bonus = affect->modifier;
             ac_found = true;
             fail += 5 * (ac_bonus * ac_bonus);
         }
@@ -1979,16 +1965,16 @@ void spell_enchant_armor(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
 
     if (result < (fail / 3)) /* item disenchanted */
     {
-        AffectData* paf_next = NULL;
+        Affect* paf_next = NULL;
 
         act("$p glows brightly, then fades...oops.", ch, obj, NULL, TO_CHAR);
         act("$p glows brightly, then fades.", ch, obj, NULL, TO_ROOM);
         obj->enchanted = true;
 
         /* remove all affects */
-        for (paf = obj->affected; paf != NULL; paf = paf_next) {
-            paf_next = paf->next;
-            free_affect(paf);
+        for (affect = obj->affected; affect != NULL; affect = paf_next) {
+            paf_next = affect->next;
+            free_affect(affect);
         }
         obj->affected = NULL;
 
@@ -2005,22 +1991,22 @@ void spell_enchant_armor(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
 
     /* okay, move all the old flags into new vectors if we have to */
     if (!obj->enchanted) {
-        AffectData* af_new;
+        Affect* af_new;
         obj->enchanted = true;
 
-        FOR_EACH(paf, obj->prototype->affected) {
+        FOR_EACH(affect, obj->prototype->affected) {
             af_new = new_affect();
 
             af_new->next = obj->affected;
             obj->affected = af_new;
 
-            af_new->where = paf->where;
-            af_new->type = UMAX(0, paf->type);
-            af_new->level = paf->level;
-            af_new->duration = paf->duration;
-            af_new->location = paf->location;
-            af_new->modifier = paf->modifier;
-            af_new->bitvector = paf->bitvector;
+            af_new->where = affect->where;
+            af_new->type = UMAX(0, affect->type);
+            af_new->level = affect->level;
+            af_new->duration = affect->duration;
+            af_new->location = affect->location;
+            af_new->modifier = affect->modifier;
+            af_new->bitvector = affect->bitvector;
         }
     }
 
@@ -2047,34 +2033,34 @@ void spell_enchant_armor(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
         obj->level = UMIN(LEVEL_HERO - 1, obj->level + 1);
 
     if (ac_found) {
-        FOR_EACH(paf, obj->affected) {
-            if (paf->location == APPLY_AC) {
-                paf->type = sn;
-                paf->modifier += (int16_t)added;
-                paf->level = UMAX(paf->level, (int16_t)level);
+        FOR_EACH(affect, obj->affected) {
+            if (affect->location == APPLY_AC) {
+                affect->type = sn;
+                affect->modifier += (int16_t)added;
+                affect->level = UMAX(affect->level, (int16_t)level);
             }
         }
     }
     else /* add a new affect */
     {
-        paf = new_affect();
+        affect = new_affect();
 
-        paf->where = TO_OBJECT;
-        paf->type = sn;
-        paf->level = (int16_t)level;
-        paf->duration = -1;
-        paf->location = APPLY_AC;
-        paf->modifier = (int16_t)added;
-        paf->bitvector = 0;
-        paf->next = obj->affected;
-        obj->affected = paf;
+        affect->where = TO_OBJECT;
+        affect->type = sn;
+        affect->level = (int16_t)level;
+        affect->duration = -1;
+        affect->location = APPLY_AC;
+        affect->modifier = (int16_t)added;
+        affect->bitvector = 0;
+        affect->next = obj->affected;
+        obj->affected = affect;
     }
 }
 
-void spell_enchant_weapon(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_enchant_weapon(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    ObjectData* obj = (ObjectData*)vo;
-    AffectData* paf;
+    Object* obj = (Object*)vo;
+    Affect* affect;
     int result, fail;
     int hit_bonus, dam_bonus, added;
     bool hit_found = false, dam_found = false;
@@ -2097,15 +2083,15 @@ void spell_enchant_weapon(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
     /* find the bonuses */
 
     if (!obj->enchanted)
-        FOR_EACH(paf, obj->prototype->affected) {
-            if (paf->location == APPLY_HITROLL) {
-                hit_bonus = paf->modifier;
+        FOR_EACH(affect, obj->prototype->affected) {
+            if (affect->location == APPLY_HITROLL) {
+                hit_bonus = affect->modifier;
                 hit_found = true;
                 fail += 2 * (hit_bonus * hit_bonus);
             }
 
-            else if (paf->location == APPLY_DAMROLL) {
-                dam_bonus = paf->modifier;
+            else if (affect->location == APPLY_DAMROLL) {
+                dam_bonus = affect->modifier;
                 dam_found = true;
                 fail += 2 * (dam_bonus * dam_bonus);
             }
@@ -2114,15 +2100,15 @@ void spell_enchant_weapon(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
                 fail += 25;
         }
 
-    FOR_EACH(paf, obj->affected) {
-        if (paf->location == APPLY_HITROLL) {
-            hit_bonus = paf->modifier;
+    FOR_EACH(affect, obj->affected) {
+        if (affect->location == APPLY_HITROLL) {
+            hit_bonus = affect->modifier;
             hit_found = true;
             fail += 2 * (hit_bonus * hit_bonus);
         }
 
-        else if (paf->location == APPLY_DAMROLL) {
-            dam_bonus = paf->modifier;
+        else if (affect->location == APPLY_DAMROLL) {
+            dam_bonus = affect->modifier;
             dam_found = true;
             fail += 2 * (dam_bonus * dam_bonus);
         }
@@ -2152,16 +2138,16 @@ void spell_enchant_weapon(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
 
     if (result < (fail / 2)) /* item disenchanted */
     {
-        AffectData* paf_next = NULL;
+        Affect* paf_next = NULL;
 
         act("$p glows brightly, then fades...oops.", ch, obj, NULL, TO_CHAR);
         act("$p glows brightly, then fades.", ch, obj, NULL, TO_ROOM);
         obj->enchanted = true;
 
         /* remove all affects */
-        for (paf = obj->affected; paf != NULL; paf = paf_next) {
-            paf_next = paf->next;
-            free_affect(paf);
+        for (affect = obj->affected; affect != NULL; affect = paf_next) {
+            paf_next = affect->next;
+            free_affect(affect);
         }
         obj->affected = NULL;
 
@@ -2178,22 +2164,22 @@ void spell_enchant_weapon(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
 
     /* okay, move all the old flags into new vectors if we have to */
     if (!obj->enchanted) {
-        AffectData* af_new;
+        Affect* af_new;
         obj->enchanted = true;
 
-        FOR_EACH(paf, obj->prototype->affected) {
+        FOR_EACH(affect, obj->prototype->affected) {
             af_new = new_affect();
 
             af_new->next = obj->affected;
             obj->affected = af_new;
 
-            af_new->where = paf->where;
-            af_new->type = UMAX(0, paf->type);
-            af_new->level = paf->level;
-            af_new->duration = paf->duration;
-            af_new->location = paf->location;
-            af_new->modifier = paf->modifier;
-            af_new->bitvector = paf->bitvector;
+            af_new->where = affect->where;
+            af_new->type = UMAX(0, affect->type);
+            af_new->level = affect->level;
+            af_new->duration = affect->duration;
+            af_new->location = affect->location;
+            af_new->modifier = affect->modifier;
+            af_new->bitvector = affect->bitvector;
         }
     }
 
@@ -2220,52 +2206,52 @@ void spell_enchant_weapon(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
         obj->level = UMIN(LEVEL_HERO - 1, obj->level + 1);
 
     if (dam_found) {
-        FOR_EACH(paf, obj->affected) {
-            if (paf->location == APPLY_DAMROLL) {
-                paf->type = sn;
-                paf->modifier += (int16_t)added;
-                paf->level = UMAX(paf->level, (int16_t)level);
-                if (paf->modifier > 4) SET_BIT(obj->extra_flags, ITEM_HUM);
+        FOR_EACH(affect, obj->affected) {
+            if (affect->location == APPLY_DAMROLL) {
+                affect->type = sn;
+                affect->modifier += (int16_t)added;
+                affect->level = UMAX(affect->level, (int16_t)level);
+                if (affect->modifier > 4) SET_BIT(obj->extra_flags, ITEM_HUM);
             }
         }
     }
     else /* add a new affect */
     {
-        paf = new_affect();
+        affect = new_affect();
 
-        paf->where = TO_OBJECT;
-        paf->type = sn;
-        paf->level = (int16_t)level;
-        paf->duration = -1;
-        paf->location = APPLY_DAMROLL;
-        paf->modifier = (int16_t)added;
-        paf->bitvector = 0;
-        paf->next = obj->affected;
-        obj->affected = paf;
+        affect->where = TO_OBJECT;
+        affect->type = sn;
+        affect->level = (int16_t)level;
+        affect->duration = -1;
+        affect->location = APPLY_DAMROLL;
+        affect->modifier = (int16_t)added;
+        affect->bitvector = 0;
+        affect->next = obj->affected;
+        obj->affected = affect;
     }
 
     if (hit_found) {
-        FOR_EACH(paf, obj->affected) {
-            if (paf->location == APPLY_HITROLL) {
-                paf->type = sn;
-                paf->modifier += (int16_t)added;
-                paf->level = UMAX(paf->level, (int16_t)level);
-                if (paf->modifier > 4) SET_BIT(obj->extra_flags, ITEM_HUM);
+        FOR_EACH(affect, obj->affected) {
+            if (affect->location == APPLY_HITROLL) {
+                affect->type = sn;
+                affect->modifier += (int16_t)added;
+                affect->level = UMAX(affect->level, (int16_t)level);
+                if (affect->modifier > 4) SET_BIT(obj->extra_flags, ITEM_HUM);
             }
         }
     }
     else /* add a new affect */
     {
-        paf = new_affect();
+        affect = new_affect();
 
-        paf->type = sn;
-        paf->level = (int16_t)level;
-        paf->duration = -1;
-        paf->location = APPLY_HITROLL;
-        paf->modifier = (int16_t)added;
-        paf->bitvector = 0;
-        paf->next = obj->affected;
-        obj->affected = paf;
+        affect->type = sn;
+        affect->level = (int16_t)level;
+        affect->duration = -1;
+        affect->location = APPLY_HITROLL;
+        affect->modifier = (int16_t)added;
+        affect->bitvector = 0;
+        affect->next = obj->affected;
+        obj->affected = affect;
     }
 }
 
@@ -2273,9 +2259,9 @@ void spell_enchant_weapon(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
  * Drain XP, MANA, HP.
  * Caster gains HP.
  */
-void spell_energy_drain(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_energy_drain(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     int dam;
 
     if (victim != ch) ch->alignment = UMAX(-1000, ch->alignment - 50);
@@ -2301,9 +2287,9 @@ void spell_energy_drain(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
     return;
 }
 
-void spell_fireball(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_fireball(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     static const int16_t dam_each[]
         = {0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
            0,   0,   30,  35,  40,  45,  50,  55,  60,  65,  70,  75,  80,
@@ -2319,10 +2305,10 @@ void spell_fireball(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget t
     return;
 }
 
-void spell_fireproof(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_fireproof(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    ObjectData* obj = (ObjectData*)vo;
-    AffectData af = { 0 };
+    Object* obj = (Object*)vo;
+    Affect af = { 0 };
 
     if (IS_OBJ_STAT(obj, ITEM_BURN_PROOF)) {
         act("$p is already protected from burning.", ch, obj, NULL, TO_CHAR);
@@ -2343,9 +2329,9 @@ void spell_fireproof(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget 
     act("$p is surrounded by a protective aura.", ch, obj, NULL, TO_ROOM);
 }
 
-void spell_flamestrike(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_flamestrike(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     int dam;
 
     dam = dice(6 + level / 2, 8);
@@ -2354,10 +2340,10 @@ void spell_flamestrike(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
     return;
 }
 
-void spell_faerie_fire(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_faerie_fire(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (IS_AFFECTED(victim, AFF_FAERIE_FIRE)) return;
     af.where = TO_AFFECTS;
@@ -2373,9 +2359,9 @@ void spell_faerie_fire(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
     return;
 }
 
-void spell_faerie_fog(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_faerie_fog(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* ich;
+    Mobile* ich;
 
     act("$n conjures a cloud of purple smoke.", ch, NULL, NULL, TO_ROOM);
     send_to_char("You conjure a cloud of purple smoke.\n\r", ch);
@@ -2398,9 +2384,9 @@ void spell_faerie_fog(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget
     return;
 }
 
-void spell_floating_disc(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_floating_disc(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    ObjectData *disc, *floating;
+    Object *disc, *floating;
 
     floating = get_eq_char(ch, WEAR_FLOAT);
     if (floating != NULL && IS_OBJ_STAT(floating, ITEM_NOREMOVE)) {
@@ -2420,10 +2406,10 @@ void spell_floating_disc(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
     return;
 }
 
-void spell_fly(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_fly(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (IS_AFFECTED(victim, AFF_FLYING)) {
         if (victim == ch)
@@ -2447,10 +2433,10 @@ void spell_fly(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target
 
 /* RT clerical berserking spell */
 
-void spell_frenzy(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_frenzy(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (is_affected(victim, sn) || IS_AFFECTED(victim, AFF_BERSERK)) {
         if (victim == ch)
@@ -2499,9 +2485,9 @@ void spell_frenzy(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget tar
 
 /* RT ROM-style gate */
 
-void spell_gate(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_gate(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim;
+    Mobile* victim;
     bool gate_pet;
 
     if ((victim = get_char_world(ch, target_name)) == NULL || victim == ch
@@ -2543,10 +2529,10 @@ void spell_gate(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget targe
     }
 }
 
-void spell_giant_strength(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_giant_strength(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (is_affected(victim, sn)) {
         if (victim == ch)
@@ -2570,9 +2556,9 @@ void spell_giant_strength(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
     return;
 }
 
-void spell_harm(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_harm(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     int dam;
 
     dam = UMAX(20, victim->hit - dice(1, 4));
@@ -2584,10 +2570,10 @@ void spell_harm(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget targe
 
 /* RT haste spell */
 
-void spell_haste(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_haste(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (is_affected(victim, sn) || IS_AFFECTED(victim, AFF_HASTE)
         || IS_SET(victim->atk_flags, ATK_FAST)) {
@@ -2626,9 +2612,9 @@ void spell_haste(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget targ
     return;
 }
 
-void spell_heal(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_heal(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     victim->hit = UMIN(victim->hit + 100, victim->max_hit);
     update_pos(victim);
     send_to_char("A warm feeling fills your body.\n\r", victim);
@@ -2636,11 +2622,11 @@ void spell_heal(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget targe
     return;
 }
 
-void spell_heat_metal(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_heat_metal(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    ObjectData* obj_lose;
-    ObjectData* obj_next = NULL;
+    Mobile* victim = (Mobile*)vo;
+    Object* obj_lose;
+    Object* obj_next = NULL;
     int dam = 0;
     bool fail = true;
 
@@ -2761,10 +2747,10 @@ void spell_heat_metal(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget
 }
 
 /* RT really nasty high-level attack spell */
-void spell_holy_word(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_holy_word(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* vch;
-    CharData* vch_next = NULL;
+    Mobile* vch;
+    Mobile* vch_next = NULL;
     int dam;
     SKNUM bless_num, curse_num, frenzy_num;
 
@@ -2810,11 +2796,11 @@ void spell_holy_word(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget 
     ch->hit /= 2;
 }
 
-void spell_identify(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_identify(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    ObjectData* obj = (ObjectData*)vo;
+    Object* obj = (Object*)vo;
     char buf[MAX_STRING_LENGTH];
-    AffectData* paf;
+    Affect* affect;
 
     sprintf(buf,
             "Object '%s' is type %s, extra flags %s.\n\rWeight is %d, value is "
@@ -2924,12 +2910,8 @@ void spell_identify(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget t
             send_to_char("unknown.\n\r", ch);
             break;
         }
-        if (obj->prototype->new_format)
-            sprintf(buf, "Damage is %dd%d (average %d).\n\r", obj->value[1],
-                    obj->value[2], (1 + obj->value[2]) * obj->value[1] / 2);
-        else
-            sprintf(buf, "Damage is %d to %d (average %d).\n\r", obj->value[1],
-                    obj->value[2], (obj->value[1] + obj->value[2]) / 2);
+        sprintf(buf, "Damage is %dd%d (average %d).\n\r", obj->value[1],
+                obj->value[2], (1 + obj->value[2]) * obj->value[1] / 2);
         send_to_char(buf, ch);
         if (obj->value[4]) /* weapon flags */
         {
@@ -2951,40 +2933,40 @@ void spell_identify(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget t
     }
 
     if (!obj->enchanted)
-        FOR_EACH(paf, obj->prototype->affected) {
-            if (paf->location != APPLY_NONE && paf->modifier != 0) {
+        FOR_EACH(affect, obj->prototype->affected) {
+            if (affect->location != APPLY_NONE && affect->modifier != 0) {
                 sprintf(buf, "Affects %s by %d.\n\r",
-                        affect_loc_name(paf->location), paf->modifier);
+                        affect_loc_name(affect->location), affect->modifier);
                 send_to_char(buf, ch);
-                if (paf->bitvector) {
-                    switch (paf->where) {
+                if (affect->bitvector) {
+                    switch (affect->where) {
                     case TO_AFFECTS:
                         sprintf(buf, "Adds %s affect.\n",
-                                affect_bit_name(paf->bitvector));
+                                affect_bit_name(affect->bitvector));
                         break;
                     case TO_OBJECT:
                         sprintf(buf, "Adds %s object flag.\n",
-                                extra_bit_name(paf->bitvector));
+                                extra_bit_name(affect->bitvector));
                         break;
                     case TO_IMMUNE:
                         sprintf(buf, "Adds immunity to %s.\n",
-                                imm_bit_name(paf->bitvector));
+                                imm_bit_name(affect->bitvector));
                         break;
                     case TO_RESIST:
                         sprintf(buf, "Adds resistance to %s.\n\r",
-                                imm_bit_name(paf->bitvector));
+                                imm_bit_name(affect->bitvector));
                         break;
                     case TO_VULN:
                         sprintf(buf, "Adds vulnerability to %s.\n\r",
-                                imm_bit_name(paf->bitvector));
+                                imm_bit_name(affect->bitvector));
                         break;
                     case TO_WEAPON:
                         sprintf(buf, "Adds %s weapon flags.\n",
-                            weapon_bit_name(paf->bitvector));
+                            weapon_bit_name(affect->bitvector));
                         break;
                     default:
-                        sprintf(buf, "Unknown bit %d: %d\n\r", paf->where,
-                                paf->bitvector);
+                        sprintf(buf, "Unknown bit %d: %d\n\r", affect->where,
+                                affect->bitvector);
                         break;
                     }
                     send_to_char(buf, ch);
@@ -2992,45 +2974,45 @@ void spell_identify(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget t
             }
         }
 
-    FOR_EACH(paf, obj->affected) {
-        if (paf->location != APPLY_NONE && paf->modifier != 0) {
-            sprintf(buf, "Affects %s by %d", affect_loc_name(paf->location),
-                    paf->modifier);
+    FOR_EACH(affect, obj->affected) {
+        if (affect->location != APPLY_NONE && affect->modifier != 0) {
+            sprintf(buf, "Affects %s by %d", affect_loc_name(affect->location),
+                    affect->modifier);
             send_to_char(buf, ch);
-            if (paf->duration > -1)
-                sprintf(buf, ", %d hours.\n\r", paf->duration);
+            if (affect->duration > -1)
+                sprintf(buf, ", %d hours.\n\r", affect->duration);
             else
                 sprintf(buf, ".\n\r");
             send_to_char(buf, ch);
-            if (paf->bitvector) {
-                switch (paf->where) {
+            if (affect->bitvector) {
+                switch (affect->where) {
                 case TO_AFFECTS:
                     sprintf(buf, "Adds %s affect.\n",
-                            affect_bit_name(paf->bitvector));
+                            affect_bit_name(affect->bitvector));
                     break;
                 case TO_OBJECT:
                     sprintf(buf, "Adds %s object flag.\n",
-                            extra_bit_name(paf->bitvector));
+                            extra_bit_name(affect->bitvector));
                     break;
                 case TO_WEAPON:
                     sprintf(buf, "Adds %s weapon flags.\n",
-                            weapon_bit_name(paf->bitvector));
+                            weapon_bit_name(affect->bitvector));
                     break;
                 case TO_IMMUNE:
                     sprintf(buf, "Adds immunity to %s.\n",
-                            imm_bit_name(paf->bitvector));
+                            imm_bit_name(affect->bitvector));
                     break;
                 case TO_RESIST:
                     sprintf(buf, "Adds resistance to %s.\n\r",
-                            imm_bit_name(paf->bitvector));
+                            imm_bit_name(affect->bitvector));
                     break;
                 case TO_VULN:
                     sprintf(buf, "Adds vulnerability to %s.\n\r",
-                            imm_bit_name(paf->bitvector));
+                            imm_bit_name(affect->bitvector));
                     break;
                 default:
-                    sprintf(buf, "Unknown bit %d: %d\n\r", paf->where,
-                            paf->bitvector);
+                    sprintf(buf, "Unknown bit %d: %d\n\r", affect->where,
+                            affect->bitvector);
                     break;
                 }
                 send_to_char(buf, ch);
@@ -3041,10 +3023,10 @@ void spell_identify(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget t
     return;
 }
 
-void spell_infravision(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_infravision(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (IS_AFFECTED(victim, AFF_INFRARED)) {
         if (victim == ch)
@@ -3067,15 +3049,15 @@ void spell_infravision(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
     return;
 }
 
-void spell_invis(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_invis(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim;
-    ObjectData* obj;
-    AffectData af = { 0 };
+    Mobile* victim;
+    Object* obj;
+    Affect af = { 0 };
 
     /* object invisibility */
     if (target == SPELL_TARGET_OBJ) {
-        obj = (ObjectData*)vo;
+        obj = (Object*)vo;
 
         if (IS_OBJ_STAT(obj, ITEM_INVIS)) {
             act("$p is already invisible.", ch, obj, NULL, TO_CHAR);
@@ -3096,7 +3078,7 @@ void spell_invis(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget targ
     }
 
     /* character invisibility */
-    victim = (CharData*)vo;
+    victim = (Mobile*)vo;
 
     if (IS_AFFECTED(victim, AFF_INVISIBLE)) return;
 
@@ -3114,9 +3096,9 @@ void spell_invis(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget targ
     return;
 }
 
-void spell_know_alignment(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_know_alignment(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     char* msg;
     int ap;
 
@@ -3141,9 +3123,9 @@ void spell_know_alignment(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
     return;
 }
 
-void spell_lightning_bolt(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_lightning_bolt(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     static const int16_t dam_each[]
         = {0,  0,  0,  0,  0,  0,  0,  0,  0,  25, 28, 31, 34, 37, 40, 40, 41,
            42, 42, 43, 44, 44, 45, 46, 46, 47, 48, 48, 49, 50, 50, 51, 52, 52,
@@ -3158,12 +3140,12 @@ void spell_lightning_bolt(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
     return;
 }
 
-void spell_locate_object(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_locate_object(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
     char buf[MAX_INPUT_LENGTH];
     Buffer* buffer;
-    ObjectData* obj;
-    ObjectData* in_obj;
+    Object* obj;
+    Object* in_obj;
     bool found;
     int number = 0, max_found;
 
@@ -3173,7 +3155,7 @@ void spell_locate_object(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
 
     buffer = new_buf();
 
-    FOR_EACH(obj, object_list) {
+    FOR_EACH(obj, obj_list) {
         if (!can_see_obj(ch, obj) || !is_name(target_name, obj->name)
             || IS_OBJ_STAT(obj, ITEM_NOLOCATE) || number_percent() > 2 * level
             || ch->level < obj->level)
@@ -3215,9 +3197,9 @@ void spell_locate_object(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
     return;
 }
 
-void spell_magic_missile(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_magic_missile(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     static const int16_t dam_each[LEVEL_HERO]
         = {0,  3,  3,  4,  4,  5,  6,  6,  6,  6,  6,  7,  7,  7,  7,  7,  8,
            8,  8,  8,  8,  9,  9,  9,  9,  9,  10, 10, 10, 10, 10, 11, 11, 11,
@@ -3232,9 +3214,9 @@ void spell_magic_missile(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
     return;
 }
 
-void spell_mass_healing(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_mass_healing(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* gch;
+    Mobile* gch;
     SKNUM heal_num;
     SKNUM refresh_num;
 
@@ -3249,10 +3231,10 @@ void spell_mass_healing(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
     }
 }
 
-void spell_mass_invis(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_mass_invis(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    AffectData af = { 0 };
-    CharData* gch;
+    Affect af = { 0 };
+    Mobile* gch;
 
     FOR_EACH_IN_ROOM(gch, ch->in_room->people) {
         if (!is_same_group(gch, ch) || IS_AFFECTED(gch, AFF_INVISIBLE))
@@ -3274,16 +3256,16 @@ void spell_mass_invis(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget
     return;
 }
 
-void spell_null(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_null(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
     send_to_char("That's not a spell!\n\r", ch);
     return;
 }
 
-void spell_pass_door(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_pass_door(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (IS_AFFECTED(victim, AFF_PASS_DOOR)) {
         if (victim == ch)
@@ -3309,10 +3291,10 @@ void spell_pass_door(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget 
 
 /* RT plague spell, very nasty */
 
-void spell_plague(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_plague(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (saves_spell(level, victim, DAM_DISEASE)
         || (IS_NPC(victim) && IS_SET(victim->act_flags, ACT_UNDEAD))) {
@@ -3339,14 +3321,14 @@ void spell_plague(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget tar
         NULL, TO_ROOM);
 }
 
-void spell_poison(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_poison(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim;
-    ObjectData* obj;
-    AffectData af = { 0 };
+    Mobile* victim;
+    Object* obj;
+    Affect af = { 0 };
 
     if (target == SPELL_TARGET_OBJ) {
-        obj = (ObjectData*)vo;
+        obj = (Object*)vo;
 
         if (obj->item_type == ITEM_FOOD || obj->item_type == ITEM_DRINK_CON) {
             if (IS_OBJ_STAT(obj, ITEM_BLESS)
@@ -3394,7 +3376,7 @@ void spell_poison(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget tar
         return;
     }
 
-    victim = (CharData*)vo;
+    victim = (Mobile*)vo;
 
     if (saves_spell(level, victim, DAM_POISON)) {
         act("$n turns slightly green, but it passes.", victim, NULL, NULL,
@@ -3416,10 +3398,10 @@ void spell_poison(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget tar
     return;
 }
 
-void spell_protection_evil(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_protection_evil(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (IS_AFFECTED(victim, AFF_PROTECT_EVIL)
         || IS_AFFECTED(victim, AFF_PROTECT_GOOD)) {
@@ -3444,10 +3426,10 @@ void spell_protection_evil(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellT
     return;
 }
 
-void spell_protection_good(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_protection_good(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (IS_AFFECTED(victim, AFF_PROTECT_GOOD)
         || IS_AFFECTED(victim, AFF_PROTECT_EVIL)) {
@@ -3472,9 +3454,9 @@ void spell_protection_good(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellT
     return;
 }
 
-void spell_ray_of_truth(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_ray_of_truth(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     int dam, align;
 
     if (IS_EVIL(ch)) {
@@ -3511,9 +3493,9 @@ void spell_ray_of_truth(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
                     SPELL_TARGET_CHAR);
 }
 
-void spell_recharge(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_recharge(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    ObjectData* obj = (ObjectData*)vo;
+    Object* obj = (Object*)vo;
     int chance, percent;
 
     if (obj->item_type != ITEM_WAND && obj->item_type != ITEM_STAFF) {
@@ -3580,9 +3562,9 @@ void spell_recharge(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget t
     }
 }
 
-void spell_refresh(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_refresh(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     victim->move = UMIN(victim->move + (int16_t)level, victim->max_move);
     if (victim->max_move == victim->move)
         send_to_char("You feel fully refreshed!\n\r", victim);
@@ -3592,15 +3574,15 @@ void spell_refresh(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget ta
     return;
 }
 
-void spell_remove_curse(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_remove_curse(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim;
-    ObjectData* obj;
+    Mobile* victim;
+    Object* obj;
     bool found = false;
 
     /* do object cases first */
     if (target == SPELL_TARGET_OBJ) {
-        obj = (ObjectData*)vo;
+        obj = (Object*)vo;
 
         if (IS_OBJ_STAT(obj, ITEM_NODROP) || IS_OBJ_STAT(obj, ITEM_NOREMOVE)) {
             if (!IS_OBJ_STAT(obj, ITEM_NOUNCURSE)
@@ -3620,7 +3602,7 @@ void spell_remove_curse(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
     }
 
     /* characters */
-    victim = (CharData*)vo;
+    victim = (Mobile*)vo;
 
     if (check_dispel(level, victim, gsn_curse)) {
         send_to_char("You feel better.\n\r", victim);
@@ -3643,10 +3625,10 @@ void spell_remove_curse(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
     }
 }
 
-void spell_sanctuary(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_sanctuary(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (IS_AFFECTED(victim, AFF_SANCTUARY)) {
         if (victim == ch)
@@ -3669,10 +3651,10 @@ void spell_sanctuary(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget 
     return;
 }
 
-void spell_shield(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_shield(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (is_affected(victim, sn)) {
         if (victim == ch)
@@ -3696,9 +3678,9 @@ void spell_shield(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget tar
     return;
 }
 
-void spell_shocking_grasp(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_shocking_grasp(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     static const int dam_each[]
         = {0,  0,  0,  0,  0,  0,  0,  20, 25, 29, 33, 36, 39, 39, 39, 40, 40,
            41, 41, 42, 42, 43, 43, 44, 44, 45, 45, 46, 46, 47, 47, 48, 48, 49,
@@ -3713,10 +3695,10 @@ void spell_shocking_grasp(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
     return;
 }
 
-void spell_sleep(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_sleep(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (IS_AFFECTED(victim, AFF_SLEEP)
         || (IS_NPC(victim) && IS_SET(victim->act_flags, ACT_UNDEAD))
@@ -3741,10 +3723,10 @@ void spell_sleep(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget targ
     return;
 }
 
-void spell_slow(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_slow(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (is_affected(victim, sn) || IS_AFFECTED(victim, AFF_SLOW)) {
         if (victim == ch)
@@ -3786,10 +3768,10 @@ void spell_slow(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget targe
     return;
 }
 
-void spell_stone_skin(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_stone_skin(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (is_affected(ch, sn)) {
         if (victim == ch)
@@ -3812,9 +3794,9 @@ void spell_stone_skin(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget
     return;
 }
 
-void spell_summon(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_summon(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim;
+    Mobile* victim;
 
     if ((victim = get_char_world(ch, target_name)) == NULL || victim == ch
         || victim->in_room == NULL || IS_SET(ch->in_room->room_flags, ROOM_SAFE)
@@ -3845,10 +3827,10 @@ void spell_summon(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget tar
     return;
 }
 
-void spell_teleport(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_teleport(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    RoomData* pRoomIndex;
+    Mobile* victim = (Mobile*)vo;
+    Room* pRoomIndex;
 
     if (victim->in_room == NULL
         || IS_SET(victim->in_room->room_flags, ROOM_NO_RECALL)
@@ -3871,12 +3853,12 @@ void spell_teleport(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget t
     return;
 }
 
-void spell_ventriloquate(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_ventriloquate(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
     char buf1[MAX_STRING_LENGTH];
     char buf2[MAX_STRING_LENGTH];
     char speaker[MAX_INPUT_LENGTH];
-    CharData* vch;
+    Mobile* vch;
 
     target_name = one_argument(target_name, speaker);
 
@@ -3892,10 +3874,10 @@ void spell_ventriloquate(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTar
     return;
 }
 
-void spell_weaken(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_weaken(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    AffectData af = { 0 };
+    Mobile* victim = (Mobile*)vo;
+    Affect af = { 0 };
 
     if (is_affected(victim, sn) || saves_spell(level, victim, DAM_OTHER))
         return;
@@ -3915,15 +3897,15 @@ void spell_weaken(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget tar
 
 /* RT recall spell is back */
 
-void spell_word_of_recall(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_word_of_recall(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    RoomData* location;
+    Mobile* victim = (Mobile*)vo;
+    Room* location;
 
     if (IS_NPC(victim))
         return;
 
-    if ((location = get_room_data(ch->pcdata->recall)) == NULL) {
+    if ((location = get_room(ch->pcdata->recall)) == NULL) {
         send_to_char("You are completely lost.\n\r", victim);
         return;
     }
@@ -3944,12 +3926,10 @@ void spell_word_of_recall(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTa
     do_function(victim, &do_look, "auto");
 }
 
-/*
- * NPC spells.
- */
-void spell_acid_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+// NPC spells.
+void spell_acid_breath(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     int dam, hp_dam, dice_dam, hpch;
 
     act("$n spits acid at $N.", ch, NULL, victim, TO_NOTVICT);
@@ -3973,11 +3953,11 @@ void spell_acid_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
     }
 }
 
-void spell_fire_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_fire_breath(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    CharData* vch;
-    CharData *vch_next = NULL;
+    Mobile* victim = (Mobile*)vo;
+    Mobile* vch;
+    Mobile *vch_next = NULL;
     int dam, hp_dam, dice_dam;
     int hpch;
 
@@ -4025,11 +4005,11 @@ void spell_fire_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarge
     }
 }
 
-void spell_frost_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_frost_breath(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
-    CharData* vch;
-    CharData* vch_next = NULL;
+    Mobile* victim = (Mobile*)vo;
+    Mobile* vch;
+    Mobile* vch_next = NULL;
     int dam, hp_dam, dice_dam, hpch;
 
     act("$n breathes out a freezing cone of frost!", ch, NULL, victim,
@@ -4077,10 +4057,10 @@ void spell_frost_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarg
     }
 }
 
-void spell_gas_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_gas_breath(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* vch;
-    CharData* vch_next = NULL;
+    Mobile* vch;
+    Mobile* vch_next = NULL;
     int dam, hp_dam, dice_dam, hpch;
 
     act("$n breathes out a cloud of poisonous gas!", ch, NULL, NULL, TO_ROOM);
@@ -4112,9 +4092,9 @@ void spell_gas_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget
     }
 }
 
-void spell_lightning_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_lightning_breath(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     int dam, hp_dam, dice_dam, hpch;
 
     act("$n breathes a bolt of lightning at $N.", ch, NULL, victim, TO_NOTVICT);
@@ -4137,12 +4117,10 @@ void spell_lightning_breath(SKNUM sn, LEVEL level, CharData* ch, void* vo, Spell
     }
 }
 
-/*
- * Spells for mega1.are from Glop/Erkenbrand.
- */
-void spell_general_purpose(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+// Spells for mega1.are from Glop/Erkenbrand.
+void spell_general_purpose(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     int dam;
 
     dam = number_range(25, 100);
@@ -4151,9 +4129,9 @@ void spell_general_purpose(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellT
     return;
 }
 
-void spell_high_explosive(SKNUM sn, LEVEL level, CharData* ch, void* vo, SpellTarget target)
+void spell_high_explosive(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    CharData* victim = (CharData*)vo;
+    Mobile* victim = (Mobile*)vo;
     int dam;
 
     dam = number_range(30, 120);

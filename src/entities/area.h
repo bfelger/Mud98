@@ -1,13 +1,13 @@
 ////////////////////////////////////////////////////////////////////////////////
-// area_data.h
+// area.h
 // Utilities to handle area
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef struct area_data_t AreaData;
+typedef struct area_t Area;
 
 #pragma once
-#ifndef MUD98__ENTITIES__AREA_DATA_H
-#define MUD98__ENTITIES__AREA_DATA_H
+#ifndef MUD98__ENTITIES__AREA_H
+#define MUD98__ENTITIES__AREA_H
 
 #include "merc.h"
 
@@ -15,7 +15,7 @@ typedef struct area_data_t AreaData;
 #include <stdio.h>
 
 #include "help_data.h"
-#include "room_data.h"
+#include "room.h"
 
 #include "data/direction.h"
 #include "data/quest.h"
@@ -27,8 +27,8 @@ typedef enum area_flags_t {
     AREA_LOADING    = BIT(3),	// Used for counting in db.c
 } AreaFlags;
 
-typedef struct area_data_t {
-    AreaData* next;
+typedef struct area_t {
+    Area* next;
     HelpArea* helps;
     Quest* quests;
     char* file_name;
@@ -48,12 +48,12 @@ typedef struct area_data_t {
     int16_t reset_thresh;
     int16_t reset_timer;
     bool always_reset;
-} AreaData;
+} Area;
 
-AreaData* new_area();
+Area* new_area();
 
 extern int area_count;
-extern AreaData* area_first;
-extern AreaData* area_last;
+extern Area* area_first;
+extern Area* area_last;
 
-#endif // !MUD98__ENTITIES__AREA_DATA_H
+#endif // !MUD98__ENTITIES__AREA_H

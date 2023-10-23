@@ -36,7 +36,7 @@
 #include "entities/descriptor.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,11 +49,11 @@
 
 FLAGS flag_lookup args((const char* name, const struct flag_type* flag_table));
 
-void do_flag(CharData* ch, char* argument)
+void do_flag(Mobile* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH], arg3[MAX_INPUT_LENGTH];
     char word[MAX_INPUT_LENGTH];
-    CharData* victim;
+    Mobile* victim;
     FLAGS* flag, old = 0, new = 0;
     int marked = 0, pos;
     char type;

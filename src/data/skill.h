@@ -10,7 +10,7 @@
 
 #include "array.h"
 #include "class.h"
-#include "mobile.h"
+#include "mobile_data.h"
 #include "spell.h"
 
 #define DEFAULT_SKILL_RATING    0

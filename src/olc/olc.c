@@ -25,11 +25,11 @@
 #include "tables.h"
 
 #include "entities/descriptor.h"
-#include "entities/object_data.h"
+#include "entities/object.h"
 #include "entities/player_data.h"
-#include "entities/reset_data.h"
+#include "entities/reset.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/race.h"
 #include "data/skill.h"
 #include "data/social.h"
@@ -106,7 +106,7 @@ bool run_olc_editor(Descriptor* d, char* incomm)
     return true;
 }
 
-char* olc_ed_name(CharData* ch)
+char* olc_ed_name(Mobile* ch)
 {
     static char buf[10];
 
@@ -159,11 +159,11 @@ char* olc_ed_name(CharData* ch)
 }
 
 
-char* olc_ed_vnum(CharData* ch)
+char* olc_ed_vnum(Mobile* ch)
 {
-    AreaData* pArea;
-    RoomData* pRoom;
-    ObjectPrototype* pObj;
+    Area* area;
+    Room* pRoom;
+    ObjPrototype* pObj;
     MobPrototype* pMob;
     MobProgCode* pMcode;
     HelpData* pHelp;
@@ -178,15 +178,15 @@ char* olc_ed_vnum(CharData* ch)
     buf[0] = '\0';
     switch (ch->desc->editor) {
     case ED_AREA:
-        pArea = (AreaData*)ch->desc->pEdit;
-        sprintf(buf, "%"PRVNUM, pArea ? pArea->vnum : 0);
+        area = (Area*)ch->desc->pEdit;
+        sprintf(buf, "%"PRVNUM, area ? area->vnum : 0);
         break;
     case ED_ROOM:
         pRoom = ch->in_room;
         sprintf(buf, "%"PRVNUM, pRoom ? pRoom->vnum : 0);
         break;
     case ED_OBJECT:
-        pObj = (ObjectPrototype*)ch->desc->pEdit;
+        pObj = (ObjPrototype*)ch->desc->pEdit;
         sprintf(buf, "%"PRVNUM, pObj ? pObj->vnum : 0);
         break;
     case ED_MOBILE:
@@ -256,7 +256,7 @@ const OlcCmdEntry* get_olc_table(int editor)
  Purpose:	Format up the commands from given table.
  Called by:	show_commands(olc_act.c).
  ****************************************************************************/
-void show_olc_cmds(CharData* ch)
+void show_olc_cmds(Mobile* ch)
 {
     char    buf[MAX_STRING_LENGTH] = "";
     char    buf1[MAX_STRING_LENGTH] = "";
@@ -309,7 +309,7 @@ void show_olc_cmds(CharData* ch)
  Purpose:	Display all olc commands.
  Called by:	olc interpreters.
  ****************************************************************************/
-bool show_commands(CharData* ch, char* argument)
+bool show_commands(Mobile* ch, char* argument)
 {
     show_olc_cmds(ch);
 
@@ -321,7 +321,7 @@ bool show_commands(CharData* ch, char* argument)
  Purpose:	Resets builder information on completion.
  Called by:	aedit, redit, oedit, medit(olc.c)
  ****************************************************************************/
-bool edit_done(CharData* ch)
+bool edit_done(Mobile* ch)
 {
     if (ch->desc->editor != ED_NONE)
         send_to_char("Exiting the editor.\n\r", ch);
@@ -359,7 +359,7 @@ const EditCmd editor_table[] =
 };
 
 /* Entry point for all editors. */
-void do_olc(CharData* ch, char* argument)
+void do_olc(Mobile* ch, char* argument)
 {
     char command[MAX_INPUT_LENGTH];
     int cmd;
@@ -384,18 +384,18 @@ void do_olc(CharData* ch, char* argument)
     return;
 }
 
-bool process_olc_command(CharData* ch, char* argument, const OlcCmdEntry* table)
+bool process_olc_command(Mobile* ch, char* argument, const OlcCmdEntry* table)
 {
     char arg[MIL];
-    AreaData* pArea;
+    Area* area;
     MobPrototype* pMob;
-    ObjectPrototype* pObj;
-    RoomData* pRoom;
+    ObjPrototype* pObj;
+    Room* pRoom;
     Race* pRace;
     Skill* pSkill;
     CmdInfo* pCmd;
     Class* pClass;
-    AreaData* tArea;
+    Area* tArea;
     MobProgCode* pProg;
     Social* pSoc;
     Quest* pQuest;
@@ -409,14 +409,14 @@ bool process_olc_command(CharData* ch, char* argument, const OlcCmdEntry* table)
             && !str_prefix(arg, table[temp].name)) {
             switch (ch->desc->editor) {
             case ED_AREA:
-                EDIT_AREA(ch, pArea);
+                EDIT_AREA(ch, area);
                 if (table[temp].argument)
-                    pointer = (table[temp].argument - U(&xArea) + U(pArea));
+                    pointer = (table[temp].argument - U(&xArea) + U(area));
                 else
                     pointer = 0;
                 if ((*table[temp].function) (table[temp].name, ch, argument, pointer, table[temp].parameter)
-                    && pArea)
-                    SET_BIT(pArea->area_flags, AREA_CHANGED);
+                    && area)
+                    SET_BIT(area->area_flags, AREA_CHANGED);
                 return true;
                 break;
 
@@ -544,7 +544,7 @@ bool process_olc_command(CharData* ch, char* argument, const OlcCmdEntry* table)
     return false;
 }
 
-void do_page(CharData* ch, char* argument)
+void do_page(Mobile* ch, char* argument)
 {
     int16_t num;
 

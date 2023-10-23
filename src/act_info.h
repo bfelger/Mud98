@@ -6,8 +6,8 @@
 #ifndef MUD98__ACT_INFO_H
 #define MUD98__ACT_INFO_H
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 
-void set_title(CharData* ch, char* title);
+void set_title(Mobile* ch, char* title);
 
 #endif // !MUD98__ACT_INFO_H

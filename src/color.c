@@ -15,7 +15,7 @@
 #include "entities/descriptor.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/player.h"
 
 #include <stdint.h>
@@ -133,7 +133,7 @@ char* color_to_str(ColorTheme* theme, Color* color, bool xterm)
     return color->cache;
 }
 
-static void list_theme_entry(CharData* ch, ColorTheme* theme, const char* owner, bool show_public)
+static void list_theme_entry(Mobile* ch, ColorTheme* theme, const char* owner, bool show_public)
 {
     INIT_BUF(out, MAX_STRING_LENGTH);
     char buf[MAX_STRING_LENGTH];
@@ -218,7 +218,7 @@ static void list_theme_entry(CharData* ch, ColorTheme* theme, const char* owner,
     free_buf(out);
 }
 
-static inline void send_256_color_list(CharData* ch)
+static inline void send_256_color_list(Mobile* ch)
 {
     int i;
     int text;
@@ -239,7 +239,7 @@ static inline void send_256_color_list(CharData* ch)
     send_to_char("\n\r", ch);
 }
 
-static inline void send_ansi_color_list(CharData* ch)
+static inline void send_ansi_color_list(Mobile* ch)
 {
     send_to_char("{jYou can choose from the following:{x\n\r", ch);
     for (int i = 0; i < 15; ++i) {
@@ -251,7 +251,7 @@ static inline void send_ansi_color_list(CharData* ch)
     send_to_char("\n\r", ch);
 }
 
-static inline bool lookup_color(char* argument, Color* color, CharData* ch)
+static inline bool lookup_color(char* argument, Color* color, Mobile* ch)
 {
     if (argument == NULL || !argument[0]) {
         send_to_char("{jYou must choose a color.{x\n\r", ch);
@@ -346,7 +346,7 @@ static inline bool lookup_color(char* argument, Color* color, CharData* ch)
     return true;
 }
 
-static void do_theme_channel(CharData* ch, char* argument)
+static void do_theme_channel(Mobile* ch, char* argument)
 {
     static const char* help =
         "USAGE: {*THEME CHANNEL <channel> <color>{x\n\r"
@@ -443,7 +443,7 @@ static void clear_cached_codes(ColorTheme* theme)
     }
 }
 
-static void do_theme_config(CharData* ch, char* argument)
+static void do_theme_config(Mobile* ch, char* argument)
 {
     static const char* help =
         "USAGE: {*THEME CONFIG (ENABLE|DISABLE) (256|RGB|XTERM){x\n\r"
@@ -511,7 +511,7 @@ static void do_theme_config(CharData* ch, char* argument)
     }
 }
 
-static void do_theme_create(CharData* ch, char* argument)
+static void do_theme_create(Mobile* ch, char* argument)
 {
     static const char* help =
         "USAGE: {*THEME CREATE (ANSI|256|RGB) <name>{x\n\r"
@@ -619,7 +619,7 @@ static void do_theme_create(CharData* ch, char* argument)
     printf_to_char(ch, "New theme created: %s\n\r", theme->name);
 }
 
-static void do_theme_discard(CharData* ch, char* argument)
+static void do_theme_discard(Mobile* ch, char* argument)
 {
     ColorTheme* current_theme = ch->pcdata->current_theme;
     char* theme_name = ch->pcdata->theme_config.current_theme_name;
@@ -641,7 +641,7 @@ static void do_theme_discard(CharData* ch, char* argument)
     ch->pcdata->current_theme = dup_color_theme(theme);
 }
 
-static void do_theme_list(CharData* ch, char* argument)
+static void do_theme_list(Mobile* ch, char* argument)
 {
     static const char* help =
         "USAGE: {*THEME LIST (ALL|SYSTEM|PUBLIC|PRIVATE){x\n\r"
@@ -718,7 +718,7 @@ static void do_theme_list(CharData* ch, char* argument)
             if (d == ch->desc && priv)
                 continue;
 
-            CharData* wch;
+            Mobile* wch;
 
             if (d->connected != CON_PLAYING || !can_see(ch, d->character))
                 continue;
@@ -764,7 +764,7 @@ static void do_theme_list(CharData* ch, char* argument)
     }
 }
 
-static void do_theme_palette(CharData* ch, char* argument)
+static void do_theme_palette(Mobile* ch, char* argument)
 {
     static const char* help =
         "USAGE: {*THEME PALETTE <index> <color>{x\n\r"
@@ -846,7 +846,7 @@ static void do_theme_palette(CharData* ch, char* argument)
     theme->is_changed = true;
 }
 
-static void do_theme_preview(CharData* ch, char* argument)
+static void do_theme_preview(Mobile* ch, char* argument)
 {
     char out[MAX_STRING_LENGTH];
     char buf[500];
@@ -928,7 +928,7 @@ static void do_theme_preview(CharData* ch, char* argument)
     send_to_char(out, ch);
 }
 
-static void do_theme_remove(CharData* ch, char* argument)
+static void do_theme_remove(Mobile* ch, char* argument)
 {
     if (!argument || !argument[0]) {
         send_to_char("{jYou specify the name of a color theme to remove.{x\n\r",
@@ -970,7 +970,7 @@ static void do_theme_remove(CharData* ch, char* argument)
     return;
 }
 
-static void do_theme_save(CharData* ch, char* argument)
+static void do_theme_save(Mobile* ch, char* argument)
 {
     char* theme_name = ch->pcdata->theme_config.current_theme_name;
     ColorTheme* theme = ch->pcdata->current_theme;
@@ -1001,7 +1001,7 @@ static void do_theme_save(CharData* ch, char* argument)
     }
 }
 
-static void do_theme_select(CharData* ch, char* argument)
+static void do_theme_select(Mobile* ch, char* argument)
 {
     static const char* help =
         "USAGE: {*THEME SELECT (@<player>) <name>{x\n\r"
@@ -1065,7 +1065,7 @@ static void do_theme_select(CharData* ch, char* argument)
     printf_to_char(ch, "{_%s{x\n\r", ch->pcdata->current_theme->banner);
 }
 
-static void do_theme_set(CharData* ch, char* argument)
+static void do_theme_set(Mobile* ch, char* argument)
 {
     static const char* help =
         "USAGE: {*THEME SET NAME <name>\n\r"
@@ -1135,7 +1135,7 @@ static void do_theme_set(CharData* ch, char* argument)
         send_to_char(help, ch);
 }
 
-static void do_theme_show(CharData* ch, char* argument)
+static void do_theme_show(Mobile* ch, char* argument)
 {
     ColorTheme* theme = ch->pcdata->current_theme;
     bool xterm = ch->pcdata->theme_config.xterm;
@@ -1284,7 +1284,7 @@ static void do_theme_show(CharData* ch, char* argument)
     send_to_char(out, ch);
 }
 
-void do_theme(CharData* ch, char* argument)
+void do_theme(Mobile* ch, char* argument)
 {
     static const char* help =
         "USAGE: {*THEME CONFIG\n\r"
@@ -1422,7 +1422,7 @@ ColorMode lookup_color_mode(const char* arg)
         return -1;
 }
 
-ColorTheme* lookup_color_theme(CharData* ch, char* arg)
+ColorTheme* lookup_color_theme(Mobile* ch, char* arg)
 {
     ColorTheme* theme;
 
@@ -1434,7 +1434,7 @@ ColorTheme* lookup_color_theme(CharData* ch, char* arg)
     return NULL;
 }
 
-ColorTheme* lookup_system_color_theme(CharData* ch, char* arg)
+ColorTheme* lookup_system_color_theme(Mobile* ch, char* arg)
 {
     bool show_256 = !ch->pcdata->theme_config.hide_256;
     bool show_24bit = !ch->pcdata->theme_config.hide_24bit;
@@ -1451,7 +1451,7 @@ ColorTheme* lookup_system_color_theme(CharData* ch, char* arg)
     return NULL;
 }
 
-ColorTheme* lookup_remote_color_theme(CharData* ch, char* arg)
+ColorTheme* lookup_remote_color_theme(Mobile* ch, char* arg)
 {
     bool show_256 = !ch->pcdata->theme_config.hide_256;
     bool show_24bit = !ch->pcdata->theme_config.hide_24bit;
@@ -1466,7 +1466,7 @@ ColorTheme* lookup_remote_color_theme(CharData* ch, char* arg)
             if (d->connected != CON_PLAYING || !can_see(ch, d->character))
                 continue;
 
-            CharData* wch = (d->original != NULL) ? d->original : d->character;
+            Mobile* wch = (d->original != NULL) ? d->original : d->character;
 
             if (str_prefix(name, wch->name))
                 continue;
@@ -1493,7 +1493,7 @@ ColorTheme* lookup_remote_color_theme(CharData* ch, char* arg)
     return NULL;
 }
 
-ColorTheme* lookup_local_color_theme(CharData* ch, char* arg)
+ColorTheme* lookup_local_color_theme(Mobile* ch, char* arg)
 {
     bool show_256 = !ch->pcdata->theme_config.hide_256;
     bool show_24bit = !ch->pcdata->theme_config.hide_24bit;
@@ -1568,7 +1568,7 @@ void set_color_rgb(Color* color, uint8_t r, uint8_t g, uint8_t b)
     color->xterm = NULL;
 }
 
-void set_default_theme(CharData* ch)
+void set_default_theme(Mobile* ch)
 {
     if (IS_NPC(ch))
         return;
@@ -1591,7 +1591,7 @@ void set_default_theme(CharData* ch)
     return;
 }
 
-void set_default_colors(CharData* ch)
+void set_default_colors(Mobile* ch)
 {
     char out[MAX_INPUT_LENGTH];
     bool xterm = ch->pcdata->theme_config.xterm;

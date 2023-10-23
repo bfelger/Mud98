@@ -18,7 +18,7 @@
 #include "olc.h"
 #include "stringutils.h"
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 #include "entities/descriptor.h"
 
 #include "data/skill.h"
@@ -41,7 +41,7 @@ char* lineadd(char*, char*, int);
  Purpose:	Clears string and puts player into editing mode.
  Called by:	none
  ****************************************************************************/
-void string_edit(CharData* ch, char** pString)
+void string_edit(Mobile* ch, char** pString)
 {
     send_to_char("{=-========- {*Entering EDIT Mode {=-=========-{_\n\r", ch);
     send_to_char("    Type .h on a new line for help\n\r", ch);
@@ -65,7 +65,7 @@ void string_edit(CharData* ch, char** pString)
  Purpose:	Puts player into append mode for given string.
  Called by:	(many)olc_act.c
  ****************************************************************************/
-void string_append(CharData* ch, char** pString)
+void string_append(Mobile* ch, char** pString)
 {
     send_to_char("{=-========- {*Entering EDIT Mode {=-=========-{_\n\r", ch);
     send_to_char("    Type .h on a new line for help\n\r", ch);
@@ -115,7 +115,7 @@ char* string_replace(char* orig, char* old, char* new)
  Purpose:	Interpreter for string editing.
  Called by:	game_loop_xxxx(comm.c).
  ****************************************************************************/
-void string_add(CharData* ch, char* argument)
+void string_add(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
 
@@ -252,10 +252,7 @@ void string_add(CharData* ch, char* argument)
 
     strcpy(buf, *ch->desc->pString);
 
-    /*
-     * Truncate strings to MAX_STRING_LENGTH.
-     * --------------------------------------
-     */
+    // Truncate strings to MAX_STRING_LENGTH.
     if (strlen(buf) + strlen(argument) >= (MAX_STRING_LENGTH - 4)) {
         write_to_buffer(ch->desc, "String too long, last line skipped.\n\r", 0);
 
@@ -474,9 +471,7 @@ char* first_arg(char* argument, char* arg_first, bool fCase)
     return argument;
 }
 
-/*
- * Used in olc_act.c for aedit_builders.
- */
+// Used in olc_act.c for aedit_builders.
 char* string_unpad(char* argument)
 {
     char buf[MAX_STRING_LENGTH];

@@ -6,13 +6,13 @@
 #ifndef MUD98__ACT_COMM_H
 #define MUD98__ACT_COMM_H
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 
-void add_follower(CharData* ch, CharData* master);
-void stop_follower(CharData* ch);
-void nuke_pets(CharData* ch);
-void die_follower(CharData* ch);
-bool is_same_group(CharData* ach, CharData* bch);
-void do_clear(CharData* ch, char* argument);
+void add_follower(Mobile* ch, Mobile* master);
+void stop_follower(Mobile* ch);
+void nuke_pets(Mobile* ch);
+void die_follower(Mobile* ch);
+bool is_same_group(Mobile* ach, Mobile* bch);
+void do_clear(Mobile* ch, char* argument);
 
 #endif // !MUD98__ACT_COMM_H

@@ -39,7 +39,7 @@
 #include "entities/descriptor.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -55,8 +55,8 @@
 
 /* local procedures */
 void load_thread(const char* name, NoteData** list, int16_t type, time_t free_time);
-void parse_note(CharData* ch, char* argument, int16_t type);
-bool hide_note(CharData* ch, NoteData* pnote);
+void parse_note(Mobile* ch, char* argument, int16_t type);
+bool hide_note(Mobile* ch, NoteData* pnote);
 
 NoteData* note_list;
 NoteData* idea_list;
@@ -65,7 +65,7 @@ NoteData* news_list;
 NoteData* changes_list;
 NoteData* note_free;
 
-int count_spool(CharData* ch, NoteData* spool)
+int count_spool(Mobile* ch, NoteData* spool)
 {
     int count = 0;
     NoteData* pnote;
@@ -76,7 +76,7 @@ int count_spool(CharData* ch, NoteData* spool)
     return count;
 }
 
-void do_unread(CharData* ch, char* argument)
+void do_unread(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     int count;
@@ -118,27 +118,27 @@ void do_unread(CharData* ch, char* argument)
     if (!found) send_to_char("You have no unread notes.\n\r", ch);
 }
 
-void do_note(CharData* ch, char* argument)
+void do_note(Mobile* ch, char* argument)
 {
     parse_note(ch, argument, NOTE_NOTE);
 }
 
-void do_idea(CharData* ch, char* argument)
+void do_idea(Mobile* ch, char* argument)
 {
     parse_note(ch, argument, NOTE_IDEA);
 }
 
-void do_penalty(CharData* ch, char* argument)
+void do_penalty(Mobile* ch, char* argument)
 {
     parse_note(ch, argument, NOTE_PENALTY);
 }
 
-void do_news(CharData* ch, char* argument)
+void do_news(Mobile* ch, char* argument)
 {
     parse_note(ch, argument, NOTE_NEWS);
 }
 
-void do_changes(CharData* ch, char* argument)
+void do_changes(Mobile* ch, char* argument)
 {
     parse_note(ch, argument, NOTE_CHANGES);
 }
@@ -318,7 +318,7 @@ void append_note(NoteData* pnote)
     close_file(fp);
 }
 
-bool is_note_to(CharData* ch, NoteData* pnote)
+bool is_note_to(Mobile* ch, NoteData* pnote)
 {
     if (!str_cmp(ch->name, pnote->sender))
         return true;
@@ -338,7 +338,7 @@ bool is_note_to(CharData* ch, NoteData* pnote)
     return false;
 }
 
-void note_attach(CharData* ch, int16_t type)
+void note_attach(Mobile* ch, int16_t type)
 {
     NoteData* pnote;
 
@@ -357,7 +357,7 @@ void note_attach(CharData* ch, int16_t type)
     return;
 }
 
-void note_remove(CharData* ch, NoteData* pnote, bool delete)
+void note_remove(Mobile* ch, NoteData* pnote, bool delete)
 {
     char to_new[MAX_INPUT_LENGTH] = "";
     char to_one[MAX_INPUT_LENGTH] = "";
@@ -405,9 +405,7 @@ void note_remove(CharData* ch, NoteData* pnote, bool delete)
         break;
     }
 
-    /*
-     * Remove note from linked list.
-     */
+    // Remove note from linked list.
     if (pnote == *list) { *list = pnote->next; }
     else {
         FOR_EACH(prev, *list) {
@@ -428,7 +426,7 @@ void note_remove(CharData* ch, NoteData* pnote, bool delete)
     return;
 }
 
-bool hide_note(CharData* ch, NoteData* pnote)
+bool hide_note(Mobile* ch, NoteData* pnote)
 {
     time_t last_read;
 
@@ -467,7 +465,7 @@ bool hide_note(CharData* ch, NoteData* pnote)
     return false;
 }
 
-void update_read(CharData* ch, NoteData* pnote)
+void update_read(Mobile* ch, NoteData* pnote)
 {
     time_t stamp;
 
@@ -497,7 +495,7 @@ void update_read(CharData* ch, NoteData* pnote)
     }
 }
 
-void parse_note(CharData* ch, char* argument, int16_t type)
+void parse_note(Mobile* ch, char* argument, int16_t type)
 {
     Buffer* buffer;
     char buf[MAX_STRING_LENGTH];

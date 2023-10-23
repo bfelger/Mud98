@@ -33,7 +33,7 @@
 
 #include "tables.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 
 int clan_lookup(const char* name);
 Position position_lookup(const char* name);

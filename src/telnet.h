@@ -5,9 +5,7 @@
  * specifies the terms and conditions for redistribution.
  */
 
-/*
- * Definitions for the TELNET protocol.
- */
+// Definitions for the TELNET protocol.
 
 #pragma once
 #ifndef _arpa_telnet_h

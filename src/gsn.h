@@ -7,9 +7,7 @@
 #define GSN(x) extern SKNUM x;
 #endif
 
-/*
- * These are skill_lookup return values for common skills and spells.
- */
+// These are skill_lookup return values for common skills and spells.
 GSN(gsn_backstab)
 GSN(gsn_dodge)
 GSN(gsn_envenom)

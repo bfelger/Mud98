@@ -6,11 +6,11 @@
 #ifndef MUD98__ACT_OBJ_H
 #define MUD98__ACT_OBJ_H
 
-#include "entities/char_data.h"
-#include "entities/object_data.h"
+#include "entities/mobile.h"
+#include "entities/object.h"
 
-bool can_loot(CharData* ch, ObjectData* obj);
-void wear_obj(CharData* ch, ObjectData* obj, bool fReplace);
-void get_obj(CharData* ch, ObjectData* obj, ObjectData* container);
+bool can_loot(Mobile* ch, Object* obj);
+void wear_obj(Mobile* ch, Object* obj, bool fReplace);
+void get_obj(Mobile* ch, Object* obj, Object* container);
 
 #endif // !MUD98__ACT_OBJ_H

@@ -1,42 +1,39 @@
 ////////////////////////////////////////////////////////////////////////////////
-// char_data.c
-// Character data
+// mobile.c
+// Mobiles
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "char_data.h"
+#include "mobile.h"
 
 #include "db.h"
 #include "handler.h"
 #include "recycle.h"
 
-#include "object_data.h"
+#include "object.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 
-CharData* char_list;
-CharData* char_free;
+Mobile* mob_list;
+Mobile* mob_free;
 
-int mobile_count = 0;
+int mob_count = 0;
 
-void free_char_data(CharData* ch)
+void free_mobile(Mobile* ch)
 {
-    ObjectData* obj;
-    ObjectData* obj_next = NULL;
-    AffectData* paf;
-    AffectData* paf_next = NULL;
+    Object* obj;
+    Affect* affect;
 
     if (!IS_VALID(ch)) return;
 
-    if (IS_NPC(ch)) mobile_count--;
+    if (IS_NPC(ch))
+        mob_count--;
 
-    for (obj = ch->carrying; obj != NULL; obj = obj_next) {
-        obj_next = obj->next_content;
+    FOR_EACH_CONTENT(obj, ch->carrying) {
         extract_obj(obj);
     }
 
-    for (paf = ch->affected; paf != NULL; paf = paf_next) {
-        paf_next = paf->next;
-        affect_remove(ch, paf);
+    FOR_EACH(affect, ch->affected) {
+        affect_remove(ch, affect);
     }
 
     free_string(ch->name);
@@ -48,24 +45,24 @@ void free_char_data(CharData* ch)
     free_note(ch->pnote);
     free_player_data(ch->pcdata);
 
-    ch->next = char_free;
-    char_free = ch;
+    ch->next = mob_free;
+    mob_free = ch;
 
     INVALIDATE(ch);
     return;
 }
 
-CharData* new_char_data()
+Mobile* new_mobile()
 {
-    static CharData ch_zero;
-    CharData* ch;
+    static Mobile ch_zero;
+    Mobile* ch;
     int i;
 
-    if (char_free == NULL)
+    if (mob_free == NULL)
         ch = alloc_perm(sizeof(*ch));
     else {
-        ch = char_free;
-        NEXT_LINK(char_free);
+        ch = mob_free;
+        NEXT_LINK(mob_free);
     }
 
     *ch = ch_zero;

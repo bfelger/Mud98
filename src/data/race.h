@@ -9,7 +9,7 @@
 #include "merc.h"
 
 #include "class.h"
-#include "mobile.h"
+#include "mobile_data.h"
 #include "stats.h"
 
 #include "array.h"

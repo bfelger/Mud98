@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // mob_prototype.h
-// Prototype data for mobile (NPC) CharData
+// Prototype data for mobile (NPC) Mobile
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef struct mob_prototype_t MobPrototype;
@@ -14,11 +14,11 @@ typedef struct mob_prototype_t MobPrototype;
 #include "interp.h"
 #include "mob_prog.h"
 
-#include "area_data.h"
+#include "area.h"
 #include "shop_data.h"
 
 #include "data/damage.h"
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 
 #include <stdbool.h>
 
@@ -27,7 +27,7 @@ typedef struct mob_prototype_t {
     SpecFunc* spec_fun;
     ShopData* pShop;
     MobProg* mprogs;
-    AreaData* area;
+    Area* area;
     char* name;
     char* short_descr;
     char* long_descr;
@@ -61,7 +61,6 @@ typedef struct mob_prototype_t {
     int16_t race;
     MobSize size;
     int16_t reset_num;
-    bool new_format;
 } MobPrototype;
 
 // Well-known mob IDs
@@ -72,20 +71,18 @@ typedef struct mob_prototype_t {
 #define GROUP_VNUM_TROLLS       2100
 #define GROUP_VNUM_OGRES        2101
 
-void convert_mobile(MobPrototype* p_mob_proto);
-CharData* create_mobile(MobPrototype* p_mob_proto);
+Mobile* create_mobile(MobPrototype* p_mob_proto);
 void free_mob_prototype(MobPrototype* p_mob_proto);
 long get_mob_id();
 MobPrototype* get_mob_prototype(VNUM vnum);
 void load_mobiles(FILE* fp);
-void load_old_mob(FILE* fp);
 MobPrototype* new_mob_prototype();
 void recalc(MobPrototype* pMob);
 
 extern MobPrototype* mob_prototype_hash[];
 extern MobPrototype* mob_prototype_free;
 
-extern int top_mob_prototype;
+extern int mob_proto_count;
 extern int newmobs;
 extern VNUM top_vnum_mob;      // OLC
 

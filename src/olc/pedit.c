@@ -12,7 +12,7 @@
 #include "entities/descriptor.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -21,7 +21,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#define MPEDIT( fun )           bool fun(CharData *ch, char*argument)
+#define MPEDIT( fun )           bool fun(Mobile *ch, char*argument)
 
 MobProgCode xProg;
 
@@ -44,7 +44,7 @@ const OlcCmdEntry prog_olc_comm_table[] =
     { 	NULL,		0,			    0,		    0		        }
 };
 
-void pedit(CharData* ch, char* argument)
+void pedit(Mobile* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_PEDIT_SECURITY) {
         send_to_char("PEdit : You do not have enough security to edit progs.\n\r", ch);
@@ -68,7 +68,7 @@ void pedit(CharData* ch, char* argument)
     return;
 }
 
-void do_pedit(CharData* ch, char* argument)
+void do_pedit(Mobile* ch, char* argument)
 {
     MobProgCode* pMcode;
     char command[MAX_INPUT_LENGTH];
@@ -84,13 +84,13 @@ void do_pedit(CharData* ch, char* argument)
     READ_ARG(command);
 
     if (is_number(command)) {
-        AreaData* pArea;
+        Area* area;
 
-        if ((pArea = get_vnum_area(atoi(command))) == NULL) {
+        if ((area = get_vnum_area(atoi(command))) == NULL) {
             send_to_char("PEdit : That vnum is not assigned to an area.\n\r", ch);
             return;
         }
-        if (!IS_BUILDER(ch, pArea)) {
+        if (!IS_BUILDER(ch, area)) {
             send_to_char("PEdit : You do not have access to this area.\n\r", ch);
             return;
         }
@@ -124,7 +124,7 @@ void do_pedit(CharData* ch, char* argument)
 MPEDIT(pedit_create)
 {
     MobProgCode* pMcode;
-    AreaData* pArea;
+    Area* area;
     int value;
 
     value = atoi(argument);
@@ -139,12 +139,12 @@ MPEDIT(pedit_create)
         return false;
     }
 
-    if ((pArea = get_vnum_area(value)) == NULL) {
+    if ((area = get_vnum_area(value)) == NULL) {
         send_to_char("PEdit: That vnum has not been assigned to an area.\n\r", ch);
         return false;
     }
 
-    if (!IS_BUILDER(ch, pArea)) {
+    if (!IS_BUILDER(ch, area)) {
         send_to_char("PEdit: You do not have access to this area.\n\r", ch);
         return false;
     }
@@ -183,7 +183,7 @@ MPEDIT(pedit_show)
     return false;
 }
 
-void do_mplist(CharData* ch, char* argument)
+void do_mplist(Mobile* ch, char* argument)
 {
     int count;
     bool fAll = false;

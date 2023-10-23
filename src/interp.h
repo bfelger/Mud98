@@ -32,7 +32,7 @@
 #include "merc.h"
 
 #include "data/damage.h"
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/skill.h"
 
 #include "special.h"
@@ -60,9 +60,7 @@ typedef enum log_type_t {
     LOG_NEVER = 2,
 } LogType;
 
-/*
- * Structure for a command in the command lookup table.
- */
+// Structure for a command in the command lookup table.
 typedef struct cmd_info_t {
     char* name;
     DoFunc* do_fun;
@@ -75,14 +73,14 @@ typedef struct cmd_info_t {
 /* the command table itself */
 #include "command.h"
 
-void interpret(CharData* ch, char* argument);
+void interpret(Mobile* ch, char* argument);
 bool is_number(char* arg);
 int number_argument(char* argument, char* arg);
 int mult_argument(char* argument, char* arg);
 char* one_argument(char* argument, char* arg_first);
 
 /* wrapper function for safe command execution */
-void do_function(CharData* ch, DoFunc* do_fun, char* argument);
+void do_function(Mobile* ch, DoFunc* do_fun, char* argument);
 
 extern CmdInfo* cmd_table;
 

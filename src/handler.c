@@ -44,14 +44,14 @@
 #include "vt.h"
 #include "weather.h"
 
-#include "entities/area_data.h"
+#include "entities/area.h"
 #include "entities/descriptor.h"
-#include "entities/object_data.h"
+#include "entities/object.h"
 #include "entities/player_data.h"
 
 #include "data/class.h"
 #include "data/item.h"
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/player.h"
 #include "data/race.h"
 #include "data/skill.h"
@@ -64,7 +64,7 @@
 #include <time.h>
 
 /* friend stuff -- for NPC's mostly */
-bool is_friend(CharData* ch, CharData* victim)
+bool is_friend(Mobile* ch, Mobile* victim)
 {
     if (is_same_group(ch, victim)) 
         return true;
@@ -105,9 +105,9 @@ bool is_friend(CharData* ch, CharData* victim)
 }
 
 /* returns number of people on an object */
-int count_users(ObjectData* obj)
+int count_users(Object* obj)
 {
-    CharData* fch;
+    Mobile* fch;
     int count = 0;
 
     if (obj->in_room == NULL) 
@@ -182,7 +182,7 @@ int16_t class_lookup(const char* name)
    the 'globals' (magic and weapons) may be overriden
    three other cases -- wood, silver, and iron -- are checked in fight.c */
 
-ResistType check_immune(CharData* ch, DamageType dam_type)
+ResistType check_immune(Mobile* ch, DamageType dam_type)
 {
     ResistType immune, def;
     FLAGS bit;
@@ -288,12 +288,12 @@ ResistType check_immune(CharData* ch, DamageType dam_type)
         return immune;
 }
 
-bool is_clan(CharData* ch)
+bool is_clan(Mobile* ch)
 {
     return ch->clan;
 }
 
-bool is_same_clan(CharData* ch, CharData* victim)
+bool is_same_clan(Mobile* ch, Mobile* victim)
 {
     if (clan_table[ch->clan].independent)
         return false;
@@ -301,18 +301,8 @@ bool is_same_clan(CharData* ch, CharData* victim)
         return (ch->clan == victim->clan);
 }
 
-/* checks mob format */
-bool is_old_mob(CharData* ch)
-{
-    if (ch->prototype == NULL)
-        return false;
-    else if (ch->prototype->new_format)
-        return false;
-    return true;
-}
-
 /* for returning skill information */
-int get_skill(CharData* ch, SKNUM sn)
+int get_skill(Mobile* ch, SKNUM sn)
 {
     int skill;
 
@@ -406,9 +396,9 @@ int get_skill(CharData* ch, SKNUM sn)
 }
 
 /* for returning weapon information */
-SKNUM get_weapon_sn(CharData* ch)
+SKNUM get_weapon_sn(Mobile* ch)
 {
-    ObjectData* wield;
+    Object* wield;
 
     wield = get_eq_char(ch, WEAR_WIELD);
     if (wield == NULL || wield->item_type != ITEM_WEAPON)
@@ -417,7 +407,7 @@ SKNUM get_weapon_sn(CharData* ch)
     return *(weapon_table[wield->value[0]].gsn);
 }
 
-int get_weapon_skill(CharData* ch, SKNUM sn)
+int get_weapon_skill(Mobile* ch, SKNUM sn)
 {
     int skill;
 
@@ -442,13 +432,13 @@ int get_weapon_skill(CharData* ch, SKNUM sn)
 }
 
 /* used to de-screw characters */
-void reset_char(CharData* ch)
+void reset_char(Mobile* ch)
 {
     int loc;
     int stat;
     int16_t mod;
-    ObjectData* obj;
-    AffectData* af;
+    Object* obj;
+    Affect* af;
     int i;
 
     if (IS_NPC(ch)) return;
@@ -734,10 +724,8 @@ void reset_char(CharData* ch)
         ch->sex = ch->pcdata->true_sex;
 }
 
-/*
- * Retrieve a character's trusted level for permission checking.
- */
-LEVEL get_trust(CharData* ch)
+// Retrieve a character's trusted level for permission checking.
+LEVEL get_trust(Mobile* ch)
 {
     if (ch->desc != NULL && ch->desc->original != NULL) ch = ch->desc->original;
 
@@ -749,16 +737,14 @@ LEVEL get_trust(CharData* ch)
         return ch->level;
 }
 
-/*
- * Retrieve a character's age.
- */
-int get_age(CharData* ch)
+// Retrieve a character's age.
+int get_age(Mobile* ch)
 {
     return 17 + (int)(ch->played + (current_time - ch->logon)) / 72000;
 }
 
 /* command for retrieving stats */
-int get_curr_stat(CharData* ch, Stat stat)
+int get_curr_stat(Mobile* ch, Stat stat)
 {
     int max_score;
     int i = (int)stat;
@@ -787,7 +773,7 @@ int get_curr_stat(CharData* ch, Stat stat)
 }
 
 /* command for returning max training score */
-int get_max_train(CharData* ch, Stat stat)
+int get_max_train(Mobile* ch, Stat stat)
 {
     int max;
 
@@ -806,10 +792,8 @@ int get_max_train(CharData* ch, Stat stat)
     return UMIN(max, STAT_MAX);
 }
 
-/*
- * Retrieve a character's carry capacity.
- */
-int can_carry_n(CharData* ch)
+// Retrieve a character's carry capacity.
+int can_carry_n(Mobile* ch)
 {
     if (!IS_NPC(ch) && ch->level >= LEVEL_IMMORTAL)
         return 1000;
@@ -820,10 +804,8 @@ int can_carry_n(CharData* ch)
     return WEAR_LOC_COUNT + 2 * get_curr_stat(ch, STAT_DEX) + ch->level;
 }
 
-/*
- * Retrieve a character's carry capacity.
- */
-int can_carry_w(CharData* ch)
+// Retrieve a character's carry capacity.
+int can_carry_w(Mobile* ch)
 {
     if (!IS_NPC(ch) && ch->level >= LEVEL_IMMORTAL)
         return 10000000;
@@ -834,9 +816,7 @@ int can_carry_w(CharData* ch)
     return str_mod[get_curr_stat(ch, STAT_STR)].carry * 10 + ch->level * 25;
 }
 
-/*
- * See if a string is one of the names of an object.
- */
+// See if a string is one of the names of an object.
 
 bool is_name(char* str, char* namelist)
 {
@@ -895,12 +875,10 @@ bool is_exact_name(char* str, char* namelist)
     }
 }
 
-/*
- * Move a char out of a room.
- */
-void char_from_room(CharData* ch)
+// Move a char out of a room.
+void char_from_room(Mobile* ch)
 {
-    ObjectData* obj;
+    Object* obj;
 
     if (ch->in_room == NULL) {
         bug("Char_from_room: NULL.", 0);
@@ -919,7 +897,7 @@ void char_from_room(CharData* ch)
         ch->in_room->people = ch->next_in_room; 
     }
     else {
-        CharData* prev;
+        Mobile* prev;
 
         for (prev = ch->in_room->people; prev; prev = prev->next_in_room) {
             if (prev->next_in_room == ch) {
@@ -937,20 +915,20 @@ void char_from_room(CharData* ch)
     return;
 }
 
-static void update_mdsp_room(CharData* ch)
+static void update_mdsp_room(Mobile* ch)
 {
     char exits[MAX_INPUT_LENGTH];
-    ExitData* pexit;
+    RoomExit* room_exit;
 
     sprintf(exits, "%c", MSDP_ARRAY_OPEN);
     for (int door = 0; door < DIR_MAX; door++) {
-        if ((pexit = ch->in_room->exit[door]) != NULL
-            && pexit->u1.to_room != NULL
-            && (can_see_room(ch, pexit->u1.to_room)
+        if ((room_exit = ch->in_room->exit[door]) != NULL
+            && room_exit->to_room != NULL
+            && (can_see_room(ch, room_exit->to_room)
                 || (IS_AFFECTED(ch, AFF_INFRARED) 
                     && !IS_AFFECTED(ch, AFF_BLIND)))) {
             cat_sprintf(exits, "\001%s\002%d", dir_list[door].name_abbr, 
-                pexit->u1.to_room->vnum);
+                room_exit->to_room->vnum);
         }
     }
     cat_sprintf(exits, "%c", MSDP_ARRAY_CLOSE);
@@ -966,21 +944,19 @@ static void update_mdsp_room(CharData* ch)
         MSDP_TABLE_CLOSE);
 }
 
-/*
- * Move a char into a room.
- */
-void char_to_room(CharData* ch, RoomData* room)
+// Move a char into a room.
+void char_to_room(Mobile* ch, Room* room)
 {
-    ObjectData* obj;
+    Object* obj;
 
     if (room == NULL) {
-        RoomData* temple;
+        Room* temple;
 
         bug("Char_to_room: NULL.", 0);
 
         VNUM recall = IS_NPC(ch) ? cfg_get_default_recall() : ch->pcdata->recall;
 
-        if ((temple = get_room_data(recall)) != NULL)
+        if ((temple = get_room(recall)) != NULL)
             char_to_room(ch, temple);
 
         return;
@@ -994,7 +970,7 @@ void char_to_room(CharData* ch, RoomData* room)
         update_mdsp_room(ch);
 
     if (!IS_NPC(ch)) {
-        AreaData* area = ch->in_room->area;
+        Area* area = ch->in_room->area;
         if (area->empty) {
             area->empty = false;
             if (!area->always_reset)
@@ -1008,9 +984,9 @@ void char_to_room(CharData* ch, RoomData* room)
         ++ch->in_room->light;
 
     if (IS_AFFECTED(ch, AFF_PLAGUE)) {
-        AffectData* af;
-        AffectData plague = { 0 };
-        CharData* vch;
+        Affect* af;
+        Affect plague = { 0 };
+        Mobile* vch;
 
         FOR_EACH(af, ch->affected) {
             if (af->type == gsn_plague) break;
@@ -1046,10 +1022,8 @@ void char_to_room(CharData* ch, RoomData* room)
     return;
 }
 
-/*
- * Give an obj to a char.
- */
-void obj_to_char(ObjectData* obj, CharData* ch)
+// Give an obj to a char.
+void obj_to_char(Object* obj, Mobile* ch)
 {
     obj->next_content = ch->carrying;
     ch->carrying = obj;
@@ -1060,12 +1034,10 @@ void obj_to_char(ObjectData* obj, CharData* ch)
     ch->carry_weight += (int16_t)get_obj_weight(obj);
 }
 
-/*
- * Take an obj from its character.
- */
-void obj_from_char(ObjectData* obj)
+// Take an obj from its character.
+void obj_from_char(Object* obj)
 {
-    CharData* ch;
+    Mobile* ch;
 
     if ((ch = obj->carried_by) == NULL) {
         bug("Obj_from_char: null ch.", 0);
@@ -1079,7 +1051,7 @@ void obj_from_char(ObjectData* obj)
         ch->carrying = obj->next_content; 
     }
     else {
-        ObjectData* prev;
+        Object* prev;
 
         for (prev = ch->carrying; prev != NULL; prev = prev->next_content) {
             if (prev->next_content == obj) {
@@ -1099,10 +1071,8 @@ void obj_from_char(ObjectData* obj)
     return;
 }
 
-/*
- * Find the ac value of an obj, including position effect.
- */
-int apply_ac(ObjectData* obj, int iWear, int type)
+// Find the ac value of an obj, including position effect.
+int apply_ac(Object* obj, int iWear, int type)
 {
     if (obj->item_type != ITEM_ARMOR) 
         return 0;
@@ -1141,12 +1111,10 @@ int apply_ac(ObjectData* obj, int iWear, int type)
     return 0;
 }
 
-/*
- * Find a piece of eq on a character.
- */
-ObjectData* get_eq_char(CharData* ch, WearLocation iWear)
+// Find a piece of eq on a character.
+Object* get_eq_char(Mobile* ch, WearLocation iWear)
 {
-    ObjectData* obj;
+    Object* obj;
 
     if (ch == NULL) 
         return NULL;
@@ -1159,12 +1127,10 @@ ObjectData* get_eq_char(CharData* ch, WearLocation iWear)
     return NULL;
 }
 
-/*
- * Equip a char with an obj.
- */
-void equip_char(CharData* ch, ObjectData* obj, WearLocation iWear)
+// Equip a char with an obj.
+void equip_char(Mobile* ch, Object* obj, WearLocation iWear)
 {
-    AffectData* paf;
+    Affect* affect;
     int i;
 
     if (get_eq_char(ch, iWear) != NULL) {
@@ -1175,9 +1141,7 @@ void equip_char(CharData* ch, ObjectData* obj, WearLocation iWear)
     if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch))
         || (IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch))
         || (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
-        /*
-         * Thanks to Morgenes for the bug fix here!
-         */
+        // Thanks to Morgenes for the bug fix here!
         act("You are zapped by $p and drop it.", ch, obj, NULL, TO_CHAR);
         act("$n is zapped by $p and drops it.", ch, obj, NULL, TO_ROOM);
         obj_from_char(obj);
@@ -1189,14 +1153,14 @@ void equip_char(CharData* ch, ObjectData* obj, WearLocation iWear)
     obj->wear_loc = iWear;
 
     if (!obj->enchanted)
-        FOR_EACH(paf, obj->prototype->affected)
-            if (paf->location != APPLY_SPELL_AFFECT)
-                affect_modify(ch, paf, true);
-    FOR_EACH(paf, obj->affected)
-        if (paf->location == APPLY_SPELL_AFFECT)
-            affect_to_char(ch, paf);
+        FOR_EACH(affect, obj->prototype->affected)
+            if (affect->location != APPLY_SPELL_AFFECT)
+                affect_modify(ch, affect, true);
+    FOR_EACH(affect, obj->affected)
+        if (affect->location == APPLY_SPELL_AFFECT)
+            affect_to_char(ch, affect);
         else
-            affect_modify(ch, paf, true);
+            affect_modify(ch, affect, true);
 
     if (obj->item_type == ITEM_LIGHT && obj->value[2] != 0
         && ch->in_room != NULL)
@@ -1205,14 +1169,12 @@ void equip_char(CharData* ch, ObjectData* obj, WearLocation iWear)
     return;
 }
 
-/*
- * Unequip a char with an obj.
- */
-void unequip_char(CharData* ch, ObjectData* obj)
+// Unequip a char with an obj.
+void unequip_char(Mobile* ch, Object* obj)
 {
-    AffectData* paf = NULL;
-    AffectData* lpaf = NULL;
-    AffectData* lpaf_next = NULL;
+    Affect* affect = NULL;
+    Affect* lpaf = NULL;
+    Affect* lpaf_next = NULL;
     int i;
 
     if (obj->wear_loc == WEAR_UNHELD) {
@@ -1224,11 +1186,11 @@ void unequip_char(CharData* ch, ObjectData* obj)
     obj->wear_loc = -1;
 
     if (!obj->enchanted) {
-        FOR_EACH(paf, obj->prototype->affected) {
-            if (paf->location == APPLY_SPELL_AFFECT) {
+        FOR_EACH(affect, obj->prototype->affected) {
+            if (affect->location == APPLY_SPELL_AFFECT) {
                 for (lpaf = ch->affected; lpaf != NULL; lpaf = lpaf_next) {
                     lpaf_next = lpaf->next;
-                    if ((lpaf->type == paf->type) && (lpaf->level == paf->level)
+                    if ((lpaf->type == affect->type) && (lpaf->level == affect->level)
                         && (lpaf->location == APPLY_SPELL_AFFECT)) {
                         affect_remove(ch, lpaf);
                         lpaf_next = NULL;
@@ -1236,18 +1198,18 @@ void unequip_char(CharData* ch, ObjectData* obj)
                 }
             }
             else {
-                affect_modify(ch, paf, false);
-                affect_check(ch, paf->where, paf->bitvector);
+                affect_modify(ch, affect, false);
+                affect_check(ch, affect->where, affect->bitvector);
             }
         }
     }
 
-    FOR_EACH(paf, obj->affected) {
-        if (paf->location == APPLY_SPELL_AFFECT) {
+    FOR_EACH(affect, obj->affected) {
+        if (affect->location == APPLY_SPELL_AFFECT) {
             bug("Norm-Apply: %d", 0);
             for (lpaf = ch->affected; lpaf != NULL; lpaf = lpaf_next) {
                 lpaf_next = lpaf->next;
-                if ((lpaf->type == paf->type) && (lpaf->level == paf->level)
+                if ((lpaf->type == affect->type) && (lpaf->level == affect->level)
                     && (lpaf->location == APPLY_SPELL_AFFECT)) {
                     bug("location = %d", lpaf->location);
                     bug("type = %d", lpaf->type);
@@ -1257,8 +1219,8 @@ void unequip_char(CharData* ch, ObjectData* obj)
             }
         }
         else {
-            affect_modify(ch, paf, false);
-            affect_check(ch, paf->where, paf->bitvector);
+            affect_modify(ch, affect, false);
+            affect_check(ch, affect->where, affect->bitvector);
         }
     }
 
@@ -1269,12 +1231,10 @@ void unequip_char(CharData* ch, ObjectData* obj)
     return;
 }
 
-/*
- * Count occurrences of an obj in a list.
- */
-int count_obj_list(ObjectPrototype* obj_proto, ObjectData* list)
+// Count occurrences of an obj in a list.
+int count_obj_list(ObjPrototype* obj_proto, Object* list)
 {
-    ObjectData* obj;
+    Object* obj;
     int nMatch;
 
     nMatch = 0;
@@ -1285,13 +1245,11 @@ int count_obj_list(ObjectPrototype* obj_proto, ObjectData* list)
     return nMatch;
 }
 
-/*
- * Move an obj out of a room.
- */
-void obj_from_room(ObjectData* obj)
+// Move an obj out of a room.
+void obj_from_room(Object* obj)
 {
-    RoomData* in_room;
-    CharData* ch;
+    Room* in_room;
+    Mobile* ch;
 
     if (obj == NULL)
         return;
@@ -1309,7 +1267,7 @@ void obj_from_room(ObjectData* obj)
         in_room->contents = obj->next_content; 
     }
     else {
-        ObjectData* prev;
+        Object* prev;
 
         for (prev = in_room->contents; prev; prev = prev->next_content) {
             if (prev->next_content == obj) {
@@ -1329,10 +1287,8 @@ void obj_from_room(ObjectData* obj)
     return;
 }
 
-/*
- * Move an obj into a room.
- */
-void obj_to_room(ObjectData* obj, RoomData* pRoomIndex)
+// Move an obj into a room.
+void obj_to_room(Object* obj, Room* pRoomIndex)
 {
     obj->next_content = pRoomIndex->contents;
     pRoomIndex->contents = obj;
@@ -1342,10 +1298,8 @@ void obj_to_room(ObjectData* obj, RoomData* pRoomIndex)
     return;
 }
 
-/*
- * Move an object into an object.
- */
-void obj_to_obj(ObjectData* obj, ObjectData* obj_to)
+// Move an object into an object.
+void obj_to_obj(Object* obj, Object* obj_to)
 {
     obj->next_content = obj_to->contains;
     obj_to->contains = obj;
@@ -1365,12 +1319,10 @@ void obj_to_obj(ObjectData* obj, ObjectData* obj_to)
     return;
 }
 
-/*
- * Move an object out of an object.
- */
-void obj_from_obj(ObjectData* obj)
+// Move an object out of an object.
+void obj_from_obj(Object* obj)
 {
-    ObjectData* obj_from;
+    Object* obj_from;
 
     if ((obj_from = obj->in_obj) == NULL) {
         bug("Obj_from_obj: null obj_from.", 0);
@@ -1381,7 +1333,7 @@ void obj_from_obj(ObjectData* obj)
         obj_from->contains = obj->next_content; 
     }
     else {
-        ObjectData* prev;
+        Object* prev;
 
         for (prev = obj_from->contains; prev; prev = prev->next_content) {
             if (prev->next_content == obj) {
@@ -1410,13 +1362,11 @@ void obj_from_obj(ObjectData* obj)
     return;
 }
 
-/*
- * Extract an obj from the world.
- */
-void extract_obj(ObjectData* obj)
+// Extract an obj from the world.
+void extract_obj(Object* obj)
 {
-    ObjectData* obj_content;
-    ObjectData* obj_next = NULL;
+    Object* obj_content;
+    Object* obj_next = NULL;
 
     if (obj->in_room != NULL)
         obj_from_room(obj);
@@ -1430,13 +1380,13 @@ void extract_obj(ObjectData* obj)
         extract_obj(obj_content);
     }
 
-    if (object_list == obj) { 
-        object_list = obj->next; 
+    if (obj_list == obj) { 
+        obj_list = obj->next; 
     }
     else {
-        ObjectData* prev;
+        Object* prev;
 
-        FOR_EACH(prev, object_list) {
+        FOR_EACH(prev, obj_list) {
             if (prev->next == obj) {
                 prev->next = obj->next;
                 break;
@@ -1454,14 +1404,12 @@ void extract_obj(ObjectData* obj)
     return;
 }
 
-/*
- * Extract a char from the world.
- */
-void extract_char(CharData* ch, bool fPull)
+// Extract a char from the world.
+void extract_char(Mobile* ch, bool fPull)
 {
-    CharData* wch;
-    ObjectData* obj;
-    ObjectData* obj_next = NULL;
+    Mobile* wch;
+    Object* obj;
+    Object* obj_next = NULL;
 
     /* doesn't seem to be necessary
     if ( ch->in_room == NULL )
@@ -1477,7 +1425,8 @@ void extract_char(CharData* ch, bool fPull)
     nuke_pets(ch);
     ch->pet = NULL; /* just in case */
 
-    if (fPull) die_follower(ch);
+    if (fPull) 
+        die_follower(ch);
 
     stop_fighting(ch, true);
 
@@ -1486,11 +1435,12 @@ void extract_char(CharData* ch, bool fPull)
         extract_obj(obj);
     }
 
-    if (ch->in_room != NULL) char_from_room(ch);
+    if (ch->in_room != NULL)
+        char_from_room(ch);
 
     /* Death room is set in the clan tabe now */
     if (!fPull) {
-        char_to_room(ch, get_room_data(clan_table[ch->clan].hall));
+        char_to_room(ch, get_room(clan_table[ch->clan].hall));
         return;
     }
 
@@ -1502,22 +1452,20 @@ void extract_char(CharData* ch, bool fPull)
         ch->desc = NULL;
     }
 
-    FOR_EACH(wch, char_list) {
+    FOR_EACH(wch, mob_list) {
         if (wch->reply == ch) 
             wch->reply = NULL;
-        // TODO: Is this right?
-        // Or should we be checking wch->mprog_target == ch?
-        if (ch->mprog_target == wch)
+        if (wch->mprog_target == ch)
             wch->mprog_target = NULL;
     }
 
-    if (ch == char_list) { 
-        char_list = ch->next; 
+    if (ch == mob_list) { 
+        mob_list = ch->next; 
     }
     else {
-        CharData* prev;
+        Mobile* prev;
 
-        FOR_EACH(prev, char_list) {
+        FOR_EACH(prev, mob_list) {
             if (prev->next == ch) {
                 prev->next = ch->next;
                 break;
@@ -1532,17 +1480,15 @@ void extract_char(CharData* ch, bool fPull)
 
     if (ch->desc != NULL) 
         ch->desc->character = NULL;
-    free_char_data(ch);
+    free_mobile(ch);
     return;
 }
 
-/*
- * Find a char in the room.
- */
-CharData* get_char_room(CharData* ch, char* argument)
+// Find a char in the room.
+Mobile* get_char_room(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CharData* rch;
+    Mobile* rch;
     int number;
     int count;
 
@@ -1557,13 +1503,11 @@ CharData* get_char_room(CharData* ch, char* argument)
     return NULL;
 }
 
-/*
- * Find a char in the world.
- */
-CharData* get_char_world(CharData* ch, char* argument)
+// Find a char in the world.
+Mobile* get_char_world(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    CharData* wch;
+    Mobile* wch;
     int number;
     int count;
 
@@ -1572,7 +1516,7 @@ CharData* get_char_world(CharData* ch, char* argument)
 
     number = number_argument(argument, arg);
     count = 0;
-    FOR_EACH(wch, char_list) {
+    FOR_EACH(wch, mob_list) {
         if (wch->in_room == NULL || !can_see(ch, wch)
             || !is_name(arg, wch->name))
             continue;
@@ -1587,51 +1531,49 @@ CharData* get_char_world(CharData* ch, char* argument)
  * Find some object with a given index data.
  * Used by area-reset 'P' command.
  */
-ObjectData* get_obj_type(ObjectPrototype* obj_proto)
+Object* get_obj_type(ObjPrototype* obj_proto)
 {
-    ObjectData* obj;
+    Object* obj;
 
-    FOR_EACH(obj, object_list) {
-        if (obj->prototype == obj_proto) return obj;
+    FOR_EACH(obj, obj_list) {
+        if (obj->prototype == obj_proto)
+            return obj;
     }
 
     return NULL;
 }
 
-/*
- * Find an obj in a list.
- */
-ObjectData* get_obj_list(CharData* ch, char* argument, ObjectData* list)
+// Find an obj in a list.
+Object* get_obj_list(Mobile* ch, char* argument, Object* list)
 {
     char arg[MAX_INPUT_LENGTH];
-    ObjectData* obj;
+    Object* obj;
     int number;
     int count;
 
     number = number_argument(argument, arg);
     count = 0;
-    for (obj = list; obj != NULL; obj = obj->next_content) {
+    FOR_EACH_CONTENT(obj, list) {
         if (can_see_obj(ch, obj) && is_name(arg, obj->name)) {
-            if (++count == number) return obj;
+            if (++count == number)
+                return obj;
         }
     }
 
     return NULL;
 }
 
-/*
- * Find an obj in player's inventory.
- */
-ObjectData* get_obj_carry(CharData* ch, char* argument, CharData* viewer)
+// Find an obj in player's inventory.
+Object* get_obj_carry(Mobile* ch, char* argument, Mobile* viewer)
 {
     char arg[MAX_INPUT_LENGTH];
-    ObjectData* obj;
+    Object* obj;
     int number;
     int count;
 
     number = number_argument(argument, arg);
     count = 0;
-    for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
+    FOR_EACH_CONTENT(obj, ch->carrying) {
         if (obj->wear_loc == WEAR_UNHELD && (can_see_obj(viewer, obj))
             && is_name(arg, obj->name)) {
             if (++count == number) return obj;
@@ -1641,19 +1583,17 @@ ObjectData* get_obj_carry(CharData* ch, char* argument, CharData* viewer)
     return NULL;
 }
 
-/*
- * Find an obj in player's equipment.
- */
-ObjectData* get_obj_wear(CharData* ch, char* argument)
+// Find an obj in player's equipment.
+Object* get_obj_wear(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    ObjectData* obj;
+    Object* obj;
     int number;
     int count;
 
     number = number_argument(argument, arg);
     count = 0;
-    for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
+    FOR_EACH_CONTENT(obj, ch->carrying) {
         if (obj->wear_loc != WEAR_UNHELD && can_see_obj(ch, obj)
             && is_name(arg, obj->name)) {
             if (++count == number) return obj;
@@ -1663,30 +1603,28 @@ ObjectData* get_obj_wear(CharData* ch, char* argument)
     return NULL;
 }
 
-/*
- * Find an obj in the room or in inventory.
- */
-ObjectData* get_obj_here(CharData* ch, char* argument)
+// Find an obj in the room or in inventory.
+Object* get_obj_here(Mobile* ch, char* argument)
 {
-    ObjectData* obj;
+    Object* obj;
 
-    obj = get_obj_list(ch, argument, ch->in_room->contents);
-    if (obj != NULL) return obj;
+    if ((obj = get_obj_list(ch, argument, ch->in_room->contents)) != NULL)
+        return obj;
 
-    if ((obj = get_obj_carry(ch, argument, ch)) != NULL) return obj;
+    if ((obj = get_obj_carry(ch, argument, ch)) != NULL) 
+        return obj;
 
-    if ((obj = get_obj_wear(ch, argument)) != NULL) return obj;
+    if ((obj = get_obj_wear(ch, argument)) != NULL) 
+        return obj;
 
     return NULL;
 }
 
-/*
- * Find an obj in the world.
- */
-ObjectData* get_obj_world(CharData* ch, char* argument)
+// Find an obj in the world.
+Object* get_obj_world(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    ObjectData* obj;
+    Object* obj;
     int number;
     int count;
 
@@ -1694,7 +1632,7 @@ ObjectData* get_obj_world(CharData* ch, char* argument)
 
     number = number_argument(argument, arg);
     count = 0;
-    FOR_EACH(obj, object_list) {
+    FOR_EACH(obj, obj_list) {
         if (can_see_obj(ch, obj) && is_name(arg, obj->name)) {
             if (++count == number) return obj;
         }
@@ -1705,7 +1643,7 @@ ObjectData* get_obj_world(CharData* ch, char* argument)
 
 /* deduct cost from a character */
 
-void deduct_cost(CharData* ch, int cost)
+void deduct_cost(Mobile* ch, int cost)
 {
     int16_t silver = 0; 
     int16_t gold = 0;
@@ -1729,13 +1667,11 @@ void deduct_cost(CharData* ch, int cost)
         ch->silver = 0;
     }
 }
-/*
- * Create a 'money' obj.
- */
-ObjectData* create_money(int16_t gold, int16_t silver)
+// Create a 'money' obj.
+Object* create_money(int16_t gold, int16_t silver)
 {
     char buf[MAX_STRING_LENGTH];
-    ObjectData* obj;
+    Object* obj;
 
     if (gold < 0 || silver < 0 || (gold == 0 && silver == 0)) {
         bug("Create_money: zero or negative money.", UMIN(gold, silver));
@@ -1786,7 +1722,7 @@ ObjectData* create_money(int16_t gold, int16_t silver)
  * Return # of objects which an object counts as.
  * Thanks to Tony Chamberlain for the correct recursive code here.
  */
-int get_obj_number(ObjectData* obj)
+int get_obj_number(Object* obj)
 {
     int number;
 
@@ -1802,13 +1738,11 @@ int get_obj_number(ObjectData* obj)
     return number;
 }
 
-/*
- * Return weight of an object, including weight of contents.
- */
-int get_obj_weight(ObjectData* obj)
+// Return weight of an object, including weight of contents.
+int get_obj_weight(Object* obj)
 {
     int weight;
-    ObjectData* tobj;
+    Object* tobj;
 
     weight = obj->weight;
     for (tobj = obj->contains; tobj != NULL; tobj = tobj->next_content)
@@ -1817,7 +1751,7 @@ int get_obj_weight(ObjectData* obj)
     return weight;
 }
 
-int get_true_weight(ObjectData* obj)
+int get_true_weight(Object* obj)
 {
     int weight;
 
@@ -1828,10 +1762,8 @@ int get_true_weight(ObjectData* obj)
     return weight;
 }
 
-/*
- * true if room is dark.
- */
-bool room_is_dark(RoomData* pRoomIndex)
+// true if room is dark.
+bool room_is_dark(Room* pRoomIndex)
 {
     if (pRoomIndex->light > 0) return false;
 
@@ -1847,28 +1779,29 @@ bool room_is_dark(RoomData* pRoomIndex)
     return false;
 }
 
-bool is_room_owner(CharData* ch, RoomData* room)
+bool is_room_owner(Mobile* ch, Room* room)
 {
-    if (room->owner == NULL || room->owner[0] == '\0') return false;
+    if (room->owner == NULL || room->owner[0] == '\0') 
+        return false;
 
     return is_name(ch->name, room->owner);
 }
 
-/*
- * true if room is private.
- */
-bool room_is_private(RoomData* pRoomIndex)
+// true if room is private.
+bool room_is_private(Room* pRoomIndex)
 {
-    CharData* rch;
+    Mobile* rch;
     int count;
 
-    if (pRoomIndex->owner != NULL && pRoomIndex->owner[0] != '\0') return true;
+    if (pRoomIndex->owner != NULL && pRoomIndex->owner[0] != '\0') 
+        return true;
 
     count = 0;
     FOR_EACH_IN_ROOM(rch, pRoomIndex->people)
         count++;
 
-    if (IS_SET(pRoomIndex->room_flags, ROOM_PRIVATE) && count >= 2) return true;
+    if (IS_SET(pRoomIndex->room_flags, ROOM_PRIVATE) && count >= 2) 
+        return true;
 
     if (IS_SET(pRoomIndex->room_flags, ROOM_SOLITARY) && count >= 1)
         return true;
@@ -1879,7 +1812,7 @@ bool room_is_private(RoomData* pRoomIndex)
 }
 
 /* visibility on a room -- for entering and exits */
-bool can_see_room(CharData* ch, RoomData* pRoomIndex)
+bool can_see_room(Mobile* ch, Room* pRoomIndex)
 {
     if (IS_SET(pRoomIndex->room_flags, ROOM_IMP_ONLY)
         && get_trust(ch) < MAX_LEVEL)
@@ -1901,10 +1834,8 @@ bool can_see_room(CharData* ch, RoomData* pRoomIndex)
     return true;
 }
 
-/*
- * true if char can see victim.
- */
-bool can_see(CharData* ch, CharData* victim)
+// true if char can see victim.
+bool can_see(Mobile* ch, Mobile* victim)
 {
     /* RT changed so that WIZ_INVIS has levels */
     if (ch == victim)
@@ -1950,25 +1881,27 @@ bool can_see(CharData* ch, CharData* victim)
     return true;
 }
 
-/*
- * true if char can see obj.
- */
-bool can_see_obj(CharData* ch, ObjectData* obj)
+// true if char can see obj.
+bool can_see_obj(Mobile* ch, Object* obj)
 {
-    if (!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_HOLYLIGHT)) return true;
+    if (!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_HOLYLIGHT)) 
+        return true;
 
-    if (IS_SET(obj->extra_flags, ITEM_VIS_DEATH)) return false;
+    if (IS_SET(obj->extra_flags, ITEM_VIS_DEATH)) 
+        return false;
 
     if (IS_AFFECTED(ch, AFF_BLIND) && obj->item_type != ITEM_POTION)
         return false;
 
-    if (obj->item_type == ITEM_LIGHT && obj->value[2] != 0) return true;
+    if (obj->item_type == ITEM_LIGHT && obj->value[2] != 0) 
+        return true;
 
     if (IS_SET(obj->extra_flags, ITEM_INVIS)
         && !IS_AFFECTED(ch, AFF_DETECT_INVIS))
         return false;
 
-    if (IS_OBJ_STAT(obj, ITEM_GLOW)) return true;
+    if (IS_OBJ_STAT(obj, ITEM_GLOW))
+        return true;
 
     if (room_is_dark(ch->in_room) && !IS_AFFECTED(ch, AFF_DARK_VISION))
         return false;
@@ -1976,21 +1909,19 @@ bool can_see_obj(CharData* ch, ObjectData* obj)
     return true;
 }
 
-/*
- * true if char can drop obj.
- */
-bool can_drop_obj(CharData* ch, ObjectData* obj)
+// true if char can drop obj.
+bool can_drop_obj(Mobile* ch, Object* obj)
 {
-    if (!IS_SET(obj->extra_flags, ITEM_NODROP)) return true;
+    if (!IS_SET(obj->extra_flags, ITEM_NODROP)) 
+        return true;
 
-    if (!IS_NPC(ch) && ch->level >= LEVEL_IMMORTAL) return true;
+    if (!IS_NPC(ch) && ch->level >= LEVEL_IMMORTAL) 
+        return true;
 
     return false;
 }
 
-/*
- * Return ascii name of extra flags vector.
- */
+// Return ascii name of extra flags vector.
 char* extra_bit_name(int extra_flags)
 {
     static char buf[512];
@@ -2281,10 +2212,8 @@ char* off_bit_name(int atk_flags)
     return (buf[0] != '\0') ? buf + 1 : "none";
 }
 
-/*
- * Config Colour stuff
- */
-void all_colour(CharData* ch, char* argument)
+// Config Colour stuff
+void all_colour(Mobile* ch, char* argument)
 {
     char buf[132];
     char buf2[100];
@@ -2415,28 +2344,28 @@ char* itos(int temp)
     return buf;
 }
 
-int get_vnum_mob_name_area(char* name, AreaData* pArea)
+int get_vnum_mob_name_area(char* name, Area* area)
 {
     int hash;
     MobPrototype* mob;
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++)
         FOR_EACH(mob, mob_prototype_hash[hash])
-            if (mob->area == pArea
+            if (mob->area == area
                 && !str_prefix(name, mob->name))
                 return mob->vnum;
 
     return 0;
 }
 
-int get_vnum_obj_name_area(char* name, AreaData* pArea)
+int get_vnum_obj_name_area(char* name, Area* area)
 {
     int hash;
-    ObjectPrototype* obj;
+    ObjPrototype* obj;
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++)
-        FOR_EACH(obj, object_prototype_hash[hash])
-            if (obj->area == pArea
+        FOR_EACH(obj, obj_proto_hash[hash])
+            if (obj->area == area
                 && !str_prefix(name, obj->name))
                 return obj->vnum;
 

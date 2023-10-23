@@ -10,7 +10,7 @@
 
 #include "merc.h"
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 #include "entities/descriptor.h"
 
 #include "data/damage.h"
@@ -98,26 +98,26 @@ void process_client_output(PollData* poll_data, SockType type);
 bool process_descriptor_output(Descriptor* d, bool fPrompt);
 void read_from_buffer(Descriptor* d);
 bool read_from_descriptor(Descriptor* d);
-void stop_idling(CharData* ch);
+void stop_idling(Mobile* ch);
 bool write_to_descriptor(Descriptor* d, char* txt, size_t length);
 void show_string(Descriptor* d, char* input);
 void close_socket(Descriptor* dclose);
 void write_to_buffer(Descriptor* d, const char* txt, size_t length);
-void send_to_char(const char* txt, CharData* ch);
-void page_to_char(const char* txt, CharData* ch);
+void send_to_char(const char* txt, Mobile* ch);
+void page_to_char(const char* txt, Mobile* ch);
 
 #define act(format, ch, arg1, arg2, type)                                      \
     act_new((format), (ch), (arg1), (arg2), (type), POS_RESTING)
-void act_new(const char* format, CharData* ch, const void* arg1,
+void act_new(const char* format, Mobile* ch, const void* arg1,
     const void* arg2, ActTarget type, Position min_pos);
 
-void printf_to_char(CharData*, char*, ...);
+void printf_to_char(Mobile*, char*, ...);
 void bugf(char*, ...);
 void logf(char*, ...);
-size_t colour(char type, CharData* ch, char* string);
-void colourconv(char* buffer, const char* txt, CharData* ch);
-void send_to_char_bw(const char* txt, CharData* ch);
-void page_to_char_bw(const char* txt, CharData* ch);
+size_t colour(char type, Mobile* ch, char* string);
+void colourconv(char* buffer, const char* txt, Mobile* ch);
+void send_to_char_bw(const char* txt, Mobile* ch);
+void page_to_char_bw(const char* txt, Mobile* ch);
 
 #ifdef _MSC_VER
 void PrintLastWinSockError();

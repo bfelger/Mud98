@@ -39,7 +39,7 @@
 
 #include "interp.h"
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 
 struct mob_cmd_type {
     const char* name;
@@ -84,7 +84,7 @@ DECLARE_DO_FUN(do_mpotransfer);
 DECLARE_DO_FUN(do_mpremove);
 DECLARE_DO_FUN(do_mpquest);
 
-void mob_interpret(CharData* ch, char* argument);
+void mob_interpret(Mobile* ch, char* argument);
 char* mprog_type_to_name(MobProgTrigger);
 
 #endif // !MUD98__MOB_CMDS_H

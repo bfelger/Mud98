@@ -17,9 +17,9 @@
 #include "entities/descriptor.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 
-#define CMDEDIT(fun)bool fun( CharData *ch, char *argument )
+#define CMDEDIT(fun)bool fun( Mobile *ch, char *argument )
 
 void save_command_table(void);
 
@@ -102,7 +102,7 @@ int cmd_lookup(char* arg)
     return -1;
 }
 
-void cmdedit(CharData* ch, char* argument)
+void cmdedit(Mobile* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_CMDEDIT_SECURITY) {
         send_to_char("CMDEdit: You do not have enough security to edit commands.\n\r", ch);
@@ -134,7 +134,7 @@ void cmdedit(CharData* ch, char* argument)
     return;
 }
 
-void do_cmdedit(CharData* ch, char* argument)
+void do_cmdedit(Mobile* ch, char* argument)
 {
     const CmdInfo* pCmd;
     char command[MSL];
@@ -310,7 +310,7 @@ CMDEDIT(cmdedit_list)
     return false;
 }
 
-void do_nothing(CharData* ch, char* argument)
+void do_nothing(Mobile* ch, char* argument)
 {
     return;
 }
@@ -350,7 +350,7 @@ CMDEDIT(cmdedit_name)
 CMDEDIT(cmdedit_new)
 {
     Descriptor* d;
-    CharData* tch;
+    Mobile* tch;
     CmdInfo* new_table;
     int cmd;
 
@@ -413,7 +413,7 @@ CMDEDIT(cmdedit_new)
 CMDEDIT(cmdedit_delete)
 {
     Descriptor* d;
-    CharData* tch;
+    Mobile* tch;
     int i, j, iCmd;
     CmdInfo* new_table;
 

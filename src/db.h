@@ -33,8 +33,8 @@
 
 #include "mob_prog.h"
 
-#include "entities/char_data.h"
-#include "entities/room_data.h"
+#include "entities/mobile.h"
+#include "entities/room.h"
 
 #include "data/direction.h"
 
@@ -47,13 +47,13 @@
 #define MAGIC_NUM               52571214
 
 void assign_area_vnum(VNUM vnum);       // OLC
-void reset_area(AreaData* pArea);      // OLC
-void reset_room(RoomData* pRoom);	    // OLC
+void reset_area(Area* area);      // OLC
+void reset_room(Room* pRoom);	    // OLC
 char* print_flags(FLAGS flag);
 void boot_db(void);
 void area_update(void);
-void clone_mobile(CharData* parent, CharData* clone);
-void clear_char(CharData* ch);
+void clone_mobile(Mobile* parent, Mobile* clone);
+void clear_char(Mobile* ch);
 MobProgCode* get_mprog_index(VNUM vnum);
 char fread_letter(FILE* fp);
 int fread_number(FILE* fp);
@@ -69,13 +69,13 @@ void* alloc_perm(size_t sMem);
 void free_mem(void* pMem, size_t sMem);
 char* str_dup(const char* str);
 void free_string(char* pstr);
-void load_social(FILE* fp);
 int number_fuzzy(int number);
 int number_range(int from, int to);
 int number_percent(void);
 Direction number_door();
 int number_bits(int width);
 long number_mm(void);
+void print_memory();
 int dice(int number, int size);
 int interpolate(int level, int value_00, int value_32);
 void smash_tilde(char* str);
@@ -84,7 +84,7 @@ bool str_prefix(const char* astr, const char* bstr);
 bool str_infix(const char* astr, const char* bstr);
 bool str_suffix(const char* astr, const char* bstr);
 char* capitalize(const char* str);
-void append_file(CharData* ch, char* file, char* str);
+void append_file(Mobile* ch, char* file, char* str);
 void bug(const char* fmt, ...);
 void log_string(const char* str);
 
@@ -101,8 +101,8 @@ extern KillData kill_table[MAX_LEVEL];
 extern char bug_buf[];
 extern char log_buf[];
 extern bool fBootDb;
-extern int top_ed;
-extern int top_shop;
+extern int extra_desc_count;
+extern int shop_count;
 
 extern int _filbuf(FILE*);
 

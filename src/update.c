@@ -45,10 +45,10 @@
 #include "weather.h"
 
 #include "entities/descriptor.h"
-#include "entities/object_data.h"
+#include "entities/object.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/race.h"
 #include "data/skill.h"
 
@@ -57,12 +57,10 @@
 #include <sys/types.h>
 #include <time.h>
 
-/*
- * Local functions.
- */
-int hit_gain args((CharData * ch));
-int mana_gain args((CharData * ch));
-int move_gain args((CharData * ch));
+// Local functions.
+int hit_gain args((Mobile * ch));
+int mana_gain args((Mobile * ch));
+int move_gain args((Mobile * ch));
 void mobile_update args((void));
 void char_update args((void));
 void obj_update args((void));
@@ -72,10 +70,8 @@ void aggr_update();
 
 int save_number = 0;
 
-/*
- * Advancement stuff.
- */
-void advance_level(CharData* ch, bool hide)
+// Advancement stuff.
+void advance_level(Mobile* ch, bool hide)
 {
     char buf[MAX_STRING_LENGTH];
     int16_t add_hp;
@@ -132,7 +128,7 @@ void advance_level(CharData* ch, bool hide)
     return;
 }
 
-void gain_exp(CharData* ch, int gain)
+void gain_exp(Mobile* ch, int gain)
 {
     char buf[MAX_STRING_LENGTH];
 
@@ -156,10 +152,8 @@ void gain_exp(CharData* ch, int gain)
     return;
 }
 
-/*
- * Regeneration stuff.
- */
-int hit_gain(CharData* ch)
+// Regeneration stuff.
+int hit_gain(Mobile* ch)
 {
     int gain;
     int number;
@@ -208,9 +202,11 @@ int hit_gain(CharData* ch)
             break;
         }
 
-        if (ch->pcdata->condition[COND_HUNGER] == 0) gain /= 2;
+        if (ch->pcdata->condition[COND_HUNGER] == 0) 
+            gain /= 2;
 
-        if (ch->pcdata->condition[COND_THIRST] == 0) gain /= 2;
+        if (ch->pcdata->condition[COND_THIRST] == 0) 
+            gain /= 2;
     }
 
     gain = gain * ch->in_room->heal_rate / 100;
@@ -218,16 +214,19 @@ int hit_gain(CharData* ch)
     if (ch->on != NULL && ch->on->item_type == ITEM_FURNITURE)
         gain = gain * ch->on->value[3] / 100;
 
-    if (IS_AFFECTED(ch, AFF_POISON)) gain /= 4;
+    if (IS_AFFECTED(ch, AFF_POISON)) 
+        gain /= 4;
 
-    if (IS_AFFECTED(ch, AFF_PLAGUE)) gain /= 8;
+    if (IS_AFFECTED(ch, AFF_PLAGUE)) 
+        gain /= 8;
 
-    if (IS_AFFECTED(ch, AFF_HASTE) || IS_AFFECTED(ch, AFF_SLOW)) gain /= 2;
+    if (IS_AFFECTED(ch, AFF_HASTE) || IS_AFFECTED(ch, AFF_SLOW)) 
+        gain /= 2;
 
     return UMIN(gain, ch->max_hit - ch->hit);
 }
 
-int mana_gain(CharData* ch)
+int mana_gain(Mobile* ch)
 {
     int gain;
     int number;
@@ -295,7 +294,7 @@ int mana_gain(CharData* ch)
     return UMIN(gain, ch->max_mana - ch->mana);
 }
 
-int move_gain(CharData* ch)
+int move_gain(Mobile* ch)
 {
     int gain;
 
@@ -340,7 +339,7 @@ int move_gain(CharData* ch)
     return UMIN(gain, ch->max_move - ch->move);
 }
 
-void gain_condition(CharData* ch, int iCond, int value)
+void gain_condition(Mobile* ch, int iCond, int value)
 {
     int condition;
 
@@ -398,15 +397,15 @@ static void update_msdp_vars(Descriptor* d)
  */
 void mobile_update()
 {
-    CharData* ch = NULL;
-    CharData* ch_next = NULL;
-    ExitData* pexit = NULL;
+    Mobile* ch = NULL;
+    Mobile* ch_next = NULL;
+    RoomExit* room_exit = NULL;
     int door;
 
     bool msdp_enabled = cfg_get_msdp_enabled();
 
     /* Examine all mobs. */
-    for (ch = char_list; ch != NULL; ch = ch_next) {
+    for (ch = mob_list; ch != NULL; ch = ch_next) {
         ch_next = ch->next;
 
         if (ch->desc && ch->desc->mth->msdp_data && msdp_enabled) {
@@ -458,8 +457,8 @@ void mobile_update()
         /* Scavenge */
         if (IS_SET(ch->act_flags, ACT_SCAVENGER) && ch->in_room->contents != NULL
             && number_bits(6) == 0) {
-            ObjectData* obj;
-            ObjectData* obj_best;
+            Object* obj;
+            Object* obj_best;
             int max;
 
             max = 1;
@@ -482,28 +481,26 @@ void mobile_update()
         /* Wander */
         if (!IS_SET(ch->act_flags, ACT_SENTINEL) && number_bits(3) == 0
             && (door = number_bits(5)) <= 5
-            && (pexit = ch->in_room->exit[door]) != NULL
-            && pexit->u1.to_room != NULL && !IS_SET(pexit->exit_flags, EX_CLOSED)
-            && !IS_SET(pexit->u1.to_room->room_flags, ROOM_NO_MOB)
+            && (room_exit = ch->in_room->exit[door]) != NULL
+            && room_exit->to_room != NULL && !IS_SET(room_exit->exit_flags, EX_CLOSED)
+            && !IS_SET(room_exit->to_room->room_flags, ROOM_NO_MOB)
             && (!IS_SET(ch->act_flags, ACT_STAY_AREA)
-                || pexit->u1.to_room->area == ch->in_room->area)
+                || room_exit->to_room->area == ch->in_room->area)
             && (!IS_SET(ch->act_flags, ACT_OUTDOORS)
-                || !IS_SET(pexit->u1.to_room->room_flags, ROOM_INDOORS))
+                || !IS_SET(room_exit->to_room->room_flags, ROOM_INDOORS))
             && (!IS_SET(ch->act_flags, ACT_INDOORS)
-                || IS_SET(pexit->u1.to_room->room_flags, ROOM_INDOORS))) {
+                || IS_SET(room_exit->to_room->room_flags, ROOM_INDOORS))) {
             move_char(ch, door, false);
         }
     }
 }
 
-/*
- * Update all chars, including mobs.
- */
+// Update all chars, including mobs.
 void char_update(void)
 {
-    CharData* ch;
-    CharData* ch_next = NULL;
-    CharData* ch_quit = NULL;
+    Mobile* ch;
+    Mobile* ch_next = NULL;
+    Mobile* ch_quit = NULL;
 
     ch_quit = NULL;
 
@@ -513,9 +510,9 @@ void char_update(void)
     if (save_number > 29)
         save_number = 0;
 
-    for (ch = char_list; ch != NULL; ch = ch_next) {
-        AffectData* paf;
-        AffectData* paf_next = NULL;
+    for (ch = mob_list; ch != NULL; ch = ch_next) {
+        Affect* affect;
+        Affect* paf_next = NULL;
 
         ch_next = ch->next;
 
@@ -550,7 +547,7 @@ void char_update(void)
         if (ch->position == POS_STUNNED) update_pos(ch);
 
         if (!IS_NPC(ch) && ch->level < LEVEL_IMMORTAL) {
-            ObjectData* obj;
+            Object* obj;
 
             if ((obj = get_eq_char(ch, WEAR_LIGHT)) != NULL
                 && obj->item_type == ITEM_LIGHT && obj->value[2] > 0) {
@@ -575,7 +572,7 @@ void char_update(void)
                     send_to_char("You disappear into the void.\n\r", ch);
                     if (ch->level > 1) save_char_obj(ch);
                     char_from_room(ch);
-                    char_to_room(ch, get_room_data(ROOM_VNUM_LIMBO));
+                    char_to_room(ch, get_room(ROOM_VNUM_LIMBO));
                 }
             }
 
@@ -585,25 +582,25 @@ void char_update(void)
             gain_condition(ch, COND_HUNGER, ch->size > SIZE_MEDIUM ? -2 : -1);
         }
 
-        for (paf = ch->affected; paf != NULL; paf = paf_next) {
-            paf_next = paf->next;
-            if (paf->duration > 0) {
-                paf->duration--;
-                if (number_range(0, 4) == 0 && paf->level > 0)
-                    paf->level--; /* spell strength fades with time */
+        for (affect = ch->affected; affect != NULL; affect = paf_next) {
+            paf_next = affect->next;
+            if (affect->duration > 0) {
+                affect->duration--;
+                if (number_range(0, 4) == 0 && affect->level > 0)
+                    affect->level--; /* spell strength fades with time */
             }
-            else if (paf->duration < 0)
+            else if (affect->duration < 0)
                 ;
             else {
-                if (paf_next == NULL || paf_next->type != paf->type
+                if (paf_next == NULL || paf_next->type != affect->type
                     || paf_next->duration > 0) {
-                    if (paf->type > 0 && skill_table[paf->type].msg_off) {
-                        send_to_char(skill_table[paf->type].msg_off, ch);
+                    if (affect->type > 0 && skill_table[affect->type].msg_off) {
+                        send_to_char(skill_table[affect->type].msg_off, ch);
                         send_to_char("\n\r", ch);
                     }
                 }
 
-                affect_remove(ch, paf);
+                affect_remove(ch, affect);
             }
         }
 
@@ -614,9 +611,9 @@ void char_update(void)
          */
 
         if (is_affected(ch, gsn_plague) && ch != NULL) {
-            AffectData* af;
-            AffectData plague = { 0 };
-            CharData* vch;
+            Affect* af;
+            Affect plague = { 0 };
+            Mobile* vch;
             int dam;
 
             if (ch->in_room == NULL) continue;
@@ -664,7 +661,7 @@ void char_update(void)
                  && !IS_AFFECTED(ch, AFF_SLOW))
 
         {
-            AffectData* poison;
+            Affect* poison;
 
             poison = affect_find(ch->affected, gsn_poison);
 
@@ -688,7 +685,7 @@ void char_update(void)
      * Autosave and autoquit.
      * Check that these chars still exist.
      */
-    for (ch = char_list; ch != NULL; ch = ch_next) {
+    for (ch = mob_list; ch != NULL; ch = ch_next) {
         ch_next = ch->next;
 
         if (ch->desc != NULL && (int)ch->desc->client->fd % 30 == save_number) {
@@ -709,46 +706,46 @@ void char_update(void)
  */
 void obj_update(void)
 {
-    ObjectData* obj;
-    ObjectData* obj_next = NULL;
-    AffectData* paf;
-    AffectData* paf_next = NULL;
+    Object* obj;
+    Object* obj_next = NULL;
+    Affect* affect;
+    Affect* paf_next = NULL;
 
-    for (obj = object_list; obj != NULL; obj = obj_next) {
-        CharData* rch;
+    for (obj = obj_list; obj != NULL; obj = obj_next) {
+        Mobile* rch;
         char* message;
 
         obj_next = obj->next;
 
         /* go through affects and decrement */
-        for (paf = obj->affected; paf != NULL; paf = paf_next) {
-            paf_next = paf->next;
-            if (paf->duration > 0) {
-                paf->duration--;
-                if (number_range(0, 4) == 0 && paf->level > 0)
-                    paf->level--; /* spell strength fades with time */
+        for (affect = obj->affected; affect != NULL; affect = paf_next) {
+            paf_next = affect->next;
+            if (affect->duration > 0) {
+                affect->duration--;
+                if (number_range(0, 4) == 0 && affect->level > 0)
+                    affect->level--; /* spell strength fades with time */
             }
-            else if (paf->duration < 0)
+            else if (affect->duration < 0)
                 ;
             else {
-                if (paf_next == NULL || paf_next->type != paf->type
+                if (paf_next == NULL || paf_next->type != affect->type
                     || paf_next->duration > 0) {
-                    if (paf->type > 0 && skill_table[paf->type].msg_obj) {
+                    if (affect->type > 0 && skill_table[affect->type].msg_obj) {
                         if (obj->carried_by != NULL) {
                             rch = obj->carried_by;
-                            act(skill_table[paf->type].msg_obj, rch, obj, NULL,
+                            act(skill_table[affect->type].msg_obj, rch, obj, NULL,
                                 TO_CHAR);
                         }
                         if (obj->in_room != NULL
                             && obj->in_room->people != NULL) {
                             rch = obj->in_room->people;
-                            act(skill_table[paf->type].msg_obj, rch, obj, NULL,
+                            act(skill_table[affect->type].msg_obj, rch, obj, NULL,
                                 TO_ALL);
                         }
                     }
                 }
 
-                affect_remove_obj(obj, paf);
+                affect_remove_obj(obj, affect);
             }
         }
 
@@ -808,8 +805,8 @@ void obj_update(void)
 
         if ((obj->item_type == ITEM_CORPSE_PC || obj->wear_loc == WEAR_FLOAT)
             && obj->contains) { /* save the contents */
-            ObjectData* t_obj;
-            ObjectData* next_obj = NULL;
+            Object* t_obj;
+            Object* next_obj = NULL;
 
             for (t_obj = obj->contains; t_obj != NULL; t_obj = next_obj) {
                 next_obj = t_obj->next_content;
@@ -858,12 +855,12 @@ void obj_update(void)
 void aggr_update(void)
 {
     for (PlayerData* wpc = player_list; wpc != NULL; NEXT_LINK(wpc)) {
-        CharData* wch = wpc->ch;
+        Mobile* wch = wpc->ch;
 
         if (wch->level >= LEVEL_IMMORTAL || wch->in_room == NULL)
             continue;
 
-        for (CharData* ch = wch->in_room->people; ch != NULL; ch = ch->next_in_room) {
+        for (Mobile* ch = wch->in_room->people; ch != NULL; ch = ch->next_in_room) {
             int count;
 
             if (!IS_NPC(ch) || !IS_SET(ch->act_flags, ACT_AGGRESSIVE)
@@ -880,8 +877,8 @@ void aggr_update(void)
              *   giving each 'vch' an equal chance of selection.
              */
             count = 0;
-            CharData* victim = NULL;
-            for (CharData* vch = wch->in_room->people; vch != NULL; vch = vch->next_in_room) {
+            Mobile* victim = NULL;
+            for (Mobile* vch = wch->in_room->people; vch != NULL; vch = vch->next_in_room) {
                 if (!IS_NPC(vch) && vch->level < LEVEL_IMMORTAL
                     && ch->level >= vch->level - 5
                     && (!IS_SET(ch->act_flags, ACT_WIMPY) || !IS_AWAKE(vch))
@@ -891,7 +888,8 @@ void aggr_update(void)
                 }
             }
 
-            if (victim == NULL) continue;
+            if (victim == NULL)
+                continue;
 
             multi_hit(ch, victim, TYPE_UNDEFINED);
         }

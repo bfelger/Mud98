@@ -15,7 +15,7 @@
  * Notes:
  * -If a good syntax checker is used for setting vnum ranges of areas
  *  then it would become possible to just cycle through vnums instead
- *  of using the iHash stuff and checking that the room or reset or
+ *  of using the hash stuff and checking that the room or reset or
  *  mob etc is part of that area.
  */
 
@@ -32,10 +32,10 @@
 #include "tablesave.h"
 
 #include "entities/descriptor.h"
-#include "entities/object_data.h"
+#include "entities/object.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/quest.h"
 #include "data/race.h"
 #include "data/skill.h"
@@ -85,22 +85,22 @@ char* fix_string(const char* str)
 
 bool area_changed(void)
 {
-    AreaData* pArea;
+    Area* area;
 
-    FOR_EACH(pArea, area_first)
-        if (IS_SET(pArea->area_flags, AREA_CHANGED))
+    FOR_EACH(area, area_first)
+        if (IS_SET(area->area_flags, AREA_CHANGED))
             return true;
 
     return false;
 }
 
-void save_mobprogs(FILE* fp, AreaData* pArea)
+void save_mobprogs(FILE* fp, Area* area)
 {
     MobProgCode* pMprog;
 
     fprintf(fp, "#MOBPROGS\n");
 
-    for (VNUM i = pArea->min_vnum; i <= pArea->max_vnum; i++) {
+    for (VNUM i = area->min_vnum; i <= area->max_vnum; i++) {
         if ((pMprog = get_mprog_index(i)) != NULL) {
             fprintf(fp, "#%"PRVNUM"\n", i);
             fprintf(fp, "%s~\n", fix_string(pMprog->code));
@@ -119,7 +119,7 @@ void save_mobprogs(FILE* fp, AreaData* pArea)
 void save_area_list()
 {
     FILE* fp;
-    AreaData* pArea;
+    Area* area;
     HelpArea* ha;
 
     OPEN_OR_RETURN(fp = open_write_area_list());
@@ -128,8 +128,8 @@ void save_area_list()
         if (ha->area == NULL)
             fprintf(fp, "%s\n", ha->filename);
 
-    FOR_EACH(pArea, area_first) {
-        fprintf(fp, "%s\n", pArea->file_name);
+    FOR_EACH(area, area_first) {
+        fprintf(fp, "%s\n", area->file_name);
     }
 
     fprintf(fp, "$\n");
@@ -284,13 +284,13 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
  Called by:	save_area(olc_save.c).
  Notes:         Changed for ROM OLC.
  ****************************************************************************/
-void save_mobiles(FILE* fp, AreaData* pArea)
+void save_mobiles(FILE* fp, Area* area)
 {
     MobPrototype* pMob;
 
     fprintf(fp, "#MOBILES\n");
 
-    for (VNUM i = pArea->min_vnum; i <= pArea->max_vnum; i++) {
+    for (VNUM i = area->min_vnum; i <= area->max_vnum; i++) {
         if ((pMob = get_mob_prototype(i)))
             save_mobile(fp, pMob);
     }
@@ -305,10 +305,10 @@ void save_mobiles(FILE* fp, AreaData* pArea)
                 new ROM format saving -- Hugin
  Called by:	save_objects (below).
  ****************************************************************************/
-void save_object(FILE* fp, ObjectPrototype* obj_proto)
+void save_object(FILE* fp, ObjPrototype* obj_proto)
 {
     char letter;
-    AffectData* pAf;
+    Affect* pAf;
     ExtraDesc* pEd;
     char buf[MAX_STRING_LENGTH];
 
@@ -506,13 +506,13 @@ void save_object(FILE* fp, ObjectPrototype* obj_proto)
  Called by:	save_area(olc_save.c).
  Notes:         Changed for ROM OLC.
  ****************************************************************************/
-void save_objects(FILE* fp, AreaData* pArea)
+void save_objects(FILE* fp, Area* area)
 {
-    ObjectPrototype* pObj;
+    ObjPrototype* pObj;
 
     fprintf(fp, "#OBJECTS\n");
 
-    for (VNUM i = pArea->min_vnum; i <= pArea->max_vnum; i++) {
+    for (VNUM i = area->min_vnum; i <= area->max_vnum; i++) {
         if ((pObj = get_object_prototype(i)))
             save_object(fp, pObj);
     }
@@ -526,19 +526,19 @@ void save_objects(FILE* fp, AreaData* pArea)
  Purpose:	Save #ROOMS section of an area file.
  Called by:	save_area(olc_save.c).
  ****************************************************************************/
-void save_rooms(FILE* fp, AreaData* pArea)
+void save_rooms(FILE* fp, Area* area)
 {
-    RoomData* pRoomIndex;
+    Room* pRoomIndex;
     ExtraDesc* pEd;
-    ExitData* pExit;
+    RoomExit* room_exit;
     char buf[MSL];
-    int iHash, i, locks;
+    int hash, i, locks;
 
     fprintf(fp, "#ROOMS\n");
 
-    for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
-        FOR_EACH(pRoomIndex, room_index_hash[iHash]) {
-            if (pRoomIndex->area == pArea) {
+    for (hash = 0; hash < MAX_KEY_HASH; hash++) {
+        FOR_EACH(pRoomIndex, room_vnum_hash[hash]) {
+            if (pRoomIndex->area == area) {
                 fprintf(fp, "#%"PRVNUM"\n", pRoomIndex->vnum);
                 fprintf(fp, "%s~\n", pRoomIndex->name);
                 fprintf(fp, "%s~\n0\n", fix_string(pRoomIndex->description));
@@ -552,41 +552,41 @@ void save_rooms(FILE* fp, AreaData* pArea)
 
                 // Put randomized rooms back in their original place to reduce
                 // file deltas on save.
-                ExitData* ex_to_save[DIR_MAX] = { NULL };
+                RoomExit* ex_to_save[DIR_MAX] = { NULL };
                 for (i = 0; i < DIR_MAX; ++i) {
-                    if ((pExit = pRoomIndex->exit[i]) == NULL)
+                    if ((room_exit = pRoomIndex->exit[i]) == NULL)
                         continue;
-                    ex_to_save[pExit->orig_dir] = pExit;
+                    ex_to_save[room_exit->orig_dir] = room_exit;
                 }
 
                 for (i = 0; i < DIR_MAX; i++) {
-                    if ((pExit = ex_to_save[i]) == NULL)
+                    if ((room_exit = ex_to_save[i]) == NULL)
                         continue;
 
-                    if (pExit->u1.to_room) {
+                    if (room_exit->to_room) {
                         locks = 0;
 
-                        if (IS_SET(pExit->exit_reset_flags, EX_CLOSED)
-                            || IS_SET(pExit->exit_reset_flags, EX_LOCKED)
-                            || IS_SET(pExit->exit_reset_flags, EX_PICKPROOF)
-                            || IS_SET(pExit->exit_reset_flags, EX_NOPASS)
-                            || IS_SET(pExit->exit_reset_flags, EX_EASY)
-                            || IS_SET(pExit->exit_reset_flags, EX_HARD)
-                            || IS_SET(pExit->exit_reset_flags, EX_INFURIATING)
-                            || IS_SET(pExit->exit_reset_flags, EX_NOCLOSE)
-                            || IS_SET(pExit->exit_reset_flags, EX_NOLOCK))
-                            SET_BIT(pExit->exit_reset_flags, EX_ISDOOR);
+                        if (IS_SET(room_exit->exit_reset_flags, EX_CLOSED)
+                            || IS_SET(room_exit->exit_reset_flags, EX_LOCKED)
+                            || IS_SET(room_exit->exit_reset_flags, EX_PICKPROOF)
+                            || IS_SET(room_exit->exit_reset_flags, EX_NOPASS)
+                            || IS_SET(room_exit->exit_reset_flags, EX_EASY)
+                            || IS_SET(room_exit->exit_reset_flags, EX_HARD)
+                            || IS_SET(room_exit->exit_reset_flags, EX_INFURIATING)
+                            || IS_SET(room_exit->exit_reset_flags, EX_NOCLOSE)
+                            || IS_SET(room_exit->exit_reset_flags, EX_NOLOCK))
+                            SET_BIT(room_exit->exit_reset_flags, EX_ISDOOR);
 
-                        if (IS_SET(pExit->exit_reset_flags, EX_ISDOOR))
-                            locks = IS_SET(pExit->exit_reset_flags, EX_LOCKED) ? 2 : 1;
+                        if (IS_SET(room_exit->exit_reset_flags, EX_ISDOOR))
+                            locks = IS_SET(room_exit->exit_reset_flags, EX_LOCKED) ? 2 : 1;
 
-                        fprintf(fp, "D%d\n", pExit->orig_dir);
-                        fprintf(fp, "%s~\n", fix_string(pExit->description));
-                        fprintf(fp, "%s~\n", pExit->keyword);
+                        fprintf(fp, "D%d\n", room_exit->orig_dir);
+                        fprintf(fp, "%s~\n", fix_string(room_exit->description));
+                        fprintf(fp, "%s~\n", room_exit->keyword);
                         fprintf(fp, "%d %d %"PRVNUM"\n", 
                             locks,
-                            pExit->key,
-                            pExit->u1.to_room->vnum);
+                            room_exit->key,
+                            room_exit->to_room->vnum);
                     }
                 }
 
@@ -612,16 +612,16 @@ void save_rooms(FILE* fp, AreaData* pArea)
  Purpose:	Save #SPECIALS section of area file.
  Called by:	save_area(olc_save.c).
  ****************************************************************************/
-void save_specials(FILE* fp, AreaData* pArea)
+void save_specials(FILE* fp, Area* area)
 {
-    int iHash;
+    int hash;
     MobPrototype* p_mob_proto;
 
     fprintf(fp, "#SPECIALS\n");
 
-    for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
-        FOR_EACH(p_mob_proto, mob_prototype_hash[iHash]) {
-            if (p_mob_proto && p_mob_proto->area == pArea && p_mob_proto->spec_fun) {
+    for (hash = 0; hash < MAX_KEY_HASH; hash++) {
+        FOR_EACH(p_mob_proto, mob_prototype_hash[hash]) {
+            if (p_mob_proto && p_mob_proto->area == area && p_mob_proto->spec_fun) {
 #if defined( VERBOSE )
                 fprintf(fp, "M %"PRVNUM" %s Load to: %s\n", p_mob_proto->vnum,
                     spec_name(p_mob_proto->spec_fun),
@@ -644,36 +644,36 @@ void save_specials(FILE* fp, AreaData* pArea)
  *
  * I don't think it's obsolete in ROM -- Hugin.
  */
-void save_door_resets(FILE* fp, AreaData* pArea)
+void save_door_resets(FILE* fp, Area* area)
 {
-    int iHash, i;
-    RoomData* pRoomIndex;
-    ExitData* pExit;
+    int hash, i;
+    Room* pRoomIndex;
+    RoomExit* room_exit;
 
-    for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
-        FOR_EACH(pRoomIndex, room_index_hash[iHash]) {
-            if (pRoomIndex->area == pArea) {
+    for (hash = 0; hash < MAX_KEY_HASH; hash++) {
+        FOR_EACH(pRoomIndex, room_vnum_hash[hash]) {
+            if (pRoomIndex->area == area) {
                 for (i = 0; i < DIR_MAX; i++) {
-                    if ((pExit = pRoomIndex->exit[i]) == NULL)
+                    if ((room_exit = pRoomIndex->exit[i]) == NULL)
                         continue;
 
-                    if (pExit->u1.to_room
-                        && (IS_SET(pExit->exit_reset_flags, EX_CLOSED)
-                            || IS_SET(pExit->exit_reset_flags, EX_LOCKED)))
+                    if (room_exit->to_room
+                        && (IS_SET(room_exit->exit_reset_flags, EX_CLOSED)
+                            || IS_SET(room_exit->exit_reset_flags, EX_LOCKED)))
 #if defined( VERBOSE )
                         fprintf(fp, "D 0 %"PRVNUM" %d %d The %s door of %s is %s\n",
                             pRoomIndex->vnum,
-                            pExit->orig_dir,
-                            IS_SET(pExit->exit_reset_flags, EX_LOCKED) ? 2 : 1,
-                            dir_list[pExit->orig_dir].name,
+                            room_exit->orig_dir,
+                            IS_SET(room_exit->exit_reset_flags, EX_LOCKED) ? 2 : 1,
+                            dir_list[room_exit->orig_dir].name,
                             pRoomIndex->name,
-                            IS_SET(pExit->exit_reset_flags, EX_LOCKED) ? "closed and locked"
+                            IS_SET(room_exit->exit_reset_flags, EX_LOCKED) ? "closed and locked"
                             : "closed");
 #else
                         fprintf(fp, "D 0 %"PRVNUM" %d %d\n",
                             pRoomIndex->vnum,
-                            pExit->orig_dir,
-                            IS_SET(pExit->exit_reset_flags, EX_LOCKED) ? 2 : 1);
+                            room_exit->orig_dir,
+                            IS_SET(room_exit->exit_reset_flags, EX_LOCKED) ? 2 : 1);
 #endif
                 }
             }
@@ -687,82 +687,82 @@ void save_door_resets(FILE* fp, AreaData* pArea)
 // Purpose:	Saves the #RESETS section of an area file.
 // Called by: save_area(olc_save.c)
 ////////////////////////////////////////////////////////////////////////////////
-void save_resets(FILE* fp, AreaData* pArea)
+void save_resets(FILE* fp, Area* area)
 {
-    ResetData* pReset;
+    Reset* reset;
     MobPrototype* pLastMob = NULL;
 #ifdef VERBOSE
-    ObjectPrototype* pLastObj;
+    ObjPrototype* pLastObj;
 #endif
-    RoomData* pRoom;
+    Room* pRoom;
     char buf[MAX_STRING_LENGTH];
-    int iHash;
+    int hash;
 
     fprintf(fp, "#RESETS\n");
 
-    save_door_resets(fp, pArea);
+    save_door_resets(fp, area);
 
-    for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
-        FOR_EACH(pRoom, room_index_hash[iHash]) {
-            if (pRoom->area == pArea) {
-                FOR_EACH(pReset, pRoom->reset_first) {
-                    switch (pReset->command) {
+    for (hash = 0; hash < MAX_KEY_HASH; hash++) {
+        FOR_EACH(pRoom, room_vnum_hash[hash]) {
+            if (pRoom->area == area) {
+                FOR_EACH(reset, pRoom->reset_first) {
+                    switch (reset->command) {
                     default:
-                        bug("Save_resets: bad command %c.", pReset->command);
+                        bug("Save_resets: bad command %c.", reset->command);
                         break;
 
 #ifdef VERBOSE
                     case 'M':
-                        pLastMob = get_mob_prototype(pReset->arg1);
+                        pLastMob = get_mob_prototype(reset->arg1);
                         fprintf(fp, "M 0 %d %d %d %d Load %s\n",
-                            pReset->arg1,
-                            pReset->arg2,
-                            pReset->arg3,
-                            pReset->arg4,
+                            reset->arg1,
+                            reset->arg2,
+                            reset->arg3,
+                            reset->arg4,
                             pLastMob->short_descr);
                         break;
 
                     case 'O':
-                        pLastObj = get_object_prototype(pReset->arg1);
-                        pRoom = get_room_data(pReset->arg3);
+                        pLastObj = get_object_prototype(reset->arg1);
+                        pRoom = get_room(reset->arg3);
                         fprintf(fp, "O 0 %d 0 %d %s loaded to %s\n",
-                            pReset->arg1,
-                            pReset->arg3,
+                            reset->arg1,
+                            reset->arg3,
                             capitalize(pLastObj->short_descr),
                             pRoom->name);
                         break;
 
                     case 'P':
-                        pLastObj = get_object_prototype(pReset->arg1);
+                        pLastObj = get_object_prototype(reset->arg1);
                         fprintf(fp, "P 0 %d %d %d %d %s put inside %s\n",
-                            pReset->arg1,
-                            pReset->arg2,
-                            pReset->arg3,
-                            pReset->arg4,
-                            capitalize(get_object_prototype(pReset->arg1)->short_descr),
+                            reset->arg1,
+                            reset->arg2,
+                            reset->arg3,
+                            reset->arg4,
+                            capitalize(get_object_prototype(reset->arg1)->short_descr),
                             pLastObj->short_descr);
                         break;
 
                     case 'G':
                         fprintf(fp, "G 0 %d 0 %s is given to %s\n",
-                            pReset->arg1,
-                            capitalize(get_object_prototype(pReset->arg1)->short_descr),
+                            reset->arg1,
+                            capitalize(get_object_prototype(reset->arg1)->short_descr),
                             pLastMob ? pLastMob->short_descr : "!NO_MOB!");
                         if (!pLastMob) {
-                            sprintf(buf, "Save_resets: !NO_MOB! in [%s]", pArea->file_name);
+                            sprintf(buf, "Save_resets: !NO_MOB! in [%s]", area->file_name);
                             bug(buf, 0);
                         }
                         break;
 
                     case 'E':
                         fprintf(fp, "E 0 %d 0 %d %s is loaded %s of %s\n",
-                            pReset->arg1,
-                            pReset->arg3,
-                            capitalize(get_object_prototype(pReset->arg1)->short_descr),
-                            flag_string(wear_loc_strings, pReset->arg3),
+                            reset->arg1,
+                            reset->arg3,
+                            capitalize(get_object_prototype(reset->arg1)->short_descr),
+                            flag_string(wear_loc_strings, reset->arg3),
                             pLastMob ? pLastMob->short_descr : "!NO_MOB!");
                         if (!pLastMob) {
-                            sprintf(buf, "Save_resets: !NO_MOB! in [%s]", pArea->file_name);
+                            sprintf(buf, "Save_resets: !NO_MOB! in [%s]", area->file_name);
                             bug(buf, 0);
                         }
                         break;
@@ -771,60 +771,60 @@ void save_resets(FILE* fp, AreaData* pArea)
                         break;
 
                     case 'R':
-                        pRoom = get_room_data(pReset->arg1);
+                        pRoom = get_room(reset->arg1);
                         fprintf(fp, "R 0 %d %d Randomize %s\n",
-                            pReset->arg1,
-                            pReset->arg2,
+                            reset->arg1,
+                            reset->arg2,
                             pRoom->name);
                         break;
                     }
 #else
             case 'M':
-                pLastMob = get_mob_prototype(pReset->arg1);
+                pLastMob = get_mob_prototype(reset->arg1);
                 fprintf(fp, "M 0 %d %d %d %d\n",
-                    pReset->arg1,
-                    pReset->arg2,
-                    pReset->arg3,
-                    pReset->arg4);
+                    reset->arg1,
+                    reset->arg2,
+                    reset->arg3,
+                    reset->arg4);
                 break;
 
             case 'O':
 #ifdef VERBOSE
-                pLastObj = get_object_prototype(pReset->arg1);
+                pLastObj = get_object_prototype(reset->arg1);
 #endif
-                pRoom = get_room_data(pReset->arg3);
+                pRoom = get_room(reset->arg3);
                 fprintf(fp, "O 0 %d 0 %d\n",
-                    pReset->arg1,
-                    pReset->arg3);
+                    reset->arg1,
+                    reset->arg3);
                 break;
 
             case 'P':
 #ifdef VERBOSE
-                pLastObj = get_object_prototype(pReset->arg1);
+                pLastObj = get_object_prototype(reset->arg1);
 #endif
                 fprintf(fp, "P 0 %d %d %d %d\n",
-                    pReset->arg1,
-                    pReset->arg2,
-                    pReset->arg3,
-                    pReset->arg4);
+                    reset->arg1,
+                    reset->arg2,
+                    reset->arg3,
+                    reset->arg4);
                 break;
 
             case 'G':
-                fprintf(fp, "G 0 %d 0\n", pReset->arg1);
+                fprintf(fp, "G 0 %d 0\n", reset->arg1);
                 if (!pLastMob) {
                     sprintf(buf,
-                        "Save_resets: !NO_MOB! in [%s]", pArea->file_name);
+                        "Save_resets: !NO_MOB! in [%s]", area->file_name);
                     bug(buf, 0);
                 }
                 break;
 
             case 'E':
                 fprintf(fp, "E 0 %d 0 %d\n",
-                    pReset->arg1,
-                    pReset->arg3);
+                    reset->arg1,
+                    reset->arg3);
                 if (!pLastMob) {
                     sprintf(buf,
-                        "Save_resets: !NO_MOB! in [%s]", pArea->file_name);
+                        "Save_resets: !NO_MOB! in [%s]", area->file_name);
                     bug(buf, 0);
                 }
                 break;
@@ -833,17 +833,17 @@ void save_resets(FILE* fp, AreaData* pArea)
                 break;
 
             case 'R':
-                pRoom = get_room_data(pReset->arg1);
+                pRoom = get_room(reset->arg1);
                 fprintf(fp, "R 0 %d %d\n",
-                    pReset->arg1,
-                    pReset->arg2);
+                    reset->arg1,
+                    reset->arg2);
                 break;
                     }
 #endif
                 }
             }	/* End if correct area */
         }	/* End for pRoom */
-    }	/* End for iHash */
+    }	/* End for hash */
 fprintf(fp, "S\n\n\n\n");
 return;
 }
@@ -855,18 +855,18 @@ return;
  Purpose:	Saves the #SHOPS section of an area file.
  Called by:	save_area(olc_save.c)
  ****************************************************************************/
-void save_shops(FILE* fp, AreaData* pArea)
+void save_shops(FILE* fp, Area* area)
 {
     ShopData* pShopIndex;
     MobPrototype* p_mob_proto;
     int iTrade;
-    int iHash;
+    int hash;
 
     fprintf(fp, "#SHOPS\n");
 
-    for (iHash = 0; iHash < MAX_KEY_HASH; iHash++) {
-        FOR_EACH(p_mob_proto, mob_prototype_hash[iHash]) {
-            if (p_mob_proto && p_mob_proto->area == pArea && p_mob_proto->pShop) {
+    for (hash = 0; hash < MAX_KEY_HASH; hash++) {
+        FOR_EACH(p_mob_proto, mob_prototype_hash[hash]) {
+            if (p_mob_proto && p_mob_proto->area == area && p_mob_proto->pShop) {
                 pShopIndex = p_mob_proto->pShop;
 
                 fprintf(fp, "%d ", pShopIndex->keeper);
@@ -905,7 +905,7 @@ void save_helps(FILE* fp, HelpArea* ha)
     return;
 }
 
-void save_other_helps(CharData* ch)
+void save_other_helps(Mobile* ch)
 {
     HelpArea* ha;
     FILE* fp;
@@ -936,44 +936,44 @@ void save_other_helps(CharData* ch)
  Purpose:	Save an area, note that this format is new.
  Called by:	do_asave(olc_save.c).
  ****************************************************************************/
-void save_area(AreaData* pArea)
+void save_area(Area* area)
 {
     FILE* fp;
     char tmp[MIL];
     char area_file[MIL];
 
-    sprintf(tmp, "%s%s.tmp", cfg_get_area_dir(), pArea->file_name);
+    sprintf(tmp, "%s%s.tmp", cfg_get_area_dir(), area->file_name);
 
-    sprintf(area_file, "%s%s", cfg_get_area_dir(), pArea->file_name);
+    sprintf(area_file, "%s%s", cfg_get_area_dir(), area->file_name);
 
     OPEN_OR_RETURN(fp = open_write_file(tmp));
 
     fprintf(fp, "#AREADATA\n");
     fprintf(fp, "Version %d\n", AREA_VERSION);
-    fprintf(fp, "Name %s~\n", pArea->name);
-    fprintf(fp, "Builders %s~\n", fix_string(pArea->builders));
-    fprintf(fp, "VNUMs %"PRVNUM" %"PRVNUM"\n", pArea->min_vnum, pArea->max_vnum);
-    fprintf(fp, "Credits %s~\n", pArea->credits);
-    fprintf(fp, "Security %d\n", pArea->security);
-    fprintf(fp, "Sector %d\n", pArea->sector);
-    fprintf(fp, "Low %d\n", pArea->low_range);
-    fprintf(fp, "High %d\n", pArea->high_range);
-    fprintf(fp, "Reset %d\n", pArea->reset_thresh);
-    fprintf(fp, "AlwaysReset %d\n", (int)pArea->always_reset);
+    fprintf(fp, "Name %s~\n", area->name);
+    fprintf(fp, "Builders %s~\n", fix_string(area->builders));
+    fprintf(fp, "VNUMs %"PRVNUM" %"PRVNUM"\n", area->min_vnum, area->max_vnum);
+    fprintf(fp, "Credits %s~\n", area->credits);
+    fprintf(fp, "Security %d\n", area->security);
+    fprintf(fp, "Sector %d\n", area->sector);
+    fprintf(fp, "Low %d\n", area->low_range);
+    fprintf(fp, "High %d\n", area->high_range);
+    fprintf(fp, "Reset %d\n", area->reset_thresh);
+    fprintf(fp, "AlwaysReset %d\n", (int)area->always_reset);
     fprintf(fp, "End\n\n\n\n");
 
-    save_mobiles(fp, pArea);
-    save_objects(fp, pArea);
-    save_rooms(fp, pArea);
-    save_specials(fp, pArea);
-    save_resets(fp, pArea);
-    save_shops(fp, pArea);
-    save_mobprogs( fp, pArea );
-    save_progs(pArea->min_vnum, pArea->max_vnum);
-    save_quests(fp, pArea);
+    save_mobiles(fp, area);
+    save_objects(fp, area);
+    save_rooms(fp, area);
+    save_specials(fp, area);
+    save_resets(fp, area);
+    save_shops(fp, area);
+    save_mobprogs( fp, area );
+    save_progs(area->min_vnum, area->max_vnum);
+    save_quests(fp, area);
 
-    if (pArea->helps && pArea->helps->first)
-        save_helps(fp, pArea->helps);
+    if (area->helps && area->helps->first)
+        save_helps(fp, area->helps);
 
     fprintf(fp, "#$\n");
 
@@ -999,10 +999,10 @@ void save_area(AreaData* pArea)
  Purpose:	Entry point for saving area data.
  Called by:	interpreter(interp.c)
  ****************************************************************************/
-void do_asave(CharData* ch, char* argument)
+void do_asave(Mobile* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
-    AreaData* pArea;
+    Area* area;
     VNUM value;
 
     if (ch == NULL || ch->desc == NULL || IS_NPC(ch)) {
@@ -1013,11 +1013,11 @@ void do_asave(CharData* ch, char* argument)
     {
         save_area_list();
 
-        FOR_EACH(pArea, area_first)
+        FOR_EACH(area, area_first)
             if (str_cmp(argument, "changed")
-                || IS_SET(pArea->area_flags, AREA_CHANGED)) {
-                save_area(pArea);
-                REMOVE_BIT(pArea->area_flags, AREA_CHANGED);
+                || IS_SET(area->area_flags, AREA_CHANGED)) {
+                save_area(area);
+                REMOVE_BIT(area->area_flags, AREA_CHANGED);
             }
 
         save_progs(0, MAX_VNUM); // Just in case
@@ -1041,20 +1041,20 @@ void do_asave(CharData* ch, char* argument)
 
     /* Snarf the value (which need not be numeric). */
     value = STRTOVNUM(arg1);
-    if ((pArea = get_area_data(value)) == NULL && is_number(arg1)) {
+    if ((area = get_area_data(value)) == NULL && is_number(arg1)) {
         send_to_char("That area does not exist.\n\r", ch);
         return;
     }
     /* Save area of given vnum. */
     /* ------------------------ */
 
-    if (is_number(arg1) && pArea) {
-        if (ch && !IS_BUILDER(ch, pArea)) {
+    if (is_number(arg1) && area) {
+        if (ch && !IS_BUILDER(ch, area)) {
             send_to_char("You are not a builder for this area.\n\r", ch);
             return;
         }
         save_area_list();
-        save_area(pArea);
+        save_area(area);
         return;
     }
 
@@ -1062,14 +1062,14 @@ void do_asave(CharData* ch, char* argument)
     /* -------------------------------------- */
     if (!str_cmp("world", arg1)) {
         save_area_list();
-        FOR_EACH(pArea, area_first) {
+        FOR_EACH(area, area_first) {
             /* Builder must be assigned this area. */
-            if (!IS_BUILDER(ch, pArea))
+            if (!IS_BUILDER(ch, area))
                 continue;
 
-            save_area(pArea);
-            REMOVE_BIT(pArea->area_flags, AREA_CHANGED);
-            REMOVE_BIT(pArea->area_flags, AREA_ADDED);
+            save_area(area);
+            REMOVE_BIT(area->area_flags, AREA_CHANGED);
+            REMOVE_BIT(area->area_flags, AREA_ADDED);
         }
 
         save_other_helps(ch);
@@ -1089,17 +1089,17 @@ void do_asave(CharData* ch, char* argument)
         send_to_char("Saved zones:\n\r", ch);
         sprintf(buf, "None.\n\r");
 
-        FOR_EACH(pArea, area_first) {
+        FOR_EACH(area, area_first) {
             /* Builder must be assigned this area. */
-            if (!IS_BUILDER(ch, pArea))
+            if (!IS_BUILDER(ch, area))
                 continue;
 
                 /* Save changed areas. */
-            if (IS_SET(pArea->area_flags, AREA_CHANGED)) {
-                save_area(pArea);
-                sprintf(buf, "%24s - '%s'\n\r", pArea->name, pArea->file_name);
+            if (IS_SET(area->area_flags, AREA_CHANGED)) {
+                save_area(area);
+                sprintf(buf, "%24s - '%s'\n\r", area->name, area->file_name);
                 send_to_char(buf, ch);
-                REMOVE_BIT(pArea->area_flags, AREA_CHANGED);
+                REMOVE_BIT(area->area_flags, AREA_CHANGED);
             }
         }
 
@@ -1131,30 +1131,30 @@ void do_asave(CharData* ch, char* argument)
         /* Find the area to save. */
         switch (ch->desc->editor) {
         case ED_AREA:
-            pArea = (AreaData*)ch->desc->pEdit;
+            area = (Area*)ch->desc->pEdit;
             break;
         case ED_ROOM:
-            pArea = ch->in_room->area;
+            area = ch->in_room->area;
             break;
         case ED_OBJECT:
-            pArea = ((ObjectPrototype*)ch->desc->pEdit)->area;
+            area = ((ObjPrototype*)ch->desc->pEdit)->area;
             break;
         case ED_MOBILE:
-            pArea = ((MobPrototype*)ch->desc->pEdit)->area;
+            area = ((MobPrototype*)ch->desc->pEdit)->area;
             break;
         default:
-            pArea = ch->in_room->area;
+            area = ch->in_room->area;
             break;
         }
 
-        if (!IS_BUILDER(ch, pArea)) {
+        if (!IS_BUILDER(ch, area)) {
             send_to_char("You are not a builder for this area.\n\r", ch);
             return;
         }
 
         save_area_list();
-        save_area(pArea);
-        REMOVE_BIT(pArea->area_flags, AREA_CHANGED);
+        save_area(area);
+        REMOVE_BIT(area->area_flags, AREA_CHANGED);
         send_to_char("Area saved.\n\r", ch);
         return;
     }

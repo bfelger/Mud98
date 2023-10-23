@@ -18,11 +18,11 @@
 #include "stringutils.h"
 #include "tables.h"
 
-#include "entities/area_data.h"
+#include "entities/area.h"
 
-#define AEDIT(fun) bool fun( CharData *ch, char *argument )
+#define AEDIT(fun) bool fun( Mobile *ch, char *argument )
 
-AreaData xArea;
+Area xArea;
 
 #ifdef U
 #define OLD_U U
@@ -53,18 +53,18 @@ const OlcCmdEntry area_olc_comm_table[] = {
     { NULL, 		    0,                      NULL,               0		            }
 };
 
-void do_aedit(CharData* ch, char* argument)
+void do_aedit(Mobile* ch, char* argument)
 {
-    AreaData* pArea;
+    Area* area;
     VNUM vnum;
     char arg[MAX_STRING_LENGTH];
 
-    pArea = ch->in_room->area;
+    area = ch->in_room->area;
 
     READ_ARG(arg);
     if (is_number(arg)) {
         vnum = STRTOVNUM(arg);
-        if (!(pArea = get_area_data(vnum))) {
+        if (!(area = get_area_data(vnum))) {
             send_to_char("That area vnum does not exist.\n\r", ch);
             return;
         }
@@ -73,15 +73,15 @@ void do_aedit(CharData* ch, char* argument)
         if (!aedit_create(ch, argument))
             return;
         else
-            pArea = area_last;
+            area = area_last;
     }
 
-    if (!IS_BUILDER(ch, pArea) || ch->pcdata->security < MIN_AEDIT_SECURITY) {
+    if (!IS_BUILDER(ch, area) || ch->pcdata->security < MIN_AEDIT_SECURITY) {
         send_to_char("You do not have enough security to edit areas.\n\r", ch);
         return;
     }
 
-    set_editor(ch->desc, ED_AREA, U(pArea));
+    set_editor(ch->desc, ED_AREA, U(area));
 
     aedit_show(ch, "");
 
@@ -89,13 +89,13 @@ void do_aedit(CharData* ch, char* argument)
 }
 
 /* Area Interpreter, called by do_aedit. */
-void aedit(CharData* ch, char* argument)
+void aedit(Mobile* ch, char* argument)
 {
-    AreaData* pArea;
+    Area* area;
 
-    EDIT_AREA(ch, pArea);
+    EDIT_AREA(ch, area);
 
-    if (!IS_BUILDER(ch, pArea)) {
+    if (!IS_BUILDER(ch, area)) {
         send_to_char("AEdit:  Insufficient security to modify area.\n\r", ch);
         edit_done(ch);
         return;
@@ -118,50 +118,48 @@ void aedit(CharData* ch, char* argument)
     return;
 }
 
-AreaData* get_vnum_area(VNUM vnum)
+Area* get_vnum_area(VNUM vnum)
 {
-    AreaData* pArea;
+    Area* area;
 
-    FOR_EACH(pArea, area_first) {
-        if (vnum >= pArea->min_vnum
-            && vnum <= pArea->max_vnum)
-            return pArea;
+    FOR_EACH(area, area_first) {
+        if (vnum >= area->min_vnum
+            && vnum <= area->max_vnum)
+            return area;
     }
 
     return 0;
 }
 
-/*
- * Area Editor Functions.
- */
+// Area Editor Functions.
 AEDIT(aedit_show)
 {
-    AreaData* pArea;
+    Area* area;
 
-    EDIT_AREA(ch, pArea);
+    EDIT_AREA(ch, area);
 
-    printf_to_char(ch, "Name:           {|[{*%"PRVNUM"{|] {_%s{x\n\r", pArea->vnum, pArea->name);
-    printf_to_char(ch, "File:           {*%s{x\n\r", pArea->file_name);
-    printf_to_char(ch, "Vnums:          {|[{*%d-%d{|]{x\n\r", pArea->min_vnum, pArea->max_vnum);
-    printf_to_char(ch, "Levels:         {|[{*%d-%d{|]{x\n\r", pArea->low_range, pArea->high_range);
-    printf_to_char(ch, "Sector:         {|[{*%s{|]{x\n\r", flag_string(sector_flag_table, pArea->sector));
+    printf_to_char(ch, "Name:           {|[{*%"PRVNUM"{|] {_%s{x\n\r", area->vnum, area->name);
+    printf_to_char(ch, "File:           {*%s{x\n\r", area->file_name);
+    printf_to_char(ch, "Vnums:          {|[{*%d-%d{|]{x\n\r", area->min_vnum, area->max_vnum);
+    printf_to_char(ch, "Levels:         {|[{*%d-%d{|]{x\n\r", area->low_range, area->high_range);
+    printf_to_char(ch, "Sector:         {|[{*%s{|]{x\n\r", flag_string(sector_flag_table, area->sector));
     printf_to_char(ch, "Reset:          {|[{*%d{|] {_x %d minutes; current at %d{x\n\r", 
-        pArea->reset_thresh, (PULSE_AREA / 60), pArea->reset_timer);
-    printf_to_char(ch, "Always Reset:   {|[%s{|]{x\n\r", pArea->always_reset ? "{GYES" : "{RNO");
-    printf_to_char(ch, "Security:       {|[{*%d{|]{x\n\r", pArea->security);
-    printf_to_char(ch, "Builders:       {|[{*%s{|]{x\n\r", pArea->builders);
-    printf_to_char(ch, "Credits :       {|[{*%s{|]{x\n\r", pArea->credits);
-    printf_to_char(ch, "Flags:          {|[{*%s{|]{x\n\r", flag_string(area_flag_table, pArea->area_flags));
+        area->reset_thresh, (PULSE_AREA / 60), area->reset_timer);
+    printf_to_char(ch, "Always Reset:   {|[%s{|]{x\n\r", area->always_reset ? "{GYES" : "{RNO");
+    printf_to_char(ch, "Security:       {|[{*%d{|]{x\n\r", area->security);
+    printf_to_char(ch, "Builders:       {|[{*%s{|]{x\n\r", area->builders);
+    printf_to_char(ch, "Credits :       {|[{*%s{|]{x\n\r", area->credits);
+    printf_to_char(ch, "Flags:          {|[{*%s{|]{x\n\r", flag_string(area_flag_table, area->area_flags));
     return false;
 }
 
 AEDIT(aedit_reset)
 {
-    AreaData* pArea;
+    Area* area;
 
-    EDIT_AREA(ch, pArea);
+    EDIT_AREA(ch, area);
 
-    reset_area(pArea);
+    reset_area(area);
     send_to_char("Area reset.\n\r", ch);
 
     return false;
@@ -169,39 +167,39 @@ AEDIT(aedit_reset)
 
 AEDIT(aedit_create)
 {
-    AreaData* pArea;
+    Area* area;
 
     if (IS_NPC(ch) || ch->pcdata->security < MIN_AEDIT_SECURITY) {
         send_to_char("You do not have enough security to edit areas.\n\r", ch);
         return false;
     }
 
-    pArea = new_area();
-    free_string(pArea->builders);
-    pArea->builders = strdup(ch->name);
-    free_string(pArea->credits);
-    pArea->credits = strdup(ch->name);
-    pArea->low_range = 1;
-    pArea->high_range = MAX_LEVEL;
-    pArea->security = ch->pcdata->security;
-    area_last->next = pArea;
-    area_last = pArea;
+    area = new_area();
+    free_string(area->builders);
+    area->builders = strdup(ch->name);
+    free_string(area->credits);
+    area->credits = strdup(ch->name);
+    area->low_range = 1;
+    area->high_range = MAX_LEVEL;
+    area->security = ch->pcdata->security;
+    area_last->next = area;
+    area_last = area;
 
-    set_editor(ch->desc, ED_AREA, U(pArea));
+    set_editor(ch->desc, ED_AREA, U(area));
 
-    SET_BIT(pArea->area_flags, AREA_ADDED);
+    SET_BIT(area->area_flags, AREA_ADDED);
     send_to_char("Area Created.\n\r", ch);
     return true;
 }
 
 AEDIT(aedit_file)
 {
-    AreaData* pArea;
+    Area* area;
     char file[MAX_STRING_LENGTH];
     int i;
     size_t length;
 
-    EDIT_AREA(ch, pArea);
+    EDIT_AREA(ch, area);
 
     one_argument(argument, file);    /* Forces Lowercase */
 
@@ -210,18 +208,14 @@ AEDIT(aedit_file)
         return false;
     }
 
-    /*
-     * Simple Syntax Check.
-     */
+    // Simple Syntax Check.
     length = strlen(argument);
     if (length > 8) {
         send_to_char("No more than eight characters allowed.\n\r", ch);
         return false;
     }
 
-    /*
-     * Allow only letters and numbers.
-     */
+    // Allow only letters and numbers.
     for (i = 0; i < (int)length; i++) {
         if (!ISALNUM(file[i])) {
             send_to_char("Only letters and numbers are valid.\n\r", ch);
@@ -229,9 +223,9 @@ AEDIT(aedit_file)
         }
     }
 
-    free_string(pArea->file_name);
+    free_string(area->file_name);
     strcat(file, ".are");
-    pArea->file_name = str_dup(file);
+    area->file_name = str_dup(file);
 
     send_to_char("Filename set.\n\r", ch);
     return true;
@@ -239,13 +233,13 @@ AEDIT(aedit_file)
 
 AEDIT(aedit_levels)
 {
-    AreaData* pArea;
+    Area* area;
     char lower_str[MAX_STRING_LENGTH];
     char upper_str[MAX_STRING_LENGTH];
     LEVEL  lower;
     LEVEL  upper;
 
-    EDIT_AREA(ch, pArea);
+    EDIT_AREA(ch, area);
 
     READ_ARG(lower_str);
     one_argument(argument, upper_str);
@@ -261,8 +255,8 @@ AEDIT(aedit_levels)
         return false;
     }
 
-    pArea->high_range = lower;
-    pArea->low_range = upper;
+    area->high_range = lower;
+    area->low_range = upper;
 
     printf_to_char(ch, "Level range set to %d-%d.\n\r", lower, upper);
 
@@ -271,12 +265,12 @@ AEDIT(aedit_levels)
 
 AEDIT(aedit_security)
 {
-    AreaData* pArea;
+    Area* area;
     char sec[MAX_STRING_LENGTH];
     char buf[MAX_STRING_LENGTH];
     int  value;
 
-    EDIT_AREA(ch, pArea);
+    EDIT_AREA(ch, area);
 
     one_argument(argument, sec);
 
@@ -297,7 +291,7 @@ AEDIT(aedit_security)
         return false;
     }
 
-    pArea->security = value;
+    area->security = value;
 
     send_to_char("Security set.\n\r", ch);
     return true;
@@ -305,11 +299,11 @@ AEDIT(aedit_security)
 
 AEDIT(aedit_builder)
 {
-    AreaData* pArea;
+    Area* area;
     char name[MAX_STRING_LENGTH] = "";
     char buf[MAX_STRING_LENGTH] = "";
 
-    EDIT_AREA(ch, pArea);
+    EDIT_AREA(ch, area);
 
     first_arg(argument, name, false);
 
@@ -321,34 +315,34 @@ AEDIT(aedit_builder)
 
     name[0] = UPPER(name[0]);
 
-    if (strstr(pArea->builders, name) != NULL) {
-        pArea->builders = string_replace(pArea->builders, name, "\0");
-        pArea->builders = string_unpad(pArea->builders);
+    if (strstr(area->builders, name) != NULL) {
+        area->builders = string_replace(area->builders, name, "\0");
+        area->builders = string_unpad(area->builders);
 
-        if (pArea->builders[0] == '\0') {
-            free_string(pArea->builders);
-            pArea->builders = str_dup("None");
+        if (area->builders[0] == '\0') {
+            free_string(area->builders);
+            area->builders = str_dup("None");
         }
         send_to_char("Builder removed.\n\r", ch);
         return true;
     }
 
     buf[0] = '\0';
-    if (strstr(pArea->builders, "None") != NULL) {
-        pArea->builders = string_replace(pArea->builders, "None", "\0");
-        pArea->builders = string_unpad(pArea->builders);
+    if (strstr(area->builders, "None") != NULL) {
+        area->builders = string_replace(area->builders, "None", "\0");
+        area->builders = string_unpad(area->builders);
     }
 
-    if (pArea->builders[0] != '\0') {
-        strcat(buf, pArea->builders);
+    if (area->builders[0] != '\0') {
+        strcat(buf, area->builders);
         strcat(buf, " ");
     }
     strcat(buf, name);
-    free_string(pArea->builders);
-    pArea->builders = string_proper(str_dup(buf));
+    free_string(area->builders);
+    area->builders = string_proper(str_dup(buf));
 
     send_to_char("Builder added.\n\r", ch);
-    send_to_char(pArea->builders, ch);
+    send_to_char(area->builders, ch);
     send_to_char("\n\r", ch);
     return true;
 }
@@ -360,13 +354,13 @@ AEDIT(aedit_builder)
  ****************************************************************************/
 bool check_range(VNUM lower, VNUM upper)
 {
-    AreaData* pArea;
+    Area* area;
     int cnt = 0;
 
-    FOR_EACH(pArea, area_first) {
+    FOR_EACH(area, area_first) {
         // lower < area < upper
-        if ((lower <= pArea->min_vnum && pArea->min_vnum <= upper)
-            || (lower <= pArea->max_vnum && pArea->max_vnum <= upper))
+        if ((lower <= area->min_vnum && area->min_vnum <= upper)
+            || (lower <= area->max_vnum && area->max_vnum <= upper))
             ++cnt;
 
         if (cnt > 1)
@@ -377,13 +371,13 @@ bool check_range(VNUM lower, VNUM upper)
 
 AEDIT(aedit_vnums)
 {
-    AreaData* pArea;
+    Area* area;
     char lower[MAX_STRING_LENGTH];
     char upper[MAX_STRING_LENGTH];
     int  ilower;
     int  iupper;
 
-    EDIT_AREA(ch, pArea);
+    EDIT_AREA(ch, area);
 
     READ_ARG(lower);
     one_argument(argument, upper);
@@ -405,21 +399,21 @@ AEDIT(aedit_vnums)
     }
 
     if (get_vnum_area(ilower)
-        && get_vnum_area(ilower) != pArea) {
+        && get_vnum_area(ilower) != area) {
         send_to_char("AEdit:  Lower VNUM already assigned.\n\r", ch);
         return false;
     }
 
-    pArea->min_vnum = ilower;
+    area->min_vnum = ilower;
     send_to_char("Lower VNUM set.\n\r", ch);
 
     if (get_vnum_area(iupper)
-        && get_vnum_area(iupper) != pArea) {
+        && get_vnum_area(iupper) != area) {
         send_to_char("AEdit:  Upper VNUM already assigned.\n\r", ch);
         return true;    /* The lower value has been set. */
     }
 
-    pArea->max_vnum = iupper;
+    area->max_vnum = iupper;
     send_to_char("VNUMs set.\n\r", ch);
 
     return true;
@@ -427,12 +421,12 @@ AEDIT(aedit_vnums)
 
 AEDIT(aedit_lvnum)
 {
-    AreaData* pArea;
+    Area* area;
     char lower[MAX_STRING_LENGTH];
     int  ilower;
     int  iupper;
 
-    EDIT_AREA(ch, pArea);
+    EDIT_AREA(ch, area);
 
     one_argument(argument, lower);
 
@@ -441,7 +435,7 @@ AEDIT(aedit_lvnum)
         return false;
     }
 
-    if ((ilower = atoi(lower)) > (iupper = pArea->max_vnum)) {
+    if ((ilower = atoi(lower)) > (iupper = area->max_vnum)) {
         send_to_char("AEdit:  Value must be less than the max_vnum.\n\r", ch);
         return false;
     }
@@ -452,24 +446,24 @@ AEDIT(aedit_lvnum)
     }
 
     if (get_vnum_area(ilower)
-        && get_vnum_area(ilower) != pArea) {
+        && get_vnum_area(ilower) != area) {
         send_to_char("AEdit:  Lower VNUM already assigned.\n\r", ch);
         return false;
     }
 
-    pArea->min_vnum = ilower;
+    area->min_vnum = ilower;
     send_to_char("Lower VNUM set.\n\r", ch);
     return true;
 }
 
 AEDIT(aedit_uvnum)
 {
-    AreaData* pArea;
+    Area* area;
     char upper[MAX_STRING_LENGTH];
     int  ilower;
     int  iupper;
 
-    EDIT_AREA(ch, pArea);
+    EDIT_AREA(ch, area);
 
     one_argument(argument, upper);
 
@@ -478,7 +472,7 @@ AEDIT(aedit_uvnum)
         return false;
     }
 
-    if ((ilower = pArea->min_vnum) > (iupper = atoi(upper))) {
+    if ((ilower = area->min_vnum) > (iupper = atoi(upper))) {
         send_to_char("AEdit:  Upper must be larger then lower.\n\r", ch);
         return false;
     }
@@ -489,12 +483,12 @@ AEDIT(aedit_uvnum)
     }
 
     if (get_vnum_area(iupper)
-        && get_vnum_area(iupper) != pArea) {
+        && get_vnum_area(iupper) != area) {
         send_to_char("AEdit:  Upper VNUM already assigned.\n\r", ch);
         return false;
     }
 
-    pArea->max_vnum = iupper;
+    area->max_vnum = iupper;
     send_to_char("Upper VNUM set.\n\r", ch);
 
     return true;
@@ -505,7 +499,7 @@ AEDIT(aedit_uvnum)
  Purpose:	Normal command to list areas and display area information.
  Called by:	interpreter(interp.c)
  ****************************************************************************/
-void do_alist(CharData* ch, char* argument)
+void do_alist(Mobile* ch, char* argument)
 {
     static const char* help = "Syntax: {*ALIST\n\r"
         "        ALIST ORDERBY (VNUM|NAME){x\n\r";
@@ -517,13 +511,13 @@ void do_alist(CharData* ch, char* argument)
     addf_buf(result, "{|[{T%3s{|] [{T%-27s{|] ({T%-5s{|-{T%5s{|) {|[{T%-10s{|] {T%3s {|[{T%-10s{|]{x\n\r",
         "Num", "Area Name", "lvnum", "uvnum", "Filename", "Sec", "Builders");
 
-    size_t alist_size = sizeof(AreaData*) * area_count;
-    AreaData** alist = (AreaData**)alloc_mem(alist_size);
+    size_t alist_size = sizeof(Area*) * area_count;
+    Area** alist = (Area**)alloc_mem(alist_size);
 
     {
         int i = 0;
-        for (AreaData* pArea = area_first; pArea; NEXT_LINK(pArea)) {
-            alist[i++] = pArea;
+        for (Area* area = area_first; area; NEXT_LINK(area)) {
+            alist[i++] = area;
         }
     }
 
@@ -536,12 +530,12 @@ void do_alist(CharData* ch, char* argument)
 
         READ_ARG(sort);
         if (!str_cmp(sort, "vnum")) {
-            SORT_ARRAY(AreaData*, alist, area_count,
+            SORT_ARRAY(Area*, alist, area_count,
                 alist[i]->min_vnum < alist[lo]->min_vnum,
                 alist[i]->min_vnum > alist[hi]->min_vnum);
         }
         else if (!str_cmp(sort, "name")) {
-            SORT_ARRAY(AreaData*, alist, area_count,
+            SORT_ARRAY(Area*, alist, area_count,
                 strcasecmp(alist[i]->name, alist[lo]->name) < 0,
                 strcasecmp(alist[i]->name, alist[hi]->name) > 0);
         }
@@ -552,15 +546,15 @@ void do_alist(CharData* ch, char* argument)
     }
 
     for (int i = 0; i < area_count; ++i) {
-        AreaData* pArea = alist[i];
+        Area* area = alist[i];
         addf_buf( result, "{|[{*%3d{|]{x %-29.29s {|({*%-5d{|-{*%5d{|) {_%-12.12s {|[{*%d{|] [{*%-10.10s{|]{x\n\r",
-            pArea->vnum,
-            pArea->name,
-            pArea->min_vnum,
-            pArea->max_vnum,
-            pArea->file_name,
-            pArea->security,
-            pArea->builders);
+            area->vnum,
+            area->name,
+            area->min_vnum,
+            area->max_vnum,
+            area->file_name,
+            area->security,
+            area->builders);
     }
 
     send_to_char(result->string, ch);
@@ -576,13 +570,13 @@ alist_cleanup:
  Purpose:	Returns pointer to area with given vnum.
  Called by:	do_aedit(olc.c).
  ****************************************************************************/
-AreaData* get_area_data(VNUM vnum)
+Area* get_area_data(VNUM vnum)
 {
-    AreaData* pArea;
+    Area* area;
 
-    FOR_EACH(pArea, area_first) {
-        if (pArea->vnum == vnum)
-            return pArea;
+    FOR_EACH(area, area_first) {
+        if (area->vnum == vnum)
+            return area;
     }
 
     return 0;

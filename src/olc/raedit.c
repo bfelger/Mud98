@@ -19,10 +19,10 @@
 #include "entities/descriptor.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/race.h"
 
-#define RAEDIT( fun )		bool fun( CharData *ch, char *argument )
+#define RAEDIT( fun )		bool fun( Mobile *ch, char *argument )
 
 Race xRace;
 
@@ -59,7 +59,7 @@ const OlcCmdEntry race_olc_comm_table[] = {
     { NULL,         0,                  NULL,               0               }
 };
 
-void raedit(CharData* ch, char* argument)
+void raedit(Mobile* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_RAEDIT_SECURITY) {
         send_to_char("RAEdit : You do not have enough security to edit races.\n\r", ch);
@@ -89,7 +89,7 @@ void raedit(CharData* ch, char* argument)
     return;
 }
 
-void do_raedit(CharData* ch, char* argument)
+void do_raedit(Mobile* ch, char* argument)
 {
     const Race* pRace;
     int race;
@@ -136,9 +136,9 @@ RAEDIT(raedit_show)
 
     EDIT_RACE(ch, pRace);
 
-    RoomData* room = NULL;
+    Room* room = NULL;
     if (pRace->start_loc > 0)
-        room = get_room_data(pRace->start_loc);
+        room = get_room(pRace->start_loc);
 
     printf_to_char(ch, "Name        : {|[{*%s{|]{x\n\r", pRace->name);
     printf_to_char(ch, "PC race?    : {|[%s{|]{x\n\r", pRace->pc_race ? "{GYES" : "{RNO");
@@ -161,7 +161,7 @@ RAEDIT(raedit_show)
         VNUM vnum = GET_ELEM(&pRace->class_start, i);
         
         if (vnum > 0)
-            room = get_room_data(vnum);
+            room = get_room(vnum);
         else
             room = NULL;
         sprintf(buf, "    %-7.7s     {*%3d     %4d{|({*%3d{|){x    {|[{*%5d{|] {_%s %s{x\n\r",
@@ -223,7 +223,7 @@ RAEDIT(raedit_list)
 RAEDIT(raedit_new)
 {
     Descriptor* d;
-    CharData* tch;
+    Mobile* tch;
     Race* new_table;
     size_t maxRace;
 
@@ -474,7 +474,7 @@ RAEDIT(raedit_start_loc)
 
     room_vnum = (VNUM)atoi(vnum_str);
 
-    if (room_vnum > 0 && !get_room_data(room_vnum)) {
+    if (room_vnum > 0 && !get_room(room_vnum)) {
         send_to_char("{jThat is not a valid room VNUM.\n\r", ch);
     }
 

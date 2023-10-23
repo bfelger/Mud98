@@ -34,7 +34,7 @@
 #include "entities/descriptor.h"
 
 #include "data/damage.h"
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 #include "data/skill.h"
 
 #include <stdio.h>
@@ -837,7 +837,7 @@ const struct flag_type stat_table[STAT_COUNT+1] = {
     { NULL,             0,                  true    }
 };
 
-void show_flags_to_char(CharData* ch, const struct flag_type* flags)
+void show_flags_to_char(Mobile* ch, const struct flag_type* flags)
 {
     char line[25];
     int col = 0;

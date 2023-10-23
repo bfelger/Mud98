@@ -35,7 +35,7 @@
 #include "entities/descriptor.h"
 #include "entities/player_data.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -45,7 +45,7 @@
 /* does aliasing and other fun stuff */
 void substitute_alias(Descriptor* d, char* argument)
 {
-    CharData* ch;
+    Mobile* ch;
     char buf[MAX_STRING_LENGTH], prefix[MAX_INPUT_LENGTH],
         name[MAX_INPUT_LENGTH];
     char* point;
@@ -98,15 +98,15 @@ void substitute_alias(Descriptor* d, char* argument)
         interpret(d->character, buf);
 }
 
-void do_alia(CharData* ch, char* argument)
+void do_alia(Mobile* ch, char* argument)
 {
     send_to_char("I'm sorry, alias must be entered in full.\n\r", ch);
     return;
 }
 
-void do_alias(CharData* ch, char* argument)
+void do_alias(Mobile* ch, char* argument)
 {
-    CharData* rch;
+    Mobile* rch;
     char arg[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
     int idx;
@@ -194,9 +194,9 @@ void do_alias(CharData* ch, char* argument)
     send_to_char(buf, ch);
 }
 
-void do_unalias(CharData* ch, char* argument)
+void do_unalias(Mobile* ch, char* argument)
 {
-    CharData* rch;
+    Mobile* rch;
     char arg[MAX_INPUT_LENGTH];
     int idx;
     bool found = false;

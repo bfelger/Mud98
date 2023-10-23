@@ -32,10 +32,10 @@
 #include "db.h"
 #include "handler.h"
 
-#include "entities/char_data.h"
+#include "entities/mobile.h"
 #include "entities/descriptor.h"
 
-#include "data/mobile.h"
+#include "data/mobile_data.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,17 +43,17 @@
 #include <sys/types.h>
 #include <time.h>
 
-void scan_list args((RoomData * scan_room, CharData* ch, int16_t depth,
+void scan_list args((Room * scan_room, Mobile* ch, int16_t depth,
                      int16_t door));
 
-void scan_char args((CharData * victim, CharData* ch, int16_t depth,
+void scan_char args((Mobile * victim, Mobile* ch, int16_t depth,
                      int16_t door));
 
-void do_scan(CharData* ch, char* argument)
+void do_scan(Mobile* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH], buf[MAX_INPUT_LENGTH];
-    RoomData* scan_room;
-    ExitData* pExit;
+    Room* scan_room;
+    RoomExit* room_exit;
     int16_t door, depth;
 
     READ_ARG(arg1);
@@ -64,8 +64,8 @@ void do_scan(CharData* ch, char* argument)
         scan_list(ch->in_room, ch, 0, -1);
 
         for (door = 0; door < 6; door++) {
-            if ((pExit = ch->in_room->exit[door]) != NULL)
-                scan_list(pExit->u1.to_room, ch, 1, door);
+            if ((room_exit = ch->in_room->exit[door]) != NULL)
+                scan_list(room_exit->to_room, ch, 1, door);
         }
         return;
     }
@@ -93,18 +93,18 @@ void do_scan(CharData* ch, char* argument)
     scan_room = ch->in_room;
 
     for (depth = 1; depth < 4; depth++) {
-        if ((pExit = scan_room->exit[door]) != NULL) {
-            scan_room = pExit->u1.to_room;
-            scan_list(pExit->u1.to_room, ch, depth, door);
+        if ((room_exit = scan_room->exit[door]) != NULL) {
+            scan_room = room_exit->to_room;
+            scan_list(room_exit->to_room, ch, depth, door);
         }
     }
     return;
 }
 
-void scan_list(RoomData* scan_room, CharData* ch, int16_t depth,
+void scan_list(Room* scan_room, Mobile* ch, int16_t depth,
                int16_t door)
 {
-    CharData* rch;
+    Mobile* rch;
 
     if (scan_room == NULL) return;
     FOR_EACH_IN_ROOM(rch, scan_room->people) {
@@ -115,7 +115,7 @@ void scan_list(RoomData* scan_room, CharData* ch, int16_t depth,
     return;
 }
 
-void scan_char(CharData* victim, CharData* ch, int16_t depth, int16_t door)
+void scan_char(Mobile* victim, Mobile* ch, int16_t depth, int16_t door)
 {
     char buf[MAX_INPUT_LENGTH] = "";
     char buf2[MAX_INPUT_LENGTH] = "";
