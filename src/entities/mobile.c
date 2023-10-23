@@ -21,7 +21,7 @@ int mob_count = 0;
 void free_mobile(Mobile* ch)
 {
     Object* obj;
-    Affect* paf;
+    Affect* affect;
 
     if (!IS_VALID(ch)) return;
 
@@ -32,8 +32,8 @@ void free_mobile(Mobile* ch)
         extract_obj(obj);
     }
 
-    FOR_EACH(paf, ch->affected) {
-        affect_remove(ch, paf);
+    FOR_EACH(affect, ch->affected) {
+        affect_remove(ch, affect);
     }
 
     free_string(ch->name);

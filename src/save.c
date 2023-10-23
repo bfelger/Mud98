@@ -141,7 +141,7 @@ void save_char_obj(Mobile* ch)
 // Write the char.
 void fwrite_char(Mobile* ch, FILE* fp)
 {
-    Affect* paf;
+    Affect* affect;
     int sn, gn, pos;
 
     fprintf(fp, "#%s\n", IS_NPC(ch) ? "MOB" : "PLAYER");
@@ -262,12 +262,12 @@ void fwrite_char(Mobile* ch, FILE* fp)
         }
     }
 
-    FOR_EACH(paf, ch->affected) {
-        if (paf->type < 0 || paf->type >= skill_count) continue;
+    FOR_EACH(affect, ch->affected) {
+        if (affect->type < 0 || affect->type >= skill_count) continue;
 
         fprintf(fp, "Affc '%s' %3d %3d %3d %3d %3d %10d\n",
-                skill_table[paf->type].name, paf->where, paf->level,
-                paf->duration, paf->modifier, paf->location, paf->bitvector);
+                skill_table[affect->type].name, affect->where, affect->level,
+                affect->duration, affect->modifier, affect->location, affect->bitvector);
     }
 
     fprintf(fp, "End\n\n");
@@ -314,7 +314,7 @@ void fwrite_themes(Mobile* ch, FILE* fp)
 /* write a pet */
 void fwrite_pet(Mobile* pet, FILE* fp)
 {
-    Affect* paf;
+    Affect* affect;
 
     fprintf(fp, "#PET\n");
 
@@ -362,12 +362,12 @@ void fwrite_pet(Mobile* pet, FILE* fp)
             pet->mod_stat[STAT_INT], pet->mod_stat[STAT_WIS],
             pet->mod_stat[STAT_DEX], pet->mod_stat[STAT_CON]);
 
-    FOR_EACH(paf, pet->affected) {
-        if (paf->type < 0 || paf->type >= skill_count) continue;
+    FOR_EACH(affect, pet->affected) {
+        if (affect->type < 0 || affect->type >= skill_count) continue;
 
         fprintf(fp, "Affc '%s' %3d %3d %3d %3d %3d %10d\n",
-                skill_table[paf->type].name, paf->where, paf->level,
-                paf->duration, paf->modifier, paf->location, paf->bitvector);
+                skill_table[affect->type].name, affect->where, affect->level,
+                affect->duration, affect->modifier, affect->location, affect->bitvector);
     }
 
     fprintf(fp, "End\n");
@@ -378,7 +378,7 @@ void fwrite_pet(Mobile* pet, FILE* fp)
 void fwrite_obj(Mobile* ch, Object* obj, FILE* fp, int iNest)
 {
     ExtraDesc* ed;
-    Affect* paf;
+    Affect* affect;
 
     /*
      * Slick recursion to write lists backwards,
@@ -462,12 +462,12 @@ void fwrite_obj(Mobile* ch, Object* obj, FILE* fp, int iNest)
         break;
     }
 
-    FOR_EACH(paf, obj->affected) {
-        if (paf->type < 0 || paf->type >= skill_count) 
+    FOR_EACH(affect, obj->affected) {
+        if (affect->type < 0 || affect->type >= skill_count) 
             continue;
         fprintf(fp, "Affc '%s' %3d %3d %3d %3d %3d %10d\n",
-                skill_table[paf->type].name, paf->where, paf->level,
-                paf->duration, paf->modifier, paf->location, paf->bitvector);
+                skill_table[affect->type].name, affect->where, affect->level,
+                affect->duration, affect->modifier, affect->location, affect->bitvector);
     }
 
     FOR_EACH(ed, obj->extra_desc) {
@@ -768,48 +768,48 @@ void fread_char(Mobile* ch, FILE* fp)
             }
 
             if (!str_cmp(word, "AffD")) {
-                Affect* paf;
+                Affect* affect;
                 SKNUM sn;
 
-                paf = new_affect();
+                affect = new_affect();
 
                 sn = skill_lookup(fread_word(fp));
                 if (sn < 0)
                     bug("Fread_char: unknown skill.", 0);
                 else
-                    paf->type = sn;
+                    affect->type = sn;
 
-                paf->level = (LEVEL)fread_number(fp);
-                paf->duration = (int16_t)fread_number(fp);
-                paf->modifier = (int16_t)fread_number(fp);
-                paf->location = (int16_t)fread_number(fp);
-                paf->bitvector = fread_number(fp);
-                paf->next = ch->affected;
-                ch->affected = paf;
+                affect->level = (LEVEL)fread_number(fp);
+                affect->duration = (int16_t)fread_number(fp);
+                affect->modifier = (int16_t)fread_number(fp);
+                affect->location = (int16_t)fread_number(fp);
+                affect->bitvector = fread_number(fp);
+                affect->next = ch->affected;
+                ch->affected = affect;
                 fMatch = true;
                 break;
             }
 
             if (!str_cmp(word, "Affc")) {
-                Affect* paf;
+                Affect* affect;
                 SKNUM sn;
 
-                paf = new_affect();
+                affect = new_affect();
 
                 sn = skill_lookup(fread_word(fp));
                 if (sn < 0)
                     bug("Fread_char: unknown skill.", 0);
                 else
-                    paf->type = sn;
+                    affect->type = sn;
 
-                paf->where = (int16_t)fread_number(fp);
-                paf->level = (LEVEL)fread_number(fp);
-                paf->duration = (int16_t)fread_number(fp);
-                paf->modifier = (int16_t)fread_number(fp);
-                paf->location = (int16_t)fread_number(fp);
-                paf->bitvector = fread_number(fp);
-                paf->next = ch->affected;
-                ch->affected = paf;
+                affect->where = (int16_t)fread_number(fp);
+                affect->level = (LEVEL)fread_number(fp);
+                affect->duration = (int16_t)fread_number(fp);
+                affect->modifier = (int16_t)fread_number(fp);
+                affect->location = (int16_t)fread_number(fp);
+                affect->bitvector = fread_number(fp);
+                affect->next = ch->affected;
+                ch->affected = affect;
                 fMatch = true;
                 break;
             }
@@ -1155,48 +1155,48 @@ void fread_pet(Mobile* ch, FILE* fp)
             }
 
             if (!str_cmp(word, "AffD")) {
-                Affect* paf;
+                Affect* affect;
                 SKNUM sn;
 
-                paf = new_affect();
+                affect = new_affect();
 
                 sn = skill_lookup(fread_word(fp));
                 if (sn < 0)
                     bug("Fread_char: unknown skill.", 0);
                 else
-                    paf->type = sn;
+                    affect->type = sn;
 
-                paf->level = (LEVEL)fread_number(fp);
-                paf->duration = (int16_t)fread_number(fp);
-                paf->modifier = (int16_t)fread_number(fp);
-                paf->location = (int16_t)fread_number(fp);
-                paf->bitvector = fread_number(fp);
-                paf->next = pet->affected;
-                pet->affected = paf;
+                affect->level = (LEVEL)fread_number(fp);
+                affect->duration = (int16_t)fread_number(fp);
+                affect->modifier = (int16_t)fread_number(fp);
+                affect->location = (int16_t)fread_number(fp);
+                affect->bitvector = fread_number(fp);
+                affect->next = pet->affected;
+                pet->affected = affect;
                 fMatch = true;
                 break;
             }
 
             if (!str_cmp(word, "Affc")) {
-                Affect* paf;
+                Affect* affect;
                 SKNUM sn;
 
-                paf = new_affect();
+                affect = new_affect();
 
                 sn = skill_lookup(fread_word(fp));
                 if (sn < 0)
                     bug("Fread_char: unknown skill.", 0);
                 else
-                    paf->type = sn;
+                    affect->type = sn;
 
-                paf->where = (int16_t)fread_number(fp);
-                paf->level = (LEVEL)fread_number(fp);
-                paf->duration = (int16_t)fread_number(fp);
-                paf->modifier = (int16_t)fread_number(fp);
-                paf->location = (int16_t)fread_number(fp);
-                paf->bitvector = fread_number(fp);
-                paf->next = pet->affected;
-                pet->affected = paf;
+                affect->where = (int16_t)fread_number(fp);
+                affect->level = (LEVEL)fread_number(fp);
+                affect->duration = (int16_t)fread_number(fp);
+                affect->modifier = (int16_t)fread_number(fp);
+                affect->location = (int16_t)fread_number(fp);
+                affect->bitvector = fread_number(fp);
+                affect->next = pet->affected;
+                pet->affected = affect;
                 fMatch = true;
                 break;
             }
@@ -1357,47 +1357,47 @@ void fread_obj(Mobile* ch, FILE* fp)
 
         case 'A':
             if (!str_cmp(word, "AffD")) {
-                Affect* paf;
+                Affect* affect;
                 SKNUM sn;
 
-                paf = new_affect();
+                affect = new_affect();
 
                 sn = skill_lookup(fread_word(fp));
                 if (sn < 0)
                     bug("Fread_obj: unknown skill.", 0);
                 else
-                    paf->type = sn;
+                    affect->type = sn;
 
-                paf->level = (LEVEL)fread_number(fp);
-                paf->duration = (int16_t)fread_number(fp);
-                paf->modifier = (int16_t)fread_number(fp);
-                paf->location = (int16_t)fread_number(fp);
-                paf->bitvector = fread_number(fp);
-                paf->next = obj->affected;
-                obj->affected = paf;
+                affect->level = (LEVEL)fread_number(fp);
+                affect->duration = (int16_t)fread_number(fp);
+                affect->modifier = (int16_t)fread_number(fp);
+                affect->location = (int16_t)fread_number(fp);
+                affect->bitvector = fread_number(fp);
+                affect->next = obj->affected;
+                obj->affected = affect;
                 fMatch = true;
                 break;
             }
             if (!str_cmp(word, "Affc")) {
-                Affect* paf;
+                Affect* affect;
                 SKNUM sn;
 
-                paf = new_affect();
+                affect = new_affect();
 
                 sn = skill_lookup(fread_word(fp));
                 if (sn < 0)
                     bug("Fread_obj: unknown skill.", 0);
                 else
-                    paf->type = sn;
+                    affect->type = sn;
 
-                paf->where = (int16_t)fread_number(fp);
-                paf->level = (LEVEL)fread_number(fp);
-                paf->duration = (int16_t)fread_number(fp);
-                paf->modifier = (int16_t)fread_number(fp);
-                paf->location = (int16_t)fread_number(fp);
-                paf->bitvector = fread_number(fp);
-                paf->next = obj->affected;
-                obj->affected = paf;
+                affect->where = (int16_t)fread_number(fp);
+                affect->level = (LEVEL)fread_number(fp);
+                affect->duration = (int16_t)fread_number(fp);
+                affect->modifier = (int16_t)fread_number(fp);
+                affect->location = (int16_t)fread_number(fp);
+                affect->bitvector = fread_number(fp);
+                affect->next = obj->affected;
+                obj->affected = affect;
                 fMatch = true;
                 break;
             }

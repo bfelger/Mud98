@@ -1130,7 +1130,7 @@ Object* get_eq_char(Mobile* ch, WearLocation iWear)
 // Equip a char with an obj.
 void equip_char(Mobile* ch, Object* obj, WearLocation iWear)
 {
-    Affect* paf;
+    Affect* affect;
     int i;
 
     if (get_eq_char(ch, iWear) != NULL) {
@@ -1153,14 +1153,14 @@ void equip_char(Mobile* ch, Object* obj, WearLocation iWear)
     obj->wear_loc = iWear;
 
     if (!obj->enchanted)
-        FOR_EACH(paf, obj->prototype->affected)
-            if (paf->location != APPLY_SPELL_AFFECT)
-                affect_modify(ch, paf, true);
-    FOR_EACH(paf, obj->affected)
-        if (paf->location == APPLY_SPELL_AFFECT)
-            affect_to_char(ch, paf);
+        FOR_EACH(affect, obj->prototype->affected)
+            if (affect->location != APPLY_SPELL_AFFECT)
+                affect_modify(ch, affect, true);
+    FOR_EACH(affect, obj->affected)
+        if (affect->location == APPLY_SPELL_AFFECT)
+            affect_to_char(ch, affect);
         else
-            affect_modify(ch, paf, true);
+            affect_modify(ch, affect, true);
 
     if (obj->item_type == ITEM_LIGHT && obj->value[2] != 0
         && ch->in_room != NULL)
@@ -1172,7 +1172,7 @@ void equip_char(Mobile* ch, Object* obj, WearLocation iWear)
 // Unequip a char with an obj.
 void unequip_char(Mobile* ch, Object* obj)
 {
-    Affect* paf = NULL;
+    Affect* affect = NULL;
     Affect* lpaf = NULL;
     Affect* lpaf_next = NULL;
     int i;
@@ -1186,11 +1186,11 @@ void unequip_char(Mobile* ch, Object* obj)
     obj->wear_loc = -1;
 
     if (!obj->enchanted) {
-        FOR_EACH(paf, obj->prototype->affected) {
-            if (paf->location == APPLY_SPELL_AFFECT) {
+        FOR_EACH(affect, obj->prototype->affected) {
+            if (affect->location == APPLY_SPELL_AFFECT) {
                 for (lpaf = ch->affected; lpaf != NULL; lpaf = lpaf_next) {
                     lpaf_next = lpaf->next;
-                    if ((lpaf->type == paf->type) && (lpaf->level == paf->level)
+                    if ((lpaf->type == affect->type) && (lpaf->level == affect->level)
                         && (lpaf->location == APPLY_SPELL_AFFECT)) {
                         affect_remove(ch, lpaf);
                         lpaf_next = NULL;
@@ -1198,18 +1198,18 @@ void unequip_char(Mobile* ch, Object* obj)
                 }
             }
             else {
-                affect_modify(ch, paf, false);
-                affect_check(ch, paf->where, paf->bitvector);
+                affect_modify(ch, affect, false);
+                affect_check(ch, affect->where, affect->bitvector);
             }
         }
     }
 
-    FOR_EACH(paf, obj->affected) {
-        if (paf->location == APPLY_SPELL_AFFECT) {
+    FOR_EACH(affect, obj->affected) {
+        if (affect->location == APPLY_SPELL_AFFECT) {
             bug("Norm-Apply: %d", 0);
             for (lpaf = ch->affected; lpaf != NULL; lpaf = lpaf_next) {
                 lpaf_next = lpaf->next;
-                if ((lpaf->type == paf->type) && (lpaf->level == paf->level)
+                if ((lpaf->type == affect->type) && (lpaf->level == affect->level)
                     && (lpaf->location == APPLY_SPELL_AFFECT)) {
                     bug("location = %d", lpaf->location);
                     bug("type = %d", lpaf->type);
@@ -1219,8 +1219,8 @@ void unequip_char(Mobile* ch, Object* obj)
             }
         }
         else {
-            affect_modify(ch, paf, false);
-            affect_check(ch, paf->where, paf->bitvector);
+            affect_modify(ch, affect, false);
+            affect_check(ch, affect->where, affect->bitvector);
         }
     }
 

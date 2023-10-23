@@ -410,10 +410,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
 
     EDIT_ROOM(ch, pRoom);
 
-    /*
-     * Set the exit flags, needs full argument.
-     * ----------------------------------------
-     */
+    // Set the exit flags, needs full argument.
     if ((value = flag_value(exit_flag_table, argument)) != NO_FLAG) {
         Room* pToRoom;
         RoomExit* room_exit, * pNExit;
@@ -1300,10 +1297,7 @@ void display_resets(Mobile* ch, Room* pRoom)
                 reset->arg2, reset->arg4, pRoomIndex->name);
             strcat(final, buf);
 
-            /*
-             * Check for pet shop.
-             * -------------------
-             */
+            // Check for pet shop.
             {
                 Room* pRoomIndexPrev;
 
@@ -1514,10 +1508,7 @@ void do_resets(Mobile* ch, char* argument)
         return;
     }
 
-    /*
-     * Display resets in current room.
-     * -------------------------------
-     */
+    // Display resets in current room.
     if (arg1[0] == '\0') {
         if (ch->in_room->reset_first) {
             send_to_char(
@@ -1530,17 +1521,11 @@ void do_resets(Mobile* ch, char* argument)
         return;
     }
 
-    /*
-     * Take index number and search for commands.
-     * ------------------------------------------
-     */
+    // Take index number and search for commands.
     if (is_number(arg1)) {
         Room* pRoom = ch->in_room;
 
-        /*
-         * Delete a reset.
-         * ---------------
-         */
+        // Delete a reset.
         if (!str_cmp(arg2, "delete")) {
             int     insert_loc = atoi(arg1);
 
@@ -1587,16 +1572,10 @@ void do_resets(Mobile* ch, char* argument)
             SET_BIT(ch->in_room->area->area_flags, AREA_CHANGED);
         }
         else
-            /*
-             * Add a reset.
-             * ------------
-             */
+            // Add a reset.
             if ((!str_cmp(arg2, "mob") && is_number(arg3))
                 || (!str_cmp(arg2, "obj") && is_number(arg3))) {
-                 /*
-                  * Check for Mobile reset.
-                  * -----------------------
-                  */
+                 // Check for Mobile reset.
                 if (!str_cmp(arg2, "mob")) {
                     if (get_mob_prototype(is_number(arg3) ? atoi(arg3) : 1) == NULL) {
                         send_to_char("That mob does not exist.\n\r", ch);
@@ -1610,15 +1589,9 @@ void do_resets(Mobile* ch, char* argument)
                     reset->arg4 = is_number(arg5) ? (int16_t)atoi(arg5) : 1;	/* Min # */
                 }
                 else
-                    /*
-                     * Check for Object reset.
-                     * -----------------------
-                     */
+                    // Check for Object reset.
                     if (!str_cmp(arg2, "obj")) {
-                        /*
-                         * Inside another object.
-                         * ----------------------
-                         */
+                        // Inside another object.
                         if (!str_prefix(arg4, "inside")) {
                             ObjPrototype* temp;
 
@@ -1635,47 +1608,39 @@ void do_resets(Mobile* ch, char* argument)
                             reset->arg3 = is_number(arg5) ? (VNUM)atoi(arg5) : 1;
                             reset->arg4 = is_number(arg7) ? (int16_t)atoi(arg7) : 1;
                         }
-                        else
-                            /*
-                             * Inside the room.
-                             * ----------------
-                             */
-                            if (!str_cmp(arg4, "room")) {
-                                if (get_object_prototype(atoi(arg3)) == NULL) {
-                                    send_to_char("That object does not exist.\n\r", ch);
-                                    return;
-                                }
-                                reset = new_reset();
-                                reset->arg1 = (VNUM)atoi(arg3);
-                                reset->command = 'O';
-                                reset->arg2 = 0;
-                                reset->arg3 = ch->in_room->vnum;
-                                reset->arg4 = 0;
+                        else if (!str_cmp(arg4, "room")) {
+                            // Inside the room.
+                            if (get_object_prototype(atoi(arg3)) == NULL) {
+                                send_to_char("That object does not exist.\n\r", ch);
+                                return;
                             }
-                            else
-                                /*
-                                 * Into a Mobile's inventory.
-                                 * --------------------------
-                                 */
-                            {
-                                FLAGS blah = flag_value(wear_loc_flag_table, arg4);
+                            reset = new_reset();
+                            reset->arg1 = (VNUM)atoi(arg3);
+                            reset->command = 'O';
+                            reset->arg2 = 0;
+                            reset->arg3 = ch->in_room->vnum;
+                            reset->arg4 = 0;
+                        }
+                        else {
+                            // Into a Mobile's inventory.
+                            FLAGS blah = flag_value(wear_loc_flag_table, arg4);
 
-                                if (blah == NO_FLAG) {
-                                    send_to_char("Resets: '? wear-loc'\n\r", ch);
-                                    return;
-                                }
-                                if (get_object_prototype(atoi(arg3)) == NULL) {
-                                    send_to_char("That vnum does not exist.\n\r", ch);
-                                    return;
-                                }
-                                reset = new_reset();
-                                reset->arg1 = atoi(arg3);
-                                reset->arg3 = blah;
-                                if (reset->arg3 == WEAR_UNHELD)
-                                    reset->command = 'G';
-                                else
-                                    reset->command = 'E';
+                            if (blah == NO_FLAG) {
+                                send_to_char("Resets: '? wear-loc'\n\r", ch);
+                                return;
                             }
+                            if (get_object_prototype(atoi(arg3)) == NULL) {
+                                send_to_char("That vnum does not exist.\n\r", ch);
+                                return;
+                            }
+                            reset = new_reset();
+                            reset->arg1 = atoi(arg3);
+                            reset->arg3 = blah;
+                            if (reset->arg3 == WEAR_UNHELD)
+                                reset->command = 'G';
+                            else
+                                reset->command = 'E';
+                        }
                     }
                 add_reset(ch->in_room, reset, atoi(arg1));
                 SET_BIT(ch->in_room->area->area_flags, AREA_CHANGED);

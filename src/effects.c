@@ -137,20 +137,20 @@ void acid_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 
         if (obj->item_type == ITEM_ARMOR) {
             /* etch it */
-            Affect* paf;
+            Affect* affect;
             Affect* paf_next = NULL;
             bool af_found = false;
             int i;
 
             affect_enchant(obj);
 
-            for (paf = obj->affected; paf != NULL; paf = paf_next) {
-                paf_next = paf->next;
-                if (paf->location == APPLY_AC) {
+            for (affect = obj->affected; affect != NULL; affect = paf_next) {
+                paf_next = affect->next;
+                if (affect->location == APPLY_AC) {
                     af_found = true;
-                    paf->type = -1;
-                    paf->modifier += 1;
-                    paf->level = UMAX(paf->level, level);
+                    affect->type = -1;
+                    affect->modifier += 1;
+                    affect->level = UMAX(affect->level, level);
                     break;
                 }
             }
@@ -158,16 +158,16 @@ void acid_effect(void* vo, LEVEL level, int dam, SpellTarget target)
             if (!af_found)
             /* needs a new affect */
             {
-                paf = new_affect();
+                affect = new_affect();
 
-                paf->type = -1;
-                paf->level = level;
-                paf->duration = -1;
-                paf->location = APPLY_AC;
-                paf->modifier = 1;
-                paf->bitvector = 0;
-                paf->next = obj->affected;
-                obj->affected = paf;
+                affect->type = -1;
+                affect->level = level;
+                affect->duration = -1;
+                affect->location = APPLY_AC;
+                affect->modifier = 1;
+                affect->bitvector = 0;
+                affect->next = obj->affected;
+                obj->affected = affect;
             }
 
             if (obj->carried_by != NULL && obj->wear_loc != WEAR_UNHELD)

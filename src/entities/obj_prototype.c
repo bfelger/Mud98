@@ -186,53 +186,53 @@ void load_objects(FILE* fp)
             letter = fread_letter(fp);
 
             if (letter == 'A') {
-                Affect* paf;
-
-                paf = alloc_perm(sizeof(Affect));
-                if (paf == NULL)
+                Affect* affect;
+                if ((affect = alloc_perm(sizeof(*affect))) == NULL) {
+                    bug("Ran out of memory allocating Affect.");
                     exit(1);
-                paf->where = TO_OBJECT;
-                paf->type = -1;
-                paf->level = obj_proto->level;
-                paf->duration = -1;
-                paf->location = (int16_t)fread_number(fp);
-                paf->modifier = (int16_t)fread_number(fp);
-                paf->bitvector = 0;
-                ADD_AFFECT(obj_proto, paf)
+                }
+                affect->where = TO_OBJECT;
+                affect->type = -1;
+                affect->level = obj_proto->level;
+                affect->duration = -1;
+                affect->location = (int16_t)fread_number(fp);
+                affect->modifier = (int16_t)fread_number(fp);
+                affect->bitvector = 0;
+                ADD_AFFECT(obj_proto, affect)
                     affect_count++;
             }
 
             else if (letter == 'F') {
-                Affect* paf;
-
-                paf = alloc_perm(sizeof(Affect));
-                if (paf == NULL)
+                Affect* affect;
+                if ((affect = alloc_perm(sizeof(*affect))) == NULL) {
+                    bug("Ran out of memory allocating Affect.");
                     exit(1);
+                }
                 letter = fread_letter(fp);
                 switch (letter) {
                 case 'A':
-                    paf->where = TO_AFFECTS;
+                    affect->where = TO_AFFECTS;
                     break;
                 case 'I':
-                    paf->where = TO_IMMUNE;
+                    affect->where = TO_IMMUNE;
                     break;
                 case 'R':
-                    paf->where = TO_RESIST;
+                    affect->where = TO_RESIST;
                     break;
                 case 'V':
-                    paf->where = TO_VULN;
+                    affect->where = TO_VULN;
                     break;
                 default:
                     bug("Load_objects: Bad where on flag set.", 0);
                     exit(1);
                 }
-                paf->type = -1;
-                paf->level = obj_proto->level;
-                paf->duration = -1;
-                paf->location = (int16_t)fread_number(fp);
-                paf->modifier = (int16_t)fread_number(fp);
-                paf->bitvector = fread_flag(fp);
-                ADD_AFFECT(obj_proto, paf)
+                affect->type = -1;
+                affect->level = obj_proto->level;
+                affect->duration = -1;
+                affect->location = (int16_t)fread_number(fp);
+                affect->modifier = (int16_t)fread_number(fp);
+                affect->bitvector = fread_flag(fp);
+                ADD_AFFECT(obj_proto, affect)
                     affect_count++;
             }
 
@@ -247,7 +247,6 @@ void load_objects(FILE* fp)
                 ADD_EXTRA_DESC(obj_proto, ed)
                     extra_desc_count++;
             }
-
             else {
                 ungetc(letter, fp);
                 break;
@@ -261,8 +260,6 @@ void load_objects(FILE* fp)
         top_vnum_obj = top_vnum_obj < vnum ? vnum : top_vnum_obj;
         assign_area_vnum(vnum);
     }
-
-    return;
 }
 
 ObjPrototype* new_object_prototype()

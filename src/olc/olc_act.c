@@ -265,10 +265,7 @@ bool show_help(Mobile* ch, char* argument)
         return false;
     }
 
-    /*
-     * Find the command, show changeable data.
-     * ---------------------------------------
-     */
+    // Find the command, show changeable data.
     for (cnt = 0; help_table[cnt].command != NULL; cnt++) {
         if (arg[0] == help_table[cnt].command[0]
             && !str_prefix(arg, help_table[cnt].command)) {

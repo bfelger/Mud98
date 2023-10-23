@@ -252,10 +252,7 @@ void string_add(Mobile* ch, char* argument)
 
     strcpy(buf, *ch->desc->pString);
 
-    /*
-     * Truncate strings to MAX_STRING_LENGTH.
-     * --------------------------------------
-     */
+    // Truncate strings to MAX_STRING_LENGTH.
     if (strlen(buf) + strlen(argument) >= (MAX_STRING_LENGTH - 4)) {
         write_to_buffer(ch->desc, "String too long, last line skipped.\n\r", 0);
 

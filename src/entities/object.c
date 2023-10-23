@@ -19,7 +19,7 @@ Object* obj_list;
 void clone_object(Object* parent, Object* clone)
 {
     int i;
-    Affect* paf;
+    Affect* affect;
     ExtraDesc* ed, * ed_new;
 
     if (parent == NULL || clone == NULL)
@@ -45,8 +45,8 @@ void clone_object(Object* parent, Object* clone)
     /* affects */
     clone->enchanted = parent->enchanted;
 
-    FOR_EACH(paf, parent->affected)
-        affect_to_obj(clone, paf);
+    FOR_EACH(affect, parent->affected)
+        affect_to_obj(clone, affect);
 
     /* extended desc */
     FOR_EACH(ed, parent->extra_desc) {
@@ -135,7 +135,7 @@ void clone_object(Object* parent, Object* clone)
 
 Object* create_object(ObjPrototype* obj_proto, LEVEL level)
 {
-    Affect* paf;
+    Affect* affect;
     Object* obj;
     int i;
 
@@ -186,9 +186,9 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level)
         break;
     }
 
-    FOR_EACH(paf, obj_proto->affected)
-        if (paf->location == APPLY_SPELL_AFFECT) 
-            affect_to_obj(obj, paf);
+    FOR_EACH(affect, obj_proto->affected)
+        if (affect->location == APPLY_SPELL_AFFECT) 
+            affect_to_obj(obj, affect);
 
     obj->next = obj_list;
     obj_list = obj;
@@ -200,7 +200,7 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level)
 
 void free_object(Object* obj)
 {
-    Affect* paf;
+    Affect* affect;
     Affect* paf_next = NULL;
     ExtraDesc* ed;
     ExtraDesc* ed_next = NULL;
@@ -208,9 +208,9 @@ void free_object(Object* obj)
     if (!IS_VALID(obj)) 
         return;
 
-    for (paf = obj->affected; paf != NULL; paf = paf_next) {
-        paf_next = paf->next;
-        free_affect(paf);
+    for (affect = obj->affected; affect != NULL; affect = paf_next) {
+        paf_next = affect->next;
+        free_affect(affect);
     }
     obj->affected = NULL;
 

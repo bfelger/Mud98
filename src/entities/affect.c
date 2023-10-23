@@ -56,13 +56,13 @@ char* affect_bit_name(int vector)
 // fix object affects when removing one
 void affect_check(Mobile* ch, Where where, int vector)
 {
-    Affect* paf;
+    Affect* affect;
     Object* obj;
 
     if (where == TO_OBJECT || where == TO_WEAPON || vector == 0) return;
 
-    FOR_EACH(paf, ch->affected)
-        if (paf->where == where && paf->bitvector == vector) {
+    FOR_EACH(affect, ch->affected)
+        if (affect->where == where && affect->bitvector == vector) {
             switch (where) {
             case TO_AFFECTS:
                 SET_BIT(ch->affect_flags, vector);
@@ -87,8 +87,8 @@ void affect_check(Mobile* ch, Where where, int vector)
     for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
         if (obj->wear_loc == -1) continue;
 
-        FOR_EACH(paf, obj->affected)
-            if (paf->where == where && paf->bitvector == vector) {
+        FOR_EACH(affect, obj->affected)
+            if (affect->where == where && affect->bitvector == vector) {
                 switch (where) {
                 case TO_AFFECTS:
                     SET_BIT(ch->affect_flags, vector);
@@ -112,8 +112,8 @@ void affect_check(Mobile* ch, Where where, int vector)
 
         if (obj->enchanted) continue;
 
-        FOR_EACH(paf, obj->prototype->affected)
-            if (paf->where == where && paf->bitvector == vector) {
+        FOR_EACH(affect, obj->prototype->affected)
+            if (affect->where == where && affect->bitvector == vector) {
                 switch (where) {
                 case TO_AFFECTS:
                     SET_BIT(ch->affect_flags, vector);
@@ -142,32 +142,32 @@ void affect_enchant(Object* obj)
 {
     /* okay, move all the old flags into new vectors if we have to */
     if (!obj->enchanted) {
-        Affect* paf, * af_new;
+        Affect* affect, * af_new;
         obj->enchanted = true;
 
-        FOR_EACH(paf, obj->prototype->affected) {
+        FOR_EACH(affect, obj->prototype->affected) {
             af_new = new_affect();
 
             af_new->next = obj->affected;
             obj->affected = af_new;
 
-            af_new->where = paf->where;
-            af_new->type = UMAX(0, paf->type);
-            af_new->level = paf->level;
-            af_new->duration = paf->duration;
-            af_new->location = paf->location;
-            af_new->modifier = paf->modifier;
-            af_new->bitvector = paf->bitvector;
+            af_new->where = affect->where;
+            af_new->type = UMAX(0, affect->type);
+            af_new->level = affect->level;
+            af_new->duration = affect->duration;
+            af_new->location = affect->location;
+            af_new->modifier = affect->modifier;
+            af_new->bitvector = affect->bitvector;
         }
     }
 }
 
 // find an effect in an affect list
-Affect* affect_find(Affect* paf, SKNUM sn)
+Affect* affect_find(Affect* affect, SKNUM sn)
 {
     Affect* paf_find;
 
-    FOR_EACH(paf_find, paf) {
+    FOR_EACH(paf_find, affect) {
         if (paf_find->type == sn) return paf_find;
     }
 
@@ -175,32 +175,32 @@ Affect* affect_find(Affect* paf, SKNUM sn)
 }
 
 // Add or enhance an affect.
-void affect_join(Mobile* ch, Affect* paf)
+void affect_join(Mobile* ch, Affect* affect)
 {
     Affect* paf_old;
 
     FOR_EACH(paf_old, ch->affected) {
-        if (paf_old->type == paf->type) {
-            //paf->level = (paf->level += paf_old->level) / 2;
+        if (paf_old->type == affect->type) {
+            //affect->level = (affect->level += paf_old->level) / 2;
             LEVEL level_mod;
             // Add half the difference to the highest
-            if (paf->level > paf_old->level) {
-                level_mod = paf->level - paf_old->level;
-                paf->level += level_mod / 2;
+            if (affect->level > paf_old->level) {
+                level_mod = affect->level - paf_old->level;
+                affect->level += level_mod / 2;
             }
             else {
-                level_mod = paf_old->level - paf->level;
+                level_mod = paf_old->level - affect->level;
                 paf_old->level += level_mod / 2;
             }
 
-            paf->duration += paf_old->duration;
-            paf->modifier += paf_old->modifier;
+            affect->duration += paf_old->duration;
+            affect->modifier += paf_old->modifier;
             affect_remove(ch, paf_old);
             break;
         }
     }
 
-    affect_to_char(ch, paf);
+    affect_to_char(ch, affect);
     return;
 }
 
@@ -268,27 +268,27 @@ char* affect_loc_name(AffectLocation location)
 }
 
 // Apply or remove an affect to a character.
-void affect_modify(Mobile* ch, Affect* paf, bool fAdd)
+void affect_modify(Mobile* ch, Affect* affect, bool fAdd)
 {
     Object* wield;
     int16_t mod;
     int i;
 
-    mod = paf->modifier;
+    mod = affect->modifier;
 
     if (fAdd) {
-        switch (paf->where) {
+        switch (affect->where) {
         case TO_AFFECTS:
-            SET_BIT(ch->affect_flags, paf->bitvector);
+            SET_BIT(ch->affect_flags, affect->bitvector);
             break;
         case TO_IMMUNE:
-            SET_BIT(ch->imm_flags, paf->bitvector);
+            SET_BIT(ch->imm_flags, affect->bitvector);
             break;
         case TO_RESIST:
-            SET_BIT(ch->res_flags, paf->bitvector);
+            SET_BIT(ch->res_flags, affect->bitvector);
             break;
         case TO_VULN:
-            SET_BIT(ch->vuln_flags, paf->bitvector);
+            SET_BIT(ch->vuln_flags, affect->bitvector);
             break;
         case TO_WEAPON:
         case TO_OBJECT:
@@ -297,18 +297,18 @@ void affect_modify(Mobile* ch, Affect* paf, bool fAdd)
         }
     }
     else {
-        switch (paf->where) {
+        switch (affect->where) {
         case TO_AFFECTS:
-            REMOVE_BIT(ch->affect_flags, paf->bitvector);
+            REMOVE_BIT(ch->affect_flags, affect->bitvector);
             break;
         case TO_IMMUNE:
-            REMOVE_BIT(ch->imm_flags, paf->bitvector);
+            REMOVE_BIT(ch->imm_flags, affect->bitvector);
             break;
         case TO_RESIST:
-            REMOVE_BIT(ch->res_flags, paf->bitvector);
+            REMOVE_BIT(ch->res_flags, affect->bitvector);
             break;
         case TO_VULN:
-            REMOVE_BIT(ch->vuln_flags, paf->bitvector);
+            REMOVE_BIT(ch->vuln_flags, affect->bitvector);
             break;
         case TO_WEAPON:
         case TO_OBJECT:
@@ -318,9 +318,9 @@ void affect_modify(Mobile* ch, Affect* paf, bool fAdd)
         mod = 0 - mod;
     }
 
-    switch (paf->location) {
+    switch (affect->location) {
     default:
-        bug("Affect_modify: unknown location %d.", paf->location);
+        bug("Affect_modify: unknown location %d.", affect->location);
         return;
     case APPLY_NONE:
         break;
@@ -415,7 +415,7 @@ void affect_modify(Mobile* ch, Affect* paf, bool fAdd)
 }
 
 // Remove an affect from a char.
-void affect_remove(Mobile* ch, Affect* paf)
+void affect_remove(Mobile* ch, Affect* affect)
 {
     Where where;
     int vector;
@@ -425,36 +425,36 @@ void affect_remove(Mobile* ch, Affect* paf)
         return;
     }
 
-    affect_modify(ch, paf, false);
-    where = paf->where;
-    vector = paf->bitvector;
+    affect_modify(ch, affect, false);
+    where = affect->where;
+    vector = affect->bitvector;
 
-    if (paf == ch->affected) { 
-        ch->affected = paf->next; 
+    if (affect == ch->affected) { 
+        ch->affected = affect->next; 
     }
     else {
         Affect* prev;
 
         FOR_EACH(prev, ch->affected) {
-            if (prev->next == paf) {
-                prev->next = paf->next;
+            if (prev->next == affect) {
+                prev->next = affect->next;
                 break;
             }
         }
 
         if (prev == NULL) {
-            bug("Affect_remove: cannot find paf.", 0);
+            bug("Affect_remove: cannot find affect.", 0);
             return;
         }
     }
 
-    free_affect(paf);
+    free_affect(affect);
 
     affect_check(ch, where, vector);
     return;
 }
 
-void affect_remove_obj(Object* obj, Affect* paf)
+void affect_remove_obj(Object* obj, Affect* affect)
 {
     Where where;
     int vector;
@@ -464,42 +464,42 @@ void affect_remove_obj(Object* obj, Affect* paf)
     }
 
     if (obj->carried_by != NULL && obj->wear_loc != -1)
-        affect_modify(obj->carried_by, paf, false);
+        affect_modify(obj->carried_by, affect, false);
 
-    where = paf->where;
-    vector = paf->bitvector;
+    where = affect->where;
+    vector = affect->bitvector;
 
     /* remove flags from the object if needed */
-    if (paf->bitvector) switch (paf->where) {
+    if (affect->bitvector) switch (affect->where) {
     case TO_OBJECT:
-        REMOVE_BIT(obj->extra_flags, paf->bitvector);
+        REMOVE_BIT(obj->extra_flags, affect->bitvector);
         break;
     case TO_WEAPON:
         if (obj->item_type == ITEM_WEAPON)
-            REMOVE_BIT(obj->value[4], paf->bitvector);
+            REMOVE_BIT(obj->value[4], affect->bitvector);
         break;
     default:
         break;
     }
 
-    if (paf == obj->affected) { obj->affected = paf->next; }
+    if (affect == obj->affected) { obj->affected = affect->next; }
     else {
         Affect* prev;
 
         FOR_EACH(prev, obj->affected) {
-            if (prev->next == paf) {
-                prev->next = paf->next;
+            if (prev->next == affect) {
+                prev->next = affect->next;
                 break;
             }
         }
 
         if (prev == NULL) {
-            bug("Affect_remove_object: cannot find paf.", 0);
+            bug("Affect_remove_object: cannot find affect.", 0);
             return;
         }
     }
 
-    free_affect(paf);
+    free_affect(affect);
 
     if (obj->carried_by != NULL && obj->wear_loc != -1)
         affect_check(obj->carried_by, where, vector);
@@ -509,28 +509,28 @@ void affect_remove_obj(Object* obj, Affect* paf)
 // Strip all affects of a given sn.
 void affect_strip(Mobile* ch, SKNUM sn)
 {
-    Affect* paf;
+    Affect* affect;
     Affect* paf_next = NULL;
 
-    for (paf = ch->affected; paf != NULL; paf = paf_next) {
-        paf_next = paf->next;
-        if (paf->type == sn) 
-            affect_remove(ch, paf);
+    for (affect = ch->affected; affect != NULL; affect = paf_next) {
+        paf_next = affect->next;
+        if (affect->type == sn) 
+            affect_remove(ch, affect);
     }
 
     return;
 }
 
 // Give an affect to a char.
-void affect_to_char(Mobile* ch, Affect* paf)
+void affect_to_char(Mobile* ch, Affect* affect)
 {
     Affect* paf_new;
 
     paf_new = new_affect();
 
-    *paf_new = *paf;
+    *paf_new = *affect;
 
-    VALIDATE(paf); /* in case we missed it when we set up paf */
+    VALIDATE(affect); /* in case we missed it when we set up affect */
     paf_new->next = ch->affected;
     ch->affected = paf_new;
 
@@ -539,23 +539,23 @@ void affect_to_char(Mobile* ch, Affect* paf)
 }
 
 // give an affect to an object 
-void affect_to_obj(Object* obj, Affect* paf)
+void affect_to_obj(Object* obj, Affect* affect)
 {
     Affect* paf_new;
 
     paf_new = new_affect();
 
-    *paf_new = *paf;
+    *paf_new = *affect;
 
-    VALIDATE(paf); /* in case we missed it when we set up paf */
+    VALIDATE(affect); /* in case we missed it when we set up affect */
     paf_new->next = obj->affected;
     obj->affected = paf_new;
 
     /* apply any affect vectors to the object's extra_flags */
-    if (paf->bitvector && paf->where == TO_OBJECT)
-        SET_BIT(obj->extra_flags, paf->bitvector);
-    else if (paf->where == TO_WEAPON && obj->item_type == ITEM_WEAPON)
-        SET_BIT(obj->value[4], paf->bitvector);
+    if (affect->bitvector && affect->where == TO_OBJECT)
+        SET_BIT(obj->extra_flags, affect->bitvector);
+    else if (affect->where == TO_WEAPON && obj->item_type == ITEM_WEAPON)
+        SET_BIT(obj->value[4], affect->bitvector);
 
     return;
 }
@@ -572,10 +572,10 @@ void free_affect(Affect* af)
 
 bool is_affected(Mobile* ch, SKNUM sn)
 {
-    Affect* paf;
+    Affect* affect;
 
-    FOR_EACH(paf, ch->affected) {
-        if (paf->type == sn) 
+    FOR_EACH(affect, ch->affected) {
+        if (affect->type == sn) 
             return true;
     }
 

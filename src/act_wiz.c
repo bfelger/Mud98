@@ -1083,7 +1083,7 @@ void do_ostat(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    Affect* paf;
+    Affect* affect;
     Object* obj;
 
     one_argument(argument, arg);
@@ -1285,44 +1285,44 @@ void do_ostat(Mobile* ch, char* argument)
         send_to_char("'\n\r", ch);
     }
 
-    FOR_EACH(paf, obj->affected) {
+    FOR_EACH(affect, obj->affected) {
         sprintf(buf, "Affects %s by %d, level %d",
-                affect_loc_name(paf->location), paf->modifier, paf->level);
+                affect_loc_name(affect->location), affect->modifier, affect->level);
         send_to_char(buf, ch);
-        if (paf->duration > -1)
-            sprintf(buf, ", %d hours.\n\r", paf->duration);
+        if (affect->duration > -1)
+            sprintf(buf, ", %d hours.\n\r", affect->duration);
         else
             sprintf(buf, ".\n\r");
         send_to_char(buf, ch);
-        if (paf->bitvector) {
-            switch (paf->where) {
+        if (affect->bitvector) {
+            switch (affect->where) {
             case TO_AFFECTS:
                 sprintf(buf, "Adds %s affect.\n",
-                        affect_bit_name(paf->bitvector));
+                        affect_bit_name(affect->bitvector));
                 break;
             case TO_WEAPON:
                 sprintf(buf, "Adds %s weapon flags.\n",
-                        weapon_bit_name(paf->bitvector));
+                        weapon_bit_name(affect->bitvector));
                 break;
             case TO_OBJECT:
                 sprintf(buf, "Adds %s object flag.\n",
-                        extra_bit_name(paf->bitvector));
+                        extra_bit_name(affect->bitvector));
                 break;
             case TO_IMMUNE:
                 sprintf(buf, "Adds immunity to %s.\n",
-                        imm_bit_name(paf->bitvector));
+                        imm_bit_name(affect->bitvector));
                 break;
             case TO_RESIST:
                 sprintf(buf, "Adds resistance to %s.\n\r",
-                        imm_bit_name(paf->bitvector));
+                        imm_bit_name(affect->bitvector));
                 break;
             case TO_VULN:
                 sprintf(buf, "Adds vulnerability to %s.\n\r",
-                        imm_bit_name(paf->bitvector));
+                        imm_bit_name(affect->bitvector));
                 break;
             default:
-                sprintf(buf, "Unknown bit %d: %d\n\r", paf->where,
-                        paf->bitvector);
+                sprintf(buf, "Unknown bit %d: %d\n\r", affect->where,
+                        affect->bitvector);
                 break;
             }
             send_to_char(buf, ch);
@@ -1330,39 +1330,39 @@ void do_ostat(Mobile* ch, char* argument)
     }
 
     if (!obj->enchanted)
-        FOR_EACH(paf, obj->prototype->affected) {
+        FOR_EACH(affect, obj->prototype->affected) {
             sprintf(buf, "Affects %s by %d, level %d.\n\r",
-                    affect_loc_name(paf->location), paf->modifier, paf->level);
+                    affect_loc_name(affect->location), affect->modifier, affect->level);
             send_to_char(buf, ch);
-            if (paf->bitvector) {
-                switch (paf->where) {
+            if (affect->bitvector) {
+                switch (affect->where) {
                 case TO_AFFECTS:
                     sprintf(buf, "Adds %s affect.\n",
-                            affect_bit_name(paf->bitvector));
+                            affect_bit_name(affect->bitvector));
                     break;
                 case TO_OBJECT:
                     sprintf(buf, "Adds %s object flag.\n",
-                            extra_bit_name(paf->bitvector));
+                            extra_bit_name(affect->bitvector));
                     break;
                 case TO_IMMUNE:
                     sprintf(buf, "Adds immunity to %s.\n",
-                            imm_bit_name(paf->bitvector));
+                            imm_bit_name(affect->bitvector));
                     break;
                 case TO_RESIST:
                     sprintf(buf, "Adds resistance to %s.\n\r",
-                            imm_bit_name(paf->bitvector));
+                            imm_bit_name(affect->bitvector));
                     break;
                 case TO_VULN:
                     sprintf(buf, "Adds vulnerability to %s.\n\r",
-                            imm_bit_name(paf->bitvector));
+                            imm_bit_name(affect->bitvector));
                     break;
                 case TO_WEAPON:
                     sprintf(buf, "Adds %s weapon flags.\n",
-                        weapon_bit_name(paf->bitvector));
+                        weapon_bit_name(affect->bitvector));
                     break;
                 default:
-                    sprintf(buf, "Unknown bit %d: %d\n\r", paf->where,
-                            paf->bitvector);
+                    sprintf(buf, "Unknown bit %d: %d\n\r", affect->where,
+                            affect->bitvector);
                     break;
                 }
                 send_to_char(buf, ch);
@@ -1376,7 +1376,7 @@ void do_mstat(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    Affect* paf;
+    Affect* affect;
     Mobile* victim;
 
     one_argument(argument, arg);
@@ -1541,13 +1541,13 @@ void do_mstat(Mobile* ch, char* argument)
         send_to_char(buf, ch);
     }
 
-    FOR_EACH(paf, victim->affected) {
+    FOR_EACH(affect, victim->affected) {
         sprintf(buf,
                 "Spell: '%s' modifies %s by %d for %d hours with bits %s, "
                 "level %d.\n\r",
-                skill_table[(int)paf->type].name,
-                affect_loc_name(paf->location), paf->modifier, paf->duration,
-                affect_bit_name(paf->bitvector), paf->level);
+                skill_table[(int)affect->type].name,
+                affect_loc_name(affect->location), affect->modifier, affect->duration,
+                affect_bit_name(affect->bitvector), affect->level);
         send_to_char(buf, ch);
     }
 

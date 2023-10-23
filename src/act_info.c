@@ -1482,36 +1482,37 @@ void do_score(Mobile* ch, char* argument)
 
 void do_affects(Mobile* ch, char* argument)
 {
-    Affect *paf, *paf_last = NULL;
+    Affect* affect = NULL;
+    Affect* affect_last = NULL;
     char buf[MAX_STRING_LENGTH];
 
     if (ch->affected != NULL) {
         send_to_char("You are affected by the following spells:\n\r", ch);
-        FOR_EACH(paf, ch->affected) {
-            if (paf_last != NULL && paf->type == paf_last->type) {
+        FOR_EACH(affect, ch->affected) {
+            if (affect_last != NULL && affect->type == affect_last->type) {
                 if (ch->level >= 20)
                     sprintf(buf, "                      ");
                 else
                     continue;
             } else {
-                sprintf(buf, "Spell: %-15s", skill_table[paf->type].name);
+                sprintf(buf, "Spell: %-15s", skill_table[affect->type].name);
             }
 
             send_to_char(buf, ch);
 
             if (ch->level >= 20) {
                 sprintf(buf, ": modifies %s by %d ",
-                        affect_loc_name(paf->location), paf->modifier);
+                        affect_loc_name(affect->location), affect->modifier);
                 send_to_char(buf, ch);
-                if (paf->duration == -1)
+                if (affect->duration == -1)
                     sprintf(buf, "permanently");
                 else
-                    sprintf(buf, "for %d hours", paf->duration);
+                    sprintf(buf, "for %d hours", affect->duration);
                 send_to_char(buf, ch);
             }
 
             send_to_char("\n\r", ch);
-            paf_last = paf;
+            affect_last = affect;
         }
     }
     else {
@@ -1604,7 +1605,8 @@ void do_help(Mobile* ch, char* argument)
 
     output = new_buf();
 
-    if (argument[0] == '\0') argument = "summary";
+    if (argument[0] == '\0') 
+        argument = "summary";
 
     /* this parts handles help a b so that it returns help 'a b' */
     argall[0] = '\0';

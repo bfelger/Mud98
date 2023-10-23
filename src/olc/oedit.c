@@ -637,7 +637,7 @@ OEDIT(oedit_show)
 {
     ObjPrototype* pObj;
     char buf[MAX_STRING_LENGTH];
-    Affect* paf;
+    Affect* affect;
     int cnt;
 
     READ_ARG(buf);
@@ -695,14 +695,14 @@ OEDIT(oedit_show)
     printf_to_char(ch, "Short desc:  {_%s{x\n\r", pObj->short_descr);
     printf_to_char(ch, "Long desc:\n\r     {_%s{x\n\r", pObj->description);
 
-    for (cnt = 0, paf = pObj->affected; paf; NEXT_LINK(paf)) {
+    for (cnt = 0, affect = pObj->affected; affect; NEXT_LINK(affect)) {
         if (cnt == 0) {
             send_to_char("{TNumber Modifier Affects      Adds\n\r", ch);
             send_to_char("{=------ -------- ------------ ----\n\r", ch);
         }
-        printf_to_char(ch, "{|[{*%4d{|]{* %-8d %-12s ", cnt, paf->modifier, flag_string(apply_flag_table, paf->location));
-        printf_to_char(ch, "%s ", flag_string(bitvector_type[paf->where].table, paf->bitvector));
-        printf_to_char(ch, "%s{x\n\r", flag_string(apply_types, paf->where));
+        printf_to_char(ch, "{|[{*%4d{|]{* %-8d %-12s ", cnt, affect->modifier, flag_string(apply_flag_table, affect->location));
+        printf_to_char(ch, "%s ", flag_string(bitvector_type[affect->where].table, affect->bitvector));
+        printf_to_char(ch, "%s{x\n\r", flag_string(apply_types, affect->where));
         cnt++;
     }
 

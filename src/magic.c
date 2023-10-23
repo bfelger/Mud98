@@ -656,12 +656,12 @@ void spell_bless(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target
         }
 
         if (IS_OBJ_STAT(obj, ITEM_EVIL)) {
-            Affect* paf;
+            Affect* affect;
 
-            paf = affect_find(obj->affected, gsn_curse);
-            if (!saves_dispel(level, paf != NULL ? paf->level : obj->level,
+            affect = affect_find(obj->affected, gsn_curse);
+            if (!saves_dispel(level, affect != NULL ? affect->level : obj->level,
                               0)) {
-                if (paf != NULL) affect_remove_obj(obj, paf);
+                if (affect != NULL) affect_remove_obj(obj, affect);
                 act("$p glows a pale blue.", ch, obj, NULL, TO_ALL);
                 REMOVE_BIT(obj->extra_flags, ITEM_EVIL);
                 return;
@@ -1439,12 +1439,12 @@ void spell_curse(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target
         }
 
         if (IS_OBJ_STAT(obj, ITEM_BLESS)) {
-            Affect* paf;
+            Affect* affect;
 
-            paf = affect_find(obj->affected, skill_lookup("bless"));
-            if (!saves_dispel(level, paf != NULL ? paf->level : obj->level,
+            affect = affect_find(obj->affected, skill_lookup("bless"));
+            if (!saves_dispel(level, affect != NULL ? affect->level : obj->level,
                               0)) {
-                if (paf != NULL) affect_remove_obj(obj, paf);
+                if (affect != NULL) affect_remove_obj(obj, affect);
                 act("$p glows with a red aura.", ch, obj, NULL, TO_ALL);
                 REMOVE_BIT(obj->extra_flags, ITEM_BLESS);
                 return;
@@ -1900,7 +1900,7 @@ void spell_earthquake(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget t
 void spell_enchant_armor(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
     Object* obj = (Object*)vo;
-    Affect* paf;
+    Affect* affect;
     int result, fail;
     int ac_bonus, added;
     bool ac_found = false;
@@ -1922,9 +1922,9 @@ void spell_enchant_armor(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarge
     /* find the bonuses */
 
     if (!obj->enchanted)
-        FOR_EACH(paf, obj->prototype->affected) {
-            if (paf->location == APPLY_AC) {
-                ac_bonus = paf->modifier;
+        FOR_EACH(affect, obj->prototype->affected) {
+            if (affect->location == APPLY_AC) {
+                ac_bonus = affect->modifier;
                 ac_found = true;
                 fail += 5 * (ac_bonus * ac_bonus);
             }
@@ -1933,9 +1933,9 @@ void spell_enchant_armor(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarge
                 fail += 20;
         }
 
-    FOR_EACH(paf, obj->affected) {
-        if (paf->location == APPLY_AC) {
-            ac_bonus = paf->modifier;
+    FOR_EACH(affect, obj->affected) {
+        if (affect->location == APPLY_AC) {
+            ac_bonus = affect->modifier;
             ac_found = true;
             fail += 5 * (ac_bonus * ac_bonus);
         }
@@ -1972,9 +1972,9 @@ void spell_enchant_armor(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarge
         obj->enchanted = true;
 
         /* remove all affects */
-        for (paf = obj->affected; paf != NULL; paf = paf_next) {
-            paf_next = paf->next;
-            free_affect(paf);
+        for (affect = obj->affected; affect != NULL; affect = paf_next) {
+            paf_next = affect->next;
+            free_affect(affect);
         }
         obj->affected = NULL;
 
@@ -1994,19 +1994,19 @@ void spell_enchant_armor(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarge
         Affect* af_new;
         obj->enchanted = true;
 
-        FOR_EACH(paf, obj->prototype->affected) {
+        FOR_EACH(affect, obj->prototype->affected) {
             af_new = new_affect();
 
             af_new->next = obj->affected;
             obj->affected = af_new;
 
-            af_new->where = paf->where;
-            af_new->type = UMAX(0, paf->type);
-            af_new->level = paf->level;
-            af_new->duration = paf->duration;
-            af_new->location = paf->location;
-            af_new->modifier = paf->modifier;
-            af_new->bitvector = paf->bitvector;
+            af_new->where = affect->where;
+            af_new->type = UMAX(0, affect->type);
+            af_new->level = affect->level;
+            af_new->duration = affect->duration;
+            af_new->location = affect->location;
+            af_new->modifier = affect->modifier;
+            af_new->bitvector = affect->bitvector;
         }
     }
 
@@ -2033,34 +2033,34 @@ void spell_enchant_armor(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarge
         obj->level = UMIN(LEVEL_HERO - 1, obj->level + 1);
 
     if (ac_found) {
-        FOR_EACH(paf, obj->affected) {
-            if (paf->location == APPLY_AC) {
-                paf->type = sn;
-                paf->modifier += (int16_t)added;
-                paf->level = UMAX(paf->level, (int16_t)level);
+        FOR_EACH(affect, obj->affected) {
+            if (affect->location == APPLY_AC) {
+                affect->type = sn;
+                affect->modifier += (int16_t)added;
+                affect->level = UMAX(affect->level, (int16_t)level);
             }
         }
     }
     else /* add a new affect */
     {
-        paf = new_affect();
+        affect = new_affect();
 
-        paf->where = TO_OBJECT;
-        paf->type = sn;
-        paf->level = (int16_t)level;
-        paf->duration = -1;
-        paf->location = APPLY_AC;
-        paf->modifier = (int16_t)added;
-        paf->bitvector = 0;
-        paf->next = obj->affected;
-        obj->affected = paf;
+        affect->where = TO_OBJECT;
+        affect->type = sn;
+        affect->level = (int16_t)level;
+        affect->duration = -1;
+        affect->location = APPLY_AC;
+        affect->modifier = (int16_t)added;
+        affect->bitvector = 0;
+        affect->next = obj->affected;
+        obj->affected = affect;
     }
 }
 
 void spell_enchant_weapon(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
     Object* obj = (Object*)vo;
-    Affect* paf;
+    Affect* affect;
     int result, fail;
     int hit_bonus, dam_bonus, added;
     bool hit_found = false, dam_found = false;
@@ -2083,15 +2083,15 @@ void spell_enchant_weapon(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarg
     /* find the bonuses */
 
     if (!obj->enchanted)
-        FOR_EACH(paf, obj->prototype->affected) {
-            if (paf->location == APPLY_HITROLL) {
-                hit_bonus = paf->modifier;
+        FOR_EACH(affect, obj->prototype->affected) {
+            if (affect->location == APPLY_HITROLL) {
+                hit_bonus = affect->modifier;
                 hit_found = true;
                 fail += 2 * (hit_bonus * hit_bonus);
             }
 
-            else if (paf->location == APPLY_DAMROLL) {
-                dam_bonus = paf->modifier;
+            else if (affect->location == APPLY_DAMROLL) {
+                dam_bonus = affect->modifier;
                 dam_found = true;
                 fail += 2 * (dam_bonus * dam_bonus);
             }
@@ -2100,15 +2100,15 @@ void spell_enchant_weapon(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarg
                 fail += 25;
         }
 
-    FOR_EACH(paf, obj->affected) {
-        if (paf->location == APPLY_HITROLL) {
-            hit_bonus = paf->modifier;
+    FOR_EACH(affect, obj->affected) {
+        if (affect->location == APPLY_HITROLL) {
+            hit_bonus = affect->modifier;
             hit_found = true;
             fail += 2 * (hit_bonus * hit_bonus);
         }
 
-        else if (paf->location == APPLY_DAMROLL) {
-            dam_bonus = paf->modifier;
+        else if (affect->location == APPLY_DAMROLL) {
+            dam_bonus = affect->modifier;
             dam_found = true;
             fail += 2 * (dam_bonus * dam_bonus);
         }
@@ -2145,9 +2145,9 @@ void spell_enchant_weapon(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarg
         obj->enchanted = true;
 
         /* remove all affects */
-        for (paf = obj->affected; paf != NULL; paf = paf_next) {
-            paf_next = paf->next;
-            free_affect(paf);
+        for (affect = obj->affected; affect != NULL; affect = paf_next) {
+            paf_next = affect->next;
+            free_affect(affect);
         }
         obj->affected = NULL;
 
@@ -2167,19 +2167,19 @@ void spell_enchant_weapon(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarg
         Affect* af_new;
         obj->enchanted = true;
 
-        FOR_EACH(paf, obj->prototype->affected) {
+        FOR_EACH(affect, obj->prototype->affected) {
             af_new = new_affect();
 
             af_new->next = obj->affected;
             obj->affected = af_new;
 
-            af_new->where = paf->where;
-            af_new->type = UMAX(0, paf->type);
-            af_new->level = paf->level;
-            af_new->duration = paf->duration;
-            af_new->location = paf->location;
-            af_new->modifier = paf->modifier;
-            af_new->bitvector = paf->bitvector;
+            af_new->where = affect->where;
+            af_new->type = UMAX(0, affect->type);
+            af_new->level = affect->level;
+            af_new->duration = affect->duration;
+            af_new->location = affect->location;
+            af_new->modifier = affect->modifier;
+            af_new->bitvector = affect->bitvector;
         }
     }
 
@@ -2206,52 +2206,52 @@ void spell_enchant_weapon(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarg
         obj->level = UMIN(LEVEL_HERO - 1, obj->level + 1);
 
     if (dam_found) {
-        FOR_EACH(paf, obj->affected) {
-            if (paf->location == APPLY_DAMROLL) {
-                paf->type = sn;
-                paf->modifier += (int16_t)added;
-                paf->level = UMAX(paf->level, (int16_t)level);
-                if (paf->modifier > 4) SET_BIT(obj->extra_flags, ITEM_HUM);
+        FOR_EACH(affect, obj->affected) {
+            if (affect->location == APPLY_DAMROLL) {
+                affect->type = sn;
+                affect->modifier += (int16_t)added;
+                affect->level = UMAX(affect->level, (int16_t)level);
+                if (affect->modifier > 4) SET_BIT(obj->extra_flags, ITEM_HUM);
             }
         }
     }
     else /* add a new affect */
     {
-        paf = new_affect();
+        affect = new_affect();
 
-        paf->where = TO_OBJECT;
-        paf->type = sn;
-        paf->level = (int16_t)level;
-        paf->duration = -1;
-        paf->location = APPLY_DAMROLL;
-        paf->modifier = (int16_t)added;
-        paf->bitvector = 0;
-        paf->next = obj->affected;
-        obj->affected = paf;
+        affect->where = TO_OBJECT;
+        affect->type = sn;
+        affect->level = (int16_t)level;
+        affect->duration = -1;
+        affect->location = APPLY_DAMROLL;
+        affect->modifier = (int16_t)added;
+        affect->bitvector = 0;
+        affect->next = obj->affected;
+        obj->affected = affect;
     }
 
     if (hit_found) {
-        FOR_EACH(paf, obj->affected) {
-            if (paf->location == APPLY_HITROLL) {
-                paf->type = sn;
-                paf->modifier += (int16_t)added;
-                paf->level = UMAX(paf->level, (int16_t)level);
-                if (paf->modifier > 4) SET_BIT(obj->extra_flags, ITEM_HUM);
+        FOR_EACH(affect, obj->affected) {
+            if (affect->location == APPLY_HITROLL) {
+                affect->type = sn;
+                affect->modifier += (int16_t)added;
+                affect->level = UMAX(affect->level, (int16_t)level);
+                if (affect->modifier > 4) SET_BIT(obj->extra_flags, ITEM_HUM);
             }
         }
     }
     else /* add a new affect */
     {
-        paf = new_affect();
+        affect = new_affect();
 
-        paf->type = sn;
-        paf->level = (int16_t)level;
-        paf->duration = -1;
-        paf->location = APPLY_HITROLL;
-        paf->modifier = (int16_t)added;
-        paf->bitvector = 0;
-        paf->next = obj->affected;
-        obj->affected = paf;
+        affect->type = sn;
+        affect->level = (int16_t)level;
+        affect->duration = -1;
+        affect->location = APPLY_HITROLL;
+        affect->modifier = (int16_t)added;
+        affect->bitvector = 0;
+        affect->next = obj->affected;
+        obj->affected = affect;
     }
 }
 
@@ -2800,7 +2800,7 @@ void spell_identify(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget tar
 {
     Object* obj = (Object*)vo;
     char buf[MAX_STRING_LENGTH];
-    Affect* paf;
+    Affect* affect;
 
     sprintf(buf,
             "Object '%s' is type %s, extra flags %s.\n\rWeight is %d, value is "
@@ -2933,40 +2933,40 @@ void spell_identify(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget tar
     }
 
     if (!obj->enchanted)
-        FOR_EACH(paf, obj->prototype->affected) {
-            if (paf->location != APPLY_NONE && paf->modifier != 0) {
+        FOR_EACH(affect, obj->prototype->affected) {
+            if (affect->location != APPLY_NONE && affect->modifier != 0) {
                 sprintf(buf, "Affects %s by %d.\n\r",
-                        affect_loc_name(paf->location), paf->modifier);
+                        affect_loc_name(affect->location), affect->modifier);
                 send_to_char(buf, ch);
-                if (paf->bitvector) {
-                    switch (paf->where) {
+                if (affect->bitvector) {
+                    switch (affect->where) {
                     case TO_AFFECTS:
                         sprintf(buf, "Adds %s affect.\n",
-                                affect_bit_name(paf->bitvector));
+                                affect_bit_name(affect->bitvector));
                         break;
                     case TO_OBJECT:
                         sprintf(buf, "Adds %s object flag.\n",
-                                extra_bit_name(paf->bitvector));
+                                extra_bit_name(affect->bitvector));
                         break;
                     case TO_IMMUNE:
                         sprintf(buf, "Adds immunity to %s.\n",
-                                imm_bit_name(paf->bitvector));
+                                imm_bit_name(affect->bitvector));
                         break;
                     case TO_RESIST:
                         sprintf(buf, "Adds resistance to %s.\n\r",
-                                imm_bit_name(paf->bitvector));
+                                imm_bit_name(affect->bitvector));
                         break;
                     case TO_VULN:
                         sprintf(buf, "Adds vulnerability to %s.\n\r",
-                                imm_bit_name(paf->bitvector));
+                                imm_bit_name(affect->bitvector));
                         break;
                     case TO_WEAPON:
                         sprintf(buf, "Adds %s weapon flags.\n",
-                            weapon_bit_name(paf->bitvector));
+                            weapon_bit_name(affect->bitvector));
                         break;
                     default:
-                        sprintf(buf, "Unknown bit %d: %d\n\r", paf->where,
-                                paf->bitvector);
+                        sprintf(buf, "Unknown bit %d: %d\n\r", affect->where,
+                                affect->bitvector);
                         break;
                     }
                     send_to_char(buf, ch);
@@ -2974,45 +2974,45 @@ void spell_identify(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget tar
             }
         }
 
-    FOR_EACH(paf, obj->affected) {
-        if (paf->location != APPLY_NONE && paf->modifier != 0) {
-            sprintf(buf, "Affects %s by %d", affect_loc_name(paf->location),
-                    paf->modifier);
+    FOR_EACH(affect, obj->affected) {
+        if (affect->location != APPLY_NONE && affect->modifier != 0) {
+            sprintf(buf, "Affects %s by %d", affect_loc_name(affect->location),
+                    affect->modifier);
             send_to_char(buf, ch);
-            if (paf->duration > -1)
-                sprintf(buf, ", %d hours.\n\r", paf->duration);
+            if (affect->duration > -1)
+                sprintf(buf, ", %d hours.\n\r", affect->duration);
             else
                 sprintf(buf, ".\n\r");
             send_to_char(buf, ch);
-            if (paf->bitvector) {
-                switch (paf->where) {
+            if (affect->bitvector) {
+                switch (affect->where) {
                 case TO_AFFECTS:
                     sprintf(buf, "Adds %s affect.\n",
-                            affect_bit_name(paf->bitvector));
+                            affect_bit_name(affect->bitvector));
                     break;
                 case TO_OBJECT:
                     sprintf(buf, "Adds %s object flag.\n",
-                            extra_bit_name(paf->bitvector));
+                            extra_bit_name(affect->bitvector));
                     break;
                 case TO_WEAPON:
                     sprintf(buf, "Adds %s weapon flags.\n",
-                            weapon_bit_name(paf->bitvector));
+                            weapon_bit_name(affect->bitvector));
                     break;
                 case TO_IMMUNE:
                     sprintf(buf, "Adds immunity to %s.\n",
-                            imm_bit_name(paf->bitvector));
+                            imm_bit_name(affect->bitvector));
                     break;
                 case TO_RESIST:
                     sprintf(buf, "Adds resistance to %s.\n\r",
-                            imm_bit_name(paf->bitvector));
+                            imm_bit_name(affect->bitvector));
                     break;
                 case TO_VULN:
                     sprintf(buf, "Adds vulnerability to %s.\n\r",
-                            imm_bit_name(paf->bitvector));
+                            imm_bit_name(affect->bitvector));
                     break;
                 default:
-                    sprintf(buf, "Unknown bit %d: %d\n\r", paf->where,
-                            paf->bitvector);
+                    sprintf(buf, "Unknown bit %d: %d\n\r", affect->where,
+                            affect->bitvector);
                     break;
                 }
                 send_to_char(buf, ch);

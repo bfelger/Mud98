@@ -511,7 +511,7 @@ void char_update(void)
         save_number = 0;
 
     for (ch = mob_list; ch != NULL; ch = ch_next) {
-        Affect* paf;
+        Affect* affect;
         Affect* paf_next = NULL;
 
         ch_next = ch->next;
@@ -582,25 +582,25 @@ void char_update(void)
             gain_condition(ch, COND_HUNGER, ch->size > SIZE_MEDIUM ? -2 : -1);
         }
 
-        for (paf = ch->affected; paf != NULL; paf = paf_next) {
-            paf_next = paf->next;
-            if (paf->duration > 0) {
-                paf->duration--;
-                if (number_range(0, 4) == 0 && paf->level > 0)
-                    paf->level--; /* spell strength fades with time */
+        for (affect = ch->affected; affect != NULL; affect = paf_next) {
+            paf_next = affect->next;
+            if (affect->duration > 0) {
+                affect->duration--;
+                if (number_range(0, 4) == 0 && affect->level > 0)
+                    affect->level--; /* spell strength fades with time */
             }
-            else if (paf->duration < 0)
+            else if (affect->duration < 0)
                 ;
             else {
-                if (paf_next == NULL || paf_next->type != paf->type
+                if (paf_next == NULL || paf_next->type != affect->type
                     || paf_next->duration > 0) {
-                    if (paf->type > 0 && skill_table[paf->type].msg_off) {
-                        send_to_char(skill_table[paf->type].msg_off, ch);
+                    if (affect->type > 0 && skill_table[affect->type].msg_off) {
+                        send_to_char(skill_table[affect->type].msg_off, ch);
                         send_to_char("\n\r", ch);
                     }
                 }
 
-                affect_remove(ch, paf);
+                affect_remove(ch, affect);
             }
         }
 
@@ -708,7 +708,7 @@ void obj_update(void)
 {
     Object* obj;
     Object* obj_next = NULL;
-    Affect* paf;
+    Affect* affect;
     Affect* paf_next = NULL;
 
     for (obj = obj_list; obj != NULL; obj = obj_next) {
@@ -718,34 +718,34 @@ void obj_update(void)
         obj_next = obj->next;
 
         /* go through affects and decrement */
-        for (paf = obj->affected; paf != NULL; paf = paf_next) {
-            paf_next = paf->next;
-            if (paf->duration > 0) {
-                paf->duration--;
-                if (number_range(0, 4) == 0 && paf->level > 0)
-                    paf->level--; /* spell strength fades with time */
+        for (affect = obj->affected; affect != NULL; affect = paf_next) {
+            paf_next = affect->next;
+            if (affect->duration > 0) {
+                affect->duration--;
+                if (number_range(0, 4) == 0 && affect->level > 0)
+                    affect->level--; /* spell strength fades with time */
             }
-            else if (paf->duration < 0)
+            else if (affect->duration < 0)
                 ;
             else {
-                if (paf_next == NULL || paf_next->type != paf->type
+                if (paf_next == NULL || paf_next->type != affect->type
                     || paf_next->duration > 0) {
-                    if (paf->type > 0 && skill_table[paf->type].msg_obj) {
+                    if (affect->type > 0 && skill_table[affect->type].msg_obj) {
                         if (obj->carried_by != NULL) {
                             rch = obj->carried_by;
-                            act(skill_table[paf->type].msg_obj, rch, obj, NULL,
+                            act(skill_table[affect->type].msg_obj, rch, obj, NULL,
                                 TO_CHAR);
                         }
                         if (obj->in_room != NULL
                             && obj->in_room->people != NULL) {
                             rch = obj->in_room->people;
-                            act(skill_table[paf->type].msg_obj, rch, obj, NULL,
+                            act(skill_table[affect->type].msg_obj, rch, obj, NULL,
                                 TO_ALL);
                         }
                     }
                 }
 
-                affect_remove_obj(obj, paf);
+                affect_remove_obj(obj, affect);
             }
         }
 
