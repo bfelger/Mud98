@@ -4,6 +4,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef struct area_t Area;
+typedef struct area_data_t AreaData;
 
 #pragma once
 #ifndef MUD98__ENTITIES__AREA_H
@@ -15,10 +16,13 @@ typedef struct area_t Area;
 #include <stdio.h>
 
 #include "help_data.h"
+#include "reset.h"
 #include "room.h"
 
 #include "data/direction.h"
 #include "data/quest.h"
+
+#define AREA_ROOM_VNUM_HASH_SIZE    32
 
 typedef enum area_flags_t {
     AREA_NONE       = BIT(0),
@@ -27,33 +31,56 @@ typedef enum area_flags_t {
     AREA_LOADING    = BIT(3),	// Used for counting in db.c
 } AreaFlags;
 
+typedef enum inst_type_t {
+    AREA_INST_NONE  = 0,
+    AREA_INST_MULTI = 1,        // Multiple instances, delete instead of reset
+    //AREA_INST_WEEK  = 2,      // For future; weekly instance locks
+} InstanceType;
+
 typedef struct area_t {
     Area* next;
+    AreaData* data;
+    Room* rooms[AREA_ROOM_VNUM_HASH_SIZE];
+    ResetCounter* mob_counts;
+    ResetCounter* obj_counts;
+    char* char_list;
+    int16_t reset_timer;
+    int nplayer;
+    bool empty;
+} Area;
+
+typedef struct area_data_t {
+    AreaData* next;
+    Area* instances;
     HelpArea* helps;
     Quest* quests;
     char* file_name;
     char* name;
     char* credits;
-    int nplayer;
     int security;       // OLC Value 1-9
     LEVEL low_range;
     LEVEL high_range;
     VNUM min_vnum;
     VNUM max_vnum;
-    bool empty;
     char* builders;  
     VNUM vnum;
     Sector sector;
     FLAGS area_flags;
     int16_t reset_thresh;
-    int16_t reset_timer;
     bool always_reset;
-} Area;
+    InstanceType inst_type;
+} AreaData;
 
-Area* new_area();
+AreaData* new_area_data();
+Area* create_area_instance(AreaData* area_data, bool create_exits);
+void create_instance_exits(Area* area);
 
 extern int area_count;
-extern Area* area_first;
-extern Area* area_last;
+extern int area_perm_count;
+extern int area_data_count;
+extern int area_data_perm_count;
+
+extern AreaData* area_data_list;
+extern AreaData* area_data_last;
 
 #endif // !MUD98__ENTITIES__AREA_H

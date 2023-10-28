@@ -17,6 +17,26 @@
 
 Affect* affect_free;
 int affect_count;
+int affect_perm_count;
+
+Affect* new_affect()
+{
+    LIST_ALLOC_PERM(affect, Affect);
+
+    VALIDATE(affect);
+
+    return affect;
+}
+
+void free_affect(Affect* affect)
+{
+    if (!IS_VALID(affect))
+        return;
+
+    INVALIDATE(affect);
+
+    LIST_FREE(affect);
+}
 
 // Return ascii name of an affect bit vector.
 char* affect_bit_name(int vector)
@@ -168,7 +188,8 @@ Affect* affect_find(Affect* affect, SKNUM sn)
     Affect* paf_find;
 
     FOR_EACH(paf_find, affect) {
-        if (paf_find->type == sn) return paf_find;
+        if (paf_find->type == sn) 
+            return paf_find;
     }
 
     return NULL;
@@ -482,7 +503,9 @@ void affect_remove_obj(Object* obj, Affect* affect)
         break;
     }
 
-    if (affect == obj->affected) { obj->affected = affect->next; }
+    if (affect == obj->affected) { 
+        obj->affected = affect->next; 
+    }
     else {
         Affect* prev;
 
@@ -517,8 +540,6 @@ void affect_strip(Mobile* ch, SKNUM sn)
         if (affect->type == sn) 
             affect_remove(ch, affect);
     }
-
-    return;
 }
 
 // Give an affect to a char.
@@ -530,7 +551,6 @@ void affect_to_char(Mobile* ch, Affect* affect)
 
     *paf_new = *affect;
 
-    VALIDATE(affect); /* in case we missed it when we set up affect */
     paf_new->next = ch->affected;
     ch->affected = paf_new;
 
@@ -547,7 +567,6 @@ void affect_to_obj(Object* obj, Affect* affect)
 
     *paf_new = *affect;
 
-    VALIDATE(affect); /* in case we missed it when we set up affect */
     paf_new->next = obj->affected;
     obj->affected = paf_new;
 
@@ -556,18 +575,6 @@ void affect_to_obj(Object* obj, Affect* affect)
         SET_BIT(obj->extra_flags, affect->bitvector);
     else if (affect->where == TO_WEAPON && obj->item_type == ITEM_WEAPON)
         SET_BIT(obj->value[4], affect->bitvector);
-
-    return;
-}
-
-void free_affect(Affect* af)
-{
-    if (!IS_VALID(af)) 
-        return;
-
-    INVALIDATE(af);
-    af->next = affect_free;
-    affect_free = af;
 }
 
 bool is_affected(Mobile* ch, SKNUM sn)
@@ -582,20 +589,3 @@ bool is_affected(Mobile* ch, SKNUM sn)
     return false;
 }
 
-Affect* new_affect()
-{
-    static Affect af_zero = { 0 };
-    Affect* af;
-
-    if (affect_free == NULL)
-        af = alloc_perm(sizeof(*af));
-    else {
-        af = affect_free;
-        NEXT_LINK(affect_free);
-    }
-
-    *af = af_zero;
-
-    VALIDATE(af);
-    return af;
-}

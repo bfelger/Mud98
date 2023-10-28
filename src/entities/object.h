@@ -16,6 +16,7 @@ typedef struct object_t Object;
 #include "extra_desc.h"
 #include "mobile.h"
 #include "obj_prototype.h"
+#include "reset.h"
 #include "room.h"
 
 #include "data/item.h"
@@ -33,6 +34,7 @@ typedef struct object_t {
     Affect* affected;
     ObjPrototype* prototype;
     Room* in_room;
+    ResetCounter** reset_counter;
     char* owner;
     char* name;
     char* short_descr;
@@ -65,7 +67,10 @@ void clone_object(Object* parent, Object* clone);
 Object* create_object(ObjPrototype* obj_proto, LEVEL level);
 void free_object(Object* obj);
 Object* new_object();
+
 extern int obj_count;
+extern int obj_perm_count;
+
 extern Object* obj_free;
 extern Object* obj_list;
 

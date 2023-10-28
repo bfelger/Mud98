@@ -17,7 +17,6 @@ typedef struct mob_memory_t MobMemory;
 #define MOB_MEM_HOSTILE  BIT(2)
 #define MOB_MEM_AFRAID   BIT(3)
 
-/* memory for mobs */
 typedef struct mob_memory_t {
     MobMemory* next;
     bool valid;
@@ -25,5 +24,11 @@ typedef struct mob_memory_t {
     int reaction;
     time_t when;
 } MobMemory;
+
+MobMemory* new_mob_memory();
+void free_mob_memory(MobMemory* mob_memory);
+
+extern int mob_memory_count;
+extern int mob_memory_perm_count;
 
 #endif // !MUD98__ENTITIES__MOB_MEMORY_H

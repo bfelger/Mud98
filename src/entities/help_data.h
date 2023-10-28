@@ -25,18 +25,24 @@ typedef struct help_area_t {
     HelpArea* next;
     HelpData* first;
     HelpData* last;
-    Area* area;
+    AreaData* area_data;
     char* filename;
     bool changed;
 } HelpArea;
 
-void free_help(HelpData* help);
-HelpArea* new_help_area();
 HelpData* new_help_data();
+void free_help_data(HelpData* help);
+
+HelpArea* new_help_area();
+void free_help_area(HelpArea* help_area);
 
 extern HelpArea* help_area_list;
 extern HelpData* help_first;
 extern HelpData* help_last;
+
 extern int help_count;
+extern int help_perm_count;
+extern int help_area_count;
+extern int help_area_perm_count;
 
 #endif // !MUD98__ENTITIES__HELP_DATA_H

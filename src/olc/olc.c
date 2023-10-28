@@ -161,7 +161,7 @@ char* olc_ed_name(Mobile* ch)
 
 char* olc_ed_vnum(Mobile* ch)
 {
-    Area* area;
+    AreaData* area;
     Room* pRoom;
     ObjPrototype* pObj;
     MobPrototype* pMob;
@@ -178,7 +178,7 @@ char* olc_ed_vnum(Mobile* ch)
     buf[0] = '\0';
     switch (ch->desc->editor) {
     case ED_AREA:
-        area = (Area*)ch->desc->pEdit;
+        area = (AreaData*)ch->desc->pEdit;
         sprintf(buf, "%"PRVNUM, area ? area->vnum : 0);
         break;
     case ED_ROOM:
@@ -387,15 +387,15 @@ void do_olc(Mobile* ch, char* argument)
 bool process_olc_command(Mobile* ch, char* argument, const OlcCmdEntry* table)
 {
     char arg[MIL];
-    Area* area;
+    AreaData* area;
     MobPrototype* pMob;
     ObjPrototype* pObj;
-    Room* pRoom;
+    RoomData* pRoom;
     Race* pRace;
     Skill* pSkill;
     CmdInfo* pCmd;
     Class* pClass;
-    Area* tArea;
+    AreaData* tArea;
     MobProgCode* pProg;
     Social* pSoc;
     Quest* pQuest;
@@ -448,7 +448,7 @@ bool process_olc_command(Mobile* ch, char* argument, const OlcCmdEntry* table)
 
             case ED_ROOM:
                 EDIT_ROOM(ch, pRoom);
-                tArea = pRoom->area;
+                tArea = pRoom->area_data;
                 if (table[temp].argument)
                     pointer = (table[temp].argument - U(&xRoom) + U(pRoom));
                 else
@@ -461,7 +461,7 @@ bool process_olc_command(Mobile* ch, char* argument, const OlcCmdEntry* table)
 
             case ED_QUEST:
                 EDIT_QUEST(ch, pQuest);
-                tArea = pQuest->area;
+                tArea = pQuest->area_data;
                 if (table[temp].argument)
                     pointer = (table[temp].argument - U(&xQuest) + U(pQuest));
                 else

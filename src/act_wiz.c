@@ -711,9 +711,12 @@ Room* find_location(Mobile* ch, char* arg)
 {
     Mobile* victim;
     Object* obj;
+    Area* area = NULL;
+    if (ch->in_room)
+        area = ch->in_room->area;
 
     if (is_number(arg)) 
-        return get_room(STRTOVNUM(arg));
+        return get_room(area, STRTOVNUM(arg));
 
     if ((victim = get_char_world(ch, arg)) != NULL) 
         return victim->in_room;
@@ -856,7 +859,8 @@ void do_goto(Mobile* ch, char* argument)
     }
 
     count = 0;
-    FOR_EACH_IN_ROOM(rch, location->people) count++;
+    FOR_EACH_IN_ROOM(rch, location->people)
+        count++;
 
     if (!is_room_owner(ch, location) && room_is_private(location)
         && (count > 1 || get_trust(ch) < MAX_LEVEL)) {
@@ -1000,30 +1004,32 @@ void do_rstat(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    Room* location;
+    Room* room;
+    RoomData* location;
     Object* obj;
     Mobile* rch;
     int door;
 
     one_argument(argument, arg);
-    location = (arg[0] == '\0') ? ch->in_room : find_location(ch, arg);
-    if (location == NULL) {
+    room = (arg[0] == '\0') ? ch->in_room : find_location(ch, arg);
+    if (room == NULL) {
         send_to_char("No such location.\n\r", ch);
         return;
     }
+    location = room->data;
 
-    if (!is_room_owner(ch, location) && ch->in_room != location
-        && room_is_private(location) && !IS_TRUSTED(ch, IMPLEMENTOR)) {
+    if (!is_room_owner(ch, room) && ch->in_room != room
+        && room_is_private(room) && !IS_TRUSTED(ch, IMPLEMENTOR)) {
         send_to_char("That room is private right now.\n\r", ch);
         return;
     }
 
     sprintf(buf, "Name: '%s'\n\rArea: '%s'\n\r", location->name,
-            location->area->name);
+            location->area_data->name);
     send_to_char(buf, ch);
 
     sprintf(buf, "Vnum: %d  Sector: %d  Light: %d  Healing: %d  Mana: %d\n\r",
-            location->vnum, location->sector_type, location->light,
+            location->vnum, location->sector_type, room->light,
             location->heal_rate, location->mana_rate);
     send_to_char(buf, ch);
 
@@ -1043,7 +1049,7 @@ void do_rstat(Mobile* ch, char* argument)
     }
 
     send_to_char("Characters:", ch);
-    for (rch = location->people; rch; rch = rch->next_in_room) {
+    FOR_EACH_IN_ROOM(rch, room->people) {
         if (can_see(ch, rch)) {
             send_to_char(" ", ch);
             one_argument(rch->name, buf);
@@ -1052,7 +1058,7 @@ void do_rstat(Mobile* ch, char* argument)
     }
 
     send_to_char(".\n\rObjects:   ", ch);
-    for (obj = location->contents; obj; obj = obj->next_content) {
+    FOR_EACH_CONTENT(obj, room->contents) {
         send_to_char(" ", ch);
         one_argument(obj->name, buf);
         send_to_char(buf, ch);
@@ -1060,16 +1066,16 @@ void do_rstat(Mobile* ch, char* argument)
     send_to_char(".\n\r", ch);
 
     for (door = 0; door <= 5; door++) {
-        RoomExit* room_exit;
+        RoomExitData* room_exit;
 
-        if ((room_exit = location->exit[door]) != NULL) {
+        if ((room_exit = location->exit_data[door]) != NULL) {
             sprintf(buf,
                     "Door: %d.  To: %d.  Key: %d.  Exit flags: %d.\n\rKeyword: "
                     "'%s'.  Description: %s",
 
                     door,
                     (room_exit->to_room == NULL ? -1 : room_exit->to_room->vnum),
-                    room_exit->key, room_exit->exit_flags, room_exit->keyword,
+                    room_exit->key, room_exit->exit_reset_flags, room_exit->keyword,
                     room_exit->description[0] != '\0' ? room_exit->description
                                                   : "(none).\n\r");
             send_to_char(buf, ch);
@@ -1712,9 +1718,9 @@ void do_owhere(Mobile* ch, char* argument)
             sprintf(buf, "%3d) %s is carried by %s [Room %d]\n\r", number,
                     obj->short_descr, PERS(in_obj->carried_by, ch),
                     in_obj->carried_by->in_room->vnum);
-        else if (in_obj->in_room != NULL && can_see_room(ch, in_obj->in_room))
+        else if (in_obj->in_room != NULL && can_see_room(ch, in_obj->in_room->data))
             sprintf(buf, "%3d) %s is in %s [Room %d]\n\r", number,
-                    obj->short_descr, in_obj->in_room->name,
+                    obj->short_descr, in_obj->in_room->data->name,
                     in_obj->in_room->vnum);
         else
             sprintf(buf, "%3d) %s is somewhere\n\r", number, obj->short_descr);
@@ -1750,17 +1756,17 @@ void do_mwhere(Mobile* ch, char* argument)
         FOR_EACH(d, descriptor_list) {
             if (d->character != NULL && d->connected == CON_PLAYING
                 && d->character->in_room != NULL && can_see(ch, d->character)
-                && can_see_room(ch, d->character->in_room)) {
+                && can_see_room(ch, d->character->in_room->data)) {
                 victim = d->character;
                 count++;
                 if (d->original != NULL)
                     sprintf(buf,
                             "%3d) %s (in the body of %s) is in %s [%d]\n\r",
                             count, d->original->name, victim->short_descr,
-                            victim->in_room->name, victim->in_room->vnum);
+                            victim->in_room->data->name, victim->in_room->vnum);
                 else
                     sprintf(buf, "%3d) %s is in %s [%d]\n\r", count,
-                            victim->name, victim->in_room->name,
+                            victim->name, victim->in_room->data->name,
                             victim->in_room->vnum);
                 add_buf(buffer, buf);
             }
@@ -1780,7 +1786,7 @@ void do_mwhere(Mobile* ch, char* argument)
             sprintf(buf, "%3d) [%5d] %-28s [%5d] %s\n\r", count,
                     IS_NPC(victim) ? victim->prototype->vnum : 0,
                     IS_NPC(victim) ? victim->short_descr : victim->name,
-                    victim->in_room->vnum, victim->in_room->name);
+                    victim->in_room->vnum, victim->in_room->data->name);
             add_buf(buffer, buf);
         }
     }
@@ -3552,12 +3558,12 @@ void do_rset(Mobile* ch, char* argument)
 
     // Set something.
     if (!str_prefix(arg2, "flags")) {
-        location->room_flags = value;
+        location->data->room_flags = value;
         return;
     }
 
     if (!str_prefix(arg2, "sector")) {
-        location->sector_type = (int16_t)value;
+        location->data->sector_type = (int16_t)value;
         return;
     }
 

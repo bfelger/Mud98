@@ -1011,7 +1011,7 @@ void bust_a_prompt(Mobile* ch)
             for (door = 0; door < DIR_MAX; door++) {
                 if ((room_exit = ch->in_room->exit[door]) != NULL
                     && room_exit->to_room != NULL
-                    && (can_see_room(ch, room_exit->to_room)
+                    && (can_see_room(ch, room_exit->to_room->data)
                         || (IS_AFFECTED(ch, AFF_INFRARED)
                             && !IS_AFFECTED(ch, AFF_BLIND)))
                     && !IS_SET(room_exit->exit_flags, EX_CLOSED)) {
@@ -1088,7 +1088,7 @@ void bust_a_prompt(Mobile* ch)
                     ((!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_HOLYLIGHT))
                         || (!IS_AFFECTED(ch, AFF_BLIND)
                             && !room_is_dark(ch->in_room)))
-                    ? ch->in_room->name
+                    ? ch->in_room->data->name
                     : "darkness");
             else
                 sprintf(BUF(temp2), " ");
@@ -1103,7 +1103,7 @@ void bust_a_prompt(Mobile* ch)
             break;
         case 'z':
             if (IS_IMMORTAL(ch) && ch->in_room != NULL)
-                sprintf(BUF(temp2), "%s", ch->in_room->area->name);
+                sprintf(BUF(temp2), "%s", ch->in_room->area->data->name);
             else
                 sprintf(BUF(temp2), " ");
             i = BUF(temp2);
@@ -1678,8 +1678,8 @@ void nanny(Descriptor * d, char* argument)
         write_to_buffer(d, buf, 0);
         ch->next = mob_list;
         mob_list = ch;
-        ch->pcdata->next = player_list;
-        player_list = ch->pcdata;
+        ch->pcdata->next = player_data_list;
+        player_data_list = ch->pcdata;
 
         d->connected = CON_PLAYING;
         reset_char(ch);
@@ -1727,7 +1727,7 @@ void nanny(Descriptor * d, char* argument)
             if (start_loc == 0)
                 start_loc = cfg_get_default_start_loc();
 
-            char_to_room(ch, get_room(start_loc));
+            char_to_room(ch, get_room(NULL, start_loc));
             send_to_char("\n\r", ch);
             do_function(ch, &do_help, "newbie info");
             send_to_char("\n\r", ch);
@@ -1736,10 +1736,10 @@ void nanny(Descriptor * d, char* argument)
             char_to_room(ch, ch->in_room);
         }
         else if (IS_IMMORTAL(ch)) {
-            char_to_room(ch, get_room(ROOM_VNUM_CHAT));
+            char_to_room(ch, get_room(NULL, ROOM_VNUM_CHAT));
         }
         else {
-            char_to_room(ch, get_room(ch->pcdata->recall));
+            char_to_room(ch, get_room(NULL, ch->pcdata->recall));
         }
 
         act("$n has entered the game.", ch, NULL, NULL, TO_ROOM);
@@ -1854,7 +1854,7 @@ bool check_parse_name(char* name)
         int hash;
 
         for (hash = 0; hash < MAX_KEY_HASH; hash++) {
-            for (p_mob_proto = mob_prototype_hash[hash]; p_mob_proto != NULL;
+            for (p_mob_proto = mob_proto_hash[hash]; p_mob_proto != NULL;
                 NEXT_LINK(p_mob_proto)) {
                 if (is_name(name, p_mob_proto->name)) 
                     return false;
@@ -1936,7 +1936,7 @@ void stop_idling(Mobile * ch)
 {
     if (ch == NULL || ch->desc == NULL || ch->desc->connected != CON_PLAYING
         || ch->was_in_room == NULL
-        || ch->in_room != get_room(ROOM_VNUM_LIMBO))
+        || ch->in_room != get_room(NULL, ROOM_VNUM_LIMBO))
         return;
 
     ch->timer = 0;

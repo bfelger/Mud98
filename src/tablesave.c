@@ -614,8 +614,6 @@ void save_progs(VNUM minvnum, VNUM maxvnum)
 
 void load_prog(FILE* fp, MobProgCode** prog)
 {
-    extern MobProgCode* mprog_list;
-    static MobProgCode mprog_zero = { 0 };
     char* word = fread_word(fp);
 
     if (str_cmp(word, "#PROG")) {
@@ -624,35 +622,35 @@ void load_prog(FILE* fp, MobProgCode** prog)
         return;
     }
 
-    *prog = alloc_perm(sizeof(MobProgCode));
-
-    // Clear it
-    **prog = mprog_zero;
+    *prog = new_mob_prog_code();
+    MobProgCode* new_prog = *prog;
 
     load_struct(fp, U(&tmp_pcode), progcodesavetable, U(*prog));
 
-    // Populate the linked list
-    if (mprog_list == NULL)
-        mprog_list = *prog;
-    else {
-        // At the beginning or the end?
-        if ((*prog)->vnum < mprog_list->vnum) {
-            (*prog)->next = mprog_list;
-            mprog_list = *prog;
-        }
-        else {
-            MobProgCode* temp;
-            MobProgCode* prev = mprog_list;
+    ORDERED_INSERT(MobProgCode, new_prog, mprog_list, vnum);
 
-            FOR_EACH(temp, mprog_list->next) {
-                if (temp->vnum > (*prog)->vnum)
-                    break;
-                prev = temp;
-            }
-            prev->next = *prog;
-            (*prog)->next = temp;
-        }
-    }
+    // Populate the linked list
+    //if (mprog_list == NULL)
+    //    mprog_list = *prog;
+    //else {
+    //    // At the beginning or the end?
+    //    if ((*prog)->vnum < mprog_list->vnum) {
+    //        (*prog)->next = mprog_list;
+    //        mprog_list = *prog;
+    //    }]
+    //    else {
+    //        MobProgCode* temp;
+    //        MobProgCode* prev = mprog_list;
+    //
+    //        FOR_EACH(temp, mprog_list->next) {
+    //            if (temp->vnum > (*prog)->vnum)
+    //                break;
+    //            prev = temp;
+    //        }
+    //        prev->next = *prog;
+    //        (*prog)->next = temp;
+    //    }
+    //}
 }
 
 MobProgCode* pedit_prog(VNUM vnum)

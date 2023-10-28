@@ -1201,7 +1201,7 @@ void do_mpflee(Mobile* ch, char* argument)
             || room_exit->to_room == NULL
             || IS_SET(room_exit->exit_flags, EX_CLOSED)
             || (IS_NPC(ch)
-                && IS_SET(room_exit->to_room->room_flags, ROOM_NO_MOB)))
+                && IS_SET(room_exit->to_room->data->room_flags, ROOM_NO_MOB)))
             continue;
 
         move_char(ch, door, false);

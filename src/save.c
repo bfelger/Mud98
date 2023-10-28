@@ -171,7 +171,7 @@ void fwrite_char(Mobile* ch, FILE* fp)
     fprintf(fp, "Scro %d\n", ch->lines);
     fprintf(fp, "Recall %d\n", ch->pcdata->recall);
     fprintf(fp, "Room %d\n",
-            (ch->in_room == get_room(ROOM_VNUM_LIMBO)
+            (ch->in_room == get_room(NULL, ROOM_VNUM_LIMBO)
              && ch->was_in_room != NULL)
                 ? ch->was_in_room->vnum
             : ch->in_room == NULL ? ch->pcdata->recall
@@ -884,7 +884,7 @@ void fread_char(Mobile* ch, FILE* fp)
                 }
 
                 if (ch->in_room == NULL) {
-                    ch->in_room = get_room(ch->pcdata->recall);
+                    ch->in_room = get_room(NULL, ch->pcdata->recall);
                 }
                 return;
             }
@@ -1005,7 +1005,10 @@ void fread_char(Mobile* ch, FILE* fp)
             KEY("Race", ch->race, race_lookup(fread_string(fp)));
 
             if (!str_cmp(word, "Room")) {
-                ch->in_room = get_room(fread_number(fp));
+                Room* room;
+                // Don't let them log back in to a deleted instance
+                ch->in_room = ((room = get_room(NULL, fread_number(fp))) != NULL)
+                    ? room : NULL; 
                 fMatch = true;
                 break;
             }

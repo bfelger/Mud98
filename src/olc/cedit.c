@@ -351,7 +351,7 @@ CEDIT(cedit_start_loc)
 
     vnum = (VNUM)atoi(vnum_str);
 
-    if (!get_room(vnum)) {
+    if (!get_room_data(vnum)) {
         printf("{jCEdit : There is no room with VNUM %d.{x\n\r", vnum);
         return false;
     }
@@ -387,7 +387,7 @@ CEDIT(cedit_guild)
         return false;
     }
 
-    if (!get_room(vnum)) {
+    if (!get_room_data(vnum)) {
         printf("CEdit : There is no room with VNUM %d.\n\r", vnum);
         return false;
     }

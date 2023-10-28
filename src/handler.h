@@ -68,7 +68,7 @@ bool is_room_owner(Mobile* ch, Room* room);
 bool room_is_private(Room* pRoomIndex);
 bool can_see(Mobile* ch, Mobile* victim);
 bool can_see_obj(Mobile* ch, Object* obj);
-bool can_see_room(Mobile* ch, Room* pRoomIndex);
+bool can_see_room(Mobile* ch, RoomData* pRoomIndex);
 bool can_drop_obj(Mobile* ch, Object* obj);
 char* extra_bit_name(int extra_flags);
 char* wear_bit_name(int wear_flags);
@@ -82,8 +82,8 @@ char* comm_bit_name(int comm_flags);
 char* cont_bit_name(int cont_flags);
 bool emptystring(const char*);
 char* itos(int);
-int get_vnum_mob_name_area(char*, Area*);
-int get_vnum_obj_name_area(char*, Area*);
+int get_vnum_mob_name_area(char*, AreaData*);
+int get_vnum_obj_name_area(char*, AreaData*);
 int get_points(int race, int args);
 
 #endif // !MUD98__HANDLER_H

@@ -238,7 +238,7 @@ void string_add(Mobile* ch, char* argument)
             mpc->changed = true;
 
             for (; hash < MAX_KEY_HASH; hash++) {
-                FOR_EACH(mob, mob_prototype_hash[hash])
+                FOR_EACH(mob, mob_proto_hash[hash])
                     FOR_EACH(mp, mob->mprogs)
                         if (mp->vnum == mpc->vnum) {
                             mp->code = mpc->code;

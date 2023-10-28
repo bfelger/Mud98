@@ -55,21 +55,24 @@ typedef struct descriptor_t {
     ptrdiff_t outtop;
     char* showstr_head;
     char* showstr_point;
-    char** pString;     // OLC
-    uintptr_t pEdit;    // OLC
+    char** pString;
+    uintptr_t pEdit;
     char* screenmap;
     char* oldscreenmap;
     int repeat;
-    int16_t editor;     // OLC
+    int16_t editor;
     int16_t page;
     bool fcommand;
     bool valid;
 } Descriptor;
 
-void free_descriptor(Descriptor* d);
 Descriptor* new_descriptor();
+void free_descriptor(Descriptor* descriptor);
 
 extern Descriptor* descriptor_list;
 extern Descriptor* descriptor_free;
+
+extern int descriptor_count;
+extern int descriptor_perm_count;
 
 #endif // !MUD98__ENTITIES__DESCRIPTOR_H

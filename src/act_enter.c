@@ -51,18 +51,24 @@
 /* random room generation procedure */
 Room* get_random_room(Mobile* ch)
 {
+    RoomData* room_data;
     Room* room;
 
     for (;;) {
-        room = get_room(number_range(0, 65535));
-        if (room != NULL)
-            if (can_see_room(ch, room) && !room_is_private(room)
-                && !IS_SET(room->room_flags, ROOM_PRIVATE)
-                && !IS_SET(room->room_flags, ROOM_SOLITARY)
-                && !IS_SET(room->room_flags, ROOM_SAFE)
+        room_data = get_room_data(number_range(0, MAX_VNUM));
+        if (room_data != NULL) {
+            // No instanced rooms. I really don't want to deal with that headache.
+            if (room_data->area_data->inst_type == AREA_INST_MULTI)
+                continue;
+            room = room_data->instances;
+            if (can_see_room(ch, room_data) && !room_is_private(room)
+                && !IS_SET(room_data->room_flags, ROOM_PRIVATE)
+                && !IS_SET(room_data->room_flags, ROOM_SOLITARY)
+                && !IS_SET(room_data->room_flags, ROOM_SAFE)
                 && (IS_NPC(ch) || IS_SET(ch->act_flags, ACT_AGGRESSIVE)
-                    || !IS_SET(room->room_flags, ROOM_LAW)))
+                    || !IS_SET(room_data->room_flags, ROOM_LAW)))
                 break;
+        }
     }
 
     return room;
@@ -101,7 +107,7 @@ void do_enter(Mobile* ch, char* argument)
 
         if (!IS_TRUSTED(ch, ANGEL) && !IS_SET(portal->value[2], PORTAL_NOCURSE)
             && (IS_AFFECTED(ch, AFF_CURSE)
-                || IS_SET(old_room->room_flags, ROOM_NO_RECALL))) {
+                || IS_SET(old_room->data->room_flags, ROOM_NO_RECALL))) {
             send_to_char("Something prevents you from leaving...\n\r", ch);
             return;
         }
@@ -113,17 +119,17 @@ void do_enter(Mobile* ch, char* argument)
         else if (IS_SET(portal->value[2], PORTAL_BUGGY) && (number_percent() < 5))
             location = get_random_room(ch);
         else
-            location = get_room(portal->value[3]);
+            location = get_room(old_room->area, portal->value[3]);
 
         if (location == NULL || location == old_room
-            || !can_see_room(ch, location)
+            || !can_see_room(ch, location->data)
             || (room_is_private(location) && !IS_TRUSTED(ch, IMPLEMENTOR))) {
             act("$p doesn't seem to go anywhere.", ch, portal, NULL, TO_CHAR);
             return;
         }
 
         if (IS_NPC(ch) && IS_SET(ch->act_flags, ACT_AGGRESSIVE)
-            && IS_SET(location->room_flags, ROOM_LAW)) {
+            && IS_SET(location->data->room_flags, ROOM_LAW)) {
             send_to_char("Something prevents you from leaving...\n\r", ch);
             return;
         }
@@ -173,7 +179,7 @@ void do_enter(Mobile* ch, char* argument)
                 do_function(fch, &do_stand, "");
 
             if (fch->master == ch && fch->position == POS_STANDING) {
-                if (IS_SET(ch->in_room->room_flags, ROOM_LAW)
+                if (IS_SET(ch->in_room->data->room_flags, ROOM_LAW)
                     && (IS_NPC(fch) && IS_SET(fch->act_flags, ACT_AGGRESSIVE))) {
                     act("You can't bring $N into the city.", ch, NULL, fch,
                         TO_CHAR);

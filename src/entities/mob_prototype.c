@@ -20,13 +20,43 @@
 #include "data/mobile_data.h"
 #include "data/race.h"
 
-MobPrototype* mob_prototype_hash[MAX_KEY_HASH];
-MobPrototype* mob_prototype_free;
+MobPrototype* mob_proto_hash[MAX_KEY_HASH];
+MobPrototype* mob_proto_free;
 
-int last_mob_id = 0;
-int newmobs = 0;
 int mob_proto_count;
-VNUM top_vnum_mob;      // OLC
+int mob_proto_perm_count;
+VNUM top_vnum_mob;
+
+MobPrototype* new_mob_prototype()
+{
+    LIST_ALLOC_PERM(mob_proto, MobPrototype);
+
+    mob_proto->name = str_dup("no name");
+    mob_proto->short_descr = str_dup("(no short description)");
+    mob_proto->long_descr = str_dup("(no long description)\n\r");
+    mob_proto->description = &str_empty[0];
+    mob_proto->sex = SEX_NEUTRAL;
+    mob_proto->act_flags = ACT_IS_NPC;
+    mob_proto->race = (int16_t)race_lookup("human");
+    mob_proto->material = str_dup("unknown");
+    mob_proto->size = SIZE_MEDIUM;
+    mob_proto->start_pos = POS_STANDING;
+    mob_proto->default_pos = POS_STANDING;
+
+    return mob_proto;
+}
+
+void free_mob_prototype(MobPrototype* mob_proto)
+{
+    free_string(mob_proto->name);
+    free_string(mob_proto->short_descr);
+    free_string(mob_proto->long_descr);
+    free_string(mob_proto->description);
+    free_mob_prog(mob_proto->mprogs);
+    free_shop_data(mob_proto->pShop);
+
+    LIST_FREE(mob_proto);
+}
 
 // Preserved for historical reasons and so that you can see where these values
 // come from. -- Halivar
@@ -112,210 +142,16 @@ VNUM top_vnum_mob;      // OLC
 //    return;
 //}
 
-Mobile* create_mobile(MobPrototype* p_mob_proto)
-{
-    Mobile* mob;
-    int i;
-    Affect af = { 0 };
-
-    mob_count++;
-
-    if (p_mob_proto == NULL) {
-        bug("Create_mobile: NULL p_mob_proto.", 0);
-        exit(1);
-    }
-
-    mob = new_mobile();
-
-    mob->prototype = p_mob_proto;
-
-    mob->name = str_dup(p_mob_proto->name);    /* OLC */
-    mob->short_descr = str_dup(p_mob_proto->short_descr);    /* OLC */
-    mob->long_descr = str_dup(p_mob_proto->long_descr);     /* OLC */
-    mob->description = str_dup(p_mob_proto->description);    /* OLC */
-    mob->id = get_mob_id();
-    mob->spec_fun = p_mob_proto->spec_fun;
-    mob->prompt = NULL;
-    mob->mprog_target = NULL;
-
-    if (p_mob_proto->wealth == 0) {
-        mob->silver = 0;
-        mob->gold = 0;
-    }
-    else {
-        int16_t wealth = (int16_t)number_range(p_mob_proto->wealth / 2,
-            3 * p_mob_proto->wealth / 2);
-        mob->gold = (int16_t)number_range(wealth / 200, wealth / 100);
-        mob->silver = wealth - (mob->gold * 100);
-    }
-
-    /* read from prototype */
-    mob->group = p_mob_proto->group;
-    mob->act_flags = p_mob_proto->act_flags;
-    mob->comm_flags = COMM_NOCHANNELS | COMM_NOSHOUT | COMM_NOTELL;
-    mob->affect_flags = p_mob_proto->affect_flags;
-    mob->alignment = p_mob_proto->alignment;
-    mob->level = p_mob_proto->level;
-    mob->hitroll = p_mob_proto->hitroll;
-    mob->damroll = p_mob_proto->damage[DICE_BONUS];
-    mob->max_hit = (int16_t)dice(p_mob_proto->hit[DICE_NUMBER], 
-        p_mob_proto->hit[DICE_TYPE]) + p_mob_proto->hit[DICE_BONUS];
-    mob->hit = mob->max_hit;
-    mob->max_mana = (int16_t)dice(p_mob_proto->mana[DICE_NUMBER], 
-        p_mob_proto->mana[DICE_TYPE]) + p_mob_proto->mana[DICE_BONUS];
-    mob->mana = mob->max_mana;
-    mob->damage[DICE_NUMBER] = p_mob_proto->damage[DICE_NUMBER];
-    mob->damage[DICE_TYPE] = p_mob_proto->damage[DICE_TYPE];
-    mob->dam_type = p_mob_proto->dam_type;
-    if (mob->dam_type == 0) {
-        switch (number_range(1, 3)) {
-        case (1):
-            mob->dam_type = 3;
-            break; /* slash */
-        case (2):
-            mob->dam_type = 7;
-            break; /* pound */
-        case (3):
-            mob->dam_type = 11;
-            break; /* pierce */
-        }
-    }
-    for (i = 0; i < 4; i++) 
-        mob->armor[i] = p_mob_proto->ac[i];
-    mob->atk_flags = p_mob_proto->atk_flags;
-    mob->imm_flags = p_mob_proto->imm_flags;
-    mob->res_flags = p_mob_proto->res_flags;
-    mob->vuln_flags = p_mob_proto->vuln_flags;
-    mob->start_pos = p_mob_proto->start_pos;
-    mob->default_pos = p_mob_proto->default_pos;
-    mob->sex = p_mob_proto->sex;
-    if (mob->sex == SEX_EITHER) /* random sex */
-        mob->sex = (Sex)number_range(1, 2);
-    mob->race = p_mob_proto->race;
-    mob->form = p_mob_proto->form;
-    mob->parts = p_mob_proto->parts;
-    mob->size = p_mob_proto->size;
-    mob->material = str_dup(p_mob_proto->material);
-
-    /* computed on the spot */
-
-    for (i = 0; i < STAT_COUNT; i++)
-        mob->perm_stat[i] = UMIN(25, 11 + mob->level / 4);
-
-    if (IS_SET(mob->act_flags, ACT_WARRIOR)) {
-        mob->perm_stat[STAT_STR] += 3;
-        mob->perm_stat[STAT_INT] -= 1;
-        mob->perm_stat[STAT_CON] += 2;
-    }
-
-    if (IS_SET(mob->act_flags, ACT_THIEF)) {
-        mob->perm_stat[STAT_DEX] += 3;
-        mob->perm_stat[STAT_INT] += 1;
-        mob->perm_stat[STAT_WIS] -= 1;
-    }
-
-    if (IS_SET(mob->act_flags, ACT_CLERIC)) {
-        mob->perm_stat[STAT_WIS] += 3;
-        mob->perm_stat[STAT_DEX] -= 1;
-        mob->perm_stat[STAT_STR] += 1;
-    }
-
-    if (IS_SET(mob->act_flags, ACT_MAGE)) {
-        mob->perm_stat[STAT_INT] += 3;
-        mob->perm_stat[STAT_STR] -= 1;
-        mob->perm_stat[STAT_DEX] += 1;
-    }
-
-    if (IS_SET(mob->atk_flags, ATK_FAST))
-        mob->perm_stat[STAT_DEX] += 2;
-
-    mob->perm_stat[STAT_STR] += (int16_t)(mob->size - SIZE_MEDIUM);
-    mob->perm_stat[STAT_CON] += (int16_t)(mob->size - SIZE_MEDIUM) / 2;
-
-    /* let's get some spell action */
-    if (IS_AFFECTED(mob, AFF_SANCTUARY)) {
-        af.where = TO_AFFECTS;
-        af.type = skill_lookup("sanctuary");
-        af.level = mob->level;
-        af.duration = -1;
-        af.location = APPLY_NONE;
-        af.modifier = 0;
-        af.bitvector = AFF_SANCTUARY;
-        affect_to_char(mob, &af);
-    }
-
-    if (IS_AFFECTED(mob, AFF_HASTE)) {
-        af.where = TO_AFFECTS;
-        af.type = skill_lookup("haste");
-        af.level = mob->level;
-        af.duration = -1;
-        af.location = APPLY_DEX;
-        af.modifier = 1 + (mob->level >= 18) + (mob->level >= 25)
-            + (mob->level >= 32);
-        af.bitvector = AFF_HASTE;
-        affect_to_char(mob, &af);
-    }
-
-    if (IS_AFFECTED(mob, AFF_PROTECT_EVIL)) {
-        af.where = TO_AFFECTS;
-        af.type = skill_lookup("protection evil");
-        af.level = mob->level;
-        af.duration = -1;
-        af.location = APPLY_SAVES;
-        af.modifier = -1;
-        af.bitvector = AFF_PROTECT_EVIL;
-        affect_to_char(mob, &af);
-    }
-
-    if (IS_AFFECTED(mob, AFF_PROTECT_GOOD)) {
-        af.where = TO_AFFECTS;
-        af.type = skill_lookup("protection good");
-        af.level = mob->level;
-        af.duration = -1;
-        af.location = APPLY_SAVES;
-        af.modifier = -1;
-        af.bitvector = AFF_PROTECT_GOOD;
-        affect_to_char(mob, &af);
-    }
-
-    mob->position = mob->start_pos;
-
-    /* link the mob to the world list */
-    mob->next = mob_list;
-    mob_list = mob;
-    p_mob_proto->count++;
-    return mob;
-}
-
-void free_mob_prototype(MobPrototype* p_mob_proto)
-{
-    free_string(p_mob_proto->name);
-    free_string(p_mob_proto->short_descr);
-    free_string(p_mob_proto->long_descr);
-    free_string(p_mob_proto->description);
-    free_mprog(p_mob_proto->mprogs);
-    free_shop_data(p_mob_proto->pShop);
-
-    p_mob_proto->next = mob_prototype_free;
-    mob_prototype_free = p_mob_proto;
-    return;
-}
-
-long get_mob_id()
-{
-    last_mob_id++;
-    return last_mob_id;
-}
-
 // Translates mob virtual number to its mob index struct.
 // Hash table lookup.
 MobPrototype* get_mob_prototype(VNUM vnum)
 {
     MobPrototype* p_mob_proto;
 
-    for (p_mob_proto = mob_prototype_hash[vnum % MAX_KEY_HASH]; p_mob_proto != NULL;
+    for (p_mob_proto = mob_proto_hash[vnum % MAX_KEY_HASH]; p_mob_proto != NULL;
         NEXT_LINK(p_mob_proto)) {
-        if (p_mob_proto->vnum == vnum) return p_mob_proto;
+        if (p_mob_proto->vnum == vnum)
+            return p_mob_proto;
     }
 
     if (fBootDb) {
@@ -331,7 +167,7 @@ void load_mobiles(FILE* fp)
 {
     MobPrototype* p_mob_proto;
 
-    if (!area_last)   /* OLC */
+    if (!area_data_last)   /* OLC */
     {
         bug("Load_mobiles: no #AREA seen yet.", 0);
         exit(1);
@@ -358,10 +194,10 @@ void load_mobiles(FILE* fp)
         }
         fBootDb = true;
 
-        p_mob_proto = alloc_perm(sizeof(*p_mob_proto));
+        p_mob_proto = new_mob_prototype();
+
         p_mob_proto->vnum = vnum;
-        p_mob_proto->area = area_last;
-        newmobs++;
+        p_mob_proto->area = area_data_last;
         p_mob_proto->name = fread_string(fp);
         p_mob_proto->short_descr = fread_string(fp);
         p_mob_proto->long_descr = fread_string(fp);
@@ -467,7 +303,7 @@ void load_mobiles(FILE* fp)
                 char* word;
                 int trigger = 0;
 
-                pMprog = alloc_perm(sizeof(*pMprog));
+                pMprog = new_mob_prog();
                 word = fread_word(fp);
                 if ((trigger = flag_lookup(word, mprog_flag_table)) == NO_FLAG) {
                     bug("MOBprogs: invalid trigger.", 0);
@@ -487,76 +323,14 @@ void load_mobiles(FILE* fp)
         }
 
         hash = vnum % MAX_KEY_HASH;
-        p_mob_proto->next = mob_prototype_hash[hash];
-        mob_prototype_hash[hash] = p_mob_proto;
-        mob_proto_count++;
-        top_vnum_mob = top_vnum_mob < vnum ? vnum : top_vnum_mob;   // OLC
-        assign_area_vnum(vnum);                                     // OLC
+        p_mob_proto->next = mob_proto_hash[hash];
+        mob_proto_hash[hash] = p_mob_proto;
+        top_vnum_mob = top_vnum_mob < vnum ? vnum : top_vnum_mob;
+        assign_area_vnum(vnum);
         kill_table[URANGE(0, p_mob_proto->level, MAX_LEVEL - 1)].number++;
     }
 
     return;
-}
-
-MobPrototype* new_mob_prototype()
-{
-    MobPrototype* pMob;
-
-    if (!mob_prototype_free) {
-        pMob = alloc_perm(sizeof(*pMob));
-        mob_proto_count++;
-    }
-    else {
-        pMob = mob_prototype_free;
-        NEXT_LINK(mob_prototype_free);
-    }
-
-    pMob->next = NULL;
-    pMob->spec_fun = NULL;
-    pMob->pShop = NULL;
-    pMob->area = NULL;
-    pMob->name = str_dup("no name");
-    pMob->short_descr = str_dup("(no short description)");
-    pMob->long_descr = str_dup("(no long description)\n\r");
-    pMob->description = &str_empty[0];
-    pMob->vnum = 0;
-    pMob->count = 0;
-    pMob->killed = 0;
-    pMob->sex = SEX_NEUTRAL;
-    pMob->level = 0;
-    pMob->act_flags = ACT_IS_NPC;
-    pMob->affect_flags = 0;
-    pMob->alignment = 0;
-    pMob->hitroll = 0;
-    pMob->race = (int16_t)race_lookup("human");
-    pMob->form = 0;
-    pMob->parts = 0;
-    pMob->imm_flags = 0;
-    pMob->res_flags = 0;
-    pMob->vuln_flags = 0;
-    pMob->material = str_dup("unknown");
-    pMob->atk_flags = 0;
-    pMob->size = SIZE_MEDIUM;
-    pMob->ac[AC_PIERCE] = 0;
-    pMob->ac[AC_BASH] = 0;
-    pMob->ac[AC_SLASH] = 0;
-    pMob->ac[AC_EXOTIC] = 0;
-    pMob->hit[DICE_NUMBER] = 0;
-    pMob->hit[DICE_TYPE] = 0;
-    pMob->hit[DICE_BONUS] = 0;
-    pMob->mana[DICE_NUMBER] = 0;
-    pMob->mana[DICE_TYPE] = 0;
-    pMob->mana[DICE_BONUS] = 0;
-    pMob->damage[DICE_NUMBER] = 0;
-    pMob->damage[DICE_TYPE] = 0;
-    pMob->damage[DICE_NUMBER] = 0;
-    pMob->start_pos = POS_STANDING;
-    pMob->default_pos = POS_STANDING;
-    pMob->wealth = 0;
-    pMob->mprogs = NULL;
-    pMob->mprog_flags = 0;
-
-    return pMob;
 }
 
 void recalc(MobPrototype* pMob)

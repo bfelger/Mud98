@@ -11,8 +11,9 @@
 #include "tables.h"
 #include "update.h"
 
-Quest* quest_free = NULL;
 int quest_count = 0;
+int quest_perm_count = 0;
+Quest* quest_free = NULL;
 
 const struct flag_type quest_type_table[] = {
     { "visit_mob",      QUEST_VISIT_MOB,    true    },
@@ -43,31 +44,22 @@ const SaveTableEntry quest_save_table[] = {
 
 Quest* new_quest()
 {
-    static Quest qZero;
-    Quest* quest;
-
-    if (quest_free == NULL) {
-        quest = alloc_perm(sizeof(Quest));
-        quest_count++;
-    }
-    else {
-        quest = quest_free;
-        NEXT_LINK(quest_free);
-    }
-
-    *quest = qZero;
+    LIST_ALLOC_PERM(quest, Quest);
 
     quest->name = &str_empty[0];
     quest->entry = &str_empty[0];
-    quest->level = 0;
-    quest->type = 0;
-    quest->vnum = 0;
-    quest->target = 0;
-    quest->end = 0;
-    quest->xp = 0;
 
     return quest;
 }
+
+void free_quest(Quest* quest)
+{
+    free_string(quest->name);
+    free_string(quest->entry);
+
+    LIST_FREE(quest);
+}
+
 QuestLog* new_quest_log()
 {
     static QuestLog ql_zero = { 0 };
@@ -76,15 +68,6 @@ QuestLog* new_quest_log()
     ql->target_mobs = NULL;
     ql->target_objs = NULL;
     return ql;
-}
-
-void free_quest(Quest* quest)
-{
-    free_string(quest->name);
-    free_string(quest->entry);
-
-    quest->next = quest_free;
-    quest_free = quest;
 }
 
 void free_quest_log(QuestLog* quest_log)
@@ -114,7 +97,7 @@ void free_quest_log(QuestLog* quest_log)
 
 Quest* get_quest(VNUM vnum)
 {
-    Area* area = get_vnum_area(vnum);
+    AreaData* area = get_vnum_area(vnum);
     Quest* quest = NULL;
     
     if (!area)
@@ -292,7 +275,7 @@ void grant_quest(Mobile* ch, Quest* quest)
 
 void load_quest(FILE* fp)
 {
-    if (area_last == NULL) {
+    if (area_data_last == NULL) {
         bug("load_quest: no #AREA seen yet.", 0);
         exit(1);
     }
@@ -304,18 +287,18 @@ void load_quest(FILE* fp)
     }
 
     load_struct(fp, U(&tmp_quest), quest_save_table, U(quest));
-    quest->area = area_last;
+    quest->area_data = area_data_last;
 
-    ORDERED_INSERT(Quest, quest, area_last->quests, vnum);
+    ORDERED_INSERT(Quest, quest, area_data_last->quests, vnum);
 
     return;
 }
 
-void save_quests(FILE* fp, Area* area)
+void save_quests(FILE* fp, AreaData* area_data)
 {
     Quest* q;
 
-    FOR_EACH(q, area->quests)
+    FOR_EACH(q, area_data->quests)
     {
         fprintf(fp, "#QUEST\n");
         save_struct(fp, U(&tmp_quest), quest_save_table, U(q));
@@ -401,7 +384,7 @@ void do_quest(Mobile* ch, char* argument)
     INIT_BUF(world, MSL);
     INIT_BUF(out, MSL);
 
-    Area* area = ch->in_room ? ch->in_room->area : NULL;
+    AreaData* area = ch->in_room ? ch->in_room->area->data : NULL;
 
     int i = 0;
 
@@ -421,7 +404,7 @@ void do_quest(Mobile* ch, char* argument)
             Quest* q = get_quest(qs->vnum);
             ++i;
             addf_buf(world, "%d. {T%s {|[{*Level %d{|] {_(%s){x\n\r",
-                i, q->name, q->level, q->area->name);
+                i, q->name, q->level, q->area_data->name);
         }
     }
 

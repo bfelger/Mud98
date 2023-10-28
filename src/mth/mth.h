@@ -101,11 +101,11 @@ typedef struct mud_data {
     int boot_time;
     int port;
     int total_plr;
-    int area_count;
+    int area_data_count;
     int help_count;
     int top_mob_index;
     int top_obj_index;
-    int room_count;
+    int room_data_count;
     int msdp_table_size;
     size_t mccp_len;
     unsigned char* mccp_buf;

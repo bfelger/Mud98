@@ -14,121 +14,83 @@
 #include "recycle.h"
 #include "skills.h"
 
-PlayerData* player_list = NULL;
-PlayerData* player_free = NULL;
+PlayerData* player_data_list = NULL;
+PlayerData* player_data_free = NULL;
 CharGenData* gen_data_free = NULL;
+
+int player_data_count;
+int player_data_perm_count;
+
+int gen_data_count;
+int gen_data_perm_count;
 
 PlayerData* new_player_data()
 {
-    int alias;
+    LIST_ALLOC_PERM(player_data, PlayerData);
 
-    static PlayerData player_zero = { 0 };
-    PlayerData* player;
+    player_data->buffer = new_buf();
+    player_data->learned = new_learned();
+    player_data->group_known = new_boolarray(skill_group_count);
+    player_data->quest_log = new_quest_log();
 
-    if (player_free == NULL)
-        player = alloc_perm(sizeof(*player));
-    else {
-        player = player_free;
-        NEXT_LINK(player_free);
-    }
+    player_data->recall = cfg_get_default_recall();
 
-    *player = player_zero;
+    VALIDATE(player_data);
 
-    for (alias = 0; alias < MAX_ALIAS; alias++) {
-        player->alias[alias] = NULL;
-        player->alias_sub[alias] = NULL;
-    }
-
-    player->buffer = new_buf();
-    player->learned = new_learned();
-    player->group_known = new_boolarray(skill_group_count);
-    player->quest_log = new_quest_log();
-
-    player->recall = cfg_get_default_recall();
-
-    VALIDATE(player);
-    return player;
+    return player_data;
 }
 
-void free_player_data(PlayerData* player)
+void free_player_data(PlayerData* player_data)
 {
     int alias;
 
-    if (!IS_VALID(player))
+    if (!IS_VALID(player_data))
         return;
 
-    if (player == player_list) {
-        player_list = player->next;
-    }
-    else {
-        PlayerData* prev;
-
-        FOR_EACH(prev, player_list) {
-            if (prev->next == player) {
-                prev->next = player->next;
-                break;
-            }
-        }
-
-        if (prev == NULL) {
-            bug("free_player_data: player_data not found.", 0);
-            return;
-        }
-    }
-
-    free_learned(player->learned);
-    free_boolarray(player->group_known);
-    free_digest(player->pwd_digest);
-    free_color_theme(player->current_theme);
+    free_learned(player_data->learned);
+    free_boolarray(player_data->group_known);
+    free_digest(player_data->pwd_digest);
+    free_color_theme(player_data->current_theme);
     for (int i = 0; i < MAX_THEMES; ++i)
-        if (player->color_themes[i] != NULL)
-            free_color_theme(player->color_themes[i]);
-    free_string(player->bamfin);
-    free_string(player->bamfout);
-    free_string(player->title);
-    free_buf(player->buffer);
-    free_quest_log(player->quest_log);
+        if (player_data->color_themes[i] != NULL)
+            free_color_theme(player_data->color_themes[i]);
+    free_string(player_data->bamfin);
+    free_string(player_data->bamfout);
+    free_string(player_data->title);
+    free_buf(player_data->buffer);
+    free_quest_log(player_data->quest_log);
 
     for (alias = 0; alias < MAX_ALIAS; alias++) {
-        free_string(player->alias[alias]);
-        free_string(player->alias_sub[alias]);
+        free_string(player_data->alias[alias]);
+        free_string(player_data->alias_sub[alias]);
     }
-    INVALIDATE(player);
-    player->next = player_free;
-    player_free = player;
 
-    return;
+    INVALIDATE(player_data);
+
+    LIST_FREE(player_data);
 }
 
 CharGenData* new_gen_data()
 {
-    static CharGenData gen_zero;
-    CharGenData* gen;
+    LIST_ALLOC_PERM(gen_data, CharGenData);
 
-    if (gen_data_free == NULL)
-        gen = alloc_perm(sizeof(*gen));
-    else {
-        gen = gen_data_free;
-        NEXT_LINK(gen_data_free);
-    }
-    *gen = gen_zero;
+    gen_data->skill_chosen = new_boolarray(skill_count);
+    gen_data->group_chosen = new_boolarray(skill_group_count);
 
-    gen->skill_chosen = new_boolarray(skill_count);
-    gen->group_chosen = new_boolarray(skill_group_count);
+    VALIDATE(gen_data);
 
-    VALIDATE(gen);
-    return gen;
+    return gen_data;
 }
 
-void free_gen_data(CharGenData* gen)
+void free_gen_data(CharGenData* gen_data)
 {
-    if (!IS_VALID(gen)) return;
+    if (!IS_VALID(gen_data))
+        return;
 
-    INVALIDATE(gen);
+    INVALIDATE(gen_data);
 
-    free_boolarray(gen->skill_chosen);
-    free_boolarray(gen->group_chosen);
+    free_boolarray(gen_data->skill_chosen);
+    free_boolarray(gen_data->group_chosen);
 
-    gen->next = gen_data_free;
-    gen_data_free = gen;
+    LIST_FREE(gen_data);
 }

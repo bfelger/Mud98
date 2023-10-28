@@ -83,24 +83,24 @@ char* fix_string(const char* str)
     return strfix;
 }
 
-bool area_changed(void)
+bool area_changed()
 {
-    Area* area;
+    AreaData* area_data;
 
-    FOR_EACH(area, area_first)
-        if (IS_SET(area->area_flags, AREA_CHANGED))
+    FOR_EACH(area_data, area_data_list)
+        if (IS_SET(area_data->area_flags, AREA_CHANGED))
             return true;
 
     return false;
 }
 
-void save_mobprogs(FILE* fp, Area* area)
+void save_mobprogs(FILE* fp, AreaData* area_data)
 {
     MobProgCode* pMprog;
 
     fprintf(fp, "#MOBPROGS\n");
 
-    for (VNUM i = area->min_vnum; i <= area->max_vnum; i++) {
+    for (VNUM i = area_data->min_vnum; i <= area_data->max_vnum; i++) {
         if ((pMprog = get_mprog_index(i)) != NULL) {
             fprintf(fp, "#%"PRVNUM"\n", i);
             fprintf(fp, "%s~\n", fix_string(pMprog->code));
@@ -119,16 +119,16 @@ void save_mobprogs(FILE* fp, Area* area)
 void save_area_list()
 {
     FILE* fp;
-    Area* area;
+    AreaData* area;
     HelpArea* ha;
 
     OPEN_OR_RETURN(fp = open_write_area_list());
 
     FOR_EACH(ha, help_area_list)
-        if (ha->area == NULL)
+        if (ha->area_data == NULL)
             fprintf(fp, "%s\n", ha->filename);
 
-    FOR_EACH(area, area_first) {
+    FOR_EACH(area, area_data_list) {
         fprintf(fp, "%s\n", area->file_name);
     }
 
@@ -284,7 +284,7 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
  Called by:	save_area(olc_save.c).
  Notes:         Changed for ROM OLC.
  ****************************************************************************/
-void save_mobiles(FILE* fp, Area* area)
+void save_mobiles(FILE* fp, AreaData* area)
 {
     MobPrototype* pMob;
 
@@ -506,7 +506,7 @@ void save_object(FILE* fp, ObjPrototype* obj_proto)
  Called by:	save_area(olc_save.c).
  Notes:         Changed for ROM OLC.
  ****************************************************************************/
-void save_objects(FILE* fp, Area* area)
+void save_objects(FILE* fp, AreaData* area)
 {
     ObjPrototype* pObj;
 
@@ -526,19 +526,19 @@ void save_objects(FILE* fp, Area* area)
  Purpose:	Save #ROOMS section of an area file.
  Called by:	save_area(olc_save.c).
  ****************************************************************************/
-void save_rooms(FILE* fp, Area* area)
+void save_rooms(FILE* fp, AreaData* area)
 {
-    Room* pRoomIndex;
+    RoomData* pRoomIndex;
     ExtraDesc* pEd;
-    RoomExit* room_exit;
+    RoomExitData* room_exit;
     char buf[MSL];
     int hash, i, locks;
 
     fprintf(fp, "#ROOMS\n");
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++) {
-        FOR_EACH(pRoomIndex, room_vnum_hash[hash]) {
-            if (pRoomIndex->area == area) {
+        FOR_EACH(pRoomIndex, room_data_hash[hash]) {
+            if (pRoomIndex->area_data == area) {
                 fprintf(fp, "#%"PRVNUM"\n", pRoomIndex->vnum);
                 fprintf(fp, "%s~\n", pRoomIndex->name);
                 fprintf(fp, "%s~\n0\n", fix_string(pRoomIndex->description));
@@ -552,9 +552,9 @@ void save_rooms(FILE* fp, Area* area)
 
                 // Put randomized rooms back in their original place to reduce
                 // file deltas on save.
-                RoomExit* ex_to_save[DIR_MAX] = { NULL };
+                RoomExitData* ex_to_save[DIR_MAX] = { NULL };
                 for (i = 0; i < DIR_MAX; ++i) {
-                    if ((room_exit = pRoomIndex->exit[i]) == NULL)
+                    if ((room_exit = pRoomIndex->exit_data[i]) == NULL)
                         continue;
                     ex_to_save[room_exit->orig_dir] = room_exit;
                 }
@@ -612,7 +612,7 @@ void save_rooms(FILE* fp, Area* area)
  Purpose:	Save #SPECIALS section of area file.
  Called by:	save_area(olc_save.c).
  ****************************************************************************/
-void save_specials(FILE* fp, Area* area)
+void save_specials(FILE* fp, AreaData* area)
 {
     int hash;
     MobPrototype* p_mob_proto;
@@ -620,7 +620,7 @@ void save_specials(FILE* fp, Area* area)
     fprintf(fp, "#SPECIALS\n");
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++) {
-        FOR_EACH(p_mob_proto, mob_prototype_hash[hash]) {
+        FOR_EACH(p_mob_proto, mob_proto_hash[hash]) {
             if (p_mob_proto && p_mob_proto->area == area && p_mob_proto->spec_fun) {
 #if defined( VERBOSE )
                 fprintf(fp, "M %"PRVNUM" %s Load to: %s\n", p_mob_proto->vnum,
@@ -644,17 +644,17 @@ void save_specials(FILE* fp, Area* area)
  *
  * I don't think it's obsolete in ROM -- Hugin.
  */
-void save_door_resets(FILE* fp, Area* area)
+void save_door_resets(FILE* fp, AreaData* area)
 {
     int hash, i;
-    Room* pRoomIndex;
-    RoomExit* room_exit;
+    RoomData* pRoomIndex;
+    RoomExitData* room_exit;
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++) {
-        FOR_EACH(pRoomIndex, room_vnum_hash[hash]) {
-            if (pRoomIndex->area == area) {
+        FOR_EACH(pRoomIndex, room_data_hash[hash]) {
+            if (pRoomIndex->area_data == area) {
                 for (i = 0; i < DIR_MAX; i++) {
-                    if ((room_exit = pRoomIndex->exit[i]) == NULL)
+                    if ((room_exit = pRoomIndex->exit_data[i]) == NULL)
                         continue;
 
                     if (room_exit->to_room
@@ -687,14 +687,14 @@ void save_door_resets(FILE* fp, Area* area)
 // Purpose:	Saves the #RESETS section of an area file.
 // Called by: save_area(olc_save.c)
 ////////////////////////////////////////////////////////////////////////////////
-void save_resets(FILE* fp, Area* area)
+void save_resets(FILE* fp, AreaData* area)
 {
     Reset* reset;
     MobPrototype* pLastMob = NULL;
 #ifdef VERBOSE
     ObjPrototype* pLastObj;
 #endif
-    Room* pRoom;
+    RoomData* pRoom;
     char buf[MAX_STRING_LENGTH];
     int hash;
 
@@ -703,8 +703,8 @@ void save_resets(FILE* fp, Area* area)
     save_door_resets(fp, area);
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++) {
-        FOR_EACH(pRoom, room_vnum_hash[hash]) {
-            if (pRoom->area == area) {
+        FOR_EACH(pRoom, room_data_hash[hash]) {
+            if (pRoom->area_data == area) {
                 FOR_EACH(reset, pRoom->reset_first) {
                     switch (reset->command) {
                     default:
@@ -792,7 +792,7 @@ void save_resets(FILE* fp, Area* area)
 #ifdef VERBOSE
                 pLastObj = get_object_prototype(reset->arg1);
 #endif
-                pRoom = get_room(reset->arg3);
+                pRoom = get_room_data(reset->arg3);
                 fprintf(fp, "O 0 %d 0 %d\n",
                     reset->arg1,
                     reset->arg3);
@@ -833,7 +833,7 @@ void save_resets(FILE* fp, Area* area)
                 break;
 
             case 'R':
-                pRoom = get_room(reset->arg1);
+                pRoom = get_room_data(reset->arg1);
                 fprintf(fp, "R 0 %d %d\n",
                     reset->arg1,
                     reset->arg2);
@@ -855,7 +855,7 @@ return;
  Purpose:	Saves the #SHOPS section of an area file.
  Called by:	save_area(olc_save.c)
  ****************************************************************************/
-void save_shops(FILE* fp, Area* area)
+void save_shops(FILE* fp, AreaData* area)
 {
     ShopData* pShopIndex;
     MobPrototype* p_mob_proto;
@@ -865,7 +865,7 @@ void save_shops(FILE* fp, Area* area)
     fprintf(fp, "#SHOPS\n");
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++) {
-        FOR_EACH(p_mob_proto, mob_prototype_hash[hash]) {
+        FOR_EACH(p_mob_proto, mob_proto_hash[hash]) {
             if (p_mob_proto && p_mob_proto->area == area && p_mob_proto->pShop) {
                 pShopIndex = p_mob_proto->pShop;
 
@@ -913,7 +913,7 @@ void save_other_helps(Mobile* ch)
 
     FOR_EACH(ha, help_area_list)
         if (ha->changed == true
-            && ha->area == NULL) {
+            && ha->area_data == NULL) {
             sprintf(buf, "%s%s", cfg_get_area_dir(), ha->filename);
 
             OPEN_OR_CONTINUE(fp = open_read_file(buf));
@@ -936,7 +936,7 @@ void save_other_helps(Mobile* ch)
  Purpose:	Save an area, note that this format is new.
  Called by:	do_asave(olc_save.c).
  ****************************************************************************/
-void save_area(Area* area)
+void save_area(AreaData* area)
 {
     FILE* fp;
     char tmp[MIL];
@@ -1002,7 +1002,7 @@ void save_area(Area* area)
 void do_asave(Mobile* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
-    Area* area;
+    AreaData* area;
     VNUM value;
 
     if (ch == NULL || ch->desc == NULL || IS_NPC(ch)) {
@@ -1013,7 +1013,7 @@ void do_asave(Mobile* ch, char* argument)
     {
         save_area_list();
 
-        FOR_EACH(area, area_first)
+        FOR_EACH(area, area_data_list)
             if (str_cmp(argument, "changed")
                 || IS_SET(area->area_flags, AREA_CHANGED)) {
                 save_area(area);
@@ -1062,7 +1062,7 @@ void do_asave(Mobile* ch, char* argument)
     /* -------------------------------------- */
     if (!str_cmp("world", arg1)) {
         save_area_list();
-        FOR_EACH(area, area_first) {
+        FOR_EACH(area, area_data_list) {
             /* Builder must be assigned this area. */
             if (!IS_BUILDER(ch, area))
                 continue;
@@ -1089,7 +1089,7 @@ void do_asave(Mobile* ch, char* argument)
         send_to_char("Saved zones:\n\r", ch);
         sprintf(buf, "None.\n\r");
 
-        FOR_EACH(area, area_first) {
+        FOR_EACH(area, area_data_list) {
             /* Builder must be assigned this area. */
             if (!IS_BUILDER(ch, area))
                 continue;
@@ -1131,10 +1131,10 @@ void do_asave(Mobile* ch, char* argument)
         /* Find the area to save. */
         switch (ch->desc->editor) {
         case ED_AREA:
-            area = (Area*)ch->desc->pEdit;
+            area = (AreaData*)ch->desc->pEdit;
             break;
         case ED_ROOM:
-            area = ch->in_room->area;
+            area = ch->in_room->area->data;
             break;
         case ED_OBJECT:
             area = ((ObjPrototype*)ch->desc->pEdit)->area;
@@ -1143,7 +1143,7 @@ void do_asave(Mobile* ch, char* argument)
             area = ((MobPrototype*)ch->desc->pEdit)->area;
             break;
         default:
-            area = ch->in_room->area;
+            area = ch->in_room->area->data;
             break;
         }
 

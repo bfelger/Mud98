@@ -18,9 +18,12 @@ typedef struct extra_desc_t {
     bool valid;
 } ExtraDesc;
 
+ExtraDesc* new_extra_desc();
 void free_extra_desc(ExtraDesc* ed);
 char* get_extra_desc(const char* name, ExtraDesc* ed);
-ExtraDesc* new_extra_desc();
+
+extern int extra_desc_count;
+extern int extra_desc_perm_count;
 
 #define ADD_EXTRA_DESC(t, ed)                                                  \
     if (!t->extra_desc) {                                             \

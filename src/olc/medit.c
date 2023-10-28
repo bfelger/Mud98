@@ -76,7 +76,7 @@ const OlcCmdEntry mob_olc_comm_table[] = {
 void do_medit(Mobile* ch, char* argument)
 {
     MobPrototype* pMob;
-    Area* area;
+    AreaData* area;
     int     value;
     char    arg1[MAX_STRING_LENGTH];
 
@@ -137,7 +137,7 @@ void do_medit(Mobile* ch, char* argument)
 /* Mobile Interpreter, called by do_medit. */
 void medit(Mobile* ch, char* argument)
 {
-    Area* area;
+    AreaData* area;
     MobPrototype* pMob;
 
     EDIT_MOB(ch, pMob);
@@ -442,7 +442,7 @@ MEDIT(medit_copy)
 ED_FUN_DEC(ed_new_mob)
 {
     MobPrototype* pMob;
-    Area* area;
+    AreaData* area;
     VNUM  value;
     int  hash;
 
@@ -481,8 +481,8 @@ ED_FUN_DEC(ed_new_mob)
     SET_BIT(area->area_flags, AREA_CHANGED);
 
     hash = value % MAX_KEY_HASH;
-    pMob->next = mob_prototype_hash[hash];
-    mob_prototype_hash[hash] = pMob;
+    pMob->next = mob_proto_hash[hash];
+    mob_proto_hash[hash] = pMob;
 
     set_editor(ch->desc, ED_MOBILE, U(pMob));
 /*    ch->desc->pEdit        = (void *)pMob; */
@@ -751,7 +751,7 @@ ED_FUN_DEC(ed_addprog)
         return false;
     }
 
-    list = new_mprog();
+    list = new_mob_prog();
     list->vnum = atoi(numb);
     list->trig_type = value;
     list->trig_phrase = str_dup(argument);
@@ -803,7 +803,7 @@ ED_FUN_DEC(ed_delprog)
         list = *mprogs;
         t2rem = list->trig_type;
         *mprogs = list->next;
-        free_mprog(list);
+        free_mob_prog(list);
     }
     else {
         while ((list_next = list->next) && (++cnt < value))
@@ -812,7 +812,7 @@ ED_FUN_DEC(ed_delprog)
         if (list_next) {
             t2rem = list_next->trig_type;
             list->next = list_next->next;
-            free_mprog(list_next);
+            free_mob_prog(list_next);
         }
         else {
             send_to_char("No such mprog.\n\r", ch);

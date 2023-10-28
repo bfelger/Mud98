@@ -52,7 +52,6 @@ void reset_room(Room* pRoom);	    // OLC
 char* print_flags(FLAGS flag);
 void boot_db(void);
 void area_update(void);
-void clone_mobile(Mobile* parent, Mobile* clone);
 void clear_char(Mobile* ch);
 MobProgCode* get_mprog_index(VNUM vnum);
 char fread_letter(FILE* fp);
@@ -89,6 +88,25 @@ void bug(const char* fmt, ...);
 void log_string(const char* str);
 
 #define ALLOC(T, v)     T* v = (T*)alloc_mem(sizeof(T))
+
+#define LIST_ALLOC_PERM(x, T)                                                  \
+    static T x##_zero = { 0 };                                                 \
+    T* x;                                                                      \
+    if (!x##_free) {                                                           \
+        x = alloc_perm(sizeof(*x));                                            \
+        x##_perm_count++;                                                      \
+    }                                                                          \
+    else {                                                                     \
+        x = x##_free;                                                          \
+        NEXT_LINK(x##_free);                                                   \
+    }                                                                          \
+    x##_count++;                                                               \
+    *x = x##_zero;
+
+#define LIST_FREE(x)                                                           \
+    x##_count--;                                                               \
+    x->next = x##_free;                                                        \
+    x##_free = x;
 
 typedef struct kill_data_t {
     int16_t number;

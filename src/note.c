@@ -71,7 +71,8 @@ int count_spool(Mobile* ch, NoteData* spool)
     NoteData* pnote;
 
     FOR_EACH(pnote, spool)
-        if (!hide_note(ch, pnote)) count++;
+        if (!hide_note(ch, pnote))
+            count++;
 
     return count;
 }

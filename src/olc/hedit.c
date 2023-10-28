@@ -134,7 +134,7 @@ HEDIT(hedit_new)
     READ_ARG(arg);
 
     if (!(had = had_lookup(arg))) {
-        had = ch->in_room->area->helps;
+        had = ch->in_room->area->data->helps;
         argument = fullarg;
     }
 
@@ -146,15 +146,15 @@ HEDIT(hedit_new)
     // No helpfiles in this area yet
     if (!had) {
         had = new_help_area();
-        had->filename = str_dup(ch->in_room->area->file_name);
-        had->area = ch->in_room->area;
+        had->filename = str_dup(ch->in_room->area->data->file_name);
+        had->area_data = ch->in_room->area->data;
         had->first = NULL;
         had->last = NULL;
         had->changed = true;
         had->next = help_area_list;
         help_area_list = had;
-        ch->in_room->area->helps = had;
-        SET_BIT(ch->in_room->area->area_flags, AREA_CHANGED);
+        ch->in_room->area->data->helps = had;
+        SET_BIT(ch->in_room->area->data->area_flags, AREA_CHANGED);
     }
 
     help = new_help_data();
@@ -321,7 +321,7 @@ HEDIT(hedit_delete)
         return false;
     }
 
-    free_help(pHelp);
+    free_help_data(pHelp);
 
     send_to_char("Ok.\n\r", ch);
     return true;
@@ -354,14 +354,14 @@ HEDIT(hedit_list)
     }
 
     if (!str_cmp(argument, "area")) {
-        if (ch->in_room->area->helps == NULL) {
+        if (ch->in_room->area->data->helps == NULL) {
             send_to_char("There are no helpfiles in this area.\n\r", ch);
             return false;
         }
 
         buffer = new_buf();
 
-        for (pHelp = ch->in_room->area->helps->first; pHelp; pHelp = pHelp->next_area) {
+        for (pHelp = ch->in_room->area->data->helps->first; pHelp; pHelp = pHelp->next_area) {
             sprintf(buf, "%3d. %-14.14s%s", cnt, pHelp->keyword,
                 cnt % 4 == 3 ? "\n\r" : " ");
             add_buf(buffer, buf);

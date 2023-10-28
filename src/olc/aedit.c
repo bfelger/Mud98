@@ -22,7 +22,7 @@
 
 #define AEDIT(fun) bool fun( Mobile *ch, char *argument )
 
-Area xArea;
+AreaData xArea;
 
 #ifdef U
 #define OLD_U U
@@ -55,11 +55,11 @@ const OlcCmdEntry area_olc_comm_table[] = {
 
 void do_aedit(Mobile* ch, char* argument)
 {
-    Area* area;
+    AreaData* area;
     VNUM vnum;
     char arg[MAX_STRING_LENGTH];
 
-    area = ch->in_room->area;
+    area = ch->in_room->area->data;
 
     READ_ARG(arg);
     if (is_number(arg)) {
@@ -73,7 +73,7 @@ void do_aedit(Mobile* ch, char* argument)
         if (!aedit_create(ch, argument))
             return;
         else
-            area = area_last;
+            area = area_data_last;
     }
 
     if (!IS_BUILDER(ch, area) || ch->pcdata->security < MIN_AEDIT_SECURITY) {
@@ -91,7 +91,7 @@ void do_aedit(Mobile* ch, char* argument)
 /* Area Interpreter, called by do_aedit. */
 void aedit(Mobile* ch, char* argument)
 {
-    Area* area;
+    AreaData* area;
 
     EDIT_AREA(ch, area);
 
@@ -118,11 +118,11 @@ void aedit(Mobile* ch, char* argument)
     return;
 }
 
-Area* get_vnum_area(VNUM vnum)
+AreaData* get_vnum_area(VNUM vnum)
 {
-    Area* area;
+    AreaData* area;
 
-    FOR_EACH(area, area_first) {
+    FOR_EACH(area, area_data_list) {
         if (vnum >= area->min_vnum
             && vnum <= area->max_vnum)
             return area;
@@ -134,7 +134,7 @@ Area* get_vnum_area(VNUM vnum)
 // Area Editor Functions.
 AEDIT(aedit_show)
 {
-    Area* area;
+    AreaData* area;
 
     EDIT_AREA(ch, area);
 
@@ -143,8 +143,9 @@ AEDIT(aedit_show)
     printf_to_char(ch, "Vnums:          {|[{*%d-%d{|]{x\n\r", area->min_vnum, area->max_vnum);
     printf_to_char(ch, "Levels:         {|[{*%d-%d{|]{x\n\r", area->low_range, area->high_range);
     printf_to_char(ch, "Sector:         {|[{*%s{|]{x\n\r", flag_string(sector_flag_table, area->sector));
-    printf_to_char(ch, "Reset:          {|[{*%d{|] {_x %d minutes; current at %d{x\n\r", 
-        area->reset_thresh, (PULSE_AREA / 60), area->reset_timer);
+    printf_to_char(ch, "Reset:          {|[{*%d{|] {_x %d minutes", area->reset_thresh); 
+    //printf_to_char(ch, "; current at %d", (PULSE_AREA / 60), area->reset_timer);
+    printf_to_char(ch, "{x\n\r");
     printf_to_char(ch, "Always Reset:   {|[%s{|]{x\n\r", area->always_reset ? "{GYES" : "{RNO");
     printf_to_char(ch, "Security:       {|[{*%d{|]{x\n\r", area->security);
     printf_to_char(ch, "Builders:       {|[{*%s{|]{x\n\r", area->builders);
@@ -155,11 +156,15 @@ AEDIT(aedit_show)
 
 AEDIT(aedit_reset)
 {
+    AreaData* area_data;
+
+    EDIT_AREA(ch, area_data);
+
+
     Area* area;
 
-    EDIT_AREA(ch, area);
-
-    reset_area(area);
+    FOR_EACH(area, area_data->instances)
+        reset_area(area);
     send_to_char("Area reset.\n\r", ch);
 
     return false;
@@ -167,34 +172,34 @@ AEDIT(aedit_reset)
 
 AEDIT(aedit_create)
 {
-    Area* area;
+    AreaData* area_data;
 
     if (IS_NPC(ch) || ch->pcdata->security < MIN_AEDIT_SECURITY) {
         send_to_char("You do not have enough security to edit areas.\n\r", ch);
         return false;
     }
 
-    area = new_area();
-    free_string(area->builders);
-    area->builders = strdup(ch->name);
-    free_string(area->credits);
-    area->credits = strdup(ch->name);
-    area->low_range = 1;
-    area->high_range = MAX_LEVEL;
-    area->security = ch->pcdata->security;
-    area_last->next = area;
-    area_last = area;
+    area_data = new_area_data();
+    free_string(area_data->builders);
+    area_data->builders = strdup(ch->name);
+    free_string(area_data->credits);
+    area_data->credits = strdup(ch->name);
+    area_data->low_range = 1;
+    area_data->high_range = MAX_LEVEL;
+    area_data->security = ch->pcdata->security;
+    area_data_last->next = area_data;
+    area_data_last = area_data;
 
-    set_editor(ch->desc, ED_AREA, U(area));
+    set_editor(ch->desc, ED_AREA, U(area_data));
 
-    SET_BIT(area->area_flags, AREA_ADDED);
+    SET_BIT(area_data->area_flags, AREA_ADDED);
     send_to_char("Area Created.\n\r", ch);
     return true;
 }
 
 AEDIT(aedit_file)
 {
-    Area* area;
+    AreaData* area;
     char file[MAX_STRING_LENGTH];
     int i;
     size_t length;
@@ -233,7 +238,7 @@ AEDIT(aedit_file)
 
 AEDIT(aedit_levels)
 {
-    Area* area;
+    AreaData* area;
     char lower_str[MAX_STRING_LENGTH];
     char upper_str[MAX_STRING_LENGTH];
     LEVEL  lower;
@@ -265,7 +270,7 @@ AEDIT(aedit_levels)
 
 AEDIT(aedit_security)
 {
-    Area* area;
+    AreaData* area;
     char sec[MAX_STRING_LENGTH];
     char buf[MAX_STRING_LENGTH];
     int  value;
@@ -299,7 +304,7 @@ AEDIT(aedit_security)
 
 AEDIT(aedit_builder)
 {
-    Area* area;
+    AreaData* area;
     char name[MAX_STRING_LENGTH] = "";
     char buf[MAX_STRING_LENGTH] = "";
 
@@ -354,10 +359,10 @@ AEDIT(aedit_builder)
  ****************************************************************************/
 bool check_range(VNUM lower, VNUM upper)
 {
-    Area* area;
+    AreaData* area;
     int cnt = 0;
 
-    FOR_EACH(area, area_first) {
+    FOR_EACH(area, area_data_list) {
         // lower < area < upper
         if ((lower <= area->min_vnum && area->min_vnum <= upper)
             || (lower <= area->max_vnum && area->max_vnum <= upper))
@@ -371,7 +376,7 @@ bool check_range(VNUM lower, VNUM upper)
 
 AEDIT(aedit_vnums)
 {
-    Area* area;
+    AreaData* area;
     char lower[MAX_STRING_LENGTH];
     char upper[MAX_STRING_LENGTH];
     int  ilower;
@@ -421,7 +426,7 @@ AEDIT(aedit_vnums)
 
 AEDIT(aedit_lvnum)
 {
-    Area* area;
+    AreaData* area;
     char lower[MAX_STRING_LENGTH];
     int  ilower;
     int  iupper;
@@ -458,7 +463,7 @@ AEDIT(aedit_lvnum)
 
 AEDIT(aedit_uvnum)
 {
-    Area* area;
+    AreaData* area;
     char upper[MAX_STRING_LENGTH];
     int  ilower;
     int  iupper;
@@ -511,12 +516,12 @@ void do_alist(Mobile* ch, char* argument)
     addf_buf(result, "{|[{T%3s{|] [{T%-27s{|] ({T%-5s{|-{T%5s{|) {|[{T%-10s{|] {T%3s {|[{T%-10s{|]{x\n\r",
         "Num", "Area Name", "lvnum", "uvnum", "Filename", "Sec", "Builders");
 
-    size_t alist_size = sizeof(Area*) * area_count;
-    Area** alist = (Area**)alloc_mem(alist_size);
+    size_t alist_size = sizeof(AreaData*) * area_data_count;
+    AreaData** alist = (AreaData**)alloc_mem(alist_size);
 
     {
         int i = 0;
-        for (Area* area = area_first; area; NEXT_LINK(area)) {
+        for (AreaData* area = area_data_list; area; NEXT_LINK(area)) {
             alist[i++] = area;
         }
     }
@@ -530,12 +535,12 @@ void do_alist(Mobile* ch, char* argument)
 
         READ_ARG(sort);
         if (!str_cmp(sort, "vnum")) {
-            SORT_ARRAY(Area*, alist, area_count,
+            SORT_ARRAY(AreaData*, alist, area_data_count,
                 alist[i]->min_vnum < alist[lo]->min_vnum,
                 alist[i]->min_vnum > alist[hi]->min_vnum);
         }
         else if (!str_cmp(sort, "name")) {
-            SORT_ARRAY(Area*, alist, area_count,
+            SORT_ARRAY(AreaData*, alist, area_data_count,
                 strcasecmp(alist[i]->name, alist[lo]->name) < 0,
                 strcasecmp(alist[i]->name, alist[hi]->name) > 0);
         }
@@ -545,8 +550,8 @@ void do_alist(Mobile* ch, char* argument)
         }
     }
 
-    for (int i = 0; i < area_count; ++i) {
-        Area* area = alist[i];
+    for (int i = 0; i < area_data_count; ++i) {
+        AreaData* area = alist[i];
         addf_buf( result, "{|[{*%3d{|]{x %-29.29s {|({*%-5d{|-{*%5d{|) {_%-12.12s {|[{*%d{|] [{*%-10.10s{|]{x\n\r",
             area->vnum,
             area->name,
@@ -570,11 +575,11 @@ alist_cleanup:
  Purpose:	Returns pointer to area with given vnum.
  Called by:	do_aedit(olc.c).
  ****************************************************************************/
-Area* get_area_data(VNUM vnum)
+AreaData* get_area_data(VNUM vnum)
 {
-    Area* area;
+    AreaData* area;
 
-    FOR_EACH(area, area_first) {
+    FOR_EACH(area, area_data_list) {
         if (area->vnum == vnum)
             return area;
     }

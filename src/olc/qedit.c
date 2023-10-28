@@ -70,7 +70,7 @@ void qedit(Mobile* ch, char* argument)
 void do_qedit(Mobile* ch, char* argument)
 {
     Quest* quest;
-    Area* area;
+    AreaData* area_data;
     char command[MAX_STRING_LENGTH];
     VNUM  vnum;
 
@@ -82,12 +82,12 @@ void do_qedit(Mobile* ch, char* argument)
     if (is_number(command)) {
         vnum = (VNUM)atoi(command);
 
-        if ((area = get_vnum_area(vnum)) == NULL) {
+        if ((area_data = get_vnum_area(vnum)) == NULL) {
             send_to_char("{jQEDIT: That VNUM is not assigned to an area.{x\n\r", ch);
             return;
         }
 
-        if (!IS_BUILDER(ch, area)) {
+        if (!IS_BUILDER(ch, area_data)) {
             send_to_char("{jYou do not have enough security to edit quests in that area.{x\n\r", ch);
             return;
         }
@@ -122,7 +122,7 @@ void do_qedit(Mobile* ch, char* argument)
 QEDIT(qedit_create)
 {
     Quest* quest;
-    Area* area;
+    AreaData* area_data;
 
     VNUM vnum = (VNUM)atoi(argument);
 
@@ -136,12 +136,12 @@ QEDIT(qedit_create)
         return false;
     }
 
-    if ((area = get_vnum_area(vnum)) == NULL) {
+    if ((area_data = get_vnum_area(vnum)) == NULL) {
         send_to_char("{jQEDIT: That vnum has not been assigned to an area.{x\n\r", ch);
         return false;
     }
 
-    if (!IS_BUILDER(ch, area)) {
+    if (!IS_BUILDER(ch, area_data)) {
         send_to_char("{jQEDIT: You do not have access to this area.{x\n\r", ch);
         return false;
     }
@@ -153,10 +153,10 @@ QEDIT(qedit_create)
 
     quest = new_quest();
     quest->vnum = vnum;
-    quest->area = area;
-    quest->area->low_range;
+    quest->area_data = area_data;
+    quest->level = area_data->low_range;
 
-    ORDERED_INSERT(Quest, quest, area->quests, vnum);
+    ORDERED_INSERT(Quest, quest, area_data->quests, vnum);
 
     set_editor(ch->desc, ED_QUEST, U(quest));
 
@@ -208,7 +208,7 @@ QEDIT(qedit_show)
 
     printf_to_char(ch, "VNUM:       {|[{*%"PRVNUM"{|]{x\n\r", quest->vnum);
     printf_to_char(ch, "Name:       {T%s{x\n\r", quest->name && quest->name[0] ? quest->name : "(none)");
-    printf_to_char(ch, "Area:       {*%s{x\n\r", quest->area->name);
+    printf_to_char(ch, "Area:       {*%s{x\n\r", quest->area_data->name);
     printf_to_char(ch, "Type:       {|[{*%s{|]{x\n\r", quest_type_table[quest->type].name);
     printf_to_char(ch, "Level:      {|[{*%d{|]{x\n\r", quest->level);
     printf_to_char(ch, "End:        {|[{*%d{|]{x {_%s{x\n\r", quest->end, end_name);

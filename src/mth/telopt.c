@@ -944,7 +944,7 @@ size_t process_do_mssp(Descriptor* d, unsigned char* src, size_t srclen)
 	int player_count = 0;
 
 	PlayerData* player_next = NULL;
-	for (PlayerData* player = player_list; player != NULL; player = player_next) {
+	for (PlayerData* player = player_data_list; player != NULL; player = player_next) {
 		player_next = player->next;
 		if (player->ch->invis_level > 0)
 			continue;
@@ -984,11 +984,11 @@ size_t process_do_mssp(Descriptor* d, unsigned char* src, size_t srclen)
 	cat_sprintf(buffer, "%c%s%c%s", MSSP_VAR, "STATUS",				MSSP_VAL,	cfg_get_status());
 	cat_sprintf(buffer, "%c%s%c%s", MSSP_VAR, "SUBGENRE",			MSSP_VAL,	cfg_get_subgenre());
 
-	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "AREAS",				MSSP_VAL,	area_count);
+	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "AREAS",				MSSP_VAL,	area_data_count);
 	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "HELPFILES",			MSSP_VAL,	help_count);
 	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "MOBILES",			MSSP_VAL,	mob_proto_count);
 	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "OBJECTS",			MSSP_VAL,	obj_proto_count);
-	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "ROOMS",				MSSP_VAL,	room_count);
+	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "ROOMS",				MSSP_VAL,	room_data_count);
 
 	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "CLASSES",			MSSP_VAL,	class_count);
 	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "LEVELS",				MSSP_VAL,	MAX_LEVEL);
