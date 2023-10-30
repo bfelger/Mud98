@@ -52,7 +52,6 @@ typedef struct mobile_t {
     Area* zone;
     PlayerData* pcdata;
     CharGenData* gen_data;
-    ResetCounter** reset_counter;
     char* name;
     char* material;
     char* short_descr;
@@ -167,6 +166,7 @@ void free_mobile(Mobile* ch);
 void clone_mobile(Mobile* parent, Mobile* clone);
 Mobile* create_mobile(MobPrototype* p_mob_proto);
 long get_mob_id();
+void clear_mob(Mobile* ch);
 
 extern Mobile* mob_list;
 extern Mobile* mob_free;

@@ -59,9 +59,6 @@ void free_mobile(Mobile* mob)
     if (!IS_VALID(mob))
         return;
 
-    if (mob->reset_counter != NULL)
-        dec_reset_counter(*mob->reset_counter, mob->prototype->vnum);
-
     while((obj = mob->carrying) != NULL) {
         extract_obj(obj);
     }
@@ -335,4 +332,32 @@ long get_mob_id()
 {
     last_mob_id++;
     return last_mob_id;
+}
+
+void clear_mob(Mobile* ch)
+{
+    static Mobile ch_zero = { 0 };
+    int i;
+
+    *ch = ch_zero;
+    ch->name = &str_empty[0];
+    ch->short_descr = &str_empty[0];
+    ch->long_descr = &str_empty[0];
+    ch->description = &str_empty[0];
+    ch->prompt = &str_empty[0];
+    ch->logon = current_time;
+    ch->lines = PAGELEN;
+    for (i = 0; i < 4; i++) ch->armor[i] = 100;
+    ch->position = POS_STANDING;
+    ch->hit = 20;
+    ch->max_hit = 20;
+    ch->mana = 100;
+    ch->max_mana = 100;
+    ch->move = 100;
+    ch->max_move = 100;
+    ch->on = NULL;
+    for (i = 0; i < STAT_COUNT; i++) {
+        ch->perm_stat[i] = 13;
+        ch->mod_stat[i] = 0;
+    }
 }

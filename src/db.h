@@ -46,13 +46,12 @@
 /* Magic number for memory allocation */
 #define MAGIC_NUM               52571214
 
-void assign_area_vnum(VNUM vnum);       // OLC
-void reset_area(Area* area);      // OLC
-void reset_room(Room* pRoom);	    // OLC
+void assign_area_vnum(VNUM vnum);
+void reset_area(Area* area);
+void reset_room(Room* pRoom);
 char* print_flags(FLAGS flag);
 void boot_db(void);
 void area_update(void);
-void clear_char(Mobile* ch);
 MobProgCode* get_mprog_index(VNUM vnum);
 char fread_letter(FILE* fp);
 int fread_number(FILE* fp);
@@ -67,6 +66,7 @@ void* alloc_mem(size_t sMem);
 void* alloc_perm(size_t sMem);
 void free_mem(void* pMem, size_t sMem);
 char* str_dup(const char* str);
+char* str_append(char* str1, const char* str2);
 void free_string(char* pstr);
 int number_fuzzy(int number);
 int number_range(int from, int to);
@@ -119,8 +119,9 @@ extern KillData kill_table[MAX_LEVEL];
 extern char bug_buf[];
 extern char log_buf[];
 extern bool fBootDb;
-extern int extra_desc_count;
-extern int shop_count;
+extern FILE* strArea;
+extern char fpArea[MAX_INPUT_LENGTH];
+extern AreaData* current_area_data;
 
 extern int _filbuf(FILE*);
 

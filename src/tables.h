@@ -126,6 +126,7 @@ extern const struct flag_type dam_classes[DAM_TYPE_COUNT];
 extern const struct flag_type log_flag_table[];
 extern const struct flag_type show_flag_table[];
 extern const struct flag_type stat_table[STAT_COUNT+1];
+extern const struct flag_type inst_type_table[];
 
 void show_flags_to_char(Mobile* ch, const struct flag_type* flags);
 

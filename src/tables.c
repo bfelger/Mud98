@@ -837,6 +837,12 @@ const struct flag_type stat_table[STAT_COUNT+1] = {
     { NULL,             0,                  true    }
 };
 
+const struct flag_type inst_type_table[] = {
+    { "single",         AREA_INST_SINGLE,   true    },
+    { "multi",          AREA_INST_MULTI,    true    },
+    { NULL,             0,                  0       }
+};
+
 void show_flags_to_char(Mobile* ch, const struct flag_type* flags)
 {
     char line[25];

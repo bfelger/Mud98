@@ -321,7 +321,6 @@ void load_mobiles(FILE* fp)
                 break;
             }
         }
-
         hash = vnum % MAX_KEY_HASH;
         p_mob_proto->next = mob_proto_hash[hash];
         mob_proto_hash[hash] = p_mob_proto;

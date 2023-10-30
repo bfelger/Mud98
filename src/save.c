@@ -1005,10 +1005,15 @@ void fread_char(Mobile* ch, FILE* fp)
             KEY("Race", ch->race, race_lookup(fread_string(fp)));
 
             if (!str_cmp(word, "Room")) {
-                Room* room;
-                // Don't let them log back in to a deleted instance
-                ch->in_room = ((room = get_room(NULL, fread_number(fp))) != NULL)
-                    ? room : NULL; 
+                RoomData* room_data = get_room_data(fread_number(fp));
+                // Don't let them log back in to a deleted instance unless it's 
+                // a newbie zone.
+                if (room_data) {
+                    Area* area = get_area_for_player(ch, room_data->area_data);
+                    if (area || room_data->area_data->low_range == 1) {
+                        ch->in_room = get_room_for_player(ch, room_data->vnum);
+                    }
+                }
                 fMatch = true;
                 break;
             }

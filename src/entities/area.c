@@ -7,7 +7,12 @@
 
 #include "area.h"
 
+#include "comm.h"
+#include "config.h"
 #include "db.h"
+#include "handler.h"
+
+#include "olc/olc.h"
 
 #include "data/direction.h"
 
@@ -27,6 +32,7 @@ Area* new_area(AreaData* area_data)
 
     area->data = area_data;
     area->empty = true;
+    area->owner_list = str_empty;
     area->reset_timer = area->data->reset_thresh;
 
     return area;
@@ -34,17 +40,6 @@ Area* new_area(AreaData* area_data)
 
 void free_area(Area* area)
 {
-    ResetCounter* counter = NULL;
-    while ((counter = area->obj_counts) != NULL) {
-        NEXT_LINK(area->obj_counts);
-        free_reset_counter(counter);
-    }
-
-    while ((counter = area->mob_counts) != NULL) {
-        NEXT_LINK(area->mob_counts);
-        free_reset_counter(counter);
-    }
-
     LIST_FREE(area);
 }
 
@@ -85,11 +80,9 @@ Area* create_area_instance(AreaData* area_data, bool create_exits)
 
     Room* room;
     RoomData* room_data;
-    for (int hash = 0; hash < MAX_KEY_HASH; ++hash) {
-        FOR_EACH(room_data, room_data_hash[hash]) {
-            if (room_data->area_data == area_data) {
-                room = new_room(room_data, area);
-            }
+    FOR_EACH_GLOBAL_ROOM_DATA(room_data) {
+        if (room_data->area_data == area_data) {
+            room = new_room(room_data, area);
         }
     }
 
@@ -103,19 +96,116 @@ Area* create_area_instance(AreaData* area_data, bool create_exits)
 void create_instance_exits(Area* area)
 {
     Room* room;
-    for (int hash = 0; hash < AREA_ROOM_VNUM_HASH_SIZE; ++hash) {
-        FOR_EACH(room, area->rooms[hash]) {
-            for (int i = 0; i < DIR_MAX; ++i) {
-                if (room->data->exit_data[i])
-                    room->exit[i] = new_room_exit(room->data->exit_data[i], room);
-            }
+    FOR_EACH_AREA_ROOM(room, area) {
+        for (int i = 0; i < DIR_MAX; ++i) {
+            if (room->data->exit_data[i])
+                room->exit[i] = new_room_exit(room->data->exit_data[i], room);
         }
     }
 }
 
+/*
+ * OLC
+ * Use these macros to load any new area formats that you choose to
+ * support on your MUD.  See the load_area format below for
+ * a short example.
+ */
 
+#if defined(KEY)
+#undef KEY
+#endif
 
+#define KEY( literal, field, value )    \
+    if (!str_cmp(word, literal)) {      \
+        field  = value;                 \
+        break;                          \
+    }
 
+#define SKEY( string, field )           \
+    if (!str_cmp(word, string)) {       \
+        free_string(field);             \
+        field = fread_string(fp);       \
+        break;                          \
+    }
 
+void load_area(FILE* fp)
+{
+    AreaData* area_data;
+    char* word;
+    int version = 1;
 
+    area_data = new_area_data();
+    area_data->reset_thresh = 6;
+    area_data->file_name = str_dup(fpArea);
+    area_data->vnum = area_data_count;
+    area_data->security = 9;
 
+    for (; ; ) {
+        word = feof(fp) ? "End" : fread_word(fp);
+
+        switch (UPPER(word[0])) {
+        case 'A':
+            KEY("AlwaysReset", area_data->always_reset, (bool)fread_number(fp));
+        case 'B':
+            SKEY("Builders", area_data->builders);
+            break;
+        case 'C':
+            SKEY("Credits", area_data->credits);
+            break;
+        case 'E':
+            if (!str_cmp(word, "End")) {
+                if (area_data_list == NULL)
+                    area_data_list = area_data;
+                if (area_data_last != NULL)
+                    area_data_last->next = area_data;
+                area_data_last = area_data;
+                area_data->next = NULL;
+                current_area_data = area_data;
+                return;
+            }
+            break;
+        case 'H':
+            KEY("High", area_data->high_range, (LEVEL)fread_number(fp));
+            break;
+        case 'I':
+            KEY("InstType", area_data->inst_type, fread_number(fp));
+            break;
+        case 'L':
+            KEY("Low", area_data->low_range, (LEVEL)fread_number(fp));
+            break;
+        case 'N':
+            SKEY("Name", area_data->name);
+            break;
+        case 'R':
+            KEY("Reset", area_data->reset_thresh, (int16_t)fread_number(fp));
+            break;
+        case 'S':
+            KEY("Security", area_data->security, fread_number(fp));
+            KEY("Sector", area_data->sector, fread_number(fp));
+            break;
+        case 'V':
+            if (!str_cmp(word, "VNUMs")) {
+                area_data->min_vnum = fread_number(fp);
+                area_data->max_vnum = fread_number(fp);
+                break;
+            }
+            KEY("Version", version, fread_number(fp));
+            break;
+        // End switch
+        }
+    }
+}
+
+Area* get_area_for_player(Mobile* ch, AreaData* area_data)
+{
+    Area* area = NULL;
+    if (area_data->inst_type == AREA_INST_SINGLE)
+        return area_data->instances;
+
+    FOR_EACH(area, area_data->instances) {
+        if (is_name(ch->name, area->owner_list))
+            return area;
+    }
+
+    return NULL;
+}

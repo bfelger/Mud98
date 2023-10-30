@@ -36,9 +36,6 @@ void free_object(Object* obj)
     if (!IS_VALID(obj))
         return;
 
-    if (obj->reset_counter != NULL)
-        dec_reset_counter(*obj->reset_counter, obj->prototype->vnum);
-
     for (affect = obj->affected; affect != NULL; affect = paf_next) {
         paf_next = affect->next;
         free_affect(affect);

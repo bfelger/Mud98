@@ -39,6 +39,7 @@ const OlcCmdEntry area_olc_comm_table[] = {
     { "sector",	        U(&xArea.sector),	    ed_flag_set_sh,		U(sector_flag_table)},
     { "credits", 	    U(&xArea.credits),      ed_line_string,     0                   },
     { "alwaysreset",    U(&xArea.always_reset), ed_bool,            0                   },
+    { "instancetype",   U(&xArea.inst_type),    ed_flag_set_sh,     U(inst_type_table)  },
     { "builder", 	    0,                      ed_olded,           U(aedit_builder)	},
     { "commands", 	    0,                      ed_olded,           U(show_commands)	},
     { "create", 	    0,                      ed_olded,           U(aedit_create)	    },
@@ -143,10 +144,11 @@ AEDIT(aedit_show)
     printf_to_char(ch, "Vnums:          {|[{*%d-%d{|]{x\n\r", area->min_vnum, area->max_vnum);
     printf_to_char(ch, "Levels:         {|[{*%d-%d{|]{x\n\r", area->low_range, area->high_range);
     printf_to_char(ch, "Sector:         {|[{*%s{|]{x\n\r", flag_string(sector_flag_table, area->sector));
-    printf_to_char(ch, "Reset:          {|[{*%d{|] {_x %d minutes", area->reset_thresh); 
+    printf_to_char(ch, "Reset:          {|[{*%d{|] {_x %d minutes", area->reset_thresh, (area->reset_thresh * PULSE_AREA) / 60);
     //printf_to_char(ch, "; current at %d", (PULSE_AREA / 60), area->reset_timer);
     printf_to_char(ch, "{x\n\r");
     printf_to_char(ch, "Always Reset:   {|[%s{|]{x\n\r", area->always_reset ? "{GYES" : "{RNO");
+    printf_to_char(ch, "Instance Type:  {|[{*%s{|]{x\n\r", flag_string(inst_type_table, area->inst_type));
     printf_to_char(ch, "Security:       {|[{*%d{|]{x\n\r", area->security);
     printf_to_char(ch, "Builders:       {|[{*%s{|]{x\n\r", area->builders);
     printf_to_char(ch, "Credits :       {|[{*%s{|]{x\n\r", area->credits);

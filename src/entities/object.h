@@ -34,7 +34,6 @@ typedef struct object_t {
     Affect* affected;
     ObjPrototype* prototype;
     Room* in_room;
-    ResetCounter** reset_counter;
     char* owner;
     char* name;
     char* short_descr;

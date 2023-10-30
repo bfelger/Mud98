@@ -7,6 +7,7 @@
 
 #include "comm.h"
 #include "db.h"
+#include "handler.h"
 
 #include "room_exit.h"
 #include "extra_desc.h"
@@ -19,7 +20,7 @@ Room* room_free;
 int room_data_count;
 int room_data_perm_count;
 RoomData* room_data_free;
-RoomData* room_data_hash[MAX_KEY_HASH];
+RoomData* room_data_hash_table[MAX_KEY_HASH];
 
 VNUM top_vnum_room;
 
@@ -38,8 +39,6 @@ Room* new_room(RoomData* room_data, Area* area)
 
     ORDERED_INSERT(Room, room, area->rooms[hash], vnum);
 
-    //room->next = area->rooms[hash];
-    //area->rooms[hash] = room;
     return room;
 }
 
@@ -52,21 +51,6 @@ void free_room(Room* room)
     Area* area = room->area;
 
     UNORDERED_REMOVE(Room, room, area->rooms[hash], vnum, room->vnum);
-
-    //if (room == area->rooms[hash])
-    //    area->rooms[hash] = room->next;
-    //else {
-    //    Room* iter;
-    //    for (iter = area->rooms[hash]; iter && iter->next != room; NEXT_LINK(iter))
-    //        ;
-    //    if (!iter) {
-    //        bugf("Could not delete room %s (%d); not present in area",
-    //            room->data->name, room->data->vnum);
-    //        return;
-    //    }
-    //    iter->next = room->next;
-    //}
-
 
     LIST_FREE(room);
 }
@@ -117,21 +101,16 @@ void free_room_data(RoomData* room_data)
  */
 RoomData* get_room_data(VNUM vnum)
 {
-    RoomData* room_data;
+    RoomData* room_data = NULL;
 
-    for (room_data = room_data_hash[vnum % MAX_KEY_HASH];
-        room_data != NULL;
-        NEXT_LINK(room_data)) {
-        if (room_data->vnum == vnum)
-            return room_data;
-    }
+    ORDERED_GET(RoomData, room_data, room_data_hash_table[vnum % MAX_KEY_HASH], vnum, vnum);
 
-    if (fBootDb) {
+    if (!room_data && fBootDb) {
         bug("get_room_data: bad vnum %"PRVNUM".", vnum);
         exit(1);
     }
 
-    return NULL;
+    return room_data;
 }
 
 Room* get_room(Area* search_context, VNUM vnum)
@@ -140,7 +119,7 @@ Room* get_room(Area* search_context, VNUM vnum)
     RoomData* room_data = get_room_data(vnum);
 
     if (!room_data) {
-        if (/*fBootDb*/1) {
+        if (fBootDb) {
             bug("get_room: bad vnum %"PRVNUM".", vnum);
             exit(1);
         }
@@ -152,12 +131,11 @@ Room* get_room(Area* search_context, VNUM vnum)
         // room in the same instance.
         search_area = search_context;
     }
-    else if (room_data->area_data->inst_type == AREA_INST_NONE) {
+    else if (room_data->area_data->inst_type == AREA_INST_SINGLE) {
         // The target area isn't instanced; it only has one Area object.
         search_area = room_data->area_data->instances;
     }
     else {
-        // TODO: Lookup available instances for room_data
         return NULL;
     }
 
@@ -165,15 +143,46 @@ Room* get_room(Area* search_context, VNUM vnum)
     Room* room = NULL;
     ORDERED_GET(Room, room, search_area->rooms[hash], vnum, vnum);
 
-    //FOR_EACH(room, search_area->rooms[vnum % AREA_ROOM_VNUM_HASH_SIZE]) {
-    //    if (room->vnum == vnum)
-    //        return room;
-    //}
-
     if (fBootDb && !room) {
         bug("get_room: bad vnum %"PRVNUM".", vnum);
         exit(1);
     }
 
     return room;
+}
+
+Room* get_room_for_player(Mobile* ch, VNUM vnum)
+{
+    Area* area = ch->in_room ? ch->in_room->area : NULL;
+    // Look for existing room in current area or another single-instance area
+    Room* room = get_room(area, vnum);
+
+    if (room)
+        return room;
+
+    RoomData* room_data = get_room_data(vnum);
+    if (!room_data || room_data->area_data->inst_type != AREA_INST_MULTI)
+        return NULL;
+
+    // Look for an existing instance owned by the player
+    area = get_area_for_player(ch, room_data->area_data);
+
+    if (area) {
+        // There is an instance. Find the vnum for the room
+        return get_room(area, vnum);
+    }
+
+    // TODO: Check for party members and use theirs, as well, adding the new
+    // name to the owner_list of the existing instance.
+
+    // No instance exists. We have to make one.
+    logf("Creating new instance '%s' for %s.", room_data->area_data->name,
+        ch->name);
+    area = create_area_instance(room_data->area_data, true);
+    INIT_BUF(buf, MSL);
+    addf_buf(buf, "%s %s", ch->name, area->owner_list);
+    RESTRING(area->owner_list, BUF(buf));
+    reset_area(area);
+    free_buf(buf);
+    return get_room(area, vnum);
 }

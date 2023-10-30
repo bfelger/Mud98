@@ -32,7 +32,7 @@ typedef enum area_flags_t {
 } AreaFlags;
 
 typedef enum inst_type_t {
-    AREA_INST_NONE  = 0,
+    AREA_INST_SINGLE  = 0,
     AREA_INST_MULTI = 1,        // Multiple instances, delete instead of reset
     //AREA_INST_WEEK  = 2,      // For future; weekly instance locks
 } InstanceType;
@@ -41,9 +41,7 @@ typedef struct area_t {
     Area* next;
     AreaData* data;
     Room* rooms[AREA_ROOM_VNUM_HASH_SIZE];
-    ResetCounter* mob_counts;
-    ResetCounter* obj_counts;
-    char* char_list;
+    char* owner_list;
     int16_t reset_timer;
     int nplayer;
     bool empty;
@@ -74,6 +72,8 @@ typedef struct area_data_t {
 AreaData* new_area_data();
 Area* create_area_instance(AreaData* area_data, bool create_exits);
 void create_instance_exits(Area* area);
+void save_area(AreaData* area);
+Area* get_area_for_player(Mobile* ch, AreaData* area_data);
 
 extern int area_count;
 extern int area_perm_count;

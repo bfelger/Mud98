@@ -299,7 +299,7 @@ Mobile* get_random_char(Mobile* mob)
 {
     Mobile* vch, * victim = NULL;
     int now = 0, highest = 0;
-    for (vch = mob->in_room->people; vch; vch = vch->next_in_room) {
+    FOR_EACH_IN_ROOM(vch, mob->in_room->people) {
         if (mob != vch
             && !IS_NPC(vch)
             && can_see(mob, vch)
@@ -318,8 +318,8 @@ Mobile* get_random_char(Mobile* mob)
 int count_people_room(Mobile* mob, int iFlag)
 {
     Mobile* vch;
-    int count;
-    for (count = 0, vch = mob->in_room->people; vch; vch = vch->next_in_room)
+    int count = 0;
+    FOR_EACH_IN_ROOM(vch, mob->in_room->people)
         if (mob != vch
             && (iFlag == 0
                 || (iFlag == 1 && !IS_NPC(vch))

@@ -1283,11 +1283,6 @@ void obj_from_room(Object* obj)
         }
     }
 
-    if (obj->reset_counter) {
-        dec_reset_counter(*obj->reset_counter, obj->prototype->vnum);
-        obj->reset_counter = NULL;
-    }
-
     obj->in_room = NULL;
     obj->next_content = NULL;
     return;

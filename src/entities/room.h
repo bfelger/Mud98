@@ -91,9 +91,18 @@ typedef struct room_data_t {
 #define FOR_EACH_INSTANCE(r, i) \
     for ((r) = (i); (r) != NULL; (r) = r->next_instance)
 
+#define FOR_EACH_GLOBAL_ROOM_DATA(r) \
+    for (int r##_hash = 0; r##_hash < MAX_KEY_HASH; ++r##_hash) \
+        FOR_EACH(r, room_data_hash_table[r##_hash])
+
+#define FOR_EACH_AREA_ROOM(r, a) \
+    for (int r##_hash = 0; r##_hash < AREA_ROOM_VNUM_HASH_SIZE; ++r##_hash) \
+        FOR_EACH(r, (a)->rooms[r##_hash])
+
 Room* new_room(RoomData* room_data, Area* area);
 void free_room(Room* room);
 Room* get_room(Area* search_context, VNUM vnum);
+Room* get_room_for_player(Mobile* ch, VNUM vnum);
 
 void free_room_data(RoomData* pRoom);
 RoomData* get_room_data(VNUM vnum);
@@ -104,7 +113,7 @@ extern int room_perm_count;
 extern int room_data_count;
 extern int room_data_perm_count;
 
-extern RoomData* room_data_hash[MAX_KEY_HASH];
+extern RoomData* room_data_hash_table[MAX_KEY_HASH];
 
 extern VNUM top_vnum_room;
 

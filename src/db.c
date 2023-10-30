@@ -261,7 +261,10 @@ void boot_db()
 
             close_file(strArea);
             strArea = NULL;
-            if (current_area_data)
+            // Only create single-instance areas.
+            // All others are created on-demand.
+            if (current_area_data 
+                && current_area_data->inst_type == AREA_INST_SINGLE)
                 create_area_instance(current_area_data, false);
         }
         close_file(fpList);
@@ -311,74 +314,6 @@ void boot_db()
         field = fread_string(fp);       \
         break;                          \
     }
-
-void load_area(FILE* fp)
-{
-    AreaData* area_data;
-    char* word;
-    int version = 1;
-
-    area_data = new_area_data();
-    area_data->reset_thresh = 6;
-    area_data->file_name = str_dup(fpArea);
-    area_data->vnum = area_data_count;
-    area_data->security = 9;
-
-    for (; ; ) {
-        word = feof(fp) ? "End" : fread_word(fp);
-
-        switch (UPPER(word[0])) {
-        case 'A':
-            KEY("AlwaysReset", area_data->always_reset, (bool)fread_number(fp));
-        case 'B':
-            SKEY("Builders", area_data->builders);
-            break;
-        case 'C':
-            SKEY("Credits", area_data->credits);
-            break;
-        case 'E':
-            if (!str_cmp(word, "End")) {
-                if (area_data_list == NULL)
-                    area_data_list = area_data;
-                if (area_data_last != NULL)
-                    area_data_last->next = area_data;
-                area_data_last = area_data;
-                area_data->next = NULL;
-                current_area_data = area_data;
-                return;
-            }
-            break;
-        case 'H':
-            KEY("High", area_data->high_range, (LEVEL)fread_number(fp));
-            break;
-        case 'I':
-            KEY("InstType", area_data->inst_type, fread_number(fp));
-            break;
-        case 'L':
-            KEY("Low", area_data->low_range, (LEVEL)fread_number(fp));
-            break;
-        case 'N':
-            SKEY("Name", area_data->name);
-            break;
-        case 'R':
-            KEY("Reset", area_data->reset_thresh, (int16_t)fread_number(fp));
-            break;
-        case 'S':
-            KEY("Security", area_data->security, fread_number(fp));
-            KEY("Sector", area_data->sector, fread_number(fp));
-            break;
-        case 'V':
-            if (!str_cmp(word, "VNUMs")) {
-                area_data->min_vnum = fread_number(fp);
-                area_data->max_vnum = fread_number(fp);
-                break;
-            }
-            KEY("Version", version, fread_number(fp));
-            break;
-        // End switch
-        }
-    }
-}
 
 // Sets vnum range for area using OLC protection features.
 void assign_area_vnum(VNUM vnum)
@@ -591,7 +526,6 @@ void load_rooms(FILE* fp)
         VNUM vnum;
         char letter;
         int door;
-        int hash;
 
         letter = fread_letter(fp);
         if (letter != '#') {
@@ -629,7 +563,8 @@ void load_rooms(FILE* fp)
         for (;;) {
             letter = fread_letter(fp);
 
-            if (letter == 'S') break;
+            if (letter == 'S') 
+                break;
 
             if (letter == 'H') /* healing room */
                 room_data->heal_rate = (int16_t)fread_number(fp);
@@ -705,9 +640,7 @@ void load_rooms(FILE* fp)
             }
         }
 
-        hash = vnum % MAX_KEY_HASH;
-        room_data->next = room_data_hash[hash];
-        room_data_hash[hash] = room_data;
+        ORDERED_INSERT(RoomData, room_data, room_data_hash_table[vnum % MAX_KEY_HASH], vnum);
         top_vnum_room = top_vnum_room < vnum ? vnum : top_vnum_room;
         assign_area_vnum(vnum);
     }
@@ -803,7 +736,7 @@ void fix_exits()
     int door;
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++) {
-        FOR_EACH(room_data, room_data_hash[hash]) {
+        FOR_EACH(room_data, room_data_hash_table[hash]) {
             bool fexit;
 
             last_room_index = last_obj_index = NULL;
@@ -881,7 +814,7 @@ void fix_exits()
     }
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++) {
-        FOR_EACH(room_data, room_data_hash[hash]) {
+        FOR_EACH(room_data, room_data_hash_table[hash]) {
             for (door = 0; door <= 5; door++) {
                 if ((room_exit = room_data->exit_data[door]) != NULL
                     && (to_room = room_exit->to_room) != NULL
@@ -924,11 +857,15 @@ void area_update()
             ++area->reset_timer;
 
             if (area->reset_timer >= thresh) {
-                // TODO: If the area is "instanced": delete, don't reset.
-                reset_area(area);
-                sprintf(buf, "%s has just been reset.", area->data->name);
-                wiznet(buf, NULL, NULL, WIZ_RESETS, 0, 0);
-                area->reset_timer = 0;
+                if (area->data->inst_type == AREA_INST_MULTI && area->nplayer == 0) {
+                    // TODO: If the area is "instanced": delete, don't reset.
+                }
+                else {
+                    reset_area(area);
+                    sprintf(buf, "%s has just been reset.", area->data->name);
+                    wiznet(buf, NULL, NULL, WIZ_RESETS, 0, 0);
+                    area->reset_timer = 0;
+                }
             }
         }
     }
@@ -982,7 +919,7 @@ void load_mobprogs(FILE* fp)
 }
 
 //  Translate mobprog vnums pointers to real code
-void fix_mobprogs(void)
+void fix_mobprogs()
 {
     MobPrototype* p_mob_proto;
     MobProg* list;
@@ -1059,7 +996,12 @@ void reset_room(Room* room)
                 continue;
             }
 
-            if (mob_proto->count >= reset->arg2) {
+            if (reset->arg2 == -1)
+                limit = 999;    // No limit
+            else
+                limit = reset->arg2;
+
+            if (mob_proto->count >= limit) {
                 last = false;
                 break;
             }
@@ -1077,15 +1019,12 @@ void reset_room(Room* room)
                     }
                 }
 
-            //count = get_reset_count(room->area->mob_counts, mob_proto->vnum);
             if (count >= reset->arg4)
                 break;
 
             /* */
 
             mob = create_mobile(mob_proto);
-            mob->reset_counter = &room->area->mob_counts;
-            inc_reset_counter(mob->reset_counter, mob_proto->vnum);
 
             // Some more hard coding.
             if (room_is_dark(room))
@@ -1124,22 +1063,14 @@ void reset_room(Room* room)
             }
 
             if ((room->area->nplayer > 0 && !room->area->data->always_reset)
-                //|| count_obj_list(obj_proto, room->contents) > 0
+                || count_obj_list(obj_proto, room->contents) > 0
                 ) {
-                last = false;
-                break;
-            }
-
-            count = get_reset_count(room->area->obj_counts, obj_proto->vnum);
-            if (count > 0) {
                 last = false;
                 break;
             }
 
             obj = create_object(obj_proto, (LEVEL)UMIN(number_fuzzy(level),
                 LEVEL_HERO - 1)); 
-            obj->reset_counter = &room->area->obj_counts;
-            inc_reset_counter(obj->reset_counter, obj_proto->vnum);
             obj->cost = 0;
             obj_to_room(obj, room);
             last = true;
@@ -1155,9 +1086,9 @@ void reset_room(Room* room)
                 continue;
             }
 
-            if (reset->arg2 > 50) /* old format */
+            if (reset->arg2 > 50)
                 limit = 6;
-            else if (reset->arg2 <= 0) /* no limit */
+            else if (reset->arg2 <= 0)
                 limit = 999;
             else
                 limit = reset->arg2;
@@ -1272,19 +1203,8 @@ void reset_room(Room* room)
 void reset_area(Area* area)
 {
     Room* room;
-
-    for (int i = 0; i < AREA_ROOM_VNUM_HASH_SIZE; ++i) {
-        if (area->data->inst_type != AREA_INST_MULTI) {
-            FOR_EACH(room, area->rooms[i]) {
-                reset_room(room);
-            }
-        }
-        else {
-            // TODO: If the area is AREA_INST_MULTI, delete instead of reset.
-        }
-    }
-
-    return;
+    FOR_EACH_AREA_ROOM(room, area)
+        reset_room(room);
 }
 
 MobProgCode* get_mprog_index(VNUM vnum)
@@ -1294,36 +1214,6 @@ MobProgCode* get_mprog_index(VNUM vnum)
             return(prg);
     }
     return NULL;
-}
-
-// Clear a new character.
-void clear_char(Mobile* ch)
-{
-    static Mobile ch_zero;
-    int i;
-
-    *ch = ch_zero;
-    ch->name = &str_empty[0];
-    ch->short_descr = &str_empty[0];
-    ch->long_descr = &str_empty[0];
-    ch->description = &str_empty[0];
-    ch->prompt = &str_empty[0];
-    ch->logon = current_time;
-    ch->lines = PAGELEN;
-    for (i = 0; i < 4; i++) ch->armor[i] = 100;
-    ch->position = POS_STANDING;
-    ch->hit = 20;
-    ch->max_hit = 20;
-    ch->mana = 100;
-    ch->max_mana = 100;
-    ch->move = 100;
-    ch->max_move = 100;
-    ch->on = NULL;
-    for (i = 0; i < STAT_COUNT; i++) {
-        ch->perm_stat[i] = 13;
-        ch->mod_stat[i] = 0;
-    }
-    return;
 }
 
 // Read a letter from a file.
@@ -1757,6 +1647,7 @@ void free_mem(void* pMem, size_t sMem)
 {
     int iList;
     int* magic;
+
     uintptr_t mem_addr = (uintptr_t)pMem;
 
     mem_addr -= sizeof(*magic); 
@@ -1829,12 +1720,26 @@ char* str_dup(const char* str)
 {
     char* str_new;
 
-    if (str[0] == '\0') return &str_empty[0];
+    if (str[0] == '\0') 
+        return &str_empty[0];
 
-    if (str >= string_space && str < top_string) return (char*)str;
+    if (str >= string_space && str < top_string) 
+        return (char*)str;
 
     str_new = alloc_mem(strlen(str) + 1);
     strcpy(str_new, str);
+    return str_new;
+}
+
+char* str_append(char* str1, const char* str2)
+{
+    size_t len1 = strlen(str1);
+    size_t len2 = strlen(str2);
+    char* str_new = alloc_mem(len1 + len2 + 1);
+    memcpy(str_new, str1, len1);
+    memcpy(str_new + len1, str2, len2);
+    str_new[len1 + len2] = '\0';
+    free_string(str1);
     return str_new;
 }
 

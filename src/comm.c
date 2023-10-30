@@ -1293,9 +1293,11 @@ void nanny(Descriptor * d, char* argument)
 
         write_to_buffer(d, (const char*)echo_on_str, 0);
 
-        if (check_playing(d, ch->name)) return;
+        if (check_playing(d, ch->name)) 
+            return;
 
-        if (check_reconnect(d, true)) return;
+        if (check_reconnect(d, true)) 
+            return;
 
         sprintf(log_buf, "%s@%s has connected.", ch->name, d->host);
         log_string(log_buf);
@@ -1686,7 +1688,6 @@ void nanny(Descriptor * d, char* argument)
 
         if (ch->level == 0) {
             ch->perm_stat[class_table[ch->ch_class].prime_stat] += 3;
-
             ch->level = 1;
             ch->exp = exp_per_level(ch, ch->pcdata->points);
             ch->hit = ch->max_hit;
@@ -1727,10 +1728,15 @@ void nanny(Descriptor * d, char* argument)
             if (start_loc == 0)
                 start_loc = cfg_get_default_start_loc();
 
-            char_to_room(ch, get_room(NULL, start_loc));
+            //Room* start_room = get_room_for_player(ch, start_loc);
+            //char_to_room(ch, start_room);
+
             send_to_char("\n\r", ch);
             do_function(ch, &do_help, "newbie info");
             send_to_char("\n\r", ch);
+
+            ch->in_room = get_room_for_player(ch, start_loc);
+            char_to_room(ch, ch->in_room);
         }
         else if (ch->in_room != NULL) {
             char_to_room(ch, ch->in_room);

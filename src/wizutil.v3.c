@@ -83,7 +83,7 @@ http://www.andreasen.org/
 // To have VLIST show more than vnum 0 - 9900, change the number below:
 #define MAX_SHOW_VNUM   99 // Show only 1 - 100*100 */
 
-extern RoomData* room_data_hash[];	// db.c
+extern RoomData* room_data_hash_table[];	// db.c
 
 /* opposite directions */
 const int16_t opposite_dir[6] = {
@@ -513,7 +513,7 @@ void do_for(Mobile* ch, char* argument)
         old_room = ch->in_room;
         for (i = 0; i < MAX_KEY_HASH; i++) {
             /* run through all the buckets */
-            FOR_EACH(room_data, room_data_hash[i]) {
+            FOR_EACH(room_data, room_data_hash_table[i]) {
                 FOR_EACH_INSTANCE(room, room_data->instances) {
                     found = false;
                     /* Anyone in here at all? */

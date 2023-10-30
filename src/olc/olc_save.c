@@ -537,7 +537,7 @@ void save_rooms(FILE* fp, AreaData* area)
     fprintf(fp, "#ROOMS\n");
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++) {
-        FOR_EACH(pRoomIndex, room_data_hash[hash]) {
+        FOR_EACH(pRoomIndex, room_data_hash_table[hash]) {
             if (pRoomIndex->area_data == area) {
                 fprintf(fp, "#%"PRVNUM"\n", pRoomIndex->vnum);
                 fprintf(fp, "%s~\n", pRoomIndex->name);
@@ -651,7 +651,7 @@ void save_door_resets(FILE* fp, AreaData* area)
     RoomExitData* room_exit;
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++) {
-        FOR_EACH(pRoomIndex, room_data_hash[hash]) {
+        FOR_EACH(pRoomIndex, room_data_hash_table[hash]) {
             if (pRoomIndex->area_data == area) {
                 for (i = 0; i < DIR_MAX; i++) {
                     if ((room_exit = pRoomIndex->exit_data[i]) == NULL)
@@ -703,7 +703,7 @@ void save_resets(FILE* fp, AreaData* area)
     save_door_resets(fp, area);
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++) {
-        FOR_EACH(pRoom, room_data_hash[hash]) {
+        FOR_EACH(pRoom, room_data_hash_table[hash]) {
             if (pRoom->area_data == area) {
                 FOR_EACH(reset, pRoom->reset_first) {
                     switch (reset->command) {
@@ -960,6 +960,7 @@ void save_area(AreaData* area)
     fprintf(fp, "High %d\n", area->high_range);
     fprintf(fp, "Reset %d\n", area->reset_thresh);
     fprintf(fp, "AlwaysReset %d\n", (int)area->always_reset);
+    fprintf(fp, "InstType %d\n", area->inst_type);
     fprintf(fp, "End\n\n\n\n");
 
     save_mobiles(fp, area);
@@ -968,7 +969,7 @@ void save_area(AreaData* area)
     save_specials(fp, area);
     save_resets(fp, area);
     save_shops(fp, area);
-    save_mobprogs( fp, area );
+    save_mobprogs(fp, area);
     save_progs(area->min_vnum, area->max_vnum);
     save_quests(fp, area);
 
@@ -992,7 +993,6 @@ void save_area(AreaData* area)
 #endif
 
 }
-
 
 /*****************************************************************************
  Name:		do_asave

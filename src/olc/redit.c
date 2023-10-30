@@ -722,7 +722,6 @@ REDIT(redit_create)
     AreaData* area_data;
     RoomData* room_data;
     VNUM value;
-    int hash;
 
     EDIT_ROOM(ch, room_data);
 
@@ -758,9 +757,8 @@ REDIT(redit_create)
     if (value > top_vnum_room)
         top_vnum_room = value;
 
-    hash = value % MAX_KEY_HASH;
-    room_data->next = room_data_hash[hash];
-    room_data_hash[hash] = room_data;
+
+    ORDERED_INSERT(RoomData, room_data, room_data_hash_table[value % MAX_KEY_HASH], vnum);
 
     Area* area;
     FOR_EACH(area, area_data->instances) {
@@ -1080,7 +1078,7 @@ void showresets(Mobile* ch, Buffer* buf, AreaData* area, MobPrototype* mob, ObjP
     int key, lastmob;
 
     for (key = 0; key < MAX_KEY_HASH; ++key)
-        FOR_EACH(room, room_data_hash[key])
+        FOR_EACH(room, room_data_hash_table[key])
             if (room->area_data == area) {
                 lastmob = -1;
                 pLastMob = NULL;
@@ -1204,7 +1202,7 @@ REDIT(redit_checkrooms)
     EDIT_ROOM(ch, thisroom);
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++)
-        FOR_EACH(room, room_data_hash[hash])
+        FOR_EACH(room, room_data_hash_table[hash])
             if (room->reset_num == 0 
                 && (fAll || room->area_data == thisroom->area_data))
                 printf_to_char(ch, "Room %d has no resets.\n\r", room->vnum);
