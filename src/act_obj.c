@@ -617,7 +617,7 @@ void do_give(Mobile* ch, char* argument)
             return;
         }
 
-        if ((victim = get_char_room(ch, arg2)) == NULL) {
+        if ((victim = get_mob_room(ch, arg2)) == NULL) {
             send_to_char("They aren't here.\n\r", ch);
             return;
         }
@@ -694,7 +694,7 @@ void do_give(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg2)) == NULL) {
+    if ((victim = get_mob_room(ch, arg2)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -947,7 +947,7 @@ void do_pour(Mobile* ch, char* argument)
     }
 
     if ((in = get_obj_here(ch, argument)) == NULL) {
-        vch = get_char_room(ch, argument);
+        vch = get_mob_room(ch, argument);
 
         if (vch == NULL) {
             send_to_char("Pour into what?\n\r", ch);
@@ -1680,7 +1680,7 @@ void do_recite(Mobile* ch, char* argument)
     obj = NULL;
     if (arg2[0] == '\0') { victim = ch; }
     else {
-        if ((victim = get_char_room(ch, arg2)) == NULL
+        if ((victim = get_mob_room(ch, arg2)) == NULL
             && (obj = get_obj_here(ch, arg2)) == NULL) {
             send_to_char("You can't find it.\n\r", ch);
             return;
@@ -1813,7 +1813,7 @@ void do_zap(Mobile* ch, char* argument)
         }
     }
     else {
-        if ((victim = get_char_room(ch, arg)) == NULL
+        if ((victim = get_mob_room(ch, arg)) == NULL
             && (obj = get_obj_here(ch, arg)) == NULL) {
             send_to_char("You can't find it.\n\r", ch);
             return;
@@ -1873,7 +1873,7 @@ void do_steal(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg2)) == NULL) {
+    if ((victim = get_mob_room(ch, arg2)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2209,7 +2209,7 @@ void do_buy(Mobile* ch, char* argument)
 
         plr_in_room = ch->in_room;
         ch->in_room = petshop_inv;
-        pet = get_char_room(ch, arg);
+        pet = get_mob_room(ch, arg);
         ch->in_room = plr_in_room;
 
         if (pet == NULL || !IS_SET(pet->act_flags, ACT_PET)) {
@@ -2262,7 +2262,7 @@ void do_buy(Mobile* ch, char* argument)
         free_string(pet->description);
         pet->description = str_dup(buf);
 
-        char_to_room(pet, ch->in_room);
+        mob_to_room(pet, ch->in_room);
         add_follower(pet, ch);
         pet->leader = ch;
         ch->pet = pet;

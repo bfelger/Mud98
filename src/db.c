@@ -1038,7 +1038,7 @@ void reset_room(Room* room)
                     SET_BIT(mob->act_flags, ACT_PET);
             }
 
-            char_to_room(mob, room);
+            mob_to_room(mob, room);
             last_mob = mob;
             level = URANGE(0, mob->level - 2, LEVEL_HERO - 1);
             last = true;

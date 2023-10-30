@@ -977,7 +977,7 @@ void bust_a_prompt(Mobile* ch)
     char* point;
     char* pbuff;
     char doors[MAX_INPUT_LENGTH] = "";
-    RoomExit* room_exit;
+    RoomExitData* room_exit_data;
     bool found;
     int door;
 
@@ -1009,12 +1009,12 @@ void bust_a_prompt(Mobile* ch)
             found = false;
             doors[0] = '\0';
             for (door = 0; door < DIR_MAX; door++) {
-                if ((room_exit = ch->in_room->exit[door]) != NULL
-                    && room_exit->to_room != NULL
-                    && (can_see_room(ch, room_exit->to_room->data)
+                if ((room_exit_data = ch->in_room->data->exit_data[door]) != NULL
+                    && room_exit_data->to_room != NULL
+                    && (can_see_room(ch, room_exit_data->to_room)
                         || (IS_AFFECTED(ch, AFF_INFRARED)
                             && !IS_AFFECTED(ch, AFF_BLIND)))
-                    && !IS_SET(room_exit->exit_flags, EX_CLOSED)) {
+                    && !IS_SET(ch->in_room->exit[door]->exit_flags, EX_CLOSED)) {
                     found = true;
                     strcat(doors, dir_list[door].name_abbr);
                 }
@@ -1728,24 +1728,21 @@ void nanny(Descriptor * d, char* argument)
             if (start_loc == 0)
                 start_loc = cfg_get_default_start_loc();
 
-            //Room* start_room = get_room_for_player(ch, start_loc);
-            //char_to_room(ch, start_room);
-
             send_to_char("\n\r", ch);
             do_function(ch, &do_help, "newbie info");
             send_to_char("\n\r", ch);
 
             ch->in_room = get_room_for_player(ch, start_loc);
-            char_to_room(ch, ch->in_room);
+            mob_to_room(ch, ch->in_room);
         }
         else if (ch->in_room != NULL) {
-            char_to_room(ch, ch->in_room);
+            mob_to_room(ch, ch->in_room);
         }
         else if (IS_IMMORTAL(ch)) {
-            char_to_room(ch, get_room(NULL, ROOM_VNUM_CHAT));
+            mob_to_room(ch, get_room(NULL, ROOM_VNUM_CHAT));
         }
         else {
-            char_to_room(ch, get_room(NULL, ch->pcdata->recall));
+            mob_to_room(ch, get_room(NULL, ch->pcdata->recall));
         }
 
         act("$n has entered the game.", ch, NULL, NULL, TO_ROOM);
@@ -1755,7 +1752,7 @@ void nanny(Descriptor * d, char* argument)
             get_trust(ch));
 
         if (ch->pet != NULL) {
-            char_to_room(ch->pet, ch->in_room);
+            mob_to_room(ch->pet, ch->in_room);
             act("$n has entered the game.", ch->pet, NULL, NULL, TO_ROOM);
         }
 
@@ -1946,8 +1943,7 @@ void stop_idling(Mobile * ch)
         return;
 
     ch->timer = 0;
-    char_from_room(ch);
-    char_to_room(ch, ch->was_in_room);
+    transfer_mob(ch, ch->was_in_room);
     ch->was_in_room = NULL;
     act("$n has returned from the void.", ch, NULL, NULL, TO_ROOM);
 }

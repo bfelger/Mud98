@@ -61,7 +61,7 @@ void spell_portal(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget targe
     Mobile* victim;
     Object *portal, *stone;
 
-    if ((victim = get_char_world(ch, target_name)) == NULL || victim == ch
+    if ((victim = get_mob_world(ch, target_name)) == NULL || victim == ch
         || victim->in_room == NULL || !can_see_room(ch, victim->in_room->data)
         || IS_SET(victim->in_room->data->room_flags, ROOM_SAFE)
         || IS_SET(victim->in_room->data->room_flags, ROOM_PRIVATE)
@@ -108,7 +108,7 @@ void spell_nexus(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target
 
     from_room = ch->in_room;
 
-    if ((victim = get_char_world(ch, target_name)) == NULL || victim == ch
+    if ((victim = get_mob_world(ch, target_name)) == NULL || victim == ch
         || (to_room = victim->in_room) == NULL || !can_see_room(ch, to_room->data)
         || !can_see_room(ch, from_room->data)
         || IS_SET(to_room->data->room_flags, ROOM_SAFE)

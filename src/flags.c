@@ -96,7 +96,7 @@ void do_flag(Mobile* ch, char* argument)
     }
 
     if (!str_prefix(arg1, "mob") || !str_prefix(arg1, "char")) {
-        victim = get_char_world(ch, arg2);
+        victim = get_mob_world(ch, arg2);
         if (victim == NULL) {
             send_to_char("You can't find them.\n\r", ch);
             return;

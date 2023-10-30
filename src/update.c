@@ -573,9 +573,9 @@ void char_update(void)
                     act("$n disappears into the void.", ch, NULL, NULL,
                         TO_ROOM);
                     send_to_char("You disappear into the void.\n\r", ch);
-                    if (ch->level > 1) save_char_obj(ch);
-                    char_from_room(ch);
-                    char_to_room(ch, get_room(NULL, ROOM_VNUM_LIMBO));
+                    if (ch->level > 1)
+                        save_char_obj(ch);
+                    transfer_mob(ch, get_room(NULL, ROOM_VNUM_LIMBO));
                 }
             }
 

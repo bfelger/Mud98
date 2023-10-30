@@ -169,7 +169,7 @@ void do_mpstat(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, arg)) == NULL) {
+    if ((victim = get_mob_world(ch, arg)) == NULL) {
         send_to_char("No such creature.\n\r", ch);
         return;
     }
@@ -179,7 +179,7 @@ void do_mpstat(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, arg)) == NULL) {
+    if ((victim = get_mob_world(ch, arg)) == NULL) {
         send_to_char("No such creature visible.\n\r", ch);
         return;
     }
@@ -330,7 +330,7 @@ void do_mpkill(Mobile* ch, char* argument)
     if (arg[0] == '\0')
         return;
 
-    if ((victim = get_char_room(ch, arg)) == NULL)
+    if ((victim = get_mob_room(ch, arg)) == NULL)
         return;
 
     if (victim == ch || IS_NPC(victim) || ch->position == POS_FIGHTING)
@@ -361,7 +361,7 @@ void do_mpassist(Mobile* ch, char* argument)
     if (arg[0] == '\0')
         return;
 
-    if ((victim = get_char_room(ch, arg)) == NULL)
+    if ((victim = get_mob_room(ch, arg)) == NULL)
         return;
 
     if (victim == ch || ch->fighting != NULL || victim->fighting == NULL)
@@ -431,7 +431,7 @@ void do_mpechoaround(Mobile* ch, char* argument)
     if (arg[0] == '\0')
         return;
 
-    if ((victim = get_char_room(ch, arg)) == NULL)
+    if ((victim = get_mob_room(ch, arg)) == NULL)
         return;
 
     act(argument, ch, NULL, victim, TO_NOTVICT);
@@ -452,7 +452,7 @@ void do_mpechoat(Mobile* ch, char* argument)
     if (arg[0] == '\0' || argument[0] == '\0')
         return;
 
-    if ((victim = get_char_room(ch, arg)) == NULL)
+    if ((victim = get_mob_room(ch, arg)) == NULL)
         return;
 
     act(argument, ch, NULL, victim, TO_VICT);
@@ -495,7 +495,7 @@ void do_mpmload(Mobile* ch, char* argument)
         return;
     }
     victim = create_mobile(p_mob_proto);
-    char_to_room(victim, ch->in_room);
+    mob_to_room(victim, ch->in_room);
     return;
 }
 
@@ -609,7 +609,7 @@ void do_mppurge(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg)) == NULL) {
+    if ((victim = get_mob_room(ch, arg)) == NULL) {
         if ((obj = get_obj_here(ch, arg))) {
             extract_obj(obj);
         }
@@ -656,8 +656,7 @@ void do_mpgoto(Mobile* ch, char* argument)
     if (ch->fighting != NULL)
         stop_fighting(ch, true);
 
-    char_from_room(ch);
-    char_to_room(ch, location);
+    transfer_mob(ch, location);
 
     return;
 }
@@ -691,8 +690,7 @@ void do_mpat(Mobile* ch, char* argument)
 
     original = ch->in_room;
     on = ch->on;
-    char_from_room(ch);
-    char_to_room(ch, location);
+    transfer_mob(ch, location);
     interpret(ch, argument);
 
     /*
@@ -701,8 +699,7 @@ void do_mpat(Mobile* ch, char* argument)
      */
     FOR_EACH(wch, mob_list) {
         if (wch == ch) {
-            char_from_room(ch);
-            char_to_room(ch, original);
+            transfer_mob(ch, original);
             ch->on = on;
             break;
         }
@@ -762,7 +759,7 @@ void do_mptransfer(Mobile* ch, char* argument)
             return;
     }
 
-    if ((victim = get_char_world(ch, arg1)) == NULL)
+    if ((victim = get_mob_world(ch, arg1)) == NULL)
         return;
 
     if (victim->in_room == NULL)
@@ -770,8 +767,7 @@ void do_mptransfer(Mobile* ch, char* argument)
 
     if (victim->fighting != NULL)
         stop_fighting(victim, true);
-    char_from_room(victim);
-    char_to_room(victim, location);
+    transfer_mob(victim, location);
     do_look(victim, "auto");
 
     return;
@@ -800,7 +796,7 @@ void do_mpgtransfer(Mobile* ch, char* argument)
         return;
     }
 
-    if ((who = get_char_room(ch, arg1)) == NULL)
+    if ((who = get_mob_room(ch, arg1)) == NULL)
         return;
 
     for (victim = ch->in_room->people; victim; victim = victim_next) {
@@ -848,7 +844,7 @@ void do_mpforce(Mobile* ch, char* argument)
     else {
         Mobile* victim;
 
-        if ((victim = get_char_room(ch, arg)) == NULL)
+        if ((victim = get_mob_room(ch, arg)) == NULL)
             return;
 
         if (victim == ch)
@@ -880,7 +876,7 @@ void do_mpgforce(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg)) == NULL)
+    if ((victim = get_mob_room(ch, arg)) == NULL)
         return;
 
     if (victim == ch)
@@ -966,7 +962,7 @@ void do_mpcast(Mobile* ch, char* argument)
             IS_NPC(ch) ? ch->prototype->vnum : 0);
         return;
     }
-    vch = get_char_room(ch, arg_target);
+    vch = get_mob_room(ch, arg_target);
     obj = get_obj_here(ch, arg_target);
     switch (skill_table[sn].target) {
     default: 
@@ -1035,7 +1031,7 @@ void do_mpdamage(Mobile* ch, char* argument)
     }
     if (!str_cmp(target, "all"))
         fAll = true;
-    else if ((victim = get_char_room(ch, target)) == NULL)
+    else if ((victim = get_mob_room(ch, target)) == NULL)
         return;
 
     if (is_number(min))
@@ -1090,7 +1086,7 @@ void do_mpremember(Mobile* ch, char* argument)
     char arg[MAX_INPUT_LENGTH];
     one_argument(argument, arg);
     if (arg[0] != '\0')
-        ch->mprog_target = get_char_world(ch, arg);
+        ch->mprog_target = get_mob_world(ch, arg);
     else
         bug("MpRemember: missing argument from vnum %"PRVNUM".",
             IS_NPC(ch) ? ch->prototype->vnum : 0);
@@ -1167,7 +1163,7 @@ void do_mpcall(Mobile* ch, char* argument)
     obj1 = obj2 = NULL;
     READ_ARG(arg);
     if (arg[0] != '\0')
-        vch = get_char_room(ch, arg);
+        vch = get_mob_room(ch, arg);
     READ_ARG(arg);
     if (arg[0] != '\0')
         obj1 = get_obj_here(ch, arg);
@@ -1263,7 +1259,7 @@ void do_mpremove(Mobile* ch, char* argument)
     char arg[MAX_INPUT_LENGTH];
 
     READ_ARG(arg);
-    if ((victim = get_char_room(ch, arg)) == NULL)
+    if ((victim = get_mob_room(ch, arg)) == NULL)
         return;
 
     one_argument(argument, arg);
@@ -1299,7 +1295,7 @@ void do_mpquest(Mobile* ch, char* argument)
         return;
 
     READ_ARG(name);
-    if ((vch = get_char_room(ch, name)) == NULL)
+    if ((vch = get_mob_room(ch, name)) == NULL)
         return;
 
     if (!vch->pcdata)

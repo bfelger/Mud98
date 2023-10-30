@@ -876,7 +876,7 @@ bool is_exact_name(char* str, char* namelist)
 }
 
 // Move a char out of a room.
-void char_from_room(Mobile* ch)
+void mob_from_room(Mobile* ch)
 {
     Object* obj;
 
@@ -944,8 +944,14 @@ static void update_mdsp_room(Mobile* ch)
         MSDP_TABLE_CLOSE);
 }
 
+void transfer_mob(Mobile* ch, Room* room)
+{
+    mob_from_room(ch);
+    mob_to_room(ch, room);
+}
+
 // Move a char into a room.
-void char_to_room(Mobile* ch, Room* room)
+void mob_to_room(Mobile* ch, Room* room)
 {
     Object* obj;
 
@@ -957,7 +963,7 @@ void char_to_room(Mobile* ch, Room* room)
         VNUM recall = IS_NPC(ch) ? cfg_get_default_recall() : ch->pcdata->recall;
 
         if ((temple = get_room(NULL, recall)) != NULL)
-            char_to_room(ch, temple);
+            mob_to_room(ch, temple);
 
         return;
     }
@@ -1246,6 +1252,22 @@ int count_obj_list(ObjPrototype* obj_proto, Object* list)
     return nMatch;
 }
 
+#define UNPARENT_OBJ(obj)                                                      \
+{                                                                              \
+    if ((obj)->in_room)                                                        \
+        obj_from_room(obj);                                                    \
+    else if ((obj)->in_obj)                                                    \
+        obj_from_obj(obj);                                                     \
+    else if ((obj)->carried_by)                                                \
+        obj_from_char(obj);                                                    \
+}
+
+void transfer_obj(Object* obj, Room* room)
+{
+    UNPARENT_OBJ(obj);
+    obj_to_room(obj, room);
+}
+
 // Move an obj out of a room.
 void obj_from_room(Object* obj)
 {
@@ -1370,12 +1392,7 @@ void extract_obj(Object* obj)
     Object* obj_content;
     Object* obj_next = NULL;
 
-    if (obj->in_room != NULL)
-        obj_from_room(obj);
-    else if (obj->carried_by != NULL)
-        obj_from_char(obj);
-    else if (obj->in_obj != NULL)
-        obj_from_obj(obj);
+    UNPARENT_OBJ(obj);
 
     for (obj_content = obj->contains; obj_content; obj_content = obj_next) {
         obj_next = obj_content->next_content;
@@ -1438,11 +1455,11 @@ void extract_char(Mobile* ch, bool fPull)
     }
 
     if (ch->in_room != NULL)
-        char_from_room(ch);
+        mob_from_room(ch);
 
     /* Death room is set in the clan tabe now */
     if (!fPull) {
-        char_to_room(ch, get_room(NULL, clan_table[ch->clan].hall));
+        mob_to_room(ch, get_room(NULL, clan_table[ch->clan].hall));
         return;
     }
 
@@ -1487,7 +1504,7 @@ void extract_char(Mobile* ch, bool fPull)
 }
 
 // Find a char in the room.
-Mobile* get_char_room(Mobile* ch, char* argument)
+Mobile* get_mob_room(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     Mobile* rch;
@@ -1508,14 +1525,14 @@ Mobile* get_char_room(Mobile* ch, char* argument)
 }
 
 // Find a char in the world.
-Mobile* get_char_world(Mobile* ch, char* argument)
+Mobile* get_mob_world(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     Mobile* wch;
     int number;
     int count;
 
-    if ((wch = get_char_room(ch, argument)) != NULL) 
+    if ((wch = get_mob_room(ch, argument)) != NULL) 
         return wch;
 
     number = number_argument(argument, arg);

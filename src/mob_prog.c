@@ -435,14 +435,14 @@ int cmd_eval(VNUM vnum, char* line, int check,
         if (is_number(buf))
             return(get_mob_vnum_room(mob, STRTOVNUM(buf)));
         else
-            return((bool)(get_char_room(mob, buf) != NULL));
+            return((bool)(get_mob_room(mob, buf) != NULL));
     case CHK_OBJHERE:
         if (is_number(buf))
             return(get_obj_vnum_room(mob, STRTOVNUM(buf)));
         else
             return((bool)(get_obj_here(mob, buf) != NULL));
     case CHK_MOBEXISTS:
-        return((bool)(get_char_world(mob, buf) != NULL));
+        return((bool)(get_mob_world(mob, buf) != NULL));
     case CHK_OBJEXISTS:
         return((bool)(get_obj_world(mob, buf) != NULL));
     /*

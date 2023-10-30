@@ -1000,7 +1000,7 @@ void do_look(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg1)) != NULL) {
+    if ((victim = get_mob_room(ch, arg1)) != NULL) {
         show_char_to_char_1(victim, ch);
         return;
     }
@@ -1217,7 +1217,7 @@ void do_exits(Mobile* ch, char* argument)
     found = false;
     for (door = 0; door <= 5; door++) {
         if ((room_exit = ch->in_room->exit[door]) != NULL
-            && room_exit->data->to_room != NULL && can_see_room(ch, room_exit->data->to_room)
+            && room_exit->data->to_room != 0 && can_see_room(ch, room_exit->data->to_room)
             && !IS_SET(room_exit->exit_flags, EX_CLOSED)) {
             found = true;
             if (fAuto) {
@@ -2084,7 +2084,7 @@ void do_consider(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg)) == NULL) {
+    if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They're not here.\n\r", ch);
         return;
     }

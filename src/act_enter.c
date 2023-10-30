@@ -142,8 +142,7 @@ void do_enter(Mobile* ch, char* argument)
             act("You walk through $p and find yourself somewhere else...", ch,
                 portal, NULL, TO_CHAR);
 
-        char_from_room(ch);
-        char_to_room(ch, location);
+        transfer_mob(ch, location);
 
         if (IS_SET(portal->value[2], PORTAL_GOWITH)) /* take the gate along */
         {

@@ -2092,7 +2092,7 @@ void do_bash(Mobile* ch, char* argument)
         }
     }
 
-    else if ((victim = get_char_room(ch, arg)) == NULL) {
+    else if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2210,7 +2210,7 @@ void do_dirt(Mobile* ch, char* argument)
         }
     }
 
-    else if ((victim = get_char_room(ch, arg)) == NULL) {
+    else if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2349,7 +2349,7 @@ void do_trip(Mobile* ch, char* argument)
         }
     }
 
-    else if ((victim = get_char_room(ch, arg)) == NULL) {
+    else if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2437,7 +2437,7 @@ void do_kill(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg)) == NULL) {
+    if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2504,7 +2504,7 @@ void do_murder(Mobile* ch, char* argument)
     if (IS_AFFECTED(ch, AFF_CHARM) || (IS_NPC(ch) && IS_SET(ch->act_flags, ACT_PET)))
         return;
 
-    if ((victim = get_char_room(ch, arg)) == NULL) {
+    if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2561,7 +2561,7 @@ void do_backstab(Mobile* ch, char* argument)
         return;
     }
 
-    else if ((victim = get_char_room(ch, arg)) == NULL) {
+    else if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2669,7 +2669,7 @@ void do_rescue(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg)) == NULL) {
+    if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2839,7 +2839,7 @@ void do_slay(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg)) == NULL) {
+    if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }

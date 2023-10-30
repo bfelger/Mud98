@@ -336,7 +336,7 @@ bool check_social(Mobile* ch, char* command, char* argument)
         act(social_table[cmd].others_no_arg, ch, NULL, victim, TO_ROOM);
         act(social_table[cmd].char_no_arg, ch, NULL, victim, TO_CHAR);
     }
-    else if ((victim = get_char_room(ch, arg)) == NULL) {
+    else if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
     }
     else if (victim == ch) {

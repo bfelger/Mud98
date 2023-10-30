@@ -314,7 +314,7 @@ void do_cast(Mobile* ch, char* argument)
             }
         }
         else {
-            if ((victim = get_char_room(ch, target_name)) == NULL) {
+            if ((victim = get_mob_room(ch, target_name)) == NULL) {
                 send_to_char("They aren't here.\n\r", ch);
                 return;
             }
@@ -347,7 +347,7 @@ void do_cast(Mobile* ch, char* argument)
     case SKILL_TARGET_CHAR_DEFENSIVE:
         if (arg2[0] == '\0') { victim = ch; }
         else {
-            if ((victim = get_char_room(ch, target_name)) == NULL) {
+            if ((victim = get_mob_room(ch, target_name)) == NULL) {
                 send_to_char("They aren't here.\n\r", ch);
                 return;
             }
@@ -391,7 +391,7 @@ void do_cast(Mobile* ch, char* argument)
 
             target = SPELL_TARGET_CHAR;
         }
-        else if ((victim = get_char_room(ch, target_name)) != NULL) {
+        else if ((victim = get_mob_room(ch, target_name)) != NULL) {
             target = SPELL_TARGET_CHAR;
         }
 
@@ -427,7 +427,7 @@ void do_cast(Mobile* ch, char* argument)
             vo = (void*)ch;
             target = SPELL_TARGET_CHAR;
         }
-        else if ((victim = get_char_room(ch, target_name)) != NULL) {
+        else if ((victim = get_mob_room(ch, target_name)) != NULL) {
             vo = (void*)victim;
             target = SPELL_TARGET_CHAR;
         }
@@ -2490,7 +2490,7 @@ void spell_gate(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
     Mobile* victim;
     bool gate_pet;
 
-    if ((victim = get_char_world(ch, target_name)) == NULL || victim == ch
+    if ((victim = get_mob_world(ch, target_name)) == NULL || victim == ch
         || victim->in_room == NULL || !can_see_room(ch, victim->in_room->data)
         || IS_SET(victim->in_room->data->room_flags, ROOM_SAFE)
         || IS_SET(victim->in_room->data->room_flags, ROOM_PRIVATE)
@@ -2512,8 +2512,8 @@ void spell_gate(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 
     act("$n steps through a gate and vanishes.", ch, NULL, NULL, TO_ROOM);
     send_to_char("You step through a gate and vanish.\n\r", ch);
-    char_from_room(ch);
-    char_to_room(ch, victim->in_room);
+
+    transfer_mob(ch, victim->in_room);
 
     act("$n has arrived through a gate.", ch, NULL, NULL, TO_ROOM);
     do_function(ch, &do_look, "auto");
@@ -2522,8 +2522,9 @@ void spell_gate(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
         act("$n steps through a gate and vanishes.", ch->pet, NULL, NULL,
             TO_ROOM);
         send_to_char("You step through a gate and vanish.\n\r", ch->pet);
-        char_from_room(ch->pet);
-        char_to_room(ch->pet, victim->in_room);
+
+        transfer_mob(ch->pet, victim->in_room);
+
         act("$n has arrived through a gate.", ch->pet, NULL, NULL, TO_ROOM);
         do_function(ch->pet, &do_look, "auto");
     }
@@ -3798,7 +3799,7 @@ void spell_summon(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget targe
 {
     Mobile* victim;
 
-    if ((victim = get_char_world(ch, target_name)) == NULL || victim == ch
+    if ((victim = get_mob_world(ch, target_name)) == NULL || victim == ch
         || victim->in_room == NULL || IS_SET(ch->in_room->data->room_flags, ROOM_SAFE)
         || IS_SET(victim->in_room->data->room_flags, ROOM_SAFE)
         || IS_SET(victim->in_room->data->room_flags, ROOM_PRIVATE)
@@ -3819,8 +3820,7 @@ void spell_summon(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget targe
     }
 
     act("$n disappears suddenly.", victim, NULL, NULL, TO_ROOM);
-    char_from_room(victim);
-    char_to_room(victim, ch->in_room);
+    transfer_mob(ch, victim->in_room);
     act("$n arrives suddenly.", victim, NULL, NULL, TO_ROOM);
     act("$n has summoned you!", ch, NULL, victim, TO_VICT);
     do_function(victim, &do_look, "auto");
@@ -3846,8 +3846,7 @@ void spell_teleport(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget tar
     if (victim != ch) send_to_char("You have been teleported!\n\r", victim);
 
     act("$n vanishes!", victim, NULL, NULL, TO_ROOM);
-    char_from_room(victim);
-    char_to_room(victim, pRoomIndex);
+    transfer_mob(victim, pRoomIndex);
     act("$n slowly fades into existence.", victim, NULL, NULL, TO_ROOM);
     do_function(victim, &do_look, "auto");
     return;
@@ -3921,8 +3920,7 @@ void spell_word_of_recall(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarg
 
     ch->move /= 2;
     act("$n disappears.", victim, NULL, NULL, TO_ROOM);
-    char_from_room(victim);
-    char_to_room(victim, location);
+    transfer_mob(victim, location);
     act("$n appears in the room.", victim, NULL, NULL, TO_ROOM);
     do_function(victim, &do_look, "auto");
 }

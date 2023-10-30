@@ -100,9 +100,9 @@ void do_redit(Mobile* ch, char* argument)
         }
 
         if (redit_create(ch, argument)) {
-            char_from_room(ch);
+            mob_from_room(ch);
             room_data = (RoomData*)ch->desc->pEdit;
-            char_to_room(ch, room_data->instances);
+            mob_to_room(ch, room_data->instances);
             SET_BIT(room_data->area_data->area_flags, AREA_CHANGED);
         }
     }
@@ -126,15 +126,9 @@ void do_redit(Mobile* ch, char* argument)
     }
 
     if (ch->in_room->data != room_data) {
-        char_from_room(ch);
-        Room* room = get_room(ch->in_room->area, room_data->vnum);
-        // TODO:
-        //if (to_room == NULL) {
-        //    // Get area_data from room_data and create a new instance with 
-        //    // all rooms, mobs, and objs needed.
-        //    room = create_instance(ch, room_data);
-        //}
-        char_to_room(ch, room);
+        mob_from_room(ch);
+        Room* room = get_room_for_player(ch, room_data->vnum);
+        mob_to_room(ch, room);
     }
 
     set_editor(ch->desc, ED_ROOM, U(room_data));
@@ -425,25 +419,25 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
     // Set the exit flags, needs full argument.
     if ((value = flag_value(exit_flag_table, argument)) != NO_FLAG) {
         RoomData* to_room_data;
-        RoomExitData* room_exit;
+        RoomExitData* room_exit_data;
         RoomExitData *pNExit;
         int16_t rev;
 
-        room_exit = room_data->exit_data[door];
+        room_exit_data = room_data->exit_data[door];
 
-        if (!room_exit) {
+        if (!room_exit_data) {
             send_to_char("{jThere is no exit in that direction.{x\n\r", ch);
             return false;
         }
 
         // This room.
-        TOGGLE_BIT(room_exit->exit_reset_flags, value);
+        TOGGLE_BIT(room_exit_data->exit_reset_flags, value);
 
         /* Don't toggle exit_flags because it can be changed by players. */
         //room_exit->exit_reset_flags = room_exit->exit_reset_flags;
 
         // Connected room.
-        to_room_data = room_exit->to_room;
+        to_room_data = room_exit_data->to_room;
         rev = dir_list[door].rev_dir;
         pNExit = to_room_data->exit_data[rev];
 
@@ -465,27 +459,25 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         move_char(ch, door, true);                    /* ROM OLC */
         return false;
     }
-
-    if (command[0] == '?') {
+    else if (command[0] == '?') {
         do_help(ch, "EXIT");
         return false;
     }
-
-    if (!str_cmp(command, "delete")) {
+    else if (!str_cmp(command, "delete")) {
         RoomData* to_room_data;
-        RoomExitData* room_exit;
+        RoomExitData* room_exit_data;
         RoomExitData* pNExit;
         int16_t rev;
         bool rDeleted = false;
 
-        room_exit = room_data->exit_data[door];
+        room_exit_data = room_data->exit_data[door];
 
-        if (!room_exit) {
+        if (!room_exit_data) {
             send_to_char("{jREdit: Cannot delete a null exit.{x\n\r", ch);
             return false;
         }
 
-        to_room_data = room_exit->to_room;
+        to_room_data = room_exit_data->to_room;
 
         // Remove ToRoom Exit.
         if (str_cmp(arg, "simple") && to_room_data) {
@@ -517,9 +509,8 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
 
         return true;
     }
-
-    if (!str_cmp(command, "link")) {
-        RoomExitData* room_exit;
+    else if (!str_cmp(command, "link")) {
+        RoomExitData* room_exit_data;
         RoomData* to_room_data;
 
         if (arg[0] == '\0' || !is_number(arg)) {
@@ -539,39 +530,56 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
             return false;
         }
 
-        room_exit = room_data->exit_data[door];
+        room_exit_data = room_data->exit_data[door];
 
-        if (room_exit) {
+        if (room_exit_data) {
             send_to_char("{jREdit : That exit already exists.{x\n\r", ch);
             return false;
         }
 
-        room_exit = to_room_data->exit_data[dir_list[door].rev_dir];
+        room_exit_data = to_room_data->exit_data[dir_list[door].rev_dir];
 
-        if (room_exit) {
+        if (room_exit_data) {
             send_to_char("{jREdit:  Remote side's exit already exists.{x\n\r", ch);
             return false;
         }
 
-        room_exit = new_room_exit_data();
-        room_exit->to_room = to_room_data;
-        room_exit->orig_dir = door;
-        room_data->exit_data[door] = room_exit;
+        if (room_data->area_data != to_room_data->area_data
+            && room_data->area_data->inst_type == AREA_INST_MULTI
+            && to_room_data->area_data->inst_type == AREA_INST_MULTI) {
+            send_to_char("{jREdit:  You cannot link between two different "
+                "multi-instance areas..{x\n\r", ch);
+            return false;
+        }
+
+        room_exit_data = new_room_exit_data();
+        room_exit_data->to_room = to_room_data;
+        room_exit_data->to_vnum = to_room_data->vnum;
+        room_exit_data->orig_dir = door;
+        room_data->exit_data[door] = room_exit_data;
+
+        Room* from_room;
+        FOR_EACH(from_room, room_data->instances)
+            from_room->exit[door] = new_room_exit(room_exit_data, from_room);
 
         // Now the other side
         door = dir_list[door].rev_dir;
-        room_exit = new_room_exit_data();
-        room_exit->to_room = room_data;
-        room_exit->orig_dir = door;
-        to_room_data->exit_data[door] = room_exit;
+        room_exit_data = new_room_exit_data();
+        room_exit_data->to_room = room_data;
+        room_exit_data->to_vnum = room_data->vnum;
+        room_exit_data->orig_dir = door;
+        to_room_data->exit_data[door] = room_exit_data;
 
+        Room* to_room;
+        FOR_EACH(to_room, to_room_data->instances)
+            to_room->exit[door] = new_room_exit(room_exit_data, to_room);
+
+        SET_BIT(to_room_data->area_data->area_flags, AREA_CHANGED);
         SET_BIT(room_data->area_data->area_flags, AREA_CHANGED);
 
         send_to_char("{jTwo-way link established.{x\n\r", ch);
         return true;
-    }
-
-    if (!str_cmp(command, "dig")) {
+    } else if (!str_cmp(command, "dig")) {
         char buf[MAX_STRING_LENGTH];
 
         if (arg[0] == '\0' || !is_number(arg)) {
@@ -585,7 +593,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         redit_create(ch, arg);
 
         // Remember the new room...
-        Room* new_room = get_room(ch->in_room->area, vnum);
+        Room* new_room = get_room_for_player(ch, vnum);
 
         // ...go back to the old room and create the exit...
         ch->desc->pEdit = U(room_data);
@@ -593,17 +601,14 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         change_exit(ch, buf, door);
 
         // ...then jump back to editing the new room.
-        char_from_room(ch);
-        char_to_room(ch, new_room);
+        transfer_mob(ch, new_room);
         set_editor(ch->desc, ED_ROOM, U(new_room->data));
 
         redit_show(ch, "");
 
         return true;
-    }
-
-    if (!str_cmp(command, "room")) {
-        RoomExitData* room_exit;
+    } else if (!str_cmp(command, "room")) {
+        RoomExitData* room_exit_data;
         RoomData* target;
 
         if (arg[0] == '\0' || !is_number(arg)) {
@@ -623,25 +628,28 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
             return false;
         }
 
-        if ((room_exit = room_data->exit_data[door]) == NULL) {
-            room_exit = new_room_exit_data();
-            room_data->exit_data[door] = room_exit;
+        if ((room_exit_data = room_data->exit_data[door]) == NULL) {
+            room_exit_data = new_room_exit_data();
+            room_data->exit_data[door] = room_exit_data;
         }
 
-        room_exit->to_room = target;
-        room_exit->orig_dir = door;
+        room_exit_data->to_room = target;
+        room_exit_data->to_vnum = target->vnum;
+        room_exit_data->orig_dir = door;
 
-        if ((room_exit = target->exit_data[dir_list[door].rev_dir]) != NULL
-            && room_exit->to_room != room_data)
+        Room* from_room;
+        FOR_EACH(from_room, room_data->instances)
+            from_room->exit[door] = new_room_exit(room_exit_data, from_room);
+
+        if ((room_exit_data = target->exit_data[dir_list[door].rev_dir]) != NULL
+            && room_exit_data->to_room != room_data)
             printf_to_char(ch, "{jWARNING{x : the exit to room %d does not return here.\n\r",
                 target->vnum);
 
         send_to_char("{jOne-way link established.{x\n\r", ch);
         return true;
-    }
-
-    if (!str_cmp(command, "key")) {
-        RoomExitData* room_exit;
+    } else if (!str_cmp(command, "key")) {
+        RoomExitData* room_exit_data;
         ObjPrototype* obj_proto;
 
         if (arg[0] == '\0' || !is_number(arg)) {
@@ -649,7 +657,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
             return false;
         }
 
-        if ((room_exit = room_data->exit_data[door]) == NULL) {
+        if ((room_exit_data = room_data->exit_data[door]) == NULL) {
             send_to_char("{jThat exit does not exist.{x\n\r", ch);
             return false;
         }
@@ -666,14 +674,12 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
             return false;
         }
 
-        room_exit->key = (int16_t)atoi(arg);
+        room_exit_data->key = (int16_t)atoi(arg);
 
         send_to_char("{jExit key set.{x\n\r", ch);
         return true;
-    }
-
-    if (!str_cmp(command, "name")) {
-        RoomExitData* room_exit;
+    } else if (!str_cmp(command, "name")) {
+        RoomExitData* room_exit_data;
 
         if (arg[0] == '\0') {
             send_to_char("Syntax:  {*[direction] name [string]\n\r", ch);
@@ -681,32 +687,30 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
             return false;
         }
 
-        if ((room_exit = room_data->exit_data[door]) == NULL) {
+        if ((room_exit_data = room_data->exit_data[door]) == NULL) {
             send_to_char("{jThat exit does not exist.{x\n\r", ch);
             return false;
         }
 
-        free_string(room_exit->keyword);
+        free_string(room_exit_data->keyword);
 
         if (str_cmp(arg, "none"))
-            room_exit->keyword = str_dup(arg);
+            room_exit_data->keyword = str_dup(arg);
         else
-            room_exit->keyword = str_dup("");
+            room_exit_data->keyword = str_dup("");
 
         send_to_char("{jExit name set.{x\n\r", ch);
         return true;
-    }
-
-    if (!str_prefix(command, "description")) {
-        RoomExitData* room_exit;
+    } else if (!str_prefix(command, "description")) {
+        RoomExitData* room_exit_data;
 
         if (arg[0] == '\0') {
-            if ((room_exit = room_data->exit_data[door]) == NULL) {
+            if ((room_exit_data = room_data->exit_data[door]) == NULL) {
                 send_to_char("{jThat exit does not exist.{x\n\r", ch);
                 return false;
             }
 
-            string_append(ch, &room_exit->description);
+            string_append(ch, &room_exit_data->description);
             return true;
         }
 
@@ -756,7 +760,6 @@ REDIT(redit_create)
 
     if (value > top_vnum_room)
         top_vnum_room = value;
-
 
     ORDERED_INSERT(RoomData, room_data, room_data_hash_table[value % MAX_KEY_HASH], vnum);
 
@@ -826,7 +829,7 @@ REDIT(redit_mreset)
     Room* room;
     FOR_EACH_INSTANCE(room, room_data->instances) {
         newmob = create_mobile(p_mob_proto);
-        char_to_room(newmob, room);
+        mob_to_room(newmob, room);
         if (room == ch->in_room)
             act("$n has created $N!", ch, NULL, newmob, TO_ROOM);
         else

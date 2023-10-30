@@ -87,23 +87,12 @@ void move_char(Mobile* ch, int door, bool follow)
     }
 
     if ((to_room = room_exit->to_room) == NULL) {
-        to_room = get_room(in_room->area, room_exit->data->to_vnum);
-        if (!to_room && room_exit->data->to_room->area_data->inst_type 
-            == AREA_INST_MULTI) {
-            // TODO: We are looking at an instanced area.
-            //       Look for a player lock.
-            // room_exit->data->to_vnum
-            to_room = get_room(in_room->area, room_exit->data->to_vnum);
-            //if (to_room == NULL) {
-            //    // Get area_data from room_data and create a new instance with 
-            //    // all rooms, mobs, and objs needed.
-            //    to_room = create_instance(ch, room_exit->data->to_room);
-            //}
-        }
-        else {
-            bugf("Room %d exit %d to %d does not exist.", in_room->data->vnum,
-                door, room_exit->data->to_vnum);
-        }
+        to_room = get_room_for_player(ch, room_exit->data->to_vnum);
+    }
+    
+    if (!to_room) {
+        bugf("Room %d exit %d to %d does not exist.", in_room->data->vnum,
+            door, room_exit->data->to_vnum);
     }
 
     if (IS_SET(room_exit->exit_flags, EX_CLOSED)
@@ -193,8 +182,8 @@ void move_char(Mobile* ch, int door, bool follow)
     if (!IS_AFFECTED(ch, AFF_SNEAK) && ch->invis_level < LEVEL_HERO)
         act("$n leaves $T.", ch, NULL, dir_list[door].name, TO_ROOM);
 
-    char_from_room(ch);
-    char_to_room(ch, to_room);
+    transfer_mob(ch, to_room);
+
     if (!IS_AFFECTED(ch, AFF_SNEAK) && ch->invis_level < LEVEL_HERO)
         act("$n has arrived.", ch, NULL, NULL, TO_ROOM);
 
@@ -1340,7 +1329,7 @@ void do_wake(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg)) == NULL) {
+    if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -1484,8 +1473,7 @@ void do_recall(Mobile* ch, char* argument)
 
     ch->move /= 2;
     act("$n disappears.", ch, NULL, NULL, TO_ROOM);
-    char_from_room(ch);
-    char_to_room(ch, location);
+    transfer_mob(ch, location);
     act("$n appears in the room.", ch, NULL, NULL, TO_ROOM);
     do_function(ch, &do_look, "auto");
 

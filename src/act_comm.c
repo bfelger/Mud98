@@ -780,7 +780,7 @@ void do_tell(Mobile* ch, char* argument)
      * Can tell to PC's anywhere, but NPC's only in same room.
      * -- Furey
      */
-    if ((victim = get_char_world(ch, arg)) == NULL
+    if ((victim = get_mob_world(ch, arg)) == NULL
         || (IS_NPC(victim) && victim->in_room != ch->in_room)) {
         send_to_char("They aren't here.\n\r", ch);
         return;
@@ -1268,7 +1268,7 @@ void do_follow(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg)) == NULL) {
+    if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -1412,7 +1412,7 @@ void do_order(Mobile* ch, char* argument)
     }
     else {
         fAll = false;
-        if ((victim = get_char_room(ch, arg)) == NULL) {
+        if ((victim = get_mob_room(ch, arg)) == NULL) {
             send_to_char("They aren't here.\n\r", ch);
             return;
         }
@@ -1482,7 +1482,7 @@ void do_group(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg)) == NULL) {
+    if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }

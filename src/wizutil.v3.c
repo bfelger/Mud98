@@ -259,7 +259,7 @@ void do_rename(Mobile* ch, char* argument)
         return;
     }
 
-    victim = get_char_world(ch, old_name);
+    victim = get_mob_world(ch, old_name);
 
     if (!victim) {
         send_to_char("There is no such a person online.\n\r", ch);
@@ -319,7 +319,7 @@ void do_rename(Mobile* ch, char* argument)
     }
 
     /* check for playing level-1 non-saved */
-    if (get_char_world(ch, new_name)) {
+    if (get_mob_world(ch, new_name)) {
         send_to_char("A player with the name you specified already exists!\n\r", ch);
         return;
     }
@@ -498,11 +498,9 @@ void do_for(Mobile* ch, char* argument)
 
                 /* Execute */
                 old_room = ch->in_room;
-                char_from_room(ch);
-                char_to_room(ch, p->in_room);
+                transfer_mob(ch, p->in_room);
                 interpret(ch, buf);
-                char_from_room(ch);
-                char_to_room(ch, old_room);
+                transfer_mob(ch, old_room);
 
             } /* if found */
         } /* for every char */
@@ -545,14 +543,12 @@ void do_for(Mobile* ch, char* argument)
                            once at beginning of command then moving back at the end.
                            This however, is more safe?
                         */
-                        char_from_room(ch);
-                        char_to_room(ch, room);
+                        transfer_mob(ch, room);
                         interpret(ch, argument);
                     } /* if found */
                 }
             } /* for every room in a bucket */
         }
-        char_from_room(ch);
-        char_to_room(ch, old_room);
+        transfer_mob(ch, old_room);
     } /* if strchr */
 } /* do_for */
