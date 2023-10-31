@@ -384,37 +384,6 @@ const ConfigEntry config_entries[] = {
 #undef OLD_U
 #endif
 
-//static bool check_dir(const char* dir)
-//{
-//#ifdef _MSC_VER
-//    if (CreateDirectoryA(dir, NULL) == 0) {
-//        if (GetLastError() != ERROR_ALREADY_EXISTS) {
-//            fprintf(stderr, "Could not create directory: %s\n", dir);
-//            return false;
-//        }
-//    }
-//    else {
-//        printf("Created directory: %s\n", dir);
-//    }
-//#else
-//    struct stat st = { 0 };
-//
-//    if (stat(dir, &st) == -1) {
-//        mkdir(dir, 0700);
-//        if (stat(dir, &st) == -1) {
-//            bugf("Could not create directory: %s\n", dir);
-//            return false;
-//        }
-//        else {
-//            printf("Created directory: %s\n", dir);
-//        }
-//    }
-//
-//#endif
-//
-//    return true;
-//}
-
 void parse_file(FILE* fp);
 
 void load_config()
@@ -537,7 +506,7 @@ static char* parse_ident()
 
     size_t len = parser.pos - start;
 
-    char* ident = (char*)malloc(sizeof(char) * (len + 1)); // Don't assume
+    char* ident = (char*)malloc(sizeof(char) * (len + 1));
     if (!ident) {
         perror("parse_ident(): malloc() error while parsing config.\n");
         exit(1);

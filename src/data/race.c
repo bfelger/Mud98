@@ -57,7 +57,7 @@ void load_race_table()
     int maxrace = fread_number(fp);
 
     size_t new_size = sizeof(Race) * ((size_t)maxrace + 1);
-    logf("Creating race_table of length %d, size %zu", maxrace + 1, new_size);
+    printf_log("Creating race_table of length %d, size %zu", maxrace + 1, new_size);
 
     if ((race_table = calloc(sizeof(Race), (size_t)maxrace + 1)) == NULL) {
         perror("load_races_table(): Could not allocate race_table!");
@@ -78,7 +78,7 @@ void load_race_table()
         load_struct(fp, U(&tmp_race), race_save_table, U(&race_table[i++]));
 
         if (i == maxrace) {
-            logf("Race table loaded.");
+            printf_log("Race table loaded.");
             close_file(fp);
             race_count = maxrace;
             race_table[i].name = NULL;

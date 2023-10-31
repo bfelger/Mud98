@@ -977,7 +977,7 @@ void bust_a_prompt(Mobile* ch)
     char* point;
     char* pbuff;
     char doors[MAX_INPUT_LENGTH] = "";
-    RoomExit* room_exit;
+    RoomExitData* room_exit_data;
     bool found;
     int door;
 
@@ -1009,12 +1009,12 @@ void bust_a_prompt(Mobile* ch)
             found = false;
             doors[0] = '\0';
             for (door = 0; door < DIR_MAX; door++) {
-                if ((room_exit = ch->in_room->exit[door]) != NULL
-                    && room_exit->to_room != NULL
-                    && (can_see_room(ch, room_exit->to_room)
+                if ((room_exit_data = ch->in_room->data->exit_data[door]) != NULL
+                    && room_exit_data->to_room != NULL
+                    && (can_see_room(ch, room_exit_data->to_room)
                         || (IS_AFFECTED(ch, AFF_INFRARED)
                             && !IS_AFFECTED(ch, AFF_BLIND)))
-                    && !IS_SET(room_exit->exit_flags, EX_CLOSED)) {
+                    && !IS_SET(ch->in_room->exit[door]->exit_flags, EX_CLOSED)) {
                     found = true;
                     strcat(doors, dir_list[door].name_abbr);
                 }
@@ -1088,7 +1088,7 @@ void bust_a_prompt(Mobile* ch)
                     ((!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_HOLYLIGHT))
                         || (!IS_AFFECTED(ch, AFF_BLIND)
                             && !room_is_dark(ch->in_room)))
-                    ? ch->in_room->name
+                    ? ch->in_room->data->name
                     : "darkness");
             else
                 sprintf(BUF(temp2), " ");
@@ -1103,7 +1103,7 @@ void bust_a_prompt(Mobile* ch)
             break;
         case 'z':
             if (IS_IMMORTAL(ch) && ch->in_room != NULL)
-                sprintf(BUF(temp2), "%s", ch->in_room->area->name);
+                sprintf(BUF(temp2), "%s", ch->in_room->area->data->name);
             else
                 sprintf(BUF(temp2), " ");
             i = BUF(temp2);
@@ -1293,9 +1293,11 @@ void nanny(Descriptor * d, char* argument)
 
         write_to_buffer(d, (const char*)echo_on_str, 0);
 
-        if (check_playing(d, ch->name)) return;
+        if (check_playing(d, ch->name)) 
+            return;
 
-        if (check_reconnect(d, true)) return;
+        if (check_reconnect(d, true)) 
+            return;
 
         sprintf(log_buf, "%s@%s has connected.", ch->name, d->host);
         log_string(log_buf);
@@ -1678,15 +1680,14 @@ void nanny(Descriptor * d, char* argument)
         write_to_buffer(d, buf, 0);
         ch->next = mob_list;
         mob_list = ch;
-        ch->pcdata->next = player_list;
-        player_list = ch->pcdata;
+        ch->pcdata->next = player_data_list;
+        player_data_list = ch->pcdata;
 
         d->connected = CON_PLAYING;
         reset_char(ch);
 
         if (ch->level == 0) {
             ch->perm_stat[class_table[ch->ch_class].prime_stat] += 3;
-
             ch->level = 1;
             ch->exp = exp_per_level(ch, ch->pcdata->points);
             ch->hit = ch->max_hit;
@@ -1727,19 +1728,21 @@ void nanny(Descriptor * d, char* argument)
             if (start_loc == 0)
                 start_loc = cfg_get_default_start_loc();
 
-            char_to_room(ch, get_room(start_loc));
             send_to_char("\n\r", ch);
             do_function(ch, &do_help, "newbie info");
             send_to_char("\n\r", ch);
+
+            ch->in_room = get_room_for_player(ch, start_loc);
+            mob_to_room(ch, ch->in_room);
         }
         else if (ch->in_room != NULL) {
-            char_to_room(ch, ch->in_room);
+            mob_to_room(ch, ch->in_room);
         }
         else if (IS_IMMORTAL(ch)) {
-            char_to_room(ch, get_room(ROOM_VNUM_CHAT));
+            mob_to_room(ch, get_room(NULL, ROOM_VNUM_CHAT));
         }
         else {
-            char_to_room(ch, get_room(ch->pcdata->recall));
+            mob_to_room(ch, get_room(NULL, ch->pcdata->recall));
         }
 
         act("$n has entered the game.", ch, NULL, NULL, TO_ROOM);
@@ -1749,7 +1752,7 @@ void nanny(Descriptor * d, char* argument)
             get_trust(ch));
 
         if (ch->pet != NULL) {
-            char_to_room(ch->pet, ch->in_room);
+            mob_to_room(ch->pet, ch->in_room);
             act("$n has entered the game.", ch->pet, NULL, NULL, TO_ROOM);
         }
 
@@ -1854,7 +1857,7 @@ bool check_parse_name(char* name)
         int hash;
 
         for (hash = 0; hash < MAX_KEY_HASH; hash++) {
-            for (p_mob_proto = mob_prototype_hash[hash]; p_mob_proto != NULL;
+            for (p_mob_proto = mob_proto_hash[hash]; p_mob_proto != NULL;
                 NEXT_LINK(p_mob_proto)) {
                 if (is_name(name, p_mob_proto->name)) 
                     return false;
@@ -1936,12 +1939,11 @@ void stop_idling(Mobile * ch)
 {
     if (ch == NULL || ch->desc == NULL || ch->desc->connected != CON_PLAYING
         || ch->was_in_room == NULL
-        || ch->in_room != get_room(ROOM_VNUM_LIMBO))
+        || ch->in_room != get_room(NULL, ROOM_VNUM_LIMBO))
         return;
 
     ch->timer = 0;
-    char_from_room(ch);
-    char_to_room(ch, ch->was_in_room);
+    transfer_mob(ch, ch->was_in_room);
     ch->was_in_room = NULL;
     act("$n has returned from the void.", ch, NULL, NULL, TO_ROOM);
 }
@@ -2493,7 +2495,7 @@ void bugf(char* fmt, ...)
     bug(buf, 0);
 }
 
-void logf(char* fmt, ...)
+void printf_log(char* fmt, ...)
 {
     char buf[2 * MSL];
     va_list args;

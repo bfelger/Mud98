@@ -4,6 +4,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef struct room_exit_t RoomExit;
+typedef struct room_exit_data_t RoomExitData;
 
 #pragma once
 #ifndef MUD98__ENTITIES__ROOM_EXIT_H
@@ -32,18 +33,27 @@ typedef enum exit_flags_t {
 
 typedef struct room_exit_t {
     RoomExit* next;
+    RoomExitData* data;
     Room* to_room;
+    SHORT_FLAGS exit_flags;
+} RoomExit;
+
+typedef struct room_exit_data_t {
+    RoomExitData* next;
+    RoomData* to_room;
     VNUM to_vnum;
     char* keyword;
     char* description;
     Direction orig_dir;
     SHORT_FLAGS exit_reset_flags;
-    SHORT_FLAGS exit_flags;
     int16_t key;
-} RoomExit;
+} RoomExitData;
 
+RoomExit* new_room_exit(RoomExitData* room_exit_data, Room* from);
 void free_room_exit(RoomExit* room_exit);
-RoomExit* new_room_exit();
+
+RoomExitData* new_room_exit_data();
+void free_room_exit_data(RoomExitData* room_exit);
 
 #define ADD_EXIT_DESC(t, ed)                                                   \
     if (!t->extra_desc) {                                                      \
@@ -58,5 +68,8 @@ RoomExit* new_room_exit();
     ed->next = NULL;
 
 extern int room_exit_count;
+extern int room_exit_perm_count;
+extern int room_exit_data_count;
+extern int room_exit_data_perm_count;
 
 #endif // !MUD98__ENTITIES__ROOM_EXIT_H

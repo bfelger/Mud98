@@ -44,7 +44,7 @@ void load_social_table()
         return;
     }
 
-    logf("Creating social_table of length %d, size %zu", social_count + 1,
+    printf_log("Creating social_table of length %d, size %zu", social_count + 1,
         sizeof(Social) * ((size_t)social_count + 1));
     /* IMPORTANT to use malloc so we can realloc later on */
     if ((social_table = calloc(sizeof(Social), (size_t)social_count + 1)) == NULL) {
@@ -65,7 +65,7 @@ void load_social_table()
 
     close_file(fp);
 
-    logf("Social table loaded.");
+    printf_log("Social table loaded.");
 }
 
 void save_social_table(void)

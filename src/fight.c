@@ -844,7 +844,7 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
 
         sprintf(log_buf, "%s got toasted by %s at %s [room %d]",
                 (IS_NPC(victim) ? victim->short_descr : victim->name),
-                (IS_NPC(ch) ? ch->short_descr : ch->name), ch->in_room->name,
+                (IS_NPC(ch) ? ch->short_descr : ch->name), ch->in_room->data->name,
                 ch->in_room->vnum);
 
         if (IS_NPC(victim))
@@ -946,7 +946,7 @@ bool is_safe(Mobile* ch, Mobile* victim)
     /* killing mobiles */
     if (IS_NPC(victim)) {
         /* safe room? */
-        if (IS_SET(victim->in_room->room_flags, ROOM_SAFE)) {
+        if (IS_SET(victim->in_room->data->room_flags, ROOM_SAFE)) {
             send_to_char("Not in this room.\n\r", ch);
             return true;
         }
@@ -984,7 +984,7 @@ bool is_safe(Mobile* ch, Mobile* victim)
         /* NPC doing the killing */
         if (IS_NPC(ch)) {
             /* safe room check */
-            if (IS_SET(victim->in_room->room_flags, ROOM_SAFE)) {
+            if (IS_SET(victim->in_room->data->room_flags, ROOM_SAFE)) {
                 send_to_char("Not in this room.\n\r", ch);
                 return true;
             }
@@ -1036,7 +1036,7 @@ bool is_safe_spell(Mobile* ch, Mobile* victim, bool area)
     /* killing mobiles */
     if (IS_NPC(victim)) {
         /* safe room? */
-        if (IS_SET(victim->in_room->room_flags, ROOM_SAFE)) return true;
+        if (IS_SET(victim->in_room->data->room_flags, ROOM_SAFE)) return true;
 
         if (victim->prototype->pShop != NULL) return true;
 
@@ -1078,7 +1078,7 @@ bool is_safe_spell(Mobile* ch, Mobile* victim, bool area)
                 return true;
 
             /* safe room? */
-            if (IS_SET(victim->in_room->room_flags, ROOM_SAFE)) return true;
+            if (IS_SET(victim->in_room->data->room_flags, ROOM_SAFE)) return true;
 
             /* legal kill? -- mobs only hit players grouped with opponent*/
             if (ch->fighting != NULL && !is_same_group(ch->fighting, victim))
@@ -2092,7 +2092,7 @@ void do_bash(Mobile* ch, char* argument)
         }
     }
 
-    else if ((victim = get_char_room(ch, arg)) == NULL) {
+    else if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2210,7 +2210,7 @@ void do_dirt(Mobile* ch, char* argument)
         }
     }
 
-    else if ((victim = get_char_room(ch, arg)) == NULL) {
+    else if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2258,7 +2258,7 @@ void do_dirt(Mobile* ch, char* argument)
 
     /* terrain */
 
-    switch (ch->in_room->sector_type) {
+    switch (ch->in_room->data->sector_type) {
     case SECT_INSIDE:
         chance -= 20;
         break;
@@ -2349,7 +2349,7 @@ void do_trip(Mobile* ch, char* argument)
         }
     }
 
-    else if ((victim = get_char_room(ch, arg)) == NULL) {
+    else if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2437,7 +2437,7 @@ void do_kill(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg)) == NULL) {
+    if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2504,7 +2504,7 @@ void do_murder(Mobile* ch, char* argument)
     if (IS_AFFECTED(ch, AFF_CHARM) || (IS_NPC(ch) && IS_SET(ch->act_flags, ACT_PET)))
         return;
 
-    if ((victim = get_char_room(ch, arg)) == NULL) {
+    if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2561,7 +2561,7 @@ void do_backstab(Mobile* ch, char* argument)
         return;
     }
 
-    else if ((victim = get_char_room(ch, arg)) == NULL) {
+    else if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2629,7 +2629,7 @@ void do_flee(Mobile* ch, char* argument)
             || IS_SET(room_exit->exit_flags, EX_CLOSED)
             || number_range(0, ch->daze) != 0
             || (IS_NPC(ch)
-                && IS_SET(room_exit->to_room->room_flags, ROOM_NO_MOB)))
+                && IS_SET(room_exit->to_room->data->room_flags, ROOM_NO_MOB)))
             continue;
 
         move_char(ch, door, false);
@@ -2669,7 +2669,7 @@ void do_rescue(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg)) == NULL) {
+    if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2839,7 +2839,7 @@ void do_slay(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg)) == NULL) {
+    if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }

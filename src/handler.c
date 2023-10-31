@@ -876,7 +876,7 @@ bool is_exact_name(char* str, char* namelist)
 }
 
 // Move a char out of a room.
-void char_from_room(Mobile* ch)
+void mob_from_room(Mobile* ch)
 {
     Object* obj;
 
@@ -924,7 +924,7 @@ static void update_mdsp_room(Mobile* ch)
     for (int door = 0; door < DIR_MAX; door++) {
         if ((room_exit = ch->in_room->exit[door]) != NULL
             && room_exit->to_room != NULL
-            && (can_see_room(ch, room_exit->to_room)
+            && (can_see_room(ch, room_exit->to_room->data)
                 || (IS_AFFECTED(ch, AFF_INFRARED) 
                     && !IS_AFFECTED(ch, AFF_BLIND)))) {
             cat_sprintf(exits, "\001%s\002%d", dir_list[door].name_abbr, 
@@ -937,15 +937,21 @@ static void update_mdsp_room(Mobile* ch)
         "%c\001%s\002%d\001%s\002%s\001%s\002%s\001%s\002%s\001%s\002%s%c",
         MSDP_TABLE_OPEN,
         "VNUM", ch->in_room->vnum,
-        "NAME", ch->in_room->name,
-        "AREA", ch->in_room->area->name,
-        "TERRAIN", sector_flag_table[ch->in_room->sector_type].name,
+        "NAME", ch->in_room->data->name,
+        "AREA", ch->in_room->area->data->name,
+        "TERRAIN", sector_flag_table[ch->in_room->data->sector_type].name,
         "EXITS", exits,
         MSDP_TABLE_CLOSE);
 }
 
+void transfer_mob(Mobile* ch, Room* room)
+{
+    mob_from_room(ch);
+    mob_to_room(ch, room);
+}
+
 // Move a char into a room.
-void char_to_room(Mobile* ch, Room* room)
+void mob_to_room(Mobile* ch, Room* room)
 {
     Object* obj;
 
@@ -956,8 +962,8 @@ void char_to_room(Mobile* ch, Room* room)
 
         VNUM recall = IS_NPC(ch) ? cfg_get_default_recall() : ch->pcdata->recall;
 
-        if ((temple = get_room(recall)) != NULL)
-            char_to_room(ch, temple);
+        if ((temple = get_room(NULL, recall)) != NULL)
+            mob_to_room(ch, temple);
 
         return;
     }
@@ -973,7 +979,7 @@ void char_to_room(Mobile* ch, Room* room)
         Area* area = ch->in_room->area;
         if (area->empty) {
             area->empty = false;
-            if (!area->always_reset)
+            if (!area->data->always_reset)
                 area->reset_timer = 0;
         }
         ++area->nplayer;
@@ -1238,11 +1244,28 @@ int count_obj_list(ObjPrototype* obj_proto, Object* list)
     int nMatch;
 
     nMatch = 0;
-    for (obj = list; obj != NULL; obj = obj->next_content) {
-        if (obj->prototype == obj_proto) nMatch++;
+    FOR_EACH_CONTENT(obj, list) {
+        if (obj->prototype == obj_proto)
+            nMatch++;
     }
 
     return nMatch;
+}
+
+#define UNPARENT_OBJ(obj)                                                      \
+{                                                                              \
+    if ((obj)->in_room)                                                        \
+        obj_from_room(obj);                                                    \
+    else if ((obj)->in_obj)                                                    \
+        obj_from_obj(obj);                                                     \
+    else if ((obj)->carried_by)                                                \
+        obj_from_char(obj);                                                    \
+}
+
+void transfer_obj(Object* obj, Room* room)
+{
+    UNPARENT_OBJ(obj);
+    obj_to_room(obj, room);
 }
 
 // Move an obj out of a room.
@@ -1306,7 +1329,8 @@ void obj_to_obj(Object* obj, Object* obj_to)
     obj->in_obj = obj_to;
     obj->in_room = NULL;
     obj->carried_by = NULL;
-    if (obj_to->prototype->vnum == OBJ_VNUM_PIT) obj->cost = 0;
+    if (obj_to->prototype->vnum == OBJ_VNUM_PIT) 
+        obj->cost = 0;
 
     for (; obj_to != NULL; obj_to = obj_to->in_obj) {
         if (obj_to->carried_by != NULL) {
@@ -1368,12 +1392,7 @@ void extract_obj(Object* obj)
     Object* obj_content;
     Object* obj_next = NULL;
 
-    if (obj->in_room != NULL)
-        obj_from_room(obj);
-    else if (obj->carried_by != NULL)
-        obj_from_char(obj);
-    else if (obj->in_obj != NULL)
-        obj_from_obj(obj);
+    UNPARENT_OBJ(obj);
 
     for (obj_content = obj->contains; obj_content; obj_content = obj_next) {
         obj_next = obj_content->next_content;
@@ -1436,11 +1455,11 @@ void extract_char(Mobile* ch, bool fPull)
     }
 
     if (ch->in_room != NULL)
-        char_from_room(ch);
+        mob_from_room(ch);
 
     /* Death room is set in the clan tabe now */
     if (!fPull) {
-        char_to_room(ch, get_room(clan_table[ch->clan].hall));
+        mob_to_room(ch, get_room(NULL, clan_table[ch->clan].hall));
         return;
     }
 
@@ -1485,7 +1504,7 @@ void extract_char(Mobile* ch, bool fPull)
 }
 
 // Find a char in the room.
-Mobile* get_char_room(Mobile* ch, char* argument)
+Mobile* get_mob_room(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     Mobile* rch;
@@ -1496,22 +1515,24 @@ Mobile* get_char_room(Mobile* ch, char* argument)
     count = 0;
     if (!str_cmp(arg, "self")) return ch;
     FOR_EACH_IN_ROOM(rch, ch->in_room->people) {
-        if (!can_see(ch, rch) || !is_name(arg, rch->name)) continue;
-        if (++count == number) return rch;
+        if (!can_see(ch, rch) || !is_name(arg, rch->name)) 
+            continue;
+        if (++count == number) 
+            return rch;
     }
 
     return NULL;
 }
 
 // Find a char in the world.
-Mobile* get_char_world(Mobile* ch, char* argument)
+Mobile* get_mob_world(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     Mobile* wch;
     int number;
     int count;
 
-    if ((wch = get_char_room(ch, argument)) != NULL) 
+    if ((wch = get_mob_room(ch, argument)) != NULL) 
         return wch;
 
     number = number_argument(argument, arg);
@@ -1763,14 +1784,16 @@ int get_true_weight(Object* obj)
 }
 
 // true if room is dark.
-bool room_is_dark(Room* pRoomIndex)
+bool room_is_dark(Room* room)
 {
-    if (pRoomIndex->light > 0) return false;
+    if (room->light > 0) 
+        return false;
 
-    if (IS_SET(pRoomIndex->room_flags, ROOM_DARK)) return true;
+    if (IS_SET(room->data->room_flags, ROOM_DARK))
+        return true;
 
-    if (pRoomIndex->sector_type == SECT_INSIDE
-        || pRoomIndex->sector_type == SECT_CITY)
+    if (room->data->sector_type == SECT_INSIDE
+        || room->data->sector_type == SECT_CITY)
         return false;
 
     if (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)
@@ -1781,54 +1804,55 @@ bool room_is_dark(Room* pRoomIndex)
 
 bool is_room_owner(Mobile* ch, Room* room)
 {
-    if (room->owner == NULL || room->owner[0] == '\0') 
+    if (room->data->owner == NULL || room->data->owner[0] == '\0')
         return false;
 
-    return is_name(ch->name, room->owner);
+    return is_name(ch->name, room->data->owner);
 }
 
 // true if room is private.
-bool room_is_private(Room* pRoomIndex)
+bool room_is_private(Room* room)
 {
     Mobile* rch;
     int count;
 
-    if (pRoomIndex->owner != NULL && pRoomIndex->owner[0] != '\0') 
+    if (room->data->owner != NULL && room->data->owner[0] != '\0')
         return true;
 
     count = 0;
-    FOR_EACH_IN_ROOM(rch, pRoomIndex->people)
+    FOR_EACH_IN_ROOM(rch, room->people)
         count++;
 
-    if (IS_SET(pRoomIndex->room_flags, ROOM_PRIVATE) && count >= 2) 
+    if (IS_SET(room->data->room_flags, ROOM_PRIVATE) && count >= 2)
         return true;
 
-    if (IS_SET(pRoomIndex->room_flags, ROOM_SOLITARY) && count >= 1)
+    if (IS_SET(room->data->room_flags, ROOM_SOLITARY) && count >= 1)
         return true;
 
-    if (IS_SET(pRoomIndex->room_flags, ROOM_IMP_ONLY)) return true;
+    if (IS_SET(room->data->room_flags, ROOM_IMP_ONLY)) 
+        return true;
 
     return false;
 }
 
 /* visibility on a room -- for entering and exits */
-bool can_see_room(Mobile* ch, Room* pRoomIndex)
+bool can_see_room(Mobile* ch, RoomData* room)
 {
-    if (IS_SET(pRoomIndex->room_flags, ROOM_IMP_ONLY)
+    if (IS_SET(room->room_flags, ROOM_IMP_ONLY)
         && get_trust(ch) < MAX_LEVEL)
         return false;
 
-    if (IS_SET(pRoomIndex->room_flags, ROOM_GODS_ONLY) && !IS_IMMORTAL(ch))
+    if (IS_SET(room->room_flags, ROOM_GODS_ONLY) && !IS_IMMORTAL(ch))
         return false;
 
-    if (IS_SET(pRoomIndex->room_flags, ROOM_HEROES_ONLY) && !IS_IMMORTAL(ch))
+    if (IS_SET(room->room_flags, ROOM_HEROES_ONLY) && !IS_IMMORTAL(ch))
         return false;
 
-    if (IS_SET(pRoomIndex->room_flags, ROOM_NEWBIES_ONLY) && ch->level > 5
+    if (IS_SET(room->room_flags, ROOM_NEWBIES_ONLY) && ch->level > 5
         && !IS_IMMORTAL(ch))
         return false;
 
-    if (!IS_IMMORTAL(ch) && pRoomIndex->clan && ch->clan != pRoomIndex->clan)
+    if (!IS_IMMORTAL(ch) && room->clan && ch->clan != room->clan)
         return false;
 
     return true;
@@ -2344,13 +2368,13 @@ char* itos(int temp)
     return buf;
 }
 
-int get_vnum_mob_name_area(char* name, Area* area)
+int get_vnum_mob_name_area(char* name, AreaData* area)
 {
     int hash;
     MobPrototype* mob;
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++)
-        FOR_EACH(mob, mob_prototype_hash[hash])
+        FOR_EACH(mob, mob_proto_hash[hash])
             if (mob->area == area
                 && !str_prefix(name, mob->name))
                 return mob->vnum;
@@ -2358,7 +2382,7 @@ int get_vnum_mob_name_area(char* name, Area* area)
     return 0;
 }
 
-int get_vnum_obj_name_area(char* name, Area* area)
+int get_vnum_obj_name_area(char* name, AreaData* area)
 {
     int hash;
     ObjPrototype* obj;

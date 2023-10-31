@@ -11,10 +11,51 @@
 #include "magic.h"
 #include "recycle.h"
 
+int obj_count;
+int obj_perm_count;
 
-int obj_count; 
 Object* obj_free;
 Object* obj_list;
+
+Object* new_object()
+{
+    LIST_ALLOC_PERM(obj, Object);
+
+    VALIDATE(obj);
+
+    return obj;
+}
+
+void free_object(Object* obj)
+{
+    Affect* affect;
+    Affect* paf_next = NULL;
+    ExtraDesc* ed;
+    ExtraDesc* ed_next = NULL;
+
+    if (!IS_VALID(obj))
+        return;
+
+    for (affect = obj->affected; affect != NULL; affect = paf_next) {
+        paf_next = affect->next;
+        free_affect(affect);
+    }
+    obj->affected = NULL;
+
+    for (ed = obj->extra_desc; ed != NULL; ed = ed_next) {
+        ed_next = ed->next;
+        free_extra_desc(ed);
+    }
+    obj->extra_desc = NULL;
+
+    free_string(obj->name);
+    free_string(obj->description);
+    free_string(obj->short_descr);
+    free_string(obj->owner);
+    INVALIDATE(obj);
+
+    LIST_FREE(obj);
+}
 
 void clone_object(Object* parent, Object* clone)
 {
@@ -57,7 +98,6 @@ void clone_object(Object* parent, Object* clone)
         clone->extra_desc = ed_new;
     }
 }
-
 
 // Preserved for historical reasons, and to demonstrate how current values were
 // arrived at. -- Halivar
@@ -175,11 +215,13 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level)
 // Mess with object properties.
     switch (obj->item_type) {
     case ITEM_LIGHT:
-        if (obj->value[2] == 999) obj->value[2] = -1;
+        if (obj->value[2] == 999) 
+            obj->value[2] = -1;
         break;
 
     case ITEM_JUKEBOX:
-        for (i = 0; i < 5; i++) obj->value[i] = -1;
+        for (i = 0; i < 5; i++) 
+            obj->value[i] = -1;
         break;
 
     default:
@@ -193,57 +235,8 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level)
     obj->next = obj_list;
     obj_list = obj;
     obj_proto->count++;
-    obj_count++;
 
     return obj;
 }
 
-void free_object(Object* obj)
-{
-    Affect* affect;
-    Affect* paf_next = NULL;
-    ExtraDesc* ed;
-    ExtraDesc* ed_next = NULL;
 
-    if (!IS_VALID(obj)) 
-        return;
-
-    for (affect = obj->affected; affect != NULL; affect = paf_next) {
-        paf_next = affect->next;
-        free_affect(affect);
-    }
-    obj->affected = NULL;
-
-    for (ed = obj->extra_desc; ed != NULL; ed = ed_next) {
-        ed_next = ed->next;
-        free_extra_desc(ed);
-    }
-    obj->extra_desc = NULL;
-
-    free_string(obj->name);
-    free_string(obj->description);
-    free_string(obj->short_descr);
-    free_string(obj->owner);
-    INVALIDATE(obj);
-
-    obj_count--;
-    obj->next = obj_free;
-    obj_free = obj;
-}
-
-Object* new_object()
-{
-    static Object obj_zero;
-    Object* obj;
-
-    if (obj_free == NULL)
-        obj = alloc_perm(sizeof(*obj));
-    else {
-        obj = obj_free;
-        NEXT_LINK(obj_free);
-    }
-    *obj = obj_zero;
-    VALIDATE(obj);
-
-    return obj;
-}

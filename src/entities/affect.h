@@ -131,5 +131,6 @@ Affect* new_affect();
 
 extern Affect* affect_free;
 extern int affect_count;
+extern int affect_perm_count;
 
 #endif // !MUD98__ENTITIES__AFFECT_H

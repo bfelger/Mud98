@@ -9,38 +9,36 @@
 Descriptor* descriptor_free = NULL;
 Descriptor* descriptor_list = NULL;
 
-void free_descriptor(Descriptor* d)
-{
-    if (d == NULL)
-        return;
-
-    if (d->client) {
-#ifndef NO_OPENSSL
-        if (d->client->type == SOCK_TLS)
-            free_mem(d->client, sizeof(TlsClient));
-        else
-#endif
-            free_mem(d->client, sizeof(SockClient));
-    }
-    free_string(d->host);
-    free_mem(d->outbuf, d->outsize);
-    INVALIDATE(d);
-    d->next = descriptor_free;
-    descriptor_free = d;
-}
+int descriptor_count;
+int descriptor_perm_count;
 
 Descriptor* new_descriptor()
 {
-    Descriptor* d;
+    LIST_ALLOC_PERM(descriptor, Descriptor);
+    
+    VALIDATE(descriptor);
 
-    if (descriptor_free == NULL)
-        d = alloc_perm(sizeof(*d));
-    else {
-        d = descriptor_free;
-        NEXT_LINK(descriptor_free);
-    }
-
-    memset(d, 0, sizeof(Descriptor));
-    VALIDATE(d);
-    return d;
+    return descriptor;
 }
+
+void free_descriptor(Descriptor* descriptor)
+{
+    if (descriptor == NULL)
+        return;
+
+    if (descriptor->client) {
+#ifndef NO_OPENSSL
+        if (descriptor->client->type == SOCK_TLS)
+            free_mem(descriptor->client, sizeof(TlsClient));
+        else
+#endif
+            free_mem(descriptor->client, sizeof(SockClient));
+    }
+    free_string(descriptor->host);
+    free_mem(descriptor->outbuf, descriptor->outsize);
+    INVALIDATE(descriptor);
+
+    LIST_FREE(descriptor);
+}
+
+

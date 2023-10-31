@@ -209,7 +209,7 @@ int hit_gain(Mobile* ch)
             gain /= 2;
     }
 
-    gain = gain * ch->in_room->heal_rate / 100;
+    gain = gain * ch->in_room->data->heal_rate / 100;
 
     if (ch->on != NULL && ch->on->item_type == ITEM_FURNITURE)
         gain = gain * ch->on->value[3] / 100;
@@ -280,7 +280,7 @@ int mana_gain(Mobile* ch)
         if (ch->pcdata->condition[COND_THIRST] == 0) gain /= 2;
     }
 
-    gain = gain * ch->in_room->mana_rate / 100;
+    gain = gain * ch->in_room->data->mana_rate / 100;
 
     if (ch->on != NULL && ch->on->item_type == ITEM_FURNITURE)
         gain = gain * ch->on->value[4] / 100;
@@ -322,7 +322,7 @@ int move_gain(Mobile* ch)
             gain /= 2;
     }
 
-    gain = gain * ch->in_room->heal_rate / 100;
+    gain = gain * ch->in_room->data->heal_rate / 100;
 
     if (ch->on != NULL && ch->on->item_type == ITEM_FURNITURE)
         gain = gain * ch->on->value[3] / 100;
@@ -483,13 +483,16 @@ void mobile_update()
             && (door = number_bits(5)) <= 5
             && (room_exit = ch->in_room->exit[door]) != NULL
             && room_exit->to_room != NULL && !IS_SET(room_exit->exit_flags, EX_CLOSED)
-            && !IS_SET(room_exit->to_room->room_flags, ROOM_NO_MOB)
-            && (!IS_SET(ch->act_flags, ACT_STAY_AREA)
+            && !IS_SET(room_exit->to_room->data->room_flags, ROOM_NO_MOB)
+            && ((!IS_SET(ch->act_flags, ACT_STAY_AREA) 
+                // Don't let mobs wander out of, or into, multi-instances
+                || ch->in_room->area->data->inst_type == AREA_INST_MULTI
+                || room_exit->to_room->area->data->inst_type == AREA_INST_MULTI)
                 || room_exit->to_room->area == ch->in_room->area)
             && (!IS_SET(ch->act_flags, ACT_OUTDOORS)
-                || !IS_SET(room_exit->to_room->room_flags, ROOM_INDOORS))
+                || !IS_SET(room_exit->data->to_room->room_flags, ROOM_INDOORS))
             && (!IS_SET(ch->act_flags, ACT_INDOORS)
-                || IS_SET(room_exit->to_room->room_flags, ROOM_INDOORS))) {
+                || IS_SET(room_exit->data->to_room->room_flags, ROOM_INDOORS))) {
             move_char(ch, door, false);
         }
     }
@@ -570,9 +573,9 @@ void char_update(void)
                     act("$n disappears into the void.", ch, NULL, NULL,
                         TO_ROOM);
                     send_to_char("You disappear into the void.\n\r", ch);
-                    if (ch->level > 1) save_char_obj(ch);
-                    char_from_room(ch);
-                    char_to_room(ch, get_room(ROOM_VNUM_LIMBO));
+                    if (ch->level > 1)
+                        save_char_obj(ch);
+                    transfer_mob(ch, get_room(NULL, ROOM_VNUM_LIMBO));
                 }
             }
 
@@ -854,7 +857,7 @@ void obj_update(void)
  */
 void aggr_update(void)
 {
-    for (PlayerData* wpc = player_list; wpc != NULL; NEXT_LINK(wpc)) {
+    for (PlayerData* wpc = player_data_list; wpc != NULL; NEXT_LINK(wpc)) {
         Mobile* wch = wpc->ch;
 
         if (wch->level >= LEVEL_IMMORTAL || wch->in_room == NULL)
@@ -864,7 +867,7 @@ void aggr_update(void)
             int count;
 
             if (!IS_NPC(ch) || !IS_SET(ch->act_flags, ACT_AGGRESSIVE)
-                || IS_SET(ch->in_room->room_flags, ROOM_SAFE)
+                || IS_SET(ch->in_room->data->room_flags, ROOM_SAFE)
                 || IS_AFFECTED(ch, AFF_CALM) || ch->fighting != NULL
                 || IS_AFFECTED(ch, AFF_CHARM) || !IS_AWAKE(ch)
                 || (IS_SET(ch->act_flags, ACT_WIMPY) && IS_AWAKE(wch))

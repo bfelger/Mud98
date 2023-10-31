@@ -46,14 +46,12 @@
 /* Magic number for memory allocation */
 #define MAGIC_NUM               52571214
 
-void assign_area_vnum(VNUM vnum);       // OLC
-void reset_area(Area* area);      // OLC
-void reset_room(Room* pRoom);	    // OLC
+void assign_area_vnum(VNUM vnum);
+void reset_area(Area* area);
+void reset_room(Room* pRoom);
 char* print_flags(FLAGS flag);
 void boot_db(void);
 void area_update(void);
-void clone_mobile(Mobile* parent, Mobile* clone);
-void clear_char(Mobile* ch);
 MobProgCode* get_mprog_index(VNUM vnum);
 char fread_letter(FILE* fp);
 int fread_number(FILE* fp);
@@ -68,6 +66,7 @@ void* alloc_mem(size_t sMem);
 void* alloc_perm(size_t sMem);
 void free_mem(void* pMem, size_t sMem);
 char* str_dup(const char* str);
+char* str_append(char* str1, const char* str2);
 void free_string(char* pstr);
 int number_fuzzy(int number);
 int number_range(int from, int to);
@@ -90,6 +89,25 @@ void log_string(const char* str);
 
 #define ALLOC(T, v)     T* v = (T*)alloc_mem(sizeof(T))
 
+#define LIST_ALLOC_PERM(x, T)                                                  \
+    static T x##_zero = { 0 };                                                 \
+    T* x;                                                                      \
+    if (!x##_free) {                                                           \
+        x = alloc_perm(sizeof(*x));                                            \
+        x##_perm_count++;                                                      \
+    }                                                                          \
+    else {                                                                     \
+        x = x##_free;                                                          \
+        NEXT_LINK(x##_free);                                                   \
+    }                                                                          \
+    x##_count++;                                                               \
+    *x = x##_zero;
+
+#define LIST_FREE(x)                                                           \
+    x##_count--;                                                               \
+    x->next = x##_free;                                                        \
+    x##_free = x;
+
 typedef struct kill_data_t {
     int16_t number;
     int16_t killed;
@@ -101,8 +119,9 @@ extern KillData kill_table[MAX_LEVEL];
 extern char bug_buf[];
 extern char log_buf[];
 extern bool fBootDb;
-extern int extra_desc_count;
-extern int shop_count;
+extern FILE* strArea;
+extern char fpArea[MAX_INPUT_LENGTH];
+extern AreaData* current_area_data;
 
 extern int _filbuf(FILE*);
 

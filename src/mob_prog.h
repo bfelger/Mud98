@@ -49,9 +49,11 @@ typedef struct mob_prog_code_t {
     char* code;
 } MobProgCode;
 
-MobProg* new_mprog();
-void free_mprog(MobProg* mp);
-MobProgCode* new_mpcode();
+MobProg* new_mob_prog();
+void free_mob_prog(MobProg* mob_prog);
+
+MobProgCode* new_mob_prog_code();
+void free_mob_prog_code(MobProgCode* mob_prog_code);
 
 void program_flow(VNUM vnum, char* source, Mobile* mob, Mobile* ch, 
     const void* arg1, const void* arg2);
@@ -64,6 +66,11 @@ bool mp_exit_trigger(Mobile* ch, int dir);
 void mp_give_trigger(Mobile* mob, Mobile* ch, Object* obj);
 void mp_greet_trigger(Mobile* ch);
 void mp_hprct_trigger(Mobile* mob, Mobile* ch);
+
+extern int mob_prog_count;
+extern int mob_prog_perm_count;
+extern int mob_prog_code_count;
+extern int mob_prog_code_perm_count;
 
 extern MobProgCode* mprog_list;
 

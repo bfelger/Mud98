@@ -25,9 +25,21 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+struct flag_type;
+
 #pragma once
 #ifndef MUD98__TABLES_H
 #define MUD98__TABLES_H
+
+#include "merc.h"
+
+#include <stdbool.h>
+
+struct flag_type {
+    char* name;
+    FLAGS bit;
+    bool settable;
+};
 
 #include "entities/mobile.h"
 
@@ -50,11 +62,6 @@ typedef enum cmd_type_t {
     TYP_OLC         = 13,
 } CmdType;
 
-struct flag_type {
-    char* name;
-    FLAGS bit;
-    bool settable;
-};
 
 struct clan_type {
     char* name;
@@ -126,6 +133,7 @@ extern const struct flag_type dam_classes[DAM_TYPE_COUNT];
 extern const struct flag_type log_flag_table[];
 extern const struct flag_type show_flag_table[];
 extern const struct flag_type stat_table[STAT_COUNT+1];
+extern const struct flag_type inst_type_table[];
 
 void show_flags_to_char(Mobile* ch, const struct flag_type* flags);
 

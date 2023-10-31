@@ -4,6 +4,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef struct room_t Room;
+typedef struct room_data_t RoomData;
 
 #pragma once
 #ifndef MUD98__ENTITIES__ROOM_H
@@ -54,11 +55,22 @@ typedef enum room_flags_t {
 
 typedef struct room_t {
     Room* next;
-    Mobile* people;
-    Object* contents;
-    ExtraDesc* extra_desc;
+    Room* next_instance;
+    VNUM vnum;
+    RoomData* data;
     Area* area;
     RoomExit* exit[DIR_MAX];
+    Mobile* people;
+    Object* contents;
+    int16_t light;
+} Room;
+
+typedef struct room_data_t {
+    RoomData* next;
+    Room* instances;
+    ExtraDesc* extra_desc;
+    AreaData* area_data;
+    RoomExitData* exit_data[DIR_MAX];
     Reset* reset_first;
     Reset* reset_last;
     char* name;
@@ -67,23 +79,42 @@ typedef struct room_t {
     VNUM vnum;
     FLAGS room_flags;
     Sector sector_type;
-    int16_t light;
     int16_t heal_rate;
     int16_t mana_rate;
     int16_t clan;
     int16_t reset_num;
-} Room;
+} RoomData;
 
 #define FOR_EACH_IN_ROOM(c, r) \
     for ((c) = (r); (c) != NULL; (c) = c->next_in_room)
 
-void free_room(Room* pRoom);
-Room* get_room(VNUM vnum);
-Room* new_room();
+#define FOR_EACH_INSTANCE(r, i) \
+    for ((r) = (i); (r) != NULL; (r) = r->next_instance)
 
-extern Room* room_vnum_hash[MAX_KEY_HASH];
+#define FOR_EACH_GLOBAL_ROOM_DATA(r) \
+    for (int r##_hash = 0; r##_hash < MAX_KEY_HASH; ++r##_hash) \
+        FOR_EACH(r, room_data_hash_table[r##_hash])
+
+#define FOR_EACH_AREA_ROOM(r, a) \
+    for (int r##_hash = 0; r##_hash < AREA_ROOM_VNUM_HASH_SIZE; ++r##_hash) \
+        FOR_EACH(r, (a)->rooms[r##_hash])
+
+Room* new_room(RoomData* room_data, Area* area);
+void free_room(Room* room);
+Room* get_room(Area* search_context, VNUM vnum);
+Room* get_room_for_player(Mobile* ch, VNUM vnum);
+
+void free_room_data(RoomData* pRoom);
+RoomData* get_room_data(VNUM vnum);
+RoomData* new_room_data();
 
 extern int room_count;
+extern int room_perm_count;
+extern int room_data_count;
+extern int room_data_perm_count;
+
+extern RoomData* room_data_hash_table[MAX_KEY_HASH];
+
 extern VNUM top_vnum_room;
 
 #endif // !MUD98__ENTITIES__ROOM_H

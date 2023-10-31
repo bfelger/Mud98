@@ -559,7 +559,7 @@ void load_command_table(void)
 
     max_cmd = size;
 
-    logf("Creating cmd_table of length %d, size %zu", size + 1,
+    printf_log("Creating cmd_table of length %d, size %zu", size + 1,
         sizeof(CmdInfo) * ((size_t)size + 1));
 
     if ((cmd_table = calloc(sizeof(CmdInfo), (size_t)size + 1)) == NULL) {
@@ -582,7 +582,7 @@ void load_command_table(void)
         load_struct(fp, U(&tmp_cmd), cmdsavetable, U(&cmd_table[i++]));
 
         if (i == size) {
-            logf("Command table loaded.");
+            printf_log("Command table loaded.");
             close_file(fp);
             cmd_table[i].name = str_dup("");
             return;
@@ -614,8 +614,6 @@ void save_progs(VNUM minvnum, VNUM maxvnum)
 
 void load_prog(FILE* fp, MobProgCode** prog)
 {
-    extern MobProgCode* mprog_list;
-    static MobProgCode mprog_zero = { 0 };
     char* word = fread_word(fp);
 
     if (str_cmp(word, "#PROG")) {
@@ -624,35 +622,35 @@ void load_prog(FILE* fp, MobProgCode** prog)
         return;
     }
 
-    *prog = alloc_perm(sizeof(MobProgCode));
-
-    // Clear it
-    **prog = mprog_zero;
+    *prog = new_mob_prog_code();
+    MobProgCode* new_prog = *prog;
 
     load_struct(fp, U(&tmp_pcode), progcodesavetable, U(*prog));
 
-    // Populate the linked list
-    if (mprog_list == NULL)
-        mprog_list = *prog;
-    else {
-        // At the beginning or the end?
-        if ((*prog)->vnum < mprog_list->vnum) {
-            (*prog)->next = mprog_list;
-            mprog_list = *prog;
-        }
-        else {
-            MobProgCode* temp;
-            MobProgCode* prev = mprog_list;
+    ORDERED_INSERT(MobProgCode, new_prog, mprog_list, vnum);
 
-            FOR_EACH(temp, mprog_list->next) {
-                if (temp->vnum > (*prog)->vnum)
-                    break;
-                prev = temp;
-            }
-            prev->next = *prog;
-            (*prog)->next = temp;
-        }
-    }
+    // Populate the linked list
+    //if (mprog_list == NULL)
+    //    mprog_list = *prog;
+    //else {
+    //    // At the beginning or the end?
+    //    if ((*prog)->vnum < mprog_list->vnum) {
+    //        (*prog)->next = mprog_list;
+    //        mprog_list = *prog;
+    //    }]
+    //    else {
+    //        MobProgCode* temp;
+    //        MobProgCode* prev = mprog_list;
+    //
+    //        FOR_EACH(temp, mprog_list->next) {
+    //            if (temp->vnum > (*prog)->vnum)
+    //                break;
+    //            prev = temp;
+    //        }
+    //        prev->next = *prog;
+    //        (*prog)->next = temp;
+    //    }
+    //}
 }
 
 MobProgCode* pedit_prog(VNUM vnum)

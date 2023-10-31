@@ -12,16 +12,30 @@
 
 ExtraDesc* extra_desc_free;
 
-void free_extra_desc(ExtraDesc* ed)
+int extra_desc_count;
+int extra_desc_perm_count;
+
+ExtraDesc* new_extra_desc()
 {
-    if (!IS_VALID(ed)) return;
+    LIST_ALLOC_PERM(extra_desc, ExtraDesc);
 
-    free_string(ed->keyword);
-    free_string(ed->description);
-    INVALIDATE(ed);
+    extra_desc->keyword = &str_empty[0];
+    extra_desc->description = &str_empty[0];
+    VALIDATE(extra_desc);
 
-    ed->next = extra_desc_free;
-    extra_desc_free = ed;
+    return extra_desc;
+}
+
+void free_extra_desc(ExtraDesc* extra_desc)
+{
+    if (!IS_VALID(extra_desc))
+        return;
+
+    free_string(extra_desc->keyword);
+    free_string(extra_desc->description);
+    INVALIDATE(extra_desc);
+
+    LIST_FREE(extra_desc);
 }
 
 char* get_extra_desc(const char* name, ExtraDesc* ed)
@@ -33,19 +47,3 @@ char* get_extra_desc(const char* name, ExtraDesc* ed)
     return NULL;
 }
 
-ExtraDesc* new_extra_desc()
-{
-    ExtraDesc* ed;
-
-    if (extra_desc_free == NULL)
-        ed = alloc_perm(sizeof(*ed));
-    else {
-        ed = extra_desc_free;
-        NEXT_LINK(extra_desc_free);
-    }
-
-    ed->keyword = &str_empty[0];
-    ed->description = &str_empty[0];
-    VALIDATE(ed);
-    return ed;
-}

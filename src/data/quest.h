@@ -12,6 +12,8 @@ typedef struct quest_log_t QuestLog;
 
 #include "merc.h"
 
+#include "tables.h"
+
 #include "entities/area.h"
 
 typedef enum quest_type_t {
@@ -21,7 +23,7 @@ typedef enum quest_type_t {
 
 typedef struct quest_t {
     Quest* next;
-    Area* area;
+    AreaData* area_data;
     char* name;
     char* entry;
     VNUM vnum;
@@ -75,11 +77,16 @@ QuestTarget* get_quest_targ_obj(Mobile* ch, VNUM target_vnum);
 QuestTarget* get_quest_targ_end(Mobile* ch, VNUM end_vnum);
 QuestStatus* get_quest_status(Mobile* ch, VNUM quest_vnum);
 void finish_quest(Mobile* ch, Quest* quest, QuestStatus* status);
+void add_quest_to_log(QuestLog* quest_log, Quest* quest, QuestState quest_state,
+    int progress);
 void grant_quest(Mobile* ch, Quest* quest);
-void save_quests(FILE* fp, Area* area); 
+void save_quests(FILE* fp, AreaData* area); 
 bool can_quest(Mobile* ch, VNUM vnum);
 bool has_quest(Mobile* ch, VNUM vnum);
 bool can_finish_quest(Mobile* ch, VNUM vnum);
+
+extern int quest_count;
+extern int quest_perm_count;
 
 extern const struct flag_type quest_type_table[];
 

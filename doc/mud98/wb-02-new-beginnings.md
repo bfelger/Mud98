@@ -1,5 +1,7 @@
 # Worldcrafting from Scratch Pt. 2 &mdash; New Beginnings
 
+Previous: [Worldcrafting from Scratch Pt. 1 &mdash; Getting Started](wb-01-getting-started)
+
 ### Table of Contents
 1. [Choosing a VNUM block](#choosing-a-vnum-block)
 1. [Creating a new area](#creating-a-new-area)
@@ -96,8 +98,9 @@ File:           area48.are
 Vnums:          [0-0]
 Levels:         [1-60]
 Sector:         [inside]
-Reset:          [5] x 8 minutes; currently at 0
+Reset:          [5] x 8 minutes
 Always Reset:   [NO]
+Instance Type   [single]
 Age:            [0]
 Security:       [9]
 Builders:       [Halivar]
@@ -124,24 +127,25 @@ sector forest
 vnums 12000 121000
 levels 1 5
 reset 1
-alwaysreset yes
+instancetype multi
 ```
 
 These settings are novel to Mud98:
 - `sector` sets a "default" sector value for the rooms in the area.
 - `reset` is the number of "area pulses" to use before the room resets. By setting it to `1`, we guarantee this starting area (including mobs and objs) resets ever 8 minutes.
-- `alwaysreset` overrides the default behavior to never reset certain things (such as container contents) if a player is in the area.
+- `instancetype` is a novel setting for Mud98. There are two settings (at the time of this writing): `single` and `multi`. The former works like ROM always have: everyone plays in one big shared space. The `multi` option means "multiple-instanced"; each player (and their party mates) have their own sandbox in that area. If other folks enter the same area, they will have their _own_ instance, and the two shall never meet. This is just right for the newbie zone, which (IMXP) can suffer from too many folks competing for slaying the poor little moblets.
 
 Now my `SHOW` looks like this:
 
 ```
-Name:           [48] Faladrin Forest
+Name:           [49] Faladrin Forest
 File:           faladri.are
 Vnums:          [12000-12100]
 Levels:         [1-5]
 Sector:         [forest]
-Reset:          [1] x 8 minutes; currently at 0
-Always Reset:   [YES]
+Reset:          [1] x 8 minutes
+Always Reset:   [NO]
+Instance Type:  [multi]
 Security:       [9]
 Builders:       [Halivar]
 Credits :       [Halivar]
@@ -500,13 +504,13 @@ The command to load a mob into the room is `MRESET`.
 A blind call yields the syntax:
 
 ```
-Syntax:  mreset <vnum> <max #x> <min #x>
+Syntax:  mreset <vnum> <world max> <room max>
 ```
 
-I only ever want one, and always one, so I enter this:
+I an unlimited number of these _world-wide_, as they have to be shared between multiple instances. That's what `-1` means. The third parameter means there is only ever one _in this room_.
 
 ```
-mreset 12000 1 1
+mreset 12000 -1 1
 ```
 
 Ok, so now it's added, which we verify with the `RESETS` command:
@@ -515,7 +519,7 @@ Ok, so now it's added, which we verify with the `RESETS` command:
 Resets: M = mobile, R = room, O = object, P = pet, S = shopkeeper
  No.  Loads    Description       Location         Vnum   Ar Rm Description
 ==== ======== ============= =================== ======== ===== ===========
-[ 1] M[12000] (no short des                     R[12000]  1- 1 The Awakening  
+[ 1] M[12000] (no short des                     R[12000] -1- 1 The Awakening  
 ```
 
 It's in the room, but you won't see it, as it was marked invisible.
@@ -691,7 +695,7 @@ Once you have the mob where you want him, you can set him in place:
 ```
 done
 redit 12005
-mreset 12005 1 1
+mreset 12005 -1 1
 done
 asave changed
 ```
@@ -744,20 +748,18 @@ Target:     [12005] Findorian, the Woodspeaker
 XP:         [100]
 Entry:
 Before you step out into the greater world, you must be trained.  To that
-end, your old mentor Findorian has has taken the responsibility to ensure
-you are properly made ready.  He waits for you just to the east of
-Cuivealda.  
+end, your old mentor Findorian has has taken the responsibility to ensure you
+are properly made ready.  He waits for you just to the east of Cuivealda.
 ```
 
 The default type is `visit_mob`, which is just right for us right now. I need to go back and edit MobProg `12001` (the 1 pulse delayed action). This is the new, updated code:
 
 ```
 if hastarget $i
+and canquest $q 12000
     mob echoat $q {jYou have instructions to meet your old mentor in a clearing just to the east. There you will continue your training. Type '{*EXITS{j' to see what lies in that direction. Type '{*EAST{j' to go there.{x
-    if canquest $q 12000
-        mob quest grant $q 12000
-        mob echoat $q {jType '{*QUEST{j' to view your quest log.{x
-    endif
+    mob quest grant $q 12000
+    mob echoat $q {jType '{*QUEST{j' to view your quest log.{x
 else
     mob forget
 endif
@@ -773,7 +775,9 @@ This is what the player sees:
 You have instructions to meet your old mentor in a clearing just to the east.
 There you will continue your training. Type 'EXITS' to see what lies in that 
 direction. Type 'EAST' to go there.
+
 You have started the quest, "An Old Friend".
+
 Type 'QUEST' to view your quest log.
 ```
 
@@ -832,6 +836,7 @@ wish I could ease you into the brutal World Below, but we have no such luck.'
 Findorian, the Woodspeaker sighs.
 Findorian, the Woodspeaker says 'I need your help with something, and it's not
 going to be pleasant.'
+
 You have completed the quest, "An Old Friend".
 You have been awarded 100 xp.
 ```
@@ -935,7 +940,7 @@ and crazed.  It eyes you warily.
 Then we add it to room `12010`'s resets:
 
 ```
-mreset 12010 1 1
+mreset 12010 -1 1
 ```
 
 ### Cloning mobs
@@ -1073,8 +1078,10 @@ wish I could ease you into the brutal World Below, but we have no such luck.'
 Findorian, the Woodspeaker sighs.
 Findorian, the Woodspeaker says 'I need your help with something, and it's not
 going to be pleasant.'
+
 You have completed the quest, "An Old Friend".
 You have been awarded 100 xp.
+
 Findorian, the Woodspeaker says 'There is a blight in this region of the forest
 infecting flora and fauna alike. I want to get to the root of it, but for now 
 there is great suffering that must be dealt with.'
@@ -1085,6 +1092,7 @@ Findorian, the Woodspeaker says 'The Tetyayath have taught you the Creeds, and
 you have spoken them. Now you must pay the terrible cost of adhering to them.'
 Findorian, the Woodspeaker says 'Go north. Bring them mercy. They have suffered
 long enough.'
+
 You have started the quest, "A Preserver's Burden".
 ```
 
@@ -1368,19 +1376,18 @@ Now I want to make am Mob Prog and a triggerbot to let the player know what to d
 mpedit create 12003
 code
 if hasquest $n 12000
-    mob echoat $n {jYour mentor has left you some gear to help you on 
-your{x
+    mob echoat $n {jYour mentor has left you some gear to help you on your{x
     mob echoat $n {jjourney. It's inside a chest by the tree.{x
     mob echoat $n {jTry the following commands:{x
-    mob echoat $n     {*OPEN CHEST{x
-    mob echoat $n     {*LOOK IN CHEST{x
-    mob echoat $n     {*TAKE ALL FROM CHEST{x
-    mob echoat $n     {*WEAR ALL{x
+    mob echoat $n {j- {*OPEN CHEST{x
+    mob echoat $n {j- {*LOOK IN CHEST{x
+    mob echoat $n {j- {*TAKE ALL FROM CHEST{x
+    mob echoat $n {j- {*EQUIP ALL{x
     mob echoat $n {jYou can also look at your inventory with:{x
-    mob echoat $n     {*EQ{j (short for {*EQUIPMENT{j){x
-    mob echoat $n     {*INV{j (short for {*INVENTORY{j){x
-    mob echoat $n {jYou can see the effect donning this gear by viewing your stats:{x
-    mob echoat $n     {*SCORE{j (which you can abbreviate to {*SC{j){x}
+    mob echoat $n {j- {*EQ{j (short for {*EQUIPMENT{j){x
+    mob echoat $n {j- {*INV{j (short for {*INVENTORY{j){x
+    mob echoat $n {jYou can see the effect of donning this gear by viewing your stats:{x
+    mob echoat $n {j- {*SCORE{j (which you can abbreviate to {*SC{j){x
 endif
 @
 done
@@ -1390,7 +1397,7 @@ name triggerbot_12003
 addprog 12003 greet 100
 done
 redit 12003
-mreset 12003 1 1
+mreset 12003 -1 1
 done
 asave changed
 ```
@@ -1428,8 +1435,11 @@ Findorian, the Woodspeaker says 'What you have done here important. Preservation
 is about protecting what we can, and mitigating when we can't.'
 Findorian, the Woodspeaker says 'You have honored the Creeds. You have honored
 the Forest.'
+
 You have completed the quest, "A Preserver's Burden".
 You have been awarded 180 xp.
 ```
 
 With just those two quest types, we can do a lot of narrative world expansion. The task of completing this area, and of making other racial (or even class) starting areas is up to you.
+
+Home: [Documentation](index)

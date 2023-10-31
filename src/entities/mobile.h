@@ -20,6 +20,7 @@ typedef struct mobile_t Mobile;
 #include "mob_prototype.h"
 #include "object.h"
 #include "player_data.h"
+#include "reset.h"
 #include "room.h"
 
 #include "data/class.h"
@@ -138,7 +139,7 @@ typedef struct mobile_t {
 #define GET_DAMROLL(ch)                                                        \
     ((ch)->damroll + str_mod[get_curr_stat(ch, STAT_STR)].todam)
 
-#define IS_OUTSIDE(ch)         (!IS_SET((ch)->in_room->room_flags, ROOM_INDOORS))
+#define IS_OUTSIDE(ch)         (!IS_SET((ch)->in_room->data->room_flags, ROOM_INDOORS))
 
 #define WAIT_STATE(ch, npulse) ((ch)->wait = UMAX((ch)->wait, (npulse)))
 #define DAZE_STATE(ch, npulse) ((ch)->daze = UMAX((ch)->daze, (npulse)))
@@ -160,12 +161,17 @@ typedef struct mobile_t {
 // with checks.
 #define GET_ARCH(ch)    (CHECK_ARCH((int)class_table[ch->ch_class].arch))
 
-void free_mobile(Mobile* ch);
 Mobile* new_mobile();
+void free_mobile(Mobile* ch);
+void clone_mobile(Mobile* parent, Mobile* clone);
+Mobile* create_mobile(MobPrototype* p_mob_proto);
+long get_mob_id();
+void clear_mob(Mobile* ch);
 
 extern Mobile* mob_list;
 extern Mobile* mob_free;
 
 extern int mob_count;
+extern int mob_perm_count;
 
 #endif // !MUD98__ENTITIES__CHAR_DATA_H

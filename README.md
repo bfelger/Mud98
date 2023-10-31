@@ -39,6 +39,7 @@
         <li><a href="#improved-code-quality">Improved Code Quality</a></li>
         <li><a href="#olc-expansion">OLC Expansion</a></li>
         <li><a href="#24-bit-color-themes">24-bit Color Themes</a></li>
+        <li><a href=>
       </ul>
     </li>
     <li>
@@ -109,6 +110,14 @@ Players can create new color themes and share them publicly with other players. 
   <img src="doc/theme-2.png" alt="Logo" width="301" height="280">
   </a>
 </div>
+
+### Quests
+
+Mud98 has a robust quest system that is tightly integrated with Mob Progs and OLC. Unlike earlier quest systems for ROM, this is a zero-code solution that can be built along with the areas they belong to.
+
+### Multiple-Instance Areas
+
+In Mud98, you can designate whole areas as multiple-instance, which in the parlance of MMORPGs means that players (and their parties) who enter the zone are playing in their own sandbox. This is useful for low-competition starting zones, chatty story-bound NPC's, and whole dungeons spun up just for the player and their friends.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

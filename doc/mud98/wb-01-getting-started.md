@@ -246,3 +246,7 @@ These are the steps to create an initial Implementor:
     Sec  9
     ```
 6. Log back into the game as the new character. Now this character is an Implementor with the highest online editing security setting.
+
+Next: [Worldcrafting from Scratch Pt. 2 &mdash; New Beginnings](wb-02-new-beginnings)
+
+Home: [Documentation](index)

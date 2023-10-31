@@ -24,7 +24,7 @@ void init_msdp_table()
 		{
 			if (*msdp_table[index + 1].name)
 			{
-				logf("\033[1;31minit_msdp_table: Improperly sorted variable: %s.\033[0m", msdp_table[index + 1].name);
+				printf_log("\033[1;31minit_msdp_table: Improperly sorted variable: %s.\033[0m", msdp_table[index + 1].name);
 			}
 		}
 	}
@@ -90,7 +90,7 @@ void msdp_update_var(Descriptor* d, char* var, char* fmt, ...)
 	index = msdp_find(var);
 
 	if (index == -1) {
-		logf("msdp_update_var: Unknown variable: %s.", var);
+		printf_log("msdp_update_var: Unknown variable: %s.", var);
 		return;
 	}
 
@@ -111,7 +111,8 @@ void msdp_update_var(Descriptor* d, char* var, char* fmt, ...)
 
 void msdp_update_var_instant(Descriptor* d, char* var, char* fmt, ...)
 {
-	char buf[MAX_STRING_LENGTH], out[MAX_STRING_LENGTH];
+	char buf[MAX_STRING_LENGTH];
+	char out[MAX_STRING_LENGTH * 2];
 	int index, length;
 	va_list args;
 
@@ -122,7 +123,7 @@ void msdp_update_var_instant(Descriptor* d, char* var, char* fmt, ...)
 	index = msdp_find(var);
 
 	if (index == -1) {
-		logf("msdp_update_var_instant: Unknown variable: %s.", var);
+		printf_log("msdp_update_var_instant: Unknown variable: %s.", var);
 
 		return;
 	}
@@ -145,7 +146,7 @@ void msdp_update_var_instant(Descriptor* d, char* var, char* fmt, ...)
 // Send all reported variables that have been updated.
 void msdp_send_update(Descriptor* d)
 {
-	char buf[MAX_STRING_LENGTH] = { 0 };
+	char buf[MAX_STRING_LENGTH * 2] = { 0 };
 	char* ptr = buf;
 	int index;
 
@@ -189,7 +190,7 @@ char* msdp_get_var(Descriptor* d, char* var)
 	index = msdp_find(var);
 
 	if (index == -1) {
-		logf("msdp_get_var: Unknown variable: %s.", var);
+		printf_log("msdp_get_var: Unknown variable: %s.", var);
 		return NULL;
 	}
 

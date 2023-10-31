@@ -314,7 +314,7 @@ void do_cast(Mobile* ch, char* argument)
             }
         }
         else {
-            if ((victim = get_char_room(ch, target_name)) == NULL) {
+            if ((victim = get_mob_room(ch, target_name)) == NULL) {
                 send_to_char("They aren't here.\n\r", ch);
                 return;
             }
@@ -347,7 +347,7 @@ void do_cast(Mobile* ch, char* argument)
     case SKILL_TARGET_CHAR_DEFENSIVE:
         if (arg2[0] == '\0') { victim = ch; }
         else {
-            if ((victim = get_char_room(ch, target_name)) == NULL) {
+            if ((victim = get_mob_room(ch, target_name)) == NULL) {
                 send_to_char("They aren't here.\n\r", ch);
                 return;
             }
@@ -391,7 +391,7 @@ void do_cast(Mobile* ch, char* argument)
 
             target = SPELL_TARGET_CHAR;
         }
-        else if ((victim = get_char_room(ch, target_name)) != NULL) {
+        else if ((victim = get_mob_room(ch, target_name)) != NULL) {
             target = SPELL_TARGET_CHAR;
         }
 
@@ -427,7 +427,7 @@ void do_cast(Mobile* ch, char* argument)
             vo = (void*)ch;
             target = SPELL_TARGET_CHAR;
         }
-        else if ((victim = get_char_room(ch, target_name)) != NULL) {
+        else if ((victim = get_mob_room(ch, target_name)) != NULL) {
             vo = (void*)victim;
             target = SPELL_TARGET_CHAR;
         }
@@ -1134,7 +1134,7 @@ void spell_charm_person(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget
         || saves_spell(level, victim, DAM_CHARM))
         return;
 
-    if (IS_SET(victim->in_room->room_flags, ROOM_LAW)) {
+    if (IS_SET(victim->in_room->data->room_flags, ROOM_LAW)) {
         send_to_char(
             "The mayor does not allow charming in the city limits.\n\r", ch);
         return;
@@ -2490,13 +2490,13 @@ void spell_gate(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
     Mobile* victim;
     bool gate_pet;
 
-    if ((victim = get_char_world(ch, target_name)) == NULL || victim == ch
-        || victim->in_room == NULL || !can_see_room(ch, victim->in_room)
-        || IS_SET(victim->in_room->room_flags, ROOM_SAFE)
-        || IS_SET(victim->in_room->room_flags, ROOM_PRIVATE)
-        || IS_SET(victim->in_room->room_flags, ROOM_SOLITARY)
-        || IS_SET(victim->in_room->room_flags, ROOM_NO_RECALL)
-        || IS_SET(ch->in_room->room_flags, ROOM_NO_RECALL)
+    if ((victim = get_mob_world(ch, target_name)) == NULL || victim == ch
+        || victim->in_room == NULL || !can_see_room(ch, victim->in_room->data)
+        || IS_SET(victim->in_room->data->room_flags, ROOM_SAFE)
+        || IS_SET(victim->in_room->data->room_flags, ROOM_PRIVATE)
+        || IS_SET(victim->in_room->data->room_flags, ROOM_SOLITARY)
+        || IS_SET(victim->in_room->data->room_flags, ROOM_NO_RECALL)
+        || IS_SET(ch->in_room->data->room_flags, ROOM_NO_RECALL)
         || victim->level >= level + 3
         || (is_clan(victim) && !is_same_clan(ch, victim))
         || (!IS_NPC(victim) && victim->level >= LEVEL_HERO) /* NOT trust */
@@ -2512,8 +2512,8 @@ void spell_gate(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 
     act("$n steps through a gate and vanishes.", ch, NULL, NULL, TO_ROOM);
     send_to_char("You step through a gate and vanish.\n\r", ch);
-    char_from_room(ch);
-    char_to_room(ch, victim->in_room);
+
+    transfer_mob(ch, victim->in_room);
 
     act("$n has arrived through a gate.", ch, NULL, NULL, TO_ROOM);
     do_function(ch, &do_look, "auto");
@@ -2522,8 +2522,9 @@ void spell_gate(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
         act("$n steps through a gate and vanishes.", ch->pet, NULL, NULL,
             TO_ROOM);
         send_to_char("You step through a gate and vanish.\n\r", ch->pet);
-        char_from_room(ch->pet);
-        char_to_room(ch->pet, victim->in_room);
+
+        transfer_mob(ch->pet, victim->in_room);
+
         act("$n has arrived through a gate.", ch->pet, NULL, NULL, TO_ROOM);
         do_function(ch->pet, &do_look, "auto");
     }
@@ -3174,11 +3175,11 @@ void spell_locate_object(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarge
         else {
             if (IS_IMMORTAL(ch) && in_obj->in_room != NULL)
                 sprintf(buf, "one is in %s [Room %d]\n\r",
-                        in_obj->in_room->name, in_obj->in_room->vnum);
+                        in_obj->in_room->data->name, in_obj->in_room->vnum);
             else
                 sprintf(buf, "one is in %s\n\r",
                         in_obj->in_room == NULL ? "somewhere"
-                                                : in_obj->in_room->name);
+                                                : in_obj->in_room->data->name);
         }
 
         buf[0] = UPPER(buf[0]);
@@ -3798,12 +3799,12 @@ void spell_summon(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget targe
 {
     Mobile* victim;
 
-    if ((victim = get_char_world(ch, target_name)) == NULL || victim == ch
-        || victim->in_room == NULL || IS_SET(ch->in_room->room_flags, ROOM_SAFE)
-        || IS_SET(victim->in_room->room_flags, ROOM_SAFE)
-        || IS_SET(victim->in_room->room_flags, ROOM_PRIVATE)
-        || IS_SET(victim->in_room->room_flags, ROOM_SOLITARY)
-        || IS_SET(victim->in_room->room_flags, ROOM_NO_RECALL)
+    if ((victim = get_mob_world(ch, target_name)) == NULL || victim == ch
+        || victim->in_room == NULL || IS_SET(ch->in_room->data->room_flags, ROOM_SAFE)
+        || IS_SET(victim->in_room->data->room_flags, ROOM_SAFE)
+        || IS_SET(victim->in_room->data->room_flags, ROOM_PRIVATE)
+        || IS_SET(victim->in_room->data->room_flags, ROOM_SOLITARY)
+        || IS_SET(victim->in_room->data->room_flags, ROOM_NO_RECALL)
         || (IS_NPC(victim) && IS_SET(victim->act_flags, ACT_AGGRESSIVE))
         || victim->level >= level + 3
         || (!IS_NPC(victim) && victim->level >= LEVEL_IMMORTAL)
@@ -3819,8 +3820,7 @@ void spell_summon(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget targe
     }
 
     act("$n disappears suddenly.", victim, NULL, NULL, TO_ROOM);
-    char_from_room(victim);
-    char_to_room(victim, ch->in_room);
+    transfer_mob(ch, victim->in_room);
     act("$n arrives suddenly.", victim, NULL, NULL, TO_ROOM);
     act("$n has summoned you!", ch, NULL, victim, TO_VICT);
     do_function(victim, &do_look, "auto");
@@ -3833,7 +3833,7 @@ void spell_teleport(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget tar
     Room* pRoomIndex;
 
     if (victim->in_room == NULL
-        || IS_SET(victim->in_room->room_flags, ROOM_NO_RECALL)
+        || IS_SET(victim->in_room->data->room_flags, ROOM_NO_RECALL)
         || (victim != ch && IS_SET(victim->imm_flags, IMM_SUMMON))
         || (!IS_NPC(ch) && victim->fighting != NULL)
         || (victim != ch && (saves_spell(level - 5, victim, DAM_OTHER)))) {
@@ -3846,8 +3846,7 @@ void spell_teleport(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget tar
     if (victim != ch) send_to_char("You have been teleported!\n\r", victim);
 
     act("$n vanishes!", victim, NULL, NULL, TO_ROOM);
-    char_from_room(victim);
-    char_to_room(victim, pRoomIndex);
+    transfer_mob(victim, pRoomIndex);
     act("$n slowly fades into existence.", victim, NULL, NULL, TO_ROOM);
     do_function(victim, &do_look, "auto");
     return;
@@ -3905,23 +3904,23 @@ void spell_word_of_recall(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarg
     if (IS_NPC(victim))
         return;
 
-    if ((location = get_room(ch->pcdata->recall)) == NULL) {
+    if ((location = get_room(ch->in_room->area, ch->pcdata->recall)) == NULL) {
         send_to_char("You are completely lost.\n\r", victim);
         return;
     }
 
-    if (IS_SET(victim->in_room->room_flags, ROOM_NO_RECALL)
+    if (IS_SET(victim->in_room->data->room_flags, ROOM_NO_RECALL)
         || IS_AFFECTED(victim, AFF_CURSE)) {
         send_to_char("Spell failed.\n\r", victim);
         return;
     }
 
-    if (victim->fighting != NULL) stop_fighting(victim, true);
+    if (victim->fighting != NULL) 
+        stop_fighting(victim, true);
 
     ch->move /= 2;
     act("$n disappears.", victim, NULL, NULL, TO_ROOM);
-    char_from_room(victim);
-    char_to_room(victim, location);
+    transfer_mob(victim, location);
     act("$n appears in the room.", victim, NULL, NULL, TO_ROOM);
     do_function(victim, &do_look, "auto");
 }

@@ -11,38 +11,20 @@ ShopData* shop_last;
 ShopData* shop_free;
 
 int shop_count;
+int shop_perm_count;
 
 ShopData* new_shop_data()
 {
-    ShopData* pShop;
-    int buy;
+    LIST_ALLOC_PERM(shop, ShopData);
 
-    if (!shop_free) {
-        pShop = alloc_perm(sizeof(*pShop));
-        shop_count++;
-    }
-    else {
-        pShop = shop_free;
-        NEXT_LINK(shop_free);
-    }
+    shop->profit_buy = 100;
+    shop->profit_sell = 100;
+    shop->close_hour = 23;
 
-    pShop->next = NULL;
-    pShop->keeper = 0;
-
-    for (buy = 0; buy < MAX_TRADE; buy++)
-        pShop->buy_type[buy] = 0;
-
-    pShop->profit_buy = 100;
-    pShop->profit_sell = 100;
-    pShop->open_hour = 0;
-    pShop->close_hour = 23;
-
-    return pShop;
+    return shop;
 }
 
-void free_shop_data(ShopData* pShop)
+void free_shop_data(ShopData* shop)
 {
-    pShop->next = shop_free;
-    shop_free = pShop;
-    return;
+    LIST_FREE(shop);
 }

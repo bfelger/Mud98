@@ -80,17 +80,26 @@ void move_char(Mobile* ch, int door, bool follow)
 
     in_room = ch->in_room;
     if ((room_exit = in_room->exit[door]) == NULL
-        || (to_room = room_exit->to_room) == NULL
-        || !can_see_room(ch, room_exit->to_room)) {
+        || (room_exit->data->to_room == NULL)
+        || !can_see_room(ch, room_exit->data->to_room)) {
         send_to_char("Alas, you cannot go that way.\n\r", ch);
         return;
+    }
+
+    if ((to_room = room_exit->to_room) == NULL) {
+        to_room = get_room_for_player(ch, room_exit->data->to_vnum);
+    }
+    
+    if (!to_room) {
+        bugf("Room %d exit %d to %d does not exist.", in_room->data->vnum,
+            door, room_exit->data->to_vnum);
     }
 
     if (IS_SET(room_exit->exit_flags, EX_CLOSED)
         && (!IS_AFFECTED(ch, AFF_PASS_DOOR)
             || IS_SET(room_exit->exit_flags, EX_NOPASS))
         && !IS_TRUSTED(ch, ANGEL)) {
-        act("The $d is closed.", ch, NULL, room_exit->keyword, TO_CHAR);
+        act("The $d is closed.", ch, NULL, room_exit->data->keyword, TO_CHAR);
         return;
     }
 
@@ -119,16 +128,16 @@ void move_char(Mobile* ch, int door, bool follow)
             }
         }
 
-        if (in_room->sector_type == SECT_AIR
-            || to_room->sector_type == SECT_AIR) {
+        if (in_room->data->sector_type == SECT_AIR
+            || to_room->data->sector_type == SECT_AIR) {
             if (!IS_AFFECTED(ch, AFF_FLYING) && !IS_IMMORTAL(ch)) {
                 send_to_char("You can't fly.\n\r", ch);
                 return;
             }
         }
 
-        if ((in_room->sector_type == SECT_WATER_NOSWIM
-             || to_room->sector_type == SECT_WATER_NOSWIM)
+        if ((in_room->data->sector_type == SECT_WATER_NOSWIM
+             || to_room->data->sector_type == SECT_WATER_NOSWIM)
             && !IS_AFFECTED(ch, AFF_FLYING)) {
             Object* obj;
             bool found;
@@ -150,8 +159,8 @@ void move_char(Mobile* ch, int door, bool follow)
             }
         }
 
-        move = movement_loss[UMIN(SECT_MAX - 1, in_room->sector_type)]
-               + movement_loss[UMIN(SECT_MAX - 1, to_room->sector_type)];
+        move = movement_loss[UMIN(SECT_MAX - 1, in_room->data->sector_type)]
+               + movement_loss[UMIN(SECT_MAX - 1, to_room->data->sector_type)];
 
         move /= 2; /* i.e. the average */
 
@@ -173,8 +182,8 @@ void move_char(Mobile* ch, int door, bool follow)
     if (!IS_AFFECTED(ch, AFF_SNEAK) && ch->invis_level < LEVEL_HERO)
         act("$n leaves $T.", ch, NULL, dir_list[door].name, TO_ROOM);
 
-    char_from_room(ch);
-    char_to_room(ch, to_room);
+    transfer_mob(ch, to_room);
+
     if (!IS_AFFECTED(ch, AFF_SNEAK) && ch->invis_level < LEVEL_HERO)
         act("$n has arrived.", ch, NULL, NULL, TO_ROOM);
 
@@ -191,8 +200,8 @@ void move_char(Mobile* ch, int door, bool follow)
             do_function(fch, &do_stand, "");
 
         if (fch->master == ch && fch->position == POS_STANDING
-            && can_see_room(fch, to_room)) {
-            if (IS_SET(ch->in_room->room_flags, ROOM_LAW)
+            && can_see_room(fch, to_room->data)) {
+            if (IS_SET(ch->in_room->data->room_flags, ROOM_LAW)
                 && (IS_NPC(fch) && IS_SET(fch->act_flags, ACT_AGGRESSIVE))) {
                 act("You can't bring $N into the city.", ch, NULL, fch,
                     TO_CHAR);
@@ -275,8 +284,8 @@ int find_door(Mobile* ch, char* arg)
     else {
         for (door = 0; door <= 5; door++) {
             if ((room_exit = ch->in_room->exit[door]) != NULL
-                && IS_SET(room_exit->exit_flags, EX_ISDOOR) && room_exit->keyword != NULL
-                && is_name(arg, room_exit->keyword))
+                && IS_SET(room_exit->exit_flags, EX_ISDOOR) && room_exit->data->keyword != NULL
+                && is_name(arg, room_exit->data->keyword))
                 return door;
         }
         act("I see no $T here.", ch, NULL, arg, TO_CHAR);
@@ -374,7 +383,7 @@ void do_open(Mobile* ch, char* argument)
         }
 
         REMOVE_BIT(room_exit->exit_flags, EX_CLOSED);
-        act("$n opens the $d.", ch, NULL, room_exit->keyword, TO_ROOM);
+        act("$n opens the $d.", ch, NULL, room_exit->data->keyword, TO_ROOM);
         send_to_char("Ok.\n\r", ch);
 
         /* open the other side */
@@ -385,7 +394,7 @@ void do_open(Mobile* ch, char* argument)
 
             REMOVE_BIT(room_exit_rev->exit_flags, EX_CLOSED);
             FOR_EACH_IN_ROOM(rch, to_room->people)
-                act("The $d opens.", rch, NULL, room_exit_rev->keyword, TO_CHAR);
+                act("The $d opens.", rch, NULL, room_exit_rev->data->keyword, TO_CHAR);
         }
     }
 
@@ -458,7 +467,7 @@ void do_close(Mobile* ch, char* argument)
         }
 
         SET_BIT(room_exit->exit_flags, EX_CLOSED);
-        act("$n closes the $d.", ch, NULL, room_exit->keyword, TO_ROOM);
+        act("$n closes the $d.", ch, NULL, room_exit->data->keyword, TO_ROOM);
         send_to_char("Ok.\n\r", ch);
 
         /* close the other side */
@@ -469,7 +478,7 @@ void do_close(Mobile* ch, char* argument)
 
             SET_BIT(room_exit_rev->exit_flags, EX_CLOSED);
             FOR_EACH_IN_ROOM(rch, to_room->people)
-                act("The $d closes.", rch, NULL, room_exit_rev->keyword, TO_CHAR);
+                act("The $d closes.", rch, NULL, room_exit_rev->data->keyword, TO_CHAR);
         }
     }
 
@@ -573,11 +582,11 @@ void do_lock(Mobile* ch, char* argument)
             send_to_char("It's not closed.\n\r", ch);
             return;
         }
-        if (room_exit->key < 0) {
+        if (room_exit->data->key < 0) {
             send_to_char("It can't be locked.\n\r", ch);
             return;
         }
-        if (!has_key(ch, room_exit->key)) {
+        if (!has_key(ch, room_exit->data->key)) {
             send_to_char("You lack the key.\n\r", ch);
             return;
         }
@@ -588,7 +597,7 @@ void do_lock(Mobile* ch, char* argument)
 
         SET_BIT(room_exit->exit_flags, EX_LOCKED);
         send_to_char("*Click*\n\r", ch);
-        act("$n locks the $d.", ch, NULL, room_exit->keyword, TO_ROOM);
+        act("$n locks the $d.", ch, NULL, room_exit->data->keyword, TO_ROOM);
 
         /* lock the other side */
         if ((to_room = room_exit->to_room) != NULL
@@ -687,11 +696,11 @@ void do_unlock(Mobile* ch, char* argument)
             send_to_char("It's not closed.\n\r", ch);
             return;
         }
-        if (room_exit->key < 0) {
+        if (room_exit->data->key < 0) {
             send_to_char("It can't be unlocked.\n\r", ch);
             return;
         }
-        if (!has_key(ch, room_exit->key)) {
+        if (!has_key(ch, room_exit->data->key)) {
             send_to_char("You lack the key.\n\r", ch);
             return;
         }
@@ -702,7 +711,7 @@ void do_unlock(Mobile* ch, char* argument)
 
         REMOVE_BIT(room_exit->exit_flags, EX_LOCKED);
         send_to_char("*Click*\n\r", ch);
-        act("$n unlocks the $d.", ch, NULL, room_exit->keyword, TO_ROOM);
+        act("$n unlocks the $d.", ch, NULL, room_exit->data->keyword, TO_ROOM);
 
         /* unlock the other side */
         if ((to_room = room_exit->to_room) != NULL
@@ -816,7 +825,7 @@ void do_pick(Mobile* ch, char* argument)
             send_to_char("It's not closed.\n\r", ch);
             return;
         }
-        if (room_exit->key < 0 && !IS_IMMORTAL(ch)) {
+        if (room_exit->data->key < 0 && !IS_IMMORTAL(ch)) {
             send_to_char("It can't be picked.\n\r", ch);
             return;
         }
@@ -831,7 +840,7 @@ void do_pick(Mobile* ch, char* argument)
 
         REMOVE_BIT(room_exit->exit_flags, EX_LOCKED);
         send_to_char("*Click*\n\r", ch);
-        act("$n picks the $d.", ch, NULL, room_exit->keyword, TO_ROOM);
+        act("$n picks the $d.", ch, NULL, room_exit->data->keyword, TO_ROOM);
         check_improve(ch, gsn_pick_lock, true, 2);
 
         /* pick the other side */
@@ -1320,7 +1329,7 @@ void do_wake(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg)) == NULL) {
+    if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -1407,9 +1416,9 @@ void do_recall(Mobile* ch, char* argument)
     }
 
     if (!str_cmp(argument, "set") && ch->pcdata) {
-        if (IS_SET(ch->in_room->room_flags, ROOM_RECALL)) {
+        if (IS_SET(ch->in_room->data->room_flags, ROOM_RECALL)) {
             printf_to_char(ch, "Your recall point is now set to %s.\n",
-                ch->in_room->name);
+                ch->in_room->data->name);
             ch->pcdata->recall = ch->in_room->vnum;
         }
         else {
@@ -1427,7 +1436,7 @@ void do_recall(Mobile* ch, char* argument)
     else if (ch->pcdata)
         recall = ch->pcdata->recall;
 
-    if ((location = get_room(recall)) == NULL) {
+    if ((location = get_room(NULL, recall)) == NULL) {
         send_to_char("You are completely lost.\n\r", ch);
         return;
     }
@@ -1435,7 +1444,7 @@ void do_recall(Mobile* ch, char* argument)
     if (ch->in_room == location) 
         return;
 
-    if (IS_SET(ch->in_room->room_flags, ROOM_NO_RECALL)
+    if (IS_SET(ch->in_room->data->room_flags, ROOM_NO_RECALL)
         || IS_AFFECTED(ch, AFF_CURSE)) {
         send_to_char("Mota has forsaken you.\n\r", ch);
         return;
@@ -1464,8 +1473,7 @@ void do_recall(Mobile* ch, char* argument)
 
     ch->move /= 2;
     act("$n disappears.", ch, NULL, NULL, TO_ROOM);
-    char_from_room(ch);
-    char_to_room(ch, location);
+    transfer_mob(ch, location);
     act("$n appears in the room.", ch, NULL, NULL, TO_ROOM);
     do_function(ch, &do_look, "auto");
 

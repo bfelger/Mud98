@@ -33,5 +33,6 @@ extern ShopData* shop_first;
 extern ShopData* shop_last;
 
 extern int shop_count;
+extern int shop_perm_count;
 
 #endif // !MUD98__ENTITITES__SHOP_DATA_H

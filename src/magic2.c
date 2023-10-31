@@ -61,13 +61,13 @@ void spell_portal(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget targe
     Mobile* victim;
     Object *portal, *stone;
 
-    if ((victim = get_char_world(ch, target_name)) == NULL || victim == ch
-        || victim->in_room == NULL || !can_see_room(ch, victim->in_room)
-        || IS_SET(victim->in_room->room_flags, ROOM_SAFE)
-        || IS_SET(victim->in_room->room_flags, ROOM_PRIVATE)
-        || IS_SET(victim->in_room->room_flags, ROOM_SOLITARY)
-        || IS_SET(victim->in_room->room_flags, ROOM_NO_RECALL)
-        || IS_SET(ch->in_room->room_flags, ROOM_NO_RECALL)
+    if ((victim = get_mob_world(ch, target_name)) == NULL || victim == ch
+        || victim->in_room == NULL || !can_see_room(ch, victim->in_room->data)
+        || IS_SET(victim->in_room->data->room_flags, ROOM_SAFE)
+        || IS_SET(victim->in_room->data->room_flags, ROOM_PRIVATE)
+        || IS_SET(victim->in_room->data->room_flags, ROOM_SOLITARY)
+        || IS_SET(victim->in_room->data->room_flags, ROOM_NO_RECALL)
+        || IS_SET(ch->in_room->data->room_flags, ROOM_NO_RECALL)
         || victim->level >= level + 3
         || (!IS_NPC(victim) && victim->level >= LEVEL_HERO) /* NOT trust */
         || (IS_NPC(victim) && IS_SET(victim->imm_flags, IMM_SUMMON))
@@ -108,15 +108,15 @@ void spell_nexus(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target
 
     from_room = ch->in_room;
 
-    if ((victim = get_char_world(ch, target_name)) == NULL || victim == ch
-        || (to_room = victim->in_room) == NULL || !can_see_room(ch, to_room)
-        || !can_see_room(ch, from_room)
-        || IS_SET(to_room->room_flags, ROOM_SAFE)
-        || IS_SET(from_room->room_flags, ROOM_SAFE)
-        || IS_SET(to_room->room_flags, ROOM_PRIVATE)
-        || IS_SET(to_room->room_flags, ROOM_SOLITARY)
-        || IS_SET(to_room->room_flags, ROOM_NO_RECALL)
-        || IS_SET(from_room->room_flags, ROOM_NO_RECALL)
+    if ((victim = get_mob_world(ch, target_name)) == NULL || victim == ch
+        || (to_room = victim->in_room) == NULL || !can_see_room(ch, to_room->data)
+        || !can_see_room(ch, from_room->data)
+        || IS_SET(to_room->data->room_flags, ROOM_SAFE)
+        || IS_SET(from_room->data->room_flags, ROOM_SAFE)
+        || IS_SET(to_room->data->room_flags, ROOM_PRIVATE)
+        || IS_SET(to_room->data->room_flags, ROOM_SOLITARY)
+        || IS_SET(to_room->data->room_flags, ROOM_NO_RECALL)
+        || IS_SET(from_room->data->room_flags, ROOM_NO_RECALL)
         || victim->level >= level + 3
         || (!IS_NPC(victim) && victim->level >= LEVEL_HERO) /* NOT trust */
         || (IS_NPC(victim) && IS_SET(victim->imm_flags, IMM_SUMMON))

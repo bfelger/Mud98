@@ -13,7 +13,22 @@ ObjPrototype* obj_proto_free;
 ObjPrototype* obj_proto_hash[MAX_KEY_HASH];
 
 int obj_proto_count;
+int obj_proto_perm_count;
+
 VNUM top_vnum_obj;
+
+ObjPrototype* new_object_prototype()
+{
+    LIST_ALLOC_PERM(obj_proto, ObjPrototype);
+
+    obj_proto->name = str_dup("no name");
+    obj_proto->short_descr = str_dup("(no short description)");
+    obj_proto->description = str_dup("(no description)");
+    obj_proto->item_type = ITEM_TRASH;
+    obj_proto->condition = 100;
+
+    return obj_proto;
+}
 
 void free_object_prototype(ObjPrototype* obj_proto)
 {
@@ -32,8 +47,7 @@ void free_object_prototype(ObjPrototype* obj_proto)
         free_extra_desc(pExtra);
     }
 
-    obj_proto->next = obj_proto_free;
-    obj_proto_free = obj_proto;
+    LIST_FREE(obj_proto);
 }
 
 // Translates mob virtual number to its obj index struct.
@@ -62,7 +76,7 @@ void load_objects(FILE* fp)
 {
     ObjPrototype* obj_proto;
 
-    if (!area_last) {
+    if (!area_data_last) {
         bug("Load_objects: no #AREA seen yet.", 0);
         exit(1);
     }
@@ -89,10 +103,9 @@ void load_objects(FILE* fp)
         }
         fBootDb = true;
 
-        obj_proto = alloc_perm(sizeof(*obj_proto));
+        obj_proto = new_object_prototype();
         obj_proto->vnum = vnum;
-        obj_proto->area = area_last;
-        obj_proto->reset_num = 0;
+        obj_proto->area = area_data_last;
         obj_proto->name = fread_string(fp);
         obj_proto->short_descr = fread_string(fp);
         obj_proto->description = fread_string(fp);
@@ -187,7 +200,7 @@ void load_objects(FILE* fp)
 
             if (letter == 'A') {
                 Affect* affect;
-                if ((affect = alloc_perm(sizeof(*affect))) == NULL) {
+                if ((affect = new_affect()) == NULL) {
                     bug("Ran out of memory allocating Affect.");
                     exit(1);
                 }
@@ -199,12 +212,11 @@ void load_objects(FILE* fp)
                 affect->modifier = (int16_t)fread_number(fp);
                 affect->bitvector = 0;
                 ADD_AFFECT(obj_proto, affect)
-                    affect_count++;
             }
 
             else if (letter == 'F') {
                 Affect* affect;
-                if ((affect = alloc_perm(sizeof(*affect))) == NULL) {
+                if ((affect = new_affect()) == NULL) {
                     bug("Ran out of memory allocating Affect.");
                     exit(1);
                 }
@@ -233,19 +245,17 @@ void load_objects(FILE* fp)
                 affect->modifier = (int16_t)fread_number(fp);
                 affect->bitvector = fread_flag(fp);
                 ADD_AFFECT(obj_proto, affect)
-                    affect_count++;
             }
 
             else if (letter == 'E') {
-                ExtraDesc* ed;
-
-                ed = alloc_perm(sizeof(ExtraDesc));
-                if (ed == NULL)
+                ExtraDesc* ed = new_extra_desc();
+                if (ed == NULL) {
+                    bug("Ran out of memory allocating ExtraDesc.");
                     exit(1);
+                }
                 ed->keyword = fread_string(fp);
                 ed->description = fread_string(fp);
                 ADD_EXTRA_DESC(obj_proto, ed)
-                    extra_desc_count++;
             }
             else {
                 ungetc(letter, fp);
@@ -256,33 +266,8 @@ void load_objects(FILE* fp)
         hash = vnum % MAX_KEY_HASH;
         obj_proto->next = obj_proto_hash[hash];
         obj_proto_hash[hash] = obj_proto;
-        obj_proto_count++;
         top_vnum_obj = top_vnum_obj < vnum ? vnum : top_vnum_obj;
         assign_area_vnum(vnum);
     }
 }
 
-ObjPrototype* new_object_prototype()
-{
-    static ObjPrototype zero = { 0 };
-    ObjPrototype* obj_proto;
-
-    if (!obj_proto_free) {
-        obj_proto = alloc_perm(sizeof(*obj_proto));
-        obj_proto_count++;
-    }
-    else {
-        obj_proto = obj_proto_free;
-        NEXT_LINK(obj_proto_free);
-    }
-
-    *obj_proto = zero;
-
-    obj_proto->name = str_dup("no name");
-    obj_proto->short_descr = str_dup("(no short description)");
-    obj_proto->description = str_dup("(no description)");
-    obj_proto->item_type = ITEM_TRASH;
-    obj_proto->condition = 100;
-
-    return obj_proto;
-}

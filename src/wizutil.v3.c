@@ -83,7 +83,7 @@ http://www.andreasen.org/
 // To have VLIST show more than vnum 0 - 9900, change the number below:
 #define MAX_SHOW_VNUM   99 // Show only 1 - 100*100 */
 
-extern Room* room_vnum_hash[];	// db.c
+extern RoomData* room_data_hash_table[];	// db.c
 
 /* opposite directions */
 const int16_t opposite_dir[6] = {
@@ -93,15 +93,15 @@ const int16_t opposite_dir[6] = {
 // Cut the 'short' name of an area (e.g. MIDGAARD, MIRROR, etc.)
 // Assumes that the filename saved in the Area struct is something like 
 // "midgaard.are"
-char* get_area_name(Area* area)
+char* get_area_name(AreaData* area_data)
 {
     static char buffer[256];
     char* period;
 
-    assert(area != NULL);
+    assert(area_data != NULL);
 
     // Terminate the string at the period, if it exists
-    sprintf(buffer, "%s", area->file_name);
+    sprintf(buffer, "%s", area_data->file_name);
     period = strchr(buffer, '.');
     if (period)
         *period = '\0';
@@ -114,7 +114,7 @@ typedef enum {
 } exit_status;
 
 // Depending on status print > or < or <> between the 2 rooms
-void room_pair(Room* left, Room* right, exit_status ex,
+void room_pair(RoomData* left, RoomData* right, exit_status ex,
     char* buffer)
 {
     char* sExit;
@@ -136,21 +136,21 @@ void room_pair(Room* left, Room* right, exit_status ex,
         sExit,
         right->vnum,
         right->name,
-        get_area_name(right->area)
+        get_area_name(right->area_data)
     );
 }
 
 // For every exit in 'room' which leads to or from area but NOT both, print it
-void check_exits(Room* room, Area* area, char* buffer)
+void check_exits(RoomData* room, AreaData* area, char* buffer)
 {
     char buf[MAX_STRING_LENGTH];
     int i;
-    RoomExit* exit;
-    Room* to_room;
+    RoomExitData* exit;
+    RoomData* to_room;
 
     strcpy(buffer, "");
     for (i = 0; i < 6; i++) {
-        exit = room->exit[i];
+        exit = room->exit_data[i];
         if (!exit)
             continue;
         else
@@ -158,21 +158,21 @@ void check_exits(Room* room, Area* area, char* buffer)
 
         if (to_room) {
             // There is something on the other side
-            if ((room->area == area) && (to_room->area != area)) {
+            if ((room->area_data == area) && (to_room->area_data != area)) {
                 // An exit from our area to another area/
                 // check first if it is a two-way exit */
-                if (to_room->exit[opposite_dir[i]] &&
-                    to_room->exit[opposite_dir[i]]->to_room == room)
+                if (to_room->exit_data[opposite_dir[i]] &&
+                    to_room->exit_data[opposite_dir[i]]->to_room == room)
                     room_pair(room, to_room, exit_both, buf);	// <>
                 else
                     room_pair(room, to_room, exit_to, buf);		// >
 
                 strcat(buffer, buf);
             }
-            else if ((room->area != area) && (exit->to_room->area == area)) {
+            else if ((room->area_data != area) && (exit->to_room->area_data == area)) {
                 // an exit from another area to our area */
-                if (!(to_room->exit[opposite_dir[i]] &&
-                    to_room->exit[opposite_dir[i]]->to_room == room)) {
+                if (!(to_room->exit_data[opposite_dir[i]] &&
+                    to_room->exit_data[opposite_dir[i]]->to_room == room)) {
                     // two-way exits are handled in the other if 
                     room_pair(to_room, room, exit_from, buf);
                     strcat(buffer, buf);
@@ -190,11 +190,10 @@ void do_exlist(Mobile* ch, char* argument)
     char buffer[MAX_STRING_LENGTH];
 
     Area* area = ch->in_room->area; // This is the area we want info on 
-    for (int i = 0; i < MAX_KEY_HASH; i++) {
-        // Room index hash table
-        FOR_EACH(room, room_vnum_hash[i]) {
+    for (int i = 0; i < AREA_ROOM_VNUM_HASH_SIZE; i++) {
+        FOR_EACH(room, area->rooms[i]) {
             // Run through all the rooms on the MUD
-            check_exits(room, area, buffer);
+            check_exits(room->data, area->data, buffer);
             send_to_char(buffer, ch);
         }
     }
@@ -209,7 +208,7 @@ void do_vlist(Mobile* ch, char* argument)
     VNUM i;
     VNUM j;
     VNUM vnum;
-    Room* room;
+    RoomData* room_data;
     char buffer[MAX_ROW * 100]; // Should be plenty */
     char buf2[100];
 
@@ -219,9 +218,9 @@ void do_vlist(Mobile* ch, char* argument)
             vnum = ((j * MAX_ROW) + i); /* find a vnum which should be there */
             if (vnum < MAX_SHOW_VNUM) {
                 /* each zone has to have a XXX01 room */
-                room = get_room(vnum * 100 + 1);
+                room_data = get_room_data(vnum * 100 + 1);
                 sprintf(buf2, "%"PRVNUM" %-8.8s  ", vnum,
-                    room ? get_area_name(room->area) : "-");
+                    room_data ? get_area_name(room_data->area_data) : "-");
                 /* something there or unused ? */
                 strcat(buffer, buf2);
             }
@@ -260,7 +259,7 @@ void do_rename(Mobile* ch, char* argument)
         return;
     }
 
-    victim = get_char_world(ch, old_name);
+    victim = get_mob_world(ch, old_name);
 
     if (!victim) {
         send_to_char("There is no such a person online.\n\r", ch);
@@ -320,7 +319,7 @@ void do_rename(Mobile* ch, char* argument)
     }
 
     /* check for playing level-1 non-saved */
-    if (get_char_world(ch, new_name)) {
+    if (get_mob_world(ch, new_name)) {
         send_to_char("A player with the name you specified already exists!\n\r", ch);
         return;
     }
@@ -416,7 +415,7 @@ void do_for(Mobile* ch, char* argument)
     char range[MAX_INPUT_LENGTH] = { 0 };
     char buf[MAX_STRING_LENGTH] = { 0 };
     bool fGods = false, fMortals = false, fMobs = false, fEverywhere = false, found;
-    Room* room, * old_room;
+    Room* room, *old_room;
     Mobile* p;
     Mobile* p_next = NULL;
     int i;
@@ -499,59 +498,57 @@ void do_for(Mobile* ch, char* argument)
 
                 /* Execute */
                 old_room = ch->in_room;
-                char_from_room(ch);
-                char_to_room(ch, p->in_room);
+                transfer_mob(ch, p->in_room);
                 interpret(ch, buf);
-                char_from_room(ch);
-                char_to_room(ch, old_room);
+                transfer_mob(ch, old_room);
 
             } /* if found */
         } /* for every char */
     }
     else {
          /* just for every room with the appropriate people in it */
+        RoomData* room_data;
+        old_room = ch->in_room;
         for (i = 0; i < MAX_KEY_HASH; i++) {
             /* run through all the buckets */
-            FOR_EACH(room, room_vnum_hash[i]) {
-                found = false;
-                /* Anyone in here at all? */
-                if (fEverywhere)
-                    /* Everywhere executes always */
-                    found = true;
-                else if (!room->people)
-                    /* Skip it if room is empty */
-                    continue;
-
-                /* Check if there is anyone here of the requried type */
-                /* Stop as soon as a match is found or there are no more ppl in room */
-                for (p = room->people; p && !found; p = p->next_in_room) {
-                    /* do not execute on oneself */
-                    if (p == ch)
+            FOR_EACH(room_data, room_data_hash_table[i]) {
+                FOR_EACH_INSTANCE(room, room_data->instances) {
+                    found = false;
+                    /* Anyone in here at all? */
+                    if (fEverywhere)
+                        /* Everywhere executes always */
+                        found = true;
+                    else if (!room->people)
+                        /* Skip it if room is empty */
                         continue;
 
-                    if (IS_NPC(p) && fMobs)
-                        found = true;
-                    else if (!IS_NPC(p) && (p->level >= LEVEL_IMMORTAL) && fGods)
-                        found = true;
-                    else if (!IS_NPC(p) && (p->level <= LEVEL_IMMORTAL) && fMortals)
-                        found = true;
-                } /* for everyone inside the room */
+                    /* Check if there is anyone here of the requried type */
+                    /* Stop as soon as a match is found or there are no more ppl in room */
+                    for (p = room->people; p && !found; p = p->next_in_room) {
+                        /* do not execute on oneself */
+                        if (p == ch)
+                            continue;
 
-                /* Any of the required type here AND room not private? */
-                if (found && !room_is_private(room)) {
-                    /* This may be ineffective. Consider moving character out of old_room
-                       once at beginning of command then moving back at the end.
-                       This however, is more safe?
-                    */
+                        if (IS_NPC(p) && fMobs)
+                            found = true;
+                        else if (!IS_NPC(p) && (p->level >= LEVEL_IMMORTAL) && fGods)
+                            found = true;
+                        else if (!IS_NPC(p) && (p->level <= LEVEL_IMMORTAL) && fMortals)
+                            found = true;
+                    } /* for everyone inside the room */
 
-                    old_room = ch->in_room;
-                    char_from_room(ch);
-                    char_to_room(ch, room);
-                    interpret(ch, argument);
-                    char_from_room(ch);
-                    char_to_room(ch, old_room);
-                } /* if found */
+                    /* Any of the required type here AND room not private? */
+                    if (found && !room_is_private(room)) {
+                        /* This may be ineffective. Consider moving character out of old_room
+                           once at beginning of command then moving back at the end.
+                           This however, is more safe?
+                        */
+                        transfer_mob(ch, room);
+                        interpret(ch, argument);
+                    } /* if found */
+                }
             } /* for every room in a bucket */
         }
+        transfer_mob(ch, old_room);
     } /* if strchr */
 } /* do_for */

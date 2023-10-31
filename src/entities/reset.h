@@ -4,6 +4,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef struct reset_t Reset;
+typedef struct reset_counter_t ResetCounter;
 
 #pragma once
 #ifndef MUD98__ENTITIES__RESET_H
@@ -35,9 +36,11 @@ typedef struct reset_t {
     int16_t arg4;
 } Reset;
 
-void free_reset(Reset* reset);
 Reset* new_reset();
+void free_reset(Reset* reset);
 
 extern int reset_count;
+extern int reset_perm_count;
+
 
 #endif // !MUD98__ENTITIES__RESET_H

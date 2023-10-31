@@ -63,7 +63,7 @@ const OlcCmdEntry obj_olc_comm_table[] = {
 void do_oedit(Mobile* ch, char* argument)
 {
     ObjPrototype* pObj;
-    Area* area;
+    AreaData* area;
     char arg1[MAX_STRING_LENGTH];
     int  value;
 
@@ -124,7 +124,7 @@ void do_oedit(Mobile* ch, char* argument)
 /* Object Interpreter, called by do_oedit. */
 void oedit(Mobile* ch, char* argument)
 {
-    Area* area;
+    AreaData* area;
     ObjPrototype* pObj;
 
     EDIT_OBJ(ch, pObj);
@@ -917,7 +917,7 @@ bool oedit_values(Mobile* ch, char* argument, int value)
 OEDIT(oedit_create)
 {
     ObjPrototype* pObj;
-    Area* area;
+    AreaData* area;
     VNUM  value;
     int  hash;
 
@@ -1060,7 +1060,7 @@ ED_FUN_DEC(ed_value)
 ED_FUN_DEC(ed_new_obj)
 {
     ObjPrototype* pObj;
-    Area* area;
+    AreaData* area;
     VNUM  value;
     int  hash;
 
@@ -1110,7 +1110,7 @@ ED_FUN_DEC(ed_new_obj)
 ED_FUN_DEC(ed_olist)
 {
     ObjPrototype* obj_proto;
-    Area* area;
+    AreaData* area;
     Buffer* buf1;
     char blarg[MAX_INPUT_LENGTH];
     bool fAll, found;
@@ -1124,7 +1124,7 @@ ED_FUN_DEC(ed_olist)
         return false;
     }
 
-    area = *(Area**)arg;
+    area = *(AreaData**)arg;
     buf1 = new_buf();
     fAll = !str_cmp(blarg, "all");
     found = false;
@@ -1208,7 +1208,7 @@ OEDIT(oedit_copy)
         obj->value[i] = obj2->value[i];
 
     Affect* af;
-    FOR_EACH(af, obj->affected) {
+    FOR_EACH(af, obj2->affected) {
         Affect* af_new = new_affect();
         *af_new = *af;
         af_new->next = obj->affected;

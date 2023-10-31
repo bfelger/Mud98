@@ -40,7 +40,7 @@ static void old_aggr_update()
             ch_next = ch->next_in_room;
 
             if (!IS_NPC(ch) || !IS_SET(ch->act_flags, ACT_AGGRESSIVE)
-                || IS_SET(ch->in_room->room_flags, ROOM_SAFE)
+                || IS_SET(ch->in_room->data->room_flags, ROOM_SAFE)
                 || IS_AFFECTED(ch, AFF_CALM) || ch->fighting != NULL
                 || IS_AFFECTED(ch, AFF_CHARM) || !IS_AWAKE(ch)
                 || (IS_SET(ch->act_flags, ACT_WIMPY) && IS_AWAKE(wch))

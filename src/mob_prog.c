@@ -127,66 +127,51 @@
 #define EVAL_LT            4
 #define EVAL_NE            5
 
-MobProg* mprog_free = NULL;
+int mob_prog_count;
+int mob_prog_perm_count;
+MobProg* mob_prog_free = NULL;
 
-MobProg* new_mprog()
+int mob_prog_code_count;
+int mob_prog_code_perm_count;
+MobProgCode* mob_prog_code_free = NULL;
+
+MobProg* new_mob_prog()
 {
-    MobProg* mp;
+    LIST_ALLOC_PERM(mob_prog, MobProg);
 
-    if (mprog_free == NULL)
-        mp = alloc_perm(sizeof(MobProg));
-    else {
-        mp = mprog_free;
-        NEXT_LINK(mprog_free);
-    }
+    mob_prog->code = str_empty;
 
-    memset(mp, 0, sizeof(MobProg));
-    mp->vnum = 0;
-    mp->trig_type = 0;
-    mp->code = str_dup("");
-    VALIDATE(mp);
-    return mp;
+    VALIDATE(mob_prog);
+
+    return mob_prog;
 }
 
-void free_mprog(MobProg* mp)
+void free_mob_prog(MobProg* mob_prog)
 {
-    if (!IS_VALID(mp))
+    if (!IS_VALID(mob_prog))
         return;
 
-    INVALIDATE(mp);
-    mp->next = mprog_free;
-    mprog_free = mp;
+    free_string(mob_prog->code);
+
+    INVALIDATE(mob_prog);
+
+    LIST_FREE(mob_prog);
 }
 
-MobProgCode* mpcode_free;
-
-MobProgCode* new_mpcode()
+MobProgCode* new_mob_prog_code()
 {
-    MobProgCode* NewCode;
-    extern int top_mprog_index;
+    LIST_ALLOC_PERM(mob_prog_code, MobProgCode);
 
-    if (!mpcode_free) {
-        NewCode = alloc_perm(sizeof(*NewCode));
-        top_mprog_index++;
-    }
-    else {
-        NewCode = mpcode_free;
-        NEXT_LINK(mpcode_free);
-    }
+    mob_prog_code->code = str_empty;
 
-    NewCode->vnum = 0;
-    NewCode->code = str_dup("");
-    NewCode->next = NULL;
-
-    return NewCode;
+    return mob_prog_code;
 }
 
-void free_mpcode(MobProgCode* pMcode)
+void free_mob_prog_code(MobProgCode* mob_prog_code)
 {
-    free_string(pMcode->code);
-    pMcode->next = mpcode_free;
-    mpcode_free = pMcode;
-    return;
+    free_string(mob_prog_code->code);
+
+    LIST_FREE(mob_prog_code);
 }
 
 // if-check keywords:
@@ -314,7 +299,7 @@ Mobile* get_random_char(Mobile* mob)
 {
     Mobile* vch, * victim = NULL;
     int now = 0, highest = 0;
-    for (vch = mob->in_room->people; vch; vch = vch->next_in_room) {
+    FOR_EACH_IN_ROOM(vch, mob->in_room->people) {
         if (mob != vch
             && !IS_NPC(vch)
             && can_see(mob, vch)
@@ -333,8 +318,8 @@ Mobile* get_random_char(Mobile* mob)
 int count_people_room(Mobile* mob, int iFlag)
 {
     Mobile* vch;
-    int count;
-    for (count = 0, vch = mob->in_room->people; vch; vch = vch->next_in_room)
+    int count = 0;
+    FOR_EACH_IN_ROOM(vch, mob->in_room->people)
         if (mob != vch
             && (iFlag == 0
                 || (iFlag == 1 && !IS_NPC(vch))
@@ -450,14 +435,14 @@ int cmd_eval(VNUM vnum, char* line, int check,
         if (is_number(buf))
             return(get_mob_vnum_room(mob, STRTOVNUM(buf)));
         else
-            return((bool)(get_char_room(mob, buf) != NULL));
+            return((bool)(get_mob_room(mob, buf) != NULL));
     case CHK_OBJHERE:
         if (is_number(buf))
             return(get_obj_vnum_room(mob, STRTOVNUM(buf)));
         else
             return((bool)(get_obj_here(mob, buf) != NULL));
     case CHK_MOBEXISTS:
-        return((bool)(get_char_world(mob, buf) != NULL));
+        return((bool)(get_mob_world(mob, buf) != NULL));
     case CHK_OBJEXISTS:
         return((bool)(get_obj_world(mob, buf) != NULL));
     /*

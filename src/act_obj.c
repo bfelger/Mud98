@@ -617,7 +617,7 @@ void do_give(Mobile* ch, char* argument)
             return;
         }
 
-        if ((victim = get_char_room(ch, arg2)) == NULL) {
+        if ((victim = get_mob_room(ch, arg2)) == NULL) {
             send_to_char("They aren't here.\n\r", ch);
             return;
         }
@@ -694,7 +694,7 @@ void do_give(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg2)) == NULL) {
+    if ((victim = get_mob_room(ch, arg2)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -785,7 +785,8 @@ void do_envenom(Mobile* ch, char* argument)
         }
 
         act("You fail to poison $p.", ch, obj, NULL, TO_CHAR);
-        if (!obj->value[3]) check_improve(ch, gsn_envenom, false, 4);
+        if (!obj->value[3])
+            check_improve(ch, gsn_envenom, false, 4);
         WAIT_STATE(ch, skill_table[gsn_envenom].beats);
         return;
     }
@@ -946,7 +947,7 @@ void do_pour(Mobile* ch, char* argument)
     }
 
     if ((in = get_obj_here(ch, argument)) == NULL) {
-        vch = get_char_room(ch, argument);
+        vch = get_mob_room(ch, argument);
 
         if (vch == NULL) {
             send_to_char("Pour into what?\n\r", ch);
@@ -1679,7 +1680,7 @@ void do_recite(Mobile* ch, char* argument)
     obj = NULL;
     if (arg2[0] == '\0') { victim = ch; }
     else {
-        if ((victim = get_char_room(ch, arg2)) == NULL
+        if ((victim = get_mob_room(ch, arg2)) == NULL
             && (obj = get_obj_here(ch, arg2)) == NULL) {
             send_to_char("You can't find it.\n\r", ch);
             return;
@@ -1812,7 +1813,7 @@ void do_zap(Mobile* ch, char* argument)
         }
     }
     else {
-        if ((victim = get_char_room(ch, arg)) == NULL
+        if ((victim = get_mob_room(ch, arg)) == NULL
             && (obj = get_obj_here(ch, arg)) == NULL) {
             send_to_char("You can't find it.\n\r", ch);
             return;
@@ -1872,7 +1873,7 @@ void do_steal(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg2)) == NULL) {
+    if ((victim = get_mob_room(ch, arg2)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2182,7 +2183,7 @@ void do_buy(Mobile* ch, char* argument)
         return;
     }
 
-    if (IS_SET(ch->in_room->room_flags, ROOM_PET_SHOP)) {
+    if (IS_SET(ch->in_room->data->room_flags, ROOM_PET_SHOP)) {
         char arg[MAX_INPUT_LENGTH];
         Mobile* pet;
         Room* petshop_inv;
@@ -2190,15 +2191,16 @@ void do_buy(Mobile* ch, char* argument)
 
         smash_tilde(argument);
 
-        if (IS_NPC(ch)) return;
+        if (IS_NPC(ch)) 
+            return;
 
         READ_ARG(arg);
 
         /* hack to make new thalos pets work */
         if (ch->in_room->vnum == ROOM_VNUM_PETSHOP)
-            petshop_inv = get_room(ROOM_VNUM_PETSHOP_INV);
+            petshop_inv = get_room(ch->in_room->area, ROOM_VNUM_PETSHOP_INV);
         else
-            petshop_inv = get_room(ch->in_room->vnum + 1);
+            petshop_inv = get_room(ch->in_room->area, ch->in_room->vnum + 1);
         if (petshop_inv == NULL) {
             bug("Do_buy: bad pet shop at vnum %"PRVNUM".", ch->in_room->vnum);
             send_to_char("Sorry, you can't buy that here.\n\r", ch);
@@ -2207,7 +2209,7 @@ void do_buy(Mobile* ch, char* argument)
 
         plr_in_room = ch->in_room;
         ch->in_room = petshop_inv;
-        pet = get_char_room(ch, arg);
+        pet = get_mob_room(ch, arg);
         ch->in_room = plr_in_room;
 
         if (pet == NULL || !IS_SET(pet->act_flags, ACT_PET)) {
@@ -2260,7 +2262,7 @@ void do_buy(Mobile* ch, char* argument)
         free_string(pet->description);
         pet->description = str_dup(buf);
 
-        char_to_room(pet, ch->in_room);
+        mob_to_room(pet, ch->in_room);
         add_follower(pet, ch);
         pet->leader = ch;
         ch->pet = pet;
@@ -2376,7 +2378,8 @@ void do_buy(Mobile* ch, char* argument)
                 t_obj->timer = 0;
             REMOVE_BIT(t_obj->extra_flags, ITEM_HAD_TIMER);
             obj_to_char(t_obj, ch);
-            if (cost < t_obj->cost) t_obj->cost = cost;
+            if (cost < t_obj->cost) 
+                t_obj->cost = cost;
         }
     }
 }
@@ -2385,16 +2388,16 @@ void do_list(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
 
-    if (IS_SET(ch->in_room->room_flags, ROOM_PET_SHOP)) {
+    if (IS_SET(ch->in_room->data->room_flags, ROOM_PET_SHOP)) {
         Room* petshop_inv;
         Mobile* pet;
         bool found;
 
         /* hack to make new thalos pets work */
         if (ch->in_room->vnum == ROOM_VNUM_PETSHOP)
-            petshop_inv = get_room(ROOM_VNUM_PETSHOP_INV);
+            petshop_inv = get_room(ch->in_room->area, ROOM_VNUM_PETSHOP_INV);
         else
-            petshop_inv = get_room(ch->in_room->vnum + 1);
+            petshop_inv = get_room(ch->in_room->area, ch->in_room->vnum + 1);
 
         if (petshop_inv == NULL) {
             bug("Do_list: bad pet shop at vnum %"PRVNUM".", ch->in_room->vnum);
@@ -2429,7 +2432,7 @@ void do_list(Mobile* ch, char* argument)
         one_argument(argument, arg);
 
         found = false;
-        for (obj = keeper->carrying; obj; obj = obj->next_content) {
+        FOR_EACH_CONTENT(obj, keeper->carrying) {
             if (obj->wear_loc == WEAR_UNHELD && can_see_obj(ch, obj)
                 && (cost = get_cost(keeper, obj, true)) > 0
                 && (arg[0] == '\0' || is_name(arg, obj->name))) {
@@ -2458,7 +2461,8 @@ void do_list(Mobile* ch, char* argument)
             }
         }
 
-        if (!found) send_to_char("You can't buy anything here.\n\r", ch);
+        if (!found) 
+            send_to_char("You can't buy anything here.\n\r", ch);
         return;
     }
 }

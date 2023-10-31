@@ -26,7 +26,7 @@
 
 char* areaname(void* point)
 {
-    Area* area = *(Area**)point;
+    AreaData* area = *(AreaData**)point;
 
     return area->name;
 }
@@ -145,8 +145,8 @@ const char* pos2str(void* point)
 
 char* exits2str(void* point)
 {
-    RoomExit** pexitarray = (RoomExit**)point;
-    RoomExit* room_exit;
+    RoomExitData** pexitarray = (RoomExitData**)point;
+    RoomExitData* room_exit;
     static char buf[MSL];
     char word[MIL], reset_state[MIL], tmpbuf[MIL];
     char* state;
@@ -173,7 +173,8 @@ char* exits2str(void* point)
          * Capitalize all flags that are not part of the reset info.
          */
         strcpy(reset_state, flag_string(exit_flag_table, room_exit->exit_reset_flags));
-        state = flag_string(exit_flag_table, room_exit->exit_flags);
+        //state = flag_string(exit_flag_table, room_exit->exit_flags);
+        state = reset_state;
         strcat(buf, "Flags: [");
         for (; ;) {
             state = one_argument(state, word);
@@ -191,26 +192,24 @@ char* exits2str(void* point)
                 break;
             }
 
-            if (str_infix(word, reset_state)) {
+            //if (str_infix(word, reset_state)) {
                 length = strlen(word);
                 for (size_t i = 0; i < length; i++)
                     word[i] = UPPER(word[i]);
-            }
+            //}
 
             strcat(buf, word);
             strcat(buf, " ");
         }
 
-/*	    if ( room_exit->keyword && room_exit->keyword[0] != '\0' )
-        {
-        sprintf( tmpbuf, "Kwds: [%s]\n\r", room_exit->keyword );
-        strcat( buf, tmpbuf );
+	    if (room_exit->keyword && room_exit->keyword[0] != '\0') {
+            sprintf(tmpbuf, "Kwds: [%s]\n\r", room_exit->keyword);
+            strcat(buf, tmpbuf);
         }
-        if ( room_exit->description && room_exit->description[0] != '\0' )
-        {
-        sprintf( tmpbuf, "%s", room_exit->description );
-        strcat( buf, tmpbuf );
-        } */
+        if (room_exit->description && room_exit->description[0] != '\0') {
+            sprintf(tmpbuf, "%s", room_exit->description);
+            strcat(buf, tmpbuf);
+        } 
     }
 
     return buf;
@@ -265,7 +264,7 @@ const struct olc_show_table_type redit_olc_show_table[] = {
         49, 1, 5, 1, 1, 0
     },
     {
-        "area", U(&xRoom.area), "Area:", OLCS_STRFUNC,
+        "area", U(&xRoom.area_data), "Area:", OLCS_STRFUNC,
         60, 1, 15, 1, 1, U(areaname)
     },
     {
@@ -305,7 +304,7 @@ const struct olc_show_table_type redit_olc_show_table[] = {
         1, 12, -1, -1, 1, 0
     },
     {
-        "exits", U(&xRoom.exit), "", OLCS_STRFUNC,
+        "exits", U(&xRoom.exit_data), "", OLCS_STRFUNC,
         1, 13, -1, -1, 1, U(exits2str)
     },
     // page 2
@@ -558,7 +557,6 @@ void UpdateOLCScreen(Descriptor* d)
     size_t j;
     uintptr_t blah;
     size_t size;
-    extern Room xRoom;
     STRFUNC* func;
     char* tmpstr;
     const struct flag_type* flagt;

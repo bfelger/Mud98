@@ -216,7 +216,7 @@ void do_guild(Mobile* ch, char* argument)
         send_to_char("Syntax: guild <char> <cln name>\n\r", ch);
         return;
     }
-    if ((victim = get_char_world(ch, arg1)) == NULL) {
+    if ((victim = get_mob_world(ch, arg1)) == NULL) {
         send_to_char("They aren't playing.\n\r", ch);
         return;
     }
@@ -319,7 +319,7 @@ void do_nochannels(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, arg)) == NULL) {
+    if ((victim = get_mob_world(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -494,7 +494,7 @@ void do_deny(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, arg)) == NULL) {
+    if ((victim = get_mob_world(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -546,7 +546,7 @@ void do_disconnect(Mobile* ch, char* argument)
         }
     }
 
-    if ((victim = get_char_world(ch, arg)) == NULL) {
+    if ((victim = get_mob_world(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -583,7 +583,7 @@ void do_pardon(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, arg1)) == NULL) {
+    if ((victim = get_mob_world(ch, arg1)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -692,7 +692,7 @@ void do_pecho(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, arg)) == NULL) {
+    if ((victim = get_mob_world(ch, arg)) == NULL) {
         send_to_char("Target not found.\n\r", ch);
         return;
     }
@@ -711,11 +711,14 @@ Room* find_location(Mobile* ch, char* arg)
 {
     Mobile* victim;
     Object* obj;
+    Area* area = NULL;
+    if (ch->in_room)
+        area = ch->in_room->area;
 
     if (is_number(arg)) 
-        return get_room(STRTOVNUM(arg));
+        return get_room(area, STRTOVNUM(arg));
 
-    if ((victim = get_char_world(ch, arg)) != NULL) 
+    if ((victim = get_mob_world(ch, arg)) != NULL) 
         return victim->in_room;
 
     if ((obj = get_obj_world(ch, arg)) != NULL) 
@@ -769,7 +772,7 @@ void do_transfer(Mobile* ch, char* argument)
         }
     }
 
-    if ((victim = get_char_world(ch, arg1)) == NULL) {
+    if ((victim = get_mob_world(ch, arg1)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -782,8 +785,7 @@ void do_transfer(Mobile* ch, char* argument)
     if (victim->fighting != NULL) 
         stop_fighting(victim, true);
     act("$n disappears in a mushroom cloud.", victim, NULL, NULL, TO_ROOM);
-    char_from_room(victim);
-    char_to_room(victim, location);
+    transfer_mob(victim, location);
     act("$n arrives from a puff of smoke.", victim, NULL, NULL, TO_ROOM);
     if (ch != victim) 
         act("$n has transferred you.", ch, NULL, victim, TO_VICT);
@@ -819,8 +821,7 @@ void do_at(Mobile* ch, char* argument)
 
     original = ch->in_room;
     on = ch->on;
-    char_from_room(ch);
-    char_to_room(ch, location);
+    transfer_mob(ch, location);
     interpret(ch, argument);
 
     /*
@@ -829,8 +830,7 @@ void do_at(Mobile* ch, char* argument)
      */
     FOR_EACH(wch, mob_list) {
         if (wch == ch) {
-            char_from_room(ch);
-            char_to_room(ch, original);
+            transfer_mob(ch, original);
             ch->on = on;
             break;
         }
@@ -850,13 +850,18 @@ void do_goto(Mobile* ch, char* argument)
         return;
     }
 
-    if ((location = find_location(ch, argument)) == NULL) {
+    if (is_number(argument)) {
+        VNUM vnum = STRTOVNUM(argument);
+        location = get_room_for_player(ch, vnum);
+    }
+    else if ((location = find_location(ch, argument)) == NULL) {
         send_to_char("No such location.\n\r", ch);
         return;
     }
 
     count = 0;
-    FOR_EACH_IN_ROOM(rch, location->people) count++;
+    FOR_EACH_IN_ROOM(rch, location->people)
+        count++;
 
     if (!is_room_owner(ch, location) && room_is_private(location)
         && (count > 1 || get_trust(ch) < MAX_LEVEL)) {
@@ -875,8 +880,7 @@ void do_goto(Mobile* ch, char* argument)
         }
     }
 
-    char_from_room(ch);
-    char_to_room(ch, location);
+    transfer_mob(ch, location);
 
     FOR_EACH_IN_ROOM(rch, ch->in_room->people) {
         if (get_trust(rch) >= ch->invis_level) {
@@ -922,8 +926,7 @@ void do_violate(Mobile* ch, char* argument)
         }
     }
 
-    char_from_room(ch);
-    char_to_room(ch, location);
+    transfer_mob(ch, location);
 
     FOR_EACH_IN_ROOM(rch, ch->in_room->people) {
         if (get_trust(rch) >= ch->invis_level) {
@@ -981,7 +984,7 @@ void do_stat(Mobile* ch, char* argument)
         return;
     }
 
-    victim = get_char_world(ch, argument);
+    victim = get_mob_world(ch, argument);
     if (victim != NULL) {
         do_function(ch, &do_mstat, argument);
         return;
@@ -1000,30 +1003,32 @@ void do_rstat(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    Room* location;
+    Room* room;
+    RoomData* location;
     Object* obj;
     Mobile* rch;
     int door;
 
     one_argument(argument, arg);
-    location = (arg[0] == '\0') ? ch->in_room : find_location(ch, arg);
-    if (location == NULL) {
+    room = (arg[0] == '\0') ? ch->in_room : find_location(ch, arg);
+    if (room == NULL) {
         send_to_char("No such location.\n\r", ch);
         return;
     }
+    location = room->data;
 
-    if (!is_room_owner(ch, location) && ch->in_room != location
-        && room_is_private(location) && !IS_TRUSTED(ch, IMPLEMENTOR)) {
+    if (!is_room_owner(ch, room) && ch->in_room != room
+        && room_is_private(room) && !IS_TRUSTED(ch, IMPLEMENTOR)) {
         send_to_char("That room is private right now.\n\r", ch);
         return;
     }
 
     sprintf(buf, "Name: '%s'\n\rArea: '%s'\n\r", location->name,
-            location->area->name);
+            location->area_data->name);
     send_to_char(buf, ch);
 
     sprintf(buf, "Vnum: %d  Sector: %d  Light: %d  Healing: %d  Mana: %d\n\r",
-            location->vnum, location->sector_type, location->light,
+            location->vnum, location->sector_type, room->light,
             location->heal_rate, location->mana_rate);
     send_to_char(buf, ch);
 
@@ -1043,7 +1048,7 @@ void do_rstat(Mobile* ch, char* argument)
     }
 
     send_to_char("Characters:", ch);
-    for (rch = location->people; rch; rch = rch->next_in_room) {
+    FOR_EACH_IN_ROOM(rch, room->people) {
         if (can_see(ch, rch)) {
             send_to_char(" ", ch);
             one_argument(rch->name, buf);
@@ -1052,7 +1057,7 @@ void do_rstat(Mobile* ch, char* argument)
     }
 
     send_to_char(".\n\rObjects:   ", ch);
-    for (obj = location->contents; obj; obj = obj->next_content) {
+    FOR_EACH_CONTENT(obj, room->contents) {
         send_to_char(" ", ch);
         one_argument(obj->name, buf);
         send_to_char(buf, ch);
@@ -1060,16 +1065,16 @@ void do_rstat(Mobile* ch, char* argument)
     send_to_char(".\n\r", ch);
 
     for (door = 0; door <= 5; door++) {
-        RoomExit* room_exit;
+        RoomExitData* room_exit;
 
-        if ((room_exit = location->exit[door]) != NULL) {
+        if ((room_exit = location->exit_data[door]) != NULL) {
             sprintf(buf,
                     "Door: %d.  To: %d.  Key: %d.  Exit flags: %d.\n\rKeyword: "
                     "'%s'.  Description: %s",
 
                     door,
                     (room_exit->to_room == NULL ? -1 : room_exit->to_room->vnum),
-                    room_exit->key, room_exit->exit_flags, room_exit->keyword,
+                    room_exit->key, room_exit->exit_reset_flags, room_exit->keyword,
                     room_exit->description[0] != '\0' ? room_exit->description
                                                   : "(none).\n\r");
             send_to_char(buf, ch);
@@ -1386,7 +1391,7 @@ void do_mstat(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, argument)) == NULL) {
+    if ((victim = get_mob_world(ch, argument)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -1712,9 +1717,9 @@ void do_owhere(Mobile* ch, char* argument)
             sprintf(buf, "%3d) %s is carried by %s [Room %d]\n\r", number,
                     obj->short_descr, PERS(in_obj->carried_by, ch),
                     in_obj->carried_by->in_room->vnum);
-        else if (in_obj->in_room != NULL && can_see_room(ch, in_obj->in_room))
+        else if (in_obj->in_room != NULL && can_see_room(ch, in_obj->in_room->data))
             sprintf(buf, "%3d) %s is in %s [Room %d]\n\r", number,
-                    obj->short_descr, in_obj->in_room->name,
+                    obj->short_descr, in_obj->in_room->data->name,
                     in_obj->in_room->vnum);
         else
             sprintf(buf, "%3d) %s is somewhere\n\r", number, obj->short_descr);
@@ -1750,17 +1755,17 @@ void do_mwhere(Mobile* ch, char* argument)
         FOR_EACH(d, descriptor_list) {
             if (d->character != NULL && d->connected == CON_PLAYING
                 && d->character->in_room != NULL && can_see(ch, d->character)
-                && can_see_room(ch, d->character->in_room)) {
+                && can_see_room(ch, d->character->in_room->data)) {
                 victim = d->character;
                 count++;
                 if (d->original != NULL)
                     sprintf(buf,
                             "%3d) %s (in the body of %s) is in %s [%d]\n\r",
                             count, d->original->name, victim->short_descr,
-                            victim->in_room->name, victim->in_room->vnum);
+                            victim->in_room->data->name, victim->in_room->vnum);
                 else
                     sprintf(buf, "%3d) %s is in %s [%d]\n\r", count,
-                            victim->name, victim->in_room->name,
+                            victim->name, victim->in_room->data->name,
                             victim->in_room->vnum);
                 add_buf(buffer, buf);
             }
@@ -1780,7 +1785,7 @@ void do_mwhere(Mobile* ch, char* argument)
             sprintf(buf, "%3d) [%5d] %-28s [%5d] %s\n\r", count,
                     IS_NPC(victim) ? victim->prototype->vnum : 0,
                     IS_NPC(victim) ? victim->short_descr : victim->name,
-                    victim->in_room->vnum, victim->in_room->name);
+                    victim->in_room->vnum, victim->in_room->data->name);
             add_buf(buffer, buf);
         }
     }
@@ -1867,7 +1872,7 @@ void do_protect(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, argument)) == NULL) {
+    if ((victim = get_mob_world(ch, argument)) == NULL) {
         send_to_char("You can't find them.\n\r", ch);
         return;
     }
@@ -1899,7 +1904,7 @@ void do_snoop(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, arg)) == NULL) {
+    if ((victim = get_mob_world(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -1972,7 +1977,7 @@ void do_switch(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, arg)) == NULL) {
+    if ((victim = get_mob_world(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2094,7 +2099,7 @@ void do_clone(Mobile* ch, char* argument)
     }
     else if (!str_prefix(arg, "mobile") || !str_prefix(arg, "character")) {
         obj = NULL;
-        mob = get_char_room(ch, rest);
+        mob = get_mob_room(ch, rest);
         if (mob == NULL) {
             send_to_char("You don't see that here.\n\r", ch);
             return;
@@ -2102,7 +2107,7 @@ void do_clone(Mobile* ch, char* argument)
     }
     else /* find both */
     {
-        mob = get_char_room(ch, argument);
+        mob = get_mob_room(ch, argument);
         obj = get_obj_here(ch, argument);
         if (mob == NULL && obj == NULL) {
             send_to_char("You don't see that here.\n\r", ch);
@@ -2165,7 +2170,7 @@ void do_clone(Mobile* ch, char* argument)
                 new_object->wear_loc = obj->wear_loc;
             }
         }
-        char_to_room(clone, ch->in_room);
+        mob_to_room(clone, ch->in_room);
         act("$n has created $N.", ch, NULL, clone, TO_ROOM);
         act("You clone $N.", ch, NULL, clone, TO_CHAR);
         sprintf(buf, "$N clones %s.", clone->short_descr);
@@ -2222,7 +2227,7 @@ void do_mload(Mobile* ch, char* argument)
     }
 
     victim = create_mobile(p_mob_proto);
-    char_to_room(victim, ch->in_room);
+    mob_to_room(victim, ch->in_room);
     act("$n has created $N!", ch, NULL, victim, TO_ROOM);
     sprintf(buf, "$N loads %s.", victim->short_descr);
     wiznet(buf, ch, NULL, WIZ_LOAD, WIZ_SECURE, get_trust(ch));
@@ -2308,7 +2313,7 @@ void do_purge(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, arg)) == NULL) {
+    if ((victim = get_mob_world(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2358,7 +2363,7 @@ void do_advance(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, arg1)) == NULL) {
+    if ((victim = get_mob_world(ch, arg1)) == NULL) {
         send_to_char("That player is not here.\n\r", ch);
         return;
     }
@@ -2438,7 +2443,7 @@ void do_trust(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, arg1)) == NULL) {
+    if ((victim = get_mob_world(ch, arg1)) == NULL) {
         send_to_char("That player is not here.\n\r", ch);
         return;
     }
@@ -2515,7 +2520,7 @@ void do_restore(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, arg)) == NULL) {
+    if ((victim = get_mob_world(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2549,7 +2554,7 @@ void do_freeze(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, arg)) == NULL) {
+    if ((victim = get_mob_world(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2608,7 +2613,7 @@ void do_log(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, arg)) == NULL) {
+    if ((victim = get_mob_world(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2643,7 +2648,7 @@ void do_noemote(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, arg)) == NULL) {
+    if ((victim = get_mob_world(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2683,7 +2688,7 @@ void do_noshout(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, arg)) == NULL) {
+    if ((victim = get_mob_world(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2728,7 +2733,7 @@ void do_notell(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, arg)) == NULL) {
+    if ((victim = get_mob_world(ch, arg)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2902,7 +2907,7 @@ void do_sset(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, arg1)) == NULL) {
+    if ((victim = get_mob_world(ch, arg1)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -2969,7 +2974,7 @@ void do_mset(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_world(ch, arg1)) == NULL) {
+    if ((victim = get_mob_world(ch, arg1)) == NULL) {
         send_to_char("They aren't here.\n\r", ch);
         return;
     }
@@ -3304,7 +3309,7 @@ void do_string(Mobile* ch, char* argument)
     }
 
     if (!str_prefix(type, "character") || !str_prefix(type, "mobile")) {
-        if ((victim = get_char_world(ch, arg1)) == NULL) {
+        if ((victim = get_mob_world(ch, arg1)) == NULL) {
             send_to_char("They aren't here.\n\r", ch);
             return;
         }
@@ -3552,12 +3557,12 @@ void do_rset(Mobile* ch, char* argument)
 
     // Set something.
     if (!str_prefix(arg2, "flags")) {
-        location->room_flags = value;
+        location->data->room_flags = value;
         return;
     }
 
     if (!str_prefix(arg2, "sector")) {
-        location->sector_type = (int16_t)value;
+        location->data->sector_type = (int16_t)value;
         return;
     }
 
@@ -3685,7 +3690,7 @@ void do_force(Mobile* ch, char* argument)
     else {
         Mobile* victim;
 
-        if ((victim = get_char_world(ch, arg)) == NULL) {
+        if ((victim = get_mob_world(ch, arg)) == NULL) {
             send_to_char("They aren't here.\n\r", ch);
             return;
         }

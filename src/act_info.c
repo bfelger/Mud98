@@ -153,7 +153,8 @@ void show_list_to_char(Object* list, Mobile* ch, bool fShort,
     output = new_buf();
 
     count = 0;
-    for (obj = list; obj != NULL; obj = obj->next_content) count++;
+    for (obj = list; obj != NULL; obj = obj->next_content) 
+        count++;
     prgpstrShow = alloc_mem(count * sizeof(char*));
     prgnShow = alloc_mem(count * sizeof(int));
     nShow = 0;
@@ -926,19 +927,19 @@ void do_look(Mobile* ch, char* argument)
 
     if (arg1[0] == '\0' || !str_cmp(arg1, "auto")) {
         /* 'look' or 'look auto' */
-        sprintf(buf, "{s%s", ch->in_room->name);
+        sprintf(buf, "{s%s", ch->in_room->data->name);
         send_to_char(buf, ch);
 
         if ((IS_IMMORTAL(ch) && (IS_NPC(ch) || IS_SET(ch->act_flags, PLR_HOLYLIGHT)))
-            || IS_BUILDER(ch, ch->in_room->area)) {
+            || IS_BUILDER(ch, ch->in_room->area->data)) {
             sprintf(buf, " {r[{RRoom %"PRVNUM"{r]", ch->in_room->vnum);
             send_to_char(buf, ch);
         }
 
         send_to_char("{x\n\r", ch);
 
-        if (ch->in_room->description[0] && !IS_NPC(ch) && !IS_SET(ch->comm_flags, COMM_BRIEF)) {
-            sprintf(buf, "{S  %s{x", ch->in_room->description);
+        if (ch->in_room->data->description[0] && !IS_NPC(ch) && !IS_SET(ch->comm_flags, COMM_BRIEF)) {
+            sprintf(buf, "{S  %s{x", ch->in_room->data->description);
             send_to_char(buf, ch);
         }
 
@@ -999,7 +1000,7 @@ void do_look(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg1)) != NULL) {
+    if ((victim = get_mob_room(ch, arg1)) != NULL) {
         show_char_to_char_1(victim, ch);
         return;
     }
@@ -1067,7 +1068,7 @@ void do_look(Mobile* ch, char* argument)
         }
     }
 
-    pdesc = get_extra_desc(arg3, ch->in_room->extra_desc);
+    pdesc = get_extra_desc(arg3, ch->in_room->data->extra_desc);
     if (pdesc != NULL) {
         if (++count == number) {
             send_to_char(pdesc, ch);
@@ -1108,18 +1109,18 @@ void do_look(Mobile* ch, char* argument)
         return;
     }
 
-    if (room_exit->description != NULL && room_exit->description[0] != '\0')
-        send_to_char(room_exit->description, ch);
+    if (room_exit->data->description != NULL && room_exit->data->description[0] != '\0')
+        send_to_char(room_exit->data->description, ch);
     else
         send_to_char("Nothing special there.\n\r", ch);
 
-    if (room_exit->keyword != NULL && room_exit->keyword[0] != '\0'
-        && room_exit->keyword[0] != ' ') {
+    if (room_exit->data->keyword != NULL && room_exit->data->keyword[0] != '\0'
+        && room_exit->data->keyword[0] != ' ') {
         if (IS_SET(room_exit->exit_flags, EX_CLOSED)) {
-            act("The $d is closed.", ch, NULL, room_exit->keyword, TO_CHAR);
+            act("The $d is closed.", ch, NULL, room_exit->data->keyword, TO_CHAR);
         }
         else if (IS_SET(room_exit->exit_flags, EX_ISDOOR)) {
-            act("The $d is open.", ch, NULL, room_exit->keyword, TO_CHAR);
+            act("The $d is open.", ch, NULL, room_exit->data->keyword, TO_CHAR);
         }
     }
 
@@ -1216,7 +1217,7 @@ void do_exits(Mobile* ch, char* argument)
     found = false;
     for (door = 0; door <= 5; door++) {
         if ((room_exit = ch->in_room->exit[door]) != NULL
-            && room_exit->to_room != NULL && can_see_room(ch, room_exit->to_room)
+            && room_exit->data->to_room != 0 && can_see_room(ch, room_exit->data->to_room)
             && !IS_SET(room_exit->exit_flags, EX_CLOSED)) {
             found = true;
             if (fAuto) {
@@ -1226,20 +1227,22 @@ void do_exits(Mobile* ch, char* argument)
             else {
                 sprintf(
                     buf + strlen(buf), "%-5s - %s", capitalize(dir_list[door].name),
-                    room_is_dark(room_exit->to_room) ? "Too dark to tell"
-                                                    : room_exit->to_room->name);
+                    (room_exit->to_room && room_is_dark(room_exit->to_room)) ? "Too dark to tell"
+                                                    : room_exit->data->to_room->name);
                 if (IS_IMMORTAL(ch))
                     sprintf(buf + strlen(buf), " (room %d)\n\r",
-                            room_exit->to_room->vnum);
+                            room_exit->data->to_vnum);
                 else
                     sprintf(buf + strlen(buf), "\n\r");
             }
         }
     }
 
-    if (!found) strcat(buf, fAuto ? " none" : "None.\n\r");
+    if (!found) 
+        strcat(buf, fAuto ? " none" : "None.\n\r");
 
-    if (fAuto) strcat(buf, "]\n\r");
+    if (fAuto) 
+        strcat(buf, "]\n\r");
 
     send_to_char(buf, ch);
     return;
@@ -2032,14 +2035,14 @@ void do_where(Mobile* ch, char* argument)
         FOR_EACH(d, descriptor_list) {
             if (d->connected == CON_PLAYING && (victim = d->character) != NULL
                 && !IS_NPC(victim) && victim->in_room != NULL
-                && !IS_SET(victim->in_room->room_flags, ROOM_NOWHERE)
+                && !IS_SET(victim->in_room->data->room_flags, ROOM_NOWHERE)
                 && (is_room_owner(ch, victim->in_room)
                     || !room_is_private(victim->in_room))
                 && victim->in_room->area == ch->in_room->area
                 && can_see(ch, victim)) {
                 found = true;
                 sprintf(buf, "%-28s %s\n\r", victim->name,
-                        victim->in_room->name);
+                        victim->in_room->data->name);
                 send_to_char(buf, ch);
             }
         }
@@ -2055,7 +2058,7 @@ void do_where(Mobile* ch, char* argument)
                 && is_name(arg, victim->name)) {
                 found = true;
                 sprintf(buf, "%-28s %s\n\r", PERS(victim, ch),
-                        victim->in_room->name);
+                        victim->in_room->data->name);
                 send_to_char(buf, ch);
                 break;
             }
@@ -2081,7 +2084,7 @@ void do_consider(Mobile* ch, char* argument)
         return;
     }
 
-    if ((victim = get_char_room(ch, arg)) == NULL) {
+    if ((victim = get_mob_room(ch, arg)) == NULL) {
         send_to_char("They're not here.\n\r", ch);
         return;
     }

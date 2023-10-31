@@ -9,31 +9,24 @@
 
 MobMemory* mob_memory_free;
 
-MobMemory* new_mob_memory(void)
+int mob_memory_count;
+int mob_memory_perm_count;
+
+MobMemory* new_mob_memory()
 {
-    MobMemory* memory;
+    LIST_ALLOC_PERM(mob_memory, MobMemory);
 
-    if (mob_memory_free == NULL)
-        memory = alloc_mem(sizeof(*memory));
-    else {
-        memory = mob_memory_free;
-        NEXT_LINK(mob_memory_free);
-    }
+    VALIDATE(mob_memory);
 
-    memory->next = NULL;
-    memory->id = 0;
-    memory->reaction = 0;
-    memory->when = 0;
-    VALIDATE(memory);
-
-    return memory;
+    return mob_memory;
 }
 
-void free_mob_memory(MobMemory* memory)
+void free_mob_memory(MobMemory* mob_memory)
 {
-    if (!IS_VALID(memory)) return;
+    if (!IS_VALID(mob_memory))
+        return;
 
-    memory->next = mob_memory_free;
-    mob_memory_free = memory;
-    INVALIDATE(memory);
+    INVALIDATE(mob_memory);
+
+    LIST_FREE(mob_memory);
 }

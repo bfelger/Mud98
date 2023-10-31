@@ -84,7 +84,7 @@ void do_pedit(Mobile* ch, char* argument)
     READ_ARG(command);
 
     if (is_number(command)) {
-        Area* area;
+        AreaData* area;
 
         if ((area = get_vnum_area(atoi(command))) == NULL) {
             send_to_char("PEdit : That vnum is not assigned to an area.\n\r", ch);
@@ -124,7 +124,7 @@ void do_pedit(Mobile* ch, char* argument)
 MPEDIT(pedit_create)
 {
     MobProgCode* pMcode;
-    Area* area;
+    AreaData* area;
     int value;
 
     value = atoi(argument);
@@ -154,7 +154,7 @@ MPEDIT(pedit_create)
         return false;
     }
 
-    pMcode = new_mpcode();
+    pMcode = new_mob_prog_code();
     pMcode->vnum = value;
     pMcode->next = mprog_list;
     pMcode->changed = true;
@@ -197,8 +197,8 @@ void do_mplist(Mobile* ch, char* argument)
 
     for (count = 1, mprg = mprog_list; mprg != NULL; NEXT_LINK(mprg)) {
         if (fAll
-            || (mprg->vnum >= ch->in_room->area->min_vnum
-                && mprg->vnum <= ch->in_room->area->max_vnum)) {
+            || (mprg->vnum >= ch->in_room->area->data->min_vnum
+                && mprg->vnum <= ch->in_room->area->data->max_vnum)) {
             sprintf(buf, "[%3d] %5d ", count, mprg->vnum);
             add_buf(buffer, buf);
             if (count % 2 == 0)

@@ -27,7 +27,7 @@ typedef struct mob_prototype_t {
     SpecFunc* spec_fun;
     ShopData* pShop;
     MobProg* mprogs;
-    Area* area;
+    AreaData* area;
     char* name;
     char* short_descr;
     char* long_descr;
@@ -71,19 +71,18 @@ typedef struct mob_prototype_t {
 #define GROUP_VNUM_TROLLS       2100
 #define GROUP_VNUM_OGRES        2101
 
-Mobile* create_mobile(MobPrototype* p_mob_proto);
+MobPrototype* new_mob_prototype();
 void free_mob_prototype(MobPrototype* p_mob_proto);
-long get_mob_id();
 MobPrototype* get_mob_prototype(VNUM vnum);
 void load_mobiles(FILE* fp);
-MobPrototype* new_mob_prototype();
 void recalc(MobPrototype* pMob);
 
-extern MobPrototype* mob_prototype_hash[];
+extern MobPrototype* mob_proto_hash[];
 extern MobPrototype* mob_prototype_free;
 
 extern int mob_proto_count;
-extern int newmobs;
+extern int mob_proto_perm_count;
+
 extern VNUM top_vnum_mob;      // OLC
 
 #endif // !MUD98__ENTITIES__MOB_PROTOTYPE_H

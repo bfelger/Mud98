@@ -17,53 +17,34 @@ HelpData* help_last;
 HelpArea* help_area_list;
 
 int help_count;
+int help_perm_count;
+
+int help_area_count;
+int help_area_perm_count;
 
 HelpArea* new_help_area()
 {
-    HelpArea* had;
+    LIST_ALLOC_PERM(help_area, HelpArea);
 
-    if (help_area_free) {
-        had = help_area_free;
-        NEXT_LINK(help_area_free);
-    }
-    else
-        had = alloc_perm(sizeof(HelpArea));
+    return help_area;
+}
 
-    if (had == NULL) {
-        perror("Could not allocate HelpArea!");
-        exit(-1);
-    }
-
-    memset(had, 0, sizeof(HelpArea));
-
-    return had;
+void free_help_area(HelpArea* help_area)
+{
+    LIST_FREE(help_area);
 }
 
 HelpData* new_help_data()
 {
-    HelpData* help;
-
-    if (help_free) {
-        help = help_free;
-        NEXT_LINK(help_free);
-    }
-    else
-        help = alloc_perm(sizeof(HelpData));
-
-    if (help == NULL) {
-        perror("Could not allocate HelpData!");
-        exit(-1);
-    }
-
-    memset(help, 0, sizeof(HelpData));
+    LIST_ALLOC_PERM(help, HelpData);
 
     return help;
 }
 
-void free_help(HelpData* help)
+void free_help_data(HelpData* help)
 {
     free_string(help->keyword);
     free_string(help->text);
-    help->next = help_free;
-    help_free = help;
+
+    LIST_FREE(help);
 }

@@ -5,26 +5,17 @@
 
 #include "reset.h"
 
+#include "comm.h"
 #include "db.h"
 
 int reset_count;
+int reset_perm_count;
 Reset* reset_free;
 
 Reset* new_reset()
 {
-    static Reset zero = { 0 };
-    Reset* reset;
+    LIST_ALLOC_PERM(reset, Reset);
 
-    if (!reset_free) {
-        reset = alloc_perm(sizeof(*reset));
-        reset_count++;
-    }
-    else {
-        reset = reset_free;
-        NEXT_LINK(reset_free);
-    }
-
-    *reset = zero;
     reset->command = 'X';
 
     return reset;
@@ -32,7 +23,5 @@ Reset* new_reset()
 
 void free_reset(Reset* reset)
 {
-    reset->next = reset_free;
-    reset_free = reset;
-    return;
+    LIST_FREE(reset);
 }

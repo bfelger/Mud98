@@ -83,10 +83,16 @@ typedef struct player_data_t {
 PlayerData* new_player_data();
 void free_player_data(PlayerData* pcdata);
 
-extern PlayerData* player_list;
-extern PlayerData* player_free;
+extern PlayerData* player_data_list;
+extern PlayerData* player_data_free;
 
 extern void free_gen_data(CharGenData* gen);
 extern CharGenData* new_gen_data();
+
+extern int player_data_count;
+extern int player_data_perm_count;
+
+extern int gen_data_count;
+extern int gen_data_perm_count;
 
 #endif // !MUD98__ENTITIES__PLAYER_DATA_H

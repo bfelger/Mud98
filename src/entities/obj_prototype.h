@@ -20,7 +20,7 @@ typedef struct obj_prototype_t {
     ObjPrototype* next;
     ExtraDesc* extra_desc;
     Affect* affected;
-    Area* area;
+    AreaData* area;
     char* name;
     char* short_descr;
     char* description;
@@ -45,6 +45,7 @@ void load_objects(FILE* fp);
 
 extern ObjPrototype* obj_proto_hash[];
 extern int obj_proto_count;
+extern int obj_proto_perm_count;
 extern VNUM top_vnum_obj;
 
 #endif // !MUD98__ENTITIES__OBJ_PROTOTYPE_H
