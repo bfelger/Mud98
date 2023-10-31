@@ -91,20 +91,18 @@ char* print_flags(FLAGS flag)
 static Object* rgObjNest[MAX_NEST];
 
 // Local functions.
-void fwrite_char(Mobile * ch, FILE* fp);
-void fwrite_obj(Mobile * ch, Object* obj, FILE* fp, int iNest);
-void fwrite_pet(Mobile * pet, FILE* fp);
+void fwrite_char(Mobile* ch, FILE* fp);
+void fwrite_obj(Mobile* ch, Object* obj, FILE* fp, int iNest);
+void fwrite_pet(Mobile* pet, FILE* fp);
 void fwrite_themes(Mobile* ch, FILE* fp);
-void fread_char(Mobile * ch, FILE* fp);
-void fread_pet(Mobile * ch, FILE* fp);
-void fread_obj(Mobile * ch, FILE* fp);
-void fread_theme(Mobile* ch, FILE* fp);
+void fwrite_quests(Mobile* ch, FILE* fp);
 
-/*
- * Save a character and inventory.
- * Would be cool to save NPC's too for quest purposes,
- *   some of the infrastructure is provided.
- */
+void fread_char(Mobile* ch, FILE* fp);
+void fread_pet(Mobile* ch, FILE* fp);
+void fread_obj(Mobile* ch, FILE* fp);
+void fread_theme(Mobile* ch, FILE* fp);
+void fread_quests(Mobile* ch, FILE* fp);
+
 void save_char_obj(Mobile* ch)
 {
     char strsave[MAX_INPUT_LENGTH];
@@ -113,7 +111,8 @@ void save_char_obj(Mobile* ch)
     if (IS_NPC(ch)) 
         return;
 
-    if (ch->desc != NULL && ch->desc->original != NULL) ch = ch->desc->original;
+    if (ch->desc != NULL && ch->desc->original != NULL) 
+        ch = ch->desc->original;
 
     /* create god log */
     if (IS_IMMORTAL(ch) || ch->level >= LEVEL_IMMORTAL) {
@@ -128,11 +127,14 @@ void save_char_obj(Mobile* ch)
     OPEN_OR_RETURN(fp = open_write_file(strsave));
 
     fwrite_char(ch, fp);
-    if (ch->carrying != NULL) fwrite_obj(ch, ch->carrying, fp, 0);
+    if (ch->carrying != NULL) 
+        fwrite_obj(ch, ch->carrying, fp, 0);
     /* save the pets */
     if (ch->pet != NULL && ch->pet->in_room == ch->in_room)
         fwrite_pet(ch->pet, fp);
     fwrite_themes(ch, fp);
+    fwrite_quests(ch, fp);
+    
     fprintf(fp, "#END\n");
 
     close_file(fp);
@@ -482,6 +484,20 @@ void fwrite_obj(Mobile* ch, Object* obj, FILE* fp, int iNest)
     return;
 }
 
+
+void fwrite_quests(Mobile* ch, FILE* fp)
+{
+    fprintf(fp, "#QUESTLOG\n");
+
+    QuestStatus* qs;
+
+    FOR_EACH(qs, ch->pcdata->quest_log->quests) {
+        fprintf(fp, "%d %d %d  ", qs->vnum, qs->progress, qs->state);
+    }
+
+    fprintf(fp, "\nEnd\n\n");
+}
+
 // Load a char and inventory into a new ch structure.
 bool load_char_obj(Descriptor* d, char* name)
 {
@@ -572,6 +588,8 @@ bool load_char_obj(Descriptor* d, char* name)
             fread_pet(ch, fp);
         else if (!str_cmp(word, "THEME"))
             fread_theme(ch, fp);
+        else if (!str_cmp(word, "QUESTLOG"))
+            fread_quests(ch, fp);
         else if (!str_cmp(word, "END"))
             break;
         else {
@@ -1671,3 +1689,21 @@ void fread_theme(Mobile* ch, FILE* fp)
 
     
 }
+
+void fread_quests(Mobile* ch, FILE* fp)
+{
+    char* word = feof(fp) ? "End" : fread_word(fp);
+    while (str_cmp(word, "End")) {
+        VNUM vnum = STRTOVNUM(word);
+        int progress = fread_number(fp);
+        QuestState state = fread_number(fp);
+        Quest* quest = get_quest(vnum);
+        if (!quest) {
+            bugf("fread_quests: %s has unknown quest VNUM %d.", ch->name, vnum);
+            continue;
+        }
+        add_quest_to_log(ch->pcdata->quest_log, quest, state, progress);
+        word = feof(fp) ? "End" : fread_word(fp);
+    }
+}
+

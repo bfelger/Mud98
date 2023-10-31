@@ -8,6 +8,7 @@
 
 #include "comm.h"
 #include "db.h"
+#include "save.h"
 #include "tables.h"
 #include "update.h"
 
@@ -206,7 +207,7 @@ void finish_quest(Mobile* ch, Quest* quest, QuestStatus* status)
         return;
 
     status->state = QSTAT_COMPLETE;
-    printf_to_char(ch, "{jYou have completed the quest, \"{*%s{j\".{x\n\r", quest->name);
+    printf_to_char(ch, "\n\r{jYou have completed the quest, \"{*%s{j\".{x\n\r", quest->name);
         
     remove_quest_target(ch, quest);
 
@@ -220,6 +221,9 @@ void finish_quest(Mobile* ch, Quest* quest, QuestStatus* status)
         printf_to_char(ch, "{jYou have been awarded {*%d{j xp.{x\n\r", xp);
         gain_exp(ch, xp);
     }
+    send_to_char("\n\r", ch);
+
+    save_char_obj(ch);
 }
 static QuestTarget x_qt = { 0 };
 
@@ -239,38 +243,46 @@ static void add_target(QuestLog* qlog, Quest* quest, VNUM target_vnum)
     }
 }
 
-void grant_quest(Mobile* ch, Quest* quest)
+void add_quest_to_log(QuestLog* quest_log, Quest* quest, QuestState quest_state, int progress)
 {
     static QuestStatus x_qs = { 0 };
-
-    if (!quest)
-        return;
-
-    QuestLog* qlog = ch->pcdata->quest_log;
 
     ALLOC(QuestStatus, qs);
     *qs = x_qs;
     qs->vnum = quest->vnum;
     qs->quest = quest;
     qs->amount = quest->amount;
-    qs->state = QSTAT_ACCEPTED;
-    ORDERED_INSERT(QuestStatus, qs, qlog->quests, vnum);
+    qs->progress = progress;
+    qs->state = quest_state;
+    ORDERED_INSERT(QuestStatus, qs, quest_log->quests, vnum);
 
-    ALLOC(QuestTarget, qe);
-    *qe = x_qt;
-    qe->quest_vnum = quest->vnum;
-    qe->type = quest->type;
-    qe->target_vnum = quest->end;
-    ORDERED_INSERT(QuestTarget, qe, qlog->target_ends, target_vnum);
+    if (quest_state != QSTAT_COMPLETE) {
+        ALLOC(QuestTarget, qe);
+        *qe = x_qt;
+        qe->quest_vnum = quest->vnum;
+        qe->type = quest->type;
+        qe->target_vnum = quest->end;
+        ORDERED_INSERT(QuestTarget, qe, quest_log->target_ends, target_vnum);
 
-    if (quest->target > 0) {
-        if (quest->target_upper > quest->target) {
-            for (VNUM i = quest->target; i <= quest->target_upper; ++i)
-                add_target(qlog, quest, i);
+        if (quest->target > 0) {
+            if (quest->target_upper > quest->target) {
+                for (VNUM i = quest->target; i <= quest->target_upper; ++i)
+                    add_target(quest_log, quest, i);
+            }
         }
     }
+}
 
-    printf_to_char(ch, "{jYou have started the quest, \"{*%s{j\".{x\n\r", quest->name);
+void grant_quest(Mobile* ch, Quest* quest)
+{
+    if (!quest)
+        return;
+
+    add_quest_to_log(ch->pcdata->quest_log, quest, QSTAT_ACCEPTED, 0);
+
+    save_char_obj(ch);
+
+    printf_to_char(ch, "\n\r{jYou have started the quest, \"{*%s{j\".{x\n\r", quest->name);
 }
 
 void load_quest(FILE* fp)
@@ -298,8 +310,7 @@ void save_quests(FILE* fp, AreaData* area_data)
 {
     Quest* q;
 
-    FOR_EACH(q, area_data->quests)
-    {
+    FOR_EACH(q, area_data->quests) {
         fprintf(fp, "#QUEST\n");
         save_struct(fp, U(&tmp_quest), quest_save_table, U(q));
         fprintf(fp, "#END\n\n");
@@ -353,8 +364,7 @@ bool can_finish_quest(Mobile* ch, VNUM vnum)
         return false;
 
     switch (q->type) {
-    case QUEST_VISIT_MOB:
-    {
+    case QUEST_VISIT_MOB: {
         Mobile* vch;
         FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
             if (vch->prototype && vch->prototype->vnum == q->target)
@@ -363,9 +373,7 @@ bool can_finish_quest(Mobile* ch, VNUM vnum)
         break;
     }
     case QUEST_KILL_MOB:
-    {
         return ( qs->progress >= qs->amount);
-    }
     
     // End switch
     }
@@ -393,8 +401,12 @@ void do_quest(Mobile* ch, char* argument)
             if (qs->state != QSTAT_COMPLETE && qs->vnum >= area->min_vnum && qs->vnum <= area->max_vnum) {
                 Quest* q = get_quest(qs->vnum);
                 ++i;
-                addf_buf(local, "%d. {T%s {|[{*Level %d{|]\n\r{_%s{x\n\r\n\r",
-                    i, q->name, q->level, q->entry);
+                addf_buf(local, "%d. {T%s {|[{*Level %d{|] ",
+                    i, q->name, q->level);
+                if (qs->amount > 0) {
+                    addf_buf(local, "{j(%d/%d){x\n\r", qs->progress, qs->amount);
+                }
+                addf_buf(local, "{_%s{x\n\r\n\r", q->entry);
             }
         }
     }
@@ -403,8 +415,12 @@ void do_quest(Mobile* ch, char* argument)
         if (qs->state != QSTAT_COMPLETE && (!area || qs->vnum < area->min_vnum || qs->vnum > area->max_vnum)) {
             Quest* q = get_quest(qs->vnum);
             ++i;
-            addf_buf(world, "%d. {T%s {|[{*Level %d{|] {_(%s){x\n\r",
-                i, q->name, q->level, q->area_data->name);
+            addf_buf(world, "%d. {T%s {|[{*Level %d{|] {_(%s){x",
+                i, q->name, q->level, q->area_data->name);                
+            if (qs->amount > 0) {
+                addf_buf(local, " {j(%d/%d){x\n\r", qs->progress, qs->amount);
+            }
+            add_buf(local, "\n\r");
         }
     }
 

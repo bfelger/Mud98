@@ -75,6 +75,8 @@ QuestTarget* get_quest_targ_obj(Mobile* ch, VNUM target_vnum);
 QuestTarget* get_quest_targ_end(Mobile* ch, VNUM end_vnum);
 QuestStatus* get_quest_status(Mobile* ch, VNUM quest_vnum);
 void finish_quest(Mobile* ch, Quest* quest, QuestStatus* status);
+void add_quest_to_log(QuestLog* quest_log, Quest* quest, QuestState quest_state,
+    int progress);
 void grant_quest(Mobile* ch, Quest* quest);
 void save_quests(FILE* fp, AreaData* area); 
 bool can_quest(Mobile* ch, VNUM vnum);

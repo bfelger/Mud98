@@ -802,7 +802,7 @@ REDIT(redit_mreset)
     READ_ARG(arg2);
 
     if (arg[0] == '\0' || !is_number(arg)) {
-        send_to_char("Syntax:  {*mreset <vnum> <max #x> <min #x>{x\n\r", ch);
+        send_to_char("Syntax:  {*mreset <vnum> <world max> <room max>{x\n\r", ch);
         return false;
     }
 

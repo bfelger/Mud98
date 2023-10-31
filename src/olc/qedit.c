@@ -226,9 +226,9 @@ QEDIT(qedit_show)
             if ((targ_mob = get_mob_prototype(quest->target_upper)) != NULL)
                 printf_to_char(ch, "{_%s{x", targ_mob->short_descr);
         }
-        printf_to_char(ch, "\n\rAmount:     {|[{*%d{|]{x\n\r", quest->amount);
+        printf_to_char(ch, "\n\rAmount:     {|[{*%d{|]{x", quest->amount);
     }
-    printf_to_char(ch, "XP:         {|[{*%d{|]{x\n\r", quest->xp);
+    printf_to_char(ch, "\n\rXP:         {|[{*%d{|]{x\n\r", quest->xp);
     if (quest->entry && quest->entry[0])
         printf_to_char(ch, "Entry:\n\r{_%s{x\n\r", quest->entry);
     else
