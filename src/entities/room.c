@@ -176,7 +176,7 @@ Room* get_room_for_player(Mobile* ch, VNUM vnum)
     // name to the owner_list of the existing instance.
 
     // No instance exists. We have to make one.
-    logf("Creating new instance '%s' for %s.", room_data->area_data->name,
+    printf_log("Creating new instance '%s' for %s.", room_data->area_data->name,
         ch->name);
     area = create_area_instance(room_data->area_data, true);
     INIT_BUF(buf, MSL);

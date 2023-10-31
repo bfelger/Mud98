@@ -2495,7 +2495,7 @@ void bugf(char* fmt, ...)
     bug(buf, 0);
 }
 
-void logf(char* fmt, ...)
+void printf_log(char* fmt, ...)
 {
     char buf[2 * MSL];
     va_list args;

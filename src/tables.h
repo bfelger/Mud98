@@ -25,9 +25,21 @@
  *  ROM license, in the file Rom24/doc/rom.license                         *
  ***************************************************************************/
 
+struct flag_type;
+
 #pragma once
 #ifndef MUD98__TABLES_H
 #define MUD98__TABLES_H
+
+#include "merc.h"
+
+#include <stdbool.h>
+
+struct flag_type {
+    char* name;
+    FLAGS bit;
+    bool settable;
+};
 
 #include "entities/mobile.h"
 
@@ -50,11 +62,6 @@ typedef enum cmd_type_t {
     TYP_OLC         = 13,
 } CmdType;
 
-struct flag_type {
-    char* name;
-    FLAGS bit;
-    bool settable;
-};
 
 struct clan_type {
     char* name;

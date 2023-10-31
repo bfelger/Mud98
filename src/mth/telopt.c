@@ -18,6 +18,7 @@
 #include "entities/mobile.h"
 #include "entities/player_data.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 
 void debug_telopts(Descriptor* d, unsigned char* src, size_t srclen);
@@ -40,7 +41,7 @@ size_t skip_sb(Descriptor* d, unsigned char* src, size_t srclen);
 	 
 void end_mccp2(Descriptor* d);
 	 
-int start_mccp2(Descriptor* d);
+bool start_mccp2(Descriptor* d);
 void process_mccp2(Descriptor* d);
 	 
 void end_mccp3(Descriptor* d);
@@ -570,7 +571,11 @@ size_t process_sb_ttype_is(Descriptor* d, unsigned char* src, size_t srclen)
 			}
 			else
 			{
+#ifdef _MSC_VER
 				if (sscanf(val, "MTTS %lld", &d->mth->mtts) == 1)
+#else
+				if (sscanf(val, "MTTS %ld", &d->mth->mtts) == 1)
+#endif
 				{
 					if (HAS_BIT(d->mth->mtts, MTTS_FLAG_256COLORS))
 					{
@@ -1042,13 +1047,13 @@ void zlib_free(void* opaque, void* address)
 	free_mem(address, s_size);
 }
 
-int start_mccp2(Descriptor* d)
+bool start_mccp2(Descriptor* d)
 {
 	z_stream* stream;
 
 	if (d->mth->mccp2)
 	{
-		return TRUE;
+		return true;
 	}
 
 	stream = (z_stream*)alloc_mem(sizeof(z_stream));
@@ -1073,7 +1078,7 @@ int start_mccp2(Descriptor* d)
 		log_descriptor_printf(d, "start_mccp2: failed deflateInit2");
 		free_mem(stream, sizeof(z_stream));
 
-		return FALSE;
+		return false;
 	}
 
 	descriptor_printf(d, "%c%c%c%c%c", IAC, SB, TELOPT_MCCP2, IAC, SE);
@@ -1084,7 +1089,7 @@ int start_mccp2(Descriptor* d)
 
 	d->mth->mccp2 = stream;
 
-	return TRUE;
+	return true;
 }
 
 
@@ -1156,7 +1161,7 @@ static int write_sock(Descriptor* d, char* buf, size_t len)
 #ifdef _MSC_VER
 		return send(d->client->fd, buf, (int)len, 0);
 #else
-		return write(d->client->fd, buf, (int)len)) < 0) {
+		return write(d->client->fd, buf, len);
 #endif
 #ifndef NO_OPENSSL
 	}

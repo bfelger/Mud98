@@ -1842,7 +1842,7 @@ void do_objlist(Mobile* ch, char* argument)
     }
 
     READ_ARG(type_str);
-    int type = -1;
+    ItemType type = -1;
 
     if (type_str[0]) {
         for (int i = 0; i < ITEM_TYPE_COUNT; ++i)

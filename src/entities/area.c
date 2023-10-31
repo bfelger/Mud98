@@ -78,11 +78,11 @@ Area* create_area_instance(AreaData* area_data, bool create_exits)
     area->next = area_data->instances;
     area_data->instances = area;
 
-    Room* room;
     RoomData* room_data;
     FOR_EACH_GLOBAL_ROOM_DATA(room_data) {
         if (room_data->area_data == area_data) {
-            room = new_room(room_data, area);
+            // It's okay; it's still being added to area instances
+            new_room(room_data, area);
         }
     }
 
@@ -132,7 +132,11 @@ void load_area(FILE* fp)
 {
     AreaData* area_data;
     char* word;
+#ifdef _MSC_VER
     int version = 1;
+#else
+    int __attribute__((unused)) version;
+#endif
 
     area_data = new_area_data();
     area_data->reset_thresh = 6;
@@ -146,6 +150,7 @@ void load_area(FILE* fp)
         switch (UPPER(word[0])) {
         case 'A':
             KEY("AlwaysReset", area_data->always_reset, (bool)fread_number(fp));
+            break;
         case 'B':
             SKEY("Builders", area_data->builders);
             break;

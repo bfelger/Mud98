@@ -113,7 +113,7 @@ void act_new(const char* format, Mobile* ch, const void* arg1,
 
 void printf_to_char(Mobile*, char*, ...);
 void bugf(char*, ...);
-void logf(char*, ...);
+void printf_log(char*, ...);
 size_t colour(char type, Mobile* ch, char* string);
 void colourconv(char* buffer, const char* txt, Mobile* ch);
 void send_to_char_bw(const char* txt, Mobile* ch);

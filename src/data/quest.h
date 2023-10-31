@@ -12,6 +12,8 @@ typedef struct quest_log_t QuestLog;
 
 #include "merc.h"
 
+#include "tables.h"
+
 #include "entities/area.h"
 
 typedef enum quest_type_t {

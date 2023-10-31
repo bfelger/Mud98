@@ -2,7 +2,6 @@
 // quest.c
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "quest.h"
 
 #include "olc/olc.h"
 
@@ -11,6 +10,7 @@
 #include "save.h"
 #include "tables.h"
 #include "update.h"
+#include "quest.h"
 
 int quest_count = 0;
 int quest_perm_count = 0;

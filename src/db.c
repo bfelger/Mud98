@@ -108,7 +108,6 @@ char* string_space;
 char* top_string;
 char str_empty[1];
 
-int extra_desc_count;
 int	top_mprog_index;    // OLC
 
 /*
@@ -737,8 +736,6 @@ void fix_exits()
 
     for (hash = 0; hash < MAX_KEY_HASH; hash++) {
         FOR_EACH(room_data, room_data_hash_table[hash]) {
-            bool fexit;
-
             last_room_index = last_obj_index = NULL;
 
             /* OLC : New reset check */
@@ -795,21 +792,16 @@ void fix_exits()
                 }
             }
 
-            fexit = false;
             for (door = 0; door < DIR_MAX; door++) {
                 if ((room_exit = room_data->exit_data[door]) != NULL) {
                     if (room_exit->to_vnum <= 0
                         || get_room_data(room_exit->to_vnum) == NULL)
                         room_exit->to_room = NULL;
                     else {
-                        fexit = true;
                         room_exit->to_room = get_room_data(room_exit->to_vnum);
                     }
                 }
             }
-// Removed by Halivar
-//            if (!fexit)
-//                SET_BIT(pRoomIndex->room_flags, ROOM_NO_MOB);
         }
     }
 
