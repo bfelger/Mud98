@@ -46,33 +46,38 @@ endif()
 
 if (MSVC)
     set(MSVC_DISABLED_WARNINGS
-        # unknown pragma 'GCC'
-        "C4068"     # Equivalent to -Wno-unknown-pragmas
-
-        # Nonstandard extension, function/data pointer conversion in expression
-        "C4152"     # For openssl/applink.c.
 
         # enumerator 'X' in switch of enum 'Y' is not explicitly handled by a 
         # case label
         "C4061"     # If no default is specified, we get C4062 intead. That is
                     # the only warning I care about.
 
-         # Assignment within conditional expression
-        "C4706"     # Microsoft can take my assigning conditionals out of my 
-                    # cold, dead hands.
-        
-        # X bytes padding after data member 'Y'
-        "C4820"     # As long as sizeof() reports the correct value (it does), 
-                    # this is a non-issue.
+        # unknown pragma 'GCC'
+        "C4068"     # Equivalent to -Wno-unknown-pragmas
+
+        # Unreferenced formal parameter
+        "C4100"     # Disabling this is the equivalent of GCC/Clang's  
+                    # '-Wno-unused-parameter'.
+
+        # Nonstandard extension, function/data pointer conversion in expression
+        "C4152"     # For openssl/applink.c.
 
         # No function prototype given: converting '()' to '(void)'"
         "C4255"     # C23 removes this requirement. Although MSVC is not 
                     # implementing C23, I would rather make MSVC conform to 
                     # GCC/Clang, and not the other way around.
 
-        # Unreferenced formal parameter
-        "C4100"     # Disabling this is the equivalent of GCC/Clang's  
-                    # '-Wno-unused-parameter'.
+         # Assignment within conditional expression
+        "C4706"     # Microsoft can take my assigning conditionals out of my 
+                    # cold, dead hands.
+
+        # Function not inlined
+        "C4710"     # Many stdlib calls are marked inline, but cannot be inlined
+                    # at the call-site. This is noise.
+        
+        # X bytes padding after data member 'Y'
+        "C4820"     # As long as sizeof() reports the correct value (it does), 
+                    # this is a non-issue.
 
         # Compiler will insert Spectre mitigation for memory load if /Qspectre
         # switch specified
@@ -160,7 +165,7 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     data/spell.h data/spell.c
     data/stats.h data/stats.c
     data/quest.h data/quest.c
-)
+ "lox/common.h" "lox/chunk.h" "lox/chunk.c" "lox/memory.h" "lox/memory.c" "lox/debug.h" "lox/debug.c" "lox/value.h" "lox/value.c" "lox/vm.h" "lox/vm.c" "lox/compiler.h" "lox/compiler.c" "lox/scanner.h" "lox/scanner.c" "lox/object.h" "lox/object.c" "lox/table.h" "lox/table.c" "lox/native.h" "lox/native.c")
 
 target_link_libraries(Mud98 PRIVATE ${Mud98_LIBS})
 

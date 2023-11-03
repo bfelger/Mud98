@@ -634,7 +634,7 @@ void spell_armor(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target
     af.modifier = -20;
     af.location = APPLY_AC;
     af.bitvector = 0;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     send_to_char("You feel someone protecting you.\n\r", victim);
     if (ch != victim)
         act("$N is protected by your magic.", ch, NULL, victim, TO_CHAR);
@@ -706,11 +706,11 @@ void spell_bless(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target
     af.location = APPLY_HITROLL;
     af.modifier = (int16_t)level / 8;
     af.bitvector = 0;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
 
     af.location = APPLY_SAVING_SPELL;
     af.modifier = 0 - (int16_t)level / 8;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     send_to_char("You feel righteous.\n\r", victim);
     if (ch != victim)
         act("You grant $N the favor of your god.", ch, NULL, victim, TO_CHAR);
@@ -732,7 +732,7 @@ void spell_blindness(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget ta
     af.modifier = -4;
     af.duration = 1 + (int16_t)level;
     af.bitvector = AFF_BLIND;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     send_to_char("You are blinded!\n\r", victim);
     act("$n appears to be blinded.", victim, NULL, NULL, TO_ROOM);
     return;
@@ -852,10 +852,10 @@ void spell_calm(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
             else
                 af.modifier = -2;
             af.bitvector = AFF_CALM;
-            affect_to_char(vch, &af);
+            affect_to_mob(vch, &af);
 
             af.location = APPLY_DAMROLL;
-            affect_to_char(vch, &af);
+            affect_to_mob(vch, &af);
         }
     }
 }
@@ -1111,7 +1111,7 @@ void spell_change_sex(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget t
     }
     while (af.modifier == 0);
     af.bitvector = 0;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     send_to_char("You feel different.\n\r", victim);
     act("$n doesn't look like $mself anymore...", victim, NULL, NULL, TO_ROOM);
     return;
@@ -1150,7 +1150,7 @@ void spell_charm_person(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget
     af.location = 0;
     af.modifier = 0;
     af.bitvector = AFF_CHARM;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     act("Isn't $n just so nice?", ch, NULL, victim, TO_VICT);
     if (ch != victim)
         act("$N looks at you with adoring eyes.", ch, NULL, victim, TO_CHAR);
@@ -1484,11 +1484,11 @@ void spell_curse(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target
     af.location = APPLY_HITROLL;
     af.modifier = -1 * ((int16_t)level / 8);
     af.bitvector = AFF_CURSE;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
 
     af.location = APPLY_SAVING_SPELL;
     af.modifier = (int16_t)level / 8;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
 
     send_to_char("You feel unclean.\n\r", victim);
     if (ch != victim)
@@ -1542,7 +1542,7 @@ void spell_detect_evil(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget 
     af.modifier = 0;
     af.location = APPLY_NONE;
     af.bitvector = AFF_DETECT_EVIL;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     send_to_char("Your eyes tingle.\n\r", victim);
     if (ch != victim) send_to_char("Ok.\n\r", ch);
     return;
@@ -1567,7 +1567,7 @@ void spell_detect_good(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget 
     af.modifier = 0;
     af.location = APPLY_NONE;
     af.bitvector = AFF_DETECT_GOOD;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     send_to_char("Your eyes tingle.\n\r", victim);
     if (ch != victim) send_to_char("Ok.\n\r", ch);
     return;
@@ -1593,7 +1593,7 @@ void spell_detect_hidden(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarge
     af.location = APPLY_NONE;
     af.modifier = 0;
     af.bitvector = AFF_DETECT_HIDDEN;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     send_to_char("Your awareness improves.\n\r", victim);
     if (ch != victim) send_to_char("Ok.\n\r", ch);
     return;
@@ -1620,7 +1620,7 @@ void spell_detect_invis(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget
     af.modifier = 0;
     af.location = APPLY_NONE;
     af.bitvector = AFF_DETECT_INVIS;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     send_to_char("Your eyes tingle.\n\r", victim);
     if (ch != victim) send_to_char("Ok.\n\r", ch);
     return;
@@ -1646,7 +1646,7 @@ void spell_detect_magic(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget
     af.modifier = 0;
     af.location = APPLY_NONE;
     af.bitvector = AFF_DETECT_MAGIC;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     send_to_char("Your eyes tingle.\n\r", victim);
     if (ch != victim) send_to_char("Ok.\n\r", ch);
     return;
@@ -2353,7 +2353,7 @@ void spell_faerie_fire(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget 
     af.location = APPLY_AC;
     af.modifier = 2 * (int16_t)level;
     af.bitvector = AFF_FAERIE_FIRE;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     send_to_char("You are surrounded by a pink outline.\n\r", victim);
     act("$n is surrounded by a pink outline.", victim, NULL, NULL, TO_ROOM);
     return;
@@ -2425,7 +2425,7 @@ void spell_fly(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
     af.location = 0;
     af.modifier = 0;
     af.bitvector = AFF_FLYING;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     send_to_char("Your feet rise off the ground.\n\r", victim);
     act("$n's feet rise off the ground.", victim, NULL, NULL, TO_ROOM);
     return;
@@ -2470,14 +2470,14 @@ void spell_frenzy(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget targe
     af.bitvector = 0;
 
     af.location = APPLY_HITROLL;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
 
     af.location = APPLY_DAMROLL;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
 
     af.modifier = 10 * ((int16_t)level / 12);
     af.location = APPLY_AC;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
 
     send_to_char("You are filled with holy wrath!\n\r", victim);
     act("$n gets a wild look in $s eyes!", victim, NULL, NULL, TO_ROOM);
@@ -2550,7 +2550,7 @@ void spell_giant_strength(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarg
     af.location = APPLY_STR;
     af.modifier = 1 + ((int16_t)level >= 18) + ((int16_t)level >= 25) + ((int16_t)level >= 32);
     af.bitvector = 0;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     send_to_char("Your muscles surge with heightened power!\n\r", victim);
     act("$n's muscles surge with heightened power.", victim, NULL, NULL,
         TO_ROOM);
@@ -2606,7 +2606,7 @@ void spell_haste(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target
     af.location = APPLY_DEX;
     af.modifier = 1 + ((int16_t)level >= 18) + ((int16_t)level >= 25) + ((int16_t)level >= 32);
     af.bitvector = AFF_HASTE;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     send_to_char("You feel yourself moving more quickly.\n\r", victim);
     act("$n is moving more quickly.", victim, NULL, NULL, TO_ROOM);
     if (ch != victim) send_to_char("Ok.\n\r", ch);
@@ -3045,7 +3045,7 @@ void spell_infravision(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget 
     af.location = APPLY_NONE;
     af.modifier = 0;
     af.bitvector = AFF_INFRARED;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     send_to_char("Your eyes glow red.\n\r", victim);
     return;
 }
@@ -3092,7 +3092,7 @@ void spell_invis(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target
     af.location = APPLY_NONE;
     af.modifier = 0;
     af.bitvector = AFF_INVISIBLE;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     send_to_char("You fade out of existence.\n\r", victim);
     return;
 }
@@ -3250,7 +3250,7 @@ void spell_mass_invis(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget t
         af.location = APPLY_NONE;
         af.modifier = 0;
         af.bitvector = AFF_INVISIBLE;
-        affect_to_char(gch, &af);
+        affect_to_mob(gch, &af);
     }
     send_to_char("Ok.\n\r", ch);
 
@@ -3284,7 +3284,7 @@ void spell_pass_door(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget ta
     af.location = APPLY_NONE;
     af.modifier = 0;
     af.bitvector = AFF_PASS_DOOR;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     act("$n turns translucent.", victim, NULL, NULL, TO_ROOM);
     send_to_char("You turn translucent.\n\r", victim);
     return;
@@ -3420,7 +3420,7 @@ void spell_protection_evil(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTar
     af.location = APPLY_SAVING_SPELL;
     af.modifier = -1;
     af.bitvector = AFF_PROTECT_EVIL;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     send_to_char("You feel holy and pure.\n\r", victim);
     if (ch != victim)
         act("$N is protected from evil.", ch, NULL, victim, TO_CHAR);
@@ -3448,7 +3448,7 @@ void spell_protection_good(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTar
     af.location = APPLY_SAVING_SPELL;
     af.modifier = -1;
     af.bitvector = AFF_PROTECT_GOOD;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     send_to_char("You feel aligned with darkness.\n\r", victim);
     if (ch != victim)
         act("$N is protected from good.", ch, NULL, victim, TO_CHAR);
@@ -3646,7 +3646,7 @@ void spell_sanctuary(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget ta
     af.location = APPLY_NONE;
     af.modifier = 0;
     af.bitvector = AFF_SANCTUARY;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     act("$n is surrounded by a white aura.", victim, NULL, NULL, TO_ROOM);
     send_to_char("You are surrounded by a white aura.\n\r", victim);
     return;
@@ -3673,7 +3673,7 @@ void spell_shield(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget targe
     af.location = APPLY_AC;
     af.modifier = -20;
     af.bitvector = 0;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     act("$n is surrounded by a force shield.", victim, NULL, NULL, TO_ROOM);
     send_to_char("You are surrounded by a force shield.\n\r", victim);
     return;
@@ -3763,7 +3763,7 @@ void spell_slow(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
     af.location = APPLY_DEX;
     af.modifier = -1 - (level >= 18) - (level >= 25) - (level >= 32);
     af.bitvector = AFF_SLOW;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     send_to_char("You feel yourself slowing d o w n...\n\r", victim);
     act("$n starts to move in slow motion.", victim, NULL, NULL, TO_ROOM);
     return;
@@ -3789,7 +3789,7 @@ void spell_stone_skin(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget t
     af.location = APPLY_AC;
     af.modifier = -40;
     af.bitvector = 0;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     act("$n's skin turns to stone.", victim, NULL, NULL, TO_ROOM);
     send_to_char("Your skin turns to stone.\n\r", victim);
     return;
@@ -3888,7 +3888,7 @@ void spell_weaken(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget targe
     af.location = APPLY_STR;
     af.modifier = -1 * (level / 5);
     af.bitvector = AFF_WEAKEN;
-    affect_to_char(victim, &af);
+    affect_to_mob(victim, &af);
     send_to_char("You feel your strength slip away.\n\r", victim);
     act("$n looks tired and weak.", victim, NULL, NULL, TO_ROOM);
     return;
@@ -4123,7 +4123,8 @@ void spell_general_purpose(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTar
     int dam;
 
     dam = number_range(25, 100);
-    if (saves_spell(level, victim, DAM_PIERCE)) dam /= 2;
+    if (saves_spell(level, victim, DAM_PIERCE)) 
+        dam /= 2;
     damage(ch, victim, dam, sn, DAM_PIERCE, true);
     return;
 }

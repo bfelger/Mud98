@@ -221,7 +221,7 @@ void affect_join(Mobile* ch, Affect* affect)
         }
     }
 
-    affect_to_char(ch, affect);
+    affect_to_mob(ch, affect);
     return;
 }
 
@@ -543,7 +543,7 @@ void affect_strip(Mobile* ch, SKNUM sn)
 }
 
 // Give an affect to a char.
-void affect_to_char(Mobile* ch, Affect* affect)
+void affect_to_mob(Mobile* ch, Affect* affect)
 {
     Affect* paf_new;
 

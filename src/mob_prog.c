@@ -38,6 +38,7 @@
 #include "mob_prog.h"
 
 #include "act_comm.h"
+#include "comm.h"
 #include "db.h"
 #include "handler.h"
 #include "mob_cmds.h"
@@ -240,6 +241,7 @@ const char* fn_keyword[] = {
     "canquest",     // if canquest $i 1234  - target can be granted the quest
     "hasquest",     // if hasquest $i 1234  - target has the quest
     "canfinishquest",   // if canfinishquest $i 1234 - target can finish the quest
+
     "\n"		    /* Table terminator */
 };
 
@@ -391,6 +393,10 @@ bool get_obj_vnum_room(Mobile* ch, VNUM vnum)
     return false;
 }
 
+// Temporary variable accessed via $1=$9.
+#define VAR_COUNT 10
+int ivars[VAR_COUNT];
+
 /* ---------------------------------------------------------------------
  * CMD_EVAL
  * This monster evaluates an if/or/and statement
@@ -403,27 +409,33 @@ bool get_obj_vnum_room(Mobile* ch, VNUM vnum)
  *
  *----------------------------------------------------------------------
  */
-int cmd_eval(VNUM vnum, char* line, int check,
-    Mobile* mob, Mobile* ch,
+int cmd_eval(VNUM vnum, char* line, int check, Mobile* mob, Mobile* ch, 
     const void* arg1, const void* arg2, Mobile* rch)
 {
+    char buf[MAX_INPUT_LENGTH];
+    char* original = line;
+    line = one_argument(line, buf);
+
+    if (buf[0] == '\0' || mob == NULL)
+        return false;
+     
+    // Check for unary negation
+    if (!str_cmp(buf, "not")) {
+        return (cmd_eval(vnum, line, check, mob, ch, arg1, arg2, rch) == 0);
+    }
+
     Mobile* lval_char = mob;
     Mobile* vch = (Mobile*)arg2;
     Object* obj1 = (Object*)arg1;
     Object* obj2 = (Object*)arg2;
     Object* lval_obj = NULL;
 
-    char* original, buf[MAX_INPUT_LENGTH], code;
+    char code;
     int lval = 0;
     int rval = -1;
     int oper = 0;
 
-    original = line;
-    line = one_argument(line, buf);
-    if (buf[0] == '\0' || mob == NULL)
-        return false;
-
-        // If this mobile has no target, let's assume our victim is the one
+    // If this mobile has no target, let's assume our victim is the one
     if (mob->mprog_target == NULL)
         mob->mprog_target = ch;
 
@@ -467,9 +479,7 @@ int cmd_eval(VNUM vnum, char* line, int check,
     // Case 2 continued: evaluate expression
     if (rval >= 0) {
         if ((oper = keyword_lookup(fn_evals, buf)) < 0) {
-            sprintf(buf, "Cmd_eval: prog %"PRVNUM" syntax error(2) '%s'",
-                vnum, original);
-            bug(buf, 0);
+            bugf("Cmd_eval: prog %"PRVNUM" syntax error(2) '%s'", vnum, original);
             return false;
         }
         one_argument(line, buf);
@@ -480,9 +490,7 @@ int cmd_eval(VNUM vnum, char* line, int check,
 
     // Case 3,4,5: Grab actors from $* codes
     if (buf[0] != '$' || buf[1] == '\0') {
-        sprintf(buf, "Cmd_eval: prog %"PRVNUM" syntax error(3) '%s'",
-            vnum, original);
-        bug(buf, 0);
+        bugf("Cmd_eval: prog %"PRVNUM" syntax error(3) '%s'", vnum, original);
         return false;
     }
     else
@@ -503,9 +511,7 @@ int cmd_eval(VNUM vnum, char* line, int check,
     case 'q':
         lval_char = mob->mprog_target; break;
     default:
-        sprintf(buf, "Cmd_eval: prog %d syntax error(4) '%s'",
-            vnum, original);
-        bug(buf, 0);
+        bugf("Cmd_eval: prog %d syntax error(4) '%s'", vnum, original);
         return false;
     }
     // From now on, we need an actor, so if none was found, bail out
@@ -985,16 +991,14 @@ void program_flow(
     // Match control words
         if (!str_cmp(control, "if")) {
             if (state[level] == BEGIN_BLOCK) {
-                sprintf(buf, "Mobprog: misplaced if statement, mob %"PRVNUM" prog %"PRVNUM".",
+                bugf("Mobprog: misplaced if statement, mob %"PRVNUM" prog %"PRVNUM".",
                     mvnum, pvnum);
-                bug(buf, 0);
                 return;
             }
             state[level] = BEGIN_BLOCK;
             if (++level >= MAX_NESTED_LEVEL) {
-                sprintf(buf, "Mobprog: Max nested level exceeded, mob %"PRVNUM" prog %"PRVNUM".",
+                bugf("Mobprog: Max nested level exceeded, mob %"PRVNUM" prog %"PRVNUM".",
                     mvnum, pvnum);
-                bug(buf, 0);
                 return;
             }
             if (level && cond[level - 1] == false) {
@@ -1006,18 +1010,16 @@ void program_flow(
                 cond[level] = cmd_eval(pvnum, line, check, mob, ch, arg1, arg2, rch);
             }
             else {
-                sprintf(buf, "Mobprog: invalid if_check (if), mob %"PRVNUM" prog %"PRVNUM".",
+                bugf("Mobprog: invalid if_check (if), mob %"PRVNUM" prog %"PRVNUM".",
                     mvnum, pvnum);
-                bug(buf, 0);
                 return;
             }
             state[level] = END_BLOCK;
         }
         else if (!str_cmp(control, "or")) {
             if (!level || state[level - 1] != BEGIN_BLOCK) {
-                sprintf(buf, "Mobprog: or without if, mob %"PRVNUM" prog %"PRVNUM".",
+                bugf("Mobprog: or without if, mob %"PRVNUM" prog %"PRVNUM".",
                     mvnum, pvnum);
-                bug(buf, 0);
                 return;
             }
             if (level && cond[level - 1] == false)
@@ -1027,18 +1029,16 @@ void program_flow(
                 eval = cmd_eval(pvnum, line, check, mob, ch, arg1, arg2, rch);
             }
             else {
-                sprintf(buf, "Mobprog: invalid if_check (or), mob %"PRVNUM" prog %"PRVNUM".",
+                bugf("Mobprog: invalid if_check (or), mob %"PRVNUM" prog %"PRVNUM".",
                     mvnum, pvnum);
-                bug(buf, 0);
                 return;
             }
             cond[level] = (eval == true) ? true : cond[level];
         }
         else if (!str_cmp(control, "and")) {
             if (!level || state[level - 1] != BEGIN_BLOCK) {
-                sprintf(buf, "Mobprog: and without if, mob %"PRVNUM" prog %"PRVNUM".",
+                bugf("Mobprog: and without if, mob %"PRVNUM" prog %"PRVNUM".",
                     mvnum, pvnum);
-                bug(buf, 0);
                 return;
             }
             if (level && cond[level - 1] == false)
@@ -1048,18 +1048,16 @@ void program_flow(
                 eval = cmd_eval(pvnum, line, check, mob, ch, arg1, arg2, rch);
             }
             else {
-                sprintf(buf, "Mobprog: invalid if_check (and), mob %"PRVNUM" prog %"PRVNUM".",
+                bugf("Mobprog: invalid if_check (and), mob %"PRVNUM" prog %"PRVNUM".",
                     mvnum, pvnum);
-                bug(buf, 0);
                 return;
             }
             cond[level] = (cond[level] == true) && (eval == true) ? true : false;
         }
         else if (!str_cmp(control, "endif")) {
             if (!level || state[level - 1] != BEGIN_BLOCK) {
-                sprintf(buf, "Mobprog: endif without if, mob %"PRVNUM" prog %"PRVNUM".",
+                bugf("Mobprog: endif without if, mob %"PRVNUM" prog %"PRVNUM".",
                     mvnum, pvnum);
-                bug(buf, 0);
                 return;
             }
             cond[level] = true;
@@ -1068,9 +1066,8 @@ void program_flow(
         }
         else if (!str_cmp(control, "else")) {
             if (!level || state[level - 1] != BEGIN_BLOCK) {
-                sprintf(buf, "Mobprog: else without if, mob %"PRVNUM" prog %"PRVNUM".",
+                bugf("Mobprog: else without if, mob %"PRVNUM" prog %"PRVNUM".",
                     mvnum, pvnum);
-                bug(buf, 0);
                 return;
             }
             if (level && cond[level - 1] == false) continue;

@@ -2048,14 +2048,14 @@ void do_berserk(Mobile* ch, char* argument)
         af.bitvector = AFF_BERSERK;
 
         af.location = APPLY_HITROLL;
-        affect_to_char(ch, &af);
+        affect_to_mob(ch, &af);
 
         af.location = APPLY_DAMROLL;
-        affect_to_char(ch, &af);
+        affect_to_mob(ch, &af);
 
         af.modifier = UMAX(10, 10 * (ch->level / 5));
         af.location = APPLY_AC;
-        affect_to_char(ch, &af);
+        affect_to_mob(ch, &af);
     }
 
     else {
@@ -2315,7 +2315,7 @@ void do_dirt(Mobile* ch, char* argument)
         af.modifier = -4;
         af.bitvector = AFF_BLIND;
 
-        affect_to_char(victim, &af);
+        affect_to_mob(victim, &af);
     }
     else {
         damage(ch, victim, 0, gsn_dirt, DAM_NONE, true);

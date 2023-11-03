@@ -335,7 +335,7 @@ void fire_effect(void* vo, LEVEL level, int dam, SpellTarget target)
             af.modifier = -4;
             af.bitvector = AFF_BLIND;
 
-            affect_to_char(victim, &af);
+            affect_to_mob(victim, &af);
         }
 
         /* getting thirsty */

@@ -152,7 +152,7 @@ void clone_mobile(Mobile* parent, Mobile* clone)
 
     /* now add the affects */
     FOR_EACH(affect, parent->affected)
-        affect_to_char(clone, affect);
+        affect_to_mob(clone, affect);
 }
 
 Mobile* create_mobile(MobPrototype* p_mob_proto)
@@ -282,7 +282,7 @@ Mobile* create_mobile(MobPrototype* p_mob_proto)
         af.location = APPLY_NONE;
         af.modifier = 0;
         af.bitvector = AFF_SANCTUARY;
-        affect_to_char(mob, &af);
+        affect_to_mob(mob, &af);
     }
 
     if (IS_AFFECTED(mob, AFF_HASTE)) {
@@ -294,7 +294,7 @@ Mobile* create_mobile(MobPrototype* p_mob_proto)
         af.modifier = 1 + (mob->level >= 18) + (mob->level >= 25)
             + (mob->level >= 32);
         af.bitvector = AFF_HASTE;
-        affect_to_char(mob, &af);
+        affect_to_mob(mob, &af);
     }
 
     if (IS_AFFECTED(mob, AFF_PROTECT_EVIL)) {
@@ -305,7 +305,7 @@ Mobile* create_mobile(MobPrototype* p_mob_proto)
         af.location = APPLY_SAVES;
         af.modifier = -1;
         af.bitvector = AFF_PROTECT_EVIL;
-        affect_to_char(mob, &af);
+        affect_to_mob(mob, &af);
     }
 
     if (IS_AFFECTED(mob, AFF_PROTECT_GOOD)) {
@@ -316,7 +316,7 @@ Mobile* create_mobile(MobPrototype* p_mob_proto)
         af.location = APPLY_SAVES;
         af.modifier = -1;
         af.bitvector = AFF_PROTECT_GOOD;
-        affect_to_char(mob, &af);
+        affect_to_mob(mob, &af);
     }
 
     mob->position = mob->start_pos;

@@ -3,6 +3,10 @@
 // Unit test and benchmark functions
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "merc.h"
 
 #include "benchmark.h"
@@ -15,6 +19,10 @@
 #include "entities/mobile.h"
 
 #include "data/mobile_data.h"
+
+#include "lox/chunk.h"
+#include "lox/debug.h"
+#include "lox/vm.h"
 
 extern void aggr_update();
 
@@ -103,10 +111,111 @@ static void aggr_update_bnchmk()
 
 void run_unit_tests()
 {
-    printf("Running unit tests and benchmarks:\n");
+    printf("Running unit tests and benchmarks:\n\n");
 
-    aggr_update_bnchmk();
+    //aggr_update_bnchmk();
 
-    printf("All tests and benchmarks complete.\n");
+    init_vm();
+
+    //char* source =
+    //    "fun outer() {\n"
+    //    "  var x = \"outside\";\n"
+    //    "  fun inner() {\n"
+    //    "    print x;\n"
+    //    "  }\n"
+    //    "\n"
+    //    "  return inner;\n"
+    //    "}\n"
+    //    "var closure = outer();\n"
+    //    "closure();\n";
+
+    //char* source =
+    //    "fun fib(n) {\n"
+    //    "  if (n < 2) return n;\n"
+    //    "  return fib(n - 2) + fib(n - 1);\n"
+    //    "}\n"
+    //    "var start = clock();\n"
+    //    "print fib(20);\n"
+    //    "print clock() - start;\n";
+
+    //char* source =
+    //    "class Pair {}\n"
+    //    "var pair = Pair();\n"
+    //    "pair.first = 1;\n"
+    //    "pair.second = 2;\n"
+    //    "print pair.first + pair.second; // 3.\n";
+
+    //char* source =
+    //    "class CoffeeMaker {\n"
+    //    "  init(coffee) {\n"
+    //    "    this.coffee = coffee;\n"
+    //    "  }\n"
+    //    "  brew() {\n"
+    //    "    print \"Enjoy your cup of \" + this.coffee;\n"
+    //    "\n"
+    //    "    // No reusing the grounds!\n"
+    //    "    this.coffee = nil;\n"
+    //    "  }\n"
+    //    "}\n"
+    //    "var maker = CoffeeMaker(\"coffee and chicory\");\n"
+    //    "maker.brew();\n";
+
+    //char* source =
+    //    "class Doughnut {\n"
+    //    "  cook() {\n"
+    //    "    print \"Dunk in the fryer.\";\n"
+    //    "  }\n"
+    //    "}\n"
+    //    "class Cruller < Doughnut {\n"
+    //    "  finish() {\n"
+    //    "    print \"Glaze with icing.\";\n"
+    //    "  }\n"
+    //    "}\n"
+    //    "var a = Cruller();\n"
+    //    "a.cook();\n"
+    //    "a.finish();\n";
+
+    char* source =
+        "class Zoo {\n"
+        "    init()\n"
+        "    {\n"
+        "        this.aardvark = 1;\n"
+        "        this.baboon = 1;\n"
+        "        this.cat = 1;\n"
+        "        this.donkey = 1;\n"
+        "        this.elephant = 1;\n"
+        "        this.fox = 1;\n"
+        "    }\n"
+        "    ant() { return this.aardvark; }\n"
+        "    banana() { return this.baboon; }\n"
+        "    tuna() { return this.cat; }\n"
+        "    hay() { return this.donkey; }\n"
+        "    grass() { return this.elephant; }\n"
+        "    mouse() { return this.fox; }\n"
+        "}\n"
+        "\n"
+        "var zoo = Zoo();\n"
+        "var sum = 0;\n"
+        "var start = clock();\n"
+        "while (sum < 100000000) {\n"
+        "    sum = sum + zoo.ant()\n"
+        "        + zoo.banana()\n"
+        "        + zoo.tuna()\n"
+        "        + zoo.hay()\n"
+        "        + zoo.grass()\n"
+        "        + zoo.mouse();\n"
+        "}\n"
+        "\n"
+        "print clock() - start;\n"
+        "print sum;\n";
+
+    InterpretResult result = interpret_code(source);
+
+    free_vm();
+
+    if (result == INTERPRET_COMPILE_ERROR) exit(65);
+    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+
+    printf("\nAll tests and benchmarks complete.\n");
 }
 

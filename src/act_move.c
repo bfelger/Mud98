@@ -1367,7 +1367,7 @@ void do_sneak(Mobile* ch, char* argument)
         af.location = APPLY_NONE;
         af.modifier = 0;
         af.bitvector = AFF_SNEAK;
-        affect_to_char(ch, &af);
+        affect_to_mob(ch, &af);
     }
     else
         check_improve(ch, gsn_sneak, false, 3);

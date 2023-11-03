@@ -1164,7 +1164,7 @@ void equip_char(Mobile* ch, Object* obj, WearLocation iWear)
                 affect_modify(ch, affect, true);
     FOR_EACH(affect, obj->affected)
         if (affect->location == APPLY_SPELL_AFFECT)
-            affect_to_char(ch, affect);
+            affect_to_mob(ch, affect);
         else
             affect_modify(ch, affect, true);
 

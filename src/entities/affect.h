@@ -111,7 +111,7 @@ void affect_modify(Mobile* ch, Affect* affect, bool fAdd);
 void affect_remove(Mobile* ch, Affect* affect);
 void affect_remove_obj(Object* obj, Affect* affect);
 void affect_strip(Mobile* ch, SKNUM sn);
-void affect_to_char(Mobile* ch, Affect* affect);
+void affect_to_mob(Mobile* ch, Affect* affect);
 void affect_to_obj(Object* obj, Affect* affect);
 void free_affect(Affect* af);
 bool is_affected(Mobile* ch, SKNUM sn);
