@@ -438,7 +438,6 @@ static InterpretResult run()
                 val_array->val_array.values[index] = peek(0);
                 pop();
                 pop();
-                pop();
                 break;
             }
         case OP_GET_SUPER: {

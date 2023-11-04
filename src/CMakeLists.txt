@@ -165,7 +165,19 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     data/spell.h data/spell.c
     data/stats.h data/stats.c
     data/quest.h data/quest.c
- "lox/common.h" "lox/chunk.h" "lox/chunk.c" "lox/memory.h" "lox/memory.c" "lox/debug.h" "lox/debug.c" "lox/value.h" "lox/value.c" "lox/vm.h" "lox/vm.c" "lox/compiler.h" "lox/compiler.c" "lox/scanner.h" "lox/scanner.c" "lox/object.h" "lox/object.c" "lox/table.h" "lox/table.c" "lox/native.h" "lox/native.c")
+
+    lox/common.h
+    lox/chunk.h lox/chunk.c
+    lox/memory.h lox/memory.c
+    lox/debug.h lox/debug.c
+    lox/value.h lox/value.c
+    lox/vm.h lox/vm.c
+    lox/compiler.h lox/compiler.c
+    lox/scanner.h lox/scanner.c
+    lox/object.h lox/object.c
+    lox/table.h lox/table.c
+    lox/native.h lox/native.c
+)
 
 target_link_libraries(Mud98 PRIVATE ${Mud98_LIBS})
 
