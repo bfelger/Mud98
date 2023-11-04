@@ -436,7 +436,6 @@ static InterpretResult run()
                     runtime_error(err_buf);
                 }
                 val_array->val_array.values[index] = peek(0);
-                //write_value_array(&val_array->val_array, peek(0));
                 pop();
                 pop();
                 pop();
