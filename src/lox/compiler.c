@@ -400,7 +400,7 @@ static void patch_jump(int offset)
     current_chunk()->code[offset + 1] = jump & 0xff;
 }
 
-static void and_(bool canAssign)
+static void and_(bool can_assign)
 {
     int endJump = emit_jump(OP_JUMP_IF_FALSE);
 
@@ -524,7 +524,7 @@ static void number(bool can_assign)
     emit_constant(NUMBER_VAL(value));
 }
 
-static void or_(bool canAssign)
+static void or_(bool can_assign)
 {
     int else_jump = emit_jump(OP_JUMP_IF_FALSE);
     int end_jump = emit_jump(OP_JUMP);
@@ -554,9 +554,38 @@ static void named_variable(Token name, bool can_assign)
         set_op = OP_SET_GLOBAL;
     }
 
-    if (can_assign && match(TOKEN_EQUAL)) {
-        expression();
-        emit_bytes(set_op, (uint8_t)arg);
+    if (can_assign) {
+        if (match(TOKEN_EQUAL)) {
+            expression();
+            emit_bytes(set_op, (uint8_t)arg);
+        }
+        else if (match(TOKEN_PLUS_PLUS)) {
+            emit_bytes(get_op, (uint8_t)arg);
+            emit_constant(NUMBER_VAL(1));
+            emit_byte(OP_ADD);
+            emit_bytes(set_op, (uint8_t)arg);
+        }
+        else if (match(TOKEN_MINUS_MINUS)) {
+            emit_bytes(get_op, (uint8_t)arg);
+            emit_constant(NUMBER_VAL(1));
+            emit_byte(OP_SUBTRACT);
+            emit_bytes(set_op, (uint8_t)arg);
+        }
+        else if (match(TOKEN_PLUS_EQUALS)) {
+            emit_bytes(get_op, (uint8_t)arg);
+            expression();
+            emit_byte(OP_ADD);
+            emit_bytes(set_op, (uint8_t)arg);
+        }
+        else if (match(TOKEN_PLUS_EQUALS)) {
+            emit_bytes(get_op, (uint8_t)arg);
+            expression();
+            emit_byte(OP_SUBTRACT);
+            emit_bytes(set_op, (uint8_t)arg);
+        }
+        else {
+            emit_bytes(get_op, (uint8_t)arg);
+        }
     }
     else {
         emit_bytes(get_op, (uint8_t)arg);
@@ -677,6 +706,10 @@ ParseRule rules[] = {
     [TOKEN_GREATER_EQUAL]   = { NULL,       binary,     PREC_COMPARISON },
     [TOKEN_LESS]            = { NULL,       binary,     PREC_COMPARISON },
     [TOKEN_LESS_EQUAL]      = { NULL,       binary,     PREC_COMPARISON },
+    [TOKEN_PLUS_PLUS]       = { NULL,       NULL,       PREC_NONE       },
+    [TOKEN_MINUS_MINUS]     = { NULL,       NULL,       PREC_NONE       },
+    [TOKEN_PLUS_EQUALS]     = { NULL,       NULL,       PREC_NONE       },
+    [TOKEN_MINUS_EQUALS]    = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_IDENTIFIER]      = { variable,   NULL,       PREC_NONE       },
     [TOKEN_STRING]          = { string,     NULL,       PREC_NONE       },
     [TOKEN_NUMBER]          = { number,     NULL,       PREC_NONE       },

@@ -212,7 +212,7 @@ void run_unit_tests()
     char* source =
         "var a = [0, 1, 2, 3, 5, 8, 13, 21];\n"
         "a[2] = 100;\n"
-        "for (var i = 0; i < 8; i = i + 1)\n"
+        "for (var i = 0; i < 8; i += 2)\n"
         "   print a[i];\n";
 
     InterpretResult result = interpret_code(source);
