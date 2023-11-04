@@ -33,7 +33,7 @@ typedef enum {
     PREC_TERM,        // + -
     PREC_FACTOR,      // * /
     PREC_UNARY,       // ! -
-    PREC_CALL,        // . ()
+    PREC_CALL,        // . () []
     PREC_PRIMARY
 } Precedence;
 
@@ -456,6 +456,20 @@ static void dot(bool can_assign)
     }
 }
 
+static void index(bool can_assign)
+{
+    expression();
+    consume(TOKEN_RIGHT_BRACK, "Expect ']' after index.");
+
+    if (can_assign && match(TOKEN_EQUAL)) {
+        expression();
+        emit_byte(OP_SET_AT_INDEX);
+    }
+    else {
+        emit_byte(OP_GET_AT_INDEX);
+    }
+}
+
 static void literal(bool can_assign)
 {
     switch (parser.previous.type) {
@@ -560,9 +574,31 @@ static void variable(bool can_assign)
     named_variable(parser.previous, can_assign);
 }
 
+static uint8_t element_list()
+{
+    uint8_t elem_count = 0;
+    if (!check(TOKEN_RIGHT_BRACK)) {
+        do {
+            expression();
+            if (elem_count == 255) {
+                error("Can't have more than 255 elements.");
+            }
+            elem_count++;
+        } while (match(TOKEN_COMMA));
+    }
+    consume(TOKEN_RIGHT_BRACK, "Expect ']' after elements.");
+    return elem_count;
+}
+
+static void array_(bool can_assign)
+{
+    uint8_t elem_count = element_list();
+    emit_bytes(OP_ARRAY, elem_count);
+}
+
 static Token synthetic_token(const char* text)
 {
-    Token token;
+    Token token = { 0 };
     token.start = text;
     token.length = (int)strlen(text);
     return token;
@@ -624,6 +660,8 @@ ParseRule rules[] = {
     [TOKEN_RIGHT_PAREN]     = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_LEFT_BRACE]      = { NULL,       NULL,       PREC_NONE       }, 
     [TOKEN_RIGHT_BRACE]     = { NULL,       NULL,       PREC_NONE       },
+    [TOKEN_LEFT_BRACK]      = { array_,     index,      PREC_CALL       }, 
+    [TOKEN_RIGHT_BRACK]     = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_COMMA]           = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_DOT]             = { NULL,       dot,        PREC_CALL       },
     [TOKEN_MINUS]           = { unary,      binary,     PREC_TERM       },
@@ -759,7 +797,7 @@ static void class_declaration()
     emit_bytes(OP_CLASS, name_constant);
     define_variable(name_constant);
 
-    ClassCompiler class_compiler;
+    ClassCompiler class_compiler = { 0 };
     class_compiler.has_superclass = false;
     class_compiler.enclosing = current_class;
     current_class = &class_compiler;

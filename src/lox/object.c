@@ -32,6 +32,13 @@ static Obj* allocate_object(size_t size, ObjType type)
     return object;
 }
 
+ObjArray* new_obj_array()
+{
+    ObjArray* array_ = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY);
+    init_value_array(&array_->val_array);
+    return array_;
+}
+
 ObjBoundMethod* new_bound_method(Value receiver, ObjClosure* method)
 {
     ObjBoundMethod* bound = ALLOCATE_OBJ(ObjBoundMethod, OBJ_BOUND_METHOD);
@@ -156,6 +163,17 @@ static void print_function(ObjFunction* function)
 void print_object(Value value)
 {
     switch (OBJ_TYPE(value)) {
+    case OBJ_ARRAY: {
+        ValueArray* array_ = &AS_ARRAY(value)->val_array;
+            printf("[");
+            for (int i = 0; i < array_->count; ++i) {
+                if (i > 0)
+                    printf(",");
+                print_value(array_->values[i]);
+            }
+            printf("]");
+            break;
+        }
     case OBJ_BOUND_METHOD:
         print_function(AS_BOUND_METHOD(value)->method->function);
         break;

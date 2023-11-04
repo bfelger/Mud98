@@ -64,7 +64,7 @@ void init_vm()
     reset_stack();
     vm.objects = NULL;
     vm.bytes_allocated = 0;
-    vm.next_gc = 1024 * 1024;
+    vm.next_gc = 1024ULL * 1024ULL;
 
     vm.gray_count = 0;
     vm.gray_capacity = 0;
@@ -276,6 +276,7 @@ static void concatenate()
 
 static InterpretResult run()
 {
+    char err_buf[256] = { 0 };
     CallFrame* frame = &vm.frames[vm.frame_count - 1];
 #define READ_BYTE() (*frame->ip++)
 #define READ_SHORT() \
@@ -396,6 +397,51 @@ static InterpretResult run()
                 push(value);
                 break;
             }
+        case OP_GET_AT_INDEX: {
+                if (!IS_NUMBER(peek(0))) {
+                    runtime_error("Array indexes must be numeric.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+
+                if (!IS_ARRAY(peek(1))) {
+                    runtime_error("Only arrays can be indexed.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+
+                int index = (int)AS_NUMBER(pop());
+                ObjArray* val_array = AS_ARRAY(peek(0));
+                if (index < 0 || index >= val_array->val_array.count) {
+                    sprintf(err_buf, "Index %d is out of bounds.", index);
+                    runtime_error(err_buf);
+                }
+                pop();
+                push(val_array->val_array.values[index]);
+                break;
+            }
+        case OP_SET_AT_INDEX: {
+                if (!IS_NUMBER(peek(1))) {
+                    runtime_error("Array indexes must be numeric.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+
+                if (!IS_ARRAY(peek(2))) {
+                    runtime_error("Only arrays can be indexed.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+
+                int index = (int)AS_NUMBER(peek(1));
+                ObjArray* val_array = AS_ARRAY(peek(2));
+                if (index < 0 || index >= val_array->val_array.count) {
+                    sprintf(err_buf, "Index %d is out of bounds.", index);
+                    runtime_error(err_buf);
+                }
+                val_array->val_array.values[index] = peek(0);
+                //write_value_array(&val_array->val_array, peek(0));
+                pop();
+                pop();
+                pop();
+                break;
+            }
         case OP_GET_SUPER: {
                 ObjString* name = READ_STRING();
                 ObjClass* superclass = AS_CLASS(pop());
@@ -468,6 +514,16 @@ static InterpretResult run()
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 frame = &vm.frames[vm.frame_count - 1];
+                break;
+            }
+        case OP_ARRAY: {
+                ObjArray* array_ = new_obj_array();
+                int elem_count = READ_BYTE();
+                for (int i = 0; i < elem_count; ++i) {
+                    write_value_array(&array_->val_array, peek((elem_count - i) - 1));
+                }
+                vm.stack_top -= elem_count;
+                push(OBJ_VAL(array_));
                 break;
             }
         case OP_INVOKE: {
