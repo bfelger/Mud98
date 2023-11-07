@@ -15,6 +15,8 @@
 
 #define FREE(type, pointer) reallocate(pointer, sizeof(type), 0)
 
+#define FREE_RAW_PTR(val)   FREE(ObjRawPtr, AS_RAW_PTR(val))
+
 #define GROW_CAPACITY(capacity) \
     ((capacity) < 8 ? 8 : (capacity) * 2)
 

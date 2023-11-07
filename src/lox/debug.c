@@ -16,6 +16,8 @@ void disassemble_chunk(Chunk* chunk, const char* name)
     for (int offset = 0; offset < chunk->count;) {
         offset = disassemble_instruction(chunk, offset);
     }
+
+    printf("\n");
 }
 
 static int constant_instruction(const char* name, Chunk* chunk, int offset)

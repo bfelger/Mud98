@@ -5,6 +5,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
@@ -105,7 +106,7 @@ static Value peek(int distance)
     return vm.stack_top[-1 - distance];
 }
 
-static bool call(ObjClosure* closure, int arg_count)
+bool call_closure(ObjClosure* closure, int arg_count)
 {
     if (arg_count != closure->function->arity) {
         runtime_error("Expected %d arguments but got %d.", 
@@ -125,21 +126,21 @@ static bool call(ObjClosure* closure, int arg_count)
     return true;
 }
 
-static bool call_value(Value callee, int arg_count)
+bool call_value(Value callee, int arg_count)
 {
     if (IS_OBJ(callee)) {
         switch (OBJ_TYPE(callee)) {
         case OBJ_BOUND_METHOD: {
                 ObjBoundMethod* bound = AS_BOUND_METHOD(callee);
                 vm.stack_top[-arg_count - 1] = bound->receiver;
-                return call(bound->method, arg_count);
+                return call_closure(bound->method, arg_count);
             }
         case OBJ_CLASS: {
                 ObjClass* klass = AS_CLASS(callee);
                 vm.stack_top[-arg_count - 1] = OBJ_VAL(new_instance(klass));
                 Value initializer;
                 if (table_get(&klass->methods, vm.init_string, &initializer)) {
-                    return call(AS_CLOSURE(initializer), arg_count);
+                    return call_closure(AS_CLOSURE(initializer), arg_count);
                 }
                 else if (arg_count != 0) {
                     runtime_error("Expected 0 arguments but got %d.", arg_count);
@@ -148,7 +149,7 @@ static bool call_value(Value callee, int arg_count)
                 return true;
             }
         case OBJ_CLOSURE:
-            return call(AS_CLOSURE(callee), arg_count);
+            return call_closure(AS_CLOSURE(callee), arg_count);
         case OBJ_NATIVE: {
                 NativeFn native = AS_NATIVE(callee);
                 Value result = native(arg_count, vm.stack_top - arg_count);
@@ -171,7 +172,7 @@ static bool invoke_from_class(ObjClass* klass, ObjString* name, int arg_count)
         runtime_error("Undefined property '%s'.", name->chars);
         return false;
     }
-    return call(AS_CLOSURE(method), arg_count);
+    return call_closure(AS_CLOSURE(method), arg_count);
 }
 
 static bool invoke(ObjString* name, int arg_count)
@@ -274,7 +275,7 @@ static void concatenate()
     push(OBJ_VAL(result));
 }
 
-static InterpretResult run()
+InterpretResult run()
 {
     char err_buf[256] = { 0 };
     CallFrame* frame = &vm.frames[vm.frame_count - 1];
@@ -320,12 +321,21 @@ static InterpretResult run()
         case OP_POP:        pop(); break;
         case OP_GET_LOCAL: {
                 uint8_t slot = READ_BYTE();
-                push(frame->slots[slot]);
+                if (IS_RAW_PTR(frame->slots[slot])) {
+                    Value value = box_raw_ptr(AS_RAW_PTR(frame->slots[slot]));
+                    push(value);
+                }
+                else
+                    push(frame->slots[slot]);
                 break;
             }
         case OP_SET_LOCAL: {
                 uint8_t slot = READ_BYTE();
-                frame->slots[slot] = peek(0);
+                if (IS_RAW_PTR(frame->slots[slot])) {
+                    unbox_raw_val(AS_RAW_PTR(frame->slots[slot]), peek(0));
+                }
+                else 
+                    frame->slots[slot] = peek(0);
                 break;
             }
         case OP_GET_GLOBAL: {
@@ -570,12 +580,32 @@ static InterpretResult run()
                 vm.frame_count--;
                 if (vm.frame_count == 0) {
                     pop();
+
+#ifdef DEBUG_TRACE_EXECUTION
+                    printf("          ");
+                    for (Value* slot = vm.stack; slot < vm.stack_top; slot++) {
+                        printf("[ ");
+                        print_value(*slot);
+                        printf(" ]");
+                    }
+                    printf("\n");
+#endif
                     return INTERPRET_OK;
                 }
 
                 vm.stack_top = frame->slots;
                 push(result);
                 frame = &vm.frames[vm.frame_count - 1];
+
+#ifdef DEBUG_TRACE_EXECUTION
+                printf("          ");
+                for (Value* slot = vm.stack; slot < vm.stack_top; slot++) {
+                    printf("[ ");
+                    print_value(*slot);
+                    printf(" ]");
+                }
+                printf("\n");
+#endif
                 break;
             }
         case OP_CLASS:
@@ -614,8 +644,44 @@ InterpretResult interpret_code(const char* source)
     ObjClosure* closure = new_closure(function);
     pop();
     push(OBJ_VAL(closure));
-    call(closure, 0);
+    call_closure(closure, 0);
 
     return run();
 }
 
+InterpretResult call_function(const char* fn_name, int count, ...)
+{
+    va_list args;
+
+    ObjString* name = copy_string(fn_name, (int)strlen(fn_name));
+    Value value;
+    if (!table_get(&vm.globals, name, &value)) {
+        printf("Undefined variable '%s'.", name->chars);
+        exit(70);
+    }
+
+    if (!IS_CLOSURE(value)) {
+        printf("'%s' is not a collable object.", name->chars);
+        exit(70);
+    }
+
+    push(OBJ_VAL(value));
+    ObjClosure* closure = AS_CLOSURE(value);
+
+    va_start(args, count);
+
+    for (int i = 0; i < count; ++i)
+        push(va_arg(args, Value));
+
+    va_end(args);
+
+    call_closure(closure, count);
+
+    InterpretResult rc = run();
+
+    // This is the top-level stack frame; the result and last operand have
+    // already been popped, and no return value is possible.
+    vm.stack_top -= count; 
+
+    return rc;
+}

@@ -6,11 +6,17 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "db.h"
+
 #include "lox/memory.h"
 #include "lox/object.h"
 #include "lox/table.h"
 #include "lox/value.h"
 #include "lox/vm.h"
+
+extern char* string_space;
+extern char* top_string;
+extern char str_empty[1];
 
 #define ALLOCATE_OBJ(type, object_type) \
     (type*)allocate_object(sizeof(type), object_type)
@@ -94,6 +100,50 @@ ObjNative* new_native(NativeFn function)
     return native;
 }
 
+ObjRawPtr* new_raw_ptr(uintptr_t addr, RawType type)
+{
+    ObjRawPtr* ptr = ALLOCATE_OBJ(ObjRawPtr, OBJ_RAW_PTR);
+    ptr->addr = addr;
+    ptr->type = type;
+    return ptr;
+}
+
+Value box_raw_ptr(ObjRawPtr* ptr)
+{
+    switch (ptr->type) {
+    case RAW_I16:
+        return NUMBER_VAL((double)*((int16_t*)ptr->addr));
+    case RAW_I32:
+        return NUMBER_VAL((double)*((int32_t*)ptr->addr));
+    case RAW_U64:
+        return NUMBER_VAL((double)*((uint64_t*)ptr->addr));
+    case RAW_STR: {
+            char** str = (char**)ptr->addr;
+            return OBJ_VAL(copy_string(*str, (int)strlen(*str)));
+        }
+    case RAW_OBJ:
+    default:
+        bug("Could not box raw value of unexpected type.");
+        return NIL_VAL;
+    }
+}
+
+void unbox_raw_val(ObjRawPtr* ptr, Value val)
+{
+    switch (ptr->type) {
+    case RAW_OBJ: *((int64_t*)ptr->addr) = (int64_t)(AS_NUMBER(val)); break;
+    case RAW_I16: *((int16_t*)ptr->addr) = (int16_t)(AS_NUMBER(val)); break;
+    case RAW_I32: *((int32_t*)ptr->addr) = (int32_t)(AS_NUMBER(val)); break;
+    case RAW_U64: *((int64_t*)ptr->addr) = (int64_t)(AS_NUMBER(val)); break;
+    case RAW_STR: {
+            char* new_str = AS_CSTRING(val);
+            char** old_str = (char**)ptr->addr;
+            free_string(*old_str);
+            *old_str = str_dup(new_str);
+        }
+    }
+}
+
 static ObjString* allocate_string(char* chars, int length, uint32_t hash)
 {
     ObjString* string = ALLOCATE_OBJ(ObjString, OBJ_STRING);
@@ -123,7 +173,9 @@ ObjString* take_string(char* chars, int length)
     uint32_t hash = hash_string(chars, length);
     ObjString* interned = table_find_string(&vm.strings, chars, length, hash);
     if (interned != NULL) {
-        FREE_ARRAY(char, chars, length + 1);
+        if (chars != &str_empty[0]
+            && (chars < string_space || chars >= top_string))
+            FREE_ARRAY(char, chars, length + 1);
         return interned;
     }
 
@@ -132,9 +184,16 @@ ObjString* take_string(char* chars, int length)
 
 ObjString* copy_string(const char* chars, int length)
 {
+
     uint32_t hash = hash_string(chars, length);
     ObjString* interned = table_find_string(&vm.strings, chars, length, hash);
     if (interned != NULL) return interned;
+
+    if (chars >= string_space && chars < top_string) {
+        // Yes, I'm casting away const.
+        // It's not helpful here.
+        return allocate_string((char*)chars, length, hash);
+    }
 
     char* heap_chars = ALLOCATE(char, length + 1);
     memcpy(heap_chars, chars, length);
@@ -192,11 +251,25 @@ void print_object(Value value)
     case OBJ_NATIVE:
         printf("<native fn>");
         break;
+    case OBJ_RAW_PTR: {
+            ObjRawPtr* raw_ptr = AS_RAW_PTR(value);
+            switch (raw_ptr->type) {
+            case RAW_OBJ: printf("<raw_obj "); break;
+            case RAW_I16: printf("<raw_i16 "); break;
+            case RAW_I32: printf("<raw_i32 "); break;
+            case RAW_U64: printf("<raw_u32 "); break;
+            case RAW_STR: printf("<raw_str "); break;
+            }
+            Value boxed = box_raw_ptr(raw_ptr);
+            print_value(boxed);
+            printf(">");
+            break;
+        }
     case OBJ_STRING:
         printf("%s", AS_CSTRING(value));
         break;
     case OBJ_UPVALUE:
         printf("upvalue");
         break;
-    }
+    } // end switch
 }

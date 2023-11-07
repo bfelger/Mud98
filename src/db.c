@@ -1646,7 +1646,7 @@ void free_mem(void* pMem, size_t sMem)
     magic = (int*)mem_addr;
 
     if (*magic != MAGIC_NUM) {
-        bug("Attempt to recyle invalid memory of size %zu.", sMem);
+        bug("Attempt to recycle invalid memory of size %zu.", sMem);
         bug((char*)mem_addr + sizeof(*magic), 0);
         return;
     }

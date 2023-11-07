@@ -98,6 +98,7 @@ static void blacken_object(Obj* object)
     case OBJ_ARRAY: {
             ObjArray* array_ = (ObjArray*)object;
             mark_array(&array_->val_array);
+            break;
         }
     case OBJ_BOUND_METHOD: {
             ObjBoundMethod* bound = (ObjBoundMethod*)object;
@@ -135,12 +136,13 @@ static void blacken_object(Obj* object)
         mark_value(((ObjUpvalue*)object)->closed);
         break;
     case OBJ_NATIVE:
+    case OBJ_RAW_PTR:
     case OBJ_STRING:
         break;
     }
 }
 
-static void free_object(Obj* object)
+static void free_obj_value(Obj* object)
 {
 #ifdef DEBUG_LOG_GC
     printf("%p free type %d\n", (void*)object, object->type);
@@ -180,6 +182,9 @@ static void free_object(Obj* object)
         }
     case OBJ_NATIVE:
         FREE(ObjNative, object);
+        break;
+    case OBJ_RAW_PTR:
+        // Freeing raw values is your own responsibility!
         break;
     case OBJ_STRING: {
             ObjString* string = (ObjString*)object;
@@ -242,7 +247,7 @@ static void sweep()
                 vm.objects = object;
             }
 
-            free_object(unreached);
+            free_obj_value(unreached);
         }
     }
 }
@@ -273,7 +278,7 @@ void free_objects()
     Obj* object = vm.objects;
     while (object != NULL) {
         Obj* next = object->next;
-        free_object(object);
+        free_obj_value(object);
         object = next;
     }
 

@@ -29,6 +29,8 @@ typedef enum {
     OP_SET_PROPERTY,
     OP_GET_AT_INDEX,
     OP_SET_AT_INDEX,
+    OP_BOX_PTR,
+    OP_UNBOX_VAL,
     OP_GREATER,
     OP_LESS,
     OP_ADD,

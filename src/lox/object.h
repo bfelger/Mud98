@@ -21,6 +21,7 @@
 #define IS_FUNCTION(value)      is_obj_type(value, OBJ_FUNCTION)
 #define IS_INSTANCE(value)      is_obj_type(value, OBJ_INSTANCE)
 #define IS_NATIVE(value)        is_obj_type(value, OBJ_NATIVE)
+#define IS_RAW_PTR(value)       is_obj_type(value, OBJ_RAW_PTR)
 #define IS_STRING(value)        is_obj_type(value, OBJ_STRING)
 
 #define AS_ARRAY(value)         ((ObjArray*)AS_OBJ(value))
@@ -30,6 +31,7 @@
 #define AS_FUNCTION(value)      ((ObjFunction*)AS_OBJ(value))
 #define AS_INSTANCE(value)      ((ObjInstance*)AS_OBJ(value))
 #define AS_NATIVE(value)        (((ObjNative*)AS_OBJ(value))->function)
+#define AS_RAW_PTR(value)       ((ObjRawPtr*)AS_OBJ(value))
 #define AS_STRING(value)        ((ObjString*)AS_OBJ(value))
 #define AS_CSTRING(value)       (((ObjString*)AS_OBJ(value))->chars)
 
@@ -41,6 +43,7 @@ typedef enum {
     OBJ_FUNCTION,
     OBJ_INSTANCE,
     OBJ_NATIVE,
+    OBJ_RAW_PTR,
     OBJ_STRING,
     OBJ_UPVALUE,
 } ObjType;
@@ -70,6 +73,25 @@ typedef struct {
     Obj obj;
     NativeFn function;
 } ObjNative;
+
+typedef enum {
+    RAW_OBJ,
+    RAW_I16,
+    RAW_I32,
+    RAW_U64,
+    RAW_STR,
+} RawType;
+
+#define WRAP_I16(val)        OBJ_VAL(new_raw_ptr((uintptr_t)&(val), RAW_I16));
+#define WRAP_I32(val)        OBJ_VAL(new_raw_ptr((uintptr_t)&(val), RAW_I32));
+#define WRAP_U64(val)        OBJ_VAL(new_raw_ptr((uintptr_t)&(val), RAW_U64));
+#define WRAP_STR(val)        OBJ_VAL(new_raw_ptr((uintptr_t)&(val), RAW_STR));
+
+typedef struct {
+    Obj obj;
+    uintptr_t addr;
+    RawType type;
+} ObjRawPtr;
 
 struct ObjString {
     Obj obj;
@@ -117,6 +139,9 @@ ObjClosure* new_closure(ObjFunction* function);
 ObjFunction* new_function();
 ObjInstance* new_instance(ObjClass* klass);
 ObjNative* new_native(NativeFn function);
+ObjRawPtr* new_raw_ptr(uintptr_t addr, RawType type);
+Value box_raw_ptr(ObjRawPtr* ptr);
+void unbox_raw_val(ObjRawPtr* ptr, Value val);
 ObjString* take_string(char* chars, int length);
 ObjString* copy_string(const char* chars, int length);
 ObjUpvalue* new_upvalue(Value* slot);

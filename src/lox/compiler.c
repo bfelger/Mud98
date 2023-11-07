@@ -254,7 +254,7 @@ static bool identifiers_equal(Token* a, Token* b)
     return memcmp(a->start, b->start, a->length) == 0;
 }
 
-static int resolve_local(Compiler* compiler, Token* name)
+int resolve_local(Compiler* compiler, Token* name)
 {
     for (int i = compiler->local_count - 1; i >= 0; i--) {
         Local* local = &compiler->locals[i];

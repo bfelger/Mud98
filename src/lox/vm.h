@@ -7,6 +7,8 @@
 #ifndef clox_vm_h
 #define clox_vm_h
 
+#include <stdarg.h>
+
 #include "lox/object.h"
 #include "lox/table.h"
 #include "lox/value.h"
@@ -47,10 +49,13 @@ typedef enum {
 
 extern VM vm;
 
+bool call_closure(ObjClosure* closure, int arg_count);
 void init_vm();
 void free_vm(); 
 InterpretResult interpret_code(const char* source);
 void push(Value value);
 Value pop();
+InterpretResult run();
+InterpretResult call_function(const char* fn_name, int count, ...);
 
 #endif
