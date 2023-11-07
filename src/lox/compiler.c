@@ -16,6 +16,10 @@
 #include "lox/debug.h"
 #endif
 
+//typedef enum {
+//    EXPR_
+//} ExprType;
+
 typedef struct {
     Token current;
     Token previous;
@@ -1075,7 +1079,6 @@ static void statement()
     else {
         expression_statement();
     }
-
 }
 
 ObjFunction* compile(const char* source)

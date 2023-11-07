@@ -322,7 +322,7 @@ InterpretResult run()
         case OP_GET_LOCAL: {
                 uint8_t slot = READ_BYTE();
                 if (IS_RAW_PTR(frame->slots[slot])) {
-                    Value value = box_raw_ptr(AS_RAW_PTR(frame->slots[slot]));
+                    Value value = marshal_raw_ptr(AS_RAW_PTR(frame->slots[slot]));
                     push(value);
                 }
                 else
@@ -332,7 +332,7 @@ InterpretResult run()
         case OP_SET_LOCAL: {
                 uint8_t slot = READ_BYTE();
                 if (IS_RAW_PTR(frame->slots[slot])) {
-                    unbox_raw_val(AS_RAW_PTR(frame->slots[slot]), peek(0));
+                    unmarshal_raw_val(AS_RAW_PTR(frame->slots[slot]), peek(0));
                 }
                 else 
                     frame->slots[slot] = peek(0);

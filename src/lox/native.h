@@ -15,6 +15,8 @@ typedef struct {
     NativeFn func;
 } NativeFuncEntry;
 
+void init_native_classes();
+
 extern const NativeFuncEntry native_funcs[];
 
 #endif 

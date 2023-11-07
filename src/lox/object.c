@@ -108,7 +108,7 @@ ObjRawPtr* new_raw_ptr(uintptr_t addr, RawType type)
     return ptr;
 }
 
-Value box_raw_ptr(ObjRawPtr* ptr)
+Value marshal_raw_ptr(ObjRawPtr* ptr)
 {
     switch (ptr->type) {
     case RAW_I16:
@@ -128,7 +128,7 @@ Value box_raw_ptr(ObjRawPtr* ptr)
     }
 }
 
-void unbox_raw_val(ObjRawPtr* ptr, Value val)
+void unmarshal_raw_val(ObjRawPtr* ptr, Value val)
 {
     switch (ptr->type) {
     case RAW_OBJ: *((int64_t*)ptr->addr) = (int64_t)(AS_NUMBER(val)); break;
@@ -260,7 +260,7 @@ void print_object(Value value)
             case RAW_U64: printf("<raw_u32 "); break;
             case RAW_STR: printf("<raw_str "); break;
             }
-            Value boxed = box_raw_ptr(raw_ptr);
+            Value boxed = marshal_raw_ptr(raw_ptr);
             print_value(boxed);
             printf(">");
             break;
