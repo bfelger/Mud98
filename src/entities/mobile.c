@@ -395,6 +395,7 @@ Value create_mobile_value(Mobile* mobile)
     ObjInstance* inst = new_instance(mobile_class);
     push(OBJ_VAL(inst));
 
+    SET_NATIVE_FIELD(inst, mobile, this, OBJ);
     SET_NATIVE_FIELD(inst, mobile->name, name, STR);
     SET_NATIVE_FIELD(inst, mobile->prototype->vnum, vnum, I32);
     SET_NATIVE_FIELD(inst, mobile->short_descr, short_desc, STR);

@@ -370,13 +370,23 @@ InterpretResult run()
                 break;
             }
         case OP_GET_PROPERTY: {
+                ObjString* name = READ_STRING();
+                if (IS_ARRAY(peek(0))) {
+                    ObjArray* array_ = AS_ARRAY(peek(0));
+                    if (!strcmp(name->chars, "count")) {
+                        Value count = NUMBER_VAL(array_->val_array.count);
+                        pop(); // Array
+                        push(count);
+                        break;
+                    }
+                }
+
                 if (!IS_INSTANCE(peek(0))) {
                     runtime_error("Only instances have properties.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
 
                 ObjInstance* instance = AS_INSTANCE(peek(0));
-                ObjString* name = READ_STRING();
 
                 Value value;
                 if (table_get(&instance->fields, name, &value)) {

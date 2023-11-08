@@ -266,10 +266,13 @@ void run_unit_tests()
     //    "}\n";
 
     char* source = 
+        "print [0, 1, 2, 3, 4, 5].count;"
         "fun print_mob(mob) {\n"
         "   var room = mob.in_room();\n"
         "   if (room != nil)\n"
-        "       print string(mob.vnum()) + \" \" + mob.short_desc() + \", in \" + room.name();\n"
+        "       print string(mob.vnum()) + \" \" + mob.short_desc() + \", in \""
+        "           + room.name() + \" with \" + string(room.people().count) "
+        "           + \" others. \";\n"
         "   else\n"
         "       print string(mob.vnum()) + \" \" + mob.short_desc();\n"
         "}\n";
