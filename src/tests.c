@@ -267,7 +267,11 @@ void run_unit_tests()
 
     char* source = 
         "fun print_mob(mob) {\n"
-        "   print string(mob.vnum()) + \" \" + mob.short_desc();\n"
+        "   var room = mob.in_room();\n"
+        "   if (room != nil)\n"
+        "       print string(mob.vnum()) + \" \" + mob.short_desc() + \", in \" + room.name();\n"
+        "   else\n"
+        "       print string(mob.vnum()) + \" \" + mob.short_desc();\n"
         "}\n";
 
     InterpretResult result = interpret_code(source);

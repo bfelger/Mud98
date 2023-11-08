@@ -376,6 +376,7 @@ void init_mobile_class()
         "   name() { return marshal(this._name); }"
         "   vnum() { return marshal(this._vnum); }"
         "   short_desc() { return marshal(this._short_desc); } "
+        "   in_room() { return get_room(this._in_room); } "
         "}";
 
     InterpretResult result = interpret_code(source);
@@ -397,6 +398,7 @@ Value create_mobile_value(Mobile* mobile)
     SET_NATIVE_FIELD(inst, mobile->name, name, STR);
     SET_NATIVE_FIELD(inst, mobile->prototype->vnum, vnum, I32);
     SET_NATIVE_FIELD(inst, mobile->short_descr, short_desc, STR);
+    SET_NATIVE_FIELD(inst, mobile->in_room, in_room, OBJ);
 
     pop(); // instance
 

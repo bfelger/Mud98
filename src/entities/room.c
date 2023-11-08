@@ -213,7 +213,7 @@ void init_room_class()
 
 Value create_room_value(Room* room)
 {
-    if (!room || !room_class)
+    if (!room || !room_class || !room->data)
         return NIL_VAL;
 
     ObjInstance* inst = new_instance(room_class);
@@ -225,4 +225,24 @@ Value create_room_value(Room* room)
     pop(); // instance
 
     return OBJ_VAL(inst);
+}
+
+Value get_room_native(int arg_count, Value* args)
+{
+    if (arg_count != 1) {
+        printf("get_room() takes 1 argument; %d given.", arg_count);
+        return NIL_VAL;
+    }
+
+    if (IS_RAW_PTR(args[0])) {
+        ObjRawPtr* ptr = AS_RAW_PTR(args[0]);
+        if (ptr->type == RAW_OBJ) {
+            Value room =  create_room_value((Room*)ptr->addr);
+            return room;
+        }
+    }
+
+    printf("get_room(): argument is incorrect type:");
+    print_value(args[0]);
+    return NIL_VAL;
 }

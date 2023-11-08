@@ -83,6 +83,7 @@ typedef enum {
     RAW_STR,
 } RawType;
 
+#define WRAP_OBJ(val)        OBJ_VAL(new_raw_ptr((uintptr_t)(val), RAW_OBJ));
 #define WRAP_I16(val)        OBJ_VAL(new_raw_ptr((uintptr_t)&(val), RAW_I16));
 #define WRAP_I32(val)        OBJ_VAL(new_raw_ptr((uintptr_t)&(val), RAW_I32));
 #define WRAP_U64(val)        OBJ_VAL(new_raw_ptr((uintptr_t)&(val), RAW_U64));

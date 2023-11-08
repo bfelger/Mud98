@@ -123,6 +123,7 @@ Value marshal_raw_ptr(ObjRawPtr* ptr)
             return OBJ_VAL(copy_string(*str, (int)strlen(*str)));
         }
     case RAW_OBJ:
+        return NUMBER_VAL((double)((uintptr_t)ptr->addr));
     default:
         bug("Could not box raw value of unexpected type.");
         return NIL_VAL;
@@ -132,10 +133,10 @@ Value marshal_raw_ptr(ObjRawPtr* ptr)
 void unmarshal_raw_val(ObjRawPtr* ptr, Value val)
 {
     switch (ptr->type) {
-    case RAW_OBJ: *((int64_t*)ptr->addr) = (int64_t)(AS_NUMBER(val)); break;
+    case RAW_OBJ: ptr->addr = (uintptr_t)(AS_NUMBER(val)); break;
     case RAW_I16: *((int16_t*)ptr->addr) = (int16_t)(AS_NUMBER(val)); break;
     case RAW_I32: *((int32_t*)ptr->addr) = (int32_t)(AS_NUMBER(val)); break;
-    case RAW_U64: *((int64_t*)ptr->addr) = (int64_t)(AS_NUMBER(val)); break;
+    case RAW_U64: *((uint64_t*)ptr->addr) = (uint64_t)(AS_NUMBER(val)); break;
     case RAW_STR: {
             char* new_str = AS_CSTRING(val);
             char** old_str = (char**)ptr->addr;
@@ -257,15 +258,12 @@ void print_object(Value value)
     case OBJ_RAW_PTR: {
             ObjRawPtr* raw_ptr = AS_RAW_PTR(value);
             switch (raw_ptr->type) {
-            case RAW_OBJ: printf("<raw_obj "); break;
-            case RAW_I16: printf("<raw_i16 "); break;
-            case RAW_I32: printf("<raw_i32 "); break;
-            case RAW_U64: printf("<raw_u32 "); break;
-            case RAW_STR: printf("<raw_str "); break;
+            case RAW_OBJ: printf("<raw_obj %" PRIxPTR ">", raw_ptr->addr); break;
+            case RAW_I16: printf("<raw_i16 %d>", *((int16_t*)raw_ptr->addr)); break;
+            case RAW_I32: printf("<raw_i32 %d>", *((int32_t*)raw_ptr->addr)); break;
+            case RAW_U64: printf("<raw_u64 %llu>", *((uint64_t*)raw_ptr->addr)); break;
+            case RAW_STR: printf("<raw_str %s>", *((char**)raw_ptr->addr)); break;
             }
-            //Value boxed = marshal_raw_ptr(raw_ptr);
-            //print_value(boxed);
-            printf("%s>", *(char**)(raw_ptr->addr));
             break;
         }
     case OBJ_STRING:

@@ -47,6 +47,7 @@ const NativeFuncEntry native_funcs[] = {
     { "clock",          clock_native        },
     { "marshal",        marshal_native      },
     { "string",         string_native       },
+    { "get_room",       get_room_native     },
     { NULL,             NULL                },
 };
 

@@ -125,5 +125,6 @@ extern VNUM top_vnum_room;
 
 void init_room_class();
 Value create_room_value(Room* room);
+Value get_room_native(int arg_count, Value* args);
 
 #endif // !MUD98__ENTITIES__ROOM_H
