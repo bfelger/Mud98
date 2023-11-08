@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // value.h
 // From Bob Nystrom's "Crafting Interpreters" (http://craftinginterpreters.com)
+// Shared under the MIT License
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -103,6 +104,7 @@ bool values_equal(Value a, Value b);
 void init_value_array(ValueArray* array);
 void write_value_array(ValueArray* array, Value value);
 void free_value_array(ValueArray* array);
+char* string_value(Value value);
 void print_value(Value value);
 
 #endif

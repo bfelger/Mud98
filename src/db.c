@@ -117,8 +117,9 @@ int	top_mprog_index;    // OLC
  */
 //#define MAX_STRING     1413120
 #define MAX_STRING      2119680
-#define MAX_PERM_BLOCK  131072
-#define MAX_MEM_LIST    15
+//#define MAX_PERM_BLOCK  131072
+#define MAX_PERM_BLOCK  131072 * 2
+#define MAX_MEM_LIST    17
 
 void* rgFreeList[MAX_MEM_LIST];
 const size_t rgSizeList[MAX_MEM_LIST] = {
@@ -130,6 +131,8 @@ const size_t rgSizeList[MAX_MEM_LIST] = {
     MAX_STRING_LENGTH * 4,      // ^^^
     32768 - 64,
     65536,
+    65536 * 2,
+    65536 * 4,
 };
 
 int nAllocString;

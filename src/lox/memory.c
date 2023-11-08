@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // memory.c
 // From Bob Nystrom's "Crafting Interpreters" (http://craftinginterpreters.com)
+// Shared under the MIT License
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <stdlib.h>
@@ -65,8 +66,8 @@ void mark_object(Obj* object)
 
     if (vm.gray_capacity < vm.gray_count + 1) {
         vm.gray_capacity = GROW_CAPACITY(vm.gray_capacity);
-        Obj** temp = (Obj**)realloc(vm.gray_stack, 
-            sizeof(Obj*) * vm.gray_capacity);
+        // Doesn't use db.c mem routines so we don't throw off the GC
+        Obj** temp = (Obj**)realloc(vm.gray_stack, sizeof(Obj*) * vm.gray_capacity);
         if (temp == NULL) {
             bug("lox/memory/mark_object: Could not allocate %zu bytes.",
                 sizeof(Obj*) * vm.gray_capacity);

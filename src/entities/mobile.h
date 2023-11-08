@@ -9,6 +9,8 @@
 
 typedef struct mobile_t Mobile;
 
+#include <stdbool.h>
+
 #include "merc.h"
 
 #include "interp.h"
@@ -28,7 +30,7 @@ typedef struct mobile_t Mobile;
 #include "data/mobile_data.h"
 #include "data/stats.h"
 
-#include <stdbool.h>
+#include "lox/lox.h"
 
 typedef struct mobile_t {
     Mobile* next;
@@ -173,5 +175,12 @@ extern Mobile* mob_free;
 
 extern int mob_count;
 extern int mob_perm_count;
+
+////////////////////////////////////////////////////////////////////////////////
+// Lox implementation
+////////////////////////////////////////////////////////////////////////////////
+
+void init_mobile_class();
+Value create_mobile_value(Mobile* mobile);
 
 #endif // !MUD98__ENTITIES__CHAR_DATA_H

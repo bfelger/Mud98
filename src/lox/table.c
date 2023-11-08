@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // table.h
 // From Bob Nystrom's "Crafting Interpreters" (http://craftinginterpreters.com)
+// Shared under the MIT License
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <stdlib.h>
@@ -141,7 +142,7 @@ ObjString* table_find_string(Table* table, const char* chars, int length,
         else if (entry->key->length == length &&
             entry->key->hash == hash &&
             memcmp(entry->key->chars, chars, length) == 0) {
-          // We found it.
+            // We found it.
             return entry->key;
         }
 

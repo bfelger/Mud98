@@ -13,6 +13,8 @@
 #include "extra_desc.h"
 #include "reset.h"
 
+#include "lox/lox.h"
+
 int room_count;
 int room_perm_count;
 Room* room_free;
@@ -185,4 +187,42 @@ Room* get_room_for_player(Mobile* ch, VNUM vnum)
     reset_area(area);
     free_buf(buf);
     return get_room(area, vnum);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Lox representation
+////////////////////////////////////////////////////////////////////////////////
+
+static ObjClass* room_class = NULL;
+
+void init_room_class()
+{
+    char* source =
+        "class Room { "
+        "   name() { return marshal(this._name); }"
+        "   vnum() { return marshal(this._vnum); }"
+        "}";
+
+    InterpretResult result = interpret_code(source);
+
+    if (result == INTERPRET_COMPILE_ERROR) exit(65);
+    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+
+    room_class = find_class("Room");
+}
+
+Value create_room_value(Room* room)
+{
+    if (!room || !room_class)
+        return NIL_VAL;
+
+    ObjInstance* inst = new_instance(room_class);
+    push(OBJ_VAL(inst));
+
+    SET_NATIVE_FIELD(inst, room->data->name, name, STR);
+    SET_NATIVE_FIELD(inst, room->data->vnum, vnum, I32);
+
+    pop(); // instance
+
+    return OBJ_VAL(inst);
 }

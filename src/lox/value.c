@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // value.c
 // From Bob Nystrom's "Crafting Interpreters" (http://craftinginterpreters.com)
+// Shared under the MIT License
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
@@ -34,6 +35,29 @@ void free_value_array(ValueArray* array)
 {
     FREE_ARRAY(Value, array->values, array->capacity);
     init_value_array(array);
+}
+
+char* string_value(Value value)
+{
+    // Don't get recursive.
+    static char buf[1024];
+
+    if (IS_BOOL(value)) {
+        sprintf(buf, "%s", AS_BOOL(value) ? "true" : "false");
+    }
+    else if (IS_NIL(value)) {
+        sprintf(buf, "nil");
+    }
+    else if (IS_NUMBER(value)) {
+        sprintf(buf, "%g", AS_NUMBER(value));
+    }
+    else if (IS_STRING(value)) {
+        sprintf(buf, "%s", AS_STRING(value)->chars);
+    }
+    else 
+        sprintf(buf, "(object)");
+
+    return buf;
 }
 
 void print_value(Value value)

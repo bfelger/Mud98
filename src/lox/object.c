@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // object.c
 // From Bob Nystrom's "Crafting Interpreters" (http://craftinginterpreters.com)
+// Shared under the MIT License
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
@@ -221,6 +222,8 @@ static void print_function(ObjFunction* function)
 
 void print_object(Value value)
 {
+    static char buf[1024];
+
     switch (OBJ_TYPE(value)) {
     case OBJ_ARRAY: {
         ValueArray* array_ = &AS_ARRAY(value)->val_array;
@@ -260,9 +263,9 @@ void print_object(Value value)
             case RAW_U64: printf("<raw_u32 "); break;
             case RAW_STR: printf("<raw_str "); break;
             }
-            Value boxed = marshal_raw_ptr(raw_ptr);
-            print_value(boxed);
-            printf(">");
+            //Value boxed = marshal_raw_ptr(raw_ptr);
+            //print_value(boxed);
+            printf("%s>", *(char**)(raw_ptr->addr));
             break;
         }
     case OBJ_STRING:

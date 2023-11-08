@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // common.h
 // From Bob Nystrom's "Crafting Interpreters" (http://craftinginterpreters.com)
+// Shared under the MIT License
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -16,7 +17,7 @@
 // disable this.
 #define NAN_BOXING
 
-//#define DEBUG_PRINT_CODE
+#define DEBUG_PRINT_CODE
 //#define DEBUG_TRACE_EXECUTION
 //#define DEBUG_STRESS_GC
 //#define DEBUG_LOG_GC

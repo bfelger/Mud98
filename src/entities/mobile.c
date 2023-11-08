@@ -361,3 +361,44 @@ void clear_mob(Mobile* ch)
         ch->mod_stat[i] = 0;
     }
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Lox representation
+////////////////////////////////////////////////////////////////////////////////
+
+static ObjClass* mobile_class = NULL;
+
+void init_mobile_class()
+{
+    char* source =
+        "class Mobile { "
+        "   name() { return marshal(this._name); }"
+        "   vnum() { return marshal(this._vnum); }"
+        "   short_desc() { return marshal(this._short_desc); } "
+        "}";
+
+    InterpretResult result = interpret_code(source);
+
+    if (result == INTERPRET_COMPILE_ERROR) exit(65);
+    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+
+    mobile_class = find_class("Mobile");
+}
+
+Value create_mobile_value(Mobile* mobile)
+{
+    if (!mobile || !mobile_class)
+        return NIL_VAL;
+
+    ObjInstance* inst = new_instance(mobile_class);
+    push(OBJ_VAL(inst));
+
+    SET_NATIVE_FIELD(inst, mobile->name, name, STR);
+    SET_NATIVE_FIELD(inst, mobile->prototype->vnum, vnum, I32);
+    SET_NATIVE_FIELD(inst, mobile->short_descr, short_desc, STR);
+
+    pop(); // instance
+
+    return OBJ_VAL(inst);
+}

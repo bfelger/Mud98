@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // vm.c
 // From Bob Nystrom's "Crafting Interpreters" (http://craftinginterpreters.com)
+// Shared under the MIT License
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <stdarg.h>
@@ -16,6 +17,8 @@
 #include "lox/memory.h"
 #include "lox/native.h"
 #include "lox/vm.h"
+
+#define INIT_GC_THRESH  1024ULL * 1024ULL
 
 VM vm;
 
@@ -65,7 +68,7 @@ void init_vm()
     reset_stack();
     vm.objects = NULL;
     vm.bytes_allocated = 0;
-    vm.next_gc = 1024ULL * 1024ULL;
+    vm.next_gc = INIT_GC_THRESH;
 
     vm.gray_count = 0;
     vm.gray_capacity = 0;
@@ -323,21 +326,12 @@ InterpretResult run()
         case OP_POP:        pop(); break;
         case OP_GET_LOCAL: {
                 uint8_t slot = READ_BYTE();
-                //if (IS_RAW_PTR(frame->slots[slot])) {
-                //    Value value = marshal_raw_ptr(AS_RAW_PTR(frame->slots[slot]));
-                //    push(value);
-                //}
-                //else
-                    push(frame->slots[slot]);
+                push(frame->slots[slot]);
                 break;
             }
         case OP_SET_LOCAL: {
                 uint8_t slot = READ_BYTE();
-                //if (IS_RAW_PTR(frame->slots[slot])) {
-                //    unmarshal_raw_val(AS_RAW_PTR(frame->slots[slot]), peek(0));
-                //}
-                //else 
-                    frame->slots[slot] = peek(0);
+                frame->slots[slot] = peek(0);
                 break;
             }
         case OP_GET_GLOBAL: {

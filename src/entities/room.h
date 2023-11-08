@@ -20,6 +20,8 @@ typedef struct room_data_t RoomData;
 
 #include "data/direction.h"
 
+#include "lox/lox.h"
+
 // Static room VNUMs
 #define ROOM_VNUM_LIMBO         2
 #define ROOM_VNUM_CHAT          1200
@@ -116,5 +118,12 @@ extern int room_data_perm_count;
 extern RoomData* room_data_hash_table[MAX_KEY_HASH];
 
 extern VNUM top_vnum_room;
+
+////////////////////////////////////////////////////////////////////////////////
+// Lox implementation
+////////////////////////////////////////////////////////////////////////////////
+
+void init_room_class();
+Value create_room_value(Room* room);
 
 #endif // !MUD98__ENTITIES__ROOM_H

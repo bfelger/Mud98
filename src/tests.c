@@ -259,10 +259,15 @@ void run_unit_tests()
     //
     //pop();
 
+    //char* source = 
+    //    "fun print_room(room) {\n"
+    //    "   print room.name();\n"
+    //    "   print room.vnum();\n"
+    //    "}\n";
+
     char* source = 
-        "fun print_room(room) {\n"
-        "   print room.name();\n"
-        "   print room.vnum();\n"
+        "fun print_mob(mob) {\n"
+        "   print string(mob.vnum()) + \" \" + mob.short_desc();\n"
         "}\n";
 
     InterpretResult result = interpret_code(source);
@@ -270,18 +275,23 @@ void run_unit_tests()
     if (result == INTERPRET_RUNTIME_ERROR) exit(70);
 
     Room* room;
+    Mobile* mob;
     int count = 0;
-    for (int i = 0; i < MAX_VNUM; ++i) {
+    for (int i = 0; i < top_vnum_room; ++i) {
         if ((room = get_room(NULL, i)) != NULL) {
-            if (count++ == 100)
-                break;
-            Value room_val = create_room_value(room);
-            push(room_val);
-            result = call_function("print_room", 1, room_val);
-            pop();
+            FOR_EACH_IN_ROOM(mob, room->people) {
+                if (count++ == 100)
+                    goto loop_end;
+                Value mob_val = create_mobile_value(mob);
+                push(mob_val);
+                result = call_function("print_mob", 1, mob_val);
+                pop();
+                if (result != INTERPRET_OK) goto loop_end;
+            }
         }
     }
 
+loop_end:
     free_vm();
 
     if (result == INTERPRET_COMPILE_ERROR) exit(65);
