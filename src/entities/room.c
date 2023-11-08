@@ -256,11 +256,11 @@ Value get_people_native(int arg_count, Value* args)
         return NIL_VAL;
     }
 
-    if (!IS_RAW_PTR(args[0]) || AS_RAW_PTR(args[0])->type != RAW_OBJ) {
-        
+    Room* room = NULL;
+    
+    if (IS_RAW_PTR(args[0]) && AS_RAW_PTR(args[0])->type == RAW_OBJ) {
+        room = (Room*)AS_RAW_PTR(args[0])->addr;
     }
-
-    Room* room = (Room*)AS_RAW_PTR(args[0])->addr;
 
     ObjArray* array_ = new_obj_array();
     push(OBJ_VAL(array_));
