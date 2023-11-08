@@ -182,5 +182,6 @@ extern int mob_perm_count;
 
 void init_mobile_class();
 Value create_mobile_value(Mobile* mobile);
+Value get_mobile_carrying_native(int arg_count, Value* args);
 
 #endif // !MUD98__ENTITIES__CHAR_DATA_H

@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "entities/mobile.h"
+#include "entities/object.h"
 #include "entities/room.h"
 
 #include "lox/native.h"
@@ -44,12 +46,14 @@ static Value string_native(int arg_count, Value* args)
 }
 
 const NativeFuncEntry native_funcs[] = {
-    { "clock",          clock_native        },
-    { "marshal",        marshal_native      },
-    { "string",         string_native       },
-    { "get_people",     get_people_native   },
-    { "get_room",       get_room_native     },
-    { NULL,             NULL                },
+    { "clock",          clock_native                },
+    { "marshal",        marshal_native              },
+    { "string",         string_native               },
+    { "get_carrying",   get_mobile_carrying_native  },
+    { "get_contents",   get_room_contents_native    },
+    { "get_people",     get_room_people_native      },
+    { "get_room",       get_room_native             },
+    { NULL,             NULL                        },
 };
 
 ObjClass* find_class(const char* class_name)
@@ -69,8 +73,21 @@ ObjClass* find_class(const char* class_name)
     return AS_CLASS(value);
 }
 
-void init_native_classes()
+static void define_native(const char* name, NativeFn function)
 {
+    push(OBJ_VAL(copy_string(name, (int)strlen(name))));
+    push(OBJ_VAL(new_native(function)));
+    table_set(&vm.globals, AS_STRING(vm.stack[0]), vm.stack[1]);
+    pop();
+    pop();
+}
+
+void init_natives()
+{
+    for (int i = 0; native_funcs[i].name != NULL; ++i)
+        define_native(native_funcs[i].name, native_funcs[i].func);
+
     init_mobile_class();
+    init_object_class();
     init_room_class();
 }

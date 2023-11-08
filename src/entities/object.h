@@ -21,6 +21,8 @@ typedef struct object_t Object;
 
 #include "data/item.h"
 
+#include "lox/lox.h"
+
 #include <stdio.h>
 
 typedef struct object_t {
@@ -72,5 +74,12 @@ extern int obj_perm_count;
 
 extern Object* obj_free;
 extern Object* obj_list;
+
+////////////////////////////////////////////////////////////////////////////////
+// Lox implementation
+////////////////////////////////////////////////////////////////////////////////
+
+void init_object_class();
+Value create_object_value(Object* object);
 
 #endif // !MUD98__ENTITIES__OBJECT_H

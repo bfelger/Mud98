@@ -54,15 +54,6 @@ static void runtime_error(const char* format, ...)
     reset_stack();
 }
 
-static void define_native(const char* name, NativeFn function)
-{
-    push(OBJ_VAL(copy_string(name, (int)strlen(name))));
-    push(OBJ_VAL(new_native(function)));
-    table_set(&vm.globals, AS_STRING(vm.stack[0]), vm.stack[1]);
-    pop();
-    pop();
-}
-
 void init_vm()
 {
     reset_stack();
@@ -80,10 +71,7 @@ void init_vm()
     vm.init_string = NULL;
     vm.init_string = copy_string("init", 4);
 
-    for (int i = 0; native_funcs[i].name != NULL; ++i)
-        define_native(native_funcs[i].name, native_funcs[i].func);
-
-    init_native_classes();
+    init_natives();
 }
 
 void free_vm()

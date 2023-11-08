@@ -239,4 +239,45 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level)
     return obj;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Lox representation
+////////////////////////////////////////////////////////////////////////////////
 
+static ObjClass* object_class = NULL;
+
+void init_object_class()
+{
+    char* source =
+        "class Object { "
+        "   name() { return marshal(this._name); }"
+        "   vnum() { return marshal(this._vnum); }"
+        "   short_desc() { return marshal(this._short_desc); } "
+        "   in_room() { return get_room(this._in_room); } "
+        "}";
+
+    InterpretResult result = interpret_code(source);
+
+    if (result == INTERPRET_COMPILE_ERROR) exit(65);
+    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+
+    object_class = find_class("Object");
+}
+
+Value create_object_value(Object* object)
+{
+    if (!object || !object_class)
+        return NIL_VAL;
+
+    ObjInstance* inst = new_instance(object_class);
+    push(OBJ_VAL(inst));
+
+    SET_NATIVE_FIELD(inst, object, base, OBJ);
+    SET_NATIVE_FIELD(inst, object->name, name, STR);
+    SET_NATIVE_FIELD(inst, object->prototype->vnum, vnum, I32);
+    SET_NATIVE_FIELD(inst, object->short_descr, short_desc, STR);
+    SET_NATIVE_FIELD(inst, object->in_room, in_room, OBJ);
+
+    pop(); // instance
+
+    return OBJ_VAL(inst);
+}

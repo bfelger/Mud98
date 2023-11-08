@@ -362,7 +362,6 @@ void clear_mob(Mobile* ch)
     }
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Lox representation
 ////////////////////////////////////////////////////////////////////////////////
@@ -377,6 +376,7 @@ void init_mobile_class()
         "   vnum() { return marshal(this._vnum); }"
         "   short_desc() { return marshal(this._short_desc); } "
         "   in_room() { return get_room(this._in_room); } "
+        "   carrying() { return get_carrying(this._base); } "
         "}";
 
     InterpretResult result = interpret_code(source);
@@ -395,7 +395,7 @@ Value create_mobile_value(Mobile* mobile)
     ObjInstance* inst = new_instance(mobile_class);
     push(OBJ_VAL(inst));
 
-    SET_NATIVE_FIELD(inst, mobile, this, OBJ);
+    SET_NATIVE_FIELD(inst, mobile, base, OBJ);
     SET_NATIVE_FIELD(inst, mobile->name, name, STR);
     SET_NATIVE_FIELD(inst, mobile->prototype->vnum, vnum, I32);
     SET_NATIVE_FIELD(inst, mobile->short_descr, short_desc, STR);
@@ -404,4 +404,37 @@ Value create_mobile_value(Mobile* mobile)
     pop(); // instance
 
     return OBJ_VAL(inst);
+}
+
+Value get_mobile_carrying_native(int arg_count, Value* args)
+{
+    if (arg_count != 1) {
+        printf("get_people() takes 1 argument; %d given.", arg_count);
+        return NIL_VAL;
+    }
+
+    Mobile* mobile = NULL;
+
+    if (IS_RAW_PTR(args[0]) && AS_RAW_PTR(args[0])->type == RAW_OBJ) {
+        mobile = (Mobile*)AS_RAW_PTR(args[0])->addr;
+    }
+
+    ObjArray* array_ = new_obj_array();
+    push(OBJ_VAL(array_));
+
+    if (mobile) {
+        // Just return an empty array if there is no room. Don't force scripters
+        // to use guards. NULL is a disease.
+        Object* obj;
+        FOR_EACH_CONTENT(obj, mobile->carrying)
+        {
+            Value obj_val = create_object_value(obj);
+            push(obj_val);
+            write_value_array(&array_->val_array, obj_val);
+            pop(); // obj_val
+        }
+    }
+
+    pop(); // array_
+    return OBJ_VAL(array_);
 }
