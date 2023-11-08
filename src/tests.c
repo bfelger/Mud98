@@ -21,11 +21,7 @@
 
 #include "data/mobile_data.h"
 
-#include "lox/chunk.h"
-#include "lox/compiler.h"
-#include "lox/debug.h"
-#include "lox/memory.h"
-#include "lox/vm.h"
+#include "lox/lox.h"
 
 extern void aggr_update();
 
@@ -212,51 +208,86 @@ void run_unit_tests()
     //    "print clock() - start;\n"
     //    "print sum;\n";
 
+    //InterpretResult result = interpret_code(source);
+
     //char* source =
     //    "var a = [0, 1, 2, 3, 5, 8, 13, 21];\n"
     //    "a[2] = 100;\n"
     //    "for (var i = 0; i < 8; i += 2)\n"
     //    "   print a[i];\n";
 
-    int16_t i16 = 16;
-    int32_t i32 = 32;
-    uint64_t u64 = 64;
-    char* str = str_dup("string");
+    //int16_t i16 = 16;
+    //int32_t i32 = 32;
+    //uint64_t u64 = 64;
+    //char* str = str_dup("string");
+    //
+    //char* source =
+    //    "fun test_interop(i16, i32, u64, str) {\n"
+    //    "   print i16;\n"
+    //    "   print i32;\n"
+    //    "   print u64;\n"
+    //    "   print str;\n"
+    //    "   i16++;\n"
+    //    "   i32--;\n"
+    //    "   u64++;\n"
+    //    "   str = \"blah blah blah\";\n"
+    //    "}\n";
+    //
+    //InterpretResult result = interpret_code(source);
+    //
+    //if (result == INTERPRET_COMPILE_ERROR) exit(65);
+    //if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+    //
+    //ObjArray* args = new_obj_array();
+    //push(OBJ_VAL(&args)); // Protect args as we make them.
+    //
+    //Value raw_i16 = WRAP_I16(i16);
+    //write_value_array(&args->val_array, raw_i16);
+    //
+    //Value raw_i32 = WRAP_I32(i32);
+    //write_value_array(&args->val_array, raw_i32);
+    //
+    //Value raw_u64 = WRAP_U64(u64);
+    //write_value_array(&args->val_array, raw_u64);
+    //
+    //Value raw_str = WRAP_STR(str);
+    //write_value_array(&args->val_array, raw_str);
+    //
+    //result = call_function("test_interop", 4, raw_i16, raw_i32, raw_u64, raw_str);
+    //
+    //result = call_function("test_interop", 4, raw_i16, raw_i32, raw_u64, raw_str);
+    //
+    //pop();
 
-    char* source =
-        "fun test_interop(i16, i32, u64, str) {\n"
-        "   print i16;\n"
-        "   print i32;\n"
-        "   print u64;\n"
-        "   print str;\n"
-        "   i16++;\n"
-        "   i32--;\n"
-        "   u64++;\n"
-        "   str = \"blah blah blah\";\n"
+    char* source = 
+        "fun print_room(room) {\n"
+        "   print room.name();\n"
+        "   print room.vnum();\n"
         "}\n";
 
     InterpretResult result = interpret_code(source);
-
     if (result == INTERPRET_COMPILE_ERROR) exit(65);
     if (result == INTERPRET_RUNTIME_ERROR) exit(70);
 
-    Value raw_i16 = WRAP_I16(i16);
-    Value raw_i32 = WRAP_I32(i32);
-    Value raw_u64 = WRAP_U64(u64);
-    Value raw_str = WRAP_STR(str);
-
-    result = call_function("test_interop", 4, raw_i16, raw_i32, raw_u64, raw_str);
-
-    result = call_function("test_interop", 4, raw_i16, raw_i32, raw_u64, raw_str);
-
-    //InterpretResult result = interpret_code(source);
+    Room* room;
+    int count = 0;
+    for (int i = 0; i < MAX_VNUM; ++i) {
+        if ((room = get_room(NULL, i)) != NULL) {
+            if (count++ == 100)
+                break;
+            Value room_val = create_room_value(room);
+            push(room_val);
+            result = call_function("print_room", 1, room_val);
+            pop();
+        }
+    }
 
     free_vm();
 
     if (result == INTERPRET_COMPILE_ERROR) exit(65);
     if (result == INTERPRET_RUNTIME_ERROR) exit(70);
 
-    printf("i16 = %d\ni32 = %d\nu64 = %llu\nstr = '%s'\n", i16, i32, u64, str);
+    //printf("i16 = %d\ni32 = %d\nu64 = %llu\nstr = '%s'\n", i16, i32, u64, str);
 
     printf("\nAll tests and benchmarks complete.\n");
 }

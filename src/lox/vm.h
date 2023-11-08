@@ -9,6 +9,8 @@
 
 #include <stdarg.h>
 
+#include "lox/lox.h"
+
 #include "lox/object.h"
 #include "lox/table.h"
 #include "lox/value.h"
@@ -40,12 +42,6 @@ typedef struct {
     int gray_capacity;
     Obj** gray_stack;
 } VM;
-
-typedef enum {
-    INTERPRET_OK,
-    INTERPRET_COMPILE_ERROR,
-    INTERPRET_RUNTIME_ERROR
-} InterpretResult;
 
 extern VM vm;
 

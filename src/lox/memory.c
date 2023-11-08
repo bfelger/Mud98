@@ -17,6 +17,10 @@
 
 #define GC_HEAP_GROW_FACTOR 2
 
+extern char* string_space;
+extern char* top_string;
+extern char str_empty[1];
+
 void* reallocate(void* pointer, size_t old_size, size_t new_size)
 {
     vm.bytes_allocated += new_size - old_size;
@@ -184,11 +188,13 @@ static void free_obj_value(Obj* object)
         FREE(ObjNative, object);
         break;
     case OBJ_RAW_PTR:
-        // Freeing raw values is your own responsibility!
+        FREE(ObjRawPtr, object);
         break;
     case OBJ_STRING: {
             ObjString* string = (ObjString*)object;
-            FREE_ARRAY(char, string->chars, string->length + 1);
+            char* str = string->chars;
+            if (str != &str_empty[0] && (str < string_space || str >= top_string))
+                FREE_ARRAY(char, string->chars, string->length + 1);
             FREE(ObjString, object);
             break;
         }

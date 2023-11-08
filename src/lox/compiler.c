@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+//#include "lox/lox.h"
+
 #include "lox/common.h"
 #include "lox/compiler.h"
 #include "lox/memory.h"
@@ -15,10 +17,6 @@
 #ifdef DEBUG_PRINT_CODE
 #include "lox/debug.h"
 #endif
-
-//typedef enum {
-//    EXPR_
-//} ExprType;
 
 typedef struct {
     Token current;

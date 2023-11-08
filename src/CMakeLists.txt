@@ -166,7 +166,7 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     data/stats.h data/stats.c
     data/quest.h data/quest.c
 
-    lox/common.h
+    lox/lox.h lox/common.h
     lox/chunk.h lox/chunk.c
     lox/memory.h lox/memory.c
     lox/debug.h lox/debug.c

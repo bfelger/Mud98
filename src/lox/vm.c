@@ -79,6 +79,8 @@ void init_vm()
 
     for (int i = 0; native_funcs[i].name != NULL; ++i)
         define_native(native_funcs[i].name, native_funcs[i].func);
+
+    init_native_classes();
 }
 
 void free_vm()
@@ -321,20 +323,20 @@ InterpretResult run()
         case OP_POP:        pop(); break;
         case OP_GET_LOCAL: {
                 uint8_t slot = READ_BYTE();
-                if (IS_RAW_PTR(frame->slots[slot])) {
-                    Value value = marshal_raw_ptr(AS_RAW_PTR(frame->slots[slot]));
-                    push(value);
-                }
-                else
+                //if (IS_RAW_PTR(frame->slots[slot])) {
+                //    Value value = marshal_raw_ptr(AS_RAW_PTR(frame->slots[slot]));
+                //    push(value);
+                //}
+                //else
                     push(frame->slots[slot]);
                 break;
             }
         case OP_SET_LOCAL: {
                 uint8_t slot = READ_BYTE();
-                if (IS_RAW_PTR(frame->slots[slot])) {
-                    unmarshal_raw_val(AS_RAW_PTR(frame->slots[slot]), peek(0));
-                }
-                else 
+                //if (IS_RAW_PTR(frame->slots[slot])) {
+                //    unmarshal_raw_val(AS_RAW_PTR(frame->slots[slot]), peek(0));
+                //}
+                //else 
                     frame->slots[slot] = peek(0);
                 break;
             }
@@ -661,7 +663,7 @@ InterpretResult call_function(const char* fn_name, int count, ...)
     }
 
     if (!IS_CLOSURE(value)) {
-        printf("'%s' is not a collable object.", name->chars);
+        printf("'%s' is not a callable object.", name->chars);
         exit(70);
     }
 
