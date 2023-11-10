@@ -66,6 +66,16 @@ typedef enum {
     TYPE_SCRIPT,
 } FunctionType;
 
+
+typedef struct LoopContext {
+    struct LoopContext* enclosing;
+    int loop_start;
+    int exit_jump;
+    int exit_patches[UINT8_COUNT];
+    int exit_patch_count;
+    int scope_depth;
+} LoopContext;
+
 typedef struct Compiler {
     struct Compiler* enclosing;
     ObjFunction* function;
@@ -75,6 +85,7 @@ typedef struct Compiler {
     int local_count;
     Upvalue upvalues[UINT8_COUNT];
     int scope_depth;
+    LoopContext* current_loop;
 } Compiler;
 
 typedef struct ClassCompiler {
@@ -392,7 +403,7 @@ static uint8_t argument_list()
 
 static void patch_jump(int offset)
 {
-// -2 to adjust for the bytecode for the jump offset itself.
+    // -2 to adjust for the bytecode for the jump offset itself.
     int jump = current_chunk()->count - offset - 2;
 
     if (jump > UINT16_MAX) {
@@ -401,6 +412,16 @@ static void patch_jump(int offset)
 
     current_chunk()->code[offset] = (jump >> 8) & 0xff;
     current_chunk()->code[offset + 1] = jump & 0xff;
+}
+
+static void patch_loop_exits()
+{
+    if (current->current_loop != NULL) {
+        for (int i = 0; i < current->current_loop->exit_patch_count; ++i) {
+            int patch_offset = current->current_loop->exit_patches[i];
+            patch_jump(patch_offset);
+        }
+    }
 }
 
 static void and_(bool can_assign)
@@ -502,6 +523,7 @@ static void init_compiler(Compiler* compiler, FunctionType type)
     compiler->local_count = 0;
     compiler->scope_depth = 0;
     compiler->function = new_function();
+    compiler->current_loop = NULL;
     current = compiler;
     if (type != TYPE_SCRIPT) {
         current->function->name = copy_string(parser.previous.start,
@@ -915,14 +937,19 @@ static void for_statement()
         expression_statement();
     }
 
-    int loop_start = current_chunk()->count;
-    int exit_jump = -1;
+    LoopContext for_loop = { 0 };
+    for_loop.enclosing = current->current_loop;
+    for_loop.scope_depth = current->scope_depth;
+    current->current_loop = &for_loop;
+
+    for_loop.loop_start = current_chunk()->count;
+    for_loop.exit_jump = -1;
     if (!match(TOKEN_SEMICOLON)) {
         expression();
         consume(TOKEN_SEMICOLON, "Expect ';' after loop condition.");
 
         // Jump out of the loop if the condition is false.
-        exit_jump = emit_jump(OP_JUMP_IF_FALSE);
+        for_loop.exit_jump = emit_jump(OP_JUMP_IF_FALSE);
         emit_byte(OP_POP); // Condition.
     }
 
@@ -933,20 +960,52 @@ static void for_statement()
         emit_byte(OP_POP);
         consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
 
-        emit_loop(loop_start);
-        loop_start = increment_start;
+        emit_loop(for_loop.loop_start);
+        for_loop.loop_start = increment_start;
         patch_jump(body_jump);
     }
 
     statement();
-    emit_loop(loop_start);
+    emit_loop(for_loop.loop_start);
 
-    if (exit_jump != -1) {
-        patch_jump(exit_jump);
+    if (for_loop.exit_jump != -1) {
+        patch_jump(for_loop.exit_jump);
         emit_byte(OP_POP); // Condition.
     }
+    patch_loop_exits();
 
+    current->current_loop = current->current_loop->enclosing;
     end_scope();
+}
+
+static void break_statement()
+{
+    consume(TOKEN_SEMICOLON, "Expect ';' after 'break'.");
+
+    if (current->current_loop == NULL) {
+        error("Must be in a loop to 'break'.");
+        return;
+    }
+
+    if (current->current_loop->exit_patch_count == UINT8_COUNT) {
+        error("Too many 'break' statements in loop.");
+        return;
+    }
+
+    current->current_loop->exit_patches[current->current_loop->exit_patch_count++] =
+        emit_jump(OP_JUMP);
+}
+
+static void continue_statement()
+{
+    consume(TOKEN_SEMICOLON, "Expect ';' after 'continue'.");
+
+    if (current->current_loop == NULL) {
+        error("Must be in a loop to 'continue'.");
+        return;
+    }
+
+    emit_loop(current->current_loop->loop_start);
 }
 
 static void if_statement()
@@ -996,18 +1055,27 @@ static void return_statement()
 
 static void while_statement()
 {
-    int loop_start = current_chunk()->count;
+    LoopContext while_loop = { 0 };
+    while_loop.enclosing = current->current_loop;
+    while_loop.scope_depth = current->scope_depth;
+    current->current_loop = &while_loop;
+
+    while_loop.loop_start = current_chunk()->count;
     consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
     expression();
     consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
 
-    int exit_jump = emit_jump(OP_JUMP_IF_FALSE);
+    while_loop.exit_jump = emit_jump(OP_JUMP_IF_FALSE);
     emit_byte(OP_POP);
     statement();
-    emit_loop(loop_start);
+    emit_loop(while_loop.loop_start);
 
-    patch_jump(exit_jump);
+    patch_jump(while_loop.exit_jump);
     emit_byte(OP_POP);
+
+    patch_loop_exits();
+
+    current->current_loop = current->current_loop->enclosing;
 }
 
 static void synchronize()
@@ -1057,6 +1125,12 @@ static void statement()
 {
     if (match(TOKEN_PRINT)) {
         print_statement();
+    }
+    else if (match(TOKEN_BREAK)) {
+        break_statement();
+    }
+    else if (match(TOKEN_CONTINUE)) {
+        continue_statement();
     }
     else if (match(TOKEN_IF)) {
         if_statement();

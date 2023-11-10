@@ -265,43 +265,55 @@ void run_unit_tests()
     //    "   print room.vnum();\n"
     //    "}\n";
 
-    char* source = 
-        "print [0, 1, 2, 3, 4, 5].count;"
-        "fun print_mob(mob) {\n"
-        "   var contents = mob.carrying();\n"
-        "   if (contents.count > 0) {\n"
-        "       var first = contents[0];\n"
-        "       var str = \" carrying \" + contents[0].short_desc();\n"
-        "       for (var i = 1; i < contents.count; i++)\n"
-        "           str += \", \" + contents[i].short_desc();"
-        "       print string(mob.vnum()) + \" \" + mob.short_desc() + str; "
-        "   }\n"
-        "   else\n"
-        "       print string(mob.vnum()) + \" \" + mob.short_desc();\n"
+    //char* source = 
+    //    "print [0, 1, 2, 3, 4, 5].count;"
+    //    "fun print_mob(mob) {\n"
+    //    "   var contents = mob.carrying();\n"
+    //    "   if (contents.count > 0) {\n"
+    //    "       var first = contents[0];\n"
+    //    "       var str = \" carrying \" + contents[0].short_desc();\n"
+    //    "       for (var i = 1; i < contents.count; i++)\n"
+    //    "           str += \", \" + contents[i].short_desc();"
+    //    "       print string(mob.vnum()) + \" \" + mob.short_desc() + str; "
+    //    "   }\n"
+    //    "   else\n"
+    //    "       print string(mob.vnum()) + \" \" + mob.short_desc();\n"
+    //    "}\n";
+    //
+    //InterpretResult result = interpret_code(source);
+    //if (result == INTERPRET_COMPILE_ERROR) exit(65);
+    //if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+    //
+    //Room* room;
+    //Mobile* mob;
+    //int count = 0;
+    //for (int i = 0; i < top_vnum_room; ++i) {
+    //    if ((room = get_room(NULL, i)) != NULL) {
+    //        FOR_EACH_IN_ROOM(mob, room->people) {
+    //            if (count++ == 100)
+    //                goto loop_end;
+    //            Value mob_val = create_mobile_value(mob);
+    //            push(mob_val);
+    //            result = call_function("print_mob", 1, mob_val);
+    //            pop();
+    //            if (result != INTERPRET_OK) goto loop_end;
+    //        }
+    //    }
+    //}
+    //loop_end:
+
+    char* source =
+        "var i = 0;"
+        "for (; i < 100; i++) {\n"
+        "   if (floor((i + 1) / 2) == i / 2)\n"
+        "       continue;\n"
+        "   else if (i > 50)\n"
+        "       break;\n"
+        "   print i;\n"
         "}\n";
-
+    
     InterpretResult result = interpret_code(source);
-    if (result == INTERPRET_COMPILE_ERROR) exit(65);
-    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
 
-    Room* room;
-    Mobile* mob;
-    int count = 0;
-    for (int i = 0; i < top_vnum_room; ++i) {
-        if ((room = get_room(NULL, i)) != NULL) {
-            FOR_EACH_IN_ROOM(mob, room->people) {
-                if (count++ == 100)
-                    goto loop_end;
-                Value mob_val = create_mobile_value(mob);
-                push(mob_val);
-                result = call_function("print_mob", 1, mob_val);
-                pop();
-                if (result != INTERPRET_OK) goto loop_end;
-            }
-        }
-    }
-
-loop_end:
     free_vm();
 
     if (result == INTERPRET_COMPILE_ERROR) exit(65);

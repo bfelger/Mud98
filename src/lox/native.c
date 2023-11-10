@@ -3,6 +3,7 @@
 // Extra native functions for Lox
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <math.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -34,6 +35,17 @@ static Value marshal_native(int arg_count, Value* args)
     return marshal_raw_ptr(AS_RAW_PTR(args[0]));
 }
 
+static Value floor_native(int arg_count, Value* args)
+{
+    if (arg_count != 1 || !IS_NUMBER(args[0])) {
+        printf("floor() takes a single number argument.");
+        return NIL_VAL;
+    }
+    double val = floor(AS_NUMBER(args[0]));
+    floor(val);
+    return NUMBER_VAL(val);
+}
+
 static Value string_native(int arg_count, Value* args)
 {
     if (arg_count != 1) {
@@ -53,6 +65,7 @@ const NativeFuncEntry native_funcs[] = {
     { "get_contents",   get_room_contents_native    },
     { "get_people",     get_room_people_native      },
     { "get_room",       get_room_native             },
+    { "floor",          floor_native                },
     { NULL,             NULL                        },
 };
 
