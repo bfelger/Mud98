@@ -41,9 +41,8 @@ static Value floor_native(int arg_count, Value* args)
         printf("floor() takes a single number argument.");
         return NIL_VAL;
     }
-    double val = floor(AS_NUMBER(args[0]));
-    floor(val);
-    return NUMBER_VAL(val);
+
+    return NUMBER_VAL(floor(AS_NUMBER(args[0])));
 }
 
 static Value string_native(int arg_count, Value* args)
