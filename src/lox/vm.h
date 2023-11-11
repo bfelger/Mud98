@@ -16,7 +16,7 @@
 #include "lox/table.h"
 #include "lox/value.h"
 
-#define FRAMES_MAX 64
+#define FRAMES_MAX 128
 #define STACK_MAX (FRAMES_MAX * UINT8_COUNT)
 
 typedef struct {

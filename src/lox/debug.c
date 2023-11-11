@@ -21,23 +21,32 @@ void disassemble_chunk(Chunk* chunk, const char* name)
     printf("\n");
 }
 
+static int read_constant_index(Chunk* chunk, int* offset)
+{
+    int constant = chunk->code[(*offset)++];
+    if (!(constant & 0x80)) return constant;
+    return (constant & 0x7f) << 8 | chunk->code[(*offset)++];
+}
+
 static int constant_instruction(const char* name, Chunk* chunk, int offset)
 {
-    uint8_t constant = chunk->code[offset + 1];
+    int new_offset = offset + 1;
+    int constant = read_constant_index(chunk, &new_offset);
     printf("%-16s %4d '", name, constant);
     print_value(chunk->constants.values[constant]);
     printf("'\n");
-    return offset + 2;
+    return new_offset;
 }
 
 static int invoke_instruction(const char* name, Chunk* chunk, int offset)
 {
-    uint8_t constant = chunk->code[offset + 1];
-    uint8_t arg_count = chunk->code[offset + 2];
+    int arg_offset = offset + 1;
+    int constant = read_constant_index(chunk, &arg_offset);
+    uint8_t arg_count = chunk->code[arg_offset];
     printf("%-16s (%d args) %4d '", name, arg_count, constant);
     print_value(chunk->constants.values[constant]);
     printf("'\n");
-    return offset + 3;
+    return arg_offset + 1;
 }
 
 static int simple_instruction(const char* name, int offset)
@@ -144,7 +153,7 @@ int disassemble_instruction(Chunk* chunk, int offset)
         return invoke_instruction("OP_SUPER_INVOKE", chunk, offset);
     case OP_CLOSURE: {
             offset++;
-            uint8_t constant = chunk->code[offset++];
+            int constant = read_constant_index(chunk, &offset);
             printf("%-16s %4d ", "OP_CLOSURE", constant);
             print_value(chunk->constants.values[constant]);
             printf("\n");

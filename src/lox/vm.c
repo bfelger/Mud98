@@ -276,7 +276,9 @@ InterpretResult run()
 #define READ_SHORT() \
     (frame->ip += 2, (uint16_t)((frame->ip[-2] << 8) | frame->ip[-1]))
 #define READ_CONSTANT() \
-    (frame->closure->function->chunk.constants.values[READ_BYTE()])
+    (frame->closure->function->chunk.constants.values[ \
+        *frame->ip & 0x80 ? READ_SHORT() & 0x7fff : READ_BYTE() \
+        ])
 #define READ_STRING() AS_STRING(READ_CONSTANT())
 #define BINARY_OP(value_type, op) \
     do { \
