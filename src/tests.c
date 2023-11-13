@@ -302,15 +302,18 @@ void run_unit_tests()
     //}
     //loop_end:
 
+   //char* source =
+   //    "var i = 0;"
+   //    "for (; i < 100; i++) {\n"
+   //    "   if (floor((i + 1) / 2) == i / 2)\n"
+   //    "       continue;\n"
+   //    "   else if (i > 50)\n"
+   //    "       break;\n"
+   //    "   print i;\n"
+   //    "}\n";
+
     char* source =
-        "var i = 0;"
-        "for (; i < 100; i++) {\n"
-        "   if (floor((i + 1) / 2) == i / 2)\n"
-        "       continue;\n"
-        "   else if (i > 50)\n"
-        "       break;\n"
-        "   print i;\n"
-        "}\n";
+        "print Damage.lightning;";
     
     InterpretResult result = interpret_code(source);
 

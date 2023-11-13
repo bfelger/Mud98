@@ -94,6 +94,15 @@ static void define_native(const char* name, NativeFn function)
     pop();
 }
 
+void add_global(const char* name, Value val)
+{
+    push(OBJ_VAL(copy_string(name, (int)strlen(name))));
+    push(val);
+    table_set(&vm.globals, AS_STRING(vm.stack[0]), vm.stack[1]);
+    pop();
+    pop();
+}
+
 void init_natives()
 {
     for (int i = 0; native_funcs[i].name != NULL; ++i)
@@ -102,4 +111,6 @@ void init_natives()
     init_mobile_class();
     init_object_class();
     init_room_class();
+
+    init_damage_consts();
 }

@@ -658,7 +658,8 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
     Object* corpse;
     bool immune;
 
-    if (victim->position == POS_DEAD) return false;
+    if (victim->position == POS_DEAD)
+        return false;
 
     // Stop up any residual loopholes.
     if (dam > 1200 && dt >= TYPE_HIT) {
@@ -673,15 +674,19 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
     }
 
     /* damage reduction */
-    if (dam > 35) dam = (dam - 35) / 2 + 35;
-    if (dam > 80) dam = (dam - 80) / 2 + 80;
+    if (dam > 35) 
+        dam = (dam - 35) / 2 + 35;
+    if (dam > 80) 
+        dam = (dam - 80) / 2 + 80;
 
     if (victim != ch) {
         /*
          * Certain attacks are forbidden.
          * Most other attacks are returned.
          */
-        if (is_safe(ch, victim)) return false;
+        if (is_safe(ch, victim)) 
+            return false;
+
         check_killer(ch, victim);
 
         if (victim->position > POS_STUNNED) {
@@ -695,11 +700,13 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
         }
 
         if (victim->position > POS_STUNNED) {
-            if (ch->fighting == NULL) set_fighting(ch, victim);
+            if (ch->fighting == NULL) 
+                set_fighting(ch, victim);
         }
 
         // More charm stuff.
-        if (victim->master == ch) stop_follower(victim);
+        if (victim->master == ch) 
+            stop_follower(victim);
     }
 
     // Inviso attacks ... not.
@@ -907,7 +914,8 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
         return true;
     }
 
-    if (victim == ch) return true;
+    if (victim == ch)
+        return true;
 
     // Take care of link dead people.
     if (!IS_NPC(victim) && victim->desc == NULL) {

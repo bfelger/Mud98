@@ -15,6 +15,7 @@ typedef struct {
     NativeFn func;
 } NativeFuncEntry;
 
+void add_global(const char* name, Value val);
 void init_natives();
 
 extern const NativeFuncEntry native_funcs[];

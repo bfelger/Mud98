@@ -377,6 +377,8 @@ void init_mobile_class()
         "   short_desc() { return marshal(this._short_desc); } "
         "   in_room() { return get_room(this._in_room); } "
         "   carrying() { return get_carrying(this._base); } "
+        "   hp() { return this._hp; } "
+        "   max_hp() { return this._max_hp; } "
         "}";
 
     InterpretResult result = interpret_code(source);
@@ -400,6 +402,8 @@ Value create_mobile_value(Mobile* mobile)
     SET_NATIVE_FIELD(inst, mobile->prototype->vnum, vnum, I32);
     SET_NATIVE_FIELD(inst, mobile->short_descr, short_desc, STR);
     SET_NATIVE_FIELD(inst, mobile->in_room, in_room, OBJ);
+    SET_NATIVE_FIELD(inst, mobile->hit, hp, I16);
+    SET_NATIVE_FIELD(inst, mobile->max_hit, max_hp, I16);
 
     pop(); // instance
 
