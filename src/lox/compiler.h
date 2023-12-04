@@ -8,10 +8,13 @@
 #ifndef clox_compiler_h
 #define clox_compiler_h
 
+#include <stdarg.h>
+
 #include "lox/object.h"
 #include "lox/vm.h"
 
 ObjFunction* compile(const char* source);
+void compile_errorf(const char* fmt, ...);
 void mark_compiler_roots();
 
 #endif

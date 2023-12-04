@@ -11,6 +11,7 @@
 #include "entities/object.h"
 #include "entities/room.h"
 
+#include "lox/compiler.h"
 #include "lox/native.h"
 #include "lox/value.h"
 #include "lox/vm.h"
@@ -23,7 +24,7 @@ static Value clock_native(int arg_count, Value* args)
 static Value marshal_native(int arg_count, Value* args)
 {
     if (arg_count != 1) {
-        printf("marshal() takes 1 argument; %d given.", arg_count);
+        runtime_error("marshal() takes 1 argument; %d given.", arg_count);
         return NIL_VAL;
     }
 
@@ -38,7 +39,7 @@ static Value marshal_native(int arg_count, Value* args)
 static Value floor_native(int arg_count, Value* args)
 {
     if (arg_count != 1 || !IS_NUMBER(args[0])) {
-        printf("floor() takes a single number argument.");
+        runtime_error("floor() takes a single number argument.");
         return NIL_VAL;
     }
 
@@ -48,7 +49,7 @@ static Value floor_native(int arg_count, Value* args)
 static Value string_native(int arg_count, Value* args)
 {
     if (arg_count != 1) {
-        printf("string() takes 1 argument; %d given.", arg_count);
+        runtime_error("string() takes 1 argument; %d given.", arg_count);
         return NIL_VAL;
     }
 
@@ -73,12 +74,12 @@ ObjClass* find_class(const char* class_name)
     ObjString* name = copy_string(class_name, (int)strlen(class_name));
     Value value;
     if (!table_get(&vm.globals, name, &value)) {
-        printf("Undefined variable '%s'.", name->chars);
+        runtime_error("Undefined variable '%s'.", name->chars);
         exit(70);
     }
 
     if (!IS_CLASS(value)) {
-        printf("'%s' is not a class.", name->chars);
+        runtime_error("'%s' is not a class.", name->chars);
         exit(70);
     }
 

@@ -125,7 +125,7 @@ Value marshal_raw_ptr(ObjRawPtr* ptr)
     case RAW_OBJ:
         return NUMBER_VAL((double)((uintptr_t)ptr->addr));
     default:
-        bug("Could not box raw value of unexpected type.");
+        runtime_error("Could not box raw value of unexpected type.");
         return NIL_VAL;
     }
 }

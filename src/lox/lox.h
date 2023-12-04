@@ -11,6 +11,8 @@
 #include <stdarg.h>
 
 typedef struct room_t Room;
+typedef struct mobile_t Mobile;
+typedef struct object_t Object;
 
 #include "lox/object.h"
 #include "lox/value.h"
@@ -21,6 +23,19 @@ typedef enum {
     INTERPRET_RUNTIME_ERROR
 } InterpretResult;
 
+typedef struct {
+    Mobile* me;
+} CompileContext;
+
+typedef struct {
+    Room* here;
+    Mobile* me;
+    Object* this_;
+} ExecContext;
+
+extern CompileContext compile_context;
+extern ExecContext exec_context;
+
 void add_global(const char* name, Value val);
 InterpretResult call_function(const char* fn_name, int count, ...);
 Value create_room_value(Room* room);
@@ -30,6 +45,7 @@ void init_vm();
 InterpretResult interpret_code(const char* source);
 Value pop();
 void push(Value value);
+void runtime_error(const char* format, ...);
 
 #define SET_NATIVE_FIELD(inst, src, tgt, TYPE)                                 \
 {                                                                              \

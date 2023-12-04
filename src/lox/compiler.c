@@ -19,6 +19,11 @@
 #include "lox/debug.h"
 #endif
 
+void send_to_char(const char* txt, Mobile* ch);
+
+CompileContext compile_context = { 0 };
+ExecContext exec_context = { 0 };
+
 typedef struct {
     Token current;
     Token previous;
@@ -66,7 +71,6 @@ typedef enum {
     TYPE_SCRIPT,
 } FunctionType;
 
-
 typedef struct LoopContext {
     struct LoopContext* enclosing;
     int loop_start;
@@ -102,23 +106,40 @@ static Chunk* current_chunk()
     return &current->function->chunk;
 }
 
+void compile_errorf(const char* fmt, ...)
+{
+    char errbuf[1024];
+
+    va_list args;
+    va_start(args, fmt);
+    vsprintf(errbuf, fmt, args);
+    va_end(args);
+
+    if (compile_context.me == NULL) {
+        fprintf(stderr, "%s", errbuf);
+    }
+    else {
+        send_to_char(errbuf, compile_context.me);
+    }
+}
+
 static void error_at(Token* token, const char* message)
 {
     if (parser.panic_mode) return;
     parser.panic_mode = true;
-    fprintf(stderr, "[line %d] Error", token->line);
+    compile_errorf("[line %d] Error", token->line);
 
     if (token->type == TOKEN_EOF) {
-        fprintf(stderr, " at end");
+        compile_errorf(" at end");
     }
     else if (token->type == TOKEN_ERROR) {
    // Nothing.
     }
     else {
-        fprintf(stderr, " at '%.*s'", token->length, token->start);
+        compile_errorf(" at '%.*s'", token->length, token->start);
     }
 
-    fprintf(stderr, ": %s\n", message);
+    compile_errorf(": %s\n", message);
     parser.had_error = true;
 }
 

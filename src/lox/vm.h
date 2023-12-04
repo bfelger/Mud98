@@ -53,6 +53,7 @@ InterpretResult interpret_code(const char* source);
 void push(Value value);
 Value pop();
 InterpretResult run();
+void runtime_error(const char* format, ...);
 InterpretResult call_function(const char* fn_name, int count, ...);
 
 #endif

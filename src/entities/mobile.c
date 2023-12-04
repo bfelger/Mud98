@@ -413,7 +413,7 @@ Value create_mobile_value(Mobile* mobile)
 Value get_mobile_carrying_native(int arg_count, Value* args)
 {
     if (arg_count != 1) {
-        printf("get_people() takes 1 argument; %d given.", arg_count);
+        runtime_error("get_carrying() takes 1 argument; %d given.", arg_count);
         return NIL_VAL;
     }
 

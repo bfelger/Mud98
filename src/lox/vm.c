@@ -18,6 +18,8 @@
 #include "lox/native.h"
 #include "lox/vm.h"
 
+#include "comm.h"
+
 #define INIT_GC_THRESH  1024ULL * 1024ULL
 
 VM vm;
@@ -29,26 +31,36 @@ static void reset_stack()
     vm.open_upvalues = NULL;
 }
 
-static void runtime_error(const char* format, ...)
+void runtime_error(const char* format, ...)
 {
+    char errbuf[1024];
+    char* pos = errbuf;
+
     va_list args;
     va_start(args, format);
-    vfprintf(stderr, format, args);
+    pos += vsprintf(pos, format, args);
     va_end(args);
-    fputs("\n", stderr);
+    pos += sprintf(pos, "\n");
 
     for (int i = vm.frame_count - 1; i >= 0; i--) {
         CallFrame* frame = &vm.frames[i];
         ObjFunction* function = frame->closure->function;
         size_t instruction = frame->ip - function->chunk.code - 1;
-        fprintf(stderr, "[line %d] in ",
+        pos += sprintf(pos, "[line %d] in ",
             function->chunk.lines[instruction]);
         if (function->name == NULL) {
-            fprintf(stderr, "script\n");
+            pos += sprintf(pos, "script\n");
         }
         else {
-            fprintf(stderr, "%s()\n", function->name->chars);
+            pos += sprintf(pos, "%s()\n", function->name->chars);
         }
+    }
+
+    if (exec_context.me == NULL) {
+        fprintf(stderr, "%s", errbuf);
+    }
+    else {
+        send_to_char(errbuf, exec_context.me);
     }
 
     reset_stack();
@@ -652,12 +664,12 @@ InterpretResult call_function(const char* fn_name, int count, ...)
     ObjString* name = copy_string(fn_name, (int)strlen(fn_name));
     Value value;
     if (!table_get(&vm.globals, name, &value)) {
-        printf("Undefined variable '%s'.", name->chars);
+        runtime_error("Undefined variable '%s'.", name->chars);
         exit(70);
     }
 
     if (!IS_CLOSURE(value)) {
-        printf("'%s' is not a callable object.", name->chars);
+        runtime_error("'%s' is not a callable object.", name->chars);
         exit(70);
     }
 

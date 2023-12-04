@@ -154,6 +154,4 @@ static inline bool is_obj_type(Value value, ObjType type)
     return IS_OBJ(value) && AS_OBJ(value)->type == type;
 }
 
-
-
 #endif

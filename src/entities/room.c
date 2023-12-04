@@ -233,7 +233,7 @@ Value create_room_value(Room* room)
 Value get_room_native(int arg_count, Value* args)
 {
     if (arg_count != 1) {
-        printf("get_room() takes 1 argument; %d given.", arg_count);
+        runtime_error("get_room() takes 1 argument; %d given.", arg_count);
         return NIL_VAL;
     }
 
@@ -245,15 +245,14 @@ Value get_room_native(int arg_count, Value* args)
         }
     }
 
-    printf("get_room(): argument is incorrect type:");
-    print_value(args[0]);
+    runtime_error("get_room(): argument '%s' is incorrect type", string_value(args[0]));
     return NIL_VAL;
 }
 
 Value get_room_people_native(int arg_count, Value* args)
 {
     if (arg_count != 1) {
-        printf("get_people() takes 1 argument; %d given.", arg_count);
+        runtime_error("get_people() takes 1 argument; %d given.", arg_count);
         return NIL_VAL;
     }
 
@@ -285,7 +284,7 @@ Value get_room_people_native(int arg_count, Value* args)
 Value get_room_contents_native(int arg_count, Value* args)
 {
     if (arg_count != 1) {
-        printf("get_people() takes 1 argument; %d given.", arg_count);
+        runtime_error("get_contents() takes 1 argument; %d given.", arg_count);
         return NIL_VAL;
     }
 
