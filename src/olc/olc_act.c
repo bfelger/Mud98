@@ -476,6 +476,30 @@ ED_FUN_DEC(ed_line_string)
     return true;
 }
 
+ED_FUN_DEC(ed_line_lox_string)
+{
+    String** string = (String**)arg;
+    char buf[MIL];
+
+    if (IS_NULLSTR(argument)) {
+        sprintf(buf, "Syntax : %s <string>\n\r", n_fun);
+        send_to_char(buf, ch);
+        return false;
+    }
+
+    if (!str_cmp(argument, "null")) {
+        *string = copy_string(str_empty, 1);
+    }
+    else {
+        sprintf(buf, "%s%s", argument, par == 0 ? "" : "\n\r");
+        *string = copy_string(buf, (int)strlen(buf));
+    }
+
+    send_to_char("Ok.\n\r", ch);
+
+    return true;
+}
+
 #define NUM_INT16 0
 #define NUM_INT32 1
 #define NUM_LONG 2

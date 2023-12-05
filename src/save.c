@@ -265,7 +265,8 @@ void fwrite_char(Mobile* ch, FILE* fp)
     }
 
     FOR_EACH(affect, ch->affected) {
-        if (affect->type < 0 || affect->type >= skill_count) continue;
+        if (affect->type < 0 || affect->type >= skill_count)
+            continue;
 
         fprintf(fp, "Affc '%s' %3d %3d %3d %3d %3d %10d\n",
                 skill_table[affect->type].name, affect->where, affect->level,

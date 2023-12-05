@@ -30,7 +30,7 @@ AreaData xArea;
 #define U(x)    (uintptr_t)(x)
 
 const OlcCmdEntry area_olc_comm_table[] = {
-    { "name", 	        U(&xArea.name),         ed_line_string,     0	                },
+    { "name", 	        U(&xArea.name),         ed_line_lox_string, 0                   },
     { "min_vnum", 	    0,                      ed_olded,           U(aedit_lvnum)	    },
     { "max_vnum", 	    0,                      ed_olded,           U(aedit_uvnum)	    },
     { "min_level", 	    U(&xArea.low_range),    ed_number_level,    0	                },
@@ -139,7 +139,7 @@ AEDIT(aedit_show)
 
     EDIT_AREA(ch, area);
 
-    printf_to_char(ch, "Name:           {|[{*%"PRVNUM"{|] {_%s{x\n\r", area->vnum, area->name);
+    printf_to_char(ch, "Name:           {|[{*%"PRVNUM"{|] {_%s{x\n\r", area->vnum, area->name->chars);
     printf_to_char(ch, "File:           {*%s{x\n\r", area->file_name);
     printf_to_char(ch, "Vnums:          {|[{*%d-%d{|]{x\n\r", area->min_vnum, area->max_vnum);
     printf_to_char(ch, "Levels:         {|[{*%d-%d{|]{x\n\r", area->low_range, area->high_range);
@@ -555,7 +555,7 @@ void do_alist(Mobile* ch, char* argument)
         AreaData* area = alist[i];
         addf_buf( result, "{|[{*%3d{|]{x %-29.29s {|({*%-5d{|-{*%5d{|) {_%-12.12s {|[{*%d{|] [{*%-10.10s{|]{x\n\r",
             area->vnum,
-            area->name,
+            area->name->chars,
             area->min_vnum,
             area->max_vnum,
             area->file_name,

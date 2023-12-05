@@ -331,6 +331,7 @@ DECLARE_OLC_FUN(qedit_end);
 
 // Editors.
 DECLARE_ED_FUN(ed_line_string);
+DECLARE_ED_FUN(ed_line_lox_string);
 DECLARE_ED_FUN(ed_desc);
 DECLARE_ED_FUN(ed_bool);
 DECLARE_ED_FUN(ed_skillgroup);

@@ -628,29 +628,6 @@ void load_prog(FILE* fp, MobProgCode** prog)
     load_struct(fp, U(&tmp_pcode), progcodesavetable, U(*prog));
 
     ORDERED_INSERT(MobProgCode, new_prog, mprog_list, vnum);
-
-    // Populate the linked list
-    //if (mprog_list == NULL)
-    //    mprog_list = *prog;
-    //else {
-    //    // At the beginning or the end?
-    //    if ((*prog)->vnum < mprog_list->vnum) {
-    //        (*prog)->next = mprog_list;
-    //        mprog_list = *prog;
-    //    }]
-    //    else {
-    //        MobProgCode* temp;
-    //        MobProgCode* prev = mprog_list;
-    //
-    //        FOR_EACH(temp, mprog_list->next) {
-    //            if (temp->vnum > (*prog)->vnum)
-    //                break;
-    //            prev = temp;
-    //        }
-    //        prev->next = *prog;
-    //        (*prog)->next = temp;
-    //    }
-    //}
 }
 
 MobProgCode* pedit_prog(VNUM vnum)

@@ -655,11 +655,9 @@ InterpretResult run()
 
 InterpretResult interpret_code(const char* source)
 {
-
-    printf("MUD NAME 1.5.3.1.1: %s\n", cfg_get_mud_name());
     ObjFunction* function = compile(source);
-    printf("MUD NAME 1.5.3.1.2: %s\n", cfg_get_mud_name());
-    if (function == NULL) return INTERPRET_COMPILE_ERROR;
+    if (function == NULL) 
+        return INTERPRET_COMPILE_ERROR;
 
     push(OBJ_VAL(function));
     ObjClosure* closure = new_closure(function);
@@ -667,11 +665,8 @@ InterpretResult interpret_code(const char* source)
     push(OBJ_VAL(closure));
     call_closure(closure, 0);
 
-    printf("MUD NAME 1.5.3.1.3: %s\n", cfg_get_mud_name());
-
     InterpretResult res = run();
 
-    printf("MUD NAME 1.5.3.1.4: %s\n", cfg_get_mud_name());
     return res;
 }
 
