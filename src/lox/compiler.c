@@ -125,7 +125,8 @@ void compile_errorf(const char* fmt, ...)
 
 static void error_at(Token* token, const char* message)
 {
-    if (parser.panic_mode) return;
+    if (parser.panic_mode) 
+        return;
     parser.panic_mode = true;
     compile_errorf("[line %d] Error", token->line);
 
@@ -159,7 +160,8 @@ static void advance()
 
     for (;;) {
         parser.current = scan_token();
-        if (parser.current.type != TOKEN_ERROR) break;
+        if (parser.current.type != TOKEN_ERROR)
+            break;
 
         error_at_current(parser.current.start);
     }

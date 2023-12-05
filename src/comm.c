@@ -1103,7 +1103,7 @@ void bust_a_prompt(Mobile* ch)
             break;
         case 'z':
             if (IS_IMMORTAL(ch) && ch->in_room != NULL)
-                sprintf(BUF(temp2), "%s", ch->in_room->area->data->name);
+                sprintf(BUF(temp2), "%s", ch->in_room->area->data->name->chars);
             else
                 sprintf(BUF(temp2), " ");
             i = BUF(temp2);

@@ -114,8 +114,6 @@ void run_unit_tests()
 
     //aggr_update_bnchmk();
 
-    init_vm();
-
     //char* source =
     //    "fun outer() {\n"
     //    "  var x = \"outside\";\n"
@@ -284,6 +282,7 @@ void run_unit_tests()
     //if (result == INTERPRET_COMPILE_ERROR) exit(65);
     //if (result == INTERPRET_RUNTIME_ERROR) exit(70);
     //
+
     //Room* room;
     //Mobile* mob;
     //int count = 0;
@@ -312,12 +311,35 @@ void run_unit_tests()
    //    "   print i;\n"
    //    "}\n";
 
-    char* source =
-        "print Damage.lightning;";
-    
-    InterpretResult result = interpret_code(source);
+    //char* source =
+    //    "print Damage.lightning;";
 
-    free_vm();
+    char* source = 
+        "fun print_area(room) {\n"
+        "   print room.area.name;\n"
+        "}\n";
+
+    InterpretResult result = interpret_code(source);
+    if (result == INTERPRET_COMPILE_ERROR) exit(65);
+    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+    
+    Room* room;
+    int count = 0;
+    for (int i = 0; i < top_vnum_room; ++i) {
+        if ((room = get_room(NULL, i)) != NULL) {
+            if (count++ == 100)
+                goto loop_end;
+            Value room_val = create_room_value(room);
+            push(room_val);
+            result = call_function("print_area", 1, room_val);
+            pop();
+            if (result != INTERPRET_OK) goto loop_end;
+        }
+    }
+    loop_end:
+    
+    //InterpretResult result = interpret_code(source);
+    result = interpret_code(source);
 
     if (result == INTERPRET_COMPILE_ERROR) exit(65);
     if (result == INTERPRET_RUNTIME_ERROR) exit(70);

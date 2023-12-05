@@ -33,20 +33,6 @@ typedef struct {
     Object* this_;
 } ExecContext;
 
-extern CompileContext compile_context;
-extern ExecContext exec_context;
-
-void add_global(const char* name, Value val);
-InterpretResult call_function(const char* fn_name, int count, ...);
-Value create_room_value(Room* room);
-ObjClass* find_class(const char* class_name);
-void free_vm();
-void init_vm();
-InterpretResult interpret_code(const char* source);
-Value pop();
-void push(Value value);
-void runtime_error(const char* format, ...);
-
 #define SET_NATIVE_FIELD(inst, src, tgt, TYPE)                                 \
 {                                                                              \
     Value tgt##_value = WRAP_##TYPE(src);                                      \
@@ -58,5 +44,33 @@ void runtime_error(const char* format, ...);
     pop();                                                                     \
     pop();                                                                     \
 }
+
+#define SET_LOX_FIELD(inst, value, field)                                      \
+{                                                                              \
+    push(OBJ_VAL(value));                                                      \
+    char* field##_str = #field;                                                \
+    ObjString* key = copy_string(field##_str, (int)strlen(field##_str));       \
+    push(OBJ_VAL(key));                                                        \
+    table_set(&(inst)->fields, key, OBJ_VAL(value));                           \
+    pop();                                                                     \
+    pop();                                                                     \
+}
+
+typedef ObjString String;
+
+void add_global(const char* name, Value val);
+InterpretResult call_function(const char* fn_name, int count, ...);
+Value create_room_value(Room* room);
+ObjClass* find_class(const char* class_name);
+void free_vm();
+void init_natives();
+void init_vm();
+InterpretResult interpret_code(const char* source);
+Value pop();
+void push(Value value);
+void runtime_error(const char* format, ...);
+
+extern CompileContext compile_context;
+extern ExecContext exec_context;
 
 #endif // !LOX__LOX_H

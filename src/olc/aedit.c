@@ -162,10 +162,9 @@ AEDIT(aedit_reset)
 
     EDIT_AREA(ch, area_data);
 
-
     Area* area;
 
-    FOR_EACH(area, area_data->instances)
+    FOR_EACH_AREA_INST(area, area_data)
         reset_area(area);
     send_to_char("Area reset.\n\r", ch);
 
@@ -543,8 +542,8 @@ void do_alist(Mobile* ch, char* argument)
         }
         else if (!str_cmp(sort, "name")) {
             SORT_ARRAY(AreaData*, alist, area_data_count,
-                strcasecmp(alist[i]->name, alist[lo]->name) < 0,
-                strcasecmp(alist[i]->name, alist[hi]->name) > 0);
+                strcasecmp(alist[i]->name->chars, alist[lo]->name->chars) < 0,
+                strcasecmp(alist[i]->name->chars, alist[hi]->name->chars) > 0);
         }
         else {
             printf_to_char(ch, "{jUnknown sort option '{*%s{j'.{x\n\r\n\r%s", sort, help);

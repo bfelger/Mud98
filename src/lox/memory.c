@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "merc.h"
+
 #include "lox/compiler.h"
 #include "lox/memory.h"
 #include "lox/vm.h"
@@ -15,6 +17,8 @@
 #include <stdio.h>
 #include "lox/debug.h"
 #endif
+
+#include "entities/area.h"
 
 #define GC_HEAP_GROW_FACTOR 2
 
@@ -81,7 +85,8 @@ void mark_object(Obj* object)
 
 void mark_value(Value value)
 {
-    if (IS_OBJ(value)) mark_object(AS_OBJ(value));
+    if (IS_OBJ(value))
+        mark_object(AS_OBJ(value));
 }
 
 static void mark_array(ValueArray* array)
@@ -89,6 +94,12 @@ static void mark_array(ValueArray* array)
     for (int i = 0; i < array->count; i++) {
         mark_value(array->values[i]);
     }
+}
+
+static void mark_entity(EntityHeader* entity)
+{
+    mark_object((Obj*)entity->name);
+    mark_table(&entity->fields);
 }
 
 static void blacken_object(Obj* object)
@@ -144,6 +155,12 @@ static void blacken_object(Obj* object)
     case OBJ_RAW_PTR:
     case OBJ_STRING:
         break;
+    //
+    case OBJ_AREA: {
+            Area* area = (Area*)object;
+            mark_entity(&area->header);
+            break;
+        }
     }
 }
 
@@ -202,7 +219,24 @@ static void free_obj_value(Obj* object)
     case OBJ_UPVALUE:
         FREE(ObjUpvalue, object);
         break;
+    //
+    case OBJ_AREA:
+        break;
     } // end switch
+}
+
+static void mark_natives()
+{
+    AreaData* area_data;
+    Area* area;
+
+    FOR_EACH(area_data, area_data_list) {
+        mark_object((Obj*)area_data->name);
+        mark_array(&area_data->instances);
+        FOR_EACH_AREA_INST(area, area_data) {
+            mark_entity(&area->header);
+        }
+    }
 }
 
 static void mark_roots()
@@ -224,6 +258,7 @@ static void mark_roots()
     mark_table(&vm.globals);
     mark_compiler_roots();
     mark_object((Obj*)vm.init_string);
+    mark_natives();
 }
 
 static void trace_references()

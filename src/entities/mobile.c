@@ -6,11 +6,12 @@
 #include "mobile.h"
 
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "handler.h"
 #include "recycle.h"
 
-#include "object.h"
+#include "entities/object.h"
 
 #include "data/mobile_data.h"
 

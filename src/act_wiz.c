@@ -1024,7 +1024,7 @@ void do_rstat(Mobile* ch, char* argument)
     }
 
     sprintf(buf, "Name: '%s'\n\rArea: '%s'\n\r", location->name,
-            location->area_data->name);
+            location->area_data->name->chars);
     send_to_char(buf, ch);
 
     sprintf(buf, "Vnum: %d  Sector: %d  Light: %d  Healing: %d  Mana: %d\n\r",

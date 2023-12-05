@@ -37,6 +37,17 @@ void free_value_array(ValueArray* array)
     init_value_array(array);
 }
 
+void remove_value_array(ValueArray* array, int index)
+{
+    if (index > array->count || index < 0)
+        return;
+
+    for (int i = index; i < array->count - 1; ++i)
+        array->values[i] = array->values[i + 1];
+    array->values[array->count - 1] = NIL_VAL;
+    --array->count;
+}
+
 char* string_value(Value value)
 {
     // Don't get recursive.

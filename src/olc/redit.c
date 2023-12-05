@@ -764,7 +764,7 @@ REDIT(redit_create)
     ORDERED_INSERT(RoomData, room_data, room_data_hash_table[value % MAX_KEY_HASH], vnum);
 
     Area* area;
-    FOR_EACH(area, area_data->instances) {
+    FOR_EACH_AREA_INST(area, area_data) {
         new_room(room_data, area);
     }
 

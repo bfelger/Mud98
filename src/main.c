@@ -204,17 +204,16 @@ int main(int argc, char** argv)
 
     open_reserve_file();
 
-    load_config();
-
-    if (port_str[0])
-        cfg_set_telnet_port(port);
-
     // Run the game.
     Timer boot_timer = { 0 };
     if (rt_opt_benchmark)
         start_timer(&boot_timer);
 
     boot_db();
+
+    if (port_str[0])
+        cfg_set_telnet_port(port);
+
     print_memory();
     if (rt_opt_benchmark) {
         stop_timer(&boot_timer);
@@ -250,6 +249,7 @@ int main(int argc, char** argv)
 #endif
         }
 
+
         if (telnet && tls) {
             sprintf(log_buf, "%s is ready to rock on ports %d (telnet) "
                 "& %d (tls).", cfg_get_mud_name(), telnet_port, tls_port);
@@ -280,6 +280,8 @@ int main(int argc, char** argv)
             close_server((SockServer*)tls_server);
 #endif
     }
+
+    free_vm();
 
     // That's all, folks.
     log_string("Normal termination of game.");

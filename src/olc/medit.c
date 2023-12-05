@@ -204,7 +204,7 @@ MEDIT(medit_show)
     addf_buf(buffer, "Vnum:        {|[{*%6d{|]{x\n\r", pMob->vnum);
     addf_buf(buffer, "Area:        {|[{*%6d{|] {_%s{x\n\r",
         !pMob->area ? -1 : pMob->area->vnum,
-        !pMob->area ? "No Area" : pMob->area->name);
+        !pMob->area ? "No Area" : pMob->area->name->chars);
 
     addf_buf(buffer, "Level:       {|[{*%6d{|]{x Sex:     {|[{*%6s{|]{x Group:   {|[{*%5d{|]{x\n\r"
         "Align:       {|[{*%6d{|]{x Hitroll: {|[{*%6d{|]{x Dam type: {|[{*%s{|]{x\n\r",

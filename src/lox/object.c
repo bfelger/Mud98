@@ -22,7 +22,6 @@ extern char str_empty[1];
 #define ALLOCATE_OBJ(type, object_type) \
     (type*)allocate_object(sizeof(type), object_type)
 
-
 static Obj* allocate_object(size_t size, ObjType type)
 {
     Obj* object = (Obj*)reallocate(NULL, 0, size);
@@ -186,10 +185,10 @@ ObjString* take_string(char* chars, int length)
 
 ObjString* copy_string(const char* chars, int length)
 {
-
     uint32_t hash = hash_string(chars, length);
     ObjString* interned = table_find_string(&vm.strings, chars, length, hash);
-    if (interned != NULL) return interned;
+    if (interned != NULL) 
+        return interned;
 
     if (chars >= string_space && chars < top_string) {
         // Yes, I'm casting away const.
@@ -271,6 +270,10 @@ void print_object(Value value)
         break;
     case OBJ_UPVALUE:
         printf("upvalue");
+        break;
+    //
+    case OBJ_AREA:
+        printf("<area %s>", AS_AREA(value)->data->name->chars);
         break;
     } // end switch
 }

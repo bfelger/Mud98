@@ -22,6 +22,8 @@ typedef struct area_data_t AreaData;
 #include "data/direction.h"
 #include "data/quest.h"
 
+#include "lox/lox.h"
+
 #define AREA_ROOM_VNUM_HASH_SIZE    32
 
 typedef enum area_flags_t {
@@ -38,6 +40,7 @@ typedef enum inst_type_t {
 } InstanceType;
 
 typedef struct area_t {
+    EntityHeader header;
     Area* next;
     AreaData* data;
     Room* rooms[AREA_ROOM_VNUM_HASH_SIZE];
@@ -49,11 +52,11 @@ typedef struct area_t {
 
 typedef struct area_data_t {
     AreaData* next;
-    Area* instances;
+    ValueArray instances;
     HelpArea* helps;
     Quest* quests;
     char* file_name;
-    char* name;
+    String* name;
     char* credits;
     int security;       // OLC Value 1-9
     LEVEL low_range;
@@ -68,6 +71,10 @@ typedef struct area_data_t {
     bool always_reset;
     InstanceType inst_type;
 } AreaData;
+
+#define FOR_EACH_AREA_INST(area, area_data)                                    \
+    for (int area##i = 0; area##i < area_data->instances.count; ++area##i)     \
+        if ((area = AS_AREA(area_data->instances.values[area##i])) != NULL)
 
 AreaData* new_area_data();
 Area* create_area_instance(AreaData* area_data, bool create_exits);

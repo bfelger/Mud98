@@ -667,7 +667,7 @@ OEDIT(oedit_show)
     printf_to_char(ch, "Name:        {|[{*%s{|]{x\n\r", pObj->name);
     printf_to_char(ch, "Area:        {|[{*%5d{|]{_ %s{x\n\r",
         !pObj->area ? -1 : pObj->area->vnum,
-        !pObj->area ? "No Area" : pObj->area->name);
+        !pObj->area ? "No Area" : pObj->area->name->chars);
     printf_to_char(ch, "Vnum:        {|[{*%5d{|]{x\n\r", pObj->vnum);
     printf_to_char(ch, "Type:        {|[{*%s{|]{x\n\r", flag_string(type_flag_table, pObj->item_type));
     printf_to_char(ch, "Level:       {|[{*%5d{|]{x\n\r", pObj->level);
@@ -1189,7 +1189,7 @@ OEDIT(oedit_copy)
     RESTRING(obj->description, obj2->description);
     RESTRING(obj->material, obj2->material);
 
-    ExtraDesc* ed_next;
+    ExtraDesc* ed_next = NULL;
     for (ExtraDesc* ed = obj->extra_desc; ed != NULL; ed = ed_next) {
         ed_next = ed->next;
         free_extra_desc(ed);

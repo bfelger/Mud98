@@ -30,6 +30,12 @@ Area* new_area(AreaData* area_data)
 {
     LIST_ALLOC_PERM(area, Area);
 
+    area->header.obj.type = OBJ_AREA;
+    init_table(&area->header.fields);
+
+    area->header.name = copy_string(area_data->name->chars, area_data->name->length);
+    SET_LOX_FIELD(&area->header, area->header.name, name);
+
     area->data = area_data;
     area->empty = true;
     area->owner_list = str_empty;
@@ -49,7 +55,7 @@ AreaData* new_area_data()
 
     LIST_ALLOC_PERM(area_data, AreaData);
 
-    area_data->name = str_empty;
+    area_data->name = copy_string(str_empty, 1);
     area_data->area_flags = AREA_ADDED;
     area_data->security = 1;
     area_data->builders = str_empty;
@@ -59,12 +65,13 @@ AreaData* new_area_data()
     sprintf(buf, "area%"PRVNUM".are", area_data->vnum);
     area_data->file_name = str_dup(buf);
 
+    init_value_array(&area_data->instances);
+
     return area_data;
 }
 
 void free_area_data(AreaData* area_data)
 {
-    free_string(area_data->name);
     free_string(area_data->file_name);
     free_string(area_data->builders);
     free_string(area_data->credits);
@@ -75,8 +82,10 @@ void free_area_data(AreaData* area_data)
 Area* create_area_instance(AreaData* area_data, bool create_exits)
 {
     Area* area = new_area(area_data);
-    area->next = area_data->instances;
-    area_data->instances = area;
+    //area->next = area_data->instances;
+    //area_data->instances = area;
+
+    write_value_array(&area_data->instances, OBJ_VAL(area));
 
     RoomData* room_data;
     FOR_EACH_GLOBAL_ROOM_DATA(room_data) {
@@ -115,17 +124,24 @@ void create_instance_exits(Area* area)
 #undef KEY
 #endif
 
-#define KEY( literal, field, value )    \
-    if (!str_cmp(word, literal)) {      \
-        field  = value;                 \
-        break;                          \
+#define KEY( literal, field, value )                \
+    if (!str_cmp(word, literal)) {                  \
+        field  = value;                             \
+        break;                                      \
     }
 
-#define SKEY( string, field )           \
-    if (!str_cmp(word, string)) {       \
-        free_string(field);             \
-        field = fread_string(fp);       \
-        break;                          \
+#define SKEY( string, field )                       \
+    if (!str_cmp(word, string)) {                   \
+        free_string(field);                         \
+        field = fread_string(fp);                   \
+        break;                                      \
+    }
+
+#define LOX_SKEY( string, field )                   \
+    if (!str_cmp(word, string)) {                   \
+        char* val = fread_string(fp);               \
+        field = copy_string(val, (int)strlen(val)); \
+        break;                                      \
     }
 
 void load_area(FILE* fp)
@@ -179,7 +195,7 @@ void load_area(FILE* fp)
             KEY("Low", area_data->low_range, (LEVEL)fread_number(fp));
             break;
         case 'N':
-            SKEY("Name", area_data->name);
+            LOX_SKEY("Name", area_data->name);
             break;
         case 'R':
             KEY("Reset", area_data->reset_thresh, (int16_t)fread_number(fp));
@@ -204,10 +220,9 @@ void load_area(FILE* fp)
 Area* get_area_for_player(Mobile* ch, AreaData* area_data)
 {
     Area* area = NULL;
-    if (area_data->inst_type == AREA_INST_SINGLE)
-        return area_data->instances;
 
-    FOR_EACH(area, area_data->instances) {
+    for (int i = 0; i < area_data->instances.count; ++i) {
+        area = AS_AREA(area_data->instances.values[i]);
         if (is_name(ch->name, area->owner_list))
             return area;
     }

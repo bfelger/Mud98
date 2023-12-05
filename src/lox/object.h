@@ -13,6 +13,8 @@
 #include "lox/table.h"
 #include "lox/value.h"
 
+typedef struct area_t Area;
+
 #define OBJ_TYPE(value)         (AS_OBJ(value)->type)
 
 #define IS_ARRAY(value)         is_obj_type(value, OBJ_ARRAY)
@@ -24,6 +26,9 @@
 #define IS_NATIVE(value)        is_obj_type(value, OBJ_NATIVE)
 #define IS_RAW_PTR(value)       is_obj_type(value, OBJ_RAW_PTR)
 #define IS_STRING(value)        is_obj_type(value, OBJ_STRING)
+//
+#define IS_AREA(value)          is_obj_type(value, OBJ_AREA)
+#define IS_ENTITY(value)        IS_OBJ(value) && (IS_AREA(value))
 
 #define AS_ARRAY(value)         ((ObjArray*)AS_OBJ(value))
 #define AS_BOUND_METHOD(value)  ((ObjBoundMethod*)AS_OBJ(value))
@@ -35,6 +40,9 @@
 #define AS_RAW_PTR(value)       ((ObjRawPtr*)AS_OBJ(value))
 #define AS_STRING(value)        ((ObjString*)AS_OBJ(value))
 #define AS_CSTRING(value)       (((ObjString*)AS_OBJ(value))->chars)
+//
+#define AS_ENTITY(value)        ((EntityHeader*)AS_OBJ(value))
+#define AS_AREA(value)          ((Area*)AS_OBJ(value))
 
 typedef enum {
     OBJ_ARRAY,
@@ -47,6 +55,8 @@ typedef enum {
     OBJ_RAW_PTR,
     OBJ_STRING,
     OBJ_UPVALUE,
+    //
+    OBJ_AREA,
 } ObjType;
 
 struct Obj {
@@ -133,6 +143,14 @@ typedef struct {
     Value receiver;
     ObjClosure* method;
 } ObjBoundMethod;
+
+// Mud98 specifics
+
+typedef struct {
+    Obj obj;
+    Table fields;
+    ObjString* name;
+} EntityHeader;
 
 ObjArray* new_obj_array();
 ObjBoundMethod* new_bound_method(Value receiver, ObjClosure* method);

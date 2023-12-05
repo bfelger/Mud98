@@ -135,7 +135,7 @@ Room* get_room(Area* search_context, VNUM vnum)
     }
     else if (room_data->area_data->inst_type == AREA_INST_SINGLE) {
         // The target area isn't instanced; it only has one Area object.
-        search_area = room_data->area_data->instances;
+        search_area = AS_AREA(room_data->area_data->instances.values[0]);
     }
     else {
         return NULL;
@@ -224,6 +224,8 @@ Value create_room_value(Room* room)
     SET_NATIVE_FIELD(inst, room, base, OBJ);
     SET_NATIVE_FIELD(inst, room->data->name, name, STR);
     SET_NATIVE_FIELD(inst, room->data->vnum, vnum, I32);
+
+    SET_LOX_FIELD(inst, room->area, area);
 
     pop(); // instance
 

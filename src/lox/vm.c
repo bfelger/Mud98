@@ -19,6 +19,7 @@
 #include "lox/vm.h"
 
 #include "comm.h"
+#include "config.h"
 
 #define INIT_GC_THRESH  1024ULL * 1024ULL
 
@@ -33,7 +34,7 @@ static void reset_stack()
 
 void runtime_error(const char* format, ...)
 {
-    char errbuf[1024];
+    char errbuf[1024] = "";
     char* pos = errbuf;
 
     va_list args;
@@ -82,8 +83,6 @@ void init_vm()
 
     vm.init_string = NULL;
     vm.init_string = copy_string("init", 4);
-
-    init_natives();
 }
 
 void free_vm()
@@ -383,22 +382,33 @@ InterpretResult run()
                     }
                 }
 
-                if (!IS_INSTANCE(peek(0))) {
-                    runtime_error("Only instances have properties.");
+                Value comp = peek(0);
+                if (!IS_INSTANCE(comp) && !IS_ENTITY(comp)) {
+                    runtime_error("Only instances and entities have properties.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
 
-                ObjInstance* instance = AS_INSTANCE(peek(0));
+                if (IS_INSTANCE(comp)) {
+                    ObjInstance* instance = AS_INSTANCE(comp);
+                    Value value;
+                    if (table_get(&instance->fields, name, &value)) {
+                        pop(); // Instance.
+                        push(value);
+                        break;
+                    }
 
-                Value value;
-                if (table_get(&instance->fields, name, &value)) {
-                    pop(); // Instance.
-                    push(value);
-                    break;
+                    if (!bind_method(instance->klass, name)) {
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
                 }
-
-                if (!bind_method(instance->klass, name)) {
-                    return INTERPRET_RUNTIME_ERROR;
+                else {
+                    EntityHeader* entity = AS_ENTITY(comp);
+                    Value value;
+                    if (table_get(&entity->fields, name, &value)) {
+                        pop(); // Entity.
+                        push(value);
+                        break;
+                    }
                 }
                 break;
             }
@@ -645,7 +655,10 @@ InterpretResult run()
 
 InterpretResult interpret_code(const char* source)
 {
+
+    printf("MUD NAME 1.5.3.1.1: %s\n", cfg_get_mud_name());
     ObjFunction* function = compile(source);
+    printf("MUD NAME 1.5.3.1.2: %s\n", cfg_get_mud_name());
     if (function == NULL) return INTERPRET_COMPILE_ERROR;
 
     push(OBJ_VAL(function));
@@ -654,7 +667,12 @@ InterpretResult interpret_code(const char* source)
     push(OBJ_VAL(closure));
     call_closure(closure, 0);
 
-    return run();
+    printf("MUD NAME 1.5.3.1.3: %s\n", cfg_get_mud_name());
+
+    InterpretResult res = run();
+
+    printf("MUD NAME 1.5.3.1.4: %s\n", cfg_get_mud_name());
+    return res;
 }
 
 InterpretResult call_function(const char* fn_name, int count, ...)

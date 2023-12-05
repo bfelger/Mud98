@@ -64,7 +64,7 @@
 #define DEFINE_STR_SETTER(val)                                                 \
     void cfg_set_ ## val(const char* new_val)                                  \
     {                                                                          \
-        strcpy(_ ## val, new_val);                                             \
+        sprintf(_ ## val, "%s", new_val);                                      \
     }
 
 #define DEFINE_STR_CONFIG(val, default_val)                                    \
@@ -468,22 +468,22 @@ char* read_file(FILE* f)
 struct parse_ctx {
     char* pos;
     bool error;
-} parser = { NULL, false };
+} cfg_parser = { NULL, false };
 
-static inline char peek()
+static inline char cfg_peek()
 {
-    return *parser.pos;
+    return *cfg_parser.pos;
 }
 
-static inline char advance()
+static inline char cfg_advance()
 {
-    return *parser.pos++;
+    return *cfg_parser.pos++;
 }
 
-static inline bool match(char c)
+static inline bool cfg_match(char c)
 {
-    if (*parser.pos == c) {
-        ++parser.pos;
+    if (*cfg_parser.pos == c) {
+        ++cfg_parser.pos;
         return true;
     }
 
@@ -492,19 +492,19 @@ static inline bool match(char c)
 
 static inline void skip_ws()
 {
-    while (match(' ') || match('\t') || match('\n') || match('\r'))
+    while (cfg_match(' ') || cfg_match('\t') || cfg_match('\n') || cfg_match('\r'))
         ;
 }
 
 static char* parse_ident()
 {
-    char* start = parser.pos - 1;
+    char* start = cfg_parser.pos - 1;
     char c;
 
-    while (ISALNUM(c = peek()) || c == '_')
-        advance();
+    while (ISALNUM(c = cfg_peek()) || c == '_')
+        cfg_advance();
 
-    size_t len = parser.pos - start;
+    size_t len = cfg_parser.pos - start;
 
     char* ident = (char*)malloc(sizeof(char) * (len + 1));
     if (!ident) {
@@ -520,19 +520,19 @@ static char* parse_ident()
 
 static char* parse_val()
 {
-    char* start = parser.pos;
+    char* start = cfg_parser.pos;
     char quote = 0;
     char c;
     size_t len = 0;
     bool escape = false;
 
-    if ((c = peek()) == '\'' || c == '"') {
-        advance();
+    if ((c = cfg_peek()) == '\'' || c == '"') {
+        cfg_advance();
         ++start;
         quote = c;
     }
 
-    while ((c = advance()) != '\0') {
+    while ((c = cfg_advance()) != '\0') {
         if (quote) {
             if (c == '\\') {
                 escape = true;
@@ -541,13 +541,13 @@ static char* parse_val()
                 escape = false;
             }
             else if (quote == c) {
-                len = (parser.pos - 1) - start;
-                advance();
+                len = (cfg_parser.pos - 1) - start;
+                cfg_advance();
                 break;
             }
         }
         else if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
-            len = (parser.pos - 1) - start;
+            len = (cfg_parser.pos - 1) - start;
             break;
         }
     }
@@ -612,21 +612,21 @@ void parse_file(FILE* fp)
 {
     char* str = read_file(fp);
 
-    parser.pos = str;
+    cfg_parser.pos = str;
 
     skip_ws();
 
     char c;
-    while ((c = advance()) != '\0') {
+    while ((c = cfg_advance()) != '\0') {
         if (c == '#') {
             // Scarf comments
-            while ((c = advance()) != '\0' && c != '\n' && c != '\r')
+            while ((c = cfg_advance()) != '\0' && c != '\n' && c != '\r')
                 ;
         }
         else if (ISALPHA(c)) {
             char* key = parse_ident();
             skip_ws();
-            if (!match('=')) {
+            if (!cfg_match('=')) {
                 fprintf(stderr, "Expected '=' after '%s'\n", key);
                 free(key);
                 break;

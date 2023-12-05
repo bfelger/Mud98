@@ -68,6 +68,8 @@
 
 #include "mth/mth.h"
 
+#include "lox/lox.h"
+
 #include <ctype.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -175,10 +177,14 @@ void boot_db()
         fBootDb = true;
     }
 
+    load_config();
+
     // Init random number generator.
     {
         init_mm();
     }
+
+    init_vm();
 
     load_skill_table();
     load_class_table();
@@ -271,6 +277,8 @@ void boot_db()
         }
         close_file(fpList);
     }
+
+    init_natives();
 
     /*
      * Fix up exits.
@@ -830,7 +838,7 @@ void fix_exits()
     AreaData* area_data;
     Area* area;
     FOR_EACH(area_data, area_data_list) {
-        FOR_EACH(area, area_data->instances) {
+        FOR_EACH_AREA_INST(area, area_data) {
             create_instance_exits(area);
         }
     }
@@ -845,7 +853,7 @@ void area_update()
 
     FOR_EACH(area_data, area_data_list) {
         int thresh = area_data->reset_thresh;
-        FOR_EACH(area, area_data->instances) {
+        FOR_EACH_AREA_INST(area, area_data) {
             if (area->nplayer == 0)
                 thresh /= 2;
 
@@ -857,7 +865,7 @@ void area_update()
                 }
                 else {
                     reset_area(area);
-                    sprintf(buf, "%s has just been reset.", area->data->name);
+                    sprintf(buf, "%s has just been reset.", area->header.name->chars);
                     wiznet(buf, NULL, NULL, WIZ_RESETS, 0, 0);
                     area->reset_timer = 0;
                 }
@@ -1502,45 +1510,45 @@ char* fread_string_eol(FILE* fp)
 
         case '\n':
         case '\r': {
-            union {
-                char* pc;
-                char rgc[sizeof(char*)];
-            } u1 = { 0 };
-            int ic;
-            int hash;
-            char* pHash;
-            char* pHashPrev = NULL;
-            char* pString;
+                union {
+                    char* pc;
+                    char rgc[sizeof(char*)];
+                } u1 = { 0 };
+                int ic;
+                int hash;
+                char* pHash;
+                char* pHashPrev = NULL;
+                char* pString;
 
-            plast[-1] = '\0';
-            hash = (int)UMIN(MAX_KEY_HASH - 1, plast - 1 - top_string);
-            for (pHash = string_hash[hash]; pHash; pHash = pHashPrev) {
-                for (ic = 0; ic < (int)sizeof(char*); ic++) u1.rgc[ic] = pHash[ic];
-                pHashPrev = u1.pc;
-                pHash += sizeof(char*);
+                plast[-1] = '\0';
+                hash = (int)UMIN(MAX_KEY_HASH - 1, plast - 1 - top_string);
+                for (pHash = string_hash[hash]; pHash; pHash = pHashPrev) {
+                    for (ic = 0; ic < (int)sizeof(char*); ic++) u1.rgc[ic] = pHash[ic];
+                    pHashPrev = u1.pc;
+                    pHash += sizeof(char*);
 
-                if (top_string[sizeof(char*)] == pHash[0]
-                    && !strcmp(top_string + sizeof(char*) + 1, pHash + 1))
-                    return pHash;
+                    if (top_string[sizeof(char*)] == pHash[0]
+                        && !strcmp(top_string + sizeof(char*) + 1, pHash + 1))
+                        return pHash;
+                }
+
+                if (fBootDb) {
+                    pString = top_string;
+                    top_string = plast;
+                    u1.pc = string_hash[hash];
+                    for (ic = 0; ic < (int)sizeof(char*); ic++) 
+                        pString[ic] = u1.rgc[ic];
+                    string_hash[hash] = pString;
+
+                    nAllocString += 1;
+                    sAllocString += top_string - pString;
+                    return pString + sizeof(char*);
+                }
+                else {
+                    return str_dup(top_string + sizeof(char*));
+                }
             }
-
-            if (fBootDb) {
-                pString = top_string;
-                top_string = plast;
-                u1.pc = string_hash[hash];
-                for (ic = 0; ic < (int)sizeof(char*); ic++) 
-                    pString[ic] = u1.rgc[ic];
-                string_hash[hash] = pString;
-
-                nAllocString += 1;
-                sAllocString += top_string - pString;
-                return pString + sizeof(char*);
-            }
-            else {
-                return str_dup(top_string + sizeof(char*));
-            }
-        }
-        }
+        } // end switch
     }
 }
 
