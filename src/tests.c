@@ -315,8 +315,8 @@ void run_unit_tests()
     //    "print Damage.lightning;";
 
     char* source = 
-        "fun print_area(room) {\n"
-        "   print room.area.name;\n"
+        "fun print_name(room) {\n"
+        "   print room.area.name + \" - \" + string(room.vnum()) + \" - \" + room.name;\n"
         "}\n";
 
     InterpretResult result = interpret_code(source);
@@ -331,7 +331,7 @@ void run_unit_tests()
                 goto loop_end;
             Value room_val = create_room_value(room);
             push(room_val);
-            result = call_function("print_area", 1, room_val);
+            result = call_function("print_name", 1, room_val);
             pop();
             if (result != INTERPRET_OK) goto loop_end;
         }

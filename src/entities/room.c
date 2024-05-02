@@ -205,7 +205,6 @@ void init_room_class()
 {
     char* source =
         "class Room { "
-        "   name() { return marshal(this._name); }"
         "   vnum() { return marshal(this._vnum); }"
         "   people() { return get_people(this._base); }"
         "   contents() { return get_contents(this._base); }"
@@ -228,10 +227,10 @@ Value create_room_value(Room* room)
     push(OBJ_VAL(inst));
 
     SET_NATIVE_FIELD(inst, room, base, OBJ);
-    SET_NATIVE_FIELD(inst, room->data->name, name, STR);
     SET_NATIVE_FIELD(inst, room->data->vnum, vnum, I32);
 
     SET_LOX_FIELD(inst, room->area, area);
+    SET_LOX_FIELD(inst, room->data->name, name);
 
     pop(); // instance
 
