@@ -927,7 +927,7 @@ void do_look(Mobile* ch, char* argument)
 
     if (arg1[0] == '\0' || !str_cmp(arg1, "auto")) {
         /* 'look' or 'look auto' */
-        sprintf(buf, "{s%s", ch->in_room->data->name);
+        sprintf(buf, "{s%s", C_STR(ch->in_room->data->name));
         send_to_char(buf, ch);
 
         if ((IS_IMMORTAL(ch) && (IS_NPC(ch) || IS_SET(ch->act_flags, PLR_HOLYLIGHT)))
@@ -1228,7 +1228,7 @@ void do_exits(Mobile* ch, char* argument)
                 sprintf(
                     buf + strlen(buf), "%-5s - %s", capitalize(dir_list[door].name),
                     (room_exit->to_room && room_is_dark(room_exit->to_room)) ? "Too dark to tell"
-                                                    : room_exit->data->to_room->name);
+                                                    : C_STR(room_exit->data->to_room->name));
                 if (IS_IMMORTAL(ch))
                     sprintf(buf + strlen(buf), " (room %d)\n\r",
                             room_exit->data->to_vnum);
@@ -2042,7 +2042,7 @@ void do_where(Mobile* ch, char* argument)
                 && can_see(ch, victim)) {
                 found = true;
                 sprintf(buf, "%-28s %s\n\r", victim->name,
-                        victim->in_room->data->name);
+                        C_STR(victim->in_room->data->name));
                 send_to_char(buf, ch);
             }
         }
@@ -2058,7 +2058,7 @@ void do_where(Mobile* ch, char* argument)
                 && is_name(arg, victim->name)) {
                 found = true;
                 sprintf(buf, "%-28s %s\n\r", PERS(victim, ch),
-                        victim->in_room->data->name);
+                        C_STR(victim->in_room->data->name));
                 send_to_char(buf, ch);
                 break;
             }

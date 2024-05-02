@@ -540,7 +540,7 @@ void save_rooms(FILE* fp, AreaData* area)
         FOR_EACH(pRoomIndex, room_data_hash_table[hash]) {
             if (pRoomIndex->area_data == area) {
                 fprintf(fp, "#%"PRVNUM"\n", pRoomIndex->vnum);
-                fprintf(fp, "%s~\n", pRoomIndex->name);
+                fprintf(fp, "%s~\n", C_STR(pRoomIndex->name));
                 fprintf(fp, "%s~\n0\n", fix_string(pRoomIndex->description));
                 fprintf(fp, "%s ", fwrite_flag(pRoomIndex->room_flags, buf));
                 fprintf(fp, "%d\n", pRoomIndex->sector_type);
@@ -950,7 +950,7 @@ void save_area(AreaData* area)
 
     fprintf(fp, "#AREADATA\n");
     fprintf(fp, "Version %d\n", AREA_VERSION);
-    fprintf(fp, "Name %s~\n", area->name->chars);
+    fprintf(fp, "Name %s~\n", C_STR(area->name));
     fprintf(fp, "Builders %s~\n", fix_string(area->builders));
     fprintf(fp, "VNUMs %"PRVNUM" %"PRVNUM"\n", area->min_vnum, area->max_vnum);
     fprintf(fp, "Credits %s~\n", area->credits);
@@ -1097,7 +1097,7 @@ void do_asave(Mobile* ch, char* argument)
                 /* Save changed areas. */
             if (IS_SET(area->area_flags, AREA_CHANGED)) {
                 save_area(area);
-                sprintf(buf, "%24s - '%s'\n\r", area->name->chars, area->file_name);
+                sprintf(buf, "%24s - '%s'\n\r", C_STR(area->name), area->file_name);
                 send_to_char(buf, ch);
                 REMOVE_BIT(area->area_flags, AREA_CHANGED);
             }

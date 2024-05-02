@@ -139,7 +139,7 @@ AEDIT(aedit_show)
 
     EDIT_AREA(ch, area);
 
-    printf_to_char(ch, "Name:           {|[{*%"PRVNUM"{|] {_%s{x\n\r", area->vnum, area->name->chars);
+    printf_to_char(ch, "Name:           {|[{*%"PRVNUM"{|] {_%s{x\n\r", area->vnum, C_STR(area->name));
     printf_to_char(ch, "File:           {*%s{x\n\r", area->file_name);
     printf_to_char(ch, "Vnums:          {|[{*%d-%d{|]{x\n\r", area->min_vnum, area->max_vnum);
     printf_to_char(ch, "Levels:         {|[{*%d-%d{|]{x\n\r", area->low_range, area->high_range);
@@ -542,8 +542,8 @@ void do_alist(Mobile* ch, char* argument)
         }
         else if (!str_cmp(sort, "name")) {
             SORT_ARRAY(AreaData*, alist, area_data_count,
-                strcasecmp(alist[i]->name->chars, alist[lo]->name->chars) < 0,
-                strcasecmp(alist[i]->name->chars, alist[hi]->name->chars) > 0);
+                strcasecmp(C_STR(alist[i]->name), C_STR(alist[lo]->name)) < 0,
+                strcasecmp(C_STR(alist[i]->name), C_STR(alist[hi]->name)) > 0);
         }
         else {
             printf_to_char(ch, "{jUnknown sort option '{*%s{j'.{x\n\r\n\r%s", sort, help);
@@ -555,7 +555,7 @@ void do_alist(Mobile* ch, char* argument)
         AreaData* area = alist[i];
         addf_buf( result, "{|[{*%3d{|]{x %-29.29s {|({*%-5d{|-{*%5d{|) {_%-12.12s {|[{*%d{|] [{*%-10.10s{|]{x\n\r",
             area->vnum,
-            area->name->chars,
+            C_STR(area->name),
             area->min_vnum,
             area->max_vnum,
             area->file_name,

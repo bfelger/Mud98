@@ -38,6 +38,8 @@
 
 #include "data/direction.h"
 
+#include "lox/object.h"
+
 #include <stdio.h>
 
 /* macro for flag swapping */
@@ -86,6 +88,7 @@ char* capitalize(const char* str);
 void append_file(Mobile* ch, char* file, char* str);
 void bug(const char* fmt, ...);
 void log_string(const char* str);
+String* fread_lox_string(FILE* fp);
 
 #define ALLOC(T, v)     T* v = (T*)alloc_mem(sizeof(T))
 

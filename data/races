@@ -18,6 +18,8 @@ skills @~
 stats 13 13 13 13 13 @
 max_stats 18 18 18 18 18 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -38,6 +40,8 @@ skills @~
 stats 13 13 13 13 13 @
 max_stats 18 18 18 18 18 @
 size medium~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -58,6 +62,8 @@ skills sneak~ hide~ @~
 stats 12 14 13 15 11 @
 max_stats 16 20 18 21 15 @
 size small~
+start_loc 12000
+class_start @
 #END
 
 #RACE
@@ -78,6 +84,8 @@ skills berserk~ @~
 stats 14 12 14 10 15 @
 max_stats 20 16 19 14 21 @
 size medium~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -98,6 +106,8 @@ skills bash~ fast healing~ @~
 stats 16 11 13 11 14 @
 max_stats 22 15 18 15 20 @
 size large~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -118,6 +128,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -138,6 +150,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -158,6 +172,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -178,6 +194,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -198,6 +216,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -218,6 +238,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -238,6 +260,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -258,6 +282,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -278,6 +304,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -298,6 +326,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -318,6 +348,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -338,6 +370,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -358,6 +392,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -378,6 +414,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -398,6 +436,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -418,6 +458,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -438,6 +480,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -458,6 +502,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -478,6 +524,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -498,6 +546,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -518,6 +568,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -538,6 +590,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -558,6 +612,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -578,6 +634,8 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 
 #RACE
@@ -598,5 +656,7 @@ skills @~
 stats 0 0 0 0 0 @
 max_stats 0 0 0 0 0 @
 size tiny~
+start_loc 0
+class_start @
 #END
 

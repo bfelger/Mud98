@@ -851,7 +851,8 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
 
         sprintf(log_buf, "%s got toasted by %s at %s [room %d]",
                 (IS_NPC(victim) ? victim->short_descr : victim->name),
-                (IS_NPC(ch) ? ch->short_descr : ch->name), ch->in_room->data->name,
+                (IS_NPC(ch) ? ch->short_descr : ch->name), 
+                C_STR(ch->in_room->data->name),
                 ch->in_room->vnum);
 
         if (IS_NPC(victim))

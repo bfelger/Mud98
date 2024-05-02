@@ -30,6 +30,13 @@ Room* new_room(RoomData* room_data, Area* area)
 {
     LIST_ALLOC_PERM(room, Room);
 
+
+    room->header.obj.type = OBJ_ROOM;
+    init_table(&room->header.fields);
+
+    room->header.name = room_data->name;
+    SET_LOX_FIELD(&room->header, room->header.name, name);
+
     room->data = room_data;
     room->next_instance = room_data->instances;
     room_data->instances = room;
@@ -61,7 +68,7 @@ RoomData* new_room_data()
 {
     LIST_ALLOC_PERM(room_data, RoomData);
 
-    room_data->name = &str_empty[0];
+    room_data->name = copy_string(&str_empty[0], 1);
     room_data->description = &str_empty[0];
     room_data->owner = &str_empty[0];
     room_data->heal_rate = 100;
@@ -76,7 +83,6 @@ void free_room_data(RoomData* room_data)
     Reset* reset;
     int i;
 
-    free_string(room_data->name);
     free_string(room_data->description);
     free_string(room_data->owner);
 

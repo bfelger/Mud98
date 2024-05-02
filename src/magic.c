@@ -3175,11 +3175,11 @@ void spell_locate_object(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarge
         else {
             if (IS_IMMORTAL(ch) && in_obj->in_room != NULL)
                 sprintf(buf, "one is in %s [Room %d]\n\r",
-                        in_obj->in_room->data->name, in_obj->in_room->vnum);
+                        in_obj->in_room->data->name->chars, in_obj->in_room->vnum);
             else
                 sprintf(buf, "one is in %s\n\r",
                         in_obj->in_room == NULL ? "somewhere"
-                                                : in_obj->in_room->data->name);
+                                                : in_obj->in_room->data->name->chars);
         }
 
         buf[0] = UPPER(buf[0]);

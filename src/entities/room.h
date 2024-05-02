@@ -56,6 +56,7 @@ typedef enum room_flags_t {
 } RoomFlags;
 
 typedef struct room_t {
+    EntityHeader header;
     Room* next;
     Room* next_instance;
     VNUM vnum;
@@ -75,7 +76,7 @@ typedef struct room_data_t {
     RoomExitData* exit_data[DIR_MAX];
     Reset* reset_first;
     Reset* reset_last;
-    char* name;
+    String* name;
     char* description;
     char* owner;
     VNUM vnum;

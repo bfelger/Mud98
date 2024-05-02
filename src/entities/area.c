@@ -33,7 +33,7 @@ Area* new_area(AreaData* area_data)
     area->header.obj.type = OBJ_AREA;
     init_table(&area->header.fields);
 
-    area->header.name = copy_string(area_data->name->chars, area_data->name->length);
+    area->header.name = area_data->name;
     SET_LOX_FIELD(&area->header, area->header.name, name);
 
     area->data = area_data;
@@ -46,6 +46,7 @@ Area* new_area(AreaData* area_data)
 
 void free_area(Area* area)
 {
+    free_table(&area->header.fields);
     LIST_FREE(area);
 }
 
@@ -82,8 +83,6 @@ void free_area_data(AreaData* area_data)
 Area* create_area_instance(AreaData* area_data, bool create_exits)
 {
     Area* area = new_area(area_data);
-    //area->next = area_data->instances;
-    //area_data->instances = area;
 
     write_value_array(&area_data->instances, OBJ_VAL(area));
 

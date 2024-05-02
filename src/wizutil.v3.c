@@ -132,10 +132,10 @@ void room_pair(RoomData* left, RoomData* right, exit_status ex,
 
     sprintf(buffer, "%10"PRVNUM" %-26.26s %s %"PRVNUM" %-26.26s(%-8.8s)\n\r",
         left->vnum,
-        left->name,
+        C_STR(left->name),
         sExit,
         right->vnum,
-        right->name,
+        C_STR(right->name),
         get_area_name(right->area_data)
     );
 }

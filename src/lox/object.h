@@ -14,6 +14,7 @@
 #include "lox/value.h"
 
 typedef struct area_t Area;
+typedef struct room_t Room;
 
 #define OBJ_TYPE(value)         (AS_OBJ(value)->type)
 
@@ -28,7 +29,9 @@ typedef struct area_t Area;
 #define IS_STRING(value)        is_obj_type(value, OBJ_STRING)
 //
 #define IS_AREA(value)          is_obj_type(value, OBJ_AREA)
-#define IS_ENTITY(value)        IS_OBJ(value) && (IS_AREA(value))
+#define IS_ROOM(value)          is_obj_type(value, OBJ_ROOM)
+#define IS_ENTITY(value)        IS_OBJ(value) && \
+                                    (IS_AREA(value) || IS_ROOM(value))
 
 #define AS_ARRAY(value)         ((ObjArray*)AS_OBJ(value))
 #define AS_BOUND_METHOD(value)  ((ObjBoundMethod*)AS_OBJ(value))
@@ -43,6 +46,7 @@ typedef struct area_t Area;
 //
 #define AS_ENTITY(value)        ((EntityHeader*)AS_OBJ(value))
 #define AS_AREA(value)          ((Area*)AS_OBJ(value))
+#define AS_ROOM(value)          ((Room*)AS_OBJ(value))
 
 typedef enum {
     OBJ_ARRAY,
@@ -57,6 +61,7 @@ typedef enum {
     OBJ_UPVALUE,
     //
     OBJ_AREA,
+    OBJ_ROOM,
 } ObjType;
 
 struct Obj {

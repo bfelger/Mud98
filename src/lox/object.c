@@ -196,7 +196,7 @@ ObjString* copy_string(const char* chars, int length)
         return allocate_string((char*)chars, length, hash);
     }
 
-    char* heap_chars = ALLOCATE(char, length + 1);
+    char* heap_chars = ALLOCATE(char, (size_t)length + 1);
     memcpy(heap_chars, chars, length);
     heap_chars[length] = '\0';
     return allocate_string(heap_chars, length, hash);
@@ -273,7 +273,10 @@ void print_object(Value value)
         break;
     //
     case OBJ_AREA:
-        printf("<area %s>", AS_AREA(value)->data->name->chars);
+        printf("<area %s (%d)>", AS_AREA(value)->data->name->chars, AS_AREA(value)->data->vnum);
+        break;
+    case OBJ_ROOM:
+        printf("<room %s (%d)>", AS_ROOM(value)->data->name->chars, AS_ROOM(value)->vnum);
         break;
     } // end switch
 }

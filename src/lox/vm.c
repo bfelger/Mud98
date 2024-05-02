@@ -157,7 +157,7 @@ bool call_value(Value callee, int arg_count)
         case OBJ_NATIVE: {
                 NativeFn native = AS_NATIVE(callee);
                 Value result = native(arg_count, vm.stack_top - arg_count);
-                vm.stack_top -= arg_count + 1;
+                vm.stack_top -= (ptrdiff_t)arg_count + 1;
                 push(result);
                 return true;
             }

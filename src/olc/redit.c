@@ -190,7 +190,7 @@ REDIT(redit_rlist)
         if ((pRoomIndex = get_room_data(vnum))) {
             found = true;
             addf_buf(buf1, "{|[{*%5d{|]{x %-17.17s ",
-                vnum, capitalize(pRoomIndex->name));
+                vnum, capitalize(C_STR(pRoomIndex->name)));
             if (++col % 3 == 0)
                 add_buf(buf1, "\n\r");
         }
@@ -1257,11 +1257,10 @@ REDIT(redit_copy)
         return false;
     }
 
-    free_string(this->name);
     free_string(this->description);
     free_string(this->owner);
 
-    this->name = str_dup(that->name);
+    this->name = copy_string(that->name->chars, that->name->length);
     this->description = str_dup(that->description);
     this->owner = str_dup(that->owner);
 
@@ -1298,10 +1297,9 @@ REDIT(redit_clear)
     pRoom->clan = 0;
     pRoom->room_flags = 0;
     free_string(pRoom->owner);
-    free_string(pRoom->name);
     free_string(pRoom->description);
     pRoom->owner = str_dup("");
-    pRoom->name = str_dup("");
+    pRoom->name = copy_string(&str_empty[0], 1);;
     pRoom->description = str_dup("");
 
     for (i = 0; i < DIR_MAX; i++) {
@@ -1362,7 +1360,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
             pMob = p_mob_proto;
             sprintf(buf, "M{|[{*%5d{|]{x %-13.13s                     R{|[{*%5d{|]{x %2d-%2d %-15.15s\n\r",
                 reset->arg1, pMob->short_descr, reset->arg3,
-                reset->arg2, reset->arg4, pRoomIndex->name);
+                reset->arg2, reset->arg4, C_STR(pRoomIndex->name));
             strcat(final, buf);
 
             // Check for pet shop.
@@ -1396,7 +1394,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
             sprintf(buf, "O{|[{*%5d{|]{x %-13.13s                     "
                 "R{|[{*%5d{|]{x       %-15.15s\n\r",
                 reset->arg1, pObj->short_descr,
-                reset->arg3, pRoomIndex->name);
+                reset->arg3, C_STR(pRoomIndex->name));
             strcat(final, buf);
 
             break;
@@ -1478,7 +1476,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
             sprintf(buf, "R{|[{*%5d{|]{x %s door of %-19.19s reset to %s\n\r",
                 reset->arg1,
                 capitalize(dir_list[reset->arg2].name),
-                pRoomIndex->name,
+                C_STR(pRoomIndex->name),
                 flag_string(door_resets, reset->arg3));
             strcat(final, buf);
 
@@ -1492,7 +1490,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
             }
 
             sprintf(buf, "R{|[{*%5d{|]{x Exits are randomized in %s\n\r",
-                reset->arg1, pRoomIndex->name);
+                reset->arg1, C_STR(pRoomIndex->name));
             strcat(final, buf);
 
             break;

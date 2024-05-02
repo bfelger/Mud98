@@ -1023,8 +1023,8 @@ void do_rstat(Mobile* ch, char* argument)
         return;
     }
 
-    sprintf(buf, "Name: '%s'\n\rArea: '%s'\n\r", location->name,
-            location->area_data->name->chars);
+    sprintf(buf, "Name: '%s'\n\rArea: '%s'\n\r", C_STR(location->name),
+            C_STR(location->area_data->name));
     send_to_char(buf, ch);
 
     sprintf(buf, "Vnum: %d  Sector: %d  Light: %d  Healing: %d  Mana: %d\n\r",
@@ -1719,7 +1719,7 @@ void do_owhere(Mobile* ch, char* argument)
                     in_obj->carried_by->in_room->vnum);
         else if (in_obj->in_room != NULL && can_see_room(ch, in_obj->in_room->data))
             sprintf(buf, "%3d) %s is in %s [Room %d]\n\r", number,
-                    obj->short_descr, in_obj->in_room->data->name,
+                    obj->short_descr, in_obj->in_room->data->name->chars,
                     in_obj->in_room->vnum);
         else
             sprintf(buf, "%3d) %s is somewhere\n\r", number, obj->short_descr);
@@ -1762,10 +1762,10 @@ void do_mwhere(Mobile* ch, char* argument)
                     sprintf(buf,
                             "%3d) %s (in the body of %s) is in %s [%d]\n\r",
                             count, d->original->name, victim->short_descr,
-                            victim->in_room->data->name, victim->in_room->vnum);
+                            C_STR(victim->in_room->data->name), victim->in_room->vnum);
                 else
                     sprintf(buf, "%3d) %s is in %s [%d]\n\r", count,
-                            victim->name, victim->in_room->data->name,
+                            victim->name, C_STR(victim->in_room->data->name),
                             victim->in_room->vnum);
                 add_buf(buffer, buf);
             }
@@ -1785,7 +1785,7 @@ void do_mwhere(Mobile* ch, char* argument)
             sprintf(buf, "%3d) [%5d] %-28s [%5d] %s\n\r", count,
                     IS_NPC(victim) ? victim->prototype->vnum : 0,
                     IS_NPC(victim) ? victim->short_descr : victim->name,
-                    victim->in_room->vnum, victim->in_room->data->name);
+                    victim->in_room->vnum, C_STR(victim->in_room->data->name));
             add_buf(buffer, buf);
         }
     }

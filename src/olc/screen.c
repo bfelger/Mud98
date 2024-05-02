@@ -28,7 +28,7 @@ char* areaname(void* point)
 {
     AreaData* area = *(AreaData**)point;
 
-    return area->name->chars;
+    return C_STR(area->name);
 }
 
 char* clan2str(void* point)

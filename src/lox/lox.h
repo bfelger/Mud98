@@ -56,6 +56,8 @@ typedef struct {
     pop();                                                                     \
 }
 
+#define C_STR(string)       (string->chars)
+
 typedef ObjString String;
 
 void add_global(const char* name, Value val);

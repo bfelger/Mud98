@@ -19,6 +19,7 @@
 #endif
 
 #include "entities/area.h"
+#include "entities/room.h"
 
 #define GC_HEAP_GROW_FACTOR 2
 
@@ -161,7 +162,12 @@ static void blacken_object(Obj* object)
             mark_entity(&area->header);
             break;
         }
-    }
+    case OBJ_ROOM: {
+            Room* room = (Room*)object;
+            mark_entity(&room->header);
+            break;
+        }
+    } // end switch
 }
 
 static void free_obj_value(Obj* object)
@@ -212,7 +218,7 @@ static void free_obj_value(Obj* object)
             ObjString* string = (ObjString*)object;
             char* str = string->chars;
             if (str != &str_empty[0] && (str < string_space || str >= top_string))
-                FREE_ARRAY(char, string->chars, string->length + 1);
+                FREE_ARRAY(char, string->chars, (size_t)string->length + 1);
             FREE(ObjString, object);
             break;
         }
@@ -221,6 +227,7 @@ static void free_obj_value(Obj* object)
         break;
     //
     case OBJ_AREA:
+    case OBJ_ROOM:
         break;
     } // end switch
 }
@@ -229,6 +236,7 @@ static void mark_natives()
 {
     AreaData* area_data;
     Area* area;
+    RoomData* room_data;
 
     FOR_EACH(area_data, area_data_list) {
         mark_object((Obj*)area_data->name);
@@ -237,6 +245,11 @@ static void mark_natives()
             mark_entity(&area->header);
         }
     }
+
+    FOR_EACH_GLOBAL_ROOM_DATA(room_data) {
+        mark_object((Obj*)room_data->name);
+    }
+
 }
 
 static void mark_roots()

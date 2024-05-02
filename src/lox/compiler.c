@@ -262,7 +262,7 @@ static ObjFunction* end_compiler()
 #ifdef DEBUG_PRINT_CODE
     if (!parser.had_error) {
         disassemble_chunk(current_chunk(), function->name != NULL
-            ? function->name->chars : "<script>");
+            ? C_STR(function->name) : "<script>");
     }
 #endif
 

@@ -69,6 +69,7 @@
 #include "mth/mth.h"
 
 #include "lox/lox.h"
+#include "lox/object.h"
 
 #include <ctype.h>
 #include <stdarg.h>
@@ -557,7 +558,7 @@ void load_rooms(FILE* fp)
         room_data->owner = str_dup("");
         room_data->area_data = area_data_last;
         room_data->vnum = vnum;
-        room_data->name = fread_string(fp);
+        room_data->name = fread_lox_string(fp);
         room_data->description = fread_string(fp);
         /* Area number */ fread_number(fp);
         room_data->room_flags = fread_flag(fp);
@@ -865,7 +866,7 @@ void area_update()
                 }
                 else {
                     reset_area(area);
-                    sprintf(buf, "%s has just been reset.", area->header.name->chars);
+                    sprintf(buf, "%s has just been reset.", C_STR(area->header.name));
                     wiznet(buf, NULL, NULL, WIZ_RESETS, 0, 0);
                     area->reset_timer = 0;
                 }
@@ -1359,6 +1360,13 @@ long flag_convert(char letter)
     }
 
     return bitsum;
+}
+
+String* fread_lox_string(FILE* fp)
+{
+    char* str = fread_string(fp);
+    int len = (int)strlen(str);
+    return copy_string(str, len);
 }
 
 /*

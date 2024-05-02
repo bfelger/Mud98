@@ -1088,7 +1088,7 @@ void bust_a_prompt(Mobile* ch)
                     ((!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_HOLYLIGHT))
                         || (!IS_AFFECTED(ch, AFF_BLIND)
                             && !room_is_dark(ch->in_room)))
-                    ? ch->in_room->data->name
+                    ? C_STR(ch->in_room->data->name)
                     : "darkness");
             else
                 sprintf(BUF(temp2), " ");
@@ -1103,7 +1103,7 @@ void bust_a_prompt(Mobile* ch)
             break;
         case 'z':
             if (IS_IMMORTAL(ch) && ch->in_room != NULL)
-                sprintf(BUF(temp2), "%s", ch->in_room->area->data->name->chars);
+                sprintf(BUF(temp2), "%s", C_STR(ch->in_room->area->data->name));
             else
                 sprintf(BUF(temp2), " ");
             i = BUF(temp2);

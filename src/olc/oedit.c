@@ -667,7 +667,7 @@ OEDIT(oedit_show)
     printf_to_char(ch, "Name:        {|[{*%s{|]{x\n\r", pObj->name);
     printf_to_char(ch, "Area:        {|[{*%5d{|]{_ %s{x\n\r",
         !pObj->area ? -1 : pObj->area->vnum,
-        !pObj->area ? "No Area" : pObj->area->name->chars);
+        !pObj->area ? "No Area" : C_STR(pObj->area->name));
     printf_to_char(ch, "Vnum:        {|[{*%5d{|]{x\n\r", pObj->vnum);
     printf_to_char(ch, "Type:        {|[{*%s{|]{x\n\r", flag_string(type_flag_table, pObj->item_type));
     printf_to_char(ch, "Level:       {|[{*%5d{|]{x\n\r", pObj->level);
