@@ -112,14 +112,14 @@ void get_obj(Mobile* ch, Object* obj, Object* container)
     }
 
     if (ch->carry_number + get_obj_number(obj) > can_carry_n(ch)) {
-        act("$d: you can't carry that many items.", ch, NULL, obj->name,
+        act("$d: you can't carry that many items.", ch, NULL, NAME_STR(obj),
             TO_CHAR);
         return;
     }
 
     if ((!obj->in_obj || obj->in_obj->carried_by != ch)
         && (get_carry_weight(ch) + get_obj_weight(obj) > can_carry_w(ch))) {
-        act("$d: you can't carry that much weight.", ch, NULL, obj->name,
+        act("$d: you can't carry that much weight.", ch, NULL, NAME_STR(obj),
             TO_CHAR);
         return;
     }
@@ -222,7 +222,7 @@ void do_get(Mobile* ch, char* argument)
             found = false;
             for (obj = ch->in_room->contents; obj != NULL; obj = obj_next) {
                 obj_next = obj->next_content;
-                if ((arg1[3] == '\0' || is_name(&arg1[4], obj->name))
+                if ((arg1[3] == '\0' || is_name(&arg1[4], NAME_STR(obj)))
                     && can_see_obj(ch, obj)) {
                     found = true;
                     get_obj(ch, obj, NULL);
@@ -267,7 +267,7 @@ void do_get(Mobile* ch, char* argument)
         }
 
         if (IS_SET(container->value[1], CONT_CLOSED)) {
-            act("The $d is closed.", ch, NULL, container->name, TO_CHAR);
+            act("The $d is closed.", ch, NULL, NAME_STR(container), TO_CHAR);
             return;
         }
 
@@ -286,7 +286,7 @@ void do_get(Mobile* ch, char* argument)
             found = false;
             for (obj = container->contains; obj != NULL; obj = obj_next) {
                 obj_next = obj->next_content;
-                if ((arg1[3] == '\0' || is_name(&arg1[4], obj->name))
+                if ((arg1[3] == '\0' || is_name(&arg1[4], NAME_STR(obj)))
                     && can_see_obj(ch, obj)) {
                     found = true;
                     if (container->prototype->vnum == OBJ_VNUM_PIT
@@ -346,7 +346,7 @@ void do_put(Mobile* ch, char* argument)
     }
 
     if (IS_SET(container->value[1], CONT_CLOSED)) {
-        act("The $d is closed.", ch, NULL, container->name, TO_CHAR);
+        act("The $d is closed.", ch, NULL, NAME_STR(container), TO_CHAR);
         return;
     }
 
@@ -405,7 +405,7 @@ void do_put(Mobile* ch, char* argument)
         for (obj = ch->carrying; obj != NULL; obj = obj_next) {
             obj_next = obj->next_content;
 
-            if ((arg1[3] == '\0' || is_name(&arg1[4], obj->name))
+            if ((arg1[3] == '\0' || is_name(&arg1[4], NAME_STR(obj)))
                 && can_see_obj(ch, obj) && WEIGHT_MULT(obj) == 100
                 && obj->wear_loc == WEAR_UNHELD && obj != container
                 && can_drop_obj(ch, obj)
@@ -553,7 +553,7 @@ void do_drop(Mobile* ch, char* argument)
         for (obj = ch->carrying; obj != NULL; obj = obj_next) {
             obj_next = obj->next_content;
 
-            if ((arg[3] == '\0' || is_name(&arg[4], obj->name))
+            if ((arg[3] == '\0' || is_name(&arg[4], NAME_STR(obj)))
                 && can_see_obj(ch, obj) && obj->wear_loc == WEAR_UNHELD
                 && can_drop_obj(ch, obj)) {
                 found = true;
@@ -2114,7 +2114,7 @@ Object* get_obj_keeper(Mobile* ch, Mobile* keeper, char* argument)
     count = 0;
     for (obj = keeper->carrying; obj != NULL; obj = obj->next_content) {
         if (obj->wear_loc == WEAR_UNHELD && can_see_obj(keeper, obj)
-            && can_see_obj(ch, obj) && is_name(arg, obj->name)) {
+            && can_see_obj(ch, obj) && is_name(arg, NAME_STR(obj))) {
             if (++count == number) return obj;
 
             /* skip other objects of the same name */
@@ -2435,7 +2435,7 @@ void do_list(Mobile* ch, char* argument)
         FOR_EACH_CONTENT(obj, keeper->carrying) {
             if (obj->wear_loc == WEAR_UNHELD && can_see_obj(ch, obj)
                 && (cost = get_cost(keeper, obj, true)) > 0
-                && (arg[0] == '\0' || is_name(arg, obj->name))) {
+                && (arg[0] == '\0' || is_name(arg, NAME_STR(obj)))) {
                 if (!found) {
                     found = true;
                     send_to_char("[Lv Price Qty] Item\n\r", ch);

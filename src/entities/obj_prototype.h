@@ -16,12 +16,14 @@ typedef struct obj_prototype_t ObjPrototype;
 #include "area.h"
 #include "extra_desc.h"
 
+#include "lox/lox.h"
+
 typedef struct obj_prototype_t {
     ObjPrototype* next;
     ExtraDesc* extra_desc;
     Affect* affected;
     AreaData* area;
-    char* name;
+    String* name;
     char* short_descr;
     char* description;
     char* material;

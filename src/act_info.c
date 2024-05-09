@@ -1030,7 +1030,7 @@ void do_look(Mobile* ch, char* argument)
                 }
             }
 
-            if (is_name(arg3, obj->name)) {
+            if (is_name(arg3, NAME_STR(obj))) {
                 if (++count == number) {
                     send_to_char(obj->description, ch);
                     send_to_char("\n\r", ch);
@@ -1058,7 +1058,7 @@ void do_look(Mobile* ch, char* argument)
                 }
             }
 
-            if (is_name(arg3, obj->name)) {
+            if (is_name(arg3, NAME_STR(obj))) {
                 if (++count == number) {
                     send_to_char(obj->description, ch);
                     send_to_char("\n\r", ch);

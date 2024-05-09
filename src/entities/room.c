@@ -30,7 +30,6 @@ Room* new_room(RoomData* room_data, Area* area)
 {
     LIST_ALLOC_PERM(room, Room);
 
-
     room->header.obj.type = OBJ_ROOM;
     init_table(&room->header.fields);
 

@@ -611,7 +611,7 @@ int cmd_eval(VNUM vnum, char* line, int check, Mobile* mob, Mobile* ch,
             return(lval_char != NULL && is_name(buf, lval_char->name));
         case 'o':
         case 'p':
-            return(lval_obj != NULL && is_name(buf, lval_obj->name));
+            return(lval_obj != NULL && is_name(buf, NAME_STR(lval_obj)));
         }
     case CHK_POS:
         return(lval_char != NULL && lval_char->position == position_lookup(buf));
@@ -874,7 +874,7 @@ void expand_arg(char* buf,
         case 'o':
             i = something;
             if (obj1 != NULL && can_see_obj(mob, obj1)) {
-                one_argument(obj1->name, fname);
+                one_argument(NAME_STR(obj1), fname);
                 i = fname;
             }
             break;
@@ -885,7 +885,7 @@ void expand_arg(char* buf,
         case 'p':
             i = something;
             if (obj2 != NULL && can_see_obj(mob, obj2)) {
-                one_argument(obj2->name, fname);
+                one_argument(NAME_STR(obj2), fname);
                 i = fname;
             }
             break;
@@ -1216,7 +1216,7 @@ void mp_give_trigger(Mobile* mob, Mobile* ch, Object* obj)
                 while (*p) {
                     p = one_argument(p, buf);
 
-                    if (is_name(buf, obj->name)
+                    if (is_name(buf, NAME_STR(obj))
                         || !str_cmp("all", buf)) {
                         program_flow(prg->vnum, prg->code, mob, ch, (void*)obj, NULL);
                         return;

@@ -2265,3 +2265,8 @@ void log_string(const char* str)
     return;
 }
 
+String* lox_string(char* str)
+{
+    int len = (int)strlen(str);
+    return copy_string(str, len);
+}

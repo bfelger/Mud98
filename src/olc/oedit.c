@@ -1131,7 +1131,7 @@ ED_FUN_DEC(ed_olist)
 
     for (vnum = area->min_vnum; vnum <= area->max_vnum; vnum++) {
         if ((obj_proto = get_object_prototype(vnum))) {
-            if (fAll || is_name(blarg, obj_proto->name)
+            if (fAll || is_name(blarg, C_STR(obj_proto->name))
                 || (ItemType)flag_value(type_flag_table, blarg) == obj_proto->item_type) {
                 found = true;
                 addf_buf(buf1, "{|[{*%5d{|]{x %-17.16s",
@@ -1184,7 +1184,7 @@ OEDIT(oedit_copy)
         return false;
     }
 
-    RESTRING(obj->name, obj2->name);
+    obj->name = obj2->name;
     RESTRING(obj->short_descr, obj2->short_descr);
     RESTRING(obj->description, obj2->description);
     RESTRING(obj->material, obj2->material);

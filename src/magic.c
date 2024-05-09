@@ -1310,12 +1310,12 @@ void spell_create_water(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget
     if (water > 0) {
         obj->value[2] = LIQ_WATER;
         obj->value[1] += water;
-        if (!is_name("water", obj->name)) {
+        if (!is_name("water", NAME_STR(obj))) {
             char buf[MAX_STRING_LENGTH];
 
-            sprintf(buf, "%s water", obj->name);
-            free_string(obj->name);
-            obj->name = str_dup(buf);
+            sprintf(buf, "%s water", NAME_STR(obj));
+            int len = (int)strlen(buf);
+            NAME_FIELD(obj) = copy_string(buf, len);
         }
         act("$p is filled.", ch, obj, NULL, TO_CHAR);
     }
@@ -2806,7 +2806,7 @@ void spell_identify(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget tar
     sprintf(buf,
             "Object '%s' is type %s, extra flags %s.\n\rWeight is %d, value is "
             "%d, level is %d.\n\r",
-            obj->name, item_table[obj->item_type].name,
+            NAME_STR(obj), item_table[obj->item_type].name,
             extra_bit_name(obj->extra_flags), obj->weight / 10, obj->cost,
             obj->level);
     send_to_char(buf, ch);
@@ -3157,7 +3157,7 @@ void spell_locate_object(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarge
     buffer = new_buf();
 
     FOR_EACH(obj, obj_list) {
-        if (!can_see_obj(ch, obj) || !is_name(target_name, obj->name)
+        if (!can_see_obj(ch, obj) || !is_name(target_name, NAME_STR(obj))
             || IS_OBJ_STAT(obj, ITEM_NOLOCATE) || number_percent() > 2 * level
             || ch->level < obj->level)
             continue;

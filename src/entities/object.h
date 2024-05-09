@@ -26,6 +26,7 @@ typedef struct object_t Object;
 #include <stdio.h>
 
 typedef struct object_t {
+    EntityHeader header;
     Object* next;
     Object* next_content;
     Object* contains;
@@ -37,7 +38,6 @@ typedef struct object_t {
     ObjPrototype* prototype;
     Room* in_room;
     char* owner;
-    char* name;
     char* short_descr;
     char* description;
     char* material;

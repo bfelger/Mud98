@@ -21,7 +21,7 @@ ObjPrototype* new_object_prototype()
 {
     LIST_ALLOC_PERM(obj_proto, ObjPrototype);
 
-    obj_proto->name = str_dup("no name");
+    obj_proto->name = lox_string("no name");
     obj_proto->short_descr = str_dup("(no short description)");
     obj_proto->description = str_dup("(no description)");
     obj_proto->item_type = ITEM_TRASH;
@@ -35,7 +35,7 @@ void free_object_prototype(ObjPrototype* obj_proto)
     ExtraDesc* pExtra;
     Affect* pAf;
 
-    free_string(obj_proto->name);
+    obj_proto->name = NULL;
     free_string(obj_proto->short_descr);
     free_string(obj_proto->description);
 
@@ -106,7 +106,7 @@ void load_objects(FILE* fp)
         obj_proto = new_object_prototype();
         obj_proto->vnum = vnum;
         obj_proto->area = area_data_last;
-        obj_proto->name = fread_string(fp);
+        obj_proto->name = fread_lox_string(fp);
         obj_proto->short_descr = fread_string(fp);
         obj_proto->description = fread_string(fp);
         obj_proto->material = fread_string(fp);

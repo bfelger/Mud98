@@ -50,6 +50,8 @@
 #include "data/race.h"
 #include "data/skill.h"
 
+#include "lox/lox.h"
+
 #include <ctype.h>
 #include <errno.h>
 #include <malloc.h>
@@ -404,8 +406,8 @@ void fwrite_obj(Mobile* ch, Object* obj, FILE* fp, int iNest)
 
     /* these data are only used if they do not match the defaults */
 
-    if (obj->name != obj->prototype->name)
-        fprintf(fp, "Name %s~\n", obj->name);
+    if (!lox_streq(NAME_FIELD(obj), obj->prototype->name))
+        fprintf(fp, "Name %s~\n", NAME_STR(obj));
     if (obj->short_descr != obj->prototype->short_descr)
         fprintf(fp, "ShD  %s~\n", obj->short_descr);
     if (obj->description != obj->prototype->description)
@@ -1360,7 +1362,6 @@ void fread_obj(Mobile* ch, FILE* fp)
     if (obj == NULL) /* either not found or old style */
     {
         obj = new_object();
-        obj->name = str_dup("");
         obj->short_descr = str_dup("");
         obj->description = str_dup("");
     }
@@ -1495,7 +1496,7 @@ void fread_obj(Mobile* ch, FILE* fp)
             break;
 
         case 'N':
-            KEY("Name", obj->name, fread_string(fp));
+            KEY("Name", NAME_FIELD(obj), fread_lox_string(fp));
 
             if (!str_cmp(word, "Nest")) {
                 iNest = fread_number(fp);

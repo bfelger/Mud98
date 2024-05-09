@@ -116,3 +116,15 @@ bool values_equal(Value a, Value b)
     }
 #endif
 }
+
+
+bool lox_streq(ObjString* a, ObjString* b)
+{
+    if (a->hash != b->hash)
+        return false;
+
+    if (a->length != b->length)
+        return false;
+
+    return !strcmp(a->chars, b->chars);
+}

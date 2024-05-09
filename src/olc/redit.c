@@ -301,8 +301,9 @@ REDIT(redit_show)
         add_buf(out, "Desc Kwds:  {|[{*");
         FOR_EACH(ed, pRoom->extra_desc) {
             add_buf(out, ed->keyword);
-            if (ed->next)
+            if (ed->next) {
                 add_buf(out, " ");
+            }
         }
         add_buf(out, "{|]{x\n\r");
     }
@@ -312,29 +313,32 @@ REDIT(redit_show)
     FOR_EACH_IN_ROOM(rch, ch->in_room->people) {
         if (IS_NPC(rch) || can_see(ch, rch)) {
             one_argument(rch->name, BUF(line));
-            if (fcnt)
+            if (fcnt) {
                 add_buf(out, " ");
+            }
             add_buf(out, BUF(line));
             fcnt = true;
         }
     }
     
-    if (!fcnt)
+    if (!fcnt) {
         add_buf(out, "none");
+    }
     
     add_buf(out, "{|]{x\n\r");
     
     add_buf(out, "Objects:    {|[{*");
     fcnt = false;
     FOR_EACH_CONTENT(obj, ch->in_room->contents) {
-        one_argument(obj->name, BUF(line));
-            add_buf(out, " ");
+        one_argument(NAME_STR(obj), BUF(line));
+        add_buf(out, " ");
         add_buf(out, BUF(line));
         fcnt = true;
     }
     
-    if (!fcnt)
+    if (!fcnt) {
         add_buf(out, "none");
+    }
     
     add_buf(out, "{|]{x\n\r");
 
@@ -375,8 +379,9 @@ REDIT(redit_show)
                     BUF(word)[i] = UPPER(BUF(word)[i]);
             }
             add_buf(out, BUF(word));
-            if (fcnt)
+            if (fcnt) {
                 add_buf(out, " ");
+            }
             fcnt = true;
         }
 
@@ -1100,11 +1105,11 @@ void showresets(Mobile* ch, Buffer* buf, AreaData* area, MobPrototype* mob, ObjP
                         }
                     }
                     if (obj && reset->command == 'O' && reset->arg1 == obj->vnum) {
-                        sprintf(buf2, "%-5d %-15.15s %-5d\n\r", obj->vnum, obj->name, room->vnum);
+                        sprintf(buf2, "%-5d %-15.15s %-5d\n\r", obj->vnum, C_STR(obj->name), room->vnum);
                         add_buf(buf, buf2);
                     }
                     if (obj && (reset->command == 'G' || reset->command == 'E') && reset->arg1 == obj->vnum) {
-                        sprintf(buf2, "%-5d %-15.15s %-5d %-5d %-15.15s\n\r", obj->vnum, obj->name, room->vnum, lastmob, pLastMob ? pLastMob->name : "");
+                        sprintf(buf2, "%-5d %-15.15s %-5d %-5d %-15.15s\n\r", obj->vnum, C_STR(obj->name), room->vnum, lastmob, pLastMob ? pLastMob->name : "");
                         add_buf(buf, buf2);
                     }
                 }

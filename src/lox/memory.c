@@ -113,42 +113,42 @@ static void blacken_object(Obj* object)
 
     switch (object->type) {
     case OBJ_ARRAY: {
-            ObjArray* array_ = (ObjArray*)object;
-            mark_array(&array_->val_array);
-            break;
-        }
+        ObjArray* array_ = (ObjArray*)object;
+        mark_array(&array_->val_array);
+        break;
+    }
     case OBJ_BOUND_METHOD: {
-            ObjBoundMethod* bound = (ObjBoundMethod*)object;
-            mark_value(bound->receiver);
-            mark_object((Obj*)bound->method);
-            break;
-        }
+        ObjBoundMethod* bound = (ObjBoundMethod*)object;
+        mark_value(bound->receiver);
+        mark_object((Obj*)bound->method);
+        break;
+    }
     case OBJ_CLASS: {
-            ObjClass* klass = (ObjClass*)object;
-            mark_object((Obj*)klass->name);
-            mark_table(&klass->methods);
-            break;
-        }
+        ObjClass* klass = (ObjClass*)object;
+        mark_object((Obj*)klass->name);
+        mark_table(&klass->methods);
+        break;
+    }
     case OBJ_CLOSURE: {
-            ObjClosure* closure = (ObjClosure*)object;
-            mark_object((Obj*)closure->function);
-            for (int i = 0; i < closure->upvalue_count; i++) {
-                mark_object((Obj*)closure->upvalues[i]);
-            }
-            break;
+        ObjClosure* closure = (ObjClosure*)object;
+        mark_object((Obj*)closure->function);
+        for (int i = 0; i < closure->upvalue_count; i++) {
+            mark_object((Obj*)closure->upvalues[i]);
         }
+        break;
+    }
     case OBJ_FUNCTION: {
-            ObjFunction* function = (ObjFunction*)object;
-            mark_object((Obj*)function->name);
-            mark_array(&function->chunk.constants);
-            break;
-        }
+        ObjFunction* function = (ObjFunction*)object;
+        mark_object((Obj*)function->name);
+        mark_array(&function->chunk.constants);
+        break;
+    }
     case OBJ_INSTANCE: {
-            ObjInstance* instance = (ObjInstance*)object;
-            mark_object((Obj*)instance->klass);
-            mark_table(&instance->fields);
-            break;
-        }
+        ObjInstance* instance = (ObjInstance*)object;
+        mark_object((Obj*)instance->klass);
+        mark_table(&instance->fields);
+        break;
+    }
     case OBJ_UPVALUE:
         mark_value(((ObjUpvalue*)object)->closed);
         break;
@@ -158,15 +158,20 @@ static void blacken_object(Obj* object)
         break;
     //
     case OBJ_AREA: {
-            Area* area = (Area*)object;
-            mark_entity(&area->header);
-            break;
-        }
+        Area* area = (Area*)object;
+        mark_entity(&area->header);
+        break;
+    }
     case OBJ_ROOM: {
-            Room* room = (Room*)object;
-            mark_entity(&room->header);
-            break;
-        }
+        Room* room = (Room*)object;
+        mark_entity(&room->header);
+        break;
+    }
+    case OBJ_OBJ: {
+        Object* obj = (Object*)object;
+        mark_entity(&obj->header);
+        break;
+    }
     } // end switch
 }
 
@@ -228,6 +233,7 @@ static void free_obj_value(Obj* object)
     //
     case OBJ_AREA:
     case OBJ_ROOM:
+    case OBJ_OBJ:
         break;
     } // end switch
 }

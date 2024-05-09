@@ -273,10 +273,16 @@ void print_object(Value value)
         break;
     //
     case OBJ_AREA:
-        printf("<area %s (%d)>", AS_AREA(value)->data->name->chars, AS_AREA(value)->data->vnum);
+        printf("<area %s (%d)>", AS_AREA(value)->data->name->chars, 
+            AS_AREA(value)->data->vnum);
         break;
     case OBJ_ROOM:
-        printf("<room %s (%d)>", AS_ROOM(value)->data->name->chars, AS_ROOM(value)->vnum);
+        printf("<room %s (%d)>", AS_ROOM(value)->data->name->chars, 
+            AS_ROOM(value)->vnum);
+        break;
+    case OBJ_OBJ:
+        printf("<obj %s (%d)>", NAME_STR(AS_OBJECT(value)), 
+            AS_OBJECT(value)->prototype->vnum);
         break;
     } // end switch
 }

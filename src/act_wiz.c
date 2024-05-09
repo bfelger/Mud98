@@ -1059,7 +1059,7 @@ void do_rstat(Mobile* ch, char* argument)
     send_to_char(".\n\rObjects:   ", ch);
     FOR_EACH_CONTENT(obj, room->contents) {
         send_to_char(" ", ch);
-        one_argument(obj->name, buf);
+        one_argument(NAME_STR(obj), buf);
         send_to_char(buf, ch);
     }
     send_to_char(".\n\r", ch);
@@ -1103,7 +1103,7 @@ void do_ostat(Mobile* ch, char* argument)
         return;
     }
 
-    sprintf(buf, "Name(s): %s\n\r", obj->name);
+    sprintf(buf, "Name(s): %s\n\r", NAME_STR(obj));
     send_to_char(buf, ch);
 
     sprintf(buf, "Vnum: %d  Type: %s  Resets: %d\n\r",
@@ -1667,7 +1667,7 @@ void do_ofind(Mobile* ch, char* argument)
     for (vnum = 0; nMatch < obj_proto_count; vnum++) {
         if ((obj_proto = get_object_prototype(vnum)) != NULL) {
             nMatch++;
-            if (fAll || is_name(argument, obj_proto->name)) {
+            if (fAll || is_name(argument, C_STR(obj_proto->name))) {
                 found = true;
                 sprintf(buf, "[%5d] %s\n\r", obj_proto->vnum,
                         obj_proto->short_descr);
@@ -1702,7 +1702,7 @@ void do_owhere(Mobile* ch, char* argument)
     }
 
     FOR_EACH(obj, obj_list) {
-        if (!can_see_obj(ch, obj) || !is_name(argument, obj->name)
+        if (!can_see_obj(ch, obj) || !is_name(argument, NAME_STR(obj))
             || ch->level < obj->level)
             continue;
 
@@ -3382,8 +3382,7 @@ void do_string(Mobile* ch, char* argument)
         }
 
         if (!str_prefix(arg2, "name")) {
-            free_string(obj->name);
-            obj->name = str_dup(arg3);
+            NAME_FIELD(obj) = lox_string(arg3);
             return;
         }
 

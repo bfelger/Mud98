@@ -21,6 +21,12 @@ Object* new_object()
 {
     LIST_ALLOC_PERM(obj, Object);
 
+    obj->header.obj.type = OBJ_ROOM;
+    init_table(&obj->header.fields);
+
+    obj->header.name = lox_string(str_empty);
+    SET_LOX_FIELD(&obj->header, obj->header.name, name);
+
     VALIDATE(obj);
 
     return obj;
@@ -48,7 +54,6 @@ void free_object(Object* obj)
     }
     obj->extra_desc = NULL;
 
-    free_string(obj->name);
     free_string(obj->description);
     free_string(obj->short_descr);
     free_string(obj->owner);
@@ -67,7 +72,7 @@ void clone_object(Object* parent, Object* clone)
         return;
 
     /* start fixing the object */
-    clone->name = str_dup(parent->name);
+    clone->header.name = parent->header.name;
     clone->short_descr = str_dup(parent->short_descr);
     clone->description = str_dup(parent->description);
     clone->item_type = parent->item_type;
@@ -193,9 +198,11 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level)
     obj->level = obj_proto->level;
     obj->wear_loc = -1;
 
-    obj->name = str_dup(obj_proto->name);           /* OLC */
-    obj->short_descr = str_dup(obj_proto->short_descr);    /* OLC */
-    obj->description = str_dup(obj_proto->description);    /* OLC */
+    obj->header.name = obj_proto->name;                     // OLC
+    SET_LOX_FIELD(&obj->header, obj->header.name, name);
+
+    obj->short_descr = str_dup(obj_proto->short_descr);     // OLC
+    obj->description = str_dup(obj_proto->description);     // OLC
     obj->material = str_dup(obj_proto->material);
     obj->item_type = obj_proto->item_type;
     obj->extra_flags = obj_proto->extra_flags;
@@ -272,10 +279,11 @@ Value create_object_value(Object* object)
     push(OBJ_VAL(inst));
 
     SET_NATIVE_FIELD(inst, object, base, OBJ);
-    SET_NATIVE_FIELD(inst, object->name, name, STR);
     SET_NATIVE_FIELD(inst, object->prototype->vnum, vnum, I32);
     SET_NATIVE_FIELD(inst, object->short_descr, short_desc, STR);
     SET_NATIVE_FIELD(inst, object->in_room, in_room, OBJ);
+
+    SET_LOX_FIELD(inst, object->header.name, name);
 
     pop(); // instance
 

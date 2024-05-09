@@ -58,6 +58,9 @@ typedef struct {
 
 #define C_STR(string)       (string->chars)
 
+#define NAME_STR(obj)       (obj->header.name->chars)
+#define NAME_FIELD(obj)     (obj->header.name)
+
 typedef ObjString String;
 
 void add_global(const char* name, Value val);
@@ -71,6 +74,8 @@ InterpretResult interpret_code(const char* source);
 Value pop();
 void push(Value value);
 void runtime_error(const char* format, ...);
+
+bool lox_streq(ObjString* a, ObjString* b);
 
 extern CompileContext compile_context;
 extern ExecContext exec_context;

@@ -313,7 +313,7 @@ void save_object(FILE* fp, ObjPrototype* obj_proto)
     char buf[MAX_STRING_LENGTH];
 
     fprintf(fp, "#%"PRVNUM"\n", obj_proto->vnum);
-    fprintf(fp, "%s~\n", obj_proto->name);
+    fprintf(fp, "%s~\n", C_STR(obj_proto->name));
     fprintf(fp, "%s~\n", obj_proto->short_descr);
     fprintf(fp, "%s~\n", fix_string(obj_proto->description));
     fprintf(fp, "%s~\n", obj_proto->material);

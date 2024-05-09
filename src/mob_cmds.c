@@ -404,7 +404,7 @@ void do_mpjunk(Mobile* ch, char* argument)
     else
         for (obj = ch->carrying; obj != NULL; obj = obj_next) {
             obj_next = obj->next_content;
-            if (arg[3] == '\0' || is_name(&arg[4], obj->name)) {
+            if (arg[3] == '\0' || is_name(&arg[4], NAME_STR(obj))) {
                 if (obj->wear_loc != WEAR_UNHELD)
                     unequip_char(ch, obj);
                 extract_obj(obj);

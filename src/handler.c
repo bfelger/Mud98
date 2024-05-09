@@ -1575,7 +1575,7 @@ Object* get_obj_list(Mobile* ch, char* argument, Object* list)
     number = number_argument(argument, arg);
     count = 0;
     FOR_EACH_CONTENT(obj, list) {
-        if (can_see_obj(ch, obj) && is_name(arg, obj->name)) {
+        if (can_see_obj(ch, obj) && is_name(arg, NAME_STR(obj))) {
             if (++count == number)
                 return obj;
         }
@@ -1596,7 +1596,7 @@ Object* get_obj_carry(Mobile* ch, char* argument, Mobile* viewer)
     count = 0;
     FOR_EACH_CONTENT(obj, ch->carrying) {
         if (obj->wear_loc == WEAR_UNHELD && (can_see_obj(viewer, obj))
-            && is_name(arg, obj->name)) {
+            && is_name(arg, NAME_STR(obj))) {
             if (++count == number) return obj;
         }
     }
@@ -1616,7 +1616,7 @@ Object* get_obj_wear(Mobile* ch, char* argument)
     count = 0;
     FOR_EACH_CONTENT(obj, ch->carrying) {
         if (obj->wear_loc != WEAR_UNHELD && can_see_obj(ch, obj)
-            && is_name(arg, obj->name)) {
+            && is_name(arg, NAME_STR(obj))) {
             if (++count == number) return obj;
         }
     }
@@ -1654,7 +1654,7 @@ Object* get_obj_world(Mobile* ch, char* argument)
     number = number_argument(argument, arg);
     count = 0;
     FOR_EACH(obj, obj_list) {
-        if (can_see_obj(ch, obj) && is_name(arg, obj->name)) {
+        if (can_see_obj(ch, obj) && is_name(arg, NAME_STR(obj))) {
             if (++count == number) return obj;
         }
     }
@@ -2390,7 +2390,7 @@ int get_vnum_obj_name_area(char* name, AreaData* area)
     for (hash = 0; hash < MAX_KEY_HASH; hash++)
         FOR_EACH(obj, obj_proto_hash[hash])
             if (obj->area == area
-                && !str_prefix(name, obj->name))
+                && !str_prefix(name, C_STR(obj->name)))
                 return obj->vnum;
 
     return 0;

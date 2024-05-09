@@ -15,6 +15,7 @@
 
 typedef struct area_t Area;
 typedef struct room_t Room;
+typedef struct object_t Object;
 
 #define OBJ_TYPE(value)         (AS_OBJ(value)->type)
 
@@ -47,6 +48,7 @@ typedef struct room_t Room;
 #define AS_ENTITY(value)        ((EntityHeader*)AS_OBJ(value))
 #define AS_AREA(value)          ((Area*)AS_OBJ(value))
 #define AS_ROOM(value)          ((Room*)AS_OBJ(value))
+#define AS_OBJECT(value)        ((Object*)AS_OBJ(value))
 
 typedef enum {
     OBJ_ARRAY,
@@ -62,6 +64,7 @@ typedef enum {
     //
     OBJ_AREA,
     OBJ_ROOM,
+    OBJ_OBJ,
 } ObjType;
 
 struct Obj {
