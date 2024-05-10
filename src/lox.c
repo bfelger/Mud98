@@ -12,16 +12,11 @@
 
 static void lox_eval(Mobile* ch, char* argument)
 {
-    char script[MSL];
-
-    // Add a semicolon in case it was omitted.
-    sprintf(script, "%s;", argument);
-
     compile_context.me = ch;
     exec_context.me = ch;
     exec_context.is_repl = true;
 
-    interpret_code(script);
+    interpret_code(argument);
 
     compile_context.me = NULL;
     exec_context.me = NULL;

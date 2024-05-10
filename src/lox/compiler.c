@@ -540,6 +540,7 @@ static void literal(bool can_assign)
     case TOKEN_FALSE: emit_byte(OP_FALSE); break;
     case TOKEN_NIL: emit_byte(OP_NIL); break;
     case TOKEN_TRUE: emit_byte(OP_TRUE); break;
+    case TOKEN_SELF: emit_byte(OP_SELF); break;
     default: return; // Unreachable.
     }
 }
@@ -799,6 +800,7 @@ ParseRule rules[] = {
     [TOKEN_TRUE]            = { literal,    NULL,       PREC_NONE       },
     [TOKEN_VAR]             = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_WHILE]           = { NULL,       NULL,       PREC_NONE       },
+    [TOKEN_SELF]            = { literal,    NULL,       PREC_NONE       },
     [TOKEN_ERROR]           = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_EOF]             = { NULL,       NULL,       PREC_NONE       },
 };
@@ -968,7 +970,11 @@ static void var_declaration()
 static void expression_statement()
 {
     expression();
-    consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
+
+    if (exec_context.is_repl)
+        match(TOKEN_SEMICOLON);
+    else
+        consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
 
     if (exec_context.is_repl && current->function->name == NULL) {
         emit_byte(OP_PRINT);
@@ -983,7 +989,7 @@ static void for_statement()
     begin_scope();
     consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
     if (match(TOKEN_SEMICOLON)) {
-      // No initializer.
+        // No initializer.
     }
     else if (match(TOKEN_VAR)) {
         var_declaration();

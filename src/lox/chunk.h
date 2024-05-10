@@ -54,6 +54,8 @@ typedef enum {
     OP_CLASS,
     OP_INHERIT,
     OP_METHOD,
+    // Game entities
+    OP_SELF,
 } OpCode;
 
 typedef struct {

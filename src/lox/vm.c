@@ -676,6 +676,13 @@ InterpretResult run()
         case OP_METHOD:
             define_method(READ_STRING());
             break;
+        // In-game entities
+        case OP_SELF:
+            if (exec_context.me != NULL)
+                push(OBJ_VAL(exec_context.me));
+            else
+                push(NIL_VAL);
+            break;
         } // end switch
     }
 
