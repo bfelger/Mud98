@@ -1173,7 +1173,8 @@ static void declaration()
         statement();
     }
 
-    if (parser.panic_mode) synchronize();
+    if (parser.panic_mode)
+        synchronize();
 }
 
 static void statement()
@@ -1203,6 +1204,9 @@ static void statement()
         begin_scope();
         block();
         end_scope();
+    }
+    else if (match(TOKEN_SEMICOLON)) {
+        // Ignore extraneous semicolons
     }
     else {
         expression_statement();

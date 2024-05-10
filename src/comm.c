@@ -1683,8 +1683,22 @@ void nanny(Descriptor * d, char* argument)
         write_to_buffer(d, buf, 0);
         ch->next = mob_list;
         mob_list = ch;
-        ch->pcdata->next = player_data_list;
-        player_data_list = ch->pcdata;
+
+        {
+            PlayerData* pc;
+            bool logged_in = false;
+            FOR_EACH(pc, player_data_list) {
+                if (pc == ch->pcdata) {
+                    logged_in = true;
+                    break;
+                }
+            }
+
+            if (!logged_in) {
+                ch->pcdata->next = player_data_list;
+                player_data_list = ch->pcdata;
+            }
+        }
 
         d->connected = CON_PLAYING;
         reset_char(ch);

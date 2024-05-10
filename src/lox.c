@@ -31,10 +31,10 @@ static void lox_eval(Mobile* ch, char* argument)
 void do_lox(Mobile* ch, char* argument)
 {
     static const char* help =
-        "USAGE: {*LOX EVAL <script>\n\r"
+        "{jUSAGE: {*LOX EVAL <script>\n\r"
         "       LOX NEW <name>\n\r"
-        "\n\r"
-        "Type '{*LOX <option>{x' for more information.\n\r";
+        "{j\n\r"
+        "Type '{*LOX <option>{j' for more information.{x\n\r";
 
     char arg[MAX_INPUT_LENGTH];
 
