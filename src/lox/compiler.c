@@ -969,7 +969,13 @@ static void expression_statement()
 {
     expression();
     consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
-    emit_byte(OP_POP);
+
+    if (exec_context.is_repl && current->function->name == NULL) {
+        emit_byte(OP_PRINT);
+    }
+    else {
+        emit_byte(OP_POP);
+    }
 }
 
 static void for_statement()

@@ -2476,7 +2476,7 @@ void colourconv(char* buffer, const char* txt, Mobile * ch)
 }
 
 // source: EOD, by John Booth <???> 
-void printf_to_char(Mobile* ch, char* fmt, ...)
+void printf_to_char(Mobile* ch, const char* fmt, ...)
 {
     char buf[MAX_STRING_LENGTH];
     va_list args;

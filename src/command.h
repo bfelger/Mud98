@@ -274,5 +274,6 @@ COMMAND(do_sklist)
 COMMAND(do_objlist)
 COMMAND(do_moblist)
 COMMAND(do_quest)
+COMMAND(do_lox)
 
 #undef COMMAND

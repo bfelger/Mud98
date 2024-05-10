@@ -94,7 +94,7 @@ void init_damage_consts()
     add_buf(src, damtype_start);
 
     for (int i = 0; i < DAM_TYPE_COUNT; ++i) {
-        addf_buf(src, "       this.%s = %d;", damage_table[i].name, 
+        addf_buf(src, "       this.%s = %d;", capitalize(damage_table[i].name), 
             damage_table[i].type);
     }
 

@@ -32,7 +32,7 @@ static Obj* allocate_object(size_t size, ObjType type)
     vm.objects = object;
 
 #ifdef DEBUG_LOG_GC
-    printf("%p allocate %zu for %d\n", (void*)object, size, type);
+    lox_printf("%p allocate %zu for %d\n", (void*)object, size, type);
 #endif
 
     return object;
@@ -215,10 +215,10 @@ ObjUpvalue* new_upvalue(Value* slot)
 static void print_function(ObjFunction* function)
 {
     if (function->name == NULL) {
-        printf("<script>");
+        lox_printf("<script>");
         return;
     }
-    printf("<fn %s>", function->name->chars);
+    lox_printf("<fn %s>", function->name->chars);
 }
 
 void print_object(Value value)
@@ -228,20 +228,20 @@ void print_object(Value value)
     switch (OBJ_TYPE(value)) {
     case OBJ_ARRAY: {
         ValueArray* array_ = &AS_ARRAY(value)->val_array;
-            printf("[");
+            lox_printf("[");
             for (int i = 0; i < array_->count; ++i) {
                 if (i > 0)
-                    printf(",");
+                    lox_printf(",");
                 print_value(array_->values[i]);
             }
-            printf("]");
+            lox_printf("]");
             break;
         }
     case OBJ_BOUND_METHOD:
         print_function(AS_BOUND_METHOD(value)->method->function);
         break;
     case OBJ_CLASS:
-        printf("%s", AS_CLASS(value)->name->chars);
+        lox_printf("%s", AS_CLASS(value)->name->chars);
         break;
     case OBJ_CLOSURE:
         print_function(AS_CLOSURE(value)->function);
@@ -250,43 +250,43 @@ void print_object(Value value)
         print_function(AS_FUNCTION(value));
         break;
     case OBJ_INSTANCE:
-        printf("%s instance", AS_INSTANCE(value)->klass->name->chars);
+        lox_printf("%s instance", AS_INSTANCE(value)->klass->name->chars);
         break;
     case OBJ_NATIVE:
-        printf("<native fn>");
+        lox_printf("<native fn>");
         break;
     case OBJ_RAW_PTR: {
             ObjRawPtr* raw_ptr = AS_RAW_PTR(value);
             switch (raw_ptr->type) {
-            case RAW_OBJ: printf("<raw_obj %" PRIxPTR ">", raw_ptr->addr); break;
-            case RAW_I16: printf("<raw_i16 %d>", *((int16_t*)raw_ptr->addr)); break;
-            case RAW_I32: printf("<raw_i32 %d>", *((int32_t*)raw_ptr->addr)); break;
-            case RAW_U64: printf("<raw_u64 %llu>", *((uint64_t*)raw_ptr->addr)); break;
-            case RAW_STR: printf("<raw_str %s>", *((char**)raw_ptr->addr)); break;
+            case RAW_OBJ: lox_printf("<raw_obj %" PRIxPTR ">", raw_ptr->addr); break;
+            case RAW_I16: lox_printf("<raw_i16 %d>", *((int16_t*)raw_ptr->addr)); break;
+            case RAW_I32: lox_printf("<raw_i32 %d>", *((int32_t*)raw_ptr->addr)); break;
+            case RAW_U64: lox_printf("<raw_u64 %llu>", *((uint64_t*)raw_ptr->addr)); break;
+            case RAW_STR: lox_printf("<raw_str %s>", *((char**)raw_ptr->addr)); break;
             }
             break;
         }
     case OBJ_STRING:
-        printf("%s", AS_CSTRING(value));
+        lox_printf("%s", AS_CSTRING(value));
         break;
     case OBJ_UPVALUE:
-        printf("upvalue");
+       lox_printf("upvalue");
         break;
     //
     case OBJ_AREA:
-        printf("<area %s (%d)>", AS_AREA(value)->data->name->chars, 
+        lox_printf("<area %s (%d)>", AS_AREA(value)->data->name->chars, 
             AS_AREA(value)->data->vnum);
         break;
     case OBJ_ROOM:
-        printf("<room %s (%d)>", AS_ROOM(value)->data->name->chars, 
+        lox_printf("<room %s (%d)>", AS_ROOM(value)->data->name->chars, 
             AS_ROOM(value)->vnum);
         break;
     case OBJ_OBJ:
-        printf("<obj %s (%d)>", NAME_STR(AS_OBJECT(value)), 
+        lox_printf("<obj %s (%d)>", NAME_STR(AS_OBJECT(value)), 
             AS_OBJECT(value)->prototype->vnum);
         break;
     case OBJ_MOB:
-        printf("<mob %s (%d)>", NAME_STR(AS_MOBILE(value)),
+        lox_printf("<mob %s (%d)>", NAME_STR(AS_MOBILE(value)),
             AS_MOBILE(value)->prototype->vnum);
         break;
     } // end switch

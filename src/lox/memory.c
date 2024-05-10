@@ -64,9 +64,9 @@ void mark_object(Obj* object)
     if (object == NULL) return;
     if (object->is_marked) return;
 #ifdef DEBUG_LOG_GC
-    printf("%p mark ", (void*)object);
+    lox_printf("%p mark ", (void*)object);
     print_value(OBJ_VAL(object));
-    printf("\n");
+    lox_printf("\n");
 #endif
     object->is_marked = true;
 
@@ -107,9 +107,9 @@ static void mark_entity(EntityHeader* entity)
 static void blacken_object(Obj* object)
 {
 #ifdef DEBUG_LOG_GC
-    printf("%p blacken ", (void*)object);
+    lox_printf("%p blacken ", (void*)object);
     print_value(OBJ_VAL(object));
-    printf("\n");
+    lox_printf("\n");
 #endif
 
     switch (object->type) {
@@ -185,7 +185,7 @@ static void blacken_object(Obj* object)
 static void free_obj_value(Obj* object)
 {
 #ifdef DEBUG_LOG_GC
-    printf("%p free type %d\n", (void*)object, object->type);
+    lox_printf("%p free type %d\n", (void*)object, object->type);
 #endif
     switch (object->type) {
     case OBJ_ARRAY:
@@ -348,7 +348,7 @@ static void sweep()
 void collect_garbage()
 {
 #ifdef DEBUG_LOG_GC
-    printf("-- gc begin\n");
+    lox_printf("-- gc begin\n");
     size_t before = vm.bytes_allocated;
 #endif
 
@@ -360,8 +360,8 @@ void collect_garbage()
     vm.next_gc = vm.bytes_allocated * GC_HEAP_GROW_FACTOR;
 
 #ifdef DEBUG_LOG_GC
-    printf("-- gc end\n");
-    printf("   collected %zu bytes (from %zu to %zu) next at %zu\n",
+    lox_printf("-- gc end\n");
+    lox_printf("   collected %zu bytes (from %zu to %zu) next at %zu\n",
         before - vm.bytes_allocated, before, vm.bytes_allocated, vm.next_gc);
 #endif
 }

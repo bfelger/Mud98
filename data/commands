@@ -1,4 +1,4 @@
-264
+265
 
 #COMMAND
 name .~
@@ -1049,6 +1049,15 @@ name log~
 do_fun do_log~
 position dead~
 level 59
+log log_always~
+show undef~
+#END
+
+#COMMAND
+name lox~
+do_fun do_lox~
+position dead~
+level 60
 log log_always~
 show undef~
 #END

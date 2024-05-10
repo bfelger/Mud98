@@ -57,12 +57,7 @@ void runtime_error(const char* format, ...)
         }
     }
 
-    if (exec_context.me == NULL) {
-        fprintf(stderr, "%s", errbuf);
-    }
-    else {
-        send_to_char(errbuf, exec_context.me);
-    }
+    lox_printf("%s", errbuf);
 
     reset_stack();
 }
@@ -304,13 +299,13 @@ InterpretResult run()
 
     for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
-        printf("          ");
+        lox_printf("          ");
         for (Value* slot = vm.stack; slot < vm.stack_top; slot++) {
-            printf("[ ");
+            lox_printf("[ ");
             print_value(*slot);
-            printf(" ]");
+            lox_printf(" ]");
         }
-        printf("\n");
+        lox_printf("\n\r");
         disassemble_instruction(&frame->closure->function->chunk,
             (int)(frame->ip - frame->closure->function->chunk.code));
 #endif
@@ -554,7 +549,7 @@ InterpretResult run()
             break;
         case OP_PRINT: {
                 print_value(pop());
-                printf("\n");
+                lox_printf("\n");
                 break;
             }
         case OP_JUMP: {
@@ -638,13 +633,13 @@ InterpretResult run()
                     pop();
 
 #ifdef DEBUG_TRACE_EXECUTION
-                    printf("          ");
+                    lox_printf("          ");
                     for (Value* slot = vm.stack; slot < vm.stack_top; slot++) {
-                        printf("[ ");
+                        lox_printf("[ ");
                         print_value(*slot);
-                        printf(" ]");
+                        lox_printf(" ]");
                     }
-                    printf("\n");
+                    lox_printf("\n");
 #endif
                     return INTERPRET_OK;
                 }
@@ -654,13 +649,13 @@ InterpretResult run()
                 frame = &vm.frames[vm.frame_count - 1];
 
 #ifdef DEBUG_TRACE_EXECUTION
-                printf("          ");
+                lox_printf("          ");
                 for (Value* slot = vm.stack; slot < vm.stack_top; slot++) {
-                    printf("[ ");
+                    lox_printf("[ ");
                     print_value(*slot);
-                    printf(" ]");
+                    lox_printf(" ]");
                 }
-                printf("\n");
+                lox_printf("\n");
 #endif
                 break;
             }

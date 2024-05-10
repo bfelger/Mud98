@@ -5,11 +5,32 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
+#include <stdarg.h>
 #include <string.h>
 
+#include "lox/lox.h"
 #include "lox/object.h"
 #include "lox/memory.h"
 #include "lox/value.h"
+
+void printf_to_char(Mobile*, const char*, ...);
+
+void lox_printf(const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+    if (exec_context.me != NULL) {
+        char buf[4608];
+        vsprintf(buf, format, args);
+        printf_to_char(exec_context.me, "%s", buf);
+    }
+    else {
+        vprintf(format, args);
+    }
+
+    va_end(args);
+}
 
 void init_value_array(ValueArray* array)
 {
@@ -75,13 +96,13 @@ void print_value(Value value)
 {
 #ifdef NAN_BOXING
     if (IS_BOOL(value)) {
-        printf("%s", AS_BOOL(value) ? "true" : "false");
+        lox_printf("%s", AS_BOOL(value) ? "true" : "false");
     }
     else if (IS_NIL(value)) {
-        printf("nil");
+        lox_printf("nil");
     }
     else if (IS_NUMBER(value)) {
-        printf("%g", AS_NUMBER(value));
+        lox_printf("%g", AS_NUMBER(value));
     }
     else if (IS_OBJ(value)) {
         print_object(value);
@@ -89,10 +110,10 @@ void print_value(Value value)
 #else
     switch (value.type) {
     case VAL_BOOL:
-        printf("%s", AS_BOOL(value) ? "true" : "false");
+        lox_printf("%s", AS_BOOL(value) ? "true" : "false");
         break;
-    case VAL_NIL: printf("nil"); break;
-    case VAL_NUMBER: printf("%g", AS_NUMBER(value)); break;
+    case VAL_NIL: lox_printf("nil"); break;
+    case VAL_NUMBER: lox_printf("%g", AS_NUMBER(value)); break;
     case VAL_OBJ: print_object(value); break;
     }
 #endif

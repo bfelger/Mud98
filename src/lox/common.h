@@ -17,7 +17,7 @@
 // disable this.
 #define NAN_BOXING
 
-#define DEBUG_PRINT_CODE
+//#define DEBUG_PRINT_CODE
 //#define DEBUG_TRACE_EXECUTION
 //#define DEBUG_STRESS_GC
 //#define DEBUG_LOG_GC
@@ -27,6 +27,7 @@
 // Externals
 void* alloc_mem(size_t sMem);
 void bug(const char* fmt, ...);
+void lox_printf(const char* format, ...);
 void free_mem(void* pMem, size_t sMem);
 
 #endif

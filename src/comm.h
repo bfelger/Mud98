@@ -111,7 +111,7 @@ void page_to_char(const char* txt, Mobile* ch);
 void act_new(const char* format, Mobile* ch, const void* arg1,
     const void* arg2, ActTarget type, Position min_pos);
 
-void printf_to_char(Mobile*, char*, ...);
+void printf_to_char(Mobile*, const char*, ...);
 void bugf(char*, ...);
 void printf_log(char*, ...);
 size_t colour(char type, Mobile* ch, char* string);

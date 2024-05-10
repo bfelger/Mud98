@@ -93,7 +93,7 @@ void do_cedit(Mobile* ch, char* argument)
     }
 
     if (ch->pcdata->security < MIN_CEDIT_SECURITY) {
-        send_to_char("GEdit : You do not have enough security to edit classes.\n\r", ch);
+        send_to_char("CEdit : You do not have enough security to edit classes.\n\r", ch);
         return;
     }
 

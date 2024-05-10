@@ -31,13 +31,13 @@ typedef struct {
     Room* here;
     Mobile* me;
     Object* this_;
+    bool is_repl;
 } ExecContext;
 
 typedef ObjString String;
 
 void add_global(const char* name, Value val);
 InterpretResult call_function(const char* fn_name, int count, ...);
-Value create_room_value(Room* room);
 ObjClass* find_class(const char* class_name);
 void free_vm();
 void init_natives();

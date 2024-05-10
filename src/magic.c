@@ -239,7 +239,8 @@ bool check_dispel(LEVEL dis_level, Mobile* victim, SKNUM sn)
 /* for finding mana costs -- temporary version */
 int mana_cost(Mobile* ch, int min_mana, LEVEL level)
 {
-    if (ch->level + 2 == level) return 1000;
+    if (ch->level + 2 == level) 
+        return 1000;
     return UMAX(min_mana, (100 / (2 + ch->level - level)));
 }
 
@@ -447,7 +448,8 @@ void do_cast(Mobile* ch, char* argument)
         return;
     }
 
-    if (str_cmp(skill_table[sn].name, "ventriloquate")) say_spell(ch, sn);
+    if (str_cmp(skill_table[sn].name, "ventriloquate"))
+        say_spell(ch, sn);
 
     WAIT_STATE(ch, skill_table[sn].beats);
 
@@ -492,7 +494,8 @@ void obj_cast_spell(SKNUM sn, LEVEL level, Mobile* ch, Mobile* victim,
     void* vo;
     int target = SPELL_TARGET_NONE;
 
-    if (sn <= 0) return;
+    if (sn <= 0)
+        return;
 
     if (sn >= skill_count || skill_table[sn].spell_fun == 0) {
         bug("Obj_cast_spell: bad sn %d.", sn);
@@ -509,7 +512,8 @@ void obj_cast_spell(SKNUM sn, LEVEL level, Mobile* ch, Mobile* victim,
         break;
 
     case SKILL_TARGET_CHAR_OFFENSIVE:
-        if (victim == NULL) victim = ch->fighting;
+        if (victim == NULL) 
+            victim = ch->fighting;
         if (victim == NULL) {
             send_to_char("You can't do that.\n\r", ch);
             return;
@@ -524,7 +528,8 @@ void obj_cast_spell(SKNUM sn, LEVEL level, Mobile* ch, Mobile* victim,
 
     case SKILL_TARGET_CHAR_DEFENSIVE:
     case SKILL_TARGET_CHAR_SELF:
-        if (victim == NULL) victim = ch;
+        if (victim == NULL) 
+            victim = ch;
         vo = (void*)victim;
         target = SPELL_TARGET_CHAR;
         break;
@@ -878,9 +883,11 @@ void spell_cancellation(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget
 
     /* begin running through the spells */
 
-    if (check_dispel(level, victim, skill_lookup("armor"))) found = true;
+    if (check_dispel(level, victim, skill_lookup("armor"))) 
+        found = true;
 
-    if (check_dispel(level, victim, skill_lookup("bless"))) found = true;
+    if (check_dispel(level, victim, skill_lookup("bless"))) 
+        found = true;
 
     if (check_dispel(level, victim, skill_lookup("blindness"))) {
         found = true;
@@ -907,18 +914,23 @@ void spell_cancellation(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget
         act("$n looks warmer.", victim, NULL, NULL, TO_ROOM);
     }
 
-    if (check_dispel(level, victim, skill_lookup("curse"))) found = true;
+    if (check_dispel(level, victim, skill_lookup("curse"))) 
+        found = true;
 
-    if (check_dispel(level, victim, skill_lookup("detect evil"))) found = true;
+    if (check_dispel(level, victim, skill_lookup("detect evil"))) 
+        found = true;
 
-    if (check_dispel(level, victim, skill_lookup("detect good"))) found = true;
+    if (check_dispel(level, victim, skill_lookup("detect good"))) 
+        found = true;
 
     if (check_dispel(level, victim, skill_lookup("detect hidden")))
         found = true;
 
-    if (check_dispel(level, victim, skill_lookup("detect invis"))) found = true;
+    if (check_dispel(level, victim, skill_lookup("detect invis"))) 
+        found = true;
 
-    if (check_dispel(level, victim, skill_lookup("detect magic"))) found = true;
+    if (check_dispel(level, victim, skill_lookup("detect magic"))) 
+        found = true;
 
     if (check_dispel(level, victim, skill_lookup("faerie fire"))) {
         act("$n's outline fades.", victim, NULL, NULL, TO_ROOM);
@@ -932,7 +944,6 @@ void spell_cancellation(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget
 
     if (check_dispel(level, victim, skill_lookup("frenzy"))) {
         act("$n no longer looks so wild.", victim, NULL, NULL, TO_ROOM);
-        ;
         found = true;
     }
 
@@ -946,7 +957,8 @@ void spell_cancellation(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget
         found = true;
     }
 
-    if (check_dispel(level, victim, skill_lookup("infravision"))) found = true;
+    if (check_dispel(level, victim, skill_lookup("infravision"))) 
+        found = true;
 
     if (check_dispel(level, victim, skill_lookup("invis"))) {
         act("$n fades into existance.", victim, NULL, NULL, TO_ROOM);
@@ -958,7 +970,8 @@ void spell_cancellation(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget
         found = true;
     }
 
-    if (check_dispel(level, victim, skill_lookup("pass door"))) found = true;
+    if (check_dispel(level, victim, skill_lookup("pass door"))) 
+        found = true;
 
     if (check_dispel(level, victim, skill_lookup("protection evil")))
         found = true;
@@ -977,7 +990,8 @@ void spell_cancellation(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget
         found = true;
     }
 
-    if (check_dispel(level, victim, skill_lookup("sleep"))) found = true;
+    if (check_dispel(level, victim, skill_lookup("sleep"))) 
+        found = true;
 
     if (check_dispel(level, victim, skill_lookup("slow"))) {
         act("$n is no longer moving so slowly.", victim, NULL, NULL, TO_ROOM);
