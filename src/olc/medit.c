@@ -28,7 +28,7 @@ MobPrototype xMob;
 #define U(x)    (uintptr_t)(x)
 
 const OlcCmdEntry mob_olc_comm_table[] = {
-    { "name",	    U(&xMob.name),          ed_line_string,		0		        },
+    { "name",	    U(&xMob.name),          ed_line_lox_string, 0		        },
     { "short",	    U(&xMob.short_descr),	ed_line_string,		0		        },
     { "long",	    U(&xMob.long_descr),	ed_line_string,		0	            },
     { "material",	U(&xMob.material),	    ed_line_string,		0		        },
@@ -357,7 +357,7 @@ MEDIT(medit_group)
             pMTemp = get_mob_prototype(temp);
             if (pMTemp && (pMTemp->group == atoi(argument))) {
                 found = true;
-                sprintf(buf, "[%5d] %s\n\r", pMTemp->vnum, pMTemp->name);
+                sprintf(buf, "[%5d] %s\n\r", pMTemp->vnum, C_STR(pMTemp->name));
                 add_buf(buffer, buf);
             }
         }
@@ -400,8 +400,7 @@ MEDIT(medit_copy)
         return false;
     }
 
-    free_string(pMob->name);
-    pMob->name = str_dup(mob2->name);
+    pMob->name = mob2->name;
     free_string(pMob->short_descr);
     pMob->short_descr = str_dup(mob2->short_descr);
     free_string(pMob->long_descr);

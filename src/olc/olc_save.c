@@ -188,7 +188,7 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
     MobProg* pMprog;
 
     fprintf(fp, "#%"PRVNUM"\n", p_mob_proto->vnum);
-    fprintf(fp, "%s~\n", p_mob_proto->name);
+    fprintf(fp, "%s~\n", C_STR(p_mob_proto->name));
     fprintf(fp, "%s~\n", p_mob_proto->short_descr);
     fprintf(fp, "%s~\n", fix_string(p_mob_proto->long_descr));
     fprintf(fp, "%s~\n", fix_string(p_mob_proto->description));

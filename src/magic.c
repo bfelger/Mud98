@@ -358,7 +358,7 @@ void do_cast(Mobile* ch, char* argument)
         break;
 
     case SKILL_TARGET_CHAR_SELF:
-        if (arg2[0] != '\0' && !is_name(target_name, ch->name)) {
+        if (arg2[0] != '\0' && !is_name(target_name, NAME_STR(ch))) {
             send_to_char("You cannot cast this spell on another.\n\r", ch);
             return;
         }
@@ -3866,7 +3866,7 @@ void spell_ventriloquate(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarge
     buf1[0] = UPPER(buf1[0]);
 
     FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
-        if (!is_exact_name(speaker, vch->name) && IS_AWAKE(vch))
+        if (!is_exact_name(speaker, NAME_STR(vch)) && IS_AWAKE(vch))
             send_to_char(saves_spell(level, vch, DAM_OTHER) ? buf2 : buf1, vch);
     }
 

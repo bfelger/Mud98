@@ -31,7 +31,7 @@ MobPrototype* new_mob_prototype()
 {
     LIST_ALLOC_PERM(mob_proto, MobPrototype);
 
-    mob_proto->name = str_dup("no name");
+    mob_proto->name = lox_string("no name");
     mob_proto->short_descr = str_dup("(no short description)");
     mob_proto->long_descr = str_dup("(no long description)\n\r");
     mob_proto->description = &str_empty[0];
@@ -48,7 +48,7 @@ MobPrototype* new_mob_prototype()
 
 void free_mob_prototype(MobPrototype* mob_proto)
 {
-    free_string(mob_proto->name);
+    mob_proto->name = lox_string(str_empty);
     free_string(mob_proto->short_descr);
     free_string(mob_proto->long_descr);
     free_string(mob_proto->description);
@@ -198,7 +198,7 @@ void load_mobiles(FILE* fp)
 
         p_mob_proto->vnum = vnum;
         p_mob_proto->area = area_data_last;
-        p_mob_proto->name = fread_string(fp);
+        p_mob_proto->name = fread_lox_string(fp);
         p_mob_proto->short_descr = fread_string(fp);
         p_mob_proto->long_descr = fread_string(fp);
         p_mob_proto->description = fread_string(fp);

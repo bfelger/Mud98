@@ -337,9 +337,9 @@ bool spec_nasty(Mobile* ch)
             v_next = victim->next_in_room;
             if (!IS_NPC(victim) && (victim->level > ch->level)
                 && (victim->level < ch->level + 10)) {
-                do_function(ch, &do_backstab, victim->name);
+                do_function(ch, &do_backstab, NAME_STR(victim));
                 if (ch->position != POS_FIGHTING) {
-                    do_function(ch, &do_murder, victim->name);
+                    do_function(ch, &do_murder, NAME_STR(victim));
                 }
 
                 /* should steal some coins right away? :) */
@@ -782,7 +782,7 @@ bool spec_executioner(Mobile* ch)
     if (victim == NULL) return false;
 
     sprintf(buf, "%s is a %s!  PROTECT THE INNOCENT!  MORE BLOOOOD!!!",
-            victim->name, crime);
+            NAME_STR(victim), crime);
     REMOVE_BIT(ch->comm_flags, COMM_NOSHOUT);
     do_function(ch, &do_yell, buf);
     multi_hit(ch, victim, TYPE_UNDEFINED);
@@ -854,7 +854,7 @@ bool spec_guard(Mobile* ch)
 
     if (victim != NULL) {
         sprintf(buf, "%s is a %s!  PROTECT THE INNOCENT!!  BANZAI!!",
-                victim->name, crime);
+                NAME_STR(victim), crime);
         REMOVE_BIT(ch->comm_flags, COMM_NOSHOUT);
         do_function(ch, &do_yell, buf);
         multi_hit(ch, victim, TYPE_UNDEFINED);

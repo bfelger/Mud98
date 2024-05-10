@@ -19,6 +19,7 @@
 #endif
 
 #include "entities/area.h"
+#include "entities/obj_prototype.h"
 #include "entities/room.h"
 
 #define GC_HEAP_GROW_FACTOR 2
@@ -33,11 +34,11 @@ void* reallocate(void* pointer, size_t old_size, size_t new_size)
     if (new_size > old_size) {
 #ifdef DEBUG_STRESS_GC
         collect_garbage();
+#else
+        if (vm.bytes_allocated > vm.next_gc) {
+            collect_garbage();
+        }
 #endif
-    }
-
-    if (vm.bytes_allocated > vm.next_gc) {
-        collect_garbage();
     }
 
     if (new_size == 0 && old_size > 0) {
@@ -170,6 +171,12 @@ static void blacken_object(Obj* object)
     case OBJ_OBJ: {
         Object* obj = (Object*)object;
         mark_entity(&obj->header);
+        mark_object((Obj*)obj->owner);
+        break;
+    }
+    case OBJ_MOB: {
+        Mobile* mob = (Mobile*)object;
+        mark_entity(&mob->header);
         break;
     }
     } // end switch
@@ -234,6 +241,7 @@ static void free_obj_value(Obj* object)
     case OBJ_AREA:
     case OBJ_ROOM:
     case OBJ_OBJ:
+    case OBJ_MOB:
         break;
     } // end switch
 }
@@ -243,6 +251,11 @@ static void mark_natives()
     AreaData* area_data;
     Area* area;
     RoomData* room_data;
+    Room* room;
+    ObjPrototype* obj_proto;
+    Object* obj;
+    MobPrototype* mob_proto;
+    Mobile* mob;
 
     FOR_EACH(area_data, area_data_list) {
         mark_object((Obj*)area_data->name);
@@ -254,8 +267,27 @@ static void mark_natives()
 
     FOR_EACH_GLOBAL_ROOM_DATA(room_data) {
         mark_object((Obj*)room_data->name);
+        FOR_EACH(room, room_data->instances) {
+            mark_entity(&room->header);
+        }
     }
 
+    FOR_EACH_OBJ_PROTO(obj_proto) {
+        mark_object((Obj*)obj_proto->name);
+    }
+
+    FOR_EACH(obj, obj_list) {
+        mark_entity(&obj->header);
+        mark_object((Obj*)obj->owner);
+    }
+
+    FOR_EACH_MOB_PROTO(mob_proto) {
+        mark_object((Obj*)mob_proto->name);
+    }
+
+    FOR_EACH(mob, mob_list) {
+        mark_entity(&mob->header);
+    }
 }
 
 static void mark_roots()

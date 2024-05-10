@@ -330,8 +330,7 @@ void do_rename(Mobile* ch, char* argument)
     // Rename the character and save him to a new file.
     // NOTE: Players who are level 1 do NOT get saved under a new name.
 
-    free_string(victim->name);
-    victim->name = str_dup(capitalize(new_name));
+    NAME_FIELD(victim) = lox_string(capitalize(new_name));
 
     save_char_obj(victim);
 
@@ -392,9 +391,9 @@ const char* name_expand(Mobile* ch)
     static char outbuf[MAX_INPUT_LENGTH * 2];
 
     if (!IS_NPC(ch))
-        return ch->name;
+        return NAME_STR(ch);
 
-    one_argument(ch->name, name); /* copy the first word into name */
+    one_argument(NAME_STR(ch), name); /* copy the first word into name */
 
     if (!name[0]) {
         // weird mob .. no keywords
@@ -403,7 +402,7 @@ const char* name_expand(Mobile* ch)
     }
 
     for (rch = ch->in_room->people; rch && (rch != ch); rch = rch->next_in_room)
-        if (is_name(name, rch->name))
+        if (is_name(name, NAME_STR(rch)))
             count++;
 
     sprintf(outbuf, "%d.%s", count, name);

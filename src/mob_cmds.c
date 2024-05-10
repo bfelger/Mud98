@@ -191,7 +191,7 @@ void do_mpstat(Mobile* ch, char* argument)
     sprintf(arg, "Delay   %-6d [%s]\n\r",
         victim->mprog_delay,
         victim->mprog_target == NULL
-        ? "No target" : victim->mprog_target->name);
+        ? "No target" : NAME_STR(victim->mprog_target));
     send_to_char(arg, ch);
 
     if (!victim->prototype->mprog_flags) {
@@ -737,7 +737,7 @@ void do_mptransfer(Mobile* ch, char* argument)
         for (victim = ch->in_room->people; victim != NULL; victim = victim_next) {
             victim_next = victim->next_in_room;
             if (!IS_NPC(victim)) {
-                sprintf(buf, "%s %s", victim->name, arg2);
+                sprintf(buf, "%s %s", NAME_STR(victim), arg2);
                 do_mptransfer(ch, buf);
             }
         }
@@ -802,7 +802,7 @@ void do_mpgtransfer(Mobile* ch, char* argument)
     for (victim = ch->in_room->people; victim; victim = victim_next) {
         victim_next = victim->next_in_room;
         if (is_same_group(who, victim)) {
-            sprintf(buf, "%s %s", victim->name, arg2);
+            sprintf(buf, "%s %s", NAME_STR(victim), arg2);
             do_mptransfer(ch, buf);
         }
     }

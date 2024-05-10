@@ -35,7 +35,7 @@ void free_object_prototype(ObjPrototype* obj_proto)
     ExtraDesc* pExtra;
     Affect* pAf;
 
-    obj_proto->name = NULL;
+    obj_proto->name = lox_string(str_empty);
     free_string(obj_proto->short_descr);
     free_string(obj_proto->description);
 

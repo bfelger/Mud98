@@ -85,7 +85,7 @@ void do_delete(Mobile* ch, char* argument)
             return;
         }
         else {
-            sprintf(strsave, "%s%s", cfg_get_player_dir(), capitalize(ch->name));
+            sprintf(strsave, "%s%s", cfg_get_player_dir(), capitalize(NAME_STR(ch)));
             wiznet("$N turns $Mself into line noise.", ch, NULL, 0, 0, 0);
             stop_fighting(ch, true);
             do_function(ch, &do_quit, "");
@@ -949,10 +949,10 @@ void do_emote(Mobile* ch, char* argument)
 void do_pmote(Mobile* ch, char* argument)
 {
     Mobile* vch;
-    char *letter, *name;
+    char *letter;
     char last[MAX_INPUT_LENGTH] = "";
     char temp[MAX_STRING_LENGTH] = "";
-    size_t matches = 0;
+    int matches = 0;
 
     if (!IS_NPC(ch) && IS_SET(ch->comm_flags, COMM_NOEMOTE)) {
         send_to_char("You can't show your emotions.\n\r", ch);
@@ -969,7 +969,7 @@ void do_pmote(Mobile* ch, char* argument)
     FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
         if (vch->desc == NULL || vch == ch) continue;
 
-        if ((letter = strstr(argument, vch->name)) == NULL) {
+        if ((letter = strstr(argument, NAME_STR(vch))) == NULL) {
             MOBtrigger = false;
             act("$N $t", vch, argument, ch, TO_CHAR);
             MOBtrigger = true;
@@ -979,28 +979,29 @@ void do_pmote(Mobile* ch, char* argument)
         strcpy(temp, argument);
         temp[strlen(argument) - strlen(letter)] = '\0';
         last[0] = '\0';
-        name = vch->name;
+        char* name = NAME_STR(vch);
+        String* vch_name = NAME_FIELD(vch);
 
         for (; *letter != '\0'; letter++) {
-            if (*letter == '\'' && matches == strlen(vch->name)) {
+            if (*letter == '\'' && matches == vch_name->length) {
                 strcat(temp, "r");
                 continue;
             }
 
-            if (*letter == 's' && matches == strlen(vch->name)) {
+            if (*letter == 's' && matches == vch_name->length) {
                 matches = 0;
                 continue;
             }
 
-            if (matches == strlen(vch->name)) { matches = 0; }
+            if (matches == vch_name->length) { matches = 0; }
 
             if (*letter == *name) {
                 matches++;
                 name++;
-                if (matches == strlen(vch->name)) {
+                if (matches == vch_name->length) {
                     strcat(temp, "you");
                     last[0] = '\0';
-                    name = vch->name;
+                    name = NAME_STR(vch);
                     continue;
                 }
                 strncat(last, letter, 1);
@@ -1011,7 +1012,7 @@ void do_pmote(Mobile* ch, char* argument)
             strcat(temp, last);
             strncat(temp, letter, 1);
             last[0] = '\0';
-            name = vch->name;
+            name = NAME_STR(vch);
         }
 
         MOBtrigger = false;
@@ -1217,7 +1218,7 @@ void do_quit(Mobile* ch, char* argument)
     }
     send_to_char("Alas, all good things must come to an end.\n\r", ch);
     act("$n has left the game.", ch, NULL, NULL, TO_ROOM);
-    sprintf(log_buf, "%s has quit.", ch->name);
+    sprintf(log_buf, "%s has quit.", NAME_STR(ch));
     log_string(log_buf);
     wiznet("$N rejoins the real world.", ch, NULL, WIZ_LOGINS, 0, get_trust(ch));
 

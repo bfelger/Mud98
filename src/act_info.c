@@ -1276,7 +1276,7 @@ void do_score(Mobile* ch, char* argument)
     int i;
 
     sprintf(buf, "You are %s%s, level %d, %d years old (%d hours).\n\r",
-            ch->name, IS_NPC(ch) ? "" : ch->pcdata->title, ch->level,
+            NAME_STR(ch), IS_NPC(ch) ? "" : ch->pcdata->title, ch->level,
             get_age(ch), (int)(ch->played + (current_time - ch->logon)) / 3600);
     send_to_char(buf, ch);
 
@@ -1683,7 +1683,7 @@ void do_whois(Mobile* ch, char* argument)
 
         if (!can_see(ch, wch)) continue;
 
-        if (!str_prefix(arg, wch->name)) {
+        if (!str_prefix(arg, NAME_STR(wch))) {
             found = true;
 
             /* work out the printing */
@@ -1710,7 +1710,7 @@ void do_whois(Mobile* ch, char* argument)
                 IS_SET(wch->comm_flags, COMM_AFK) ? "[AFK] " : "",
                 IS_SET(wch->act_flags, PLR_KILLER) ? "{_(KILLER){x " : "",
                 IS_SET(wch->act_flags, PLR_THIEF) ? "{_(THIEF){x " : "", 
-                wch->name, IS_NPC(wch) ? "" : wch->pcdata->title);
+                NAME_STR(wch), IS_NPC(wch) ? "" : wch->pcdata->title);
             add_buf(output, buf);
         }
     }
@@ -1855,8 +1855,8 @@ void do_who(Mobile* ch, char* argument)
             clan_table[wch->clan].who_name,
             IS_SET(wch->comm_flags, COMM_AFK) ? "[AFK] " : "",
             IS_SET(wch->act_flags, PLR_KILLER) ? "{_(KILLER){x " : "",
-            IS_SET(wch->act_flags, PLR_THIEF) ? "{_(THIEF){x " : "", wch->name,
-            IS_NPC(wch) ? "" : wch->pcdata->title);
+            IS_SET(wch->act_flags, PLR_THIEF) ? "{_(THIEF){x " : "", 
+            NAME_STR(wch), IS_NPC(wch) ? "" : wch->pcdata->title);
         add_buf(output, buf);
     }
 
@@ -2041,7 +2041,7 @@ void do_where(Mobile* ch, char* argument)
                 && victim->in_room->area == ch->in_room->area
                 && can_see(ch, victim)) {
                 found = true;
-                sprintf(buf, "%-28s %s\n\r", victim->name,
+                sprintf(buf, "%-28s %s\n\r", NAME_STR(victim),
                         C_STR(victim->in_room->data->name));
                 send_to_char(buf, ch);
             }
@@ -2055,7 +2055,7 @@ void do_where(Mobile* ch, char* argument)
                 && victim->in_room->area == ch->in_room->area
                 && !IS_AFFECTED(victim, AFF_HIDE)
                 && !IS_AFFECTED(victim, AFF_SNEAK) && can_see(ch, victim)
-                && is_name(arg, victim->name)) {
+                && is_name(arg, NAME_STR(victim))) {
                 found = true;
                 sprintf(buf, "%-28s %s\n\r", PERS(victim, ch),
                         C_STR(victim->in_room->data->name));

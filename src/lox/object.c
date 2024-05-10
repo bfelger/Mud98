@@ -112,11 +112,11 @@ Value marshal_raw_ptr(ObjRawPtr* ptr)
 {
     switch (ptr->type) {
     case RAW_I16:
-        return NUMBER_VAL((double)*((int16_t*)ptr->addr));
+        return NUMBER_VAL((double)(*((int16_t*)ptr->addr)));
     case RAW_I32:
-        return NUMBER_VAL((double)*((int32_t*)ptr->addr));
+        return NUMBER_VAL((double)(*((int32_t*)ptr->addr)));
     case RAW_U64:
-        return NUMBER_VAL((double)*((uint64_t*)ptr->addr));
+        return NUMBER_VAL((double)(*((uint64_t*)ptr->addr)));
     case RAW_STR: {
             char** str = (char**)ptr->addr;
             return OBJ_VAL(copy_string(*str, (int)strlen(*str)));
@@ -141,6 +141,7 @@ void unmarshal_raw_val(ObjRawPtr* ptr, Value val)
             char** old_str = (char**)ptr->addr;
             free_string(*old_str);
             *old_str = str_dup(new_str);
+            break;
         }
     }
 }
@@ -284,5 +285,15 @@ void print_object(Value value)
         printf("<obj %s (%d)>", NAME_STR(AS_OBJECT(value)), 
             AS_OBJECT(value)->prototype->vnum);
         break;
+    case OBJ_MOB:
+        printf("<mob %s (%d)>", NAME_STR(AS_MOBILE(value)),
+            AS_MOBILE(value)->prototype->vnum);
+        break;
     } // end switch
+}
+
+void init_header(EntityHeader* header, ObjType type)
+{
+    header->obj.type = type;
+    init_table(&header->fields);
 }

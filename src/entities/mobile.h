@@ -33,6 +33,7 @@ typedef struct mobile_t Mobile;
 #include "lox/lox.h"
 
 typedef struct mobile_t {
+    EntityHeader header;
     Mobile* next;
     Mobile* next_in_room;
     Mobile* master;
@@ -54,7 +55,6 @@ typedef struct mobile_t {
     Area* zone;
     PlayerData* pcdata;
     CharGenData* gen_data;
-    char* name;
     char* material;
     char* short_descr;
     char* long_descr;
@@ -152,10 +152,10 @@ typedef struct mobile_t {
 #define IS_SWITCHED(ch) (ch->desc && ch->desc->original)
 #define IS_BUILDER(ch, Area) (!IS_NPC(ch) && !IS_SWITCHED(ch) && \
                 (ch->pcdata->security >= Area->security \
-                || strstr(Area->builders, ch->name) \
+                || strstr(Area->builders, NAME_STR(ch)) \
                 || strstr(Area->builders, "All")))
 #define PERS(ch, looker)                                                       \
-    (can_see(looker, (ch)) ? (IS_NPC(ch) ? (ch)->short_descr : (ch)->name)     \
+    (can_see(looker, (ch)) ? (IS_NPC(ch) ? (ch)->short_descr : NAME_STR(ch))   \
                            : "someone")
 
 // We have to cast to int because MSVC's static analyzer isn't very good at 

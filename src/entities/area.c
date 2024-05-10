@@ -30,11 +30,16 @@ Area* new_area(AreaData* area_data)
 {
     LIST_ALLOC_PERM(area, Area);
 
-    area->header.obj.type = OBJ_AREA;
-    init_table(&area->header.fields);
+    push(OBJ_VAL(area));
 
-    area->header.name = area_data->name;
-    SET_LOX_FIELD(&area->header, area->header.name, name);
+    init_header(&area->header, OBJ_AREA);
+
+    SET_NAME(area, area_data->name);
+
+    area->header.vnum = area_data->vnum;
+    SET_NATIVE_FIELD(&area->header, area->header.vnum, vnum, I32);
+
+    pop();
 
     area->data = area_data;
     area->empty = true;
@@ -56,7 +61,8 @@ AreaData* new_area_data()
 
     LIST_ALLOC_PERM(area_data, AreaData);
 
-    area_data->name = copy_string(str_empty, 1);
+    area_data->name = lox_string(str_empty);
+
     area_data->area_flags = AREA_ADDED;
     area_data->security = 1;
     area_data->builders = str_empty;
@@ -73,6 +79,7 @@ AreaData* new_area_data()
 
 void free_area_data(AreaData* area_data)
 {
+    area_data->name = lox_string(str_empty);
     free_string(area_data->file_name);
     free_string(area_data->builders);
     free_string(area_data->credits);
@@ -83,8 +90,11 @@ void free_area_data(AreaData* area_data)
 Area* create_area_instance(AreaData* area_data, bool create_exits)
 {
     Area* area = new_area(area_data);
+    Value area_val = OBJ_VAL(area);
 
+    push(area_val);
     write_value_array(&area_data->instances, OBJ_VAL(area));
+    pop();
 
     RoomData* room_data;
     FOR_EACH_GLOBAL_ROOM_DATA(room_data) {
@@ -138,8 +148,8 @@ void create_instance_exits(Area* area)
 
 #define LOX_SKEY( string, field )                   \
     if (!str_cmp(word, string)) {                   \
-        char* val = fread_string(fp);               \
-        field = copy_string(val, (int)strlen(val)); \
+        String* val = fread_lox_string(fp);         \
+        field = val;                                \
         break;                                      \
     }
 
@@ -222,7 +232,7 @@ Area* get_area_for_player(Mobile* ch, AreaData* area_data)
 
     for (int i = 0; i < area_data->instances.count; ++i) {
         area = AS_AREA(area_data->instances.values[i]);
-        if (is_name(ch->name, area->owner_list))
+        if (is_name(NAME_STR(ch), area->owner_list))
             return area;
     }
 

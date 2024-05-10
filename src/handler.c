@@ -1515,7 +1515,7 @@ Mobile* get_mob_room(Mobile* ch, char* argument)
     count = 0;
     if (!str_cmp(arg, "self")) return ch;
     FOR_EACH_IN_ROOM(rch, ch->in_room->people) {
-        if (!can_see(ch, rch) || !is_name(arg, rch->name)) 
+        if (!can_see(ch, rch) || !is_name(arg, NAME_STR(rch))) 
             continue;
         if (++count == number) 
             return rch;
@@ -1539,7 +1539,7 @@ Mobile* get_mob_world(Mobile* ch, char* argument)
     count = 0;
     FOR_EACH(wch, mob_list) {
         if (wch->in_room == NULL || !can_see(ch, wch)
-            || !is_name(arg, wch->name))
+            || !is_name(arg, NAME_STR(wch)))
             continue;
         if (++count == number) 
             return wch;
@@ -1807,7 +1807,7 @@ bool is_room_owner(Mobile* ch, Room* room)
     if (room->data->owner == NULL || room->data->owner[0] == '\0')
         return false;
 
-    return is_name(ch->name, room->data->owner);
+    return is_name(NAME_STR(ch), room->data->owner);
 }
 
 // true if room is private.
@@ -2376,7 +2376,7 @@ int get_vnum_mob_name_area(char* name, AreaData* area)
     for (hash = 0; hash < MAX_KEY_HASH; hash++)
         FOR_EACH(mob, mob_proto_hash[hash])
             if (mob->area == area
-                && !str_prefix(name, mob->name))
+                && !str_prefix(name, C_STR(mob->name)))
                 return mob->vnum;
 
     return 0;

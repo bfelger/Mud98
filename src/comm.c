@@ -622,7 +622,7 @@ void close_socket(Descriptor* dclose)
     }
 
     if ((ch = dclose->character) != NULL) {
-        sprintf(log_buf, "Closing link to %s.", ch->name);
+        sprintf(log_buf, "Closing link to %s.", NAME_STR(ch));
         log_string(log_buf);
         /* cut down on wiznet spam when rebooting */
         if (dclose->connected == CON_PLAYING && !merc_down) {
@@ -917,7 +917,8 @@ bool process_descriptor_output(Descriptor* d, bool fPrompt)
                         sprintf(wound, "is bleeding to death.");
 
                     sprintf(buf, "%s %s \n\r",
-                        IS_NPC(victim) ? victim->short_descr : victim->name, wound);
+                        IS_NPC(victim) ? victim->short_descr : NAME_STR(victim),
+                        wound);
                     buf[0] = UPPER(buf[0]);
                     write_to_buffer(d, buf, 0);
                 }
@@ -947,7 +948,7 @@ bool process_descriptor_output(Descriptor* d, bool fPrompt)
     // Snoop-o-rama.
     if (d->snoop_by != NULL) {
         if (d->character != NULL)
-            write_to_buffer(d->snoop_by, d->character->name, 0);
+            write_to_buffer(d->snoop_by, NAME_STR(d->character), 0);
         write_to_buffer(d->snoop_by, "> ", 2);
         write_to_buffer(d->snoop_by, d->outbuf, d->outtop);
     }
@@ -1293,13 +1294,13 @@ void nanny(Descriptor * d, char* argument)
 
         write_to_buffer(d, (const char*)echo_on_str, 0);
 
-        if (check_playing(d, ch->name)) 
+        if (check_playing(d, NAME_STR(ch))) 
             return;
 
         if (check_reconnect(d, true)) 
             return;
 
-        sprintf(log_buf, "%s@%s has connected.", ch->name, d->host);
+        sprintf(log_buf, "%s@%s has connected.", NAME_STR(ch), d->host);
         log_string(log_buf);
         wiznet(log_buf, NULL, NULL, WIZ_SITES, 0, get_trust(ch));
 
@@ -1321,10 +1322,12 @@ void nanny(Descriptor * d, char* argument)
         case 'Y':
             for (d_old = descriptor_list; d_old != NULL; d_old = d_next_local) {
                 d_next_local = d_old->next;
-                if (d_old == d || d_old->character == NULL) continue;
+                if (d_old == d || d_old->character == NULL) 
+                    continue;
 
-                if (str_cmp(ch->name, d_old->original ? d_old->original->name
-                    : d_old->character->name))
+                if (!lox_streq(NAME_FIELD(ch), d_old->original 
+                    ? NAME_FIELD(d_old->original)
+                    : NAME_FIELD(d_old->character)))
                     continue;
 
                 close_socket(d_old);
@@ -1359,7 +1362,7 @@ void nanny(Descriptor * d, char* argument)
         case 'y':
         case 'Y':
             sprintf(buf, "New character.\n\rGive me a password for %s: %s",
-                ch->name, echo_off_str);
+                NAME_STR(ch), echo_off_str);
             write_to_buffer(d, buf, 0);
             d->connected = CON_GET_NEW_PASSWORD;
             break;
@@ -1526,7 +1529,7 @@ void nanny(Descriptor * d, char* argument)
 
         ch->ch_class = (int16_t)iClass;
 
-        sprintf(log_buf, "%s@%s new player.", ch->name, d->host);
+        sprintf(log_buf, "%s@%s new player.", NAME_STR(ch), d->host);
         log_string(log_buf);
         wiznet("Newbie alert!  $N sighted.", ch, NULL, WIZ_NEWBIE, 0, 0);
         wiznet(log_buf, NULL, NULL, WIZ_SITES, 0, get_trust(ch));
@@ -1859,7 +1862,7 @@ bool check_parse_name(char* name)
         for (hash = 0; hash < MAX_KEY_HASH; hash++) {
             for (p_mob_proto = mob_proto_hash[hash]; p_mob_proto != NULL;
                 NEXT_LINK(p_mob_proto)) {
-                if (is_name(name, p_mob_proto->name)) 
+                if (is_name(name, C_STR(p_mob_proto->name))) 
                     return false;
             }
         }
@@ -1875,7 +1878,7 @@ bool check_reconnect(Descriptor * d, bool fConn)
 
     FOR_EACH(ch, mob_list) {
         if (!IS_NPC(ch) && (!fConn || ch->desc == NULL)
-            && !str_cmp(d->character->name, ch->name)) {
+            && lox_streq(NAME_FIELD(d->character), NAME_FIELD(ch))) {
             if (fConn == false) {
                 if (d->character->pcdata->pwd_digest != NULL)
                     free_digest(d->character->pcdata->pwd_digest);
@@ -1901,7 +1904,7 @@ bool check_reconnect(Descriptor * d, bool fConn)
                     "Reconnecting. Type replay to see missed tells.\n\r", ch);
                 act("$n has reconnected.", ch, NULL, NULL, TO_ROOM);
 
-                sprintf(log_buf, "%s@%s reconnected.", ch->name, d->host);
+                sprintf(log_buf, "%s@%s reconnected.", NAME_STR(ch), d->host);
                 log_string(log_buf);
                 wiznet("$N groks the fullness of $S link.", ch, NULL,
                     WIZ_LINKS, 0, 0);
@@ -1923,8 +1926,8 @@ bool check_playing(Descriptor * d, char* name)
         if (dold != d && dold->character != NULL
             && dold->connected != CON_GET_NAME
             && dold->connected != CON_GET_OLD_PASSWORD
-            && !str_cmp(name, dold->original ? dold->original->name
-                : dold->character->name)) {
+            && !str_cmp(name, dold->original ? NAME_STR(dold->original)
+                : NAME_STR(dold->character))) {
             write_to_buffer(d, "That character is already playing.\n\r", 0);
             write_to_buffer(d, "Do you wish to connect anyway (Y/N)?", 0);
             d->connected = CON_BREAK_CONNECT;

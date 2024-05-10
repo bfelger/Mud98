@@ -383,6 +383,7 @@ InterpretResult run()
                 }
 
                 Value comp = peek(0);
+
                 if (!IS_INSTANCE(comp) && !IS_ENTITY(comp)) {
                     runtime_error("Only instances and entities have properties.");
                     return INTERPRET_RUNTIME_ERROR;
@@ -404,22 +405,59 @@ InterpretResult run()
                 else {
                     EntityHeader* entity = AS_ENTITY(comp);
                     Value value;
-                    if (table_get(&entity->fields, name, &value)) {
+                    if (!table_get(&entity->fields, name, &value)) {
+                        runtime_error("Entity '%s' has no field '%s'.", 
+                            entity->name->chars, name->chars);
                         pop(); // Entity.
-                        push(value);
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+
+                    pop(); // Entity.
+
+                    // Auto-unmarshal
+                    if (IS_RAW_PTR(value)) {
+                        push(marshal_raw_ptr(AS_RAW_PTR(value)));
                         break;
                     }
+
+                    push(value);
+                    break;
                 }
                 break;
             }
         case OP_SET_PROPERTY: {
-                if (!IS_INSTANCE(peek(1))) {
-                    runtime_error("Only instances have fields.");
+                Value comp = peek(1);
+                ObjString* field = READ_STRING();
+
+                if (!IS_INSTANCE(comp) && !IS_ENTITY(comp)) {
+                    runtime_error("Only instances and entities can have fields.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
 
-                ObjInstance* instance = AS_INSTANCE(peek(1));
-                table_set(&instance->fields, READ_STRING(), peek(0));
+                if (IS_INSTANCE(comp)) {
+                    ObjInstance* instance = AS_INSTANCE(comp);
+                    table_set(&instance->fields, field, peek(0));
+                }
+                else {
+                    EntityHeader* entity = AS_ENTITY(comp);
+                    Value current_value;
+                    if (!table_get(&entity->fields, field, &current_value)) {
+                        runtime_error("Entity '%s' has no field '%s'.",
+                            entity->name->chars, field->chars);
+                        Value value = pop();
+                        pop(); // Entity.
+                        push(value);
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+
+                    if (IS_RAW_PTR(current_value)) {
+                        ObjRawPtr* raw = AS_RAW_PTR(current_value);
+                        unmarshal_raw_val(raw, peek(0));
+                    }
+                    else {
+                        table_set(&entity->fields, field, peek(0));
+                    }
+                }
                 Value value = pop();
                 pop();
                 push(value);

@@ -817,8 +817,8 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
         group_gain(ch, victim);
 
         if (!IS_NPC(victim)) {
-            sprintf(log_buf, "%s killed by %s at %d", victim->name,
-                    (IS_NPC(ch) ? ch->short_descr : ch->name),
+            sprintf(log_buf, "%s killed by %s at %d", NAME_STR(victim),
+                    (IS_NPC(ch) ? ch->short_descr : NAME_STR(ch)),
                     ch->in_room->vnum);
             log_string(log_buf);
 
@@ -850,8 +850,8 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
         }
 
         sprintf(log_buf, "%s got toasted by %s at %s [room %d]",
-                (IS_NPC(victim) ? victim->short_descr : victim->name),
-                (IS_NPC(ch) ? ch->short_descr : ch->name), 
+                (IS_NPC(victim) ? victim->short_descr : NAME_STR(victim)),
+                (IS_NPC(ch) ? ch->short_descr : NAME_STR(ch)), 
                 C_STR(ch->in_room->data->name),
                 ch->in_room->vnum);
 
@@ -1132,7 +1132,7 @@ void check_killer(Mobile* ch, Mobile* victim)
     if (IS_SET(ch->affect_flags, AFF_CHARM)) {
         if (ch->master == NULL) {
             sprintf(buf, "Check_killer: %s bad AFF_CHARM",
-                    IS_NPC(ch) ? ch->short_descr : ch->name);
+                    IS_NPC(ch) ? ch->short_descr : NAME_STR(ch));
             bug(buf, 0);
             affect_strip(ch, gsn_charm_person);
             REMOVE_BIT(ch->affect_flags, AFF_CHARM);
@@ -1160,7 +1160,7 @@ void check_killer(Mobile* ch, Mobile* victim)
 
     send_to_char("*** You are now a KILLER!! ***\n\r", ch);
     SET_BIT(ch->act_flags, PLR_KILLER);
-    sprintf(buf, "$N is attempting to murder %s", victim->name);
+    sprintf(buf, "$N is attempting to murder %s", NAME_STR(victim));
     wiznet(buf, ch, NULL, WIZ_FLAGS, 0, 0);
     save_char_obj(ch);
     return;
@@ -1297,10 +1297,10 @@ void make_corpse(Mobile* ch)
     Object* corpse;
     Object* obj;
     Object* obj_next = NULL;
-    char* name;
+    String* name;
 
     if (IS_NPC(ch)) {
-        name = ch->short_descr;
+        name = lox_string(ch->short_descr);
         corpse = create_object(get_object_prototype(OBJ_VNUM_CORPSE_NPC), 0);
         corpse->timer = (int16_t)number_range(3, 6);
         if (ch->gold > 0) {
@@ -1311,12 +1311,12 @@ void make_corpse(Mobile* ch)
         corpse->cost = 0;
     }
     else {
-        name = ch->name;
+        name = NAME_FIELD(ch);
         corpse = create_object(get_object_prototype(OBJ_VNUM_CORPSE_PC), 0);
         corpse->timer = (int16_t)number_range(25, 40);
         REMOVE_BIT(ch->act_flags, PLR_CANLOOT);
         if (!is_clan(ch))
-            corpse->owner = str_dup(ch->name);
+            corpse->owner = NAME_FIELD(ch);
         else {
             corpse->owner = NULL;
             if (ch->gold > 1 || ch->silver > 1) {
@@ -1331,11 +1331,11 @@ void make_corpse(Mobile* ch)
 
     corpse->level = ch->level;
 
-    SPRINTF_CORPSE_SDESC(buf, DESC_CORPSE, name);
+    SPRINTF_CORPSE_SDESC(buf, DESC_CORPSE, C_STR(name));
     free_string(corpse->short_descr);
     corpse->short_descr = str_dup(buf);
 
-    SPRINTF_CORPSE_DESC(buf, DESC_CORPSE, name);
+    SPRINTF_CORPSE_DESC(buf, DESC_CORPSE, C_STR(name));
     free_string(corpse->description);
     corpse->description = str_dup(buf);
 
@@ -1453,7 +1453,7 @@ void death_cry(Mobile* ch)
         Object* obj;
         char* name;
 
-        name = IS_NPC(ch) ? ch->short_descr : ch->name;
+        name = IS_NPC(ch) ? ch->short_descr : NAME_STR(ch);
         obj = create_object(get_object_prototype(vnum), 0);
         obj->timer = (int16_t)number_range(4, 7);
 
@@ -2545,7 +2545,7 @@ void do_murder(Mobile* ch, char* argument)
     if (IS_NPC(ch))
         sprintf(buf, "Help! I am being attacked by %s!", ch->short_descr);
     else
-        sprintf(buf, "Help!  I am being attacked by %s!", ch->name);
+        sprintf(buf, "Help!  I am being attacked by %s!", NAME_STR(ch));
     do_function(victim, &do_yell, buf);
     check_killer(ch, victim);
     multi_hit(ch, victim, TYPE_UNDEFINED);

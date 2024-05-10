@@ -866,7 +866,7 @@ void area_update()
                 }
                 else {
                     reset_area(area);
-                    sprintf(buf, "%s has just been reset.", C_STR(area->header.name));
+                    sprintf(buf, "%s has just been reset.", NAME_STR(area));
                     wiznet(buf, NULL, NULL, WIZ_RESETS, 0, 0);
                     area->reset_timer = 0;
                 }
@@ -2213,7 +2213,7 @@ void append_file(Mobile* ch, char* file, char* str)
 
     OPEN_OR_RETURN(fp = open_append_file(file));
 
-    fprintf(fp, "[%5d] %s: %s\n", ch->in_room ? ch->in_room->data->vnum : 0, ch->name, str);
+    fprintf(fp, "[%5d] %s: %s\n", ch->in_room ? ch->in_room->data->vnum : 0, NAME_STR(ch), str);
 
     close_file(fp);
 }

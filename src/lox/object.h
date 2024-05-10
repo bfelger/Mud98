@@ -16,6 +16,7 @@
 typedef struct area_t Area;
 typedef struct room_t Room;
 typedef struct object_t Object;
+typedef struct mobile_t Mobile;
 
 #define OBJ_TYPE(value)         (AS_OBJ(value)->type)
 
@@ -31,8 +32,11 @@ typedef struct object_t Object;
 //
 #define IS_AREA(value)          is_obj_type(value, OBJ_AREA)
 #define IS_ROOM(value)          is_obj_type(value, OBJ_ROOM)
-#define IS_ENTITY(value)        IS_OBJ(value) && \
-                                    (IS_AREA(value) || IS_ROOM(value))
+#define IS_OBJECT(value)        is_obj_type(value, OBJ_OBJ)
+#define IS_MOBILE(value)        is_obj_type(value, OBJ_MOB)
+#define IS_ENTITY(value)        IS_OBJ(value) &&                               \
+                                    (IS_AREA(value) || IS_ROOM(value)          \
+                                    || IS_OBJECT(value) || IS_MOBILE(value))
 
 #define AS_ARRAY(value)         ((ObjArray*)AS_OBJ(value))
 #define AS_BOUND_METHOD(value)  ((ObjBoundMethod*)AS_OBJ(value))
@@ -49,6 +53,7 @@ typedef struct object_t Object;
 #define AS_AREA(value)          ((Area*)AS_OBJ(value))
 #define AS_ROOM(value)          ((Room*)AS_OBJ(value))
 #define AS_OBJECT(value)        ((Object*)AS_OBJ(value))
+#define AS_MOBILE(value)        ((Mobile*)AS_OBJ(value))
 
 typedef enum {
     OBJ_ARRAY,
@@ -65,6 +70,7 @@ typedef enum {
     OBJ_AREA,
     OBJ_ROOM,
     OBJ_OBJ,
+    OBJ_MOB,
 } ObjType;
 
 struct Obj {
@@ -158,6 +164,7 @@ typedef struct {
     Obj obj;
     Table fields;
     ObjString* name;
+    int32_t vnum;
 } EntityHeader;
 
 ObjArray* new_obj_array();
@@ -174,6 +181,7 @@ ObjString* take_string(char* chars, int length);
 ObjString* copy_string(const char* chars, int length);
 ObjUpvalue* new_upvalue(Value* slot);
 void print_object(Value value);
+void init_header(EntityHeader* header, ObjType type);
 
 static inline bool is_obj_type(Value value, ObjType type)
 {

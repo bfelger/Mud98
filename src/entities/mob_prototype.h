@@ -20,6 +20,8 @@ typedef struct mob_prototype_t MobPrototype;
 #include "data/damage.h"
 #include "data/mobile_data.h"
 
+#include "lox/lox.h"
+
 #include <stdbool.h>
 
 typedef struct mob_prototype_t {
@@ -28,7 +30,7 @@ typedef struct mob_prototype_t {
     ShopData* pShop;
     MobProg* mprogs;
     AreaData* area;
-    char* name;
+    String* name;
     char* short_descr;
     char* long_descr;
     char* description;
@@ -70,6 +72,11 @@ typedef struct mob_prototype_t {
 #define MOB_VNUM_PATROLMAN      2106
 #define GROUP_VNUM_TROLLS       2100
 #define GROUP_VNUM_OGRES        2101
+
+
+#define FOR_EACH_MOB_PROTO(p) \
+    for (int p##_hash_idx = 0; p##_hash_idx < MAX_KEY_HASH; ++p##_hash_idx) \
+        FOR_EACH(p, mob_proto_hash[p##_hash_idx])
 
 MobPrototype* new_mob_prototype();
 void free_mob_prototype(MobPrototype* p_mob_proto);

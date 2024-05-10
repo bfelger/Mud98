@@ -21,11 +21,19 @@ Object* new_object()
 {
     LIST_ALLOC_PERM(obj, Object);
 
-    obj->header.obj.type = OBJ_ROOM;
-    init_table(&obj->header.fields);
+    push(OBJ_VAL(obj));
 
-    obj->header.name = lox_string(str_empty);
-    SET_LOX_FIELD(&obj->header, obj->header.name, name);
+    init_header(&obj->header, OBJ_OBJ);
+
+    SET_NATIVE_FIELD(&obj->header, obj, base, OBJ);
+    SET_NATIVE_FIELD(&obj->header, obj->short_descr, short_desc, STR);
+    SET_NATIVE_FIELD(&obj->header, obj->in_room, in_room, OBJ);
+
+    SET_NATIVE_FIELD(&obj->header, obj->header.vnum, vnum, I32);
+
+    SET_NAME(obj, lox_string(str_empty));
+
+    pop();
 
     VALIDATE(obj);
 
@@ -56,7 +64,7 @@ void free_object(Object* obj)
 
     free_string(obj->description);
     free_string(obj->short_descr);
-    free_string(obj->owner);
+    obj->owner = NULL;
     INVALIDATE(obj);
 
     LIST_FREE(obj);
@@ -72,7 +80,8 @@ void clone_object(Object* parent, Object* clone)
         return;
 
     /* start fixing the object */
-    clone->header.name = parent->header.name;
+    SET_NAME(clone, parent->header.name);
+    clone->header.vnum = parent->header.vnum;
     clone->short_descr = str_dup(parent->short_descr);
     clone->description = str_dup(parent->description);
     clone->item_type = parent->item_type;
@@ -192,15 +201,15 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level)
     obj = new_object();
 
     obj->prototype = obj_proto;
+
+    SET_NAME(obj, obj_proto->name);
+    obj->header.vnum = obj_proto->vnum;
+
     obj->in_room = NULL;
     obj->enchanted = false;
 
     obj->level = obj_proto->level;
     obj->wear_loc = -1;
-
-    obj->header.name = obj_proto->name;                     // OLC
-    SET_LOX_FIELD(&obj->header, obj->header.name, name);
-
     obj->short_descr = str_dup(obj_proto->short_descr);     // OLC
     obj->description = str_dup(obj_proto->description);     // OLC
     obj->material = str_dup(obj_proto->material);
@@ -250,42 +259,43 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level)
 // Lox representation
 ////////////////////////////////////////////////////////////////////////////////
 
-static ObjClass* object_class = NULL;
-
-void init_object_class()
-{
-    char* source =
-        "class Object { "
-        "   name() { return marshal(this._name); }"
-        "   vnum() { return marshal(this._vnum); }"
-        "   short_desc() { return marshal(this._short_desc); } "
-        "   in_room() { return get_room(this._in_room); } "
-        "}";
-
-    InterpretResult result = interpret_code(source);
-
-    if (result == INTERPRET_COMPILE_ERROR) exit(65);
-    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
-
-    object_class = find_class("Object");
-}
-
-Value create_object_value(Object* object)
-{
-    if (!object || !object_class)
-        return NIL_VAL;
-
-    ObjInstance* inst = new_instance(object_class);
-    push(OBJ_VAL(inst));
-
-    SET_NATIVE_FIELD(inst, object, base, OBJ);
-    SET_NATIVE_FIELD(inst, object->prototype->vnum, vnum, I32);
-    SET_NATIVE_FIELD(inst, object->short_descr, short_desc, STR);
-    SET_NATIVE_FIELD(inst, object->in_room, in_room, OBJ);
-
-    SET_LOX_FIELD(inst, object->header.name, name);
-
-    pop(); // instance
-
-    return OBJ_VAL(inst);
-}
+//static ObjClass* object_class = NULL;
+//
+//void init_object_class()
+//{
+//    char* source =
+//        "class Object { "
+//        "   short_desc() { return marshal(this._short_desc); } "
+//        "   in_room() { return get_room(this._in_room); } "
+//        "}";
+//
+//    InterpretResult result = interpret_code(source);
+//
+//    if (result == INTERPRET_COMPILE_ERROR) exit(65);
+//    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+//
+//    object_class = find_class("Object");
+//}
+//
+//Value create_object_value(Object* object)
+//{
+//    if (!object_class)
+//        runtime_error("create_object_value: 'Object' class not defined.");
+//
+//    if (!object || !object_class)
+//        return NIL_VAL;
+//
+//    ObjInstance* inst = new_instance(object_class);
+//    push(OBJ_VAL(inst));
+//
+//    SET_NATIVE_FIELD(inst, object, base, OBJ);
+//    SET_NATIVE_FIELD(inst, object->prototype->vnum, vnum, I32);
+//    SET_NATIVE_FIELD(inst, object->short_descr, short_desc, STR);
+//    SET_NATIVE_FIELD(inst, object->in_room, in_room, OBJ);
+//
+//    SET_LOX_FIELD(inst, object->header.name, name);
+//
+//    pop(); // instance
+//
+//    return OBJ_VAL(inst);
+//}

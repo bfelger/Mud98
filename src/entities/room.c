@@ -30,11 +30,16 @@ Room* new_room(RoomData* room_data, Area* area)
 {
     LIST_ALLOC_PERM(room, Room);
 
-    room->header.obj.type = OBJ_ROOM;
-    init_table(&room->header.fields);
+    push(OBJ_VAL(room));
 
-    room->header.name = room_data->name;
-    SET_LOX_FIELD(&room->header, room->header.name, name);
+    init_header(&room->header, OBJ_ROOM);
+
+    SET_NAME(room, room_data->name);
+
+    room->header.vnum = room_data->vnum;
+    SET_NATIVE_FIELD(&room->header, room->header.vnum, vnum, I32);
+
+    pop();
 
     room->data = room_data;
     room->next_instance = room_data->instances;
@@ -183,11 +188,11 @@ Room* get_room_for_player(Mobile* ch, VNUM vnum)
     // name to the owner_list of the existing instance.
 
     // No instance exists. We have to make one.
-    printf_log("Creating new instance '%s' for %s.", room_data->area_data->name,
-        ch->name);
+    printf_log("Creating new instance '%s' for %s.", 
+        C_STR(room_data->area_data->name), NAME_STR(ch));
     area = create_area_instance(room_data->area_data, true);
     INIT_BUF(buf, MSL);
-    addf_buf(buf, "%s %s", ch->name, area->owner_list);
+    addf_buf(buf, "%s %s", NAME_STR(ch), area->owner_list);
     RESTRING(area->owner_list, BUF(buf));
     reset_area(area);
     free_buf(buf);
@@ -198,124 +203,128 @@ Room* get_room_for_player(Mobile* ch, VNUM vnum)
 // Lox representation
 ////////////////////////////////////////////////////////////////////////////////
 
-static ObjClass* room_class = NULL;
-
-void init_room_class()
-{
-    char* source =
-        "class Room { "
-        "   vnum() { return marshal(this._vnum); }"
-        "   people() { return get_people(this._base); }"
-        "   contents() { return get_contents(this._base); }"
-        "}";
-
-    InterpretResult result = interpret_code(source);
-
-    if (result == INTERPRET_COMPILE_ERROR) exit(65);
-    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
-
-    room_class = find_class("Room");
-}
-
-Value create_room_value(Room* room)
-{
-    if (!room || !room_class || !room->data)
-        return NIL_VAL;
-
-    ObjInstance* inst = new_instance(room_class);
-    push(OBJ_VAL(inst));
-
-    SET_NATIVE_FIELD(inst, room, base, OBJ);
-    SET_NATIVE_FIELD(inst, room->data->vnum, vnum, I32);
-
-    SET_LOX_FIELD(inst, room->area, area);
-    SET_LOX_FIELD(inst, room->data->name, name);
-
-    pop(); // instance
-
-    return OBJ_VAL(inst);
-}
-
-Value get_room_native(int arg_count, Value* args)
-{
-    if (arg_count != 1) {
-        runtime_error("get_room() takes 1 argument; %d given.", arg_count);
-        return NIL_VAL;
-    }
-
-    if (IS_RAW_PTR(args[0])) {
-        ObjRawPtr* ptr = AS_RAW_PTR(args[0]);
-        if (ptr->type == RAW_OBJ) {
-            Value room =  create_room_value((Room*)ptr->addr);
-            return room;
-        }
-    }
-
-    runtime_error("get_room(): argument '%s' is incorrect type", string_value(args[0]));
-    return NIL_VAL;
-}
-
-Value get_room_people_native(int arg_count, Value* args)
-{
-    if (arg_count != 1) {
-        runtime_error("get_people() takes 1 argument; %d given.", arg_count);
-        return NIL_VAL;
-    }
-
-    Room* room = NULL;
-    
-    if (IS_RAW_PTR(args[0]) && AS_RAW_PTR(args[0])->type == RAW_OBJ) {
-        room = (Room*)AS_RAW_PTR(args[0])->addr;
-    }
-
-    ObjArray* array_ = new_obj_array();
-    push(OBJ_VAL(array_));
-
-    if (room) {
-        // Just return an empty array if there is no room. Don't force scripters
-        // to use guards. NULL is a disease.
-        Mobile* mob;
-        FOR_EACH_IN_ROOM(mob, room->people) {
-            Value mob_val = create_mobile_value(mob);
-            push(mob_val);
-            write_value_array(&array_->val_array, mob_val);
-            pop(); // mob_val
-        }
-    }
-
-    pop(); // array_
-    return OBJ_VAL(array_);
-}
-
-Value get_room_contents_native(int arg_count, Value* args)
-{
-    if (arg_count != 1) {
-        runtime_error("get_contents() takes 1 argument; %d given.", arg_count);
-        return NIL_VAL;
-    }
-
-    Room* room = NULL;
-
-    if (IS_RAW_PTR(args[0]) && AS_RAW_PTR(args[0])->type == RAW_OBJ) {
-        room = (Room*)AS_RAW_PTR(args[0])->addr;
-    }
-
-    ObjArray* array_ = new_obj_array();
-    push(OBJ_VAL(array_));
-
-    if (room) {
-        // Just return an empty array if there is no room. Don't force scripters
-        // to use guards. NULL is a disease.
-        Object* obj;
-        FOR_EACH_CONTENT(obj, room->contents)
-        {
-            Value obj_val = create_object_value(obj);
-            push(obj_val);
-            write_value_array(&array_->val_array, obj_val);
-            pop(); // obj_val
-        }
-    }
-
-    pop(); // array_
-    return OBJ_VAL(array_);
-}
+//static ObjClass* room_class = NULL;
+//
+//void init_room_class()
+//{
+//    char* source =
+//        "class Room { "
+//        "   people() { return get_people(this._base); }"
+//        "   contents() { return get_contents(this._base); }"
+//        "}";
+//
+//    InterpretResult result = interpret_code(source);
+//
+//    if (result == INTERPRET_COMPILE_ERROR) exit(65);
+//    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+//
+//    room_class = find_class("Room");
+//}
+//
+//Value create_room_value(Room* room)
+//{
+//
+//    if (!room_class)
+//        runtime_error("create_room_value: 'Room' class not defined.");
+//
+//    if (!room || !room_class || !room->data)
+//        return NIL_VAL;
+//
+//    ObjInstance* inst = new_instance(room_class);
+//    push(OBJ_VAL(inst));
+//
+//    SET_NATIVE_FIELD(inst, room, base, OBJ);
+//    SET_NATIVE_FIELD(inst, room->data->vnum, vnum, I32);
+//
+//    SET_LOX_FIELD(inst, room->area, area);
+//    SET_LOX_FIELD(inst, room->data->name, name);
+//
+//    pop(); // instance
+//
+//    return OBJ_VAL(inst);
+//}
+//
+//Value get_room_native(int arg_count, Value* args)
+//{
+//    if (arg_count != 1) {
+//        runtime_error("get_room() takes 1 argument; %d given.", arg_count);
+//        return NIL_VAL;
+//    }
+//
+//    if (IS_RAW_PTR(args[0])) {
+//        ObjRawPtr* ptr = AS_RAW_PTR(args[0]);
+//        if (ptr->type == RAW_OBJ) {
+//            Value room =  create_room_value((Room*)ptr->addr);
+//            return room;
+//        }
+//    }
+//
+//    runtime_error("get_room(): argument '%s' is incorrect type", string_value(args[0]));
+//    return NIL_VAL;
+//}
+//
+//Value get_room_people_native(int arg_count, Value* args)
+//{
+//    if (arg_count != 1) {
+//        runtime_error("get_people() takes 1 argument; %d given.", arg_count);
+//        return NIL_VAL;
+//    }
+//
+//    Room* room = NULL;
+//    
+//    if (IS_RAW_PTR(args[0]) && AS_RAW_PTR(args[0])->type == RAW_OBJ) {
+//        room = (Room*)AS_RAW_PTR(args[0])->addr;
+//    }
+//
+//    ObjArray* array_ = new_obj_array();
+//    push(OBJ_VAL(array_));
+//
+//    if (room) {
+//        // Just return an empty array if there is no room. Don't force scripters
+//        // to use guards. NULL is a disease.
+//        Mobile* mob;
+//        FOR_EACH_IN_ROOM(mob, room->people) {
+//            Value mob_val = create_mobile_value(mob);
+//            push(mob_val);
+//            write_value_array(&array_->val_array, mob_val);
+//            pop(); // mob_val
+//        }
+//    }
+//
+//    pop(); // array_
+//    return OBJ_VAL(array_);
+//}
+//
+//Value get_room_contents_native(int arg_count, Value* args)
+//{
+//    if (arg_count != 1) {
+//        runtime_error("get_contents() takes 1 argument; %d given.", arg_count);
+//        return NIL_VAL;
+//    }
+//
+//    Room* room = NULL;
+//
+//    if (IS_RAW_PTR(args[0]) && AS_RAW_PTR(args[0])->type == RAW_OBJ) {
+//        room = (Room*)AS_RAW_PTR(args[0])->addr;
+//    }
+//
+//    ObjArray* array_ = new_obj_array();
+//    push(OBJ_VAL(array_));
+//
+//    if (room) {
+//        // Just return an empty array if there is no room. Don't force scripters
+//        // to use guards. NULL is a disease.
+//        Object* obj;
+//        FOR_EACH_CONTENT(obj, room->contents)
+//        {
+//            //Value obj_val = create_object_value(obj);
+//            Value obj_val = OBJ_VAL(obj);
+//            push(obj_val);
+//            write_value_array(&array_->val_array, obj_val);
+//            pop(); // obj_val
+//        }
+//    }
+//
+//    pop(); // array_
+//    return OBJ_VAL(array_);
+//}

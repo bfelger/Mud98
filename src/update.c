@@ -141,7 +141,7 @@ void gain_exp(Mobile* ch, int gain)
                   >= exp_per_level(ch, ch->pcdata->points) * (ch->level + 1)) {
         send_to_char("You raise a level!!  ", ch);
         ch->level += 1;
-        sprintf(buf, "%s gained level %d", ch->name, ch->level);
+        sprintf(buf, "%s gained level %d", NAME_STR(ch), ch->level);
         log_string(buf);
         sprintf(buf, "$N has attained level %d!", ch->level);
         wiznet(buf, ch, NULL, WIZ_LEVELS, 0, 0);

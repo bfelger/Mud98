@@ -37,7 +37,7 @@ typedef struct object_t {
     Affect* affected;
     ObjPrototype* prototype;
     Room* in_room;
-    char* owner;
+    String* owner;
     char* short_descr;
     char* description;
     char* material;

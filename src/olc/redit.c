@@ -32,7 +32,7 @@ RoomData xRoom;
 #define U(x)    (uintptr_t)(x)
 
 const OlcCmdEntry room_olc_comm_table[] = {
-    { "name",	    U(&xRoom.name),		    ed_line_string,		0		        },
+    { "name",	    U(&xRoom.name),		    ed_line_lox_string, 0		        },
     { "desc",	    U(&xRoom.description),	ed_desc,		    0		        },
     { "ed",	        U(&xRoom.extra_desc),	ed_ed,			    0		        },
     { "heal",	    U(&xRoom.heal_rate),	ed_number_s_pos,	0		        },
@@ -121,7 +121,7 @@ void do_redit(Mobile* ch, char* argument)
     }
 
     if (room_data == NULL) {
-        bugf("{jdo_redit: NULL room_data, ch %s!{x", ch->name);
+        bugf("{jdo_redit: NULL room_data, ch %s!{x", NAME_STR(ch));
         return;
     }
 
@@ -234,7 +234,7 @@ REDIT(redit_mlist)
 
     for (vnum = area->min_vnum; vnum <= area->max_vnum; vnum++) {
         if ((p_mob_proto = get_mob_prototype(vnum)) != NULL) {
-            if (fAll || is_name(arg, p_mob_proto->name)) {
+            if (fAll || is_name(arg, C_STR(p_mob_proto->name))) {
                 found = true;
                 sprintf(buf, "{|[{*%5d{|]{x %-17.17s",
                     p_mob_proto->vnum, capitalize(p_mob_proto->short_descr));
@@ -278,7 +278,7 @@ REDIT(redit_show)
 
     addf_buf(out, "Description:\n\r{_%s{x", pRoom->description);
     addf_buf(out, "Name:       {|[{*%s{|]{x\n\rArea:       {|[{*%5d{|] {_%s{x\n\r",
-        pRoom->name, pRoom->area_data->vnum, pRoom->area_data->name);
+        C_STR(pRoom->name), pRoom->area_data->vnum, pRoom->area_data->name);
     addf_buf(out, "Vnum:       {|[{*%5d{|]{x\n\rSector:     {|[{*%s{|]{x\n\r",
         pRoom->vnum, flag_string(sector_flag_table, pRoom->sector_type));
     addf_buf(out, "Room flags: {|[{*%s{|]{x\n\r",
@@ -312,7 +312,7 @@ REDIT(redit_show)
     fcnt = false;
     FOR_EACH_IN_ROOM(rch, ch->in_room->people) {
         if (IS_NPC(rch) || can_see(ch, rch)) {
-            one_argument(rch->name, BUF(line));
+            one_argument(NAME_STR(rch), BUF(line));
             if (fcnt) {
                 add_buf(out, " ");
             }
@@ -861,7 +861,7 @@ static Mobile* get_mob_instance(Room* room, char* argument)
     count = 0;
 
     FOR_EACH_IN_ROOM(mob, room->people) {
-        if (!is_name(arg, mob->name)) 
+        if (!is_name(arg, NAME_STR(mob))) 
             continue;
         if (++count == number)
             return mob;
@@ -1083,37 +1083,47 @@ void showresets(Mobile* ch, Buffer* buf, AreaData* area, MobPrototype* mob, ObjP
     MobPrototype* pLastMob;
     Reset* reset;
     char buf2[MIL];
-    int key, lastmob;
+    int key;
+    int lastmob;
 
-    for (key = 0; key < MAX_KEY_HASH; ++key)
-        FOR_EACH(room, room_data_hash_table[key])
-            if (room->area_data == area) {
-                lastmob = -1;
-                pLastMob = NULL;
+    for (key = 0; key < MAX_KEY_HASH; ++key) {
+        FOR_EACH(room, room_data_hash_table[key]) {
+            if (room->area_data != area)
+                continue;
 
-                FOR_EACH(reset, room->reset_first) {
-                    if (reset->command == 'M') {
-                        lastmob = reset->arg1;
-                        pLastMob = get_mob_prototype(lastmob);
-                        if (pLastMob == NULL) {
-                            bugf("Showresets : invalid reset (mob %d) in room %d", lastmob, room->vnum);
-                            return;
-                        }
-                        if (mob && lastmob == mob->vnum) {
-                            sprintf(buf2, "%-5d %-15.15s %-5d\n\r", lastmob, mob->name, room->vnum);
-                            add_buf(buf, buf2);
-                        }
+            lastmob = -1;
+            pLastMob = NULL;
+
+            FOR_EACH(reset, room->reset_first) {
+                if (reset->command == 'M') {
+                    lastmob = reset->arg1;
+                    pLastMob = get_mob_prototype(lastmob);
+                    if (pLastMob == NULL) {
+                        bugf("Showresets : invalid reset (mob %d) in room %d",
+                            lastmob, room->vnum);
+                        return;
                     }
-                    if (obj && reset->command == 'O' && reset->arg1 == obj->vnum) {
-                        sprintf(buf2, "%-5d %-15.15s %-5d\n\r", obj->vnum, C_STR(obj->name), room->vnum);
-                        add_buf(buf, buf2);
-                    }
-                    if (obj && (reset->command == 'G' || reset->command == 'E') && reset->arg1 == obj->vnum) {
-                        sprintf(buf2, "%-5d %-15.15s %-5d %-5d %-15.15s\n\r", obj->vnum, C_STR(obj->name), room->vnum, lastmob, pLastMob ? pLastMob->name : "");
+                    if (mob && lastmob == mob->vnum) {
+                        sprintf(buf2, "%-5d %-15.15s %-5d\n\r", lastmob,
+                            C_STR(mob->name), room->vnum);
                         add_buf(buf, buf2);
                     }
                 }
+                if (obj && reset->command == 'O' && reset->arg1 == obj->vnum) {
+                    sprintf(buf2, "%-5d %-15.15s %-5d\n\r", obj->vnum,
+                        C_STR(obj->name), room->vnum);
+                    add_buf(buf, buf2);
+                }
+                if (obj && (reset->command == 'G' || reset->command == 'E')
+                    && reset->arg1 == obj->vnum) {
+                    sprintf(buf2, "%-5d %-15.15s %-5d %-5d %-15.15s\n\r",
+                        obj->vnum, C_STR(obj->name), room->vnum, lastmob,
+                        pLastMob ? C_STR(pLastMob->name) : "");
+                    add_buf(buf, buf2);
+                }
             }
+        }
+    }
 }
 
 void listobjreset(Mobile* ch, Buffer* buf, AreaData* area)

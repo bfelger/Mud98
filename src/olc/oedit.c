@@ -27,7 +27,7 @@ ObjPrototype xObj;
 #define U(x)    (uintptr_t)(x)
 
 const OlcCmdEntry obj_olc_comm_table[] = {
-    { "name",	    U(&xObj.name),		    ed_line_string,		0		        },
+    { "name",	    U(&xObj.name),		    ed_line_lox_string, 0		        },
     { "short",	    U(&xObj.short_descr),	ed_line_string,		0		        },
     { "long",	    U(&xObj.description),	ed_line_string,		0		        },
     { "material",	U(&xObj.material),	    ed_line_string,		0		        },

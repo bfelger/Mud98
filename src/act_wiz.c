@@ -334,7 +334,7 @@ void do_nochannels(Mobile* ch, char* argument)
         send_to_char("The gods have restored your channel priviliges.\n\r",
                      victim);
         send_to_char("NOCHANNELS removed.\n\r", ch);
-        sprintf(buf, "$N restores channels to %s", victim->name);
+        sprintf(buf, "$N restores channels to %s", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
     else {
@@ -342,7 +342,7 @@ void do_nochannels(Mobile* ch, char* argument)
         send_to_char("The gods have revoked your channel priviliges.\n\r",
                      victim);
         send_to_char("NOCHANNELS set.\n\r", ch);
-        sprintf(buf, "$N revokes %s's channels.", victim->name);
+        sprintf(buf, "$N revokes %s's channels.", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
 
@@ -352,10 +352,10 @@ void do_nochannels(Mobile* ch, char* argument)
 void do_smote(Mobile* ch, char* argument)
 {
     Mobile* vch;
-    char *letter, *name;
+    char *letter;
     char last[MAX_INPUT_LENGTH] = "";
     char temp[MAX_STRING_LENGTH];
-    size_t matches = 0;
+    int matches = 0;
 
     if (!IS_NPC(ch) && IS_SET(ch->comm_flags, COMM_NOEMOTE)) {
         send_to_char("You can't show your emotions.\n\r", ch);
@@ -367,7 +367,7 @@ void do_smote(Mobile* ch, char* argument)
         return;
     }
 
-    if (strstr(argument, ch->name) == NULL) {
+    if (strstr(argument, NAME_STR(ch)) == NULL) {
         send_to_char("You must include your name in an smote.\n\r", ch);
         return;
     }
@@ -376,9 +376,10 @@ void do_smote(Mobile* ch, char* argument)
     send_to_char("\n\r", ch);
 
     FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
-        if (vch->desc == NULL || vch == ch) continue;
+        if (vch->desc == NULL || vch == ch)
+            continue;
 
-        if ((letter = strstr(argument, vch->name)) == NULL) {
+        if ((letter = strstr(argument, NAME_STR(vch))) == NULL) {
             send_to_char(argument, vch);
             send_to_char("\n\r", vch);
             continue;
@@ -387,28 +388,31 @@ void do_smote(Mobile* ch, char* argument)
         strcpy(temp, argument);
         temp[strlen(argument) - strlen(letter)] = '\0';
         last[0] = '\0';
-        name = vch->name;
+        char* name = NAME_STR(vch);
+        String* vch_name = NAME_FIELD(vch);
 
         for (; *letter != '\0'; letter++) {
-            if (*letter == '\'' && matches == strlen(vch->name)) {
+            if (*letter == '\'' && matches == vch_name->length) {
                 strcat(temp, "r");
                 continue;
             }
 
-            if (*letter == 's' && matches == strlen(vch->name)) {
+            if (*letter == 's' && matches == vch_name->length) {
                 matches = 0;
                 continue;
             }
 
-            if (matches == strlen(vch->name)) { matches = 0; }
+            if (matches == vch_name->length) { 
+                matches = 0; 
+            }
 
             if (*letter == *name) {
                 matches++;
                 name++;
-                if (matches == strlen(vch->name)) {
+                if (matches == vch_name->length) {
                     strcat(temp, "you");
                     last[0] = '\0';
-                    name = vch->name;
+                    name = C_STR(vch_name);
                     continue;
                 }
                 strncat(last, letter, 1);
@@ -419,7 +423,7 @@ void do_smote(Mobile* ch, char* argument)
             strcat(temp, last);
             strncat(temp, letter, 1);
             last[0] = '\0';
-            name = vch->name;
+            name = C_STR(vch_name);
         }
 
         send_to_char(temp, vch);
@@ -442,7 +446,7 @@ void do_bamfin(Mobile* ch, char* argument)
             return;
         }
 
-        if (strstr(argument, ch->name) == NULL) {
+        if (strstr(argument, NAME_STR(ch)) == NULL) {
             send_to_char("You must include your name.\n\r", ch);
             return;
         }
@@ -469,7 +473,7 @@ void do_bamfout(Mobile* ch, char* argument)
             return;
         }
 
-        if (strstr(argument, ch->name) == NULL) {
+        if (strstr(argument, NAME_STR(ch)) == NULL) {
             send_to_char("You must include your name.\n\r", ch);
             return;
         }
@@ -511,7 +515,7 @@ void do_deny(Mobile* ch, char* argument)
 
     SET_BIT(victim->act_flags, PLR_DENY);
     send_to_char("You are denied access!\n\r", victim);
-    sprintf(buf, "$N denies access to %s", victim->name);
+    sprintf(buf, "$N denies access to %s", NAME_STR(victim));
     wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     send_to_char("OK.\n\r", ch);
     save_char_obj(victim);
@@ -748,7 +752,7 @@ void do_transfer(Mobile* ch, char* argument)
             if (d->connected == CON_PLAYING && d->character != ch
                 && d->character->in_room != NULL && can_see(ch, d->character)) {
                 char buf[MAX_STRING_LENGTH];
-                sprintf(buf, "%s %s", d->character->name, arg2);
+                sprintf(buf, "%s %s", NAME_STR(d->character), arg2);
                 do_function(ch, &do_transfer, buf);
             }
         }
@@ -1051,7 +1055,7 @@ void do_rstat(Mobile* ch, char* argument)
     FOR_EACH_IN_ROOM(rch, room->people) {
         if (can_see(ch, rch)) {
             send_to_char(" ", ch);
-            one_argument(rch->name, buf);
+            one_argument(NAME_STR(rch), buf);
             send_to_char(buf, ch);
         }
     }
@@ -1132,7 +1136,7 @@ void do_ostat(Mobile* ch, char* argument)
             obj->in_room == NULL ? 0 : obj->in_room->vnum,
             obj->in_obj == NULL ? "(none)" : obj->in_obj->short_descr,
             obj->carried_by == NULL        ? "(none)"
-            : can_see(ch, obj->carried_by) ? obj->carried_by->name
+            : can_see(ch, obj->carried_by) ? NAME_STR(obj->carried_by)
                                            : "someone",
             obj->wear_loc);
     send_to_char(buf, ch);
@@ -1396,7 +1400,7 @@ void do_mstat(Mobile* ch, char* argument)
         return;
     }
 
-    sprintf(buf, "Name: %s\n\r", victim->name);
+    sprintf(buf, "Name: %s\n\r", NAME_STR(victim));
     send_to_char(buf, ch);
 
     sprintf(
@@ -1462,7 +1466,7 @@ void do_mstat(Mobile* ch, char* argument)
         send_to_char(buf, ch);
     }
     sprintf(buf, "Fighting: %s\n\r",
-            victim->fighting ? victim->fighting->name : "(none)");
+            victim->fighting ? NAME_STR(victim->fighting) : "(none)");
     send_to_char(buf, ch);
 
     if (!IS_NPC(victim)) {
@@ -1525,9 +1529,9 @@ void do_mstat(Mobile* ch, char* argument)
     }
 
     sprintf(buf, "Master: %s  Leader: %s  Pet: %s\n\r",
-            victim->master ? victim->master->name : "(none)",
-            victim->leader ? victim->leader->name : "(none)",
-            victim->pet ? victim->pet->name : "(none)");
+            victim->master ? NAME_STR(victim->master) : "(none)",
+            victim->leader ? NAME_STR(victim->leader) : "(none)",
+            victim->pet ? NAME_STR(victim->pet) : "(none)");
     send_to_char(buf, ch);
 
     if (!IS_NPC(victim)) {
@@ -1624,7 +1628,7 @@ void do_mfind(Mobile* ch, char* argument)
     for (vnum = 0; nMatch < mob_proto_count; vnum++) {
         if ((p_mob_proto = get_mob_prototype(vnum)) != NULL) {
             nMatch++;
-            if (fAll || is_name(argument, p_mob_proto->name)) {
+            if (fAll || is_name(argument, C_STR(p_mob_proto->name))) {
                 found = true;
                 sprintf(buf, "[%5d] %s\n\r", p_mob_proto->vnum,
                         p_mob_proto->short_descr);
@@ -1759,13 +1763,14 @@ void do_mwhere(Mobile* ch, char* argument)
                 victim = d->character;
                 count++;
                 if (d->original != NULL)
-                    sprintf(buf,
-                            "%3d) %s (in the body of %s) is in %s [%d]\n\r",
-                            count, d->original->name, victim->short_descr,
-                            C_STR(victim->in_room->data->name), victim->in_room->vnum);
+                    sprintf(buf, 
+                        "%3d) %s (in the body of %s) is in %s [%d]\n\r", count, 
+                        NAME_STR(d->original), victim->short_descr,
+                        C_STR(victim->in_room->data->name), 
+                        victim->in_room->vnum);
                 else
                     sprintf(buf, "%3d) %s is in %s [%d]\n\r", count,
-                            victim->name, C_STR(victim->in_room->data->name),
+                            NAME_STR(victim), C_STR(victim->in_room->data->name),
                             victim->in_room->vnum);
                 add_buf(buffer, buf);
             }
@@ -1779,12 +1784,12 @@ void do_mwhere(Mobile* ch, char* argument)
     found = false;
     buffer = new_buf();
     FOR_EACH(victim, mob_list) {
-        if (victim->in_room != NULL && is_name(argument, victim->name)) {
+        if (victim->in_room != NULL && is_name(argument, NAME_STR(victim))) {
             found = true;
             count++;
             sprintf(buf, "%3d) [%5d] %-28s [%5d] %s\n\r", count,
                     IS_NPC(victim) ? victim->prototype->vnum : 0,
-                    IS_NPC(victim) ? victim->short_descr : victim->name,
+                    IS_NPC(victim) ? victim->short_descr : NAME_STR(victim),
                     victim->in_room->vnum, C_STR(victim->in_room->data->name));
             add_buf(buffer, buf);
         }
@@ -1814,7 +1819,7 @@ void do_reboot(Mobile* ch, char* argument)
     Mobile* vch;
 
     if (ch->invis_level < LEVEL_HERO) {
-        sprintf(buf, "Reboot by %s.", ch->name);
+        sprintf(buf, "Reboot by %s.", NAME_STR(ch));
         do_function(ch, &do_echo, buf);
     }
 
@@ -1843,7 +1848,7 @@ void do_shutdown(Mobile* ch, char* argument)
     Mobile* vch;
 
     if (ch->invis_level < LEVEL_HERO) 
-        sprintf(buf, "Shutdown by %s.", ch->name);
+        sprintf(buf, "Shutdown by %s.", NAME_STR(ch));
 
     char filename[256];
     sprintf(filename, "%s%s", cfg_get_area_dir(), cfg_get_shutdown_file());
@@ -1952,7 +1957,7 @@ void do_snoop(Mobile* ch, char* argument)
 
     victim->desc->snoop_by = ch->desc;
     sprintf(buf, "$N starts snooping on %s",
-            (IS_NPC(ch) ? victim->short_descr : victim->name));
+            (IS_NPC(ch) ? victim->short_descr : NAME_STR(victim)));
     wiznet(buf, ch, NULL, WIZ_SNOOPS, WIZ_SECURE, get_trust(ch));
     send_to_char("Ok.\n\r", ch);
     return;
@@ -2326,7 +2331,7 @@ void do_purge(Mobile* ch, char* argument)
 
         if (get_trust(ch) <= get_trust(victim)) {
             send_to_char("Maybe that wasn't a good idea...\n\r", ch);
-            sprintf(buf, "%s tried to purge you!\n\r", ch->name);
+            sprintf(buf, "%s tried to purge you!\n\r", NAME_STR(ch));
             send_to_char(buf, victim);
             return;
         }
@@ -2536,7 +2541,7 @@ void do_restore(Mobile* ch, char* argument)
     update_pos(victim);
     act("$n has restored you.", ch, NULL, victim, TO_VICT);
     sprintf(buf, "$N restored %s",
-            IS_NPC(victim) ? victim->short_descr : victim->name);
+            IS_NPC(victim) ? victim->short_descr : NAME_STR(victim));
     wiznet(buf, ch, NULL, WIZ_RESTORE, WIZ_SECURE, get_trust(ch));
     send_to_char("Ok.\n\r", ch);
     return;
@@ -2573,14 +2578,14 @@ void do_freeze(Mobile* ch, char* argument)
         REMOVE_BIT(victim->act_flags, PLR_FREEZE);
         send_to_char("You can play again.\n\r", victim);
         send_to_char("FREEZE removed.\n\r", ch);
-        sprintf(buf, "$N thaws %s.", victim->name);
+        sprintf(buf, "$N thaws %s.", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
     else {
         SET_BIT(victim->act_flags, PLR_FREEZE);
         send_to_char("You can't do ANYthing!\n\r", victim);
         send_to_char("FREEZE set.\n\r", ch);
-        sprintf(buf, "$N puts %s in the deep freeze.", victim->name);
+        sprintf(buf, "$N puts %s in the deep freeze.", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
 
@@ -2662,14 +2667,14 @@ void do_noemote(Mobile* ch, char* argument)
         REMOVE_BIT(victim->comm_flags, COMM_NOEMOTE);
         send_to_char("You can emote again.\n\r", victim);
         send_to_char("NOEMOTE removed.\n\r", ch);
-        sprintf(buf, "$N restores emotes to %s.", victim->name);
+        sprintf(buf, "$N restores emotes to %s.", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
     else {
         SET_BIT(victim->comm_flags, COMM_NOEMOTE);
         send_to_char("You can't emote!\n\r", victim);
         send_to_char("NOEMOTE set.\n\r", ch);
-        sprintf(buf, "$N revokes %s's emotes.", victim->name);
+        sprintf(buf, "$N revokes %s's emotes.", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
 
@@ -2707,14 +2712,14 @@ void do_noshout(Mobile* ch, char* argument)
         REMOVE_BIT(victim->comm_flags, COMM_NOSHOUT);
         send_to_char("You can shout again.\n\r", victim);
         send_to_char("NOSHOUT removed.\n\r", ch);
-        sprintf(buf, "$N restores shouts to %s.", victim->name);
+        sprintf(buf, "$N restores shouts to %s.", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
     else {
         SET_BIT(victim->comm_flags, COMM_NOSHOUT);
         send_to_char("You can't shout!\n\r", victim);
         send_to_char("NOSHOUT set.\n\r", ch);
-        sprintf(buf, "$N revokes %s's shouts.", victim->name);
+        sprintf(buf, "$N revokes %s's shouts.", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
 
@@ -2747,14 +2752,14 @@ void do_notell(Mobile* ch, char* argument)
         REMOVE_BIT(victim->comm_flags, COMM_NOTELL);
         send_to_char("You can tell again.\n\r", victim);
         send_to_char("NOTELL removed.\n\r", ch);
-        sprintf(buf, "$N restores tells to %s.", victim->name);
+        sprintf(buf, "$N restores tells to %s.", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
     else {
         SET_BIT(victim->comm_flags, COMM_NOTELL);
         send_to_char("You can't tell!\n\r", victim);
         send_to_char("NOTELL set.\n\r", ch);
-        sprintf(buf, "$N revokes %s's tells.", victim->name);
+        sprintf(buf, "$N revokes %s's tells.", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
 
@@ -3324,8 +3329,7 @@ void do_string(Mobile* ch, char* argument)
                 send_to_char("Not on PC's.\n\r", ch);
                 return;
             }
-            free_string(victim->name);
-            victim->name = str_dup(arg3);
+            NAME_FIELD(victim) = lox_string(arg3);
             return;
         }
 
@@ -3584,14 +3588,14 @@ void do_sockets(Mobile* ch, char* argument)
     one_argument(argument, arg);
     FOR_EACH(d, descriptor_list) {
         if (d->character != NULL && can_see(ch, d->character)
-            && (arg[0] == '\0' || is_name(arg, d->character->name)
-                || (d->original && is_name(arg, d->original->name)))) {
+            && (arg[0] == '\0' || is_name(arg, NAME_STR(d->character))
+                || (d->original && is_name(arg, NAME_STR(d->original))))) {
             count++;
             sprintf(buf + strlen(buf), "[%3ld %2d] %s@%s\n\r", 
                     (long)d->client->fd,
                     d->connected,
-                    d->original    ? d->original->name
-                    : d->character ? d->character->name
+                    d->original    ? NAME_STR(d->original)
+                    : d->character ? NAME_STR(d->character)
                                    : "(none)",
                     d->host);
         }

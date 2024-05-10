@@ -608,7 +608,7 @@ int cmd_eval(VNUM vnum, char* line, int check, Mobile* mob, Mobile* ch,
         case 't':
         case 'r':
         case 'q':
-            return(lval_char != NULL && is_name(buf, lval_char->name));
+            return(lval_char != NULL && is_name(buf, NAME_STR(lval_char)));
         case 'o':
         case 'p':
             return(lval_obj != NULL && is_name(buf, NAME_STR(lval_obj)));
@@ -751,7 +751,7 @@ void expand_arg(char* buf,
             i = " <@@@> ";
             break;
         case 'i':
-            one_argument(mob->name, fname);
+            one_argument(NAME_STR(mob), fname);
             i = fname;
             break;
         case 'I': 
@@ -760,33 +760,32 @@ void expand_arg(char* buf,
         case 'n':
             i = someone;
             if (ch != NULL && can_see(mob, ch)) {
-                one_argument(ch->name, fname);
+                one_argument(NAME_STR(ch), fname);
                 i = capitalize(fname);
             }
             break;
         case 'N':
             i = (ch != NULL && can_see(mob, ch))
-                ? (IS_NPC(ch) ? ch->short_descr : ch->name)
+                ? (IS_NPC(ch) ? ch->short_descr : NAME_STR(ch))
                 : someone;
             break;
         case 't':
             i = someone;
             if (vch != NULL && can_see(mob, vch)) {
-                one_argument(vch->name, fname);
+                one_argument(NAME_STR(vch), fname);
                 i = capitalize(fname);
             }
             break;
         case 'T':
             i = (vch != NULL && can_see(mob, vch))
-                ? (IS_NPC(vch) ? vch->short_descr : vch->name)
-                : someone;
+                ? (IS_NPC(vch) ? vch->short_descr : NAME_STR(vch)) : someone;
             break;
         case 'r':
             if (rch == NULL)
                 rch = get_random_char(mob);
             i = someone;
             if (rch != NULL && can_see(mob, rch)) {
-                one_argument(rch->name, fname);
+                one_argument(NAME_STR(rch), fname);
                 i = capitalize(fname);
             }
             break;
@@ -794,19 +793,19 @@ void expand_arg(char* buf,
             if (rch == NULL)
                 rch = get_random_char(mob);
             i = (rch != NULL && can_see(mob, rch))
-                ? (IS_NPC(ch) ? ch->short_descr : ch->name) : someone;
+                ? (IS_NPC(ch) ? ch->short_descr : NAME_STR(ch)) : someone;
             break;
         case 'q':
             i = someone;
             if (mob->mprog_target != NULL && can_see(mob, mob->mprog_target)) {
-                one_argument(mob->mprog_target->name, fname);
+                one_argument(NAME_STR(mob->mprog_target), fname);
                 i = capitalize(fname);
             } 			
             break;
         case 'Q':
             i = (mob->mprog_target != NULL && can_see(mob, mob->mprog_target))
                 ? (IS_NPC(mob->mprog_target) ? mob->mprog_target->short_descr 
-                : mob->mprog_target->name) : someone;
+                : NAME_STR(mob->mprog_target)) : someone;
                 break;
         case 'j': 
             i = sex_table[mob->sex].subj;

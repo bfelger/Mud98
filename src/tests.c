@@ -315,40 +315,52 @@ void run_unit_tests()
     //    "print Damage.lightning;";
 
     char* source = 
-        "fun print_name(obj) {\n"
-        "   print \"[\" + string(obj.vnum()) + \"] \" + obj.name;\n"
+        "fun print_name(thing) {\n"
+        "   print \"[\" + string(thing.vnum) + \"] \" + thing.name;\n"
         "}\n";
 
     InterpretResult result = interpret_code(source);
     if (result == INTERPRET_COMPILE_ERROR) exit(65);
     if (result == INTERPRET_RUNTIME_ERROR) exit(70);
     
-    //Room* room;
-    //int count = 0;
-    //for (int i = 0; i < top_vnum_room; ++i) {
-    //    if ((room = get_room(NULL, i)) != NULL) {
-    //        if (count++ == 100)
-    //            goto loop_end;
-    //        Value room_val = create_room_value(room);
-    //        push(room_val);
-    //        result = call_function("print_name", 1, room_val);
-    //        pop();
-    //        if (result != INTERPRET_OK) goto loop_end;
-    //    }
-    //}
-    //loop_end:
-
-    Object* obj = obj_list;
-
-    for (int i = 0; i < 100; i++) {
-        Value obj_val = create_object_value(obj);
-        push(obj_val);
-        result = call_function("print_name", 1, obj_val);
-        pop();
-        if (result != INTERPRET_OK) 
-            break;
-        obj = obj->next;
+    Room* room;
+    int count = 0;
+    for (int i = 0; i < top_vnum_room; ++i) {
+        if ((room = get_room(NULL, i)) != NULL) {
+            if (count++ == 100)
+                goto loop_end;
+            Value room_val = OBJ_VAL(room);
+            push(room_val);
+            result = call_function("print_name", 1, room_val);
+            pop();
+            if (result != INTERPRET_OK) goto loop_end;
+        }
     }
+    loop_end:
+
+    //Object* obj = obj_list;
+    //
+    //for (int i = 0; i < 100; i++) {
+    //    Value obj_val = OBJ_VAL(obj);
+    //    push(obj_val);
+    //    result = call_function("print_name", 1, obj_val);
+    //    pop();
+    //    if (result != INTERPRET_OK) 
+    //        break;
+    //    obj = obj->next;
+    //}
+
+    //Mobile* mob = mob_list;
+    //
+    //for (int i = 0; i < 100; i++) {
+    //    Value mob_val = OBJ_VAL(mob);
+    //    push(mob_val);
+    //    result = call_function("print_name", 1, mob_val);
+    //    pop();
+    //    if (result != INTERPRET_OK)
+    //        break;
+    //    mob = mob->next;
+    //}
     
     //InterpretResult result = interpret_code(source);
     //result = interpret_code(source);

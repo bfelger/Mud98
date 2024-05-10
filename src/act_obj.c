@@ -83,12 +83,17 @@ bool can_loot(Mobile* ch, Object* obj)
     if (!obj->owner || obj->owner == NULL) return true;
 
     owner = NULL;
-    FOR_EACH(wch, mob_list)
-        if (!str_cmp(wch->name, obj->owner)) owner = wch;
+    FOR_EACH(wch, mob_list) {
+        if (lox_streq(NAME_FIELD(wch), obj->owner)) {
+            owner = wch;
+        }
+    }
 
-    if (owner == NULL) return true;
+    if (owner == NULL)
+        return true;
 
-    if (!str_cmp(ch->name, owner->name)) return true;
+    if (lox_streq(NAME_FIELD(ch), NAME_FIELD(owner)))
+        return true;
 
     if (!IS_NPC(owner) && IS_SET(owner->act_flags, PLR_CANLOOT))
         return true;
@@ -664,16 +669,16 @@ void do_give(Mobile* ch, char* argument)
                     victim, NULL, ch, TO_VICT);
                 ch->reply = victim;
                 sprintf(buf, "%d %s %s", amount, silver ? "silver" : "gold",
-                        ch->name);
+                        NAME_STR(ch));
                 do_function(victim, &do_give, buf);
             }
             else if (can_see(victim, ch)) {
                 sprintf(buf, "%d %s %s", change, silver ? "gold" : "silver",
-                        ch->name);
+                        NAME_STR(ch));
                 do_function(victim, &do_give, buf);
                 if (silver) {
                     sprintf(buf, "%d silver %s",
-                            (95 * amount / 100 - change * 100), ch->name);
+                            (95 * amount / 100 - change * 100), NAME_STR(ch));
                     do_function(victim, &do_give, buf);
                 }
                 act("$n tells you 'Thank you, come again.'", victim, NULL, ch,
@@ -1544,7 +1549,7 @@ void do_sacrifice(Mobile* ch, char* argument)
 
     one_argument(argument, arg);
 
-    if (arg[0] == '\0' || !str_cmp(arg, ch->name)) {
+    if (arg[0] == '\0' || !str_cmp(arg, NAME_STR(ch))) {
         act("$n offers $mself to Mota, who graciously declines.", ch, NULL,
             NULL, TO_ROOM);
         send_to_char("Mota appreciates your offer and may accept it later.\n\r",
@@ -1915,17 +1920,17 @@ void do_steal(Mobile* ch, char* argument)
         act("$n tried to steal from $N.\n\r", ch, NULL, victim, TO_NOTVICT);
         switch (number_range(0, 3)) {
         case 0:
-            sprintf(buf, "%s is a lousy thief!", ch->name);
+            sprintf(buf, "%s is a lousy thief!", NAME_STR(ch));
             break;
         case 1:
-            sprintf(buf, "%s couldn't rob %s way out of a paper bag!", ch->name,
+            sprintf(buf, "%s couldn't rob %s way out of a paper bag!", NAME_STR(ch),
                     sex_table[ch->sex].poss);
             break;
         case 2:
-            sprintf(buf, "%s tried to rob me!", ch->name);
+            sprintf(buf, "%s tried to rob me!", NAME_STR(ch));
             break;
         case 3:
-            sprintf(buf, "Keep your hands out of there, %s!", ch->name);
+            sprintf(buf, "Keep your hands out of there, %s!", NAME_STR(ch));
             break;
         }
         if (!IS_AWAKE(victim)) do_function(victim, &do_wake, "");
@@ -1936,7 +1941,7 @@ void do_steal(Mobile* ch, char* argument)
                 multi_hit(victim, ch, TYPE_UNDEFINED);
             }
             else {
-                sprintf(buf, "$N tried to steal from %s.", victim->name);
+                sprintf(buf, "$N tried to steal from %s.", NAME_STR(victim));
                 wiznet(buf, ch, NULL, WIZ_FLAGS, 0, 0);
                 if (!IS_SET(ch->act_flags, PLR_THIEF)) {
                     SET_BIT(ch->act_flags, PLR_THIEF);
@@ -2252,13 +2257,12 @@ void do_buy(Mobile* ch, char* argument)
 
         READ_ARG(arg);
         if (arg[0] != '\0') {
-            sprintf(buf, "%s %s", pet->name, arg);
-            free_string(pet->name);
-            pet->name = str_dup(buf);
+            sprintf(buf, "%s %s", NAME_STR(pet), arg);
+            NAME_FIELD(pet) = lox_string(buf);
         }
 
         sprintf(buf, "%sA neck tag says 'I belong to %s'.\n\r",
-                pet->description, ch->name);
+                pet->description, NAME_STR(ch));
         free_string(pet->description);
         pet->description = str_dup(buf);
 

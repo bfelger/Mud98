@@ -744,7 +744,7 @@ static void do_theme_list(Mobile* ch, char* argument)
                         "==========================={x\n\r", ch);
                     found = true;
                 }
-                list_theme_entry(ch, theme, wch->name, false);
+                list_theme_entry(ch, theme, NAME_STR(wch), false);
             }
         }
     }
@@ -1468,7 +1468,7 @@ ColorTheme* lookup_remote_color_theme(Mobile* ch, char* arg)
 
             Mobile* wch = (d->original != NULL) ? d->original : d->character;
 
-            if (str_prefix(name, wch->name))
+            if (str_prefix(name, NAME_STR(wch)))
                 continue;
 
             if (!can_see(ch, wch))

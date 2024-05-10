@@ -40,6 +40,10 @@ typedef struct obj_prototype_t {
     ItemType item_type;
 } ObjPrototype;
 
+#define FOR_EACH_OBJ_PROTO(p) \
+    for (int p##_hash_idx = 0; p##_hash_idx < MAX_KEY_HASH; ++p##_hash_idx) \
+        FOR_EACH(p, obj_proto_hash[p##_hash_idx])
+
 void free_object_prototype(ObjPrototype* pObj);
 ObjPrototype* get_object_prototype(VNUM vnum);
 ObjPrototype* new_object_prototype();

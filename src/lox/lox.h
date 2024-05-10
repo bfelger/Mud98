@@ -33,34 +33,6 @@ typedef struct {
     Object* this_;
 } ExecContext;
 
-#define SET_NATIVE_FIELD(inst, src, tgt, TYPE)                                 \
-{                                                                              \
-    Value tgt##_value = WRAP_##TYPE(src);                                      \
-    push(tgt##_value);                                                         \
-    char* tgt##_str = "_" #tgt;                                                \
-    ObjString* tgt##_fld = copy_string(tgt##_str, (int)strlen(tgt##_str));     \
-    push(OBJ_VAL(tgt##_fld));                                                  \
-    table_set(&(inst)->fields, tgt##_fld, tgt##_value);                        \
-    pop();                                                                     \
-    pop();                                                                     \
-}
-
-#define SET_LOX_FIELD(inst, value, field)                                      \
-{                                                                              \
-    push(OBJ_VAL(value));                                                      \
-    char* field##_str = #field;                                                \
-    ObjString* key = copy_string(field##_str, (int)strlen(field##_str));       \
-    push(OBJ_VAL(key));                                                        \
-    table_set(&(inst)->fields, key, OBJ_VAL(value));                           \
-    pop();                                                                     \
-    pop();                                                                     \
-}
-
-#define C_STR(string)       (string->chars)
-
-#define NAME_STR(obj)       (obj->header.name->chars)
-#define NAME_FIELD(obj)     (obj->header.name)
-
 typedef ObjString String;
 
 void add_global(const char* name, Value val);
@@ -79,5 +51,42 @@ bool lox_streq(ObjString* a, ObjString* b);
 
 extern CompileContext compile_context;
 extern ExecContext exec_context;
+
+#define SET_NATIVE_FIELD(inst, src, tgt, TYPE)                                 \
+{                                                                              \
+    Value tgt##_value = WRAP_##TYPE(src);                                      \
+    push(tgt##_value);                                                         \
+    char* tgt##_str = #tgt;                                                    \
+    ObjString* tgt##_fld = copy_string(tgt##_str, (int)strlen(tgt##_str));     \
+    push(OBJ_VAL(tgt##_fld));                                                  \
+    table_set(&(inst)->fields, tgt##_fld, tgt##_value);                        \
+    pop();                                                                     \
+    pop();                                                                     \
+}
+
+#define SET_LOX_FIELD(inst, value, field)                                      \
+{                                                                              \
+    Value tgt##_value = OBJ_VAL(value);                                        \
+    push(tgt##_value);                                                         \
+    char* field##_str = #field;                                                \
+    ObjString* key = copy_string(field##_str, (int)strlen(field##_str));       \
+    push(OBJ_VAL(key));                                                        \
+    table_set(&(inst)->fields, key, tgt##_value);                              \
+    pop();                                                                     \
+    pop();                                                                     \
+}
+
+static inline void set_name(EntityHeader* header, ObjString* name)
+{
+    header->name = name;
+    SET_LOX_FIELD(header, header->name, name);
+}
+
+#define SET_NAME(obj, name)     set_name(&((obj)->header), name)
+
+#define C_STR(string)       (string->chars)
+
+#define NAME_STR(obj)       (obj->header.name->chars)
+#define NAME_FIELD(obj)     (obj->header.name)
 
 #endif // !LOX__LOX_H

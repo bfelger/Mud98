@@ -26,8 +26,23 @@ Mobile* new_mobile()
 {
     LIST_ALLOC_PERM(mob, Mobile);
 
+    push(OBJ_VAL(mob));
+
+    init_header(&mob->header, OBJ_MOB);
+
+    SET_NATIVE_FIELD(&mob->header, mob->short_descr, short_desc, STR);
+    SET_NATIVE_FIELD(&mob->header, mob->in_room, in_room, OBJ);
+    SET_NATIVE_FIELD(&mob->header, mob->hit, hp, I16);
+    SET_NATIVE_FIELD(&mob->header, mob->max_hit, max_hp, I16);
+
+    SET_NATIVE_FIELD(&mob->header, mob->header.vnum, vnum, I32);
+
+    SET_NAME(mob, lox_string(str_empty));
+
+    pop();
+
     VALIDATE(mob);
-    mob->name = &str_empty[0];
+
     mob->short_descr = &str_empty[0];
     mob->long_descr = &str_empty[0];
     mob->description = &str_empty[0];
@@ -68,7 +83,6 @@ void free_mobile(Mobile* mob)
         affect_remove(mob, affect);
     }
 
-    free_string(mob->name);
     free_string(mob->short_descr);
     free_string(mob->long_descr);
     free_string(mob->description);
@@ -93,7 +107,10 @@ void clone_mobile(Mobile* parent, Mobile* clone)
         return;
 
     /* start fixing values */
-    clone->name = str_dup(parent->name);
+    SET_NAME(clone, NAME_FIELD(parent));
+
+    clone->header.vnum = parent->header.vnum;
+
     clone->version = parent->version;
     clone->short_descr = str_dup(parent->short_descr);
     clone->long_descr = str_dup(parent->long_descr);
@@ -171,7 +188,10 @@ Mobile* create_mobile(MobPrototype* p_mob_proto)
 
     mob->prototype = p_mob_proto;
 
-    mob->name = str_dup(p_mob_proto->name);
+    SET_NAME(mob, p_mob_proto->name);
+
+    mob->header.vnum = p_mob_proto->vnum;
+
     mob->short_descr = str_dup(p_mob_proto->short_descr);
     mob->long_descr = str_dup(p_mob_proto->long_descr);
     mob->description = str_dup(p_mob_proto->description);
@@ -341,7 +361,8 @@ void clear_mob(Mobile* ch)
     int i;
 
     *ch = ch_zero;
-    ch->name = &str_empty[0];
+    ch->header.name = lox_string(str_empty);
+    ch->header.vnum = 0;
     ch->short_descr = &str_empty[0];
     ch->long_descr = &str_empty[0];
     ch->description = &str_empty[0];
@@ -366,80 +387,82 @@ void clear_mob(Mobile* ch)
 ////////////////////////////////////////////////////////////////////////////////
 // Lox representation
 ////////////////////////////////////////////////////////////////////////////////
-
-static ObjClass* mobile_class = NULL;
-
-void init_mobile_class()
-{
-    char* source =
-        "class Mobile { "
-        "   name() { return marshal(this._name); }"
-        "   vnum() { return marshal(this._vnum); }"
-        "   short_desc() { return marshal(this._short_desc); } "
-        "   in_room() { return get_room(this._in_room); } "
-        "   carrying() { return get_carrying(this._base); } "
-        "   hp() { return this._hp; } "
-        "   max_hp() { return this._max_hp; } "
-        "}";
-
-    InterpretResult result = interpret_code(source);
-
-    if (result == INTERPRET_COMPILE_ERROR) exit(65);
-    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
-
-    mobile_class = find_class("Mobile");
-}
-
-Value create_mobile_value(Mobile* mobile)
-{
-    if (!mobile || !mobile_class)
-        return NIL_VAL;
-
-    ObjInstance* inst = new_instance(mobile_class);
-    push(OBJ_VAL(inst));
-
-    SET_NATIVE_FIELD(inst, mobile, base, OBJ);
-    SET_NATIVE_FIELD(inst, mobile->name, name, STR);
-    SET_NATIVE_FIELD(inst, mobile->prototype->vnum, vnum, I32);
-    SET_NATIVE_FIELD(inst, mobile->short_descr, short_desc, STR);
-    SET_NATIVE_FIELD(inst, mobile->in_room, in_room, OBJ);
-    SET_NATIVE_FIELD(inst, mobile->hit, hp, I16);
-    SET_NATIVE_FIELD(inst, mobile->max_hit, max_hp, I16);
-
-    pop(); // instance
-
-    return OBJ_VAL(inst);
-}
-
-Value get_mobile_carrying_native(int arg_count, Value* args)
-{
-    if (arg_count != 1) {
-        runtime_error("get_carrying() takes 1 argument; %d given.", arg_count);
-        return NIL_VAL;
-    }
-
-    Mobile* mobile = NULL;
-
-    if (IS_RAW_PTR(args[0]) && AS_RAW_PTR(args[0])->type == RAW_OBJ) {
-        mobile = (Mobile*)AS_RAW_PTR(args[0])->addr;
-    }
-
-    ObjArray* array_ = new_obj_array();
-    push(OBJ_VAL(array_));
-
-    if (mobile) {
-        // Just return an empty array if there is no room. Don't force scripters
-        // to use guards. NULL is a disease.
-        Object* obj;
-        FOR_EACH_CONTENT(obj, mobile->carrying)
-        {
-            Value obj_val = create_object_value(obj);
-            push(obj_val);
-            write_value_array(&array_->val_array, obj_val);
-            pop(); // obj_val
-        }
-    }
-
-    pop(); // array_
-    return OBJ_VAL(array_);
-}
+//
+//static ObjClass* mobile_class = NULL;
+//
+//void init_mobile_class()
+//{
+//    char* source =
+//        "class Mobile { "
+//        "   vnum() { return marshal(this._vnum); }"
+//        "   short_desc() { return marshal(this._short_desc); } "
+//        "   in_room() { return get_room(this._in_room); } "
+//        "   carrying() { return get_carrying(this._base); } "
+//        "   hp() { return this._hp; } "
+//        "   max_hp() { return this._max_hp; } "
+//        "}";
+//
+//    InterpretResult result = interpret_code(source);
+//
+//    if (result == INTERPRET_COMPILE_ERROR) exit(65);
+//    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+//
+//    mobile_class = find_class("Mobile");
+//}
+//
+//Value create_mobile_value(Mobile* mobile)
+//{
+//    if (!mobile_class)
+//        runtime_error("create_mobile_value: 'Mobile' class not defined.");
+//
+//    if (!mobile || !mobile_class)
+//        return NIL_VAL;
+//
+//    ObjInstance* inst = new_instance(mobile_class);
+//    push(OBJ_VAL(inst));
+//
+//    SET_NATIVE_FIELD(inst, mobile, base, OBJ);
+//    SET_NATIVE_FIELD(inst, mobile->prototype->vnum, vnum, I32);
+//    SET_NATIVE_FIELD(inst, mobile->short_descr, short_desc, STR);
+//    SET_NATIVE_FIELD(inst, mobile->in_room, in_room, OBJ);
+//    SET_NATIVE_FIELD(inst, mobile->hit, hp, I16);
+//    SET_NATIVE_FIELD(inst, mobile->max_hit, max_hp, I16);
+//
+//    SET_LOX_FIELD(inst, mobile->header.name, name);
+//
+//    pop(); // instance
+//
+//    return OBJ_VAL(inst);
+//}
+//
+//Value get_mobile_carrying_native(int arg_count, Value* args)
+//{
+//    if (arg_count != 1) {
+//        runtime_error("get_carrying() takes 1 argument; %d given.", arg_count);
+//        return NIL_VAL;
+//    }
+//
+//    Mobile* mobile = NULL;
+//
+//    if (IS_RAW_PTR(args[0]) && AS_RAW_PTR(args[0])->type == RAW_OBJ) {
+//        mobile = (Mobile*)AS_RAW_PTR(args[0])->addr;
+//    }
+//
+//    ObjArray* array_ = new_obj_array();
+//    push(OBJ_VAL(array_));
+//
+//    if (mobile) {
+//        // Just return an empty array if there is no room. Don't force scripters
+//        // to use guards. NULL is a disease.
+//        Object* obj;
+//        FOR_EACH_CONTENT(obj, mobile->carrying) {
+//            Value obj_val = create_object_value(obj);
+//            push(obj_val);
+//            write_value_array(&array_->val_array, obj_val);
+//            pop(); // obj_val
+//        }
+//    }
+//
+//    pop(); // array_
+//    return OBJ_VAL(array_);
+//}
