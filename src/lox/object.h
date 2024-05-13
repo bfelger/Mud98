@@ -14,9 +14,13 @@
 #include "lox/value.h"
 
 typedef struct area_t Area;
+typedef struct area_data_t AreaData;
 typedef struct room_t Room;
+typedef struct room_data_t RoomData;
 typedef struct object_t Object;
+typedef struct obj_prototype_t ObjPrototype;
 typedef struct mobile_t Mobile;
+typedef struct mob_prototype_t MobPrototype;
 
 #define OBJ_TYPE(value)         (AS_OBJ(value)->type)
 
@@ -51,9 +55,13 @@ typedef struct mobile_t Mobile;
 //
 #define AS_ENTITY(value)        ((EntityHeader*)AS_OBJ(value))
 #define AS_AREA(value)          ((Area*)AS_OBJ(value))
+#define AS_AREA_DATA(value)     ((AreaData*)AS_OBJ(value))
 #define AS_ROOM(value)          ((Room*)AS_OBJ(value))
+#define AS_ROOM_DATA(value)     ((RoomData*)AS_OBJ(value))
 #define AS_OBJECT(value)        ((Object*)AS_OBJ(value))
+#define AS_OBJ_PROTO(value)     ((ObjPrototype*)AS_OBJ(value))
 #define AS_MOBILE(value)        ((Mobile*)AS_OBJ(value))
+#define AS_MOB_PROTO(value)     ((MobPrototype*)AS_OBJ(value))
 
 typedef enum {
     OBJ_ARRAY,
@@ -68,9 +76,13 @@ typedef enum {
     OBJ_UPVALUE,
     //
     OBJ_AREA,
+    OBJ_AREA_DATA,
     OBJ_ROOM,
+    OBJ_ROOM_DATA,
     OBJ_OBJ,
+    OBJ_OBJ_PROTO,
     OBJ_MOB,
+    OBJ_MOB_PROTO,
 } ObjType;
 
 struct Obj {

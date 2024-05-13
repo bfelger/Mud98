@@ -416,7 +416,7 @@ void do_quest(Mobile* ch, char* argument)
             Quest* q = get_quest(qs->vnum);
             ++i;
             addf_buf(world, "%d. {T%s {|[{*Level %d{|] {_(%s){x",
-                i, q->name, q->level, q->area_data->name);                
+                i, q->name, q->level, NAME_STR(q->area_data));                
             if (qs->amount > 0) {
                 addf_buf(local, " {j(%d/%d){x\n\r", qs->progress, qs->amount);
             }
@@ -425,7 +425,7 @@ void do_quest(Mobile* ch, char* argument)
     }
 
     if (area != NULL && BUF(local)[0]) {
-        addf_buf(out, "{*Active Quests in %s:\n\r\n\r", area->name);
+        addf_buf(out, "{*Active Quests in %s:\n\r\n\r", NAME_STR(area));
         add_buf(out, BUF(local));
     }
 

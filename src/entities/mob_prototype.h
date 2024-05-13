@@ -25,6 +25,7 @@ typedef struct mob_prototype_t MobPrototype;
 #include <stdbool.h>
 
 typedef struct mob_prototype_t {
+    EntityHeader header;
     MobPrototype* next;
     SpecFunc* spec_fun;
     ShopData* pShop;

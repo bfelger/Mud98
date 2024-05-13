@@ -278,7 +278,7 @@ REDIT(redit_show)
 
     addf_buf(out, "Description:\n\r{_%s{x", pRoom->description);
     addf_buf(out, "Name:       {|[{*%s{|]{x\n\rArea:       {|[{*%5d{|] {_%s{x\n\r",
-        C_STR(pRoom->name), pRoom->area_data->vnum, pRoom->area_data->name);
+        C_STR(pRoom->name), VNUM_FIELD(pRoom->area_data), NAME_FIELD(pRoom->area_data));
     addf_buf(out, "Vnum:       {|[{*%5d{|]{x\n\rSector:     {|[{*%s{|]{x\n\r",
         pRoom->vnum, flag_string(sector_flag_table, pRoom->sector_type));
     addf_buf(out, "Room flags: {|[{*%s{|]{x\n\r",

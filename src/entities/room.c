@@ -14,6 +14,7 @@
 #include "reset.h"
 
 #include "lox/lox.h"
+#include "lox/table.h"
 
 int room_count;
 int room_perm_count;
@@ -189,7 +190,7 @@ Room* get_room_for_player(Mobile* ch, VNUM vnum)
 
     // No instance exists. We have to make one.
     printf_log("Creating new instance '%s' for %s.", 
-        C_STR(room_data->area_data->name), NAME_STR(ch));
+        NAME_STR(room_data->area_data), NAME_STR(ch));
     area = create_area_instance(room_data->area_data, true);
     INIT_BUF(buf, MSL);
     addf_buf(buf, "%s %s", NAME_STR(ch), area->owner_list);

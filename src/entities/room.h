@@ -21,6 +21,7 @@ typedef struct room_data_t RoomData;
 #include "data/direction.h"
 
 #include "lox/lox.h"
+#include "lox/table.h"
 
 // Static room VNUMs
 #define ROOM_VNUM_LIMBO         2
@@ -69,6 +70,7 @@ typedef struct room_t {
 } Room;
 
 typedef struct room_data_t {
+    EntityHeader header;
     RoomData* next;
     Room* instances;
     ExtraDesc* extra_desc;
@@ -124,10 +126,10 @@ extern VNUM top_vnum_room;
 // Lox implementation
 ////////////////////////////////////////////////////////////////////////////////
 
-void init_room_class();
-Value create_room_value(Room* room);
-Value get_room_people_native(int arg_count, Value* args);
-Value get_room_native(int arg_count, Value* args);
-Value get_room_contents_native(int arg_count, Value* args);
+//void init_room_class();
+//Value create_room_value(Room* room);
+//Value get_room_people_native(int arg_count, Value* args);
+//Value get_room_native(int arg_count, Value* args);
+//Value get_room_contents_native(int arg_count, Value* args);
 
 #endif // !MUD98__ENTITIES__ROOM_H

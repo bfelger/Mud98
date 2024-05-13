@@ -208,7 +208,7 @@ QEDIT(qedit_show)
 
     printf_to_char(ch, "VNUM:       {|[{*%"PRVNUM"{|]{x\n\r", quest->vnum);
     printf_to_char(ch, "Name:       {T%s{x\n\r", quest->name && quest->name[0] ? quest->name : "(none)");
-    printf_to_char(ch, "Area:       {*%s{x\n\r", quest->area_data->name);
+    printf_to_char(ch, "Area:       {*%s{x\n\r", NAME_STR(quest->area_data));
     printf_to_char(ch, "Type:       {|[{*%s{|]{x\n\r", quest_type_table[quest->type].name);
     printf_to_char(ch, "Level:      {|[{*%d{|]{x\n\r", quest->level);
     printf_to_char(ch, "End:        {|[{*%d{|]{x {_%s{x\n\r", quest->end, end_name);

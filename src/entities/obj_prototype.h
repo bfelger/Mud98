@@ -19,6 +19,7 @@ typedef struct obj_prototype_t ObjPrototype;
 #include "lox/lox.h"
 
 typedef struct obj_prototype_t {
+    EntityHeader header;
     ObjPrototype* next;
     ExtraDesc* extra_desc;
     Affect* affected;

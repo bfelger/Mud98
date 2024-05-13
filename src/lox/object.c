@@ -274,20 +274,36 @@ void print_object(Value value)
         break;
     //
     case OBJ_AREA:
-        lox_printf("<area %s (%d)>", AS_AREA(value)->data->name->chars, 
-            AS_AREA(value)->data->vnum);
+        lox_printf("<area %s (%d)>", NAME_STR(AS_AREA(value)), 
+            VNUM_FIELD(AS_AREA(value)));
+        break;
+    case OBJ_AREA_DATA:
+        lox_printf("<area_data %s (%d)>", NAME_STR(AS_AREA_DATA(value)),
+            VNUM_FIELD(AS_AREA_DATA(value)));
         break;
     case OBJ_ROOM:
-        lox_printf("<room %s (%d)>", AS_ROOM(value)->data->name->chars, 
-            AS_ROOM(value)->vnum);
+        lox_printf("<room %s (%d)>", NAME_STR(AS_ROOM(value)),
+            VNUM_FIELD(AS_ROOM(value)));
+        break;
+    case OBJ_ROOM_DATA:
+        lox_printf("<room_data %s (%d)>", NAME_STR(AS_ROOM_DATA(value)),
+            VNUM_FIELD(AS_ROOM_DATA(value)));
         break;
     case OBJ_OBJ:
         lox_printf("<obj %s (%d)>", NAME_STR(AS_OBJECT(value)), 
-            AS_OBJECT(value)->prototype->vnum);
+            VNUM_FIELD(AS_OBJECT(value)));
+        break;
+    case OBJ_OBJ_PROTO:
+        lox_printf("<obj_proto %s (%d)>", NAME_STR(AS_OBJ_PROTO(value)),
+            VNUM_FIELD(AS_OBJ_PROTO(value)));
         break;
     case OBJ_MOB:
         lox_printf("<mob %s (%d)>", NAME_STR(AS_MOBILE(value)),
-            AS_MOBILE(value)->prototype->vnum);
+            VNUM_FIELD(AS_MOBILE(value)));
+        break;
+    case OBJ_MOB_PROTO:
+        lox_printf("<mob_proto %s (%d)>", NAME_STR(AS_MOB_PROTO(value)),
+            VNUM_FIELD(AS_MOB_PROTO(value)));
         break;
     } // end switch
 }

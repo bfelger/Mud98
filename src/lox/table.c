@@ -54,10 +54,12 @@ static Entry* find_entry(Entry* entries, int capacity, ObjString* key)
 
 bool table_get(Table* table, ObjString* key, Value* value)
 {
-    if (table->count == 0) return false;
+    if (table->count == 0)
+        return false;
 
     Entry* entry = find_entry(table->entries, table->capacity, key);
-    if (entry->key == NULL) return false;
+    if (entry->key == NULL)
+        return false;
 
     *value = entry->value;
     return true;
@@ -74,7 +76,8 @@ static void adjust_capacity(Table* table, int capacity)
     table->count = 0;
     for (int i = 0; i < table->capacity; i++) {
         Entry* entry = &table->entries[i];
-        if (entry->key == NULL) continue;
+        if (entry->key == NULL) 
+            continue;
 
         Entry* dest = find_entry(entries, capacity, entry->key);
         dest->key = entry->key;
@@ -105,11 +108,13 @@ bool table_set(Table* table, ObjString* key, Value value)
 
 bool table_delete(Table* table, ObjString* key)
 {
-    if (table->count == 0) return false;
+    if (table->count == 0) 
+        return false;
 
     // Find the entry.
     Entry* entry = find_entry(table->entries, table->capacity, key);
-    if (entry->key == NULL) return false;
+    if (entry->key == NULL) 
+        return false;
 
     // Place a tombstone in the entry.
     entry->key = NULL;
@@ -130,14 +135,16 @@ void table_add_all(Table* from, Table* to)
 ObjString* table_find_string(Table* table, const char* chars, int length, 
     uint32_t hash)
 {
-    if (table->count == 0) return NULL;
+    if (table->count == 0) 
+        return NULL;
 
     uint32_t index = hash & (table->capacity - 1);
     for (;;) {
         Entry* entry = &table->entries[index];
         if (entry->key == NULL) {
           // Stop if we find an empty non-tombstone entry.
-            if (IS_NIL(entry->value)) return NULL;
+            if (IS_NIL(entry->value)) 
+                return NULL;
         }
         else if (entry->key->length == length &&
             entry->key->hash == hash &&

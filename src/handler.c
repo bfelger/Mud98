@@ -938,7 +938,7 @@ static void update_mdsp_room(Mobile* ch)
         MSDP_TABLE_OPEN,
         "VNUM", ch->in_room->vnum,
         "NAME", ch->in_room->data->name,
-        "AREA", ch->in_room->area->data->name,
+        "AREA", NAME_STR(ch->in_room->area),
         "TERRAIN", sector_flag_table[ch->in_room->data->sector_type].name,
         "EXITS", exits,
         MSDP_TABLE_CLOSE);

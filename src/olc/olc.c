@@ -179,7 +179,7 @@ char* olc_ed_vnum(Mobile* ch)
     switch (ch->desc->editor) {
     case ED_AREA:
         area = (AreaData*)ch->desc->pEdit;
-        sprintf(buf, "%"PRVNUM, area ? area->vnum : 0);
+        sprintf(buf, "%"PRVNUM, area ? VNUM_FIELD(area) : 0);
         break;
     case ED_ROOM:
         pRoom = ch->in_room;

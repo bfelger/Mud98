@@ -79,7 +79,7 @@ extern Object* obj_list;
 // Lox implementation
 ////////////////////////////////////////////////////////////////////////////////
 
-void init_object_class();
-Value create_object_value(Object* object);
+//void init_object_class();
+//Value create_object_value(Object* object);
 
 #endif // !MUD98__ENTITIES__OBJECT_H

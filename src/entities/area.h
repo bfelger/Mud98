@@ -51,12 +51,13 @@ typedef struct area_t {
 } Area;
 
 typedef struct area_data_t {
+    EntityHeader header;
     AreaData* next;
     ValueArray instances;
     HelpArea* helps;
     Quest* quests;
     char* file_name;
-    String* name;
+    //String* name;
     char* credits;
     int security;       // OLC Value 1-9
     LEVEL low_range;
@@ -64,7 +65,7 @@ typedef struct area_data_t {
     VNUM min_vnum;
     VNUM max_vnum;
     char* builders;  
-    VNUM vnum;
+    //VNUM vnum;
     Sector sector;
     FLAGS area_flags;
     int16_t reset_thresh;

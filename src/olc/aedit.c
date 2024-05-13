@@ -30,7 +30,7 @@ AreaData xArea;
 #define U(x)    (uintptr_t)(x)
 
 const OlcCmdEntry area_olc_comm_table[] = {
-    { "name", 	        U(&xArea.name),         ed_line_lox_string, 0                   },
+    { "name", 	        U(&xArea.header.name),  ed_line_lox_string, 0                   },
     { "min_vnum", 	    0,                      ed_olded,           U(aedit_lvnum)	    },
     { "max_vnum", 	    0,                      ed_olded,           U(aedit_uvnum)	    },
     { "min_level", 	    U(&xArea.low_range),    ed_number_level,    0	                },
@@ -139,7 +139,7 @@ AEDIT(aedit_show)
 
     EDIT_AREA(ch, area);
 
-    printf_to_char(ch, "Name:           {|[{*%"PRVNUM"{|] {_%s{x\n\r", area->vnum, C_STR(area->name));
+    printf_to_char(ch, "Name:           {|[{*%"PRVNUM"{|] {_%s{x\n\r", VNUM_FIELD(area), NAME_STR(area));
     printf_to_char(ch, "File:           {*%s{x\n\r", area->file_name);
     printf_to_char(ch, "Vnums:          {|[{*%d-%d{|]{x\n\r", area->min_vnum, area->max_vnum);
     printf_to_char(ch, "Levels:         {|[{*%d-%d{|]{x\n\r", area->low_range, area->high_range);
@@ -542,8 +542,8 @@ void do_alist(Mobile* ch, char* argument)
         }
         else if (!str_cmp(sort, "name")) {
             SORT_ARRAY(AreaData*, alist, area_data_count,
-                strcasecmp(C_STR(alist[i]->name), C_STR(alist[lo]->name)) < 0,
-                strcasecmp(C_STR(alist[i]->name), C_STR(alist[hi]->name)) > 0);
+                strcasecmp(NAME_STR(alist[i]), NAME_STR(alist[lo])) < 0,
+                strcasecmp(NAME_STR(alist[i]), NAME_STR(alist[hi])) > 0);
         }
         else {
             printf_to_char(ch, "{jUnknown sort option '{*%s{j'.{x\n\r\n\r%s", sort, help);
@@ -554,8 +554,8 @@ void do_alist(Mobile* ch, char* argument)
     for (int i = 0; i < area_data_count; ++i) {
         AreaData* area = alist[i];
         addf_buf( result, "{|[{*%3d{|]{x %-29.29s {|({*%-5d{|-{*%5d{|) {_%-12.12s {|[{*%d{|] [{*%-10.10s{|]{x\n\r",
-            area->vnum,
-            C_STR(area->name),
+            VNUM_FIELD(area),
+            NAME_STR(area),
             area->min_vnum,
             area->max_vnum,
             area->file_name,
@@ -581,7 +581,7 @@ AreaData* get_area_data(VNUM vnum)
     AreaData* area;
 
     FOR_EACH(area, area_data_list) {
-        if (area->vnum == vnum)
+        if (VNUM_FIELD(area) == vnum)
             return area;
     }
 

@@ -163,9 +163,19 @@ static void blacken_object(Obj* object)
         mark_entity(&area->header);
         break;
     }
+    case OBJ_AREA_DATA: {
+        AreaData* area_data = (AreaData*)object;
+        mark_entity(&area_data->header);
+        break;
+    }
     case OBJ_ROOM: {
         Room* room = (Room*)object;
         mark_entity(&room->header);
+        break;
+    }
+    case OBJ_ROOM_DATA: {
+        RoomData* room_data = (RoomData*)object;
+        mark_entity(&room_data->header);
         break;
     }
     case OBJ_OBJ: {
@@ -174,9 +184,19 @@ static void blacken_object(Obj* object)
         mark_object((Obj*)obj->owner);
         break;
     }
+    case OBJ_OBJ_PROTO: {
+        ObjPrototype* obj_proto = (ObjPrototype*)object;
+        mark_entity(&obj_proto->header);
+        break;
+    }
     case OBJ_MOB: {
         Mobile* mob = (Mobile*)object;
         mark_entity(&mob->header);
+        break;
+    }
+    case OBJ_MOB_PROTO: {
+        MobPrototype* mob_proto = (MobPrototype*)object;
+        mark_entity(&mob_proto->header);
         break;
     }
     } // end switch
@@ -239,9 +259,13 @@ static void free_obj_value(Obj* object)
         break;
     //
     case OBJ_AREA:
+    case OBJ_AREA_DATA:
     case OBJ_ROOM:
+    case OBJ_ROOM_DATA:
     case OBJ_OBJ:
+    case OBJ_OBJ_PROTO:
     case OBJ_MOB:
+    case OBJ_MOB_PROTO:
         break;
     } // end switch
 }
@@ -258,7 +282,7 @@ static void mark_natives()
     Mobile* mob;
 
     FOR_EACH(area_data, area_data_list) {
-        mark_object((Obj*)area_data->name);
+        mark_entity(&area_data->header);
         mark_array(&area_data->instances);
         FOR_EACH_AREA_INST(area, area_data) {
             mark_entity(&area->header);

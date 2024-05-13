@@ -34,10 +34,10 @@ Area* new_area(AreaData* area_data)
 
     init_header(&area->header, OBJ_AREA);
 
-    SET_NAME(area, area_data->name);
+    SET_NAME(area, NAME_FIELD(area_data));
+    VNUM_FIELD(area) = VNUM_FIELD(area_data);
 
-    area->header.vnum = area_data->vnum;
-    SET_NATIVE_FIELD(&area->header, area->header.vnum, vnum, I32);
+    SET_NATIVE_FIELD(&area->header, VNUM_FIELD(area), vnum, I32);
 
     pop();
 
@@ -61,15 +61,22 @@ AreaData* new_area_data()
 
     LIST_ALLOC_PERM(area_data, AreaData);
 
-    area_data->name = lox_string(str_empty);
+    push(OBJ_VAL(area_data));
+
+    init_header(&area_data->header, OBJ_AREA_DATA);
+
+    SET_NAME(area_data, lox_string(str_empty));
+
+    VNUM_FIELD(area_data) = area_data_count - 1;
+    sprintf(buf, "area%"PRVNUM".are", VNUM_FIELD(area_data));
+
+    pop();
 
     area_data->area_flags = AREA_ADDED;
     area_data->security = 1;
     area_data->builders = str_empty;
     area_data->credits = str_empty;
     area_data->reset_thresh = 6;
-    area_data->vnum = area_data_count - 1;
-    sprintf(buf, "area%"PRVNUM".are", area_data->vnum);
     area_data->file_name = str_dup(buf);
 
     init_value_array(&area_data->instances);
@@ -79,7 +86,7 @@ AreaData* new_area_data()
 
 void free_area_data(AreaData* area_data)
 {
-    area_data->name = lox_string(str_empty);
+    // area_data->name will get GC'd
     free_string(area_data->file_name);
     free_string(area_data->builders);
     free_string(area_data->credits);
@@ -146,11 +153,11 @@ void create_instance_exits(Area* area)
         break;                                      \
     }
 
-#define LOX_SKEY( string, field )                   \
-    if (!str_cmp(word, string)) {                   \
-        String* val = fread_lox_string(fp);         \
-        field = val;                                \
-        break;                                      \
+#define KEYLS(literal, entity, field, value)                                   \
+    if (!str_cmp(word, literal)) {                                             \
+        (entity)->header.field = (value);                                      \
+        SET_LOX_FIELD(&((entity)->header), (entity)->header.field, field);     \
+        break;                                                                 \
     }
 
 void load_area(FILE* fp)
@@ -164,9 +171,9 @@ void load_area(FILE* fp)
 #endif
 
     area_data = new_area_data();
+    VNUM_FIELD(area_data) = area_data_count;
     area_data->reset_thresh = 6;
     area_data->file_name = str_dup(fpArea);
-    area_data->vnum = area_data_count;
     area_data->security = 9;
 
     for (; ; ) {
@@ -204,7 +211,7 @@ void load_area(FILE* fp)
             KEY("Low", area_data->low_range, (LEVEL)fread_number(fp));
             break;
         case 'N':
-            LOX_SKEY("Name", area_data->name);
+            KEYLS("Name", area_data, name, fread_lox_string(fp));
             break;
         case 'R':
             KEY("Reset", area_data->reset_thresh, (int16_t)fread_number(fp));

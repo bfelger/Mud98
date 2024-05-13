@@ -89,4 +89,8 @@ static inline void set_name(EntityHeader* header, ObjString* name)
 #define NAME_STR(obj)       (obj->header.name->chars)
 #define NAME_FIELD(obj)     (obj->header.name)
 
+
+
+#define VNUM_FIELD(obj)     (obj->header.vnum)
+
 #endif // !LOX__LOX_H
