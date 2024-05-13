@@ -57,10 +57,66 @@ static Value string_native(int arg_count, Value* args)
     return OBJ_VAL(copy_string(str, (int)strlen(str)));
 }
 
+static Value is_obj_native(int arg_count, Value* args)
+{
+    if (arg_count != 1) {
+        runtime_error("is_obj() takes 1 argument; %d given.", arg_count);
+        return FALSE_VAL;
+    }
+
+    if (IS_OBJECT(args[0]))
+        return TRUE_VAL;
+    
+    return FALSE_VAL;
+}
+
+static Value is_mob_native(int arg_count, Value* args)
+{
+    if (arg_count != 1) {
+        runtime_error("is_mob() takes 1 argument; %d given.", arg_count);
+        return FALSE_VAL;
+    }
+
+    if (IS_MOBILE(args[0]))
+        return TRUE_VAL;
+
+    return FALSE_VAL;
+}
+
+static Value is_room_native(int arg_count, Value* args)
+{
+    if (arg_count != 1) {
+        runtime_error("is_room() takes 1 argument; %d given.", arg_count);
+        return FALSE_VAL;
+    }
+
+    if (IS_ROOM(args[0]))
+        return TRUE_VAL;
+
+    return FALSE_VAL;
+}
+
+static Value is_area_native(int arg_count, Value* args)
+{
+    if (arg_count != 1) {
+        runtime_error("is_area() takes 1 argument; %d given.", arg_count);
+        return FALSE_VAL;
+    }
+
+    if (IS_AREA(args[0]))
+        return TRUE_VAL;
+
+    return FALSE_VAL;
+}
+
 const NativeFuncEntry native_funcs[] = {
     { "clock",          clock_native                },
     { "marshal",        marshal_native              },
     { "string",         string_native               },
+    { "is_area",        is_area_native              },
+    { "is_mob",         is_mob_native               },
+    { "is_obj",         is_obj_native               },
+    { "is_room",        is_room_native              },
     //{ "get_carrying",   get_mobile_carrying_native  },
     //{ "get_contents",   get_room_contents_native    },
     //{ "get_people",     get_room_people_native      },
@@ -108,10 +164,6 @@ void init_natives()
 {
     for (int i = 0; native_funcs[i].name != NULL; ++i)
         define_native(native_funcs[i].name, native_funcs[i].func);
-
-    //init_mobile_class();
-    //init_object_class();
-    //init_room_class();
 
     init_damage_consts();
 }
