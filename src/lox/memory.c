@@ -114,8 +114,8 @@ static void blacken_object(Obj* object)
 
     switch (object->type) {
     case OBJ_ARRAY: {
-        ObjArray* array_ = (ObjArray*)object;
-        mark_array(&array_->val_array);
+        ValueArray* array_ = (ValueArray*)object;
+        mark_array(array_);
         break;
     }
     case OBJ_BOUND_METHOD: {
@@ -209,9 +209,9 @@ static void free_obj_value(Obj* object)
 #endif
     switch (object->type) {
     case OBJ_ARRAY:
-        ObjArray* array_ = (ObjArray*)object;
-        free_value_array(&array_->val_array);
-        FREE(ObjArray, object);
+        ValueArray* array_ = (ValueArray*)object;
+        free_value_array(array_);
+        FREE(ValueArray, object);
         break;
     case OBJ_BOUND_METHOD:
         FREE(ObjBoundMethod, object);
@@ -280,6 +280,8 @@ static void mark_natives()
     Object* obj;
     MobPrototype* mob_proto;
     Mobile* mob;
+
+    mark_array(&global_areas);
 
     FOR_EACH_AREA(area_data) {
         mark_entity(&area_data->header);

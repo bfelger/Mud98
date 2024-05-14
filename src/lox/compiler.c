@@ -801,6 +801,7 @@ ParseRule rules[] = {
     [TOKEN_VAR]             = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_WHILE]           = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_SELF]            = { literal,    NULL,       PREC_NONE       },
+    [TOKEN_NAMESPACE]       = { variable,   NULL,       PREC_NONE       },
     [TOKEN_ERROR]           = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_EOF]             = { NULL,       NULL,       PREC_NONE       },
 };

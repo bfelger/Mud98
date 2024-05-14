@@ -314,29 +314,34 @@ void run_unit_tests()
     //char* source =
     //    "print Damage.lightning;";
 
-    char* source = 
-        "fun print_name(thing) {\n"
-        "   print \"[\" + string(thing.vnum) + \"] \" + thing.name;\n"
+    //char* source = 
+    //    "fun print_name(thing) {\n"
+    //    "   print \"[\" + string(thing.vnum) + \"] \" + thing.name;\n"
+    //    "}\n";
+
+    char* source =
+        "for (var i = 0; i < 10; i++) {\n"
+        "    print global_areas[i].name;\n"
         "}\n";
 
     InterpretResult result = interpret_code(source);
     if (result == INTERPRET_COMPILE_ERROR) exit(65);
     if (result == INTERPRET_RUNTIME_ERROR) exit(70);
     
-    Room* room;
-    int count = 0;
-    for (int i = 0; i < top_vnum_room; ++i) {
-        if ((room = get_room(NULL, i)) != NULL) {
-            if (count++ == 100)
-                goto loop_end;
-            Value room_val = OBJ_VAL(room);
-            push(room_val);
-            result = call_function("print_name", 1, room_val);
-            pop();
-            if (result != INTERPRET_OK) goto loop_end;
-        }
-    }
-    loop_end:
+    //Room* room;
+    //int count = 0;
+    //for (int i = 0; i < top_vnum_room; ++i) {
+    //    if ((room = get_room(NULL, i)) != NULL) {
+    //        if (count++ == 100)
+    //            goto loop_end;
+    //        Value room_val = OBJ_VAL(room);
+    //        push(room_val);
+    //        result = call_function("print_name", 1, room_val);
+    //        pop();
+    //        if (result != INTERPRET_OK) goto loop_end;
+    //    }
+    //}
+    //loop_end:
 
     //Object* obj = obj_list;
     //

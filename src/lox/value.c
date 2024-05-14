@@ -34,6 +34,7 @@ void lox_printf(const char* format, ...)
 
 void init_value_array(ValueArray* array)
 {
+    array->obj.type = OBJ_ARRAY;
     array->values = NULL;
     array->capacity = 0;
     array->count = 0;
@@ -137,7 +138,6 @@ bool values_equal(Value a, Value b)
     }
 #endif
 }
-
 
 bool lox_streq(ObjString* a, ObjString* b)
 {

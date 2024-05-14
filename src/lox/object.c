@@ -19,10 +19,7 @@ extern char* string_space;
 extern char* top_string;
 extern char str_empty[1];
 
-#define ALLOCATE_OBJ(type, object_type) \
-    (type*)allocate_object(sizeof(type), object_type)
-
-static Obj* allocate_object(size_t size, ObjType type)
+Obj* allocate_object(size_t size, ObjType type)
 {
     Obj* object = (Obj*)reallocate(NULL, 0, size);
     object->type = type;
@@ -36,13 +33,6 @@ static Obj* allocate_object(size_t size, ObjType type)
 #endif
 
     return object;
-}
-
-ObjArray* new_obj_array()
-{
-    ObjArray* array_ = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY);
-    init_value_array(&array_->val_array);
-    return array_;
 }
 
 ObjBoundMethod* new_bound_method(Value receiver, ObjClosure* method)
@@ -227,7 +217,7 @@ void print_object(Value value)
 
     switch (OBJ_TYPE(value)) {
     case OBJ_ARRAY: {
-        ValueArray* array_ = &AS_ARRAY(value)->val_array;
+        ValueArray* array_ = AS_ARRAY(value);
             lox_printf("[");
             for (int i = 0; i < array_->count; ++i) {
                 if (i > 0)

@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "entities/area.h"
 #include "entities/mobile.h"
 #include "entities/object.h"
 #include "entities/room.h"
@@ -222,4 +223,6 @@ void init_natives()
         define_native(native_funcs[i].name, native_funcs[i].func);
 
     init_damage_consts();
+
+    add_global("global_areas", OBJ_VAL(&global_areas));
 }

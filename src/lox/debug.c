@@ -9,6 +9,7 @@
 #include "lox/common.h"
 
 #include "lox/debug.h"
+#include "lox/function.h"
 #include "lox/object.h"
 #include "lox/value.h"
 

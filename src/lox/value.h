@@ -94,17 +94,7 @@ typedef struct {
 
 #endif
 
-typedef struct {
-    int capacity;
-    int count;
-    Value* values;
-} ValueArray;
-
 bool values_equal(Value a, Value b);
-void init_value_array(ValueArray* array);
-void write_value_array(ValueArray* array, Value value);
-void free_value_array(ValueArray* array);
-void remove_value_array(ValueArray* array, int index);
 char* string_value(Value value);
 void print_value(Value value);
 

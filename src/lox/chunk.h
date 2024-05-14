@@ -8,7 +8,9 @@
 #ifndef clox_chunk_h
 #define clox_chunk_h
 
+#include "lox/array.h"
 #include "lox/common.h"
+#include "lox/object.h"
 #include "lox/value.h"
 
 typedef enum {

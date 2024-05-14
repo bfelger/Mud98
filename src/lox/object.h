@@ -9,7 +9,6 @@
 #define clox_object_h
 
 #include "lox/common.h"
-#include "lox/chunk.h"
 #include "lox/table.h"
 #include "lox/value.h"
 
@@ -48,7 +47,7 @@ typedef struct mob_prototype_t MobPrototype;
                                     || IS_OBJECT(value) || IS_OBJ_PROTO(value) \
                                     || IS_MOBILE(value) || IS_MOB_PROTO(value))   
 
-#define AS_ARRAY(value)         ((ObjArray*)AS_OBJ(value))
+#define AS_ARRAY(value)         ((ValueArray*)AS_OBJ(value))
 #define AS_BOUND_METHOD(value)  ((ObjBoundMethod*)AS_OBJ(value))
 #define AS_CLASS(value)         ((ObjClass*)AS_OBJ(value))
 #define AS_CLOSURE(value)       ((ObjClosure*)AS_OBJ(value))
@@ -97,25 +96,10 @@ struct Obj {
     struct Obj* next;
 };
 
-typedef struct {
-    Obj obj;
-    ValueArray val_array;
-} ObjArray;
-
-typedef struct {
-    Obj obj;
-    int arity;
-    int upvalue_count;
-    Chunk chunk;
-    ObjString* name;
-} ObjFunction;
-
-typedef Value(*NativeFn)(int arg_count, Value* args);
-
-typedef struct {
-    Obj obj;
-    NativeFn function;
-} ObjNative;
+//typedef struct {
+//    Obj obj;
+//    ValueArray val_array;
+//} ObjArray;
 
 typedef enum {
     RAW_OBJ,
@@ -151,31 +135,6 @@ typedef struct ObjUpvalue {
     struct ObjUpvalue* next;
 } ObjUpvalue;
 
-typedef struct {
-    Obj obj;
-    ObjFunction* function;
-    ObjUpvalue** upvalues;
-    int upvalue_count;
-} ObjClosure;
-
-typedef struct {
-    Obj obj;
-    ObjString* name;
-    Table methods;
-} ObjClass;
-
-typedef struct {
-    Obj obj;
-    ObjClass* klass;
-    Table fields;
-} ObjInstance;
-
-typedef struct {
-    Obj obj;
-    Value receiver;
-    ObjClosure* method;
-} ObjBoundMethod;
-
 // Mud98 specifics
 
 typedef struct {
@@ -185,13 +144,7 @@ typedef struct {
     int32_t vnum;
 } EntityHeader;
 
-ObjArray* new_obj_array();
-ObjBoundMethod* new_bound_method(Value receiver, ObjClosure* method);
-ObjClass* new_class(ObjString* name);
-ObjClosure* new_closure(ObjFunction* function);
-ObjFunction* new_function();
-ObjInstance* new_instance(ObjClass* klass);
-ObjNative* new_native(NativeFn function);
+Obj* allocate_object(size_t size, ObjType type);
 ObjRawPtr* new_raw_ptr(uintptr_t addr, RawType type);
 Value marshal_raw_ptr(ObjRawPtr* ptr);
 void unmarshal_raw_val(ObjRawPtr* ptr, Value val);
@@ -200,6 +153,9 @@ ObjString* copy_string(const char* chars, int length);
 ObjUpvalue* new_upvalue(Value* slot);
 void print_object(Value value);
 void init_header(EntityHeader* header, ObjType type);
+
+#define ALLOCATE_OBJ(type, object_type) \
+    (type*)allocate_object(sizeof(type), object_type)
 
 static inline bool is_obj_type(Value value, ObjType type)
 {

@@ -14,6 +14,8 @@ typedef struct room_t Room;
 typedef struct mobile_t Mobile;
 typedef struct object_t Object;
 
+#include "lox/array.h"
+#include "lox/function.h"
 #include "lox/object.h"
 #include "lox/value.h"
 
@@ -76,9 +78,9 @@ extern ExecContext exec_context;
     pop();                                                                     \
 }
 
-static inline void set_name(EntityHeader* header, ObjString* name)
+static inline void set_name(EntityHeader* header, ObjString* new_name)
 {
-    header->name = name;
+    header->name = new_name;
     SET_LOX_FIELD(header, header->name, name);
 }
 

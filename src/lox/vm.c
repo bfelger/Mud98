@@ -368,9 +368,9 @@ InterpretResult run()
         case OP_GET_PROPERTY: {
                 ObjString* name = READ_STRING();
                 if (IS_ARRAY(peek(0))) {
-                    ObjArray* array_ = AS_ARRAY(peek(0));
+                    ValueArray* array_ = AS_ARRAY(peek(0));
                     if (!strcmp(name->chars, "count")) {
-                        Value count = NUMBER_VAL(array_->val_array.count);
+                        Value count = NUMBER_VAL(array_->count);
                         pop(); // Array
                         push(count);
                         break;
@@ -470,13 +470,13 @@ InterpretResult run()
                 }
 
                 int index = (int)AS_NUMBER(pop());
-                ObjArray* val_array = AS_ARRAY(peek(0));
-                if (index < 0 || index >= val_array->val_array.count) {
+                ValueArray* val_array = AS_ARRAY(peek(0));
+                if (index < 0 || index >= val_array->count) {
                     sprintf(err_buf, "Index %d is out of bounds.", index);
                     runtime_error(err_buf);
                 }
                 pop();
-                push(val_array->val_array.values[index]);
+                push(val_array->values[index]);
                 break;
             }
         case OP_SET_AT_INDEX: {
@@ -491,12 +491,12 @@ InterpretResult run()
                 }
 
                 int index = (int)AS_NUMBER(peek(1));
-                ObjArray* val_array = AS_ARRAY(peek(2));
-                if (index < 0 || index >= val_array->val_array.count) {
+                ValueArray* val_array = AS_ARRAY(peek(2));
+                if (index < 0 || index >= val_array->count) {
                     sprintf(err_buf, "Index %d is out of bounds.", index);
                     runtime_error(err_buf);
                 }
-                val_array->val_array.values[index] = peek(0);
+                val_array->values[index] = peek(0);
                 pop();
                 pop();
                 break;
@@ -576,10 +576,10 @@ InterpretResult run()
                 break;
             }
         case OP_ARRAY: {
-                ObjArray* array_ = new_obj_array();
+                ValueArray* array_ = new_obj_array();
                 int elem_count = READ_BYTE();
                 for (int i = 0; i < elem_count; ++i) {
-                    write_value_array(&array_->val_array, peek((elem_count - i) - 1));
+                    write_value_array(array_, peek((elem_count - i) - 1));
                 }
                 vm.stack_top -= elem_count;
                 push(OBJ_VAL(array_));
