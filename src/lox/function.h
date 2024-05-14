@@ -10,6 +10,7 @@
 
 #include "lox/chunk.h"
 #include "lox/object.h"
+#include "lox/table.h"
 
 typedef struct {
     Obj obj;

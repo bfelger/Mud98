@@ -12,13 +12,14 @@ typedef struct room_data_t RoomData;
 
 #include "merc.h"
 
-#include "mobile.h"
-#include "room_exit.h"
-#include "extra_desc.h"
-#include "object.h"
-#include "reset.h"
-
 #include "data/direction.h"
+
+#include "entities/entity.h"
+#include "entities/extra_desc.h"
+#include "entities/mobile.h"
+#include "entities/room_exit.h"
+#include "entities/object.h"
+#include "entities/reset.h"
 
 #include "lox/lox.h"
 #include "lox/table.h"

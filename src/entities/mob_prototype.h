@@ -14,11 +14,12 @@ typedef struct mob_prototype_t MobPrototype;
 #include "interp.h"
 #include "mob_prog.h"
 
-#include "area.h"
-#include "shop_data.h"
-
 #include "data/damage.h"
 #include "data/mobile_data.h"
+
+#include "entities/area.h"
+#include "entities/entity.h"
+#include "entities/shop_data.h"
 
 #include "lox/lox.h"
 

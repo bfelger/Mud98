@@ -15,12 +15,14 @@ typedef struct area_data_t AreaData;
 #include <stdint.h>
 #include <stdio.h>
 
-#include "help_data.h"
-#include "reset.h"
-#include "room.h"
 
 #include "data/direction.h"
 #include "data/quest.h"
+
+#include "entities/entity.h"
+#include "entities/help_data.h"
+#include "entities/reset.h"
+#include "entities/room.h"
 
 #include "lox/lox.h"
 

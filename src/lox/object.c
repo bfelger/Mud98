@@ -262,6 +262,9 @@ void print_object(Value value)
     case OBJ_UPVALUE:
        lox_printf("upvalue");
         break;
+    case OBJ_TABLE:
+        lox_printf("<table (%d elements)>", AS_TABLE(value)->count);
+        break;
     //
     case OBJ_AREA:
         lox_printf("<area %s (%d)>", NAME_STR(AS_AREA(value)), 
@@ -298,8 +301,3 @@ void print_object(Value value)
     } // end switch
 }
 
-void init_header(EntityHeader* header, ObjType type)
-{
-    header->obj.type = type;
-    init_table(&header->fields);
-}

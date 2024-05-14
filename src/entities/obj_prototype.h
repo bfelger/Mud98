@@ -12,9 +12,10 @@ typedef struct obj_prototype_t ObjPrototype;
 
 #include "data/item.h"
 
-#include "affect.h"
-#include "area.h"
-#include "extra_desc.h"
+#include "entities/affect.h"
+#include "entities/area.h"
+#include "entities/entity.h"
+#include "entities/extra_desc.h"
 
 #include "lox/lox.h"
 

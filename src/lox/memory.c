@@ -61,8 +61,10 @@ void* reallocate(void* pointer, size_t old_size, size_t new_size)
 
 void mark_object(Obj* object)
 {
-    if (object == NULL) return;
-    if (object->is_marked) return;
+    if (object == NULL)
+        return;
+    if (object->is_marked)
+        return;
 #ifdef DEBUG_LOG_GC
     lox_printf("%p mark ", (void*)object);
     print_value(OBJ_VAL(object));
@@ -153,6 +155,11 @@ static void blacken_object(Obj* object)
     case OBJ_UPVALUE:
         mark_value(((ObjUpvalue*)object)->closed);
         break;
+    case OBJ_TABLE: {
+        Table* table = (Table*)object;
+        mark_table(table);
+        break;
+    }
     case OBJ_NATIVE:
     case OBJ_RAW_PTR:
     case OBJ_STRING:
@@ -254,6 +261,11 @@ static void free_obj_value(Obj* object)
             FREE(ObjString, object);
             break;
         }
+    case OBJ_TABLE: {
+        Table* table = (Table*)object;
+        free_table(table);
+        FREE(Table, object);
+    }
     case OBJ_UPVALUE:
         FREE(ObjUpvalue, object);
         break;

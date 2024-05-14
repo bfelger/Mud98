@@ -9,7 +9,6 @@
 #define clox_object_h
 
 #include "lox/common.h"
-#include "lox/table.h"
 #include "lox/value.h"
 
 typedef struct area_t Area;
@@ -32,6 +31,7 @@ typedef struct mob_prototype_t MobPrototype;
 #define IS_NATIVE(value)        is_obj_type(value, OBJ_NATIVE)
 #define IS_RAW_PTR(value)       is_obj_type(value, OBJ_RAW_PTR)
 #define IS_STRING(value)        is_obj_type(value, OBJ_STRING)
+#define IS_TABLE(value)         is_obj_type(value, OBJ_TABLE)
 //
 #define IS_AREA(value)          is_obj_type(value, OBJ_AREA)
 #define IS_AREA_DATA(value)     is_obj_type(value, OBJ_AREA_DATA)
@@ -57,6 +57,7 @@ typedef struct mob_prototype_t MobPrototype;
 #define AS_RAW_PTR(value)       ((ObjRawPtr*)AS_OBJ(value))
 #define AS_STRING(value)        ((ObjString*)AS_OBJ(value))
 #define AS_CSTRING(value)       (((ObjString*)AS_OBJ(value))->chars)
+#define AS_TABLE(value)         ((Table*)AS_OBJ(value))
 //
 #define AS_ENTITY(value)        ((EntityHeader*)AS_OBJ(value))
 #define AS_AREA(value)          ((Area*)AS_OBJ(value))
@@ -79,6 +80,7 @@ typedef enum {
     OBJ_RAW_PTR,
     OBJ_STRING,
     OBJ_UPVALUE,
+    OBJ_TABLE,
     //
     OBJ_AREA,
     OBJ_AREA_DATA,
@@ -95,11 +97,6 @@ struct Obj {
     bool is_marked;
     struct Obj* next;
 };
-
-//typedef struct {
-//    Obj obj;
-//    ValueArray val_array;
-//} ObjArray;
 
 typedef enum {
     RAW_OBJ,
@@ -135,15 +132,6 @@ typedef struct ObjUpvalue {
     struct ObjUpvalue* next;
 } ObjUpvalue;
 
-// Mud98 specifics
-
-typedef struct {
-    Obj obj;
-    Table fields;
-    ObjString* name;
-    int32_t vnum;
-} EntityHeader;
-
 Obj* allocate_object(size_t size, ObjType type);
 ObjRawPtr* new_raw_ptr(uintptr_t addr, RawType type);
 Value marshal_raw_ptr(ObjRawPtr* ptr);
@@ -152,7 +140,6 @@ ObjString* take_string(char* chars, int length);
 ObjString* copy_string(const char* chars, int length);
 ObjUpvalue* new_upvalue(Value* slot);
 void print_object(Value value);
-void init_header(EntityHeader* header, ObjType type);
 
 #define ALLOCATE_OBJ(type, object_type) \
     (type*)allocate_object(sizeof(type), object_type)

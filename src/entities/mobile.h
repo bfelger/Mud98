@@ -16,19 +16,20 @@ typedef struct mobile_t Mobile;
 #include "interp.h"
 #include "note.h"
 
-#include "area.h"
-#include "descriptor.h"
-#include "mob_memory.h"
-#include "mob_prototype.h"
-#include "object.h"
-#include "player_data.h"
-#include "reset.h"
-#include "room.h"
-
 #include "data/class.h"
 #include "data/damage.h"
 #include "data/mobile_data.h"
 #include "data/stats.h"
+
+#include "entities/area.h"
+#include "entities/descriptor.h"
+#include "entities/entity.h"
+#include "entities/mob_memory.h"
+#include "entities/mob_prototype.h"
+#include "entities/object.h"
+#include "entities/player_data.h"
+#include "entities/reset.h"
+#include "entities/room.h"
 
 #include "lox/lox.h"
 

@@ -11,15 +11,16 @@ typedef struct object_t Object;
 
 #include "merc.h"
 
-#include "affect.h"
-#include "area.h"
-#include "extra_desc.h"
-#include "mobile.h"
-#include "obj_prototype.h"
-#include "reset.h"
-#include "room.h"
-
 #include "data/item.h"
+
+#include "entities/affect.h"
+#include "entities/area.h"
+#include "entities/entity.h"
+#include "entities/extra_desc.h"
+#include "entities/mobile.h"
+#include "entities/obj_prototype.h"
+#include "entities/reset.h"
+#include "entities/room.h"
 
 #include "lox/lox.h"
 
