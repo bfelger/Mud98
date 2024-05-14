@@ -40,6 +40,8 @@ Room* new_room(RoomData* room_data, Area* area)
     room->header.vnum = room_data->vnum;
     SET_NATIVE_FIELD(&room->header, room->header.vnum, vnum, I32);
 
+    table_set_vnum(&area->rooms, VNUM_FIELD(room), OBJ_VAL(room));
+
     pop();
 
     room->data = room_data;
@@ -47,11 +49,6 @@ Room* new_room(RoomData* room_data, Area* area)
     room_data->instances = room;
 
     room->area = area;
-    room->vnum = room_data->vnum;
-
-    int hash = room->vnum % AREA_ROOM_VNUM_HASH_SIZE;
-
-    ORDERED_INSERT(Room, room, area->rooms[hash], vnum);
 
     return room;
 }
@@ -61,10 +58,9 @@ void free_room(Room* room)
     if (room == room->data->instances)
         room->data->instances = room->next_instance;
 
-    int hash = room->vnum % AREA_ROOM_VNUM_HASH_SIZE;
     Area* area = room->area;
 
-    UNORDERED_REMOVE(Room, room, area->rooms[hash], vnum, room->vnum);
+    table_delete_vnum(&area->rooms, VNUM_FIELD(room));
 
     LIST_FREE(room);
 }
@@ -133,7 +129,7 @@ Room* get_room(Area* search_context, VNUM vnum)
 
     if (!room_data) {
         if (fBootDb) {
-            bug("get_room: bad vnum %"PRVNUM".", vnum);
+            bug("get_room: No RoomData for %"PRVNUM".", vnum);
             exit(1);
         }
         return NULL;
@@ -151,13 +147,17 @@ Room* get_room(Area* search_context, VNUM vnum)
     else {
         return NULL;
     }
-
-    int hash = vnum % AREA_ROOM_VNUM_HASH_SIZE;
+    
     Room* room = NULL;
-    ORDERED_GET(Room, room, search_area->rooms[hash], vnum, vnum);
+    Value val;
+
+    table_get_vnum(&search_area->rooms, vnum, &val);
+
+    if (IS_ROOM(val))
+        room = AS_ROOM(val);
 
     if (fBootDb && !room) {
-        bug("get_room: bad vnum %"PRVNUM".", vnum);
+        bug("get_room: No Room in Area instance for %"PRVNUM".", vnum);
         exit(1);
     }
 

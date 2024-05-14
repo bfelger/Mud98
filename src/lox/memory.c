@@ -102,6 +102,8 @@ static void mark_array(ValueArray* array)
 
 static void mark_entity(EntityHeader* entity)
 {
+    if (entity == NULL)
+        return;
     mark_object((Obj*)entity->name);
     mark_table(&entity->fields);
 }
@@ -300,10 +302,12 @@ static void mark_natives()
         mark_array(&area_data->instances);
         FOR_EACH_AREA_INST(area, area_data) {
             mark_entity(&area->header);
+            mark_table(&area->rooms);
         }
     }
 
     FOR_EACH_GLOBAL_ROOM_DATA(room_data) {
+        mark_entity(&room_data->header);
         mark_object((Obj*)room_data->name);
         FOR_EACH(room, room_data->instances) {
             mark_entity(&room->header);
@@ -311,6 +315,7 @@ static void mark_natives()
     }
 
     FOR_EACH_OBJ_PROTO(obj_proto) {
+        mark_entity(&obj_proto->header);
         mark_object((Obj*)obj_proto->name);
     }
 
@@ -320,6 +325,7 @@ static void mark_natives()
     }
 
     FOR_EACH_MOB_PROTO(mob_proto) {
+        mark_entity(&obj_proto->header);
         mark_object((Obj*)mob_proto->name);
     }
 

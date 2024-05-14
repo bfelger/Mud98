@@ -18,39 +18,36 @@ typedef struct ObjString ObjString;
 #ifdef NAN_BOXING
 // See note in common.h
 
-#define SIGN_BIT            ((uint64_t)0x8000000000000000)
-#define QNAN                ((uint64_t)0x7ffc000000000000)
-#define NANISH_MASK         ((uint64_t)0xffff000000000000)
-#define BOOLEAN_MASK        ((uint64_t)0x7ffe000000000002)
-#define INTEGER_MASK        ((uint64_t)0x7ffc000000000000)
-
-#define TAG_NIL   1 // 01.
-#define TAG_FALSE 2 // 10.
-#define TAG_TRUE  3 // 11.
-
 typedef uint64_t Value;
 
-#define IS_BOOL(value)      (((value) & BOOLEAN_MASK) == BOOLEAN_MASK)
-#define IS_NIL(value)       ((value) == NIL_VAL)
-#define IS_DOUBLE(value)    (((value) & QNAN) != QNAN)
-#define IS_INT(value)       (((value) & NANISH_MASK) == INTEGER_MASK)
-#define IS_OBJ(value) \
-    (((value) & (QNAN | SIGN_BIT)) == (QNAN | SIGN_BIT))
+#define NANISH                  0x7ffc000000000000
+#define NANISH_MASK             0xffff000000000000
 
-#define AS_BOOL(value)      ((value) == TRUE_VAL)
-#define AS_DOUBLE(value)    value_to_double(value)
-#define AS_OBJ(value) \
-    ((Obj*)(uintptr_t)((value) & ~(SIGN_BIT | QNAN)))
-#define AS_INT(value)       ((int32_t)(value))
+#define BOOLEAN_MASK            0x7ffe000000000002
+#define INTEGER_MASK            0x7ffc000000000000
+#define OBJECT_MASK             0xfffc000000000000
+#define STRING_MASK             0xfffe000000000000
 
-#define BOOL_VAL(b)         ((b) ? TRUE_VAL : FALSE_VAL)
-#define FALSE_VAL           ((Value)(uint64_t)(BOOLEAN_MASK | TAG_FALSE))
-#define TRUE_VAL            ((Value)(uint64_t)(BOOLEAN_MASK | TAG_TRUE))
-#define NIL_VAL             ((Value)(uint64_t)(QNAN | TAG_NIL))
-#define DOUBLE_VAL(num)     double_to_value(num)
-#define INT_VAL(i)          ((Value)(uint64_t)(i) | INTEGER_MASK)
-#define OBJ_VAL(obj) \
-    (Value)(SIGN_BIT | QNAN | (uint64_t)(uintptr_t)(obj))
+#define NIL_VAL                 0x7ffe000000000000
+#define TRUE_VAL                (BOOLEAN_MASK | 3)
+#define FALSE_VAL               (BOOLEAN_MASK | 2)
+
+#define IS_DOUBLE(v)            ((v & NANISH) != NANISH)
+#define IS_OBJ(v)               ((v & NANISH_MASK) == OBJECT_MASK)
+#define IS_NIL(v)               (v == NIL_VAL)
+#define IS_BOOL(v)              ((v & BOOLEAN_MASK) == BOOLEAN_MASK)
+#define IS_INT(v)               ((v & NANISH_MASK) == INTEGER_MASK)
+
+#define AS_DOUBLE(v)            value_to_double(v)
+#define AS_OBJ(v)               ((Obj*)(v & 0xFFFFFFFFFFFF))
+#define AS_BOOL(v)              ((char)(v & 0x1))
+#define AS_INT(v)               ((int32_t)(v))
+
+#define BOOL_VAL(b)             ((b) ? TRUE_VAL : FALSE_VAL)
+#define OBJ_VAL(p)              ((uint64_t)(p) | OBJECT_MASK)
+#define INT_VAL(i)              ((uint64_t)(i) | INTEGER_MASK)
+#define DOUBLE_VAL(d)           double_to_value(d)
+
 
 static inline double value_to_double(Value value)
 {

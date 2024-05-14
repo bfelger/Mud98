@@ -191,7 +191,7 @@ void do_exlist(Mobile* ch, char* argument)
 
     Area* area = ch->in_room->area; // This is the area we want info on 
     for (int i = 0; i < AREA_ROOM_VNUM_HASH_SIZE; i++) {
-        FOR_EACH(room, area->rooms[i]) {
+        FOR_EACH_AREA_ROOM(room, area) {
             // Run through all the rooms on the MUD
             check_exits(room->data, area->data, buffer);
             send_to_char(buffer, ch);

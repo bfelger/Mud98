@@ -45,7 +45,8 @@ typedef struct area_t {
     EntityHeader header;
     Area* next;
     AreaData* data;
-    Room* rooms[AREA_ROOM_VNUM_HASH_SIZE];
+    //Room* rooms[AREA_ROOM_VNUM_HASH_SIZE];
+    Table rooms;
     char* owner_list;
     int16_t reset_timer;
     int nplayer;

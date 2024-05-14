@@ -402,6 +402,24 @@ InterpretResult run()
                         push(count);
                         break;
                     }
+                    else {
+                        runtime_error("Bad array accessor '.%s'.", name->chars);
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                }
+
+                if (IS_TABLE(peek(0))) {
+                    Table* table = AS_TABLE(peek(0));
+                    if (!strcmp(name->chars, "count")) {
+                        Value count = INT_VAL(table->count);
+                        pop(); // Array
+                        push(count);
+                        break;
+                    }
+                    else {
+                        runtime_error("Bad table accessor '.%s'.", name->chars);
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
                 }
 
                 Value comp = peek(0);

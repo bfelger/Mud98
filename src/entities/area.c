@@ -17,23 +17,23 @@
 #include "data/direction.h"
 
 int area_data_perm_count;
-// 
 ValueArray global_areas = { 0 };
 AreaData* area_data_free;
 
-
-
-int area_count;
+int area_count = 0;
 int area_perm_count;
 Area* area_free;
 
 Area* new_area(AreaData* area_data)
 {
-    LIST_ALLOC_PERM(area, Area);
+    ENTITY_ALLOC_PERM(area, Area);
 
     push(OBJ_VAL(area));
 
     init_header(&area->header, OBJ_AREA);
+
+    init_table(&area->rooms);
+    SET_LOX_FIELD(&area->header, &area->rooms, rooms);
 
     SET_NAME(area, NAME_FIELD(area_data));
     VNUM_FIELD(area) = VNUM_FIELD(area_data);
@@ -53,7 +53,8 @@ Area* new_area(AreaData* area_data)
 void free_area(Area* area)
 {
     free_table(&area->header.fields);
-    LIST_FREE(area);
+    free_table(&area->rooms);
+    //LIST_FREE(area);
 }
 
 AreaData* new_area_data()
@@ -65,6 +66,9 @@ AreaData* new_area_data()
     push(OBJ_VAL(area_data));
 
     init_header(&area_data->header, OBJ_AREA_DATA);
+
+    init_value_array(&area_data->instances);
+    SET_LOX_FIELD(&area_data->header, &area_data->instances, instances);
 
     SET_NAME(area_data, lox_string(str_empty));
 
@@ -80,7 +84,7 @@ AreaData* new_area_data()
     area_data->reset_thresh = 6;
     area_data->file_name = str_dup(buf);
 
-    init_value_array(&area_data->instances);
+    area_count++;
 
     return area_data;
 }
@@ -91,6 +95,8 @@ void free_area_data(AreaData* area_data)
     free_string(area_data->file_name);
     free_string(area_data->builders);
     free_string(area_data->credits);
+
+    area_count--;
 
     //LIST_FREE(area_data);
 }
@@ -122,6 +128,7 @@ Area* create_area_instance(AreaData* area_data, bool create_exits)
 void create_instance_exits(Area* area)
 {
     Room* room;
+
     FOR_EACH_AREA_ROOM(room, area) {
         for (int i = 0; i < DIR_MAX; ++i) {
             if (room->data->exit_data[i])

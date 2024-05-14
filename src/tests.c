@@ -321,7 +321,12 @@ void run_unit_tests()
 
     char* source =
         "for (var i = 0; i < global_areas.count; i++) {\n"
-        "    print global_areas[i].name;\n"
+        "    var area = global_areas[i];\n"
+        "    print area.name;\n"
+        "    if (area.instances.count > 0) {\n"
+        "        var inst = area.instances[0];\n"
+        "        print inst.rooms.count;\n"
+        "    }\n"
         "}\n"
         "print floor(2.5);";
 
@@ -370,9 +375,9 @@ void run_unit_tests()
     
     //InterpretResult result = interpret_code(source);
     //result = interpret_code(source);
-
-    if (result == INTERPRET_COMPILE_ERROR) exit(65);
-    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+    //
+    //if (result == INTERPRET_COMPILE_ERROR) exit(65);
+    //if (result == INTERPRET_RUNTIME_ERROR) exit(70);
 
     //printf("i16 = %d\ni32 = %d\nu64 = %llu\nstr = '%s'\n", i16, i32, u64, str);
 

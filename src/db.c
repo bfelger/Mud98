@@ -1208,6 +1208,7 @@ void reset_room(Room* room)
 void reset_area(Area* area)
 {
     Room* room;
+
     FOR_EACH_AREA_ROOM(room, area)
         reset_room(room);
 }

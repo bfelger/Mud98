@@ -75,10 +75,11 @@ static Entry* find_entry_vnum(Entry* entries, int capacity, int32_t key)
             }
             else {
                 // We found a tombstone.
-                if (tombstone == NULL) tombstone = entry;
+                if (tombstone == NULL)
+                    tombstone = entry;
             }
         }
-        else if (entry->key = key) {
+        else if (IS_INT(entry->key) && AS_INT(entry->key) == key) {
             // We found the key.
             return entry;
         }
@@ -153,8 +154,9 @@ bool table_set(Table* table, ObjString* key, Value value)
     }
 
     Entry* entry = find_entry(table->entries, table->capacity, key);
-    bool is_new_key = entry->key == NIL_VAL;
-    if (is_new_key && IS_NIL(entry->value)) table->count++;
+    bool is_new_key = IS_NIL(entry->key);
+    if (is_new_key && IS_NIL(entry->value))
+        table->count++;
 
     entry->key = OBJ_VAL(key);
     entry->value = value;

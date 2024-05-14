@@ -102,8 +102,12 @@ typedef struct room_data_t {
         FOR_EACH(r, room_data_hash_table[r##_hash])
 
 #define FOR_EACH_AREA_ROOM(r, a) \
-    for (int r##_hash = 0; r##_hash < AREA_ROOM_VNUM_HASH_SIZE; ++r##_hash) \
-        FOR_EACH(r, (a)->rooms[r##_hash])
+    for (int r##_idx = 0, r##_l_count = 0; r##_l_count < a->rooms.count; ++r##_idx) \
+        if (!IS_NIL((&a->rooms.entries[r##_idx])->key) \
+            && !IS_NIL((&a->rooms.entries[r##_idx])->value) \
+            && IS_ROOM((&a->rooms.entries[r##_idx])->value) \
+            && (r = AS_ROOM(a->rooms.entries[r##_idx].value)) != NULL \
+            && ++r##_l_count)
 
 Room* new_room(RoomData* room_data, Area* area);
 void free_room(Room* room);
