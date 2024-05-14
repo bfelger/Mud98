@@ -287,7 +287,7 @@ void grant_quest(Mobile* ch, Quest* quest)
 
 void load_quest(FILE* fp)
 {
-    if (area_data_last == NULL) {
+    if (global_areas.count == 0) {
         bug("load_quest: no #AREA seen yet.", 0);
         exit(1);
     }
@@ -299,9 +299,9 @@ void load_quest(FILE* fp)
     }
 
     load_struct(fp, U(&tmp_quest), quest_save_table, U(quest));
-    quest->area_data = area_data_last;
+    quest->area_data = LAST_AREA_DATA;
 
-    ORDERED_INSERT(Quest, quest, area_data_last->quests, vnum);
+    ORDERED_INSERT(Quest, quest, LAST_AREA_DATA->quests, vnum);
 
     return;
 }

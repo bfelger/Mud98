@@ -87,7 +87,7 @@ bool area_changed()
 {
     AreaData* area_data;
 
-    FOR_EACH(area_data, area_data_list)
+    FOR_EACH_AREA(area_data)
         if (IS_SET(area_data->area_flags, AREA_CHANGED))
             return true;
 
@@ -128,7 +128,7 @@ void save_area_list()
         if (ha->area_data == NULL)
             fprintf(fp, "%s\n", ha->filename);
 
-    FOR_EACH(area, area_data_list) {
+    FOR_EACH_AREA(area) {
         fprintf(fp, "%s\n", area->file_name);
     }
 
@@ -1013,7 +1013,7 @@ void do_asave(Mobile* ch, char* argument)
     {
         save_area_list();
 
-        FOR_EACH(area, area_data_list)
+        FOR_EACH_AREA(area)
             if (str_cmp(argument, "changed")
                 || IS_SET(area->area_flags, AREA_CHANGED)) {
                 save_area(area);
@@ -1062,7 +1062,7 @@ void do_asave(Mobile* ch, char* argument)
     /* -------------------------------------- */
     if (!str_cmp("world", arg1)) {
         save_area_list();
-        FOR_EACH(area, area_data_list) {
+        FOR_EACH_AREA(area) {
             /* Builder must be assigned this area. */
             if (!IS_BUILDER(ch, area))
                 continue;
@@ -1089,7 +1089,7 @@ void do_asave(Mobile* ch, char* argument)
         send_to_char("Saved zones:\n\r", ch);
         sprintf(buf, "None.\n\r");
 
-        FOR_EACH(area, area_data_list) {
+        FOR_EACH_AREA(area) {
             /* Builder must be assigned this area. */
             if (!IS_BUILDER(ch, area))
                 continue;

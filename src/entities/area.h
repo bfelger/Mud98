@@ -57,15 +57,13 @@ typedef struct area_data_t {
     HelpArea* helps;
     Quest* quests;
     char* file_name;
-    //String* name;
     char* credits;
     int security;       // OLC Value 1-9
     LEVEL low_range;
     LEVEL high_range;
     VNUM min_vnum;
     VNUM max_vnum;
-    char* builders;  
-    //VNUM vnum;
+    char* builders;
     Sector sector;
     FLAGS area_flags;
     int16_t reset_thresh;
@@ -73,9 +71,19 @@ typedef struct area_data_t {
     InstanceType inst_type;
 } AreaData;
 
+#define FOR_EACH_AREA(area)                                                    \
+    for (int area##i = 0; area##i < global_areas.count; ++area##i)             \
+        if ((area = AS_AREA_DATA(global_areas.values[area##i])) != NULL)
+
 #define FOR_EACH_AREA_INST(area, area_data)                                    \
     for (int area##i = 0; area##i < area_data->instances.count; ++area##i)     \
         if ((area = AS_AREA(area_data->instances.values[area##i])) != NULL)
+
+#define GET_AREA_DATA(index)                                                   \
+    AS_AREA_DATA(global_areas.values[index])
+
+#define LAST_AREA_DATA                                                         \
+    GET_AREA_DATA(global_areas.count - 1)
 
 AreaData* new_area_data();
 Area* create_area_instance(AreaData* area_data, bool create_exits);
@@ -85,10 +93,8 @@ Area* get_area_for_player(Mobile* ch, AreaData* area_data);
 
 extern int area_count;
 extern int area_perm_count;
-extern int area_data_count;
 extern int area_data_perm_count;
 
-extern AreaData* area_data_list;
-extern AreaData* area_data_last;
+extern ValueArray global_areas;
 
 #endif // !MUD98__ENTITIES__AREA_H

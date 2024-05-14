@@ -167,7 +167,7 @@ void load_mobiles(FILE* fp)
 {
     MobPrototype* p_mob_proto;
 
-    if (!area_data_last)   /* OLC */
+    if (global_areas.count == 0)   /* OLC */
     {
         bug("Load_mobiles: no #AREA seen yet.", 0);
         exit(1);
@@ -197,7 +197,7 @@ void load_mobiles(FILE* fp)
         p_mob_proto = new_mob_prototype();
 
         p_mob_proto->vnum = vnum;
-        p_mob_proto->area = area_data_last;
+        p_mob_proto->area = LAST_AREA_DATA;
         p_mob_proto->name = fread_lox_string(fp);
         p_mob_proto->short_descr = fread_string(fp);
         p_mob_proto->long_descr = fread_string(fp);

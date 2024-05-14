@@ -329,6 +329,7 @@ void boot_db()
 // Sets vnum range for area using OLC protection features.
 void assign_area_vnum(VNUM vnum)
 {
+    AreaData* area_data_last = LAST_AREA_DATA;
     if (area_data_last->min_vnum == 0 || area_data_last->max_vnum == 0)
         area_data_last->min_vnum = area_data_last->max_vnum = vnum;
     if (vnum != URANGE(area_data_last->min_vnum, vnum, area_data_last->max_vnum)) {
@@ -444,7 +445,7 @@ void load_resets(FILE* fp)
     RoomData* room_data;
     VNUM vnum = VNUM_NONE;
 
-    if (area_data_last == NULL) {
+    if (global_areas.count == 0) {
         bug("Load_resets: no #AREA seen yet.", 0);
         exit(1);
     }
@@ -528,7 +529,7 @@ void load_rooms(FILE* fp)
 {
     RoomData* room_data;
 
-    if (area_data_last == NULL) {
+    if (global_areas.count == 0) {
         bug("Load_resets: no #AREA seen yet.", 0);
         exit(1);
     }
@@ -556,7 +557,7 @@ void load_rooms(FILE* fp)
 
         room_data = new_room_data();
         room_data->owner = str_dup("");
-        room_data->area_data = area_data_last;
+        room_data->area_data = LAST_AREA_DATA;
         room_data->vnum = vnum;
         room_data->name = fread_lox_string(fp);
         room_data->description = fread_string(fp);
@@ -838,7 +839,7 @@ void fix_exits()
 
     AreaData* area_data;
     Area* area;
-    FOR_EACH(area_data, area_data_list) {
+    FOR_EACH_AREA(area_data) {
         FOR_EACH_AREA_INST(area, area_data) {
             create_instance_exits(area);
         }
@@ -852,7 +853,7 @@ void area_update()
     Area* area;
     char buf[MAX_STRING_LENGTH];
 
-    FOR_EACH(area_data, area_data_list) {
+    FOR_EACH_AREA(area_data) {
         int thresh = area_data->reset_thresh;
         FOR_EACH_AREA_INST(area, area_data) {
             if (area->nplayer == 0)
@@ -882,7 +883,7 @@ void load_mobprogs(FILE* fp)
 {
     MobProgCode* pMprog;
 
-    if (area_data_last == NULL) {
+    if (global_areas.count == 0) {
         bug("Load_mobprogs: no #AREA seen yet.", 0);
         exit(1);
     }
@@ -1772,28 +1773,23 @@ void free_string(char* pstr)
 void do_areas(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
-    AreaData* pArea1;
-    AreaData* pArea2;
-    int iArea;
-    int iAreaHalf;
 
     if (argument[0] != '\0') {
         send_to_char("No argument is used with this command.\n\r", ch);
         return;
     }
 
-    iAreaHalf = (area_data_count + 1) / 2;
-    pArea1 = area_data_list;
-    pArea2 = area_data_list;
-    for (iArea = 0; iArea < iAreaHalf; iArea++) NEXT_LINK(pArea2);
+    int count = global_areas.count;
 
-    for (iArea = 0; iArea < iAreaHalf; iArea++) {
-        sprintf(buf, "%-39s%-39s\n\r", pArea1->credits,
-                (pArea2 != NULL) ? pArea2->credits : "");
+    for (int i = 0; i < count; i += 2) {
+        AreaData* area1 = AS_AREA_DATA(global_areas.values[i]);
+        AreaData* area2 = NULL;
+        if (i + 1 < count)
+            area2 = AS_AREA_DATA(global_areas.values[i + 1]);
+        sprintf(buf, "%-39s%-39s\n\r", 
+            (area1 != NULL) ? area1->credits : "",
+            (area2 != NULL) ? area2->credits : "");
         send_to_char(buf, ch);
-        NEXT_LINK(pArea1);
-        if (pArea2 != NULL) 
-            NEXT_LINK(pArea2);
     }
 
     return;
@@ -1803,7 +1799,7 @@ static void memory_to_buffer(Buffer* buf)
 {
     addf_buf(buf, "              Perm      In Use\n\r");
     addf_buf(buf, "Affects      %5d     %5d\n\r", affect_perm_count, affect_count);
-    addf_buf(buf, "Areas        %5d     %5d\n\r", area_data_perm_count, area_data_count);
+    addf_buf(buf, "Areas        %5d     %5d\n\r", area_data_perm_count, global_areas.count);
     addf_buf(buf, "- Insts      %5d     %5d\n\r", area_perm_count, area_count);
     addf_buf(buf, "Extra Descs  %5d     %5d\n\r", extra_desc_perm_count, extra_desc_count);
     addf_buf(buf, "Help Areas   %5d     %5d\n\r", help_area_perm_count, help_area_count);

@@ -16,11 +16,12 @@
 
 #include "data/direction.h"
 
-int area_data_count;
 int area_data_perm_count;
-AreaData* area_data_list;
-AreaData* area_data_last;
+// 
+ValueArray global_areas = { 0 };
 AreaData* area_data_free;
+
+
 
 int area_count;
 int area_perm_count;
@@ -59,7 +60,7 @@ AreaData* new_area_data()
 {
     char buf[MAX_INPUT_LENGTH];
 
-    LIST_ALLOC_PERM(area_data, AreaData);
+    ENTITY_ALLOC_PERM(area_data, AreaData);
 
     push(OBJ_VAL(area_data));
 
@@ -67,7 +68,7 @@ AreaData* new_area_data()
 
     SET_NAME(area_data, lox_string(str_empty));
 
-    VNUM_FIELD(area_data) = area_data_count - 1;
+    VNUM_FIELD(area_data) = global_areas.count - 1;
     sprintf(buf, "area%"PRVNUM".are", VNUM_FIELD(area_data));
 
     pop();
@@ -91,7 +92,7 @@ void free_area_data(AreaData* area_data)
     free_string(area_data->builders);
     free_string(area_data->credits);
 
-    LIST_FREE(area_data);
+    //LIST_FREE(area_data);
 }
 
 Area* create_area_instance(AreaData* area_data, bool create_exits)
@@ -171,7 +172,7 @@ void load_area(FILE* fp)
 #endif
 
     area_data = new_area_data();
-    VNUM_FIELD(area_data) = area_data_count;
+    VNUM_FIELD(area_data) = global_areas.count;
     area_data->reset_thresh = 6;
     area_data->file_name = str_dup(fpArea);
     area_data->security = 9;
@@ -191,11 +192,9 @@ void load_area(FILE* fp)
             break;
         case 'E':
             if (!str_cmp(word, "End")) {
-                if (area_data_list == NULL)
-                    area_data_list = area_data;
-                if (area_data_last != NULL)
-                    area_data_last->next = area_data;
-                area_data_last = area_data;
+                write_value_array(&global_areas, OBJ_VAL(area_data));
+                if (global_areas.count > 0)
+                    LAST_AREA_DATA->next = area_data;
                 area_data->next = NULL;
                 current_area_data = area_data;
                 return;

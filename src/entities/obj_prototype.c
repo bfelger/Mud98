@@ -76,7 +76,7 @@ void load_objects(FILE* fp)
 {
     ObjPrototype* obj_proto;
 
-    if (!area_data_last) {
+    if (global_areas.count == 0) {
         bug("Load_objects: no #AREA seen yet.", 0);
         exit(1);
     }
@@ -105,7 +105,7 @@ void load_objects(FILE* fp)
 
         obj_proto = new_object_prototype();
         obj_proto->vnum = vnum;
-        obj_proto->area = area_data_last;
+        obj_proto->area = LAST_AREA_DATA;
         obj_proto->name = fread_lox_string(fp);
         obj_proto->short_descr = fread_string(fp);
         obj_proto->description = fread_string(fp);

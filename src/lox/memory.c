@@ -281,7 +281,7 @@ static void mark_natives()
     MobPrototype* mob_proto;
     Mobile* mob;
 
-    FOR_EACH(area_data, area_data_list) {
+    FOR_EACH_AREA(area_data) {
         mark_entity(&area_data->header);
         mark_array(&area_data->instances);
         FOR_EACH_AREA_INST(area, area_data) {

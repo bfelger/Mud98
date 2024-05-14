@@ -93,6 +93,19 @@ String* lox_string(char* str);
 
 #define ALLOC(T, v)     T* v = (T*)alloc_mem(sizeof(T))
 
+#define ENTITY_ALLOC_PERM(x, T)                                                \
+    static T x##_zero = { 0 };                                                 \
+    T* x;                                                                      \
+    if (!x##_free) {                                                           \
+        x = alloc_perm(sizeof(*x));                                            \
+        x##_perm_count++;                                                      \
+    }                                                                          \
+    else {                                                                     \
+        x = x##_free;                                                          \
+        NEXT_LINK(x##_free);                                                   \
+    }                                                                          \
+    *x = x##_zero;
+
 #define LIST_ALLOC_PERM(x, T)                                                  \
     static T x##_zero = { 0 };                                                 \
     T* x;                                                                      \

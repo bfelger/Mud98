@@ -989,7 +989,7 @@ size_t process_do_mssp(Descriptor* d, unsigned char* src, size_t srclen)
 	cat_sprintf(buffer, "%c%s%c%s", MSSP_VAR, "STATUS",				MSSP_VAL,	cfg_get_status());
 	cat_sprintf(buffer, "%c%s%c%s", MSSP_VAR, "SUBGENRE",			MSSP_VAL,	cfg_get_subgenre());
 
-	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "AREAS",				MSSP_VAL,	area_data_count);
+	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "AREAS",				MSSP_VAL,	global_areas.count);
 	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "HELPFILES",			MSSP_VAL,	help_count);
 	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "MOBILES",			MSSP_VAL,	mob_proto_count);
 	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "OBJECTS",			MSSP_VAL,	obj_proto_count);

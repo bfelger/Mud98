@@ -74,7 +74,7 @@ void do_aedit(Mobile* ch, char* argument)
         if (!aedit_create(ch, argument))
             return;
         else
-            area = area_data_last;
+            area = LAST_AREA_DATA;
     }
 
     if (!IS_BUILDER(ch, area) || ch->pcdata->security < MIN_AEDIT_SECURITY) {
@@ -123,7 +123,7 @@ AreaData* get_vnum_area(VNUM vnum)
 {
     AreaData* area;
 
-    FOR_EACH(area, area_data_list) {
+    FOR_EACH_AREA(area) {
         if (vnum >= area->min_vnum
             && vnum <= area->max_vnum)
             return area;
@@ -188,8 +188,7 @@ AEDIT(aedit_create)
     area_data->low_range = 1;
     area_data->high_range = MAX_LEVEL;
     area_data->security = ch->pcdata->security;
-    area_data_last->next = area_data;
-    area_data_last = area_data;
+    write_value_array(&global_areas, OBJ_VAL(area_data));
 
     set_editor(ch->desc, ED_AREA, U(area_data));
 
@@ -363,7 +362,7 @@ bool check_range(VNUM lower, VNUM upper)
     AreaData* area;
     int cnt = 0;
 
-    FOR_EACH(area, area_data_list) {
+    FOR_EACH_AREA(area) {
         // lower < area < upper
         if ((lower <= area->min_vnum && area->min_vnum <= upper)
             || (lower <= area->max_vnum && area->max_vnum <= upper))
@@ -517,12 +516,13 @@ void do_alist(Mobile* ch, char* argument)
     addf_buf(result, "{|[{T%3s{|] [{T%-27s{|] ({T%-5s{|-{T%5s{|) {|[{T%-10s{|] {T%3s {|[{T%-10s{|]{x\n\r",
         "Num", "Area Name", "lvnum", "uvnum", "Filename", "Sec", "Builders");
 
-    size_t alist_size = sizeof(AreaData*) * area_data_count;
+    size_t alist_size = sizeof(AreaData*) * global_areas.count;
     AreaData** alist = (AreaData**)alloc_mem(alist_size);
 
     {
+        AreaData* area;
         int i = 0;
-        for (AreaData* area = area_data_list; area; NEXT_LINK(area)) {
+        FOR_EACH_AREA(area) {
             alist[i++] = area;
         }
     }
@@ -536,12 +536,12 @@ void do_alist(Mobile* ch, char* argument)
 
         READ_ARG(sort);
         if (!str_cmp(sort, "vnum")) {
-            SORT_ARRAY(AreaData*, alist, area_data_count,
+            SORT_ARRAY(AreaData*, alist, global_areas.count,
                 alist[i]->min_vnum < alist[lo]->min_vnum,
                 alist[i]->min_vnum > alist[hi]->min_vnum);
         }
         else if (!str_cmp(sort, "name")) {
-            SORT_ARRAY(AreaData*, alist, area_data_count,
+            SORT_ARRAY(AreaData*, alist, global_areas.count,
                 strcasecmp(NAME_STR(alist[i]), NAME_STR(alist[lo])) < 0,
                 strcasecmp(NAME_STR(alist[i]), NAME_STR(alist[hi])) > 0);
         }
@@ -551,8 +551,8 @@ void do_alist(Mobile* ch, char* argument)
         }
     }
 
-    for (int i = 0; i < area_data_count; ++i) {
-        AreaData* area = alist[i];
+    AreaData* area;
+    FOR_EACH_AREA(area) {
         addf_buf( result, "{|[{*%3d{|]{x %-29.29s {|({*%-5d{|-{*%5d{|) {_%-12.12s {|[{*%d{|] [{*%-10.10s{|]{x\n\r",
             VNUM_FIELD(area),
             NAME_STR(area),
@@ -580,7 +580,7 @@ AreaData* get_area_data(VNUM vnum)
 {
     AreaData* area;
 
-    FOR_EACH(area, area_data_list) {
+    FOR_EACH_AREA(area) {
         if (VNUM_FIELD(area) == vnum)
             return area;
     }
