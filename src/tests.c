@@ -320,7 +320,7 @@ void run_unit_tests()
     //    "}\n";
 
     char* source =
-        "for (var i = 0; i < 10; i++) {\n"
+        "for (var i = 0; i < global_areas.count; i++) {\n"
         "    print global_areas[i].name;\n"
         "}\n";
 

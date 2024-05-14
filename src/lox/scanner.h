@@ -31,7 +31,7 @@ typedef enum {
     TOKEN_TRUE, TOKEN_VAR, TOKEN_WHILE,
     TOKEN_BREAK, TOKEN_CONTINUE,
     // Game entities
-    TOKEN_SELF, TOKEN_NAMESPACE,
+    TOKEN_SELF,
 
     TOKEN_ERROR, TOKEN_EOF
 } TokenType;
