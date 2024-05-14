@@ -322,7 +322,8 @@ void run_unit_tests()
     char* source =
         "for (var i = 0; i < global_areas.count; i++) {\n"
         "    print global_areas[i].name;\n"
-        "}\n";
+        "}\n"
+        "print floor(2.5);";
 
     InterpretResult result = interpret_code(source);
     if (result == INTERPRET_COMPILE_ERROR) exit(65);

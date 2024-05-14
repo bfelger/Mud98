@@ -587,8 +587,14 @@ static void init_compiler(Compiler* compiler, FunctionType type)
 
 static void number(bool can_assign)
 {
-    double value = strtod(parser.previous.start, NULL);
-    emit_constant(NUMBER_VAL(value));
+    if (parser.previous.type == TOKEN_DOUBLE) {
+        double value = strtod(parser.previous.start, NULL);
+        emit_constant(DOUBLE_VAL(value));
+    }
+    else {
+        int32_t value = strtol(parser.previous.start, NULL, 10);
+        emit_constant(INT_VAL(value));
+    }
 }
 
 static void or_(bool can_assign)
@@ -630,13 +636,13 @@ static void named_variable(Token name, bool can_assign)
         }
         else if (match(TOKEN_PLUS_PLUS)) {
             emit_bytes(get_op, (uint8_t)arg);
-            emit_constant(NUMBER_VAL(1));
+            emit_constant(INT_VAL(1));
             emit_byte(OP_ADD);
             emit_bytes(set_op, (uint8_t)arg);
         }
         else if (match(TOKEN_MINUS_MINUS)) {
             emit_bytes(get_op, (uint8_t)arg);
-            emit_constant(NUMBER_VAL(1));
+            emit_constant(INT_VAL(1));
             emit_byte(OP_SUBTRACT);
             emit_bytes(set_op, (uint8_t)arg);
         }
@@ -783,7 +789,8 @@ ParseRule rules[] = {
     [TOKEN_MINUS_EQUALS]    = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_IDENTIFIER]      = { variable,   NULL,       PREC_NONE       },
     [TOKEN_STRING]          = { string,     NULL,       PREC_NONE       },
-    [TOKEN_NUMBER]          = { number,     NULL,       PREC_NONE       },
+    [TOKEN_INT]             = { number,     NULL,       PREC_NONE       },
+    [TOKEN_DOUBLE]          = { number,     NULL,       PREC_NONE       },
     [TOKEN_AND]             = { NULL,       and_,       PREC_NONE       },
     [TOKEN_CLASS]           = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_ELSE]            = { NULL,       NULL,       PREC_NONE       },

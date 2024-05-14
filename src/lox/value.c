@@ -81,8 +81,11 @@ char* string_value(Value value)
     else if (IS_NIL(value)) {
         sprintf(buf, "nil");
     }
-    else if (IS_NUMBER(value)) {
-        sprintf(buf, "%g", AS_NUMBER(value));
+    else if (IS_DOUBLE(value)) {
+        sprintf(buf, "%g", AS_DOUBLE(value));
+    }
+    else if (IS_INT(value)) {
+        sprintf(buf, "%d", AS_INT(value));
     }
     else if (IS_STRING(value)) {
         sprintf(buf, "%s", AS_STRING(value)->chars);
@@ -102,8 +105,11 @@ void print_value(Value value)
     else if (IS_NIL(value)) {
         lox_printf("nil");
     }
-    else if (IS_NUMBER(value)) {
-        lox_printf("%g", AS_NUMBER(value));
+    else if (IS_DOUBLE(value)) {
+        lox_printf("%g", AS_DOUBLE(value));
+    }
+    else if (IS_INT(value)) {
+        lox_printf("%d", AS_INT(value));
     }
     else if (IS_OBJ(value)) {
         print_object(value);
@@ -123,8 +129,11 @@ void print_value(Value value)
 bool values_equal(Value a, Value b)
 {
 #ifdef NAN_BOXING
-    if (IS_NUMBER(a) && IS_NUMBER(b)) {
-        return AS_NUMBER(a) == AS_NUMBER(b);
+    if (IS_DOUBLE(a) && IS_DOUBLE(b)) {
+        return AS_DOUBLE(a) == AS_DOUBLE(b);
+    }
+    else if (IS_INT(a) && IS_INT(b)) {
+        return AS_INT(a) == AS_INT(b);
     }
     return a == b;
 #else

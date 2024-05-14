@@ -286,15 +286,42 @@ InterpretResult run()
         *frame->ip & 0x80 ? READ_SHORT() & 0x7fff : READ_BYTE() \
         ])
 #define READ_STRING() AS_STRING(READ_CONSTANT())
-#define BINARY_OP(value_type, op) \
+#define BINARY_OP(op) \
     do { \
-      if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) { \
+      if ((!IS_INT(peek(0)) && !IS_DOUBLE(peek(0))) \
+        || (!IS_INT(peek(1)) && !IS_DOUBLE(peek(1)))) { \
         runtime_error("Operands must be numbers."); \
         return INTERPRET_RUNTIME_ERROR; \
       } \
-      double b = AS_NUMBER(pop()); \
-      double a = AS_NUMBER(pop()); \
-      push(value_type(a op b)); \
+      if (IS_DOUBLE(peek(0)) || IS_DOUBLE(peek(1))) { \
+        double b = IS_DOUBLE(peek(0)) ? AS_DOUBLE(pop()) : (double)AS_INT(pop()); \
+        double a = IS_DOUBLE(peek(0)) ? AS_DOUBLE(pop()) : (double)AS_INT(pop()); \
+        push(DOUBLE_VAL(a op b)); \
+      } \
+      else { \
+        int32_t b = AS_INT(pop()); \
+        int32_t a = AS_INT(pop()); \
+        push(INT_VAL(a op b)); \
+      } \
+    } while (false)
+
+#define BOOL_OP(op) \
+    do { \
+      if ((!IS_INT(peek(0)) && !IS_DOUBLE(peek(0))) \
+        || (!IS_INT(peek(1)) && !IS_DOUBLE(peek(1)))) { \
+        runtime_error("Operands must be numbers."); \
+        return INTERPRET_RUNTIME_ERROR; \
+      } \
+      if (IS_DOUBLE(peek(0)) || IS_DOUBLE(peek(1))) { \
+        double b = IS_DOUBLE(peek(0)) ? AS_DOUBLE(pop()) : (double)AS_INT(pop()); \
+        double a = IS_DOUBLE(peek(0)) ? AS_DOUBLE(pop()) : (double)AS_INT(pop()); \
+        push(BOOL_VAL(a op b)); \
+      } \
+      else { \
+        int32_t b = AS_INT(pop()); \
+        int32_t a = AS_INT(pop()); \
+        push(BOOL_VAL(a op b)); \
+      } \
     } while (false)
 
     for (;;) {
@@ -370,7 +397,7 @@ InterpretResult run()
                 if (IS_ARRAY(peek(0))) {
                     ValueArray* array_ = AS_ARRAY(peek(0));
                     if (!strcmp(name->chars, "count")) {
-                        Value count = NUMBER_VAL(array_->count);
+                        Value count = INT_VAL(array_->count);
                         pop(); // Array
                         push(count);
                         break;
@@ -459,8 +486,8 @@ InterpretResult run()
                 break;
             }
         case OP_GET_AT_INDEX: {
-                if (!IS_NUMBER(peek(0))) {
-                    runtime_error("Array indexes must be numeric.");
+                if (!IS_INT(peek(0))) {
+                    runtime_error("Array indexes must be integers.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
 
@@ -469,7 +496,7 @@ InterpretResult run()
                     return INTERPRET_RUNTIME_ERROR;
                 }
 
-                int index = (int)AS_NUMBER(pop());
+                int index = (int)AS_INT(pop());
                 ValueArray* val_array = AS_ARRAY(peek(0));
                 if (index < 0 || index >= val_array->count) {
                     sprintf(err_buf, "Index %d is out of bounds.", index);
@@ -480,8 +507,8 @@ InterpretResult run()
                 break;
             }
         case OP_SET_AT_INDEX: {
-                if (!IS_NUMBER(peek(1))) {
-                    runtime_error("Array indexes must be numeric.");
+                if (!IS_INT(peek(1))) {
+                    runtime_error("Array indexes must be integers.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
 
@@ -490,7 +517,7 @@ InterpretResult run()
                     return INTERPRET_RUNTIME_ERROR;
                 }
 
-                int index = (int)AS_NUMBER(peek(1));
+                int32_t index = AS_INT(peek(1));
                 ValueArray* val_array = AS_ARRAY(peek(2));
                 if (index < 0 || index >= val_array->count) {
                     sprintf(err_buf, "Index %d is out of bounds.", index);
@@ -516,36 +543,32 @@ InterpretResult run()
                 push(BOOL_VAL(values_equal(a, b)));
                 break;
             }
-        case OP_GREATER:    BINARY_OP(BOOL_VAL, >); break;
-        case OP_LESS:       BINARY_OP(BOOL_VAL, <); break;
+        case OP_GREATER:    BOOL_OP(>); break;
+        case OP_LESS:       BOOL_OP(<); break;
         case OP_ADD: {
                 if (IS_STRING(peek(0)) && IS_STRING(peek(1))) {
                     concatenate();
                 }
-                else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
-                    double b = AS_NUMBER(pop());
-                    double a = AS_NUMBER(pop());
-                    push(NUMBER_VAL(a + b));
-                }
                 else {
-                    runtime_error(
-                        "Operands must be two numbers or two strings.");
-                    return INTERPRET_RUNTIME_ERROR;
+                    BINARY_OP(+);
                 }
                 break;
             }
-        case OP_SUBTRACT:   BINARY_OP(NUMBER_VAL, -); break;
-        case OP_MULTIPLY:   BINARY_OP(NUMBER_VAL, *); break;
-        case OP_DIVIDE:     BINARY_OP(NUMBER_VAL, /); break;
+        case OP_SUBTRACT:   BINARY_OP(-); break;
+        case OP_MULTIPLY:   BINARY_OP(*); break;
+        case OP_DIVIDE:     BINARY_OP(/); break;
         case OP_NOT:
             push(BOOL_VAL(is_falsey(pop())));
             break;
         case OP_NEGATE:
-            if (!IS_NUMBER(peek(0))) {
+            if (IS_DOUBLE(peek(0)))
+                push(DOUBLE_VAL(-AS_DOUBLE(pop())));
+            else if (IS_INT(peek(0)))
+                push(INT_VAL(-AS_INT(pop())));
+            else {
                 runtime_error("Operand must be a number.");
                 return INTERPRET_RUNTIME_ERROR;
             }
-            push(NUMBER_VAL(-AS_NUMBER(pop())));
             break;
         case OP_PRINT: {
                 print_value(pop());

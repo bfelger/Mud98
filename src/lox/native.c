@@ -19,7 +19,7 @@
 
 static Value clock_native(int arg_count, Value* args)
 {
-    return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
+    return DOUBLE_VAL((double)clock() / CLOCKS_PER_SEC);
 }
 
 static Value marshal_native(int arg_count, Value* args)
@@ -39,12 +39,15 @@ static Value marshal_native(int arg_count, Value* args)
 
 static Value floor_native(int arg_count, Value* args)
 {
-    if (arg_count != 1 || !IS_NUMBER(args[0])) {
-        runtime_error("floor() takes a single number argument.");
+    if (arg_count == 1 && IS_INT(args[0]))
+        return args[0];
+
+    if (arg_count != 1 || !IS_DOUBLE(args[0])) {
+        runtime_error("floor() takes a single double argument.");
         return NIL_VAL;
     }
 
-    return NUMBER_VAL(floor(AS_NUMBER(args[0])));
+    return INT_VAL((int32_t)floor(AS_DOUBLE(args[0])));
 }
 
 static Value string_native(int arg_count, Value* args)

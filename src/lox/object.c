@@ -102,17 +102,17 @@ Value marshal_raw_ptr(ObjRawPtr* ptr)
 {
     switch (ptr->type) {
     case RAW_I16:
-        return NUMBER_VAL((double)(*((int16_t*)ptr->addr)));
+        return INT_VAL((int32_t)(*((int16_t*)ptr->addr)));
     case RAW_I32:
-        return NUMBER_VAL((double)(*((int32_t*)ptr->addr)));
+        return INT_VAL((int32_t)(*((int32_t*)ptr->addr)));
     case RAW_U64:
-        return NUMBER_VAL((double)(*((uint64_t*)ptr->addr)));
+        return DOUBLE_VAL((double)(*((uint64_t*)ptr->addr)));
     case RAW_STR: {
             char** str = (char**)ptr->addr;
             return OBJ_VAL(copy_string(*str, (int)strlen(*str)));
         }
     case RAW_OBJ:
-        return NUMBER_VAL((double)((uintptr_t)ptr->addr));
+        return DOUBLE_VAL((double)((uintptr_t)ptr->addr));
     default:
         runtime_error("Could not box raw value of unexpected type.");
         return NIL_VAL;
@@ -122,10 +122,10 @@ Value marshal_raw_ptr(ObjRawPtr* ptr)
 void unmarshal_raw_val(ObjRawPtr* ptr, Value val)
 {
     switch (ptr->type) {
-    case RAW_OBJ: ptr->addr = (uintptr_t)(AS_NUMBER(val)); break;
-    case RAW_I16: *((int16_t*)ptr->addr) = (int16_t)(AS_NUMBER(val)); break;
-    case RAW_I32: *((int32_t*)ptr->addr) = (int32_t)(AS_NUMBER(val)); break;
-    case RAW_U64: *((uint64_t*)ptr->addr) = (uint64_t)(AS_NUMBER(val)); break;
+    case RAW_OBJ: ptr->addr = (uintptr_t)(AS_DOUBLE(val)); break;
+    case RAW_I16: *((int16_t*)ptr->addr) = (int16_t)(AS_INT(val)); break;
+    case RAW_I32: *((int32_t*)ptr->addr) = (int32_t)(AS_INT(val)); break;
+    case RAW_U64: *((uint64_t*)ptr->addr) = (uint64_t)(AS_DOUBLE(val)); break;
     case RAW_STR: {
             char* new_str = AS_CSTRING(val);
             char** old_str = (char**)ptr->addr;

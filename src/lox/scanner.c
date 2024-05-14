@@ -199,17 +199,20 @@ static Token string()
 
 static Token number()
 {
-    while (is_digit(peek())) advance();
+    while (is_digit(peek()))
+        advance();
 
     // Look for a fractional part.
     if (peek() == '.' && is_digit(peek_next())) {
-      // Consume the ".".
+        // Consume the ".".
         advance();
 
-        while (is_digit(peek())) advance();
+        while (is_digit(peek()))
+            advance();
+        return make_token(TOKEN_DOUBLE);
     }
 
-    return make_token(TOKEN_NUMBER);
+    return make_token(TOKEN_INT);
 }
 
 Token scan_token()
