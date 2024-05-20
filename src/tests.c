@@ -313,16 +313,25 @@ void run_unit_tests()
     //    "   print \"[\" + string(thing.vnum) + \"] \" + thing.name;\n"
     //    "}\n";
 
-    char* source =
+    //char* source =
+    //    "for (var i = 0; i < global_areas.count; i++) {\n"
+    //    "    var area = global_areas[i];\n"
+    //    "    print area.name;\n"
+    //    "    if (area.instances.count > 0) {\n"
+    //    "        var inst = area.instances[0];\n"
+    //    "        print inst.rooms.count;\n"
+    //    "    }\n"
+    //    "}\n"
+    //    "print floor(2.5);";
+
+    char* source = 
+        "var lam = (area) -> {\n"
+        "    print area.name;\n"
+        "};\n"
         "for (var i = 0; i < global_areas.count; i++) {\n"
         "    var area = global_areas[i];\n"
-        "    print area.name;\n"
-        "    if (area.instances.count > 0) {\n"
-        "        var inst = area.instances[0];\n"
-        "        print inst.rooms.count;\n"
-        "    }\n"
-        "}\n"
-        "print floor(2.5);";
+        "    lam(area);\n"
+        "}\n";
 
     InterpretResult result = interpret_code(source);
     if (result == INTERPRET_COMPILE_ERROR) exit(65);

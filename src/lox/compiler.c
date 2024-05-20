@@ -69,6 +69,7 @@ typedef enum {
     TYPE_INITIALIZER,
     TYPE_METHOD,
     TYPE_SCRIPT,
+    TYPE_LAMDA,
 } FunctionType;
 
 typedef struct LoopContext {
@@ -262,7 +263,7 @@ static ObjFunction* end_compiler()
 #ifdef DEBUG_PRINT_CODE
     if (!parser.had_error) {
         disassemble_chunk(current_chunk(), function->name != NULL
-            ? C_STR(function->name) : "<script>");
+            ? function->name->chars : "<script>");
     }
 #endif
 
@@ -292,6 +293,7 @@ static void end_scope()
     }
 }
 
+static void block();
 static void expression();
 static void statement();
 static void declaration();
@@ -545,18 +547,6 @@ static void literal(bool can_assign)
     }
 }
 
-static void grouping(bool can_assign)
-{
-    expression();
-    consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
-}
-
-static void emit_constant(Value value)
-{
-    emit_byte(OP_CONSTANT);
-    emit_constant_index(make_constant(value));
-}
-
 static void init_compiler(Compiler* compiler, FunctionType type)
 {
     compiler->enclosing = current;
@@ -567,7 +557,7 @@ static void init_compiler(Compiler* compiler, FunctionType type)
     compiler->function = new_function();
     compiler->current_loop = NULL;
     current = compiler;
-    if (type != TYPE_SCRIPT) {
+    if (type != TYPE_SCRIPT && type != TYPE_LAMDA) {
         current->function->name = copy_string(parser.previous.start,
             parser.previous.length);
     }
@@ -575,7 +565,7 @@ static void init_compiler(Compiler* compiler, FunctionType type)
     Local* local = &current->locals[current->local_count++];
     local->depth = 0;
     local->is_captured = false;
-    if (type != TYPE_FUNCTION) {
+    if (type != TYPE_FUNCTION && type != TYPE_LAMDA) {
         local->name.start = "this";
         local->name.length = 4;
     }
@@ -583,6 +573,91 @@ static void init_compiler(Compiler* compiler, FunctionType type)
         local->name.start = "";
         local->name.length = 0;
     }
+}
+
+static void lamda(bool can_assign)
+{
+    Compiler compiler;
+    init_compiler(&compiler, TYPE_LAMDA);
+    begin_scope();
+
+    if (!check(TOKEN_RIGHT_PAREN)) {
+        do {
+            current->function->arity++;
+            if (current->function->arity > 255) {
+                error_at_current("Can't have more than 255 parameters.");
+            }
+            int constant = parse_variable("Expect parameter name.");
+            define_variable(constant);
+        } while (match(TOKEN_COMMA));
+    }
+    consume(TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
+    consume(TOKEN_ARROW, "Expect '->' in lamda declaration.");
+    consume(TOKEN_LEFT_BRACE, "Expect '{' before lamda body.");
+    block();
+
+    ObjFunction* function = end_compiler();
+    emit_byte(OP_CLOSURE);
+    emit_constant_index(make_constant(OBJ_VAL(function)));
+
+    for (int i = 0; i < function->upvalue_count; i++) {
+        emit_byte(compiler.upvalues[i].is_local ? 1 : 0);
+        emit_byte(compiler.upvalues[i].index);
+    }
+}
+
+static bool is_lamda()
+{
+    // We saw a L_PAREN + IDENT.
+    // Is this a lambda?
+
+    // Save the old state; we'll come back to it.
+    // FYI I hate doing this; but since this is a single-pass LR(1) compiler and
+    // the grammar for lamda's requires LR(>2), it is a necessary evil.
+    Scanner current_scanner = scanner;
+
+#define NOT_LAMDA() \
+    { scanner = current_scanner; return false; }
+
+    Token tok = scan_token();
+    while (tok.type == TOKEN_COMMA) {
+        tok = scan_token();
+        if (tok.type != TOKEN_IDENTIFIER)
+            NOT_LAMDA()
+        tok = scan_token();
+    }
+
+    if (tok.type != TOKEN_RIGHT_PAREN)
+        NOT_LAMDA()
+
+    if (scan_token().type != TOKEN_ARROW)
+        NOT_LAMDA()
+
+    // Now we have seen
+    //      ( IDENT [, IDENT]* ) ->
+    // It is safe so assume this is a lamda, because it's not valid for anything else.
+
+#undef NOT_LAMDA
+
+    scanner = current_scanner;
+    return true;
+}
+
+static void grouping(bool can_assign)
+{
+    if (parser.current.type == TOKEN_IDENTIFIER && is_lamda()) {
+        lamda(can_assign);
+    }
+    else {
+        expression();
+        consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
+    }
+}
+
+static void emit_constant(Value value)
+{
+    emit_byte(OP_CONSTANT);
+    emit_constant_index(make_constant(value));
 }
 
 static void number(bool can_assign)

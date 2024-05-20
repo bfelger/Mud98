@@ -10,12 +10,6 @@
 #include "lox/common.h"
 #include "lox/scanner.h"
 
-typedef struct {
-    const char* start;
-    const char* current;
-    int line;
-} Scanner;
-
 Scanner scanner;
 
 void init_scanner(const char* source)
@@ -179,18 +173,22 @@ static TokenType identifier_type()
 
 static Token identifier()
 {
-    while (is_alpha(peek()) || is_digit(peek())) advance();
+    while (is_alpha(peek()) || is_digit(peek()))
+        advance();
+
     return make_token(identifier_type());
 }
 
 static Token string()
 {
     while (peek() != '"' && !is_at_end()) {
-        if (peek() == '\n') scanner.line++;
+        if (peek() == '\n')
+            scanner.line++;
         advance();
     }
 
-    if (is_at_end()) return error_token("Unterminated string.");
+    if (is_at_end())
+        return error_token("Unterminated string.");
 
     // The closing quote.
     advance();
@@ -238,7 +236,8 @@ Token scan_token()
     case ',': return make_token(TOKEN_COMMA);
     case '.': return make_token(TOKEN_DOT);
     case '-': return make_token(match('-') ? TOKEN_MINUS_MINUS :
-        match('=') ? TOKEN_MINUS_EQUALS : TOKEN_MINUS);
+        match('=') ? TOKEN_MINUS_EQUALS :
+        match('>') ? TOKEN_ARROW : TOKEN_MINUS);
     case '+': return make_token(match('+') ? TOKEN_PLUS_PLUS : 
         match('=') ? TOKEN_PLUS_EQUALS : TOKEN_PLUS);
     case '/': return make_token(TOKEN_SLASH);

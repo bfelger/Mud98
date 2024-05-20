@@ -22,6 +22,7 @@ typedef enum {
     TOKEN_LESS, TOKEN_LESS_EQUAL,
     TOKEN_PLUS_PLUS, TOKEN_MINUS_MINUS,
     TOKEN_PLUS_EQUALS, TOKEN_MINUS_EQUALS,
+    TOKEN_ARROW,
     // Literals
     TOKEN_IDENTIFIER, TOKEN_STRING, TOKEN_INT, TOKEN_DOUBLE,
     // Keywords
@@ -42,6 +43,14 @@ typedef struct {
     int length;
     int line;
 } Token;
+
+typedef struct {
+    const char* start;
+    const char* current;
+    int line;
+} Scanner;
+
+extern Scanner scanner;
 
 void init_scanner(const char* source);
 Token scan_token();
