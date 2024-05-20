@@ -31,7 +31,10 @@ MobPrototype* new_mob_prototype()
 {
     LIST_ALLOC_PERM(mob_proto, MobPrototype);
 
-    mob_proto->name = lox_string("no name");
+    push(OBJ_VAL(mob_proto));
+
+    init_header(&mob_proto->header, OBJ_MOB_PROTO);
+
     mob_proto->short_descr = str_dup("(no short description)");
     mob_proto->long_descr = str_dup("(no long description)\n\r");
     mob_proto->description = &str_empty[0];
@@ -43,12 +46,15 @@ MobPrototype* new_mob_prototype()
     mob_proto->start_pos = POS_STANDING;
     mob_proto->default_pos = POS_STANDING;
 
+    pop();
+
     return mob_proto;
 }
 
 void free_mob_prototype(MobPrototype* mob_proto)
 {
-    mob_proto->name = lox_string(str_empty);
+    SET_NAME(mob_proto, lox_empty_string());
+
     free_string(mob_proto->short_descr);
     free_string(mob_proto->long_descr);
     free_string(mob_proto->description);
@@ -150,7 +156,7 @@ MobPrototype* get_mob_prototype(VNUM vnum)
 
     for (p_mob_proto = mob_proto_hash[vnum % MAX_KEY_HASH]; p_mob_proto != NULL;
         NEXT_LINK(p_mob_proto)) {
-        if (p_mob_proto->vnum == vnum)
+        if (VNUM_FIELD(p_mob_proto) == vnum)
             return p_mob_proto;
     }
 
@@ -195,10 +201,11 @@ void load_mobiles(FILE* fp)
         fBootDb = true;
 
         p_mob_proto = new_mob_prototype();
+        push(OBJ_VAL(p_mob_proto));
 
-        p_mob_proto->vnum = vnum;
+        VNUM_FIELD(p_mob_proto) = vnum;
         p_mob_proto->area = LAST_AREA_DATA;
-        p_mob_proto->name = fread_lox_string(fp);
+        SET_NAME(p_mob_proto, fread_lox_string(fp));
         p_mob_proto->short_descr = fread_string(fp);
         p_mob_proto->long_descr = fread_string(fp);
         p_mob_proto->description = fread_string(fp);
@@ -321,12 +328,14 @@ void load_mobiles(FILE* fp)
                 break;
             }
         }
+
         hash = vnum % MAX_KEY_HASH;
         p_mob_proto->next = mob_proto_hash[hash];
         mob_proto_hash[hash] = p_mob_proto;
         top_vnum_mob = top_vnum_mob < vnum ? vnum : top_vnum_mob;
         assign_area_vnum(vnum);
         kill_table[URANGE(0, p_mob_proto->level, MAX_LEVEL - 1)].number++;
+        pop();
     }
 
     return;

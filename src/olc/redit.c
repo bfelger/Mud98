@@ -32,7 +32,7 @@ RoomData xRoom;
 #define U(x)    (uintptr_t)(x)
 
 const OlcCmdEntry room_olc_comm_table[] = {
-    { "name",	    U(&xRoom.name),		    ed_line_lox_string, 0		        },
+    { "name",	    U(&xRoom.header.name),  ed_line_lox_string, 0		        },
     { "desc",	    U(&xRoom.description),	ed_desc,		    0		        },
     { "ed",	        U(&xRoom.extra_desc),	ed_ed,			    0		        },
     { "heal",	    U(&xRoom.heal_rate),	ed_number_s_pos,	0		        },
@@ -127,7 +127,7 @@ void do_redit(Mobile* ch, char* argument)
 
     if (ch->in_room->data != room_data) {
         mob_from_room(ch);
-        Room* room = get_room_for_player(ch, room_data->vnum);
+        Room* room = get_room_for_player(ch, VNUM_FIELD(room_data));
         mob_to_room(ch, room);
     }
 
@@ -190,7 +190,7 @@ REDIT(redit_rlist)
         if ((pRoomIndex = get_room_data(vnum))) {
             found = true;
             addf_buf(buf1, "{|[{*%5d{|]{x %-17.17s ",
-                vnum, capitalize(C_STR(pRoomIndex->name)));
+                vnum, capitalize(NAME_STR(pRoomIndex)));
             if (++col % 3 == 0)
                 add_buf(buf1, "\n\r");
         }
@@ -234,10 +234,10 @@ REDIT(redit_mlist)
 
     for (vnum = area->min_vnum; vnum <= area->max_vnum; vnum++) {
         if ((p_mob_proto = get_mob_prototype(vnum)) != NULL) {
-            if (fAll || is_name(arg, C_STR(p_mob_proto->name))) {
+            if (fAll || is_name(arg, NAME_STR(p_mob_proto))) {
                 found = true;
                 sprintf(buf, "{|[{*%5d{|]{x %-17.17s",
-                    p_mob_proto->vnum, capitalize(p_mob_proto->short_descr));
+                    VNUM_FIELD(p_mob_proto), capitalize(p_mob_proto->short_descr));
                 add_buf(buf1, buf);
                 if (++col % 3 == 0)
                     add_buf(buf1, "\n\r");
@@ -262,9 +262,9 @@ REDIT(redit_mlist)
 // Room Editor Functions.
 REDIT(redit_show)
 {
-    RoomData* pRoom;
-    Object* obj;
-    Mobile* rch;
+    RoomData* pRoom = NULL;
+    Object* obj = NULL;
+    Mobile* rch = NULL;
     int cnt = 0;
     bool fcnt;
 
@@ -278,9 +278,9 @@ REDIT(redit_show)
 
     addf_buf(out, "Description:\n\r{_%s{x", pRoom->description);
     addf_buf(out, "Name:       {|[{*%s{|]{x\n\rArea:       {|[{*%5d{|] {_%s{x\n\r",
-        C_STR(pRoom->name), VNUM_FIELD(pRoom->area_data), NAME_FIELD(pRoom->area_data));
+        NAME_STR(pRoom), VNUM_FIELD(pRoom->area_data), NAME_STR(pRoom->area_data));
     addf_buf(out, "Vnum:       {|[{*%5d{|]{x\n\rSector:     {|[{*%s{|]{x\n\r",
-        pRoom->vnum, flag_string(sector_flag_table, pRoom->sector_type));
+        VNUM_FIELD(pRoom), flag_string(sector_flag_table, pRoom->sector_type));
     addf_buf(out, "Room flags: {|[{*%s{|]{x\n\r",
         flag_string(room_flag_table, pRoom->room_flags));
     addf_buf(out, "Heal rec:   {|[{*%d{|]{x\n\rMana rec:   {|[{*%d{|]{x\n\r",
@@ -310,7 +310,7 @@ REDIT(redit_show)
 
     add_buf(out, "Characters: {|[{*");
     fcnt = false;
-    FOR_EACH_IN_ROOM(rch, ch->in_room->people) {
+    FOR_EACH_ROOM_MOB(rch, ch->in_room) {
         if (IS_NPC(rch) || can_see(ch, rch)) {
             one_argument(NAME_STR(rch), BUF(line));
             if (fcnt) {
@@ -329,7 +329,7 @@ REDIT(redit_show)
     
     add_buf(out, "Objects:    {|[{*");
     fcnt = false;
-    FOR_EACH_CONTENT(obj, ch->in_room->contents) {
+    FOR_EACH_ROOM_OBJ(obj, ch->in_room) {
         one_argument(NAME_STR(obj), BUF(line));
         add_buf(out, " ");
         add_buf(out, BUF(line));
@@ -354,7 +354,7 @@ REDIT(redit_show)
 
         addf_buf(out, "    %-5s:  {|[{*%5d{|]{x Key: {|[{*%5d{|]{x",
             capitalize(dir_list[cnt].name),
-            pRoom->exit_data[cnt]->to_room ? pRoom->exit_data[cnt]->to_room->vnum : 
+            pRoom->exit_data[cnt]->to_room ? VNUM_FIELD(pRoom->exit_data[cnt]->to_room) :
             0, pRoom->exit_data[cnt]->key);
 
     /*
@@ -498,19 +498,19 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
                 else
                     printf_to_char(ch, "{jExit %d to room %d does not return to"
                         " this room, so it was not deleted.{x\n\r",
-                        rev, to_room_data->vnum);
+                        rev, VNUM_FIELD(to_room_data));
             }
         }
 
         // Remove this exit.
         printf_to_char(ch, "{jExit %s to room %d deleted.{x\n\r",
-            dir_list[door].name, room_data->vnum);
+            dir_list[door].name, VNUM_FIELD(room_data));
         free_room_exit_data(room_data->exit_data[door]);
         room_data->exit_data[door] = NULL;
 
         if (rDeleted)
             printf_to_char(ch, "{jExit %s to room %d was also deleted.{x\n\r",
-                dir_list[dir_list[door].rev_dir].name, to_room_data->vnum);
+                dir_list[dir_list[door].rev_dir].name, VNUM_FIELD(to_room_data));
 
         return true;
     }
@@ -559,7 +559,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
 
         room_exit_data = new_room_exit_data();
         room_exit_data->to_room = to_room_data;
-        room_exit_data->to_vnum = to_room_data->vnum;
+        room_exit_data->to_vnum = VNUM_FIELD(to_room_data);
         room_exit_data->orig_dir = door;
         room_data->exit_data[door] = room_exit_data;
 
@@ -571,7 +571,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         door = dir_list[door].rev_dir;
         room_exit_data = new_room_exit_data();
         room_exit_data->to_room = room_data;
-        room_exit_data->to_vnum = room_data->vnum;
+        room_exit_data->to_vnum = VNUM_FIELD(room_data);
         room_exit_data->orig_dir = door;
         to_room_data->exit_data[door] = room_exit_data;
 
@@ -639,7 +639,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         }
 
         room_exit_data->to_room = target;
-        room_exit_data->to_vnum = target->vnum;
+        room_exit_data->to_vnum = VNUM_FIELD(target);
         room_exit_data->orig_dir = door;
 
         Room* from_room;
@@ -649,7 +649,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         if ((room_exit_data = target->exit_data[dir_list[door].rev_dir]) != NULL
             && room_exit_data->to_room != room_data)
             printf_to_char(ch, "{jWARNING{x : the exit to room %d does not return here.\n\r",
-                target->vnum);
+                VNUM_FIELD(target));
 
         send_to_char("{jOne-way link established.{x\n\r", ch);
         return true;
@@ -759,14 +759,14 @@ REDIT(redit_create)
 
     room_data = new_room_data();
     room_data->area_data = area_data;
-    room_data->vnum = value;
+    VNUM_FIELD(room_data) = value;
     room_data->sector_type = area_data->sector;
     room_data->room_flags = 0;
 
     if (value > top_vnum_room)
         top_vnum_room = value;
 
-    ORDERED_INSERT(RoomData, room_data, room_data_hash_table[value % MAX_KEY_HASH], vnum);
+    ORDERED_INSERT(RoomData, room_data, room_data_hash_table[value % MAX_KEY_HASH], header.vnum);
 
     Area* area;
     FOR_EACH_AREA_INST(area, area_data) {
@@ -824,9 +824,9 @@ REDIT(redit_mreset)
     // Create the mobile reset.
     reset = new_reset();
     reset->command = 'M';
-    reset->arg1 = p_mob_proto->vnum;
+    reset->arg1 = VNUM_FIELD(p_mob_proto);
     reset->arg2 = is_number(arg2) ? (int16_t)atoi(arg2) : MAX_MOB;
-    reset->arg3 = room_data->vnum;
+    reset->arg3 = VNUM_FIELD(room_data);
     reset->arg4 = is_number(argument) ? (int16_t)atoi(argument) : 1;
     add_reset(room_data, reset, 0/* Last slot*/);
 
@@ -844,7 +844,7 @@ REDIT(redit_mreset)
     printf_to_char(ch, "{j%s (%d) has been added to resets.\n\r"
         "There will be a maximum of %d in the area, and %d in this room.{x\n\r",
         capitalize(p_mob_proto->short_descr),
-        p_mob_proto->vnum,
+        VNUM_FIELD(p_mob_proto),
         reset->arg2,
         reset->arg4);
     return true;
@@ -853,14 +853,14 @@ REDIT(redit_mreset)
 static Mobile* get_mob_instance(Room* room, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    Mobile* mob;
+    Mobile* mob = NULL;
     int number;
     int count;
 
     number = number_argument(argument, arg);
     count = 0;
 
-    FOR_EACH_IN_ROOM(mob, room->people) {
+    FOR_EACH_ROOM_MOB(mob, room) {
         if (!is_name(arg, NAME_STR(mob))) 
             continue;
         if (++count == number)
@@ -872,11 +872,11 @@ static Mobile* get_mob_instance(Room* room, char* argument)
 
 REDIT(redit_oreset)
 {
-    RoomData* room_data;
-    ObjPrototype* obj_proto;
+    RoomData* room_data = NULL;
+    ObjPrototype* obj_proto = NULL;
     Object* newobj = NULL;
     Object* to_obj = NULL;
-    Mobile* to_mob;
+    Mobile* to_mob = NULL;
     char vnum_str[MAX_INPUT_LENGTH];
     char into_arg[MAX_INPUT_LENGTH];
     LEVEL olevel = 0;
@@ -911,9 +911,9 @@ REDIT(redit_oreset)
     if (into_arg[0] == '\0') {
         reset = new_reset();
         reset->command = 'O';
-        reset->arg1 = obj_proto->vnum;
+        reset->arg1 = VNUM_FIELD(obj_proto);
         reset->arg2 = 0;
-        reset->arg3 = room_data->vnum;
+        reset->arg3 = VNUM_FIELD(room_data);
         reset->arg4 = 0;
         add_reset(room_data, reset, 0/* Last slot*/);
 
@@ -925,22 +925,22 @@ REDIT(redit_oreset)
 
         sprintf(output, "{j%s (%d) has been loaded and added to resets.{x\n\r",
             capitalize(obj_proto->short_descr),
-            obj_proto->vnum);
+            VNUM_FIELD(obj_proto));
         send_to_char(output, ch);
     }
-    else if (argument[0] == '\0' && ((to_obj = get_obj_list(ch, into_arg, room_data->instances->contents)) != NULL)) {
+    else if (argument[0] == '\0' && ((to_obj = get_obj_list(ch, into_arg, &room_data->instances->objects)) != NULL)) {
         // Load into object's inventory.
         reset = new_reset();
         reset->command = 'P';
-        reset->arg1 = obj_proto->vnum;
+        reset->arg1 = VNUM_FIELD(obj_proto);
         reset->arg2 = 0;
-        reset->arg3 = to_obj->prototype->vnum;
+        reset->arg3 = VNUM_FIELD(to_obj->prototype);
         reset->arg4 = 1;
         add_reset(room_data, reset, 0/* Last slot*/);
 
         Room* room;
         FOR_EACH_INSTANCE(room, room_data->instances) {
-            to_obj = get_obj_list(ch, into_arg, room->contents);
+            to_obj = get_obj_list(ch, into_arg, &room->objects);
             newobj = create_object(obj_proto, (int16_t)number_fuzzy(olevel));
             newobj->cost = 0;
             obj_to_obj(newobj, to_obj);
@@ -950,9 +950,9 @@ REDIT(redit_oreset)
             sprintf(output, "{j%s (%d) has been loaded into "
                 "%s (%d) and added to resets.{x\n\r",
                 capitalize(newobj->short_descr),
-                newobj->prototype->vnum,
+                VNUM_FIELD(newobj->prototype),
                 to_obj->short_descr,
-                to_obj->prototype->vnum);
+                VNUM_FIELD(to_obj->prototype));
             send_to_char(output, ch);
         }
     }
@@ -971,7 +971,7 @@ REDIT(redit_oreset)
             sprintf(output,
                 "%s (%d) has wear flags: [%s]\n\r",
                 capitalize(obj_proto->short_descr),
-                obj_proto->vnum,
+                VNUM_FIELD(obj_proto),
                 flag_string(wear_flag_table, obj_proto->wear_flags));
             send_to_char(output, ch);
             return false;
@@ -984,7 +984,7 @@ REDIT(redit_oreset)
         }
 
         reset = new_reset();
-        reset->arg1 = obj_proto->vnum;
+        reset->arg1 = VNUM_FIELD(obj_proto);
         reset->arg2 = (int16_t)wearloc;
         if (reset->arg2 == WEAR_UNHELD)
             reset->command = 'G';
@@ -1036,10 +1036,10 @@ REDIT(redit_oreset)
             sprintf(output, "%s (%d) has been loaded "
                 "%s of %s (%d) and added to resets.\n\r",
                 capitalize(obj_proto->short_descr),
-                obj_proto->vnum,
+                VNUM_FIELD(obj_proto),
                 flag_string(wear_loc_strings, reset->arg3),
                 to_mob->short_descr,
-                to_mob->prototype->vnum);
+                VNUM_FIELD(to_mob->prototype));
             send_to_char(output, ch);
 
             if (room == ch->in_room)
@@ -1100,25 +1100,25 @@ void showresets(Mobile* ch, Buffer* buf, AreaData* area, MobPrototype* mob, ObjP
                     pLastMob = get_mob_prototype(lastmob);
                     if (pLastMob == NULL) {
                         bugf("Showresets : invalid reset (mob %d) in room %d",
-                            lastmob, room->vnum);
+                            lastmob, VNUM_FIELD(room));
                         return;
                     }
-                    if (mob && lastmob == mob->vnum) {
+                    if (mob && lastmob == VNUM_FIELD(mob)) {
                         sprintf(buf2, "%-5d %-15.15s %-5d\n\r", lastmob,
-                            C_STR(mob->name), room->vnum);
+                            NAME_STR(mob), VNUM_FIELD(room));
                         add_buf(buf, buf2);
                     }
                 }
-                if (obj && reset->command == 'O' && reset->arg1 == obj->vnum) {
-                    sprintf(buf2, "%-5d %-15.15s %-5d\n\r", obj->vnum,
-                        C_STR(obj->name), room->vnum);
+                if (obj && reset->command == 'O' && reset->arg1 == VNUM_FIELD(obj)) {
+                    sprintf(buf2, "%-5d %-15.15s %-5d\n\r", VNUM_FIELD(obj),
+                        NAME_STR(obj), VNUM_FIELD(room));
                     add_buf(buf, buf2);
                 }
                 if (obj && (reset->command == 'G' || reset->command == 'E')
-                    && reset->arg1 == obj->vnum) {
+                    && reset->arg1 == VNUM_FIELD(obj)) {
                     sprintf(buf2, "%-5d %-15.15s %-5d %-5d %-15.15s\n\r",
-                        obj->vnum, C_STR(obj->name), room->vnum, lastmob,
-                        pLastMob ? C_STR(pLastMob->name) : "");
+                        VNUM_FIELD(obj), NAME_STR(obj), VNUM_FIELD(room), lastmob,
+                        pLastMob ? NAME_STR(pLastMob) : "");
                     add_buf(buf, buf2);
                 }
             }
@@ -1196,7 +1196,7 @@ REDIT(redit_checkobj)
     for (key = 0; key < MAX_KEY_HASH; ++key)
         FOR_EACH(obj, obj_proto_hash[key])
             if (obj->reset_num == 0 && (fAll || obj->area == room->area_data))
-                printf_to_char(ch, "Obj {*%-5.5d{x [%-20.20s] is not reset.\n\r", obj->vnum, obj->name);
+                printf_to_char(ch, "Obj {*%-5.5d{x [%-20.20s] is not reset.\n\r", VNUM_FIELD(obj), NAME_STR(obj));
 
     return false;
 }
@@ -1223,7 +1223,7 @@ REDIT(redit_checkrooms)
         FOR_EACH(room, room_data_hash_table[hash])
             if (room->reset_num == 0 
                 && (fAll || room->area_data == thisroom->area_data))
-                printf_to_char(ch, "Room %d has no resets.\n\r", room->vnum);
+                printf_to_char(ch, "Room %d has no resets.\n\r", VNUM_FIELD(room));
 
     return false;
 }
@@ -1240,7 +1240,7 @@ REDIT(redit_checkmob)
     for (key = 0; key < MAX_KEY_HASH; ++key)
         FOR_EACH(mob, mob_proto_hash[key])
             if (mob->reset_num == 0 && (fAll || mob->area == room->area_data))
-                printf_to_char(ch, "Mob {*%-5.5d{x [%-20.20s] has no resets.\n\r", mob->vnum, mob->name);
+                printf_to_char(ch, "Mob {*%-5.5d{x [%-20.20s] has no resets.\n\r", VNUM_FIELD(mob), NAME_STR(mob));
 
     return false;
 }
@@ -1275,7 +1275,7 @@ REDIT(redit_copy)
     free_string(this->description);
     free_string(this->owner);
 
-    this->name = copy_string(that->name->chars, that->name->length);
+    SET_NAME(this, NAME_FIELD(that));
     this->description = str_dup(that->description);
     this->owner = str_dup(that->owner);
 
@@ -1314,7 +1314,7 @@ REDIT(redit_clear)
     free_string(pRoom->owner);
     free_string(pRoom->description);
     pRoom->owner = str_dup("");
-    pRoom->name = copy_string(&str_empty[0], 1);;
+    SET_NAME(pRoom, lox_empty_string());
     pRoom->description = str_dup("");
 
     for (i = 0; i < DIR_MAX; i++) {
@@ -1375,14 +1375,14 @@ void display_resets(Mobile* ch, RoomData* pRoom)
             pMob = p_mob_proto;
             sprintf(buf, "M{|[{*%5d{|]{x %-13.13s                     R{|[{*%5d{|]{x %2d-%2d %-15.15s\n\r",
                 reset->arg1, pMob->short_descr, reset->arg3,
-                reset->arg2, reset->arg4, C_STR(pRoomIndex->name));
+                reset->arg2, reset->arg4, NAME_STR(pRoomIndex));
             strcat(final, buf);
 
             // Check for pet shop.
             {
                 RoomData* pRoomIndexPrev;
 
-                pRoomIndexPrev = get_room_data(pRoomIndex->vnum - 1);
+                pRoomIndexPrev = get_room_data(VNUM_FIELD(pRoomIndex) - 1);
                 if (pRoomIndexPrev
                     && IS_SET(pRoomIndexPrev->room_flags, ROOM_PET_SHOP))
                     final[5] = 'P';
@@ -1409,7 +1409,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
             sprintf(buf, "O{|[{*%5d{|]{x %-13.13s                     "
                 "R{|[{*%5d{|]{x       %-15.15s\n\r",
                 reset->arg1, pObj->short_descr,
-                reset->arg3, C_STR(pRoomIndex->name));
+                reset->arg3, NAME_STR(pRoomIndex));
             strcat(final, buf);
 
             break;
@@ -1465,7 +1465,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
                     "O{|[{*%5d{|]{x %-13.13s in the inventory of S{|[{*%5d{|]{x       %-15.15s\n\r",
                     reset->arg1,
                     pObj->short_descr,
-                    pMob->vnum,
+                    VNUM_FIELD(pMob),
                     pMob->short_descr);
             }
             else
@@ -1476,7 +1476,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
                     (reset->command == 'G') ?
                     flag_string(wear_loc_strings, WEAR_UNHELD)
                     : flag_string(wear_loc_strings, reset->arg3),
-                    pMob->vnum,
+                    VNUM_FIELD(pMob),
                     pMob->short_descr);
             strcat(final, buf);
             break;
@@ -1491,7 +1491,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
             sprintf(buf, "R{|[{*%5d{|]{x %s door of %-19.19s reset to %s\n\r",
                 reset->arg1,
                 capitalize(dir_list[reset->arg2].name),
-                C_STR(pRoomIndex->name),
+                NAME_STR(pRoomIndex),
                 flag_string(door_resets, reset->arg3));
             strcat(final, buf);
 
@@ -1505,7 +1505,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
             }
 
             sprintf(buf, "R{|[{*%5d{|]{x Exits are randomized in %s\n\r",
-                reset->arg1, C_STR(pRoomIndex->name));
+                reset->arg1, NAME_STR(pRoomIndex));
             strcat(final, buf);
 
             break;
@@ -1663,7 +1663,7 @@ void do_resets(Mobile* ch, char* argument)
                     reset->command = 'M';
                     reset->arg1 = (VNUM)atoi(arg3);
                     reset->arg2 = is_number(arg4) ? (int16_t)atoi(arg4) : 1;	/* Max # */
-                    reset->arg3 = ch->in_room->vnum;
+                    reset->arg3 = VNUM_FIELD(ch->in_room);
                     reset->arg4 = is_number(arg5) ? (int16_t)atoi(arg5) : 1;	/* Min # */
                 }
                 else
@@ -1696,7 +1696,7 @@ void do_resets(Mobile* ch, char* argument)
                             reset->arg1 = (VNUM)atoi(arg3);
                             reset->command = 'O';
                             reset->arg2 = 0;
-                            reset->arg3 = ch->in_room->vnum;
+                            reset->arg3 = VNUM_FIELD(ch->in_room);
                             reset->arg4 = 0;
                         }
                         else {
@@ -1731,7 +1731,7 @@ void do_resets(Mobile* ch, char* argument)
                 }
                 reset = new_reset();
                 reset->command = 'R';
-                reset->arg1 = ch->in_room->vnum;
+                reset->arg1 = VNUM_FIELD(ch->in_room);
                 reset->arg2 = (int16_t)atoi(arg3);
                 add_reset(ch->in_room->data, reset, atoi(arg1));
                 SET_BIT(ch->in_room->area->data->area_flags, AREA_CHANGED);
@@ -1793,7 +1793,7 @@ void do_resets(Mobile* ch, char* argument)
         reset->command = tvar == 1 ? 'M' : 'O';
         reset->arg1 = found;
         reset->arg2 = (tvar == 2) ? 0 : MAX_MOB;	/* Max # */
-        reset->arg3 = ch->in_room->vnum;
+        reset->arg3 = VNUM_FIELD(ch->in_room);
         reset->arg4 = (tvar == 2) ? 0 : MAX_MOB;	/* Min # */
 
         printf_to_char(ch, "Added reset of %s %d...", tvar == 1 ? "mob" : "object", found);
@@ -1888,14 +1888,14 @@ void do_objlist(Mobile* ch, char* argument)
                 addf_buf(out, "Max display threshold reached.\n\r");
                 goto max_disp_reached;
             }
-            if (!world && (obj->vnum < lo_vnum || obj->vnum > hi_vnum))
+            if (!world && (VNUM_FIELD(obj) < lo_vnum || VNUM_FIELD(obj) > hi_vnum))
                 continue;
             if (world && (obj->level < lo_lvl || obj->level > hi_lvl))
                 continue;
             if (type > 0 && obj->item_type != type)
                 continue;
 
-            addf_buf(out, "{*%-6d {*%-3d{x ", obj->vnum, obj->level);
+            addf_buf(out, "{*%-6d {*%-3d{x ", VNUM_FIELD(obj), obj->level);
 
             switch (type) {
             case ITEM_ARMOR:
@@ -1979,7 +1979,7 @@ void do_moblist(Mobile* ch, char* argument)
                 addf_buf(out, "Max display threshold reached.\n\r");
                 goto max_disp_reached;
             }
-            if (!world && (mob->vnum < lo_vnum || mob->vnum > hi_vnum))
+            if (!world && (VNUM_FIELD(mob) < lo_vnum || VNUM_FIELD(mob) > hi_vnum))
                 continue;
             if (world && (mob->level < lo_lvl || mob->level > hi_lvl))
                 continue;
@@ -1987,7 +1987,7 @@ void do_moblist(Mobile* ch, char* argument)
             //VNUM   Name       Lvl Hit Dice   Hit   Dam Dice   Mana       Pie Bas Sla Mag
             //###### ########## ### ########## ##### ######## ########## ### ### ### ###
             addf_buf(out, "{*%-6d{x %-10.10s {*%-3d ",
-                mob->vnum, mob->short_descr, mob->level);
+                VNUM_FIELD(mob), mob->short_descr, mob->level);
             sprintf(buf, "%dd%d+%d", mob->hit[0], mob->hit[1], mob->hit[2]);
             addf_buf(out, "%-12.12s %-5d ", buf, mob->hitroll);
             sprintf(buf, "%dd%d+%d", mob->damage[0], mob->damage[1], mob->damage[2]);

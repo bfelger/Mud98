@@ -66,6 +66,8 @@
 #include "data/player.h"
 #include "data/race.h"
 
+#include "lox/lox.h"
+
 #include "mth/mth.h"
 
 #include <ctype.h>
@@ -1089,7 +1091,7 @@ void bust_a_prompt(Mobile* ch)
                     ((!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_HOLYLIGHT))
                         || (!IS_AFFECTED(ch, AFF_BLIND)
                             && !room_is_dark(ch->in_room)))
-                    ? C_STR(ch->in_room->data->name)
+                    ? NAME_STR(ch->in_room)
                     : "darkness");
             else
                 sprintf(BUF(temp2), " ");
@@ -1097,7 +1099,7 @@ void bust_a_prompt(Mobile* ch)
             break;
         case 'R':
             if (IS_IMMORTAL(ch) && ch->in_room != NULL)
-                sprintf(BUF(temp2), "%d", ch->in_room->vnum);
+                sprintf(BUF(temp2), "%d", VNUM_FIELD(ch->in_room));
             else
                 sprintf(BUF(temp2), " ");
             i = BUF(temp2);
@@ -1871,14 +1873,9 @@ bool check_parse_name(char* name)
     // Prevent players from naming themselves after mobs.
     {
         MobPrototype* p_mob_proto;
-        int hash;
-
-        for (hash = 0; hash < MAX_KEY_HASH; hash++) {
-            for (p_mob_proto = mob_proto_hash[hash]; p_mob_proto != NULL;
-                NEXT_LINK(p_mob_proto)) {
-                if (is_name(name, C_STR(p_mob_proto->name))) 
-                    return false;
-            }
+        FOR_EACH_MOB_PROTO(p_mob_proto) {
+            if (is_name(name, NAME_STR(p_mob_proto)))
+                return false;
         }
     }
 
@@ -2248,13 +2245,46 @@ void fix_sex(Mobile * ch)
         ch->sex = IS_NPC(ch) ? 0 : ch->pcdata->true_sex;
 }
 
-void act_new(const char* format, Mobile * ch, const void* arg1,
-    const void* arg2, ActTarget type, Position min_pos)
+void act_new_new(const char* format, Obj* target, Obj* arg1, Obj* arg2, 
+    ActTarget type, Position min_pos)
 {
-    Mobile* to;
-    Mobile* vch = (Mobile*)arg2;
-    Object* obj1 = (Object*)arg1;
-    Object* obj2 = (Object*)arg2;
+    Mobile* ch = NULL;
+    Mobile* to = NULL;
+    Mobile* vch = NULL;
+    Object* obj1 = NULL;
+    Object* obj2 = NULL;
+    Room* to_room = NULL;
+    char* string1 = "";
+    char* string2 = "";
+
+    if (target == NULL)
+        return;
+
+    if (target->type == OBJ_MOB)
+        ch = (Mobile*)target;
+    else if (target->type == OBJ_ROOM)
+        to_room = (Room*)target;
+
+    if (arg1 != NULL) {
+        if (arg1->type == OBJ_MOB)
+            to = (Mobile*)arg1;
+        else if (arg1->type == OBJ_OBJ)
+            obj1 = (Object*)arg1;
+        else if (arg1->type == OBJ_ROOM)
+            to_room = (Room*)arg1;
+        else if (arg1->type == OBJ_STRING)
+            string1 = ((String*)arg1)->chars;
+    }
+
+    if (arg2 != NULL) {
+        if (arg2->type == OBJ_MOB)
+            vch = (Mobile*)arg2;
+        else if (arg2->type == OBJ_OBJ)
+            obj2 = (Object*)arg2;
+        else if (arg2->type == OBJ_STRING)
+            string2 = ((String*)arg2)->chars;
+    }
+
     const char* str;
     const char* i = NULL;
     char* point;
@@ -2268,10 +2298,9 @@ void act_new(const char* format, Mobile * ch, const void* arg1,
         return;
 
     /* discard null rooms and chars */
-    if (!ch || !ch->in_room)
+    if ((!ch || !ch->in_room) && to_room == NULL)
         return;
 
-    to = ch->in_room->people;
     if (type == TO_VICT) {
         if (!vch) {
             bug("Act: null vch with TO_VICT.", 0);
@@ -2281,10 +2310,13 @@ void act_new(const char* format, Mobile * ch, const void* arg1,
         if (!vch->in_room)
             return;
 
-        to = vch->in_room->people;
+        to_room = vch->in_room;
+    }
+    else if (to_room == NULL) {
+        to_room = ch->in_room;
     }
 
-    for (; to; to = to->next_in_room) {
+    FOR_EACH_ROOM_MOB(to, to_room) {
         if ((!IS_NPC(to) && to->desc == NULL)
             || (IS_NPC(to) && !HAS_TRIGGER(to, TRIG_ACT))
             || to->position < min_pos)
@@ -2321,10 +2353,10 @@ void act_new(const char* format, Mobile * ch, const void* arg1,
                     break;
                     /* Thx alex for 't' idea */
                 case 't':
-                    i = (char*)arg1;
+                    i = string1;
                     break;
                 case 'T':
-                    i = (char*)arg2;
+                    i = string2;
                     break;
                 case 'n':
                     i = PERS(ch, to);
@@ -2352,7 +2384,7 @@ void act_new(const char* format, Mobile * ch, const void* arg1,
                     break;
 
                 case 'p':
-                    i = can_see_obj(to, obj1) ? obj1->short_descr : "something";
+                    i = (obj1 != NULL && can_see_obj(to, obj1)) ? obj1->short_descr : "something";
                     break;
 
                 case 'P':
@@ -2372,7 +2404,10 @@ void act_new(const char* format, Mobile * ch, const void* arg1,
             }
 
             ++str;
-            while ((*point = *i) != '\0') ++point, ++i;
+            while ((*point = *i) != '\0') {
+                ++point;
+                ++i;
+            }
         }
 
         *point++ = '\n';
@@ -2385,8 +2420,9 @@ void act_new(const char* format, Mobile * ch, const void* arg1,
             write_to_buffer(to->desc, buffer, 0);
             //write_to_buffer(to->desc, buf, point - buf);
         }
-        else if (MOBtrigger)
+        else if (MOBtrigger) {
             mp_act_trigger(buf, to, ch, arg1, arg2, TRIG_ACT);
+        }
 
     }
 

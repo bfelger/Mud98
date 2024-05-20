@@ -183,15 +183,15 @@ char* olc_ed_vnum(Mobile* ch)
         break;
     case ED_ROOM:
         pRoom = ch->in_room;
-        sprintf(buf, "%"PRVNUM, pRoom ? pRoom->vnum : 0);
+        sprintf(buf, "%"PRVNUM, pRoom ? VNUM_FIELD(pRoom) : 0);
         break;
     case ED_OBJECT:
         pObj = (ObjPrototype*)ch->desc->pEdit;
-        sprintf(buf, "%"PRVNUM, pObj ? pObj->vnum : 0);
+        sprintf(buf, "%"PRVNUM, pObj ? VNUM_FIELD(pObj) : 0);
         break;
     case ED_MOBILE:
         pMob = (MobPrototype*)ch->desc->pEdit;
-        sprintf(buf, "%"PRVNUM, pMob ? pMob->vnum : 0);
+        sprintf(buf, "%"PRVNUM, pMob ? VNUM_FIELD(pMob) : 0);
         break;
     case ED_PROG:
         pMcode = (MobProgCode*)ch->desc->pEdit;

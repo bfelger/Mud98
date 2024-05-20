@@ -21,11 +21,20 @@ ObjPrototype* new_object_prototype()
 {
     LIST_ALLOC_PERM(obj_proto, ObjPrototype);
 
-    obj_proto->name = lox_string("no name");
+    push(OBJ_VAL(obj_proto));
+
+    init_header(&obj_proto->header, OBJ_OBJ_PROTO);
+
+    SET_NATIVE_FIELD(&obj_proto->header, obj_proto->header.vnum, vnum, I32);
+
+    SET_NAME(obj_proto, lox_string("no name"));
+    
     obj_proto->short_descr = str_dup("(no short description)");
     obj_proto->description = str_dup("(no description)");
     obj_proto->item_type = ITEM_TRASH;
     obj_proto->condition = 100;
+
+    pop();
 
     return obj_proto;
 }
@@ -35,7 +44,7 @@ void free_object_prototype(ObjPrototype* obj_proto)
     ExtraDesc* pExtra;
     Affect* pAf;
 
-    obj_proto->name = lox_string(str_empty);
+    SET_NAME(obj_proto, lox_empty_string());
     free_string(obj_proto->short_descr);
     free_string(obj_proto->description);
 
@@ -59,7 +68,7 @@ ObjPrototype* get_object_prototype(VNUM vnum)
     for (obj_proto = obj_proto_hash[vnum % MAX_KEY_HASH]; 
         obj_proto != NULL;
         NEXT_LINK(obj_proto)) {
-        if (obj_proto->vnum == vnum)
+        if (VNUM_FIELD(obj_proto) == vnum)
             return obj_proto;
     }
 
@@ -104,9 +113,10 @@ void load_objects(FILE* fp)
         fBootDb = true;
 
         obj_proto = new_object_prototype();
-        obj_proto->vnum = vnum;
+        push(OBJ_VAL(obj_proto));
+        VNUM_FIELD(obj_proto) = vnum;
         obj_proto->area = LAST_AREA_DATA;
-        obj_proto->name = fread_lox_string(fp);
+        SET_NAME(obj_proto, fread_lox_string(fp));
         obj_proto->short_descr = fread_string(fp);
         obj_proto->description = fread_string(fp);
         obj_proto->material = fread_string(fp);
@@ -268,6 +278,7 @@ void load_objects(FILE* fp)
         obj_proto_hash[hash] = obj_proto;
         top_vnum_obj = top_vnum_obj < vnum ? vnum : top_vnum_obj;
         assign_area_vnum(vnum);
+        pop();
     }
 }
 

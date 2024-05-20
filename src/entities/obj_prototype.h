@@ -25,7 +25,6 @@ typedef struct obj_prototype_t {
     ExtraDesc* extra_desc;
     Affect* affected;
     AreaData* area;
-    String* name;
     char* short_descr;
     char* description;
     char* material;
@@ -33,7 +32,6 @@ typedef struct obj_prototype_t {
     int cost;
     FLAGS extra_flags;
     FLAGS wear_flags;
-    VNUM vnum;
     LEVEL level;
     int16_t reset_num;
     int16_t condition;

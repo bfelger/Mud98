@@ -104,7 +104,7 @@ void affect_check(Mobile* ch, Where where, int vector)
             return;
         }
 
-    for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
+    FOR_EACH_MOB_OBJ(obj, ch->in_room) {
         if (obj->wear_loc == -1) continue;
 
         FOR_EACH(affect, obj->affected)

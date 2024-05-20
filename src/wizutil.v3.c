@@ -131,11 +131,11 @@ void room_pair(RoomData* left, RoomData* right, exit_status ex,
     }
 
     sprintf(buffer, "%10"PRVNUM" %-26.26s %s %"PRVNUM" %-26.26s(%-8.8s)\n\r",
-        left->vnum,
-        C_STR(left->name),
+        VNUM_FIELD(left),
+        NAME_STR(left),
         sExit,
-        right->vnum,
-        C_STR(right->name),
+        VNUM_FIELD(right),
+        NAME_STR(right),
         get_area_name(right->area_data)
     );
 }
@@ -401,7 +401,7 @@ const char* name_expand(Mobile* ch)
         return outbuf;
     }
 
-    for (rch = ch->in_room->people; rch && (rch != ch); rch = rch->next_in_room)
+    FOR_EACH_ROOM_MOB(rch, ch->in_room)
         if (is_name(name, NAME_STR(rch)))
             count++;
 
@@ -517,13 +517,13 @@ void do_for(Mobile* ch, char* argument)
                     if (fEverywhere)
                         /* Everywhere executes always */
                         found = true;
-                    else if (!room->people)
+                    else if (!ROOM_HAS_MOBS(room))
                         /* Skip it if room is empty */
                         continue;
 
                     /* Check if there is anyone here of the requried type */
                     /* Stop as soon as a match is found or there are no more ppl in room */
-                    for (p = room->people; p && !found; p = p->next_in_room) {
+                    FOR_EACH_ROOM_MOB(p, room) {
                         /* do not execute on oneself */
                         if (p == ch)
                             continue;
@@ -534,6 +534,9 @@ void do_for(Mobile* ch, char* argument)
                             found = true;
                         else if (!IS_NPC(p) && (p->level <= LEVEL_IMMORTAL) && fMortals)
                             found = true;
+
+                        if (found)
+                            break;
                     } /* for everyone inside the room */
 
                     /* Any of the required type here AND room not private? */

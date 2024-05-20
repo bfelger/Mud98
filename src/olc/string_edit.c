@@ -242,7 +242,7 @@ void string_add(Mobile* ch, char* argument)
                     FOR_EACH(mp, mob->mprogs)
                         if (mp->vnum == mpc->vnum) {
                             mp->code = mpc->code;
-                            printf_to_char(ch, "Updated mob %d.\n\r", mob->vnum);
+                            printf_to_char(ch, "Updated mob %d.\n\r", VNUM_FIELD(mob));
                         }
             }
         }

@@ -129,8 +129,10 @@ void save_char_obj(Mobile* ch)
     OPEN_OR_RETURN(fp = open_write_file(strsave));
 
     fwrite_char(ch, fp);
-    if (ch->carrying != NULL) 
-        fwrite_obj(ch, ch->carrying, fp, 0);
+    for (Node* node = ch->objects.back; node != NULL; node = node->prev) {
+        Object* obj = AS_OBJECT(node->value);
+        fwrite_obj(ch, obj, fp, 0);
+    }
     /* save the pets */
     if (ch->pet != NULL && ch->pet->in_room == ch->in_room)
         fwrite_pet(ch->pet, fp);
@@ -177,9 +179,9 @@ void fwrite_char(Mobile* ch, FILE* fp)
     fprintf(fp, "Room %d\n",
             (ch->in_room == get_room(NULL, ROOM_VNUM_LIMBO)
              && ch->was_in_room != NULL)
-                ? ch->was_in_room->vnum
+                ? VNUM_FIELD(ch->was_in_room)
             : ch->in_room == NULL ? ch->pcdata->recall
-                                  : ch->in_room->vnum);
+                                  : VNUM_FIELD(ch->in_room));
 
     fprintf(fp, "HMV  %d %d %d %d %d %d\n", ch->hit, ch->max_hit, ch->mana,
             ch->max_mana, ch->move, ch->max_move);
@@ -213,7 +215,7 @@ void fwrite_char(Mobile* ch, FILE* fp)
             ch->mod_stat[STAT_DEX], ch->mod_stat[STAT_CON]);
 
     if (IS_NPC(ch)) { 
-        fprintf(fp, "Vnum %"PRVNUM"\n", ch->prototype->vnum); 
+        fprintf(fp, "Vnum %"PRVNUM"\n", VNUM_FIELD(ch->prototype)); 
     }
     else {
         char digest_buf[256];
@@ -323,7 +325,7 @@ void fwrite_pet(Mobile* pet, FILE* fp)
 
     fprintf(fp, "#PET\n");
 
-    fprintf(fp, "Vnum %"PRVNUM"\n", pet->prototype->vnum);
+    fprintf(fp, "Vnum %"PRVNUM"\n", VNUM_FIELD(pet->prototype));
 
     fprintf(fp, "Name %s~\n", NAME_STR(pet));
     fprintf(fp, "LogO " TIME_FMT "\n", current_time);
@@ -385,13 +387,6 @@ void fwrite_obj(Mobile* ch, Object* obj, FILE* fp, int iNest)
     ExtraDesc* ed;
     Affect* affect;
 
-    /*
-     * Slick recursion to write lists backwards,
-     *   so loading them will load in forwards order.
-     */
-    if (obj->next_content != NULL) 
-        fwrite_obj(ch, obj->next_content, fp, iNest);
-
     // Castrate storage characters.
     if ((ch->level < obj->level - 2 && obj->item_type != ITEM_CONTAINER)
         || obj->item_type == ITEM_KEY
@@ -399,14 +394,14 @@ void fwrite_obj(Mobile* ch, Object* obj, FILE* fp, int iNest)
         return;
 
     fprintf(fp, "#O\n");
-    fprintf(fp, "Vnum %"PRVNUM"\n", obj->prototype->vnum);
+    fprintf(fp, "Vnum %"PRVNUM"\n", VNUM_FIELD(obj->prototype));
     if (obj->enchanted) 
         fprintf(fp, "Enchanted\n");
     fprintf(fp, "Nest %d\n", iNest);
 
     /* these data are only used if they do not match the defaults */
 
-    if (!lox_streq(NAME_FIELD(obj), obj->prototype->name))
+    if (!lox_streq(NAME_FIELD(obj), NAME_FIELD(obj->prototype)))
         fprintf(fp, "Name %s~\n", NAME_STR(obj));
     if (obj->short_descr != obj->prototype->short_descr)
         fprintf(fp, "ShD  %s~\n", obj->short_descr);
@@ -481,8 +476,10 @@ void fwrite_obj(Mobile* ch, Object* obj, FILE* fp, int iNest)
 
     fprintf(fp, "End\n\n");
 
-    if (obj->contains != NULL) 
-        fwrite_obj(ch, obj->contains, fp, iNest + 1);
+    for (Node* node = obj->objects.back; node != NULL; node = node->prev) {
+        Object* content = AS_OBJECT(node->value);
+        fwrite_obj(ch, content, fp, iNest + 1);
+    }
 
     return;
 }
@@ -1040,7 +1037,7 @@ void fread_char(Mobile* ch, FILE* fp)
                 if (room_data) {
                     Area* area = get_area_for_player(ch, room_data->area_data);
                     if (area || room_data->area_data->low_range == 1) {
-                        ch->in_room = get_room_for_player(ch, room_data->vnum);
+                        ch->in_room = get_room_for_player(ch, VNUM_FIELD(room_data));
                     }
                 }
                 fMatch = true;
@@ -1370,6 +1367,7 @@ void fread_obj(Mobile* ch, FILE* fp)
     if (obj == NULL) /* either not found or old style */
     {
         obj = new_object();
+        SET_NAME(obj, lox_empty_string());
         obj->short_descr = str_dup("");
         obj->description = str_dup("");
     }

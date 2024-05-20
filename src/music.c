@@ -62,7 +62,8 @@ void song_update(void)
     int i;
 
     /* do the global song, if any */
-    if (channel_songs[1] >= MAX_SONGS) channel_songs[1] = -1;
+    if (channel_songs[1] >= MAX_SONGS)
+        channel_songs[1] = -1;
 
     if (channel_songs[1] > -1) {
         if (channel_songs[0] >= MAX_LINES
@@ -93,14 +94,14 @@ void song_update(void)
                 if (d->connected == CON_PLAYING
                     && !IS_SET(victim->comm_flags, COMM_NOMUSIC)
                     && !IS_SET(victim->comm_flags, COMM_QUIET))
-                    act_new("$t", d->character, buf, NULL, TO_CHAR,
-                            POS_SLEEPING);
+                    act_new("$t", d->character, buf, NULL, TO_CHAR, POS_SLEEPING);
             }
         }
     }
 
     FOR_EACH(obj, obj_list) {
-        if (obj->item_type != ITEM_JUKEBOX || obj->value[1] < 0) continue;
+        if (obj->item_type != ITEM_JUKEBOX || obj->value[1] < 0)
+            continue;
 
         if (obj->value[1] >= MAX_SONGS) {
             obj->value[1] = -1;
@@ -120,7 +121,8 @@ void song_update(void)
             sprintf(buf, "$p starts playing %s, %s.",
                     song_table[obj->value[1]].group,
                     song_table[obj->value[1]].name);
-            if (room->people != NULL) act(buf, room->people, obj, NULL, TO_ALL);
+            if (room->mobiles.count > 0)
+                act(buf, room, obj, NULL, TO_ALL);
             obj->value[0] = 0;
             continue;
         }
@@ -142,7 +144,8 @@ void song_update(void)
         }
 
         sprintf(buf, "$p bops: '%s'", line);
-        if (room->people != NULL) act(buf, room->people, obj, NULL, TO_ALL);
+        if (ROOM_HAS_MOBS(room))
+            act(buf, room, obj, NULL, TO_ALL);
     }
 }
 
@@ -198,15 +201,16 @@ void load_songs(void)
 
 void do_play(Mobile* ch, char* argument)
 {
-    Object* juke;
+    Object* juke = NULL;
     char *str, arg[MAX_INPUT_LENGTH];
     int song, i;
     bool global = false;
 
     str = one_argument(argument, arg);
 
-    for (juke = ch->in_room->contents; juke != NULL; juke = juke->next_content)
-        if (juke->item_type == ITEM_JUKEBOX && can_see_obj(ch, juke)) break;
+    FOR_EACH_ROOM_OBJ(juke, ch->in_room)
+        if (juke->item_type == ITEM_JUKEBOX && can_see_obj(ch, juke))
+            break;
 
     if (argument[0] == '\0') {
         send_to_char("Play what?\n\r", ch);
@@ -228,16 +232,19 @@ void do_play(Mobile* ch, char* argument)
         argument = str;
         READ_ARG(arg);
 
-        if (!str_cmp(arg, "artist")) artist = true;
+        if (!str_cmp(arg, "artist"))
+            artist = true;
 
-        if (argument[0] != '\0') match = true;
+        if (argument[0] != '\0')
+            match = true;
 
         sprintf(buf, "%s has the following songs available:\n\r",
                 juke->short_descr);
         add_buf(buffer, capitalize(buf));
 
         for (i = 0; i < MAX_SONGS; i++) {
-            if (song_table[i].name == NULL) break;
+            if (song_table[i].name == NULL)
+                break;
 
             if (artist
                 && (!match || !str_prefix(argument, song_table[i].group)))
@@ -249,9 +256,11 @@ void do_play(Mobile* ch, char* argument)
             else
                 continue;
             add_buf(buffer, buf);
-            if (!artist && ++col % 2 == 0) add_buf(buffer, "\n\r");
+            if (!artist && ++col % 2 == 0)
+                add_buf(buffer, "\n\r");
         }
-        if (!artist && col % 2 != 0) add_buf(buffer, "\n\r");
+        if (!artist && col % 2 != 0)
+            add_buf(buffer, "\n\r");
 
         page_to_char(BUF(buffer), ch);
         free_buf(buffer);
@@ -279,7 +288,8 @@ void do_play(Mobile* ch, char* argument)
             send_to_char("That song isn't available.\n\r", ch);
             return;
         }
-        if (!str_prefix(argument, song_table[song].name)) break;
+        if (!str_prefix(argument, song_table[song].name)) 
+            break;
     }
 
     if (song >= MAX_SONGS) {
@@ -292,7 +302,8 @@ void do_play(Mobile* ch, char* argument)
     if (global) {
         for (i = 1; i <= MAX_GLOBAL; i++)
             if (channel_songs[i] < 0) {
-                if (i == 1) channel_songs[0] = -1;
+                if (i == 1) 
+                    channel_songs[0] = -1;
                 channel_songs[i] = song;
                 return;
             }
@@ -300,7 +311,8 @@ void do_play(Mobile* ch, char* argument)
     else {
         for (i = 1; i < 5; i++)
             if (juke->value[i] < 0) {
-                if (i == 1) juke->value[0] = -1;
+                if (i == 1) 
+                    juke->value[0] = -1;
                 juke->value[i] = song;
                 return;
             }

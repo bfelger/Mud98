@@ -16,6 +16,7 @@ typedef struct object_t Object;
 
 #include "lox/array.h"
 #include "lox/function.h"
+#include "lox/list.h"
 #include "lox/object.h"
 #include "lox/table.h"
 #include "lox/value.h"

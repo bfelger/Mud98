@@ -35,20 +35,24 @@ Room* new_room(RoomData* room_data, Area* area)
 
     init_header(&room->header, OBJ_ROOM);
 
-    SET_NAME(room, room_data->name);
+    init_list(&room->mobiles);
+    init_list(&room->objects);
 
-    room->header.vnum = room_data->vnum;
+    SET_NAME(room, NAME_FIELD(room_data));
+
+    VNUM_FIELD(room) = VNUM_FIELD(room_data);
     SET_NATIVE_FIELD(&room->header, room->header.vnum, vnum, I32);
 
-    table_set_vnum(&area->rooms, VNUM_FIELD(room), OBJ_VAL(room));
+    room->area = area;
+    SET_LOX_FIELD(&room->header, room->area, area);
 
-    pop();
+    table_set_vnum(&area->rooms, VNUM_FIELD(room), OBJ_VAL(room));
 
     room->data = room_data;
     room->next_instance = room_data->instances;
     room_data->instances = room;
 
-    room->area = area;
+    pop();
 
     return room;
 }
@@ -69,11 +73,17 @@ RoomData* new_room_data()
 {
     LIST_ALLOC_PERM(room_data, RoomData);
 
-    room_data->name = copy_string(&str_empty[0], 1);
+    push(OBJ_VAL(room_data));
+
+    init_header(&room_data->header, OBJ_ROOM_DATA);
+
+    SET_NAME(room_data, lox_empty_string());
     room_data->description = &str_empty[0];
     room_data->owner = &str_empty[0];
     room_data->heal_rate = 100;
     room_data->mana_rate = 100;
+
+    pop();
 
     return room_data;
 }
@@ -112,7 +122,7 @@ RoomData* get_room_data(VNUM vnum)
 {
     RoomData* room_data = NULL;
 
-    ORDERED_GET(RoomData, room_data, room_data_hash_table[vnum % MAX_KEY_HASH], vnum, vnum);
+    ORDERED_GET(RoomData, room_data, room_data_hash_table[vnum % MAX_KEY_HASH], header.vnum, vnum);
 
     if (!room_data && fBootDb) {
         bug("get_room_data: bad vnum %"PRVNUM".", vnum);
@@ -235,7 +245,7 @@ Room* get_room_for_player(Mobile* ch, VNUM vnum)
 //    push(OBJ_VAL(inst));
 //
 //    SET_NATIVE_FIELD(inst, room, base, OBJ);
-//    SET_NATIVE_FIELD(inst, room->data->vnum, vnum, I32);
+//    SET_NATIVE_FIELD(inst, VNUM_FIELD(room->data), vnum, I32);
 //
 //    SET_LOX_FIELD(inst, room->area, area);
 //    SET_LOX_FIELD(inst, room->data->name, name);

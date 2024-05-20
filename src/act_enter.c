@@ -87,11 +87,10 @@ void do_enter(Mobile* ch, char* argument)
         Room* old_room;
         Object* portal;
         Mobile* fch;
-        Mobile* fch_next = NULL;
 
         old_room = ch->in_room;
 
-        portal = get_obj_list(ch, argument, ch->in_room->contents);
+        portal = get_obj_list(ch, argument, &ch->in_room->objects);
 
         if (portal == NULL) {
             send_to_char("You don't see that here.\n\r", ch);
@@ -114,7 +113,7 @@ void do_enter(Mobile* ch, char* argument)
 
         if (IS_SET(portal->value[2], PORTAL_RANDOM) || portal->value[3] == -1) {
             location = get_random_room(ch);
-            portal->value[3] = location->vnum; /* for record keeping :) */
+            portal->value[3] = VNUM_FIELD(location); /* for record keeping :) */
         }
         else if (IS_SET(portal->value[2], PORTAL_BUGGY) && (number_percent() < 5))
             location = get_random_room(ch);
@@ -160,15 +159,15 @@ void do_enter(Mobile* ch, char* argument)
         /* charges */
         if (portal->value[0] > 0) {
             portal->value[0]--;
-            if (portal->value[0] == 0) portal->value[0] = -1;
+            if (portal->value[0] == 0) 
+                portal->value[0] = -1;
         }
 
         /* protect against circular follows */
-        if (old_room == location) return;
+        if (old_room == location) 
+            return;
 
-        for (fch = old_room->people; fch != NULL; fch = fch_next) {
-            fch_next = fch->next_in_room;
-
+        FOR_EACH_ROOM_MOB(fch, old_room) {
             if (portal == NULL || portal->value[0] == -1)
                 /* no following through dead portals */
                 continue;
@@ -196,11 +195,8 @@ void do_enter(Mobile* ch, char* argument)
             act("$p fades out of existence.", ch, portal, NULL, TO_CHAR);
             if (ch->in_room == old_room)
                 act("$p fades out of existence.", ch, portal, NULL, TO_ROOM);
-            else if (old_room->people != NULL) {
-                act("$p fades out of existence.", old_room->people, portal,
-                    NULL, TO_CHAR);
-                act("$p fades out of existence.", old_room->people, portal,
-                    NULL, TO_ROOM);
+            else if (ROOM_HAS_MOBS(old_room)) {
+                act("$p fades out of existence.", old_room, portal, NULL, TO_ROOM);
             }
             extract_obj(portal);
         }

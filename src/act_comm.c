@@ -694,9 +694,7 @@ void do_say(Mobile* ch, char* argument)
 
     if (!IS_NPC(ch)) {
         Mobile* mob = NULL;
-        Mobile* mob_next = NULL;
-        for (mob = ch->in_room->people; mob != NULL; mob = mob_next) {
-            mob_next = mob->next_in_room;
+        FOR_EACH_ROOM_MOB(mob, ch->in_room) {
             if (IS_NPC(mob) && HAS_TRIGGER(mob, TRIG_SPEECH)
                 && mob->position == mob->prototype->default_pos)
                 mp_act_trigger(argument, mob, ch, NULL, NULL, TRIG_SPEECH);
@@ -797,13 +795,13 @@ void do_tell(Mobile* ch, char* argument)
     }
 
     if (!(IS_IMMORTAL(ch) && ch->level > LEVEL_IMMORTAL) && !IS_AWAKE(victim)) {
-        act("$E can't hear you.", ch, 0, victim, TO_CHAR);
+        act("$E can't hear you.", ch, NULL, victim, TO_CHAR);
         return;
     }
 
     if ((IS_SET(victim->comm_flags, COMM_QUIET) || IS_SET(victim->comm_flags, COMM_DEAF))
         && !IS_IMMORTAL(ch)) {
-        act("$E is not receiving tells.", ch, 0, victim, TO_CHAR);
+        act("$E is not receiving tells.", ch, NULL, victim, TO_CHAR);
         return;
     }
 
@@ -860,13 +858,13 @@ void do_reply(Mobile* ch, char* argument)
     }
 
     if (!IS_IMMORTAL(ch) && !IS_AWAKE(victim)) {
-        act("$E can't hear you.", ch, 0, victim, TO_CHAR);
+        act("$E can't hear you.", ch, NULL, victim, TO_CHAR);
         return;
     }
 
     if ((IS_SET(victim->comm_flags, COMM_QUIET) || IS_SET(victim->comm_flags, COMM_DEAF))
         && !IS_IMMORTAL(ch) && !IS_IMMORTAL(victim)) {
-        act_new("$E is not receiving tells.", ch, 0, victim, TO_CHAR, POS_DEAD);
+        act_new("$E is not receiving tells.", ch, NULL, victim, TO_CHAR, POS_DEAD);
         return;
     }
 
@@ -966,7 +964,7 @@ void do_pmote(Mobile* ch, char* argument)
 
     act("$n $t", ch, argument, NULL, TO_CHAR);
 
-    FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
+    FOR_EACH_ROOM_MOB(vch, ch->in_room) {
         if (vch->desc == NULL || vch == ch) continue;
 
         if ((letter = strstr(argument, NAME_STR(vch))) == NULL) {
@@ -1385,7 +1383,6 @@ void do_order(Mobile* ch, char* argument)
     char arg2[MAX_INPUT_LENGTH];
     Mobile* victim;
     Mobile* och;
-    Mobile* och_next = NULL;
     bool found;
     bool fAll;
 
@@ -1431,9 +1428,7 @@ void do_order(Mobile* ch, char* argument)
     }
 
     found = false;
-    for (och = ch->in_room->people; och != NULL; och = och_next) {
-        och_next = och->next_in_room;
-
+    FOR_EACH_ROOM_MOB(och, ch->in_room) {
         if (IS_AFFECTED(och, AFF_CHARM) && och->master == ch 
             && (fAll || och == victim)) {
             found = true;
@@ -1568,7 +1563,7 @@ void do_split(Mobile* ch, char* argument)
     }
 
     members = 0;
-    FOR_EACH_IN_ROOM(gch, ch->in_room->people) {
+    FOR_EACH_ROOM_MOB(gch, ch->in_room) {
         if (is_same_group(gch, ch) && !IS_AFFECTED(gch, AFF_CHARM)) members++;
     }
 
@@ -1621,7 +1616,7 @@ void do_split(Mobile* ch, char* argument)
             amount_silver, amount_gold, share_silver, share_gold);
     }
 
-    FOR_EACH_IN_ROOM(gch, ch->in_room->people) {
+    FOR_EACH_ROOM_MOB(gch, ch->in_room) {
         if (gch != ch && is_same_group(gch, ch)
             && !IS_AFFECTED(gch, AFF_CHARM)) {
             act(buf, ch, NULL, gch, TO_VICT);

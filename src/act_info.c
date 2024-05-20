@@ -90,11 +90,10 @@ int max_on = 0;
 
 // Local functions.
 char* format_obj_to_char args((Object * obj, Mobile* ch, bool fShort));
-void show_list_to_char args((Object * list, Mobile* ch, bool fShort,
-                             bool fShowNothing));
+void show_list_to_char(List* list, Mobile* ch, bool fShort, bool fShowNothing);
 void show_char_to_char_0 args((Mobile * victim, Mobile* ch));
 void show_char_to_char_1 args((Mobile * victim, Mobile* ch));
-void show_char_to_char args((Mobile * list, Mobile* ch));
+void show_char_to_char(List* list, Mobile* ch);
 bool check_blind args((Mobile * ch));
 
 char* format_obj_to_char(Object* obj, Mobile* ch, bool fShort)
@@ -133,7 +132,7 @@ char* format_obj_to_char(Object* obj, Mobile* ch, bool fShort)
  * Show a list to a character.
  * Can coalesce duplicated items.
  */
-void show_list_to_char(Object* list, Mobile* ch, bool fShort,
+void show_list_to_char(List* list, Mobile* ch, bool fShort,
                        bool fShowNothing)
 {
     char buf[MAX_STRING_LENGTH];
@@ -152,15 +151,14 @@ void show_list_to_char(Object* list, Mobile* ch, bool fShort,
     // Alloc space for output lines.
     output = new_buf();
 
-    count = 0;
-    for (obj = list; obj != NULL; obj = obj->next_content) 
-        count++;
+    count = list->count;
     prgpstrShow = alloc_mem(count * sizeof(char*));
     prgnShow = alloc_mem(count * sizeof(int));
     nShow = 0;
 
     // Format the list of objects.
-    for (obj = list; obj != NULL; obj = obj->next_content) {
+    for (Node* node = list->front; node != NULL; node = node->next) {
+        obj = AS_OBJECT(node->value);
         if (obj->wear_loc == WEAR_UNHELD && can_see_obj(ch, obj)) {
             pstrShow = format_obj_to_char(obj, ch, fShort);
 
@@ -235,11 +233,11 @@ void show_char_to_char_0(Mobile* victim, Mobile* ch)
     bool is_npc = IS_NPC(victim);
 
     if (is_npc) {
-        QuestTarget* qt = get_quest_targ_end(ch, victim->prototype->vnum);
+        QuestTarget* qt = get_quest_targ_end(ch, VNUM_FIELD(victim->prototype));
         if (qt && can_finish_quest(ch, qt->quest_vnum)) {
             strcat(buf, "{*[{Y?{x{*]{x ");
         }
-        else if ((qt = get_quest_targ_mob(ch, victim->prototype->vnum)) != NULL) {
+        else if ((qt = get_quest_targ_mob(ch, VNUM_FIELD(victim->prototype))) != NULL) {
             if (qt->type != QUEST_KILL_MOB)
                 strcat(buf, "{*[{Y!{x{*]{x ");
             else
@@ -459,17 +457,22 @@ void show_char_to_char_1(Mobile* victim, Mobile* ch)
         && number_percent() < get_skill(ch, gsn_peek)) {
         send_to_char("\n\rYou peek at the inventory:\n\r", ch);
         check_improve(ch, gsn_peek, true, 4);
-        show_list_to_char(victim->carrying, ch, true, true);
+        show_list_to_char(&victim->objects, ch, true, true);
     }
 
     return;
 }
 
-void show_char_to_char(Mobile* list, Mobile* ch)
+void show_char_to_char(List* list, Mobile* ch)
 {
+    if (ch == NULL)
+        return;
+
     Mobile* rch;
 
-    FOR_EACH_IN_ROOM(rch, list) {
+    for (Node* node = list->front; node != NULL; node = node->next) {
+        rch = AS_MOBILE(node->value);
+
         if (rch == ch)
             continue;
 
@@ -489,7 +492,8 @@ void show_char_to_char(Mobile* list, Mobile* ch)
 
 bool check_blind(Mobile* ch)
 {
-    if (!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_HOLYLIGHT)) return true;
+    if (!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_HOLYLIGHT)) 
+        return true;
 
     if (IS_AFFECTED(ch, AFF_BLIND)) {
         send_to_char("You can't see a thing!\n\r", ch);
@@ -899,7 +903,8 @@ void do_look(Mobile* ch, char* argument)
     int door;
     int number, count;
 
-    if (ch->desc == NULL) return;
+    if (ch->desc == NULL)
+        return;
 
     if (ch->position < POS_SLEEPING) {
         send_to_char("You can't see anything but stars!\n\r", ch);
@@ -911,12 +916,13 @@ void do_look(Mobile* ch, char* argument)
         return;
     }
 
-    if (!check_blind(ch)) return;
+    if (!check_blind(ch))
+        return;
 
     if (!IS_NPC(ch) && !IS_SET(ch->act_flags, PLR_HOLYLIGHT)
         && room_is_dark(ch->in_room)) {
         send_to_char("It is pitch black ... \n\r", ch);
-        show_char_to_char(ch->in_room->people, ch);
+        show_char_to_char(&ch->in_room->mobiles, ch);
         return;
     }
 
@@ -927,12 +933,12 @@ void do_look(Mobile* ch, char* argument)
 
     if (arg1[0] == '\0' || !str_cmp(arg1, "auto")) {
         /* 'look' or 'look auto' */
-        sprintf(buf, "{s%s", C_STR(ch->in_room->data->name));
+        sprintf(buf, "{s%s", NAME_STR(ch->in_room));
         send_to_char(buf, ch);
 
         if ((IS_IMMORTAL(ch) && (IS_NPC(ch) || IS_SET(ch->act_flags, PLR_HOLYLIGHT)))
             || IS_BUILDER(ch, ch->in_room->area->data)) {
-            sprintf(buf, " {r[{RRoom %"PRVNUM"{r]", ch->in_room->vnum);
+            sprintf(buf, " {r[{RRoom %"PRVNUM"{r]", VNUM_FIELD(ch->in_room));
             send_to_char(buf, ch);
         }
 
@@ -948,8 +954,8 @@ void do_look(Mobile* ch, char* argument)
             do_function(ch, &do_exits, "auto");
         }
 
-        show_list_to_char(ch->in_room->contents, ch, false, false);
-        show_char_to_char(ch->in_room->people, ch);
+        show_list_to_char(&ch->in_room->objects, ch, false, false);
+        show_char_to_char(&ch->in_room->mobiles, ch);
         return;
     }
 
@@ -994,7 +1000,7 @@ void do_look(Mobile* ch, char* argument)
             }
 
             act("$p holds:", ch, obj, NULL, TO_CHAR);
-            show_list_to_char(obj->contains, ch, true, true);
+            show_list_to_char(&obj->objects, ch, true, true);
             break;
         }
         return;
@@ -1005,7 +1011,7 @@ void do_look(Mobile* ch, char* argument)
         return;
     }
 
-    for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
+    FOR_EACH_MOB_OBJ(obj, ch) {
         if (can_see_obj(ch, obj)) { 
             /* player can see object */
             pdesc = get_extra_desc(arg3, obj->extra_desc);
@@ -1040,7 +1046,7 @@ void do_look(Mobile* ch, char* argument)
         }
     }
 
-    for (obj = ch->in_room->contents; obj != NULL; obj = obj->next_content) {
+    FOR_EACH_ROOM_OBJ(obj, ch->in_room) {
         if (can_see_obj(ch, obj)) {
             pdesc = get_extra_desc(arg3, obj->extra_desc);
             if (pdesc != NULL) {
@@ -1210,7 +1216,7 @@ void do_exits(Mobile* ch, char* argument)
     if (fAuto)
         sprintf(buf, "[Exits:");
     else if (IS_IMMORTAL(ch))
-        sprintf(buf, "Obvious exits from room %d:\n\r", ch->in_room->vnum);
+        sprintf(buf, "Obvious exits from room %d:\n\r", VNUM_FIELD(ch->in_room));
     else
         sprintf(buf, "Obvious exits:\n\r");
 
@@ -1228,7 +1234,7 @@ void do_exits(Mobile* ch, char* argument)
                 sprintf(
                     buf + strlen(buf), "%-5s - %s", capitalize(dir_list[door].name),
                     (room_exit->to_room && room_is_dark(room_exit->to_room)) ? "Too dark to tell"
-                                                    : C_STR(room_exit->data->to_room->name));
+                                                    : NAME_STR(room_exit->data->to_room));
                 if (IS_IMMORTAL(ch))
                     sprintf(buf + strlen(buf), " (room %d)\n\r",
                             room_exit->data->to_vnum);
@@ -1899,7 +1905,7 @@ void do_count(Mobile* ch, char* argument)
 void do_inventory(Mobile* ch, char* argument)
 {
     send_to_char("You are carrying:\n\r", ch);
-    show_list_to_char(ch->carrying, ch, true, true);
+    show_list_to_char(&ch->objects, ch, true, true);
     return;
 }
 
@@ -1937,7 +1943,7 @@ void do_compare(Mobile* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     Object* obj1;
-    Object* obj2;
+    Object* obj2 = NULL;
     int value1;
     int value2;
     char* msg;
@@ -1955,7 +1961,7 @@ void do_compare(Mobile* ch, char* argument)
     }
 
     if (arg2[0] == '\0') {
-        for (obj2 = ch->carrying; obj2 != NULL; obj2 = obj2->next_content) {
+        FOR_EACH_MOB_OBJ(obj2, ch) {
             if (obj2->wear_loc != WEAR_UNHELD && can_see_obj(ch, obj2)
                 && obj1->item_type == obj2->item_type
                 && (obj1->wear_flags & obj2->wear_flags & ~ITEM_TAKE) != 0)
@@ -2042,7 +2048,7 @@ void do_where(Mobile* ch, char* argument)
                 && can_see(ch, victim)) {
                 found = true;
                 sprintf(buf, "%-28s %s\n\r", NAME_STR(victim),
-                        C_STR(victim->in_room->data->name));
+                        NAME_STR(victim->in_room));
                 send_to_char(buf, ch);
             }
         }
@@ -2058,7 +2064,7 @@ void do_where(Mobile* ch, char* argument)
                 && is_name(arg, NAME_STR(victim))) {
                 found = true;
                 sprintf(buf, "%-28s %s\n\r", PERS(victim, ch),
-                        C_STR(victim->in_room->data->name));
+                        NAME_STR(victim->in_room));
                 send_to_char(buf, ch);
                 break;
             }
@@ -2286,8 +2292,8 @@ void do_practice(Mobile* ch, char* argument)
         }
 
         if (!cfg_get_practice_anywhere()) {
-            Mobile* mob;
-            FOR_EACH_IN_ROOM(mob, ch->in_room->people) {
+            Mobile* mob = NULL;
+            FOR_EACH_ROOM_MOB(mob, ch->in_room) {
                 if (IS_NPC(mob) && IS_SET(mob->act_flags, ACT_PRACTICE))
                     break;
             }

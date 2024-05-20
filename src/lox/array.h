@@ -20,6 +20,7 @@ ValueArray* new_obj_array();
 void init_value_array(ValueArray* array);
 void write_value_array(ValueArray* array, Value value);
 void free_value_array(ValueArray* array);
-void remove_value_array(ValueArray* array, int index);
+void remove_array_value(ValueArray* array, Value value);
+void remove_array_index(ValueArray* array, int index);
 
 #endif // !clox_array_h

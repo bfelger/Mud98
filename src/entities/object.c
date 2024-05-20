@@ -25,13 +25,14 @@ Object* new_object()
 
     init_header(&obj->header, OBJ_OBJ);
 
-    SET_NATIVE_FIELD(&obj->header, obj, base, OBJ);
-    SET_NATIVE_FIELD(&obj->header, obj->short_descr, short_desc, STR);
-    SET_NATIVE_FIELD(&obj->header, obj->in_room, in_room, OBJ);
+    SET_NAME(obj, lox_empty_string());
 
     SET_NATIVE_FIELD(&obj->header, obj->header.vnum, vnum, I32);
 
-    SET_NAME(obj, lox_string(str_empty));
+    init_list(&obj->objects);
+
+    SET_NATIVE_FIELD(&obj->header, obj->short_descr, short_desc, STR);
+    SET_NATIVE_FIELD(&obj->header, obj->in_room, in_room, OBJ);
 
     pop();
 
@@ -80,8 +81,9 @@ void clone_object(Object* parent, Object* clone)
         return;
 
     /* start fixing the object */
-    SET_NAME(clone, parent->header.name);
-    clone->header.vnum = parent->header.vnum;
+    SET_NAME(clone, NAME_FIELD(parent));
+    VNUM_FIELD(clone) = VNUM_FIELD(parent);
+
     clone->short_descr = str_dup(parent->short_descr);
     clone->description = str_dup(parent->description);
     clone->item_type = parent->item_type;
@@ -202,8 +204,8 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level)
 
     obj->prototype = obj_proto;
 
-    SET_NAME(obj, obj_proto->name);
-    obj->header.vnum = obj_proto->vnum;
+    SET_NAME(obj, NAME_FIELD(obj_proto));
+    VNUM_FIELD(obj) = VNUM_FIELD(obj_proto);
 
     obj->in_room = NULL;
     obj->enchanted = false;
@@ -289,7 +291,7 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level)
 //    push(OBJ_VAL(inst));
 //
 //    SET_NATIVE_FIELD(inst, object, base, OBJ);
-//    SET_NATIVE_FIELD(inst, object->prototype->vnum, vnum, I32);
+//    SET_NATIVE_FIELD(inst, VNUM_FIELD(object->prototype), vnum, I32);
 //    SET_NATIVE_FIELD(inst, object->short_descr, short_desc, STR);
 //    SET_NATIVE_FIELD(inst, object->in_room, in_room, OBJ);
 //

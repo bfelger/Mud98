@@ -32,7 +32,6 @@ typedef struct mob_prototype_t {
     ShopData* pShop;
     MobProg* mprogs;
     AreaData* area;
-    String* name;
     char* short_descr;
     char* long_descr;
     char* description;
@@ -46,7 +45,6 @@ typedef struct mob_prototype_t {
     FLAGS form;
     FLAGS parts;
     FLAGS mprog_flags;
-    VNUM vnum;
     int wealth;
     int16_t hit[3];
     int16_t mana[3];

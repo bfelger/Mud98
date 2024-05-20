@@ -30,9 +30,7 @@ static void old_aggr_update()
     Mobile* wch;
     Mobile* wch_next = NULL;
     Mobile* ch;
-    Mobile* ch_next = NULL;
     Mobile* vch;
-    Mobile* vch_next = NULL;
     Mobile* victim;
 
     for (wch = mob_list; wch != NULL; wch = wch_next) {
@@ -41,10 +39,8 @@ static void old_aggr_update()
             || wch->in_room->area->empty)
             continue;
 
-        for (ch = wch->in_room->people; ch != NULL; ch = ch_next) {
+        FOR_EACH_ROOM_MOB(ch, wch->in_room) {
             int count;
-
-            ch_next = ch->next_in_room;
 
             if (!IS_NPC(ch) || !IS_SET(ch->act_flags, ACT_AGGRESSIVE)
                 || IS_SET(ch->in_room->data->room_flags, ROOM_SAFE)
@@ -56,9 +52,7 @@ static void old_aggr_update()
 
             count = 0;
             victim = NULL;
-            for (vch = wch->in_room->people; vch != NULL; vch = vch_next) {
-                vch_next = vch->next_in_room;
-
+            FOR_EACH_ROOM_MOB(vch, wch->in_room) {
                 if (!IS_NPC(vch) && vch->level < LEVEL_IMMORTAL
                     && ch->level >= vch->level - 5
                     && (!IS_SET(ch->act_flags, ACT_WIMPY) || !IS_AWAKE(vch))

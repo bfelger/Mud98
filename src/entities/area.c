@@ -26,7 +26,7 @@ Area* area_free;
 
 Area* new_area(AreaData* area_data)
 {
-    ENTITY_ALLOC_PERM(area, Area);
+    LIST_ALLOC_PERM(area, Area);
 
     push(OBJ_VAL(area));
 
@@ -37,8 +37,6 @@ Area* new_area(AreaData* area_data)
 
     SET_NAME(area, NAME_FIELD(area_data));
     VNUM_FIELD(area) = VNUM_FIELD(area_data);
-
-    SET_NATIVE_FIELD(&area->header, VNUM_FIELD(area), vnum, I32);
 
     pop();
 
@@ -69,8 +67,6 @@ AreaData* new_area_data()
 
     init_value_array(&area_data->instances);
     SET_LOX_FIELD(&area_data->header, &area_data->instances, instances);
-
-    SET_NAME(area_data, lox_string(str_empty));
 
     VNUM_FIELD(area_data) = global_areas.count - 1;
     sprintf(buf, "area%"PRVNUM".are", VNUM_FIELD(area_data));
@@ -179,6 +175,7 @@ void load_area(FILE* fp)
 #endif
 
     area_data = new_area_data();
+    push(OBJ_VAL(area_data));
     VNUM_FIELD(area_data) = global_areas.count;
     area_data->reset_thresh = 6;
     area_data->file_name = str_dup(fpArea);
@@ -204,6 +201,7 @@ void load_area(FILE* fp)
                     LAST_AREA_DATA->next = area_data;
                 area_data->next = NULL;
                 current_area_data = area_data;
+                pop();
                 return;
             }
             break;

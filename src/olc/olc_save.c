@@ -187,8 +187,8 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
     char buf[MAX_STRING_LENGTH];
     MobProg* pMprog;
 
-    fprintf(fp, "#%"PRVNUM"\n", p_mob_proto->vnum);
-    fprintf(fp, "%s~\n", C_STR(p_mob_proto->name));
+    fprintf(fp, "#%"PRVNUM"\n", VNUM_FIELD(p_mob_proto));
+    fprintf(fp, "%s~\n", NAME_STR(p_mob_proto));
     fprintf(fp, "%s~\n", p_mob_proto->short_descr);
     fprintf(fp, "%s~\n", fix_string(p_mob_proto->long_descr));
     fprintf(fp, "%s~\n", fix_string(p_mob_proto->description));
@@ -312,8 +312,8 @@ void save_object(FILE* fp, ObjPrototype* obj_proto)
     ExtraDesc* pEd;
     char buf[MAX_STRING_LENGTH];
 
-    fprintf(fp, "#%"PRVNUM"\n", obj_proto->vnum);
-    fprintf(fp, "%s~\n", C_STR(obj_proto->name));
+    fprintf(fp, "#%"PRVNUM"\n", VNUM_FIELD(obj_proto));
+    fprintf(fp, "%s~\n", NAME_STR(obj_proto));
     fprintf(fp, "%s~\n", obj_proto->short_descr);
     fprintf(fp, "%s~\n", fix_string(obj_proto->description));
     fprintf(fp, "%s~\n", obj_proto->material);
@@ -539,8 +539,8 @@ void save_rooms(FILE* fp, AreaData* area)
     for (hash = 0; hash < MAX_KEY_HASH; hash++) {
         FOR_EACH(pRoomIndex, room_data_hash_table[hash]) {
             if (pRoomIndex->area_data == area) {
-                fprintf(fp, "#%"PRVNUM"\n", pRoomIndex->vnum);
-                fprintf(fp, "%s~\n", C_STR(pRoomIndex->name));
+                fprintf(fp, "#%"PRVNUM"\n", VNUM_FIELD(pRoomIndex));
+                fprintf(fp, "%s~\n", NAME_STR(pRoomIndex));
                 fprintf(fp, "%s~\n0\n", fix_string(pRoomIndex->description));
                 fprintf(fp, "%s ", fwrite_flag(pRoomIndex->room_flags, buf));
                 fprintf(fp, "%d\n", pRoomIndex->sector_type);
@@ -586,7 +586,7 @@ void save_rooms(FILE* fp, AreaData* area)
                         fprintf(fp, "%d %d %"PRVNUM"\n", 
                             locks,
                             room_exit->key,
-                            room_exit->to_room->vnum);
+                            VNUM_FIELD(room_exit->to_room));
                     }
                 }
 
@@ -623,11 +623,11 @@ void save_specials(FILE* fp, AreaData* area)
         FOR_EACH(p_mob_proto, mob_proto_hash[hash]) {
             if (p_mob_proto && p_mob_proto->area == area && p_mob_proto->spec_fun) {
 #if defined( VERBOSE )
-                fprintf(fp, "M %"PRVNUM" %s Load to: %s\n", p_mob_proto->vnum,
+                fprintf(fp, "M %"PRVNUM" %s Load to: %s\n", VNUM_FIELD(p_mob_proto),
                     spec_name(p_mob_proto->spec_fun),
                     p_mob_proto->short_descr);
 #else
-                fprintf(fp, "M %"PRVNUM" %s\n", p_mob_proto->vnum,
+                fprintf(fp, "M %"PRVNUM" %s\n", VNUM_FIELD(p_mob_proto),
                     spec_name(p_mob_proto->spec_fun));
 #endif
             }
@@ -662,7 +662,7 @@ void save_door_resets(FILE* fp, AreaData* area)
                             || IS_SET(room_exit->exit_reset_flags, EX_LOCKED)))
 #if defined( VERBOSE )
                         fprintf(fp, "D 0 %"PRVNUM" %d %d The %s door of %s is %s\n",
-                            pRoomIndex->vnum,
+                            VNUM_FIELD(pRoomIndex),
                             room_exit->orig_dir,
                             IS_SET(room_exit->exit_reset_flags, EX_LOCKED) ? 2 : 1,
                             dir_list[room_exit->orig_dir].name,
@@ -671,7 +671,7 @@ void save_door_resets(FILE* fp, AreaData* area)
                             : "closed");
 #else
                         fprintf(fp, "D 0 %"PRVNUM" %d %d\n",
-                            pRoomIndex->vnum,
+                            VNUM_FIELD(pRoomIndex),
                             room_exit->orig_dir,
                             IS_SET(room_exit->exit_reset_flags, EX_LOCKED) ? 2 : 1);
 #endif

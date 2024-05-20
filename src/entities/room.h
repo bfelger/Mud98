@@ -22,6 +22,7 @@ typedef struct room_data_t RoomData;
 #include "entities/reset.h"
 
 #include "lox/lox.h"
+#include "lox/list.h"
 #include "lox/table.h"
 
 // Static room VNUMs
@@ -61,12 +62,11 @@ typedef struct room_t {
     EntityHeader header;
     Room* next;
     Room* next_instance;
-    VNUM vnum;
+    List mobiles;
+    List objects;
     RoomData* data;
     Area* area;
     RoomExit* exit[DIR_MAX];
-    Mobile* people;
-    Object* contents;
     int16_t light;
 } Room;
 
@@ -79,10 +79,8 @@ typedef struct room_data_t {
     RoomExitData* exit_data[DIR_MAX];
     Reset* reset_first;
     Reset* reset_last;
-    String* name;
     char* description;
     char* owner;
-    VNUM vnum;
     FLAGS room_flags;
     Sector sector_type;
     int16_t heal_rate;
@@ -108,6 +106,34 @@ typedef struct room_data_t {
             && IS_ROOM((&a->rooms.entries[r##_idx])->value) \
             && (r = AS_ROOM(a->rooms.entries[r##_idx].value)) != NULL \
             && ++r##_l_count)
+
+#define FOR_EACH_ROOM_OBJ(content, room) \
+    if ((room)->objects.front == NULL) \
+        content = NULL; \
+    else if ((content = AS_OBJECT((room)->objects.front->value)) != NULL) \
+        for (struct { Node* node; Node* next; } content##_loop = { (room)->objects.front, (room)->objects.front->next }; \
+            content##_loop.node != NULL; \
+            content##_loop.node = content##_loop.next, \
+                content##_loop.next = content##_loop.next ? content##_loop.next->next : NULL, \
+                content = content##_loop.node != NULL ? AS_OBJECT(content##_loop.node->value) : NULL) \
+            if (content != NULL)
+
+#define FOR_EACH_ROOM_MOB(mob, room) \
+    if ((room)->mobiles.front == NULL) \
+        mob = NULL; \
+    else if ((mob = AS_MOBILE((room)->mobiles.front->value)) != NULL) \
+        for (struct { Node* node; Node* next; } mob##_loop = { (room)->mobiles.front, (room)->mobiles.front->next }; \
+            mob##_loop.node != NULL; \
+            mob##_loop.node = mob##_loop.next, \
+                mob##_loop.next = mob##_loop.next ? mob##_loop.next->next : NULL, \
+                mob = mob##_loop.node != NULL ? AS_MOBILE(mob##_loop.node->value) : NULL) \
+            if (mob != NULL)
+
+#define ROOM_HAS_MOBS(room) \
+    ((room)->mobiles.count > 0)
+
+#define ROOM_HAS_OBJS(room) \
+    ((room)->objects.count > 0)
 
 Room* new_room(RoomData* room_data, Area* area);
 void free_room(Room* room);

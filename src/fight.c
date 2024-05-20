@@ -145,10 +145,8 @@ void violence_update()
 void check_assist(Mobile* ch, Mobile* victim)
 {
     Mobile* rch;
-    Mobile* rch_next = NULL;
 
-    for (rch = ch->in_room->people; rch != NULL; rch = rch_next) {
-        rch_next = rch->next_in_room;
+    FOR_EACH_ROOM_MOB(rch, ch->in_room) {
 
         if (IS_AWAKE(rch) && rch->fighting == NULL) {
             /* quick check for ASSIST_PLAYER */
@@ -199,7 +197,7 @@ void check_assist(Mobile* ch, Mobile* victim)
 
                     target = NULL;
                     number = 0;
-                    FOR_EACH(vch, ch->in_room->people) {
+                    FOR_EACH_ROOM_MOB(vch, ch->in_room) {
                         if (can_see(rch, vch) && is_same_group(vch, victim)
                             && number_range(0, number) == 0) {
                             target = vch;
@@ -287,7 +285,7 @@ void mob_hit(Mobile* ch, Mobile* victim, int16_t dt)
     /* Area attack -- BALLS nasty! */
 
     if (IS_SET(ch->atk_flags, ATK_AREA_ATTACK)) {
-        FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
+        FOR_EACH_ROOM_MOB(vch, ch->in_room) {
             if ((vch != victim && vch->fighting == ch))
                 one_hit(ch, vch, dt);
         }
@@ -797,7 +795,7 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
         break;
 
     case POS_DEAD:
-        act("$n is DEAD!!", victim, 0, 0, TO_ROOM);
+        act("$n is DEAD!!", victim, NULL, NULL, TO_ROOM);
         send_to_char("You have been KILLED!!\n\r\n\r", victim);
         break;
 
@@ -819,7 +817,7 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
         if (!IS_NPC(victim)) {
             sprintf(log_buf, "%s killed by %s at %d", NAME_STR(victim),
                     (IS_NPC(ch) ? ch->short_descr : NAME_STR(ch)),
-                    ch->in_room->vnum);
+                    VNUM_FIELD(ch->in_room));
             log_string(log_buf);
 
             /*
@@ -839,7 +837,7 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
         else if (ch->pcdata) {
             QuestTarget* qt;
             QuestStatus* qs;
-            if ((qt = get_quest_targ_mob(ch, victim->prototype->vnum)) != NULL
+            if ((qt = get_quest_targ_mob(ch, VNUM_FIELD(victim->prototype))) != NULL
                 && (qs = get_quest_status(ch, qt->quest_vnum)) != NULL) {
                 if (qs->quest->type == QUEST_KILL_MOB && qs->progress < qs->amount) {
                     ++qs->progress;
@@ -852,8 +850,8 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
         sprintf(log_buf, "%s got toasted by %s at %s [room %d]",
                 (IS_NPC(victim) ? victim->short_descr : NAME_STR(victim)),
                 (IS_NPC(ch) ? ch->short_descr : NAME_STR(ch)), 
-                C_STR(ch->in_room->data->name),
-                ch->in_room->vnum);
+                NAME_STR(ch->in_room),
+                VNUM_FIELD(ch->in_room));
 
         if (IS_NPC(victim))
             wiznet(log_buf, NULL, NULL, WIZ_MOBDEATHS, 0, 0);
@@ -878,24 +876,24 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
         /* RT new auto commands */
 
         if (!IS_NPC(ch)
-            && (corpse = get_obj_list(ch, "corpse", ch->in_room->contents))
+            && (corpse = get_obj_list(ch, "corpse", &ch->in_room->objects))
                    != NULL
             && corpse->item_type == ITEM_CORPSE_NPC
             && can_see_obj(ch, corpse)) {
             Object* coins;
 
-            corpse = get_obj_list(ch, "corpse", ch->in_room->contents);
+            corpse = get_obj_list(ch, "corpse", &ch->in_room->objects);
 
             if (IS_SET(ch->act_flags, PLR_AUTOLOOT) && corpse
-                && corpse->contains) /* exists and not empty */
+                && OBJ_HAS_OBJS(corpse)) /* exists and not empty */
             {
                 do_function(ch, &do_get, "all corpse");
             }
 
-            if (IS_SET(ch->act_flags, PLR_AUTOGOLD) && corpse && corpse->contains
+            if (IS_SET(ch->act_flags, PLR_AUTOGOLD) && corpse && OBJ_HAS_OBJS(corpse)
                 && /* exists and not empty */
                 !IS_SET(ch->act_flags, PLR_AUTOLOOT)) {
-                if ((coins = get_obj_list(ch, "gcash", corpse->contains))
+                if ((coins = get_obj_list(ch, "gcash", &corpse->objects))
                     != NULL) {
                     do_function(ch, &do_get, "all.gcash corpse");
                 }
@@ -903,7 +901,7 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
 
             if (IS_SET(ch->act_flags, PLR_AUTOSAC)) {
                 if (IS_SET(ch->act_flags, PLR_AUTOLOOT) && corpse
-                    && corpse->contains) {
+                    && OBJ_HAS_OBJS(corpse)) {
                     return true; /* leave if corpse has treasure */
                 }
                 else {
@@ -1294,14 +1292,14 @@ void stop_fighting(Mobile* ch, bool fBoth)
 void make_corpse(Mobile* ch)
 {
     char buf[MAX_STRING_LENGTH];
-    Object* corpse;
-    Object* obj;
-    Object* obj_next = NULL;
+    Object* corpse = NULL;
+    Object* obj = NULL;
     String* name;
 
     if (IS_NPC(ch)) {
         name = lox_string(ch->short_descr);
         corpse = create_object(get_object_prototype(OBJ_VNUM_CORPSE_NPC), 0);
+        SET_NAME(corpse, name);
         corpse->timer = (int16_t)number_range(3, 6);
         if (ch->gold > 0) {
             obj_to_obj(create_money(ch->gold, ch->silver), corpse);
@@ -1313,6 +1311,7 @@ void make_corpse(Mobile* ch)
     else {
         name = NAME_FIELD(ch);
         corpse = create_object(get_object_prototype(OBJ_VNUM_CORPSE_PC), 0);
+        SET_NAME(corpse, name);
         corpse->timer = (int16_t)number_range(25, 40);
         REMOVE_BIT(ch->act_flags, PLR_CANLOOT);
         if (!is_clan(ch))
@@ -1339,10 +1338,8 @@ void make_corpse(Mobile* ch)
     free_string(corpse->description);
     corpse->description = str_dup(buf);
 
-    for (obj = ch->carrying; obj != NULL; obj = obj_next) {
+    FOR_EACH_MOB_OBJ(obj, ch) {
         bool floating = false;
-
-        obj_next = obj->next_content;
         if (obj->wear_loc == WEAR_FLOAT) floating = true;
         obj_from_char(obj);
         if (obj->item_type == ITEM_POTION) 
@@ -1358,16 +1355,14 @@ void make_corpse(Mobile* ch)
         if (IS_SET(obj->extra_flags, ITEM_INVENTORY))
             extract_obj(obj);
         else if (floating) {
-            if (IS_OBJ_STAT(obj, ITEM_ROT_DEATH)) /* get rid of it! */
-            {
-                if (obj->contains != NULL) {
-                    Object* in;
-                    Object* in_next = NULL;
+            if (IS_OBJ_STAT(obj, ITEM_ROT_DEATH)) {
+                // get rid of it!
+                if (OBJ_HAS_OBJS(obj)) {
+                    Object* in = NULL;
 
                     act("$p evaporates,scattering its contents.", ch, obj, NULL,
                         TO_ROOM);
-                    for (in = obj->contains; in != NULL; in = in_next) {
-                        in_next = in->next_content;
+                    FOR_EACH_OBJ_CONTENT(in, obj) {
                         obj_from_obj(in);
                         obj_to_room(in, ch->in_room);
                     }
@@ -1525,7 +1520,7 @@ void raw_kill(Mobile* victim)
 void group_gain(Mobile* ch, Mobile* victim)
 {
     char buf[MAX_STRING_LENGTH];
-    Mobile* gch;
+    Mobile* gch = NULL;
     int xp;
     int members;
     int group_levels;
@@ -1535,11 +1530,12 @@ void group_gain(Mobile* ch, Mobile* victim)
      * P-killing doesn't help either.
      * Dying of mortal wounds or poison doesn't give xp to anyone!
      */
-    if (victim == ch) return;
+    if (victim == ch || ch == NULL || ch->in_room == NULL)
+        return;
 
     members = 0;
     group_levels = 0;
-    FOR_EACH_IN_ROOM(gch, ch->in_room->people) {
+    FOR_EACH_ROOM_MOB(gch, ch->in_room) {
         if (is_same_group(gch, ch)) {
             members++;
             group_levels += IS_NPC(gch) ? gch->level / 2 : gch->level;
@@ -1552,11 +1548,11 @@ void group_gain(Mobile* ch, Mobile* victim)
         group_levels = ch->level;
     }
 
-    FOR_EACH_IN_ROOM(gch, ch->in_room->people) {
-        Object* obj;
-        Object* obj_next = NULL;
+    FOR_EACH_ROOM_MOB(gch, ch->in_room) {
+        Object* obj = NULL;
 
-        if (!is_same_group(gch, ch) || IS_NPC(gch)) continue;
+        if (!is_same_group(gch, ch) || IS_NPC(gch))
+            continue;
 
         /*	Taken out, add it back if you want it
                 if ( gch->level - lch->level >= 5 )
@@ -1577,8 +1573,7 @@ void group_gain(Mobile* ch, Mobile* victim)
         send_to_char(buf, gch);
         gain_exp(gch, xp);
 
-        for (obj = ch->carrying; obj != NULL; obj = obj_next) {
-            obj_next = obj->next_content;
+        FOR_EACH_MOB_OBJ(obj, ch) {
             if (obj->wear_loc == WEAR_UNHELD) continue;
 
             if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch))

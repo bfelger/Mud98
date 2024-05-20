@@ -28,7 +28,7 @@ MobPrototype xMob;
 #define U(x)    (uintptr_t)(x)
 
 const OlcCmdEntry mob_olc_comm_table[] = {
-    { "name",	    U(&xMob.name),          ed_line_lox_string, 0		        },
+    { "name",	    U(&xMob.header.name),   ed_line_lox_string, 0		        },
     { "short",	    U(&xMob.short_descr),	ed_line_string,		0		        },
     { "long",	    U(&xMob.long_descr),	ed_line_string,		0	            },
     { "material",	U(&xMob.material),	    ed_line_string,		0		        },
@@ -200,8 +200,8 @@ MEDIT(medit_show)
 
     INIT_BUF(buffer, MSL);
 
-    addf_buf(buffer, "Name:        {|[{*%s{|]{x\n\r", pMob->name);
-    addf_buf(buffer, "Vnum:        {|[{*%6d{|]{x\n\r", pMob->vnum);
+    addf_buf(buffer, "Name:        {|[{*%s{|]{x\n\r", NAME_STR(pMob));
+    addf_buf(buffer, "Vnum:        {|[{*%6d{|]{x\n\r", VNUM_FIELD(pMob));
     addf_buf(buffer, "Area:        {|[{*%6d{|] {_%s{x\n\r",
         !pMob->area ? -1 : VNUM_FIELD(pMob->area),
         !pMob->area ? "No Area" : NAME_STR(pMob->area));
@@ -296,7 +296,7 @@ MEDIT(medit_show)
 
     if (pMob->mprogs) {
         addf_buf(buffer,
-            "\n\rMOBPrograms for {|[{*%5d{|]{x:\n\r", pMob->vnum);
+            "\n\rMOBPrograms for {|[{*%5d{|]{x:\n\r", VNUM_FIELD(pMob));
 
         for (cnt = 0, list = pMob->mprogs; list; NEXT_LINK(list)) {
             if (cnt == 0) {
@@ -357,7 +357,7 @@ MEDIT(medit_group)
             pMTemp = get_mob_prototype(temp);
             if (pMTemp && (pMTemp->group == atoi(argument))) {
                 found = true;
-                sprintf(buf, "[%5d] %s\n\r", pMTemp->vnum, C_STR(pMTemp->name));
+                sprintf(buf, "[%5d] %s\n\r", VNUM_FIELD(pMTemp), NAME_STR(pMTemp));
                 add_buf(buffer, buf);
             }
         }
@@ -400,7 +400,7 @@ MEDIT(medit_copy)
         return false;
     }
 
-    pMob->name = mob2->name;
+    SET_NAME(pMob, NAME_FIELD(mob2));
     free_string(pMob->short_descr);
     pMob->short_descr = str_dup(mob2->short_descr);
     free_string(pMob->long_descr);
@@ -470,7 +470,7 @@ ED_FUN_DEC(ed_new_mob)
     }
 
     pMob = new_mob_prototype();
-    pMob->vnum = value;
+    VNUM_FIELD(pMob) = value;
     pMob->area = area;
     pMob->act_flags = ACT_IS_NPC;
 
@@ -611,7 +611,7 @@ ED_FUN_DEC(ed_shop)
             shop_last->next = pMob->pShop;
         shop_last = pMob->pShop;
 
-        pMob->pShop->keeper = pMob->vnum;
+        pMob->pShop->keeper = VNUM_FIELD(pMob);
 
         send_to_char("New shop assigned to mobile.\n\r", ch);
         return true;

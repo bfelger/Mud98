@@ -265,6 +265,9 @@ void print_object(Value value)
     case OBJ_TABLE:
         lox_printf("<table (%d elements)>", AS_TABLE(value)->count);
         break;
+    case OBJ_LIST:
+        lox_printf("<list (%d elements)>", AS_LIST(value)->count);
+        break;
     //
     case OBJ_AREA:
         lox_printf("<area %s (%d)>", NAME_STR(AS_AREA(value)), 

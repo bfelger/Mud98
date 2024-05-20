@@ -160,7 +160,7 @@ char* exits2str(void* point)
 
         sprintf(tmpbuf, "-%-5.5s to [%5d] ",
             capitalize(dir_list[j].name),
-            room_exit->to_room ? room_exit->to_room->vnum : 0);
+            room_exit->to_room ? VNUM_FIELD(room_exit->to_room) : 0);
         strcat(buf, tmpbuf);
 
         if (room_exit->key > 0) {
@@ -256,11 +256,11 @@ char* shop2str(void* point)
 
 const struct olc_show_table_type redit_olc_show_table[] = {
     {
-        "name",	U(&xRoom.name), "Name:", OLCS_STRING,
+        "name",	U(&xRoom.header.name), "Name:", OLCS_LOX_STRING,
         1, 1, 40, 1, 1, 0
     },
     {
-        "vnum",	U(&xRoom.vnum), "Vnum:", OLCS_VNUM,
+        "vnum",	U(&xRoom.header.vnum), "Vnum:", OLCS_VNUM,
         49, 1, 5, 1, 1, 0
     },
     {
@@ -320,7 +320,7 @@ const struct olc_show_table_type redit_olc_show_table[] = {
 const struct olc_show_table_type medit_olc_show_table[] =
 {
     {
-        "name", U(&xMob.name), "Name:", OLCS_STRING,
+        "name", U(&xMob.header.name), "Name:", OLCS_LOX_STRING,
         1, 1, 31, 1, 1, 0
     },
     {
@@ -328,7 +328,7 @@ const struct olc_show_table_type medit_olc_show_table[] =
         40, 1, 12, 1, 1, U(areaname)
     },
     {
-        "vnum",	U(&xMob.vnum), "Vnum:", OLCS_VNUM,
+        "vnum",	U(&xMob.header.vnum), "Vnum:", OLCS_VNUM,
         70, 1, 5, 1, 1, 0
     },
     {
@@ -453,7 +453,7 @@ const struct olc_show_table_type medit_olc_show_table[] =
 const struct olc_show_table_type oedit_olc_show_table[] =
 {
     {
-        "name", U(&xObj.name), "Name:", OLCS_STRING,
+        "name", U(&xObj.header.name), "Name:", OLCS_LOX_STRING,
         1, 1, 32, 1, 1, 0
     },
     {
@@ -461,7 +461,7 @@ const struct olc_show_table_type oedit_olc_show_table[] =
         40, 1, 14, 1, 1, U(areaname)
     },
     {
-        "vnum", U(&xObj.vnum), "Vnum:", OLCS_VNUM,
+        "vnum", U(&xObj.header.vnum), "Vnum:", OLCS_VNUM,
         68, 1, 5, 1, 1, 0
     },
     {
@@ -612,7 +612,11 @@ void UpdateOLCScreen(Descriptor* d)
             SET_BUF(buf, vnum_buf);
             break;
         }
-        
+        case OLCS_LOX_STRING: {
+            String* str = *(String**)point;
+            SET_BUF(buf, str->chars);
+            break;
+        }
         case OLCS_STRFUNC:
             func = (STRFUNC*)table[i].func;
             tmpstr = (*func) (point);

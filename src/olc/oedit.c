@@ -27,7 +27,7 @@ ObjPrototype xObj;
 #define U(x)    (uintptr_t)(x)
 
 const OlcCmdEntry obj_olc_comm_table[] = {
-    { "name",	    U(&xObj.name),		    ed_line_lox_string, 0		        },
+    { "name",	    U(&xObj.header.name),	ed_line_lox_string, 0		        },
     { "short",	    U(&xObj.short_descr),	ed_line_string,		0		        },
     { "long",	    U(&xObj.description),	ed_line_string,		0		        },
     { "material",	U(&xObj.material),	    ed_line_string,		0		        },
@@ -664,11 +664,11 @@ OEDIT(oedit_show)
         }
     }
 
-    printf_to_char(ch, "Name:        {|[{*%s{|]{x\n\r", pObj->name);
+    printf_to_char(ch, "Name:        {|[{*%s{|]{x\n\r", NAME_STR(pObj));
     printf_to_char(ch, "Area:        {|[{*%5d{|]{_ %s{x\n\r",
         !pObj->area ? -1 : VNUM_FIELD(pObj->area),
         !pObj->area ? "No Area" : NAME_STR(pObj->area));
-    printf_to_char(ch, "Vnum:        {|[{*%5d{|]{x\n\r", pObj->vnum);
+    printf_to_char(ch, "Vnum:        {|[{*%5d{|]{x\n\r", VNUM_FIELD(pObj));
     printf_to_char(ch, "Type:        {|[{*%s{|]{x\n\r", flag_string(type_flag_table, pObj->item_type));
     printf_to_char(ch, "Level:       {|[{*%5d{|]{x\n\r", pObj->level);
     printf_to_char(ch, "Wear flags:  {|[{*%s{|]{x\n\r", flag_string(wear_flag_table, pObj->wear_flags));
@@ -944,7 +944,7 @@ OEDIT(oedit_create)
     }
 
     pObj = new_object_prototype();
-    pObj->vnum = value;
+    VNUM_FIELD(pObj) = value;
     pObj->area = area;
     pObj->extra_flags = 0;
 
@@ -1089,7 +1089,7 @@ ED_FUN_DEC(ed_new_obj)
     }
 
     pObj = new_object_prototype();
-    pObj->vnum = value;
+    VNUM_FIELD(pObj) = value;
     pObj->area = area;
     pObj->extra_flags = 0;
 
@@ -1131,11 +1131,11 @@ ED_FUN_DEC(ed_olist)
 
     for (vnum = area->min_vnum; vnum <= area->max_vnum; vnum++) {
         if ((obj_proto = get_object_prototype(vnum))) {
-            if (fAll || is_name(blarg, C_STR(obj_proto->name))
+            if (fAll || is_name(blarg, NAME_STR(obj_proto))
                 || (ItemType)flag_value(type_flag_table, blarg) == obj_proto->item_type) {
                 found = true;
                 addf_buf(buf1, "{|[{*%5d{|]{x %-17.16s",
-                    obj_proto->vnum, capitalize(obj_proto->short_descr));
+                    VNUM_FIELD(obj_proto), capitalize(obj_proto->short_descr));
                 if (++col % 3 == 0)
                     add_buf(buf1, "\n\r");
             }
@@ -1184,7 +1184,7 @@ OEDIT(oedit_copy)
         return false;
     }
 
-    obj->name = obj2->name;
+    SET_NAME(obj, NAME_FIELD(obj2));
     RESTRING(obj->short_descr, obj2->short_descr);
     RESTRING(obj->description, obj2->description);
     RESTRING(obj->material, obj2->material);

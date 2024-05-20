@@ -36,7 +36,7 @@ typedef struct mobile_t Mobile;
 typedef struct mobile_t {
     EntityHeader header;
     Mobile* next;
-    Mobile* next_in_room;
+    List objects;
     Mobile* master;
     Mobile* leader;
     Mobile* fighting;
@@ -49,7 +49,6 @@ typedef struct mobile_t {
     Descriptor* desc;
     Affect* affected;
     NoteData* pnote;
-    Object* carrying;
     Object* on;
     Room* in_room;
     Room* was_in_room;
@@ -159,10 +158,19 @@ typedef struct mobile_t {
     (can_see(looker, (ch)) ? (IS_NPC(ch) ? (ch)->short_descr : NAME_STR(ch))   \
                            : "someone")
 
-// We have to cast to int because MSVC's static analyzer isn't very good at 
-// mapping to int on its own. Many false positive for unbounded enum use even
-// with checks.
-#define GET_ARCH(ch)    (CHECK_ARCH((int)class_table[ch->ch_class].arch))
+#define MOB_HAS_OBJS(mob) \
+    ((mob)->objects.count > 0)
+
+#define FOR_EACH_MOB_OBJ(content, mob) \
+    if ((mob)->objects.front == NULL) \
+        content = NULL; \
+    else if ((content = AS_OBJECT((mob)->objects.front->value)) != NULL) \
+        for (struct { Node* node; Node* next; } content##_loop = { (mob)->objects.front, (mob)->objects.front->next }; \
+            content##_loop.node != NULL; \
+            content##_loop.node = content##_loop.next, \
+                content##_loop.next = content##_loop.next ? content##_loop.next->next : NULL, \
+                content = content##_loop.node != NULL ? AS_OBJECT(content##_loop.node->value) : NULL) \
+            if (content != NULL)
 
 Mobile* new_mobile();
 void free_mobile(Mobile* ch);

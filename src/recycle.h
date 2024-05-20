@@ -33,6 +33,8 @@ typedef struct buffer_t Buffer;
 
 #include "merc.h"
 
+#include "lox/lox.h"
+
 #include "skills.h"
 
 /* stuff for providing a crash-proof buffer */

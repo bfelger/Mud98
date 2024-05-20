@@ -162,6 +162,12 @@ static void blacken_object(Obj* object)
         mark_table(table);
         break;
     }
+    case OBJ_LIST: {
+        List* list = (List*)object;
+        for (Node* node = list->front; node != NULL; node = node->next)
+            mark_value(node->value);
+        break;
+    }
     case OBJ_NATIVE:
     case OBJ_RAW_PTR:
     case OBJ_STRING:
@@ -267,10 +273,18 @@ static void free_obj_value(Obj* object)
         Table* table = (Table*)object;
         free_table(table);
         FREE(Table, object);
+        break;
     }
     case OBJ_UPVALUE:
         FREE(ObjUpvalue, object);
         break;
+    case OBJ_LIST: {
+        List* list = (List*)object;
+        while (list->count > 0)
+            list_pop(list);
+        FREE(List, object);
+        break;
+    }
     //
     case OBJ_AREA:
     case OBJ_AREA_DATA:
@@ -308,29 +322,31 @@ static void mark_natives()
 
     FOR_EACH_GLOBAL_ROOM_DATA(room_data) {
         mark_entity(&room_data->header);
-        mark_object((Obj*)room_data->name);
         FOR_EACH(room, room_data->instances) {
             mark_entity(&room->header);
+            mark_list(&room->objects);
+            mark_list(&room->mobiles);
         }
     }
 
     FOR_EACH_OBJ_PROTO(obj_proto) {
         mark_entity(&obj_proto->header);
-        mark_object((Obj*)obj_proto->name);
     }
 
     FOR_EACH(obj, obj_list) {
         mark_entity(&obj->header);
-        mark_object((Obj*)obj->owner);
+        if (obj->owner != NULL)
+            mark_object((Obj*)obj->owner);
+        mark_list(&obj->objects);
     }
 
     FOR_EACH_MOB_PROTO(mob_proto) {
-        mark_entity(&obj_proto->header);
-        mark_object((Obj*)mob_proto->name);
+        mark_entity(&mob_proto->header);
     }
 
     FOR_EACH(mob, mob_list) {
         mark_entity(&mob->header);
+        mark_list(&mob->objects);
     }
 }
 

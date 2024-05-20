@@ -53,10 +53,8 @@ void acid_effect(void* vo, LEVEL level, int dam, SpellTarget target)
     {
         Room* room = (Room*)vo;
         Object* obj;
-        Object* obj_next = NULL;
 
-        for (obj = room->contents; obj != NULL; obj = obj_next) {
-            obj_next = obj->next_content;
+        FOR_EACH_ROOM_OBJ(obj, room) {
             acid_effect(obj, level, dam, SPELL_TARGET_OBJ);
         }
         return;
@@ -66,11 +64,9 @@ void acid_effect(void* vo, LEVEL level, int dam, SpellTarget target)
     {
         Mobile* victim = (Mobile*)vo;
         Object* obj;
-        Object* obj_next = NULL;
 
         /* let's toast some gear */
-        for (obj = victim->carrying; obj != NULL; obj = obj_next) {
-            obj_next = obj->next_content;
+        FOR_EACH_MOB_OBJ(obj, victim) {
             acid_effect(obj, level, dam, SPELL_TARGET_OBJ);
         }
         return;
@@ -80,7 +76,6 @@ void acid_effect(void* vo, LEVEL level, int dam, SpellTarget target)
     {
         Object* obj = (Object*)vo;
         Object* t_obj;
-        Object* n_obj = NULL;
         int chance;
         char* msg;
 
@@ -132,8 +127,8 @@ void acid_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 
         if (obj->carried_by != NULL)
             act(msg, obj->carried_by, obj, NULL, TO_ALL);
-        else if (obj->in_room != NULL && obj->in_room->people != NULL)
-            act(msg, obj->in_room->people, obj, NULL, TO_ALL);
+        else if (obj->in_room != NULL && ROOM_HAS_MOBS(obj->in_room))
+            act(msg, obj->in_room, obj, NULL, TO_ALL);
 
         if (obj->item_type == ITEM_ARMOR) {
             /* etch it */
@@ -177,10 +172,9 @@ void acid_effect(void* vo, LEVEL level, int dam, SpellTarget target)
         }
 
         /* get rid of the object */
-        if (obj->contains) {
+        if (OBJ_HAS_OBJS(obj)) {
             /* dump contents */
-            for (t_obj = obj->contains; t_obj != NULL; t_obj = n_obj) {
-                n_obj = t_obj->next_content;
+            FOR_EACH_OBJ_CONTENT(t_obj, obj) {
                 obj_from_obj(t_obj);
                 if (obj->in_room != NULL)
                     obj_to_room(t_obj, obj->in_room);
@@ -206,10 +200,8 @@ void cold_effect(void* vo, LEVEL level, int dam, SpellTarget target)
     {
         Room* room = (Room*)vo;
         Object* obj;
-        Object* obj_next = NULL;
 
-        for (obj = room->contents; obj != NULL; obj = obj_next) {
-            obj_next = obj->next_content;
+        FOR_EACH_ROOM_OBJ(obj, room) {
             cold_effect(obj, level, dam, SPELL_TARGET_OBJ);
         }
         return;
@@ -219,7 +211,6 @@ void cold_effect(void* vo, LEVEL level, int dam, SpellTarget target)
     {
         Mobile* victim = (Mobile*)vo;
         Object* obj;
-        Object* obj_next = NULL;
 
         /* chill touch effect */
         if (!saves_spell(level / 4 + (LEVEL)(dam / 20), victim, DAM_COLD)) {
@@ -243,8 +234,7 @@ void cold_effect(void* vo, LEVEL level, int dam, SpellTarget target)
             gain_condition(victim, COND_HUNGER, dam / 20);
 
         /* let's toast some gear */
-        for (obj = victim->carrying; obj != NULL; obj = obj_next) {
-            obj_next = obj->next_content;
+        FOR_EACH_MOB_OBJ(obj, victim) {
             cold_effect(obj, level, dam, SPELL_TARGET_OBJ);
         }
         return;
@@ -289,9 +279,9 @@ void cold_effect(void* vo, LEVEL level, int dam, SpellTarget target)
             return;
 
         if (obj->carried_by != NULL)
-            act(msg, obj->carried_by, obj, NULL, TO_ALL);
-        else if (obj->in_room != NULL && obj->in_room->people != NULL)
-            act(msg, obj->in_room->people, obj, NULL, TO_ALL);
+            act(msg, obj->carried_by->in_room, obj, NULL, TO_ALL);
+        else if (obj->in_room != NULL)
+            act(msg, obj->in_room, obj, NULL, TO_ALL);
 
         extract_obj(obj);
         return;
@@ -304,10 +294,8 @@ void fire_effect(void* vo, LEVEL level, int dam, SpellTarget target)
     {
         Room* room = (Room*)vo;
         Object* obj;
-        Object* obj_next = NULL;
 
-        for (obj = room->contents; obj != NULL; obj = obj_next) {
-            obj_next = obj->next_content;
+        FOR_EACH_ROOM_OBJ(obj, room) {
             fire_effect(obj, level, dam, SPELL_TARGET_OBJ);
         }
         return;
@@ -317,7 +305,6 @@ void fire_effect(void* vo, LEVEL level, int dam, SpellTarget target)
     {
         Mobile* victim = (Mobile*)vo;
         Object* obj;
-        Object* obj_next = NULL;
 
         /* chance of blindness */
         if (!IS_AFFECTED(victim, AFF_BLIND)
@@ -342,9 +329,7 @@ void fire_effect(void* vo, LEVEL level, int dam, SpellTarget target)
         if (!IS_NPC(victim)) gain_condition(victim, COND_THIRST, dam / 20);
 
         /* let's toast some gear! */
-        for (obj = victim->carrying; obj != NULL; obj = obj_next) {
-            obj_next = obj->next_content;
-
+        FOR_EACH_MOB_OBJ(obj, victim) {
             fire_effect(obj, level, dam, SPELL_TARGET_OBJ);
         }
         return;
@@ -404,15 +389,13 @@ void fire_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 
         if (obj->carried_by != NULL)
             act(msg, obj->carried_by, obj, NULL, TO_ALL);
-        else if (obj->in_room != NULL && obj->in_room->people != NULL)
-            act(msg, obj->in_room->people, obj, NULL, TO_ALL);
+        else if (obj->in_room != NULL && ROOM_HAS_MOBS(obj->in_room))
+            act(msg, obj->in_room, obj, NULL, TO_ALL);
 
-        if (obj->contains) {
+        if (OBJ_HAS_OBJS(obj)) {
             /* dump the contents */
             Object* t_obj;
-            Object* n_obj = NULL;
-            for (t_obj = obj->contains; t_obj != NULL; t_obj = n_obj) {
-                n_obj = t_obj->next_content;
+            FOR_EACH_OBJ_CONTENT(t_obj, obj) {
                 obj_from_obj(t_obj);
                 if (obj->in_room != NULL)
                     obj_to_room(t_obj, obj->in_room);
@@ -437,10 +420,8 @@ void poison_effect(void* vo, LEVEL level, int dam, SpellTarget target)
     {
         Room* room = (Room*)vo;
         Object* obj;
-        Object* obj_next = NULL;
 
-        for (obj = room->contents; obj != NULL; obj = obj_next) {
-            obj_next = obj->next_content;
+        FOR_EACH_ROOM_OBJ(obj, room) {
             poison_effect(obj, level, dam, SPELL_TARGET_OBJ);
         }
         return;
@@ -450,7 +431,6 @@ void poison_effect(void* vo, LEVEL level, int dam, SpellTarget target)
     {
         Mobile* victim = (Mobile*)vo;
         Object* obj;
-        Object* obj_next = NULL;
 
         /* chance of poisoning */
         if (!saves_spell(level / 4 + (LEVEL)(dam / 20), victim, DAM_POISON)) {
@@ -471,8 +451,7 @@ void poison_effect(void* vo, LEVEL level, int dam, SpellTarget target)
         }
 
         /* equipment */
-        for (obj = victim->carrying; obj != NULL; obj = obj_next) {
-            obj_next = obj->next_content;
+        FOR_EACH_MOB_OBJ(obj, victim) {
             poison_effect(obj, level, dam, SPELL_TARGET_OBJ);
         }
         return;
@@ -517,10 +496,8 @@ void shock_effect(void* vo, LEVEL level, int dam, SpellTarget target)
     if (target == SPELL_TARGET_ROOM) {
         Room* room = (Room*)vo;
         Object* obj;
-        Object* obj_next = NULL;
 
-        for (obj = room->contents; obj != NULL; obj = obj_next) {
-            obj_next = obj->next_content;
+        FOR_EACH_ROOM_OBJ(obj, room) {
             shock_effect(obj, level, dam, SPELL_TARGET_OBJ);
         }
         return;
@@ -529,7 +506,6 @@ void shock_effect(void* vo, LEVEL level, int dam, SpellTarget target)
     if (target == SPELL_TARGET_CHAR) {
         Mobile* victim = (Mobile*)vo;
         Object* obj;
-        Object* obj_next = NULL;
 
         /* daze and confused? */
         if (!saves_spell(level / 4 + (LEVEL)(dam / 20), victim, DAM_LIGHTNING)) {
@@ -538,8 +514,7 @@ void shock_effect(void* vo, LEVEL level, int dam, SpellTarget target)
         }
 
         /* toast some gear */
-        for (obj = victim->carrying; obj != NULL; obj = obj_next) {
-            obj_next = obj->next_content;
+        FOR_EACH_MOB_OBJ(obj, victim) {
             shock_effect(obj, level, dam, SPELL_TARGET_OBJ);
         }
         return;
@@ -556,10 +531,13 @@ void shock_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 
         chance = level / 4 + dam / 10;
 
-        if (chance > 25) chance = (chance - 25) / 2 + 25;
-        if (chance > 50) chance = (chance - 50) / 2 + 50;
+        if (chance > 25) 
+            chance = (chance - 25) / 2 + 25;
+        if (chance > 50) 
+            chance = (chance - 50) / 2 + 50;
 
-        if (IS_OBJ_STAT(obj, ITEM_BLESS)) chance -= 5;
+        if (IS_OBJ_STAT(obj, ITEM_BLESS)) 
+            chance -= 5;
 
         chance -= obj->level * 2;
 
@@ -578,12 +556,13 @@ void shock_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 
         chance = URANGE(5, chance, 95);
 
-        if (number_percent() > chance) return;
+        if (number_percent() > chance)
+            return;
 
         if (obj->carried_by != NULL)
             act(msg, obj->carried_by, obj, NULL, TO_ALL);
-        else if (obj->in_room != NULL && obj->in_room->people != NULL)
-            act(msg, obj->in_room->people, obj, NULL, TO_ALL);
+        else if (obj->in_room != NULL && ROOM_HAS_MOBS(obj->in_room))
+            act(msg, obj->in_room, obj, NULL, TO_ALL);
 
         extract_obj(obj);
         return;

@@ -18,7 +18,7 @@
 Mobile* mob_list;
 Mobile* mob_free;
 
-int mob_count = 0;
+int mob_count;
 int mob_perm_count = 0;
 int last_mob_id = 0;
 
@@ -30,20 +30,21 @@ Mobile* new_mobile()
 
     init_header(&mob->header, OBJ_MOB);
 
+    init_list(&mob->objects);
+
+    mob->short_descr = &str_empty[0];
     SET_NATIVE_FIELD(&mob->header, mob->short_descr, short_desc, STR);
-    SET_NATIVE_FIELD(&mob->header, mob->in_room, in_room, OBJ);
+
     SET_NATIVE_FIELD(&mob->header, mob->hit, hp, I16);
     SET_NATIVE_FIELD(&mob->header, mob->max_hit, max_hp, I16);
 
-    SET_NATIVE_FIELD(&mob->header, mob->header.vnum, vnum, I32);
-
-    SET_NAME(mob, lox_string(str_empty));
+    SET_LOX_FIELD(&mob->header, mob->in_room, in_room);
+    SET_LOX_FIELD(&mob->header, mob->was_in_room, was_in_room);
 
     pop();
 
     VALIDATE(mob);
 
-    mob->short_descr = &str_empty[0];
     mob->long_descr = &str_empty[0];
     mob->description = &str_empty[0];
     mob->prompt = &str_empty[0];
@@ -69,14 +70,13 @@ Mobile* new_mobile()
 
 void free_mobile(Mobile* mob)
 {
-    Object* obj;
     Affect* affect;
 
     if (!IS_VALID(mob))
         return;
 
-    while((obj = mob->carrying) != NULL) {
-        extract_obj(obj);
+    while(mob->objects.front != NULL) {
+        extract_obj(AS_OBJECT(mob->objects.front->value));
     }
 
     while((affect = mob->affected) != NULL) {
@@ -106,10 +106,11 @@ void clone_mobile(Mobile* parent, Mobile* clone)
     if (parent == NULL || clone == NULL || !IS_NPC(parent)) 
         return;
 
+    clone->prototype = parent->prototype;
+
     /* start fixing values */
     SET_NAME(clone, NAME_FIELD(parent));
-
-    clone->header.vnum = parent->header.vnum;
+    VNUM_FIELD(clone) = VNUM_FIELD(parent);
 
     clone->version = parent->version;
     clone->short_descr = str_dup(parent->short_descr);
@@ -186,11 +187,12 @@ Mobile* create_mobile(MobPrototype* p_mob_proto)
 
     mob = new_mobile();
 
+    push(OBJ_VAL(mob));
+
     mob->prototype = p_mob_proto;
 
-    SET_NAME(mob, p_mob_proto->name);
-
-    mob->header.vnum = p_mob_proto->vnum;
+    SET_NAME(mob, NAME_FIELD(p_mob_proto));
+    VNUM_FIELD(mob) = VNUM_FIELD(p_mob_proto);
 
     mob->short_descr = str_dup(p_mob_proto->short_descr);
     mob->long_descr = str_dup(p_mob_proto->long_descr);
@@ -346,6 +348,9 @@ Mobile* create_mobile(MobPrototype* p_mob_proto)
     mob->next = mob_list;
     mob_list = mob;
     p_mob_proto->count++;
+
+    pop(); // mob
+
     return mob;
 }
 
@@ -358,18 +363,21 @@ long get_mob_id()
 void clear_mob(Mobile* ch)
 {
     static Mobile ch_zero = { 0 };
+
     int i;
 
     *ch = ch_zero;
-    ch->header.name = lox_string(str_empty);
-    ch->header.vnum = 0;
+
+    init_header(&ch->header, OBJ_MOB);
+
     ch->short_descr = &str_empty[0];
     ch->long_descr = &str_empty[0];
     ch->description = &str_empty[0];
     ch->prompt = &str_empty[0];
     ch->logon = current_time;
     ch->lines = PAGELEN;
-    for (i = 0; i < 4; i++) ch->armor[i] = 100;
+    for (i = 0; i < 4; i++)
+        ch->armor[i] = 100;
     ch->position = POS_STANDING;
     ch->hit = 20;
     ch->max_hit = 20;
@@ -422,7 +430,7 @@ void clear_mob(Mobile* ch)
 //    push(OBJ_VAL(inst));
 //
 //    SET_NATIVE_FIELD(inst, mobile, base, OBJ);
-//    SET_NATIVE_FIELD(inst, mobile->prototype->vnum, vnum, I32);
+//    SET_NATIVE_FIELD(inst, VNUM_FIELD(mobile->prototype), vnum, I32);
 //    SET_NATIVE_FIELD(inst, mobile->short_descr, short_desc, STR);
 //    SET_NATIVE_FIELD(inst, mobile->in_room, in_room, OBJ);
 //    SET_NATIVE_FIELD(inst, mobile->hit, hp, I16);

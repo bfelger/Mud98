@@ -419,7 +419,7 @@ void mobile_update()
             continue;
 
         /* Examine call for special procedure */
-        if (ch->spec_fun != 0) {
+        if (ch->spec_fun != NULL) {
             if ((*ch->spec_fun)(ch)) 
                 continue;
         }
@@ -455,7 +455,7 @@ void mobile_update()
             continue;
 
         /* Scavenge */
-        if (IS_SET(ch->act_flags, ACT_SCAVENGER) && ch->in_room->contents != NULL
+        if (IS_SET(ch->act_flags, ACT_SCAVENGER) && ROOM_HAS_OBJS(ch->in_room)
             && number_bits(6) == 0) {
             Object* obj;
             Object* obj_best;
@@ -463,7 +463,7 @@ void mobile_update()
 
             max = 1;
             obj_best = 0;
-            for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
+            FOR_EACH_ROOM_OBJ(obj, ch->in_room) {
                 if (CAN_WEAR(obj, ITEM_TAKE) && can_loot(ch, obj)
                     && obj->cost > max && obj->cost > 0) {
                     obj_best = obj;
@@ -633,7 +633,8 @@ void char_update(void)
                 continue;
             }
 
-            if (af->level == 1) continue;
+            if (af->level == 1)
+                continue;
 
             plague.where = TO_AFFECTS;
             plague.type = gsn_plague;
@@ -643,8 +644,7 @@ void char_update(void)
             plague.modifier = -5;
             plague.bitvector = AFF_PLAGUE;
 
-            for (vch = ch->in_room->people; vch != NULL;
-                 vch = vch->next_in_room) {
+            FOR_EACH_ROOM_MOB(vch, ch->in_room) {
                 if (!saves_spell(plague.level - 2, vch, DAM_DISEASE)
                     && !IS_IMMORTAL(vch) && !IS_AFFECTED(vch, AFF_PLAGUE)
                     && number_bits(4) == 0) {
@@ -740,9 +740,8 @@ void obj_update(void)
                                 TO_CHAR);
                         }
                         if (obj->in_room != NULL
-                            && obj->in_room->people != NULL) {
-                            rch = obj->in_room->people;
-                            act(skill_table[affect->type].msg_obj, rch, obj, NULL,
+                            && ROOM_HAS_MOBS(obj->in_room)) {
+                            act(skill_table[affect->type].msg_obj, obj->in_room, obj, NULL,
                                 TO_ALL);
                         }
                     }
@@ -752,7 +751,8 @@ void obj_update(void)
             }
         }
 
-        if (obj->timer <= 0 || --obj->timer > 0) continue;
+        if (obj->timer <= 0 || --obj->timer > 0)
+            continue;
 
         switch (obj->item_type) {
         default:
@@ -778,7 +778,7 @@ void obj_update(void)
             break;
         case ITEM_CONTAINER:
             if (CAN_WEAR(obj, ITEM_WEAR_FLOAT))
-                if (obj->contains)
+                if (OBJ_HAS_OBJS(obj))
                     message = "$p flickers and vanishes, spilling its contents "
                               "on the floor.";
                 else
@@ -798,21 +798,18 @@ void obj_update(void)
                     act(message, obj->carried_by, obj, NULL, TO_ROOM);
             }
         }
-        else if (obj->in_room != NULL && (rch = obj->in_room->people) != NULL) {
-            if (!(obj->in_obj && obj->in_obj->prototype->vnum == OBJ_VNUM_PIT
+        else if (obj->in_room != NULL && ROOM_HAS_MOBS(obj->in_room)) {
+            if (!(obj->in_obj && VNUM_FIELD(obj->in_obj->prototype) == OBJ_VNUM_PIT
                   && !CAN_WEAR(obj->in_obj, ITEM_TAKE))) {
-                act(message, rch, obj, NULL, TO_ROOM);
-                act(message, rch, obj, NULL, TO_CHAR);
+                act(message, obj->in_room, obj, NULL, TO_ROOM);
             }
         }
 
         if ((obj->item_type == ITEM_CORPSE_PC || obj->wear_loc == WEAR_FLOAT)
-            && obj->contains) { /* save the contents */
-            Object* t_obj;
-            Object* next_obj = NULL;
-
-            for (t_obj = obj->contains; t_obj != NULL; t_obj = next_obj) {
-                next_obj = t_obj->next_content;
+            && OBJ_HAS_OBJS(obj)) { 
+            // save the contents
+            Object* t_obj = NULL;
+            FOR_EACH_OBJ_CONTENT(t_obj, obj) {
                 obj_from_obj(t_obj);
 
                 if (obj->in_obj) /* in another object */
@@ -863,7 +860,8 @@ void aggr_update(void)
         if (wch->level >= LEVEL_IMMORTAL || wch->in_room == NULL)
             continue;
 
-        for (Mobile* ch = wch->in_room->people; ch != NULL; ch = ch->next_in_room) {
+        Mobile* ch = NULL;
+        FOR_EACH_ROOM_MOB(ch, wch->in_room) {
             int count;
 
             if (!IS_NPC(ch) || !IS_SET(ch->act_flags, ACT_AGGRESSIVE)
@@ -881,12 +879,14 @@ void aggr_update(void)
              */
             count = 0;
             Mobile* victim = NULL;
-            for (Mobile* vch = wch->in_room->people; vch != NULL; vch = vch->next_in_room) {
+            Mobile* vch = NULL;
+            FOR_EACH_ROOM_MOB(vch, wch->in_room) {
                 if (!IS_NPC(vch) && vch->level < LEVEL_IMMORTAL
                     && ch->level >= vch->level - 5
                     && (!IS_SET(ch->act_flags, ACT_WIMPY) || !IS_AWAKE(vch))
                     && can_see(ch, vch)) {
-                    if (number_range(0, count) == 0) victim = vch;
+                    if (number_range(0, count) == 0)
+                        victim = vch;
                     count++;
                 }
             }

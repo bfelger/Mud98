@@ -158,7 +158,7 @@ void say_spell(Mobile* ch, SKNUM sn)
     sprintf(buf2, "$n utters the words, '%1.50s'.", buf);
     sprintf(buf, "$n utters the words, '%s'.", skill_table[sn].name);
 
-    for (rch = ch->in_room->people; rch; rch = rch->next_in_room) {
+    FOR_EACH_ROOM_MOB(rch, ch->in_room) {
         if (rch != ch)
             act((!IS_NPC(rch) && ch->ch_class == rch->ch_class) ? buf : buf2, ch,
                 NULL, rch, TO_VICT);
@@ -472,10 +472,8 @@ void do_cast(Mobile* ch, char* argument)
              && target == SPELL_TARGET_CHAR))
         && victim != ch && victim->master != ch) {
         Mobile* vch;
-        Mobile* vch_next = NULL;
 
-        for (vch = ch->in_room->people; vch; vch = vch_next) {
-            vch_next = vch->next_in_room;
+        FOR_EACH_ROOM_MOB(vch, ch->in_room) {
             if (victim == vch && victim->fighting == NULL) {
                 check_killer(victim, ch);
                 multi_hit(victim, ch, TYPE_UNDEFINED);
@@ -593,10 +591,8 @@ void obj_cast_spell(SKNUM sn, LEVEL level, Mobile* ch, Mobile* victim,
              && target == SPELL_TARGET_CHAR))
         && victim != ch && victim->master != ch) {
         Mobile* vch;
-        Mobile* vch_next = NULL;
 
-        for (vch = ch->in_room->people; vch; vch = vch_next) {
-            vch_next = vch->next_in_room;
+        FOR_EACH_ROOM_MOB(vch, ch->in_room) {
             if (victim == vch && victim->fighting == NULL) {
                 check_killer(victim, ch);
                 multi_hit(victim, ch, TYPE_UNDEFINED);
@@ -784,7 +780,8 @@ void spell_call_lightning(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarg
 
     for (vch = mob_list; vch != NULL; vch = vch_next) {
         vch_next = vch->next;
-        if (vch->in_room == NULL) continue;
+        if (vch->in_room == NULL)
+            continue;
         if (vch->in_room == ch->in_room) {
             if (vch != ch && (IS_NPC(ch) ? !IS_NPC(vch) : IS_NPC(vch)))
                 damage(ch, vch,
@@ -805,7 +802,7 @@ void spell_call_lightning(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarg
 
 void spell_calm(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
-    Mobile* vch;
+    Mobile* vch = NULL;
     int mlevel = 0;
     int count = 0;
     int high_level = 0;
@@ -813,7 +810,7 @@ void spell_calm(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
     Affect af = { 0 };
 
     /* get sum of all mobile levels in the room */
-    FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
+    FOR_EACH_ROOM_MOB(vch, ch->in_room) {
         if (vch->position == POS_FIGHTING) {
             count++;
             if (IS_NPC(vch))
@@ -830,9 +827,9 @@ void spell_calm(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
     if (IS_IMMORTAL(ch)) /* always works */
         mlevel = 0;
 
-    if (number_range(0, chance) >= mlevel) /* hard to stop large fights */
-    {
-        FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
+    if (number_range(0, chance) >= mlevel) {
+        // hard to stop large fights
+        FOR_EACH_ROOM_MOB(vch, ch->in_room) {
             if (IS_NPC(vch)
                 && (IS_SET(vch->imm_flags, IMM_MAGIC)
                     || IS_SET(vch->act_flags, ACT_UNDEAD)))
@@ -1038,7 +1035,6 @@ void spell_chain_lightning(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTar
     Mobile* victim = (Mobile*)vo;
     Mobile* tmp_vict;
     Mobile* last_vict;
-    Mobile* next_vict = NULL;
     bool found;
     int dam;
 
@@ -1060,9 +1056,7 @@ void spell_chain_lightning(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTar
     /* new targets */
     while (level > 0) {
         found = false;
-        for (tmp_vict = ch->in_room->people; tmp_vict != NULL;
-             tmp_vict = next_vict) {
-            next_vict = tmp_vict->next_in_room;
+        FOR_EACH_ROOM_MOB(tmp_vict, ch->in_room) {
             if (!is_safe_spell(ch, tmp_vict, true) && tmp_vict != last_vict) {
                 found = true;
                 last_vict = tmp_vict;
@@ -2380,10 +2374,12 @@ void spell_faerie_fog(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget t
     act("$n conjures a cloud of purple smoke.", ch, NULL, NULL, TO_ROOM);
     send_to_char("You conjure a cloud of purple smoke.\n\r", ch);
 
-    FOR_EACH_IN_ROOM(ich, ch->in_room->people) {
-        if (ich->invis_level > 0) continue;
+    FOR_EACH_ROOM_MOB(ich, ch->in_room) {
+        if (ich->invis_level > 0) 
+            continue;
 
-        if (ich == ch || saves_spell(level, ich, DAM_OTHER)) continue;
+        if (ich == ch || saves_spell(level, ich, DAM_OTHER)) 
+            continue;
 
         affect_strip(ich, gsn_invis);
         affect_strip(ich, gsn_mass_invis);
@@ -2641,15 +2637,12 @@ void spell_heat_metal(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget t
 {
     Mobile* victim = (Mobile*)vo;
     Object* obj_lose;
-    Object* obj_next = NULL;
     int dam = 0;
     bool fail = true;
 
     if (!saves_spell(level + 2, victim, DAM_FIRE)
         && !IS_SET(victim->imm_flags, IMM_FIRE)) {
-        for (obj_lose = victim->carrying; obj_lose != NULL;
-             obj_lose = obj_next) {
-            obj_next = obj_lose->next_content;
+        FOR_EACH_MOB_OBJ(obj_lose, victim) {
             if (number_range(1, 2 * level) > obj_lose->level
                 && !saves_spell(level, victim, DAM_FIRE)
                 && !IS_OBJ_STAT(obj_lose, ITEM_NONMETAL)
@@ -2765,7 +2758,6 @@ void spell_heat_metal(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget t
 void spell_holy_word(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
     Mobile* vch;
-    Mobile* vch_next = NULL;
     int dam;
     SKNUM bless_num, curse_num, frenzy_num;
 
@@ -2776,8 +2768,7 @@ void spell_holy_word(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget ta
     act("$n utters a word of divine power!", ch, NULL, NULL, TO_ROOM);
     send_to_char("You utter a word of divine power.\n\r", ch);
 
-    for (vch = ch->in_room->people; vch != NULL; vch = vch_next) {
-        vch_next = vch->next_in_room;
+    FOR_EACH_ROOM_MOB(vch, ch->in_room) {
 
         if ((IS_GOOD(ch) && IS_GOOD(vch)) || (IS_EVIL(ch) && IS_EVIL(vch))
             || (IS_NEUTRAL(ch) && IS_NEUTRAL(vch))) {
@@ -3189,11 +3180,11 @@ void spell_locate_object(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarge
         else {
             if (IS_IMMORTAL(ch) && in_obj->in_room != NULL)
                 sprintf(buf, "one is in %s [Room %d]\n\r",
-                        in_obj->in_room->data->name->chars, in_obj->in_room->vnum);
+                        NAME_STR(in_obj->in_room), VNUM_FIELD(in_obj->in_room));
             else
                 sprintf(buf, "one is in %s\n\r",
                         in_obj->in_room == NULL ? "somewhere"
-                                                : in_obj->in_room->data->name->chars);
+                                                : NAME_STR(in_obj->in_room));
         }
 
         buf[0] = UPPER(buf[0]);
@@ -3238,7 +3229,7 @@ void spell_mass_healing(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget
     heal_num = skill_lookup("heal");
     refresh_num = skill_lookup("refresh");
 
-    FOR_EACH_IN_ROOM(gch, ch->in_room->people) {
+    FOR_EACH_ROOM_MOB(gch, ch->in_room) {
         if ((IS_NPC(ch) && IS_NPC(gch)) || (!IS_NPC(ch) && !IS_NPC(gch))) {
             spell_heal(heal_num, level, ch, (void*)gch, SPELL_TARGET_CHAR);
             spell_refresh(refresh_num, level, ch, (void*)gch, SPELL_TARGET_CHAR);
@@ -3251,7 +3242,7 @@ void spell_mass_invis(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget t
     Affect af = { 0 };
     Mobile* gch;
 
-    FOR_EACH_IN_ROOM(gch, ch->in_room->people) {
+    FOR_EACH_ROOM_MOB(gch, ch->in_room) {
         if (!is_same_group(gch, ch) || IS_AFFECTED(gch, AFF_INVISIBLE))
             continue;
         act("$n slowly fades out of existence.", gch, NULL, NULL, TO_ROOM);
@@ -3593,7 +3584,6 @@ void spell_remove_curse(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget
 {
     Mobile* victim;
     Object* obj;
-    bool found = false;
 
     /* do object cases first */
     if (target == SPELL_TARGET_OBJ) {
@@ -3624,17 +3614,16 @@ void spell_remove_curse(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget
         act("$n looks more relaxed.", victim, NULL, NULL, TO_ROOM);
     }
 
-    for (obj = victim->carrying; (obj != NULL && !found);
-         obj = obj->next_content) {
+    FOR_EACH_MOB_OBJ(obj, victim) {
         if ((IS_OBJ_STAT(obj, ITEM_NODROP) || IS_OBJ_STAT(obj, ITEM_NOREMOVE))
             && !IS_OBJ_STAT(obj,
                             ITEM_NOUNCURSE)) { /* attempt to remove curse */
             if (!saves_dispel(level, obj->level, 0)) {
-                found = true;
                 REMOVE_BIT(obj->extra_flags, ITEM_NODROP);
                 REMOVE_BIT(obj->extra_flags, ITEM_NOREMOVE);
                 act("Your $p glows blue.", victim, obj, NULL, TO_CHAR);
                 act("$n's $p glows blue.", victim, obj, NULL, TO_ROOM);
+                break;
             }
         }
     }
@@ -3879,7 +3868,7 @@ void spell_ventriloquate(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarge
     sprintf(buf2, "Someone makes %s say '%s'.\n\r", speaker, target_name);
     buf1[0] = UPPER(buf1[0]);
 
-    FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
+    FOR_EACH_ROOM_MOB(vch, ch->in_room) {
         if (!is_exact_name(speaker, NAME_STR(vch)) && IS_AWAKE(vch))
             send_to_char(saves_spell(level, vch, DAM_OTHER) ? buf2 : buf1, vch);
     }
@@ -3970,7 +3959,6 @@ void spell_fire_breath(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget 
 {
     Mobile* victim = (Mobile*)vo;
     Mobile* vch;
-    Mobile *vch_next = NULL;
     int dam, hp_dam, dice_dam;
     int hpch;
 
@@ -3985,16 +3973,14 @@ void spell_fire_breath(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget 
     dam = UMAX(hp_dam + dice_dam / 10, dice_dam + hp_dam / 10);
     fire_effect(victim->in_room, level, dam / 2, SPELL_TARGET_ROOM);
 
-    for (vch = victim->in_room->people; vch != NULL; vch = vch_next) {
-        vch_next = vch->next_in_room;
-
+    FOR_EACH_ROOM_MOB(vch, victim->in_room) {
         if (is_safe_spell(ch, vch, true)
             || (IS_NPC(vch) && IS_NPC(ch)
                 && (ch->fighting != vch || vch->fighting != ch)))
             continue;
 
-        if (vch == victim) /* full damage */
-        {
+        if (vch == victim) {
+            // full damage
             if (saves_spell(level, vch, DAM_FIRE)) {
                 fire_effect(vch, level / 2, dam / 4, SPELL_TARGET_CHAR);
                 damage(ch, vch, dam / 2, sn, DAM_FIRE, true);
@@ -4004,8 +3990,8 @@ void spell_fire_breath(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget 
                 damage(ch, vch, dam, sn, DAM_FIRE, true);
             }
         }
-        else /* partial damage */
-        {
+        else {
+            // partial damage
             if (saves_spell(level - 2, vch, DAM_FIRE)) {
                 fire_effect(vch, level / 4, dam / 8, SPELL_TARGET_CHAR);
                 damage(ch, vch, dam / 4, sn, DAM_FIRE, true);
@@ -4022,7 +4008,6 @@ void spell_frost_breath(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget
 {
     Mobile* victim = (Mobile*)vo;
     Mobile* vch;
-    Mobile* vch_next = NULL;
     int dam, hp_dam, dice_dam, hpch;
 
     act("$n breathes out a freezing cone of frost!", ch, NULL, victim,
@@ -4038,9 +4023,7 @@ void spell_frost_breath(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget
     dam = UMAX(hp_dam + dice_dam / 10, dice_dam + hp_dam / 10);
     cold_effect(victim->in_room, level, dam / 2, SPELL_TARGET_ROOM);
 
-    for (vch = victim->in_room->people; vch != NULL; vch = vch_next) {
-        vch_next = vch->next_in_room;
-
+    FOR_EACH_ROOM_MOB(vch, victim->in_room) {
         if (is_safe_spell(ch, vch, true)
             || (IS_NPC(vch) && IS_NPC(ch)
                 && (ch->fighting != vch || vch->fighting != ch)))
@@ -4073,7 +4056,6 @@ void spell_frost_breath(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget
 void spell_gas_breath(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
     Mobile* vch;
-    Mobile* vch_next = NULL;
     int dam, hp_dam, dice_dam, hpch;
 
     act("$n breathes out a cloud of poisonous gas!", ch, NULL, NULL, TO_ROOM);
@@ -4086,9 +4068,7 @@ void spell_gas_breath(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget t
     dam = UMAX(hp_dam + dice_dam / 10, dice_dam + hp_dam / 10);
     poison_effect(ch->in_room, level, dam, SPELL_TARGET_ROOM);
 
-    for (vch = ch->in_room->people; vch != NULL; vch = vch_next) {
-        vch_next = vch->next_in_room;
-
+    FOR_EACH_ROOM_MOB(vch, ch->in_room) {
         if (is_safe_spell(ch, vch, true)
             || (IS_NPC(ch) && IS_NPC(vch)
                 && (ch->fighting == vch || vch->fighting == ch)))

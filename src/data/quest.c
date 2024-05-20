@@ -366,8 +366,8 @@ bool can_finish_quest(Mobile* ch, VNUM vnum)
     switch (q->type) {
     case QUEST_VISIT_MOB: {
         Mobile* vch;
-        FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
-            if (vch->prototype && vch->prototype->vnum == q->target)
+        FOR_EACH_ROOM_MOB(vch, ch->in_room) {
+            if (vch->prototype && VNUM_FIELD(vch->prototype) == q->target)
                 return true;
         }
         break;

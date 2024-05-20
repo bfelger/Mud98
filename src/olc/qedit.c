@@ -206,7 +206,7 @@ QEDIT(qedit_show)
         end_name = "(none)";
     }
 
-    printf_to_char(ch, "VNUM:       {|[{*%"PRVNUM"{|]{x\n\r", quest->vnum);
+    printf_to_char(ch, "VNUM:       {|[{*%"PRVNUM"{|]{x\n\r", quest);
     printf_to_char(ch, "Name:       {T%s{x\n\r", quest->name && quest->name[0] ? quest->name : "(none)");
     printf_to_char(ch, "Area:       {*%s{x\n\r", NAME_STR(quest->area_data));
     printf_to_char(ch, "Type:       {|[{*%s{|]{x\n\r", quest_type_table[quest->type].name);
@@ -221,7 +221,7 @@ QEDIT(qedit_show)
             for (VNUM i = quest->target+1; i < quest->target_upper; ++i)
                 if ((targ_mob = get_mob_prototype(i)) != NULL)
                     printf_to_char(ch, "\n\r            {|[{*%d{|]{x {_%s{x", 
-                        targ_mob->vnum, targ_mob->short_descr);
+                        VNUM_FIELD(targ_mob), targ_mob->short_descr);
             printf_to_char(ch, "\n\rUpper:      {|[{*%d{|]{x ", quest->target_upper);
             if ((targ_mob = get_mob_prototype(quest->target_upper)) != NULL)
                 printf_to_char(ch, "{_%s{x", targ_mob->short_descr);
@@ -319,7 +319,7 @@ QEDIT(qedit_end)
         return false;
     }
 
-    quest->end = mob->vnum;
+    quest->end = VNUM_FIELD(mob);
 
     return true;
 }

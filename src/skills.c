@@ -58,15 +58,14 @@ void do_gain(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    Mobile* trainer;
+    Mobile* trainer = NULL;
     SKNUM gn = 0, sn = 0;
 
     if (IS_NPC(ch)) 
         return;
 
     /* find a trainer */
-    for (trainer = ch->in_room->people; trainer != NULL;
-         trainer = trainer->next_in_room)
+    FOR_EACH_ROOM_MOB(trainer, ch->in_room)
         if (IS_NPC(trainer) && IS_SET(trainer->act_flags, ACT_GAIN)) 
             break;
 

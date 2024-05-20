@@ -556,10 +556,11 @@ void load_rooms(FILE* fp)
         fBootDb = true;
 
         room_data = new_room_data();
+        push(OBJ_VAL(room_data));
         room_data->owner = str_dup("");
         room_data->area_data = LAST_AREA_DATA;
-        room_data->vnum = vnum;
-        room_data->name = fread_lox_string(fp);
+        VNUM_FIELD(room_data) = vnum;
+        SET_NAME(room_data, fread_lox_string(fp));
         room_data->description = fread_string(fp);
         /* Area number */ fread_number(fp);
         room_data->room_flags = fread_flag(fp);
@@ -652,9 +653,10 @@ void load_rooms(FILE* fp)
             }
         }
 
-        ORDERED_INSERT(RoomData, room_data, room_data_hash_table[vnum % MAX_KEY_HASH], vnum);
+        ORDERED_INSERT(RoomData, room_data, room_data_hash_table[vnum % MAX_KEY_HASH], header.vnum);
         top_vnum_room = top_vnum_room < vnum ? vnum : top_vnum_room;
         assign_area_vnum(vnum);
+        pop();
     }
 
     return;
@@ -719,7 +721,7 @@ void load_specials(FILE* fp)
             mob_proto = get_mob_prototype(fread_number(fp));
             mob_proto->spec_fun = spec_lookup(fread_word(fp));
             if (mob_proto->spec_fun == 0) {
-                bug("Load_specials: 'M': vnum %"PRVNUM".", mob_proto->vnum);
+                bug("Load_specials: 'M': vnum %"PRVNUM".", VNUM_FIELD(mob_proto));
                 exit(1);
             }
             break;
@@ -756,7 +758,7 @@ void fix_exits()
                 switch (reset->command) {
                 default:
                     bugf("fix_exits : room %d with reset cmd %c", 
-                        room_data->vnum, reset->command);
+                        VNUM_FIELD(room_data), reset->command);
                     exit(1);
                     break;
 
@@ -774,7 +776,7 @@ void fix_exits()
                     get_object_prototype(reset->arg1);
                     if (last_obj_index == NULL) {
                         bugf("fix_exits : reset in room %d with last_obj_index NULL", 
-                            room_data->vnum);
+                            VNUM_FIELD(room_data));
                         exit(1);
                     }
                     break;
@@ -784,7 +786,7 @@ void fix_exits()
                     get_object_prototype(reset->arg1);
                     if (last_room_index == NULL) {
                         bugf("fix_exits : reset in room %d with last_room_index NULL", 
-                            room_data->vnum);
+                            VNUM_FIELD(room_data));
                         exit(1);
                     }
                     last_obj_index = last_room_index;
@@ -798,7 +800,7 @@ void fix_exits()
                     get_room_data(reset->arg1);
                     if (reset->arg2 < 0 || reset->arg2 > DIR_MAX) {
                         bugf("fix_exits : reset in room %d with arg2 %d >= DIR_MAX",
-                            room_data->vnum, reset->arg2);
+                            VNUM_FIELD(room_data), reset->arg2);
                         exit(1);
                     }
                     break;
@@ -825,12 +827,12 @@ void fix_exits()
                     && (to_room = room_exit->to_room) != NULL
                     && (room_exit_rev = to_room->exit_data[dir_list[door].rev_dir]) != NULL
                     && room_exit_rev->to_room != room_data
-                    && (room_data->vnum < 1200 || room_data->vnum > 1299)) {
+                    && (VNUM_FIELD(room_data) < 1200 || VNUM_FIELD(room_data) > 1299)) {
                     sprintf(buf, "Fix_exits: %d:%d(%s) -> %d:%d(%s) -> %d.",
-                        room_data->vnum, door, dir_list[door].name_abbr, to_room->vnum,
+                        VNUM_FIELD(room_data), door, dir_list[door].name_abbr, VNUM_FIELD(to_room),
                             dir_list[door].rev_dir, dir_list[dir_list[door].rev_dir].name_abbr,
                             (room_exit_rev->to_room == NULL)
-                                ? 0 : room_exit_rev->to_room->vnum);
+                                ? 0 : VNUM_FIELD(room_exit_rev->to_room));
                     bug(buf, 0);
                 }
             }
@@ -863,7 +865,11 @@ void area_update()
 
             if (area->reset_timer >= thresh) {
                 if (area->data->inst_type == AREA_INST_MULTI && area->nplayer == 0) {
-                    // TODO: If the area is "instanced": delete, don't reset.
+                    // If the area is "instanced": delete, don't reset.
+                    // TODO: See if we also need to manually clean up rooms
+                    remove_array_index(&area_data->instances, areai);
+                    // Backtrack the loop variable; the indexes have shifted.
+                    --areai; 
                 }
                 else {
                     reset_area(area);
@@ -1015,7 +1021,7 @@ void reset_room(Room* room)
 
             count = 0;
             Mobile* temp_mob;
-            FOR_EACH_IN_ROOM(temp_mob, target_room->people)
+            FOR_EACH_ROOM_MOB(temp_mob, target_room)
                 if (temp_mob->prototype == mob_proto) {
                     count++;
                     if (count >= reset->arg4) {
@@ -1038,7 +1044,7 @@ void reset_room(Room* room)
             // Pet shop mobiles get ACT_PET set.
             {
                 RoomData* petshop_inv;
-                if ((petshop_inv = get_room_data(room->data->vnum - 1)) != NULL
+                if ((petshop_inv = get_room_data(VNUM_FIELD(room->data) - 1)) != NULL
                     && IS_SET(petshop_inv->room_flags, ROOM_PET_SHOP))
                     SET_BIT(mob->act_flags, ACT_PET);
             }
@@ -1068,7 +1074,7 @@ void reset_room(Room* room)
             }
 
             if ((room->area->nplayer > 0 && !room->area->data->always_reset)
-                || count_obj_list(obj_proto, room->contents) > 0
+                || count_obj_list(obj_proto, &room->objects) > 0
                 ) {
                 last = false;
                 break;
@@ -1103,7 +1109,7 @@ void reset_room(Room* room)
                 || (last_obj = get_obj_type(obj_to_proto)) == NULL
                 || (last_obj->in_room == NULL && !last)
                 || (obj_proto->count >= limit /* && number_range(0,4) != 0 */)
-                || (count = count_obj_list(obj_proto, last_obj->contains))
+                || (count = count_obj_list(obj_proto, &last_obj->objects))
                 > reset->arg4) {
                 last = false;
                 break;
@@ -1163,8 +1169,8 @@ void reset_room(Room* room)
                             && obj->level < last_mob->level - 5 && obj->level < 45))
                         fprintf(stderr,
                             "Err: obj %s [%"PRVNUM"] Lvl %d -- mob %s [%"PRVNUM"] Lvl %d\n",
-                            obj->short_descr, obj->prototype->vnum, obj->level, 
-                            last_mob->short_descr, last_mob->prototype->vnum, 
+                            obj->short_descr, VNUM_FIELD(obj->prototype), obj->level, 
+                            last_mob->short_descr, VNUM_FIELD(last_mob->prototype), 
                             last_mob->level);
                 }
                 else
@@ -1961,7 +1967,7 @@ void do_dump(Mobile* ch, char* argument)
     for (vnum = 0; nMatch < mob_proto_count; vnum++)
         if ((p_mob_proto = get_mob_prototype(vnum)) != NULL) {
             nMatch++;
-            fprintf(fp, "#%-4d %3d active %3d killed     %s\n", p_mob_proto->vnum,
+            fprintf(fp, "#%-4d %3d active %3d killed     %s\n", VNUM_FIELD(p_mob_proto),
                     p_mob_proto->count, p_mob_proto->killed,
                     p_mob_proto->short_descr);
         }
@@ -1977,7 +1983,7 @@ void do_dump(Mobile* ch, char* argument)
     for (vnum = 0; nMatch < obj_proto_count; vnum++)
         if ((obj_proto = get_object_prototype(vnum)) != NULL) {
             nMatch++;
-            fprintf(fp, "#%-4d %3d active %3d reset      %s\n", obj_proto->vnum,
+            fprintf(fp, "#%-4d %3d active %3d reset      %s\n", VNUM_FIELD(obj_proto),
                     obj_proto->count, obj_proto->reset_num,
                     obj_proto->short_descr);
         }
@@ -2210,7 +2216,7 @@ void append_file(Mobile* ch, char* file, char* str)
 
     OPEN_OR_RETURN(fp = open_append_file(file));
 
-    fprintf(fp, "[%5d] %s: %s\n", ch->in_room ? ch->in_room->data->vnum : 0, NAME_STR(ch), str);
+    fprintf(fp, "[%5d] %s: %s\n", ch->in_room ? VNUM_FIELD(ch->in_room->data) : 0, NAME_STR(ch), str);
 
     close_file(fp);
 }
@@ -2262,8 +2268,13 @@ void log_string(const char* str)
     return;
 }
 
-String* lox_string(char* str)
+String* lox_string(const char* str)
 {
     int len = (int)strlen(str);
     return copy_string(str, len);
+}
+
+String* lox_empty_string()
+{
+    return lox_string(str_empty);
 }

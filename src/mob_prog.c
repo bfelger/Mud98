@@ -301,7 +301,7 @@ Mobile* get_random_char(Mobile* mob)
 {
     Mobile* vch, * victim = NULL;
     int now = 0, highest = 0;
-    FOR_EACH_IN_ROOM(vch, mob->in_room->people) {
+    FOR_EACH_ROOM_MOB(vch, mob->in_room) {
         if (mob != vch
             && !IS_NPC(vch)
             && can_see(mob, vch)
@@ -321,13 +321,13 @@ int count_people_room(Mobile* mob, int iFlag)
 {
     Mobile* vch;
     int count = 0;
-    FOR_EACH_IN_ROOM(vch, mob->in_room->people)
+    FOR_EACH_ROOM_MOB(vch, mob->in_room)
         if (mob != vch
             && (iFlag == 0
                 || (iFlag == 1 && !IS_NPC(vch))
                 || (iFlag == 2 && IS_NPC(vch))
                 || (iFlag == 3 && IS_NPC(mob) && IS_NPC(vch)
-                    && mob->prototype->vnum == vch->prototype->vnum)
+                    && VNUM_FIELD(mob->prototype) == VNUM_FIELD(vch->prototype))
                 || (iFlag == 4 && is_same_group(mob, vch)))
             && can_see(mob, vch))
             count++;
@@ -342,15 +342,15 @@ int count_people_room(Mobile* mob, int iFlag)
 int get_order(Mobile* ch)
 {
     Mobile* vch;
-    int i;
+    int i = 0;
 
     if (!IS_NPC(ch))
         return 0;
-    for (i = 0, vch = ch->in_room->people; vch; vch = vch->next_in_room) {
+    FOR_EACH_ROOM_MOB(vch, ch->in_room) {
         if (vch == ch)
             return i;
         if (IS_NPC(vch)
-            && vch->prototype->vnum == ch->prototype->vnum)
+            && VNUM_FIELD(vch->prototype) == VNUM_FIELD(ch->prototype))
             i++;
     }
     return 0;
@@ -365,8 +365,8 @@ int get_order(Mobile* ch)
 bool has_item(Mobile* ch, VNUM vnum, ItemType item_type, bool fWear)
 {
     Object* obj;
-    for (obj = ch->carrying; obj; obj = obj->next_content)
-        if ((vnum == VNUM_NONE || obj->prototype->vnum == vnum)
+    FOR_EACH_MOB_OBJ(obj, ch)
+        if ((vnum == VNUM_NONE || VNUM_FIELD(obj->prototype) == vnum)
             && (item_type < 0 || obj->prototype->item_type == item_type)
             && (!fWear || obj->wear_loc != WEAR_UNHELD))
             return true;
@@ -377,8 +377,8 @@ bool has_item(Mobile* ch, VNUM vnum, ItemType item_type, bool fWear)
 bool get_mob_vnum_room(Mobile* ch, VNUM vnum)
 {
     Mobile* mob;
-    for (mob = ch->in_room->people; mob; mob = mob->next_in_room)
-        if (IS_NPC(mob) && mob->prototype->vnum == vnum)
+    FOR_EACH_ROOM_MOB(mob, ch->in_room)
+        if (IS_NPC(mob) && VNUM_FIELD(mob->prototype) == vnum)
             return true;
     return false;
 }
@@ -387,8 +387,8 @@ bool get_mob_vnum_room(Mobile* ch, VNUM vnum)
 bool get_obj_vnum_room(Mobile* ch, VNUM vnum)
 {
     Object* obj;
-    for (obj = ch->in_room->contents; obj; obj = obj->next_content)
-        if (obj->prototype->vnum == vnum)
+    FOR_EACH_ROOM_OBJ(obj, ch->in_room)
+        if (VNUM_FIELD(obj->prototype) == vnum)
             return true;
     return false;
 }
@@ -646,12 +646,12 @@ int cmd_eval(VNUM vnum, char* line, int check, Mobile* mob, Mobile* ch,
         case 'r':
         case 'q':
             if (lval_char != NULL && IS_NPC(lval_char))
-                lval = lval_char->prototype->vnum;
+                lval = VNUM_FIELD(lval_char->prototype);
             break;
         case 'o':
         case 'p':
             if (lval_obj != NULL)
-                lval = lval_obj->prototype->vnum;
+                lval = VNUM_FIELD(lval_obj->prototype);
         }
         break;
     case CHK_HPCNT:
@@ -660,7 +660,7 @@ int cmd_eval(VNUM vnum, char* line, int check, Mobile* mob, Mobile* ch,
         break;
     case CHK_ROOM:
         if (lval_char != NULL && lval_char->in_room != NULL)
-            lval = lval_char->in_room->vnum; 
+            lval = VNUM_FIELD(lval_char->in_room);
         break;
     case CHK_SEX:
         if (lval_char != NULL) 
@@ -938,10 +938,10 @@ void program_flow(
     int state[MAX_NESTED_LEVEL] = { 0 }; /* Block state (BEGIN,IN,END) */
     int cond[MAX_NESTED_LEVEL] = { 0 };  /* Boolean value based on the last if-check */
 
-    VNUM mvnum = mob->prototype->vnum;
+    VNUM mvnum = VNUM_FIELD(mob->prototype);
 
     if (++call_level > MAX_CALL_LEVEL) {
-        bug("MOBprogs: MAX_CALL_LEVEL exceeded, vnum %"PRVNUM"", mob->prototype->vnum);
+        bug("MOBprogs: MAX_CALL_LEVEL exceeded, vnum %"PRVNUM"", VNUM_FIELD(mob->prototype));
         return;
     }
 
@@ -1166,7 +1166,7 @@ bool mp_exit_trigger(Mobile* ch, int dir)
     Mobile* mob;
     MobProg* prg;
 
-    FOR_EACH_IN_ROOM(mob, ch->in_room->people) {
+    FOR_EACH_ROOM_MOB(mob, ch->in_room) {
         if (IS_NPC(mob)
             && (HAS_TRIGGER(mob, TRIG_EXIT) || HAS_TRIGGER(mob, TRIG_EXALL))) {
             FOR_EACH(prg, mob->prototype->mprogs) {
@@ -1205,7 +1205,7 @@ void mp_give_trigger(Mobile* mob, Mobile* ch, Object* obj)
             p = prg->trig_phrase;
             // Vnum argument
             if (is_number(p)) {
-                if (obj->prototype->vnum == STRTOVNUM(p)) {
+                if (VNUM_FIELD(obj->prototype) == STRTOVNUM(p)) {
                     program_flow(prg->vnum, prg->code, mob, ch, (void*)obj, NULL);
                     return;
                 }
@@ -1229,7 +1229,7 @@ void mp_greet_trigger(Mobile* ch)
 {
     Mobile* mob;
 
-    FOR_EACH_IN_ROOM(mob, ch->in_room->people) {
+    FOR_EACH_ROOM_MOB(mob, ch->in_room) {
         if (IS_NPC(mob)
             && (HAS_TRIGGER(mob, TRIG_GREET) || HAS_TRIGGER(mob, TRIG_GRALL))) {
                 /*

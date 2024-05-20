@@ -15,6 +15,9 @@
 
 #include "data/damage.h"
 
+#include "lox/lox.h"
+
+#include "db.h"
 #include "socket.h"
 
 #include <stdint.h>
@@ -106,10 +109,32 @@ void write_to_buffer(Descriptor* d, const char* txt, size_t length);
 void send_to_char(const char* txt, Mobile* ch);
 void page_to_char(const char* txt, Mobile* ch);
 
-#define act(format, ch, arg1, arg2, type)                                      \
-    act_new((format), (ch), (arg1), (arg2), (type), POS_RESTING)
-void act_new(const char* format, Mobile* ch, const void* arg1,
-    const void* arg2, ActTarget type, Position min_pos);
+#define LOX_OBJ_CAST(N) _Generic((N), \
+        Mobile*: (Obj*)(N), \
+        Object*: (Obj*)(N), \
+        Room*: (Obj*)(N), \
+        Area*: (Obj*)(N), \
+        ObjString*: (Obj*)(N), \
+        Obj*: (N), \
+        char*: (Obj*)lox_string((char*)N), \
+        const char*: (Obj*)lox_string((const char*)N), \
+        void*: (Obj*)(N) \
+    )
+
+#define act(format, target, arg1, arg2, type) \
+act_new_new((format), LOX_OBJ_CAST(target), LOX_OBJ_CAST(arg1), LOX_OBJ_CAST(arg2), (type), POS_RESTING)
+
+#define act_new(format, target, arg1, arg2, type, min_pos) \
+act_new_new((format), LOX_OBJ_CAST(target), LOX_OBJ_CAST(arg1), LOX_OBJ_CAST(arg2), (type), (min_pos))
+
+void act_new_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
+    ActTarget type, Position min_pos);
+
+//#define act(format, target, arg1, arg2, type) \
+//act_new((format), (Obj*)(target), (Obj*)(arg1), (Obj*)(arg2), (type), POS_RESTING)
+//void act_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
+//    ActTarget type, Position min_pos);
+
 
 void printf_to_char(Mobile*, const char*, ...);
 void bugf(char*, ...);

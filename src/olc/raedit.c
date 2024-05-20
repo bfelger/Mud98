@@ -154,7 +154,7 @@ RAEDIT(raedit_show)
     printf_to_char(ch, "Size        : {|[{*%s{|]{x\n\r", mob_size_table[pRace->size].name);
     printf_to_char(ch, "Start Loc   : {|[{*%d{|] {_%s %s{x\n\r",
         pRace->start_loc,
-        room ? C_STR(room->name) : "",
+        room ? NAME_STR(room) : "",
         cfg_get_start_loc_by_race() ? "" : " {_(not used)");
     printf_to_char(ch, "{T    Class      XPmult  XP/lvl(pts)   Start Loc{x\n\r");
     for (i = 0; i < class_count; ++i) {
@@ -170,7 +170,7 @@ RAEDIT(raedit_show)
             race_exp_per_level(pRace->race_id, i, get_points(pRace->race_id, i)),
             get_points(pRace->race_id, i),
             vnum, 
-            room ? C_STR(room->name) : "",
+            room ? NAME_STR(room) : "",
             cfg_get_start_loc_by_class() && cfg_get_start_loc_by_race() ? "" : " {_(not used)"
         );
         send_to_char(buf, ch);

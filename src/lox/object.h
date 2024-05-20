@@ -32,6 +32,7 @@ typedef struct mob_prototype_t MobPrototype;
 #define IS_RAW_PTR(value)       is_obj_type(value, OBJ_RAW_PTR)
 #define IS_STRING(value)        is_obj_type(value, OBJ_STRING)
 #define IS_TABLE(value)         is_obj_type(value, OBJ_TABLE)
+#define IS_LIST(value)          is_obj_type(value, OBJ_LIST)
 //
 #define IS_AREA(value)          is_obj_type(value, OBJ_AREA)
 #define IS_AREA_DATA(value)     is_obj_type(value, OBJ_AREA_DATA)
@@ -58,6 +59,7 @@ typedef struct mob_prototype_t MobPrototype;
 #define AS_STRING(value)        ((ObjString*)AS_OBJ(value))
 #define AS_CSTRING(value)       (((ObjString*)AS_OBJ(value))->chars)
 #define AS_TABLE(value)         ((Table*)AS_OBJ(value))
+#define AS_LIST(value)          ((List*)AS_OBJ(value))
 //
 #define AS_ENTITY(value)        ((EntityHeader*)AS_OBJ(value))
 #define AS_AREA(value)          ((Area*)AS_OBJ(value))
@@ -81,6 +83,7 @@ typedef enum {
     OBJ_STRING,
     OBJ_UPVALUE,
     OBJ_TABLE,
+    OBJ_LIST,
     //
     OBJ_AREA,
     OBJ_AREA_DATA,
