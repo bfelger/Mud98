@@ -343,8 +343,11 @@ void run_unit_tests()
     //"    print index;\n"
     //"    print area.name;\n"
     //"});\n";
-    "global_areas[0].instances[0].rooms.apply((key, room) -> {\n"
+    "global_areas[3].instances[0].rooms.apply((key, room) -> {\n"
     "    print key + \" \" + room.name;\n"
+    "    room.mobiles.apply((mob) -> {\n"
+    "        print \"    \" + mob.name + \" (\" + mob.vnum + \")\";\n"
+    "    });\n"
     "});\n";
 
     InterpretResult result = interpret_code(source);

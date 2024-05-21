@@ -36,7 +36,10 @@ Room* new_room(RoomData* room_data, Area* area)
     init_header(&room->header, OBJ_ROOM);
 
     init_list(&room->mobiles);
+    SET_LOX_FIELD(&room->header, &room->mobiles, mobiles);
+
     init_list(&room->objects);
+    SET_LOX_FIELD(&room->header, &room->objects, objects);
 
     SET_NAME(room, NAME_FIELD(room_data));
 

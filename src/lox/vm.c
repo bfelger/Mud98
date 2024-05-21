@@ -299,12 +299,37 @@ static bool apply_prime(Value callee, Value collection)
         }
         push(INT_VAL(i));
     }
+    else if (IS_LIST(collection)) {
+        List* list = AS_LIST(collection);
+        Node* node = list->front;
+        // Value is a uint64_t, which is sufficient to hold a pointer to Node.
+        // Note that this value cannot be printed. Take great care.
+        // Making a RAW_U64 would be safer, but slower.
+        push((Value)node);
+    }
     else {
         runtime_error("apply_prime: Cannot apply() on this type.");
         return false;
     }
 
     return true;
+}
+
+static bool apply_end_list()
+{
+    Value callee = peek(1);
+    Node* node = (Node*)peek(0);
+
+    if (node == NULL) {
+        pop(); // Callee
+        pop(); // Collection
+        return false;
+    }
+
+    push(callee);
+    push(node->value);
+
+    return call_value(callee, 1);
 }
 
 static bool apply_end_table()
@@ -314,9 +339,6 @@ static bool apply_end_table()
     int32_t i = AS_INT(peek(0));
 
     if (i >= table->capacity) {
-#ifdef DEBUG_TRACE_EXECUTION
-        lox_printf("Bailing: %d >= %d.\n", i, array_->count);
-#endif
         pop(); // Callee
         pop(); // Collection
         return false;
@@ -328,16 +350,6 @@ static bool apply_end_table()
     push(entry->key);
     push(entry->value);
 
-#ifdef DEBUG_TRACE_EXECUTION
-    lox_printf("AT CALL:  ");
-    for (Value* slot = vm.stack; slot < vm.stack_top; slot++) {
-        lox_printf("[ ");
-        print_value(*slot);
-        lox_printf(" ]");
-    }
-    lox_printf("\n\r");
-#endif
-
     return call_value(callee, 2);
 }
 
@@ -348,9 +360,6 @@ static bool apply_end_array()
     int32_t i = AS_INT(peek(0));
 
     if (i >= array_->count) {
-#ifdef DEBUG_TRACE_EXECUTION
-        lox_printf("Bailing: %d >= %d.\n", i, array_->count);
-#endif
         pop(); // Callee
         pop(); // Collection
         return false;
@@ -359,16 +368,6 @@ static bool apply_end_array()
     push(callee);
     push(INT_VAL(i));
     push(array_->values[i]);
-
-#ifdef DEBUG_TRACE_EXECUTION
-    lox_printf("AT CALL:  ");
-    for (Value* slot = vm.stack; slot < vm.stack_top; slot++) {
-        lox_printf("[ ");
-        print_value(*slot);
-        lox_printf(" ]");
-    }
-    lox_printf("\n\r");
-#endif
 
     return call_value(callee, 2);
 }
@@ -384,6 +383,9 @@ static bool apply_or_end()
     }
     else if (IS_TABLE(peek(2))) {
         return apply_end_table();
+    }
+    else if (IS_LIST(peek(2))) {
+        return apply_end_list();
     }
     else {
         runtime_error("apply_or_end: Cannot apply() on this type.");
@@ -407,6 +409,12 @@ static bool apply_advance()
             };
         }
         push(INT_VAL(i));
+        return true;
+    }
+    else if (IS_LIST(peek(2))) {
+        Node* node = (Node*)pop();
+        node = node->next;
+        push((Value)node);
         return true;
     }
     else {
