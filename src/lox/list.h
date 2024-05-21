@@ -31,6 +31,7 @@ List* new_list();
 void init_list(List* list);
 void free_list(List* list);
 void list_push(List* list, Value value);
+void list_push_back(List* list, Value value);
 Value list_pop(List* list);
 Node* list_find(List* list, Value value);
 void list_remove_node(List* list, Node* node);

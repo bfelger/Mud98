@@ -961,7 +961,7 @@ void mob_to_room(Mobile* ch, Room* room)
     }
 
     ch->in_room = room;
-    list_push(&room->mobiles, OBJ_VAL(ch));
+    list_push_back(&room->mobiles, OBJ_VAL(ch));
 
     if (!IS_NPC(ch) && ch->desc->mth->msdp_data && cfg_get_msdp_enabled())
         update_mdsp_room(ch);
@@ -1022,7 +1022,7 @@ void mob_to_room(Mobile* ch, Room* room)
 // Give an obj to a char.
 void obj_to_char(Object* obj, Mobile* ch)
 {
-    list_push(&ch->objects, OBJ_VAL(obj));
+    list_push_back(&ch->objects, OBJ_VAL(obj));
     obj->carried_by = ch;
     obj->in_room = NULL;
     obj->in_obj = NULL;
@@ -1278,7 +1278,7 @@ void obj_from_room(Object* obj)
 // Move an obj into a room.
 void obj_to_room(Object* obj, Room* room)
 {
-    list_push(&room->objects, OBJ_VAL(obj));
+    list_push_back(&room->objects, OBJ_VAL(obj));
     obj->in_room = room;
     obj->carried_by = NULL;
     obj->in_obj = NULL;
@@ -1288,7 +1288,7 @@ void obj_to_room(Object* obj, Room* room)
 // Move an object into an object.
 void obj_to_obj(Object* obj, Object* obj_to)
 {
-    list_push(&obj_to->objects, OBJ_VAL(obj));
+    list_push_back(&obj_to->objects, OBJ_VAL(obj));
     obj->in_obj = obj_to;
     obj->in_room = NULL;
     obj->carried_by = NULL;

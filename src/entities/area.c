@@ -65,7 +65,7 @@ AreaData* new_area_data()
 
     init_header(&area_data->header, OBJ_AREA_DATA);
 
-    init_value_array(&area_data->instances);
+    init_list(&area_data->instances);
     SET_LOX_FIELD(&area_data->header, &area_data->instances, instances);
 
     VNUM_FIELD(area_data) = global_areas.count - 1;
@@ -103,7 +103,7 @@ Area* create_area_instance(AreaData* area_data, bool create_exits)
     Value area_val = OBJ_VAL(area);
 
     push(area_val);
-    write_value_array(&area_data->instances, OBJ_VAL(area));
+    list_push_back(&area_data->instances, OBJ_VAL(area));
     pop();
 
     RoomData* room_data;
@@ -241,8 +241,8 @@ Area* get_area_for_player(Mobile* ch, AreaData* area_data)
 {
     Area* area = NULL;
 
-    for (int i = 0; i < area_data->instances.count; ++i) {
-        area = AS_AREA(area_data->instances.values[i]);
+    for (Node* node = area_data->instances.front; node != NULL; node = node->next) {
+        area = AS_AREA(node->value);
         if (is_name(NAME_STR(ch), area->owner_list))
             return area;
     }

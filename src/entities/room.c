@@ -85,6 +85,7 @@ RoomData* new_room_data()
     room_data->owner = &str_empty[0];
     room_data->heal_rate = 100;
     room_data->mana_rate = 100;
+    room_data->lox_script = NULL;
 
     pop();
 
@@ -112,6 +113,8 @@ void free_room_data(RoomData* room_data)
         NEXT_LINK(room_data->reset_first);
         free_reset(reset);
     }
+
+    free_string(room_data->lox_script);
 
     LIST_FREE(room_data);
     return;
@@ -155,7 +158,7 @@ Room* get_room(Area* search_context, VNUM vnum)
     }
     else if (room_data->area_data->inst_type == AREA_INST_SINGLE) {
         // The target area isn't instanced; it only has one Area object.
-        search_area = AS_AREA(room_data->area_data->instances.values[0]);
+        search_area = AS_AREA(room_data->area_data->instances.front->value);
     }
     else {
         return NULL;

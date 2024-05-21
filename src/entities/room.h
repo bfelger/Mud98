@@ -79,6 +79,7 @@ typedef struct room_data_t {
     RoomExitData* exit_data[DIR_MAX];
     Reset* reset_first;
     Reset* reset_last;
+    char* lox_script;
     char* description;
     char* owner;
     FLAGS room_flags;

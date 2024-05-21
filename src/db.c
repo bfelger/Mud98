@@ -867,9 +867,7 @@ void area_update()
                 if (area->data->inst_type == AREA_INST_MULTI && area->nplayer == 0) {
                     // If the area is "instanced": delete, don't reset.
                     // TODO: See if we also need to manually clean up rooms
-                    remove_array_index(&area_data->instances, areai);
-                    // Backtrack the loop variable; the indexes have shifted.
-                    --areai; 
+                    list_remove_node(&area_data->instances, area_loop.node);
                 }
                 else {
                     reset_area(area);

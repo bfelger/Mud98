@@ -42,11 +42,7 @@ typedef struct mob_prototype_t MobPrototype;
 #define IS_OBJ_PROTO(value)     is_obj_type(value, OBJ_OBJ_PROTO)
 #define IS_MOBILE(value)        is_obj_type(value, OBJ_MOB)
 #define IS_MOB_PROTO(value)     is_obj_type(value, OBJ_MOB_PROTO)
-#define IS_ENTITY(value)        (IS_OBJ(value) &&                               \
-                                    (IS_AREA(value) || IS_AREA_DATA(value)     \
-                                    || IS_ROOM(value) || IS_ROOM_DATA(value)   \
-                                    || IS_OBJECT(value) || IS_OBJ_PROTO(value) \
-                                    || IS_MOBILE(value) || IS_MOB_PROTO(value)))   
+#define IS_ENTITY(value)        (IS_OBJ(value) && AS_OBJ(value)->type >= 100)   
 
 #define AS_ARRAY(value)         ((ValueArray*)AS_OBJ(value))
 #define AS_BOUND_METHOD(value)  ((ObjBoundMethod*)AS_OBJ(value))
@@ -85,14 +81,14 @@ typedef enum {
     OBJ_TABLE,
     OBJ_LIST,
     //
-    OBJ_AREA,
-    OBJ_AREA_DATA,
-    OBJ_ROOM,
-    OBJ_ROOM_DATA,
-    OBJ_OBJ,
-    OBJ_OBJ_PROTO,
-    OBJ_MOB,
-    OBJ_MOB_PROTO,
+    OBJ_AREA        = 100,
+    OBJ_AREA_DATA   = 101,
+    OBJ_ROOM        = 102,
+    OBJ_ROOM_DATA   = 103,
+    OBJ_OBJ         = 104,
+    OBJ_OBJ_PROTO   = 105,
+    OBJ_MOB         = 106,
+    OBJ_MOB_PROTO   = 107,
 } ObjType;
 
 struct Obj {

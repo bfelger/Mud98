@@ -45,7 +45,6 @@ typedef struct area_t {
     EntityHeader header;
     Area* next;
     AreaData* data;
-    //Room* rooms[AREA_ROOM_VNUM_HASH_SIZE];
     Table rooms;
     char* owner_list;
     int16_t reset_timer;
@@ -56,7 +55,7 @@ typedef struct area_t {
 typedef struct area_data_t {
     EntityHeader header;
     AreaData* next;
-    ValueArray instances;
+    List instances;
     HelpArea* helps;
     Quest* quests;
     char* file_name;
@@ -78,9 +77,16 @@ typedef struct area_data_t {
     for (int area##i = 0; area##i < global_areas.count; ++area##i)             \
         if ((area = AS_AREA_DATA(global_areas.values[area##i])) != NULL)
 
-#define FOR_EACH_AREA_INST(area, area_data)                                    \
-    for (int area##i = 0; area##i < area_data->instances.count; ++area##i)     \
-        if ((area = AS_AREA(area_data->instances.values[area##i])) != NULL)
+#define FOR_EACH_AREA_INST(inst, area) \
+    if ((area)->instances.front == NULL) \
+        inst = NULL; \
+    else if ((inst = AS_AREA((area)->instances.front->value)) != NULL) \
+        for (struct { Node* node; Node* next; } inst##_loop = { (area)->instances.front, (area)->instances.front->next }; \
+            inst##_loop.node != NULL; \
+            inst##_loop.node = inst##_loop.next, \
+                inst##_loop.next = inst##_loop.next ? inst##_loop.next->next : NULL, \
+                inst = inst##_loop.node != NULL ? AS_AREA(inst##_loop.node->value) : NULL) \
+            if (inst != NULL)
 
 #define GET_AREA_DATA(index)                                                   \
     AS_AREA_DATA(global_areas.values[index])

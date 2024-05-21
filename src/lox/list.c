@@ -56,6 +56,22 @@ void list_push(List* list, Value value)
     list->count++;
 }
 
+void list_push_back(List* list, Value value)
+{
+    Node* node = new_node();
+    node->value = value;
+    node->prev = list->back;
+
+    if (node->prev == NULL)
+        list->front = node;
+    else
+        node->prev->next = node;
+
+    list->back = node;
+
+    list->count++;
+}
+
 Value list_pop(List* list)
 {
     if (list->front == NULL)

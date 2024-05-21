@@ -313,7 +313,7 @@ static void mark_natives()
 
     FOR_EACH_AREA(area_data) {
         mark_entity(&area_data->header);
-        mark_array(&area_data->instances);
+        mark_list(&area_data->instances);
         FOR_EACH_AREA_INST(area, area_data) {
             mark_entity(&area->header);
             mark_table(&area->rooms);
