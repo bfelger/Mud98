@@ -334,15 +334,18 @@ void run_unit_tests()
     //"    print index;\n"
     //"    print area.name;\n"
     //"};\n"
-    //"global_areas.apply(lam);\n";
-    "global_areas.apply((index, area) -> {\n"
-    "    print index;\n"
-    "    print area.name;\n"
-    "});\n";
     //"for (var i = 0; i < global_areas.count; i++) {\n"
     //"    var area = global_areas[i];\n"
     //"    lam(i, area);\n"
     //"}\n";
+    //"global_areas.apply(lam);\n";
+    //"global_areas.apply((index, area) -> {\n"
+    //"    print index;\n"
+    //"    print area.name;\n"
+    //"});\n";
+    "global_areas[0].instances[0].rooms.apply((key, room) -> {\n"
+    "    print key + \" \" + room.name;\n"
+    "});\n";
 
     InterpretResult result = interpret_code(source);
     if (result == INTERPRET_COMPILE_ERROR) exit(65);

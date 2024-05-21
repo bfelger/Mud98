@@ -259,8 +259,17 @@ static bool is_falsey(Value value)
 
 static void concatenate()
 {
-    ObjString* b = AS_STRING(peek(0));
-    ObjString* a = AS_STRING(peek(1));
+    ObjString* b;
+    if (IS_STRING(peek(0)))
+        b = AS_STRING(peek(0));
+    else
+        b = lox_string(string_value(peek(0)));
+
+    ObjString* a;
+    if (IS_STRING(peek(1)))
+        a = AS_STRING(peek(1));
+    else
+        a = lox_string(string_value(peek(1)));
 
     int length = a->length + b->length;
     char* chars = ALLOCATE(char, length + 1);
@@ -279,12 +288,57 @@ static bool apply_prime(Value callee, Value collection)
     if (IS_ARRAY(collection)) {
         push(INT_VAL(0));
     }
+    else if (IS_TABLE(collection)) {
+        Table* table = AS_TABLE(collection);
+        int i = 0;
+        for (i = 0; i < table->capacity; i++) {
+            Entry* entry = &table->entries[i];
+            if (entry->key != NIL_VAL) {
+                break;
+            };
+        }
+        push(INT_VAL(i));
+    }
     else {
         runtime_error("apply_prime: Cannot apply() on this type.");
         return false;
     }
 
     return true;
+}
+
+static bool apply_end_table()
+{
+    Table* table = AS_TABLE(peek(2));
+    Value callee = peek(1);
+    int32_t i = AS_INT(peek(0));
+
+    if (i >= table->capacity) {
+#ifdef DEBUG_TRACE_EXECUTION
+        lox_printf("Bailing: %d >= %d.\n", i, array_->count);
+#endif
+        pop(); // Callee
+        pop(); // Collection
+        return false;
+    }
+
+    Entry* entry = &table->entries[i];
+
+    push(callee);
+    push(entry->key);
+    push(entry->value);
+
+#ifdef DEBUG_TRACE_EXECUTION
+    lox_printf("AT CALL:  ");
+    for (Value* slot = vm.stack; slot < vm.stack_top; slot++) {
+        lox_printf("[ ");
+        print_value(*slot);
+        lox_printf(" ]");
+    }
+    lox_printf("\n\r");
+#endif
+
+    return call_value(callee, 2);
 }
 
 static bool apply_end_array()
@@ -328,6 +382,9 @@ static bool apply_or_end()
     if (IS_ARRAY(peek(2))) {
         return apply_end_array();
     }
+    else if (IS_TABLE(peek(2))) {
+        return apply_end_table();
+    }
     else {
         runtime_error("apply_or_end: Cannot apply() on this type.");
         return false;
@@ -338,6 +395,18 @@ static bool apply_advance()
 {
     if (IS_ARRAY(peek(2))) {
         push(INT_VAL(AS_INT(pop()) + 1));
+        return true;
+    }
+    else if (IS_TABLE(peek(2))) {
+        Table* table = AS_TABLE(peek(2));
+        int i = 0;
+        for (i = AS_INT(pop()) + 1; i < table->capacity; i++) {
+            Entry* entry = &table->entries[i];
+            if (entry->key != NIL_VAL) {
+                break;
+            };
+        }
+        push(INT_VAL(i));
         return true;
     }
     else {
@@ -650,7 +719,7 @@ InterpretResult run()
         case OP_GREATER:    BOOL_OP(>); break;
         case OP_LESS:       BOOL_OP(<); break;
         case OP_ADD: {
-                if (IS_STRING(peek(0)) && IS_STRING(peek(1))) {
+                if (IS_STRING(peek(0)) || IS_STRING(peek(1))) {
                     concatenate();
                 }
                 else {
