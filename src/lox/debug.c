@@ -35,9 +35,9 @@ static int constant_instruction(const char* name, Chunk* chunk, int offset)
 {
     int new_offset = offset + 1;
     int constant = read_constant_index(chunk, &new_offset);
-    lox_printf("%-16s %4d '", name, constant);
+    lox_printf("%-16s %4d ", name, constant);
     print_value(chunk->constants.values[constant]);
-    lox_printf("'\n");
+    lox_printf("\n");
     return new_offset;
 }
 
@@ -46,9 +46,9 @@ static int invoke_instruction(const char* name, Chunk* chunk, int offset)
     int arg_offset = offset + 1;
     int constant = read_constant_index(chunk, &arg_offset);
     uint8_t arg_count = chunk->code[arg_offset];
-    lox_printf("%-16s (%d args) %4d '", name, arg_count, constant);
+    lox_printf("%-16s (%d args) %4d ", name, arg_count, constant);
     print_value(chunk->constants.values[constant]);
-    lox_printf("'\n");
+    lox_printf("\n");
     return arg_offset + 1;
 }
 
@@ -181,6 +181,14 @@ int disassemble_instruction(Chunk* chunk, int offset)
         return simple_instruction("OP_INHERIT", offset);
     case OP_METHOD:
         return constant_instruction("OP_METHOD", chunk, offset);
+    case OP_APPLY_PRIME:
+        return simple_instruction("OP_APPLY_PRIME", offset);
+    case OP_APPLY_OR_END:
+        return jump_instruction("OP_APPLY_OR_END", 1, chunk, offset);
+    case OP_APPLY_ADVANCE:
+        return simple_instruction("OP_APPLY_ADVANCE", offset);
+    case OP_SELF:
+        return simple_instruction("OP_SELF", offset);
     default:
         lox_printf("Unknown opcode %d\n", instruction);
         return offset + 1;

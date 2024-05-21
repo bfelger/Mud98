@@ -274,6 +274,78 @@ static void concatenate()
     push(OBJ_VAL(result));
 }
 
+static bool apply_prime(Value callee, Value collection)
+{
+    if (IS_ARRAY(collection)) {
+        push(INT_VAL(0));
+    }
+    else {
+        runtime_error("apply_prime: Cannot apply() on this type.");
+        return false;
+    }
+
+    return true;
+}
+
+static bool apply_end_array()
+{
+    ValueArray* array_ = AS_ARRAY(peek(2));
+    Value callee = peek(1);
+    int32_t i = AS_INT(peek(0));
+
+    if (i >= array_->count) {
+#ifdef DEBUG_TRACE_EXECUTION
+        lox_printf("Bailing: %d >= %d.\n", i, array_->count);
+#endif
+        pop(); // Callee
+        pop(); // Collection
+        return false;
+    }
+
+    push(callee);
+    push(INT_VAL(i));
+    push(array_->values[i]);
+
+#ifdef DEBUG_TRACE_EXECUTION
+    lox_printf("AT CALL:  ");
+    for (Value* slot = vm.stack; slot < vm.stack_top; slot++) {
+        lox_printf("[ ");
+        print_value(*slot);
+        lox_printf(" ]");
+    }
+    lox_printf("\n\r");
+#endif
+
+    return call_value(callee, 2);
+}
+
+static bool apply_or_end()
+{
+    // Stack:
+    // 2: Collection
+    // 1: Callee
+    // 0: Loop Var
+    if (IS_ARRAY(peek(2))) {
+        return apply_end_array();
+    }
+    else {
+        runtime_error("apply_or_end: Cannot apply() on this type.");
+        return false;
+    }
+}
+
+static bool apply_advance()
+{
+    if (IS_ARRAY(peek(2))) {
+        push(INT_VAL(AS_INT(pop()) + 1));
+        return true;
+    }
+    else {
+        runtime_error("apply_advance: Cannot apply() on this type.");
+        return false;
+    }
+}
+
 InterpretResult run()
 {
     char err_buf[256] = { 0 };
@@ -394,8 +466,10 @@ InterpretResult run()
             }
         case OP_GET_PROPERTY: {
                 ObjString* name = READ_STRING();
-                if (IS_ARRAY(peek(0))) {
-                    ValueArray* array_ = AS_ARRAY(peek(0));
+                Value comp = peek(0);
+
+                if (IS_ARRAY(comp)) {
+                    ValueArray* array_ = AS_ARRAY(comp);
                     if (!strcmp(name->chars, "count")) {
                         Value count = INT_VAL(array_->count);
                         pop(); // Array
@@ -408,8 +482,8 @@ InterpretResult run()
                     }
                 }
 
-                if (IS_TABLE(peek(0))) {
-                    Table* table = AS_TABLE(peek(0));
+                if (IS_TABLE(comp)) {
+                    Table* table = AS_TABLE(comp);
                     if (!strcmp(name->chars, "count")) {
                         Value count = INT_VAL(table->count);
                         pop(); // Array
@@ -422,7 +496,19 @@ InterpretResult run()
                     }
                 }
 
-                Value comp = peek(0);
+                if (IS_LIST(comp)) {
+                    List* list = AS_LIST(comp);
+                    if (!strcmp(name->chars, "count")) {
+                        Value count = INT_VAL(list->count);
+                        pop(); // Array
+                        push(count);
+                        break;
+                    }
+                    else {
+                        runtime_error("Bad list accessor '.%s'.", name->chars);
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                }
 
                 if (!IS_INSTANCE(comp) && !IS_ENTITY(comp)) {
                     runtime_error("Only instances and entities have properties.");
@@ -600,7 +686,8 @@ InterpretResult run()
             }
         case OP_JUMP_IF_FALSE: {
                 uint16_t offset = READ_SHORT();
-                if (is_falsey(peek(0))) frame->ip += offset;
+                if (is_falsey(peek(0)))
+                    frame->ip += offset;
                 break;
             }
         case OP_LOOP: {
@@ -674,7 +761,7 @@ InterpretResult run()
                     pop();
 
 #ifdef DEBUG_TRACE_EXECUTION
-                    lox_printf("          ");
+                    lox_printf("END:      ");
                     for (Value* slot = vm.stack; slot < vm.stack_top; slot++) {
                         lox_printf("[ ");
                         print_value(*slot);
@@ -690,7 +777,7 @@ InterpretResult run()
                 frame = &vm.frames[vm.frame_count - 1];
 
 #ifdef DEBUG_TRACE_EXECUTION
-                lox_printf("          ");
+                lox_printf("RETURN:   ");
                 for (Value* slot = vm.stack; slot < vm.stack_top; slot++) {
                     lox_printf("[ ");
                     print_value(*slot);
@@ -717,6 +804,27 @@ InterpretResult run()
         case OP_METHOD:
             define_method(READ_STRING());
             break;
+        case OP_APPLY_PRIME: {
+            if (!apply_prime(peek(0), peek(1))) {
+                return INTERPRET_RUNTIME_ERROR;
+            }
+            frame = &vm.frames[vm.frame_count - 1];
+            break;
+        }
+        case OP_APPLY_OR_END: {
+            uint16_t offset = READ_SHORT();
+            if (!apply_or_end())
+                frame->ip += offset;
+            else
+                frame = &vm.frames[vm.frame_count - 1];
+            break;
+        }
+        case OP_APPLY_ADVANCE: {
+            if (!apply_advance()) {
+                return INTERPRET_RUNTIME_ERROR;
+            }
+            break;
+        }
         // In-game entities
         case OP_SELF:
             if (exec_context.me != NULL)

@@ -205,7 +205,7 @@ ObjUpvalue* new_upvalue(Value* slot)
 static void print_function(ObjFunction* function)
 {
     if (function->name == NULL) {
-        lox_printf("<script>");
+        lox_printf("<fn>");
         return;
     }
     lox_printf("<fn %s>", function->name->chars);
@@ -218,14 +218,16 @@ void print_object(Value value)
     switch (OBJ_TYPE(value)) {
     case OBJ_ARRAY: {
         ValueArray* array_ = AS_ARRAY(value);
-            lox_printf("[");
-            for (int i = 0; i < array_->count; ++i) {
-                if (i > 0)
-                    lox_printf(",");
-                print_value(array_->values[i]);
-            }
-            lox_printf("]");
-            break;
+        //    lox_printf("[");
+        //    for (int i = 0; i < array_->count; ++i) {
+        //        if (i > 0)
+        //            lox_printf(",");
+        //        print_value(array_->values[i]);
+        //    }
+        //    lox_printf("]");
+        //    break;
+        lox_printf("<array (%d elements)>", array_->count);
+        break;
         }
     case OBJ_BOUND_METHOD:
         print_function(AS_BOUND_METHOD(value)->method->function);
@@ -252,7 +254,8 @@ void print_object(Value value)
             case RAW_I16: lox_printf("<raw_i16 %d>", *((int16_t*)raw_ptr->addr)); break;
             case RAW_I32: lox_printf("<raw_i32 %d>", *((int32_t*)raw_ptr->addr)); break;
             case RAW_U64: lox_printf("<raw_u64 %llu>", *((uint64_t*)raw_ptr->addr)); break;
-            case RAW_STR: lox_printf("<raw_str %s>", *((char**)raw_ptr->addr)); break;
+            case RAW_STR: lox_printf("%s", *((char**)raw_ptr->addr)); break;
+            default: lox_printf("<invalid raw_ptr>"); break;
             }
             break;
         }
@@ -260,7 +263,7 @@ void print_object(Value value)
         lox_printf("%s", AS_CSTRING(value));
         break;
     case OBJ_UPVALUE:
-       lox_printf("upvalue");
+        lox_printf("upvalue");
         break;
     case OBJ_TABLE:
         lox_printf("<table (%d elements)>", AS_TABLE(value)->count);

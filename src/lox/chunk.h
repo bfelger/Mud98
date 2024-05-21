@@ -56,6 +56,9 @@ typedef enum {
     OP_CLASS,
     OP_INHERIT,
     OP_METHOD,
+    OP_APPLY_PRIME,
+    OP_APPLY_OR_END,
+    OP_APPLY_ADVANCE,
     // Game entities
     OP_SELF,
 } OpCode;

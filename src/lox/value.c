@@ -52,8 +52,18 @@ char* string_value(Value value)
     else if (IS_STRING(value)) {
         sprintf(buf, "%s", AS_STRING(value)->chars);
     }
-    else 
-        sprintf(buf, "(object)");
+    else if (IS_RAW_PTR(value)) {
+        ObjRawPtr* raw = AS_RAW_PTR(value);
+        if (raw->type == RAW_STR) {
+            sprintf(buf, "%s", *((char**)raw->addr));
+        }
+        else {
+            sprintf(buf, "(raw_ptr [%d])", raw->type);
+        }
+    }
+    else if (IS_OBJ(value)) {
+        sprintf(buf, "(object [%d])", AS_OBJ(value)->type);
+    }
 
     return buf;
 }

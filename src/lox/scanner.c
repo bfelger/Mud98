@@ -123,7 +123,14 @@ static TokenType check_keyword(int start, int length, const char* rest, TokenTyp
 static TokenType identifier_type()
 {
     switch (scanner.start[0]) {
-    case 'a': return check_keyword(1, 2, "nd", TOKEN_AND);
+    case 'a': 
+        if (scanner.current - scanner.start > 1) {
+            switch (scanner.start[1]) {
+            case 'n': return check_keyword(2, 1, "d", TOKEN_AND);
+            case 'p': return check_keyword(2, 3, "ply", TOKEN_APPLY);
+            }
+        }
+        break;
     case 'b': return check_keyword(1, 4, "reak", TOKEN_BREAK);
     case 'c':
         if (scanner.current - scanner.start > 1) {
@@ -233,6 +240,7 @@ Token scan_token()
     case '[': return make_token(TOKEN_LEFT_BRACK);
     case ']': return make_token(TOKEN_RIGHT_BRACK);
     case ';': return make_token(TOKEN_SEMICOLON);
+    case ':': return make_token(TOKEN_COLON);
     case ',': return make_token(TOKEN_COMMA);
     case '.': return make_token(TOKEN_DOT);
     case '-': return make_token(match('-') ? TOKEN_MINUS_MINUS :

@@ -500,8 +500,37 @@ static void call(bool can_assign)
     emit_bytes(OP_CALL, arg_count);
 }
 
+static void apply(bool assign)
+{
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after '.apply'");
+    expression();
+    consume(TOKEN_RIGHT_PAREN, "Expect ')' after apply statement.");
+    emit_byte(OP_APPLY_PRIME);
+
+    LoopContext apply_loop = { 0 };
+    apply_loop.enclosing = current->current_loop;
+    apply_loop.scope_depth = current->scope_depth;
+    current->current_loop = &apply_loop;
+
+    apply_loop.loop_start = current_chunk()->count;
+    apply_loop.exit_jump = emit_jump(OP_APPLY_OR_END);
+    emit_byte(OP_POP); // Pop old iterated value added by OP_APPLY_OR_END
+    emit_byte(OP_APPLY_ADVANCE);
+    emit_loop(apply_loop.loop_start);
+
+    patch_jump(apply_loop.exit_jump);
+    patch_loop_exits();
+
+    current->current_loop = current->current_loop->enclosing;
+}
+
 static void dot(bool can_assign)
 {
+    if (match(TOKEN_APPLY)) {
+        apply(can_assign);
+        return;
+    }
+
     consume(TOKEN_IDENTIFIER, "Expect property name after '.'.");
     int name = identifier_constant(&parser.previous);
 
@@ -848,6 +877,7 @@ ParseRule rules[] = {
     [TOKEN_MINUS]           = { unary,      binary,     PREC_TERM       },
     [TOKEN_PLUS]            = { NULL,       binary,     PREC_TERM       },
     [TOKEN_SEMICOLON]       = { NULL,       NULL,       PREC_NONE       },
+    [TOKEN_COLON]           = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_SLASH]           = { NULL,       binary,     PREC_FACTOR     },
     [TOKEN_STAR]            = { NULL,       binary,     PREC_FACTOR     },
     [TOKEN_BANG]            = { unary,      NULL,       PREC_NONE       },
@@ -882,6 +912,9 @@ ParseRule rules[] = {
     [TOKEN_TRUE]            = { literal,    NULL,       PREC_NONE       },
     [TOKEN_VAR]             = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_WHILE]           = { NULL,       NULL,       PREC_NONE       },
+    [TOKEN_APPLY]           = { NULL,       NULL,       PREC_NONE       },
+    [TOKEN_BREAK]           = { NULL,       NULL,       PREC_NONE       }, /* not used yet */
+    [TOKEN_CONTINUE]        = { NULL,       NULL,       PREC_NONE       }, /* not used yet */
     [TOKEN_SELF]            = { literal,    NULL,       PREC_NONE       },
     [TOKEN_ERROR]           = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_EOF]             = { NULL,       NULL,       PREC_NONE       },
