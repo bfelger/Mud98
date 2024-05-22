@@ -766,7 +766,7 @@ REDIT(redit_create)
     if (value > top_vnum_room)
         top_vnum_room = value;
 
-    ORDERED_INSERT(RoomData, room_data, room_data_hash_table[value % MAX_KEY_HASH], header.vnum);
+    table_set_vnum(&global_rooms, value, OBJ_VAL(room_data));
 
     Area* area;
     FOR_EACH_AREA_INST(area, area_data) {
@@ -1083,44 +1083,41 @@ void showresets(Mobile* ch, Buffer* buf, AreaData* area, MobPrototype* mob, ObjP
     MobPrototype* pLastMob;
     Reset* reset;
     char buf2[MIL];
-    int key;
     int lastmob;
 
-    for (key = 0; key < MAX_KEY_HASH; ++key) {
-        FOR_EACH(room, room_data_hash_table[key]) {
-            if (room->area_data != area)
-                continue;
+    FOR_EACH_GLOBAL_ROOM(room) {
+        if (room->area_data != area)
+            continue;
 
-            lastmob = -1;
-            pLastMob = NULL;
+        lastmob = -1;
+        pLastMob = NULL;
 
-            FOR_EACH(reset, room->reset_first) {
-                if (reset->command == 'M') {
-                    lastmob = reset->arg1;
-                    pLastMob = get_mob_prototype(lastmob);
-                    if (pLastMob == NULL) {
-                        bugf("Showresets : invalid reset (mob %d) in room %d",
-                            lastmob, VNUM_FIELD(room));
-                        return;
-                    }
-                    if (mob && lastmob == VNUM_FIELD(mob)) {
-                        sprintf(buf2, "%-5d %-15.15s %-5d\n\r", lastmob,
-                            NAME_STR(mob), VNUM_FIELD(room));
-                        add_buf(buf, buf2);
-                    }
+        FOR_EACH(reset, room->reset_first) {
+            if (reset->command == 'M') {
+                lastmob = reset->arg1;
+                pLastMob = get_mob_prototype(lastmob);
+                if (pLastMob == NULL) {
+                    bugf("Showresets : invalid reset (mob %d) in room %d",
+                        lastmob, VNUM_FIELD(room));
+                    return;
                 }
-                if (obj && reset->command == 'O' && reset->arg1 == VNUM_FIELD(obj)) {
-                    sprintf(buf2, "%-5d %-15.15s %-5d\n\r", VNUM_FIELD(obj),
-                        NAME_STR(obj), VNUM_FIELD(room));
+                if (mob && lastmob == VNUM_FIELD(mob)) {
+                    sprintf(buf2, "%-5d %-15.15s %-5d\n\r", lastmob,
+                        NAME_STR(mob), VNUM_FIELD(room));
                     add_buf(buf, buf2);
                 }
-                if (obj && (reset->command == 'G' || reset->command == 'E')
-                    && reset->arg1 == VNUM_FIELD(obj)) {
-                    sprintf(buf2, "%-5d %-15.15s %-5d %-5d %-15.15s\n\r",
-                        VNUM_FIELD(obj), NAME_STR(obj), VNUM_FIELD(room), lastmob,
-                        pLastMob ? NAME_STR(pLastMob) : "");
-                    add_buf(buf, buf2);
-                }
+            }
+            if (obj && reset->command == 'O' && reset->arg1 == VNUM_FIELD(obj)) {
+                sprintf(buf2, "%-5d %-15.15s %-5d\n\r", VNUM_FIELD(obj),
+                    NAME_STR(obj), VNUM_FIELD(room));
+                add_buf(buf, buf2);
+            }
+            if (obj && (reset->command == 'G' || reset->command == 'E')
+                && reset->arg1 == VNUM_FIELD(obj)) {
+                sprintf(buf2, "%-5d %-15.15s %-5d %-5d %-15.15s\n\r",
+                    VNUM_FIELD(obj), NAME_STR(obj), VNUM_FIELD(room), lastmob,
+                    pLastMob ? NAME_STR(pLastMob) : "");
+                add_buf(buf, buf2);
             }
         }
     }
@@ -1205,7 +1202,6 @@ REDIT(redit_checkrooms)
 {
     RoomData* room;
     RoomData* thisroom;
-    int hash;
     bool fAll = false;
 
     if (!str_cmp(argument, "all"))
@@ -1219,11 +1215,10 @@ REDIT(redit_checkrooms)
 
     EDIT_ROOM(ch, thisroom);
 
-    for (hash = 0; hash < MAX_KEY_HASH; hash++)
-        FOR_EACH(room, room_data_hash_table[hash])
-            if (room->reset_num == 0 
-                && (fAll || room->area_data == thisroom->area_data))
-                printf_to_char(ch, "Room %d has no resets.\n\r", VNUM_FIELD(room));
+    FOR_EACH_GLOBAL_ROOM(room)
+        if (room->reset_num == 0 
+            && (fAll || room->area_data == thisroom->area_data))
+            printf_to_char(ch, "Room %d has no resets.\n\r", VNUM_FIELD(room));
 
     return false;
 }
@@ -1314,7 +1309,7 @@ REDIT(redit_clear)
     free_string(pRoom->owner);
     free_string(pRoom->description);
     pRoom->owner = str_dup("");
-    SET_NAME(pRoom, lox_empty_string());
+    SET_NAME(pRoom, lox_empty_string);
     pRoom->description = str_dup("");
 
     for (i = 0; i < DIR_MAX; i++) {

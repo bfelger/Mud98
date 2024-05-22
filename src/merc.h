@@ -230,6 +230,9 @@ typedef void SpellFunc(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget 
         }                                                                      \
     }
 
+#define IS_PERM_STRING(str) \
+    (str == &str_empty[0] || (str >= string_space && str < top_string))
+
 #ifdef _MSC_VER
     #define strdup _strdup
     #define strcasecmp _stricmp

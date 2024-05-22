@@ -53,6 +53,9 @@ void runtime_error(const char* format, ...);
 
 bool lox_streq(ObjString* a, ObjString* b);
 
+extern char str_empty[1];
+extern ObjString* lox_empty_string;
+
 extern CompileContext compile_context;
 extern ExecContext exec_context;
 

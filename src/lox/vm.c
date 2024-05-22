@@ -24,12 +24,24 @@
 #define INIT_GC_THRESH  1024ULL * 1024ULL
 
 VM vm;
+ObjString* lox_empty_string = NULL;
 
 static void reset_stack()
 {
     vm.stack_top = vm.stack;
     vm.frame_count = 0;
     vm.open_upvalues = NULL;
+}
+
+static void print_stack()
+{
+    lox_printf("Stack:    ");
+    for (Value* slot = vm.stack; slot < vm.stack_top; slot++) {
+        lox_printf("[ ");
+        print_value(*slot);
+        lox_printf(" ]");
+    }
+    lox_printf("\n\r");
 }
 
 void runtime_error(const char* format, ...)
@@ -59,6 +71,8 @@ void runtime_error(const char* format, ...)
 
     lox_printf("%s", errbuf);
 
+    print_stack();
+
     reset_stack();
 }
 
@@ -75,6 +89,8 @@ void init_vm()
 
     init_table(&vm.globals);
     init_table(&vm.strings);
+
+    lox_empty_string = copy_string(str_empty, 1);
 
     vm.init_string = NULL;
     vm.init_string = copy_string("init", 4);
@@ -259,22 +275,36 @@ static bool is_falsey(Value value)
 
 static void concatenate()
 {
-    ObjString* b;
-    if (IS_STRING(peek(0)))
+    ObjString* b = NULL;
+    char* b_str = NULL;
+    int b_len;
+    if (IS_STRING(peek(0))) {
         b = AS_STRING(peek(0));
-    else
-        b = lox_string(string_value(peek(0)));
+        b_str = b->chars;
+        b_len = b->length;
+    }
+    else {
+        b_str = str_dup(string_value(peek(0)));
+        b_len = (int)strlen(b_str);
+    }
 
-    ObjString* a;
-    if (IS_STRING(peek(1)))
+    ObjString* a = NULL;
+    char* a_str = NULL;
+    int a_len;
+    if (IS_STRING(peek(1))) {
         a = AS_STRING(peek(1));
-    else
-        a = lox_string(string_value(peek(1)));
+        a_str = a->chars;
+        a_len = a->length;
+    }
+    else {
+        a_str = str_dup(string_value(peek(1)));
+        a_len = (int)strlen(a_str);
+    }
 
-    int length = a->length + b->length;
+    int length = a_len + b_len;
     char* chars = ALLOCATE(char, length + 1);
-    memcpy(chars, a->chars, a->length);
-    memcpy(chars + a->length, b->chars, b->length);
+    memcpy(chars, a_str, a_len);
+    memcpy(chars + a_len, b_str, b_len);
     chars[length] = '\0';
 
     ObjString* result = take_string(chars, length);
@@ -475,13 +505,7 @@ InterpretResult run()
 
     for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
-        lox_printf("          ");
-        for (Value* slot = vm.stack; slot < vm.stack_top; slot++) {
-            lox_printf("[ ");
-            print_value(*slot);
-            lox_printf(" ]");
-        }
-        lox_printf("\n\r");
+        print_stack();
         disassemble_instruction(&frame->closure->function->chunk,
             (int)(frame->ip - frame->closure->function->chunk.code));
 #endif
@@ -836,16 +860,6 @@ InterpretResult run()
                 vm.frame_count--;
                 if (vm.frame_count == 0) {
                     pop();
-
-#ifdef DEBUG_TRACE_EXECUTION
-                    lox_printf("END:      ");
-                    for (Value* slot = vm.stack; slot < vm.stack_top; slot++) {
-                        lox_printf("[ ");
-                        print_value(*slot);
-                        lox_printf(" ]");
-                    }
-                    lox_printf("\n");
-#endif
                     return INTERPRET_OK;
                 }
 
@@ -853,15 +867,6 @@ InterpretResult run()
                 push(result);
                 frame = &vm.frames[vm.frame_count - 1];
 
-#ifdef DEBUG_TRACE_EXECUTION
-                lox_printf("RETURN:   ");
-                for (Value* slot = vm.stack; slot < vm.stack_top; slot++) {
-                    lox_printf("[ ");
-                    print_value(*slot);
-                    lox_printf(" ]");
-                }
-                lox_printf("\n");
-#endif
                 break;
             }
         case OP_CLASS:

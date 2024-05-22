@@ -5,6 +5,7 @@
 #include "damage.h"
 
 #include "lox/lox.h"
+#include "lox/vm.h"
 
 #include "db.h"
 
@@ -83,27 +84,27 @@ void init_damage_consts()
     static char* damtype_start =
         "class damage_t { "
         "   init() { ";
-
+    
     static char* damtype_end =
         "   }"
         "}"
         "var Damage = damage_t();";
-
+    
     INIT_BUF(src, MSL);
-
+    
     add_buf(src, damtype_start);
-
+    
     for (int i = 0; i < DAM_TYPE_COUNT; ++i) {
         addf_buf(src, "       this.%s = %d;", capitalize(damage_table[i].name), 
             damage_table[i].type);
     }
-
+    
     add_buf(src, damtype_end);
-
+    
     InterpretResult result = interpret_code(src->string);
-
+    
     if (result == INTERPRET_COMPILE_ERROR) exit(65);
     if (result == INTERPRET_RUNTIME_ERROR) exit(70);
-
+    
     free_buf(src);
 }

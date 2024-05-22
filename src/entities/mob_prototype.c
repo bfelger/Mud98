@@ -53,7 +53,7 @@ MobPrototype* new_mob_prototype()
 
 void free_mob_prototype(MobPrototype* mob_proto)
 {
-    SET_NAME(mob_proto, lox_empty_string());
+    SET_NAME(mob_proto, lox_empty_string);
 
     free_string(mob_proto->short_descr);
     free_string(mob_proto->long_descr);

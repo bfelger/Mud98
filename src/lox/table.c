@@ -149,6 +149,15 @@ static void adjust_capacity(Table* table, int capacity)
 bool table_set(Table* table, ObjString* key, Value value)
 {
     if (table->count + 1 > table->capacity * TABLE_MAX_LOAD) {
+        // Because memory comes from Mud98's resource bucket, we need to enforce
+        // an early GC is the strings table gets too big.
+        int new_size = GROW_CAPACITY(table->capacity) * sizeof(Entry);
+        if (new_size >= 65536 * 4)
+        //if (GROW_CAPACITY(table->capacity) * sizeof(Entry) > 65536 * 4)
+            collect_garbage();
+    }
+
+    if (table->count + 1 > table->capacity * TABLE_MAX_LOAD) {
         int capacity = GROW_CAPACITY(table->capacity);
         adjust_capacity(table, capacity);
     }
@@ -165,6 +174,13 @@ bool table_set(Table* table, ObjString* key, Value value)
 
 bool table_set_vnum(Table* table, int32_t key, Value value)
 {
+    if (table->count + 1 > table->capacity * TABLE_MAX_LOAD) {
+    // Because memory comes from Mud98's resource bucket, we need to enforce
+    // an early GC is the strings table gets too big.
+        if (GROW_CAPACITY(table->capacity) * sizeof(Entry) >= 65536 * 4)
+            collect_garbage();
+    }
+
     if (table->count + 1 > table->capacity * TABLE_MAX_LOAD) {
         int capacity = GROW_CAPACITY(table->capacity);
         adjust_capacity(table, capacity);
@@ -257,8 +273,11 @@ void table_remove_white(Table* table)
 {
     for (int i = 0; i < table->capacity; i++) {
         Entry* entry = &table->entries[i];
-        if (IS_STRING(entry->key) && !AS_STRING(entry->key)->obj.is_marked) {
-            table_delete(table, AS_STRING(entry->key));
+        if (IS_STRING(entry->key)) {
+            ObjString* str = AS_STRING(entry->key);
+            if (!str->obj.is_marked && !IS_PERM_STRING(str->chars)) {
+                table_delete(table, AS_STRING(entry->key));
+            }
         }
     }
 }

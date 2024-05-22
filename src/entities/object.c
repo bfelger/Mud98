@@ -25,7 +25,7 @@ Object* new_object()
 
     init_header(&obj->header, OBJ_OBJ);
 
-    SET_NAME(obj, lox_empty_string());
+    SET_NAME(obj, lox_empty_string);
 
     SET_NATIVE_FIELD(&obj->header, obj->header.vnum, vnum, I32);
 

@@ -101,4 +101,11 @@ bool values_equal(Value a, Value b);
 char* string_value(Value value);
 void print_value(Value value);
 
+#define IS_PERM_STRING(str) \
+    (str == &str_empty[0] || (str >= string_space && str < top_string))
+
+extern char* string_space;
+extern char* top_string;
+extern char str_empty[1];
+
 #endif

@@ -343,12 +343,9 @@ void run_unit_tests()
     //"    print index;\n"
     //"    print area.name;\n"
     //"});\n";
-    "global_areas[3].instances.apply((inst)-> {\n"
-    "    inst.rooms.apply((key, room) -> {\n"
-    "        print key + \" \" + room.name;\n"
-    "        room.mobiles.apply((mob) -> {\n"
-    "            print \"    \" + mob.name + \" (\" + mob.vnum + \")\";\n"
-    "        });\n"
+    "global_rooms.apply((key, room)-> {\n"
+    "    room.instances.apply((room_inst) -> {\n"
+    "        print key + \" \" + room_inst.name;\n"
     "    });\n"
     "});\n";
 

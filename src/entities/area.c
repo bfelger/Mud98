@@ -21,6 +21,7 @@ ValueArray global_areas = { 0 };
 AreaData* area_data_free;
 
 int area_count = 0;
+int area_data_count = 0;
 int area_perm_count;
 Area* area_free;
 
@@ -52,14 +53,15 @@ void free_area(Area* area)
 {
     free_table(&area->header.fields);
     free_table(&area->rooms);
-    //LIST_FREE(area);
+
+    LIST_FREE(area);
 }
 
 AreaData* new_area_data()
 {
     char buf[MAX_INPUT_LENGTH];
 
-    ENTITY_ALLOC_PERM(area_data, AreaData);
+    LIST_ALLOC_PERM(area_data, AreaData);
 
     push(OBJ_VAL(area_data));
 
@@ -80,8 +82,6 @@ AreaData* new_area_data()
     area_data->reset_thresh = 6;
     area_data->file_name = str_dup(buf);
 
-    area_count++;
-
     return area_data;
 }
 
@@ -92,9 +92,9 @@ void free_area_data(AreaData* area_data)
     free_string(area_data->builders);
     free_string(area_data->credits);
 
-    area_count--;
+    remove_array_value(&global_areas, OBJ_VAL(area_data));
 
-    //LIST_FREE(area_data);
+    LIST_FREE(area_data);
 }
 
 Area* create_area_instance(AreaData* area_data, bool create_exits)
@@ -107,7 +107,7 @@ Area* create_area_instance(AreaData* area_data, bool create_exits)
     pop();
 
     RoomData* room_data;
-    FOR_EACH_GLOBAL_ROOM_DATA(room_data) {
+    FOR_EACH_GLOBAL_ROOM(room_data) {
         if (room_data->area_data == area_data) {
             // It's okay; it's still being added to area instances
             new_room(room_data, area);

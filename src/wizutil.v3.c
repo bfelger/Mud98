@@ -83,8 +83,6 @@ http://www.andreasen.org/
 // To have VLIST show more than vnum 0 - 9900, change the number below:
 #define MAX_SHOW_VNUM   99 // Show only 1 - 100*100 */
 
-extern RoomData* room_data_hash_table[];	// db.c
-
 /* opposite directions */
 const int16_t opposite_dir[6] = {
     DIR_SOUTH, DIR_WEST, DIR_NORTH, DIR_EAST, DIR_DOWN, DIR_UP
@@ -417,7 +415,6 @@ void do_for(Mobile* ch, char* argument)
     Room* room, *old_room;
     Mobile* p;
     Mobile* p_next = NULL;
-    int i;
 
     READ_ARG(range);
 
@@ -508,49 +505,46 @@ void do_for(Mobile* ch, char* argument)
          /* just for every room with the appropriate people in it */
         RoomData* room_data;
         old_room = ch->in_room;
-        for (i = 0; i < MAX_KEY_HASH; i++) {
-            /* run through all the buckets */
-            FOR_EACH(room_data, room_data_hash_table[i]) {
-                FOR_EACH_ROOM_INST(room, room_data) {
-                    found = false;
-                    /* Anyone in here at all? */
-                    if (fEverywhere)
-                        /* Everywhere executes always */
-                        found = true;
-                    else if (!ROOM_HAS_MOBS(room))
-                        /* Skip it if room is empty */
+        FOR_EACH_GLOBAL_ROOM(room_data) {
+            FOR_EACH_ROOM_INST(room, room_data) {
+                found = false;
+                /* Anyone in here at all? */
+                if (fEverywhere)
+                    /* Everywhere executes always */
+                    found = true;
+                else if (!ROOM_HAS_MOBS(room))
+                    /* Skip it if room is empty */
+                    continue;
+
+                /* Check if there is anyone here of the requried type */
+                /* Stop as soon as a match is found or there are no more ppl in room */
+                FOR_EACH_ROOM_MOB(p, room) {
+                    /* do not execute on oneself */
+                    if (p == ch)
                         continue;
 
-                    /* Check if there is anyone here of the requried type */
-                    /* Stop as soon as a match is found or there are no more ppl in room */
-                    FOR_EACH_ROOM_MOB(p, room) {
-                        /* do not execute on oneself */
-                        if (p == ch)
-                            continue;
+                    if (IS_NPC(p) && fMobs)
+                        found = true;
+                    else if (!IS_NPC(p) && (p->level >= LEVEL_IMMORTAL) && fGods)
+                        found = true;
+                    else if (!IS_NPC(p) && (p->level <= LEVEL_IMMORTAL) && fMortals)
+                        found = true;
 
-                        if (IS_NPC(p) && fMobs)
-                            found = true;
-                        else if (!IS_NPC(p) && (p->level >= LEVEL_IMMORTAL) && fGods)
-                            found = true;
-                        else if (!IS_NPC(p) && (p->level <= LEVEL_IMMORTAL) && fMortals)
-                            found = true;
+                    if (found)
+                        break;
+                } /* for everyone inside the room */
 
-                        if (found)
-                            break;
-                    } /* for everyone inside the room */
-
-                    /* Any of the required type here AND room not private? */
-                    if (found && !room_is_private(room)) {
-                        /* This may be ineffective. Consider moving character out of old_room
-                           once at beginning of command then moving back at the end.
-                           This however, is more safe?
-                        */
-                        transfer_mob(ch, room);
-                        interpret(ch, argument);
-                    } /* if found */
-                }
-            } /* for every room in a bucket */
-        }
+                /* Any of the required type here AND room not private? */
+                if (found && !room_is_private(room)) {
+                    /* This may be ineffective. Consider moving character out of old_room
+                        once at beginning of command then moving back at the end.
+                        This however, is more safe?
+                    */
+                    transfer_mob(ch, room);
+                    interpret(ch, argument);
+                } /* if found */
+            }
+        } /* for every room */
         transfer_mob(ch, old_room);
     } /* if strchr */
 } /* do_for */

@@ -178,6 +178,9 @@ void boot_db()
         fBootDb = true;
     }
 
+    init_value_array(&global_areas);
+    init_table(&global_rooms);
+
     load_config();
 
     // Init random number generator.
@@ -653,7 +656,7 @@ void load_rooms(FILE* fp)
             }
         }
 
-        ORDERED_INSERT(RoomData, room_data, room_data_hash_table[vnum % MAX_KEY_HASH], header.vnum);
+        table_set_vnum(&global_rooms, vnum, OBJ_VAL(room_data));
         top_vnum_room = top_vnum_room < vnum ? vnum : top_vnum_room;
         assign_area_vnum(vnum);
         pop();
@@ -746,95 +749,90 @@ void fix_exits()
     Reset* reset;
     RoomData* last_room_index;
     RoomData* last_obj_index;
-    int hash;
     int door;
 
-    for (hash = 0; hash < MAX_KEY_HASH; hash++) {
-        FOR_EACH(room_data, room_data_hash_table[hash]) {
-            last_room_index = last_obj_index = NULL;
+    FOR_EACH_GLOBAL_ROOM(room_data) {
+        last_room_index = last_obj_index = NULL;
 
-            /* OLC : New reset check */
-            FOR_EACH(reset, room_data->reset_first) {
-                switch (reset->command) {
-                default:
-                    bugf("fix_exits : room %d with reset cmd %c", 
-                        VNUM_FIELD(room_data), reset->command);
+        /* OLC : New reset check */
+        FOR_EACH(reset, room_data->reset_first) {
+            switch (reset->command) {
+            default:
+                bugf("fix_exits : room %d with reset cmd %c", 
+                    VNUM_FIELD(room_data), reset->command);
+                exit(1);
+                break;
+
+            case 'M':
+                get_mob_prototype(reset->arg1);
+                last_room_index = get_room_data(reset->arg3);
+                break;
+
+            case 'O':
+                get_object_prototype(reset->arg1);
+                last_obj_index = get_room_data(reset->arg3);
+                break;
+
+            case 'P':
+                get_object_prototype(reset->arg1);
+                if (last_obj_index == NULL) {
+                    bugf("fix_exits : reset in room %d with last_obj_index NULL", 
+                        VNUM_FIELD(room_data));
                     exit(1);
-                    break;
-
-                case 'M':
-                    get_mob_prototype(reset->arg1);
-                    last_room_index = get_room_data(reset->arg3);
-                    break;
-
-                case 'O':
-                    get_object_prototype(reset->arg1);
-                    last_obj_index = get_room_data(reset->arg3);
-                    break;
-
-                case 'P':
-                    get_object_prototype(reset->arg1);
-                    if (last_obj_index == NULL) {
-                        bugf("fix_exits : reset in room %d with last_obj_index NULL", 
-                            VNUM_FIELD(room_data));
-                        exit(1);
-                    }
-                    break;
-
-                case 'G':
-                case 'E':
-                    get_object_prototype(reset->arg1);
-                    if (last_room_index == NULL) {
-                        bugf("fix_exits : reset in room %d with last_room_index NULL", 
-                            VNUM_FIELD(room_data));
-                        exit(1);
-                    }
-                    last_obj_index = last_room_index;
-                    break;
-
-                case 'D':
-                    bugf("???");
-                    break;
-
-                case 'R':
-                    get_room_data(reset->arg1);
-                    if (reset->arg2 < 0 || reset->arg2 > DIR_MAX) {
-                        bugf("fix_exits : reset in room %d with arg2 %d >= DIR_MAX",
-                            VNUM_FIELD(room_data), reset->arg2);
-                        exit(1);
-                    }
-                    break;
                 }
-            }
+                break;
 
-            for (door = 0; door < DIR_MAX; door++) {
-                if ((room_exit = room_data->exit_data[door]) != NULL) {
-                    if (room_exit->to_vnum <= 0
-                        || get_room_data(room_exit->to_vnum) == NULL)
-                        room_exit->to_room = NULL;
-                    else {
-                        room_exit->to_room = get_room_data(room_exit->to_vnum);
-                    }
+            case 'G':
+            case 'E':
+                get_object_prototype(reset->arg1);
+                if (last_room_index == NULL) {
+                    bugf("fix_exits : reset in room %d with last_room_index NULL", 
+                        VNUM_FIELD(room_data));
+                    exit(1);
+                }
+                last_obj_index = last_room_index;
+                break;
+
+            case 'D':
+                bugf("???");
+                break;
+
+            case 'R':
+                get_room_data(reset->arg1);
+                if (reset->arg2 < 0 || reset->arg2 > DIR_MAX) {
+                    bugf("fix_exits : reset in room %d with arg2 %d >= DIR_MAX",
+                        VNUM_FIELD(room_data), reset->arg2);
+                    exit(1);
+                }
+                break;
+            }
+        }
+
+        for (door = 0; door < DIR_MAX; door++) {
+            if ((room_exit = room_data->exit_data[door]) != NULL) {
+                if (room_exit->to_vnum <= 0
+                    || get_room_data(room_exit->to_vnum) == NULL)
+                    room_exit->to_room = NULL;
+                else {
+                    room_exit->to_room = get_room_data(room_exit->to_vnum);
                 }
             }
         }
     }
 
-    for (hash = 0; hash < MAX_KEY_HASH; hash++) {
-        FOR_EACH(room_data, room_data_hash_table[hash]) {
-            for (door = 0; door <= 5; door++) {
-                if ((room_exit = room_data->exit_data[door]) != NULL
-                    && (to_room = room_exit->to_room) != NULL
-                    && (room_exit_rev = to_room->exit_data[dir_list[door].rev_dir]) != NULL
-                    && room_exit_rev->to_room != room_data
-                    && (VNUM_FIELD(room_data) < 1200 || VNUM_FIELD(room_data) > 1299)) {
-                    sprintf(buf, "Fix_exits: %d:%d(%s) -> %d:%d(%s) -> %d.",
-                        VNUM_FIELD(room_data), door, dir_list[door].name_abbr, VNUM_FIELD(to_room),
-                            dir_list[door].rev_dir, dir_list[dir_list[door].rev_dir].name_abbr,
-                            (room_exit_rev->to_room == NULL)
-                                ? 0 : VNUM_FIELD(room_exit_rev->to_room));
-                    bug(buf, 0);
-                }
+    FOR_EACH_GLOBAL_ROOM(room_data) {
+        for (door = 0; door <= 5; door++) {
+            if ((room_exit = room_data->exit_data[door]) != NULL
+                && (to_room = room_exit->to_room) != NULL
+                && (room_exit_rev = to_room->exit_data[dir_list[door].rev_dir]) != NULL
+                && room_exit_rev->to_room != room_data
+                && (VNUM_FIELD(room_data) < 1200 || VNUM_FIELD(room_data) > 1299)) {
+                sprintf(buf, "Fix_exits: %d:%d(%s) -> %d:%d(%s) -> %d.",
+                    VNUM_FIELD(room_data), door, dir_list[door].name_abbr, VNUM_FIELD(to_room),
+                        dir_list[door].rev_dir, dir_list[dir_list[door].rev_dir].name_abbr,
+                        (room_exit_rev->to_room == NULL)
+                            ? 0 : VNUM_FIELD(room_exit_rev->to_room));
+                bug(buf, 0);
             }
         }
     }
@@ -1740,7 +1738,7 @@ char* str_dup(const char* str)
     if (str[0] == '\0') 
         return &str_empty[0];
 
-    if (str >= string_space && str < top_string) 
+    if (IS_PERM_STRING(str)) 
         return (char*)str;
 
     str_new = alloc_mem(strlen(str) + 1);
@@ -2270,9 +2268,4 @@ String* lox_string(const char* str)
 {
     int len = (int)strlen(str);
     return copy_string(str, len);
-}
-
-String* lox_empty_string()
-{
-    return lox_string(str_empty);
 }

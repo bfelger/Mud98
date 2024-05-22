@@ -23,7 +23,8 @@ Room* room_free;
 int room_data_count;
 int room_data_perm_count;
 RoomData* room_data_free;
-RoomData* room_data_hash_table[MAX_KEY_HASH];
+
+Table global_rooms;
 
 VNUM top_vnum_room;
 
@@ -80,8 +81,9 @@ RoomData* new_room_data()
     init_header(&room_data->header, OBJ_ROOM_DATA);
 
     init_list(&room_data->instances);
+    SET_LOX_FIELD(&room_data->header, &room_data->instances, instances);
 
-    SET_NAME(room_data, lox_empty_string());
+    SET_NAME(room_data, lox_empty_string);
     room_data->description = &str_empty[0];
     room_data->owner = &str_empty[0];
     room_data->heal_rate = 100;
@@ -128,7 +130,11 @@ RoomData* get_room_data(VNUM vnum)
 {
     RoomData* room_data = NULL;
 
-    ORDERED_GET(RoomData, room_data, room_data_hash_table[vnum % MAX_KEY_HASH], header.vnum, vnum);
+    Value val;
+    table_get_vnum(&global_rooms, vnum, &val);
+
+    if (IS_ROOM_DATA(val))
+        room_data = AS_ROOM_DATA(val);
 
     if (!room_data && fBootDb) {
         bug("get_room_data: bad vnum %"PRVNUM".", vnum);

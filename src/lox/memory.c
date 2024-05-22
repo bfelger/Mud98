@@ -264,7 +264,7 @@ static void free_obj_value(Obj* object)
     case OBJ_STRING: {
             ObjString* string = (ObjString*)object;
             char* str = string->chars;
-            if (str != &str_empty[0] && (str < string_space || str >= top_string))
+            if (!IS_PERM_STRING(str))
                 FREE_ARRAY(char, string->chars, (size_t)string->length + 1);
             FREE(ObjString, object);
             break;
@@ -320,7 +320,7 @@ static void mark_natives()
         }
     }
 
-    FOR_EACH_GLOBAL_ROOM_DATA(room_data) {
+    FOR_EACH_GLOBAL_ROOM(room_data) {
         mark_entity(&room_data->header);
         FOR_EACH_ROOM_INST(room, room_data) {
             mark_entity(&room->header);
@@ -369,6 +369,7 @@ static void mark_roots()
     mark_table(&vm.globals);
     mark_compiler_roots();
     mark_object((Obj*)vm.init_string);
+    mark_object((Obj*)lox_empty_string);
     mark_natives();
 }
 

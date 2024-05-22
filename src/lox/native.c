@@ -228,4 +228,5 @@ void init_natives()
     init_damage_consts();
 
     add_global("global_areas", OBJ_VAL(&global_areas));
+    add_global("global_rooms", OBJ_VAL(&global_rooms));
 }

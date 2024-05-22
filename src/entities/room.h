@@ -88,9 +88,6 @@ typedef struct room_data_t {
     int16_t reset_num;
 } RoomData;
 
-//#define FOR_EACH_INSTANCE(r, i) \
-//    for ((r) = (i); (r) != NULL; (r) = r->next_instance)
-
 #define FOR_EACH_ROOM_INST(inst, room_data) \
     if ((room_data)->instances.front == NULL) \
         inst = NULL; \
@@ -102,9 +99,13 @@ typedef struct room_data_t {
                 inst = inst##_loop.node != NULL ? AS_ROOM(inst##_loop.node->value) : NULL) \
             if (inst != NULL)
 
-#define FOR_EACH_GLOBAL_ROOM_DATA(r) \
-    for (int r##_hash = 0; r##_hash < MAX_KEY_HASH; ++r##_hash) \
-        FOR_EACH(r, room_data_hash_table[r##_hash])
+#define FOR_EACH_GLOBAL_ROOM(r) \
+    for (int r##_idx = 0, r##_l_count = 0; r##_l_count < global_rooms.count; ++r##_idx) \
+        if (!IS_NIL((&global_rooms.entries[r##_idx])->key) \
+            && !IS_NIL((&global_rooms.entries[r##_idx])->value) \
+            && IS_ROOM_DATA((&global_rooms.entries[r##_idx])->value) \
+            && (r = AS_ROOM_DATA(global_rooms.entries[r##_idx].value)) != NULL \
+            && ++r##_l_count)
 
 #define FOR_EACH_AREA_ROOM(r, a) \
     for (int r##_idx = 0, r##_l_count = 0; r##_l_count < a->rooms.count; ++r##_idx) \
@@ -156,7 +157,7 @@ extern int room_perm_count;
 extern int room_data_count;
 extern int room_data_perm_count;
 
-extern RoomData* room_data_hash_table[MAX_KEY_HASH];
+extern Table global_rooms;
 
 extern VNUM top_vnum_room;
 

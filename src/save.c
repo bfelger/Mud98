@@ -1367,7 +1367,7 @@ void fread_obj(Mobile* ch, FILE* fp)
     if (obj == NULL) /* either not found or old style */
     {
         obj = new_object();
-        SET_NAME(obj, lox_empty_string());
+        SET_NAME(obj, lox_empty_string);
         obj->short_descr = str_dup("");
         obj->description = str_dup("");
     }
