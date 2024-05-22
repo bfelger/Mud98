@@ -30,7 +30,7 @@ RoomExit* new_room_exit(RoomExitData* room_exit_data, Room* from)
         // There is only one possible room.
         // It could be NULL.
         // Check before entering.
-        room_exit->to_room = room_exit_data->to_room->instances;
+        room_exit->to_room = AS_ROOM(room_exit_data->to_room->instances.front->value);
         // DO NOT CREATE INSTANCED-TO-INSTANCED ROOM EXITS BETWEEN DIFFERENT
         // AREAS!
         // TODO: Add OLC code to prevent this from happening. Require a non-

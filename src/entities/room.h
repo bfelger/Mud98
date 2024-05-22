@@ -61,7 +61,6 @@ typedef enum room_flags_t {
 typedef struct room_t {
     EntityHeader header;
     Room* next;
-    Room* next_instance;
     List mobiles;
     List objects;
     RoomData* data;
@@ -73,13 +72,12 @@ typedef struct room_t {
 typedef struct room_data_t {
     EntityHeader header;
     RoomData* next;
-    Room* instances;
+    List instances;
     ExtraDesc* extra_desc;
     AreaData* area_data;
     RoomExitData* exit_data[DIR_MAX];
     Reset* reset_first;
     Reset* reset_last;
-    char* lox_script;
     char* description;
     char* owner;
     FLAGS room_flags;
@@ -90,11 +88,19 @@ typedef struct room_data_t {
     int16_t reset_num;
 } RoomData;
 
-#define FOR_EACH_IN_ROOM(c, r) \
-    for ((c) = (r); (c) != NULL; (c) = c->next_in_room)
+//#define FOR_EACH_INSTANCE(r, i) \
+//    for ((r) = (i); (r) != NULL; (r) = r->next_instance)
 
-#define FOR_EACH_INSTANCE(r, i) \
-    for ((r) = (i); (r) != NULL; (r) = r->next_instance)
+#define FOR_EACH_ROOM_INST(inst, room_data) \
+    if ((room_data)->instances.front == NULL) \
+        inst = NULL; \
+    else if ((inst = AS_ROOM((room_data)->instances.front->value)) != NULL) \
+        for (struct { Node* node; Node* next; } inst##_loop = { (room_data)->instances.front, (room_data)->instances.front->next }; \
+            inst##_loop.node != NULL; \
+            inst##_loop.node = inst##_loop.next, \
+                inst##_loop.next = inst##_loop.next ? inst##_loop.next->next : NULL, \
+                inst = inst##_loop.node != NULL ? AS_ROOM(inst##_loop.node->value) : NULL) \
+            if (inst != NULL)
 
 #define FOR_EACH_GLOBAL_ROOM_DATA(r) \
     for (int r##_hash = 0; r##_hash < MAX_KEY_HASH; ++r##_hash) \

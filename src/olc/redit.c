@@ -88,7 +88,7 @@ void do_redit(Mobile* ch, char* argument)
         }
 
         Room* room;
-        FOR_EACH_INSTANCE(room, room_data->instances)
+        FOR_EACH_ROOM_INST(room, room_data)
             reset_room(room);
         send_to_char("{jRoom reset.{x\n\r", ch);
         return;
@@ -102,7 +102,7 @@ void do_redit(Mobile* ch, char* argument)
         if (redit_create(ch, argument)) {
             mob_from_room(ch);
             room_data = (RoomData*)ch->desc->pEdit;
-            mob_to_room(ch, room_data->instances);
+            mob_to_room(ch, AS_ROOM(room_data->instances.front->value));
             SET_BIT(room_data->area_data->area_flags, AREA_CHANGED);
         }
     }
@@ -564,7 +564,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         room_data->exit_data[door] = room_exit_data;
 
         Room* from_room;
-        FOR_EACH(from_room, room_data->instances)
+        FOR_EACH_ROOM_INST(from_room, room_data)
             from_room->exit[door] = new_room_exit(room_exit_data, from_room);
 
         // Now the other side
@@ -576,7 +576,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         to_room_data->exit_data[door] = room_exit_data;
 
         Room* to_room;
-        FOR_EACH(to_room, to_room_data->instances)
+        FOR_EACH_ROOM_INST(to_room, to_room_data)
             to_room->exit[door] = new_room_exit(room_exit_data, to_room);
 
         SET_BIT(to_room_data->area_data->area_flags, AREA_CHANGED);
@@ -643,7 +643,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         room_exit_data->orig_dir = door;
 
         Room* from_room;
-        FOR_EACH(from_room, room_data->instances)
+        FOR_EACH_ROOM_INST(from_room, room_data)
             from_room->exit[door] = new_room_exit(room_exit_data, from_room);
 
         if ((room_exit_data = target->exit_data[dir_list[door].rev_dir]) != NULL
@@ -832,7 +832,7 @@ REDIT(redit_mreset)
 
     // Create the mobile.
     Room* room;
-    FOR_EACH_INSTANCE(room, room_data->instances) {
+    FOR_EACH_ROOM_INST(room, room_data) {
         newmob = create_mobile(p_mob_proto);
         mob_to_room(newmob, room);
         if (room == ch->in_room)
@@ -918,7 +918,7 @@ REDIT(redit_oreset)
         add_reset(room_data, reset, 0/* Last slot*/);
 
         Room* room;
-        FOR_EACH_INSTANCE(room, room_data->instances) {
+        FOR_EACH_ROOM_INST(room, room_data) {
             newobj = create_object(obj_proto, (int16_t)number_fuzzy(olevel));
             obj_to_room(newobj, room);
         }
@@ -928,7 +928,7 @@ REDIT(redit_oreset)
             VNUM_FIELD(obj_proto));
         send_to_char(output, ch);
     }
-    else if (argument[0] == '\0' && ((to_obj = get_obj_list(ch, into_arg, &room_data->instances->objects)) != NULL)) {
+    else if (argument[0] == '\0' && ((to_obj = get_obj_list(ch, into_arg, &AS_ROOM(room_data->instances.front->value)->objects)) != NULL)) {
         // Load into object's inventory.
         reset = new_reset();
         reset->command = 'P';
@@ -939,7 +939,7 @@ REDIT(redit_oreset)
         add_reset(room_data, reset, 0/* Last slot*/);
 
         Room* room;
-        FOR_EACH_INSTANCE(room, room_data->instances) {
+        FOR_EACH_ROOM_INST(room, room_data) {
             to_obj = get_obj_list(ch, into_arg, &room->objects);
             newobj = create_object(obj_proto, (int16_t)number_fuzzy(olevel));
             newobj->cost = 0;
@@ -956,7 +956,7 @@ REDIT(redit_oreset)
             send_to_char(output, ch);
         }
     }
-    else if ((to_mob = get_mob_instance(room_data->instances, into_arg)) != NULL) {
+    else if ((to_mob = get_mob_instance(AS_ROOM(room_data->instances.front->value), into_arg)) != NULL) {
         // Load into mobile's inventory.
         int wearloc;
 
@@ -995,7 +995,7 @@ REDIT(redit_oreset)
         add_reset(room_data, reset, 0/* Last slot*/);
 
         Room* room;
-        FOR_EACH_INSTANCE(room, room_data->instances) {
+        FOR_EACH_ROOM_INST(room, room_data) {
             to_mob = get_mob_instance(room, into_arg);
             if (to_mob == NULL) {
                 send_to_char("REdit:  Not all instances have that mob.\n\r", ch);

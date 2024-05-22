@@ -511,7 +511,7 @@ void do_for(Mobile* ch, char* argument)
         for (i = 0; i < MAX_KEY_HASH; i++) {
             /* run through all the buckets */
             FOR_EACH(room_data, room_data_hash_table[i]) {
-                FOR_EACH_INSTANCE(room, room_data->instances) {
+                FOR_EACH_ROOM_INST(room, room_data) {
                     found = false;
                     /* Anyone in here at all? */
                     if (fEverywhere)

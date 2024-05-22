@@ -322,7 +322,7 @@ static void mark_natives()
 
     FOR_EACH_GLOBAL_ROOM_DATA(room_data) {
         mark_entity(&room_data->header);
-        FOR_EACH(room, room_data->instances) {
+        FOR_EACH_ROOM_INST(room, room_data) {
             mark_entity(&room->header);
             mark_list(&room->objects);
             mark_list(&room->mobiles);

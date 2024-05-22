@@ -52,8 +52,8 @@ Room* new_room(RoomData* room_data, Area* area)
     table_set_vnum(&area->rooms, VNUM_FIELD(room), OBJ_VAL(room));
 
     room->data = room_data;
-    room->next_instance = room_data->instances;
-    room_data->instances = room;
+    
+    list_push_back(&room_data->instances, OBJ_VAL(room));
 
     pop();
 
@@ -62,10 +62,9 @@ Room* new_room(RoomData* room_data, Area* area)
 
 void free_room(Room* room)
 {
-    if (room == room->data->instances)
-        room->data->instances = room->next_instance;
-
     Area* area = room->area;
+
+    list_remove_value(&room->data->instances, OBJ_VAL(room));
 
     table_delete_vnum(&area->rooms, VNUM_FIELD(room));
 
@@ -80,12 +79,13 @@ RoomData* new_room_data()
 
     init_header(&room_data->header, OBJ_ROOM_DATA);
 
+    init_list(&room_data->instances);
+
     SET_NAME(room_data, lox_empty_string());
     room_data->description = &str_empty[0];
     room_data->owner = &str_empty[0];
     room_data->heal_rate = 100;
     room_data->mana_rate = 100;
-    room_data->lox_script = NULL;
 
     pop();
 
@@ -114,7 +114,7 @@ void free_room_data(RoomData* room_data)
         free_reset(reset);
     }
 
-    free_string(room_data->lox_script);
+    free_list(&room_data->instances);
 
     LIST_FREE(room_data);
     return;

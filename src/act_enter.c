@@ -55,12 +55,12 @@ Room* get_random_room(Mobile* ch)
     Room* room;
 
     for (;;) {
-        room_data = get_room_data(number_range(0, MAX_VNUM));
+        room_data = get_room_data(number_range(0, top_vnum_room));
         if (room_data != NULL) {
             // No instanced rooms. I really don't want to deal with that headache.
             if (room_data->area_data->inst_type == AREA_INST_MULTI)
                 continue;
-            room = room_data->instances;
+            room = AS_ROOM(room_data->instances.front->value);
             if (can_see_room(ch, room_data) && !room_is_private(room)
                 && !IS_SET(room_data->room_flags, ROOM_PRIVATE)
                 && !IS_SET(room_data->room_flags, ROOM_SOLITARY)
