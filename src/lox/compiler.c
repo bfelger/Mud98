@@ -740,15 +740,19 @@ static void named_variable(Token name, bool can_assign)
         }
         else if (match(TOKEN_PLUS_PLUS)) {
             emit_bytes(get_op, (uint8_t)arg);
+            emit_bytes(get_op, (uint8_t)arg);
             emit_constant(INT_VAL(1));
             emit_byte(OP_ADD);
             emit_bytes(set_op, (uint8_t)arg);
+            emit_byte(OP_POP);
         }
         else if (match(TOKEN_MINUS_MINUS)) {
+            emit_bytes(get_op, (uint8_t)arg);
             emit_bytes(get_op, (uint8_t)arg);
             emit_constant(INT_VAL(1));
             emit_byte(OP_SUBTRACT);
             emit_bytes(set_op, (uint8_t)arg);
+            emit_byte(OP_POP);
         }
         else if (match(TOKEN_PLUS_EQUALS)) {
             emit_bytes(get_op, (uint8_t)arg);
