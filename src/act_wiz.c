@@ -1702,7 +1702,7 @@ void do_owhere(Mobile* ch, char* argument)
         return;
     }
 
-    FOR_EACH(obj, obj_list) {
+    FOR_EACH_GLOBAL_OBJ(obj) {
         if (!can_see_obj(ch, obj) || !is_name(argument, NAME_STR(obj))
             || ch->level < obj->level)
             continue;

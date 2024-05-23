@@ -710,15 +710,12 @@ void char_update(void)
 void obj_update(void)
 {
     Object* obj;
-    Object* obj_next = NULL;
     Affect* affect;
     Affect* paf_next = NULL;
 
-    for (obj = obj_list; obj != NULL; obj = obj_next) {
+    FOR_EACH_GLOBAL_OBJ(obj) {
         Mobile* rch;
         char* message;
-
-        obj_next = obj->next;
 
         /* go through affects and decrement */
         for (affect = obj->affected; affect != NULL; affect = paf_next) {

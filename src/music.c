@@ -99,7 +99,7 @@ void song_update(void)
         }
     }
 
-    FOR_EACH(obj, obj_list) {
+    FOR_EACH_GLOBAL_OBJ(obj) {
         if (obj->item_type != ITEM_JUKEBOX || obj->value[1] < 0)
             continue;
 

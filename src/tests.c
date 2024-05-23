@@ -343,10 +343,11 @@ void run_unit_tests()
     //"    print index;\n"
     //"    print area.name;\n"
     //"});\n";
-    "var obj_count = 0;"
-    "obj_protos.apply((key, op)-> {\n"
-    "    print obj_count++ + \": [\" + key + \"] \" + op.name;\n"
-    "});\n";
+    "var obj_count = 0;\n"
+    "global_objs.apply((obj) -> {\n"
+    "    obj_count++;\n"
+    "});\n"
+    "print \"Object Instance Count: \" + obj_count;\n";
 
     InterpretResult result = interpret_code(source);
     if (result == INTERPRET_COMPILE_ERROR) exit(65);

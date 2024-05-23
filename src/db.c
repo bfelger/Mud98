@@ -182,6 +182,7 @@ void boot_db()
     init_table(&global_rooms);
     init_table(&mob_protos);
     init_table(&obj_protos);
+    init_list(&obj_list);
 
     load_config();
 
@@ -1811,7 +1812,7 @@ static void memory_to_buffer(Buffer* buf)
     addf_buf(buf, "MobProgs     %5d     %5d\n\r", mob_prog_perm_count, mob_prog_count);
     addf_buf(buf, "MobProgCodes %5d     %5d\n\r", mob_prog_code_perm_count, mob_prog_code_count);
     addf_buf(buf, "Objs         %5d     %5d\n\r", obj_proto_perm_count, obj_proto_count);
-    addf_buf(buf, "- Insts      %5d     %5d\n\r", obj_perm_count, obj_count);
+    addf_buf(buf, "- Insts      %5d     %5d\n\r", obj_list.count + obj_free.count, obj_list.count);
     addf_buf(buf, "Resets       %5d     %5d\n\r", reset_perm_count, reset_count);
     addf_buf(buf, "Rooms        %5d     %5d\n\r", room_data_perm_count, room_data_count);
     addf_buf(buf, "- Insts      %5d     %5d\n\r", room_perm_count, room_count);
@@ -1920,15 +1921,12 @@ void do_dump(Mobile* ch, char* argument)
             obj_proto_count * (sizeof(*obj_proto)));
 
     /* objects */
-    count = 0;
-    count2 = 0;
-    FOR_EACH(obj, obj_list) {
-        count++;
+    count = obj_list.count;
+    FOR_EACH_GLOBAL_OBJ(obj) {
         FOR_EACH(af, obj->affected)
             aff_count++;
     }
-    FOR_EACH(obj, obj_free)
-        count2++;
+    count2 = obj_free.count;
 
     fprintf(fp, "Objs	%4d (%8zu bytes), %2d free (%zu bytes)\n", count,
             count * (sizeof(*obj)), count2, count2 * (sizeof(*obj)));

@@ -29,7 +29,7 @@ typedef struct object_t Object;
 
 typedef struct object_t {
     EntityHeader header;
-    Object* next;
+    Node* obj_list_node;
     List objects;
     Object* in_obj;
     Object* on;
@@ -62,6 +62,17 @@ typedef struct object_t {
 #define WEIGHT_MULT(obj)                                                       \
     ((obj)->item_type == ITEM_CONTAINER ? (obj)->value[4] : 100)
 
+#define FOR_EACH_GLOBAL_OBJ(obj) \
+    if (obj_list.front == NULL) \
+        obj = NULL; \
+    else if ((obj = AS_OBJECT(obj_list.front->value)) != NULL) \
+        for (struct { Node* node; Node* next; } obj##_loop = { obj_list.front, obj_list.front->next }; \
+            obj##_loop.node != NULL; \
+            obj##_loop.node = obj##_loop.next, \
+                obj##_loop.next = obj##_loop.next ? obj##_loop.next->next : NULL, \
+                obj = obj##_loop.node != NULL ? AS_OBJECT(obj##_loop.node->value) : NULL) \
+            if (obj != NULL)
+
 #define OBJ_HAS_OBJS(obj) \
     ((obj)->objects.count > 0)
 
@@ -81,11 +92,8 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level);
 void free_object(Object* obj);
 Object* new_object();
 
-extern int obj_count;
-extern int obj_perm_count;
-
-extern Object* obj_free;
-extern Object* obj_list;
+extern List obj_free;
+extern List obj_list;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Lox implementation

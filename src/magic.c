@@ -3161,7 +3161,7 @@ void spell_locate_object(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarge
 
     buffer = new_buf();
 
-    FOR_EACH(obj, obj_list) {
+    FOR_EACH_GLOBAL_OBJ(obj) {
         if (!can_see_obj(ch, obj) || !is_name(target_name, NAME_STR(obj))
             || IS_OBJ_STAT(obj, ITEM_NOLOCATE) || number_percent() > 2 * level
             || ch->level < obj->level)

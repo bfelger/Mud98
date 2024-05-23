@@ -1344,25 +1344,6 @@ void extract_obj(Object* obj)
     while (obj->objects.count > 0)
         extract_obj(AS_OBJECT(obj->objects.front->value));
 
-    if (obj_list == obj) { 
-        obj_list = obj->next; 
-    }
-    else {
-        Object* prev;
-
-        FOR_EACH(prev, obj_list) {
-            if (prev->next == obj) {
-                prev->next = obj->next;
-                break;
-            }
-        }
-
-        if (prev == NULL) {
-            bug("Extract_obj: obj %d not found.", VNUM_FIELD(obj->prototype));
-            return;
-        }
-    }
-
     --obj->prototype->count;
     free_object(obj);
     return;
@@ -1498,7 +1479,7 @@ Object* get_obj_type(ObjPrototype* obj_proto)
 {
     Object* obj;
 
-    FOR_EACH(obj, obj_list) {
+    FOR_EACH_GLOBAL_OBJ(obj) {
         if (obj->prototype == obj_proto)
             return obj;
     }
@@ -1597,9 +1578,10 @@ Object* get_obj_world(Mobile* ch, char* argument)
 
     number = number_argument(argument, arg);
     count = 0;
-    FOR_EACH(obj, obj_list) {
+    FOR_EACH_GLOBAL_OBJ(obj) {
         if (can_see_obj(ch, obj) && is_name(arg, NAME_STR(obj))) {
-            if (++count == number) return obj;
+            if (++count == number)
+                return obj;
         }
     }
 

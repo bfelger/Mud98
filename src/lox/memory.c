@@ -311,19 +311,11 @@ static void free_obj_value(Obj* object)
 
 static void mark_natives()
 {
-    Object* obj;
     Mobile* mob;
 
     FOR_EACH(mob, mob_list) {
         mark_entity(&mob->header);
         mark_list(&mob->objects);
-    }
-
-    FOR_EACH(obj, obj_list) {
-        mark_entity(&obj->header);
-        if (obj->owner != NULL)
-            mark_object((Obj*)obj->owner);
-        mark_list(&obj->objects);
     }
 
     // The following are already in globals, and will already be marked.
@@ -334,13 +326,21 @@ static void mark_natives()
     //Room* room;
     //MobPrototype* mob_proto;
     //ObjPrototype* obj_proto;
+    //Object* obj;
 
+    //FOR_EACH_MOB_PROTO(mob_proto) {
+    //    mark_entity(&mob_proto->header);
+    //}
+    //   
     //FOR_EACH_OBJ_PROTO(obj_proto) {
     //    mark_entity(&obj_proto->header);
     //}
-    //
-    //FOR_EACH_MOB_PROTO(mob_proto) {
-    //    mark_entity(&mob_proto->header);
+    // 
+    //FOR_EACH_GLOBAL_OBJ(obj) {
+    //    mark_entity(&obj->header);
+    //    if (obj->owner != NULL)
+    //        mark_object((Obj*)obj->owner);
+    //    mark_list(&obj->objects);
     //}
     //
     //mark_array(&global_areas);

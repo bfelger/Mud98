@@ -40,7 +40,7 @@ static Node* new_node()
     return node;
 }
 
-void list_push(List* list, Value value)
+Node* list_push(List* list, Value value)
 {
     Node* node = new_node();
     node->value = value;
@@ -54,9 +54,11 @@ void list_push(List* list, Value value)
     list->front = node;
 
     list->count++;
+
+    return node;
 }
 
-void list_push_back(List* list, Value value)
+Node* list_push_back(List* list, Value value)
 {
     Node* node = new_node();
     node->value = value;
@@ -70,6 +72,8 @@ void list_push_back(List* list, Value value)
     list->back = node;
 
     list->count++;
+
+    return node;
 }
 
 Value list_pop(List* list)
@@ -127,7 +131,7 @@ void list_remove_value(List* list, Value value)
         list_remove_node(list, node);
 }
 
-void list_insert_after(List* list, Node* node, Value value)
+Node* list_insert_after(List* list, Node* node, Value value)
 {
     Node* new_ = new_node();
     new_->value = value;
@@ -145,6 +149,8 @@ void list_insert_after(List* list, Node* node, Value value)
         new_->prev->next = new_;
 
     list->count++;
+
+    return new_;
 }
 
 void mark_list(List* list)

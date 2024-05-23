@@ -30,13 +30,13 @@ typedef struct {
 List* new_list();
 void init_list(List* list);
 void free_list(List* list);
-void list_push(List* list, Value value);
-void list_push_back(List* list, Value value);
+Node* list_push(List* list, Value value);
+Node* list_push_back(List* list, Value value);
 Value list_pop(List* list);
 Node* list_find(List* list, Value value);
 void list_remove_node(List* list, Node* node);
 void list_remove_value(List* list, Value value);
-void list_insert_after(List* list, Node* node, Value value);
+Node* list_insert_after(List* list, Node* node, Value value);
 void mark_list(List* list);
 
 #endif // !clox_list_h

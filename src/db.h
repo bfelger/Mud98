@@ -96,13 +96,11 @@ String* lox_string(const char* str);
 #define ENTITY_ALLOC_PERM(x, T)                                                \
     static T x##_zero = { 0 };                                                 \
     T* x;                                                                      \
-    if (!x##_free) {                                                           \
+    if (x##_free.count == 0) {                                                 \
         x = alloc_perm(sizeof(*x));                                            \
-        x##_perm_count++;                                                      \
     }                                                                          \
     else {                                                                     \
-        x = x##_free;                                                          \
-        NEXT_LINK(x##_free);                                                   \
+        x = (T*)AS_OBJ(list_pop(&x##_free));                                   \
     }                                                                          \
     *x = x##_zero;
 
@@ -119,6 +117,10 @@ String* lox_string(const char* str);
     }                                                                          \
     x##_count++;                                                               \
     *x = x##_zero;
+
+#define ENTITY_FREE(x)                                                         \
+    list_remove_node(&x##_list, x->x##_list_node);                             \
+    list_push_back(&x##_free, OBJ_VAL(x));
 
 #define LIST_FREE(x)                                                           \
     x##_count--;                                                               \

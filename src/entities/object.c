@@ -11,15 +11,12 @@
 #include "magic.h"
 #include "recycle.h"
 
-int obj_count;
-int obj_perm_count;
-
-Object* obj_free;
-Object* obj_list;
+List obj_free;
+List obj_list;
 
 Object* new_object()
 {
-    LIST_ALLOC_PERM(obj, Object);
+    ENTITY_ALLOC_PERM(obj, Object);
 
     push(OBJ_VAL(obj));
 
@@ -68,7 +65,7 @@ void free_object(Object* obj)
     obj->owner = NULL;
     INVALIDATE(obj);
 
-    LIST_FREE(obj);
+    ENTITY_FREE(obj);
 }
 
 void clone_object(Object* parent, Object* clone)
@@ -202,6 +199,10 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level)
 
     obj = new_object();
 
+    push(OBJ_VAL(obj));
+    obj->obj_list_node = list_push_back(&obj_list, OBJ_VAL(obj));
+    pop(); // obj
+
     obj->prototype = obj_proto;
 
     SET_NAME(obj, NAME_FIELD(obj_proto));
@@ -250,8 +251,6 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level)
         if (affect->location == APPLY_SPELL_AFFECT) 
             affect_to_obj(obj, affect);
 
-    obj->next = obj_list;
-    obj_list = obj;
     obj_proto->count++;
 
     return obj;
