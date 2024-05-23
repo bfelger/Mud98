@@ -229,4 +229,5 @@ void init_natives()
 
     add_global("global_areas", OBJ_VAL(&global_areas));
     add_global("global_rooms", OBJ_VAL(&global_rooms));
+    add_global("mob_protos", OBJ_VAL(&mob_protos));
 }

@@ -20,7 +20,7 @@
 #include "data/mobile_data.h"
 #include "data/race.h"
 
-MobPrototype* mob_proto_hash[MAX_KEY_HASH];
+Table mob_protos;
 MobPrototype* mob_proto_free;
 
 int mob_proto_count;
@@ -152,12 +152,10 @@ void free_mob_prototype(MobPrototype* mob_proto)
 // Hash table lookup.
 MobPrototype* get_mob_prototype(VNUM vnum)
 {
-    MobPrototype* p_mob_proto;
-
-    for (p_mob_proto = mob_proto_hash[vnum % MAX_KEY_HASH]; p_mob_proto != NULL;
-        NEXT_LINK(p_mob_proto)) {
-        if (VNUM_FIELD(p_mob_proto) == vnum)
-            return p_mob_proto;
+    Value value = NIL_VAL;
+    if (table_get_vnum(&mob_protos, vnum, &value)) {
+        if (IS_MOB_PROTO(value))
+            return AS_MOB_PROTO(value);
     }
 
     if (fBootDb) {
@@ -182,7 +180,6 @@ void load_mobiles(FILE* fp)
     for (;;) {
         VNUM vnum;
         char letter;
-        int hash;
 
         letter = fread_letter(fp);
         if (letter != '#') {
@@ -329,13 +326,12 @@ void load_mobiles(FILE* fp)
             }
         }
 
-        hash = vnum % MAX_KEY_HASH;
-        p_mob_proto->next = mob_proto_hash[hash];
-        mob_proto_hash[hash] = p_mob_proto;
+        table_set_vnum(&mob_protos, vnum, OBJ_VAL(p_mob_proto));
+
         top_vnum_mob = top_vnum_mob < vnum ? vnum : top_vnum_mob;
         assign_area_vnum(vnum);
         kill_table[URANGE(0, p_mob_proto->level, MAX_LEVEL - 1)].number++;
-        pop();
+        pop(); // p_mob_proto
     }
 
     return;

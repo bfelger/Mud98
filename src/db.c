@@ -180,6 +180,7 @@ void boot_db()
 
     init_value_array(&global_areas);
     init_table(&global_rooms);
+    init_table(&mob_protos);
 
     load_config();
 
@@ -931,17 +932,14 @@ void fix_mobprogs()
     MobPrototype* p_mob_proto;
     MobProg* list;
     MobProgCode* prog;
-    int hash;
 
-    for (hash = 0; hash < MAX_KEY_HASH; hash++) {
-        FOR_EACH(p_mob_proto, mob_proto_hash[hash]) {
-            FOR_EACH(list, p_mob_proto->mprogs) {
-                if ((prog = pedit_prog(list->vnum)) != NULL)
-                    list->code = prog->code;
-                else {
-                    bug("Fix_mobprogs: code vnum %"PRVNUM" not found.", list->vnum);
-                    exit(1);
-                }
+    FOR_EACH_MOB_PROTO(p_mob_proto) {
+        FOR_EACH(list, p_mob_proto->mprogs) {
+            if ((prog = pedit_prog(list->vnum)) != NULL)
+                list->code = prog->code;
+            else {
+                bug("Fix_mobprogs: code vnum %"PRVNUM" not found.", list->vnum);
+                exit(1);
             }
         }
     }

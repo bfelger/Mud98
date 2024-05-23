@@ -443,7 +443,6 @@ ED_FUN_DEC(ed_new_mob)
     MobPrototype* pMob;
     AreaData* area;
     VNUM  value;
-    int  hash;
 
     value = STRTOVNUM(argument);
 
@@ -470,6 +469,8 @@ ED_FUN_DEC(ed_new_mob)
     }
 
     pMob = new_mob_prototype();
+    push(OBJ_VAL(pMob));
+
     VNUM_FIELD(pMob) = value;
     pMob->area = area;
     pMob->act_flags = ACT_IS_NPC;
@@ -479,9 +480,8 @@ ED_FUN_DEC(ed_new_mob)
 
     SET_BIT(area->area_flags, AREA_CHANGED);
 
-    hash = value % MAX_KEY_HASH;
-    pMob->next = mob_proto_hash[hash];
-    mob_proto_hash[hash] = pMob;
+    table_set_vnum(&mob_protos, value, OBJ_VAL(pMob));
+    pop(); // pMob
 
     set_editor(ch->desc, ED_MOBILE, U(pMob));
 /*    ch->desc->pEdit        = (void *)pMob; */

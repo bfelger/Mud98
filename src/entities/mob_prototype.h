@@ -73,10 +73,13 @@ typedef struct mob_prototype_t {
 #define GROUP_VNUM_TROLLS       2100
 #define GROUP_VNUM_OGRES        2101
 
-
-#define FOR_EACH_MOB_PROTO(p) \
-    for (int p##_hash_idx = 0; p##_hash_idx < MAX_KEY_HASH; ++p##_hash_idx) \
-        FOR_EACH(p, mob_proto_hash[p##_hash_idx])
+#define FOR_EACH_MOB_PROTO(m) \
+    for (int m##_idx = 0, m##_l_count = 0; m##_l_count < mob_protos.count; ++m##_idx) \
+        if (!IS_NIL((&mob_protos.entries[m##_idx])->key) \
+            && !IS_NIL((&mob_protos.entries[m##_idx])->value) \
+            && IS_MOB_PROTO((&mob_protos.entries[m##_idx])->value) \
+            && (m = AS_MOB_PROTO(mob_protos.entries[m##_idx].value)) != NULL \
+            && ++m##_l_count)
 
 MobPrototype* new_mob_prototype();
 void free_mob_prototype(MobPrototype* p_mob_proto);
@@ -84,7 +87,7 @@ MobPrototype* get_mob_prototype(VNUM vnum);
 void load_mobiles(FILE* fp);
 void recalc(MobPrototype* pMob);
 
-extern MobPrototype* mob_proto_hash[];
+extern Table mob_protos;
 extern MobPrototype* mob_prototype_free;
 
 extern int mob_proto_count;

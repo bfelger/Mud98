@@ -2316,14 +2316,12 @@ char* itos(int temp)
 
 int get_vnum_mob_name_area(char* name, AreaData* area)
 {
-    int hash;
     MobPrototype* mob;
 
-    for (hash = 0; hash < MAX_KEY_HASH; hash++)
-        FOR_EACH(mob, mob_proto_hash[hash])
-            if (mob->area == area
-                && !str_prefix(name, NAME_STR(mob)))
-                return VNUM_FIELD(mob);
+    FOR_EACH_MOB_PROTO(mob)
+        if (mob->area == area
+            && !str_prefix(name, NAME_STR(mob)))
+            return VNUM_FIELD(mob);
 
     return 0;
 }

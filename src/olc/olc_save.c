@@ -613,23 +613,20 @@ void save_rooms(FILE* fp, AreaData* area)
  ****************************************************************************/
 void save_specials(FILE* fp, AreaData* area)
 {
-    int hash;
     MobPrototype* p_mob_proto;
 
     fprintf(fp, "#SPECIALS\n");
 
-    for (hash = 0; hash < MAX_KEY_HASH; hash++) {
-        FOR_EACH(p_mob_proto, mob_proto_hash[hash]) {
-            if (p_mob_proto && p_mob_proto->area == area && p_mob_proto->spec_fun) {
+    FOR_EACH_MOB_PROTO(p_mob_proto) {
+        if (p_mob_proto && p_mob_proto->area == area && p_mob_proto->spec_fun) {
 #if defined( VERBOSE )
-                fprintf(fp, "M %"PRVNUM" %s Load to: %s\n", VNUM_FIELD(p_mob_proto),
-                    spec_name(p_mob_proto->spec_fun),
-                    p_mob_proto->short_descr);
+            fprintf(fp, "M %"PRVNUM" %s Load to: %s\n", VNUM_FIELD(p_mob_proto),
+                spec_name(p_mob_proto->spec_fun),
+                p_mob_proto->short_descr);
 #else
-                fprintf(fp, "M %"PRVNUM" %s\n", VNUM_FIELD(p_mob_proto),
-                    spec_name(p_mob_proto->spec_fun));
+            fprintf(fp, "M %"PRVNUM" %s\n", VNUM_FIELD(p_mob_proto),
+                spec_name(p_mob_proto->spec_fun));
 #endif
-            }
         }
     }
 
@@ -858,26 +855,23 @@ void save_shops(FILE* fp, AreaData* area)
     ShopData* pShopIndex;
     MobPrototype* p_mob_proto;
     int iTrade;
-    int hash;
 
     fprintf(fp, "#SHOPS\n");
 
-    for (hash = 0; hash < MAX_KEY_HASH; hash++) {
-        FOR_EACH(p_mob_proto, mob_proto_hash[hash]) {
-            if (p_mob_proto && p_mob_proto->area == area && p_mob_proto->pShop) {
-                pShopIndex = p_mob_proto->pShop;
+    FOR_EACH_MOB_PROTO(p_mob_proto) {
+        if (p_mob_proto && p_mob_proto->area == area && p_mob_proto->pShop) {
+            pShopIndex = p_mob_proto->pShop;
 
-                fprintf(fp, "%d ", pShopIndex->keeper);
-                for (iTrade = 0; iTrade < MAX_TRADE; iTrade++) {
-                    if (pShopIndex->buy_type[iTrade] != 0) {
-                        fprintf(fp, "%d ", pShopIndex->buy_type[iTrade]);
-                    }
-                    else
-                        fprintf(fp, "0 ");
+            fprintf(fp, "%d ", pShopIndex->keeper);
+            for (iTrade = 0; iTrade < MAX_TRADE; iTrade++) {
+                if (pShopIndex->buy_type[iTrade] != 0) {
+                    fprintf(fp, "%d ", pShopIndex->buy_type[iTrade]);
                 }
-                fprintf(fp, "%d %d ", pShopIndex->profit_buy, pShopIndex->profit_sell);
-                fprintf(fp, "%d %d\n", pShopIndex->open_hour, pShopIndex->close_hour);
+                else
+                    fprintf(fp, "0 ");
             }
+            fprintf(fp, "%d %d ", pShopIndex->profit_buy, pShopIndex->profit_sell);
+            fprintf(fp, "%d %d\n", pShopIndex->open_hour, pShopIndex->close_hour);
         }
     }
 

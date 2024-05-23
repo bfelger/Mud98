@@ -1139,14 +1139,12 @@ void listobjreset(Mobile* ch, Buffer* buf, AreaData* area)
 void listmobreset(Mobile* ch, Buffer* buf, AreaData* area)
 {
     MobPrototype* mob;
-    int key;
 
     add_buf(buf, "{TVnum  Name            Room {x\n\r");
 
-    for (key = 0; key < MAX_KEY_HASH; ++key)
-        FOR_EACH(mob, mob_proto_hash[key])
-            if (mob->area == area)
-                showresets(ch, buf, area, mob, 0);
+    FOR_EACH_MOB_PROTO(mob)
+        if (mob->area == area)
+            showresets(ch, buf, area, mob, 0);
 }
 
 REDIT(redit_listreset)
@@ -1227,15 +1225,13 @@ REDIT(redit_checkmob)
 {
     MobPrototype* mob;
     RoomData* room;
-    int key;
     bool fAll = !str_cmp(argument, "all");
 
     EDIT_ROOM(ch, room);
 
-    for (key = 0; key < MAX_KEY_HASH; ++key)
-        FOR_EACH(mob, mob_proto_hash[key])
-            if (mob->reset_num == 0 && (fAll || mob->area == room->area_data))
-                printf_to_char(ch, "Mob {*%-5.5d{x [%-20.20s] has no resets.\n\r", VNUM_FIELD(mob), NAME_STR(mob));
+    FOR_EACH_MOB_PROTO(mob)
+        if (mob->reset_num == 0 && (fAll || mob->area == room->area_data))
+            printf_to_char(ch, "Mob {*%-5.5d{x [%-20.20s] has no resets.\n\r", VNUM_FIELD(mob), NAME_STR(mob));
 
     return false;
 }
@@ -1966,31 +1962,29 @@ void do_moblist(Mobile* ch, char* argument)
     VNUM hi_vnum = ch->in_room->area->data->max_vnum;
     VNUM lo_vnum = ch->in_room->area->data->min_vnum;
 
-    for (int h = 0; h < MAX_KEY_HASH; ++h) {
-        MobPrototype* mob;
-        FOR_EACH(mob, mob_proto_hash[h])
-        {
-            if (count > max_disp) {
-                addf_buf(out, "Max display threshold reached.\n\r");
-                goto max_disp_reached;
-            }
-            if (!world && (VNUM_FIELD(mob) < lo_vnum || VNUM_FIELD(mob) > hi_vnum))
-                continue;
-            if (world && (mob->level < lo_lvl || mob->level > hi_lvl))
-                continue;
+    MobPrototype* mob;
 
-            //VNUM   Name       Lvl Hit Dice   Hit   Dam Dice   Mana       Pie Bas Sla Mag
-            //###### ########## ### ########## ##### ######## ########## ### ### ### ###
-            addf_buf(out, "{*%-6d{x %-10.10s {*%-3d ",
-                VNUM_FIELD(mob), mob->short_descr, mob->level);
-            sprintf(buf, "%dd%d+%d", mob->hit[0], mob->hit[1], mob->hit[2]);
-            addf_buf(out, "%-12.12s %-5d ", buf, mob->hitroll);
-            sprintf(buf, "%dd%d+%d", mob->damage[0], mob->damage[1], mob->damage[2]);
-            addf_buf(out, "%-8.8s ", buf);
-            sprintf(buf, "%dd%d+%d", mob->mana[0], mob->mana[1], mob->mana[2]);
-            addf_buf(out, "%-9.9s ", buf);
-            addf_buf(out, "%4d %4d %4d %4d{x\n\r", mob->ac[0], mob->ac[1], mob->ac[2], mob->ac[3]);
+    FOR_EACH_MOB_PROTO(mob) {
+        if (count > max_disp) {
+            addf_buf(out, "Max display threshold reached.\n\r");
+            goto max_disp_reached;
         }
+        if (!world && (VNUM_FIELD(mob) < lo_vnum || VNUM_FIELD(mob) > hi_vnum))
+            continue;
+        if (world && (mob->level < lo_lvl || mob->level > hi_lvl))
+            continue;
+
+        //VNUM   Name       Lvl Hit Dice   Hit   Dam Dice   Mana       Pie Bas Sla Mag
+        //###### ########## ### ########## ##### ######## ########## ### ### ### ###
+        addf_buf(out, "{*%-6d{x %-10.10s {*%-3d ",
+            VNUM_FIELD(mob), mob->short_descr, mob->level);
+        sprintf(buf, "%dd%d+%d", mob->hit[0], mob->hit[1], mob->hit[2]);
+        addf_buf(out, "%-12.12s %-5d ", buf, mob->hitroll);
+        sprintf(buf, "%dd%d+%d", mob->damage[0], mob->damage[1], mob->damage[2]);
+        addf_buf(out, "%-8.8s ", buf);
+        sprintf(buf, "%dd%d+%d", mob->mana[0], mob->mana[1], mob->mana[2]);
+        addf_buf(out, "%-9.9s ", buf);
+        addf_buf(out, "%4d %4d %4d %4d{x\n\r", mob->ac[0], mob->ac[1], mob->ac[2], mob->ac[3]);
     }
 max_disp_reached:
     addf_buf(out, "\n\r");

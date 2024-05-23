@@ -230,21 +230,18 @@ void string_add(Mobile* ch, char* argument)
         }
 
         if (ch->desc->editor == ED_PROG && ch->desc->pEdit) {
-            int hash = 0;
             MobPrototype* mob;
             MobProg* mp;
             MobProgCode* mpc = (MobProgCode*)ch->desc->pEdit;
 
             mpc->changed = true;
 
-            for (; hash < MAX_KEY_HASH; hash++) {
-                FOR_EACH(mob, mob_proto_hash[hash])
-                    FOR_EACH(mp, mob->mprogs)
-                        if (mp->vnum == mpc->vnum) {
-                            mp->code = mpc->code;
-                            printf_to_char(ch, "Updated mob %d.\n\r", VNUM_FIELD(mob));
-                        }
-            }
+            FOR_EACH_MOB_PROTO(mob)
+                FOR_EACH(mp, mob->mprogs)
+                    if (mp->vnum == mpc->vnum) {
+                        mp->code = mpc->code;
+                        printf_to_char(ch, "Updated mob %d.\n\r", VNUM_FIELD(mob));
+                    }
         }
 
         return;
