@@ -58,7 +58,7 @@ static Value string_native(int arg_count, Value* args)
     }
 
     char* str = string_value(args[0]);
-    return OBJ_VAL(copy_string(str, (int)strlen(str)));
+    return OBJ_VAL(take_string(str, (int)strlen(str)));
 }
 
 static Value is_obj_native(int arg_count, Value* args)
@@ -177,10 +177,6 @@ const NativeFuncEntry native_funcs[] = {
     { "is_obj_proto",   is_obj_proto_native         },
     { "is_room",        is_room_native              },
     { "is_room_data",   is_room_data_native         },
-    //{ "get_carrying",   get_mobile_carrying_native  },
-    //{ "get_contents",   get_room_contents_native    },
-    //{ "get_people",     get_room_people_native      },
-    //{ "get_room",       get_room_native             },
     { "floor",          floor_native                },
     { NULL,             NULL                        },
 };
@@ -230,4 +226,5 @@ void init_natives()
     add_global("global_areas", OBJ_VAL(&global_areas));
     add_global("global_rooms", OBJ_VAL(&global_rooms));
     add_global("mob_protos", OBJ_VAL(&mob_protos));
+    add_global("obj_protos", OBJ_VAL(&obj_protos));
 }

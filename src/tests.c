@@ -343,10 +343,9 @@ void run_unit_tests()
     //"    print index;\n"
     //"    print area.name;\n"
     //"});\n";
-    "global_rooms.apply((key, room)-> {\n"
-    "    room.instances.apply((room_inst) -> {\n"
-    "        print key + \" \" + room_inst.name;\n"
-    "    });\n"
+    "var obj_count = 0;"
+    "obj_protos.apply((key, op)-> {\n"
+    "    print obj_count++ + \": [\" + key + \"] \" + op.name;\n"
     "});\n";
 
     InterpretResult result = interpret_code(source);

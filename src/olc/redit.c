@@ -1126,14 +1126,12 @@ void showresets(Mobile* ch, Buffer* buf, AreaData* area, MobPrototype* mob, ObjP
 void listobjreset(Mobile* ch, Buffer* buf, AreaData* area)
 {
     ObjPrototype* obj;
-    int key;
 
     add_buf(buf, "{TVnum  Name            Room  On mob{x\n\r");
 
-    for (key = 0; key < MAX_KEY_HASH; ++key)
-        FOR_EACH(obj, obj_proto_hash[key])
-            if (obj->area == area)
-                showresets(ch, buf, area, 0, obj);
+    FOR_EACH_OBJ_PROTO(obj)
+        if (obj->area == area)
+            showresets(ch, buf, area, 0, obj);
 }
 
 void listmobreset(Mobile* ch, Buffer* buf, AreaData* area)
@@ -1182,16 +1180,14 @@ REDIT(redit_listreset)
 REDIT(redit_checkobj)
 {
     ObjPrototype* obj;
-    int key;
     bool fAll = !str_cmp(argument, "all");
     RoomData* room;
 
     EDIT_ROOM(ch, room);
 
-    for (key = 0; key < MAX_KEY_HASH; ++key)
-        FOR_EACH(obj, obj_proto_hash[key])
-            if (obj->reset_num == 0 && (fAll || obj->area == room->area_data))
-                printf_to_char(ch, "Obj {*%-5.5d{x [%-20.20s] is not reset.\n\r", VNUM_FIELD(obj), NAME_STR(obj));
+    FOR_EACH_OBJ_PROTO(obj)
+        if (obj->reset_num == 0 && (fAll || obj->area == room->area_data))
+            printf_to_char(ch, "Obj {*%-5.5d{x [%-20.20s] is not reset.\n\r", VNUM_FIELD(obj), NAME_STR(obj));
 
     return false;
 }
@@ -1872,37 +1868,35 @@ void do_objlist(Mobile* ch, char* argument)
     VNUM hi_vnum = ch->in_room->area->data->max_vnum;
     VNUM lo_vnum = ch->in_room->area->data->min_vnum;
 
-    for (int h = 0; h < MAX_KEY_HASH; ++h) {
-        ObjPrototype* obj;
-        FOR_EACH(obj, obj_proto_hash[h]) {
-            if (count > max_disp) {
-                addf_buf(out, "Max display threshold reached.\n\r");
-                goto max_disp_reached;
-            }
-            if (!world && (VNUM_FIELD(obj) < lo_vnum || VNUM_FIELD(obj) > hi_vnum))
-                continue;
-            if (world && (obj->level < lo_lvl || obj->level > hi_lvl))
-                continue;
-            if (type > 0 && obj->item_type != type)
-                continue;
-
-            addf_buf(out, "{*%-6d {*%-3d{x ", VNUM_FIELD(obj), obj->level);
-
-            switch (type) {
-            case ITEM_ARMOR:
-            case ITEM_CONTAINER:
-                addf_buf(out, "%-23.23s  {|", obj->short_descr);
-                break;
-            default:
-                addf_buf(out, "%-10.10s %-12.12s {|", obj->short_descr, flag_string(type_flag_table, obj->item_type));
-            }
-
-            for (int i = 0; i < 5; ++i) {
-                addf_buf(out, "[{*%5d{|] ", obj->value[i]);
-            }
-
-            addf_buf(out, "{x\n\r");
+    ObjPrototype* obj;
+    FOR_EACH_OBJ_PROTO(obj) {
+        if (count > max_disp) {
+            addf_buf(out, "Max display threshold reached.\n\r");
+            goto max_disp_reached;
         }
+        if (!world && (VNUM_FIELD(obj) < lo_vnum || VNUM_FIELD(obj) > hi_vnum))
+            continue;
+        if (world && (obj->level < lo_lvl || obj->level > hi_lvl))
+            continue;
+        if (type > 0 && obj->item_type != type)
+            continue;
+
+        addf_buf(out, "{*%-6d {*%-3d{x ", VNUM_FIELD(obj), obj->level);
+
+        switch (type) {
+        case ITEM_ARMOR:
+        case ITEM_CONTAINER:
+            addf_buf(out, "%-23.23s  {|", obj->short_descr);
+            break;
+        default:
+            addf_buf(out, "%-10.10s %-12.12s {|", obj->short_descr, flag_string(type_flag_table, obj->item_type));
+        }
+
+        for (int i = 0; i < 5; ++i) {
+            addf_buf(out, "[{*%5d{|] ", obj->value[i]);
+        }
+
+        addf_buf(out, "{x\n\r");
     }
 max_disp_reached:
     addf_buf(out, "\n\r");

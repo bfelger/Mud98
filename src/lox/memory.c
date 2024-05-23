@@ -28,6 +28,8 @@ extern char* string_space;
 extern char* top_string;
 extern char str_empty[1];
 
+extern bool fBootDb;
+
 void* reallocate(void* pointer, size_t old_size, size_t new_size)
 {
     vm.bytes_allocated += new_size - old_size;
@@ -87,17 +89,18 @@ void mark_object(Obj* object)
     vm.gray_stack[vm.gray_count++] = object;
 }
 
+static void mark_array(ValueArray* array)
+{
+    mark_object((Obj*)array);
+    for (int i = 0; i < array->count; i++) {
+        mark_value(array->values[i]);
+    }
+}
+
 void mark_value(Value value)
 {
     if (IS_OBJ(value))
         mark_object(AS_OBJ(value));
-}
-
-static void mark_array(ValueArray* array)
-{
-    for (int i = 0; i < array->count; i++) {
-        mark_value(array->values[i]);
-    }
 }
 
 static void mark_entity(EntityHeader* entity)
@@ -157,6 +160,7 @@ static void blacken_object(Obj* object)
     case OBJ_UPVALUE:
         mark_value(((ObjUpvalue*)object)->closed);
         break;
+
     case OBJ_TABLE: {
         Table* table = (Table*)object;
         mark_table(table);
@@ -176,27 +180,33 @@ static void blacken_object(Obj* object)
     case OBJ_AREA: {
         Area* area = (Area*)object;
         mark_entity(&area->header);
+        mark_table(&area->rooms);
         break;
     }
     case OBJ_AREA_DATA: {
         AreaData* area_data = (AreaData*)object;
         mark_entity(&area_data->header);
+        mark_list(&area_data->instances);
         break;
     }
     case OBJ_ROOM: {
         Room* room = (Room*)object;
         mark_entity(&room->header);
+        mark_list(&room->mobiles);
+        mark_list(&room->objects);
         break;
     }
     case OBJ_ROOM_DATA: {
         RoomData* room_data = (RoomData*)object;
         mark_entity(&room_data->header);
+        mark_list(&room_data->instances);
         break;
     }
     case OBJ_OBJ: {
         Object* obj = (Object*)object;
         mark_entity(&obj->header);
         mark_object((Obj*)obj->owner);
+        mark_list(&obj->objects);
         break;
     }
     case OBJ_OBJ_PROTO: {
@@ -207,6 +217,7 @@ static void blacken_object(Obj* object)
     case OBJ_MOB: {
         Mobile* mob = (Mobile*)object;
         mark_entity(&mob->header);
+        mark_list(&mob->objects);
         break;
     }
     case OBJ_MOB_PROTO: {
@@ -300,37 +311,12 @@ static void free_obj_value(Obj* object)
 
 static void mark_natives()
 {
-    AreaData* area_data;
-    Area* area;
-    RoomData* room_data;
-    Room* room;
-    ObjPrototype* obj_proto;
     Object* obj;
-    MobPrototype* mob_proto;
     Mobile* mob;
 
-    mark_array(&global_areas);
-
-    FOR_EACH_AREA(area_data) {
-        mark_entity(&area_data->header);
-        mark_list(&area_data->instances);
-        FOR_EACH_AREA_INST(area, area_data) {
-            mark_entity(&area->header);
-            mark_table(&area->rooms);
-        }
-    }
-
-    FOR_EACH_GLOBAL_ROOM(room_data) {
-        mark_entity(&room_data->header);
-        FOR_EACH_ROOM_INST(room, room_data) {
-            mark_entity(&room->header);
-            mark_list(&room->objects);
-            mark_list(&room->mobiles);
-        }
-    }
-
-    FOR_EACH_OBJ_PROTO(obj_proto) {
-        mark_entity(&obj_proto->header);
+    FOR_EACH(mob, mob_list) {
+        mark_entity(&mob->header);
+        mark_list(&mob->objects);
     }
 
     FOR_EACH(obj, obj_list) {
@@ -340,14 +326,42 @@ static void mark_natives()
         mark_list(&obj->objects);
     }
 
-    FOR_EACH_MOB_PROTO(mob_proto) {
-        mark_entity(&mob_proto->header);
-    }
+    // The following are already in globals, and will already be marked.
 
-    FOR_EACH(mob, mob_list) {
-        mark_entity(&mob->header);
-        mark_list(&mob->objects);
-    }
+    //AreaData* area_data;
+    //Area* area;
+    //RoomData* room_data;
+    //Room* room;
+    //MobPrototype* mob_proto;
+    //ObjPrototype* obj_proto;
+
+    //FOR_EACH_OBJ_PROTO(obj_proto) {
+    //    mark_entity(&obj_proto->header);
+    //}
+    //
+    //FOR_EACH_MOB_PROTO(mob_proto) {
+    //    mark_entity(&mob_proto->header);
+    //}
+    //
+    //mark_array(&global_areas);
+    //
+    //FOR_EACH_AREA(area_data) {
+    //    mark_entity(&area_data->header);
+    //    mark_list(&area_data->instances);
+    //    FOR_EACH_AREA_INST(area, area_data) {
+    //        mark_entity(&area->header);
+    //        mark_table(&area->rooms);
+    //    }
+    //}
+    //
+    //FOR_EACH_GLOBAL_ROOM(room_data) {
+    //    mark_entity(&room_data->header);
+    //    FOR_EACH_ROOM_INST(room, room_data) {
+    //        mark_entity(&room->header);
+    //        mark_list(&room->objects);
+    //        mark_list(&room->mobiles);
+    //    }
+    //}
 }
 
 static void mark_roots()
@@ -413,10 +427,14 @@ void collect_garbage()
     size_t before = vm.bytes_allocated;
 #endif
 
-    mark_roots();
-    trace_references();
-    table_remove_white(&vm.strings);
-    sweep();
+    // We don't add game entities to VM globals until after boot. Don't GC
+    // anything until we've had a chance to do that.
+    if (!fBootDb) {
+        mark_roots();
+        trace_references();
+        table_remove_white(&vm.strings);
+        sweep();
+    }
 
     vm.next_gc = vm.bytes_allocated * GC_HEAP_GROW_FACTOR;
 

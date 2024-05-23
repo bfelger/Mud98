@@ -181,6 +181,7 @@ void boot_db()
     init_value_array(&global_areas);
     init_table(&global_rooms);
     init_table(&mob_protos);
+    init_table(&obj_protos);
 
     load_config();
 

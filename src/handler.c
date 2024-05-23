@@ -2328,14 +2328,12 @@ int get_vnum_mob_name_area(char* name, AreaData* area)
 
 int get_vnum_obj_name_area(char* name, AreaData* area)
 {
-    int hash;
     ObjPrototype* obj;
 
-    for (hash = 0; hash < MAX_KEY_HASH; hash++)
-        FOR_EACH(obj, obj_proto_hash[hash])
-            if (obj->area == area
-                && !str_prefix(name, NAME_STR(obj)))
-                return VNUM_FIELD(obj);
+    FOR_EACH_OBJ_PROTO(obj)
+        if (obj->area == area
+            && !str_prefix(name, NAME_STR(obj)))
+            return VNUM_FIELD(obj);
 
     return 0;
 }

@@ -40,16 +40,20 @@ typedef struct obj_prototype_t {
     ItemType item_type;
 } ObjPrototype;
 
-#define FOR_EACH_OBJ_PROTO(p) \
-    for (int p##_hash_idx = 0; p##_hash_idx < MAX_KEY_HASH; ++p##_hash_idx) \
-        FOR_EACH(p, obj_proto_hash[p##_hash_idx])
+#define FOR_EACH_OBJ_PROTO(o) \
+    for (int o##_idx = 0, o##_l_count = 0; o##_l_count < obj_protos.count; ++o##_idx) \
+        if (!IS_NIL((&obj_protos.entries[o##_idx])->key) \
+            && !IS_NIL((&obj_protos.entries[o##_idx])->value) \
+            && IS_OBJ_PROTO((&obj_protos.entries[o##_idx])->value) \
+            && (o = AS_OBJ_PROTO(obj_protos.entries[o##_idx].value)) != NULL \
+            && ++o##_l_count)
 
 void free_object_prototype(ObjPrototype* pObj);
 ObjPrototype* get_object_prototype(VNUM vnum);
 ObjPrototype* new_object_prototype();
 void load_objects(FILE* fp);
 
-extern ObjPrototype* obj_proto_hash[];
+extern Table obj_protos;
 extern int obj_proto_count;
 extern int obj_proto_perm_count;
 extern VNUM top_vnum_obj;

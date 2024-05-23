@@ -149,6 +149,7 @@ void list_insert_after(List* list, Node* node, Value value)
 
 void mark_list(List* list)
 {
+    mark_object((Obj*)list);
     for (Node* node = list->front; node != NULL; node = node->next)
         mark_value(node->value);
 }

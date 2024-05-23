@@ -919,7 +919,6 @@ OEDIT(oedit_create)
     ObjPrototype* pObj;
     AreaData* area;
     VNUM  value;
-    int  hash;
 
     value = STRTOVNUM(argument);
     if (argument[0] == '\0' || value == 0) {
@@ -944,6 +943,7 @@ OEDIT(oedit_create)
     }
 
     pObj = new_object_prototype();
+    push(OBJ_VAL(pObj));
     VNUM_FIELD(pObj) = value;
     pObj->area = area;
     pObj->extra_flags = 0;
@@ -951,9 +951,9 @@ OEDIT(oedit_create)
     if (value > top_vnum_obj)
         top_vnum_obj = value;
 
-    hash = value % MAX_KEY_HASH;
-    pObj->next = obj_proto_hash[hash];
-    obj_proto_hash[hash] = pObj;
+    table_set_vnum(&obj_protos, value, OBJ_VAL(pObj));
+
+    pop(); // pObj
 
     set_editor(ch->desc, ED_OBJECT, U(pObj));
 
@@ -1062,7 +1062,6 @@ ED_FUN_DEC(ed_new_obj)
     ObjPrototype* pObj;
     AreaData* area;
     VNUM  value;
-    int  hash;
 
     value = STRTOVNUM(argument);
 
@@ -1089,6 +1088,7 @@ ED_FUN_DEC(ed_new_obj)
     }
 
     pObj = new_object_prototype();
+    push(OBJ_VAL(pObj));
     VNUM_FIELD(pObj) = value;
     pObj->area = area;
     pObj->extra_flags = 0;
@@ -1096,9 +1096,9 @@ ED_FUN_DEC(ed_new_obj)
     if (value > top_vnum_obj)
         top_vnum_obj = value;
 
-    hash = value % MAX_KEY_HASH;
-    pObj->next = obj_proto_hash[hash];
-    obj_proto_hash[hash] = pObj;
+    table_set_vnum(&obj_protos, value, OBJ_VAL(pObj));
+
+    pop(); // pObj
 
     set_editor(ch->desc, ED_OBJECT, U(pObj));
 

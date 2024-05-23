@@ -10,7 +10,7 @@
 #include "lookup.h"
 
 ObjPrototype* obj_proto_free;
-ObjPrototype* obj_proto_hash[MAX_KEY_HASH];
+Table obj_protos;
 
 int obj_proto_count;
 int obj_proto_perm_count;
@@ -63,13 +63,11 @@ void free_object_prototype(ObjPrototype* obj_proto)
 // Hash table lookup.
 ObjPrototype* get_object_prototype(VNUM vnum)
 {
-    ObjPrototype* obj_proto;
-
-    for (obj_proto = obj_proto_hash[vnum % MAX_KEY_HASH]; 
-        obj_proto != NULL;
-        NEXT_LINK(obj_proto)) {
-        if (VNUM_FIELD(obj_proto) == vnum)
-            return obj_proto;
+    Value value;
+    if (table_get_vnum(&obj_protos, vnum, &value)) {
+        if (IS_OBJ_PROTO(value)) {
+            return AS_OBJ_PROTO(value);
+        }
     }
 
     if (fBootDb) {
@@ -93,7 +91,6 @@ void load_objects(FILE* fp)
     for (;;) {
         VNUM vnum;
         char letter;
-        int hash;
 
         letter = fread_letter(fp);
         if (letter != '#') {
@@ -273,9 +270,8 @@ void load_objects(FILE* fp)
             }
         }
 
-        hash = vnum % MAX_KEY_HASH;
-        obj_proto->next = obj_proto_hash[hash];
-        obj_proto_hash[hash] = obj_proto;
+        table_set_vnum(&obj_protos, vnum, OBJ_VAL(obj_proto));
+
         top_vnum_obj = top_vnum_obj < vnum ? vnum : top_vnum_obj;
         assign_area_vnum(vnum);
         pop();

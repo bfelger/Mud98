@@ -151,9 +151,7 @@ bool table_set(Table* table, ObjString* key, Value value)
     if (table->count + 1 > table->capacity * TABLE_MAX_LOAD) {
         // Because memory comes from Mud98's resource bucket, we need to enforce
         // an early GC is the strings table gets too big.
-        int new_size = GROW_CAPACITY(table->capacity) * sizeof(Entry);
-        if (new_size >= 65536 * 4)
-        //if (GROW_CAPACITY(table->capacity) * sizeof(Entry) > 65536 * 4)
+        if (GROW_CAPACITY(table->capacity) * sizeof(Entry) > 65536 * 4)
             collect_garbage();
     }
 
@@ -284,6 +282,7 @@ void table_remove_white(Table* table)
 
 void mark_table(Table* table)
 {
+    mark_object((Obj*)table);
     for (int i = 0; i < table->capacity; i++) {
         Entry* entry = &table->entries[i];
         if (IS_STRING(entry->key))

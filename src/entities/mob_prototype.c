@@ -340,8 +340,6 @@ void load_mobiles(FILE* fp)
 void recalc(MobPrototype* pMob)
 {
     int hplev, aclev, damlev, hitbonus;
-    //int i, cnt = 0;
-    //int clase[10] = { 0 };
     float n;
 
     if (pMob->level == 0)
@@ -351,23 +349,18 @@ void recalc(MobPrototype* pMob)
 
     if (IS_SET(pMob->act_flags, ACT_WARRIOR)) {
         hplev += 1;
-        //clase[cnt++] = ACT_WARRIOR;
     }
 
     if (IS_SET(pMob->act_flags, ACT_THIEF)) {
         hplev -= 1; aclev -= 1; damlev -= 1;
-        //clase[cnt++] = ACT_THIEF;
     }
 
     if (IS_SET(pMob->act_flags, ACT_CLERIC)) {
         damlev -= 2;
-        //clase[cnt++] = ACT_CLERIC;
     }
 
     if (IS_SET(pMob->act_flags, ACT_MAGE)) {
-//		hplev -= 1; aclev -= 1; damlev -= 3;
         hplev -= 2; aclev -= 1; damlev -= 3;
-        //clase[cnt++] = ACT_MAGE;
     }
 
     hplev += pMob->level;
