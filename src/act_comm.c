@@ -1368,9 +1368,11 @@ void die_follower(Mobile* ch)
 
     ch->leader = NULL;
 
-    FOR_EACH(fch, mob_list) {
-        if (fch->master == ch) stop_follower(fch);
-        if (fch->leader == ch) fch->leader = fch;
+    FOR_EACH_GLOBAL_MOB(fch) {
+        if (fch->master == ch)
+            stop_follower(fch);
+        if (fch->leader == ch)
+            fch->leader = fch;
     }
 
     return;
@@ -1463,7 +1465,7 @@ void do_group(Mobile* ch, char* argument)
         sprintf(buf, "{T%s's group:{x\n\r", PERS(leader, ch));
         send_to_char(buf, ch);
 
-        FOR_EACH(gch, mob_list) {
+        FOR_EACH_GLOBAL_MOB(gch) {
             if (is_same_group(gch, ch)) {
                 sprintf(buf,
                         "{|[{*%2d %s{|]{x %-16s {_%4d/%4d hp %4d/%4d mana %4d/%4d mv %5d xp{x\n\r",
@@ -1642,7 +1644,7 @@ void do_gtell(Mobile* ch, char* argument)
         return;
     }
 
-    FOR_EACH(gch, mob_list) {
+    FOR_EACH_GLOBAL_MOB(gch) {
         if (is_same_group(gch, ch))
             act_new("$n tells the group '$t'", ch, argument, gch, TO_VICT,
                     POS_SLEEPING);

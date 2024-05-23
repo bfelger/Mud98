@@ -15,16 +15,14 @@
 
 #include "data/mobile_data.h"
 
-Mobile* mob_list;
-Mobile* mob_free;
+List mob_list;
+List mob_free;
 
-int mob_count;
-int mob_perm_count = 0;
 int last_mob_id = 0;
 
 Mobile* new_mobile()
 {
-    LIST_ALLOC_PERM(mob, Mobile);
+    ENTITY_ALLOC_PERM(mob, Mobile);
 
     push(OBJ_VAL(mob));
 
@@ -93,7 +91,7 @@ void free_mobile(Mobile* mob)
 
     INVALIDATE(mob);
 
-    LIST_FREE(mob);
+    ENTITY_FREE(mob);
 
     return;
 }
@@ -188,6 +186,8 @@ Mobile* create_mobile(MobPrototype* p_mob_proto)
     mob = new_mobile();
 
     push(OBJ_VAL(mob));
+    mob->mob_list_node = list_push_back(&mob_list, OBJ_VAL(mob));
+    pop(); // mob
 
     mob->prototype = p_mob_proto;
 
@@ -345,11 +345,7 @@ Mobile* create_mobile(MobPrototype* p_mob_proto)
     mob->position = mob->start_pos;
 
     /* link the mob to the world list */
-    mob->next = mob_list;
-    mob_list = mob;
     p_mob_proto->count++;
-
-    pop(); // mob
 
     return mob;
 }

@@ -2056,7 +2056,7 @@ void do_where(Mobile* ch, char* argument)
     }
     else {
         found = false;
-        FOR_EACH(victim, mob_list) {
+        FOR_EACH_GLOBAL_MOB(victim) {
             if (victim->in_room != NULL
                 && victim->in_room->area == ch->in_room->area
                 && !IS_AFFECTED(victim, AFF_HIDE)

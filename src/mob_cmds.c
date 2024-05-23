@@ -668,6 +668,9 @@ void do_mpat(Mobile* ch, char* argument)
     Mobile* wch;
     Object* on;
 
+    if (ch == NULL)
+        return;
+
     READ_ARG(arg);
 
     if (arg[0] == '\0' || argument[0] == '\0') {
@@ -691,7 +694,7 @@ void do_mpat(Mobile* ch, char* argument)
      * See if 'ch' still exists before continuing!
      * Handles 'at XXXX quit' case.
      */
-    FOR_EACH(wch, mob_list) {
+    FOR_EACH_GLOBAL_MOB(wch) {
         if (wch == ch) {
             transfer_mob(ch, original);
             ch->on = on;
@@ -818,11 +821,8 @@ void do_mpforce(Mobile* ch, char* argument)
 
     if (!str_cmp(arg, "all")) {
         Mobile* vch;
-        Mobile* vch_next = NULL;
 
-        for (vch = mob_list; vch != NULL; vch = vch_next) {
-            vch_next = vch->next;
-
+        FOR_EACH_GLOBAL_MOB(vch) {
             if (vch->in_room == ch->in_room
                 && get_trust(vch) < get_trust(ch)
                 && can_see(ch, vch)) {
@@ -886,7 +886,6 @@ void do_mpgforce(Mobile* ch, char* argument)
 void do_mpvforce(Mobile* ch, char* argument)
 {
     Mobile* victim;
-    Mobile* victim_next = NULL;
     char arg[MAX_INPUT_LENGTH];
     VNUM vnum;
 
@@ -906,8 +905,7 @@ void do_mpvforce(Mobile* ch, char* argument)
 
     vnum = STRTOVNUM(arg);
 
-    for (victim = mob_list; victim; victim = victim_next) {
-        victim_next = victim->next;
+    FOR_EACH_GLOBAL_MOB(victim) {
         if (IS_NPC(victim) && VNUM_FIELD(victim->prototype) == vnum
             && ch != victim && victim->fighting == NULL)
             interpret(victim, argument);

@@ -507,9 +507,11 @@ bool load_char_obj(Descriptor* d, char* name)
     int stat;
 
     ch = new_mobile();
+    push(OBJ_VAL(ch));
     ch->pcdata = new_player_data();
     ch->pcdata->ch = ch;
     d->character = ch;
+    pop(); // ch;
     ch->desc = d;
     NAME_FIELD(ch) = lox_string(name);
     ch->id = get_pc_id();

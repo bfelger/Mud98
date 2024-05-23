@@ -414,7 +414,6 @@ void do_for(Mobile* ch, char* argument)
     bool fGods = false, fMortals = false, fMobs = false, fEverywhere = false, found;
     Room* room, *old_room;
     Mobile* p;
-    Mobile* p_next = NULL;
 
     READ_ARG(range);
 
@@ -452,8 +451,8 @@ void do_for(Mobile* ch, char* argument)
 
     if (strchr(argument, '#')) {
         // replace # ?
-        for (p = mob_list; p; p = p_next) {
-            p_next = p->next; /* In case someone DOES try to AT MOBS SLAY # */
+        FOR_EACH_GLOBAL_MOB(p) {
+            //p_next = p->next; /* In case someone DOES try to AT MOBS SLAY # */
             found = false;
 
             if (!(p->in_room) || room_is_private(p->in_room) || (p == ch))

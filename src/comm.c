@@ -1206,7 +1206,8 @@ void nanny(Descriptor * d, char* argument)
     int iClass, race, i, weapon;
     bool fOld;
 
-    while (ISSPACE(*argument)) argument++;
+    while (ISSPACE(*argument))
+        argument++;
 
     ch = d->character;
 
@@ -1683,8 +1684,8 @@ void nanny(Descriptor * d, char* argument)
     case CON_READ_MOTD:
         sprintf(buf, "\n\rWelcome to %s. Please do not feed the mobiles.\n\r\n\r", cfg_get_mud_name());
         write_to_buffer(d, buf, 0);
-        ch->next = mob_list;
-        mob_list = ch;
+
+        ch->mob_list_node = list_push_back(&mob_list, OBJ_VAL(ch));
 
         {
             PlayerData* pc;
@@ -1887,7 +1888,7 @@ bool check_reconnect(Descriptor * d, bool fConn)
 {
     Mobile* ch;
 
-    FOR_EACH(ch, mob_list) {
+    FOR_EACH_GLOBAL_MOB(ch) {
         if (!IS_NPC(ch) && (!fConn || ch->desc == NULL)
             && lox_streq(NAME_FIELD(d->character), NAME_FIELD(ch))) {
             if (fConn == false) {

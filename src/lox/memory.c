@@ -311,11 +311,11 @@ static void free_obj_value(Obj* object)
 
 static void mark_natives()
 {
-    Mobile* mob;
-
-    FOR_EACH(mob, mob_list) {
-        mark_entity(&mob->header);
-        mark_list(&mob->objects);
+    // Some mobs are attached to descriptors stil in nanny().
+    for (Descriptor* desc = descriptor_list; desc != NULL; desc = desc->next) {
+        Mobile* mob = desc->character;
+        if (mob != NULL)
+            mark_object((Obj*)mob);
     }
 
     // The following are already in globals, and will already be marked.
@@ -325,6 +325,7 @@ static void mark_natives()
     //RoomData* room_data;
     //Room* room;
     //MobPrototype* mob_proto;
+    //Mobile* mob;
     //ObjPrototype* obj_proto;
     //Object* obj;
 
@@ -334,6 +335,11 @@ static void mark_natives()
     //   
     //FOR_EACH_OBJ_PROTO(obj_proto) {
     //    mark_entity(&obj_proto->header);
+    //}
+    // 
+    //FOR_EACH(mob, mob_list) {
+    //    mark_entity(&mob->header);
+    //    mark_list(&mob->objects);
     //}
     // 
     //FOR_EACH_GLOBAL_OBJ(obj) {

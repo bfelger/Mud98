@@ -759,7 +759,6 @@ void spell_burning_hands(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarge
 void spell_call_lightning(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
     Mobile* vch;
-    Mobile* vch_next = NULL;
     int dam;
 
     if (!IS_OUTSIDE(ch)) {
@@ -778,8 +777,7 @@ void spell_call_lightning(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarg
     act("$n calls Mota's lightning to strike $s foes!", ch, NULL, NULL,
         TO_ROOM);
 
-    for (vch = mob_list; vch != NULL; vch = vch_next) {
-        vch_next = vch->next;
+    FOR_EACH_GLOBAL_MOB(vch) {
         if (vch->in_room == NULL)
             continue;
         if (vch->in_room == ch->in_room) {
@@ -1880,14 +1878,13 @@ void spell_dispel_magic(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget
 void spell_earthquake(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
 {
     Mobile* vch;
-    Mobile* vch_next = NULL;
 
     send_to_char("The earth trembles beneath your feet!\n\r", ch);
     act("$n makes the earth tremble and shiver.", ch, NULL, NULL, TO_ROOM);
 
-    for (vch = mob_list; vch != NULL; vch = vch_next) {
-        vch_next = vch->next;
-        if (vch->in_room == NULL) continue;
+    FOR_EACH_GLOBAL_MOB(vch) {
+        if (vch->in_room == NULL)
+            continue;
         if (vch->in_room == ch->in_room) {
             if (vch != ch && !is_safe_spell(ch, vch, true)) {
                 if (IS_AFFECTED(vch, AFF_FLYING))

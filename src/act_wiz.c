@@ -805,6 +805,9 @@ void do_at(Mobile* ch, char* argument)
     Object* on;
     Mobile* wch;
 
+    if (ch == NULL)
+        return;
+
     READ_ARG(arg);
 
     if (arg[0] == '\0' || argument[0] == '\0') {
@@ -832,7 +835,7 @@ void do_at(Mobile* ch, char* argument)
      * See if 'ch' still exists before continuing!
      * Handles 'at XXXX quit' case.
      */
-    FOR_EACH(wch, mob_list) {
+    FOR_EACH_GLOBAL_MOB(wch) {
         if (wch == ch) {
             transfer_mob(ch, original);
             ch->on = on;
@@ -1780,7 +1783,7 @@ void do_mwhere(Mobile* ch, char* argument)
 
     found = false;
     buffer = new_buf();
-    FOR_EACH(victim, mob_list) {
+    FOR_EACH_GLOBAL_MOB(victim) {
         if (victim->in_room != NULL && is_name(argument, NAME_STR(victim))) {
             found = true;
             count++;
@@ -3635,16 +3638,13 @@ void do_force(Mobile* ch, char* argument)
 
     if (!str_cmp(arg, "all")) {
         Mobile* vch;
-        Mobile* vch_next = NULL;
 
         if (get_trust(ch) < MAX_LEVEL - 3) {
             send_to_char("Not at your level!\n\r", ch);
             return;
         }
 
-        for (vch = mob_list; vch != NULL; vch = vch_next) {
-            vch_next = vch->next;
-
+        FOR_EACH_GLOBAL_MOB(vch) {
             if (!IS_NPC(vch) && get_trust(vch) < get_trust(ch)) {
                 act(buf, ch, NULL, vch, TO_VICT);
                 interpret(vch, argument);
@@ -3653,16 +3653,13 @@ void do_force(Mobile* ch, char* argument)
     }
     else if (!str_cmp(arg, "players")) {
         Mobile* vch;
-        Mobile* vch_next = NULL;
 
         if (get_trust(ch) < MAX_LEVEL - 2) {
             send_to_char("Not at your level!\n\r", ch);
             return;
         }
 
-        for (vch = mob_list; vch != NULL; vch = vch_next) {
-            vch_next = vch->next;
-
+        FOR_EACH_GLOBAL_MOB(vch) {
             if (!IS_NPC(vch) && get_trust(vch) < get_trust(ch)
                 && vch->level < LEVEL_HERO) {
                 act(buf, ch, NULL, vch, TO_VICT);
@@ -3672,16 +3669,13 @@ void do_force(Mobile* ch, char* argument)
     }
     else if (!str_cmp(arg, "gods")) {
         Mobile* vch;
-        Mobile* vch_next = NULL;
 
         if (get_trust(ch) < MAX_LEVEL - 2) {
             send_to_char("Not at your level!\n\r", ch);
             return;
         }
 
-        for (vch = mob_list; vch != NULL; vch = vch_next) {
-            vch_next = vch->next;
-
+        FOR_EACH_GLOBAL_MOB(vch) {
             if (!IS_NPC(vch) && get_trust(vch) < get_trust(ch)
                 && vch->level >= LEVEL_HERO) {
                 act(buf, ch, NULL, vch, TO_VICT);

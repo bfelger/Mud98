@@ -182,6 +182,7 @@ void boot_db()
     init_table(&global_rooms);
     init_table(&mob_protos);
     init_table(&obj_protos);
+    init_list(&mob_list);
     init_list(&obj_list);
 
     load_config();
@@ -1808,7 +1809,7 @@ static void memory_to_buffer(Buffer* buf)
     addf_buf(buf, "Help Areas   %5d     %5d\n\r", help_area_perm_count, help_area_count);
     addf_buf(buf, "Helps        %5d     %5d\n\r", help_perm_count, help_count);
     addf_buf(buf, "Mobs         %5d     %5d\n\r", mob_proto_perm_count, mob_proto_count);
-    addf_buf(buf, "- Insts      %5d     %5d\n\r", mob_perm_count, mob_count);
+    addf_buf(buf, "- Insts      %5d     %5d\n\r", mob_list.count + mob_free.count, mob_list.count);
     addf_buf(buf, "MobProgs     %5d     %5d\n\r", mob_prog_perm_count, mob_prog_count);
     addf_buf(buf, "MobProgCodes %5d     %5d\n\r", mob_prog_code_perm_count, mob_prog_code_count);
     addf_buf(buf, "Objs         %5d     %5d\n\r", obj_proto_perm_count, obj_proto_count);
@@ -1877,16 +1878,14 @@ void do_dump(Mobile* ch, char* argument)
             mob_proto_count * (sizeof(*p_mob_proto)));
 
     /* mobs */
-    count = 0;
-    count2 = 0;
-    FOR_EACH(fch, mob_list) {
-        count++;
-        if (fch->pcdata != NULL) num_pcs++;
+    count = mob_list.count;
+    count2 = mob_free.count;
+    FOR_EACH_GLOBAL_MOB(fch) {
+        if (fch->pcdata != NULL)
+            num_pcs++;
         FOR_EACH(af, fch->affected) 
             aff_count++;
     }
-    FOR_EACH(fch, mob_free) 
-        count2++;
 
     fprintf(fp, "Mobs   %4d (%8zu bytes), %2d free (%zu bytes)\n", count,
             count * (sizeof(*fch)), count2, count2 * (sizeof(*fch)));

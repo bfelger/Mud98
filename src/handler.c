@@ -1393,34 +1393,16 @@ void extract_char(Mobile* ch, bool fPull)
         ch->desc = NULL;
     }
 
-    FOR_EACH(wch, mob_list) {
+    FOR_EACH_GLOBAL_MOB(wch) {
         if (wch->reply == ch) 
             wch->reply = NULL;
         if (wch->mprog_target == ch)
             wch->mprog_target = NULL;
     }
 
-    if (ch == mob_list) { 
-        mob_list = ch->next; 
-    }
-    else {
-        Mobile* prev;
-
-        FOR_EACH(prev, mob_list) {
-            if (prev->next == ch) {
-                prev->next = ch->next;
-                break;
-            }
-        }
-
-        if (prev == NULL) {
-            bug("Extract_char: char not found.", 0);
-            return;
-        }
-    }
-
     if (ch->desc != NULL) 
         ch->desc->character = NULL;
+
     free_mobile(ch);
     return;
 }
@@ -1460,7 +1442,7 @@ Mobile* get_mob_world(Mobile* ch, char* argument)
 
     number = number_argument(argument, arg);
     count = 0;
-    FOR_EACH(wch, mob_list) {
+    FOR_EACH_GLOBAL_MOB(wch) {
         if (wch->in_room == NULL || !can_see(ch, wch)
             || !is_name(arg, NAME_STR(wch)))
             continue;

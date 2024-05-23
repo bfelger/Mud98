@@ -398,16 +398,13 @@ static void update_msdp_vars(Descriptor* d)
 void mobile_update()
 {
     Mobile* ch = NULL;
-    Mobile* ch_next = NULL;
     RoomExit* room_exit = NULL;
     int door;
 
     bool msdp_enabled = cfg_get_msdp_enabled();
 
     /* Examine all mobs. */
-    for (ch = mob_list; ch != NULL; ch = ch_next) {
-        ch_next = ch->next;
-
+    FOR_EACH_GLOBAL_MOB(ch) {
         if (ch->desc && ch->desc->mth->msdp_data && msdp_enabled) {
             update_msdp_vars(ch->desc);
         }
@@ -502,7 +499,6 @@ void mobile_update()
 void char_update(void)
 {
     Mobile* ch;
-    Mobile* ch_next = NULL;
     Mobile* ch_quit = NULL;
 
     ch_quit = NULL;
@@ -513,13 +509,12 @@ void char_update(void)
     if (save_number > 29)
         save_number = 0;
 
-    for (ch = mob_list; ch != NULL; ch = ch_next) {
+    FOR_EACH_GLOBAL_MOB(ch) {
         Affect* affect;
         Affect* paf_next = NULL;
 
-        ch_next = ch->next;
-
-        if (ch->timer > 30) ch_quit = ch;
+        if (ch->timer > 30)
+            ch_quit = ch;
 
         if (ch->position >= POS_STUNNED) {
             /* check to see if we need to go home */
@@ -547,7 +542,8 @@ void char_update(void)
                 ch->move = ch->max_move;
         }
 
-        if (ch->position == POS_STUNNED) update_pos(ch);
+        if (ch->position == POS_STUNNED)
+            update_pos(ch);
 
         if (!IS_NPC(ch) && ch->level < LEVEL_IMMORTAL) {
             Object* obj;
@@ -564,7 +560,8 @@ void char_update(void)
                     act("$p flickers.", ch, obj, NULL, TO_CHAR);
             }
 
-            if (IS_IMMORTAL(ch)) ch->timer = 0;
+            if (IS_IMMORTAL(ch))
+                ch->timer = 0;
 
             if (++ch->timer >= 12) {
                 if (ch->was_in_room == NULL && ch->in_room != NULL) {
@@ -619,13 +616,15 @@ void char_update(void)
             Mobile* vch;
             int dam;
 
-            if (ch->in_room == NULL) continue;
+            if (ch->in_room == NULL)
+                continue;
 
             act("$n writhes in agony as plague sores erupt from $s skin.", ch,
                 NULL, NULL, TO_ROOM);
             send_to_char("You writhe in agony from the plague.\n\r", ch);
             FOR_EACH(af, ch->affected) {
-                if (af->type == gsn_plague) break;
+                if (af->type == gsn_plague)
+                    break;
             }
 
             if (af == NULL) {
@@ -661,9 +660,7 @@ void char_update(void)
             damage(ch, ch, dam, gsn_plague, DAM_DISEASE, false);
         }
         else if (IS_AFFECTED(ch, AFF_POISON) && ch != NULL
-                 && !IS_AFFECTED(ch, AFF_SLOW))
-
-        {
+                 && !IS_AFFECTED(ch, AFF_SLOW)) {
             Affect* poison;
 
             poison = affect_find(ch->affected, gsn_poison);
@@ -675,7 +672,6 @@ void char_update(void)
                        false);
             }
         }
-
         else if (ch->position == POS_INCAP && number_range(0, 1) == 0) {
             damage(ch, ch, 1, TYPE_UNDEFINED, DAM_NONE, false);
         }
@@ -688,9 +684,7 @@ void char_update(void)
      * Autosave and autoquit.
      * Check that these chars still exist.
      */
-    for (ch = mob_list; ch != NULL; ch = ch_next) {
-        ch_next = ch->next;
-
+    FOR_EACH_GLOBAL_MOB(ch) {
         if (ch->desc != NULL && (int)ch->desc->client->fd % 30 == save_number) {
             save_char_obj(ch);
         }

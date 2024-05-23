@@ -83,7 +83,7 @@ bool can_loot(Mobile* ch, Object* obj)
     if (!obj->owner || obj->owner == NULL) return true;
 
     owner = NULL;
-    FOR_EACH(wch, mob_list) {
+    FOR_EACH_GLOBAL_MOB(wch) {
         if (lox_streq(NAME_FIELD(wch), obj->owner)) {
             owner = wch;
         }

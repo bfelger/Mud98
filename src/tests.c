@@ -28,13 +28,11 @@ extern void aggr_update();
 static void old_aggr_update()
 {
     Mobile* wch;
-    Mobile* wch_next = NULL;
     Mobile* ch;
     Mobile* vch;
     Mobile* victim;
 
-    for (wch = mob_list; wch != NULL; wch = wch_next) {
-        wch_next = wch->next;
+    FOR_EACH_GLOBAL_MOB(wch) {
         if (IS_NPC(wch) || wch->level >= LEVEL_IMMORTAL || wch->in_room == NULL
             || wch->in_room->area->empty)
             continue;
@@ -343,11 +341,11 @@ void run_unit_tests()
     //"    print index;\n"
     //"    print area.name;\n"
     //"});\n";
-    "var obj_count = 0;\n"
-    "global_objs.apply((obj) -> {\n"
-    "    obj_count++;\n"
+    "var mob_count = 0;\n"
+    "global_mobs.apply((mob) -> {\n"
+    "    mob_count++;\n"
     "});\n"
-    "print \"Object Instance Count: \" + obj_count;\n";
+    "print \"Mobile Instance Count: \" + mob_count;\n";
 
     InterpretResult result = interpret_code(source);
     if (result == INTERPRET_COMPILE_ERROR) exit(65);

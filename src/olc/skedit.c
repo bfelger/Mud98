@@ -755,7 +755,7 @@ SKEDIT(skedit_new)
         tch->gen_data->skill_chosen[skill_count - 1] = 0;
     }
 
-    FOR_EACH(tch, mob_list)
+    FOR_EACH_GLOBAL_MOB(tch)
         if (!IS_NPC(tch)) {
             templearned = new_learned();
 

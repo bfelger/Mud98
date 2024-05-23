@@ -35,7 +35,7 @@ typedef struct mobile_t Mobile;
 
 typedef struct mobile_t {
     EntityHeader header;
-    Mobile* next;
+    Node* mob_list_node;
     List objects;
     Mobile* master;
     Mobile* leader;
@@ -161,6 +161,17 @@ typedef struct mobile_t {
 #define MOB_HAS_OBJS(mob) \
     ((mob)->objects.count > 0)
 
+#define FOR_EACH_GLOBAL_MOB(mob) \
+    if (mob_list.front == NULL) \
+        mob = NULL; \
+    else if ((mob = AS_MOBILE(mob_list.front->value)) != NULL) \
+        for (struct { Node* node; Node* next; } mob##_loop = { mob_list.front, mob_list.front->next }; \
+            mob##_loop.node != NULL; \
+            mob##_loop.node = mob##_loop.next, \
+                mob##_loop.next = mob##_loop.next ? mob##_loop.next->next : NULL, \
+                mob = mob##_loop.node != NULL ? AS_MOBILE(mob##_loop.node->value) : NULL) \
+            if (mob != NULL)
+
 #define FOR_EACH_MOB_OBJ(content, mob) \
     if ((mob)->objects.front == NULL) \
         content = NULL; \
@@ -179,11 +190,8 @@ Mobile* create_mobile(MobPrototype* p_mob_proto);
 long get_mob_id();
 void clear_mob(Mobile* ch);
 
-extern Mobile* mob_list;
-extern Mobile* mob_free;
-
-extern int mob_count;
-extern int mob_perm_count;
+extern List mob_list;
+extern List mob_free;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Lox implementation

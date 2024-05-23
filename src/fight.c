@@ -113,7 +113,7 @@ void violence_update()
     Mobile* ch;
     Mobile* victim;
 
-    FOR_EACH(ch, mob_list) {
+    FOR_EACH_GLOBAL_MOB(ch) {
         if (ch->fighting == NULL || ch->in_room == NULL) 
             continue;
 
@@ -1277,7 +1277,7 @@ void stop_fighting(Mobile* ch, bool fBoth)
 {
     Mobile* fch;
 
-    FOR_EACH(fch, mob_list) {
+    FOR_EACH_GLOBAL_MOB(fch) {
         if (fch == ch || (fBoth && fch->fighting == ch)) {
             fch->fighting = NULL;
             fch->position = IS_NPC(fch) ? fch->default_pos : POS_STANDING;

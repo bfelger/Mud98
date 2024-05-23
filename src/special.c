@@ -264,7 +264,8 @@ bool spec_patrolman(Mobile* ch)
 
     /* look for a fight in the room */
     FOR_EACH_ROOM_MOB(vch, ch->in_room) {
-        if (vch == ch) continue;
+        if (vch == ch)
+            continue;
 
         if (vch->fighting != NULL) /* break it up! */
         {
@@ -285,12 +286,19 @@ bool spec_patrolman(Mobile* ch)
         act("You blow down hard on $p.", ch, obj, NULL, TO_CHAR);
         act("$n blows on $p, ***WHEEEEEEEEEEEET***", ch, obj, NULL, TO_ROOM);
 
-        FOR_EACH(vch, mob_list) {
-            if (vch->in_room == NULL) continue;
+        if (ch->in_room != NULL) {
+            Room* room;
+            FOR_EACH_AREA_ROOM(room, ch->in_room->area) {
+                if (room == ch->in_room)
+                    continue;
 
-            if (vch->in_room != ch->in_room
-                && vch->in_room->area == ch->in_room->area)
-                send_to_char("You hear a shrill whistling sound.\n\r", vch);
+                if (room->mobiles.count > 0) {
+                    Mobile* mob;
+                    FOR_EACH_ROOM_MOB(mob, room) {
+                        send_to_char("You hear a shrill whistling sound.\n\r", mob);
+                    }
+                }
+            }
         }
     }
 
