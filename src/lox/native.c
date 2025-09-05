@@ -17,6 +17,10 @@
 #include "lox/value.h"
 #include "lox/vm.h"
 
+#include "db.h"
+#include "fight.h"
+#include "magic.h"
+
 static Value clock_native(int arg_count, Value* args)
 {
     return DOUBLE_VAL((double)clock() / CLOCKS_PER_SEC);
@@ -165,9 +169,97 @@ static Value is_area_data_native(int arg_count, Value* args)
     return FALSE_VAL;
 }
 
+//bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type, bool show)
+static Value damage_native(int arg_count, Value* args)
+{
+    if (arg_count != 6) {
+        runtime_error("damage() takes 6 arguments; %d given.", arg_count);
+        return FALSE_VAL;
+    }
+
+    // Add support for arbitrary damage sources, later.
+    if (args[0] != NIL_VAL && !IS_MOBILE(args[0])) {
+        runtime_error("damage(): Expected acting Mobile for first argument.");
+        return FALSE_VAL;
+    }
+
+    if (args[1] != NIL_VAL && !IS_MOBILE(args[1])) {
+        runtime_error("damage(): Expected target Mobile for second argument.");
+        return FALSE_VAL;
+    }
+
+    if (!IS_INT(args[2]) || !IS_INT(args[3]) || !IS_INT(args[4]) || !IS_BOOL(args[5])) {
+        runtime_error("damage(): Expected integer values for third through sixth arguments.");
+        return FALSE_VAL;
+    }
+
+    Mobile* ch = AS_MOBILE(args[0]);
+    Mobile* victim = AS_MOBILE(args[1]);
+    int dam = AS_INT(args[2]);
+    int16_t dt = (int16_t)AS_INT(args[3]);
+    DamageType dam_type = (DamageType)AS_INT(args[4]);
+    bool show = AS_BOOL(args[5]);
+
+    bool retval = damage(ch, victim, dam, dt, dam_type, show);
+
+    return BOOL_VAL(retval);
+}
+
+// int dice(int number, int size)
+static Value dice_native(int arg_count, Value* args)
+{
+    if (arg_count != 2) {
+        runtime_error("dice() takes 2 arguments; %d given.", arg_count);
+        return FALSE_VAL;
+    }
+
+    if (!IS_INT(args[0]) || !IS_INT(args[1])) {
+        runtime_error("dice(): Expected integer for both arguments.");
+        return FALSE_VAL;
+    }
+
+    int number = AS_INT(args[0]);
+    int size = AS_INT(args[1]);
+    
+    int retval = dice(number, size);
+
+    return INT_VAL(retval);
+}
+
+// bool saves_spell(LEVEL level, Mobile* victim, DamageType dam_type)
+static Value saves_spell_native(int arg_count, Value* args)
+{
+    if (arg_count != 3) {
+        runtime_error("saves_spell() takes 3 arguments; %d given.", arg_count);
+        return FALSE_VAL;
+    }
+
+    if (!IS_INT(args[0]) || !IS_INT(args[2])) {
+        runtime_error("saves_spell(): Expected target integer for first and third arguments.");
+        return FALSE_VAL;
+    }
+
+    // Add support for arbitrary damage sources, later.
+    if (args[1] == NIL_VAL || !IS_MOBILE(args[1])) {
+        runtime_error("saves_spell(): Expected target Mobile for second argument.");
+        return FALSE_VAL;
+    }
+
+    LEVEL level = (int16_t)AS_INT(args[0]);
+    Mobile* victim = AS_MOBILE(args[1]);
+    DamageType dam_type = (DamageType)AS_INT(args[2]);
+
+    bool retval = saves_spell(level, victim, dam_type);
+
+    return BOOL_VAL(retval);
+}
+
 const NativeFuncEntry native_funcs[] = {
     { "clock",          clock_native                },
+    { "damage",         damage_native               },
+    { "dice",           dice_native                 },
     { "marshal",        marshal_native              },
+    { "saves_spell",    saves_spell_native          },
     { "string",         string_native               },
     { "is_area",        is_area_native              },
     { "is_area_data",   is_area_data_native         },
@@ -216,13 +308,16 @@ void add_global(const char* name, Value val)
     pop();
 }
 
-void init_natives()
+void init_const_natives()
 {
     for (int i = 0; native_funcs[i].name != NULL; ++i)
         define_native(native_funcs[i].name, native_funcs[i].func);
 
     init_damage_consts();
+}
 
+void init_world_natives()
+{
     add_global("global_areas", OBJ_VAL(&global_areas));
     add_global("global_rooms", OBJ_VAL(&global_rooms));
     add_global("mob_protos", OBJ_VAL(&mob_protos));

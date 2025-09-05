@@ -89,6 +89,7 @@
 #include <unistd.h>
 #endif
 
+void load_lox_scripts();
 MobProgCode* pedit_prog(VNUM);
 
 // Globals.
@@ -159,6 +160,7 @@ void load_shops(FILE* fp);
 void load_specials(FILE* fp);
 void load_notes();
 void load_mobprogs(FILE* fp);
+void load_lox_scripts();
 
 void fix_exits();
 void fix_mobprogs();
@@ -193,6 +195,9 @@ void boot_db()
     }
 
     init_vm();
+
+    init_const_natives();
+    load_lox_scripts();
 
     load_skill_table();
     load_class_table();
@@ -286,7 +291,7 @@ void boot_db()
         close_file(fpList);
     }
 
-    init_natives();
+    init_world_natives();
 
     /*
      * Fix up exits.
@@ -1374,6 +1379,101 @@ String* fread_lox_string(FILE* fp)
     return copy_string(str, len);
 }
 
+char* fread_lox_script(FILE* fp)
+{
+    char* plast;
+    char c = '\0';
+    char last_char = '\0';
+
+    plast = top_string + sizeof(char*);
+    if (plast > &string_space[MAX_STRING - MAX_STRING_LENGTH]) {
+        bug("Fread_string: MAX_STRING %d exceeded.", MAX_STRING);
+        exit(1);
+    }
+
+    /*
+     * Skip blanks.
+     * Read first char.
+     */
+    do {
+        c = (char)getc(fp);
+    }
+    while (ISSPACE(c));
+
+    if ((*plast++ = c) == '~')
+        return &str_empty[0];
+
+    for (;;) {
+        last_char = c;
+        switch (*plast = c = (char)getc(fp)) {
+        default:
+            plast++;
+            break;
+
+        case EOF:
+            /* temp fix */
+            bug("Fread_string: EOF", 0);
+            return NULL;
+            /* exit( 1 ); */
+            break;
+
+        case '\n':
+            plast++;
+            *plast++ = '\r';
+            break;
+
+        case '\r':
+            break;
+
+        case '~':
+            plast++;
+            if (last_char == '#')  
+            {
+                // Special case for scripts
+                --plast;
+                union {
+                    char* pc;
+                    char rgc[sizeof(char*)];
+                } u1 = { 0 };
+                int ic;
+                int hash;
+                char* pHash;
+                char* pHashPrev = NULL;
+                char* pString;
+
+                plast[-1] = '\0';
+                hash = (int)UMIN(MAX_KEY_HASH - 1, plast - 1 - top_string);
+                for (pHash = string_hash[hash]; pHash; pHash = pHashPrev) {
+                    for (ic = 0; ic < (int)sizeof(char*); ic++)
+                        u1.rgc[ic] = pHash[ic];
+                    pHashPrev = u1.pc;
+                    pHash += sizeof(char*);
+
+                    if (top_string[sizeof(char*)] == pHash[0]
+                        && !strcmp(top_string + sizeof(char*) + 1, pHash + 1))
+                        return pHash;
+                }
+
+                if (fBootDb) {
+                    pString = top_string;
+                    top_string = plast;
+                    u1.pc = string_hash[hash];
+                    for (ic = 0; ic < (int)sizeof(char*); ic++)
+                        pString[ic] = u1.rgc[ic];
+                    string_hash[hash] = pString;
+
+                    nAllocString += 1;
+                    sAllocString += top_string - pString;
+                    return pString + sizeof(char*);
+                }
+                else {
+                    return str_dup(top_string + sizeof(char*));
+                }
+            }
+        }
+    }
+}
+
 /*
  * Read and allocate space for a string from a file.
  * These strings are read-only and shared.
@@ -1668,6 +1768,9 @@ void free_mem(void* pMem, size_t sMem)
 
     mem_addr -= sizeof(*magic); 
     magic = (int*)mem_addr;
+
+    //if (IS_OBJ((Value)magic))
+    //        return;
 
     if (*magic != MAGIC_NUM) {
         bug("Attempt to recycle invalid memory of size %zu.", sMem);

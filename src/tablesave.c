@@ -22,6 +22,9 @@
 #include "data/mobile_data.h"
 #include "data/race.h"
 
+#include "lox/lox.h"
+#include "lox/vm.h"
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,6 +39,8 @@
 CmdInfo tmp_cmd;
 MobProgCode tmp_pcode;
 
+const char* lox_str(void* temp);
+bool lox_read(void* temp, const char* arg);
 char* cmd_func_name(DoFunc*);
 DoFunc* cmd_func_lookup(char*);
 
@@ -345,6 +350,35 @@ void load_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, con
                         break;
                     }
 
+                case FIELD_LOX_CLOSURE: {
+                        String** p_lox_str = (String**)(temp->field_ptr - base_type + pointer);
+                        ObjClosure** closure = (ObjClosure**)(temp->argument - base_type + pointer);
+
+                        *p_lox_str = fread_lox_string(fp);
+
+                        Value value;
+                        if (!table_get(&vm.globals, *p_lox_str, &value)) {
+                            bug("load_struct(): Unknown Lox entity '%s'.", (*p_lox_str)->chars);
+                            break;
+                        }
+
+                        if (!IS_CLOSURE(value)) {
+                            bug("load_struct(): '%s' is not a callable object.");
+                            printf("    - ");
+                            print_value(value);
+                            break;
+                        }
+
+#ifdef DEBUG_INTEGRATION
+                        printf("      + Loaded Lox Closure %s()\n", (*p_lox_str)->chars);
+#endif
+
+                        *closure = AS_CLOSURE(value);
+
+                        found = true, cnt++;
+                        break;
+                    }
+
                 } // switch
                 if (found == true)
                     break;
@@ -511,6 +545,15 @@ void save_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, con
                 for (size_t j = 0; j < a->count; j++)
                     fprintf(fp, "%d ", a->elems[j]);
                 fprintf(fp, "@\n");
+                break;
+            }
+
+        case FIELD_LOX_CLOSURE: {
+                String** lox_str = (String**)(temp->field_ptr - base_type + pointer);
+                if (*lox_str == NULL)
+                    break;
+                char* str = (*lox_str)->chars;
+                fprintf(fp, "%s %s~\n", temp->field_name, !IS_NULLSTR(str) ? fix_string(str) : "");
                 break;
             }
 

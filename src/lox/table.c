@@ -88,6 +88,19 @@ static Entry* find_entry_vnum(Entry* entries, int capacity, int32_t key)
     }
 }
 
+bool table_get_entry(Table* table, ObjString* key, Entry** out_entry)
+{
+    if (table->count == 0)
+        return false;
+
+    Entry* entry = find_entry(table->entries, table->capacity, key);
+    if (entry->key == NIL_VAL)
+        return false;
+
+    *out_entry = entry;
+    return true;
+}
+
 bool table_get(Table* table, ObjString* key, Value* value)
 {
     if (table->count == 0)

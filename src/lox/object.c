@@ -43,6 +43,14 @@ ObjBoundMethod* new_bound_method(Value receiver, ObjClosure* method)
     return bound;
 }
 
+ObjBoundNative* new_bound_native(Value receiver, NativeMethod native)
+{
+    ObjBoundNative* bound = ALLOCATE_OBJ(ObjBoundNative, OBJ_BOUND_NATIVE);
+    bound->receiver = receiver;
+    bound->native = native;
+    return bound;
+}
+
 ObjClass* new_class(ObjString* name)
 {
     ObjClass* klass = ALLOCATE_OBJ(ObjClass, OBJ_CLASS);
@@ -227,6 +235,9 @@ void print_object(Value value)
         }
     case OBJ_BOUND_METHOD:
         print_function(AS_BOUND_METHOD(value)->method->function);
+        break;    
+    case OBJ_BOUND_NATIVE:
+        lox_printf("<native bound method>");
         break;
     case OBJ_CLASS:
         lox_printf("%s", AS_CLASS(value)->name->chars);

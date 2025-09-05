@@ -42,9 +42,11 @@ typedef ObjString String;
 
 void add_global(const char* name, Value val);
 InterpretResult call_function(const char* fn_name, int count, ...);
+InterpretResult invoke_closure(ObjClosure* closure, int count, ...);
 ObjClass* find_class(const char* class_name);
 void free_vm();
-void init_natives();
+void init_const_natives();
+void init_world_natives();
 void init_vm();
 InterpretResult interpret_code(const char* source);
 Value pop();

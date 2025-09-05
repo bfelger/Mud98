@@ -82,13 +82,13 @@ const AttackInfo attack_table[ATTACK_COUNT] = {
 void init_damage_consts()
 {
     static char* damtype_start =
-        "class damage_t { "
+        "class damage_type_t { "
         "   init() { ";
     
     static char* damtype_end =
         "   }"
         "}"
-        "var Damage = damage_t();";
+        "var DamageType = damage_type_t();";
     
     INIT_BUF(src, MSL);
     

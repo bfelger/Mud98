@@ -4,11 +4,136 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "comm.h"
+#include "config.h"
 #include "db.h"
+#include "file.h"
 
 #include "entities/mobile.h"
 
 #include "lox/lox.h"
+#include "lox/vm.h"
+
+Table scripts;
+
+bool lox_read(void* temp, const char* arg)
+{
+    String* key = lox_string(arg);
+
+    Entry** sk_script = (Entry**)temp;
+    Entry* entry;
+        
+    if (!table_get_entry(&vm.globals, key, &entry)) {
+        bug("lox_read(): Unknown script '%s'.", arg);
+        *sk_script = NULL;
+        return false;
+    }
+
+    if (!IS_CLOSURE(entry->value)) {
+        bug("lox_read(): '%s' is not a callable object.", arg);
+        printf("    - ");
+        print_value(entry->value);
+        *sk_script = NULL;
+        return false;
+    }
+
+    *sk_script = entry;
+    return true;
+}
+
+const char* lox_str(void* temp)
+{
+    Entry** entry = (Entry**)temp;
+    return (AS_STRING((*entry)->key))->chars;
+}
+
+static void compile_lox_script(const String* source)
+{
+    InterpretResult result = interpret_code(source->chars);
+
+    switch (result) {
+    case INTERPRET_OK:
+        break;
+    case INTERPRET_COMPILE_ERROR:
+        bug("compile_lox_script(): Compile error.");
+        break;
+    case INTERPRET_RUNTIME_ERROR:
+        bug("compile_lox_script(): Runtime error.");
+        break;
+    }
+}
+
+static void load_lox_script(const char* source_file)
+{
+    FILE* fp;
+    char* raw_source;
+    String* source;
+    String* script_name;
+    char path[MAX_INPUT_LENGTH*2];
+
+    sprintf(path, "%s%s%s", cfg_get_data_dir(), cfg_get_scripts_dir(), source_file);
+
+#ifdef DEBUG_INTEGRATION
+    printf("    - %s\n", path);
+#endif
+
+    OPEN_OR_RETURN(fp = open_read_file(path));
+
+    char* word = fread_word(fp);
+
+    while (strcmp(word, "#END") != 0) {
+        if (str_cmp(word, "#LOX")) {
+            bugf("compile_lox_script : section '%s' is invalid", word);
+            break;
+        }
+
+        script_name = fread_lox_string(fp);
+        
+        raw_source = fread_lox_script(fp);
+        int len = (int)strlen(raw_source);
+        source = copy_string(raw_source, len);
+
+        table_set(&scripts, script_name, OBJ_VAL(source));
+
+#ifdef DEBUG_INTEGRATION
+        printf("      * Compiling %s()\n", script_name->chars);
+#endif
+
+        compile_lox_script(source);
+
+        word = fread_word(fp);
+    }
+
+    fclose(fp);
+}
+
+// Used to load lox scripts from the scripts/ directory on bootup
+void load_lox_scripts()
+{
+    FILE* fp;
+    char buf[MAX_INPUT_LENGTH*2];
+
+    printf_log("Loading Lox scripts.");
+
+    init_table(&scripts);
+
+    sprintf(buf, "%s%s.lox", cfg_get_data_dir(), cfg_get_scripts_dir());
+
+    OPEN_OR_RETURN(fp = open_read_file(buf));
+
+    char line[MAX_INPUT_LENGTH*2];
+    while (fgets(line, sizeof(line), fp)) {
+        // Remove newline character
+        line[strcspn(line, "\n")] = 0;
+
+        if (line[0] == '\0' || line[0] == '#')
+            continue;
+
+        // Compile each line
+        load_lox_script(line);
+    } 
+
+    fclose(fp);
+}
 
 static void lox_eval(Mobile* ch, char* argument)
 {

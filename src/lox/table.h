@@ -27,6 +27,7 @@ typedef struct {
 void init_table(Table* table);
 void free_table(Table* table);
 bool table_get(Table* table, ObjString* key, Value* value);
+bool table_get_entry(Table* table, ObjString* key, Entry** out_entry);
 bool table_get_vnum(Table* table, int32_t key, Value* value);
 bool table_set(Table* table, ObjString* key, Value value);
 bool table_set_vnum(Table* table, int32_t key, Value value);

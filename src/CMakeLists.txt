@@ -130,6 +130,8 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     spell_list.h tables.c tablesave.c tests.h tests.c update.h update.c 
     weather.h weather.c wizutil.v3.c
 
+    lox.c
+
     olc/aedit.c olc/bit.h olc/bit.c olc/cedit.c olc/cmdedit.c olc/gedit.c 
     olc/hedit.c olc/medit.c olc/oedit.c olc/olc.h olc/olc.c olc/olc_act.c 
     olc/olc_save.c olc/pedit.c olc/qedit.c olc/raedit.c olc/redit.c olc/screen.h 
@@ -140,6 +142,7 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     entities/affect.h entities/affect.c
     entities/area.h entities/area.c
     entities/descriptor.h entities/descriptor.c
+    entities/entity.h entities/entity.c
     entities/extra_desc.h entities/extra_desc.c
     entities/help_data.h entities/help_data.c
     entities/mob_memory.h entities/mob_memory.c
@@ -167,17 +170,19 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     data/quest.h data/quest.c
 
     lox/lox.h lox/common.h
+    lox/array.h lox/array.c
+    lox/compiler.h lox/compiler.c
     lox/chunk.h lox/chunk.c
-    lox/memory.h lox/memory.c
     lox/debug.h lox/debug.c
+    lox/list.h lox/list.c
+    lox/memory.h lox/memory.c
+    lox/native.h lox/native.c
+    lox/object.h lox/object.c
+    lox/scanner.h lox/scanner.c
+    lox/table.h lox/table.c
     lox/value.h lox/value.c
     lox/vm.h lox/vm.c
-    lox/compiler.h lox/compiler.c
-    lox/scanner.h lox/scanner.c
-    lox/object.h lox/object.c
-    lox/table.h lox/table.c
-    lox/native.h lox/native.c
-   "lox.c" "lox/array.h" "lox/array.c" "lox/function.h" "entities/entity.h" "entities/entity.c" "lox/list.h" "lox/list.c")
+    lox/function.h)
 
 target_link_libraries(Mud98 PRIVATE ${Mud98_LIBS})
 

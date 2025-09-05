@@ -983,7 +983,7 @@ void do_mpcast(Mobile* ch, char* argument)
         victim = (void*)obj;
         spell_target = SPELL_TARGET_OBJ;
     }
-    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim, spell_target);
+    invoke_spell_func(sn, ch->level, ch, victim, spell_target);
     return;
 }
 

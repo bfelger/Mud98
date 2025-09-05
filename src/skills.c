@@ -115,7 +115,7 @@ void do_gain(Mobile* ch, char* argument)
 
             if (!ch->pcdata->learned[sn]
                 && SKILL_RATING(sn, ch) > 0
-                && skill_table[sn].spell_fun == spell_null) {
+                && !HAS_SPELL_FUNC(sn)) {
                 sprintf(buf, "%-18s %-5d ", skill_table[sn].name,
                         SKILL_RATING(sn, ch));
                 send_to_char(buf, ch);
@@ -196,7 +196,7 @@ void do_gain(Mobile* ch, char* argument)
 
     sn = skill_lookup(argument);
     if (sn > -1) {
-        if (skill_table[sn].spell_fun != spell_null) {
+        if (HAS_SPELL_FUNC(sn)) {
             act("$N tells you 'You must learn the full group.'", ch, NULL,
                 trainer, TO_CHAR);
             return;
@@ -309,7 +309,7 @@ void do_spells(Mobile* ch, char* argument)
 
         if ((level = SKILL_LEVEL(sn, ch)) < LEVEL_HERO + 1
             && (fAll || level <= ch->level) && level >= min_lev
-            && level <= max_lev && skill_table[sn].spell_fun != spell_null
+            && level <= max_lev && HAS_SPELL_FUNC(sn)
             && ch->pcdata->learned[sn] > 0) {
             found = true;
 
@@ -430,7 +430,7 @@ void do_skills(Mobile* ch, char* argument)
 
         if ((level = SKILL_RATING(sn, ch)) < LEVEL_HERO + 1
             && (fAll || level <= ch->level) && level >= min_lev
-            && level <= max_lev && skill_table[sn].spell_fun == spell_null
+            && level <= max_lev && !HAS_SPELL_FUNC(sn)
             && ch->pcdata->learned[sn] > 0) {
             found = true;
 
@@ -516,7 +516,7 @@ void list_group_costs(Mobile* ch)
         if (skill_table[sn].name == NULL) break;
 
         if (!ch->gen_data->skill_chosen[sn] && ch->pcdata->learned[sn] == 0
-            && skill_table[sn].spell_fun == spell_null
+            && !HAS_SPELL_FUNC(sn)
             && SKILL_RATING(sn, ch) > 0) {
             sprintf(buf, "%-18s %-5d ", skill_table[sn].name,
                 SKILL_RATING(sn, ch));
@@ -689,7 +689,7 @@ bool parse_gen_groups(Mobile* ch, char* argument)
             }
 
             if (SKILL_RATING(sn, ch) < 1
-                || skill_table[sn].spell_fun != spell_null) {
+                || HAS_SPELL_FUNC(sn)) {
                 send_to_char("That skill is not available.\n\r", ch);
                 return true;
             }

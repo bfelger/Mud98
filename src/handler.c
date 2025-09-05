@@ -324,7 +324,7 @@ int get_skill(Mobile* ch, SKNUM sn)
     }
     else {
         // Mobiles
-        if (skill_table[sn].spell_fun != spell_null)
+        if (HAS_SPELL_FUNC(sn))
             skill = 40 + 2 * ch->level;
 
         else if (sn == gsn_sneak || sn == gsn_hide)
@@ -385,7 +385,7 @@ int get_skill(Mobile* ch, SKNUM sn)
     }
 
     if (ch->daze > 0) {
-        if (skill_table[sn].spell_fun != spell_null)
+        if (HAS_SPELL_FUNC(sn))
             skill /= 2;
         else
             skill = 2 * skill / 3;

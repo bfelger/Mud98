@@ -244,6 +244,27 @@ int mana_cost(Mobile* ch, int min_mana, LEVEL level)
     return UMAX(min_mana, (100 / (2 + ch->level - level)));
 }
 
+void invoke_spell_func(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target)
+{
+    SpellFunc* func = skill_table[sn].spell_fun;
+    if (func != spell_null && func != NULL) {
+        (*skill_table[sn].spell_fun)(sn, level, ch, vo, target);
+        return;
+    }
+
+    ObjClosure* closure = skill_table[sn].lox_closure;
+
+    if (closure == NULL)
+        return;
+
+    Value victim = NIL_VAL;
+    if (vo != NULL)
+        victim = OBJ_VAL(vo);
+
+    //fun spell_func(sn, level, ch, victim)
+    invoke_closure(closure, 4, INT_VAL(sn), INT_VAL(level), OBJ_VAL(ch), victim);
+}
+
 // The kludgy global is for spells who want more stuff from command line.
 char* target_name;
 
@@ -255,7 +276,6 @@ void do_cast(Mobile* ch, char* argument)
     Object* obj;
     void* vo;
     int mana;
-    SKNUM sn = -1;
     SpellTarget target;
 
     // Switched NPC's can cast spells, but others can't.
@@ -271,9 +291,10 @@ void do_cast(Mobile* ch, char* argument)
     }
 
     LEVEL skill_level = -1;
+    SKNUM sn = find_spell(ch, arg1);
 
-    if ((sn = find_spell(ch, arg1)) < 1
-        || skill_table[sn].spell_fun == spell_null
+    if (sn < 1
+        || (!HAS_SPELL_FUNC(sn))
         || (!IS_NPC(ch)
             && (ch->level < (skill_level = SKILL_LEVEL(sn, ch))
                 || ch->pcdata->learned[sn] == 0))) {
@@ -461,9 +482,9 @@ void do_cast(Mobile* ch, char* argument)
     else {
         ch->mana -= (int16_t)mana;
         if (IS_NPC(ch) || class_table[ch->ch_class].fMana) /* class has spells */
-            (*skill_table[sn].spell_fun)(sn, ch->level, ch, vo, target);
+            invoke_spell_func(sn, ch->level, ch, vo, target);
         else
-            (*skill_table[sn].spell_fun)(sn, 3 * ch->level / 4, ch, vo, target);
+            invoke_spell_func(sn, 3 * ch->level / 4, ch, vo, target);
         check_improve(ch, sn, true, 1);
     }
 
@@ -495,7 +516,7 @@ void obj_cast_spell(SKNUM sn, LEVEL level, Mobile* ch, Mobile* victim,
     if (sn <= 0)
         return;
 
-    if (sn >= skill_count || skill_table[sn].spell_fun == 0) {
+    if (sn >= skill_count || !HAS_SPELL_FUNC(sn)) {
         bug("Obj_cast_spell: bad sn %d.", sn);
         return;
     }
@@ -584,7 +605,7 @@ void obj_cast_spell(SKNUM sn, LEVEL level, Mobile* ch, Mobile* victim,
     }
 
     target_name = "";
-    (*skill_table[sn].spell_fun)(sn, level, ch, vo, target);
+    invoke_spell_func(sn, level, ch, vo, target);
 
     if ((skill_table[sn].target == SKILL_TARGET_CHAR_OFFENSIVE
          || (skill_table[sn].target == SKILL_TARGET_OBJ_CHAR_OFF

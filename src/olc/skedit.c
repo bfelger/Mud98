@@ -473,7 +473,7 @@ void create_skills_hash_table(void)
         data->sn = sn;
 
         // Now link to the table
-        if (skill_hash_table[value] && (skill_table[sn].spell_fun == spell_null)) // skill
+        if (skill_hash_table[value] && !HAS_SPELL_FUNC(sn)) // skill
         {
             // Skills go last!
             FOR_EACH(temp, skill_hash_table[value])
@@ -634,7 +634,7 @@ SKEDIT(skedit_spell)
     EDIT_SKILL(ch, pSkill);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Sintaxis : spell [function name]\n\r", ch);
+        send_to_char("Syntax : spell [function name]\n\r", ch);
         send_to_char("           spell spell_null\n\r", ch);
         return false;
     }

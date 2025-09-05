@@ -24,6 +24,7 @@ typedef struct mob_prototype_t MobPrototype;
 
 #define IS_ARRAY(value)         is_obj_type(value, OBJ_ARRAY)
 #define IS_BOUND_METHOD(value)  is_obj_type(value, OBJ_BOUND_METHOD)
+#define IS_BOUND_NATIVE(value)  is_obj_type(value, OBJ_BOUND_NATIVE)
 #define IS_CLASS(value)         is_obj_type(value, OBJ_CLASS)
 #define IS_CLOSURE(value)       is_obj_type(value, OBJ_CLOSURE)
 #define IS_FUNCTION(value)      is_obj_type(value, OBJ_FUNCTION)
@@ -46,6 +47,7 @@ typedef struct mob_prototype_t MobPrototype;
 
 #define AS_ARRAY(value)         ((ValueArray*)AS_OBJ(value))
 #define AS_BOUND_METHOD(value)  ((ObjBoundMethod*)AS_OBJ(value))
+#define AS_BOUND_NATIVE(value)  ((ObjBoundNative*)AS_OBJ(value))
 #define AS_CLASS(value)         ((ObjClass*)AS_OBJ(value))
 #define AS_CLOSURE(value)       ((ObjClosure*)AS_OBJ(value))
 #define AS_FUNCTION(value)      ((ObjFunction*)AS_OBJ(value))
@@ -70,6 +72,7 @@ typedef struct mob_prototype_t MobPrototype;
 typedef enum {
     OBJ_ARRAY,
     OBJ_BOUND_METHOD,
+    OBJ_BOUND_NATIVE,
     OBJ_CLASS,
     OBJ_CLOSURE,
     OBJ_FUNCTION,

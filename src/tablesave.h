@@ -29,6 +29,7 @@ typedef enum save_type_t {
     FIELD_MULT_DYNARRAY = 17,       // Dynamic malloc'd arrays
     FIELD_STARTLOC_DYNARRAY = 18,   // Dynamic malloc'd arrays
     FIELD_N_STRING_ARRAY = 19,      // Don't break for empty strings
+    FIELD_LOX_CLOSURE = 20,
 } SaveType;
 
 typedef struct save_table_entry_t {

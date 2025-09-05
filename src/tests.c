@@ -322,7 +322,7 @@ void run_unit_tests()
     //    "}\n"
     //    "print floor(2.5);";
 
-    char* source =
+    //char* source =
     //"var lam = (index, area) -> {\n"
     ////"    print string(index) + \" \" + area.name;\n"
     //"    print index;\n"
@@ -341,15 +341,15 @@ void run_unit_tests()
     //"    print index;\n"
     //"    print area.name;\n"
     //"});\n";
-    "var mob_count = 0;\n"
-    "global_mobs.apply((mob) -> {\n"
-    "    mob_count++;\n"
-    "});\n"
-    "print \"Mobile Instance Count: \" + mob_count;\n";
+    //"var mob_count = 0;\n"
+    //"global_mobs.apply((mob) -> {\n"
+    //"    mob_count++;\n"
+    //"});\n"
+    //"print \"Mobile Instance Count: \" + mob_count;\n";
 
-    InterpretResult result = interpret_code(source);
-    if (result == INTERPRET_COMPILE_ERROR) exit(65);
-    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+    //InterpretResult result = interpret_code(source);
+    //if (result == INTERPRET_COMPILE_ERROR) exit(65);
+    //if (result == INTERPRET_RUNTIME_ERROR) exit(70);
     
     //Room* room;
     //int count = 0;
@@ -397,6 +397,30 @@ void run_unit_tests()
     //if (result == INTERPRET_RUNTIME_ERROR) exit(70);
 
     //printf("i16 = %d\ni32 = %d\nu64 = %llu\nstr = '%s'\n", i16, i32, u64, str);
+
+    //void spell_acid_blast(SKNUM sn, LEVEL level, Mobile * ch, void* vo, SpellTarget target)
+    //{
+    //    Mobile* victim = (Mobile*)vo;
+    //    int dam;
+    //
+    //    dam = dice(level, 12);
+    //    if (saves_spell(level, victim, DAM_ACID)) dam /= 2;
+    //    damage(ch, victim, dam, sn, DAM_ACID, true);
+    //    return;
+    //}
+
+    //char* source =
+    //    "fun spell_fire_bolt(sn, level, ch, victim)\n"
+    //    "{\n"
+    //    "    var dam = dice(level, 10);\n"
+    //    "    if (saves_spell(level, victim, DamageType.Fire))\n"
+    //    "        dam = 0;\n"
+    //    "    damage(ch, victim, dam, sn, DamageType.Fire, true);\n"
+    //    "}\n";
+    //
+    //InterpretResult result = interpret_code(source);
+    //if (result == INTERPRET_COMPILE_ERROR) exit(65);
+    //if (result == INTERPRET_RUNTIME_ERROR) exit(70);
 
     printf("\nAll tests and benchmarks complete.\n");
 }

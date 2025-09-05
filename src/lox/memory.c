@@ -130,6 +130,11 @@ static void blacken_object(Obj* object)
         mark_value(bound->receiver);
         mark_object((Obj*)bound->method);
         break;
+    }    
+    case OBJ_BOUND_NATIVE: {
+        ObjBoundNative* bound = (ObjBoundNative*)object;
+        mark_value(bound->receiver);
+        break;
     }
     case OBJ_CLASS: {
         ObjClass* klass = (ObjClass*)object;
@@ -241,6 +246,9 @@ static void free_obj_value(Obj* object)
         break;
     case OBJ_BOUND_METHOD:
         FREE(ObjBoundMethod, object);
+        break;
+    case OBJ_BOUND_NATIVE:
+        FREE(ObjBoundNative, object);
         break;
     case OBJ_CLASS: {
             ObjClass* klass = (ObjClass*)object;

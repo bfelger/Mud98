@@ -15,6 +15,8 @@
 
 SKNUM find_spell(Mobile* ch, const char* name);
 int mana_cost(Mobile* ch, int min_mana, LEVEL level);
+void invoke_spell_func(SKNUM sn, LEVEL level, Mobile* ch, void* vo,
+    SpellTarget target);
 SKNUM skill_lookup(const char* name);
 SKNUM skill_slot_lookup(int slot);
 bool saves_spell(LEVEL level, Mobile* victim, DamageType dam_type);

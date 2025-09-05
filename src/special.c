@@ -402,7 +402,7 @@ bool dragon(Mobile* ch, char* spell_name)
 
     if ((sn = skill_lookup(spell_name)) < 0) 
         return false;
-    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim, SPELL_TARGET_CHAR);
+    invoke_spell_func(sn, ch->level, ch, victim, SPELL_TARGET_CHAR);
     return true;
 }
 
@@ -449,10 +449,14 @@ bool spec_breath_gas(Mobile* ch)
 {
     SKNUM sn;
 
-    if (ch->position != POS_FIGHTING) return false;
+    if (ch->position != POS_FIGHTING)
+        return false;
 
-    if ((sn = skill_lookup("gas breath")) < 0) return false;
-    (*skill_table[sn].spell_fun)(sn, ch->level, ch, NULL, SPELL_TARGET_CHAR);
+    if ((sn = skill_lookup("gas breath")) < 0) 
+        return false;
+
+    invoke_spell_func(sn, ch->level, ch, NULL, SPELL_TARGET_CHAR);
+
     return true;
 }
 
@@ -598,7 +602,9 @@ bool spec_cast_cleric(Mobile* ch)
 
     if ((sn = skill_lookup(spell)) < 0) 
         return false;
-    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim, SPELL_TARGET_CHAR);
+
+    invoke_spell_func(sn, ch->level, ch, victim, SPELL_TARGET_CHAR);
+
     return true;
 }
 
@@ -620,9 +626,12 @@ bool spec_cast_judge(Mobile* ch)
         return false;
 
     spell = "high explosive";
+
     if ((sn = skill_lookup(spell)) < 0) 
         return false;
-    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim, SPELL_TARGET_CHAR);
+
+    invoke_spell_func(sn, ch->level, ch, victim, SPELL_TARGET_CHAR);
+
     return true;
 }
 
@@ -696,7 +705,7 @@ bool spec_cast_mage(Mobile* ch)
 
     if ((sn = skill_lookup(spell)) < 0) 
         return false;
-    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim, SPELL_TARGET_CHAR);
+    invoke_spell_func(sn, ch->level, ch, victim, SPELL_TARGET_CHAR);
     return true;
 }
 
@@ -769,7 +778,7 @@ bool spec_cast_undead(Mobile* ch)
 
     if ((sn = skill_lookup(spell)) < 0) 
         return false;
-    (*skill_table[sn].spell_fun)(sn, ch->level, ch, victim, SPELL_TARGET_CHAR);
+    invoke_spell_func(sn, ch->level, ch, victim, SPELL_TARGET_CHAR);
     return true;
 }
 

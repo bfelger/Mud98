@@ -977,3 +977,27 @@ InterpretResult call_function(const char* fn_name, int count, ...)
 
     return rc;
 }
+
+InterpretResult invoke_closure(ObjClosure* closure, int count, ...)
+{
+    va_list args;
+
+    push(OBJ_VAL(closure));
+
+    va_start(args, count);
+
+    for (int i = 0; i < count; ++i)
+        push(va_arg(args, Value));
+
+    va_end(args);
+
+    call_closure(closure, count);
+
+    InterpretResult rc = run();
+
+    // This is the top-level stack frame; the result and last operand have
+    // already been popped, and no return value is possible.
+    vm.stack_top -= count;
+
+    return rc;
+}

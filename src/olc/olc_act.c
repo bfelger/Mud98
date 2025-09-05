@@ -174,7 +174,7 @@ void show_skill_cmds(Mobile* ch, SkillTarget tar)
             break;
 
         if (!str_cmp(skill_table[sn].name, "reserved")
-            || skill_table[sn].spell_fun == spell_null)
+            || !HAS_SPELL_FUNC(sn))
             continue;
 
         if (tar == SKILL_TARGET_ALL || skill_table[sn].target == tar) {

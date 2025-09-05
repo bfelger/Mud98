@@ -21,6 +21,7 @@ typedef struct {
 } ObjFunction;
 
 typedef Value(*NativeFn)(int arg_count, Value* args);
+typedef Value(*NativeMethod)(Value receiver, int arg_count, Value* args);
 
 typedef struct {
     Obj obj;
@@ -52,7 +53,14 @@ typedef struct {
     ObjClosure* method;
 } ObjBoundMethod;
 
+typedef struct {
+    Obj obj;
+    Value receiver;
+    NativeMethod native;
+} ObjBoundNative;
+
 ObjBoundMethod* new_bound_method(Value receiver, ObjClosure* method);
+ObjBoundNative* new_bound_native(Value receiver, NativeMethod native);
 ObjClass* new_class(ObjString* name);
 ObjClosure* new_closure(ObjFunction* function);
 ObjFunction* new_function();

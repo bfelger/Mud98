@@ -106,21 +106,23 @@ Node* list_find(List* list, Value value)
 
 void list_remove_node(List* list, Node* node)
 {
-    if (list->front == node)
-        list->front = node->next;
+    if (list != NULL) {
+        if (list->front == node)
+            list->front = node->next;
+        if (list->back == node)
+            list->back = node->prev;
 
-    if (list->back == node)
-        list->back = node->prev;
+        list->count--;
+    }
 
-    if (node->prev != NULL)
-        node->prev->next = node->next;
+    if (node != NULL) {
+        if (node->prev != NULL)
+            node->prev->next = node->next;
+        if (node->next != NULL)
+            node->next->prev = node->prev;
 
-    if (node->next != NULL)
-        node->next->prev = node->prev;
-
-    reallocate(node, sizeof(Node), 0);
-
-    list->count--;
+        reallocate(node, sizeof(Node), 0);
+    }
 }
 
 void list_remove_value(List* list, Value value)
