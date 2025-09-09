@@ -5,6 +5,9 @@
 
 #include "native.h"
 
+#include <act_comm.h>
+#include <comm.h>
+
 #include <entities/area.h>
 #include <entities/mobile.h>
 #include <entities/object.h>
@@ -116,6 +119,34 @@ static Value is_area_data_native(Value receiver, int arg_count, Value* args)
     return FALSE_VAL;
 }
 
+static Value send_native(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count == 0) {
+        runtime_error("send() requires at least one argument.");
+        return FALSE_VAL;
+    }
+
+    if (!IS_ENTITY(receiver)) {
+        runtime_error("send() only works for game entities.");
+        return FALSE_VAL;
+    }
+
+    if (IS_MOBILE(receiver)) {
+        Mobile* mob = AS_MOBILE(receiver);
+
+        // Skip NPCs (for now)
+        if (mob->pcdata == NULL)
+            return TRUE_VAL;
+
+        for (int i = 0; i < arg_count; i++) {
+            char* msg = string_value(args[i]);
+            act(msg, mob, NULL, NULL, TO_CHAR);
+        }
+    }
+
+    return TRUE_VAL;
+}
+
 const NativeMethodEntry native_method_entries[] = {
     { "is_area",        is_area_native              },
     { "is_area_data",   is_area_data_native         },
@@ -125,5 +156,6 @@ const NativeMethodEntry native_method_entries[] = {
     { "is_obj_proto",   is_obj_proto_native         },
     { "is_room",        is_room_native              },
     { "is_room_data",   is_room_data_native         },
+    { "send",           send_native                 },
     { NULL,             NULL                        },
 };
