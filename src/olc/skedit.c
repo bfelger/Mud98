@@ -727,6 +727,8 @@ SKEDIT(skedit_new)
         CREATE_ELEM(skill_table[skill_count - 1].rating);
     }
     skill_table[skill_count - 1].spell_fun = spell_null;
+    skill_table[skill_count - 1].lox_spell_name = NULL;
+    skill_table[skill_count - 1].lox_closure = NULL;
     skill_table[skill_count - 1].target = SKILL_TARGET_IGNORE;
     skill_table[skill_count - 1].minimum_position = POS_STANDING;
     skill_table[skill_count - 1].pgsn = NULL;

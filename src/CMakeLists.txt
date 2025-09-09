@@ -177,12 +177,14 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     lox/list.h lox/list.c
     lox/memory.h lox/memory.c
     lox/native.h lox/native.c
+    lox/native_funcs.c lox/native_methods.c
     lox/object.h lox/object.c
     lox/scanner.h lox/scanner.c
     lox/table.h lox/table.c
     lox/value.h lox/value.c
     lox/vm.h lox/vm.c
-    lox/function.h)
+    lox/function.h
+)
 
 target_link_libraries(Mud98 PRIVATE ${Mud98_LIBS})
 

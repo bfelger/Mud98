@@ -2149,15 +2149,7 @@ void do_bash(Mobile* ch, char* argument)
     /* level */
     chance += (ch->level - victim->level);
 
-    if (!IS_NPC(victim)
-        && chance < get_skill(
-               victim, gsn_dodge)) { /*
-                                     act("{5$n tries to bash you, but you dodge
-                                     it.{x",ch,NULL,victim,TO_VICT); act("{5$N
-                                     dodges your bash, you fall flat on your
-                                     face.{x",ch,NULL,victim,TO_CHAR);
-                                     WAIT_STATE(ch,skill_table[gsn_bash].beats);
-                                     return;*/
+    if (!IS_NPC(victim) && chance < get_skill(victim, gsn_dodge)) {
         chance -= 3 * (get_skill(victim, gsn_dodge) - chance);
     }
 

@@ -28,6 +28,8 @@ extern char* string_space;
 extern char* top_string;
 extern char str_empty[1];
 
+extern Table spell_scripts;
+
 extern bool fBootDb;
 
 void* reallocate(void* pointer, size_t old_size, size_t new_size)
@@ -131,9 +133,7 @@ static void blacken_object(Obj* object)
         mark_object((Obj*)bound->method);
         break;
     }    
-    case OBJ_BOUND_NATIVE: {
-        ObjBoundNative* bound = (ObjBoundNative*)object;
-        mark_value(bound->receiver);
+    case OBJ_NATIVE_METHOD: {
         break;
     }
     case OBJ_CLASS: {
@@ -247,7 +247,7 @@ static void free_obj_value(Obj* object)
     case OBJ_BOUND_METHOD:
         FREE(ObjBoundMethod, object);
         break;
-    case OBJ_BOUND_NATIVE:
+    case OBJ_NATIVE_METHOD:
         FREE(ObjBoundNative, object);
         break;
     case OBJ_CLASS: {
@@ -326,56 +326,7 @@ static void mark_natives()
             mark_object((Obj*)mob);
     }
 
-    // The following are already in globals, and will already be marked.
-
-    //AreaData* area_data;
-    //Area* area;
-    //RoomData* room_data;
-    //Room* room;
-    //MobPrototype* mob_proto;
-    //Mobile* mob;
-    //ObjPrototype* obj_proto;
-    //Object* obj;
-
-    //FOR_EACH_MOB_PROTO(mob_proto) {
-    //    mark_entity(&mob_proto->header);
-    //}
-    //   
-    //FOR_EACH_OBJ_PROTO(obj_proto) {
-    //    mark_entity(&obj_proto->header);
-    //}
-    // 
-    //FOR_EACH(mob, mob_list) {
-    //    mark_entity(&mob->header);
-    //    mark_list(&mob->objects);
-    //}
-    // 
-    //FOR_EACH_GLOBAL_OBJ(obj) {
-    //    mark_entity(&obj->header);
-    //    if (obj->owner != NULL)
-    //        mark_object((Obj*)obj->owner);
-    //    mark_list(&obj->objects);
-    //}
-    //
-    //mark_array(&global_areas);
-    //
-    //FOR_EACH_AREA(area_data) {
-    //    mark_entity(&area_data->header);
-    //    mark_list(&area_data->instances);
-    //    FOR_EACH_AREA_INST(area, area_data) {
-    //        mark_entity(&area->header);
-    //        mark_table(&area->rooms);
-    //    }
-    //}
-    //
-    //FOR_EACH_GLOBAL_ROOM(room_data) {
-    //    mark_entity(&room_data->header);
-    //    FOR_EACH_ROOM_INST(room, room_data) {
-    //        mark_entity(&room->header);
-    //        mark_list(&room->objects);
-    //        mark_list(&room->mobiles);
-    //    }
-    //}
+    mark_table(&spell_scripts);
 }
 
 static void mark_roots()

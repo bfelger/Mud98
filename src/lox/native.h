@@ -12,14 +12,21 @@
 #include "lox/value.h"
 
 typedef struct {
-    char* name;
+    const char* name;
     NativeFn func;
 } NativeFuncEntry;
+
+typedef struct {
+    const char* name;
+    NativeMethod method;
+} NativeMethodEntry;
 
 void add_global(const char* name, Value val);
 void init_const_natives();
 void init_world_natives();
 
-extern const NativeFuncEntry native_funcs[];
+extern const NativeFuncEntry native_func_entries[];
+extern const NativeMethodEntry native_method_entries[];
+extern Table native_methods;
 
 #endif 

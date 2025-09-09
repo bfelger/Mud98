@@ -55,12 +55,11 @@ typedef struct {
 
 typedef struct {
     Obj obj;
-    Value receiver;
     NativeMethod native;
 } ObjBoundNative;
 
 ObjBoundMethod* new_bound_method(Value receiver, ObjClosure* method);
-ObjBoundNative* new_bound_native(Value receiver, NativeMethod native);
+ObjBoundNative* new_native_method(NativeMethod native);
 ObjClass* new_class(ObjString* name);
 ObjClosure* new_closure(ObjFunction* function);
 ObjFunction* new_function();

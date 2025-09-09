@@ -273,7 +273,7 @@ void run_unit_tests()
     //InterpretResult result = interpret_code(source);
     //if (result == INTERPRET_COMPILE_ERROR) exit(65);
     //if (result == INTERPRET_RUNTIME_ERROR) exit(70);
-    //
+    
 
     //Room* room;
     //Mobile* mob;
@@ -421,6 +421,17 @@ void run_unit_tests()
     //InterpretResult result = interpret_code(source);
     //if (result == INTERPRET_COMPILE_ERROR) exit(65);
     //if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+
+    char* source =
+    "var area = global_areas[0];\n"
+    "if (area.is_area())\n"
+    "    print \"Is an area!\";\n"
+    "else\n"
+    "    print \"Is NOT an area!\";\n";
+    
+    InterpretResult result = interpret_code(source);
+    if (result == INTERPRET_COMPILE_ERROR) exit(65);
+    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
 
     printf("\nAll tests and benchmarks complete.\n");
 }

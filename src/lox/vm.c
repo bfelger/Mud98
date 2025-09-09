@@ -150,6 +150,15 @@ bool call_value(Value callee, int arg_count)
                 vm.stack_top[-arg_count - 1] = bound->receiver;
                 return call_closure(bound->method, arg_count);
             }
+        //case OBJ_NATIVE_METHOD: {
+        //        ObjBoundNative* bound = AS_NATIVE_METHOD(callee);
+        //        vm.stack_top[-arg_count - 1] = bound->receiver;
+        //        NativeMethod native = bound->native;
+        //        Value result = native(bound->receiver, arg_count, vm.stack_top - arg_count);
+        //        vm.stack_top -= (ptrdiff_t)arg_count + 1;
+        //        push(result);
+        //        return true;
+        //    }
         case OBJ_CLASS: {
                 ObjClass* klass = AS_CLASS(callee);
                 vm.stack_top[-arg_count - 1] = OBJ_VAL(new_instance(klass));
@@ -193,6 +202,20 @@ static bool invoke_from_class(ObjClass* klass, ObjString* name, int arg_count)
 static bool invoke(ObjString* name, int arg_count)
 {
     Value receiver = peek(arg_count);
+
+    if (IS_ENTITY(receiver)) {
+        // Check to see if the name is in the native methods table.
+        Value method;
+        if (table_get(&native_methods, name, &method)) {
+            // Found it. Insert the entity as the receiver and call it.
+            vm.stack_top[-arg_count - 1] = receiver;
+            NativeMethod native = AS_NATIVE_METHOD(method)->native;
+            Value result = native(receiver, arg_count, vm.stack_top - arg_count);
+            vm.stack_top -= (ptrdiff_t)arg_count + 1;
+            push(result);
+            return true;
+        }
+    }
 
     if (!IS_INSTANCE(receiver)) {
         runtime_error("Only instances have methods.");

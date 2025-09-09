@@ -13,7 +13,7 @@
 #include "lox/lox.h"
 #include "lox/vm.h"
 
-Table scripts;
+Table spell_scripts;
 
 bool lox_read(void* temp, const char* arg)
 {
@@ -69,6 +69,7 @@ static void load_lox_script(const char* source_file)
     String* source;
     String* script_name;
     char path[MAX_INPUT_LENGTH*2];
+    Table* targ_table;
 
     sprintf(path, "%s%s%s", cfg_get_data_dir(), cfg_get_scripts_dir(), source_file);
 
@@ -81,7 +82,10 @@ static void load_lox_script(const char* source_file)
     char* word = fread_word(fp);
 
     while (strcmp(word, "#END") != 0) {
-        if (str_cmp(word, "#LOX")) {
+        if (strcmp(word, "#SPELL") == 0) {
+            targ_table = &spell_scripts;
+        }
+        else {
             bugf("compile_lox_script : section '%s' is invalid", word);
             break;
         }
@@ -92,7 +96,7 @@ static void load_lox_script(const char* source_file)
         int len = (int)strlen(raw_source);
         source = copy_string(raw_source, len);
 
-        table_set(&scripts, script_name, OBJ_VAL(source));
+        table_set(targ_table, script_name, OBJ_VAL(source));
 
 #ifdef DEBUG_INTEGRATION
         printf("      * Compiling %s()\n", script_name->chars);
@@ -114,7 +118,7 @@ void load_lox_scripts()
 
     printf_log("Loading Lox scripts.");
 
-    init_table(&scripts);
+    init_table(&spell_scripts);
 
     sprintf(buf, "%s%s.lox", cfg_get_data_dir(), cfg_get_scripts_dir());
 
