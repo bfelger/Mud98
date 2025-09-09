@@ -12,6 +12,8 @@
 #include "lox/object.h"
 #include "lox/table.h"
 
+#include <merc.h>
+
 typedef struct {
     Obj obj;
     int arity;
@@ -56,10 +58,16 @@ typedef struct {
 typedef struct {
     Obj obj;
     NativeMethod native;
-} ObjBoundNative;
+} ObjNativeMethod;
+
+typedef struct {
+    Obj obj;
+    DoFunc* native;
+} ObjNativeCmd;
 
 ObjBoundMethod* new_bound_method(Value receiver, ObjClosure* method);
-ObjBoundNative* new_native_method(NativeMethod native);
+ObjNativeMethod* new_native_method(NativeMethod native);
+ObjNativeCmd* new_native_cmd(DoFunc* native);
 ObjClass* new_class(ObjString* name);
 ObjClosure* new_closure(ObjFunction* function);
 ObjFunction* new_function();

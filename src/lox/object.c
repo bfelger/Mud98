@@ -43,11 +43,18 @@ ObjBoundMethod* new_bound_method(Value receiver, ObjClosure* method)
     return bound;
 }
 
-ObjBoundNative* new_native_method(NativeMethod native)
+ObjNativeMethod* new_native_method(NativeMethod native)
 {
-    ObjBoundNative* bound = ALLOCATE_OBJ(ObjBoundNative, OBJ_NATIVE_METHOD);
-    bound->native = native;
-    return bound;
+    ObjNativeMethod* method = ALLOCATE_OBJ(ObjNativeMethod, OBJ_NATIVE_METHOD);
+    method->native = native;
+    return method;
+}
+
+ObjNativeCmd* new_native_cmd(DoFunc* native)
+{
+    ObjNativeCmd* cmd = ALLOCATE_OBJ(ObjNativeCmd, OBJ_NATIVE_CMD);
+    cmd->native = native;
+    return cmd;
 }
 
 ObjClass* new_class(ObjString* name)
@@ -237,6 +244,9 @@ void print_object(Value value)
         break;    
     case OBJ_NATIVE_METHOD:
         lox_printf("<native bound method>");
+        break;
+    case OBJ_NATIVE_CMD:
+        lox_printf("<native cmd>");
         break;
     case OBJ_CLASS:
         lox_printf("%s", AS_CLASS(value)->name->chars);

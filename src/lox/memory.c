@@ -133,10 +133,10 @@ static void blacken_object(Obj* object)
         mark_value(bound->receiver);
         mark_object((Obj*)bound->method);
         break;
-    }    
-    case OBJ_NATIVE_METHOD: {
-        break;
     }
+    case OBJ_NATIVE_METHOD:
+    case OBJ_NATIVE_CMD:
+        break;
     case OBJ_CLASS: {
         ObjClass* klass = (ObjClass*)object;
         mark_object((Obj*)klass->name);
@@ -249,7 +249,10 @@ static void free_obj_value(Obj* object)
         FREE(ObjBoundMethod, object);
         break;
     case OBJ_NATIVE_METHOD:
-        FREE(ObjBoundNative, object);
+        FREE(ObjNativeMethod, object);
+        break;
+    case OBJ_NATIVE_CMD:
+        FREE(ObjNativeCmd, object);
         break;
     case OBJ_CLASS: {
             ObjClass* klass = (ObjClass*)object;
@@ -329,6 +332,8 @@ static void mark_natives()
 
     mark_table(&spell_scripts);
     mark_table(&native_methods);
+    mark_table(&native_cmds);
+    mark_table(&native_mob_cmds);
 }
 
 static void mark_roots()

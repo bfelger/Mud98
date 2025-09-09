@@ -62,7 +62,7 @@
 #include <sys/types.h>
 
 // Command table.
-const struct mob_cmd_type mob_cmd_table[] = {
+const MobCmdInfo mob_cmd_table[] = {
     { "asound",     do_mpasound     },
     { "assist",     do_mpassist     },
     { "at",         do_mpat         },

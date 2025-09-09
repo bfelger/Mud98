@@ -177,7 +177,7 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     lox/list.h lox/list.c
     lox/memory.h lox/memory.c
     lox/native.h lox/native.c
-    lox/native_funcs.c lox/native_methods.c
+    lox/native_funcs.c lox/native_methods.c lox/native_cmds.c
     lox/object.h lox/object.c
     lox/scanner.h lox/scanner.c
     lox/table.h lox/table.c

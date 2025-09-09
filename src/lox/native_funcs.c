@@ -60,111 +60,6 @@ static Value string_native(int arg_count, Value* args)
     return OBJ_VAL(take_string(str, (int)strlen(str)));
 }
 
-//static Value is_obj_native(int arg_count, Value* args)
-//{
-//    if (arg_count != 1) {
-//        runtime_error("is_obj() takes 1 argument; %d given.", arg_count);
-//        return FALSE_VAL;
-//    }
-//
-//    if (IS_OBJECT(args[0]))
-//        return TRUE_VAL;
-//
-//    return FALSE_VAL;
-//}
-//
-//static Value is_obj_proto_native(int arg_count, Value* args)
-//{
-//    if (arg_count != 1) {
-//        runtime_error("is_obj_proto() takes 1 argument; %d given.", arg_count);
-//        return FALSE_VAL;
-//    }
-//
-//    if (IS_OBJ_PROTO(args[0]))
-//        return TRUE_VAL;
-//
-//    return FALSE_VAL;
-//}
-//
-//static Value is_mob_native(int arg_count, Value* args)
-//{
-//    if (arg_count != 1) {
-//        runtime_error("is_mob() takes 1 argument; %d given.", arg_count);
-//        return FALSE_VAL;
-//    }
-//
-//    if (IS_MOBILE(args[0]))
-//        return TRUE_VAL;
-//
-//    return FALSE_VAL;
-//}
-//
-//static Value is_mob_proto_native(int arg_count, Value* args)
-//{
-//    if (arg_count != 1) {
-//        runtime_error("is_mob_proto() takes 1 argument; %d given.", arg_count);
-//        return FALSE_VAL;
-//    }
-//
-//    if (IS_MOB_PROTO(args[0]))
-//        return TRUE_VAL;
-//
-//    return FALSE_VAL;
-//}
-//
-//static Value is_room_native(int arg_count, Value* args)
-//{
-//    if (arg_count != 1) {
-//        runtime_error("is_room() takes 1 argument; %d given.", arg_count);
-//        return FALSE_VAL;
-//    }
-//
-//    if (IS_ROOM(args[0]))
-//        return TRUE_VAL;
-//
-//    return FALSE_VAL;
-//}
-//
-//static Value is_room_data_native(int arg_count, Value* args)
-//{
-//    if (arg_count != 1) {
-//        runtime_error("is_room_data() takes 1 argument; %d given.", arg_count);
-//        return FALSE_VAL;
-//    }
-//
-//    if (IS_ROOM_DATA(args[0]))
-//        return TRUE_VAL;
-//
-//    return FALSE_VAL;
-//}
-//
-//static Value is_area_native(int arg_count, Value* args)
-//{
-//    if (arg_count != 1) {
-//        runtime_error("is_area() takes 1 argument; %d given.", arg_count);
-//        return FALSE_VAL;
-//    }
-//
-//    if (IS_AREA(args[0]))
-//        return TRUE_VAL;
-//
-//    return FALSE_VAL;
-//}
-//
-//static Value is_area_data_native(int arg_count, Value* args)
-//{
-//    if (arg_count != 1) {
-//        runtime_error("is_area_data() takes 1 argument; %d given.", arg_count);
-//        return FALSE_VAL;
-//    }
-//
-//    if (IS_AREA_DATA(args[0]))
-//        return TRUE_VAL;
-//
-//    return FALSE_VAL;
-//}
-
-//bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type, bool show)
 static Value damage_native(int arg_count, Value* args)
 {
     if (arg_count != 6) {
@@ -238,12 +133,7 @@ static Value do_native(int arg_count, Value* args)
     // Make this command safe for scripted string literals
     char* cmd = str_dup(argument);
 
-    if (exec_context.me->pcdata != NULL) {
-        interpret(exec_context.me, cmd);
-    }
-    else {
-        mob_interpret(exec_context.me, cmd);
-    }
+    interpret(exec_context.me, cmd);
 
     free_string(cmd);
 
@@ -286,14 +176,6 @@ const NativeFuncEntry native_func_entries[] = {
     { "marshal",        marshal_native              },
     { "saves_spell",    saves_spell_native          },
     { "string",         string_native               },
-//    { "is_area",        is_area_native              },
-//    { "is_area_data",   is_area_data_native         },
-//    { "is_mob",         is_mob_native               },
-//    { "is_mob_proto",   is_mob_proto_native         },
-//    { "is_obj",         is_obj_native               },
-//    { "is_obj_proto",   is_obj_proto_native         },
-//    { "is_room",        is_room_native              },
-//    { "is_room_data",   is_room_data_native         },
     { "floor",          floor_native                },
     { NULL,             NULL                        },
 };

@@ -69,6 +69,7 @@
 #include "mth/mth.h"
 
 #include "lox/lox.h"
+#include "lox/native.h"
 #include "lox/object.h"
 
 #include <ctype.h>
@@ -203,6 +204,10 @@ void boot_db()
     load_class_table();
     load_race_table();
     load_command_table();
+
+    // We need the commands before we can add them to Lox.
+    init_native_cmds();
+
     load_social_table();
     load_skill_group_table();
 

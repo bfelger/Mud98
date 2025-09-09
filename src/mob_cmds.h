@@ -41,13 +41,13 @@
 
 #include "entities/mobile.h"
 
-struct mob_cmd_type {
+typedef struct mob_cmd_type {
     const char* name;
     DoFunc* do_fun;
-};
+} MobCmdInfo;
 
 /* the command table itself */
-extern const struct mob_cmd_type mob_cmd_table[];
+extern const MobCmdInfo mob_cmd_table[];
 
 /*
  * Command functions.

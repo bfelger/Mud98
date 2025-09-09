@@ -151,7 +151,7 @@ bool call_value(Value callee, int arg_count)
                 return call_closure(bound->method, arg_count);
             }
         //case OBJ_NATIVE_METHOD: {
-        //        ObjBoundNative* bound = AS_NATIVE_METHOD(callee);
+        //        ObjNativeMethod* bound = AS_NATIVE_METHOD(callee);
         //        vm.stack_top[-arg_count - 1] = bound->receiver;
         //        NativeMethod native = bound->native;
         //        Value result = native(bound->receiver, arg_count, vm.stack_top - arg_count);
@@ -179,6 +179,25 @@ bool call_value(Value callee, int arg_count)
                 Value result = native(arg_count, vm.stack_top - arg_count);
                 vm.stack_top -= (ptrdiff_t)arg_count + 1;
                 push(result);
+                return true;
+            }
+        case OBJ_NATIVE_CMD: {
+                if (arg_count != 1 || !IS_STRING(peek(0))) {
+                    runtime_error("Native commands only take a string argument.");
+                    return false;
+                }
+                DoFunc* native = AS_NATIVE_CMD(callee)->native;
+                Mobile* self = exec_context.me;
+                if (self == NULL) {
+                    runtime_error("No valid execution context.");
+                    return false;
+                }
+                ObjString* str_arg = AS_STRING(peek(0));
+                char* arg = str_dup(str_arg->chars);
+                (*native)(self, arg);
+                free_string(arg);
+                vm.stack_top -= (ptrdiff_t)arg_count + 1;
+                push(NIL_VAL);
                 return true;
             }
         default:
@@ -214,6 +233,25 @@ static bool invoke(ObjString* name, int arg_count)
             vm.stack_top -= (ptrdiff_t)arg_count + 1;
             push(result);
             return true;
+        }
+
+        if (IS_MOBILE(receiver) && arg_count == 1 && IS_STRING(peek(0))) {
+            Mobile* mob = AS_MOBILE(receiver);
+            if (table_get(&native_cmds, name, &method) || 
+                (mob->pcdata == NULL &&
+                    table_get(&native_mob_cmds, name, &method))) {
+                // Mobs have special native functions and methods for in-game
+                // commands.
+                vm.stack_top[-arg_count - 1] = receiver;
+                DoFunc* native = AS_NATIVE_CMD(method)->native;
+                ObjString* str_arg = AS_STRING(peek(0));
+                char* arg = str_dup(str_arg->chars);
+                (*native)(mob, arg);
+                free_string(arg);
+                vm.stack_top -= (ptrdiff_t)arg_count + 1;
+                push(NIL_VAL);
+                return true;
+            }
         }
     }
 
@@ -556,6 +594,23 @@ InterpretResult run()
         case OP_GET_GLOBAL: {
                 ObjString* name = READ_STRING();
                 Value value;
+
+                // Check for an in-game (read: scripted) execution context and 
+                // look up in-game commands. Treat them like native functions.
+                if (exec_context.me != NULL) {
+                    if (table_get(&native_cmds, name, &value)) {
+                        push(value);
+                        break;
+                    }
+
+                    if (exec_context.me->pcdata == NULL) {
+                        if (table_get(&native_mob_cmds, name, &value)) {
+                            push(value);
+                            break;
+                        }
+                    }
+                }
+
                 if (!table_get(&vm.globals, name, &value)) {
                     runtime_error("Undefined variable '%s'.", name->chars);
                     return INTERPRET_RUNTIME_ERROR;
