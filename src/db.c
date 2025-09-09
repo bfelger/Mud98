@@ -2244,7 +2244,8 @@ bool str_prefix(const char* astr, const char* bstr)
     }
 
     for (; *astr; astr++, bstr++) {
-        if (LOWER(*astr) != LOWER(*bstr)) return true;
+        if (LOWER(*astr) != LOWER(*bstr))
+            return true;
     }
 
     return false;

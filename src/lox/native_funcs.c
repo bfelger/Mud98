@@ -10,6 +10,7 @@
 #include <db.h>
 #include <fight.h>
 #include <magic.h>
+#include <mob_cmds.h>
 
 #include <math.h>
 #include <stdlib.h>
@@ -220,6 +221,35 @@ static Value dice_native(int arg_count, Value* args)
     return INT_VAL(retval);
 }
 
+static Value do_native(int arg_count, Value* args)
+{
+    if (arg_count != 1 || !IS_STRING(args[0])) {
+        runtime_error("do() takes a String argument.");
+        return FALSE_VAL;
+    }
+
+    if (exec_context.me == NULL) {
+        runtime_error("do() can only be done by a Mobile/Player.");
+        return FALSE_VAL;
+    }
+
+    const char* argument = AS_STRING(args[0])->chars;
+
+    // Make this command safe for scripted string literals
+    char* cmd = str_dup(argument);
+
+    if (exec_context.me->pcdata != NULL) {
+        interpret(exec_context.me, cmd);
+    }
+    else {
+        mob_interpret(exec_context.me, cmd);
+    }
+
+    free_string(cmd);
+
+    return TRUE_VAL;
+}
+
 // bool saves_spell(LEVEL level, Mobile* victim, DamageType dam_type)
 static Value saves_spell_native(int arg_count, Value* args)
 {
@@ -251,6 +281,7 @@ static Value saves_spell_native(int arg_count, Value* args)
 const NativeFuncEntry native_func_entries[] = {
     { "clock",          clock_native                },
     { "damage",         damage_native               },
+    { "do",             do_native                   },
     { "dice",           dice_native                 },
     { "marshal",        marshal_native              },
     { "saves_spell",    saves_spell_native          },

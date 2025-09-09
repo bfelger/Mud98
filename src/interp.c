@@ -187,7 +187,6 @@ void interpret(Mobile* ch, char* argument)
     // Look for command in command table.
     found = false;
     trust = get_trust(ch);
-    //for (cmd = 0; !IS_NULLSTR(social_table[cmd].name); cmd++) {
     for (cmd = 0; !IS_NULLSTR(cmd_table[cmd].name); cmd++) {
         if (command[0] == cmd_table[cmd].name[0]
             && !str_prefix(command, cmd_table[cmd].name)
@@ -448,7 +447,8 @@ char* one_argument(char* argument, char* arg_first)
         argument++;
 
     cEnd = ' ';
-    if (*argument == '\'' || *argument == '"') cEnd = *argument++;
+    if (*argument == '\'' || *argument == '"')
+        cEnd = *argument++;
 
     while (*argument != '\0') {
         if (*argument == cEnd) {
@@ -461,7 +461,8 @@ char* one_argument(char* argument, char* arg_first)
     }
     *arg_first = '\0';
 
-    while (ISSPACE(*argument)) argument++;
+    while (ISSPACE(*argument))
+        argument++;
 
     return argument;
 }

@@ -139,39 +139,46 @@ void load_lox_scripts()
     fclose(fp);
 }
 
-static void lox_eval(Mobile* ch, char* argument)
+static void lox_eval(Mobile* ch, char* argument, bool is_repl)
 {
+    ExecContext old_exec_context = exec_context;
+    CompileContext old_compile_context = compile_context;
+
     compile_context.me = ch;
     exec_context.me = ch;
-    exec_context.is_repl = true;
+    exec_context.is_repl = is_repl;
 
     interpret_code(argument);
 
-    compile_context.me = NULL;
-    exec_context.me = NULL;
-    exec_context.is_repl = false;
+    exec_context = old_exec_context;
+    compile_context = old_compile_context;
 }
 
 void do_lox(Mobile* ch, char* argument)
 {
     static const char* help =
-        "{jUSAGE: {*LOX EVAL <script>\n\r"
-        "{j\n\r";
+        "{jUSAGE: {*LOX [EVAL] <expression>\n\r"
+        "{j\n\r"
+        "Type '{*LOX EVAL returns a value.{x\n\r";
 
-    char arg[MAX_INPUT_LENGTH];
+    char arg[MAX_INPUT_LENGTH] = "";
+    bool is_repl = false;
 
     if (!ch->pcdata)
         return;
 
-    READ_ARG(arg);
+    if (!str_prefix(argument, "eval")) {
+        READ_ARG(arg);
+    }
 
-    if (arg[0] == '\0' || arg[0] == '?' ) {
+    if (argument[0] == '\0' || argument[0] == '?' ) {
         send_to_char(help, ch);
         return;
     }
 
     if (!str_cmp(arg, "eval")) {
-        lox_eval(ch, argument);
-        return;
+        is_repl = true;
     }
+
+    lox_eval(ch, argument, is_repl);
 }
