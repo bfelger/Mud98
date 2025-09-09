@@ -313,7 +313,7 @@ void do_auction(Mobile* ch, char* argument)
         if (d->connected == CON_PLAYING && d->character != ch
             && !IS_SET(victim->comm_flags, COMM_NOAUCTION)
             && !IS_SET(victim->comm_flags, COMM_QUIET)) {
-            act_new("{a$n auctions '{A$t{a'{x", ch, argument, d->character,
+            act_pos("{a$n auctions '{A$t{a'{x", ch, argument, d->character,
                     TO_VICT, POS_DEAD);
         }
     }
@@ -360,7 +360,7 @@ void do_gossip(Mobile* ch, char* argument)
             if (d->connected == CON_PLAYING && d->character != ch
                 && !IS_SET(victim->comm_flags, COMM_NOGOSSIP)
                 && !IS_SET(victim->comm_flags, COMM_QUIET)) {
-                act_new("{d$n gossips '{9$t{d'{x", ch, argument, d->character,
+                act_pos("{d$n gossips '{9$t{d'{x", ch, argument, d->character,
                         TO_VICT, POS_SLEEPING);
             }
         }
@@ -407,7 +407,7 @@ void do_grats(Mobile* ch, char* argument)
             if (d->connected == CON_PLAYING && d->character != ch
                 && !IS_SET(victim->comm_flags, COMM_NOGRATS)
                 && !IS_SET(victim->comm_flags, COMM_QUIET)) {
-                act_new("{t$n grats '$t'{x", ch, argument, d->character,
+                act_pos("{t$n grats '$t'{x", ch, argument, d->character,
                         TO_VICT, POS_SLEEPING);
             }
         }
@@ -454,7 +454,7 @@ void do_quote(Mobile* ch, char* argument)
             if (d->connected == CON_PLAYING && d->character != ch
                 && !IS_SET(victim->comm_flags, COMM_NOQUOTE)
                 && !IS_SET(victim->comm_flags, COMM_QUIET)) {
-                act_new("{h$n quotes '{H$t{h'{x", ch, argument, d->character,
+                act_pos("{h$n quotes '{H$t{h'{x", ch, argument, d->character,
                         TO_VICT, POS_SLEEPING);
             }
         }
@@ -502,7 +502,7 @@ void do_question(Mobile* ch, char* argument)
             if (d->connected == CON_PLAYING && d->character != ch
                 && !IS_SET(victim->comm_flags, COMM_NOQUESTION)
                 && !IS_SET(victim->comm_flags, COMM_QUIET)) {
-                act_new("{q$n questions '{Q$t{q'{x", ch, argument, d->character,
+                act_pos("{q$n questions '{Q$t{q'{x", ch, argument, d->character,
                         TO_VICT, POS_SLEEPING);
             }
         }
@@ -550,7 +550,7 @@ void do_answer(Mobile* ch, char* argument)
             if (d->connected == CON_PLAYING && d->character != ch
                 && !IS_SET(victim->comm_flags, COMM_NOQUESTION)
                 && !IS_SET(victim->comm_flags, COMM_QUIET)) {
-                act_new("{f$n answers '{F$t{f'{x", ch, argument, d->character,
+                act_pos("{f$n answers '{F$t{f'{x", ch, argument, d->character,
                         TO_VICT, POS_SLEEPING);
             }
         }
@@ -599,7 +599,7 @@ void do_music(Mobile* ch, char* argument)
             if (d->connected == CON_PLAYING && d->character != ch
                 && !IS_SET(victim->comm_flags, COMM_NOMUSIC)
                 && !IS_SET(victim->comm_flags, COMM_QUIET)) {
-                act_new("{e$n MUSIC: '{E$t{e'{x", ch, argument, d->character,
+                act_pos("{e$n MUSIC: '{E$t{e'{x", ch, argument, d->character,
                         TO_VICT, POS_SLEEPING);
             }
         }
@@ -643,7 +643,7 @@ void do_clantalk(Mobile* ch, char* argument)
             && is_same_clan(ch, d->character)
             && !IS_SET(d->character->comm_flags, COMM_NOCLAN)
             && !IS_SET(d->character->comm_flags, COMM_QUIET)) {
-            act_new("$n clans '$t'{x", ch, argument, d->character, TO_VICT,
+            act_pos("$n clans '$t'{x", ch, argument, d->character, TO_VICT,
                     POS_DEAD);
         }
     }
@@ -669,11 +669,11 @@ void do_immtalk(Mobile* ch, char* argument)
 
     REMOVE_BIT(ch->comm_flags, COMM_NOWIZ);
 
-    act_new("{i[{I$n{i]: $t{x", ch, argument, NULL, TO_CHAR, POS_DEAD);
+    act_pos("{i[{I$n{i]: $t{x", ch, argument, NULL, TO_CHAR, POS_DEAD);
     FOR_EACH(d, descriptor_list) {
         if (d->connected == CON_PLAYING && IS_IMMORTAL(d->character)
             && !IS_SET(d->character->comm_flags, COMM_NOWIZ)) {
-            act_new("{i[{I$n{i]: $t{x", ch, argument, d->character, TO_VICT,
+            act_pos("{i[{I$n{i]: $t{x", ch, argument, d->character, TO_VICT,
                     POS_DEAD);
         }
     }
@@ -822,7 +822,7 @@ void do_tell(Mobile* ch, char* argument)
     }
 
     act("{kYou tell $N '{K$t{k'{x", ch, argument, victim, TO_CHAR);
-    act_new("{k$n tells you '{K$t{k'{x", ch, argument, victim, TO_VICT,
+    act_pos("{k$n tells you '{K$t{k'{x", ch, argument, victim, TO_VICT,
             POS_DEAD);
     victim->reply = ch;
 
@@ -864,7 +864,7 @@ void do_reply(Mobile* ch, char* argument)
 
     if ((IS_SET(victim->comm_flags, COMM_QUIET) || IS_SET(victim->comm_flags, COMM_DEAF))
         && !IS_IMMORTAL(ch) && !IS_IMMORTAL(victim)) {
-        act_new("$E is not receiving tells.", ch, NULL, victim, TO_CHAR, POS_DEAD);
+        act_pos("$E is not receiving tells.", ch, NULL, victim, TO_CHAR, POS_DEAD);
         return;
     }
 
@@ -875,12 +875,12 @@ void do_reply(Mobile* ch, char* argument)
 
     if (IS_SET(victim->comm_flags, COMM_AFK)) {
         if (IS_NPC(victim)) {
-            act_new("$E is AFK, and not receiving tells.", ch, NULL, victim,
+            act_pos("$E is AFK, and not receiving tells.", ch, NULL, victim,
                     TO_CHAR, POS_DEAD);
             return;
         }
 
-        act_new("$E is AFK, but your tell will go through when $E returns.", ch,
+        act_pos("$E is AFK, but your tell will go through when $E returns.", ch,
                 NULL, victim, TO_CHAR, POS_DEAD);
         sprintf(buf, "{k%s tells you '{K%s{k'{x\n\r", PERS(ch, victim),
                 argument);
@@ -889,9 +889,9 @@ void do_reply(Mobile* ch, char* argument)
         return;
     }
 
-    act_new("{kYou tell $N '{K$t{k'{x", ch, argument, victim, TO_CHAR,
+    act_pos("{kYou tell $N '{K$t{k'{x", ch, argument, victim, TO_CHAR,
             POS_DEAD);
-    act_new("{k$n tells you '{K$t{k'{x", ch, argument, victim, TO_VICT,
+    act_pos("{k$n tells you '{K$t{k'{x", ch, argument, victim, TO_VICT,
             POS_DEAD);
     victim->reply = ch;
 
@@ -1491,7 +1491,7 @@ void do_group(Mobile* ch, char* argument)
     }
 
     if (victim->master != ch && ch != victim) {
-        act_new("$N isn't following you.", ch, NULL, victim, TO_CHAR,
+        act_pos("$N isn't following you.", ch, NULL, victim, TO_CHAR,
                 POS_SLEEPING);
         return;
     }
@@ -1502,26 +1502,26 @@ void do_group(Mobile* ch, char* argument)
     }
 
     if (IS_AFFECTED(ch, AFF_CHARM)) {
-        act_new("You like your master too much to leave $m!", ch, NULL, victim,
+        act_pos("You like your master too much to leave $m!", ch, NULL, victim,
                 TO_VICT, POS_SLEEPING);
         return;
     }
 
     if (is_same_group(victim, ch) && ch != victim) {
         victim->leader = NULL;
-        act_new("$n removes $N from $s group.", ch, NULL, victim, TO_NOTVICT,
+        act_pos("$n removes $N from $s group.", ch, NULL, victim, TO_NOTVICT,
                 POS_RESTING);
-        act_new("$n removes you from $s group.", ch, NULL, victim, TO_VICT,
+        act_pos("$n removes you from $s group.", ch, NULL, victim, TO_VICT,
                 POS_SLEEPING);
-        act_new("You remove $N from your group.", ch, NULL, victim, TO_CHAR,
+        act_pos("You remove $N from your group.", ch, NULL, victim, TO_CHAR,
                 POS_SLEEPING);
         return;
     }
 
     victim->leader = ch;
-    act_new("$N joins $n's group.", ch, NULL, victim, TO_NOTVICT, POS_RESTING);
-    act_new("You join $n's group.", ch, NULL, victim, TO_VICT, POS_SLEEPING);
-    act_new("$N joins your group.", ch, NULL, victim, TO_CHAR, POS_SLEEPING);
+    act_pos("$N joins $n's group.", ch, NULL, victim, TO_NOTVICT, POS_RESTING);
+    act_pos("You join $n's group.", ch, NULL, victim, TO_VICT, POS_SLEEPING);
+    act_pos("$N joins your group.", ch, NULL, victim, TO_CHAR, POS_SLEEPING);
     return;
 }
 
@@ -1646,7 +1646,7 @@ void do_gtell(Mobile* ch, char* argument)
 
     FOR_EACH_GLOBAL_MOB(gch) {
         if (is_same_group(gch, ch))
-            act_new("$n tells the group '$t'", ch, argument, gch, TO_VICT,
+            act_pos("$n tells the group '$t'", ch, argument, gch, TO_VICT,
                     POS_SLEEPING);
     }
 

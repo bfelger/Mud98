@@ -2246,7 +2246,7 @@ void fix_sex(Mobile * ch)
         ch->sex = IS_NPC(ch) ? 0 : ch->pcdata->true_sex;
 }
 
-void act_new_new(const char* format, Obj* target, Obj* arg1, Obj* arg2, 
+void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2, 
     ActTarget type, Position min_pos)
 {
     Mobile* ch = NULL;

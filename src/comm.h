@@ -122,19 +122,13 @@ void page_to_char(const char* txt, Mobile* ch);
     )
 
 #define act(format, target, arg1, arg2, type) \
-act_new_new((format), LOX_OBJ_CAST(target), LOX_OBJ_CAST(arg1), LOX_OBJ_CAST(arg2), (type), POS_RESTING)
+act_pos_new((format), LOX_OBJ_CAST(target), LOX_OBJ_CAST(arg1), LOX_OBJ_CAST(arg2), (type), POS_RESTING)
 
-#define act_new(format, target, arg1, arg2, type, min_pos) \
-act_new_new((format), LOX_OBJ_CAST(target), LOX_OBJ_CAST(arg1), LOX_OBJ_CAST(arg2), (type), (min_pos))
+#define act_pos(format, target, arg1, arg2, type, min_pos) \
+act_pos_new((format), LOX_OBJ_CAST(target), LOX_OBJ_CAST(arg1), LOX_OBJ_CAST(arg2), (type), (min_pos))
 
-void act_new_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
+void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
     ActTarget type, Position min_pos);
-
-//#define act(format, target, arg1, arg2, type) \
-//act_new((format), (Obj*)(target), (Obj*)(arg1), (Obj*)(arg2), (type), POS_RESTING)
-//void act_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
-//    ActTarget type, Position min_pos);
-
 
 void printf_to_char(Mobile*, const char*, ...);
 void bugf(char*, ...);

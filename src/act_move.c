@@ -874,7 +874,7 @@ void do_stand(Mobile* ch, char* argument)
             return;
         }
         if (ch->on != obj && count_users(obj) >= obj->value[0]) {
-            act_new("There's no room to stand on $p.", ch, obj, NULL, TO_CHAR, POS_DEAD);
+            act_pos("There's no room to stand on $p.", ch, obj, NULL, TO_CHAR, POS_DEAD);
             return;
         }
         ch->on = obj;
@@ -893,15 +893,15 @@ void do_stand(Mobile* ch, char* argument)
             ch->on = NULL;
         }
         else if (IS_SET(obj->value[2], STAND_AT)) {
-            act_new("You wake and stand at $p.", ch, obj, NULL, TO_CHAR, POS_DEAD);
+            act_pos("You wake and stand at $p.", ch, obj, NULL, TO_CHAR, POS_DEAD);
             act("$n wakes and stands at $p.", ch, obj, NULL, TO_ROOM);
         }
         else if (IS_SET(obj->value[2], STAND_ON)) {
-            act_new("You wake and stand on $p.", ch, obj, NULL, TO_CHAR, POS_DEAD);
+            act_pos("You wake and stand on $p.", ch, obj, NULL, TO_CHAR, POS_DEAD);
             act("$n wakes and stands on $p.", ch, obj, NULL, TO_ROOM);
         }
         else {
-            act_new("You wake and stand in $p.", ch, obj, NULL, TO_CHAR, POS_DEAD);
+            act_pos("You wake and stand in $p.", ch, obj, NULL, TO_CHAR, POS_DEAD);
             act("$n wakes and stands in $p.", ch, obj, NULL, TO_ROOM);
         }
         ch->position = POS_STANDING;
@@ -991,7 +991,7 @@ void do_rest(Mobile* ch, char* argument)
         }
 
         if (obj != NULL && ch->on != obj && count_users(obj) >= obj->value[0]) {
-            act_new("There's no more room on $p.", ch, obj, NULL, TO_CHAR,
+            act_pos("There's no more room on $p.", ch, obj, NULL, TO_CHAR,
                     POS_DEAD);
             return;
         }
@@ -1011,17 +1011,17 @@ void do_rest(Mobile* ch, char* argument)
             act("$n wakes up and starts resting.", ch, NULL, NULL, TO_ROOM);
         }
         else if (IS_SET(obj->value[2], REST_AT)) {
-            act_new("You wake up and rest at $p.", ch, obj, NULL, TO_CHAR,
+            act_pos("You wake up and rest at $p.", ch, obj, NULL, TO_CHAR,
                     POS_SLEEPING);
             act("$n wakes up and rests at $p.", ch, obj, NULL, TO_ROOM);
         }
         else if (IS_SET(obj->value[2], REST_ON)) {
-            act_new("You wake up and rest on $p.", ch, obj, NULL, TO_CHAR,
+            act_pos("You wake up and rest on $p.", ch, obj, NULL, TO_CHAR,
                     POS_SLEEPING);
             act("$n wakes up and rests on $p.", ch, obj, NULL, TO_ROOM);
         }
         else {
-            act_new("You wake up and rest in $p.", ch, obj, NULL, TO_CHAR,
+            act_pos("You wake up and rest in $p.", ch, obj, NULL, TO_CHAR,
                     POS_SLEEPING);
             act("$n wakes up and rests in $p.", ch, obj, NULL, TO_ROOM);
         }
@@ -1128,7 +1128,7 @@ void do_sit(Mobile* ch, char* argument)
         }
 
         if (obj != NULL && ch->on != obj && count_users(obj) >= obj->value[0]) {
-            act_new("There's no more room on $p.", ch, obj, NULL, TO_CHAR,
+            act_pos("There's no more room on $p.", ch, obj, NULL, TO_CHAR,
                     POS_DEAD);
             return;
         }
@@ -1147,17 +1147,17 @@ void do_sit(Mobile* ch, char* argument)
             act("$n wakes and sits up.", ch, NULL, NULL, TO_ROOM);
         }
         else if (IS_SET(obj->value[2], SIT_AT)) {
-            act_new("You wake and sit at $p.", ch, obj, NULL, TO_CHAR,
+            act_pos("You wake and sit at $p.", ch, obj, NULL, TO_CHAR,
                     POS_DEAD);
             act("$n wakes and sits at $p.", ch, obj, NULL, TO_ROOM);
         }
         else if (IS_SET(obj->value[2], SIT_ON)) {
-            act_new("You wake and sit on $p.", ch, obj, NULL, TO_CHAR,
+            act_pos("You wake and sit on $p.", ch, obj, NULL, TO_CHAR,
                     POS_DEAD);
             act("$n wakes and sits at $p.", ch, obj, NULL, TO_ROOM);
         }
         else {
-            act_new("You wake and sit in $p.", ch, obj, NULL, TO_CHAR,
+            act_pos("You wake and sit in $p.", ch, obj, NULL, TO_CHAR,
                     POS_DEAD);
             act("$n wakes and sits in $p.", ch, obj, NULL, TO_ROOM);
         }
@@ -1258,7 +1258,7 @@ void do_sleep(Mobile* ch, char* argument)
             }
 
             if (ch->on != obj && count_users(obj) >= obj->value[0]) {
-                act_new("There is no room on $p for you.", ch, obj, NULL,
+                act_pos("There is no room on $p for you.", ch, obj, NULL,
                         TO_CHAR, POS_DEAD);
                 return;
             }
@@ -1338,7 +1338,7 @@ void do_wake(Mobile* ch, char* argument)
         return;
     }
 
-    act_new("$n wakes you.", ch, NULL, victim, TO_VICT, POS_SLEEPING);
+    act_pos("$n wakes you.", ch, NULL, victim, TO_VICT, POS_SLEEPING);
     do_function(ch, &do_stand, "");
     return;
 }

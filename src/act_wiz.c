@@ -194,7 +194,7 @@ void wiznet(char* string, Mobile* ch, Object* obj, FLAGS flag,
                 send_to_char("{Z--> ", d->character);
             else
                 send_to_char("{Z", d->character);
-            act_new(string, d->character, obj, ch, TO_CHAR, POS_DEAD);
+            act_pos(string, d->character, obj, ch, TO_CHAR, POS_DEAD);
             send_to_char("{x", d->character);
         }
     }
@@ -1883,13 +1883,13 @@ void do_protect(Mobile* ch, char* argument)
     }
 
     if (IS_SET(victim->comm_flags, COMM_SNOOP_PROOF)) {
-        act_new("$N is no longer snoop-proof.", ch, NULL, victim, TO_CHAR,
+        act_pos("$N is no longer snoop-proof.", ch, NULL, victim, TO_CHAR,
                 POS_DEAD);
         send_to_char("Your snoop-proofing was just removed.\n\r", victim);
         REMOVE_BIT(victim->comm_flags, COMM_SNOOP_PROOF);
     }
     else {
-        act_new("$N is now snoop-proof.", ch, NULL, victim, TO_CHAR, POS_DEAD);
+        act_pos("$N is now snoop-proof.", ch, NULL, victim, TO_CHAR, POS_DEAD);
         send_to_char("You are now immune to snooping.\n\r", victim);
         SET_BIT(victim->comm_flags, COMM_SNOOP_PROOF);
     }

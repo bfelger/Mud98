@@ -94,7 +94,7 @@ void song_update(void)
                 if (d->connected == CON_PLAYING
                     && !IS_SET(victim->comm_flags, COMM_NOMUSIC)
                     && !IS_SET(victim->comm_flags, COMM_QUIET))
-                    act_new("$t", d->character, buf, NULL, TO_CHAR, POS_SLEEPING);
+                    act_pos("$t", d->character, buf, NULL, TO_CHAR, POS_SLEEPING);
             }
         }
     }
