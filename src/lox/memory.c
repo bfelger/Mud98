@@ -7,20 +7,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "merc.h"
+#include <merc.h>
 
-#include "lox/compiler.h"
-#include "lox/memory.h"
-#include "lox/vm.h"
+#include "compiler.h"
+#include "memory.h"
+#include "native.h"
+#include "vm.h"
 
 #ifdef DEBUG_LOG_GC
 #include <stdio.h>
-#include "lox/debug.h"
+#include "debug.h"
 #endif
 
-#include "entities/area.h"
-#include "entities/obj_prototype.h"
-#include "entities/room.h"
+#include <entities/area.h>
+#include <entities/obj_prototype.h>
+#include <entities/room.h>
 
 #define GC_HEAP_GROW_FACTOR 2
 
@@ -327,6 +328,7 @@ static void mark_natives()
     }
 
     mark_table(&spell_scripts);
+    mark_table(&native_methods);
 }
 
 static void mark_roots()
