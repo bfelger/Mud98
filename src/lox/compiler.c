@@ -500,25 +500,25 @@ static void call(bool can_assign)
     emit_bytes(OP_CALL, arg_count);
 }
 
-static void apply(bool assign)
+static void each(bool assign)
 {
-    consume(TOKEN_LEFT_PAREN, "Expect '(' after '.apply'");
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after '.each'");
     expression();
-    consume(TOKEN_RIGHT_PAREN, "Expect ')' after apply statement.");
-    emit_byte(OP_APPLY_PRIME);
+    consume(TOKEN_RIGHT_PAREN, "Expect ')' after '.each' expression.");
+    emit_byte(OP_EACH_PRIME);
 
-    LoopContext apply_loop = { 0 };
-    apply_loop.enclosing = current->current_loop;
-    apply_loop.scope_depth = current->scope_depth;
-    current->current_loop = &apply_loop;
+    LoopContext each_loop = { 0 };
+    each_loop.enclosing = current->current_loop;
+    each_loop.scope_depth = current->scope_depth;
+    current->current_loop = &each_loop;
 
-    apply_loop.loop_start = current_chunk()->count;
-    apply_loop.exit_jump = emit_jump(OP_APPLY_OR_END);
-    emit_byte(OP_POP); // Pop old iterated value added by OP_APPLY_OR_END
-    emit_byte(OP_APPLY_ADVANCE);
-    emit_loop(apply_loop.loop_start);
+    each_loop.loop_start = current_chunk()->count;
+    each_loop.exit_jump = emit_jump(OP_EACH_OR_END);
+    emit_byte(OP_POP); // Pop old iterated value added by OP_EACH_OR_END
+    emit_byte(OP_EACH_ADVANCE);
+    emit_loop(each_loop.loop_start);
 
-    patch_jump(apply_loop.exit_jump);
+    patch_jump(each_loop.exit_jump);
     patch_loop_exits();
 
     current->current_loop = current->current_loop->enclosing;
@@ -526,8 +526,8 @@ static void apply(bool assign)
 
 static void dot(bool can_assign)
 {
-    if (match(TOKEN_APPLY)) {
-        apply(can_assign);
+    if (match(TOKEN_EACH)) {
+        each(can_assign);
         return;
     }
 
@@ -916,7 +916,7 @@ ParseRule rules[] = {
     [TOKEN_TRUE]            = { literal,    NULL,       PREC_NONE       },
     [TOKEN_VAR]             = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_WHILE]           = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_APPLY]           = { NULL,       NULL,       PREC_NONE       },
+    [TOKEN_EACH]            = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_BREAK]           = { NULL,       NULL,       PREC_NONE       }, /* not used yet */
     [TOKEN_CONTINUE]        = { NULL,       NULL,       PREC_NONE       }, /* not used yet */
     [TOKEN_SELF]            = { literal,    NULL,       PREC_NONE       },

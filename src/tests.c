@@ -322,7 +322,7 @@ void run_unit_tests()
     //    "}\n"
     //    "print floor(2.5);";
 
-    //char* source =
+    char* source =
     //"var lam = (index, area) -> {\n"
     ////"    print string(index) + \" \" + area.name;\n"
     //"    print index;\n"
@@ -336,20 +336,20 @@ void run_unit_tests()
     //"    var area = global_areas[i];\n"
     //"    lam(i, area);\n"
     //"}\n";
-    //"global_areas.apply(lam);\n";
-    //"global_areas.apply((index, area) -> {\n"
-    //"    print index;\n"
-    //"    print area.name;\n"
-    //"});\n";
+    //"global_areas.map(lam);\n";
+    "global_areas.each((index, area) -> {\n"
+    "    print index;\n"
+    "    print area.name;\n"
+    "});\n";
     //"var mob_count = 0;\n"
-    //"global_mobs.apply((mob) -> {\n"
+    //"global_mobs.map((mob) -> {\n"
     //"    mob_count++;\n"
     //"});\n"
     //"print \"Mobile Instance Count: \" + mob_count;\n";
 
-    //InterpretResult result = interpret_code(source);
-    //if (result == INTERPRET_COMPILE_ERROR) exit(65);
-    //if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+    InterpretResult result = interpret_code(source);
+    if (result == INTERPRET_COMPILE_ERROR) exit(65);
+    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
     
     //Room* room;
     //int count = 0;
@@ -422,16 +422,16 @@ void run_unit_tests()
     //if (result == INTERPRET_COMPILE_ERROR) exit(65);
     //if (result == INTERPRET_RUNTIME_ERROR) exit(70);
 
-    char* source =
-    "var area = global_areas[0];\n"
-    "if (area.is_area())\n"
-    "    print \"Is an area!\";\n"
-    "else\n"
-    "    print \"Is NOT an area!\";\n";
-    
-    InterpretResult result = interpret_code(source);
-    if (result == INTERPRET_COMPILE_ERROR) exit(65);
-    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+    //char* source =
+    //"var area = global_areas[0];\n"
+    //"if (area.is_area())\n"
+    //"    print \"Is an area!\";\n"
+    //"else\n"
+    //"    print \"Is NOT an area!\";\n";
+    //
+    //InterpretResult result = interpret_code(source);
+    //if (result == INTERPRET_COMPILE_ERROR) exit(65);
+    //if (result == INTERPRET_RUNTIME_ERROR) exit(70);
 
     printf("\nAll tests and benchmarks complete.\n");
 }

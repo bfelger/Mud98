@@ -181,12 +181,12 @@ int disassemble_instruction(Chunk* chunk, int offset)
         return simple_instruction("OP_INHERIT", offset);
     case OP_METHOD:
         return constant_instruction("OP_METHOD", chunk, offset);
-    case OP_APPLY_PRIME:
-        return simple_instruction("OP_APPLY_PRIME", offset);
-    case OP_APPLY_OR_END:
-        return jump_instruction("OP_APPLY_OR_END", 1, chunk, offset);
-    case OP_APPLY_ADVANCE:
-        return simple_instruction("OP_APPLY_ADVANCE", offset);
+    case OP_EACH_PRIME:
+        return simple_instruction("OP_EACH_PRIME", offset);
+    case OP_EACH_OR_END:
+        return jump_instruction("OP_EACH_OR_END", 1, chunk, offset);
+    case OP_EACH_ADVANCE:
+        return simple_instruction("OP_EACH_ADVANCE", offset);
     case OP_SELF:
         return simple_instruction("OP_SELF", offset);
     default:

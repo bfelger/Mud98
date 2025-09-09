@@ -20,27 +20,29 @@ typedef struct ObjString ObjString;
 
 typedef uint64_t Value;
 
-#define NANISH                  0x7ffc000000000000
-#define NANISH_MASK             0xffff000000000000
+#define NANISH                  0x7ffc000000000000 // 0111111111111100
+#define NANISH_MASK             0xffff000000000000 // 1111111111111111
 
-#define BOOLEAN_MASK            0x7ffe000000000002
-#define INTEGER_MASK            0x7ffc000000000000
-#define OBJECT_MASK             0xfffc000000000000
-#define STRING_MASK             0xfffe000000000000
+#define BOOLEAN_MASK            0x7ffe000000000002 // 0111111111111110...011
+#define INTEGER_MASK            0x7ffc000000000000 // 0111111111111100
+#define OBJECT_MASK             0xfffc000000000000 // 1111111111111100
+// I decided not to use the string mask for now. But knowing this value is 
+// available might be useful in the future.
+//#define STRING_MASK             0xfffe000000000000 // 1111111111111110
 
-#define NIL_VAL                 0x7ffe000000000000
+#define NIL_VAL                 0x7ffe000000000000 // 0111111111111110
 #define TRUE_VAL                (BOOLEAN_MASK | 3)
 #define FALSE_VAL               (BOOLEAN_MASK | 2)
 
-#define IS_DOUBLE(v)            ((v & NANISH) != NANISH)
-#define IS_OBJ(v)               ((v & NANISH_MASK) == OBJECT_MASK)
-#define IS_NIL(v)               (v == NIL_VAL)
-#define IS_BOOL(v)              ((v & BOOLEAN_MASK) == BOOLEAN_MASK)
-#define IS_INT(v)               ((v & NANISH_MASK) == INTEGER_MASK)
+#define IS_DOUBLE(v)            (((v) & NANISH) != NANISH)
+#define IS_OBJ(v)               (((v) & NANISH_MASK) == OBJECT_MASK)
+#define IS_NIL(v)               ((v) == NIL_VAL)
+#define IS_BOOL(v)              (((v) & BOOLEAN_MASK) == BOOLEAN_MASK)
+#define IS_INT(v)               (((v) & NANISH_MASK) == INTEGER_MASK)
 
 #define AS_DOUBLE(v)            value_to_double(v)
-#define AS_OBJ(v)               ((Obj*)(v & 0xFFFFFFFFFFFF))
-#define AS_BOOL(v)              ((char)(v & 0x1))
+#define AS_OBJ(v)               ((Obj*)((v) & 0xFFFFFFFFFFFF))
+#define AS_BOOL(v)              ((char)((v) & 0x1))
 #define AS_INT(v)               ((int32_t)(v))
 
 #define BOOL_VAL(b)             ((b) ? TRUE_VAL : FALSE_VAL)

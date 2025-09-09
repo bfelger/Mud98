@@ -336,7 +336,7 @@ static void concatenate()
     push(OBJ_VAL(result));
 }
 
-static bool apply_prime(Value callee, Value collection)
+static bool each_prime(Value callee, Value collection)
 {
     if (IS_ARRAY(collection)) {
         push(INT_VAL(0));
@@ -361,14 +361,14 @@ static bool apply_prime(Value callee, Value collection)
         push((Value)node);
     }
     else {
-        runtime_error("apply_prime: Cannot apply() on this type.");
+        runtime_error("each_prime: Cannot call each() on this type.");
         return false;
     }
 
     return true;
 }
 
-static bool apply_end_list()
+static bool each_end_list()
 {
     Value callee = peek(1);
     Node* node = (Node*)peek(0);
@@ -385,7 +385,7 @@ static bool apply_end_list()
     return call_value(callee, 1);
 }
 
-static bool apply_end_table()
+static bool each_end_table()
 {
     Table* table = AS_TABLE(peek(2));
     Value callee = peek(1);
@@ -406,7 +406,7 @@ static bool apply_end_table()
     return call_value(callee, 2);
 }
 
-static bool apply_end_array()
+static bool each_end_array()
 {
     ValueArray* array_ = AS_ARRAY(peek(2));
     Value callee = peek(1);
@@ -425,28 +425,28 @@ static bool apply_end_array()
     return call_value(callee, 2);
 }
 
-static bool apply_or_end()
+static bool each_or_end()
 {
     // Stack:
     // 2: Collection
     // 1: Callee
     // 0: Loop Var
     if (IS_ARRAY(peek(2))) {
-        return apply_end_array();
+        return each_end_array();
     }
     else if (IS_TABLE(peek(2))) {
-        return apply_end_table();
+        return each_end_table();
     }
     else if (IS_LIST(peek(2))) {
-        return apply_end_list();
+        return each_end_list();
     }
     else {
-        runtime_error("apply_or_end: Cannot apply() on this type.");
+        runtime_error("each_or_end: Cannot call each() on this type.");
         return false;
     }
 }
 
-static bool apply_advance()
+static bool each_advance()
 {
     if (IS_ARRAY(peek(2))) {
         push(INT_VAL(AS_INT(pop()) + 1));
@@ -471,7 +471,7 @@ static bool apply_advance()
         return true;
     }
     else {
-        runtime_error("apply_advance: Cannot apply() on this type.");
+        runtime_error("each_advance: Cannot call each() on this type.");
         return false;
     }
 }
@@ -909,23 +909,23 @@ InterpretResult run()
         case OP_METHOD:
             define_method(READ_STRING());
             break;
-        case OP_APPLY_PRIME: {
-            if (!apply_prime(peek(0), peek(1))) {
+        case OP_EACH_PRIME: {
+            if (!each_prime(peek(0), peek(1))) {
                 return INTERPRET_RUNTIME_ERROR;
             }
             frame = &vm.frames[vm.frame_count - 1];
             break;
         }
-        case OP_APPLY_OR_END: {
+        case OP_EACH_OR_END: {
             uint16_t offset = READ_SHORT();
-            if (!apply_or_end())
+            if (!each_or_end())
                 frame->ip += offset;
             else
                 frame = &vm.frames[vm.frame_count - 1];
             break;
         }
-        case OP_APPLY_ADVANCE: {
-            if (!apply_advance()) {
+        case OP_EACH_ADVANCE: {
+            if (!each_advance()) {
                 return INTERPRET_RUNTIME_ERROR;
             }
             break;
