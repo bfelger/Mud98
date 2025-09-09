@@ -183,9 +183,16 @@ static bool check(TokenType type)
     return parser.current.type == type;
 }
 
+static void skip(TokenType type)
+{
+    if (check(type))
+        advance();
+}
+
 static bool match(TokenType type)
 {
-    if (!check(type)) return false;
+    if (!check(type))
+        return false;
     advance();
     return true;
 }
@@ -1080,8 +1087,9 @@ static void var_declaration()
     else {
         emit_byte(OP_NIL);
     }
-    consume(TOKEN_SEMICOLON,
-        "Expect ';' after variable declaration.");
+
+    //consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
+    skip(TOKEN_SEMICOLON);
 
     define_variable(global);
 }
@@ -1093,7 +1101,9 @@ static void expression_statement()
     if (exec_context.is_repl)
         match(TOKEN_SEMICOLON);
     else
-        consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
+        //consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
+        skip(TOKEN_SEMICOLON);
+
 
     if (exec_context.is_repl && current->function->name == NULL) {
         emit_byte(OP_PRINT);
@@ -1160,7 +1170,8 @@ static void for_statement()
 
 static void break_statement()
 {
-    consume(TOKEN_SEMICOLON, "Expect ';' after 'break'.");
+    //consume(TOKEN_SEMICOLON, "Expect ';' after 'break'.");
+    skip(TOKEN_SEMICOLON);
 
     if (current->current_loop == NULL) {
         error("Must be in a loop to 'break'.");
@@ -1178,7 +1189,8 @@ static void break_statement()
 
 static void continue_statement()
 {
-    consume(TOKEN_SEMICOLON, "Expect ';' after 'continue'.");
+    //consume(TOKEN_SEMICOLON, "Expect ';' after 'continue'.");
+    skip(TOKEN_SEMICOLON);
 
     if (current->current_loop == NULL) {
         error("Must be in a loop to 'continue'.");
@@ -1210,7 +1222,8 @@ static void if_statement()
 static void print_statement()
 {
     expression();
-    consume(TOKEN_SEMICOLON, "Expect ';' after value.");
+    //consume(TOKEN_SEMICOLON, "Expect ';' after value.");
+    skip(TOKEN_SEMICOLON);
     emit_byte(OP_PRINT);
 }
 
@@ -1228,7 +1241,8 @@ static void return_statement()
             error("Can't return a value from an initializer.");
         }
         expression();
-        consume(TOKEN_SEMICOLON, "Expect ';' after return value.");
+        //consume(TOKEN_SEMICOLON, "Expect ';' after return value.");
+        skip(TOKEN_SEMICOLON);
         emit_byte(OP_RETURN);
     }
 }

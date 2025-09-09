@@ -156,9 +156,7 @@ void do_lox(Mobile* ch, char* argument)
 {
     static const char* help =
         "{jUSAGE: {*LOX EVAL <script>\n\r"
-        "       LOX NEW <name>\n\r"
-        "{j\n\r"
-        "Type '{*LOX <option>{j' for more information.{x\n\r";
+        "{j\n\r";
 
     char arg[MAX_INPUT_LENGTH];
 

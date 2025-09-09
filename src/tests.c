@@ -322,7 +322,7 @@ void run_unit_tests()
     //    "}\n"
     //    "print floor(2.5);";
 
-    char* source =
+    //char* source =
     //"var lam = (index, area) -> {\n"
     ////"    print string(index) + \" \" + area.name;\n"
     //"    print index;\n"
@@ -337,19 +337,19 @@ void run_unit_tests()
     //"    lam(i, area);\n"
     //"}\n";
     //"global_areas.map(lam);\n";
-    "global_areas.each((index, area) -> {\n"
-    "    print index;\n"
-    "    print area.name;\n"
-    "});\n";
-    //"var mob_count = 0;\n"
-    //"global_mobs.map((mob) -> {\n"
-    //"    mob_count++;\n"
-    //"});\n"
-    //"print \"Mobile Instance Count: \" + mob_count;\n";
-
-    InterpretResult result = interpret_code(source);
-    if (result == INTERPRET_COMPILE_ERROR) exit(65);
-    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+    //"global_areas.each((index, area) -> {\n"
+    //"    print index;\n"
+    //"    print area.name;\n"
+    //"});\n";
+    //"var mob_count = 0\n"
+    //"global_mobs.each((mob) -> {\n"
+    //"    mob_count++\n"
+    //"})\n"
+    //"print \"Mobile Instance Count: \" + mob_count\n";
+    //
+    //InterpretResult result = interpret_code(source);
+    //if (result == INTERPRET_COMPILE_ERROR) exit(65);
+    //if (result == INTERPRET_RUNTIME_ERROR) exit(70);
     
     //Room* room;
     //int count = 0;
