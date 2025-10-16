@@ -97,7 +97,6 @@ MobProgCode* pedit_prog(VNUM);
 
 void load_lox_scripts(FILE* fp);
 void load_event(FILE* fp, Entity* owner);
-//void verify_lox_event_bindings(void);
 
 // Globals.
 
@@ -168,7 +167,6 @@ void load_specials(FILE* fp);
 void load_notes();
 void load_mobprogs(FILE* fp);
 void load_lox_scripts(FILE* fp);
-void load_events(FILE* fp, Entity* owner);
 
 void fix_exits();
 void fix_mobprogs();
@@ -681,17 +679,7 @@ void load_rooms(FILE* fp)
             }
 
             else if (letter == 'L') {
-                char room_class_name[MAX_INPUT_LENGTH];
-                String* script = fread_lox_string(fp);
-                sprintf(room_class_name, "room_%" PRVNUM, vnum);
-
-                ObjClass* klass = create_entity_class(room_class_name, script->chars);
-                if (!klass) {
-                    bugf("load_rooms: failed to create room class for room %" PRVNUM, vnum);
-                }
-                else {
-                    room_data->header.klass = klass;
-                }
+                load_lox_class(fp, "room", &room_data->header);
             }
             else {
                 bug("Load_rooms: vnum %"PRVNUM" has flag not 'DES'.", vnum);
@@ -743,35 +731,6 @@ void load_shops(FILE* fp)
         if (shop)
             shop->next = NULL;
     }
-}
-
-void load_event(FILE* fp, Entity* owner)
-{
-    Event* event;
-    char* keyword;
-
-    if ((event = new_event()) == NULL) {
-        perror("load_event: could not allocate new Event!");
-        exit(-1);
-    }
-
-    /* Read trigger keyword */
-    keyword = fread_string(fp);
-    if ((event->trigger = flag_lookup(keyword, mprog_flag_table)) == NO_FLAG) {
-        bugf("load_event: invalid trigger '%s'.", keyword);
-        event->trigger = 0;
-    }
-
-    /* Read the event name (lox string) */
-    event->name = fread_lox_string(fp);
-
-    /* Read the function name to call on event (lox string) */
-    event->func_name = fread_lox_string(fp);
-
-    event->criteria = NIL_VAL;
-    event->closure = NULL;
-    
-    add_event(owner, event);
 }
 
 // Snarf spec proc declarations.

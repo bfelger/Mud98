@@ -93,6 +93,8 @@ String* fread_lox_string(FILE* fp);
 char* fread_lox_script(FILE* fp);
 String* lox_string(const char* str);
 
+void load_lox_class(FILE* fp, const char* entity_type_name, Entity* entity);
+
 #define ALLOC(T, v)     T* v = (T*)alloc_mem(sizeof(T))
 
 #define ENTITY_ALLOC_PERM(x, T)                                                \

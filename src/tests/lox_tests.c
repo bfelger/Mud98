@@ -17,6 +17,8 @@
 #include <lox/value.h>
 #include <lox/vm.h>
 
+static TestGroup lox_tests;
+
 bool test_dissasemble_on_error = false;
 
 // Capture output from print statements
@@ -649,88 +651,47 @@ static int test_29_3_super_closures()
     return 0;
 }
 
-static int test_room_script_binding()
-{
-    // Mock AreaData
-    AreaData* ad = new_area_data();
-    push(OBJ_VAL(ad));
-
-    // Mock RoomData
-    RoomData* rd = new_room_data();
-    push(OBJ_VAL(rd));
-    rd->area_data = ad;
-    VNUM_FIELD(rd) = 1000;
-    table_set_vnum(&global_rooms, VNUM_FIELD(rd), OBJ_VAL(rd));
-
-    const char* src =
-        "on_enter() { print \"room entry\"; }"
-        "on_exit() { print \"room exit\"; }";
-
-    ObjClass* room_class = create_entity_class("test_room", src);
-    ASSERT(room_class != NULL);
-    rd->header.klass = room_class;
-
-    // Mock Area
-    Area* area = create_area_instance(ad, false);
-    push(OBJ_VAL(area));
-
-    // Mock Room
-    Room* r = new_room(rd, area);
-    push(OBJ_VAL(r));
-
-    // Invoke on_enter
-    bool inv_result = invoke(lox_string("on_enter"), 0);
-    ASSERT(inv_result == true);
-
-    InterpretResult result = run();
-    ASSERT_OUTPUT_EQ("room entry\n");
-
-    //print_value(test_output_buffer);
-
-    pop(); // room
-    pop(); // area
-    pop(); // room data
-    pop(); // area data
-
-    test_output_buffer = NIL_VAL;
-    return 0;
-}
-
 void register_lox_tests()
 {
-    register_test("Value Masks: Strings", test_masks_strings);
-    register_test("Math Test: Negation 1", test_math_negation_1);
-    register_test("Math Test: Negation 2", test_math_negation_2);
-    register_test("15.2 Value Stack Math Test", test_15_2_value_stack_1);
-    register_test("15.2 Value Stack Echo Test", test_15_2_value_stack_2);
-    register_test("17 Challenge 1 Math Precedence", test_17_challenge_1);
-    register_test("18.4.1 Logical Not", test_18_4_1_logical_not);
-    register_test("19.4 String Comparison", test_19_4_string_comp);
-    register_test("19.5 String Concatenation", test_19_5_string_concat);
-    register_test("21.0 Late Binding", test_21_0_late_binding);
-    register_test("21.3 Reading Variables", test_21_3_reading_vars);
-    register_test("21.4 Assigning Variables", test_21_4_assigning_vars);
-    register_test("22 Scoped Variables", test_22_scoped_vars);
-    register_test("23.1 If-Else", test_23_1_if_else);
-    register_test("23.2 Logical Operators", test_23_2_logical_operators);
-    register_test("23.3 While Loop", test_23_3_while_loop);
-    register_test("23.4 For Loop", test_23_4_for_loop);
-    register_test("24.5.1 Function Arg Binding", test_24_5_1_func_arg_binding);
-    register_test("25.1 Closure Objects", test_25_1_closure_objects);
-    register_test("25.2 Closure Captures", test_25_2_closure_captures);
-    register_test("25.2 Upvalues", test_25_2_upvalues);
-    register_test("25.2.2 Flattened Upvalues", test_25_2_2_flattened_upvalues);
-    register_test("25.3 Upvalue Captures", test_25_3_upvalue_captures);
-    register_test("25.3.1 Upvalues in Closures", test_25_3_1_upvalues_in_closures);
-    register_test("25.4 Closed Upvalues", test_25_4_closed_upvalues);
-    register_test("25.4.1 Closed Upvalues in Closures", test_25_4_1_closed_upvals_closures);
-    register_test("27.4.1 Setter Value", test_27_4_1_setter_value);
-    register_test("27.4.1 Implicit Properties", test_27_4_1_implicit_properties);
-    register_test("28.2 Method References", test_28_2_method_references);
-    register_test("28.2.3 Calling Methods", test_28_2_3_calling_methods);
-    register_test("28.4 Initializers", test_28_4_initializers);
-    register_test("29.1 Inheriting Methods", test_29_1_inheriting_methods);
-    register_test("29.2 Super Call Dispatch", test_29_2_super_call_dispatch);
-    register_test("29.3 Super in Closures", test_29_3_super_closures);
-    register_test("Room Script Binding", test_room_script_binding);
+#define REGISTER(n, f)  register_test(&lox_tests, (n), (f))
+
+    init_test_group(&lox_tests, "LOX TESTS");
+    register_test_group(&lox_tests);
+
+    REGISTER("Value Masks: Strings", test_masks_strings);
+    REGISTER("Math Test: Negation 1", test_math_negation_1);
+    REGISTER("Math Test: Negation 2", test_math_negation_2);
+    REGISTER("15.2 Value Stack Math Test", test_15_2_value_stack_1);
+    REGISTER("15.2 Value Stack Echo Test", test_15_2_value_stack_2);
+    REGISTER("17 Challenge 1 Math Precedence", test_17_challenge_1);
+    REGISTER("18.4.1 Logical Not", test_18_4_1_logical_not);
+    REGISTER("19.4 String Comparison", test_19_4_string_comp);
+    REGISTER("19.5 String Concatenation", test_19_5_string_concat);
+    REGISTER("21.0 Late Binding", test_21_0_late_binding);
+    REGISTER("21.3 Reading Variables", test_21_3_reading_vars);
+    REGISTER("21.4 Assigning Variables", test_21_4_assigning_vars);
+    REGISTER("22 Scoped Variables", test_22_scoped_vars);
+    REGISTER("23.1 If-Else", test_23_1_if_else);
+    REGISTER("23.2 Logical Operators", test_23_2_logical_operators);
+    REGISTER("23.3 While Loop", test_23_3_while_loop);
+    REGISTER("23.4 For Loop", test_23_4_for_loop);
+    REGISTER("24.5.1 Function Arg Binding", test_24_5_1_func_arg_binding);
+    REGISTER("25.1 Closure Objects", test_25_1_closure_objects);
+    REGISTER("25.2 Closure Captures", test_25_2_closure_captures);
+    REGISTER("25.2 Upvalues", test_25_2_upvalues);
+    REGISTER("25.2.2 Flattened Upvalues", test_25_2_2_flattened_upvalues);
+    REGISTER("25.3 Upvalue Captures", test_25_3_upvalue_captures);
+    REGISTER("25.3.1 Upvalues in Closures", test_25_3_1_upvalues_in_closures);
+    REGISTER("25.4 Closed Upvalues", test_25_4_closed_upvalues);
+    REGISTER("25.4.1 Closed Upvalues in Closures", test_25_4_1_closed_upvals_closures);
+    REGISTER("27.4.1 Setter Value", test_27_4_1_setter_value);
+    REGISTER("27.4.1 Implicit Properties", test_27_4_1_implicit_properties);
+    REGISTER("28.2 Method References", test_28_2_method_references);
+    REGISTER("28.2.3 Calling Methods", test_28_2_3_calling_methods);
+    REGISTER("28.4 Initializers", test_28_4_initializers);
+    REGISTER("29.1 Inheriting Methods", test_29_1_inheriting_methods);
+    REGISTER("29.2 Super Call Dispatch", test_29_2_super_call_dispatch);
+    REGISTER("29.3 Super in Closures", test_29_3_super_closures);
+
+#undef REGISTER
 }

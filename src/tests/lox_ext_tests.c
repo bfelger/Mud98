@@ -13,6 +13,8 @@
 #include <lox/value.h>
 #include <lox/vm.h>
 
+TestGroup lox_ext_tests;
+
 static int test_array_access()
 {
     const char* src =
@@ -97,7 +99,14 @@ static int test_lambdas()
 
 void register_lox_ext_tests()
 {
-    register_test("Array Access and Mutation", test_array_access);
-    register_test("Marshaled Raw Values", test_marshaled_raw_vals);
-    register_test("Lambdas", test_lambdas);
+#define REGISTER(n, f)  register_test(&lox_ext_tests, (n), (f))
+
+    init_test_group(&lox_ext_tests, "LOX EXTENSION TESTS");
+    register_test_group(&lox_ext_tests);
+
+    REGISTER("Array Access and Mutation", test_array_access);
+    REGISTER("Marshaled Raw Values", test_marshaled_raw_vals);
+    REGISTER("Lambdas", test_lambdas);
+
+#undef REGISTER
 }

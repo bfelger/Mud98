@@ -320,6 +320,12 @@ void load_mobiles(FILE* fp)
                 pMprog->next = p_mob_proto->mprogs;
                 p_mob_proto->mprogs = pMprog;
             }
+            else if (letter == 'V') {
+                load_event(fp, &p_mob_proto->header);
+            }
+            else if (letter == 'L') {
+                load_lox_class(fp, "room", &p_mob_proto->header);
+            }
             else {
                 ungetc(letter, fp);
                 break;

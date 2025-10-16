@@ -8,10 +8,10 @@
 #include "db.h"
 #include "file.h"
 
-#include "entities/mobile.h"
+#include <entities/mobile.h>
 
-#include "lox/lox.h"
-#include "lox/vm.h"
+#include <lox/lox.h>
+#include <lox/vm.h>
 
 Table spell_scripts;
 
@@ -44,6 +44,21 @@ const char* lox_str(void* temp)
 {
     Entry** entry = (Entry**)temp;
     return (AS_STRING((*entry)->key))->chars;
+}
+
+void load_lox_class(FILE* fp, const char* entity_type_name, Entity* entity)
+{
+    char class_name[MAX_INPUT_LENGTH];
+    String* script = fread_lox_string(fp);
+    sprintf(class_name, "%s_%" PRVNUM, entity_type_name, entity->vnum);
+
+    ObjClass* klass = create_entity_class(class_name, script->chars);
+    if (!klass) {
+        bugf("load_lox_class: failed to create class for %s %" PRVNUM, entity_type_name, entity->vnum);
+    }
+    else {
+        entity->klass = klass;
+    }
 }
 
 static void compile_lox_script(const String* source)

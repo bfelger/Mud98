@@ -38,11 +38,9 @@ typedef enum {
 struct event_t {
     Obj obj;
     Event* next;
-    ObjString* name;
     FLAGS trigger;
     Value criteria;
-    ObjClosure* closure;
-    ObjString* func_name;
+    ObjString* method_name;
 };
 
 Event* new_event();
@@ -51,6 +49,9 @@ void add_event(Entity* entity, Event* event);
 void add_event_timer(ObjClosure* closure, int ticks);
 void event_timer_tick();
 void remove_event(Entity* entity, Event* event);
+void load_event(FILE* fp, Entity* owner);
+Event* get_event_by_trigger(Entity* entity, FLAGS trigger);
+ObjClosure* get_event_closure(Entity* entity, Event* event);
 
 #define HAS_EVENT_TRIGGER(entity, trigger)                                     \
     (((Entity*)(entity))->event_triggers & trigger)

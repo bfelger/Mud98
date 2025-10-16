@@ -5,7 +5,9 @@
 
 #include "events.h"
 
+#include <comm.h>
 #include <db.h>
+#include <lookup.h>
 
 #include <lox/list.h>
 
@@ -87,9 +89,8 @@ Event* new_event()
 
     event->trigger = 0;
     event->criteria = NIL_VAL;
-    event->name = lox_empty_string;
-    event->func_name = lox_empty_string;
-    event->closure = NULL;
+    event->method_name = lox_empty_string;
+    event->next = NULL;
 
     return event;
 }
@@ -110,9 +111,85 @@ void remove_event(Entity* entity, Event* event)
     list_remove_value(&entity->events, OBJ_VAL(event));
 
     // Recalculate event triggers
-    entity->event_triggers = 0;;
+    entity->event_triggers = 0;
     for (Node* node = entity->events.front; node != NULL; node = node->next){
         Event* ev = (Event*)node->value;
         entity->event_triggers |= ev->trigger;
     }
 }
+
+void load_event(FILE* fp, Entity* owner)
+{
+    Event* event;
+    char* keyword;
+
+    if ((event = new_event()) == NULL) {
+        perror("load_event: could not allocate new Event!");
+        exit(-1);
+    }
+
+    // Read trigger keyword
+    keyword = fread_word(fp);
+    if ((event->trigger = flag_lookup(keyword, mprog_flag_table)) == NO_FLAG) {
+        bugf("load_event: invalid trigger '%s'.", keyword);
+        event->trigger = 0;
+    }
+
+    // Read the method name to call on event
+    event->method_name = fread_lox_string(fp);
+
+    event->criteria = NIL_VAL;
+
+    add_event(owner, event);
+}
+
+// Get the event with the specified trigger flag from an entity
+Event* get_event_by_trigger(Entity* entity, FLAGS trigger)
+{
+    if (entity == NULL)
+        return NULL;
+
+    if (!HAS_EVENT_TRIGGER(entity, trigger))
+        return NULL;
+
+    for (Node* node = entity->events.front; node != NULL; node = node->next) {
+        Event* ev = (Event*)node->value;
+        if (ev && (ev->trigger & trigger) != 0)
+            return ev;
+    }
+
+    return NULL;
+}
+
+// Get the event closure by checking the entity's class for method name
+ObjClosure* get_event_closure(Entity* entity, Event* event)
+{
+    if (entity == NULL || event == NULL || event->method_name == NULL)
+        return NULL;
+
+    if (entity->klass == NULL) {
+        bugf("get_event_closure: entity '%s' has no class.",
+            entity->name ? entity->name->chars : "<unnamed>");
+        return NULL;
+    }
+
+    Value method_val;
+    if (!table_get(&entity->klass->methods, event->method_name, &method_val)) {
+        bugf("get_event_closure: entity '%s' class '%s' has no method '%s' for event.",
+            entity->name ? entity->name->chars : "<unnamed>",
+            entity->klass->name ? entity->klass->name->chars : "<unnamed>",
+            event->method_name->chars ? event->method_name->chars : "<unnamed>");
+        return NULL;
+    }
+
+    if (!IS_CLOSURE(method_val)) {
+        bugf("get_event_closure: entity '%s' class '%s' method '%s' is not a closure.",
+            entity->name ? entity->name->chars : "<unnamed>",
+            entity->klass->name ? entity->klass->name->chars : "<unnamed>",
+            event->method_name->chars ? event->method_name->chars : "<unnamed>");
+        return NULL;
+    }
+
+    return AS_CLOSURE(method_val);
+}
+

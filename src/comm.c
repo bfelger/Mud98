@@ -1756,20 +1756,19 @@ void nanny(Descriptor * d, char* argument)
 
             ch->in_room = get_room_for_player(ch, start_loc);
             mob_to_room(ch, ch->in_room);
-            //// Fire any TRIG_LOGIN events attached to this room's prototype
-            //{
-            //    Room* r = ch->in_room;
-            //    for (Node* node = r->data->header.events.front; node != NULL; node = node->next) {
-            //        Event* e = (Event*)node->value;
-            //        if (e && IS_SET(e->trigger, TRIG_LOGIN)) {
-            //            ObjClosure* clos = resolve_event_closure_for_room(r, e);
-            //            if (clos) {
-            //                /* Invoke closure with (room, mobile) args */
-            //                invoke_closure(clos, 2, OBJ_VAL(r), OBJ_VAL(ch));
-            //            }
-            //        }
-            //    }
-            //}
+
+            // Fire any TRIG_LOGIN events on this room
+            Event* event = get_event_by_trigger((Entity*)ch->in_room, TRIG_LOGIN);
+
+            if (event) {
+                // Get the closure for this event from the room
+                ObjClosure* closure = get_event_closure((Entity*)ch->in_room, event);
+
+                if (closure) {
+                    // Invoke the closure with the room and character as parameters
+                    invoke_closure(closure, 2, OBJ_VAL(ch->in_room), OBJ_VAL(ch));
+                }
+            }
         }
         else if (ch->in_room != NULL) {
             mob_to_room(ch, ch->in_room);

@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "tests.h"
 
 void test_room_script_binding();
 void test_namespace();
@@ -480,3 +481,4 @@ void test_namespace()
 //    if (result == INTERPRET_COMPILE_ERROR) exit(65);
 //    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
 }
+

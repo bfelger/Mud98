@@ -1230,20 +1230,36 @@ void mp_greet_trigger(Mobile* ch)
     Mobile* mob;
 
     FOR_EACH_ROOM_MOB(mob, ch->in_room) {
-        if (IS_NPC(mob)
-            && (HAS_TRIGGER(mob, TRIG_GREET) || HAS_TRIGGER(mob, TRIG_GRALL))) {
+        if (IS_NPC(mob)) {
+            if (HAS_TRIGGER(mob, TRIG_GREET) || HAS_TRIGGER(mob, TRIG_GRALL)) {
                 /*
                  * Greet trigger works only if the mobile is not busy
                  * (fighting etc.). If you want to catch all players, use
                  * GrAll trigger
                  */
-            if (HAS_TRIGGER(mob, TRIG_GREET)
-                && mob->position == mob->prototype->default_pos
-                && can_see(mob, ch))
-                mp_percent_trigger(mob, ch, NULL, NULL, TRIG_GREET);
-            else
-                if (HAS_TRIGGER(mob, TRIG_GRALL))
-                    mp_percent_trigger(mob, ch, NULL, NULL, TRIG_GRALL);
+                //if (HAS_TRIGGER(mob, TRIG_GREET)
+                //    && mob->position == mob->prototype->default_pos
+                //    && can_see(mob, ch))
+                //    mp_percent_trigger(mob, ch, NULL, NULL, TRIG_GREET);
+                //else
+                //    if (HAS_TRIGGER(mob, TRIG_GRALL))
+                //        mp_percent_trigger(mob, ch, NULL, NULL, TRIG_GRALL);
+                            // Fire any TRIG_LOGIN events on this room
+                Event* event = get_event_by_trigger((Entity*)mob, TRIG_GREET);
+
+                if (event == NULL)
+                    event = get_event_by_trigger((Entity*)mob, TRIG_GRALL);
+
+                if (event) {
+                    // Get the closure for this event from the room
+                    ObjClosure* closure = get_event_closure((Entity*)mob, event);
+
+                    if (closure) {
+                        // Invoke the closure with the room and character as parameters
+                        invoke_closure(closure, 2, OBJ_VAL(mob), OBJ_VAL(ch));
+                    }
+                }
+            }
         }
     }
     return;

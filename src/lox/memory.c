@@ -195,8 +195,7 @@ static void blacken_object(Obj* object)
     case OBJ_EVENT: {
         Event* event = (Event*)object;
         mark_value(event->criteria);
-        mark_object((Obj*)event->name);
-        mark_object((Obj*)event->closure);
+        mark_object((Obj*)event->method_name);
         break;
     }
     //

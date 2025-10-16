@@ -19,12 +19,6 @@ extern int asserts_failed;
 extern bool test_dissasemble_on_error;
 extern Value test_output_buffer;
 
-#define ASSERT_OUTPUT_EQ(expected) \
-    ASSERT(result == INTERPRET_OK); \
-    ASSERT(IS_STRING(test_output_buffer)); \
-    if (IS_STRING(test_output_buffer)) \
-        ASSERT_STR_EQ(expected, AS_CSTRING(test_output_buffer)); 
-
 // Implicitly imported from lox/vm.c
 bool invoke(ObjString* name, int arg_count);
 void print_stack();

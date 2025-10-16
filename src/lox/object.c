@@ -291,7 +291,7 @@ void print_object(Value value)
         break;
     //
     case OBJ_EVENT:
-        lox_printf("<event %s>", AS_EVENT(value)->func_name->chars);
+        lox_printf("<event %s>", AS_EVENT(value)->method_name->chars);
         break;
     //
     case OBJ_AREA:
