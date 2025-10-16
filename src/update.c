@@ -936,6 +936,7 @@ void update_handler()
         obj_update();
     }
 
+    event_timer_tick();
     aggr_update();
 
     return;

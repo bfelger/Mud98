@@ -6,10 +6,10 @@
 
 #include "item.h"
 
-#include "comm.h"
-#include "config.h"
-#include "db.h"
-#include "tablesave.h"
+#include <comm.h>
+#include <config.h>
+#include <db.h>
+#include <tablesave.h>
 
 Class* class_table = NULL;
 int class_count = 0;

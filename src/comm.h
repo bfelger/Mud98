@@ -110,6 +110,7 @@ void send_to_char(const char* txt, Mobile* ch);
 void page_to_char(const char* txt, Mobile* ch);
 
 #define LOX_OBJ_CAST(N) _Generic((N), \
+        Entity*: (Obj*)(N), \
         Mobile*: (Obj*)(N), \
         Object*: (Obj*)(N), \
         Room*: (Obj*)(N), \

@@ -48,7 +48,6 @@ void end_mccp3(Descriptor* d);
 size_t process_do_mccp3(Descriptor* d, unsigned char* src, size_t srclen);
 size_t process_sb_mccp3(Descriptor* d, unsigned char* src, size_t srclen);
 	 
-void send_ga(Descriptor* d);
 void send_eor(Descriptor* d);
 
 void descriptor_printf(Descriptor* d, char* fmt, ...);
@@ -157,6 +156,8 @@ size_t translate_telopts(Descriptor* d, unsigned char* src, size_t srclen, unsig
 	pti = src;
 	pto = out + outlen;
 
+#ifndef NO_ZLIB
+
 	if (srclen > 0 && d->mth->mccp3)
 	{
 		d->mth->mccp3->next_in = pti;
@@ -251,6 +252,8 @@ size_t translate_telopts(Descriptor* d, unsigned char* src, size_t srclen, unsig
 			break;
 		}
 	}
+
+#endif
 
 	// packet patching
 
@@ -1002,7 +1005,11 @@ size_t process_do_mssp(Descriptor* d, unsigned char* src, size_t srclen)
 
 	cat_sprintf(buffer, "%c%s%c%s", MSSP_VAR, "CHARSET",			MSSP_VAL,	"ASCII");
 	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "ANSI",				MSSP_VAL,	1);
+#ifndef NO_ZLIB
 	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "MCCP",				MSSP_VAL,	1);
+#else
+	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "MCCP",				MSSP_VAL,	0);
+#endif
 //	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "MCP",				MSSP_VAL,	0);
 	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "MSDP",				MSSP_VAL,	1);
 //	cat_sprintf(buffer, "%c%s%c%d", MSSP_VAR, "MSP",				MSSP_VAL,	0);
@@ -1022,6 +1029,8 @@ size_t process_do_mssp(Descriptor* d, unsigned char* src, size_t srclen)
 
 	return 3;
 }
+
+#ifndef NO_ZLIB
 
 /*
 	MCCP: Mud Client Compression Protocol
@@ -1047,8 +1056,12 @@ void zlib_free(void* opaque, void* address)
 	free_mem(address, s_size);
 }
 
+#endif // !NO_ZLIB
+
 bool start_mccp2(Descriptor* d)
 {
+#ifndef NO_ZLIB
+
 	z_stream* stream;
 
 	if (d->mth->mccp2)
@@ -1090,11 +1103,16 @@ bool start_mccp2(Descriptor* d)
 	d->mth->mccp2 = stream;
 
 	return true;
+#else
+	return false;
+#endif // NO_ZLIB
 }
 
 
 void end_mccp2(Descriptor* d)
 {
+#ifndef NO_ZLIB
+
 	if (d->mth->mccp2 == NULL)
 	{
 		return;
@@ -1127,9 +1145,12 @@ void end_mccp2(Descriptor* d)
 
 	log_descriptor_printf(d, "MCCP2: COMPRESSION END");
 
+#endif // !NO_ZLIB
+
 	return;
 }
 
+#ifndef NO_ZLIB
 
 void write_mccp2(Descriptor* d, char* txt, size_t length)
 {
@@ -1147,6 +1168,8 @@ void write_mccp2(Descriptor* d, char* txt, size_t length)
 
 	return;
 }
+
+#endif
 
 static int write_sock(Descriptor* d, char* buf, size_t len)
 {
@@ -1168,6 +1191,8 @@ static int write_sock(Descriptor* d, char* buf, size_t len)
 #endif
 }
 
+#ifndef NO_ZLIB
+
 void process_mccp2(Descriptor* d)
 {
 	if (write_sock(d, (char*)mud->mccp_buf, mud->mccp_len - d->mth->mccp2->avail_out) < 1)
@@ -1177,16 +1202,21 @@ void process_mccp2(Descriptor* d)
 	}
 }
 
+#endif // !NO_ZLIB
+
 size_t process_do_mccp2(Descriptor* d, unsigned char* src, size_t srclen)
 {
+#ifndef NO_ZLIB
+
 	if (!cfg_get_mccp2_enabled())
 		return 3;
 
 	start_mccp2(d);
 
+#endif
+
 	return 3;
 }
-
 
 size_t process_dont_mccp2(Descriptor* d, unsigned char* src, size_t srclen)
 {
@@ -1207,6 +1237,8 @@ size_t process_do_mccp3(Descriptor* d, unsigned char* src, size_t srclen)
 
 size_t process_sb_mccp3(Descriptor* d, unsigned char* src, size_t srclen)
 {
+#ifndef NO_ZLIB
+
 	if (d->mth->mccp3)
 	{
 		end_mccp3(d);
@@ -1232,11 +1264,16 @@ size_t process_sb_mccp3(Descriptor* d, unsigned char* src, size_t srclen)
 	{
 		log_descriptor_printf(d, "INFO IAC SB MCCP3 INITIALIZED");
 	}
+
+#endif
+
 	return 5;
 }
 
 void end_mccp3(Descriptor* d)
 {
+#ifndef NO_ZLIB
+
 	if (d->mth->mccp3)
 	{
 		log_descriptor_printf(d, "MCCP3: COMPRESSION END");
@@ -1244,7 +1281,10 @@ void end_mccp3(Descriptor* d)
 		free_mem(d->mth->mccp3, sizeof(z_stream));
 		d->mth->mccp3 = NULL;
 	}
+
+#endif
 }
+
 
 /*
 	Returns the length of a telnet subnegotiation, return srclen + 1 for incomplete state.

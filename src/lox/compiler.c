@@ -4,20 +4,20 @@
 // Shared under the MIT License
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "common.h"
+#include "compiler.h"
+#include "memory.h"
+#include "scanner.h"
+
+#ifdef DEBUG_PRINT_CODE
+#include "debug.h"
+#endif
+
+#include <recycle.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-//#include "lox/lox.h"
-
-#include "lox/common.h"
-#include "lox/compiler.h"
-#include "lox/memory.h"
-#include "lox/scanner.h"
-
-#ifdef DEBUG_PRINT_CODE
-#include "lox/debug.h"
-#endif
 
 void send_to_char(const char* txt, Mobile* ch);
 
@@ -168,7 +168,7 @@ static void advance()
     }
 }
 
-static void consume(TokenType type, const char* message)
+static void consume(LoxTokenType type, const char* message)
 {
     if (parser.current.type == type) {
         advance();
@@ -178,18 +178,18 @@ static void consume(TokenType type, const char* message)
     error_at_current(message);
 }
 
-static bool check(TokenType type)
+static bool check(LoxTokenType type)
 {
     return parser.current.type == type;
 }
 
-static void skip(TokenType type)
+static void skip(LoxTokenType type)
 {
     if (check(type))
         advance();
 }
 
-static bool match(TokenType type)
+static bool match(LoxTokenType type)
 {
     if (!check(type))
         return false;
@@ -304,7 +304,7 @@ static void block();
 static void expression();
 static void statement();
 static void declaration();
-static ParseRule* get_rule(TokenType type);
+static ParseRule* get_rule(LoxTokenType type);
 static void parse_precedence(Precedence precedence);
 
 static bool identifiers_equal(Token* a, Token* b)
@@ -409,14 +409,16 @@ static int parse_variable(const char* error_message)
     consume(TOKEN_IDENTIFIER, error_message);
 
     declare_variable();
-    if (current->scope_depth > 0) return 0;
+    if (current->scope_depth > 0)
+        return 0;
 
     return identifier_constant(&parser.previous);
 }
 
 static void mark_initialized()
 {
-    if (current->scope_depth == 0) return;
+    if (current->scope_depth == 0)
+        return;
     current->locals[current->local_count - 1].depth = current->scope_depth;
 }
 
@@ -482,7 +484,7 @@ static void and_(bool can_assign)
 
 static void binary(bool can_assign)
 {
-    TokenType operator_type = parser.previous.type;
+    LoxTokenType operator_type = parser.previous.type;
     ParseRule* rule = get_rule(operator_type);
     parse_precedence((Precedence)(rule->precedence + 1));
 
@@ -863,7 +865,7 @@ static void this_(bool can_assign)
 
 static void unary(bool can_assign)
 {
-    TokenType operator_type = parser.previous.type;
+    LoxTokenType operator_type = parser.previous.type;
 
     // Compile the operand.
     parse_precedence(PREC_UNARY);
@@ -903,11 +905,12 @@ ParseRule rules[] = {
     [TOKEN_MINUS_MINUS]     = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_PLUS_EQUALS]     = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_MINUS_EQUALS]    = { NULL,       NULL,       PREC_NONE       },
+    [TOKEN_ARROW]           = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_IDENTIFIER]      = { variable,   NULL,       PREC_NONE       },
     [TOKEN_STRING]          = { string,     NULL,       PREC_NONE       },
     [TOKEN_INT]             = { number,     NULL,       PREC_NONE       },
     [TOKEN_DOUBLE]          = { number,     NULL,       PREC_NONE       },
-    [TOKEN_AND]             = { NULL,       and_,       PREC_NONE       },
+    [TOKEN_AND]             = { NULL,       and_,       PREC_AND        },
     [TOKEN_CLASS]           = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_ELSE]            = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_FALSE]           = { literal,    NULL,       PREC_NONE       },
@@ -915,7 +918,7 @@ ParseRule rules[] = {
     [TOKEN_FUN]             = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_IF]              = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_NIL]             = { literal,    NULL,       PREC_NONE       },
-    [TOKEN_OR]              = { NULL,       or_,        PREC_NONE       },
+    [TOKEN_OR]              = { NULL,       or_,        PREC_OR         },
     [TOKEN_PRINT]           = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_RETURN]          = { NULL,       NULL,       PREC_NONE       },
     [TOKEN_SUPER]           = { super_,     NULL,       PREC_NONE       },
@@ -954,7 +957,7 @@ static void parse_precedence(Precedence precedence)
     }
 }
 
-static ParseRule* get_rule(TokenType type)
+static ParseRule* get_rule(LoxTokenType type)
 {
     return &rules[type];
 }
@@ -1098,12 +1101,7 @@ static void expression_statement()
 {
     expression();
 
-    if (exec_context.is_repl)
-        match(TOKEN_SEMICOLON);
-    else
-        //consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
-        skip(TOKEN_SEMICOLON);
-
+    skip(TOKEN_SEMICOLON);
 
     if (exec_context.is_repl && current->function->name == NULL) {
         emit_byte(OP_PRINT);
@@ -1229,10 +1227,6 @@ static void print_statement()
 
 static void return_statement()
 {
-    if (current->type == TYPE_SCRIPT) {
-        error("Can't return from top-level code.");
-    }
-
     if (match(TOKEN_SEMICOLON)) {
         emit_return();
     }

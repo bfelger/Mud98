@@ -6,15 +6,15 @@
 #ifndef clox_function_h
 #define clox_function_h
 
-#include "lox/common.h"
+#include "common.h"
 
-#include "lox/chunk.h"
-#include "lox/object.h"
-#include "lox/table.h"
+#include "chunk.h"
+#include "object.h"
+#include "table.h"
 
 #include <merc.h>
 
-typedef struct {
+typedef struct obj_function_t {
     Obj obj;
     int arity;
     int upvalue_count;
@@ -30,7 +30,7 @@ typedef struct {
     NativeFn function;
 } ObjNative;
 
-typedef struct {
+typedef struct obj_closure_t {
     Obj obj;
     ObjFunction* function;
     ObjUpvalue** upvalues;
@@ -43,7 +43,7 @@ typedef struct {
     Table methods;
 } ObjClass;
 
-typedef struct {
+typedef struct obj_instance_t {
     Obj obj;
     ObjClass* klass;
     Table fields;

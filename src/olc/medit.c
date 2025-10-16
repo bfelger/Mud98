@@ -305,7 +305,7 @@ MEDIT(medit_show)
             }
 
             addf_buf(buffer, "{|[{*%5d{|] {*%4d %7s {_%s{x\n\r", cnt,
-                list->vnum, mprog_type_to_name(list->trig_type),
+                list->vnum, event_trigger_name(list->trig_type),
                 list->trig_phrase);
             cnt++;
         }
@@ -761,7 +761,7 @@ ED_FUN_DEC(ed_addprog)
     switch (ch->desc->editor) {
     case ED_MOBILE:
         EDIT_MOB(ch, pMob);
-        SET_BIT(pMob->mprog_flags, value);
+        SET_BIT(pMob->event_flags, value);
         break;
     }
 
@@ -822,7 +822,7 @@ ED_FUN_DEC(ed_delprog)
     switch (ch->desc->editor) {
     case ED_MOBILE:
         EDIT_MOB(ch, pMob);
-        REMOVE_BIT(pMob->mprog_flags, t2rem);
+        REMOVE_BIT(pMob->event_flags, t2rem);
         break;
     }
 

@@ -9,117 +9,14 @@
 #include <comm.h>
 
 #include <entities/area.h>
+#include <entities/entity.h>
 #include <entities/mobile.h>
 #include <entities/object.h>
 #include <entities/room.h>
 
 Table native_methods;
 
-static Value is_obj_native(Value receiver, int arg_count, Value* args)
-{
-    if (arg_count != 0) {
-        runtime_error("is_obj() takes no arguments.");
-        return FALSE_VAL;
-    }
-
-    if (IS_OBJECT(receiver))
-        return TRUE_VAL;
-
-    return FALSE_VAL;
-}
-
-static Value is_obj_proto_native(Value receiver, int arg_count, Value* args)
-{
-    if (arg_count != 0) {
-        runtime_error("is_obj_proto() takes no arguments.");
-        return FALSE_VAL;
-    }
-
-    if (IS_OBJ_PROTO(receiver))
-        return TRUE_VAL;
-
-    return FALSE_VAL;
-}
-
-static Value is_mob_native(Value receiver, int arg_count, Value* args)
-{
-    if (arg_count != 0) {
-        runtime_error("is_mob() takes no arguments.");
-        return FALSE_VAL;
-    }
-
-    if (IS_MOBILE(receiver))
-        return TRUE_VAL;
-
-    return FALSE_VAL;
-}
-
-static Value is_mob_proto_native(Value receiver, int arg_count, Value* args)
-{
-    if (arg_count != 0) {
-        runtime_error("is_mob_proto() takes no arguments.");
-        return FALSE_VAL;
-    }
-
-    if (IS_MOB_PROTO(receiver))
-        return TRUE_VAL;
-
-    return FALSE_VAL;
-}
-
-static Value is_room_native(Value receiver, int arg_count, Value* args)
-{
-    if (arg_count != 0) {
-        runtime_error("is_room() takes no arguments.");
-        return FALSE_VAL;
-    }
-
-    if (IS_ROOM(receiver))
-        return TRUE_VAL;
-
-    return FALSE_VAL;
-}
-
-static Value is_room_data_native(Value receiver, int arg_count, Value* args)
-{
-    if (arg_count != 0) {
-        runtime_error("is_room_data() takes no arguments.");
-        return FALSE_VAL;
-    }
-
-    if (IS_ROOM_DATA(receiver))
-        return TRUE_VAL;
-
-    return FALSE_VAL;
-}
-
-static Value is_area_native(Value receiver, int arg_count, Value* args)
-{
-    if (arg_count != 0) {
-        runtime_error("is_area() takes no arguments.");
-        return FALSE_VAL;
-    }
-
-    if (IS_AREA(receiver))
-        return TRUE_VAL;
-
-    return FALSE_VAL;
-}
-
-static Value is_area_data_native(Value receiver, int arg_count, Value* args)
-{
-    if (arg_count != 0) {
-        runtime_error("is_area_data() takes no arguments.");
-        return FALSE_VAL;
-    }
-
-    if (IS_AREA_DATA(receiver))
-        return TRUE_VAL;
-
-    return FALSE_VAL;
-}
-
-static Value send_native(Value receiver, int arg_count, Value* args)
+static Value send_lox(Value receiver, int arg_count, Value* args)
 {
     if (arg_count == 0) {
         runtime_error("send() requires at least one argument.");
@@ -127,8 +24,26 @@ static Value send_native(Value receiver, int arg_count, Value* args)
     }
 
     if (!IS_ENTITY(receiver)) {
-        runtime_error("send() only works for game entities.");
+        runtime_error("send() called from a non-entity.");
         return FALSE_VAL;
+    }
+
+    if (IS_MOBILE(receiver) && AS_MOBILE(receiver)->desc == NULL) {
+        // Skip NPCs (for now)
+        return TRUE_VAL;
+    }
+
+    int first_arg = 0;
+    Entity* ch = AS_ENTITY(receiver);
+    Entity* vch = NULL;
+
+    if (IS_ENTITY(args[first_arg])) {
+        vch = AS_ENTITY(args[first_arg++]);
+    }
+
+    for (int i = first_arg; i < arg_count; i++) {
+        char* msg = string_value(args[i]);
+        act(msg, ch, vch, NULL, TO_CHAR);
     }
 
     if (IS_MOBILE(receiver)) {
@@ -147,15 +62,77 @@ static Value send_native(Value receiver, int arg_count, Value* args)
     return TRUE_VAL;
 }
 
+static Value say_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count == 0) {
+        runtime_error("say() requires at least one argument.");
+        return FALSE_VAL;
+    }
+
+    if (!IS_ENTITY(receiver)) {
+        runtime_error("say() called from a non-entity.");
+        return FALSE_VAL;
+    }
+
+    int first_arg = 0;
+    Entity* ch = AS_ENTITY(receiver);
+    Entity* vch = NULL;
+
+    if (IS_ENTITY(args[first_arg])) {
+        vch = AS_ENTITY(args[first_arg++]);
+    }
+
+    for (int i = first_arg; i < arg_count; i++) {
+        char* msg = string_value(args[i]);
+        act("{6$n says '{7$T{6'{x", ch, vch, msg, TO_ROOM);
+    }
+
+    return TRUE_VAL;
+}
+
+static Value echo_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count == 0) {
+        runtime_error("echo() requires at least one argument.");
+        return FALSE_VAL;
+    }
+
+    if (!IS_ENTITY(receiver)) {
+        runtime_error("echo() called from a non-entity.");
+        return FALSE_VAL;
+    }
+
+    int first_arg = 0;
+    Entity* ch = AS_ENTITY(receiver);
+    Entity* vch = NULL;
+
+    if (IS_ENTITY(args[first_arg])) {
+        vch = AS_ENTITY(args[first_arg++]);
+    }
+
+    for (int i = first_arg; i < arg_count; i++) {
+        char* msg = string_value(args[i]);
+        act(msg, ch, vch, NULL, TO_ROOM);
+    }
+
+    return TRUE_VAL;
+}
+
 const NativeMethodEntry native_method_entries[] = {
-    { "is_area",        is_area_native              },
-    { "is_area_data",   is_area_data_native         },
-    { "is_mob",         is_mob_native               },
-    { "is_mob_proto",   is_mob_proto_native         },
-    { "is_obj",         is_obj_native               },
-    { "is_obj_proto",   is_obj_proto_native         },
-    { "is_room",        is_room_native              },
-    { "is_room_data",   is_room_data_native         },
-    { "send",           send_native                 },
-    { NULL,             NULL                        },
+    { "is_area",            is_area_lox         },
+    { "is_area_data",       is_area_data_lox    },
+    { "is_mob",             is_mob_lox          },
+    { "is_mob_proto",       is_mob_proto_lox    },
+    { "is_obj",             is_obj_lox          },
+    { "is_obj_proto",       is_obj_proto_lox    },
+    { "is_room",            is_room_lox         },
+    { "is_room_data",       is_room_data_lox    },
+    { "can_quest",          can_quest_lox       },
+    { "has_quest",          has_quest_lox       },
+    { "grant_quest",        grant_quest_lox     },
+    { "can_finish_quest",   can_finish_quest_lox},
+    { "finish_quest",       finish_quest_lox    }, 
+    { "send",               send_lox            },
+    { "say",                say_lox             },
+    { NULL,                 NULL                },
 };

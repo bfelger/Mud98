@@ -73,7 +73,7 @@ bool newlock;                       // Game is newlocked
 char str_boot_time[MAX_INPUT_LENGTH];
 time_t boot_time;                   // time of this pulse
 time_t current_time;                // time of this pulse
-bool MOBtrigger = true;             // act() switch
+bool events_enabled = true;         // act() switch
 
 #ifndef NO_OPENSSL
     #define GAME_LOOP_PARAMS SockServer* telnet_server, TlsServer* tls_server

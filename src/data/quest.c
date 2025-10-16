@@ -444,3 +444,109 @@ void do_quest(Mobile* ch, char* argument)
     free_buf(world);
     free_buf(out);
 }
+
+// LOX METHODS /////////////////////////////////////////////////////////////////
+
+Value can_quest_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count != 1 || !IS_INT(args[0])) {
+        runtime_error("can_quest() takes an integer argument.");
+        return FALSE_VAL;
+    }
+
+    if (!IS_MOBILE(receiver))
+        return FALSE_VAL;
+
+    int32_t vnum = AS_INT(args[0]);
+
+    bool ret = can_quest(AS_MOBILE(receiver), vnum);
+
+    return BOOL_VAL(ret);
+}
+
+Value has_quest_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count != 1 || !IS_INT(args[0])) {
+        runtime_error("has_quest() takes an integer argument.");
+        return FALSE_VAL;
+    }
+
+    if (!IS_MOBILE(receiver))
+        return FALSE_VAL;
+
+    int32_t vnum = AS_INT(args[0]);
+
+    bool ret = has_quest(AS_MOBILE(receiver), vnum);
+
+    return BOOL_VAL(ret);
+}
+
+Value grant_quest_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count != 1 || !IS_INT(args[0])) {
+        runtime_error("grant_quest() takes an integer argument.");
+        return FALSE_VAL;
+    }
+
+    if (!IS_MOBILE(receiver))
+        return FALSE_VAL;
+
+    int32_t vnum = AS_INT(args[0]);
+
+    Quest* q = get_quest(vnum);
+    if (q == NULL) {
+        runtime_error("grant_quest(): No quest for VNUM %d.", vnum);
+        return FALSE_VAL;
+    }
+
+    grant_quest(AS_MOBILE(receiver), q);
+
+    return TRUE_VAL;
+}
+
+Value can_finish_quest_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count != 1 || !IS_INT(args[0])) {
+        runtime_error("can_finish_quest() takes an integer argument.");
+        return FALSE_VAL;
+    }
+
+    if (!IS_MOBILE(receiver))
+        return FALSE_VAL;
+
+    int32_t vnum = AS_INT(args[0]);
+
+    bool ret = can_finish_quest(AS_MOBILE(receiver), vnum);
+
+    return BOOL_VAL(ret);
+}
+
+Value finish_quest_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count != 1 || !IS_INT(args[0])) {
+        runtime_error("finish_quest() takes an integer argument.");
+        return FALSE_VAL;
+    }
+
+    if (!IS_MOBILE(receiver))
+        return FALSE_VAL;
+
+    int32_t vnum = AS_INT(args[0]);
+    Mobile* ch = AS_MOBILE(receiver);
+
+    Quest* q = get_quest(vnum);
+    if (q == NULL) {
+        runtime_error("finish_quest(): No quest for VNUM %d.", vnum);
+        return FALSE_VAL;
+    }
+
+    QuestStatus* qs = get_quest_status(ch, vnum);
+    if (qs == NULL) {
+        runtime_error("finish_quest(): Couldn't get quest status for VNUM %d.", vnum);
+        return FALSE_VAL;
+    }
+
+    finish_quest(ch, q, qs);
+
+    return TRUE_VAL;
+}

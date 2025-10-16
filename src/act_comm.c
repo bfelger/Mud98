@@ -937,10 +937,10 @@ void do_emote(Mobile* ch, char* argument)
         return;
     }
 
-    MOBtrigger = false;
+    events_enabled = false;
     act("$n $T", ch, NULL, argument, TO_ROOM);
     act("$n $T", ch, NULL, argument, TO_CHAR);
-    MOBtrigger = true;
+    events_enabled = true;
     return;
 }
 
@@ -968,9 +968,9 @@ void do_pmote(Mobile* ch, char* argument)
         if (vch->desc == NULL || vch == ch) continue;
 
         if ((letter = strstr(argument, NAME_STR(vch))) == NULL) {
-            MOBtrigger = false;
+            events_enabled = false;
             act("$N $t", vch, argument, ch, TO_CHAR);
-            MOBtrigger = true;
+            events_enabled = true;
             continue;
         }
 
@@ -1013,9 +1013,9 @@ void do_pmote(Mobile* ch, char* argument)
             name = NAME_STR(vch);
         }
 
-        MOBtrigger = false;
+        events_enabled = false;
         act("$N $t", vch, temp, ch, TO_CHAR);
-        MOBtrigger = true;
+        events_enabled = true;
     }
 
     return;

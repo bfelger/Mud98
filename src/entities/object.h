@@ -28,7 +28,7 @@ typedef struct object_t Object;
 #include <stdio.h>
 
 typedef struct object_t {
-    EntityHeader header;
+    Entity header;
     Node* obj_list_node;
     List objects;
     Object* in_obj;

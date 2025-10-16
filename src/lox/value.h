@@ -8,9 +8,10 @@
 #ifndef clox_value_h
 #define clox_value_h
 
-#include <string.h>
+#include "common.h"
 
-#include "lox/common.h"
+#include <string.h>
+#include <stdint.h>
 
 typedef struct Obj Obj;
 typedef struct ObjString ObjString;
@@ -43,11 +44,11 @@ typedef uint64_t Value;
 #define AS_DOUBLE(v)            value_to_double(v)
 #define AS_OBJ(v)               ((Obj*)((v) & 0xFFFFFFFFFFFF))
 #define AS_BOOL(v)              ((char)((v) & 0x1))
-#define AS_INT(v)               ((int32_t)(v))
+#define AS_INT(v)               (int32_t)((v) & 0xFFFFFFFFULL)
 
 #define BOOL_VAL(b)             ((b) ? TRUE_VAL : FALSE_VAL)
-#define OBJ_VAL(p)              ((uint64_t)(p) | OBJECT_MASK)
-#define INT_VAL(i)              ((uint64_t)(i) | INTEGER_MASK)
+#define OBJ_VAL(p)              (((uint64_t)(p)) | OBJECT_MASK)
+#define INT_VAL(i)              (((uint64_t)(uint32_t)(i)) | INTEGER_MASK)
 #define DOUBLE_VAL(d)           double_to_value(d)
 
 
@@ -102,6 +103,7 @@ typedef struct {
 bool values_equal(Value a, Value b);
 char* string_value(Value value);
 void print_value(Value value);
+void print_value_debug(Value value);
 
 #define IS_PERM_STRING(str) \
     (str == &str_empty[0] || (str >= string_space && str < top_string))

@@ -4,27 +4,58 @@
 // Shared under the MIT License
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "common.h"
+#include "compiler.h"
+#include "debug.h"
+#include "object.h"
+#include "memory.h"
+#include "native.h"
+#include "vm.h"
+
+#include <comm.h>
+#include <config.h>
+
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
-#include "lox/common.h"
-#include "lox/compiler.h"
-#include "lox/debug.h"
-#include "lox/object.h"
-#include "lox/memory.h"
-#include "lox/native.h"
-#include "lox/vm.h"
-
-#include "comm.h"
-#include "config.h"
-
 #define INIT_GC_THRESH  1024ULL * 1024ULL
 
 VM vm;
 ObjString* lox_empty_string = NULL;
+
+extern bool test_dissasemble_on_error;
+extern bool test_output_enabled;
+
+#define DEBUG_FRAME_COUNT
+
+#ifdef DEBUG_FRAME_COUNT
+#define INCREMENT_FRAME_COUNT() increment_frame_count()
+#define DECREMENT_FRAME_COUNT() decrement_frame_count()
+inline int increment_frame_count()
+{
+    if (vm.frame_count + 1 > FRAMES_MAX) {
+        runtime_error("Stack overflow.");
+        exit(1);
+    }
+    return vm.frame_count++;
+}
+inline int decrement_frame_count()
+{
+    if (vm.frame_count - 1 < 0) {
+        runtime_error("Stack underflow.");
+        exit(1);
+    }
+    return vm.frame_count--;
+}
+#else
+#define INCREMENT_FRAME_COUNT() (vm.frame_count++)
+#define DECREMENT_FRAME_COUNT() (vm.frame_count--)
+#endif
+
 
 static void reset_stack()
 {
@@ -33,7 +64,7 @@ static void reset_stack()
     vm.open_upvalues = NULL;
 }
 
-static void print_stack()
+void print_stack()
 {
     lox_printf("Stack:    ");
     for (Value* slot = vm.stack; slot < vm.stack_top; slot++) {
@@ -55,11 +86,20 @@ void runtime_error(const char* format, ...)
     va_end(args);
     pos += sprintf(pos, "\n");
 
-    for (int i = vm.frame_count - 1; i >= 0; i--) {
+    int fc = vm.frame_count;
+
+    if (fc > FRAMES_MAX || fc < 0) {
+        fc = FRAMES_MAX;
+        fprintf(stderr, "Too many call frames to display (%d).\n", vm.frame_count);
+    }
+
+    for (int i = fc - 1; i >= 0; i--) {
         CallFrame* frame = &vm.frames[i];
+        if (frame->closure == NULL)
+            continue;
         ObjFunction* function = frame->closure->function;
         size_t instruction = frame->ip - function->chunk.code - 1;
-        pos += sprintf(pos, "[line %d] in ",
+        pos += sprintf(pos, "Lox error [line %d] in ",
             function->chunk.lines[instruction]);
         if (function->name == NULL) {
             pos += sprintf(pos, "script\n");
@@ -69,7 +109,10 @@ void runtime_error(const char* format, ...)
         }
     }
 
+    bool test_output = test_output_enabled;
+    test_output_enabled = false;
     lox_printf("%s", errbuf);
+    test_output_enabled = test_output;
 
     print_stack();
 
@@ -92,7 +135,6 @@ void init_vm()
 
     lox_empty_string = copy_string(str_empty, 1);
 
-    vm.init_string = NULL;
     vm.init_string = copy_string("init", 4);
 }
 
@@ -116,7 +158,7 @@ Value pop()
     return *vm.stack_top;
 }
 
-static Value peek(int distance)
+Value peek(int distance)
 {
     return vm.stack_top[-1 - distance];
 }
@@ -129,12 +171,12 @@ bool call_closure(ObjClosure* closure, int arg_count)
         return false;
     }
 
-    if (vm.frame_count == FRAMES_MAX) {
+    if (vm.frame_count >= FRAMES_MAX || vm.frame_count < 0) {
         runtime_error("Stack overflow.");
         return false;
     }
 
-    CallFrame* frame = &vm.frames[vm.frame_count++];
+    CallFrame* frame = &vm.frames[INCREMENT_FRAME_COUNT()];
     frame->closure = closure;
     frame->ip = closure->function->chunk.code;
     frame->slots = vm.stack_top - arg_count - 1;
@@ -150,15 +192,6 @@ bool call_value(Value callee, int arg_count)
                 vm.stack_top[-arg_count - 1] = bound->receiver;
                 return call_closure(bound->method, arg_count);
             }
-        //case OBJ_NATIVE_METHOD: {
-        //        ObjNativeMethod* bound = AS_NATIVE_METHOD(callee);
-        //        vm.stack_top[-arg_count - 1] = bound->receiver;
-        //        NativeMethod native = bound->native;
-        //        Value result = native(bound->receiver, arg_count, vm.stack_top - arg_count);
-        //        vm.stack_top -= (ptrdiff_t)arg_count + 1;
-        //        push(result);
-        //        return true;
-        //    }
         case OBJ_CLASS: {
                 ObjClass* klass = AS_CLASS(callee);
                 vm.stack_top[-arg_count - 1] = OBJ_VAL(new_instance(klass));
@@ -218,7 +251,7 @@ static bool invoke_from_class(ObjClass* klass, ObjString* name, int arg_count)
     return call_closure(AS_CLOSURE(method), arg_count);
 }
 
-static bool invoke(ObjString* name, int arg_count)
+bool invoke(ObjString* name, int arg_count)
 {
     Value receiver = peek(arg_count);
 
@@ -233,6 +266,12 @@ static bool invoke(ObjString* name, int arg_count)
             vm.stack_top -= (ptrdiff_t)arg_count + 1;
             push(result);
             return true;
+        }
+
+        Entity* entity = AS_ENTITY(receiver);
+        if (table_get(&entity->fields, name, &method)) {
+            vm.stack_top[-arg_count - 1] = method;
+            return call_value(method, arg_count);
         }
 
         if (IS_MOBILE(receiver) && arg_count == 1 && IS_STRING(peek(0))) {
@@ -253,6 +292,19 @@ static bool invoke(ObjString* name, int arg_count)
                 return true;
             }
         }
+
+        Value value;
+        if (table_get(&entity->fields, name, &value)) {
+            vm.stack_top[-arg_count - 1] = value;
+            return call_value(value, arg_count);
+        }
+
+        if (entity->klass == NULL) {
+            runtime_error("Entity has no class.");
+            return false;
+        }
+
+        return invoke_from_class(entity->klass, name, arg_count);
     }
 
     if (!IS_INSTANCE(receiver)) {
@@ -324,8 +376,14 @@ static void close_upvalues(Value* last)
 static void define_method(ObjString* name)
 {
     Value method = peek(0);
-    ObjClass* klass = AS_CLASS(peek(1));
-    table_set(&klass->methods, name, method);
+    if (IS_CLASS(peek(1))) {
+        ObjClass* klass = AS_CLASS(peek(1));
+        table_set(&klass->methods, name, method);
+    }
+    else if (IS_ENTITY(peek(1))) {
+        Entity* entity = AS_ENTITY(peek(1));
+        table_set(&entity->fields, name, method);
+    }
     pop();
 }
 
@@ -530,7 +588,8 @@ InterpretResult run()
     do { \
       if ((!IS_INT(peek(0)) && !IS_DOUBLE(peek(0))) \
         || (!IS_INT(peek(1)) && !IS_DOUBLE(peek(1)))) { \
-        runtime_error("Operands must be numbers."); \
+        char c = (#op)[0]; \
+        runtime_error("Operands for '%c' must be numbers.", c); \
         return INTERPRET_RUNTIME_ERROR; \
       } \
       if (IS_DOUBLE(peek(0)) || IS_DOUBLE(peek(1))) { \
@@ -549,7 +608,8 @@ InterpretResult run()
     do { \
       if ((!IS_INT(peek(0)) && !IS_DOUBLE(peek(0))) \
         || (!IS_INT(peek(1)) && !IS_DOUBLE(peek(1)))) { \
-        runtime_error("Operands must be numbers."); \
+        char c = (#op)[0]; \
+        runtime_error("Operands for '%c' must be numbers.", c); \
         return INTERPRET_RUNTIME_ERROR; \
       } \
       if (IS_DOUBLE(peek(0)) || IS_DOUBLE(peek(1))) { \
@@ -583,12 +643,25 @@ InterpretResult run()
         case OP_POP:        pop(); break;
         case OP_GET_LOCAL: {
                 uint8_t slot = READ_BYTE();
+
+                if (IS_RAW_PTR(frame->slots[slot])) {
+                    push(marshal_raw_ptr(AS_RAW_PTR(frame->slots[slot])));
+                    break;
+                }
+
                 push(frame->slots[slot]);
                 break;
             }
         case OP_SET_LOCAL: {
                 uint8_t slot = READ_BYTE();
-                frame->slots[slot] = peek(0);
+
+                if (IS_RAW_PTR(frame->slots[slot])) {
+                    ObjRawPtr* raw = AS_RAW_PTR(frame->slots[slot]);
+                    unmarshal_raw_val(raw, peek(0));
+                }
+                else {
+                    frame->slots[slot] = peek(0);
+                }
                 break;
             }
         case OP_GET_GLOBAL: {
@@ -708,25 +781,24 @@ InterpretResult run()
                     }
                 }
                 else {
-                    EntityHeader* entity = AS_ENTITY(comp);
+                    Entity* entity = AS_ENTITY(comp);
                     Value value;
-                    if (!table_get(&entity->fields, name, &value)) {
-                        runtime_error("Entity '%s' has no field '%s'.", 
-                            entity->name->chars, name->chars);
+
+                    if (table_get(&entity->fields, name, &value)) {
                         pop(); // Entity.
-                        return INTERPRET_RUNTIME_ERROR;
-                    }
 
-                    pop(); // Entity.
+                        if (IS_RAW_PTR(value)) {
+                            push(marshal_raw_ptr(AS_RAW_PTR(value)));
+                            break;
+                        }
 
-                    // Auto-unmarshal
-                    if (IS_RAW_PTR(value)) {
-                        push(marshal_raw_ptr(AS_RAW_PTR(value)));
+                        push(value);
                         break;
                     }
 
-                    push(value);
-                    break;
+                    if (!bind_method(entity->klass, name)) {
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
                 }
                 break;
             }
@@ -744,18 +816,9 @@ InterpretResult run()
                     table_set(&instance->fields, field, peek(0));
                 }
                 else {
-                    EntityHeader* entity = AS_ENTITY(comp);
+                    Entity* entity = AS_ENTITY(comp);
                     Value current_value;
-                    if (!table_get(&entity->fields, field, &current_value)) {
-                        runtime_error("Entity '%s' has no field '%s'.",
-                            entity->name->chars, field->chars);
-                        Value value = pop();
-                        pop(); // Entity.
-                        push(value);
-                        return INTERPRET_RUNTIME_ERROR;
-                    }
-
-                    if (IS_RAW_PTR(current_value)) {
+                    if (table_get(&entity->fields, field, &current_value) && IS_RAW_PTR(current_value)) {
                         ObjRawPtr* raw = AS_RAW_PTR(current_value);
                         unmarshal_raw_val(raw, peek(0));
                     }
@@ -935,7 +998,7 @@ InterpretResult run()
         case OP_RETURN: {
                 Value result = pop();
                 close_upvalues(frame->slots);
-                vm.frame_count--;
+                DECREMENT_FRAME_COUNT();
                 if (vm.frame_count == 0) {
                     pop();
                     return INTERPRET_OK;
@@ -1011,10 +1074,23 @@ InterpretResult interpret_code(const char* source)
     push(OBJ_VAL(function));
     ObjClosure* closure = new_closure(function);
     pop();
+
+    if (closure == NULL) {
+        return INTERPRET_RUNTIME_ERROR;
+    }
+
     push(OBJ_VAL(closure));
-    call_closure(closure, 0);
+    
+    if (!call_closure(closure, 0)) {
+        reset_stack();
+        return INTERPRET_RUNTIME_ERROR;
+    }
 
     InterpretResult res = run();
+
+    if (res != INTERPRET_OK && test_dissasemble_on_error) {
+        disassemble_chunk(&function->chunk, "<script>");
+    }
 
     return res;
 }
@@ -1027,12 +1103,12 @@ InterpretResult call_function(const char* fn_name, int count, ...)
     Value value;
     if (!table_get(&vm.globals, name, &value)) {
         runtime_error("Undefined variable '%s'.", name->chars);
-        exit(70);
+        return INTERPRET_RUNTIME_ERROR;
     }
 
     if (!IS_CLOSURE(value)) {
         runtime_error("'%s' is not a callable object.", name->chars);
-        exit(70);
+        return INTERPRET_RUNTIME_ERROR;
     }
 
     push(OBJ_VAL(value));
@@ -1045,7 +1121,9 @@ InterpretResult call_function(const char* fn_name, int count, ...)
 
     va_end(args);
 
-    call_closure(closure, count);
+    if (!call_closure(closure, count)) {
+        return INTERPRET_RUNTIME_ERROR;
+    }
 
     InterpretResult rc = run();
 
@@ -1069,7 +1147,9 @@ InterpretResult invoke_closure(ObjClosure* closure, int count, ...)
 
     va_end(args);
 
-    call_closure(closure, count);
+    if (!call_closure(closure, count)) {
+        return INTERPRET_RUNTIME_ERROR;
+    }
 
     InterpretResult rc = run();
 
@@ -1078,4 +1158,22 @@ InterpretResult invoke_closure(ObjClosure* closure, int count, ...)
     vm.stack_top -= count;
 
     return rc;
+}
+
+// Called from entities
+void init_entity_class(Entity* entity)
+{
+    if (entity == NULL || entity->klass == NULL) {
+        return;
+    }
+
+    push(OBJ_VAL(entity));
+
+    ObjClass* klass = entity->klass;
+
+    vm.stack_top[-1] = OBJ_VAL(entity);
+    Value initializer;
+    if (table_get(&klass->methods, vm.init_string, &initializer)) {
+        invoke_closure(AS_CLOSURE(initializer), 0);
+    }
 }

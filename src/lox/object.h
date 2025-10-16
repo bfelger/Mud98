@@ -8,8 +8,10 @@
 #ifndef clox_object_h
 #define clox_object_h
 
-#include "lox/common.h"
-#include "lox/value.h"
+#include "common.h"
+#include "value.h"
+
+#include <stdint.h>
 
 typedef struct area_t Area;
 typedef struct area_data_t AreaData;
@@ -19,6 +21,41 @@ typedef struct object_t Object;
 typedef struct obj_prototype_t ObjPrototype;
 typedef struct mobile_t Mobile;
 typedef struct mob_prototype_t MobPrototype;
+typedef struct event_t Event;
+
+typedef enum {
+    OBJ_ARRAY,
+    OBJ_BOUND_METHOD,
+    OBJ_NATIVE_METHOD,
+    OBJ_NATIVE_CMD,
+    OBJ_CLASS,
+    OBJ_CLOSURE,
+    OBJ_FUNCTION,
+    OBJ_INSTANCE,
+    OBJ_NATIVE,
+    OBJ_RAW_PTR,
+    OBJ_STRING,
+    OBJ_UPVALUE,
+    OBJ_TABLE,
+    OBJ_LIST,
+    // Mud98 Objects
+    OBJ_EVENT,
+    // Mud98 In-Game Entities
+    OBJ_AREA        = 100,
+    OBJ_AREA_DATA   = 101,
+    OBJ_ROOM        = 102,
+    OBJ_ROOM_DATA   = 103,
+    OBJ_OBJ         = 104,
+    OBJ_OBJ_PROTO   = 105,
+    OBJ_MOB         = 106,
+    OBJ_MOB_PROTO   = 107,
+} ObjType;
+
+struct Obj {
+    ObjType type;
+    bool is_marked;
+    struct Obj* next;
+};
 
 #define OBJ_TYPE(value)         (AS_OBJ(value)->type)
 
@@ -35,6 +72,8 @@ typedef struct mob_prototype_t MobPrototype;
 #define IS_STRING(value)        is_obj_type(value, OBJ_STRING)
 #define IS_TABLE(value)         is_obj_type(value, OBJ_TABLE)
 #define IS_LIST(value)          is_obj_type(value, OBJ_LIST)
+//
+#define IS_EVENT(value)         is_obj_type(value, OBJ_EVENT)
 //
 #define IS_AREA(value)          is_obj_type(value, OBJ_AREA)
 #define IS_AREA_DATA(value)     is_obj_type(value, OBJ_AREA_DATA)
@@ -61,7 +100,9 @@ typedef struct mob_prototype_t MobPrototype;
 #define AS_TABLE(value)         ((Table*)AS_OBJ(value))
 #define AS_LIST(value)          ((List*)AS_OBJ(value))
 //
-#define AS_ENTITY(value)        ((EntityHeader*)AS_OBJ(value))
+#define AS_EVENT(value)         ((Event*)AS_OBJ(value))
+//
+#define AS_ENTITY(value)        ((Entity*)AS_OBJ(value))
 #define AS_AREA(value)          ((Area*)AS_OBJ(value))
 #define AS_AREA_DATA(value)     ((AreaData*)AS_OBJ(value))
 #define AS_ROOM(value)          ((Room*)AS_OBJ(value))
@@ -70,38 +111,6 @@ typedef struct mob_prototype_t MobPrototype;
 #define AS_OBJ_PROTO(value)     ((ObjPrototype*)AS_OBJ(value))
 #define AS_MOBILE(value)        ((Mobile*)AS_OBJ(value))
 #define AS_MOB_PROTO(value)     ((MobPrototype*)AS_OBJ(value))
-
-typedef enum {
-    OBJ_ARRAY,
-    OBJ_BOUND_METHOD,
-    OBJ_NATIVE_METHOD,
-    OBJ_NATIVE_CMD,
-    OBJ_CLASS,
-    OBJ_CLOSURE,
-    OBJ_FUNCTION,
-    OBJ_INSTANCE,
-    OBJ_NATIVE,
-    OBJ_RAW_PTR,
-    OBJ_STRING,
-    OBJ_UPVALUE,
-    OBJ_TABLE,
-    OBJ_LIST,
-    //
-    OBJ_AREA        = 100,
-    OBJ_AREA_DATA   = 101,
-    OBJ_ROOM        = 102,
-    OBJ_ROOM_DATA   = 103,
-    OBJ_OBJ         = 104,
-    OBJ_OBJ_PROTO   = 105,
-    OBJ_MOB         = 106,
-    OBJ_MOB_PROTO   = 107,
-} ObjType;
-
-struct Obj {
-    ObjType type;
-    bool is_marked;
-    struct Obj* next;
-};
 
 typedef enum {
     RAW_OBJ,

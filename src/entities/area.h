@@ -10,21 +10,20 @@ typedef struct area_data_t AreaData;
 #ifndef MUD98__ENTITIES__AREA_H
 #define MUD98__ENTITIES__AREA_H
 
-#include "merc.h"
+#include <merc.h>
+
+#include <data/direction.h>
+#include <data/quest.h>
+
+#include "entity.h"
+#include "help_data.h"
+#include "reset.h"
+#include "room.h"
+
+#include <lox/lox.h>
 
 #include <stdint.h>
 #include <stdio.h>
-
-
-#include "data/direction.h"
-#include "data/quest.h"
-
-#include "entities/entity.h"
-#include "entities/help_data.h"
-#include "entities/reset.h"
-#include "entities/room.h"
-
-#include "lox/lox.h"
 
 #define AREA_ROOM_VNUM_HASH_SIZE    32
 
@@ -42,7 +41,7 @@ typedef enum inst_type_t {
 } InstanceType;
 
 typedef struct area_t {
-    EntityHeader header;
+    Entity header;
     Area* next;
     AreaData* data;
     Table rooms;
@@ -53,7 +52,7 @@ typedef struct area_t {
 } Area;
 
 typedef struct area_data_t {
-    EntityHeader header;
+    Entity header;
     AreaData* next;
     List instances;
     HelpArea* helps;

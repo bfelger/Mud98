@@ -4,9 +4,6 @@
 // Shared under the MIT License
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <stdlib.h>
-#include <string.h>
-
 #include <merc.h>
 
 #include "compiler.h"
@@ -14,14 +11,19 @@
 #include "native.h"
 #include "vm.h"
 
-#ifdef DEBUG_LOG_GC
-#include <stdio.h>
-#include "debug.h"
-#endif
+#include <data/events.h>
 
 #include <entities/area.h>
 #include <entities/obj_prototype.h>
 #include <entities/room.h>
+
+#ifdef DEBUG_LOG_GC
+#include "debug.h"
+#include <stdio.h>
+#endif
+
+#include <stdlib.h>
+#include <string.h>
 
 #define GC_HEAP_GROW_FACTOR 2
 
@@ -32,6 +34,8 @@ extern char str_empty[1];
 extern Table spell_scripts;
 
 extern bool fBootDb;
+
+extern Value test_output_buffer;
 
 void* reallocate(void* pointer, size_t old_size, size_t new_size)
 {
@@ -106,12 +110,17 @@ void mark_value(Value value)
         mark_object(AS_OBJ(value));
 }
 
-static void mark_entity(EntityHeader* entity)
+static void mark_entity(Entity* entity)
 {
     if (entity == NULL)
         return;
     mark_object((Obj*)entity->name);
     mark_table(&entity->fields);
+    mark_list(&entity->events);
+    if (entity->klass)
+        mark_object((Obj*)entity->klass);
+    if (entity->script)
+        mark_object((Obj*)entity->script);
 }
 
 static void blacken_object(Obj* object)
@@ -182,6 +191,14 @@ static void blacken_object(Obj* object)
     case OBJ_RAW_PTR:
     case OBJ_STRING:
         break;
+    //
+    case OBJ_EVENT: {
+        Event* event = (Event*)object;
+        mark_value(event->criteria);
+        mark_object((Obj*)event->name);
+        mark_object((Obj*)event->closure);
+        break;
+    }
     //
     case OBJ_AREA: {
         Area* area = (Area*)object;
@@ -309,6 +326,10 @@ static void free_obj_value(Obj* object)
         break;
     }
     //
+    case OBJ_EVENT:
+        free_event((Event*)object);
+        break;
+    //
     case OBJ_AREA:
     case OBJ_AREA_DATA:
     case OBJ_ROOM:
@@ -357,6 +378,9 @@ static void mark_roots()
     mark_object((Obj*)vm.init_string);
     mark_object((Obj*)lox_empty_string);
     mark_natives();
+
+    mark_value(test_output_buffer);
+
 }
 
 static void trace_references()

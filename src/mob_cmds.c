@@ -127,27 +127,12 @@ void mob_interpret(Mobile* ch, char* argument)
     bug(buf, 0);
 }
 
-char* mprog_type_to_name(MobProgTrigger type)
+char* event_trigger_name(EventTrigger type)
 {
-    switch (type) {
-    case TRIG_ACT:      return "ACT";
-    case TRIG_SPEECH:   return "SPEECH";
-    case TRIG_RANDOM:   return "RANDOM";
-    case TRIG_FIGHT:    return "FIGHT";
-    case TRIG_HPCNT:    return "HPCNT";
-    case TRIG_DEATH:    return "DEATH";
-    case TRIG_ENTRY:    return "ENTRY";
-    case TRIG_GREET:    return "GREET";
-    case TRIG_GRALL:    return "GRALL";
-    case TRIG_GIVE:     return "GIVE";
-    case TRIG_BRIBE:    return "BRIBE";
-    case TRIG_KILL:     return "KILL";
-    case TRIG_DELAY:    return "DELAY";
-    case TRIG_SURR:     return "SURRENDER";
-    case TRIG_EXIT:     return "EXIT";
-    case TRIG_EXALL:    return "EXALL";
-    default:            return "ERROR";
-    }
+    if (type <= LAST_TRIG && type >= 0)
+        return mprog_flag_table[type].name;
+    else 
+        return "ERROR";
 }
 
 /*
@@ -194,7 +179,7 @@ void do_mpstat(Mobile* ch, char* argument)
         ? "No target" : NAME_STR(victim->mprog_target));
     send_to_char(arg, ch);
 
-    if (!victim->prototype->mprog_flags) {
+    if (!victim->prototype->event_flags) {
         send_to_char("[No programs set]\n\r", ch);
         return;
     }
@@ -203,7 +188,7 @@ void do_mpstat(Mobile* ch, char* argument)
     FOR_EACH(mprg, victim->prototype->mprogs) {
         sprintf(arg, "[%2d] Trigger [%-8s] Program [%4d] Phrase [%s]\n\r",
             ++i,
-            mprog_type_to_name(mprg->trig_type),
+            event_trigger_name(mprg->trig_type),
             mprg->vnum,
             mprg->trig_phrase);
         send_to_char(arg, ch);
@@ -305,9 +290,9 @@ void do_mpasound(Mobile* ch, char* argument)
             && room_exit->to_room != NULL
             && room_exit->to_room != was_in_room) {
             ch->in_room = room_exit->to_room;
-            MOBtrigger = false;
+            events_enabled = false;
             act(argument, ch, NULL, NULL, TO_ROOM);
-            MOBtrigger = true;
+            events_enabled = true;
         }
     }
     ch->in_room = was_in_room;

@@ -5,16 +5,19 @@
 
 #include "room.h"
 
-#include "comm.h"
-#include "db.h"
-#include "handler.h"
+#include <comm.h>
+#include <db.h>
+#include <handler.h>
 
 #include "room_exit.h"
 #include "extra_desc.h"
 #include "reset.h"
 
-#include "lox/lox.h"
-#include "lox/table.h"
+#include <lox/lox.h>
+#include <lox/table.h>
+#include <lox/function.h>
+#include <lox/memory.h>
+#include <lox/vm.h>
 
 int room_count;
 int room_perm_count;
@@ -53,6 +56,11 @@ Room* new_room(RoomData* room_data, Area* area)
     table_set_vnum(&area->rooms, VNUM_FIELD(room), OBJ_VAL(room));
 
     room->data = room_data;
+
+    if (room_data->header.klass != NULL) {
+        room->header.klass = room_data->header.klass;
+        init_entity_class((Entity*)room);
+    }
     
     list_push_back(&room_data->instances, OBJ_VAL(room));
 
@@ -222,132 +230,3 @@ Room* get_room_for_player(Mobile* ch, VNUM vnum)
     return get_room(area, vnum);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Lox representation
-////////////////////////////////////////////////////////////////////////////////
-
-//static ObjClass* room_class = NULL;
-//
-//void init_room_class()
-//{
-//    char* source =
-//        "class Room { "
-//        "   people() { return get_people(this._base); }"
-//        "   contents() { return get_contents(this._base); }"
-//        "}";
-//
-//    InterpretResult result = interpret_code(source);
-//
-//    if (result == INTERPRET_COMPILE_ERROR) exit(65);
-//    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
-//
-//    room_class = find_class("Room");
-//}
-//
-//Value create_room_value(Room* room)
-//{
-//
-//    if (!room_class)
-//        runtime_error("create_room_value: 'Room' class not defined.");
-//
-//    if (!room || !room_class || !room->data)
-//        return NIL_VAL;
-//
-//    ObjInstance* inst = new_instance(room_class);
-//    push(OBJ_VAL(inst));
-//
-//    SET_NATIVE_FIELD(inst, room, base, OBJ);
-//    SET_NATIVE_FIELD(inst, VNUM_FIELD(room->data), vnum, I32);
-//
-//    SET_LOX_FIELD(inst, room->area, area);
-//    SET_LOX_FIELD(inst, room->data->name, name);
-//
-//    pop(); // instance
-//
-//    return OBJ_VAL(inst);
-//}
-//
-//Value get_room_native(int arg_count, Value* args)
-//{
-//    if (arg_count != 1) {
-//        runtime_error("get_room() takes 1 argument; %d given.", arg_count);
-//        return NIL_VAL;
-//    }
-//
-//    if (IS_RAW_PTR(args[0])) {
-//        ObjRawPtr* ptr = AS_RAW_PTR(args[0]);
-//        if (ptr->type == RAW_OBJ) {
-//            Value room =  create_room_value((Room*)ptr->addr);
-//            return room;
-//        }
-//    }
-//
-//    runtime_error("get_room(): argument '%s' is incorrect type", string_value(args[0]));
-//    return NIL_VAL;
-//}
-//
-//Value get_room_people_native(int arg_count, Value* args)
-//{
-//    if (arg_count != 1) {
-//        runtime_error("get_people() takes 1 argument; %d given.", arg_count);
-//        return NIL_VAL;
-//    }
-//
-//    Room* room = NULL;
-//    
-//    if (IS_RAW_PTR(args[0]) && AS_RAW_PTR(args[0])->type == RAW_OBJ) {
-//        room = (Room*)AS_RAW_PTR(args[0])->addr;
-//    }
-//
-//    ObjArray* array_ = new_obj_array();
-//    push(OBJ_VAL(array_));
-//
-//    if (room) {
-//        // Just return an empty array if there is no room. Don't force scripters
-//        // to use guards. NULL is a disease.
-//        Mobile* mob;
-//        FOR_EACH_IN_ROOM(mob, room->people) {
-//            Value mob_val = create_mobile_value(mob);
-//            push(mob_val);
-//            write_value_array(&array_->val_array, mob_val);
-//            pop(); // mob_val
-//        }
-//    }
-//
-//    pop(); // array_
-//    return OBJ_VAL(array_);
-//}
-//
-//Value get_room_contents_native(int arg_count, Value* args)
-//{
-//    if (arg_count != 1) {
-//        runtime_error("get_contents() takes 1 argument; %d given.", arg_count);
-//        return NIL_VAL;
-//    }
-//
-//    Room* room = NULL;
-//
-//    if (IS_RAW_PTR(args[0]) && AS_RAW_PTR(args[0])->type == RAW_OBJ) {
-//        room = (Room*)AS_RAW_PTR(args[0])->addr;
-//    }
-//
-//    ObjArray* array_ = new_obj_array();
-//    push(OBJ_VAL(array_));
-//
-//    if (room) {
-//        // Just return an empty array if there is no room. Don't force scripters
-//        // to use guards. NULL is a disease.
-//        Object* obj;
-//        FOR_EACH_CONTENT(obj, room->contents)
-//        {
-//            //Value obj_val = create_object_value(obj);
-//            Value obj_val = OBJ_VAL(obj);
-//            push(obj_val);
-//            write_value_array(&array_->val_array, obj_val);
-//            pop(); // obj_val
-//        }
-//    }
-//
-//    pop(); // array_
-//    return OBJ_VAL(array_);
-//}

@@ -42,6 +42,10 @@ set (ZLIB_USE_STATIC_LIBS true)
 find_package(ZLIB)
 if (ZLIB_FOUND)
     list(APPEND Mud98_LIBS ZLIB::ZLIB)
+else()
+    message(WARNING "ZLIB not found. If you have it installed, set the ZLIB_ROOT_DIR environment variable. "
+                    "If you proceed without ZLIB, you will not be able to use MTH compression.")
+    set(NO_ZLIB true)
 endif()
 
 if (MSVC)
@@ -159,6 +163,7 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     data/class.h data/class.c
     data/damage.h data/damage.c
     data/direction.h data/direction.c
+    data/events.h data/events.c
     data/item.h data/item.c
     data/mobile_data.h data/mobile_data.c
     data/player.h
@@ -184,6 +189,10 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     lox/value.h lox/value.c
     lox/vm.h lox/vm.c
     lox/function.h
+ 
+    tests/test_registry.h tests/test_registry.c 
+    tests/all_tests.c tests/tests.h
+    tests/lox_tests.h tests/lox_tests.c tests/lox_ext_tests.c
 )
 
 target_link_libraries(Mud98 PRIVATE ${Mud98_LIBS})

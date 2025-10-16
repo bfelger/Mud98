@@ -3,11 +3,6 @@
 // Unit test and benchmark functions
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "merc.h"
 
 #include "benchmark.h"
@@ -17,16 +12,34 @@
 #include "stringutils.h"
 #include "tests.h"
 
-#include "entities/mobile.h"
+#include <entities/mobile.h>
+#include <entities/room.h>
+#include <entities/area.h>
 
-#include "data/mobile_data.h"
+#include <data/mobile_data.h>
 
-#include "lox/lox.h"
+#include <lox/lox.h>
+#include <lox/memory.h>
+#include <lox/function.h>
+#include <lox/vm.h>
 
-void run_unit_tests()
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+
+void test_room_script_binding();
+void test_namespace();
+
+// Implicitly imported from lox/vm.c
+bool invoke(ObjString* name, int arg_count);
+
+void run_unit_tests2()
 {
     printf("Running unit tests and benchmarks:\n\n");
 
+#ifdef BLAH
     //aggr_update_bnchmk();
 
     //char* source =
@@ -355,7 +368,115 @@ void run_unit_tests()
     //InterpretResult result = interpret_code(source);
     //if (result == INTERPRET_COMPILE_ERROR) exit(65);
     //if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+#endif
+    test_room_script_binding();
+    //test_namespace();
 
-    printf("\nAll tests and benchmarks complete.\n");
+    printf("\nAll tests and benchmarks complete.\n");   
+}
+    
+void test_room_script_binding()
+{
+    // Mock AreaData
+    AreaData* ad = new_area_data();
+    push(OBJ_VAL(ad));
+
+    // Mock RoomData
+    RoomData* rd = new_room_data();
+    push(OBJ_VAL(rd));
+
+    rd->area_data = ad;
+    VNUM_FIELD(rd) = 1000;
+    table_set_vnum(&global_rooms, VNUM_FIELD(rd), OBJ_VAL(rd));
+
+    const char* src =
+        "on_enter() { print \"room entry\"; }"
+        "on_exit() { print \"room exit\"; }";
+
+    ObjClass* room_class = create_entity_class("test_room", src);
+    rd->header.klass = room_class;
+
+    // Mock Area
+    Area* area = create_area_instance(ad, false);
+    push(OBJ_VAL(area));
+
+    // Mock Room
+    Room* r = get_room(area, VNUM_FIELD(rd));
+    push(OBJ_VAL(r));
+
+    // Invoke on_enter
+    bool inv_result = invoke(lox_string("on_enter"), 0);
+
+    if (!inv_result) {
+        bug("test_room_script_binding: invoke on_enter failed.");
+        return;
+    }
+
+    InterpretResult result = run();
+    if (result == INTERPRET_COMPILE_ERROR) exit(65);
+    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+
+    pop(); // room
+    pop(); // area
+    pop(); // room data
+    pop(); // area data
+
+//
+//    const char* src = "fun on_enter() { print \"room entry\"; }";
+//    ObjFunction* wrapper = NULL;
+//    ObjFunction* fn = lox_compile_with_wrapper(src, "on_enter", &wrapper);
+//    if (!fn) {
+//        bug("test_room_script_binding: compile failed.");
+//        pop();
+//        return;
+//    }
+//
+//    rd->lox_functions = ALLOCATE(ObjFunction*, 1);
+//    rd->lox_functions[0] = fn;
+//    rd->lox_function_count = 1;
+//
+//    /*
+//        * Create a minimal AreaData and Area instance so new_room can safely
+//        * attach the room into an Area without dereferencing a NULL pointer.
+//        */
+//    AreaData* ad = new_area_data();
+//    rd->area_data = ad;
+//    /* assign a VNUM for the prototype and register it in global_rooms */
+//    VNUM_FIELD(rd) = 1000;
+//    table_set_vnum(&global_rooms, VNUM_FIELD(rd), OBJ_VAL(rd));
+//
+//    Area* area = create_area_instance(ad, false);
+//    Room* r = get_room(area, VNUM_FIELD(rd));
+//
+//    Value v;
+//    if (table_get(&r->lox_instance->fields, fn->name, &v) && IS_CLOSURE(v)) {
+//        ObjClosure* clos = AS_CLOSURE(v);
+//        invoke_closure(clos, 0);
+//    }
+//
+//    free_room(r);
+//    free_room_data(rd);
+//    pop();
 }
 
+void test_namespace()
+{
+//    const char* src =
+//    "namespace A {\n"
+//    "  var x = \"namespace A x\";\n"
+//    "  fun print_x() {\n"
+//    "    print x;\n"
+//    "  }\n"
+//    "}\n"
+//    "namespace B {\n"
+//    "  var x = \"namespace B x\";\n"
+//    "  fun print_x() {\n"
+//    "    print x;\n"
+//    "  }\n"
+//    "}\n"
+//    "A.print_x();\n"
+//    "B.print_x();\n";
+//    InterpretResult result = interpret_code(src);
+//    if (result == INTERPRET_COMPILE_ERROR) exit(65);
+//    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+}

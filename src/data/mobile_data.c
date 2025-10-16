@@ -4,7 +4,7 @@
 
 #include "mobile_data.h"
 
-#include "lookup.h"
+#include <lookup.h>
 
 const PositionInfo position_table[POS_MAX] = {
     { POS_DEAD,         "dead",             "dead"  },
@@ -23,6 +23,7 @@ const SexInfo sex_table[SEX_COUNT] = {
     { SEX_MALE,     "male",     "he",   "He",   "him",  "his",     },
     { SEX_FEMALE,   "female",   "she",  "She",  "her",  "her",     },
     { SEX_EITHER,   "either",   "they", "They", "them", "their",   },
+    { SEX_YOU,      "you",      "you",  "You",  "You",  "your",    },
 };
 
 const MobSizeInfo mob_size_table[MOB_SIZE_COUNT] = {

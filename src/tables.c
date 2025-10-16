@@ -284,6 +284,7 @@ const struct flag_type mprog_flag_table[] = {
     { "exall",          TRIG_EXALL,         true    },
     { "delay",          TRIG_DELAY,         true    },
     { "surr",           TRIG_SURR,          true    },
+    { "login",          TRIG_LOGIN,         true    },
     { NULL,             0,                  true    }
 };
 

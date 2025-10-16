@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdint.h>
 
 #ifndef _MSC_VER
 #include <stddef.h>
@@ -249,7 +250,7 @@ extern bool merc_down;                      // Shutdown
 extern bool wizlock;                        // Game is wizlocked
 extern bool newlock;                        // Game is newlocked
 extern time_t current_time;
-extern bool MOBtrigger;
+extern bool events_enabled;
 
 // db.c
 extern char str_empty[1];

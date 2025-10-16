@@ -10,11 +10,13 @@ typedef struct quest_status_t QuestStatus;
 typedef struct quest_target_t QuestTarget;
 typedef struct quest_log_t QuestLog;
 
-#include "merc.h"
+#include <merc.h>
 
-#include "tables.h"
+#include <tables.h>
 
-#include "entities/area.h"
+#include <entities/area.h>
+
+#include <lox/value.h>
 
 typedef enum quest_type_t {
     QUEST_VISIT_MOB,
@@ -84,6 +86,12 @@ void save_quests(FILE* fp, AreaData* area);
 bool can_quest(Mobile* ch, VNUM vnum);
 bool has_quest(Mobile* ch, VNUM vnum);
 bool can_finish_quest(Mobile* ch, VNUM vnum);
+
+Value can_quest_lox(Value receiver, int arg_count, Value* args);
+Value has_quest_lox(Value receiver, int arg_count, Value* args);
+Value grant_quest_lox(Value receiver, int arg_count, Value* args);
+Value can_finish_quest_lox(Value receiver, int arg_count, Value* args);
+Value finish_quest_lox(Value receiver, int arg_count, Value* args);
 
 extern int quest_count;
 extern int quest_perm_count;

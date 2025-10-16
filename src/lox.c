@@ -91,12 +91,16 @@ static void load_lox_script(const char* source_file)
         }
 
         script_name = fread_lox_string(fp);
-        
+        push(OBJ_VAL(script_name));
+
         raw_source = fread_lox_script(fp);
         int len = (int)strlen(raw_source);
         source = copy_string(raw_source, len);
+        push(OBJ_VAL(source));
 
         table_set(targ_table, script_name, OBJ_VAL(source));
+        pop();
+        pop();
 
 #ifdef DEBUG_INTEGRATION
         printf("      * Compiling %s()\n", script_name->chars);
@@ -111,7 +115,7 @@ static void load_lox_script(const char* source_file)
 }
 
 // Used to load lox scripts from the scripts/ directory on bootup
-void load_lox_scripts()
+void load_lox_public_scripts()
 {
     FILE* fp;
     char buf[MAX_INPUT_LENGTH*2];

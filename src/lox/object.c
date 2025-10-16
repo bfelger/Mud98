@@ -4,16 +4,18 @@
 // Shared under the MIT License
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "memory.h"
+#include "object.h"
+#include "table.h"
+#include "value.h"
+#include "vm.h"
+
+#include <db.h>
+
+#include <data/events.h>
+
 #include <stdio.h>
 #include <string.h>
-
-#include "db.h"
-
-#include "lox/memory.h"
-#include "lox/object.h"
-#include "lox/table.h"
-#include "lox/value.h"
-#include "lox/vm.h"
 
 extern char* string_space;
 extern char* top_string;
@@ -288,6 +290,10 @@ void print_object(Value value)
         lox_printf("<list (%d elements)>", AS_LIST(value)->count);
         break;
     //
+    case OBJ_EVENT:
+        lox_printf("<event %s>", AS_EVENT(value)->func_name->chars);
+        break;
+    //
     case OBJ_AREA:
         lox_printf("<area %s (%d)>", NAME_STR(AS_AREA(value)), 
             VNUM_FIELD(AS_AREA(value)));
@@ -319,6 +325,9 @@ void print_object(Value value)
     case OBJ_MOB_PROTO:
         lox_printf("<mob_proto %s (%d)>", NAME_STR(AS_MOB_PROTO(value)),
             VNUM_FIELD(AS_MOB_PROTO(value)));
+        break;
+    default:
+        lox_printf("<obj of unknown type %d>", OBJ_TYPE(value));
         break;
     } // end switch
 }

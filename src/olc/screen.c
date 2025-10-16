@@ -68,7 +68,7 @@ char* progs(void* point)
             strcat(buf, "#Num  Vnum  Trigger Phrase     {x\n\r");
 
         sprintf(tmpbuf, "%3d %5d %7.7s %s\n\r", cnt,
-            list->vnum, mprog_type_to_name(list->trig_type),
+            list->vnum, event_trigger_name(list->trig_type),
             list->trig_phrase);
         strcat(buf, tmpbuf);
         cnt++;

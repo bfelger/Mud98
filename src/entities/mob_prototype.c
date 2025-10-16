@@ -313,7 +313,7 @@ void load_mobiles(FILE* fp)
                     bug("MOBprogs: invalid trigger.", 0);
                     exit(1);
                 }
-                SET_BIT(p_mob_proto->mprog_flags, trigger);
+                SET_BIT(p_mob_proto->event_flags, trigger);
                 pMprog->trig_type = trigger;
                 pMprog->vnum = fread_number(fp);
                 pMprog->trig_phrase = fread_string(fp);

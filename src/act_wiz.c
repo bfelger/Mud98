@@ -3080,7 +3080,7 @@ void do_mset(Mobile* ch, char* argument)
     }
 
     if (!str_prefix(arg2, "sex")) {
-        if (value < 0 || value >= SEX_COUNT) {
+        if (value < 0 || value > SEX_PLR_MAX) {
             printf_to_char(ch, "Sex range is 0 to %d.\n\r", SEX_COUNT-1);
             return;
         }

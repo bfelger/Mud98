@@ -8,13 +8,16 @@
 #ifndef clox_vm_h
 #define clox_vm_h
 
+#include "lox.h"
+#include "common.h"
+
+#include "object.h"
+#include "table.h"
+#include "value.h"
+
 #include <stdarg.h>
 
-#include "lox/lox.h"
-
-#include "lox/object.h"
-#include "lox/table.h"
-#include "lox/value.h"
+typedef struct entity_t Entity;
 
 #define FRAMES_MAX 128
 #define STACK_MAX (FRAMES_MAX * UINT8_COUNT)
@@ -52,8 +55,10 @@ void free_vm();
 InterpretResult interpret_code(const char* source);
 void push(Value value);
 Value pop();
+Value peek(int distance);
 InterpretResult run();
 void runtime_error(const char* format, ...);
 InterpretResult call_function(const char* fn_name, int count, ...);
+void init_entity_class(Entity* entity);
 
 #endif

@@ -6,16 +6,29 @@
 #ifndef MUD98__ENTITIES__ENTITY_H
 #define MUD98__ENTITIES__ENTITY_H
 
-#include "lox/lox.h"
+#include <lox/lox.h>
 
-typedef struct {
+typedef struct entity_t {
     Obj obj;
-    Table fields;
     ObjString* name;
+    Table fields;
+    ObjClass* klass;
+    ObjString* script;
     int32_t vnum;
-} EntityHeader;
+    List events;
+    FLAGS event_triggers;
+} Entity;
 
-void init_header(EntityHeader* header, ObjType type);
+void init_header(Entity* header, ObjType type);
+ObjClass* create_entity_class(const char* name, const char* bare_class_source);
+Value is_obj_lox(Value receiver, int arg_count, Value* args);
+Value is_obj_proto_lox(Value receiver, int arg_count, Value* args);
+Value is_mob_lox(Value receiver, int arg_count, Value* args);
+Value is_mob_proto_lox(Value receiver, int arg_count, Value* args);
+Value is_room_lox(Value receiver, int arg_count, Value* args);
+Value is_room_data_lox(Value receiver, int arg_count, Value* args);
+Value is_area_lox(Value receiver, int arg_count, Value* args);
+Value is_area_data_lox(Value receiver, int arg_count, Value* args);
 
 #define SET_NATIVE_FIELD(inst, src, tgt, TYPE)                                 \
 {                                                                              \
@@ -41,7 +54,7 @@ void init_header(EntityHeader* header, ObjType type);
     pop();                                                                     \
 }
 
-static inline void set_name(EntityHeader* header, ObjString* new_name)
+static inline void set_name(Entity* header, ObjString* new_name)
 {
     header->name = new_name;
     SET_LOX_FIELD(header, header->name, name);
@@ -55,5 +68,7 @@ static inline void set_name(EntityHeader* header, ObjString* new_name)
 #define NAME_FIELD(obj)     (obj->header.name)
 
 #define VNUM_FIELD(obj)     (obj->header.vnum)
+
+void add_event(Entity* entity, Event* event);
 
 #endif // !MUD98__ENTITIES__ENTITY_H

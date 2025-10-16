@@ -26,7 +26,7 @@ typedef struct mob_prototype_t MobPrototype;
 #include <stdbool.h>
 
 typedef struct mob_prototype_t {
-    EntityHeader header;
+    Entity header;
     MobPrototype* next;
     SpecFunc* spec_fun;
     ShopData* pShop;
@@ -44,7 +44,7 @@ typedef struct mob_prototype_t {
     FLAGS vuln_flags;
     FLAGS form;
     FLAGS parts;
-    FLAGS mprog_flags;
+    FLAGS event_flags;
     int wealth;
     int16_t hit[3];
     int16_t mana[3];

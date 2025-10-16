@@ -35,6 +35,8 @@ Mobile* new_mobile()
 
     SET_NATIVE_FIELD(&mob->header, mob->hit, hp, I16);
     SET_NATIVE_FIELD(&mob->header, mob->max_hit, max_hp, I16);
+    SET_NATIVE_FIELD(&mob->header, mob->race, race, I16);
+    SET_NATIVE_FIELD(&mob->header, mob->level, level, I16);
 
     SET_LOX_FIELD(&mob->header, mob->in_room, in_room);
     SET_LOX_FIELD(&mob->header, mob->was_in_room, was_in_room);

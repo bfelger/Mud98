@@ -10,16 +10,17 @@
 
 #include <stdarg.h>
 
+typedef struct entity_t Entity;
 typedef struct room_t Room;
 typedef struct mobile_t Mobile;
 typedef struct object_t Object;
 
-#include "lox/array.h"
-#include "lox/function.h"
-#include "lox/list.h"
-#include "lox/object.h"
-#include "lox/table.h"
-#include "lox/value.h"
+#include "array.h"
+#include "function.h"
+#include "list.h"
+#include "object.h"
+#include "table.h"
+#include "value.h"
 
 typedef enum {
     INTERPRET_OK,
@@ -29,12 +30,12 @@ typedef enum {
 
 typedef struct {
     Mobile* me;
+    Entity* this_;
 } CompileContext;
 
 typedef struct {
-    Room* here;
     Mobile* me;
-    Object* this_;
+    Entity* this_;
     bool is_repl;
 } ExecContext;
 

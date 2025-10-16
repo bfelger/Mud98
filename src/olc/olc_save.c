@@ -271,7 +271,7 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
 
     FOR_EACH(pMprog, p_mob_proto->mprogs) {
         fprintf(fp, "M '%s' %"PRVNUM" %s~\n",
-            mprog_type_to_name(pMprog->trig_type), pMprog->vnum,
+            event_trigger_name(pMprog->trig_type), pMprog->vnum,
             pMprog->trig_phrase);
     }
 

@@ -168,6 +168,21 @@ static Value saves_spell_native(int arg_count, Value* args)
     return BOOL_VAL(retval);
 }
 
+static Value delay_native(int arg_count, Value* args)
+{
+    if (arg_count != 3 || !IS_INT(args[0]) || !IS_CLOSURE(args[1])) {
+        runtime_error("delay(): Expected interval and closure as arguments.");
+        return FALSE_VAL;
+    }
+
+    int32_t interval = AS_INT(args[0]);
+    ObjClosure* closure = AS_CLOSURE(args[1]);
+
+    add_event_timer(closure, interval);
+
+    return TRUE_VAL;
+}
+
 const NativeFuncEntry native_func_entries[] = {
     { "clock",          clock_native                },
     { "damage",         damage_native               },
@@ -177,5 +192,6 @@ const NativeFuncEntry native_func_entries[] = {
     { "saves_spell",    saves_spell_native          },
     { "string",         string_native               },
     { "floor",          floor_native                },
+    { "delay",          delay_native                },
     { NULL,             NULL                        },
 };

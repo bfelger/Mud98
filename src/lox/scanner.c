@@ -4,11 +4,11 @@
 // Shared under the MIT License
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "common.h"
+#include "scanner.h"
+
 #include <stdio.h>
 #include <string.h>
-
-#include "lox/common.h"
-#include "lox/scanner.h"
 
 Scanner scanner;
 
@@ -61,7 +61,7 @@ static bool match(char expected)
     return true;
 }
 
-static Token make_token(TokenType type)
+static Token make_token(LoxTokenType type)
 {
     Token token = { 0 };
     token.type = type;
@@ -110,7 +110,7 @@ static void skip_whitespace()
     }
 }
 
-static TokenType check_keyword(int start, int length, const char* rest, TokenType type)
+static LoxTokenType check_keyword(int start, int length, const char* rest, LoxTokenType type)
 {
     if ((ptrdiff_t)(scanner.current - scanner.start) == (ptrdiff_t)start + length &&
         memcmp(scanner.start + start, rest, length) == 0) {
@@ -120,7 +120,7 @@ static TokenType check_keyword(int start, int length, const char* rest, TokenTyp
     return TOKEN_IDENTIFIER;
 }
 
-static TokenType identifier_type()
+static LoxTokenType identifier_type()
 {
     switch (scanner.start[0]) {
     case 'a': return check_keyword(1, 2, "nd", TOKEN_AND);

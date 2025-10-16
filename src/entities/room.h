@@ -10,20 +10,20 @@ typedef struct room_data_t RoomData;
 #ifndef MUD98__ENTITIES__ROOM_H
 #define MUD98__ENTITIES__ROOM_H
 
-#include "merc.h"
+#include <merc.h>
 
-#include "data/direction.h"
+#include <data/direction.h>
 
-#include "entities/entity.h"
-#include "entities/extra_desc.h"
-#include "entities/mobile.h"
-#include "entities/room_exit.h"
-#include "entities/object.h"
-#include "entities/reset.h"
+#include "entity.h"
+#include "extra_desc.h"
+#include "mobile.h"
+#include "room_exit.h"
+#include "object.h"
+#include "reset.h"
 
-#include "lox/lox.h"
-#include "lox/list.h"
-#include "lox/table.h"
+#include <lox/lox.h>
+#include <lox/list.h>
+#include <lox/table.h>
 
 // Static room VNUMs
 #define ROOM_VNUM_LIMBO         2
@@ -59,7 +59,7 @@ typedef enum room_flags_t {
 } RoomFlags;
 
 typedef struct room_t {
-    EntityHeader header;
+    Entity header;
     Room* next;
     List mobiles;
     List objects;
@@ -70,7 +70,7 @@ typedef struct room_t {
 } Room;
 
 typedef struct room_data_t {
-    EntityHeader header;
+    Entity header;
     RoomData* next;
     List instances;
     ExtraDesc* extra_desc;

@@ -13,15 +13,41 @@
 #include "lox/memory.h"
 #include "lox/value.h"
 
+#include <db.h>
+
 void printf_to_char(Mobile*, const char*, ...);
+
+extern bool test_output_enabled;
+extern Value test_output_buffer;
 
 void lox_printf(const char* format, ...)
 {
     va_list args;
     va_start(args, format);
 
-    if (exec_context.me != NULL) {
-        char buf[4608];
+    char buf[4608];
+
+    if (test_output_enabled) {
+        vsprintf(buf, format, args);
+        if (IS_NIL(test_output_buffer)) {
+            test_output_buffer = OBJ_VAL(copy_string(buf, (int)strlen(buf)));
+        }
+        else {
+            ObjString* a = AS_STRING(test_output_buffer);
+
+            size_t length = a->length + strlen(buf);
+            char* chars = ALLOCATE(char, length + 1);
+            memcpy(chars, a->chars, a->length);
+            memcpy(chars + a->length, buf, strlen(buf));
+            chars[length] = '\0';
+
+            ObjString* result = take_string(chars, (int)length);
+
+            //char* new_str = str_append(AS_STRING(test_output_buffer)->chars, buf);
+            test_output_buffer = OBJ_VAL(result);
+        }
+    }
+    else if (exec_context.me != NULL) {
         vsprintf(buf, format, args);
         printf_to_char(exec_context.me, "%s", buf);
     }
@@ -85,6 +111,42 @@ void print_value(Value value)
     }
     else if (IS_OBJ(value)) {
         print_object(value);
+    }
+#else
+    switch (value.type) {
+    case VAL_BOOL:
+        lox_printf("%s", AS_BOOL(value) ? "true" : "false");
+        break;
+    case VAL_NIL: lox_printf("nil"); break;
+    case VAL_NUMBER: lox_printf("%g", AS_NUMBER(value)); break;
+    case VAL_OBJ: print_object(value); break;
+    }
+#endif
+}
+
+void print_value_debug(Value value)
+{
+#ifdef NAN_BOXING
+    if (IS_BOOL(value)) {
+        lox_printf("%s <bool>", AS_BOOL(value) ? "true" : "false");
+    }
+    else if (IS_NIL(value)) {
+        lox_printf("nil");
+    }
+    else if (IS_DOUBLE(value)) {
+        lox_printf("%g <double>", AS_DOUBLE(value));
+    }
+    else if (IS_INT(value)) {
+        lox_printf("%d <int>", AS_INT(value));
+    }
+    else if (IS_STRING(value)) {
+        lox_printf("\"%s\"", AS_STRING(value)->chars);
+    }
+    else if (IS_OBJ(value)) {
+        print_object(value);
+    }
+    else {
+        lox_printf("Unknown value type: 0x%016llx", (uint64_t)value);
     }
 #else
     switch (value.type) {

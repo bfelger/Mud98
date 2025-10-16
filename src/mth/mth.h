@@ -15,7 +15,9 @@ typedef struct mud_data MUD_DATA;
 
 #include <stdint.h>
 
+#ifndef NO_ZLIB
 #include <zlib.h>
+#endif
 
 /*
     Utility macros.
@@ -121,8 +123,10 @@ typedef struct mth_data {
     int comm_flags;
     short cols;
     short rows;
+#ifndef NO_ZLIB
     z_stream* mccp2;
     z_stream* mccp3;
+#endif
 } MTH_DATA;
 
 extern MUD_DATA* mud;

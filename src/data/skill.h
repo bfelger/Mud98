@@ -6,12 +6,16 @@
 #ifndef MUD86__DATA__SKILL_H
 #define MUD86__DATA__SKILL_H
 
-#include "merc.h"
+#include <merc.h>
 
-#include "array.h"
 #include "class.h"
 #include "mobile_data.h"
 #include "spell.h"
+
+#include <array.h>
+
+#include <lox/function.h>
+#include <lox/lox.h>
 
 #define DEFAULT_SKILL_RATING    0
 #define DEFAULT_SKILL_LEVEL     53

@@ -46,6 +46,8 @@ const SaveTableEntry race_save_table[] = {
     { NULL,		        0,				            0,			                0,		            0           }
 };
 
+void init_race_table_lox();
+
 void load_race_table()
 {
     FILE* fp;
@@ -85,6 +87,37 @@ void load_race_table()
             return;
         }
     }
+
+    init_race_table_lox();
+}
+
+void init_race_table_lox()
+{
+    static char* race_start =
+        "class race_t { "
+        "   init() { ";
+
+    static char* race_end =
+        "   }"
+        "}"
+        "var Race = race_t();";
+
+    INIT_BUF(src, MSL);
+
+    add_buf(src, race_start);
+
+    for (int i = 0; i < race_count; ++i) {
+        addf_buf(src, "       this.%s = %d;", capitalize(race_table[i].name), i);
+    }
+
+    add_buf(src, race_end);
+
+    InterpretResult result = interpret_code(src->string);
+
+    if (result == INTERPRET_COMPILE_ERROR) exit(65);
+    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+
+    free_buf(src);
 }
 
 void save_race_table()

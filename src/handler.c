@@ -458,7 +458,7 @@ void reset_char(Mobile* ch)
                     switch (af->location) {
                     case APPLY_SEX:
                         ch->sex -= mod;
-                        if (ch->sex < 0 || ch->sex >= SEX_COUNT)
+                        if (ch->sex < 0 || ch->sex > SEX_PLR_MAX)
                             ch->sex = IS_NPC(ch) ? 0 : ch->pcdata->true_sex;
                         break;
                     case APPLY_MANA:
@@ -501,7 +501,7 @@ void reset_char(Mobile* ch)
         ch->pcdata->perm_move = ch->max_move;
         ch->pcdata->last_level = (int16_t)(ch->played / 3600);
         if (ch->pcdata->true_sex < 0 || ch->pcdata->true_sex > 2) {
-            if (ch->sex >= 0 && ch->sex < SEX_COUNT)
+            if (ch->sex >= 0 && ch->sex < SEX_PLR_MAX)
                 ch->pcdata->true_sex = ch->sex;
             else
                 ch->pcdata->true_sex = SEX_NEUTRAL;
@@ -722,7 +722,7 @@ void reset_char(Mobile* ch)
     }
 
     /* make sure sex is RIGHT!!!! */
-    if (ch->sex < 0 || ch->sex >= SEX_COUNT) 
+    if (ch->sex < 0 || ch->sex > SEX_PLR_MAX) 
         ch->sex = ch->pcdata->true_sex;
 }
 

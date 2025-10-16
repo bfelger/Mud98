@@ -1108,7 +1108,7 @@ void program_flow(
  */
 void mp_act_trigger(
     char* argument, Mobile* mob, Mobile* ch,
-    const void* arg1, const void* arg2, MobProgTrigger trig_type)
+    const void* arg1, const void* arg2, EventTrigger trig_type)
 {
     MobProg* prg;
 
@@ -1128,7 +1128,7 @@ void mp_act_trigger(
  */
 bool mp_percent_trigger(
     Mobile* mob, Mobile* ch,
-    const void* arg1, const void* arg2, MobProgTrigger trig_type)
+    const void* arg1, const void* arg2, EventTrigger trig_type)
 {
     MobProg* prg;
 

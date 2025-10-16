@@ -52,23 +52,25 @@
 #include "telnet.h"
 #include "vt.h"
 
-#include "olc/olc.h"
-#include "olc/screen.h"
-#include "olc/string_edit.h"
+#include <olc/olc.h>
+#include <olc/screen.h>
+#include <olc/string_edit.h>
 
-#include "entities/area.h"
-#include "entities/descriptor.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
+#include <entities/area.h>
+#include <entities/descriptor.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
 
-#include "data/class.h"
-#include "data/mobile_data.h"
-#include "data/player.h"
-#include "data/race.h"
+#include <data/class.h>
+#include <data/mobile_data.h>
+#include <data/player.h>
+#include <data/race.h>
 
-#include "lox/lox.h"
+#include <lox/lox.h>
+#include <lox/object.h>
+#include <lox/vm.h>
 
-#include "mth/mth.h"
+#include <mth/mth.h>
 
 #include <ctype.h>
 #include <errno.h>
@@ -1754,6 +1756,20 @@ void nanny(Descriptor * d, char* argument)
 
             ch->in_room = get_room_for_player(ch, start_loc);
             mob_to_room(ch, ch->in_room);
+            //// Fire any TRIG_LOGIN events attached to this room's prototype
+            //{
+            //    Room* r = ch->in_room;
+            //    for (Node* node = r->data->header.events.front; node != NULL; node = node->next) {
+            //        Event* e = (Event*)node->value;
+            //        if (e && IS_SET(e->trigger, TRIG_LOGIN)) {
+            //            ObjClosure* clos = resolve_event_closure_for_room(r, e);
+            //            if (clos) {
+            //                /* Invoke closure with (room, mobile) args */
+            //                invoke_closure(clos, 2, OBJ_VAL(r), OBJ_VAL(ch));
+            //            }
+            //        }
+            //    }
+            //}
         }
         else if (ch->in_room != NULL) {
             mob_to_room(ch, ch->in_room);
@@ -1980,10 +1996,11 @@ bool write_to_descriptor(Descriptor* d, char* txt, size_t length)
     if (length <= 0)
         length = strlen(txt);
 
+#ifndef NO_ZLIB
     if (d->mth->mccp2) {
         write_mccp2(d, txt, length);
         return true;
-    }
+#endif
 
     for (size_t start = 0; start < length; start += s_bytes) {
         block = (int)UMIN(length - start, 4096);
@@ -2242,7 +2259,7 @@ show_string_cleanup:
 /* quick sex fixer */
 void fix_sex(Mobile * ch)
 {
-    if (ch->sex < 0 || ch->sex >= SEX_COUNT)
+    if (ch->sex < 0 || ch->sex > SEX_PLR_MAX)
         ch->sex = IS_NPC(ch) ? 0 : ch->pcdata->true_sex;
 }
 
@@ -2319,7 +2336,7 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
 
     FOR_EACH_ROOM_MOB(to, to_room) {
         if ((!IS_NPC(to) && to->desc == NULL)
-            || (IS_NPC(to) && !HAS_TRIGGER(to, TRIG_ACT))
+            || (IS_NPC(to) && !HAS_TRIGGER(to, TRIG_ACT) && !HAS_EVENT_TRIGGER(to, TRIG_ACT))
             || to->position < min_pos)
             continue;
 
@@ -2331,6 +2348,9 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
             continue;
         if (type == TO_NOTVICT && (to == ch || to == vch)) 
             continue;
+
+        // Display "you" forms to victim.
+        int vch_sex = (vch != NULL && to != vch) ? vch->sex : SEX_YOU;
 
         point = buf;
         str = format;
@@ -2369,19 +2389,20 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
                     i = sex_table[ch->sex].subj;
                     break;
                 case 'E':
-                    i = sex_table[ch->sex].subj;
+                    i = sex_table[vch_sex].subj;
                     break;
                 case 'm':
                     i = sex_table[ch->sex].obj;
                     break;
                 case 'M':
-                    i = sex_table[ch->sex].obj;
+                    i = sex_table[vch_sex].obj;
                     break;
                 case 's':
                     i = sex_table[ch->sex].poss;
                     break;
                 case 'S':
-                    i = sex_table[ch->sex].poss;
+                    if (to == vch)
+                    i = sex_table[vch_sex].poss;
                     break;
 
                 case 'p':
@@ -2418,10 +2439,10 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
         if (to->desc != NULL) {
             pbuff = buffer;
             colourconv(pbuff, buf, to);
-            write_to_buffer(to->desc, buffer, 0);
-            //write_to_buffer(to->desc, buf, point - buf);
+            //write_to_buffer(to->desc, buffer, 0);
+            write_to_buffer(to->desc, buf, point - buf);
         }
-        else if (MOBtrigger) {
+        else if (events_enabled) {
             mp_act_trigger(buf, to, ch, arg1, arg2, TRIG_ACT);
         }
 

@@ -722,11 +722,11 @@ void do_give(Mobile* ch, char* argument)
 
     obj_from_char(obj);
     obj_to_char(obj, victim);
-    MOBtrigger = false;
+    events_enabled = false;
     act("$n gives $p to $N.", ch, obj, victim, TO_NOTVICT);
     act("$n gives you $p.", ch, obj, victim, TO_VICT);
     act("You give $p to $N.", ch, obj, victim, TO_CHAR);
-    MOBtrigger = true;
+    events_enabled = true;
 
     // Give trigger
     if (IS_NPC(victim) && HAS_TRIGGER(victim, TRIG_GIVE))

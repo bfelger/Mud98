@@ -8,19 +8,19 @@ typedef struct obj_prototype_t ObjPrototype;
 #ifndef MUD98__ENTITIES__OBJ_PROTOTYPE_H
 #define MUD98__ENTITIES__OBJ_PROTOTYPE_H
 
-#include "merc.h"
+#include <merc.h>
 
-#include "data/item.h"
+#include <data/item.h>
 
-#include "entities/affect.h"
-#include "entities/area.h"
-#include "entities/entity.h"
-#include "entities/extra_desc.h"
+#include <entities/affect.h>
+#include <entities/area.h>
+#include <entities/entity.h>
+#include <entities/extra_desc.h>
 
-#include "lox/lox.h"
+#include <lox/lox.h>
 
 typedef struct obj_prototype_t {
-    EntityHeader header;
+    Entity header;
     ObjPrototype* next;
     ExtraDesc* extra_desc;
     Affect* affected;

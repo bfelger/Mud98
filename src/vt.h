@@ -81,8 +81,8 @@
 // Extended 16-bit and 24-bit VT102 codes, by Halivar
 ////////////////////////////////////////////////////////////////////////////////
 
-// These Select Graphic Rendition (SGR) codes are defined by ISO 8613-6 for as 
-// an extension to EMCA-48
+// These Select Graphic Rendition (SGR) codes are defined by ISO 8613-6 as an
+// extension to EMCA-48
 
 #define SGR_MODE_DARK           0
 #define SGR_MODE_LIGHT          1

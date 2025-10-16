@@ -39,7 +39,9 @@
 
 #include "interp.h"
 
-#include "entities/mobile.h"
+#include <data/events.h>
+
+#include <entities/mobile.h>
 
 typedef struct mob_cmd_type {
     const char* name;
@@ -85,6 +87,6 @@ DECLARE_DO_FUN(do_mpremove);
 DECLARE_DO_FUN(do_mpquest);
 
 void mob_interpret(Mobile* ch, char* argument);
-char* mprog_type_to_name(MobProgTrigger);
+char* event_trigger_name(EventTrigger);
 
 #endif // !MUD98__MOB_CMDS_H

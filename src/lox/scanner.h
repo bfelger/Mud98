@@ -36,10 +36,10 @@ typedef enum {
     TOKEN_SELF,
 
     TOKEN_ERROR, TOKEN_EOF
-} TokenType;
+} LoxTokenType;
 
 typedef struct {
-    TokenType type;
+    LoxTokenType type;
     const char* start;
     int length;
     int line;

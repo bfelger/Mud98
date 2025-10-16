@@ -16,3 +16,4 @@ keys/*.key
 keys/*.pem
 olc2.1e/*
 area/shutdown.txt
+/src.*

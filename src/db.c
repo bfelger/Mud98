@@ -47,30 +47,32 @@
 #include "tables.h"
 #include "weather.h"
 
-#include "olc/olc.h"
+#include <olc/olc.h>
 
-#include "entities/area.h"
-#include "entities/descriptor.h"
-#include "entities/room_exit.h"
-#include "entities/mob_prototype.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
-#include "entities/reset.h"
-#include "entities/room.h"
-#include "entities/shop_data.h"
+#include <entities/area.h>
+#include <entities/descriptor.h>
+#include <entities/room_exit.h>
+#include <entities/mob_prototype.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
+#include <entities/reset.h>
+#include <entities/room.h>
+#include <entities/shop_data.h>
 
-#include "data/class.h"
-#include "data/direction.h"
-#include "data/mobile_data.h"
-#include "data/race.h"
-#include "data/skill.h"
-#include "data/social.h"
+#include <data/class.h>
+#include <data/direction.h>
+#include <data/events.h>
+#include <data/mobile_data.h>
+#include <data/race.h>
+#include <data/skill.h>
+#include <data/social.h>
 
-#include "mth/mth.h"
+#include <mth/mth.h>
 
-#include "lox/lox.h"
-#include "lox/native.h"
-#include "lox/object.h"
+#include <lox/lox.h>
+#include <lox/native.h>
+#include <lox/object.h>
+#include <lox/memory.h>
 
 #include <ctype.h>
 #include <stdarg.h>
@@ -90,8 +92,12 @@
 #include <unistd.h>
 #endif
 
-void load_lox_scripts();
+void load_lox_public_scripts();
 MobProgCode* pedit_prog(VNUM);
+
+void load_lox_scripts(FILE* fp);
+void load_event(FILE* fp, Entity* owner);
+//void verify_lox_event_bindings(void);
 
 // Globals.
 
@@ -161,7 +167,8 @@ void load_shops(FILE* fp);
 void load_specials(FILE* fp);
 void load_notes();
 void load_mobprogs(FILE* fp);
-void load_lox_scripts();
+void load_lox_scripts(FILE* fp);
+void load_events(FILE* fp, Entity* owner);
 
 void fix_exits();
 void fix_mobprogs();
@@ -198,7 +205,7 @@ void boot_db()
     init_vm();
 
     init_const_natives();
-    load_lox_scripts();
+    load_lox_public_scripts();
 
     load_skill_table();
     load_class_table();
@@ -267,6 +274,8 @@ void boot_db()
                     load_mobiles(strArea);
                 else if (!str_cmp(word, "MOBPROGS"))
                     load_mobprogs(strArea);
+                else if (!str_cmp(word, "LOX"))
+                    load_lox_scripts(strArea);
                 else if (!str_cmp(word, "OBJECTS"))
                     load_objects(strArea);
                 else if (!str_cmp(word, "RESETS"))
@@ -296,6 +305,9 @@ void boot_db()
         close_file(fpList);
     }
 
+    //// Run boot-time verification of Lox event bindings on prototypes.
+    //verify_lox_event_bindings();
+    //
     init_world_natives();
 
     /*
@@ -664,6 +676,23 @@ void load_rooms(FILE* fp)
                 room_data->owner = fread_string(fp);
             }
 
+            else if (letter == 'V') {
+                load_event(fp, &room_data->header);
+            }
+
+            else if (letter == 'L') {
+                char room_class_name[MAX_INPUT_LENGTH];
+                String* script = fread_lox_string(fp);
+                sprintf(room_class_name, "room_%" PRVNUM, vnum);
+
+                ObjClass* klass = create_entity_class(room_class_name, script->chars);
+                if (!klass) {
+                    bugf("load_rooms: failed to create room class for room %" PRVNUM, vnum);
+                }
+                else {
+                    room_data->header.klass = klass;
+                }
+            }
             else {
                 bug("Load_rooms: vnum %"PRVNUM" has flag not 'DES'.", vnum);
                 exit(1);
@@ -714,6 +743,35 @@ void load_shops(FILE* fp)
         if (shop)
             shop->next = NULL;
     }
+}
+
+void load_event(FILE* fp, Entity* owner)
+{
+    Event* event;
+    char* keyword;
+
+    if ((event = new_event()) == NULL) {
+        perror("load_event: could not allocate new Event!");
+        exit(-1);
+    }
+
+    /* Read trigger keyword */
+    keyword = fread_string(fp);
+    if ((event->trigger = flag_lookup(keyword, mprog_flag_table)) == NO_FLAG) {
+        bugf("load_event: invalid trigger '%s'.", keyword);
+        event->trigger = 0;
+    }
+
+    /* Read the event name (lox string) */
+    event->name = fread_lox_string(fp);
+
+    /* Read the function name to call on event (lox string) */
+    event->func_name = fread_lox_string(fp);
+
+    event->criteria = NIL_VAL;
+    event->closure = NULL;
+    
+    add_event(owner, event);
 }
 
 // Snarf spec proc declarations.
@@ -893,6 +951,64 @@ void area_update()
 
     return;
 }
+
+// Load Lox section
+void load_lox_scripts(FILE* fp)
+{
+//    char word[MAX_INPUT_LENGTH];
+//
+//    while (fscanf(fp, "%s", word) == 1) {
+//        if (strcmp(word, "#END") == 0)
+//            break;
+//
+//        // Consume a script name and body so the file pointer advances
+//        String* name = fread_lox_string(fp);
+//        char* body = fread_lox_script(fp);
+//        if (body) free(body);
+//        (void)name; // silence unused variable warning
+//    }
+//
+//    return;
+}
+
+//
+//// Verify that events referencing Lox functions on room prototypes actually
+//// have a corresponding compiled function attached to the RoomData. This
+//// helps catch typos in area files at boot time and warns the builder.
+//void verify_lox_event_bindings()
+//{
+//    RoomData* rd;
+//
+//    FOR_EACH_GLOBAL_ROOM(rd) {
+//        // Iterate events attached to the room prototype
+//        for (Node* n = rd->header.events.front; n != NULL; n = n->next) {
+//            Event* ev = (Event*)n->value;
+//            if (!ev || !ev->func_name || ev->func_name == lox_empty_string)
+//                continue;
+//
+//            bool found = false;
+//
+//            // Look through compiled ObjFunction array for a name match 
+//            for (int i = 0; i < rd->lox_function_count; ++i) {
+//                ObjFunction* fn = rd->lox_functions[i];
+//                if (fn && fn->name && fn->name->chars && ev->func_name->chars
+//                    && strcmp(fn->name->chars, ev->func_name->chars) == 0) {
+//                    found = true;
+//                    break;
+//                }
+//            }
+//
+//            if (!found) {
+//                bugf("verify_lox_event_bindings: room %" PRVNUM
+//                     " references missing Lox function '%s' for event '%s'.",
+//                     VNUM_FIELD(rd), ev->func_name->chars ? ev->func_name->chars : "<null>",
+//                     ev->name && ev->name->chars ? ev->name->chars : "<unnamed>");
+//            }
+//        }
+//    }
+//
+//    return;
+//}
 
 // Load mobprogs section
 void load_mobprogs(FILE* fp)
