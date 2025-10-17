@@ -86,6 +86,7 @@ bool str_prefix(const char* astr, const char* bstr);
 bool str_infix(const char* astr, const char* bstr);
 bool str_suffix(const char* astr, const char* bstr);
 char* capitalize(const char* str);
+char* pascal_case(const char* str);
 void append_file(Mobile* ch, char* file, char* str);
 void bug(const char* fmt, ...);
 void log_string(const char* str);
@@ -93,7 +94,7 @@ String* fread_lox_string(FILE* fp);
 char* fread_lox_script(FILE* fp);
 String* lox_string(const char* str);
 
-void load_lox_class(FILE* fp, const char* entity_type_name, Entity* entity);
+bool load_lox_class(FILE* fp, const char* entity_type_name, Entity* entity);
 
 #define ALLOC(T, v)     T* v = (T*)alloc_mem(sizeof(T))
 

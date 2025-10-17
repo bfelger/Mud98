@@ -87,6 +87,7 @@ Event* new_event()
 {
     LIST_ALLOC_PERM(event, Event);
 
+    event->obj.type = OBJ_EVENT;
     event->trigger = 0;
     event->criteria = NIL_VAL;
     event->method_name = lox_empty_string;
@@ -153,7 +154,12 @@ Event* get_event_by_trigger(Entity* entity, FLAGS trigger)
         return NULL;
 
     for (Node* node = entity->events.front; node != NULL; node = node->next) {
-        Event* ev = (Event*)node->value;
+        if (!IS_EVENT(node->value)) {
+            bug("ERROR: Invalid event node on entity #%"PRVNUM".\n", entity->vnum);
+            continue;
+        }
+
+        Event* ev = AS_EVENT(node->value);
         if (ev && (ev->trigger & trigger) != 0)
             return ev;
     }

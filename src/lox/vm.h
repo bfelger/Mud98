@@ -60,5 +60,6 @@ InterpretResult run();
 void runtime_error(const char* format, ...);
 InterpretResult call_function(const char* fn_name, int count, ...);
 void init_entity_class(Entity* entity);
+void invoke_method_closure(Value receiver, ObjClosure* closure, int count, ...);
 
 #endif

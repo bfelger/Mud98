@@ -84,7 +84,7 @@ void load_race_table()
             close_file(fp);
             race_count = maxrace;
             race_table[i].name = NULL;
-            return;
+            break;
         }
     }
 
@@ -107,7 +107,7 @@ void init_race_table_lox()
     add_buf(src, race_start);
 
     for (int i = 0; i < race_count; ++i) {
-        addf_buf(src, "       this.%s = %d;", capitalize(race_table[i].name), i);
+        addf_buf(src, "       this.%s = %d;", pascal_case(race_table[i].name), i);
     }
 
     add_buf(src, race_end);

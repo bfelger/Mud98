@@ -4,6 +4,8 @@
 
 #include "tests.h"
 
+#include "mock.h"
+
 #include <lox/object.h>
 
 #include <stdio.h>

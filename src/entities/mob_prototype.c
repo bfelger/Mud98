@@ -324,7 +324,10 @@ void load_mobiles(FILE* fp)
                 load_event(fp, &p_mob_proto->header);
             }
             else if (letter == 'L') {
-                load_lox_class(fp, "room", &p_mob_proto->header);
+                if (!load_lox_class(fp, "mob", &p_mob_proto->header)) {
+                    bug("Load_mobiles: vnum %"PRVNUM" has malformed Lox script.", vnum);
+                    exit(1);
+                }
             }
             else {
                 ungetc(letter, fp);

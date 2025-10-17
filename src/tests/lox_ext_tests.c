@@ -81,7 +81,7 @@ static int test_marshaled_raw_vals()
         return 0;
 }
 
-static int test_lambdas()
+static int test_lamdas()
 {
     const char* src =
         "var mob_count = 0\n"
@@ -97,6 +97,37 @@ static int test_lambdas()
     return 0;
 }
 
+static int test_bare_lamdas()
+{
+    const char* src =
+        "var blah = () -> { print \"blah!\" }\n"
+        "blah()\n";
+
+    InterpretResult result = interpret_code(src);
+    ASSERT_OUTPUT_EQ("blah!\n");
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_lamda_values()
+{
+    const char* src =
+        "fun do(a, b) {\n"
+        "    print a\n"
+        "    b()\n"
+        "}\n"
+        "do(\"blah\", () -> {\n"
+        "    print \"duh\"\n"
+        "})\n";
+
+    InterpretResult result = interpret_code(src);
+    ASSERT_OUTPUT_EQ("blah\nduh\n");
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 void register_lox_ext_tests()
 {
 #define REGISTER(n, f)  register_test(&lox_ext_tests, (n), (f))
@@ -106,7 +137,9 @@ void register_lox_ext_tests()
 
     REGISTER("Array Access and Mutation", test_array_access);
     REGISTER("Marshaled Raw Values", test_marshaled_raw_vals);
-    REGISTER("Lambdas", test_lambdas);
+    REGISTER("Lamdas", test_lamdas);
+    REGISTER("Bare Lamdas", test_bare_lamdas);
+    REGISTER("Lamda Values", test_lamda_values);
 
 #undef REGISTER
 }

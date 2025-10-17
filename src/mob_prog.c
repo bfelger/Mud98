@@ -47,11 +47,13 @@
 #include "stringutils.h"
 #include "weather.h"
 
-#include "entities/mobile.h"
-#include "entities/object.h"
+#include <entities/mobile.h>
+#include <entities/object.h>
 
-#include "data/mobile_data.h"
-#include "data/quest.h"
+#include <data/mobile_data.h>
+#include <data/quest.h>
+
+#include <lox/vm.h>
 
 #include <ctype.h>
 #include <stdio.h>
@@ -1256,7 +1258,10 @@ void mp_greet_trigger(Mobile* ch)
 
                     if (closure) {
                         // Invoke the closure with the room and character as parameters
-                        invoke_closure(closure, 2, OBJ_VAL(mob), OBJ_VAL(ch));
+                        //invoke_closure(closure, 2, OBJ_VAL(mob), OBJ_VAL(ch));
+                        //push(OBJ_VAL(mob));
+                        //invoke_closure(closure, 1, OBJ_VAL(ch));
+                        invoke_method_closure(OBJ_VAL(mob), closure, 1, OBJ_VAL(ch));
                     }
                 }
             }

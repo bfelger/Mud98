@@ -679,10 +679,13 @@ void load_rooms(FILE* fp)
             }
 
             else if (letter == 'L') {
-                load_lox_class(fp, "room", &room_data->header);
+                if (!load_lox_class(fp, "room", &room_data->header)) {
+                    bug("Load_rooms: vnum %"PRVNUM" has malformed Lox script.", vnum);
+                    exit(1);
+                }
             }
             else {
-                bug("Load_rooms: vnum %"PRVNUM" has flag not 'DES'.", vnum);
+                bug("Load_rooms: vnum %"PRVNUM" has invalid option '%c'.", vnum, letter);
                 exit(1);
             }
         }
@@ -2379,6 +2382,31 @@ char* capitalize(const char* str)
         strcap[i] = LOWER(str[i]);
     strcap[i] = '\0';
     strcap[0] = UPPER(strcap[0]);
+    return strcap;
+}
+
+// Returns an PascalCased string.
+char* pascal_case(const char* str)
+{
+    static char strcap[MAX_STRING_LENGTH];
+    int i;
+    int p = 0;
+    bool cap = true;
+
+    for (i = 0; str[i] != '\0'; i++) {
+        if (str[i] == ' ') {
+            cap = true;
+        }
+        else if (cap) {
+            strcap[p++] = UPPER(str[i]);
+            cap = false;
+        }
+        else {
+            strcap[p++] = LOWER(str[i]);
+        }
+    }
+    strcap[p] = '\0';
+
     return strcap;
 }
 

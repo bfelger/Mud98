@@ -657,16 +657,18 @@ static bool is_lamda()
 #define NOT_LAMDA() \
     { scanner = current_scanner; return false; }
 
-    Token tok = scan_token();
-    while (tok.type == TOKEN_COMMA) {
-        tok = scan_token();
-        if (tok.type != TOKEN_IDENTIFIER)
-            NOT_LAMDA()
-        tok = scan_token();
-    }
+    if (parser.current.type == TOKEN_IDENTIFIER) {
+        Token tok = scan_token();
+        while (tok.type == TOKEN_COMMA) {
+            tok = scan_token();
+            if (tok.type != TOKEN_IDENTIFIER)
+                NOT_LAMDA()
+                tok = scan_token();
+        }
 
-    if (tok.type != TOKEN_RIGHT_PAREN)
-        NOT_LAMDA()
+        if (tok.type != TOKEN_RIGHT_PAREN)
+            NOT_LAMDA()
+    }
 
     if (scan_token().type != TOKEN_ARROW)
         NOT_LAMDA()
@@ -683,7 +685,8 @@ static bool is_lamda()
 
 static void grouping(bool can_assign)
 {
-    if (parser.current.type == TOKEN_IDENTIFIER && is_lamda()) {
+    if ((parser.current.type == TOKEN_IDENTIFIER 
+        || parser.current.type == TOKEN_RIGHT_PAREN) && is_lamda()) {
         lamda(can_assign);
     }
     else {

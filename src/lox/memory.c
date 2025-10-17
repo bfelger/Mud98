@@ -35,7 +35,9 @@ extern Table spell_scripts;
 
 extern bool fBootDb;
 
+// From unit tests
 extern Value test_output_buffer;
+extern ValueArray* mocks_;
 
 void* reallocate(void* pointer, size_t old_size, size_t new_size)
 {
@@ -378,8 +380,9 @@ static void mark_roots()
     mark_object((Obj*)lox_empty_string);
     mark_natives();
 
+    // Mark objects needed for unit tests
     mark_value(test_output_buffer);
-
+    mark_array(mocks_);
 }
 
 static void trace_references()

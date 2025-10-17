@@ -195,6 +195,7 @@ add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
     tests/all_tests.c tests/tests.h
     tests/lox_tests.h tests/lox_tests.c tests/lox_ext_tests.c
     tests/entity_tests.c
+    tests/mock.h tests/mock.c
 )
 
 target_link_libraries(Mud98 PRIVATE ${Mud98_LIBS})

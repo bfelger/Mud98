@@ -401,7 +401,7 @@ void do_quest(Mobile* ch, char* argument)
             if (qs->state != QSTAT_COMPLETE && qs->vnum >= area->min_vnum && qs->vnum <= area->max_vnum) {
                 Quest* q = get_quest(qs->vnum);
                 ++i;
-                addf_buf(local, "%d. {T%s {|[{*Level %d{|] ",
+                addf_buf(local, "%d. {T%s {|[{*Level %d{|] \n",
                     i, q->name, q->level);
                 if (qs->amount > 0) {
                     addf_buf(local, "{j(%d/%d){x\n\r", qs->progress, qs->amount);

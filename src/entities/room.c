@@ -61,6 +61,9 @@ Room* new_room(RoomData* room_data, Area* area)
         room->header.klass = room_data->header.klass;
         init_entity_class((Entity*)room);
     }
+
+    room->header.events = room_data->header.events;
+    room->header.event_triggers = room_data->header.event_triggers;
     
     list_push_back(&room_data->instances, OBJ_VAL(room));
 

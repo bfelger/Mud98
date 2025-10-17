@@ -5,11 +5,13 @@
 
 #include "object.h"
 
-#include "db.h"
-#include "handler.h"
-#include "lookup.h"
-#include "magic.h"
-#include "recycle.h"
+#include <db.h>
+#include <handler.h>
+#include <lookup.h>
+#include <magic.h>
+#include <recycle.h>
+
+#include <lox/vm.h>
 
 List obj_free;
 List obj_list;
@@ -207,6 +209,14 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level)
 
     SET_NAME(obj, NAME_FIELD(obj_proto));
     VNUM_FIELD(obj) = VNUM_FIELD(obj_proto);
+
+    if (obj_proto->header.klass != NULL) {
+        obj->header.klass = obj_proto->header.klass;
+        init_entity_class((Entity*)obj);
+    }
+
+    obj->header.events = obj_proto->header.events;
+    obj->header.event_triggers = obj_proto->header.event_triggers;
 
     obj->in_room = NULL;
     obj->enchanted = false;

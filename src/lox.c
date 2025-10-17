@@ -46,7 +46,7 @@ const char* lox_str(void* temp)
     return (AS_STRING((*entry)->key))->chars;
 }
 
-void load_lox_class(FILE* fp, const char* entity_type_name, Entity* entity)
+bool load_lox_class(FILE* fp, const char* entity_type_name, Entity* entity)
 {
     char class_name[MAX_INPUT_LENGTH];
     String* script = fread_lox_string(fp);
@@ -55,9 +55,11 @@ void load_lox_class(FILE* fp, const char* entity_type_name, Entity* entity)
     ObjClass* klass = create_entity_class(class_name, script->chars);
     if (!klass) {
         bugf("load_lox_class: failed to create class for %s %" PRVNUM, entity_type_name, entity->vnum);
+        return false;
     }
     else {
         entity->klass = klass;
+        return true;
     }
 }
 

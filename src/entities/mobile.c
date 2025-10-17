@@ -5,15 +5,17 @@
 
 #include "mobile.h"
 
-#include "comm.h"
-#include "config.h"
-#include "db.h"
-#include "handler.h"
-#include "recycle.h"
+#include <comm.h>
+#include <config.h>
+#include <db.h>
+#include <handler.h>
+#include <recycle.h>
 
-#include "entities/object.h"
+#include <entities/object.h>
 
-#include "data/mobile_data.h"
+#include <data/mobile_data.h>
+
+#include <lox/vm.h>
 
 List mob_list;
 List mob_free;
@@ -195,6 +197,14 @@ Mobile* create_mobile(MobPrototype* p_mob_proto)
 
     SET_NAME(mob, NAME_FIELD(p_mob_proto));
     VNUM_FIELD(mob) = VNUM_FIELD(p_mob_proto);
+
+    if (p_mob_proto->header.klass != NULL) {
+        mob->header.klass = p_mob_proto->header.klass;
+        init_entity_class((Entity*)mob);
+    }
+
+    mob->header.events = p_mob_proto->header.events;
+    mob->header.event_triggers = p_mob_proto->header.event_triggers;
 
     mob->short_descr = str_dup(p_mob_proto->short_descr);
     mob->long_descr = str_dup(p_mob_proto->long_descr);

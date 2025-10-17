@@ -1760,13 +1760,17 @@ void nanny(Descriptor * d, char* argument)
             // Fire any TRIG_LOGIN events on this room
             Event* event = get_event_by_trigger((Entity*)ch->in_room, TRIG_LOGIN);
 
+            if (event == NULL) {
+                bug("BUG: No TRIG_LOGIN found for room vnum #%"PRVNUM".\n", start_loc);
+            }
+
             if (event) {
                 // Get the closure for this event from the room
                 ObjClosure* closure = get_event_closure((Entity*)ch->in_room, event);
 
                 if (closure) {
                     // Invoke the closure with the room and character as parameters
-                    invoke_closure(closure, 2, OBJ_VAL(ch->in_room), OBJ_VAL(ch));
+                    invoke_method_closure(OBJ_VAL(ch->in_room), closure, 1, OBJ_VAL(ch));
                 }
             }
         }
@@ -2438,8 +2442,7 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
         if (to->desc != NULL) {
             pbuff = buffer;
             colourconv(pbuff, buf, to);
-            //write_to_buffer(to->desc, buffer, 0);
-            write_to_buffer(to->desc, buf, point - buf);
+            write_to_buffer(to->desc, pbuff, 0);
         }
         else if (events_enabled) {
             mp_act_trigger(buf, to, ch, arg1, arg2, TRIG_ACT);
@@ -2512,10 +2515,12 @@ size_t colour(char type, Mobile * ch, char* string)
     return (strlen(code));
 }
 
-void colourconv(char* buffer, const char* txt, Mobile * ch)
+int colourconv(char* buffer, const char* txt, Mobile * ch)
 {
     const char* point;
     size_t skip = 0;
+
+    char* start = buffer;
 
     if (ch->desc && txt) {
         if (IS_SET(ch->act_flags, PLR_COLOUR)) {
@@ -2543,7 +2548,7 @@ void colourconv(char* buffer, const char* txt, Mobile * ch)
             *buffer = '\0';
         }
     }
-    return;
+    return (int)(buffer - start);
 }
 
 // source: EOD, by John Booth <???> 

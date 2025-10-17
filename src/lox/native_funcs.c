@@ -170,7 +170,7 @@ static Value saves_spell_native(int arg_count, Value* args)
 
 static Value delay_native(int arg_count, Value* args)
 {
-    if (arg_count != 3 || !IS_INT(args[0]) || !IS_CLOSURE(args[1])) {
+    if (arg_count != 2 || !IS_INT(args[0]) || !IS_CLOSURE(args[1])) {
         runtime_error("delay(): Expected interval and closure as arguments.");
         return FALSE_VAL;
     }
