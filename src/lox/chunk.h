@@ -59,6 +59,7 @@ typedef enum {
     OP_EACH_PRIME,
     OP_EACH_OR_END,
     OP_EACH_ADVANCE,
+    OP_INTERP,
     // Game entities
     OP_SELF,
 } OpCode;

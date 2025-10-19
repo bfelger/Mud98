@@ -15,6 +15,7 @@ typedef enum {
     TOKEN_LEFT_BRACK, TOKEN_RIGHT_BRACK,
     TOKEN_COMMA, TOKEN_DOT, TOKEN_MINUS, TOKEN_PLUS,
     TOKEN_SEMICOLON, TOKEN_COLON, TOKEN_SLASH, TOKEN_STAR,
+    TOKEN_DOLLAR,
     // One or two character tokens
     TOKEN_BANG, TOKEN_BANG_EQUAL,
     TOKEN_EQUAL, TOKEN_EQUAL_EQUAL,
@@ -24,7 +25,8 @@ typedef enum {
     TOKEN_PLUS_EQUALS, TOKEN_MINUS_EQUALS,
     TOKEN_ARROW,
     // Literals
-    TOKEN_IDENTIFIER, TOKEN_STRING, TOKEN_INT, TOKEN_DOUBLE,
+    TOKEN_IDENTIFIER, TOKEN_STRING, TOKEN_STRING_INTERP, TOKEN_INT, 
+    TOKEN_DOUBLE,
     // Keywords
     TOKEN_AND, TOKEN_CLASS, TOKEN_ELSE, TOKEN_FALSE,
     TOKEN_FOR, TOKEN_FUN, TOKEN_IF, TOKEN_NIL, TOKEN_OR,
@@ -45,10 +47,19 @@ typedef struct {
     int line;
 } Token;
 
+typedef enum {
+    STR_INT_NONE = 0,
+    STR_INT_START = 1,
+    STR_INT_IDENT = 2,
+    STR_INT_EXPR = 3,
+    STR_INT_END = 4,
+} StringInterp;
+
 typedef struct {
     const char* start;
     const char* current;
     int line;
+    StringInterp interp;
 } Scanner;
 
 extern Scanner scanner;

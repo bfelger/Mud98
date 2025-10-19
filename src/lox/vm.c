@@ -435,6 +435,40 @@ static void concatenate()
     push(OBJ_VAL(result));
 }
 
+static void interpolate_string(int count)
+{
+    INIT_BUF(out, MAX_STRING_LENGTH);
+
+    char* pos = out->string;
+
+    for (int i = count - 1; i >= 0; i--) {
+        Value val = peek(i);
+        char* str;
+        if (IS_STRING(val))
+            str = AS_STRING(val)->chars;
+        else
+            str = string_value(val);
+        int len = (int)strlen(str);
+
+        if (len > MAX_STRING_LENGTH) {
+            runtime_error("string_interp: Max string length exceeded.");
+            break;
+        }
+
+        memcpy(pos, str, len);
+        pos += len;
+    }
+    *pos = '\0';
+
+    ObjString* result = copy_string(out->string, (int)(pos - out->string));
+
+    vm.stack_top -= count;
+
+    push(OBJ_VAL(result));
+
+    free_buf(out);
+}
+
 static bool each_prime(Value callee, Value collection)
 {
     if (IS_ARRAY(collection)) {
@@ -1049,6 +1083,11 @@ InterpretResult run()
             if (!each_advance()) {
                 return INTERPRET_RUNTIME_ERROR;
             }
+            break;
+        }
+        case OP_INTERP: {
+            int count = READ_BYTE();
+            interpolate_string(count);
             break;
         }
         // In-game entities

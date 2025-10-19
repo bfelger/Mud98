@@ -835,6 +835,67 @@ static void variable(bool can_assign)
     named_variable(parser.previous, can_assign);
 }
 
+static void string_interp(bool can_assign)
+{
+    int count = 0;
+
+    Token first = parser.previous;
+
+    while (parser.previous.type == TOKEN_STRING_INTERP) {
+        // This is the prefix of an interpolated string of the format "$x" or 
+        // "${x}". This beginning part lacks a delimiting double-quote.
+        // This is also for interstitial string between interpolations:
+        //     "start ${x} middle ${y} end"
+        int skip = 0;
+        if (parser.previous.start[0] == '\"')
+            skip = 1;   // Skip the opening quote; only the first will have it.
+
+        if (parser.previous.length - skip > 0) {
+            // Strings that begin with an interpolation, or 
+            emit_constant(OBJ_VAL(copy_string(parser.previous.start + skip,
+                parser.previous.length - 1)));
+            count++;
+        }
+
+        // If it was a non-interpolative '$', we'll see TOKEN_STRING instead of
+        // TOKEN_DOLLAR.
+        if (check(TOKEN_STRING))
+            break;
+
+        consume(TOKEN_DOLLAR, "Expected '$' interpolation character");
+
+        if (match(TOKEN_IDENTIFIER)) {
+            variable(can_assign);
+            count++;
+        }
+        else if (match(TOKEN_LEFT_BRACE)) {
+            expression();
+            count++;
+        }
+        else {
+            error("Invalid string interpolation token.");
+            break;
+        }
+    }
+
+    consume(TOKEN_STRING, "String interpolation expected a suffix string.");
+
+    // We don't need to append the suffix string if it's just a closing quote.
+    if (parser.previous.length != 2 || parser.previous.start[0] != '\"') {
+        ObjString* end_str = copy_string(parser.previous.start + 1,
+            parser.previous.length - 2);
+        emit_constant(OBJ_VAL(end_str));
+        count++;
+    }
+
+    if (count > UINT8_MAX) {
+        error_at(&first, "String interpolation exceeded maximum count.");
+        count = UINT8_MAX;
+    }
+
+    emit_bytes(OP_INTERP, (uint8_t)count);
+}
+
 static uint8_t element_list()
 {
     uint8_t elem_count = 0;
@@ -911,59 +972,61 @@ static void unary(bool can_assign)
 }
 
 ParseRule rules[] = {
-    [TOKEN_LEFT_PAREN]      = { grouping,   call,       PREC_CALL       },
-    [TOKEN_RIGHT_PAREN]     = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_LEFT_BRACE]      = { NULL,       NULL,       PREC_NONE       }, 
-    [TOKEN_RIGHT_BRACE]     = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_LEFT_BRACK]      = { array_,     index,      PREC_CALL       }, 
-    [TOKEN_RIGHT_BRACK]     = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_COMMA]           = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_DOT]             = { NULL,       dot,        PREC_CALL       },
-    [TOKEN_MINUS]           = { unary,      binary,     PREC_TERM       },
-    [TOKEN_PLUS]            = { NULL,       binary,     PREC_TERM       },
-    [TOKEN_SEMICOLON]       = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_COLON]           = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_SLASH]           = { NULL,       binary,     PREC_FACTOR     },
-    [TOKEN_STAR]            = { NULL,       binary,     PREC_FACTOR     },
-    [TOKEN_BANG]            = { unary,      NULL,       PREC_NONE       },
-    [TOKEN_BANG_EQUAL]      = { NULL,       binary,     PREC_EQUALITY   },
-    [TOKEN_EQUAL]           = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_EQUAL_EQUAL]     = { NULL,       binary,     PREC_EQUALITY   },
-    [TOKEN_GREATER]         = { NULL,       binary,     PREC_COMPARISON },
-    [TOKEN_GREATER_EQUAL]   = { NULL,       binary,     PREC_COMPARISON },
-    [TOKEN_LESS]            = { NULL,       binary,     PREC_COMPARISON },
-    [TOKEN_LESS_EQUAL]      = { NULL,       binary,     PREC_COMPARISON },
-    [TOKEN_PLUS_PLUS]       = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_MINUS_MINUS]     = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_PLUS_EQUALS]     = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_MINUS_EQUALS]    = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_ARROW]           = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_IDENTIFIER]      = { variable,   NULL,       PREC_NONE       },
-    [TOKEN_STRING]          = { string,     NULL,       PREC_NONE       },
-    [TOKEN_INT]             = { number,     NULL,       PREC_NONE       },
-    [TOKEN_DOUBLE]          = { number,     NULL,       PREC_NONE       },
-    [TOKEN_AND]             = { NULL,       and_,       PREC_AND        },
-    [TOKEN_CLASS]           = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_ELSE]            = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_FALSE]           = { literal,    NULL,       PREC_NONE       },
-    [TOKEN_FOR]             = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_FUN]             = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_IF]              = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_NIL]             = { literal,    NULL,       PREC_NONE       },
-    [TOKEN_OR]              = { NULL,       or_,        PREC_OR         },
-    [TOKEN_PRINT]           = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_RETURN]          = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_SUPER]           = { super_,     NULL,       PREC_NONE       },
-    [TOKEN_THIS]            = { this_,      NULL,       PREC_NONE       },
-    [TOKEN_TRUE]            = { literal,    NULL,       PREC_NONE       },
-    [TOKEN_VAR]             = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_WHILE]           = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_EACH]            = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_BREAK]           = { NULL,       NULL,       PREC_NONE       }, /* not used yet */
-    [TOKEN_CONTINUE]        = { NULL,       NULL,       PREC_NONE       }, /* not used yet */
-    [TOKEN_SELF]            = { literal,    NULL,       PREC_NONE       },
-    [TOKEN_ERROR]           = { NULL,       NULL,       PREC_NONE       },
-    [TOKEN_EOF]             = { NULL,       NULL,       PREC_NONE       },
+    [TOKEN_LEFT_PAREN]      = { grouping,       call,       PREC_CALL       },
+    [TOKEN_RIGHT_PAREN]     = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_LEFT_BRACE]      = { NULL,           NULL,       PREC_NONE       }, 
+    [TOKEN_RIGHT_BRACE]     = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_LEFT_BRACK]      = { array_,         index,      PREC_CALL       }, 
+    [TOKEN_RIGHT_BRACK]     = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_COMMA]           = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_DOT]             = { NULL,           dot,        PREC_CALL       },
+    [TOKEN_MINUS]           = { unary,          binary,     PREC_TERM       },
+    [TOKEN_PLUS]            = { NULL,           binary,     PREC_TERM       },
+    [TOKEN_SEMICOLON]       = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_COLON]           = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_SLASH]           = { NULL,           binary,     PREC_FACTOR     },
+    [TOKEN_STAR]            = { NULL,           binary,     PREC_FACTOR     },
+    [TOKEN_DOLLAR]          = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_BANG]            = { unary,          NULL,       PREC_NONE       },
+    [TOKEN_BANG_EQUAL]      = { NULL,           binary,     PREC_EQUALITY   },
+    [TOKEN_EQUAL]           = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_EQUAL_EQUAL]     = { NULL,           binary,     PREC_EQUALITY   },
+    [TOKEN_GREATER]         = { NULL,           binary,     PREC_COMPARISON },
+    [TOKEN_GREATER_EQUAL]   = { NULL,           binary,     PREC_COMPARISON },
+    [TOKEN_LESS]            = { NULL,           binary,     PREC_COMPARISON },
+    [TOKEN_LESS_EQUAL]      = { NULL,           binary,     PREC_COMPARISON },
+    [TOKEN_PLUS_PLUS]       = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_MINUS_MINUS]     = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_PLUS_EQUALS]     = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_MINUS_EQUALS]    = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_ARROW]           = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_IDENTIFIER]      = { variable,       NULL,       PREC_NONE       },
+    [TOKEN_STRING]          = { string,         NULL,       PREC_NONE       },
+    [TOKEN_STRING_INTERP]   = { string_interp,  NULL,       PREC_NONE       },
+    [TOKEN_INT]             = { number,         NULL,       PREC_NONE       },
+    [TOKEN_DOUBLE]          = { number,         NULL,       PREC_NONE       },
+    [TOKEN_AND]             = { NULL,           and_,       PREC_AND        },
+    [TOKEN_CLASS]           = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_ELSE]            = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_FALSE]           = { literal,        NULL,       PREC_NONE       },
+    [TOKEN_FOR]             = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_FUN]             = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_IF]              = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_NIL]             = { literal,        NULL,       PREC_NONE       },
+    [TOKEN_OR]              = { NULL,           or_,        PREC_OR         },
+    [TOKEN_PRINT]           = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_RETURN]          = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_SUPER]           = { super_,         NULL,       PREC_NONE       },
+    [TOKEN_THIS]            = { this_,          NULL,       PREC_NONE       },
+    [TOKEN_TRUE]            = { literal,        NULL,       PREC_NONE       },
+    [TOKEN_VAR]             = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_WHILE]           = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_EACH]            = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_BREAK]           = { NULL,           NULL,       PREC_NONE       }, /* not used yet */
+    [TOKEN_CONTINUE]        = { NULL,           NULL,       PREC_NONE       }, /* not used yet */
+    [TOKEN_SELF]            = { literal,        NULL,       PREC_NONE       },
+    [TOKEN_ERROR]           = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_EOF]             = { NULL,           NULL,       PREC_NONE       },
 };
 
 static void parse_precedence(Precedence precedence)
@@ -1051,8 +1114,8 @@ static void method()
     }
 
     function(type);
-    emit_byte(OP_METHOD);
 
+    emit_byte(OP_METHOD);
     emit_constant_index(constant);
 }
 
@@ -1129,7 +1192,6 @@ static void var_declaration()
         emit_byte(OP_NIL);
     }
 
-    //consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
     skip(TOKEN_SEMICOLON);
 
     define_variable(global);
@@ -1206,7 +1268,6 @@ static void for_statement()
 
 static void break_statement()
 {
-    //consume(TOKEN_SEMICOLON, "Expect ';' after 'break'.");
     skip(TOKEN_SEMICOLON);
 
     if (current->current_loop == NULL) {
@@ -1225,7 +1286,6 @@ static void break_statement()
 
 static void continue_statement()
 {
-    //consume(TOKEN_SEMICOLON, "Expect ';' after 'continue'.");
     skip(TOKEN_SEMICOLON);
 
     if (current->current_loop == NULL) {
@@ -1258,7 +1318,7 @@ static void if_statement()
 static void print_statement()
 {
     expression();
-    //consume(TOKEN_SEMICOLON, "Expect ';' after value.");
+
     skip(TOKEN_SEMICOLON);
     emit_byte(OP_PRINT);
 }
@@ -1273,7 +1333,7 @@ static void return_statement()
             error("Can't return a value from an initializer.");
         }
         expression();
-        //consume(TOKEN_SEMICOLON, "Expect ';' after return value.");
+
         skip(TOKEN_SEMICOLON);
         emit_byte(OP_RETURN);
     }

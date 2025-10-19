@@ -17,6 +17,7 @@ void init_scanner(const char* source)
     scanner.start = source;
     scanner.current = source;
     scanner.line = 1;
+    scanner.interp = STR_INT_NONE;
 }
 
 static bool is_alpha(char c)
@@ -39,7 +40,8 @@ static bool is_at_end()
 static char advance()
 {
     scanner.current++;
-    return scanner.current[-1];
+    return 
+        scanner.current[-1];
 }
 
 static char peek()
@@ -49,14 +51,20 @@ static char peek()
 
 static char peek_next()
 {
-    if (is_at_end()) return '\0';
+    if (is_at_end()) 
+        return '\0';
+
     return scanner.current[1];
 }
 
 static bool match(char expected)
 {
-    if (is_at_end()) return false;
-    if (*scanner.current != expected) return false;
+    if (is_at_end())
+        return false;
+    
+    if (*scanner.current != expected)
+        return false;
+
     scanner.current++;
     return true;
 }
@@ -98,7 +106,8 @@ static void skip_whitespace()
         case '/':
             if (peek_next() == '/') {
               // A comment goes until the end of the line.
-                while (peek() != '\n' && !is_at_end()) advance();
+                while (peek() != '\n' && !is_at_end())
+                    advance();
             }
             else {
                 return;
@@ -183,6 +192,9 @@ static Token identifier()
     while (is_alpha(peek()) || is_digit(peek()))
         advance();
 
+    if (scanner.interp == STR_INT_IDENT)
+        scanner.interp = STR_INT_END;
+
     return make_token(identifier_type());
 }
 
@@ -191,6 +203,11 @@ static Token string()
     while (peek() != '"' && !is_at_end()) {
         if (peek() == '\n')
             scanner.line++;
+        else if (peek() == '$' && scanner.interp == STR_INT_NONE &&
+                (peek_next() == '{' || is_alpha(peek_next()))) {
+            scanner.interp = STR_INT_START;
+            return make_token(TOKEN_STRING_INTERP);
+        }
         advance();
     }
 
@@ -222,21 +239,34 @@ static Token number()
 
 Token scan_token()
 {
+    if (scanner.interp == STR_INT_END) {
+        Token token = string();
+        scanner.interp = STR_INT_NONE;
+        return token;
+    }
+
     skip_whitespace();
+
     scanner.start = scanner.current;
 
     if (is_at_end()) 
         return make_token(TOKEN_EOF);
 
     char c = advance();
-    if (is_alpha(c)) return identifier();
-    if (is_digit(c)) return number();
+    if (is_alpha(c))
+        return identifier();
+    if (is_digit(c)) 
+        return number();
 
     switch (c) {
     case '(': return make_token(TOKEN_LEFT_PAREN);
     case ')': return make_token(TOKEN_RIGHT_PAREN);
     case '{': return make_token(TOKEN_LEFT_BRACE);
-    case '}': return make_token(TOKEN_RIGHT_BRACE);
+    case '}':  {
+        if (scanner.interp == STR_INT_EXPR)
+            scanner.interp = STR_INT_END;
+        return make_token(TOKEN_RIGHT_BRACE);
+    }
     case '[': return make_token(TOKEN_LEFT_BRACK);
     case ']': return make_token(TOKEN_RIGHT_BRACK);
     case ';': return make_token(TOKEN_SEMICOLON);
@@ -250,6 +280,17 @@ Token scan_token()
         match('=') ? TOKEN_PLUS_EQUALS : TOKEN_PLUS);
     case '/': return make_token(TOKEN_SLASH);
     case '*': return make_token(TOKEN_STAR);
+    case '$': {
+        if (scanner.interp == STR_INT_START) {
+            if (peek() == '{')
+                scanner.interp = STR_INT_EXPR;
+            else if (is_alpha(peek()))
+                scanner.interp = STR_INT_IDENT;
+            else
+                return error_token("Unexpected string interpolation token.");
+        }
+        return make_token(TOKEN_DOLLAR);
+    }
     case '!': return make_token(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
     case '=': return make_token(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
     case '<': return make_token(match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);

@@ -128,6 +128,46 @@ static int test_lamda_values()
     return 0;
 }
 
+static int test_string_interp_escape()
+{
+    const char* src =
+        "var a = 2\n"
+        "print \"a = $$\"\n";
+
+    InterpretResult result = interpret_code(src);
+    ASSERT_OUTPUT_EQ("a = $$\n");
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_string_interp_var()
+{
+    const char* src =
+        "var a = 2\n"
+        "print \"The value '$a' is stored in 'a'.\"\n";
+
+    InterpretResult result = interpret_code(src);
+    ASSERT_OUTPUT_EQ("The value '2' is stored in 'a'.\n");
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_string_interp_expr()
+{
+    const char* src =
+        "var a = 2\n"
+        "var b = 3\n"
+        "print \"The value '${a+b}' is stored in 'a+b'.\"\n";
+
+    InterpretResult result = interpret_code(src);
+    ASSERT_OUTPUT_EQ("The value '5' is stored in 'a+b'.\n");
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 void register_lox_ext_tests()
 {
 #define REGISTER(n, f)  register_test(&lox_ext_tests, (n), (f))
@@ -140,6 +180,9 @@ void register_lox_ext_tests()
     REGISTER("Lamdas", test_lamdas);
     REGISTER("Bare Lamdas", test_bare_lamdas);
     REGISTER("Lamda Values", test_lamda_values);
+    REGISTER("String Interpolation: Escape", test_string_interp_escape);
+    REGISTER("String Interpolation: Variables", test_string_interp_var);
+    REGISTER("String Interpolation: Expressions", test_string_interp_var);
 
 #undef REGISTER
 }

@@ -187,6 +187,8 @@ int disassemble_instruction(Chunk* chunk, int offset)
         return jump_instruction("OP_EACH_OR_END", 1, chunk, offset);
     case OP_EACH_ADVANCE:
         return simple_instruction("OP_EACH_ADVANCE", offset);
+    case OP_INTERP:
+        return byte_instruction("OP_INTERP", chunk, offset);
     case OP_SELF:
         return simple_instruction("OP_SELF", offset);
     default:
