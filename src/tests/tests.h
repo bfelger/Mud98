@@ -36,7 +36,8 @@ void init_test_group(TestGroup* group, const char* name);
 // All featured test groups
 void register_lox_tests();
 void register_lox_ext_tests();
-void register_entity_tests(); 
+void register_entity_tests();
+void register_container_tests();
 
 void run_all_tests();
 

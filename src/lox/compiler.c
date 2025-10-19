@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "native.h"
 
 void send_to_char(const char* txt, Mobile* ch);
 
@@ -96,6 +97,7 @@ typedef struct Compiler {
 typedef struct ClassCompiler {
     struct ClassCompiler* enclosing;
     bool has_superclass;
+    Entity* entity_this;
 } ClassCompiler;
 
 Parser parser;
@@ -533,15 +535,9 @@ static void each(bool assign)
     current->current_loop = current->current_loop->enclosing;
 }
 
-static void dot(bool can_assign)
+static void resolve_property(Token* token, bool can_assign)
 {
-    if (match(TOKEN_EACH)) {
-        each(can_assign);
-        return;
-    }
-
-    consume(TOKEN_IDENTIFIER, "Expect property name after '.'.");
-    int name = identifier_constant(&parser.previous);
+    int name = identifier_constant(token);
 
     if (can_assign && match(TOKEN_EQUAL)) {
         expression();
@@ -558,6 +554,17 @@ static void dot(bool can_assign)
         emit_byte(OP_GET_PROPERTY);
         emit_constant_index(name);
     }
+}
+
+static void dot(bool can_assign)
+{
+    if (match(TOKEN_EACH)) {
+        each(can_assign);
+        return;
+    }
+
+    consume(TOKEN_IDENTIFIER, "Expect property name after '.'.");
+    resolve_property(&parser.previous, can_assign);
 }
 
 static void index(bool can_assign)
@@ -725,6 +732,14 @@ static void or_(bool can_assign)
     patch_jump(end_jump);
 }
 
+static Token synthetic_token(const char* text)
+{
+    Token token = { 0 };
+    token.start = text;
+    token.length = (int)strlen(text);
+    return token;
+}
+
 static void named_variable(Token name, bool can_assign)
 {
     uint8_t get_op, set_op;
@@ -795,6 +810,28 @@ static void string(bool can_assign)
 
 static void variable(bool can_assign)
 {
+    Token token = parser.previous;
+    
+    if (current_class != NULL && current_class->entity_this && strcmp(token.start, "this")) {
+    // Entities that have classes compiled against them have some native
+    // "methods" that I don't want to speculatively cram into their 
+    // fields.
+        ObjString* name_str = copy_string(token.start, token.length);
+        push(OBJ_VAL(name_str));
+        Value value;
+        if (table_get(&native_methods, name_str, &value)
+            && IS_NATIVE_METHOD(value)) {
+            pop();
+            // Add a fake "this" to get the entity on the stack.
+            named_variable(synthetic_token("this"), can_assign);
+            // Resolve as if it were a property.
+            resolve_property(&token, can_assign);
+            return;
+        }
+        else
+            pop();
+    }
+
     named_variable(parser.previous, can_assign);
 }
 
@@ -818,14 +855,6 @@ static void array_(bool can_assign)
 {
     uint8_t elem_count = element_list();
     emit_bytes(OP_ARRAY, elem_count);
-}
-
-static Token synthetic_token(const char* text)
-{
-    Token token = { 0 };
-    token.start = text;
-    token.length = (int)strlen(text);
-    return token;
 }
 
 static void super_(bool can_assign)
@@ -1041,7 +1070,13 @@ static void class_declaration()
     ClassCompiler class_compiler = { 0 };
     class_compiler.has_superclass = false;
     class_compiler.enclosing = current_class;
+    class_compiler.entity_this = NULL;
     current_class = &class_compiler;
+
+    if (compile_context.this_ != NULL) {
+        current_class->entity_this = compile_context.this_;
+        compile_context.this_ = NULL;   // Only for this class scope.
+    }
 
     if (match(TOKEN_LESS)) {
         consume(TOKEN_IDENTIFIER, "Expect superclass name.");

@@ -15,10 +15,13 @@
 
 #include <data/mobile_data.h>
 
+#include <lox/list.h>
 #include <lox/vm.h>
 
-List mob_list;
-List mob_free;
+List mob_list = { 0 };
+List mob_free = { 0 };
+
+VNUM top_vnum_mob;
 
 int last_mob_id = 0;
 
@@ -42,6 +45,8 @@ Mobile* new_mobile()
 
     SET_LOX_FIELD(&mob->header, mob->in_room, in_room);
     SET_LOX_FIELD(&mob->header, mob->was_in_room, was_in_room);
+
+    mob->mob_list_node = list_push_back(&mob_list, OBJ_VAL(mob));
 
     pop();
 
@@ -188,10 +193,6 @@ Mobile* create_mobile(MobPrototype* p_mob_proto)
     }
 
     mob = new_mobile();
-
-    push(OBJ_VAL(mob));
-    mob->mob_list_node = list_push_back(&mob_list, OBJ_VAL(mob));
-    pop(); // mob
 
     mob->prototype = p_mob_proto;
 
@@ -399,86 +400,3 @@ void clear_mob(Mobile* ch)
         ch->mod_stat[i] = 0;
     }
 }
-
-////////////////////////////////////////////////////////////////////////////////
-// Lox representation
-////////////////////////////////////////////////////////////////////////////////
-//
-//static ObjClass* mobile_class = NULL;
-//
-//void init_mobile_class()
-//{
-//    char* source =
-//        "class Mobile { "
-//        "   vnum() { return marshal(this._vnum); }"
-//        "   short_desc() { return marshal(this._short_desc); } "
-//        "   in_room() { return get_room(this._in_room); } "
-//        "   carrying() { return get_carrying(this._base); } "
-//        "   hp() { return this._hp; } "
-//        "   max_hp() { return this._max_hp; } "
-//        "}";
-//
-//    InterpretResult result = interpret_code(source);
-//
-//    if (result == INTERPRET_COMPILE_ERROR) exit(65);
-//    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
-//
-//    mobile_class = find_class("Mobile");
-//}
-//
-//Value create_mobile_value(Mobile* mobile)
-//{
-//    if (!mobile_class)
-//        runtime_error("create_mobile_value: 'Mobile' class not defined.");
-//
-//    if (!mobile || !mobile_class)
-//        return NIL_VAL;
-//
-//    ObjInstance* inst = new_instance(mobile_class);
-//    push(OBJ_VAL(inst));
-//
-//    SET_NATIVE_FIELD(inst, mobile, base, OBJ);
-//    SET_NATIVE_FIELD(inst, VNUM_FIELD(mobile->prototype), vnum, I32);
-//    SET_NATIVE_FIELD(inst, mobile->short_descr, short_desc, STR);
-//    SET_NATIVE_FIELD(inst, mobile->in_room, in_room, OBJ);
-//    SET_NATIVE_FIELD(inst, mobile->hit, hp, I16);
-//    SET_NATIVE_FIELD(inst, mobile->max_hit, max_hp, I16);
-//
-//    SET_LOX_FIELD(inst, mobile->header.name, name);
-//
-//    pop(); // instance
-//
-//    return OBJ_VAL(inst);
-//}
-//
-//Value get_mobile_carrying_native(int arg_count, Value* args)
-//{
-//    if (arg_count != 1) {
-//        runtime_error("get_carrying() takes 1 argument; %d given.", arg_count);
-//        return NIL_VAL;
-//    }
-//
-//    Mobile* mobile = NULL;
-//
-//    if (IS_RAW_PTR(args[0]) && AS_RAW_PTR(args[0])->type == RAW_OBJ) {
-//        mobile = (Mobile*)AS_RAW_PTR(args[0])->addr;
-//    }
-//
-//    ObjArray* array_ = new_obj_array();
-//    push(OBJ_VAL(array_));
-//
-//    if (mobile) {
-//        // Just return an empty array if there is no room. Don't force scripters
-//        // to use guards. NULL is a disease.
-//        Object* obj;
-//        FOR_EACH_CONTENT(obj, mobile->carrying) {
-//            Value obj_val = create_object_value(obj);
-//            push(obj_val);
-//            write_value_array(&array_->val_array, obj_val);
-//            pop(); // obj_val
-//        }
-//    }
-//
-//    pop(); // array_
-//    return OBJ_VAL(array_);
-//}

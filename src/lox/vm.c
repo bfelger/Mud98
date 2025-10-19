@@ -57,7 +57,7 @@ inline int decrement_frame_count()
 #endif
 
 
-static void reset_stack()
+void reset_stack()
 {
     vm.stack_top = vm.stack;
     vm.frame_count = 0;
@@ -308,6 +308,9 @@ bool invoke(ObjString* name, int arg_count)
     }
 
     if (!IS_INSTANCE(receiver)) {
+        lox_printf("Receiver: ");
+        print_value(receiver);
+        lox_printf("\n");
         runtime_error("Only instances have methods.");
         return false;
     }
@@ -668,7 +671,7 @@ InterpretResult run()
                 ObjString* name = READ_STRING();
                 Value value;
 
-                // Check for an in-game (read: scripted) execution context and 
+                // Check for an in-game (player-driven) execution context and 
                 // look up in-game commands. Treat them like native functions.
                 if (exec_context.me != NULL) {
                     if (table_get(&native_cmds, name, &value)) {
@@ -685,7 +688,7 @@ InterpretResult run()
                 }
 
                 if (!table_get(&vm.globals, name, &value)) {
-                    runtime_error("Undefined variable '%s'.", name->chars);
+                    runtime_error("Undefined global variable '%s'.", name->chars);
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 push(value);
@@ -701,7 +704,7 @@ InterpretResult run()
                 ObjString* name = READ_STRING();
                 if (table_set(&vm.globals, name, peek(0))) {
                     table_delete(&vm.globals, name);
-                    runtime_error("Undefined variable '%s'.", name->chars);
+                    runtime_error("Undefined global variable '%s'.", name->chars);
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
@@ -1102,7 +1105,7 @@ InterpretResult call_function(const char* fn_name, int count, ...)
     ObjString* name = copy_string(fn_name, (int)strlen(fn_name));
     Value value;
     if (!table_get(&vm.globals, name, &value)) {
-        runtime_error("Undefined variable '%s'.", name->chars);
+        runtime_error("Undefined callable '%s'.", name->chars);
         return INTERPRET_RUNTIME_ERROR;
     }
 
@@ -1163,11 +1166,10 @@ InterpretResult invoke_closure(ObjClosure* closure, int count, ...)
 void invoke_method_closure(Value receiver, ObjClosure* closure, int count, ...)
 {
     push(receiver);
+
     vm.stack_top[-1] = receiver;
 
     va_list args;
-
-    push(OBJ_VAL(closure));
 
     va_start(args, count);
 
@@ -1188,7 +1190,7 @@ void invoke_method_closure(Value receiver, ObjClosure* closure, int count, ...)
 
     // This is the top-level stack frame; the result and last operand have
     // already been popped, and no return value is possible.
-    vm.stack_top -= count;
+    vm.stack_top -= count + 1;
 }
 
 // Called from entities

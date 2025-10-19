@@ -13,8 +13,8 @@
 
 #include <lox/vm.h>
 
-List obj_free;
-List obj_list;
+List obj_free = { 0 };
+List obj_list = { 0 };
 
 Object* new_object()
 {
@@ -32,6 +32,8 @@ Object* new_object()
 
     SET_NATIVE_FIELD(&obj->header, obj->short_descr, short_desc, STR);
     SET_NATIVE_FIELD(&obj->header, obj->in_room, in_room, OBJ);
+
+    obj->obj_list_node = list_push_back(&obj_list, OBJ_VAL(obj));
 
     pop();
 
@@ -201,10 +203,6 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level)
 
     obj = new_object();
 
-    push(OBJ_VAL(obj));
-    obj->obj_list_node = list_push_back(&obj_list, OBJ_VAL(obj));
-    pop(); // obj
-
     obj->prototype = obj_proto;
 
     SET_NAME(obj, NAME_FIELD(obj_proto));
@@ -265,48 +263,3 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level)
 
     return obj;
 }
-
-////////////////////////////////////////////////////////////////////////////////
-// Lox representation
-////////////////////////////////////////////////////////////////////////////////
-
-//static ObjClass* object_class = NULL;
-//
-//void init_object_class()
-//{
-//    char* source =
-//        "class Object { "
-//        "   short_desc() { return marshal(this._short_desc); } "
-//        "   in_room() { return get_room(this._in_room); } "
-//        "}";
-//
-//    InterpretResult result = interpret_code(source);
-//
-//    if (result == INTERPRET_COMPILE_ERROR) exit(65);
-//    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
-//
-//    object_class = find_class("Object");
-//}
-//
-//Value create_object_value(Object* object)
-//{
-//    if (!object_class)
-//        runtime_error("create_object_value: 'Object' class not defined.");
-//
-//    if (!object || !object_class)
-//        return NIL_VAL;
-//
-//    ObjInstance* inst = new_instance(object_class);
-//    push(OBJ_VAL(inst));
-//
-//    SET_NATIVE_FIELD(inst, object, base, OBJ);
-//    SET_NATIVE_FIELD(inst, VNUM_FIELD(object->prototype), vnum, I32);
-//    SET_NATIVE_FIELD(inst, object->short_descr, short_desc, STR);
-//    SET_NATIVE_FIELD(inst, object->in_room, in_room, OBJ);
-//
-//    SET_LOX_FIELD(inst, object->header.name, name);
-//
-//    pop(); // instance
-//
-//    return OBJ_VAL(inst);
-//}

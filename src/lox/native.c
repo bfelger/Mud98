@@ -17,7 +17,7 @@ ObjClass* find_class(const char* class_name)
     ObjString* name = copy_string(class_name, (int)strlen(class_name));
     Value value;
     if (!table_get(&vm.globals, name, &value)) {
-        runtime_error("Undefined variable '%s'.", name->chars);
+        runtime_error("Undefined class '%s'.", name->chars);
         exit(70);
     }
 

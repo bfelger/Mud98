@@ -27,7 +27,7 @@ static int test_room_script_binding()
         "on_entry() { print \"room entry\"; }"
         "on_exit() { print \"room exit\"; }";
 
-    ObjClass* room_class = create_entity_class("test_room", src);
+    ObjClass* room_class = create_entity_class((Entity*)rd, "test_room", src);
     ASSERT(room_class != NULL);
     rd->header.klass = room_class;
 

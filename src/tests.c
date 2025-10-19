@@ -394,7 +394,7 @@ void test_room_script_binding()
         "on_enter() { print \"room entry\"; }"
         "on_exit() { print \"room exit\"; }";
 
-    ObjClass* room_class = create_entity_class("test_room", src);
+    ObjClass* room_class = create_entity_class((Entity*)rd, "test_room", src);
     rd->header.klass = room_class;
 
     // Mock Area

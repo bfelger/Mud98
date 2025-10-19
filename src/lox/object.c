@@ -231,6 +231,19 @@ static void print_function(ObjFunction* function)
     lox_printf("<fn %s>", function->name->chars);
 }
 
+void print_list(List* list)
+{
+    lox_printf("<list { ");
+    for (Node* n = list->front; n != NULL; n = n->next) {
+        print_value(n->value);
+        if (n->next != NULL)
+            lox_printf(", ");
+        else
+            lox_printf(" ");
+    }
+    lox_printf("}>");
+}
+
 void print_object(Value value)
 {
     static char buf[1024];
@@ -287,7 +300,7 @@ void print_object(Value value)
         lox_printf("<table (%d elements)>", AS_TABLE(value)->count);
         break;
     case OBJ_LIST:
-        lox_printf("<list (%d elements)>", AS_LIST(value)->count);
+        print_list(AS_LIST(value));
         break;
     //
     case OBJ_EVENT:

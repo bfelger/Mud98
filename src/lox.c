@@ -52,7 +52,7 @@ bool load_lox_class(FILE* fp, const char* entity_type_name, Entity* entity)
     String* script = fread_lox_string(fp);
     sprintf(class_name, "%s_%" PRVNUM, entity_type_name, entity->vnum);
 
-    ObjClass* klass = create_entity_class(class_name, script->chars);
+    ObjClass* klass = create_entity_class(entity, class_name, script->chars);
     if (!klass) {
         bugf("load_lox_class: failed to create class for %s %" PRVNUM, entity_type_name, entity->vnum);
         return false;

@@ -113,6 +113,12 @@ static Value echo_lox(Value receiver, int arg_count, Value* args)
 }
 
 const NativeMethodEntry native_method_entries[] = {
+    { "can_finish_quest",   can_finish_quest_lox},
+    { "can_quest",          can_quest_lox       },
+    { "echo",               echo_lox            },
+    { "finish_quest",       finish_quest_lox    },
+    { "grant_quest",        grant_quest_lox     },
+    { "has_quest",          has_quest_lox       },
     { "is_area",            is_area_lox         },
     { "is_area_data",       is_area_data_lox    },
     { "is_mob",             is_mob_lox          },
@@ -121,11 +127,6 @@ const NativeMethodEntry native_method_entries[] = {
     { "is_obj_proto",       is_obj_proto_lox    },
     { "is_room",            is_room_lox         },
     { "is_room_data",       is_room_data_lox    },
-    { "can_quest",          can_quest_lox       },
-    { "has_quest",          has_quest_lox       },
-    { "grant_quest",        grant_quest_lox     },
-    { "can_finish_quest",   can_finish_quest_lox},
-    { "finish_quest",       finish_quest_lox    }, 
     { "send",               send_lox            },
     { "say",                say_lox             },
     { NULL,                 NULL                },

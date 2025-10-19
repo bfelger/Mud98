@@ -20,6 +20,7 @@ void run_unit_tests()
 {
     register_lox_tests();
     register_lox_ext_tests();
+    register_container_tests();
     register_entity_tests();
 
     test_output_enabled = true;

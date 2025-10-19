@@ -15,6 +15,7 @@
 
 #include <entities/area.h>
 #include <entities/obj_prototype.h>
+#include <entities/mobile.h>
 #include <entities/room.h>
 
 #ifdef DEBUG_LOG_GC
@@ -100,6 +101,9 @@ void mark_object(Obj* object)
 
 static void mark_array(ValueArray* array)
 {
+    if (array == NULL)
+        return;
+
     mark_object((Obj*)array);
     for (int i = 0; i < array->count; i++) {
         mark_value(array->values[i]);
@@ -116,6 +120,7 @@ static void mark_entity(Entity* entity)
 {
     if (entity == NULL)
         return;
+
     mark_object((Obj*)entity->name);
     mark_table(&entity->fields);
     mark_list(&entity->events);
@@ -127,6 +132,9 @@ static void mark_entity(Entity* entity)
 
 static void blacken_object(Obj* object)
 {
+    if (object == NULL)
+        return;
+
 #ifdef DEBUG_LOG_GC
     lox_printf("%p blacken ", (void*)object);
     print_value(OBJ_VAL(object));
@@ -254,9 +262,13 @@ static void blacken_object(Obj* object)
 
 static void free_obj_value(Obj* object)
 {
+    if (object == NULL)
+        return;
+
 #ifdef DEBUG_LOG_GC
     lox_printf("%p free type %d\n", (void*)object, object->type);
 #endif
+
     switch (object->type) {
     case OBJ_ARRAY:
         ValueArray* array_ = (ValueArray*)object;
@@ -368,9 +380,8 @@ static void mark_roots()
         mark_object((Obj*)vm.frames[i].closure);
     }
 
-    for (ObjUpvalue* upvalue = vm.open_upvalues;
-        upvalue != NULL;
-        upvalue = upvalue->next) {
+    for (ObjUpvalue* upvalue = vm.open_upvalues; upvalue != NULL; 
+            upvalue = upvalue->next) {
         mark_object((Obj*)upvalue);
     }
 
@@ -383,6 +394,11 @@ static void mark_roots()
     // Mark objects needed for unit tests
     mark_value(test_output_buffer);
     mark_array(mocks_);
+
+    mark_list(&mob_free);
+    mark_list(&mob_list);
+    mark_list(&obj_free);
+    mark_list(&obj_free);
 }
 
 static void trace_references()

@@ -17,6 +17,13 @@ ValueArray* mocks()
     return mocks_;
 }
 
+Value mock_str(const char* str)
+{
+    Value v = OBJ_VAL(copy_string(str, (int)strlen(str)));
+    write_value_array(mocks(), v);
+    return v;
+}
+
 AreaData* mock_area_data()
 {
     AreaData* ad = new_area_data();

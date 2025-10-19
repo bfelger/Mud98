@@ -1227,26 +1227,28 @@ void mp_give_trigger(Mobile* mob, Mobile* ch, Object* obj)
         }
 }
 
-void mp_greet_trigger(Mobile* ch)
+void event_greet_trigger(Mobile* ch)
 {
     Mobile* mob;
 
+    // First check the room for event triggers
+    if (HAS_EVENT_TRIGGER(ch->in_room, TRIG_GREET)) {
+        Room* room = ch->in_room;
+        Event* event = get_event_by_trigger((Entity*)room, TRIG_GREET);
+
+        if (event) {
+            ObjClosure* closure = get_event_closure((Entity*)room, event);
+
+            if (closure) {
+                invoke_method_closure(OBJ_VAL(room), closure, 1, OBJ_VAL(ch));
+            }
+        }
+    }
+
+    // Now check every mob in the room
     FOR_EACH_ROOM_MOB(mob, ch->in_room) {
         if (IS_NPC(mob)) {
-            if (HAS_TRIGGER(mob, TRIG_GREET) || HAS_TRIGGER(mob, TRIG_GRALL)) {
-                /*
-                 * Greet trigger works only if the mobile is not busy
-                 * (fighting etc.). If you want to catch all players, use
-                 * GrAll trigger
-                 */
-                //if (HAS_TRIGGER(mob, TRIG_GREET)
-                //    && mob->position == mob->prototype->default_pos
-                //    && can_see(mob, ch))
-                //    mp_percent_trigger(mob, ch, NULL, NULL, TRIG_GREET);
-                //else
-                //    if (HAS_TRIGGER(mob, TRIG_GRALL))
-                //        mp_percent_trigger(mob, ch, NULL, NULL, TRIG_GRALL);
-                            // Fire any TRIG_LOGIN events on this room
+            if (HAS_EVENT_TRIGGER(mob, TRIG_GREET) || HAS_EVENT_TRIGGER(mob, TRIG_GRALL)) {
                 Event* event = get_event_by_trigger((Entity*)mob, TRIG_GREET);
 
                 if (event == NULL)
@@ -1257,17 +1259,24 @@ void mp_greet_trigger(Mobile* ch)
                     ObjClosure* closure = get_event_closure((Entity*)mob, event);
 
                     if (closure) {
-                        // Invoke the closure with the room and character as parameters
-                        //invoke_closure(closure, 2, OBJ_VAL(mob), OBJ_VAL(ch));
-                        //push(OBJ_VAL(mob));
-                        //invoke_closure(closure, 1, OBJ_VAL(ch));
                         invoke_method_closure(OBJ_VAL(mob), closure, 1, OBJ_VAL(ch));
                     }
                 }
             }
+            else
+                /*
+                * Greet trigger works only if the mobile is not busy
+                * (fighting etc.). If you want to catch all players, use
+                * GrAll trigger
+                */
+            if (HAS_TRIGGER(mob, TRIG_GREET)
+                && mob->position == mob->prototype->default_pos
+                && can_see(mob, ch))
+                mp_percent_trigger(mob, ch, NULL, NULL, TRIG_GREET);
+            else if (HAS_TRIGGER(mob, TRIG_GRALL))
+                mp_percent_trigger(mob, ch, NULL, NULL, TRIG_GRALL);
         }
     }
-    return;
 }
 
 void mp_hprct_trigger(Mobile* mob, Mobile* ch)

@@ -102,7 +102,7 @@ bool load_lox_class(FILE* fp, const char* entity_type_name, Entity* entity);
     static T x##_zero = { 0 };                                                 \
     T* x;                                                                      \
     if (x##_free.count == 0) {                                                 \
-        x = alloc_perm(sizeof(*x));                                            \
+        x = alloc_perm(sizeof(T));                                            \
     }                                                                          \
     else {                                                                     \
         x = (T*)AS_OBJ(list_pop(&x##_free));                                   \
@@ -113,7 +113,7 @@ bool load_lox_class(FILE* fp, const char* entity_type_name, Entity* entity);
     static T x##_zero = { 0 };                                                 \
     T* x;                                                                      \
     if (!x##_free) {                                                           \
-        x = alloc_perm(sizeof(*x));                                            \
+        x = alloc_perm(sizeof(T));                                            \
         x##_perm_count++;                                                      \
     }                                                                          \
     else {                                                                     \

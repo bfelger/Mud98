@@ -286,7 +286,7 @@ void do_get(Mobile* ch, char* argument)
         else {
             /* 'get all container' or 'get all.obj container' */
             found = false;
-            FOR_EACH_ROOM_OBJ(obj, container->in_room) {
+            FOR_EACH_OBJ_CONTENT(obj, container) {
                 if ((arg1[3] == '\0' || is_name(&arg1[4], NAME_STR(obj)))
                     && can_see_obj(ch, obj)) {
                     found = true;

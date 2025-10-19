@@ -19,17 +19,16 @@ void init_header(Entity* header, ObjType type)
     SET_LOX_FIELD(header, header->name, name);
 
     SET_NATIVE_FIELD(header, header->vnum, vnum, I32);
-
-    // Add "this" self-reference for methods
-    //table_set(&header->fields, lox_string(str_dup("this")), OBJ_VAL(header));
 }
 
-ObjClass* create_entity_class(const char* name, const char* bare_class_source)
+ObjClass* create_entity_class(Entity* entity, const char* name, const char* bare_class_source)
 {
     // First, create a class wrapper for bare_class_source using the name.
     INIT_BUF(buf, MAX_STRING_LENGTH);
 
     addf_buf(buf, "class %s {\n%s\n}\n", name, bare_class_source);
+
+    compile_context.this_ = entity;
 
     int result = interpret_code(buf->string);
 
@@ -50,6 +49,8 @@ ObjClass* create_entity_class(const char* name, const char* bare_class_source)
         runtime_error("'%s' is not a class.", class_name->chars);
         return NULL;
     }
+
+    compile_context.this_ = NULL;
 
     return AS_CLASS(value);
 }

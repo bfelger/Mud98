@@ -35,6 +35,7 @@ typedef struct mobile_t Mobile;
 
 typedef struct mobile_t {
     Entity header;
+    Mobile* next;
     Node* mob_list_node;
     List objects;
     Mobile* master;
@@ -148,7 +149,7 @@ typedef struct mobile_t {
 #define get_carry_weight(ch)                                                   \
     ((ch)->carry_weight + (ch)->silver / 10 + (ch)->gold * 2 / 5)
 
-#define HAS_TRIGGER(ch, trig) (IS_SET((ch)->prototype->event_flags, (trig)))
+#define HAS_TRIGGER(ch, trig) (IS_SET((ch)->prototype->mprog_flags, (trig)))
 #define IS_SWITCHED(ch) (ch->desc && ch->desc->original)
 #define IS_BUILDER(ch, Area) (!IS_NPC(ch) && !IS_SWITCHED(ch) && \
                 (ch->pcdata->security >= Area->security \

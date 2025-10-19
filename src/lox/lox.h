@@ -35,7 +35,6 @@ typedef struct {
 
 typedef struct {
     Mobile* me;
-    Entity* this_;
     bool is_repl;
 } ExecContext;
 

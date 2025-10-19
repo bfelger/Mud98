@@ -43,7 +43,6 @@ void lox_printf(const char* format, ...)
 
             ObjString* result = take_string(chars, (int)length);
 
-            //char* new_str = str_append(AS_STRING(test_output_buffer)->chars, buf);
             test_output_buffer = OBJ_VAL(result);
         }
     }

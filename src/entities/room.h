@@ -157,6 +157,9 @@ extern int room_perm_count;
 extern int room_data_count;
 extern int room_data_perm_count;
 
+Room* room_free;
+RoomData* room_data_free;
+
 extern Table global_rooms;
 
 extern VNUM top_vnum_room;

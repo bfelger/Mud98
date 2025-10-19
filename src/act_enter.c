@@ -205,8 +205,9 @@ void do_enter(Mobile* ch, char* argument)
         // the followers before the char, but it's safer this way...
         if (IS_NPC(ch) && HAS_TRIGGER(ch, TRIG_ENTRY))
             mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_ENTRY);
+
         if (!IS_NPC(ch))
-            mp_greet_trigger(ch);
+            event_greet_trigger(ch);
 
         return;
     }

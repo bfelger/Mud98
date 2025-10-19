@@ -44,7 +44,7 @@ typedef struct mob_prototype_t {
     FLAGS vuln_flags;
     FLAGS form;
     FLAGS parts;
-    FLAGS event_flags;
+    FLAGS mprog_flags;
     int wealth;
     int16_t hit[3];
     int16_t mana[3];

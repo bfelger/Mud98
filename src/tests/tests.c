@@ -15,6 +15,8 @@ extern TestGroup** test_groups;
 extern size_t group_count;
 extern size_t group_capacity;
 
+void reset_stack();
+
 static TestGroup* current = NULL;
 
 int total_failures = 0;
@@ -45,6 +47,7 @@ static void run_test_group(TestGroup* group)
     for (size_t i = 0; i < group->count; i++) {
         printf("Test: %-40s", group->tests[i].name);
         group->tests[i].func();
+        reset_stack();
         if (group->asserts_failed == 0) {
             printf("[\033[92mPASSED\033[0m]\n");
         }

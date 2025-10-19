@@ -1687,7 +1687,7 @@ void nanny(Descriptor * d, char* argument)
         sprintf(buf, "\n\rWelcome to %s. Please do not feed the mobiles.\n\r\n\r", cfg_get_mud_name());
         write_to_buffer(d, buf, 0);
 
-        ch->mob_list_node = list_push_back(&mob_list, OBJ_VAL(ch));
+        /*ch->mob_list_node =*/ list_push_back(&mob_list, OBJ_VAL(ch));
 
         {
             PlayerData* pc;

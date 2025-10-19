@@ -220,7 +220,7 @@ void move_char(Mobile* ch, int door, bool follow)
     }
 
     if (!IS_NPC(ch)) {
-        mp_greet_trigger(ch);
+        event_greet_trigger(ch);
     }
 
     return;

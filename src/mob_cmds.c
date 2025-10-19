@@ -179,7 +179,7 @@ void do_mpstat(Mobile* ch, char* argument)
         ? "No target" : NAME_STR(victim->mprog_target));
     send_to_char(arg, ch);
 
-    if (!victim->prototype->event_flags) {
+    if (!victim->prototype->mprog_flags) {
         send_to_char("[No programs set]\n\r", ch);
         return;
     }

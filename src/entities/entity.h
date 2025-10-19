@@ -20,7 +20,7 @@ typedef struct entity_t {
 } Entity;
 
 void init_header(Entity* header, ObjType type);
-ObjClass* create_entity_class(const char* name, const char* bare_class_source);
+ObjClass* create_entity_class(Entity* entity, const char* name, const char* bare_class_source);
 Value is_obj_lox(Value receiver, int arg_count, Value* args);
 Value is_obj_proto_lox(Value receiver, int arg_count, Value* args);
 Value is_mob_lox(Value receiver, int arg_count, Value* args);
