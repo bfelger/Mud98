@@ -2408,30 +2408,6 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
                 case 'S':
                     i = sex_table[vch_sex].poss;
                     break;
-                //case 'n':
-                //    i = (to == ch) ? "you" : PERS(ch, to);
-                //    break;
-                //case 'N':
-                //    i = (to == vch) ? "you" : PERS(vch, to);
-                //    break;
-                //case 'e':
-                //    i = (to == ch) ? "you" : sex_table[ch->sex].subj;
-                //    break;
-                //case 'E':
-                //    i = (to == vch) ? "you" : sex_table[vch_sex].subj;
-                //    break;
-                //case 'm':
-                //    i = (to == ch) ? "you" : sex_table[ch->sex].obj;
-                //    break;
-                //case 'M':
-                //    i = (to == vch) ? "you" : sex_table[vch_sex].obj;
-                //    break;
-                //case 's':
-                //    i = (to == ch) ? "your" : sex_table[ch->sex].poss;
-                //    break;
-                //case 'S':
-                //    i = (to == vch) ? "your" : sex_table[vch_sex].poss;
-                //    break;
 
                 case 'p':
                     i = (obj1 != NULL && can_see_obj(to, obj1)) ? obj1->short_descr : "something";
