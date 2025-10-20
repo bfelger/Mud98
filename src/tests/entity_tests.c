@@ -39,7 +39,7 @@ static int test_room_script_binding()
     ASSERT(inv_result == true);
 
     InterpretResult result = run();
-    ASSERT_OUTPUT_EQ("room entry\n");
+    ASSERT_LOX_OUTPUT_EQ("room entry\n");
 
     test_output_buffer = NIL_VAL;
     return 0;

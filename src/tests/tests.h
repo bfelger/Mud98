@@ -6,7 +6,9 @@
 #ifndef MUD98__TESTS__TESTS_H
 #define MUD98__TESTS__TESTS_H
 
+#include <lox/object.h>
 #include <lox/value.h>
+#include <lox/vm.h>
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -38,6 +40,7 @@ void register_lox_tests();
 void register_lox_ext_tests();
 void register_entity_tests();
 void register_container_tests();
+void register_act_tests();
 
 void run_all_tests();
 
@@ -54,10 +57,13 @@ void test_lox_string_eq(const char* expected, Value actual, const char* file, in
 #define ASSERT_LOX_STR_EQ(expected, actual) test_lox_string_eq(expected, actual, __FILE__, __LINE__)
 
 #define ASSERT_OUTPUT_EQ(expected) \
-    ASSERT(result == INTERPRET_OK); \
     ASSERT(IS_STRING(test_output_buffer)); \
     if (IS_STRING(test_output_buffer)) \
-        ASSERT_STR_EQ(expected, AS_CSTRING(test_output_buffer)); 
+        ASSERT_STR_EQ(expected, AS_CSTRING(test_output_buffer))
+
+#define ASSERT_LOX_OUTPUT_EQ(expected) \
+    ASSERT(result == INTERPRET_OK); \
+    ASSERT_OUTPUT_EQ(expected) 
 
 extern bool test_dissasemble_on_error;
 extern bool test_output_enabled;

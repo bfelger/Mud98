@@ -50,7 +50,7 @@ static int test_math_negation_2()
     const char* src = "print -4;";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("-4\n");
+    ASSERT_LOX_OUTPUT_EQ("-4\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -61,7 +61,7 @@ static int test_15_2_value_stack_1()
     const char* src = "print 5 - 3;";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("2\n");
+    ASSERT_LOX_OUTPUT_EQ("2\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -78,7 +78,7 @@ static int test_15_2_value_stack_2()
         "print echo(echo(1) + echo(2)) + echo(echo(4) + echo(5));";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("1\n2\n3\n4\n5\n9\n12\n");
+    ASSERT_LOX_OUTPUT_EQ("1\n2\n3\n4\n5\n9\n12\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -90,7 +90,7 @@ static int test_17_challenge_1()
         "print (-1 + 2) * 3 - -4";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("7\n");
+    ASSERT_LOX_OUTPUT_EQ("7\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -105,7 +105,7 @@ static int test_18_4_1_logical_not()
         "print !!false;\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("false\ntrue\ntrue\nfalse\n")
+    ASSERT_LOX_OUTPUT_EQ("false\ntrue\ntrue\nfalse\n")
         ;
     test_output_buffer = NIL_VAL;
     return 0;
@@ -120,7 +120,7 @@ static int test_19_4_string_comp()
         "print \"abc\" != \"abc\";\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("false\ntrue\ntrue\nfalse\n");
+    ASSERT_LOX_OUTPUT_EQ("false\ntrue\ntrue\nfalse\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -135,7 +135,7 @@ static int test_19_5_string_concat()
         "print s;\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("abcdef\nhello world\n");
+    ASSERT_LOX_OUTPUT_EQ("abcdef\nhello world\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -153,7 +153,7 @@ static int test_21_0_late_binding()
         "test();\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("late bound!\n");
+    ASSERT_LOX_OUTPUT_EQ("late bound!\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -167,7 +167,7 @@ static int test_21_3_reading_vars()
         "print breakfast;";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("beignets with cafe au lait\n");
+    ASSERT_LOX_OUTPUT_EQ("beignets with cafe au lait\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -182,7 +182,7 @@ static int test_21_4_assigning_vars()
         "print breakfast;\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("beignets with cafe au lait\n");
+    ASSERT_LOX_OUTPUT_EQ("beignets with cafe au lait\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -201,7 +201,7 @@ static int test_22_scoped_vars()
         "print x;\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("global x\nlocal x\nglobal x\n");
+    ASSERT_LOX_OUTPUT_EQ("global x\nlocal x\nglobal x\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -222,7 +222,7 @@ static int test_23_1_if_else()
         "}\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("10 or more\n");
+    ASSERT_LOX_OUTPUT_EQ("10 or more\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -243,7 +243,7 @@ static int test_23_2_logical_operators()
         "}\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("between 5 and 15\ninside 5 to 15\n");
+    ASSERT_LOX_OUTPUT_EQ("between 5 and 15\ninside 5 to 15\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -259,7 +259,7 @@ static int test_23_3_while_loop()
         "}\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("0\n1\n2\n3\n4\n");
+    ASSERT_LOX_OUTPUT_EQ("0\n1\n2\n3\n4\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -273,7 +273,7 @@ static int test_23_4_for_loop()
         "}\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("0\n1\n2\n3\n4\n");
+    ASSERT_LOX_OUTPUT_EQ("0\n1\n2\n3\n4\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -288,7 +288,7 @@ static int test_24_5_1_func_arg_binding()
         "print 4 + sum(5, 6, 7);\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("22\n");
+    ASSERT_LOX_OUTPUT_EQ("22\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -310,7 +310,7 @@ static int test_25_1_closure_objects()
         "bagel();\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("doughnut\nbagel\n");
+    ASSERT_LOX_OUTPUT_EQ("doughnut\nbagel\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -332,7 +332,7 @@ static int test_25_2_closure_captures()
         "counter();\n"
         "counter();\n";
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("1\n2\n3\n");
+    ASSERT_LOX_OUTPUT_EQ("1\n2\n3\n");
     test_output_buffer = NIL_VAL;
     return 0;
 }
@@ -352,7 +352,7 @@ static int test_25_2_upvalues()
         "outer()\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("2\n");
+    ASSERT_LOX_OUTPUT_EQ("2\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -382,7 +382,7 @@ static int test_25_2_2_flattened_upvalues()
         "in();\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("return from outer\ncreate inner closure\nvalue\n");
+    ASSERT_LOX_OUTPUT_EQ("return from outer\ncreate inner closure\nvalue\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -404,7 +404,7 @@ static int test_25_3_upvalue_captures()
         "outer();\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("assigned\n");
+    ASSERT_LOX_OUTPUT_EQ("assigned\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -425,7 +425,7 @@ static int test_25_3_1_upvalues_in_closures()
         "outer();\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("outside\n");
+    ASSERT_LOX_OUTPUT_EQ("outside\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -447,7 +447,7 @@ static int test_25_4_closed_upvalues()
         "closure();\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("outside\n");
+    ASSERT_LOX_OUTPUT_EQ("outside\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -473,7 +473,7 @@ static int test_25_4_1_closed_upvals_closures()
         "globalGet();\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("updated\n");
+    ASSERT_LOX_OUTPUT_EQ("updated\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -487,7 +487,7 @@ static int test_27_4_1_setter_value()
         "print toast.jam = \"grape\";\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("grape\n");
+    ASSERT_LOX_OUTPUT_EQ("grape\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -503,7 +503,7 @@ static int test_27_4_1_implicit_properties()
         "print pair.first + pair.second;\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("3\n");
+    ASSERT_LOX_OUTPUT_EQ("3\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -524,7 +524,7 @@ static int test_28_2_method_references()
         "method();\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("Jane\n");
+    ASSERT_LOX_OUTPUT_EQ("Jane\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -543,7 +543,7 @@ static int test_28_2_3_calling_methods()
         "scone.topping(\"berries\", \"cream\");\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("scone with berries and cream\n");
+    ASSERT_LOX_OUTPUT_EQ("scone with berries and cream\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -568,7 +568,7 @@ static int test_28_4_initializers()
         "maker.brew();\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("Enjoy your cup of coffee and chicory\n");
+    ASSERT_LOX_OUTPUT_EQ("Enjoy your cup of coffee and chicory\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -594,7 +594,7 @@ static int test_29_1_inheriting_methods()
         "a.finish();\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("Dunk in the fryer.\nGlaze with icing.\n");
+    ASSERT_LOX_OUTPUT_EQ("Dunk in the fryer.\nGlaze with icing.\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -616,7 +616,7 @@ static int test_29_2_super_call_dispatch()
         "c.method();\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("C.method\nB.method\nA.method\n");
+    ASSERT_LOX_OUTPUT_EQ("C.method\nB.method\nA.method\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -645,7 +645,7 @@ static int test_29_3_super_closures()
         "C().test()\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("A method\n");
+    ASSERT_LOX_OUTPUT_EQ("A method\n");
 
     test_output_buffer = NIL_VAL;
     return 0;

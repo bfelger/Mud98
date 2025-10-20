@@ -93,6 +93,7 @@ void log_string(const char* str);
 String* fread_lox_string(FILE* fp);
 char* fread_lox_script(FILE* fp);
 String* lox_string(const char* str);
+String* push_lox_string(const char* str);
 
 bool load_lox_class(FILE* fp, const char* entity_type_name, Entity* entity);
 

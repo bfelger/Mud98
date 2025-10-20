@@ -4,6 +4,8 @@
 
 #include "mock.h"
 
+#include <db.h>
+
 // This is marked by Lox's GC
 ValueArray* mocks_ = NULL;
 
@@ -57,6 +59,33 @@ Area* mock_area(AreaData* ad)
     return a;
 }
 
+MobPrototype* mock_mob_proto(VNUM vnum)
+{
+    MobPrototype* mp = new_mob_prototype();
+    mp->header.vnum = vnum;
+    mp->sex = SEX_MALE;
+    write_value_array(mocks(), OBJ_VAL(mp));
+
+    return mp;
+}
+
+Mobile* mock_mob(const char* name, VNUM vnum, MobPrototype* mp)
+{
+    if (mp == NULL) {
+        mp = mock_mob_proto(vnum);
+        mp->header.name = AS_STRING(mock_str(name));
+        mp->short_descr = str_dup(name);
+    }
+
+    Mobile* m = create_mobile(mp);
+    m->header.name = AS_STRING(mock_str(name));
+    m->level = 1;
+    m->position = POS_STANDING;
+    write_value_array(mocks(), OBJ_VAL(m));
+
+    return m;
+}
+
 Room* mock_room(VNUM vnum, RoomData* rd, Area* a)
 {
     if (a == NULL) {
@@ -79,4 +108,21 @@ Room* mock_room(VNUM vnum, RoomData* rd, Area* a)
     write_value_array(mocks(), OBJ_VAL(r));
 
     return r;
+}
+
+Descriptor* mock_descriptor()
+{
+    Descriptor* d = new_descriptor();
+    return d;
+}
+
+Mobile* mock_player(const char* name)
+{
+    Mobile* m = mock_mob(name, 0, NULL);
+    m->act_flags = 0;
+    m->pcdata = new_player_data();
+    m->desc = mock_descriptor();
+    m->desc->character = m;
+    write_value_array(mocks(), OBJ_VAL(m->pcdata));
+    return m;
 }

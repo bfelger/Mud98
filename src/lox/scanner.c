@@ -192,9 +192,6 @@ static Token identifier()
     while (is_alpha(peek()) || is_digit(peek()))
         advance();
 
-    if (scanner.interp == STR_INT_IDENT)
-        scanner.interp = STR_INT_END;
-
     return make_token(identifier_type());
 }
 
@@ -204,7 +201,7 @@ static Token string()
         if (peek() == '\n')
             scanner.line++;
         else if (peek() == '$' && scanner.interp == STR_INT_NONE &&
-                (peek_next() == '{' || is_alpha(peek_next()))) {
+                (peek_next() == '{')) {
             scanner.interp = STR_INT_START;
             return make_token(TOKEN_STRING_INTERP);
         }
@@ -284,8 +281,6 @@ Token scan_token()
         if (scanner.interp == STR_INT_START) {
             if (peek() == '{')
                 scanner.interp = STR_INT_EXPR;
-            else if (is_alpha(peek()))
-                scanner.interp = STR_INT_IDENT;
             else
                 return error_token("Unexpected string interpolation token.");
         }

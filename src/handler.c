@@ -44,26 +44,28 @@
 #include "vt.h"
 #include "weather.h"
 
-#include "entities/area.h"
-#include "entities/descriptor.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
+#include <entities/area.h>
+#include <entities/descriptor.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
 
-#include "data/class.h"
-#include "data/item.h"
-#include "data/mobile_data.h"
-#include "data/player.h"
-#include "data/race.h"
-#include "data/skill.h"
-#include "data/spell.h"
+#include <data/class.h>
+#include <data/item.h>
+#include <data/mobile_data.h>
+#include <data/player.h>
+#include <data/race.h>
+#include <data/skill.h>
+#include <data/spell.h>
 
-#include "lox/lox.h"
+#include <lox/lox.h>
 
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
 #include <time.h>
+
+extern bool test_output_enabled;
 
 /* friend stuff -- for NPC's mostly */
 bool is_friend(Mobile* ch, Mobile* victim)
@@ -883,7 +885,8 @@ void mob_from_room(Mobile* ch)
     Object* obj;
 
     if (ch->in_room == NULL) {
-        bug("Char_from_room: NULL.", 0);
+        if (!test_output_enabled)
+            bug("Char_from_room: NULL.", 0);
         return;
     }
 
@@ -963,8 +966,10 @@ void mob_to_room(Mobile* ch, Room* room)
     ch->in_room = room;
     list_push_back(&room->mobiles, OBJ_VAL(ch));
 
-    if (!IS_NPC(ch) && ch->desc->mth->msdp_data && cfg_get_msdp_enabled())
-        update_mdsp_room(ch);
+    if (!test_output_enabled) {
+        if (!IS_NPC(ch) && ch->desc->mth->msdp_data && cfg_get_msdp_enabled())
+            update_mdsp_room(ch);
+    }
 
     if (!IS_NPC(ch)) {
         Area* area = ch->in_room->area;

@@ -2477,3 +2477,14 @@ String* lox_string(const char* str)
     int len = (int)strlen(str);
     return copy_string(str, len);
 }
+
+// Push a Lox string onto the stack.
+// Used for temporary strings in act_pos_new().
+// Make sure you pop() on the way out!
+String* push_lox_string(const char* str)
+{
+    int len = (int)strlen(str);
+    ObjString* lox_str = copy_string(str, len);
+    push(OBJ_VAL(lox_str));
+    return lox_str;
+}

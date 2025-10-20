@@ -13,8 +13,6 @@ TestGroup container_tests;
 
 static int test_list_remove_node()
 {
-    InterpretResult result = INTERPRET_OK;
-
     // Test 0-initialization as per Object/Mobile Entities
     List list = { 0 };
 
@@ -64,8 +62,6 @@ static int test_list_remove_node()
 
 static int test_list_remove_value()
 {
-    InterpretResult result = INTERPRET_OK;
-
     // Test 0-initialization as per Object/Mobile Entities
     List list = { 0 };
 

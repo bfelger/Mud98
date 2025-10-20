@@ -13,9 +13,16 @@
 ValueArray* mocks();
 Value mock_str(const char* str);
 
-AreaData* mock_area_data();
 RoomData* mock_room_data(VNUM vnum, AreaData* ad);
-Area* mock_area(AreaData* ad);
 Room* mock_room(VNUM vnum, RoomData* rd, Area* a);
+
+AreaData* mock_area_data();
+Area* mock_area(AreaData* ad);
+
+MobPrototype* mock_mob_proto(VNUM vnum);
+Mobile* mock_mob(const char* name, VNUM vnum, MobPrototype* mp);
+
+Descriptor* mock_descriptor();
+Mobile* mock_player(const char* name);
 
 #endif // !MUD98__TESTS__MOCK_H

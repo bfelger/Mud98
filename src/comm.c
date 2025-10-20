@@ -114,7 +114,7 @@ const unsigned char echo_off_str[4] = { IAC, WILL, TELOPT_ECHO, 0 };
 const unsigned char echo_on_str[4] = { IAC, WONT, TELOPT_ECHO, 0 };
 const unsigned char go_ahead_str[3] = { IAC, GA, 0 };
 
-Descriptor* d_next;                    // Next descriptor in loop
+Descriptor* d_next;     // Next descriptor in loop
 
 typedef enum {
     THREAD_STATUS_NONE,
@@ -158,6 +158,8 @@ bool check_parse_name(char* name);
 bool check_playing(Descriptor* d, char* name);
 bool check_reconnect(Descriptor* d, bool fConn);
 void send_to_desc(const char* txt, Descriptor* desc);
+
+extern bool test_output_enabled;
 
 static int running_servers = 0;
 
@@ -2279,7 +2281,7 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
     char* string2 = "";
 
     if (target == NULL)
-        return;
+        goto act_cleanup;
 
     if (target->type == OBJ_MOB)
         ch = (Mobile*)target;
@@ -2316,20 +2318,20 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
 
     // Discard null and zero-length messages.
     if (!format || !*format)
-        return;
+        goto act_cleanup;
 
     /* discard null rooms and chars */
     if ((!ch || !ch->in_room) && to_room == NULL)
-        return;
+        goto act_cleanup;
 
     if (type == TO_VICT) {
         if (!vch) {
             bug("Act: null vch with TO_VICT.", 0);
-            return;
+            goto act_cleanup;
         }
 
         if (!vch->in_room)
-            return;
+            goto act_cleanup;
 
         to_room = vch->in_room;
     }
@@ -2404,9 +2406,32 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
                     i = sex_table[ch->sex].poss;
                     break;
                 case 'S':
-                    if (to == vch)
                     i = sex_table[vch_sex].poss;
                     break;
+                //case 'n':
+                //    i = (to == ch) ? "you" : PERS(ch, to);
+                //    break;
+                //case 'N':
+                //    i = (to == vch) ? "you" : PERS(vch, to);
+                //    break;
+                //case 'e':
+                //    i = (to == ch) ? "you" : sex_table[ch->sex].subj;
+                //    break;
+                //case 'E':
+                //    i = (to == vch) ? "you" : sex_table[vch_sex].subj;
+                //    break;
+                //case 'm':
+                //    i = (to == ch) ? "you" : sex_table[ch->sex].obj;
+                //    break;
+                //case 'M':
+                //    i = (to == vch) ? "you" : sex_table[vch_sex].obj;
+                //    break;
+                //case 's':
+                //    i = (to == ch) ? "your" : sex_table[ch->sex].poss;
+                //    break;
+                //case 'S':
+                //    i = (to == vch) ? "your" : sex_table[vch_sex].poss;
+                //    break;
 
                 case 'p':
                     i = (obj1 != NULL && can_see_obj(to, obj1)) ? obj1->short_descr : "something";
@@ -2439,7 +2464,11 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
         *point++ = '\r';
         *point = '\0';
         buf[0] = UPPER(buf[0]);
-        if (to->desc != NULL) {
+
+        if (test_output_enabled) {
+            lox_printf("%s", buf);
+        }
+        else if (to->desc != NULL) {
             pbuff = buffer;
             colourconv(pbuff, buf, to);
             write_to_buffer(to->desc, pbuff, 0);
@@ -2447,10 +2476,13 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
         else if (events_enabled) {
             mp_act_trigger(buf, to, ch, arg1, arg2, TRIG_ACT);
         }
-
     }
 
-    return;
+act_cleanup:
+    if (arg1 != NULL && arg1->type == OBJ_STRING)
+        pop();
+    if (arg2 != NULL && arg2->type == OBJ_STRING)
+        pop();
 }
 
 size_t colour(char type, Mobile * ch, char* string)

@@ -50,7 +50,6 @@ typedef struct {
 typedef enum {
     STR_INT_NONE = 0,
     STR_INT_START = 1,
-    STR_INT_IDENT = 2,
     STR_INT_EXPR = 3,
     STR_INT_END = 4,
 } StringInterp;

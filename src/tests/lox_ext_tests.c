@@ -24,7 +24,7 @@ static int test_array_access()
         "   print a[i];\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("0\n100\n5\n13\n");
+    ASSERT_LOX_OUTPUT_EQ("0\n100\n5\n13\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -73,7 +73,7 @@ static int test_marshaled_raw_vals()
         result = call_function("test_interop", 4, raw_i16, raw_i32, raw_u64, raw_str);
         ASSERT(result == INTERPRET_OK);
 
-        ASSERT_OUTPUT_EQ("16\n32\n64\nstring\n17\n31\n65\nblah blah blah\n");
+        ASSERT_LOX_OUTPUT_EQ("16\n32\n64\nstring\n17\n31\n65\nblah blah blah\n");
 
         pop(); // args
 
@@ -91,7 +91,7 @@ static int test_lamdas()
         "print \"Mobile Instance Count: \" + mob_count\n";
     
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("Mobile Instance Count: 2166\n");
+    ASSERT_LOX_OUTPUT_EQ("Mobile Instance Count: 2166\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -104,7 +104,7 @@ static int test_bare_lamdas()
         "blah()\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("blah!\n");
+    ASSERT_LOX_OUTPUT_EQ("blah!\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -122,7 +122,7 @@ static int test_lamda_values()
         "})\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("blah\nduh\n");
+    ASSERT_LOX_OUTPUT_EQ("blah\nduh\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -135,7 +135,7 @@ static int test_string_interp_escape()
         "print \"a = $$\"\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("a = $$\n");
+    ASSERT_LOX_OUTPUT_EQ("a = $$\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -143,12 +143,15 @@ static int test_string_interp_escape()
 
 static int test_string_interp_var()
 {
+    // The string '$a' should not be interpolated.
+    // We need to be able to continue using $ specifiers for act() messages.
+
     const char* src =
         "var a = 2\n"
         "print \"The value '$a' is stored in 'a'.\"\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("The value '2' is stored in 'a'.\n");
+    ASSERT_LOX_OUTPUT_EQ("The value '$a' is stored in 'a'.\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -162,7 +165,7 @@ static int test_string_interp_expr()
         "print \"The value '${a+b}' is stored in 'a+b'.\"\n";
 
     InterpretResult result = interpret_code(src);
-    ASSERT_OUTPUT_EQ("The value '5' is stored in 'a+b'.\n");
+    ASSERT_LOX_OUTPUT_EQ("The value '5' is stored in 'a+b'.\n");
 
     test_output_buffer = NIL_VAL;
     return 0;

@@ -117,8 +117,8 @@ void page_to_char(const char* txt, Mobile* ch);
         Area*: (Obj*)(N), \
         ObjString*: (Obj*)(N), \
         Obj*: (N), \
-        char*: (Obj*)lox_string((char*)N), \
-        const char*: (Obj*)lox_string((const char*)N), \
+        char*: (Obj*)push_lox_string((char*)N), \
+        const char*: (Obj*)push_lox_string((const char*)N), \
         void*: (Obj*)(N) \
     )
 
