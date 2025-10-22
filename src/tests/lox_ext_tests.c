@@ -49,36 +49,36 @@ static int test_marshaled_raw_vals()
         "   str = \"blah blah blah\";\n"
         "}\n";
 
-        InterpretResult result = interpret_code(src);
-        ASSERT(result == INTERPRET_OK);
+    InterpretResult result = interpret_code(src);
+    ASSERT(result == INTERPRET_OK);
         
-        ValueArray* args = new_obj_array();
-        push(OBJ_VAL(&args)); // Protect args as we make them.
+    ValueArray* args = new_obj_array();
+    push(OBJ_VAL(&args)); // Protect args as we make them.
         
-        Value raw_i16 = WRAP_I16(i16);
-        write_value_array(args, raw_i16);
+    Value raw_i16 = WRAP_I16(i16);
+    write_value_array(args, raw_i16);
         
-        Value raw_i32 = WRAP_I32(i32);
-        write_value_array(args, raw_i32);
+    Value raw_i32 = WRAP_I32(i32);
+    write_value_array(args, raw_i32);
         
-        Value raw_u64 = WRAP_U64(u64);
-        write_value_array(args, raw_u64);
+    Value raw_u64 = WRAP_U64(u64);
+    write_value_array(args, raw_u64);
         
-        Value raw_str = WRAP_STR(str);
-        write_value_array(args, raw_str);
+    Value raw_str = WRAP_STR(str);
+    write_value_array(args, raw_str);
         
-        result = call_function("test_interop", 4, raw_i16, raw_i32, raw_u64, raw_str);
-        ASSERT(result == INTERPRET_OK);
+    result = call_function("test_interop", 4, raw_i16, raw_i32, raw_u64, raw_str);
+    ASSERT(result == INTERPRET_OK);
 
-        result = call_function("test_interop", 4, raw_i16, raw_i32, raw_u64, raw_str);
-        ASSERT(result == INTERPRET_OK);
+    result = call_function("test_interop", 4, raw_i16, raw_i32, raw_u64, raw_str);
+    ASSERT(result == INTERPRET_OK);
 
-        ASSERT_LOX_OUTPUT_EQ("16\n32\n64\nstring\n17\n31\n65\nblah blah blah\n");
+    ASSERT_LOX_OUTPUT_EQ("16\n32\n64\nstring\n17\n31\n65\nblah blah blah\n");
 
-        pop(); // args
+    pop(); // args
 
-        test_output_buffer = NIL_VAL;
-        return 0;
+    test_output_buffer = NIL_VAL;
+    return 0;
 }
 
 static int test_lamdas()
@@ -171,6 +171,18 @@ static int test_string_interp_expr()
     return 0;
 }
 
+static int test_string_interp_var_start()
+{
+    const char* src = "print \"$n places a hand on $S shouler.\"\n";
+
+    InterpretResult result = interpret_code(src);
+    ASSERT_LOX_OUTPUT_EQ("$n places a hand on $S shouler.\n");
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+
+}
+
 void register_lox_ext_tests()
 {
 #define REGISTER(n, f)  register_test(&lox_ext_tests, (n), (f))
@@ -184,8 +196,9 @@ void register_lox_ext_tests()
     REGISTER("Bare Lamdas", test_bare_lamdas);
     REGISTER("Lamda Values", test_lamda_values);
     REGISTER("String Interpolation: Escape", test_string_interp_escape);
-    REGISTER("String Interpolation: Variables", test_string_interp_var);
-    REGISTER("String Interpolation: Expressions", test_string_interp_var);
+    REGISTER("String Interpolation: Act Vars", test_string_interp_var);
+    REGISTER("String Interpolation: Expressions", test_string_interp_expr);
+    REGISTER("String Interpolation: Starting Act Var", test_string_interp_var_start);
 
 #undef REGISTER
 }

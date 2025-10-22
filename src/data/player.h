@@ -18,7 +18,7 @@ typedef enum plr_act_flags_t {
     PLR_AUTOSAC             = BIT(5),
     PLR_AUTOGOLD            = BIT(6),
     PLR_AUTOSPLIT           = BIT(7),
-    // Unused                 BIT(8)
+    PLR_TESTER              = BIT(8),
     // Unused                 BIT(9)
     // Unused                 BIT(10)
     // Unused                 BIT(11)

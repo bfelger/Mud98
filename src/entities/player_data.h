@@ -11,14 +11,15 @@ typedef struct player_data_t PlayerData;
 #ifndef MUD98__ENTITIES__PLAYER_DATA_H
 #define MUD98__ENTITIES__PLAYER_DATA_H
 
-#include "merc.h"
-
-#include "color.h"
-#include "recycle.h"
+#include <merc.h>
 
 #include "mobile.h"
 
-#include "data/quest.h"
+#include <color.h>
+#include <recycle.h>
+
+#include <data/quest.h>
+#include <data/player.h>
 
 typedef struct color_config_t {
     char* current_theme_name;   // For lazy-loading and discardability

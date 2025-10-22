@@ -85,6 +85,7 @@ const struct flag_type plr_flag_table[] = {
     { "autosac",        BIT(5),     false   },
     { "autogold",       BIT(6),     false   },
     { "autosplit",      BIT(7),     false   },
+    { "tester",         BIT(8),     true    },
     { "holylight",      BIT(13),    false   },
     { "can_loot",       BIT(15),    false   },
     { "nosummon",       BIT(16),    false   },

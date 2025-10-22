@@ -21,7 +21,7 @@
 #include "data/race.h"
 
 Table mob_protos;
-MobPrototype* mob_proto_free;
+MobPrototype* mob_proto_free = NULL;
 
 int mob_proto_count;
 int mob_proto_perm_count;

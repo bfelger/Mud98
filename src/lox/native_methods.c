@@ -106,7 +106,7 @@ static Value echo_lox(Value receiver, int arg_count, Value* args)
 
     for (int i = first_arg; i < arg_count; i++) {
         char* msg = string_value(args[i]);
-        act(msg, ch, vch, NULL, TO_ROOM);
+        act(msg, ch, NULL, vch, TO_ROOM);
     }
 
     return TRUE_VAL;

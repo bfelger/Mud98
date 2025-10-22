@@ -1204,9 +1204,9 @@ InterpretResult invoke_closure(ObjClosure* closure, int count, ...)
 
 void invoke_method_closure(Value receiver, ObjClosure* closure, int count, ...)
 {
-    push(receiver);
+    reset_stack();
 
-    vm.stack_top[-1] = receiver;
+    push(receiver);
 
     va_list args;
 

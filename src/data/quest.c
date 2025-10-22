@@ -66,14 +66,18 @@ QuestLog* new_quest_log()
     static QuestLog ql_zero = { 0 };
     ALLOC(QuestLog, ql);
     *ql = ql_zero;
+    ql->target_ends = NULL;
     ql->target_mobs = NULL;
     ql->target_objs = NULL;
+    ql->quests = NULL;
     return ql;
 }
 
-void free_quest_log(QuestLog* quest_log)
+void free_quest_log(PlayerData* pc)
 {
+    QuestLog* quest_log = pc->quest_log;
     QuestTarget* t;
+    QuestStatus* s;
 
     while (quest_log->target_mobs) {
         t = quest_log->target_mobs;
@@ -93,7 +97,14 @@ void free_quest_log(QuestLog* quest_log)
         free_mem(t, sizeof(QuestTarget));
     }
 
+    while (quest_log->quests) {
+        s = quest_log->quests;
+        NEXT_LINK(quest_log->quests);
+        free_mem(s, sizeof(QuestStatus));
+    }
+
     free_mem(quest_log, sizeof(QuestLog));
+    pc->quest_log = NULL;
 }
 
 Quest* get_quest(VNUM vnum)
@@ -383,65 +394,247 @@ bool can_finish_quest(Mobile* ch, VNUM vnum)
 
 void do_quest(Mobile* ch, char* argument)
 {
+    static const char* help =
+        "USAGE: {*QUEST {x              - Show all active quests.\n\r"
+        "       {*QUEST AREA{x          - Show only quests in this area.\n\r"
+        "       {*QUEST COMPLETED{x     - Show completed quests.\n\r"
+        "       {*QUEST HELP{x          - Show this help.\n\r";
+    static const char* tester_help =
+        "The following commands are also available to you as a tester:\n\r"
+        "       {*QUEST SHOW <vnum>{x         - Show quest info for specific quest.\n\r"
+        "       {*QUEST GRANT <vnum>{x        - Grant yourself a specific quest.\n\r"
+        "       {*QUEST PROGRESS <vnum> <#>{x - Set progress for a specific quest.\n\r"
+        "       {*QUEST FINISH <vnum>{x       - Finish a specific quest.\n\r"
+        "       {*QUEST CLEAR <vnum>{x        - Clear a specific quest from your log.\n\r"
+        "       {*QUEST CLEAR ALL{x           - Clear your entire quest log.\n\r"; 
+
+    char arg1[MAX_INPUT_LENGTH] = { 0 };
+    char arg2[MAX_INPUT_LENGTH] = { 0 };
+
+    bool area_only = false;
+    bool complete_only = false;
+
     if (!ch->pcdata)
         return;
 
+    bool is_tester = IS_TESTER(ch);
+
+    if (argument[0] != '\0') {
+        READ_ARG(arg1);
+
+        if (!str_prefix(arg1, "help")) {
+            send_to_char(help, ch);
+            if (IS_TESTER(ch))
+                send_to_char(tester_help, ch);
+            return;
+        }
+        else if (!str_prefix(arg1, "area")) {
+            area_only = true;
+        }
+        else if (!str_prefix(arg1, "completed")) {
+            complete_only = true;
+        }
+        else if (is_tester && !str_prefix(arg1, "show")) {
+            READ_ARG(arg2);
+            if (!is_number(arg2)) {
+                send_to_char("You must provide a quest vnum.\n\r", ch);
+                return;
+            }
+            VNUM vnum = atoi(arg2);
+            Quest* q = get_quest(vnum);
+            if (!q) {
+                send_to_char("No such quest exists.\n\r", ch);
+                return;
+            }
+            printf_to_char(ch, "{|[{_#%d{|] {T%s {|[{*Level %d{|] {_(%s){x\n\r",
+                     q->vnum, q->name, q->level, NAME_STR(q->area_data));
+            printf_to_char(ch, "{_%s{x\n\r", q->entry);
+        }
+        else if (is_tester && !str_prefix(arg1, "grant")) {
+            READ_ARG(arg2);
+            if (!is_number(arg2)) {
+                send_to_char("You must provide a quest vnum.\n\r", ch);
+                return;
+            }
+            VNUM vnum = atoi(arg2);
+            Quest* q = get_quest(vnum);
+            if (!q) {
+                send_to_char("No such quest exists.\n\r", ch);
+                return;
+            }
+            grant_quest(ch, q);
+        }
+        else if (is_tester && !str_prefix(arg1, "progress")) {
+            READ_ARG(arg2);
+            char arg3[MAX_INPUT_LENGTH] = { 0 };
+            READ_ARG(arg3);
+            if (!is_number(arg2) || !is_number(arg3)) {
+                send_to_char("You must provide a quest vnum and progress amount.\n\r", ch);
+                return;
+            }
+            VNUM vnum = atoi(arg2);
+            int progress = atoi(arg3);
+            Quest* q = get_quest(vnum);
+            QuestStatus* qs = get_quest_status(ch, vnum);
+            if (!q || !qs) {
+                send_to_char("No such quest exists in your log.\n\r", ch);
+                return;
+            }
+            qs->progress = progress;
+            printf_to_char(ch, "Set progress of quest #%d to %d.\n\r", vnum, progress);
+            save_char_obj(ch);
+        }
+        else if (is_tester && !str_prefix(arg1, "finish")) {
+            READ_ARG(arg2);
+            if (!is_number(arg2)) {
+                send_to_char("You must provide a quest vnum.\n\r", ch);
+                return;
+            }
+            VNUM vnum = atoi(arg2);
+            Quest* q = get_quest(vnum);
+            QuestStatus* qs = get_quest_status(ch, vnum);
+            if (!q || !qs) {
+                send_to_char("No such quest exists in your log.\n\r", ch);
+                return;
+            }
+            finish_quest(ch, q, qs);
+        }
+        else if (is_tester && !str_prefix(arg1, "clear")) {
+            READ_ARG(arg2);
+            if (str_cmp(arg2, "all") == 0) {
+                free_quest_log(ch->pcdata);
+                ch->pcdata->quest_log = new_quest_log();
+                send_to_char("Your quest log has been cleared.\n\r", ch);
+                save_char_obj(ch);
+                return;
+            }
+            if (!is_number(arg2)) {
+                send_to_char("You must provide a quest vnum or ALL.\n\r", ch);
+                return;
+            }
+            VNUM vnum = atoi(arg2);
+            QuestStatus* qs = get_quest_status(ch, vnum);
+            if (!qs) {
+                send_to_char("No such quest exists in your log.\n\r", ch);
+                return;
+            }
+            remove_quest_target(ch, qs->quest);
+            UNORDERED_REMOVE(QuestStatus, qs, ch->pcdata->quest_log->quests, vnum, vnum);
+            free_mem(qs, sizeof(QuestStatus));
+            send_to_char("Quest removed from your log.\n\r", ch);
+            save_char_obj(ch);
+        }
+        else {
+            printf_to_char(ch, "Unknown quest argument: %s\n\r", arg1);
+            send_to_char(help, ch);
+            if (IS_TESTER(ch))
+                send_to_char(tester_help, ch);
+            return;
+        }
+    }
+
     QuestStatus* qs = NULL;
 
-    INIT_BUF(local, MSL);
-    INIT_BUF(world, MSL);
     INIT_BUF(out, MSL);
 
     AreaData* area = ch->in_room ? ch->in_room->area->data : NULL;
 
     int i = 0;
 
+    if (complete_only) {
+        INIT_BUF(complete, MSL);
+
+        FOR_EACH(qs, ch->pcdata->quest_log->quests)
+        {
+            if (qs->state == QSTAT_COMPLETE) {
+                Quest* q = get_quest(qs->vnum);
+                ++i;
+                if (is_tester)
+                    addf_buf(complete, 
+                        "%d. {|[{_#%d{|]  {T%s {|[{*Level %d{|] {_(%s){x\n\r",
+                        i, q->vnum, q->name, q->level, NAME_STR(q->area_data));
+                else
+                    addf_buf(complete, "%d. {T%s {|[{*Level %d{|] {_(%s){x\n\r",
+                        i, q->name, q->level, NAME_STR(q->area_data));
+            }
+        }
+
+        if (BUF(complete)[0]) {
+            add_buf(out, "{*Completed Quests:{x\n\r");
+            add_buf(out, BUF(complete));
+        }
+
+        free_buf(complete);
+    }
+
     if (area != NULL) {
+        INIT_BUF(local, MSL);
+
         FOR_EACH(qs, ch->pcdata->quest_log->quests) {
             if (qs->state != QSTAT_COMPLETE && qs->vnum >= area->min_vnum && qs->vnum <= area->max_vnum) {
                 Quest* q = get_quest(qs->vnum);
                 ++i;
-                addf_buf(local, "%d. {T%s {|[{*Level %d{|] \n",
-                    i, q->name, q->level);
+                if (is_tester)
+                    addf_buf(local, "%d. {|[{_#%d{|] {T%s {|[{*Level %d{|] ",
+                        i, q->vnum, q->name, q->level);
+                else
+                    addf_buf(local, "%d. {T%s {|[{*Level %d{|] ",
+                        i, q->name, q->level);
+
+
                 if (qs->amount > 0) {
-                    addf_buf(local, "{j(%d/%d){x\n\r", qs->progress, qs->amount);
+                    addf_buf(local, "{j(%d/%d){x", qs->progress, qs->amount);
                 }
-                addf_buf(local, "{_%s{x\n\r\n\r", q->entry);
+                addf_buf(local, "\n\r{_%s{x\n\r\n\r", q->entry);
             }
         }
-    }
 
-    FOR_EACH(qs, ch->pcdata->quest_log->quests) {
-        if (qs->state != QSTAT_COMPLETE && (!area || qs->vnum < area->min_vnum || qs->vnum > area->max_vnum)) {
-            Quest* q = get_quest(qs->vnum);
-            ++i;
-            addf_buf(world, "%d. {T%s {|[{*Level %d{|] {_(%s){x",
-                i, q->name, q->level, NAME_STR(q->area_data));                
-            if (qs->amount > 0) {
-                addf_buf(local, " {j(%d/%d){x\n\r", qs->progress, qs->amount);
-            }
-            add_buf(local, "\n\r");
+        if (area != NULL && BUF(local)[0]) {
+            addf_buf(out, "{*Active Quests in %s:{x\n\r", NAME_STR(area));
+            add_buf(out, BUF(local));
         }
+
+        free_buf(local);
     }
 
-    if (area != NULL && BUF(local)[0]) {
-        addf_buf(out, "{*Active Quests in %s:\n\r\n\r", NAME_STR(area));
-        add_buf(out, BUF(local));
+    if (!area_only) {
+        INIT_BUF(world, MSL);
+
+        FOR_EACH(qs, ch->pcdata->quest_log->quests)
+        {
+            if (qs->state != QSTAT_COMPLETE && (!area || qs->vnum < area->min_vnum || qs->vnum > area->max_vnum)) {
+                Quest* q = get_quest(qs->vnum);
+                ++i;
+                if (is_tester)
+                    addf_buf(world, "%d. {|[{_#%d{|] {T%s {|[{*Level %d{|] {_(%s){x",
+                        i, q->vnum, q->name, q->level, NAME_STR(q->area_data));
+                else
+                    addf_buf(world, "%d. {T%s {|[{*Level %d{|] {_(%s){x",
+                        i, q->name, q->level, NAME_STR(q->area_data));
+                if (qs->amount > 0) {
+                    addf_buf(world, " {j(%d/%d){x\n\r", qs->progress, qs->amount);
+                }
+                add_buf(world, "\n\r");
+            }
+        }
+
+        if (BUF(world)[0]) {
+            add_buf(out, "{*Active World Quests:{x\n\r");
+            add_buf(out, BUF(world));
+        }
+
+        free_buf(world);
     }
 
-    if (BUF(world)[0]) {
-        add_buf(out, "{*Active World Quests:\n\r\n\r");
-        add_buf(out, BUF(world));
-    }
-
-    if (!BUF(local)[0] && !BUF(world)[0]) {
-        send_to_char("You have no active quests.\n\r", ch);
+    if (!BUF(out)[0]) {
+        if (complete_only)
+            send_to_char("You have no completed quests.\n\r", ch);
+        else
+            send_to_char("You have no active quests.\n\r", ch);
     }
     
     page_to_char(BUF(out), ch);
 
-    free_buf(local);
-    free_buf(world);
     free_buf(out);
 }
 

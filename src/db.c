@@ -191,7 +191,9 @@ void boot_db()
     init_table(&mob_protos);
     init_table(&obj_protos);
     init_list(&mob_list);
+    init_list(&mob_free);
     init_list(&obj_list);
+    init_list(&obj_free);
 
     load_config();
 

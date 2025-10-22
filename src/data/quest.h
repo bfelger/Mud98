@@ -15,6 +15,7 @@ typedef struct quest_log_t QuestLog;
 #include <tables.h>
 
 #include <entities/area.h>
+#include <entities/player_data.h>
 
 #include <lox/value.h>
 
@@ -72,7 +73,7 @@ void load_quest(FILE* fp);
 Quest* new_quest();
 QuestLog* new_quest_log();
 void free_quest(Quest* quest);
-void free_quest_log(QuestLog* quest_log);
+void free_quest_log(PlayerData* pc);
 Quest* get_quest(VNUM vnum);
 QuestTarget* get_quest_targ_mob(Mobile* ch, VNUM target_vnum);
 QuestTarget* get_quest_targ_obj(Mobile* ch, VNUM target_vnum);

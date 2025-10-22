@@ -1927,6 +1927,7 @@ char* act_bit_name(int act_flags)
         if (act_flags & PLR_AUTOSAC) strcat(buf, " autosac");
         if (act_flags & PLR_AUTOGOLD) strcat(buf, " autogold");
         if (act_flags & PLR_AUTOSPLIT) strcat(buf, " autosplit");
+        if (act_flags & PLR_TESTER) strcat(buf, " tester");
         if (act_flags & PLR_HOLYLIGHT) strcat(buf, " holy_light");
         if (act_flags & PLR_CANLOOT) strcat(buf, " loot_corpse");
         if (act_flags & PLR_NOSUMMON) strcat(buf, " no_summon");

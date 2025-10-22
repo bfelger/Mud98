@@ -108,6 +108,7 @@ void fread_quests(Mobile* ch, FILE* fp);
 void save_char_obj(Mobile* ch)
 {
     char strsave[MAX_INPUT_LENGTH];
+    char strsavetemp[MAX_INPUT_LENGTH];
     FILE* fp;
 
     if (IS_NPC(ch)) 
@@ -126,7 +127,8 @@ void save_char_obj(Mobile* ch)
     }
 
     sprintf(strsave, "%s%s", cfg_get_player_dir(), capitalize(NAME_STR(ch)));
-    OPEN_OR_RETURN(fp = open_write_file(strsave));
+    sprintf(strsavetemp, "%s%s.temp", cfg_get_player_dir(), capitalize(NAME_STR(ch)));
+    OPEN_OR_RETURN(fp = open_write_file(strsavetemp));
 
     fwrite_char(ch, fp);
     for (Node* node = ch->objects.back; node != NULL; node = node->prev) {
@@ -142,6 +144,18 @@ void save_char_obj(Mobile* ch)
     fprintf(fp, "#END\n");
 
     close_file(fp);
+
+#ifdef _MSC_VER
+    if (!MoveFileExA(strsavetemp, strsave, MOVEFILE_REPLACE_EXISTING)) {
+        bugf("save_char_obj : Could not rename %s to %s!", strsavetemp, strsave);
+        perror(strsave);
+    }
+#else
+    if (rename(strsavetemp, classes_file) != 0) {
+        bugf("save_char_obj : Could not rename %s to %s!", strsavetemp, strsave);
+        perror(strsave);
+    }
+#endif
 }
 
 // Write the char.
@@ -487,6 +501,9 @@ void fwrite_obj(Mobile* ch, Object* obj, FILE* fp, int iNest)
 
 void fwrite_quests(Mobile* ch, FILE* fp)
 {
+    if (ch->pcdata == NULL || ch->pcdata->quest_log == NULL)
+        return;
+
     fprintf(fp, "#QUESTLOG\n");
 
     QuestStatus* qs;
@@ -513,7 +530,7 @@ bool load_char_obj(Descriptor* d, char* name)
     d->character = ch;
     pop(); // ch;
     ch->desc = d;
-    NAME_FIELD(ch) = lox_string(name);
+    SET_NAME(ch, lox_string(name));
     ch->id = get_pc_id();
     ch->race = race_lookup("human");
     ch->act_flags = PLR_NOSUMMON;

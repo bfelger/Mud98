@@ -842,9 +842,9 @@ static void string_interp(bool can_assign)
     Token first = parser.previous;
 
     while (parser.previous.type == TOKEN_STRING_INTERP) {
-        // This is the prefix of an interpolated string of the format "$x" or 
-        // "${x}". This beginning part lacks a delimiting double-quote.
-        // This is also for interstitial string between interpolations:
+        // This is the prefix of an interpolated string of the format "${x}". 
+        // This beginning part lacks a delimiting double-quote. This is also for
+        // interstitial string between interpolations:
         //     "start ${x} middle ${y} end"
         int skip = 0;
         if (parser.previous.start[0] == '\"')
@@ -857,19 +857,11 @@ static void string_interp(bool can_assign)
             count++;
         }
 
-        // If it was a non-interpolative '$', we'll see TOKEN_STRING instead of
-        // TOKEN_DOLLAR.
-        if (check(TOKEN_STRING))
-            break;
-
         consume(TOKEN_DOLLAR, "Expected '$' interpolation character");
 
-        if (match(TOKEN_IDENTIFIER)) {
-            variable(can_assign);
-            count++;
-        }
-        else if (match(TOKEN_LEFT_BRACE)) {
+        if (match(TOKEN_LEFT_BRACE)) {
             expression();
+            consume(TOKEN_RIGHT_BRACE, "Expected '}' interpolation delimiter");
             count++;
         }
         else {

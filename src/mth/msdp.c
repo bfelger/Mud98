@@ -71,8 +71,10 @@ void msdp_update_all(char* var, char* fmt, ...)
 	vsprintf(buf, fmt, args);
 	va_end(args);
 
-	//for each descriptor
-	//	msdp_update_var(ses, d, var, "%s", buf);
+	Descriptor* d;
+	FOR_EACH(d, descriptor_list) {
+		msdp_update_var(d, "%s", buf);
+	}
 }
 
 // Update a variable and queue it if it's being reported.

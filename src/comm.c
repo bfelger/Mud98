@@ -1208,7 +1208,8 @@ void nanny(Descriptor * d, char* argument)
     char arg[MAX_INPUT_LENGTH];
     Mobile* ch;
     int iClass, race, i, weapon;
-    bool fOld;
+    bool fOld = false;
+    bool file_exists = false;
 
     while (ISSPACE(*argument))
         argument++;
@@ -1233,7 +1234,7 @@ void nanny(Descriptor * d, char* argument)
             return;
         }
 
-        fOld = load_char_obj(d, argument);
+        file_exists = load_char_obj(d, argument);
         ch = d->character;
 
         if (IS_SET(ch->act_flags, PLR_DENY)) {
@@ -1261,7 +1262,7 @@ void nanny(Descriptor * d, char* argument)
             }
         }
 
-        if (fOld) {
+        if (fOld && file_exists) {
             /* Old player */
             write_to_buffer(d, "Password: ", 0);
             write_to_buffer(d, (const char*)echo_off_str, 0);
@@ -1689,8 +1690,6 @@ void nanny(Descriptor * d, char* argument)
         sprintf(buf, "\n\rWelcome to %s. Please do not feed the mobiles.\n\r\n\r", cfg_get_mud_name());
         write_to_buffer(d, buf, 0);
 
-        /*ch->mob_list_node =*/ list_push_back(&mob_list, OBJ_VAL(ch));
-
         {
             PlayerData* pc;
             bool logged_in = false;
@@ -1709,6 +1708,12 @@ void nanny(Descriptor * d, char* argument)
 
         d->connected = CON_PLAYING;
         reset_char(ch);
+
+
+        if (IS_SET(ch->act_flags, PLR_TESTER))
+            send_to_char("{*THIS IS A TESTER ACCOUNT.\n\r"
+                "It comes with enhanced privileges, and an expectation that you"
+                " will not abuse them.{x\n\r", ch);
 
         if (ch->level == 0) {
             ch->perm_stat[class_table[ch->ch_class].prime_stat] += 3;
@@ -2005,6 +2010,7 @@ bool write_to_descriptor(Descriptor* d, char* txt, size_t length)
     if (d->mth->mccp2) {
         write_mccp2(d, txt, length);
         return true;
+    }
 #endif
 
     for (size_t start = 0; start < length; start += s_bytes) {

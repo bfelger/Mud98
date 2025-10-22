@@ -19,11 +19,12 @@ const PositionInfo position_table[POS_MAX] = {
 };
 
 const SexInfo sex_table[SEX_COUNT] = {
-    { SEX_NEUTRAL,  "none",     "it",   "It",   "it",   "its",     },
-    { SEX_MALE,     "male",     "he",   "He",   "him",  "his",     },
-    { SEX_FEMALE,   "female",   "she",  "She",  "her",  "her",     },
-    { SEX_EITHER,   "either",   "they", "They", "them", "their",   },
-    { SEX_YOU,      "you",      "you",  "You",  "You",  "your",    },
+//    Sex           Name        Subj    Subj_cap    Obj     Poss;
+    { SEX_NEUTRAL,  "none",     "it",   "It",       "it",   "its",     },
+    { SEX_MALE,     "male",     "he",   "He",       "him",  "his",     },
+    { SEX_FEMALE,   "female",   "she",  "She",      "her",  "her",     },
+    { SEX_EITHER,   "either",   "they", "They",     "them", "their",   },
+    { SEX_YOU,      "you",      "you",  "You",      "You",  "your",    },
 };
 
 const MobSizeInfo mob_size_table[MOB_SIZE_COUNT] = {

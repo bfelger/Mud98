@@ -402,7 +402,7 @@ void do_put(Mobile* ch, char* argument)
     }
     else {
         /* 'put all container' or 'put all.obj container' */
-        FOR_EACH_MOB_OBJ(obj, ch->in_room) {
+        FOR_EACH_MOB_OBJ(obj, ch) {
 
             if ((arg1[3] == '\0' || is_name(&arg1[4], NAME_STR(obj)))
                 && can_see_obj(ch, obj) && WEIGHT_MULT(obj) == 100
@@ -546,7 +546,7 @@ void do_drop(Mobile* ch, char* argument)
     else {
         /* 'drop all' or 'drop all.obj' */
         found = false;
-        FOR_EACH_MOB_OBJ(obj, ch->in_room) {
+        FOR_EACH_MOB_OBJ(obj, ch) {
             if ((arg[3] == '\0' || is_name(&arg[4], NAME_STR(obj)))
                 && can_see_obj(ch, obj) && obj->wear_loc == WEAR_UNHELD
                 && can_drop_obj(ch, obj)) {
@@ -1482,7 +1482,7 @@ void do_wear(Mobile* ch, char* argument)
     }
 
     if (!str_cmp(arg, "all")) {
-        FOR_EACH_MOB_OBJ(obj, ch->in_room) {
+        FOR_EACH_MOB_OBJ(obj, ch) {
             if (obj->wear_loc == WEAR_UNHELD && can_see_obj(ch, obj))
                 wear_obj(ch, obj, false);
         }
@@ -2100,7 +2100,7 @@ Object* get_obj_keeper(Mobile* ch, Mobile* keeper, char* argument)
 
     number = number_argument(argument, arg);
     count = 0;
-    FOR_EACH_MOB_OBJ(obj, keeper->in_room) {
+    FOR_EACH_MOB_OBJ(obj, keeper) {
         if (obj->wear_loc == WEAR_UNHELD && can_see_obj(keeper, obj)
             && can_see_obj(ch, obj) && is_name(arg, NAME_STR(obj))) {
             if (++count == number) 

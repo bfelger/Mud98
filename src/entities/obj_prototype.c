@@ -9,7 +9,7 @@
 #include "handler.h"
 #include "lookup.h"
 
-ObjPrototype* obj_proto_free;
+ObjPrototype* obj_proto_free = NULL;
 Table obj_protos;
 
 int obj_proto_count;

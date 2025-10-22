@@ -9,29 +9,30 @@
 
 typedef struct mobile_t Mobile;
 
+#include <merc.h>
+
+#include <interp.h>
+#include <handler.h>
+#include <note.h>
+
+#include <data/class.h>
+#include <data/damage.h>
+#include <data/mobile_data.h>
+#include <data/stats.h>
+
+#include "area.h"
+#include "descriptor.h"
+#include "entity.h"
+#include "mob_memory.h"
+#include "mob_prototype.h"
+#include "object.h"
+#include "player_data.h"
+#include "reset.h"
+#include "room.h"
+
+#include <lox/lox.h>
+
 #include <stdbool.h>
-
-#include "merc.h"
-
-#include "interp.h"
-#include "note.h"
-
-#include "data/class.h"
-#include "data/damage.h"
-#include "data/mobile_data.h"
-#include "data/stats.h"
-
-#include "entities/area.h"
-#include "entities/descriptor.h"
-#include "entities/entity.h"
-#include "entities/mob_memory.h"
-#include "entities/mob_prototype.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
-#include "entities/reset.h"
-#include "entities/room.h"
-
-#include "lox/lox.h"
 
 typedef struct mobile_t {
     Entity header;
@@ -125,6 +126,9 @@ typedef struct mobile_t {
 #define IS_HERO(ch)           (get_trust(ch) >= LEVEL_HERO)
 #define IS_TRUSTED(ch, level) (get_trust((ch)) >= (level))
 #define IS_AFFECTED(ch, sn)   (IS_SET((ch)->affect_flags, (sn)))
+
+#define IS_TESTER(ch) (IS_IMMORTAL(ch) || \
+     (!IS_NPC(ch) && IS_SET((ch)->act_flags, PLR_TESTER)))
 
 #define GET_AGE(ch)                                                            \
     ((int)(17 + ((ch)->played + current_time - (ch)->logon) / 72000))
