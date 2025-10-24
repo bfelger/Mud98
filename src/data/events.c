@@ -11,9 +11,9 @@
 
 #include <lox/list.h>
 
-int event_count;
-int event_perm_count;
-Event* event_free;
+int event_count = 0;
+int event_perm_count = 0;
+Event* event_free = NULL;
 
 typedef struct event_timer_t EventTimer;
 

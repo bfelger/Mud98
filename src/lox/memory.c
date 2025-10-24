@@ -42,6 +42,9 @@ extern ValueArray* mocks_;
 
 void* reallocate(void* pointer, size_t old_size, size_t new_size)
 {
+    if (new_size == old_size)
+        return pointer;
+
     vm.bytes_allocated += new_size - old_size;
     if (new_size > old_size) {
 #ifdef DEBUG_STRESS_GC

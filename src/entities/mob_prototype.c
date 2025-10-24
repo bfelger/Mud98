@@ -268,8 +268,8 @@ void load_mobiles(FILE* fp)
         p_mob_proto->parts = fread_flag(fp) | race_table[p_mob_proto->race].parts;
         /* size */
         CHECK_POS(p_mob_proto->size, (int16_t)size_lookup(fread_word(fp)), "size");
-        /*	p_mob_proto->size			= size_lookup(fread_word(fp)); */
-        p_mob_proto->material = str_dup(fread_word(fp));
+
+        p_mob_proto->material = fread_word(fp);
 
         for (;;) {
             letter = fread_letter(fp);

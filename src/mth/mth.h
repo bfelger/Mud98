@@ -61,7 +61,8 @@ typedef struct mud_data MUD_DATA;
 #define BV09            (1   <<  8)
 #define BV10            (1   <<  9)
 
-#define COMPRESS_BUF_SIZE       10000
+//#define COMPRESS_BUF_SIZE       10000
+#define COMPRESS_BUF_SIZE       9216
 
 #define COMM_FLAG_DISCONNECT    BV01
 #define COMM_FLAG_PASSWORD      BV02

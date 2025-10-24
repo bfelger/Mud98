@@ -56,4 +56,8 @@ ObjClosure* get_event_closure(Entity* entity, Event* event);
 #define HAS_EVENT_TRIGGER(entity, trigger)                                     \
     (((Entity*)(entity))->event_triggers & trigger)
 
+extern int event_count;
+extern int event_perm_count;
+extern Event* event_free;
+
 #endif // !MUD98__DATA__EVENTS_H

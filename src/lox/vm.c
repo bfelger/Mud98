@@ -133,9 +133,14 @@ void init_vm()
     init_table(&vm.globals);
     init_table(&vm.strings);
 
-    lox_empty_string = copy_string(str_empty, 1);
 
-    vm.init_string = copy_string("init", 4);
+    char* end_str = alloc_perm(1);
+    end_str[0] = '\0';
+    lox_empty_string = copy_string(end_str, 1);
+
+    char* str_init = alloc_perm(5);
+    strcpy(str_init, "init");
+    vm.init_string = copy_string(str_init, 4);
 }
 
 void free_vm()

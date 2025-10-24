@@ -73,6 +73,7 @@
 #include <lox/native.h>
 #include <lox/object.h>
 #include <lox/memory.h>
+#include <lox/vm.h>
 
 #include <ctype.h>
 #include <stdarg.h>
@@ -129,20 +130,26 @@ int	top_mprog_index;    // OLC
 #define MAX_STRING      2119680
 //#define MAX_PERM_BLOCK  131072
 #define MAX_PERM_BLOCK  131072 * 2
-#define MAX_MEM_LIST    17
+#define MAX_MEM_LIST    20
+
+
+//#define COUNT_SIZE_ALLOCS
+#ifdef COUNT_SIZE_ALLOCS
+void report_size_allocs();
+#endif
 
 void* rgFreeList[MAX_MEM_LIST];
 const size_t rgSizeList[MAX_MEM_LIST] = {
-    16, 32, 64, 128, 256, 1024, 2048, 4096,
-    MAX_STRING_LENGTH,          // vvv
+    16, 24+4, 32+4, 40+4, 64+4, 128+4, 256+4, 512+4, 1024+4, 2048+4, 4096+4,
+    MAX_STRING_LENGTH + 4,
     8192,
-    MAX_STRING_LENGTH * 2,      // Doesn't follow pattern, but frequently used.
+    MAX_STRING_LENGTH*2 + 4,
     16384,
-    MAX_STRING_LENGTH * 4,      // ^^^
-    32768 - 64,
-    65536,
-    65536 * 2,
-    65536 * 4,
+    MAX_STRING_LENGTH*4 + 4,
+    32768 + 4,
+    65536 + 4,
+    65536 * 2 + 4,
+    65536 * 4 + 4,
 };
 
 int nAllocString;
@@ -327,6 +334,10 @@ void boot_db()
     }
 
     init_mth();
+
+#ifdef COUNT_SIZE_ALLOCS
+    report_size_allocs();
+#endif
 
     return;
 }
@@ -1559,6 +1570,47 @@ char* fread_lox_script(FILE* fp)
     }
 }
 
+static char* intern_string(char* plast)
+{
+    union {
+        char* pc;
+        char rgc[sizeof(char*)];
+    } u1 = { 0 };
+    int ic;
+    int hash;
+    char* pHash;
+    char* pHashPrev = NULL;
+    char* pString;
+
+    plast[-1] = '\0';
+    hash = (int)UMIN(MAX_KEY_HASH - 1, plast - 1 - top_string);
+    for (pHash = string_hash[hash]; pHash; pHash = pHashPrev) {
+        for (ic = 0; ic < (int)sizeof(char*); ic++) u1.rgc[ic] = pHash[ic];
+        pHashPrev = u1.pc;
+        pHash += sizeof(char*);
+
+        if (top_string[sizeof(char*)] == pHash[0]
+            && !strcmp(top_string + sizeof(char*) + 1, pHash + 1))
+            return pHash;
+    }
+
+    if (fBootDb) {
+        pString = top_string;
+        top_string = plast;
+        u1.pc = string_hash[hash];
+        for (ic = 0; ic < (int)sizeof(char*); ic++)
+            pString[ic] = u1.rgc[ic];
+        string_hash[hash] = pString;
+
+        nAllocString += 1;
+        sAllocString += top_string - pString;
+        return pString + sizeof(char*);
+    }
+    else {
+        return str_dup(top_string + sizeof(char*));
+    }
+}
+
 /*
  * Read and allocate space for a string from a file.
  * These strings are read-only and shared.
@@ -1620,44 +1672,7 @@ char* fread_string(FILE* fp)
         case '~':
             plast++;
             {
-                union {
-                    char* pc;
-                    char rgc[sizeof(char*)];
-                } u1 = { 0 };
-                int ic;
-                int hash;
-                char* pHash;
-                char* pHashPrev = NULL;
-                char* pString;
-
-                plast[-1] = '\0';
-                hash = (int)UMIN(MAX_KEY_HASH - 1, plast - 1 - top_string);
-                for (pHash = string_hash[hash]; pHash; pHash = pHashPrev) {
-                    for (ic = 0; ic < (int)sizeof(char*); ic++)
-                        u1.rgc[ic] = pHash[ic];
-                    pHashPrev = u1.pc;
-                    pHash += sizeof(char*);
-
-                    if (top_string[sizeof(char*)] == pHash[0]
-                        && !strcmp(top_string + sizeof(char*) + 1, pHash + 1))
-                        return pHash;
-                }
-
-                if (fBootDb) {
-                    pString = top_string;
-                    top_string = plast;
-                    u1.pc = string_hash[hash];
-                    for (ic = 0; ic < (int)sizeof(char*); ic++)
-                        pString[ic] = u1.rgc[ic];
-                    string_hash[hash] = pString;
-
-                    nAllocString += 1;
-                    sAllocString += top_string - pString;
-                    return pString + sizeof(char*);
-                }
-                else {
-                    return str_dup(top_string + sizeof(char*));
-                }
+                return intern_string(plast);
             }
         }
     }
@@ -1707,45 +1722,8 @@ char* fread_string_eol(FILE* fp)
             break;
 
         case '\n':
-        case '\r': {
-                union {
-                    char* pc;
-                    char rgc[sizeof(char*)];
-                } u1 = { 0 };
-                int ic;
-                int hash;
-                char* pHash;
-                char* pHashPrev = NULL;
-                char* pString;
-
-                plast[-1] = '\0';
-                hash = (int)UMIN(MAX_KEY_HASH - 1, plast - 1 - top_string);
-                for (pHash = string_hash[hash]; pHash; pHash = pHashPrev) {
-                    for (ic = 0; ic < (int)sizeof(char*); ic++) u1.rgc[ic] = pHash[ic];
-                    pHashPrev = u1.pc;
-                    pHash += sizeof(char*);
-
-                    if (top_string[sizeof(char*)] == pHash[0]
-                        && !strcmp(top_string + sizeof(char*) + 1, pHash + 1))
-                        return pHash;
-                }
-
-                if (fBootDb) {
-                    pString = top_string;
-                    top_string = plast;
-                    u1.pc = string_hash[hash];
-                    for (ic = 0; ic < (int)sizeof(char*); ic++) 
-                        pString[ic] = u1.rgc[ic];
-                    string_hash[hash] = pString;
-
-                    nAllocString += 1;
-                    sAllocString += top_string - pString;
-                    return pString + sizeof(char*);
-                }
-                else {
-                    return str_dup(top_string + sizeof(char*));
-                }
-            }
+        case '\r':
+            return intern_string(plast);
         } // end switch
     }
 }
@@ -1772,9 +1750,18 @@ void fread_to_eol(FILE* fp)
 // Read one word (into static buffer).
 char* fread_word(FILE* fp)
 {
-    static char word[MAX_INPUT_LENGTH];
+    static char buffer[MAX_INPUT_LENGTH];
+    char* word = buffer;
     char* pword;
     char cEnd;
+
+    if (fBootDb) {
+        word = top_string + sizeof(char*);
+        if (word > &string_space[MAX_STRING - MAX_STRING_LENGTH]) {
+            bug("Fread_string: MAX_STRING %d exceeded.", MAX_STRING);
+            exit(1);
+        }
+    }
 
     do {
         cEnd = (char)getc(fp);
@@ -1796,13 +1783,97 @@ char* fread_word(FILE* fp)
             if (cEnd == ' ') 
                 ungetc(*pword, fp);
             *pword = '\0';
-            return word;
+            if (fBootDb)
+                return intern_string(pword + 1);
+            else
+                return word;
         }
     }
 
     bug("Fread_word: word too long.", 0);
     exit(1);
 }
+
+#ifdef COUNT_SIZE_ALLOCS
+
+// See if we can optimize memory allocations more efficiently by identifying the 
+// sizes most commonly allocated.
+
+typedef struct mem_size_alloc {
+    size_t mem_size;
+    size_t alloc_size;
+    long count;
+    struct mem_size_alloc* next;
+} MemSizeAlloc;
+
+MemSizeAlloc* mem_size_alloc_list = NULL;
+
+size_t sizes_count = 0;
+
+void count_size_alloc(size_t mem_size, size_t alloc_size)
+{
+    MemSizeAlloc* psa = NULL;
+    MemSizeAlloc* last_psa = NULL;
+    for (psa = mem_size_alloc_list; psa != NULL && psa->mem_size <= mem_size; psa = psa->next) {
+        if (psa->mem_size == mem_size) {
+            psa->count++;
+            return;
+        }
+        last_psa = psa;
+    }
+    MemSizeAlloc* new_psa = (MemSizeAlloc*)alloc_perm(sizeof(MemSizeAlloc));
+    sizes_count++;
+    new_psa->mem_size = mem_size;
+    new_psa->alloc_size = alloc_size;
+    new_psa->count = 1;
+    if (psa == mem_size_alloc_list) {
+        new_psa->next = mem_size_alloc_list;
+        mem_size_alloc_list = new_psa;
+        return;
+    }
+    last_psa->next = new_psa;
+    new_psa->next = psa;
+    return;
+}
+
+void decrement_size_alloc(size_t mem_size)
+{
+    MemSizeAlloc* psa = NULL;
+    for (psa = mem_size_alloc_list; psa != NULL; psa = psa->next) {
+        if (psa->mem_size == mem_size) {
+            psa->count--;
+            return;
+        }
+    }
+    return;
+}
+
+void report_size_allocs()
+{
+    MemSizeAlloc* psa;
+    FILE* fp;
+    size_t magic = sizeof(int);
+    size_t total_waste = 0;
+    fp = fopen("size_allocs.txt", "w");
+    if (!fp) {
+        perror("report_size_allocs: fopen");
+        return;
+    }
+    fprintf(fp, "Size Allocations Report: %zu different sizes allocated.\n\n", sizes_count);
+    fprintf(fp, "Magic overhead per allocation: %zu bytes\n\n", magic);
+    fprintf(fp, "%-10s %-10s %-10s %-10s\n", "Size", "Alloc", "Count", "Waste");
+    fprintf(fp, "--------------------------------------\n");
+    for (psa = mem_size_alloc_list; psa != NULL; psa = psa->next) {
+        size_t waste = (psa->alloc_size - (psa->mem_size + magic)) * psa->count;
+        total_waste += waste;
+        fprintf(fp, "%-10zu %-10zu %-10ld %-10zu\n", psa->mem_size, psa->alloc_size, psa->count, waste);
+    }
+    fprintf(fp, "\nTotal wasted memory due to allocation overhead: %zu bytes\n", total_waste);
+    fclose(fp);
+    return;
+}
+
+#endif
 
 /*
  * Allocate some ordinary memory,
@@ -1814,6 +1885,10 @@ void* alloc_mem(size_t sMem)
     int* magic;
     int iList;
 
+#ifdef COUNT_SIZE_ALLOCS
+    size_t orig_sMem = sMem;
+#endif
+
     sMem += sizeof(*magic); 
 
     for (iList = 0; iList < MAX_MEM_LIST; iList++) {
@@ -1824,6 +1899,10 @@ void* alloc_mem(size_t sMem)
         bug("Alloc_mem: size %zu too large.", sMem);
         exit(1);
     }
+
+#ifdef COUNT_SIZE_ALLOCS
+    count_size_alloc(orig_sMem, rgSizeList[iList]);
+#endif
 
     if (rgFreeList[iList] == NULL) { 
         mem_addr = (uintptr_t)alloc_perm(rgSizeList[iList]); 
@@ -1848,6 +1927,10 @@ void free_mem(void* pMem, size_t sMem)
 {
     int iList;
     int* magic;
+
+#ifdef COUNT_SIZE_ALLOCS
+    decrement_size_alloc(sMem);
+#endif
 
     uintptr_t mem_addr = (uintptr_t)pMem;
 
@@ -1989,27 +2072,29 @@ void do_areas(Mobile* ch, char* argument)
 
 static void memory_to_buffer(Buffer* buf)
 {
-    addf_buf(buf, "              Perm      In Use\n\r");
-    addf_buf(buf, "Affects      %5d     %5d\n\r", affect_perm_count, affect_count);
-    addf_buf(buf, "Areas        %5d     %5d\n\r", area_data_perm_count, global_areas.count);
-    addf_buf(buf, "- Insts      %5d     %5d\n\r", area_perm_count, area_count);
-    addf_buf(buf, "Extra Descs  %5d     %5d\n\r", extra_desc_perm_count, extra_desc_count);
-    addf_buf(buf, "Help Areas   %5d     %5d\n\r", help_area_perm_count, help_area_count);
-    addf_buf(buf, "Helps        %5d     %5d\n\r", help_perm_count, help_count);
-    addf_buf(buf, "Mobs         %5d     %5d\n\r", mob_proto_perm_count, mob_proto_count);
-    addf_buf(buf, "- Insts      %5d     %5d\n\r", mob_list.count + mob_free.count, mob_list.count);
-    addf_buf(buf, "MobProgs     %5d     %5d\n\r", mob_prog_perm_count, mob_prog_count);
-    addf_buf(buf, "MobProgCodes %5d     %5d\n\r", mob_prog_code_perm_count, mob_prog_code_count);
-    addf_buf(buf, "Objs         %5d     %5d\n\r", obj_proto_perm_count, obj_proto_count);
-    addf_buf(buf, "- Insts      %5d     %5d\n\r", obj_list.count + obj_free.count, obj_list.count);
-    addf_buf(buf, "Resets       %5d     %5d\n\r", reset_perm_count, reset_count);
-    addf_buf(buf, "Rooms        %5d     %5d\n\r", room_data_perm_count, room_data_count);
-    addf_buf(buf, "- Insts      %5d     %5d\n\r", room_perm_count, room_count);
-    addf_buf(buf, "Room Exits   %5d     %5d\n\r", room_exit_data_perm_count, room_exit_data_count);
-    addf_buf(buf, "- Insts      %5d     %5d\n\r", room_exit_perm_count, room_exit_count);
-    addf_buf(buf, "Shops        %5d     %5d\n\r", shop_perm_count, shop_count);
-    addf_buf(buf, "Socials      %5d\n\r", social_count);
-    addf_buf(buf, "Quests       %5d     %5d\n\r", quest_perm_count, quest_count);
+    addf_buf(buf, "                Perm        In Use   Perm Bytes\n\r");
+    addf_buf(buf, "Affects      %7d     %7d     %7d\n\r", affect_perm_count, affect_count, affect_perm_count * sizeof(Affect));
+    addf_buf(buf, "Areas        %7d     %7d     %7d\n\r", area_data_perm_count, global_areas.count, area_data_perm_count * sizeof(AreaData));
+    addf_buf(buf, "- Insts      %7d     %7d     %7d\n\r", area_perm_count, area_count, area_perm_count * sizeof(Area));
+    addf_buf(buf, "Extra Descs  %7d     %7d     %7d\n\r", extra_desc_perm_count, extra_desc_count, extra_desc_perm_count * sizeof(ExtraDesc));
+    addf_buf(buf, "Help Areas   %7d     %7d     %7d\n\r", help_area_perm_count, help_area_count, help_area_perm_count * sizeof(HelpArea));
+    addf_buf(buf, "Helps        %7d     %7d     %7d\n\r", help_perm_count, help_count, help_perm_count * sizeof(HelpData));
+    addf_buf(buf, "Mobs         %7d     %7d     %7d\n\r", mob_proto_perm_count, mob_proto_count, mob_proto_perm_count * sizeof(MobPrototype));
+    addf_buf(buf, "- Insts      %7d     %7d     %7d\n\r", mob_list.count + mob_free.count, mob_list.count, (mob_list.count + mob_free.count) * sizeof(Mobile));
+    addf_buf(buf, "MobProgs     %7d     %7d     %7d\n\r", mob_prog_perm_count, mob_prog_count, mob_prog_perm_count * sizeof(MobProg));
+    addf_buf(buf, "MobProgCodes %7d     %7d     %7d\n\r", mob_prog_code_perm_count, mob_prog_code_count, mob_prog_code_perm_count * sizeof(MobProgCode));
+    addf_buf(buf, "Objs         %7d     %7d     %7d\n\r", obj_proto_perm_count, obj_proto_count, obj_proto_perm_count * sizeof(ObjPrototype));
+    addf_buf(buf, "- Insts      %7d     %7d     %7d\n\r", obj_list.count + obj_free.count, obj_list.count, (obj_list.count + obj_free.count) * sizeof(Object));
+    addf_buf(buf, "Resets       %7d     %7d     %7d\n\r", reset_perm_count, reset_count, reset_perm_count * sizeof(Reset));
+    addf_buf(buf, "Rooms        %7d     %7d     %7d\n\r", room_data_perm_count, room_data_count, room_data_perm_count * sizeof(RoomData));
+    addf_buf(buf, "- Insts      %7d     %7d     %7d\n\r", room_perm_count, room_count, room_perm_count * sizeof(Room));
+    addf_buf(buf, "Room Exits   %7d     %7d     %7d\n\r", room_exit_data_perm_count, room_exit_data_count, room_exit_data_perm_count * sizeof(RoomExitData));
+    addf_buf(buf, "- Insts      %7d     %7d     %7d\n\r", room_exit_perm_count, room_exit_count, room_exit_perm_count * sizeof(RoomExit));
+    addf_buf(buf, "Shops        %7d     %7d     %7d\n\r", shop_perm_count, shop_count, shop_perm_count * sizeof(ShopData));
+    addf_buf(buf, "Socials      %7d                 %7d\n\r", social_count, social_count * sizeof(Social));
+    addf_buf(buf, "Quests       %7d     %7d     %7d\n\r", quest_perm_count, quest_count, quest_perm_count * sizeof(Quest));
+    addf_buf(buf, "Events       %7d     %7d     %7d\n\r", event_perm_count, event_count, event_perm_count * sizeof(Event));
+    addf_buf(buf, "Lox VM                             %9d\n\r", vm.bytes_allocated);
 
     addf_buf(buf, "Strings %5d strings of %zu bytes (max %d).\n\r", nAllocString,
         sAllocString, MAX_STRING);
