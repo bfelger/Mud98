@@ -123,81 +123,83 @@ endif()
 
 include_directories(${CMAKE_SOURCE_DIR})
 
-add_executable(Mud98 merc.h act_comm.h act_comm.c act_enter.h act_enter.c
-    act_info.h act_info.c act_move.h act_move.c act_obj.h act_obj.c act_wiz.h
-    act_wiz.c alias.h alias.c array.h ban.h ban.c benchmark.h benchmark.c 
-    color.h color.c comm.h comm.c config.h config.c db.c digest.h digest.c
-    effects.h effects.c file.h file.c fight.h fight.c flags.c handler.h 
-    handler.c healer.c interp.c lookup.c magic.c magic2.c main.c mob_cmds.h 
-    mob_cmds.c mob_prog.h mob_prog.c music.c note.h note.c pcg_basic.c recycle.c
-    save.h save.c scan.c skills.h skills.c socket.h special.h special.c 
-    spell_list.h tables.c tablesave.c tests.h tests.c update.h update.c 
-    weather.h weather.c wizutil.v3.c
+add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h" 
+    "act_enter.c" "act_info.h" "act_info.c" "act_move.h" "act_move.c" 
+    "act_obj.h" "act_obj.c" "act_wiz.h" "act_wiz.c" "alias.h" "alias.c" 
+    "array.h" "ban.h" "ban.c" "color.h" "color.c" "comm.h" "comm.c" "config.h" 
+    "config.c" "db.c" "digest.h" "digest.c" "effects.h" "effects.c" "file.h" 
+    "file.c" "fight.h" "fight.c" "flags.c" "handler.h" "handler.c" "healer.c" 
+    "lox.c" "interp.c" "lookup.c" "magic.c" "magic2.c" "main.c" "mob_cmds.h" 
+    "mob_cmds.c" "mob_prog.h" "mob_prog.c" "music.c" "note.h" "note.c" 
+    "pcg_basic.c" "recycle.c" "save.h" "save.c" "scan.c" "skills.h" "skills.c" 
+    "socket.h" "special.h" "special.c" "spell_list.h" "tables.c" "tablesave.c" 
+    "update.h" "update.c" "weather.h" "weather.c" "wizutil.v3.c"
 
-    lox.c
+    "olc/aedit.c" "olc/bit.h" "olc/bit.c" "olc/cedit.c" "olc/cmdedit.c" 
+    "olc/gedit.c" "olc/hedit.c" "olc/medit.c" "olc/oedit.c" "olc/olc.h" 
+    "olc/olc.c" "olc/olc_act.c" "olc/olc_save.c" "olc/pedit.c" "olc/qedit.c" 
+    "olc/raedit.c" "olc/redit.c" "olc/screen.h" "olc/screen.c" "olc/sedit.c" 
+    "olc/skedit.c" "olc/string_edit.h" "olc/string_edit.c"
 
-    olc/aedit.c olc/bit.h olc/bit.c olc/cedit.c olc/cmdedit.c olc/gedit.c 
-    olc/hedit.c olc/medit.c olc/oedit.c olc/olc.h olc/olc.c olc/olc_act.c 
-    olc/olc_save.c olc/pedit.c olc/qedit.c olc/raedit.c olc/redit.c olc/screen.h 
-    olc/screen.c olc/sedit.c olc/skedit.c olc/string_edit.h olc/string_edit.c
-
-    mth/mth.h mth/msdp.c mth/mth.c mth/telopt.c
+    "mth/mth.h" "mth/msdp.c" "mth/mth.c" "mth/telopt.c"
     
-    entities/affect.h entities/affect.c
-    entities/area.h entities/area.c
-    entities/descriptor.h entities/descriptor.c
-    entities/entity.h entities/entity.c
-    entities/extra_desc.h entities/extra_desc.c
-    entities/help_data.h entities/help_data.c
-    entities/mob_memory.h entities/mob_memory.c
-    entities/mob_prototype.h entities/mob_prototype.c
-    entities/mobile.h entities/mobile.c
-    entities/obj_prototype.h entities/obj_prototype.c
-    entities/object.h entities/object.c
-    entities/player_data.h entities/player_data.c
-    entities/reset.h entities/reset.c 
-    entities/room.h entities/room.c
-    entities/room_exit.h entities/room_exit.c
-    entities/shop_data.h entities/shop_data.c
+    "entities/affect.h" "entities/affect.c"
+    "entities/area.h" "entities/area.c"
+    "entities/descriptor.h" "entities/descriptor.c"
+    "entities/entity.h" "entities/entity.c"
+    "entities/extra_desc.h" "entities/extra_desc.c"
+    "entities/help_data.h" "entities/help_data.c"
+    "entities/mob_memory.h" "entities/mob_memory.c"
+    "entities/mob_prototype.h" "entities/mob_prototype.c"
+    "entities/mobile.h" "entities/mobile.c"
+    "entities/obj_prototype.h" "entities/obj_prototype.c"
+    "entities/object.h" "entities/object.c"
+    "entities/player_data.h" "entities/player_data.c"
+    "entities/reset.h" "entities/reset.c" 
+    "entities/room.h" "entities/room.c"
+    "entities/room_exit.h" "entities/room_exit.c"
+    "entities/shop_data.h" "entities/shop_data.c"
     
-    data/class.h data/class.c
-    data/damage.h data/damage.c
-    data/direction.h data/direction.c
-    data/events.h data/events.c
-    data/item.h data/item.c
-    data/mobile_data.h data/mobile_data.c
-    data/player.h
-    data/race.h data/race.c
-    data/skill.h data/skill.c
-    data/social.h data/social.c
-    data/spell.h data/spell.c
-    data/stats.h data/stats.c
-    data/quest.h data/quest.c
+    "data/class.h" "data/class.c"
+    "data/damage.h" "data/damage.c"
+    "data/direction.h" "data/direction.c"
+    "data/events.h" "data/events.c"
+    "data/item.h" "data/item.c"
+    "data/mobile_data.h" "data/mobile_data.c"
+    "data/player.h"
+    "data/race.h" "data/race.c"
+    "data/skill.h" "data/skill.c"
+    "data/social.h" "data/social.c"
+    "data/spell.h" "data/spell.c"
+    "data/stats.h" "data/stats.c"
+    "data/quest.h" "data/quest.c"
 
-    lox/lox.h lox/common.h
-    lox/array.h lox/array.c
-    lox/compiler.h lox/compiler.c
-    lox/chunk.h lox/chunk.c
-    lox/debug.h lox/debug.c
-    lox/list.h lox/list.c
-    lox/memory.h lox/memory.c
-    lox/native.h lox/native.c
-    lox/native_funcs.c lox/native_methods.c lox/native_cmds.c
-    lox/object.h lox/object.c
-    lox/scanner.h lox/scanner.c
-    lox/table.h lox/table.c
-    lox/value.h lox/value.c
-    lox/vm.h lox/vm.c
-    lox/function.h
+    "lox/lox.h" "lox/common.h"
+    "lox/array.h" "lox/array.c"
+    "lox/compiler.h" "lox/compiler.c"
+    "lox/chunk.h" "lox/chunk.c"
+    "lox/debug.h" "lox/debug.c"
+    "lox/list.h" "lox/list.c"
+    "lox/memory.h" "lox/memory.c"
+    "lox/native.h" "lox/native.c"
+    "lox/native_funcs.c" "lox/native_methods.c" "lox/native_cmds.c"
+    "lox/object.h" "lox/object.c"
+    "lox/scanner.h" "lox/scanner.c"
+    "lox/table.h" "lox/table.c"
+    "lox/value.h" "lox/value.c"
+    "lox/vm.h" "lox/vm.c"
+    "lox/function.h"
+    "lox/segvec.h" "lox/segvec.c"
  
-    tests/tests.c
-    tests/test_registry.h tests/test_registry.c 
-    tests/all_tests.c tests/tests.h
-    tests/lox_tests.h tests/lox_tests.c tests/lox_ext_tests.c
-    tests/entity_tests.c
-    tests/mock.h tests/mock.c
-    tests/container_tests.c
-    tests/act_tests.c
+    "tests/tests.c"
+    "tests/test_registry.h" "tests/test_registry.c" 
+    "tests/all_tests.c" "tests/tests.h"
+    "tests/mock.h" "tests/mock.c"
+    "tests/lox_tests.h" "tests/lox_tests.c" "tests/lox_ext_tests.c"
+    "tests/entity_tests.c" "tests/container_tests.c" "tests/act_tests.c"
+
+    "benchmarks/benchmarks.h" "benchmarks/benchmarks.c" 
+    "benchmarks/container_benchmarks.c"
 )
 
 target_link_libraries(Mud98 PRIVATE ${Mud98_LIBS})

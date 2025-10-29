@@ -45,16 +45,18 @@
 
 #include "merc.h"
 
-#include "benchmark.h"
 #include "config.h"
 #include "comm.h"
 #include "db.h"
 #include "file.h"
 #include "stringutils.h"
-#include "tests.h"
 #include "update.h"
 
-#include "entities/descriptor.h"
+#include <entities/descriptor.h>
+
+#include <tests/tests.h>
+
+#include <benchmarks/benchmarks.h>
 
 #ifdef _MSC_VER
 #include <stdint.h>
@@ -108,6 +110,7 @@ int main(int argc, char** argv)
     char run_dir[256] = { 0 };
     char area_dir[256] = { 0 };
     bool rt_opt_benchmark = false;
+    bool rt_opt_unittest = false;
     bool rt_opt_noloop = false;
 
     if (argc > 1) {
@@ -149,16 +152,26 @@ int main(int argc, char** argv)
                 rt_opt_benchmark = true;
                 rt_opt_noloop = true;
             }
+            else if (!strcmp(argv[i], "--unittest")) {
+                rt_opt_unittest = true;
+            }
+            else if (!strcmp(argv[i], "--unittest-only")) {
+                rt_opt_unittest = true;
+                rt_opt_noloop = true;
+            }
             else if (argv[i][0] == '-') {
                 char* opt = argv[i] + 1;
                 while (*opt != '\0') {
                     switch (*opt) {
+                    case 'B':
+                        rt_opt_noloop = true;
                     case 'b':
                         rt_opt_benchmark = true;
                         break;
-                    case 'B':
-                        rt_opt_benchmark = true;
+                    case 'U':
                         rt_opt_noloop = true;
+                    case 'u':
+                        rt_opt_unittest = true;
                         break;
                     default:
                         fprintf(stderr, "Unknown option '-%c'.\n", *opt);
@@ -221,6 +234,10 @@ int main(int argc, char** argv)
         sprintf(log_buf, "Boot time: "TIME_FMT"s, %ldns.", timer_res.tv_sec, timer_res.tv_nsec);
         log_string(log_buf);
 
+        run_benchmarks();
+    }
+
+    if (rt_opt_unittest) {
         run_unit_tests();
     }
 
@@ -248,7 +265,6 @@ int main(int argc, char** argv)
             tls = false;
 #endif
         }
-
 
         if (telnet && tls) {
             sprintf(log_buf, "%s is ready to rock on ports %d (telnet) "

@@ -85,7 +85,7 @@ typedef struct item_info_t {
     const char* name;
 } ItemInfo;
 
-extern const ItemInfo item_table[ITEM_TYPE_COUNT];
+extern const ItemInfo item_type_table[ITEM_TYPE_COUNT];
 
 ////////////////////////////////////////////////////////////////////////////////
 // Containers

@@ -2829,7 +2829,7 @@ void spell_identify(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget tar
     sprintf(buf,
             "Object '%s' is type %s, extra flags %s.\n\rWeight is %d, value is "
             "%d, level is %d.\n\r",
-            NAME_STR(obj), item_table[obj->item_type].name,
+            NAME_STR(obj), item_type_table[obj->item_type].name,
             extra_bit_name(obj->extra_flags), obj->weight / 10, obj->cost,
             obj->level);
     send_to_char(buf, ch);

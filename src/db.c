@@ -129,14 +129,8 @@ int	top_mprog_index;    // OLC
 //#define MAX_STRING     1413120
 #define MAX_STRING      2119680
 //#define MAX_PERM_BLOCK  131072
-#define MAX_PERM_BLOCK  131072 * 2
+#define MAX_PERM_BLOCK  262144      //131072 * 2
 #define MAX_MEM_LIST    20
-
-
-//#define COUNT_SIZE_ALLOCS
-#ifdef COUNT_SIZE_ALLOCS
-void report_size_allocs();
-#endif
 
 void* rgFreeList[MAX_MEM_LIST];
 const size_t rgSizeList[MAX_MEM_LIST] = {
@@ -1807,7 +1801,9 @@ typedef struct mem_size_alloc {
 } MemSizeAlloc;
 
 MemSizeAlloc* mem_size_alloc_list = NULL;
-
+uint64_t amt_perm_alloced = 0;
+uint64_t amt_temp_alloced = 0;
+uint64_t amt_temp_freed = 0;
 size_t sizes_count = 0;
 
 void count_size_alloc(size_t mem_size, size_t alloc_size)
@@ -1892,7 +1888,8 @@ void* alloc_mem(size_t sMem)
     sMem += sizeof(*magic); 
 
     for (iList = 0; iList < MAX_MEM_LIST; iList++) {
-        if (sMem <= rgSizeList[iList]) break;
+        if (sMem <= rgSizeList[iList])
+            break;
     }
 
     if (iList == MAX_MEM_LIST) {
@@ -1902,6 +1899,7 @@ void* alloc_mem(size_t sMem)
 
 #ifdef COUNT_SIZE_ALLOCS
     count_size_alloc(orig_sMem, rgSizeList[iList]);
+    amt_temp_alloced += rgSizeList[iList];
 #endif
 
     if (rgFreeList[iList] == NULL) { 
@@ -1930,6 +1928,7 @@ void free_mem(void* pMem, size_t sMem)
 
 #ifdef COUNT_SIZE_ALLOCS
     decrement_size_alloc(sMem);
+    amt_temp_freed += sMem;
 #endif
 
     uintptr_t mem_addr = (uintptr_t)pMem;
@@ -1975,7 +1974,7 @@ void* alloc_perm(size_t sMem)
     static size_t iMemPerm;
     void* pMem;
 
-    while (sMem % sizeof(long) != 0) 
+    while (sMem % sizeof(void*) != 0) 
         sMem++;
 
     if (sMem > MAX_PERM_BLOCK) {
@@ -1986,6 +1985,9 @@ void* alloc_perm(size_t sMem)
     if (pMemPerm == NULL || iMemPerm + sMem > MAX_PERM_BLOCK) {
         iMemPerm = 0;
         if ((pMemPerm = calloc(1, MAX_PERM_BLOCK)) == NULL) {
+#ifdef COUNT_SIZE_ALLOCS
+            amt_perm_alloced += MAX_PERM_BLOCK;
+#endif
             perror("Alloc_perm");
             exit(1);
         }

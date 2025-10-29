@@ -27,7 +27,6 @@
 
 #include "save.h"
 
-#include "benchmark.h"
 #include "color.h"
 #include "comm.h"
 #include "config.h"

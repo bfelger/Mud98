@@ -11,6 +11,12 @@
 #include "lox/common.h"
 #include "lox/object.h"
 
+//#define COUNT_GCS
+
+#ifdef COUNT_GCS
+extern uint64_t gc_count;
+#endif
+
 #define ALLOCATE(type, count) \
     (type*)reallocate(NULL, 0, sizeof(type) * (count))
 
@@ -29,6 +35,7 @@
     reallocate(pointer, sizeof(type) * (old_count), 0)
 
 void* reallocate(void* pointer, size_t old_size, size_t new_size);
+void* reallocate_nogc(void* pointer, size_t old_size, size_t new_size);
 void mark_object(Obj* object);
 void mark_value(Value value);
 void collect_garbage();

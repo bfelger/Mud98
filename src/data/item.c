@@ -6,7 +6,7 @@
 
 #include "gsn.h"
 
-const ItemInfo item_table[ITEM_TYPE_COUNT] = {
+const ItemInfo item_type_table[ITEM_TYPE_COUNT] = {
     { ITEM_NONE,            "none"          },
     { ITEM_LIGHT,           "light"         },
     { ITEM_SCROLL,          "scroll"        },

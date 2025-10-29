@@ -42,7 +42,7 @@ void register_entity_tests();
 void register_container_tests();
 void register_act_tests();
 
-void run_all_tests();
+void run_unit_tests();
 
 void test_fail(const char* expr, const char* file, int line);
 #define ASSERT(expr) ((expr) ? (void)0 : test_fail(#expr, __FILE__, __LINE__))

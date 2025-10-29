@@ -63,9 +63,8 @@ void free_quest(Quest* quest)
 
 QuestLog* new_quest_log()
 {
-    static QuestLog ql_zero = { 0 };
     ALLOC(QuestLog, ql);
-    *ql = ql_zero;
+    memset(ql, 0, sizeof(QuestLog));
     ql->target_ends = NULL;
     ql->target_mobs = NULL;
     ql->target_objs = NULL;

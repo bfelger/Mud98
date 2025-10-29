@@ -1112,7 +1112,7 @@ void do_ostat(Mobile* ch, char* argument)
 
     sprintf(buf, "Vnum: %d  Type: %s  Resets: %d\n\r",
             VNUM_FIELD(obj->prototype),
-            item_table[obj->item_type].name, obj->prototype->reset_num);
+            item_type_table[obj->item_type].name, obj->prototype->reset_num);
     send_to_char(buf, ch);
 
     sprintf(buf, "Short description: %s\n\rLong description: %s\n\r",

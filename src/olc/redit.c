@@ -1846,8 +1846,8 @@ void do_objlist(Mobile* ch, char* argument)
 
     if (type_str[0]) {
         for (int i = 0; i < ITEM_TYPE_COUNT; ++i)
-            if (!str_prefix(type_str, item_table[i].name)) {
-                type = item_table[i].type;
+            if (!str_prefix(type_str, item_type_table[i].name)) {
+                type = item_type_table[i].type;
                 break;
             }
     }

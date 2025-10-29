@@ -122,9 +122,9 @@ Stat stat_lookup(const char* name)
 ItemType item_lookup(const char* name)
 {
     for (int type = 0; type < ITEM_TYPE_COUNT; type++) {
-        if (LOWER(name[0]) == LOWER(item_table[type].name[0])
-            && !str_prefix(name, item_table[type].name))
-            return item_table[type].type;
+        if (LOWER(name[0]) == LOWER(item_type_table[type].name[0])
+            && !str_prefix(name, item_type_table[type].name))
+            return item_type_table[type].type;
     }
 
     return -1;

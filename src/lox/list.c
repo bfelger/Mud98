@@ -9,6 +9,10 @@
 #include "lox/table.h"
 #include "lox/value.h"
 
+static Node* node_free = NULL;
+static size_t node_count = 0;
+static size_t node_perm_count = 0;
+
 List* new_list()
 {
     List* list = ALLOCATE_OBJ(List, OBJ_LIST);
@@ -33,10 +37,21 @@ void free_list(List * list)
 
 static Node* new_node()
 {
-    Node* node = (Node*)reallocate(NULL, 0, sizeof(Node));
+    Node* node;
+
+    if (node_free != NULL) {
+        node = node_free;
+        node_free = node_free->next;
+    }
+    else {
+        node = (Node*)reallocate_nogc(NULL, 0, sizeof(Node));
+        node_perm_count++;
+    }
+
     node->value = NIL_VAL;
     node->next = NULL;
     node->prev = NULL;
+    node_count++;
     return node;
 }
 
@@ -78,7 +93,7 @@ Node* list_push_back(List* list, Value value)
 
 Value list_pop(List* list)
 {
-    if (list->front == NULL)
+    if (list == NULL || list->front == NULL)
         return NIL_VAL;
 
     Node* old = list->front;
@@ -88,7 +103,10 @@ Value list_pop(List* list)
     if (list->front != NULL)
         list->front->prev = NULL;
 
-    reallocate(old, sizeof(Node), 0);
+    //reallocate(old, sizeof(Node), 0);
+    old->next = node_free;
+    node_free = old;
+    node_count--;
 
     list->count--;
 
@@ -106,23 +124,24 @@ Node* list_find(List* list, Value value)
 
 void list_remove_node(List* list, Node* node)
 {
-    if (list != NULL) {
-        if (list->front == node)
-            list->front = node->next;
-        if (list->back == node)
-            list->back = node->prev;
+    if (node == NULL || list == NULL)
+        return;
 
-        list->count--;
-    }
+    if (list->front == node)
+        list->front = node->next;
+    if (list->back == node)
+        list->back = node->prev;
 
-    if (node != NULL) {
-        if (node->prev != NULL)
-            node->prev->next = node->next;
-        if (node->next != NULL)
-            node->next->prev = node->prev;
+    if (node->prev != NULL)
+        node->prev->next = node->next;
+    if (node->next != NULL)
+        node->next->prev = node->prev;
 
-        reallocate(node, sizeof(Node), 0);
-    }
+    //reallocate(node, sizeof(Node), 0);
+    node_count--;
+    list->count--;
+    node->next = node_free;
+    node_free = node;
 }
 
 void list_remove_value(List* list, Value value)

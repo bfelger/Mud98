@@ -317,7 +317,7 @@ void save_object(FILE* fp, ObjPrototype* obj_proto)
     fprintf(fp, "%s~\n", obj_proto->short_descr);
     fprintf(fp, "%s~\n", fix_string(obj_proto->description));
     fprintf(fp, "%s~\n", obj_proto->material);
-    fprintf(fp, "%s ", item_table[obj_proto->item_type].name);
+    fprintf(fp, "%s ", item_type_table[obj_proto->item_type].name);
     fprintf(fp, "%s ", fwrite_flag(obj_proto->extra_flags, buf));
     fprintf(fp, "%s\n", fwrite_flag(obj_proto->wear_flags, buf));
 

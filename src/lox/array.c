@@ -45,17 +45,19 @@ void free_value_array(ValueArray* array)
 
 void remove_array_value(ValueArray* array, Value value)
 {
-    bool found = false;
+    int found = 0;
 
     for (int i = 0; i < array->count; i++) {
-        if (found) {
-            array->values[i - 1] = array->values[i];
-            if (i == array->count - 1)
+        if (values_equal(array->values[i], value))
+            found++;
+        else if (found > 0) {
+            array->values[i - found] = array->values[i];
+            if (i >= array->count - found)
                 array->values[i] = NIL_VAL;
         }
-        else if (values_equal(array->values[i], value))
-            found = true;
     }
+
+    array->count -= found;
 }
 
 void remove_array_index(ValueArray* array, int index)
@@ -68,4 +70,6 @@ void remove_array_index(ValueArray* array, int index)
         if (i == array->count - 1)
             array->values[i] = NIL_VAL;
     }
+
+    array->count--;
 }

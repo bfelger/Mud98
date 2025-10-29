@@ -1,12 +1,10 @@
 ////////////////////////////////////////////////////////////////////////////////
-// benchmark.c
-//
-// Utilities for gathering metrics to benchmark code changes
+// benchmarks.c
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "merc.h"
+#include "benchmarks.h"
 
-#include "benchmark.h"
+#include <merc.h>
 
 #include <string.h>
 
@@ -93,4 +91,9 @@ void stop_timer(Timer* timer)
         clock_gettime(CLOCK_MONOTONIC, &(timer->stop));
         timer->running = false;
     }
+}
+
+void run_benchmarks()
+{
+    benchmark_containers();
 }

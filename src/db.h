@@ -100,21 +100,20 @@ bool load_lox_class(FILE* fp, const char* entity_type_name, Entity* entity);
 #define ALLOC(T, v)     T* v = (T*)alloc_mem(sizeof(T))
 
 #define ENTITY_ALLOC_PERM(x, T)                                                \
-    static T x##_zero = { 0 };                                                 \
     T* x;                                                                      \
     if (x##_free.count == 0) {                                                 \
-        x = alloc_perm(sizeof(T));                                            \
+        x = alloc_perm(sizeof(T));                                             \
     }                                                                          \
     else {                                                                     \
         x = (T*)AS_OBJ(list_pop(&x##_free));                                   \
     }                                                                          \
-    *x = x##_zero;
+    memset(x, 0, sizeof(T));
 
 #define LIST_ALLOC_PERM(x, T)                                                  \
     static T x##_zero = { 0 };                                                 \
     T* x;                                                                      \
     if (!x##_free) {                                                           \
-        x = alloc_perm(sizeof(T));                                            \
+        x = alloc_perm(sizeof(T));                                             \
         x##_perm_count++;                                                      \
     }                                                                          \
     else {                                                                     \
@@ -122,11 +121,11 @@ bool load_lox_class(FILE* fp, const char* entity_type_name, Entity* entity);
         NEXT_LINK(x##_free);                                                   \
     }                                                                          \
     x##_count++;                                                               \
-    *x = x##_zero;
+    memset(x, 0, sizeof(T));
 
 #define ENTITY_FREE(x)                                                         \
     list_remove_node(&x##_list, x->x##_list_node);                             \
-    list_push_back(&x##_free, OBJ_VAL(x));
+    list_push(&x##_free, OBJ_VAL(x));
 
 #define LIST_FREE(x)                                                           \
     x##_count--;                                                               \
@@ -149,5 +148,13 @@ extern char fpArea[MAX_INPUT_LENGTH];
 extern AreaData* current_area_data;
 
 extern int _filbuf(FILE*);
+
+//#define COUNT_SIZE_ALLOCS
+#ifdef COUNT_SIZE_ALLOCS
+void report_size_allocs(); 
+extern uint64_t amt_perm_alloced;
+extern uint64_t amt_temp_alloced;
+extern uint64_t amt_temp_freed;
+#endif
 
 #endif // !MUD98__DB_H

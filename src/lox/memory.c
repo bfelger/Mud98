@@ -26,6 +26,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef COUNT_GCS
+uint64_t gc_count = 0;
+#endif
+
 #define GC_HEAP_GROW_FACTOR 2
 
 extern char* string_space;
@@ -64,6 +68,30 @@ void* reallocate(void* pointer, size_t old_size, size_t new_size)
     char* result = (char*)alloc_mem(new_size);
     if (result == NULL) {
         bug("lox/memory/reallocate(): alloc_mem() failed.");
+        exit(1);
+    }
+    if (pointer)
+        memcpy(result, pointer, old_size);
+    memset(result + old_size, 0, new_size - old_size);
+    if (pointer)
+        free_mem(pointer, old_size);
+    return result;
+}
+
+// Only for use outside of Lox VM managed memory
+void* reallocate_nogc(void* pointer, size_t old_size, size_t new_size)
+{
+    if (new_size == old_size)
+        return pointer;
+
+    if (new_size == 0 && old_size > 0) {
+        free_mem(pointer, old_size);
+        return NULL;
+    }
+
+    char* result = (char*)alloc_mem(new_size);
+    if (result == NULL) {
+        bug("lox/memory/reallocate_nogc(): alloc_mem() failed.");
         exit(1);
     }
     if (pointer)
@@ -439,9 +467,13 @@ static void sweep()
 
 void collect_garbage()
 {
-#ifdef DEBUG_LOG_GC
+#if defined(DEBUG_LOG_GC) || defined(COUNT_GCS)
     lox_printf("-- gc begin\n");
     size_t before = vm.bytes_allocated;
+#endif
+
+#ifdef COUNT_GCS
+    gc_count++;
 #endif
 
     // We don't add game entities to VM globals until after boot. Don't GC
@@ -455,7 +487,7 @@ void collect_garbage()
 
     vm.next_gc = vm.bytes_allocated * GC_HEAP_GROW_FACTOR;
 
-#ifdef DEBUG_LOG_GC
+#if defined(DEBUG_LOG_GC) || defined(COUNT_GCS)
     lox_printf("-- gc end\n");
     lox_printf("   collected %zu bytes (from %zu to %zu) next at %zu\n",
         before - vm.bytes_allocated, before, vm.bytes_allocated, vm.next_gc);

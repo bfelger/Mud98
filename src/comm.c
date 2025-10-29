@@ -245,7 +245,6 @@ void init_tls_server(TlsServer* server)
 
 void init_server(SockServer* server, int port)
 {
-    static struct sockaddr_in sa_zero;
     struct sockaddr_in sa;
     int x = 1;
 
@@ -311,7 +310,7 @@ void init_server(SockServer* server, int port)
     }
 #endif
 
-    sa = sa_zero;
+    memset(&sa, 0, sizeof(sa));
     sa.sin_family = AF_INET;
     sa.sin_port = htons((u_short)port);
 

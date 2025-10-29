@@ -16,6 +16,8 @@
 
 bool test_output_enabled = false;
 
+void run_all_tests();
+
 void run_unit_tests()
 {
     register_lox_tests();

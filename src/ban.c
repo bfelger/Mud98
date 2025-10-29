@@ -296,7 +296,6 @@ void do_allow(Mobile* ch, char* argument)
 
 BanData* new_ban(void)
 {
-    static BanData ban_zero;
     BanData* ban;
 
     if (ban_free == NULL)
@@ -306,7 +305,7 @@ BanData* new_ban(void)
         NEXT_LINK(ban_free);
     }
 
-    *ban = ban_zero;
+    memset(ban, 0, sizeof(*ban));
     VALIDATE(ban);
     ban->name = &str_empty[0];
     return ban;

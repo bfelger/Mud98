@@ -1,12 +1,10 @@
 ////////////////////////////////////////////////////////////////////////////////
-// benchmark.h
-//
-// Utilities for gathering metrics to benchmark code changes
+// benchmarks.h
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#ifndef MUD98__BENCHMARK_H
-#define MUD98__BENCHMARK_H
+#ifndef MUD98__TESTS__BENCHMARKS_H
+#define MUD98__TESTS__BENCHMARKS_H
 
 #include <stdbool.h>
 #include <time.h>
@@ -22,4 +20,8 @@ void reset_timer(Timer* timer);
 void start_timer(Timer* timer);
 void stop_timer(Timer* timer);
 
-#endif // !MUD98__BENCHMARK_H
+void benchmark_containers();
+
+void run_benchmarks();
+
+#endif // !MUD98__TESTS__BENCHMARKS_H

@@ -371,11 +371,9 @@ long get_mob_id()
 
 void clear_mob(Mobile* ch)
 {
-    static Mobile ch_zero = { 0 };
-
     int i;
 
-    *ch = ch_zero;
+    memset(ch, 0, sizeof(Mobile));
 
     init_header(&ch->header, OBJ_MOB);
 
