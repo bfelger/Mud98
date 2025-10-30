@@ -2,23 +2,26 @@
 // redit.c
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "merc.h"
+#include <merc.h>
 
-#include "act_move.h"
-#include "bit.h"
-#include "comm.h"
-#include "db.h"
-#include "handler.h"
-#include "lookup.h"
-#include "magic.h"
 #include "olc.h"
-#include "recycle.h"
-#include "save.h"
-#include "string_edit.h"
-#include "tables.h"
 
-#include "entities/object.h"
-#include "entities/room.h"
+#include "string_edit.h"
+#include "lox_edit.h"
+#include "bit.h"
+
+#include <act_move.h>
+#include <comm.h>
+#include <db.h>
+#include <handler.h>
+#include <lookup.h>
+#include <magic.h>
+#include <recycle.h>
+#include <save.h>
+#include <tables.h>
+
+#include <entities/object.h>
+#include <entities/room.h>
 
 #define REDIT(fun) bool fun( Mobile *ch, char *argument )
 
@@ -53,6 +56,7 @@ const OlcCmdEntry room_olc_comm_table[] = {
     { "mlist",	    0,				        ed_olded,		    U(redit_mlist)	},
     { "olist",	    U(&xRoom.area_data),    ed_olist,           0               },
     { "copy",	    0,				        ed_olded,		    U(redit_copy)	},
+    { "lox",        0,                      ed_olded,           U(redit_lox)    },
     { "listreset",	0,				        ed_olded,		    U(redit_listreset)  },
     { "checkobj",	0,				        ed_olded,		    U(redit_checkobj)	},
     { "checkmob",	0,				        ed_olded,		    U(redit_checkmob)	},
@@ -1275,6 +1279,24 @@ REDIT(redit_copy)
     send_to_char("Ok. Room copied.\n\r", ch);
     return true;
 }
+
+
+REDIT(redit_lox)
+{
+    RoomData* rd;
+
+    EDIT_ROOM(ch, rd);
+
+    if (!IS_NULLSTR(argument)) {
+        send_to_char("Syntax : lox\n\r", ch);
+        return false;
+    }
+
+    lox_script_append(ch, &(rd->header.script->chars));
+
+    return true;
+}
+
 
 ED_FUN_DEC(ed_direction)
 {

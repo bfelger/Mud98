@@ -841,43 +841,60 @@ static void string_interp(bool can_assign)
 
     Token first = parser.previous;
 
-    while (parser.previous.type == TOKEN_STRING_INTERP) {
-        // This is the prefix of an interpolated string of the format "${x}". 
-        // This beginning part lacks a delimiting double-quote. This is also for
-        // interstitial string between interpolations:
-        //     "start ${x} middle ${y} end"
-        int skip = 0;
-        if (parser.previous.start[0] == '\"')
-            skip = 1;   // Skip the opening quote; only the first will have it.
+    while (parser.previous.type == TOKEN_STRING_INTERP
+        || parser.previous.type == TOKEN_STRING) {
 
-        if (parser.previous.length - skip > 0) {
-            // Strings that begin with an interpolation, or 
-            emit_constant(OBJ_VAL(copy_string(parser.previous.start + skip,
-                parser.previous.length - 1)));
-            count++;
-        }
+        if (parser.previous.type == TOKEN_STRING_INTERP) {
+            while (parser.previous.type == TOKEN_STRING_INTERP) {
+                // This is the prefix of an interpolated string of the format "${x}". 
+                // This beginning part lacks a delimiting double-quote. This is also for
+                // interstitial string between interpolations:
+                //     "start ${x} middle ${y} end"
+                int skip = 0;
+                if (parser.previous.start[0] == '\"')
+                    skip = 1;   // Skip the opening quote; only the first will have it.
 
-        consume(TOKEN_DOLLAR, "Expected '$' interpolation character");
+                if (parser.previous.length - skip > 0) {
+                    // Strings that begin with an interpolation, or 
+                    emit_constant(OBJ_VAL(copy_string(parser.previous.start + skip,
+                        parser.previous.length - 1)));
+                    count++;
+                }
 
-        if (match(TOKEN_LEFT_BRACE)) {
-            expression();
-            consume(TOKEN_RIGHT_BRACE, "Expected '}' interpolation delimiter");
-            count++;
+                consume(TOKEN_DOLLAR, "Expected '$' interpolation character");
+
+                if (match(TOKEN_LEFT_BRACE)) {
+                    expression();
+                    consume(TOKEN_RIGHT_BRACE, "Expected '}' interpolation delimiter");
+                    count++;
+                }
+                else {
+                    error("Invalid string interpolation token.");
+                    break;
+                }
+            }
+
+            consume(TOKEN_STRING, "String interpolation expected a suffix string.");
+
+            // We don't need to append the suffix string if it's just a closing quote.
+            if (parser.previous.length != 2 || parser.previous.start[0] != '\"') {
+                ObjString* end_str = copy_string(parser.previous.start + 1,
+                    parser.previous.length - 2);
+                emit_constant(OBJ_VAL(end_str));
+                count++;
+            }
         }
         else {
-            error("Invalid string interpolation token.");
-            break;
+            // Subsume string()'s functionality
+            emit_constant(OBJ_VAL(copy_string(parser.previous.start + 1,
+                parser.previous.length - 2)));
+            count++;
         }
-    }
 
-    consume(TOKEN_STRING, "String interpolation expected a suffix string.");
-
-    // We don't need to append the suffix string if it's just a closing quote.
-    if (parser.previous.length != 2 || parser.previous.start[0] != '\"') {
-        ObjString* end_str = copy_string(parser.previous.start + 1,
-            parser.previous.length - 2);
-        emit_constant(OBJ_VAL(end_str));
-        count++;
+        if (parser.current.type == TOKEN_STRING || parser.current.type == TOKEN_STRING_INTERP)
+            advance();
+        else
+            break;
     }
 
     if (count > UINT8_MAX) {
@@ -885,7 +902,8 @@ static void string_interp(bool can_assign)
         count = UINT8_MAX;
     }
 
-    emit_bytes(OP_INTERP, (uint8_t)count);
+    if (count > 1)
+        emit_bytes(OP_INTERP, (uint8_t)count);
 }
 
 static uint8_t element_list()
@@ -993,7 +1011,8 @@ ParseRule rules[] = {
     [TOKEN_MINUS_EQUALS]    = { NULL,           NULL,       PREC_NONE       },
     [TOKEN_ARROW]           = { NULL,           NULL,       PREC_NONE       },
     [TOKEN_IDENTIFIER]      = { variable,       NULL,       PREC_NONE       },
-    [TOKEN_STRING]          = { string,         NULL,       PREC_NONE       },
+    //[TOKEN_STRING]          = { string,         NULL,       PREC_NONE       },
+    [TOKEN_STRING]          = { string_interp,  NULL,       PREC_NONE       },
     [TOKEN_STRING_INTERP]   = { string_interp,  NULL,       PREC_NONE       },
     [TOKEN_INT]             = { number,         NULL,       PREC_NONE       },
     [TOKEN_DOUBLE]          = { number,         NULL,       PREC_NONE       },

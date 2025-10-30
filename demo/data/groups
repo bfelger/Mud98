@@ -1,0 +1,183 @@
+30
+
+#GROUP
+name rom basics~
+rating 0 0 0 0 @
+skills scrolls~ staves~ wands~ recall~ @~
+#END
+
+#GROUP
+name mage basics~
+rating 0 -1 -1 -1 @
+skills dagger~ @~
+#END
+
+#GROUP
+name cleric basics~
+rating -1 0 -1 -1 @
+skills mace~ @~
+#END
+
+#GROUP
+name thief basics~
+rating -1 -1 0 -1 @
+skills dagger~ steal~ @~
+#END
+
+#GROUP
+name warrior basics~
+rating -1 -1 -1 0 @
+skills sword~ second attack~ @~
+#END
+
+#GROUP
+name mage default~
+rating 40 -1 -1 -1 @
+skills lore~ beguiling~ combat~ detection~ enhancement~ illusion~ maladictions~ protective~ transportation~ weather~ @~
+#END
+
+#GROUP
+name cleric default~
+rating -1 40 -1 -1 @
+skills flail~ attack~ creation~ curative~ benedictions~ detection~ healing~ maladictions~ protective~ shield block~ transportation~ weather~ @~
+#END
+
+#GROUP
+name thief default~
+rating -1 -1 40 -1 @
+skills mace~ sword~ backstab~ disarm~ dodge~ second attack~ trip~ hide~ peek~ pick lock~ sneak~ @~
+#END
+
+#GROUP
+name warrior default~
+rating -1 -1 -1 40 @
+skills weaponsmaster~ shield block~ bash~ disarm~ enhanced damage~ parry~ rescue~ third attack~ @~
+#END
+
+#GROUP
+name weaponsmaster~
+rating 40 40 40 20 @
+skills axe~ dagger~ flail~ mace~ polearm~ spear~ sword~ whip~ @~
+#END
+
+#GROUP
+name attack~
+rating -1 5 -1 8 @
+skills demonfire~ dispel evil~ dispel good~ earthquake~ flamestrike~ heat metal~ ray of truth~ @~
+#END
+
+#GROUP
+name beguiling~
+rating 4 -1 6 -1 @
+skills calm~ charm person~ sleep~ @~
+#END
+
+#GROUP
+name benedictions~
+rating -1 4 -1 8 @
+skills bless~ calm~ frenzy~ holy word~ remove curse~ @~
+#END
+
+#GROUP
+name combat~
+rating 6 -1 10 9 @
+skills acid blast~ burning hands~ chain lightning~ chill touch~ colour spray~ fireball~ lightning bolt~ magic missile~ shocking grasp~ @~
+#END
+
+#GROUP
+name creation~
+rating 4 4 8 8 @
+skills continual light~ create food~ create spring~ create water~ create rose~ floating disc~ @~
+#END
+
+#GROUP
+name curative~
+rating -1 4 -1 8 @
+skills cure blindness~ cure disease~ cure poison~ @~
+#END
+
+#GROUP
+name detection~
+rating 4 3 6 -1 @
+skills detect evil~ detect good~ detect hidden~ detect invis~ detect magic~ detect poison~ farsight~ identify~ know alignment~ locate object~ @~
+#END
+
+#GROUP
+name draconian~
+rating 8 -1 -1 -1 @
+skills acid breath~ fire breath~ frost breath~ gas breath~ lightning breath~ @~
+#END
+
+#GROUP
+name enchantment~
+rating 6 -1 -1 -1 @
+skills enchant armor~ enchant weapon~ fireproof~ recharge~ @~
+#END
+
+#GROUP
+name enhancement~
+rating 5 -1 9 9 @
+skills giant strength~ haste~ infravision~ refresh~ @~
+#END
+
+#GROUP
+name harmful~
+rating -1 3 -1 6 @
+skills cause critical~ cause light~ cause serious~ harm~ @~
+#END
+
+#GROUP
+name healing~
+rating -1 3 -1 6 @
+skills cure critical~ cure light~ cure serious~ heal~ mass healing~ refresh~ @~
+#END
+
+#GROUP
+name illusion~
+rating 4 -1 7 -1 @
+skills invis~ mass invis~ ventriloquate~ @~
+#END
+
+#GROUP
+name maladictions~
+rating 5 5 9 9 @
+skills blindness~ change sex~ curse~ energy drain~ plague~ poison~ slow~ weaken~ @~
+#END
+
+#GROUP
+name protective~
+rating 4 4 7 8 @
+skills armor~ cancellation~ dispel magic~ fireproof~ protection evil~ protection good~ sanctuary~ shield~ stone skin~ @~
+#END
+
+#GROUP
+name transportation~
+rating 4 4 8 9 @
+skills fly~ gate~ nexus~ pass door~ portal~ summon~ teleport~ word of recall~ @~
+#END
+
+#GROUP
+name weather~
+rating 4 4 8 8 @
+skills call lightning~ control weather~ faerie fire~ faerie fog~ lightning bolt~ @~
+#END
+
+#GROUP
+name ~
+rating 0 0 0 0 @
+skills @~
+#END
+
+#GROUP
+name ~
+rating 0 0 0 0 @
+skills @~
+#END
+
+#GROUP
+name ~
+rating 0 0 0 0 @
+skills @~
+#END
+
+#!

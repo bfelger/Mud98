@@ -25,6 +25,7 @@ void run_unit_tests()
     register_container_tests();
     register_entity_tests();
     register_act_tests();
+    register_fmt_tests();
 
     test_output_enabled = true;
     test_dissasemble_on_error = true;

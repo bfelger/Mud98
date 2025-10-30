@@ -861,7 +861,10 @@ void do_goto(Mobile* ch, char* argument)
         VNUM vnum = STRTOVNUM(argument);
         location = get_room_for_player(ch, vnum);
     }
-    else if ((location = find_location(ch, argument)) == NULL) {
+    else
+        location = find_location(ch, argument);
+    
+    if (location == NULL) {
         send_to_char("No such location.\n\r", ch);
         return;
     }

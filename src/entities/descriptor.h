@@ -56,6 +56,7 @@ typedef struct descriptor_t {
     char* showstr_head;
     char* showstr_point;
     char** pString;
+    char** pLoxScript;
     uintptr_t pEdit;
     char* screenmap;
     char* oldscreenmap;

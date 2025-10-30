@@ -139,7 +139,8 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "olc/gedit.c" "olc/hedit.c" "olc/medit.c" "olc/oedit.c" "olc/olc.h" 
     "olc/olc.c" "olc/olc_act.c" "olc/olc_save.c" "olc/pedit.c" "olc/qedit.c" 
     "olc/raedit.c" "olc/redit.c" "olc/screen.h" "olc/screen.c" "olc/sedit.c" 
-    "olc/skedit.c" "olc/string_edit.h" "olc/string_edit.c"
+    "olc/skedit.c" "olc/string_edit.h" "olc/string_edit.c"  "olc/lox_edit.h" 
+    "olc/lox_edit.c"
 
     "mth/mth.h" "mth/msdp.c" "mth/mth.c" "mth/telopt.c"
     
@@ -197,6 +198,7 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "tests/mock.h" "tests/mock.c"
     "tests/lox_tests.h" "tests/lox_tests.c" "tests/lox_ext_tests.c"
     "tests/entity_tests.c" "tests/container_tests.c" "tests/act_tests.c"
+    "tests/fmt_tests.c"
 
     "benchmarks/benchmarks.h" "benchmarks/benchmarks.c" 
     "benchmarks/container_benchmarks.c"

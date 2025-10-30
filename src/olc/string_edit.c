@@ -33,8 +33,6 @@
 
 char* numlineas(char*);
 char* get_line(char*, char*);
-char* linedel(char*, int);
-char* lineadd(char*, char*, int);
 
 /*****************************************************************************
  Name:		string_edit
@@ -87,13 +85,13 @@ void string_append(Mobile* ch, char** pString)
  Purpose:	Substitutes one string for another.
  Called by:	string_add(string.c) (aedit_builder)olc_act.c.
  ****************************************************************************/
-char* string_replace(char* orig, char* old, char* new)
+char* string_replace(char* orig, char* old, char* new_str)
 {
     char xbuf[MAX_STRING_LENGTH] = "";
     size_t i;
     size_t old_len = strlen(old);
 
-    if (strlen(orig) - old_len + strlen(new) > MAX_STRING_LENGTH - 10)
+    if (strlen(orig) - old_len + strlen(new_str) > MAX_STRING_LENGTH - 10)
         return orig;
 
     xbuf[0] = '\0';
@@ -102,7 +100,7 @@ char* string_replace(char* orig, char* old, char* new)
     if (pos != NULL) {
         i = strlen(orig) - strlen(pos);
         xbuf[i] = '\0';
-        strcat(xbuf, new);
+        strcat(xbuf, new_str);
         strcat(xbuf, &orig[i + old_len]);
         free_string(orig);
     }
@@ -193,7 +191,7 @@ void string_add(Mobile* ch, char* argument)
 
         if (!str_cmp(arg1, ".h")) {
             write_to_buffer(ch->desc,
-                "Sedit help (commands on blank line):   \n\r"
+                "String help (commands on blank line):   \n\r"
                 ".r 'old' 'new'   - replace a substring \n\r"
                 "                   (requires '', \"\") \n\r"
                 ".h               - get help (this info)\n\r"

@@ -10,12 +10,12 @@
 
 #include "merc.h"
 
-#include "entities/mobile.h"
-#include "entities/descriptor.h"
+#include <entities/mobile.h>
+#include <entities/descriptor.h>
 
-#include "data/damage.h"
+#include <data/damage.h>
 
-#include "lox/lox.h"
+#include <lox/lox.h>
 
 #include "db.h"
 #include "socket.h"

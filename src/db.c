@@ -96,7 +96,6 @@
 void load_lox_public_scripts();
 MobProgCode* pedit_prog(VNUM);
 
-void load_lox_scripts(FILE* fp);
 void load_event(FILE* fp, Entity* owner);
 
 // Globals.
@@ -167,7 +166,6 @@ void load_shops(FILE* fp);
 void load_specials(FILE* fp);
 void load_notes();
 void load_mobprogs(FILE* fp);
-void load_lox_scripts(FILE* fp);
 
 void fix_exits();
 void fix_mobprogs();
@@ -275,8 +273,6 @@ void boot_db()
                     load_mobiles(strArea);
                 else if (!str_cmp(word, "MOBPROGS"))
                     load_mobprogs(strArea);
-                else if (!str_cmp(word, "LOX"))
-                    load_lox_scripts(strArea);
                 else if (!str_cmp(word, "OBJECTS"))
                     load_objects(strArea);
                 else if (!str_cmp(word, "RESETS"))
@@ -920,64 +916,6 @@ void area_update()
 
     return;
 }
-
-// Load Lox section
-void load_lox_scripts(FILE* fp)
-{
-//    char word[MAX_INPUT_LENGTH];
-//
-//    while (fscanf(fp, "%s", word) == 1) {
-//        if (strcmp(word, "#END") == 0)
-//            break;
-//
-//        // Consume a script name and body so the file pointer advances
-//        String* name = fread_lox_string(fp);
-//        char* body = fread_lox_script(fp);
-//        if (body) free(body);
-//        (void)name; // silence unused variable warning
-//    }
-//
-//    return;
-}
-
-//
-//// Verify that events referencing Lox functions on room prototypes actually
-//// have a corresponding compiled function attached to the RoomData. This
-//// helps catch typos in area files at boot time and warns the builder.
-//void verify_lox_event_bindings()
-//{
-//    RoomData* rd;
-//
-//    FOR_EACH_GLOBAL_ROOM(rd) {
-//        // Iterate events attached to the room prototype
-//        for (Node* n = rd->header.events.front; n != NULL; n = n->next) {
-//            Event* ev = (Event*)n->value;
-//            if (!ev || !ev->func_name || ev->func_name == lox_empty_string)
-//                continue;
-//
-//            bool found = false;
-//
-//            // Look through compiled ObjFunction array for a name match 
-//            for (int i = 0; i < rd->lox_function_count; ++i) {
-//                ObjFunction* fn = rd->lox_functions[i];
-//                if (fn && fn->name && fn->name->chars && ev->func_name->chars
-//                    && strcmp(fn->name->chars, ev->func_name->chars) == 0) {
-//                    found = true;
-//                    break;
-//                }
-//            }
-//
-//            if (!found) {
-//                bugf("verify_lox_event_bindings: room %" PRVNUM
-//                     " references missing Lox function '%s' for event '%s'.",
-//                     VNUM_FIELD(rd), ev->func_name->chars ? ev->func_name->chars : "<null>",
-//                     ev->name && ev->name->chars ? ev->name->chars : "<unnamed>");
-//            }
-//        }
-//    }
-//
-//    return;
-//}
 
 // Load mobprogs section
 void load_mobprogs(FILE* fp)

@@ -183,6 +183,35 @@ static int test_string_interp_var_start()
 
 }
 
+static int test_string_lit_concat()
+{
+    const char* src = "var str = \"This is a compound string. \"\n"
+        "    \"I hope it prints!\"\n"
+        "print str\n";
+
+    InterpretResult result = interpret_code(src);
+    ASSERT_LOX_OUTPUT_EQ("This is a compound string. I hope it prints!\n");
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_string_lit_interp_concat()
+{
+    const char* src =
+        "var a = 5\n"
+        "var b = 3\n"
+        "var str = \"a + b = ${a + b}. \"\n"
+        "          \"a - b = ${a - b}.\"\n"
+        "print str\n";
+
+    InterpretResult result = interpret_code(src);
+    ASSERT_LOX_OUTPUT_EQ("a + b = 8. a - b = 2.\n");
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 void register_lox_ext_tests()
 {
 #define REGISTER(n, f)  register_test(&lox_ext_tests, (n), (f))
@@ -199,6 +228,8 @@ void register_lox_ext_tests()
     REGISTER("String Interpolation: Act Vars", test_string_interp_var);
     REGISTER("String Interpolation: Expressions", test_string_interp_expr);
     REGISTER("String Interpolation: Starting Act Var", test_string_interp_var_start);
+    REGISTER("String Literal Concatenation", test_string_lit_concat);
+    REGISTER("String Interp + Literal Concatenation", test_string_lit_interp_concat);
 
 #undef REGISTER
 }

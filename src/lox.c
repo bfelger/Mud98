@@ -59,6 +59,7 @@ bool load_lox_class(FILE* fp, const char* entity_type_name, Entity* entity)
     }
     else {
         entity->klass = klass;
+        entity->script = script;
         return true;
     }
 }

@@ -1,0 +1,659 @@
+#AREADATA
+Version 2
+Name Faladrin Forest~
+Builders Halivar~
+VNUMs 12000 12100
+Credits Halivar~
+Security 9
+Sector 3
+Low 1
+High 5
+Reset 1
+AlwaysReset 0
+InstType 1
+End
+
+
+
+#MOBILES
+#12005
+findorian woodspeaker~
+Findorian, the Woodspeaker~
+Findorian, the Woodspeaker, kneels in the grassy clearing, gazing intently at the dark woods surrounding you.
+~
+~
+elf~
+AB 0 0 0
+20 0 3d9+333 20d12+100 2d8+5 none
+-4 -4 -4 -3
+R 0 DE 0
+stand stand none 0
+0 0 medium 'unknown'
+V 'GREET' on_greet~
+L
+on_greet(vch) {
+    if (vch.can_finish_quest(12000)) {
+        say("There you are, ${vch.name}; I'm glad to see you. I wish I could ease you into the brutal World Below, but we have no such luck.")
+        echo("$n sighs.")
+        say("I need your help with something, and it's not going to be pleasant.")
+        vch.finish_quest(12000)
+        say(
+            "There is a blight in this region of the forest infecting flora and fauna alike. I want to get to the root of it, but for now there is great suffering that must be dealt with.",
+            "This is the burden of a Forestspeaker; there is only one way to stop the spread of the disease and bring peace to the afflicted, and that is by death.",
+            "The Tetyayath have taught you the Creeds, and you have spoken them. Now you must pay the terrible cost of adhering to them.",
+            "Go north. Bring them mercy. They have suffered long enough.")
+        vch.grant_quest(12006)
+    }
+    else if (vch.can_finish_quest(12006)) {
+        say("Bloody business, that. I'm sorry.")
+        echo(vch, "$n places his hand on $S shoulder.")
+        say(
+            "What you have done here important. Preservation is about protecting what we can, and mitigating when we can't.",
+            "You have honored the Creeds. You have honored the Forest.")
+        vch.finish_quest(12006)
+    }
+}
+~
+#12010
+sick deer~
+A sick deer~
+A sick deer drags a limp leg along the ground.
+~
+This deer has been poisoned, and is near death.  Its eyes are bloodshot
+and crazed.  It eyes you warily.  
+~
+fido~
+ABH 0 0 0
+1 0 1d1+7 1d10+100 1d2+0 none
+10 10 10 10
+0 AB 0 0
+stand stand none 0
+0 W medium 'unknown'
+F off FR
+F par V
+#12011
+blighted fox~
+A blighted fox~
+A hairless, blighted fox twitches and stares at you.
+~
+This fox has lost all of its hair, and whatever senses it has.  It
+twitches and scratches nervously.  It is clearly in great discomfort.  
+~
+fido~
+ABH 0 0 0
+1 0 1d1+7 1d10+100 1d2+0 bite
+10 10 10 10
+0 AB 0 0
+stand stand none 0
+0 0 medium 'unknown'
+F off FR
+#12012
+rabid bobcat~
+A rabid bobcat~
+A rabid bobcat is here, biting and attacking anything it can.
+~
+This bobcat is clearly crazed and in incredible pain.  You need to put it
+down before it puts you down!  
+~
+fido~
+ABF 0 0 0
+1 0 1d1+7 1d10+100 1d3+0 bite
+10 10 10 10
+0 AB 0 0
+stand stand none 0
+0 0 medium 'unknown'
+F off FR
+#12013
+crazed black bear~
+A crazed black bear~
+A crazed black bear is howling in anger and pain.
+~
+This black bear is covered in oozing pustules.  It is obviously in pain,
+and lashing out.  It needs to be put down.  
+~
+fido~
+ABF 0 0 0
+1 0 1d1+7 1d10+100 1d4+0 bite
+10 10 10 10
+0 AB 0 0
+stand stand none 0
+0 U medium 'unknown'
+F off FR
+#12014
+wild weasel~
+A wild weasel~
+A wild weasel runs around, foaming at the mouth.
+~
+This weasel has been infected with something and is flitting all around
+you, leaving a trail of sickly green slobber and mucus.  
+~
+fido~
+ABF 0 0 0
+1 0 1d1+7 1d10+100 1d3+0 bite
+10 10 10 10
+0 AB 0 0
+stand stand none 0
+0 0 medium 'unknown'
+F off FR
+#12015
+mutant coyote~
+A mutant coyote~
+A mutant, blood-drenched coyote is here, screaming. 
+~
+This horribly mutated coyote's fur is matted with blood.  Given its open
+wounds and sores, you imagine a not-insignificant amount of it is its own.  
+~
+fido~
+ABF 0 0 0
+1 0 1d1+7 1d10+100 1d4+0 bite
+10 10 10 10
+0 AB 0 0
+stand stand none 0
+0 U medium 'unknown'
+F off FR
+#12016
+angry badger~
+An angry badger~
+An angry badger is here, howling in pain.
+~
+This temperamental beast is covered in blisters and sores.  It seems
+quite upset.  
+~
+fido~
+ABF 0 0 0
+1 0 1d1+7 1d10+100 1d3+0 bite
+10 10 10 10
+0 AB 0 0
+stand stand none 0
+0 U medium 'unknown'
+F off FR
+#12017
+feral rabbit~
+A feral rabbit~
+A feral rabbit is here, gnawing on what appears to be an elven femur.
+~
+Is that an elven femur in its mouth?  This rabbit is a menace!  You know
+what to do.  
+~
+fido~
+ABH 0 0 0
+1 0 1d1+7 1d10+100 1d2+0 bite
+10 10 10 10
+0 AB 0 0
+stand stand none 0
+0 0 medium 'unknown'
+F off FR
+#12018
+agonized boar~
+An agonized boar~
+An agonized boar is here, randomly charging and striking trees.
+~
+This boar is clearly in pain, and taking it out on the entire forest.  It
+is randomly charging trees and striking them with its tusks.  You can see
+the body of other creatures strewn about it that it has gored to death.  
+~
+fido~
+ABH 0 0 0
+1 0 1d1+7 1d10+100 1d2+0 bite
+10 10 10 10
+0 AB 0 0
+stand stand none 0
+0 Y medium 'unknown'
+F off FR
+F par V
+#0
+
+
+
+#OBJECTS
+#12000
+shirt linen cuivealda~
+a linen shirt of Cuivealda~
+A linen shirt of Cuivealda lies on the ground.~
+cloth~
+armor 0 AD
+1 1 1 0 0
+0 0 0 P
+#12001
+cloak linen cuivealda~
+a linen cloak of Cuivealda~
+A linen cloak of Cuivealda is discarded here.~
+cloth~
+armor 0 AK
+1 1 1 0 0
+0 0 0 P
+#12002
+cap linen cuivealda~
+a linen cap of Cuivealda~
+A linen cap of Cuivealda is on the ground.~
+cloth~
+armor 0 AE
+1 1 1 0 0
+0 0 0 P
+#12003
+pants linen cuivealda~
+linen pants of Cuivealda~
+Linen pants of Cuivealda lie here.~
+cloth~
+armor 0 AF
+1 1 1 0 0
+0 0 0 P
+#12004
+clogs wooden cuivealda~
+wooden clogs of Cuivealda~
+Wooden clogs of Cuivealda are lying on the ground.~
+wood~
+armor 0 AG
+1 1 1 0 0
+0 0 0 P
+#12005
+gloves hide simple~
+simple hide gloves~
+Simple gloves made of hide lay here.~
+hide~
+armor 0 AH
+1 1 1 0 0
+0 0 0 P
+#12006
+belt hemp rope~
+a belt of hemp rope~
+A belt of hemp rope lays discarded.~
+hemp~
+armor 0 AL
+1 1 1 0 0
+0 0 0 P
+#12007
+wristband hempen simple~
+simple hempen wristbands~
+Simple hempen wristbands lay here.~
+hemp~
+armor 0 AM
+1 1 1 0 0
+0 0 0 P
+#12008
+chest oaken stout~
+a stout oaken chest~
+A stout oaken chest is nestled between the roots a great tree trunk.~
+wood~
+container O 0
+1000 AC 0 10 100
+0 0 0 P
+#0
+
+
+
+#ROOMS
+#12000
+The Awakening~
+You stand next to the great old trunk of Cuivealda. The light is dim, as
+the dense, high canopy that forms Tauremar covers the sky. There is little
+ground cover, and the forest floor is a desolate place of perpetual
+twilight.
+~
+0
+N 3
+D1
+~
+~
+0 0 12002
+V 'LOGIN' on_login~
+L
+// This function gets called the first time a character logs in as an elf, 
+// after character creation.
+on_login(vch) {
+    // Only newly-created characters
+    if (vch.level > 1 or vch.race != Race.Elf)
+        return;
+        
+    vch.send(
+        "{*You step off the end of an old rope ladder at the base of "
+        "Cuivealda, the Tree of Awakening. Your years in the nurturing "
+        "hands of the Tetyayath have come to an end.{/{/"
+        "Now you must go out into the world and find your destiny...{/{x")
+
+    if (vch.can_quest(12000)) {
+        delay(1, () -> {
+            vch.send("{jYou have instructions to meet your old mentor in a "
+                "clearing just to the east. There you will continue your "
+                "training. Type '{*EXITS{j' to see what lies in that "
+                "direction. Type '{*EAST{j' to go there.{x")
+            vch.grant_quest(12000)
+            vch.send("{jType '{*QUEST{j' to view your quest log.{x")
+        })
+    }
+}
+~
+S
+#12002
+A Dark Path Through the Woods~
+This path through the forest is just out of sight of Cuivealda to the
+west.  The trees are densely packed on all sides except on the path, which
+continues east.  
+  There is a hand-written note posted to a tree.
+~
+0
+N 3
+E
+note~
+Before you come see me, take some time and center yourself.
+Be sure to {*TRAIN{x your abilities and {*PRACTICE{x your skills.
+Never be afraid to seek {*HELP{x if you lack understanding.
+ 
+--F
+~
+D1
+~
+~
+0 0 12003
+D3
+~
+~
+0 0 12000
+V 'GREET' on_greet~
+L
+on_greet(vch) {
+    if (vch.has_quest(12000)) {
+        vch.send("{jTo read the note tacked to the tree, type any of the following: {*READ NOTE{j, {*LOOK NOTE{j, or {*EXAMINE NOTE{j.{x")
+    }
+}
+~
+S
+#12003
+A Dark Path Through the Woods~
+The path through the dark woods continues.  The way west leads back to
+Cuivealda, while the path continuing east leads to sunlight.  
+~
+0
+N 3
+D1
+~
+~
+0 0 12005
+D3
+~
+~
+0 0 12002
+V 'GREET' on_greet~
+L
+on_greet(vch) {
+    if (vch.has_quest(12000)) {
+        vch.send(
+            "{jYour mentor has left you some gear to help you on your journey. It's inside a chest by the tree.{x",
+            "{jTry the following commands:{x",
+            "{j- {*OPEN CHEST{x",
+            "{j- {*LOOK IN CHEST{x",
+            "{j- {*TAKE ALL FROM CHEST{x",
+            "{j- {*EQUIP ALL{x",
+            "{jYou can also look at your inventory with:{x",
+            "{j- {*EQ{j (short for {*EQUIPMENT{j){x",
+            "{j- {*INV{j (short for {*INVENTORY{j){x",
+            "{jYou can see the effect of donning this gear by viewing your stats:{x",
+            "{j- {*SCORE{j (which you can abbreviate to {*SC{j){x")
+    }
+}
+~
+S
+#12005
+The Training Ground~
+Dappled sunlight breaks through the canopy in this clearing.  A patch of
+grass grows, green and vibrant, in the center.  Dark pathways through the
+trees go out in all directions.  
+~
+0
+KN 3
+D0
+~
+~
+0 0 12010
+D3
+~
+~
+0 0 12003
+S
+#12010
+The Poisoned Woods~
+There is only a glimmer of light from the clearing to the south. 
+Otherwise, the forest floor is almost completely obscured by the high canopy
+of trees.  You can see signs of some sort of blight that is infecting plant
+and animal alike.  Tree trunks are turning ashen white, and there are
+carcasses of hairless creatures strewn about.  The sickened forest extends
+in all directions.  
+~
+0
+N 3
+D0
+~
+~
+0 0 12018
+D1
+~
+~
+0 0 12017
+D2
+~
+~
+0 0 12005
+D3
+~
+~
+0 0 12011
+S
+#12011
+The Poisoned Woods~
+The woods grow more dark and impenetrable in this direction.  Signs of
+the blight are much clearer here than to the east.  It's hard to believe
+that the very trees that hold Tauremar aloft are rotting like this.  
+~
+0
+N 3
+D0
+~
+~
+0 0 12012
+D1
+~
+~
+0 0 12010
+S
+#12012
+The Poisoned Woods~
+The woods grow even darker here.  You can hear the strange, agonizing
+cries of blighted forest creatures all around you.  
+~
+0
+N 3
+D0
+~
+~
+0 0 12013
+D1
+~
+~
+0 0 12018
+D2
+~
+~
+0 0 12011
+S
+#12013
+The Poisoned Woods~
+This is the farthest end of the poisoned forest.  The trees grow too
+densely to proceed in any other direction by east or south.  
+~
+0
+N 3
+D1
+~
+~
+0 0 12014
+D2
+~
+~
+0 0 12012
+S
+#12014
+The Poisoned Woods~
+The horrible blight has turned these tree trunks completely white.  The
+normal twilight of the Faladrin Forest has turned even darker, as if they
+sickness of the forest is making it worse, somehow.  
+~
+0
+N 3
+D1
+~
+~
+0 0 12015
+D2
+~
+~
+0 0 12018
+D3
+~
+~
+0 0 12013
+S
+#12015
+The Poisoned Woods~
+This is as far back as the navigable portion this area of the Faladrin
+Forest goes.  Beyond, the trees are too dense to proceed.  This area has
+more sickened trees, many covered in what appear to be... blisters?  Fleshy
+pustules that grow and then seem to burst with effluent.  
+~
+0
+N 3
+D2
+~
+~
+0 0 12016
+D3
+~
+~
+0 0 12014
+S
+#12016
+The Poisoned Woods~
+The ground and tree trunks here are covered in strange black mushrooms. 
+It seems ill-advised to come in contact with them.  
+~
+0
+N 3
+D0
+~
+~
+0 0 12015
+D2
+~
+~
+0 0 12017
+D3
+~
+~
+0 0 12018
+S
+#12017
+The Poisoned Woods~
+The blighted trees here are covered in some sort of sticky ichor.  The
+area has a distinctly unpleasant odor.  
+~
+0
+N 3
+D0
+~
+~
+0 0 12016
+D3
+~
+~
+0 0 12010
+S
+#12018
+The Poisoned Woods~
+The poison infecting the forest has twisted the trees here.  Branches
+seem limp and soft, and yet still hold themselves up somehow.  When you turn
+your head, you can see them start to undulate as they pass beyond your
+sight.  
+~
+0
+N 3
+D0
+~
+~
+0 0 12014
+D1
+~
+~
+0 0 12016
+D2
+~
+~
+0 0 12010
+D3
+~
+~
+0 0 12012
+S
+#0
+
+
+
+#SPECIALS
+S
+
+
+
+#RESETS
+O 0 12008 0 12003
+P 0 12000 0 12008 1
+P 0 12001 0 12008 1
+P 0 12002 0 12008 1
+P 0 12003 0 12008 1
+P 0 12004 0 12008 1
+P 0 12005 0 12008 1
+P 0 12006 0 12008 1
+P 0 12007 0 12008 1
+M 0 12005 -1 12005 1
+M 0 12010 -1 12010 1
+M 0 12011 -1 12011 1
+M 0 12012 -1 12012 1
+M 0 12013 -1 12013 1
+M 0 12014 -1 12014 1
+M 0 12015 -1 12015 1
+M 0 12016 -1 12016 1
+M 0 12017 -1 12017 1
+M 0 12018 -1 12018 1
+S
+
+
+
+#SHOPS
+0
+
+#QUEST
+name An Old Friend~
+vnum 12000
+entry Before you step out into the greater world, you must be trained.  To that end, your old mentor Findorian has has taken the responsibility to ensure you are properly made ready.  He waits for you just to the east of Cuivealda.
+~
+type visit_mob~
+xp 100
+level 1
+end 12005
+target 12005
+upper 0
+count 0
+#END
+
+#QUEST
+name A Preserver's Burden~
+vnum 12006
+entry Findorian needs help culling the sick and ailing creatures in the poisoned woods of the Faladrin Forest.  The best thing you can do right now is to end their suffering.  Be warned however; many of them are twisted and violent.  
+~
+type kill_mob~
+xp 200
+level 1
+end 12005
+target 12010
+upper 12018
+count 9
+#END
+
+#$

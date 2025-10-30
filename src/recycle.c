@@ -208,7 +208,6 @@ void clear_buf(Buffer* buffer)
     buffer->state = BUFFER_SAFE;
 }
 
-
 int16_t* new_learned(void) // Return int16_t[skill_count]
 {
     int16_t* temp;

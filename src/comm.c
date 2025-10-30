@@ -53,6 +53,7 @@
 #include "vt.h"
 
 #include <olc/olc.h>
+#include <olc/lox_edit.h>
 #include <olc/screen.h>
 #include <olc/string_edit.h>
 
@@ -787,6 +788,8 @@ void process_client_input(SockServer* server, PollData* poll_data)
                 show_string(d, d->incomm);
             else if (d->pString)
                 string_add(d->character, d->incomm);    // OLC
+            else if (d->pLoxScript)
+                lox_script_add(d->character, d->incomm);
             else if (d->connected == CON_PLAYING)
                 substitute_alias(d, d->incomm);
             else
@@ -2122,14 +2125,18 @@ void send_to_char(const char* txt, Mobile * ch)
                 if (*point == '{') {
                     point++;
                     skip = colour(*point, ch, point2);
-                    while (skip-- > 0) ++point2;
+                    //while (skip-- > 0) 
+                    //    ++point2;
+                    point2 += skip;
                     continue;
                 }
+
                 *point2 = *point;
                 *++point2 = '\0';
             }
             *point2 = '\0';
-            write_to_buffer(ch->desc, BUF(temp), point2 - BUF(temp));
+            //write_to_buffer(ch->desc, BUF(temp), point2 - BUF(temp));
+            //write_to_buffer(ch->desc, BUF(temp), 0);
         }
         else {
             for (point = txt; *point; point++) {
@@ -2141,8 +2148,11 @@ void send_to_char(const char* txt, Mobile * ch)
                 *++point2 = '\0';
             }
             *point2 = '\0';
-            write_to_buffer(ch->desc, BUF(temp), point2 - BUF(temp));
+            //write_to_buffer(ch->desc, BUF(temp), point2 - BUF(temp));
         }
+        //int len = colourconv(BUF(temp), txt, ch);
+        //write_to_buffer(ch->desc, BUF(temp), len);
+        write_to_buffer(ch->desc, BUF(temp), point2 - BUF(temp));
     }
 
     free_buf(temp);
@@ -2490,7 +2500,8 @@ size_t colour(char type, Mobile * ch, char* string)
                 sprintf(code, "%c", '\a');
                 break;
             case '/':
-                strcpy(code, "\n\r");
+                sprintf(code, "%s", "\n\r");
+                //strcpy(code, "\n\r");
                 break;
             case '-':
                 sprintf(code, "%c", '~');

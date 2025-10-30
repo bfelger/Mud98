@@ -16,6 +16,11 @@ void init_header(Entity* header, ObjType type)
     init_list(&header->events);
 
     header->name = lox_empty_string;
+
+    header->event_triggers = 0;
+    header->klass = NULL;
+    header->script = 0;
+
     SET_LOX_FIELD(header, header->name, name);
 
     SET_NATIVE_FIELD(header, header->vnum, vnum, I32);
