@@ -16,6 +16,8 @@ typedef struct mob_prog_code_t MobProgCode;
 #include <entities/mobile.h>
 #include <entities/object.h>
 
+#include <stdbool.h>
+
 typedef struct mob_prog_t {
     MobProg* next;
     char* trig_phrase;

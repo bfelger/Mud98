@@ -6,10 +6,14 @@
 #ifndef MUD98__OLC__LOX_EDIT_H
 #define MUD98__OLC__LOX_EDIT_H
 
+#include <entities/entity.h>
 #include <entities/mobile.h>
+
+#include <recycle.h>
 
 void lox_script_append(Mobile* ch, char** pScript);
 void lox_script_add(Mobile* ch, char* argument);
 char* prettify_lox_script(char* string);
+void olc_display_lox_info(Mobile* ch, Entity* entity, Buffer* out);
 
 #endif // !MUD98__OLC__LOX_EDIT_H

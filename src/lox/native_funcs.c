@@ -7,6 +7,8 @@
 
 #include <data/damage.h>
 
+#include <entities/event.h>
+
 #include <db.h>
 #include <fight.h>
 #include <magic.h>

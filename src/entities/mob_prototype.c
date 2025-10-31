@@ -5,20 +5,22 @@
 
 #include "mob_prototype.h"
 
-#include "comm.h"
-#include "db.h"
-#include "handler.h"
-#include "lookup.h"
-#include "magic.h"
-#include "recycle.h"
-#include "tables.h"
-
-#include "olc/olc.h"
-
 #include "mobile.h"
 
-#include "data/mobile_data.h"
-#include "data/race.h"
+#include <comm.h>
+#include <db.h>
+#include <handler.h>
+#include <lookup.h>
+#include <magic.h>
+#include <recycle.h>
+#include <tables.h>
+
+#include <olc/olc.h>
+
+#include <data/mobile_data.h>
+#include <data/race.h>
+
+#include <entities/event.h>
 
 Table mob_protos;
 MobPrototype* mob_proto_free = NULL;

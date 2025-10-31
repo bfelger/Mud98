@@ -50,6 +50,7 @@
 #include <olc/olc.h>
 
 #include <entities/area.h>
+#include <entities/event.h>
 #include <entities/descriptor.h>
 #include <entities/room_exit.h>
 #include <entities/mob_prototype.h>

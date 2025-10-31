@@ -11,9 +11,8 @@
 #include "native.h"
 #include "vm.h"
 
-#include <data/events.h>
-
 #include <entities/area.h>
+#include <entities/event.h>
 #include <entities/obj_prototype.h>
 #include <entities/mobile.h>
 #include <entities/room.h>

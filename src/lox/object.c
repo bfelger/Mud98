@@ -12,7 +12,7 @@
 
 #include <db.h>
 
-#include <data/events.h>
+#include <entities/event.h>
 
 #include <stdio.h>
 #include <string.h>

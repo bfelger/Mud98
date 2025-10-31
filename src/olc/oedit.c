@@ -2,20 +2,23 @@
 // oedit.c
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "merc.h"
+#include <merc.h>
 
 #include "bit.h"
-#include "comm.h"
-#include "db.h"
-#include "handler.h"
-#include "lookup.h"
-#include "magic.h"
+#include "lox_edit.h"
 #include "olc.h"
-#include "recycle.h"
-#include "save.h"
-#include "tables.h"
 
-#include "entities/object.h"
+#include <comm.h>
+#include <db.h>
+#include <handler.h>
+#include <lookup.h>
+#include <magic.h>
+#include <recycle.h>
+#include <save.h>
+#include <tables.h>
+
+#include <entities/event.h>
+#include <entities/object.h>
 
 #define OEDIT(fun) bool fun( Mobile *ch, char *argument )
 
@@ -707,6 +710,16 @@ OEDIT(oedit_show)
     }
 
     show_obj_values(ch, pObj);
+
+    INIT_BUF(out, MSL);
+
+    Entity* entity = &pObj->header;
+    olc_display_event_info(ch, entity, out);
+    olc_display_lox_info(ch, entity, out);
+
+    send_to_char(BUF(out), ch);
+
+    free_buf(out);
 
     return false;
 }

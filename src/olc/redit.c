@@ -20,6 +20,7 @@
 #include <save.h>
 #include <tables.h>
 
+#include <entities/event.h>
 #include <entities/object.h>
 #include <entities/room.h>
 
@@ -281,28 +282,28 @@ REDIT(redit_show)
     EDIT_ROOM(ch, pRoom);
 
     addf_buf(out, "Description:\n\r{_%s{x", pRoom->description);
-    addf_buf(out, "Name:       {|[{*%s{|]{x\n\rArea:       {|[{*%5d{|] {_%s{x\n\r",
+    addf_buf(out, "Name:        {|[{*%s{|]{x\n\rArea:        {|[{*%5d{|] {_%s{x\n\r",
         NAME_STR(pRoom), VNUM_FIELD(pRoom->area_data), NAME_STR(pRoom->area_data));
-    addf_buf(out, "Vnum:       {|[{*%5d{|]{x\n\rSector:     {|[{*%s{|]{x\n\r",
+    addf_buf(out, "Vnum:        {|[{*%5d{|]{x\n\rSector:      {|[{*%s{|]{x\n\r",
         VNUM_FIELD(pRoom), flag_string(sector_flag_table, pRoom->sector_type));
-    addf_buf(out, "Room flags: {|[{*%s{|]{x\n\r",
+    addf_buf(out, "Room flags:  {|[{*%s{|]{x\n\r",
         flag_string(room_flag_table, pRoom->room_flags));
-    addf_buf(out, "Heal rec:   {|[{*%d{|]{x\n\rMana rec:   {|[{*%d{|]{x\n\r",
+    addf_buf(out, "Heal rec:    {|[{*%d{|]{x\n\rMana rec:    {|[{*%d{|]{x\n\r",
         pRoom->heal_rate, pRoom->mana_rate);
 
     if (pRoom->clan) {
-        addf_buf(out, "Clan:       {|[{*%d{|] {_%s{x\n\r", pRoom->clan,
+        addf_buf(out, "Clan:        {|[{*%d{|] {_%s{x\n\r", pRoom->clan,
             ((pRoom->clan > 0) ? clan_table[pRoom->clan].name : "none"));
     }
 
     if (pRoom->owner && pRoom->owner[0] != '\0') {
-        addf_buf(out, "Owner:      {|[{*%s{|]{x\n\r", pRoom->owner);
+        addf_buf(out, "Owner:       {|[{*%s{|]{x\n\r", pRoom->owner);
     }
 
     if (pRoom->extra_desc) {
         ExtraDesc* ed;
 
-        add_buf(out, "Desc Kwds:  {|[{*");
+        add_buf(out, "Desc Kwds:   {|[{*");
         FOR_EACH(ed, pRoom->extra_desc) {
             add_buf(out, ed->keyword);
             if (ed->next) {
@@ -312,7 +313,7 @@ REDIT(redit_show)
         add_buf(out, "{|]{x\n\r");
     }
 
-    add_buf(out, "Characters: {|[{*");
+    add_buf(out, "Characters:  {|[{*");
     fcnt = false;
     FOR_EACH_ROOM_MOB(rch, ch->in_room) {
         if (IS_NPC(rch) || can_see(ch, rch)) {
@@ -331,7 +332,7 @@ REDIT(redit_show)
     
     add_buf(out, "{|]{x\n\r");
     
-    add_buf(out, "Objects:    {|[{*");
+    add_buf(out, "Objects:     {|[{*");
     fcnt = false;
     FOR_EACH_ROOM_OBJ(obj, ch->in_room) {
         one_argument(NAME_STR(obj), BUF(line));
@@ -356,7 +357,7 @@ REDIT(redit_show)
         if (pRoom->exit_data[cnt] == NULL)
             continue;
 
-        addf_buf(out, "    %-5s:  {|[{*%5d{|]{x Key: {|[{*%5d{|]{x",
+        addf_buf(out, "    {T%-5s :  {|[{*%5d{|]{x Key: {|[{*%5d{|]{x",
             capitalize(dir_list[cnt].name),
             pRoom->exit_data[cnt]->to_room ? VNUM_FIELD(pRoom->exit_data[cnt]->to_room) :
             0, pRoom->exit_data[cnt]->key);
@@ -398,27 +399,8 @@ REDIT(redit_show)
     }
 
     Entity* entity = &pRoom->header;
-    if (entity->events.count != 0) {
-
-    }
-    if (entity->klass != NULL) {
-        addf_buf(out, "Lox Class:  {|[{*%s{|]{x\n\r", entity->klass->name->chars);
-        Table* methods = &entity->klass->methods;
-        bool first = true;
-        for (int i = 0; i < methods->capacity; i++) {
-            Entry* entry = &methods->entries[i];
-            if (entry->key != NIL_VAL) {
-                if (first) {
-                    addf_buf(out, " - Members:  {_%s{x\n\r", string_value(entry->key));
-                    first = false;
-                }
-                else {
-                    addf_buf(out, "             {_%s{x\n\r", string_value(entry->key));
-                }
-            }
-        }
-    }
-
+    olc_display_event_info(ch, entity, out);
+    olc_display_lox_info(ch, entity, out);
 
     send_to_char(BUF(out), ch);
 

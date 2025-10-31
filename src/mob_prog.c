@@ -47,6 +47,7 @@
 #include "stringutils.h"
 #include "weather.h"
 
+#include <entities/event.h>
 #include <entities/mobile.h>
 #include <entities/object.h>
 

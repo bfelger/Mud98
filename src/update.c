@@ -44,13 +44,14 @@
 #include "skills.h"
 #include "weather.h"
 
-#include "entities/descriptor.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
+#include <entities/descriptor.h>
+#include <entities/event.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
 
-#include "data/mobile_data.h"
-#include "data/race.h"
-#include "data/skill.h"
+#include <data/mobile_data.h>
+#include <data/race.h>
+#include <data/skill.h>
 
 #include <stdio.h>
 #include <string.h>

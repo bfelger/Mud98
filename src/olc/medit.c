@@ -2,21 +2,24 @@
 // medit.c
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "merc.h"
+#include <merc.h>
 
 #include "bit.h"
-#include "comm.h"
-#include "db.h"
-#include "handler.h"
-#include "lookup.h"
-#include "magic.h"
-#include "mob_cmds.h"
+#include "lox_edit.h"
 #include "olc.h"
-#include "recycle.h"
-#include "save.h"
-#include "tables.h"
 
-#include "entities/mob_prototype.h"
+#include <comm.h>
+#include <db.h>
+#include <handler.h>
+#include <lookup.h>
+#include <magic.h>
+#include <mob_cmds.h>
+#include <recycle.h>
+#include <save.h>
+#include <tables.h>
+
+#include <entities/event.h>
+#include <entities/mob_prototype.h>
 
 #define MEDIT(fun) bool fun( Mobile *ch, char *argument )
 
@@ -310,6 +313,10 @@ MEDIT(medit_show)
             cnt++;
         }
     }
+
+    Entity* entity = &pMob->header;
+    olc_display_event_info(ch, entity, buffer);
+    olc_display_lox_info(ch, entity, buffer);
 
     //page_to_char(BUF(buffer), ch);
     send_to_char(BUF(buffer), ch);

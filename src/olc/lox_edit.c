@@ -388,3 +388,24 @@ char* prettify_lox_script(char* script)
     free_buf(buf);
     return ret;
 }
+
+void olc_display_lox_info(Mobile* ch, Entity* entity, Buffer* out)
+{
+    if (entity->klass != NULL) {
+        addf_buf(out, "Lox Class:   {|[{*%s{|]{x\n\r", entity->klass->name->chars);
+        Table* methods = &entity->klass->methods;
+        bool first = true;
+        for (int i = 0; i < methods->capacity; i++) {
+            Entry* entry = &methods->entries[i];
+            if (entry->key != NIL_VAL) {
+                if (first) {
+                    addf_buf(out, " - Members:   {_%s{x\n\r", string_value(entry->key));
+                    first = false;
+                }
+                else {
+                    addf_buf(out, "              {_%s{x\n\r", string_value(entry->key));
+                }
+            }
+        }
+    }
+}

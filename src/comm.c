@@ -58,6 +58,7 @@
 #include <olc/string_edit.h>
 
 #include <entities/area.h>
+#include <entities/event.h>
 #include <entities/descriptor.h>
 #include <entities/object.h>
 #include <entities/player_data.h>
