@@ -19,3 +19,4 @@ area/shutdown.txt
 /src.*
 /size_allocs.txt
 /demo-old
+/demo
