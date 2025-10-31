@@ -25,7 +25,7 @@ void lox_script_append(Mobile* ch, char** pScript)
     }
     send_to_char(prettify_lox_script(*pScript), ch);
 
-    ch->desc->pLoxScript = str_dup(pScript);
+    *ch->desc->pLoxScript = str_dup(*pScript);
 
     return;
 }
@@ -166,7 +166,7 @@ void lox_script_add(Mobile* ch, char* argument)
             bugf("lox_script_add: failed to create class for %s %" PRVNUM, entity_type_name, entity->vnum);
         }
         else {
-            free_string(ch->desc->pLoxScript);
+            free_string(*ch->desc->pLoxScript);
             ch->desc->pLoxScript = NULL;
             entity->klass = klass;
             entity->script = script;
