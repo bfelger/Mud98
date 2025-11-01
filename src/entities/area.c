@@ -133,6 +133,19 @@ void create_instance_exits(Area* area)
     }
 }
 
+Area* get_area_for_player(Mobile* ch, AreaData* area_data)
+{
+    Area* area = NULL;
+
+    for (Node* node = area_data->instances.front; node != NULL; node = node->next) {
+        area = AS_AREA(node->value);
+        if (is_name(NAME_STR(ch), area->owner_list))
+            return area;
+    }
+
+    return NULL;
+}
+
 /*
  * OLC
  * Use these macros to load any new area formats that you choose to
@@ -163,6 +176,8 @@ void create_instance_exits(Area* area)
         SET_LOX_FIELD(&((entity)->header), (entity)->header.field, field);     \
         break;                                                                 \
     }
+
+// Boot routines
 
 void load_area(FILE* fp)
 {
@@ -235,17 +250,4 @@ void load_area(FILE* fp)
         // End switch
         }
     }
-}
-
-Area* get_area_for_player(Mobile* ch, AreaData* area_data)
-{
-    Area* area = NULL;
-
-    for (Node* node = area_data->instances.front; node != NULL; node = node->next) {
-        area = AS_AREA(node->value);
-        if (is_name(NAME_STR(ch), area->owner_list))
-            return area;
-    }
-
-    return NULL;
 }

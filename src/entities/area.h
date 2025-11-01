@@ -99,6 +99,8 @@ void create_instance_exits(Area* area);
 void save_area(AreaData* area);
 Area* get_area_for_player(Mobile* ch, AreaData* area_data);
 
+void load_area(FILE* fp);
+
 extern int area_count;
 extern int area_perm_count;
 extern int area_data_perm_count;

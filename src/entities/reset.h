@@ -10,7 +10,9 @@ typedef struct reset_counter_t ResetCounter;
 #ifndef MUD98__ENTITIES__RESET_H
 #define MUD98__ENTITIES__RESET_H
 
-#include "merc.h"
+#include <merc.h>
+
+#include "area.h"
 
 #include <stdint.h>
 
@@ -38,6 +40,10 @@ typedef struct reset_t {
 
 Reset* new_reset();
 void free_reset(Reset* reset);
+
+void reset_area(Area* area);
+
+void load_resets(FILE* fp);
 
 extern int reset_count;
 extern int reset_perm_count;

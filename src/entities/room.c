@@ -5,11 +5,8 @@
 
 #include "room.h"
 
-#include <comm.h>
-#include <db.h>
-#include <handler.h>
-
 #include "room_exit.h"
+#include "event.h"
 #include "extra_desc.h"
 #include "reset.h"
 
@@ -18,6 +15,11 @@
 #include <lox/function.h>
 #include <lox/memory.h>
 #include <lox/vm.h>
+
+#include <comm.h>
+#include <db.h>
+#include <handler.h>
+#include <lookup.h>
 
 int room_count;
 int room_perm_count;
@@ -233,3 +235,151 @@ Room* get_room_for_player(Mobile* ch, VNUM vnum)
     return get_room(area, vnum);
 }
 
+// Boot routines
+
+void load_rooms(FILE* fp)
+{
+    RoomData* room_data;
+
+    if (global_areas.count == 0) {
+        bug("Load_resets: no #AREA seen yet.", 0);
+        exit(1);
+    }
+
+    for (;;) {
+        VNUM vnum;
+        char letter;
+        int door;
+
+        letter = fread_letter(fp);
+        if (letter != '#') {
+            bug("Load_rooms: # not found.", 0);
+            exit(1);
+        }
+
+        vnum = fread_number(fp);
+        if (vnum == 0) break;
+
+        fBootDb = false;
+        if (get_room_data(vnum) != NULL) {
+            bug("Load_rooms: vnum %"PRVNUM" duplicated.", vnum);
+            exit(1);
+        }
+        fBootDb = true;
+
+        room_data = new_room_data();
+        push(OBJ_VAL(room_data));
+        room_data->owner = str_dup("");
+        room_data->area_data = LAST_AREA_DATA;
+        VNUM_FIELD(room_data) = vnum;
+        SET_NAME(room_data, fread_lox_string(fp));
+        room_data->description = fread_string(fp);
+        /* Area number */ fread_number(fp);
+        room_data->room_flags = fread_flag(fp);
+        /* horrible hack */
+        if (3000 <= vnum && vnum < 3400)
+            SET_BIT(room_data->room_flags, ROOM_LAW);
+        room_data->sector_type = (int16_t)fread_number(fp);
+
+        /* defaults */
+        room_data->heal_rate = 100;
+        room_data->mana_rate = 100;
+
+        for (;;) {
+            letter = fread_letter(fp);
+
+            if (letter == 'S')
+                break;
+
+            if (letter == 'H') /* healing room */
+                room_data->heal_rate = (int16_t)fread_number(fp);
+
+            else if (letter == 'M') /* mana room */
+                room_data->mana_rate = (int16_t)fread_number(fp);
+
+            else if (letter == 'C') /* clan */
+            {
+                if (room_data->clan) {
+                    bug("Load_rooms: duplicate clan fields.", 0);
+                    exit(1);
+                }
+                room_data->clan = (int16_t)clan_lookup(fread_string(fp));
+            }
+
+            else if (letter == 'D') {
+                int locks;
+
+                door = fread_number(fp);
+                if (door < 0 || door >= DIR_MAX) {
+                    bug("Fread_rooms: vnum %"PRVNUM" has bad door number.", vnum);
+                    exit(1);
+                }
+
+                RoomExitData* room_exit_data = new_room_exit_data();
+                room_exit_data->description = fread_string(fp);
+                room_exit_data->keyword = fread_string(fp);
+                locks = fread_number(fp);
+                room_exit_data->key = (int16_t)fread_number(fp);
+                room_exit_data->to_vnum = fread_number(fp);
+                room_exit_data->orig_dir = door;
+
+                switch (locks) {
+                case 1:
+                    room_exit_data->exit_reset_flags = EX_ISDOOR;
+                    break;
+                case 2:
+                    room_exit_data->exit_reset_flags = EX_ISDOOR | EX_PICKPROOF;
+                    break;
+                case 3:
+                    room_exit_data->exit_reset_flags = EX_ISDOOR | EX_NOPASS;
+                    break;
+                case 4:
+                    room_exit_data->exit_reset_flags = EX_ISDOOR | EX_NOPASS | EX_PICKPROOF;
+                    break;
+                }
+
+                room_data->exit_data[door] = room_exit_data;
+            }
+            else if (letter == 'E') {
+                ExtraDesc* ed;
+                ed = new_extra_desc();
+                if (ed == NULL)
+                    exit(1);
+                ed->keyword = fread_string(fp);
+                ed->description = fread_string(fp);
+                ADD_EXTRA_DESC(room_data, ed)
+            }
+
+            else if (letter == 'O') {
+                if (room_data->owner[0] != '\0') {
+                    bug("Load_rooms: duplicate owner.", 0);
+                    exit(1);
+                }
+
+                room_data->owner = fread_string(fp);
+            }
+
+            else if (letter == 'V') {
+                load_event(fp, &room_data->header);
+            }
+
+            else if (letter == 'L') {
+                if (!load_lox_class(fp, "room", &room_data->header)) {
+                    bug("Load_rooms: vnum %"PRVNUM" has malformed Lox script.", vnum);
+                    exit(1);
+                }
+            }
+            else {
+                bug("Load_rooms: vnum %"PRVNUM" has invalid option '%c'.", vnum, letter);
+                exit(1);
+            }
+        }
+
+        table_set_vnum(&global_rooms, vnum, OBJ_VAL(room_data));
+        top_vnum_room = top_vnum_room < vnum ? vnum : top_vnum_room;
+        assign_area_vnum(vnum);
+        pop();
+    }
+
+    return;
+}

@@ -152,6 +152,8 @@ void free_room_data(RoomData* pRoom);
 RoomData* get_room_data(VNUM vnum);
 RoomData* new_room_data();
 
+void load_rooms(FILE* fp);
+
 extern int room_count;
 extern int room_perm_count;
 extern int room_data_count;
@@ -163,15 +165,5 @@ RoomData* room_data_free;
 extern Table global_rooms;
 
 extern VNUM top_vnum_room;
-
-////////////////////////////////////////////////////////////////////////////////
-// Lox implementation
-////////////////////////////////////////////////////////////////////////////////
-
-//void init_room_class();
-//Value create_room_value(Room* room);
-//Value get_room_people_native(int arg_count, Value* args);
-//Value get_room_native(int arg_count, Value* args);
-//Value get_room_contents_native(int arg_count, Value* args);
 
 #endif // !MUD98__ENTITIES__ROOM_H
