@@ -145,6 +145,14 @@ void lox_script_add(Mobile* ch, char* argument)
                 entity = (Entity*)ch->desc->pEdit;
                 entity_type_name = "room";
                 break;
+            case ED_MOBILE:
+                entity = (Entity*)ch->desc->pEdit;
+                entity_type_name = "mob";
+                break;
+            case ED_OBJECT:
+                entity = (Entity*)ch->desc->pEdit;
+                entity_type_name = "obj";
+                break;
             default:
                 break;
             }

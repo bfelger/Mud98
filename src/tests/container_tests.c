@@ -15,6 +15,7 @@ static int test_list_remove_node()
 {
     // Test 0-initialization as per Object/Mobile Entities
     List list = { 0 };
+    init_list(&list);
 
     Value a = mock_str("a");
     Node* n_a = list_push_back(&list, a);
@@ -64,6 +65,7 @@ static int test_list_remove_value()
 {
     // Test 0-initialization as per Object/Mobile Entities
     List list = { 0 };
+    init_list(&list);
 
     Value a = mock_str("a");
     list_push_back(&list, a);
