@@ -58,7 +58,6 @@ inline int decrement_frame_count()
 #define DECREMENT_FRAME_COUNT() (vm.frame_count--)
 #endif
 
-
 void reset_stack()
 {
     vm.stack_top = vm.stack;
@@ -134,7 +133,7 @@ void init_vm()
 
     init_table(&vm.globals);
     init_table(&vm.strings);
-
+    init_compiler_tables();
 
     char* end_str = alloc_perm(1);
     end_str[0] = '\0';

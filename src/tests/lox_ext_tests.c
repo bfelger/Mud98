@@ -214,18 +214,22 @@ static int test_string_lit_interp_concat()
 
 static int test_const_1()
 {
+    // Place test consts in a local scope so they don't pollute global.
+    // Using const in a REPL context is not advised.
     const char* src =
-        "const a = 2\n"
-        "print a\n";
+        "{\n"
+        "    const a = 2\n"
+        "    print a\n"
+        "}\n";
 
     test_disassemble_on_test = true;
 
     InterpretResult result = interpret_code(src);
     ASSERT_LOX_OUTPUT_EQ("2\n"
         "== <script> ==\n"
-        "0000    2 OP_CONSTANT         0 2\n"   // 'a' is defined on line 1, but not placed on the stack until line 2.
+        "0000    3 OP_CONSTANT         0 2\n"   // 'a' is defined on line 1, but not placed on the stack until line 2.
         "0002    | OP_PRINT\n"
-        "0003    3 OP_NIL\n"
+        "0003    5 OP_NIL\n"
         "0004    | OP_RETURN\n"
         "\n");
 
@@ -237,24 +241,28 @@ static int test_const_1()
 
 static int test_const_2()
 {
+    // Place test consts in a local scope so they don't pollute global.
+    // Using const in a REPL context is not advised.
     const char* src =
-        "const a = 2\n"
-        "var b = a + 1\n"
-        "print b\n";
+        "{\n"
+        "    const a = 2\n"
+        "    var b = a + 1\n"
+        "    print b\n"
+        "}\n";
 
     test_disassemble_on_test = true;
 
     InterpretResult result = interpret_code(src);
     ASSERT_LOX_OUTPUT_EQ("3\n"
         "== <script> ==\n"
-        "0000    2 OP_CONSTANT         1 2\n"
-        "0002    | OP_CONSTANT         2 1\n"
+        "0000    3 OP_CONSTANT         0 2\n"
+        "0002    | OP_CONSTANT         1 1\n"
         "0004    | OP_ADD\n"
-        "0005    | OP_DEFINE_GLOBAL    0 b\n"
-        "0007    3 OP_GET_GLOBAL       3 b\n"
-        "0009    | OP_PRINT\n"
-        "0010    4 OP_NIL\n"
-        "0011    | OP_RETURN\n"
+        "0005    4 OP_GET_LOCAL        1\n"
+        "0007    | OP_PRINT\n"
+        "0008    5 OP_POP\n"
+        "0009    6 OP_NIL\n"
+        "0010    | OP_RETURN\n"
         "\n");
 
     test_disassemble_on_test = false;
@@ -265,18 +273,22 @@ static int test_const_2()
 
 static int test_const_folding()
 {
+    // Place test consts in a local scope so they don't pollute global.
+    // Using const in a REPL context is not advised.
     const char* src =
-        "const a = 2 * (3 + 1)\n"
-        "print a\n";
+        "{\n"
+        "    const a = 2 * (3 + 1)\n"
+        "    print a\n"
+        "}\n";
 
     test_disassemble_on_test = true;
 
     InterpretResult result = interpret_code(src);
     ASSERT_LOX_OUTPUT_EQ("8\n"
         "== <script> ==\n"
-        "0000    2 OP_CONSTANT         0 8\n"
+        "0000    3 OP_CONSTANT         0 8\n"
         "0002    | OP_PRINT\n"
-        "0003    3 OP_NIL\n"
+        "0003    5 OP_NIL\n"
         "0004    | OP_RETURN\n"
         "\n");
 
@@ -288,18 +300,22 @@ static int test_const_folding()
 
 static int test_enum_auto()
 {
+    // Place test enums in a local scope so they don't pollute global.
+    // Using const in a REPL context is not advised.
     const char* src =
-        "enum A { B, C, D, E }\n"
-        "print A.E\n";
+        "{\n"
+        "    enum A { B, C, D, E }\n"
+        "    print A.E\n"
+        "}";
 
     test_disassemble_on_test = true;
 
     InterpretResult result = interpret_code(src);
     ASSERT_LOX_OUTPUT_EQ("3\n"
         "== <script> ==\n"
-        "0000    2 OP_CONSTANT         0 3\n"
+        "0000    3 OP_CONSTANT         0 3\n"
         "0002    | OP_PRINT\n"
-        "0003    3 OP_NIL\n"
+        "0003    4 OP_NIL\n"
         "0004    | OP_RETURN\n"
         "\n");
 
@@ -311,24 +327,69 @@ static int test_enum_auto()
 
 static int test_enum_assign()
 {
+    // Place test enums in a local scope so they don't pollute global.
+    // Using const in a REPL context is not advised.
     const char* src =
-        "enum A {\n"
-        "   B = 5,"
-        "   C = 82,"
-        "   D = 105,"
-        "   E = 927,"
-        "}\n"
-        "print A.E\n";
+        "{\n"
+        "    enum A {\n"
+        "       B = 5,"
+        "       C = 82,"
+        "       D = 105,"
+        "       E = 927,"
+        "    }\n"
+        "    print A.E\n"
+        "}\n";
 
     test_disassemble_on_test = true;
 
     InterpretResult result = interpret_code(src);
     ASSERT_LOX_OUTPUT_EQ("927\n"
         "== <script> ==\n"
-        "0000    3 OP_CONSTANT         0 927\n"
+        "0000    4 OP_CONSTANT         0 927\n"
         "0002    | OP_PRINT\n"
-        "0003    4 OP_NIL\n"
+        "0003    6 OP_NIL\n"
         "0004    | OP_RETURN\n"
+        "\n"
+    );
+
+    test_disassemble_on_test = false;
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_enum_bootval()
+{
+    // Test enums generated at boot time.
+    // Example: DamageType from data/damage.c.
+    const char* src =
+        "print DamageType.Bash\n"
+        "print DamageType.Pierce\n"
+        "print DamageType.Slash\n"
+        "print DamageType.Fire\n"
+        "print DamageType.Cold\n";
+
+    test_disassemble_on_test = true;
+
+    InterpretResult result = interpret_code(src);
+    ASSERT_LOX_OUTPUT_EQ("1\n"
+        "2\n"
+        "3\n"
+        "4\n"
+        "5\n"
+        "== <script> ==\n"
+        "0000    1 OP_CONSTANT         0 1\n"
+        "0002    | OP_PRINT\n"
+        "0003    2 OP_CONSTANT         1 2\n"
+        "0005    | OP_PRINT\n"
+        "0006    3 OP_CONSTANT         2 3\n"
+        "0008    | OP_PRINT\n"
+        "0009    4 OP_CONSTANT         3 4\n"
+        "0011    | OP_PRINT\n"
+        "0012    5 OP_CONSTANT         4 5\n"
+        "0014    | OP_PRINT\n"
+        "0015    6 OP_NIL\n"
+        "0016    | OP_RETURN\n"
         "\n");
 
     test_disassemble_on_test = false;
@@ -360,6 +421,7 @@ void register_lox_ext_tests()
     REGISTER("Constant Folding", test_const_folding);
     REGISTER("Enum: Auto-Increment", test_enum_auto);
     REGISTER("Enum: Assign", test_enum_assign);
+    REGISTER("Enum: Boot Vals", test_enum_bootval);
 
 #undef REGISTER
 }

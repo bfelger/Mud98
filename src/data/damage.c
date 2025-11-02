@@ -82,20 +82,17 @@ const AttackInfo attack_table[ATTACK_COUNT] = {
 void init_damage_consts()
 {
     static char* damtype_start =
-        "class damage_type_t { "
-        "   init() { ";
+        "enum DamageType {";
     
     static char* damtype_end =
-        "   }"
-        "}"
-        "var DamageType = damage_type_t();";
+        "}";
     
     INIT_BUF(src, MSL);
     
     add_buf(src, damtype_start);
     
     for (int i = 0; i < DAM_TYPE_COUNT; ++i) {
-        addf_buf(src, "       this.%s = %d;", pascal_case(damage_table[i].name),
+        addf_buf(src, "       %s = %d,", pascal_case(damage_table[i].name),
             damage_table[i].type);
     }
     

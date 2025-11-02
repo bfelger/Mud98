@@ -114,7 +114,6 @@ Parser parser;
 Compiler* current = NULL;
 ClassCompiler* current_class = NULL;
 static Table global_const_table;
-static bool global_const_table_initialized = false;
 
 static Chunk* current_chunk()
 {
@@ -335,7 +334,6 @@ static void add_global_const(Token* name, Value value);
 static bool get_global_const(Token* name, Value* out_value);
 static bool has_global_const(Token* name);
 static bool value_to_enum_int(Value value, int32_t* out_value);
-static void reset_global_const_table();
 static Local* declare_const_local(Token* name);
 
 static bool identifiers_equal(Token* a, Token* b)
@@ -431,9 +429,6 @@ static bool resolve_const_binding(Compiler* compiler, Token* name, Value* out_va
 
 static bool get_global_const(Token* name, Value* out_value)
 {
-    if (!global_const_table_initialized)
-        return false;
-
     ObjString* name_str = copy_string(name->start, name->length);
     if (table_get(&global_const_table, name_str, out_value)) {
         return true;
@@ -446,18 +441,6 @@ static bool has_global_const(Token* name)
 {
     Value value;
     return get_global_const(name, &value);
-}
-
-static void reset_global_const_table()
-{
-    if (!global_const_table_initialized) {
-        init_table(&global_const_table);
-        global_const_table_initialized = true;
-    }
-    else {
-        free_table(&global_const_table);
-        init_table(&global_const_table);
-    }
 }
 
 static bool value_to_enum_int(Value value, int32_t* out_value)
@@ -498,9 +481,6 @@ static bool value_to_enum_int(Value value, int32_t* out_value)
 
 static void add_global_const(Token* name, Value value)
 {
-    if (!global_const_table_initialized)
-        reset_global_const_table();
-
     ObjString* name_str = copy_string(name->start, name->length);
 
     Value existing;
@@ -2033,7 +2013,6 @@ static void statement()
 
 ObjFunction* compile(const char* source)
 {
-    reset_global_const_table();
     init_scanner(source);
     Compiler compiler;
     init_compiler(&compiler, TYPE_SCRIPT);
@@ -2065,7 +2044,10 @@ void mark_compiler_roots()
         compiler = compiler->enclosing;
     }
 
-    if (global_const_table_initialized) {
-        mark_table(&global_const_table);
-    }
+    mark_table(&global_const_table);
+}
+
+void init_compiler_tables()
+{
+    init_table(&global_const_table);
 }
