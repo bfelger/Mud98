@@ -28,10 +28,10 @@ void run_unit_tests()
     register_fmt_tests();
 
     test_output_enabled = true;
-    test_dissasemble_on_error = true;
+    test_disassemble_on_error = true;
 
     run_all_tests();
 
     test_output_enabled = false;
-    test_dissasemble_on_error = false;
+    test_disassemble_on_error = false;
 }

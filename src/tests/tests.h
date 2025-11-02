@@ -66,7 +66,7 @@ void test_lox_string_eq(const char* expected, Value actual, const char* file, in
     ASSERT(result == INTERPRET_OK); \
     ASSERT_OUTPUT_EQ(expected) 
 
-extern bool test_dissasemble_on_error;
+extern bool test_disassemble_on_error;
 extern bool test_output_enabled;
 extern Value test_output_buffer;
 

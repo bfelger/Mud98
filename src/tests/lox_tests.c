@@ -19,7 +19,8 @@
 
 static TestGroup lox_tests;
 
-bool test_dissasemble_on_error = false;
+bool test_disassemble_on_error = false;
+bool test_disassemble_on_test = false;
 
 // Capture output from print statements
 Value test_output_buffer = NIL_VAL;

@@ -16,7 +16,8 @@
 #include <stdbool.h>
 
 extern int asserts_failed;
-extern bool test_dissasemble_on_error;
+extern bool test_disassemble_on_error;
+extern bool test_disassemble_on_test;
 extern Value test_output_buffer;
 
 // Implicitly imported from lox/vm.c

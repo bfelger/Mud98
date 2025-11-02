@@ -58,6 +58,11 @@ typedef struct {
     Token name;
     int depth;
     bool is_captured;
+    bool is_const;
+    bool occupies_slot;
+    bool has_const_value;
+    Value const_value;
+    int slot;
 } Local;
 
 typedef struct {
@@ -89,6 +94,7 @@ typedef struct Compiler {
 
     Local locals[UINT8_COUNT];
     int local_count;
+    int slot_count;
     Upvalue upvalues[UINT8_COUNT];
     int scope_depth;
     LoopContext* current_loop;
@@ -292,11 +298,17 @@ static void end_scope()
     while (current->local_count > 0 && 
         current->locals[current->local_count - 1].depth > 
             current->scope_depth) {
-        if (current->locals[current->local_count - 1].is_captured) {
-            emit_byte(OP_CLOSE_UPVALUE);
-        }
-        else {
-            emit_byte(OP_POP);
+        Local* local = &current->locals[current->local_count - 1];
+        if (local->occupies_slot) {
+            if (local->is_captured) {
+                emit_byte(OP_CLOSE_UPVALUE);
+            }
+            else {
+                emit_byte(OP_POP);
+            }
+            if (current->slot_count > 0) {
+                current->slot_count--;
+            }
         }
         current->local_count--;
     }
@@ -308,6 +320,9 @@ static void statement();
 static void declaration();
 static ParseRule* get_rule(LoxTokenType type);
 static void parse_precedence(Precedence precedence);
+static bool evaluate_constant_expression(Chunk* chunk, int start, int end, Value* out_value);
+static bool resolve_const_binding(Compiler* compiler, Token* name, Value* out_value);
+static void discard_expression();
 
 static bool identifiers_equal(Token* a, Token* b)
 {
@@ -357,8 +372,12 @@ static int resolve_upvalue(Compiler* compiler, Token* name)
 
     int local = resolve_local(compiler->enclosing, name);
     if (local != -1) {
+        Local* local_entry = &compiler->enclosing->locals[local];
+        if (local_entry->is_const || local_entry->slot < 0) {
+            return -1;
+        }
         compiler->enclosing->locals[local].is_captured = true;
-        return add_upvalue(compiler, (uint8_t)local, true);
+        return add_upvalue(compiler, (uint8_t)local_entry->slot, true);
     }
 
     int upvalue = resolve_upvalue(compiler->enclosing, name);
@@ -369,17 +388,51 @@ static int resolve_upvalue(Compiler* compiler, Token* name)
     return -1;
 }
 
-static void add_local(Token name)
+static bool resolve_const_binding(Compiler* compiler, Token* name, Value* out_value)
+{
+    for (Compiler* c = compiler; c != NULL; c = c->enclosing) {
+        for (int i = c->local_count - 1; i >= 0; i--) {
+            Local* local = &c->locals[i];
+            if (!identifiers_equal(name, &local->name)) continue;
+
+            if (!local->is_const) {
+                return false;
+            }
+
+            if (!local->has_const_value) {
+                return false;
+            }
+
+            *out_value = local->const_value;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static Local* add_local(Token name, bool occupies_slot, bool is_const)
 {
     if (current->local_count == UINT8_COUNT) {
         error("Too many local variables in function.");
-        return;
+        return NULL;
     }
 
     Local* local = &current->locals[current->local_count++];
     local->name = name;
     local->depth = -1;
     local->is_captured = false;
+    local->is_const = is_const;
+    local->occupies_slot = occupies_slot;
+    local->has_const_value = false;
+    local->const_value = NIL_VAL;
+    if (occupies_slot) {
+        local->slot = current->slot_count++;
+    }
+    else {
+        local->slot = -1;
+    }
+    return local;
 }
 
 static void declare_variable()
@@ -398,7 +451,23 @@ static void declare_variable()
         }
     }
 
-    add_local(*name);
+    add_local(*name, true, false);
+}
+
+static Local* declare_const_local(Token* name)
+{
+    for (int i = current->local_count - 1; i >= 0; i--) {
+        Local* local = &current->locals[i];
+        if (local->depth != -1 && local->depth < current->scope_depth) {
+            break;
+        }
+
+        if (identifiers_equal(name, &local->name)) {
+            error("Already a variable with this name in this scope.");
+        }
+    }
+
+    return add_local(*name, false, true);
 }
 
 static int identifier_constant(Token* name)
@@ -598,6 +667,7 @@ static void init_compiler(Compiler* compiler, FunctionType type)
     compiler->function = NULL;
     compiler->type = type;
     compiler->local_count = 0;
+    compiler->slot_count = 0;
     compiler->scope_depth = 0;
     compiler->function = new_function();
     compiler->current_loop = NULL;
@@ -607,16 +677,24 @@ static void init_compiler(Compiler* compiler, FunctionType type)
             parser.previous.length);
     }
 
-    Local* local = &current->locals[current->local_count++];
-    local->depth = 0;
-    local->is_captured = false;
+    Token placeholder = { 0 };
+    placeholder.start = "";
+    placeholder.length = 0;
+    Local* local = add_local(placeholder, true, false);
+    if (local != NULL) {
+        local->depth = 0;
+    }
     if (type != TYPE_FUNCTION && type != TYPE_LAMDA) {
-        local->name.start = "this";
-        local->name.length = 4;
+        if (local != NULL) {
+            local->name.start = "this";
+            local->name.length = 4;
+        }
     }
     else {
-        local->name.start = "";
-        local->name.length = 0;
+        if (local != NULL) {
+            local->name.start = "";
+            local->name.length = 0;
+        }
     }
 }
 
@@ -654,7 +732,7 @@ static void lamda(bool can_assign)
 static bool is_lamda()
 {
     // We saw a L_PAREN + IDENT.
-    // Is this a lambda?
+    // Is this a lamda?
 
     // Save the old state; we'll come back to it.
     // FYI I hate doing this; but since this is a single-pass LR(1) compiler and
@@ -708,6 +786,159 @@ static void emit_constant(Value value)
     emit_constant_index(make_constant(value));
 }
 
+#define CONST_EVAL_STACK_MAX 256
+
+static bool const_is_number(Value value)
+{
+    return IS_INT(value) || IS_DOUBLE(value);
+}
+
+static double const_to_double(Value value)
+{
+    return IS_DOUBLE(value) ? AS_DOUBLE(value) : (double)AS_INT(value);
+}
+
+static bool const_is_falsey(Value value)
+{
+    return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
+}
+
+static int read_constant_index_for_eval(Chunk* chunk, int* ip, int end)
+{
+    if (*ip >= end) return -1;
+    int constant = chunk->code[(*ip)++];
+    if (!(constant & 0x80)) return constant;
+    if (*ip >= end) return -1;
+    int result = (constant & 0x7f) << 8;
+    result |= chunk->code[(*ip)++];
+    return result;
+}
+
+static bool evaluate_constant_expression(Chunk* chunk, int start, int end, Value* out_value)
+{
+    Value stack[CONST_EVAL_STACK_MAX];
+    int top = 0;
+    int ip = start;
+
+    while (ip < end) {
+        uint8_t instruction = chunk->code[ip++];
+        switch (instruction) {
+        case OP_CONSTANT: {
+                int constant_index = read_constant_index_for_eval(chunk, &ip, end);
+                if (constant_index < 0 || constant_index >= chunk->constants.count) return false;
+                if (top >= CONST_EVAL_STACK_MAX) return false;
+                stack[top++] = chunk->constants.values[constant_index];
+                break;
+            }
+        case OP_NIL:
+            if (top >= CONST_EVAL_STACK_MAX) return false;
+            stack[top++] = NIL_VAL;
+            break;
+        case OP_TRUE:
+            if (top >= CONST_EVAL_STACK_MAX) return false;
+            stack[top++] = BOOL_VAL(true);
+            break;
+        case OP_FALSE:
+            if (top >= CONST_EVAL_STACK_MAX) return false;
+            stack[top++] = BOOL_VAL(false);
+            break;
+        case OP_ADD:
+        case OP_SUBTRACT:
+        case OP_MULTIPLY:
+        case OP_DIVIDE: {
+                if (top < 2) return false;
+                Value b = stack[--top];
+                Value a = stack[--top];
+                if (!const_is_number(a) || !const_is_number(b)) return false;
+                if (IS_DOUBLE(a) || IS_DOUBLE(b)) {
+                    double da = const_to_double(a);
+                    double db = const_to_double(b);
+                    double result;
+                    switch (instruction) {
+                    case OP_ADD: result = da + db; break;
+                    case OP_SUBTRACT: result = da - db; break;
+                    case OP_MULTIPLY: result = da * db; break;
+                    default: result = da / db; break;
+                    }
+                    if (top >= CONST_EVAL_STACK_MAX) return false;
+                    stack[top++] = DOUBLE_VAL(result);
+                }
+                else {
+                    int32_t ia = AS_INT(a);
+                    int32_t ib = AS_INT(b);
+                    if (instruction == OP_DIVIDE && ib == 0) return false;
+                    int32_t result;
+                    switch (instruction) {
+                    case OP_ADD: result = ia + ib; break;
+                    case OP_SUBTRACT: result = ia - ib; break;
+                    case OP_MULTIPLY: result = ia * ib; break;
+                    default: result = ia / ib; break;
+                    }
+                    if (top >= CONST_EVAL_STACK_MAX) return false;
+                    stack[top++] = INT_VAL(result);
+                }
+                break;
+            }
+        case OP_NOT: {
+                if (top < 1) return false;
+                Value value = stack[--top];
+                if (top >= CONST_EVAL_STACK_MAX) return false;
+                stack[top++] = BOOL_VAL(const_is_falsey(value));
+                break;
+            }
+        case OP_NEGATE: {
+                if (top < 1) return false;
+                Value value = stack[--top];
+                if (IS_DOUBLE(value)) {
+                    stack[top++] = DOUBLE_VAL(-AS_DOUBLE(value));
+                }
+                else if (IS_INT(value)) {
+                    stack[top++] = INT_VAL(-AS_INT(value));
+                }
+                else {
+                    return false;
+                }
+                break;
+            }
+        case OP_EQUAL: {
+                if (top < 2) return false;
+                Value b = stack[--top];
+                Value a = stack[--top];
+                if (top >= CONST_EVAL_STACK_MAX) return false;
+                stack[top++] = BOOL_VAL(values_equal(a, b));
+                break;
+            }
+        case OP_GREATER:
+        case OP_LESS: {
+                if (top < 2) return false;
+                Value b = stack[--top];
+                Value a = stack[--top];
+                if (!const_is_number(a) || !const_is_number(b)) return false;
+                bool result;
+                if (IS_DOUBLE(a) || IS_DOUBLE(b)) {
+                    double da = const_to_double(a);
+                    double db = const_to_double(b);
+                    result = (instruction == OP_GREATER) ? (da > db) : (da < db);
+                }
+                else {
+                    int32_t ia = AS_INT(a);
+                    int32_t ib = AS_INT(b);
+                    result = (instruction == OP_GREATER) ? (ia > ib) : (ia < ib);
+                }
+                if (top >= CONST_EVAL_STACK_MAX) return false;
+                stack[top++] = BOOL_VAL(result);
+                break;
+            }
+        default:
+            return false;
+        }
+    }
+
+    if (top != 1) return false;
+    *out_value = stack[0];
+    return true;
+}
+
 static void number(bool can_assign)
 {
     if (parser.previous.type == TOKEN_DOUBLE) {
@@ -740,65 +971,136 @@ static Token synthetic_token(const char* text)
     return token;
 }
 
-static void named_variable(Token name, bool can_assign)
+static void emit_read_variable(uint8_t op, int arg)
 {
-    uint8_t get_op, set_op;
-    int arg = resolve_local(current, &name);
-    if (arg != -1) {
-        get_op = OP_GET_LOCAL;
-        set_op = OP_SET_LOCAL;
-    }
-    else if ((arg = resolve_upvalue(current, &name)) != -1) {
-        get_op = OP_GET_UPVALUE;
-        set_op = OP_SET_UPVALUE;
+    emit_byte(op);
+    if (op == OP_GET_GLOBAL) {
+        emit_constant_index(arg);
     }
     else {
-        arg = identifier_constant(&name);
-        get_op = OP_GET_GLOBAL;
-        set_op = OP_SET_GLOBAL;
+        emit_byte((uint8_t)arg);
+    }
+}
+
+static void emit_write_variable(uint8_t op, int arg)
+{
+    emit_byte(op);
+    if (op == OP_SET_GLOBAL) {
+        emit_constant_index(arg);
+    }
+    else {
+        emit_byte((uint8_t)arg);
+    }
+}
+
+static void discard_expression()
+{
+    Chunk* chunk = current_chunk();
+    int start = chunk->count;
+    int constant_mark = chunk->constants.count;
+
+    expression();
+
+    chunk->count = start;
+    chunk->constants.count = constant_mark;
+}
+
+static void named_variable(Token name, bool can_assign)
+{
+    Value const_value;
+    if (resolve_const_binding(current, &name, &const_value)) {
+        if (can_assign) {
+            if (check(TOKEN_EQUAL) || check(TOKEN_PLUS_PLUS) ||
+                check(TOKEN_MINUS_MINUS) || check(TOKEN_PLUS_EQUALS) ||
+                check(TOKEN_MINUS_EQUALS)) {
+                error("Cannot assign to const variable.");
+            }
+            if (match(TOKEN_EQUAL)) {
+                discard_expression();
+                return;
+            }
+            if (match(TOKEN_PLUS_PLUS) || match(TOKEN_MINUS_MINUS)) {
+                return;
+            }
+            if (match(TOKEN_PLUS_EQUALS) || match(TOKEN_MINUS_EQUALS)) {
+                discard_expression();
+                return;
+            }
+        }
+
+        emit_constant(const_value);
+        return;
+    }
+
+    uint8_t get_op, set_op;
+    int arg;
+    int local_index = resolve_local(current, &name);
+    if (local_index != -1) {
+        Local* local = &current->locals[local_index];
+        get_op = OP_GET_LOCAL;
+        set_op = OP_SET_LOCAL;
+        arg = local->slot;
+    }
+    else {
+        int upvalue = resolve_upvalue(current, &name);
+        if (upvalue != -1) {
+            get_op = OP_GET_UPVALUE;
+            set_op = OP_SET_UPVALUE;
+            arg = upvalue;
+        }
+        else {
+            arg = identifier_constant(&name);
+            get_op = OP_GET_GLOBAL;
+            set_op = OP_SET_GLOBAL;
+        }
+    }
+
+    if (get_op == OP_GET_LOCAL || get_op == OP_SET_LOCAL) {
+        if (arg < 0) {
+            error("Invalid local slot for variable.");
+            arg = 0;
+        }
     }
 
     if (can_assign) {
         if (match(TOKEN_EQUAL)) {
             expression();
-            emit_byte(set_op);
-            if (get_op == OP_GET_GLOBAL) emit_constant_index(arg);
-            else emit_byte((uint8_t)arg);
+            emit_write_variable(set_op, arg);
         }
         else if (match(TOKEN_PLUS_PLUS)) {
-            emit_bytes(get_op, (uint8_t)arg);
-            emit_bytes(get_op, (uint8_t)arg);
+            emit_read_variable(get_op, arg); // Post-fix; preserve original
+            emit_read_variable(get_op, arg);
             emit_constant(INT_VAL(1));
             emit_byte(OP_ADD);
-            emit_bytes(set_op, (uint8_t)arg);
+            emit_write_variable(set_op, arg);
             emit_byte(OP_POP);
         }
         else if (match(TOKEN_MINUS_MINUS)) {
-            emit_bytes(get_op, (uint8_t)arg);
-            emit_bytes(get_op, (uint8_t)arg);
+            emit_read_variable(get_op, arg); // Post-fix; preserve original
+            emit_read_variable(get_op, arg);
             emit_constant(INT_VAL(1));
             emit_byte(OP_SUBTRACT);
-            emit_bytes(set_op, (uint8_t)arg);
+            emit_write_variable(set_op, arg);
             emit_byte(OP_POP);
         }
         else if (match(TOKEN_PLUS_EQUALS)) {
-            emit_bytes(get_op, (uint8_t)arg);
+            emit_read_variable(get_op, arg);
             expression();
             emit_byte(OP_ADD);
-            emit_bytes(set_op, (uint8_t)arg);
+            emit_write_variable(set_op, arg);
         }
-        else if (match(TOKEN_PLUS_EQUALS)) {
-            emit_bytes(get_op, (uint8_t)arg);
+        else if (match(TOKEN_MINUS_EQUALS)) {
+            emit_read_variable(get_op, arg);
             expression();
             emit_byte(OP_SUBTRACT);
-            emit_bytes(set_op, (uint8_t)arg);
+            emit_write_variable(set_op, arg);
         }
         else {
-            emit_bytes(get_op, (uint8_t)arg);
+            emit_read_variable(get_op, arg);
         }
     }
     else {
-        emit_bytes(get_op, (uint8_t)arg);
+        emit_read_variable(get_op, arg);
     }
 }
 
@@ -1011,13 +1313,13 @@ ParseRule rules[] = {
     [TOKEN_MINUS_EQUALS]    = { NULL,           NULL,       PREC_NONE       },
     [TOKEN_ARROW]           = { NULL,           NULL,       PREC_NONE       },
     [TOKEN_IDENTIFIER]      = { variable,       NULL,       PREC_NONE       },
-    //[TOKEN_STRING]          = { string,         NULL,       PREC_NONE       },
     [TOKEN_STRING]          = { string_interp,  NULL,       PREC_NONE       },
     [TOKEN_STRING_INTERP]   = { string_interp,  NULL,       PREC_NONE       },
     [TOKEN_INT]             = { number,         NULL,       PREC_NONE       },
     [TOKEN_DOUBLE]          = { number,         NULL,       PREC_NONE       },
     [TOKEN_AND]             = { NULL,           and_,       PREC_AND        },
     [TOKEN_CLASS]           = { NULL,           NULL,       PREC_NONE       },
+    [TOKEN_CONST]           = { NULL,           NULL,       PREC_NONE       },
     [TOKEN_ELSE]            = { NULL,           NULL,       PREC_NONE       },
     [TOKEN_FALSE]           = { literal,        NULL,       PREC_NONE       },
     [TOKEN_FOR]             = { NULL,           NULL,       PREC_NONE       },
@@ -1161,7 +1463,7 @@ static void class_declaration()
         }
 
         begin_scope();
-        add_local(synthetic_token("super"));
+        add_local(synthetic_token("super"), true, false);
         define_variable(0);
 
         named_variable(class_name, false);
@@ -1206,6 +1508,43 @@ static void var_declaration()
     skip(TOKEN_SEMICOLON);
 
     define_variable(global);
+}
+
+static void const_declaration()
+{
+    consume(TOKEN_IDENTIFIER, "Expect constant name.");
+    Token name = parser.previous;
+
+    Local* local = declare_const_local(&name);
+
+    consume(TOKEN_EQUAL, "Expect '=' after constant name.");
+
+    Chunk* chunk = current_chunk();
+    int start = chunk->count;
+    int constant_mark = chunk->constants.count;
+
+    expression();
+
+    int end = chunk->count;
+
+    Value const_value;
+    bool ok = evaluate_constant_expression(chunk, start, end, &const_value);
+
+    chunk->count = start;
+    chunk->constants.count = constant_mark;
+
+    skip(TOKEN_SEMICOLON);
+
+    if (!ok) {
+        error("Const initializer must be a compile-time constant expression.");
+        return;
+    }
+
+    if (local != NULL) {
+        local->const_value = const_value;
+        local->has_const_value = true;
+        mark_initialized();
+    }
 }
 
 static void expression_statement()
@@ -1384,6 +1723,7 @@ static void synchronize()
         switch (parser.current.type) {
         case TOKEN_CLASS:
         case TOKEN_FUN:
+        case TOKEN_CONST:
         case TOKEN_VAR:
         case TOKEN_FOR:
         case TOKEN_IF:
@@ -1407,6 +1747,9 @@ static void declaration()
     } 
     else if (match(TOKEN_FUN)) {
         fun_declaration();
+    }
+    else if (match(TOKEN_CONST)) {
+        const_declaration();
     }
     else if (match(TOKEN_VAR)) {
         var_declaration();
@@ -1479,6 +1822,12 @@ void mark_compiler_roots()
     Compiler* compiler = current;
     while (compiler != NULL) {
         mark_object((Obj*)compiler->function);
+        for (int i = 0; i < compiler->local_count; i++) {
+            Local* local = &compiler->locals[i];
+            if (local->has_const_value && IS_OBJ(local->const_value)) {
+                mark_value(local->const_value);
+            }
+        }
         compiler = compiler->enclosing;
     }
 }

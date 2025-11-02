@@ -27,7 +27,8 @@
 VM vm;
 ObjString* lox_empty_string = NULL;
 
-extern bool test_dissasemble_on_error;
+extern bool test_disassemble_on_error;
+extern bool test_disassemble_on_test;
 extern bool test_output_enabled;
 
 #define DEBUG_FRAME_COUNT
@@ -1135,7 +1136,7 @@ InterpretResult interpret_code(const char* source)
 
     InterpretResult res = run();
 
-    if (res != INTERPRET_OK && test_dissasemble_on_error) {
+    if ((res != INTERPRET_OK && test_disassemble_on_error) || test_disassemble_on_test) {
         disassemble_chunk(&function->chunk, "<script>");
     }
 

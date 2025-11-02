@@ -212,6 +212,80 @@ static int test_string_lit_interp_concat()
     return 0;
 }
 
+static int test_const_1()
+{
+    const char* src =
+        "const a = 2\n"
+        "print a\n";
+
+    test_disassemble_on_test = true;
+
+    InterpretResult result = interpret_code(src);
+    ASSERT_LOX_OUTPUT_EQ("2\n"
+        "== <script> ==\n"
+        "0000    2 OP_CONSTANT         0 2\n"   // 'a' is defined on line 1, but not placed on the stack until line 2.
+        "0002    | OP_PRINT\n"
+        "0003    3 OP_NIL\n"
+        "0004    | OP_RETURN\n"
+        "\n");
+
+    test_disassemble_on_test = false;
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_const_2()
+{
+    const char* src =
+        "const a = 2\n"
+        "var b = a + 1\n"
+        "print b\n";
+
+    test_disassemble_on_test = true;
+
+    InterpretResult result = interpret_code(src);
+    ASSERT_LOX_OUTPUT_EQ("3\n"
+        "== <script> ==\n"
+        "0000    2 OP_CONSTANT         1 2\n"
+        "0002    | OP_CONSTANT         2 1\n"
+        "0004    | OP_ADD\n"
+        "0005    | OP_DEFINE_GLOBAL    0 b\n"
+        "0007    3 OP_GET_GLOBAL       3 b\n"
+        "0009    | OP_PRINT\n"
+        "0010    4 OP_NIL\n"
+        "0011    | OP_RETURN\n"
+        "\n");
+
+    test_disassemble_on_test = false;
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_const_folding()
+{
+    const char* src =
+        "const a = 2 * (3 + 1)\n"
+        "print a\n";
+
+    test_disassemble_on_test = true;
+
+    InterpretResult result = interpret_code(src);
+    ASSERT_LOX_OUTPUT_EQ("8\n"
+        "== <script> ==\n"
+        "0000    2 OP_CONSTANT         0 8\n"
+        "0002    | OP_PRINT\n"
+        "0003    3 OP_NIL\n"
+        "0004    | OP_RETURN\n"
+        "\n");
+
+    test_disassemble_on_test = false;
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 void register_lox_ext_tests()
 {
 #define REGISTER(n, f)  register_test(&lox_ext_tests, (n), (f))
@@ -230,6 +304,9 @@ void register_lox_ext_tests()
     REGISTER("String Interpolation: Starting Act Var", test_string_interp_var_start);
     REGISTER("String Literal Concatenation", test_string_lit_concat);
     REGISTER("String Interp + Literal Concatenation", test_string_lit_interp_concat);
+    REGISTER("Constant Values #1", test_const_1);
+    REGISTER("Constant Values #2", test_const_2);
+    REGISTER("Constant Folding", test_const_folding);
 
 #undef REGISTER
 }
