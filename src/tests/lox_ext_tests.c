@@ -286,6 +286,57 @@ static int test_const_folding()
     return 0;
 }
 
+static int test_enum_auto()
+{
+    const char* src =
+        "enum A { B, C, D, E }\n"
+        "print A.E\n";
+
+    test_disassemble_on_test = true;
+
+    InterpretResult result = interpret_code(src);
+    ASSERT_LOX_OUTPUT_EQ("3\n"
+        "== <script> ==\n"
+        "0000    2 OP_CONSTANT         0 3\n"
+        "0002    | OP_PRINT\n"
+        "0003    3 OP_NIL\n"
+        "0004    | OP_RETURN\n"
+        "\n");
+
+    test_disassemble_on_test = false;
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_enum_assign()
+{
+    const char* src =
+        "enum A {\n"
+        "   B = 5,"
+        "   C = 82,"
+        "   D = 105,"
+        "   E = 927,"
+        "}\n"
+        "print A.E\n";
+
+    test_disassemble_on_test = true;
+
+    InterpretResult result = interpret_code(src);
+    ASSERT_LOX_OUTPUT_EQ("927\n"
+        "== <script> ==\n"
+        "0000    3 OP_CONSTANT         0 927\n"
+        "0002    | OP_PRINT\n"
+        "0003    4 OP_NIL\n"
+        "0004    | OP_RETURN\n"
+        "\n");
+
+    test_disassemble_on_test = false;
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 void register_lox_ext_tests()
 {
 #define REGISTER(n, f)  register_test(&lox_ext_tests, (n), (f))
@@ -307,6 +358,8 @@ void register_lox_ext_tests()
     REGISTER("Constant Values #1", test_const_1);
     REGISTER("Constant Values #2", test_const_2);
     REGISTER("Constant Folding", test_const_folding);
+    REGISTER("Enum: Auto-Increment", test_enum_auto);
+    REGISTER("Enum: Assign", test_enum_assign);
 
 #undef REGISTER
 }

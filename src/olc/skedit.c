@@ -685,7 +685,7 @@ SKEDIT(skedit_new)
 {
     Descriptor* d;
     Mobile* tch;
-    Skill* new_table;
+    Skill* new_skill_table;
     bool* tempgendata;
     SKNUM* templearned;
     int i;
@@ -710,16 +710,16 @@ SKEDIT(skedit_new)
 
     /* reallocate the table */
     skill_count++;
-    new_table = realloc(skill_table, sizeof(Skill) * ((size_t)skill_count + 1));
+    new_skill_table = realloc(skill_table, sizeof(Skill) * ((size_t)skill_count + 1));
 
-    if (!new_table) /* realloc failed */
+    if (!new_skill_table) /* realloc failed */
     {
         perror("skedit_new (1): Falled to reallocate skill_table!");
         send_to_char("Realloc failed. Prepare for impact. (1)\n\r", ch);
         return false;
     }
 
-    skill_table = new_table;
+    skill_table = new_skill_table;
 
     skill_table[skill_count - 1].name = str_dup(argument);
     for (i = 0; i < class_count; ++i) {

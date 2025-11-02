@@ -14,7 +14,7 @@
 
 #define TABLE_MAX_LOAD 0.75
 
-Table* new_obj_table()
+Table* new_table()
 {
     Table* table = ALLOCATE_OBJ(Table, OBJ_TABLE);
     init_table(table);

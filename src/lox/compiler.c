@@ -6,8 +6,10 @@
 
 #include "common.h"
 #include "compiler.h"
+#include "enum.h"
 #include "memory.h"
 #include "scanner.h"
+#include "table.h"
 
 #ifdef DEBUG_PRINT_CODE
 #include "debug.h"
@@ -18,6 +20,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
+#include <math.h>
 #include "native.h"
 
 void send_to_char(const char* txt, Mobile* ch);
@@ -109,6 +113,8 @@ typedef struct ClassCompiler {
 Parser parser;
 Compiler* current = NULL;
 ClassCompiler* current_class = NULL;
+static Table global_const_table;
+static bool global_const_table_initialized = false;
 
 static Chunk* current_chunk()
 {
@@ -323,6 +329,14 @@ static void parse_precedence(Precedence precedence);
 static bool evaluate_constant_expression(Chunk* chunk, int start, int end, Value* out_value);
 static bool resolve_const_binding(Compiler* compiler, Token* name, Value* out_value);
 static void discard_expression();
+static void enum_declaration();
+static void define_const_value(Token* name, Value value);
+static void add_global_const(Token* name, Value value);
+static bool get_global_const(Token* name, Value* out_value);
+static bool has_global_const(Token* name);
+static bool value_to_enum_int(Value value, int32_t* out_value);
+static void reset_global_const_table();
+static Local* declare_const_local(Token* name);
 
 static bool identifiers_equal(Token* a, Token* b)
 {
@@ -408,7 +422,111 @@ static bool resolve_const_binding(Compiler* compiler, Token* name, Value* out_va
         }
     }
 
+    if (get_global_const(name, out_value)) {
+        return true;
+    }
+
     return false;
+}
+
+static bool get_global_const(Token* name, Value* out_value)
+{
+    if (!global_const_table_initialized)
+        return false;
+
+    ObjString* name_str = copy_string(name->start, name->length);
+    if (table_get(&global_const_table, name_str, out_value)) {
+        return true;
+    }
+
+    return false;
+}
+
+static bool has_global_const(Token* name)
+{
+    Value value;
+    return get_global_const(name, &value);
+}
+
+static void reset_global_const_table()
+{
+    if (!global_const_table_initialized) {
+        init_table(&global_const_table);
+        global_const_table_initialized = true;
+    }
+    else {
+        free_table(&global_const_table);
+        init_table(&global_const_table);
+    }
+}
+
+static bool value_to_enum_int(Value value, int32_t* out_value)
+{
+#ifdef NAN_BOXING
+    if (IS_INT(value)) {
+        *out_value = AS_INT(value);
+        return true;
+    }
+    if (IS_DOUBLE(value)) {
+        double d = AS_DOUBLE(value);
+        if (!isfinite(d))
+            return false;
+        double truncated = d < 0 ? ceil(d) : floor(d);
+        if (truncated != d)
+            return false;
+        if (truncated < (double)INT32_MIN || truncated > (double)INT32_MAX)
+            return false;
+        *out_value = (int32_t)truncated;
+        return true;
+    }
+#else
+    if (IS_NUMBER(value)) {
+        double d = AS_NUMBER(value);
+        if (!isfinite(d))
+            return false;
+        double truncated = d < 0 ? ceil(d) : floor(d);
+        if (truncated != d)
+            return false;
+        if (truncated < (double)INT32_MIN || truncated > (double)INT32_MAX)
+            return false;
+        *out_value = (int32_t)truncated;
+        return true;
+    }
+#endif
+    return false;
+}
+
+static void add_global_const(Token* name, Value value)
+{
+    if (!global_const_table_initialized)
+        reset_global_const_table();
+
+    ObjString* name_str = copy_string(name->start, name->length);
+
+    Value existing;
+    if (table_get(&global_const_table, name_str, &existing)) {
+        error("Already a constant with this name.");
+        return;
+    }
+
+    push(value);
+    table_set(&global_const_table, name_str, value);
+    pop();
+}
+
+static void define_const_value(Token* name, Value value)
+{
+    if (current->scope_depth > 0) {
+        Local* local = declare_const_local(name);
+        if (local != NULL) {
+            local->const_value = value;
+            local->has_const_value = true;
+            local->depth = current->scope_depth;
+        }
+    }
+    else {
+        add_global_const(name, value);
+    }
 }
 
 static Local* add_local(Token name, bool occupies_slot, bool is_const)
@@ -478,6 +596,10 @@ static int identifier_constant(Token* name)
 static int parse_variable(const char* error_message)
 {
     consume(TOKEN_IDENTIFIER, error_message);
+
+    if (current->scope_depth == 0 && has_global_const(&parser.previous)) {
+        error("Cannot redeclare constant with this name.");
+    }
 
     declare_variable();
     if (current->scope_depth > 0)
@@ -1028,6 +1150,23 @@ static void named_variable(Token name, bool can_assign)
             }
         }
 
+        if (IS_ENUM(const_value)) {
+            consume(TOKEN_DOT, "Expected '.' after enum.");
+            consume(TOKEN_IDENTIFIER, "Expected enum specifier.");
+
+            ObjEnum* enum_obj = AS_ENUM(const_value);
+            Value enum_val;
+
+            ObjString* enum_member = copy_string(parser.previous.start, parser.previous.length);
+            if (!table_get(&enum_obj->values, enum_member, &enum_val)) {
+                error_at(&parser.previous, "Enum member not found.");
+                enum_val = NIL_VAL;
+            }
+
+            emit_constant(enum_val);
+            return;
+        }
+
         emit_constant(const_value);
         return;
     }
@@ -1494,6 +1633,83 @@ static void fun_declaration()
     define_variable(global);
 }
 
+static void enum_declaration()
+{
+    consume(TOKEN_IDENTIFIER, "Expect enum name.");
+    Token enum_name = parser.previous;
+    ObjString* enum_name_str = copy_string(enum_name.start, enum_name.length);
+
+    ObjEnum* enum_obj = new_enum(enum_name_str);
+    push(OBJ_VAL(enum_obj));
+
+    consume(TOKEN_LEFT_BRACE, "Expect '{' after enum name.");
+
+    int32_t next_value = 0;
+
+    while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF)) {
+        consume(TOKEN_IDENTIFIER, "Expect enum member name.");
+        Token member_name = parser.previous;
+
+        int start = current_chunk()->count;
+        int constant_mark = current_chunk()->constants.count;
+
+        bool has_initializer = match(TOKEN_EQUAL);
+        int32_t member_int = next_value;
+        if (has_initializer) {
+            expression();
+        }
+
+        int end = current_chunk()->count;
+
+        if (has_initializer) {
+            Value evaluated;
+            bool ok = evaluate_constant_expression(current_chunk(), start, end, &evaluated);
+            if (!ok || !value_to_enum_int(evaluated, &member_int)) {
+                error("Enum value must be an integer constant expression.");
+                member_int = next_value;
+            }
+        }
+
+        current_chunk()->count = start;
+        current_chunk()->constants.count = constant_mark;
+
+        if (member_int == INT32_MAX) {
+            next_value = INT32_MAX;
+        }
+        else {
+            next_value = member_int + 1;
+        }
+
+        Value member_value = INT_VAL(member_int);
+
+        ObjString* member_name_str = copy_string(member_name.start, member_name.length);
+        Value existing;
+        bool inserted = true;
+        if (table_get(&enum_obj->values, member_name_str, &existing)) {
+            error("Duplicate enum member name.");
+            inserted = false;
+        }
+        else {
+            table_set(&enum_obj->values, member_name_str, member_value);
+        }
+
+        if (inserted) {
+            define_const_value(&member_name, member_value);
+        }
+
+        if (!match(TOKEN_COMMA)) {
+            break;
+        }
+    }
+
+    consume(TOKEN_RIGHT_BRACE, "Expect '}' after enum body.");
+
+    define_const_value(&enum_name, OBJ_VAL(enum_obj));
+    pop();
+
+    skip(TOKEN_SEMICOLON);
+}
+
 static void var_declaration()
 {
     int global = parse_variable("Expect variable name.");
@@ -1515,7 +1731,14 @@ static void const_declaration()
     consume(TOKEN_IDENTIFIER, "Expect constant name.");
     Token name = parser.previous;
 
-    Local* local = declare_const_local(&name);
+    Local* local = NULL;
+    bool is_local = current->scope_depth > 0;
+    if (is_local) {
+        local = declare_const_local(&name);
+    }
+    else if (has_global_const(&name)) {
+        error("Already a constant with this name.");
+    }
 
     consume(TOKEN_EQUAL, "Expect '=' after constant name.");
 
@@ -1540,11 +1763,17 @@ static void const_declaration()
         return;
     }
 
-    if (local != NULL) {
-        local->const_value = const_value;
-        local->has_const_value = true;
-        mark_initialized();
+    if (is_local) {
+        if (local != NULL) {
+            local->const_value = const_value;
+            local->has_const_value = true;
+            local->depth = current->scope_depth;
+        }
     }
+    else {
+        add_global_const(&name, const_value);
+    }
+
 }
 
 static void expression_statement()
@@ -1723,6 +1952,7 @@ static void synchronize()
         switch (parser.current.type) {
         case TOKEN_CLASS:
         case TOKEN_FUN:
+        case TOKEN_ENUM:
         case TOKEN_CONST:
         case TOKEN_VAR:
         case TOKEN_FOR:
@@ -1747,6 +1977,9 @@ static void declaration()
     } 
     else if (match(TOKEN_FUN)) {
         fun_declaration();
+    }
+    else if (match(TOKEN_ENUM)) {
+        enum_declaration();
     }
     else if (match(TOKEN_CONST)) {
         const_declaration();
@@ -1800,6 +2033,7 @@ static void statement()
 
 ObjFunction* compile(const char* source)
 {
+    reset_global_const_table();
     init_scanner(source);
     Compiler compiler;
     init_compiler(&compiler, TYPE_SCRIPT);
@@ -1829,5 +2063,9 @@ void mark_compiler_roots()
             }
         }
         compiler = compiler->enclosing;
+    }
+
+    if (global_const_table_initialized) {
+        mark_table(&global_const_table);
     }
 }

@@ -224,7 +224,7 @@ RAEDIT(raedit_new)
 {
     Descriptor* d;
     Mobile* tch;
-    Race* new_table;
+    Race* new_race_table;
     size_t maxRace;
 
     if (IS_NULLSTR(argument)) {
@@ -251,15 +251,15 @@ RAEDIT(raedit_new)
         ;
 
     maxRace++;
-    new_table = realloc(race_table, sizeof(Race) * (maxRace + 1));
+    new_race_table = realloc(race_table, sizeof(Race) * (maxRace + 1));
 
-    if (!new_table) /* realloc failed */
+    if (!new_race_table) /* realloc failed */
     {
         send_to_char("Realloc failed. Prepare for impact.\n\r", ch);
         return false;
     }
 
-    race_table = new_table;
+    race_table = new_race_table;
 
     race_table[maxRace - 1].name = str_dup("unique");
     race_table[maxRace - 1].pc_race = false;

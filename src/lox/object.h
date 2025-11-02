@@ -23,6 +23,9 @@ typedef struct mobile_t Mobile;
 typedef struct mob_prototype_t MobPrototype;
 typedef struct event_t Event;
 
+typedef struct value_table_t Table;
+typedef struct obj_enum_t ObjEnum;
+
 typedef enum {
     OBJ_ARRAY,
     OBJ_BOUND_METHOD,
@@ -38,6 +41,7 @@ typedef enum {
     OBJ_UPVALUE,
     OBJ_TABLE,
     OBJ_LIST,
+    OBJ_ENUM,
     // Mud98 Objects
     OBJ_EVENT,
     // Mud98 In-Game Entities
@@ -72,6 +76,7 @@ struct Obj {
 #define IS_STRING(value)        is_obj_type(value, OBJ_STRING)
 #define IS_TABLE(value)         is_obj_type(value, OBJ_TABLE)
 #define IS_LIST(value)          is_obj_type(value, OBJ_LIST)
+#define IS_ENUM(value)          is_obj_type(value, OBJ_ENUM)
 //
 #define IS_EVENT(value)         is_obj_type(value, OBJ_EVENT)
 //
@@ -99,6 +104,7 @@ struct Obj {
 #define AS_CSTRING(value)       (((ObjString*)AS_OBJ(value))->chars)
 #define AS_TABLE(value)         ((Table*)AS_OBJ(value))
 #define AS_LIST(value)          ((List*)AS_OBJ(value))
+#define AS_ENUM(value)          ((ObjEnum*)AS_OBJ(value))
 //
 #define AS_EVENT(value)         ((Event*)AS_OBJ(value))
 //

@@ -7,6 +7,7 @@
 #include "common.h"
 #include "compiler.h"
 #include "debug.h"
+#include "enum.h"
 #include "object.h"
 #include "memory.h"
 #include "native.h"
@@ -805,6 +806,29 @@ InterpretResult run()
                     }
                 }
 
+                if (IS_ENUM(comp)) {
+                    ObjEnum* enum_obj = AS_ENUM(comp);
+                    if (!strcmp(name->chars, "count")) {
+                        Value count = INT_VAL(enum_obj->values.count);
+                        pop();
+                        push(count);
+                        break;
+                    }
+
+                    Value value;
+                    if (table_get(&enum_obj->values, name, &value)) {
+                        pop();
+                        push(value);
+                        break;
+                    }
+
+                    const char* enum_name = enum_obj->name != NULL
+                        ? enum_obj->name->chars : "<enum>";
+                    runtime_error("Enum '%s' has no member '%s'.",
+                        enum_name, name->chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+
                 if (!IS_INSTANCE(comp) && !IS_ENTITY(comp)) {
                     runtime_error("Only instances and entities have properties.");
                     return INTERPRET_RUNTIME_ERROR;
@@ -848,6 +872,15 @@ InterpretResult run()
         case OP_SET_PROPERTY: {
                 Value comp = peek(1);
                 ObjString* field = READ_STRING();
+
+                if (IS_ENUM(comp)) {
+                    ObjEnum* enum_obj = AS_ENUM(comp);
+                    const char* enum_name = enum_obj->name != NULL
+                        ? enum_obj->name->chars : "<enum>";
+                    runtime_error("Cannot assign to enum member '%s.%s'.",
+                        enum_name, field->chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                }
 
                 if (!IS_INSTANCE(comp) && !IS_ENTITY(comp)) {
                     runtime_error("Only instances and entities can have fields.");

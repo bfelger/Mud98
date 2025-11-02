@@ -351,7 +351,7 @@ CMDEDIT(cmdedit_new)
 {
     Descriptor* d;
     Mobile* tch;
-    CmdInfo* new_table;
+    CmdInfo* new_cmd_table;
     int cmd;
 
     if (IS_NULLSTR(argument)) {
@@ -377,15 +377,15 @@ CMDEDIT(cmdedit_new)
     /* reallocate the table */
 
     max_cmd++;
-    new_table = realloc(cmd_table, sizeof(CmdInfo) * (size_t)(max_cmd + 1));
+    new_cmd_table = realloc(cmd_table, sizeof(CmdInfo) * (size_t)(max_cmd + 1));
 
-    if (!new_table) /* realloc failed */
+    if (!new_cmd_table) /* realloc failed */
     {
         send_to_char("Realloc failed. Prepare for impact.\n\r", ch);
         return false;
     }
 
-    cmd_table = new_table;
+    cmd_table = new_cmd_table;
 
     cmd_table[max_cmd - 1].name = str_dup(argument);
     cmd_table[max_cmd - 1].do_fun = do_nothing;
@@ -415,7 +415,7 @@ CMDEDIT(cmdedit_delete)
     Descriptor* d;
     Mobile* tch;
     int i, j, iCmd;
-    CmdInfo* new_table;
+    CmdInfo* new_cmd_table;
 
     if (IS_NULLSTR(argument)) {
         send_to_char("Syntax : delete [name]\n\r", ch);
@@ -437,21 +437,21 @@ CMDEDIT(cmdedit_delete)
             edit_done(tch);
     }
 
-    if ((new_table = calloc(sizeof(CmdInfo), (size_t)max_cmd + 1)) == NULL) {
-        perror("cmdedit_delete: Could not allocate new_table!");
+    if ((new_cmd_table = calloc(sizeof(CmdInfo), (size_t)max_cmd + 1)) == NULL) {
+        perror("cmdedit_delete: Could not allocate new_cmd_table!");
         exit(-1);
     }
 
     for (i = 0, j = 0; i < max_cmd + 1; i++) {
         if (i != iCmd && j < max_cmd) {
             // copy, increase only if copied
-            new_table[j] = cmd_table[i];
+            new_cmd_table[j] = cmd_table[i];
             j++;
         }
     }
 
     free(cmd_table);
-    cmd_table = new_table;
+    cmd_table = new_cmd_table;
 
     max_cmd--; /* Important :() */
 

@@ -129,7 +129,7 @@ CEDIT(cedit_new)
 {
     Descriptor* d;
     Mobile* tch;
-    Class* new_table;
+    Class* new_class_table;
 
     if (IS_NULLSTR(argument)) {
         send_to_char("Syntax : new [name]\n\r", ch);
@@ -151,15 +151,15 @@ CEDIT(cedit_new)
 
     /* reallocate the table */
     ++class_count;
-    new_table = realloc(class_table, sizeof(Class) * ((size_t)class_count + 1));
+    new_class_table = realloc(class_table, sizeof(Class) * ((size_t)class_count + 1));
 
-    if (!new_table) /* realloc failed */
+    if (!new_class_table) /* realloc failed */
     {
         send_to_char("Realloc failed. Prepare for impact.\n\r", ch);
         return false;
     }
 
-    class_table = new_table;
+    class_table = new_class_table;
     Class* pClass = &class_table[class_count - 1];
     memset(pClass, 0, sizeof(Class));
 

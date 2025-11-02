@@ -17,13 +17,14 @@ typedef struct {
     Value value;
 } Entry;
 
-typedef struct {
+typedef struct value_table_t {
     Obj obj;
     int count;
     int capacity;
     Entry* entries;
 } Table;
 
+Table* new_table();
 void init_table(Table* table);
 void free_table(Table* table);
 bool table_get(Table* table, ObjString* key, Value* value);

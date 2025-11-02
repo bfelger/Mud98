@@ -7,6 +7,7 @@
 #include <merc.h>
 
 #include "compiler.h"
+#include "enum.h"
 #include "memory.h"
 #include "native.h"
 #include "vm.h"
@@ -227,6 +228,12 @@ static void blacken_object(Obj* object)
             mark_value(node->value);
         break;
     }
+    case OBJ_ENUM: {
+        ObjEnum* enum_obj = (ObjEnum*)object;
+        mark_object((Obj*)enum_obj->name);
+        mark_table(&enum_obj->values);
+        break;
+    }
     case OBJ_NATIVE:
     case OBJ_RAW_PTR:
     case OBJ_STRING:
@@ -368,6 +375,11 @@ static void free_obj_value(Obj* object)
         FREE(List, object);
         break;
     }
+    case OBJ_ENUM:
+        ObjEnum* enum_obj = (ObjEnum*)object;
+        free_table(&enum_obj->values);
+        FREE(ObjEnum, object);
+        break;
     //
     case OBJ_EVENT:
         free_event((Event*)object);

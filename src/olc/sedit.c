@@ -190,7 +190,7 @@ SEDIT(sedit_new)
 {
     Descriptor* d;
     Mobile* tch;
-    Social* new_table;
+    Social* new_social_table;
     int iSocial;
 
     if (IS_NULLSTR(argument)) {
@@ -217,15 +217,15 @@ SEDIT(sedit_new)
     /* Note that the table contains social_count socials PLUS one empty spot! */
 
     social_count++;
-    new_table = realloc(social_table, sizeof(Social) * ((size_t)social_count + 1));
+    new_social_table = realloc(social_table, sizeof(Social) * ((size_t)social_count + 1));
 
-    if (!new_table) /* realloc failed */
+    if (!new_social_table) /* realloc failed */
     {
         send_to_char("Realloc failed. Prepare for impact.\n\r", ch);
         return false;
     }
 
-    social_table = new_table;
+    social_table = new_social_table;
 
     social_table[social_count - 1].name = str_dup(argument);
     social_table[social_count - 1].char_no_arg = str_dup("");
@@ -249,7 +249,7 @@ SEDIT(sedit_delete)
     Descriptor* d;
     Mobile* tch;
     int i, j, iSocial;
-    Social* new_table;
+    Social* new_social_table;
 
     if (IS_NULLSTR(argument)) {
         send_to_char("Syntax : delete [name]\n\r", ch);
@@ -271,9 +271,9 @@ SEDIT(sedit_delete)
             edit_done(ch);
     }
 
-    new_table = malloc(sizeof(Social) * social_count);
+    new_social_table = malloc(sizeof(Social) * social_count);
 
-    if (!new_table) {
+    if (!new_social_table) {
         send_to_char("Memory allocation failed. Brace for impact...\n\r", ch);
         return false;
     }
@@ -282,12 +282,12 @@ SEDIT(sedit_delete)
     for (i = 0, j = 0; i < social_count + 1; i++)
         if (i != iSocial) /* copy, increase only if copied */
         {
-            new_table[j] = social_table[i];
+            new_social_table[j] = social_table[i];
             j++;
         }
 
     free(social_table);
-    social_table = new_table;
+    social_table = new_social_table;
 
     social_count--; /* Important :() */
 

@@ -192,6 +192,7 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "lox/vm.h" "lox/vm.c"
     "lox/function.h"
     "lox/segvec.h" "lox/segvec.c"
+    "lox/enum.h" "lox/enum.c"
  
     "tests/tests.c"
     "tests/test_registry.h" "tests/test_registry.c" 

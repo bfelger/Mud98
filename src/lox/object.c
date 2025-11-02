@@ -4,6 +4,7 @@
 // Shared under the MIT License
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "enum.h"
 #include "memory.h"
 #include "object.h"
 #include "table.h"
@@ -303,6 +304,16 @@ void print_object(Value value)
     case OBJ_LIST:
         print_list(AS_LIST(value));
         break;
+    case OBJ_ENUM: {
+            ObjEnum* enum_obj = AS_ENUM(value);
+            if (enum_obj->name != NULL) {
+                lox_printf("<enum %s>", enum_obj->name->chars);
+            }
+            else {
+                lox_printf("<enum>");
+            }
+            break;
+        }
     //
     case OBJ_EVENT:
         lox_printf("<event %s>", AS_EVENT(value)->method_name->chars);
