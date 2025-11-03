@@ -4,10 +4,12 @@
 
 #include "race.h"
 
-#include "comm.h"
-#include "config.h"
-#include "db.h"
-#include "tablesave.h"
+#include <comm.h>
+#include <config.h>
+#include <db.h>
+#include <tablesave.h>
+
+#include <lox/compiler.h>
 
 DEFINE_ARRAY(ClassMult, 100)
 
@@ -94,20 +96,18 @@ void load_race_table()
 void init_race_table_lox()
 {
     static char* race_start =
-        "class race_t { "
-        "   init() { ";
+        "enum Race {";
 
     static char* race_end =
-        "   }"
-        "}"
-        "var Race = race_t();";
+        "}\n";
 
     INIT_BUF(src, MSL);
 
     add_buf(src, race_start);
 
     for (int i = 0; i < race_count; ++i) {
-        addf_buf(src, "       this.%s = %d;", pascal_case(race_table[i].name), i);
+        if (strcmp(race_table[i].name, "unique") != 0)
+            addf_buf(src, "       %s = %d,", pascal_case(race_table[i].name), i);
     }
 
     add_buf(src, race_end);

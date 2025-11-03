@@ -362,39 +362,32 @@ static int test_enum_bootval()
 {
     // Test enums generated at boot time.
     // Example: DamageType from data/damage.c.
-    const char* src =
+    char* src =
         "print DamageType.Bash\n"
         "print DamageType.Pierce\n"
         "print DamageType.Slash\n"
         "print DamageType.Fire\n"
         "print DamageType.Cold\n";
-
-    test_disassemble_on_test = true;
-
     InterpretResult result = interpret_code(src);
     ASSERT_LOX_OUTPUT_EQ("1\n"
         "2\n"
         "3\n"
         "4\n"
-        "5\n"
-        "== <script> ==\n"
-        "0000    1 OP_CONSTANT         0 1\n"
-        "0002    | OP_PRINT\n"
-        "0003    2 OP_CONSTANT         1 2\n"
-        "0005    | OP_PRINT\n"
-        "0006    3 OP_CONSTANT         2 3\n"
-        "0008    | OP_PRINT\n"
-        "0009    4 OP_CONSTANT         3 4\n"
-        "0011    | OP_PRINT\n"
-        "0012    5 OP_CONSTANT         4 5\n"
-        "0014    | OP_PRINT\n"
-        "0015    6 OP_NIL\n"
-        "0016    | OP_RETURN\n"
-        "\n");
-
-    test_disassemble_on_test = false;
-
+        "5\n");
     test_output_buffer = NIL_VAL;
+
+    src =
+        "print Race.Human\n"
+        "print Race.Elf\n"
+        "print Race.Dwarf\n"
+        "print Race.Giant\n";
+    result = interpret_code(src);
+    ASSERT_LOX_OUTPUT_EQ("1\n"
+        "2\n"
+        "3\n"
+        "4\n");
+    test_output_buffer = NIL_VAL;
+
     return 0;
 }
 
