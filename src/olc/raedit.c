@@ -140,23 +140,23 @@ RAEDIT(raedit_show)
     if (pRace->start_loc > 0)
         room = get_room_data(pRace->start_loc);
 
-    printf_to_char(ch, "Name        : {|[{*%s{|]{x\n\r", pRace->name);
-    printf_to_char(ch, "PC race?    : {|[%s{|]{x\n\r", pRace->pc_race ? "{GYES" : "{RNO");
-    printf_to_char(ch, "Act         : {|[{*%s{|]{x\n\r", flag_string(act_flag_table, pRace->act_flags));
-    printf_to_char(ch, "Aff         : {|[{*%s{|]{x\n\r", flag_string(affect_flag_table, pRace->aff));
-    printf_to_char(ch, "Off         : {|[{*%s{|]{x\n\r", flag_string(off_flag_table, pRace->off));
-    printf_to_char(ch, "Imm         : {|[{*%s{|]{x\n\r", flag_string(imm_flag_table, pRace->imm));
-    printf_to_char(ch, "Res         : {|[{*%s{|]{x\n\r", flag_string(res_flag_table, pRace->res));
-    printf_to_char(ch, "Vuln        : {|[{*%s{|]{x\n\r", flag_string(vuln_flag_table, pRace->vuln));
-    printf_to_char(ch, "Form        : {|[{*%s{|]{x\n\r", flag_string(form_flag_table, pRace->form));
-    printf_to_char(ch, "Parts       : {|[{*%s{|]{x\n\r", flag_string(part_flag_table, pRace->parts));
-    printf_to_char(ch, "Points      : {|[{*%d{|]{x\n\r", pRace->points);
-    printf_to_char(ch, "Size        : {|[{*%s{|]{x\n\r", mob_size_table[pRace->size].name);
-    printf_to_char(ch, "Start Loc   : {|[{*%d{|] {_%s %s{x\n\r",
+    printf_to_char(ch, "Name        : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", pRace->name);
+    printf_to_char(ch, "PC race?    : " COLOR_DECOR_1 "[%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", pRace->pc_race ? COLOR_B_GREEN "YES" : COLOR_B_RED "NO");
+    printf_to_char(ch, "Act         : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(act_flag_table, pRace->act_flags));
+    printf_to_char(ch, "Aff         : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(affect_flag_table, pRace->aff));
+    printf_to_char(ch, "Off         : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(off_flag_table, pRace->off));
+    printf_to_char(ch, "Imm         : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(imm_flag_table, pRace->imm));
+    printf_to_char(ch, "Res         : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(res_flag_table, pRace->res));
+    printf_to_char(ch, "Vuln        : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(vuln_flag_table, pRace->vuln));
+    printf_to_char(ch, "Form        : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(form_flag_table, pRace->form));
+    printf_to_char(ch, "Parts       : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(part_flag_table, pRace->parts));
+    printf_to_char(ch, "Points      : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", pRace->points);
+    printf_to_char(ch, "Size        : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", mob_size_table[pRace->size].name);
+    printf_to_char(ch, "Start Loc   : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "%s %s" COLOR_CLEAR "\n\r",
         pRace->start_loc,
         room ? NAME_STR(room) : "",
-        cfg_get_start_loc_by_race() ? "" : " {_(not used)");
-    printf_to_char(ch, "{T    Class      XPmult  XP/lvl(pts)   Start Loc{x\n\r");
+        cfg_get_start_loc_by_race() ? "" : " " COLOR_ALT_TEXT_2 "(not used)");
+    printf_to_char(ch, COLOR_TITLE "    Class      XPmult  XP/lvl(pts)   Start Loc" COLOR_CLEAR "\n\r");
     for (i = 0; i < class_count; ++i) {
         VNUM vnum = GET_ELEM(&pRace->class_start, i);
         
@@ -164,14 +164,14 @@ RAEDIT(raedit_show)
             room = get_room_data(vnum);
         else
             room = NULL;
-        sprintf(buf, "    %-7.7s     {*%3d     %4d{|({*%3d{|){x    {|[{*%5d{|] {_%s %s{x\n\r",
+        sprintf(buf, "    %-7.7s     " COLOR_ALT_TEXT_1 "%3d     %4d" COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 ")" COLOR_CLEAR "    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "%s %s" COLOR_CLEAR "\n\r",
             capitalize(class_table[i].name),
             GET_ELEM(&pRace->class_mult, i),
             race_exp_per_level(pRace->race_id, i, get_points(pRace->race_id, i)),
             get_points(pRace->race_id, i),
             vnum, 
             room ? NAME_STR(room) : "",
-            cfg_get_start_loc_by_class() && cfg_get_start_loc_by_race() ? "" : " {_(not used)"
+            cfg_get_start_loc_by_class() && cfg_get_start_loc_by_race() ? "" : " " COLOR_ALT_TEXT_2 "(not used)"
         );
         send_to_char(buf, ch);
     }
@@ -179,14 +179,14 @@ RAEDIT(raedit_show)
         send_to_char("\n\r", ch);
 
     for (i = 0; i < STAT_COUNT; ++i) {
-        sprintf(buf, "%s:{*%2d{|({*%2d{|){x ", Stats[i], pRace->stats[i], pRace->max_stats[i]);
+        sprintf(buf, "%s:" COLOR_ALT_TEXT_1 "%2d" COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%2d" COLOR_DECOR_1 ")" COLOR_CLEAR " ", Stats[i], pRace->stats[i], pRace->max_stats[i]);
         send_to_char(buf, ch);
     }
     send_to_char("\n\r", ch);
 
     for (i = 0; i < RACE_NUM_SKILLS; ++i)
         if (!IS_NULLSTR(pRace->skills[i])) {
-            printf_to_char(ch, "%2d. {*%s{x\n\r", i, pRace->skills[i]);
+            printf_to_char(ch, "%2d. " COLOR_ALT_TEXT_1 "%s" COLOR_CLEAR "\n\r", i, pRace->skills[i]);
         }
 
     return false;
@@ -201,7 +201,7 @@ RAEDIT(raedit_list)
     fBuf = new_buf();
 
     for (i = 0; race_table[i].name; i++) {
-        sprintf(buf, "%2d %c {*%-33.33s{x", i,
+        sprintf(buf, "%2d %c " COLOR_ALT_TEXT_1 "%-33.33s" COLOR_CLEAR , i,
             race_table[i].pc_race ? '+' : '-',
             race_table[i].name);
         if (i % 2 == 1)
@@ -453,7 +453,7 @@ RAEDIT(raedit_skills)
 
 RAEDIT(raedit_start_loc)
 {
-    static const char* help = "Syntax : {*START_LOC <ROOM VNUM>{x\n\r\n\r";
+    static const char* help = "Syntax : " COLOR_ALT_TEXT_1 "START_LOC <ROOM VNUM>" COLOR_CLEAR "\n\r\n\r";
     Race* race;
     char vnum_str[MIL];
     VNUM room_vnum = -1;
@@ -475,7 +475,7 @@ RAEDIT(raedit_start_loc)
     room_vnum = (VNUM)atoi(vnum_str);
 
     if (room_vnum > 0 && !get_room_data(room_vnum)) {
-        send_to_char("{jThat is not a valid room VNUM.\n\r", ch);
+        send_to_char(COLOR_INFO "That is not a valid room VNUM.\n\r", ch);
     }
 
     race->start_loc = room_vnum;

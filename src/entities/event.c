@@ -205,12 +205,12 @@ void olc_display_event_info(Mobile* ch, Entity* entity, Buffer* out)
 {
     if (entity->events.count != 0) {
         addf_buf(out, "Events:\n\r");
-        addf_buf(out, "    {TTrigger     Callback{x\n\r");
-        addf_buf(out, "    {=--------    --------\n\r");
+        addf_buf(out, "    " COLOR_TITLE "Trigger     Callback" COLOR_CLEAR "\n\r");
+        addf_buf(out, "    " COLOR_DECOR_2 "--------    --------\n\r");
         Node* node = entity->events.front;
         while (node != NULL) {
             Event* event = AS_EVENT(node->value);
-            addf_buf(out, "    {*%-6s{       {_%s{x\n\r", flag_string(mprog_flag_table, event->trigger), event->method_name->chars);
+            addf_buf(out, "    " COLOR_ALT_TEXT_1 "%-6s      " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r", flag_string(mprog_flag_table, event->trigger), event->method_name->chars);
             node = node->next;
         }
     }

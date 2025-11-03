@@ -82,7 +82,7 @@ const AttackInfo attack_table[ATTACK_COUNT] = {
 void init_damage_consts()
 {
     static char* damtype_start =
-        "enum DamageType {";
+        "enum DamageType { ";
     
     static char* damtype_end =
         "}";

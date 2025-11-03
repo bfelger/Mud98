@@ -195,7 +195,7 @@ void wiznet(char* string, Mobile* ch, Object* obj, FLAGS flag,
             else
                 send_to_char("{Z", d->character);
             act_pos(string, d->character, obj, ch, TO_CHAR, POS_DEAD);
-            send_to_char("{x", d->character);
+            send_to_char(COLOR_CLEAR, d->character);
         }
     }
 

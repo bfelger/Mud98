@@ -173,7 +173,7 @@ void fwrite_char(Mobile* ch, FILE* fp)
     if (ch->long_descr[0] != '\0') fprintf(fp, "LnD  %s~\n", ch->long_descr);
     if (ch->description[0] != '\0') fprintf(fp, "Desc %s~\n", ch->description);
     if (ch->prompt != NULL || !str_cmp(ch->prompt, "<%hhp %mm %vmv> ")
-        || !str_cmp(ch->prompt, "{c<%hhp %mm %vmv>{x "))
+        || !str_cmp(ch->prompt, "{p<%hhp %mm %vmv>" COLOR_CLEAR " "))
         fprintf(fp, "Prom %s~\n", ch->prompt);
     fprintf(fp, "Race %s~\n", race_table[ch->race].name);
     if (ch->clan) fprintf(fp, "Clan %s~\n", clan_table[ch->clan].name);

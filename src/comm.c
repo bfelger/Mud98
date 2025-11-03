@@ -994,14 +994,14 @@ void bust_a_prompt(Mobile* ch)
     point = BUF(temp1);
     str = ch->prompt;
     if (str == NULL || str[0] == '\0') {
-        sprintf(BUF(temp1), "{p<%dhp %dm %dmv>{x %s", ch->hit, ch->mana, ch->move,
+        sprintf(BUF(temp1), COLOR_PROMPT "<%dhp %dm %dmv>" COLOR_CLEAR " %s", ch->hit, ch->mana, ch->move,
             ch->prefix);
         send_to_char(BUF(temp1), ch);
         goto bust_a_prompt_cleanup;
     }
 
     if (IS_SET(ch->comm_flags, COMM_AFK)) {
-        send_to_char("{p<AFK>{x ", ch);
+        send_to_char(COLOR_PROMPT "<AFK>" COLOR_CLEAR " ", ch);
         goto bust_a_prompt_cleanup;
     }
 
@@ -1137,9 +1137,9 @@ void bust_a_prompt(Mobile* ch)
     *point = '\0';
     pbuff = BUF(temp3);
     colourconv(pbuff, BUF(temp1), ch);
-    send_to_char("{p", ch);
+    send_to_char(COLOR_PROMPT "", ch);
     write_to_buffer(ch->desc, BUF(temp3), 0);
-    send_to_char("{x", ch);
+    send_to_char(COLOR_CLEAR, ch);
 
     if (ch->prefix[0] != '\0')
         write_to_buffer(ch->desc, ch->prefix, 0);
@@ -1714,9 +1714,9 @@ void nanny(Descriptor * d, char* argument)
 
 
         if (IS_SET(ch->act_flags, PLR_TESTER))
-            send_to_char("{*THIS IS A TESTER ACCOUNT.\n\r"
+            send_to_char(COLOR_ALT_TEXT_1 "THIS IS A TESTER ACCOUNT.\n\r"
                 "It comes with enhanced privileges, and an expectation that you"
-                " will not abuse them.{x\n\r", ch);
+                " will not abuse them." COLOR_CLEAR "\n\r", ch);
 
         if (ch->level == 0) {
             ch->perm_stat[class_table[ch->ch_class].prime_stat] += 3;
@@ -2078,7 +2078,7 @@ void send_to_desc(const char* txt, Descriptor* desc)
     point2 = temp;
     if (txt && desc) {
         for (point = txt; *point; point++) {
-            if (*point == '{') {
+            if (*point == COLOR_ESC_CHAR) {
                 point++;
                 skip = colour(*point, NULL, point2);
                 while (skip-- > 0) 
@@ -2123,7 +2123,7 @@ void send_to_char(const char* txt, Mobile * ch)
     if (txt && ch->desc) {
         if (IS_SET(ch->act_flags, PLR_COLOUR)) {
             for (point = txt; *point; point++) {
-                if (*point == '{') {
+                if (*point == COLOR_ESC_CHAR) {
                     point++;
                     skip = colour(*point, ch, point2);
                     //while (skip-- > 0) 
@@ -2141,7 +2141,7 @@ void send_to_char(const char* txt, Mobile * ch)
         }
         else {
             for (point = txt; *point; point++) {
-                if (*point == '{') {
+                if (*point == COLOR_ESC_CHAR) {
                     point++;
                     continue;
                 }
@@ -2189,7 +2189,7 @@ void page_to_char(const char* txt, Mobile * ch)
     if (txt && ch->desc) {
         if (IS_SET(ch->act_flags, PLR_COLOUR)) {
             for (point = txt; *point; point++) {
-                if (*point == '{') {
+                if (*point == COLOR_ESC_CHAR) {
                     point++;
                     skip = colour(*point, ch, point2);
                     while (skip-- > 0) ++point2;
@@ -2206,7 +2206,7 @@ void page_to_char(const char* txt, Mobile * ch)
         }
         else {
             for (point = txt; *point; point++) {
-                if (*point == '{') {
+                if (*point == COLOR_ESC_CHAR) {
                     point++;
                     continue;
                 }
@@ -2497,17 +2497,13 @@ size_t colour(char type, Mobile * ch, char* string)
 
         if (pal < 0) {
             switch (type) {
-            case '!':
-                sprintf(code, "%c", '\a');
-                break;
             case '/':
                 sprintf(code, "%s", "\n\r");
-                //strcpy(code, "\n\r");
                 break;
             case '-':
                 sprintf(code, "%c", '~');
                 break;
-            case '{':
+            case COLOR_ESC_CHAR:
                 sprintf(code, "%c", type);
                 break;
             case 'x':
@@ -2550,7 +2546,7 @@ int colourconv(char* buffer, const char* txt, Mobile * ch)
     if (ch->desc && txt) {
         if (IS_SET(ch->act_flags, PLR_COLOUR)) {
             for (point = txt; *point; point++) {
-                if (*point == '{') {
+                if (*point == COLOR_ESC_CHAR) {
                     point++;
                     skip = colour(*point, ch, buffer);
                     while (skip-- > 0) ++buffer;
@@ -2563,7 +2559,7 @@ int colourconv(char* buffer, const char* txt, Mobile * ch)
         }
         else {
             for (point = txt; *point; point++) {
-                if (*point == '{') {
+                if (*point == COLOR_ESC_CHAR) {
                     point++;
                     continue;
                 }

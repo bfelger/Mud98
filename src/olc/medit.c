@@ -183,7 +183,7 @@ MEDIT(medit_show)
         if (ch->desc->editor == ED_MOBILE)
             EDIT_MOB(ch, pMob);
         else {
-            send_to_char("{jERROR: You must specify a vnum to look at.{x\n\r", ch);
+            send_to_char(COLOR_INFO "ERROR: You must specify a vnum to look at." COLOR_CLEAR "\n\r", ch);
             return false;
         }
     }
@@ -191,26 +191,26 @@ MEDIT(medit_show)
         pMob = get_mob_prototype(atoi(arg));
 
         if (!pMob) {
-            send_to_char("{jERROR: That mob does not exist.{x\n\r", ch);
+            send_to_char(COLOR_INFO "ERROR: That mob does not exist." COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
         if (!IS_BUILDER(ch, pMob->area)) {
-            send_to_char("{jERROR: You do not have access to the area that mob is in.{x\n\r", ch);
+            send_to_char(COLOR_INFO "ERROR: You do not have access to the area that mob is in." COLOR_CLEAR "\n\r", ch);
             return false;
         }
     }
 
     INIT_BUF(buffer, MSL);
 
-    addf_buf(buffer, "Name:        {|[{*%s{|]{x\n\r", NAME_STR(pMob));
-    addf_buf(buffer, "Vnum:        {|[{*%6d{|]{x\n\r", VNUM_FIELD(pMob));
-    addf_buf(buffer, "Area:        {|[{*%6d{|] {_%s{x\n\r",
+    addf_buf(buffer, "Name:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", NAME_STR(pMob));
+    addf_buf(buffer, "Vnum:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", VNUM_FIELD(pMob));
+    addf_buf(buffer, "Area:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r",
         !pMob->area ? -1 : VNUM_FIELD(pMob->area),
         !pMob->area ? "No Area" : NAME_STR(pMob->area));
 
-    addf_buf(buffer, "Level:       {|[{*%6d{|]{x Sex:     {|[{*%6s{|]{x Group:   {|[{*%5d{|]{x\n\r"
-        "Align:       {|[{*%6d{|]{x Hitroll: {|[{*%6d{|]{x Dam type: {|[{*%s{|]{x\n\r",
+    addf_buf(buffer, "Level:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 "]" COLOR_CLEAR " Sex:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6s" COLOR_DECOR_1 "]" COLOR_CLEAR " Group:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r"
+        "Align:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 "]" COLOR_CLEAR " Hitroll: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 "]" COLOR_CLEAR " Dam type: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r",
         pMob->level,
         ((pMob->sex >= SEX_MIN && pMob->sex <= SEX_MAX) ? sex_table[pMob->sex].name : "ERROR"),
         pMob->group,
@@ -219,8 +219,8 @@ MEDIT(medit_show)
         attack_table[pMob->dam_type].name);
 
     addf_buf(buffer, 
-        "Hit dice:    {|[{*%3dd%-3d+%4d{|]{x Damage dice:  {|[{*%3dd%-3d+%4d{|]{x\n\r"
-        "Mana dice:   {|[{*%3dd%-3d+%4d{|]{x Material:     {|[{*%12s{|]{x\n\r",
+        "Hit dice:    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3dd%-3d+%4d" COLOR_DECOR_1 "]" COLOR_CLEAR " Damage dice:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3dd%-3d+%4d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r"
+        "Mana dice:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3dd%-3d+%4d" COLOR_DECOR_1 "]" COLOR_CLEAR " Material:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%12s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r",
         pMob->hit[DICE_NUMBER],
         pMob->hit[DICE_TYPE],
         pMob->hit[DICE_BONUS],
@@ -232,44 +232,44 @@ MEDIT(medit_show)
         pMob->mana[DICE_BONUS], 
         pMob->material);
  
-    addf_buf(buffer, "Race:        {|[{*%12s{|]{x Size:         {|[{*%12s{|]{x\n\r",
+    addf_buf(buffer, "Race:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%12s" COLOR_DECOR_1 "]" COLOR_CLEAR " Size:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%12s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r",
         race_table[pMob->race].name,
         ((pMob->size >= MOB_SIZE_MIN && pMob->size <= MOB_SIZE_MAX) ?
             mob_size_table[pMob->size].name : "ERROR"));
 
-    addf_buf(buffer, "Start pos.:  {|[{*%12s{|]{x Default pos.: {|[{*%12s{|]{x\n\r",
+    addf_buf(buffer, "Start pos.:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%12s" COLOR_DECOR_1 "]" COLOR_CLEAR " Default pos.: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%12s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r",
         position_table[pMob->start_pos].name,
         position_table[pMob->default_pos].name);
 
-    addf_buf(buffer, "Wealth:      {|[{*%5d{|]{x\n\r",
+    addf_buf(buffer, "Wealth:      " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r",
         pMob->wealth);
 
-    addf_buf(buffer, "Armor:       {|[{_pierce: {*%d{_  bash: {*%d{_  slash: {*%d{_  magic: {*%d{|]{x\n\r",
+    addf_buf(buffer, "Armor:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_2 "pierce: " COLOR_ALT_TEXT_1 "%d" COLOR_ALT_TEXT_2 "  bash: " COLOR_ALT_TEXT_1 "%d" COLOR_ALT_TEXT_2 "  slash: " COLOR_ALT_TEXT_1 "%d" COLOR_ALT_TEXT_2 "  magic: " COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r",
         pMob->ac[AC_PIERCE], pMob->ac[AC_BASH],
         pMob->ac[AC_SLASH], pMob->ac[AC_EXOTIC]);
 
-    addf_buf(buffer, "Affected by: {|[{*%s{|]{x\n\r",
+    addf_buf(buffer, "Affected by: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r",
         flag_string(affect_flag_table, pMob->affect_flags));
 
-    addf_buf(buffer, "Act:         {|[{*%s{|]{x\n\r",
+    addf_buf(buffer, "Act:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r",
         flag_string(act_flag_table, pMob->act_flags));
 
-    addf_buf(buffer, "Form:        {|[{*%s{|]{x\n\r", flag_string(form_flag_table, pMob->form));
-    addf_buf(buffer, "Parts:       {|[{*%s{|]{x\n\r", flag_string(part_flag_table, pMob->parts));
-    addf_buf(buffer, "Imm:         {|[{*%s{|]{x\n\r", flag_string(imm_flag_table, pMob->imm_flags));
-    addf_buf(buffer, "Res:         {|[{*%s{|]{x\n\r", flag_string(res_flag_table, pMob->res_flags));
-    addf_buf(buffer, "Vuln:        {|[{*%s{|]{x\n\r", flag_string(vuln_flag_table, pMob->vuln_flags));
-    addf_buf(buffer, "Off:         {|[{*%s{|]{x\n\r", flag_string(off_flag_table, pMob->atk_flags));
+    addf_buf(buffer, "Form:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(form_flag_table, pMob->form));
+    addf_buf(buffer, "Parts:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(part_flag_table, pMob->parts));
+    addf_buf(buffer, "Imm:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(imm_flag_table, pMob->imm_flags));
+    addf_buf(buffer, "Res:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(res_flag_table, pMob->res_flags));
+    addf_buf(buffer, "Vuln:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(vuln_flag_table, pMob->vuln_flags));
+    addf_buf(buffer, "Off:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(off_flag_table, pMob->atk_flags));
 
     if (pMob->spec_fun) {
-        addf_buf(buffer, "Spec fun:    {|[{*%s{|]{x\n\r", spec_name(pMob->spec_fun));
+        addf_buf(buffer, "Spec fun:    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", spec_name(pMob->spec_fun));
     }
 
-    addf_buf(buffer, "Short descr: {_%s{x\n\rLong descr:\n\r{_%s{x",
+    addf_buf(buffer, "Short descr: " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\rLong descr:\n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR ,
         pMob->short_descr,
         pMob->long_descr);
 
-    addf_buf(buffer, "Description:\n\r{_%s{x", pMob->description);
+    addf_buf(buffer, "Description:\n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR , pMob->description);
 
     if (pMob->pShop) {
         ShopData* pShop;
@@ -278,20 +278,20 @@ MEDIT(medit_show)
         pShop = pMob->pShop;
 
         addf_buf(buffer,
-            "Shop data for {|[{*%5d{|]{x:\n\r"
-            "  Markup for purchaser: {*%d%%{x\n\r"
-            "  Markdown for seller:  {*%d%%{x\n\r",
+            "Shop data for " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR ":\n\r"
+            "  Markup for purchaser: " COLOR_ALT_TEXT_1 "%d%%" COLOR_CLEAR "\n\r"
+            "  Markdown for seller:  " COLOR_ALT_TEXT_1 "%d%%" COLOR_CLEAR "\n\r",
             pShop->keeper, pShop->profit_buy, pShop->profit_sell);
-        addf_buf(buffer, "  Hours: {_%d{x to {_%d{x.\n\r",
+        addf_buf(buffer, "  Hours: " COLOR_ALT_TEXT_2 "%d" COLOR_CLEAR " to " COLOR_ALT_TEXT_2 "%d" COLOR_CLEAR ".\n\r",
             pShop->open_hour, pShop->close_hour);
 
         for (iTrade = 0; iTrade < MAX_TRADE; iTrade++) {
             if (pShop->buy_type[iTrade] != 0) {
                 if (iTrade == 0) {
-                    add_buf(buffer, "  {TNumber Trades Type\n\r");
-                    add_buf(buffer, "  {=------ -----------{x\n\r");
+                    add_buf(buffer, "  " COLOR_TITLE "Number Trades Type\n\r");
+                    add_buf(buffer, "  " COLOR_DECOR_2 "------ -----------" COLOR_CLEAR "\n\r");
                 }
-                addf_buf(buffer, "  {|[{*%4d{|]{x {_%s{x\n\r", iTrade,
+                addf_buf(buffer, "  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%4d" COLOR_DECOR_1 "]" COLOR_CLEAR " " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r", iTrade,
                     flag_string(type_flag_table, pShop->buy_type[iTrade]));
             }
         }
@@ -299,15 +299,15 @@ MEDIT(medit_show)
 
     if (pMob->mprogs) {
         addf_buf(buffer,
-            "\n\rMOBPrograms for {|[{*%5d{|]{x:\n\r", VNUM_FIELD(pMob));
+            "\n\rMOBPrograms for " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR ":\n\r", VNUM_FIELD(pMob));
 
         for (cnt = 0, list = pMob->mprogs; list; NEXT_LINK(list)) {
             if (cnt == 0) {
-                add_buf(buffer, " {TNumber Vnum Trigger Phrase\n\r");
-                add_buf(buffer, " {=------ ---- ------- ------\n\r");
+                add_buf(buffer, " " COLOR_TITLE "Number Vnum Trigger Phrase\n\r");
+                add_buf(buffer, " " COLOR_DECOR_2 "------ ---- ------- ------\n\r");
             }
 
-            addf_buf(buffer, "{|[{*%5d{|] {*%4d %7s {_%s{x\n\r", cnt,
+            addf_buf(buffer, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_1 "%4d %7s " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r", cnt,
                 list->vnum, event_trigger_name(list->trig_type),
                 list->trig_phrase);
             cnt++;
@@ -524,12 +524,12 @@ ED_FUN_DEC(ed_shop)
     READ_ARG(arg1);
 
     if (command[0] == '\0') {
-        send_to_char("Syntax : {*shop hours [open] [close]\n\r", ch);
+        send_to_char("Syntax : " COLOR_ALT_TEXT_1 "shop hours [open] [close]\n\r", ch);
         send_to_char("         shop profit [%% buy] [%% sell]\n\r", ch);
         send_to_char("         shop type [0-4] [obj type]\n\r", ch);
         send_to_char("         shop type [0-4] none\n\r", ch);
         send_to_char("         shop assign\n\r", ch);
-        send_to_char("         shop remove{x\n\r", ch);
+        send_to_char("         shop remove" COLOR_CLEAR "\n\r", ch);
 
         return false;
     }
@@ -537,12 +537,12 @@ ED_FUN_DEC(ed_shop)
     if (!str_cmp(command, "hours")) {
         if (arg1[0] == '\0' || !is_number(arg1)
             || argument[0] == '\0' || !is_number(argument)) {
-            send_to_char("Syntax : {*shop hours [open] [close]{x\n\r", ch);
+            send_to_char("Syntax : " COLOR_ALT_TEXT_1 "shop hours [open] [close]" COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
         if (!pMob->pShop) {
-            send_to_char("{jYou must assign a shop first ('{*shop assign{j').{x\n\r", ch);
+            send_to_char(COLOR_INFO "You must assign a shop first ('" COLOR_ALT_TEXT_1 "shop assign" COLOR_INFO "')." COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
@@ -556,12 +556,12 @@ ED_FUN_DEC(ed_shop)
     if (!str_cmp(command, "profit")) {
         if (arg1[0] == '\0' || !is_number(arg1)
             || argument[0] == '\0' || !is_number(argument)) {
-            send_to_char("{jSyntax : {*shop profit [%% buy] [%% sell]{x\n\r", ch);
+            send_to_char(COLOR_INFO "Syntax : " COLOR_ALT_TEXT_1 "shop profit [%% buy] [%% sell]" COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
         if (!pMob->pShop) {
-            send_to_char("{jYou must assign a shop first ('{*shop assign{j').\n\r", ch);
+            send_to_char(COLOR_INFO "You must assign a shop first ('" COLOR_ALT_TEXT_1 "shop assign" COLOR_INFO "').\n\r", ch);
             return false;
         }
 
@@ -578,23 +578,23 @@ ED_FUN_DEC(ed_shop)
 
         if (arg1[0] == '\0' || !is_number(arg1)
             || argument[0] == '\0') {
-            send_to_char("Syntax:  {*shop type [#x0-4] [item type]{x\n\r", ch);
+            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "shop type [#x0-4] [item type]" COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
         if (atoi(arg1) >= MAX_TRADE) {
-            sprintf(buf, "{jMEdit:  May sell %d items max.{x\n\r", MAX_TRADE);
+            sprintf(buf, COLOR_INFO "MEdit:  May sell %d items max." COLOR_CLEAR "\n\r", MAX_TRADE);
             send_to_char(buf, ch);
             return false;
         }
 
         if (!pMob->pShop) {
-            send_to_char("{jMEdit:  You must assign a shop first ('shop assign'){x.\n\r", ch);
+            send_to_char(COLOR_INFO "MEdit:  You must assign a shop first ('shop assign')" COLOR_CLEAR ".\n\r", ch);
             return false;
         }
 
         if (str_cmp(argument, "none") && (value = flag_value(type_flag_table, argument)) == NO_FLAG) {
-            send_to_char("{jMEdit:  That type of item does not exist.{x\n\r", ch);
+            send_to_char(COLOR_INFO "MEdit:  That type of item does not exist." COLOR_CLEAR "\n\r", ch);
             return false;
         }
 

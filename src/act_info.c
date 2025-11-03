@@ -106,15 +106,15 @@ char* format_obj_to_char(Object* obj, Mobile* ch, bool fShort)
         || (obj->description == NULL || obj->description[0] == '\0'))
         return buf;
 
-    if (IS_OBJ_STAT(obj, ITEM_INVIS)) strcat(buf, "{*(Invis){x ");
+    if (IS_OBJ_STAT(obj, ITEM_INVIS)) strcat(buf, COLOR_ALT_TEXT_1 "(Invis)" COLOR_CLEAR " ");
     if (IS_AFFECTED(ch, AFF_DETECT_EVIL) && IS_OBJ_STAT(obj, ITEM_EVIL))
-        strcat(buf, "{r(Red Aura){x ");
+        strcat(buf, COLOR_RED "(Red Aura)" COLOR_CLEAR " ");
     if (IS_AFFECTED(ch, AFF_DETECT_GOOD) && IS_OBJ_STAT(obj, ITEM_BLESS))
-        strcat(buf, "{B(Blue Aura){x ");
+        strcat(buf, COLOR_B_BLUE "(Blue Aura)" COLOR_CLEAR " ");
     if (IS_AFFECTED(ch, AFF_DETECT_MAGIC) && IS_OBJ_STAT(obj, ITEM_MAGIC))
-        strcat(buf, "{*(Magical){x ");
-    if (IS_OBJ_STAT(obj, ITEM_GLOW)) strcat(buf, "{_(Glowing){x ");
-    if (IS_OBJ_STAT(obj, ITEM_HUM)) strcat(buf, "{_(Humming){x ");
+        strcat(buf, COLOR_ALT_TEXT_1 "(Magical)" COLOR_CLEAR " ");
+    if (IS_OBJ_STAT(obj, ITEM_GLOW)) strcat(buf, COLOR_ALT_TEXT_2 "(Glowing)" COLOR_CLEAR " ");
+    if (IS_OBJ_STAT(obj, ITEM_HUM)) strcat(buf, COLOR_ALT_TEXT_2 "(Humming)" COLOR_CLEAR " ");
 
     if (fShort) {
         if (obj->short_descr != NULL) 
@@ -235,32 +235,32 @@ void show_char_to_char_0(Mobile* victim, Mobile* ch)
     if (is_npc) {
         QuestTarget* qt = get_quest_targ_end(ch, VNUM_FIELD(victim->prototype));
         if (qt && can_finish_quest(ch, qt->quest_vnum)) {
-            strcat(buf, "{*[{Y?{x{*]{x ");
+            strcat(buf, COLOR_ALT_TEXT_1 "[" COLOR_B_YELLOW "?" COLOR_CLEAR COLOR_ALT_TEXT_1 "]" COLOR_CLEAR " ");
         }
         else if ((qt = get_quest_targ_mob(ch, VNUM_FIELD(victim->prototype))) != NULL) {
             if (qt->type != QUEST_KILL_MOB)
-                strcat(buf, "{*[{Y!{x{*]{x ");
+                strcat(buf, COLOR_ALT_TEXT_1 "[" COLOR_B_YELLOW "!" COLOR_CLEAR COLOR_ALT_TEXT_1 "]" COLOR_CLEAR " ");
             else
-                strcat(buf, "{*[{RX{x{*]{x ");
+                strcat(buf, COLOR_ALT_TEXT_1 "[" COLOR_B_RED "X" COLOR_CLEAR COLOR_ALT_TEXT_1 "]" COLOR_CLEAR " ");
         }
     }
 
-    if (IS_SET(victim->comm_flags, COMM_AFK)) strcat(buf, "{_[AFK]{x ");
-    if (IS_AFFECTED(victim, AFF_INVISIBLE)) strcat(buf, "{*(Invis){x ");
-    if (victim->invis_level >= LEVEL_HERO) strcat(buf, "{*(Wizi){x ");
-    if (IS_AFFECTED(victim, AFF_HIDE)) strcat(buf, "{*(Hide){x ");
-    if (IS_AFFECTED(victim, AFF_CHARM)) strcat(buf, "{*(Charmed){x ");
-    if (IS_AFFECTED(victim, AFF_PASS_DOOR)) strcat(buf, "{*(Translucent){x ");
-    if (IS_AFFECTED(victim, AFF_FAERIE_FIRE)) strcat(buf, "{R(Pink Aura){x ");
+    if (IS_SET(victim->comm_flags, COMM_AFK)) strcat(buf, COLOR_ALT_TEXT_2 "[AFK]" COLOR_CLEAR " ");
+    if (IS_AFFECTED(victim, AFF_INVISIBLE)) strcat(buf, COLOR_ALT_TEXT_1 "(Invis)" COLOR_CLEAR " ");
+    if (victim->invis_level >= LEVEL_HERO) strcat(buf, COLOR_ALT_TEXT_1 "(Wizi)" COLOR_CLEAR " ");
+    if (IS_AFFECTED(victim, AFF_HIDE)) strcat(buf, COLOR_ALT_TEXT_1 "(Hide)" COLOR_CLEAR " ");
+    if (IS_AFFECTED(victim, AFF_CHARM)) strcat(buf, COLOR_ALT_TEXT_1 "(Charmed)" COLOR_CLEAR " ");
+    if (IS_AFFECTED(victim, AFF_PASS_DOOR)) strcat(buf, COLOR_ALT_TEXT_1 "(Translucent)" COLOR_CLEAR " ");
+    if (IS_AFFECTED(victim, AFF_FAERIE_FIRE)) strcat(buf, COLOR_B_RED "(Pink Aura)" COLOR_CLEAR " ");
     if (IS_EVIL(victim) && IS_AFFECTED(ch, AFF_DETECT_EVIL))
-        strcat(buf, "{r(Red Aura){x ");
+        strcat(buf, COLOR_RED "(Red Aura)" COLOR_CLEAR " ");
     if (IS_GOOD(victim) && IS_AFFECTED(ch, AFF_DETECT_GOOD))
-        strcat(buf, "{Y(Golden Aura){x ");
-    if (IS_AFFECTED(victim, AFF_SANCTUARY)) strcat(buf, "{W(White Aura){x ");
+        strcat(buf, COLOR_B_YELLOW "(Golden Aura)" COLOR_CLEAR " ");
+    if (IS_AFFECTED(victim, AFF_SANCTUARY)) strcat(buf, COLOR_B_WHITE "(White Aura)" COLOR_CLEAR " ");
     if (!is_npc && IS_SET(victim->act_flags, PLR_KILLER))
-        strcat(buf, "{R(KILLER){x ");
+        strcat(buf, COLOR_B_RED "(KILLER)" COLOR_CLEAR " ");
     if (!is_npc && IS_SET(victim->act_flags, PLR_THIEF))
-        strcat(buf, "{R(THIEF){x ");
+        strcat(buf, COLOR_B_RED "(THIEF)" COLOR_CLEAR " ");
     if (victim->position == victim->start_pos
         && victim->long_descr[0] != '\0') {
         strcat(buf, victim->long_descr);
@@ -600,62 +600,62 @@ void do_autolist(Mobile* ch, char* argument)
     /* lists most player flags */
     if (IS_NPC(ch)) return;
 
-    send_to_char("{T   action     status\n\r", ch);
-    send_to_char("{----------------------{x\n\r", ch);
+    send_to_char(COLOR_TITLE "   action     status\n\r", ch);
+    send_to_char(COLOR_DECOR_2 "----------------------" COLOR_CLEAR "\n\r", ch);
 
     send_to_char("autoassist     ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOASSIST))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
 
     send_to_char("autoexit       ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOEXIT))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
 
     send_to_char("autogold       ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOGOLD))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
 
     send_to_char("autoloot       ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOLOOT))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
 
     send_to_char("autosac        ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOSAC))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
 
     send_to_char("autosplit      ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOSPLIT))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
 
     send_to_char("compact mode   ", ch);
     if (IS_SET(ch->comm_flags, COMM_COMPACT))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
 
     send_to_char("prompt         ", ch);
     if (IS_SET(ch->comm_flags, COMM_PROMPT))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
 
     send_to_char("combine items  ", ch);
     if (IS_SET(ch->comm_flags, COMM_COMBINE))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
 
     if (!IS_SET(ch->act_flags, PLR_CANLOOT))
         send_to_char("Your corpse is safe from thieves.\n\r", ch);
@@ -933,19 +933,19 @@ void do_look(Mobile* ch, char* argument)
 
     if (arg1[0] == '\0' || !str_cmp(arg1, "auto")) {
         /* 'look' or 'look auto' */
-        sprintf(buf, "{s%s", NAME_STR(ch->in_room));
+        sprintf(buf, COLOR_ROOM_TITLE "%s", NAME_STR(ch->in_room));
         send_to_char(buf, ch);
 
         if ((IS_IMMORTAL(ch) && (IS_NPC(ch) || IS_SET(ch->act_flags, PLR_HOLYLIGHT)))
             || IS_BUILDER(ch, ch->in_room->area->data)) {
-            sprintf(buf, " {r[{RRoom %"PRVNUM"{r]", VNUM_FIELD(ch->in_room));
+            sprintf(buf, " " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Room %"PRVNUM COLOR_DECOR_1 "]" COLOR_CLEAR, VNUM_FIELD(ch->in_room));
             send_to_char(buf, ch);
         }
 
-        send_to_char("{x\n\r", ch);
+        send_to_char(COLOR_CLEAR "\n\r", ch);
 
         if (ch->in_room->data->description[0] && !IS_NPC(ch) && !IS_SET(ch->comm_flags, COMM_BRIEF)) {
-            sprintf(buf, "{S  %s{x", ch->in_room->data->description);
+            sprintf(buf, COLOR_ROOM_TEXT "  %s" COLOR_CLEAR , ch->in_room->data->description);
             send_to_char(buf, ch);
         }
 
@@ -1531,26 +1531,28 @@ void do_affects(Mobile* ch, char* argument)
     return;
 }
 
-char* const day_name[] = {"the Moon", "the Bull",       "Deception", "Thunder",
-                          "Freedom",  "the Great Gods", "the Sun"};
+char* const day_name[] = { "the Moon", "the Bull",       "Deception", "Thunder",
+                           "Freedom",  "the Great Gods", "the Sun" };
 
-char* const month_name[] = {"Winter",
-                            "the Winter Wolf",
-                            "the Frost Giant",
-                            "the Old Forces",
-                            "the Grand Struggle",
-                            "the Spring",
-                            "Nature",
-                            "Futility",
-                            "the Dragon",
-                            "the Sun",
-                            "the Heat",
-                            "the Battle",
-                            "the Dark Shades",
-                            "the Shadows",
-                            "the Long Shadows",
-                            "the Ancient Darkness",
-                            "the Great Evil"};
+char* const month_name[] = {
+    "Winter",
+    "the Winter Wolf",
+    "the Frost Giant",
+    "the Old Forces",
+    "the Grand Struggle",
+    "the Spring",
+    "Nature",
+    "Futility",
+    "the Dragon",
+    "the Sun",
+    "the Heat",
+    "the Battle",
+    "the Dark Shades",
+    "the Shadows",
+    "the Long Shadows",
+    "the Ancient Darkness",
+    "the Great Evil"
+};
 
 void do_time(Mobile* ch, char* argument)
 {
@@ -1589,7 +1591,7 @@ void do_weather(Mobile* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
 
     static char* const sky_look[4]
-        = {"cloudless", "cloudy", "rainy", "lit by flashes of lightning"};
+        = { "cloudless", "cloudy", "rainy", "lit by flashes of lightning" };
 
     if (!IS_OUTSIDE(ch)) {
         send_to_char("You can't see the weather indoors.\n\r", ch);
@@ -1634,8 +1636,8 @@ void do_help(Mobile* ch, char* argument)
         if (is_name(argall, pHelp->keyword)) {
             /* add seperator if found */
             if (found)
-                add_buf(output, "\n\r{==========================================="
-                                "=================={x\n\r\n\r");
+                add_buf(output, "\n\r" COLOR_DECOR_2 "========================="
+                    "===================================" COLOR_CLEAR "\n\r\n\r");
             if (pHelp->level >= 0 && str_cmp(argall, "imotd")) {
                 add_buf(output, pHelp->keyword);
                 add_buf(output, "\n\r");
@@ -1695,27 +1697,27 @@ void do_whois(Mobile* ch, char* argument)
             /* work out the printing */
             class_ = class_table[wch->ch_class].who_name;
             switch (wch->level) {
-            case MAX_LEVEL - 0: class_ = "{=IMP"; break;
-            case MAX_LEVEL - 1: class_ = "{=CRE"; break;
-            case MAX_LEVEL - 2: class_ = "{=SUP"; break;
-            case MAX_LEVEL - 3: class_ = "{=DEI"; break;
-            case MAX_LEVEL - 4: class_ = "{=GOD"; break;
-            case MAX_LEVEL - 5: class_ = "{=IMM"; break;
-            case MAX_LEVEL - 6: class_ = "{=DEM"; break;
-            case MAX_LEVEL - 7: class_ = "{=ANG"; break;
-            case MAX_LEVEL - 8: class_ = "{=AVA"; break;
+            case MAX_LEVEL - 0: class_ = COLOR_DECOR_2 "IMP"; break;
+            case MAX_LEVEL - 1: class_ = COLOR_DECOR_2 "CRE"; break;
+            case MAX_LEVEL - 2: class_ = COLOR_DECOR_2 "SUP"; break;
+            case MAX_LEVEL - 3: class_ = COLOR_DECOR_2 "DEI"; break;
+            case MAX_LEVEL - 4: class_ = COLOR_DECOR_2 "GOD"; break;
+            case MAX_LEVEL - 5: class_ = COLOR_DECOR_2 "IMM"; break;
+            case MAX_LEVEL - 6: class_ = COLOR_DECOR_2 "DEM"; break;
+            case MAX_LEVEL - 7: class_ = COLOR_DECOR_2 "ANG"; break;
+            case MAX_LEVEL - 8: class_ = COLOR_DECOR_2 "AVA"; break;
             default: break;
             }
 
             /* a little formatting */
-            sprintf(buf, "{|[{*%2d %6s{* %s{|]{x %s%s%s%s%s%s%s%s\n\r", 
+            sprintf(buf, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%2d %6s" COLOR_ALT_TEXT_1 " %s" COLOR_DECOR_1 "]" COLOR_CLEAR " %s%s%s%s%s%s%s%s\n\r", 
                 wch->level, race_table[wch->race].who_name, class_, 
-                wch->incog_level >= LEVEL_HERO ? "{_(Incog){x " : "",
-                wch->invis_level >= LEVEL_HERO ? "{_(Wizi){x " : "",
+                wch->incog_level >= LEVEL_HERO ? COLOR_ALT_TEXT_2 "(Incog)" COLOR_CLEAR " " : "",
+                wch->invis_level >= LEVEL_HERO ? COLOR_ALT_TEXT_2 "(Wizi)" COLOR_CLEAR " " : "",
                 clan_table[wch->clan].who_name,
                 IS_SET(wch->comm_flags, COMM_AFK) ? "[AFK] " : "",
-                IS_SET(wch->act_flags, PLR_KILLER) ? "{_(KILLER){x " : "",
-                IS_SET(wch->act_flags, PLR_THIEF) ? "{_(THIEF){x " : "", 
+                IS_SET(wch->act_flags, PLR_KILLER) ? COLOR_ALT_TEXT_2 "(KILLER)" COLOR_CLEAR " " : "",
+                IS_SET(wch->act_flags, PLR_THIEF) ? COLOR_ALT_TEXT_2 "(THIEF)" COLOR_CLEAR " " : "", 
                 NAME_STR(wch), IS_NPC(wch) ? "" : wch->pcdata->title);
             add_buf(output, buf);
         }
@@ -1841,27 +1843,27 @@ void do_who(Mobile* ch, char* argument)
         // Figure out what to print for class.
         class_ = class_table[wch->ch_class].who_name;
         switch (wch->level) {
-        case MAX_LEVEL - 0: class_ = "{=IMP"; break;
-        case MAX_LEVEL - 1: class_ = "{=CRE"; break;
-        case MAX_LEVEL - 2: class_ = "{=SUP"; break;
-        case MAX_LEVEL - 3: class_ = "{=DEI"; break;
-        case MAX_LEVEL - 4: class_ = "{=GOD"; break;
-        case MAX_LEVEL - 5: class_ = "{=IMM"; break;
-        case MAX_LEVEL - 6: class_ = "{=DEM"; break;
-        case MAX_LEVEL - 7: class_ = "{=ANG"; break;
-        case MAX_LEVEL - 8: class_ = "{=AVA"; break;
+        case MAX_LEVEL - 0: class_ = COLOR_DECOR_2 "IMP"; break;
+        case MAX_LEVEL - 1: class_ = COLOR_DECOR_2 "CRE"; break;
+        case MAX_LEVEL - 2: class_ = COLOR_DECOR_2 "SUP"; break;
+        case MAX_LEVEL - 3: class_ = COLOR_DECOR_2 "DEI"; break;
+        case MAX_LEVEL - 4: class_ = COLOR_DECOR_2 "GOD"; break;
+        case MAX_LEVEL - 5: class_ = COLOR_DECOR_2 "IMM"; break;
+        case MAX_LEVEL - 6: class_ = COLOR_DECOR_2 "DEM"; break;
+        case MAX_LEVEL - 7: class_ = COLOR_DECOR_2 "ANG"; break;
+        case MAX_LEVEL - 8: class_ = COLOR_DECOR_2 "AVA"; break;
         default: break;
         }
 
         // Format it up.
-        sprintf(buf, "{|[{*%2d %6s{* %s{|]{x %s%s%s%s%s%s%s%s\n\r", wch->level,
+        sprintf(buf, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%2d %6s" COLOR_ALT_TEXT_1 " %s" COLOR_DECOR_1 "]" COLOR_CLEAR " %s%s%s%s%s%s%s%s\n\r", wch->level,
             race_table[wch->race].who_name,
-            class_, wch->incog_level >= LEVEL_HERO ? "{_(Incog){x " : "",
-            wch->invis_level >= LEVEL_HERO ? "{_(Wizi){x " : "",
+            class_, wch->incog_level >= LEVEL_HERO ? COLOR_ALT_TEXT_2 "(Incog)" COLOR_CLEAR " " : "",
+            wch->invis_level >= LEVEL_HERO ? COLOR_ALT_TEXT_2 "(Wizi)" COLOR_CLEAR " " : "",
             clan_table[wch->clan].who_name,
             IS_SET(wch->comm_flags, COMM_AFK) ? "[AFK] " : "",
-            IS_SET(wch->act_flags, PLR_KILLER) ? "{_(KILLER){x " : "",
-            IS_SET(wch->act_flags, PLR_THIEF) ? "{_(THIEF){x " : "", 
+            IS_SET(wch->act_flags, PLR_KILLER) ? COLOR_ALT_TEXT_2 "(KILLER)" COLOR_CLEAR " " : "",
+            IS_SET(wch->act_flags, PLR_THIEF) ? COLOR_ALT_TEXT_2 "(THIEF)" COLOR_CLEAR " " : "", 
             NAME_STR(wch), IS_NPC(wch) ? "" : wch->pcdata->title);
         add_buf(output, buf);
     }

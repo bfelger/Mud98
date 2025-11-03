@@ -84,11 +84,11 @@ PROMPT <%*> where the %* are the various variables you may set yourself.
     %R :  Display the vnum you are in (IMMORTAL ONLY)
     %z :  Display the area name you are in (IMMORTAL ONLY)
 		
-	{r****************{W BATTLE PROMPTS{r ****************{w
+	^r****************^W BATTLE PROMPTS^r ****************^w
     %b :  Displays a graphical view of a mob's health
-         {wEnemy: [{r+++{Y+++{g++++{x]
+         ^wEnemy: [^r+++^Y+++^g++++^x]
     %B :  Displays a percentage of a mob's health
-         {wEnemy: {r33%{x
+         ^wEnemy: ^r33%^x
  
 Example:  PROMPT <%hhp %mm %vmv>
         Will set your prompt to "<10hp 100m 100mv>"
@@ -1633,24 +1633,24 @@ Syntax: colour    Toggles colour mode on/off
 
         You may also talk in colour; the format is like this:
 	the 'escape character' to specify a colour is the left
-	handed brace '{{', following 
+	handed brace '^^', following 
 	that you should use one of the following letters,
-		{r{{r     red     {c{{c     cyan
-		{g{{g     green   {y{{y     yellow
-		{b{{b     blue    {w{{w     white
-		{m{{m     magenta {D{{D     dark gray
-		{R{{R     RED     {C{{C     CYAN
-		{G{{G     GREEN   {Y{{Y     YELLOW
-		{B{{B     BLUE    {W{{W     WHITE
-		{M{{M     MAGENTA {x{{x     clear(reset colour)
-		{{{{      {{ char {{*       beep
-		{{/       newline
+		^r^^r     red     ^c^^c     cyan
+		^g^^g     green   ^y^^y     yellow
+		^b^^b     blue    ^w^^w     white
+		^m^^m     magenta ^D^^D     dark gray
+		^R^^R     RED     ^C^^C     CYAN
+		^G^^G     GREEN   ^Y^^Y     YELLOW
+		^B^^B     BLUE    ^W^^W     WHITE
+		^M^^M     MAGENTA ^x^^x     clear(reset colour)
+		^^^^      ^^ char 
+		^^/       newline
 	when using colour, it looks better if you finish the line
 	with whatever colour it would normally be in, such as a
 	gossip, the colour is magenta, so:
-		{mLope gossips '{ghello,{r world{m'{x
+		^mLope gossips '^ghello,^r world^m'^x
 	looks better than:
-		{mLope gossips '{ghello,{r world'{x
+		^mLope gossips '^ghello,^r world'^x
 
 	ColoUr is written by Lope (ant@solace.mh.se)
 ~
@@ -1662,16 +1662,16 @@ Syntax: colour <field> <colour>
         current setting are indicated by colour.
 
         fields are:
-        {ttext         {aauction      {dgossip       {emusic        {qquestion
-        {fanswer       {hclass_text   {Hclass_name   {iimmtalk_text {Iimmtalk_type
-        {jinfo         {ktell         {lreply        {ngtell_text   {Ngtell_type
-        {Zwiznet       {sroom_title   {Sroom_text    {oroom_exits   {Oroom_things
-        {pprompt       {1fight_death  {2fight_yhit   {3fight_ohit   {4fight_thit
-        {5fight_skill{x
+        ^ttext         ^aauction      ^dgossip       ^emusic        ^qquestion
+        ^fanswer       ^hclass_text   ^Hclass_name   ^iimmtalk_text ^Iimmtalk_type
+        ^jinfo         ^ktell         ^lreply        ^ngtell_text   ^Ngtell_type
+        ^Zwiznet       ^sroom_title   ^Sroom_text    ^oroom_exits   ^Oroom_things
+        ^pprompt       ^1fight_death  ^2fight_yhit   ^3fight_ohit   ^4fight_thit
+        ^5fight_skill^x
 
         colours are: ( Hi- )
-        {rred          {ggreen        {bblue         {yyellow       {mmagenta
-        {ccyan         {wwhite{x
+        ^rred          ^ggreen        ^bblue         ^yyellow       ^mmagenta
+        ^ccyan         ^wwhite^x
 
 eg. to make the gossip channel red type 'colour gossip red'
     to make your hits in fights magenta type 'colour fight_yhit magenta'

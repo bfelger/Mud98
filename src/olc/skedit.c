@@ -157,15 +157,15 @@ void skedit(Mobile* ch, char* argument)
 
 void do_sklist(Mobile* ch, char* argument)
 {
-    static char* help = "{jSyntax : {*SKLIST <OPTION>{x\n\r\n\r"
-        "{*<OPTION>{x can be one of the following:\n\r"
-        "    {*RATING{x - List rating by class.\n\r"
-        "    {*LEVEL{x - List minimum level by class.\n\r\n\r";
+    static char* help = COLOR_INFO "Syntax : " COLOR_ALT_TEXT_1 "SKLIST <OPTION>" COLOR_CLEAR "\n\r\n\r"
+        COLOR_ALT_TEXT_1 "<OPTION>" COLOR_CLEAR " can be one of the following:\n\r"
+        "    " COLOR_ALT_TEXT_1 "RATING" COLOR_CLEAR " - List rating by class.\n\r"
+        "    " COLOR_ALT_TEXT_1 "LEVEL" COLOR_CLEAR " - List minimum level by class.\n\r\n\r";
 
     INIT_BUF(page, MSL);
 
     if (ch->pcdata->security < MIN_SKEDIT_SECURITY) {
-        send_to_char("{jSKList : You do not have enough security to list skills.{x\n\r", ch);
+        send_to_char(COLOR_INFO "SKList : You do not have enough security to list skills." COLOR_CLEAR "\n\r", ch);
         return;
     }
 
@@ -192,7 +192,7 @@ void do_sklist(Mobile* ch, char* argument)
         return;
     }
 
-    addf_buf(page, "\n\r{T%-20s", "Skill");
+    addf_buf(page, "\n\r" COLOR_TITLE "%-20s", "Skill");
     for (int j = 0; j < class_count; ++j) {
         addf_buf(page, "  %3s", class_table[j].who_name);
     }
@@ -200,7 +200,7 @@ void do_sklist(Mobile* ch, char* argument)
     for (int i = 0; i < skill_count; ++i) {
         if (!skill_table[i].name[0])
             break;
-        addf_buf(page, "{*%-20s{x", skill_table[i].name);
+        addf_buf(page, COLOR_ALT_TEXT_1 "%-20s" COLOR_CLEAR , skill_table[i].name);
         for (int j = 0; j < class_count; ++j) {
             if (show_rating)
                 addf_buf(page, "%4d ", GET_ELEM(&skill_table[i].rating, j));
@@ -267,7 +267,7 @@ void skill_list(Buffer* pBuf)
     add_buf(pBuf, buf);
 
     for (i = 0; i < skill_count; ++i) {
-        sprintf(buf, "{*%3d{x %c %-20.20s", i,
+        sprintf(buf, COLOR_ALT_TEXT_1 "%3d" COLOR_CLEAR " %c %-20.20s", i,
             skill_table[i].spell_fun == spell_null ? '-' : '+',
             skill_table[i].name);
         if (i % 3 == 2)
@@ -291,7 +291,7 @@ void gsn_list(Buffer* pBuf)
     add_buf(pBuf, buf);
 
     for (i = 0; gsn_table[i].name; ++i) {
-        sprintf(buf, "{*%3d{x %-22.22s", i,
+        sprintf(buf, COLOR_ALT_TEXT_1 "%3d" COLOR_CLEAR " %-22.22s", i,
             gsn_table[i].name);
         if (i % 3 == 2)
             strcat(buf, "\n\r");
@@ -316,7 +316,7 @@ void slot_list(Buffer* pBuf)
     cnt = 0;
     for (i = 0; i < skill_count; ++i) {
         if (skill_table[i].slot) {
-            sprintf(buf, "{*%3d{x %-22.22s",
+            sprintf(buf, COLOR_ALT_TEXT_1 "%3d" COLOR_CLEAR " %-22.22s",
                 skill_table[i].slot,
                 skill_table[i].name);
             if (cnt % 3 == 2)

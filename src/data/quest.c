@@ -217,7 +217,7 @@ void finish_quest(Mobile* ch, Quest* quest, QuestStatus* status)
         return;
 
     status->state = QSTAT_COMPLETE;
-    printf_to_char(ch, "\n\r{jYou have completed the quest, \"{*%s{j\".{x\n\r", quest->name);
+    printf_to_char(ch, "\n\r" COLOR_INFO "You have completed the quest, \"" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "\"." COLOR_CLEAR "\n\r", quest->name);
         
     remove_quest_target(ch, quest);
 
@@ -228,7 +228,7 @@ void finish_quest(Mobile* ch, Quest* quest, QuestStatus* status)
         xp = quest->xp - (quest->xp * (ch->level - quest->level)) / 10;
 
     if (xp > 0) {
-        printf_to_char(ch, "{jYou have been awarded {*%d{j xp.{x\n\r", xp);
+        printf_to_char(ch, COLOR_INFO "You have been awarded " COLOR_ALT_TEXT_1 "%d" COLOR_INFO " xp." COLOR_CLEAR "\n\r", xp);
         gain_exp(ch, xp);
     }
     send_to_char("\n\r", ch);
@@ -292,7 +292,7 @@ void grant_quest(Mobile* ch, Quest* quest)
 
     save_char_obj(ch);
 
-    printf_to_char(ch, "\n\r{jYou have started the quest, \"{*%s{j\".{x\n\r", quest->name);
+    printf_to_char(ch, "\n\r" COLOR_INFO "You have started the quest, " COLOR_ALT_TEXT_1 "\"%s" COLOR_INFO "\"." COLOR_CLEAR "\n\r", quest->name);
 }
 
 void load_quest(FILE* fp)
@@ -394,18 +394,18 @@ bool can_finish_quest(Mobile* ch, VNUM vnum)
 void do_quest(Mobile* ch, char* argument)
 {
     static const char* help =
-        "USAGE: {*QUEST {x              - Show all active quests.\n\r"
-        "       {*QUEST AREA{x          - Show only quests in this area.\n\r"
-        "       {*QUEST COMPLETED{x     - Show completed quests.\n\r"
-        "       {*QUEST HELP{x          - Show this help.\n\r";
+        "USAGE: " COLOR_ALT_TEXT_1 "QUEST " COLOR_CLEAR "              - Show all active quests.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST AREA" COLOR_CLEAR "          - Show only quests in this area.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST COMPLETED" COLOR_CLEAR "     - Show completed quests.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST HELP" COLOR_CLEAR "          - Show this help.\n\r";
     static const char* tester_help =
         "The following commands are also available to you as a tester:\n\r"
-        "       {*QUEST SHOW <vnum>{x         - Show quest info for specific quest.\n\r"
-        "       {*QUEST GRANT <vnum>{x        - Grant yourself a specific quest.\n\r"
-        "       {*QUEST PROGRESS <vnum> <#>{x - Set progress for a specific quest.\n\r"
-        "       {*QUEST FINISH <vnum>{x       - Finish a specific quest.\n\r"
-        "       {*QUEST CLEAR <vnum>{x        - Clear a specific quest from your log.\n\r"
-        "       {*QUEST CLEAR ALL{x           - Clear your entire quest log.\n\r"; 
+        "       " COLOR_ALT_TEXT_1 "QUEST SHOW <vnum>" COLOR_CLEAR "         - Show quest info for specific quest.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST GRANT <vnum>" COLOR_CLEAR "        - Grant yourself a specific quest.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST PROGRESS <vnum> <#>" COLOR_CLEAR " - Set progress for a specific quest.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST FINISH <vnum>" COLOR_CLEAR "       - Finish a specific quest.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST CLEAR <vnum>" COLOR_CLEAR "        - Clear a specific quest from your log.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST CLEAR ALL" COLOR_CLEAR "           - Clear your entire quest log.\n\r"; 
 
     char arg1[MAX_INPUT_LENGTH] = { 0 };
     char arg2[MAX_INPUT_LENGTH] = { 0 };
@@ -445,9 +445,9 @@ void do_quest(Mobile* ch, char* argument)
                 send_to_char("No such quest exists.\n\r", ch);
                 return;
             }
-            printf_to_char(ch, "{|[{_#%d{|] {T%s {|[{*Level %d{|] {_(%s){x\n\r",
+            printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_2 "#%d" COLOR_DECOR_1 "] " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_CLEAR "\n\r",
                      q->vnum, q->name, q->level, NAME_STR(q->area_data));
-            printf_to_char(ch, "{_%s{x\n\r", q->entry);
+            printf_to_char(ch, COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r", q->entry);
         }
         else if (is_tester && !str_prefix(arg1, "grant")) {
             READ_ARG(arg2);
@@ -550,16 +550,16 @@ void do_quest(Mobile* ch, char* argument)
                 ++i;
                 if (is_tester)
                     addf_buf(complete, 
-                        "%d. {|[{_#%d{|]  {T%s {|[{*Level %d{|] {_(%s){x\n\r",
+                        "%d. " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_2 "#%d" COLOR_DECOR_1 "]  " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_CLEAR "\n\r",
                         i, q->vnum, q->name, q->level, NAME_STR(q->area_data));
                 else
-                    addf_buf(complete, "%d. {T%s {|[{*Level %d{|] {_(%s){x\n\r",
+                    addf_buf(complete, "%d. " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_CLEAR "\n\r",
                         i, q->name, q->level, NAME_STR(q->area_data));
             }
         }
 
         if (BUF(complete)[0]) {
-            add_buf(out, "{*Completed Quests:{x\n\r");
+            add_buf(out, COLOR_ALT_TEXT_1 "Completed Quests:" COLOR_CLEAR "\n\r");
             add_buf(out, BUF(complete));
         }
 
@@ -574,22 +574,22 @@ void do_quest(Mobile* ch, char* argument)
                 Quest* q = get_quest(qs->vnum);
                 ++i;
                 if (is_tester)
-                    addf_buf(local, "%d. {|[{_#%d{|] {T%s {|[{*Level %d{|] ",
+                    addf_buf(local, "%d. " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_2 "#%d" COLOR_DECOR_1 "] " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] ",
                         i, q->vnum, q->name, q->level);
                 else
-                    addf_buf(local, "%d. {T%s {|[{*Level %d{|] ",
+                    addf_buf(local, "%d. " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] ",
                         i, q->name, q->level);
 
 
                 if (qs->amount > 0) {
-                    addf_buf(local, "{j(%d/%d){x", qs->progress, qs->amount);
+                    addf_buf(local, COLOR_INFO "(%d/%d)" COLOR_CLEAR , qs->progress, qs->amount);
                 }
-                addf_buf(local, "\n\r{_%s{x\n\r\n\r", q->entry);
+                addf_buf(local, "\n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r\n\r", q->entry);
             }
         }
 
         if (area != NULL && BUF(local)[0]) {
-            addf_buf(out, "{*Active Quests in %s:{x\n\r", NAME_STR(area));
+            addf_buf(out, COLOR_ALT_TEXT_1 "Active Quests in %s:" COLOR_CLEAR "\n\r", NAME_STR(area));
             add_buf(out, BUF(local));
         }
 
@@ -605,20 +605,20 @@ void do_quest(Mobile* ch, char* argument)
                 Quest* q = get_quest(qs->vnum);
                 ++i;
                 if (is_tester)
-                    addf_buf(world, "%d. {|[{_#%d{|] {T%s {|[{*Level %d{|] {_(%s){x",
+                    addf_buf(world, "%d. " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_2 "#%d" COLOR_DECOR_1 "] " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_CLEAR ,
                         i, q->vnum, q->name, q->level, NAME_STR(q->area_data));
                 else
-                    addf_buf(world, "%d. {T%s {|[{*Level %d{|] {_(%s){x",
+                    addf_buf(world, "%d. " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_CLEAR ,
                         i, q->name, q->level, NAME_STR(q->area_data));
                 if (qs->amount > 0) {
-                    addf_buf(world, " {j(%d/%d){x\n\r", qs->progress, qs->amount);
+                    addf_buf(world, " " COLOR_INFO "(%d/%d)" COLOR_CLEAR "\n\r", qs->progress, qs->amount);
                 }
                 add_buf(world, "\n\r");
             }
         }
 
         if (BUF(world)[0]) {
-            add_buf(out, "{*Active World Quests:{x\n\r");
+            add_buf(out, COLOR_ALT_TEXT_1 "Active World Quests:" COLOR_CLEAR "\n\r");
             add_buf(out, BUF(world));
         }
 

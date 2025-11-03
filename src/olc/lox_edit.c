@@ -15,10 +15,10 @@ char* prettify_lox_script(char* string);
 
 void lox_script_append(Mobile* ch, char** pScript)
 {
-    send_to_char("{=-========- {*Entering EDIT Mode {=-=========-{_\n\r", ch);
+    send_to_char(COLOR_DECOR_2 "-========- " COLOR_ALT_TEXT_1 "Entering EDIT Mode " COLOR_DECOR_2 "-=========-" COLOR_ALT_TEXT_2 "\n\r", ch);
     send_to_char("    Type .h on a new line for help\n\r", ch);
     send_to_char(" Terminate with a @ on a blank line.\n\r", ch);
-    send_to_char("{=-=======================================-{x\n\r", ch);
+    send_to_char(COLOR_DECOR_2 "-=======================================-" COLOR_CLEAR "\n\r", ch);
 
     if (*pScript == NULL) {
         *pScript = str_dup("");
@@ -130,8 +130,8 @@ void lox_script_add(Mobile* ch, char* argument)
     if (*argument == '@') {
         if (ch->desc->showstr_head) {
             write_to_buffer(ch->desc,
-                "{j[{|!!!{j] You received the following messages while you "
-                "were writing:{x\n\r",
+                COLOR_INFO "[" COLOR_DECOR_1 "!!!" COLOR_INFO "] You received the following messages while you "
+                "were writing:" COLOR_CLEAR "\n\r",
                 0);
             show_string(ch->desc, "");
         }
@@ -201,14 +201,6 @@ void lox_script_add(Mobile* ch, char* argument)
 
     return;
 }
-
-#define LOX_CLEAR_FMT       "{x"
-#define LOX_COMMENT_FMT     "{#"
-#define LOX_STRING_FMT      "{!"
-#define LOX_OPERATOR_FMT    "{&"
-#define LOX_LITERAL_FMT     "{^"
-#define LOX_KEYWORD_FMT     "{@"
-
 typedef enum {
     LOX_FMT_NONE,
     LOX_FMT_COMMENT,
@@ -225,12 +217,12 @@ static const char* emit_fmt(LoxFmt fmt)
     if (curr_lox_fmt != fmt) {
         curr_lox_fmt = fmt;
         switch (fmt) {
-        case LOX_FMT_COMMENT:   return LOX_COMMENT_FMT;
-        case LOX_FMT_STRING:    return LOX_STRING_FMT;
-        case LOX_FMT_OPERATOR:  return LOX_OPERATOR_FMT;
-        case LOX_FMT_LITERAL:   return LOX_LITERAL_FMT;
-        case LOX_FMT_KEYWORD:   return LOX_KEYWORD_FMT;
-        default:                return LOX_CLEAR_FMT;
+        case LOX_FMT_COMMENT:   return COLOR_LOX_COMMENT;
+        case LOX_FMT_STRING:    return COLOR_LOX_STRING;
+        case LOX_FMT_OPERATOR:  return COLOR_LOX_OPERATOR;
+        case LOX_FMT_LITERAL:   return COLOR_LOX_LITERAL;
+        case LOX_FMT_KEYWORD:   return COLOR_LOX_KEYWORD;
+        default:                return COLOR_CLEAR;
         }
     }
 
@@ -263,7 +255,7 @@ static void copy_whitespace(Buffer* buf)
             }
             c++;
             line++;
-            addf_buf(buf, "\n\r{*%2d{x. ", line);
+            addf_buf(buf, "\n\r" COLOR_ALT_TEXT_1 "%2d" COLOR_CLEAR ". ", line);
             curr_lox_fmt = LOX_FMT_NONE;
             break;
         case ' ':
@@ -280,9 +272,9 @@ static void copy_whitespace(Buffer* buf)
                 }
                 c += 2;
                 while (*c != '\n' && *c != '\r' && *c != '\0') {
-                    // Check for a '{' in the comments; emit '{{'.
-                    if (*c == '{')
-                        *ws++ = '{';
+                    // Check for color code in the comments and escape it.
+                    if (*c == COLOR_ESC_CHAR)
+                        *ws++ = COLOR_ESC_CHAR;
                     *ws++ = *c++;
                 }
                 *ws = '\0';
@@ -325,16 +317,16 @@ static void copy_lox_literal_string(Buffer* buf, Token* token)
         case '\n':
             if (ws_buf[0] != '\0') {
                 *ws = '\0';
-                addf_buf(buf, "%s%s", LOX_STRING_FMT, ws_buf);
+                addf_buf(buf, "%s%s", COLOR_LOX_STRING, ws_buf);
                 ws = &ws_buf[0];
                 *ws = '\0';
             }
             line++;
-            addf_buf(buf, "\n\r{*%2d{x. ", line);
+            addf_buf(buf, "\n\r" COLOR_ALT_TEXT_1 "%2d" COLOR_CLEAR ". ", line);
             curr_lox_fmt = LOX_FMT_STRING;
             break;
-        case '{':
-            // Escape braces in strings.
+        case COLOR_ESC_CHAR:
+            // Escape color codes in strings.
             *ws++ = c;
             *ws++ = c;
             break;
@@ -346,7 +338,7 @@ static void copy_lox_literal_string(Buffer* buf, Token* token)
 
     if (ws_buf[0] != '\0') {
         *ws = '\0';
-        addf_buf(buf, "%s%s", LOX_STRING_FMT, ws_buf);
+        addf_buf(buf, "%s%s", COLOR_LOX_STRING, ws_buf);
         ws = &ws_buf[0];
         *ws = '\0';
     }
@@ -359,7 +351,7 @@ char* prettify_lox_script(char* script)
 
     init_scanner(script);
 
-    addf_buf(buf, "{* 1{x. ");
+    addf_buf(buf, COLOR_ALT_TEXT_1 " 1" COLOR_CLEAR ". ");
 
     curr_lox_fmt = LOX_FMT_NONE;
 
@@ -368,14 +360,13 @@ char* prettify_lox_script(char* script)
     Token token;
 
     while ((token = scan_token()).type != TOKEN_EOF) {
-        if (token.type == TOKEN_LEFT_BRACE) {
-            addf_buf(buf, "%s{{", emit_fmt(LOX_FMT_OPERATOR));
+        if (token.start[0] == COLOR_ESC_CHAR) {
+            addf_buf(buf, "%s%c%c", emit_fmt(LOX_FMT_OPERATOR), COLOR_ESC_CHAR, COLOR_ESC_CHAR);
         }
         else if (token.type < TOKEN_IDENTIFIER) {
             addf_buf(buf, "%s%.*s", emit_fmt(LOX_FMT_OPERATOR), token.length, token.start);
         }
         else if (token.type == TOKEN_STRING || token.type == TOKEN_STRING_INTERP) {
-            //addf_buf(buf, "%s%.*s", emit_fmt(LOX_FMT_STRING), token.length, token.start);
             copy_lox_literal_string(buf, &token);
         }
         else if (token.type == TOKEN_TRUE || token.type == TOKEN_FALSE || token.type == TOKEN_NIL || token.type == TOKEN_INT) {
@@ -400,20 +391,26 @@ char* prettify_lox_script(char* script)
 void olc_display_lox_info(Mobile* ch, Entity* entity, Buffer* out)
 {
     if (entity->klass != NULL) {
-        addf_buf(out, "Lox Class:   {|[{*%s{|]{x\n\r", entity->klass->name->chars);
+        addf_buf(out, "Lox Class:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_ALT_TEXT_2 " Type '" COLOR_INFO "LOX" 
+            COLOR_ALT_TEXT_2 "' to edit." COLOR_CLEAR "\n\r", 
+            entity->klass->name->chars);
         Table* methods = &entity->klass->methods;
         bool first = true;
         for (int i = 0; i < methods->capacity; i++) {
             Entry* entry = &methods->entries[i];
             if (entry->key != NIL_VAL) {
                 if (first) {
-                    addf_buf(out, " - Members:   {_%s{x\n\r", string_value(entry->key));
+                    addf_buf(out, " - Members:   " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r", string_value(entry->key));
                     first = false;
                 }
                 else {
-                    addf_buf(out, "              {_%s{x\n\r", string_value(entry->key));
+                    addf_buf(out, "              " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r", string_value(entry->key));
                 }
             }
         }
+    }
+    else {
+        addf_buf(out, "Lox Class:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "none" COLOR_DECOR_1 "]" COLOR_ALT_TEXT_2 " Type '" COLOR_INFO "LOX"
+            COLOR_ALT_TEXT_2 "' to create one." COLOR_CLEAR "\n\r");
     }
 }

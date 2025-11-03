@@ -139,20 +139,20 @@ AEDIT(aedit_show)
 
     EDIT_AREA(ch, area);
 
-    printf_to_char(ch, "Name:           {|[{*%"PRVNUM"{|] {_%s{x\n\r", VNUM_FIELD(area), NAME_STR(area));
-    printf_to_char(ch, "File:           {*%s{x\n\r", area->file_name);
-    printf_to_char(ch, "Vnums:          {|[{*%d-%d{|]{x\n\r", area->min_vnum, area->max_vnum);
-    printf_to_char(ch, "Levels:         {|[{*%d-%d{|]{x\n\r", area->low_range, area->high_range);
-    printf_to_char(ch, "Sector:         {|[{*%s{|]{x\n\r", flag_string(sector_flag_table, area->sector));
-    printf_to_char(ch, "Reset:          {|[{*%d{|] {_x %d minutes", area->reset_thresh, (area->reset_thresh * PULSE_AREA) / 60);
+    printf_to_char(ch, "Name:           " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%"PRVNUM COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r", VNUM_FIELD(area), NAME_STR(area));
+    printf_to_char(ch, "File:           " COLOR_ALT_TEXT_1 "%s" COLOR_CLEAR "\n\r", area->file_name);
+    printf_to_char(ch, "Vnums:          " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d-%d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", area->min_vnum, area->max_vnum);
+    printf_to_char(ch, "Levels:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d-%d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", area->low_range, area->high_range);
+    printf_to_char(ch, "Sector:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(sector_flag_table, area->sector));
+    printf_to_char(ch, "Reset:          " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "x %d minutes", area->reset_thresh, (area->reset_thresh * PULSE_AREA) / 60);
     //printf_to_char(ch, "; current at %d", (PULSE_AREA / 60), area->reset_timer);
-    printf_to_char(ch, "{x\n\r");
-    printf_to_char(ch, "Always Reset:   {|[%s{|]{x\n\r", area->always_reset ? "{GYES" : "{RNO");
-    printf_to_char(ch, "Instance Type:  {|[{*%s{|]{x\n\r", flag_string(inst_type_table, area->inst_type));
-    printf_to_char(ch, "Security:       {|[{*%d{|]{x\n\r", area->security);
-    printf_to_char(ch, "Builders:       {|[{*%s{|]{x\n\r", area->builders);
-    printf_to_char(ch, "Credits :       {|[{*%s{|]{x\n\r", area->credits);
-    printf_to_char(ch, "Flags:          {|[{*%s{|]{x\n\r", flag_string(area_flag_table, area->area_flags));
+    printf_to_char(ch, COLOR_CLEAR "\n\r");
+    printf_to_char(ch, "Always Reset:   " COLOR_DECOR_1 "[%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", area->always_reset ? COLOR_B_GREEN "YES" : COLOR_B_RED "NO");
+    printf_to_char(ch, "Instance Type:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(inst_type_table, area->inst_type));
+    printf_to_char(ch, "Security:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", area->security);
+    printf_to_char(ch, "Builders:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", area->builders);
+    printf_to_char(ch, "Credits :       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", area->credits);
+    printf_to_char(ch, "Flags:          " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(area_flag_table, area->area_flags));
     return false;
 }
 
@@ -506,14 +506,14 @@ AEDIT(aedit_uvnum)
  ****************************************************************************/
 void do_alist(Mobile* ch, char* argument)
 {
-    static const char* help = "Syntax: {*ALIST\n\r"
-        "        ALIST ORDERBY (VNUM|NAME){x\n\r";
+    static const char* help = "Syntax: " COLOR_ALT_TEXT_1 "ALIST\n\r"
+        "        ALIST ORDERBY (VNUM|NAME)" COLOR_CLEAR "\n\r";
 
     INIT_BUF(result, MAX_STRING_LENGTH);
     char arg[MIL];
     char sort[MIL];
 
-    addf_buf(result, "{|[{T%3s{|] [{T%-27s{|] ({T%-5s{|-{T%5s{|) {|[{T%-10s{|] {T%3s {|[{T%-10s{|]{x\n\r",
+    addf_buf(result, COLOR_DECOR_1 "[" COLOR_TITLE "%3s" COLOR_DECOR_1 "] [" COLOR_TITLE "%-27s" COLOR_DECOR_1 "] (" COLOR_TITLE "%-5s" COLOR_DECOR_1 "-" COLOR_TITLE "%5s" COLOR_DECOR_1 ") " COLOR_DECOR_1 "[" COLOR_TITLE "%-10s" COLOR_DECOR_1 "] " COLOR_TITLE "%3s " COLOR_DECOR_1 "[" COLOR_TITLE "%-10s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r",
         "Num", "Area Name", "lvnum", "uvnum", "Filename", "Sec", "Builders");
 
     size_t alist_size = sizeof(AreaData*) * global_areas.count;
@@ -530,7 +530,7 @@ void do_alist(Mobile* ch, char* argument)
     READ_ARG(arg);
     if (arg[0]) {
         if (str_prefix(arg, "orderby")) {
-            printf_to_char(ch, "{jUnknown option '{*%s{j'.{x\n\r\n\r%s", arg, help);
+            printf_to_char(ch, COLOR_INFO "Unknown option '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "'." COLOR_CLEAR "\n\r\n\r%s", arg, help);
             goto alist_cleanup;
         }
 
@@ -546,14 +546,14 @@ void do_alist(Mobile* ch, char* argument)
                 strcasecmp(NAME_STR(alist[i]), NAME_STR(alist[hi])) > 0);
         }
         else {
-            printf_to_char(ch, "{jUnknown sort option '{*%s{j'.{x\n\r\n\r%s", sort, help);
+            printf_to_char(ch, COLOR_INFO "Unknown sort option '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "'." COLOR_CLEAR "\n\r\n\r%s", sort, help);
             goto alist_cleanup;
         }
     }
 
     AreaData* area;
     FOR_EACH_AREA(area) {
-        addf_buf( result, "{|[{*%3d{|]{x %-29.29s {|({*%-5d{|-{*%5d{|) {_%-12.12s {|[{*%d{|] [{*%-10.10s{|]{x\n\r",
+        addf_buf( result, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-29.29s " COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%-5d" COLOR_DECOR_1 "-" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 ") " COLOR_ALT_TEXT_2 "%-12.12s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "] [" COLOR_ALT_TEXT_1 "%-10.10s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r",
             VNUM_FIELD(area),
             NAME_STR(area),
             area->min_vnum,

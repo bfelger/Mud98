@@ -1267,10 +1267,10 @@ static void string_interp(bool can_assign)
 
         if (parser.previous.type == TOKEN_STRING_INTERP) {
             while (parser.previous.type == TOKEN_STRING_INTERP) {
-                // This is the prefix of an interpolated string of the format "${x}". 
+                // This is the prefix of an interpolated string of the format "$" COLOR_CLEAR "}". 
                 // This beginning part lacks a delimiting double-quote. This is also for
                 // interstitial string between interpolations:
-                //     "start ${x} middle ${y} end"
+                //     "start $" COLOR_CLEAR "} middle ${y} end"
                 int skip = 0;
                 if (parser.previous.start[0] == '\"')
                     skip = 1;   // Skip the opening quote; only the first will have it.

@@ -125,23 +125,23 @@ void say_spell(Mobile* ch, SKNUM sn)
     };
 
     static const struct syl_type syl_table[]
-        = {{" ", " "},        {"ar", "abra"},    {"au", "kada"},
-           {"bless", "fido"}, {"blind", "nose"}, {"bur", "mosa"},
-           {"cu", "judi"},    {"de", "oculo"},   {"en", "unso"},
-           {"light", "dies"}, {"lo", "hi"},      {"mor", "zak"},
-           {"move", "sido"},  {"ness", "lacri"}, {"ning", "illa"},
-           {"per", "duda"},   {"ra", "gru"},     {"fresh", "ima"},
-           {"re", "candus"},  {"son", "sabru"},  {"tect", "infra"},
-           {"tri", "cula"},   {"ven", "nofo"},   {"a", "a"},
-           {"b", "b"},        {"c", "q"},        {"d", "e"},
-           {"e", "z"},        {"f", "y"},        {"g", "o"},
-           {"h", "p"},        {"i", "u"},        {"j", "y"},
-           {"k", "t"},        {"l", "r"},        {"m", "w"},
-           {"n", "i"},        {"o", "a"},        {"p", "s"},
-           {"q", "d"},        {"r", "f"},        {"s", "g"},
-           {"t", "h"},        {"u", "j"},        {"v", "z"},
-           {"w", "x"},        {"x", "n"},        {"y", "l"},
-           {"z", "k"},        {"", ""}};
+        = { { " ", " " },        { "ar", "abra" },    { "au", "kada" },
+            { "bless", "fido" }, { "blind", "nose" }, { "bur", "mosa" },
+            { "cu", "judi" },    { "de", "oculo" },   { "en", "unso" },
+            { "light", "dies" }, { "lo", "hi" },      { "mor", "zak" },
+            { "move", "sido" },  { "ness", "lacri" }, { "ning", "illa" },
+            { "per", "duda" },   { "ra", "gru" },     { "fresh", "ima" },
+            { "re", "candus" },  { "son", "sabru" },  { "tect", "infra" },
+            { "tri", "cula" },   { "ven", "nofo" },   { "a", "a" },
+            { "b", "b" },        { "c", "q" },        { "d", "e" },
+            { "e", "z" },        { "f", "y" },        { "g", "o" },
+            { "h", "p" },        { "i", "u" },        { "j", "y" },
+            { "k", "t" },        { "l", "r" },        { "m", "w" },
+            { "n", "i" },        { "o", "a" },        { "p", "s" },
+            { "q", "d" },        { "r", "f" },        { "s", "g" },
+            { "t", "h" },        { "u", "j" },        { "v", "z" },
+            { "w", "x" },        { "x", "n" },        { "y", "l" },
+            { "z", "k" },        { "", "" } };
 
     buf[0] = '\0';
     for (pName = skill_table[sn].name; *pName != '\0'; pName += length) {

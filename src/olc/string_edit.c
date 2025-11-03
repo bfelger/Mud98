@@ -41,10 +41,10 @@ char* get_line(char*, char*);
  ****************************************************************************/
 void string_edit(Mobile* ch, char** pString)
 {
-    send_to_char("{=-========- {*Entering EDIT Mode {=-=========-{_\n\r", ch);
+    send_to_char(COLOR_DECOR_2 "-========- " COLOR_ALT_TEXT_1 "Entering EDIT Mode " COLOR_DECOR_2 "-=========-" COLOR_ALT_TEXT_2 "\n\r", ch);
     send_to_char("    Type .h on a new line for help\n\r", ch);
     send_to_char(" Terminate with a @ on a blank line.\n\r", ch);
-    send_to_char("{=-=======================================-{x\n\r", ch);
+    send_to_char(COLOR_DECOR_2 "-=======================================-" COLOR_CLEAR "\n\r", ch);
 
     if (*pString == NULL) {
         *pString = str_dup("");
@@ -65,10 +65,10 @@ void string_edit(Mobile* ch, char** pString)
  ****************************************************************************/
 void string_append(Mobile* ch, char** pString)
 {
-    send_to_char("{=-========- {*Entering EDIT Mode {=-=========-{_\n\r", ch);
+    send_to_char(COLOR_DECOR_2 "-========- " COLOR_ALT_TEXT_1 "Entering EDIT Mode " COLOR_DECOR_2 "-=========-" COLOR_ALT_TEXT_2 "\n\r", ch);
     send_to_char("    Type .h on a new line for help\n\r", ch);
     send_to_char(" Terminate with a @ on a blank line.\n\r", ch);
-    send_to_char("{=-=======================================-{x\n\r", ch);
+    send_to_char(COLOR_DECOR_2 "-=======================================-" COLOR_CLEAR "\n\r", ch);
 
     if (*pString == NULL) {
         *pString = str_dup("");
@@ -221,8 +221,8 @@ void string_add(Mobile* ch, char* argument)
 
         if (ch->desc->showstr_head) {
             write_to_buffer(ch->desc,
-                "{j[{|!!!{j] You received the following messages while you "
-                "were writing:{x\n\r",
+                COLOR_INFO "[" COLOR_DECOR_1 "!!!" COLOR_INFO "] You received the following messages while you "
+                "were writing:" COLOR_CLEAR "\n\r",
                 0);
             show_string(ch->desc, "");
         }
@@ -620,7 +620,7 @@ char* numlineas(char* string)
 
     while (*string) {
         string = get_line(string, tmpb);
-        sprintf(buf2, "{*%2d{x. %s\n\r", cnt++, tmpb);
+        sprintf(buf2, COLOR_ALT_TEXT_1 "%2d" COLOR_CLEAR ". %s\n\r", cnt++, tmpb);
         strcat(buf, buf2);
     }
 

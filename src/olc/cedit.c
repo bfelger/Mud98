@@ -218,8 +218,8 @@ CEDIT(cedit_list)
 {
     INIT_BUF(page, MSL);
 
-    addf_buf(page, "{T%-20s    %20s %37s      %2s\n\r", "", "Skill Groups", "THAC0", "HP");
-    addf_buf(page, "{T%-20s  %3s  %-15s %-15s %-10s %-5s %-4s %-4s %-3s %-3s %-5s{x\n\r",
+    addf_buf(page, COLOR_TITLE "%-20s    %20s %37s      %2s\n\r", "", "Skill Groups", "THAC0", "HP");
+    addf_buf(page, COLOR_TITLE "%-20s  %3s  %-15s %-15s %-10s %-5s %-4s %-4s %-3s %-3s %-5s" COLOR_CLEAR "\n\r",
         "Name", "Who", "Base", "Default", "Weapon", "SkCap", "00", "32", "Min", "Max", "Mana?");
 
     for (int i = 0; i < class_count; ++i) {
@@ -227,11 +227,11 @@ CEDIT(cedit_list)
         int w = get_weapon_index(class_->weapon);
         const char* w_name = (w > 0) ? weapon_table[w].name : "(unknown)";
         //                 name       who       base def  weap cap t00 t32 hp+ hp- mana 
-        addf_buf(page, "%-20s {|[{*%3s{|]{* %-15s %-15s %-10s %-5d %-4d %-4d %-3d %-3d %-5s{x\n\r",
+        addf_buf(page, "%-20s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3s" COLOR_DECOR_1 "]" COLOR_ALT_TEXT_1 " %-15s %-15s %-10s %-5d %-4d %-4d %-3d %-3d %-5s" COLOR_CLEAR "\n\r",
             class_->name, class_->who_name, class_->base_group, 
             class_->default_group, w_name, class_->skill_cap, class_->thac0_00, 
             class_->thac0_32, class_->hp_min, class_->hp_max, 
-            (class_->fMana ? "{GYes{x" : "{RNo{x"));
+            (class_->fMana ? COLOR_B_GREEN "Yes" COLOR_CLEAR : COLOR_B_RED "No" COLOR_CLEAR ));
     }
 
     page_to_char(page->string, ch);
@@ -247,43 +247,43 @@ CEDIT(cedit_show)
 
     EDIT_CLASS(ch, pClass);
 
-    addf_buf(out, "{TClass Name  {|: [{*%s{|]\n\r", pClass->name);
-    addf_buf(out, "{TWho Abbr.   {|: [{*%s{|]\n\r", pClass->who_name);
-    addf_buf(out, "{TBase Group  {|: [{*%s{|]\n\r", pClass->base_group);
-    addf_buf(out, "{TDefault Grp {|: [{*%s{|]\n\r", pClass->default_group);
+    addf_buf(out, COLOR_TITLE "Class Name  " COLOR_DECOR_1 ": [" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]\n\r", pClass->name);
+    addf_buf(out, COLOR_TITLE "Who Abbr.   " COLOR_DECOR_1 ": [" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]\n\r", pClass->who_name);
+    addf_buf(out, COLOR_TITLE "Base Group  " COLOR_DECOR_1 ": [" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]\n\r", pClass->base_group);
+    addf_buf(out, COLOR_TITLE "Default Grp " COLOR_DECOR_1 ": [" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]\n\r", pClass->default_group);
 
     int w = get_weapon_index(pClass->weapon);
 
     if (w > 0)
-        addf_buf(out, "{TWeapon      {|: [{*%s {_(%d){|]\n\r", weapon_table[w].name, pClass->weapon);
+        addf_buf(out, COLOR_TITLE "Weapon      " COLOR_DECOR_1 ": [" COLOR_ALT_TEXT_1 "%s " COLOR_ALT_TEXT_2 "(%d)" COLOR_DECOR_1 "]\n\r", weapon_table[w].name, pClass->weapon);
     else
-        addf_buf(out, "{TWeapon      {|: []\n\r");
+        addf_buf(out, COLOR_TITLE "Weapon      " COLOR_DECOR_1 ": []\n\r");
 
-    addf_buf(out, "{TGuild VNUMs {|: [{*");
+    addf_buf(out, COLOR_TITLE "Guild VNUMs " COLOR_DECOR_1 ": [" COLOR_ALT_TEXT_1 "");
 
     for (int i = 0; i < MAX_GUILD; ++i) {
         addf_buf(out, "%d", pClass->guild[i]);
         if (i < MAX_GUILD - 1)
             addf_buf(out, ", ");
     }
-    addf_buf(out, "{|]\n\r");
-    addf_buf(out, "{TPrime Stat  {|: [{*%s{|]\n\r", stat_table[pClass->prime_stat].name);
-    addf_buf(out, "{TSkill Cap   {|: [{*%d{|]\n\r", pClass->skill_cap);
-    addf_buf(out, "{TTHAC0 @00   {|: [{*%d{|]\n\r", pClass->thac0_00);
-    addf_buf(out, "{TTHAC0 @32   {|: [{*%d{|]\n\r", pClass->thac0_32);
-    addf_buf(out, "{THP Min/Lvl  {|: [{*%d{|]\n\r", pClass->hp_min);
-    addf_buf(out, "{THP Max/Lvl  {|: [{*%d{|]\n\r", pClass->hp_max);
-    addf_buf(out, "{TMana?       {|: [%s{|]\n\r", (pClass->fMana ? "{GYes" : "{RNo"));
+    addf_buf(out, COLOR_DECOR_1 "]\n\r");
+    addf_buf(out, COLOR_TITLE "Prime Stat  " COLOR_DECOR_1 ": [" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]\n\r", stat_table[pClass->prime_stat].name);
+    addf_buf(out, COLOR_TITLE "Skill Cap   " COLOR_DECOR_1 ": [" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]\n\r", pClass->skill_cap);
+    addf_buf(out, COLOR_TITLE "THAC0 @00   " COLOR_DECOR_1 ": [" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]\n\r", pClass->thac0_00);
+    addf_buf(out, COLOR_TITLE "THAC0 @32   " COLOR_DECOR_1 ": [" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]\n\r", pClass->thac0_32);
+    addf_buf(out, COLOR_TITLE "HP Min/Lvl  " COLOR_DECOR_1 ": [" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]\n\r", pClass->hp_min);
+    addf_buf(out, COLOR_TITLE "HP Max/Lvl  " COLOR_DECOR_1 ": [" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]\n\r", pClass->hp_max);
+    addf_buf(out, COLOR_TITLE "Mana?       " COLOR_DECOR_1 ": [%s" COLOR_DECOR_1 "]\n\r", (pClass->fMana ? COLOR_B_GREEN "Yes" : COLOR_B_RED "No"));
 
-    addf_buf(out, "{TTitles      {|:\n\r");
+    addf_buf(out, COLOR_TITLE "Titles      " COLOR_DECOR_1 ":\n\r");
     for (int i = 0; i <= MAX_LEVEL; ++i) {
         const char* m_title = pClass->titles[i][0] ? pClass->titles[i][0] : "";
         const char* f_title = pClass->titles[i][1] ? pClass->titles[i][1] : "";
         if (!m_title[0] && !f_title[0])
             continue;
-        addf_buf(out, "    {|[{*%3d {|] {*%-25s %-25s\n\r", i, m_title, f_title);
+        addf_buf(out, "    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3d " COLOR_DECOR_1 "] " COLOR_ALT_TEXT_1 "%-25s %-25s\n\r", i, m_title, f_title);
     }
-    add_buf(out, "{x\n\r");
+    add_buf(out, COLOR_CLEAR "\n\r");
 
     page_to_char(out->string, ch);
     free_buf(out);
@@ -311,7 +311,7 @@ CEDIT(cedit_weapon)
     EDIT_CLASS(ch, class_);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax : {*WEAPON <WEAPON NAME>{x\n\r\n\r", ch);
+        send_to_char("Syntax : " COLOR_ALT_TEXT_1 "WEAPON <WEAPON NAME>" COLOR_CLEAR "\n\r\n\r", ch);
         show_weapon_list(ch);
         return false;
     }
@@ -345,19 +345,19 @@ CEDIT(cedit_start_loc)
     READ_ARG(vnum_str);
 
     if (!vnum_str[0] || !is_number(vnum_str)) {
-        send_to_char("Syntax : {*START_LOC <VNUM>{x\n\r\n\r", ch);
+        send_to_char("Syntax : " COLOR_ALT_TEXT_1 "START_LOC <VNUM>" COLOR_CLEAR "\n\r\n\r", ch);
         return false;
     }
 
     vnum = (VNUM)atoi(vnum_str);
 
     if (!get_room_data(vnum)) {
-        printf("{jCEdit : There is no room with VNUM %d.{x\n\r", vnum);
+        printf(COLOR_INFO "CEdit : There is no room with VNUM %d." COLOR_CLEAR "\n\r", vnum);
         return false;
     }
 
     class_->start_loc = vnum;
-    send_to_char("{jOk.{x\n\r", ch);
+    send_to_char(COLOR_INFO "Ok." COLOR_CLEAR "\n\r", ch);
     return true;
 }
 
@@ -375,7 +375,7 @@ CEDIT(cedit_guild)
     READ_ARG(vnum_str);
 
     if (!slot_str[0] || !is_number(slot_str) || !vnum_str[0] || !is_number(vnum_str)) {
-        send_to_char("Syntax : {*GUILD <SLOT> <VNUM>{x\n\r\n\r", ch);
+        send_to_char("Syntax : " COLOR_ALT_TEXT_1 "GUILD <SLOT> <VNUM>" COLOR_CLEAR "\n\r\n\r", ch);
         return false;
     }
 
@@ -412,7 +412,7 @@ CEDIT(cedit_title)
     READ_ARG(sex_arg);
 
     if (!lvl_arg[0] || !is_number(lvl_arg) || !sex_arg[0] || !argument[0]) {
-        send_to_char("Syntax : {*TITLE <LEVEL> <MALE/FEMALE/BOTH> <TITLE>{x\n\r\n\r", ch);
+        send_to_char("Syntax : " COLOR_ALT_TEXT_1 "TITLE <LEVEL> <MALE/FEMALE/BOTH> <TITLE>" COLOR_CLEAR "\n\r\n\r", ch);
         return false;
     }
 
@@ -425,7 +425,7 @@ CEDIT(cedit_title)
     else if (!str_prefix(sex_arg, "both"))
         choice = SEX_EITHER;
     else {
-        send_to_char("Syntax : {*TITLE <LEVEL> <MALE/FEMALE/BOTH> <TITLE>{x\n\r\n\r", ch);
+        send_to_char("Syntax : " COLOR_ALT_TEXT_1 "TITLE <LEVEL> <MALE/FEMALE/BOTH> <TITLE>" COLOR_CLEAR "\n\r\n\r", ch);
         return false;
     }
 

@@ -88,19 +88,19 @@ void do_redit(Mobile* ch, char* argument)
 
     if (!str_cmp(arg1, "reset")) {
         if (!IS_BUILDER(ch, room_data->area_data)) {
-            send_to_char("{jYou do not have enough security to edit rooms.{x\n\r", ch);
+            send_to_char(COLOR_INFO "You do not have enough security to edit rooms." COLOR_CLEAR "\n\r", ch);
             return;
         }
 
         Room* room;
         FOR_EACH_ROOM_INST(room, room_data)
             reset_room(room);
-        send_to_char("{jRoom reset.{x\n\r", ch);
+        send_to_char(COLOR_INFO "Room reset." COLOR_CLEAR "\n\r", ch);
         return;
     }
     else if (!str_cmp(arg1, "create")) {
         if (argument[0] == '\0' || atoi(argument) == 0) {
-            send_to_char("Syntax: {*edit room create [vnum]{x\n\r", ch);
+            send_to_char("Syntax: " COLOR_ALT_TEXT_1 "edit room create [vnum]" COLOR_CLEAR "\n\r", ch);
             return;
         }
 
@@ -115,18 +115,18 @@ void do_redit(Mobile* ch, char* argument)
         room_data = get_room_data(atoi(arg1));
 
         if (room_data == NULL) {
-            send_to_char("{jThat room does not exist.{x\n\r", ch);
+            send_to_char(COLOR_INFO "That room does not exist." COLOR_CLEAR "\n\r", ch);
             return;
         }
     }
 
     if (!IS_BUILDER(ch, room_data->area_data)) {
-        send_to_char("{jYou do not have enough security to edit rooms.{x\n\r", ch);
+        send_to_char(COLOR_INFO "You do not have enough security to edit rooms." COLOR_CLEAR "\n\r", ch);
         return;
     }
 
     if (room_data == NULL) {
-        bugf("{jdo_redit: NULL room_data, ch %s!{x", NAME_STR(ch));
+        bugf(COLOR_INFO "do_redit: NULL room_data, ch %s!" COLOR_CLEAR , NAME_STR(ch));
         return;
     }
 
@@ -153,7 +153,7 @@ void redit(Mobile* ch, char* argument)
     area = pRoom->area_data;
 
     if (!IS_BUILDER(ch, area)) {
-        send_to_char("{jREdit:  Insufficient security to modify room.{x\n\r", ch);
+        send_to_char(COLOR_INFO "REdit:  Insufficient security to modify room." COLOR_CLEAR "\n\r", ch);
         edit_done(ch);
         return;
     }
@@ -194,7 +194,7 @@ REDIT(redit_rlist)
     for (vnum = area->min_vnum; vnum <= area->max_vnum; vnum++) {
         if ((pRoomIndex = get_room_data(vnum))) {
             found = true;
-            addf_buf(buf1, "{|[{*%5d{|]{x %-17.17s ",
+            addf_buf(buf1, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-17.17s ",
                 vnum, capitalize(NAME_STR(pRoomIndex)));
             if (++col % 3 == 0)
                 add_buf(buf1, "\n\r");
@@ -203,7 +203,7 @@ REDIT(redit_rlist)
 
     if (!found) {
         free_buf(buf1);
-        send_to_char("{jRoom(s) not found in this area.{x\n\r", ch);
+        send_to_char(COLOR_INFO "Room(s) not found in this area." COLOR_CLEAR "\n\r", ch);
         return false;
     }
 
@@ -228,7 +228,7 @@ REDIT(redit_mlist)
 
     one_argument(argument, arg);
     if (arg[0] == '\0') {
-        send_to_char("Syntax:  {*mlist <all/name>{x\n\r", ch);
+        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "mlist <all/name>" COLOR_CLEAR "\n\r", ch);
         return false;
     }
 
@@ -241,7 +241,7 @@ REDIT(redit_mlist)
         if ((p_mob_proto = get_mob_prototype(vnum)) != NULL) {
             if (fAll || is_name(arg, NAME_STR(p_mob_proto))) {
                 found = true;
-                sprintf(buf, "{|[{*%5d{|]{x %-17.17s",
+                sprintf(buf, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-17.17s",
                     VNUM_FIELD(p_mob_proto), capitalize(p_mob_proto->short_descr));
                 add_buf(buf1, buf);
                 if (++col % 3 == 0)
@@ -252,7 +252,7 @@ REDIT(redit_mlist)
 
     if (!found) {
         free_buf(buf1);
-        send_to_char("{xMobile(s) not found in this area.\n\r{x", ch);
+        send_to_char(COLOR_CLEAR "Mobile(s) not found in this area.\n\r" COLOR_CLEAR , ch);
         return false;
     }
 
@@ -281,39 +281,39 @@ REDIT(redit_show)
 
     EDIT_ROOM(ch, pRoom);
 
-    addf_buf(out, "Description:\n\r{_%s{x", pRoom->description);
-    addf_buf(out, "Name:        {|[{*%s{|]{x\n\rArea:        {|[{*%5d{|] {_%s{x\n\r",
+    addf_buf(out, "Description:\n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR , pRoom->description);
+    addf_buf(out, "Name:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\rArea:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r",
         NAME_STR(pRoom), VNUM_FIELD(pRoom->area_data), NAME_STR(pRoom->area_data));
-    addf_buf(out, "Vnum:        {|[{*%5d{|]{x\n\rSector:      {|[{*%s{|]{x\n\r",
+    addf_buf(out, "Vnum:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\rSector:      " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r",
         VNUM_FIELD(pRoom), flag_string(sector_flag_table, pRoom->sector_type));
-    addf_buf(out, "Room flags:  {|[{*%s{|]{x\n\r",
+    addf_buf(out, "Room flags:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r",
         flag_string(room_flag_table, pRoom->room_flags));
-    addf_buf(out, "Heal rec:    {|[{*%d{|]{x\n\rMana rec:    {|[{*%d{|]{x\n\r",
+    addf_buf(out, "Heal rec:    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\rMana rec:    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r",
         pRoom->heal_rate, pRoom->mana_rate);
 
     if (pRoom->clan) {
-        addf_buf(out, "Clan:        {|[{*%d{|] {_%s{x\n\r", pRoom->clan,
+        addf_buf(out, "Clan:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r", pRoom->clan,
             ((pRoom->clan > 0) ? clan_table[pRoom->clan].name : "none"));
     }
 
     if (pRoom->owner && pRoom->owner[0] != '\0') {
-        addf_buf(out, "Owner:       {|[{*%s{|]{x\n\r", pRoom->owner);
+        addf_buf(out, "Owner:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", pRoom->owner);
     }
 
     if (pRoom->extra_desc) {
         ExtraDesc* ed;
 
-        add_buf(out, "Desc Kwds:   {|[{*");
+        add_buf(out, "Desc Kwds:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "");
         FOR_EACH(ed, pRoom->extra_desc) {
             add_buf(out, ed->keyword);
             if (ed->next) {
                 add_buf(out, " ");
             }
         }
-        add_buf(out, "{|]{x\n\r");
+        add_buf(out, COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r");
     }
 
-    add_buf(out, "Characters:  {|[{*");
+    add_buf(out, "Characters:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "");
     fcnt = false;
     FOR_EACH_ROOM_MOB(rch, ch->in_room) {
         if (IS_NPC(rch) || can_see(ch, rch)) {
@@ -330,9 +330,9 @@ REDIT(redit_show)
         add_buf(out, "none");
     }
     
-    add_buf(out, "{|]{x\n\r");
+    add_buf(out, COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r");
     
-    add_buf(out, "Objects:     {|[{*");
+    add_buf(out, "Objects:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "");
     fcnt = false;
     FOR_EACH_ROOM_OBJ(obj, ch->in_room) {
         one_argument(NAME_STR(obj), BUF(line));
@@ -345,7 +345,7 @@ REDIT(redit_show)
         add_buf(out, "none");
     }
     
-    add_buf(out, "{|]{x\n\r");
+    add_buf(out, COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r");
 
     add_buf(out, "Exits:\n\r");
 
@@ -357,7 +357,7 @@ REDIT(redit_show)
         if (pRoom->exit_data[cnt] == NULL)
             continue;
 
-        addf_buf(out, "    {T%-5s :  {|[{*%5d{|]{x Key: {|[{*%5d{|]{x",
+        addf_buf(out, "    " COLOR_TITLE "%-5s :  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " Key: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR ,
             capitalize(dir_list[cnt].name),
             pRoom->exit_data[cnt]->to_room ? VNUM_FIELD(pRoom->exit_data[cnt]->to_room) :
             0, pRoom->exit_data[cnt]->key);
@@ -368,13 +368,13 @@ REDIT(redit_show)
      */
         strcpy(BUF(reset_state), flag_string(exit_flag_table, pRoom->exit_data[cnt]->exit_reset_flags));
         state = flag_string(exit_flag_table, pRoom->exit_data[cnt]->exit_reset_flags);
-        add_buf(out, " Exit flags: {|[{*");
+        add_buf(out, " Exit flags: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "");
         fcnt = false;
         for (; ;) {
             state = one_argument(state, BUF(word));
 
             if (BUF(word)[0] == '\0') {
-                add_buf(out, "{|]{x\n\r");
+                add_buf(out, COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r");
                 break;
             }
 
@@ -391,10 +391,10 @@ REDIT(redit_show)
         }
 
         if (pRoom->exit_data[cnt]->keyword && pRoom->exit_data[cnt]->keyword[0] != '\0') {
-            addf_buf(out, "Kwds: {|[{*%s{|]{x\n\r", pRoom->exit_data[cnt]->keyword);
+            addf_buf(out, "Kwds: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", pRoom->exit_data[cnt]->keyword);
         }
         if (pRoom->exit_data[cnt]->description && pRoom->exit_data[cnt]->description[0] != '\0') {
-            addf_buf(out, "        {_%s{x", pRoom->exit_data[cnt]->description);
+            addf_buf(out, "        " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR , pRoom->exit_data[cnt]->description);
         }
     }
 
@@ -440,7 +440,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         room_exit_data = room_data->exit_data[door];
 
         if (!room_exit_data) {
-            send_to_char("{jThere is no exit in that direction.{x\n\r", ch);
+            send_to_char(COLOR_INFO "There is no exit in that direction." COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
@@ -460,7 +460,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
             //pNExit->exit_flags = pNExit->exit_reset_flags;
         }
 
-        send_to_char("{jExit flag toggled.{x\n\r", ch);
+        send_to_char(COLOR_INFO "Exit flag toggled." COLOR_CLEAR "\n\r", ch);
         return true;
     }
 
@@ -487,7 +487,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         room_exit_data = room_data->exit_data[door];
 
         if (!room_exit_data) {
-            send_to_char("{jREdit: Cannot delete a null exit.{x\n\r", ch);
+            send_to_char(COLOR_INFO "REdit: Cannot delete a null exit." COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
@@ -505,20 +505,20 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
                     to_room_data->exit_data[rev] = NULL;
                 }
                 else
-                    printf_to_char(ch, "{jExit %d to room %d does not return to"
-                        " this room, so it was not deleted.{x\n\r",
+                    printf_to_char(ch, COLOR_INFO "Exit %d to room %d does not return to"
+                        " this room, so it was not deleted." COLOR_CLEAR "\n\r",
                         rev, VNUM_FIELD(to_room_data));
             }
         }
 
         // Remove this exit.
-        printf_to_char(ch, "{jExit %s to room %d deleted.{x\n\r",
+        printf_to_char(ch, COLOR_INFO "Exit %s to room %d deleted." COLOR_CLEAR "\n\r",
             dir_list[door].name, VNUM_FIELD(room_data));
         free_room_exit_data(room_data->exit_data[door]);
         room_data->exit_data[door] = NULL;
 
         if (rDeleted)
-            printf_to_char(ch, "{jExit %s to room %d was also deleted.{x\n\r",
+            printf_to_char(ch, COLOR_INFO "Exit %s to room %d was also deleted." COLOR_CLEAR "\n\r",
                 dir_list[dir_list[door].rev_dir].name, VNUM_FIELD(to_room_data));
 
         return true;
@@ -528,41 +528,41 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         RoomData* to_room_data;
 
         if (arg[0] == '\0' || !is_number(arg)) {
-            send_to_char("Syntax:  {*[direction] link [vnum]{x\n\r", ch);
+            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "[direction] link [vnum]" COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
         to_room_data = get_room_data(atoi(arg));
 
         if (!to_room_data) {
-            send_to_char("{jREdit:  Cannot link to non-existent room.{x\n\r", ch);
+            send_to_char(COLOR_INFO "REdit:  Cannot link to non-existent room." COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
         if (!IS_BUILDER(ch, to_room_data->area_data)) {
-            send_to_char("{jREdit:  Cannot link to that area.{x\n\r", ch);
+            send_to_char(COLOR_INFO "REdit:  Cannot link to that area." COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
         room_exit_data = room_data->exit_data[door];
 
         if (room_exit_data) {
-            send_to_char("{jREdit : That exit already exists.{x\n\r", ch);
+            send_to_char(COLOR_INFO "REdit : That exit already exists." COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
         room_exit_data = to_room_data->exit_data[dir_list[door].rev_dir];
 
         if (room_exit_data) {
-            send_to_char("{jREdit:  Remote side's exit already exists.{x\n\r", ch);
+            send_to_char(COLOR_INFO "REdit:  Remote side's exit already exists." COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
         if (room_data->area_data != to_room_data->area_data
             && room_data->area_data->inst_type == AREA_INST_MULTI
             && to_room_data->area_data->inst_type == AREA_INST_MULTI) {
-            send_to_char("{jREdit:  You cannot link between two different "
-                "multi-instance areas..{x\n\r", ch);
+            send_to_char(COLOR_INFO "REdit:  You cannot link between two different "
+                "multi-instance areas.." COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
@@ -591,13 +591,13 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         SET_BIT(to_room_data->area_data->area_flags, AREA_CHANGED);
         SET_BIT(room_data->area_data->area_flags, AREA_CHANGED);
 
-        send_to_char("{jTwo-way link established.{x\n\r", ch);
+        send_to_char(COLOR_INFO "Two-way link established." COLOR_CLEAR "\n\r", ch);
         return true;
     } else if (!str_cmp(command, "dig")) {
         char buf[MAX_STRING_LENGTH];
 
         if (arg[0] == '\0' || !is_number(arg)) {
-            send_to_char("Syntax: {*[direction] dig <vnum>{x\n\r", ch);
+            send_to_char("Syntax: " COLOR_ALT_TEXT_1 "[direction] dig <vnum>" COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
@@ -626,19 +626,19 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         RoomData* target;
 
         if (arg[0] == '\0' || !is_number(arg)) {
-            send_to_char("Syntax:  {*[direction] room [vnum]{x\n\r", ch);
+            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "[direction] room [vnum]" COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
         value = atoi(arg);
 
         if ((target = get_room_data(value)) == NULL) {
-            send_to_char("{jREdit:  Cannot link to non-existant room.{x\n\r", ch);
+            send_to_char(COLOR_INFO "REdit:  Cannot link to non-existant room." COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
         if (!IS_BUILDER(ch, target->area_data)) {
-            send_to_char("{jREdit: You do not have access to the room you wish to dig to.{x\n\r", ch);
+            send_to_char(COLOR_INFO "REdit: You do not have access to the room you wish to dig to." COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
@@ -657,52 +657,52 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
 
         if ((room_exit_data = target->exit_data[dir_list[door].rev_dir]) != NULL
             && room_exit_data->to_room != room_data)
-            printf_to_char(ch, "{jWARNING{x : the exit to room %d does not return here.\n\r",
+            printf_to_char(ch, COLOR_INFO "WARNING" COLOR_CLEAR " : the exit to room %d does not return here.\n\r",
                 VNUM_FIELD(target));
 
-        send_to_char("{jOne-way link established.{x\n\r", ch);
+        send_to_char(COLOR_INFO "One-way link established." COLOR_CLEAR "\n\r", ch);
         return true;
     } else if (!str_cmp(command, "key")) {
         RoomExitData* room_exit_data;
         ObjPrototype* obj_proto;
 
         if (arg[0] == '\0' || !is_number(arg)) {
-            send_to_char("Syntax:  {*[direction] key [vnum]{x\n\r", ch);
+            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "[direction] key [vnum]" COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
         if ((room_exit_data = room_data->exit_data[door]) == NULL) {
-            send_to_char("{jThat exit does not exist.{x\n\r", ch);
+            send_to_char(COLOR_INFO "That exit does not exist." COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
         obj_proto = get_object_prototype(atoi(arg));
 
         if (!obj_proto) {
-            send_to_char("{jREdit:  Item doesn't exist.{x\n\r", ch);
+            send_to_char(COLOR_INFO "REdit:  Item doesn't exist." COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
         if (obj_proto->item_type != ITEM_KEY) {
-            send_to_char("{jREdit:  Key doesn't exist.{x\n\r", ch);
+            send_to_char(COLOR_INFO "REdit:  Key doesn't exist." COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
         room_exit_data->key = (int16_t)atoi(arg);
 
-        send_to_char("{jExit key set.{x\n\r", ch);
+        send_to_char(COLOR_INFO "Exit key set." COLOR_CLEAR "\n\r", ch);
         return true;
     } else if (!str_cmp(command, "name")) {
         RoomExitData* room_exit_data;
 
         if (arg[0] == '\0') {
-            send_to_char("Syntax:  {*[direction] name [string]\n\r", ch);
-            send_to_char("         [direction] name none{x\n\r", ch);
+            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "[direction] name [string]\n\r", ch);
+            send_to_char("         [direction] name none" COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
         if ((room_exit_data = room_data->exit_data[door]) == NULL) {
-            send_to_char("{jThat exit does not exist.{x\n\r", ch);
+            send_to_char(COLOR_INFO "That exit does not exist." COLOR_CLEAR "\n\r", ch);
             return false;
         }
 
@@ -713,14 +713,14 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         else
             room_exit_data->keyword = str_dup("");
 
-        send_to_char("{jExit name set.{x\n\r", ch);
+        send_to_char(COLOR_INFO "Exit name set." COLOR_CLEAR "\n\r", ch);
         return true;
     } else if (!str_prefix(command, "description")) {
         RoomExitData* room_exit_data;
 
         if (arg[0] == '\0') {
             if ((room_exit_data = room_data->exit_data[door]) == NULL) {
-                send_to_char("{jThat exit does not exist.{x\n\r", ch);
+                send_to_char(COLOR_INFO "That exit does not exist." COLOR_CLEAR "\n\r", ch);
                 return false;
             }
 
@@ -728,7 +728,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
             return true;
         }
 
-        send_to_char("Syntax:  {*[direction] desc{x\n\r", ch);
+        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "[direction] desc" COLOR_CLEAR "\n\r", ch);
         return false;
     }
 
@@ -746,23 +746,23 @@ REDIT(redit_create)
     value = STRTOVNUM(argument);
 
     if (argument[0] == '\0' || value <= 0) {
-        send_to_char("Syntax:  {*create [vnum > 0]{x\n\r", ch);
+        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "create [vnum > 0]" COLOR_CLEAR "\n\r", ch);
         return false;
     }
 
     area_data = get_vnum_area(value);
     if (!area_data) {
-        send_to_char("{jREdit:  That vnum is not assigned an area.{x\n\r", ch);
+        send_to_char(COLOR_INFO "REdit:  That vnum is not assigned an area." COLOR_CLEAR "\n\r", ch);
         return false;
     }
 
     if (!IS_BUILDER(ch, area_data)) {
-        send_to_char("{jREdit:  Vnum in an area you cannot build in.{x\n\r", ch);
+        send_to_char(COLOR_INFO "REdit:  Vnum in an area you cannot build in." COLOR_CLEAR "\n\r", ch);
         return false;
     }
 
     if (get_room_data(value)) {
-        send_to_char("{jREdit:  Room vnum already exists.{x\n\r", ch);
+        send_to_char(COLOR_INFO "REdit:  Room vnum already exists." COLOR_CLEAR "\n\r", ch);
         return false;
     }
 
@@ -784,7 +784,7 @@ REDIT(redit_create)
 
     set_editor(ch->desc, ED_ROOM, U(room_data));
 
-    send_to_char("{jRoom created.{x\n\r", ch);
+    send_to_char(COLOR_INFO "Room created." COLOR_CLEAR "\n\r", ch);
     return true;
 }
 
@@ -796,7 +796,7 @@ REDIT(redit_format)
 
     pRoom->description = format_string(pRoom->description);
 
-    send_to_char("{jString formatted.{x\n\r", ch);
+    send_to_char(COLOR_INFO "String formatted." COLOR_CLEAR "\n\r", ch);
     return true;
 }
 
@@ -816,17 +816,17 @@ REDIT(redit_mreset)
     READ_ARG(arg2);
 
     if (arg[0] == '\0' || !is_number(arg)) {
-        send_to_char("Syntax:  {*mreset <vnum> <world max> <room max>{x\n\r", ch);
+        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "mreset <vnum> <world max> <room max>" COLOR_CLEAR "\n\r", ch);
         return false;
     }
 
     if (!(p_mob_proto = get_mob_prototype(atoi(arg)))) {
-        send_to_char("{jREdit: No mobile has that vnum.{x\n\r", ch);
+        send_to_char(COLOR_INFO "REdit: No mobile has that vnum." COLOR_CLEAR "\n\r", ch);
         return false;
     }
 
     if (p_mob_proto->area != room_data->area_data) {
-        send_to_char("{jREdit: No such mobile in this area.{x\n\r", ch);
+        send_to_char(COLOR_INFO "REdit: No such mobile in this area." COLOR_CLEAR "\n\r", ch);
         return false;
     }
 
@@ -850,8 +850,8 @@ REDIT(redit_mreset)
             act("$n has been created!", newmob, NULL, NULL, TO_ROOM);
     }
 
-    printf_to_char(ch, "{j%s (%d) has been added to resets.\n\r"
-        "There will be a maximum of %d in the area, and %d in this room.{x\n\r",
+    printf_to_char(ch, COLOR_INFO "%s (%d) has been added to resets.\n\r"
+        "There will be a maximum of %d in the area, and %d in this room." COLOR_CLEAR "\n\r",
         capitalize(p_mob_proto->short_descr),
         VNUM_FIELD(p_mob_proto),
         reset->arg2,
@@ -899,20 +899,20 @@ REDIT(redit_oreset)
     READ_ARG(into_arg);
 
     if (vnum_str[0] == '\0' || !is_number(vnum_str)) {
-        send_to_char("Syntax:  {*oreset <vnum> <args>{x\n\r", ch);
-        send_to_char("        -{*no_args{x               = into room\n\r", ch);
-        send_to_char("        -{*<obj_name>{x            = into obj\n\r", ch);
-        send_to_char("        -{*<mob_name> <wear_loc>{x = into mob\n\r", ch);
+        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "oreset <vnum> <args>" COLOR_CLEAR "\n\r", ch);
+        send_to_char("        -" COLOR_ALT_TEXT_1 "no_args" COLOR_CLEAR "               = into room\n\r", ch);
+        send_to_char("        -" COLOR_ALT_TEXT_1 "<obj_name>" COLOR_CLEAR "            = into obj\n\r", ch);
+        send_to_char("        -" COLOR_ALT_TEXT_1 "<mob_name> <wear_loc>" COLOR_CLEAR " = into mob\n\r", ch);
         return false;
     }
 
     if (!(obj_proto = get_object_prototype(atoi(vnum_str)))) {
-        send_to_char("{jREdit: No object has that vnum.{x\n\r", ch);
+        send_to_char(COLOR_INFO "REdit: No object has that vnum." COLOR_CLEAR "\n\r", ch);
         return false;
     }
 
     if (obj_proto->area != room_data->area_data) {
-        send_to_char("{jREdit: No such object in this area.{x\n\r", ch);
+        send_to_char(COLOR_INFO "REdit: No such object in this area." COLOR_CLEAR "\n\r", ch);
         return false;
     }
 
@@ -932,7 +932,7 @@ REDIT(redit_oreset)
             obj_to_room(newobj, room);
         }
 
-        sprintf(output, "{j%s (%d) has been loaded and added to resets.{x\n\r",
+        sprintf(output, COLOR_INFO "%s (%d) has been loaded and added to resets." COLOR_CLEAR "\n\r",
             capitalize(obj_proto->short_descr),
             VNUM_FIELD(obj_proto));
         send_to_char(output, ch);
@@ -956,8 +956,8 @@ REDIT(redit_oreset)
         }
 
         if (newobj && to_obj) {
-            sprintf(output, "{j%s (%d) has been loaded into "
-                "%s (%d) and added to resets.{x\n\r",
+            sprintf(output, COLOR_INFO "%s (%d) has been loaded into "
+                "%s (%d) and added to resets." COLOR_CLEAR "\n\r",
                 capitalize(newobj->short_descr),
                 VNUM_FIELD(newobj->prototype),
                 to_obj->short_descr,
@@ -1136,7 +1136,7 @@ void listobjreset(Mobile* ch, Buffer* buf, AreaData* area)
 {
     ObjPrototype* obj;
 
-    add_buf(buf, "{TVnum  Name            Room  On mob{x\n\r");
+    add_buf(buf, COLOR_TITLE "Vnum  Name            Room  On mob" COLOR_CLEAR "\n\r");
 
     FOR_EACH_OBJ_PROTO(obj)
         if (obj->area == area)
@@ -1147,7 +1147,7 @@ void listmobreset(Mobile* ch, Buffer* buf, AreaData* area)
 {
     MobPrototype* mob;
 
-    add_buf(buf, "{TVnum  Name            Room {x\n\r");
+    add_buf(buf, COLOR_TITLE "Vnum  Name            Room " COLOR_CLEAR "\n\r");
 
     FOR_EACH_MOB_PROTO(mob)
         if (mob->area == area)
@@ -1196,7 +1196,7 @@ REDIT(redit_checkobj)
 
     FOR_EACH_OBJ_PROTO(obj)
         if (obj->reset_num == 0 && (fAll || obj->area == room->area_data))
-            printf_to_char(ch, "Obj {*%-5.5d{x [%-20.20s] is not reset.\n\r", VNUM_FIELD(obj), NAME_STR(obj));
+            printf_to_char(ch, "Obj " COLOR_ALT_TEXT_1 "%-5.5d" COLOR_CLEAR " [%-20.20s] is not reset.\n\r", VNUM_FIELD(obj), NAME_STR(obj));
 
     return false;
 }
@@ -1236,7 +1236,7 @@ REDIT(redit_checkmob)
 
     FOR_EACH_MOB_PROTO(mob)
         if (mob->reset_num == 0 && (fAll || mob->area == room->area_data))
-            printf_to_char(ch, "Mob {*%-5.5d{x [%-20.20s] has no resets.\n\r", VNUM_FIELD(mob), NAME_STR(mob));
+            printf_to_char(ch, "Mob " COLOR_ALT_TEXT_1 "%-5.5d" COLOR_CLEAR " [%-20.20s] has no resets.\n\r", VNUM_FIELD(mob), NAME_STR(mob));
 
     return false;
 }
@@ -1352,9 +1352,9 @@ void display_resets(Mobile* ch, RoomData* pRoom)
     final[0] = '\0';
 
     send_to_char(
-        "{T No.  Loads    Description       Location         Vnum   Ar Rm Description"
+        COLOR_TITLE " No.  Loads    Description       Location         Vnum   Ar Rm Description"
         "\n\r"
-        "{===== ======== ============= =================== ======== ===== ==========="
+        COLOR_DECOR_2 "==== ======== ============= =================== ======== ===== ==========="
         "\n\r", ch);
 
     FOR_EACH(reset, pRoom->reset_first) {
@@ -1365,7 +1365,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
         RoomData* pRoomIndex;
 
         final[0] = '\0';
-        sprintf(final, "{|[{*%2d{|]{x ", ++iReset);
+        sprintf(final, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%2d" COLOR_DECOR_1 "]" COLOR_CLEAR " ", ++iReset);
 
         switch (reset->command) {
         default:
@@ -1387,7 +1387,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
             }
 
             pMob = p_mob_proto;
-            sprintf(buf, "M{|[{*%5d{|]{x %-13.13s                     R{|[{*%5d{|]{x %2d-%2d %-15.15s\n\r",
+            sprintf(buf, "M" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-13.13s                     R" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %2d-%2d %-15.15s\n\r",
                 reset->arg1, pMob->short_descr, reset->arg3,
                 reset->arg2, reset->arg4, NAME_STR(pRoomIndex));
             strcat(final, buf);
@@ -1420,8 +1420,8 @@ void display_resets(Mobile* ch, RoomData* pRoom)
                 continue;
             }
 
-            sprintf(buf, "O{|[{*%5d{|]{x %-13.13s                     "
-                "R{|[{*%5d{|]{x       %-15.15s\n\r",
+            sprintf(buf, "O" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-13.13s                     "
+                "R" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR "       %-15.15s\n\r",
                 reset->arg1, pObj->short_descr,
                 reset->arg3, NAME_STR(pRoomIndex));
             strcat(final, buf);
@@ -1446,7 +1446,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
             }
 
             sprintf(buf,
-                "O{|[{*%5d{|]{x %-13.13s inside              O{|[{*%5d{|]{x %2d-%2d %-15.15s\n\r",
+                "O" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-13.13s inside              O" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %2d-%2d %-15.15s\n\r",
                 reset->arg1,
                 pObj->short_descr,
                 reset->arg3,
@@ -1476,7 +1476,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
 
             if (pMob->pShop) {
                 sprintf(buf,
-                    "O{|[{*%5d{|]{x %-13.13s in the inventory of S{|[{*%5d{|]{x       %-15.15s\n\r",
+                    "O" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-13.13s in the inventory of S" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR "       %-15.15s\n\r",
                     reset->arg1,
                     pObj->short_descr,
                     VNUM_FIELD(pMob),
@@ -1484,7 +1484,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
             }
             else
                 sprintf(buf,
-                    "O{|[{*%5d{|]{x %-13.13s %-19.19s M{|[{*%5d{|]{x       %-15.15s\n\r",
+                    "O" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-13.13s %-19.19s M" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR "       %-15.15s\n\r",
                     reset->arg1,
                     pObj->short_descr,
                     (reset->command == 'G') ?
@@ -1502,7 +1502,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
              */
         case 'D':
             pRoomIndex = get_room_data(reset->arg1);
-            sprintf(buf, "R{|[{*%5d{|]{x %s door of %-19.19s reset to %s\n\r",
+            sprintf(buf, "R" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %s door of %-19.19s reset to %s\n\r",
                 reset->arg1,
                 capitalize(dir_list[reset->arg2].name),
                 NAME_STR(pRoomIndex),
@@ -1518,7 +1518,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
                 continue;
             }
 
-            sprintf(buf, "R{|[{*%5d{|]{x Exits are randomized in %s\n\r",
+            sprintf(buf, "R" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " Exits are randomized in %s\n\r",
                 reset->arg1, NAME_STR(pRoomIndex));
             strcat(final, buf);
 
@@ -1572,12 +1572,12 @@ void add_reset(RoomData* room, Reset* reset, int index)
 void do_resets(Mobile* ch, char* argument)
 {
     static const char* help =
-        "Syntax: {*RESET <number> OBJ <vnum> <wear_loc>\n\r"
+        "Syntax: " COLOR_ALT_TEXT_1 "RESET <number> OBJ <vnum> <wear_loc>\n\r"
         "        RESET <number> OBJ <vnum> inside <vnum> [limit] [count]\n\r"
         "        RESET <number> OBJ <vnum> room\n\r"
         "        RESET <number> MOB <vnum> [max #x area] [max #x room]\n\r"
         "        RESET <number> DELETE\n\r"
-        "        RESET <number> RANDOM [#x exits]{x\n\r";
+        "        RESET <number> RANDOM [#x exits]" COLOR_CLEAR "\n\r";
 
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
@@ -1760,11 +1760,11 @@ void do_resets(Mobile* ch, char* argument)
         char* arg;
 
         if (is_number(arg2)) {
-            send_to_char("{jInvalid syntax.{x\n\r"
+            send_to_char(COLOR_INFO "Invalid syntax." COLOR_CLEAR "\n\r"
                 "Your options are:\n\r"
-                "{*reset add mob [vnum/name]\n\r"
+                COLOR_ALT_TEXT_1 "reset add mob [vnum/name]\n\r"
                 "reset add obj [vnum/name]\n\r"
-                "reset add [name]{x\n\r", ch);
+                "reset add [name]" COLOR_CLEAR "\n\r", ch);
             return;
         }
 
@@ -1824,8 +1824,8 @@ void do_resets(Mobile* ch, char* argument)
 
 void do_objlist(Mobile* ch, char* argument)
 {
-    static const char* help = "{jSyntax: OBJLIST AREA\n\r"
-        "          OBJLIST WORLD [low-level] [high-level]{x\n\r";
+    static const char* help = COLOR_INFO "Syntax: OBJLIST AREA\n\r"
+        "          OBJLIST WORLD [low-level] [high-level]" COLOR_CLEAR "\n\r";
     static const int max_disp = 100;
     char opt[MIL] = { 0 };
     char lo_str[MIL] = { 0 };
@@ -1839,7 +1839,7 @@ void do_objlist(Mobile* ch, char* argument)
     INIT_BUF(out, MSL);
 
     if (!IS_BUILDER(ch, ch->in_room->area->data)) {
-        send_to_char("{*Invalid security for editing this area.{x\n\r", ch);
+        send_to_char(COLOR_ALT_TEXT_1 "Invalid security for editing this area." COLOR_CLEAR "\n\r", ch);
         return;
     }
 
@@ -1882,15 +1882,15 @@ void do_objlist(Mobile* ch, char* argument)
     //               ################################################################################
     switch (type) {
     case ITEM_ARMOR:
-        addf_buf(out, "{TVNUM   Lvl Name                AC:  Pierce  Bash    Slash   Exotic        {x\n\r");
+        addf_buf(out, COLOR_TITLE "VNUM   Lvl Name                AC:  Pierce  Bash    Slash   Exotic        " COLOR_CLEAR "\n\r");
         break;    
     case ITEM_CONTAINER:
-        addf_buf(out, "{TVNUM   Lvl Name                     Wght    Flags   Key     Cpcty   WtMult{x\n\r");
+        addf_buf(out, COLOR_TITLE "VNUM   Lvl Name                     Wght    Flags   Key     Cpcty   WtMult" COLOR_CLEAR "\n\r");
         break;
     default:
-        addf_buf(out, "{TVNUM   Lvl Name       Type          Val0    Val1    Val2    Val3    Val4  {x\n\r");
+        addf_buf(out, COLOR_TITLE "VNUM   Lvl Name       Type          Val0    Val1    Val2    Val3    Val4  " COLOR_CLEAR "\n\r");
     }
-    addf_buf(out, "{============================================================================{x\n\r");
+    addf_buf(out, COLOR_DECOR_2 "===========================================================================" COLOR_CLEAR "\n\r");
 
     VNUM hi_vnum = ch->in_room->area->data->max_vnum;
     VNUM lo_vnum = ch->in_room->area->data->min_vnum;
@@ -1908,22 +1908,22 @@ void do_objlist(Mobile* ch, char* argument)
         if (type > 0 && obj->item_type != type)
             continue;
 
-        addf_buf(out, "{*%-6d {*%-3d{x ", VNUM_FIELD(obj), obj->level);
+        addf_buf(out, COLOR_ALT_TEXT_1 "%-6d " COLOR_ALT_TEXT_1 "%-3d" COLOR_CLEAR " ", VNUM_FIELD(obj), obj->level);
 
         switch (type) {
         case ITEM_ARMOR:
         case ITEM_CONTAINER:
-            addf_buf(out, "%-23.23s  {|", obj->short_descr);
+            addf_buf(out, "%-23.23s  " COLOR_DECOR_1 "", obj->short_descr);
             break;
         default:
-            addf_buf(out, "%-10.10s %-12.12s {|", obj->short_descr, flag_string(type_flag_table, obj->item_type));
+            addf_buf(out, "%-10.10s %-12.12s " COLOR_DECOR_1 "", obj->short_descr, flag_string(type_flag_table, obj->item_type));
         }
 
         for (int i = 0; i < 5; ++i) {
-            addf_buf(out, "[{*%5d{|] ", obj->value[i]);
+            addf_buf(out, "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "] ", obj->value[i]);
         }
 
-        addf_buf(out, "{x\n\r");
+        addf_buf(out, COLOR_CLEAR "\n\r");
     }
 max_disp_reached:
     addf_buf(out, "\n\r");
@@ -1933,8 +1933,8 @@ max_disp_reached:
 
 void do_moblist(Mobile* ch, char* argument)
 {
-    static const char* help = "{jSyntax: MOBLIST AREA\n\r"
-        "          MOBLIST WORLD [low-level] [high-level]{x\n\r";
+    static const char* help = COLOR_INFO "Syntax: MOBLIST AREA\n\r"
+        "          MOBLIST WORLD [low-level] [high-level]" COLOR_CLEAR "\n\r";
     static const int max_disp = 100;
     char opt[MIL] = { 0 };
     char lo_str[MIL] = { 0 };
@@ -1948,7 +1948,7 @@ void do_moblist(Mobile* ch, char* argument)
     INIT_BUF(out, MSL);
 
     if (!IS_BUILDER(ch, ch->in_room->area->data)) {
-        send_to_char("{*Invalid security for editing this area.{x\n\r", ch);
+        send_to_char(COLOR_ALT_TEXT_1 "Invalid security for editing this area." COLOR_CLEAR "\n\r", ch);
         return;
     }
 
@@ -1977,8 +1977,8 @@ void do_moblist(Mobile* ch, char* argument)
         return;
     }
     //               ################################################################################
-    addf_buf(out, "{TVNUM   Name       Lvl Hit Dice     Hit   Dam      Mana       Pie  Bas  Sla  Mag{x\n\r");
-    addf_buf(out, "{================================================================================{x\n\r");
+    addf_buf(out, COLOR_TITLE "VNUM   Name       Lvl Hit Dice     Hit   Dam      Mana       Pie  Bas  Sla  Mag" COLOR_CLEAR "\n\r");
+    addf_buf(out, COLOR_DECOR_2 "===============================================================================" COLOR_CLEAR "\n\r");
 
     VNUM hi_vnum = ch->in_room->area->data->max_vnum;
     VNUM lo_vnum = ch->in_room->area->data->min_vnum;
@@ -1997,7 +1997,7 @@ void do_moblist(Mobile* ch, char* argument)
 
         //VNUM   Name       Lvl Hit Dice   Hit   Dam Dice   Mana       Pie Bas Sla Mag
         //###### ########## ### ########## ##### ######## ########## ### ### ### ###
-        addf_buf(out, "{*%-6d{x %-10.10s {*%-3d ",
+        addf_buf(out, COLOR_ALT_TEXT_1 "%-6d" COLOR_CLEAR " %-10.10s " COLOR_ALT_TEXT_1 "%-3d ",
             VNUM_FIELD(mob), mob->short_descr, mob->level);
         sprintf(buf, "%dd%d+%d", mob->hit[0], mob->hit[1], mob->hit[2]);
         addf_buf(out, "%-12.12s %-5d ", buf, mob->hitroll);
@@ -2005,7 +2005,7 @@ void do_moblist(Mobile* ch, char* argument)
         addf_buf(out, "%-8.8s ", buf);
         sprintf(buf, "%dd%d+%d", mob->mana[0], mob->mana[1], mob->mana[2]);
         addf_buf(out, "%-9.9s ", buf);
-        addf_buf(out, "%4d %4d %4d %4d{x\n\r", mob->ac[0], mob->ac[1], mob->ac[2], mob->ac[3]);
+        addf_buf(out, "%4d %4d %4d %4d" COLOR_CLEAR "\n\r", mob->ac[0], mob->ac[1], mob->ac[2], mob->ac[3]);
     }
 max_disp_reached:
     addf_buf(out, "\n\r");

@@ -179,9 +179,9 @@ static void lox_eval(Mobile* ch, char* argument, bool is_repl)
 void do_lox(Mobile* ch, char* argument)
 {
     static const char* help =
-        "{jUSAGE: {*LOX [EVAL] <expression>\n\r"
-        "{j\n\r"
-        "Type '{*LOX EVAL returns a value.{x\n\r";
+        COLOR_INFO "USAGE: " COLOR_ALT_TEXT_1 "LOX [EVAL] <expression>\n\r"
+        COLOR_INFO "\n\r"
+        "Type '" COLOR_ALT_TEXT_1 "LOX EVAL returns a value." COLOR_CLEAR "\n\r";
 
     char arg[MAX_INPUT_LENGTH] = "";
     bool is_repl = false;

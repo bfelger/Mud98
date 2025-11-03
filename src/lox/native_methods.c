@@ -78,7 +78,7 @@ static Value say_lox(Value receiver, int arg_count, Value* args)
 
     for (int i = first_arg; i < arg_count; i++) {
         char* msg = string_value(args[i]);
-        act("{6$n says '{7$T{6'{x", ch, vch, msg, TO_ROOM);
+        act(COLOR_SAY "$n says '" COLOR_SAY_TEXT "$T" COLOR_SAY "'" COLOR_CLEAR "", ch, vch, msg, TO_ROOM);
     }
 
     return TRUE_VAL;

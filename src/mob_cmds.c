@@ -485,7 +485,7 @@ void do_mpmload(Mobile* ch, char* argument)
 /*
  * Lets the mobile load an object
  *
- * Syntax: mob oload [vnum] [level] {R}
+ * Syntax: mob oload [vnum] [level] { R }
  */
 void do_mpoload(Mobile* ch, char* argument)
 {
@@ -561,7 +561,7 @@ void do_mpoload(Mobile* ch, char* argument)
  * or purge a specified object or mob in the room. The mobile cannot
  * purge itself for safety reasons.
  *
- * syntax mob purge {target}
+ * syntax mob purge { target }
  */
 void do_mppurge(Mobile* ch, char* argument)
 {
@@ -904,7 +904,7 @@ void do_mpvforce(Mobile* ch, char* argument)
  * and does not account for mana etc., so you should do all the
  * necessary checking in your mob program before issuing this cmd!
  *
- * Syntax: mob cast [spell] {target}
+ * Syntax: mob cast [spell] { target }
  */
 
 void do_mpcast(Mobile* ch, char* argument)

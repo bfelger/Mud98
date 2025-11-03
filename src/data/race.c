@@ -96,7 +96,7 @@ void load_race_table()
 void init_race_table_lox()
 {
     static char* race_start =
-        "enum Race {";
+        "enum Race { ";
 
     static char* race_end =
         "}\n";
