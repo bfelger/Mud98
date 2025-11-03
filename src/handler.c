@@ -2254,7 +2254,7 @@ void all_colour(Mobile* ch, char* argument)
     theme->palette[0] = color;
     theme->palette_max = 1;
 
-    for (int i = 0; i < SLOT_MAX; ++i) {
+    for (int i = 0; i < COLOR_SLOT_COUNT; ++i) {
         theme->channels[i] = color;
     }
 

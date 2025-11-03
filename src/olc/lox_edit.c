@@ -25,7 +25,7 @@ void lox_script_append(Mobile* ch, char** pScript)
     }
     send_to_char(prettify_lox_script(*pScript), ch);
 
-    *ch->desc->pLoxScript = str_dup(*pScript);
+    ch->desc->pLoxScript = pScript;
 
     return;
 }
@@ -203,11 +203,11 @@ void lox_script_add(Mobile* ch, char* argument)
 }
 
 #define LOX_CLEAR_FMT       "{x"
-#define LOX_COMMENT_FMT     "{6"
-#define LOX_STRING_FMT      "{="
-#define LOX_OPERATOR_FMT    "{_"
-#define LOX_LITERAL_FMT     "{9"
-#define LOX_KEYWORD_FMT     "{|"
+#define LOX_COMMENT_FMT     "{#"
+#define LOX_STRING_FMT      "{!"
+#define LOX_OPERATOR_FMT    "{&"
+#define LOX_LITERAL_FMT     "{^"
+#define LOX_KEYWORD_FMT     "{@"
 
 typedef enum {
     LOX_FMT_NONE,

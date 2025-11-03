@@ -435,7 +435,7 @@ static void clear_cached_codes(ColorTheme* theme)
         theme->palette[i].xterm = NULL;
     }
 
-    for (int i = 0; i < SLOT_MAX; ++i) {
+    for (int i = 0; i < COLOR_SLOT_COUNT; ++i) {
         free_string(theme->channels[i].cache);
         theme->channels[i].cache = NULL;
         free_string(theme->channels[i].xterm);
@@ -548,7 +548,7 @@ static void do_theme_create(Mobile* ch, char* argument)
         return;
     }
 
-    for (int i = 0; i < SYSTEM_COLOR_THEME_MAX; ++i) {
+    for (int i = 0; i < SYSTEM_COLOR_THEME_COUNT; ++i) {
         if (!str_cmp(argument, system_color_themes[i]->name)) {
             send_to_char("{jYou cannot use the name of an existing system or "
                 "personal theme.{x\n\r", ch);
@@ -608,7 +608,7 @@ static void do_theme_create(Mobile* ch, char* argument)
 
     Color fg_idx = (Color){ .mode = COLOR_MODE_PAL_IDX, .code = {0, 0, 0 }, .cache = NULL, .xterm = NULL };
     Color bg_idx = (Color){ .mode = COLOR_MODE_PAL_IDX, .code = {1, 0, 0 }, .cache = NULL, .xterm = NULL };
-    for (int i = 0; i < SLOT_MAX; ++i)
+    for (int i = 0; i < COLOR_SLOT_COUNT; ++i)
         theme->channels[i] = fg_idx;
     theme->channels[SLOT_BACKGROUND] = bg_idx;
 
@@ -703,7 +703,7 @@ static void do_theme_list(Mobile* ch, char* argument)
         send_to_char("{TSystem themes:\n\r", ch);
         send_to_char("{========================================================"
             "==============={x\n\r", ch);
-        for (int i = 0; i < SYSTEM_COLOR_THEME_MAX; ++i) {
+        for (int i = 0; i < SYSTEM_COLOR_THEME_COUNT; ++i) {
             if ((hide_256 && system_color_themes[i]->mode == COLOR_MODE_256) ||
                 (hide_24bit && system_color_themes[i]->mode == COLOR_MODE_RGB))
                 continue;
@@ -1239,7 +1239,7 @@ static void do_theme_show(Mobile* ch, char* argument)
 
     row = 0;
     strcat(out, "{TChannel Assignments:{x (change with {*THEME CHANNEL{x)\n\r");
-    for (int i = 0; i < SLOT_MAX; ++i) {
+    for (int i = 0; i < COLOR_SLOT_COUNT; ++i) {
         Color* color = &theme->channels[i];
         switch (color->mode) {
         case COLOR_MODE_16:
@@ -1378,7 +1378,7 @@ ColorTheme* dup_color_theme(const ColorTheme* theme)
             copy->palette[i].xterm = str_dup(theme->palette[i].xterm);
     }
 
-    for (int i = 0; i < SLOT_MAX; ++i) {
+    for (int i = 0; i < COLOR_SLOT_COUNT; ++i) {
         if (theme->channels[i].cache != NULL && theme->channels[i].cache[0])
             copy->channels[i].cache = str_dup(theme->channels[i].cache);
         if (theme->channels[i].xterm != NULL && theme->channels[i].xterm[0])
@@ -1439,7 +1439,7 @@ ColorTheme* lookup_system_color_theme(Mobile* ch, char* arg)
     bool show_256 = !ch->pcdata->theme_config.hide_256;
     bool show_24bit = !ch->pcdata->theme_config.hide_24bit;
 
-    for (int i = 0; i < SYSTEM_COLOR_THEME_MAX; ++i) {
+    for (int i = 0; i < SYSTEM_COLOR_THEME_COUNT; ++i) {
         if (!str_prefix(arg, system_color_themes[i]->name)
             && (show_256 || system_color_themes[i]->mode != COLOR_MODE_256)
             && (show_24bit || system_color_themes[i]->mode != COLOR_MODE_RGB))
@@ -1619,7 +1619,7 @@ void set_default_colors(Mobile* ch)
 // Channel Lookups
 ////////////////////////////////////////////////////////////////////////////////
 
-const ColorChannelEntry color_slot_entries[SLOT_MAX] = {
+const ColorChannelEntry color_slot_entries[COLOR_SLOT_COUNT] = {
     { "text",			    SLOT_TEXT,	            't' },
     { "background",		    SLOT_BACKGROUND,	    'X' },
     { "title",              SLOT_TITLE,             'T' },
@@ -1662,6 +1662,12 @@ const ColorChannelEntry color_slot_entries[SLOT_MAX] = {
     { "fight_ohit",			SLOT_FIGHT_OHIT,	    '3' },
     { "fight_thit",			SLOT_FIGHT_THIT,	    '4' },
     { "fight_skill",		SLOT_FIGHT_SKILL,       '5' },
+
+    { "lox_comment",        SLOT_LOX_COMMENT,       '#' },
+    { "lox_string",         SLOT_LOX_STRING,        '!' },
+    { "lox_operator",       SLOT_LOX_OPERATOR,      '&' },
+    { "lox_literal",        SLOT_LOX_LITERAL,       '^' },
+    { "lox_keyword",        SLOT_LOX_KEYWORD,       '@' },
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1813,6 +1819,11 @@ const ColorTheme theme_lope = {
         SLOT_8,             // fight_ohit
         SLOT_4,             // fight_thit
         SLOT_0,             // fight_skill
+        SLOT_6,             // lox_comment
+        SLOT_9,             // lox_string
+        SLOT_2,             // lox_operator
+        SLOT_D,             // lox_literal
+        SLOT_A,             // lox_keyword
     }
 };
 
@@ -1905,6 +1916,11 @@ const ColorTheme theme_mono = {
         SLOT_8,             // fight_ohit
         SLOT_4,             // fight_thit
         SLOT_0,             // fight_skill
+        SLOT_6,             // lox_comment
+        SLOT_9,             // lox_string
+        SLOT_2,             // lox_operator
+        SLOT_D,             // lox_literal
+        SLOT_A,             // lox_keyword
     }
 };
 
@@ -1997,6 +2013,11 @@ const ColorTheme theme_cool_cat = {
         SLOT_8,             // fight_ohit
         SLOT_4,             // fight_thit
         SLOT_0,             // fight_skill
+        SLOT_6,             // lox_comment
+        SLOT_9,             // lox_string
+        SLOT_2,             // lox_operator
+        SLOT_D,             // lox_literal
+        SLOT_A,             // lox_keyword
     }
 };
 
@@ -2085,6 +2106,11 @@ const ColorTheme theme_synthwave_city = {
         SLOT_8,             // fight_ohit
         SLOT_4,             // fight_thit
         SLOT_0,             // fight_skill
+        SLOT_6,             // lox_comment
+        SLOT_9,             // lox_string
+        SLOT_2,             // lox_operator
+        SLOT_D,             // lox_literal
+        SLOT_A,             // lox_keyword
     }
 };
 
@@ -2180,12 +2206,17 @@ const ColorTheme theme_glow_pop = {
         SLOT_8,             // fight_ohit
         SLOT_4,             // fight_thit
         SLOT_0,             // fight_skill
+        SLOT_6,             // lox_comment
+        SLOT_9,             // lox_string
+        SLOT_2,             // lox_operator
+        SLOT_D,             // lox_literal
+        SLOT_A,             // lox_keyword
     }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const ColorTheme* system_color_themes[SYSTEM_COLOR_THEME_MAX] = {
+const ColorTheme* system_color_themes[SYSTEM_COLOR_THEME_COUNT] = {
     &theme_lope,
     &theme_mono,
     &theme_cool_cat,

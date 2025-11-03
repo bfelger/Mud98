@@ -30,13 +30,14 @@ static int test_lox_edit()
 
     char* out = prettify_lox_script(src);
 
-    char* expected = "{* 1{x. {6// This is a comment.\n\r"
-        "{* 2{x. {|fun {xecho{_({xn{_)\n\r"
-        "{* 3{x. {_{{\n\r"
-        "{* 4{x.     {|print {=\"This is a string.\"{_;\n\r"
-        "{* 5{x.     {|return {xn{_; {6// This is an in-line comment.\n\r"
-        "{* 6{x. {_}\n\r"
-        "{* 7{x. {|print {xecho{_({xecho{_({91{_) + {xecho{_({92{_)) + {xecho{_({xecho{_({94{_) + {xecho{_({95{_));\n\r"
+    char* expected =
+        "{* 1{x. {#// This is a comment.\n\r"
+        "{* 2{x. {@fun {xecho{&({xn{&)\n\r"
+        "{* 3{x. {&{{\n\r"
+        "{* 4{x.     {@print {!\"This is a string.\"{&;\n\r"
+        "{* 5{x.     {@return {xn{&; {#// This is an in-line comment.\n\r"
+        "{* 6{x. {&}\n\r"
+        "{* 7{x. {@print {xecho{&({xecho{&({^1{&) + {xecho{&({^2{&)) + {xecho{&({xecho{&({^4{&) + {xecho{&({^5{&));\n\r"
         "{* 8{x. ";
 
     ASSERT_STR_EQ(expected, out);
@@ -52,7 +53,7 @@ static int test_lox_edit()
     //size_t len = strlen(out);
     //for (size_t i = 0; i < len; i++)
     //    if (out[i] != expected[i]) {
-    //        printf("First diff @ character %d: %c (%02x) != %c (%0x2)\n", (int)i, out[i], (int)out[i], expected[i], (int)out[i]);
+    //        printf("First diff @ character %d: '%c' (%02x) != '%c' (%02x)\n", (int)i, out[i], (int)out[i], expected[i], (int)expected[i]);
     //        printf("%s\n", &out[i]);
     //        break;
     //    }
@@ -91,23 +92,24 @@ static int test_lox_edit2()
 
         char* out = prettify_lox_script(src);
 
-    char* expected = "{* 1{x. {6// This function gets called the first time a character logs in as an elf, after character creation.\n\r"
-            "{* 2{x. on_login{_({xvch{_) {{\n\r"
-            "{* 3{x.     {6// Only newly-created characters\n\r"
-            "{* 4{x.     {|if {_({xvch{_.{xlevel {_> {91 {|or {xvch{_.{xrace {_!= {xRace{_.{xElf{_)\n\r"
-            "{* 5{x.         {|return{_;\n\r"
+        char* expected =
+            "{* 1{x. {#// This function gets called the first time a character logs in as an elf, after character creation.\n\r"
+            "{* 2{x. on_login{&({xvch{&) {{\n\r"
+            "{* 3{x.     {#// Only newly-created characters\n\r"
+            "{* 4{x.     {@if {&({xvch{&.{xlevel {&> {^1 {@or {xvch{&.{xrace {&!= {xRace{&.{xElf{&)\n\r"
+            "{* 5{x.         {@return{&;\n\r"
             "{* 6{x. \n\r"
-            "{* 7{x.     vch{_.{xsend{_(\n\r"
-            "{* 8{x.         {=\"{{*You step off the end of an old rope ladder at the base of Cuivealda, the Tree of Awakening. Your years in the nurturing hands of the Tetyayath have come to an end.{{/{{/Now you must go out into the world and find your destiny...{{/{{x\"{_)\n\r"
+            "{* 7{x.     vch{&.{xsend{&(\n\r"
+            "{* 8{x.         {!\"{{*You step off the end of an old rope ladder at the base of Cuivealda, the Tree of Awakening. Your years in the nurturing hands of the Tetyayath have come to an end.{{/{{/Now you must go out into the world and find your destiny...{{/{{x\"{&)\n\r"
             "{* 9{x. \n\r"
-            "{*10{x.     {|if {_({xvch{_.{xcan_quest{_({912000{_)) {{\n\r"
-            "{*11{x.         delay{_({91{_, () -> {{\n\r"
-            "{*12{x.             vch{_.{xsend{_({=\"{{jYou have instructions to meet your old mentor in a clearing just to the east. There you will continue your training. Type '{{*EXITS{{j' to see what lies in that  direction. Type '{{*EAST{{j' to go there.{{x\"{_)\n\r"
-            "{*13{x.             vch{_.{xgrant_quest{_({912000{_)\n\r"
-            "{*14{x.             vch{_.{xsend{_({=\"{{jType '{{*QUEST{{j' to view your quest log.{{x\"{_)\n\r"
-            "{*15{x.         {_})\n\r"
-            "{*16{x.     {_}\n\r"
-            "{*17{x. {_}\n\r"
+            "{*10{x.     {@if {&({xvch{&.{xcan_quest{&({^12000{&)) {{\n\r"
+            "{*11{x.         delay{&({^1{&, () -> {{\n\r"
+            "{*12{x.             vch{&.{xsend{&({!\"{{jYou have instructions to meet your old mentor in a clearing just to the east. There you will continue your training. Type '{{*EXITS{{j' to see what lies in that  direction. Type '{{*EAST{{j' to go there.{{x\"{&)\n\r"
+            "{*13{x.             vch{&.{xgrant_quest{&({^12000{&)\n\r"
+            "{*14{x.             vch{&.{xsend{&({!\"{{jType '{{*QUEST{{j' to view your quest log.{{x\"{&)\n\r"
+            "{*15{x.         {&})\n\r"
+            "{*16{x.     {&}\n\r"
+            "{*17{x. {&}\n\r"
             "{*18{x. ";
 
     ASSERT_STR_EQ(expected, out);
@@ -123,7 +125,7 @@ static int test_lox_edit2()
     //size_t len = strlen(out);
     //for (size_t i = 0; i < len; i++)
     //    if (out[i] != expected[i]) {
-    //        printf("First diff @ character %d: %c (%02x) != %c (%0x2)\n", (int)i, out[i], (int)out[i], expected[i], (int)out[i]);
+    //        printf("First diff @ character %d: %c (%02x) != %c (%02x)\n", (int)i, out[i], (int)out[i], expected[i], (int)expected[i]);
     //        printf("%s\n", &out[i]);
     //        break;
     //    }

@@ -97,8 +97,15 @@ typedef enum {
     SLOT_FIGHT_OHIT,            // {3
     SLOT_FIGHT_THIT,            // {4
     SLOT_FIGHT_SKILL,           // {5
-    SLOT_MAX
+
+    SLOT_LOX_COMMENT,           // {#
+    SLOT_LOX_STRING,            // {!
+    SLOT_LOX_OPERATOR,          // {&
+    SLOT_LOX_LITERAL,           // {^
+    SLOT_LOX_KEYWORD,           // {@
 } ColorChannel;
+
+#define COLOR_SLOT_COUNT 47
 
 typedef struct color_slot_entry_t {
     const char* name;
@@ -124,7 +131,7 @@ typedef struct color_theme_t {
                             //      space for credits.
     Color palette[PALETTE_SIZE];
     int palette_max;
-    Color channels[SLOT_MAX];
+    Color channels[COLOR_SLOT_COUNT];
 } ColorTheme;
 
 typedef enum {
@@ -133,8 +140,9 @@ typedef enum {
     SYSTEM_COLOR_THEME_COOL_CAT,
     SYSTEM_COLOR_THEME_CITY,
     SYSTEM_COLOR_THEME_POP,
-    SYSTEM_COLOR_THEME_MAX
 } SystemColorTheme;
+
+#define SYSTEM_COLOR_THEME_COUNT 5
 
 typedef struct ansi_palette_entry_t {
     const char* name;
@@ -165,14 +173,14 @@ void set_color_rgb(Color* color, uint8_t r, uint8_t g, uint8_t b);
 void set_default_colors(Mobile* ch);
 
 #define LOOKUP_COLOR_SLOT_CODE(s, c)                                        \
-    for (int i_c = 0; i_c < SLOT_MAX; ++i_c)                                \
+    for (int i_c = 0; i_c < COLOR_SLOT_COUNT; ++i_c)                        \
         if (c == color_slot_entries[i_c].code) {                            \
             s = color_slot_entries[i_c].channel;                            \
             break;                                                          \
         }
 
 #define LOOKUP_COLOR_SLOT_NAME(s, n)                                        \
-    for (int i_c = 0; i_c < SLOT_MAX; ++i_c)                                \
+    for (int i_c = 0; i_c < COLOR_SLOT_COUNT; ++i_c)                        \
         if (!str_cmp(n, color_slot_entries[i_c].name)) {                    \
             s = color_slot_entries[i_c].channel;                            \
             break;                                                          \

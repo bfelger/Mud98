@@ -324,7 +324,7 @@ void fwrite_themes(Mobile* ch, FILE* fp)
         for (int j = 0; j < theme->palette_max; ++j)
             fwrite_palette(&theme->palette[j], j, fp);
 
-        for (int j = 0; j < SLOT_MAX; ++j)
+        for (int j = 0; j < COLOR_SLOT_COUNT; ++j)
             fwrite_channel(&theme->channels[j], color_slot_entries[j].name, fp);
 
         fprintf(fp, "End\n\n");
@@ -1643,7 +1643,7 @@ void fread_theme(Mobile* ch, FILE* fp)
                 fread_number(fp); // reserved
                 int slot = -1;
                 LOOKUP_COLOR_SLOT_NAME(slot, chan);
-                if (slot < 0 || slot > SLOT_MAX) {
+                if (slot < 0 || slot > COLOR_SLOT_COUNT) {
                     bugf("fread_theme(%s): bad channel name '%s'.", 
                         NAME_STR(ch), chan);
                     break;
