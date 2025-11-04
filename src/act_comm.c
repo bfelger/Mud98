@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -49,6 +49,7 @@
 #include <entities/player_data.h>
 
 #include <data/class.h>
+#include <data/events.h>
 #include <data/mobile_data.h>
 #include <data/player.h>
 
@@ -303,7 +304,7 @@ void do_auction(Mobile* ch, char* argument)
         REMOVE_BIT(ch->comm_flags, COMM_NOAUCTION);
     }
 
-    sprintf(buf, COLOR_AUCTION "You auction '{A%s{a'" COLOR_CLEAR "\n\r", argument);
+    sprintf(buf, COLOR_AUCTION "You auction '" COLOR_AUCTION_TEXT "%s" COLOR_AUCTION "'" COLOR_CLEAR "\n\r", argument);
     send_to_char(buf, ch);
     FOR_EACH(d, descriptor_list) {
         Mobile* victim;
@@ -313,7 +314,7 @@ void do_auction(Mobile* ch, char* argument)
         if (d->connected == CON_PLAYING && d->character != ch
             && !IS_SET(victim->comm_flags, COMM_NOAUCTION)
             && !IS_SET(victim->comm_flags, COMM_QUIET)) {
-            act_pos(COLOR_AUCTION "$n auctions '{A$t{a'" COLOR_CLEAR , ch, argument, d->character,
+            act_pos(COLOR_AUCTION "$n auctions '" COLOR_AUCTION_TEXT "$t" COLOR_AUCTION "'" COLOR_CLEAR , ch, argument, d->character,
                     TO_VICT, POS_DEAD);
         }
     }
@@ -695,7 +696,7 @@ void do_say(Mobile* ch, char* argument)
     if (!IS_NPC(ch)) {
         Mobile* mob = NULL;
         FOR_EACH_ROOM_MOB(mob, ch->in_room) {
-            if (IS_NPC(mob) && HAS_TRIGGER(mob, TRIG_SPEECH)
+            if (IS_NPC(mob) && HAS_MPROG_TRIGGER(mob, TRIG_SPEECH)
                 && mob->position == mob->prototype->default_pos)
                 mp_act_trigger(argument, mob, ch, NULL, NULL, TRIG_SPEECH);
         }
@@ -826,7 +827,7 @@ void do_tell(Mobile* ch, char* argument)
             POS_DEAD);
     victim->reply = ch;
 
-    if (!IS_NPC(ch) && IS_NPC(victim) && HAS_TRIGGER(victim, TRIG_SPEECH))
+    if (!IS_NPC(ch) && IS_NPC(victim) && HAS_MPROG_TRIGGER(victim, TRIG_SPEECH))
         mp_act_trigger(argument, victim, ch, NULL, NULL, TRIG_SPEECH);
 
     return;

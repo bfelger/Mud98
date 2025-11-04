@@ -18,21 +18,20 @@
  */
 
 #pragma once
-#ifndef MUD98__OLC_H
-#define MUD98__OLC_H
+#ifndef MUD98__OLC__OLC_H
+#define MUD98__OLC__OLC_H
 
-#include "interp.h"
-#include "tables.h"
-#include "tablesave.h"
+#include <tables.h>
+#include <tablesave.h>
 
-#include "entities/mob_prototype.h"
+#include <entities/mob_prototype.h>
 
-#include "data/class.h"
-#include "data/race.h"
-#include "data/skill.h"
-#include "data/spell.h"
-#include "data/social.h"
-#include "data/quest.h"
+#include <data/class.h>
+#include <data/race.h>
+#include <data/skill.h>
+#include <data/spell.h>
+#include <data/social.h>
+#include <data/quest.h>
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -54,6 +53,10 @@
                     "     (Port to ROM 2.4 - Nov 2, 1996)\n\r"
 #define OLC_CREDITS	"     Original by Surreality(cxw197@psu.edu) and  "     \
                          "Locke(locke@lm.com)"
+
+typedef struct cmd_info_t CmdInfo;
+typedef struct mob_prog_code_t  MobProgCode;
+typedef struct skill_t Skill;
 
 // New typedefs.
 typedef	bool OlcFunc(Mobile* ch, char* argument);
@@ -396,4 +399,6 @@ void show_sizelist(Mobile* ch);
 void InitScreen(Descriptor*);
 char* fix_string(const char* str);
 
-#endif // !MUD98__OLC_H
+const char* olc_show_flags(const char* label, const struct flag_type* flag_table, FLAGS flags);
+
+#endif // !MUD98__OLC__OLC_H

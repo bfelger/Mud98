@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -67,6 +67,7 @@
 #include <data/mobile_data.h>
 #include <data/player.h>
 #include <data/race.h>
+#include <data/events.h>
 
 #include <lox/lox.h>
 #include <lox/object.h>
@@ -2357,7 +2358,7 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
 
     FOR_EACH_ROOM_MOB(to, to_room) {
         if ((!IS_NPC(to) && to->desc == NULL)
-            || (IS_NPC(to) && !HAS_TRIGGER(to, TRIG_ACT) && !HAS_EVENT_TRIGGER(to, TRIG_ACT))
+            || (IS_NPC(to) && !HAS_MPROG_TRIGGER(to, TRIG_ACT) && !HAS_EVENT_TRIGGER(to, TRIG_ACT))
             || to->position < min_pos)
             continue;
 

@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -42,15 +42,16 @@
 #include "skills.h"
 #include "update.h"
 
-#include "entities/descriptor.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
+#include <entities/descriptor.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
 
-#include "data/class.h"
-#include "data/mobile_data.h"
-#include "data/player.h"
-#include "data/race.h"
-#include "data/skill.h"
+#include <data/class.h>
+#include <data/events.h>
+#include <data/mobile_data.h>
+#include <data/player.h>
+#include <data/race.h>
+#include <data/skill.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -131,9 +132,9 @@ void violence_update()
         check_assist(ch, victim);
 
         if (IS_NPC(ch)) {
-            if (HAS_TRIGGER(ch, TRIG_FIGHT))
+            if (HAS_MPROG_TRIGGER(ch, TRIG_FIGHT))
                 mp_percent_trigger(ch, victim, NULL, NULL, TRIG_FIGHT);
-            if (HAS_TRIGGER(ch, TRIG_HPCNT))
+            if (HAS_MPROG_TRIGGER(ch, TRIG_HPCNT))
                 mp_hprct_trigger(ch, victim);
         }
     }
@@ -690,7 +691,7 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
         if (victim->position > POS_STUNNED) {
             if (victim->fighting == NULL) {
                 set_fighting(victim, ch);
-                if (IS_NPC(victim) && HAS_TRIGGER(victim, TRIG_KILL))
+                if (IS_NPC(victim) && HAS_MPROG_TRIGGER(victim, TRIG_KILL))
                     mp_percent_trigger(victim, ch, NULL, NULL, TRIG_KILL);
             }
             if (victim->timer <= 4)
@@ -859,7 +860,7 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
             wiznet(log_buf, NULL, NULL, WIZ_DEATHS, 0, 0);
 
         // Death trigger
-        if (IS_NPC(victim) && HAS_TRIGGER(victim, TRIG_DEATH)) {
+        if (IS_NPC(victim) && HAS_MPROG_TRIGGER(victim, TRIG_DEATH)) {
             victim->position = POS_STANDING;
             mp_percent_trigger(victim, ch, NULL, NULL, TRIG_DEATH);
         }
@@ -2870,7 +2871,7 @@ void do_surrender(Mobile* ch, char* argument)
     stop_fighting(ch, true);
 
     if (!IS_NPC(ch) && IS_NPC(mob)
-        && (!HAS_TRIGGER(mob, TRIG_SURR)
+        && (!HAS_MPROG_TRIGGER(mob, TRIG_SURR)
             || !mp_percent_trigger(mob, ch, NULL, NULL, TRIG_SURR))) {
         act("$N seems to ignore your cowardly act!", ch, NULL, mob, TO_CHAR);
         multi_hit(mob, ch, TYPE_UNDEFINED);

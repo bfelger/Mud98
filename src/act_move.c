@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -38,16 +38,17 @@
 #include "skills.h"
 #include "update.h"
 
-#include "entities/descriptor.h"
-#include "entities/room_exit.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
-#include "entities/room.h"
+#include <entities/descriptor.h>
+#include <entities/room_exit.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
+#include <entities/room.h>
 
-#include "data/class.h"
-#include "data/direction.h"
-#include "data/mobile_data.h"
-#include "data/skill.h"
+#include <data/class.h>
+#include <data/direction.h>
+#include <data/events.h>
+#include <data/mobile_data.h>
+#include <data/skill.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -215,7 +216,7 @@ void move_char(Mobile* ch, int door, bool follow)
     
     // If someone is following the char, these triggers get activated for the
     // followers before the char, but it's safer this way...
-    if (IS_NPC(ch) && HAS_TRIGGER(ch, TRIG_ENTRY)) {
+    if (IS_NPC(ch) && HAS_MPROG_TRIGGER(ch, TRIG_ENTRY)) {
         mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_ENTRY);
     }
 

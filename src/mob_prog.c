@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -1171,7 +1171,7 @@ bool mp_exit_trigger(Mobile* ch, int dir)
 
     FOR_EACH_ROOM_MOB(mob, ch->in_room) {
         if (IS_NPC(mob)
-            && (HAS_TRIGGER(mob, TRIG_EXIT) || HAS_TRIGGER(mob, TRIG_EXALL))) {
+            && (HAS_MPROG_TRIGGER(mob, TRIG_EXIT) || HAS_MPROG_TRIGGER(mob, TRIG_EXALL))) {
             FOR_EACH(prg, mob->prototype->mprogs) {
             /*
              * Exit trigger works only if the mobile is not busy
@@ -1270,11 +1270,11 @@ void event_greet_trigger(Mobile* ch)
                 * (fighting etc.). If you want to catch all players, use
                 * GrAll trigger
                 */
-            if (HAS_TRIGGER(mob, TRIG_GREET)
+            if (HAS_MPROG_TRIGGER(mob, TRIG_GREET)
                 && mob->position == mob->prototype->default_pos
                 && can_see(mob, ch))
                 mp_percent_trigger(mob, ch, NULL, NULL, TRIG_GREET);
-            else if (HAS_TRIGGER(mob, TRIG_GRALL))
+            else if (HAS_MPROG_TRIGGER(mob, TRIG_GRALL))
                 mp_percent_trigger(mob, ch, NULL, NULL, TRIG_GRALL);
         }
     }

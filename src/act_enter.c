@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -33,11 +33,12 @@
 #include "interp.h"
 #include "mob_prog.h"
 
-#include "entities/descriptor.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
+#include <entities/descriptor.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
 
-#include "data/mobile_data.h"
+#include <data/events.h>
+#include <data/mobile_data.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -143,8 +144,8 @@ void do_enter(Mobile* ch, char* argument)
 
         transfer_mob(ch, location);
 
-        if (IS_SET(portal->value[2], PORTAL_GOWITH)) /* take the gate along */
-        {
+        if (IS_SET(portal->value[2], PORTAL_GOWITH)) {
+            // Take the gate along
             obj_from_room(portal);
             obj_to_room(portal, location);
         }
@@ -203,7 +204,7 @@ void do_enter(Mobile* ch, char* argument)
 
         // If someone is following the char, these triggers get activated for 
         // the followers before the char, but it's safer this way...
-        if (IS_NPC(ch) && HAS_TRIGGER(ch, TRIG_ENTRY))
+        if (IS_NPC(ch) && HAS_MPROG_TRIGGER(ch, TRIG_ENTRY))
             mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_ENTRY);
 
         if (!IS_NPC(ch))

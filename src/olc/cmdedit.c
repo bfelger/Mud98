@@ -2,22 +2,23 @@
 // skedit.c
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "merc.h"
+#include <merc.h>
 
 #include "bit.h"
-#include "comm.h"
-#include "db.h"
-#include "handler.h"
-#include "interp.h"
-#include "tables.h"
-#include "lookup.h"
 #include "olc.h"
-#include "recycle.h"
 
-#include "entities/descriptor.h"
-#include "entities/player_data.h"
+#include <comm.h>
+#include <db.h>
+#include <handler.h>
+#include <interp.h>
+#include <tables.h>
+#include <lookup.h>
+#include <recycle.h>
 
-#include "data/mobile_data.h"
+#include <entities/descriptor.h>
+#include <entities/player_data.h>
+
+#include <data/mobile_data.h>
 
 #define CMDEDIT(fun)bool fun( Mobile *ch, char *argument )
 

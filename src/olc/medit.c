@@ -254,12 +254,12 @@ MEDIT(medit_show)
     addf_buf(buffer, "Act:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r",
         flag_string(act_flag_table, pMob->act_flags));
 
-    addf_buf(buffer, "Form:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(form_flag_table, pMob->form));
-    addf_buf(buffer, "Parts:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(part_flag_table, pMob->parts));
-    addf_buf(buffer, "Imm:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(imm_flag_table, pMob->imm_flags));
-    addf_buf(buffer, "Res:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(res_flag_table, pMob->res_flags));
-    addf_buf(buffer, "Vuln:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(vuln_flag_table, pMob->vuln_flags));
-    addf_buf(buffer, "Off:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(off_flag_table, pMob->atk_flags));
+    addf_buf(buffer, "%s\n\r", olc_show_flags("Form", form_flag_table, pMob->form));
+    addf_buf(buffer, "%s\n\r", olc_show_flags("Parts", part_flag_table, pMob->parts));
+    addf_buf(buffer, "%s\n\r", olc_show_flags("Imm", imm_flag_table, pMob->imm_flags));
+    addf_buf(buffer, "%s\n\r", olc_show_flags("Res", res_flag_table, pMob->res_flags));
+    addf_buf(buffer, "%s\n\r", olc_show_flags("Vuln", vuln_flag_table, pMob->vuln_flags));
+    addf_buf(buffer, "%s\n\r", olc_show_flags("Off", off_flag_table, pMob->atk_flags));
 
     if (pMob->spec_fun) {
         addf_buf(buffer, "Spec fun:    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", spec_name(pMob->spec_fun));

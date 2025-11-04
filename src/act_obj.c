@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -42,13 +42,14 @@
 #include "update.h"
 #include "weather.h"
 
-#include "entities/descriptor.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
+#include <entities/descriptor.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
 
-#include "data/mobile_data.h"
-#include "data/player.h"
-#include "data/skill.h"
+#include <data/events.h>
+#include <data/mobile_data.h>
+#include <data/player.h>
+#include <data/skill.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -637,7 +638,7 @@ void do_give(Mobile* ch, char* argument)
         act(buf, ch, NULL, victim, TO_CHAR);
 
         // Bribe trigger
-        if (IS_NPC(victim) && HAS_TRIGGER(victim, TRIG_BRIBE))
+        if (IS_NPC(victim) && HAS_MPROG_TRIGGER(victim, TRIG_BRIBE))
             mp_bribe_trigger(victim, ch, silver ? amount : amount * 100);
 
 
@@ -729,7 +730,7 @@ void do_give(Mobile* ch, char* argument)
     events_enabled = true;
 
     // Give trigger
-    if (IS_NPC(victim) && HAS_TRIGGER(victim, TRIG_GIVE))
+    if (IS_NPC(victim) && HAS_MPROG_TRIGGER(victim, TRIG_GIVE))
         mp_give_trigger(victim, ch, obj);
 
     return;

@@ -13,26 +13,27 @@
 
 #include "olc.h"
 
-#include "act_comm.h"
-#include "act_move.h"
 #include "bit.h"
-#include "comm.h"
-#include "db.h"
-#include "handler.h"
-#include "interp.h"
-#include "lookup.h"
-#include "skills.h"
-#include "tables.h"
 
-#include "entities/descriptor.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
-#include "entities/reset.h"
+#include <act_comm.h>
+#include <act_move.h>
+#include <comm.h>
+#include <db.h>
+#include <handler.h>
+#include <interp.h>
+#include <lookup.h>
+#include <skills.h>
+#include <tables.h>
 
-#include "data/mobile_data.h"
-#include "data/race.h"
-#include "data/skill.h"
-#include "data/social.h"
+#include <entities/descriptor.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
+#include <entities/reset.h>
+
+#include <data/mobile_data.h>
+#include <data/race.h>
+#include <data/skill.h>
+#include <data/social.h>
 
 #include <sys/types.h>
 #include <ctype.h>
@@ -574,6 +575,17 @@ void do_page(Mobile* ch, char* argument)
 
     send_to_char("Changed editor scroll. If you don't see anything, change to another number.\n\r", ch);
     return;
+}
+
+const char* olc_show_flags(const char* label, const struct flag_type* flag_table, FLAGS flags)
+{
+    char label_buf[MIL];
+    static char buf[MSL];
+
+    sprintf(label_buf, "%s:", label);
+    sprintf(buf, "%12s " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s" COLOR_DECOR_1 " ]" COLOR_CLEAR, label_buf, flag_string(flag_table, flags));
+
+    return buf;
 }
 
 #undef U

@@ -9,7 +9,10 @@
 
 #include <merc.h>
 
-typedef enum {
+//#include <olc/bit.h>
+//#include <olc/olc.h>
+
+typedef enum event_trigger_t {
     TRIG_ACT    = BIT(0),           // A
     TRIG_BRIBE  = BIT(1),           // B
     TRIG_DEATH  = BIT(2),           // C
@@ -28,6 +31,22 @@ typedef enum {
     TRIG_SURR   = BIT(16),          // P
     TRIG_LOGIN  = BIT(17),          // Q
 } EventTrigger;
+
+typedef enum {
+    ENT_AREA    = BIT(0),
+    ENT_ROOM    = BIT(1),
+    ENT_MOB     = BIT(2),
+    ENT_OBJ     = BIT(3),
+    ENT_QUEST   = BIT(4),
+} EventEnts;
+
+typedef struct {
+    EventTrigger trigger;           // EventTrigger
+    const char* default_callback;   // Lox method to call (by default)
+    FLAGS valid_ents;               // Valid recipients
+} EventDefaultConfig;
+
+extern const EventDefaultConfig event_default_configs[];
 
 #define LAST_TRIG TRIG_LOGIN
 

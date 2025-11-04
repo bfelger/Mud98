@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -31,11 +31,12 @@
 
 #include "comm.h"
 
-#include "entities/descriptor.h"
+#include <entities/descriptor.h>
 
-#include "data/damage.h"
-#include "data/mobile_data.h"
-#include "data/skill.h"
+#include <data/damage.h>
+#include <data/events.h>
+#include <data/mobile_data.h>
+#include <data/skill.h>
 
 #include <stdio.h>
 #include <string.h>

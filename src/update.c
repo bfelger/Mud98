@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -49,6 +49,7 @@
 #include <entities/object.h>
 #include <entities/player_data.h>
 
+#include <data/events.h>
 #include <data/mobile_data.h>
 #include <data/race.h>
 #include <data/skill.h>
@@ -435,14 +436,14 @@ void mobile_update()
             */
         if (ch->position == ch->prototype->default_pos) {
             /* Delay */
-            if (HAS_TRIGGER(ch, TRIG_DELAY)
+            if (HAS_MPROG_TRIGGER(ch, TRIG_DELAY)
                 && ch->mprog_delay > 0) {
                 if (--ch->mprog_delay <= 0) {
                     mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_DELAY);
                     continue;
                 }
             }
-            if (HAS_TRIGGER(ch, TRIG_RANDOM)) {
+            if (HAS_MPROG_TRIGGER(ch, TRIG_RANDOM)) {
                 if (mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_RANDOM))
                     continue;
             }
