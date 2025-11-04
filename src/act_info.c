@@ -46,18 +46,19 @@
 #include "tables.h"
 #include "weather.h"
 
-#include "entities/area.h"
-#include "entities/descriptor.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
+#include <entities/area.h>
+#include <entities/descriptor.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
 
-#include "data/class.h"
-#include "data/direction.h"
-#include "data/mobile_data.h"
-#include "data/player.h"
-#include "data/race.h"
-#include "data/skill.h"
-#include "data/social.h"
+#include <data/class.h>
+#include <data/direction.h>
+#include <data/item.h>
+#include <data/mobile_data.h>
+#include <data/player.h>
+#include <data/race.h>
+#include <data/skill.h>
+#include <data/social.h>
 
 #include <ctype.h>
 #include <stdio.h>
@@ -73,17 +74,6 @@
     #include <crypt.h>
     #endif
 #endif
-
-
-char* const where_name[] = {
-    "<used as light>     ", "<worn on finger>    ", "<worn on finger>    ",
-    "<worn around neck>  ", "<worn around neck>  ", "<worn on torso>     ",
-    "<worn on head>      ", "<worn on legs>      ", "<worn on feet>      ",
-    "<worn on hands>     ", "<worn on arms>      ", "<worn as shield>    ",
-    "<worn about body>   ", "<worn about waist>  ", "<worn around wrist> ",
-    "<worn around wrist> ", "<wielded>           ", "<held>              ",
-    "<floating nearby>   ",
-};
 
 /* for  keeping track of the player count */
 int max_on = 0;
@@ -1957,7 +1947,7 @@ void do_compare(Mobile* ch, char* argument)
         return;
     }
 
-    if ((obj1 = get_obj_carry(ch, arg1, ch)) == NULL) {
+    if ((obj1 = get_obj_carry(ch, arg1)) == NULL) {
         send_to_char("You do not have that item.\n\r", ch);
         return;
     }
@@ -1975,7 +1965,7 @@ void do_compare(Mobile* ch, char* argument)
             return;
         }
     }
-    else if ((obj2 = get_obj_carry(ch, arg2, ch)) == NULL) {
+    else if ((obj2 = get_obj_carry(ch, arg2)) == NULL) {
         send_to_char("You do not have that item.\n\r", ch);
         return;
     }

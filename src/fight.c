@@ -99,7 +99,7 @@ void group_gain args((Mobile * ch, Mobile* victim));
 int xp_compute args((Mobile * gch, Mobile* victim, int total_levels));
 bool is_safe args((Mobile * ch, Mobile* victim));
 void make_corpse args((Mobile * ch));
-void one_hit(Mobile * ch, Mobile* victim, int16_t dt);
+void one_hit(Mobile * ch, Mobile* victim, int16_t dt, bool secondary);
 void mob_hit(Mobile * ch, Mobile* victim, int16_t dt);
 void raw_kill args((Mobile * victim));
 void set_fighting args((Mobile * ch, Mobile* victim));
@@ -236,13 +236,29 @@ void multi_hit(Mobile* ch, Mobile* victim, int16_t dt)
         return;
     }
 
-    one_hit(ch, victim, dt);
+    one_hit(ch, victim, dt, false);
+
+    if (get_eq_char(ch, WEAR_WIELD_OH)) {
+        chance = get_skill(ch, gsn_dual_wield) / 2;
+
+        if (IS_AFFECTED(ch, AFF_SLOW))
+            chance /= 2;
+
+        if (number_percent() < chance) {
+            one_hit(ch, victim, dt, true);
+            check_improve(ch, gsn_dual_wield, true, 5);
+            if (ch->fighting != victim)
+                return;
+        }
+        else
+            check_improve(ch, gsn_dual_wield, false, 5);
+    }
 
     if (ch->fighting != victim)
         return;
 
     if (IS_AFFECTED(ch, AFF_HASTE))
-        one_hit(ch, victim, dt);
+        one_hit(ch, victim, dt, false);
 
     if (ch->fighting != victim || dt == gsn_backstab)
         return;
@@ -253,11 +269,13 @@ void multi_hit(Mobile* ch, Mobile* victim, int16_t dt)
         chance /= 2;
 
     if (number_percent() < chance) {
-        one_hit(ch, victim, dt);
+        one_hit(ch, victim, dt, false);
         check_improve(ch, gsn_second_attack, true, 5);
         if (ch->fighting != victim) 
             return;
     }
+    else
+        check_improve(ch, gsn_second_attack, false, 5);
 
     chance = get_skill(ch, gsn_third_attack) / 4;
 
@@ -265,10 +283,13 @@ void multi_hit(Mobile* ch, Mobile* victim, int16_t dt)
         chance = 0;
 
     if (number_percent() < chance) {
-        one_hit(ch, victim, dt);
+        one_hit(ch, victim, dt, false);
         check_improve(ch, gsn_third_attack, true, 6);
-        if (ch->fighting != victim) return;
+        if (ch->fighting != victim)
+            return;
     }
+    else
+        check_improve(ch, gsn_third_attack, false, 5);
 
     return;
 }
@@ -279,7 +300,7 @@ void mob_hit(Mobile* ch, Mobile* victim, int16_t dt)
     int chance, number;
     Mobile* vch;
 
-    one_hit(ch, victim, dt);
+    one_hit(ch, victim, dt, false);
 
     if (ch->fighting != victim) return;
 
@@ -288,13 +309,13 @@ void mob_hit(Mobile* ch, Mobile* victim, int16_t dt)
     if (IS_SET(ch->atk_flags, ATK_AREA_ATTACK)) {
         FOR_EACH_ROOM_MOB(vch, ch->in_room) {
             if ((vch != victim && vch->fighting == ch))
-                one_hit(ch, vch, dt);
+                one_hit(ch, vch, dt, false);
         }
     }
 
     if (IS_AFFECTED(ch, AFF_HASTE)
         || (IS_SET(ch->atk_flags, ATK_FAST) && !IS_AFFECTED(ch, AFF_SLOW)))
-        one_hit(ch, victim, dt);
+        one_hit(ch, victim, dt, false);
 
     if (ch->fighting != victim || dt == gsn_backstab) 
         return;
@@ -305,7 +326,7 @@ void mob_hit(Mobile* ch, Mobile* victim, int16_t dt)
         chance /= 2;
 
     if (number_percent() < chance) {
-        one_hit(ch, victim, dt);
+        one_hit(ch, victim, dt, false);
         if (ch->fighting != victim) 
             return;
     }
@@ -316,7 +337,7 @@ void mob_hit(Mobile* ch, Mobile* victim, int16_t dt)
         chance = 0;
 
     if (number_percent() < chance) {
-        one_hit(ch, victim, dt);
+        one_hit(ch, victim, dt, false);
         if (ch->fighting != victim) 
             return;
     }
@@ -392,7 +413,7 @@ void mob_hit(Mobile* ch, Mobile* victim, int16_t dt)
 }
 
 // Hit one guy once.
-void one_hit(Mobile* ch, Mobile* victim, int16_t dt)
+void one_hit(Mobile* ch, Mobile* victim, int16_t dt, bool secondary)
 {
     Object* wield;
     int victim_ac;
@@ -420,7 +441,11 @@ void one_hit(Mobile* ch, Mobile* victim, int16_t dt)
         return;
 
     // Figure out the type of damage message.
-    wield = get_eq_char(ch, WEAR_WIELD);
+    // If secondary == true, use the second weapon.
+    if (!secondary)
+        wield = get_eq_char(ch, WEAR_WIELD);
+    else
+        wield = get_eq_char(ch, WEAR_WIELD_OH);
 
     if (dt == TYPE_UNDEFINED) {
         dt = TYPE_HIT;
@@ -1899,13 +1924,13 @@ void dam_message(Mobile* ch, Mobile* victim, int dam, int dt, bool immune)
 
     if (dt == TYPE_HIT) {
         if (ch == victim) {
-            sprintf(buf1, "{3$n %s $melf%c" COLOR_CLEAR , vp, punct);
-            sprintf(buf2, "{2You %s yourself%c" COLOR_CLEAR , vs, punct);
+            sprintf(buf1, COLOR_FIGHT_OHIT "$n %s $melf%c" COLOR_CLEAR , vp, punct);
+            sprintf(buf2, COLOR_FIGHT_YHIT "You %s yourself%c" COLOR_CLEAR , vs, punct);
         }
         else {
-            sprintf(buf1, "{3$n %s $N%c" COLOR_CLEAR , vp, punct);
-            sprintf(buf2, "{2You %s $N%c" COLOR_CLEAR , vs, punct);
-            sprintf(buf3, "{4$n %s you%c" COLOR_CLEAR , vp, punct);
+            sprintf(buf1, COLOR_FIGHT_OHIT "$n %s $N%c" COLOR_CLEAR , vp, punct);
+            sprintf(buf2, COLOR_FIGHT_YHIT "You %s $N%c" COLOR_CLEAR , vs, punct);
+            sprintf(buf3, COLOR_FIGHT_THIT "$n %s you%c" COLOR_CLEAR , vp, punct);
         }
     }
     else {
@@ -1921,24 +1946,24 @@ void dam_message(Mobile* ch, Mobile* victim, int dam, int dt, bool immune)
 
         if (immune) {
             if (ch == victim) {
-                sprintf(buf1, "{3$n is unaffected by $s own %s." COLOR_CLEAR , attack);
-                sprintf(buf2, "{2Luckily, you are immune to that." COLOR_CLEAR );
+                sprintf(buf1, COLOR_FIGHT_OHIT "$n is unaffected by $s own %s." COLOR_CLEAR , attack);
+                sprintf(buf2, COLOR_FIGHT_YHIT "Luckily, you are immune to that." COLOR_CLEAR );
             }
             else {
-                sprintf(buf1, "{3$N is unaffected by $n's %s!" COLOR_CLEAR , attack);
-                sprintf(buf2, "{2$N is unaffected by your %s!" COLOR_CLEAR , attack);
-                sprintf(buf3, "{4$n's %s is powerless against you." COLOR_CLEAR , attack);
+                sprintf(buf1, COLOR_FIGHT_OHIT "$N is unaffected by $n's %s!" COLOR_CLEAR , attack);
+                sprintf(buf2, COLOR_FIGHT_YHIT "$N is unaffected by your %s!" COLOR_CLEAR , attack);
+                sprintf(buf3, COLOR_FIGHT_THIT "$n's %s is powerless against you." COLOR_CLEAR , attack);
             }
         }
         else {
             if (ch == victim) {
-                sprintf(buf1, "{3$n's %s %s $m%c" COLOR_CLEAR , attack, vp, punct);
-                sprintf(buf2, "{2Your %s %s you%c" COLOR_CLEAR , attack, vp, punct);
+                sprintf(buf1, COLOR_FIGHT_OHIT "$n's %s %s $m%c" COLOR_CLEAR , attack, vp, punct);
+                sprintf(buf2, COLOR_FIGHT_YHIT "Your %s %s you%c" COLOR_CLEAR , attack, vp, punct);
             }
             else {
-                sprintf(buf1, "{3$n's %s %s $N%c" COLOR_CLEAR , attack, vp, punct);
-                sprintf(buf2, "{2Your %s %s $N%c" COLOR_CLEAR , attack, vp, punct);
-                sprintf(buf3, "{4$n's %s %s you%c" COLOR_CLEAR , attack, vp, punct);
+                sprintf(buf1, COLOR_FIGHT_OHIT "$n's %s %s $N%c" COLOR_CLEAR , attack, vp, punct);
+                sprintf(buf2, COLOR_FIGHT_YHIT "Your %s %s $N%c" COLOR_CLEAR , attack, vp, punct);
+                sprintf(buf3, COLOR_FIGHT_THIT "$n's %s %s you%c" COLOR_CLEAR , attack, vp, punct);
             }
         }
     }
@@ -1967,18 +1992,18 @@ void disarm(Mobile* ch, Mobile* victim)
     if ((obj = get_eq_char(victim, WEAR_WIELD)) == NULL) return;
 
     if (IS_OBJ_STAT(obj, ITEM_NOREMOVE)) {
-        act("{5$S weapon won't budge!" COLOR_CLEAR , ch, NULL, victim, TO_CHAR);
-        act("{5$n tries to disarm you, but your weapon won't budge!" COLOR_CLEAR , ch,
+        act(COLOR_FIGHT_SKILL "$S weapon won't budge!" COLOR_CLEAR , ch, NULL, victim, TO_CHAR);
+        act(COLOR_FIGHT_SKILL "$n tries to disarm you, but your weapon won't budge!" COLOR_CLEAR , ch,
             NULL, victim, TO_VICT);
-        act("{5$n tries to disarm $N, but fails." COLOR_CLEAR , ch, NULL, victim,
+        act(COLOR_FIGHT_SKILL "$n tries to disarm $N, but fails." COLOR_CLEAR , ch, NULL, victim,
             TO_NOTVICT);
         return;
     }
 
-    act("{5$n DISARMS you and sends your weapon flying!" COLOR_CLEAR , ch, NULL, victim,
+    act(COLOR_FIGHT_SKILL "$n DISARMS you and sends your weapon flying!" COLOR_CLEAR , ch, NULL, victim,
         TO_VICT);
-    act("{5You disarm $N!" COLOR_CLEAR , ch, NULL, victim, TO_CHAR);
-    act("{5$n disarms $N!" COLOR_CLEAR , ch, NULL, victim, TO_NOTVICT);
+    act(COLOR_FIGHT_SKILL "You disarm $N!" COLOR_CLEAR , ch, NULL, victim, TO_CHAR);
+    act(COLOR_FIGHT_SKILL "$n disarms $N!" COLOR_CLEAR , ch, NULL, victim, TO_NOTVICT);
 
     obj_from_char(obj);
     if (IS_OBJ_STAT(obj, ITEM_NODROP) || IS_OBJ_STAT(obj, ITEM_INVENTORY))
@@ -2156,11 +2181,11 @@ void do_bash(Mobile* ch, char* argument)
 
     /* now the attack */
     if (number_percent() < chance) {
-        act("{5$n sends you sprawling with a powerful bash!" COLOR_CLEAR , ch, NULL,
+        act(COLOR_FIGHT_SKILL "$n sends you sprawling with a powerful bash!" COLOR_CLEAR , ch, NULL,
             victim, TO_VICT);
-        act("{5You slam into $N, and send $M flying!" COLOR_CLEAR , ch, NULL, victim,
+        act(COLOR_FIGHT_SKILL "You slam into $N, and send $M flying!" COLOR_CLEAR , ch, NULL, victim,
             TO_CHAR);
-        act("{5$n sends $N sprawling with a powerful bash." COLOR_CLEAR , ch, NULL, victim,
+        act(COLOR_FIGHT_SKILL "$n sends $N sprawling with a powerful bash." COLOR_CLEAR , ch, NULL, victim,
             TO_NOTVICT);
         check_improve(ch, gsn_bash, true, 1);
 
@@ -2172,9 +2197,9 @@ void do_bash(Mobile* ch, char* argument)
     }
     else {
         damage(ch, victim, 0, gsn_bash, DAM_BASH, false);
-        act("{5You fall flat on your face!" COLOR_CLEAR , ch, NULL, victim, TO_CHAR);
-        act("{5$n falls flat on $s face." COLOR_CLEAR , ch, NULL, victim, TO_NOTVICT);
-        act("{5You evade $n's bash, causing $m to fall flat on $s face." COLOR_CLEAR , ch,
+        act(COLOR_FIGHT_SKILL "You fall flat on your face!" COLOR_CLEAR , ch, NULL, victim, TO_CHAR);
+        act(COLOR_FIGHT_SKILL "$n falls flat on $s face." COLOR_CLEAR , ch, NULL, victim, TO_NOTVICT);
+        act(COLOR_FIGHT_SKILL "You evade $n's bash, causing $m to fall flat on $s face." COLOR_CLEAR , ch,
             NULL, victim, TO_VICT);
         check_improve(ch, gsn_bash, false, 1);
         ch->position = POS_RESTING;
@@ -2296,11 +2321,11 @@ void do_dirt(Mobile* ch, char* argument)
     /* now the attack */
     if (number_percent() < chance) {
         Affect af = { 0 };
-        act("{5$n is blinded by the dirt in $s eyes!" COLOR_CLEAR , victim, NULL, NULL,
+        act(COLOR_FIGHT_SKILL "$n is blinded by the dirt in $s eyes!" COLOR_CLEAR , victim, NULL, NULL,
             TO_ROOM);
-        act("{5$n kicks dirt in your eyes!" COLOR_CLEAR , ch, NULL, victim, TO_VICT);
+        act(COLOR_FIGHT_SKILL "$n kicks dirt in your eyes!" COLOR_CLEAR , ch, NULL, victim, TO_VICT);
         damage(ch, victim, number_range(2, 5), gsn_dirt, DAM_NONE, false);
-        send_to_char("{5You can't see a thing!" COLOR_CLEAR "\n\r", victim);
+        send_to_char(COLOR_FIGHT_SKILL "You can't see a thing!" COLOR_CLEAR "\n\r", victim);
         check_improve(ch, gsn_dirt, true, 2);
         WAIT_STATE(ch, skill_table[gsn_dirt].beats);
 
@@ -2370,9 +2395,9 @@ void do_trip(Mobile* ch, char* argument)
     }
 
     if (victim == ch) {
-        send_to_char("{5You fall flat on your face!" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_FIGHT_SKILL "You fall flat on your face!" COLOR_CLEAR "\n\r", ch);
         WAIT_STATE(ch, 2 * skill_table[gsn_trip].beats);
-        act("{5$n trips over $s own feet!" COLOR_CLEAR , ch, NULL, NULL, TO_ROOM);
+        act(COLOR_FIGHT_SKILL "$n trips over $s own feet!" COLOR_CLEAR , ch, NULL, NULL, TO_ROOM);
         return;
     }
 
@@ -2402,9 +2427,9 @@ void do_trip(Mobile* ch, char* argument)
 
     /* now the attack */
     if (number_percent() < chance) {
-        act("{5$n trips you and you go down!" COLOR_CLEAR , ch, NULL, victim, TO_VICT);
-        act("{5You trip $N and $N goes down!" COLOR_CLEAR , ch, NULL, victim, TO_CHAR);
-        act("{5$n trips $N, sending $M to the ground." COLOR_CLEAR , ch, NULL, victim,
+        act(COLOR_FIGHT_SKILL "$n trips you and you go down!" COLOR_CLEAR , ch, NULL, victim, TO_VICT);
+        act(COLOR_FIGHT_SKILL "You trip $N and $N goes down!" COLOR_CLEAR , ch, NULL, victim, TO_CHAR);
+        act(COLOR_FIGHT_SKILL "$n trips $N, sending $M to the ground." COLOR_CLEAR , ch, NULL, victim,
             TO_NOTVICT);
         check_improve(ch, gsn_trip, true, 1);
 
@@ -2703,9 +2728,9 @@ void do_rescue(Mobile* ch, char* argument)
         return;
     }
 
-    act("{5You rescue $N!" COLOR_CLEAR , ch, NULL, victim, TO_CHAR);
-    act("{5$n rescues you!" COLOR_CLEAR , ch, NULL, victim, TO_VICT);
-    act("{5$n rescues $N!" COLOR_CLEAR , ch, NULL, victim, TO_NOTVICT);
+    act(COLOR_FIGHT_SKILL "You rescue $N!" COLOR_CLEAR , ch, NULL, victim, TO_CHAR);
+    act(COLOR_FIGHT_SKILL "$n rescues you!" COLOR_CLEAR , ch, NULL, victim, TO_VICT);
+    act(COLOR_FIGHT_SKILL "$n rescues $N!" COLOR_CLEAR , ch, NULL, victim, TO_NOTVICT);
     check_improve(ch, gsn_rescue, true, 1);
 
     stop_fighting(fch, false);
@@ -2808,10 +2833,10 @@ void do_disarm(Mobile* ch, char* argument)
     }
     else {
         WAIT_STATE(ch, skill_table[gsn_disarm].beats);
-        act("{5You fail to disarm $N." COLOR_CLEAR , ch, NULL, victim, TO_CHAR);
-        act("{5$n tries to disarm you, but fails." COLOR_CLEAR , ch, NULL, victim,
+        act(COLOR_FIGHT_SKILL "You fail to disarm $N." COLOR_CLEAR , ch, NULL, victim, TO_CHAR);
+        act(COLOR_FIGHT_SKILL "$n tries to disarm you, but fails." COLOR_CLEAR , ch, NULL, victim,
             TO_VICT);
-        act("{5$n tries to disarm $N, but fails." COLOR_CLEAR , ch, NULL, victim,
+        act(COLOR_FIGHT_SKILL "$n tries to disarm $N, but fails." COLOR_CLEAR , ch, NULL, victim,
             TO_NOTVICT);
         check_improve(ch, gsn_disarm, false, 1);
     }
@@ -2851,9 +2876,9 @@ void do_slay(Mobile* ch, char* argument)
         return;
     }
 
-    act("{1You slay $M in cold blood!" COLOR_CLEAR , ch, NULL, victim, TO_CHAR);
-    act("{1$n slays you in cold blood!" COLOR_CLEAR , ch, NULL, victim, TO_VICT);
-    act("{1$n slays $N in cold blood!" COLOR_CLEAR , ch, NULL, victim, TO_NOTVICT);
+    act(COLOR_FIGHT_DEATH "You slay $M in cold blood!" COLOR_CLEAR , ch, NULL, victim, TO_CHAR);
+    act(COLOR_FIGHT_DEATH "$n slays you in cold blood!" COLOR_CLEAR , ch, NULL, victim, TO_VICT);
+    act(COLOR_FIGHT_DEATH "$n slays $N in cold blood!" COLOR_CLEAR , ch, NULL, victim, TO_NOTVICT);
     raw_kill(victim);
     return;
 }

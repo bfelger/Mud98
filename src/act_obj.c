@@ -63,7 +63,7 @@
 // Local functions.
 #define CD Mobile
 #define OD Object
-bool remove_obj args((Mobile * ch, int iWear, bool fReplace));
+
 void wear_obj args((Mobile * ch, Object* obj, bool fReplace));
 CD* find_keeper args((Mobile * ch));
 int get_cost args((Mobile * keeper, Object* obj, bool fBuy));
@@ -353,7 +353,7 @@ void do_put(Mobile* ch, char* argument)
 
     if (str_cmp(arg1, "all") && str_prefix("all.", arg1)) {
         /* 'put obj container' */
-        if ((obj = get_obj_carry(ch, arg1, ch)) == NULL) {
+        if ((obj = get_obj_carry(ch, arg1)) == NULL) {
             send_to_char("You do not have that item.\n\r", ch);
             return;
         }
@@ -524,7 +524,7 @@ void do_drop(Mobile* ch, char* argument)
 
     if (str_cmp(arg, "all") && str_prefix("all.", arg)) {
         /* 'drop obj' */
-        if ((obj = get_obj_carry(ch, arg, ch)) == NULL) {
+        if ((obj = get_obj_carry(ch, arg)) == NULL) {
             send_to_char("You do not have that item.\n\r", ch);
             return;
         }
@@ -679,7 +679,7 @@ void do_give(Mobile* ch, char* argument)
         return;
     }
 
-    if ((obj = get_obj_carry(ch, arg1, ch)) == NULL) {
+    if ((obj = get_obj_carry(ch, arg1)) == NULL) {
         send_to_char("You do not have that item.\n\r", ch);
         return;
     }
@@ -854,7 +854,7 @@ void do_fill(Mobile* ch, char* argument)
         return;
     }
 
-    if ((obj = get_obj_carry(ch, arg, ch)) == NULL) {
+    if ((obj = get_obj_carry(ch, arg)) == NULL) {
         send_to_char("You do not have that item.\n\r", ch);
         return;
     }
@@ -912,7 +912,7 @@ void do_pour(Mobile* ch, char* argument)
         return;
     }
 
-    if ((out = get_obj_carry(ch, arg, ch)) == NULL) {
+    if ((out = get_obj_carry(ch, arg)) == NULL) {
         send_to_char("You don't have that item.\n\r", ch);
         return;
     }
@@ -1119,7 +1119,7 @@ void do_eat(Mobile* ch, char* argument)
         return;
     }
 
-    if ((obj = get_obj_carry(ch, arg, ch)) == NULL) {
+    if ((obj = get_obj_carry(ch, arg)) == NULL) {
         send_to_char("You do not have that item.\n\r", ch);
         return;
     }
@@ -1379,7 +1379,8 @@ void wear_obj(Mobile* ch, Object* obj, bool fReplace)
     if (CAN_WEAR(obj, ITEM_WEAR_SHIELD)) {
         Object* weapon;
 
-        if (!remove_obj(ch, WEAR_SHIELD, fReplace)) 
+        if (!remove_obj(ch, WEAR_SHIELD, fReplace)
+            && !remove_obj(ch, WEAR_WIELD_OH, fReplace))
             return;
 
         weapon = get_eq_char(ch, WEAR_WIELD);
@@ -1446,8 +1447,11 @@ void wear_obj(Mobile* ch, Object* obj, bool fReplace)
     }
 
     if (CAN_WEAR(obj, ITEM_HOLD)) {
-        if (!remove_obj(ch, WEAR_HOLD, fReplace)) 
+
+        if (!remove_obj(ch, WEAR_HOLD, fReplace) 
+            && !remove_obj(ch, WEAR_WIELD_OH, fReplace))
             return;
+
         act("$n holds $p in $s hand.", ch, obj, NULL, TO_ROOM);
         act("You hold $p in your hand.", ch, obj, NULL, TO_CHAR);
         equip_char(ch, obj, WEAR_HOLD);
@@ -1490,7 +1494,7 @@ void do_wear(Mobile* ch, char* argument)
         return;
     }
     else {
-        if ((obj = get_obj_carry(ch, arg, ch)) == NULL) {
+        if ((obj = get_obj_carry(ch, arg)) == NULL) {
             send_to_char("You do not have that item.\n\r", ch);
             return;
         }
@@ -1616,7 +1620,7 @@ void do_quaff(Mobile* ch, char* argument)
         return;
     }
 
-    if ((obj = get_obj_carry(ch, arg, ch)) == NULL) {
+    if ((obj = get_obj_carry(ch, arg)) == NULL) {
         send_to_char("You do not have that potion.\n\r", ch);
         return;
     }
@@ -1653,7 +1657,7 @@ void do_recite(Mobile* ch, char* argument)
     READ_ARG(arg1);
     READ_ARG(arg2);
 
-    if ((scroll = get_obj_carry(ch, arg1, ch)) == NULL) {
+    if ((scroll = get_obj_carry(ch, arg1)) == NULL) {
         send_to_char("You do not have that scroll.\n\r", ch);
         return;
     }
@@ -1967,7 +1971,7 @@ void do_steal(Mobile* ch, char* argument)
         return;
     }
 
-    if ((obj = get_obj_carry(victim, arg1, ch)) == NULL) {
+    if ((obj = get_obj_carry(victim, arg1)) == NULL) {
         send_to_char("You can't find it.\n\r", ch);
         return;
     }
@@ -2485,7 +2489,7 @@ void do_sell(Mobile* ch, char* argument)
     if ((keeper = find_keeper(ch)) == NULL)
         return;
 
-    if ((obj = get_obj_carry(ch, arg, ch)) == NULL) {
+    if ((obj = get_obj_carry(ch, arg)) == NULL) {
         act("$n tells you 'You don't have that item'.", keeper, NULL, ch,
             TO_VICT);
         ch->reply = keeper;
@@ -2564,7 +2568,7 @@ void do_value(Mobile* ch, char* argument)
 
     if ((keeper = find_keeper(ch)) == NULL) return;
 
-    if ((obj = get_obj_carry(ch, arg, ch)) == NULL) {
+    if ((obj = get_obj_carry(ch, arg)) == NULL) {
         act("$n tells you 'You don't have that item'.", keeper, NULL, ch,
             TO_VICT);
         ch->reply = keeper;

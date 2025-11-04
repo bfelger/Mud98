@@ -1495,7 +1495,7 @@ Object* get_obj_list(Mobile* ch, char* argument, List* list)
 }
 
 // Find an obj in player's inventory.
-Object* get_obj_carry(Mobile* ch, char* argument, Mobile* viewer)
+Object* get_obj_carry(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     Object* obj;
@@ -1506,7 +1506,7 @@ Object* get_obj_carry(Mobile* ch, char* argument, Mobile* viewer)
     count = 0;
 
     FOR_EACH_MOB_OBJ(obj, ch) {
-        if (obj->wear_loc == WEAR_UNHELD && (can_see_obj(viewer, obj))
+        if (obj->wear_loc == WEAR_UNHELD && (can_see_obj(ch, obj))
             && is_name(arg, NAME_STR(obj))) {
             if (++count == number) return obj;
         }
@@ -1544,7 +1544,7 @@ Object* get_obj_here(Mobile* ch, char* argument)
     if ((obj = get_obj_list(ch, argument, &ch->in_room->objects)) != NULL)
         return obj;
 
-    if ((obj = get_obj_carry(ch, argument, ch)) != NULL) 
+    if ((obj = get_obj_carry(ch, argument)) != NULL) 
         return obj;
 
     if ((obj = get_obj_wear(ch, argument)) != NULL) 

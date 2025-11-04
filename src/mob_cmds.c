@@ -381,7 +381,7 @@ void do_mpjunk(Mobile* ch, char* argument)
             extract_obj(obj);
             return;
         }
-        if ((obj = get_obj_carry(ch, arg, ch)) == NULL)
+        if ((obj = get_obj_carry(ch, arg)) == NULL)
             return;
         extract_obj(obj);
     }
@@ -963,7 +963,7 @@ void do_mpcast(Mobile* ch, char* argument)
         spell_target = SPELL_TARGET_OBJ;
         break;
     case SKILL_TARGET_OBJ_INV:
-        if ((obj = get_obj_carry(ch, arg_target, ch)) == NULL) 
+        if ((obj = get_obj_carry(ch, arg_target)) == NULL) 
             return;
         victim = (void*)obj;
         spell_target = SPELL_TARGET_OBJ;

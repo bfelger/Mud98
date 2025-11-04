@@ -131,7 +131,31 @@ const struct wear_type wear_table[] = {
     { WEAR_WRIST_R,     ITEM_WEAR_WRIST     },
     { WEAR_WIELD,       ITEM_WIELD          },
     { WEAR_HOLD,        ITEM_HOLD           },
+    { WEAR_WIELD_OH,    ITEM_WIELD          },
     { NO_FLAG,          NO_FLAG             }
+};
+
+char* const where_name[] = {
+    "<used as light>     ",
+    "<worn on finger>    ",
+    "<worn on finger>    ",
+    "<worn around neck>  ",
+    "<worn around neck>  ",
+    "<worn on torso>     ",
+    "<worn on head>      ",
+    "<worn on legs>      ",
+    "<worn on feet>      ",
+    "<worn on hands>     ",
+    "<worn on arms>      ",
+    "<worn as shield>    ",
+    "<worn about body>   ",
+    "<worn about waist>  ",
+    "<worn around wrist> ",
+    "<worn around wrist> ",
+    "<wielded>           ",
+    "<held>              ",
+    "<floating nearby>   ",
+    "<wielded off-hand>  ",
 };
 
 /*****************************************************************************

@@ -395,7 +395,7 @@ void do_cast(Mobile* ch, char* argument)
             return;
         }
 
-        if ((obj = get_obj_carry(ch, target_name, ch)) == NULL) {
+        if ((obj = get_obj_carry(ch, target_name)) == NULL) {
             send_to_char("You are not carrying that.\n\r", ch);
             return;
         }
@@ -453,7 +453,7 @@ void do_cast(Mobile* ch, char* argument)
             vo = (void*)victim;
             target = SPELL_TARGET_CHAR;
         }
-        else if ((obj = get_obj_carry(ch, target_name, ch)) != NULL) {
+        else if ((obj = get_obj_carry(ch, target_name)) != NULL) {
             vo = (void*)obj;
             target = SPELL_TARGET_OBJ;
         }
@@ -1244,7 +1244,7 @@ void spell_continual_light(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTar
 
     if (target_name[0] != '\0') /* do a glow on some object */
     {
-        light = get_obj_carry(ch, target_name, ch);
+        light = get_obj_carry(ch, target_name);
 
         if (light == NULL) {
             send_to_char("You don't see that here.\n\r", ch);

@@ -43,7 +43,7 @@ void do_lore(Mobile* ch, char* argument)
 		return;
 	}
 
-	if ((obj = get_obj_carry(ch, object_name, ch)) == NULL)
+	if ((obj = get_obj_carry(ch, object_name)) == NULL)
 	{
 		send_to_char("You are not carrying that.\n\r", ch);
 		return;
@@ -163,7 +163,6 @@ void do_lore(Mobile* ch, char* argument)
 				"Armor class is %d pierce, %d bash, %d slash, and %d vs. magic.\n\r",
 				obj->value[0], obj->value[1], obj->value[2], obj->value[3]);
 			break;
-
 
 		case ITEM_BOAT:
 		case ITEM_CLOTHING:

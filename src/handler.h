@@ -56,7 +56,7 @@ Mobile* get_mob_room(Mobile* ch, char* argument);
 Mobile* get_mob_world(Mobile* ch, char* argument);
 Object* get_obj_type(ObjPrototype* pObjIndexData);
 Object* get_obj_list(Mobile* ch, char* argument, List* list);
-Object* get_obj_carry(Mobile* ch, char* argument, Mobile* viewer);
+Object* get_obj_carry(Mobile* ch, char* argument);
 Object* get_obj_wear(Mobile* ch, char* argument);
 Object* get_obj_here(Mobile* ch, char* argument);
 Object* get_obj_world(Mobile* ch, char* argument);

@@ -593,7 +593,7 @@ int cmd_eval(VNUM vnum, char* line, int check, Mobile* mob, Mobile* ch,
         if (is_number(buf))
             return(lval_char != NULL && has_item(lval_char, STRTOVNUM(buf), -1, false));
         else
-            return(lval_char != NULL && (get_obj_carry(lval_char, buf, lval_char) != NULL));
+            return(lval_char != NULL && (get_obj_carry(lval_char, buf) != NULL));
     case CHK_WEARS:
         if (is_number(buf))
             return(lval_char != NULL && has_item(lval_char, STRTOVNUM(buf), -1, true));

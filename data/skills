@@ -2161,18 +2161,18 @@ msg_obj ~
 #END
 
 #SKILL
-name ~
-skill_level 0 0 0 0 @
-rating 0 0 0 0 @
-spell_fun ~
+name dual-wield~
+skill_level 30 24 12 5 @
+rating 10 8 5 3 @
+spell_fun spell_null~
 target tar_ignore~
-minimum_position dead~
-pgsn ~
+minimum_position resting~
+pgsn gsn_dual_wield~
 slot 0
 min_mana 0
 beats 0
 noun_damage ~
-msg_off ~
+msg_off !Dual-Wield!~
 msg_obj ~
 #END
 

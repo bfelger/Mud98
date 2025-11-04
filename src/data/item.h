@@ -237,9 +237,12 @@ typedef enum wear_location_t {
     WEAR_WIELD          = 16,
     WEAR_HOLD           = 17,
     WEAR_FLOAT          = 18,
+    WEAR_WIELD_OH       = 19,
 } WearLocation;
 
-#define WEAR_LOC_COUNT 19
+#define WEAR_LOC_COUNT 20
+
+char* const where_name[];
 
 WearFlags wear_bit(WearLocation loc);
 WearLocation wear_loc(WearFlags bits, int count);

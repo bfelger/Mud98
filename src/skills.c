@@ -859,7 +859,6 @@ void check_improve(Mobile* ch, SKNUM sn, bool success, int multiplier)
             gain_exp(ch, 2 * SKILL_RATING(sn, ch));
         }
     }
-
     else {
         chance = URANGE(5, ch->pcdata->learned[sn] / 2, 30);
         if (number_percent() < chance) {

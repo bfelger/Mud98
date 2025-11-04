@@ -606,8 +606,8 @@ static void do_theme_create(Mobile* ch, char* argument)
     for (int i = 2; i < PALETTE_SIZE; ++i)
         theme->palette[i] = white;
 
-    Color fg_idx = (Color){ .mode = COLOR_MODE_PAL_IDX, .code = {0, 0, 0 }, .cache = NULL, .xterm = NULL };
-    Color bg_idx = (Color){ .mode = COLOR_MODE_PAL_IDX, .code = {1, 0, 0 }, .cache = NULL, .xterm = NULL };
+    Color fg_idx = (Color){ .mode = COLOR_MODE_PAL_IDX, .code = { 0, 0, 0 }, .cache = NULL, .xterm = NULL };
+    Color bg_idx = (Color){ .mode = COLOR_MODE_PAL_IDX, .code = { 1, 0, 0 }, .cache = NULL, .xterm = NULL };
     for (int i = 0; i < COLOR_SLOT_COUNT; ++i)
         theme->channels[i] = fg_idx;
     theme->channels[SLOT_BACKGROUND] = bg_idx;
