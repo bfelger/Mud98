@@ -136,23 +136,24 @@ AreaData* get_vnum_area(VNUM vnum)
 AEDIT(aedit_show)
 {
     AreaData* area;
+    char buf[MIL];
 
     EDIT_AREA(ch, area);
 
-    printf_to_char(ch, "Name:           " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%"PRVNUM COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r", VNUM_FIELD(area), NAME_STR(area));
-    printf_to_char(ch, "File:           " COLOR_ALT_TEXT_1 "%s" COLOR_CLEAR "\n\r", area->file_name);
-    printf_to_char(ch, "Vnums:          " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d-%d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", area->min_vnum, area->max_vnum);
-    printf_to_char(ch, "Levels:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d-%d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", area->low_range, area->high_range);
-    printf_to_char(ch, "Sector:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(sector_flag_table, area->sector));
-    printf_to_char(ch, "Reset:          " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "x %d minutes", area->reset_thresh, (area->reset_thresh * PULSE_AREA) / 60);
-    //printf_to_char(ch, "; current at %d", (PULSE_AREA / 60), area->reset_timer);
-    printf_to_char(ch, COLOR_CLEAR "\n\r");
-    printf_to_char(ch, "Always Reset:   " COLOR_DECOR_1 "[%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", area->always_reset ? COLOR_B_GREEN "YES" : COLOR_B_RED "NO");
-    printf_to_char(ch, "Instance Type:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(inst_type_table, area->inst_type));
-    printf_to_char(ch, "Security:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", area->security);
-    printf_to_char(ch, "Builders:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", area->builders);
-    printf_to_char(ch, "Credits :       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", area->credits);
-    printf_to_char(ch, "Flags:          " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", flag_string(area_flag_table, area->area_flags));
+    olc_print_num_str(ch, "Area", VNUM_FIELD(area), NAME_STR(area));
+    olc_print_str(ch, "File", area->file_name);
+    olc_print_range(ch, "Vnums", area->min_vnum, area->max_vnum);
+    olc_print_range(ch, "Levels", area->low_range, area->high_range);
+    olc_print_flags(ch, "Sector", sector_flag_table, area->sector);
+    sprintf(buf, "x %d minutes", (area->reset_thresh * PULSE_AREA) / 60);
+    olc_print_num_str(ch, "Reset", area->reset_thresh, buf);
+    olc_print_yesno(ch, "Always Reset", area->always_reset);
+    olc_print_flags(ch, "Instance Type", inst_type_table, area->inst_type);
+    olc_print_num(ch, "Security", area->security);
+    olc_print_str(ch, "Builders", area->builders);
+    olc_print_str(ch, "Credits", area->credits);
+    olc_print_flags(ch, "Flags", area_flag_table, area->area_flags);
+    
     return false;
 }
 

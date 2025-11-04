@@ -399,6 +399,14 @@ void show_sizelist(Mobile* ch);
 void InitScreen(Descriptor*);
 char* fix_string(const char* str);
 
+void olc_print_flags(Mobile* ch, const char* label, const struct flag_type* flag_table, FLAGS flags);
+void olc_print_num(Mobile* ch, const char* label, int num);
+void olc_print_range(Mobile* ch, const char* label, int num1, int num2);
+void olc_print_num_str(Mobile* ch, const char* label, int num, const char* opt_str);
+void olc_print_str(Mobile* ch, const char* label, const char* str);
+void olc_print_yesno(Mobile* ch, const char* label, bool yesno);
+void olc_print_text(Mobile* ch, const char* label, const char* text);
+
 const char* olc_show_flags(const char* label, const struct flag_type* flag_table, FLAGS flags);
 
 #endif // !MUD98__OLC__OLC_H

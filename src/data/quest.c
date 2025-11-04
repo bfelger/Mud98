@@ -19,6 +19,7 @@ Quest* quest_free = NULL;
 const struct flag_type quest_type_table[] = {
     { "visit_mob",      QUEST_VISIT_MOB,    true    },
     { "kill_mob",       QUEST_KILL_MOB,     true    },
+    { "get_obj",        QUEST_GET_OBJ,      true    },
     { NULL,             0,                  0       }
 };
 
@@ -155,7 +156,20 @@ QuestTarget* get_quest_targ_obj(Mobile* ch, VNUM target_vnum)
     if (IS_NPC(ch) || !ch->pcdata)
         return 0;
 
-    ORDERED_GET(QuestTarget, qt, ch->pcdata->quest_log->target_objs, target_vnum, target_vnum);
+    QuestTarget* temp_qt;
+    FOR_EACH(temp_qt, ch->pcdata->quest_log->target_objs)
+    {
+        if (temp_qt->target_vnum == target_vnum
+            || (temp_qt->type == QUEST_GET_OBJ
+                && temp_qt->target_upper > temp_qt->target_vnum
+                && target_vnum >= temp_qt->target_vnum
+                && target_vnum <= temp_qt->target_upper)) {
+            qt = temp_qt;
+            break;
+        }
+        else if (temp_qt->target_vnum > target_vnum)
+            break;
+    }
 
     if (qt == NULL)
         return 0;
@@ -195,12 +209,15 @@ static void remove_quest_target(Mobile* ch, Quest* quest)
     QuestTarget* qt = NULL;
     switch (quest->type) {
     case QUEST_VISIT_MOB:
-        UNORDERED_REMOVE(QuestTarget, qt, ch->pcdata->quest_log->target_mobs, quest_vnum, quest->vnum);
+    case QUEST_KILL_MOB:
+        UNORDERED_REMOVE_ALL(QuestTarget, qt, ch->pcdata->quest_log->target_mobs, quest_vnum, 
+            quest->vnum);
         if (qt)
             free_mem(qt, sizeof(QuestTarget));
         break;
-    case QUEST_KILL_MOB:
-        UNORDERED_REMOVE(QuestTarget, qt, ch->pcdata->quest_log->target_mobs, quest_vnum, quest->vnum);
+    case QUEST_GET_OBJ:
+        UNORDERED_REMOVE_ALL(QuestTarget, qt, ch->pcdata->quest_log->target_objs, quest_vnum, 
+            quest->vnum);
         if (qt)
             free_mem(qt, sizeof(QuestTarget));
         break;
@@ -250,6 +267,8 @@ static void add_target(QuestLog* qlog, Quest* quest, VNUM target_vnum)
     case QUEST_KILL_MOB:
         ORDERED_INSERT(QuestTarget, qt, qlog->target_mobs, target_vnum);
         break;
+    case QUEST_GET_OBJ:
+        ORDERED_INSERT(QuestTarget, qt, qlog->target_objs, target_vnum);
     }
 }
 
@@ -383,6 +402,7 @@ bool can_finish_quest(Mobile* ch, VNUM vnum)
         break;
     }
     case QUEST_KILL_MOB:
+    case QUEST_GET_OBJ:
         return ( qs->progress >= qs->amount);
     
     // End switch
@@ -394,18 +414,20 @@ bool can_finish_quest(Mobile* ch, VNUM vnum)
 void do_quest(Mobile* ch, char* argument)
 {
     static const char* help =
-        "USAGE: " COLOR_ALT_TEXT_1 "QUEST " COLOR_CLEAR "              - Show all active quests.\n\r"
-        "       " COLOR_ALT_TEXT_1 "QUEST AREA" COLOR_CLEAR "          - Show only quests in this area.\n\r"
-        "       " COLOR_ALT_TEXT_1 "QUEST COMPLETED" COLOR_CLEAR "     - Show completed quests.\n\r"
-        "       " COLOR_ALT_TEXT_1 "QUEST HELP" COLOR_CLEAR "          - Show this help.\n\r";
+        COLOR_INFO
+        "USAGE: " COLOR_ALT_TEXT_1 "QUEST " COLOR_INFO "              - Show all active quests.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST AREA" COLOR_INFO "          - Show only quests in this area.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST COMPLETED" COLOR_INFO "     - Show completed quests.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST HELP" COLOR_INFO "          - Show this help." COLOR_CLEAR "\n\r";
     static const char* tester_help =
+        COLOR_INFO
         "The following commands are also available to you as a tester:\n\r"
-        "       " COLOR_ALT_TEXT_1 "QUEST SHOW <vnum>" COLOR_CLEAR "         - Show quest info for specific quest.\n\r"
-        "       " COLOR_ALT_TEXT_1 "QUEST GRANT <vnum>" COLOR_CLEAR "        - Grant yourself a specific quest.\n\r"
-        "       " COLOR_ALT_TEXT_1 "QUEST PROGRESS <vnum> <#>" COLOR_CLEAR " - Set progress for a specific quest.\n\r"
-        "       " COLOR_ALT_TEXT_1 "QUEST FINISH <vnum>" COLOR_CLEAR "       - Finish a specific quest.\n\r"
-        "       " COLOR_ALT_TEXT_1 "QUEST CLEAR <vnum>" COLOR_CLEAR "        - Clear a specific quest from your log.\n\r"
-        "       " COLOR_ALT_TEXT_1 "QUEST CLEAR ALL" COLOR_CLEAR "           - Clear your entire quest log.\n\r"; 
+        "       " COLOR_ALT_TEXT_1 "QUEST SHOW <vnum>" COLOR_INFO "         - Show quest info for specific quest.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST GRANT <vnum>" COLOR_INFO "        - Grant yourself a specific quest.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST PROGRESS <vnum> <#>" COLOR_INFO " - Set progress for a specific quest.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST FINISH <vnum>" COLOR_INFO "       - Finish a specific quest.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST CLEAR <vnum>" COLOR_INFO "        - Clear a specific quest from your log.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST CLEAR ALL" COLOR_INFO "           - Clear your entire quest log." COLOR_CLEAR "\n\r"; 
 
     char arg1[MAX_INPUT_LENGTH] = { 0 };
     char arg2[MAX_INPUT_LENGTH] = { 0 };

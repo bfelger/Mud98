@@ -22,6 +22,7 @@ typedef struct quest_log_t QuestLog;
 typedef enum quest_type_t {
     QUEST_VISIT_MOB,
     QUEST_KILL_MOB,
+    QUEST_GET_OBJ,
 } QuestType;
 
 typedef struct quest_t {

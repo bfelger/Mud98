@@ -219,6 +219,24 @@ typedef void SpellFunc(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget 
             }                                                                  \
         }                                                                      \
     }
+#define UNORDERED_REMOVE_ALL(T, i, l, f, v)                                    \
+    if ((l)) {                                                                 \
+        if ((l)->f == v) {                                                     \
+            (i) = (l);                                                         \
+            NEXT_LINK(l);                                                      \
+        } else {                                                               \
+            T* temp_ ## i;                                                     \
+            FOR_EACH(temp_ ## i, (l)) {                                        \
+                if (!temp_ ## i->next) {                                       \
+                    break;                                                     \
+                } else if (temp_ ## i->next->f == v) {                         \
+                    (i) = temp_ ## i->next;                                    \
+                    temp_ ## i->next = (i)->next;                              \
+                    break;                                                     \
+                }                                                              \
+            }                                                                  \
+        }                                                                      \
+    }
 #define ORDERED_GET(T, i, l, f, v)                                             \
     {                                                                          \
         T* temp_ ## i;                                                         \

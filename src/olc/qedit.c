@@ -2,18 +2,20 @@
 // qedit.c
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "merc.h"
+#include <merc.h>
 
-#include "comm.h"
-#include "db.h"
-#include "handler.h"
-#include "magic.h"
 #include "olc.h"
-#include "skills.h"
 
-#include "entities/player_data.h"
+#include <entities/obj_prototype.h>
+#include <entities/player_data.h>
 
-#include "data/quest.h"
+#include <data/quest.h>
+
+#include <comm.h>
+#include <db.h>
+#include <handler.h>
+#include <magic.h>
+#include <skills.h>
 
 #define QEDIT(fun) bool fun(Mobile *ch, char *argument)
 
@@ -168,6 +170,7 @@ QEDIT(qedit_create)
 static const char* get_targ_name(Quest* quest, VNUM vnum)
 {
     MobPrototype* mob;
+    ObjPrototype* obj;
     char* target_name = NULL;
 
     if (vnum > 0) {
@@ -178,6 +181,12 @@ static const char* get_targ_name(Quest* quest, VNUM vnum)
                 target_name = "(invalid)";  // Quest type may have changed
             else
                 target_name = mob->short_descr;
+            break;
+        case QUEST_GET_OBJ:
+            if (!(obj = get_object_prototype(vnum)))
+                target_name = "(invalid)";  // Quest type may have changed
+            else
+                target_name = obj->short_descr;
             break;
         }
     }
@@ -206,33 +215,31 @@ QEDIT(qedit_show)
         end_name = "(none)";
     }
 
-    printf_to_char(ch, "VNUM:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%"PRVNUM COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", quest);
-    printf_to_char(ch, "Name:       " COLOR_TITLE "%s" COLOR_CLEAR "\n\r", quest->name && quest->name[0] ? quest->name : "(none)");
-    printf_to_char(ch, "Area:       " COLOR_ALT_TEXT_1 "%s" COLOR_CLEAR "\n\r", NAME_STR(quest->area_data));
-    printf_to_char(ch, "Type:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", quest_type_table[quest->type].name);
-    printf_to_char(ch, "Level:      " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", quest->level);
-    printf_to_char(ch, "End:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_CLEAR " " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r", quest->end, end_name);
-    printf_to_char(ch, "Target:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_CLEAR " " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR , quest->target, get_targ_name(quest, quest->target));
+    olc_print_num_str(ch, "Quest", quest->vnum, quest->name && quest->name[0] ? quest->name : "(none)");
+    olc_print_str(ch, "Area", NAME_STR(quest->area_data));
+    olc_print_flags(ch, "Type", quest_type_table, quest->type);
+    olc_print_num(ch, "Level", quest->level);
+    olc_print_num_str(ch, "End", quest->end, end_name);
+    olc_print_num_str(ch, "Target", quest->target, get_targ_name(quest, quest->target));
+    
     if (quest->type == QUEST_KILL_MOB) {
         if (quest->target_upper <= quest->target)
-            printf_to_char(ch, " " COLOR_INFO "(set " COLOR_ALT_TEXT_1 "UPPER" COLOR_INFO " to use a range of VNUMs)" COLOR_CLEAR );
+            olc_print_num_str(ch, "Upper", 0, COLOR_INFO "(set " COLOR_ALT_TEXT_1 "UPPER" COLOR_INFO " to use a range of VNUMs)" COLOR_CLEAR );
         else {
             MobPrototype* targ_mob;
             for (VNUM i = quest->target+1; i < quest->target_upper; ++i)
                 if ((targ_mob = get_mob_prototype(i)) != NULL)
-                    printf_to_char(ch, "\n\r            " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_CLEAR " " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR , 
-                        VNUM_FIELD(targ_mob), targ_mob->short_descr);
-            printf_to_char(ch, "\n\rUpper:      " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_CLEAR " ", quest->target_upper);
+                    olc_print_num_str(ch, "", VNUM_FIELD(targ_mob), targ_mob->short_descr);
             if ((targ_mob = get_mob_prototype(quest->target_upper)) != NULL)
-                printf_to_char(ch, COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR , targ_mob->short_descr);
+                olc_print_num_str(ch, "Upper", quest->target_upper, targ_mob->short_descr);
+            else
+                olc_print_num(ch, "Upper", quest->target_upper);
         }
-        printf_to_char(ch, "\n\rAmount:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_CLEAR , quest->amount);
+        olc_print_num(ch, "Amount", quest->amount);
     }
-    printf_to_char(ch, "\n\rXP:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", quest->xp);
-    if (quest->entry && quest->entry[0])
-        printf_to_char(ch, "Entry:\n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r", quest->entry);
-    else
-        printf_to_char(ch, "Entry:      " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "none" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r");
+
+    olc_print_num(ch, "XP", quest->xp);
+    olc_print_text(ch, "Entry", quest->entry);
 
     return false;
 }
@@ -242,6 +249,7 @@ QEDIT(qedit_target)
     Quest* quest;
     char arg[MAX_INPUT_LENGTH];
     MobPrototype* mob;
+    ObjPrototype* obj;
 
     EDIT_QUEST(ch, quest);
 
@@ -260,6 +268,12 @@ QEDIT(qedit_target)
     case QUEST_KILL_MOB:
         if ((mob = get_mob_prototype(vnum)) == NULL) {
             send_to_char(COLOR_INFO "QEDIT: No mobile has that VNUM." COLOR_CLEAR "\n\r", ch);
+            return false;
+        }
+        break;
+    case QUEST_GET_OBJ:
+        if ((obj = get_object_prototype(vnum)) == NULL) {
+            send_to_char(COLOR_INFO "QEDIT: No object has that VNUM." COLOR_CLEAR "\n\r", ch);
             return false;
         }
         break;

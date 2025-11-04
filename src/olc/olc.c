@@ -577,13 +577,74 @@ void do_page(Mobile* ch, char* argument)
     return;
 }
 
+#define LABEL_FMT "%-14s"
+
+void olc_print_flags(Mobile* ch, const char* label, const struct flag_type* flag_table, FLAGS flags)
+{
+    printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s"
+        COLOR_DECOR_1 " ]"  COLOR_CLEAR "\n\r", label, 
+        flag_string(flag_table, flags));
+}
+
+void olc_print_num(Mobile* ch, const char* label, int num)
+{
+    printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10d"
+        COLOR_DECOR_1 " ]" COLOR_CLEAR "\n\r", label, num);
+}
+
+void olc_print_range(Mobile* ch, const char* label, int num1, int num2)
+{
+    char buf[MIL];
+    sprintf(buf, "%d-%d", num1, num2);
+    printf_to_char(ch, LABEL_FMT " : "  COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1
+        "%10s" COLOR_DECOR_1 " ]" COLOR_CLEAR "\n\r", label, buf);
+}
+
+void olc_print_num_str(Mobile* ch, const char* label, int num, const char* opt_str)
+{
+    if (opt_str == NULL)
+        printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ "
+            COLOR_ALT_TEXT_1 "%10d" COLOR_DECOR_1 " ]" COLOR_CLEAR "\n\r",
+            label, num);
+    else
+        printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ "
+            COLOR_ALT_TEXT_1 "%10d" COLOR_DECOR_1 " ] " COLOR_ALT_TEXT_2 "%s"
+            COLOR_CLEAR "\n\r", label, num, opt_str);
+}
+
+void olc_print_str(Mobile* ch, const char* label, const char* str)
+{
+    printf_to_char(ch, LABEL_FMT " : " COLOR_ALT_TEXT_1 "%s"
+        COLOR_CLEAR "\n\r", label, str);
+}
+
+void olc_print_yesno(Mobile* ch, const char* label, bool yesno)
+{
+    // Add space for color codes!
+    printf_to_char(ch, LABEL_FMT " : "  COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 
+        "%12s" COLOR_DECOR_1 " ]" COLOR_CLEAR "\n\r", label, 
+        yesno ? COLOR_B_GREEN "YES" : COLOR_B_RED "NO");
+}
+
+void olc_print_text(Mobile* ch, const char* label, const char* text)
+{
+    if (text && text[0])
+        printf_to_char(ch, LABEL_FMT " : \n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR 
+            "\n\r", label, text);
+    else
+        printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 
+            "%10s" COLOR_DECOR_1 " ]" COLOR_CLEAR "\n\r", label, "(none)");
+}
+
 const char* olc_show_flags(const char* label, const struct flag_type* flag_table, FLAGS flags)
 {
     char label_buf[MIL];
     static char buf[MSL];
 
     sprintf(label_buf, "%s:", label);
-    sprintf(buf, "%12s " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s" COLOR_DECOR_1 " ]" COLOR_CLEAR, label_buf, flag_string(flag_table, flags));
+    sprintf(buf, "%12s " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s" 
+        COLOR_DECOR_1 " ]" COLOR_CLEAR, label_buf, 
+        flag_string(flag_table, flags));
 
     return buf;
 }

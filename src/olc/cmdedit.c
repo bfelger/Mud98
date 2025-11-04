@@ -178,33 +178,23 @@ void do_cmdedit(Mobile* ch, char* argument)
     ch->desc->pEdit = (uintptr_t)pCmd;
     ch->desc->editor = ED_CMD;
 
+    cmdedit_show(ch, "");
+
     return;
 }
 
 CMDEDIT(cmdedit_show)
 {
     CmdInfo* pCmd;
-    char buf[MIL];
 
     EDIT_CMD(ch, pCmd);
 
-    sprintf(buf, "Name     : [%s]\n\r", pCmd->name);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Function : [%s]\n\r", cmd_func_name(pCmd->do_fun));
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Level    : [%d]\n\r", pCmd->level);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Position : [%s]\n\r", position_table[pCmd->position].name);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Log?     : [%s]\n\r", flag_string(log_flag_table, pCmd->log));
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Show?    : [%s]\n\r", flag_string(show_flag_table, pCmd->show));
-    send_to_char(buf, ch);
+    olc_print_str(ch, "Name", pCmd->name);
+    olc_print_str(ch, "Function", cmd_func_name(pCmd->do_fun));
+    olc_print_num(ch, "Level", pCmd->level);
+    olc_print_str(ch, "Position", position_table[pCmd->position].name);
+    olc_print_flags(ch, "Log?", log_flag_table, pCmd->log);
+    olc_print_flags(ch, "Show?", show_flag_table, pCmd->show);
 
     return false;
 }

@@ -349,16 +349,17 @@ static inline bool lookup_color(char* argument, Color* color, Mobile* ch)
 static void do_theme_channel(Mobile* ch, char* argument)
 {
     static const char* help =
-        "USAGE: " COLOR_ALT_TEXT_1 "THEME CHANNEL <channel> <color>" COLOR_CLEAR "\n\r"
-        "\n\r"
-        COLOR_ALT_TEXT_1 "index" COLOR_CLEAR " - Palette slot in the current theme to replace. Use THEME SHOW or \n\r"
+        COLOR_INFO
+        "USAGE: " COLOR_ALT_TEXT_1 "THEME CHANNEL <channel> <color>" COLOR_CLEAR
+        "\n\r\n\r"
+        COLOR_ALT_TEXT_1 "index" COLOR_INFO " - Palette slot in the current theme to replace. Use THEME SHOW or \n\r"
         "        THEME PREVIEW for a list of current palette assignments.\n\r\n\r"
-        COLOR_ALT_TEXT_1 "color" COLOR_CLEAR " - For ANSI color themes, " COLOR_ALT_TEXT_1 "<color>" COLOR_CLEAR " is a numeric value representing the \n\r"
-        "        standard ANSI color palette index, " COLOR_ALT_TEXT_2 "or" COLOR_CLEAR " an ANSI color name. For 256-color\n\r"
+        COLOR_ALT_TEXT_1 "color" COLOR_INFO " - For ANSI color themes, " COLOR_ALT_TEXT_1 "<color>" COLOR_INFO " is a numeric value representing the \n\r"
+        "        standard ANSI color palette index, " COLOR_ALT_TEXT_2 "or" COLOR_INFO " an ANSI color name. For 256-color\n\r"
         "        indexed themes, this is a numeric value from 0 to 256.\n\r\n\r"
-        "        RGB themes (24-bit) use colors in the form " COLOR_ALT_TEXT_1 "#RRGGBB;" COLOR_CLEAR ".\n\r\n\r"
-        "        You can also refer directly to a palette color with " COLOR_ALT_TEXT_1 "PALETTE <index>" COLOR_CLEAR "\n\r"
-        "        or " COLOR_ALT_TEXT_1 "PAL <index>" COLOR_CLEAR ".\n\r";
+        "        RGB themes (24-bit) use colors in the form " COLOR_ALT_TEXT_1 "#RRGGBB;" COLOR_INFO ".\n\r\n\r"
+        "        You can also refer directly to a palette color with " COLOR_ALT_TEXT_1 "PALETTE <index>" COLOR_INFO "\n\r"
+        "        or " COLOR_ALT_TEXT_1 "PAL <index>" COLOR_INFO "." COLOR_CLEAR "\n\r";
 
     char chan_arg[MAX_INPUT_LENGTH];
     int chan = -1;
@@ -372,8 +373,9 @@ static void do_theme_channel(Mobile* ch, char* argument)
 
     LOOKUP_COLOR_SLOT_NAME(chan, chan_arg);
     if (chan < 0) {
-        printf_to_char(ch, COLOR_INFO "'%s' is not a valid channel name. Type '" COLOR_ALT_TEXT_1 "THEME SHOW" COLOR_CLEAR " for a list "
-            "of color channels.\n\r", chan_arg);
+        printf_to_char(ch, COLOR_INFO "'%s' is not a valid channel name. Type '" 
+            COLOR_ALT_TEXT_1 "THEME SHOW" COLOR_INFO " for a list of color "
+            "channels." COLOR_CLEAR "\n\r", chan_arg);
         return;
     }
 
@@ -446,19 +448,20 @@ static void clear_cached_codes(ColorTheme* theme)
 static void do_theme_config(Mobile* ch, char* argument)
 {
     static const char* help =
-        "USAGE: " COLOR_ALT_TEXT_1 "THEME CONFIG (ENABLE|DISABLE) (256|RGB|XTERM)" COLOR_CLEAR "\n\r"
+        COLOR_INFO
+        "USAGE: " COLOR_ALT_TEXT_1 "THEME CONFIG (ENABLE|DISABLE) (256|RGB|XTERM)" COLOR_INFO "\n\r"
         "\n\r"
         "Toggle certain themes, depending on your client's capabilities.\n\r"
         "Has the following arguments:\n\r"
-        "       " COLOR_ALT_TEXT_1 "ENABLE    " COLOR_CLEAR "- Enables the given mode (on by default). \n\r"
-        "       " COLOR_ALT_TEXT_1 "DISABLE   " COLOR_CLEAR "- Hide themes of the given mode from " COLOR_ALT_TEXT_1 "LIST" COLOR_CLEAR ".\n\r\n\r"
-        "       " COLOR_ALT_TEXT_1 "256       " COLOR_CLEAR "- Show/hide 256-color extended index palettes.\n\r"
-        "       " COLOR_ALT_TEXT_1 "RGB       " COLOR_CLEAR "- Show/hide 24-bit RGB palettes.\n\r"
-        "       " COLOR_ALT_TEXT_1 "XTERM     " COLOR_CLEAR "- Use " COLOR_ALT_TEXT_2 "xterm" COLOR_CLEAR " 24-bit color codes instead of VT100. This\n\r"
+        "       " COLOR_ALT_TEXT_1 "ENABLE    " COLOR_INFO "- Enables the given mode (on by default). \n\r"
+        "       " COLOR_ALT_TEXT_1 "DISABLE   " COLOR_INFO "- Hide themes of the given mode from " COLOR_ALT_TEXT_1 "LIST" COLOR_INFO ".\n\r\n\r"
+        "       " COLOR_ALT_TEXT_1 "256       " COLOR_INFO "- Show/hide 256-color extended index palettes.\n\r"
+        "       " COLOR_ALT_TEXT_1 "RGB       " COLOR_INFO "- Show/hide 24-bit RGB palettes.\n\r"
+        "       " COLOR_ALT_TEXT_1 "XTERM     " COLOR_INFO "- Use " COLOR_ALT_TEXT_2 "xterm" COLOR_INFO " 24-bit color codes instead of VT100. This\n\r"
         "                   is used by Linux terminals and TinTin++. If 24-bit themes\n\r"
         "                   don't appear for you, try this first.\n\r"
-        "       " COLOR_ALT_TEXT_1 "RGB_HELP  " COLOR_CLEAR "- Show/hide long-winded message at the end of " COLOR_ALT_TEXT_1 "THEME_LIST" COLOR_CLEAR ".\n\r"
-        "\n\r";
+        "       " COLOR_ALT_TEXT_1 "RGB_HELP  " COLOR_CLEAR "- Show/hide long-winded message at the end of " COLOR_ALT_TEXT_1 "THEME_LIST" COLOR_INFO "."
+        COLOR_CLEAR "\n\r\n\r";
 
     char cmd[MAX_INPUT_LENGTH];
     char opt[MAX_INPUT_LENGTH];
@@ -514,7 +517,8 @@ static void do_theme_config(Mobile* ch, char* argument)
 static void do_theme_create(Mobile* ch, char* argument)
 {
     static const char* help =
-        "USAGE: " COLOR_ALT_TEXT_1 "THEME CREATE (ANSI|256|RGB) <name>" COLOR_CLEAR "\n\r"
+        COLOR_INFO
+        "USAGE: " COLOR_ALT_TEXT_1 "THEME CREATE (ANSI|256|RGB) <name>" COLOR_INFO "\n\r"
         "\n\r"
         "Creates a new theme of the requested type and sets it to the currently "
         "active theme. The default is a solid black background and soft-white "
@@ -522,7 +526,7 @@ static void do_theme_create(Mobile* ch, char* argument)
         "\n\r"
         "All channel colors are assigned to the first palette index except "
         "background, which is set to the second palette index (black by "
-        "default). These values can be changed.\n\r";
+        "default). These values can be changed." COLOR_CLEAR "\n\r";
 
     char mode_arg[MAX_INPUT_LENGTH];
     ColorMode mode;
@@ -644,13 +648,14 @@ static void do_theme_discard(Mobile* ch, char* argument)
 static void do_theme_list(Mobile* ch, char* argument)
 {
     static const char* help =
-        "USAGE: " COLOR_ALT_TEXT_1 "THEME LIST (ALL|SYSTEM|PUBLIC|PRIVATE)" COLOR_CLEAR "\n\r"
+        COLOR_INFO
+        "USAGE: " COLOR_ALT_TEXT_1 "THEME LIST (ALL|SYSTEM|PUBLIC|PRIVATE)" COLOR_INFO "\n\r"
         "\n\r"
         "Lists the available themes. Has the following arguments:\n\r"
-        "       " COLOR_ALT_TEXT_1 "ALL     " COLOR_CLEAR "- Show all available themes you can select from. (default option)\n\r"
-        "       " COLOR_ALT_TEXT_1 "SYSTEM  " COLOR_CLEAR "- Only show built-in themes.\n\r"
-        "       " COLOR_ALT_TEXT_1 "PUBLIC  " COLOR_CLEAR "- Only show themes made public by current, logged-in users.\n\r"
-        "       " COLOR_ALT_TEXT_1 "PRIVATE " COLOR_CLEAR "- Only show your own personal themes.\n\r";
+        "       " COLOR_ALT_TEXT_1 "ALL     " COLOR_INFO "- Show all available themes you can select from. (default option)\n\r"
+        "       " COLOR_ALT_TEXT_1 "SYSTEM  " COLOR_INFO "- Only show built-in themes.\n\r"
+        "       " COLOR_ALT_TEXT_1 "PUBLIC  " COLOR_INFO "- Only show themes made public by current, logged-in users.\n\r"
+        "       " COLOR_ALT_TEXT_1 "PRIVATE " COLOR_INFO "- Only show your own personal themes." COLOR_CLEAR "\n\r";
 
     char opt[MAX_INPUT_LENGTH] = { 0 };
     bool system = false;
@@ -767,14 +772,15 @@ static void do_theme_list(Mobile* ch, char* argument)
 static void do_theme_palette(Mobile* ch, char* argument)
 {
     static const char* help =
-        "USAGE: " COLOR_ALT_TEXT_1 "THEME PALETTE <index> <color>" COLOR_CLEAR "\n\r"
+        COLOR_INFO
+        "USAGE: " COLOR_ALT_TEXT_1 "THEME PALETTE <index> <color>" COLOR_INFO "\n\r"
         "\n\r"
-        COLOR_ALT_TEXT_1 "index" COLOR_CLEAR " - Palette slot in the current theme to replace. Use THEME SHOW or \n\r"
+        COLOR_ALT_TEXT_1 "index" COLOR_INFO " - Palette slot in the current theme to replace. Use THEME SHOW or \n\r"
         "        THEME PREVIEW for a list of current palette assignments.\n\r\n\r"
-        COLOR_ALT_TEXT_1 "color" COLOR_CLEAR " - For ANSI color themes, " COLOR_ALT_TEXT_1 "<color>" COLOR_CLEAR " is a numeric value representing the \n\r"
-        "        standard ANSI color palette index, " COLOR_ALT_TEXT_2 "or" COLOR_CLEAR " an ANSI color name. For 256-color\n\r"
+        COLOR_ALT_TEXT_1 "color" COLOR_INFO " - For ANSI color themes, " COLOR_ALT_TEXT_1 "<color>" COLOR_INFO " is a numeric value representing the \n\r"
+        "        standard ANSI color palette index, " COLOR_ALT_TEXT_2 "or" COLOR_INFO " an ANSI color name. For 256-color\n\r"
         "        indexed themes, this is a numeric value from 0 to 256.\n\r\n\r"
-        "        RGB themes (24-bit) use colors in the form " COLOR_ALT_TEXT_1 "#RRGGBB;" COLOR_CLEAR ".\n\r";
+        "        RGB themes (24-bit) use colors in the form " COLOR_ALT_TEXT_1 "#RRGGBB;" COLOR_INFO "." COLOR_CLEAR "\n\r";
 
     if (!argument || !argument[0]) {
         send_to_char(help, ch);
@@ -853,9 +859,10 @@ static void do_theme_preview(Mobile* ch, char* argument)
     bool xterm = ch->pcdata->theme_config.xterm;
 
     static const char* help =
-        "USAGE: " COLOR_ALT_TEXT_1 "THEME PREVIEW (@<player name>) <theme name>" COLOR_CLEAR "\n\r"
+        COLOR_INFO
+        "USAGE: " COLOR_ALT_TEXT_1 "THEME PREVIEW (@<player name>) <theme name>" COLOR_INFO "\n\r"
         "\n\r"
-        "For a list of themes to preview, type '" COLOR_ALT_TEXT_1 "THEME LIST" COLOR_CLEAR "'.\n\r";
+        "For a list of themes to preview, type '" COLOR_ALT_TEXT_1 "THEME LIST" COLOR_INFO "'." COLOR_CLEAR "\n\r";
 
     if (!argument || !argument[0]) {
         send_to_char(help, ch);
@@ -874,7 +881,8 @@ static void do_theme_preview(Mobile* ch, char* argument)
 
     sprintf(out, "%s\n\r", bg);
 
-    sprintf(buf, "%sWelcome to Mud98 0.90. Please do not feed the mobiles.\n\r\n\r", COLOR2STR(theme, SLOT_TEXT, xterm));
+    sprintf(buf, "%sWelcome to Mud98 0.90. Please do not feed the mobiles." 
+        "\n\r\n\r", COLOR2STR(theme, SLOT_TEXT, xterm));
     strcat(out, buf);
     
     sprintf(buf, "%sLimbo\n\r", COLOR2STR(theme, SLOT_ROOM_TITLE, xterm));
@@ -1004,9 +1012,10 @@ static void do_theme_save(Mobile* ch, char* argument)
 static void do_theme_select(Mobile* ch, char* argument)
 {
     static const char* help =
-        "USAGE: " COLOR_ALT_TEXT_1 "THEME SELECT (@<player>) <name>" COLOR_CLEAR "\n\r"
+        COLOR_INFO
+        "USAGE: " COLOR_ALT_TEXT_1 "THEME SELECT (@<player>) <name>" COLOR_INFO "\n\r"
         "\n\r"
-        "For a list of themes to select from, type 'THEME LIST'.\n\r";
+        "For a list of themes to select from, type 'THEME LIST'." COLOR_CLEAR "\n\r";
 
     if (!argument || !argument[0]) {
         send_to_char(help, ch);
@@ -1068,6 +1077,7 @@ static void do_theme_select(Mobile* ch, char* argument)
 static void do_theme_set(Mobile* ch, char* argument)
 {
     static const char* help =
+        COLOR_INFO
         "USAGE: " COLOR_ALT_TEXT_1 "THEME SET NAME <name>\n\r"
         "       THEME SET BANNER <banner>\n\r"
         "       THEME SET PUBLIC\n\r"
@@ -1289,6 +1299,7 @@ static void do_theme_show(Mobile* ch, char* argument)
 void do_theme(Mobile* ch, char* argument)
 {
     static const char* help =
+        COLOR_INFO
         "USAGE: " COLOR_ALT_TEXT_1 "THEME CONFIG\n\r"
         "       THEME CHANNEL/CHAN <channel> <color>\n\r"
         "       THEME CREATE (ANSI|256|RGB) <name>\n\r"
@@ -1300,9 +1311,10 @@ void do_theme(Mobile* ch, char* argument)
         "       THEME SAVE\n\r"
         "       THEME SELECT <name>\n\r"
         "       THEME SET <more options>\n\r"
-        "       THEME SHOW" COLOR_CLEAR "\n\r"
+        "       THEME SHOW" COLOR_INFO "\n\r"
         "\n\r"
-        "Type '" COLOR_ALT_TEXT_1 "THEME <option>" COLOR_CLEAR "' for more information.\n\r";
+        "Type '" COLOR_ALT_TEXT_1 "THEME <option>" COLOR_INFO "' for more information."
+        COLOR_CLEAR "\n\r";
 
     char cmd[MAX_INPUT_LENGTH] = { 0 };
 
@@ -1320,10 +1332,8 @@ void do_theme(Mobile* ch, char* argument)
 
     if (!str_prefix(cmd, "help")) {
         send_to_char(help, ch);
-        return;
     }
-
-    if (!str_prefix(cmd, "channel")) {
+    else if (!str_prefix(cmd, "channel")) {
         do_theme_channel(ch, argument);
     }
     else if (!str_prefix(cmd, "config")) {
