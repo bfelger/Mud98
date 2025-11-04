@@ -44,6 +44,16 @@ const ItemInfo item_type_table[ITEM_TYPE_COUNT] = {
     { ITEM_JUKEBOX,         "jukebox"       },
 };
 
+const char* item_name(ItemType type)
+{
+    for (int i = 0; i < ITEM_TYPE_COUNT; i++) {
+        if (type == item_type_table[i].type)
+            return item_type_table[i].name;
+    }
+
+    return "";
+}
+
 const LiquidInfo liquid_table[LIQ_COUNT] = {
     // name			        color	           proof full thirst food ssize
     { "water",              "clear",            0,    1,    10,   0,   16   },

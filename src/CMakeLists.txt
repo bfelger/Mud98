@@ -204,6 +204,8 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
 
     "benchmarks/benchmarks.h" "benchmarks/benchmarks.c" 
     "benchmarks/container_benchmarks.c"
+
+    "snippets/lore.c"
 )
 
 target_link_libraries(Mud98 PRIVATE ${Mud98_LIBS})

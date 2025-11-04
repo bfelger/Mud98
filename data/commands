@@ -1,4 +1,4 @@
-265
+266
 
 #COMMAND
 name .~
@@ -1050,6 +1050,15 @@ do_fun do_log~
 position dead~
 level 59
 log log_always~
+show undef~
+#END
+
+#COMMAND
+name lore~
+do_fun do_lore~
+position resting~
+level 0
+log log_normal~
 show undef~
 #END
 
