@@ -2,6 +2,23 @@
 // snippets/merc.dual.v1.c
 ////////////////////////////////////////////////////////////////////////////////
 
+/***************************************************************************
+ *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *                                                                         *
+ *  Merc Diku Mud improvements copyright (C) 1992, 1993 by Michael         *
+ *  Chastain, Michael Quan, and Mitchell Tse.                              *
+ *                                                                         *
+ *  In order to use any part of this Merc Diku Mud, you must comply with   *
+ *  both the original Diku license in 'license.doc' as well the Merc       *
+ *  license in 'license.txt'.  In particular, you may not remove either of *
+ *  these copyright notices.                                               *
+ *                                                                         *
+ *  Much time and thought has gone into this software and you are          *
+ *  benefiting.  We hope that you share your changes too.  What goes       *
+ *  around, comes around.                                                  *
+ ***************************************************************************/
+
 /*
 ===========================================================================
 This snippet was written by Erwin S. Andreasen, erwin@andreasen.org. You may
@@ -9,7 +26,6 @@ use this code freely, as long as you retain my name in all of the files. You
 also have to mail me telling that you are using it. Note, however, that
 I DO NOT OFFER ANY SUPPORT ON THIS CODE. If you have a problem installing
 it, this means you probably SHOULD NOT BE RUNNING A MUD.
-
 
 All my snippets are publically available at:
 
@@ -23,15 +39,6 @@ Secondary weapon code prototype. You should probably do a clean compile on
 this one, due to the change to the MAX_WEAR define.
 
 Last update: Oct 10, 1995
-
-Should work on : MERC2.2
-
-Fixed since last update:
-
-Know bugs and limitations yet to be fixed:
-
-Comments:
-
 */
 
 #include <entities/mobile.h>
