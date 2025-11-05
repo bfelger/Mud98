@@ -388,29 +388,30 @@ char* prettify_lox_script(char* script)
     return ret;
 }
 
-void olc_display_lox_info(Mobile* ch, Entity* entity, Buffer* out)
+void olc_display_lox_info(Mobile* ch, Entity* entity)
 {
     if (entity->klass != NULL) {
-        addf_buf(out, "Lox Class:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_ALT_TEXT_2 " Type '" COLOR_INFO "LOX" 
-            COLOR_ALT_TEXT_2 "' to edit." COLOR_CLEAR "\n\r", 
-            entity->klass->name->chars);
+        olc_print_str_box(ch, "Lox Class", entity->klass->name->chars,
+            "Type '" COLOR_INFO "LOX" COLOR_ALT_TEXT_2 "' to edit.");
         Table* methods = &entity->klass->methods;
         bool first = true;
         for (int i = 0; i < methods->capacity; i++) {
             Entry* entry = &methods->entries[i];
             if (entry->key != NIL_VAL) {
                 if (first) {
-                    addf_buf(out, " - Members:   " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r", string_value(entry->key));
+                    printf_to_char(ch, "%14s : " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r",
+                        "Members", string_value(entry->key));
                     first = false;
                 }
                 else {
-                    addf_buf(out, "              " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r", string_value(entry->key));
+                    printf_to_char(ch, "%14s   " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r",
+                        "", string_value(entry->key));
                 }
             }
         }
     }
     else {
-        addf_buf(out, "Lox Class:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "none" COLOR_DECOR_1 "]" COLOR_ALT_TEXT_2 " Type '" COLOR_INFO "LOX"
-            COLOR_ALT_TEXT_2 "' to create one." COLOR_CLEAR "\n\r");
+        olc_print_str_box(ch, "Lox Class", "(none)", "Type '" COLOR_INFO "LOX"
+            COLOR_ALT_TEXT_2 "' to create one.");
     }
 }

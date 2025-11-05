@@ -314,12 +314,13 @@ MEDIT(medit_show)
         }
     }
 
+    send_to_char(BUF(buffer), ch);
+
     Entity* entity = &pMob->header;
-    olc_display_event_info(ch, entity, buffer);
-    olc_display_lox_info(ch, entity, buffer);
+    olc_display_event_info(ch, entity);
+    olc_display_lox_info(ch, entity);
 
     //page_to_char(BUF(buffer), ch);
-    send_to_char(BUF(buffer), ch);
 
     free_buf(buffer);
 

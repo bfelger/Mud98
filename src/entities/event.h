@@ -31,7 +31,7 @@ void remove_event(Entity* entity, Event* event);
 void load_event(FILE* fp, Entity* owner);
 Event* get_event_by_trigger(Entity* entity, FLAGS trigger);
 ObjClosure* get_event_closure(Entity* entity, Event* event);
-void olc_display_event_info(Mobile* ch, Entity* entity, Buffer* out);
+void olc_display_event_info(Mobile* ch, Entity* entity);
 
 #define HAS_EVENT_TRIGGER(entity, trigger)                                     \
     (((Entity*)(entity))->event_triggers & trigger)

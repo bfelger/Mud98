@@ -274,80 +274,76 @@ REDIT(redit_show)
     bool fcnt;
 
     INIT_BUF(line, MAX_STRING_LENGTH);
-    INIT_BUF(out, 2 * MAX_STRING_LENGTH);
 
     INIT_BUF(word, MAX_INPUT_LENGTH);
     INIT_BUF(reset_state, MAX_STRING_LENGTH);
 
     EDIT_ROOM(ch, pRoom);
 
-    addf_buf(out, "Description:\n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR , pRoom->description);
-    addf_buf(out, "Name:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\rArea:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r",
-        NAME_STR(pRoom), VNUM_FIELD(pRoom->area_data), NAME_STR(pRoom->area_data));
-    addf_buf(out, "Vnum:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\rSector:      " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r",
-        VNUM_FIELD(pRoom), flag_string(sector_flag_table, pRoom->sector_type));
-    addf_buf(out, "Room flags:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r",
-        flag_string(room_flag_table, pRoom->room_flags));
-    addf_buf(out, "Heal rec:    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\rMana rec:    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r",
-        pRoom->heal_rate, pRoom->mana_rate);
+    sprintf(BUF(line), COLOR_TITLE "%s", NAME_STR(pRoom));
+    olc_print_num_str(ch, "Room", VNUM_FIELD(pRoom), BUF(line));
+    olc_print_num_str(ch, "Area", VNUM_FIELD(pRoom->area_data), NAME_STR(pRoom->area_data));
+    olc_print_flags(ch, "Sector", sector_flag_table, pRoom->sector_type);
+    olc_print_flags(ch, "Room Flags", room_flag_table, pRoom->room_flags);
+    olc_print_num(ch, "Heal Recover", pRoom->heal_rate);
+    olc_print_num(ch, "Mana Recover", pRoom->mana_rate);
 
     if (pRoom->clan) {
-        addf_buf(out, "Clan:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r", pRoom->clan,
-            ((pRoom->clan > 0) ? clan_table[pRoom->clan].name : "none"));
+        olc_print_num_str(ch, "Clan", pRoom->clan, 
+            ((pRoom->clan > 0) ? clan_table[pRoom->clan].name : "(none)"));
     }
 
     if (pRoom->owner && pRoom->owner[0] != '\0') {
-        addf_buf(out, "Owner:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", pRoom->owner);
+        olc_print_str(ch, "Owner", pRoom->owner);
     }
 
     if (pRoom->extra_desc) {
         ExtraDesc* ed;
 
-        add_buf(out, "Desc Kwds:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "");
+        printf_to_char(ch, "%-14s : " COLOR_ALT_TEXT_1, "Desc Kwds");
+
         FOR_EACH(ed, pRoom->extra_desc) {
-            add_buf(out, ed->keyword);
+            printf_to_char(ch, ed->keyword);
             if (ed->next) {
-                add_buf(out, " ");
+                printf_to_char(ch, " ");
             }
         }
-        add_buf(out, COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r");
+        printf_to_char(ch,  COLOR_CLEAR "\n\r");
     }
 
-    add_buf(out, "Characters:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "");
+    printf_to_char(ch, "%-14s : " COLOR_ALT_TEXT_1, "Characters");
+
     fcnt = false;
     FOR_EACH_ROOM_MOB(rch, ch->in_room) {
         if (IS_NPC(rch) || can_see(ch, rch)) {
             one_argument(NAME_STR(rch), BUF(line));
-            if (fcnt) {
-                add_buf(out, " ");
-            }
-            add_buf(out, BUF(line));
+            printf_to_char(ch, "%s ", BUF(line));
             fcnt = true;
         }
     }
     
     if (!fcnt) {
-        add_buf(out, "none");
+        printf_to_char(ch, "(none)");
     }
     
-    add_buf(out, COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r");
+    printf_to_char(ch, COLOR_CLEAR "\n\r");
     
-    add_buf(out, "Objects:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "");
+    printf_to_char(ch, "%-14s : " COLOR_ALT_TEXT_1, "Objects");
+
     fcnt = false;
     FOR_EACH_ROOM_OBJ(obj, ch->in_room) {
         one_argument(NAME_STR(obj), BUF(line));
-        add_buf(out, " ");
-        add_buf(out, BUF(line));
+        printf_to_char(ch, "%s ", BUF(line));
         fcnt = true;
     }
     
     if (!fcnt) {
-        add_buf(out, "none");
+        printf_to_char(ch, "(none)");
     }
     
-    add_buf(out, COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r");
+    printf_to_char(ch, COLOR_CLEAR "\n\r");
 
-    add_buf(out, "Exits:\n\r");
+    printf_to_char(ch, "%-14s : \n\r", "Exits");
 
     for (cnt = 0; cnt < DIR_MAX; cnt++) {
         char* state;
@@ -357,24 +353,23 @@ REDIT(redit_show)
         if (pRoom->exit_data[cnt] == NULL)
             continue;
 
-        addf_buf(out, "    " COLOR_TITLE "%-5s :  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " Key: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR ,
+        printf_to_char(ch, COLOR_TITLE "%14s : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 " ]" COLOR_TITLE " Key: " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 " ]",
             capitalize(dir_list[cnt].name),
             pRoom->exit_data[cnt]->to_room ? VNUM_FIELD(pRoom->exit_data[cnt]->to_room) :
             0, pRoom->exit_data[cnt]->key);
 
-    /*
-     * Format up the exit info.
-     * Capitalize all flags that are not part of the reset info.
-     */
+        /*
+         * Format up the exit info.
+         * Capitalize all flags that are not part of the reset info.
+         */
         strcpy(BUF(reset_state), flag_string(exit_flag_table, pRoom->exit_data[cnt]->exit_reset_flags));
         state = flag_string(exit_flag_table, pRoom->exit_data[cnt]->exit_reset_flags);
-        add_buf(out, " Exit flags: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "");
+        printf_to_char(ch, COLOR_TITLE " Exit flags: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1);
         fcnt = false;
         for (; ;) {
             state = one_argument(state, BUF(word));
 
             if (BUF(word)[0] == '\0') {
-                add_buf(out, COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r");
                 break;
             }
 
@@ -383,28 +378,29 @@ REDIT(redit_show)
                 for (i = 0; i < (int)length; i++)
                     BUF(word)[i] = UPPER(BUF(word)[i]);
             }
-            add_buf(out, BUF(word));
-            if (fcnt) {
-                add_buf(out, " ");
-            }
+            printf_to_char(ch, " %s", BUF(word));
             fcnt = true;
         }
+            
+        printf_to_char(ch, COLOR_DECOR_1 " ] ");
 
         if (pRoom->exit_data[cnt]->keyword && pRoom->exit_data[cnt]->keyword[0] != '\0') {
-            addf_buf(out, "Kwds: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r", pRoom->exit_data[cnt]->keyword);
+            olc_print_str(ch, "Kwds", pRoom->exit_data[cnt]->keyword);
         }
+        else
+            printf_to_char(ch, COLOR_CLEAR "\n\r");
+
         if (pRoom->exit_data[cnt]->description && pRoom->exit_data[cnt]->description[0] != '\0') {
-            addf_buf(out, "        " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR , pRoom->exit_data[cnt]->description);
+            printf_to_char(ch, "%-14s : " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR, "", pRoom->exit_data[cnt]->description);
         }
     }
 
     Entity* entity = &pRoom->header;
-    olc_display_event_info(ch, entity, out);
-    olc_display_lox_info(ch, entity, out);
+    olc_display_event_info(ch, entity);
+    olc_display_lox_info(ch, entity);
 
-    send_to_char(BUF(out), ch);
+    olc_print_text(ch, "Description", pRoom->description);
 
-    free_buf(out);
     free_buf(line);
 
     free_buf(word);

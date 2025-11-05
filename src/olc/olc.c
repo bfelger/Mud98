@@ -614,8 +614,16 @@ void olc_print_num_str(Mobile* ch, const char* label, int num, const char* opt_s
 
 void olc_print_str(Mobile* ch, const char* label, const char* str)
 {
-    printf_to_char(ch, LABEL_FMT " : " COLOR_ALT_TEXT_1 "%s"
-        COLOR_CLEAR "\n\r", label, str);
+    printf_to_char(ch, LABEL_FMT " : " COLOR_ALT_TEXT_1 "%s" COLOR_CLEAR "\n\r",
+        label, str);
+}
+
+void olc_print_str_box(Mobile* ch, const char* label, const char* str, 
+    const char* opt_str)
+{
+    printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s"
+        COLOR_DECOR_1 " ] " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r", label,
+        str, opt_str);
 }
 
 void olc_print_yesno(Mobile* ch, const char* label, bool yesno)
@@ -628,9 +636,12 @@ void olc_print_yesno(Mobile* ch, const char* label, bool yesno)
 
 void olc_print_text(Mobile* ch, const char* label, const char* text)
 {
-    if (text && text[0])
-        printf_to_char(ch, LABEL_FMT " : \n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR 
-            "\n\r", label, text);
+    if (text && text[0]) {
+        printf_to_char(ch, LABEL_FMT " : \n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR, label, text);
+        char c = text[strlen(text) - 1];
+        if (c != '\n' && c != '\r')
+            printf_to_char(ch, "\n\r");
+    }
     else
         printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 
             "%10s" COLOR_DECOR_1 " ]" COLOR_CLEAR "\n\r", label, "(none)");

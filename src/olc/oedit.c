@@ -711,15 +711,9 @@ OEDIT(oedit_show)
 
     show_obj_values(ch, pObj);
 
-    INIT_BUF(out, MSL);
-
     Entity* entity = &pObj->header;
-    olc_display_event_info(ch, entity, out);
-    olc_display_lox_info(ch, entity, out);
-
-    send_to_char(BUF(out), ch);
-
-    free_buf(out);
+    olc_display_event_info(ch, entity);
+    olc_display_lox_info(ch, entity);
 
     return false;
 }
