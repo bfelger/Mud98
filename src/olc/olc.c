@@ -637,7 +637,7 @@ void olc_print_yesno(Mobile* ch, const char* label, bool yesno)
 void olc_print_text(Mobile* ch, const char* label, const char* text)
 {
     if (text && text[0]) {
-        printf_to_char(ch, LABEL_FMT " : \n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR, label, text);
+        printf_to_char(ch, "%s: \n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR, label, text);
         char c = text[strlen(text) - 1];
         if (c != '\n' && c != '\r')
             printf_to_char(ch, "\n\r");

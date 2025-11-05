@@ -9,6 +9,8 @@
 #include <db.h>
 #include <lookup.h>
 
+#include <data/events.h>
+
 #include <olc/bit.h>
 
 #include <lox/list.h>
@@ -203,16 +205,70 @@ ObjClosure* get_event_closure(Entity* entity, Event* event)
 
 void olc_display_event_info(Mobile* ch, Entity* entity)
 {
-    if (entity->events.count != 0) {
-        printf_to_char(ch, "%-14s : \n\r", "Events");
+    //if (entity->events.count != 0) {
+    //    printf_to_char(ch, "%-14s : \n\r", "Events");
+    //
+    //    Node* node = entity->events.front;
+    //    while (node != NULL) {
+    //        Event* event = AS_EVENT(node->value);
+    //        printf_to_char(ch, COLOR_TITLE "%14s : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s" COLOR_DECOR_1 " ]" COLOR_CLEAR "\n\r",
+    //            capitalize(flag_string(mprog_flag_table, event->trigger)),
+    //            event->method_name->chars);
+    //        node = node->next;
+    //    }
+    //}
 
-        Node* node = entity->events.front;
-        while (node != NULL) {
-            Event* event = AS_EVENT(node->value);
-            printf_to_char(ch, COLOR_TITLE "%14s : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s" COLOR_DECOR_1 " ]" COLOR_CLEAR "\n\r",
-                capitalize(flag_string(mprog_flag_table, event->trigger)),
-                event->method_name->chars);
-            node = node->next;
+    if (entity->events.count = 0)
+        return;
+
+    send_to_char(
+        "Events:\n\r"
+        COLOR_TITLE   " Trigger          Callback (Args)     Criteria\n\r"
+        COLOR_DECOR_2 "========= ================ ========== ========\n\r", ch);
+
+    Node* node = entity->events.front;
+    while (node != NULL) {
+        Event* event = AS_EVENT(node->value);
+
+        char* trigger = capitalize(flag_string(mprog_flag_table, event->trigger));
+        char* callback = (event->method_name != NULL) ? event->method_name->chars : "(none)";
+        char* args = "";
+        char* criteria = (!IS_NIL(event->criteria)) ? string_value(event->criteria) : "";
+
+        switch (event->trigger) {
+            case TRIG_ACT:
+            case TRIG_SPEECH:
+                args = "(mob, msg)";
+                break;
+            case TRIG_BRIBE:
+            case TRIG_HPCNT:
+                args = "(mob, amt)";
+                break;
+            case TRIG_GIVE:
+                args = "(mob, obj)";
+            case TRIG_DEATH:
+            case TRIG_ENTRY:
+            case TRIG_FIGHT:
+            case TRIG_GREET:
+            case TRIG_GRALL:
+            case TRIG_KILL:
+            case TRIG_RANDOM:
+            case TRIG_EXIT:
+            case TRIG_EXALL:
+            case TRIG_DELAY:
+            case TRIG_SURR:
+            case TRIG_LOGIN:
+            default:
+                args = "(mob)";
+                break;
         }
+
+        printf_to_char(ch, COLOR_TITLE "" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%7.7s" COLOR_DECOR_1 "]" 
+            COLOR_ALT_TEXT_2 " %16.16s %-10.10s "
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6.6s" COLOR_DECOR_1 "]"
+            COLOR_CLEAR "\n\r",
+            trigger, callback, args, criteria);
+
+        node = node->next;
     }
 }

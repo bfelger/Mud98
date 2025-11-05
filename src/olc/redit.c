@@ -26,6 +26,7 @@
 
 #define REDIT(fun) bool fun( Mobile *ch, char *argument )
 
+void display_exits(Mobile* ch, RoomData* pRoom);
 void display_resets(Mobile* ch, RoomData* pRoom);
 
 RoomData xRoom;
@@ -270,7 +271,6 @@ REDIT(redit_show)
     RoomData* pRoom = NULL;
     Object* obj = NULL;
     Mobile* rch = NULL;
-    int cnt = 0;
     bool fcnt;
 
     INIT_BUF(line, MAX_STRING_LENGTH);
@@ -279,6 +279,16 @@ REDIT(redit_show)
     INIT_BUF(reset_state, MAX_STRING_LENGTH);
 
     EDIT_ROOM(ch, pRoom);
+
+    ////////////////////////////////////////////////////////////////////////////
+    // LONG DESCRIPTION
+    ////////////////////////////////////////////////////////////////////////////
+
+    olc_print_text(ch, "Description", pRoom->description);
+
+    ////////////////////////////////////////////////////////////////////////////
+    // MAIN INFO BLOCK
+    ////////////////////////////////////////////////////////////////////////////
 
     sprintf(BUF(line), COLOR_TITLE "%s", NAME_STR(pRoom));
     olc_print_num_str(ch, "Room", VNUM_FIELD(pRoom), BUF(line));
@@ -297,6 +307,10 @@ REDIT(redit_show)
         olc_print_str(ch, "Owner", pRoom->owner);
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    // EXTRA DESCRIPTIONS
+    ////////////////////////////////////////////////////////////////////////////
+
     if (pRoom->extra_desc) {
         ExtraDesc* ed;
 
@@ -310,6 +324,10 @@ REDIT(redit_show)
         }
         printf_to_char(ch,  COLOR_CLEAR "\n\r");
     }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // ROOM CONTENTS
+    ////////////////////////////////////////////////////////////////////////////
 
     printf_to_char(ch, "%-14s : " COLOR_ALT_TEXT_1, "Characters");
 
@@ -340,78 +358,37 @@ REDIT(redit_show)
     if (!fcnt) {
         printf_to_char(ch, "(none)");
     }
-    
+
     printf_to_char(ch, COLOR_CLEAR "\n\r");
 
-    printf_to_char(ch, "%-14s : \n\r", "Exits");
-
-    for (cnt = 0; cnt < DIR_MAX; cnt++) {
-        char* state;
-        int i;
-        size_t length;
-
-        if (pRoom->exit_data[cnt] == NULL)
-            continue;
-
-        printf_to_char(ch, COLOR_TITLE "%14s : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 " ]" COLOR_TITLE " Key: " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 " ]",
-            capitalize(dir_list[cnt].name),
-            pRoom->exit_data[cnt]->to_room ? VNUM_FIELD(pRoom->exit_data[cnt]->to_room) :
-            0, pRoom->exit_data[cnt]->key);
-
-        /*
-         * Format up the exit info.
-         * Capitalize all flags that are not part of the reset info.
-         */
-        strcpy(BUF(reset_state), flag_string(exit_flag_table, pRoom->exit_data[cnt]->exit_reset_flags));
-        state = flag_string(exit_flag_table, pRoom->exit_data[cnt]->exit_reset_flags);
-        printf_to_char(ch, COLOR_TITLE " Exit flags: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1);
-        fcnt = false;
-        for (; ;) {
-            state = one_argument(state, BUF(word));
-
-            if (BUF(word)[0] == '\0') {
-                break;
-            }
-
-            if (str_infix(BUF(word), BUF(reset_state))) {
-                length = strlen(BUF(word));
-                for (i = 0; i < (int)length; i++)
-                    BUF(word)[i] = UPPER(BUF(word)[i]);
-            }
-            printf_to_char(ch, " %s", BUF(word));
-            fcnt = true;
-        }
-            
-        printf_to_char(ch, COLOR_DECOR_1 " ] ");
-
-        if (pRoom->exit_data[cnt]->keyword && pRoom->exit_data[cnt]->keyword[0] != '\0') {
-            olc_print_str(ch, "Kwds", pRoom->exit_data[cnt]->keyword);
-        }
-        else
-            printf_to_char(ch, COLOR_CLEAR "\n\r");
-
-        if (pRoom->exit_data[cnt]->description && pRoom->exit_data[cnt]->description[0] != '\0') {
-            printf_to_char(ch, "%-14s : " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR, "", pRoom->exit_data[cnt]->description);
-        }
-    }
+    ////////////////////////////////////////////////////////////////////////////
+    // EVENTS & LOX
+    ////////////////////////////////////////////////////////////////////////////
 
     Entity* entity = &pRoom->header;
-    olc_display_event_info(ch, entity);
     olc_display_lox_info(ch, entity);
+    olc_display_event_info(ch, entity);
 
-    olc_print_text(ch, "Description", pRoom->description);
+    ////////////////////////////////////////////////////////////////////////////
+    // EXITS
+    ////////////////////////////////////////////////////////////////////////////
 
-    free_buf(line);
+    display_exits(ch, pRoom);
 
-    free_buf(word);
-    free_buf(reset_state);
+    ////////////////////////////////////////////////////////////////////////////
+    // RESETS
+    ////////////////////////////////////////////////////////////////////////////
 
     if (ch->in_room->data->reset_first) {
         send_to_char(
-            "Resets: M = mobile, R = room, O = object, "
+            "\n\rResets: M = mobile, R = room, O = object, "
             "P = pet, S = shopkeeper\n\r", ch);
         display_resets(ch, ch->in_room->data);
     }
+
+    free_buf(line);
+    free_buf(word);
+    free_buf(reset_state);
 
     return false;
 }
@@ -1336,6 +1313,41 @@ REDIT(redit_clear)
     return true;
 }
 
+void display_exits(Mobile* ch, RoomData* room)
+{
+    send_to_char(
+        "\n\rExits:\n\r"
+        COLOR_TITLE   "  Dir   To Vnum    Room Desc      Key     Reset Flags       Kwds\n\r"
+        COLOR_DECOR_2 "======= ======= =============== ======= =============== ============\n\r", ch);
+
+    for (int i = 0; i < DIR_MAX; i++) {
+        RoomExitData* exit = room->exit_data[i];
+        if (exit == NULL)
+            continue;
+
+        const char* dir = capitalize(dir_list[i].name);
+        VNUM tgt_vnum = (exit->to_room != NULL) ? VNUM_FIELD(exit->to_room) : exit->to_vnum;
+        char* tgt_desc = (exit->to_room != NULL) ? NAME_STR(exit->to_room) : "";
+        VNUM key = exit->key;
+        char* flags = flag_string(exit_flag_table, exit->exit_reset_flags);
+        char* kwds = (exit->keyword != NULL) ? exit->keyword : "";
+
+        printf_to_char(ch,
+        /* Dir */   COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5s" COLOR_DECOR_1 "] "
+        /* Vnum */  "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "] "
+        /* Desc */  COLOR_TEXT "%15.15s "
+        /* Key */   COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "] [" 
+        /* Flags */ COLOR_ALT_TEXT_1 "%13.13s" COLOR_DECOR_1 "] "
+        /* Kwds */  COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r",
+            dir, tgt_vnum, tgt_desc, key, flags, kwds);
+
+        char* desc = exit->description;
+        if (desc && desc[0] != '\0') {
+            printf_to_char(ch, COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR, "\n\r", desc);
+        }
+    }
+}
+
 
 void display_resets(Mobile* ch, RoomData* pRoom)
 {
@@ -1383,7 +1395,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
             }
 
             pMob = p_mob_proto;
-            sprintf(buf, "M" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-13.13s                     R" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %2d-%2d %-15.15s\n\r",
+            sprintf(buf, "M" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-13.13s                     R" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %2d-%-2d" COLOR_ALT_TEXT_1 " %-15.15s" COLOR_CLEAR "\n\r",
                 reset->arg1, pMob->short_descr, reset->arg3,
                 reset->arg2, reset->arg4, NAME_STR(pRoomIndex));
             strcat(final, buf);
@@ -1442,7 +1454,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
             }
 
             sprintf(buf,
-                "O" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-13.13s inside              O" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %2d-%2d %-15.15s\n\r",
+                "O" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-13.13s inside              O" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %2d-%-2d %-15.15s\n\r",
                 reset->arg1,
                 pObj->short_descr,
                 reset->arg3,

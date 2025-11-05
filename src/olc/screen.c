@@ -173,8 +173,9 @@ char* exits2str(void* point)
          * Capitalize all flags that are not part of the reset info.
          */
         strcpy(reset_state, flag_string(exit_flag_table, room_exit->exit_reset_flags));
-        //state = flag_string(exit_flag_table, room_exit->exit_flags);
+        //state = flag_string(exit_flag_table, room_exit->);
         state = reset_state;
+        //strcat(buf, "Flags: [");
         strcat(buf, "Flags: [");
         for (; ;) {
             state = one_argument(state, word);
@@ -542,7 +543,7 @@ void InitScreenMap(Descriptor* d)
         perror("InitScreenMap(): calloc failed!");
         exit(-1);
     }
-    for (size_t i = 0; i < 80 * (size_t)(d->character->lines) - 3; i++)
+    for (size_t i = 0; i < 80 * (size_t)(d->character->lines - 3); i++)
         d->screenmap[i] = d->oldscreenmap[i] = ' ';
 }
 
@@ -593,7 +594,8 @@ void UpdateOLCScreen(Descriptor* d)
             continue;
 
         switch (table[i].type) {
-        default:break;
+        default:
+            break;
         case OLCS_STRING:
             SET_BUF(buf, *(char**)point);
             break;
@@ -679,11 +681,12 @@ void UpdateOLCScreen(Descriptor* d)
             i++;
             continue;
         }
-        sprintf(BUF(buf2), VT_CURSPOS "%c", (int)(i / 80 + 1), (int)(i % 80), d->screenmap[i]);
-        ++i;
-        add_buf(buf, BUF(buf2));
+        sprintf(BUF(buf2), VT_CURSPOS "%c", (int)(i / 80 + 1), (int)(i % 80), d->screenmap[i++]);
+        //++i;
+        strcat(BUF(buf), BUF(buf2));
+        //add_buf(buf, BUF(buf2));
         j += strlen(BUF(buf2));
-        while (d->screenmap && d->screenmap[i] != d->oldscreenmap[i])
+        while (i < size && d->screenmap && d->screenmap[i] != d->oldscreenmap[i])
             BUF(buf)[j++] = d->screenmap[i++];
         BUF(buf)[j] = '\0';
     }
