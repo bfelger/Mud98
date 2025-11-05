@@ -205,19 +205,6 @@ ObjClosure* get_event_closure(Entity* entity, Event* event)
 
 void olc_display_event_info(Mobile* ch, Entity* entity)
 {
-    //if (entity->events.count != 0) {
-    //    printf_to_char(ch, "%-14s : \n\r", "Events");
-    //
-    //    Node* node = entity->events.front;
-    //    while (node != NULL) {
-    //        Event* event = AS_EVENT(node->value);
-    //        printf_to_char(ch, COLOR_TITLE "%14s : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s" COLOR_DECOR_1 " ]" COLOR_CLEAR "\n\r",
-    //            capitalize(flag_string(mprog_flag_table, event->trigger)),
-    //            event->method_name->chars);
-    //        node = node->next;
-    //    }
-    //}
-
     if (entity->events.count = 0)
         return;
 
