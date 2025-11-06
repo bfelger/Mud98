@@ -1037,7 +1037,7 @@ void bust_a_prompt(Mobile* ch)
                 }
             }
             if (!found) 
-                strcat(BUF(temp1), "none");
+                strcat(doors, "none");
             sprintf(BUF(temp2), "%s", doors);
             i = BUF(temp2);
             break;
