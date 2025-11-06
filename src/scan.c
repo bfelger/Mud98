@@ -107,6 +107,12 @@ void scan_list(Room* scan_room, Mobile* ch, int16_t depth, int16_t door)
 
     if (scan_room == NULL)
         return;
+
+    // Don't peek through closed doors.
+    if (door != -1 && scan_room->exit[dir_list[door].rev_dir] != NULL
+        && IS_SET(scan_room->exit[dir_list[door].rev_dir]->exit_flags, EX_CLOSED))
+     return;
+
     FOR_EACH_ROOM_MOB(rch, scan_room) {
         if (rch == ch) 
             continue;

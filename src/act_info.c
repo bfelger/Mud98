@@ -843,7 +843,8 @@ void do_noloot(Mobile* ch, char* argument)
 
 void do_nofollow(Mobile* ch, char* argument)
 {
-    if (IS_NPC(ch)) return;
+    if (IS_NPC(ch) || IS_AFFECTED(ch, AFF_CHARM)) 
+        return;
 
     if (IS_SET(ch->act_flags, PLR_NOFOLLOW)) {
         send_to_char("You now accept followers.\n\r", ch);

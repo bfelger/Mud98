@@ -632,6 +632,12 @@ void close_socket(Descriptor* dclose)
     if ((ch = dclose->character) != NULL) {
         sprintf(log_buf, "Closing link to %s.", NAME_STR(ch));
         log_string(log_buf);
+
+        if (ch->pet && ch->pet->in_room == NULL) {
+            mob_to_room(ch->pet, get_room_for_player(ch, ROOM_VNUM_LIMBO));
+            extract_char(ch->pet, TRUE);
+        }
+
         /* cut down on wiznet spam when rebooting */
         if (dclose->connected == CON_PLAYING && !merc_down) {
             act("$n has lost $s link.", ch, NULL, NULL, TO_ROOM);

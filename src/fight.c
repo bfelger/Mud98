@@ -238,6 +238,10 @@ void multi_hit(Mobile* ch, Mobile* victim, int16_t dt)
 
     one_hit(ch, victim, dt, false);
 
+    // No double-dipping on backstab.
+    if (ch->fighting != victim || dt == gsn_backstab)
+        return;
+
     if (get_eq_char(ch, WEAR_WIELD_OH)) {
         chance = get_skill(ch, gsn_dual_wield) / 2;
 
@@ -259,9 +263,6 @@ void multi_hit(Mobile* ch, Mobile* victim, int16_t dt)
 
     if (IS_AFFECTED(ch, AFF_HASTE))
         one_hit(ch, victim, dt, false);
-
-    if (ch->fighting != victim || dt == gsn_backstab)
-        return;
 
     chance = get_skill(ch, gsn_second_attack) / 2;
 
@@ -1327,7 +1328,7 @@ void make_corpse(Mobile* ch)
         corpse = create_object(get_object_prototype(OBJ_VNUM_CORPSE_NPC), 0);
         SET_NAME(corpse, name);
         corpse->timer = (int16_t)number_range(3, 6);
-        if (ch->gold > 0) {
+        if (ch->gold > 0 || ch->silver > 0) {
             obj_to_obj(create_money(ch->gold, ch->silver), corpse);
             ch->gold = 0;
             ch->silver = 0;
@@ -1366,7 +1367,8 @@ void make_corpse(Mobile* ch)
 
     FOR_EACH_MOB_OBJ(obj, ch) {
         bool floating = false;
-        if (obj->wear_loc == WEAR_FLOAT) floating = true;
+        if (obj->wear_loc == WEAR_FLOAT)
+            floating = true;
         obj_from_char(obj);
         if (obj->item_type == ITEM_POTION) 
             obj->timer = (int16_t)number_range(500, 1000);

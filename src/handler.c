@@ -953,7 +953,7 @@ void mob_to_room(Mobile* ch, Room* room)
     if (room == NULL) {
         Room* temple;
 
-        bug("Char_to_room: NULL.", 0);
+        bug("mob_to_room: NULL.", 0);
 
         VNUM recall = IS_NPC(ch) ? cfg_get_default_recall() : ch->pcdata->recall;
 
