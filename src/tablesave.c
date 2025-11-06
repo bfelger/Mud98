@@ -153,7 +153,7 @@ void load_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, con
     VNUM* p_vnum;
     int cnt = 0, i;
 
-    while (str_cmp((word = fread_word(fp)), "#END")) {
+    while (str_prefix("#END", (word = fread_word(fp)))) {
         for (temp = table; !IS_NULLSTR(temp->field_name); temp++) {
             if (!str_cmp(word, temp->field_name)) {
                 // Found it!

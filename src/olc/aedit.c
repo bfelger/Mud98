@@ -183,9 +183,9 @@ AEDIT(aedit_create)
 
     area_data = new_area_data();
     free_string(area_data->builders);
-    area_data->builders = strdup(NAME_STR(ch));
+    area_data->builders = str_dup(NAME_STR(ch));
     free_string(area_data->credits);
-    area_data->credits = strdup(NAME_STR(ch));
+    area_data->credits = str_dup(NAME_STR(ch));
     area_data->low_range = 1;
     area_data->high_range = MAX_LEVEL;
     area_data->security = ch->pcdata->security;

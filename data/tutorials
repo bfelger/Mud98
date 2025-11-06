@@ -1,0 +1,14 @@
+1
+
+#TUTORIAL
+name Colors and Themes~
+blurb Learn how to use the THEME command to enhance your playing experience with custom, shareable color palettes.~
+finish You have completed the Colors and Themes tutorial.~
+min_level 0
+step_count 1
+#ENDTUTORIAL
+
+#STEP
+prompt Familiarize yourself with the THEME command by typing it with no arguments.~
+match theme~
+#ENDSTEP

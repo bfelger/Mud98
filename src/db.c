@@ -67,6 +67,7 @@
 #include <data/race.h>
 #include <data/skill.h>
 #include <data/social.h>
+#include <data/tutorial.h>
 
 #include <mth/mth.h>
 
@@ -204,6 +205,7 @@ void boot_db()
     load_class_table();
     load_race_table();
     load_command_table();
+    load_tutorials();
 
     // We need the commands before we can add them to Lox.
     init_native_cmds();

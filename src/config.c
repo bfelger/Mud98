@@ -181,6 +181,7 @@
 #define DEFAULT_COMMANDS_FILE       "commands"
 #define DEFAULT_RACES_FILE          "races"
 #define DEFAULT_CLASSES_FILE        "classes"
+#define DEFAULT_TUTORIALS_FILE      "tutorials"
 
 // Temp Files
 #define DEFAULT_TEMP_DIR            "temp/"
@@ -263,6 +264,7 @@ DEFINE_FILE_CONFIG(skills_file,     data_dir,   DEFAULT_SKILLS_FILE)
 DEFINE_FILE_CONFIG(commands_file,   data_dir,   DEFAULT_COMMANDS_FILE)
 DEFINE_FILE_CONFIG(races_file,      data_dir,   DEFAULT_RACES_FILE)
 DEFINE_FILE_CONFIG(classes_file,    data_dir,   DEFAULT_CLASSES_FILE)
+DEFINE_FILE_CONFIG(tutorials_file,  data_dir,   DEFAULT_TUTORIALS_FILE)
 DEFINE_DIR_CONFIG(temp_dir,         DEFAULT_TEMP_DIR)
 DEFINE_FILE_CONFIG(mem_dump_file,   temp_dir,   DEFAULT_MEM_DUMP_FILE)
 DEFINE_FILE_CONFIG(mob_dump_file,   temp_dir,   DEFAULT_MOB_DUMP_FILE)
@@ -363,6 +365,7 @@ const ConfigEntry config_entries[] = {
     { "commands_file",      CFG_STR,    U(cfg_set_commands_file)        },
     { "races_file",         CFG_STR,    U(cfg_set_races_file)           },
     { "classes_file",       CFG_STR,    U(cfg_set_classes_file)         },
+    { "tutorials_file",     CFG_STR,    U(cfg_set_tutorials_file)       },
     { "temp_dir",           CFG_DIR,    U(cfg_set_temp_dir)             },
     { "mem_dump_file",      CFG_STR,    U(cfg_set_mem_dump_file)        },
     { "mob_dump_file",      CFG_STR,    U(cfg_set_mob_dump_file)        },
