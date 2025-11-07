@@ -41,15 +41,16 @@
 #include "tables.h"
 #include "vt.h"
 
-#include "entities/descriptor.h"
-#include "entities/object.h"
+#include <entities/descriptor.h>
+#include <entities/object.h>
 
-#include "data/mobile_data.h"
-#include "data/player.h"
-#include "data/race.h"
-#include "data/skill.h"
+#include <data/mobile_data.h>
+#include <data/player.h>
+#include <data/race.h>
+#include <data/skill.h>
+#include <data/tutorial.h>
 
-#include "lox/lox.h"
+#include <lox/lox.h>
 
 #include <ctype.h>
 #include <errno.h>
@@ -173,7 +174,7 @@ void fwrite_char(Mobile* ch, FILE* fp)
     if (ch->long_descr[0] != '\0') fprintf(fp, "LnD  %s~\n", ch->long_descr);
     if (ch->description[0] != '\0') fprintf(fp, "Desc %s~\n", ch->description);
     if (ch->prompt != NULL || !str_cmp(ch->prompt, "<%hhp %mm %vmv> ")
-        || !str_cmp(ch->prompt, "{p<%hhp %mm %vmv>" COLOR_CLEAR " "))
+        || !str_cmp(ch->prompt, "^p<%hhp %mm %vmv>" COLOR_CLEAR " "))
         fprintf(fp, "Prom %s~\n", ch->prompt);
     fprintf(fp, "Race %s~\n", race_table[ch->race].name);
     if (ch->clan) fprintf(fp, "Clan %s~\n", clan_table[ch->clan].name);
@@ -256,6 +257,9 @@ void fwrite_char(Mobile* ch, FILE* fp)
             ch->pcdata->theme_config.xterm,
             ch->pcdata->theme_config.hide_rgb_help,
             0); // Reserved
+        if (ch->pcdata->tutorial != NULL) {
+            fprintf(fp, "Tut %s~ %d\n", ch->pcdata->tutorial->name, ch->pcdata->tutorial_step);
+        }
 
         /* write alias */
         for (pos = 0; pos < MAX_ALIAS; pos++) {
@@ -1125,6 +1129,21 @@ void fread_char(Mobile* ch, FILE* fp)
                     sprintf(buf, " %s", ch->pcdata->title);
                     free_string(ch->pcdata->title);
                     ch->pcdata->title = str_dup(buf);
+                }
+                fMatch = true;
+                break;
+            }
+
+            if (!str_cmp(word, "Tut")) {
+                char* n = fread_string(fp);
+                Tutorial* t = get_tutorial(n);
+                int s = fread_number(fp);
+                if (t != NULL) {
+                    ch->pcdata->tutorial = t;
+                    ch->pcdata->tutorial_step = s;
+                }
+                else {
+                    bug("fread_char: unknown tutorial '%s'. ", n);
                 }
                 fMatch = true;
                 break;

@@ -110,7 +110,6 @@ bool load_lox_class(FILE* fp, const char* entity_type_name, Entity* entity);
     memset(x, 0, sizeof(T));
 
 #define LIST_ALLOC_PERM(x, T)                                                  \
-    static T x##_zero = { 0 };                                                 \
     T* x;                                                                      \
     if (!x##_free) {                                                           \
         x = alloc_perm(sizeof(T));                                             \

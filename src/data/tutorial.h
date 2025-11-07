@@ -8,6 +8,8 @@
 
 #include <stdbool.h>
 
+#include <entities/mobile.h>
+
 typedef struct Tutorial Tutorial;
 
 typedef struct TutorialStep {
@@ -24,8 +26,11 @@ typedef struct Tutorial {
     int step_count;
 } Tutorial;
 
+void show_tutorial_step(Mobile* ch, Tutorial* t, int step);
+void advance_tutorial_step(Mobile* ch);
+Tutorial* get_tutorial(const char* name);
+
 void load_tutorials();
 void save_tutorials();
-Tutorial* get_tutorial(const char* name);
 
 #endif // !MUD98__DATA__TUTORIAL_H

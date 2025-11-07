@@ -42,6 +42,7 @@
 #include "handler.h"
 #include "interp.h"
 #include "lookup.h"
+#include "match.h"
 #include "mob_prog.h"
 #include "note.h"
 #include "recycle.h"
@@ -68,6 +69,7 @@
 #include <data/player.h>
 #include <data/race.h>
 #include <data/events.h>
+#include <data/tutorial.h>
 
 #include <lox/lox.h>
 #include <lox/object.h>
@@ -792,6 +794,14 @@ void process_client_input(SockServer* server, PollData* poll_data)
             d->fcommand = true;
             stop_idling(d->character);
 
+            bool tutorial_step_complete = false;
+            PlayerData* pcdata = (d->character != NULL) ? d->character->pcdata : NULL;
+            if (pcdata != NULL && pcdata->tutorial != NULL) {
+                Tutorial* t = pcdata->tutorial;
+                int s = pcdata->tutorial_step;
+                tutorial_step_complete = mini_match(t->steps[s].match, d->incomm, '$');
+            }
+
             if (d->showstr_point && *d->showstr_point != '\0')
                 show_string(d, d->incomm);
             else if (d->pString)
@@ -804,6 +814,10 @@ void process_client_input(SockServer* server, PollData* poll_data)
                 nanny(d, d->incomm);
 
             d->incomm[0] = '\0';
+
+            if (tutorial_step_complete) {
+                advance_tutorial_step(d->character);
+            }
         }
     }
 }

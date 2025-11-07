@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// descriptor.h
+// entities/descriptor.h
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef struct descriptor_t Descriptor;
@@ -8,13 +8,12 @@ typedef struct descriptor_t Descriptor;
 #ifndef MUD98__ENTITIES__DESCRIPTOR_H
 #define MUD98__ENTITIES__DESCRIPTOR_H
 
-#include "merc.h"
-
-#include "socket.h"
+#include <merc.h>
+#include <socket.h>
 
 #include "mobile.h"
 
-#include "mth/mth.h"
+#include <mth/mth.h>
 
 #include <stddef.h>
 #include <stdint.h>

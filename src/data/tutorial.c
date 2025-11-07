@@ -4,13 +4,112 @@
 
 #include "tutorial.h"
 
+#include <entities/mobile.h>
+#include <entities/player_data.h>
+
 #include <comm.h>
 #include <config.h>
 #include <db.h>
 #include <tablesave.h>
 
+#include <stdbool.h>
+
 Tutorial** tutorials;
 int tutorial_count;
+
+static void show_tutorial_list(Mobile* ch)
+{
+    bool match = false;
+
+    printf_to_char(ch, COLOR_INFO "\n\rThe following tutorials are available to "
+        "you:\n\r\n\r");
+    for (int i = 0; i < tutorial_count; i++) {
+        Tutorial* t = tutorials[i];
+        if (t->min_level > ch->level)
+            continue;
+        printf_to_char(ch, COLOR_TITLE "%-20s " COLOR_INFO "- "
+            COLOR_ALT_TEXT_1 "%s" COLOR_CLEAR "\n\r", t->name, t->blurb);
+        match = true;
+    }
+
+    if (!match)
+        printf_to_char(ch, "     No available tutorials found." 
+            COLOR_CLEAR "\n\r");
+    printf_to_char(ch, "\n\r");
+}
+
+void show_tutorial_step(Mobile* ch, Tutorial* t, int step)
+{
+    if (step >= t->step_count) {
+        bug("Tutorial '%s' with %d steps does not have step %d.",
+            t->name, t->step_count, step + 1);
+        return;
+    }
+
+    printf_to_char(ch, "\n\r^jTutorial: %s\n\rStep %d/%d: %s^x\n\r", t->name,
+       step + 1, t->step_count, t->steps[step].prompt);
+}
+
+void advance_tutorial_step(Mobile* ch)
+{
+    if (ch == NULL || IS_NPC(ch) || ch->pcdata == NULL)
+        return;
+
+    Tutorial* t = ch->pcdata->tutorial;
+    int s = ++(ch->pcdata->tutorial_step);
+    
+    if (s < t->step_count) {
+        show_tutorial_step(ch, t, s);
+    }
+    else {
+        printf_to_char(ch, "\n\r^jTutorial: %s\n\r%s^x\n\r", t->name, t->finish);
+        ch->pcdata->tutorial = NULL;
+        ch->pcdata->tutorial_step = 0;
+    }
+}
+
+void do_tutorial(Mobile* ch, char* argument)
+{
+    if (IS_NPC(ch) || ch->pcdata == NULL)
+        return;
+
+    if (argument[0] == '\0') {
+        Tutorial* t = ch->pcdata->tutorial;
+        if (t != NULL)
+            show_tutorial_step(ch, t, ch->pcdata->tutorial_step);
+        else
+            show_tutorial_list(ch);
+        return;
+    }
+
+    Tutorial* t = get_tutorial(argument);
+
+    if (t == NULL) {
+        printf_to_char(ch, "Tutorial '%s' not found\n\r");
+        return;
+    }
+
+    if (t->min_level > ch->level) {
+        printf_to_char(ch, "Your level is too low to begin that tutorial.\n\r");
+    }
+
+    ch->pcdata->tutorial = t;
+    ch->pcdata->tutorial_step = 0;
+
+    show_tutorial_step(ch, t, 0);
+}
+
+Tutorial* get_tutorial(const char* name)
+{
+    for (int i = 0; i < tutorial_count; i++) {
+        if (!str_prefix(name, tutorials[i]->name))
+            return tutorials[i];
+    }
+
+    return NULL;
+}
+
+// SAVE/LOAD ROUTINES //////////////////////////////////////////////////////////
 
 Tutorial temp_t;
 TutorialStep temp_s;
@@ -30,8 +129,8 @@ const SaveTableEntry tutorial_save_table[] = {
 };
 
 const SaveTableEntry step_save_table[] = {
-    { "prompt",         FIELD_STRING,           U(&temp_t.name),	        0,		            0   },
-    { "match",          FIELD_STRING,           U(&temp_t.blurb),           0,		            0   },
+    { "prompt",         FIELD_STRING,           U(&temp_s.prompt),          0,                  0   },
+    { "match",          FIELD_STRING,           U(&temp_s.match),           0,		            0   },
     { NULL,             0,                      0,                          0,                  0   }
 };
 
@@ -150,13 +249,3 @@ void save_tutorials()
 #define U OLD_U
 #undef OLD_U
 #endif
-
-Tutorial* get_tutorial(const char* name)
-{
-    for (int i = 0; i < tutorial_count; i++) {
-        if (!str_prefix(name, tutorials[i]->name))
-            return tutorials[i];
-    }
-
-    return NULL;
-}
