@@ -14,32 +14,35 @@
 
 #include "merc.h"
 
-#include "act_comm.h"
-#include "act_move.h"
-#include "bit.h"
-#include "comm.h"
-#include "db.h"
-#include "handler.h"
-#include "interp.h"
-#include "lookup.h"
-#include "magic.h"
-#include "mob_cmds.h"
+
 #include "olc.h"
-#include "recycle.h"
-#include "skills.h"
-#include "special.h"
+#include "bit.h"
 #include "string_edit.h"
-#include "stringutils.h"
-#include "tables.h"
 
-#include "entities/descriptor.h"
-#include "entities/room_exit.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
+#include <act_comm.h>
+#include <act_move.h>
+#include <comm.h>
+#include <db.h>
+#include <format.h>
+#include <handler.h>
+#include <interp.h>
+#include <lookup.h>
+#include <magic.h>
+#include <mob_cmds.h>
+#include <recycle.h>
+#include <skills.h>
+#include <special.h>
+#include <stringutils.h>
+#include <tables.h>
 
-#include "data/mobile_data.h"
-#include "data/race.h"
-#include "data/skill.h"
+#include <entities/descriptor.h>
+#include <entities/room_exit.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
+
+#include <data/mobile_data.h>
+#include <data/race.h>
+#include <data/skill.h>
 
 #include <ctype.h>
 #include <stdio.h>
@@ -944,7 +947,9 @@ ED_FUN_DEC(ed_ed)
             return false;
         }
 
-        ed->description = format_string(ed->description);
+        char* desc = format_string2(ed->description);
+        free_string(ed->description);
+        ed->description = desc;
 
         send_to_char(COLOR_INFO "Extra description formatted." COLOR_CLEAR "\n\r", ch);
         return true;

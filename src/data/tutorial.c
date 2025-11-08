@@ -46,7 +46,7 @@ void show_tutorial_step(Mobile* ch, Tutorial* t, int step)
         return;
     }
 
-    printf_to_char(ch, "\n\r^jTutorial: %s\n\rStep %d/%d: %s^x\n\r", t->name,
+    printf_to_char(ch, "\n\r^jTutorial: %s (Step %d/%d)\n\r%s^x\n\r", t->name,
        step + 1, t->step_count, t->steps[step].prompt);
 }
 

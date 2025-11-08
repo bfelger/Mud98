@@ -73,7 +73,8 @@ void lox_script_add(Mobile* ch, char* argument)
         }
 
         if (!str_cmp(arg1, ".f")) {
-            *ch->desc->pLoxScript = format_string(*ch->desc->pLoxScript);
+            //TODO: This is coming. But not quite yet.
+            //*ch->desc->pLoxScript = format_string(*ch->desc->pLoxScript);
             write_to_buffer(ch->desc, "Script formatted.\n\r", 0);
             return;
         }

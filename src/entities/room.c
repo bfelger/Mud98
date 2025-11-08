@@ -144,10 +144,10 @@ RoomData* get_room_data(VNUM vnum)
     RoomData* room_data = NULL;
 
     Value val;
-    table_get_vnum(&global_rooms, vnum, &val);
-
-    if (IS_ROOM_DATA(val))
-        room_data = AS_ROOM_DATA(val);
+    if (table_get_vnum(&global_rooms, vnum, &val)) {
+        if (IS_ROOM_DATA(val))
+            room_data = AS_ROOM_DATA(val);
+    }
 
     if (!room_data && fBootDb) {
         bug("get_room_data: bad vnum %"PRVNUM".", vnum);

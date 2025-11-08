@@ -13,6 +13,7 @@
 #include <act_move.h>
 #include <comm.h>
 #include <db.h>
+#include <format.h>
 #include <handler.h>
 #include <lookup.h>
 #include <magic.h>
@@ -767,7 +768,9 @@ REDIT(redit_format)
 
     EDIT_ROOM(ch, pRoom);
 
-    pRoom->description = format_string(pRoom->description);
+    char* desc = format_string2(pRoom->description);
+    free_string(pRoom->description);
+    pRoom->description = desc;
 
     send_to_char(COLOR_INFO "String formatted." COLOR_CLEAR "\n\r", ch);
     return true;

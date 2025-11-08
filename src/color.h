@@ -167,7 +167,7 @@ typedef enum {                  // Actual sequence depends on COLOR_ESC_STR
 
 #define COLOR_SLOT_COUNT 47
 
-// These colors map precisely in the Lope ANSI theme. Other built-in's try to 
+// These colors map precisely in the Lope ANSI theme. Other built-ins try to 
 // hew (hue? Har har) as closesly as possible.
 #define COLOR_BLUE                  COLOR_ESC_STR "b"
 #define COLOR_CYAN                  COLOR_ESC_STR "c"

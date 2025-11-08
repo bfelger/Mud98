@@ -1,5 +1,5 @@
 /***************************************************************************
- *  File: string.c                                                         *
+ *  File: string_edit.c                                                    *
  *                                                                         *
  *  Much time and thought has gone into this software and you are          *
  *  benefitting.  We hope that you share your changes too.  What goes      *
@@ -13,15 +13,17 @@
 
 #include "string_edit.h"
 
-#include "comm.h"
-#include "db.h"
 #include "olc.h"
-#include "stringutils.h"
 
-#include "entities/mobile.h"
-#include "entities/descriptor.h"
+#include <comm.h>
+#include <db.h>
+#include <format.h>
+#include <stringutils.h>
 
-#include "data/skill.h"
+#include <entities/mobile.h>
+#include <entities/descriptor.h>
+
+#include <data/skill.h>
 
 #include <ctype.h>
 #include <stdbool.h>
@@ -156,7 +158,9 @@ void string_add(Mobile* ch, char* argument)
         }
 
         if (!str_cmp(arg1, ".f")) {
-            *ch->desc->pString = format_string(*ch->desc->pString);
+            char* desc = format_string2(*ch->desc->pString);
+            free_string(*ch->desc->pString);
+            *ch->desc->pString = desc;
             write_to_buffer(ch->desc, "String formatted.\n\r", 0);
             return;
         }
@@ -262,157 +266,6 @@ void string_add(Mobile* ch, char* argument)
     *ch->desc->pString = str_dup(buf);
 
     return;
-}
-
-/*
- * Thanks to Kalgen for the new procedure (no more bug!)
- * Original wordwrap() written by Surreality.
- */
-/*****************************************************************************
- Name:		format_string
- Purpose:	Special string formating and word-wrapping.
- Called by:	string_add(string.c) (many)olc_act.c
- ****************************************************************************/
-char* format_string(char* oldstring /*, bool fSpace */)
-{
-    char xbuf[MAX_STRING_LENGTH] = { 0 };
-    char xbuf2[MAX_STRING_LENGTH] = { 0 };
-    char* rdesc;
-    int i = 0;
-    bool cap = true;
-
-    xbuf[0] = xbuf2[0] = 0;
-
-    i = 0;
-
-#ifdef CHK
-#define OLD_CHK CHK
-#endif
-#define CHK(x)      (x + i > 0 && x + i < MAX_STRING_LENGTH)
-
-    for (rdesc = oldstring; *rdesc; rdesc++) {
-        if (*rdesc == '\n') {
-                if (CHK(-1) && xbuf[i - 1] != ' ') {
-                    xbuf[i] = ' ';
-                    i++;
-            }
-        }
-        else if (*rdesc == '\r')
-            ;
-        else if (*rdesc == ' ') {
-            if (CHK(-1) && xbuf[i - 1] != ' ') {
-                xbuf[i] = ' ';
-                i++;
-            }
-        }
-        else if (*rdesc == ')') {
-            if (CHK(-2) && xbuf[i - 1] == ' ' && xbuf[i - 2] == ' ' &&
-                (xbuf[i - 3] == '.' || xbuf[i - 3] == '?' || xbuf[i - 3] == '!')) {
-                xbuf[i - 2] = *rdesc;
-                xbuf[i - 1] = ' ';
-                xbuf[i] = ' ';
-                i++;
-            }
-            else {
-                xbuf[i] = *rdesc;
-                i++;
-            }
-        }
-        else if (*rdesc == '.' || *rdesc == '?' || *rdesc == '!') {
-            if (CHK(-3) && xbuf[i - 1] == ' ' && xbuf[i - 2] == ' ' &&
-                (xbuf[i - 3] == '.' || xbuf[i - 3] == '?' || xbuf[i - 3] == '!')) {
-                if (i >= 2)
-                    xbuf[i - 2] = *rdesc;
-                if (*(rdesc + 1) != '\"') {
-                    xbuf[i - 1] = ' ';
-                    xbuf[i] = ' ';
-                    i++;
-                }
-                else {
-                    if (i >= 1)
-                        xbuf[i - 1] = '\"';
-                    xbuf[i] = ' ';
-                    xbuf[i + 1] = ' ';
-                    i += 2;
-                    rdesc++;
-                }
-            }
-            else {
-                xbuf[i] = *rdesc;
-                if (*(rdesc + 1) != '\"') {
-                    xbuf[i + 1] = ' ';
-                    xbuf[i + 2] = ' ';
-                    i += 3;
-                }
-                else {
-                    xbuf[i + 1] = '\"';
-                    xbuf[i + 2] = ' ';
-                    xbuf[i + 3] = ' ';
-                    i += 4;
-                    rdesc++;
-                }
-            }
-            cap = true;
-        }
-        else {
-            xbuf[i] = *rdesc;
-            if (cap) {
-                cap = false;
-                xbuf[i] = UPPER(xbuf[i]);
-            }
-            i++;
-        }
-    }
-    xbuf[i] = 0;
-    strcpy(xbuf2, xbuf);
-
-    rdesc = xbuf2;
-
-    xbuf[0] = 0;
-
-    for (;;) {
-        for (i = 0; i < 77; i++) {
-            if (!*(rdesc + i))
-                break;
-        }
-        if (i < 77) {
-            break;
-        }
-        for (i = (xbuf[0] ? 76 : 73); i; i--) {
-            if (*(rdesc + i) == ' ')
-                break;
-        }
-        if (i) {
-            *(rdesc + i) = 0;
-            strcat(xbuf, rdesc);
-            strcat(xbuf, "\n\r");
-            rdesc += (i + 1);
-            while (*rdesc == ' ')
-                rdesc++;
-        }
-        else {
-            bug("No spaces", 0);
-            *(rdesc + 75) = 0;
-            strcat(xbuf, rdesc);
-            strcat(xbuf, "-\n\r");
-            rdesc += 76;
-        }
-    }
-    while (*(rdesc + i) &&
-        (*(rdesc + i) == ' ' || *(rdesc + i) == '\n' || *(rdesc + i) == '\r'))
-        i--;
-    *(rdesc + i + 1) = 0;
-    strcat(xbuf, rdesc);
-    if (xbuf[strlen(xbuf) - 2] != '\n')
-        strcat(xbuf, "\n\r");
-
-    free_string(oldstring);
-    return (str_dup(xbuf));
-#undef CHK
-#ifdef OLD_CHK
-#define CHK OLD_CHK
-#undef OLD_CHK
-#endif
 }
 
 /*
@@ -662,4 +515,159 @@ char* lineadd(char* string, char* newstr, int line)
 
     free_string(string);
     return str_dup(buf);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Replaced by format_string(const char*) in format.c
+// --Halivar
+////////////////////////////////////////////////////////////////////////////////
+/*
+ * Thanks to Kalgen for the new procedure (no more bug!)
+ * Original wordwrap() written by Surreality.
+ */
+/*****************************************************************************
+ Name:		format_string
+ Purpose:	Special string formating and word-wrapping.
+ Called by:	string_add(string.c) (many)olc_act.c
+ ****************************************************************************/
+char* _OLD_format_string(char* oldstring /*, bool fSpace */)
+{
+    char xbuf[MAX_STRING_LENGTH] = { 0 };
+    char xbuf2[MAX_STRING_LENGTH] = { 0 };
+    char* rdesc;
+    int i = 0;
+    bool cap = true;
+
+    xbuf[0] = xbuf2[0] = 0;
+
+    i = 0;
+
+#ifdef CHK
+#define OLD_CHK CHK
+#endif
+#define CHK(x)      (x + i > 0 && x + i < MAX_STRING_LENGTH)
+
+    for (rdesc = oldstring; *rdesc; rdesc++) {
+        if (*rdesc == '\n') {
+            if (CHK(-1) && xbuf[i - 1] != ' ') {
+                xbuf[i] = ' ';
+                i++;
+            }
+        }
+        else if (*rdesc == '\r')
+            ;
+        else if (*rdesc == ' ') {
+            if (CHK(-1) && xbuf[i - 1] != ' ') {
+                xbuf[i] = ' ';
+                i++;
+            }
+        }
+        else if (*rdesc == ')') {
+            if (CHK(-2) && xbuf[i - 1] == ' ' && xbuf[i - 2] == ' ' &&
+                (xbuf[i - 3] == '.' || xbuf[i - 3] == '?' || xbuf[i - 3] == '!')) {
+                xbuf[i - 2] = *rdesc;
+                xbuf[i - 1] = ' ';
+                xbuf[i] = ' ';
+                i++;
+            }
+            else {
+                xbuf[i] = *rdesc;
+                i++;
+            }
+        }
+        else if (*rdesc == '.' || *rdesc == '?' || *rdesc == '!') {
+            if (CHK(-3) && xbuf[i - 1] == ' ' && xbuf[i - 2] == ' ' &&
+                (xbuf[i - 3] == '.' || xbuf[i - 3] == '?' || xbuf[i - 3] == '!')) {
+                if (i >= 2)
+                    xbuf[i - 2] = *rdesc;
+                if (*(rdesc + 1) != '\"') {
+                    xbuf[i - 1] = ' ';
+                    xbuf[i] = ' ';
+                    i++;
+                }
+                else {
+                    if (i >= 1)
+                        xbuf[i - 1] = '\"';
+                    xbuf[i] = ' ';
+                    xbuf[i + 1] = ' ';
+                    i += 2;
+                    rdesc++;
+                }
+            }
+            else {
+                xbuf[i] = *rdesc;
+                if (*(rdesc + 1) != '\"') {
+                    xbuf[i + 1] = ' ';
+                    xbuf[i + 2] = ' ';
+                    i += 3;
+                }
+                else {
+                    xbuf[i + 1] = '\"';
+                    xbuf[i + 2] = ' ';
+                    xbuf[i + 3] = ' ';
+                    i += 4;
+                    rdesc++;
+                }
+            }
+            cap = true;
+        }
+        else {
+            xbuf[i] = *rdesc;
+            if (cap) {
+                cap = false;
+                xbuf[i] = UPPER(xbuf[i]);
+            }
+            i++;
+        }
+    }
+    xbuf[i] = 0;
+    strcpy(xbuf2, xbuf);
+
+    rdesc = xbuf2;
+
+    xbuf[0] = 0;
+
+    for (;;) {
+        for (i = 0; i < 77; i++) {
+            if (!*(rdesc + i))
+                break;
+        }
+        if (i < 77) {
+            break;
+        }
+        for (i = (xbuf[0] ? 76 : 73); i; i--) {
+            if (*(rdesc + i) == ' ')
+                break;
+        }
+        if (i) {
+            *(rdesc + i) = 0;
+            strcat(xbuf, rdesc);
+            strcat(xbuf, "\n\r");
+            rdesc += (i + 1);
+            while (*rdesc == ' ')
+                rdesc++;
+        }
+        else {
+            bug("No spaces", 0);
+            *(rdesc + 75) = 0;
+            strcat(xbuf, rdesc);
+            strcat(xbuf, "-\n\r");
+            rdesc += 76;
+        }
+    }
+    while (*(rdesc + i) &&
+        (*(rdesc + i) == ' ' || *(rdesc + i) == '\n' || *(rdesc + i) == '\r'))
+        i--;
+    *(rdesc + i + 1) = 0;
+    strcat(xbuf, rdesc);
+    if (xbuf[strlen(xbuf) - 2] != '\n')
+        strcat(xbuf, "\n\r");
+
+    free_string(oldstring);
+    return (str_dup(xbuf));
+#undef CHK
+#ifdef OLD_CHK
+#define CHK OLD_CHK
+#undef OLD_CHK
+#endif
 }

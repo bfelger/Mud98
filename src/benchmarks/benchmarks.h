@@ -21,6 +21,7 @@ void start_timer(Timer* timer);
 void stop_timer(Timer* timer);
 
 void benchmark_containers();
+void benchmark_formatting();
 
 void run_benchmarks();
 

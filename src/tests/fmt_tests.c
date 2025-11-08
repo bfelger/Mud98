@@ -10,8 +10,11 @@
 
 #include <comm.h>
 #include <db.h>
+#include <format.h>
 
 TestGroup fmt_tests = { 0 };
+
+// LOX FORMAT TESTS ////////////////////////////////////////////////////////////
 
 static int test_lox_edit()
 {
@@ -137,6 +140,167 @@ static int test_lox_edit2()
     return 0;
 }
 
+// FORMAT_STRING TESTS /////////////////////////////////////////////////////////
+
+static int test_string_format_large_text()
+{
+    const char* lorum_ipsum = "at vero eos et accusamus et iusto odio dignissimos "
+        "ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti "
+        "quos dolores et quas molestias excepturi sint occaecati cupiditate non "
+        "provident, similique sunt in culpa qui officia deserunt mollitia animi, "
+        "id est laborum et dolorum fuga. et harum quidem rerum facilis est et "
+        "expedita distinctio.Nam libero tempore, cum soluta nobis est eligendi "
+        "optio cumque nihil impedit quo minus id quod maxime placeat facere "
+        "possimus, omnis voluptas assumenda est, omnis dolor repellendus."
+        "temporibus autem quibusdam et aut officiis debitis aut rerum "
+        "necessitatibus saepe eveniet ut et voluptates repudiandae sint et "
+        "molestiae non recusandae.itaque earum rerum hic tenetur a sapiente "
+        "delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut "
+        "perferendis doloribus asperiores repellat.";
+
+    const char* expected =
+        "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis\n\r"
+        "praesentium voluptatum deleniti atque corrupti quos dolores et quas\n\r"
+        "molestias excepturi sint occaecati cupiditate non provident, similique sunt\n\r"
+        "in culpa qui officia deserunt mollitia animi, id est laborum et dolorum\n\r"
+        "fuga.  Et harum quidem rerum facilis est et expedita distinctio.  Nam libero\n\r"
+        "tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus\n\r"
+        "id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis\n\r"
+        "dolor repellendus.  Temporibus autem quibusdam et aut officiis debitis aut\n\r"
+        "rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et\n\r"
+        "molestiae non recusandae.  Itaque earum rerum hic tenetur a sapiente\n\r"
+        "delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut\n\r"
+        "perferendis doloribus asperiores repellat.\n\r";
+
+    char* out = format_string2(lorum_ipsum);
+
+    ASSERT_STR_EQ(expected, out);
+
+    // If a test fails, and you want to know where, uncommend the code below.
+    //size_t len = strlen(out);
+    //for (size_t i = 0; i < len; i++)
+    //    if (out[i] != expected[i]) {
+    //        printf("First diff @ character %d: %c (%02x) != %c (%02x)\n", (int)i, out[i], (int)out[i], expected[i], (int)expected[i]);
+    //        printf("%s\n", &out[i]);
+    //        break;
+    //    }
+
+    free_string(out);
+
+    test_output_buffer = NIL_VAL;
+
+    return 0;
+}
+
+static int test_string_format_bare_newlines()
+{
+    const char* lorum_ipsum = "at vero eos et accusamus et iusto odio dignissimos "
+        "ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti "
+        "quos dolores et quas molestias excepturi sint occaecati cupiditate non "
+        "provident, similique sunt in culpa qui officia deserunt mollitia animi, "
+        "id est laborum et dolorum fuga.\n\r\n\ret harum quidem rerum facilis est et "
+        "expedita distinctio.\n\r\n\rNam libero tempore, cum soluta nobis est eligendi "
+        "optio cumque nihil impedit quo minus id quod maxime placeat facere "
+        "possimus, omnis voluptas assumenda est, omnis dolor repellendus.\n\r\n\r"
+        "temporibus autem quibusdam et aut officiis debitis aut rerum "
+        "necessitatibus saepe eveniet ut et voluptates repudiandae sint et "
+        "molestiae non recusandae.\n\r\n\ritaque earum rerum hic tenetur a sapiente "
+        "delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut "
+        "perferendis doloribus asperiores repellat.";
+
+    const char* expected =
+        "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis\n\r"
+        "praesentium voluptatum deleniti atque corrupti quos dolores et quas\n\r"
+        "molestias excepturi sint occaecati cupiditate non provident, similique sunt\n\r"
+        "in culpa qui officia deserunt mollitia animi, id est laborum et dolorum\n\r"
+        "fuga.\n\r"
+        "\n\r"
+        "Et harum quidem rerum facilis est et expedita distinctio.\n\r"
+        "\n\r"
+        "Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit\n\r"
+        "quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda\n\r"
+        "est, omnis dolor repellendus.\n\r"
+        "\n\r"
+        "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus\n\r"
+        "saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae.\n\r"
+        "\n\r"
+        "Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis\n\r"
+        "voluptatibus maiores alias consequatur aut perferendis doloribus asperiores\n\r"
+        "repellat.\n\r";
+
+    char* out = format_string2(lorum_ipsum);
+
+    ASSERT_STR_EQ(expected, out);
+
+    // If a test fails, and you want to know where, uncommend the code below.
+    //size_t len = strlen(out);
+    //for (size_t i = 0; i < len; i++)
+    //    if (out[i] != expected[i]) {
+    //        printf("First diff @ character %d: %c (%02x) != %c (%02x)\n", (int)i, out[i], (int)out[i], expected[i], (int)expected[i]);
+    //        printf("%s\n", &out[i]);
+    //        break;
+    //    }
+
+    free_string(out);
+
+    test_output_buffer = NIL_VAL;
+
+    return 0;
+}
+
+static int test_string_format_para_indent()
+{
+    const char* lorum_ipsum = "    at vero eos et accusamus et iusto odio dignissimos "
+        "ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti "
+        "quos dolores et quas molestias excepturi sint occaecati cupiditate non "
+        "provident, similique sunt in culpa qui officia deserunt mollitia animi, "
+        "id est laborum et dolorum fuga.\n\r    et harum quidem rerum facilis est et "
+        "expedita distinctio.\n\r\tNam libero tempore, cum soluta nobis est eligendi "
+        "optio cumque nihil impedit quo minus id quod maxime placeat facere "
+        "possimus, omnis voluptas assumenda est, omnis dolor repellendus.\n\r"
+        "    temporibus autem quibusdam et aut officiis debitis aut rerum "
+        "necessitatibus saepe eveniet ut et voluptates repudiandae sint et "
+        "molestiae non recusandae.\n\r\titaque earum rerum hic tenetur a sapiente "
+        "delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut "
+        "perferendis doloribus asperiores repellat.";
+
+    const char* expected =
+        "    At vero eos et accusamus et iusto odio dignissimos ducimus qui\n\r"
+        "blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et\n\r"
+        "quas molestias excepturi sint occaecati cupiditate non provident, similique\n\r"
+        "sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum\n\r"
+        "fuga.\n\r"
+        "    Et harum quidem rerum facilis est et expedita distinctio.\n\r"
+        "    Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil\n\r"
+        "impedit quo minus id quod maxime placeat facere possimus, omnis voluptas\n\r"
+        "assumenda est, omnis dolor repellendus.\n\r"
+        "    Temporibus autem quibusdam et aut officiis debitis aut rerum\n\r"
+        "necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae\n\r"
+        "non recusandae.\n\r"
+        "    Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis\n\r"
+        "voluptatibus maiores alias consequatur aut perferendis doloribus asperiores\n\r"
+        "repellat.\n\r";
+
+    char* out = format_string2(lorum_ipsum);
+
+    ASSERT_STR_EQ(expected, out);
+
+    // If a test fails, and you want to know where, uncommend the code below.
+    //size_t len = strlen(out);
+    //for (size_t i = 0; i < len; i++)
+    //    if (out[i] != expected[i]) {
+    //        printf("First diff @ character %d: %c (%02x) != %c (%02x)\n", (int)i, out[i], (int)out[i], expected[i], (int)expected[i]);
+    //        printf("%s\n", &out[i]);
+    //        break;
+    //    }
+
+    free_string(out);
+
+    test_output_buffer = NIL_VAL;
+
+    return 0;
+}
+
 void register_fmt_tests()
 {
 #define REGISTER(n, f)  register_test(&fmt_tests, (n), (f))
@@ -147,6 +311,9 @@ void register_fmt_tests()
 
     REGISTER("Lox Syntax Highlighting Test #1", test_lox_edit);
     REGISTER("Lox Syntax Highlighting Test #2", test_lox_edit2);
+    REGISTER("String Format: Large Text", test_string_format_large_text);
+    REGISTER("String Format: Bare Newlines", test_string_format_bare_newlines);
+    REGISTER("String Format: Indented Paragraphs", test_string_format_para_indent);
 
 #undef REGISTER
 }

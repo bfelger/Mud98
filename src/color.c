@@ -854,86 +854,93 @@ static void do_theme_palette(Mobile* ch, char* argument)
 
 static void do_theme_preview(Mobile* ch, char* argument)
 {
-    char out[MAX_STRING_LENGTH];
-    char buf[500];
+#define COL_FMT(slot)   COLOR2STR(theme, (slot), xterm)
     bool xterm = ch->pcdata->theme_config.xterm;
 
     static const char* help =
         COLOR_INFO
-        "USAGE: " COLOR_ALT_TEXT_1 "THEME PREVIEW (@<player name>) <theme name>" COLOR_INFO "\n\r"
+        "USAGE: " COLOR_ALT_TEXT_1 "THEME PREVIEW (<theme name>)" COLOR_INFO "\n\r"
         "\n\r"
         "For a list of themes to preview, type '" COLOR_ALT_TEXT_1 "THEME LIST" COLOR_INFO "'." COLOR_CLEAR "\n\r";
 
-    if (!argument || !argument[0]) {
-        send_to_char(help, ch);
-        return;
+    ColorTheme* theme = ch->pcdata->current_theme;
+
+    if (argument && argument[0]) {
+        if (!str_cmp(argument, "help")) {
+            send_to_char(help, ch);
+            return;
+        }
+
+        theme = lookup_color_theme(ch, argument);
+
+        if (!theme) {
+            printf_to_char(ch, COLOR_INFO "No color theme named '%s' could be found." COLOR_CLEAR "\n\r",
+                argument);
+            return;
+        }
     }
 
-    ColorTheme* theme = lookup_color_theme(ch, argument);
-
-    if (!theme) {
-        printf_to_char(ch, COLOR_INFO "No color theme named '%s' could be found." COLOR_CLEAR "\n\r", 
-            argument);
-        return;
-    }
+    INIT_BUF(buf, MSL);
 
     char* bg = BGCOLOR2STR(theme, xterm);
 
-    sprintf(out, "%s\n\r", bg);
+    addf_buf(buf, "%s\n\r", bg);
 
-    sprintf(buf, "%sWelcome to Mud98 0.90. Please do not feed the mobiles." 
-        "\n\r\n\r", COLOR2STR(theme, SLOT_TEXT, xterm));
-    strcat(out, buf);
+    addf_buf(buf, "%sWelcome to Mud98 0.90. Please do not feed the mobiles."
+        "\n\r\n\r", COL_FMT(SLOT_TEXT));
     
-    sprintf(buf, "%sLimbo\n\r", COLOR2STR(theme, SLOT_ROOM_TITLE, xterm));
-    strcat(out, buf);
+    addf_buf(buf, "%sLimbo\n\r", COL_FMT(SLOT_ROOM_TITLE));
 
-    sprintf(buf,
+    addf_buf(buf,
         "%sYou are floating in a formless void, detached from all sensation of physical\n\r"
         "matter, surrounded by swirling glowing light, which fades into the relative\n\r"
         "darkness around you without any trace of edges or shadow.\n\r"
-        "There is a \"No Tipping\" notice pinned to the darkness.\n\r",
-        COLOR2STR(theme, SLOT_ROOM_TEXT, xterm));
-    strcat(out, buf);
+        "There is a \"No Tipping\" notice pinned to the darkness.\n\r\n\r",
+        COL_FMT(SLOT_ROOM_TEXT));
 
-    sprintf(buf, "%sA dire wallabee is here.\n\r", COLOR2STR(theme, SLOT_ROOM_THINGS, xterm));
-    strcat(out, buf);
+    addf_buf(buf,
+        "     %sA Random Title               %s+--------------------+\n\r"
+        "%s===========================       %s| %sDo you like Boxes? %s|\n\r"
+        "%sOLC Field #1     %s[ %s12345 %s] %sThe nam%s+--------------------+\n\r"
+        "%sOLC Field #2     %s[ %s98765 %s] %sBlah blah blah blah\n\r\n\r",
+        COL_FMT(SLOT_TITLE), COL_FMT(SLOT_DECOR_3), COL_FMT(SLOT_DECOR_2),
+        COL_FMT(SLOT_DECOR_3), COL_FMT(SLOT_TEXT), COL_FMT(SLOT_DECOR_3),
+        COL_FMT(SLOT_TEXT), COL_FMT(SLOT_DECOR_1), COL_FMT(SLOT_ALT_TEXT_1),
+        COL_FMT(SLOT_DECOR_1), COL_FMT(SLOT_ALT_TEXT_2), COL_FMT(SLOT_DECOR_3),
+        COL_FMT(SLOT_TEXT), COL_FMT(SLOT_DECOR_1), COL_FMT(SLOT_ALT_TEXT_1),
+        COL_FMT(SLOT_DECOR_1), COL_FMT(SLOT_ALT_TEXT_2)
+    );
 
-    sprintf(buf, "%sYou have no unread notes.\n\r\n\r", COLOR2STR(theme, SLOT_INFO, xterm));
-    strcat(out, buf);
+    addf_buf(buf, "%sA dire wallabee is here.\n\r", COL_FMT(SLOT_ROOM_THINGS));
+    
+    addf_buf(buf, "%sYou have no unread notes.\n\r\n\r", COL_FMT(SLOT_INFO));
+    
+    addf_buf(buf, "%s<20/20hp 100/100m 100/100v 0gp/0sp [U]>\n\r\n\r", COL_FMT(SLOT_PROMPT));
+    
+    addf_buf(buf, "%sA dire wallabee says, '%sG'day, mate!%s'\n\r\n\r",
+        COL_FMT(SLOT_SAY), COL_FMT(SLOT_SAY_TEXT),
+        COL_FMT(SLOT_SAY));
+    
+    addf_buf(buf, "%sA dire wallabee tells you, '%sBut not really... TIME TO DIE!%s'\n\r\n\r",
+        COL_FMT(SLOT_TELL), COL_FMT(SLOT_TELL_TEXT),
+        COL_FMT(SLOT_TELL));
+    
+    addf_buf(buf, "%s<20/20hp 100/100m 100/100v 0gp/0sp [U]>\n\r\n\r", COL_FMT(SLOT_PROMPT));
+    
+    addf_buf(buf, "%sA dire wallabee's slash scratches you.\n\r", COL_FMT(SLOT_FIGHT_OHIT));
+   
+    addf_buf(buf, "%sYour slash grazes a dire wallabee.\n\r", COL_FMT(SLOT_FIGHT_YHIT));
 
-    sprintf(buf, "%s<20/20hp 100/100m 100/100v 0gp/0sp [U]>\n\r\n\r", COLOR2STR(theme, SLOT_PROMPT, xterm));
-    strcat(out, buf);
+    addf_buf(buf, "%sA dire wallabee is DEAD!!\n\r", COL_FMT(SLOT_FIGHT_DEATH));
 
-    sprintf(buf, "%sA dire wallabee says, '%sG'day, mate!%s'\n\r\n\r",
-        COLOR2STR(theme, SLOT_SAY, xterm), COLOR2STR(theme, SLOT_SAY_TEXT, xterm),
-        COLOR2STR(theme, SLOT_SAY, xterm));
-    strcat(out, buf);
+    addf_buf(buf, "%sYou receive 199 experience points.\n\r", COL_FMT(SLOT_TEXT));
 
-    sprintf(buf, "%sA dire wallabee tells you, '%sBut not really... TIME TO DIE!%s'\n\r\n\r",
-        COLOR2STR(theme, SLOT_TELL, xterm), COLOR2STR(theme, SLOT_TELL_TEXT, xterm),
-        COLOR2STR(theme, SLOT_TELL, xterm));
-    strcat(out, buf);
+    addf_buf(buf, "%s\n\r" COLOR_CLEAR "\n\r", bg);
 
-    sprintf(buf, "%s<20/20hp 100/100m 100/100v 0gp/0sp [U]>\n\r\n\r", COLOR2STR(theme, SLOT_PROMPT, xterm));
-    strcat(out, buf);
+    send_to_char(BUF(buf), ch);
+#undef COL_FMT
 
-    sprintf(buf, "%sA dire wallabee's slash scratches you.\n\r", COLOR2STR(theme, SLOT_FIGHT_OHIT, xterm));
-    strcat(out, buf);
-
-    sprintf(buf, "%sYour slash grazes a dire wallabee.\n\r", COLOR2STR(theme, SLOT_FIGHT_YHIT, xterm));
-    strcat(out, buf);
-
-    sprintf(buf, "%sA dire wallabee is DEAD!!\n\r", COLOR2STR(theme, SLOT_FIGHT_DEATH, xterm));
-    strcat(out, buf);
-
-    sprintf(buf, "%sYou receive 199 experience points.\n\r", COLOR2STR(theme, SLOT_TEXT, xterm));
-    strcat(out, buf);
-
-    sprintf(buf, "%s\n\r" COLOR_CLEAR "\n\r", bg);
-    strcat(out, buf);
-
-    send_to_char(out, ch);
+    free_buf(buf);
 }
 
 static void do_theme_remove(Mobile* ch, char* argument)
@@ -1157,6 +1164,22 @@ static void do_theme_show(Mobile* ch, char* argument)
     char color_ref[50];
     char mode[50] = { 0 };
 
+    if (argument[0]) {
+        theme = lookup_local_color_theme(ch, argument);
+
+        if (!theme)
+            theme = lookup_system_color_theme(ch, argument);
+
+        if (!theme)
+            theme = lookup_remote_color_theme(ch, argument);
+
+        if (!theme) {
+            printf_to_char(ch, COLOR_INFO "No color theme named '%s' could be found." COLOR_CLEAR "\n\r",
+                argument);
+            return;
+        }
+    }
+
     switch (theme->mode) {
     case COLOR_MODE_16:
         sprintf(mode, "(ANSI) ");
@@ -1306,12 +1329,12 @@ void do_theme(Mobile* ch, char* argument)
         "       THEME DISCARD\n\r"
         "       THEME LIST (ALL|SYSTEM|PUBLIC|PRIVATE)\n\r"
         "       THEME PALETTE/PAL <index> <color>\n\r"
-        "       THEME PREVIEW <name>\n\r"
+        "       THEME PREVIEW (<name>)\n\r"
         "       THEME REMOVE <name>\n\r"
         "       THEME SAVE\n\r"
         "       THEME SELECT <name>\n\r"
         "       THEME SET <more options>\n\r"
-        "       THEME SHOW" COLOR_INFO "\n\r"
+        "       THEME SHOW (<name>)" COLOR_INFO "\n\r"
         "\n\r"
         "Type '" COLOR_ALT_TEXT_1 "THEME <option>" COLOR_INFO "' for more information."
         COLOR_CLEAR "\n\r";

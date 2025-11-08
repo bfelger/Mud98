@@ -128,13 +128,13 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "act_obj.h" "act_obj.c" "act_wiz.h" "act_wiz.c" "alias.h" "alias.c" 
     "array.h" "ban.h" "ban.c" "color.h" "color.c" "comm.h" "comm.c" "config.h" 
     "config.c" "db.c" "digest.h" "digest.c" "effects.h" "effects.c" "file.h" 
-    "file.c" "fight.h" "fight.c" "flags.c" "handler.h" "handler.c" "healer.c" 
-    "lox.c" "interp.c" "lookup.c" "magic.c" "magic2.c" "main.c" "match.h" 
-    "match.c" "mob_cmds.h" "mob_cmds.c" "mob_prog.h" "mob_prog.c" "music.c" 
-    "note.h" "note.c" "pcg_basic.c" "recycle.c" "save.h" "save.c" "scan.c" 
-    "skills.h" "skills.c" "socket.h" "special.h" "special.c" "spell_list.h" 
-    "tables.c" "tablesave.c" "update.h" "update.c" "weather.h" "weather.c" 
-    "wizutil.v3.c"
+    "file.c" "fight.h" "fight.c" "flags.c" "format.h" "format.c" "handler.h" 
+    "handler.c" "healer.c" "lox.c" "interp.c" "lookup.c" "magic.c" "magic2.c" 
+    "main.c" "match.h" "match.c" "mob_cmds.h" "mob_cmds.c" "mob_prog.h" 
+    "mob_prog.c" "music.c" "note.h" "note.c" "pcg_basic.c" "recycle.c" "save.h" 
+    "save.c" "scan.c" "skills.h" "skills.c" "socket.h" "special.h" "special.c" 
+    "spell_list.h" "tables.c" "tablesave.c" "update.h" "update.c" "weather.h" 
+    "weather.c" "wizutil.v3.c"
 
     "olc/aedit.c" "olc/bit.h" "olc/bit.c" "olc/cedit.c" "olc/cmdedit.c" 
     "olc/gedit.c" "olc/hedit.c" "olc/medit.c" "olc/oedit.c" "olc/olc.h" 
@@ -205,10 +205,10 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "tests/fmt_tests.c" "tests/util_tests.c"
 
     "benchmarks/benchmarks.h" "benchmarks/benchmarks.c" 
-    "benchmarks/container_benchmarks.c"
+    "benchmarks/container_benchmarks.c" "benchmarks/format_benchmarks.c"
 
     "snippets/lore.c" "snippets/merc.dual.v1.c"
-)
+ )
 
 target_link_libraries(Mud98 PRIVATE ${Mud98_LIBS})
 
