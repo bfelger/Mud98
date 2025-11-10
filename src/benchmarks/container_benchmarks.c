@@ -16,7 +16,11 @@
 
 #define ITERATIONS 100000
 
-char log_buf[2 * MAX_INPUT_LENGTH];
+#if __GNUC__ || __clang__
+#  define UNUSED __attribute__((unused))
+#else
+#  define UNUSED /**/
+#endif
 
 typedef struct Item {
     Entity header;
@@ -312,6 +316,7 @@ static void benchmark_segvec(const char* msg)
     END_TEST()
 }
 
+UNUSED
 static void benchmark_table(const char* msg)
 {
     printf("%s", msg);

@@ -242,7 +242,7 @@ typedef enum wear_location_t {
 
 #define WEAR_LOC_COUNT 20
 
-char* const where_name[];
+extern char* const where_name[WEAR_LOC_COUNT];
 
 WearFlags wear_bit(WearLocation loc);
 WearLocation wear_loc(WearFlags bits, int count);

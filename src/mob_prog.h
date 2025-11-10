@@ -11,12 +11,12 @@ typedef struct mob_prog_code_t MobProgCode;
 
 #include "merc.h"
 
+#include <data/events.h>
+
 #include <entities/mobile.h>
 #include <entities/object.h>
 
 #include <stdbool.h>
-
-typedef enum event_trigger_t EventTrigger;
 
 typedef struct mob_prog_t {
     MobProg* next;

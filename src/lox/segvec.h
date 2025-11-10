@@ -16,6 +16,12 @@
 
 #include <stdbool.h>
 
+#if __GNUC__ || __clang__ || __INTEL_LLVM_COMPILER
+#  define UNUSED __attribute__((unused))
+#else
+#  define UNUSED /**/
+#endif
+
 typedef struct {
     int capacity;           // Total capacity across all blocks
     int count;              // Number of elements currently stored
@@ -82,12 +88,12 @@ static bool sv_grow_blocks_array(SegmentedVector* sv, int need)
     return true;
 }
 
-static void* sv_alloc_block(size_t bytes)
+static inline void* sv_alloc_block(size_t bytes)
 {
     return alloc_mem(bytes);
 }
 
-static void sv_free_block(void* p)
+static inline void sv_free_block(void* p)
 {
 
     int* magic = 0;
@@ -100,7 +106,9 @@ static void sv_free_block(void* p)
     free_mem(p, s_size);
 }
 
-static bool sv_add_block(SegmentedVector* sv)
+#pragma GCC diagnostic pop
+
+static inline bool sv_add_block(SegmentedVector* sv)
 {
     if (!sv_grow_blocks_array(sv, sv->num_blocks + 1))
         return false;

@@ -21,8 +21,6 @@
 List mob_list = { 0 };
 List mob_free = { 0 };
 
-VNUM top_vnum_mob;
-
 int last_mob_id = 0;
 
 Mobile* new_mobile()

@@ -86,7 +86,7 @@
 #define DEFINE_OPEN_CFG_FILE(val, subdir, rw)                                  \
     FILE* open_ ## rw ## _ ## val()                                            \
     {                                                                          \
-        char temp[256] = { 0 };                                                \
+        char temp[512] = { 0 };                                                \
         sprintf(temp, "%s%s",                                                  \
         cfg_get_ ## subdir(),                                                  \
         cfg_get_ ## val());                                                    \
@@ -96,7 +96,7 @@
 #define DEFINE_FILE_EXISTS(val, subdir)                                        \
     bool val ## _exists()                                                      \
     {                                                                          \
-        char temp[256] = { 0 };                                                \
+        char temp[512] = { 0 };                                                \
         sprintf(temp, "%s%s",                                                  \
         cfg_get_ ## subdir(),                                                  \
         cfg_get_ ## val());                                                    \

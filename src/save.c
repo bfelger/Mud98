@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -151,7 +151,7 @@ void save_char_obj(Mobile* ch)
         perror(strsave);
     }
 #else
-    if (rename(strsavetemp, classes_file) != 0) {
+    if (rename(strsavetemp, strsave) != 0) {
         bugf("save_char_obj : Could not rename %s to %s!", strsavetemp, strsave);
         perror(strsave);
     }

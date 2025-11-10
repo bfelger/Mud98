@@ -4,7 +4,7 @@
 
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvements copyright (C) 1992, 1993 by Michael         *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -112,7 +112,7 @@ void do_second(Mobile* ch, char* argument)
         return;
     }
 
-    if (!remove_obj(ch, WEAR_WIELD_OH, TRUE))
+    if (!remove_obj(ch, WEAR_WIELD_OH, true))
         return;
 
 

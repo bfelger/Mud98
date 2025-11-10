@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -637,7 +637,7 @@ void close_socket(Descriptor* dclose)
 
         if (ch->pet && ch->pet->in_room == NULL) {
             mob_to_room(ch->pet, get_room_for_player(ch, ROOM_VNUM_LIMBO));
-            extract_char(ch->pet, TRUE);
+            extract_char(ch->pet, true);
         }
 
         /* cut down on wiznet spam when rebooting */

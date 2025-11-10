@@ -135,7 +135,7 @@ const struct wear_type wear_table[] = {
     { NO_FLAG,          NO_FLAG             }
 };
 
-char* const where_name[] = {
+char* const where_name[WEAR_LOC_COUNT] = {
     "<used as light>     ",
     "<worn on finger>    ",
     "<worn on finger>    ",

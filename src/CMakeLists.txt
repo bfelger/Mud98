@@ -108,6 +108,7 @@ endif()
 
 if (NOT MSVC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -Wextra -pedantic -Wno-unused-parameter -Wno-unknown-pragmas -D_GNU_SOURCE")
+    list(APPEND Mud98_LIBS m)
 endif()
 
 if (NO_OPENSSL)
@@ -208,7 +209,7 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "benchmarks/container_benchmarks.c" "benchmarks/format_benchmarks.c"
 
     "snippets/lore.c" "snippets/merc.dual.v1.c"
- )
+)
 
 target_link_libraries(Mud98 PRIVATE ${Mud98_LIBS})
 

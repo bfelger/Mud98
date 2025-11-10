@@ -32,12 +32,12 @@ extern bool test_disassemble_on_error;
 extern bool test_disassemble_on_test;
 extern bool test_output_enabled;
 
-#define DEBUG_FRAME_COUNT
+//#define DEBUG_FRAME_COUNT
 
 #ifdef DEBUG_FRAME_COUNT
 #define INCREMENT_FRAME_COUNT() increment_frame_count()
 #define DECREMENT_FRAME_COUNT() decrement_frame_count()
-inline int increment_frame_count()
+static inline int increment_frame_count()
 {
     if (vm.frame_count + 1 > FRAMES_MAX) {
         runtime_error("Stack overflow.");
@@ -45,7 +45,7 @@ inline int increment_frame_count()
     }
     return vm.frame_count++;
 }
-inline int decrement_frame_count()
+static inline int decrement_frame_count()
 {
     if (vm.frame_count - 1 < 0) {
         runtime_error("Stack underflow.");

@@ -248,8 +248,6 @@ void print_list(List* list)
 
 void print_object(Value value)
 {
-    static char buf[1024];
-
     switch (OBJ_TYPE(value)) {
     case OBJ_ARRAY: {
         ValueArray* array_ = AS_ARRAY(value);

@@ -205,7 +205,7 @@ ObjClosure* get_event_closure(Entity* entity, Event* event)
 
 void olc_display_event_info(Mobile* ch, Entity* entity)
 {
-    if (entity->events.count = 0)
+    if (entity->events.count == 0)
         return;
 
     send_to_char(
@@ -233,6 +233,7 @@ void olc_display_event_info(Mobile* ch, Entity* entity)
                 break;
             case TRIG_GIVE:
                 args = "(mob, obj)";
+                break;
             case TRIG_DEATH:
             case TRIG_ENTRY:
             case TRIG_FIGHT:

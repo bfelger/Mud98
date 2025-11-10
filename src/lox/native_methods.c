@@ -33,13 +33,6 @@ static Value send_lox(Value receiver, int arg_count, Value* args)
         return TRUE_VAL;
     }
 
-    int first_arg = 0;
-    Entity* vch = NULL;
-
-    if (IS_ENTITY(args[first_arg])) {
-        vch = AS_ENTITY(args[first_arg++]);
-    }
-
     if (IS_MOBILE(receiver)) {
         Mobile* mob = AS_MOBILE(receiver);
 

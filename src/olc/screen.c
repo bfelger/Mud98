@@ -681,10 +681,9 @@ void UpdateOLCScreen(Descriptor* d)
             i++;
             continue;
         }
-        sprintf(BUF(buf2), VT_CURSPOS "%c", (int)(i / 80 + 1), (int)(i % 80), d->screenmap[i++]);
-        //++i;
+        sprintf(BUF(buf2), VT_CURSPOS "%c", (int)(i / 80 + 1), (int)(i % 80), d->screenmap[i]);
+        ++i;
         strcat(BUF(buf), BUF(buf2));
-        //add_buf(buf, BUF(buf2));
         j += strlen(BUF(buf2));
         while (i < size && d->screenmap && d->screenmap[i] != d->oldscreenmap[i])
             BUF(buf)[j++] = d->screenmap[i++];

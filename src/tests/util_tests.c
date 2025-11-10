@@ -103,7 +103,7 @@ void register_util_tests()
 
     REGISTER("Pattern Matching: No Match", test_match_none);
     REGISTER("Pattern Matching: Escaped", test_match_escaped);
-    REGISTER("Pattern Matching: Substitutions", test_match_escaped);
+    REGISTER("Pattern Matching: Substitutions", test_match_subs);
     REGISTER("Pattern Matching: Positive Closure", test_match_positive_closure);
     REGISTER("Pattern Matching: Kleene Closure", test_match_kleene_closure);
 

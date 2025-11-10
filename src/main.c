@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -145,17 +145,11 @@ int main(int argc, char** argv)
                     strcpy(area_dir, argv[i]);
                 }
             }
-            else if (!strcmp(argv[i], "--benchmark")) {
-                rt_opt_benchmark = true;
-            }
-            else if (!strcmp(argv[i], "--benchmark-only")) {
+            else if (!strcmp(argv[i], "--benchmark") || !strcmp(argv[i], "--benchmark-only")) {
                 rt_opt_benchmark = true;
                 rt_opt_noloop = true;
             }
-            else if (!strcmp(argv[i], "--unittest")) {
-                rt_opt_unittest = true;
-            }
-            else if (!strcmp(argv[i], "--unittest-only")) {
+            else if (!strcmp(argv[i], "--unittest") || !strcmp(argv[i], "--unittest-only")) {
                 rt_opt_unittest = true;
                 rt_opt_noloop = true;
             }
@@ -164,13 +158,13 @@ int main(int argc, char** argv)
                 while (*opt != '\0') {
                     switch (*opt) {
                     case 'B':
-                        rt_opt_noloop = true;
                     case 'b':
+                        rt_opt_noloop = true;
                         rt_opt_benchmark = true;
                         break;
                     case 'U':
-                        rt_opt_noloop = true;
                     case 'u':
+                        rt_opt_noloop = true;
                         rt_opt_unittest = true;
                         break;
                     default:

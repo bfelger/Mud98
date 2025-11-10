@@ -49,32 +49,40 @@ static void benchmark_string_allocs()
 static void benchmark_old_string_format()
 {
     Timer timer = { 0 };
-    start_timer(&timer);
+    long result = 0;
+    //start_timer(&timer);
 
     for (int i = 0; i < ITERATIONS; i++) {
         char* s = str_dup(lorum_ipsum);
+        start_timer(&timer);
         s = _OLD_format_string(s);
+        stop_timer(&timer);
+        result += elapsed(&timer).tv_nsec;
         free_string(s);
     }
 
-    stop_timer(&timer);
-    struct timespec timer_res = elapsed(&timer);
-    printf(": %12ldns\n", timer_res.tv_nsec);
+    //stop_timer(&timer);
+    //struct timespec timer_res = elapsed(&timer);
+    printf(": %12ldns\n", result); // timer_res.tv_nsec);
 }
 
 static void benchmark_new_string_format()
 {
     Timer timer = { 0 };
-    start_timer(&timer);
+    long result = 0;
+    //start_timer(&timer);
 
     for (int i = 0; i < ITERATIONS; i++) {
+        start_timer(&timer);
         char* s = format_string2(lorum_ipsum);
+        stop_timer(&timer);
+        result += elapsed(&timer).tv_nsec;
         free_string(s);
     }
 
-    stop_timer(&timer);
-    struct timespec timer_res = elapsed(&timer);
-    printf(": %12ldns\n", timer_res.tv_nsec);
+    //stop_timer(&timer);
+    //struct timespec timer_res = elapsed(&timer);
+    printf(": %12ldns\n", result); // timer_res.tv_nsec);
 }
 
 void benchmark_formatting()

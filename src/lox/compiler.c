@@ -8,6 +8,7 @@
 #include "compiler.h"
 #include "enum.h"
 #include "memory.h"
+#include "native.h"
 #include "scanner.h"
 #include "table.h"
 
@@ -22,7 +23,7 @@
 #include <string.h>
 #include <limits.h>
 #include <math.h>
-#include "native.h"
+
 
 void send_to_char(const char* txt, Mobile* ch);
 
@@ -738,7 +739,7 @@ static void dot(bool can_assign)
     resolve_property(&parser.previous, can_assign);
 }
 
-static void index(bool can_assign)
+static void arr_index(bool can_assign)
 {
     expression();
     consume(TOKEN_RIGHT_BRACK, "Expect ']' after index.");
@@ -1223,11 +1224,11 @@ static void named_variable(Token name, bool can_assign)
     }
 }
 
-static void string(bool can_assign)
-{
-    emit_constant(OBJ_VAL(copy_string(parser.previous.start + 1,
-        parser.previous.length - 2)));
-}
+//static void string(bool can_assign)
+//{
+//    emit_constant(OBJ_VAL(copy_string(parser.previous.start + 1,
+//        parser.previous.length - 2)));
+//}
 
 static void variable(bool can_assign)
 {
@@ -1407,7 +1408,7 @@ ParseRule rules[] = {
     [TOKEN_RIGHT_PAREN]     = { NULL,           NULL,       PREC_NONE       },
     [TOKEN_LEFT_BRACE]      = { NULL,           NULL,       PREC_NONE       }, 
     [TOKEN_RIGHT_BRACE]     = { NULL,           NULL,       PREC_NONE       },
-    [TOKEN_LEFT_BRACK]      = { array_,         index,      PREC_CALL       }, 
+    [TOKEN_LEFT_BRACK]      = { array_,         arr_index,  PREC_CALL       }, 
     [TOKEN_RIGHT_BRACK]     = { NULL,           NULL,       PREC_NONE       },
     [TOKEN_COMMA]           = { NULL,           NULL,       PREC_NONE       },
     [TOKEN_DOT]             = { NULL,           dot,        PREC_CALL       },

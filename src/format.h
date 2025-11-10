@@ -9,7 +9,7 @@
 
 char* format_string2(const char* text);
 
-#define BENCHMARK_FMT_PROCS
+//#define BENCHMARK_FMT_PROCS
 
 #ifdef BENCHMARK_FMT_PROCS
 extern long norm_elapsed;

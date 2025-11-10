@@ -35,6 +35,7 @@ void sv_free(SegmentedVector* sv)
     memset(sv, 0, sizeof(*sv));
 }
 
+UNUSED
 static bool sv_reserve(SegmentedVector* sv, int n)
 {
     if (n <= sv->capacity)
@@ -46,6 +47,8 @@ static bool sv_reserve(SegmentedVector* sv, int n)
     }
     return true;
 }
+
+#pragma GCC diagnostic pop
 
 bool sv_remove_unordered(SegmentedVector* sv, int i, Value* out)
 {
