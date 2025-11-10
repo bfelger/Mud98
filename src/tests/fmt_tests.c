@@ -172,7 +172,7 @@ static int test_string_format_large_text()
         "delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut\n\r"
         "perferendis doloribus asperiores repellat.\n\r";
 
-    char* out = format_string2(lorum_ipsum);
+    char* out = format_string(lorum_ipsum);
 
     ASSERT_STR_EQ(expected, out);
 
@@ -228,7 +228,7 @@ static int test_string_format_bare_newlines()
         "voluptatibus maiores alias consequatur aut perferendis doloribus asperiores\n\r"
         "repellat.\n\r";
 
-    char* out = format_string2(lorum_ipsum);
+    char* out = format_string(lorum_ipsum);
 
     ASSERT_STR_EQ(expected, out);
 
@@ -281,7 +281,7 @@ static int test_string_format_para_indent()
         "voluptatibus maiores alias consequatur aut perferendis doloribus asperiores\n\r"
         "repellat.\n\r";
 
-    char* out = format_string2(lorum_ipsum);
+    char* out = format_string(lorum_ipsum);
 
     ASSERT_STR_EQ(expected, out);
 

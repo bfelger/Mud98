@@ -74,7 +74,7 @@ static void benchmark_new_string_format()
 
     for (int i = 0; i < ITERATIONS; i++) {
         start_timer(&timer);
-        char* s = format_string2(lorum_ipsum);
+        char* s = format_string(lorum_ipsum);
         stop_timer(&timer);
         result += elapsed(&timer).tv_nsec;
         free_string(s);

@@ -3,6 +3,14 @@
 // Screen and character formatting utilities
 ////////////////////////////////////////////////////////////////////////////////
 
+// NOTE: This re-implementation focuses on correctness (color-aware line-char
+// counts and sentinels) rather than raw throughput. The legacy formatter
+// benefitted from glibc's highly vectorized strcpy/strcat, so GCC/Linux builds
+// of the old format_string() will benchmark faster than this hand-rolled logic.
+// MSVC lacks those tuned routines, which is why this version beats the legacy 
+// code on Windows. 
+// Keep that in mind when comparing cross-platform numbers.
+
 #include "format.h"
 
 #include "color.h"
@@ -23,12 +31,12 @@ long norm_elapsed;
 long wrap_elapsed;
 #endif
 
-// Marker to preserve intentional blank lines between paragraphs.
+// Sentinel (marker) to preserve intentional blank lines between paragraphs.
 // It gets added by normalize_text(), then converted to a double CRLF by
 // wrap_text().
 #define PARA_BREAK     '\v'
 
-// Marker for book-style paragraph breaks that keep the first-line indent but
+// Sentinel for book-style paragraph breaks that keep the first-line indent but
 // only insert a single newline (no blank spacer).
 #define INDENT_BREAK   '\x0E'
 
@@ -392,7 +400,7 @@ static size_t wrap_text(char* text, char* out, size_t capacity)
     return out_len;
 }
 
-char* format_string2(const char* text)
+char* format_string(const char* text)
 {
     char normalized[MAX_STRING_LENGTH] = { 0 };
     normalize_text(text, normalized, sizeof(normalized));

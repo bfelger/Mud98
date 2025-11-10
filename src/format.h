@@ -7,7 +7,7 @@
 #ifndef MUD98__FORMAT_H
 #define MUD98__FORMAT_H
 
-char* format_string2(const char* text);
+char* format_string(const char* text);
 
 //#define BENCHMARK_FMT_PROCS
 

@@ -158,7 +158,7 @@ void string_add(Mobile* ch, char* argument)
         }
 
         if (!str_cmp(arg1, ".f")) {
-            char* desc = format_string2(*ch->desc->pString);
+            char* desc = format_string(*ch->desc->pString);
             free_string(*ch->desc->pString);
             *ch->desc->pString = desc;
             write_to_buffer(ch->desc, "String formatted.\n\r", 0);

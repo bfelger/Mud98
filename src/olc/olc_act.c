@@ -947,7 +947,7 @@ ED_FUN_DEC(ed_ed)
             return false;
         }
 
-        char* desc = format_string2(ed->description);
+        char* desc = format_string(ed->description);
         free_string(ed->description);
         ed->description = desc;
 

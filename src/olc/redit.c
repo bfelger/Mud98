@@ -768,7 +768,7 @@ REDIT(redit_format)
 
     EDIT_ROOM(ch, pRoom);
 
-    char* desc = format_string2(pRoom->description);
+    char* desc = format_string(pRoom->description);
     free_string(pRoom->description);
     pRoom->description = desc;
 
