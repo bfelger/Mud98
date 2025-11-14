@@ -7,27 +7,114 @@
 #include "olc.h"
 #include "string_edit.h"
 
+#include <entities/entity.h>
+
 #include <lox/scanner.h>
+#include <lox/vm.h>
 
 #include <comm.h>
 
 char* prettify_lox_script(char* string);
 
-void lox_script_append(Mobile* ch, char** pScript)
+bool olc_edit_lox(Mobile* ch, char* argument)
+{
+    Entity* entity;
+
+    EDIT_ENTITY(ch, entity);
+
+    if (!IS_NULLSTR(argument)) {
+        send_to_char("Syntax : lox\n\r", ch);
+        return false;
+    }
+
+    lox_script_append(ch, entity->script);
+
+    return true;
+}
+
+void lox_script_append(Mobile* ch, ObjString* script)
 {
     send_to_char(COLOR_DECOR_2 "-========- " COLOR_ALT_TEXT_1 "Entering EDIT Mode " COLOR_DECOR_2 "-=========-" COLOR_ALT_TEXT_2 "\n\r", ch);
     send_to_char("    Type .h on a new line for help\n\r", ch);
     send_to_char(" Terminate with a @ on a blank line.\n\r", ch);
-    send_to_char(COLOR_DECOR_2 "-=======================================-" COLOR_CLEAR "\n\r", ch);
+    send_to_char(COLOR_DECOR_2 "-=======================================-" COLOR_EOL, ch);
 
-    if (*pScript == NULL) {
-        *pScript = str_dup("");
+    if (script == NULL) {
+        script = lox_string("");
     }
-    send_to_char(prettify_lox_script(*pScript), ch);
+    send_to_char(prettify_lox_script(script->chars), ch);
 
-    ch->desc->pLoxScript = pScript;
+    ch->desc->pLoxScript = script;
 
     return;
+}
+
+static bool lox_script_compile(Mobile* ch, bool assign)
+{
+    Entity* entity = NULL;
+    char* entity_type_name = NULL;
+
+    if (ch->desc->pEdit) {
+        switch (ch->desc->editor) {
+        case ED_ROOM:
+            entity = (Entity*)ch->desc->pEdit;
+            entity_type_name = "room";
+            break;
+        case ED_MOBILE:
+            entity = (Entity*)ch->desc->pEdit;
+            entity_type_name = "mob";
+            break;
+        case ED_OBJECT:
+            entity = (Entity*)ch->desc->pEdit;
+            entity_type_name = "obj";
+            break;
+        default:
+            break;
+        }
+    }
+
+    if (entity == NULL) {
+        bug("Attempt to save Lox script to non-Entity.");
+        ch->desc->pLoxScript = NULL;
+        return false;
+    }
+
+    char class_name[MAX_INPUT_LENGTH];
+
+    sprintf(class_name, "%s_%" PRVNUM, entity_type_name, entity->vnum);
+
+    compile_context.me = ch;
+    ObjClass* klass = create_entity_class(entity, class_name, ch->desc->pLoxScript->chars);
+    compile_context.me = NULL;
+    if (!klass) {
+        bugf("lox_script_add: failed to create class for %s %" PRVNUM, 
+            entity_type_name, entity->vnum);
+        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_GREEN "***" COLOR_DECOR_1 "]"
+            COLOR_INFO "Class \"%s\" [%d] failed to compile.\n\r"
+            COLOR_CLEAR, class_name, entity->vnum);
+        return false;
+    }
+    else if (assign) {
+        entity->klass = klass;
+        entity->script = ch->desc->pLoxScript;
+        ch->desc->pLoxScript = NULL;
+        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_GREEN "***" COLOR_DECOR_1 "]"
+            COLOR_INFO "Class \"%s\" for %s %d compiled successfully and "
+            "assigned.\n\r"
+            COLOR_CLEAR, class_name, entity_type_name, entity->vnum);
+        if (entity->obj.type == OBJ_ROOM
+            && entity->vnum == ch->in_room->header.vnum) {
+            ch->in_room->header.klass = entity->klass;
+            init_entity_class((Entity*)ch->in_room);
+        }
+    }
+    else {
+        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_GREEN "***" COLOR_DECOR_1 "]"
+            COLOR_INFO "Class \"%s\" for %s %d compiled successfully.\n\r"
+            COLOR_CLEAR, class_name, entity_type_name, entity->vnum);
+    }
+
+    return true;
 }
 
 void lox_script_add(Mobile* ch, char* argument)
@@ -45,48 +132,48 @@ void lox_script_add(Mobile* ch, char* argument)
         strcpy(tmparg3, argument);
         argument = first_arg(argument, arg3, false);
 
-        if (!str_cmp(arg1, ".c")) {
+        if (!str_cmp(arg1, ".clear")) {
             write_to_buffer(ch->desc, "Script cleared.\n\r", 0);
-            free_string(*ch->desc->pLoxScript);
-            *ch->desc->pLoxScript = str_dup("");
+            ch->desc->pLoxScript = lox_string("");
             return;
         }
-
-        if (!str_cmp(arg1, ".s")) {
+        else if (!str_cmp(arg1, ".s")) {
             write_to_buffer(ch->desc, "Script so far:\n\r", 0);
             //write_to_buffer(ch->desc, prettify_lox_script(*ch->desc->pLoxScript), 0);
-            send_to_char(prettify_lox_script(*ch->desc->pLoxScript), ch);
+            send_to_char(prettify_lox_script(ch->desc->pLoxScript->chars), ch);
             return;
         }
-
-        if (!str_cmp(arg1, ".r")) {
+        else if (!str_cmp(arg1, ".r")) {
             if (arg2[0] == '\0') {
                 write_to_buffer(ch->desc,
                     "usage:  .r \"old script\" \"new script\"\n\r", 0);
                 return;
             }
 
-            *ch->desc->pLoxScript = string_replace(*ch->desc->pLoxScript, arg2, arg3);
+            char* script = string_replace(ch->desc->pLoxScript->chars, arg2, arg3);
+            ch->desc->pLoxScript = lox_string(script);
+            free_string(script);
             sprintf(buf, "'%s' replaced with '%s'.\n\r", arg2, arg3);
             write_to_buffer(ch->desc, buf, 0);
             return;
         }
-
-        if (!str_cmp(arg1, ".f")) {
+        else if (!str_cmp(arg1, ".f")) {
             //TODO: This is coming. But not quite yet.
             //*ch->desc->pLoxScript = format_string(*ch->desc->pLoxScript);
-            write_to_buffer(ch->desc, "Script formatted.\n\r", 0);
+            //write_to_buffer(ch->desc, "Script formatted.\n\r", 0);
+            write_to_buffer(ch->desc, "Lox script formatting not yet supported."
+                "\n\r", 0);
             return;
         }
-
-        if (!str_cmp(arg1, ".ld")) {
-            *ch->desc->pLoxScript = linedel(*ch->desc->pLoxScript, atoi(arg2));
+        else if (!str_cmp(arg1, ".ld")) {
+            char* str = linedel(ch->desc->pLoxScript->chars, atoi(arg2));
+            ch->desc->pLoxScript = lox_string(str);
+            free_string(str);
             write_to_buffer(ch->desc, "Line deleted.\n\r", 0);
             return;
         }
-
-        if (!str_cmp(arg1, ".li")) {
-            if (strlen(*ch->desc->pLoxScript) + strlen(tmparg3) >=
+        else if (!str_cmp(arg1, ".li")) {
+            if (ch->desc->pLoxScript->length + strlen(tmparg3) >=
                 (MAX_STRING_LENGTH - 4)) {
                 write_to_buffer(
                     ch->desc,
@@ -95,31 +182,43 @@ void lox_script_add(Mobile* ch, char* argument)
                 return;
             }
 
-            *ch->desc->pLoxScript = lineadd(*ch->desc->pLoxScript, tmparg3, atoi(arg2));
+            char* str = lineadd(ch->desc->pLoxScript->chars, tmparg3, atoi(arg2));
+            ch->desc->pLoxScript = lox_string(str);
+            free_string(str);
             write_to_buffer(ch->desc, "Line inserted.\n\r", 0);
             return;
         }
-
-        if (!str_cmp(arg1, ".lr")) {
-            *ch->desc->pLoxScript = linedel(*ch->desc->pLoxScript, atoi(arg2));
-            *ch->desc->pLoxScript = lineadd(*ch->desc->pLoxScript, tmparg3, atoi(arg2));
+        else if (!str_cmp(arg1, ".lr")) {
+            char* str = str_dup(ch->desc->pLoxScript->chars);
+            str = linedel(str, atoi(arg2));
+            str = lineadd(str, tmparg3, atoi(arg2));
+            ch->desc->pLoxScript = lox_string(str);
             write_to_buffer(ch->desc, "Line replaced.\n\r", 0);
             return;
         }
-
-        if (!str_cmp(arg1, ".h")) {
-            write_to_buffer(ch->desc,
+        else if (!str_cmp(arg1, ".v")) {
+            lox_script_compile(ch, false);
+            return;
+        }
+        else if (!str_cmp(arg1, ".x")) {
+            ch->desc->pLoxScript = NULL;
+            send_to_char(COLOR_INFO "Script changes discarded." COLOR_EOL, ch);
+            return;
+        }
+        else if (!str_cmp(arg1, ".h")) {
+            write_to_buffer(ch->desc, COLOR_INFO
                 "Lox Script help (commands on blank line):   \n\r"
                 ".r 'old' 'new'   - replace a substring \n\r"
                 "                   (requires '', \"\") \n\r"
                 ".h               - get help (this info)\n\r"
                 ".s               - show script so far  \n\r"
-                ".f               - (word wrap) string  \n\r"
-                ".c               - clear script so far \n\r"
+                ".clear           - clear script so far \n\r"
+                ".v               - validate byte-code compilation\n\r"
                 ".ld <num>        - delete line <num>\n\r"
                 ".li <num> <txt>  - insert <txt> on line <num>\n\r"
                 ".lr <num> <txt>  - replace line <num> with <txt>\n\r"
-                "@                - compile script and save\n\r",
+                ".x               - cancel changes\n\r"
+                "@                - compile and save script" COLOR_EOL,
                 0);
             return;
         }
@@ -127,64 +226,21 @@ void lox_script_add(Mobile* ch, char* argument)
         write_to_buffer(ch->desc, "LoxEdit:  Invalid dot command.\n\r", 0);
         return;
     }
-
-    if (*argument == '@') {
+    else if (*argument == '@') {
         if (ch->desc->showstr_head) {
             write_to_buffer(ch->desc,
                 COLOR_INFO "[" COLOR_DECOR_1 "!!!" COLOR_INFO "] You received the following messages while you "
-                "were writing:" COLOR_CLEAR "\n\r",
+                "were writing:" COLOR_EOL,
                 0);
             show_string(ch->desc, "");
         }
 
-        Entity* entity = NULL;
-        char* entity_type_name = NULL;
-
-        if (ch->desc->pEdit) {
-            switch (ch->desc->editor) {
-            case ED_ROOM:
-                entity = (Entity*)ch->desc->pEdit;
-                entity_type_name = "room";
-                break;
-            case ED_MOBILE:
-                entity = (Entity*)ch->desc->pEdit;
-                entity_type_name = "mob";
-                break;
-            case ED_OBJECT:
-                entity = (Entity*)ch->desc->pEdit;
-                entity_type_name = "obj";
-                break;
-            default:
-                break;
-            }
-        }
-
-        if (entity == NULL) {
-            bug("Attempt to save Lox script to non-Entity.");
-            ch->desc->pLoxScript = NULL;
-            return;
-        }
-
-        char class_name[MAX_INPUT_LENGTH];
-        String* script = lox_string(*ch->desc->pLoxScript);
-
-        sprintf(class_name, "%s_%" PRVNUM, entity_type_name, entity->vnum);
-
-        ObjClass* klass = create_entity_class(entity, class_name, script->chars);
-        if (!klass) {
-            bugf("lox_script_add: failed to create class for %s %" PRVNUM, entity_type_name, entity->vnum);
-        }
-        else {
-            free_string(*ch->desc->pLoxScript);
-            ch->desc->pLoxScript = NULL;
-            entity->klass = klass;
-            entity->script = script;
-        }
+        lox_script_compile(ch, true);
 
         return;
     }
 
-    strcpy(buf, *ch->desc->pLoxScript);
+    strcpy(buf, ch->desc->pLoxScript->chars);
 
     // Truncate strings to MAX_STRING_LENGTH.
     if (strlen(buf) + strlen(argument) >= (MAX_STRING_LENGTH - 4)) {
@@ -196,9 +252,8 @@ void lox_script_add(Mobile* ch, char* argument)
     }
 
     strcat(buf, argument);
-    strcat(buf, "\n\r");
-    free_string(*ch->desc->pLoxScript);
-    *ch->desc->pLoxScript = str_dup(buf);
+    strcat(buf, "\n");
+    ch->desc->pLoxScript = lox_string(buf);
 
     return;
 }
@@ -400,12 +455,12 @@ void olc_display_lox_info(Mobile* ch, Entity* entity)
         //    Entry* entry = &methods->entries[i];
         //    if (entry->key != NIL_VAL) {
         //        if (first) {
-        //            printf_to_char(ch, "%14s : " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r",
+        //            printf_to_char(ch, "%14s : " COLOR_ALT_TEXT_2 "%s" COLOR_EOL,
         //                "Members", string_value(entry->key));
         //            first = false;
         //        }
         //        else {
-        //            printf_to_char(ch, "%14s   " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r",
+        //            printf_to_char(ch, "%14s   " COLOR_ALT_TEXT_2 "%s" COLOR_EOL,
         //                "", string_value(entry->key));
         //        }
         //    }
@@ -415,6 +470,4 @@ void olc_display_lox_info(Mobile* ch, Entity* entity)
         olc_print_str_box(ch, "Lox Class", "(none)", "Type '" COLOR_INFO "LOX"
             COLOR_ALT_TEXT_2 "' to create one.");
     }
-
-    printf_to_char(ch, COLOR_CLEAR "\n\r");
 }

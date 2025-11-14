@@ -52,10 +52,12 @@ static void run_test_group(TestGroup* group)
             printf("[\033[92mPASSED\033[0m]\n");
         }
         else {
+            group->asserts_failed = 0;
             failures++;
             total_failures++;
         }
         total_tests++;
+        test_output_buffer = NIL_VAL;
     }
     printf("%d out of %d tests failed.\n", (int)failures, (int)group->count);
 }

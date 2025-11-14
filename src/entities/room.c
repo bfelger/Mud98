@@ -37,7 +37,7 @@ Room* new_room(RoomData* room_data, Area* area)
 {
     LIST_ALLOC_PERM(room, Room);
 
-    push(OBJ_VAL(room));
+    gc_protect(OBJ_VAL(room));
 
     init_header(&room->header, OBJ_ROOM);
 
@@ -69,8 +69,6 @@ Room* new_room(RoomData* room_data, Area* area)
     
     list_push_back(&room_data->instances, OBJ_VAL(room));
 
-    pop();
-
     return room;
 }
 
@@ -89,7 +87,7 @@ RoomData* new_room_data()
 {
     LIST_ALLOC_PERM(room_data, RoomData);
 
-    push(OBJ_VAL(room_data));
+    gc_protect(OBJ_VAL(room_data));
 
     init_header(&room_data->header, OBJ_ROOM_DATA);
 
@@ -101,8 +99,6 @@ RoomData* new_room_data()
     room_data->owner = &str_empty[0];
     room_data->heal_rate = 100;
     room_data->mana_rate = 100;
-
-    pop();
 
     return room_data;
 }
@@ -268,7 +264,6 @@ void load_rooms(FILE* fp)
         fBootDb = true;
 
         room_data = new_room_data();
-        push(OBJ_VAL(room_data));
         room_data->owner = str_dup("");
         room_data->area_data = LAST_AREA_DATA;
         VNUM_FIELD(room_data) = vnum;
@@ -378,7 +373,6 @@ void load_rooms(FILE* fp)
         table_set_vnum(&global_rooms, vnum, OBJ_VAL(room_data));
         top_vnum_room = top_vnum_room < vnum ? vnum : top_vnum_room;
         assign_area_vnum(vnum);
-        pop();
     }
 
     return;

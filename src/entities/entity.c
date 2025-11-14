@@ -31,31 +31,33 @@ ObjClass* create_entity_class(Entity* entity, const char* name, const char* bare
     // First, create a class wrapper for bare_class_source using the name.
     INIT_BUF(buf, MAX_STRING_LENGTH);
 
-    addf_buf(buf, "class %s {\n%s\n}\n", name, bare_class_source);
+    addf_buf(buf, "var c; { class %s {\n%s\n}; c = %s; } return c;\n", name, bare_class_source,
+        name);
 
     compile_context.this_ = entity;
 
     int result = interpret_code(buf->string);
+
+    compile_context.this_ = NULL;
 
     free_buf(buf);
 
     if (result == INTERPRET_COMPILE_ERROR) return NULL;
     if (result == INTERPRET_RUNTIME_ERROR) return NULL;
 
-    // Now look up the class we just created and make sure it exists.
-    ObjString* class_name = copy_string(name, (int)strlen(name));
-    Value value;
-    if (!table_get(&vm.globals, class_name, &value)) {
-        runtime_error("Failed to create '%s'.", class_name->chars);
+    Value value = repl_ret_val;
+
+    if (value == 0) {
+        runtime_error("Return value for create_entity_class(\"%s\") is NULL", 
+            name);
         return NULL;
     }
 
     if (!IS_CLASS(value)) {
-        runtime_error("'%s' is not a class.", class_name->chars);
+        runtime_error("Return value for create_entity_class(\"%s\") is not "
+            "a class.", name);
         return NULL;
     }
-
-    compile_context.this_ = NULL;
 
     return AS_CLASS(value);
 }

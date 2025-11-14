@@ -21,24 +21,26 @@
 
 #include "olc.h"
 
-#include "comm.h"
-#include "config.h"
-#include "db.h"
-#include "handler.h"
-#include "mob_cmds.h"
-#include "skills.h"
-#include "special.h"
-#include "tables.h"
-#include "tablesave.h"
+#include <comm.h>
+#include <config.h>
+#include <db.h>
+#include <handler.h>
+#include <lookup.h>
+#include <mob_cmds.h>
+#include <skills.h>
+#include <special.h>
+#include <tables.h>
+#include <tablesave.h>
 
-#include "entities/descriptor.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
+#include <entities/descriptor.h>
+#include <entities/event.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
 
-#include "data/mobile_data.h"
-#include "data/quest.h"
-#include "data/race.h"
-#include "data/skill.h"
+#include <data/mobile_data.h>
+#include <data/quest.h>
+#include <data/race.h>
+#include <data/skill.h>
 
 #include <ctype.h>
 #include <stdio.h>
@@ -275,6 +277,10 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
             pMprog->trig_phrase);
     }
 
+    if (p_mob_proto->header.script != NULL) {
+        fprintf(fp, "L\n%s~\n", p_mob_proto->header.script->chars);
+    }
+
     return;
 }
 
@@ -320,6 +326,10 @@ void save_object(FILE* fp, ObjPrototype* obj_proto)
     fprintf(fp, "%s ", item_type_table[obj_proto->item_type].name);
     fprintf(fp, "%s ", fwrite_flag(obj_proto->extra_flags, buf));
     fprintf(fp, "%s\n", fwrite_flag(obj_proto->wear_flags, buf));
+
+    if (obj_proto->header.script != NULL) {
+        fprintf(fp, "L\n%s~\n", obj_proto->header.script->chars);
+    }
 
 /*
  *  Using fwrite_flag to write most values gives a strange
@@ -532,7 +542,7 @@ void save_rooms(FILE* fp, AreaData* area)
     ExtraDesc* pEd;
     RoomExitData* room_exit;
     char buf[MSL];
-    int i, locks;
+    int locks;
 
     fprintf(fp, "#ROOMS\n");
 
@@ -552,13 +562,13 @@ void save_rooms(FILE* fp, AreaData* area)
             // Put randomized rooms back in their original place to reduce
             // file deltas on save.
             RoomExitData* ex_to_save[DIR_MAX] = { NULL };
-            for (i = 0; i < DIR_MAX; ++i) {
+            for (int i = 0; i < DIR_MAX; ++i) {
                 if ((room_exit = pRoomIndex->exit_data[i]) == NULL)
                     continue;
                 ex_to_save[room_exit->orig_dir] = room_exit;
             }
 
-            for (i = 0; i < DIR_MAX; i++) {
+            for (int i = 0; i < DIR_MAX; i++) {
                 if ((room_exit = ex_to_save[i]) == NULL)
                     continue;
 
@@ -592,8 +602,29 @@ void save_rooms(FILE* fp, AreaData* area)
             if (pRoomIndex->mana_rate != 100 || pRoomIndex->heal_rate != 100)
                 fprintf(fp, "M %d H %d\n", pRoomIndex->mana_rate,
                     pRoomIndex->heal_rate);
+
             if (pRoomIndex->clan > 0)
-                fprintf(fp, "L '%s'\n", clan_table[pRoomIndex->clan].name);
+                fprintf(fp, "C '%s'\n", clan_table[pRoomIndex->clan].name);
+
+            if (pRoomIndex->header.events.count > 0) {
+                Node* n = pRoomIndex->header.events.front;
+                for (int i = 0; i < pRoomIndex->header.events.count; i++) {
+                    Event* e = AS_EVENT(n->value);
+                    n = n->next;
+                    int event_idx = flag_index(e->trigger, mprog_flag_table);
+                    if (event_idx == NO_FLAG) {
+                        bugf("save_rooms: Bad event flag %d.", e->trigger);
+                        continue;
+                    }
+                    fprintf(fp, "V '%s' %s~\n", 
+                        mprog_flag_table[event_idx].name, 
+                        e->method_name->chars);
+                }
+            }
+
+            if (pRoomIndex->header.script != NULL) {
+                fprintf(fp, "L\n%s~\n", pRoomIndex->header.script->chars);
+            }
 
             if (pRoomIndex->owner && str_cmp(pRoomIndex->owner, ""))
                 fprintf(fp, "O %s~\n", pRoomIndex->owner);

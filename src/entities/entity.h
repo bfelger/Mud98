@@ -30,6 +30,9 @@ Value is_room_data_lox(Value receiver, int arg_count, Value* args);
 Value is_area_lox(Value receiver, int arg_count, Value* args);
 Value is_area_data_lox(Value receiver, int arg_count, Value* args);
 
+// I don't need to use gc_protect on these because the creation and assignment 
+// is atomic. We won't see a vm run in the middle of it.
+
 #define SET_NATIVE_FIELD(inst, src, tgt, TYPE)                                 \
 {                                                                              \
     Value tgt##_value = WRAP_##TYPE(src);                                      \

@@ -39,6 +39,10 @@ void* reallocate_nogc(void* pointer, size_t old_size, size_t new_size);
 void mark_object(Obj* object);
 void mark_value(Value value);
 void collect_garbage();
+void collect_garbage_nongrowing();
 void free_objects();
+
+void gc_protect(Value value);
+void gc_protect_clear();
 
 #endif

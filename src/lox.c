@@ -181,7 +181,7 @@ void do_lox(Mobile* ch, char* argument)
     static const char* help =
         COLOR_INFO "USAGE: " COLOR_ALT_TEXT_1 "LOX [EVAL] <expression>\n\r"
         COLOR_INFO "\n\r"
-        "Type '" COLOR_ALT_TEXT_1 "LOX EVAL returns a value." COLOR_CLEAR "\n\r";
+        "Type '" COLOR_ALT_TEXT_1 "LOX EVAL returns a value." COLOR_EOL;
 
     char arg[MAX_INPUT_LENGTH] = "";
     bool is_repl = false;

@@ -868,7 +868,7 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
                 && (qs = get_quest_status(ch, qt->quest_vnum)) != NULL) {
                 if (qs->quest->type == QUEST_KILL_MOB && qs->progress < qs->amount) {
                     ++qs->progress;
-                    printf_to_char(ch, COLOR_INFO "Quest Progress: " COLOR_CLEAR "%s " COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "/" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 ")" COLOR_CLEAR "\n\r",
+                    printf_to_char(ch, COLOR_INFO "Quest Progress: " COLOR_CLEAR "%s " COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "/" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 ")" COLOR_EOL,
                         qs->quest->name, qs->progress, qs->amount);
                 }
             }
@@ -2327,7 +2327,7 @@ void do_dirt(Mobile* ch, char* argument)
             TO_ROOM);
         act(COLOR_FIGHT_SKILL "$n kicks dirt in your eyes!" COLOR_CLEAR , ch, NULL, victim, TO_VICT);
         damage(ch, victim, number_range(2, 5), gsn_dirt, DAM_NONE, false);
-        send_to_char(COLOR_FIGHT_SKILL "You can't see a thing!" COLOR_CLEAR "\n\r", victim);
+        send_to_char(COLOR_FIGHT_SKILL "You can't see a thing!" COLOR_EOL, victim);
         check_improve(ch, gsn_dirt, true, 2);
         WAIT_STATE(ch, skill_table[gsn_dirt].beats);
 
@@ -2397,7 +2397,7 @@ void do_trip(Mobile* ch, char* argument)
     }
 
     if (victim == ch) {
-        send_to_char(COLOR_FIGHT_SKILL "You fall flat on your face!" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_FIGHT_SKILL "You fall flat on your face!" COLOR_EOL, ch);
         WAIT_STATE(ch, 2 * skill_table[gsn_trip].beats);
         act(COLOR_FIGHT_SKILL "$n trips over $s own feet!" COLOR_CLEAR , ch, NULL, NULL, TO_ROOM);
         return;

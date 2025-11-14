@@ -167,7 +167,7 @@ static void list_theme_entry(Mobile* ch, ColorTheme* theme, const char* owner, b
     sprintf(bg_code, "%s", BGCOLOR2STR(theme, xterm));
 
     // First line, blank BG color
-    addf_buf(out, "%s                                                                      " COLOR_CLEAR "\n\r", bg_code);
+    addf_buf(out, "%s                                                                      " COLOR_EOL, bg_code);
 
     // Second line, name and first row of color boxes
     char name[50] = { 0 };
@@ -189,7 +189,7 @@ static void list_theme_entry(Mobile* ch, ColorTheme* theme, const char* owner, b
         else
             addf_buf(out, "%s    ", bg_code); 
     }
-    addf_buf(out, "%s    " COLOR_CLEAR "\n\r", bg_code);
+    addf_buf(out, "%s    " COLOR_EOL, bg_code);
 
     // Third line, mode type and second row of color boxes
     if (show_public && theme->is_public) {
@@ -208,7 +208,7 @@ static void list_theme_entry(Mobile* ch, ColorTheme* theme, const char* owner, b
             sprintf(buf, "%s    ", bg_code);
         add_buf(out, buf);
     }
-    addf_buf(out, "%s    " COLOR_CLEAR "\n\r", bg_code);
+    addf_buf(out, "%s    " COLOR_EOL, bg_code);
 
     // Fourth line, blank BG color
     addf_buf(out, "%s                                                                      " COLOR_CLEAR "\n\r\n\r", bg_code);
@@ -222,7 +222,7 @@ static inline void send_256_color_list(Mobile* ch)
 {
     int i;
     int text;
-    send_to_char(COLOR_INFO "You can choose from the following:" COLOR_CLEAR "\n\r", ch);
+    send_to_char(COLOR_INFO "You can choose from the following:" COLOR_EOL, ch);
     for (int row = 0; row < 16; ++row)
         for (int col = 0; col < 16; ++col) {
             i = row * 16 + col;
@@ -241,7 +241,7 @@ static inline void send_256_color_list(Mobile* ch)
 
 static inline void send_ansi_color_list(Mobile* ch)
 {
-    send_to_char(COLOR_INFO "You can choose from the following:" COLOR_CLEAR "\n\r", ch);
+    send_to_char(COLOR_INFO "You can choose from the following:" COLOR_EOL, ch);
     for (int i = 0; i < 15; ++i) {
         printf_to_char(ch, "    %s%-10s" COLOR_CLEAR , ansi_palette[i].color.cache,
             ansi_palette[i].name);
@@ -254,7 +254,7 @@ static inline void send_ansi_color_list(Mobile* ch)
 static inline bool lookup_color(char* argument, Color* color, Mobile* ch)
 {
     if (argument == NULL || !argument[0]) {
-        send_to_char(COLOR_INFO "You must choose a color." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "You must choose a color." COLOR_EOL, ch);
         if (ch->pcdata->current_theme->mode == COLOR_MODE_16)
             send_ansi_color_list(ch);
         else if (ch->pcdata->current_theme->mode == COLOR_MODE_256)
@@ -270,14 +270,14 @@ static inline bool lookup_color(char* argument, Color* color, Mobile* ch)
         for (int i = 1; i <= 6; ++i) {
             if (!color_arg[i] || !IS_HEX(color_arg[i])) {
                 send_to_char(COLOR_INFO "RGB color codes must be hexadecimal values of "
-                    "the format " COLOR_ALT_TEXT_1 "#RRBBGG;" COLOR_INFO "." COLOR_CLEAR "\n\r", ch);
+                    "the format " COLOR_ALT_TEXT_1 "#RRBBGG;" COLOR_INFO "." COLOR_EOL, ch);
                 return false;
             }
         }
 
         if (color_arg[7] != ';' || color_arg[8] != '\0') {
             send_to_char(COLOR_INFO "RGB color codes must be hexadecimal values of "
-                "the format " COLOR_ALT_TEXT_1 "#RRGGBB;" COLOR_INFO "." COLOR_CLEAR "\n\r", ch);
+                "the format " COLOR_ALT_TEXT_1 "#RRGGBB;" COLOR_INFO "." COLOR_EOL, ch);
             return false;
         }
 
@@ -295,7 +295,7 @@ static inline bool lookup_color(char* argument, Color* color, Mobile* ch)
 
         if (!pal_arg[0] || !is_number(pal_arg)) {
             send_to_char(COLOR_INFO "A palette space must be specified by number "
-                "from 0 to 15." COLOR_CLEAR "\n\r", ch);
+                "from 0 to 15." COLOR_EOL, ch);
             return false;
         }
 
@@ -303,7 +303,7 @@ static inline bool lookup_color(char* argument, Color* color, Mobile* ch)
 
         if (idx < 0 || idx > pal_max) {
             printf_to_char(ch, COLOR_INFO "A palette space must be specified by number "
-                "in range of the palette (0 to %d)." COLOR_CLEAR "\n\r", pal_max);
+                "in range of the palette (0 to %d)." COLOR_EOL, pal_max);
             return false;
         }
 
@@ -359,7 +359,7 @@ static void do_theme_channel(Mobile* ch, char* argument)
         "        indexed themes, this is a numeric value from 0 to 256.\n\r\n\r"
         "        RGB themes (24-bit) use colors in the form " COLOR_ALT_TEXT_1 "#RRGGBB;" COLOR_INFO ".\n\r\n\r"
         "        You can also refer directly to a palette color with " COLOR_ALT_TEXT_1 "PALETTE <index>" COLOR_INFO "\n\r"
-        "        or " COLOR_ALT_TEXT_1 "PAL <index>" COLOR_INFO "." COLOR_CLEAR "\n\r";
+        "        or " COLOR_ALT_TEXT_1 "PAL <index>" COLOR_INFO "." COLOR_EOL;
 
     char chan_arg[MAX_INPUT_LENGTH];
     int chan = -1;
@@ -375,7 +375,7 @@ static void do_theme_channel(Mobile* ch, char* argument)
     if (chan < 0) {
         printf_to_char(ch, COLOR_INFO "'%s' is not a valid channel name. Type '" 
             COLOR_ALT_TEXT_1 "THEME SHOW" COLOR_INFO " for a list of color "
-            "channels." COLOR_CLEAR "\n\r", chan_arg);
+            "channels." COLOR_EOL, chan_arg);
         return;
     }
 
@@ -392,7 +392,7 @@ static void do_theme_channel(Mobile* ch, char* argument)
                 return;
         }
         else if (idx < 0 || idx > 16) {
-            printf_to_char(ch, COLOR_INFO "You much choose a color index from 0 to 15." COLOR_CLEAR "\n\r");
+            printf_to_char(ch, COLOR_INFO "You much choose a color index from 0 to 15." COLOR_EOL);
             return;
         }
         else
@@ -404,7 +404,7 @@ static void do_theme_channel(Mobile* ch, char* argument)
                 return;
         }
         else if (idx < 0 || idx > 255) {
-            printf_to_char(ch, COLOR_INFO "You much choose a color index from 0 to 255." COLOR_CLEAR "\n\r");
+            printf_to_char(ch, COLOR_INFO "You much choose a color index from 0 to 255." COLOR_EOL);
             send_256_color_list(ch);
             return;
         }
@@ -505,7 +505,7 @@ static void do_theme_config(Mobile* ch, char* argument)
     }
     else if (!str_cmp(opt, "rgb_help")) {
         ch->pcdata->theme_config.hide_rgb_help = !enable;
-        printf_to_char(ch, COLOR_INFO "RGB list help is now %s." COLOR_CLEAR "\n\r",
+        printf_to_char(ch, COLOR_INFO "RGB list help is now %s." COLOR_EOL,
             capitalize(opt), !enable ? "enabled" : "disabled");
         return;
     }
@@ -526,7 +526,7 @@ static void do_theme_create(Mobile* ch, char* argument)
         "\n\r"
         "All channel colors are assigned to the first palette index except "
         "background, which is set to the second palette index (black by "
-        "default). These values can be changed." COLOR_CLEAR "\n\r";
+        "default). These values can be changed." COLOR_EOL;
 
     char mode_arg[MAX_INPUT_LENGTH];
     ColorMode mode;
@@ -548,14 +548,14 @@ static void do_theme_create(Mobile* ch, char* argument)
 
     size_t len = strlen(argument);
     if (len < 2 || len > 12) {
-        send_to_char(COLOR_INFO "Color theme names must be between 2 and 12 characters long." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "Color theme names must be between 2 and 12 characters long." COLOR_EOL, ch);
         return;
     }
 
     for (int i = 0; i < SYSTEM_COLOR_THEME_COUNT; ++i) {
         if (!str_cmp(argument, system_color_themes[i]->name)) {
             send_to_char(COLOR_INFO "You cannot use the name of an existing system or "
-                "personal theme." COLOR_CLEAR "\n\r", ch);
+                "personal theme." COLOR_EOL, ch);
             return;
         }
     }
@@ -570,7 +570,7 @@ static void do_theme_create(Mobile* ch, char* argument)
 
     if (slot < 0) {
         send_to_char(COLOR_INFO "You already have the maximum number of personal color "
-            "themes. You must remove one with 'THEME REMOVE' first." COLOR_CLEAR "\n\r", ch);
+            "themes. You must remove one with 'THEME REMOVE' first." COLOR_EOL, ch);
         return;
     }
 
@@ -655,7 +655,7 @@ static void do_theme_list(Mobile* ch, char* argument)
         "       " COLOR_ALT_TEXT_1 "ALL     " COLOR_INFO "- Show all available themes you can select from. (default option)\n\r"
         "       " COLOR_ALT_TEXT_1 "SYSTEM  " COLOR_INFO "- Only show built-in themes.\n\r"
         "       " COLOR_ALT_TEXT_1 "PUBLIC  " COLOR_INFO "- Only show themes made public by current, logged-in users.\n\r"
-        "       " COLOR_ALT_TEXT_1 "PRIVATE " COLOR_INFO "- Only show your own personal themes." COLOR_CLEAR "\n\r";
+        "       " COLOR_ALT_TEXT_1 "PRIVATE " COLOR_INFO "- Only show your own personal themes." COLOR_EOL;
 
     char opt[MAX_INPUT_LENGTH] = { 0 };
     bool system = false;
@@ -696,7 +696,7 @@ static void do_theme_list(Mobile* ch, char* argument)
                 if (!found) {
                     send_to_char("\n\r" COLOR_TITLE "Your personal themes:\n\r", ch);
                     send_to_char(COLOR_DECOR_2 "==========================================="
-                        "===========================" COLOR_CLEAR "\n\r", ch);
+                        "===========================" COLOR_EOL, ch);
                     found = true;
                 }
                 list_theme_entry(ch, ch->pcdata->color_themes[i], NULL, true);
@@ -707,7 +707,7 @@ static void do_theme_list(Mobile* ch, char* argument)
     if (system) {
         send_to_char(COLOR_TITLE "System themes:\n\r", ch);
         send_to_char(COLOR_DECOR_2 "======================================================="
-            "===============" COLOR_CLEAR "\n\r", ch);
+            "===============" COLOR_EOL, ch);
         for (int i = 0; i < SYSTEM_COLOR_THEME_COUNT; ++i) {
             if ((hide_256 && system_color_themes[i]->mode == COLOR_MODE_256) ||
                 (hide_24bit && system_color_themes[i]->mode == COLOR_MODE_RGB))
@@ -746,7 +746,7 @@ static void do_theme_list(Mobile* ch, char* argument)
                     send_to_char("\n\r", ch);
                     send_to_char(COLOR_TITLE "Public themes:\n\r", ch);
                     send_to_char(COLOR_DECOR_2 "==========================================="
-                        "===========================" COLOR_CLEAR "\n\r", ch);
+                        "===========================" COLOR_EOL, ch);
                     found = true;
                 }
                 list_theme_entry(ch, theme, NAME_STR(wch), false);
@@ -756,13 +756,13 @@ static void do_theme_list(Mobile* ch, char* argument)
 
     if (!ch->pcdata->theme_config.hide_rgb_help) {
         send_to_char(
-            COLOR_INFO "If you do not see any colors for 24-bit themes:" COLOR_CLEAR "\n\r"
+            COLOR_INFO "If you do not see any colors for 24-bit themes:" COLOR_EOL
             "  " COLOR_ALT_TEXT_1 "*" COLOR_CLEAR " Check your client to make sure it supports 24-bit color.\n\r"
             "  " COLOR_ALT_TEXT_1 "*" COLOR_CLEAR " Your client may want " COLOR_ALT_TEXT_2 "xterm" COLOR_CLEAR " color codes instead of VT-102 SGR commands\n\r"
             "    (TinTin++, for example). Try " COLOR_ALT_TEXT_1 "THEME CONFIG ENABLE XTERM" COLOR_CLEAR " and see if that helps.\n\r"
             "  " COLOR_ALT_TEXT_1 "*" COLOR_CLEAR " Your client may not support them at all. If so, type " COLOR_ALT_TEXT_1 "THEME CONFIG DISABLE\n\r"
             "    RGB" COLOR_CLEAR " to hide them from the list of themes.\n\r"
-            "  " COLOR_ALT_TEXT_1 "*" COLOR_CLEAR " Likewise for 256 color indexed themes: type " COLOR_ALT_TEXT_1 "THEME CONFIG DISABLE 256" COLOR_CLEAR "\n\r"
+            "  " COLOR_ALT_TEXT_1 "*" COLOR_CLEAR " Likewise for 256 color indexed themes: type " COLOR_ALT_TEXT_1 "THEME CONFIG DISABLE 256" COLOR_EOL
             "    to hide them.\n\r"
             "  " COLOR_ALT_TEXT_1 "*" COLOR_CLEAR " To hide this message in the future, type " COLOR_ALT_TEXT_1 "THEME CONFIG DISABLE RGB_HELP" COLOR_CLEAR ".\n\r"
             , ch);
@@ -780,7 +780,7 @@ static void do_theme_palette(Mobile* ch, char* argument)
         COLOR_ALT_TEXT_1 "color" COLOR_INFO " - For ANSI color themes, " COLOR_ALT_TEXT_1 "<color>" COLOR_INFO " is a numeric value representing the \n\r"
         "        standard ANSI color palette index, " COLOR_ALT_TEXT_2 "or" COLOR_INFO " an ANSI color name. For 256-color\n\r"
         "        indexed themes, this is a numeric value from 0 to 256.\n\r\n\r"
-        "        RGB themes (24-bit) use colors in the form " COLOR_ALT_TEXT_1 "#RRGGBB;" COLOR_INFO "." COLOR_CLEAR "\n\r";
+        "        RGB themes (24-bit) use colors in the form " COLOR_ALT_TEXT_1 "#RRGGBB;" COLOR_INFO "." COLOR_EOL;
 
     if (!argument || !argument[0]) {
         send_to_char(help, ch);
@@ -793,14 +793,14 @@ static void do_theme_palette(Mobile* ch, char* argument)
     READ_ARG(arg1);
 
     if (!is_number(arg1) && theme->mode == COLOR_MODE_256) {
-        send_to_char(COLOR_INFO "Palette index must be a number." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "Palette index must be a number." COLOR_EOL, ch);
         return;
     }
 
     int pal_idx = atoi(arg1);
 
     if (pal_idx < 0 || pal_idx >= PALETTE_SIZE) {
-        printf_to_char(ch, COLOR_INFO "Palette index must be from 0 to %d." COLOR_CLEAR "\n\r",
+        printf_to_char(ch, COLOR_INFO "Palette index must be from 0 to %d." COLOR_EOL,
             PALETTE_SIZE);
         return;
     }
@@ -818,7 +818,7 @@ static void do_theme_palette(Mobile* ch, char* argument)
                 return;
         }
         else if (idx < 0 || idx > 16) {
-            printf_to_char(ch, COLOR_INFO "You much choose a color index from 0 to 15." COLOR_CLEAR "\n\r");
+            printf_to_char(ch, COLOR_INFO "You much choose a color index from 0 to 15." COLOR_EOL);
             send_ansi_color_list(ch);
             return;
         }
@@ -831,7 +831,7 @@ static void do_theme_palette(Mobile* ch, char* argument)
                 return;
         }
         else if (idx < 0 || idx > 255) {
-            printf_to_char(ch, COLOR_INFO "You much choose a color index from 0 to 255." COLOR_CLEAR "\n\r");
+            printf_to_char(ch, COLOR_INFO "You much choose a color index from 0 to 255." COLOR_EOL);
             send_256_color_list(ch);
             return;
         }
@@ -861,7 +861,7 @@ static void do_theme_preview(Mobile* ch, char* argument)
         COLOR_INFO
         "USAGE: " COLOR_ALT_TEXT_1 "THEME PREVIEW (<theme name>)" COLOR_INFO "\n\r"
         "\n\r"
-        "For a list of themes to preview, type '" COLOR_ALT_TEXT_1 "THEME LIST" COLOR_INFO "'." COLOR_CLEAR "\n\r";
+        "For a list of themes to preview, type '" COLOR_ALT_TEXT_1 "THEME LIST" COLOR_INFO "'." COLOR_EOL;
 
     ColorTheme* theme = ch->pcdata->current_theme;
 
@@ -874,7 +874,7 @@ static void do_theme_preview(Mobile* ch, char* argument)
         theme = lookup_color_theme(ch, argument);
 
         if (!theme) {
-            printf_to_char(ch, COLOR_INFO "No color theme named '%s' could be found." COLOR_CLEAR "\n\r",
+            printf_to_char(ch, COLOR_INFO "No color theme named '%s' could be found." COLOR_EOL,
                 argument);
             return;
         }
@@ -935,7 +935,7 @@ static void do_theme_preview(Mobile* ch, char* argument)
 
     addf_buf(buf, "%sYou receive 199 experience points.\n\r", COL_FMT(SLOT_TEXT));
 
-    addf_buf(buf, "%s\n\r" COLOR_CLEAR "\n\r", bg);
+    addf_buf(buf, "%s\n\r" COLOR_EOL, bg);
 
     send_to_char(BUF(buf), ch);
 #undef COL_FMT
@@ -946,7 +946,7 @@ static void do_theme_preview(Mobile* ch, char* argument)
 static void do_theme_remove(Mobile* ch, char* argument)
 {
     if (!argument || !argument[0]) {
-        send_to_char(COLOR_INFO "You specify the name of a color theme to remove." COLOR_CLEAR "\n\r",
+        send_to_char(COLOR_INFO "You specify the name of a color theme to remove." COLOR_EOL,
             ch);
         return;
     }
@@ -954,7 +954,7 @@ static void do_theme_remove(Mobile* ch, char* argument)
     ColorTheme* theme = lookup_local_color_theme(ch, argument);
 
     if (!theme) {
-        send_to_char(COLOR_INFO "You do not have a color theme by that name." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "You do not have a color theme by that name." COLOR_EOL, ch);
         return;
     }
 
@@ -962,13 +962,13 @@ static void do_theme_remove(Mobile* ch, char* argument)
         // Lookup function uses str_prefix. Deleting stuff should be deliberate,
         // so force them to use the whole name.
         send_to_char(COLOR_INFO "To delete a color theme, you must use its full "
-            "name." COLOR_CLEAR "\n\r", ch);
+            "name." COLOR_EOL, ch);
         return;
     }
 
     if (!str_cmp(theme->name, ch->pcdata->current_theme->name)) {
         send_to_char(COLOR_INFO "You are currently using that color theme. Use " COLOR_ALT_TEXT_1 "THEME "
-            "SELECT" COLOR_INFO " to switch themes before removing this one." COLOR_CLEAR "\n\r", ch);
+            "SELECT" COLOR_INFO " to switch themes before removing this one." COLOR_EOL, ch);
         return;
     }
 
@@ -981,7 +981,7 @@ static void do_theme_remove(Mobile* ch, char* argument)
 
     free_color_theme(theme);
     
-    send_to_char(COLOR_INFO "Color theme removed." COLOR_CLEAR "\n\r", ch);
+    send_to_char(COLOR_INFO "Color theme removed." COLOR_EOL, ch);
     return;
 }
 
@@ -1022,7 +1022,7 @@ static void do_theme_select(Mobile* ch, char* argument)
         COLOR_INFO
         "USAGE: " COLOR_ALT_TEXT_1 "THEME SELECT (@<player>) <name>" COLOR_INFO "\n\r"
         "\n\r"
-        "For a list of themes to select from, type 'THEME LIST'." COLOR_CLEAR "\n\r";
+        "For a list of themes to select from, type 'THEME LIST'." COLOR_EOL;
 
     if (!argument || !argument[0]) {
         send_to_char(help, ch);
@@ -1044,7 +1044,7 @@ static void do_theme_select(Mobile* ch, char* argument)
         theme = lookup_remote_color_theme(ch, argument);
 
         if (!theme) {
-            printf_to_char(ch, COLOR_INFO "No color theme named '%s' could be found." COLOR_CLEAR "\n\r",
+            printf_to_char(ch, COLOR_INFO "No color theme named '%s' could be found." COLOR_EOL,
                 argument);
             return;
         }
@@ -1062,7 +1062,7 @@ static void do_theme_select(Mobile* ch, char* argument)
         if (!found) {
             printf_to_char(ch, COLOR_INFO "Selecting another player's theme saves a copy "
                 "to your own themes. You already have too many themes to add "
-                "another." COLOR_CLEAR "\n\r");
+                "another." COLOR_EOL);
             return;
         }
     }
@@ -1077,8 +1077,8 @@ static void do_theme_select(Mobile* ch, char* argument)
         str_dup(ch->pcdata->current_theme->name);
     set_default_colors(ch);
 
-    printf_to_char(ch, COLOR_INFO "Color theme is now set to '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "'." COLOR_CLEAR "\n\r", ch->pcdata->current_theme->name);
-    printf_to_char(ch, COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r", ch->pcdata->current_theme->banner);
+    printf_to_char(ch, COLOR_INFO "Color theme is now set to '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "'." COLOR_EOL, ch->pcdata->current_theme->name);
+    printf_to_char(ch, COLOR_ALT_TEXT_2 "%s" COLOR_EOL, ch->pcdata->current_theme->banner);
 }
 
 static void do_theme_set(Mobile* ch, char* argument)
@@ -1088,7 +1088,7 @@ static void do_theme_set(Mobile* ch, char* argument)
         "USAGE: " COLOR_ALT_TEXT_1 "THEME SET NAME <name>\n\r"
         "       THEME SET BANNER <banner>\n\r"
         "       THEME SET PUBLIC\n\r"
-        "       THEME SET PRIVATE" COLOR_CLEAR "\n\r"
+        "       THEME SET PRIVATE" COLOR_EOL
         "\n\r";
 
     ColorTheme* theme = ch->pcdata->current_theme;
@@ -1096,7 +1096,7 @@ static void do_theme_set(Mobile* ch, char* argument)
     if (theme == NULL) {
         send_to_char(COLOR_INFO "You do not have a color theme active. You can use "
             COLOR_ALT_TEXT_1 "THEME SELECT" COLOR_INFO " to choose one, or " COLOR_ALT_TEXT_1 "THEME CREATE" COLOR_INFO " to make a new "
-            "one." COLOR_CLEAR "\n\r", ch);
+            "one." COLOR_EOL, ch);
         return;
     }
 
@@ -1118,7 +1118,7 @@ static void do_theme_set(Mobile* ch, char* argument)
         size_t len = strlen(argument);
         if (len < 2 || len > 12) {
             send_to_char(COLOR_INFO "Theme names must be between 2 and 12 characters "
-                "long." COLOR_CLEAR "\n\r", ch);
+                "long." COLOR_EOL, ch);
             return;
         }
 
@@ -1140,13 +1140,13 @@ static void do_theme_set(Mobile* ch, char* argument)
         if (!theme->is_public)
             theme->is_changed = true;
         theme->is_public = true;
-        send_to_char(COLOR_INFO "This theme is now public." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "This theme is now public." COLOR_EOL, ch);
     }
     else if (!str_prefix(opt, "private")) {
         if (theme->is_public)
             theme->is_changed = true;
         theme->is_public = false;
-        send_to_char(COLOR_INFO "This theme is now private." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "This theme is now private." COLOR_EOL, ch);
     }
     else
         send_to_char(help, ch);
@@ -1174,7 +1174,7 @@ static void do_theme_show(Mobile* ch, char* argument)
             theme = lookup_remote_color_theme(ch, argument);
 
         if (!theme) {
-            printf_to_char(ch, COLOR_INFO "No color theme named '%s' could be found." COLOR_CLEAR "\n\r",
+            printf_to_char(ch, COLOR_INFO "No color theme named '%s' could be found." COLOR_EOL,
                 argument);
             return;
         }
@@ -1198,7 +1198,7 @@ static void do_theme_show(Mobile* ch, char* argument)
     sprintf(bg_code, "%s", BGCOLOR2STR(theme, xterm));
 
     // First line, blank BG color
-    sprintf(out, "\n\r%s" COLOR_ALT_TEXT_2 "                                   00  02  04  06  08  10  12  14      " COLOR_CLEAR "\n\r", bg_code);
+    sprintf(out, "\n\r%s" COLOR_ALT_TEXT_2 "                                   00  02  04  06  08  10  12  14      " COLOR_EOL, bg_code);
 
     // Second line, name and first row of color boxes
     sprintf(buf, "%s" COLOR_TEXT "    %-30s", bg_code, theme->name);
@@ -1210,7 +1210,7 @@ static void do_theme_show(Mobile* ch, char* argument)
             sprintf(buf, "%s    ", bg_code);
         strcat(out, buf);
     }
-    sprintf(buf, "%s    " COLOR_CLEAR "\n\r", bg_code);
+    sprintf(buf, "%s    " COLOR_EOL, bg_code);
     strcat(out, buf);
 
     // Third line, mode type and second row of color boxes
@@ -1223,7 +1223,7 @@ static void do_theme_show(Mobile* ch, char* argument)
             sprintf(buf, "%s    ", bg_code);
         strcat(out, buf);
     }
-    sprintf(buf, "%s    " COLOR_CLEAR "\n\r", bg_code);
+    sprintf(buf, "%s    " COLOR_EOL, bg_code);
     strcat(out, buf);
 
     // Fourth line, blank BG color
@@ -1337,7 +1337,7 @@ void do_theme(Mobile* ch, char* argument)
         "       THEME SHOW (<name>)" COLOR_INFO "\n\r"
         "\n\r"
         "Type '" COLOR_ALT_TEXT_1 "THEME <option>" COLOR_INFO "' for more information."
-        COLOR_CLEAR "\n\r";
+        COLOR_EOL;
 
     char cmd[MAX_INPUT_LENGTH] = { 0 };
 

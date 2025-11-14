@@ -48,6 +48,9 @@ void run_unit_tests();
 
 void test_fail(const char* expr, const char* file, int line);
 #define ASSERT(expr) ((expr) ? (void)0 : test_fail(#expr, __FILE__, __LINE__))
+#define ASSERT_OR_GOTO(expr, or_goto) if (!(expr)) {  \
+    test_fail(#expr, __FILE__, __LINE__); \
+    goto or_goto; }
 
 void test_string_eq(const char* expected, const char* actual, const char* file, int line);
 #define ASSERT_STR_EQ(expected, actual) test_string_eq(expected, actual, __FILE__, __LINE__)
@@ -67,6 +70,7 @@ void test_lox_string_eq(const char* expected, Value actual, const char* file, in
     ASSERT(result == INTERPRET_OK); \
     ASSERT_OUTPUT_EQ(expected) 
 
+extern bool test_trace_exec;
 extern bool test_disassemble_on_error;
 extern bool test_output_enabled;
 extern Value test_output_buffer;

@@ -1737,7 +1737,7 @@ void nanny(Descriptor * d, char* argument)
         if (IS_SET(ch->act_flags, PLR_TESTER))
             send_to_char(COLOR_ALT_TEXT_1 "THIS IS A TESTER ACCOUNT.\n\r"
                 "It comes with enhanced privileges, and an expectation that you"
-                " will not abuse them." COLOR_CLEAR "\n\r", ch);
+                " will not abuse them." COLOR_EOL, ch);
 
         if (ch->level == 0) {
             ch->perm_stat[class_table[ch->ch_class].prime_stat] += 3;
@@ -2318,7 +2318,7 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
     char* string2 = "";
 
     if (target == NULL)
-        goto act_cleanup;
+        return;
 
     if (target->type == OBJ_MOB)
         ch = (Mobile*)target;
@@ -2355,20 +2355,20 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
 
     // Discard null and zero-length messages.
     if (!format || !*format)
-        goto act_cleanup;
+        return;
 
     /* discard null rooms and chars */
     if ((!ch || !ch->in_room) && to_room == NULL)
-        goto act_cleanup;
+        return;
 
     if (type == TO_VICT) {
         if (!vch) {
             bug("Act: null vch with TO_VICT.", 0);
-            goto act_cleanup;
+            return;
         }
 
         if (!vch->in_room)
-            goto act_cleanup;
+            return;
 
         to_room = vch->in_room;
     }
@@ -2490,12 +2490,6 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
             mp_act_trigger(buf, to, ch, arg1, arg2, TRIG_ACT);
         }
     }
-
-act_cleanup:
-    if (arg1 != NULL && arg1->type == OBJ_STRING)
-        pop();
-    if (arg2 != NULL && arg2->type == OBJ_STRING)
-        pop();
 }
 
 size_t colour(char type, Mobile * ch, char* string)

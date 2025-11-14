@@ -7,9 +7,9 @@
 #ifndef clox_native_h
 #define clox_native_h
 
-#include "lox/function.h"
-#include "lox/object.h"
-#include "lox/value.h"
+#include "function.h"
+#include "object.h"
+#include "value.h"
 
 #include <merc.h>
 

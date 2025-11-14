@@ -14,6 +14,7 @@
 #include <olc/bit.h>
 
 #include <lox/list.h>
+#include <lox/memory.h>
 
 int event_count = 0;
 int event_perm_count = 0;
@@ -91,6 +92,8 @@ Event* new_event()
 {
     LIST_ALLOC_PERM(event, Event);
 
+    gc_protect(OBJ_VAL(event));
+
     event->obj.type = OBJ_EVENT;
     event->trigger = 0;
     event->criteria = NIL_VAL;
@@ -143,6 +146,7 @@ void load_event(FILE* fp, Entity* owner)
     // Read the method name to call on event
     event->method_name = fread_lox_string(fp);
 
+    // TODO: Parse subsequent Lox Value
     event->criteria = NIL_VAL;
 
     add_event(owner, event);
@@ -201,62 +205,4 @@ ObjClosure* get_event_closure(Entity* entity, Event* event)
     }
 
     return AS_CLOSURE(method_val);
-}
-
-void olc_display_event_info(Mobile* ch, Entity* entity)
-{
-    if (entity->events.count == 0)
-        return;
-
-    send_to_char(
-        "Events:\n\r"
-        COLOR_TITLE   " Trigger          Callback (Args)     Criteria\n\r"
-        COLOR_DECOR_2 "========= ================ ========== ========\n\r", ch);
-
-    Node* node = entity->events.front;
-    while (node != NULL) {
-        Event* event = AS_EVENT(node->value);
-
-        char* trigger = capitalize(flag_string(mprog_flag_table, event->trigger));
-        char* callback = (event->method_name != NULL) ? event->method_name->chars : "(none)";
-        char* args = "";
-        char* criteria = (!IS_NIL(event->criteria)) ? string_value(event->criteria) : "";
-
-        switch (event->trigger) {
-            case TRIG_ACT:
-            case TRIG_SPEECH:
-                args = "(mob, msg)";
-                break;
-            case TRIG_BRIBE:
-            case TRIG_HPCNT:
-                args = "(mob, amt)";
-                break;
-            case TRIG_GIVE:
-                args = "(mob, obj)";
-                break;
-            case TRIG_DEATH:
-            case TRIG_ENTRY:
-            case TRIG_FIGHT:
-            case TRIG_GREET:
-            case TRIG_GRALL:
-            case TRIG_KILL:
-            case TRIG_RANDOM:
-            case TRIG_EXIT:
-            case TRIG_EXALL:
-            case TRIG_DELAY:
-            case TRIG_SURR:
-            case TRIG_LOGIN:
-            default:
-                args = "(mob)";
-                break;
-        }
-
-        printf_to_char(ch, COLOR_TITLE "" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%7.7s" COLOR_DECOR_1 "]" 
-            COLOR_ALT_TEXT_2 " %16.16s %-10.10s "
-            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6.6s" COLOR_DECOR_1 "]"
-            COLOR_CLEAR "\n\r",
-            trigger, callback, args, criteria);
-
-        node = node->next;
-    }
 }

@@ -65,7 +65,7 @@ char* progs(void* point)
 
     for (cnt = 0; list; NEXT_LINK(list)) {
         if (cnt == 0)
-            strcat(buf, "#Num  Vnum  Trigger Phrase     " COLOR_CLEAR "\n\r");
+            strcat(buf, "#Num  Vnum  Trigger Phrase     " COLOR_EOL);
 
         sprintf(tmpbuf, "%3d %5d %7.7s %s\n\r", cnt,
             list->vnum, event_trigger_name(list->trig_type),

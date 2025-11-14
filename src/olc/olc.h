@@ -231,7 +231,6 @@ DECLARE_OLC_FUN(redit_listreset);
 DECLARE_OLC_FUN(redit_checkmob);
 DECLARE_OLC_FUN(redit_checkobj);
 DECLARE_OLC_FUN(redit_copy);
-DECLARE_OLC_FUN(redit_lox);
 DECLARE_OLC_FUN(redit_checkrooms);
 DECLARE_OLC_FUN(redit_clear);
 
@@ -378,17 +377,18 @@ DECLARE_ED_FUN(ed_objrecval);
 /* Return pointers to what is being edited. */
 #define EDIT_AREA(ch, area)	    ( area = (AreaData*)ch->desc->pEdit )
 #define EDIT_CLASS(ch, class_)  ( class_ = (Class*)ch->desc->pEdit )
-#define EDIT_CMD(ch, cmd)	    ( cmd = (CmdInfo*)ch->desc->pEdit )
-#define EDIT_GROUP(ch, grp)	    ( grp = (SkillGroup*)ch->desc->pEdit )
-#define EDIT_HELP(ch, help)	    ( help = (HelpData*)ch->desc->pEdit )
-#define EDIT_MOB(ch, mob)	    ( mob = (MobPrototype*)ch->desc->pEdit )
-#define EDIT_OBJ(ch, obj)	    ( obj = (ObjPrototype*)ch->desc->pEdit )
-#define EDIT_PROG(ch, code)	    ( code = (MobProgCode*)ch->desc->pEdit )
+#define EDIT_CMD(ch, cmd)       ( cmd = (CmdInfo*)ch->desc->pEdit )
+#define EDIT_GROUP(ch, grp)     ( grp = (SkillGroup*)ch->desc->pEdit )
+#define EDIT_HELP(ch, help)     ( help = (HelpData*)ch->desc->pEdit )
+#define EDIT_MOB(ch, mob)       ( mob = (MobPrototype*)ch->desc->pEdit )
+#define EDIT_OBJ(ch, obj)       ( obj = (ObjPrototype*)ch->desc->pEdit )
+#define EDIT_PROG(ch, code)     ( code = (MobProgCode*)ch->desc->pEdit )
 #define EDIT_QUEST(ch, quest)   ( quest = (Quest*)ch->desc->pEdit )
 #define EDIT_RACE(ch, race)	    ( race = (Race*)ch->desc->pEdit )
-#define EDIT_ROOM(ch, room)	    ( room = (RoomData*)ch->desc->pEdit )
-#define EDIT_SKILL(ch, skill)	( skill = (Skill*)ch->desc->pEdit )
+#define EDIT_ROOM(ch, room)     ( room = (RoomData*)ch->desc->pEdit )
+#define EDIT_SKILL(ch, skill)   ( skill = (Skill*)ch->desc->pEdit )
 #define EDIT_SOCIAL(ch, social)	( social = (Social*)ch->desc->pEdit )
+#define EDIT_ENTITY(ch, room)   ( entity = (Entity*)ch->desc->pEdit )
 
 void show_liqlist(Mobile* ch);
 void show_poslist(Mobile* ch);

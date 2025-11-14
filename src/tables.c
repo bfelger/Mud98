@@ -269,7 +269,7 @@ const struct flag_type comm_flag_table[] = {
     { NULL,             0,                  0       }
 };
 
-const struct flag_type mprog_flag_table[] = {
+const struct flag_type mprog_flag_table[TRIG_COUNT + 1] = {
     { "act",            TRIG_ACT,           true    },
     { "bribe",          TRIG_BRIBE,         true    },
     { "death",          TRIG_DEATH,         true    },

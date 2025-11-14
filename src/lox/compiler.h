@@ -10,12 +10,11 @@
 
 #include <stdarg.h>
 
-#include "lox/object.h"
-#include "lox/vm.h"
+#include "object.h"
+#include "vm.h"
 
 ObjFunction* compile(const char* source);
 void compile_errorf(const char* fmt, ...);
 void mark_compiler_roots();
-void init_compiler_tables();
 
 #endif

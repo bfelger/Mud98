@@ -46,7 +46,7 @@ void string_edit(Mobile* ch, char** pString)
     send_to_char(COLOR_DECOR_2 "-========- " COLOR_ALT_TEXT_1 "Entering EDIT Mode " COLOR_DECOR_2 "-=========-" COLOR_ALT_TEXT_2 "\n\r", ch);
     send_to_char("    Type .h on a new line for help\n\r", ch);
     send_to_char(" Terminate with a @ on a blank line.\n\r", ch);
-    send_to_char(COLOR_DECOR_2 "-=======================================-" COLOR_CLEAR "\n\r", ch);
+    send_to_char(COLOR_DECOR_2 "-=======================================-" COLOR_EOL, ch);
 
     if (*pString == NULL) {
         *pString = str_dup("");
@@ -70,7 +70,7 @@ void string_append(Mobile* ch, char** pString)
     send_to_char(COLOR_DECOR_2 "-========- " COLOR_ALT_TEXT_1 "Entering EDIT Mode " COLOR_DECOR_2 "-=========-" COLOR_ALT_TEXT_2 "\n\r", ch);
     send_to_char("    Type .h on a new line for help\n\r", ch);
     send_to_char(" Terminate with a @ on a blank line.\n\r", ch);
-    send_to_char(COLOR_DECOR_2 "-=======================================-" COLOR_CLEAR "\n\r", ch);
+    send_to_char(COLOR_DECOR_2 "-=======================================-" COLOR_EOL, ch);
 
     if (*pString == NULL) {
         *pString = str_dup("");
@@ -130,7 +130,7 @@ void string_add(Mobile* ch, char* argument)
         strcpy(tmparg3, argument);
         argument = first_arg(argument, arg3, false);
 
-        if (!str_cmp(arg1, ".c")) {
+        if (!str_cmp(arg1, ".clear")) {
             write_to_buffer(ch->desc, "String cleared.\n\r", 0);
             free_string(*ch->desc->pString);
             *ch->desc->pString = str_dup("");
@@ -201,7 +201,7 @@ void string_add(Mobile* ch, char* argument)
                 ".h               - get help (this info)\n\r"
                 ".s               - show string so far  \n\r"
                 ".f               - (word wrap) string  \n\r"
-                ".c               - clear string so far \n\r"
+                ".clear           - clear string so far \n\r"
                 ".ld <num>        - delete line <num>\n\r"
                 ".li <num> <txt>  - insert <txt> on line <num>\n\r"
                 ".lr <num> <txt>  - replace line <num> with <txt>\n\r"
@@ -226,7 +226,7 @@ void string_add(Mobile* ch, char* argument)
         if (ch->desc->showstr_head) {
             write_to_buffer(ch->desc,
                 COLOR_INFO "[" COLOR_DECOR_1 "!!!" COLOR_INFO "] You received the following messages while you "
-                "were writing:" COLOR_CLEAR "\n\r",
+                "were writing:" COLOR_EOL,
                 0);
             show_string(ch->desc, "");
         }
@@ -261,7 +261,7 @@ void string_add(Mobile* ch, char* argument)
     }
 
     strcat(buf, argument);
-    strcat(buf, "\n\r");
+    strcat(buf, "\n");
     free_string(*ch->desc->pString);
     *ch->desc->pString = str_dup(buf);
 

@@ -508,13 +508,13 @@ AEDIT(aedit_uvnum)
 void do_alist(Mobile* ch, char* argument)
 {
     static const char* help = "Syntax: " COLOR_ALT_TEXT_1 "ALIST\n\r"
-        "        ALIST ORDERBY (VNUM|NAME)" COLOR_CLEAR "\n\r";
+        "        ALIST ORDERBY (VNUM|NAME)" COLOR_EOL;
 
     INIT_BUF(result, MAX_STRING_LENGTH);
     char arg[MIL];
     char sort[MIL];
 
-    addf_buf(result, COLOR_DECOR_1 "[" COLOR_TITLE "%3s" COLOR_DECOR_1 "] [" COLOR_TITLE "%-27s" COLOR_DECOR_1 "] (" COLOR_TITLE "%-5s" COLOR_DECOR_1 "-" COLOR_TITLE "%5s" COLOR_DECOR_1 ") " COLOR_DECOR_1 "[" COLOR_TITLE "%-10s" COLOR_DECOR_1 "] " COLOR_TITLE "%3s " COLOR_DECOR_1 "[" COLOR_TITLE "%-10s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r",
+    addf_buf(result, COLOR_DECOR_1 "[" COLOR_TITLE "%3s" COLOR_DECOR_1 "] [" COLOR_TITLE "%-27s" COLOR_DECOR_1 "] (" COLOR_TITLE "%-5s" COLOR_DECOR_1 "-" COLOR_TITLE "%5s" COLOR_DECOR_1 ") " COLOR_DECOR_1 "[" COLOR_TITLE "%-10s" COLOR_DECOR_1 "] " COLOR_TITLE "%3s " COLOR_DECOR_1 "[" COLOR_TITLE "%-10s" COLOR_DECOR_1 "]" COLOR_EOL,
         "Num", "Area Name", "lvnum", "uvnum", "Filename", "Sec", "Builders");
 
     size_t alist_size = sizeof(AreaData*) * global_areas.count;
@@ -554,7 +554,7 @@ void do_alist(Mobile* ch, char* argument)
 
     AreaData* area;
     FOR_EACH_AREA(area) {
-        addf_buf( result, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-29.29s " COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%-5d" COLOR_DECOR_1 "-" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 ") " COLOR_ALT_TEXT_2 "%-12.12s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "] [" COLOR_ALT_TEXT_1 "%-10.10s" COLOR_DECOR_1 "]" COLOR_CLEAR "\n\r",
+        addf_buf( result, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-29.29s " COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%-5d" COLOR_DECOR_1 "-" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 ") " COLOR_ALT_TEXT_2 "%-12.12s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "] [" COLOR_ALT_TEXT_1 "%-10.10s" COLOR_DECOR_1 "]" COLOR_EOL,
             VNUM_FIELD(area),
             NAME_STR(area),
             area->min_vnum,

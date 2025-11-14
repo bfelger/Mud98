@@ -325,18 +325,22 @@ void print_object(Value value)
         lox_printf("<area_data %s (%d)>", NAME_STR(AS_AREA_DATA(value)),
             VNUM_FIELD(AS_AREA_DATA(value)));
         break;
-    case OBJ_ROOM:
-        lox_printf("<room %s (%d)>", NAME_STR(AS_ROOM(value)),
-            VNUM_FIELD(AS_ROOM(value)));
-        break;
+    case OBJ_ROOM: {
+            Room* room = AS_ROOM(value);
+            lox_printf("<room %s (%d)>", room->header.name->chars,
+                room->header.vnum);
+            break;
+        }
     case OBJ_ROOM_DATA:
         lox_printf("<room_data %s (%d)>", NAME_STR(AS_ROOM_DATA(value)),
             VNUM_FIELD(AS_ROOM_DATA(value)));
         break;
-    case OBJ_OBJ:
-        lox_printf("<obj %s (%d)>", NAME_STR(AS_OBJECT(value)), 
-            VNUM_FIELD(AS_OBJECT(value)));
-        break;
+    case OBJ_OBJ: {
+            Object* obj = AS_OBJECT(value);
+            lox_printf("<obj %s (%d)>", obj->header.name->chars,
+                obj->header.vnum);
+            break;
+        }
     case OBJ_OBJ_PROTO:
         lox_printf("<obj_proto %s (%d)>", NAME_STR(AS_OBJ_PROTO(value)),
             VNUM_FIELD(AS_OBJ_PROTO(value)));

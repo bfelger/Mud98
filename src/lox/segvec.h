@@ -16,7 +16,7 @@
 
 #include <stdbool.h>
 
-#if __GNUC__ || __clang__ || __INTEL_LLVM_COMPILER
+#if defined(__GNUC__) || defined(__clang__)
 #  define UNUSED __attribute__((unused))
 #else
 #  define UNUSED /**/

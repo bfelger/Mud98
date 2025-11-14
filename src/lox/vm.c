@@ -27,9 +27,35 @@
 
 VM vm;
 ObjString* lox_empty_string = NULL;
+Value repl_ret_val = NIL_VAL;
+
+Table global_const_table;
+
+// We need to protect some Values from garbage collection while they are being
+// built (such as Entity values, like ObjString names and somesuch). Usually
+// we would push them on the stack, but with Lox Classes being built as part of
+// Entity creation, we probably don't want to pollute it. This is a private
+// reserve of Values we want to protect. When the Entity is built and added to
+// the relevant GC-observable container, the entire array can be cleared.
+ValueArray gc_protect_vals;
+
+void gc_protect(Value value)
+{
+    write_value_array(&gc_protect_vals, value);
+}
+
+void gc_protect_clear()
+{
+    for (int i = 0; i < gc_protect_vals.count; i++) {
+        gc_protect_vals.values[i] = NIL_VAL;
+    }
+
+    gc_protect_vals.count = 0;
+}
 
 extern bool test_disassemble_on_error;
 extern bool test_disassemble_on_test;
+extern bool test_trace_exec;
 extern bool test_output_enabled;
 
 //#define DEBUG_FRAME_COUNT
@@ -110,10 +136,10 @@ void runtime_error(const char* format, ...)
         }
     }
 
-    bool test_output = test_output_enabled;
-    test_output_enabled = false;
+    //bool test_output = test_output_enabled;
+    //test_output_enabled = false;
     lox_printf("%s", errbuf);
-    test_output_enabled = test_output;
+    //test_output_enabled = test_output;
 
     print_stack();
 
@@ -133,7 +159,7 @@ void init_vm()
 
     init_table(&vm.globals);
     init_table(&vm.strings);
-    init_compiler_tables();
+    init_table(&global_const_table);
 
     char* end_str = alloc_perm(1);
     end_str[0] = '\0';
@@ -142,6 +168,8 @@ void init_vm()
     char* str_init = alloc_perm(5);
     strcpy(str_init, "init");
     vm.init_string = copy_string(str_init, 4);
+
+    init_value_array(&gc_protect_vals);
 }
 
 void free_vm()
@@ -668,10 +696,14 @@ InterpretResult run()
     } while (false)
 
     for (;;) {
-#ifdef DEBUG_TRACE_EXECUTION
-        print_stack();
-        disassemble_instruction(&frame->closure->function->chunk,
-            (int)(frame->ip - frame->closure->function->chunk.code));
+#ifndef DEBUG_TRACE_EXECUTION
+        if (test_trace_exec) {
+#endif
+            print_stack();
+            disassemble_instruction(&frame->closure->function->chunk,
+                (int)(frame->ip - frame->closure->function->chunk.code));
+#ifndef DEBUG_TRACE_EXECUTION
+        }
 #endif
         uint8_t instruction = READ_BYTE();
         switch (instruction/* = READ_BYTE()*/) {
@@ -1075,6 +1107,7 @@ InterpretResult run()
                 close_upvalues(frame->slots);
                 DECREMENT_FRAME_COUNT();
                 if (vm.frame_count == 0) {
+                    repl_ret_val = result;
                     pop();
                     return INTERPRET_OK;
                 }
@@ -1147,6 +1180,8 @@ InterpretResult run()
 
 InterpretResult interpret_code(const char* source)
 {
+    repl_ret_val = NIL_VAL;
+
     ObjFunction* function = compile(source);
     if (function == NULL) 
         return INTERPRET_COMPILE_ERROR;

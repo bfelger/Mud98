@@ -591,61 +591,61 @@ void do_autolist(Mobile* ch, char* argument)
     if (IS_NPC(ch)) return;
 
     send_to_char(COLOR_TITLE "   action     status\n\r", ch);
-    send_to_char(COLOR_DECOR_2 "----------------------" COLOR_CLEAR "\n\r", ch);
+    send_to_char(COLOR_DECOR_2 "----------------------" COLOR_EOL, ch);
 
     send_to_char("autoassist     ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOASSIST))
-        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char("autoexit       ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOEXIT))
-        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char("autogold       ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOGOLD))
-        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char("autoloot       ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOLOOT))
-        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char("autosac        ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOSAC))
-        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char("autosplit      ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOSPLIT))
-        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char("compact mode   ", ch);
     if (IS_SET(ch->comm_flags, COMM_COMPACT))
-        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char("prompt         ", ch);
     if (IS_SET(ch->comm_flags, COMM_PROMPT))
-        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char("combine items  ", ch);
     if (IS_SET(ch->comm_flags, COMM_COMBINE))
-        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     if (!IS_SET(ch->act_flags, PLR_CANLOOT))
         send_to_char("Your corpse is safe from thieves.\n\r", ch);
@@ -933,7 +933,7 @@ void do_look(Mobile* ch, char* argument)
             send_to_char(buf, ch);
         }
 
-        send_to_char(COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_EOL, ch);
 
         if (ch->in_room->data->description[0] && !IS_NPC(ch) && !IS_SET(ch->comm_flags, COMM_BRIEF)) {
             sprintf(buf, COLOR_ROOM_TEXT "  %s" COLOR_CLEAR , ch->in_room->data->description);

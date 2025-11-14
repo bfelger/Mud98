@@ -368,7 +368,7 @@ static size_t wrap_text(char* text, char* out, size_t capacity)
         if (next != NULL)
             *next = '\0';
 
-        if (*segment != '\0') {
+        if (segment && *segment != '\0') {
             out_len = wrap_paragraph(segment, out, capacity, out_len, keep_leading_spaces);
             keep_leading_spaces = false;
             paragraph_emitted = true;

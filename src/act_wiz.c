@@ -44,17 +44,19 @@
 #include "tables.h"
 #include "update.h"
 
-#include "entities/area.h"
-#include "entities/descriptor.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
+#include <entities/area.h>
+#include <entities/descriptor.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
 
-#include "data/class.h"
-#include "data/item.h"
-#include "data/mobile_data.h"
-#include "data/player.h"
-#include "data/race.h"
-#include "data/skill.h"
+#include <data/class.h>
+#include <data/item.h>
+#include <data/mobile_data.h>
+#include <data/player.h>
+#include <data/race.h>
+#include <data/skill.h>
+
+#include <lox/memory.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -2235,9 +2237,8 @@ void do_mload(Mobile* ch, char* argument)
     }
 
     victim = create_mobile(p_mob_proto);
-    push(OBJ_VAL(victim));
+    gc_protect(OBJ_VAL(victim));
     mob_to_room(victim, ch->in_room);
-    pop(); // victim
     act("$n has created $N!", ch, NULL, victim, TO_ROOM);
     sprintf(buf, "$N loads %s.", victim->short_descr);
     wiznet(buf, ch, NULL, WIZ_LOAD, WIZ_SECURE, get_trust(ch));

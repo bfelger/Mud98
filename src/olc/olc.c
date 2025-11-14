@@ -582,14 +582,14 @@ void do_page(Mobile* ch, char* argument)
 void olc_print_flags(Mobile* ch, const char* label, const struct flag_type* flag_table, FLAGS flags)
 {
     printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s"
-        COLOR_DECOR_1 " ]"  COLOR_CLEAR "\n\r", label, 
+        COLOR_DECOR_1 " ]"  COLOR_EOL, label, 
         flag_string(flag_table, flags));
 }
 
 void olc_print_num(Mobile* ch, const char* label, int num)
 {
     printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10d"
-        COLOR_DECOR_1 " ]" COLOR_CLEAR "\n\r", label, num);
+        COLOR_DECOR_1 " ]" COLOR_EOL, label, num);
 }
 
 void olc_print_range(Mobile* ch, const char* label, int num1, int num2)
@@ -597,24 +597,24 @@ void olc_print_range(Mobile* ch, const char* label, int num1, int num2)
     char buf[MIL];
     sprintf(buf, "%d-%d", num1, num2);
     printf_to_char(ch, LABEL_FMT " : "  COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1
-        "%10s" COLOR_DECOR_1 " ]" COLOR_CLEAR "\n\r", label, buf);
+        "%10s" COLOR_DECOR_1 " ]" COLOR_EOL, label, buf);
 }
 
 void olc_print_num_str(Mobile* ch, const char* label, int num, const char* opt_str)
 {
     if (opt_str == NULL)
         printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ "
-            COLOR_ALT_TEXT_1 "%10d" COLOR_DECOR_1 " ]" COLOR_CLEAR "\n\r",
+            COLOR_ALT_TEXT_1 "%10d" COLOR_DECOR_1 " ]" COLOR_EOL,
             label, num);
     else
         printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ "
             COLOR_ALT_TEXT_1 "%10d" COLOR_DECOR_1 " ] " COLOR_ALT_TEXT_2 "%s"
-            COLOR_CLEAR "\n\r", label, num, opt_str);
+            COLOR_EOL, label, num, opt_str);
 }
 
 void olc_print_str(Mobile* ch, const char* label, const char* str)
 {
-    printf_to_char(ch, LABEL_FMT " : " COLOR_ALT_TEXT_1 "%s" COLOR_CLEAR "\n\r",
+    printf_to_char(ch, LABEL_FMT " : " COLOR_ALT_TEXT_1 "%s" COLOR_EOL,
         label, str);
 }
 
@@ -622,7 +622,7 @@ void olc_print_str_box(Mobile* ch, const char* label, const char* str,
     const char* opt_str)
 {
     printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s"
-        COLOR_DECOR_1 " ] " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r", label,
+        COLOR_DECOR_1 " ] " COLOR_ALT_TEXT_2 "%s" COLOR_EOL, label,
         str, opt_str);
 }
 
@@ -630,7 +630,7 @@ void olc_print_yesno(Mobile* ch, const char* label, bool yesno)
 {
     // Add space for color codes!
     printf_to_char(ch, LABEL_FMT " : "  COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 
-        "%12s" COLOR_DECOR_1 " ]" COLOR_CLEAR "\n\r", label, 
+        "%12s" COLOR_DECOR_1 " ]" COLOR_EOL, label, 
         yesno ? COLOR_B_GREEN "YES" : COLOR_B_RED "NO");
 }
 
@@ -644,7 +644,7 @@ void olc_print_text(Mobile* ch, const char* label, const char* text)
     }
     else
         printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 
-            "%10s" COLOR_DECOR_1 " ]" COLOR_CLEAR "\n\r", label, "(none)");
+            "%10s" COLOR_DECOR_1 " ]" COLOR_EOL, label, "(none)");
 }
 
 const char* olc_show_flags(const char* label, const struct flag_type* flag_table, FLAGS flags)

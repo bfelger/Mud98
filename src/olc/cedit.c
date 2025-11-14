@@ -219,7 +219,7 @@ CEDIT(cedit_list)
     INIT_BUF(page, MSL);
 
     addf_buf(page, COLOR_TITLE "%-20s    %20s %37s      %2s\n\r", "", "Skill Groups", "THAC0", "HP");
-    addf_buf(page, COLOR_TITLE "%-20s  %3s  %-15s %-15s %-10s %-5s %-4s %-4s %-3s %-3s %-5s" COLOR_CLEAR "\n\r",
+    addf_buf(page, COLOR_TITLE "%-20s  %3s  %-15s %-15s %-10s %-5s %-4s %-4s %-3s %-3s %-5s" COLOR_EOL,
         "Name", "Who", "Base", "Default", "Weapon", "SkCap", "00", "32", "Min", "Max", "Mana?");
 
     for (int i = 0; i < class_count; ++i) {
@@ -227,7 +227,7 @@ CEDIT(cedit_list)
         int w = get_weapon_index(class_->weapon);
         const char* w_name = (w > 0) ? weapon_table[w].name : "(unknown)";
         //                 name       who       base def  weap cap t00 t32 hp+ hp- mana 
-        addf_buf(page, "%-20s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3s" COLOR_DECOR_1 "]" COLOR_ALT_TEXT_1 " %-15s %-15s %-10s %-5d %-4d %-4d %-3d %-3d %-5s" COLOR_CLEAR "\n\r",
+        addf_buf(page, "%-20s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3s" COLOR_DECOR_1 "]" COLOR_ALT_TEXT_1 " %-15s %-15s %-10s %-5d %-4d %-4d %-3d %-3d %-5s" COLOR_EOL,
             class_->name, class_->who_name, class_->base_group, 
             class_->default_group, w_name, class_->skill_cap, class_->thac0_00, 
             class_->thac0_32, class_->hp_min, class_->hp_max, 
@@ -283,7 +283,7 @@ CEDIT(cedit_show)
             continue;
         addf_buf(out, "    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3d " COLOR_DECOR_1 "] " COLOR_ALT_TEXT_1 "%-25s %-25s\n\r", i, m_title, f_title);
     }
-    add_buf(out, COLOR_CLEAR "\n\r");
+    add_buf(out, COLOR_EOL);
 
     page_to_char(out->string, ch);
     free_buf(out);
@@ -352,12 +352,12 @@ CEDIT(cedit_start_loc)
     vnum = (VNUM)atoi(vnum_str);
 
     if (!get_room_data(vnum)) {
-        printf(COLOR_INFO "CEdit : There is no room with VNUM %d." COLOR_CLEAR "\n\r", vnum);
+        printf(COLOR_INFO "CEdit : There is no room with VNUM %d." COLOR_EOL, vnum);
         return false;
     }
 
     class_->start_loc = vnum;
-    send_to_char(COLOR_INFO "Ok." COLOR_CLEAR "\n\r", ch);
+    send_to_char(COLOR_INFO "Ok." COLOR_EOL, ch);
     return true;
 }
 

@@ -54,6 +54,8 @@
 #include <data/race.h>
 #include <data/skill.h>
 
+#include <lox/memory.h>
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -940,6 +942,8 @@ void update_handler()
 
     event_timer_tick();
     aggr_update();
+
+    gc_protect_clear();
 
     return;
 }

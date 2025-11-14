@@ -186,8 +186,8 @@ bool table_set(Table* table, ObjString* key, Value value)
 bool table_set_vnum(Table* table, int32_t key, Value value)
 {
     if (table->count + 1 > table->capacity * TABLE_MAX_LOAD) {
-    // Because memory comes from Mud98's resource bucket, we need to enforce
-    // an early GC is the strings table gets too big.
+        // Because memory comes from Mud98's resource bucket, we need to enforce
+        // an early GC if the strings table gets too big.
         if (GROW_CAPACITY(table->capacity) * sizeof(Entry) >= 65536 * 4)
             collect_garbage();
     }

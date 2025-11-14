@@ -52,6 +52,16 @@ FLAGS flag_lookup(const char* name, const struct flag_type* flag_table)
     return NO_FLAG;
 }
 
+int flag_index(FLAGS flag, const struct flag_type* flag_table)
+{
+    for (int index = 0; flag_table[index].name != NULL; index++) {
+        if (flag == flag_table[index].bit)
+            return index;
+    }
+
+    return NO_FLAG;
+}
+
 int clan_lookup(const char* name)
 {
     int clan;

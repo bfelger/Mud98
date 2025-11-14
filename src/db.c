@@ -180,6 +180,8 @@ void boot_db()
         fBootDb = true;
     }
 
+    init_vm();
+
     init_value_array(&global_areas);
     init_table(&global_rooms);
     init_table(&mob_protos);
@@ -195,8 +197,6 @@ void boot_db()
     {
         init_mm();
     }
-
-    init_vm();
 
     init_const_natives();
     load_lox_public_scripts();
@@ -285,6 +285,8 @@ void boot_db()
                     bug("Boot_db: bad section name.", 0);
                     exit(1);
                 }
+
+                gc_protect_clear();
             }
 
             close_file(strArea);
@@ -294,6 +296,7 @@ void boot_db()
             if (current_area_data 
                 && current_area_data->inst_type == AREA_INST_SINGLE)
                 create_area_instance(current_area_data, false);
+            gc_protect_clear();
         }
         close_file(fpList);
     }
@@ -314,6 +317,7 @@ void boot_db()
         fix_mobprogs();
         fBootDb = false;
         area_update();
+        gc_protect_clear();
         load_notes();
         load_bans();
         load_songs();
@@ -323,7 +327,13 @@ void boot_db()
 
 #ifdef COUNT_SIZE_ALLOCS
     report_size_allocs();
+    printf("\nScratch Space: %d values, %d capacity.\n\n", 
+        gc_protect_vals.count, gc_protect_vals.capacity);
 #endif
+
+    // Clear our scratch space and force a GC to clear them.
+    gc_protect_clear();
+    collect_garbage_nongrowing();
 
     return;
 }
@@ -649,6 +659,7 @@ void area_update()
                 }
             }
         }
+        gc_protect_clear();
     }
 
     return;
@@ -1971,16 +1982,8 @@ void log_string(const char* str)
 String* lox_string(const char* str)
 {
     int len = (int)strlen(str);
-    return copy_string(str, len);
+    ObjString* obj_str = copy_string(str, len);
+    gc_protect(OBJ_VAL(obj_str));
+    return obj_str;
 }
 
-// Push a Lox string onto the stack.
-// Used for temporary strings in act_pos_new().
-// Make sure you pop() on the way out!
-String* push_lox_string(const char* str)
-{
-    int len = (int)strlen(str);
-    ObjString* lox_str = copy_string(str, len);
-    push(OBJ_VAL(lox_str));
-    return lox_str;
-}

@@ -3,14 +3,17 @@
 // Extra native functions for Lox
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "data/damage.h"
+#include "compiler.h"
+#include "native.h"
+#include "table.h"
+#include "value.h"
+#include "vm.h"
 
-#include "lox/compiler.h"
-#include "lox/native.h"
-#include "lox/value.h"
-#include "lox/vm.h"
+#include <data/damage.h>
 
-#include "db.h"
+#include <db.h>
+
+extern Table global_const_table;
 
 ObjClass* find_class(const char* class_name)
 {
@@ -49,9 +52,10 @@ static void define_native_method(const char* name, NativeMethod method)
 
 void add_global(const char* name, Value val)
 {
-    push(OBJ_VAL(copy_string(name, (int)strlen(name))));
     push(val);
-    table_set(&vm.globals, AS_STRING(vm.stack[0]), vm.stack[1]);
+    Value key = OBJ_VAL(copy_string(name, (int)strlen(name)));
+    push(key);
+    table_set(&vm.globals, AS_STRING(key), val);
     pop();
     pop();
 }

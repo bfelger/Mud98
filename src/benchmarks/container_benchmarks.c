@@ -16,7 +16,7 @@
 
 #define ITERATIONS 100000
 
-#if __GNUC__ || __clang__
+#if  defined(__GNUC__) || defined(__clang__)
 #  define UNUSED __attribute__((unused))
 #else
 #  define UNUSED /**/
@@ -418,13 +418,13 @@ void benchmark_containers()
 
     sv_init(&item_segvec, 4096);
 
-    push(OBJ_VAL(&item_lox_list));
+    gc_protect(OBJ_VAL(&item_lox_list));
     init_list(&item_lox_list);
 
-    push(OBJ_VAL(&item_lox_array));
+    gc_protect(OBJ_VAL(&item_lox_array));
     init_value_array(&item_lox_array);
 
-    push(OBJ_VAL(&item_table));
+    gc_protect(OBJ_VAL(&item_table));
     init_table(&item_table);
 
     printf("Container Benchmarks:\n");

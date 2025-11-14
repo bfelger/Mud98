@@ -165,7 +165,7 @@ void do_sklist(Mobile* ch, char* argument)
     INIT_BUF(page, MSL);
 
     if (ch->pcdata->security < MIN_SKEDIT_SECURITY) {
-        send_to_char(COLOR_INFO "SKList : You do not have enough security to list skills." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "SKList : You do not have enough security to list skills." COLOR_EOL, ch);
         return;
     }
 

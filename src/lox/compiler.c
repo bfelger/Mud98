@@ -24,6 +24,7 @@
 #include <limits.h>
 #include <math.h>
 
+extern Table global_const_table;
 
 void send_to_char(const char* txt, Mobile* ch);
 
@@ -114,7 +115,6 @@ typedef struct ClassCompiler {
 Parser parser;
 Compiler* current = NULL;
 ClassCompiler* current_class = NULL;
-static Table global_const_table;
 
 static Chunk* current_chunk()
 {
@@ -2044,11 +2044,4 @@ void mark_compiler_roots()
         }
         compiler = compiler->enclosing;
     }
-
-    mark_table(&global_const_table);
-}
-
-void init_compiler_tables()
-{
-    init_table(&global_const_table);
 }

@@ -5,9 +5,11 @@
 
 #include "obj_prototype.h"
 
-#include "db.h"
-#include "handler.h"
-#include "lookup.h"
+#include <lox/memory.h>
+
+#include <db.h>
+#include <handler.h>
+#include <lookup.h>
 
 ObjPrototype* obj_proto_free = NULL;
 Table obj_protos;
@@ -21,7 +23,7 @@ ObjPrototype* new_object_prototype()
 {
     LIST_ALLOC_PERM(obj_proto, ObjPrototype);
 
-    push(OBJ_VAL(obj_proto));
+    gc_protect(OBJ_VAL(obj_proto));
 
     init_header(&obj_proto->header, OBJ_OBJ_PROTO);
 
@@ -33,8 +35,6 @@ ObjPrototype* new_object_prototype()
     obj_proto->description = str_dup("(no description)");
     obj_proto->item_type = ITEM_TRASH;
     obj_proto->condition = 100;
-
-    pop();
 
     return obj_proto;
 }
@@ -110,7 +110,6 @@ void load_objects(FILE* fp)
         fBootDb = true;
 
         obj_proto = new_object_prototype();
-        push(OBJ_VAL(obj_proto));
         VNUM_FIELD(obj_proto) = vnum;
         obj_proto->area = LAST_AREA_DATA;
         SET_NAME(obj_proto, fread_lox_string(fp));
@@ -274,7 +273,6 @@ void load_objects(FILE* fp)
 
         top_vnum_obj = top_vnum_obj < vnum ? vnum : top_vnum_obj;
         assign_area_vnum(vnum);
-        pop();
     }
 }
 

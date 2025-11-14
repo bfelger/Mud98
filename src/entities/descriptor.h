@@ -13,6 +13,8 @@ typedef struct descriptor_t Descriptor;
 
 #include "mobile.h"
 
+#include <lox/object.h>
+
 #include <mth/mth.h>
 
 #include <stddef.h>
@@ -55,7 +57,7 @@ typedef struct descriptor_t {
     char* showstr_head;
     char* showstr_point;
     char** pString;
-    char** pLoxScript;
+    ObjString* pLoxScript;
     uintptr_t pEdit;
     char* screenmap;
     char* oldscreenmap;

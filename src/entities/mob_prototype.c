@@ -22,6 +22,8 @@
 
 #include <entities/event.h>
 
+#include <lox/memory.h>
+
 Table mob_protos;
 MobPrototype* mob_proto_free = NULL;
 
@@ -33,7 +35,7 @@ MobPrototype* new_mob_prototype()
 {
     LIST_ALLOC_PERM(mob_proto, MobPrototype);
 
-    push(OBJ_VAL(mob_proto));
+    gc_protect(OBJ_VAL(mob_proto));
 
     init_header(&mob_proto->header, OBJ_MOB_PROTO);
 
@@ -47,8 +49,6 @@ MobPrototype* new_mob_prototype()
     mob_proto->size = SIZE_MEDIUM;
     mob_proto->start_pos = POS_STANDING;
     mob_proto->default_pos = POS_STANDING;
-
-    pop();
 
     return mob_proto;
 }
@@ -200,7 +200,6 @@ void load_mobiles(FILE* fp)
         fBootDb = true;
 
         p_mob_proto = new_mob_prototype();
-        push(OBJ_VAL(p_mob_proto));
 
         VNUM_FIELD(p_mob_proto) = vnum;
         p_mob_proto->area = LAST_AREA_DATA;
@@ -342,7 +341,6 @@ void load_mobiles(FILE* fp)
         top_vnum_mob = top_vnum_mob < vnum ? vnum : top_vnum_mob;
         assign_area_vnum(vnum);
         kill_table[URANGE(0, p_mob_proto->level, MAX_LEVEL - 1)].number++;
-        pop(); // p_mob_proto
     }
 
     return;

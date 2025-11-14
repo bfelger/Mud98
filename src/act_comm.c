@@ -120,65 +120,65 @@ void do_channels(Mobile* ch, char* argument)
 
     send_to_char(COLOR_GOSSIP "gossip" COLOR_CLEAR "         ", ch);
     if (!IS_SET(ch->comm_flags, COMM_NOGOSSIP))
-        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char(COLOR_AUCTION "auction" COLOR_CLEAR "        ", ch);
     if (!IS_SET(ch->comm_flags, COMM_NOAUCTION))
-        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char(COLOR_MUSIC "music" COLOR_CLEAR "          ", ch);
     if (!IS_SET(ch->comm_flags, COMM_NOMUSIC))
-        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char(COLOR_QUESTION "Q" COLOR_CLEAR "/" COLOR_ANSWER "A" COLOR_CLEAR "            ", ch);
     if (!IS_SET(ch->comm_flags, COMM_NOQUESTION))
-        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char(COLOR_QUOTE "Quote" COLOR_CLEAR "          ", ch);
     if (!IS_SET(ch->comm_flags, COMM_NOQUOTE))
-        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char(COLOR_TEXT "grats" COLOR_CLEAR "          ", ch);
     if (!IS_SET(ch->comm_flags, COMM_NOGRATS))
-        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     if (IS_IMMORTAL(ch)) {
         send_to_char(COLOR_IMMTALK_TEXT "god channel" COLOR_CLEAR "    ", ch);
         if (!IS_SET(ch->comm_flags, COMM_NOWIZ))
-            send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
         else
-            send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
     }
 
     send_to_char(COLOR_TEXT "shouts" COLOR_CLEAR "         ", ch);
     if (!IS_SET(ch->comm_flags, COMM_SHOUTSOFF))
-        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char(COLOR_TELL "tells" COLOR_CLEAR "          ", ch);
     if (!IS_SET(ch->comm_flags, COMM_DEAF))
-        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char(COLOR_TEXT "quiet mode" COLOR_CLEAR "     ", ch);
     if (IS_SET(ch->comm_flags, COMM_QUIET))
-        send_to_char(COLOR_B_GREEN "ON" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char(COLOR_B_RED "OFF" COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     if (IS_SET(ch->comm_flags, COMM_AFK)) 
         send_to_char("You are AFK.\n\r", ch);
@@ -280,11 +280,11 @@ void do_auction(Mobile* ch, char* argument)
 
     if (argument[0] == '\0') {
         if (IS_SET(ch->comm_flags, COMM_NOAUCTION)) {
-            send_to_char(COLOR_AUCTION "Auction channel is now ON." COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_AUCTION "Auction channel is now ON." COLOR_EOL, ch);
             REMOVE_BIT(ch->comm_flags, COMM_NOAUCTION);
         }
         else {
-            send_to_char(COLOR_AUCTION "Auction channel is now OFF." COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_AUCTION "Auction channel is now OFF." COLOR_EOL, ch);
             SET_BIT(ch->comm_flags, COMM_NOAUCTION);
         }
     }
@@ -304,7 +304,7 @@ void do_auction(Mobile* ch, char* argument)
         REMOVE_BIT(ch->comm_flags, COMM_NOAUCTION);
     }
 
-    sprintf(buf, COLOR_AUCTION "You auction '" COLOR_AUCTION_TEXT "%s" COLOR_AUCTION "'" COLOR_CLEAR "\n\r", argument);
+    sprintf(buf, COLOR_AUCTION "You auction '" COLOR_AUCTION_TEXT "%s" COLOR_AUCTION "'" COLOR_EOL, argument);
     send_to_char(buf, ch);
     FOR_EACH(d, descriptor_list) {
         Mobile* victim;
@@ -351,7 +351,7 @@ void do_gossip(Mobile* ch, char* argument)
 
         REMOVE_BIT(ch->comm_flags, COMM_NOGOSSIP);
 
-        sprintf(buf, COLOR_GOSSIP "You gossip '" COLOR_GOSSIP_TEXT "%s" COLOR_GOSSIP "'" COLOR_CLEAR "\n\r", argument);
+        sprintf(buf, COLOR_GOSSIP "You gossip '" COLOR_GOSSIP_TEXT "%s" COLOR_GOSSIP "'" COLOR_EOL, argument);
         send_to_char(buf, ch);
         FOR_EACH(d, descriptor_list) {
             Mobile* victim;
@@ -398,7 +398,7 @@ void do_grats(Mobile* ch, char* argument)
 
         REMOVE_BIT(ch->comm_flags, COMM_NOGRATS);
 
-        sprintf(buf, COLOR_TEXT "You grats '%s'" COLOR_CLEAR "\n\r", argument);
+        sprintf(buf, COLOR_TEXT "You grats '%s'" COLOR_EOL, argument);
         send_to_char(buf, ch);
         FOR_EACH(d, descriptor_list) {
             Mobile* victim;
@@ -422,11 +422,11 @@ void do_quote(Mobile* ch, char* argument)
 
     if (argument[0] == '\0') {
         if (IS_SET(ch->comm_flags, COMM_NOQUOTE)) {
-            send_to_char(COLOR_QUOTE "Quote channel is now ON." COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_QUOTE "Quote channel is now ON." COLOR_EOL, ch);
             REMOVE_BIT(ch->comm_flags, COMM_NOQUOTE);
         }
         else {
-            send_to_char(COLOR_QUOTE "Quote channel is now OFF." COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_QUOTE "Quote channel is now OFF." COLOR_EOL, ch);
             SET_BIT(ch->comm_flags, COMM_NOQUOTE);
         }
     }
@@ -445,7 +445,7 @@ void do_quote(Mobile* ch, char* argument)
 
         REMOVE_BIT(ch->comm_flags, COMM_NOQUOTE);
 
-        sprintf(buf, COLOR_QUOTE "You quote '" COLOR_QUOTE_TEXT "%s" COLOR_QUOTE "'" COLOR_CLEAR "\n\r", argument);
+        sprintf(buf, COLOR_QUOTE "You quote '" COLOR_QUOTE_TEXT "%s" COLOR_QUOTE "'" COLOR_EOL, argument);
         send_to_char(buf, ch);
         FOR_EACH(d, descriptor_list) {
             Mobile* victim;
@@ -493,7 +493,7 @@ void do_question(Mobile* ch, char* argument)
 
         REMOVE_BIT(ch->comm_flags, COMM_NOQUESTION);
 
-        sprintf(buf, COLOR_QUESTION "You question '" COLOR_QUESTION_TEXT "%s" COLOR_QUESTION "'" COLOR_CLEAR "\n\r", argument);
+        sprintf(buf, COLOR_QUESTION "You question '" COLOR_QUESTION_TEXT "%s" COLOR_QUESTION "'" COLOR_EOL, argument);
         send_to_char(buf, ch);
         FOR_EACH(d, descriptor_list) {
             Mobile* victim;
@@ -541,7 +541,7 @@ void do_answer(Mobile* ch, char* argument)
 
         REMOVE_BIT(ch->comm_flags, COMM_NOQUESTION);
 
-        sprintf(buf, COLOR_ANSWER "You answer '" COLOR_ANSWER_TEXT "%s" COLOR_ANSWER "'" COLOR_CLEAR "\n\r", argument);
+        sprintf(buf, COLOR_ANSWER "You answer '" COLOR_ANSWER_TEXT "%s" COLOR_ANSWER "'" COLOR_EOL, argument);
         send_to_char(buf, ch);
         FOR_EACH(d, descriptor_list) {
             Mobile* victim;
@@ -589,7 +589,7 @@ void do_music(Mobile* ch, char* argument)
 
         REMOVE_BIT(ch->comm_flags, COMM_NOMUSIC);
 
-        sprintf(buf, COLOR_MUSIC "You MUSIC: '" COLOR_MUSIC_TEXT "%s" COLOR_MUSIC "'" COLOR_CLEAR "\n\r", argument);
+        sprintf(buf, COLOR_MUSIC "You MUSIC: '" COLOR_MUSIC_TEXT "%s" COLOR_MUSIC "'" COLOR_EOL, argument);
         send_to_char(buf, ch);
         sprintf(buf, "$n MUSIC: '%s'", argument);
         FOR_EACH(d, descriptor_list) {
@@ -636,7 +636,7 @@ void do_clantalk(Mobile* ch, char* argument)
 
     REMOVE_BIT(ch->comm_flags, COMM_NOCLAN);
 
-    sprintf(buf, "You clan '%s'" COLOR_CLEAR "\n\r", argument);
+    sprintf(buf, "You clan '%s'" COLOR_EOL, argument);
     send_to_char(buf, ch);
     sprintf(buf, "$n clans '%s'", argument);
     FOR_EACH(d, descriptor_list) {
@@ -788,7 +788,7 @@ void do_tell(Mobile* ch, char* argument)
     if (victim->desc == NULL && !IS_NPC(victim)) {
         act("$N seems to have misplaced $S link...try again later.", ch, NULL,
             victim, TO_CHAR);
-        sprintf(buf, COLOR_TELL "%s tells you '" COLOR_TELL_TEXT "%s" COLOR_TELL "'" COLOR_CLEAR "\n\r", PERS(ch, victim),
+        sprintf(buf, COLOR_TELL "%s tells you '" COLOR_TELL_TEXT "%s" COLOR_TELL "'" COLOR_EOL, PERS(ch, victim),
                 argument);
         buf[0] = UPPER(buf[0]);
         add_buf(victim->pcdata->buffer, buf);
@@ -815,7 +815,7 @@ void do_tell(Mobile* ch, char* argument)
 
         act("$E is AFK, but your tell will go through when $E returns.", ch,
             NULL, victim, TO_CHAR);
-        sprintf(buf, COLOR_TELL "%s tells you '" COLOR_TELL_TEXT "%s" COLOR_TELL "'" COLOR_CLEAR "\n\r", PERS(ch, victim),
+        sprintf(buf, COLOR_TELL "%s tells you '" COLOR_TELL_TEXT "%s" COLOR_TELL "'" COLOR_EOL, PERS(ch, victim),
                 argument);
         buf[0] = UPPER(buf[0]);
         add_buf(victim->pcdata->buffer, buf);
@@ -851,7 +851,7 @@ void do_reply(Mobile* ch, char* argument)
     if (victim->desc == NULL && !IS_NPC(victim)) {
         act("$N seems to have misplaced $S link...try again later.", ch, NULL,
             victim, TO_CHAR);
-        sprintf(buf, COLOR_REPLY "%s tells you '" COLOR_REPLY_TEXT "%s" COLOR_REPLY "'" COLOR_CLEAR "\n\r", PERS(ch, victim),
+        sprintf(buf, COLOR_REPLY "%s tells you '" COLOR_REPLY_TEXT "%s" COLOR_REPLY "'" COLOR_EOL, PERS(ch, victim),
                 argument);
         buf[0] = UPPER(buf[0]);
         add_buf(victim->pcdata->buffer, buf);
@@ -883,7 +883,7 @@ void do_reply(Mobile* ch, char* argument)
 
         act_pos("$E is AFK, but your tell will go through when $E returns.", ch,
                 NULL, victim, TO_CHAR, POS_DEAD);
-        sprintf(buf, COLOR_REPLY "%s tells you '" COLOR_REPLY_TEXT "%s" COLOR_REPLY "'" COLOR_CLEAR "\n\r", PERS(ch, victim),
+        sprintf(buf, COLOR_REPLY "%s tells you '" COLOR_REPLY_TEXT "%s" COLOR_REPLY "'" COLOR_EOL, PERS(ch, victim),
                 argument);
         buf[0] = UPPER(buf[0]);
         add_buf(victim->pcdata->buffer, buf);
@@ -1463,13 +1463,13 @@ void do_group(Mobile* ch, char* argument)
         Mobile* leader;
 
         leader = (ch->leader != NULL) ? ch->leader : ch;
-        sprintf(buf, COLOR_TITLE "%s's group:" COLOR_CLEAR "\n\r", PERS(leader, ch));
+        sprintf(buf, COLOR_TITLE "%s's group:" COLOR_EOL, PERS(leader, ch));
         send_to_char(buf, ch);
 
         FOR_EACH_GLOBAL_MOB(gch) {
             if (is_same_group(gch, ch)) {
                 sprintf(buf,
-                        COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%2d %s" COLOR_DECOR_1 "]" COLOR_CLEAR " %-16s " COLOR_ALT_TEXT_2 "%4d/%4d hp %4d/%4d mana %4d/%4d mv %5d xp" COLOR_CLEAR "\n\r",
+                        COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%2d %s" COLOR_DECOR_1 "]" COLOR_CLEAR " %-16s " COLOR_ALT_TEXT_2 "%4d/%4d hp %4d/%4d mana %4d/%4d mv %5d xp" COLOR_EOL,
                         gch->level,
                         IS_NPC(gch) ? "Mob" : class_table[gch->ch_class].who_name,
                         capitalize(PERS(gch, ch)), gch->hit, gch->max_hit,
@@ -1691,8 +1691,8 @@ void do_colour(Mobile* ch, char* argument)
             SET_BIT(ch->act_flags, PLR_COLOUR);
             send_to_char(
                 "ColoUr is now ON, Way Cool!\n\r"
-                "Further syntax:\n\r   colour " COLOR_CYAN "<" COLOR_CLEAR "field" COLOR_CYAN "> <" COLOR_CLEAR "colour" COLOR_CYAN ">" COLOR_CLEAR "\n\r"
-                "   colour " COLOR_CYAN "<" COLOR_CLEAR "field" COLOR_CYAN ">" COLOR_CLEAR " " COLOR_CYAN "beep" COLOR_CLEAR "|" COLOR_CYAN "nobeep" COLOR_CLEAR "\n\r"
+                "Further syntax:\n\r   colour " COLOR_CYAN "<" COLOR_CLEAR "field" COLOR_CYAN "> <" COLOR_CLEAR "colour" COLOR_CYAN ">" COLOR_EOL
+                "   colour " COLOR_CYAN "<" COLOR_CLEAR "field" COLOR_CYAN ">" COLOR_CLEAR " " COLOR_CYAN "beep" COLOR_CLEAR "|" COLOR_CYAN "nobeep" COLOR_EOL
                 "Type help " COLOR_CYAN "colour" COLOR_CLEAR " and " COLOR_CYAN "colour2" COLOR_CLEAR " for details.\n\r"
                 "ColoUr is brought to you by Lope, ant@solace.mh.se.\n\r",
                 ch);

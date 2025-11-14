@@ -527,11 +527,9 @@ bool load_char_obj(Descriptor* d, char* name)
     int stat;
 
     ch = new_mobile();
-    push(OBJ_VAL(ch));
     ch->pcdata = new_player_data();
     ch->pcdata->ch = ch;
     d->character = ch;
-    pop(); // ch;
     ch->desc = d;
     SET_NAME(ch, lox_string(name));
     ch->id = get_pc_id();
@@ -602,9 +600,7 @@ bool load_char_obj(Descriptor* d, char* name)
         word = fread_word(fp);
         if (!str_cmp(word, "PLAYER"))
             fread_char(ch, fp);
-        else if (!str_cmp(word, "OBJECT"))
-            fread_obj(ch, fp);
-        else if (!str_cmp(word, "O"))
+        else if (!str_cmp(word, "OBJECT") || !str_cmp(word, "O"))
             fread_obj(ch, fp);
         else if (!str_cmp(word, "PET"))
             fread_pet(ch, fp);

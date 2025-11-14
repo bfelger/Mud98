@@ -61,4 +61,6 @@ extern ObjString* lox_empty_string;
 extern CompileContext compile_context;
 extern ExecContext exec_context;
 
+extern Value repl_ret_val; // The final result of REPL and in-line code
+
 #endif // !LOX__LOX_H

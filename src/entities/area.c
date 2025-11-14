@@ -3,18 +3,18 @@
 // Utilities to handle area
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "merc.h"
-
 #include "area.h"
 
-#include "comm.h"
-#include "config.h"
-#include "db.h"
-#include "handler.h"
+#include <data/direction.h>
 
-#include "olc/olc.h"
+#include <lox/memory.h>
 
-#include "data/direction.h"
+#include <olc/olc.h>
+
+#include <comm.h>
+#include <config.h>
+#include <db.h>
+#include <handler.h>
 
 int area_data_perm_count;
 ValueArray global_areas = { 0 };
@@ -29,7 +29,7 @@ Area* new_area(AreaData* area_data)
 {
     LIST_ALLOC_PERM(area, Area);
 
-    push(OBJ_VAL(area));
+    gc_protect(OBJ_VAL(area));
 
     init_header(&area->header, OBJ_AREA);
 
@@ -38,8 +38,6 @@ Area* new_area(AreaData* area_data)
 
     SET_NAME(area, NAME_FIELD(area_data));
     VNUM_FIELD(area) = VNUM_FIELD(area_data);
-
-    pop();
 
     area->data = area_data;
     area->empty = true;
@@ -63,7 +61,7 @@ AreaData* new_area_data()
 
     LIST_ALLOC_PERM(area_data, AreaData);
 
-    push(OBJ_VAL(area_data));
+    gc_protect(OBJ_VAL(area_data));
 
     init_header(&area_data->header, OBJ_AREA_DATA);
 
@@ -72,8 +70,6 @@ AreaData* new_area_data()
 
     VNUM_FIELD(area_data) = global_areas.count - 1;
     sprintf(buf, "area%"PRVNUM".are", VNUM_FIELD(area_data));
-
-    pop();
 
     area_data->area_flags = AREA_ADDED;
     area_data->security = 1;
@@ -100,11 +96,8 @@ void free_area_data(AreaData* area_data)
 Area* create_area_instance(AreaData* area_data, bool create_exits)
 {
     Area* area = new_area(area_data);
-    Value area_val = OBJ_VAL(area);
 
-    push(area_val);
     list_push_back(&area_data->instances, OBJ_VAL(area));
-    pop();
 
     RoomData* room_data;
     FOR_EACH_GLOBAL_ROOM(room_data) {
@@ -190,7 +183,6 @@ void load_area(FILE* fp)
 #endif
 
     area_data = new_area_data();
-    push(OBJ_VAL(area_data));
     VNUM_FIELD(area_data) = global_areas.count;
     area_data->reset_thresh = 6;
     area_data->file_name = str_dup(fpArea);
@@ -216,7 +208,7 @@ void load_area(FILE* fp)
                     LAST_AREA_DATA->next = area_data;
                 area_data->next = NULL;
                 current_area_data = area_data;
-                pop();
+                gc_protect_clear();
                 return;
             }
             break;

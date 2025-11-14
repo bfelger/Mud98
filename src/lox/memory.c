@@ -37,12 +37,15 @@ extern char* top_string;
 extern char str_empty[1];
 
 extern Table spell_scripts;
+extern Table global_const_table;
 
 extern bool fBootDb;
 
 // From unit tests
 extern Value test_output_buffer;
 extern ValueArray* mocks_;
+
+extern ValueArray gc_protect_vals;
 
 void* reallocate(void* pointer, size_t old_size, size_t new_size)
 {
@@ -428,14 +431,20 @@ static void mark_roots()
     }
 
     mark_table(&vm.globals);
+    mark_table(&global_const_table);
     mark_compiler_roots();
     mark_object((Obj*)vm.init_string);
     mark_object((Obj*)lox_empty_string);
     mark_natives();
 
+    mark_value(repl_ret_val);
+
     // Mark objects needed for unit tests
     mark_value(test_output_buffer);
     mark_array(mocks_);
+
+    // Temp space for Entity Values we need to preserve during construction
+    mark_array(&gc_protect_vals);
 
     mark_list(&mob_free);
     mark_list(&mob_list);
@@ -504,6 +513,34 @@ void collect_garbage()
         before - vm.bytes_allocated, before, vm.bytes_allocated, vm.next_gc);
 #endif
 }
+
+void collect_garbage_nongrowing()
+{
+#if defined(DEBUG_LOG_GC) || defined(COUNT_GCS)
+    lox_printf("-- gc (non-growing) begin\n");
+    size_t before = vm.bytes_allocated;
+#endif
+
+#ifdef COUNT_GCS
+    gc_count++;
+#endif
+
+    // We don't add game entities to VM globals until after boot. Don't GC
+    // anything until we've had a chance to do that.
+    if (!fBootDb) {
+        mark_roots();
+        trace_references();
+        table_remove_white(&vm.strings);
+        sweep();
+    }
+
+#if defined(DEBUG_LOG_GC) || defined(COUNT_GCS)
+    lox_printf("-- gc (non-growing) end\n");
+    lox_printf("   collected %zu bytes (from %zu to %zu) next at %zu\n",
+        before - vm.bytes_allocated, before, vm.bytes_allocated, vm.next_gc);
+#endif
+}
+
 
 void free_objects()
 {

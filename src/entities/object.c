@@ -20,7 +20,7 @@ Object* new_object()
 {
     ENTITY_ALLOC_PERM(obj, Object);
 
-    push(OBJ_VAL(obj));
+    gc_protect(OBJ_VAL(obj));
 
     init_header(&obj->header, OBJ_OBJ);
 
@@ -34,8 +34,6 @@ Object* new_object()
     SET_NATIVE_FIELD(&obj->header, obj->in_room, in_room, OBJ);
 
     obj->obj_list_node = list_push_back(&obj_list, OBJ_VAL(obj));
-
-    pop();
 
     VALIDATE(obj);
 

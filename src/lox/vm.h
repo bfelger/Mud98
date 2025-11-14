@@ -62,4 +62,7 @@ InterpretResult call_function(const char* fn_name, int count, ...);
 void init_entity_class(Entity* entity);
 void invoke_method_closure(Value receiver, ObjClosure* closure, int count, ...);
 
+void gc_protect(Value value);
+void gc_protect_clear();
+
 #endif

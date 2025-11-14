@@ -140,7 +140,7 @@ GEDIT(gedit_show)
     i = 0;
 
     while (i < MAX_IN_GROUP && !IS_NULLSTR(pGrp->skills[i])) {
-        sprintf(buf, "%2d. " COLOR_ALT_TEXT_1 "%s" COLOR_CLEAR "\n\r", i, pGrp->skills[i]);
+        sprintf(buf, "%2d. " COLOR_ALT_TEXT_1 "%s" COLOR_EOL, i, pGrp->skills[i]);
         send_to_char(buf, ch);
         i++;
     }

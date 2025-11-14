@@ -117,6 +117,8 @@ typedef enum {                  // Actual sequence depends on COLOR_ESC_STR
 #define COLOR_CLEAR                 COLOR_ESC_STR "x"
 #define COLOR_NEWLINE               COLOR_ESC_STR "/"
 
+#define COLOR_EOL                   COLOR_CLEAR "\n\r"
+
 #define COLOR_TEXT                  COLOR_ESC_STR "t"
 #define COLOR_BCKGRND               COLOR_ESC_STR "X"
 #define COLOR_TITLE                 COLOR_ESC_STR "T"

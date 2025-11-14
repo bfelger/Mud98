@@ -28,13 +28,13 @@ static void show_tutorial_list(Mobile* ch)
         if (t->min_level > ch->level)
             continue;
         printf_to_char(ch, COLOR_TITLE "%-20s " COLOR_INFO "- "
-            COLOR_ALT_TEXT_1 "%s" COLOR_CLEAR "\n\r", t->name, t->blurb);
+            COLOR_ALT_TEXT_1 "%s" COLOR_EOL, t->name, t->blurb);
         match = true;
     }
 
     if (!match)
         printf_to_char(ch, "     No available tutorials found." 
-            COLOR_CLEAR "\n\r");
+            COLOR_EOL);
     printf_to_char(ch, "\n\r");
 }
 

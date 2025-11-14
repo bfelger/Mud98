@@ -9,8 +9,7 @@
 
 #include <merc.h>
 
-//#include <olc/bit.h>
-//#include <olc/olc.h>
+typedef struct entity_t Entity;
 
 typedef enum event_trigger_t {
     TRIG_ACT    = BIT(0),           // A
@@ -32,6 +31,8 @@ typedef enum event_trigger_t {
     TRIG_LOGIN  = BIT(17),          // Q
 } EventTrigger;
 
+#define TRIG_COUNT 18
+
 typedef enum {
     ENT_AREA    = BIT(0),
     ENT_ROOM    = BIT(1),
@@ -45,6 +46,9 @@ typedef struct {
     const char* default_callback;   // Lox method to call (by default)
     FLAGS valid_ents;               // Valid recipients
 } EventDefaultConfig;
+
+EventEnts get_entity_type(Entity* entity);
+const char* get_event_default_callback(EventTrigger trigger);
 
 extern const EventDefaultConfig event_default_configs[];
 

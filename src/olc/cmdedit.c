@@ -204,7 +204,7 @@ void list_functions(Buffer* pBuf)
     int i;
     char buf[MSL];
 
-    sprintf(buf, COLOR_TITLE "Num %-13.13s Num %-13.13s Num %-13.13s Num %-13.13s" COLOR_CLEAR "\n\r",
+    sprintf(buf, COLOR_TITLE "Num %-13.13s Num %-13.13s Num %-13.13s Num %-13.13s" COLOR_EOL,
         "Name", "Name", "Name", "Name");
     add_buf(pBuf, buf);
 
@@ -226,7 +226,7 @@ void list_commands(Buffer* pBuf, int minlev, int maxlev)
     char buf[MSL];
     int i, cnt = 0;
 
-    sprintf(buf, COLOR_TITLE "Nv %-12.12s %-13.13s Pos Log Nv %-12.12s %-13.13s Pos Log" COLOR_CLEAR "\n\r",
+    sprintf(buf, COLOR_TITLE "Nv %-12.12s %-13.13s Pos Log Nv %-12.12s %-13.13s Pos Log" COLOR_EOL,
         "Name", "Function", "Name", "Function");
     add_buf(pBuf, buf);
 

@@ -386,7 +386,6 @@ static int test_enum_bootval()
         "2\n"
         "3\n"
         "4\n");
-    test_output_buffer = NIL_VAL;
 
     return 0;
 }

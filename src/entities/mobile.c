@@ -27,7 +27,7 @@ Mobile* new_mobile()
 {
     ENTITY_ALLOC_PERM(mob, Mobile);
 
-    push(OBJ_VAL(mob));
+    gc_protect(OBJ_VAL(mob));
 
     init_header(&mob->header, OBJ_MOB);
 
@@ -45,8 +45,6 @@ Mobile* new_mobile()
     SET_LOX_FIELD(&mob->header, mob->was_in_room, was_in_room);
 
     mob->mob_list_node = list_push_back(&mob_list, OBJ_VAL(mob));
-
-    pop();
 
     VALIDATE(mob);
 

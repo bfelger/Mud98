@@ -27,8 +27,16 @@ static int test_room_script_binding()
         "on_entry() { print \"room entry\"; }"
         "on_exit() { print \"room exit\"; }";
 
+    // The disassembler will print to the test output buffer unless we disable
+    // this option.
+    //test_output_enabled = false;
+    //test_trace_exec = true;
     ObjClass* room_class = create_entity_class((Entity*)rd, "test_room", src);
-    ASSERT(room_class != NULL);
+    //test_trace_exec = false;
+    //test_output_enabled = true;
+
+    ASSERT_OR_GOTO(room_class != NULL, leave_test_room_script_binding);
+    
     rd->header.klass = room_class;
 
     Room* r = mock_room(vnum, rd, NULL);
@@ -36,11 +44,12 @@ static int test_room_script_binding()
 
     // Invoke on_enter
     bool inv_result = invoke(lox_string("on_entry"), 0);
-    ASSERT(inv_result == true);
+    ASSERT_OR_GOTO(inv_result == true, leave_test_room_script_binding);
 
     InterpretResult result = run();
     ASSERT_LOX_OUTPUT_EQ("room entry\n");
 
+leave_test_room_script_binding:
     test_output_buffer = NIL_VAL;
     return 0;
 }

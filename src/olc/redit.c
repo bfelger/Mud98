@@ -1,14 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////
-// redit.c
+// olc/redit.c
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <merc.h>
 
-#include "olc.h"
-
-#include "string_edit.h"
-#include "lox_edit.h"
 #include "bit.h"
+#include "event_edit.h"
+#include "lox_edit.h"
+#include "olc.h"
+#include "string_edit.h"
 
 #include <act_move.h>
 #include <comm.h>
@@ -59,7 +59,8 @@ const OlcCmdEntry room_olc_comm_table[] = {
     { "mlist",	    0,				        ed_olded,		    U(redit_mlist)	},
     { "olist",	    U(&xRoom.area_data),    ed_olist,           0               },
     { "copy",	    0,				        ed_olded,		    U(redit_copy)	},
-    { "lox",        0,                      ed_olded,           U(redit_lox)    },
+    { "event",      0,                      ed_olded,           U(olc_edit_event)   },
+    { "lox",        0,                      ed_olded,           U(olc_edit_lox)     },
     { "listreset",	0,				        ed_olded,		    U(redit_listreset)  },
     { "checkobj",	0,				        ed_olded,		    U(redit_checkobj)	},
     { "checkmob",	0,				        ed_olded,		    U(redit_checkmob)	},
@@ -90,19 +91,19 @@ void do_redit(Mobile* ch, char* argument)
 
     if (!str_cmp(arg1, "reset")) {
         if (!IS_BUILDER(ch, room_data->area_data)) {
-            send_to_char(COLOR_INFO "You do not have enough security to edit rooms." COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_INFO "You do not have enough security to edit rooms." COLOR_EOL, ch);
             return;
         }
 
         Room* room;
         FOR_EACH_ROOM_INST(room, room_data)
             reset_room(room);
-        send_to_char(COLOR_INFO "Room reset." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "Room reset." COLOR_EOL, ch);
         return;
     }
     else if (!str_cmp(arg1, "create")) {
         if (argument[0] == '\0' || atoi(argument) == 0) {
-            send_to_char("Syntax: " COLOR_ALT_TEXT_1 "edit room create [vnum]" COLOR_CLEAR "\n\r", ch);
+            send_to_char("Syntax: " COLOR_ALT_TEXT_1 "edit room create [vnum]" COLOR_EOL, ch);
             return;
         }
 
@@ -117,13 +118,13 @@ void do_redit(Mobile* ch, char* argument)
         room_data = get_room_data(atoi(arg1));
 
         if (room_data == NULL) {
-            send_to_char(COLOR_INFO "That room does not exist." COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_INFO "That room does not exist." COLOR_EOL, ch);
             return;
         }
     }
 
     if (!IS_BUILDER(ch, room_data->area_data)) {
-        send_to_char(COLOR_INFO "You do not have enough security to edit rooms." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "You do not have enough security to edit rooms." COLOR_EOL, ch);
         return;
     }
 
@@ -155,7 +156,7 @@ void redit(Mobile* ch, char* argument)
     area = pRoom->area_data;
 
     if (!IS_BUILDER(ch, area)) {
-        send_to_char(COLOR_INFO "REdit:  Insufficient security to modify room." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "REdit:  Insufficient security to modify room." COLOR_EOL, ch);
         edit_done(ch);
         return;
     }
@@ -205,7 +206,7 @@ REDIT(redit_rlist)
 
     if (!found) {
         free_buf(buf1);
-        send_to_char(COLOR_INFO "Room(s) not found in this area." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "Room(s) not found in this area." COLOR_EOL, ch);
         return false;
     }
 
@@ -230,7 +231,7 @@ REDIT(redit_mlist)
 
     one_argument(argument, arg);
     if (arg[0] == '\0') {
-        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "mlist <all/name>" COLOR_CLEAR "\n\r", ch);
+        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "mlist <all/name>" COLOR_EOL, ch);
         return false;
     }
 
@@ -323,7 +324,7 @@ REDIT(redit_show)
                 printf_to_char(ch, " ");
             }
         }
-        printf_to_char(ch,  COLOR_CLEAR "\n\r");
+        printf_to_char(ch,  COLOR_EOL);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -345,7 +346,7 @@ REDIT(redit_show)
         printf_to_char(ch, "(none)");
     }
     
-    printf_to_char(ch, COLOR_CLEAR "\n\r");
+    printf_to_char(ch, COLOR_EOL);
     
     printf_to_char(ch, "%-14s : " COLOR_ALT_TEXT_1, "Objects");
 
@@ -360,7 +361,7 @@ REDIT(redit_show)
         printf_to_char(ch, "(none)");
     }
 
-    printf_to_char(ch, COLOR_CLEAR "\n\r");
+    printf_to_char(ch, COLOR_EOL);
 
     ////////////////////////////////////////////////////////////////////////////
     // EVENTS & LOX
@@ -368,7 +369,7 @@ REDIT(redit_show)
 
     Entity* entity = &pRoom->header;
     olc_display_lox_info(ch, entity);
-    olc_display_event_info(ch, entity);
+    olc_display_events(ch, entity);
 
     ////////////////////////////////////////////////////////////////////////////
     // EXITS
@@ -414,7 +415,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         room_exit_data = room_data->exit_data[door];
 
         if (!room_exit_data) {
-            send_to_char(COLOR_INFO "There is no exit in that direction." COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_INFO "There is no exit in that direction." COLOR_EOL, ch);
             return false;
         }
 
@@ -434,7 +435,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
             //pNExit->exit_flags = pNExit->exit_reset_flags;
         }
 
-        send_to_char(COLOR_INFO "Exit flag toggled." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "Exit flag toggled." COLOR_EOL, ch);
         return true;
     }
 
@@ -461,7 +462,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         room_exit_data = room_data->exit_data[door];
 
         if (!room_exit_data) {
-            send_to_char(COLOR_INFO "REdit: Cannot delete a null exit." COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_INFO "REdit: Cannot delete a null exit." COLOR_EOL, ch);
             return false;
         }
 
@@ -480,19 +481,19 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
                 }
                 else
                     printf_to_char(ch, COLOR_INFO "Exit %d to room %d does not return to"
-                        " this room, so it was not deleted." COLOR_CLEAR "\n\r",
+                        " this room, so it was not deleted." COLOR_EOL,
                         rev, VNUM_FIELD(to_room_data));
             }
         }
 
         // Remove this exit.
-        printf_to_char(ch, COLOR_INFO "Exit %s to room %d deleted." COLOR_CLEAR "\n\r",
+        printf_to_char(ch, COLOR_INFO "Exit %s to room %d deleted." COLOR_EOL,
             dir_list[door].name, VNUM_FIELD(room_data));
         free_room_exit_data(room_data->exit_data[door]);
         room_data->exit_data[door] = NULL;
 
         if (rDeleted)
-            printf_to_char(ch, COLOR_INFO "Exit %s to room %d was also deleted." COLOR_CLEAR "\n\r",
+            printf_to_char(ch, COLOR_INFO "Exit %s to room %d was also deleted." COLOR_EOL,
                 dir_list[dir_list[door].rev_dir].name, VNUM_FIELD(to_room_data));
 
         return true;
@@ -502,33 +503,33 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         RoomData* to_room_data;
 
         if (arg[0] == '\0' || !is_number(arg)) {
-            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "[direction] link [vnum]" COLOR_CLEAR "\n\r", ch);
+            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "[direction] link [vnum]" COLOR_EOL, ch);
             return false;
         }
 
         to_room_data = get_room_data(atoi(arg));
 
         if (!to_room_data) {
-            send_to_char(COLOR_INFO "REdit:  Cannot link to non-existent room." COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_INFO "REdit:  Cannot link to non-existent room." COLOR_EOL, ch);
             return false;
         }
 
         if (!IS_BUILDER(ch, to_room_data->area_data)) {
-            send_to_char(COLOR_INFO "REdit:  Cannot link to that area." COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_INFO "REdit:  Cannot link to that area." COLOR_EOL, ch);
             return false;
         }
 
         room_exit_data = room_data->exit_data[door];
 
         if (room_exit_data) {
-            send_to_char(COLOR_INFO "REdit : That exit already exists." COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_INFO "REdit : That exit already exists." COLOR_EOL, ch);
             return false;
         }
 
         room_exit_data = to_room_data->exit_data[dir_list[door].rev_dir];
 
         if (room_exit_data) {
-            send_to_char(COLOR_INFO "REdit:  Remote side's exit already exists." COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_INFO "REdit:  Remote side's exit already exists." COLOR_EOL, ch);
             return false;
         }
 
@@ -536,7 +537,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
             && room_data->area_data->inst_type == AREA_INST_MULTI
             && to_room_data->area_data->inst_type == AREA_INST_MULTI) {
             send_to_char(COLOR_INFO "REdit:  You cannot link between two different "
-                "multi-instance areas.." COLOR_CLEAR "\n\r", ch);
+                "multi-instance areas.." COLOR_EOL, ch);
             return false;
         }
 
@@ -565,13 +566,13 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         SET_BIT(to_room_data->area_data->area_flags, AREA_CHANGED);
         SET_BIT(room_data->area_data->area_flags, AREA_CHANGED);
 
-        send_to_char(COLOR_INFO "Two-way link established." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "Two-way link established." COLOR_EOL, ch);
         return true;
     } else if (!str_cmp(command, "dig")) {
         char buf[MAX_STRING_LENGTH];
 
         if (arg[0] == '\0' || !is_number(arg)) {
-            send_to_char("Syntax: " COLOR_ALT_TEXT_1 "[direction] dig <vnum>" COLOR_CLEAR "\n\r", ch);
+            send_to_char("Syntax: " COLOR_ALT_TEXT_1 "[direction] dig <vnum>" COLOR_EOL, ch);
             return false;
         }
 
@@ -600,19 +601,19 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         RoomData* target;
 
         if (arg[0] == '\0' || !is_number(arg)) {
-            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "[direction] room [vnum]" COLOR_CLEAR "\n\r", ch);
+            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "[direction] room [vnum]" COLOR_EOL, ch);
             return false;
         }
 
         value = atoi(arg);
 
         if ((target = get_room_data(value)) == NULL) {
-            send_to_char(COLOR_INFO "REdit:  Cannot link to non-existant room." COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_INFO "REdit:  Cannot link to non-existant room." COLOR_EOL, ch);
             return false;
         }
 
         if (!IS_BUILDER(ch, target->area_data)) {
-            send_to_char(COLOR_INFO "REdit: You do not have access to the room you wish to dig to." COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_INFO "REdit: You do not have access to the room you wish to dig to." COLOR_EOL, ch);
             return false;
         }
 
@@ -634,49 +635,49 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
             printf_to_char(ch, COLOR_INFO "WARNING" COLOR_CLEAR " : the exit to room %d does not return here.\n\r",
                 VNUM_FIELD(target));
 
-        send_to_char(COLOR_INFO "One-way link established." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "One-way link established." COLOR_EOL, ch);
         return true;
     } else if (!str_cmp(command, "key")) {
         RoomExitData* room_exit_data;
         ObjPrototype* obj_proto;
 
         if (arg[0] == '\0' || !is_number(arg)) {
-            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "[direction] key [vnum]" COLOR_CLEAR "\n\r", ch);
+            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "[direction] key [vnum]" COLOR_EOL, ch);
             return false;
         }
 
         if ((room_exit_data = room_data->exit_data[door]) == NULL) {
-            send_to_char(COLOR_INFO "That exit does not exist." COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_INFO "That exit does not exist." COLOR_EOL, ch);
             return false;
         }
 
         obj_proto = get_object_prototype(atoi(arg));
 
         if (!obj_proto) {
-            send_to_char(COLOR_INFO "REdit:  Item doesn't exist." COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_INFO "REdit:  Item doesn't exist." COLOR_EOL, ch);
             return false;
         }
 
         if (obj_proto->item_type != ITEM_KEY) {
-            send_to_char(COLOR_INFO "REdit:  Key doesn't exist." COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_INFO "REdit:  Key doesn't exist." COLOR_EOL, ch);
             return false;
         }
 
         room_exit_data->key = (int16_t)atoi(arg);
 
-        send_to_char(COLOR_INFO "Exit key set." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "Exit key set." COLOR_EOL, ch);
         return true;
     } else if (!str_cmp(command, "name")) {
         RoomExitData* room_exit_data;
 
         if (arg[0] == '\0') {
             send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "[direction] name [string]\n\r", ch);
-            send_to_char("         [direction] name none" COLOR_CLEAR "\n\r", ch);
+            send_to_char("         [direction] name none" COLOR_EOL, ch);
             return false;
         }
 
         if ((room_exit_data = room_data->exit_data[door]) == NULL) {
-            send_to_char(COLOR_INFO "That exit does not exist." COLOR_CLEAR "\n\r", ch);
+            send_to_char(COLOR_INFO "That exit does not exist." COLOR_EOL, ch);
             return false;
         }
 
@@ -687,14 +688,14 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         else
             room_exit_data->keyword = str_dup("");
 
-        send_to_char(COLOR_INFO "Exit name set." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "Exit name set." COLOR_EOL, ch);
         return true;
     } else if (!str_prefix(command, "description")) {
         RoomExitData* room_exit_data;
 
         if (arg[0] == '\0') {
             if ((room_exit_data = room_data->exit_data[door]) == NULL) {
-                send_to_char(COLOR_INFO "That exit does not exist." COLOR_CLEAR "\n\r", ch);
+                send_to_char(COLOR_INFO "That exit does not exist." COLOR_EOL, ch);
                 return false;
             }
 
@@ -702,7 +703,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
             return true;
         }
 
-        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "[direction] desc" COLOR_CLEAR "\n\r", ch);
+        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "[direction] desc" COLOR_EOL, ch);
         return false;
     }
 
@@ -720,23 +721,23 @@ REDIT(redit_create)
     value = STRTOVNUM(argument);
 
     if (argument[0] == '\0' || value <= 0) {
-        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "create [vnum > 0]" COLOR_CLEAR "\n\r", ch);
+        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "create [vnum > 0]" COLOR_EOL, ch);
         return false;
     }
 
     area_data = get_vnum_area(value);
     if (!area_data) {
-        send_to_char(COLOR_INFO "REdit:  That vnum is not assigned an area." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "REdit:  That vnum is not assigned an area." COLOR_EOL, ch);
         return false;
     }
 
     if (!IS_BUILDER(ch, area_data)) {
-        send_to_char(COLOR_INFO "REdit:  Vnum in an area you cannot build in." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "REdit:  Vnum in an area you cannot build in." COLOR_EOL, ch);
         return false;
     }
 
     if (get_room_data(value)) {
-        send_to_char(COLOR_INFO "REdit:  Room vnum already exists." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "REdit:  Room vnum already exists." COLOR_EOL, ch);
         return false;
     }
 
@@ -758,7 +759,7 @@ REDIT(redit_create)
 
     set_editor(ch->desc, ED_ROOM, U(room_data));
 
-    send_to_char(COLOR_INFO "Room created." COLOR_CLEAR "\n\r", ch);
+    send_to_char(COLOR_INFO "Room created." COLOR_EOL, ch);
     return true;
 }
 
@@ -772,7 +773,7 @@ REDIT(redit_format)
     free_string(pRoom->description);
     pRoom->description = desc;
 
-    send_to_char(COLOR_INFO "String formatted." COLOR_CLEAR "\n\r", ch);
+    send_to_char(COLOR_INFO "String formatted." COLOR_EOL, ch);
     return true;
 }
 
@@ -792,17 +793,17 @@ REDIT(redit_mreset)
     READ_ARG(arg2);
 
     if (arg[0] == '\0' || !is_number(arg)) {
-        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "mreset <vnum> <world max> <room max>" COLOR_CLEAR "\n\r", ch);
+        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "mreset <vnum> <world max> <room max>" COLOR_EOL, ch);
         return false;
     }
 
     if (!(p_mob_proto = get_mob_prototype(atoi(arg)))) {
-        send_to_char(COLOR_INFO "REdit: No mobile has that vnum." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "REdit: No mobile has that vnum." COLOR_EOL, ch);
         return false;
     }
 
     if (p_mob_proto->area != room_data->area_data) {
-        send_to_char(COLOR_INFO "REdit: No such mobile in this area." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "REdit: No such mobile in this area." COLOR_EOL, ch);
         return false;
     }
 
@@ -827,7 +828,7 @@ REDIT(redit_mreset)
     }
 
     printf_to_char(ch, COLOR_INFO "%s (%d) has been added to resets.\n\r"
-        "There will be a maximum of %d in the area, and %d in this room." COLOR_CLEAR "\n\r",
+        "There will be a maximum of %d in the area, and %d in this room." COLOR_EOL,
         capitalize(p_mob_proto->short_descr),
         VNUM_FIELD(p_mob_proto),
         reset->arg2,
@@ -875,7 +876,7 @@ REDIT(redit_oreset)
     READ_ARG(into_arg);
 
     if (vnum_str[0] == '\0' || !is_number(vnum_str)) {
-        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "oreset <vnum> <args>" COLOR_CLEAR "\n\r", ch);
+        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "oreset <vnum> <args>" COLOR_EOL, ch);
         send_to_char("        -" COLOR_ALT_TEXT_1 "no_args" COLOR_CLEAR "               = into room\n\r", ch);
         send_to_char("        -" COLOR_ALT_TEXT_1 "<obj_name>" COLOR_CLEAR "            = into obj\n\r", ch);
         send_to_char("        -" COLOR_ALT_TEXT_1 "<mob_name> <wear_loc>" COLOR_CLEAR " = into mob\n\r", ch);
@@ -883,12 +884,12 @@ REDIT(redit_oreset)
     }
 
     if (!(obj_proto = get_object_prototype(atoi(vnum_str)))) {
-        send_to_char(COLOR_INFO "REdit: No object has that vnum." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "REdit: No object has that vnum." COLOR_EOL, ch);
         return false;
     }
 
     if (obj_proto->area != room_data->area_data) {
-        send_to_char(COLOR_INFO "REdit: No such object in this area." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_INFO "REdit: No such object in this area." COLOR_EOL, ch);
         return false;
     }
 
@@ -908,7 +909,7 @@ REDIT(redit_oreset)
             obj_to_room(newobj, room);
         }
 
-        sprintf(output, COLOR_INFO "%s (%d) has been loaded and added to resets." COLOR_CLEAR "\n\r",
+        sprintf(output, COLOR_INFO "%s (%d) has been loaded and added to resets." COLOR_EOL,
             capitalize(obj_proto->short_descr),
             VNUM_FIELD(obj_proto));
         send_to_char(output, ch);
@@ -933,7 +934,7 @@ REDIT(redit_oreset)
 
         if (newobj && to_obj) {
             sprintf(output, COLOR_INFO "%s (%d) has been loaded into "
-                "%s (%d) and added to resets." COLOR_CLEAR "\n\r",
+                "%s (%d) and added to resets." COLOR_EOL,
                 capitalize(newobj->short_descr),
                 VNUM_FIELD(newobj->prototype),
                 to_obj->short_descr,
@@ -1112,7 +1113,7 @@ void listobjreset(Mobile* ch, Buffer* buf, AreaData* area)
 {
     ObjPrototype* obj;
 
-    add_buf(buf, COLOR_TITLE "Vnum  Name            Room  On mob" COLOR_CLEAR "\n\r");
+    add_buf(buf, COLOR_TITLE "Vnum  Name            Room  On mob" COLOR_EOL);
 
     FOR_EACH_OBJ_PROTO(obj)
         if (obj->area == area)
@@ -1123,7 +1124,7 @@ void listmobreset(Mobile* ch, Buffer* buf, AreaData* area)
 {
     MobPrototype* mob;
 
-    add_buf(buf, COLOR_TITLE "Vnum  Name            Room " COLOR_CLEAR "\n\r");
+    add_buf(buf, COLOR_TITLE "Vnum  Name            Room " COLOR_EOL);
 
     FOR_EACH_MOB_PROTO(mob)
         if (mob->area == area)
@@ -1261,24 +1262,6 @@ REDIT(redit_copy)
     return true;
 }
 
-
-REDIT(redit_lox)
-{
-    RoomData* rd;
-
-    EDIT_ROOM(ch, rd);
-
-    if (!IS_NULLSTR(argument)) {
-        send_to_char("Syntax : lox\n\r", ch);
-        return false;
-    }
-
-    lox_script_append(ch, &(rd->header.script->chars));
-
-    return true;
-}
-
-
 ED_FUN_DEC(ed_direction)
 {
     return change_exit(ch, argument, (Direction)par);
@@ -1336,21 +1319,20 @@ void display_exits(Mobile* ch, RoomData* room)
         char* kwds = (exit->keyword != NULL) ? exit->keyword : "";
 
         printf_to_char(ch,
-        /* Dir */   COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5s" COLOR_DECOR_1 "] "
-        /* Vnum */  "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "] "
-        /* Desc */  COLOR_TEXT "%15.15s "
-        /* Key */   COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "] [" 
-        /* Flags */ COLOR_ALT_TEXT_1 "%13.13s" COLOR_DECOR_1 "] "
-        /* Kwds */  COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r",
+            /* Dir */   COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5s" COLOR_DECOR_1 "] "
+            /* Vnum */  "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "] "
+            /* Desc */  COLOR_TEXT "%15.15s "
+            /* Key */   COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "] ["
+            /* Flags */ COLOR_ALT_TEXT_1 "%13.13s" COLOR_DECOR_1 "] "
+            /* Kwds */  COLOR_ALT_TEXT_2 "%s" COLOR_EOL,
             dir, tgt_vnum, tgt_desc, key, flags, kwds);
 
         char* desc = exit->description;
         if (desc && desc[0] != '\0') {
-            printf_to_char(ch, COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR, "\n\r", desc);
+            printf_to_char(ch, COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR, desc);
         }
     }
 }
-
 
 void display_resets(Mobile* ch, RoomData* pRoom)
 {
@@ -1398,7 +1380,7 @@ void display_resets(Mobile* ch, RoomData* pRoom)
             }
 
             pMob = p_mob_proto;
-            sprintf(buf, "M" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-13.13s                     R" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %2d-%-2d" COLOR_ALT_TEXT_1 " %-15.15s" COLOR_CLEAR "\n\r",
+            sprintf(buf, "M" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-13.13s                     R" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %2d-%-2d" COLOR_ALT_TEXT_1 " %-15.15s" COLOR_EOL,
                 reset->arg1, pMob->short_descr, reset->arg3,
                 reset->arg2, reset->arg4, NAME_STR(pRoomIndex));
             strcat(final, buf);
@@ -1588,7 +1570,7 @@ void do_resets(Mobile* ch, char* argument)
         "        RESET <number> OBJ <vnum> room\n\r"
         "        RESET <number> MOB <vnum> [max #x area] [max #x room]\n\r"
         "        RESET <number> DELETE\n\r"
-        "        RESET <number> RANDOM [#x exits]" COLOR_CLEAR "\n\r";
+        "        RESET <number> RANDOM [#x exits]" COLOR_EOL;
 
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
@@ -1771,11 +1753,11 @@ void do_resets(Mobile* ch, char* argument)
         char* arg;
 
         if (is_number(arg2)) {
-            send_to_char(COLOR_INFO "Invalid syntax." COLOR_CLEAR "\n\r"
+            send_to_char(COLOR_INFO "Invalid syntax." COLOR_EOL
                 "Your options are:\n\r"
                 COLOR_ALT_TEXT_1 "reset add mob [vnum/name]\n\r"
                 "reset add obj [vnum/name]\n\r"
-                "reset add [name]" COLOR_CLEAR "\n\r", ch);
+                "reset add [name]" COLOR_EOL, ch);
             return;
         }
 
@@ -1836,7 +1818,7 @@ void do_resets(Mobile* ch, char* argument)
 void do_objlist(Mobile* ch, char* argument)
 {
     static const char* help = COLOR_INFO "Syntax: OBJLIST AREA\n\r"
-        "          OBJLIST WORLD [low-level] [high-level]" COLOR_CLEAR "\n\r";
+        "          OBJLIST WORLD [low-level] [high-level]" COLOR_EOL;
     static const int max_disp = 100;
     char opt[MIL] = { 0 };
     char lo_str[MIL] = { 0 };
@@ -1850,7 +1832,7 @@ void do_objlist(Mobile* ch, char* argument)
     INIT_BUF(out, MSL);
 
     if (!IS_BUILDER(ch, ch->in_room->area->data)) {
-        send_to_char(COLOR_ALT_TEXT_1 "Invalid security for editing this area." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_ALT_TEXT_1 "Invalid security for editing this area." COLOR_EOL, ch);
         return;
     }
 
@@ -1893,15 +1875,15 @@ void do_objlist(Mobile* ch, char* argument)
     //               ################################################################################
     switch (type) {
     case ITEM_ARMOR:
-        addf_buf(out, COLOR_TITLE "VNUM   Lvl Name                AC:  Pierce  Bash    Slash   Exotic        " COLOR_CLEAR "\n\r");
+        addf_buf(out, COLOR_TITLE "VNUM   Lvl Name                AC:  Pierce  Bash    Slash   Exotic        " COLOR_EOL);
         break;    
     case ITEM_CONTAINER:
-        addf_buf(out, COLOR_TITLE "VNUM   Lvl Name                     Wght    Flags   Key     Cpcty   WtMult" COLOR_CLEAR "\n\r");
+        addf_buf(out, COLOR_TITLE "VNUM   Lvl Name                     Wght    Flags   Key     Cpcty   WtMult" COLOR_EOL);
         break;
     default:
-        addf_buf(out, COLOR_TITLE "VNUM   Lvl Name       Type          Val0    Val1    Val2    Val3    Val4  " COLOR_CLEAR "\n\r");
+        addf_buf(out, COLOR_TITLE "VNUM   Lvl Name       Type          Val0    Val1    Val2    Val3    Val4  " COLOR_EOL);
     }
-    addf_buf(out, COLOR_DECOR_2 "===========================================================================" COLOR_CLEAR "\n\r");
+    addf_buf(out, COLOR_DECOR_2 "===========================================================================" COLOR_EOL);
 
     VNUM hi_vnum = ch->in_room->area->data->max_vnum;
     VNUM lo_vnum = ch->in_room->area->data->min_vnum;
@@ -1934,7 +1916,7 @@ void do_objlist(Mobile* ch, char* argument)
             addf_buf(out, "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "] ", obj->value[i]);
         }
 
-        addf_buf(out, COLOR_CLEAR "\n\r");
+        addf_buf(out, COLOR_EOL);
     }
 max_disp_reached:
     addf_buf(out, "\n\r");
@@ -1945,7 +1927,7 @@ max_disp_reached:
 void do_moblist(Mobile* ch, char* argument)
 {
     static const char* help = COLOR_INFO "Syntax: MOBLIST AREA\n\r"
-        "          MOBLIST WORLD [low-level] [high-level]" COLOR_CLEAR "\n\r";
+        "          MOBLIST WORLD [low-level] [high-level]" COLOR_EOL;
     static const int max_disp = 100;
     char opt[MIL] = { 0 };
     char lo_str[MIL] = { 0 };
@@ -1959,7 +1941,7 @@ void do_moblist(Mobile* ch, char* argument)
     INIT_BUF(out, MSL);
 
     if (!IS_BUILDER(ch, ch->in_room->area->data)) {
-        send_to_char(COLOR_ALT_TEXT_1 "Invalid security for editing this area." COLOR_CLEAR "\n\r", ch);
+        send_to_char(COLOR_ALT_TEXT_1 "Invalid security for editing this area." COLOR_EOL, ch);
         return;
     }
 
@@ -1988,8 +1970,8 @@ void do_moblist(Mobile* ch, char* argument)
         return;
     }
     //               ################################################################################
-    addf_buf(out, COLOR_TITLE "VNUM   Name       Lvl Hit Dice     Hit   Dam      Mana       Pie  Bas  Sla  Mag" COLOR_CLEAR "\n\r");
-    addf_buf(out, COLOR_DECOR_2 "===============================================================================" COLOR_CLEAR "\n\r");
+    addf_buf(out, COLOR_TITLE "VNUM   Name       Lvl Hit Dice     Hit   Dam      Mana       Pie  Bas  Sla  Mag" COLOR_EOL);
+    addf_buf(out, COLOR_DECOR_2 "===============================================================================" COLOR_EOL);
 
     VNUM hi_vnum = ch->in_room->area->data->max_vnum;
     VNUM lo_vnum = ch->in_room->area->data->min_vnum;
@@ -2016,7 +1998,7 @@ void do_moblist(Mobile* ch, char* argument)
         addf_buf(out, "%-8.8s ", buf);
         sprintf(buf, "%dd%d+%d", mob->mana[0], mob->mana[1], mob->mana[2]);
         addf_buf(out, "%-9.9s ", buf);
-        addf_buf(out, "%4d %4d %4d %4d" COLOR_CLEAR "\n\r", mob->ac[0], mob->ac[1], mob->ac[2], mob->ac[3]);
+        addf_buf(out, "%4d %4d %4d %4d" COLOR_EOL, mob->ac[0], mob->ac[1], mob->ac[2], mob->ac[3]);
     }
 max_disp_reached:
     addf_buf(out, "\n\r");
