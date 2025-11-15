@@ -2,6 +2,15 @@
 // entities/entity.h
 ////////////////////////////////////////////////////////////////////////////////
 
+// Mud98 has a category of objects I call "entities"; that is, they are avail-
+// able for direct player interactions (except for Areas, which are collections 
+// of Rooms. Each in-game entity (Area, Room, Mobile, and Object) has a template
+// from which it is created (AreaData, RoomData, MobPrototype, and ObjPrototype,
+// respectively).
+//
+// Each one contains an Entity struct value called header, to which the 
+// Entity can be up-cast as a poor man's polymorphism.
+
 #pragma once
 #ifndef MUD98__ENTITIES__ENTITY_H
 #define MUD98__ENTITIES__ENTITY_H

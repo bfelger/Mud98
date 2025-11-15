@@ -20,7 +20,6 @@ typedef struct player_data_t PlayerData;
 
 #include <data/player.h>
 #include <data/quest.h>
-//#include <data/tutorial.h>
 
 typedef struct Tutorial Tutorial;
 
