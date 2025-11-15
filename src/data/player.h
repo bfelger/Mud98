@@ -1,12 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
-// player.h
+// data/player.h
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 #ifndef MUD98__DATA__PLAYER_H
 #define MUD98__DATA__PLAYER_H
 
-#include "merc.h"
+#include <merc.h>
 
 typedef enum plr_act_flags_t {
     PLR_IS_NPC              = BIT(0), // Don't EVER set.

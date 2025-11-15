@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// affect.h
+// entities/affect.h
 // Utilities to handle special conditions and status affects
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -9,7 +9,7 @@ typedef struct affect_t Affect;
 #ifndef MUD98__ENTITIES__AFFECT_H
 #define MUD98__ENTITIES__AFFECT_H
 
-#include "merc.h"
+#include <merc.h>
 
 #include "mobile.h"
 #include "object.h"

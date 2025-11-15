@@ -1,19 +1,18 @@
 ////////////////////////////////////////////////////////////////////////////////
-// affect.c
+// entities/affect.c
 // Utilities to handle special conditions and status affects
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "affect.h"
-
-#include "comm.h"
-#include "db.h"
-#include "handler.h"
-
+#include "descriptor.h"
 #include "mobile.h"
-#include "entities/descriptor.h"
 #include "object.h"
 
-#include "data/mobile_data.h"
+#include <data/mobile_data.h>
+
+#include <comm.h>
+#include <db.h>
+#include <handler.h>
 
 Affect* affect_free;
 int affect_count;

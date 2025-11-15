@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// shop_data.h
+// entities/shop_data.h
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef struct shop_data_t ShopData;
@@ -8,9 +8,7 @@ typedef struct shop_data_t ShopData;
 #ifndef MUD98__ENTITITES__SHOP_DATA_H
 #define MUD98__ENTITITES__SHOP_DATA_H
 
-#include "merc.h"
-
-#include "data/item.h"
+#include <data/item.h>
 
 #include <stdint.h>
 

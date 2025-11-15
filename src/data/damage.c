@@ -1,13 +1,13 @@
 ////////////////////////////////////////////////////////////////////////////////
-// damage.c
+// data/damage.c
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "damage.h"
 
-#include "lox/lox.h"
-#include "lox/vm.h"
+#include <lox/lox.h>
+#include <lox/vm.h>
 
-#include "db.h"
+#include <db.h>
 
 const DamageInfo damage_table[DAM_TYPE_COUNT] = {
     { DAM_NONE,         "none",       IMM_NONE,       RES_NONE,       VULN_NONE,      },

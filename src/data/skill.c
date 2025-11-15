@@ -1,16 +1,16 @@
 ////////////////////////////////////////////////////////////////////////////////
-// skill.c
+// data/skill.c
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "skill.h"
 
 #include "spell.h"
 
-#include "comm.h"
-#include "config.h"
-#include "db.h"
-#include "tables.h"
-#include "tablesave.h"
+#include <comm.h>
+#include <config.h>
+#include <db.h>
+#include <tables.h>
+#include <tablesave.h>
 
 DEFINE_ARRAY(SkillRating, DEFAULT_SKILL_RATING)
 DEFINE_ARRAY(LEVEL, DEFAULT_SKILL_LEVEL)

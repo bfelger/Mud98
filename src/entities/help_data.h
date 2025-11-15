@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// help_data.h
+// entities/help_data.h
 // Utilities to handle helps and area helps
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -11,7 +11,6 @@ typedef struct help_area_t HelpArea;
 #define MUD98__ENTITIES__HELP_DATA_H
 
 #include "area.h"
-#include "merc.h"
 
 typedef struct help_data_t {
     HelpData* next;

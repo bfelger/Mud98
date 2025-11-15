@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// direction.h
+// data/direction.h
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -15,8 +15,9 @@ typedef enum direction_t {
     DIR_WEST            = 3,
     DIR_UP              = 4,
     DIR_DOWN            = 5,
-    DIR_MAX
 } Direction;
+
+#define DIR_MAX         6
 
 typedef struct direction_info_t {
     const Direction dir;

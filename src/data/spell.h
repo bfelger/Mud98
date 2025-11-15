@@ -1,13 +1,13 @@
 ////////////////////////////////////////////////////////////////////////////////
-// spell.h
+// data/spell.h
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 #ifndef MUD98__DATA__SPELL_H
 #define MUD98__DATA__SPELL_H
 
-#include "merc.h"
-#include "recycle.h"
+#include <merc.h>
+#include <recycle.h>
 
 typedef struct spell_t {
     char* name;

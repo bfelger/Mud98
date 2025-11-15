@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// mob_prototype.h
+// entities/mob_prototype.h
 // Prototype data for mobile (NPC) Mobile
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -9,19 +9,17 @@ typedef struct mob_prototype_t MobPrototype;
 #ifndef MUD98__ENTITIES__MOB_PROTOTYPE_H
 #define MUD98__ENTITIES__MOB_PROTOTYPE_H
 
-#include "merc.h"
+#include "area.h"
+#include "entity.h"
+#include "shop_data.h"
 
-#include "interp.h"
-#include "mob_prog.h"
+#include <interp.h>
+#include <mob_prog.h>
 
-#include "data/damage.h"
-#include "data/mobile_data.h"
+#include <data/damage.h>
+#include <data/mobile_data.h>
 
-#include "entities/area.h"
-#include "entities/entity.h"
-#include "entities/shop_data.h"
-
-#include "lox/lox.h"
+#include <lox/lox.h>
 
 #include <stdbool.h>
 

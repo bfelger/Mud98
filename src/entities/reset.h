@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// reset.h
+// entities/reset.h
 // Utilities to handle area resets of mobs and items
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -9,8 +9,6 @@ typedef struct reset_counter_t ResetCounter;
 #pragma once
 #ifndef MUD98__ENTITIES__RESET_H
 #define MUD98__ENTITIES__RESET_H
-
-#include <merc.h>
 
 #include "area.h"
 

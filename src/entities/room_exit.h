@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// room_exit.h
+// entities/room_exit.h
 // Utilities to handle room exits
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -10,11 +10,9 @@ typedef struct room_exit_data_t RoomExitData;
 #ifndef MUD98__ENTITIES__ROOM_EXIT_H
 #define MUD98__ENTITIES__ROOM_EXIT_H
 
-#include "merc.h"
-
 #include "room.h"
 
-#include "data/direction.h"
+#include <data/direction.h>
 
 #include <stdint.h>
 

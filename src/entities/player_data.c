@@ -1,18 +1,18 @@
 ////////////////////////////////////////////////////////////////////////////////
-// player_data.c
+// entities/player_data.c
 // Player character data
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "player_data.h"
 
-#include "data/skill.h"
+#include <data/skill.h>
 
-#include "color.h"
-#include "config.h"
-#include "db.h"
-#include "digest.h"
-#include "recycle.h"
-#include "skills.h"
+#include <color.h>
+#include <config.h>
+#include <db.h>
+#include <digest.h>
+#include <recycle.h>
+#include <skills.h>
 
 PlayerData* player_data_list = NULL;
 PlayerData* player_data_free = NULL;

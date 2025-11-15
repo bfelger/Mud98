@@ -1,16 +1,16 @@
 ////////////////////////////////////////////////////////////////////////////////
-// quest.c
+// data/quest.c
 ////////////////////////////////////////////////////////////////////////////////
 
-
-#include "olc/olc.h"
-
-#include "comm.h"
-#include "db.h"
-#include "save.h"
-#include "tables.h"
-#include "update.h"
 #include "quest.h"
+
+#include <olc/olc.h>
+
+#include <comm.h>
+#include <db.h>
+#include <save.h>
+#include <tables.h>
+#include <update.h>
 
 int quest_count = 0;
 int quest_perm_count = 0;

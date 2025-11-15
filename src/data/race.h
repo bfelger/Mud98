@@ -1,18 +1,18 @@
 ////////////////////////////////////////////////////////////////////////////////
-// race.h
+// data/race.h
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 #ifndef MUD98__DATA__RACE_H
 #define MUD98__DATA__RACE_H
 
-#include "merc.h"
 
 #include "class.h"
 #include "mobile_data.h"
 #include "stats.h"
 
-#include "array.h"
+
+#include <array.h>
 
 #include <stdbool.h>
 #include <stdint.h>
