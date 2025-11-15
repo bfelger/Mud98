@@ -5,6 +5,8 @@
 
 #include "obj_prototype.h"
 
+#include <entities/event.h>
+
 #include <lox/memory.h>
 
 #include <db.h>
@@ -262,6 +264,15 @@ void load_objects(FILE* fp)
                 ed->keyword = fread_string(fp);
                 ed->description = fread_string(fp);
                 ADD_EXTRA_DESC(obj_proto, ed)
+            }
+            else if (letter == 'V') {
+                load_event(fp, &obj_proto->header);
+            }
+            else if (letter == 'L') {
+                if (!load_lox_class(fp, "obj", &obj_proto->header)) {
+                    bug("Load_objects: vnum %"PRVNUM" has malformed Lox script.", vnum);
+                    exit(1);
+                }
             }
             else {
                 ungetc(letter, fp);

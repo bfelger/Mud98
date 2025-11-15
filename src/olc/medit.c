@@ -69,6 +69,8 @@ const OlcCmdEntry mob_olc_comm_table[] = {
     { "mshow",	    0,				        ed_olded,		    U(medit_show)	},
     { "oshow",	    0,				        ed_olded,		    U(oedit_show)	},
     { "olist",	    U(&xMob.area),		    ed_olist,		    0		        },
+    { "event",      0,                      ed_olded,           U(olc_edit_event)   },
+    { "lox",        0,                      ed_olded,           U(olc_edit_lox)     },
     { "copy",	    0,				        ed_olded,		    U(medit_copy)	},
     { "commands",	0,				        ed_olded,		    U(show_commands)},
     { "?",		    0,				        ed_olded,		    U(show_help)	},
@@ -320,8 +322,6 @@ MEDIT(medit_show)
     Entity* entity = &pMob->header;
     olc_display_events(ch, entity);
     olc_display_lox_info(ch, entity);
-
-    //page_to_char(BUF(buffer), ch);
 
     free_buf(buffer);
 

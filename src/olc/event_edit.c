@@ -56,8 +56,8 @@ bool olc_edit_event(Mobile* ch, char* argument)
         int j = 0;
         for (int i = 0; mprog_flag_table[i].name != NULL; ++i)
             if (HAS_BIT(event_default_configs[i].valid_ents, ent_type)) {
-                printf_to_char(ch, "%10s%s", mprog_flag_table[i],
-                    (j++ % 3 == 0) ? "\n\r" : "");
+                printf_to_char(ch, "%10s%s", mprog_flag_table[i].name,
+                    (++j % 3 == 0) ? "\n\r" : "");
             }
         send_to_char(COLOR_EOL, ch);
         return false;

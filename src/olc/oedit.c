@@ -52,6 +52,8 @@ const OlcCmdEntry obj_olc_comm_table[] = {
     { "v3",	        0,				        ed_value,		    3	            },
     { "v4",	        0,				        ed_value,		    4	            },
     { "create",	    0,				        ed_new_obj,		    0		        },
+    { "event",      0,                      ed_olded,           U(olc_edit_event)   },
+    { "lox",        0,                      ed_olded,           U(olc_edit_lox)     },
     { "mshow",	    0,				        ed_olded,		    U(medit_show)   },
     { "oshow",	    0,				        ed_olded,		    U(oedit_show)   },
     { "olist",	    U(&xObj.area),		    ed_olist,		    0		        },

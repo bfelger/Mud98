@@ -139,7 +139,6 @@ void lox_script_add(Mobile* ch, char* argument)
         }
         else if (!str_cmp(arg1, ".s")) {
             write_to_buffer(ch->desc, "Script so far:\n\r", 0);
-            //write_to_buffer(ch->desc, prettify_lox_script(*ch->desc->pLoxScript), 0);
             send_to_char(prettify_lox_script(ch->desc->pLoxScript->chars), ch);
             return;
         }

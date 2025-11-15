@@ -277,6 +277,22 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
             pMprog->trig_phrase);
     }
 
+    if (p_mob_proto->header.events.count > 0) {
+        Node* n = p_mob_proto->header.events.front;
+        for (int i = 0; i < p_mob_proto->header.events.count; i++) {
+            Event* e = AS_EVENT(n->value);
+            n = n->next;
+            int event_idx = flag_index(e->trigger, mprog_flag_table);
+            if (event_idx == NO_FLAG) {
+                bugf("save_mobiles: Bad event flag %d.", e->trigger);
+                continue;
+            }
+            fprintf(fp, "V '%s' %s~\n",
+                mprog_flag_table[event_idx].name,
+                e->method_name->chars);
+        }
+    }
+
     if (p_mob_proto->header.script != NULL) {
         fprintf(fp, "L\n%s~\n", p_mob_proto->header.script->chars);
     }
@@ -326,10 +342,6 @@ void save_object(FILE* fp, ObjPrototype* obj_proto)
     fprintf(fp, "%s ", item_type_table[obj_proto->item_type].name);
     fprintf(fp, "%s ", fwrite_flag(obj_proto->extra_flags, buf));
     fprintf(fp, "%s\n", fwrite_flag(obj_proto->wear_flags, buf));
-
-    if (obj_proto->header.script != NULL) {
-        fprintf(fp, "L\n%s~\n", obj_proto->header.script->chars);
-    }
 
 /*
  *  Using fwrite_flag to write most values gives a strange
@@ -505,6 +517,26 @@ void save_object(FILE* fp, ObjPrototype* obj_proto)
     FOR_EACH(pEd, obj_proto->extra_desc) {
         fprintf(fp, "E\n%s~\n%s~\n", pEd->keyword,
             fix_string(pEd->description));
+    }
+
+    if (obj_proto->header.events.count > 0) {
+        Node* n = obj_proto->header.events.front;
+        for (int i = 0; i < obj_proto->header.events.count; i++) {
+            Event* e = AS_EVENT(n->value);
+            n = n->next;
+            int event_idx = flag_index(e->trigger, mprog_flag_table);
+            if (event_idx == NO_FLAG) {
+                bugf("save_mobiles: Bad event flag %d.", e->trigger);
+                continue;
+            }
+            fprintf(fp, "V '%s' %s~\n",
+                mprog_flag_table[event_idx].name,
+                e->method_name->chars);
+        }
+    }
+
+    if (obj_proto->header.script != NULL) {
+        fprintf(fp, "L\n%s~\n", obj_proto->header.script->chars);
     }
 
     return;
