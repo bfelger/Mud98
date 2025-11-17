@@ -39,6 +39,7 @@
 #include "update.h"
 
 #include <entities/descriptor.h>
+#include <entities/event.h>
 #include <entities/room_exit.h>
 #include <entities/object.h>
 #include <entities/player_data.h>
@@ -221,7 +222,8 @@ void move_char(Mobile* ch, int door, bool follow)
     }
 
     if (!IS_NPC(ch)) {
-        event_greet_trigger(ch);
+        mp_greet_trigger(ch);
+        raise_greet_event(ch);
     }
 
     return;

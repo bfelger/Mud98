@@ -165,6 +165,7 @@ bool check_reconnect(Descriptor* d, bool fConn);
 void send_to_desc(const char* txt, Descriptor* desc);
 
 extern bool test_output_enabled;
+extern bool test_act_output_enabled;
 
 static int running_servers = 0;
 
@@ -406,11 +407,13 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
 
     if (tls_server) {
         tls_client = (TlsClient*)alloc_mem(sizeof(TlsClient));
+        memset(tls_client, 0, sizeof(TlsClient));
         tls_client->type = SOCK_TLS;
         client = (SockClient*)tls_client;
     }
     else {
         client = (SockClient*)alloc_mem(sizeof(SockClient));
+        memset(client, 0, sizeof(SockClient));
         client->type = SOCK_TELNET;
     }
 #else
@@ -713,14 +716,28 @@ bool read_from_descriptor(Descriptor* d)
 #ifdef _MSC_VER
             i_read = recv(d->client->fd, bufin,
                 (int)(sizeof(bufin) - 10 - start), 0);
+            if (i_read < 0) {
+                int wsa = WSAGetLastError();
+                if (wsa == WSAEWOULDBLOCK) {
+                    // No data available now on non-blocking socket
+                    break;
+                }
+                fprintf(stderr, "Read_from_descriptor: ");
+                PrintLastWinSockError();
+                return false;
+            }
 #else
             i_read = read(d->client->fd, bufin,
                 sizeof(bufin) - 10 - start);
-#endif
             if (i_read < 0) {
+                if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                    // No data available now on non-blocking socket
+                    break;
+                }
                 perror("Read_from_descriptor");
                 return false;
             }
+#endif
             s_read = (size_t)i_read;
 #ifndef NO_OPENSSL
         }
@@ -1787,23 +1804,6 @@ void nanny(Descriptor * d, char* argument)
 
             ch->in_room = get_room_for_player(ch, start_loc);
             mob_to_room(ch, ch->in_room);
-
-            // Fire any TRIG_LOGIN events on this room
-            Event* event = get_event_by_trigger((Entity*)ch->in_room, TRIG_LOGIN);
-
-            if (event == NULL) {
-                bug("BUG: No TRIG_LOGIN found for room vnum #%"PRVNUM".\n", start_loc);
-            }
-
-            if (event) {
-                // Get the closure for this event from the room
-                ObjClosure* closure = get_event_closure((Entity*)ch->in_room, event);
-
-                if (closure) {
-                    // Invoke the closure with the room and character as parameters
-                    invoke_method_closure(OBJ_VAL(ch->in_room), closure, 1, OBJ_VAL(ch));
-                }
-            }
         }
         else if (ch->in_room != NULL) {
             mob_to_room(ch, ch->in_room);
@@ -1814,6 +1814,10 @@ void nanny(Descriptor * d, char* argument)
         else {
             mob_to_room(ch, get_room(NULL, ch->pcdata->recall));
         }
+
+        // Fire any TRIG_LOGIN events on this room
+        if (HAS_EVENT_TRIGGER(ch->in_room, TRIG_LOGIN))
+            raise_login_event(ch);
 
         act("$n has entered the game.", ch, NULL, NULL, TO_ROOM);
         do_function(ch, &do_look, "auto");
@@ -2052,11 +2056,17 @@ bool write_to_descriptor(Descriptor* d, char* txt, size_t length)
             int i_bytes;
 #ifdef _MSC_VER
             if ((i_bytes = send(d->client->fd, txt + start, block, 0)) < 0) {
+                int wsa = WSAGetLastError();
+                if (wsa == WSAEWOULDBLOCK)
+                    return true; // Non-fatal error; try again.
+                fprintf(stderr, "Write_to_descriptor: [%d] ", wsa);
                 PrintLastWinSockError();
 #else
             if ((i_bytes = write(d->client->fd, txt + start, block)) < 0) {
-#endif
+                if (errno == EAGAIN || errno == EWOULDBLOCK)
+                    return true; // Non-fatal error; try again.
                 perror("Write_to_descriptor");
+#endif
                 return false;
             }
             s_bytes += i_bytes;
@@ -2478,7 +2488,7 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
         *point = '\0';
         buf[0] = UPPER(buf[0]);
 
-        if (test_output_enabled) {
+        if (test_act_output_enabled) {
             lox_printf("%s", buf);
         }
         else if (to->desc != NULL) {
@@ -2487,7 +2497,10 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
             write_to_buffer(to->desc, pbuff, 0);
         }
         else if (events_enabled) {
-            mp_act_trigger(buf, to, ch, arg1, arg2, TRIG_ACT);
+            if (HAS_EVENT_TRIGGER(to, TRIG_ACT))
+                raise_act_event((Entity*)to, TRIG_ACT, (Entity*)ch, buf);
+            if (HAS_MPROG_TRIGGER(to, TRIG_ACT)) 
+                mp_act_trigger(buf, to, ch, arg1, arg2, TRIG_ACT);
         }
     }
 }

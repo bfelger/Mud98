@@ -141,6 +141,7 @@ extern KillData kill_table[MAX_LEVEL];
 extern char bug_buf[];
 extern char log_buf[];
 extern bool fBootDb;
+extern bool resetting;
 extern FILE* strArea;
 extern char fpArea[MAX_INPUT_LENGTH];
 extern AreaData* current_area_data;

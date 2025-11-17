@@ -43,12 +43,14 @@ typedef enum {
 
 typedef struct {
     EventTrigger trigger;           // EventTrigger
+    const char* name;               
     const char* default_callback;   // Lox method to call (by default)
     FLAGS valid_ents;               // Valid recipients
 } EventDefaultConfig;
 
 EventEnts get_entity_type(Entity* entity);
 const char* get_event_default_callback(EventTrigger trigger);
+const char* get_event_name(EventTrigger trigger);
 
 extern const EventDefaultConfig event_default_configs[];
 

@@ -1128,9 +1128,10 @@ void equip_char(Mobile* ch, Object* obj, WearLocation iWear)
         return;
     }
 
-    if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch))
+    if (!resetting &&
+        ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch))
         || (IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch))
-        || (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
+        || (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch)))) {
         // Thanks to Morgenes for the bug fix here!
         act("You are zapped by $p and drop it.", ch, obj, NULL, TO_CHAR);
         act("$n is zapped by $p and drops it.", ch, obj, NULL, TO_ROOM);

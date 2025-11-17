@@ -1113,16 +1113,18 @@ void mp_act_trigger(
     char* argument, Mobile* mob, Mobile* ch,
     const void* arg1, const void* arg2, EventTrigger trig_type)
 {
-    MobProg* prg;
+    if (HAS_MPROG_TRIGGER(mob, TRIG_ACT)) {
+        MobProg* prg;
 
-    FOR_EACH(prg, mob->prototype->mprogs) {
-        if (prg->trig_type == trig_type
-            && strstr(argument, prg->trig_phrase) != NULL) {
-            program_flow(prg->vnum, prg->code, mob, ch, arg1, arg2);
-            break;
+        FOR_EACH(prg, mob->prototype->mprogs)
+        {
+            if (prg->trig_type == trig_type
+                && strstr(argument, prg->trig_phrase) != NULL) {
+                program_flow(prg->vnum, prg->code, mob, ch, arg1, arg2);
+                break;
+            }
         }
     }
-    return;
 }
 
 /*
@@ -1228,44 +1230,14 @@ void mp_give_trigger(Mobile* mob, Mobile* ch, Object* obj)
         }
 }
 
-void event_greet_trigger(Mobile* ch)
+void mp_greet_trigger(Mobile* ch)
 {
     Mobile* mob;
 
-    // First check the room for event triggers
-    if (HAS_EVENT_TRIGGER(ch->in_room, TRIG_GREET)) {
-        Room* room = ch->in_room;
-        Event* event = get_event_by_trigger((Entity*)room, TRIG_GREET);
-
-        if (event) {
-            ObjClosure* closure = get_event_closure((Entity*)room, event);
-
-            if (closure) {
-                invoke_method_closure(OBJ_VAL(room), closure, 1, OBJ_VAL(ch));
-            }
-        }
-    }
-
-    // Now check every mob in the room
-    FOR_EACH_ROOM_MOB(mob, ch->in_room) {
+    FOR_EACH_ROOM_MOB(mob, ch->in_room)
+    {
         if (IS_NPC(mob)) {
-            if (HAS_EVENT_TRIGGER(mob, TRIG_GREET) || HAS_EVENT_TRIGGER(mob, TRIG_GRALL)) {
-                Event* event = get_event_by_trigger((Entity*)mob, TRIG_GREET);
-
-                if (event == NULL)
-                    event = get_event_by_trigger((Entity*)mob, TRIG_GRALL);
-
-                if (event) {
-                    // Get the closure for this event from the room
-                    ObjClosure* closure = get_event_closure((Entity*)mob, event);
-
-                    if (closure) {
-                        invoke_method_closure(OBJ_VAL(mob), closure, 1, OBJ_VAL(ch));
-                    }
-                }
-            }
-            else
-                /*
+            /*
                 * Greet trigger works only if the mobile is not busy
                 * (fighting etc.). If you want to catch all players, use
                 * GrAll trigger
@@ -1274,10 +1246,12 @@ void event_greet_trigger(Mobile* ch)
                 && mob->position == mob->prototype->default_pos
                 && can_see(mob, ch))
                 mp_percent_trigger(mob, ch, NULL, NULL, TRIG_GREET);
-            else if (HAS_MPROG_TRIGGER(mob, TRIG_GRALL))
-                mp_percent_trigger(mob, ch, NULL, NULL, TRIG_GRALL);
+            else
+                if (HAS_MPROG_TRIGGER(mob, TRIG_GRALL))
+                    mp_percent_trigger(mob, ch, NULL, NULL, TRIG_GRALL);
         }
     }
+    return;
 }
 
 void mp_hprct_trigger(Mobile* mob, Mobile* ch)

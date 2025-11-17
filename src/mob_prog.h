@@ -48,8 +48,8 @@ bool mp_percent_trigger(Mobile* mob, Mobile* ch, const void* arg1,
     const void* arg2, EventTrigger trig_type);
 void mp_bribe_trigger(Mobile* mob, Mobile* ch, int amount);
 bool mp_exit_trigger(Mobile* ch, int dir);
-void mp_give_trigger(Mobile* mob, Mobile* ch, Object* obj);
-void event_greet_trigger(Mobile* ch);
+void mp_give_trigger(Mobile* mob, Mobile* ch, Object* obj); 
+void mp_greet_trigger(Mobile* ch);
 void mp_hprct_trigger(Mobile* mob, Mobile* ch);
 
 extern int mob_prog_count;

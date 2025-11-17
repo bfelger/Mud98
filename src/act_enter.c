@@ -34,6 +34,7 @@
 #include "mob_prog.h"
 
 #include <entities/descriptor.h>
+#include <entities/event.h>
 #include <entities/object.h>
 #include <entities/player_data.h>
 
@@ -207,8 +208,10 @@ void do_enter(Mobile* ch, char* argument)
         if (IS_NPC(ch) && HAS_MPROG_TRIGGER(ch, TRIG_ENTRY))
             mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_ENTRY);
 
-        if (!IS_NPC(ch))
-            event_greet_trigger(ch);
+        if (!IS_NPC(ch)) {
+            mp_greet_trigger(ch);
+            raise_greet_event(ch);
+        }
 
         return;
     }

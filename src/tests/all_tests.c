@@ -15,6 +15,7 @@
 #include <stdbool.h>
 
 bool test_output_enabled = false;
+bool test_act_output_enabled = false;
 
 void run_all_tests();
 
@@ -27,6 +28,7 @@ void run_unit_tests()
     register_act_tests();
     register_fmt_tests();
     register_util_tests();
+    register_event_tests();
 
     test_output_enabled = true;
     test_disassemble_on_error = true;

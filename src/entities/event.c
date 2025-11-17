@@ -15,6 +15,7 @@
 
 #include <lox/list.h>
 #include <lox/memory.h>
+#include <lox/vm.h>
 
 int event_count = 0;
 int event_perm_count = 0;
@@ -163,12 +164,48 @@ Event* get_event_by_trigger(Entity* entity, FLAGS trigger)
 
     for (Node* node = entity->events.front; node != NULL; node = node->next) {
         if (!IS_EVENT(node->value)) {
-            bug("ERROR: Invalid event node on entity #%"PRVNUM".\n", entity->vnum);
+            bug("get_event_by_trigger: Invalid event node on entity #%"PRVNUM".\n", 
+                entity->vnum);
             continue;
         }
 
         Event* ev = AS_EVENT(node->value);
         if (ev && (ev->trigger & trigger) != 0)
+            return ev;
+    }
+
+    return NULL;
+}
+
+Event* get_event_by_trigger_strval(Entity* entity, FLAGS trigger, const char* str)
+{
+    if (entity == NULL)
+        return NULL;
+
+    if (!HAS_EVENT_TRIGGER(entity, trigger))
+        return NULL;
+
+    for (Node* node = entity->events.front; node != NULL; node = node->next) {
+        if (!IS_EVENT(node->value)) {
+            bug("get_event_by_trigger_strval: Invalid event node on entity #%"PRVNUM".\n", 
+                entity->vnum);
+            continue;
+        }
+
+        Event* ev = AS_EVENT(node->value);
+        if (ev == NULL || (ev->trigger & trigger) == 0)
+            continue;
+
+        if (!IS_STRING(ev->criteria)) {
+            bug("get_event_by_trigger_strval: Invalid trigger criteria node on entity #%"PRVNUM","
+                " event '%s'; expected string criteria.\n",
+                entity->vnum, get_event_name(ev->trigger));
+            continue;
+        }
+
+        ObjString* trig_phrase = AS_STRING(ev->criteria);
+
+        if (strstr(str, trig_phrase->chars) != NULL)
             return ev;
     }
 
@@ -205,4 +242,98 @@ ObjClosure* get_event_closure(Entity* entity, Event* event)
     }
 
     return AS_CLOSURE(method_val);
+}
+
+// EVENT TRIGGERS //////////////////////////////////////////////////////////////
+
+// TRIG_ACT
+
+void raise_act_event(Entity* receiver, EventTrigger trig_type, Entity* actor, char* msg)
+{
+    if (!HAS_EVENT_TRIGGER(receiver, TRIG_ACT))
+        return;
+
+    Event* event = get_event_by_trigger_strval(receiver, trig_type, msg);
+
+    if (event == NULL)
+        return;
+
+    ObjClosure* closure = get_event_closure(receiver, event);
+    
+    if (closure == NULL)
+        return;
+
+    Value msg_val = OBJ_VAL(lox_string(msg));
+
+    invoke_method_closure(OBJ_VAL(receiver), closure, 2, OBJ_VAL(actor), msg_val);
+}
+
+// TRIG_BRIBE
+// TRIG_DEATH
+// TRIG_ENTRY
+// TRIG_FIGHT
+// TRIG_GIVE
+
+// TRIG_GREET
+// TRIG_GRALL
+
+void raise_greet_event(Mobile* ch)
+{
+    Mobile* mob;
+    Event* event;
+    ObjClosure* closure;
+    Room* room = ch->in_room;
+
+    // First check the room for event triggers
+    if (HAS_EVENT_TRIGGER(room, TRIG_GREET)
+        &&(event = get_event_by_trigger((Entity*)room, TRIG_GREET)) != NULL
+        && (closure = get_event_closure((Entity*)room, event)) != NULL)
+        invoke_method_closure(OBJ_VAL(room), closure, 1, OBJ_VAL(ch));
+
+    // Now check every mob in the room
+    FOR_EACH_ROOM_MOB(mob, ch->in_room) {
+        event = NULL;
+
+        if (!IS_NPC(mob) || (!HAS_EVENT_TRIGGER(mob, TRIG_GREET) && !HAS_EVENT_TRIGGER(mob, TRIG_GRALL)))
+            continue;
+
+        if (HAS_EVENT_TRIGGER(mob, TRIG_GREET))
+            event = get_event_by_trigger((Entity*)mob, TRIG_GREET);
+        else if (HAS_EVENT_TRIGGER(mob, TRIG_GRALL))
+            event = get_event_by_trigger((Entity*)mob, TRIG_GRALL);
+       
+        if (event == NULL 
+            || (closure = get_event_closure((Entity*)mob, event)) == NULL)
+            continue;
+                
+        invoke_method_closure(OBJ_VAL(mob), closure, 1, OBJ_VAL(ch));
+    }
+}
+
+// TRIG_KILL
+// TRIG_HPCNT
+// TRIG_RANDOM
+// TRIG_SPEECH
+// TRIG_EXIT
+// TRIG_EXALL
+// TRIG_DELAY
+// TRIG_SURR
+
+// TRIG_LOGIN
+
+void raise_login_event(Mobile* ch)
+{
+    Event* event = get_event_by_trigger((Entity*)ch->in_room, TRIG_LOGIN);
+
+    if (event == NULL)
+        return;
+
+    // Get the closure for this event from the room
+    ObjClosure* closure = get_event_closure((Entity*)ch->in_room, event);
+
+    if (closure == NULL)
+        return;
+
+    // Invoke the closure with the room and character as parameters
+    invoke_method_closure(OBJ_VAL(ch->in_room), closure, 1, OBJ_VAL(ch));
 }

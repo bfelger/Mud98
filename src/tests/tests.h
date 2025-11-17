@@ -42,7 +42,8 @@ void register_entity_tests();
 void register_container_tests();
 void register_act_tests();
 void register_fmt_tests();
-void register_util_tests();
+void register_util_tests(); 
+void register_event_tests();
 
 void run_unit_tests();
 
@@ -73,6 +74,7 @@ void test_lox_string_eq(const char* expected, Value actual, const char* file, in
 extern bool test_trace_exec;
 extern bool test_disassemble_on_error;
 extern bool test_output_enabled;
+extern bool test_act_output_enabled;
 extern Value test_output_buffer;
 
 #endif // !MUD98__TESTS__TESTS_H

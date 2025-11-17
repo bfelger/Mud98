@@ -16,14 +16,18 @@ static int test_to_vch()
 {
     Room* room = mock_room(50000, NULL, NULL);
 
-    Mobile* ch = mock_mob("Bob", 1001, NULL);
+    Mobile* ch = mock_mob("Bob", 50001, NULL);
     transfer_mob(ch, room);
 
     Mobile* pc = mock_player("Jim");
     transfer_mob(pc, room);
 
+    test_act_output_enabled = true;
+
     const char* msg = "$n waves at you.";
     act(msg, ch, NULL, pc, TO_VICT);
+
+    test_act_output_enabled = false;
 
     ASSERT_OUTPUT_EQ("Bob waves at you.\n\r");
     test_output_buffer = NIL_VAL;
@@ -35,19 +39,23 @@ static int test_to_room()
 {
     Room* room = mock_room(50000, NULL, NULL);
 
-    Mobile* ch = mock_mob("Bob", 1001, NULL);
+    Mobile* ch = mock_mob("Bob", 50001, NULL);
     transfer_mob(ch, room);
 
-    Mobile* vch = mock_mob("Alice", 1002, NULL);
+    Mobile* vch = mock_mob("Alice", 50002, NULL);
     vch->sex = SEX_FEMALE;
     transfer_mob(vch, room);
 
     Mobile* pc = mock_player("Jim");
     transfer_mob(pc, room);
 
+    test_act_output_enabled = true;
+
     const char* msg = "$n looks at $N and tries to steal $S lunch. But $E is "
         "having none of $s shenanigans and bops $m. $n glowers at $M.";
     act(msg, ch, room, vch, TO_ROOM);
+
+    test_act_output_enabled = false;
 
     ASSERT_OUTPUT_EQ("Bob looks at Alice and tries to steal her lunch. But "
         "she is having none of his shenanigans and bops him. Bob glowers at "

@@ -152,6 +152,7 @@ size_t sAllocPerm;
 
 // Semi-locals.
 bool fBootDb;
+bool resetting;
 FILE* strArea;
 char fpArea[MAX_INPUT_LENGTH];
 AreaData* current_area_data;
@@ -652,7 +653,9 @@ void area_update()
                     list_remove_node(&area_data->instances, area_loop.node);
                 }
                 else {
+                    resetting = true;
                     reset_area(area);
+                    resetting = false;
                     sprintf(buf, "%s has just been reset.", NAME_STR(area));
                     wiznet(buf, NULL, NULL, WIZ_RESETS, 0, 0);
                     area->reset_timer = 0;
