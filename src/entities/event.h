@@ -45,12 +45,12 @@ extern Event* event_free;
 
 /* TRIG_ACT     */  void raise_act_event(Entity* receiver, EventTrigger trig_type, Entity* actor, char* msg);
 /* TRIG_BRIBE   */  void raise_bribe_event(Mobile* mob, Mobile* ch, int amount);
-/* TRIG_DEATH   */
+/* TRIG_DEATH   */  void raise_death_event(Mobile* victim, Mobile* killer);
 /* TRIG_ENTRY   */
 /* TRIG_FIGHT   */
 /* TRIG_GIVE    */
 /* TRIG_GREET   */  void raise_greet_event(Mobile* ch);
-/* TRIG_GRALL   */  // ...
+/* TRIG_GRALL   */  // Same as above
 /* TRIG_KILL    */
 /* TRIG_HPCNT   */
 /* TRIG_RANDOM  */

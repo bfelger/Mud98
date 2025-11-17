@@ -7,6 +7,7 @@
 #define MUD98__TESTS__MOCK_H
 
 #include <entities/area.h>
+#include <entities/obj_prototype.h>
 
 #include <lox/array.h>
 
@@ -21,6 +22,10 @@ Area* mock_area(AreaData* ad);
 
 MobPrototype* mock_mob_proto(VNUM vnum);
 Mobile* mock_mob(const char* name, VNUM vnum, MobPrototype* mp);
+
+ObjPrototype* mock_obj_proto(VNUM vnum);
+Object* mock_obj(const char* name, VNUM vnum, ObjPrototype* op);
+Object* mock_sword(const char* name, VNUM vnum, LEVEL level, int dam_dice, int dam_size);
 
 Descriptor* mock_descriptor();
 Mobile* mock_player(const char* name);

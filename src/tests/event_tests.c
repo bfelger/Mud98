@@ -98,6 +98,50 @@ static int test_bribe_event()
     return 0;
 }
 
+static int test_death_event()
+{
+    // Mock up a room with mob and player
+    Room* room = mock_room(54000, NULL, NULL);
+
+    Mobile* mob = mock_mob("Joe", 54001, NULL);
+    transfer_mob(mob, room);
+
+    // Give Bob a weapon to kill Joe with
+    Mobile* pc = mock_player("Bob");
+    pc->level = 49;
+    pc->hitroll = 100;
+    SKNUM sknum = skill_lookup("sword");
+    pc->pcdata->learned[sknum] = 100;
+
+    Object* sword = mock_sword("sword", 54002, 49, 30, 30);
+    obj_to_char(sword, pc);
+    equip_char(pc, sword, WEAR_WIELD);
+    transfer_mob(pc, room);
+
+    // Attach an 'on_death' event to the mob.
+    const char* event_src = "on_death(killer) { "
+        "   print killer.name + \" killed me!\"; "
+        "}";
+    ObjClass* mob_class = create_entity_class((Entity*)mob,
+        "mob_54001", event_src);
+    mob->header.klass = mob_class;
+
+    Event* death_event = new_event();
+    death_event->trigger = TRIG_DEATH;
+    death_event->method_name = lox_string("on_death");
+    add_event((Entity*)mob, death_event);
+
+    // Have the player kill the mob organically using `kill`.
+    interpret(pc, "kill Joe");
+
+    char* expected = "Bob killed me!\n";
+
+    ASSERT_OUTPUT_EQ(expected);
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 void register_event_tests()
 {
 #define REGISTER(n, f)  register_test(&event_tests, (n), (f))
@@ -107,6 +151,7 @@ void register_event_tests()
 
     REGISTER("TRIG_ACT: Mob->Mob", test_act_event);
     REGISTER("TRIG_BRIBE: Mob->Mob", test_bribe_event);
+    REGISTER("TRIG_DEATH: Mob->Mob", test_death_event);
 
 #undef REGISTER
 }

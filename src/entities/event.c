@@ -316,6 +316,17 @@ void raise_bribe_event(Mobile* mob, Mobile* ch, int amount)
 }
 
 // TRIG_DEATH
+void raise_death_event(Mobile* victim, Mobile* killer)
+{
+    Event* event;
+    ObjClosure* closure;
+
+    if (HAS_EVENT_TRIGGER(victim, TRIG_DEATH)
+        && (event = get_event_by_trigger((Entity*)victim, TRIG_DEATH)) != NULL
+        && (closure = get_event_closure((Entity*)victim, event)) != NULL)
+        invoke_method_closure(OBJ_VAL(victim), closure, 1, OBJ_VAL(killer));
+}
+
 // TRIG_ENTRY
 // TRIG_FIGHT
 // TRIG_GIVE
@@ -331,7 +342,7 @@ void raise_greet_event(Mobile* ch)
 
     // First check the room for event triggers
     if (HAS_EVENT_TRIGGER(room, TRIG_GREET)
-        &&(event = get_event_by_trigger((Entity*)room, TRIG_GREET)) != NULL
+        && (event = get_event_by_trigger((Entity*)room, TRIG_GREET)) != NULL
         && (closure = get_event_closure((Entity*)room, event)) != NULL)
         invoke_method_closure(OBJ_VAL(room), closure, 1, OBJ_VAL(ch));
 

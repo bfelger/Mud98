@@ -64,6 +64,11 @@ MobPrototype* mock_mob_proto(VNUM vnum)
     MobPrototype* mp = new_mob_prototype();
     mp->header.vnum = vnum;
     mp->sex = SEX_MALE;
+    mp->level = 1;
+    mp->hit[0] = 1;
+    mp->hit[1] = 1;
+    mp->hit[2] = 1;
+    mp->hitroll = 1;
     write_value_array(mocks(), OBJ_VAL(mp));
 
     return mp;
@@ -79,11 +84,54 @@ Mobile* mock_mob(const char* name, VNUM vnum, MobPrototype* mp)
 
     Mobile* m = create_mobile(mp);
     m->header.name = AS_STRING(mock_str(name));
-    m->level = 1;
     m->position = POS_STANDING;
     write_value_array(mocks(), OBJ_VAL(m));
 
     return m;
+}
+
+ObjPrototype* mock_obj_proto(VNUM vnum)
+{
+    ObjPrototype* op = new_object_prototype();
+    op->header.vnum = vnum;
+    op->level = 1;
+    op->weight = 1;
+    op->condition = 100;
+    op->material = &str_empty[0];
+    write_value_array(mocks(), OBJ_VAL(op));
+    return op;
+}
+
+Object* mock_obj(const char* name, VNUM vnum, ObjPrototype* op)
+{
+    if (op == NULL) {
+        op = mock_obj_proto(vnum);
+        op->header.name = AS_STRING(mock_str(name));
+        op->short_descr = str_dup(name);
+    }
+
+    Object* o = create_object(op, 0);
+    o->header.name = AS_STRING(mock_str(name));
+    write_value_array(mocks(), OBJ_VAL(o));
+    return o;
+}
+
+Object* mock_sword(const char* name, VNUM vnum, LEVEL level, int dam_dice, int dam_size)
+{
+    Object* sword = mock_obj(name, vnum, NULL);
+
+    sword->level = level;
+    sword->condition = 100;
+    sword->weight = 3;
+    sword->cost = level * 10;
+    sword->item_type = ITEM_WEAPON;
+
+    sword->value[0] = WEAPON_SWORD;
+    sword->value[1] = dam_dice;
+    sword->value[2] = dam_size;
+    sword->value[3] = DAM_SLASH;
+
+    return sword;
 }
 
 Room* mock_room(VNUM vnum, RoomData* rd, Area* a)

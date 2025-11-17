@@ -43,6 +43,7 @@
 #include "update.h"
 
 #include <entities/descriptor.h>
+#include <entities/event.h>
 #include <entities/object.h>
 #include <entities/player_data.h>
 
@@ -889,6 +890,11 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
         if (IS_NPC(victim) && HAS_MPROG_TRIGGER(victim, TRIG_DEATH)) {
             victim->position = POS_STANDING;
             mp_percent_trigger(victim, ch, NULL, NULL, TRIG_DEATH);
+        }
+
+        if (IS_NPC(victim) && HAS_EVENT_TRIGGER(victim, TRIG_DEATH)) {
+            victim->position = POS_STANDING;
+            raise_death_event(victim, ch);
         }
 
         raw_kill(victim);
