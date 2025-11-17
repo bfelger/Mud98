@@ -6,6 +6,7 @@
 #include "test_registry.h"
 #include "mock.h"
 
+#include <entities/area.h>
 #include <entities/event.h>
 
 #include <lox/object.h>
@@ -142,6 +143,40 @@ static int test_death_event()
     return 0;
 }
 
+static int test_entry_event()
+{
+    Room* south_room = mock_room(55000, NULL, NULL);
+    Room* north_room = mock_room(55001, NULL, NULL);
+
+    mock_room_connection(south_room, north_room, DIR_NORTH, true);
+
+    Mobile* mob = mock_mob("Mover", 55002, NULL);
+    transfer_mob(mob, south_room);
+
+    // Attach an 'on_entry' event to the mob.
+    const char* event_src = "on_entry() { "
+        "   print \"${this.name} has moved rooms!\"; "
+        "}";
+    ObjClass* mob_class = create_entity_class((Entity*)mob,
+        "mob_55002", event_src);
+    mob->header.klass = mob_class;
+
+    Event* entry_event = new_event();
+    entry_event->trigger = TRIG_ENTRY;
+    entry_event->method_name = lox_string("on_entry");
+    entry_event->criteria = INT_VAL(100);   // 100 percent chance
+    add_event((Entity*)mob, entry_event);
+
+    interpret(mob, "north");
+
+    char* expected = "Mover has moved rooms!\n";
+
+    ASSERT_OUTPUT_EQ(expected);
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 void register_event_tests()
 {
 #define REGISTER(n, f)  register_test(&event_tests, (n), (f))
@@ -152,6 +187,7 @@ void register_event_tests()
     REGISTER("TRIG_ACT: Mob->Mob", test_act_event);
     REGISTER("TRIG_BRIBE: Mob->Mob", test_bribe_event);
     REGISTER("TRIG_DEATH: Mob->Mob", test_death_event);
+    REGISTER("TRIG_ENTRY: Mob", test_entry_event);
 
 #undef REGISTER
 }

@@ -328,6 +328,27 @@ void raise_death_event(Mobile* victim, Mobile* killer)
 }
 
 // TRIG_ENTRY
+void raise_entry_event(Mobile* mob, int pct_chance)
+{
+    if (!HAS_EVENT_TRIGGER(mob, TRIG_ENTRY))
+        return;
+
+    Event* event = get_event_by_trigger((Entity*)mob, TRIG_ENTRY);
+
+    if (!IS_INT(event->criteria))
+        return;
+
+    if (pct_chance > AS_INT(event->criteria))
+        return;
+
+    ObjClosure* closure = get_event_closure((Entity*)mob, event);
+
+    if (closure == NULL)
+        return;
+
+    invoke_method_closure(OBJ_VAL(mob), closure, 0);
+}
+
 // TRIG_FIGHT
 // TRIG_GIVE
 

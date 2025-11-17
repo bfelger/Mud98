@@ -158,6 +158,29 @@ Room* mock_room(VNUM vnum, RoomData* rd, Area* a)
     return r;
 }
 
+void mock_room_data_connection(RoomData* rd1, RoomData* rd2, Direction dir, bool bidirectional)
+{
+    if (rd1 != NULL && rd2 != NULL) {
+        rd1->exit_data[dir] = new_room_exit_data();
+        rd1->exit_data[dir]->to_room = rd2;
+    }
+
+    if (bidirectional)
+        mock_room_data_connection(rd2, rd1, dir_list[dir].rev_dir, false);
+}
+
+void mock_room_connection(Room* r1, Room* r2, Direction dir, bool bidirectional)
+{
+    if (r1 != NULL && r2 != NULL) {
+        if (r1->data->exit_data[dir] == NULL)
+            mock_room_data_connection(r1->data, r2->data, dir, false);
+        r1->exit[dir] = new_room_exit(r1->data->exit_data[dir], r1);
+    }
+
+    if (bidirectional)
+        mock_room_connection(r2, r1, dir_list[dir].rev_dir, false);
+}
+
 Descriptor* mock_descriptor()
 {
     Descriptor* d = new_descriptor();

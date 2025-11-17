@@ -17,6 +17,9 @@ Value mock_str(const char* str);
 RoomData* mock_room_data(VNUM vnum, AreaData* ad);
 Room* mock_room(VNUM vnum, RoomData* rd, Area* a);
 
+void mock_room_data_connection(RoomData* rd1, RoomData* rd2, Direction dir, bool bidirectional);
+void mock_room_connection(Room* r1, Room* r2, Direction dir, bool bidirectional);
+
 AreaData* mock_area_data();
 Area* mock_area(AreaData* ad);
 

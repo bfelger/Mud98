@@ -208,6 +208,9 @@ void do_enter(Mobile* ch, char* argument)
         if (IS_NPC(ch) && HAS_MPROG_TRIGGER(ch, TRIG_ENTRY))
             mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_ENTRY);
 
+        if (IS_NPC(ch) && HAS_EVENT_TRIGGER(ch, TRIG_ENTRY))
+            raise_entry_event(ch, number_percent());
+
         if (!IS_NPC(ch)) {
             mp_greet_trigger(ch);
             raise_greet_event(ch);
