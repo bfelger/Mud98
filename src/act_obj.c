@@ -43,6 +43,7 @@
 #include "weather.h"
 
 #include <entities/descriptor.h>
+#include <entities/event.h>
 #include <entities/object.h>
 #include <entities/player_data.h>
 
@@ -607,6 +608,9 @@ void do_give(Mobile* ch, char* argument)
         silver = str_cmp(arg2, "gold");
 
         READ_ARG(arg2);
+        if (!str_cmp(arg2, "to"))
+            READ_ARG(arg2);
+
         if (arg2[0] == '\0') {
             send_to_char("Give what to whom?\n\r", ch);
             return;
@@ -640,6 +644,9 @@ void do_give(Mobile* ch, char* argument)
         // Bribe trigger
         if (IS_NPC(victim) && HAS_MPROG_TRIGGER(victim, TRIG_BRIBE))
             mp_bribe_trigger(victim, ch, silver ? amount : amount * 100);
+
+        if (IS_NPC(victim) && HAS_EVENT_TRIGGER(victim, TRIG_BRIBE))
+            raise_bribe_event(victim, ch, silver ? amount : amount * 100);
 
 
         if (IS_NPC(victim) && IS_SET(victim->act_flags, ACT_IS_CHANGER)) {

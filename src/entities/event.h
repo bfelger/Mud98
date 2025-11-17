@@ -31,6 +31,7 @@ void remove_event(Entity* entity, Event* event);
 void load_event(FILE* fp, Entity* owner);
 Event* get_event_by_trigger(Entity* entity, FLAGS trigger);
 Event* get_event_by_trigger_strval(Entity* entity, FLAGS trigger, const char* str);
+Event* get_event_by_trigger_intval(Entity* entity, FLAGS trigger, int val);
 ObjClosure* get_event_closure(Entity* entity, Event* event);
 
 #define HAS_EVENT_TRIGGER(entity, trigger)                                     \
@@ -43,7 +44,7 @@ extern Event* event_free;
 // EVENT TRIGGER ROUTINES //////////////////////////////////////////////////////
 
 /* TRIG_ACT     */  void raise_act_event(Entity* receiver, EventTrigger trig_type, Entity* actor, char* msg);
-/* TRIG_BRIBE   */
+/* TRIG_BRIBE   */  void raise_bribe_event(Mobile* mob, Mobile* ch, int amount);
 /* TRIG_DEATH   */
 /* TRIG_ENTRY   */
 /* TRIG_FIGHT   */

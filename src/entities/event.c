@@ -212,6 +212,39 @@ Event* get_event_by_trigger_strval(Entity* entity, FLAGS trigger, const char* st
     return NULL;
 }
 
+Event* get_event_by_trigger_intval(Entity* entity, FLAGS trigger, int val)
+{
+    if (entity == NULL)
+        return NULL;
+
+    if (!HAS_EVENT_TRIGGER(entity, trigger))
+        return NULL;
+
+    for (Node* node = entity->events.front; node != NULL; node = node->next) {
+        if (!IS_EVENT(node->value)) {
+            bug("get_event_by_trigger_intval: Invalid event node on entity #%"PRVNUM".\n", 
+                entity->vnum);
+            continue;
+        }
+        Event* ev = AS_EVENT(node->value);
+        if (ev == NULL || (ev->trigger & trigger) == 0)
+            continue;
+
+        if (!IS_INT(ev->criteria)) {
+            bug("get_event_by_trigger_intval: Invalid trigger criteria node on entity #%"PRVNUM","
+                " event '%s'; expected number criteria.\n",
+                entity->vnum, get_event_name(ev->trigger));
+            continue;
+        }
+
+        int trig_val = AS_INT(ev->criteria);
+
+        if (val >= trig_val)
+            return ev;
+    }
+    return NULL;
+}
+
 // Get the event closure by checking the entity's class for method name
 ObjClosure* get_event_closure(Entity* entity, Event* event)
 {
@@ -247,7 +280,6 @@ ObjClosure* get_event_closure(Entity* entity, Event* event)
 // EVENT TRIGGERS //////////////////////////////////////////////////////////////
 
 // TRIG_ACT
-
 void raise_act_event(Entity* receiver, EventTrigger trig_type, Entity* actor, char* msg)
 {
     if (!HAS_EVENT_TRIGGER(receiver, TRIG_ACT))
@@ -269,6 +301,20 @@ void raise_act_event(Entity* receiver, EventTrigger trig_type, Entity* actor, ch
 }
 
 // TRIG_BRIBE
+void raise_bribe_event(Mobile* mob, Mobile* ch, int amount)
+{
+    if (!HAS_EVENT_TRIGGER(mob, TRIG_BRIBE))
+        return;
+
+    Event* event = get_event_by_trigger_intval((Entity*)mob, TRIG_BRIBE, amount);
+    ObjClosure* closure = get_event_closure((Entity*)mob, event);
+
+    if (closure == NULL)
+        return;
+
+    invoke_method_closure(OBJ_VAL(mob), closure, 2, OBJ_VAL(ch), INT_VAL(amount));
+}
+
 // TRIG_DEATH
 // TRIG_ENTRY
 // TRIG_FIGHT
@@ -276,7 +322,6 @@ void raise_act_event(Entity* receiver, EventTrigger trig_type, Entity* actor, ch
 
 // TRIG_GREET
 // TRIG_GRALL
-
 void raise_greet_event(Mobile* ch)
 {
     Mobile* mob;
@@ -320,7 +365,6 @@ void raise_greet_event(Mobile* ch)
 // TRIG_SURR
 
 // TRIG_LOGIN
-
 void raise_login_event(Mobile* ch)
 {
     Event* event = get_event_by_trigger((Entity*)ch->in_room, TRIG_LOGIN);

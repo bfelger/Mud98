@@ -1191,6 +1191,10 @@ bust_a_prompt_cleanup:
 // Append onto an output buffer.
 void write_to_buffer(Descriptor* d, const char* txt, size_t length)
 {
+    // Don't try to write to descriptors during unit tests.
+    if (test_output_enabled)
+        return;
+
     // Find length in case caller didn't.
     if (length <= 0) 
         length = strlen(txt);
@@ -2157,8 +2161,6 @@ void send_to_char(const char* txt, Mobile * ch)
                 if (*point == COLOR_ESC_CHAR) {
                     point++;
                     skip = colour(*point, ch, point2);
-                    //while (skip-- > 0) 
-                    //    ++point2;
                     point2 += skip;
                     continue;
                 }
@@ -2167,8 +2169,6 @@ void send_to_char(const char* txt, Mobile * ch)
                 *++point2 = '\0';
             }
             *point2 = '\0';
-            //write_to_buffer(ch->desc, BUF(temp), point2 - BUF(temp));
-            //write_to_buffer(ch->desc, BUF(temp), 0);
         }
         else {
             for (point = txt; *point; point++) {
@@ -2179,11 +2179,8 @@ void send_to_char(const char* txt, Mobile * ch)
                 *point2 = *point;
                 *++point2 = '\0';
             }
-            *point2 = '\0';
-            //write_to_buffer(ch->desc, BUF(temp), point2 - BUF(temp));
+            *point2 = '\0';;
         }
-        //int len = colourconv(BUF(temp), txt, ch);
-        //write_to_buffer(ch->desc, BUF(temp), len);
         write_to_buffer(ch->desc, BUF(temp), point2 - BUF(temp));
     }
 
