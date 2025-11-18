@@ -350,6 +350,27 @@ void raise_entry_event(Mobile* mob, int pct_chance)
 }
 
 // TRIG_FIGHT
+void raise_fight_event(Mobile* attacker, Mobile* victim, int pct_chance)
+{
+    if (!HAS_EVENT_TRIGGER(attacker, TRIG_FIGHT))
+        return;
+
+    Event* event = get_event_by_trigger((Entity*)attacker, TRIG_FIGHT);
+
+    if (!IS_INT(event->criteria))
+        return;
+
+    if (pct_chance > AS_INT(event->criteria))
+        return;
+
+    ObjClosure* closure = get_event_closure((Entity*)attacker, event);
+
+    if (closure == NULL)
+        return;
+
+    invoke_method_closure(OBJ_VAL(attacker), closure, 1, OBJ_VAL(victim));
+}
+
 // TRIG_GIVE
 
 // TRIG_GREET

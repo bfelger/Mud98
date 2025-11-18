@@ -47,7 +47,7 @@ extern Event* event_free;
 /* TRIG_BRIBE   */  void raise_bribe_event(Mobile* mob, Mobile* ch, int amount);
 /* TRIG_DEATH   */  void raise_death_event(Mobile* victim, Mobile* killer);
 /* TRIG_ENTRY   */  void raise_entry_event(Mobile* mob, int pct_chance);
-/* TRIG_FIGHT   */
+/* TRIG_FIGHT   */  void raise_fight_event(Mobile* attacker, Mobile* victim, int pct_chance);
 /* TRIG_GIVE    */
 /* TRIG_GREET   */  void raise_greet_event(Mobile* ch);
 /* TRIG_GRALL   */  // Same as above

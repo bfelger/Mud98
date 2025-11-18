@@ -13,6 +13,7 @@
 
 #include <act_obj.h>
 #include <comm.h>
+#include <fight.h>
 
 TestGroup event_tests;
 
@@ -177,6 +178,49 @@ static int test_entry_event()
     return 0;
 }
 
+static int test_fight_event()
+{
+    // Create a room with an attacker and victim 
+    Room* room = mock_room(56000, NULL, NULL);
+    Mobile* attacker = mock_mob("Attacker", 56001, NULL);
+    transfer_mob(attacker, room);
+    Mobile* victim = mock_mob("Victim", 56002, NULL);
+    victim->hit = 100;
+    victim->max_hit = 100;
+    transfer_mob(victim, room);
+
+    // Arm the attacker with a very weak weapon so the first hit doesn't kill.
+    Object* sword = mock_sword("sword", 56003, 1, 1, 1);
+    obj_to_char(sword, attacker);
+    equip_char(attacker, sword, WEAR_WIELD);
+
+    // Attach an 'on_fight' event to the attacker.
+    const char* event_src = "on_fight(victim) { "
+        "   print \"Attacking \" + victim.name + \"!\"; "
+        "}";
+
+    ObjClass* attacker_class = create_entity_class((Entity*)attacker,
+        "mob_56001", event_src);
+    attacker->header.klass = attacker_class;
+    Event* fight_event = new_event();
+    fight_event->trigger = TRIG_FIGHT;
+    fight_event->method_name = lox_string("on_fight");
+    fight_event->criteria = INT_VAL(100);   // 100 percent chance
+    add_event((Entity*)attacker, fight_event);
+
+    // Have the attacker attack the victim organically using `do_kill`.
+    interpret(attacker, "kill Victim");
+
+    // Run violence_update to process the fight round.
+    violence_update();
+
+    char* expected = "Attacking Victim!\n";
+    ASSERT_OUTPUT_EQ(expected);
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 void register_event_tests()
 {
 #define REGISTER(n, f)  register_test(&event_tests, (n), (f))
@@ -188,6 +232,7 @@ void register_event_tests()
     REGISTER("TRIG_BRIBE: Mob->Mob", test_bribe_event);
     REGISTER("TRIG_DEATH: Mob->Mob", test_death_event);
     REGISTER("TRIG_ENTRY: Mob", test_entry_event);
+    REGISTER("TRIG_FIGHT: Mob->Mob", test_fight_event);
 
 #undef REGISTER
 }

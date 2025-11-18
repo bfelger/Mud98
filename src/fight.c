@@ -138,6 +138,11 @@ void violence_update()
             if (HAS_MPROG_TRIGGER(ch, TRIG_HPCNT))
                 mp_hprct_trigger(ch, victim);
         }
+
+        if (IS_NPC(ch)) {
+            if (HAS_EVENT_TRIGGER(ch, TRIG_FIGHT))
+                raise_fight_event(ch, victim, number_percent());
+        }
     }
 
     return;
