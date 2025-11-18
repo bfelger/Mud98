@@ -51,10 +51,10 @@ extern Event* event_free;
 /* TRIG_FIGHT   */  void raise_fight_event(Mobile* attacker, Mobile* victim, int pct_chance);
 /* TRIG_GIVE    */  void raise_give_event(Mobile* receiver, Mobile* giver, Object* obj);
 /* TRIG_GREET   */  void raise_greet_event(Mobile* ch);
-/* TRIG_GRALL   */  // Same as above
+/* TRIG_GRALL   */  // raise_greet_event
 /* TRIG_HPCNT   */  void raise_hpcnt_event(Mobile* victim, Mobile* attacker);
 /* TRIG_RANDOM  */  bool raise_random_event(Mobile* mob, int pct_chance);
-/* TRIG_SPEECH  */
+/* TRIG_SPEECH  */  // raise_act_event
 /* TRIG_EXIT    */
 /* TRIG_EXALL   */
 /* TRIG_DELAY   */

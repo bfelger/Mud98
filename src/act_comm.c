@@ -46,6 +46,7 @@
 #include <olc/screen.h>
 
 #include <entities/descriptor.h>
+#include <entities/event.h>
 #include <entities/player_data.h>
 
 #include <data/class.h>
@@ -699,6 +700,9 @@ void do_say(Mobile* ch, char* argument)
             if (IS_NPC(mob) && HAS_MPROG_TRIGGER(mob, TRIG_SPEECH)
                 && mob->position == mob->prototype->default_pos)
                 mp_act_trigger(argument, mob, ch, NULL, NULL, TRIG_SPEECH);
+            if (IS_NPC(mob) && HAS_EVENT_TRIGGER(mob, TRIG_SPEECH)
+                && mob->position == mob->prototype->default_pos)
+                raise_act_event((Entity*)mob, TRIG_SPEECH, (Entity*)ch, argument);
         }
     }
 
@@ -829,6 +833,9 @@ void do_tell(Mobile* ch, char* argument)
 
     if (!IS_NPC(ch) && IS_NPC(victim) && HAS_MPROG_TRIGGER(victim, TRIG_SPEECH))
         mp_act_trigger(argument, victim, ch, NULL, NULL, TRIG_SPEECH);
+
+    if (!IS_NPC(ch) && IS_NPC(victim) && HAS_EVENT_TRIGGER(victim, TRIG_SPEECH))
+        raise_act_event((Entity*)victim, TRIG_SPEECH, (Entity*)ch, argument);
 
     return;
 }
