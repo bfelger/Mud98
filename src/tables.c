@@ -271,6 +271,7 @@ const struct flag_type comm_flag_table[] = {
 
 const struct flag_type mprog_flag_table[TRIG_COUNT + 1] = {
     { "act",            TRIG_ACT,           true    },
+    { "attacked",       TRIG_ATTACKED,      true    },
     { "bribe",          TRIG_BRIBE,         true    },
     { "death",          TRIG_DEATH,         true    },
     { "entry",          TRIG_ENTRY,         true    },
@@ -278,7 +279,6 @@ const struct flag_type mprog_flag_table[TRIG_COUNT + 1] = {
     { "give",           TRIG_GIVE,          true    },
     { "greet",          TRIG_GREET,         true    },
     { "grall",          TRIG_GRALL,         true    },
-    { "kill",           TRIG_KILL,          true    },
     { "hpcnt",          TRIG_HPCNT,         true    },
     { "random",         TRIG_RANDOM,        true    },
     { "speech",         TRIG_SPEECH,        true    },

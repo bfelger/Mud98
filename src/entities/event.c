@@ -296,6 +296,27 @@ void raise_act_event(Entity* receiver, EventTrigger trig_type, Entity* actor, ch
     invoke_method_closure(OBJ_VAL(receiver), closure, 2, OBJ_VAL(actor), msg_val);
 }
 
+// TRIG_ATTACKED
+void raise_attacked_event(Mobile* victim, Mobile* attacker, int pct_chance)
+{
+    if (!HAS_EVENT_TRIGGER(victim, TRIG_ATTACKED))
+        return;
+
+    Event* event = get_event_by_trigger((Entity*)victim, TRIG_ATTACKED);
+
+    if (!IS_INT(event->criteria))
+        return;
+
+    if (pct_chance > AS_INT(event->criteria))
+        return;
+
+    ObjClosure* closure = get_event_closure((Entity*)victim, event);
+    if (closure == NULL)
+        return;
+
+    invoke_method_closure(OBJ_VAL(victim), closure, 1, OBJ_VAL(attacker));
+}
+
 // TRIG_BRIBE
 void raise_bribe_event(Mobile* mob, Mobile* ch, int amount)
 {
@@ -421,7 +442,6 @@ void raise_greet_event(Mobile* ch)
     }
 }
 
-// TRIG_KILL
 // TRIG_HPCNT
 // TRIG_RANDOM
 // TRIG_SPEECH

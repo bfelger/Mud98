@@ -723,8 +723,10 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
         if (victim->position > POS_STUNNED) {
             if (victim->fighting == NULL) {
                 set_fighting(victim, ch);
-                if (IS_NPC(victim) && HAS_MPROG_TRIGGER(victim, TRIG_KILL))
-                    mp_percent_trigger(victim, ch, NULL, NULL, TRIG_KILL);
+                if (IS_NPC(victim) && HAS_MPROG_TRIGGER(victim, TRIG_ATTACKED))
+                    mp_percent_trigger(victim, ch, NULL, NULL, TRIG_ATTACKED);
+                if (IS_NPC(victim) && HAS_EVENT_TRIGGER(victim, TRIG_ATTACKED))
+                    raise_attacked_event(victim, ch, number_percent());
             }
             if (victim->timer <= 4)
                 victim->position = POS_FIGHTING;

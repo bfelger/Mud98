@@ -157,7 +157,7 @@ void olc_display_events(Mobile* ch, Entity* entity)
         case TRIG_ENTRY:
         case TRIG_GREET:
         case TRIG_GRALL:
-        case TRIG_KILL:
+        case TRIG_ATTACKED:
         case TRIG_RANDOM:
         case TRIG_EXIT:
         case TRIG_EXALL:

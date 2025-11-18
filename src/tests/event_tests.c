@@ -66,6 +66,52 @@ static int test_act_event()
     return 0;
 }
 
+static int test_attacked_event()
+{
+    Room* room = mock_room(59000, NULL, NULL);
+
+    Mobile* victim = mock_mob("Victim", 59001, NULL);
+    victim->hit = 100;
+    victim->max_hit = 100;
+    transfer_mob(victim, room);
+
+    Mobile* attacker = mock_mob("Attacker", 59002, NULL);
+    transfer_mob(attacker, room);
+
+    // Arm the attacker with a very weak weapon so the first hit doesn't kill.
+    Object* sword = mock_sword("sword", 59003, 1, 1, 1);
+    obj_to_char(sword, attacker);
+    equip_char(attacker, sword, WEAR_WIELD);
+
+    // Attach an 'on_attacked' event to the victim.
+    const char* event_src =
+        "on_attacked(attacker) {"
+        "   print \"${attacker.name} is attacking me!\";"
+        "}";
+    ObjClass* victim_class = create_entity_class((Entity*)victim,
+        "mob_59001", event_src);
+    victim->header.klass = victim_class;
+
+    Event* attacked_event = new_event();
+    attacked_event->trigger = TRIG_ATTACKED;
+    attacked_event->method_name = lox_string("on_attacked");
+    attacked_event->criteria = INT_VAL(100);   // 100 percent chance
+    add_event((Entity*)victim, attacked_event);
+
+    // Simulate an attack
+    interpret(attacker, "kill Victim");
+
+    char* expected = "Attacker is attacking me!\n";
+
+    ASSERT_OUTPUT_EQ(expected);
+
+    extract_char(attacker, true);
+    extract_char(victim, true);
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 static int test_bribe_event()
 {
     // Mock up a room with mob and player
@@ -99,6 +145,9 @@ static int test_bribe_event()
     char* expected = "Briber bribed me 100 gold!\n";
 
     ASSERT_OUTPUT_EQ(expected);
+
+    extract_char(pc, true);
+    extract_char(mob, true);
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -145,6 +194,9 @@ static int test_death_event()
 
     ASSERT_OUTPUT_EQ(expected);
 
+    extract_char(pc, true);
+    extract_char(mob, true);
+
     test_output_buffer = NIL_VAL;
     return 0;
 }
@@ -179,6 +231,8 @@ static int test_entry_event()
     char* expected = "Mover has moved rooms!\n";
 
     ASSERT_OUTPUT_EQ(expected);
+
+    extract_char(mob, true);
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -225,6 +279,9 @@ static int test_fight_event()
     char* expected = "Attacking Victim!\n";
     ASSERT_OUTPUT_EQ(expected);
 
+    extract_char(attacker, true);
+    extract_char(victim, true);
+
     test_output_buffer = NIL_VAL;
     return 0;
 }
@@ -265,6 +322,9 @@ static int test_give_event_vnum()
     char* expected = "Giver gave me SpecialItem!\n";
 
     ASSERT_OUTPUT_EQ(expected); 
+
+    extract_char(pc, true);
+    extract_char(mob, true);
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -307,6 +367,9 @@ static int test_give_event_name()
 
     ASSERT_OUTPUT_EQ(expected); 
 
+    extract_char(pc, true);
+    extract_char(mob, true);
+
     test_output_buffer = NIL_VAL;
     return 0;
 }
@@ -341,6 +404,8 @@ static int test_greet_event_on_room()
     char* expected = "Entrant has entered the room!\n";
 
     ASSERT_OUTPUT_EQ(expected);
+
+    extract_char(pc, true);
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -380,6 +445,9 @@ static int test_greet_event_on_mob()
 
     ASSERT_OUTPUT_EQ(expected);
 
+    extract_char(pc, true);
+    extract_char(greeter, true);
+
     test_output_buffer = NIL_VAL;
     return 0;
 }
@@ -392,6 +460,7 @@ void register_event_tests()
     register_test_group(&event_tests);
 
     REGISTER("TRIG_ACT: Mob->Mob", test_act_event);
+    REGISTER("TRIG_ATTACKED: Mob->Mob", test_attacked_event);
     REGISTER("TRIG_BRIBE: Mob->Mob", test_bribe_event);
     REGISTER("TRIG_DEATH: Mob->Mob", test_death_event);
     REGISTER("TRIG_ENTRY: Mob", test_entry_event);
@@ -400,6 +469,5 @@ void register_event_tests()
     REGISTER("TRIG_GIVE: Mob->Mob: Obj by Name", test_give_event_name);
     REGISTER("TRIG_GREET: Room->Mob", test_greet_event_on_room);
     REGISTER("TRIG_GREET: Mob->Mob", test_greet_event_on_mob);
-
 #undef REGISTER
 }

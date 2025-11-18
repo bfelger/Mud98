@@ -44,6 +44,7 @@ extern Event* event_free;
 // EVENT TRIGGER ROUTINES //////////////////////////////////////////////////////
 
 /* TRIG_ACT     */  void raise_act_event(Entity* receiver, EventTrigger trig_type, Entity* actor, char* msg);
+/* TRIG_ATTACKED*/  void raise_attacked_event(Mobile* victim, Mobile* attacker, int pct_chance);
 /* TRIG_BRIBE   */  void raise_bribe_event(Mobile* mob, Mobile* ch, int amount);
 /* TRIG_DEATH   */  void raise_death_event(Mobile* victim, Mobile* killer);
 /* TRIG_ENTRY   */  void raise_entry_event(Mobile* mob, int pct_chance);
@@ -51,7 +52,6 @@ extern Event* event_free;
 /* TRIG_GIVE    */  void raise_give_event(Mobile* receiver, Mobile* giver, Object* obj);
 /* TRIG_GREET   */  void raise_greet_event(Mobile* ch);
 /* TRIG_GRALL   */  // Same as above
-/* TRIG_KILL    */
 /* TRIG_HPCNT   */
 /* TRIG_RANDOM  */
 /* TRIG_SPEECH  */
