@@ -10,6 +10,7 @@
 
 #include <lox/array.h>
 #include <lox/object.h>
+#include <lox/scanner.h>
 #include <lox/value.h>
 #include <lox/vm.h>
 
@@ -166,6 +167,77 @@ static int test_string_interp_expr()
 
     InterpretResult result = interpret_code(src);
     ASSERT_LOX_OUTPUT_EQ("The value '5' is stored in 'a+b'.\n");
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_string_interp_expr_scanning()
+{
+    // Run the scanner directly over a string with multiple interpolations and
+    // verify the tokens come out as expected.
+    const char* src = "\"The values are ${a+b} and ${b-a}.\"\n";
+    init_scanner(src);
+    Token token;
+    token = scan_token();
+    ASSERT(token.type == TOKEN_STRING_INTERP);
+    ASSERT(strncmp(token.start, "\"The values are ", token.length) == 0);
+
+    // Parse the ${a+b}
+    token = scan_token();
+    ASSERT(token.type == TOKEN_DOLLAR);
+    token = scan_token();
+    ASSERT(token.type == TOKEN_LEFT_BRACE);
+    token = scan_token();
+    ASSERT(token.type == TOKEN_IDENTIFIER);
+    ASSERT(strncmp(token.start, "a", token.length) == 0);
+    token = scan_token();
+    ASSERT(token.type == TOKEN_PLUS);
+    token = scan_token();
+    ASSERT(token.type == TOKEN_IDENTIFIER);
+    ASSERT(strncmp(token.start, "b", token.length) == 0);
+    token = scan_token();
+    ASSERT(token.type == TOKEN_RIGHT_BRACE);
+    token = scan_token();
+
+    // Now get interstitial string
+    ASSERT(token.type == TOKEN_STRING_INTERP);
+    ASSERT(strncmp(token.start, "} and ", token.length) == 0);
+
+    // ${b-a}
+    token = scan_token();
+    ASSERT(token.type == TOKEN_DOLLAR);
+    token = scan_token();
+    ASSERT(token.type == TOKEN_LEFT_BRACE);
+    token = scan_token();
+    ASSERT(token.type == TOKEN_IDENTIFIER);
+    ASSERT(strncmp(token.start, "b", token.length) == 0);
+    token = scan_token();
+    ASSERT(token.type == TOKEN_MINUS);
+    token = scan_token();
+    ASSERT(token.type == TOKEN_IDENTIFIER);
+    ASSERT(strncmp(token.start, "a", token.length) == 0);
+    token = scan_token();
+    ASSERT(token.type == TOKEN_RIGHT_BRACE);
+    token = scan_token();
+
+    // The last bit should be a TOKEN_STRING, not a TOKEN_STRING_INTERP
+    ASSERT(token.type == TOKEN_STRING);
+    ASSERT(strncmp(token.start, "}.\"", token.length) == 0);
+    token = scan_token();
+    ASSERT(token.type == TOKEN_EOF);
+    return 0;
+}
+
+static int test_string_interp_expr_2()
+{
+    const char* src =
+        "var a = 2\n"
+        "var b = 3\n"
+        "print \"The values are ${a+b} and ${b-a}.\"\n";
+
+    InterpretResult result = interpret_code(src);
+    ASSERT_LOX_OUTPUT_EQ("The values are 5 and 1.\n");
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -405,6 +477,8 @@ void register_lox_ext_tests()
     REGISTER("String Interpolation: Escape", test_string_interp_escape);
     REGISTER("String Interpolation: Act Vars", test_string_interp_var);
     REGISTER("String Interpolation: Expressions", test_string_interp_expr);
+    REGISTER("String Interpolation: Expression Parsing", test_string_interp_expr_scanning);
+    REGISTER("String Interpolation: Expressions (2)", test_string_interp_expr_2);
     REGISTER("String Interpolation: Starting Act Var", test_string_interp_var_start);
     REGISTER("String Literal Concatenation", test_string_lit_concat);
     REGISTER("String Interp + Literal Concatenation", test_string_lit_interp_concat);

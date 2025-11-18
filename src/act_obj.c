@@ -585,7 +585,10 @@ void do_give(Mobile* ch, char* argument)
     Object* obj;
 
     READ_ARG(arg1);
-    READ_ARG(arg2);
+
+    READ_ARG(arg2);    
+    if (!str_cmp(arg2, "to"))
+        READ_ARG(arg2);
 
     if (arg1[0] == '\0' || arg2[0] == '\0') {
         send_to_char("Give what to whom?\n\r", ch);
@@ -739,6 +742,9 @@ void do_give(Mobile* ch, char* argument)
     // Give trigger
     if (IS_NPC(victim) && HAS_MPROG_TRIGGER(victim, TRIG_GIVE))
         mp_give_trigger(victim, ch, obj);
+
+    if (IS_NPC(victim) && HAS_EVENT_TRIGGER(victim, TRIG_GIVE))
+        raise_give_event(victim, ch, obj);
 
     return;
 }

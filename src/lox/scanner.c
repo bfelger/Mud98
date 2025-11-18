@@ -243,8 +243,8 @@ static Token number()
 Token scan_token()
 {
     if (scanner.interp == STR_INT_END) {
-        Token token = string();
         scanner.interp = STR_INT_NONE;
+        Token token = string();
         return token;
     }
 

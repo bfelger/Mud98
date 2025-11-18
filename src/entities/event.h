@@ -48,7 +48,7 @@ extern Event* event_free;
 /* TRIG_DEATH   */  void raise_death_event(Mobile* victim, Mobile* killer);
 /* TRIG_ENTRY   */  void raise_entry_event(Mobile* mob, int pct_chance);
 /* TRIG_FIGHT   */  void raise_fight_event(Mobile* attacker, Mobile* victim, int pct_chance);
-/* TRIG_GIVE    */
+/* TRIG_GIVE    */  void raise_give_event(Mobile* receiver, Mobile* giver, Object* obj);
 /* TRIG_GREET   */  void raise_greet_event(Mobile* ch);
 /* TRIG_GRALL   */  // Same as above
 /* TRIG_KILL    */

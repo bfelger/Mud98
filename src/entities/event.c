@@ -196,12 +196,10 @@ Event* get_event_by_trigger_strval(Entity* entity, FLAGS trigger, const char* st
         if (ev == NULL || (ev->trigger & trigger) == 0)
             continue;
 
-        if (!IS_STRING(ev->criteria)) {
-            bug("get_event_by_trigger_strval: Invalid trigger criteria node on entity #%"PRVNUM","
-                " event '%s'; expected string criteria.\n",
-                entity->vnum, get_event_name(ev->trigger));
+        // Not the one we want. Don't provoke an error because we may be testing
+        // for both strings and ints.
+        if (!IS_STRING(ev->criteria))
             continue;
-        }
 
         ObjString* trig_phrase = AS_STRING(ev->criteria);
 
@@ -230,12 +228,10 @@ Event* get_event_by_trigger_intval(Entity* entity, FLAGS trigger, int val)
         if (ev == NULL || (ev->trigger & trigger) == 0)
             continue;
 
-        if (!IS_INT(ev->criteria)) {
-            bug("get_event_by_trigger_intval: Invalid trigger criteria node on entity #%"PRVNUM","
-                " event '%s'; expected number criteria.\n",
-                entity->vnum, get_event_name(ev->trigger));
+        // Not the one we want. Don't provoke an error because we may be testing
+        // for both strings and ints.
+        if (!IS_INT(ev->criteria))
             continue;
-        }
 
         int trig_val = AS_INT(ev->criteria);
 
@@ -372,6 +368,23 @@ void raise_fight_event(Mobile* attacker, Mobile* victim, int pct_chance)
 }
 
 // TRIG_GIVE
+void raise_give_event(Mobile* receiver, Mobile* giver, Object* obj)
+{
+    Event* event = NULL;
+    ObjClosure* closure = NULL;
+
+    // Look for TRIG_GIVE events; they can have either ObjString* criteria
+    // (for name) or IntVal criteria (for Obj VNUM).
+    if (!HAS_EVENT_TRIGGER(receiver, TRIG_GIVE))
+        return;
+    
+    if ((event = get_event_by_trigger_intval((Entity*)receiver, TRIG_GIVE, VNUM_FIELD(obj))) == NULL
+        && (event = get_event_by_trigger_strval((Entity*)receiver, TRIG_GIVE, NAME_STR(obj))) == NULL)
+        return;
+
+    if ((closure = get_event_closure((Entity*)receiver, event)) != NULL)
+        invoke_method_closure(OBJ_VAL(receiver), closure, 2, OBJ_VAL(giver), OBJ_VAL(obj));
+}
 
 // TRIG_GREET
 // TRIG_GRALL

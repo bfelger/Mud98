@@ -1201,7 +1201,6 @@ bool mp_exit_trigger(Mobile* ch, int dir)
 
 void mp_give_trigger(Mobile* mob, Mobile* ch, Object* obj)
 {
-
     char buf[MAX_INPUT_LENGTH], * p;
     MobProg* prg;
 

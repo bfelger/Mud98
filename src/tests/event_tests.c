@@ -29,7 +29,10 @@ static int test_act_event()
     transfer_mob(listener, room);
    
     // Attach an 'on_act' event to the listener.
-    const char* event_src =  "on_act(actor, msg) { print \"Heard: \" + msg; }";
+    const char* event_src =  
+        "on_act(actor, msg) {"
+        "    print \"Heard: \" + msg;"
+        "}";
 
     ObjClass* listener_class = create_entity_class((Entity*)listener, 
         "mob_53002", event_src);
@@ -76,9 +79,10 @@ static int test_bribe_event()
     transfer_mob(pc, room);
 
     // Attach an 'on_bribe' event to the mob.
-    const char* event_src =  "on_bribe(briber, amount) { "
-                             "   print briber.name + \" bribed me \" + amount / 100 + \" gold!\"; "
-                             "}";
+    const char* event_src =  
+        "on_bribe(briber, amount) { "
+        "   print \"${briber.name} bribed me ${amount/100} gold!\"; "
+        "}";
     ObjClass* mob_class = create_entity_class((Entity*)mob, 
         "mob_54001", event_src);
     mob->header.klass = mob_class;
@@ -121,8 +125,9 @@ static int test_death_event()
     transfer_mob(pc, room);
 
     // Attach an 'on_death' event to the mob.
-    const char* event_src = "on_death(killer) { "
-        "   print killer.name + \" killed me!\"; "
+    const char* event_src = 
+        "on_death(killer) {"
+        "   print \"${killer.name} killed me!\"; "
         "}";
     ObjClass* mob_class = create_entity_class((Entity*)mob,
         "mob_54001", event_src);
@@ -155,8 +160,9 @@ static int test_entry_event()
     transfer_mob(mob, south_room);
 
     // Attach an 'on_entry' event to the mob.
-    const char* event_src = "on_entry() { "
-        "   print \"${this.name} has moved rooms!\"; "
+    const char* event_src = 
+        "on_entry() {"
+        "   print \"${this.name} has moved rooms!\";"
         "}";
     ObjClass* mob_class = create_entity_class((Entity*)mob,
         "mob_55002", event_src);
@@ -195,13 +201,15 @@ static int test_fight_event()
     equip_char(attacker, sword, WEAR_WIELD);
 
     // Attach an 'on_fight' event to the attacker.
-    const char* event_src = "on_fight(victim) { "
-        "   print \"Attacking \" + victim.name + \"!\"; "
+    const char* event_src = 
+        "on_fight(victim) {"
+        "   print \"Attacking ${victim.name}!\";"
         "}";
 
     ObjClass* attacker_class = create_entity_class((Entity*)attacker,
         "mob_56001", event_src);
     attacker->header.klass = attacker_class;
+
     Event* fight_event = new_event();
     fight_event->trigger = TRIG_FIGHT;
     fight_event->method_name = lox_string("on_fight");
@@ -221,6 +229,88 @@ static int test_fight_event()
     return 0;
 }
 
+static int test_give_event_vnum()
+{
+    // Mock up a room with mob and player
+    Room* room = mock_room(57000, NULL, NULL);
+
+    Mobile* mob = mock_mob("Receiver", 57001, NULL);
+    transfer_mob(mob, room);
+
+    Mobile* pc = mock_player("Giver");
+    transfer_mob(pc, room);
+
+    // Create an object to give
+    Object* obj = mock_obj("SpecialItem", 57002, NULL);
+    obj_to_char(obj, pc);
+
+    // Attach an 'on_give' event to the mob.
+    const char* event_src =  
+        "on_give(giver, item) {"
+        "   print \"${giver.name} gave me ${item.name}!\";"
+        "}";
+    ObjClass* mob_class = create_entity_class((Entity*)mob, 
+        "mob_57001", event_src);
+    mob->header.klass = mob_class;
+
+    Event* give_event = new_event();
+    give_event->trigger = TRIG_GIVE;
+    give_event->method_name = lox_string("on_give");
+    give_event->criteria = INT_VAL(57002); // VNUM of object to trigger on
+    add_event((Entity*)mob, give_event);
+
+    // Have the player give the object to the mob organically using `do_give`.
+    interpret(pc, "give SpecialItem to Receiver");
+
+    char* expected = "Giver gave me SpecialItem!\n";
+
+    ASSERT_OUTPUT_EQ(expected); 
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_give_event_name()
+{
+    // Mock up a room with mob and player
+    Room* room = mock_room(57000, NULL, NULL);
+
+    Mobile* mob = mock_mob("Receiver", 57001, NULL);
+    transfer_mob(mob, room);
+
+    Mobile* pc = mock_player("Giver");
+    transfer_mob(pc, room);
+
+    // Create an object to give
+    Object* obj = mock_obj("SpecialItem", 57002, NULL);
+    obj_to_char(obj, pc);
+
+    // Attach an 'on_give' event to the mob.
+    const char* event_src =  
+        "on_give(giver, item) {"
+        "   print \"${giver.name} gave me ${item.name}!\" "
+        "}";
+    ObjClass* mob_class = create_entity_class((Entity*)mob, 
+        "mob_57001", event_src);
+    mob->header.klass = mob_class;
+
+    Event* give_event = new_event();
+    give_event->trigger = TRIG_GIVE;
+    give_event->method_name = lox_string("on_give");
+    give_event->criteria = OBJ_VAL(lox_string("SpecialItem")); // Name of object to trigger on
+    add_event((Entity*)mob, give_event);
+
+    // Have the player give the object to the mob organically using `do_give`.
+    interpret(pc, "give SpecialItem to Receiver");
+
+    char* expected = "Giver gave me SpecialItem!\n";
+
+    ASSERT_OUTPUT_EQ(expected); 
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 void register_event_tests()
 {
 #define REGISTER(n, f)  register_test(&event_tests, (n), (f))
@@ -233,6 +323,8 @@ void register_event_tests()
     REGISTER("TRIG_DEATH: Mob->Mob", test_death_event);
     REGISTER("TRIG_ENTRY: Mob", test_entry_event);
     REGISTER("TRIG_FIGHT: Mob->Mob", test_fight_event);
+    REGISTER("TRIG_GIVE: Mob->Mob: Obj by VNUM", test_give_event_vnum);
+    REGISTER("TRIG_GIVE: Mob->Mob: Obj by Name", test_give_event_name);
 
 #undef REGISTER
 }

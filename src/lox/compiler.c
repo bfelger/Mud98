@@ -1263,67 +1263,49 @@ static void string_interp(bool can_assign)
 
     Token first = parser.previous;
 
-    while (parser.previous.type == TOKEN_STRING_INTERP
-        || parser.previous.type == TOKEN_STRING) {
-
+    while (parser.previous.type == TOKEN_STRING_INTERP || parser.previous.type == TOKEN_STRING) {
         if (parser.previous.type == TOKEN_STRING_INTERP) {
-            while (parser.previous.type == TOKEN_STRING_INTERP) {
-                // This is the prefix of an interpolated string of the format "$" COLOR_CLEAR "}". 
-                // This beginning part lacks a delimiting double-quote. This is also for
-                // interstitial string between interpolations:
-                //     "start $" COLOR_CLEAR "} middle ${y} end"
-                int skip = 0;
-                if (parser.previous.start[0] == '\"')
-                    skip = 1;   // Skip the opening quote; only the first will have it.
+            // Skip the first character (a `"` or `{`); but keep the last.
+            emit_constant(OBJ_VAL(copy_string(parser.previous.start + 1,
+                parser.previous.length - 1)));
+            count++;
 
-                if (parser.previous.length - skip > 0) {
-                    // Strings that begin with an interpolation, or 
-                    emit_constant(OBJ_VAL(copy_string(parser.previous.start + skip,
-                        parser.previous.length - 1)));
-                    count++;
-                }
+            consume(TOKEN_DOLLAR, "Expected '$' interpolation character");
+            consume(TOKEN_LEFT_BRACE, "Expected '{' interpolation delimiter");
 
-                consume(TOKEN_DOLLAR, "Expected '$' interpolation character");
+            expression();
 
-                if (match(TOKEN_LEFT_BRACE)) {
-                    expression();
-                    consume(TOKEN_RIGHT_BRACE, "Expected '}' interpolation delimiter");
-                    count++;
-                }
-                else {
-                    error("Invalid string interpolation token.");
-                    break;
-                }
-            }
+            consume(TOKEN_RIGHT_BRACE, "Expected '}' interpolation delimiter");
+            count++;
 
-            consume(TOKEN_STRING, "String interpolation expected a suffix string.");
-
-            // We don't need to append the suffix string if it's just a closing quote.
-            if (parser.previous.length != 2 || parser.previous.start[0] != '\"') {
-                ObjString* end_str = copy_string(parser.previous.start + 1,
-                    parser.previous.length - 2);
-                emit_constant(OBJ_VAL(end_str));
-                count++;
+            if (!match(TOKEN_STRING) && !match(TOKEN_STRING_INTERP)) {
+                error_at(&first, "Malformed string interpolation");
+                return;
             }
         }
         else {
-            // Subsume string()'s functionality
+            // Skip the first character (`"` or `}` if following an string
+            // interpolation) and the last character (`"`).
             emit_constant(OBJ_VAL(copy_string(parser.previous.start + 1,
                 parser.previous.length - 2)));
             count++;
-        }
 
-        if (parser.current.type == TOKEN_STRING || parser.current.type == TOKEN_STRING_INTERP)
-            advance();
-        else
-            break;
+            // If we have stacked strings, we want to concatenate them. We prime
+            // pump for the next iteration by moving the next string into 
+            // parser.previous. But if it's not a string, we want to leave it as
+            // parser.current for the next parse routine.
+            if (check(TOKEN_STRING) || check(TOKEN_STRING_INTERP))
+                advance();
+            else
+                break;
+        }
     }
 
     if (count > UINT8_MAX) {
         error_at(&first, "String interpolation exceeded maximum count.");
         count = UINT8_MAX;
     }
-
+    
     if (count > 1)
         emit_bytes(OP_INTERP, (uint8_t)count);
 }
