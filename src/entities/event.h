@@ -53,7 +53,7 @@ extern Event* event_free;
 /* TRIG_GREET   */  void raise_greet_event(Mobile* ch);
 /* TRIG_GRALL   */  // Same as above
 /* TRIG_HPCNT   */  void raise_hpcnt_event(Mobile* victim, Mobile* attacker);
-/* TRIG_RANDOM  */
+/* TRIG_RANDOM  */  bool raise_random_event(Mobile* mob, int pct_chance);
 /* TRIG_SPEECH  */
 /* TRIG_EXIT    */
 /* TRIG_EXALL   */

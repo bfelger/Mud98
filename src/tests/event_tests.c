@@ -14,6 +14,7 @@
 #include <act_obj.h>
 #include <comm.h>
 #include <fight.h>
+#include <update.h>
 
 TestGroup event_tests;
 
@@ -504,6 +505,42 @@ static int test_hpcnt_event()
     return 0;
 }
 
+static int test_random_event()
+{
+    Room* room = mock_room(61000, NULL, NULL);
+
+    Mobile* mob = mock_mob("Random", 61001, NULL);
+    SET_BIT(mob->act_flags, ACT_UPDATE_ALWAYS);
+    transfer_mob(mob, room);
+
+    // Attach an 'on_random' event to the mob.
+    const char* event_src =
+        "on_random() {"
+        "   print \"I am ${this.name}; I like to do ${dice(1,6)} random things a day.\";"
+        "}";
+
+    ObjClass* mob_class = create_entity_class((Entity*)mob,
+        "mob_61001", event_src);
+    mob->header.klass = mob_class;
+
+    Event* random_event = new_event();
+    random_event->trigger = TRIG_RANDOM;
+    random_event->method_name = lox_string("on_random");
+    random_event->criteria = INT_VAL(100);   // 100 percent chance
+    add_event((Entity*)mob, random_event);
+
+    // Update all
+    update_handler();
+
+    char* expected = "I am Random; I like to do $N random things a day.\n";
+    ASSERT_OUTPUT_MATCH(expected);
+
+    extract_char(mob, true);
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 void register_event_tests()
 {
 #define REGISTER(n, f)  register_test(&event_tests, (n), (f))
@@ -522,6 +559,7 @@ void register_event_tests()
     REGISTER("TRIG_GREET: Room->Mob", test_greet_event_on_room);
     REGISTER("TRIG_GREET: Mob->Mob", test_greet_event_on_mob);
     REGISTER("TRIG_HPCNT: Mob->Mob", test_hpcnt_event);
+    REGISTER("TRIG_RANDOM: Mob", test_random_event);
 
 #undef REGISTER
 }

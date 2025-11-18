@@ -409,7 +409,7 @@ void mobile_update()
 
     /* Examine all mobs. */
     FOR_EACH_GLOBAL_MOB(ch) {
-        if (ch->desc && ch->desc->mth->msdp_data && msdp_enabled) {
+        if (ch->desc && ch->desc->mth && ch->desc->mth->msdp_data && msdp_enabled) {
             update_msdp_vars(ch->desc);
         }
 
@@ -447,6 +447,10 @@ void mobile_update()
             }
             if (HAS_MPROG_TRIGGER(ch, TRIG_RANDOM)) {
                 if (mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_RANDOM))
+                    continue;
+            }
+            if (HAS_EVENT_TRIGGER(ch, TRIG_RANDOM)) {
+                if (raise_random_event(ch, number_percent()))
                     continue;
             }
         }
@@ -689,7 +693,8 @@ void char_update(void)
      * Check that these chars still exist.
      */
     FOR_EACH_GLOBAL_MOB(ch) {
-        if (ch->desc != NULL && (int)ch->desc->client->fd % 30 == save_number) {
+        if (ch->desc != NULL && ch->desc->client 
+            && (int)ch->desc->client->fd % 30 == save_number) {
             save_char_obj(ch);
         }
 

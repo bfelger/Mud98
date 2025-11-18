@@ -465,6 +465,29 @@ void raise_hpcnt_event(Mobile* victim, Mobile* attacker)
 }
 
 // TRIG_RANDOM
+bool raise_random_event(Mobile* ch, int pct_chance)
+{
+    if (!HAS_EVENT_TRIGGER(ch, TRIG_RANDOM))
+        return false;
+
+    Event* event = get_event_by_trigger((Entity*)ch, TRIG_RANDOM);
+
+    if (!IS_INT(event->criteria))
+        return false;
+
+    if (pct_chance > AS_INT(event->criteria))
+        return false;
+
+    ObjClosure* closure = get_event_closure((Entity*)ch, event);
+
+    if (closure == NULL)
+        return false;
+
+    invoke_method_closure(OBJ_VAL(ch), closure, 0);
+
+    return true;
+}
+
 // TRIG_SPEECH
 // TRIG_EXIT
 // TRIG_EXALL
