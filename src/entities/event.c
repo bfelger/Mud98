@@ -15,6 +15,7 @@
 
 #include <lox/list.h>
 #include <lox/memory.h>
+#include <lox/value.h>
 #include <lox/vm.h>
 
 int event_count = 0;
@@ -276,6 +277,7 @@ ObjClosure* get_event_closure(Entity* entity, Event* event)
 // EVENT TRIGGERS //////////////////////////////////////////////////////////////
 
 // TRIG_ACT
+// TRIG_SPEECH
 void raise_act_event(Entity* receiver, EventTrigger trig_type, Entity* actor, char* msg)
 {
     if (!HAS_EVENT_TRIGGER(receiver, TRIG_ACT))
@@ -488,9 +490,54 @@ bool raise_random_event(Mobile* ch, int pct_chance)
     return true;
 }
 
-// TRIG_SPEECH
 // TRIG_EXIT
 // TRIG_EXALL
+// Returns true if the player's exit was blocked by an event
+bool raise_exit_event(Mobile* ch, Direction dir)
+{
+    Mobile* mob;
+    Event* event;
+    ObjClosure* closure;
+
+    bool blocked = false;
+    Room* room = ch->in_room;
+
+    if (room == NULL)
+        return false;
+
+    // First check the room for event triggers
+    if (room && HAS_EVENT_TRIGGER(room, TRIG_EXIT)
+        && (event = get_event_by_trigger_intval((Entity*)room, TRIG_EXIT, dir)) != NULL
+        && (closure = get_event_closure((Entity*)room, event)) != NULL) {
+        invoke_method_closure(OBJ_VAL(room), closure, 1, OBJ_VAL(ch));
+        if (repl_ret_val == TRUE_VAL)
+            blocked = true;
+    }
+
+    FOR_EACH_ROOM_MOB(mob, room) {
+        if (IS_NPC(mob) && (HAS_EVENT_TRIGGER(mob, TRIG_EXIT)
+            || HAS_EVENT_TRIGGER(mob, TRIG_EXALL))) {
+            event = get_event_by_trigger_intval((Entity*)mob,
+                HAS_EVENT_TRIGGER(mob, TRIG_EXIT) ? TRIG_EXIT : TRIG_EXALL, dir);
+            if (event == NULL)
+                continue;
+
+            if ((event->trigger == TRIG_EXIT
+                && mob->position == mob->prototype->default_pos
+                && can_see(mob, ch)) || event->trigger == TRIG_EXALL) {
+                closure = get_event_closure((Entity*)mob, event);
+                if (closure == NULL)
+                    continue;
+                invoke_method_closure(OBJ_VAL(mob), closure, 1, OBJ_VAL(ch));
+                if (repl_ret_val == TRUE_VAL)
+                    blocked = true;
+            }
+        }
+    }
+    return blocked;
+}
+
+
 // TRIG_DELAY
 // TRIG_SURR
 

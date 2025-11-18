@@ -79,6 +79,10 @@ void move_char(Mobile* ch, int door, bool follow)
     if (!IS_NPC(ch) && mp_exit_trigger(ch, door))
         return;
 
+    // Exit events only block if they return TRUE.
+    if (!IS_NPC(ch) && raise_exit_event(ch, door))
+        return;
+
     in_room = ch->in_room;
     if ((room_exit = in_room->exit[door]) == NULL
         || (room_exit->data->to_room == NULL)

@@ -589,6 +589,57 @@ static int test_speech_event()
     return 0;
 }
 
+static int test_exit_event()
+{
+    // Put two players in a room with a northward exit. The room has an exit
+    // event that will block one of the players from leaving.
+    Room* south_room = mock_room(63000, NULL, NULL);
+    Room* north_room = mock_room(63001, NULL, NULL);
+    mock_room_connection(south_room, north_room, DIR_NORTH, true);
+
+    Mobile* bob = mock_player("Bob");
+    transfer_mob(bob, south_room);
+
+    Mobile* alice = mock_player("Alice");
+    transfer_mob(alice, south_room);
+
+    // Attach an 'on_exit' event to the south room.
+    const char* event_src =
+        "on_exit_north(ch) {"
+        "   if (ch.name == \"Bob\") {"
+        "       print \"You cannot leave yet, Bob!\";"
+        "       return true;"
+        "   }"
+        "   print \"You may leave, ${ch.name}.\";"
+        "   return false;"
+        "}";
+    ObjClass* room_class = create_entity_class((Entity*)south_room,
+        "room_63000", event_src);
+    south_room->header.klass = room_class;
+    Event* exit_event = new_event();
+    exit_event->trigger = TRIG_EXIT;
+    exit_event->method_name = lox_string("on_exit_north");
+    exit_event->criteria = INT_VAL(DIR_NORTH);
+    add_event((Entity*)south_room, exit_event);
+
+    // Have Bob try to leave north.
+    interpret(bob, "north");
+    char* expected_bob = "You cannot leave yet, Bob!\n";
+    ASSERT_OUTPUT_EQ(expected_bob);
+    test_output_buffer = NIL_VAL;
+
+    // Have Alice try to leave north.
+    interpret(alice, "north");
+    char* expected_alice = "You may leave, Alice.\n";
+    ASSERT_OUTPUT_EQ(expected_alice);
+
+    extract_char(bob, true);
+    extract_char(alice, true);
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 void register_event_tests()
 {
 #define REGISTER(n, f)  register_test(&event_tests, (n), (f))
@@ -609,6 +660,7 @@ void register_event_tests()
     REGISTER("TRIG_HPCNT: Mob->Mob", test_hpcnt_event);
     REGISTER("TRIG_RANDOM: Mob", test_random_event);
     REGISTER("TRIG_SPEECH: Mob->Mob", test_speech_event);
+    REGISTER("TRIG_EXIT: Room->Mob", test_exit_event);
 
 #undef REGISTER
 }

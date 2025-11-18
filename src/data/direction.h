@@ -45,6 +45,8 @@ typedef enum sector_t {
 
 #define SECT_MAX        11
 
+Direction get_direction(const char* dir_name);
+
 extern const int16_t movement_loss[SECT_MAX];
 
 #endif // !MUD98__DATA__DIRECTION_H
