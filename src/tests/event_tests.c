@@ -311,6 +311,79 @@ static int test_give_event_name()
     return 0;
 }
 
+static int test_greet_event_on_room()
+{
+    // TRIG_GREET can be applied to a room as well as a mob.
+    Room* south_room = mock_room(58000, NULL, NULL);
+    Room* north_room = mock_room(58001, NULL, NULL);
+    mock_room_connection(south_room, north_room, DIR_NORTH, true);
+
+    Mobile* pc = mock_player("Entrant");
+    transfer_mob(pc, south_room);
+
+    // Attach an 'on_greet' event to the north room.
+    const char* event_src =  
+        "on_greet(ch) {"
+        "   print \"${ch.name} has entered the room!\";"
+        "}";
+    ObjClass* room_class = create_entity_class((Entity*)north_room, 
+        "room_58001", event_src);
+    north_room->header.klass = room_class;
+
+    Event* greet_event = new_event();
+    greet_event->trigger = TRIG_GREET;
+    greet_event->method_name = lox_string("on_greet");
+    add_event((Entity*)north_room, greet_event);
+
+    // Have the player move north into the room.
+    interpret(pc, "north");
+
+    char* expected = "Entrant has entered the room!\n";
+
+    ASSERT_OUTPUT_EQ(expected);
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_greet_event_on_mob()
+{
+    // TRIG_GREET can be applied to a room as well as a mob.
+    Room* south_room = mock_room(58000, NULL, NULL);
+    Room* north_room = mock_room(58001, NULL, NULL);
+    mock_room_connection(south_room, north_room, DIR_NORTH, true);
+
+    Mobile* greeter = mock_mob("Greeter", 58002, NULL);
+    transfer_mob(greeter, north_room);
+
+    Mobile* pc = mock_player("Entrant");
+    transfer_mob(pc, south_room);
+
+    // Attach an 'on_greet' event to the greeter mob.
+    const char* event_src =  
+        "on_greet(ch) {"
+        "   print \"${ch.name}, welcome to the room!\";"
+        "}";
+    ObjClass* mob_class = create_entity_class((Entity*)greeter, 
+        "mob_58002", event_src);
+    greeter->header.klass = mob_class;
+
+    Event* greet_event = new_event();
+    greet_event->trigger = TRIG_GREET;
+    greet_event->method_name = lox_string("on_greet");
+    add_event((Entity*)greeter, greet_event);
+
+    // Have the player move north into the room.
+    interpret(pc, "north");
+
+    char* expected = "Entrant, welcome to the room!\n";
+
+    ASSERT_OUTPUT_EQ(expected);
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 void register_event_tests()
 {
 #define REGISTER(n, f)  register_test(&event_tests, (n), (f))
@@ -325,6 +398,8 @@ void register_event_tests()
     REGISTER("TRIG_FIGHT: Mob->Mob", test_fight_event);
     REGISTER("TRIG_GIVE: Mob->Mob: Obj by VNUM", test_give_event_vnum);
     REGISTER("TRIG_GIVE: Mob->Mob: Obj by Name", test_give_event_name);
+    REGISTER("TRIG_GREET: Room->Mob", test_greet_event_on_room);
+    REGISTER("TRIG_GREET: Mob->Mob", test_greet_event_on_mob);
 
 #undef REGISTER
 }
