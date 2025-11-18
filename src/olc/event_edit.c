@@ -148,16 +148,16 @@ void olc_display_events(Mobile* ch, Entity* entity)
         case TRIG_BRIBE:
         case TRIG_FIGHT:
         case TRIG_HPCNT:
-            args = "(mob, amt)";
+            args = "(mob, num)";
             break;
         case TRIG_GIVE:
             args = "(mob, obj)";
             break;
+        case TRIG_ATTACKED:
         case TRIG_DEATH:
         case TRIG_ENTRY:
         case TRIG_GREET:
         case TRIG_GRALL:
-        case TRIG_ATTACKED:
         case TRIG_RANDOM:
         case TRIG_EXIT:
         case TRIG_EXALL:

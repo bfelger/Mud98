@@ -443,6 +443,27 @@ void raise_greet_event(Mobile* ch)
 }
 
 // TRIG_HPCNT
+void raise_hpcnt_event(Mobile* victim, Mobile* attacker)
+{
+    if (!HAS_EVENT_TRIGGER(victim, TRIG_HPCNT))
+        return;
+
+    Event* event = get_event_by_trigger((Entity*)victim, TRIG_HPCNT);
+
+    if (!IS_INT(event->criteria))
+        return;
+
+    if ((victim->hit * 100) / victim->max_hit > AS_INT(event->criteria))
+        return;
+
+    ObjClosure* closure = get_event_closure((Entity*)victim, event);
+
+    if (closure == NULL)
+        return;
+
+    invoke_method_closure(OBJ_VAL(victim), closure, 1, OBJ_VAL(attacker));
+}
+
 // TRIG_RANDOM
 // TRIG_SPEECH
 // TRIG_EXIT

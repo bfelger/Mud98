@@ -56,6 +56,9 @@ void test_fail(const char* expr, const char* file, int line);
 void test_string_eq(const char* expected, const char* actual, const char* file, int line);
 #define ASSERT_STR_EQ(expected, actual) test_string_eq(expected, actual, __FILE__, __LINE__)
 
+void test_string_match(const char* pattern, const char* actual, const char* file, int line);
+#define ASSERT_MATCH(pattern, actual) test_string_match(pattern, actual, __FILE__, __LINE__)
+
 void test_lox_int_eq(int expected, Value actual, const char* file, int line);
 #define ASSERT_LOX_INT_EQ(expected, actual) test_lox_int_eq(expected, actual, __FILE__, __LINE__)
 
@@ -66,6 +69,11 @@ void test_lox_string_eq(const char* expected, Value actual, const char* file, in
     ASSERT(IS_STRING(test_output_buffer)); \
     if (IS_STRING(test_output_buffer)) \
         ASSERT_STR_EQ(expected, AS_CSTRING(test_output_buffer))
+
+#define ASSERT_OUTPUT_MATCH(pattern) \
+    ASSERT(IS_STRING(test_output_buffer)); \
+    if (IS_STRING(test_output_buffer)) \
+        ASSERT_MATCH(pattern, AS_CSTRING(test_output_buffer))
 
 #define ASSERT_LOX_OUTPUT_EQ(expected) \
     ASSERT(result == INTERPRET_OK); \

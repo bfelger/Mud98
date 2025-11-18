@@ -8,6 +8,7 @@
 
 #include <lox/object.h>
 
+#include <match.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -92,6 +93,20 @@ void test_string_eq(const char* expected, const char* actual, const char* file, 
         current->asserts_failed++;
         fprintf(stderr, "    * ASSERT FAILED: (string equality), file %s, line %d.\n", file, line);
         fprintf(stderr, "      Expected: \"%s\"\n", expected ? expected : "NULL");
+        fprintf(stderr, "      Actual:   \"%s\"\n", actual ? actual : "NULL");
+    }
+}
+
+void test_string_match(const char* pattern, const char* actual, const char* file, int line)
+{
+    if ((pattern == NULL && actual != NULL) ||
+        (pattern != NULL && actual == NULL) ||
+        (pattern != NULL && actual != NULL && !mini_match(pattern, actual, '$'))) {
+        if (current->asserts_failed == 0)
+            printf("[\033[91mFAILED\033[0m]\n");
+        current->asserts_failed++;
+        fprintf(stderr, "    * ASSERT FAILED: (pattern match), file %s, line %d.\n", file, line);
+        fprintf(stderr, "      Pattern:  \"%s\"\n", pattern ? pattern : "NULL");
         fprintf(stderr, "      Actual:   \"%s\"\n", actual ? actual : "NULL");
     }
 }

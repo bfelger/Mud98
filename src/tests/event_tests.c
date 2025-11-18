@@ -452,6 +452,58 @@ static int test_greet_event_on_mob()
     return 0;
 }
 
+static int test_hpcnt_event()
+{
+        // Create a room with an attacker and victim 
+    Room* room = mock_room(60000, NULL, NULL);
+
+    Mobile* attacker = mock_mob("Attacker", 60001, NULL);
+    attacker->level = 49;
+    attacker->hitroll = 100;
+    transfer_mob(attacker, room);
+
+    Mobile* victim = mock_mob("Victim", 60002, NULL);
+    victim->hit = 3;
+    victim->max_hit = 3;
+    transfer_mob(victim, room);
+
+    // Arm the attacker with a very weak weapon so the first hit doesn't kill.
+    Object* sword = mock_sword("sword", 60003, 1, 1, 1);
+    obj_to_char(sword, attacker);
+    equip_char(attacker, sword, WEAR_WIELD);
+
+    // Attach an 'on_fight' event to the attacker.
+    const char* event_src =
+        "on_hpcnt(attacker) {"
+        "   print \"${attacker.name} brought me to ${(this.hp*100)/100}% health!\";"
+        "}";
+
+    ObjClass* victim_class = create_entity_class((Entity*)victim,
+        "mob_60002", event_src);
+    victim->header.klass = victim_class;
+
+    Event* fight_event = new_event();
+    fight_event->trigger = TRIG_HPCNT;
+    fight_event->method_name = lox_string("on_hpcnt");
+    fight_event->criteria = INT_VAL(80);   // 80 percent health
+    add_event((Entity*)victim, fight_event);
+
+    // Have the attacker attack the victim organically using `do_kill`.
+    interpret(attacker, "kill Victim");
+
+    // Run violence_update to process the fight round.
+    violence_update();
+
+    char* expected = "Attacker brought me to $N% health!\n";
+    ASSERT_OUTPUT_MATCH(expected);
+
+    extract_char(attacker, true);
+    extract_char(victim, true);
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 void register_event_tests()
 {
 #define REGISTER(n, f)  register_test(&event_tests, (n), (f))
@@ -469,5 +521,7 @@ void register_event_tests()
     REGISTER("TRIG_GIVE: Mob->Mob: Obj by Name", test_give_event_name);
     REGISTER("TRIG_GREET: Room->Mob", test_greet_event_on_room);
     REGISTER("TRIG_GREET: Mob->Mob", test_greet_event_on_mob);
+    REGISTER("TRIG_HPCNT: Mob->Mob", test_hpcnt_event);
+
 #undef REGISTER
 }

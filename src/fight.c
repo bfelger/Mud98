@@ -135,6 +135,7 @@ void violence_update()
         if (IS_NPC(ch)) {
             if (HAS_MPROG_TRIGGER(ch, TRIG_FIGHT))
                 mp_percent_trigger(ch, victim, NULL, NULL, TRIG_FIGHT);
+            // This looks wrong; should it be checking victim's HP?
             if (HAS_MPROG_TRIGGER(ch, TRIG_HPCNT))
                 mp_hprct_trigger(ch, victim);
         }
@@ -142,6 +143,8 @@ void violence_update()
         if (IS_NPC(ch)) {
             if (HAS_EVENT_TRIGGER(ch, TRIG_FIGHT))
                 raise_fight_event(ch, victim, number_percent());
+            if (HAS_EVENT_TRIGGER(victim, TRIG_HPCNT))
+                raise_hpcnt_event(victim, ch);
         }
     }
 

@@ -52,7 +52,7 @@ extern Event* event_free;
 /* TRIG_GIVE    */  void raise_give_event(Mobile* receiver, Mobile* giver, Object* obj);
 /* TRIG_GREET   */  void raise_greet_event(Mobile* ch);
 /* TRIG_GRALL   */  // Same as above
-/* TRIG_HPCNT   */
+/* TRIG_HPCNT   */  void raise_hpcnt_event(Mobile* victim, Mobile* attacker);
 /* TRIG_RANDOM  */
 /* TRIG_SPEECH  */
 /* TRIG_EXIT    */
