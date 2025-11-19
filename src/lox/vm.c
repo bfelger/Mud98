@@ -341,6 +341,30 @@ bool invoke(ObjString* name, int arg_count)
         return invoke_from_class(entity->klass, name, arg_count);
     }
 
+    if (IS_ARRAY(receiver)) {
+        if (!strcmp(name->chars, "add")) {
+            ValueArray* array = AS_ARRAY(receiver);
+            for (int i = 0; i < arg_count; i++) {
+                Value value = peek(arg_count - i - 1);
+                write_value_array(array, value);
+            }
+            vm.stack_top -= (ptrdiff_t)arg_count + 1;
+            push(NIL_VAL);
+            return true;
+        }
+        else if (!strcmp(name->chars, "contains")) {
+            if (arg_count != 1) {
+                runtime_error("'contains()' takes only one argument.");
+                return false;
+            }
+            ValueArray* array = AS_ARRAY(receiver);
+            Value ret = value_array_contains(array, peek(0)) ? TRUE_VAL : FALSE_VAL;            
+            vm.stack_top -= (ptrdiff_t)arg_count + 1;
+            push(ret);
+            return true;
+        }
+    }
+
     if (!IS_INSTANCE(receiver)) {
         lox_printf("Receiver: ");
         print_value(receiver);
@@ -914,6 +938,7 @@ InterpretResult run()
                 }
 
                 if (!IS_INSTANCE(comp) && !IS_ENTITY(comp)) {
+                    print_value(comp);
                     runtime_error("Only instances and entities can have fields.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
@@ -1291,14 +1316,14 @@ void invoke_method_closure(Value receiver, ObjClosure* closure, int count, ...)
     va_end(args);
 
     if (!call_closure(closure, count)) {
-        bug("invoke_method_closure(): Error calling method closure.\n");
+        bug("invoke_method_closure(): Error calling method closure '%s'.\n", closure->function->name->chars);
         return;
     }
 
     InterpretResult rc = run();
 
     if (rc != INTERPRET_OK)
-        bug("invoke_method_closure(): Error invoking method closure.\n");
+        bugf("invoke_method_closure(): Error invoking method closure '%s'.\n", closure->function->name->chars);
 
     // This is the top-level stack frame; the result and last operand have
     // already been popped, and no return value is possible.

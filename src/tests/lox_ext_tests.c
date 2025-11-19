@@ -31,6 +31,37 @@ static int test_array_access()
     return 0;
 }
 
+static int test_array_add()
+{
+    const char* src =
+        "var a = [];\n"
+        "a.add(10);\n"
+        "a.add(20);\n"
+        "a.add(30);\n"
+        "for (var i = 0; i < 3; i++)\n"
+        "   print a[i];\n";
+
+    InterpretResult result = interpret_code(src);
+    ASSERT_LOX_OUTPUT_EQ("10\n20\n30\n");
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_array_contains()
+{
+    const char* src =
+        "var a = [0, 1, 2, 3, 5, 8, 13, 21];\n"
+        "print a.contains(13);\n"
+        "print a.contains(7);\n";
+
+    InterpretResult result = interpret_code(src);
+    ASSERT_LOX_OUTPUT_EQ("true\nfalse\n");
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 static int test_marshaled_raw_vals()
 {    
     int16_t i16 = 16;
@@ -459,6 +490,28 @@ static int test_enum_bootval()
         "3\n"
         "4\n");
 
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_array_class_member()
+{
+    char* src =
+        "class Blah {\n"
+        "init() {\n"
+        "    this.foo = [];\n"
+        "}\n"
+        "add(n) {\n"
+        "this.foo.add(n);\n"
+        "}\n"
+        "}\n"
+        "var blah = Blah();\n"
+        "blah.add(2)\n"
+        "print blah.foo[0]\n";
+    InterpretResult result = interpret_code(src);
+    ASSERT_LOX_OUTPUT_EQ("2\n");
+
+    test_output_buffer = NIL_VAL;
     return 0;
 }
 
@@ -469,7 +522,9 @@ void register_lox_ext_tests()
     init_test_group(&lox_ext_tests, "LOX EXTENSION TESTS");
     register_test_group(&lox_ext_tests);
 
-    REGISTER("Array Access and Mutation", test_array_access);
+    REGISTER("Arrays: Accessing Elements", test_array_access);
+    REGISTER("Arrays: Adding Elements", test_array_add);
+    REGISTER("Arrays: Searching for Elements", test_array_contains);
     REGISTER("Marshaled Raw Values", test_marshaled_raw_vals);
     REGISTER("Lamdas", test_lamdas);
     REGISTER("Bare Lamdas", test_bare_lamdas);
@@ -488,6 +543,7 @@ void register_lox_ext_tests()
     REGISTER("Enum: Auto-Increment", test_enum_auto);
     REGISTER("Enum: Assign", test_enum_assign);
     REGISTER("Enum: Boot Vals", test_enum_bootval);
+    REGISTER("Array Class Member", test_array_class_member);
 
 #undef REGISTER
 }

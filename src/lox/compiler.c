@@ -1234,10 +1234,11 @@ static void variable(bool can_assign)
 {
     Token token = parser.previous;
     
-    if (current_class != NULL && current_class->entity_this && strcmp(token.start, "this")) {
-    // Entities that have classes compiled against them have some native
-    // "methods" that I don't want to speculatively cram into their 
-    // fields.
+    if (current_class != NULL && current_class->entity_this 
+        && strcmp(token.start, "this")) {
+        // Entities that have classes compiled against them have some native
+        // "methods" that I don't want to speculatively cram into their 
+        // fields.
         ObjString* name_str = copy_string(token.start, token.length);
         push(OBJ_VAL(name_str));
         Value value;

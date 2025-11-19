@@ -537,9 +537,33 @@ bool raise_exit_event(Mobile* ch, Direction dir)
     return blocked;
 }
 
-
 // TRIG_DELAY
+// Not implemented in Mud98 events; MobProgs only
+
 // TRIG_SURR
+// Returns true if the mob accepts the surrender
+bool raise_surrender_event(Mobile* ch, Mobile* mob, int pct_chance)
+{
+    if (!HAS_EVENT_TRIGGER(mob, TRIG_SURR))
+        return false;
+
+    Event* event = get_event_by_trigger((Entity*)mob, TRIG_SURR);
+    if (event == NULL)
+        return false;
+
+    if (!IS_INT(event->criteria))
+        return false;
+
+    if (pct_chance > AS_INT(event->criteria))
+        return false;
+
+    ObjClosure* closure = get_event_closure((Entity*)mob, event);
+    if (closure == NULL)
+        return false;
+
+    invoke_method_closure(OBJ_VAL(mob), closure, 1, OBJ_VAL(ch));
+    return repl_ret_val == TRUE_VAL;
+}
 
 // TRIG_LOGIN
 void raise_login_event(Mobile* ch)

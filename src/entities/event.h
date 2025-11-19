@@ -57,8 +57,8 @@ extern Event* event_free;
 /* TRIG_SPEECH  */  // raise_act_event
 /* TRIG_EXIT    */  bool raise_exit_event(Mobile* ch, Direction dir);
 /* TRIG_EXALL   */  // raise_exit_event
-/* TRIG_DELAY   */
-/* TRIG_SURR    */
+/* TRIG_DELAY   */  // not implemented in Mud98 events; MobProgs only
+/* TRIG_SURR    */  bool raise_surrender_event(Mobile* ch, Mobile* mob, int pct_chance);
 /* TRIG_LOGIN   */  void raise_login_event(Mobile* ch);
 
 #endif // !MUD98__ENTITIES__EVENT_H

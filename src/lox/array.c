@@ -43,6 +43,16 @@ void free_value_array(ValueArray* array)
     init_value_array(array);
 }
 
+bool value_array_contains(ValueArray* array, Value value)
+{
+    for (int i = 0; i < array->count; i++) {
+        if (values_equal(array->values[i], value))
+            return true;
+    }
+
+    return false;
+}
+
 void remove_array_value(ValueArray* array, Value value)
 {
     int found = 0;

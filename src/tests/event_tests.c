@@ -5,6 +5,7 @@
 #include "tests.h"
 #include "test_registry.h"
 #include "mock.h"
+#include "lox_tests.h"
 
 #include <entities/area.h>
 #include <entities/event.h>
@@ -92,6 +93,7 @@ static int test_attacked_event()
     ObjClass* victim_class = create_entity_class((Entity*)victim,
         "mob_59001", event_src);
     victim->header.klass = victim_class;
+    init_entity_class((Entity*)victim);
 
     Event* attacked_event = new_event();
     attacked_event->trigger = TRIG_ATTACKED;
@@ -133,6 +135,7 @@ static int test_bribe_event()
     ObjClass* mob_class = create_entity_class((Entity*)mob, 
         "mob_54001", event_src);
     mob->header.klass = mob_class;
+    init_entity_class((Entity*)mob);
 
     Event* bribe_event = new_event();
     bribe_event->trigger = TRIG_BRIBE;
@@ -182,6 +185,7 @@ static int test_death_event()
     ObjClass* mob_class = create_entity_class((Entity*)mob,
         "mob_54001", event_src);
     mob->header.klass = mob_class;
+    init_entity_class((Entity*)mob);
 
     Event* death_event = new_event();
     death_event->trigger = TRIG_DEATH;
@@ -220,6 +224,7 @@ static int test_entry_event()
     ObjClass* mob_class = create_entity_class((Entity*)mob,
         "mob_55002", event_src);
     mob->header.klass = mob_class;
+    init_entity_class((Entity*)mob);
 
     Event* entry_event = new_event();
     entry_event->trigger = TRIG_ENTRY;
@@ -264,6 +269,7 @@ static int test_fight_event()
     ObjClass* attacker_class = create_entity_class((Entity*)attacker,
         "mob_56001", event_src);
     attacker->header.klass = attacker_class;
+    init_entity_class((Entity*)attacker);
 
     Event* fight_event = new_event();
     fight_event->trigger = TRIG_FIGHT;
@@ -310,6 +316,7 @@ static int test_give_event_vnum()
     ObjClass* mob_class = create_entity_class((Entity*)mob, 
         "mob_57001", event_src);
     mob->header.klass = mob_class;
+    init_entity_class((Entity*)mob);
 
     Event* give_event = new_event();
     give_event->trigger = TRIG_GIVE;
@@ -354,6 +361,7 @@ static int test_give_event_name()
     ObjClass* mob_class = create_entity_class((Entity*)mob, 
         "mob_57001", event_src);
     mob->header.klass = mob_class;
+    init_entity_class((Entity*)mob);
 
     Event* give_event = new_event();
     give_event->trigger = TRIG_GIVE;
@@ -393,6 +401,7 @@ static int test_greet_event_on_room()
     ObjClass* room_class = create_entity_class((Entity*)north_room, 
         "room_58001", event_src);
     north_room->header.klass = room_class;
+    init_entity_class((Entity*)north_room);
 
     Event* greet_event = new_event();
     greet_event->trigger = TRIG_GREET;
@@ -433,6 +442,7 @@ static int test_greet_event_on_mob()
     ObjClass* mob_class = create_entity_class((Entity*)greeter, 
         "mob_58002", event_src);
     greeter->header.klass = mob_class;
+    init_entity_class((Entity*)greeter);
 
     Event* greet_event = new_event();
     greet_event->trigger = TRIG_GREET;
@@ -482,6 +492,7 @@ static int test_hpcnt_event()
     ObjClass* victim_class = create_entity_class((Entity*)victim,
         "mob_60002", event_src);
     victim->header.klass = victim_class;
+    init_entity_class((Entity*)victim);
 
     Event* fight_event = new_event();
     fight_event->trigger = TRIG_HPCNT;
@@ -522,6 +533,7 @@ static int test_random_event()
     ObjClass* mob_class = create_entity_class((Entity*)mob,
         "mob_61001", event_src);
     mob->header.klass = mob_class;
+    init_entity_class((Entity*)mob);
 
     Event* random_event = new_event();
     random_event->trigger = TRIG_RANDOM;
@@ -561,6 +573,7 @@ static int test_speech_event()
     ObjClass* listener_class = create_entity_class((Entity*)listener,
         "mob_62002", event_src);
     listener->header.klass = listener_class;
+    init_entity_class((Entity*)listener);
 
     Event* act_event = new_event();
     act_event->trigger = TRIG_ACT;
@@ -616,6 +629,8 @@ static int test_exit_event()
     ObjClass* room_class = create_entity_class((Entity*)south_room,
         "room_63000", event_src);
     south_room->header.klass = room_class;
+    init_entity_class((Entity*)south_room);
+
     Event* exit_event = new_event();
     exit_event->trigger = TRIG_EXIT;
     exit_event->method_name = lox_string("on_exit_north");
@@ -635,6 +650,88 @@ static int test_exit_event()
 
     extract_char(bob, true);
     extract_char(alice, true);
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_surrender_event()
+{
+    Room* room = mock_room(64000, NULL, NULL);
+
+    Mobile* guard = mock_mob("Guard", 64001, NULL);
+    guard->hit = 100;
+    guard->max_hit = 100;
+    transfer_mob(guard, room);
+
+    Mobile* bob = mock_player("Bob");
+    bob->hit = 100;
+    bob->max_hit = 100;
+    transfer_mob(bob, room);
+
+    // Arm both with a very weak weapon so the first hit doesn't kill.
+    Object* sword1 = mock_sword("sword", 60003, 1, 1, 1);
+    obj_to_char(sword1, guard);
+    equip_char(guard, sword1, WEAR_WIELD);
+
+    Object* sword2 = mock_sword("sword", 60004, 1, 1, 1);
+    obj_to_char(sword2, bob);
+    equip_char(bob, sword2, WEAR_WIELD);
+
+    // Attach an 'on_surr' event to the guard.
+    const char* event_src =
+        "init() {\n"
+        //"   this.foes = [];\n"
+        "   this.foe = nil;\n"
+        "}\n"
+        "on_surr(ch) {\n"
+        //"   if (this.foes.contains(ch.name)) {\n"
+        "   if (this.foe == ch.name) {\n"
+        "       print \"I have already accepted your surrender once, ${ch.name}. Never again!\";\n"
+        "       return false;\n"
+        "   }\n"
+        "   print \"You better keep your nose clean, ${ch.name}.\";\n"
+        //"   this.foes.add(ch.name);\n"
+        "   this.foe = ch.name;\n"
+        "   return true;\n"
+        "}";
+    test_disassemble_on_test = true;
+    ObjClass* guard_class = create_entity_class((Entity*)guard,
+        "mob_64001", event_src);
+    test_disassemble_on_test = false;
+    guard->header.klass = guard_class;
+    init_entity_class((Entity*)guard);
+
+    Event* surr_event = new_event();
+    surr_event->trigger = TRIG_SURR;
+    surr_event->method_name = lox_string("on_surr");
+    surr_event->criteria = INT_VAL(100);   // 100 percent chance
+    add_event((Entity*)guard, surr_event);
+
+    // Have Bob attack the guard organically using `do_kill`.
+    interpret(bob, "kill Guard");
+    violence_update();
+
+    // Have Bob surrender.
+    interpret(bob, "surrender");
+    char* expected1 = "You better keep your nose clean, Bob.\n";
+    ASSERT_OUTPUT_EQ(expected1);
+    ASSERT(bob->fighting == NULL);
+    test_output_buffer = NIL_VAL;
+
+    // Have Bob attack the guard again.
+    interpret(bob, "kill Guard");
+    violence_update();
+
+    // Have Bob surrender again.
+    interpret(bob, "surrender");
+
+    char* expected2 = "I have already accepted your surrender once, Bob. Never again!\n";
+    ASSERT_OUTPUT_EQ(expected2);
+    ASSERT(bob->fighting != NULL);
+
+    extract_char(guard, true);
+    extract_char(bob, true);
 
     test_output_buffer = NIL_VAL;
     return 0;
@@ -661,6 +758,7 @@ void register_event_tests()
     REGISTER("TRIG_RANDOM: Mob", test_random_event);
     REGISTER("TRIG_SPEECH: Mob->Mob", test_speech_event);
     REGISTER("TRIG_EXIT: Room->Mob", test_exit_event);
+    REGISTER("TRIG_SURR: Mob->Mob", test_surrender_event);
 
 #undef REGISTER
 }

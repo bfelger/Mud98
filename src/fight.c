@@ -2913,10 +2913,13 @@ void do_surrender(Mobile* ch, char* argument)
     act("$n tries to surrender to $N!", ch, NULL, mob, TO_NOTVICT);
     stop_fighting(ch, true);
 
-    if (!IS_NPC(ch) && IS_NPC(mob)
-        && (!HAS_MPROG_TRIGGER(mob, TRIG_SURR)
-            || !mp_percent_trigger(mob, ch, NULL, NULL, TRIG_SURR))) {
-        act("$N seems to ignore your cowardly act!", ch, NULL, mob, TO_CHAR);
-        multi_hit(mob, ch, TYPE_UNDEFINED);
+    if (!IS_NPC(ch) && IS_NPC(mob)) {
+        if (HAS_MPROG_TRIGGER(mob, TRIG_SURR) && mp_percent_trigger(mob, ch, NULL, NULL, TRIG_SURR))
+            return;
+        if (HAS_EVENT_TRIGGER(mob, TRIG_SURR) && raise_surrender_event(ch, mob, number_percent()))
+            return;
     }
+
+    act("$N seems to ignore your cowardly act!", ch, NULL, mob, TO_CHAR);
+    multi_hit(mob, ch, TYPE_UNDEFINED);
 }
