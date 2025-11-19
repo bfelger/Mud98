@@ -1337,13 +1337,8 @@ void init_entity_class(Entity* entity)
         return;
     }
 
-    push(OBJ_VAL(entity));
-
-    ObjClass* klass = entity->klass;
-
-    vm.stack_top[-1] = OBJ_VAL(entity);
     Value initializer;
-    if (table_get(&klass->methods, vm.init_string, &initializer)) {
-        invoke_closure(AS_CLOSURE(initializer), 0);
+    if (table_get(&entity->klass->methods, vm.init_string, &initializer)) {
+        invoke_method_closure(OBJ_VAL(entity), AS_CLOSURE(initializer), 0);
     }
 }

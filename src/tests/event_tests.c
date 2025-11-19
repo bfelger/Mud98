@@ -681,24 +681,20 @@ static int test_surrender_event()
     // Attach an 'on_surr' event to the guard.
     const char* event_src =
         "init() {\n"
-        //"   this.foes = [];\n"
-        "   this.foe = nil;\n"
+        "   this.foes = [];\n"
         "}\n"
         "on_surr(ch) {\n"
-        //"   if (this.foes.contains(ch.name)) {\n"
-        "   if (this.foe == ch.name) {\n"
+        "   if (this.foes.contains(ch.name)) {\n"
         "       print \"I have already accepted your surrender once, ${ch.name}. Never again!\";\n"
         "       return false;\n"
         "   }\n"
         "   print \"You better keep your nose clean, ${ch.name}.\";\n"
-        //"   this.foes.add(ch.name);\n"
-        "   this.foe = ch.name;\n"
+        "   this.foes.add(ch.name);\n"
         "   return true;\n"
         "}";
-    test_disassemble_on_test = true;
     ObjClass* guard_class = create_entity_class((Entity*)guard,
         "mob_64001", event_src);
-    test_disassemble_on_test = false;
+    test_output_buffer = NIL_VAL;
     guard->header.klass = guard_class;
     init_entity_class((Entity*)guard);
 
