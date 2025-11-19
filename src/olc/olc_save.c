@@ -277,21 +277,7 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
             pMprog->trig_phrase);
     }
 
-    if (p_mob_proto->header.events.count > 0) {
-        Node* n = p_mob_proto->header.events.front;
-        for (int i = 0; i < p_mob_proto->header.events.count; i++) {
-            Event* e = AS_EVENT(n->value);
-            n = n->next;
-            int event_idx = flag_index(e->trigger, mprog_flag_table);
-            if (event_idx == NO_FLAG) {
-                bugf("save_mobiles: Bad event flag %d.", e->trigger);
-                continue;
-            }
-            fprintf(fp, "V '%s' %s~\n",
-                mprog_flag_table[event_idx].name,
-                e->method_name->chars);
-        }
-    }
+    save_events(fp, &p_mob_proto->header);
 
     if (p_mob_proto->header.script != NULL) {
         fprintf(fp, "L\n%s~\n", p_mob_proto->header.script->chars);
@@ -519,21 +505,7 @@ void save_object(FILE* fp, ObjPrototype* obj_proto)
             fix_string(pEd->description));
     }
 
-    if (obj_proto->header.events.count > 0) {
-        Node* n = obj_proto->header.events.front;
-        for (int i = 0; i < obj_proto->header.events.count; i++) {
-            Event* e = AS_EVENT(n->value);
-            n = n->next;
-            int event_idx = flag_index(e->trigger, mprog_flag_table);
-            if (event_idx == NO_FLAG) {
-                bugf("save_mobiles: Bad event flag %d.", e->trigger);
-                continue;
-            }
-            fprintf(fp, "V '%s' %s~\n",
-                mprog_flag_table[event_idx].name,
-                e->method_name->chars);
-        }
-    }
+    save_events(fp, &obj_proto->header);
 
     if (obj_proto->header.script != NULL) {
         fprintf(fp, "L\n%s~\n", obj_proto->header.script->chars);
@@ -638,21 +610,7 @@ void save_rooms(FILE* fp, AreaData* area)
             if (pRoomIndex->clan > 0)
                 fprintf(fp, "C '%s'\n", clan_table[pRoomIndex->clan].name);
 
-            if (pRoomIndex->header.events.count > 0) {
-                Node* n = pRoomIndex->header.events.front;
-                for (int i = 0; i < pRoomIndex->header.events.count; i++) {
-                    Event* e = AS_EVENT(n->value);
-                    n = n->next;
-                    int event_idx = flag_index(e->trigger, mprog_flag_table);
-                    if (event_idx == NO_FLAG) {
-                        bugf("save_rooms: Bad event flag %d.", e->trigger);
-                        continue;
-                    }
-                    fprintf(fp, "V '%s' %s~\n", 
-                        mprog_flag_table[event_idx].name, 
-                        e->method_name->chars);
-                }
-            }
+            save_events(fp, &pRoomIndex->header);
 
             if (pRoomIndex->header.script != NULL) {
                 fprintf(fp, "L\n%s~\n", pRoomIndex->header.script->chars);

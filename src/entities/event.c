@@ -148,10 +148,52 @@ void load_event(FILE* fp, Entity* owner)
     // Read the method name to call on event
     event->method_name = fread_lox_string(fp);
 
-    // TODO: Parse subsequent Lox Value
-    event->criteria = NIL_VAL;
+    char c = fread_letter(fp);
+
+    switch (c) {
+    case 'I':   
+        event->criteria = INT_VAL(fread_vnum(fp));
+        break;
+    case 'S':   
+        event->criteria = OBJ_VAL(fread_lox_string(fp));
+        break;
+    case '0':
+        // No criteria
+        break;
+    default:
+        bugf("load_event: Bad criteria indicator '%c'.", c);
+        break;
+    }
 
     add_event(owner, event);
+}
+
+void save_events(FILE* fp, Entity* entity)
+{
+    if (entity->events.count == 0)
+        return;
+
+    Node* n = entity->events.front;
+    for (int i = 0; i < entity->events.count; i++) {
+        Event* e = AS_EVENT(n->value);
+        n = n->next;
+        const EventTypeInfo* trig_info = get_event_type_info((EventTrigger)e->trigger);
+        if (trig_info == NULL) {
+            bugf("save_events: No event type info for trigger %d.", e->trigger);
+            continue;
+        }
+        fprintf(fp, "V '%s' %s~ ", trig_info->name, e->method_name->chars);
+        if (IS_INT(e->criteria)) {
+            fprintf(fp, "I %d", AS_INT(e->criteria));
+        }
+        else if (IS_STRING(e->criteria)) {
+            fprintf(fp, "S '%s'", AS_STRING(e->criteria)->chars);
+        }
+        else {
+            fprintf(fp, "0");
+        }
+        fprintf(fp, "\n");
+    }
 }
 
 // Get the event with the specified trigger flag from an entity
@@ -236,7 +278,7 @@ Event* get_event_by_trigger_intval(Entity* entity, FLAGS trigger, int val)
 
         int trig_val = AS_INT(ev->criteria);
 
-        if (val >= trig_val)
+        if (val == trig_val)
             return ev;
     }
     return NULL;
@@ -325,7 +367,14 @@ void raise_bribe_event(Mobile* mob, Mobile* ch, int amount)
     if (!HAS_EVENT_TRIGGER(mob, TRIG_BRIBE))
         return;
 
-    Event* event = get_event_by_trigger_intval((Entity*)mob, TRIG_BRIBE, amount);
+    Event* event = get_event_by_trigger((Entity*)mob, TRIG_BRIBE);
+
+    if (!IS_INT(event->criteria))
+        return;
+
+    if (amount > AS_INT(event->criteria))
+        return;
+
     ObjClosure* closure = get_event_closure((Entity*)mob, event);
 
     if (closure == NULL)

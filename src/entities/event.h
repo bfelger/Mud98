@@ -29,6 +29,7 @@ void add_event_timer(ObjClosure* closure, int ticks);
 void event_timer_tick();
 void remove_event(Entity* entity, Event* event);
 void load_event(FILE* fp, Entity* owner);
+void save_events(FILE* fp, Entity* entity);
 Event* get_event_by_trigger(Entity* entity, FLAGS trigger);
 Event* get_event_by_trigger_strval(Entity* entity, FLAGS trigger, const char* str);
 Event* get_event_by_trigger_intval(Entity* entity, FLAGS trigger, int val);

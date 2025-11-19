@@ -41,18 +41,30 @@ typedef enum {
     ENT_QUEST   = BIT(4),
 } EventEnts;
 
+#define ENT_ALL (ENT_ROOM | ENT_MOB | ENT_OBJ)
+
+typedef enum {
+    CRIT_NONE = 0,
+    CRIT_INT,
+    CRIT_STR,
+    CRIT_INT_OR_STR,
+} EventCriteriaType;
+
 typedef struct {
-    EventTrigger trigger;           // EventTrigger
-    const char* name;               
-    const char* default_callback;   // Lox method to call (by default)
-    FLAGS valid_ents;               // Valid recipients
-} EventDefaultConfig;
+    EventTrigger trigger;               // EventTrigger
+    const char* name;                   // Name to use for display/save/load
+    const char* default_callback;       // Lox method to call (by default)
+    FLAGS valid_ents;                   // Valid recipients
+    EventCriteriaType criteria_type;    // What type of criteria this trigger accepts
+    const char* default_criteria;       // Default criteria (string form) or NULL
+} EventTypeInfo;
 
 EventEnts get_entity_type(Entity* entity);
 const char* get_event_default_callback(EventTrigger trigger);
 const char* get_event_name(EventTrigger trigger);
+const EventTypeInfo* get_event_type_info(EventTrigger trigger);
 
-extern const EventDefaultConfig event_default_configs[];
+extern const EventTypeInfo event_type_info_table[];
 
 #define LAST_TRIG TRIG_LOGIN
 
