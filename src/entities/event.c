@@ -372,7 +372,7 @@ void raise_bribe_event(Mobile* mob, Mobile* ch, int amount)
     if (!IS_INT(event->criteria))
         return;
 
-    if (amount > AS_INT(event->criteria))
+    if (amount < AS_INT(event->criteria))
         return;
 
     ObjClosure* closure = get_event_closure((Entity*)mob, event);
