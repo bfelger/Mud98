@@ -13,6 +13,7 @@
 #include <lox/object.h>
 
 #include <act_obj.h>
+#include <handler.h>
 #include <comm.h>
 #include <fight.h>
 #include <update.h>
@@ -733,6 +734,123 @@ static int test_surrender_event()
     return 0;
 }
 
+static int test_obj_taken_event()
+{
+    Room* room = mock_room(65000, NULL, NULL);
+    Mobile* bob = mock_player("Bob");
+    transfer_mob(bob, room);
+
+    Object* relic = mock_obj("Relic", 65001, NULL);
+    relic->wear_flags = ITEM_TAKE;
+    obj_to_room(relic, room);
+
+    const char* event_src =
+        "on_taken(taker) {"
+        "   print \"${taker.name} picked up ${this.name}.\";"
+        "}";
+    ObjClass* obj_class = create_entity_class((Entity*)relic,
+        "obj_65001", event_src);
+    relic->header.klass = obj_class;
+    init_entity_class((Entity*)relic);
+
+    Event* taken_event = new_event();
+    taken_event->trigger = TRIG_TAKEN;
+    taken_event->method_name = lox_string("on_taken");
+    taken_event->criteria = NIL_VAL;
+    add_event((Entity*)relic, taken_event);
+
+    interpret(bob, "get Relic");
+
+    char* expected = "Bob picked up Relic.\n";
+    ASSERT_OUTPUT_EQ(expected);
+
+    extract_char(bob, true);
+    extract_obj(relic);
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_obj_given_event()
+{
+    Room* room = mock_room(65010, NULL, NULL);
+
+    Mobile* giver = mock_player("Sam");
+    transfer_mob(giver, room);
+
+    Mobile* taker = mock_player("Tia");
+    transfer_mob(taker, room);
+
+    Object* gift = mock_obj("Gift", 65011, NULL);
+    gift->wear_flags = ITEM_TAKE;
+    obj_to_char(gift, giver);
+
+    const char* event_src =
+        "on_given(giver, taker) {"
+        "   print \"${giver.name} handed ${this.name} to ${taker.name}.\";"
+        "}";
+    ObjClass* obj_class = create_entity_class((Entity*)gift,
+        "obj_65011", event_src);
+    gift->header.klass = obj_class;
+    init_entity_class((Entity*)gift);
+
+    Event* given_event = new_event();
+    given_event->trigger = TRIG_GIVEN;
+    given_event->method_name = lox_string("on_given");
+    given_event->criteria = NIL_VAL;
+    add_event((Entity*)gift, given_event);
+
+    interpret(giver, "give Gift to Tia");
+
+    char* expected = "Sam handed Gift to Tia.\n";
+    ASSERT_OUTPUT_EQ(expected);
+
+    extract_char(giver, true);
+    extract_char(taker, true);
+    extract_obj(gift);
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_obj_dropped_event()
+{
+    Room* room = mock_room(65020, NULL, NULL);
+
+    Mobile* dropper = mock_player("Dee");
+    transfer_mob(dropper, room);
+
+    Object* stone = mock_obj("Stone", 65021, NULL);
+    stone->wear_flags = ITEM_TAKE;
+    obj_to_char(stone, dropper);
+
+    const char* event_src =
+        "on_dropped(dropper) {"
+        "   print \"${dropper.name} dropped ${this.name}.\";"
+        "}";
+    ObjClass* obj_class = create_entity_class((Entity*)stone,
+        "obj_65021", event_src);
+    stone->header.klass = obj_class;
+    init_entity_class((Entity*)stone);
+
+    Event* drop_event = new_event();
+    drop_event->trigger = TRIG_DROPPED;
+    drop_event->method_name = lox_string("on_dropped");
+    drop_event->criteria = NIL_VAL;
+    add_event((Entity*)stone, drop_event);
+
+    interpret(dropper, "drop Stone");
+
+    char* expected = "Dee dropped Stone.\n";
+    ASSERT_OUTPUT_EQ(expected);
+
+    extract_char(dropper, true);
+    extract_obj(stone);
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 void register_event_tests()
 {
 #define REGISTER(n, f)  register_test(&event_tests, (n), (f))
@@ -755,6 +873,9 @@ void register_event_tests()
     REGISTER("TRIG_SPEECH: Mob->Mob", test_speech_event);
     REGISTER("TRIG_EXIT: Room->Mob", test_exit_event);
     REGISTER("TRIG_SURR: Mob->Mob", test_surrender_event);
+    REGISTER("TRIG_TAKEN: Obj->Mob", test_obj_taken_event);
+    REGISTER("TRIG_GIVEN: Obj->Mob+Mob", test_obj_given_event);
+    REGISTER("TRIG_DROPPED: Obj->Mob", test_obj_dropped_event);
 
 #undef REGISTER
 }

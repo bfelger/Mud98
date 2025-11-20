@@ -10,6 +10,8 @@
 
 #include "entity.h"
 
+typedef struct object_t Object;
+
 #include <lox/object.h>
 
 #include <recycle.h>
@@ -61,5 +63,8 @@ extern Event* event_free;
 /* TRIG_DELAY   */  // not implemented in Mud98 events; MobProgs only
 /* TRIG_SURR    */  bool raise_surrender_event(Mobile* ch, Mobile* mob, int pct_chance);
 /* TRIG_LOGIN   */  void raise_login_event(Mobile* ch);
+/* TRIG_GIVEN   */  void raise_object_given_event(Object* obj, Mobile* giver, Mobile* taker);
+/* TRIG_TAKEN   */  void raise_object_taken_event(Object* obj, Mobile* taker);
+/* TRIG_DROPPED */  void raise_object_dropped_event(Object* obj, Mobile* dropper);
 
 #endif // !MUD98__ENTITIES__EVENT_H
