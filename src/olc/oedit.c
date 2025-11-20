@@ -2,20 +2,24 @@
 // oedit.c
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "merc.h"
+#include <merc.h>
 
 #include "bit.h"
-#include "comm.h"
-#include "db.h"
-#include "handler.h"
-#include "lookup.h"
-#include "magic.h"
+#include "event_edit.h"
+#include "lox_edit.h"
 #include "olc.h"
-#include "recycle.h"
-#include "save.h"
-#include "tables.h"
 
-#include "entities/object.h"
+#include <comm.h>
+#include <db.h>
+#include <handler.h>
+#include <lookup.h>
+#include <magic.h>
+#include <recycle.h>
+#include <save.h>
+#include <tables.h>
+
+#include <entities/event.h>
+#include <entities/object.h>
 
 #define OEDIT(fun) bool fun( Mobile *ch, char *argument )
 
@@ -27,7 +31,7 @@ ObjPrototype xObj;
 #define U(x)    (uintptr_t)(x)
 
 const OlcCmdEntry obj_olc_comm_table[] = {
-    { "name",	    U(&xObj.name),		    ed_line_string,		0		        },
+    { "name",	    U(&xObj.header.name),	ed_line_lox_string, 0		        },
     { "short",	    U(&xObj.short_descr),	ed_line_string,		0		        },
     { "long",	    U(&xObj.description),	ed_line_string,		0		        },
     { "material",	U(&xObj.material),	    ed_line_string,		0		        },
@@ -48,6 +52,8 @@ const OlcCmdEntry obj_olc_comm_table[] = {
     { "v3",	        0,				        ed_value,		    3	            },
     { "v4",	        0,				        ed_value,		    4	            },
     { "create",	    0,				        ed_new_obj,		    0		        },
+    { "event",      0,                      ed_olded,           U(olc_edit_event)   },
+    { "lox",        0,                      ed_olded,           U(olc_edit_lox)     },
     { "mshow",	    0,				        ed_olded,		    U(medit_show)   },
     { "oshow",	    0,				        ed_olded,		    U(oedit_show)   },
     { "olist",	    U(&xObj.area),		    ed_olist,		    0		        },
@@ -75,12 +81,12 @@ void do_oedit(Mobile* ch, char* argument)
     if (is_number(arg1)) {
         value = atoi(arg1);
         if (!(pObj = get_object_prototype(value))) {
-            send_to_char("{jOEdit:  That vnum does not exist.{x\n\r", ch);
+            send_to_char(COLOR_INFO "OEdit:  That vnum does not exist." COLOR_EOL, ch);
             return;
         }
 
         if (!IS_BUILDER(ch, pObj->area)) {
-            send_to_char("{jYou do not have enough security to edit objects.{x\n\r", ch);
+            send_to_char(COLOR_INFO "You do not have enough security to edit objects." COLOR_EOL, ch);
             return;
         }
 
@@ -92,19 +98,19 @@ void do_oedit(Mobile* ch, char* argument)
         if (!str_cmp(arg1, "create")) {
             value = atoi(argument);
             if (argument[0] == '\0' || value == 0) {
-                send_to_char("{jSyntax:  {*EDIT OBJECT CREATE [VNUM]{x\n\r", ch);
+                send_to_char(COLOR_INFO "Syntax:  " COLOR_ALT_TEXT_1 "EDIT OBJECT CREATE [VNUM]" COLOR_EOL, ch);
                 return;
             }
 
             area = get_vnum_area(value);
 
             if (!area) {
-                send_to_char("{jOEdit:  That vnum is not assigned an area.{x\n\r", ch);
+                send_to_char(COLOR_INFO "OEdit:  That vnum is not assigned an area." COLOR_EOL, ch);
                 return;
             }
 
             if (!IS_BUILDER(ch, area)) {
-                send_to_char("{jYou do not have enough security to edit objects.{x\n\r", ch);
+                send_to_char(COLOR_INFO "You do not have enough security to edit objects." COLOR_EOL, ch);
                 return;
             }
 
@@ -117,7 +123,7 @@ void do_oedit(Mobile* ch, char* argument)
         }
     }
 
-    send_to_char("{jOEdit:  There is no default object to edit.{x\n\r", ch);
+    send_to_char(COLOR_INFO "OEdit:  There is no default object to edit." COLOR_EOL, ch);
     return;
 }
 
@@ -131,7 +137,7 @@ void oedit(Mobile* ch, char* argument)
     area = pObj->area;
 
     if (!IS_BUILDER(ch, area)) {
-        send_to_char("{jOEdit: Insufficient security to modify area.{x\n\r", ch);
+        send_to_char(COLOR_INFO "OEdit: Insufficient security to modify area." COLOR_EOL, ch);
         edit_done(ch);
         return;
     }
@@ -162,18 +168,18 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
 
     case ITEM_LIGHT:
         if (obj->value[2] == -1 || obj->value[2] == 999) /* ROM OLC */
-            printf_to_char(ch, "{|[{*v2{|]{x Light:  {|[{*-1{|] {_(infinite){x\n\r");
+            printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Light:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "-1" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(infinite)" COLOR_EOL);
         else
-            printf_to_char(ch, "{|[{*v2{|]{x Light:  {|[{*%d{|]{x\n\r", obj->value[2]);
+            printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Light:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL, obj->value[2]);
         break;
 
     case ITEM_WAND:
     case ITEM_STAFF:
         printf_to_char(ch,
-            "{|[{*v0{|]{x Level:          {|[{*%d{|]{x\n\r"
-            "{|[{*v1{|]{x Charges Total:  {|[{*%d{|]{x\n\r"
-            "{|[{*v2{|]{x Charges Left:   {|[{*%d{|]{x\n\r"
-            "{|[{*v3{|]{x Spell:          {_%s{x\n\r",
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " Level:          " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Charges Total:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Charges Left:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " Spell:          " COLOR_ALT_TEXT_2 "%s" COLOR_EOL,
             obj->value[0],
             obj->value[1],
             obj->value[2],
@@ -183,10 +189,10 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
 
     case ITEM_PORTAL:
         printf_to_char(ch,
-            "{|[{*v0{|]{x Charges:        {|[{*%d{|]{x\n\r"
-            "{|[{*v1{|]{x Exit Flags:     {|[{*%s{|]{x\n\r"
-            "{|[{*v2{|]{x Portal Flags:   {|[{*%s{|]{x\n\r"
-            "{|[{*v3{|]{x Goes to VNUM:   {|[{*%d{|]{x\n\r",
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " Charges:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Exit Flags:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Portal Flags:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " Goes to VNUM:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL,
             obj->value[0],
             flag_string(exit_flag_table, obj->value[1]),
             flag_string(portal_flag_table, obj->value[2]),
@@ -195,11 +201,11 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
 
     case ITEM_FURNITURE:
         printf_to_char(ch,
-            "{|[{*v0{|]{x Max people:      {|[{*%d{|]{x\n\r"
-            "{|[{*v1{|]{x Max weight:      {|[{*%d{|]{x\n\r"
-            "{|[{*v2{|]{x Furniture Flags: {|[{*%s{|]{x\n\r"
-            "{|[{*v3{|]{x Heal bonus:      {|[{*%d{|]{x\n\r"
-            "{|[{*v4{|]{x Mana bonus:      {|[{*%d{|]{x\n\r",
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " Max people:      " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Max weight:      " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Furniture Flags: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " Heal bonus:      " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v4" COLOR_DECOR_1 "]" COLOR_CLEAR " Mana bonus:      " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL,
             obj->value[0],
             obj->value[1],
             flag_string(furniture_flag_table, obj->value[2]),
@@ -211,11 +217,11 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
     case ITEM_POTION:
     case ITEM_PILL:
         printf_to_char(ch,
-            "{|[{*v0{|]{x Level:  {|[{*%d{|]{x\n\r"
-            "{|[{*v1{|]{x Spell:  {_%s{x\n\r"
-            "{|[{*v2{|]{x Spell:  {_%s{x\n\r"
-            "{|[{*v3{|]{x Spell:  {_%s{x\n\r"
-            "{|[{*v4{|]{x Spell:  {_%s{x\n\r",
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " Level:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Spell:  " COLOR_ALT_TEXT_2 "%s" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Spell:  " COLOR_ALT_TEXT_2 "%s" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " Spell:  " COLOR_ALT_TEXT_2 "%s" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v4" COLOR_DECOR_1 "]" COLOR_CLEAR " Spell:  " COLOR_ALT_TEXT_2 "%s" COLOR_EOL,
             obj->value[0],
             obj->value[1] != -1 ? skill_table[obj->value[1]].name : "none",
             obj->value[2] != -1 ? skill_table[obj->value[2]].name : "none",
@@ -227,10 +233,10 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
 
     case ITEM_ARMOR:
         printf_to_char(ch,
-            "{|[{*v0{|]{x AC pierce       {|[{*%d{|]{x\n\r"
-            "{|[{*v1{|]{x AC bash         {|[{*%d{|]{x\n\r"
-            "{|[{*v2{|]{x AC slash        {|[{*%d{|]{x\n\r"
-            "{|[{*v3{|]{x AC exotic       {|[{*%d{|]{x\n\r",
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " AC pierce       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " AC bash         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " AC slash        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " AC exotic       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL,
             obj->value[0],
             obj->value[1],
             obj->value[2],
@@ -241,20 +247,20 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
 /* I had to split the output here, I have no idea why, but it helped -- Hugin */
 /* It somehow fixed a bug in showing scroll/pill/potions too ?! */
     case ITEM_WEAPON:
-        printf_to_char(ch, "{|[{*v0{|]{x Weapon class:   {|[{*%s{|]{x\n\r", flag_string(weapon_class, obj->value[0]));
-        printf_to_char(ch, "{|[{*v1{|]{x Number of dice: {|[{*%d{|]{x\n\r", obj->value[1]);
-        printf_to_char(ch, "{|[{*v2{|]{x Type of dice:   {|[{*%d{|]{x\n\r", obj->value[2]);
-        printf_to_char(ch, "{|[{*v3{|]{x Type:           {|[{*%s{|]{x\n\r", attack_table[obj->value[3]].name);
-        printf_to_char(ch, "{|[{*v4{|]{x Special type:   {|[{*%s{|]{x\n\r", flag_string(weapon_type2, obj->value[4]));
+        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " Weapon class:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(weapon_class, obj->value[0]));
+        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Number of dice: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL, obj->value[1]);
+        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Type of dice:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL, obj->value[2]);
+        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " Type:           " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, attack_table[obj->value[3]].name);
+        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v4" COLOR_DECOR_1 "]" COLOR_CLEAR " Special type:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(weapon_type2, obj->value[4]));
         break;
 
     case ITEM_CONTAINER:
         printf_to_char(ch,
-            "{|[{*v0{|]{x Weight:     {|[{*%d kg{|]{x\n\r"
-            "{|[{*v1{|]{x Flags:      {|[{*%s{|]{x\n\r"
-            "{|[{*v2{|]{x Key:        {|[{*%d{|]{_ %s{x\n\r"
-            "{|[{*v3{|]{x Capacity    {|[{*%d{|]{x\n\r"
-            "{|[{*v4{|]{x Weight Mult {|[{*%d{|]{x\n\r",
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " Weight:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d kg" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Flags:      " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Key:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_ALT_TEXT_2 " %s" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " Capacity    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v4" COLOR_DECOR_1 "]" COLOR_CLEAR " Weight Mult " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL,
             obj->value[0],
             flag_string(container_flag_table, obj->value[1]),
             obj->value[2],
@@ -267,10 +273,10 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
 
     case ITEM_DRINK_CON:
         printf_to_char(ch,
-            "{|[{*v0{|]{x Liquid Total: {|[{*%d{|]{x\n\r"
-            "{|[{*v1{|]{x Liquid Left:  {|[{*%d{|]{x\n\r"
-            "{|[{*v2{|]{x Liquid:       {|[{*%s{|]{x\n\r"
-            "{|[{*v3{|]{x Poisoned:     {|[{*%s{|]{x\n\r",
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " Liquid Total: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Liquid Left:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Liquid:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " Poisoned:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL,
             obj->value[0],
             obj->value[1],
             liquid_table[obj->value[2]].name,
@@ -279,9 +285,9 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
 
     case ITEM_FOUNTAIN:
         printf_to_char(ch,
-            "{|[{*v0{|]{x Liquid Total: {|[{*%d{|]{x\n\r"
-            "{|[{*v1{|]{x Liquid Left:  {|[{*%d{|]{x\n\r"
-            "{|[{*v2{|]{x Liquid:       {|[{*%s{|]{x\n\r",
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " Liquid Total: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Liquid Left:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Liquid:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL,
             obj->value[0],
             obj->value[1],
             liquid_table[obj->value[2]].name);
@@ -289,9 +295,9 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
 
     case ITEM_FOOD:
         printf_to_char(ch,
-            "{|[{*v0{|]{x Food hours:   {|[{*%d{|]{x\n\r"
-            "{|[{*v1{|]{x Full hours:   {|[{*%d{|]{x\n\r"
-            "{|[{*v3{|]{x Poisoned:     {|[{*%s{|]{x\n\r",
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " Food hours:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Full hours:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " Poisoned:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL,
             obj->value[0],
             obj->value[1],
             obj->value[3] != 0 ? "Yes" : "No");
@@ -299,8 +305,8 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
 
     case ITEM_MONEY:
         printf_to_char(ch,
-            "{|[{*v0{|]{x Gold:         {|[{*%d{|]{x\n\r"
-            "{|[{*v1{|]{x Silver:       {|[{*%d{|]{x\n\r",
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " Gold:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Silver:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL,
             obj->value[0],
             obj->value[1]);
         break;
@@ -646,7 +652,7 @@ OEDIT(oedit_show)
         if (ch->desc->editor == ED_OBJECT)
             EDIT_OBJ(ch, pObj);
         else {
-            send_to_char("{jSyntax : {*OSHOW [VNUM]{x\n\r", ch);
+            send_to_char(COLOR_INFO "Syntax : " COLOR_ALT_TEXT_1 "OSHOW [VNUM]" COLOR_EOL, ch);
             return false;
         }
     }
@@ -654,29 +660,29 @@ OEDIT(oedit_show)
         pObj = get_object_prototype(atoi(buf));
 
         if (!pObj) {
-            send_to_char("{jERROR: That object does not exist.{x\n\r", ch);
+            send_to_char(COLOR_INFO "ERROR: That object does not exist." COLOR_EOL, ch);
             return false;
         }
 
         if (!IS_BUILDER(ch, pObj->area)) {
-            send_to_char("{jERROR: You do not have access to the area that obj is in.{x\n\r", ch);
+            send_to_char(COLOR_INFO "ERROR: You do not have access to the area that obj is in." COLOR_EOL, ch);
             return false;
         }
     }
 
-    printf_to_char(ch, "Name:        {|[{*%s{|]{x\n\r", pObj->name);
-    printf_to_char(ch, "Area:        {|[{*%5d{|]{_ %s{x\n\r",
-        !pObj->area ? -1 : pObj->area->vnum,
-        !pObj->area ? "No Area" : pObj->area->name);
-    printf_to_char(ch, "Vnum:        {|[{*%5d{|]{x\n\r", pObj->vnum);
-    printf_to_char(ch, "Type:        {|[{*%s{|]{x\n\r", flag_string(type_flag_table, pObj->item_type));
-    printf_to_char(ch, "Level:       {|[{*%5d{|]{x\n\r", pObj->level);
-    printf_to_char(ch, "Wear flags:  {|[{*%s{|]{x\n\r", flag_string(wear_flag_table, pObj->wear_flags));
-    printf_to_char(ch, "Extra flags: {|[{*%s{|]{x\n\r", flag_string(extra_flag_table, pObj->extra_flags));
-    printf_to_char(ch, "Material:    {|[{*%s{|]{x\n\r", pObj->material);
-    printf_to_char(ch, "Condition:   {|[{*%5d{|]{x\n\r", pObj->condition);
-    printf_to_char(ch, "Weight:      {|[{*%5d{|]{x\n\r", pObj->weight);
-    printf_to_char(ch, "Cost:        {|[{*%5d{|]{x\n\r", pObj->cost);
+    printf_to_char(ch, "Name:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, NAME_STR(pObj));
+    printf_to_char(ch, "Area:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_ALT_TEXT_2 " %s" COLOR_EOL,
+        !pObj->area ? -1 : VNUM_FIELD(pObj->area),
+        !pObj->area ? "No Area" : NAME_STR(pObj->area));
+    printf_to_char(ch, "Vnum:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_EOL, VNUM_FIELD(pObj));
+    printf_to_char(ch, "Type:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(type_flag_table, pObj->item_type));
+    printf_to_char(ch, "Level:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_EOL, pObj->level);
+    printf_to_char(ch, "Wear flags:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(wear_flag_table, pObj->wear_flags));
+    printf_to_char(ch, "Extra flags: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(extra_flag_table, pObj->extra_flags));
+    printf_to_char(ch, "Material:    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, pObj->material);
+    printf_to_char(ch, "Condition:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_EOL, pObj->condition);
+    printf_to_char(ch, "Weight:      " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_EOL, pObj->weight);
+    printf_to_char(ch, "Cost:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_EOL, pObj->cost);
 
     if (pObj->extra_desc) {
         ExtraDesc* ed;
@@ -684,29 +690,33 @@ OEDIT(oedit_show)
         send_to_char("Ex desc kwd: ", ch);
 
         FOR_EACH(ed, pObj->extra_desc) {
-            send_to_char("{|[{*", ch);
+            send_to_char(COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "", ch);
             send_to_char(ed->keyword, ch);
-            send_to_char("{|]{x", ch);
+            send_to_char(COLOR_DECOR_1 "]" COLOR_CLEAR , ch);
         }
 
         send_to_char("\n\r", ch);
     }
 
-    printf_to_char(ch, "Short desc:  {_%s{x\n\r", pObj->short_descr);
-    printf_to_char(ch, "Long desc:\n\r     {_%s{x\n\r", pObj->description);
+    printf_to_char(ch, "Short desc:  " COLOR_ALT_TEXT_2 "%s" COLOR_EOL, pObj->short_descr);
+    printf_to_char(ch, "Long desc:\n\r     " COLOR_ALT_TEXT_2 "%s" COLOR_EOL, pObj->description);
 
     for (cnt = 0, affect = pObj->affected; affect; NEXT_LINK(affect)) {
         if (cnt == 0) {
-            send_to_char("{TNumber Modifier Affects      Adds\n\r", ch);
-            send_to_char("{=------ -------- ------------ ----\n\r", ch);
+            send_to_char(COLOR_TITLE "Number Modifier Affects      Adds\n\r", ch);
+            send_to_char(COLOR_DECOR_2 "------ -------- ------------ ----\n\r", ch);
         }
-        printf_to_char(ch, "{|[{*%4d{|]{* %-8d %-12s ", cnt, affect->modifier, flag_string(apply_flag_table, affect->location));
+        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%4d" COLOR_DECOR_1 "]" COLOR_ALT_TEXT_1 " %-8d %-12s ", cnt, affect->modifier, flag_string(apply_flag_table, affect->location));
         printf_to_char(ch, "%s ", flag_string(bitvector_type[affect->where].table, affect->bitvector));
-        printf_to_char(ch, "%s{x\n\r", flag_string(apply_types, affect->where));
+        printf_to_char(ch, "%s" COLOR_EOL, flag_string(apply_types, affect->where));
         cnt++;
     }
 
     show_obj_values(ch, pObj);
+
+    Entity* entity = &pObj->header;
+    olc_display_events(ch, entity);
+    olc_display_lox_info(ch, entity);
 
     return false;
 }
@@ -726,12 +736,12 @@ OEDIT(oedit_addaffect)
     one_argument(argument, mod);
 
     if (loc[0] == '\0' || mod[0] == '\0' || !is_number(mod)) {
-        send_to_char("{jSyntax:  ADDAFFECT [LOCATION] [# MOD]{x\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:  ADDAFFECT [LOCATION] [# MOD]" COLOR_EOL, ch);
         return false;
     }
 
     if ((value = flag_value(apply_flag_table, loc)) == NO_FLAG) {
-        send_to_char("{jValid affects are:{x\n\r", ch);
+        send_to_char(COLOR_INFO "Valid affects are:" COLOR_EOL, ch);
         show_help(ch, "apply");
         return false;
     }
@@ -747,7 +757,7 @@ OEDIT(oedit_addaffect)
     pAf->next = pObj->affected;
     pObj->affected = pAf;
 
-    send_to_char("{jAffect added.{x\n\r", ch);
+    send_to_char(COLOR_INFO "Affect added." COLOR_EOL, ch);
     return true;
 }
 
@@ -765,7 +775,7 @@ OEDIT(oedit_addapply)
     EDIT_OBJ(ch, pObj);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("{jSyntax:  {*ADDAPPLY [TYPE] [LOCATION] [# MOD] [BITVECTOR]{x\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:  " COLOR_ALT_TEXT_1 "ADDAPPLY [TYPE] [LOCATION] [# MOD] [BITVECTOR]" COLOR_EOL, ch);
         rc = false;
         goto oedit_addapply_cleanup;
     }
@@ -776,29 +786,29 @@ OEDIT(oedit_addapply)
     one_argument(argument, BUF(bvector));
 
     if (BUF(type)[0] == '\0' || (typ = flag_value(apply_types, BUF(type))) == NO_FLAG) {
-        send_to_char("{jInvalid apply type. Valid apply types are:{x\n\r", ch);
+        send_to_char(COLOR_INFO "Invalid apply type. Valid apply types are:" COLOR_EOL, ch);
         show_help(ch, "apptype");
         rc = false;
         goto oedit_addapply_cleanup;
     }
 
     if (BUF(loc)[0] == '\0' || (value = flag_value(apply_flag_table, BUF(loc))) == NO_FLAG) {
-        send_to_char("{jValid applys are:{x\n\r", ch);
+        send_to_char(COLOR_INFO "Valid applys are:" COLOR_EOL, ch);
         show_help(ch, "apply");
         rc = false;
         goto oedit_addapply_cleanup;
     }
 
     if (BUF(bvector)[0] == '\0' || (bv = flag_value(bitvector_type[typ].table, BUF(bvector))) == NO_FLAG) {
-        send_to_char("{jInvalid bitvector type.\n\r", ch);
-        send_to_char("Valid bitvector types are:{x\n\r", ch);
+        send_to_char(COLOR_INFO "Invalid bitvector type.\n\r", ch);
+        send_to_char("Valid bitvector types are:" COLOR_EOL, ch);
         show_help(ch, bitvector_type[typ].help);
         rc = false;
         goto oedit_addapply_cleanup;
     }
 
     if (BUF(mod)[0] == '\0' || !is_number(BUF(mod))) {
-        send_to_char("{jSyntax:  {*ADDAPPLY [TYPE] [LOCATION] [# MOD] [BITVECTOR]{x\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:  " COLOR_ALT_TEXT_1 "ADDAPPLY [TYPE] [LOCATION] [# MOD] [BITVECTOR]" COLOR_EOL, ch);
         rc = false;
         goto oedit_addapply_cleanup;
     }
@@ -814,7 +824,7 @@ OEDIT(oedit_addapply)
     pAf->next = pObj->affected;
     pObj->affected = pAf;
 
-    send_to_char("{jApply added.{x\n\r", ch);
+    send_to_char(COLOR_INFO "Apply added." COLOR_EOL, ch);
 
 oedit_addapply_cleanup:
     free_buf(loc);
@@ -841,19 +851,19 @@ OEDIT(oedit_delaffect)
     one_argument(argument, affect);
 
     if (!is_number(affect) || affect[0] == '\0') {
-        send_to_char("{jSyntax:  DELAFFECT [# AFFECT]{*\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:  DELAFFECT [# AFFECT]" COLOR_ALT_TEXT_1 "\n\r", ch);
         return false;
     }
 
     value = atoi(affect);
 
     if (value < 0) {
-        send_to_char("{jAffect list references are only positive numbers.{x\n\r", ch);
+        send_to_char(COLOR_INFO "Affect list references are only positive numbers." COLOR_EOL, ch);
         return false;
     }
 
     if (!(pAf = pObj->affected)) {
-        send_to_char("{jOEdit: Non-existant affect.{x\n\r", ch);
+        send_to_char(COLOR_INFO "OEdit: Non-existant affect." COLOR_EOL, ch);
         return false;
     }
 
@@ -875,12 +885,12 @@ OEDIT(oedit_delaffect)
         }
         else {
             // Doesn't exist
-            send_to_char("{jNo such affect.{x\n\r", ch);
+            send_to_char(COLOR_INFO "No such affect." COLOR_EOL, ch);
             return false;
         }
     }
 
-    send_to_char("{jAffect removed.{x\n\r", ch);
+    send_to_char(COLOR_INFO "Affect removed." COLOR_EOL, ch);
     return true;
 }
 
@@ -919,45 +929,42 @@ OEDIT(oedit_create)
     ObjPrototype* pObj;
     AreaData* area;
     VNUM  value;
-    int  hash;
 
     value = STRTOVNUM(argument);
     if (argument[0] == '\0' || value == 0) {
-        send_to_char("{jSyntax:  {*OEDIT CREATE [VNUM]{x\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:  " COLOR_ALT_TEXT_1 "OEDIT CREATE [VNUM]" COLOR_EOL, ch);
         return false;
     }
 
     area = get_vnum_area(value);
     if (!area) {
-        send_to_char("{jOEdit:  That vnum is not assigned an area.{x\n\r", ch);
+        send_to_char(COLOR_INFO "OEdit:  That vnum is not assigned an area." COLOR_EOL, ch);
         return false;
     }
 
     if (!IS_BUILDER(ch, area)) {
-        send_to_char("{jOEdit:  Vnum in an area you cannot build in.{x\n\r", ch);
+        send_to_char(COLOR_INFO "OEdit:  Vnum in an area you cannot build in." COLOR_EOL, ch);
         return false;
     }
 
     if (get_object_prototype(value)) {
-        send_to_char("{jOEdit:  Object vnum already exists.{x\n\r", ch);
+        send_to_char(COLOR_INFO "OEdit:  Object vnum already exists." COLOR_EOL, ch);
         return false;
     }
 
     pObj = new_object_prototype();
-    pObj->vnum = value;
+    VNUM_FIELD(pObj) = value;
     pObj->area = area;
     pObj->extra_flags = 0;
 
     if (value > top_vnum_obj)
         top_vnum_obj = value;
 
-    hash = value % MAX_KEY_HASH;
-    pObj->next = obj_proto_hash[hash];
-    obj_proto_hash[hash] = pObj;
+    table_set_vnum(&obj_protos, value, OBJ_VAL(pObj));
 
     set_editor(ch->desc, ED_OBJECT, U(pObj));
 
-    send_to_char("{jObject Created.{x\n\r", ch);
+    send_to_char(COLOR_INFO "Object Created." COLOR_EOL, ch);
     return true;
 }
 
@@ -967,7 +974,7 @@ ED_FUN_DEC(ed_objrecval)
 
     switch (pObj->item_type) {
     default:
-        send_to_char("{jYou cannot do that to a non-weapon.{x\n\r", ch);
+        send_to_char(COLOR_INFO "You cannot do that to a non-weapon." COLOR_EOL, ch);
         return false;
 
     case ITEM_WEAPON:
@@ -976,7 +983,7 @@ ED_FUN_DEC(ed_objrecval)
         break;
     }
 
-    send_to_char("{jOk.{x\n\r", ch);
+    send_to_char(COLOR_INFO "Ok." COLOR_EOL, ch);
     return true;
 }
 
@@ -992,7 +999,7 @@ ED_FUN_DEC(ed_addapply)
     INIT_BUF(bvector, MAX_STRING_LENGTH);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("{jSyntax:  {*ADDAPPLY [TYPE] [LOCATION] [# MOD] [BITVECTOR]{x\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:  " COLOR_ALT_TEXT_1 "ADDAPPLY [TYPE] [LOCATION] [# MOD] [BITVECTOR]" COLOR_EOL, ch);
         rc = false;
         goto ed_addapply_cleanup;
     }
@@ -1003,29 +1010,29 @@ ED_FUN_DEC(ed_addapply)
     one_argument(argument, BUF(bvector));
 
     if (BUF(type)[0] == '\0' || (typ = flag_value(apply_types, BUF(type))) == NO_FLAG) {
-        send_to_char("{jInvalid apply type. Valid apply types are:{x\n\r", ch);
+        send_to_char(COLOR_INFO "Invalid apply type. Valid apply types are:" COLOR_EOL, ch);
         show_help(ch, "apptype");
         rc = false;
         goto ed_addapply_cleanup;
     }
 
     if (BUF(loc)[0] == '\0' || (value = flag_value(apply_flag_table, BUF(loc))) == NO_FLAG) {
-        send_to_char("{jValid applys are:{x\n\r", ch);
+        send_to_char(COLOR_INFO "Valid applys are:" COLOR_EOL, ch);
         show_help(ch, "apply");
         rc = false;
         goto ed_addapply_cleanup;
     }
 
     if (BUF(bvector)[0] == '\0' || (bv = flag_value(bitvector_type[typ].table, BUF(bvector))) == NO_FLAG) {
-        send_to_char("{jInvalid bitvector type.\n\r", ch);
-        send_to_char("Valid bitvector types are:{x\n\r", ch);
+        send_to_char(COLOR_INFO "Invalid bitvector type.\n\r", ch);
+        send_to_char("Valid bitvector types are:" COLOR_EOL, ch);
         show_help(ch, bitvector_type[typ].help);
         rc = false;
         goto ed_addapply_cleanup;
     }
 
     if (BUF(mod)[0] == '\0' || !is_number(BUF(mod))) {
-        send_to_char("{jSyntax:  {*ADDAPPLY [TYPE] [LOCATION] [# MOD] [BITVECTOR]{x\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:  " COLOR_ALT_TEXT_1 "ADDAPPLY [TYPE] [LOCATION] [# MOD] [BITVECTOR]" COLOR_EOL, ch);
         rc = false;
         goto ed_addapply_cleanup;
     }
@@ -1041,7 +1048,7 @@ ED_FUN_DEC(ed_addapply)
     pAf->next = pObj->affected;
     pObj->affected = pAf;
 
-    send_to_char("{jApply added.{x\n\r", ch);
+    send_to_char(COLOR_INFO "Apply added." COLOR_EOL, ch);
 
 ed_addapply_cleanup:
     free_buf(loc);
@@ -1062,47 +1069,44 @@ ED_FUN_DEC(ed_new_obj)
     ObjPrototype* pObj;
     AreaData* area;
     VNUM  value;
-    int  hash;
 
     value = STRTOVNUM(argument);
 
     if (argument[0] == '\0' || value == 0) {
-        send_to_char("{jSyntax: OEDIT CREATE [VNUM]{x\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax: OEDIT CREATE [VNUM]" COLOR_EOL, ch);
         return false;
     }
 
     area = get_vnum_area(value);
 
     if (!area) {
-        send_to_char("{jOEdit: That vnum is not assigned an area.{x\n\r", ch);
+        send_to_char(COLOR_INFO "OEdit: That vnum is not assigned an area." COLOR_EOL, ch);
         return false;
     }
 
     if (!IS_BUILDER(ch, area)) {
-        send_to_char("{jOEdit: Vnum in an area you cannot build in.{x\n\r", ch);
+        send_to_char(COLOR_INFO "OEdit: Vnum in an area you cannot build in." COLOR_EOL, ch);
         return false;
     }
 
     if (get_object_prototype(value)) {
-        send_to_char("{jOEdit: Object vnum already exists.{x\n\r", ch);
+        send_to_char(COLOR_INFO "OEdit: Object vnum already exists." COLOR_EOL, ch);
         return false;
     }
 
     pObj = new_object_prototype();
-    pObj->vnum = value;
+    VNUM_FIELD(pObj) = value;
     pObj->area = area;
     pObj->extra_flags = 0;
 
     if (value > top_vnum_obj)
         top_vnum_obj = value;
 
-    hash = value % MAX_KEY_HASH;
-    pObj->next = obj_proto_hash[hash];
-    obj_proto_hash[hash] = pObj;
+    table_set_vnum(&obj_protos, value, OBJ_VAL(pObj));
 
     set_editor(ch->desc, ED_OBJECT, U(pObj));
 
-    send_to_char("{jObject Created.{x\n\r", ch);
+    send_to_char(COLOR_INFO "Object Created." COLOR_EOL, ch);
 
     return true;
 }
@@ -1120,7 +1124,7 @@ ED_FUN_DEC(ed_olist)
     one_argument(argument, blarg);
 
     if (blarg[0] == '\0') {
-        send_to_char("{jSyntax: OLIST [ALL|<NAME>|<TYPE>]{x\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax: OLIST [ALL|<NAME>|<TYPE>]" COLOR_EOL, ch);
         return false;
     }
 
@@ -1131,11 +1135,11 @@ ED_FUN_DEC(ed_olist)
 
     for (vnum = area->min_vnum; vnum <= area->max_vnum; vnum++) {
         if ((obj_proto = get_object_prototype(vnum))) {
-            if (fAll || is_name(blarg, obj_proto->name)
+            if (fAll || is_name(blarg, NAME_STR(obj_proto))
                 || (ItemType)flag_value(type_flag_table, blarg) == obj_proto->item_type) {
                 found = true;
-                addf_buf(buf1, "{|[{*%5d{|]{x %-17.16s",
-                    obj_proto->vnum, capitalize(obj_proto->short_descr));
+                addf_buf(buf1, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-17.16s",
+                    VNUM_FIELD(obj_proto), capitalize(obj_proto->short_descr));
                 if (++col % 3 == 0)
                     add_buf(buf1, "\n\r");
             }
@@ -1143,7 +1147,7 @@ ED_FUN_DEC(ed_olist)
     }
 
     if (!found) {
-        send_to_char("{jObject(s) not found in this area.{x\n\r", ch);
+        send_to_char(COLOR_INFO "Object(s) not found in this area." COLOR_EOL, ch);
         return false;
     }
 
@@ -1184,12 +1188,12 @@ OEDIT(oedit_copy)
         return false;
     }
 
-    RESTRING(obj->name, obj2->name);
+    SET_NAME(obj, NAME_FIELD(obj2));
     RESTRING(obj->short_descr, obj2->short_descr);
     RESTRING(obj->description, obj2->description);
     RESTRING(obj->material, obj2->material);
 
-    ExtraDesc* ed_next;
+    ExtraDesc* ed_next = NULL;
     for (ExtraDesc* ed = obj->extra_desc; ed != NULL; ed = ed_next) {
         ed_next = ed->next;
         free_extra_desc(ed);

@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -47,6 +47,16 @@ FLAGS flag_lookup(const char* name, const struct flag_type* flag_table)
         if (LOWER(name[0]) == LOWER(flag_table[flag].name[0])
             && !str_prefix(name, flag_table[flag].name))
             return flag_table[flag].bit;
+    }
+
+    return NO_FLAG;
+}
+
+int flag_index(FLAGS flag, const struct flag_type* flag_table)
+{
+    for (int index = 0; flag_table[index].name != NULL; index++) {
+        if (flag == flag_table[index].bit)
+            return index;
     }
 
     return NO_FLAG;
@@ -122,9 +132,9 @@ Stat stat_lookup(const char* name)
 ItemType item_lookup(const char* name)
 {
     for (int type = 0; type < ITEM_TYPE_COUNT; type++) {
-        if (LOWER(name[0]) == LOWER(item_table[type].name[0])
-            && !str_prefix(name, item_table[type].name))
-            return item_table[type].type;
+        if (LOWER(name[0]) == LOWER(item_type_table[type].name[0])
+            && !str_prefix(name, item_type_table[type].name))
+            return item_type_table[type].type;
     }
 
     return -1;

@@ -64,4 +64,7 @@ GSN(gsn_staves)
 GSN(gsn_wands)
 GSN(gsn_recall)
 
+// GSNs new for Mud98
+GSN(gsn_dual_wield)
+
 #undef GSN

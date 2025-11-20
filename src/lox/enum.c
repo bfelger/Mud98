@@ -1,0 +1,13 @@
+////////////////////////////////////////////////////////////////////////////////
+// lox/enum.c
+////////////////////////////////////////////////////////////////////////////////
+
+#include "enum.h"
+
+ObjEnum* new_enum(ObjString* name)
+{
+    ObjEnum* enum_obj = ALLOCATE_OBJ(ObjEnum, OBJ_ENUM);
+    enum_obj->name = name;
+    init_table(&enum_obj->values);
+    return enum_obj;
+}

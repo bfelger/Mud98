@@ -1,16 +1,16 @@
 ////////////////////////////////////////////////////////////////////////////////
-// skill.c
+// data/skill.c
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "skill.h"
 
 #include "spell.h"
 
-#include "comm.h"
-#include "config.h"
-#include "db.h"
-#include "tables.h"
-#include "tablesave.h"
+#include <comm.h>
+#include <config.h>
+#include <db.h>
+#include <tables.h>
+#include <tablesave.h>
 
 DEFINE_ARRAY(SkillRating, DEFAULT_SKILL_RATING)
 DEFINE_ARRAY(LEVEL, DEFAULT_SKILL_LEVEL)
@@ -23,6 +23,8 @@ SkillGroup* skill_group_table = NULL;
 int skill_group_count = 0;
 SkillGroup tmp_grp;
 
+const char* lox_str(void* temp);
+bool lox_read(void* temp, const char* arg);
 bool pgsn_read(void* temp, char* arg);
 char* pgsn_str(void* temp);
 
@@ -36,6 +38,7 @@ const SaveTableEntry skill_save_table[] = {
     { "skill_level",	    FIELD_LEVEL_DYNARRAY,		U(&tmp_sk.skill_level),	    0,	                0	                },
     { "rating",	            FIELD_RATING_DYNARRAY,		U(&tmp_sk.rating),		    0,	                0	                },
     { "spell_fun",	        FIELD_FUNCTION_INT_TO_STR,	U(&tmp_sk.spell_fun),	    U(spell_fun_str),   U(spell_fun_read)   },
+    { "lox_spell",          FIELD_LOX_CLOSURE,          U(&tmp_sk.lox_spell_name),  U(&tmp_sk.lox_closure), 0               },
     { "target",	            FIELD_INT16_FLAGSTRING,		U(&tmp_sk.target),		    U(target_table),    0	                },
     { "minimum_position",   FIELD_FUNCTION_INT16_TO_STR,U(&tmp_sk.minimum_position),U(position_str),    U(position_read)    },
     { "pgsn",		        FIELD_FUNCTION_INT_TO_STR,	U(&tmp_sk.pgsn),		    U(pgsn_str),	    U(pgsn_read)	    },

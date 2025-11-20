@@ -157,15 +157,15 @@ void skedit(Mobile* ch, char* argument)
 
 void do_sklist(Mobile* ch, char* argument)
 {
-    static char* help = "{jSyntax : {*SKLIST <OPTION>{x\n\r\n\r"
-        "{*<OPTION>{x can be one of the following:\n\r"
-        "    {*RATING{x - List rating by class.\n\r"
-        "    {*LEVEL{x - List minimum level by class.\n\r\n\r";
+    static char* help = COLOR_INFO "Syntax : " COLOR_ALT_TEXT_1 "SKLIST <OPTION>" COLOR_CLEAR "\n\r\n\r"
+        COLOR_ALT_TEXT_1 "<OPTION>" COLOR_CLEAR " can be one of the following:\n\r"
+        "    " COLOR_ALT_TEXT_1 "RATING" COLOR_CLEAR " - List rating by class.\n\r"
+        "    " COLOR_ALT_TEXT_1 "LEVEL" COLOR_CLEAR " - List minimum level by class.\n\r\n\r";
 
     INIT_BUF(page, MSL);
 
     if (ch->pcdata->security < MIN_SKEDIT_SECURITY) {
-        send_to_char("{jSKList : You do not have enough security to list skills.{x\n\r", ch);
+        send_to_char(COLOR_INFO "SKList : You do not have enough security to list skills." COLOR_EOL, ch);
         return;
     }
 
@@ -192,7 +192,7 @@ void do_sklist(Mobile* ch, char* argument)
         return;
     }
 
-    addf_buf(page, "\n\r{T%-20s", "Skill");
+    addf_buf(page, "\n\r" COLOR_TITLE "%-20s", "Skill");
     for (int j = 0; j < class_count; ++j) {
         addf_buf(page, "  %3s", class_table[j].who_name);
     }
@@ -200,7 +200,7 @@ void do_sklist(Mobile* ch, char* argument)
     for (int i = 0; i < skill_count; ++i) {
         if (!skill_table[i].name[0])
             break;
-        addf_buf(page, "{*%-20s{x", skill_table[i].name);
+        addf_buf(page, COLOR_ALT_TEXT_1 "%-20s" COLOR_CLEAR , skill_table[i].name);
         for (int j = 0; j < class_count; ++j) {
             if (show_rating)
                 addf_buf(page, "%4d ", GET_ELEM(&skill_table[i].rating, j));
@@ -267,7 +267,7 @@ void skill_list(Buffer* pBuf)
     add_buf(pBuf, buf);
 
     for (i = 0; i < skill_count; ++i) {
-        sprintf(buf, "{*%3d{x %c %-20.20s", i,
+        sprintf(buf, COLOR_ALT_TEXT_1 "%3d" COLOR_CLEAR " %c %-20.20s", i,
             skill_table[i].spell_fun == spell_null ? '-' : '+',
             skill_table[i].name);
         if (i % 3 == 2)
@@ -291,7 +291,7 @@ void gsn_list(Buffer* pBuf)
     add_buf(pBuf, buf);
 
     for (i = 0; gsn_table[i].name; ++i) {
-        sprintf(buf, "{*%3d{x %-22.22s", i,
+        sprintf(buf, COLOR_ALT_TEXT_1 "%3d" COLOR_CLEAR " %-22.22s", i,
             gsn_table[i].name);
         if (i % 3 == 2)
             strcat(buf, "\n\r");
@@ -316,7 +316,7 @@ void slot_list(Buffer* pBuf)
     cnt = 0;
     for (i = 0; i < skill_count; ++i) {
         if (skill_table[i].slot) {
-            sprintf(buf, "{*%3d{x %-22.22s",
+            sprintf(buf, COLOR_ALT_TEXT_1 "%3d" COLOR_CLEAR " %-22.22s",
                 skill_table[i].slot,
                 skill_table[i].name);
             if (cnt % 3 == 2)
@@ -473,7 +473,7 @@ void create_skills_hash_table(void)
         data->sn = sn;
 
         // Now link to the table
-        if (skill_hash_table[value] && (skill_table[sn].spell_fun == spell_null)) // skill
+        if (skill_hash_table[value] && !HAS_SPELL_FUNC(sn)) // skill
         {
             // Skills go last!
             FOR_EACH(temp, skill_hash_table[value])
@@ -634,7 +634,7 @@ SKEDIT(skedit_spell)
     EDIT_SKILL(ch, pSkill);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Sintaxis : spell [function name]\n\r", ch);
+        send_to_char("Syntax : spell [function name]\n\r", ch);
         send_to_char("           spell spell_null\n\r", ch);
         return false;
     }
@@ -685,7 +685,7 @@ SKEDIT(skedit_new)
 {
     Descriptor* d;
     Mobile* tch;
-    Skill* new_table;
+    Skill* new_skill_table;
     bool* tempgendata;
     SKNUM* templearned;
     int i;
@@ -710,16 +710,16 @@ SKEDIT(skedit_new)
 
     /* reallocate the table */
     skill_count++;
-    new_table = realloc(skill_table, sizeof(Skill) * ((size_t)skill_count + 1));
+    new_skill_table = realloc(skill_table, sizeof(Skill) * ((size_t)skill_count + 1));
 
-    if (!new_table) /* realloc failed */
+    if (!new_skill_table) /* realloc failed */
     {
         perror("skedit_new (1): Falled to reallocate skill_table!");
         send_to_char("Realloc failed. Prepare for impact. (1)\n\r", ch);
         return false;
     }
 
-    skill_table = new_table;
+    skill_table = new_skill_table;
 
     skill_table[skill_count - 1].name = str_dup(argument);
     for (i = 0; i < class_count; ++i) {
@@ -727,6 +727,8 @@ SKEDIT(skedit_new)
         CREATE_ELEM(skill_table[skill_count - 1].rating);
     }
     skill_table[skill_count - 1].spell_fun = spell_null;
+    skill_table[skill_count - 1].lox_spell_name = NULL;
+    skill_table[skill_count - 1].lox_closure = NULL;
     skill_table[skill_count - 1].target = SKILL_TARGET_IGNORE;
     skill_table[skill_count - 1].minimum_position = POS_STANDING;
     skill_table[skill_count - 1].pgsn = NULL;
@@ -755,7 +757,7 @@ SKEDIT(skedit_new)
         tch->gen_data->skill_chosen[skill_count - 1] = 0;
     }
 
-    FOR_EACH(tch, mob_list)
+    FOR_EACH_GLOBAL_MOB(tch)
         if (!IS_NPC(tch)) {
             templearned = new_learned();
 

@@ -18,21 +18,20 @@
  */
 
 #pragma once
-#ifndef MUD98__OLC_H
-#define MUD98__OLC_H
+#ifndef MUD98__OLC__OLC_H
+#define MUD98__OLC__OLC_H
 
-#include "interp.h"
-#include "tables.h"
-#include "tablesave.h"
+#include <tables.h>
+#include <tablesave.h>
 
-#include "entities/mob_prototype.h"
+#include <entities/mob_prototype.h>
 
-#include "data/class.h"
-#include "data/race.h"
-#include "data/skill.h"
-#include "data/spell.h"
-#include "data/social.h"
-#include "data/quest.h"
+#include <data/class.h>
+#include <data/race.h>
+#include <data/skill.h>
+#include <data/spell.h>
+#include <data/social.h>
+#include <data/quest.h>
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -54,6 +53,10 @@
                     "     (Port to ROM 2.4 - Nov 2, 1996)\n\r"
 #define OLC_CREDITS	"     Original by Surreality(cxw197@psu.edu) and  "     \
                          "Locke(locke@lm.com)"
+
+typedef struct cmd_info_t CmdInfo;
+typedef struct mob_prog_code_t  MobProgCode;
+typedef struct skill_t Skill;
 
 // New typedefs.
 typedef	bool OlcFunc(Mobile* ch, char* argument);
@@ -331,6 +334,7 @@ DECLARE_OLC_FUN(qedit_end);
 
 // Editors.
 DECLARE_ED_FUN(ed_line_string);
+DECLARE_ED_FUN(ed_line_lox_string);
 DECLARE_ED_FUN(ed_desc);
 DECLARE_ED_FUN(ed_bool);
 DECLARE_ED_FUN(ed_skillgroup);
@@ -373,17 +377,18 @@ DECLARE_ED_FUN(ed_objrecval);
 /* Return pointers to what is being edited. */
 #define EDIT_AREA(ch, area)	    ( area = (AreaData*)ch->desc->pEdit )
 #define EDIT_CLASS(ch, class_)  ( class_ = (Class*)ch->desc->pEdit )
-#define EDIT_CMD(ch, cmd)	    ( cmd = (CmdInfo*)ch->desc->pEdit )
-#define EDIT_GROUP(ch, grp)	    ( grp = (SkillGroup*)ch->desc->pEdit )
-#define EDIT_HELP(ch, help)	    ( help = (HelpData*)ch->desc->pEdit )
-#define EDIT_MOB(ch, mob)	    ( mob = (MobPrototype*)ch->desc->pEdit )
-#define EDIT_OBJ(ch, obj)	    ( obj = (ObjPrototype*)ch->desc->pEdit )
-#define EDIT_PROG(ch, code)	    ( code = (MobProgCode*)ch->desc->pEdit )
+#define EDIT_CMD(ch, cmd)       ( cmd = (CmdInfo*)ch->desc->pEdit )
+#define EDIT_GROUP(ch, grp)     ( grp = (SkillGroup*)ch->desc->pEdit )
+#define EDIT_HELP(ch, help)     ( help = (HelpData*)ch->desc->pEdit )
+#define EDIT_MOB(ch, mob)       ( mob = (MobPrototype*)ch->desc->pEdit )
+#define EDIT_OBJ(ch, obj)       ( obj = (ObjPrototype*)ch->desc->pEdit )
+#define EDIT_PROG(ch, code)     ( code = (MobProgCode*)ch->desc->pEdit )
 #define EDIT_QUEST(ch, quest)   ( quest = (Quest*)ch->desc->pEdit )
 #define EDIT_RACE(ch, race)	    ( race = (Race*)ch->desc->pEdit )
-#define EDIT_ROOM(ch, room)	    ( room = (RoomData*)ch->desc->pEdit )
-#define EDIT_SKILL(ch, skill)	( skill = (Skill*)ch->desc->pEdit )
+#define EDIT_ROOM(ch, room)     ( room = (RoomData*)ch->desc->pEdit )
+#define EDIT_SKILL(ch, skill)   ( skill = (Skill*)ch->desc->pEdit )
 #define EDIT_SOCIAL(ch, social)	( social = (Social*)ch->desc->pEdit )
+#define EDIT_ENTITY(ch, room)   ( entity = (Entity*)ch->desc->pEdit )
 
 void show_liqlist(Mobile* ch);
 void show_poslist(Mobile* ch);
@@ -394,4 +399,15 @@ void show_sizelist(Mobile* ch);
 void InitScreen(Descriptor*);
 char* fix_string(const char* str);
 
-#endif // !MUD98__OLC_H
+void olc_print_flags(Mobile* ch, const char* label, const struct flag_type* flag_table, FLAGS flags);
+void olc_print_num(Mobile* ch, const char* label, int num);
+void olc_print_range(Mobile* ch, const char* label, int num1, int num2);
+void olc_print_num_str(Mobile* ch, const char* label, int num, const char* opt_str);
+void olc_print_str(Mobile* ch, const char* label, const char* str); 
+void olc_print_str_box(Mobile* ch, const char* label, const char* str, const char* opt_str);
+void olc_print_yesno(Mobile* ch, const char* label, bool yesno);
+void olc_print_text(Mobile* ch, const char* label, const char* text);
+
+const char* olc_show_flags(const char* label, const struct flag_type* flag_table, FLAGS flags);
+
+#endif // !MUD98__OLC__OLC_H

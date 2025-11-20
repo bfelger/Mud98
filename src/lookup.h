@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -33,13 +33,14 @@
 
 #include "tables.h"
 
-#include "data/mobile_data.h"
+#include <data/mobile_data.h>
 
 int clan_lookup(const char* name);
 Position position_lookup(const char* name);
 Sex sex_lookup(const char* name);
 MobSize size_lookup(const char* name);
 FLAGS flag_lookup(const char*, const struct flag_type*);
+int flag_index(FLAGS flag, const struct flag_type* flag_table);
 HelpData* help_lookup(char*);
 HelpArea* had_lookup(char*);
 int16_t race_lookup(const char* name);

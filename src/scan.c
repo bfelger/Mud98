@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -101,16 +101,25 @@ void do_scan(Mobile* ch, char* argument)
     return;
 }
 
-void scan_list(Room* scan_room, Mobile* ch, int16_t depth,
-               int16_t door)
+void scan_list(Room* scan_room, Mobile* ch, int16_t depth, int16_t door)
 {
     Mobile* rch;
 
-    if (scan_room == NULL) return;
-    FOR_EACH_IN_ROOM(rch, scan_room->people) {
-        if (rch == ch) continue;
-        if (!IS_NPC(rch) && rch->invis_level > get_trust(ch)) continue;
-        if (can_see(ch, rch)) scan_char(rch, ch, depth, door);
+    if (scan_room == NULL)
+        return;
+
+    // Don't peek through closed doors.
+    if (door != -1 && scan_room->exit[dir_list[door].rev_dir] != NULL
+        && IS_SET(scan_room->exit[dir_list[door].rev_dir]->exit_flags, EX_CLOSED))
+     return;
+
+    FOR_EACH_ROOM_MOB(rch, scan_room) {
+        if (rch == ch) 
+            continue;
+        if (!IS_NPC(rch) && rch->invis_level > get_trust(ch)) 
+            continue;
+        if (can_see(ch, rch)) 
+            scan_char(rch, ch, depth, door);
     }
     return;
 }

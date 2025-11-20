@@ -1,16 +1,20 @@
 ////////////////////////////////////////////////////////////////////////////////
-// obj_prototype.c
+// entities/obj_prototype.c
 // Utilities for handling in-game objects
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "obj_prototype.h"
 
-#include "db.h"
-#include "handler.h"
-#include "lookup.h"
+#include <entities/event.h>
 
-ObjPrototype* obj_proto_free;
-ObjPrototype* obj_proto_hash[MAX_KEY_HASH];
+#include <lox/memory.h>
+
+#include <db.h>
+#include <handler.h>
+#include <lookup.h>
+
+ObjPrototype* obj_proto_free = NULL;
+Table obj_protos;
 
 int obj_proto_count;
 int obj_proto_perm_count;
@@ -21,7 +25,14 @@ ObjPrototype* new_object_prototype()
 {
     LIST_ALLOC_PERM(obj_proto, ObjPrototype);
 
-    obj_proto->name = str_dup("no name");
+    gc_protect(OBJ_VAL(obj_proto));
+
+    init_header(&obj_proto->header, OBJ_OBJ_PROTO);
+
+    SET_NATIVE_FIELD(&obj_proto->header, obj_proto->header.vnum, vnum, I32);
+
+    SET_NAME(obj_proto, lox_string("no name"));
+    
     obj_proto->short_descr = str_dup("(no short description)");
     obj_proto->description = str_dup("(no description)");
     obj_proto->item_type = ITEM_TRASH;
@@ -35,7 +46,7 @@ void free_object_prototype(ObjPrototype* obj_proto)
     ExtraDesc* pExtra;
     Affect* pAf;
 
-    free_string(obj_proto->name);
+    SET_NAME(obj_proto, lox_empty_string);
     free_string(obj_proto->short_descr);
     free_string(obj_proto->description);
 
@@ -54,13 +65,11 @@ void free_object_prototype(ObjPrototype* obj_proto)
 // Hash table lookup.
 ObjPrototype* get_object_prototype(VNUM vnum)
 {
-    ObjPrototype* obj_proto;
-
-    for (obj_proto = obj_proto_hash[vnum % MAX_KEY_HASH]; 
-        obj_proto != NULL;
-        NEXT_LINK(obj_proto)) {
-        if (obj_proto->vnum == vnum)
-            return obj_proto;
+    Value value;
+    if (table_get_vnum(&obj_protos, vnum, &value)) {
+        if (IS_OBJ_PROTO(value)) {
+            return AS_OBJ_PROTO(value);
+        }
     }
 
     if (fBootDb) {
@@ -76,7 +85,7 @@ void load_objects(FILE* fp)
 {
     ObjPrototype* obj_proto;
 
-    if (!area_data_last) {
+    if (global_areas.count == 0) {
         bug("Load_objects: no #AREA seen yet.", 0);
         exit(1);
     }
@@ -84,7 +93,6 @@ void load_objects(FILE* fp)
     for (;;) {
         VNUM vnum;
         char letter;
-        int hash;
 
         letter = fread_letter(fp);
         if (letter != '#') {
@@ -104,9 +112,9 @@ void load_objects(FILE* fp)
         fBootDb = true;
 
         obj_proto = new_object_prototype();
-        obj_proto->vnum = vnum;
-        obj_proto->area = area_data_last;
-        obj_proto->name = fread_string(fp);
+        VNUM_FIELD(obj_proto) = vnum;
+        obj_proto->area = LAST_AREA_DATA;
+        SET_NAME(obj_proto, fread_lox_string(fp));
         obj_proto->short_descr = fread_string(fp);
         obj_proto->description = fread_string(fp);
         obj_proto->material = fread_string(fp);
@@ -257,15 +265,23 @@ void load_objects(FILE* fp)
                 ed->description = fread_string(fp);
                 ADD_EXTRA_DESC(obj_proto, ed)
             }
+            else if (letter == 'V') {
+                load_event(fp, &obj_proto->header);
+            }
+            else if (letter == 'L') {
+                if (!load_lox_class(fp, "obj", &obj_proto->header)) {
+                    bug("Load_objects: vnum %"PRVNUM" has malformed Lox script.", vnum);
+                    exit(1);
+                }
+            }
             else {
                 ungetc(letter, fp);
                 break;
             }
         }
 
-        hash = vnum % MAX_KEY_HASH;
-        obj_proto->next = obj_proto_hash[hash];
-        obj_proto_hash[hash] = obj_proto;
+        table_set_vnum(&obj_protos, vnum, OBJ_VAL(obj_proto));
+
         top_vnum_obj = top_vnum_obj < vnum ? vnum : top_vnum_obj;
         assign_area_vnum(vnum);
     }

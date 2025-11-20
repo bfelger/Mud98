@@ -1,16 +1,16 @@
 ////////////////////////////////////////////////////////////////////////////////
-// quest.c
+// data/quest.c
 ////////////////////////////////////////////////////////////////////////////////
 
-
-#include "olc/olc.h"
-
-#include "comm.h"
-#include "db.h"
-#include "save.h"
-#include "tables.h"
-#include "update.h"
 #include "quest.h"
+
+#include <olc/olc.h>
+
+#include <comm.h>
+#include <db.h>
+#include <save.h>
+#include <tables.h>
+#include <update.h>
 
 int quest_count = 0;
 int quest_perm_count = 0;
@@ -19,6 +19,7 @@ Quest* quest_free = NULL;
 const struct flag_type quest_type_table[] = {
     { "visit_mob",      QUEST_VISIT_MOB,    true    },
     { "kill_mob",       QUEST_KILL_MOB,     true    },
+    { "get_obj",        QUEST_GET_OBJ,      true    },
     { NULL,             0,                  0       }
 };
 
@@ -63,17 +64,20 @@ void free_quest(Quest* quest)
 
 QuestLog* new_quest_log()
 {
-    static QuestLog ql_zero = { 0 };
     ALLOC(QuestLog, ql);
-    *ql = ql_zero;
+    memset(ql, 0, sizeof(QuestLog));
+    ql->target_ends = NULL;
     ql->target_mobs = NULL;
     ql->target_objs = NULL;
+    ql->quests = NULL;
     return ql;
 }
 
-void free_quest_log(QuestLog* quest_log)
+void free_quest_log(PlayerData* pc)
 {
+    QuestLog* quest_log = pc->quest_log;
     QuestTarget* t;
+    QuestStatus* s;
 
     while (quest_log->target_mobs) {
         t = quest_log->target_mobs;
@@ -93,7 +97,14 @@ void free_quest_log(QuestLog* quest_log)
         free_mem(t, sizeof(QuestTarget));
     }
 
+    while (quest_log->quests) {
+        s = quest_log->quests;
+        NEXT_LINK(quest_log->quests);
+        free_mem(s, sizeof(QuestStatus));
+    }
+
     free_mem(quest_log, sizeof(QuestLog));
+    pc->quest_log = NULL;
 }
 
 Quest* get_quest(VNUM vnum)
@@ -145,7 +156,20 @@ QuestTarget* get_quest_targ_obj(Mobile* ch, VNUM target_vnum)
     if (IS_NPC(ch) || !ch->pcdata)
         return 0;
 
-    ORDERED_GET(QuestTarget, qt, ch->pcdata->quest_log->target_objs, target_vnum, target_vnum);
+    QuestTarget* temp_qt;
+    FOR_EACH(temp_qt, ch->pcdata->quest_log->target_objs)
+    {
+        if (temp_qt->target_vnum == target_vnum
+            || (temp_qt->type == QUEST_GET_OBJ
+                && temp_qt->target_upper > temp_qt->target_vnum
+                && target_vnum >= temp_qt->target_vnum
+                && target_vnum <= temp_qt->target_upper)) {
+            qt = temp_qt;
+            break;
+        }
+        else if (temp_qt->target_vnum > target_vnum)
+            break;
+    }
 
     if (qt == NULL)
         return 0;
@@ -185,12 +209,15 @@ static void remove_quest_target(Mobile* ch, Quest* quest)
     QuestTarget* qt = NULL;
     switch (quest->type) {
     case QUEST_VISIT_MOB:
-        UNORDERED_REMOVE(QuestTarget, qt, ch->pcdata->quest_log->target_mobs, quest_vnum, quest->vnum);
+    case QUEST_KILL_MOB:
+        UNORDERED_REMOVE_ALL(QuestTarget, qt, ch->pcdata->quest_log->target_mobs, quest_vnum, 
+            quest->vnum);
         if (qt)
             free_mem(qt, sizeof(QuestTarget));
         break;
-    case QUEST_KILL_MOB:
-        UNORDERED_REMOVE(QuestTarget, qt, ch->pcdata->quest_log->target_mobs, quest_vnum, quest->vnum);
+    case QUEST_GET_OBJ:
+        UNORDERED_REMOVE_ALL(QuestTarget, qt, ch->pcdata->quest_log->target_objs, quest_vnum, 
+            quest->vnum);
         if (qt)
             free_mem(qt, sizeof(QuestTarget));
         break;
@@ -207,7 +234,7 @@ void finish_quest(Mobile* ch, Quest* quest, QuestStatus* status)
         return;
 
     status->state = QSTAT_COMPLETE;
-    printf_to_char(ch, "\n\r{jYou have completed the quest, \"{*%s{j\".{x\n\r", quest->name);
+    printf_to_char(ch, "\n\r" COLOR_INFO "You have completed the quest, \"" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "\"." COLOR_EOL, quest->name);
         
     remove_quest_target(ch, quest);
 
@@ -218,7 +245,7 @@ void finish_quest(Mobile* ch, Quest* quest, QuestStatus* status)
         xp = quest->xp - (quest->xp * (ch->level - quest->level)) / 10;
 
     if (xp > 0) {
-        printf_to_char(ch, "{jYou have been awarded {*%d{j xp.{x\n\r", xp);
+        printf_to_char(ch, COLOR_INFO "You have been awarded " COLOR_ALT_TEXT_1 "%d" COLOR_INFO " xp." COLOR_EOL, xp);
         gain_exp(ch, xp);
     }
     send_to_char("\n\r", ch);
@@ -240,6 +267,8 @@ static void add_target(QuestLog* qlog, Quest* quest, VNUM target_vnum)
     case QUEST_KILL_MOB:
         ORDERED_INSERT(QuestTarget, qt, qlog->target_mobs, target_vnum);
         break;
+    case QUEST_GET_OBJ:
+        ORDERED_INSERT(QuestTarget, qt, qlog->target_objs, target_vnum);
     }
 }
 
@@ -282,12 +311,12 @@ void grant_quest(Mobile* ch, Quest* quest)
 
     save_char_obj(ch);
 
-    printf_to_char(ch, "\n\r{jYou have started the quest, \"{*%s{j\".{x\n\r", quest->name);
+    printf_to_char(ch, "\n\r" COLOR_INFO "You have started the quest, " COLOR_ALT_TEXT_1 "\"%s" COLOR_INFO "\"." COLOR_EOL, quest->name);
 }
 
 void load_quest(FILE* fp)
 {
-    if (area_data_last == NULL) {
+    if (global_areas.count == 0) {
         bug("load_quest: no #AREA seen yet.", 0);
         exit(1);
     }
@@ -299,9 +328,9 @@ void load_quest(FILE* fp)
     }
 
     load_struct(fp, U(&tmp_quest), quest_save_table, U(quest));
-    quest->area_data = area_data_last;
+    quest->area_data = LAST_AREA_DATA;
 
-    ORDERED_INSERT(Quest, quest, area_data_last->quests, vnum);
+    ORDERED_INSERT(Quest, quest, LAST_AREA_DATA->quests, vnum);
 
     return;
 }
@@ -366,13 +395,14 @@ bool can_finish_quest(Mobile* ch, VNUM vnum)
     switch (q->type) {
     case QUEST_VISIT_MOB: {
         Mobile* vch;
-        FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
-            if (vch->prototype && vch->prototype->vnum == q->target)
+        FOR_EACH_ROOM_MOB(vch, ch->in_room) {
+            if (vch->prototype && VNUM_FIELD(vch->prototype) == q->target)
                 return true;
         }
         break;
     }
     case QUEST_KILL_MOB:
+    case QUEST_GET_OBJ:
         return ( qs->progress >= qs->amount);
     
     // End switch
@@ -383,64 +413,354 @@ bool can_finish_quest(Mobile* ch, VNUM vnum)
 
 void do_quest(Mobile* ch, char* argument)
 {
+    static const char* help =
+        COLOR_INFO
+        "USAGE: " COLOR_ALT_TEXT_1 "QUEST " COLOR_INFO "              - Show all active quests.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST AREA" COLOR_INFO "          - Show only quests in this area.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST COMPLETED" COLOR_INFO "     - Show completed quests.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST HELP" COLOR_INFO "          - Show this help." COLOR_EOL;
+    static const char* tester_help =
+        COLOR_INFO
+        "The following commands are also available to you as a tester:\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST SHOW <vnum>" COLOR_INFO "         - Show quest info for specific quest.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST GRANT <vnum>" COLOR_INFO "        - Grant yourself a specific quest.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST PROGRESS <vnum> <#>" COLOR_INFO " - Set progress for a specific quest.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST FINISH <vnum>" COLOR_INFO "       - Finish a specific quest.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST CLEAR <vnum>" COLOR_INFO "        - Clear a specific quest from your log.\n\r"
+        "       " COLOR_ALT_TEXT_1 "QUEST CLEAR ALL" COLOR_INFO "           - Clear your entire quest log." COLOR_EOL; 
+
+    char arg1[MAX_INPUT_LENGTH] = { 0 };
+    char arg2[MAX_INPUT_LENGTH] = { 0 };
+
+    bool area_only = false;
+    bool complete_only = false;
+
     if (!ch->pcdata)
         return;
 
+    bool is_tester = IS_TESTER(ch);
+
+    if (argument[0] != '\0') {
+        READ_ARG(arg1);
+
+        if (!str_prefix(arg1, "help")) {
+            send_to_char(help, ch);
+            if (IS_TESTER(ch))
+                send_to_char(tester_help, ch);
+            return;
+        }
+        else if (!str_prefix(arg1, "area")) {
+            area_only = true;
+        }
+        else if (!str_prefix(arg1, "completed")) {
+            complete_only = true;
+        }
+        else if (is_tester && !str_prefix(arg1, "show")) {
+            READ_ARG(arg2);
+            if (!is_number(arg2)) {
+                send_to_char("You must provide a quest vnum.\n\r", ch);
+                return;
+            }
+            VNUM vnum = atoi(arg2);
+            Quest* q = get_quest(vnum);
+            if (!q) {
+                send_to_char("No such quest exists.\n\r", ch);
+                return;
+            }
+            printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_2 "#%d" COLOR_DECOR_1 "] " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_EOL,
+                     q->vnum, q->name, q->level, NAME_STR(q->area_data));
+            printf_to_char(ch, COLOR_ALT_TEXT_2 "%s" COLOR_EOL, q->entry);
+        }
+        else if (is_tester && !str_prefix(arg1, "grant")) {
+            READ_ARG(arg2);
+            if (!is_number(arg2)) {
+                send_to_char("You must provide a quest vnum.\n\r", ch);
+                return;
+            }
+            VNUM vnum = atoi(arg2);
+            Quest* q = get_quest(vnum);
+            if (!q) {
+                send_to_char("No such quest exists.\n\r", ch);
+                return;
+            }
+            grant_quest(ch, q);
+        }
+        else if (is_tester && !str_prefix(arg1, "progress")) {
+            READ_ARG(arg2);
+            char arg3[MAX_INPUT_LENGTH] = { 0 };
+            READ_ARG(arg3);
+            if (!is_number(arg2) || !is_number(arg3)) {
+                send_to_char("You must provide a quest vnum and progress amount.\n\r", ch);
+                return;
+            }
+            VNUM vnum = atoi(arg2);
+            int progress = atoi(arg3);
+            Quest* q = get_quest(vnum);
+            QuestStatus* qs = get_quest_status(ch, vnum);
+            if (!q || !qs) {
+                send_to_char("No such quest exists in your log.\n\r", ch);
+                return;
+            }
+            qs->progress = progress;
+            printf_to_char(ch, "Set progress of quest #%d to %d.\n\r", vnum, progress);
+            save_char_obj(ch);
+        }
+        else if (is_tester && !str_prefix(arg1, "finish")) {
+            READ_ARG(arg2);
+            if (!is_number(arg2)) {
+                send_to_char("You must provide a quest vnum.\n\r", ch);
+                return;
+            }
+            VNUM vnum = atoi(arg2);
+            Quest* q = get_quest(vnum);
+            QuestStatus* qs = get_quest_status(ch, vnum);
+            if (!q || !qs) {
+                send_to_char("No such quest exists in your log.\n\r", ch);
+                return;
+            }
+            finish_quest(ch, q, qs);
+        }
+        else if (is_tester && !str_prefix(arg1, "clear")) {
+            READ_ARG(arg2);
+            if (str_cmp(arg2, "all") == 0) {
+                free_quest_log(ch->pcdata);
+                ch->pcdata->quest_log = new_quest_log();
+                send_to_char("Your quest log has been cleared.\n\r", ch);
+                save_char_obj(ch);
+                return;
+            }
+            if (!is_number(arg2)) {
+                send_to_char("You must provide a quest vnum or ALL.\n\r", ch);
+                return;
+            }
+            VNUM vnum = atoi(arg2);
+            QuestStatus* qs = get_quest_status(ch, vnum);
+            if (!qs) {
+                send_to_char("No such quest exists in your log.\n\r", ch);
+                return;
+            }
+            remove_quest_target(ch, qs->quest);
+            UNORDERED_REMOVE(QuestStatus, qs, ch->pcdata->quest_log->quests, vnum, vnum);
+            free_mem(qs, sizeof(QuestStatus));
+            send_to_char("Quest removed from your log.\n\r", ch);
+            save_char_obj(ch);
+        }
+        else {
+            printf_to_char(ch, "Unknown quest argument: %s\n\r", arg1);
+            send_to_char(help, ch);
+            if (IS_TESTER(ch))
+                send_to_char(tester_help, ch);
+            return;
+        }
+    }
+
     QuestStatus* qs = NULL;
 
-    INIT_BUF(local, MSL);
-    INIT_BUF(world, MSL);
     INIT_BUF(out, MSL);
 
     AreaData* area = ch->in_room ? ch->in_room->area->data : NULL;
 
     int i = 0;
 
+    if (complete_only) {
+        INIT_BUF(complete, MSL);
+
+        FOR_EACH(qs, ch->pcdata->quest_log->quests)
+        {
+            if (qs->state == QSTAT_COMPLETE) {
+                Quest* q = get_quest(qs->vnum);
+                ++i;
+                if (is_tester)
+                    addf_buf(complete, 
+                        "%d. " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_2 "#%d" COLOR_DECOR_1 "]  " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_EOL,
+                        i, q->vnum, q->name, q->level, NAME_STR(q->area_data));
+                else
+                    addf_buf(complete, "%d. " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_EOL,
+                        i, q->name, q->level, NAME_STR(q->area_data));
+            }
+        }
+
+        if (BUF(complete)[0]) {
+            add_buf(out, COLOR_ALT_TEXT_1 "Completed Quests:" COLOR_EOL);
+            add_buf(out, BUF(complete));
+        }
+
+        free_buf(complete);
+    }
+
     if (area != NULL) {
+        INIT_BUF(local, MSL);
+
         FOR_EACH(qs, ch->pcdata->quest_log->quests) {
             if (qs->state != QSTAT_COMPLETE && qs->vnum >= area->min_vnum && qs->vnum <= area->max_vnum) {
                 Quest* q = get_quest(qs->vnum);
                 ++i;
-                addf_buf(local, "%d. {T%s {|[{*Level %d{|] ",
-                    i, q->name, q->level);
+                if (is_tester)
+                    addf_buf(local, "%d. " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_2 "#%d" COLOR_DECOR_1 "] " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] ",
+                        i, q->vnum, q->name, q->level);
+                else
+                    addf_buf(local, "%d. " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] ",
+                        i, q->name, q->level);
+
+
                 if (qs->amount > 0) {
-                    addf_buf(local, "{j(%d/%d){x\n\r", qs->progress, qs->amount);
+                    addf_buf(local, COLOR_INFO "(%d/%d)" COLOR_CLEAR , qs->progress, qs->amount);
                 }
-                addf_buf(local, "{_%s{x\n\r\n\r", q->entry);
+                addf_buf(local, "\n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\r\n\r", q->entry);
             }
         }
-    }
 
-    FOR_EACH(qs, ch->pcdata->quest_log->quests) {
-        if (qs->state != QSTAT_COMPLETE && (!area || qs->vnum < area->min_vnum || qs->vnum > area->max_vnum)) {
-            Quest* q = get_quest(qs->vnum);
-            ++i;
-            addf_buf(world, "%d. {T%s {|[{*Level %d{|] {_(%s){x",
-                i, q->name, q->level, q->area_data->name);                
-            if (qs->amount > 0) {
-                addf_buf(local, " {j(%d/%d){x\n\r", qs->progress, qs->amount);
-            }
-            add_buf(local, "\n\r");
+        if (area != NULL && BUF(local)[0]) {
+            addf_buf(out, COLOR_ALT_TEXT_1 "Active Quests in %s:" COLOR_EOL, NAME_STR(area));
+            add_buf(out, BUF(local));
         }
+
+        free_buf(local);
     }
 
-    if (area != NULL && BUF(local)[0]) {
-        addf_buf(out, "{*Active Quests in %s:\n\r\n\r", area->name);
-        add_buf(out, BUF(local));
+    if (!area_only) {
+        INIT_BUF(world, MSL);
+
+        FOR_EACH(qs, ch->pcdata->quest_log->quests)
+        {
+            if (qs->state != QSTAT_COMPLETE && (!area || qs->vnum < area->min_vnum || qs->vnum > area->max_vnum)) {
+                Quest* q = get_quest(qs->vnum);
+                ++i;
+                if (is_tester)
+                    addf_buf(world, "%d. " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_2 "#%d" COLOR_DECOR_1 "] " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_CLEAR ,
+                        i, q->vnum, q->name, q->level, NAME_STR(q->area_data));
+                else
+                    addf_buf(world, "%d. " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_CLEAR ,
+                        i, q->name, q->level, NAME_STR(q->area_data));
+                if (qs->amount > 0) {
+                    addf_buf(world, " " COLOR_INFO "(%d/%d)" COLOR_EOL, qs->progress, qs->amount);
+                }
+                add_buf(world, "\n\r");
+            }
+        }
+
+        if (BUF(world)[0]) {
+            add_buf(out, COLOR_ALT_TEXT_1 "Active World Quests:" COLOR_EOL);
+            add_buf(out, BUF(world));
+        }
+
+        free_buf(world);
     }
 
-    if (BUF(world)[0]) {
-        add_buf(out, "{*Active World Quests:\n\r\n\r");
-        add_buf(out, BUF(world));
-    }
-
-    if (!BUF(local)[0] && !BUF(world)[0]) {
-        send_to_char("You have no active quests.\n\r", ch);
+    if (!BUF(out)[0]) {
+        if (complete_only)
+            send_to_char("You have no completed quests.\n\r", ch);
+        else
+            send_to_char("You have no active quests.\n\r", ch);
     }
     
     page_to_char(BUF(out), ch);
 
-    free_buf(local);
-    free_buf(world);
     free_buf(out);
+}
+
+// LOX METHODS /////////////////////////////////////////////////////////////////
+
+Value can_quest_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count != 1 || !IS_INT(args[0])) {
+        runtime_error("can_quest() takes an integer argument.");
+        return FALSE_VAL;
+    }
+
+    if (!IS_MOBILE(receiver))
+        return FALSE_VAL;
+
+    int32_t vnum = AS_INT(args[0]);
+
+    bool ret = can_quest(AS_MOBILE(receiver), vnum);
+
+    return BOOL_VAL(ret);
+}
+
+Value has_quest_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count != 1 || !IS_INT(args[0])) {
+        runtime_error("has_quest() takes an integer argument.");
+        return FALSE_VAL;
+    }
+
+    if (!IS_MOBILE(receiver))
+        return FALSE_VAL;
+
+    int32_t vnum = AS_INT(args[0]);
+
+    bool ret = has_quest(AS_MOBILE(receiver), vnum);
+
+    return BOOL_VAL(ret);
+}
+
+Value grant_quest_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count != 1 || !IS_INT(args[0])) {
+        runtime_error("grant_quest() takes an integer argument.");
+        return FALSE_VAL;
+    }
+
+    if (!IS_MOBILE(receiver))
+        return FALSE_VAL;
+
+    int32_t vnum = AS_INT(args[0]);
+
+    Quest* q = get_quest(vnum);
+    if (q == NULL) {
+        runtime_error("grant_quest(): No quest for VNUM %d.", vnum);
+        return FALSE_VAL;
+    }
+
+    grant_quest(AS_MOBILE(receiver), q);
+
+    return TRUE_VAL;
+}
+
+Value can_finish_quest_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count != 1 || !IS_INT(args[0])) {
+        runtime_error("can_finish_quest() takes an integer argument.");
+        return FALSE_VAL;
+    }
+
+    if (!IS_MOBILE(receiver))
+        return FALSE_VAL;
+
+    int32_t vnum = AS_INT(args[0]);
+
+    bool ret = can_finish_quest(AS_MOBILE(receiver), vnum);
+
+    return BOOL_VAL(ret);
+}
+
+Value finish_quest_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count != 1 || !IS_INT(args[0])) {
+        runtime_error("finish_quest() takes an integer argument.");
+        return FALSE_VAL;
+    }
+
+    if (!IS_MOBILE(receiver))
+        return FALSE_VAL;
+
+    int32_t vnum = AS_INT(args[0]);
+    Mobile* ch = AS_MOBILE(receiver);
+
+    Quest* q = get_quest(vnum);
+    if (q == NULL) {
+        runtime_error("finish_quest(): No quest for VNUM %d.", vnum);
+        return FALSE_VAL;
+    }
+
+    QuestStatus* qs = get_quest_status(ch, vnum);
+    if (qs == NULL) {
+        runtime_error("finish_quest(): Couldn't get quest status for VNUM %d.", vnum);
+        return FALSE_VAL;
+    }
+
+    finish_quest(ch, q, qs);
+
+    return TRUE_VAL;
 }

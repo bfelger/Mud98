@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -33,11 +33,13 @@
 #include "interp.h"
 #include "mob_prog.h"
 
-#include "entities/descriptor.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
+#include <entities/descriptor.h>
+#include <entities/event.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
 
-#include "data/mobile_data.h"
+#include <data/events.h>
+#include <data/mobile_data.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,12 +57,12 @@ Room* get_random_room(Mobile* ch)
     Room* room;
 
     for (;;) {
-        room_data = get_room_data(number_range(0, MAX_VNUM));
+        room_data = get_room_data(number_range(0, top_vnum_room));
         if (room_data != NULL) {
             // No instanced rooms. I really don't want to deal with that headache.
             if (room_data->area_data->inst_type == AREA_INST_MULTI)
                 continue;
-            room = room_data->instances;
+            room = AS_ROOM(room_data->instances.front->value);
             if (can_see_room(ch, room_data) && !room_is_private(room)
                 && !IS_SET(room_data->room_flags, ROOM_PRIVATE)
                 && !IS_SET(room_data->room_flags, ROOM_SOLITARY)
@@ -87,11 +89,10 @@ void do_enter(Mobile* ch, char* argument)
         Room* old_room;
         Object* portal;
         Mobile* fch;
-        Mobile* fch_next = NULL;
 
         old_room = ch->in_room;
 
-        portal = get_obj_list(ch, argument, ch->in_room->contents);
+        portal = get_obj_list(ch, argument, &ch->in_room->objects);
 
         if (portal == NULL) {
             send_to_char("You don't see that here.\n\r", ch);
@@ -114,7 +115,7 @@ void do_enter(Mobile* ch, char* argument)
 
         if (IS_SET(portal->value[2], PORTAL_RANDOM) || portal->value[3] == -1) {
             location = get_random_room(ch);
-            portal->value[3] = location->vnum; /* for record keeping :) */
+            portal->value[3] = VNUM_FIELD(location); /* for record keeping :) */
         }
         else if (IS_SET(portal->value[2], PORTAL_BUGGY) && (number_percent() < 5))
             location = get_random_room(ch);
@@ -144,8 +145,8 @@ void do_enter(Mobile* ch, char* argument)
 
         transfer_mob(ch, location);
 
-        if (IS_SET(portal->value[2], PORTAL_GOWITH)) /* take the gate along */
-        {
+        if (IS_SET(portal->value[2], PORTAL_GOWITH)) {
+            // Take the gate along
             obj_from_room(portal);
             obj_to_room(portal, location);
         }
@@ -160,15 +161,15 @@ void do_enter(Mobile* ch, char* argument)
         /* charges */
         if (portal->value[0] > 0) {
             portal->value[0]--;
-            if (portal->value[0] == 0) portal->value[0] = -1;
+            if (portal->value[0] == 0) 
+                portal->value[0] = -1;
         }
 
         /* protect against circular follows */
-        if (old_room == location) return;
+        if (old_room == location) 
+            return;
 
-        for (fch = old_room->people; fch != NULL; fch = fch_next) {
-            fch_next = fch->next_in_room;
-
+        FOR_EACH_ROOM_MOB(fch, old_room) {
             if (portal == NULL || portal->value[0] == -1)
                 /* no following through dead portals */
                 continue;
@@ -196,21 +197,24 @@ void do_enter(Mobile* ch, char* argument)
             act("$p fades out of existence.", ch, portal, NULL, TO_CHAR);
             if (ch->in_room == old_room)
                 act("$p fades out of existence.", ch, portal, NULL, TO_ROOM);
-            else if (old_room->people != NULL) {
-                act("$p fades out of existence.", old_room->people, portal,
-                    NULL, TO_CHAR);
-                act("$p fades out of existence.", old_room->people, portal,
-                    NULL, TO_ROOM);
+            else if (ROOM_HAS_MOBS(old_room)) {
+                act("$p fades out of existence.", old_room, portal, NULL, TO_ROOM);
             }
             extract_obj(portal);
         }
 
         // If someone is following the char, these triggers get activated for 
         // the followers before the char, but it's safer this way...
-        if (IS_NPC(ch) && HAS_TRIGGER(ch, TRIG_ENTRY))
+        if (IS_NPC(ch) && HAS_MPROG_TRIGGER(ch, TRIG_ENTRY))
             mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_ENTRY);
-        if (!IS_NPC(ch))
+
+        if (IS_NPC(ch) && HAS_EVENT_TRIGGER(ch, TRIG_ENTRY))
+            raise_entry_event(ch, number_percent());
+
+        if (!IS_NPC(ch)) {
             mp_greet_trigger(ch);
+            raise_greet_event(ch);
+        }
 
         return;
     }

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// mob_prototype.h
+// entities/mob_prototype.h
 // Prototype data for mobile (NPC) Mobile
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -9,26 +9,27 @@ typedef struct mob_prototype_t MobPrototype;
 #ifndef MUD98__ENTITIES__MOB_PROTOTYPE_H
 #define MUD98__ENTITIES__MOB_PROTOTYPE_H
 
-#include "merc.h"
-
-#include "interp.h"
-#include "mob_prog.h"
-
 #include "area.h"
+#include "entity.h"
 #include "shop_data.h"
 
-#include "data/damage.h"
-#include "data/mobile_data.h"
+#include <interp.h>
+#include <mob_prog.h>
+
+#include <data/damage.h>
+#include <data/mobile_data.h>
+
+#include <lox/lox.h>
 
 #include <stdbool.h>
 
 typedef struct mob_prototype_t {
+    Entity header;
     MobPrototype* next;
     SpecFunc* spec_fun;
     ShopData* pShop;
     MobProg* mprogs;
     AreaData* area;
-    char* name;
     char* short_descr;
     char* long_descr;
     char* description;
@@ -42,7 +43,6 @@ typedef struct mob_prototype_t {
     FLAGS form;
     FLAGS parts;
     FLAGS mprog_flags;
-    VNUM vnum;
     int wealth;
     int16_t hit[3];
     int16_t mana[3];
@@ -71,13 +71,21 @@ typedef struct mob_prototype_t {
 #define GROUP_VNUM_TROLLS       2100
 #define GROUP_VNUM_OGRES        2101
 
+#define FOR_EACH_MOB_PROTO(m) \
+    for (int m##_idx = 0, m##_l_count = 0; m##_l_count < mob_protos.count; ++m##_idx) \
+        if (!IS_NIL((&mob_protos.entries[m##_idx])->key) \
+            && !IS_NIL((&mob_protos.entries[m##_idx])->value) \
+            && IS_MOB_PROTO((&mob_protos.entries[m##_idx])->value) \
+            && (m = AS_MOB_PROTO(mob_protos.entries[m##_idx].value)) != NULL \
+            && ++m##_l_count)
+
 MobPrototype* new_mob_prototype();
 void free_mob_prototype(MobPrototype* p_mob_proto);
 MobPrototype* get_mob_prototype(VNUM vnum);
 void load_mobiles(FILE* fp);
 void recalc(MobPrototype* pMob);
 
-extern MobPrototype* mob_proto_hash[];
+extern Table mob_protos;
 extern MobPrototype* mob_prototype_free;
 
 extern int mob_proto_count;

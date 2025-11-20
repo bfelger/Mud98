@@ -28,7 +28,7 @@ char* areaname(void* point)
 {
     AreaData* area = *(AreaData**)point;
 
-    return area->name;
+    return NAME_STR(area);
 }
 
 char* clan2str(void* point)
@@ -65,10 +65,10 @@ char* progs(void* point)
 
     for (cnt = 0; list; NEXT_LINK(list)) {
         if (cnt == 0)
-            strcat(buf, "#Num  Vnum  Trigger Phrase     {x\n\r");
+            strcat(buf, "#Num  Vnum  Trigger Phrase     " COLOR_EOL);
 
         sprintf(tmpbuf, "%3d %5d %7.7s %s\n\r", cnt,
-            list->vnum, mprog_type_to_name(list->trig_type),
+            list->vnum, event_trigger_name(list->trig_type),
             list->trig_phrase);
         strcat(buf, tmpbuf);
         cnt++;
@@ -160,7 +160,7 @@ char* exits2str(void* point)
 
         sprintf(tmpbuf, "-%-5.5s to [%5d] ",
             capitalize(dir_list[j].name),
-            room_exit->to_room ? room_exit->to_room->vnum : 0);
+            room_exit->to_room ? VNUM_FIELD(room_exit->to_room) : 0);
         strcat(buf, tmpbuf);
 
         if (room_exit->key > 0) {
@@ -173,8 +173,9 @@ char* exits2str(void* point)
          * Capitalize all flags that are not part of the reset info.
          */
         strcpy(reset_state, flag_string(exit_flag_table, room_exit->exit_reset_flags));
-        //state = flag_string(exit_flag_table, room_exit->exit_flags);
+        //state = flag_string(exit_flag_table, room_exit->);
         state = reset_state;
+        //strcat(buf, "Flags: [");
         strcat(buf, "Flags: [");
         for (; ;) {
             state = one_argument(state, word);
@@ -256,11 +257,11 @@ char* shop2str(void* point)
 
 const struct olc_show_table_type redit_olc_show_table[] = {
     {
-        "name",	U(&xRoom.name), "Name:", OLCS_STRING,
+        "name",	U(&xRoom.header.name), "Name:", OLCS_LOX_STRING,
         1, 1, 40, 1, 1, 0
     },
     {
-        "vnum",	U(&xRoom.vnum), "Vnum:", OLCS_VNUM,
+        "vnum",	U(&xRoom.header.vnum), "Vnum:", OLCS_VNUM,
         49, 1, 5, 1, 1, 0
     },
     {
@@ -320,7 +321,7 @@ const struct olc_show_table_type redit_olc_show_table[] = {
 const struct olc_show_table_type medit_olc_show_table[] =
 {
     {
-        "name", U(&xMob.name), "Name:", OLCS_STRING,
+        "name", U(&xMob.header.name), "Name:", OLCS_LOX_STRING,
         1, 1, 31, 1, 1, 0
     },
     {
@@ -328,7 +329,7 @@ const struct olc_show_table_type medit_olc_show_table[] =
         40, 1, 12, 1, 1, U(areaname)
     },
     {
-        "vnum",	U(&xMob.vnum), "Vnum:", OLCS_VNUM,
+        "vnum",	U(&xMob.header.vnum), "Vnum:", OLCS_VNUM,
         70, 1, 5, 1, 1, 0
     },
     {
@@ -453,7 +454,7 @@ const struct olc_show_table_type medit_olc_show_table[] =
 const struct olc_show_table_type oedit_olc_show_table[] =
 {
     {
-        "name", U(&xObj.name), "Name:", OLCS_STRING,
+        "name", U(&xObj.header.name), "Name:", OLCS_LOX_STRING,
         1, 1, 32, 1, 1, 0
     },
     {
@@ -461,7 +462,7 @@ const struct olc_show_table_type oedit_olc_show_table[] =
         40, 1, 14, 1, 1, U(areaname)
     },
     {
-        "vnum", U(&xObj.vnum), "Vnum:", OLCS_VNUM,
+        "vnum", U(&xObj.header.vnum), "Vnum:", OLCS_VNUM,
         68, 1, 5, 1, 1, 0
     },
     {
@@ -542,7 +543,7 @@ void InitScreenMap(Descriptor* d)
         perror("InitScreenMap(): calloc failed!");
         exit(-1);
     }
-    for (size_t i = 0; i < 80 * (size_t)(d->character->lines) - 3; i++)
+    for (size_t i = 0; i < 80 * (size_t)(d->character->lines - 3); i++)
         d->screenmap[i] = d->oldscreenmap[i] = ' ';
 }
 
@@ -593,7 +594,8 @@ void UpdateOLCScreen(Descriptor* d)
             continue;
 
         switch (table[i].type) {
-        default:break;
+        default:
+            break;
         case OLCS_STRING:
             SET_BUF(buf, *(char**)point);
             break;
@@ -612,7 +614,11 @@ void UpdateOLCScreen(Descriptor* d)
             SET_BUF(buf, vnum_buf);
             break;
         }
-        
+        case OLCS_LOX_STRING: {
+            String* str = *(String**)point;
+            SET_BUF(buf, str->chars);
+            break;
+        }
         case OLCS_STRFUNC:
             func = (STRFUNC*)table[i].func;
             tmpstr = (*func) (point);
@@ -677,9 +683,9 @@ void UpdateOLCScreen(Descriptor* d)
         }
         sprintf(BUF(buf2), VT_CURSPOS "%c", (int)(i / 80 + 1), (int)(i % 80), d->screenmap[i]);
         ++i;
-        add_buf(buf, BUF(buf2));
+        strcat(BUF(buf), BUF(buf2));
         j += strlen(BUF(buf2));
-        while (d->screenmap && d->screenmap[i] != d->oldscreenmap[i])
+        while (i < size && d->screenmap && d->screenmap[i] != d->oldscreenmap[i])
             BUF(buf)[j++] = d->screenmap[i++];
         BUF(buf)[j] = '\0';
     }

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// descriptor.h
+// entities/descriptor.h
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef struct descriptor_t Descriptor;
@@ -8,13 +8,14 @@ typedef struct descriptor_t Descriptor;
 #ifndef MUD98__ENTITIES__DESCRIPTOR_H
 #define MUD98__ENTITIES__DESCRIPTOR_H
 
-#include "merc.h"
-
-#include "socket.h"
+#include <merc.h>
+#include <socket.h>
 
 #include "mobile.h"
 
-#include "mth/mth.h"
+#include <lox/object.h>
+
+#include <mth/mth.h>
 
 #include <stddef.h>
 #include <stdint.h>
@@ -56,6 +57,7 @@ typedef struct descriptor_t {
     char* showstr_head;
     char* showstr_point;
     char** pString;
+    ObjString* pLoxScript;
     uintptr_t pEdit;
     char* screenmap;
     char* oldscreenmap;

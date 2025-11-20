@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// object.h
+// entities/object.h
 // Utilities for handling in-game objects
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -9,24 +9,26 @@ typedef struct object_t Object;
 #ifndef MUD98__ENTITIES__OBJECT_H
 #define MUD98__ENTITIES__OBJECT_H
 
-#include "merc.h"
-
 #include "affect.h"
 #include "area.h"
+#include "entity.h"
 #include "extra_desc.h"
 #include "mobile.h"
 #include "obj_prototype.h"
 #include "reset.h"
 #include "room.h"
 
-#include "data/item.h"
+#include <data/item.h>
+
+#include <lox/lox.h>
+#include <lox/list.h>
 
 #include <stdio.h>
 
 typedef struct object_t {
-    Object* next;
-    Object* next_content;
-    Object* contains;
+    Entity header;
+    Node* obj_list_node;
+    List objects;
     Object* in_obj;
     Object* on;
     Mobile* carried_by;
@@ -34,8 +36,7 @@ typedef struct object_t {
     Affect* affected;
     ObjPrototype* prototype;
     Room* in_room;
-    char* owner;
-    char* name;
+    String* owner;
     char* short_descr;
     char* description;
     char* material;
@@ -53,24 +54,43 @@ typedef struct object_t {
     bool valid;
 } Object;
 
-#define FOR_EACH_CONTENT(i, c) \
-    for ((i) = (c); (i) != NULL; (i) = i->next_content)
-
 #define CAN_WEAR(obj, part)       (IS_SET((obj)->wear_flags, (part)))
 #define IS_OBJ_STAT(obj, stat)    (IS_SET((obj)->extra_flags, (stat)))
 #define IS_WEAPON_STAT(obj, stat) (IS_SET((obj)->value[4], (stat)))
 #define WEIGHT_MULT(obj)                                                       \
     ((obj)->item_type == ITEM_CONTAINER ? (obj)->value[4] : 100)
 
+#define FOR_EACH_GLOBAL_OBJ(obj) \
+    if (obj_list.front == NULL) \
+        obj = NULL; \
+    else if ((obj = AS_OBJECT(obj_list.front->value)) != NULL) \
+        for (struct { Node* node; Node* next; } obj##_loop = { obj_list.front, obj_list.front->next }; \
+            obj##_loop.node != NULL; \
+            obj##_loop.node = obj##_loop.next, \
+                obj##_loop.next = obj##_loop.next ? obj##_loop.next->next : NULL, \
+                obj = obj##_loop.node != NULL ? AS_OBJECT(obj##_loop.node->value) : NULL) \
+            if (obj != NULL)
+
+#define OBJ_HAS_OBJS(obj) \
+    ((obj)->objects.count > 0)
+
+#define FOR_EACH_OBJ_CONTENT(content, obj) \
+    if ((obj)->objects.front == NULL) \
+        content = NULL; \
+    else if ((content = AS_OBJECT((obj)->objects.front->value)) != NULL) \
+        for (struct { Node* node; Node* next; } content##_loop = { (obj)->objects.front, (obj)->objects.front->next }; \
+            content##_loop.node != NULL; \
+            content##_loop.node = content##_loop.next, \
+                content##_loop.next = content##_loop.next ? content##_loop.next->next : NULL, \
+                content = content##_loop.node != NULL ? AS_OBJECT(content##_loop.node->value) : NULL) \
+            if (content != NULL)
+
 void clone_object(Object* parent, Object* clone);
 Object* create_object(ObjPrototype* obj_proto, LEVEL level);
 void free_object(Object* obj);
 Object* new_object();
 
-extern int obj_count;
-extern int obj_perm_count;
-
-extern Object* obj_free;
-extern Object* obj_list;
+extern List obj_free;
+extern List obj_list;
 
 #endif // !MUD98__ENTITIES__OBJECT_H

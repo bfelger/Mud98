@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// mobile.h
+// entities/mobile.h
 // Mobiles
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -9,13 +9,20 @@
 
 typedef struct mobile_t Mobile;
 
-#include "merc.h"
+#include <merc.h>
 
-#include "interp.h"
-#include "note.h"
+#include <interp.h>
+#include <handler.h>
+#include <note.h>
+
+#include <data/class.h>
+#include <data/damage.h>
+#include <data/mobile_data.h>
+#include <data/stats.h>
 
 #include "area.h"
 #include "descriptor.h"
+#include "entity.h"
 #include "mob_memory.h"
 #include "mob_prototype.h"
 #include "object.h"
@@ -23,16 +30,15 @@ typedef struct mobile_t Mobile;
 #include "reset.h"
 #include "room.h"
 
-#include "data/class.h"
-#include "data/damage.h"
-#include "data/mobile_data.h"
-#include "data/stats.h"
+#include <lox/lox.h>
 
 #include <stdbool.h>
 
 typedef struct mobile_t {
+    Entity header;
     Mobile* next;
-    Mobile* next_in_room;
+    Node* mob_list_node;
+    List objects;
     Mobile* master;
     Mobile* leader;
     Mobile* fighting;
@@ -45,14 +51,12 @@ typedef struct mobile_t {
     Descriptor* desc;
     Affect* affected;
     NoteData* pnote;
-    Object* carrying;
     Object* on;
     Room* in_room;
     Room* was_in_room;
     Area* zone;
     PlayerData* pcdata;
     CharGenData* gen_data;
-    char* name;
     char* material;
     char* short_descr;
     char* long_descr;
@@ -123,6 +127,9 @@ typedef struct mobile_t {
 #define IS_TRUSTED(ch, level) (get_trust((ch)) >= (level))
 #define IS_AFFECTED(ch, sn)   (IS_SET((ch)->affect_flags, (sn)))
 
+#define IS_TESTER(ch) (IS_IMMORTAL(ch) || \
+     (!IS_NPC(ch) && IS_SET((ch)->act_flags, PLR_TESTER)))
+
 #define GET_AGE(ch)                                                            \
     ((int)(17 + ((ch)->played + current_time - (ch)->logon) / 72000))
 
@@ -146,20 +153,40 @@ typedef struct mobile_t {
 #define get_carry_weight(ch)                                                   \
     ((ch)->carry_weight + (ch)->silver / 10 + (ch)->gold * 2 / 5)
 
-#define HAS_TRIGGER(ch, trig) (IS_SET((ch)->prototype->mprog_flags, (trig)))
+#define HAS_MPROG_TRIGGER(ch, trig) (IS_SET((ch)->prototype->mprog_flags, (trig)))
 #define IS_SWITCHED(ch) (ch->desc && ch->desc->original)
 #define IS_BUILDER(ch, Area) (!IS_NPC(ch) && !IS_SWITCHED(ch) && \
                 (ch->pcdata->security >= Area->security \
-                || strstr(Area->builders, ch->name) \
+                || strstr(Area->builders, NAME_STR(ch)) \
                 || strstr(Area->builders, "All")))
 #define PERS(ch, looker)                                                       \
-    (can_see(looker, (ch)) ? (IS_NPC(ch) ? (ch)->short_descr : (ch)->name)     \
+    (can_see(looker, (ch)) ? (IS_NPC(ch) ? (ch)->short_descr : NAME_STR(ch))   \
                            : "someone")
 
-// We have to cast to int because MSVC's static analyzer isn't very good at 
-// mapping to int on its own. Many false positive for unbounded enum use even
-// with checks.
-#define GET_ARCH(ch)    (CHECK_ARCH((int)class_table[ch->ch_class].arch))
+#define MOB_HAS_OBJS(mob) \
+    ((mob)->objects.count > 0)
+
+#define FOR_EACH_GLOBAL_MOB(mob) \
+    if (mob_list.front == NULL) \
+        mob = NULL; \
+    else if ((mob = AS_MOBILE(mob_list.front->value)) != NULL) \
+        for (struct { Node* node; Node* next; } mob##_loop = { mob_list.front, mob_list.front->next }; \
+            mob##_loop.node != NULL; \
+            mob##_loop.node = mob##_loop.next, \
+                mob##_loop.next = mob##_loop.next ? mob##_loop.next->next : NULL, \
+                mob = mob##_loop.node != NULL ? AS_MOBILE(mob##_loop.node->value) : NULL) \
+            if (mob != NULL)
+
+#define FOR_EACH_MOB_OBJ(content, mob) \
+    if ((mob)->objects.front == NULL) \
+        content = NULL; \
+    else if ((content = AS_OBJECT((mob)->objects.front->value)) != NULL) \
+        for (struct { Node* node; Node* next; } content##_loop = { (mob)->objects.front, (mob)->objects.front->next }; \
+            content##_loop.node != NULL; \
+            content##_loop.node = content##_loop.next, \
+                content##_loop.next = content##_loop.next ? content##_loop.next->next : NULL, \
+                content = content##_loop.node != NULL ? AS_OBJECT(content##_loop.node->value) : NULL) \
+            if (content != NULL)
 
 Mobile* new_mobile();
 void free_mobile(Mobile* ch);
@@ -168,10 +195,15 @@ Mobile* create_mobile(MobPrototype* p_mob_proto);
 long get_mob_id();
 void clear_mob(Mobile* ch);
 
-extern Mobile* mob_list;
-extern Mobile* mob_free;
+extern List mob_list;
+extern List mob_free;
 
-extern int mob_count;
-extern int mob_perm_count;
+////////////////////////////////////////////////////////////////////////////////
+// Lox implementation
+////////////////////////////////////////////////////////////////////////////////
+
+//void init_mobile_class();
+//Value create_mobile_value(Mobile* mobile);
+//Value get_mobile_carrying_native(int arg_count, Value* args);
 
 #endif // !MUD98__ENTITIES__CHAR_DATA_H

@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -39,15 +39,17 @@
 
 #include "interp.h"
 
-#include "entities/mobile.h"
+#include <data/events.h>
 
-struct mob_cmd_type {
+#include <entities/mobile.h>
+
+typedef struct mob_cmd_type {
     const char* name;
     DoFunc* do_fun;
-};
+} MobCmdInfo;
 
 /* the command table itself */
-extern const struct mob_cmd_type mob_cmd_table[];
+extern const MobCmdInfo mob_cmd_table[];
 
 /*
  * Command functions.
@@ -85,6 +87,6 @@ DECLARE_DO_FUN(do_mpremove);
 DECLARE_DO_FUN(do_mpquest);
 
 void mob_interpret(Mobile* ch, char* argument);
-char* mprog_type_to_name(MobProgTrigger);
+char* event_trigger_name(EventTrigger);
 
 #endif // !MUD98__MOB_CMDS_H

@@ -1,14 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////
-// social.c
+// data/social.c
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "social.h"
 
-#include "comm.h"
-#include "config.h"
-#include "db.h"
-#include "tables.h"
-#include "tablesave.h"
+#include <comm.h>
+#include <config.h>
+#include <db.h>
+#include <tables.h>
+#include <tablesave.h>
 
 Social* social_table;
 int social_count;

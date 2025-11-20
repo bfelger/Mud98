@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -44,24 +44,28 @@
 #include "vt.h"
 #include "weather.h"
 
-#include "entities/area.h"
-#include "entities/descriptor.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
+#include <entities/area.h>
+#include <entities/descriptor.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
 
-#include "data/class.h"
-#include "data/item.h"
-#include "data/mobile_data.h"
-#include "data/player.h"
-#include "data/race.h"
-#include "data/skill.h"
-#include "data/spell.h"
+#include <data/class.h>
+#include <data/item.h>
+#include <data/mobile_data.h>
+#include <data/player.h>
+#include <data/race.h>
+#include <data/skill.h>
+#include <data/spell.h>
+
+#include <lox/lox.h>
 
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
 #include <time.h>
+
+extern bool test_output_enabled;
 
 /* friend stuff -- for NPC's mostly */
 bool is_friend(Mobile* ch, Mobile* victim)
@@ -113,7 +117,7 @@ int count_users(Object* obj)
     if (obj->in_room == NULL) 
         return 0;
 
-    FOR_EACH_IN_ROOM(fch, obj->in_room->people)
+    FOR_EACH_ROOM_MOB(fch, obj->in_room)
         if (fch->on == obj) 
             count++;
 
@@ -322,7 +326,7 @@ int get_skill(Mobile* ch, SKNUM sn)
     }
     else {
         // Mobiles
-        if (skill_table[sn].spell_fun != spell_null)
+        if (HAS_SPELL_FUNC(sn))
             skill = 40 + 2 * ch->level;
 
         else if (sn == gsn_sneak || sn == gsn_hide)
@@ -383,7 +387,7 @@ int get_skill(Mobile* ch, SKNUM sn)
     }
 
     if (ch->daze > 0) {
-        if (skill_table[sn].spell_fun != spell_null)
+        if (HAS_SPELL_FUNC(sn))
             skill /= 2;
         else
             skill = 2 * skill / 3;
@@ -456,7 +460,7 @@ void reset_char(Mobile* ch)
                     switch (af->location) {
                     case APPLY_SEX:
                         ch->sex -= mod;
-                        if (ch->sex < 0 || ch->sex >= SEX_COUNT)
+                        if (ch->sex < 0 || ch->sex > SEX_PLR_MAX)
                             ch->sex = IS_NPC(ch) ? 0 : ch->pcdata->true_sex;
                         break;
                     case APPLY_MANA:
@@ -499,7 +503,7 @@ void reset_char(Mobile* ch)
         ch->pcdata->perm_move = ch->max_move;
         ch->pcdata->last_level = (int16_t)(ch->played / 3600);
         if (ch->pcdata->true_sex < 0 || ch->pcdata->true_sex > 2) {
-            if (ch->sex >= 0 && ch->sex < SEX_COUNT)
+            if (ch->sex >= 0 && ch->sex < SEX_PLR_MAX)
                 ch->pcdata->true_sex = ch->sex;
             else
                 ch->pcdata->true_sex = SEX_NEUTRAL;
@@ -720,7 +724,7 @@ void reset_char(Mobile* ch)
     }
 
     /* make sure sex is RIGHT!!!! */
-    if (ch->sex < 0 || ch->sex >= SEX_COUNT) 
+    if (ch->sex < 0 || ch->sex > SEX_PLR_MAX) 
         ch->sex = ch->pcdata->true_sex;
 }
 
@@ -881,7 +885,8 @@ void mob_from_room(Mobile* ch)
     Object* obj;
 
     if (ch->in_room == NULL) {
-        bug("Char_from_room: NULL.", 0);
+        if (!test_output_enabled)
+            bug("Char_from_room: NULL.", 0);
         return;
     }
 
@@ -893,24 +898,14 @@ void mob_from_room(Mobile* ch)
         && ch->in_room->light > 0)
         --ch->in_room->light;
 
-    if (ch == ch->in_room->people) { 
-        ch->in_room->people = ch->next_in_room; 
-    }
-    else {
-        Mobile* prev;
+    Node* node = list_find(&ch->in_room->mobiles, OBJ_VAL(ch));
 
-        for (prev = ch->in_room->people; prev; prev = prev->next_in_room) {
-            if (prev->next_in_room == ch) {
-                prev->next_in_room = ch->next_in_room;
-                break;
-            }
-        }
-
-        if (prev == NULL) bug("Char_from_room: ch not found.", 0);
-    }
+    if (node == NULL)
+        bug("Char_from_room: ch not found.", 0);
+    else
+        list_remove_node(&ch->in_room->mobiles, node);
 
     ch->in_room = NULL;
-    ch->next_in_room = NULL;
     ch->on = NULL; /* sanity check! */
     return;
 }
@@ -928,7 +923,7 @@ static void update_mdsp_room(Mobile* ch)
                 || (IS_AFFECTED(ch, AFF_INFRARED) 
                     && !IS_AFFECTED(ch, AFF_BLIND)))) {
             cat_sprintf(exits, "\001%s\002%d", dir_list[door].name_abbr, 
-                room_exit->to_room->vnum);
+                VNUM_FIELD(room_exit->to_room));
         }
     }
     cat_sprintf(exits, "%c", MSDP_ARRAY_CLOSE);
@@ -936,9 +931,9 @@ static void update_mdsp_room(Mobile* ch)
     msdp_update_var_instant(ch->desc, "ROOM", 
         "%c\001%s\002%d\001%s\002%s\001%s\002%s\001%s\002%s\001%s\002%s%c",
         MSDP_TABLE_OPEN,
-        "VNUM", ch->in_room->vnum,
-        "NAME", ch->in_room->data->name,
-        "AREA", ch->in_room->area->data->name,
+        "VNUM", VNUM_FIELD(ch->in_room),
+        "NAME", NAME_STR(ch->in_room),
+        "AREA", NAME_STR(ch->in_room->area),
         "TERRAIN", sector_flag_table[ch->in_room->data->sector_type].name,
         "EXITS", exits,
         MSDP_TABLE_CLOSE);
@@ -958,7 +953,7 @@ void mob_to_room(Mobile* ch, Room* room)
     if (room == NULL) {
         Room* temple;
 
-        bug("Char_to_room: NULL.", 0);
+        bug("mob_to_room: NULL.", 0);
 
         VNUM recall = IS_NPC(ch) ? cfg_get_default_recall() : ch->pcdata->recall;
 
@@ -969,11 +964,12 @@ void mob_to_room(Mobile* ch, Room* room)
     }
 
     ch->in_room = room;
-    ch->next_in_room = room->people;
-    room->people = ch;
+    list_push_back(&room->mobiles, OBJ_VAL(ch));
 
-    if (!IS_NPC(ch) && ch->desc->mth->msdp_data && cfg_get_msdp_enabled())
-        update_mdsp_room(ch);
+    if (!test_output_enabled) {
+        if (!IS_NPC(ch) && ch->desc->mth->msdp_data && cfg_get_msdp_enabled())
+            update_mdsp_room(ch);
+    }
 
     if (!IS_NPC(ch)) {
         Area* area = ch->in_room->area;
@@ -1014,7 +1010,7 @@ void mob_to_room(Mobile* ch, Room* room)
         plague.modifier = -5;
         plague.bitvector = AFF_PLAGUE;
 
-        FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
+        FOR_EACH_ROOM_MOB(vch, ch->in_room) {
             if (!saves_spell(plague.level - 2, vch, DAM_DISEASE)
                 && !IS_IMMORTAL(vch) && !IS_AFFECTED(vch, AFF_PLAGUE)
                 && number_bits(6) == 0) {
@@ -1031,8 +1027,7 @@ void mob_to_room(Mobile* ch, Room* room)
 // Give an obj to a char.
 void obj_to_char(Object* obj, Mobile* ch)
 {
-    obj->next_content = ch->carrying;
-    ch->carrying = obj;
+    list_push_back(&ch->objects, OBJ_VAL(obj));
     obj->carried_by = ch;
     obj->in_room = NULL;
     obj->in_obj = NULL;
@@ -1053,25 +1048,14 @@ void obj_from_char(Object* obj)
     if (obj->wear_loc != WEAR_UNHELD) 
         unequip_char(ch, obj);
 
-    if (ch->carrying == obj) { 
-        ch->carrying = obj->next_content; 
-    }
-    else {
-        Object* prev;
+    Node* node = list_find(&obj->carried_by->objects, OBJ_VAL(obj));
 
-        for (prev = ch->carrying; prev != NULL; prev = prev->next_content) {
-            if (prev->next_content == obj) {
-                prev->next_content = obj->next_content;
-                break;
-            }
-        }
-
-        if (prev == NULL) 
-            bug("Obj_from_char: obj not in list.", 0);
-    }
+    if (node == NULL)
+        bug("Obj_from_char: obj not in list.", 0);
+    else
+        list_remove_node(&obj->carried_by->objects, node);
 
     obj->carried_by = NULL;
-    obj->next_content = NULL;
     ch->carry_number -= (int16_t)get_obj_number(obj);
     ch->carry_weight -= (int16_t)get_obj_weight(obj);
     return;
@@ -1125,7 +1109,7 @@ Object* get_eq_char(Mobile* ch, WearLocation iWear)
     if (ch == NULL) 
         return NULL;
 
-    for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
+    FOR_EACH_MOB_OBJ(obj, ch) {
         if (obj->wear_loc == iWear) 
             return obj;
     }
@@ -1144,9 +1128,10 @@ void equip_char(Mobile* ch, Object* obj, WearLocation iWear)
         return;
     }
 
-    if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch))
+    if (!resetting &&
+        ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch))
         || (IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch))
-        || (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
+        || (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch)))) {
         // Thanks to Morgenes for the bug fix here!
         act("You are zapped by $p and drop it.", ch, obj, NULL, TO_CHAR);
         act("$n is zapped by $p and drops it.", ch, obj, NULL, TO_ROOM);
@@ -1164,7 +1149,7 @@ void equip_char(Mobile* ch, Object* obj, WearLocation iWear)
                 affect_modify(ch, affect, true);
     FOR_EACH(affect, obj->affected)
         if (affect->location == APPLY_SPELL_AFFECT)
-            affect_to_char(ch, affect);
+            affect_to_mob(ch, affect);
         else
             affect_modify(ch, affect, true);
 
@@ -1238,13 +1223,13 @@ void unequip_char(Mobile* ch, Object* obj)
 }
 
 // Count occurrences of an obj in a list.
-int count_obj_list(ObjPrototype* obj_proto, Object* list)
+int count_obj_list(ObjPrototype* obj_proto, List* list)
 {
     Object* obj;
     int nMatch;
 
     nMatch = 0;
-    FOR_EACH_CONTENT(obj, list) {
+    FOR_EACH_LINK(obj, list, OBJECT) {
         if (obj->prototype == obj_proto)
             nMatch++;
     }
@@ -1282,40 +1267,25 @@ void obj_from_room(Object* obj)
         return;
     }
 
-    FOR_EACH_IN_ROOM(ch, in_room->people)
+    FOR_EACH_ROOM_MOB(ch, in_room)
         if (ch->on == obj)
             ch->on = NULL;
 
-    if (obj == in_room->contents) { 
-        in_room->contents = obj->next_content; 
-    }
-    else {
-        Object* prev;
-
-        for (prev = in_room->contents; prev; prev = prev->next_content) {
-            if (prev->next_content == obj) {
-                prev->next_content = obj->next_content;
-                break;
-            }
-        }
-
-        if (prev == NULL) {
-            bug("Obj_from_room: obj not found.", 0);
-            return;
-        }
-    }
+    Node* node = list_find(&in_room->objects, OBJ_VAL(obj));
+    if (node == NULL)
+        bug("Obj_from_room: obj not found.", 0);
+    else
+        list_remove_node(&in_room->objects, node);
 
     obj->in_room = NULL;
-    obj->next_content = NULL;
     return;
 }
 
 // Move an obj into a room.
-void obj_to_room(Object* obj, Room* pRoomIndex)
+void obj_to_room(Object* obj, Room* room)
 {
-    obj->next_content = pRoomIndex->contents;
-    pRoomIndex->contents = obj;
-    obj->in_room = pRoomIndex;
+    list_push_back(&room->objects, OBJ_VAL(obj));
+    obj->in_room = room;
     obj->carried_by = NULL;
     obj->in_obj = NULL;
     return;
@@ -1324,12 +1294,11 @@ void obj_to_room(Object* obj, Room* pRoomIndex)
 // Move an object into an object.
 void obj_to_obj(Object* obj, Object* obj_to)
 {
-    obj->next_content = obj_to->contains;
-    obj_to->contains = obj;
+    list_push_back(&obj_to->objects, OBJ_VAL(obj));
     obj->in_obj = obj_to;
     obj->in_room = NULL;
     obj->carried_by = NULL;
-    if (obj_to->prototype->vnum == OBJ_VNUM_PIT) 
+    if (VNUM_FIELD(obj_to->prototype) == OBJ_VNUM_PIT)
         obj->cost = 0;
 
     for (; obj_to != NULL; obj_to = obj_to->in_obj) {
@@ -1353,26 +1322,13 @@ void obj_from_obj(Object* obj)
         return;
     }
 
-    if (obj == obj_from->contains) { 
-        obj_from->contains = obj->next_content; 
-    }
-    else {
-        Object* prev;
+    Node* node = list_find(&obj_from->objects, OBJ_VAL(obj));
 
-        for (prev = obj_from->contains; prev; prev = prev->next_content) {
-            if (prev->next_content == obj) {
-                prev->next_content = obj->next_content;
-                break;
-            }
-        }
+    if (node == NULL)
+        bug("Obj_from_obj: obj not found.", 0);
+    else
+        list_remove_node(&obj_from->objects, node);
 
-        if (prev == NULL) {
-            bug("Obj_from_obj: obj not found.", 0);
-            return;
-        }
-    }
-
-    obj->next_content = NULL;
     obj->in_obj = NULL;
 
     for (; obj_from != NULL; obj_from = obj_from->in_obj) {
@@ -1389,34 +1345,10 @@ void obj_from_obj(Object* obj)
 // Extract an obj from the world.
 void extract_obj(Object* obj)
 {
-    Object* obj_content;
-    Object* obj_next = NULL;
-
     UNPARENT_OBJ(obj);
 
-    for (obj_content = obj->contains; obj_content; obj_content = obj_next) {
-        obj_next = obj_content->next_content;
-        extract_obj(obj_content);
-    }
-
-    if (obj_list == obj) { 
-        obj_list = obj->next; 
-    }
-    else {
-        Object* prev;
-
-        FOR_EACH(prev, obj_list) {
-            if (prev->next == obj) {
-                prev->next = obj->next;
-                break;
-            }
-        }
-
-        if (prev == NULL) {
-            bug("Extract_obj: obj %d not found.", obj->prototype->vnum);
-            return;
-        }
-    }
+    while (obj->objects.count > 0)
+        extract_obj(AS_OBJECT(obj->objects.front->value));
 
     --obj->prototype->count;
     free_object(obj);
@@ -1427,8 +1359,6 @@ void extract_obj(Object* obj)
 void extract_char(Mobile* ch, bool fPull)
 {
     Mobile* wch;
-    Object* obj;
-    Object* obj_next = NULL;
 
     /* doesn't seem to be necessary
     if ( ch->in_room == NULL )
@@ -1449,10 +1379,8 @@ void extract_char(Mobile* ch, bool fPull)
 
     stop_fighting(ch, true);
 
-    for (obj = ch->carrying; obj != NULL; obj = obj_next) {
-        obj_next = obj->next_content;
-        extract_obj(obj);
-    }
+    while (ch->objects.count > 0)
+        extract_obj(AS_OBJECT(ch->objects.front->value));
 
     if (ch->in_room != NULL)
         mob_from_room(ch);
@@ -1471,34 +1399,16 @@ void extract_char(Mobile* ch, bool fPull)
         ch->desc = NULL;
     }
 
-    FOR_EACH(wch, mob_list) {
+    FOR_EACH_GLOBAL_MOB(wch) {
         if (wch->reply == ch) 
             wch->reply = NULL;
         if (wch->mprog_target == ch)
             wch->mprog_target = NULL;
     }
 
-    if (ch == mob_list) { 
-        mob_list = ch->next; 
-    }
-    else {
-        Mobile* prev;
-
-        FOR_EACH(prev, mob_list) {
-            if (prev->next == ch) {
-                prev->next = ch->next;
-                break;
-            }
-        }
-
-        if (prev == NULL) {
-            bug("Extract_char: char not found.", 0);
-            return;
-        }
-    }
-
     if (ch->desc != NULL) 
         ch->desc->character = NULL;
+
     free_mobile(ch);
     return;
 }
@@ -1514,8 +1424,9 @@ Mobile* get_mob_room(Mobile* ch, char* argument)
     number = number_argument(argument, arg);
     count = 0;
     if (!str_cmp(arg, "self")) return ch;
-    FOR_EACH_IN_ROOM(rch, ch->in_room->people) {
-        if (!can_see(ch, rch) || !is_name(arg, rch->name)) 
+
+    FOR_EACH_ROOM_MOB(rch, ch->in_room) {
+        if (!can_see(ch, rch) || !is_name(arg, NAME_STR(rch))) 
             continue;
         if (++count == number) 
             return rch;
@@ -1537,9 +1448,9 @@ Mobile* get_mob_world(Mobile* ch, char* argument)
 
     number = number_argument(argument, arg);
     count = 0;
-    FOR_EACH(wch, mob_list) {
+    FOR_EACH_GLOBAL_MOB(wch) {
         if (wch->in_room == NULL || !can_see(ch, wch)
-            || !is_name(arg, wch->name))
+            || !is_name(arg, NAME_STR(wch)))
             continue;
         if (++count == number) 
             return wch;
@@ -1556,7 +1467,7 @@ Object* get_obj_type(ObjPrototype* obj_proto)
 {
     Object* obj;
 
-    FOR_EACH(obj, obj_list) {
+    FOR_EACH_GLOBAL_OBJ(obj) {
         if (obj->prototype == obj_proto)
             return obj;
     }
@@ -1565,7 +1476,7 @@ Object* get_obj_type(ObjPrototype* obj_proto)
 }
 
 // Find an obj in a list.
-Object* get_obj_list(Mobile* ch, char* argument, Object* list)
+Object* get_obj_list(Mobile* ch, char* argument, List* list)
 {
     char arg[MAX_INPUT_LENGTH];
     Object* obj;
@@ -1574,8 +1485,8 @@ Object* get_obj_list(Mobile* ch, char* argument, Object* list)
 
     number = number_argument(argument, arg);
     count = 0;
-    FOR_EACH_CONTENT(obj, list) {
-        if (can_see_obj(ch, obj) && is_name(arg, obj->name)) {
+    FOR_EACH_LINK(obj, list, OBJECT) {
+        if (can_see_obj(ch, obj) && is_name(arg, NAME_STR(obj))) {
             if (++count == number)
                 return obj;
         }
@@ -1585,7 +1496,7 @@ Object* get_obj_list(Mobile* ch, char* argument, Object* list)
 }
 
 // Find an obj in player's inventory.
-Object* get_obj_carry(Mobile* ch, char* argument, Mobile* viewer)
+Object* get_obj_carry(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     Object* obj;
@@ -1594,9 +1505,10 @@ Object* get_obj_carry(Mobile* ch, char* argument, Mobile* viewer)
 
     number = number_argument(argument, arg);
     count = 0;
-    FOR_EACH_CONTENT(obj, ch->carrying) {
-        if (obj->wear_loc == WEAR_UNHELD && (can_see_obj(viewer, obj))
-            && is_name(arg, obj->name)) {
+
+    FOR_EACH_MOB_OBJ(obj, ch) {
+        if (obj->wear_loc == WEAR_UNHELD && (can_see_obj(ch, obj))
+            && is_name(arg, NAME_STR(obj))) {
             if (++count == number) return obj;
         }
     }
@@ -1614,10 +1526,11 @@ Object* get_obj_wear(Mobile* ch, char* argument)
 
     number = number_argument(argument, arg);
     count = 0;
-    FOR_EACH_CONTENT(obj, ch->carrying) {
+    FOR_EACH_MOB_OBJ(obj, ch) {
         if (obj->wear_loc != WEAR_UNHELD && can_see_obj(ch, obj)
-            && is_name(arg, obj->name)) {
-            if (++count == number) return obj;
+            && is_name(arg, NAME_STR(obj))) {
+            if (++count == number)
+                return obj;
         }
     }
 
@@ -1629,10 +1542,10 @@ Object* get_obj_here(Mobile* ch, char* argument)
 {
     Object* obj;
 
-    if ((obj = get_obj_list(ch, argument, ch->in_room->contents)) != NULL)
+    if ((obj = get_obj_list(ch, argument, &ch->in_room->objects)) != NULL)
         return obj;
 
-    if ((obj = get_obj_carry(ch, argument, ch)) != NULL) 
+    if ((obj = get_obj_carry(ch, argument)) != NULL) 
         return obj;
 
     if ((obj = get_obj_wear(ch, argument)) != NULL) 
@@ -1653,9 +1566,10 @@ Object* get_obj_world(Mobile* ch, char* argument)
 
     number = number_argument(argument, arg);
     count = 0;
-    FOR_EACH(obj, obj_list) {
-        if (can_see_obj(ch, obj) && is_name(arg, obj->name)) {
-            if (++count == number) return obj;
+    FOR_EACH_GLOBAL_OBJ(obj) {
+        if (can_see_obj(ch, obj) && is_name(arg, NAME_STR(obj))) {
+            if (++count == number)
+                return obj;
         }
     }
 
@@ -1746,6 +1660,7 @@ Object* create_money(int16_t gold, int16_t silver)
 int get_obj_number(Object* obj)
 {
     int number;
+    Object* content;
 
     if (obj->item_type == ITEM_CONTAINER || obj->item_type == ITEM_MONEY
         || obj->item_type == ITEM_GEM || obj->item_type == ITEM_JEWELRY)
@@ -1753,8 +1668,8 @@ int get_obj_number(Object* obj)
     else
         number = 1;
 
-    for (obj = obj->contains; obj != NULL; obj = obj->next_content)
-        number += get_obj_number(obj);
+    FOR_EACH_OBJ_CONTENT(content, obj)
+        number += get_obj_number(content);
 
     return number;
 }
@@ -1766,7 +1681,7 @@ int get_obj_weight(Object* obj)
     Object* tobj;
 
     weight = obj->weight;
-    for (tobj = obj->contains; tobj != NULL; tobj = tobj->next_content)
+    FOR_EACH_OBJ_CONTENT(tobj, obj)
         weight += get_obj_weight(tobj) * WEIGHT_MULT(obj) / 100;
 
     return weight;
@@ -1775,10 +1690,11 @@ int get_obj_weight(Object* obj)
 int get_true_weight(Object* obj)
 {
     int weight;
+    Object* content;
 
     weight = obj->weight;
-    for (obj = obj->contains; obj != NULL; obj = obj->next_content)
-        weight += get_obj_weight(obj);
+    FOR_EACH_OBJ_CONTENT(content, obj)
+        weight += get_obj_weight(content);
 
     return weight;
 }
@@ -1807,7 +1723,7 @@ bool is_room_owner(Mobile* ch, Room* room)
     if (room->data->owner == NULL || room->data->owner[0] == '\0')
         return false;
 
-    return is_name(ch->name, room->data->owner);
+    return is_name(NAME_STR(ch), room->data->owner);
 }
 
 // true if room is private.
@@ -1820,7 +1736,7 @@ bool room_is_private(Room* room)
         return true;
 
     count = 0;
-    FOR_EACH_IN_ROOM(rch, room->people)
+    FOR_EACH_ROOM_MOB(rch, room)
         count++;
 
     if (IS_SET(room->data->room_flags, ROOM_PRIVATE) && count >= 2)
@@ -2012,6 +1928,7 @@ char* act_bit_name(int act_flags)
         if (act_flags & PLR_AUTOSAC) strcat(buf, " autosac");
         if (act_flags & PLR_AUTOGOLD) strcat(buf, " autogold");
         if (act_flags & PLR_AUTOSPLIT) strcat(buf, " autosplit");
+        if (act_flags & PLR_TESTER) strcat(buf, " tester");
         if (act_flags & PLR_HOLYLIGHT) strcat(buf, " holy_light");
         if (act_flags & PLR_CANLOOT) strcat(buf, " loot_corpse");
         if (act_flags & PLR_NOSUMMON) strcat(buf, " no_summon");
@@ -2338,7 +2255,7 @@ void all_colour(Mobile* ch, char* argument)
     theme->palette[0] = color;
     theme->palette_max = 1;
 
-    for (int i = 0; i < SLOT_MAX; ++i) {
+    for (int i = 0; i < COLOR_SLOT_COUNT; ++i) {
         theme->channels[i] = color;
     }
 
@@ -2370,28 +2287,24 @@ char* itos(int temp)
 
 int get_vnum_mob_name_area(char* name, AreaData* area)
 {
-    int hash;
     MobPrototype* mob;
 
-    for (hash = 0; hash < MAX_KEY_HASH; hash++)
-        FOR_EACH(mob, mob_proto_hash[hash])
-            if (mob->area == area
-                && !str_prefix(name, mob->name))
-                return mob->vnum;
+    FOR_EACH_MOB_PROTO(mob)
+        if (mob->area == area
+            && !str_prefix(name, NAME_STR(mob)))
+            return VNUM_FIELD(mob);
 
     return 0;
 }
 
 int get_vnum_obj_name_area(char* name, AreaData* area)
 {
-    int hash;
     ObjPrototype* obj;
 
-    for (hash = 0; hash < MAX_KEY_HASH; hash++)
-        FOR_EACH(obj, obj_proto_hash[hash])
-            if (obj->area == area
-                && !str_prefix(name, obj->name))
-                return obj->vnum;
+    FOR_EACH_OBJ_PROTO(obj)
+        if (obj->area == area
+            && !str_prefix(name, NAME_STR(obj)))
+            return VNUM_FIELD(obj);
 
     return 0;
 }

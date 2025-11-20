@@ -140,7 +140,7 @@ GEDIT(gedit_show)
     i = 0;
 
     while (i < MAX_IN_GROUP && !IS_NULLSTR(pGrp->skills[i])) {
-        sprintf(buf, "%2d. {*%s{x\n\r", i, pGrp->skills[i]);
+        sprintf(buf, "%2d. " COLOR_ALT_TEXT_1 "%s" COLOR_EOL, i, pGrp->skills[i]);
         send_to_char(buf, ch);
         i++;
     }
@@ -281,7 +281,7 @@ GEDIT(gedit_list)
         if ((pGrp = &skill_group_table[i]) == NULL)
             break;
 
-        sprintf(buf, "%2d. {*%20s{x ", i, skill_group_table[i].name);
+        sprintf(buf, "%2d. " COLOR_ALT_TEXT_1 "%20s" COLOR_CLEAR " ", i, skill_group_table[i].name);
 
         if (cnt++ % 2)
             strcat(buf, "\n\r");

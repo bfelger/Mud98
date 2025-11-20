@@ -2,22 +2,23 @@
 // skedit.c
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "merc.h"
+#include <merc.h>
 
 #include "bit.h"
-#include "comm.h"
-#include "db.h"
-#include "handler.h"
-#include "interp.h"
-#include "tables.h"
-#include "lookup.h"
 #include "olc.h"
-#include "recycle.h"
 
-#include "entities/descriptor.h"
-#include "entities/player_data.h"
+#include <comm.h>
+#include <db.h>
+#include <handler.h>
+#include <interp.h>
+#include <tables.h>
+#include <lookup.h>
+#include <recycle.h>
 
-#include "data/mobile_data.h"
+#include <entities/descriptor.h>
+#include <entities/player_data.h>
+
+#include <data/mobile_data.h>
 
 #define CMDEDIT(fun)bool fun( Mobile *ch, char *argument )
 
@@ -177,33 +178,23 @@ void do_cmdedit(Mobile* ch, char* argument)
     ch->desc->pEdit = (uintptr_t)pCmd;
     ch->desc->editor = ED_CMD;
 
+    cmdedit_show(ch, "");
+
     return;
 }
 
 CMDEDIT(cmdedit_show)
 {
     CmdInfo* pCmd;
-    char buf[MIL];
 
     EDIT_CMD(ch, pCmd);
 
-    sprintf(buf, "Name     : [%s]\n\r", pCmd->name);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Function : [%s]\n\r", cmd_func_name(pCmd->do_fun));
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Level    : [%d]\n\r", pCmd->level);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Position : [%s]\n\r", position_table[pCmd->position].name);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Log?     : [%s]\n\r", flag_string(log_flag_table, pCmd->log));
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Show?    : [%s]\n\r", flag_string(show_flag_table, pCmd->show));
-    send_to_char(buf, ch);
+    olc_print_str(ch, "Name", pCmd->name);
+    olc_print_str(ch, "Function", cmd_func_name(pCmd->do_fun));
+    olc_print_num(ch, "Level", pCmd->level);
+    olc_print_str(ch, "Position", position_table[pCmd->position].name);
+    olc_print_flags(ch, "Log?", log_flag_table, pCmd->log);
+    olc_print_flags(ch, "Show?", show_flag_table, pCmd->show);
 
     return false;
 }
@@ -213,12 +204,12 @@ void list_functions(Buffer* pBuf)
     int i;
     char buf[MSL];
 
-    sprintf(buf, "{TNum %-13.13s Num %-13.13s Num %-13.13s Num %-13.13s{x\n\r",
+    sprintf(buf, COLOR_TITLE "Num %-13.13s Num %-13.13s Num %-13.13s Num %-13.13s" COLOR_EOL,
         "Name", "Name", "Name", "Name");
     add_buf(pBuf, buf);
 
     for (i = 0; cmd_list[i].name; i++) {
-        sprintf(buf, "{*%3d{x %-13.13s", i, cmd_list[i].name);
+        sprintf(buf, COLOR_ALT_TEXT_1 "%3d" COLOR_CLEAR " %-13.13s", i, cmd_list[i].name);
         if (i % 4 == 3)
             strcat(buf, "\n\r");
         else
@@ -235,7 +226,7 @@ void list_commands(Buffer* pBuf, int minlev, int maxlev)
     char buf[MSL];
     int i, cnt = 0;
 
-    sprintf(buf, "{TNv %-12.12s %-13.13s Pos Log Nv %-12.12s %-13.13s Pos Log{x\n\r",
+    sprintf(buf, COLOR_TITLE "Nv %-12.12s %-13.13s Pos Log Nv %-12.12s %-13.13s Pos Log" COLOR_EOL,
         "Name", "Function", "Name", "Function");
     add_buf(pBuf, buf);
 
@@ -243,7 +234,7 @@ void list_commands(Buffer* pBuf, int minlev, int maxlev)
         if (cmd_table[i].level < minlev || cmd_table[i].level > maxlev)
             continue;
 
-        sprintf(buf, "%2d {*%-12.12s{x %-13.13s %-3.3s %-3.3s",
+        sprintf(buf, "%2d " COLOR_ALT_TEXT_1 "%-12.12s" COLOR_CLEAR " %-13.13s %-3.3s %-3.3s",
             cmd_table[i].level,
             cmd_table[i].name,
             cmd_func_name(cmd_table[i].do_fun),
@@ -351,7 +342,7 @@ CMDEDIT(cmdedit_new)
 {
     Descriptor* d;
     Mobile* tch;
-    CmdInfo* new_table;
+    CmdInfo* new_cmd_table;
     int cmd;
 
     if (IS_NULLSTR(argument)) {
@@ -377,15 +368,15 @@ CMDEDIT(cmdedit_new)
     /* reallocate the table */
 
     max_cmd++;
-    new_table = realloc(cmd_table, sizeof(CmdInfo) * (size_t)(max_cmd + 1));
+    new_cmd_table = realloc(cmd_table, sizeof(CmdInfo) * (size_t)(max_cmd + 1));
 
-    if (!new_table) /* realloc failed */
+    if (!new_cmd_table) /* realloc failed */
     {
         send_to_char("Realloc failed. Prepare for impact.\n\r", ch);
         return false;
     }
 
-    cmd_table = new_table;
+    cmd_table = new_cmd_table;
 
     cmd_table[max_cmd - 1].name = str_dup(argument);
     cmd_table[max_cmd - 1].do_fun = do_nothing;
@@ -415,7 +406,7 @@ CMDEDIT(cmdedit_delete)
     Descriptor* d;
     Mobile* tch;
     int i, j, iCmd;
-    CmdInfo* new_table;
+    CmdInfo* new_cmd_table;
 
     if (IS_NULLSTR(argument)) {
         send_to_char("Syntax : delete [name]\n\r", ch);
@@ -437,21 +428,21 @@ CMDEDIT(cmdedit_delete)
             edit_done(tch);
     }
 
-    if ((new_table = calloc(sizeof(CmdInfo), (size_t)max_cmd + 1)) == NULL) {
-        perror("cmdedit_delete: Could not allocate new_table!");
+    if ((new_cmd_table = calloc(sizeof(CmdInfo), (size_t)max_cmd + 1)) == NULL) {
+        perror("cmdedit_delete: Could not allocate new_cmd_table!");
         exit(-1);
     }
 
     for (i = 0, j = 0; i < max_cmd + 1; i++) {
         if (i != iCmd && j < max_cmd) {
             // copy, increase only if copied
-            new_table[j] = cmd_table[i];
+            new_cmd_table[j] = cmd_table[i];
             j++;
         }
     }
 
     free(cmd_table);
-    cmd_table = new_table;
+    cmd_table = new_cmd_table;
 
     max_cmd--; /* Important :() */
 

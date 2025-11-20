@@ -13,26 +13,27 @@
 
 #include "olc.h"
 
-#include "act_comm.h"
-#include "act_move.h"
 #include "bit.h"
-#include "comm.h"
-#include "db.h"
-#include "handler.h"
-#include "interp.h"
-#include "lookup.h"
-#include "skills.h"
-#include "tables.h"
 
-#include "entities/descriptor.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
-#include "entities/reset.h"
+#include <act_comm.h>
+#include <act_move.h>
+#include <comm.h>
+#include <db.h>
+#include <handler.h>
+#include <interp.h>
+#include <lookup.h>
+#include <skills.h>
+#include <tables.h>
 
-#include "data/mobile_data.h"
-#include "data/race.h"
-#include "data/skill.h"
-#include "data/social.h"
+#include <entities/descriptor.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
+#include <entities/reset.h>
+
+#include <data/mobile_data.h>
+#include <data/race.h>
+#include <data/skill.h>
+#include <data/social.h>
 
 #include <sys/types.h>
 #include <ctype.h>
@@ -179,19 +180,19 @@ char* olc_ed_vnum(Mobile* ch)
     switch (ch->desc->editor) {
     case ED_AREA:
         area = (AreaData*)ch->desc->pEdit;
-        sprintf(buf, "%"PRVNUM, area ? area->vnum : 0);
+        sprintf(buf, "%"PRVNUM, area ? VNUM_FIELD(area) : 0);
         break;
     case ED_ROOM:
         pRoom = ch->in_room;
-        sprintf(buf, "%"PRVNUM, pRoom ? pRoom->vnum : 0);
+        sprintf(buf, "%"PRVNUM, pRoom ? VNUM_FIELD(pRoom) : 0);
         break;
     case ED_OBJECT:
         pObj = (ObjPrototype*)ch->desc->pEdit;
-        sprintf(buf, "%"PRVNUM, pObj ? pObj->vnum : 0);
+        sprintf(buf, "%"PRVNUM, pObj ? VNUM_FIELD(pObj) : 0);
         break;
     case ED_MOBILE:
         pMob = (MobPrototype*)ch->desc->pEdit;
-        sprintf(buf, "%"PRVNUM, pMob ? pMob->vnum : 0);
+        sprintf(buf, "%"PRVNUM, pMob ? VNUM_FIELD(pMob) : 0);
         break;
     case ED_PROG:
         pMcode = (MobProgCode*)ch->desc->pEdit;
@@ -574,6 +575,89 @@ void do_page(Mobile* ch, char* argument)
 
     send_to_char("Changed editor scroll. If you don't see anything, change to another number.\n\r", ch);
     return;
+}
+
+#define LABEL_FMT "%-14s"
+
+void olc_print_flags(Mobile* ch, const char* label, const struct flag_type* flag_table, FLAGS flags)
+{
+    printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s"
+        COLOR_DECOR_1 " ]"  COLOR_EOL, label, 
+        flag_string(flag_table, flags));
+}
+
+void olc_print_num(Mobile* ch, const char* label, int num)
+{
+    printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10d"
+        COLOR_DECOR_1 " ]" COLOR_EOL, label, num);
+}
+
+void olc_print_range(Mobile* ch, const char* label, int num1, int num2)
+{
+    char buf[MIL];
+    sprintf(buf, "%d-%d", num1, num2);
+    printf_to_char(ch, LABEL_FMT " : "  COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1
+        "%10s" COLOR_DECOR_1 " ]" COLOR_EOL, label, buf);
+}
+
+void olc_print_num_str(Mobile* ch, const char* label, int num, const char* opt_str)
+{
+    if (opt_str == NULL)
+        printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ "
+            COLOR_ALT_TEXT_1 "%10d" COLOR_DECOR_1 " ]" COLOR_EOL,
+            label, num);
+    else
+        printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ "
+            COLOR_ALT_TEXT_1 "%10d" COLOR_DECOR_1 " ] " COLOR_ALT_TEXT_2 "%s"
+            COLOR_EOL, label, num, opt_str);
+}
+
+void olc_print_str(Mobile* ch, const char* label, const char* str)
+{
+    printf_to_char(ch, LABEL_FMT " : " COLOR_ALT_TEXT_1 "%s" COLOR_EOL,
+        label, str);
+}
+
+void olc_print_str_box(Mobile* ch, const char* label, const char* str, 
+    const char* opt_str)
+{
+    printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s"
+        COLOR_DECOR_1 " ] " COLOR_ALT_TEXT_2 "%s" COLOR_EOL, label,
+        str, opt_str);
+}
+
+void olc_print_yesno(Mobile* ch, const char* label, bool yesno)
+{
+    // Add space for color codes!
+    printf_to_char(ch, LABEL_FMT " : "  COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 
+        "%12s" COLOR_DECOR_1 " ]" COLOR_EOL, label, 
+        yesno ? COLOR_B_GREEN "YES" : COLOR_B_RED "NO");
+}
+
+void olc_print_text(Mobile* ch, const char* label, const char* text)
+{
+    if (text && text[0]) {
+        printf_to_char(ch, "%s: \n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR, label, text);
+        char c = text[strlen(text) - 1];
+        if (c != '\n' && c != '\r')
+            printf_to_char(ch, "\n\r");
+    }
+    else
+        printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 
+            "%10s" COLOR_DECOR_1 " ]" COLOR_EOL, label, "(none)");
+}
+
+const char* olc_show_flags(const char* label, const struct flag_type* flag_table, FLAGS flags)
+{
+    char label_buf[MIL];
+    static char buf[MSL];
+
+    sprintf(label_buf, "%s:", label);
+    sprintf(buf, "%12s " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s" 
+        COLOR_DECOR_1 " ]" COLOR_CLEAR, label_buf, 
+        flag_string(flag_table, flags));
+
+    return buf;
 }
 
 #undef U

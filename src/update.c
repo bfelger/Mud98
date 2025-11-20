@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -44,13 +44,17 @@
 #include "skills.h"
 #include "weather.h"
 
-#include "entities/descriptor.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
+#include <entities/descriptor.h>
+#include <entities/event.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
 
-#include "data/mobile_data.h"
-#include "data/race.h"
-#include "data/skill.h"
+#include <data/events.h>
+#include <data/mobile_data.h>
+#include <data/race.h>
+#include <data/skill.h>
+
+#include <lox/memory.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -141,7 +145,7 @@ void gain_exp(Mobile* ch, int gain)
                   >= exp_per_level(ch, ch->pcdata->points) * (ch->level + 1)) {
         send_to_char("You raise a level!!  ", ch);
         ch->level += 1;
-        sprintf(buf, "%s gained level %d", ch->name, ch->level);
+        sprintf(buf, "%s gained level %d", NAME_STR(ch), ch->level);
         log_string(buf);
         sprintf(buf, "$N has attained level %d!", ch->level);
         wiznet(buf, ch, NULL, WIZ_LEVELS, 0, 0);
@@ -398,17 +402,14 @@ static void update_msdp_vars(Descriptor* d)
 void mobile_update()
 {
     Mobile* ch = NULL;
-    Mobile* ch_next = NULL;
     RoomExit* room_exit = NULL;
     int door;
 
     bool msdp_enabled = cfg_get_msdp_enabled();
 
     /* Examine all mobs. */
-    for (ch = mob_list; ch != NULL; ch = ch_next) {
-        ch_next = ch->next;
-
-        if (ch->desc && ch->desc->mth->msdp_data && msdp_enabled) {
+    FOR_EACH_GLOBAL_MOB(ch) {
+        if (ch->desc && ch->desc->mth && ch->desc->mth->msdp_data && msdp_enabled) {
             update_msdp_vars(ch->desc);
         }
 
@@ -419,7 +420,7 @@ void mobile_update()
             continue;
 
         /* Examine call for special procedure */
-        if (ch->spec_fun != 0) {
+        if (ch->spec_fun != NULL) {
             if ((*ch->spec_fun)(ch)) 
                 continue;
         }
@@ -437,15 +438,19 @@ void mobile_update()
             */
         if (ch->position == ch->prototype->default_pos) {
             /* Delay */
-            if (HAS_TRIGGER(ch, TRIG_DELAY)
+            if (HAS_MPROG_TRIGGER(ch, TRIG_DELAY)
                 && ch->mprog_delay > 0) {
                 if (--ch->mprog_delay <= 0) {
                     mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_DELAY);
                     continue;
                 }
             }
-            if (HAS_TRIGGER(ch, TRIG_RANDOM)) {
+            if (HAS_MPROG_TRIGGER(ch, TRIG_RANDOM)) {
                 if (mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_RANDOM))
+                    continue;
+            }
+            if (HAS_EVENT_TRIGGER(ch, TRIG_RANDOM)) {
+                if (raise_random_event(ch, number_percent()))
                     continue;
             }
         }
@@ -455,7 +460,7 @@ void mobile_update()
             continue;
 
         /* Scavenge */
-        if (IS_SET(ch->act_flags, ACT_SCAVENGER) && ch->in_room->contents != NULL
+        if (IS_SET(ch->act_flags, ACT_SCAVENGER) && ROOM_HAS_OBJS(ch->in_room)
             && number_bits(6) == 0) {
             Object* obj;
             Object* obj_best;
@@ -463,7 +468,7 @@ void mobile_update()
 
             max = 1;
             obj_best = 0;
-            for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
+            FOR_EACH_ROOM_OBJ(obj, ch->in_room) {
                 if (CAN_WEAR(obj, ITEM_TAKE) && can_loot(ch, obj)
                     && obj->cost > max && obj->cost > 0) {
                     obj_best = obj;
@@ -502,7 +507,6 @@ void mobile_update()
 void char_update(void)
 {
     Mobile* ch;
-    Mobile* ch_next = NULL;
     Mobile* ch_quit = NULL;
 
     ch_quit = NULL;
@@ -513,13 +517,12 @@ void char_update(void)
     if (save_number > 29)
         save_number = 0;
 
-    for (ch = mob_list; ch != NULL; ch = ch_next) {
+    FOR_EACH_GLOBAL_MOB(ch) {
         Affect* affect;
         Affect* paf_next = NULL;
 
-        ch_next = ch->next;
-
-        if (ch->timer > 30) ch_quit = ch;
+        if (ch->timer > 30)
+            ch_quit = ch;
 
         if (ch->position >= POS_STUNNED) {
             /* check to see if we need to go home */
@@ -547,7 +550,8 @@ void char_update(void)
                 ch->move = ch->max_move;
         }
 
-        if (ch->position == POS_STUNNED) update_pos(ch);
+        if (ch->position == POS_STUNNED)
+            update_pos(ch);
 
         if (!IS_NPC(ch) && ch->level < LEVEL_IMMORTAL) {
             Object* obj;
@@ -564,7 +568,8 @@ void char_update(void)
                     act("$p flickers.", ch, obj, NULL, TO_CHAR);
             }
 
-            if (IS_IMMORTAL(ch)) ch->timer = 0;
+            if (IS_IMMORTAL(ch))
+                ch->timer = 0;
 
             if (++ch->timer >= 12) {
                 if (ch->was_in_room == NULL && ch->in_room != NULL) {
@@ -619,13 +624,15 @@ void char_update(void)
             Mobile* vch;
             int dam;
 
-            if (ch->in_room == NULL) continue;
+            if (ch->in_room == NULL)
+                continue;
 
             act("$n writhes in agony as plague sores erupt from $s skin.", ch,
                 NULL, NULL, TO_ROOM);
             send_to_char("You writhe in agony from the plague.\n\r", ch);
             FOR_EACH(af, ch->affected) {
-                if (af->type == gsn_plague) break;
+                if (af->type == gsn_plague)
+                    break;
             }
 
             if (af == NULL) {
@@ -633,7 +640,8 @@ void char_update(void)
                 continue;
             }
 
-            if (af->level == 1) continue;
+            if (af->level == 1)
+                continue;
 
             plague.where = TO_AFFECTS;
             plague.type = gsn_plague;
@@ -643,8 +651,7 @@ void char_update(void)
             plague.modifier = -5;
             plague.bitvector = AFF_PLAGUE;
 
-            for (vch = ch->in_room->people; vch != NULL;
-                 vch = vch->next_in_room) {
+            FOR_EACH_ROOM_MOB(vch, ch->in_room) {
                 if (!saves_spell(plague.level - 2, vch, DAM_DISEASE)
                     && !IS_IMMORTAL(vch) && !IS_AFFECTED(vch, AFF_PLAGUE)
                     && number_bits(4) == 0) {
@@ -661,9 +668,7 @@ void char_update(void)
             damage(ch, ch, dam, gsn_plague, DAM_DISEASE, false);
         }
         else if (IS_AFFECTED(ch, AFF_POISON) && ch != NULL
-                 && !IS_AFFECTED(ch, AFF_SLOW))
-
-        {
+                 && !IS_AFFECTED(ch, AFF_SLOW)) {
             Affect* poison;
 
             poison = affect_find(ch->affected, gsn_poison);
@@ -675,7 +680,6 @@ void char_update(void)
                        false);
             }
         }
-
         else if (ch->position == POS_INCAP && number_range(0, 1) == 0) {
             damage(ch, ch, 1, TYPE_UNDEFINED, DAM_NONE, false);
         }
@@ -688,10 +692,9 @@ void char_update(void)
      * Autosave and autoquit.
      * Check that these chars still exist.
      */
-    for (ch = mob_list; ch != NULL; ch = ch_next) {
-        ch_next = ch->next;
-
-        if (ch->desc != NULL && (int)ch->desc->client->fd % 30 == save_number) {
+    FOR_EACH_GLOBAL_MOB(ch) {
+        if (ch->desc != NULL && ch->desc->client 
+            && (int)ch->desc->client->fd % 30 == save_number) {
             save_char_obj(ch);
         }
 
@@ -710,15 +713,12 @@ void char_update(void)
 void obj_update(void)
 {
     Object* obj;
-    Object* obj_next = NULL;
     Affect* affect;
     Affect* paf_next = NULL;
 
-    for (obj = obj_list; obj != NULL; obj = obj_next) {
+    FOR_EACH_GLOBAL_OBJ(obj) {
         Mobile* rch;
         char* message;
-
-        obj_next = obj->next;
 
         /* go through affects and decrement */
         for (affect = obj->affected; affect != NULL; affect = paf_next) {
@@ -740,9 +740,8 @@ void obj_update(void)
                                 TO_CHAR);
                         }
                         if (obj->in_room != NULL
-                            && obj->in_room->people != NULL) {
-                            rch = obj->in_room->people;
-                            act(skill_table[affect->type].msg_obj, rch, obj, NULL,
+                            && ROOM_HAS_MOBS(obj->in_room)) {
+                            act(skill_table[affect->type].msg_obj, obj->in_room, obj, NULL,
                                 TO_ALL);
                         }
                     }
@@ -752,7 +751,8 @@ void obj_update(void)
             }
         }
 
-        if (obj->timer <= 0 || --obj->timer > 0) continue;
+        if (obj->timer <= 0 || --obj->timer > 0)
+            continue;
 
         switch (obj->item_type) {
         default:
@@ -778,7 +778,7 @@ void obj_update(void)
             break;
         case ITEM_CONTAINER:
             if (CAN_WEAR(obj, ITEM_WEAR_FLOAT))
-                if (obj->contains)
+                if (OBJ_HAS_OBJS(obj))
                     message = "$p flickers and vanishes, spilling its contents "
                               "on the floor.";
                 else
@@ -798,21 +798,18 @@ void obj_update(void)
                     act(message, obj->carried_by, obj, NULL, TO_ROOM);
             }
         }
-        else if (obj->in_room != NULL && (rch = obj->in_room->people) != NULL) {
-            if (!(obj->in_obj && obj->in_obj->prototype->vnum == OBJ_VNUM_PIT
+        else if (obj->in_room != NULL && ROOM_HAS_MOBS(obj->in_room)) {
+            if (!(obj->in_obj && VNUM_FIELD(obj->in_obj->prototype) == OBJ_VNUM_PIT
                   && !CAN_WEAR(obj->in_obj, ITEM_TAKE))) {
-                act(message, rch, obj, NULL, TO_ROOM);
-                act(message, rch, obj, NULL, TO_CHAR);
+                act(message, obj->in_room, obj, NULL, TO_ROOM);
             }
         }
 
         if ((obj->item_type == ITEM_CORPSE_PC || obj->wear_loc == WEAR_FLOAT)
-            && obj->contains) { /* save the contents */
-            Object* t_obj;
-            Object* next_obj = NULL;
-
-            for (t_obj = obj->contains; t_obj != NULL; t_obj = next_obj) {
-                next_obj = t_obj->next_content;
+            && OBJ_HAS_OBJS(obj)) { 
+            // save the contents
+            Object* t_obj = NULL;
+            FOR_EACH_OBJ_CONTENT(t_obj, obj) {
                 obj_from_obj(t_obj);
 
                 if (obj->in_obj) /* in another object */
@@ -863,7 +860,8 @@ void aggr_update(void)
         if (wch->level >= LEVEL_IMMORTAL || wch->in_room == NULL)
             continue;
 
-        for (Mobile* ch = wch->in_room->people; ch != NULL; ch = ch->next_in_room) {
+        Mobile* ch = NULL;
+        FOR_EACH_ROOM_MOB(ch, wch->in_room) {
             int count;
 
             if (!IS_NPC(ch) || !IS_SET(ch->act_flags, ACT_AGGRESSIVE)
@@ -881,12 +879,14 @@ void aggr_update(void)
              */
             count = 0;
             Mobile* victim = NULL;
-            for (Mobile* vch = wch->in_room->people; vch != NULL; vch = vch->next_in_room) {
+            Mobile* vch = NULL;
+            FOR_EACH_ROOM_MOB(vch, wch->in_room) {
                 if (!IS_NPC(vch) && vch->level < LEVEL_IMMORTAL
                     && ch->level >= vch->level - 5
                     && (!IS_SET(ch->act_flags, ACT_WIMPY) || !IS_AWAKE(vch))
                     && can_see(ch, vch)) {
-                    if (number_range(0, count) == 0) victim = vch;
+                    if (number_range(0, count) == 0)
+                        victim = vch;
                     count++;
                 }
             }
@@ -945,7 +945,10 @@ void update_handler()
         obj_update();
     }
 
+    event_timer_tick();
     aggr_update();
+
+    gc_protect_clear();
 
     return;
 }

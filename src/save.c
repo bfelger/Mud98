@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik St�rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -27,7 +27,6 @@
 
 #include "save.h"
 
-#include "benchmark.h"
 #include "color.h"
 #include "comm.h"
 #include "config.h"
@@ -42,13 +41,16 @@
 #include "tables.h"
 #include "vt.h"
 
-#include "entities/descriptor.h"
-#include "entities/object.h"
+#include <entities/descriptor.h>
+#include <entities/object.h>
 
-#include "data/mobile_data.h"
-#include "data/player.h"
-#include "data/race.h"
-#include "data/skill.h"
+#include <data/mobile_data.h>
+#include <data/player.h>
+#include <data/race.h>
+#include <data/skill.h>
+#include <data/tutorial.h>
+
+#include <lox/lox.h>
 
 #include <ctype.h>
 #include <errno.h>
@@ -106,6 +108,7 @@ void fread_quests(Mobile* ch, FILE* fp);
 void save_char_obj(Mobile* ch)
 {
     char strsave[MAX_INPUT_LENGTH];
+    char strsavetemp[MAX_INPUT_LENGTH];
     FILE* fp;
 
     if (IS_NPC(ch)) 
@@ -116,19 +119,22 @@ void save_char_obj(Mobile* ch)
 
     /* create god log */
     if (IS_IMMORTAL(ch) || ch->level >= LEVEL_IMMORTAL) {
-        sprintf(strsave, "%s%s", cfg_get_gods_dir(), capitalize(ch->name));
+        sprintf(strsave, "%s%s", cfg_get_gods_dir(), capitalize(NAME_STR(ch)));
         OPEN_OR_RETURN(fp = open_write_file(strsave));
         fprintf(fp, "Lev %2d Trust %2d  %s%s\n", ch->level, get_trust(ch),
-            ch->name, ch->pcdata->title);
+            NAME_STR(ch), ch->pcdata->title);
         close_file(fp);
     }
 
-    sprintf(strsave, "%s%s", cfg_get_player_dir(), capitalize(ch->name));
-    OPEN_OR_RETURN(fp = open_write_file(strsave));
+    sprintf(strsave, "%s%s", cfg_get_player_dir(), capitalize(NAME_STR(ch)));
+    sprintf(strsavetemp, "%s%s.temp", cfg_get_player_dir(), capitalize(NAME_STR(ch)));
+    OPEN_OR_RETURN(fp = open_write_file(strsavetemp));
 
     fwrite_char(ch, fp);
-    if (ch->carrying != NULL) 
-        fwrite_obj(ch, ch->carrying, fp, 0);
+    for (Node* node = ch->objects.back; node != NULL; node = node->prev) {
+        Object* obj = AS_OBJECT(node->value);
+        fwrite_obj(ch, obj, fp, 0);
+    }
     /* save the pets */
     if (ch->pet != NULL && ch->pet->in_room == ch->in_room)
         fwrite_pet(ch->pet, fp);
@@ -138,6 +144,18 @@ void save_char_obj(Mobile* ch)
     fprintf(fp, "#END\n");
 
     close_file(fp);
+
+#ifdef _MSC_VER
+    if (!MoveFileExA(strsavetemp, strsave, MOVEFILE_REPLACE_EXISTING)) {
+        bugf("save_char_obj : Could not rename %s to %s!", strsavetemp, strsave);
+        perror(strsave);
+    }
+#else
+    if (rename(strsavetemp, strsave) != 0) {
+        bugf("save_char_obj : Could not rename %s to %s!", strsavetemp, strsave);
+        perror(strsave);
+    }
+#endif
 }
 
 // Write the char.
@@ -148,7 +166,7 @@ void fwrite_char(Mobile* ch, FILE* fp)
 
     fprintf(fp, "#%s\n", IS_NPC(ch) ? "MOB" : "PLAYER");
 
-    fprintf(fp, "Name %s~\n", ch->name);
+    fprintf(fp, "Name %s~\n", NAME_STR(ch));
     fprintf(fp, "Id   %d\n", ch->id);
     fprintf(fp, "LogO " TIME_FMT "\n", current_time);
     fprintf(fp, "Vers %d\n", 5);
@@ -156,7 +174,7 @@ void fwrite_char(Mobile* ch, FILE* fp)
     if (ch->long_descr[0] != '\0') fprintf(fp, "LnD  %s~\n", ch->long_descr);
     if (ch->description[0] != '\0') fprintf(fp, "Desc %s~\n", ch->description);
     if (ch->prompt != NULL || !str_cmp(ch->prompt, "<%hhp %mm %vmv> ")
-        || !str_cmp(ch->prompt, "{c<%hhp %mm %vmv>{x "))
+        || !str_cmp(ch->prompt, "^p<%hhp %mm %vmv>" COLOR_CLEAR " "))
         fprintf(fp, "Prom %s~\n", ch->prompt);
     fprintf(fp, "Race %s~\n", race_table[ch->race].name);
     if (ch->clan) fprintf(fp, "Clan %s~\n", clan_table[ch->clan].name);
@@ -175,9 +193,9 @@ void fwrite_char(Mobile* ch, FILE* fp)
     fprintf(fp, "Room %d\n",
             (ch->in_room == get_room(NULL, ROOM_VNUM_LIMBO)
              && ch->was_in_room != NULL)
-                ? ch->was_in_room->vnum
+                ? VNUM_FIELD(ch->was_in_room)
             : ch->in_room == NULL ? ch->pcdata->recall
-                                  : ch->in_room->vnum);
+                                  : VNUM_FIELD(ch->in_room));
 
     fprintf(fp, "HMV  %d %d %d %d %d %d\n", ch->hit, ch->max_hit, ch->mana,
             ch->max_mana, ch->move, ch->max_move);
@@ -211,7 +229,7 @@ void fwrite_char(Mobile* ch, FILE* fp)
             ch->mod_stat[STAT_DEX], ch->mod_stat[STAT_CON]);
 
     if (IS_NPC(ch)) { 
-        fprintf(fp, "Vnum %"PRVNUM"\n", ch->prototype->vnum); 
+        fprintf(fp, "Vnum %"PRVNUM"\n", VNUM_FIELD(ch->prototype)); 
     }
     else {
         char digest_buf[256];
@@ -239,6 +257,9 @@ void fwrite_char(Mobile* ch, FILE* fp)
             ch->pcdata->theme_config.xterm,
             ch->pcdata->theme_config.hide_rgb_help,
             0); // Reserved
+        if (ch->pcdata->tutorial != NULL) {
+            fprintf(fp, "Tut %s~ %d\n", ch->pcdata->tutorial->name, ch->pcdata->tutorial_step);
+        }
 
         /* write alias */
         for (pos = 0; pos < MAX_ALIAS; pos++) {
@@ -265,7 +286,8 @@ void fwrite_char(Mobile* ch, FILE* fp)
     }
 
     FOR_EACH(affect, ch->affected) {
-        if (affect->type < 0 || affect->type >= skill_count) continue;
+        if (affect->type < 0 || affect->type >= skill_count)
+            continue;
 
         fprintf(fp, "Affc '%s' %3d %3d %3d %3d %3d %10d\n",
                 skill_table[affect->type].name, affect->where, affect->level,
@@ -306,7 +328,7 @@ void fwrite_themes(Mobile* ch, FILE* fp)
         for (int j = 0; j < theme->palette_max; ++j)
             fwrite_palette(&theme->palette[j], j, fp);
 
-        for (int j = 0; j < SLOT_MAX; ++j)
+        for (int j = 0; j < COLOR_SLOT_COUNT; ++j)
             fwrite_channel(&theme->channels[j], color_slot_entries[j].name, fp);
 
         fprintf(fp, "End\n\n");
@@ -320,9 +342,9 @@ void fwrite_pet(Mobile* pet, FILE* fp)
 
     fprintf(fp, "#PET\n");
 
-    fprintf(fp, "Vnum %"PRVNUM"\n", pet->prototype->vnum);
+    fprintf(fp, "Vnum %"PRVNUM"\n", VNUM_FIELD(pet->prototype));
 
-    fprintf(fp, "Name %s~\n", pet->name);
+    fprintf(fp, "Name %s~\n", NAME_STR(pet));
     fprintf(fp, "LogO " TIME_FMT "\n", current_time);
     if (pet->short_descr != pet->prototype->short_descr)
         fprintf(fp, "ShD  %s~\n", pet->short_descr);
@@ -382,13 +404,6 @@ void fwrite_obj(Mobile* ch, Object* obj, FILE* fp, int iNest)
     ExtraDesc* ed;
     Affect* affect;
 
-    /*
-     * Slick recursion to write lists backwards,
-     *   so loading them will load in forwards order.
-     */
-    if (obj->next_content != NULL) 
-        fwrite_obj(ch, obj->next_content, fp, iNest);
-
     // Castrate storage characters.
     if ((ch->level < obj->level - 2 && obj->item_type != ITEM_CONTAINER)
         || obj->item_type == ITEM_KEY
@@ -396,15 +411,15 @@ void fwrite_obj(Mobile* ch, Object* obj, FILE* fp, int iNest)
         return;
 
     fprintf(fp, "#O\n");
-    fprintf(fp, "Vnum %"PRVNUM"\n", obj->prototype->vnum);
+    fprintf(fp, "Vnum %"PRVNUM"\n", VNUM_FIELD(obj->prototype));
     if (obj->enchanted) 
         fprintf(fp, "Enchanted\n");
     fprintf(fp, "Nest %d\n", iNest);
 
     /* these data are only used if they do not match the defaults */
 
-    if (obj->name != obj->prototype->name)
-        fprintf(fp, "Name %s~\n", obj->name);
+    if (!lox_streq(NAME_FIELD(obj), NAME_FIELD(obj->prototype)))
+        fprintf(fp, "Name %s~\n", NAME_STR(obj));
     if (obj->short_descr != obj->prototype->short_descr)
         fprintf(fp, "ShD  %s~\n", obj->short_descr);
     if (obj->description != obj->prototype->description)
@@ -478,8 +493,10 @@ void fwrite_obj(Mobile* ch, Object* obj, FILE* fp, int iNest)
 
     fprintf(fp, "End\n\n");
 
-    if (obj->contains != NULL) 
-        fwrite_obj(ch, obj->contains, fp, iNest + 1);
+    for (Node* node = obj->objects.back; node != NULL; node = node->prev) {
+        Object* content = AS_OBJECT(node->value);
+        fwrite_obj(ch, content, fp, iNest + 1);
+    }
 
     return;
 }
@@ -487,6 +504,9 @@ void fwrite_obj(Mobile* ch, Object* obj, FILE* fp, int iNest)
 
 void fwrite_quests(Mobile* ch, FILE* fp)
 {
+    if (ch->pcdata == NULL || ch->pcdata->quest_log == NULL)
+        return;
+
     fprintf(fp, "#QUESTLOG\n");
 
     QuestStatus* qs;
@@ -511,7 +531,7 @@ bool load_char_obj(Descriptor* d, char* name)
     ch->pcdata->ch = ch;
     d->character = ch;
     ch->desc = d;
-    ch->name = str_dup(name);
+    SET_NAME(ch, lox_string(name));
     ch->id = get_pc_id();
     ch->race = race_lookup("human");
     ch->act_flags = PLR_NOSUMMON;
@@ -580,9 +600,7 @@ bool load_char_obj(Descriptor* d, char* name)
         word = fread_word(fp);
         if (!str_cmp(word, "PLAYER"))
             fread_char(ch, fp);
-        else if (!str_cmp(word, "OBJECT"))
-            fread_obj(ch, fp);
-        else if (!str_cmp(word, "O"))
+        else if (!str_cmp(word, "OBJECT") || !str_cmp(word, "O"))
             fread_obj(ch, fp);
         else if (!str_cmp(word, "PET"))
             fread_pet(ch, fp);
@@ -713,6 +731,14 @@ bool load_char_obj(Descriptor* d, char* name)
         break;                                                                 \
     }
 
+#define KEYLS(literal, entity, field, value)                                   \
+    if (!str_cmp(word, literal)) {                                             \
+        (entity)->header.field = (value);                                      \
+        SET_LOX_FIELD(&((entity)->header), (entity)->header.field, field);     \
+        fMatch = true;                                                         \
+        break;                                                                 \
+    }
+
 void fread_char(Mobile* ch, FILE* fp)
 {
     char buf[MAX_STRING_LENGTH];
@@ -722,7 +748,7 @@ void fread_char(Mobile* ch, FILE* fp)
     time_t lastlogoff = current_time;
     int16_t percent;
 
-    sprintf(buf, "Loading %s.", ch->name);
+    sprintf(buf, "Loading %s.", NAME_STR(ch));
     log_string(buf);
 
     for (;;) {
@@ -972,7 +998,7 @@ void fread_char(Mobile* ch, FILE* fp)
             break;
 
         case 'N':
-            KEYS("Name", ch->name, fread_string(fp));
+            KEYLS("Name", ch, name, fread_lox_string(fp));
             KEY("Note", ch->pcdata->last_note, fread_number(fp));
             if (!str_cmp(word, "Not")) {
                 ch->pcdata->last_note = fread_number(fp);
@@ -1029,7 +1055,7 @@ void fread_char(Mobile* ch, FILE* fp)
                 if (room_data) {
                     Area* area = get_area_for_player(ch, room_data->area_data);
                     if (area || room_data->area_data->low_range == 1) {
-                        ch->in_room = get_room_for_player(ch, room_data->vnum);
+                        ch->in_room = get_room_for_player(ch, VNUM_FIELD(room_data));
                     }
                 }
                 fMatch = true;
@@ -1099,6 +1125,21 @@ void fread_char(Mobile* ch, FILE* fp)
                     sprintf(buf, " %s", ch->pcdata->title);
                     free_string(ch->pcdata->title);
                     ch->pcdata->title = str_dup(buf);
+                }
+                fMatch = true;
+                break;
+            }
+
+            if (!str_cmp(word, "Tut")) {
+                char* n = fread_string(fp);
+                Tutorial* t = get_tutorial(n);
+                int s = fread_number(fp);
+                if (t != NULL) {
+                    ch->pcdata->tutorial = t;
+                    ch->pcdata->tutorial_step = s;
+                }
+                else {
+                    bug("fread_char: unknown tutorial '%s'. ", n);
                 }
                 fMatch = true;
                 break;
@@ -1302,7 +1343,7 @@ void fread_pet(Mobile* ch, FILE* fp)
             break;
 
         case 'N':
-            KEY("Name", pet->name, fread_string(fp));
+            KEYLS("Name", pet, name, fread_lox_string(fp));
             break;
 
         case 'P':
@@ -1359,7 +1400,7 @@ void fread_obj(Mobile* ch, FILE* fp)
     if (obj == NULL) /* either not found or old style */
     {
         obj = new_object();
-        obj->name = str_dup("");
+        SET_NAME(obj, lox_empty_string);
         obj->short_descr = str_dup("");
         obj->description = str_dup("");
     }
@@ -1494,7 +1535,7 @@ void fread_obj(Mobile* ch, FILE* fp)
             break;
 
         case 'N':
-            KEY("Name", obj->name, fread_string(fp));
+            KEYLS("Name", obj, name, fread_lox_string(fp));
 
             if (!str_cmp(word, "Nest")) {
                 iNest = fread_number(fp);
@@ -1617,9 +1658,9 @@ void fread_theme(Mobile* ch, FILE* fp)
                 fread_number(fp); // reserved
                 int slot = -1;
                 LOOKUP_COLOR_SLOT_NAME(slot, chan);
-                if (slot < 0 || slot > SLOT_MAX) {
-                    bugf("fread_theme(%s): bad channel name '%s'.", ch->name,
-                        chan);
+                if (slot < 0 || slot > COLOR_SLOT_COUNT) {
+                    bugf("fread_theme(%s): bad channel name '%s'.", 
+                        NAME_STR(ch), chan);
                     break;
                 }
                 theme.channels[slot] = (Color){ 
@@ -1642,7 +1683,7 @@ void fread_theme(Mobile* ch, FILE* fp)
                     }
                 }
                 bugf("Could not find a free color theme slot for %s.",
-                    ch->name);
+                    NAME_STR(ch));
                 return;
             }
             break;
@@ -1699,7 +1740,8 @@ void fread_quests(Mobile* ch, FILE* fp)
         QuestState state = fread_number(fp);
         Quest* quest = get_quest(vnum);
         if (!quest) {
-            bugf("fread_quests: %s has unknown quest VNUM %d.", ch->name, vnum);
+            bugf("fread_quests: %s has unknown quest VNUM %d.", NAME_STR(ch),
+                vnum);
             continue;
         }
         add_quest_to_log(ch->pcdata->quest_log, quest, state, progress);

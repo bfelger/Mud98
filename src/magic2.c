@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -37,6 +37,8 @@
 #include "entities/object.h"
 
 #include "data/mobile_data.h"
+
+#include "lox/lox.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -92,7 +94,7 @@ void spell_portal(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget targe
 
     portal = create_object(get_object_prototype(OBJ_VNUM_PORTAL), 0);
     portal->timer = 2 + (int16_t)level / 25;
-    portal->value[3] = victim->in_room->vnum;
+    portal->value[3] = VNUM_FIELD(victim->in_room);
 
     obj_to_room(portal, ch->in_room);
 
@@ -142,7 +144,7 @@ void spell_nexus(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target
     /* portal one */
     portal = create_object(get_object_prototype(OBJ_VNUM_PORTAL), 0);
     portal->timer = 1 + (int16_t)level / 10;
-    portal->value[3] = to_room->vnum;
+    portal->value[3] = VNUM_FIELD(to_room);
 
     obj_to_room(portal, from_room);
 
@@ -150,19 +152,17 @@ void spell_nexus(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target
     act("$p rises up before you.", ch, portal, NULL, TO_CHAR);
 
     /* no second portal if rooms are the same */
-    if (to_room == from_room) return;
+    if (to_room == from_room)
+        return;
 
     /* portal two */
     portal = create_object(get_object_prototype(OBJ_VNUM_PORTAL), 0);
     portal->timer = 1 + (int16_t)level / 10;
-    portal->value[3] = from_room->vnum;
+    portal->value[3] = VNUM_FIELD(from_room);
 
     obj_to_room(portal, to_room);
 
-    if (to_room->people != NULL) {
-        act("$p rises up from the ground.", to_room->people, portal, NULL,
-            TO_ROOM);
-        act("$p rises up from the ground.", to_room->people, portal, NULL,
-            TO_CHAR);
+    if (to_room->mobiles.count > 0) {
+        act("$p rises up from the ground.", to_room, portal, NULL, TO_ROOM);
     }
 }

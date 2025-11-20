@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvements copyright (C) 1992, 1993 by Michael         *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -83,8 +83,6 @@ http://www.andreasen.org/
 // To have VLIST show more than vnum 0 - 9900, change the number below:
 #define MAX_SHOW_VNUM   99 // Show only 1 - 100*100 */
 
-extern RoomData* room_data_hash_table[];	// db.c
-
 /* opposite directions */
 const int16_t opposite_dir[6] = {
     DIR_SOUTH, DIR_WEST, DIR_NORTH, DIR_EAST, DIR_DOWN, DIR_UP
@@ -131,11 +129,11 @@ void room_pair(RoomData* left, RoomData* right, exit_status ex,
     }
 
     sprintf(buffer, "%10"PRVNUM" %-26.26s %s %"PRVNUM" %-26.26s(%-8.8s)\n\r",
-        left->vnum,
-        left->name,
+        VNUM_FIELD(left),
+        NAME_STR(left),
         sExit,
-        right->vnum,
-        right->name,
+        VNUM_FIELD(right),
+        NAME_STR(right),
         get_area_name(right->area_data)
     );
 }
@@ -191,7 +189,7 @@ void do_exlist(Mobile* ch, char* argument)
 
     Area* area = ch->in_room->area; // This is the area we want info on 
     for (int i = 0; i < AREA_ROOM_VNUM_HASH_SIZE; i++) {
-        FOR_EACH(room, area->rooms[i]) {
+        FOR_EACH_AREA_ROOM(room, area) {
             // Run through all the rooms on the MUD
             check_exits(room->data, area->data, buffer);
             send_to_char(buffer, ch);
@@ -330,8 +328,7 @@ void do_rename(Mobile* ch, char* argument)
     // Rename the character and save him to a new file.
     // NOTE: Players who are level 1 do NOT get saved under a new name.
 
-    free_string(victim->name);
-    victim->name = str_dup(capitalize(new_name));
+    NAME_FIELD(victim) = lox_string(capitalize(new_name));
 
     save_char_obj(victim);
 
@@ -392,9 +389,9 @@ const char* name_expand(Mobile* ch)
     static char outbuf[MAX_INPUT_LENGTH * 2];
 
     if (!IS_NPC(ch))
-        return ch->name;
+        return NAME_STR(ch);
 
-    one_argument(ch->name, name); /* copy the first word into name */
+    one_argument(NAME_STR(ch), name); /* copy the first word into name */
 
     if (!name[0]) {
         // weird mob .. no keywords
@@ -402,8 +399,8 @@ const char* name_expand(Mobile* ch)
         return outbuf;
     }
 
-    for (rch = ch->in_room->people; rch && (rch != ch); rch = rch->next_in_room)
-        if (is_name(name, rch->name))
+    FOR_EACH_ROOM_MOB(rch, ch->in_room)
+        if (is_name(name, NAME_STR(rch)))
             count++;
 
     sprintf(outbuf, "%d.%s", count, name);
@@ -417,8 +414,6 @@ void do_for(Mobile* ch, char* argument)
     bool fGods = false, fMortals = false, fMobs = false, fEverywhere = false, found;
     Room* room, *old_room;
     Mobile* p;
-    Mobile* p_next = NULL;
-    int i;
 
     READ_ARG(range);
 
@@ -456,8 +451,8 @@ void do_for(Mobile* ch, char* argument)
 
     if (strchr(argument, '#')) {
         // replace # ?
-        for (p = mob_list; p; p = p_next) {
-            p_next = p->next; /* In case someone DOES try to AT MOBS SLAY # */
+        FOR_EACH_GLOBAL_MOB(p) {
+            //p_next = p->next; /* In case someone DOES try to AT MOBS SLAY # */
             found = false;
 
             if (!(p->in_room) || room_is_private(p->in_room) || (p == ch))
@@ -509,46 +504,46 @@ void do_for(Mobile* ch, char* argument)
          /* just for every room with the appropriate people in it */
         RoomData* room_data;
         old_room = ch->in_room;
-        for (i = 0; i < MAX_KEY_HASH; i++) {
-            /* run through all the buckets */
-            FOR_EACH(room_data, room_data_hash_table[i]) {
-                FOR_EACH_INSTANCE(room, room_data->instances) {
-                    found = false;
-                    /* Anyone in here at all? */
-                    if (fEverywhere)
-                        /* Everywhere executes always */
-                        found = true;
-                    else if (!room->people)
-                        /* Skip it if room is empty */
+        FOR_EACH_GLOBAL_ROOM(room_data) {
+            FOR_EACH_ROOM_INST(room, room_data) {
+                found = false;
+                /* Anyone in here at all? */
+                if (fEverywhere)
+                    /* Everywhere executes always */
+                    found = true;
+                else if (!ROOM_HAS_MOBS(room))
+                    /* Skip it if room is empty */
+                    continue;
+
+                /* Check if there is anyone here of the requried type */
+                /* Stop as soon as a match is found or there are no more ppl in room */
+                FOR_EACH_ROOM_MOB(p, room) {
+                    /* do not execute on oneself */
+                    if (p == ch)
                         continue;
 
-                    /* Check if there is anyone here of the requried type */
-                    /* Stop as soon as a match is found or there are no more ppl in room */
-                    for (p = room->people; p && !found; p = p->next_in_room) {
-                        /* do not execute on oneself */
-                        if (p == ch)
-                            continue;
+                    if (IS_NPC(p) && fMobs)
+                        found = true;
+                    else if (!IS_NPC(p) && (p->level >= LEVEL_IMMORTAL) && fGods)
+                        found = true;
+                    else if (!IS_NPC(p) && (p->level <= LEVEL_IMMORTAL) && fMortals)
+                        found = true;
 
-                        if (IS_NPC(p) && fMobs)
-                            found = true;
-                        else if (!IS_NPC(p) && (p->level >= LEVEL_IMMORTAL) && fGods)
-                            found = true;
-                        else if (!IS_NPC(p) && (p->level <= LEVEL_IMMORTAL) && fMortals)
-                            found = true;
-                    } /* for everyone inside the room */
+                    if (found)
+                        break;
+                } /* for everyone inside the room */
 
-                    /* Any of the required type here AND room not private? */
-                    if (found && !room_is_private(room)) {
-                        /* This may be ineffective. Consider moving character out of old_room
-                           once at beginning of command then moving back at the end.
-                           This however, is more safe?
-                        */
-                        transfer_mob(ch, room);
-                        interpret(ch, argument);
-                    } /* if found */
-                }
-            } /* for every room in a bucket */
-        }
+                /* Any of the required type here AND room not private? */
+                if (found && !room_is_private(room)) {
+                    /* This may be ineffective. Consider moving character out of old_room
+                        once at beginning of command then moving back at the end.
+                        This however, is more safe?
+                    */
+                    transfer_mob(ch, room);
+                    interpret(ch, argument);
+                } /* if found */
+            }
+        } /* for every room */
         transfer_mob(ch, old_room);
     } /* if strchr */
 } /* do_for */

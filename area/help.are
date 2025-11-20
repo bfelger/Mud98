@@ -84,11 +84,11 @@ PROMPT <%*> where the %* are the various variables you may set yourself.
     %R :  Display the vnum you are in (IMMORTAL ONLY)
     %z :  Display the area name you are in (IMMORTAL ONLY)
 		
-	{r****************{W BATTLE PROMPTS{r ****************{w
+	^r****************^W BATTLE PROMPTS^r ****************^w
     %b :  Displays a graphical view of a mob's health
-         {wEnemy: [{r+++{Y+++{g++++{x]
+         ^wEnemy: [^r+++^Y+++^g++++^x]
     %B :  Displays a percentage of a mob's health
-         {wEnemy: {r33%{x
+         ^wEnemy: ^r33%^x
  
 Example:  PROMPT <%hhp %mm %vmv>
         Will set your prompt to "<10hp 100m 100mv>"
@@ -1629,52 +1629,132 @@ High level mages may learn and cast these spells as well.
 ~
 
 0 COLOUR COLOR ANSI~
-Syntax: colour    Toggles colour mode on/off
+Syntax: color     Toggles colour mode on/off
+
+^jNOTE: This page is deprecated; the '^*COLOR^j' command is no longer used to 
+assign colors to channels. See '^*THEME^j'.^x
 
         You may also talk in colour; the format is like this:
 	the 'escape character' to specify a colour is the left
-	handed brace '{{', following 
+	handed brace '^^', following 
 	that you should use one of the following letters,
-		{r{{r     red     {c{{c     cyan
-		{g{{g     green   {y{{y     yellow
-		{b{{b     blue    {w{{w     white
-		{m{{m     magenta {D{{D     dark gray
-		{R{{R     RED     {C{{C     CYAN
-		{G{{G     GREEN   {Y{{Y     YELLOW
-		{B{{B     BLUE    {W{{W     WHITE
-		{M{{M     MAGENTA {x{{x     clear(reset colour)
-		{{{{      {{ char {{*       beep
-		{{/       newline
+		^r^^r     red     ^c^^c     cyan
+		^g^^g     green   ^y^^y     yellow
+		^b^^b     blue    ^w^^w     white
+		^m^^m     magenta ^D^^D     dark gray
+		^R^^R     RED     ^C^^C     CYAN
+		^G^^G     GREEN   ^Y^^Y     YELLOW
+		^B^^B     BLUE    ^W^^W     WHITE
+		^M^^M     MAGENTA ^x^^x     clear(reset colour)
+		^^^^      ^^ char 
+		^^/       newline
 	when using colour, it looks better if you finish the line
 	with whatever colour it would normally be in, such as a
 	gossip, the colour is magenta, so:
-		{mLope gossips '{ghello,{r world{m'{x
+		^mLope gossips '^ghello,^r world^m'^x
 	looks better than:
-		{mLope gossips '{ghello,{r world'{x
+		^mLope gossips '^ghello,^r world'^x
 
 	ColoUr is written by Lope (ant@solace.mh.se)
 ~
 
 0 COLOUR2 COLOR2 ANSI2~
-Syntax: colour <field> <colour>
+Syntax: color <field> <colour>
+
+^jNOTE: This page is deprecated; the '^*COLOR^j' command is no longer used to 
+assign colors to channels. See '^*THEME^j'.^x
 
         You may configure your colour setting for personal preference.
         current setting are indicated by colour.
 
         fields are:
-        {ttext         {aauction      {dgossip       {emusic        {qquestion
-        {fanswer       {hclass_text   {Hclass_name   {iimmtalk_text {Iimmtalk_type
-        {jinfo         {ktell         {lreply        {ngtell_text   {Ngtell_type
-        {Zwiznet       {sroom_title   {Sroom_text    {oroom_exits   {Oroom_things
-        {pprompt       {1fight_death  {2fight_yhit   {3fight_ohit   {4fight_thit
-        {5fight_skill{x
+        ^ttext         ^aauction      ^dgossip       ^emusic        ^qquestion
+        ^fanswer       ^hclass_text   ^Hclass_name   ^iimmtalk_text ^Iimmtalk_type
+        ^jinfo         ^ktell         ^lreply        ^ngtell_text   ^Ngtell_type
+        ^Zwiznet       ^sroom_title   ^Sroom_text    ^oroom_exits   ^Oroom_things
+        ^pprompt       ^1fight_death  ^2fight_yhit   ^3fight_ohit   ^4fight_thit
+        ^5fight_skill^x
 
         colours are: ( Hi- )
-        {rred          {ggreen        {bblue         {yyellow       {mmagenta
-        {ccyan         {wwhite{x
+        ^rred          ^ggreen        ^bblue         ^yyellow       ^mmagenta
+        ^ccyan         ^wwhite^x
 
 eg. to make the gossip channel red type 'colour gossip red'
     to make your hits in fights magenta type 'colour fight_yhit magenta'
+~
+
+0 THEME THEMES COLOR COLOUR~
+Syntax: theme list (all|system|public|private)
+Syntax: theme preview (@<player>) <theme>
+Syntax: theme select (@<player>) <theme>
+Syntax: theme show
+Syntax: theme channel <slot> <color>
+Syntax: theme palette <index> <color>
+Syntax: theme set (name|banner|public|private) [value]
+Syntax: theme create (ansi|256|rgb) <name>
+Syntax: theme save
+Syntax: theme discard
+Syntax: theme remove <theme>
+Syntax: theme config (enable|disable) (256|rgb|xterm|rgb_help)
+
+THEME controls the color theme system and replaces the old channel-based
+COLOR command.  Themes bundle every channel, prompt, and UI color into a
+single profile that you can edit, save, share, and switch between quickly.
+You must have color enabled (see 'help color') before THEME will work.
+
+Themes are comprised of two parts:
+
+PALETTE - A theme's "palette" is a set of 16 pre-chosen color swatches that 
+can be referred to in channel assignments. Changing the color assigned to a 
+palette swatch also changes any channel assignments set with the corresponding 
+palette index.
+
+CHANNELS - A "channel" is a categorized list of messages you may receive on
+in Mud98, with each channel receiving its own assigned color. Here is an 
+example:
+
+    ^gKermit says, ^G"It ain't easy being green."^x
+
+In this case, the opening clause, "Kermit says..." is colored according to
+the ^*say^x channel, while the quoted section is colored according to the
+^*say_text^x channel. Type THEME SHOW to show you all the availbale channel
+assignments in your color theme.
+
+Use THEME LIST to browse the available themes.  SYSTEM lists the built-in
+sets, PUBLIC shows themes marked public by other visible players, and PRIVATE
+only shows your own saved themes.  THEME PREVIEW renders a sample screen for
+a theme, and THEME SHOW displays your active theme together with its palette
+and channel assignments.  You may target another player's public theme by
+prefixing their name with '@'; e.g. THEME PREVIEW @Leto dusk.
+
+THEME SELECT makes a theme active.  Selecting another player's public theme
+automatically saves a copy in your personal theme slots (you must have an
+empty slot available).  THEME CREATE builds a new theme of the requested
+color depth (ANSI 16-color, 256 indexed, or 24-bit RGB) using neutral
+defaults, and THEME REMOVE deletes one of your personal themes when you no
+longer need it.
+
+THEME CHANNEL edits the color assigned to a specific output slot (say,
+gossip, prompt, background, etc.).  THEME PALETTE changes the raw palette
+entry that channel slots can reference.  Colors can be chosen by number,
+by ANSI color name, by hex (for RGB themes, #RRGGBB;), or by reusing an
+existing palette entry with PALETTE <index>.  THEME SET NAME/BANNER renames
+the theme or updates its banner line; THEME SET PUBLIC/PRIVATE toggles
+whether other players may view and copy it.
+
+Changes stay pending until you either THEME SAVE (writes the theme to your
+character file) or THEME DISCARD (revert to the last saved version).  Until
+you do one of these, switching to another theme is blocked so you do not
+lose your edits by accident.
+
+THEME CONFIG lets you hide theme types your client cannot display and toggle
+alternate escape codes.  DISABLE 256 or DISABLE RGB hides those palettes
+from the list.  ENABLE XTERM switches 24-bit colors to xterm-style codes
+for clients that do not handle standard SGR codes.  DISABLE RGB_HELP suppresses
+the 24-bit troubleshooting note at the end of THEME LIST.
+
+Typing THEME HELP (or THEME on its own) prints a quick reference, as well as
+for each individual subcommand.
 ~
 
 0 $~

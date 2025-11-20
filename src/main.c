@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik St�rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -45,16 +45,18 @@
 
 #include "merc.h"
 
-#include "benchmark.h"
 #include "config.h"
 #include "comm.h"
 #include "db.h"
 #include "file.h"
 #include "stringutils.h"
-#include "tests.h"
 #include "update.h"
 
-#include "entities/descriptor.h"
+#include <entities/descriptor.h>
+
+#include <tests/tests.h>
+
+#include <benchmarks/benchmarks.h>
 
 #ifdef _MSC_VER
 #include <stdint.h>
@@ -73,7 +75,7 @@ bool newlock;                       // Game is newlocked
 char str_boot_time[MAX_INPUT_LENGTH];
 time_t boot_time;                   // time of this pulse
 time_t current_time;                // time of this pulse
-bool MOBtrigger = true;             // act() switch
+bool events_enabled = true;         // act() switch
 
 #ifndef NO_OPENSSL
     #define GAME_LOOP_PARAMS SockServer* telnet_server, TlsServer* tls_server
@@ -108,6 +110,7 @@ int main(int argc, char** argv)
     char run_dir[256] = { 0 };
     char area_dir[256] = { 0 };
     bool rt_opt_benchmark = false;
+    bool rt_opt_unittest = false;
     bool rt_opt_noloop = false;
 
     if (argc > 1) {
@@ -142,23 +145,27 @@ int main(int argc, char** argv)
                     strcpy(area_dir, argv[i]);
                 }
             }
-            else if (!strcmp(argv[i], "--benchmark")) {
+            else if (!strcmp(argv[i], "--benchmark") || !strcmp(argv[i], "--benchmark-only")) {
                 rt_opt_benchmark = true;
+                rt_opt_noloop = true;
             }
-            else if (!strcmp(argv[i], "--benchmark-only")) {
-                rt_opt_benchmark = true;
+            else if (!strcmp(argv[i], "--unittest") || !strcmp(argv[i], "--unittest-only")) {
+                rt_opt_unittest = true;
                 rt_opt_noloop = true;
             }
             else if (argv[i][0] == '-') {
                 char* opt = argv[i] + 1;
                 while (*opt != '\0') {
                     switch (*opt) {
+                    case 'B':
                     case 'b':
+                        rt_opt_noloop = true;
                         rt_opt_benchmark = true;
                         break;
-                    case 'B':
-                        rt_opt_benchmark = true;
+                    case 'U':
+                    case 'u':
                         rt_opt_noloop = true;
+                        rt_opt_unittest = true;
                         break;
                     default:
                         fprintf(stderr, "Unknown option '-%c'.\n", *opt);
@@ -204,17 +211,16 @@ int main(int argc, char** argv)
 
     open_reserve_file();
 
-    load_config();
-
-    if (port_str[0])
-        cfg_set_telnet_port(port);
-
     // Run the game.
     Timer boot_timer = { 0 };
     if (rt_opt_benchmark)
         start_timer(&boot_timer);
 
     boot_db();
+
+    if (port_str[0])
+        cfg_set_telnet_port(port);
+
     print_memory();
     if (rt_opt_benchmark) {
         stop_timer(&boot_timer);
@@ -222,6 +228,10 @@ int main(int argc, char** argv)
         sprintf(log_buf, "Boot time: "TIME_FMT"s, %ldns.", timer_res.tv_sec, timer_res.tv_nsec);
         log_string(log_buf);
 
+        run_benchmarks();
+    }
+
+    if (rt_opt_unittest) {
         run_unit_tests();
     }
 
@@ -280,6 +290,8 @@ int main(int argc, char** argv)
             close_server((SockServer*)tls_server);
 #endif
     }
+
+    free_vm();
 
     // That's all, folks.
     log_string("Normal termination of game.");

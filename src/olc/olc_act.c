@@ -14,32 +14,35 @@
 
 #include "merc.h"
 
-#include "act_comm.h"
-#include "act_move.h"
-#include "bit.h"
-#include "comm.h"
-#include "db.h"
-#include "handler.h"
-#include "interp.h"
-#include "lookup.h"
-#include "magic.h"
-#include "mob_cmds.h"
+
 #include "olc.h"
-#include "recycle.h"
-#include "skills.h"
-#include "special.h"
+#include "bit.h"
 #include "string_edit.h"
-#include "stringutils.h"
-#include "tables.h"
 
-#include "entities/descriptor.h"
-#include "entities/room_exit.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
+#include <act_comm.h>
+#include <act_move.h>
+#include <comm.h>
+#include <db.h>
+#include <format.h>
+#include <handler.h>
+#include <interp.h>
+#include <lookup.h>
+#include <magic.h>
+#include <mob_cmds.h>
+#include <recycle.h>
+#include <skills.h>
+#include <special.h>
+#include <stringutils.h>
+#include <tables.h>
 
-#include "data/mobile_data.h"
-#include "data/race.h"
-#include "data/skill.h"
+#include <entities/descriptor.h>
+#include <entities/room_exit.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
+
+#include <data/mobile_data.h>
+#include <data/race.h>
+#include <data/skill.h>
 
 #include <ctype.h>
 #include <stdio.h>
@@ -174,7 +177,7 @@ void show_skill_cmds(Mobile* ch, SkillTarget tar)
             break;
 
         if (!str_cmp(skill_table[sn].name, "reserved")
-            || skill_table[sn].spell_fun == spell_null)
+            || !HAS_SPELL_FUNC(sn))
             continue;
 
         if (tar == SKILL_TARGET_ALL || skill_table[sn].target == tar) {
@@ -248,7 +251,7 @@ bool show_help(Mobile* ch, char* argument)
 
         for (cnt = 0; help_table[cnt].command != NULL; cnt++)
             if (help_table[cnt].desc) {
-                sprintf(buf, "{*%-9.9s{x - %-26.26s",
+                sprintf(buf, COLOR_ALT_TEXT_1 "%-9.9s" COLOR_CLEAR " - %-26.26s",
                     capitalize(help_table[cnt].command),
                     help_table[cnt].desc);
                 if (blah % 2 == 1)
@@ -476,6 +479,30 @@ ED_FUN_DEC(ed_line_string)
     return true;
 }
 
+ED_FUN_DEC(ed_line_lox_string)
+{
+    String** string = (String**)arg;
+    char buf[MIL];
+
+    if (IS_NULLSTR(argument)) {
+        sprintf(buf, "Syntax : %s <string>\n\r", n_fun);
+        send_to_char(buf, ch);
+        return false;
+    }
+
+    if (!str_cmp(argument, "null")) {
+        *string = copy_string(str_empty, 1);
+    }
+    else {
+        sprintf(buf, "%s%s", argument, par == 0 ? "" : "\n\r");
+        *string = copy_string(buf, (int)strlen(buf));
+    }
+
+    send_to_char("Ok.\n\r", ch);
+
+    return true;
+}
+
 #define NUM_INT16 0
 #define NUM_INT32 1
 #define NUM_LONG 2
@@ -573,7 +600,7 @@ ED_FUN_DEC(ed_bool)
         if (!str_cmp(argument, "false") || !str_cmp(argument, "no"))
             *(bool*)arg = false;
         else {
-            send_to_char("{jArgument must be true or false.{x\n\r", ch);
+            send_to_char(COLOR_INFO "Argument must be true or false." COLOR_EOL, ch);
             return false;
         }
 
@@ -586,12 +613,12 @@ ED_FUN_DEC(ed_skillgroup)
     SKNUM gn;
 
     if (emptystring(argument)) {
-        printf_to_char(ch, "Syntax : {*%s <skill group>{x\n\r", n_fun);
+        printf_to_char(ch, "Syntax : " COLOR_ALT_TEXT_1 "%s <skill group>" COLOR_EOL, n_fun);
         return false;
     }
 
     if ((gn = group_lookup(argument)) < 0) {
-        printf_to_char(ch, "{jCould not find group '{*%s{j'{x\n\r", argument);
+        printf_to_char(ch, COLOR_INFO "Could not find group '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "'" COLOR_EOL, argument);
         return false;
     }
 
@@ -625,15 +652,15 @@ ED_FUN_DEC(ed_flag_toggle)
     INIT_BUF(set_out, MSL);
     INIT_BUF(unset_out, MSL);
 
-    printf_to_char(ch, "Syntax : {*%s [flags]{x\n\r", n_fun);
+    printf_to_char(ch, "Syntax : " COLOR_ALT_TEXT_1 "%s [flags]" COLOR_EOL, n_fun);
     
     FLAGS current = *(FLAGS*)arg;
 
     for (struct flag_type* flag = (struct flag_type*)par; flag->name != NULL; ++flag) {
         if (IS_SET(current, flag->bit))
-            addf_buf(set_out, "    {*%-20s{x\n\r", flag->name);
+            addf_buf(set_out, "    " COLOR_ALT_TEXT_1 "%-20s" COLOR_EOL, flag->name);
         else if (flag->settable)
-            addf_buf(unset_out, "    {*%-20s{x\n\r", flag->name);
+            addf_buf(unset_out, "    " COLOR_ALT_TEXT_1 "%-20s" COLOR_EOL, flag->name);
     }
 
     if (set_out->size > 0) {
@@ -666,7 +693,7 @@ ED_FUN_DEC(ed_flag_set_long)
         }
     }
 
-    printf_to_char(ch, "Syntax : {*%s [flags]{x\n\r", n_fun);
+    printf_to_char(ch, "Syntax : " COLOR_ALT_TEXT_1 "%s [flags]" COLOR_EOL, n_fun);
     show_flags_to_char(ch, (struct flag_type*)par);
 
     return false;
@@ -687,7 +714,7 @@ ED_FUN_DEC(ed_flag_set_sh)
         }
     }
 
-    printf_to_char(ch, "{jSyntax : {*%s [flags]{x\n\r", n_fun);
+    printf_to_char(ch, COLOR_INFO "Syntax : " COLOR_ALT_TEXT_1 "%s [flags]" COLOR_EOL, n_fun);
     show_flags_to_char(ch, (struct flag_type*)par);
 
     return false;
@@ -766,7 +793,7 @@ ED_FUN_DEC(ed_int16lookup)
 
 ED_FUN_DEC(ed_dice)
 {
-    static char syntax[] = "Syntax:  {*hitdice <number> d <type> + <bonus>{x\n\r";
+    static char syntax[] = "Syntax:  " COLOR_ALT_TEXT_1 "hitdice <number> d <type> + <bonus>" COLOR_EOL;
     char* numb_str; 
     char* type_str; 
     char* bonus_str;
@@ -828,17 +855,17 @@ ED_FUN_DEC(ed_ed)
     READ_ARG(keyword);
 
     if (command[0] == '\0') {
-        send_to_char("Syntax:  {*ed add [keyword]\n\r", ch);
+        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "ed add [keyword]\n\r", ch);
         send_to_char("         ed delete [keyword]\n\r", ch);
         send_to_char("         ed edit [keyword]\n\r", ch);
         send_to_char("         ed format [keyword]\n\r", ch);
-        send_to_char("         ed rename [keyword]{x\n\r", ch);
+        send_to_char("         ed rename [keyword]" COLOR_EOL, ch);
         return false;
     }
 
     if (!str_cmp(command, "add")) {
         if (keyword[0] == '\0') {
-            send_to_char("Syntax:  {*ed add [keyword]{x\n\r", ch);
+            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "ed add [keyword]" COLOR_EOL, ch);
             return false;
         }
 
@@ -854,7 +881,7 @@ ED_FUN_DEC(ed_ed)
 
     if (!str_cmp(command, "edit")) {
         if (keyword[0] == '\0') {
-            send_to_char("Syntax:  {*ed edit [keyword]{x\n\r", ch);
+            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "ed edit [keyword]" COLOR_EOL, ch);
             return false;
         }
 
@@ -864,7 +891,7 @@ ED_FUN_DEC(ed_ed)
         }
 
         if (!ed) {
-            send_to_char("{jERROR : There is no extra desc with that name.{x\n\r", ch);
+            send_to_char(COLOR_INFO "ERROR : There is no extra desc with that name." COLOR_EOL, ch);
             return false;
         }
 
@@ -877,7 +904,7 @@ ED_FUN_DEC(ed_ed)
         ExtraDesc* ped = NULL;
 
         if (keyword[0] == '\0') {
-            send_to_char("Syntax:  {*ed delete [keyword]{x\n\r", ch);
+            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "ed delete [keyword]" COLOR_EOL, ch);
             return false;
         }
 
@@ -888,7 +915,7 @@ ED_FUN_DEC(ed_ed)
         }
 
         if (!ed) {
-            send_to_char("{jERROR : There is no extra description with that name.{x\n\r", ch);
+            send_to_char(COLOR_INFO "ERROR : There is no extra description with that name." COLOR_EOL, ch);
             return false;
         }
 
@@ -899,14 +926,14 @@ ED_FUN_DEC(ed_ed)
 
         free_extra_desc(ed);
 
-        send_to_char("{jExtra description deleted.{x\n\r", ch);
+        send_to_char(COLOR_INFO "Extra description deleted." COLOR_EOL, ch);
         return true;
     }
 
     if (!str_cmp(command, "format")) {
 
         if (keyword[0] == '\0') {
-            send_to_char("Syntax:  {*ed format [keyword]{x\n\r", ch);
+            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "ed format [keyword]" COLOR_EOL, ch);
             return false;
         }
 
@@ -916,20 +943,22 @@ ED_FUN_DEC(ed_ed)
         }
 
         if (!ed) {
-            send_to_char("{jERROR : There is no extra description with that name.{x\n\r", ch);
+            send_to_char(COLOR_INFO "ERROR : There is no extra description with that name." COLOR_EOL, ch);
             return false;
         }
 
-        ed->description = format_string(ed->description);
+        char* desc = format_string(ed->description);
+        free_string(ed->description);
+        ed->description = desc;
 
-        send_to_char("{jExtra description formatted.{x\n\r", ch);
+        send_to_char(COLOR_INFO "Extra description formatted." COLOR_EOL, ch);
         return true;
     }
 
     if (!str_cmp(command, "rename")) {
 
         if (keyword[0] == '\0') {
-            send_to_char("Syntax:  {*ed rename [old name] [new]{x\n\r", ch);
+            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "ed rename [old name] [new]" COLOR_EOL, ch);
             return false;
         }
 
@@ -939,14 +968,14 @@ ED_FUN_DEC(ed_ed)
         }
 
         if (!ed) {
-            send_to_char("{jERROR : There is no extra description with that name.{x\n\r", ch);
+            send_to_char(COLOR_INFO "ERROR : There is no extra description with that name." COLOR_EOL, ch);
             return false;
         }
 
         free_string(ed->keyword);
         ed->keyword = str_dup(argument);
 
-        send_to_char("{jExtra desc renamed.{x\n\r", ch);
+        send_to_char(COLOR_INFO "Extra desc renamed." COLOR_EOL, ch);
         return true;
     }
 
@@ -965,7 +994,7 @@ ED_FUN_DEC(ed_addaffect)
     one_argument(argument, mod);
 
     if (loc[0] == '\0' || mod[0] == '\0' || !is_number(mod)) {
-        send_to_char("Syntax:  {*addaffect [location] [#xmod]{x\n\r", ch);
+        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "addaffect [location] [#xmod]" COLOR_EOL, ch);
         return false;
     }
 
@@ -1002,19 +1031,19 @@ ED_FUN_DEC(ed_delaffect)
     one_argument(argument, BUF(aff_name));
 
     if (!is_number(BUF(aff_name)) || BUF(aff_name)[0] == '\0') {
-        send_to_char("Syntax:  {*delaffect [#xaffect]{x\n\r", ch);
+        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "delaffect [#xaffect]" COLOR_EOL, ch);
         return false;
     }
 
     value = atoi(BUF(aff_name));
 
     if (value < 0) {
-        send_to_char("{jOnly non-negative affect-numbers allowed.{x\n\r", ch);
+        send_to_char(COLOR_INFO "Only non-negative affect-numbers allowed." COLOR_EOL, ch);
         return false;
     }
 
     if (!(pAf = *pNaf)) {
-        send_to_char("{jOEdit:  Non-existant affect.{x\n\r", ch);
+        send_to_char(COLOR_INFO "OEdit:  Non-existant affect." COLOR_EOL, ch);
         return false;
     }
 
@@ -1036,12 +1065,12 @@ ED_FUN_DEC(ed_delaffect)
         }
         else                                 /* Doesn't exist */
         {
-            send_to_char("{jNo such affect.{x\n\r", ch);
+            send_to_char(COLOR_INFO "No such affect." COLOR_EOL, ch);
             return false;
         }
     }
 
-    send_to_char("{*Affect removed.{x\n\r", ch);
+    send_to_char(COLOR_ALT_TEXT_1 "Affect removed." COLOR_EOL, ch);
 
     free_buf(aff_name);
 

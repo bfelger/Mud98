@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdint.h>
 
 #ifndef _MSC_VER
 #include <stddef.h>
@@ -185,6 +186,7 @@ typedef void SpellFunc(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget 
 #define READ_ARG(arg)       (argument = one_argument(argument, (arg)))
 #define NEXT_LINK(n)        ((n) = (n)->next)
 #define FOR_EACH(i, l)      for ((i) = (l); (i) != NULL; NEXT_LINK(i))
+
 #define ORDERED_INSERT(T, i, l, f)                                             \
     if (!(l) || i->f < (l)->f) {                                               \
         i->next = l;                                                           \
@@ -217,6 +219,24 @@ typedef void SpellFunc(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget 
             }                                                                  \
         }                                                                      \
     }
+#define UNORDERED_REMOVE_ALL(T, i, l, f, v)                                    \
+    if ((l)) {                                                                 \
+        if ((l)->f == v) {                                                     \
+            (i) = (l);                                                         \
+            NEXT_LINK(l);                                                      \
+        } else {                                                               \
+            T* temp_ ## i;                                                     \
+            FOR_EACH(temp_ ## i, (l)) {                                        \
+                if (!temp_ ## i->next) {                                       \
+                    break;                                                     \
+                } else if (temp_ ## i->next->f == v) {                         \
+                    (i) = temp_ ## i->next;                                    \
+                    temp_ ## i->next = (i)->next;                              \
+                    break;                                                     \
+                }                                                              \
+            }                                                                  \
+        }                                                                      \
+    }
 #define ORDERED_GET(T, i, l, f, v)                                             \
     {                                                                          \
         T* temp_ ## i;                                                         \
@@ -228,6 +248,9 @@ typedef void SpellFunc(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget 
                 break;                                                         \
         }                                                                      \
     }
+
+#define IS_PERM_STRING(str) \
+    (str == &str_empty[0] || (str >= string_space && str < top_string))
 
 #ifdef _MSC_VER
     #define strdup _strdup
@@ -245,7 +268,7 @@ extern bool merc_down;                      // Shutdown
 extern bool wizlock;                        // Game is wizlocked
 extern bool newlock;                        // Game is newlocked
 extern time_t current_time;
-extern bool MOBtrigger;
+extern bool events_enabled;
 
 // db.c
 extern char str_empty[1];

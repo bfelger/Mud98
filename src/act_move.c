@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -38,16 +38,18 @@
 #include "skills.h"
 #include "update.h"
 
-#include "entities/descriptor.h"
-#include "entities/room_exit.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
-#include "entities/room.h"
+#include <entities/descriptor.h>
+#include <entities/event.h>
+#include <entities/room_exit.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
+#include <entities/room.h>
 
-#include "data/class.h"
-#include "data/direction.h"
-#include "data/mobile_data.h"
-#include "data/skill.h"
+#include <data/class.h>
+#include <data/direction.h>
+#include <data/events.h>
+#include <data/mobile_data.h>
+#include <data/skill.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -64,7 +66,6 @@ bool has_key args((Mobile * ch, int key));
 void move_char(Mobile* ch, int door, bool follow)
 {
     Mobile* fch;
-    Mobile* fch_next = NULL;
     Room* in_room;
     Room* to_room;
     RoomExit* room_exit;
@@ -76,6 +77,10 @@ void move_char(Mobile* ch, int door, bool follow)
 
     // Exit trigger, if activated, bail out. Only PCs are triggered.
     if (!IS_NPC(ch) && mp_exit_trigger(ch, door))
+        return;
+
+    // Exit events only block if they return TRUE.
+    if (!IS_NPC(ch) && raise_exit_event(ch, door))
         return;
 
     in_room = ch->in_room;
@@ -91,7 +96,7 @@ void move_char(Mobile* ch, int door, bool follow)
     }
     
     if (!to_room) {
-        bugf("Room %d exit %d to %d does not exist.", in_room->data->vnum,
+        bugf("Room %d exit %d to %d does not exist.", VNUM_FIELD(in_room->data),
             door, room_exit->data->to_vnum);
     }
 
@@ -121,7 +126,7 @@ void move_char(Mobile* ch, int door, bool follow)
         for (iClass = 0; iClass < class_count; iClass++) {
             for (iGuild = 0; iGuild < MAX_GUILD; iGuild++) {
                 if (iClass != ch->ch_class
-                    && to_room->vnum == class_table[iClass].guild[iGuild]) {
+                    && VNUM_FIELD(to_room) == class_table[iClass].guild[iGuild]) {
                     send_to_char("You aren't allowed in there.\n\r", ch);
                     return;
                 }
@@ -145,9 +150,10 @@ void move_char(Mobile* ch, int door, bool follow)
             // Look for a boat.
             found = false;
 
-            if (IS_IMMORTAL(ch)) found = true;
+            if (IS_IMMORTAL(ch))
+                found = true;
 
-            for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
+            FOR_EACH_MOB_OBJ(obj, ch) {
                 if (obj->item_type == ITEM_BOAT) {
                     found = true;
                     break;
@@ -192,9 +198,7 @@ void move_char(Mobile* ch, int door, bool follow)
     if (in_room == to_room) /* no circular follows */
         return;
 
-    for (fch = in_room->people; fch != NULL; fch = fch_next) {
-        fch_next = fch->next_in_room;
-
+    FOR_EACH_ROOM_MOB(fch, in_room) {
         if (fch->master == ch && IS_AFFECTED(fch, AFF_CHARM)
             && fch->position < POS_STANDING)
             do_function(fch, &do_stand, "");
@@ -217,12 +221,16 @@ void move_char(Mobile* ch, int door, bool follow)
     
     // If someone is following the char, these triggers get activated for the
     // followers before the char, but it's safer this way...
-    if (IS_NPC(ch) && HAS_TRIGGER(ch, TRIG_ENTRY)) {
+    if (IS_NPC(ch) && HAS_MPROG_TRIGGER(ch, TRIG_ENTRY)) {
         mp_percent_trigger(ch, NULL, NULL, NULL, TRIG_ENTRY);
     }
 
+    if (IS_NPC(ch) && HAS_EVENT_TRIGGER(ch, TRIG_ENTRY))
+        raise_entry_event(ch, number_percent());
+
     if (!IS_NPC(ch)) {
         mp_greet_trigger(ch);
+        raise_greet_event(ch);
     }
 
     return;
@@ -393,7 +401,7 @@ void do_open(Mobile* ch, char* argument)
             Mobile* rch;
 
             REMOVE_BIT(room_exit_rev->exit_flags, EX_CLOSED);
-            FOR_EACH_IN_ROOM(rch, to_room->people)
+            FOR_EACH_ROOM_MOB(rch, to_room)
                 act("The $d opens.", rch, NULL, room_exit_rev->data->keyword, TO_CHAR);
         }
     }
@@ -477,7 +485,7 @@ void do_close(Mobile* ch, char* argument)
             Mobile* rch;
 
             SET_BIT(room_exit_rev->exit_flags, EX_CLOSED);
-            FOR_EACH_IN_ROOM(rch, to_room->people)
+            FOR_EACH_ROOM_MOB(rch, to_room)
                 act("The $d closes.", rch, NULL, room_exit_rev->data->keyword, TO_CHAR);
         }
     }
@@ -489,8 +497,9 @@ bool has_key(Mobile* ch, int key)
 {
     Object* obj;
 
-    for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
-        if (obj->prototype->vnum == key) return true;
+    FOR_EACH_MOB_OBJ(obj, ch) {
+        if (VNUM_FIELD(obj->prototype) == key) 
+            return true;
     }
 
     return false;
@@ -741,10 +750,9 @@ void do_pick(Mobile* ch, char* argument)
     WAIT_STATE(ch, skill_table[gsn_pick_lock].beats);
 
     /* look for guards */
-    for (gch = ch->in_room->people; gch; gch = gch->next_in_room) {
+    FOR_EACH_ROOM_MOB(gch, ch->in_room) {
         if (IS_NPC(gch) && IS_AWAKE(gch) && ch->level + 5 < gch->level) {
-            act("$N is standing too close to the lock.", ch, NULL, gch,
-                TO_CHAR);
+            act("$N is standing too close to the lock.", ch, NULL, gch, TO_CHAR);
             return;
         }
     }
@@ -863,7 +871,7 @@ void do_stand(Mobile* ch, char* argument)
             send_to_char("Maybe you should finish fighting first?\n\r", ch);
             return;
         }
-        obj = get_obj_list(ch, argument, ch->in_room->contents);
+        obj = get_obj_list(ch, argument, &ch->in_room->objects);
         if (obj == NULL) {
             send_to_char("You don't see that here.\n\r", ch);
             return;
@@ -876,8 +884,7 @@ void do_stand(Mobile* ch, char* argument)
             return;
         }
         if (ch->on != obj && count_users(obj) >= obj->value[0]) {
-            act_new("There's no room to stand on $p.", ch, obj, NULL, TO_CHAR,
-                    POS_DEAD);
+            act_pos("There's no room to stand on $p.", ch, obj, NULL, TO_CHAR, POS_DEAD);
             return;
         }
         ch->on = obj;
@@ -896,18 +903,15 @@ void do_stand(Mobile* ch, char* argument)
             ch->on = NULL;
         }
         else if (IS_SET(obj->value[2], STAND_AT)) {
-            act_new("You wake and stand at $p.", ch, obj, NULL, TO_CHAR,
-                    POS_DEAD);
+            act_pos("You wake and stand at $p.", ch, obj, NULL, TO_CHAR, POS_DEAD);
             act("$n wakes and stands at $p.", ch, obj, NULL, TO_ROOM);
         }
         else if (IS_SET(obj->value[2], STAND_ON)) {
-            act_new("You wake and stand on $p.", ch, obj, NULL, TO_CHAR,
-                    POS_DEAD);
+            act_pos("You wake and stand on $p.", ch, obj, NULL, TO_CHAR, POS_DEAD);
             act("$n wakes and stands on $p.", ch, obj, NULL, TO_ROOM);
         }
         else {
-            act_new("You wake and stand in $p.", ch, obj, NULL, TO_CHAR,
-                    POS_DEAD);
+            act_pos("You wake and stand in $p.", ch, obj, NULL, TO_CHAR, POS_DEAD);
             act("$n wakes and stands in $p.", ch, obj, NULL, TO_ROOM);
         }
         ch->position = POS_STANDING;
@@ -978,7 +982,7 @@ void do_rest(Mobile* ch, char* argument)
 
     /* okay, now that we know we can rest, find an object to rest on */
     if (argument[0] != '\0') {
-        obj = get_obj_list(ch, argument, ch->in_room->contents);
+        obj = get_obj_list(ch, argument, &ch->in_room->objects);
         if (obj == NULL) {
             send_to_char("You don't see that here.\n\r", ch);
             return;
@@ -997,7 +1001,7 @@ void do_rest(Mobile* ch, char* argument)
         }
 
         if (obj != NULL && ch->on != obj && count_users(obj) >= obj->value[0]) {
-            act_new("There's no more room on $p.", ch, obj, NULL, TO_CHAR,
+            act_pos("There's no more room on $p.", ch, obj, NULL, TO_CHAR,
                     POS_DEAD);
             return;
         }
@@ -1017,17 +1021,17 @@ void do_rest(Mobile* ch, char* argument)
             act("$n wakes up and starts resting.", ch, NULL, NULL, TO_ROOM);
         }
         else if (IS_SET(obj->value[2], REST_AT)) {
-            act_new("You wake up and rest at $p.", ch, obj, NULL, TO_CHAR,
+            act_pos("You wake up and rest at $p.", ch, obj, NULL, TO_CHAR,
                     POS_SLEEPING);
             act("$n wakes up and rests at $p.", ch, obj, NULL, TO_ROOM);
         }
         else if (IS_SET(obj->value[2], REST_ON)) {
-            act_new("You wake up and rest on $p.", ch, obj, NULL, TO_CHAR,
+            act_pos("You wake up and rest on $p.", ch, obj, NULL, TO_CHAR,
                     POS_SLEEPING);
             act("$n wakes up and rests on $p.", ch, obj, NULL, TO_ROOM);
         }
         else {
-            act_new("You wake up and rest in $p.", ch, obj, NULL, TO_CHAR,
+            act_pos("You wake up and rest in $p.", ch, obj, NULL, TO_CHAR,
                     POS_SLEEPING);
             act("$n wakes up and rests in $p.", ch, obj, NULL, TO_ROOM);
         }
@@ -1116,7 +1120,7 @@ void do_sit(Mobile* ch, char* argument)
 
     /* okay, now that we know we can sit, find an object to sit on */
     if (argument[0] != '\0') {
-        obj = get_obj_list(ch, argument, ch->in_room->contents);
+        obj = get_obj_list(ch, argument, &ch->in_room->objects);
         if (obj == NULL) {
             send_to_char("You don't see that here.\n\r", ch);
             return;
@@ -1134,7 +1138,7 @@ void do_sit(Mobile* ch, char* argument)
         }
 
         if (obj != NULL && ch->on != obj && count_users(obj) >= obj->value[0]) {
-            act_new("There's no more room on $p.", ch, obj, NULL, TO_CHAR,
+            act_pos("There's no more room on $p.", ch, obj, NULL, TO_CHAR,
                     POS_DEAD);
             return;
         }
@@ -1153,17 +1157,17 @@ void do_sit(Mobile* ch, char* argument)
             act("$n wakes and sits up.", ch, NULL, NULL, TO_ROOM);
         }
         else if (IS_SET(obj->value[2], SIT_AT)) {
-            act_new("You wake and sit at $p.", ch, obj, NULL, TO_CHAR,
+            act_pos("You wake and sit at $p.", ch, obj, NULL, TO_CHAR,
                     POS_DEAD);
             act("$n wakes and sits at $p.", ch, obj, NULL, TO_ROOM);
         }
         else if (IS_SET(obj->value[2], SIT_ON)) {
-            act_new("You wake and sit on $p.", ch, obj, NULL, TO_CHAR,
+            act_pos("You wake and sit on $p.", ch, obj, NULL, TO_CHAR,
                     POS_DEAD);
             act("$n wakes and sits at $p.", ch, obj, NULL, TO_ROOM);
         }
         else {
-            act_new("You wake and sit in $p.", ch, obj, NULL, TO_CHAR,
+            act_pos("You wake and sit in $p.", ch, obj, NULL, TO_CHAR,
                     POS_DEAD);
             act("$n wakes and sits in $p.", ch, obj, NULL, TO_ROOM);
         }
@@ -1249,7 +1253,7 @@ void do_sleep(Mobile* ch, char* argument)
             if (argument[0] == '\0')
                 obj = ch->on;
             else
-                obj = get_obj_list(ch, argument, ch->in_room->contents);
+                obj = get_obj_list(ch, argument, &ch->in_room->objects);
 
             if (obj == NULL) {
                 send_to_char("You don't see that here.\n\r", ch);
@@ -1264,7 +1268,7 @@ void do_sleep(Mobile* ch, char* argument)
             }
 
             if (ch->on != obj && count_users(obj) >= obj->value[0]) {
-                act_new("There is no room on $p for you.", ch, obj, NULL,
+                act_pos("There is no room on $p for you.", ch, obj, NULL,
                         TO_CHAR, POS_DEAD);
                 return;
             }
@@ -1344,7 +1348,7 @@ void do_wake(Mobile* ch, char* argument)
         return;
     }
 
-    act_new("$n wakes you.", ch, NULL, victim, TO_VICT, POS_SLEEPING);
+    act_pos("$n wakes you.", ch, NULL, victim, TO_VICT, POS_SLEEPING);
     do_function(ch, &do_stand, "");
     return;
 }
@@ -1367,7 +1371,7 @@ void do_sneak(Mobile* ch, char* argument)
         af.location = APPLY_NONE;
         af.modifier = 0;
         af.bitvector = AFF_SNEAK;
-        affect_to_char(ch, &af);
+        affect_to_mob(ch, &af);
     }
     else
         check_improve(ch, gsn_sneak, false, 3);
@@ -1418,8 +1422,8 @@ void do_recall(Mobile* ch, char* argument)
     if (!str_cmp(argument, "set") && ch->pcdata) {
         if (IS_SET(ch->in_room->data->room_flags, ROOM_RECALL)) {
             printf_to_char(ch, "Your recall point is now set to %s.\n",
-                ch->in_room->data->name);
-            ch->pcdata->recall = ch->in_room->vnum;
+                NAME_STR(ch->in_room));
+            ch->pcdata->recall = VNUM_FIELD(ch->in_room);
         }
         else {
             send_to_char("You can't use this location as your recall point.\n", ch);
@@ -1427,7 +1431,7 @@ void do_recall(Mobile* ch, char* argument)
         return;
     }
 
-    act("$n prays for transportation!", ch, 0, 0, TO_ROOM);
+    act("$n prays for transportation!", ch, NULL, NULL, TO_ROOM);
 
     VNUM recall = cfg_get_default_recall();
 
@@ -1495,8 +1499,8 @@ void do_train(Mobile* ch, char* argument)
 
     if (!cfg_get_train_anywhere()) {
         // Check for trainer.
-        Mobile* mob;
-        FOR_EACH_IN_ROOM(mob, ch->in_room->people) {
+        Mobile* mob = NULL;
+        FOR_EACH_ROOM_MOB(mob, ch->in_room) {
             if (IS_NPC(mob) && IS_SET(mob->act_flags, ACT_TRAIN))
                 break;
         }

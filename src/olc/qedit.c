@@ -2,18 +2,20 @@
 // qedit.c
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "merc.h"
+#include <merc.h>
 
-#include "comm.h"
-#include "db.h"
-#include "handler.h"
-#include "magic.h"
 #include "olc.h"
-#include "skills.h"
 
-#include "entities/player_data.h"
+#include <entities/obj_prototype.h>
+#include <entities/player_data.h>
 
-#include "data/quest.h"
+#include <data/quest.h>
+
+#include <comm.h>
+#include <db.h>
+#include <handler.h>
+#include <magic.h>
+#include <skills.h>
 
 #define QEDIT(fun) bool fun(Mobile *ch, char *argument)
 
@@ -46,7 +48,7 @@ const OlcCmdEntry quest_olc_comm_table[] =
 void qedit(Mobile* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_QEDIT_SECURITY) {
-        send_to_char("{jQEDIT: You do not have enough security to edit quests.{x\n\r", ch);
+        send_to_char(COLOR_INFO "QEDIT: You do not have enough security to edit quests." COLOR_EOL, ch);
         edit_done(ch);
         return;
     }
@@ -83,17 +85,17 @@ void do_qedit(Mobile* ch, char* argument)
         vnum = (VNUM)atoi(command);
 
         if ((area_data = get_vnum_area(vnum)) == NULL) {
-            send_to_char("{jQEDIT: That VNUM is not assigned to an area.{x\n\r", ch);
+            send_to_char(COLOR_INFO "QEDIT: That VNUM is not assigned to an area." COLOR_EOL, ch);
             return;
         }
 
         if (!IS_BUILDER(ch, area_data)) {
-            send_to_char("{jYou do not have enough security to edit quests in that area.{x\n\r", ch);
+            send_to_char(COLOR_INFO "You do not have enough security to edit quests in that area." COLOR_EOL, ch);
             return;
         }
 
         if (!(quest = get_quest(vnum))) {
-            send_to_char("{jQEDIT: That VNUM does not exist.{x\n\r", ch);
+            send_to_char(COLOR_INFO "QEDIT: That VNUM does not exist." COLOR_EOL, ch);
             return;
         }
 
@@ -104,7 +106,7 @@ void do_qedit(Mobile* ch, char* argument)
 
     if (!str_cmp(command, "create")) {
         if (argument[0] == '\0') {
-            send_to_char("{jSyntax: {*QEDIT CREATE [VNUM]{x\n\r", ch);
+            send_to_char(COLOR_INFO "Syntax: " COLOR_ALT_TEXT_1 "QEDIT CREATE [VNUM]" COLOR_EOL, ch);
             return;
         }
 
@@ -114,8 +116,8 @@ void do_qedit(Mobile* ch, char* argument)
     }
 
     send_to_char(
-        "{jSyntax: {*QEDIT [VNUM]\n\r"
-        "        QEDIT CREATE [VNUM]{x\n\r", ch);
+        COLOR_INFO "Syntax: " COLOR_ALT_TEXT_1 "QEDIT [VNUM]\n\r"
+        "        QEDIT CREATE [VNUM]" COLOR_EOL, ch);
     return;
 }
 
@@ -127,27 +129,27 @@ QEDIT(qedit_create)
     VNUM vnum = (VNUM)atoi(argument);
 
     if (argument[0] == '\0' || vnum == 0) {
-        send_to_char("{jSyntax: {*QEDIT CREATE [VNUM]{x\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax: " COLOR_ALT_TEXT_1 "QEDIT CREATE [VNUM]" COLOR_EOL, ch);
         return false;
     }
 
     if (get_quest(vnum)) {
-        send_to_char("{jQEDIT: That quest already exists.{x\n\r", ch);
+        send_to_char(COLOR_INFO "QEDIT: That quest already exists." COLOR_EOL, ch);
         return false;
     }
 
     if ((area_data = get_vnum_area(vnum)) == NULL) {
-        send_to_char("{jQEDIT: That vnum has not been assigned to an area.{x\n\r", ch);
+        send_to_char(COLOR_INFO "QEDIT: That vnum has not been assigned to an area." COLOR_EOL, ch);
         return false;
     }
 
     if (!IS_BUILDER(ch, area_data)) {
-        send_to_char("{jQEDIT: You do not have access to this area.{x\n\r", ch);
+        send_to_char(COLOR_INFO "QEDIT: You do not have access to this area." COLOR_EOL, ch);
         return false;
     }
 
     if (ch->pcdata->security < MIN_QEDIT_SECURITY) {
-        send_to_char("{jQEDIT: You do not have enough security to create quests.{x\n\r", ch);
+        send_to_char(COLOR_INFO "QEDIT: You do not have enough security to create quests." COLOR_EOL, ch);
         return false;
     }
 
@@ -160,7 +162,7 @@ QEDIT(qedit_create)
 
     set_editor(ch->desc, ED_QUEST, U(quest));
 
-    send_to_char("{jNew quest created.{x\n\r", ch);
+    send_to_char(COLOR_INFO "New quest created." COLOR_EOL, ch);
 
     return true;
 }
@@ -168,6 +170,7 @@ QEDIT(qedit_create)
 static const char* get_targ_name(Quest* quest, VNUM vnum)
 {
     MobPrototype* mob;
+    ObjPrototype* obj;
     char* target_name = NULL;
 
     if (vnum > 0) {
@@ -178,6 +181,12 @@ static const char* get_targ_name(Quest* quest, VNUM vnum)
                 target_name = "(invalid)";  // Quest type may have changed
             else
                 target_name = mob->short_descr;
+            break;
+        case QUEST_GET_OBJ:
+            if (!(obj = get_object_prototype(vnum)))
+                target_name = "(invalid)";  // Quest type may have changed
+            else
+                target_name = obj->short_descr;
             break;
         }
     }
@@ -206,33 +215,31 @@ QEDIT(qedit_show)
         end_name = "(none)";
     }
 
-    printf_to_char(ch, "VNUM:       {|[{*%"PRVNUM"{|]{x\n\r", quest->vnum);
-    printf_to_char(ch, "Name:       {T%s{x\n\r", quest->name && quest->name[0] ? quest->name : "(none)");
-    printf_to_char(ch, "Area:       {*%s{x\n\r", quest->area_data->name);
-    printf_to_char(ch, "Type:       {|[{*%s{|]{x\n\r", quest_type_table[quest->type].name);
-    printf_to_char(ch, "Level:      {|[{*%d{|]{x\n\r", quest->level);
-    printf_to_char(ch, "End:        {|[{*%d{|]{x {_%s{x\n\r", quest->end, end_name);
-    printf_to_char(ch, "Target:     {|[{*%d{|]{x {_%s{x", quest->target, get_targ_name(quest, quest->target));
+    olc_print_num_str(ch, "Quest", quest->vnum, quest->name && quest->name[0] ? quest->name : "(none)");
+    olc_print_str(ch, "Area", NAME_STR(quest->area_data));
+    olc_print_flags(ch, "Type", quest_type_table, quest->type);
+    olc_print_num(ch, "Level", quest->level);
+    olc_print_num_str(ch, "End", quest->end, end_name);
+    olc_print_num_str(ch, "Target", quest->target, get_targ_name(quest, quest->target));
+    
     if (quest->type == QUEST_KILL_MOB) {
         if (quest->target_upper <= quest->target)
-            printf_to_char(ch, " {j(set {*UPPER{j to use a range of VNUMs){x");
+            olc_print_num_str(ch, "Upper", 0, COLOR_INFO "(set " COLOR_ALT_TEXT_1 "UPPER" COLOR_INFO " to use a range of VNUMs)" COLOR_CLEAR );
         else {
             MobPrototype* targ_mob;
             for (VNUM i = quest->target+1; i < quest->target_upper; ++i)
                 if ((targ_mob = get_mob_prototype(i)) != NULL)
-                    printf_to_char(ch, "\n\r            {|[{*%d{|]{x {_%s{x", 
-                        targ_mob->vnum, targ_mob->short_descr);
-            printf_to_char(ch, "\n\rUpper:      {|[{*%d{|]{x ", quest->target_upper);
+                    olc_print_num_str(ch, "", VNUM_FIELD(targ_mob), targ_mob->short_descr);
             if ((targ_mob = get_mob_prototype(quest->target_upper)) != NULL)
-                printf_to_char(ch, "{_%s{x", targ_mob->short_descr);
+                olc_print_num_str(ch, "Upper", quest->target_upper, targ_mob->short_descr);
+            else
+                olc_print_num(ch, "Upper", quest->target_upper);
         }
-        printf_to_char(ch, "\n\rAmount:     {|[{*%d{|]{x", quest->amount);
+        olc_print_num(ch, "Amount", quest->amount);
     }
-    printf_to_char(ch, "\n\rXP:         {|[{*%d{|]{x\n\r", quest->xp);
-    if (quest->entry && quest->entry[0])
-        printf_to_char(ch, "Entry:\n\r{_%s{x\n\r", quest->entry);
-    else
-        printf_to_char(ch, "Entry:      {|[{*none{|]{x\n\r");
+
+    olc_print_num(ch, "XP", quest->xp);
+    olc_print_text(ch, "Entry", quest->entry);
 
     return false;
 }
@@ -242,13 +249,14 @@ QEDIT(qedit_target)
     Quest* quest;
     char arg[MAX_INPUT_LENGTH];
     MobPrototype* mob;
+    ObjPrototype* obj;
 
     EDIT_QUEST(ch, quest);
 
     READ_ARG(arg);
 
     if (arg[0] == '\0' || !is_number(arg)) {
-        send_to_char("{jSyntax:  {*TARGET <VNUM>{x\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:  " COLOR_ALT_TEXT_1 "TARGET <VNUM>" COLOR_EOL, ch);
         return false;
     }
 
@@ -259,7 +267,13 @@ QEDIT(qedit_target)
     case QUEST_VISIT_MOB:
     case QUEST_KILL_MOB:
         if ((mob = get_mob_prototype(vnum)) == NULL) {
-            send_to_char("{jQEDIT: No mobile has that VNUM.{x\n\r", ch);
+            send_to_char(COLOR_INFO "QEDIT: No mobile has that VNUM." COLOR_EOL, ch);
+            return false;
+        }
+        break;
+    case QUEST_GET_OBJ:
+        if ((obj = get_object_prototype(vnum)) == NULL) {
+            send_to_char(COLOR_INFO "QEDIT: No object has that VNUM." COLOR_EOL, ch);
             return false;
         }
         break;
@@ -280,14 +294,14 @@ QEDIT(qedit_upper)
     READ_ARG(arg);
 
     if (arg[0] == '\0' || !is_number(arg)) {
-        send_to_char("{jSyntax:  {*UPPER <VNUM>{x\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:  " COLOR_ALT_TEXT_1 "UPPER <VNUM>" COLOR_EOL, ch);
         return false;
     }
 
     VNUM vnum = STRTOVNUM(arg);
 
     if (vnum < quest->target && vnum > 0) {
-        printf_to_char(ch, "{jUpper-bound on VNUM range must by greater than lower-bound %d.\n\r", quest->target);
+        printf_to_char(ch, COLOR_INFO "Upper-bound on VNUM range must by greater than lower-bound %d.\n\r", quest->target);
         return false;
     }
     
@@ -308,18 +322,18 @@ QEDIT(qedit_end)
     READ_ARG(arg);
 
     if (arg[0] == '\0' || !is_number(arg)) {
-        send_to_char("{jSyntax:  {*END <VNUM>{x\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:  " COLOR_ALT_TEXT_1 "END <VNUM>" COLOR_EOL, ch);
         return false;
     }
 
     VNUM vnum = STRTOVNUM(arg);
 
     if ((mob = get_mob_prototype(vnum)) == NULL) {
-        send_to_char("{jQEDIT: No mobile has that VNUM.{x\n\r", ch);
+        send_to_char(COLOR_INFO "QEDIT: No mobile has that VNUM." COLOR_EOL, ch);
         return false;
     }
 
-    quest->end = mob->vnum;
+    quest->end = VNUM_FIELD(mob);
 
     return true;
 }

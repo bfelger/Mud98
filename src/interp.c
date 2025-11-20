@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -187,7 +187,6 @@ void interpret(Mobile* ch, char* argument)
     // Look for command in command table.
     found = false;
     trust = get_trust(ch);
-    //for (cmd = 0; !IS_NULLSTR(social_table[cmd].name); cmd++) {
     for (cmd = 0; !IS_NULLSTR(cmd_table[cmd].name); cmd++) {
         if (command[0] == cmd_table[cmd].name[0]
             && !str_prefix(command, cmd_table[cmd].name)
@@ -203,7 +202,7 @@ void interpret(Mobile* ch, char* argument)
 
     if ((!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_LOG)) || fLogAll
         || cmd_table[cmd].log == LOG_ALWAYS) {
-        sprintf(log_buf, "Log %s: %s", ch->name, logline);
+        sprintf(log_buf, "Log %s: %s", NAME_STR(ch), logline);
         wiznet(log_buf, ch, NULL, WIZ_SECURE, 0, get_trust(ch));
         log_string(log_buf);
     }
@@ -448,7 +447,8 @@ char* one_argument(char* argument, char* arg_first)
         argument++;
 
     cEnd = ' ';
-    if (*argument == '\'' || *argument == '"') cEnd = *argument++;
+    if (*argument == '\'' || *argument == '"')
+        cEnd = *argument++;
 
     while (*argument != '\0') {
         if (*argument == cEnd) {
@@ -461,7 +461,8 @@ char* one_argument(char* argument, char* arg_first)
     }
     *arg_first = '\0';
 
-    while (ISSPACE(*argument)) argument++;
+    while (ISSPACE(*argument))
+        argument++;
 
     return argument;
 }

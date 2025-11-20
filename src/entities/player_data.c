@@ -1,18 +1,18 @@
 ////////////////////////////////////////////////////////////////////////////////
-// player_data.c
+// entities/player_data.c
 // Player character data
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "player_data.h"
 
-#include "data/skill.h"
+#include <data/skill.h>
 
-#include "color.h"
-#include "config.h"
-#include "db.h"
-#include "digest.h"
-#include "recycle.h"
-#include "skills.h"
+#include <color.h>
+#include <config.h>
+#include <db.h>
+#include <digest.h>
+#include <recycle.h>
+#include <skills.h>
 
 PlayerData* player_data_list = NULL;
 PlayerData* player_data_free = NULL;
@@ -58,7 +58,7 @@ void free_player_data(PlayerData* player_data)
     free_string(player_data->bamfout);
     free_string(player_data->title);
     free_buf(player_data->buffer);
-    free_quest_log(player_data->quest_log);
+    free_quest_log(player_data);
 
     for (alias = 0; alias < MAX_ALIAS; alias++) {
         free_string(player_data->alias[alias]);

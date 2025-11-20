@@ -1,5 +1,5 @@
 /***************************************************************************
- *  File: string.c                                                         *
+ *  File: string_edit.c                                                    *
  *                                                                         *
  *  Much time and thought has gone into this software and you are          *
  *  benefitting.  We hope that you share your changes too.  What goes      *
@@ -13,15 +13,17 @@
 
 #include "string_edit.h"
 
-#include "comm.h"
-#include "db.h"
 #include "olc.h"
-#include "stringutils.h"
 
-#include "entities/mobile.h"
-#include "entities/descriptor.h"
+#include <comm.h>
+#include <db.h>
+#include <format.h>
+#include <stringutils.h>
 
-#include "data/skill.h"
+#include <entities/mobile.h>
+#include <entities/descriptor.h>
+
+#include <data/skill.h>
 
 #include <ctype.h>
 #include <stdbool.h>
@@ -33,8 +35,6 @@
 
 char* numlineas(char*);
 char* get_line(char*, char*);
-char* linedel(char*, int);
-char* lineadd(char*, char*, int);
 
 /*****************************************************************************
  Name:		string_edit
@@ -43,10 +43,10 @@ char* lineadd(char*, char*, int);
  ****************************************************************************/
 void string_edit(Mobile* ch, char** pString)
 {
-    send_to_char("{=-========- {*Entering EDIT Mode {=-=========-{_\n\r", ch);
+    send_to_char(COLOR_DECOR_2 "-========- " COLOR_ALT_TEXT_1 "Entering EDIT Mode " COLOR_DECOR_2 "-=========-" COLOR_ALT_TEXT_2 "\n\r", ch);
     send_to_char("    Type .h on a new line for help\n\r", ch);
     send_to_char(" Terminate with a @ on a blank line.\n\r", ch);
-    send_to_char("{=-=======================================-{x\n\r", ch);
+    send_to_char(COLOR_DECOR_2 "-=======================================-" COLOR_EOL, ch);
 
     if (*pString == NULL) {
         *pString = str_dup("");
@@ -67,10 +67,10 @@ void string_edit(Mobile* ch, char** pString)
  ****************************************************************************/
 void string_append(Mobile* ch, char** pString)
 {
-    send_to_char("{=-========- {*Entering EDIT Mode {=-=========-{_\n\r", ch);
+    send_to_char(COLOR_DECOR_2 "-========- " COLOR_ALT_TEXT_1 "Entering EDIT Mode " COLOR_DECOR_2 "-=========-" COLOR_ALT_TEXT_2 "\n\r", ch);
     send_to_char("    Type .h on a new line for help\n\r", ch);
     send_to_char(" Terminate with a @ on a blank line.\n\r", ch);
-    send_to_char("{=-=======================================-{x\n\r", ch);
+    send_to_char(COLOR_DECOR_2 "-=======================================-" COLOR_EOL, ch);
 
     if (*pString == NULL) {
         *pString = str_dup("");
@@ -87,13 +87,13 @@ void string_append(Mobile* ch, char** pString)
  Purpose:	Substitutes one string for another.
  Called by:	string_add(string.c) (aedit_builder)olc_act.c.
  ****************************************************************************/
-char* string_replace(char* orig, char* old, char* new)
+char* string_replace(char* orig, char* old, char* new_str)
 {
     char xbuf[MAX_STRING_LENGTH] = "";
     size_t i;
     size_t old_len = strlen(old);
 
-    if (strlen(orig) - old_len + strlen(new) > MAX_STRING_LENGTH - 10)
+    if (strlen(orig) - old_len + strlen(new_str) > MAX_STRING_LENGTH - 10)
         return orig;
 
     xbuf[0] = '\0';
@@ -102,7 +102,7 @@ char* string_replace(char* orig, char* old, char* new)
     if (pos != NULL) {
         i = strlen(orig) - strlen(pos);
         xbuf[i] = '\0';
-        strcat(xbuf, new);
+        strcat(xbuf, new_str);
         strcat(xbuf, &orig[i + old_len]);
         free_string(orig);
     }
@@ -130,7 +130,7 @@ void string_add(Mobile* ch, char* argument)
         strcpy(tmparg3, argument);
         argument = first_arg(argument, arg3, false);
 
-        if (!str_cmp(arg1, ".c")) {
+        if (!str_cmp(arg1, ".clear")) {
             write_to_buffer(ch->desc, "String cleared.\n\r", 0);
             free_string(*ch->desc->pString);
             *ch->desc->pString = str_dup("");
@@ -158,7 +158,9 @@ void string_add(Mobile* ch, char* argument)
         }
 
         if (!str_cmp(arg1, ".f")) {
-            *ch->desc->pString = format_string(*ch->desc->pString);
+            char* desc = format_string(*ch->desc->pString);
+            free_string(*ch->desc->pString);
+            *ch->desc->pString = desc;
             write_to_buffer(ch->desc, "String formatted.\n\r", 0);
             return;
         }
@@ -193,13 +195,13 @@ void string_add(Mobile* ch, char* argument)
 
         if (!str_cmp(arg1, ".h")) {
             write_to_buffer(ch->desc,
-                "Sedit help (commands on blank line):   \n\r"
+                "String help (commands on blank line):   \n\r"
                 ".r 'old' 'new'   - replace a substring \n\r"
                 "                   (requires '', \"\") \n\r"
                 ".h               - get help (this info)\n\r"
                 ".s               - show string so far  \n\r"
                 ".f               - (word wrap) string  \n\r"
-                ".c               - clear string so far \n\r"
+                ".clear           - clear string so far \n\r"
                 ".ld <num>        - delete line <num>\n\r"
                 ".li <num> <txt>  - insert <txt> on line <num>\n\r"
                 ".lr <num> <txt>  - replace line <num> with <txt>\n\r"
@@ -223,28 +225,25 @@ void string_add(Mobile* ch, char* argument)
 
         if (ch->desc->showstr_head) {
             write_to_buffer(ch->desc,
-                "{j[{|!!!{j] You received the following messages while you "
-                "were writing:{x\n\r",
+                COLOR_INFO "[" COLOR_DECOR_1 "!!!" COLOR_INFO "] You received the following messages while you "
+                "were writing:" COLOR_EOL,
                 0);
             show_string(ch->desc, "");
         }
 
         if (ch->desc->editor == ED_PROG && ch->desc->pEdit) {
-            int hash = 0;
             MobPrototype* mob;
             MobProg* mp;
             MobProgCode* mpc = (MobProgCode*)ch->desc->pEdit;
 
             mpc->changed = true;
 
-            for (; hash < MAX_KEY_HASH; hash++) {
-                FOR_EACH(mob, mob_proto_hash[hash])
-                    FOR_EACH(mp, mob->mprogs)
-                        if (mp->vnum == mpc->vnum) {
-                            mp->code = mpc->code;
-                            printf_to_char(ch, "Updated mob %d.\n\r", mob->vnum);
-                        }
-            }
+            FOR_EACH_MOB_PROTO(mob)
+                FOR_EACH(mp, mob->mprogs)
+                    if (mp->vnum == mpc->vnum) {
+                        mp->code = mpc->code;
+                        printf_to_char(ch, "Updated mob %d.\n\r", VNUM_FIELD(mob));
+                    }
         }
 
         return;
@@ -262,162 +261,11 @@ void string_add(Mobile* ch, char* argument)
     }
 
     strcat(buf, argument);
-    strcat(buf, "\n\r");
+    strcat(buf, "\n");
     free_string(*ch->desc->pString);
     *ch->desc->pString = str_dup(buf);
 
     return;
-}
-
-/*
- * Thanks to Kalgen for the new procedure (no more bug!)
- * Original wordwrap() written by Surreality.
- */
-/*****************************************************************************
- Name:		format_string
- Purpose:	Special string formating and word-wrapping.
- Called by:	string_add(string.c) (many)olc_act.c
- ****************************************************************************/
-char* format_string(char* oldstring /*, bool fSpace */)
-{
-    char xbuf[MAX_STRING_LENGTH] = { 0 };
-    char xbuf2[MAX_STRING_LENGTH] = { 0 };
-    char* rdesc;
-    int i = 0;
-    bool cap = true;
-
-    xbuf[0] = xbuf2[0] = 0;
-
-    i = 0;
-
-#ifdef CHK
-#define OLD_CHK CHK
-#endif
-#define CHK(x)      (x + i > 0 && x + i < MAX_STRING_LENGTH)
-
-    for (rdesc = oldstring; *rdesc; rdesc++) {
-        if (*rdesc == '\n') {
-                if (CHK(-1) && xbuf[i - 1] != ' ') {
-                    xbuf[i] = ' ';
-                    i++;
-            }
-        }
-        else if (*rdesc == '\r')
-            ;
-        else if (*rdesc == ' ') {
-            if (CHK(-1) && xbuf[i - 1] != ' ') {
-                xbuf[i] = ' ';
-                i++;
-            }
-        }
-        else if (*rdesc == ')') {
-            if (CHK(-2) && xbuf[i - 1] == ' ' && xbuf[i - 2] == ' ' &&
-                (xbuf[i - 3] == '.' || xbuf[i - 3] == '?' || xbuf[i - 3] == '!')) {
-                xbuf[i - 2] = *rdesc;
-                xbuf[i - 1] = ' ';
-                xbuf[i] = ' ';
-                i++;
-            }
-            else {
-                xbuf[i] = *rdesc;
-                i++;
-            }
-        }
-        else if (*rdesc == '.' || *rdesc == '?' || *rdesc == '!') {
-            if (CHK(-3) && xbuf[i - 1] == ' ' && xbuf[i - 2] == ' ' &&
-                (xbuf[i - 3] == '.' || xbuf[i - 3] == '?' || xbuf[i - 3] == '!')) {
-                if (i >= 2)
-                    xbuf[i - 2] = *rdesc;
-                if (*(rdesc + 1) != '\"') {
-                    xbuf[i - 1] = ' ';
-                    xbuf[i] = ' ';
-                    i++;
-                }
-                else {
-                    if (i >= 1)
-                        xbuf[i - 1] = '\"';
-                    xbuf[i] = ' ';
-                    xbuf[i + 1] = ' ';
-                    i += 2;
-                    rdesc++;
-                }
-            }
-            else {
-                xbuf[i] = *rdesc;
-                if (*(rdesc + 1) != '\"') {
-                    xbuf[i + 1] = ' ';
-                    xbuf[i + 2] = ' ';
-                    i += 3;
-                }
-                else {
-                    xbuf[i + 1] = '\"';
-                    xbuf[i + 2] = ' ';
-                    xbuf[i + 3] = ' ';
-                    i += 4;
-                    rdesc++;
-                }
-            }
-            cap = true;
-        }
-        else {
-            xbuf[i] = *rdesc;
-            if (cap) {
-                cap = false;
-                xbuf[i] = UPPER(xbuf[i]);
-            }
-            i++;
-        }
-    }
-    xbuf[i] = 0;
-    strcpy(xbuf2, xbuf);
-
-    rdesc = xbuf2;
-
-    xbuf[0] = 0;
-
-    for (;;) {
-        for (i = 0; i < 77; i++) {
-            if (!*(rdesc + i))
-                break;
-        }
-        if (i < 77) {
-            break;
-        }
-        for (i = (xbuf[0] ? 76 : 73); i; i--) {
-            if (*(rdesc + i) == ' ')
-                break;
-        }
-        if (i) {
-            *(rdesc + i) = 0;
-            strcat(xbuf, rdesc);
-            strcat(xbuf, "\n\r");
-            rdesc += (i + 1);
-            while (*rdesc == ' ')
-                rdesc++;
-        }
-        else {
-            bug("No spaces", 0);
-            *(rdesc + 75) = 0;
-            strcat(xbuf, rdesc);
-            strcat(xbuf, "-\n\r");
-            rdesc += 76;
-        }
-    }
-    while (*(rdesc + i) &&
-        (*(rdesc + i) == ' ' || *(rdesc + i) == '\n' || *(rdesc + i) == '\r'))
-        i--;
-    *(rdesc + i + 1) = 0;
-    strcat(xbuf, rdesc);
-    if (xbuf[strlen(xbuf) - 2] != '\n')
-        strcat(xbuf, "\n\r");
-
-    free_string(oldstring);
-    return (str_dup(xbuf));
-#undef CHK
-#ifdef OLD_CHK
-#define CHK OLD_CHK
-#undef OLD_CHK
-#endif
 }
 
 /*
@@ -625,7 +473,7 @@ char* numlineas(char* string)
 
     while (*string) {
         string = get_line(string, tmpb);
-        sprintf(buf2, "{*%2d{x. %s\n\r", cnt++, tmpb);
+        sprintf(buf2, COLOR_ALT_TEXT_1 "%2d" COLOR_CLEAR ". %s\n\r", cnt++, tmpb);
         strcat(buf, buf2);
     }
 
@@ -667,4 +515,159 @@ char* lineadd(char* string, char* newstr, int line)
 
     free_string(string);
     return str_dup(buf);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Replaced by format_string(const char*) in format.c
+// --Halivar
+////////////////////////////////////////////////////////////////////////////////
+/*
+ * Thanks to Kalgen for the new procedure (no more bug!)
+ * Original wordwrap() written by Surreality.
+ */
+/*****************************************************************************
+ Name:		format_string
+ Purpose:	Special string formating and word-wrapping.
+ Called by:	string_add(string.c) (many)olc_act.c
+ ****************************************************************************/
+char* _OLD_format_string(char* oldstring /*, bool fSpace */)
+{
+    char xbuf[MAX_STRING_LENGTH] = { 0 };
+    char xbuf2[MAX_STRING_LENGTH] = { 0 };
+    char* rdesc;
+    int i = 0;
+    bool cap = true;
+
+    xbuf[0] = xbuf2[0] = 0;
+
+    i = 0;
+
+#ifdef CHK
+#define OLD_CHK CHK
+#endif
+#define CHK(x)      (x + i > 0 && x + i < MAX_STRING_LENGTH)
+
+    for (rdesc = oldstring; *rdesc; rdesc++) {
+        if (*rdesc == '\n') {
+            if (CHK(-1) && xbuf[i - 1] != ' ') {
+                xbuf[i] = ' ';
+                i++;
+            }
+        }
+        else if (*rdesc == '\r')
+            ;
+        else if (*rdesc == ' ') {
+            if (CHK(-1) && xbuf[i - 1] != ' ') {
+                xbuf[i] = ' ';
+                i++;
+            }
+        }
+        else if (*rdesc == ')') {
+            if (CHK(-2) && xbuf[i - 1] == ' ' && xbuf[i - 2] == ' ' &&
+                (xbuf[i - 3] == '.' || xbuf[i - 3] == '?' || xbuf[i - 3] == '!')) {
+                xbuf[i - 2] = *rdesc;
+                xbuf[i - 1] = ' ';
+                xbuf[i] = ' ';
+                i++;
+            }
+            else {
+                xbuf[i] = *rdesc;
+                i++;
+            }
+        }
+        else if (*rdesc == '.' || *rdesc == '?' || *rdesc == '!') {
+            if (CHK(-3) && xbuf[i - 1] == ' ' && xbuf[i - 2] == ' ' &&
+                (xbuf[i - 3] == '.' || xbuf[i - 3] == '?' || xbuf[i - 3] == '!')) {
+                if (i >= 2)
+                    xbuf[i - 2] = *rdesc;
+                if (*(rdesc + 1) != '\"') {
+                    xbuf[i - 1] = ' ';
+                    xbuf[i] = ' ';
+                    i++;
+                }
+                else {
+                    if (i >= 1)
+                        xbuf[i - 1] = '\"';
+                    xbuf[i] = ' ';
+                    xbuf[i + 1] = ' ';
+                    i += 2;
+                    rdesc++;
+                }
+            }
+            else {
+                xbuf[i] = *rdesc;
+                if (*(rdesc + 1) != '\"') {
+                    xbuf[i + 1] = ' ';
+                    xbuf[i + 2] = ' ';
+                    i += 3;
+                }
+                else {
+                    xbuf[i + 1] = '\"';
+                    xbuf[i + 2] = ' ';
+                    xbuf[i + 3] = ' ';
+                    i += 4;
+                    rdesc++;
+                }
+            }
+            cap = true;
+        }
+        else {
+            xbuf[i] = *rdesc;
+            if (cap) {
+                cap = false;
+                xbuf[i] = UPPER(xbuf[i]);
+            }
+            i++;
+        }
+    }
+    xbuf[i] = 0;
+    strcpy(xbuf2, xbuf);
+
+    rdesc = xbuf2;
+
+    xbuf[0] = 0;
+
+    for (;;) {
+        for (i = 0; i < 77; i++) {
+            if (!*(rdesc + i))
+                break;
+        }
+        if (i < 77) {
+            break;
+        }
+        for (i = (xbuf[0] ? 76 : 73); i; i--) {
+            if (*(rdesc + i) == ' ')
+                break;
+        }
+        if (i) {
+            *(rdesc + i) = 0;
+            strcat(xbuf, rdesc);
+            strcat(xbuf, "\n\r");
+            rdesc += (i + 1);
+            while (*rdesc == ' ')
+                rdesc++;
+        }
+        else {
+            bug("No spaces", 0);
+            *(rdesc + 75) = 0;
+            strcat(xbuf, rdesc);
+            strcat(xbuf, "-\n\r");
+            rdesc += 76;
+        }
+    }
+    while (*(rdesc + i) &&
+        (*(rdesc + i) == ' ' || *(rdesc + i) == '\n' || *(rdesc + i) == '\r'))
+        i--;
+    *(rdesc + i + 1) = 0;
+    strcat(xbuf, rdesc);
+    if (xbuf[strlen(xbuf) - 2] != '\n')
+        strcat(xbuf, "\n\r");
+
+    free_string(oldstring);
+    return (str_dup(xbuf));
+#undef CHK
+#ifdef OLD_CHK
+#define CHK OLD_CHK
+#undef OLD_CHK
+#endif
 }

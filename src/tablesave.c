@@ -22,6 +22,9 @@
 #include "data/mobile_data.h"
 #include "data/race.h"
 
+#include "lox/lox.h"
+#include "lox/vm.h"
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,6 +39,8 @@
 CmdInfo tmp_cmd;
 MobProgCode tmp_pcode;
 
+const char* lox_str(void* temp);
+bool lox_read(void* temp, const char* arg);
 char* cmd_func_name(DoFunc*);
 DoFunc* cmd_func_lookup(char*);
 
@@ -148,7 +153,7 @@ void load_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, con
     VNUM* p_vnum;
     int cnt = 0, i;
 
-    while (str_cmp((word = fread_word(fp)), "#END")) {
+    while (str_prefix("#END", (word = fread_word(fp)))) {
         for (temp = table; !IS_NULLSTR(temp->field_name); temp++) {
             if (!str_cmp(word, temp->field_name)) {
                 // Found it!
@@ -345,6 +350,35 @@ void load_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, con
                         break;
                     }
 
+                case FIELD_LOX_CLOSURE: {
+                        String** p_lox_str = (String**)(temp->field_ptr - base_type + pointer);
+                        ObjClosure** closure = (ObjClosure**)(temp->argument - base_type + pointer);
+
+                        *p_lox_str = fread_lox_string(fp);
+
+                        Value value;
+                        if (!table_get(&vm.globals, *p_lox_str, &value)) {
+                            bug("load_struct(): Unknown Lox entity '%s'.", (*p_lox_str)->chars);
+                            break;
+                        }
+
+                        if (!IS_CLOSURE(value)) {
+                            bug("load_struct(): '%s' is not a callable object.");
+                            printf("    - ");
+                            print_value(value);
+                            break;
+                        }
+
+#ifdef DEBUG_INTEGRATION
+                        printf("      + Loaded Lox Closure %s()\n", (*p_lox_str)->chars);
+#endif
+
+                        *closure = AS_CLOSURE(value);
+
+                        found = true, cnt++;
+                        break;
+                    }
+
                 } // switch
                 if (found == true)
                     break;
@@ -514,6 +548,15 @@ void save_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, con
                 break;
             }
 
+        case FIELD_LOX_CLOSURE: {
+                String** lox_str = (String**)(temp->field_ptr - base_type + pointer);
+                if (*lox_str == NULL)
+                    break;
+                char* str = (*lox_str)->chars;
+                fprintf(fp, "%s %s~\n", temp->field_name, !IS_NULLSTR(str) ? fix_string(str) : "");
+                break;
+            }
+
             // END SWITCH
         }
 
@@ -628,29 +671,6 @@ void load_prog(FILE* fp, MobProgCode** prog)
     load_struct(fp, U(&tmp_pcode), progcodesavetable, U(*prog));
 
     ORDERED_INSERT(MobProgCode, new_prog, mprog_list, vnum);
-
-    // Populate the linked list
-    //if (mprog_list == NULL)
-    //    mprog_list = *prog;
-    //else {
-    //    // At the beginning or the end?
-    //    if ((*prog)->vnum < mprog_list->vnum) {
-    //        (*prog)->next = mprog_list;
-    //        mprog_list = *prog;
-    //    }]
-    //    else {
-    //        MobProgCode* temp;
-    //        MobProgCode* prev = mprog_list;
-    //
-    //        FOR_EACH(temp, mprog_list->next) {
-    //            if (temp->vnum > (*prog)->vnum)
-    //                break;
-    //            prev = temp;
-    //        }
-    //        prev->next = *prog;
-    //        (*prog)->next = temp;
-    //    }
-    //}
 }
 
 MobProgCode* pedit_prog(VNUM vnum)

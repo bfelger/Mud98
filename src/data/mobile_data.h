@@ -1,12 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
-// mobile_data.h
+// data/mobile_data.h
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 #ifndef MUD98__DATA__MOBILE_DATA_H
 #define MUD98__DATA__MOBILE_DATA_H
 
-#include "merc.h"
+#include <merc.h>
 
 typedef enum armor_type_t {
     AC_PIERCE       = 0,
@@ -172,11 +172,13 @@ typedef enum sex_t {
     SEX_MALE                = 1,
     SEX_FEMALE              = 2,
     SEX_EITHER              = 3,
+    SEX_YOU                 = 4, // For 'you' messages
 } Sex;
 
 #define SEX_MIN SEX_NEUTRAL
 #define SEX_MAX SEX_EITHER
-#define SEX_COUNT 4
+#define SEX_PLR_MAX 2
+#define SEX_COUNT 5
 
 typedef struct sex_info_t {
     const Sex sex;

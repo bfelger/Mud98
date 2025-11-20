@@ -1,4 +1,4 @@
-264
+268
 
 #COMMAND
 name .~
@@ -586,6 +586,15 @@ show undef~
 #END
 
 #COMMAND
+name dual-wield~
+do_fun do_second~
+position resting~
+level 0
+log log_normal~
+show undef~
+#END
+
+#COMMAND
 name east~
 do_fun do_east~
 position standing~
@@ -1049,6 +1058,24 @@ name log~
 do_fun do_log~
 position dead~
 level 59
+log log_always~
+show undef~
+#END
+
+#COMMAND
+name lore~
+do_fun do_lore~
+position resting~
+level 0
+log log_normal~
+show undef~
+#END
+
+#COMMAND
+name lox~
+do_fun do_lox~
+position dead~
+level 60
 log log_always~
 show undef~
 #END
@@ -2148,6 +2175,15 @@ do_fun do_transfer~
 position dead~
 level 55
 log log_always~
+show undef~
+#END
+
+#COMMAND
+name tutorial~
+do_fun do_tutorial~
+position dead~
+level 0
+log log_never~
 show undef~
 #END
 

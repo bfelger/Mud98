@@ -157,5 +157,5 @@ char* flag_string(const struct flag_type* flag_table, FLAGS bits)
         }
     }
 
-    return (buf[toggle][0] != '\0') ? buf[toggle] + 1 : "none";
+    return (buf[toggle][0] != '\0') ? buf[toggle] + 1 : "(none)";
 }

@@ -36,8 +36,11 @@ void init_mth_socket(Descriptor* d)
 	d->mth->proxy = str_dup("");
 	d->mth->terminal_type = str_dup("");
 
+#ifndef NO_ZLIB
 	d->mth->mccp2 = NULL;
 	d->mth->mccp3 = NULL;
+#endif
+
 	d->mth->msdp_data = NULL;
 	
 	announce_support(d);

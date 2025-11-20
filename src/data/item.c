@@ -1,12 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
-// item.c
+// data/item.c
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "item.h"
 
-#include "gsn.h"
+#include <gsn.h>
 
-const ItemInfo item_table[ITEM_TYPE_COUNT] = {
+const ItemInfo item_type_table[ITEM_TYPE_COUNT] = {
     { ITEM_NONE,            "none"          },
     { ITEM_LIGHT,           "light"         },
     { ITEM_SCROLL,          "scroll"        },
@@ -43,6 +43,16 @@ const ItemInfo item_table[ITEM_TYPE_COUNT] = {
     { ITEM_JEWELRY,         "jewelry"       },
     { ITEM_JUKEBOX,         "jukebox"       },
 };
+
+const char* item_name(ItemType type)
+{
+    for (int i = 0; i < ITEM_TYPE_COUNT; i++) {
+        if (type == item_type_table[i].type)
+            return item_type_table[i].name;
+    }
+
+    return "";
+}
 
 const LiquidInfo liquid_table[LIQ_COUNT] = {
     // name			        color	           proof full thirst food ssize
@@ -121,7 +131,31 @@ const struct wear_type wear_table[] = {
     { WEAR_WRIST_R,     ITEM_WEAR_WRIST     },
     { WEAR_WIELD,       ITEM_WIELD          },
     { WEAR_HOLD,        ITEM_HOLD           },
+    { WEAR_WIELD_OH,    ITEM_WIELD          },
     { NO_FLAG,          NO_FLAG             }
+};
+
+char* const where_name[WEAR_LOC_COUNT] = {
+    "<used as light>     ",
+    "<worn on finger>    ",
+    "<worn on finger>    ",
+    "<worn around neck>  ",
+    "<worn around neck>  ",
+    "<worn on torso>     ",
+    "<worn on head>      ",
+    "<worn on legs>      ",
+    "<worn on feet>      ",
+    "<worn on hands>     ",
+    "<worn on arms>      ",
+    "<worn as shield>    ",
+    "<worn about body>   ",
+    "<worn about waist>  ",
+    "<worn around wrist> ",
+    "<worn around wrist> ",
+    "<wielded>           ",
+    "<held>              ",
+    "<floating nearby>   ",
+    "<wielded off-hand>  ",
 };
 
 /*****************************************************************************

@@ -1,25 +1,39 @@
 ////////////////////////////////////////////////////////////////////////////////
-// object.c
+// entities/object.c
 // Utilities for handling in-game objects
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "object.h"
 
-#include "db.h"
-#include "handler.h"
-#include "lookup.h"
-#include "magic.h"
-#include "recycle.h"
+#include <db.h>
+#include <handler.h>
+#include <lookup.h>
+#include <magic.h>
+#include <recycle.h>
 
-int obj_count;
-int obj_perm_count;
+#include <lox/vm.h>
 
-Object* obj_free;
-Object* obj_list;
+List obj_free = { 0 };
+List obj_list = { 0 };
 
 Object* new_object()
 {
-    LIST_ALLOC_PERM(obj, Object);
+    ENTITY_ALLOC_PERM(obj, Object);
+
+    gc_protect(OBJ_VAL(obj));
+
+    init_header(&obj->header, OBJ_OBJ);
+
+    SET_NAME(obj, lox_empty_string);
+
+    SET_NATIVE_FIELD(&obj->header, obj->header.vnum, vnum, I32);
+
+    init_list(&obj->objects);
+
+    SET_NATIVE_FIELD(&obj->header, obj->short_descr, short_desc, STR);
+    SET_NATIVE_FIELD(&obj->header, obj->in_room, in_room, OBJ);
+
+    obj->obj_list_node = list_push_back(&obj_list, OBJ_VAL(obj));
 
     VALIDATE(obj);
 
@@ -48,13 +62,12 @@ void free_object(Object* obj)
     }
     obj->extra_desc = NULL;
 
-    free_string(obj->name);
     free_string(obj->description);
     free_string(obj->short_descr);
-    free_string(obj->owner);
+    obj->owner = NULL;
     INVALIDATE(obj);
 
-    LIST_FREE(obj);
+    ENTITY_FREE(obj);
 }
 
 void clone_object(Object* parent, Object* clone)
@@ -67,7 +80,9 @@ void clone_object(Object* parent, Object* clone)
         return;
 
     /* start fixing the object */
-    clone->name = str_dup(parent->name);
+    SET_NAME(clone, NAME_FIELD(parent));
+    VNUM_FIELD(clone) = VNUM_FIELD(parent);
+
     clone->short_descr = str_dup(parent->short_descr);
     clone->description = str_dup(parent->description);
     clone->item_type = parent->item_type;
@@ -187,15 +202,25 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level)
     obj = new_object();
 
     obj->prototype = obj_proto;
+
+    SET_NAME(obj, NAME_FIELD(obj_proto));
+    VNUM_FIELD(obj) = VNUM_FIELD(obj_proto);
+
+    if (obj_proto->header.klass != NULL) {
+        obj->header.klass = obj_proto->header.klass;
+        init_entity_class((Entity*)obj);
+    }
+
+    obj->header.events = obj_proto->header.events;
+    obj->header.event_triggers = obj_proto->header.event_triggers;
+
     obj->in_room = NULL;
     obj->enchanted = false;
 
     obj->level = obj_proto->level;
     obj->wear_loc = -1;
-
-    obj->name = str_dup(obj_proto->name);           /* OLC */
-    obj->short_descr = str_dup(obj_proto->short_descr);    /* OLC */
-    obj->description = str_dup(obj_proto->description);    /* OLC */
+    obj->short_descr = str_dup(obj_proto->short_descr);     // OLC
+    obj->description = str_dup(obj_proto->description);     // OLC
     obj->material = str_dup(obj_proto->material);
     obj->item_type = obj_proto->item_type;
     obj->extra_flags = obj_proto->extra_flags;
@@ -232,11 +257,7 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level)
         if (affect->location == APPLY_SPELL_AFFECT) 
             affect_to_obj(obj, affect);
 
-    obj->next = obj_list;
-    obj_list = obj;
     obj_proto->count++;
 
     return obj;
 }
-
-

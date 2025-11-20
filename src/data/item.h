@@ -1,12 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
-// item.h
+// data/item.h
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 #ifndef MUD98__DATA__ITEM_H
 #define MUD98__DATA__ITEM_H
 
-#include "merc.h"
+#include <merc.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 // Generic items
@@ -85,7 +85,9 @@ typedef struct item_info_t {
     const char* name;
 } ItemInfo;
 
-extern const ItemInfo item_table[ITEM_TYPE_COUNT];
+const char* item_name(ItemType type);
+
+extern const ItemInfo item_type_table[ITEM_TYPE_COUNT];
 
 ////////////////////////////////////////////////////////////////////////////////
 // Containers
@@ -235,9 +237,12 @@ typedef enum wear_location_t {
     WEAR_WIELD          = 16,
     WEAR_HOLD           = 17,
     WEAR_FLOAT          = 18,
+    WEAR_WIELD_OH       = 19,
 } WearLocation;
 
-#define WEAR_LOC_COUNT 19
+#define WEAR_LOC_COUNT 20
+
+extern char* const where_name[WEAR_LOC_COUNT];
 
 WearFlags wear_bit(WearLocation loc);
 WearLocation wear_loc(WearFlags bits, int count);

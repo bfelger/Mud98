@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -58,15 +58,14 @@ void do_gain(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
-    Mobile* trainer;
+    Mobile* trainer = NULL;
     SKNUM gn = 0, sn = 0;
 
     if (IS_NPC(ch)) 
         return;
 
     /* find a trainer */
-    for (trainer = ch->in_room->people; trainer != NULL;
-         trainer = trainer->next_in_room)
+    FOR_EACH_ROOM_MOB(trainer, ch->in_room)
         if (IS_NPC(trainer) && IS_SET(trainer->act_flags, ACT_GAIN)) 
             break;
 
@@ -116,7 +115,7 @@ void do_gain(Mobile* ch, char* argument)
 
             if (!ch->pcdata->learned[sn]
                 && SKILL_RATING(sn, ch) > 0
-                && skill_table[sn].spell_fun == spell_null) {
+                && !HAS_SPELL_FUNC(sn)) {
                 sprintf(buf, "%-18s %-5d ", skill_table[sn].name,
                         SKILL_RATING(sn, ch));
                 send_to_char(buf, ch);
@@ -197,7 +196,7 @@ void do_gain(Mobile* ch, char* argument)
 
     sn = skill_lookup(argument);
     if (sn > -1) {
-        if (skill_table[sn].spell_fun != spell_null) {
+        if (HAS_SPELL_FUNC(sn)) {
             act("$N tells you 'You must learn the full group.'", ch, NULL,
                 trainer, TO_CHAR);
             return;
@@ -310,7 +309,7 @@ void do_spells(Mobile* ch, char* argument)
 
         if ((level = SKILL_LEVEL(sn, ch)) < LEVEL_HERO + 1
             && (fAll || level <= ch->level) && level >= min_lev
-            && level <= max_lev && skill_table[sn].spell_fun != spell_null
+            && level <= max_lev && HAS_SPELL_FUNC(sn)
             && ch->pcdata->learned[sn] > 0) {
             found = true;
 
@@ -431,7 +430,7 @@ void do_skills(Mobile* ch, char* argument)
 
         if ((level = SKILL_RATING(sn, ch)) < LEVEL_HERO + 1
             && (fAll || level <= ch->level) && level >= min_lev
-            && level <= max_lev && skill_table[sn].spell_fun == spell_null
+            && level <= max_lev && !HAS_SPELL_FUNC(sn)
             && ch->pcdata->learned[sn] > 0) {
             found = true;
 
@@ -517,7 +516,7 @@ void list_group_costs(Mobile* ch)
         if (skill_table[sn].name == NULL) break;
 
         if (!ch->gen_data->skill_chosen[sn] && ch->pcdata->learned[sn] == 0
-            && skill_table[sn].spell_fun == spell_null
+            && !HAS_SPELL_FUNC(sn)
             && SKILL_RATING(sn, ch) > 0) {
             sprintf(buf, "%-18s %-5d ", skill_table[sn].name,
                 SKILL_RATING(sn, ch));
@@ -690,7 +689,7 @@ bool parse_gen_groups(Mobile* ch, char* argument)
             }
 
             if (SKILL_RATING(sn, ch) < 1
-                || skill_table[sn].spell_fun != spell_null) {
+                || HAS_SPELL_FUNC(sn)) {
                 send_to_char("That skill is not available.\n\r", ch);
                 return true;
             }
@@ -860,7 +859,6 @@ void check_improve(Mobile* ch, SKNUM sn, bool success, int multiplier)
             gain_exp(ch, 2 * SKILL_RATING(sn, ch));
         }
     }
-
     else {
         chance = URANGE(5, ch->pcdata->learned[sn] / 2, 30);
         if (number_percent() < chance) {

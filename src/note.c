@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -321,7 +321,7 @@ void append_note(NoteData* pnote)
 
 bool is_note_to(Mobile* ch, NoteData* pnote)
 {
-    if (!str_cmp(ch->name, pnote->sender))
+    if (!str_cmp(NAME_STR(ch), pnote->sender))
         return true;
 
     if (is_exact_name("all", pnote->to_list))
@@ -333,7 +333,7 @@ bool is_note_to(Mobile* ch, NoteData* pnote)
     if (ch->clan && is_exact_name(clan_table[ch->clan].name, pnote->to_list))
         return true;
 
-    if (is_exact_name(ch->name, pnote->to_list))
+    if (is_exact_name(NAME_STR(ch), pnote->to_list))
         return true;
 
     return false;
@@ -348,7 +348,7 @@ void note_attach(Mobile* ch, int16_t type)
     pnote = new_note();
 
     pnote->next = NULL;
-    pnote->sender = str_dup(ch->name);
+    pnote->sender = str_dup(NAME_STR(ch));
     pnote->date = str_dup("");
     pnote->to_list = str_dup("");
     pnote->subject = str_dup("");
@@ -372,13 +372,13 @@ void note_remove(Mobile* ch, NoteData* pnote, bool delete)
         to_list = pnote->to_list;
         while (*to_list != '\0') {
             to_list = one_argument(to_list, to_one);
-            if (to_one[0] != '\0' && str_cmp(ch->name, to_one)) {
+            if (to_one[0] != '\0' && str_cmp(NAME_STR(ch), to_one)) {
                 strcat(to_new, " ");
                 strcat(to_new, to_one);
             }
         }
         /* Just a simple recipient removal? */
-        if (str_cmp(ch->name, pnote->sender) && to_new[0] != '\0') {
+        if (str_cmp(NAME_STR(ch), pnote->sender) && to_new[0] != '\0') {
             free_string(pnote->to_list);
             pnote->to_list = str_dup(to_new + 1);
             return;
@@ -457,7 +457,7 @@ bool hide_note(Mobile* ch, NoteData* pnote)
     if (pnote->date_stamp <= last_read) 
         return true;
 
-    if (!str_cmp(ch->name, pnote->sender)) 
+    if (!str_cmp(NAME_STR(ch), pnote->sender)) 
         return true;
 
     if (!is_note_to(ch, pnote)) 

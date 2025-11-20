@@ -15,7 +15,9 @@ typedef struct mud_data MUD_DATA;
 
 #include <stdint.h>
 
+#ifndef NO_ZLIB
 #include <zlib.h>
+#endif
 
 /*
     Utility macros.
@@ -59,7 +61,8 @@ typedef struct mud_data MUD_DATA;
 #define BV09            (1   <<  8)
 #define BV10            (1   <<  9)
 
-#define COMPRESS_BUF_SIZE       10000
+//#define COMPRESS_BUF_SIZE       10000
+#define COMPRESS_BUF_SIZE       9216
 
 #define COMM_FLAG_DISCONNECT    BV01
 #define COMM_FLAG_PASSWORD      BV02
@@ -121,8 +124,10 @@ typedef struct mth_data {
     int comm_flags;
     short cols;
     short rows;
+#ifndef NO_ZLIB
     z_stream* mccp2;
     z_stream* mccp3;
+#endif
 } MTH_DATA;
 
 extern MUD_DATA* mud;

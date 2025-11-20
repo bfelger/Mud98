@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -38,6 +38,8 @@
 
 #include "data/direction.h"
 
+#include "lox/object.h"
+
 #include <stdio.h>
 
 /* macro for flag swapping */
@@ -56,6 +58,7 @@ MobProgCode* get_mprog_index(VNUM vnum);
 char fread_letter(FILE* fp);
 int fread_number(FILE* fp);
 long fread_flag(FILE* fp);
+char* fread_lox_script(FILE* fp);
 char* fread_string(FILE* fp);
 char* fread_string_eol(FILE* fp);
 void fread_to_eol(FILE* fp);
@@ -83,17 +86,32 @@ bool str_prefix(const char* astr, const char* bstr);
 bool str_infix(const char* astr, const char* bstr);
 bool str_suffix(const char* astr, const char* bstr);
 char* capitalize(const char* str);
+char* pascal_case(const char* str);
 void append_file(Mobile* ch, char* file, char* str);
 void bug(const char* fmt, ...);
 void log_string(const char* str);
+String* fread_lox_string(FILE* fp);
+char* fread_lox_script(FILE* fp);
+String* lox_string(const char* str);
+
+bool load_lox_class(FILE* fp, const char* entity_type_name, Entity* entity);
 
 #define ALLOC(T, v)     T* v = (T*)alloc_mem(sizeof(T))
 
+#define ENTITY_ALLOC_PERM(x, T)                                                \
+    T* x;                                                                      \
+    if (x##_free.count == 0) {                                                 \
+        x = alloc_perm(sizeof(T));                                             \
+    }                                                                          \
+    else {                                                                     \
+        x = (T*)AS_OBJ(list_pop(&x##_free));                                   \
+    }                                                                          \
+    memset(x, 0, sizeof(T));
+
 #define LIST_ALLOC_PERM(x, T)                                                  \
-    static T x##_zero = { 0 };                                                 \
     T* x;                                                                      \
     if (!x##_free) {                                                           \
-        x = alloc_perm(sizeof(*x));                                            \
+        x = alloc_perm(sizeof(T));                                             \
         x##_perm_count++;                                                      \
     }                                                                          \
     else {                                                                     \
@@ -101,7 +119,11 @@ void log_string(const char* str);
         NEXT_LINK(x##_free);                                                   \
     }                                                                          \
     x##_count++;                                                               \
-    *x = x##_zero;
+    memset(x, 0, sizeof(T));
+
+#define ENTITY_FREE(x)                                                         \
+    list_remove_node(&x##_list, x->x##_list_node);                             \
+    list_push(&x##_free, OBJ_VAL(x));
 
 #define LIST_FREE(x)                                                           \
     x##_count--;                                                               \
@@ -119,10 +141,20 @@ extern KillData kill_table[MAX_LEVEL];
 extern char bug_buf[];
 extern char log_buf[];
 extern bool fBootDb;
+extern bool resetting;
 extern FILE* strArea;
 extern char fpArea[MAX_INPUT_LENGTH];
 extern AreaData* current_area_data;
 
 extern int _filbuf(FILE*);
+
+//#define COUNT_SIZE_ALLOCS
+#ifdef COUNT_SIZE_ALLOCS
+void report_size_allocs(); 
+extern uint64_t amt_perm_alloced;
+extern uint64_t amt_temp_alloced;
+extern uint64_t amt_temp_freed;
+extern ValueArray gc_protect_vals;
+#endif
 
 #endif // !MUD98__DB_H

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// quest.h
+// data/quest.h
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifndef MUD98__DATA__QUEST_H
@@ -10,15 +10,19 @@ typedef struct quest_status_t QuestStatus;
 typedef struct quest_target_t QuestTarget;
 typedef struct quest_log_t QuestLog;
 
-#include "merc.h"
+#include <merc.h>
 
-#include "tables.h"
+#include <tables.h>
 
-#include "entities/area.h"
+#include <entities/area.h>
+#include <entities/player_data.h>
+
+#include <lox/value.h>
 
 typedef enum quest_type_t {
     QUEST_VISIT_MOB,
     QUEST_KILL_MOB,
+    QUEST_GET_OBJ,
 } QuestType;
 
 typedef struct quest_t {
@@ -70,7 +74,7 @@ void load_quest(FILE* fp);
 Quest* new_quest();
 QuestLog* new_quest_log();
 void free_quest(Quest* quest);
-void free_quest_log(QuestLog* quest_log);
+void free_quest_log(PlayerData* pc);
 Quest* get_quest(VNUM vnum);
 QuestTarget* get_quest_targ_mob(Mobile* ch, VNUM target_vnum);
 QuestTarget* get_quest_targ_obj(Mobile* ch, VNUM target_vnum);
@@ -84,6 +88,12 @@ void save_quests(FILE* fp, AreaData* area);
 bool can_quest(Mobile* ch, VNUM vnum);
 bool has_quest(Mobile* ch, VNUM vnum);
 bool can_finish_quest(Mobile* ch, VNUM vnum);
+
+Value can_quest_lox(Value receiver, int arg_count, Value* args);
+Value has_quest_lox(Value receiver, int arg_count, Value* args);
+Value grant_quest_lox(Value receiver, int arg_count, Value* args);
+Value can_finish_quest_lox(Value receiver, int arg_count, Value* args);
+Value finish_quest_lox(Value receiver, int arg_count, Value* args);
 
 extern int quest_count;
 extern int quest_perm_count;

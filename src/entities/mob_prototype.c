@@ -1,27 +1,31 @@
 ////////////////////////////////////////////////////////////////////////////////
-// mob_prototype.c
+// entities/mob_prototype.c
 // Prototype data for mobile (NPC) Mobile
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "mob_prototype.h"
 
-#include "comm.h"
-#include "db.h"
-#include "handler.h"
-#include "lookup.h"
-#include "magic.h"
-#include "recycle.h"
-#include "tables.h"
-
-#include "olc/olc.h"
-
 #include "mobile.h"
 
-#include "data/mobile_data.h"
-#include "data/race.h"
+#include <comm.h>
+#include <db.h>
+#include <handler.h>
+#include <lookup.h>
+#include <magic.h>
+#include <recycle.h>
+#include <tables.h>
 
-MobPrototype* mob_proto_hash[MAX_KEY_HASH];
-MobPrototype* mob_proto_free;
+#include <olc/olc.h>
+
+#include <data/mobile_data.h>
+#include <data/race.h>
+
+#include <entities/event.h>
+
+#include <lox/memory.h>
+
+Table mob_protos;
+MobPrototype* mob_proto_free = NULL;
 
 int mob_proto_count;
 int mob_proto_perm_count;
@@ -31,7 +35,10 @@ MobPrototype* new_mob_prototype()
 {
     LIST_ALLOC_PERM(mob_proto, MobPrototype);
 
-    mob_proto->name = str_dup("no name");
+    gc_protect(OBJ_VAL(mob_proto));
+
+    init_header(&mob_proto->header, OBJ_MOB_PROTO);
+
     mob_proto->short_descr = str_dup("(no short description)");
     mob_proto->long_descr = str_dup("(no long description)\n\r");
     mob_proto->description = &str_empty[0];
@@ -48,7 +55,8 @@ MobPrototype* new_mob_prototype()
 
 void free_mob_prototype(MobPrototype* mob_proto)
 {
-    free_string(mob_proto->name);
+    SET_NAME(mob_proto, lox_empty_string);
+
     free_string(mob_proto->short_descr);
     free_string(mob_proto->long_descr);
     free_string(mob_proto->description);
@@ -146,12 +154,10 @@ void free_mob_prototype(MobPrototype* mob_proto)
 // Hash table lookup.
 MobPrototype* get_mob_prototype(VNUM vnum)
 {
-    MobPrototype* p_mob_proto;
-
-    for (p_mob_proto = mob_proto_hash[vnum % MAX_KEY_HASH]; p_mob_proto != NULL;
-        NEXT_LINK(p_mob_proto)) {
-        if (p_mob_proto->vnum == vnum)
-            return p_mob_proto;
+    Value value = NIL_VAL;
+    if (table_get_vnum(&mob_protos, vnum, &value)) {
+        if (IS_MOB_PROTO(value))
+            return AS_MOB_PROTO(value);
     }
 
     if (fBootDb) {
@@ -167,7 +173,7 @@ void load_mobiles(FILE* fp)
 {
     MobPrototype* p_mob_proto;
 
-    if (!area_data_last)   /* OLC */
+    if (global_areas.count == 0)   /* OLC */
     {
         bug("Load_mobiles: no #AREA seen yet.", 0);
         exit(1);
@@ -176,7 +182,6 @@ void load_mobiles(FILE* fp)
     for (;;) {
         VNUM vnum;
         char letter;
-        int hash;
 
         letter = fread_letter(fp);
         if (letter != '#') {
@@ -196,9 +201,9 @@ void load_mobiles(FILE* fp)
 
         p_mob_proto = new_mob_prototype();
 
-        p_mob_proto->vnum = vnum;
-        p_mob_proto->area = area_data_last;
-        p_mob_proto->name = fread_string(fp);
+        VNUM_FIELD(p_mob_proto) = vnum;
+        p_mob_proto->area = LAST_AREA_DATA;
+        SET_NAME(p_mob_proto, fread_lox_string(fp));
         p_mob_proto->short_descr = fread_string(fp);
         p_mob_proto->long_descr = fread_string(fp);
         p_mob_proto->description = fread_string(fp);
@@ -264,8 +269,8 @@ void load_mobiles(FILE* fp)
         p_mob_proto->parts = fread_flag(fp) | race_table[p_mob_proto->race].parts;
         /* size */
         CHECK_POS(p_mob_proto->size, (int16_t)size_lookup(fread_word(fp)), "size");
-        /*	p_mob_proto->size			= size_lookup(fread_word(fp)); */
-        p_mob_proto->material = str_dup(fread_word(fp));
+
+        p_mob_proto->material = fread_word(fp);
 
         for (;;) {
             letter = fread_letter(fp);
@@ -316,14 +321,23 @@ void load_mobiles(FILE* fp)
                 pMprog->next = p_mob_proto->mprogs;
                 p_mob_proto->mprogs = pMprog;
             }
+            else if (letter == 'V') {
+                load_event(fp, &p_mob_proto->header);
+            }
+            else if (letter == 'L') {
+                if (!load_lox_class(fp, "mob", &p_mob_proto->header)) {
+                    bug("Load_mobiles: vnum %"PRVNUM" has malformed Lox script.", vnum);
+                    exit(1);
+                }
+            }
             else {
                 ungetc(letter, fp);
                 break;
             }
         }
-        hash = vnum % MAX_KEY_HASH;
-        p_mob_proto->next = mob_proto_hash[hash];
-        mob_proto_hash[hash] = p_mob_proto;
+
+        table_set_vnum(&mob_protos, vnum, OBJ_VAL(p_mob_proto));
+
         top_vnum_mob = top_vnum_mob < vnum ? vnum : top_vnum_mob;
         assign_area_vnum(vnum);
         kill_table[URANGE(0, p_mob_proto->level, MAX_LEVEL - 1)].number++;
@@ -335,8 +349,6 @@ void load_mobiles(FILE* fp)
 void recalc(MobPrototype* pMob)
 {
     int hplev, aclev, damlev, hitbonus;
-    //int i, cnt = 0;
-    //int clase[10] = { 0 };
     float n;
 
     if (pMob->level == 0)
@@ -346,23 +358,18 @@ void recalc(MobPrototype* pMob)
 
     if (IS_SET(pMob->act_flags, ACT_WARRIOR)) {
         hplev += 1;
-        //clase[cnt++] = ACT_WARRIOR;
     }
 
     if (IS_SET(pMob->act_flags, ACT_THIEF)) {
         hplev -= 1; aclev -= 1; damlev -= 1;
-        //clase[cnt++] = ACT_THIEF;
     }
 
     if (IS_SET(pMob->act_flags, ACT_CLERIC)) {
         damlev -= 2;
-        //clase[cnt++] = ACT_CLERIC;
     }
 
     if (IS_SET(pMob->act_flags, ACT_MAGE)) {
-//		hplev -= 1; aclev -= 1; damlev -= 3;
         hplev -= 2; aclev -= 1; damlev -= 3;
-        //clase[cnt++] = ACT_MAGE;
     }
 
     hplev += pMob->level;

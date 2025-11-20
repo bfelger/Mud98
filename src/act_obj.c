@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -42,13 +42,15 @@
 #include "update.h"
 #include "weather.h"
 
-#include "entities/descriptor.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
+#include <entities/descriptor.h>
+#include <entities/event.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
 
-#include "data/mobile_data.h"
-#include "data/player.h"
-#include "data/skill.h"
+#include <data/events.h>
+#include <data/mobile_data.h>
+#include <data/player.h>
+#include <data/skill.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,7 +64,7 @@
 // Local functions.
 #define CD Mobile
 #define OD Object
-bool remove_obj args((Mobile * ch, int iWear, bool fReplace));
+
 void wear_obj args((Mobile * ch, Object* obj, bool fReplace));
 CD* find_keeper args((Mobile * ch));
 int get_cost args((Mobile * keeper, Object* obj, bool fBuy));
@@ -83,12 +85,17 @@ bool can_loot(Mobile* ch, Object* obj)
     if (!obj->owner || obj->owner == NULL) return true;
 
     owner = NULL;
-    FOR_EACH(wch, mob_list)
-        if (!str_cmp(wch->name, obj->owner)) owner = wch;
+    FOR_EACH_GLOBAL_MOB(wch) {
+        if (lox_streq(NAME_FIELD(wch), obj->owner)) {
+            owner = wch;
+        }
+    }
 
-    if (owner == NULL) return true;
+    if (owner == NULL)
+        return true;
 
-    if (!str_cmp(ch->name, owner->name)) return true;
+    if (lox_streq(NAME_FIELD(ch), NAME_FIELD(owner)))
+        return true;
 
     if (!IS_NPC(owner) && IS_SET(owner->act_flags, PLR_CANLOOT))
         return true;
@@ -112,14 +119,14 @@ void get_obj(Mobile* ch, Object* obj, Object* container)
     }
 
     if (ch->carry_number + get_obj_number(obj) > can_carry_n(ch)) {
-        act("$d: you can't carry that many items.", ch, NULL, obj->name,
+        act("$d: you can't carry that many items.", ch, NULL, NAME_STR(obj),
             TO_CHAR);
         return;
     }
 
     if ((!obj->in_obj || obj->in_obj->carried_by != ch)
         && (get_carry_weight(ch) + get_obj_weight(obj) > can_carry_w(ch))) {
-        act("$d: you can't carry that much weight.", ch, NULL, obj->name,
+        act("$d: you can't carry that much weight.", ch, NULL, NAME_STR(obj),
             TO_CHAR);
         return;
     }
@@ -130,7 +137,7 @@ void get_obj(Mobile* ch, Object* obj, Object* container)
     }
 
     if (obj->in_room != NULL) {
-        FOR_EACH_IN_ROOM(gch, obj->in_room->people)
+        FOR_EACH_ROOM_MOB(gch, obj->in_room)
             if (gch->on == obj) {
                 act("$N appears to be using $p.", ch, obj, gch, TO_CHAR);
                 return;
@@ -138,13 +145,13 @@ void get_obj(Mobile* ch, Object* obj, Object* container)
     }
 
     if (container != NULL) {
-        if (container->prototype->vnum == OBJ_VNUM_PIT
+        if (VNUM_FIELD(container->prototype) == OBJ_VNUM_PIT
             && get_trust(ch) < obj->level) {
             send_to_char("You are not powerful enough to use it.\n\r", ch);
             return;
         }
 
-        if (container->prototype->vnum == OBJ_VNUM_PIT
+        if (VNUM_FIELD(container->prototype) == OBJ_VNUM_PIT
             && !CAN_WEAR(container, ITEM_TAKE)
             && !IS_OBJ_STAT(obj, ITEM_HAD_TIMER))
             obj->timer = 0;
@@ -164,8 +171,7 @@ void get_obj(Mobile* ch, Object* obj, Object* container)
         ch->gold += (int16_t)obj->value[1];
         if (IS_SET(ch->act_flags, PLR_AUTOSPLIT)) { /* AUTOSPLIT code */
             members = 0;
-            for (gch = ch->in_room->people; gch != NULL;
-                 gch = gch->next_in_room) {
+            FOR_EACH_ROOM_MOB(gch, ch->in_room) {
                 if (!IS_AFFECTED(gch, AFF_CHARM) && is_same_group(gch, ch))
                     members++;
             }
@@ -190,7 +196,6 @@ void do_get(Mobile* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH] = { 0 };
     char arg2[MAX_INPUT_LENGTH] = { 0 };
     Object* obj;
-    Object* obj_next = NULL;
     Object* container;
     bool found;
 
@@ -209,7 +214,7 @@ void do_get(Mobile* ch, char* argument)
     if (arg2[0] == '\0') {
         if (str_cmp(arg1, "all") && str_prefix("all.", arg1)) {
             /* 'get obj' */
-            obj = get_obj_list(ch, arg1, ch->in_room->contents);
+            obj = get_obj_list(ch, arg1, &ch->in_room->objects);
             if (obj == NULL) {
                 act("I see no $T here.", ch, NULL, arg1, TO_CHAR);
                 return;
@@ -220,9 +225,8 @@ void do_get(Mobile* ch, char* argument)
         else {
             /* 'get all' or 'get all.obj' */
             found = false;
-            for (obj = ch->in_room->contents; obj != NULL; obj = obj_next) {
-                obj_next = obj->next_content;
-                if ((arg1[3] == '\0' || is_name(&arg1[4], obj->name))
+            FOR_EACH_ROOM_OBJ(obj, ch->in_room) {
+                if ((arg1[3] == '\0' || is_name(&arg1[4], NAME_STR(obj)))
                     && can_see_obj(ch, obj)) {
                     found = true;
                     get_obj(ch, obj, NULL);
@@ -267,13 +271,13 @@ void do_get(Mobile* ch, char* argument)
         }
 
         if (IS_SET(container->value[1], CONT_CLOSED)) {
-            act("The $d is closed.", ch, NULL, container->name, TO_CHAR);
+            act("The $d is closed.", ch, NULL, NAME_STR(container), TO_CHAR);
             return;
         }
 
         if (str_cmp(arg1, "all") && str_prefix("all.", arg1)) {
             /* 'get obj container' */
-            obj = get_obj_list(ch, arg1, container->contains);
+            obj = get_obj_list(ch, arg1, &container->objects);
             if (obj == NULL) {
                 act("I see nothing like that in the $T.", ch, NULL, arg2,
                     TO_CHAR);
@@ -284,12 +288,11 @@ void do_get(Mobile* ch, char* argument)
         else {
             /* 'get all container' or 'get all.obj container' */
             found = false;
-            for (obj = container->contains; obj != NULL; obj = obj_next) {
-                obj_next = obj->next_content;
-                if ((arg1[3] == '\0' || is_name(&arg1[4], obj->name))
+            FOR_EACH_OBJ_CONTENT(obj, container) {
+                if ((arg1[3] == '\0' || is_name(&arg1[4], NAME_STR(obj)))
                     && can_see_obj(ch, obj)) {
                     found = true;
-                    if (container->prototype->vnum == OBJ_VNUM_PIT
+                    if (VNUM_FIELD(container->prototype) == OBJ_VNUM_PIT
                         && !IS_IMMORTAL(ch)) {
                         send_to_char("Don't be so greedy!\n\r", ch);
                         return;
@@ -317,7 +320,6 @@ void do_put(Mobile* ch, char* argument)
     char arg2[MAX_INPUT_LENGTH];
     Object* container;
     Object* obj;
-    Object* obj_next = NULL;
 
     READ_ARG(arg1);
     READ_ARG(arg2);
@@ -346,13 +348,13 @@ void do_put(Mobile* ch, char* argument)
     }
 
     if (IS_SET(container->value[1], CONT_CLOSED)) {
-        act("The $d is closed.", ch, NULL, container->name, TO_CHAR);
+        act("The $d is closed.", ch, NULL, NAME_STR(container), TO_CHAR);
         return;
     }
 
     if (str_cmp(arg1, "all") && str_prefix("all.", arg1)) {
         /* 'put obj container' */
-        if ((obj = get_obj_carry(ch, arg1, ch)) == NULL) {
+        if ((obj = get_obj_carry(ch, arg1)) == NULL) {
             send_to_char("You do not have that item.\n\r", ch);
             return;
         }
@@ -380,8 +382,8 @@ void do_put(Mobile* ch, char* argument)
             return;
         }
 
-        if (container->prototype->vnum == OBJ_VNUM_PIT && !CAN_WEAR(container,
-            ITEM_TAKE)) {
+        if (VNUM_FIELD(container->prototype) == OBJ_VNUM_PIT 
+            && !CAN_WEAR(container, ITEM_TAKE)) {
             if (obj->timer)
                 SET_BIT(obj->extra_flags, ITEM_HAD_TIMER);
             else
@@ -402,17 +404,16 @@ void do_put(Mobile* ch, char* argument)
     }
     else {
         /* 'put all container' or 'put all.obj container' */
-        for (obj = ch->carrying; obj != NULL; obj = obj_next) {
-            obj_next = obj->next_content;
+        FOR_EACH_MOB_OBJ(obj, ch) {
 
-            if ((arg1[3] == '\0' || is_name(&arg1[4], obj->name))
+            if ((arg1[3] == '\0' || is_name(&arg1[4], NAME_STR(obj)))
                 && can_see_obj(ch, obj) && WEIGHT_MULT(obj) == 100
                 && obj->wear_loc == WEAR_UNHELD && obj != container
                 && can_drop_obj(ch, obj)
                 && get_obj_weight(obj) + get_true_weight(container)
                        <= (container->value[0] * 10)
                 && get_obj_weight(obj) < (container->value[3] * 10)) {
-                if (container->prototype->vnum == OBJ_VNUM_PIT && !CAN_WEAR(
+                if (VNUM_FIELD(container->prototype) == OBJ_VNUM_PIT && !CAN_WEAR(
                     obj, ITEM_TAKE)) {
                     if (obj->timer)
                         SET_BIT(obj->extra_flags, ITEM_HAD_TIMER);
@@ -441,7 +442,6 @@ void do_drop(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     Object* obj;
-    Object* obj_next = NULL;
     bool found;
 
     READ_ARG(arg);
@@ -487,10 +487,8 @@ void do_drop(Mobile* ch, char* argument)
             gold = amount;
         }
 
-        for (obj = ch->in_room->contents; obj != NULL; obj = obj_next) {
-            obj_next = obj->next_content;
-
-            switch (obj->prototype->vnum) {
+        FOR_EACH_ROOM_OBJ(obj, ch->in_room) {
+            switch (VNUM_FIELD(obj->prototype)) {
             case OBJ_VNUM_SILVER_ONE:
                 silver += 1;
                 extract_obj(obj);
@@ -527,7 +525,7 @@ void do_drop(Mobile* ch, char* argument)
 
     if (str_cmp(arg, "all") && str_prefix("all.", arg)) {
         /* 'drop obj' */
-        if ((obj = get_obj_carry(ch, arg, ch)) == NULL) {
+        if ((obj = get_obj_carry(ch, arg)) == NULL) {
             send_to_char("You do not have that item.\n\r", ch);
             return;
         }
@@ -550,10 +548,8 @@ void do_drop(Mobile* ch, char* argument)
     else {
         /* 'drop all' or 'drop all.obj' */
         found = false;
-        for (obj = ch->carrying; obj != NULL; obj = obj_next) {
-            obj_next = obj->next_content;
-
-            if ((arg[3] == '\0' || is_name(&arg[4], obj->name))
+        FOR_EACH_MOB_OBJ(obj, ch) {
+            if ((arg[3] == '\0' || is_name(&arg[4], NAME_STR(obj)))
                 && can_see_obj(ch, obj) && obj->wear_loc == WEAR_UNHELD
                 && can_drop_obj(ch, obj)) {
                 found = true;
@@ -589,7 +585,10 @@ void do_give(Mobile* ch, char* argument)
     Object* obj;
 
     READ_ARG(arg1);
-    READ_ARG(arg2);
+
+    READ_ARG(arg2);    
+    if (!str_cmp(arg2, "to"))
+        READ_ARG(arg2);
 
     if (arg1[0] == '\0' || arg2[0] == '\0') {
         send_to_char("Give what to whom?\n\r", ch);
@@ -612,6 +611,9 @@ void do_give(Mobile* ch, char* argument)
         silver = str_cmp(arg2, "gold");
 
         READ_ARG(arg2);
+        if (!str_cmp(arg2, "to"))
+            READ_ARG(arg2);
+
         if (arg2[0] == '\0') {
             send_to_char("Give what to whom?\n\r", ch);
             return;
@@ -643,8 +645,11 @@ void do_give(Mobile* ch, char* argument)
         act(buf, ch, NULL, victim, TO_CHAR);
 
         // Bribe trigger
-        if (IS_NPC(victim) && HAS_TRIGGER(victim, TRIG_BRIBE))
+        if (IS_NPC(victim) && HAS_MPROG_TRIGGER(victim, TRIG_BRIBE))
             mp_bribe_trigger(victim, ch, silver ? amount : amount * 100);
+
+        if (IS_NPC(victim) && HAS_EVENT_TRIGGER(victim, TRIG_BRIBE))
+            raise_bribe_event(victim, ch, silver ? amount : amount * 100);
 
 
         if (IS_NPC(victim) && IS_SET(victim->act_flags, ACT_IS_CHANGER)) {
@@ -664,16 +669,16 @@ void do_give(Mobile* ch, char* argument)
                     victim, NULL, ch, TO_VICT);
                 ch->reply = victim;
                 sprintf(buf, "%d %s %s", amount, silver ? "silver" : "gold",
-                        ch->name);
+                        NAME_STR(ch));
                 do_function(victim, &do_give, buf);
             }
             else if (can_see(victim, ch)) {
                 sprintf(buf, "%d %s %s", change, silver ? "gold" : "silver",
-                        ch->name);
+                        NAME_STR(ch));
                 do_function(victim, &do_give, buf);
                 if (silver) {
                     sprintf(buf, "%d silver %s",
-                            (95 * amount / 100 - change * 100), ch->name);
+                            (95 * amount / 100 - change * 100), NAME_STR(ch));
                     do_function(victim, &do_give, buf);
                 }
                 act("$n tells you 'Thank you, come again.'", victim, NULL, ch,
@@ -684,7 +689,7 @@ void do_give(Mobile* ch, char* argument)
         return;
     }
 
-    if ((obj = get_obj_carry(ch, arg1, ch)) == NULL) {
+    if ((obj = get_obj_carry(ch, arg1)) == NULL) {
         send_to_char("You do not have that item.\n\r", ch);
         return;
     }
@@ -728,15 +733,18 @@ void do_give(Mobile* ch, char* argument)
 
     obj_from_char(obj);
     obj_to_char(obj, victim);
-    MOBtrigger = false;
+    events_enabled = false;
     act("$n gives $p to $N.", ch, obj, victim, TO_NOTVICT);
     act("$n gives you $p.", ch, obj, victim, TO_VICT);
     act("You give $p to $N.", ch, obj, victim, TO_CHAR);
-    MOBtrigger = true;
+    events_enabled = true;
 
     // Give trigger
-    if (IS_NPC(victim) && HAS_TRIGGER(victim, TRIG_GIVE))
+    if (IS_NPC(victim) && HAS_MPROG_TRIGGER(victim, TRIG_GIVE))
         mp_give_trigger(victim, ch, obj);
+
+    if (IS_NPC(victim) && HAS_EVENT_TRIGGER(victim, TRIG_GIVE))
+        raise_give_event(victim, ch, obj);
 
     return;
 }
@@ -754,7 +762,7 @@ void do_envenom(Mobile* ch, char* argument)
         return;
     }
 
-    obj = get_obj_list(ch, argument, ch->carrying);
+    obj = get_obj_list(ch, argument, &ch->objects);
 
     if (obj == NULL) {
         send_to_char("You don't have that item.\n\r", ch);
@@ -848,8 +856,8 @@ void do_fill(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
-    Object* obj;
-    Object* fountain;
+    Object* obj = NULL;
+    Object* fountain = NULL;
     bool found;
 
     one_argument(argument, arg);
@@ -859,14 +867,13 @@ void do_fill(Mobile* ch, char* argument)
         return;
     }
 
-    if ((obj = get_obj_carry(ch, arg, ch)) == NULL) {
+    if ((obj = get_obj_carry(ch, arg)) == NULL) {
         send_to_char("You do not have that item.\n\r", ch);
         return;
     }
 
     found = false;
-    for (fountain = ch->in_room->contents; fountain != NULL;
-         fountain = fountain->next_content) {
+    FOR_EACH_ROOM_OBJ(fountain, ch->in_room) {
         if (fountain->item_type == ITEM_FOUNTAIN) {
             found = true;
             break;
@@ -918,7 +925,7 @@ void do_pour(Mobile* ch, char* argument)
         return;
     }
 
-    if ((out = get_obj_carry(ch, arg, ch)) == NULL) {
+    if ((out = get_obj_carry(ch, arg)) == NULL) {
         send_to_char("You don't have that item.\n\r", ch);
         return;
     }
@@ -1015,15 +1022,16 @@ void do_pour(Mobile* ch, char* argument)
 void do_drink(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    Object* obj;
+    Object* obj = NULL;
     int amount;
     int liquid;
 
     one_argument(argument, arg);
 
     if (arg[0] == '\0') {
-        for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
-            if (obj->item_type == ITEM_FOUNTAIN) break;
+        FOR_EACH_ROOM_OBJ(obj, ch->in_room) {
+            if (obj->item_type == ITEM_FOUNTAIN) 
+                break;
         }
 
         if (obj == NULL) {
@@ -1124,7 +1132,7 @@ void do_eat(Mobile* ch, char* argument)
         return;
     }
 
-    if ((obj = get_obj_carry(ch, arg, ch)) == NULL) {
+    if ((obj = get_obj_carry(ch, arg)) == NULL) {
         send_to_char("You do not have that item.\n\r", ch);
         return;
     }
@@ -1161,7 +1169,7 @@ void do_eat(Mobile* ch, char* argument)
             /* The food was poisoned! */
             Affect af = { 0 };
 
-            act("$n chokes and gags.", ch, 0, 0, TO_ROOM);
+            act("$n chokes and gags.", ch, NULL, NULL, TO_ROOM);
             send_to_char("You choke and gag.\n\r", ch);
 
             af.where = TO_AFFECTS;
@@ -1384,7 +1392,8 @@ void wear_obj(Mobile* ch, Object* obj, bool fReplace)
     if (CAN_WEAR(obj, ITEM_WEAR_SHIELD)) {
         Object* weapon;
 
-        if (!remove_obj(ch, WEAR_SHIELD, fReplace)) 
+        if (!remove_obj(ch, WEAR_SHIELD, fReplace)
+            && !remove_obj(ch, WEAR_WIELD_OH, fReplace))
             return;
 
         weapon = get_eq_char(ch, WEAR_WIELD);
@@ -1451,8 +1460,11 @@ void wear_obj(Mobile* ch, Object* obj, bool fReplace)
     }
 
     if (CAN_WEAR(obj, ITEM_HOLD)) {
-        if (!remove_obj(ch, WEAR_HOLD, fReplace)) 
+
+        if (!remove_obj(ch, WEAR_HOLD, fReplace) 
+            && !remove_obj(ch, WEAR_WIELD_OH, fReplace))
             return;
+
         act("$n holds $p in $s hand.", ch, obj, NULL, TO_ROOM);
         act("You hold $p in your hand.", ch, obj, NULL, TO_CHAR);
         equip_char(ch, obj, WEAR_HOLD);
@@ -1488,17 +1500,14 @@ void do_wear(Mobile* ch, char* argument)
     }
 
     if (!str_cmp(arg, "all")) {
-        Object* obj_next = NULL;
-
-        for (obj = ch->carrying; obj != NULL; obj = obj_next) {
-            obj_next = obj->next_content;
+        FOR_EACH_MOB_OBJ(obj, ch) {
             if (obj->wear_loc == WEAR_UNHELD && can_see_obj(ch, obj))
                 wear_obj(ch, obj, false);
         }
         return;
     }
     else {
-        if ((obj = get_obj_carry(ch, arg, ch)) == NULL) {
+        if ((obj = get_obj_carry(ch, arg)) == NULL) {
             send_to_char("You do not have that item.\n\r", ch);
             return;
         }
@@ -1544,7 +1553,7 @@ void do_sacrifice(Mobile* ch, char* argument)
 
     one_argument(argument, arg);
 
-    if (arg[0] == '\0' || !str_cmp(arg, ch->name)) {
+    if (arg[0] == '\0' || !str_cmp(arg, NAME_STR(ch))) {
         act("$n offers $mself to Mota, who graciously declines.", ch, NULL,
             NULL, TO_ROOM);
         send_to_char("Mota appreciates your offer and may accept it later.\n\r",
@@ -1552,26 +1561,26 @@ void do_sacrifice(Mobile* ch, char* argument)
         return;
     }
 
-    obj = get_obj_list(ch, arg, ch->in_room->contents);
+    obj = get_obj_list(ch, arg, &ch->in_room->objects);
     if (obj == NULL) {
         send_to_char("You can't find it.\n\r", ch);
         return;
     }
 
     if (obj->item_type == ITEM_CORPSE_PC) {
-        if (obj->contains) {
+        if (OBJ_HAS_OBJS(obj)) {
             send_to_char("Mota wouldn't like that.\n\r", ch);
             return;
         }
     }
 
     if (!CAN_WEAR(obj, ITEM_TAKE) || CAN_WEAR(obj, ITEM_NO_SAC)) {
-        act("$p is not an acceptable sacrifice.", ch, obj, 0, TO_CHAR);
+        act("$p is not an acceptable sacrifice.", ch, obj, NULL, TO_CHAR);
         return;
     }
 
     if (obj->in_room != NULL) {
-        FOR_EACH_IN_ROOM(gch, obj->in_room->people)
+        FOR_EACH_ROOM_MOB(gch, obj->in_room)
             if (gch->on == obj) {
                 act("$N appears to be using $p.", ch, obj, gch, TO_CHAR);
                 return;
@@ -1596,7 +1605,7 @@ void do_sacrifice(Mobile* ch, char* argument)
 
     if (IS_SET(ch->act_flags, PLR_AUTOSPLIT)) { /* AUTOSPLIT code */
         members = 0;
-        FOR_EACH_IN_ROOM(gch, ch->in_room->people) {
+        FOR_EACH_ROOM_MOB(gch, ch->in_room) {
             if (is_same_group(gch, ch)) members++;
         }
 
@@ -1624,7 +1633,7 @@ void do_quaff(Mobile* ch, char* argument)
         return;
     }
 
-    if ((obj = get_obj_carry(ch, arg, ch)) == NULL) {
+    if ((obj = get_obj_carry(ch, arg)) == NULL) {
         send_to_char("You do not have that potion.\n\r", ch);
         return;
     }
@@ -1661,7 +1670,7 @@ void do_recite(Mobile* ch, char* argument)
     READ_ARG(arg1);
     READ_ARG(arg2);
 
-    if ((scroll = get_obj_carry(ch, arg1, ch)) == NULL) {
+    if ((scroll = get_obj_carry(ch, arg1)) == NULL) {
         send_to_char("You do not have that scroll.\n\r", ch);
         return;
     }
@@ -1709,7 +1718,6 @@ void do_recite(Mobile* ch, char* argument)
 void do_brandish(Mobile* ch, char* argument)
 {
     Mobile* vch;
-    Mobile* vch_next = NULL;
     Object* staff;
     SKNUM sn;
 
@@ -1742,9 +1750,7 @@ void do_brandish(Mobile* ch, char* argument)
         }
 
         else
-            for (vch = ch->in_room->people; vch; vch = vch_next) {
-                vch_next = vch->next_in_room;
-
+            FOR_EACH_ROOM_MOB(vch, ch->in_room) {
                 switch (skill_table[sn].target) {
                 default:
                     bug("Do_brandish: bad target for sn %d.", sn);
@@ -1915,17 +1921,17 @@ void do_steal(Mobile* ch, char* argument)
         act("$n tried to steal from $N.\n\r", ch, NULL, victim, TO_NOTVICT);
         switch (number_range(0, 3)) {
         case 0:
-            sprintf(buf, "%s is a lousy thief!", ch->name);
+            sprintf(buf, "%s is a lousy thief!", NAME_STR(ch));
             break;
         case 1:
-            sprintf(buf, "%s couldn't rob %s way out of a paper bag!", ch->name,
+            sprintf(buf, "%s couldn't rob %s way out of a paper bag!", NAME_STR(ch),
                     sex_table[ch->sex].poss);
             break;
         case 2:
-            sprintf(buf, "%s tried to rob me!", ch->name);
+            sprintf(buf, "%s tried to rob me!", NAME_STR(ch));
             break;
         case 3:
-            sprintf(buf, "Keep your hands out of there, %s!", ch->name);
+            sprintf(buf, "Keep your hands out of there, %s!", NAME_STR(ch));
             break;
         }
         if (!IS_AWAKE(victim)) do_function(victim, &do_wake, "");
@@ -1936,7 +1942,7 @@ void do_steal(Mobile* ch, char* argument)
                 multi_hit(victim, ch, TYPE_UNDEFINED);
             }
             else {
-                sprintf(buf, "$N tried to steal from %s.", victim->name);
+                sprintf(buf, "$N tried to steal from %s.", NAME_STR(victim));
                 wiznet(buf, ch, NULL, WIZ_FLAGS, 0, 0);
                 if (!IS_SET(ch->act_flags, PLR_THIEF)) {
                     SET_BIT(ch->act_flags, PLR_THIEF);
@@ -1978,7 +1984,7 @@ void do_steal(Mobile* ch, char* argument)
         return;
     }
 
-    if ((obj = get_obj_carry(victim, arg1, ch)) == NULL) {
+    if ((obj = get_obj_carry(victim, arg1)) == NULL) {
         send_to_char("You can't find it.\n\r", ch);
         return;
     }
@@ -2011,11 +2017,11 @@ void do_steal(Mobile* ch, char* argument)
 Mobile* find_keeper(Mobile* ch)
 {
     /*char buf[MAX_STRING_LENGTH];*/
-    Mobile* keeper;
-    ShopData* pShop;
+    Mobile* keeper = NULL;
+    ShopData* pShop = NULL;
 
     pShop = NULL;
-    for (keeper = ch->in_room->people; keeper; keeper = keeper->next_in_room) {
+    FOR_EACH_ROOM_MOB(keeper, ch->in_room) {
         if (IS_NPC(keeper) && (pShop = keeper->prototype->pShop) != NULL)
             break;
     }
@@ -2068,12 +2074,13 @@ Mobile* find_keeper(Mobile* ch)
 void obj_to_keeper(Object* obj, Mobile* ch)
 {
     Object* t_obj;
-    Object* t_obj_next = NULL;
+    Node* node;
+    Node* node_next = NULL;
 
     /* see if any duplicates are found */
-    for (t_obj = ch->carrying; t_obj != NULL; t_obj = t_obj_next) {
-        t_obj_next = t_obj->next_content;
-
+    for (node = ch->in_room->objects.front; node != NULL; node = node_next) {
+        node_next = node->next;
+        t_obj = AS_OBJECT(node->value);
         if (obj->prototype == t_obj->prototype
             && !str_cmp(obj->short_descr, t_obj->short_descr)) {
             /* if this is an unlimited item, destroy the new one */
@@ -2086,13 +2093,11 @@ void obj_to_keeper(Object* obj, Mobile* ch)
         }
     }
 
-    if (t_obj == NULL) {
-        obj->next_content = ch->carrying;
-        ch->carrying = obj;
+    if (node == NULL) {
+        list_push(&ch->objects, OBJ_VAL(obj));
     }
     else {
-        obj->next_content = t_obj->next_content;
-        t_obj->next_content = obj;
+        list_insert_after(&ch->objects, node, OBJ_VAL(obj));
     }
 
     obj->carried_by = ch;
@@ -2107,22 +2112,26 @@ Object* get_obj_keeper(Mobile* ch, Mobile* keeper, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     Object* obj;
+    Object* obj_next;
     int number;
     int count;
 
     number = number_argument(argument, arg);
     count = 0;
-    for (obj = keeper->carrying; obj != NULL; obj = obj->next_content) {
+    FOR_EACH_MOB_OBJ(obj, keeper) {
         if (obj->wear_loc == WEAR_UNHELD && can_see_obj(keeper, obj)
-            && can_see_obj(ch, obj) && is_name(arg, obj->name)) {
-            if (++count == number) return obj;
+            && can_see_obj(ch, obj) && is_name(arg, NAME_STR(obj))) {
+            if (++count == number) 
+                return obj;
 
-            /* skip other objects of the same name */
-            while (
-                obj->next_content != NULL
-                && obj->prototype == obj->next_content->prototype
-                && !str_cmp(obj->short_descr, obj->next_content->short_descr))
-                obj = obj->next_content;
+            // skip other objects of the same name
+            while (obj_loop.next != NULL
+                    && (obj_next = AS_OBJECT(obj_loop.next->value)) != NULL
+                    && obj->prototype == obj_next->prototype
+                    && !str_cmp(obj->short_descr, obj_next->short_descr)) {
+                obj_loop.node = obj_loop.next;
+                obj_loop.next = obj_loop.next->next;
+            }
         }
     }
 
@@ -2136,7 +2145,9 @@ int get_cost(Mobile* keeper, Object* obj, bool fBuy)
 
     if (obj == NULL || (pShop = keeper->prototype->pShop) == NULL) return 0;
 
-    if (fBuy) { cost = obj->cost * pShop->profit_buy / 100; }
+    if (fBuy) {
+        cost = obj->cost * pShop->profit_buy / 100; 
+    }
     else {
         Object* obj2;
         int itype;
@@ -2150,7 +2161,7 @@ int get_cost(Mobile* keeper, Object* obj, bool fBuy)
         }
 
         if (!IS_OBJ_STAT(obj, ITEM_SELL_EXTRACT)) {
-            for (obj2 = keeper->carrying; obj2; obj2 = obj2->next_content) {
+            FOR_EACH_MOB_OBJ(obj2, keeper) {
                 if (obj->prototype == obj2->prototype 
                 && !str_cmp(obj->short_descr, obj2->short_descr)) {
                     if (IS_OBJ_STAT(obj2, ITEM_INVENTORY))
@@ -2197,12 +2208,12 @@ void do_buy(Mobile* ch, char* argument)
         READ_ARG(arg);
 
         /* hack to make new thalos pets work */
-        if (ch->in_room->vnum == ROOM_VNUM_PETSHOP)
+        if (VNUM_FIELD(ch->in_room) == ROOM_VNUM_PETSHOP)
             petshop_inv = get_room(ch->in_room->area, ROOM_VNUM_PETSHOP_INV);
         else
-            petshop_inv = get_room(ch->in_room->area, ch->in_room->vnum + 1);
+            petshop_inv = get_room(ch->in_room->area, VNUM_FIELD(ch->in_room) + 1);
         if (petshop_inv == NULL) {
-            bug("Do_buy: bad pet shop at vnum %"PRVNUM".", ch->in_room->vnum);
+            bug("Do_buy: bad pet shop at vnum %"PRVNUM".", VNUM_FIELD(ch->in_room));
             send_to_char("Sorry, you can't buy that here.\n\r", ch);
             return;
         }
@@ -2252,13 +2263,12 @@ void do_buy(Mobile* ch, char* argument)
 
         READ_ARG(arg);
         if (arg[0] != '\0') {
-            sprintf(buf, "%s %s", pet->name, arg);
-            free_string(pet->name);
-            pet->name = str_dup(buf);
+            sprintf(buf, "%s %s", NAME_STR(pet), arg);
+            NAME_FIELD(pet) = lox_string(buf);
         }
 
         sprintf(buf, "%sA neck tag says 'I belong to %s'.\n\r",
-                pet->description, ch->name);
+                pet->description, NAME_STR(ch));
         free_string(pet->description);
         pet->description = str_dup(buf);
 
@@ -2274,9 +2284,11 @@ void do_buy(Mobile* ch, char* argument)
         Mobile* keeper;
         Object *obj, *t_obj;
         char arg[MAX_INPUT_LENGTH];
-        int number, count = 1;
+        int number;
+        int count = 0;
 
-        if ((keeper = find_keeper(ch)) == NULL) return;
+        if ((keeper = find_keeper(ch)) == NULL)
+            return;
 
         number = mult_argument(argument, arg);
         obj = get_obj_keeper(ch, keeper, arg);
@@ -2295,12 +2307,12 @@ void do_buy(Mobile* ch, char* argument)
         }
 
         if (!IS_OBJ_STAT(obj, ITEM_INVENTORY)) {
-            for (t_obj = obj->next_content; count < number && t_obj != NULL;
-                 t_obj = t_obj->next_content) {
+            FOR_EACH_MOB_OBJ(t_obj, keeper) {
                 if (t_obj->prototype == obj->prototype
                     && !str_cmp(t_obj->short_descr, obj->short_descr))
                     count++;
-                else
+                
+                if (count >= number)
                     break;
             }
 
@@ -2365,12 +2377,15 @@ void do_buy(Mobile* ch, char* argument)
         keeper->gold += (int16_t)(cost * number / 100);
         keeper->silver += (int16_t)(cost * number - (cost * number / 100) * 100);
 
+        Node* obj_list_node = list_find(&keeper->objects, OBJ_VAL(obj));
+
         for (count = 0; count < number; count++) {
             if (IS_SET(obj->extra_flags, ITEM_INVENTORY))
                 t_obj = create_object(obj->prototype, obj->level);
             else {
                 t_obj = obj;
-                obj = obj->next_content;
+                obj_list_node = obj_list_node->next;
+                obj = AS_OBJECT(obj_list_node->value);
                 obj_from_char(t_obj);
             }
 
@@ -2394,19 +2409,19 @@ void do_list(Mobile* ch, char* argument)
         bool found;
 
         /* hack to make new thalos pets work */
-        if (ch->in_room->vnum == ROOM_VNUM_PETSHOP)
+        if (VNUM_FIELD(ch->in_room) == ROOM_VNUM_PETSHOP)
             petshop_inv = get_room(ch->in_room->area, ROOM_VNUM_PETSHOP_INV);
         else
-            petshop_inv = get_room(ch->in_room->area, ch->in_room->vnum + 1);
+            petshop_inv = get_room(ch->in_room->area, VNUM_FIELD(ch->in_room) + 1);
 
         if (petshop_inv == NULL) {
-            bug("Do_list: bad pet shop at vnum %"PRVNUM".", ch->in_room->vnum);
+            bug("Do_list: bad pet shop at vnum %"PRVNUM".", VNUM_FIELD(ch->in_room));
             send_to_char("You can't do that here.\n\r", ch);
             return;
         }
 
         found = false;
-        FOR_EACH_IN_ROOM(pet, petshop_inv->people) {
+        FOR_EACH_ROOM_MOB(pet, petshop_inv) {
             if (IS_SET(pet->act_flags, ACT_PET)) {
                 if (!found) {
                     found = true;
@@ -2432,10 +2447,10 @@ void do_list(Mobile* ch, char* argument)
         one_argument(argument, arg);
 
         found = false;
-        FOR_EACH_CONTENT(obj, keeper->carrying) {
+        FOR_EACH_MOB_OBJ(obj, keeper) {
             if (obj->wear_loc == WEAR_UNHELD && can_see_obj(ch, obj)
                 && (cost = get_cost(keeper, obj, true)) > 0
-                && (arg[0] == '\0' || is_name(arg, obj->name))) {
+                && (arg[0] == '\0' || is_name(arg, NAME_STR(obj)))) {
                 if (!found) {
                     found = true;
                     send_to_char("[Lv Price Qty] Item\n\r", ch);
@@ -2447,11 +2462,13 @@ void do_list(Mobile* ch, char* argument)
                 else {
                     count = 1;
 
-                    while (obj->next_content != NULL
-                           && obj->prototype == obj->next_content->prototype
-                           && !str_cmp(obj->short_descr,
-                                       obj->next_content->short_descr)) {
-                        obj = obj->next_content;
+                    Object* obj_next;
+                    while (obj_loop.next != NULL
+                        && (obj_next = AS_OBJECT(obj_loop.next->value)) != NULL
+                        && obj->prototype == obj_next->prototype
+                        && !str_cmp(obj->short_descr, obj_next->short_descr)) {
+                        obj_loop.node = obj_loop.next;
+                        obj_loop.next = obj_loop.next->next;
                         count++;
                     }
                     sprintf(buf, "[%2d %5d %2d ] %s\n\r", obj->level, cost,
@@ -2485,7 +2502,7 @@ void do_sell(Mobile* ch, char* argument)
     if ((keeper = find_keeper(ch)) == NULL)
         return;
 
-    if ((obj = get_obj_carry(ch, arg, ch)) == NULL) {
+    if ((obj = get_obj_carry(ch, arg)) == NULL) {
         act("$n tells you 'You don't have that item'.", keeper, NULL, ch,
             TO_VICT);
         ch->reply = keeper;
@@ -2564,7 +2581,7 @@ void do_value(Mobile* ch, char* argument)
 
     if ((keeper = find_keeper(ch)) == NULL) return;
 
-    if ((obj = get_obj_carry(ch, arg, ch)) == NULL) {
+    if ((obj = get_obj_carry(ch, arg)) == NULL) {
         act("$n tells you 'You don't have that item'.", keeper, NULL, ch,
             TO_VICT);
         ch->reply = keeper;

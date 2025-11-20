@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -43,14 +43,16 @@
 #include "tables.h"
 #include "vt.h"
 
-#include "olc/screen.h"
+#include <olc/screen.h>
 
-#include "entities/descriptor.h"
-#include "entities/player_data.h"
+#include <entities/descriptor.h>
+#include <entities/event.h>
+#include <entities/player_data.h>
 
-#include "data/class.h"
-#include "data/mobile_data.h"
-#include "data/player.h"
+#include <data/class.h>
+#include <data/events.h>
+#include <data/mobile_data.h>
+#include <data/player.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -85,7 +87,7 @@ void do_delete(Mobile* ch, char* argument)
             return;
         }
         else {
-            sprintf(strsave, "%s%s", cfg_get_player_dir(), capitalize(ch->name));
+            sprintf(strsave, "%s%s", cfg_get_player_dir(), capitalize(NAME_STR(ch)));
             wiznet("$N turns $Mself into line noise.", ch, NULL, 0, 0, 0);
             stop_fighting(ch, true);
             do_function(ch, &do_quit, "");
@@ -114,70 +116,70 @@ void do_channels(Mobile* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
 
     /* lists all channels and their status */
-    send_to_char("{T   channel     status\n\r", ch);
-    send_to_char("{=---------------------\n\r", ch);
+    send_to_char(COLOR_TITLE "   channel     status\n\r", ch);
+    send_to_char(COLOR_DECOR_2 "---------------------\n\r", ch);
 
-    send_to_char("{dgossip{x         ", ch);
+    send_to_char(COLOR_GOSSIP "gossip" COLOR_CLEAR "         ", ch);
     if (!IS_SET(ch->comm_flags, COMM_NOGOSSIP))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
-    send_to_char("{aauction{x        ", ch);
+    send_to_char(COLOR_AUCTION "auction" COLOR_CLEAR "        ", ch);
     if (!IS_SET(ch->comm_flags, COMM_NOAUCTION))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
-    send_to_char("{emusic{x          ", ch);
+    send_to_char(COLOR_MUSIC "music" COLOR_CLEAR "          ", ch);
     if (!IS_SET(ch->comm_flags, COMM_NOMUSIC))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
-    send_to_char("{qQ{x/{fA{x            ", ch);
+    send_to_char(COLOR_QUESTION "Q" COLOR_CLEAR "/" COLOR_ANSWER "A" COLOR_CLEAR "            ", ch);
     if (!IS_SET(ch->comm_flags, COMM_NOQUESTION))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
-    send_to_char("{hQuote{x          ", ch);
+    send_to_char(COLOR_QUOTE "Quote" COLOR_CLEAR "          ", ch);
     if (!IS_SET(ch->comm_flags, COMM_NOQUOTE))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
-    send_to_char("{tgrats{x          ", ch);
+    send_to_char(COLOR_TEXT "grats" COLOR_CLEAR "          ", ch);
     if (!IS_SET(ch->comm_flags, COMM_NOGRATS))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     if (IS_IMMORTAL(ch)) {
-        send_to_char("{igod channel{x    ", ch);
+        send_to_char(COLOR_IMMTALK_TEXT "god channel" COLOR_CLEAR "    ", ch);
         if (!IS_SET(ch->comm_flags, COMM_NOWIZ))
-            send_to_char("{GON{x\n\r", ch);
+            send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
         else
-            send_to_char("{ROFF{x\n\r", ch);
+            send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
     }
 
-    send_to_char("{tshouts{x         ", ch);
+    send_to_char(COLOR_TEXT "shouts" COLOR_CLEAR "         ", ch);
     if (!IS_SET(ch->comm_flags, COMM_SHOUTSOFF))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
-    send_to_char("{ktells{x          ", ch);
+    send_to_char(COLOR_TELL "tells" COLOR_CLEAR "          ", ch);
     if (!IS_SET(ch->comm_flags, COMM_DEAF))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
-    send_to_char("{tquiet mode{x     ", ch);
+    send_to_char(COLOR_TEXT "quiet mode" COLOR_CLEAR "     ", ch);
     if (IS_SET(ch->comm_flags, COMM_QUIET))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     if (IS_SET(ch->comm_flags, COMM_AFK)) 
         send_to_char("You are AFK.\n\r", ch);
@@ -279,11 +281,11 @@ void do_auction(Mobile* ch, char* argument)
 
     if (argument[0] == '\0') {
         if (IS_SET(ch->comm_flags, COMM_NOAUCTION)) {
-            send_to_char("{aAuction channel is now ON.{x\n\r", ch);
+            send_to_char(COLOR_AUCTION "Auction channel is now ON." COLOR_EOL, ch);
             REMOVE_BIT(ch->comm_flags, COMM_NOAUCTION);
         }
         else {
-            send_to_char("{aAuction channel is now OFF.{x\n\r", ch);
+            send_to_char(COLOR_AUCTION "Auction channel is now OFF." COLOR_EOL, ch);
             SET_BIT(ch->comm_flags, COMM_NOAUCTION);
         }
     }
@@ -303,7 +305,7 @@ void do_auction(Mobile* ch, char* argument)
         REMOVE_BIT(ch->comm_flags, COMM_NOAUCTION);
     }
 
-    sprintf(buf, "{aYou auction '{A%s{a'{x\n\r", argument);
+    sprintf(buf, COLOR_AUCTION "You auction '" COLOR_AUCTION_TEXT "%s" COLOR_AUCTION "'" COLOR_EOL, argument);
     send_to_char(buf, ch);
     FOR_EACH(d, descriptor_list) {
         Mobile* victim;
@@ -313,7 +315,7 @@ void do_auction(Mobile* ch, char* argument)
         if (d->connected == CON_PLAYING && d->character != ch
             && !IS_SET(victim->comm_flags, COMM_NOAUCTION)
             && !IS_SET(victim->comm_flags, COMM_QUIET)) {
-            act_new("{a$n auctions '{A$t{a'{x", ch, argument, d->character,
+            act_pos(COLOR_AUCTION "$n auctions '" COLOR_AUCTION_TEXT "$t" COLOR_AUCTION "'" COLOR_CLEAR , ch, argument, d->character,
                     TO_VICT, POS_DEAD);
         }
     }
@@ -350,7 +352,7 @@ void do_gossip(Mobile* ch, char* argument)
 
         REMOVE_BIT(ch->comm_flags, COMM_NOGOSSIP);
 
-        sprintf(buf, "{dYou gossip '{9%s{d'{x\n\r", argument);
+        sprintf(buf, COLOR_GOSSIP "You gossip '" COLOR_GOSSIP_TEXT "%s" COLOR_GOSSIP "'" COLOR_EOL, argument);
         send_to_char(buf, ch);
         FOR_EACH(d, descriptor_list) {
             Mobile* victim;
@@ -360,7 +362,7 @@ void do_gossip(Mobile* ch, char* argument)
             if (d->connected == CON_PLAYING && d->character != ch
                 && !IS_SET(victim->comm_flags, COMM_NOGOSSIP)
                 && !IS_SET(victim->comm_flags, COMM_QUIET)) {
-                act_new("{d$n gossips '{9$t{d'{x", ch, argument, d->character,
+                act_pos(COLOR_GOSSIP "$n gossips '" COLOR_GOSSIP_TEXT "$t" COLOR_GOSSIP "'" COLOR_CLEAR , ch, argument, d->character,
                         TO_VICT, POS_SLEEPING);
             }
         }
@@ -397,7 +399,7 @@ void do_grats(Mobile* ch, char* argument)
 
         REMOVE_BIT(ch->comm_flags, COMM_NOGRATS);
 
-        sprintf(buf, "{tYou grats '%s'{x\n\r", argument);
+        sprintf(buf, COLOR_TEXT "You grats '%s'" COLOR_EOL, argument);
         send_to_char(buf, ch);
         FOR_EACH(d, descriptor_list) {
             Mobile* victim;
@@ -407,7 +409,7 @@ void do_grats(Mobile* ch, char* argument)
             if (d->connected == CON_PLAYING && d->character != ch
                 && !IS_SET(victim->comm_flags, COMM_NOGRATS)
                 && !IS_SET(victim->comm_flags, COMM_QUIET)) {
-                act_new("{t$n grats '$t'{x", ch, argument, d->character,
+                act_pos(COLOR_TEXT "$n grats '$t'" COLOR_CLEAR , ch, argument, d->character,
                         TO_VICT, POS_SLEEPING);
             }
         }
@@ -421,11 +423,11 @@ void do_quote(Mobile* ch, char* argument)
 
     if (argument[0] == '\0') {
         if (IS_SET(ch->comm_flags, COMM_NOQUOTE)) {
-            send_to_char("{hQuote channel is now ON.{x\n\r", ch);
+            send_to_char(COLOR_QUOTE "Quote channel is now ON." COLOR_EOL, ch);
             REMOVE_BIT(ch->comm_flags, COMM_NOQUOTE);
         }
         else {
-            send_to_char("{hQuote channel is now OFF.{x\n\r", ch);
+            send_to_char(COLOR_QUOTE "Quote channel is now OFF." COLOR_EOL, ch);
             SET_BIT(ch->comm_flags, COMM_NOQUOTE);
         }
     }
@@ -444,7 +446,7 @@ void do_quote(Mobile* ch, char* argument)
 
         REMOVE_BIT(ch->comm_flags, COMM_NOQUOTE);
 
-        sprintf(buf, "{hYou quote '{H%s{h'{x\n\r", argument);
+        sprintf(buf, COLOR_QUOTE "You quote '" COLOR_QUOTE_TEXT "%s" COLOR_QUOTE "'" COLOR_EOL, argument);
         send_to_char(buf, ch);
         FOR_EACH(d, descriptor_list) {
             Mobile* victim;
@@ -454,7 +456,7 @@ void do_quote(Mobile* ch, char* argument)
             if (d->connected == CON_PLAYING && d->character != ch
                 && !IS_SET(victim->comm_flags, COMM_NOQUOTE)
                 && !IS_SET(victim->comm_flags, COMM_QUIET)) {
-                act_new("{h$n quotes '{H$t{h'{x", ch, argument, d->character,
+                act_pos(COLOR_QUOTE "$n quotes '" COLOR_QUOTE_TEXT "$t" COLOR_QUOTE "'" COLOR_CLEAR , ch, argument, d->character,
                         TO_VICT, POS_SLEEPING);
             }
         }
@@ -492,7 +494,7 @@ void do_question(Mobile* ch, char* argument)
 
         REMOVE_BIT(ch->comm_flags, COMM_NOQUESTION);
 
-        sprintf(buf, "{qYou question '{Q%s{q'{x\n\r", argument);
+        sprintf(buf, COLOR_QUESTION "You question '" COLOR_QUESTION_TEXT "%s" COLOR_QUESTION "'" COLOR_EOL, argument);
         send_to_char(buf, ch);
         FOR_EACH(d, descriptor_list) {
             Mobile* victim;
@@ -502,7 +504,7 @@ void do_question(Mobile* ch, char* argument)
             if (d->connected == CON_PLAYING && d->character != ch
                 && !IS_SET(victim->comm_flags, COMM_NOQUESTION)
                 && !IS_SET(victim->comm_flags, COMM_QUIET)) {
-                act_new("{q$n questions '{Q$t{q'{x", ch, argument, d->character,
+                act_pos(COLOR_QUESTION "$n questions '" COLOR_QUESTION_TEXT "$t" COLOR_QUESTION "'" COLOR_CLEAR , ch, argument, d->character,
                         TO_VICT, POS_SLEEPING);
             }
         }
@@ -540,7 +542,7 @@ void do_answer(Mobile* ch, char* argument)
 
         REMOVE_BIT(ch->comm_flags, COMM_NOQUESTION);
 
-        sprintf(buf, "{fYou answer '{F%s{f'{x\n\r", argument);
+        sprintf(buf, COLOR_ANSWER "You answer '" COLOR_ANSWER_TEXT "%s" COLOR_ANSWER "'" COLOR_EOL, argument);
         send_to_char(buf, ch);
         FOR_EACH(d, descriptor_list) {
             Mobile* victim;
@@ -550,7 +552,7 @@ void do_answer(Mobile* ch, char* argument)
             if (d->connected == CON_PLAYING && d->character != ch
                 && !IS_SET(victim->comm_flags, COMM_NOQUESTION)
                 && !IS_SET(victim->comm_flags, COMM_QUIET)) {
-                act_new("{f$n answers '{F$t{f'{x", ch, argument, d->character,
+                act_pos(COLOR_ANSWER "$n answers '" COLOR_ANSWER_TEXT "$t" COLOR_ANSWER "'" COLOR_CLEAR , ch, argument, d->character,
                         TO_VICT, POS_SLEEPING);
             }
         }
@@ -588,7 +590,7 @@ void do_music(Mobile* ch, char* argument)
 
         REMOVE_BIT(ch->comm_flags, COMM_NOMUSIC);
 
-        sprintf(buf, "{eYou MUSIC: '{E%s{e'{x\n\r", argument);
+        sprintf(buf, COLOR_MUSIC "You MUSIC: '" COLOR_MUSIC_TEXT "%s" COLOR_MUSIC "'" COLOR_EOL, argument);
         send_to_char(buf, ch);
         sprintf(buf, "$n MUSIC: '%s'", argument);
         FOR_EACH(d, descriptor_list) {
@@ -599,7 +601,7 @@ void do_music(Mobile* ch, char* argument)
             if (d->connected == CON_PLAYING && d->character != ch
                 && !IS_SET(victim->comm_flags, COMM_NOMUSIC)
                 && !IS_SET(victim->comm_flags, COMM_QUIET)) {
-                act_new("{e$n MUSIC: '{E$t{e'{x", ch, argument, d->character,
+                act_pos(COLOR_MUSIC "$n MUSIC: '" COLOR_MUSIC_TEXT "$t" COLOR_MUSIC "'" COLOR_CLEAR , ch, argument, d->character,
                         TO_VICT, POS_SLEEPING);
             }
         }
@@ -635,7 +637,7 @@ void do_clantalk(Mobile* ch, char* argument)
 
     REMOVE_BIT(ch->comm_flags, COMM_NOCLAN);
 
-    sprintf(buf, "You clan '%s'{x\n\r", argument);
+    sprintf(buf, "You clan '%s'" COLOR_EOL, argument);
     send_to_char(buf, ch);
     sprintf(buf, "$n clans '%s'", argument);
     FOR_EACH(d, descriptor_list) {
@@ -643,7 +645,7 @@ void do_clantalk(Mobile* ch, char* argument)
             && is_same_clan(ch, d->character)
             && !IS_SET(d->character->comm_flags, COMM_NOCLAN)
             && !IS_SET(d->character->comm_flags, COMM_QUIET)) {
-            act_new("$n clans '$t'{x", ch, argument, d->character, TO_VICT,
+            act_pos("$n clans '$t'" COLOR_CLEAR , ch, argument, d->character, TO_VICT,
                     POS_DEAD);
         }
     }
@@ -669,11 +671,11 @@ void do_immtalk(Mobile* ch, char* argument)
 
     REMOVE_BIT(ch->comm_flags, COMM_NOWIZ);
 
-    act_new("{i[{I$n{i]: $t{x", ch, argument, NULL, TO_CHAR, POS_DEAD);
+    act_pos(COLOR_IMMTALK_TEXT "[" COLOR_IMMTALK_TYPE "$n" COLOR_IMMTALK_TEXT "]: $t" COLOR_CLEAR , ch, argument, NULL, TO_CHAR, POS_DEAD);
     FOR_EACH(d, descriptor_list) {
         if (d->connected == CON_PLAYING && IS_IMMORTAL(d->character)
             && !IS_SET(d->character->comm_flags, COMM_NOWIZ)) {
-            act_new("{i[{I$n{i]: $t{x", ch, argument, d->character, TO_VICT,
+            act_pos(COLOR_IMMTALK_TEXT "[" COLOR_IMMTALK_TYPE "$n" COLOR_IMMTALK_TEXT "]: $t" COLOR_CLEAR , ch, argument, d->character, TO_VICT,
                     POS_DEAD);
         }
     }
@@ -688,18 +690,19 @@ void do_say(Mobile* ch, char* argument)
         return;
     }
 
-    act("{6$n says '{7$T{6'{x", ch, NULL, argument, TO_ROOM);
-    act("{6You say '{7$T{6'{x", ch, NULL, argument, TO_CHAR);
+    act(COLOR_SAY "$n says '" COLOR_SAY_TEXT "$T" COLOR_SAY "'" COLOR_CLEAR , ch, NULL, argument, TO_ROOM);
+    act(COLOR_SAY "You say '" COLOR_SAY_TEXT "$T" COLOR_SAY "'" COLOR_CLEAR , ch, NULL, argument, TO_CHAR);
 
 
     if (!IS_NPC(ch)) {
         Mobile* mob = NULL;
-        Mobile* mob_next = NULL;
-        for (mob = ch->in_room->people; mob != NULL; mob = mob_next) {
-            mob_next = mob->next_in_room;
-            if (IS_NPC(mob) && HAS_TRIGGER(mob, TRIG_SPEECH)
+        FOR_EACH_ROOM_MOB(mob, ch->in_room) {
+            if (IS_NPC(mob) && HAS_MPROG_TRIGGER(mob, TRIG_SPEECH)
                 && mob->position == mob->prototype->default_pos)
                 mp_act_trigger(argument, mob, ch, NULL, NULL, TRIG_SPEECH);
+            if (IS_NPC(mob) && HAS_EVENT_TRIGGER(mob, TRIG_SPEECH)
+                && mob->position == mob->prototype->default_pos)
+                raise_act_event((Entity*)mob, TRIG_SPEECH, (Entity*)ch, argument);
         }
     }
 
@@ -732,7 +735,7 @@ void do_shout(Mobile* ch, char* argument)
 
     WAIT_STATE(ch, 12);
 
-    act("{dYou shout '{9$T{d'{x", ch, NULL, argument, TO_CHAR);
+    act(COLOR_GOSSIP "You shout '" COLOR_GOSSIP_TEXT "$T" COLOR_GOSSIP "'" COLOR_CLEAR , ch, NULL, argument, TO_CHAR);
     FOR_EACH(d, descriptor_list) {
         Mobile* victim;
 
@@ -741,7 +744,7 @@ void do_shout(Mobile* ch, char* argument)
         if (d->connected == CON_PLAYING && d->character != ch
             && !IS_SET(victim->comm_flags, COMM_SHOUTSOFF)
             && !IS_SET(victim->comm_flags, COMM_QUIET)) {
-            act("{d$n shouts '{9$t{d'{x", ch, argument, d->character, TO_VICT);
+            act(COLOR_GOSSIP "$n shouts '" COLOR_GOSSIP_TEXT "$t" COLOR_GOSSIP "'" COLOR_CLEAR , ch, argument, d->character, TO_VICT);
         }
     }
 
@@ -789,7 +792,7 @@ void do_tell(Mobile* ch, char* argument)
     if (victim->desc == NULL && !IS_NPC(victim)) {
         act("$N seems to have misplaced $S link...try again later.", ch, NULL,
             victim, TO_CHAR);
-        sprintf(buf, "{k%s tells you '{K%s{k'{x\n\r", PERS(ch, victim),
+        sprintf(buf, COLOR_TELL "%s tells you '" COLOR_TELL_TEXT "%s" COLOR_TELL "'" COLOR_EOL, PERS(ch, victim),
                 argument);
         buf[0] = UPPER(buf[0]);
         add_buf(victim->pcdata->buffer, buf);
@@ -797,13 +800,13 @@ void do_tell(Mobile* ch, char* argument)
     }
 
     if (!(IS_IMMORTAL(ch) && ch->level > LEVEL_IMMORTAL) && !IS_AWAKE(victim)) {
-        act("$E can't hear you.", ch, 0, victim, TO_CHAR);
+        act("$E can't hear you.", ch, NULL, victim, TO_CHAR);
         return;
     }
 
     if ((IS_SET(victim->comm_flags, COMM_QUIET) || IS_SET(victim->comm_flags, COMM_DEAF))
         && !IS_IMMORTAL(ch)) {
-        act("$E is not receiving tells.", ch, 0, victim, TO_CHAR);
+        act("$E is not receiving tells.", ch, NULL, victim, TO_CHAR);
         return;
     }
 
@@ -816,20 +819,23 @@ void do_tell(Mobile* ch, char* argument)
 
         act("$E is AFK, but your tell will go through when $E returns.", ch,
             NULL, victim, TO_CHAR);
-        sprintf(buf, "{k%s tells you '{K%s{k'{x\n\r", PERS(ch, victim),
+        sprintf(buf, COLOR_TELL "%s tells you '" COLOR_TELL_TEXT "%s" COLOR_TELL "'" COLOR_EOL, PERS(ch, victim),
                 argument);
         buf[0] = UPPER(buf[0]);
         add_buf(victim->pcdata->buffer, buf);
         return;
     }
 
-    act("{kYou tell $N '{K$t{k'{x", ch, argument, victim, TO_CHAR);
-    act_new("{k$n tells you '{K$t{k'{x", ch, argument, victim, TO_VICT,
+    act(COLOR_TELL "You tell $N '" COLOR_TELL_TEXT "$t" COLOR_TELL "'" COLOR_CLEAR , ch, argument, victim, TO_CHAR);
+    act_pos(COLOR_TELL "$n tells you '" COLOR_TELL_TEXT "$t" COLOR_TELL "'" COLOR_CLEAR , ch, argument, victim, TO_VICT,
             POS_DEAD);
     victim->reply = ch;
 
-    if (!IS_NPC(ch) && IS_NPC(victim) && HAS_TRIGGER(victim, TRIG_SPEECH))
+    if (!IS_NPC(ch) && IS_NPC(victim) && HAS_MPROG_TRIGGER(victim, TRIG_SPEECH))
         mp_act_trigger(argument, victim, ch, NULL, NULL, TRIG_SPEECH);
+
+    if (!IS_NPC(ch) && IS_NPC(victim) && HAS_EVENT_TRIGGER(victim, TRIG_SPEECH))
+        raise_act_event((Entity*)victim, TRIG_SPEECH, (Entity*)ch, argument);
 
     return;
 }
@@ -852,7 +858,7 @@ void do_reply(Mobile* ch, char* argument)
     if (victim->desc == NULL && !IS_NPC(victim)) {
         act("$N seems to have misplaced $S link...try again later.", ch, NULL,
             victim, TO_CHAR);
-        sprintf(buf, "{k%s tells you '{K%s{k'{x\n\r", PERS(ch, victim),
+        sprintf(buf, COLOR_REPLY "%s tells you '" COLOR_REPLY_TEXT "%s" COLOR_REPLY "'" COLOR_EOL, PERS(ch, victim),
                 argument);
         buf[0] = UPPER(buf[0]);
         add_buf(victim->pcdata->buffer, buf);
@@ -860,13 +866,13 @@ void do_reply(Mobile* ch, char* argument)
     }
 
     if (!IS_IMMORTAL(ch) && !IS_AWAKE(victim)) {
-        act("$E can't hear you.", ch, 0, victim, TO_CHAR);
+        act("$E can't hear you.", ch, NULL, victim, TO_CHAR);
         return;
     }
 
     if ((IS_SET(victim->comm_flags, COMM_QUIET) || IS_SET(victim->comm_flags, COMM_DEAF))
         && !IS_IMMORTAL(ch) && !IS_IMMORTAL(victim)) {
-        act_new("$E is not receiving tells.", ch, 0, victim, TO_CHAR, POS_DEAD);
+        act_pos("$E is not receiving tells.", ch, NULL, victim, TO_CHAR, POS_DEAD);
         return;
     }
 
@@ -877,23 +883,23 @@ void do_reply(Mobile* ch, char* argument)
 
     if (IS_SET(victim->comm_flags, COMM_AFK)) {
         if (IS_NPC(victim)) {
-            act_new("$E is AFK, and not receiving tells.", ch, NULL, victim,
+            act_pos("$E is AFK, and not receiving tells.", ch, NULL, victim,
                     TO_CHAR, POS_DEAD);
             return;
         }
 
-        act_new("$E is AFK, but your tell will go through when $E returns.", ch,
+        act_pos("$E is AFK, but your tell will go through when $E returns.", ch,
                 NULL, victim, TO_CHAR, POS_DEAD);
-        sprintf(buf, "{k%s tells you '{K%s{k'{x\n\r", PERS(ch, victim),
+        sprintf(buf, COLOR_REPLY "%s tells you '" COLOR_REPLY_TEXT "%s" COLOR_REPLY "'" COLOR_EOL, PERS(ch, victim),
                 argument);
         buf[0] = UPPER(buf[0]);
         add_buf(victim->pcdata->buffer, buf);
         return;
     }
 
-    act_new("{kYou tell $N '{K$t{k'{x", ch, argument, victim, TO_CHAR,
+    act_pos(COLOR_REPLY "You tell $N '" COLOR_REPLY_TEXT "$t" COLOR_REPLY "'" COLOR_CLEAR , ch, argument, victim, TO_CHAR,
             POS_DEAD);
-    act_new("{k$n tells you '{K$t{k'{x", ch, argument, victim, TO_VICT,
+    act_pos(COLOR_REPLY "$n tells you '" COLOR_REPLY_TEXT "$t" COLOR_REPLY "'" COLOR_CLEAR , ch, argument, victim, TO_VICT,
             POS_DEAD);
     victim->reply = ch;
 
@@ -914,7 +920,7 @@ void do_yell(Mobile* ch, char* argument)
         return;
     }
 
-    act("{dYou yell '{9$t{d'{x", ch, argument, NULL, TO_CHAR);
+    act(COLOR_GOSSIP "You yell '" COLOR_GOSSIP_TEXT "$t" COLOR_GOSSIP "'" COLOR_CLEAR , ch, argument, NULL, TO_CHAR);
     FOR_EACH(d, descriptor_list) {
         if (d->connected == CON_PLAYING && d->character != ch
             && d->character->in_room != NULL
@@ -939,20 +945,20 @@ void do_emote(Mobile* ch, char* argument)
         return;
     }
 
-    MOBtrigger = false;
+    events_enabled = false;
     act("$n $T", ch, NULL, argument, TO_ROOM);
     act("$n $T", ch, NULL, argument, TO_CHAR);
-    MOBtrigger = true;
+    events_enabled = true;
     return;
 }
 
 void do_pmote(Mobile* ch, char* argument)
 {
     Mobile* vch;
-    char *letter, *name;
+    char *letter;
     char last[MAX_INPUT_LENGTH] = "";
     char temp[MAX_STRING_LENGTH] = "";
-    size_t matches = 0;
+    int matches = 0;
 
     if (!IS_NPC(ch) && IS_SET(ch->comm_flags, COMM_NOEMOTE)) {
         send_to_char("You can't show your emotions.\n\r", ch);
@@ -966,41 +972,42 @@ void do_pmote(Mobile* ch, char* argument)
 
     act("$n $t", ch, argument, NULL, TO_CHAR);
 
-    FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
+    FOR_EACH_ROOM_MOB(vch, ch->in_room) {
         if (vch->desc == NULL || vch == ch) continue;
 
-        if ((letter = strstr(argument, vch->name)) == NULL) {
-            MOBtrigger = false;
+        if ((letter = strstr(argument, NAME_STR(vch))) == NULL) {
+            events_enabled = false;
             act("$N $t", vch, argument, ch, TO_CHAR);
-            MOBtrigger = true;
+            events_enabled = true;
             continue;
         }
 
         strcpy(temp, argument);
         temp[strlen(argument) - strlen(letter)] = '\0';
         last[0] = '\0';
-        name = vch->name;
+        char* name = NAME_STR(vch);
+        String* vch_name = NAME_FIELD(vch);
 
         for (; *letter != '\0'; letter++) {
-            if (*letter == '\'' && matches == strlen(vch->name)) {
+            if (*letter == '\'' && matches == vch_name->length) {
                 strcat(temp, "r");
                 continue;
             }
 
-            if (*letter == 's' && matches == strlen(vch->name)) {
+            if (*letter == 's' && matches == vch_name->length) {
                 matches = 0;
                 continue;
             }
 
-            if (matches == strlen(vch->name)) { matches = 0; }
+            if (matches == vch_name->length) { matches = 0; }
 
             if (*letter == *name) {
                 matches++;
                 name++;
-                if (matches == strlen(vch->name)) {
+                if (matches == vch_name->length) {
                     strcat(temp, "you");
                     last[0] = '\0';
-                    name = vch->name;
+                    name = NAME_STR(vch);
                     continue;
                 }
                 strncat(last, letter, 1);
@@ -1011,12 +1018,12 @@ void do_pmote(Mobile* ch, char* argument)
             strcat(temp, last);
             strncat(temp, letter, 1);
             last[0] = '\0';
-            name = vch->name;
+            name = NAME_STR(vch);
         }
 
-        MOBtrigger = false;
+        events_enabled = false;
         act("$N $t", vch, temp, ch, TO_CHAR);
-        MOBtrigger = true;
+        events_enabled = true;
     }
 
     return;
@@ -1028,126 +1035,126 @@ struct pose_table_type {
 };
 
 const struct pose_table_type pose_table[] = {
-    {{"You sizzle with energy.", "$n sizzles with energy.",
-      "You feel very holy.", "$n looks very holy.",
-      "You perform a small card trick.", "$n performs a small card trick.",
-      "You show your bulging muscles.", "$n shows $s bulging muscles."}},
-
-    {{"You turn into a butterfly, then return to your normal shape.",
-      "$n turns into a butterfly, then returns to $s normal shape.",
-      "You nonchalantly turn wine into water.",
-      "$n nonchalantly turns wine into water.",
-      "You wiggle your ears alternately.", "$n wiggles $s ears alternately.",
-      "You crack nuts between your fingers.",
-      "$n cracks nuts between $s fingers."}},
-
-    {{"Blue sparks fly from your fingers.",
-      "Blue sparks fly from $n's fingers.", "A halo appears over your head.",
-      "A halo appears over $n's head.", "You nimbly tie yourself into a knot.",
-      "$n nimbly ties $mself into a knot.",
-      "You grizzle your teeth and look mean.",
-      "$n grizzles $s teeth and looks mean."}},
-
-    {{"Little red lights dance in your eyes.",
-      "Little red lights dance in $n's eyes.", "You recite words of wisdom.",
-      "$n recites words of wisdom.",
-      "You juggle with daggers, apples, and eyeballs.",
-      "$n juggles with daggers, apples, and eyeballs.",
-      "You hit your head, and your eyes roll.",
-      "$n hits $s head, and $s eyes roll."}},
-
-    {{"A slimy green monster appears before you and bows.",
-      "A slimy green monster appears before $n and bows.",
-      "Deep in prayer, you levitate.", "Deep in prayer, $n levitates.",
-      "You steal the underwear off every person in the room.",
-      "Your underwear is gone!  $n stole it!",
-      "Crunch, crunch -- you munch a bottle.",
-      "Crunch, crunch -- $n munches a bottle."}},
-
-    {{"You turn everybody into a little pink elephant.",
-      "You are turned into a little pink elephant by $n.",
-      "An angel consults you.", "An angel consults $n.",
-      "The dice roll ... and you win again.",
-      "The dice roll ... and $n wins again.",
-      "... 98, 99, 100 ... you do pushups.",
-      "... 98, 99, 100 ... $n does pushups."}},
-
-    {{"A small ball of light dances on your fingertips.",
-      "A small ball of light dances on $n's fingertips.",
-      "Your body glows with an unearthly light.",
-      "$n's body glows with an unearthly light.",
-      "You count the money in everyone's pockets.",
-      "Check your money, $n is counting it.",
-      "Arnold Schwarzenegger admires your physique.",
-      "Arnold Schwarzenegger admires $n's physique."}},
-
-    {{"Smoke and fumes leak from your nostrils.",
-      "Smoke and fumes leak from $n's nostrils.", "A spot light hits you.",
-      "A spot light hits $n.", "You balance a pocket knife on your tongue.",
-      "$n balances a pocket knife on your tongue.",
-      "Watch your feet, you are juggling granite boulders.",
-      "Watch your feet, $n is juggling granite boulders."}},
-
-    {{"The light flickers as you rap in magical languages.",
-      "The light flickers as $n raps in magical languages.",
-      "Everyone levitates as you pray.", "You levitate as $n prays.",
-      "You produce a coin from everyone's ear.",
-      "$n produces a coin from your ear.",
-      "Oomph!  You squeeze water out of a granite boulder.",
-      "Oomph!  $n squeezes water out of a granite boulder."}},
-
-    {{"Your head disappears.", "$n's head disappears.",
-      "A cool breeze refreshes you.", "A cool breeze refreshes $n.",
-      "You step behind your shadow.", "$n steps behind $s shadow.",
-      "You pick your teeth with a spear.", "$n picks $s teeth with a spear."}},
-
-    {{"A fire elemental singes your hair.",
-      "A fire elemental singes $n's hair.",
-      "The sun pierces through the clouds to illuminate you.",
-      "The sun pierces through the clouds to illuminate $n.",
-      "Your eyes dance with greed.", "$n's eyes dance with greed.",
-      "Everyone is swept off their foot by your hug.",
-      "You are swept off your feet by $n's hug."}},
-
-    {{"The sky changes color to match your eyes.",
-      "The sky changes color to match $n's eyes.",
-      "The ocean parts before you.", "The ocean parts before $n.",
-      "You deftly steal everyone's weapon.", "$n deftly steals your weapon.",
-      "Your karate chop splits a tree.", "$n's karate chop splits a tree."}},
-
-    {{"The stones dance to your command.", "The stones dance to $n's command.",
-      "A thunder cloud kneels to you.", "A thunder cloud kneels to $n.",
-      "The Grey Mouser buys you a beer.", "The Grey Mouser buys $n a beer.",
-      "A strap of your armor breaks over your mighty thews.",
-      "A strap of $n's armor breaks over $s mighty thews."}},
-
-    {{"The heavens and grass change colour as you smile.",
-      "The heavens and grass change colour as $n smiles.",
-      "The Burning Man speaks to you.", "The Burning Man speaks to $n.",
-      "Everyone's pocket explodes with your fireworks.",
-      "Your pocket explodes with $n's fireworks.",
-      "A boulder cracks at your frown.", "A boulder cracks at $n's frown."}},
-
-    {{"Everyone's clothes are transparent, and you are laughing.",
-      "Your clothes are transparent, and $n is laughing.",
-      "An eye in a pyramid winks at you.", "An eye in a pyramid winks at $n.",
-      "Everyone discovers your dagger a centimeter from their eye.",
-      "You discover $n's dagger a centimeter from your eye.",
-      "Mercenaries arrive to do your bidding.",
-      "Mercenaries arrive to do $n's bidding."}},
-
-    {{"A black hole swallows you.", "A black hole swallows $n.",
-      "Valentine Michael Smith offers you a glass of water.",
-      "Valentine Michael Smith offers $n a glass of water.",
-      "Where did you go?", "Where did $n go?",
-      "Four matched Percherons bring in your chariot.",
-      "Four matched Percherons bring in $n's chariot."}},
-
-    {{"The world shimmers in time with your whistling.",
-      "The world shimmers in time with $n's whistling.",
-      "The great god Mota gives you a staff.",
-      "The great god Mota gives $n a staff.", "Click.", "Click.",
-      "Atlas asks you to relieve him.", "Atlas asks $n to relieve him."}}};
+    { { "You sizzle with energy.", "$n sizzles with energy.",
+        "You feel very holy.", "$n looks very holy.",
+        "You perform a small card trick.", "$n performs a small card trick.",
+        "You show your bulging muscles.", "$n shows $s bulging muscles."}},
+        
+    { { "You turn into a butterfly, then return to your normal shape.",
+        "$n turns into a butterfly, then returns to $s normal shape.",
+        "You nonchalantly turn wine into water.",
+        "$n nonchalantly turns wine into water.",
+        "You wiggle your ears alternately.", "$n wiggles $s ears alternately.",
+        "You crack nuts between your fingers.",
+        "$n cracks nuts between $s fingers."}},
+        
+    { { "Blue sparks fly from your fingers.",
+        "Blue sparks fly from $n's fingers.", "A halo appears over your head.",
+        "A halo appears over $n's head.", "You nimbly tie yourself into a knot.",
+        "$n nimbly ties $mself into a knot.",
+        "You grizzle your teeth and look mean.",
+        "$n grizzles $s teeth and looks mean."}},
+        
+    { { "Little red lights dance in your eyes.",
+        "Little red lights dance in $n's eyes.", "You recite words of wisdom.",
+        "$n recites words of wisdom.",
+        "You juggle with daggers, apples, and eyeballs.",
+        "$n juggles with daggers, apples, and eyeballs.",
+        "You hit your head, and your eyes roll.",
+        "$n hits $s head, and $s eyes roll."}},
+        
+    { { "A slimy green monster appears before you and bows.",
+        "A slimy green monster appears before $n and bows.",
+        "Deep in prayer, you levitate.", "Deep in prayer, $n levitates.",
+        "You steal the underwear off every person in the room.",
+        "Your underwear is gone!  $n stole it!",
+        "Crunch, crunch -- you munch a bottle.",
+        "Crunch, crunch -- $n munches a bottle."}},
+        
+    { { "You turn everybody into a little pink elephant.",
+        "You are turned into a little pink elephant by $n.",
+        "An angel consults you.", "An angel consults $n.",
+        "The dice roll ... and you win again.",
+        "The dice roll ... and $n wins again.",
+        "... 98, 99, 100 ... you do pushups.",
+        "... 98, 99, 100 ... $n does pushups."}},
+        
+    { { "A small ball of light dances on your fingertips.",
+        "A small ball of light dances on $n's fingertips.",
+        "Your body glows with an unearthly light.",
+        "$n's body glows with an unearthly light.",
+        "You count the money in everyone's pockets.",
+        "Check your money, $n is counting it.",
+        "Arnold Schwarzenegger admires your physique.",
+        "Arnold Schwarzenegger admires $n's physique."}},
+        
+    { { "Smoke and fumes leak from your nostrils.",
+        "Smoke and fumes leak from $n's nostrils.", "A spot light hits you.",
+        "A spot light hits $n.", "You balance a pocket knife on your tongue.",
+        "$n balances a pocket knife on your tongue.",
+        "Watch your feet, you are juggling granite boulders.",
+        "Watch your feet, $n is juggling granite boulders."}},
+        
+    { { "The light flickers as you rap in magical languages.",
+        "The light flickers as $n raps in magical languages.",
+        "Everyone levitates as you pray.", "You levitate as $n prays.",
+        "You produce a coin from everyone's ear.",
+        "$n produces a coin from your ear.",
+        "Oomph!  You squeeze water out of a granite boulder.",
+        "Oomph!  $n squeezes water out of a granite boulder."}},
+        
+    { { "Your head disappears.", "$n's head disappears.",
+        "A cool breeze refreshes you.", "A cool breeze refreshes $n.",
+        "You step behind your shadow.", "$n steps behind $s shadow.",
+        "You pick your teeth with a spear.", "$n picks $s teeth with a spear."}},
+        
+    { { "A fire elemental singes your hair.",
+        "A fire elemental singes $n's hair.",
+        "The sun pierces through the clouds to illuminate you.",
+        "The sun pierces through the clouds to illuminate $n.",
+        "Your eyes dance with greed.", "$n's eyes dance with greed.",
+        "Everyone is swept off their foot by your hug.",
+        "You are swept off your feet by $n's hug."}},
+        
+    { { "The sky changes color to match your eyes.",
+        "The sky changes color to match $n's eyes.",
+        "The ocean parts before you.", "The ocean parts before $n.",
+        "You deftly steal everyone's weapon.", "$n deftly steals your weapon.",
+        "Your karate chop splits a tree.", "$n's karate chop splits a tree."}},
+        
+    { { "The stones dance to your command.", "The stones dance to $n's command.",
+        "A thunder cloud kneels to you.", "A thunder cloud kneels to $n.",
+        "The Grey Mouser buys you a beer.", "The Grey Mouser buys $n a beer.",
+        "A strap of your armor breaks over your mighty thews.",
+        "A strap of $n's armor breaks over $s mighty thews."}},
+        
+    { { "The heavens and grass change colour as you smile.",
+        "The heavens and grass change colour as $n smiles.",
+        "The Burning Man speaks to you.", "The Burning Man speaks to $n.",
+        "Everyone's pocket explodes with your fireworks.",
+        "Your pocket explodes with $n's fireworks.",
+        "A boulder cracks at your frown.", "A boulder cracks at $n's frown."}},
+        
+    { { "Everyone's clothes are transparent, and you are laughing.",
+        "Your clothes are transparent, and $n is laughing.",
+        "An eye in a pyramid winks at you.", "An eye in a pyramid winks at $n.",
+        "Everyone discovers your dagger a centimeter from their eye.",
+        "You discover $n's dagger a centimeter from your eye.",
+        "Mercenaries arrive to do your bidding.",
+        "Mercenaries arrive to do $n's bidding."}},
+        
+    { { "A black hole swallows you.", "A black hole swallows $n.",
+        "Valentine Michael Smith offers you a glass of water.",
+        "Valentine Michael Smith offers $n a glass of water.",
+        "Where did you go?", "Where did $n go?",
+        "Four matched Percherons bring in your chariot.",
+        "Four matched Percherons bring in $n's chariot."}},
+        
+    { { "The world shimmers in time with your whistling.",
+        "The world shimmers in time with $n's whistling.",
+        "The great god Mota gives you a staff.",
+        "The great god Mota gives $n a staff.", "Click.", "Click.",
+        "Atlas asks you to relieve him.", "Atlas asks $n to relieve him."}}};
 
 void do_pose(Mobile* ch, char* argument)
 {
@@ -1217,7 +1224,7 @@ void do_quit(Mobile* ch, char* argument)
     }
     send_to_char("Alas, all good things must come to an end.\n\r", ch);
     act("$n has left the game.", ch, NULL, NULL, TO_ROOM);
-    sprintf(log_buf, "%s has quit.", ch->name);
+    sprintf(log_buf, "%s has quit.", NAME_STR(ch));
     log_string(log_buf);
     wiznet("$N rejoins the real world.", ch, NULL, WIZ_LOGINS, 0, get_trust(ch));
 
@@ -1369,9 +1376,11 @@ void die_follower(Mobile* ch)
 
     ch->leader = NULL;
 
-    FOR_EACH(fch, mob_list) {
-        if (fch->master == ch) stop_follower(fch);
-        if (fch->leader == ch) fch->leader = fch;
+    FOR_EACH_GLOBAL_MOB(fch) {
+        if (fch->master == ch)
+            stop_follower(fch);
+        if (fch->leader == ch)
+            fch->leader = fch;
     }
 
     return;
@@ -1384,7 +1393,6 @@ void do_order(Mobile* ch, char* argument)
     char arg2[MAX_INPUT_LENGTH];
     Mobile* victim;
     Mobile* och;
-    Mobile* och_next = NULL;
     bool found;
     bool fAll;
 
@@ -1430,9 +1438,7 @@ void do_order(Mobile* ch, char* argument)
     }
 
     found = false;
-    for (och = ch->in_room->people; och != NULL; och = och_next) {
-        och_next = och->next_in_room;
-
+    FOR_EACH_ROOM_MOB(och, ch->in_room) {
         if (IS_AFFECTED(och, AFF_CHARM) && och->master == ch 
             && (fAll || och == victim)) {
             found = true;
@@ -1464,13 +1470,13 @@ void do_group(Mobile* ch, char* argument)
         Mobile* leader;
 
         leader = (ch->leader != NULL) ? ch->leader : ch;
-        sprintf(buf, "{T%s's group:{x\n\r", PERS(leader, ch));
+        sprintf(buf, COLOR_TITLE "%s's group:" COLOR_EOL, PERS(leader, ch));
         send_to_char(buf, ch);
 
-        FOR_EACH(gch, mob_list) {
+        FOR_EACH_GLOBAL_MOB(gch) {
             if (is_same_group(gch, ch)) {
                 sprintf(buf,
-                        "{|[{*%2d %s{|]{x %-16s {_%4d/%4d hp %4d/%4d mana %4d/%4d mv %5d xp{x\n\r",
+                        COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%2d %s" COLOR_DECOR_1 "]" COLOR_CLEAR " %-16s " COLOR_ALT_TEXT_2 "%4d/%4d hp %4d/%4d mana %4d/%4d mv %5d xp" COLOR_EOL,
                         gch->level,
                         IS_NPC(gch) ? "Mob" : class_table[gch->ch_class].who_name,
                         capitalize(PERS(gch, ch)), gch->hit, gch->max_hit,
@@ -1493,7 +1499,7 @@ void do_group(Mobile* ch, char* argument)
     }
 
     if (victim->master != ch && ch != victim) {
-        act_new("$N isn't following you.", ch, NULL, victim, TO_CHAR,
+        act_pos("$N isn't following you.", ch, NULL, victim, TO_CHAR,
                 POS_SLEEPING);
         return;
     }
@@ -1504,26 +1510,26 @@ void do_group(Mobile* ch, char* argument)
     }
 
     if (IS_AFFECTED(ch, AFF_CHARM)) {
-        act_new("You like your master too much to leave $m!", ch, NULL, victim,
+        act_pos("You like your master too much to leave $m!", ch, NULL, victim,
                 TO_VICT, POS_SLEEPING);
         return;
     }
 
     if (is_same_group(victim, ch) && ch != victim) {
         victim->leader = NULL;
-        act_new("$n removes $N from $s group.", ch, NULL, victim, TO_NOTVICT,
+        act_pos("$n removes $N from $s group.", ch, NULL, victim, TO_NOTVICT,
                 POS_RESTING);
-        act_new("$n removes you from $s group.", ch, NULL, victim, TO_VICT,
+        act_pos("$n removes you from $s group.", ch, NULL, victim, TO_VICT,
                 POS_SLEEPING);
-        act_new("You remove $N from your group.", ch, NULL, victim, TO_CHAR,
+        act_pos("You remove $N from your group.", ch, NULL, victim, TO_CHAR,
                 POS_SLEEPING);
         return;
     }
 
     victim->leader = ch;
-    act_new("$N joins $n's group.", ch, NULL, victim, TO_NOTVICT, POS_RESTING);
-    act_new("You join $n's group.", ch, NULL, victim, TO_VICT, POS_SLEEPING);
-    act_new("$N joins your group.", ch, NULL, victim, TO_CHAR, POS_SLEEPING);
+    act_pos("$N joins $n's group.", ch, NULL, victim, TO_NOTVICT, POS_RESTING);
+    act_pos("You join $n's group.", ch, NULL, victim, TO_VICT, POS_SLEEPING);
+    act_pos("$N joins your group.", ch, NULL, victim, TO_CHAR, POS_SLEEPING);
     return;
 }
 
@@ -1567,7 +1573,7 @@ void do_split(Mobile* ch, char* argument)
     }
 
     members = 0;
-    FOR_EACH_IN_ROOM(gch, ch->in_room->people) {
+    FOR_EACH_ROOM_MOB(gch, ch->in_room) {
         if (is_same_group(gch, ch) && !IS_AFFECTED(gch, AFF_CHARM)) members++;
     }
 
@@ -1620,7 +1626,7 @@ void do_split(Mobile* ch, char* argument)
             amount_silver, amount_gold, share_silver, share_gold);
     }
 
-    FOR_EACH_IN_ROOM(gch, ch->in_room->people) {
+    FOR_EACH_ROOM_MOB(gch, ch->in_room) {
         if (gch != ch && is_same_group(gch, ch)
             && !IS_AFFECTED(gch, AFF_CHARM)) {
             act(buf, ch, NULL, gch, TO_VICT);
@@ -1646,9 +1652,9 @@ void do_gtell(Mobile* ch, char* argument)
         return;
     }
 
-    FOR_EACH(gch, mob_list) {
+    FOR_EACH_GLOBAL_MOB(gch) {
         if (is_same_group(gch, ch))
-            act_new("$n tells the group '$t'", ch, argument, gch, TO_VICT,
+            act_pos("$n tells the group '$t'", ch, argument, gch, TO_VICT,
                     POS_SLEEPING);
     }
 
@@ -1692,9 +1698,9 @@ void do_colour(Mobile* ch, char* argument)
             SET_BIT(ch->act_flags, PLR_COLOUR);
             send_to_char(
                 "ColoUr is now ON, Way Cool!\n\r"
-                "Further syntax:\n\r   colour {c<{xfield{c> <{xcolour{c>{x\n\r"
-                "   colour {c<{xfield{c>{x {cbeep{x|{cnobeep{x\n\r"
-                "Type help {ccolour{x and {ccolour2{x for details.\n\r"
+                "Further syntax:\n\r   colour " COLOR_CYAN "<" COLOR_CLEAR "field" COLOR_CYAN "> <" COLOR_CLEAR "colour" COLOR_CYAN ">" COLOR_EOL
+                "   colour " COLOR_CYAN "<" COLOR_CLEAR "field" COLOR_CYAN ">" COLOR_CLEAR " " COLOR_CYAN "beep" COLOR_CLEAR "|" COLOR_CYAN "nobeep" COLOR_EOL
+                "Type help " COLOR_CYAN "colour" COLOR_CLEAR " and " COLOR_CYAN "colour2" COLOR_CLEAR " for details.\n\r"
                 "ColoUr is brought to you by Lope, ant@solace.mh.se.\n\r",
                 ch);
         }
@@ -1705,7 +1711,7 @@ void do_colour(Mobile* ch, char* argument)
         return;
     }
 
-    send_to_char("{jUse the {*THEME{j command to change colors.\n\r", ch);
+    send_to_char(COLOR_INFO "Use the " COLOR_ALT_TEXT_1 "THEME" COLOR_INFO " command to change colors.\n\r", ch);
 }
 
 void do_clear(Mobile* ch, char* argument)

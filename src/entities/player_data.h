@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// player_data.h
+// entities/player_data.h
 // Player character data
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -11,14 +11,17 @@ typedef struct player_data_t PlayerData;
 #ifndef MUD98__ENTITIES__PLAYER_DATA_H
 #define MUD98__ENTITIES__PLAYER_DATA_H
 
-#include "merc.h"
-
-#include "color.h"
-#include "recycle.h"
+#include <merc.h>
 
 #include "mobile.h"
 
-#include "data/quest.h"
+#include <color.h>
+#include <recycle.h>
+
+#include <data/player.h>
+#include <data/quest.h>
+
+typedef struct Tutorial Tutorial;
 
 typedef struct color_config_t {
     char* current_theme_name;   // For lazy-loading and discardability
@@ -65,6 +68,8 @@ typedef struct player_data_t {
     time_t last_penalty;
     time_t last_news;
     time_t last_changes;
+    Tutorial* tutorial;
+    int tutorial_step;
     unsigned int pwd_digest_len;
     VNUM recall;
     int security;                           // OLC Builder Security

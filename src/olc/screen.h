@@ -1,10 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////
-// screen.c
+// screen.h
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 #ifndef MUD98__SCREEN_H
 #define MUD98__SCREEN_H
+
+#include "entities/descriptor.h"
+
+#include <stdint.h>
 
 void InitScreen(Descriptor *);
 void InitScreenMap(Descriptor *);
@@ -19,6 +23,7 @@ void UpdateOLCScreen(Descriptor *);
 #define OLCS_BOOL			7
 #define OLCS_TAG			8
 #define OLCS_VNUM			9
+#define OLCS_LOX_STRING		10
 
 struct olc_show_table_type {
 	char*		name;

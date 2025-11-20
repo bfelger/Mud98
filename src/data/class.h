@@ -1,15 +1,16 @@
 ////////////////////////////////////////////////////////////////////////////////
-// class.h
+// data/class.h
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 #ifndef MUD98__DATA__CLASS_H
 #define MUD98__DATA__CLASS_H
 
-#include "merc.h"
+#include <merc.h>
 
-#include "array.h"
 #include "stats.h"
+
+#include <array.h>
 
 #include <stdint.h>
 #include <stdbool.h>

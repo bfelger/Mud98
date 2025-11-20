@@ -30,7 +30,7 @@ AreaData xArea;
 #define U(x)    (uintptr_t)(x)
 
 const OlcCmdEntry area_olc_comm_table[] = {
-    { "name", 	        U(&xArea.name),         ed_line_string,     0	                },
+    { "name", 	        U(&xArea.header.name),  ed_line_lox_string, 0                   },
     { "min_vnum", 	    0,                      ed_olded,           U(aedit_lvnum)	    },
     { "max_vnum", 	    0,                      ed_olded,           U(aedit_uvnum)	    },
     { "min_level", 	    U(&xArea.low_range),    ed_number_level,    0	                },
@@ -74,7 +74,7 @@ void do_aedit(Mobile* ch, char* argument)
         if (!aedit_create(ch, argument))
             return;
         else
-            area = area_data_last;
+            area = LAST_AREA_DATA;
     }
 
     if (!IS_BUILDER(ch, area) || ch->pcdata->security < MIN_AEDIT_SECURITY) {
@@ -123,7 +123,7 @@ AreaData* get_vnum_area(VNUM vnum)
 {
     AreaData* area;
 
-    FOR_EACH(area, area_data_list) {
+    FOR_EACH_AREA(area) {
         if (vnum >= area->min_vnum
             && vnum <= area->max_vnum)
             return area;
@@ -136,23 +136,24 @@ AreaData* get_vnum_area(VNUM vnum)
 AEDIT(aedit_show)
 {
     AreaData* area;
+    char buf[MIL];
 
     EDIT_AREA(ch, area);
 
-    printf_to_char(ch, "Name:           {|[{*%"PRVNUM"{|] {_%s{x\n\r", area->vnum, area->name);
-    printf_to_char(ch, "File:           {*%s{x\n\r", area->file_name);
-    printf_to_char(ch, "Vnums:          {|[{*%d-%d{|]{x\n\r", area->min_vnum, area->max_vnum);
-    printf_to_char(ch, "Levels:         {|[{*%d-%d{|]{x\n\r", area->low_range, area->high_range);
-    printf_to_char(ch, "Sector:         {|[{*%s{|]{x\n\r", flag_string(sector_flag_table, area->sector));
-    printf_to_char(ch, "Reset:          {|[{*%d{|] {_x %d minutes", area->reset_thresh, (area->reset_thresh * PULSE_AREA) / 60);
-    //printf_to_char(ch, "; current at %d", (PULSE_AREA / 60), area->reset_timer);
-    printf_to_char(ch, "{x\n\r");
-    printf_to_char(ch, "Always Reset:   {|[%s{|]{x\n\r", area->always_reset ? "{GYES" : "{RNO");
-    printf_to_char(ch, "Instance Type:  {|[{*%s{|]{x\n\r", flag_string(inst_type_table, area->inst_type));
-    printf_to_char(ch, "Security:       {|[{*%d{|]{x\n\r", area->security);
-    printf_to_char(ch, "Builders:       {|[{*%s{|]{x\n\r", area->builders);
-    printf_to_char(ch, "Credits :       {|[{*%s{|]{x\n\r", area->credits);
-    printf_to_char(ch, "Flags:          {|[{*%s{|]{x\n\r", flag_string(area_flag_table, area->area_flags));
+    olc_print_num_str(ch, "Area", VNUM_FIELD(area), NAME_STR(area));
+    olc_print_str(ch, "File", area->file_name);
+    olc_print_range(ch, "Vnums", area->min_vnum, area->max_vnum);
+    olc_print_range(ch, "Levels", area->low_range, area->high_range);
+    olc_print_flags(ch, "Sector", sector_flag_table, area->sector);
+    sprintf(buf, "x %d minutes", (area->reset_thresh * PULSE_AREA) / 60);
+    olc_print_num_str(ch, "Reset", area->reset_thresh, buf);
+    olc_print_yesno(ch, "Always Reset", area->always_reset);
+    olc_print_flags(ch, "Instance Type", inst_type_table, area->inst_type);
+    olc_print_num(ch, "Security", area->security);
+    olc_print_str(ch, "Builders", area->builders);
+    olc_print_str(ch, "Credits", area->credits);
+    olc_print_flags(ch, "Flags", area_flag_table, area->area_flags);
+    
     return false;
 }
 
@@ -162,10 +163,9 @@ AEDIT(aedit_reset)
 
     EDIT_AREA(ch, area_data);
 
-
     Area* area;
 
-    FOR_EACH(area, area_data->instances)
+    FOR_EACH_AREA_INST(area, area_data)
         reset_area(area);
     send_to_char("Area reset.\n\r", ch);
 
@@ -183,14 +183,13 @@ AEDIT(aedit_create)
 
     area_data = new_area_data();
     free_string(area_data->builders);
-    area_data->builders = strdup(ch->name);
+    area_data->builders = str_dup(NAME_STR(ch));
     free_string(area_data->credits);
-    area_data->credits = strdup(ch->name);
+    area_data->credits = str_dup(NAME_STR(ch));
     area_data->low_range = 1;
     area_data->high_range = MAX_LEVEL;
     area_data->security = ch->pcdata->security;
-    area_data_last->next = area_data;
-    area_data_last = area_data;
+    write_value_array(&global_areas, OBJ_VAL(area_data));
 
     set_editor(ch->desc, ED_AREA, U(area_data));
 
@@ -364,7 +363,7 @@ bool check_range(VNUM lower, VNUM upper)
     AreaData* area;
     int cnt = 0;
 
-    FOR_EACH(area, area_data_list) {
+    FOR_EACH_AREA(area) {
         // lower < area < upper
         if ((lower <= area->min_vnum && area->min_vnum <= upper)
             || (lower <= area->max_vnum && area->max_vnum <= upper))
@@ -508,22 +507,23 @@ AEDIT(aedit_uvnum)
  ****************************************************************************/
 void do_alist(Mobile* ch, char* argument)
 {
-    static const char* help = "Syntax: {*ALIST\n\r"
-        "        ALIST ORDERBY (VNUM|NAME){x\n\r";
+    static const char* help = "Syntax: " COLOR_ALT_TEXT_1 "ALIST\n\r"
+        "        ALIST ORDERBY (VNUM|NAME)" COLOR_EOL;
 
     INIT_BUF(result, MAX_STRING_LENGTH);
     char arg[MIL];
     char sort[MIL];
 
-    addf_buf(result, "{|[{T%3s{|] [{T%-27s{|] ({T%-5s{|-{T%5s{|) {|[{T%-10s{|] {T%3s {|[{T%-10s{|]{x\n\r",
+    addf_buf(result, COLOR_DECOR_1 "[" COLOR_TITLE "%3s" COLOR_DECOR_1 "] [" COLOR_TITLE "%-27s" COLOR_DECOR_1 "] (" COLOR_TITLE "%-5s" COLOR_DECOR_1 "-" COLOR_TITLE "%5s" COLOR_DECOR_1 ") " COLOR_DECOR_1 "[" COLOR_TITLE "%-10s" COLOR_DECOR_1 "] " COLOR_TITLE "%3s " COLOR_DECOR_1 "[" COLOR_TITLE "%-10s" COLOR_DECOR_1 "]" COLOR_EOL,
         "Num", "Area Name", "lvnum", "uvnum", "Filename", "Sec", "Builders");
 
-    size_t alist_size = sizeof(AreaData*) * area_data_count;
+    size_t alist_size = sizeof(AreaData*) * global_areas.count;
     AreaData** alist = (AreaData**)alloc_mem(alist_size);
 
     {
+        AreaData* area;
         int i = 0;
-        for (AreaData* area = area_data_list; area; NEXT_LINK(area)) {
+        FOR_EACH_AREA(area) {
             alist[i++] = area;
         }
     }
@@ -531,32 +531,32 @@ void do_alist(Mobile* ch, char* argument)
     READ_ARG(arg);
     if (arg[0]) {
         if (str_prefix(arg, "orderby")) {
-            printf_to_char(ch, "{jUnknown option '{*%s{j'.{x\n\r\n\r%s", arg, help);
+            printf_to_char(ch, COLOR_INFO "Unknown option '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "'." COLOR_CLEAR "\n\r\n\r%s", arg, help);
             goto alist_cleanup;
         }
 
         READ_ARG(sort);
         if (!str_cmp(sort, "vnum")) {
-            SORT_ARRAY(AreaData*, alist, area_data_count,
+            SORT_ARRAY(AreaData*, alist, global_areas.count,
                 alist[i]->min_vnum < alist[lo]->min_vnum,
                 alist[i]->min_vnum > alist[hi]->min_vnum);
         }
         else if (!str_cmp(sort, "name")) {
-            SORT_ARRAY(AreaData*, alist, area_data_count,
-                strcasecmp(alist[i]->name, alist[lo]->name) < 0,
-                strcasecmp(alist[i]->name, alist[hi]->name) > 0);
+            SORT_ARRAY(AreaData*, alist, global_areas.count,
+                strcasecmp(NAME_STR(alist[i]), NAME_STR(alist[lo])) < 0,
+                strcasecmp(NAME_STR(alist[i]), NAME_STR(alist[hi])) > 0);
         }
         else {
-            printf_to_char(ch, "{jUnknown sort option '{*%s{j'.{x\n\r\n\r%s", sort, help);
+            printf_to_char(ch, COLOR_INFO "Unknown sort option '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "'." COLOR_CLEAR "\n\r\n\r%s", sort, help);
             goto alist_cleanup;
         }
     }
 
-    for (int i = 0; i < area_data_count; ++i) {
-        AreaData* area = alist[i];
-        addf_buf( result, "{|[{*%3d{|]{x %-29.29s {|({*%-5d{|-{*%5d{|) {_%-12.12s {|[{*%d{|] [{*%-10.10s{|]{x\n\r",
-            area->vnum,
-            area->name,
+    AreaData* area;
+    FOR_EACH_AREA(area) {
+        addf_buf( result, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-29.29s " COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%-5d" COLOR_DECOR_1 "-" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 ") " COLOR_ALT_TEXT_2 "%-12.12s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "] [" COLOR_ALT_TEXT_1 "%-10.10s" COLOR_DECOR_1 "]" COLOR_EOL,
+            VNUM_FIELD(area),
+            NAME_STR(area),
             area->min_vnum,
             area->max_vnum,
             area->file_name,
@@ -581,8 +581,8 @@ AreaData* get_area_data(VNUM vnum)
 {
     AreaData* area;
 
-    FOR_EACH(area, area_data_list) {
-        if (area->vnum == vnum)
+    FOR_EACH_AREA(area) {
+        if (VNUM_FIELD(area) == vnum)
             return area;
     }
 

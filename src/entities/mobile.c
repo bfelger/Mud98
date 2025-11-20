@@ -1,33 +1,53 @@
 ////////////////////////////////////////////////////////////////////////////////
-// mobile.c
+// entities/mobile.c
 // Mobiles
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "mobile.h"
 
-#include "comm.h"
-#include "db.h"
-#include "handler.h"
-#include "recycle.h"
+#include <comm.h>
+#include <config.h>
+#include <db.h>
+#include <handler.h>
+#include <recycle.h>
 
-#include "object.h"
+#include <entities/object.h>
 
-#include "data/mobile_data.h"
+#include <data/mobile_data.h>
 
-Mobile* mob_list;
-Mobile* mob_free;
+#include <lox/list.h>
+#include <lox/vm.h>
 
-int mob_count = 0;
-int mob_perm_count = 0;
+List mob_list = { 0 };
+List mob_free = { 0 };
+
 int last_mob_id = 0;
 
 Mobile* new_mobile()
 {
-    LIST_ALLOC_PERM(mob, Mobile);
+    ENTITY_ALLOC_PERM(mob, Mobile);
+
+    gc_protect(OBJ_VAL(mob));
+
+    init_header(&mob->header, OBJ_MOB);
+
+    init_list(&mob->objects);
+
+    mob->short_descr = &str_empty[0];
+    SET_NATIVE_FIELD(&mob->header, mob->short_descr, short_desc, STR);
+
+    SET_NATIVE_FIELD(&mob->header, mob->hit, hp, I16);
+    SET_NATIVE_FIELD(&mob->header, mob->max_hit, max_hp, I16);
+    SET_NATIVE_FIELD(&mob->header, mob->race, race, I16);
+    SET_NATIVE_FIELD(&mob->header, mob->level, level, I16);
+
+    SET_LOX_FIELD(&mob->header, mob->in_room, in_room);
+    SET_LOX_FIELD(&mob->header, mob->was_in_room, was_in_room);
+
+    mob->mob_list_node = list_push_back(&mob_list, OBJ_VAL(mob));
 
     VALIDATE(mob);
-    mob->name = &str_empty[0];
-    mob->short_descr = &str_empty[0];
+
     mob->long_descr = &str_empty[0];
     mob->description = &str_empty[0];
     mob->prompt = &str_empty[0];
@@ -53,21 +73,19 @@ Mobile* new_mobile()
 
 void free_mobile(Mobile* mob)
 {
-    Object* obj;
     Affect* affect;
 
     if (!IS_VALID(mob))
         return;
 
-    while((obj = mob->carrying) != NULL) {
-        extract_obj(obj);
+    while(mob->objects.front != NULL) {
+        extract_obj(AS_OBJECT(mob->objects.front->value));
     }
 
     while((affect = mob->affected) != NULL) {
         affect_remove(mob, affect);
     }
 
-    free_string(mob->name);
     free_string(mob->short_descr);
     free_string(mob->long_descr);
     free_string(mob->description);
@@ -78,7 +96,7 @@ void free_mobile(Mobile* mob)
 
     INVALIDATE(mob);
 
-    LIST_FREE(mob);
+    ENTITY_FREE(mob);
 
     return;
 }
@@ -91,8 +109,12 @@ void clone_mobile(Mobile* parent, Mobile* clone)
     if (parent == NULL || clone == NULL || !IS_NPC(parent)) 
         return;
 
+    clone->prototype = parent->prototype;
+
     /* start fixing values */
-    clone->name = str_dup(parent->name);
+    SET_NAME(clone, NAME_FIELD(parent));
+    VNUM_FIELD(clone) = VNUM_FIELD(parent);
+
     clone->version = parent->version;
     clone->short_descr = str_dup(parent->short_descr);
     clone->long_descr = str_dup(parent->long_descr);
@@ -152,7 +174,7 @@ void clone_mobile(Mobile* parent, Mobile* clone)
 
     /* now add the affects */
     FOR_EACH(affect, parent->affected)
-        affect_to_char(clone, affect);
+        affect_to_mob(clone, affect);
 }
 
 Mobile* create_mobile(MobPrototype* p_mob_proto)
@@ -170,7 +192,17 @@ Mobile* create_mobile(MobPrototype* p_mob_proto)
 
     mob->prototype = p_mob_proto;
 
-    mob->name = str_dup(p_mob_proto->name);
+    SET_NAME(mob, NAME_FIELD(p_mob_proto));
+    VNUM_FIELD(mob) = VNUM_FIELD(p_mob_proto);
+
+    if (p_mob_proto->header.klass != NULL) {
+        mob->header.klass = p_mob_proto->header.klass;
+        init_entity_class((Entity*)mob);
+    }
+
+    mob->header.events = p_mob_proto->header.events;
+    mob->header.event_triggers = p_mob_proto->header.event_triggers;
+
     mob->short_descr = str_dup(p_mob_proto->short_descr);
     mob->long_descr = str_dup(p_mob_proto->long_descr);
     mob->description = str_dup(p_mob_proto->description);
@@ -282,7 +314,7 @@ Mobile* create_mobile(MobPrototype* p_mob_proto)
         af.location = APPLY_NONE;
         af.modifier = 0;
         af.bitvector = AFF_SANCTUARY;
-        affect_to_char(mob, &af);
+        affect_to_mob(mob, &af);
     }
 
     if (IS_AFFECTED(mob, AFF_HASTE)) {
@@ -294,7 +326,7 @@ Mobile* create_mobile(MobPrototype* p_mob_proto)
         af.modifier = 1 + (mob->level >= 18) + (mob->level >= 25)
             + (mob->level >= 32);
         af.bitvector = AFF_HASTE;
-        affect_to_char(mob, &af);
+        affect_to_mob(mob, &af);
     }
 
     if (IS_AFFECTED(mob, AFF_PROTECT_EVIL)) {
@@ -305,7 +337,7 @@ Mobile* create_mobile(MobPrototype* p_mob_proto)
         af.location = APPLY_SAVES;
         af.modifier = -1;
         af.bitvector = AFF_PROTECT_EVIL;
-        affect_to_char(mob, &af);
+        affect_to_mob(mob, &af);
     }
 
     if (IS_AFFECTED(mob, AFF_PROTECT_GOOD)) {
@@ -316,15 +348,14 @@ Mobile* create_mobile(MobPrototype* p_mob_proto)
         af.location = APPLY_SAVES;
         af.modifier = -1;
         af.bitvector = AFF_PROTECT_GOOD;
-        affect_to_char(mob, &af);
+        affect_to_mob(mob, &af);
     }
 
     mob->position = mob->start_pos;
 
     /* link the mob to the world list */
-    mob->next = mob_list;
-    mob_list = mob;
     p_mob_proto->count++;
+
     return mob;
 }
 
@@ -336,18 +367,20 @@ long get_mob_id()
 
 void clear_mob(Mobile* ch)
 {
-    static Mobile ch_zero = { 0 };
     int i;
 
-    *ch = ch_zero;
-    ch->name = &str_empty[0];
+    memset(ch, 0, sizeof(Mobile));
+
+    init_header(&ch->header, OBJ_MOB);
+
     ch->short_descr = &str_empty[0];
     ch->long_descr = &str_empty[0];
     ch->description = &str_empty[0];
     ch->prompt = &str_empty[0];
     ch->logon = current_time;
     ch->lines = PAGELEN;
-    for (i = 0; i < 4; i++) ch->armor[i] = 100;
+    for (i = 0; i < 4; i++)
+        ch->armor[i] = 100;
     ch->position = POS_STANDING;
     ch->hit = 20;
     ch->max_hit = 20;

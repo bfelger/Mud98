@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -51,7 +51,7 @@
 
 void do_heal(Mobile* ch, char* argument)
 {
-    Mobile* mob;
+    Mobile* mob = NULL;
     char arg[MAX_INPUT_LENGTH];
     int cost;
     SKNUM sn;
@@ -59,7 +59,7 @@ void do_heal(Mobile* ch, char* argument)
     char* words;
 
     /* check for healer */
-    for (mob = ch->in_room->people; mob; mob = mob->next_in_room) {
+    FOR_EACH_ROOM_MOB(mob, ch->in_room) {
         if (IS_NPC(mob) && IS_SET(mob->act_flags, ACT_IS_HEALER)) break;
     }
 

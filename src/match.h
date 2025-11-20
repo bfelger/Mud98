@@ -1,12 +1,13 @@
 ////////////////////////////////////////////////////////////////////////////////
-// tests.h
-// Unit test and benchmark functions
+// match.h
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#ifndef MUD98__TESTS_H
-#define MUD98__TESTS_H
+#ifndef MUD98__MATCH_H
+#define MUD98__MATCH_H
 
-void run_unit_tests();
+#include <stdbool.h>
 
-#endif // !MUD98__TESTS_H
+bool mini_match(const char* pattern, const char* s, char sigil);
+
+#endif // !MUD98__MATCH_H

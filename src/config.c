@@ -64,7 +64,7 @@
 #define DEFINE_STR_SETTER(val)                                                 \
     void cfg_set_ ## val(const char* new_val)                                  \
     {                                                                          \
-        strcpy(_ ## val, new_val);                                             \
+        sprintf(_ ## val, "%s", new_val);                                      \
     }
 
 #define DEFINE_STR_CONFIG(val, default_val)                                    \
@@ -86,7 +86,7 @@
 #define DEFINE_OPEN_CFG_FILE(val, subdir, rw)                                  \
     FILE* open_ ## rw ## _ ## val()                                            \
     {                                                                          \
-        char temp[256] = { 0 };                                                \
+        char temp[512] = { 0 };                                                \
         sprintf(temp, "%s%s",                                                  \
         cfg_get_ ## subdir(),                                                  \
         cfg_get_ ## val());                                                    \
@@ -96,7 +96,7 @@
 #define DEFINE_FILE_EXISTS(val, subdir)                                        \
     bool val ## _exists()                                                      \
     {                                                                          \
-        char temp[256] = { 0 };                                                \
+        char temp[512] = { 0 };                                                \
         sprintf(temp, "%s%s",                                                  \
         cfg_get_ ## subdir(),                                                  \
         cfg_get_ ## val());                                                    \
@@ -174,12 +174,14 @@
 // Data Files
 #define DEFAULT_DATA_DIR            "data/"
 #define DEFAULT_PROGS_DIR           "progs/"
+#define DEFAULT_SCRIPTS_DIR         "scripts/"
 #define DEFAULT_SOCIALS_FILE        "socials"
 #define DEFAULT_GROUPS_FILE         "groups"
 #define DEFAULT_SKILLS_FILE         "skills"
 #define DEFAULT_COMMANDS_FILE       "commands"
 #define DEFAULT_RACES_FILE          "races"
 #define DEFAULT_CLASSES_FILE        "classes"
+#define DEFAULT_TUTORIALS_FILE      "tutorials"
 
 // Temp Files
 #define DEFAULT_TEMP_DIR            "temp/"
@@ -255,12 +257,14 @@ DEFINE_LOG_CONFIG(shutdown_file,    area_dir,   DEFAULT_SHUTDOWN_FILE)
 DEFINE_FILE_CONFIG(ban_file,        area_dir,   DEFAULT_BAN_FILE)
 DEFINE_DIR_CONFIG(data_dir,         DEFAULT_DATA_DIR)
 DEFINE_DIR_CONFIG(progs_dir,        DEFAULT_PROGS_DIR)
+DEFINE_DIR_CONFIG(scripts_dir,      DEFAULT_SCRIPTS_DIR)
 DEFINE_FILE_CONFIG(socials_file,    data_dir,   DEFAULT_SOCIALS_FILE)
 DEFINE_FILE_CONFIG(groups_file,     data_dir,   DEFAULT_GROUPS_FILE)
 DEFINE_FILE_CONFIG(skills_file,     data_dir,   DEFAULT_SKILLS_FILE)
 DEFINE_FILE_CONFIG(commands_file,   data_dir,   DEFAULT_COMMANDS_FILE)
 DEFINE_FILE_CONFIG(races_file,      data_dir,   DEFAULT_RACES_FILE)
 DEFINE_FILE_CONFIG(classes_file,    data_dir,   DEFAULT_CLASSES_FILE)
+DEFINE_FILE_CONFIG(tutorials_file,  data_dir,   DEFAULT_TUTORIALS_FILE)
 DEFINE_DIR_CONFIG(temp_dir,         DEFAULT_TEMP_DIR)
 DEFINE_FILE_CONFIG(mem_dump_file,   temp_dir,   DEFAULT_MEM_DUMP_FILE)
 DEFINE_FILE_CONFIG(mob_dump_file,   temp_dir,   DEFAULT_MOB_DUMP_FILE)
@@ -270,8 +274,8 @@ DEFINE_FILE_CONFIG(obj_dump_file,   temp_dir,   DEFAULT_OBJ_DUMP_FILE)
 DEFINE_CONFIG(chargen_custom,       bool,       DEFAULT_CHARGEN_CUSTOM)
 DEFINE_CONFIG(default_recall,       int,        DEFAULT_RECALL)
 DEFINE_CONFIG(default_start_loc,    int,        DEFAULT_START_LOC)
-DEFINE_CONFIG(start_loc_by_race,    bool,       false)
-DEFINE_CONFIG(start_loc_by_class,   bool,       false)
+DEFINE_CONFIG(start_loc_by_race,    bool,       true)
+DEFINE_CONFIG(start_loc_by_class,   bool,       true)
 DEFINE_CONFIG(train_anywhere,       bool,       false)
 DEFINE_CONFIG(practice_anywhere,    bool,       false)
 
@@ -354,12 +358,14 @@ const ConfigEntry config_entries[] = {
     { "ban_file",           CFG_STR,    U(cfg_set_ban_file)             },
     { "data_dir",           CFG_DIR,    U(cfg_set_data_dir)             },
     { "progs_dir",          CFG_DIR,    U(cfg_set_progs_dir)            },
+    { "scripts_dir",        CFG_DIR,    U(cfg_set_scripts_dir)          },
     { "socials_file",       CFG_STR,    U(cfg_set_socials_file)         },
     { "groups_file",        CFG_STR,    U(cfg_set_groups_file)          },
     { "skills_file",        CFG_STR,    U(cfg_set_skills_file)          },
     { "commands_file",      CFG_STR,    U(cfg_set_commands_file)        },
     { "races_file",         CFG_STR,    U(cfg_set_races_file)           },
     { "classes_file",       CFG_STR,    U(cfg_set_classes_file)         },
+    { "tutorials_file",     CFG_STR,    U(cfg_set_tutorials_file)       },
     { "temp_dir",           CFG_DIR,    U(cfg_set_temp_dir)             },
     { "mem_dump_file",      CFG_STR,    U(cfg_set_mem_dump_file)        },
     { "mob_dump_file",      CFG_STR,    U(cfg_set_mob_dump_file)        },
@@ -468,22 +474,22 @@ char* read_file(FILE* f)
 struct parse_ctx {
     char* pos;
     bool error;
-} parser = { NULL, false };
+} cfg_parser = { NULL, false };
 
-static inline char peek()
+static inline char cfg_peek()
 {
-    return *parser.pos;
+    return *cfg_parser.pos;
 }
 
-static inline char advance()
+static inline char cfg_advance()
 {
-    return *parser.pos++;
+    return *cfg_parser.pos++;
 }
 
-static inline bool match(char c)
+static inline bool cfg_match(char c)
 {
-    if (*parser.pos == c) {
-        ++parser.pos;
+    if (*cfg_parser.pos == c) {
+        ++cfg_parser.pos;
         return true;
     }
 
@@ -492,19 +498,19 @@ static inline bool match(char c)
 
 static inline void skip_ws()
 {
-    while (match(' ') || match('\t') || match('\n') || match('\r'))
+    while (cfg_match(' ') || cfg_match('\t') || cfg_match('\n') || cfg_match('\r'))
         ;
 }
 
 static char* parse_ident()
 {
-    char* start = parser.pos - 1;
+    char* start = cfg_parser.pos - 1;
     char c;
 
-    while (ISALNUM(c = peek()) || c == '_')
-        advance();
+    while (ISALNUM(c = cfg_peek()) || c == '_')
+        cfg_advance();
 
-    size_t len = parser.pos - start;
+    size_t len = cfg_parser.pos - start;
 
     char* ident = (char*)malloc(sizeof(char) * (len + 1));
     if (!ident) {
@@ -520,19 +526,19 @@ static char* parse_ident()
 
 static char* parse_val()
 {
-    char* start = parser.pos;
+    char* start = cfg_parser.pos;
     char quote = 0;
     char c;
     size_t len = 0;
     bool escape = false;
 
-    if ((c = peek()) == '\'' || c == '"') {
-        advance();
+    if ((c = cfg_peek()) == '\'' || c == '"') {
+        cfg_advance();
         ++start;
         quote = c;
     }
 
-    while ((c = advance()) != '\0') {
+    while ((c = cfg_advance()) != '\0') {
         if (quote) {
             if (c == '\\') {
                 escape = true;
@@ -541,13 +547,13 @@ static char* parse_val()
                 escape = false;
             }
             else if (quote == c) {
-                len = (parser.pos - 1) - start;
-                advance();
+                len = (cfg_parser.pos - 1) - start;
+                cfg_advance();
                 break;
             }
         }
         else if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
-            len = (parser.pos - 1) - start;
+            len = (cfg_parser.pos - 1) - start;
             break;
         }
     }
@@ -612,21 +618,21 @@ void parse_file(FILE* fp)
 {
     char* str = read_file(fp);
 
-    parser.pos = str;
+    cfg_parser.pos = str;
 
     skip_ws();
 
     char c;
-    while ((c = advance()) != '\0') {
+    while ((c = cfg_advance()) != '\0') {
         if (c == '#') {
             // Scarf comments
-            while ((c = advance()) != '\0' && c != '\n' && c != '\r')
+            while ((c = cfg_advance()) != '\0' && c != '\n' && c != '\r')
                 ;
         }
         else if (ISALPHA(c)) {
             char* key = parse_ident();
             skip_ws();
-            if (!match('=')) {
+            if (!cfg_match('=')) {
                 fprintf(stderr, "Expected '=' after '%s'\n", key);
                 free(key);
                 break;

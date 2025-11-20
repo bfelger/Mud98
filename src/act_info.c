@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -46,18 +46,19 @@
 #include "tables.h"
 #include "weather.h"
 
-#include "entities/area.h"
-#include "entities/descriptor.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
+#include <entities/area.h>
+#include <entities/descriptor.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
 
-#include "data/class.h"
-#include "data/direction.h"
-#include "data/mobile_data.h"
-#include "data/player.h"
-#include "data/race.h"
-#include "data/skill.h"
-#include "data/social.h"
+#include <data/class.h>
+#include <data/direction.h>
+#include <data/item.h>
+#include <data/mobile_data.h>
+#include <data/player.h>
+#include <data/race.h>
+#include <data/skill.h>
+#include <data/social.h>
 
 #include <ctype.h>
 #include <stdio.h>
@@ -74,27 +75,15 @@
     #endif
 #endif
 
-
-char* const where_name[] = {
-    "<used as light>     ", "<worn on finger>    ", "<worn on finger>    ",
-    "<worn around neck>  ", "<worn around neck>  ", "<worn on torso>     ",
-    "<worn on head>      ", "<worn on legs>      ", "<worn on feet>      ",
-    "<worn on hands>     ", "<worn on arms>      ", "<worn as shield>    ",
-    "<worn about body>   ", "<worn about waist>  ", "<worn around wrist> ",
-    "<worn around wrist> ", "<wielded>           ", "<held>              ",
-    "<floating nearby>   ",
-};
-
 /* for  keeping track of the player count */
 int max_on = 0;
 
 // Local functions.
 char* format_obj_to_char args((Object * obj, Mobile* ch, bool fShort));
-void show_list_to_char args((Object * list, Mobile* ch, bool fShort,
-                             bool fShowNothing));
+void show_list_to_char(List* list, Mobile* ch, bool fShort, bool fShowNothing);
 void show_char_to_char_0 args((Mobile * victim, Mobile* ch));
 void show_char_to_char_1 args((Mobile * victim, Mobile* ch));
-void show_char_to_char args((Mobile * list, Mobile* ch));
+void show_char_to_char(List* list, Mobile* ch);
 bool check_blind args((Mobile * ch));
 
 char* format_obj_to_char(Object* obj, Mobile* ch, bool fShort)
@@ -107,15 +96,15 @@ char* format_obj_to_char(Object* obj, Mobile* ch, bool fShort)
         || (obj->description == NULL || obj->description[0] == '\0'))
         return buf;
 
-    if (IS_OBJ_STAT(obj, ITEM_INVIS)) strcat(buf, "{*(Invis){x ");
+    if (IS_OBJ_STAT(obj, ITEM_INVIS)) strcat(buf, COLOR_ALT_TEXT_1 "(Invis)" COLOR_CLEAR " ");
     if (IS_AFFECTED(ch, AFF_DETECT_EVIL) && IS_OBJ_STAT(obj, ITEM_EVIL))
-        strcat(buf, "{r(Red Aura){x ");
+        strcat(buf, COLOR_RED "(Red Aura)" COLOR_CLEAR " ");
     if (IS_AFFECTED(ch, AFF_DETECT_GOOD) && IS_OBJ_STAT(obj, ITEM_BLESS))
-        strcat(buf, "{B(Blue Aura){x ");
+        strcat(buf, COLOR_B_BLUE "(Blue Aura)" COLOR_CLEAR " ");
     if (IS_AFFECTED(ch, AFF_DETECT_MAGIC) && IS_OBJ_STAT(obj, ITEM_MAGIC))
-        strcat(buf, "{*(Magical){x ");
-    if (IS_OBJ_STAT(obj, ITEM_GLOW)) strcat(buf, "{_(Glowing){x ");
-    if (IS_OBJ_STAT(obj, ITEM_HUM)) strcat(buf, "{_(Humming){x ");
+        strcat(buf, COLOR_ALT_TEXT_1 "(Magical)" COLOR_CLEAR " ");
+    if (IS_OBJ_STAT(obj, ITEM_GLOW)) strcat(buf, COLOR_ALT_TEXT_2 "(Glowing)" COLOR_CLEAR " ");
+    if (IS_OBJ_STAT(obj, ITEM_HUM)) strcat(buf, COLOR_ALT_TEXT_2 "(Humming)" COLOR_CLEAR " ");
 
     if (fShort) {
         if (obj->short_descr != NULL) 
@@ -133,7 +122,7 @@ char* format_obj_to_char(Object* obj, Mobile* ch, bool fShort)
  * Show a list to a character.
  * Can coalesce duplicated items.
  */
-void show_list_to_char(Object* list, Mobile* ch, bool fShort,
+void show_list_to_char(List* list, Mobile* ch, bool fShort,
                        bool fShowNothing)
 {
     char buf[MAX_STRING_LENGTH];
@@ -152,15 +141,14 @@ void show_list_to_char(Object* list, Mobile* ch, bool fShort,
     // Alloc space for output lines.
     output = new_buf();
 
-    count = 0;
-    for (obj = list; obj != NULL; obj = obj->next_content) 
-        count++;
+    count = list->count;
     prgpstrShow = alloc_mem(count * sizeof(char*));
     prgnShow = alloc_mem(count * sizeof(int));
     nShow = 0;
 
     // Format the list of objects.
-    for (obj = list; obj != NULL; obj = obj->next_content) {
+    for (Node* node = list->front; node != NULL; node = node->next) {
+        obj = AS_OBJECT(node->value);
         if (obj->wear_loc == WEAR_UNHELD && can_see_obj(ch, obj)) {
             pstrShow = format_obj_to_char(obj, ch, fShort);
 
@@ -235,34 +223,34 @@ void show_char_to_char_0(Mobile* victim, Mobile* ch)
     bool is_npc = IS_NPC(victim);
 
     if (is_npc) {
-        QuestTarget* qt = get_quest_targ_end(ch, victim->prototype->vnum);
+        QuestTarget* qt = get_quest_targ_end(ch, VNUM_FIELD(victim->prototype));
         if (qt && can_finish_quest(ch, qt->quest_vnum)) {
-            strcat(buf, "{*[{Y?{x{*]{x ");
+            strcat(buf, COLOR_ALT_TEXT_1 "[" COLOR_B_YELLOW "?" COLOR_CLEAR COLOR_ALT_TEXT_1 "]" COLOR_CLEAR " ");
         }
-        else if ((qt = get_quest_targ_mob(ch, victim->prototype->vnum)) != NULL) {
+        else if ((qt = get_quest_targ_mob(ch, VNUM_FIELD(victim->prototype))) != NULL) {
             if (qt->type != QUEST_KILL_MOB)
-                strcat(buf, "{*[{Y!{x{*]{x ");
+                strcat(buf, COLOR_ALT_TEXT_1 "[" COLOR_B_YELLOW "!" COLOR_CLEAR COLOR_ALT_TEXT_1 "]" COLOR_CLEAR " ");
             else
-                strcat(buf, "{*[{RX{x{*]{x ");
+                strcat(buf, COLOR_ALT_TEXT_1 "[" COLOR_B_RED "X" COLOR_CLEAR COLOR_ALT_TEXT_1 "]" COLOR_CLEAR " ");
         }
     }
 
-    if (IS_SET(victim->comm_flags, COMM_AFK)) strcat(buf, "{_[AFK]{x ");
-    if (IS_AFFECTED(victim, AFF_INVISIBLE)) strcat(buf, "{*(Invis){x ");
-    if (victim->invis_level >= LEVEL_HERO) strcat(buf, "{*(Wizi){x ");
-    if (IS_AFFECTED(victim, AFF_HIDE)) strcat(buf, "{*(Hide){x ");
-    if (IS_AFFECTED(victim, AFF_CHARM)) strcat(buf, "{*(Charmed){x ");
-    if (IS_AFFECTED(victim, AFF_PASS_DOOR)) strcat(buf, "{*(Translucent){x ");
-    if (IS_AFFECTED(victim, AFF_FAERIE_FIRE)) strcat(buf, "{R(Pink Aura){x ");
+    if (IS_SET(victim->comm_flags, COMM_AFK)) strcat(buf, COLOR_ALT_TEXT_2 "[AFK]" COLOR_CLEAR " ");
+    if (IS_AFFECTED(victim, AFF_INVISIBLE)) strcat(buf, COLOR_ALT_TEXT_1 "(Invis)" COLOR_CLEAR " ");
+    if (victim->invis_level >= LEVEL_HERO) strcat(buf, COLOR_ALT_TEXT_1 "(Wizi)" COLOR_CLEAR " ");
+    if (IS_AFFECTED(victim, AFF_HIDE)) strcat(buf, COLOR_ALT_TEXT_1 "(Hide)" COLOR_CLEAR " ");
+    if (IS_AFFECTED(victim, AFF_CHARM)) strcat(buf, COLOR_ALT_TEXT_1 "(Charmed)" COLOR_CLEAR " ");
+    if (IS_AFFECTED(victim, AFF_PASS_DOOR)) strcat(buf, COLOR_ALT_TEXT_1 "(Translucent)" COLOR_CLEAR " ");
+    if (IS_AFFECTED(victim, AFF_FAERIE_FIRE)) strcat(buf, COLOR_B_RED "(Pink Aura)" COLOR_CLEAR " ");
     if (IS_EVIL(victim) && IS_AFFECTED(ch, AFF_DETECT_EVIL))
-        strcat(buf, "{r(Red Aura){x ");
+        strcat(buf, COLOR_RED "(Red Aura)" COLOR_CLEAR " ");
     if (IS_GOOD(victim) && IS_AFFECTED(ch, AFF_DETECT_GOOD))
-        strcat(buf, "{Y(Golden Aura){x ");
-    if (IS_AFFECTED(victim, AFF_SANCTUARY)) strcat(buf, "{W(White Aura){x ");
+        strcat(buf, COLOR_B_YELLOW "(Golden Aura)" COLOR_CLEAR " ");
+    if (IS_AFFECTED(victim, AFF_SANCTUARY)) strcat(buf, COLOR_B_WHITE "(White Aura)" COLOR_CLEAR " ");
     if (!is_npc && IS_SET(victim->act_flags, PLR_KILLER))
-        strcat(buf, "{R(KILLER){x ");
+        strcat(buf, COLOR_B_RED "(KILLER)" COLOR_CLEAR " ");
     if (!is_npc && IS_SET(victim->act_flags, PLR_THIEF))
-        strcat(buf, "{R(THIEF){x ");
+        strcat(buf, COLOR_B_RED "(THIEF)" COLOR_CLEAR " ");
     if (victim->position == victim->start_pos
         && victim->long_descr[0] != '\0') {
         strcat(buf, victim->long_descr);
@@ -459,17 +447,22 @@ void show_char_to_char_1(Mobile* victim, Mobile* ch)
         && number_percent() < get_skill(ch, gsn_peek)) {
         send_to_char("\n\rYou peek at the inventory:\n\r", ch);
         check_improve(ch, gsn_peek, true, 4);
-        show_list_to_char(victim->carrying, ch, true, true);
+        show_list_to_char(&victim->objects, ch, true, true);
     }
 
     return;
 }
 
-void show_char_to_char(Mobile* list, Mobile* ch)
+void show_char_to_char(List* list, Mobile* ch)
 {
+    if (ch == NULL)
+        return;
+
     Mobile* rch;
 
-    FOR_EACH_IN_ROOM(rch, list) {
+    for (Node* node = list->front; node != NULL; node = node->next) {
+        rch = AS_MOBILE(node->value);
+
         if (rch == ch)
             continue;
 
@@ -489,7 +482,8 @@ void show_char_to_char(Mobile* list, Mobile* ch)
 
 bool check_blind(Mobile* ch)
 {
-    if (!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_HOLYLIGHT)) return true;
+    if (!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_HOLYLIGHT)) 
+        return true;
 
     if (IS_AFFECTED(ch, AFF_BLIND)) {
         send_to_char("You can't see a thing!\n\r", ch);
@@ -596,62 +590,62 @@ void do_autolist(Mobile* ch, char* argument)
     /* lists most player flags */
     if (IS_NPC(ch)) return;
 
-    send_to_char("{T   action     status\n\r", ch);
-    send_to_char("{----------------------{x\n\r", ch);
+    send_to_char(COLOR_TITLE "   action     status\n\r", ch);
+    send_to_char(COLOR_DECOR_2 "----------------------" COLOR_EOL, ch);
 
     send_to_char("autoassist     ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOASSIST))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char("autoexit       ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOEXIT))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char("autogold       ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOGOLD))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char("autoloot       ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOLOOT))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char("autosac        ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOSAC))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char("autosplit      ", ch);
     if (IS_SET(ch->act_flags, PLR_AUTOSPLIT))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char("compact mode   ", ch);
     if (IS_SET(ch->comm_flags, COMM_COMPACT))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char("prompt         ", ch);
     if (IS_SET(ch->comm_flags, COMM_PROMPT))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     send_to_char("combine items  ", ch);
     if (IS_SET(ch->comm_flags, COMM_COMBINE))
-        send_to_char("{GON{x\n\r", ch);
+        send_to_char(COLOR_B_GREEN "ON" COLOR_EOL, ch);
     else
-        send_to_char("{ROFF{x\n\r", ch);
+        send_to_char(COLOR_B_RED "OFF" COLOR_EOL, ch);
 
     if (!IS_SET(ch->act_flags, PLR_CANLOOT))
         send_to_char("Your corpse is safe from thieves.\n\r", ch);
@@ -849,7 +843,8 @@ void do_noloot(Mobile* ch, char* argument)
 
 void do_nofollow(Mobile* ch, char* argument)
 {
-    if (IS_NPC(ch)) return;
+    if (IS_NPC(ch) || IS_AFFECTED(ch, AFF_CHARM)) 
+        return;
 
     if (IS_SET(ch->act_flags, PLR_NOFOLLOW)) {
         send_to_char("You now accept followers.\n\r", ch);
@@ -899,7 +894,8 @@ void do_look(Mobile* ch, char* argument)
     int door;
     int number, count;
 
-    if (ch->desc == NULL) return;
+    if (ch->desc == NULL)
+        return;
 
     if (ch->position < POS_SLEEPING) {
         send_to_char("You can't see anything but stars!\n\r", ch);
@@ -911,12 +907,13 @@ void do_look(Mobile* ch, char* argument)
         return;
     }
 
-    if (!check_blind(ch)) return;
+    if (!check_blind(ch))
+        return;
 
     if (!IS_NPC(ch) && !IS_SET(ch->act_flags, PLR_HOLYLIGHT)
         && room_is_dark(ch->in_room)) {
         send_to_char("It is pitch black ... \n\r", ch);
-        show_char_to_char(ch->in_room->people, ch);
+        show_char_to_char(&ch->in_room->mobiles, ch);
         return;
     }
 
@@ -927,19 +924,19 @@ void do_look(Mobile* ch, char* argument)
 
     if (arg1[0] == '\0' || !str_cmp(arg1, "auto")) {
         /* 'look' or 'look auto' */
-        sprintf(buf, "{s%s", ch->in_room->data->name);
+        sprintf(buf, COLOR_ROOM_TITLE "%s", NAME_STR(ch->in_room));
         send_to_char(buf, ch);
 
         if ((IS_IMMORTAL(ch) && (IS_NPC(ch) || IS_SET(ch->act_flags, PLR_HOLYLIGHT)))
             || IS_BUILDER(ch, ch->in_room->area->data)) {
-            sprintf(buf, " {r[{RRoom %"PRVNUM"{r]", ch->in_room->vnum);
+            sprintf(buf, " " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Room %"PRVNUM COLOR_DECOR_1 "]" COLOR_CLEAR, VNUM_FIELD(ch->in_room));
             send_to_char(buf, ch);
         }
 
-        send_to_char("{x\n\r", ch);
+        send_to_char(COLOR_EOL, ch);
 
         if (ch->in_room->data->description[0] && !IS_NPC(ch) && !IS_SET(ch->comm_flags, COMM_BRIEF)) {
-            sprintf(buf, "{S  %s{x", ch->in_room->data->description);
+            sprintf(buf, COLOR_ROOM_TEXT "  %s" COLOR_CLEAR , ch->in_room->data->description);
             send_to_char(buf, ch);
         }
 
@@ -948,8 +945,8 @@ void do_look(Mobile* ch, char* argument)
             do_function(ch, &do_exits, "auto");
         }
 
-        show_list_to_char(ch->in_room->contents, ch, false, false);
-        show_char_to_char(ch->in_room->people, ch);
+        show_list_to_char(&ch->in_room->objects, ch, false, false);
+        show_char_to_char(&ch->in_room->mobiles, ch);
         return;
     }
 
@@ -994,7 +991,7 @@ void do_look(Mobile* ch, char* argument)
             }
 
             act("$p holds:", ch, obj, NULL, TO_CHAR);
-            show_list_to_char(obj->contains, ch, true, true);
+            show_list_to_char(&obj->objects, ch, true, true);
             break;
         }
         return;
@@ -1005,7 +1002,7 @@ void do_look(Mobile* ch, char* argument)
         return;
     }
 
-    for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
+    FOR_EACH_MOB_OBJ(obj, ch) {
         if (can_see_obj(ch, obj)) { 
             /* player can see object */
             pdesc = get_extra_desc(arg3, obj->extra_desc);
@@ -1030,7 +1027,7 @@ void do_look(Mobile* ch, char* argument)
                 }
             }
 
-            if (is_name(arg3, obj->name)) {
+            if (is_name(arg3, NAME_STR(obj))) {
                 if (++count == number) {
                     send_to_char(obj->description, ch);
                     send_to_char("\n\r", ch);
@@ -1040,7 +1037,7 @@ void do_look(Mobile* ch, char* argument)
         }
     }
 
-    for (obj = ch->in_room->contents; obj != NULL; obj = obj->next_content) {
+    FOR_EACH_ROOM_OBJ(obj, ch->in_room) {
         if (can_see_obj(ch, obj)) {
             pdesc = get_extra_desc(arg3, obj->extra_desc);
             if (pdesc != NULL) {
@@ -1058,7 +1055,7 @@ void do_look(Mobile* ch, char* argument)
                 }
             }
 
-            if (is_name(arg3, obj->name)) {
+            if (is_name(arg3, NAME_STR(obj))) {
                 if (++count == number) {
                     send_to_char(obj->description, ch);
                     send_to_char("\n\r", ch);
@@ -1210,7 +1207,7 @@ void do_exits(Mobile* ch, char* argument)
     if (fAuto)
         sprintf(buf, "[Exits:");
     else if (IS_IMMORTAL(ch))
-        sprintf(buf, "Obvious exits from room %d:\n\r", ch->in_room->vnum);
+        sprintf(buf, "Obvious exits from room %d:\n\r", VNUM_FIELD(ch->in_room));
     else
         sprintf(buf, "Obvious exits:\n\r");
 
@@ -1228,7 +1225,7 @@ void do_exits(Mobile* ch, char* argument)
                 sprintf(
                     buf + strlen(buf), "%-5s - %s", capitalize(dir_list[door].name),
                     (room_exit->to_room && room_is_dark(room_exit->to_room)) ? "Too dark to tell"
-                                                    : room_exit->data->to_room->name);
+                                                    : NAME_STR(room_exit->data->to_room));
                 if (IS_IMMORTAL(ch))
                     sprintf(buf + strlen(buf), " (room %d)\n\r",
                             room_exit->data->to_vnum);
@@ -1276,7 +1273,7 @@ void do_score(Mobile* ch, char* argument)
     int i;
 
     sprintf(buf, "You are %s%s, level %d, %d years old (%d hours).\n\r",
-            ch->name, IS_NPC(ch) ? "" : ch->pcdata->title, ch->level,
+            NAME_STR(ch), IS_NPC(ch) ? "" : ch->pcdata->title, ch->level,
             get_age(ch), (int)(ch->played + (current_time - ch->logon)) / 3600);
     send_to_char(buf, ch);
 
@@ -1525,26 +1522,28 @@ void do_affects(Mobile* ch, char* argument)
     return;
 }
 
-char* const day_name[] = {"the Moon", "the Bull",       "Deception", "Thunder",
-                          "Freedom",  "the Great Gods", "the Sun"};
+char* const day_name[] = { "the Moon", "the Bull",       "Deception", "Thunder",
+                           "Freedom",  "the Great Gods", "the Sun" };
 
-char* const month_name[] = {"Winter",
-                            "the Winter Wolf",
-                            "the Frost Giant",
-                            "the Old Forces",
-                            "the Grand Struggle",
-                            "the Spring",
-                            "Nature",
-                            "Futility",
-                            "the Dragon",
-                            "the Sun",
-                            "the Heat",
-                            "the Battle",
-                            "the Dark Shades",
-                            "the Shadows",
-                            "the Long Shadows",
-                            "the Ancient Darkness",
-                            "the Great Evil"};
+char* const month_name[] = {
+    "Winter",
+    "the Winter Wolf",
+    "the Frost Giant",
+    "the Old Forces",
+    "the Grand Struggle",
+    "the Spring",
+    "Nature",
+    "Futility",
+    "the Dragon",
+    "the Sun",
+    "the Heat",
+    "the Battle",
+    "the Dark Shades",
+    "the Shadows",
+    "the Long Shadows",
+    "the Ancient Darkness",
+    "the Great Evil"
+};
 
 void do_time(Mobile* ch, char* argument)
 {
@@ -1583,7 +1582,7 @@ void do_weather(Mobile* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
 
     static char* const sky_look[4]
-        = {"cloudless", "cloudy", "rainy", "lit by flashes of lightning"};
+        = { "cloudless", "cloudy", "rainy", "lit by flashes of lightning" };
 
     if (!IS_OUTSIDE(ch)) {
         send_to_char("You can't see the weather indoors.\n\r", ch);
@@ -1628,8 +1627,8 @@ void do_help(Mobile* ch, char* argument)
         if (is_name(argall, pHelp->keyword)) {
             /* add seperator if found */
             if (found)
-                add_buf(output, "\n\r{==========================================="
-                                "=================={x\n\r\n\r");
+                add_buf(output, "\n\r" COLOR_DECOR_2 "========================="
+                    "===================================" COLOR_CLEAR "\n\r\n\r");
             if (pHelp->level >= 0 && str_cmp(argall, "imotd")) {
                 add_buf(output, pHelp->keyword);
                 add_buf(output, "\n\r");
@@ -1683,34 +1682,34 @@ void do_whois(Mobile* ch, char* argument)
 
         if (!can_see(ch, wch)) continue;
 
-        if (!str_prefix(arg, wch->name)) {
+        if (!str_prefix(arg, NAME_STR(wch))) {
             found = true;
 
             /* work out the printing */
             class_ = class_table[wch->ch_class].who_name;
             switch (wch->level) {
-            case MAX_LEVEL - 0: class_ = "{=IMP"; break;
-            case MAX_LEVEL - 1: class_ = "{=CRE"; break;
-            case MAX_LEVEL - 2: class_ = "{=SUP"; break;
-            case MAX_LEVEL - 3: class_ = "{=DEI"; break;
-            case MAX_LEVEL - 4: class_ = "{=GOD"; break;
-            case MAX_LEVEL - 5: class_ = "{=IMM"; break;
-            case MAX_LEVEL - 6: class_ = "{=DEM"; break;
-            case MAX_LEVEL - 7: class_ = "{=ANG"; break;
-            case MAX_LEVEL - 8: class_ = "{=AVA"; break;
+            case MAX_LEVEL - 0: class_ = COLOR_DECOR_2 "IMP"; break;
+            case MAX_LEVEL - 1: class_ = COLOR_DECOR_2 "CRE"; break;
+            case MAX_LEVEL - 2: class_ = COLOR_DECOR_2 "SUP"; break;
+            case MAX_LEVEL - 3: class_ = COLOR_DECOR_2 "DEI"; break;
+            case MAX_LEVEL - 4: class_ = COLOR_DECOR_2 "GOD"; break;
+            case MAX_LEVEL - 5: class_ = COLOR_DECOR_2 "IMM"; break;
+            case MAX_LEVEL - 6: class_ = COLOR_DECOR_2 "DEM"; break;
+            case MAX_LEVEL - 7: class_ = COLOR_DECOR_2 "ANG"; break;
+            case MAX_LEVEL - 8: class_ = COLOR_DECOR_2 "AVA"; break;
             default: break;
             }
 
             /* a little formatting */
-            sprintf(buf, "{|[{*%2d %6s{* %s{|]{x %s%s%s%s%s%s%s%s\n\r", 
+            sprintf(buf, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%2d %6s" COLOR_ALT_TEXT_1 " %s" COLOR_DECOR_1 "]" COLOR_CLEAR " %s%s%s%s%s%s%s%s\n\r", 
                 wch->level, race_table[wch->race].who_name, class_, 
-                wch->incog_level >= LEVEL_HERO ? "{_(Incog){x " : "",
-                wch->invis_level >= LEVEL_HERO ? "{_(Wizi){x " : "",
+                wch->incog_level >= LEVEL_HERO ? COLOR_ALT_TEXT_2 "(Incog)" COLOR_CLEAR " " : "",
+                wch->invis_level >= LEVEL_HERO ? COLOR_ALT_TEXT_2 "(Wizi)" COLOR_CLEAR " " : "",
                 clan_table[wch->clan].who_name,
                 IS_SET(wch->comm_flags, COMM_AFK) ? "[AFK] " : "",
-                IS_SET(wch->act_flags, PLR_KILLER) ? "{_(KILLER){x " : "",
-                IS_SET(wch->act_flags, PLR_THIEF) ? "{_(THIEF){x " : "", 
-                wch->name, IS_NPC(wch) ? "" : wch->pcdata->title);
+                IS_SET(wch->act_flags, PLR_KILLER) ? COLOR_ALT_TEXT_2 "(KILLER)" COLOR_CLEAR " " : "",
+                IS_SET(wch->act_flags, PLR_THIEF) ? COLOR_ALT_TEXT_2 "(THIEF)" COLOR_CLEAR " " : "", 
+                NAME_STR(wch), IS_NPC(wch) ? "" : wch->pcdata->title);
             add_buf(output, buf);
         }
     }
@@ -1835,28 +1834,28 @@ void do_who(Mobile* ch, char* argument)
         // Figure out what to print for class.
         class_ = class_table[wch->ch_class].who_name;
         switch (wch->level) {
-        case MAX_LEVEL - 0: class_ = "{=IMP"; break;
-        case MAX_LEVEL - 1: class_ = "{=CRE"; break;
-        case MAX_LEVEL - 2: class_ = "{=SUP"; break;
-        case MAX_LEVEL - 3: class_ = "{=DEI"; break;
-        case MAX_LEVEL - 4: class_ = "{=GOD"; break;
-        case MAX_LEVEL - 5: class_ = "{=IMM"; break;
-        case MAX_LEVEL - 6: class_ = "{=DEM"; break;
-        case MAX_LEVEL - 7: class_ = "{=ANG"; break;
-        case MAX_LEVEL - 8: class_ = "{=AVA"; break;
+        case MAX_LEVEL - 0: class_ = COLOR_DECOR_2 "IMP"; break;
+        case MAX_LEVEL - 1: class_ = COLOR_DECOR_2 "CRE"; break;
+        case MAX_LEVEL - 2: class_ = COLOR_DECOR_2 "SUP"; break;
+        case MAX_LEVEL - 3: class_ = COLOR_DECOR_2 "DEI"; break;
+        case MAX_LEVEL - 4: class_ = COLOR_DECOR_2 "GOD"; break;
+        case MAX_LEVEL - 5: class_ = COLOR_DECOR_2 "IMM"; break;
+        case MAX_LEVEL - 6: class_ = COLOR_DECOR_2 "DEM"; break;
+        case MAX_LEVEL - 7: class_ = COLOR_DECOR_2 "ANG"; break;
+        case MAX_LEVEL - 8: class_ = COLOR_DECOR_2 "AVA"; break;
         default: break;
         }
 
         // Format it up.
-        sprintf(buf, "{|[{*%2d %6s{* %s{|]{x %s%s%s%s%s%s%s%s\n\r", wch->level,
+        sprintf(buf, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%2d %6s" COLOR_ALT_TEXT_1 " %s" COLOR_DECOR_1 "]" COLOR_CLEAR " %s%s%s%s%s%s%s%s\n\r", wch->level,
             race_table[wch->race].who_name,
-            class_, wch->incog_level >= LEVEL_HERO ? "{_(Incog){x " : "",
-            wch->invis_level >= LEVEL_HERO ? "{_(Wizi){x " : "",
+            class_, wch->incog_level >= LEVEL_HERO ? COLOR_ALT_TEXT_2 "(Incog)" COLOR_CLEAR " " : "",
+            wch->invis_level >= LEVEL_HERO ? COLOR_ALT_TEXT_2 "(Wizi)" COLOR_CLEAR " " : "",
             clan_table[wch->clan].who_name,
             IS_SET(wch->comm_flags, COMM_AFK) ? "[AFK] " : "",
-            IS_SET(wch->act_flags, PLR_KILLER) ? "{_(KILLER){x " : "",
-            IS_SET(wch->act_flags, PLR_THIEF) ? "{_(THIEF){x " : "", wch->name,
-            IS_NPC(wch) ? "" : wch->pcdata->title);
+            IS_SET(wch->act_flags, PLR_KILLER) ? COLOR_ALT_TEXT_2 "(KILLER)" COLOR_CLEAR " " : "",
+            IS_SET(wch->act_flags, PLR_THIEF) ? COLOR_ALT_TEXT_2 "(THIEF)" COLOR_CLEAR " " : "", 
+            NAME_STR(wch), IS_NPC(wch) ? "" : wch->pcdata->title);
         add_buf(output, buf);
     }
 
@@ -1899,7 +1898,7 @@ void do_count(Mobile* ch, char* argument)
 void do_inventory(Mobile* ch, char* argument)
 {
     send_to_char("You are carrying:\n\r", ch);
-    show_list_to_char(ch->carrying, ch, true, true);
+    show_list_to_char(&ch->objects, ch, true, true);
     return;
 }
 
@@ -1937,7 +1936,7 @@ void do_compare(Mobile* ch, char* argument)
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
     Object* obj1;
-    Object* obj2;
+    Object* obj2 = NULL;
     int value1;
     int value2;
     char* msg;
@@ -1949,13 +1948,13 @@ void do_compare(Mobile* ch, char* argument)
         return;
     }
 
-    if ((obj1 = get_obj_carry(ch, arg1, ch)) == NULL) {
+    if ((obj1 = get_obj_carry(ch, arg1)) == NULL) {
         send_to_char("You do not have that item.\n\r", ch);
         return;
     }
 
     if (arg2[0] == '\0') {
-        for (obj2 = ch->carrying; obj2 != NULL; obj2 = obj2->next_content) {
+        FOR_EACH_MOB_OBJ(obj2, ch) {
             if (obj2->wear_loc != WEAR_UNHELD && can_see_obj(ch, obj2)
                 && obj1->item_type == obj2->item_type
                 && (obj1->wear_flags & obj2->wear_flags & ~ITEM_TAKE) != 0)
@@ -1967,7 +1966,7 @@ void do_compare(Mobile* ch, char* argument)
             return;
         }
     }
-    else if ((obj2 = get_obj_carry(ch, arg2, ch)) == NULL) {
+    else if ((obj2 = get_obj_carry(ch, arg2)) == NULL) {
         send_to_char("You do not have that item.\n\r", ch);
         return;
     }
@@ -2041,8 +2040,8 @@ void do_where(Mobile* ch, char* argument)
                 && victim->in_room->area == ch->in_room->area
                 && can_see(ch, victim)) {
                 found = true;
-                sprintf(buf, "%-28s %s\n\r", victim->name,
-                        victim->in_room->data->name);
+                sprintf(buf, "%-28s %s\n\r", NAME_STR(victim),
+                        NAME_STR(victim->in_room));
                 send_to_char(buf, ch);
             }
         }
@@ -2050,15 +2049,15 @@ void do_where(Mobile* ch, char* argument)
     }
     else {
         found = false;
-        FOR_EACH(victim, mob_list) {
+        FOR_EACH_GLOBAL_MOB(victim) {
             if (victim->in_room != NULL
                 && victim->in_room->area == ch->in_room->area
                 && !IS_AFFECTED(victim, AFF_HIDE)
                 && !IS_AFFECTED(victim, AFF_SNEAK) && can_see(ch, victim)
-                && is_name(arg, victim->name)) {
+                && is_name(arg, NAME_STR(victim))) {
                 found = true;
                 sprintf(buf, "%-28s %s\n\r", PERS(victim, ch),
-                        victim->in_room->data->name);
+                        NAME_STR(victim->in_room));
                 send_to_char(buf, ch);
                 break;
             }
@@ -2286,8 +2285,8 @@ void do_practice(Mobile* ch, char* argument)
         }
 
         if (!cfg_get_practice_anywhere()) {
-            Mobile* mob;
-            FOR_EACH_IN_ROOM(mob, ch->in_room->people) {
+            Mobile* mob = NULL;
+            FOR_EACH_ROOM_MOB(mob, ch->in_room) {
                 if (IS_NPC(mob) && IS_SET(mob->act_flags, ACT_PRACTICE))
                     break;
             }

@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik St�rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -46,7 +46,7 @@
 void substitute_alias(Descriptor* d, char* argument)
 {
     Mobile* ch;
-    char buf[MAX_STRING_LENGTH], prefix[MAX_INPUT_LENGTH],
+    char buf[MAX_STRING_LENGTH], prefix[MAX_STRING_LENGTH],
         name[MAX_INPUT_LENGTH];
     char* point;
     int alias;

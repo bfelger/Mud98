@@ -1,13 +1,13 @@
 ////////////////////////////////////////////////////////////////////////////////
-// spell.c
+// data/spell.c
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "merc.h"
 
 #include "spell.h"
 
-#include "db.h"
-#include "spell_list.h"
+#include <db.h>
+#include <spell_list.h>
 
 #if defined(SPELL)
 #undef SPELL
@@ -50,7 +50,7 @@ void spell_list(Buffer* pBuf)
     add_buf(pBuf, buf);
 
     for (i = 0; spell_table[i].name; ++i) {
-        sprintf(buf, "{*%3d{x %-35.35s", i,
+        sprintf(buf, COLOR_ALT_TEXT_1 "%3d" COLOR_CLEAR " %-35.35s", i,
             spell_table[i].name);
         if (i % 2 == 1)
             strcat(buf, "\n\r");

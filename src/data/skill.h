@@ -1,21 +1,29 @@
 ////////////////////////////////////////////////////////////////////////////////
-// skill.h
+// data/skill.h
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 #ifndef MUD86__DATA__SKILL_H
 #define MUD86__DATA__SKILL_H
 
-#include "merc.h"
+#include <merc.h>
 
-#include "array.h"
 #include "class.h"
 #include "mobile_data.h"
 #include "spell.h"
 
+#include <array.h>
+
+#include <lox/function.h>
+#include <lox/lox.h>
+
 #define DEFAULT_SKILL_RATING    0
 #define DEFAULT_SKILL_LEVEL     53
 #define DEFAULT_SKILL_CAP       75
+
+#define HAS_SPELL_FUNC(sn)   ((skill_table[(sn)].spell_fun != spell_null &&    \
+                               skill_table[(sn)].spell_fun != NULL) ||         \
+                              (skill_table[(sn)].lox_closure != NULL))
 
 typedef int16_t SkillRating;
 DECLARE_ARRAY(SkillRating)
@@ -30,6 +38,8 @@ typedef struct skill_t {
     ARRAY(LEVEL) skill_level;       // Level needed by class
     ARRAY(SkillRating) rating;      // How hard it is to learn
     SpellFunc* spell_fun;           // Spell pointer (for spells)
+    String* lox_spell_name;
+    ObjClosure* lox_closure;        // Lox closure
     SkillTarget target;             // Legal targets
     Position minimum_position;      // Position for caster / user
     SKNUM* pgsn;                    // Pointer to associated gsn

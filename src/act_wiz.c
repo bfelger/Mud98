@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -44,17 +44,19 @@
 #include "tables.h"
 #include "update.h"
 
-#include "entities/area.h"
-#include "entities/descriptor.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
+#include <entities/area.h>
+#include <entities/descriptor.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
 
-#include "data/class.h"
-#include "data/item.h"
-#include "data/mobile_data.h"
-#include "data/player.h"
-#include "data/race.h"
-#include "data/skill.h"
+#include <data/class.h>
+#include <data/item.h>
+#include <data/mobile_data.h>
+#include <data/player.h>
+#include <data/race.h>
+#include <data/skill.h>
+
+#include <lox/memory.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -194,8 +196,8 @@ void wiznet(char* string, Mobile* ch, Object* obj, FLAGS flag,
                 send_to_char("{Z--> ", d->character);
             else
                 send_to_char("{Z", d->character);
-            act_new(string, d->character, obj, ch, TO_CHAR, POS_DEAD);
-            send_to_char("{x", d->character);
+            act_pos(string, d->character, obj, ch, TO_CHAR, POS_DEAD);
+            send_to_char(COLOR_CLEAR, d->character);
         }
     }
 
@@ -334,7 +336,7 @@ void do_nochannels(Mobile* ch, char* argument)
         send_to_char("The gods have restored your channel priviliges.\n\r",
                      victim);
         send_to_char("NOCHANNELS removed.\n\r", ch);
-        sprintf(buf, "$N restores channels to %s", victim->name);
+        sprintf(buf, "$N restores channels to %s", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
     else {
@@ -342,7 +344,7 @@ void do_nochannels(Mobile* ch, char* argument)
         send_to_char("The gods have revoked your channel priviliges.\n\r",
                      victim);
         send_to_char("NOCHANNELS set.\n\r", ch);
-        sprintf(buf, "$N revokes %s's channels.", victim->name);
+        sprintf(buf, "$N revokes %s's channels.", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
 
@@ -352,10 +354,10 @@ void do_nochannels(Mobile* ch, char* argument)
 void do_smote(Mobile* ch, char* argument)
 {
     Mobile* vch;
-    char *letter, *name;
+    char *letter;
     char last[MAX_INPUT_LENGTH] = "";
     char temp[MAX_STRING_LENGTH];
-    size_t matches = 0;
+    int matches = 0;
 
     if (!IS_NPC(ch) && IS_SET(ch->comm_flags, COMM_NOEMOTE)) {
         send_to_char("You can't show your emotions.\n\r", ch);
@@ -367,7 +369,7 @@ void do_smote(Mobile* ch, char* argument)
         return;
     }
 
-    if (strstr(argument, ch->name) == NULL) {
+    if (strstr(argument, NAME_STR(ch)) == NULL) {
         send_to_char("You must include your name in an smote.\n\r", ch);
         return;
     }
@@ -375,10 +377,11 @@ void do_smote(Mobile* ch, char* argument)
     send_to_char(argument, ch);
     send_to_char("\n\r", ch);
 
-    FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
-        if (vch->desc == NULL || vch == ch) continue;
+    FOR_EACH_ROOM_MOB(vch, ch->in_room) {
+        if (vch->desc == NULL || vch == ch)
+            continue;
 
-        if ((letter = strstr(argument, vch->name)) == NULL) {
+        if ((letter = strstr(argument, NAME_STR(vch))) == NULL) {
             send_to_char(argument, vch);
             send_to_char("\n\r", vch);
             continue;
@@ -387,28 +390,31 @@ void do_smote(Mobile* ch, char* argument)
         strcpy(temp, argument);
         temp[strlen(argument) - strlen(letter)] = '\0';
         last[0] = '\0';
-        name = vch->name;
+        char* name = NAME_STR(vch);
+        String* vch_name = NAME_FIELD(vch);
 
         for (; *letter != '\0'; letter++) {
-            if (*letter == '\'' && matches == strlen(vch->name)) {
+            if (*letter == '\'' && matches == vch_name->length) {
                 strcat(temp, "r");
                 continue;
             }
 
-            if (*letter == 's' && matches == strlen(vch->name)) {
+            if (*letter == 's' && matches == vch_name->length) {
                 matches = 0;
                 continue;
             }
 
-            if (matches == strlen(vch->name)) { matches = 0; }
+            if (matches == vch_name->length) { 
+                matches = 0; 
+            }
 
             if (*letter == *name) {
                 matches++;
                 name++;
-                if (matches == strlen(vch->name)) {
+                if (matches == vch_name->length) {
                     strcat(temp, "you");
                     last[0] = '\0';
-                    name = vch->name;
+                    name = C_STR(vch_name);
                     continue;
                 }
                 strncat(last, letter, 1);
@@ -419,7 +425,7 @@ void do_smote(Mobile* ch, char* argument)
             strcat(temp, last);
             strncat(temp, letter, 1);
             last[0] = '\0';
-            name = vch->name;
+            name = C_STR(vch_name);
         }
 
         send_to_char(temp, vch);
@@ -442,7 +448,7 @@ void do_bamfin(Mobile* ch, char* argument)
             return;
         }
 
-        if (strstr(argument, ch->name) == NULL) {
+        if (strstr(argument, NAME_STR(ch)) == NULL) {
             send_to_char("You must include your name.\n\r", ch);
             return;
         }
@@ -469,7 +475,7 @@ void do_bamfout(Mobile* ch, char* argument)
             return;
         }
 
-        if (strstr(argument, ch->name) == NULL) {
+        if (strstr(argument, NAME_STR(ch)) == NULL) {
             send_to_char("You must include your name.\n\r", ch);
             return;
         }
@@ -511,7 +517,7 @@ void do_deny(Mobile* ch, char* argument)
 
     SET_BIT(victim->act_flags, PLR_DENY);
     send_to_char("You are denied access!\n\r", victim);
-    sprintf(buf, "$N denies access to %s", victim->name);
+    sprintf(buf, "$N denies access to %s", NAME_STR(victim));
     wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     send_to_char("OK.\n\r", ch);
     save_char_obj(victim);
@@ -748,7 +754,7 @@ void do_transfer(Mobile* ch, char* argument)
             if (d->connected == CON_PLAYING && d->character != ch
                 && d->character->in_room != NULL && can_see(ch, d->character)) {
                 char buf[MAX_STRING_LENGTH];
-                sprintf(buf, "%s %s", d->character->name, arg2);
+                sprintf(buf, "%s %s", NAME_STR(d->character), arg2);
                 do_function(ch, &do_transfer, buf);
             }
         }
@@ -801,6 +807,9 @@ void do_at(Mobile* ch, char* argument)
     Object* on;
     Mobile* wch;
 
+    if (ch == NULL)
+        return;
+
     READ_ARG(arg);
 
     if (arg[0] == '\0' || argument[0] == '\0') {
@@ -828,7 +837,7 @@ void do_at(Mobile* ch, char* argument)
      * See if 'ch' still exists before continuing!
      * Handles 'at XXXX quit' case.
      */
-    FOR_EACH(wch, mob_list) {
+    FOR_EACH_GLOBAL_MOB(wch) {
         if (wch == ch) {
             transfer_mob(ch, original);
             ch->on = on;
@@ -842,7 +851,7 @@ void do_at(Mobile* ch, char* argument)
 void do_goto(Mobile* ch, char* argument)
 {
     Room* location;
-    Mobile* rch;
+    Mobile* rch = NULL;
     int count = 0;
 
     if (argument[0] == '\0') {
@@ -854,14 +863,15 @@ void do_goto(Mobile* ch, char* argument)
         VNUM vnum = STRTOVNUM(argument);
         location = get_room_for_player(ch, vnum);
     }
-    else if ((location = find_location(ch, argument)) == NULL) {
+    else
+        location = find_location(ch, argument);
+    
+    if (location == NULL) {
         send_to_char("No such location.\n\r", ch);
         return;
     }
 
-    count = 0;
-    FOR_EACH_IN_ROOM(rch, location->people)
-        count++;
+    count = location->mobiles.count;
 
     if (!is_room_owner(ch, location) && room_is_private(location)
         && (count > 1 || get_trust(ch) < MAX_LEVEL)) {
@@ -871,7 +881,7 @@ void do_goto(Mobile* ch, char* argument)
 
     if (ch->fighting != NULL) stop_fighting(ch, true);
 
-    FOR_EACH_IN_ROOM(rch, ch->in_room->people) {
+    FOR_EACH_ROOM_MOB(rch, ch->in_room) {
         if (get_trust(rch) >= ch->invis_level) {
             if (ch->pcdata != NULL && ch->pcdata->bamfout[0] != '\0')
                 act("$t", ch, ch->pcdata->bamfout, rch, TO_VICT);
@@ -882,7 +892,7 @@ void do_goto(Mobile* ch, char* argument)
 
     transfer_mob(ch, location);
 
-    FOR_EACH_IN_ROOM(rch, ch->in_room->people) {
+    FOR_EACH_ROOM_MOB(rch, ch->in_room) {
         if (get_trust(rch) >= ch->invis_level) {
             if (ch->pcdata != NULL && ch->pcdata->bamfin[0] != '\0')
                 act("$t", ch, ch->pcdata->bamfin, rch, TO_VICT);
@@ -917,7 +927,7 @@ void do_violate(Mobile* ch, char* argument)
 
     if (ch->fighting != NULL) stop_fighting(ch, true);
 
-    FOR_EACH_IN_ROOM(rch, ch->in_room->people) {
+    FOR_EACH_ROOM_MOB(rch, ch->in_room) {
         if (get_trust(rch) >= ch->invis_level) {
             if (ch->pcdata != NULL && ch->pcdata->bamfout[0] != '\0')
                 act("$t", ch, ch->pcdata->bamfout, rch, TO_VICT);
@@ -928,7 +938,7 @@ void do_violate(Mobile* ch, char* argument)
 
     transfer_mob(ch, location);
 
-    FOR_EACH_IN_ROOM(rch, ch->in_room->people) {
+    FOR_EACH_ROOM_MOB(rch, ch->in_room) {
         if (get_trust(rch) >= ch->invis_level) {
             if (ch->pcdata != NULL && ch->pcdata->bamfin[0] != '\0')
                 act("$t", ch, ch->pcdata->bamfin, rch, TO_VICT);
@@ -1023,12 +1033,12 @@ void do_rstat(Mobile* ch, char* argument)
         return;
     }
 
-    sprintf(buf, "Name: '%s'\n\rArea: '%s'\n\r", location->name,
-            location->area_data->name);
+    sprintf(buf, "Name: '%s'\n\rArea: '%s'\n\r", NAME_STR(location),
+            NAME_STR(location->area_data));
     send_to_char(buf, ch);
 
     sprintf(buf, "Vnum: %d  Sector: %d  Light: %d  Healing: %d  Mana: %d\n\r",
-            location->vnum, location->sector_type, room->light,
+            VNUM_FIELD(location), location->sector_type, room->light,
             location->heal_rate, location->mana_rate);
     send_to_char(buf, ch);
 
@@ -1048,18 +1058,18 @@ void do_rstat(Mobile* ch, char* argument)
     }
 
     send_to_char("Characters:", ch);
-    FOR_EACH_IN_ROOM(rch, room->people) {
+    FOR_EACH_ROOM_MOB(rch, room) {
         if (can_see(ch, rch)) {
             send_to_char(" ", ch);
-            one_argument(rch->name, buf);
+            one_argument(NAME_STR(rch), buf);
             send_to_char(buf, ch);
         }
     }
 
     send_to_char(".\n\rObjects:   ", ch);
-    FOR_EACH_CONTENT(obj, room->contents) {
+    FOR_EACH_ROOM_OBJ(obj, room) {
         send_to_char(" ", ch);
-        one_argument(obj->name, buf);
+        one_argument(NAME_STR(obj), buf);
         send_to_char(buf, ch);
     }
     send_to_char(".\n\r", ch);
@@ -1071,9 +1081,8 @@ void do_rstat(Mobile* ch, char* argument)
             sprintf(buf,
                     "Door: %d.  To: %d.  Key: %d.  Exit flags: %d.\n\rKeyword: "
                     "'%s'.  Description: %s",
-
                     door,
-                    (room_exit->to_room == NULL ? -1 : room_exit->to_room->vnum),
+                    (room_exit->to_room == NULL ? -1 : VNUM_FIELD(room_exit->to_room)),
                     room_exit->key, room_exit->exit_reset_flags, room_exit->keyword,
                     room_exit->description[0] != '\0' ? room_exit->description
                                                   : "(none).\n\r");
@@ -1103,12 +1112,12 @@ void do_ostat(Mobile* ch, char* argument)
         return;
     }
 
-    sprintf(buf, "Name(s): %s\n\r", obj->name);
+    sprintf(buf, "Name(s): %s\n\r", NAME_STR(obj));
     send_to_char(buf, ch);
 
     sprintf(buf, "Vnum: %d  Type: %s  Resets: %d\n\r",
-            obj->prototype->vnum, 
-            item_table[obj->item_type].name, obj->prototype->reset_num);
+            VNUM_FIELD(obj->prototype),
+            item_type_table[obj->item_type].name, obj->prototype->reset_num);
     send_to_char(buf, ch);
 
     sprintf(buf, "Short description: %s\n\rLong description: %s\n\r",
@@ -1129,10 +1138,10 @@ void do_ostat(Mobile* ch, char* argument)
     send_to_char(buf, ch);
 
     sprintf(buf, "In room: %d  In object: %s  Carried by: %s  Wear_loc: %d\n\r",
-            obj->in_room == NULL ? 0 : obj->in_room->vnum,
+            obj->in_room == NULL ? 0 : VNUM_FIELD(obj->in_room),
             obj->in_obj == NULL ? "(none)" : obj->in_obj->short_descr,
             obj->carried_by == NULL        ? "(none)"
-            : can_see(ch, obj->carried_by) ? obj->carried_by->name
+            : can_see(ch, obj->carried_by) ? NAME_STR(obj->carried_by)
                                            : "someone",
             obj->wear_loc);
     send_to_char(buf, ch);
@@ -1396,16 +1405,16 @@ void do_mstat(Mobile* ch, char* argument)
         return;
     }
 
-    sprintf(buf, "Name: %s\n\r", victim->name);
+    sprintf(buf, "Name: %s\n\r", NAME_STR(victim));
     send_to_char(buf, ch);
 
     sprintf(
         buf, "Vnum: %d  PC/NPC: %s  Race: %s  Group: %d  Sex: %s  Room: %d\n\r",
-        IS_NPC(victim) ? victim->prototype->vnum : 0,
+        IS_NPC(victim) ? VNUM_FIELD(victim->prototype) : 0,
         IS_NPC(victim) ? "npc" : "pc",
         race_table[victim->race].name, IS_NPC(victim) ? victim->group : 0,
         sex_table[victim->sex].name,
-        victim->in_room == NULL ? 0 : victim->in_room->vnum);
+        victim->in_room == NULL ? 0 : VNUM_FIELD(victim->in_room));
     send_to_char(buf, ch);
 
     if (IS_NPC(victim)) {
@@ -1462,7 +1471,7 @@ void do_mstat(Mobile* ch, char* argument)
         send_to_char(buf, ch);
     }
     sprintf(buf, "Fighting: %s\n\r",
-            victim->fighting ? victim->fighting->name : "(none)");
+            victim->fighting ? NAME_STR(victim->fighting) : "(none)");
     send_to_char(buf, ch);
 
     if (!IS_NPC(victim)) {
@@ -1525,9 +1534,9 @@ void do_mstat(Mobile* ch, char* argument)
     }
 
     sprintf(buf, "Master: %s  Leader: %s  Pet: %s\n\r",
-            victim->master ? victim->master->name : "(none)",
-            victim->leader ? victim->leader->name : "(none)",
-            victim->pet ? victim->pet->name : "(none)");
+            victim->master ? NAME_STR(victim->master) : "(none)",
+            victim->leader ? NAME_STR(victim->leader) : "(none)",
+            victim->pet ? NAME_STR(victim->pet) : "(none)");
     send_to_char(buf, ch);
 
     if (!IS_NPC(victim)) {
@@ -1624,9 +1633,9 @@ void do_mfind(Mobile* ch, char* argument)
     for (vnum = 0; nMatch < mob_proto_count; vnum++) {
         if ((p_mob_proto = get_mob_prototype(vnum)) != NULL) {
             nMatch++;
-            if (fAll || is_name(argument, p_mob_proto->name)) {
+            if (fAll || is_name(argument, NAME_STR(p_mob_proto))) {
                 found = true;
-                sprintf(buf, "[%5d] %s\n\r", p_mob_proto->vnum,
+                sprintf(buf, "[%5d] %s\n\r", VNUM_FIELD(p_mob_proto),
                         p_mob_proto->short_descr);
                 send_to_char(buf, ch);
             }
@@ -1667,9 +1676,9 @@ void do_ofind(Mobile* ch, char* argument)
     for (vnum = 0; nMatch < obj_proto_count; vnum++) {
         if ((obj_proto = get_object_prototype(vnum)) != NULL) {
             nMatch++;
-            if (fAll || is_name(argument, obj_proto->name)) {
+            if (fAll || is_name(argument, NAME_STR(obj_proto))) {
                 found = true;
-                sprintf(buf, "[%5d] %s\n\r", obj_proto->vnum,
+                sprintf(buf, "[%5d] %s\n\r", VNUM_FIELD(obj_proto),
                         obj_proto->short_descr);
                 send_to_char(buf, ch);
             }
@@ -1701,8 +1710,8 @@ void do_owhere(Mobile* ch, char* argument)
         return;
     }
 
-    FOR_EACH(obj, obj_list) {
-        if (!can_see_obj(ch, obj) || !is_name(argument, obj->name)
+    FOR_EACH_GLOBAL_OBJ(obj) {
+        if (!can_see_obj(ch, obj) || !is_name(argument, NAME_STR(obj))
             || ch->level < obj->level)
             continue;
 
@@ -1716,11 +1725,11 @@ void do_owhere(Mobile* ch, char* argument)
             && in_obj->carried_by->in_room != NULL)
             sprintf(buf, "%3d) %s is carried by %s [Room %d]\n\r", number,
                     obj->short_descr, PERS(in_obj->carried_by, ch),
-                    in_obj->carried_by->in_room->vnum);
+                    VNUM_FIELD(in_obj->carried_by->in_room));
         else if (in_obj->in_room != NULL && can_see_room(ch, in_obj->in_room->data))
             sprintf(buf, "%3d) %s is in %s [Room %d]\n\r", number,
-                    obj->short_descr, in_obj->in_room->data->name,
-                    in_obj->in_room->vnum);
+                    obj->short_descr, NAME_STR(in_obj->in_room),
+                    VNUM_FIELD(in_obj->in_room));
         else
             sprintf(buf, "%3d) %s is somewhere\n\r", number, obj->short_descr);
 
@@ -1759,14 +1768,15 @@ void do_mwhere(Mobile* ch, char* argument)
                 victim = d->character;
                 count++;
                 if (d->original != NULL)
-                    sprintf(buf,
-                            "%3d) %s (in the body of %s) is in %s [%d]\n\r",
-                            count, d->original->name, victim->short_descr,
-                            victim->in_room->data->name, victim->in_room->vnum);
+                    sprintf(buf, 
+                        "%3d) %s (in the body of %s) is in %s [%d]\n\r", count, 
+                        NAME_STR(d->original), victim->short_descr,
+                        NAME_STR(victim->in_room), 
+                        VNUM_FIELD(victim->in_room));
                 else
                     sprintf(buf, "%3d) %s is in %s [%d]\n\r", count,
-                            victim->name, victim->in_room->data->name,
-                            victim->in_room->vnum);
+                        NAME_STR(victim), NAME_STR(victim->in_room),
+                        VNUM_FIELD(victim->in_room));
                 add_buf(buffer, buf);
             }
         }
@@ -1778,14 +1788,14 @@ void do_mwhere(Mobile* ch, char* argument)
 
     found = false;
     buffer = new_buf();
-    FOR_EACH(victim, mob_list) {
-        if (victim->in_room != NULL && is_name(argument, victim->name)) {
+    FOR_EACH_GLOBAL_MOB(victim) {
+        if (victim->in_room != NULL && is_name(argument, NAME_STR(victim))) {
             found = true;
             count++;
             sprintf(buf, "%3d) [%5d] %-28s [%5d] %s\n\r", count,
-                    IS_NPC(victim) ? victim->prototype->vnum : 0,
-                    IS_NPC(victim) ? victim->short_descr : victim->name,
-                    victim->in_room->vnum, victim->in_room->data->name);
+                    IS_NPC(victim) ? VNUM_FIELD(victim->prototype) : 0,
+                    IS_NPC(victim) ? victim->short_descr : NAME_STR(victim),
+                    VNUM_FIELD(victim->in_room), NAME_STR(victim->in_room));
             add_buf(buffer, buf);
         }
     }
@@ -1814,7 +1824,7 @@ void do_reboot(Mobile* ch, char* argument)
     Mobile* vch;
 
     if (ch->invis_level < LEVEL_HERO) {
-        sprintf(buf, "Reboot by %s.", ch->name);
+        sprintf(buf, "Reboot by %s.", NAME_STR(ch));
         do_function(ch, &do_echo, buf);
     }
 
@@ -1843,7 +1853,7 @@ void do_shutdown(Mobile* ch, char* argument)
     Mobile* vch;
 
     if (ch->invis_level < LEVEL_HERO) 
-        sprintf(buf, "Shutdown by %s.", ch->name);
+        sprintf(buf, "Shutdown by %s.", NAME_STR(ch));
 
     char filename[256];
     sprintf(filename, "%s%s", cfg_get_area_dir(), cfg_get_shutdown_file());
@@ -1878,13 +1888,13 @@ void do_protect(Mobile* ch, char* argument)
     }
 
     if (IS_SET(victim->comm_flags, COMM_SNOOP_PROOF)) {
-        act_new("$N is no longer snoop-proof.", ch, NULL, victim, TO_CHAR,
+        act_pos("$N is no longer snoop-proof.", ch, NULL, victim, TO_CHAR,
                 POS_DEAD);
         send_to_char("Your snoop-proofing was just removed.\n\r", victim);
         REMOVE_BIT(victim->comm_flags, COMM_SNOOP_PROOF);
     }
     else {
-        act_new("$N is now snoop-proof.", ch, NULL, victim, TO_CHAR, POS_DEAD);
+        act_pos("$N is now snoop-proof.", ch, NULL, victim, TO_CHAR, POS_DEAD);
         send_to_char("You are now immune to snooping.\n\r", victim);
         SET_BIT(victim->comm_flags, COMM_SNOOP_PROOF);
     }
@@ -1952,7 +1962,7 @@ void do_snoop(Mobile* ch, char* argument)
 
     victim->desc->snoop_by = ch->desc;
     sprintf(buf, "$N starts snooping on %s",
-            (IS_NPC(ch) ? victim->short_descr : victim->name));
+            (IS_NPC(ch) ? victim->short_descr : NAME_STR(victim)));
     wiznet(buf, ch, NULL, WIZ_SNOOPS, WIZ_SECURE, get_trust(ch));
     send_to_char("Ok.\n\r", ch);
     return;
@@ -2064,7 +2074,7 @@ void recursive_clone(Mobile* ch, Object* obj, Object* clone)
 {
     Object *c_obj, *t_obj;
 
-    for (c_obj = obj->contains; c_obj != NULL; c_obj = c_obj->next_content) {
+    FOR_EACH_OBJ_CONTENT(c_obj, obj) {
         if (obj_check(ch, c_obj)) {
             t_obj = create_object(c_obj->prototype, 0);
             clone_object(c_obj, t_obj);
@@ -2140,7 +2150,7 @@ void do_clone(Mobile* ch, char* argument)
     }
     else if (mob != NULL) {
         Mobile* clone;
-        Object* new_object;
+        Object* new_obj;
         char buf[MAX_STRING_LENGTH];
 
         if (!IS_NPC(mob)) {
@@ -2161,13 +2171,13 @@ void do_clone(Mobile* ch, char* argument)
         clone = create_mobile(mob->prototype);
         clone_mobile(mob, clone);
 
-        for (obj = mob->carrying; obj != NULL; obj = obj->next_content) {
+        FOR_EACH_MOB_OBJ(obj, mob) {
             if (obj_check(ch, obj)) {
-                new_object = create_object(obj->prototype, 0);
-                clone_object(obj, new_object);
-                recursive_clone(ch, obj, new_object);
-                obj_to_char(new_object, clone);
-                new_object->wear_loc = obj->wear_loc;
+                new_obj = create_object(obj->prototype, 0);
+                clone_object(obj, new_obj);
+                recursive_clone(ch, obj, new_obj);
+                obj_to_char(new_obj, clone);
+                new_obj->wear_loc = obj->wear_loc;
             }
         }
         mob_to_room(clone, ch->in_room);
@@ -2227,6 +2237,7 @@ void do_mload(Mobile* ch, char* argument)
     }
 
     victim = create_mobile(p_mob_proto);
+    gc_protect(OBJ_VAL(victim));
     mob_to_room(victim, ch->in_room);
     act("$n has created $N!", ch, NULL, victim, TO_ROOM);
     sprintf(buf, "$N loads %s.", victim->short_descr);
@@ -2285,7 +2296,7 @@ void do_purge(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
     char buf[100];
-    Mobile* victim;
+    Mobile* victim = NULL;
     Object* obj;
     Descriptor* d;
 
@@ -2293,19 +2304,15 @@ void do_purge(Mobile* ch, char* argument)
 
     if (arg[0] == '\0') {
         /* 'purge' */
-        Mobile* vnext = NULL;
-        Object* obj_next = NULL;
-
-        for (victim = ch->in_room->people; victim != NULL; victim = vnext) {
-            vnext = victim->next_in_room;
+        FOR_EACH_ROOM_MOB(victim, ch->in_room) {
             if (IS_NPC(victim) && !IS_SET(victim->act_flags, ACT_NOPURGE)
                 && victim != ch /* safety precaution */)
                 extract_char(victim, true);
         }
 
-        for (obj = ch->in_room->contents; obj != NULL; obj = obj_next) {
-            obj_next = obj->next_content;
-            if (!IS_OBJ_STAT(obj, ITEM_NOPURGE)) extract_obj(obj);
+        FOR_EACH_ROOM_OBJ(obj, ch->in_room) {
+            if (!IS_OBJ_STAT(obj, ITEM_NOPURGE))
+                extract_obj(obj);
         }
 
         act("$n purges the room!", ch, NULL, NULL, TO_ROOM);
@@ -2326,17 +2333,19 @@ void do_purge(Mobile* ch, char* argument)
 
         if (get_trust(ch) <= get_trust(victim)) {
             send_to_char("Maybe that wasn't a good idea...\n\r", ch);
-            sprintf(buf, "%s tried to purge you!\n\r", ch->name);
+            sprintf(buf, "%s tried to purge you!\n\r", NAME_STR(ch));
             send_to_char(buf, victim);
             return;
         }
 
-        act("$n disintegrates $N.", ch, 0, victim, TO_NOTVICT);
+        act("$n disintegrates $N.", ch, NULL, victim, TO_NOTVICT);
 
-        if (victim->level > 1) save_char_obj(victim);
+        if (victim->level > 1)
+            save_char_obj(victim);
         d = victim->desc;
         extract_char(victim, true);
-        if (d != NULL) close_socket(d);
+        if (d != NULL)
+            close_socket(d);
 
         return;
     }
@@ -2474,7 +2483,7 @@ void do_restore(Mobile* ch, char* argument)
     if (arg[0] == '\0' || !str_cmp(arg, "room")) {
         /* cure room */
 
-        FOR_EACH_IN_ROOM(vch, ch->in_room->people) {
+        FOR_EACH_ROOM_MOB(vch, ch->in_room) {
             affect_strip(vch, gsn_plague);
             affect_strip(vch, gsn_poison);
             affect_strip(vch, gsn_blindness);
@@ -2488,7 +2497,7 @@ void do_restore(Mobile* ch, char* argument)
             act("$n has restored you.", ch, NULL, vch, TO_VICT);
         }
 
-        sprintf(buf, "$N restored room %d.", ch->in_room->vnum);
+        sprintf(buf, "$N restored room %d.", VNUM_FIELD(ch->in_room));
         wiznet(buf, ch, NULL, WIZ_RESTORE, WIZ_SECURE, get_trust(ch));
 
         send_to_char("Room restored.\n\r", ch);
@@ -2501,7 +2510,8 @@ void do_restore(Mobile* ch, char* argument)
         FOR_EACH(d, descriptor_list) {
             victim = d->character;
 
-            if (victim == NULL || IS_NPC(victim)) continue;
+            if (victim == NULL || IS_NPC(victim))
+                continue;
 
             affect_strip(victim, gsn_plague);
             affect_strip(victim, gsn_poison);
@@ -2536,7 +2546,7 @@ void do_restore(Mobile* ch, char* argument)
     update_pos(victim);
     act("$n has restored you.", ch, NULL, victim, TO_VICT);
     sprintf(buf, "$N restored %s",
-            IS_NPC(victim) ? victim->short_descr : victim->name);
+            IS_NPC(victim) ? victim->short_descr : NAME_STR(victim));
     wiznet(buf, ch, NULL, WIZ_RESTORE, WIZ_SECURE, get_trust(ch));
     send_to_char("Ok.\n\r", ch);
     return;
@@ -2573,14 +2583,14 @@ void do_freeze(Mobile* ch, char* argument)
         REMOVE_BIT(victim->act_flags, PLR_FREEZE);
         send_to_char("You can play again.\n\r", victim);
         send_to_char("FREEZE removed.\n\r", ch);
-        sprintf(buf, "$N thaws %s.", victim->name);
+        sprintf(buf, "$N thaws %s.", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
     else {
         SET_BIT(victim->act_flags, PLR_FREEZE);
         send_to_char("You can't do ANYthing!\n\r", victim);
         send_to_char("FREEZE set.\n\r", ch);
-        sprintf(buf, "$N puts %s in the deep freeze.", victim->name);
+        sprintf(buf, "$N puts %s in the deep freeze.", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
 
@@ -2662,14 +2672,14 @@ void do_noemote(Mobile* ch, char* argument)
         REMOVE_BIT(victim->comm_flags, COMM_NOEMOTE);
         send_to_char("You can emote again.\n\r", victim);
         send_to_char("NOEMOTE removed.\n\r", ch);
-        sprintf(buf, "$N restores emotes to %s.", victim->name);
+        sprintf(buf, "$N restores emotes to %s.", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
     else {
         SET_BIT(victim->comm_flags, COMM_NOEMOTE);
         send_to_char("You can't emote!\n\r", victim);
         send_to_char("NOEMOTE set.\n\r", ch);
-        sprintf(buf, "$N revokes %s's emotes.", victim->name);
+        sprintf(buf, "$N revokes %s's emotes.", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
 
@@ -2707,14 +2717,14 @@ void do_noshout(Mobile* ch, char* argument)
         REMOVE_BIT(victim->comm_flags, COMM_NOSHOUT);
         send_to_char("You can shout again.\n\r", victim);
         send_to_char("NOSHOUT removed.\n\r", ch);
-        sprintf(buf, "$N restores shouts to %s.", victim->name);
+        sprintf(buf, "$N restores shouts to %s.", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
     else {
         SET_BIT(victim->comm_flags, COMM_NOSHOUT);
         send_to_char("You can't shout!\n\r", victim);
         send_to_char("NOSHOUT set.\n\r", ch);
-        sprintf(buf, "$N revokes %s's shouts.", victim->name);
+        sprintf(buf, "$N revokes %s's shouts.", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
 
@@ -2747,14 +2757,14 @@ void do_notell(Mobile* ch, char* argument)
         REMOVE_BIT(victim->comm_flags, COMM_NOTELL);
         send_to_char("You can tell again.\n\r", victim);
         send_to_char("NOTELL removed.\n\r", ch);
-        sprintf(buf, "$N restores tells to %s.", victim->name);
+        sprintf(buf, "$N restores tells to %s.", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
     else {
         SET_BIT(victim->comm_flags, COMM_NOTELL);
         send_to_char("You can't tell!\n\r", victim);
         send_to_char("NOTELL set.\n\r", ch);
-        sprintf(buf, "$N revokes %s's tells.", victim->name);
+        sprintf(buf, "$N revokes %s's tells.", NAME_STR(victim));
         wiznet(buf, ch, NULL, WIZ_PENALTIES, WIZ_SECURE, 0);
     }
 
@@ -2765,8 +2775,9 @@ void do_peace(Mobile* ch, char* argument)
 {
     Mobile* rch;
 
-    FOR_EACH_IN_ROOM(rch, ch->in_room->people) {
-        if (rch->fighting != NULL) stop_fighting(rch, true);
+    FOR_EACH_ROOM_MOB(rch, ch->in_room) {
+        if (rch->fighting != NULL)
+            stop_fighting(rch, true);
         if (IS_NPC(rch) && IS_SET(rch->act_flags, ACT_AGGRESSIVE))
             REMOVE_BIT(rch->act_flags, ACT_AGGRESSIVE);
     }
@@ -3073,7 +3084,7 @@ void do_mset(Mobile* ch, char* argument)
     }
 
     if (!str_prefix(arg2, "sex")) {
-        if (value < 0 || value >= SEX_COUNT) {
+        if (value < 0 || value > SEX_PLR_MAX) {
             printf_to_char(ch, "Sex range is 0 to %d.\n\r", SEX_COUNT-1);
             return;
         }
@@ -3324,8 +3335,7 @@ void do_string(Mobile* ch, char* argument)
                 send_to_char("Not on PC's.\n\r", ch);
                 return;
             }
-            free_string(victim->name);
-            victim->name = str_dup(arg3);
+            NAME_FIELD(victim) = lox_string(arg3);
             return;
         }
 
@@ -3382,8 +3392,7 @@ void do_string(Mobile* ch, char* argument)
         }
 
         if (!str_prefix(arg2, "name")) {
-            free_string(obj->name);
-            obj->name = str_dup(arg3);
+            NAME_FIELD(obj) = lox_string(arg3);
             return;
         }
 
@@ -3585,14 +3594,14 @@ void do_sockets(Mobile* ch, char* argument)
     one_argument(argument, arg);
     FOR_EACH(d, descriptor_list) {
         if (d->character != NULL && can_see(ch, d->character)
-            && (arg[0] == '\0' || is_name(arg, d->character->name)
-                || (d->original && is_name(arg, d->original->name)))) {
+            && (arg[0] == '\0' || is_name(arg, NAME_STR(d->character))
+                || (d->original && is_name(arg, NAME_STR(d->original))))) {
             count++;
             sprintf(buf + strlen(buf), "[%3ld %2d] %s@%s\n\r", 
                     (long)d->client->fd,
                     d->connected,
-                    d->original    ? d->original->name
-                    : d->character ? d->character->name
+                    d->original    ? NAME_STR(d->original)
+                    : d->character ? NAME_STR(d->character)
                                    : "(none)",
                     d->host);
         }
@@ -3633,16 +3642,13 @@ void do_force(Mobile* ch, char* argument)
 
     if (!str_cmp(arg, "all")) {
         Mobile* vch;
-        Mobile* vch_next = NULL;
 
         if (get_trust(ch) < MAX_LEVEL - 3) {
             send_to_char("Not at your level!\n\r", ch);
             return;
         }
 
-        for (vch = mob_list; vch != NULL; vch = vch_next) {
-            vch_next = vch->next;
-
+        FOR_EACH_GLOBAL_MOB(vch) {
             if (!IS_NPC(vch) && get_trust(vch) < get_trust(ch)) {
                 act(buf, ch, NULL, vch, TO_VICT);
                 interpret(vch, argument);
@@ -3651,16 +3657,13 @@ void do_force(Mobile* ch, char* argument)
     }
     else if (!str_cmp(arg, "players")) {
         Mobile* vch;
-        Mobile* vch_next = NULL;
 
         if (get_trust(ch) < MAX_LEVEL - 2) {
             send_to_char("Not at your level!\n\r", ch);
             return;
         }
 
-        for (vch = mob_list; vch != NULL; vch = vch_next) {
-            vch_next = vch->next;
-
+        FOR_EACH_GLOBAL_MOB(vch) {
             if (!IS_NPC(vch) && get_trust(vch) < get_trust(ch)
                 && vch->level < LEVEL_HERO) {
                 act(buf, ch, NULL, vch, TO_VICT);
@@ -3670,16 +3673,13 @@ void do_force(Mobile* ch, char* argument)
     }
     else if (!str_cmp(arg, "gods")) {
         Mobile* vch;
-        Mobile* vch_next = NULL;
 
         if (get_trust(ch) < MAX_LEVEL - 2) {
             send_to_char("Not at your level!\n\r", ch);
             return;
         }
 
-        for (vch = mob_list; vch != NULL; vch = vch_next) {
-            vch_next = vch->next;
-
+        FOR_EACH_GLOBAL_MOB(vch) {
             if (!IS_NPC(vch) && get_trust(vch) < get_trust(ch)
                 && vch->level >= LEVEL_HERO) {
                 act(buf, ch, NULL, vch, TO_VICT);

@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik St�rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -42,6 +42,7 @@
 #include "handler.h"
 #include "interp.h"
 #include "lookup.h"
+#include "match.h"
 #include "mob_prog.h"
 #include "note.h"
 #include "recycle.h"
@@ -52,21 +53,29 @@
 #include "telnet.h"
 #include "vt.h"
 
-#include "olc/olc.h"
-#include "olc/screen.h"
-#include "olc/string_edit.h"
+#include <olc/olc.h>
+#include <olc/lox_edit.h>
+#include <olc/screen.h>
+#include <olc/string_edit.h>
 
-#include "entities/area.h"
-#include "entities/descriptor.h"
-#include "entities/object.h"
-#include "entities/player_data.h"
+#include <entities/area.h>
+#include <entities/event.h>
+#include <entities/descriptor.h>
+#include <entities/object.h>
+#include <entities/player_data.h>
 
-#include "data/class.h"
-#include "data/mobile_data.h"
-#include "data/player.h"
-#include "data/race.h"
+#include <data/class.h>
+#include <data/mobile_data.h>
+#include <data/player.h>
+#include <data/race.h>
+#include <data/events.h>
+#include <data/tutorial.h>
 
-#include "mth/mth.h"
+#include <lox/lox.h>
+#include <lox/object.h>
+#include <lox/vm.h>
+
+#include <mth/mth.h>
 
 #include <ctype.h>
 #include <errno.h>
@@ -110,7 +119,7 @@ const unsigned char echo_off_str[4] = { IAC, WILL, TELOPT_ECHO, 0 };
 const unsigned char echo_on_str[4] = { IAC, WONT, TELOPT_ECHO, 0 };
 const unsigned char go_ahead_str[3] = { IAC, GA, 0 };
 
-Descriptor* d_next;                    // Next descriptor in loop
+Descriptor* d_next;     // Next descriptor in loop
 
 typedef enum {
     THREAD_STATUS_NONE,
@@ -154,6 +163,9 @@ bool check_parse_name(char* name);
 bool check_playing(Descriptor* d, char* name);
 bool check_reconnect(Descriptor* d, bool fConn);
 void send_to_desc(const char* txt, Descriptor* desc);
+
+extern bool test_output_enabled;
+extern bool test_act_output_enabled;
 
 static int running_servers = 0;
 
@@ -239,7 +251,6 @@ void init_tls_server(TlsServer* server)
 
 void init_server(SockServer* server, int port)
 {
-    static struct sockaddr_in sa_zero;
     struct sockaddr_in sa;
     int x = 1;
 
@@ -305,7 +316,7 @@ void init_server(SockServer* server, int port)
     }
 #endif
 
-    sa = sa_zero;
+    memset(&sa, 0, sizeof(sa));
     sa.sin_family = AF_INET;
     sa.sin_port = htons((u_short)port);
 
@@ -396,11 +407,13 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
 
     if (tls_server) {
         tls_client = (TlsClient*)alloc_mem(sizeof(TlsClient));
+        memset(tls_client, 0, sizeof(TlsClient));
         tls_client->type = SOCK_TLS;
         client = (SockClient*)tls_client;
     }
     else {
         client = (SockClient*)alloc_mem(sizeof(SockClient));
+        memset(client, 0, sizeof(SockClient));
         client->type = SOCK_TELNET;
     }
 #else
@@ -622,8 +635,14 @@ void close_socket(Descriptor* dclose)
     }
 
     if ((ch = dclose->character) != NULL) {
-        sprintf(log_buf, "Closing link to %s.", ch->name);
+        sprintf(log_buf, "Closing link to %s.", NAME_STR(ch));
         log_string(log_buf);
+
+        if (ch->pet && ch->pet->in_room == NULL) {
+            mob_to_room(ch->pet, get_room_for_player(ch, ROOM_VNUM_LIMBO));
+            extract_char(ch->pet, true);
+        }
+
         /* cut down on wiznet spam when rebooting */
         if (dclose->connected == CON_PLAYING && !merc_down) {
             act("$n has lost $s link.", ch, NULL, NULL, TO_ROOM);
@@ -697,14 +716,28 @@ bool read_from_descriptor(Descriptor* d)
 #ifdef _MSC_VER
             i_read = recv(d->client->fd, bufin,
                 (int)(sizeof(bufin) - 10 - start), 0);
+            if (i_read < 0) {
+                int wsa = WSAGetLastError();
+                if (wsa == WSAEWOULDBLOCK) {
+                    // No data available now on non-blocking socket
+                    break;
+                }
+                fprintf(stderr, "Read_from_descriptor: ");
+                PrintLastWinSockError();
+                return false;
+            }
 #else
             i_read = read(d->client->fd, bufin,
                 sizeof(bufin) - 10 - start);
-#endif
             if (i_read < 0) {
+                if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                    // No data available now on non-blocking socket
+                    break;
+                }
                 perror("Read_from_descriptor");
                 return false;
             }
+#endif
             s_read = (size_t)i_read;
 #ifndef NO_OPENSSL
         }
@@ -778,16 +811,30 @@ void process_client_input(SockServer* server, PollData* poll_data)
             d->fcommand = true;
             stop_idling(d->character);
 
+            bool tutorial_step_complete = false;
+            PlayerData* pcdata = (d->character != NULL) ? d->character->pcdata : NULL;
+            if (pcdata != NULL && pcdata->tutorial != NULL) {
+                Tutorial* t = pcdata->tutorial;
+                int s = pcdata->tutorial_step;
+                tutorial_step_complete = mini_match(t->steps[s].match, d->incomm, '$');
+            }
+
             if (d->showstr_point && *d->showstr_point != '\0')
                 show_string(d, d->incomm);
             else if (d->pString)
                 string_add(d->character, d->incomm);    // OLC
+            else if (d->pLoxScript)
+                lox_script_add(d->character, d->incomm);
             else if (d->connected == CON_PLAYING)
                 substitute_alias(d, d->incomm);
             else
                 nanny(d, d->incomm);
 
             d->incomm[0] = '\0';
+
+            if (tutorial_step_complete) {
+                advance_tutorial_step(d->character);
+            }
         }
     }
 }
@@ -917,7 +964,8 @@ bool process_descriptor_output(Descriptor* d, bool fPrompt)
                         sprintf(wound, "is bleeding to death.");
 
                     sprintf(buf, "%s %s \n\r",
-                        IS_NPC(victim) ? victim->short_descr : victim->name, wound);
+                        IS_NPC(victim) ? victim->short_descr : NAME_STR(victim),
+                        wound);
                     buf[0] = UPPER(buf[0]);
                     write_to_buffer(d, buf, 0);
                 }
@@ -947,7 +995,7 @@ bool process_descriptor_output(Descriptor* d, bool fPrompt)
     // Snoop-o-rama.
     if (d->snoop_by != NULL) {
         if (d->character != NULL)
-            write_to_buffer(d->snoop_by, d->character->name, 0);
+            write_to_buffer(d->snoop_by, NAME_STR(d->character), 0);
         write_to_buffer(d->snoop_by, "> ", 2);
         write_to_buffer(d->snoop_by, d->outbuf, d->outtop);
     }
@@ -984,14 +1032,14 @@ void bust_a_prompt(Mobile* ch)
     point = BUF(temp1);
     str = ch->prompt;
     if (str == NULL || str[0] == '\0') {
-        sprintf(BUF(temp1), "{p<%dhp %dm %dmv>{x %s", ch->hit, ch->mana, ch->move,
+        sprintf(BUF(temp1), COLOR_PROMPT "<%dhp %dm %dmv>" COLOR_CLEAR " %s", ch->hit, ch->mana, ch->move,
             ch->prefix);
         send_to_char(BUF(temp1), ch);
         goto bust_a_prompt_cleanup;
     }
 
     if (IS_SET(ch->comm_flags, COMM_AFK)) {
-        send_to_char("{p<AFK>{x ", ch);
+        send_to_char(COLOR_PROMPT "<AFK>" COLOR_CLEAR " ", ch);
         goto bust_a_prompt_cleanup;
     }
 
@@ -1020,7 +1068,7 @@ void bust_a_prompt(Mobile* ch)
                 }
             }
             if (!found) 
-                strcat(BUF(temp1), "none");
+                strcat(doors, "none");
             sprintf(BUF(temp2), "%s", doors);
             i = BUF(temp2);
             break;
@@ -1088,7 +1136,7 @@ void bust_a_prompt(Mobile* ch)
                     ((!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_HOLYLIGHT))
                         || (!IS_AFFECTED(ch, AFF_BLIND)
                             && !room_is_dark(ch->in_room)))
-                    ? ch->in_room->data->name
+                    ? NAME_STR(ch->in_room)
                     : "darkness");
             else
                 sprintf(BUF(temp2), " ");
@@ -1096,14 +1144,14 @@ void bust_a_prompt(Mobile* ch)
             break;
         case 'R':
             if (IS_IMMORTAL(ch) && ch->in_room != NULL)
-                sprintf(BUF(temp2), "%d", ch->in_room->vnum);
+                sprintf(BUF(temp2), "%d", VNUM_FIELD(ch->in_room));
             else
                 sprintf(BUF(temp2), " ");
             i = BUF(temp2);
             break;
         case 'z':
             if (IS_IMMORTAL(ch) && ch->in_room != NULL)
-                sprintf(BUF(temp2), "%s", ch->in_room->area->data->name);
+                sprintf(BUF(temp2), "%s", NAME_STR(ch->in_room->area));
             else
                 sprintf(BUF(temp2), " ");
             i = BUF(temp2);
@@ -1127,9 +1175,9 @@ void bust_a_prompt(Mobile* ch)
     *point = '\0';
     pbuff = BUF(temp3);
     colourconv(pbuff, BUF(temp1), ch);
-    send_to_char("{p", ch);
+    send_to_char(COLOR_PROMPT "", ch);
     write_to_buffer(ch->desc, BUF(temp3), 0);
-    send_to_char("{x", ch);
+    send_to_char(COLOR_CLEAR, ch);
 
     if (ch->prefix[0] != '\0')
         write_to_buffer(ch->desc, ch->prefix, 0);
@@ -1143,6 +1191,10 @@ bust_a_prompt_cleanup:
 // Append onto an output buffer.
 void write_to_buffer(Descriptor* d, const char* txt, size_t length)
 {
+    // Don't try to write to descriptors during unit tests.
+    if (test_output_enabled)
+        return;
+
     // Find length in case caller didn't.
     if (length <= 0) 
         length = strlen(txt);
@@ -1201,9 +1253,11 @@ void nanny(Descriptor * d, char* argument)
     char arg[MAX_INPUT_LENGTH];
     Mobile* ch;
     int iClass, race, i, weapon;
-    bool fOld;
+    bool fOld = false;
+    bool file_exists = false;
 
-    while (ISSPACE(*argument)) argument++;
+    while (ISSPACE(*argument))
+        argument++;
 
     ch = d->character;
 
@@ -1225,7 +1279,7 @@ void nanny(Descriptor * d, char* argument)
             return;
         }
 
-        fOld = load_char_obj(d, argument);
+        file_exists = load_char_obj(d, argument);
         ch = d->character;
 
         if (IS_SET(ch->act_flags, PLR_DENY)) {
@@ -1253,7 +1307,7 @@ void nanny(Descriptor * d, char* argument)
             }
         }
 
-        if (fOld) {
+        if (fOld && file_exists) {
             /* Old player */
             write_to_buffer(d, "Password: ", 0);
             write_to_buffer(d, (const char*)echo_off_str, 0);
@@ -1293,13 +1347,13 @@ void nanny(Descriptor * d, char* argument)
 
         write_to_buffer(d, (const char*)echo_on_str, 0);
 
-        if (check_playing(d, ch->name)) 
+        if (check_playing(d, NAME_STR(ch))) 
             return;
 
         if (check_reconnect(d, true)) 
             return;
 
-        sprintf(log_buf, "%s@%s has connected.", ch->name, d->host);
+        sprintf(log_buf, "%s@%s has connected.", NAME_STR(ch), d->host);
         log_string(log_buf);
         wiznet(log_buf, NULL, NULL, WIZ_SITES, 0, get_trust(ch));
 
@@ -1321,10 +1375,12 @@ void nanny(Descriptor * d, char* argument)
         case 'Y':
             for (d_old = descriptor_list; d_old != NULL; d_old = d_next_local) {
                 d_next_local = d_old->next;
-                if (d_old == d || d_old->character == NULL) continue;
+                if (d_old == d || d_old->character == NULL) 
+                    continue;
 
-                if (str_cmp(ch->name, d_old->original ? d_old->original->name
-                    : d_old->character->name))
+                if (!lox_streq(NAME_FIELD(ch), d_old->original 
+                    ? NAME_FIELD(d_old->original)
+                    : NAME_FIELD(d_old->character)))
                     continue;
 
                 close_socket(d_old);
@@ -1359,7 +1415,7 @@ void nanny(Descriptor * d, char* argument)
         case 'y':
         case 'Y':
             sprintf(buf, "New character.\n\rGive me a password for %s: %s",
-                ch->name, echo_off_str);
+                NAME_STR(ch), echo_off_str);
             write_to_buffer(d, buf, 0);
             d->connected = CON_GET_NEW_PASSWORD;
             break;
@@ -1526,7 +1582,7 @@ void nanny(Descriptor * d, char* argument)
 
         ch->ch_class = (int16_t)iClass;
 
-        sprintf(log_buf, "%s@%s new player.", ch->name, d->host);
+        sprintf(log_buf, "%s@%s new player.", NAME_STR(ch), d->host);
         log_string(log_buf);
         wiznet("Newbie alert!  $N sighted.", ch, NULL, WIZ_NEWBIE, 0, 0);
         wiznet(log_buf, NULL, NULL, WIZ_SITES, 0, get_trust(ch));
@@ -1678,13 +1734,31 @@ void nanny(Descriptor * d, char* argument)
     case CON_READ_MOTD:
         sprintf(buf, "\n\rWelcome to %s. Please do not feed the mobiles.\n\r\n\r", cfg_get_mud_name());
         write_to_buffer(d, buf, 0);
-        ch->next = mob_list;
-        mob_list = ch;
-        ch->pcdata->next = player_data_list;
-        player_data_list = ch->pcdata;
+
+        {
+            PlayerData* pc;
+            bool logged_in = false;
+            FOR_EACH(pc, player_data_list) {
+                if (pc == ch->pcdata) {
+                    logged_in = true;
+                    break;
+                }
+            }
+
+            if (!logged_in) {
+                ch->pcdata->next = player_data_list;
+                player_data_list = ch->pcdata;
+            }
+        }
 
         d->connected = CON_PLAYING;
         reset_char(ch);
+
+
+        if (IS_SET(ch->act_flags, PLR_TESTER))
+            send_to_char(COLOR_ALT_TEXT_1 "THIS IS A TESTER ACCOUNT.\n\r"
+                "It comes with enhanced privileges, and an expectation that you"
+                " will not abuse them." COLOR_EOL, ch);
 
         if (ch->level == 0) {
             ch->perm_stat[class_table[ch->ch_class].prime_stat] += 3;
@@ -1744,6 +1818,10 @@ void nanny(Descriptor * d, char* argument)
         else {
             mob_to_room(ch, get_room(NULL, ch->pcdata->recall));
         }
+
+        // Fire any TRIG_LOGIN events on this room
+        if (HAS_EVENT_TRIGGER(ch->in_room, TRIG_LOGIN))
+            raise_login_event(ch);
 
         act("$n has entered the game.", ch, NULL, NULL, TO_ROOM);
         do_function(ch, &do_look, "auto");
@@ -1854,14 +1932,9 @@ bool check_parse_name(char* name)
     // Prevent players from naming themselves after mobs.
     {
         MobPrototype* p_mob_proto;
-        int hash;
-
-        for (hash = 0; hash < MAX_KEY_HASH; hash++) {
-            for (p_mob_proto = mob_proto_hash[hash]; p_mob_proto != NULL;
-                NEXT_LINK(p_mob_proto)) {
-                if (is_name(name, p_mob_proto->name)) 
-                    return false;
-            }
+        FOR_EACH_MOB_PROTO(p_mob_proto) {
+            if (is_name(name, NAME_STR(p_mob_proto)))
+                return false;
         }
     }
 
@@ -1873,9 +1946,9 @@ bool check_reconnect(Descriptor * d, bool fConn)
 {
     Mobile* ch;
 
-    FOR_EACH(ch, mob_list) {
+    FOR_EACH_GLOBAL_MOB(ch) {
         if (!IS_NPC(ch) && (!fConn || ch->desc == NULL)
-            && !str_cmp(d->character->name, ch->name)) {
+            && lox_streq(NAME_FIELD(d->character), NAME_FIELD(ch))) {
             if (fConn == false) {
                 if (d->character->pcdata->pwd_digest != NULL)
                     free_digest(d->character->pcdata->pwd_digest);
@@ -1901,7 +1974,7 @@ bool check_reconnect(Descriptor * d, bool fConn)
                     "Reconnecting. Type replay to see missed tells.\n\r", ch);
                 act("$n has reconnected.", ch, NULL, NULL, TO_ROOM);
 
-                sprintf(log_buf, "%s@%s reconnected.", ch->name, d->host);
+                sprintf(log_buf, "%s@%s reconnected.", NAME_STR(ch), d->host);
                 log_string(log_buf);
                 wiznet("$N groks the fullness of $S link.", ch, NULL,
                     WIZ_LINKS, 0, 0);
@@ -1923,8 +1996,8 @@ bool check_playing(Descriptor * d, char* name)
         if (dold != d && dold->character != NULL
             && dold->connected != CON_GET_NAME
             && dold->connected != CON_GET_OLD_PASSWORD
-            && !str_cmp(name, dold->original ? dold->original->name
-                : dold->character->name)) {
+            && !str_cmp(name, dold->original ? NAME_STR(dold->original)
+                : NAME_STR(dold->character))) {
             write_to_buffer(d, "That character is already playing.\n\r", 0);
             write_to_buffer(d, "Do you wish to connect anyway (Y/N)?", 0);
             d->connected = CON_BREAK_CONNECT;
@@ -1965,10 +2038,12 @@ bool write_to_descriptor(Descriptor* d, char* txt, size_t length)
     if (length <= 0)
         length = strlen(txt);
 
+#ifndef NO_ZLIB
     if (d->mth->mccp2) {
         write_mccp2(d, txt, length);
         return true;
     }
+#endif
 
     for (size_t start = 0; start < length; start += s_bytes) {
         block = (int)UMIN(length - start, 4096);
@@ -1985,11 +2060,17 @@ bool write_to_descriptor(Descriptor* d, char* txt, size_t length)
             int i_bytes;
 #ifdef _MSC_VER
             if ((i_bytes = send(d->client->fd, txt + start, block, 0)) < 0) {
+                int wsa = WSAGetLastError();
+                if (wsa == WSAEWOULDBLOCK)
+                    return true; // Non-fatal error; try again.
+                fprintf(stderr, "Write_to_descriptor: [%d] ", wsa);
                 PrintLastWinSockError();
 #else
             if ((i_bytes = write(d->client->fd, txt + start, block)) < 0) {
-#endif
+                if (errno == EAGAIN || errno == EWOULDBLOCK)
+                    return true; // Non-fatal error; try again.
                 perror("Write_to_descriptor");
+#endif
                 return false;
             }
             s_bytes += i_bytes;
@@ -2032,7 +2113,7 @@ void send_to_desc(const char* txt, Descriptor* desc)
     point2 = temp;
     if (txt && desc) {
         for (point = txt; *point; point++) {
-            if (*point == '{') {
+            if (*point == COLOR_ESC_CHAR) {
                 point++;
                 skip = colour(*point, NULL, point2);
                 while (skip-- > 0) 
@@ -2077,30 +2158,30 @@ void send_to_char(const char* txt, Mobile * ch)
     if (txt && ch->desc) {
         if (IS_SET(ch->act_flags, PLR_COLOUR)) {
             for (point = txt; *point; point++) {
-                if (*point == '{') {
+                if (*point == COLOR_ESC_CHAR) {
                     point++;
                     skip = colour(*point, ch, point2);
-                    while (skip-- > 0) ++point2;
+                    point2 += skip;
                     continue;
                 }
+
                 *point2 = *point;
                 *++point2 = '\0';
             }
             *point2 = '\0';
-            write_to_buffer(ch->desc, BUF(temp), point2 - BUF(temp));
         }
         else {
             for (point = txt; *point; point++) {
-                if (*point == '{') {
+                if (*point == COLOR_ESC_CHAR) {
                     point++;
                     continue;
                 }
                 *point2 = *point;
                 *++point2 = '\0';
             }
-            *point2 = '\0';
-            write_to_buffer(ch->desc, BUF(temp), point2 - BUF(temp));
+            *point2 = '\0';;
         }
+        write_to_buffer(ch->desc, BUF(temp), point2 - BUF(temp));
     }
 
     free_buf(temp);
@@ -2136,7 +2217,7 @@ void page_to_char(const char* txt, Mobile * ch)
     if (txt && ch->desc) {
         if (IS_SET(ch->act_flags, PLR_COLOUR)) {
             for (point = txt; *point; point++) {
-                if (*point == '{') {
+                if (*point == COLOR_ESC_CHAR) {
                     point++;
                     skip = colour(*point, ch, point2);
                     while (skip-- > 0) ++point2;
@@ -2153,7 +2234,7 @@ void page_to_char(const char* txt, Mobile * ch)
         }
         else {
             for (point = txt; *point; point++) {
-                if (*point == '{') {
+                if (*point == COLOR_ESC_CHAR) {
                     point++;
                     continue;
                 }
@@ -2227,17 +2308,50 @@ show_string_cleanup:
 /* quick sex fixer */
 void fix_sex(Mobile * ch)
 {
-    if (ch->sex < 0 || ch->sex >= SEX_COUNT)
+    if (ch->sex < 0 || ch->sex > SEX_PLR_MAX)
         ch->sex = IS_NPC(ch) ? 0 : ch->pcdata->true_sex;
 }
 
-void act_new(const char* format, Mobile * ch, const void* arg1,
-    const void* arg2, ActTarget type, Position min_pos)
+void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2, 
+    ActTarget type, Position min_pos)
 {
-    Mobile* to;
-    Mobile* vch = (Mobile*)arg2;
-    Object* obj1 = (Object*)arg1;
-    Object* obj2 = (Object*)arg2;
+    Mobile* ch = NULL;
+    Mobile* to = NULL;
+    Mobile* vch = NULL;
+    Object* obj1 = NULL;
+    Object* obj2 = NULL;
+    Room* to_room = NULL;
+    char* string1 = "";
+    char* string2 = "";
+
+    if (target == NULL)
+        return;
+
+    if (target->type == OBJ_MOB)
+        ch = (Mobile*)target;
+    else if (target->type == OBJ_ROOM)
+        to_room = (Room*)target;
+
+    if (arg1 != NULL) {
+        if (arg1->type == OBJ_MOB)
+            to = (Mobile*)arg1;
+        else if (arg1->type == OBJ_OBJ)
+            obj1 = (Object*)arg1;
+        else if (arg1->type == OBJ_ROOM)
+            to_room = (Room*)arg1;
+        else if (arg1->type == OBJ_STRING)
+            string1 = ((String*)arg1)->chars;
+    }
+
+    if (arg2 != NULL) {
+        if (arg2->type == OBJ_MOB)
+            vch = (Mobile*)arg2;
+        else if (arg2->type == OBJ_OBJ)
+            obj2 = (Object*)arg2;
+        else if (arg2->type == OBJ_STRING)
+            string2 = ((String*)arg2)->chars;
+    }
+
     const char* str;
     const char* i = NULL;
     char* point;
@@ -2251,10 +2365,9 @@ void act_new(const char* format, Mobile * ch, const void* arg1,
         return;
 
     /* discard null rooms and chars */
-    if (!ch || !ch->in_room)
+    if ((!ch || !ch->in_room) && to_room == NULL)
         return;
 
-    to = ch->in_room->people;
     if (type == TO_VICT) {
         if (!vch) {
             bug("Act: null vch with TO_VICT.", 0);
@@ -2264,12 +2377,15 @@ void act_new(const char* format, Mobile * ch, const void* arg1,
         if (!vch->in_room)
             return;
 
-        to = vch->in_room->people;
+        to_room = vch->in_room;
+    }
+    else if (to_room == NULL) {
+        to_room = ch->in_room;
     }
 
-    for (; to; to = to->next_in_room) {
+    FOR_EACH_ROOM_MOB(to, to_room) {
         if ((!IS_NPC(to) && to->desc == NULL)
-            || (IS_NPC(to) && !HAS_TRIGGER(to, TRIG_ACT))
+            || (IS_NPC(to) && !HAS_MPROG_TRIGGER(to, TRIG_ACT) && !HAS_EVENT_TRIGGER(to, TRIG_ACT))
             || to->position < min_pos)
             continue;
 
@@ -2281,6 +2397,9 @@ void act_new(const char* format, Mobile * ch, const void* arg1,
             continue;
         if (type == TO_NOTVICT && (to == ch || to == vch)) 
             continue;
+
+        // Display "you" forms to victim.
+        int vch_sex = (vch != NULL && to != vch) ? vch->sex : SEX_YOU;
 
         point = buf;
         str = format;
@@ -2304,10 +2423,10 @@ void act_new(const char* format, Mobile * ch, const void* arg1,
                     break;
                     /* Thx alex for 't' idea */
                 case 't':
-                    i = (char*)arg1;
+                    i = string1;
                     break;
                 case 'T':
-                    i = (char*)arg2;
+                    i = string2;
                     break;
                 case 'n':
                     i = PERS(ch, to);
@@ -2319,23 +2438,23 @@ void act_new(const char* format, Mobile * ch, const void* arg1,
                     i = sex_table[ch->sex].subj;
                     break;
                 case 'E':
-                    i = sex_table[ch->sex].subj;
+                    i = sex_table[vch_sex].subj;
                     break;
                 case 'm':
                     i = sex_table[ch->sex].obj;
                     break;
                 case 'M':
-                    i = sex_table[ch->sex].obj;
+                    i = sex_table[vch_sex].obj;
                     break;
                 case 's':
                     i = sex_table[ch->sex].poss;
                     break;
                 case 'S':
-                    i = sex_table[ch->sex].poss;
+                    i = sex_table[vch_sex].poss;
                     break;
 
                 case 'p':
-                    i = can_see_obj(to, obj1) ? obj1->short_descr : "something";
+                    i = (obj1 != NULL && can_see_obj(to, obj1)) ? obj1->short_descr : "something";
                     break;
 
                 case 'P':
@@ -2355,25 +2474,32 @@ void act_new(const char* format, Mobile * ch, const void* arg1,
             }
 
             ++str;
-            while ((*point = *i) != '\0') ++point, ++i;
+            while ((*point = *i) != '\0') {
+                ++point;
+                ++i;
+            }
         }
 
         *point++ = '\n';
         *point++ = '\r';
         *point = '\0';
         buf[0] = UPPER(buf[0]);
-        if (to->desc != NULL) {
+
+        if (test_act_output_enabled) {
+            lox_printf("%s", buf);
+        }
+        else if (to->desc != NULL) {
             pbuff = buffer;
             colourconv(pbuff, buf, to);
-            write_to_buffer(to->desc, buffer, 0);
-            //write_to_buffer(to->desc, buf, point - buf);
+            write_to_buffer(to->desc, pbuff, 0);
         }
-        else if (MOBtrigger)
-            mp_act_trigger(buf, to, ch, arg1, arg2, TRIG_ACT);
-
+        else if (events_enabled) {
+            if (HAS_EVENT_TRIGGER(to, TRIG_ACT))
+                raise_act_event((Entity*)to, TRIG_ACT, (Entity*)ch, buf);
+            if (HAS_MPROG_TRIGGER(to, TRIG_ACT)) 
+                mp_act_trigger(buf, to, ch, arg1, arg2, TRIG_ACT);
+        }
     }
-
-    return;
 }
 
 size_t colour(char type, Mobile * ch, char* string)
@@ -2396,16 +2522,13 @@ size_t colour(char type, Mobile * ch, char* string)
 
         if (pal < 0) {
             switch (type) {
-            case '!':
-                sprintf(code, "%c", '\a');
-                break;
             case '/':
-                strcpy(code, "\n\r");
+                sprintf(code, "%s", "\n\r");
                 break;
             case '-':
                 sprintf(code, "%c", '~');
                 break;
-            case '{':
+            case COLOR_ESC_CHAR:
                 sprintf(code, "%c", type);
                 break;
             case 'x':
@@ -2438,15 +2561,17 @@ size_t colour(char type, Mobile * ch, char* string)
     return (strlen(code));
 }
 
-void colourconv(char* buffer, const char* txt, Mobile * ch)
+int colourconv(char* buffer, const char* txt, Mobile * ch)
 {
     const char* point;
     size_t skip = 0;
 
+    char* start = buffer;
+
     if (ch->desc && txt) {
         if (IS_SET(ch->act_flags, PLR_COLOUR)) {
             for (point = txt; *point; point++) {
-                if (*point == '{') {
+                if (*point == COLOR_ESC_CHAR) {
                     point++;
                     skip = colour(*point, ch, buffer);
                     while (skip-- > 0) ++buffer;
@@ -2459,7 +2584,7 @@ void colourconv(char* buffer, const char* txt, Mobile * ch)
         }
         else {
             for (point = txt; *point; point++) {
-                if (*point == '{') {
+                if (*point == COLOR_ESC_CHAR) {
                     point++;
                     continue;
                 }
@@ -2469,11 +2594,11 @@ void colourconv(char* buffer, const char* txt, Mobile * ch)
             *buffer = '\0';
         }
     }
-    return;
+    return (int)(buffer - start);
 }
 
 // source: EOD, by John Booth <???> 
-void printf_to_char(Mobile* ch, char* fmt, ...)
+void printf_to_char(Mobile* ch, const char* fmt, ...)
 {
     char buf[MAX_STRING_LENGTH];
     va_list args;

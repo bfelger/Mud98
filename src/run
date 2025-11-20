@@ -14,9 +14,12 @@ if [[ ${arg,,} == "release" ]] || [[ ${arg,,} == "rel" ]]
     elif [[ ${arg,,} == "relwithdebinfo" ]] || [[ ${arg,,} == "relwithdeb" ]] || [[ ${arg,,} == "reldeb" ]]
     then
         build_cfg="RelWithDebInfo"
-    elif [[ ${arg,,} == "benchonly" ]]
+    elif [[ ${arg,,} == "bench" ]] || [[ ${arg,,} == "benchtest" ]]
     then
         bench="-B"
+    elif [[ ${arg,,} == "unittest" ]] || [[ ${arg,,} == "test" ]]
+    then
+        bench="-U"
     else
         echo "Unknown argument '${arg,,}'."
         exit

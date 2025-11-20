@@ -1,19 +1,18 @@
 ////////////////////////////////////////////////////////////////////////////////
-// affect.c
+// entities/affect.c
 // Utilities to handle special conditions and status affects
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "affect.h"
-
-#include "comm.h"
-#include "db.h"
-#include "handler.h"
-
+#include "descriptor.h"
 #include "mobile.h"
-#include "entities/descriptor.h"
 #include "object.h"
 
-#include "data/mobile_data.h"
+#include <data/mobile_data.h>
+
+#include <comm.h>
+#include <db.h>
+#include <handler.h>
 
 Affect* affect_free;
 int affect_count;
@@ -104,7 +103,7 @@ void affect_check(Mobile* ch, Where where, int vector)
             return;
         }
 
-    for (obj = ch->carrying; obj != NULL; obj = obj->next_content) {
+    FOR_EACH_MOB_OBJ(obj, ch) {
         if (obj->wear_loc == -1) continue;
 
         FOR_EACH(affect, obj->affected)
@@ -221,7 +220,7 @@ void affect_join(Mobile* ch, Affect* affect)
         }
     }
 
-    affect_to_char(ch, affect);
+    affect_to_mob(ch, affect);
     return;
 }
 
@@ -543,7 +542,7 @@ void affect_strip(Mobile* ch, SKNUM sn)
 }
 
 // Give an affect to a char.
-void affect_to_char(Mobile* ch, Affect* affect)
+void affect_to_mob(Mobile* ch, Affect* affect)
 {
     Affect* paf_new;
 

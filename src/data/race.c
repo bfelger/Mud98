@@ -1,13 +1,15 @@
 ////////////////////////////////////////////////////////////////////////////////
-// race.c
+// data/race.c
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "race.h"
 
-#include "comm.h"
-#include "config.h"
-#include "db.h"
-#include "tablesave.h"
+#include <comm.h>
+#include <config.h>
+#include <db.h>
+#include <tablesave.h>
+
+#include <lox/compiler.h>
 
 DEFINE_ARRAY(ClassMult, 100)
 
@@ -46,6 +48,8 @@ const SaveTableEntry race_save_table[] = {
     { NULL,		        0,				            0,			                0,		            0           }
 };
 
+void init_race_table_lox();
+
 void load_race_table()
 {
     FILE* fp;
@@ -82,9 +86,38 @@ void load_race_table()
             close_file(fp);
             race_count = maxrace;
             race_table[i].name = NULL;
-            return;
+            break;
         }
     }
+
+    init_race_table_lox();
+}
+
+void init_race_table_lox()
+{
+    static char* race_start =
+        "enum Race { ";
+
+    static char* race_end =
+        "}\n";
+
+    INIT_BUF(src, MSL);
+
+    add_buf(src, race_start);
+
+    for (int i = 0; i < race_count; ++i) {
+        if (strcmp(race_table[i].name, "unique") != 0)
+            addf_buf(src, "       %s = %d,", pascal_case(race_table[i].name), i);
+    }
+
+    add_buf(src, race_end);
+
+    InterpretResult result = interpret_code(src->string);
+
+    if (result == INTERPRET_COMPILE_ERROR) exit(65);
+    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+
+    free_buf(src);
 }
 
 void save_race_table()

@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -296,7 +296,6 @@ void do_allow(Mobile* ch, char* argument)
 
 BanData* new_ban(void)
 {
-    static BanData ban_zero;
     BanData* ban;
 
     if (ban_free == NULL)
@@ -306,7 +305,7 @@ BanData* new_ban(void)
         NEXT_LINK(ban_free);
     }
 
-    *ban = ban_zero;
+    memset(ban, 0, sizeof(*ban));
     VALIDATE(ban);
     ban->name = &str_empty[0];
     return ban;
