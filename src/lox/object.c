@@ -26,7 +26,7 @@ Obj* allocate_object(size_t size, ObjType type)
 {
     Obj* object = (Obj*)reallocate(NULL, 0, size);
     object->type = type;
-    object->is_marked = false;
+    object->mark_id = 0;
 
     object->next = vm.objects;
     vm.objects = object;

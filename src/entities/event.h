@@ -11,18 +11,26 @@
 #include "entity.h"
 
 typedef struct object_t Object;
+typedef struct obj_closure_t ObjClosure;
 
 #include <lox/object.h>
 
 #include <recycle.h>
 
-struct event_t {
+typedef struct event_t {
     Obj obj;
-    Event* next;
+    struct event_t* next;
     FLAGS trigger;
     Value criteria;
     ObjString* method_name;
-};
+} Event;
+
+// Used for delayed events
+typedef struct event_timer_t {
+    struct event_timer_t* next;
+    ObjClosure* closure;
+    int ticks;
+} EventTimer;
 
 Event* new_event();
 void free_event(Event* event);
@@ -43,6 +51,8 @@ ObjClosure* get_event_closure(Entity* entity, Event* event);
 extern int event_count;
 extern int event_perm_count;
 extern Event* event_free;
+
+extern EventTimer* event_timers;
 
 // EVENT TRIGGER ROUTINES //////////////////////////////////////////////////////
 

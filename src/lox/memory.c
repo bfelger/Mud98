@@ -17,6 +17,7 @@
 #include <entities/obj_prototype.h>
 #include <entities/mobile.h>
 #include <entities/room.h>
+#include <entities/faction.h>
 
 #ifdef DEBUG_LOG_GC
 #include "debug.h"
@@ -109,14 +110,14 @@ void mark_object(Obj* object)
 {
     if (object == NULL)
         return;
-    if (object->is_marked)
+    if (object->mark_id == vm.current_gc_mark)
         return;
 #ifdef DEBUG_LOG_GC
     lox_printf("%p mark ", (void*)object);
     print_value(OBJ_VAL(object));
     lox_printf("\n");
 #endif
-    object->is_marked = true;
+    object->mark_id = vm.current_gc_mark;
 
     if (vm.gray_capacity < vm.gray_count + 1) {
         vm.gray_capacity = GROW_CAPACITY(vm.gray_capacity);
@@ -297,6 +298,13 @@ static void blacken_object(Obj* object)
         mark_entity(&mob_proto->header);
         break;
     }
+    case OBJ_FACTION: {
+        Faction* faction = (Faction*)object;
+        mark_entity(&faction->header);
+        mark_array(&faction->allies);
+        mark_array(&faction->enemies);
+        break;
+    }
     } // end switch
 }
 
@@ -396,6 +404,7 @@ static void free_obj_value(Obj* object)
     case OBJ_OBJ_PROTO:
     case OBJ_MOB:
     case OBJ_MOB_PROTO:
+    case OBJ_FACTION:
         break;
     } // end switch
 }
@@ -445,11 +454,22 @@ static void mark_roots()
 
     // Temp space for Entity Values we need to preserve during construction
     mark_array(&gc_protect_vals);
+    mark_table(&faction_table);
+    mark_array(&global_areas);
+    mark_table(&global_rooms);
+    mark_table(&mob_protos);
+    mark_table(&obj_protos);
 
     mark_list(&mob_free);
     mark_list(&mob_list);
     mark_list(&obj_free);
     mark_list(&obj_free);
+
+    EventTimer* timer = event_timers;
+    while (timer != NULL) {
+        mark_object((Obj*)timer->closure);
+        timer = timer->next;
+    }
 }
 
 static void trace_references()
@@ -465,8 +485,7 @@ static void sweep()
     Obj* previous = NULL;
     Obj* object = vm.objects;
     while (object != NULL) {
-        if (object->is_marked) {
-            object->is_marked = false;
+        if (object->mark_id == vm.current_gc_mark) {
             previous = object;
             object = object->next;
         }
@@ -499,6 +518,7 @@ void collect_garbage()
     // We don't add game entities to VM globals until after boot. Don't GC
     // anything until we've had a chance to do that.
     if (!fBootDb) {
+        vm.current_gc_mark++;
         mark_roots();
         trace_references();
         table_remove_white(&vm.strings);
@@ -528,6 +548,7 @@ void collect_garbage_nongrowing()
     // We don't add game entities to VM globals until after boot. Don't GC
     // anything until we've had a chance to do that.
     if (!fBootDb) {
+        vm.current_gc_mark++;
         mark_roots();
         trace_references();
         table_remove_white(&vm.strings);

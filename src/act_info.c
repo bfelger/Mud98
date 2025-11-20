@@ -1,6 +1,6 @@
-/***************************************************************************
+﻿/***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St�rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -48,6 +48,7 @@
 
 #include <entities/area.h>
 #include <entities/descriptor.h>
+#include <entities/faction.h>
 #include <entities/object.h>
 #include <entities/player_data.h>
 
@@ -2443,4 +2444,14 @@ void do_password(Mobile* ch, char* argument)
     save_char_obj(ch);
     send_to_char("Ok.\n\r", ch);
     return;
+}
+
+void do_reputation(Mobile* ch, char* argument)
+{
+    if (IS_NPC(ch)) {
+        send_to_char("Mobiles have no reputations.\n\r", ch);
+        return;
+    }
+
+    faction_show_reputations(ch);
 }

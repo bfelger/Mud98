@@ -6,6 +6,13 @@
 typedef struct color_config_t ColorConfig;
 typedef struct char_gen_data_t CharGenData;
 typedef struct player_data_t PlayerData;
+typedef struct faction_reputation_t FactionReputation;
+
+typedef struct faction_reputation_list_t {
+    FactionReputation* entries;
+    size_t count;
+    size_t capacity;
+} FactionReputationList;
 
 #pragma once
 #ifndef MUD98__ENTITIES__PLAYER_DATA_H
@@ -58,6 +65,7 @@ typedef struct player_data_t {
     PlayerData* next;
     Buffer* buffer;
     QuestLog* quest_log;
+    FactionReputationList reputations;
     char* bamfin;
     char* bamfout;
     char* title;

@@ -44,6 +44,7 @@ void register_act_tests();
 void register_fmt_tests();
 void register_util_tests(); 
 void register_event_tests();
+void register_faction_tests();
 
 void run_unit_tests();
 
@@ -67,12 +68,12 @@ void test_lox_string_eq(const char* expected, Value actual, const char* file, in
 
 #define ASSERT_OUTPUT_EQ(expected) \
     ASSERT(IS_STRING(test_output_buffer)); \
-    if (IS_STRING(test_output_buffer)) \
+    if (IS_STRING(test_output_buffer) && AS_STRING(test_output_buffer) != NULL) \
         ASSERT_STR_EQ(expected, AS_CSTRING(test_output_buffer))
 
 #define ASSERT_OUTPUT_MATCH(pattern) \
     ASSERT(IS_STRING(test_output_buffer)); \
-    if (IS_STRING(test_output_buffer)) \
+    if (IS_STRING(test_output_buffer) && AS_STRING(test_output_buffer) != NULL) \
         ASSERT_MATCH(pattern, AS_CSTRING(test_output_buffer))
 
 #define ASSERT_LOX_OUTPUT_EQ(expected) \
@@ -83,6 +84,7 @@ extern bool test_trace_exec;
 extern bool test_disassemble_on_error;
 extern bool test_output_enabled;
 extern bool test_act_output_enabled;
+extern bool test_socket_output_enabled;
 extern Value test_output_buffer;
 
 #endif // !MUD98__TESTS__TESTS_H

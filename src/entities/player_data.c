@@ -7,6 +7,8 @@
 
 #include <data/skill.h>
 
+#include <entities/faction.h>
+
 #include <color.h>
 #include <config.h>
 #include <db.h>
@@ -32,6 +34,9 @@ PlayerData* new_player_data()
     player_data->learned = new_learned();
     player_data->group_known = new_boolarray(skill_group_count);
     player_data->quest_log = new_quest_log();
+    player_data->reputations.entries = NULL;
+    player_data->reputations.count = 0;
+    player_data->reputations.capacity = 0;
 
     player_data->recall = cfg_get_default_recall();
 
@@ -64,6 +69,15 @@ void free_player_data(PlayerData* player_data)
         free_string(player_data->alias[alias]);
         free_string(player_data->alias_sub[alias]);
     }
+
+    if (player_data->reputations.entries != NULL && player_data->reputations.capacity > 0) {
+        free_mem(
+            player_data->reputations.entries,
+            player_data->reputations.capacity * sizeof(FactionReputation));
+        player_data->reputations.entries = NULL;
+    }
+    player_data->reputations.count = 0;
+    player_data->reputations.capacity = 0;
 
     INVALIDATE(player_data);
 

@@ -23,15 +23,6 @@ int event_count = 0;
 int event_perm_count = 0;
 Event* event_free = NULL;
 
-typedef struct event_timer_t EventTimer;
-
-// Used for delayed events
-struct event_timer_t {
-    EventTimer* next;
-    ObjClosure* closure;
-    int ticks;
-};
-
 int event_timer_count;
 int event_timer_perm_count;
 EventTimer* event_timer_free;

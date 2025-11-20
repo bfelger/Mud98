@@ -205,20 +205,20 @@ void lox_script_add(Mobile* ch, char* argument)
             return;
         }
         else if (!str_cmp(arg1, ".h")) {
-            write_to_buffer(ch->desc, COLOR_INFO
+            send_to_char(COLOR_INFO
                 "Lox Script help (commands on blank line):   \n\r"
-                ".r 'old' 'new'   - replace a substring \n\r"
-                "                   (requires '', \"\") \n\r"
-                ".h               - get help (this info)\n\r"
-                ".s               - show script so far  \n\r"
-                ".clear           - clear script so far \n\r"
-                ".v               - validate byte-code compilation\n\r"
-                ".ld <num>        - delete line <num>\n\r"
-                ".li <num> <txt>  - insert <txt> on line <num>\n\r"
-                ".lr <num> <txt>  - replace line <num> with <txt>\n\r"
-                ".x               - cancel changes\n\r"
-                "@                - compile and save script" COLOR_EOL,
-                0);
+                COLOR_ALT_TEXT_1 ".r 'old' 'new'   " COLOR_INFO "- replace a substring \n\r"
+                COLOR_ALT_TEXT_1 "                 " COLOR_INFO "  (requires '', \"\") \n\r"
+                COLOR_ALT_TEXT_1 ".h               " COLOR_INFO "- get help (this info)\n\r"
+                COLOR_ALT_TEXT_1 ".s               " COLOR_INFO "- show script so far  \n\r"
+                COLOR_ALT_TEXT_1 ".clear           " COLOR_INFO "- clear script so far \n\r"
+                COLOR_ALT_TEXT_1 ".v               " COLOR_INFO "- validate byte-code compilation\n\r"
+                COLOR_ALT_TEXT_1 ".ld <num>        " COLOR_INFO "- delete line <num>\n\r"
+                COLOR_ALT_TEXT_1 ".li <num> <txt>  " COLOR_INFO "- insert <txt> on line <num>\n\r"
+                COLOR_ALT_TEXT_1 ".lr <num> <txt>  " COLOR_INFO "- replace line <num> with <txt>\n\r"
+                COLOR_ALT_TEXT_1 ".x               " COLOR_INFO "- cancel changes\n\r"
+                COLOR_ALT_TEXT_1 "@                " COLOR_INFO "- compile and save script" COLOR_EOL,
+                ch);
             return;
         }
 

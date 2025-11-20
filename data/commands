@@ -1,4 +1,4 @@
-268
+271
 
 #COMMAND
 name .~
@@ -2430,3 +2430,11 @@ log log_always~
 show undef~
 #END
 
+#COMMAND
+name reputation~
+do_fun do_reputation~
+position dead~
+level 0
+log log_normal~
+show undef~
+#END

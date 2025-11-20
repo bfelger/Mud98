@@ -1,6 +1,6 @@
-/***************************************************************************
+﻿/***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St�rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -44,6 +44,7 @@
 
 #include <entities/descriptor.h>
 #include <entities/event.h>
+#include <entities/faction.h>
 #include <entities/object.h>
 #include <entities/player_data.h>
 
@@ -2071,6 +2072,9 @@ Mobile* find_keeper(Mobile* ch)
         do_function(keeper, &do_say, "I don't trade with folks I can't see.");
         return NULL;
     }
+
+    if (faction_block_shopkeeper(keeper, ch))
+        return NULL;
 
     return keeper;
 }

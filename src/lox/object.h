@@ -21,6 +21,7 @@ typedef struct object_t Object;
 typedef struct obj_prototype_t ObjPrototype;
 typedef struct mobile_t Mobile;
 typedef struct mob_prototype_t MobPrototype;
+typedef struct faction_t Faction;
 typedef struct event_t Event;
 
 typedef struct value_table_t Table;
@@ -53,11 +54,12 @@ typedef enum {
     OBJ_OBJ_PROTO   = 105,
     OBJ_MOB         = 106,
     OBJ_MOB_PROTO   = 107,
+    OBJ_FACTION     = 108,
 } ObjType;
 
 struct Obj {
     ObjType type;
-    bool is_marked;
+    uint32_t mark_id;
     struct Obj* next;
 };
 
@@ -88,6 +90,7 @@ struct Obj {
 #define IS_OBJ_PROTO(value)     is_obj_type(value, OBJ_OBJ_PROTO)
 #define IS_MOBILE(value)        is_obj_type(value, OBJ_MOB)
 #define IS_MOB_PROTO(value)     is_obj_type(value, OBJ_MOB_PROTO)
+#define IS_FACTION(value)       is_obj_type(value, OBJ_FACTION)
 #define IS_ENTITY(value)        (IS_OBJ(value) && AS_OBJ(value)->type >= 100)   
 
 #define AS_ARRAY(value)         ((ValueArray*)AS_OBJ(value))
@@ -117,6 +120,7 @@ struct Obj {
 #define AS_OBJ_PROTO(value)     ((ObjPrototype*)AS_OBJ(value))
 #define AS_MOBILE(value)        ((Mobile*)AS_OBJ(value))
 #define AS_MOB_PROTO(value)     ((MobPrototype*)AS_OBJ(value))
+#define AS_FACTION(value)       ((Faction*)AS_OBJ(value))
 
 typedef enum {
     RAW_OBJ,

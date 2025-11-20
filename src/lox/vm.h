@@ -45,6 +45,7 @@ typedef struct {
     int gray_count;
     int gray_capacity;
     Obj** gray_stack;
+    uint32_t current_gc_mark;
 } VM;
 
 extern VM vm;

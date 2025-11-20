@@ -49,6 +49,7 @@ MobPrototype* new_mob_prototype()
     mob_proto->size = SIZE_MEDIUM;
     mob_proto->start_pos = POS_STANDING;
     mob_proto->default_pos = POS_STANDING;
+    mob_proto->faction_vnum = 0;
 
     return mob_proto;
 }
@@ -277,10 +278,15 @@ void load_mobiles(FILE* fp)
 
             if (letter == 'F') {
                 char* word;
-                long vector;
 
                 word = fread_word(fp);
-                vector = fread_flag(fp);
+                // Woah-ho! This is super hacky.
+                if (!str_prefix(word, "action")) {
+                    p_mob_proto->faction_vnum = fread_number(fp);
+                    continue;
+                }
+                
+                long vector = fread_flag(fp);
 
                 if (!str_prefix(word, "act"))
                     REMOVE_BIT(p_mob_proto->act_flags, vector);

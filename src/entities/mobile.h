@@ -66,6 +66,7 @@ typedef struct mobile_t {
     time_t logon;
     time_t played;
     int id;
+    VNUM faction_vnum;
     int version;
     int lines; /* for the pager */
     int exp;
