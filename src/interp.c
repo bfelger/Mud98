@@ -382,7 +382,7 @@ bool check_social(Mobile* ch, char* command, char* argument)
 }
 
 // Return true if an argument is completely numeric.
-bool is_number(char* arg)
+bool is_number(const char* arg)
 {
     if (*arg == '\0') return false;
 

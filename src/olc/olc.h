@@ -217,6 +217,7 @@ DECLARE_OLC_FUN(aedit_lvnum);
 DECLARE_OLC_FUN(aedit_uvnum);
 DECLARE_OLC_FUN(aedit_lowrange);
 DECLARE_OLC_FUN(aedit_highrange);
+DECLARE_OLC_FUN(aedit_faction);
 
 // Room Editor Prototypes
 DECLARE_OLC_FUN(redit_show);
@@ -247,6 +248,7 @@ DECLARE_OLC_FUN(oedit_copy);
 DECLARE_OLC_FUN(medit_show);
 DECLARE_OLC_FUN(medit_group);
 DECLARE_OLC_FUN(medit_copy);
+DECLARE_OLC_FUN(medit_faction);
 
 // Race editor.
 DECLARE_OLC_FUN(raedit_show);

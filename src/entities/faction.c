@@ -17,6 +17,7 @@
 #include <entities/player_data.h>
 
 #include <lox/memory.h>
+#include <lox/list.h>
 
 #include <olc/string_edit.h>
 
@@ -156,6 +157,24 @@ Faction* get_mob_faction(Mobile* mob)
     return get_faction(get_mob_faction_vnum(mob));
 }
 
+Faction* get_faction_by_name(const char* name)
+{
+    if (name == NULL || faction_table.capacity == 0 || faction_table.entries == NULL)
+        return NULL;
+
+    for (int idx = 0; idx < faction_table.capacity; ++idx) {
+        Entry* entry = &faction_table.entries[idx];
+        if (IS_NIL(entry->value) || !IS_FACTION(entry->value))
+            continue;
+
+        Faction* faction = AS_FACTION(entry->value);
+        if (faction->header.name != NULL && !str_cmp(NAME_STR(faction), name))
+            return faction;
+    }
+
+    return NULL;
+}
+
 VNUM get_mob_faction_vnum(Mobile* mob)
 {
     if (mob == NULL)
@@ -177,6 +196,11 @@ static int clamp_value(int value)
     if (value > FACTION_REP_MAX)
         return FACTION_REP_MAX;
     return value;
+}
+
+int faction_clamp_value(int value)
+{
+    return clamp_value(value);
 }
 
 FactionStanding faction_standing_from_value(int value)
@@ -294,11 +318,30 @@ void faction_adjust(Mobile* ch, Faction* faction, int delta)
     notify_reputation_change(ch, faction, old_value, clamped);
 }
 
-static void add_relation(ValueArray* array, VNUM vnum)
+static bool add_relation(ValueArray* array, VNUM vnum)
 {
     if (vnum <= 0 || array == NULL)
-        return;
-    write_value_array(array, INT_VAL(vnum));
+        return false;
+
+    Value entry = INT_VAL(vnum);
+    if (value_array_contains(array, entry))
+        return false;
+
+    write_value_array(array, entry);
+    return true;
+}
+
+static bool remove_relation(ValueArray* array, VNUM vnum)
+{
+    if (array == NULL || vnum <= 0)
+        return false;
+
+    Value entry = INT_VAL(vnum);
+    if (!value_array_contains(array, entry))
+        return false;
+
+    remove_array_value(array, entry);
+    return true;
 }
 
 void load_factions(FILE* fp)
@@ -485,4 +528,75 @@ void faction_show_reputations(Mobile* ch)
             name_buf, faction_standing_name_from_value(rep->value), rep->value);
         send_to_char(buf, ch);
     }
+}
+
+bool faction_add_ally(Faction* faction, VNUM ally_vnum)
+{
+    if (faction == NULL || ally_vnum <= 0 || VNUM_FIELD(faction) == ally_vnum)
+        return false;
+
+    return add_relation(&faction->allies, ally_vnum);
+}
+
+bool faction_remove_ally(Faction* faction, VNUM ally_vnum)
+{
+    if (faction == NULL || ally_vnum <= 0)
+        return false;
+
+    return remove_relation(&faction->allies, ally_vnum);
+}
+
+bool faction_add_enemy(Faction* faction, VNUM enemy_vnum)
+{
+    if (faction == NULL || enemy_vnum <= 0 || VNUM_FIELD(faction) == enemy_vnum)
+        return false;
+
+    return add_relation(&faction->enemies, enemy_vnum);
+}
+
+bool faction_remove_enemy(Faction* faction, VNUM enemy_vnum)
+{
+    if (faction == NULL || enemy_vnum <= 0)
+        return false;
+
+    return remove_relation(&faction->enemies, enemy_vnum);
+}
+
+static void remove_faction_from_relations(VNUM vnum)
+{
+    if (vnum <= 0 || faction_table.capacity == 0 || faction_table.entries == NULL)
+        return;
+
+    for (int idx = 0; idx < faction_table.capacity; ++idx) {
+        Entry* entry = &faction_table.entries[idx];
+        if (IS_NIL(entry->value) || !IS_FACTION(entry->value))
+            continue;
+
+        Faction* faction = AS_FACTION(entry->value);
+        bool removed = remove_relation(&faction->allies, vnum);
+        removed |= remove_relation(&faction->enemies, vnum);
+        if (removed && faction->area != NULL)
+            SET_BIT(faction->area->area_flags, AREA_CHANGED);
+    }
+}
+
+void faction_delete(Faction* faction)
+{
+    if (faction == NULL)
+        return;
+
+    VNUM vnum = VNUM_FIELD(faction);
+
+    table_delete_vnum(&faction_table, vnum);
+    remove_faction_from_relations(vnum);
+
+    if (faction->area != NULL)
+        SET_BIT(faction->area->area_flags, AREA_CHANGED);
+
+    free_value_array(&faction->allies);
+    free_value_array(&faction->enemies);
+    free_table(&faction->header.fields);
+    free_list(&faction->header.events);
+
+    LIST_FREE(faction);
 }

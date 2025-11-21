@@ -74,7 +74,7 @@ typedef struct cmd_info_t {
 #include "command.h"
 
 void interpret(Mobile* ch, char* argument);
-bool is_number(char* arg);
+bool is_number(const char* arg);
 int number_argument(char* argument, char* arg);
 int mult_argument(char* argument, char* arg);
 char* one_argument(char* argument, char* arg_first);

@@ -12,6 +12,8 @@
 #include "lookup.h"
 #include "magic.h"
 #include "olc.h"
+
+#include <color.h>
 #include "recycle.h"
 #include "save.h"
 #include "string_edit.h"
@@ -19,6 +21,8 @@
 #include "tables.h"
 
 #include "entities/area.h"
+#include "entities/faction.h"
+#include "entities/mob_prototype.h"
 
 #define AEDIT(fun) bool fun( Mobile *ch, char *argument )
 
@@ -28,6 +32,15 @@ AreaData xArea;
 #define OLD_U U
 #endif
 #define U(x)    (uintptr_t)(x)
+
+static Faction* find_faction_any(const char* identifier);
+static Faction* find_area_faction(AreaData* area, const char* identifier);
+static void aedit_print_faction_summary(Mobile* ch, AreaData* area);
+static void aedit_list_factions(Mobile* ch, AreaData* area);
+static void aedit_show_faction_detail(Mobile* ch, Faction* faction);
+static void format_relation_list(Buffer* buffer, const char* label, ValueArray* relations);
+static void clear_mob_faction_references(VNUM vnum);
+static void aedit_send_faction_syntax(Mobile* ch);
 
 const OlcCmdEntry area_olc_comm_table[] = {
     { "name", 	        U(&xArea.header.name),  ed_line_lox_string, 0                   },
@@ -40,6 +53,7 @@ const OlcCmdEntry area_olc_comm_table[] = {
     { "credits", 	    U(&xArea.credits),      ed_line_string,     0                   },
     { "alwaysreset",    U(&xArea.always_reset), ed_bool,            0                   },
     { "instancetype",   U(&xArea.inst_type),    ed_flag_set_sh,     U(inst_type_table)  },
+    { "faction",        0,                      ed_olded,           U(aedit_faction)    },
     { "builder", 	    0,                      ed_olded,           U(aedit_builder)	},
     { "commands", 	    0,                      ed_olded,           U(show_commands)	},
     { "create", 	    0,                      ed_olded,           U(aedit_create)	    },
@@ -132,6 +146,167 @@ AreaData* get_vnum_area(VNUM vnum)
     return 0;
 }
 
+static Faction* find_faction_any(const char* identifier)
+{
+    if (IS_NULLSTR(identifier))
+        return NULL;
+
+    if (is_number(identifier))
+        return get_faction((VNUM)atoi(identifier));
+
+    return get_faction_by_name(identifier);
+}
+
+static Faction* find_area_faction(AreaData* area, const char* identifier)
+{
+    Faction* faction = find_faction_any(identifier);
+    if (faction == NULL || faction->area != area)
+        return NULL;
+    return faction;
+}
+
+static void format_relation_list(Buffer* buffer, const char* label, ValueArray* relations)
+{
+    addf_buf(buffer, COLOR_INFO "%-10s" COLOR_CLEAR ": ", label);
+
+    bool printed = false;
+    if (relations != NULL) {
+        for (int i = 0; i < relations->count; ++i) {
+            Value entry = relations->values[i];
+            if (!IS_INT(entry))
+                continue;
+
+            Faction* rel = get_faction((VNUM)AS_INT(entry));
+            if (rel != NULL)
+                addf_buf(buffer, COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR " (#%" PRVNUM ")  ",
+                    NAME_STR(rel), VNUM_FIELD(rel));
+            else
+                addf_buf(buffer, COLOR_ALT_TEXT_2 "Unknown (#%" PRVNUM ")" COLOR_CLEAR "  ",
+                    (VNUM)AS_INT(entry));
+            printed = true;
+        }
+    }
+
+    if (!printed)
+        add_buf(buffer, COLOR_ALT_TEXT_2 "(none)" COLOR_CLEAR);
+
+    add_buf(buffer, COLOR_EOL);
+}
+
+static void aedit_print_faction_summary(Mobile* ch, AreaData* area)
+{
+    Buffer* buffer = new_buf();
+    bool found = false;
+
+    add_buf(buffer, COLOR_TITLE "Factions" COLOR_CLEAR "\n\r");
+
+    if (faction_table.capacity > 0 && faction_table.entries != NULL) {
+        for (int idx = 0; idx < faction_table.capacity; ++idx) {
+            Entry* entry = &faction_table.entries[idx];
+            if (IS_NIL(entry->value) || !IS_FACTION(entry->value))
+                continue;
+
+            Faction* faction = AS_FACTION(entry->value);
+            if (faction->area != area)
+                continue;
+
+            addf_buf(buffer,
+                COLOR_DECOR_1 "[%" PRVNUM "] " COLOR_ALT_TEXT_1 "%-20s"
+                COLOR_CLEAR " default: " COLOR_ALT_TEXT_2 "%6d"
+                COLOR_CLEAR " allies: " COLOR_ALT_TEXT_2 "%2d"
+                COLOR_CLEAR " enemies: " COLOR_ALT_TEXT_2 "%2d" COLOR_EOL,
+                VNUM_FIELD(faction),
+                NAME_STR(faction),
+                faction->default_standing,
+                faction->allies.count,
+                faction->enemies.count);
+            found = true;
+        }
+    }
+
+    if (!found)
+        add_buf(buffer, COLOR_ALT_TEXT_2 "  (none)" COLOR_CLEAR "\n\r");
+
+    send_to_char(BUF(buffer), ch);
+    free_buf(buffer);
+}
+
+static void aedit_list_factions(Mobile* ch, AreaData* area)
+{
+    Buffer* buffer = new_buf();
+    addf_buf(buffer, COLOR_INFO "Factions for %s" COLOR_EOL, NAME_STR(area));
+
+    if (faction_table.capacity == 0 || faction_table.entries == NULL) {
+        add_buf(buffer, COLOR_ALT_TEXT_2 "  (none)" COLOR_CLEAR "\n\r");
+    }
+    else {
+        bool found = false;
+        for (int idx = 0; idx < faction_table.capacity; ++idx) {
+            Entry* entry = &faction_table.entries[idx];
+            if (IS_NIL(entry->value) || !IS_FACTION(entry->value))
+                continue;
+
+            Faction* faction = AS_FACTION(entry->value);
+            if (faction->area != area)
+                continue;
+
+            addf_buf(buffer,
+                COLOR_DECOR_1 "[%" PRVNUM "] " COLOR_ALT_TEXT_1 "%s" COLOR_CLEAR
+                " default: " COLOR_ALT_TEXT_2 "%d" COLOR_CLEAR "\n\r",
+                VNUM_FIELD(faction), NAME_STR(faction), faction->default_standing);
+            found = true;
+        }
+
+        if (!found)
+            add_buf(buffer, COLOR_ALT_TEXT_2 "  (none)" COLOR_CLEAR "\n\r");
+    }
+
+    send_to_char(BUF(buffer), ch);
+    free_buf(buffer);
+}
+
+static void aedit_show_faction_detail(Mobile* ch, Faction* faction)
+{
+    Buffer* buffer = new_buf();
+
+    addf_buf(buffer,
+        COLOR_DECOR_1 "[%" PRVNUM "] " COLOR_ALT_TEXT_1 "%s" COLOR_CLEAR "\n\r"
+        "Default standing: " COLOR_ALT_TEXT_2 "%d" COLOR_CLEAR "\n\r",
+        VNUM_FIELD(faction), NAME_STR(faction), faction->default_standing);
+
+    format_relation_list(buffer, "Allies", &faction->allies);
+    format_relation_list(buffer, "Enemies", &faction->enemies);
+
+    send_to_char(BUF(buffer), ch);
+    free_buf(buffer);
+}
+
+static void clear_mob_faction_references(VNUM vnum)
+{
+    MobPrototype* mob;
+
+    FOR_EACH_MOB_PROTO(mob) {
+        if (mob->faction_vnum == vnum) {
+            mob->faction_vnum = 0;
+            if (mob->area != NULL)
+                SET_BIT(mob->area->area_flags, AREA_CHANGED);
+        }
+    }
+}
+
+static void aedit_send_faction_syntax(Mobile* ch)
+{
+    send_to_char(COLOR_INFO "Syntax:\n\r" COLOR_CLEAR, ch);
+    send_to_char("  faction list\n\r", ch);
+    send_to_char("  faction show <vnum|name>\n\r", ch);
+    send_to_char("  faction create <vnum> <name>\n\r", ch);
+    send_to_char("  faction delete <vnum|name>\n\r", ch);
+    send_to_char("  faction name <vnum|name> <new name>\n\r", ch);
+    send_to_char("  faction default <vnum|name> <value>\n\r", ch);
+    send_to_char("  faction ally <vnum|name> <add|remove> <vnum|name>\n\r", ch);
+    send_to_char("  faction enemy <vnum|name> <add|remove> <vnum|name>\n\r", ch);
+}
+
 // Area Editor Functions.
 AEDIT(aedit_show)
 {
@@ -153,7 +328,212 @@ AEDIT(aedit_show)
     olc_print_str(ch, "Builders", area->builders);
     olc_print_str(ch, "Credits", area->credits);
     olc_print_flags(ch, "Flags", area_flag_table, area->area_flags);
-    
+    aedit_print_faction_summary(ch, area);
+
+    return false;
+}
+
+AEDIT(aedit_faction)
+{
+    AreaData* area;
+    char arg1[MIL];
+    char arg2[MIL];
+    char arg3[MIL];
+    char arg4[MIL];
+
+    EDIT_AREA(ch, area);
+
+    argument = one_argument(argument, arg1);
+
+    if (IS_NULLSTR(arg1)) {
+        aedit_send_faction_syntax(ch);
+        return false;
+    }
+
+    if (!str_cmp(arg1, "list")) {
+        aedit_list_factions(ch, area);
+        return false;
+    }
+
+    if (!str_cmp(arg1, "show")) {
+        argument = one_argument(argument, arg2);
+        if (IS_NULLSTR(arg2)) {
+            aedit_send_faction_syntax(ch);
+            return false;
+        }
+
+        Faction* faction = find_area_faction(area, arg2);
+        if (faction == NULL) {
+            send_to_char(COLOR_INFO "That faction is not defined in this area." COLOR_EOL, ch);
+            return false;
+        }
+
+        aedit_show_faction_detail(ch, faction);
+        return false;
+    }
+
+    if (!str_cmp(arg1, "create")) {
+        argument = one_argument(argument, arg2);
+        char* name = argument;
+
+        if (IS_NULLSTR(arg2) || IS_NULLSTR(name)) {
+            aedit_send_faction_syntax(ch);
+            return false;
+        }
+
+        VNUM vnum = (VNUM)atoi(arg2);
+        if (vnum <= 0 || vnum < area->min_vnum || vnum > area->max_vnum) {
+            send_to_char(COLOR_INFO "Faction vnum must fall within the area's vnum range." COLOR_EOL, ch);
+            return false;
+        }
+
+        if (get_faction(vnum) != NULL) {
+            send_to_char(COLOR_INFO "A faction with that vnum already exists." COLOR_EOL, ch);
+            return false;
+        }
+
+        AreaData* prev = current_area_data;
+        current_area_data = area;
+        Faction* faction = faction_create(vnum);
+        current_area_data = prev;
+
+        if (faction == NULL) {
+            send_to_char(COLOR_INFO "Unable to create faction." COLOR_EOL, ch);
+            return false;
+        }
+
+        faction->area = area;
+        SET_NAME(faction, lox_string(name));
+
+        SET_BIT(area->area_flags, AREA_CHANGED);
+        send_to_char(COLOR_INFO "Faction created." COLOR_EOL, ch);
+        return true;
+    }
+
+    if (!str_cmp(arg1, "delete")) {
+        argument = one_argument(argument, arg2);
+        if (IS_NULLSTR(arg2)) {
+            aedit_send_faction_syntax(ch);
+            return false;
+        }
+
+        Faction* faction = find_area_faction(area, arg2);
+        if (faction == NULL) {
+            send_to_char(COLOR_INFO "That faction is not defined in this area." COLOR_EOL, ch);
+            return false;
+        }
+
+        VNUM vnum = VNUM_FIELD(faction);
+        faction_delete(faction);
+        clear_mob_faction_references(vnum);
+        SET_BIT(area->area_flags, AREA_CHANGED);
+        send_to_char(COLOR_INFO "Faction deleted." COLOR_EOL, ch);
+        return true;
+    }
+
+    if (!str_cmp(arg1, "name")) {
+        argument = one_argument(argument, arg2);
+        char* new_name = argument;
+
+        if (IS_NULLSTR(arg2) || IS_NULLSTR(new_name)) {
+            aedit_send_faction_syntax(ch);
+            return false;
+        }
+
+        Faction* faction = find_area_faction(area, arg2);
+        if (faction == NULL) {
+            send_to_char(COLOR_INFO "That faction is not defined in this area." COLOR_EOL, ch);
+            return false;
+        }
+
+        SET_NAME(faction, lox_string(new_name));
+        SET_BIT(area->area_flags, AREA_CHANGED);
+        send_to_char(COLOR_INFO "Faction renamed." COLOR_EOL, ch);
+        return true;
+    }
+
+    if (!str_cmp(arg1, "default")) {
+        argument = one_argument(argument, arg2);
+        argument = one_argument(argument, arg3);
+        if (IS_NULLSTR(arg2) || IS_NULLSTR(arg3)) {
+            aedit_send_faction_syntax(ch);
+            return false;
+        }
+
+        Faction* faction = find_area_faction(area, arg2);
+        if (faction == NULL) {
+            send_to_char(COLOR_INFO "That faction is not defined in this area." COLOR_EOL, ch);
+            return false;
+        }
+
+        int value = faction_clamp_value(atoi(arg3));
+        faction->default_standing = value;
+        SET_BIT(area->area_flags, AREA_CHANGED);
+        send_to_char(COLOR_INFO "Default standing updated." COLOR_EOL, ch);
+        return true;
+    }
+
+    if (!str_cmp(arg1, "ally") || !str_cmp(arg1, "enemy") || !str_cmp(arg1, "opposition") || !str_cmp(arg1, "oppose")) {
+        argument = one_argument(argument, arg2);
+        argument = one_argument(argument, arg3);
+        argument = one_argument(argument, arg4);
+
+        if (IS_NULLSTR(arg2) || IS_NULLSTR(arg3) || IS_NULLSTR(arg4)) {
+            aedit_send_faction_syntax(ch);
+            return false;
+        }
+
+        bool is_enemy = str_cmp(arg1, "ally");
+        bool add = false;
+        if (!str_cmp(arg3, "add"))
+            add = true;
+        else if (!str_cmp(arg3, "remove") || !str_cmp(arg3, "delete"))
+            add = false;
+        else {
+            send_to_char(COLOR_INFO "Specify 'add' or 'remove'." COLOR_EOL, ch);
+            return false;
+        }
+
+        Faction* faction = find_area_faction(area, arg2);
+        if (faction == NULL) {
+            send_to_char(COLOR_INFO "That faction is not defined in this area." COLOR_EOL, ch);
+            return false;
+        }
+
+        Faction* relation = find_faction_any(arg4);
+        if (relation == NULL) {
+            send_to_char(COLOR_INFO "The specified faction does not exist." COLOR_EOL, ch);
+            return false;
+        }
+
+        if (faction == relation) {
+            send_to_char(COLOR_INFO "A faction cannot reference itself." COLOR_EOL, ch);
+            return false;
+        }
+
+        bool changed = false;
+        if (!is_enemy) {
+            changed = add
+                ? faction_add_ally(faction, VNUM_FIELD(relation))
+                : faction_remove_ally(faction, VNUM_FIELD(relation));
+        }
+        else {
+            changed = add
+                ? faction_add_enemy(faction, VNUM_FIELD(relation))
+                : faction_remove_enemy(faction, VNUM_FIELD(relation));
+        }
+
+        if (!changed) {
+            send_to_char(COLOR_INFO "No changes were made to that relationship." COLOR_EOL, ch);
+            return false;
+        }
+
+        SET_BIT(area->area_flags, AREA_CHANGED);
+        send_to_char(COLOR_INFO "Faction relationships updated." COLOR_EOL, ch);
+        return true;
+    }
+
+    aedit_send_faction_syntax(ch);
     return false;
 }
 

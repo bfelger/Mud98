@@ -47,6 +47,7 @@ extern Table faction_table;
 
 Faction* faction_create(VNUM vnum);
 Faction* get_faction(VNUM vnum);
+Faction* get_faction_by_name(const char* name);
 Faction* get_mob_faction(Mobile* mob);
 VNUM get_mob_faction_vnum(Mobile* mob);
 
@@ -55,6 +56,7 @@ void load_factions(FILE* fp);
 FactionStanding faction_standing_from_value(int value);
 const char* faction_standing_name(FactionStanding standing);
 const char* faction_standing_name_from_value(int value);
+int faction_clamp_value(int value);
 
 bool faction_is_friendly_value(int value);
 bool faction_is_hostile_value(int value);
@@ -69,5 +71,10 @@ bool faction_block_shopkeeper(Mobile* keeper, Mobile* ch);
 void faction_handle_kill(Mobile* killer, Mobile* victim);
 
 void faction_show_reputations(Mobile* ch);
+bool faction_add_ally(Faction* faction, VNUM ally_vnum);
+bool faction_remove_ally(Faction* faction, VNUM ally_vnum);
+bool faction_add_enemy(Faction* faction, VNUM enemy_vnum);
+bool faction_remove_enemy(Faction* faction, VNUM enemy_vnum);
+void faction_delete(Faction* faction);
 
 #endif // !MUD98__ENTITIES__FACTION_H
