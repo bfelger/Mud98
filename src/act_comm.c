@@ -1536,38 +1536,68 @@ void do_group(Mobile* ch, char* argument)
 // 'Split' originally by Gnort, God of Chaos.
 void do_split(Mobile* ch, char* argument)
 {
+    const char* usage = "Usage: split <amount> <cp|sp|gp> [<amount> <cp|sp|gp> ...]\n\r";
     char buf[MAX_STRING_LENGTH];
-    char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+    char amount_arg[MAX_INPUT_LENGTH];
+    char type_arg[MAX_INPUT_LENGTH];
     Mobile* gch;
     int16_t members;
-    int16_t amount_gold = 0, amount_silver = 0;
-    int16_t share_gold, share_silver;
-    int16_t extra_gold, extra_silver;
+    int amount_gold = 0;
+    int amount_silver = 0;
+    int amount_copper = 0;
+    bool parsed = false;
 
-    READ_ARG(arg1);
-    one_argument(argument, arg2);
+    while (true) {
+        READ_ARG(amount_arg);
+        if (amount_arg[0] == '\0')
+            break;
 
-    if (arg1[0] == '\0') {
+        if (!is_number(amount_arg)) {
+            send_to_char(usage, ch);
+            return;
+        }
+
+        int amount = atoi(amount_arg);
+        READ_ARG(type_arg);
+        if (type_arg[0] == '\0') {
+            send_to_char("Specify cp, sp, or gp for each amount you split.\n\r", ch);
+            return;
+        }
+
+        MoneyType money_type;
+        if (!parse_money_type(type_arg, &money_type)) {
+            send_to_char("Specify cp, sp, or gp for each amount you split.\n\r", ch);
+            return;
+        }
+
+        if (amount <= 0) {
+            send_to_char("Your group wouldn't like that.\n\r", ch);
+            return;
+        }
+
+        switch (money_type) {
+        case MONEY_TYPE_COPPER: amount_copper += amount; break;
+        case MONEY_TYPE_SILVER: amount_silver += amount; break;
+        case MONEY_TYPE_GOLD: amount_gold += amount; break;
+        }
+
+        parsed = true;
+    }
+
+    if (!parsed) {
         send_to_char("Split how much?\n\r", ch);
         return;
     }
 
-    amount_silver = (int16_t)atoi(arg1);
+    long total_copper = convert_money_to_copper(amount_gold, amount_silver, amount_copper);
 
-    if (arg2[0] != '\0') 
-        amount_gold = (int16_t)atoi(arg2);
-
-    if (amount_gold < 0 || amount_silver < 0) {
-        send_to_char("Your group wouldn't like that.\n\r", ch);
-        return;
-    }
-
-    if (amount_gold == 0 && amount_silver == 0) {
+    if (total_copper <= 0) {
         send_to_char("You hand out zero coins, but no one notices.\n\r", ch);
         return;
     }
 
-    if (ch->gold < amount_gold || ch->silver < amount_silver) {
+    long available = mobile_total_copper(ch);
+    if (available < total_copper) {
         send_to_char("You don't have that much to split.\n\r", ch);
         return;
     }
@@ -1582,57 +1612,41 @@ void do_split(Mobile* ch, char* argument)
         return;
     }
 
-    share_silver = amount_silver / members;
-    extra_silver = amount_silver % members;
+    long share = total_copper / members;
+    long extra = total_copper % members;
 
-    share_gold = amount_gold / members;
-    extra_gold = amount_gold % members;
-
-    if (share_gold == 0 && share_silver == 0) {
+    if (share == 0) {
         send_to_char("Don't even bother, cheapskate.\n\r", ch);
         return;
     }
 
-    ch->silver -= amount_silver;
-    ch->silver += share_silver + extra_silver;
-    ch->gold -= amount_gold;
-    ch->gold += share_gold + extra_gold;
+    long ch_total = available - total_copper + share + extra;
+    mobile_set_money_from_copper(ch, ch_total);
 
-    if (share_silver > 0) {
-        sprintf(buf, "You split %d silver coins. Your share is %d silver.\n\r",
-                amount_silver, share_silver + extra_silver);
-        send_to_char(buf, ch);
-    }
+    int16_t g, s, c;
+    char amount_buf[64];
+    char share_self_buf[64];
+    char share_member_buf[64];
 
-    if (share_gold > 0) {
-        sprintf(buf, "You split %d gold coins. Your share is %d gold.\n\r",
-                amount_gold, share_gold + extra_gold);
-        send_to_char(buf, ch);
-    }
+    convert_copper_to_money(total_copper, &g, &s, &c);
+    format_money_string(amount_buf, sizeof(amount_buf), g, s, c, false);
 
-    if (share_gold == 0) {
-        sprintf(buf, "$n splits %d silver coins. Your share is %d silver.",
-                amount_silver, share_silver);
-    }
-    else if (share_silver == 0) {
-        sprintf(buf, "$n splits %d gold coins. Your share is %d gold.",
-                amount_gold, share_gold);
-    }
-    else {
-        sprintf(
-            buf,
-            "$n splits %d silver and %d gold coins, giving you %d silver and "
-            "%d gold.\n\r",
-            amount_silver, amount_gold, share_silver, share_gold);
-    }
+    convert_copper_to_money(share + extra, &g, &s, &c);
+    format_money_string(share_self_buf, sizeof(share_self_buf), g, s, c, false);
 
+    convert_copper_to_money(share, &g, &s, &c);
+    format_money_string(share_member_buf, sizeof(share_member_buf), g, s, c, false);
+
+    sprintf(buf, "You split %s. Your share is %s.\n\r", amount_buf, share_self_buf);
+    send_to_char(buf, ch);
+
+    sprintf(buf, "$n splits %s. Your share is %s.", amount_buf, share_member_buf);
     FOR_EACH_ROOM_MOB(gch, ch->in_room) {
-        if (gch != ch && is_same_group(gch, ch)
-            && !IS_AFFECTED(gch, AFF_CHARM)) {
-            act(buf, ch, NULL, gch, TO_VICT);
-            gch->gold += share_gold;
-            gch->silver += share_silver;
-        }
+        if (gch == ch || !is_same_group(gch, ch) || IS_AFFECTED(gch, AFF_CHARM))
+            continue;
+
+        mobile_set_money_from_copper(gch, mobile_total_copper(gch) + share);
+        act(buf, ch, NULL, gch, TO_VICT);
     }
 
     return;

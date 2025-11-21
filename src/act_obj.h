@@ -15,5 +15,6 @@ bool can_loot(Mobile* ch, Object* obj);
 bool remove_obj (Mobile* ch, WearLocation iWear, bool fReplace);
 void wear_obj(Mobile* ch, Object* obj, bool fReplace);
 void get_obj(Mobile* ch, Object* obj, Object* container);
+void steal_coins_transfer(Mobile* ch, Mobile* victim, long amount);
 
 #endif // !MUD98__ACT_OBJ_H

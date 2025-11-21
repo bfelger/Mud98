@@ -102,6 +102,7 @@ bool process_descriptor_output(Descriptor* d, bool fPrompt);
 void read_from_buffer(Descriptor* d);
 bool read_from_descriptor(Descriptor* d);
 void stop_idling(Mobile* ch);
+void bust_a_prompt(Mobile* ch);
 bool write_to_descriptor(Descriptor* d, char* txt, size_t length);
 void show_string(Descriptor* d, char* input);
 void close_socket(Descriptor* dclose);

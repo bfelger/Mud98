@@ -135,6 +135,28 @@ void test_lox_string_eq(const char* expected, Value actual, const char* file, in
     }
 }
 
+void test_lox_string_contains(const char* substring, Value actual, const char* file, int line)
+{
+    ObjString* actual_str = NULL;
+    if (IS_STRING(actual)) {
+        actual_str = AS_STRING(actual);
+    }
+    if (actual_str == NULL || strstr(actual_str->chars, substring) == NULL) {
+        if (current->asserts_failed == 0)
+            printf("[\033[91mFAILED\033[0m]\n");
+        current->asserts_failed++;
+        fprintf(stderr, "    * ASSERT FAILED: (Lox string contains), file %s, line %d.\n", file, line);
+    }
+    if (current->asserts_failed > 0) {
+        test_output_enabled = false;
+        fprintf(stderr, "      Expected to contain: \"%s\"\n", substring);
+        fprintf(stderr, "      Actual:   ");
+        print_value_debug(actual);
+        fprintf(stderr, "\n");
+        test_output_enabled = true;
+    }
+}
+
 void test_lox_int_eq(int expected, Value actual, const char* file, int line)
 {
     if (!IS_INT(actual) || AS_INT(actual) != expected) {

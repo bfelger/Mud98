@@ -202,6 +202,7 @@ void fwrite_char(Mobile* ch, FILE* fp)
             ch->max_mana, ch->move, ch->max_move);
     fprintf(fp, "Gold %d\n", ch->gold);
     fprintf(fp, "Silv %d\n", ch->silver);
+    fprintf(fp, "Copp %d\n", ch->copper);
     fprintf(fp, "Exp  %d\n", ch->exp);
     if (ch->act_flags != 0) fprintf(fp, "Act  %s\n", print_flags(ch->act_flags));
     if (ch->affect_flags != 0)
@@ -372,6 +373,7 @@ void fwrite_pet(Mobile* pet, FILE* fp)
             pet->max_mana, pet->move, pet->max_move);
     if (pet->gold > 0) fprintf(fp, "Gold %d\n", pet->gold);
     if (pet->silver > 0) fprintf(fp, "Silv %d\n", pet->silver);
+    if (pet->copper > 0) fprintf(fp, "Copp %d\n", pet->copper);
     if (pet->exp > 0) fprintf(fp, "Exp  %d\n", pet->exp);
     if (pet->act_flags != pet->prototype->act_flags)
         fprintf(fp, "Act  %s\n", print_flags(pet->act_flags));
@@ -1099,6 +1101,7 @@ void fread_char(Mobile* ch, FILE* fp)
             KEY("ShD", ch->short_descr, fread_string(fp));
             KEY("Sec", ch->pcdata->security, fread_number(fp));	// OLC
             KEY("Silv", ch->silver, (int16_t)fread_number(fp));
+            KEY("Copp", ch->copper, (int16_t)fread_number(fp));
 
             if (!str_cmp(word, "Skill") || !str_cmp(word, "Sk")) {
                 SKNUM sn;
@@ -1379,6 +1382,7 @@ void fread_pet(Mobile* ch, FILE* fp)
             KEY("Sex", pet->sex, (int16_t)fread_number(fp));
             KEY("ShD", pet->short_descr, fread_string(fp));
             KEY("Silv", pet->silver, (int16_t)fread_number(fp));
+            KEY("Copp", pet->copper, (int16_t)fread_number(fp));
             break;
         }
 

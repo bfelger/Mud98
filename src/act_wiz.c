@@ -1390,6 +1390,7 @@ void do_mstat(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
+    char money_buf[64];
     Affect* affect;
     Mobile* victim;
 
@@ -1438,11 +1439,14 @@ void do_mstat(Mobile* ch, char* argument)
             victim->move, victim->max_move, IS_NPC(ch) ? 0 : victim->practice);
     send_to_char(buf, ch);
 
+    format_money_string(money_buf, sizeof(money_buf),
+            victim->gold, victim->silver, victim->copper, false);
+
     sprintf(buf,
-            "Lv: %d  Class: %s  Align: %d  Gold: %d  Silver: %d  Exp: %d\n\r",
+            "Lv: %d  Class: %s  Align: %d  Wealth: %s  Exp: %d\n\r",
             victim->level,
             IS_NPC(victim) ? "mobile" : class_table[victim->ch_class].name,
-            victim->alignment, victim->gold, victim->silver, victim->exp);
+            victim->alignment, money_buf, victim->exp);
     send_to_char(buf, ch);
 
     sprintf(buf, "Armor: pierce: %d  bash: %d  slash: %d  magic: %d\n\r",
@@ -2979,7 +2983,7 @@ void do_mset(Mobile* ch, char* argument)
         send_to_char("  set char <name> <field> <value>\n\r", ch);
         send_to_char("  Field being one of:\n\r", ch);
         send_to_char("    str int wis dex con sex class level\n\r", ch);
-        send_to_char("    race group gold silver hp mana move prac\n\r", ch);
+        send_to_char("    race group copper silver gold hp mana move prac\n\r", ch);
         send_to_char("    align train thirst hunger drunk full\n\r", ch);
         send_to_char("    security\n\r", ch);
         return;
@@ -3141,6 +3145,11 @@ void do_mset(Mobile* ch, char* argument)
 
     if (!str_prefix(arg2, "silver")) {
         victim->silver = (int16_t)value;
+        return;
+    }
+
+    if (!str_prefix(arg2, "copper")) {
+        victim->copper = (int16_t)value;
         return;
     }
 

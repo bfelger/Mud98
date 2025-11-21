@@ -138,6 +138,7 @@ void clone_mobile(Mobile* parent, Mobile* clone)
     clone->max_move = parent->max_move;
     clone->gold = parent->gold;
     clone->silver = parent->silver;
+    clone->copper = parent->copper;
     clone->exp = parent->exp;
     clone->act_flags = parent->act_flags;
     clone->comm_flags = parent->comm_flags;
@@ -216,14 +217,35 @@ Mobile* create_mobile(MobPrototype* p_mob_proto)
     mob->mprog_target = NULL;
 
     if (p_mob_proto->wealth == 0) {
+        mob->copper = 0;
         mob->silver = 0;
         mob->gold = 0;
     }
     else {
-        int16_t wealth = (int16_t)number_range(p_mob_proto->wealth / 2,
-            3 * p_mob_proto->wealth / 2);
-        mob->gold = (int16_t)number_range(wealth / 200, wealth / 100);
-        mob->silver = wealth - (mob->gold * 100);
+        int wealth_copper = number_range(p_mob_proto->wealth / 2, 
+            3 * p_mob_proto->wealth / 2);      
+
+        int max_gold = wealth_copper / COPPER_PER_GOLD;
+        if (max_gold > 0) {
+            int min_gold = max_gold / 2;
+
+            mob->gold = (int16_t)number_range(min_gold, max_gold);
+            wealth_copper -= (long)mob->gold * COPPER_PER_GOLD;
+        }
+        else
+            mob->gold = 0;
+
+        int max_silver = wealth_copper / COPPER_PER_SILVER;
+        if (max_silver > 0) {
+            int min_silver = max_silver / 2;
+
+            mob->silver = (int16_t)number_range(min_silver, max_silver);
+            wealth_copper -= (long)mob->silver * COPPER_PER_SILVER;
+        }
+        else
+            mob->silver = 0;
+
+        mob->copper = (int16_t)wealth_copper;
     }
 
     /* read from prototype */

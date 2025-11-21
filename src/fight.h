@@ -20,5 +20,6 @@ bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type
 void update_pos(Mobile* victim);
 void stop_fighting(Mobile* ch, bool fBoth);
 void check_killer(Mobile* ch, Mobile* victim);
+void make_corpse(Mobile* ch);
 
 #endif // !MUD98__FIGHT_H

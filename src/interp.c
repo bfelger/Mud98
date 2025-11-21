@@ -402,12 +402,17 @@ int number_argument(char* argument, char* arg)
     int number;
 
     for (pdot = argument; *pdot != '\0'; pdot++) {
-        if (*pdot == '.') {
+        //if (*pdot == '.') {
+        if (*pdot == '.' || *pdot == '*' || *pdot == ' ') {
+            char sep = *pdot;
             *pdot = '\0';
             number = atoi(argument);
-            *pdot = '.';
+            *pdot = sep;
             strcpy(arg, pdot + 1);
             return number;
+        }
+        else if (!ISDIGIT(*pdot)) {
+            break;
         }
     }
 
@@ -422,12 +427,17 @@ int mult_argument(char* argument, char* arg)
     int number;
 
     for (pdot = argument; *pdot != '\0'; pdot++) {
-        if (*pdot == '*') {
+        //if (*pdot == '*') {
+        if (*pdot == '*' || *pdot == '.' || *pdot == ' ') {
+            char sep = *pdot;
             *pdot = '\0';
             number = atoi(argument);
-            *pdot = '*';
+            *pdot = sep;
             strcpy(arg, pdot + 1);
             return number;
+        } 
+        else if (!ISDIGIT(*pdot)) {
+            break;
         }
     }
 

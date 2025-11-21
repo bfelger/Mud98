@@ -1121,6 +1121,10 @@ void bust_a_prompt(Mobile* ch)
             sprintf(BUF(temp2), "%d", ch->silver);
             i = BUF(temp2);
             break;
+        case 'C':
+            sprintf(BUF(temp2), "%d", ch->copper);
+            i = BUF(temp2);
+            break;
         case 'a':
             if (ch->level > 9)
                 sprintf(BUF(temp2), "%d", ch->alignment);

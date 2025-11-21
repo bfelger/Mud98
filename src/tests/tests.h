@@ -45,6 +45,7 @@ void register_fmt_tests();
 void register_util_tests(); 
 void register_event_tests();
 void register_faction_tests();
+void register_money_tests();
 
 void run_unit_tests();
 
@@ -66,6 +67,9 @@ void test_lox_int_eq(int expected, Value actual, const char* file, int line);
 void test_lox_string_eq(const char* expected, Value actual, const char* file, int line);
 #define ASSERT_LOX_STR_EQ(expected, actual) test_lox_string_eq(expected, actual, __FILE__, __LINE__)
 
+void test_lox_string_contains(const char* substring, Value actual, const char* file, int line);
+#define ASSERT_LOX_STR_CONTAINS(substring, actual) test_lox_string_contains(substring, actual, __FILE__, __LINE__)
+
 #define ASSERT_OUTPUT_EQ(expected) \
     ASSERT(IS_STRING(test_output_buffer)); \
     if (IS_STRING(test_output_buffer) && AS_STRING(test_output_buffer) != NULL) \
@@ -75,6 +79,11 @@ void test_lox_string_eq(const char* expected, Value actual, const char* file, in
     ASSERT(IS_STRING(test_output_buffer)); \
     if (IS_STRING(test_output_buffer) && AS_STRING(test_output_buffer) != NULL) \
         ASSERT_MATCH(pattern, AS_CSTRING(test_output_buffer))
+
+#define ASSERT_OUTPUT_CONTAINS(substring) \
+    ASSERT(IS_STRING(test_output_buffer)); \
+    if (IS_STRING(test_output_buffer) && AS_STRING(test_output_buffer) != NULL) \
+        ASSERT_LOX_STR_CONTAINS(substring, test_output_buffer); 
 
 #define ASSERT_LOX_OUTPUT_EQ(expected) \
     ASSERT(result == INTERPRET_OK); \

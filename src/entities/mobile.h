@@ -119,6 +119,7 @@ typedef struct mobile_t {
     int16_t max_move;
     int16_t gold;
     int16_t silver;
+    int16_t copper;
     bool valid;
 } Mobile;
 
@@ -152,7 +153,43 @@ typedef struct mobile_t {
 #define WAIT_STATE(ch, npulse) ((ch)->wait = UMAX((ch)->wait, (npulse)))
 #define DAZE_STATE(ch, npulse) ((ch)->daze = UMAX((ch)->daze, (npulse)))
 #define get_carry_weight(ch)                                                   \
-    ((ch)->carry_weight + (ch)->silver / 10 + (ch)->gold * 2 / 5)
+    ((ch)->carry_weight + (ch)->copper / 50 + (ch)->silver / 10 + (ch)->gold * 2 / 5)
+
+static inline long convert_money_to_copper(int gold, int silver, int copper)
+{
+    return (long)copper + ((long)silver * COPPER_PER_SILVER)
+        + ((long)gold * COPPER_PER_GOLD);
+}
+
+static inline void convert_copper_to_money(long amount, int16_t* gold, int16_t* silver, int16_t* copper)
+{
+    if (amount < 0)
+        amount = 0;
+
+    long curr = amount;
+    int16_t g = (int16_t)(curr / COPPER_PER_GOLD);
+    curr %= COPPER_PER_GOLD;
+    int16_t s = (int16_t)(curr / COPPER_PER_SILVER);
+    curr %= COPPER_PER_SILVER;
+    int16_t c = (int16_t)curr;
+
+    if (gold)
+        *gold = g;
+    if (silver)
+        *silver = s;
+    if (copper)
+        *copper = c;
+}
+
+static inline long mobile_total_copper(const Mobile* ch)
+{
+    return convert_money_to_copper(ch->gold, ch->silver, ch->copper);
+}
+
+static inline void mobile_set_money_from_copper(Mobile* ch, long amount)
+{
+    convert_copper_to_money(amount, &ch->gold, &ch->silver, &ch->copper);
+}
 
 #define HAS_MPROG_TRIGGER(ch, trig) (IS_SET((ch)->prototype->mprog_flags, (trig)))
 #define IS_SWITCHED(ch) (ch->desc && ch->desc->original)
@@ -198,13 +235,5 @@ void clear_mob(Mobile* ch);
 
 extern List mob_list;
 extern List mob_free;
-
-////////////////////////////////////////////////////////////////////////////////
-// Lox implementation
-////////////////////////////////////////////////////////////////////////////////
-
-//void init_mobile_class();
-//Value create_mobile_value(Mobile* mobile);
-//Value get_mobile_carrying_native(int arg_count, Value* args);
 
 #endif // !MUD98__ENTITIES__CHAR_DATA_H

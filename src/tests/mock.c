@@ -118,18 +118,22 @@ Object* mock_obj(const char* name, VNUM vnum, ObjPrototype* op)
 
 Object* mock_sword(const char* name, VNUM vnum, LEVEL level, int dam_dice, int dam_size)
 {
-    Object* sword = mock_obj(name, vnum, NULL);
+    ObjPrototype* sword_proto = mock_obj_proto(vnum);
+    sword_proto->header.name = AS_STRING(mock_str(name));
+    sword_proto->short_descr = str_dup(name);
 
-    sword->level = level;
-    sword->condition = 100;
-    sword->weight = 3;
-    sword->cost = level * 10;
-    sword->item_type = ITEM_WEAPON;
+    sword_proto->level = level;
+    sword_proto->condition = 100;
+    sword_proto->weight = 3;
+    sword_proto->cost = level * 10;
+    sword_proto->item_type = ITEM_WEAPON;
 
-    sword->value[0] = WEAPON_SWORD;
-    sword->value[1] = dam_dice;
-    sword->value[2] = dam_size;
-    sword->value[3] = DAM_SLASH;
+    sword_proto->value[0] = WEAPON_SWORD;
+    sword_proto->value[1] = dam_dice;
+    sword_proto->value[2] = dam_size;
+    sword_proto->value[3] = DAM_SLASH;
+
+    Object* sword = mock_obj(name, vnum, sword_proto);
 
     return sword;
 }

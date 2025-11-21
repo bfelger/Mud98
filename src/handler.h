@@ -13,9 +13,22 @@
 #include "data/damage.h"
 #include "data/item.h"
 
+typedef enum money_type_t {
+    MONEY_TYPE_COPPER = 0,
+    MONEY_TYPE_SILVER = 1,
+    MONEY_TYPE_GOLD = 2,
+} MoneyType;
+
+const char* money_type_token(MoneyType type);
+const char* money_type_label(MoneyType type, int amount);
+int money_type_value(MoneyType type);
+int16_t* money_type_ptr(Mobile* ch, MoneyType type);
+bool parse_money_type(const char* word, MoneyType* out);
+
 void all_colour(Mobile* ch, char* argument);
 int count_users(Object* obj);
-void deduct_cost(Mobile* ch, int cost);
+void deduct_cost(Mobile* ch, long cost);
+void format_money_string(char* buf, size_t len, int gold, int silver, int copper, bool compact);
 ResistType check_immune(Mobile* ch, DamageType dam_type);
 int material_lookup(const char* name);
 WeaponType weapon_lookup(const char* name);
@@ -60,7 +73,7 @@ Object* get_obj_carry(Mobile* ch, char* argument);
 Object* get_obj_wear(Mobile* ch, char* argument);
 Object* get_obj_here(Mobile* ch, char* argument);
 Object* get_obj_world(Mobile* ch, char* argument);
-Object* create_money(int16_t gold, int16_t silver);
+Object* create_money(int16_t gold, int16_t silver, int16_t copper);
 int get_obj_number(Object* obj);
 int get_obj_weight(Object* obj);
 int get_true_weight(Object* obj);

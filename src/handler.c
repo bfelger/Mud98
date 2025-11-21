@@ -1578,77 +1578,191 @@ Object* get_obj_world(Mobile* ch, char* argument)
 
 /* deduct cost from a character */
 
-void deduct_cost(Mobile* ch, int cost)
+const char* money_type_token(MoneyType type)
 {
-    int16_t silver = 0; 
-    int16_t gold = 0;
+    switch (type) {
+    case MONEY_TYPE_COPPER: return "copper";
+    case MONEY_TYPE_SILVER: return "silver";
+    case MONEY_TYPE_GOLD: return "gold";
+    }
+    return "coins";
+}
 
-    silver = UMIN(ch->silver, (int16_t)cost);
+const char* money_type_label(MoneyType type, int amount)
+{
+    switch (type) {
+    case MONEY_TYPE_COPPER:
+        return amount == 1 ? "copper coin" : "copper coins";
+    case MONEY_TYPE_SILVER:
+        return amount == 1 ? "silver coin" : "silver coins";
+    case MONEY_TYPE_GOLD:
+        return amount == 1 ? "gold coin" : "gold coins";
+    }
+    return "coins";
+}
 
-    if (silver < cost) {
-        gold = (int16_t)((cost - silver + 99) / 100);
-        silver = (int16_t)(cost - 100 * gold);
+int money_type_value(MoneyType type)
+{
+    switch (type) {
+    case MONEY_TYPE_COPPER: return 1;
+    case MONEY_TYPE_SILVER: return COPPER_PER_SILVER;
+    case MONEY_TYPE_GOLD: return COPPER_PER_GOLD;
+    }
+    return 1;
+}
+
+int16_t* money_type_ptr(Mobile* ch, MoneyType type)
+{
+    switch (type) {
+    case MONEY_TYPE_COPPER: return &ch->copper;
+    case MONEY_TYPE_SILVER: return &ch->silver;
+    case MONEY_TYPE_GOLD: return &ch->gold;
+    }
+    return &ch->copper;
+}
+
+bool parse_money_type(const char* word, MoneyType* out)
+{
+    if (word == NULL)
+        return false;
+
+    if (!str_cmp(word, "copper") || !str_cmp(word, "cp")) {
+        *out = MONEY_TYPE_COPPER;
+        return true;
+    }
+    if (!str_cmp(word, "silver") || !str_cmp(word, "sp")) {
+        *out = MONEY_TYPE_SILVER;
+        return true;
+    }
+    if (!str_cmp(word, "gold") || !str_cmp(word, "gp")) {
+        *out = MONEY_TYPE_GOLD;
+        return true;
+    }
+    return false;
+}
+
+
+void format_money_string(char* buf, size_t len, int gold, int silver, int copper, bool compact)
+{
+    struct denom {
+        int amount;
+        const char* singular;
+        const char* plural;
+        const char* abbrev;
+    } entries[3] = {
+        { gold,   "gold coin",   "gold coins",   "gp" },
+        { silver, "silver coin", "silver coins", "sp" },
+        { copper, "copper coin", "copper coins", "cp" },
+    };
+
+    int types = 0;
+    for (int i = 0; i < 3; ++i)
+        if (entries[i].amount > 0)
+            types++;
+
+    buf[0] = '\0';
+    if (types == 0) {
+        strncat(buf, "no coins", len - 1);
+        return;
     }
 
-    ch->gold -= gold;
-    ch->silver -= silver;
+    int remaining = types;
+    bool first = true;
+    for (int i = 0; i < 3; ++i) {
+        struct denom* entry = &entries[i];
+        if (entry->amount <= 0)
+            continue;
 
-    if (ch->gold < 0) {
-        bug("deduct costs: gold %d < 0", ch->gold);
-        ch->gold = 0;
-    }
-    if (ch->silver < 0) {
-        bug("deduct costs: silver %d < 0", ch->silver);
-        ch->silver = 0;
+        char segment[64];
+        if (compact) {
+            snprintf(segment, sizeof(segment), "%d%s", entry->amount, entry->abbrev);
+        }
+        else {
+            const char* label = entry->amount == 1 ? entry->singular : entry->plural;
+            snprintf(segment, sizeof(segment), "%d %s", entry->amount, label);
+        }
+
+        if (!first) {
+            if (compact) {
+                strncat(buf, " ", len - strlen(buf) - 1);
+            }
+            else {
+                if (remaining == 1)
+                    strncat(buf, ", and ", len - strlen(buf) - 1);
+                else
+                    strncat(buf, ", ", len - strlen(buf) - 1);
+            }
+        }
+
+        strncat(buf, segment, len - strlen(buf) - 1);
+        first = false;
+        remaining--;
     }
 }
-// Create a 'money' obj.
-Object* create_money(int16_t gold, int16_t silver)
+
+void deduct_cost(Mobile* ch, long cost)
+{
+    if (cost <= 0)
+        return;
+
+    long total = mobile_total_copper(ch);
+    total -= cost;
+    if (total < 0)
+        total = 0;
+
+    mobile_set_money_from_copper(ch, total);
+}
+
+Object* create_money(int16_t gold, int16_t silver, int16_t copper)
 {
     char buf[MAX_STRING_LENGTH];
     Object* obj;
 
-    if (gold < 0 || silver < 0 || (gold == 0 && silver == 0)) {
-        bug("Create_money: zero or negative money.", UMIN(gold, silver));
-        gold = UMAX(1, gold);
-        silver = UMAX(1, silver);
+    if (gold < 0 || silver < 0 || copper < 0
+        || (gold == 0 && silver == 0 && copper == 0)) {
+        bug("Create_money: zero or negative money.", 0);
+        if (gold <= 0 && silver <= 0 && copper <= 0)
+            copper = 1;
+        else {
+            gold = UMAX(0, gold);
+            silver = UMAX(0, silver);
+            copper = UMAX(1, copper);
+        }
     }
 
-    if (gold == 0 && silver == 1) {
-        obj = create_object(get_object_prototype(OBJ_VNUM_SILVER_ONE), 0);
-    }
-    else if (gold == 1 && silver == 0) {
-        obj = create_object(get_object_prototype(OBJ_VNUM_GOLD_ONE), 0);
-    }
-    else if (silver == 0) {
-        obj = create_object(get_object_prototype(OBJ_VNUM_GOLD_SOME), 0);
-        sprintf(buf, "%d gold coins", gold);
-        free_string(obj->short_descr);
-        obj->short_descr = str_dup(buf);
-        obj->value[1] = gold;
-        obj->cost = gold;
-        obj->weight = gold / 5;
-    }
-    else if (gold == 0) {
-        obj = create_object(get_object_prototype(OBJ_VNUM_SILVER_SOME), 0);
-        sprintf(buf, "%d silver coins", silver);
-        free_string(obj->short_descr);
-        obj->short_descr = str_dup(buf);
-        obj->value[0] = silver;
-        obj->cost = silver;
-        obj->weight = silver / 20;
-    }
+    long total_copper = convert_money_to_copper(gold, silver, copper);
+    obj = create_object(get_object_prototype(OBJ_VNUM_COINS), 0);
 
+    if (total_copper == COPPER_PER_GOLD && silver == 0 && copper == 0) {
+        free_string(obj->short_descr);
+        obj->short_descr = str_dup("a gold coin");
+    }
+    else if (total_copper == COPPER_PER_SILVER && gold == 0 && copper == 0) {
+        free_string(obj->short_descr);
+        obj->short_descr = str_dup("a silver coin");
+    }
+    else if (total_copper == 1 && gold == 0 && silver == 0) {
+        free_string(obj->short_descr);
+        obj->short_descr = str_dup("a copper coin");
+    }
     else {
-        obj = create_object(get_object_prototype(OBJ_VNUM_COINS), 0);
-        sprintf(buf, "%d gold coins and %d silver coins", gold, silver);
+        char compact[64];
+        format_money_string(compact, sizeof(compact), gold, silver, copper, true);
+        snprintf(buf, sizeof(buf), "a pile of coins (%s)", compact);
         free_string(obj->short_descr);
         obj->short_descr = str_dup(buf);
-        obj->value[0] = silver;
-        obj->value[1] = gold;
-        obj->cost = 100 * gold + silver;
-        obj->weight = gold / 5 + silver / 20;
     }
+
+    obj->value[MONEY_VALUE_GOLD] = gold;
+    obj->value[MONEY_VALUE_SILVER] = silver;
+    obj->value[MONEY_VALUE_COPPER] = copper;
+
+    obj->cost = (int)(total_copper / COPPER_PER_SILVER);
+    if (total_copper > 0 && obj->cost == 0)
+        obj->cost = 1;
+    obj->weight = (int16_t)(gold / 5 + silver / 20 + copper / 100);
+    if (obj->weight <= 0)
+        obj->weight = 1;
 
     return obj;
 }

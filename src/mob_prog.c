@@ -677,9 +677,9 @@ int cmd_eval(VNUM vnum, char* line, int check, Mobile* mob, Mobile* ch,
         if (lval_char != NULL) 
             lval = lval_char->alignment;
         break;
-    case CHK_MONEY:  /* Money is converted to silver... */
+    case CHK_MONEY:  /* Money is converted to copper. */
         if (lval_char != NULL)
-            lval = lval_char->gold + (lval_char->silver * 100); 
+            lval = (int)convert_money_to_copper(lval_char->gold, lval_char->silver, lval_char->copper); 
         break;
     case CHK_OBJVAL0:
         if (lval_obj != NULL) 

@@ -54,6 +54,10 @@ typedef struct object_t {
     bool valid;
 } Object;
 
+#define MONEY_VALUE_COPPER 0
+#define MONEY_VALUE_SILVER 1
+#define MONEY_VALUE_GOLD   2
+
 #define CAN_WEAR(obj, part)       (IS_SET((obj)->wear_flags, (part)))
 #define IS_OBJ_STAT(obj, stat)    (IS_SET((obj)->extra_flags, (stat)))
 #define IS_WEAPON_STAT(obj, stat) (IS_SET((obj)->value[4], (stat)))

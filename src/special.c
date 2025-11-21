@@ -339,7 +339,7 @@ bool spec_patrolman(Mobile* ch)
 bool spec_nasty(Mobile* ch)
 {
     Mobile* victim;
-    int16_t gold;
+    long steal = 0;
 
     if (!IS_AWAKE(ch)) { return false; }
 
@@ -365,14 +365,21 @@ bool spec_nasty(Mobile* ch)
 
     switch (number_bits(2)) {
     case 0:
-        act("$n rips apart your coin purse, spilling your gold!", ch, NULL,
+        act("$n rips apart your coin purse, spilling your coins!", ch, NULL,
             victim, TO_VICT);
-        act("You slash apart $N's coin purse and gather his gold.", ch, NULL,
+        act("You slash apart $N's coin purse and gather the loose coins.", ch, NULL,
             victim, TO_CHAR);
         act("$N's coin purse is ripped apart!", ch, NULL, victim, TO_NOTVICT);
-        gold = victim->gold / 10; /* steal 10% of his gold */
-        victim->gold -= gold;
-        ch->gold += gold;
+        {
+            long victim_total = mobile_total_copper(victim);
+            steal = victim_total / 10; /* steal 10% of total wealth */
+            if (steal <= 0 && victim_total > 0)
+                steal = 1;
+            if (steal > 0) {
+                mobile_set_money_from_copper(victim, victim_total - steal);
+                mobile_set_money_from_copper(ch, mobile_total_copper(ch) + steal);
+            }
+        }
         return true;
 
     case 1:
@@ -1026,10 +1033,34 @@ bool spec_poison(Mobile* ch)
     return true;
 }
 
+static long spec_thief_calculate_take(int coins, int level, long cp_limit_per_level_sq, int denom_value)
+{
+    if (coins <= 0 || level <= 0 || cp_limit_per_level_sq <= 0 || denom_value <= 0)
+        return 0;
+
+    int max_percent = UMAX(1, level / 2);
+    int percent = UMIN(number_range(1, 20), max_percent);
+    long steal_coins = ((long)coins * percent) / 100;
+    long max_coins = ((long)level * level * cp_limit_per_level_sq) / denom_value;
+    if (max_coins < 0)
+        max_coins = 0;
+    if (steal_coins > max_coins)
+        steal_coins = max_coins;
+    if (steal_coins > coins)
+        steal_coins = coins;
+    if (steal_coins <= 0)
+        return 0;
+
+    return steal_coins * denom_value;
+}
+
+#define THIEF_GOLD_CP_LIMIT   (10L * COPPER_PER_GOLD)
+#define THIEF_SILVER_CP_LIMIT (25L * COPPER_PER_SILVER)
+#define THIEF_COPPER_CP_LIMIT THIEF_SILVER_CP_LIMIT
+
 bool spec_thief(Mobile* ch)
 {
     Mobile* victim;
-    int16_t gold, silver;
 
     if (ch->position != POS_STANDING) return false;
 
@@ -1046,15 +1077,12 @@ bool spec_thief(Mobile* ch)
             return true;
         }
         else {
-            gold = victim->gold * UMIN((int16_t)number_range(1, 20), ch->level / 2) / 100;
-            gold = UMIN(gold, ch->level * ch->level * 10);
-            ch->gold += gold;
-            victim->gold -= gold;
-            silver = victim->silver * UMIN((int16_t)number_range(1, 20), ch->level / 2)
-                     / 100;
-            silver = UMIN(silver, ch->level * ch->level * 25);
-            ch->silver += silver;
-            victim->silver -= silver;
+            long stolen = 0;
+            stolen += spec_thief_calculate_take(victim->gold, ch->level, THIEF_GOLD_CP_LIMIT, COPPER_PER_GOLD);
+            stolen += spec_thief_calculate_take(victim->silver, ch->level, THIEF_SILVER_CP_LIMIT, COPPER_PER_SILVER);
+            stolen += spec_thief_calculate_take(victim->copper, ch->level, THIEF_COPPER_CP_LIMIT, 1);
+            if (stolen > 0)
+                steal_coins_transfer(ch, victim, stolen);
             return true;
         }
     }

@@ -31,6 +31,7 @@ void run_unit_tests()
     register_util_tests();
     register_event_tests();
     register_faction_tests();
+    register_money_tests();
 
     test_output_enabled = true;
     test_disassemble_on_error = true;

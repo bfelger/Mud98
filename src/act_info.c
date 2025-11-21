@@ -1,6 +1,6 @@
-﻿/***************************************************************************
+/***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik St�rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -1155,30 +1155,21 @@ void do_examine(Mobile* ch, char* argument)
             do_function(ch, &do_play, "list");
             break;
 
-        case ITEM_MONEY:
-            if (obj->value[0] == 0) {
-                if (obj->value[1] == 0)
-                    sprintf(buf, "Odd...there's no coins in the pile.\n\r");
-                else if (obj->value[1] == 1)
-                    sprintf(buf, "Wow. One gold coin.\n\r");
-                else
-                    sprintf(buf, "There are %d gold coins in the pile.\n\r",
-                            obj->value[1]);
+        case ITEM_MONEY: {
+            int gold = obj->value[MONEY_VALUE_GOLD];
+            int silver = obj->value[MONEY_VALUE_SILVER];
+            int copper = obj->value[MONEY_VALUE_COPPER];
+            if (gold == 0 && silver == 0 && copper == 0) {
+                sprintf(buf, "Odd...there's no coins in the pile.\n\r");
             }
-            else if (obj->value[1] == 0) {
-                if (obj->value[0] == 1)
-                    sprintf(buf, "Wow. One silver coin.\n\r");
-                else
-                    sprintf(buf, "There are %d silver coins in the pile.\n\r",
-                            obj->value[0]);
+            else {
+                char money_buf[64];
+                format_money_string(money_buf, sizeof(money_buf), gold, silver, copper, false);
+                sprintf(buf, "There are %s in the pile.\n\r", money_buf);
             }
-            else
-                sprintf(
-                    buf,
-                    "There are %d gold and %d silver coins in the pile.\n\r",
-                    obj->value[1], obj->value[0]);
             send_to_char(buf, ch);
             break;
+        }
 
         case ITEM_DRINK_CON:
         case ITEM_CONTAINER:
@@ -1250,19 +1241,20 @@ void do_worth(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
 
+    char money_buf[64];
+    format_money_string(money_buf, sizeof(money_buf),
+        ch->gold, ch->silver, ch->copper, false);
+
     if (IS_NPC(ch)) {
-        sprintf(buf, "You have %d gold and %d silver.\n\r", ch->gold,
-                ch->silver);
+        sprintf(buf, "You have %s.\n\r", money_buf);
         send_to_char(buf, ch);
         return;
     }
 
     sprintf(buf,
-            "You have %d gold, %d silver, and %d experience (%d exp to "
-            "level).\n\r",
-            ch->gold, ch->silver, ch->exp,
+            "You have %s, and %d experience (%d exp to level).\n\r",
+            money_buf, ch->exp,
             (ch->level + 1) * exp_per_level(ch, ch->pcdata->points) - ch->exp);
-
     send_to_char(buf, ch);
 
     return;
@@ -1311,10 +1303,14 @@ void do_score(Mobile* ch, char* argument)
         ch->perm_stat[STAT_CON], get_curr_stat(ch, STAT_CON));
     send_to_char(buf, ch);
 
+    char money_buf[64];
+    format_money_string(money_buf, sizeof(money_buf),
+        ch->gold, ch->silver, ch->copper, false);
+
     sprintf(
         buf,
-        "You have scored %d exp, and have %d gold and %d silver coins.\n\r",
-        ch->exp, ch->gold, ch->silver);
+        "You have scored %d exp, and have %s.\n\r",
+        ch->exp, money_buf);
     send_to_char(buf, ch);
 
     /* RT shows exp to level */

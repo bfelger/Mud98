@@ -388,7 +388,7 @@ static void update_msdp_vars(Descriptor* d)
     msdp_update_var(d, "MANA", "%d", CH(d)->mana);
     msdp_update_var(d, "MANA_MAX", "%d", CH(d)->max_mana);
     //msdp_update_var(d, "MONEY", "%d", CH(d)->gold);
-    msdp_update_var(d, "MONEY", "%f", (float)CH(d)->gold + ((float)CH(d)->silver) / 100.0f);
+    msdp_update_var(d, "MONEY", "%ld", mobile_total_copper(CH(d)));
     msdp_update_var(d, "MOVEMENT", "%d", CH(d)->move);
     msdp_update_var(d, "MOVEMENT_MAX", "%d", CH(d)->max_move);
 
@@ -426,13 +426,17 @@ void mobile_update()
                 continue;
         }
 
-        if (ch->prototype->pShop != NULL) /* give him some gold */
-            if (((int)ch->gold * 100 + (int)ch->silver) < ch->prototype->wealth) {
-                ch->gold
-                    += (int16_t)(ch->prototype->wealth * number_range(1, 20) / 5000000);
-                ch->silver
-                    += (int16_t)(ch->prototype->wealth * number_range(1, 20) / 50000);
+        if (ch->prototype->pShop != NULL) { /* give him some coin */
+            long current = mobile_total_copper(ch);
+            long target = (long)ch->prototype->wealth * COPPER_PER_SILVER;
+            if (current < target) {
+                int16_t gold_gain = (int16_t)(ch->prototype->wealth * number_range(1, 20) / 5000000);
+                int16_t silver_gain = (int16_t)(ch->prototype->wealth * number_range(1, 20) / 50000);
+                long addition = convert_money_to_copper(gold_gain, silver_gain, 0);
+                if (addition > 0)
+                    mobile_set_money_from_copper(ch, current + addition);
             }
+        }
 
         /*
             * Check triggers only if mobile still in default position
@@ -791,8 +795,13 @@ void obj_update(void)
 
         if (obj->carried_by != NULL) {
             if (IS_NPC(obj->carried_by)
-                && obj->carried_by->prototype->pShop != NULL)
-                obj->carried_by->silver += (int16_t)obj->cost / 5;
+                && obj->carried_by->prototype->pShop != NULL) {
+                long payout = ((long)obj->cost * COPPER_PER_SILVER) / 5;
+                if (payout > 0) {
+                    long carry = mobile_total_copper(obj->carried_by);
+                    mobile_set_money_from_copper(obj->carried_by, carry + payout);
+                }
+            }
             else {
                 act(message, obj->carried_by, obj, NULL, TO_CHAR);
                 if (obj->wear_loc == WEAR_FLOAT)

@@ -83,6 +83,7 @@ void clone_object(Object* parent, Object* clone)
     SET_NAME(clone, NAME_FIELD(parent));
     VNUM_FIELD(clone) = VNUM_FIELD(parent);
 
+    clone->prototype = parent->prototype;
     clone->short_descr = str_dup(parent->short_descr);
     clone->description = str_dup(parent->description);
     clone->item_type = parent->item_type;

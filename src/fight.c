@@ -1353,10 +1353,12 @@ void make_corpse(Mobile* ch)
         corpse = create_object(get_object_prototype(OBJ_VNUM_CORPSE_NPC), 0);
         SET_NAME(corpse, name);
         corpse->timer = (int16_t)number_range(3, 6);
-        if (ch->gold > 0 || ch->silver > 0) {
-            obj_to_obj(create_money(ch->gold, ch->silver), corpse);
-            ch->gold = 0;
-            ch->silver = 0;
+        long total_copper = mobile_total_copper(ch);
+        if (total_copper > 0) {
+            int16_t gold = 0, silver = 0, copper = 0;
+            convert_copper_to_money(total_copper, &gold, &silver, &copper);
+            obj_to_obj(create_money(gold, silver, copper), corpse);
+            mobile_set_money_from_copper(ch, 0);
         }
         corpse->cost = 0;
     }
@@ -1370,10 +1372,15 @@ void make_corpse(Mobile* ch)
             corpse->owner = NAME_FIELD(ch);
         else {
             corpse->owner = NULL;
-            if (ch->gold > 1 || ch->silver > 1) {
-                obj_to_obj(create_money(ch->gold / 2, ch->silver / 2), corpse);
-                ch->gold -= ch->gold / 2;
-                ch->silver -= ch->silver / 2;
+            long total_copper = mobile_total_copper(ch);
+            if (total_copper > 0) {
+                long drop = total_copper / 2;
+                if (drop > 0) {
+                    int16_t gold = 0, silver = 0, copper = 0;
+                    convert_copper_to_money(drop, &gold, &silver, &copper);
+                    obj_to_obj(create_money(gold, silver, copper), corpse);
+                    mobile_set_money_from_copper(ch, total_copper - drop);
+                }
             }
         }
 

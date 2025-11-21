@@ -1,6 +1,6 @@
-﻿/***************************************************************************
+/***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik St�rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -57,6 +57,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <limits.h>
 
 #ifndef _MSC_VER 
 #include <sys/time.h>
@@ -71,6 +72,95 @@ CD* find_keeper args((Mobile * ch));
 int get_cost args((Mobile * keeper, Object* obj, bool fBuy));
 void obj_to_keeper args((Object * obj, Mobile* ch));
 OD* get_obj_keeper args((Mobile * ch, Mobile* keeper, char* argument));
+
+static bool split_money(Mobile* ch, long amount, bool allow_partial)
+{
+    if (amount <= 0)
+        return false;
+
+    Mobile* gch;
+    int members = 0;
+
+    FOR_EACH_ROOM_MOB(gch, ch->in_room) {
+        if (is_same_group(gch, ch) && !IS_AFFECTED(gch, AFF_CHARM))
+            members++;
+    }
+
+    if (members < 2)
+        return false;
+
+    long available = mobile_total_copper(ch);
+    if (!allow_partial && available < amount)
+        return false;
+    if (allow_partial && available < amount)
+        amount = available;
+
+    if (amount <= 0)
+        return false;
+
+    long share = amount / members;
+    if (share == 0)
+        return false;
+    long extra = amount % members;
+
+    mobile_set_money_from_copper(ch, available - amount);
+    long ch_share = share + extra;
+    mobile_set_money_from_copper(ch, (available - amount) + ch_share);
+
+    int16_t g, s, c;
+    char amount_buf[64];
+    char share_self_buf[64];
+    char share_member_buf[64];
+
+    convert_copper_to_money(amount, &g, &s, &c);
+    format_money_string(amount_buf, sizeof(amount_buf), g, s, c, false);
+
+    convert_copper_to_money(ch_share, &g, &s, &c);
+    format_money_string(share_self_buf, sizeof(share_self_buf), g, s, c, false);
+
+    convert_copper_to_money(share, &g, &s, &c);
+    format_money_string(share_member_buf, sizeof(share_member_buf), g, s, c, false);
+
+    char buf[MAX_STRING_LENGTH];
+    sprintf(buf, "You split %s. Your share is %s.\n\r", amount_buf, share_self_buf);
+    send_to_char(buf, ch);
+
+    sprintf(buf, "$n splits %s. Your share is %s.", amount_buf, share_member_buf);
+    FOR_EACH_ROOM_MOB(gch, ch->in_room) {
+        if (gch == ch || !is_same_group(gch, ch) || IS_AFFECTED(gch, AFF_CHARM))
+            continue;
+
+        mobile_set_money_from_copper(gch, mobile_total_copper(gch) + share);
+        act(buf, ch, NULL, gch, TO_VICT);
+    }
+
+    return true;
+}
+
+static void describe_money_amount(long copper, char* buf, size_t len, bool compact)
+{
+    int16_t g = 0, s = 0, c = 0;
+    convert_copper_to_money(copper, &g, &s, &c);
+    format_money_string(buf, len, g, s, c, compact);
+}
+
+void steal_coins_transfer(Mobile* ch, Mobile* victim, long amount)
+{
+    if (amount <= 0)
+        return;
+
+    mobile_set_money_from_copper(ch, mobile_total_copper(ch) + amount);
+    mobile_set_money_from_copper(victim, mobile_total_copper(victim) - amount);
+
+    char amount_desc[64];
+    describe_money_amount(amount, amount_desc, sizeof(amount_desc), false);
+
+    char buf[MAX_STRING_LENGTH];
+    sprintf(buf, "Bingo!  You got %s.\n\r", amount_desc);
+    send_to_char(buf, ch);
+}
+
+
 
 #undef OD
 #undef CD
@@ -111,8 +201,6 @@ void get_obj(Mobile* ch, Object* obj, Object* container)
 {
     /* variables for AUTOSPLIT */
     Mobile* gch;
-    int members;
-    char buffer[100];
 
     if (!CAN_WEAR(obj, ITEM_TAKE)) {
         send_to_char("You can't take that.\n\r", ch);
@@ -168,19 +256,17 @@ void get_obj(Mobile* ch, Object* obj, Object* container)
     }
 
     if (obj->item_type == ITEM_MONEY) {
-        ch->silver += (int16_t)obj->value[0];
-        ch->gold += (int16_t)obj->value[1];
-        if (IS_SET(ch->act_flags, PLR_AUTOSPLIT)) { /* AUTOSPLIT code */
-            members = 0;
-            FOR_EACH_ROOM_MOB(gch, ch->in_room) {
-                if (!IS_AFFECTED(gch, AFF_CHARM) && is_same_group(gch, ch))
-                    members++;
-            }
+        long amount = convert_money_to_copper(
+            obj->value[MONEY_VALUE_GOLD],
+            obj->value[MONEY_VALUE_SILVER],
+            obj->value[MONEY_VALUE_COPPER]);
 
-            if (members > 1 && (obj->value[0] > 1 || obj->value[1])) {
-                sprintf(buffer, "%d %d", obj->value[0], obj->value[1]);
-                do_function(ch, &do_split, buffer);
-            }
+        if (amount > 0) {
+            long total = mobile_total_copper(ch) + amount;
+            mobile_set_money_from_copper(ch, total);
+
+            if (IS_SET(ch->act_flags, PLR_AUTOSPLIT))
+                split_money(ch, amount, true);
         }
 
         extract_obj(obj);
@@ -443,6 +529,7 @@ void do_put(Mobile* ch, char* argument)
 void do_drop(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
+    char buf[MAX_STRING_LENGTH];
     Object* obj;
     bool found;
 
@@ -454,74 +541,64 @@ void do_drop(Mobile* ch, char* argument)
     }
 
     if (is_number(arg)) {
-        /* 'drop NNNN coins' */
-        int16_t amount;
-        int16_t gold = 0;
-        int16_t silver = 0;
-
-        amount = (int16_t)atoi(arg);
+        int amount = atoi(arg);
         READ_ARG(arg);
-        if (amount <= 0
-            || (str_cmp(arg, "coins") && str_cmp(arg, "coin")
-                && str_cmp(arg, "gold") && str_cmp(arg, "silver"))) {
+
+        if (amount <= 0) {
             send_to_char("Sorry, you can't do that.\n\r", ch);
             return;
         }
 
-        if (!str_cmp(arg, "coins") || !str_cmp(arg, "coin")
-            || !str_cmp(arg, "silver")) {
-            if (ch->silver < amount) {
-                send_to_char("You don't have that much silver.\n\r", ch);
-                return;
-            }
-
-            ch->silver -= amount;
-            silver = amount;
+        if (arg[0] == '\0') {
+            send_to_char("Specify cp, sp, or gp when dropping coins.\n\r", ch);
+            return;
         }
 
-        else {
-            if (ch->gold < amount) {
-                send_to_char("You don't have that much gold.\n\r", ch);
-                return;
-            }
-
-            ch->gold -= amount;
-            gold = amount;
+        if (!str_cmp(arg, "coins") || !str_cmp(arg, "coin")) {
+            send_to_char("Specify cp, sp, or gp when dropping coins.\n\r", ch);
+            return;
         }
 
+        MoneyType money_type;
+        if (!parse_money_type(arg, &money_type)) {
+            send_to_char("You can only drop copper (cp), silver (sp), or gold (gp).\n\r", ch);
+            return;
+        }
+
+        int16_t* reserve = money_type_ptr(ch, money_type);
+        if (*reserve < amount) {
+            sprintf(buf, "You don't have that much %s.\n\r", money_type_token(money_type));
+            send_to_char(buf, ch);
+            return;
+        }
+
+        *reserve -= (int16_t)amount;
+
+        long total_copper = (long)amount * money_type_value(money_type);
         FOR_EACH_ROOM_OBJ(obj, ch->in_room) {
-            switch (VNUM_FIELD(obj->prototype)) {
-            case OBJ_VNUM_SILVER_ONE:
-                silver += 1;
-                extract_obj(obj);
-                break;
+            if (obj->item_type != ITEM_MONEY)
+                continue;
 
-            case OBJ_VNUM_GOLD_ONE:
-                gold += 1;
-                extract_obj(obj);
-                break;
-
-            case OBJ_VNUM_SILVER_SOME:
-                silver += (int16_t)obj->value[0];
-                extract_obj(obj);
-                break;
-
-            case OBJ_VNUM_GOLD_SOME:
-                gold += (int16_t)obj->value[1];
-                extract_obj(obj);
-                break;
-
-            case OBJ_VNUM_COINS:
-                silver += (int16_t)obj->value[0];
-                gold += (int16_t)obj->value[1];
-                extract_obj(obj);
-                break;
-            }
+            total_copper += convert_money_to_copper(
+                obj->value[MONEY_VALUE_GOLD],
+                obj->value[MONEY_VALUE_SILVER],
+                obj->value[MONEY_VALUE_COPPER]);
+            extract_obj(obj);
         }
 
-        obj_to_room(create_money(gold, silver), ch->in_room);
-        act("$n drops some coins.", ch, NULL, NULL, TO_ROOM);
-        send_to_char("OK.\n\r", ch);
+        int16_t gold, silver, copper;
+        convert_copper_to_money(total_copper, &gold, &silver, &copper);
+
+        Object* coins = create_money(gold, silver, copper);
+        obj_to_room(coins, ch->in_room);
+
+        char amount_desc[64];
+        sprintf(amount_desc, "%d %s", amount, money_type_label(money_type, amount));
+
+        sprintf(buf, "$n drops %s.", amount_desc);
+        act(buf, ch, NULL, NULL, TO_ROOM);
+        sprintf(buf, "You drop %s.\n\r", amount_desc);
+        send_to_char(buf, ch);
         return;
     }
 
@@ -600,19 +677,22 @@ void do_give(Mobile* ch, char* argument)
     }
 
     if (is_number(arg1)) {
-        /* 'give NNNN coins victim' */
-        int amount;
-        bool silver;
-
-        amount = atoi(arg1);
-        if (amount <= 0
-            || (str_cmp(arg2, "coins") && str_cmp(arg2, "coin")
-                && str_cmp(arg2, "gold") && str_cmp(arg2, "silver"))) {
+        int amount = atoi(arg1);
+        if (amount <= 0) {
             send_to_char("Sorry, you can't do that.\n\r", ch);
             return;
         }
 
-        silver = str_cmp(arg2, "gold");
+        if (!str_cmp(arg2, "coin") || !str_cmp(arg2, "coins")) {
+            send_to_char("Specify cp, sp, or gp when giving coins.\n\r", ch);
+            return;
+        }
+
+        MoneyType money_type;
+        if (!parse_money_type(arg2, &money_type)) {
+            send_to_char("You can only give copper (cp), silver (sp), or gold (gp).\n\r", ch);
+            return;
+        }
 
         READ_ARG(arg2);
         if (!str_cmp(arg2, "to"))
@@ -628,68 +708,79 @@ void do_give(Mobile* ch, char* argument)
             return;
         }
 
-        if ((!silver && ch->gold < amount) || (silver && ch->silver < amount)) {
+        int16_t* giver_amt = money_type_ptr(ch, money_type);
+        if (*giver_amt < amount) {
             send_to_char("You haven't got that much.\n\r", ch);
             return;
         }
 
-        if (silver) {
-            ch->silver -= (int16_t)amount;
-            victim->silver += (int16_t)amount;
-        }
-        else {
-            ch->gold -= (int16_t)amount;
-            victim->gold += (int16_t)amount;
-        }
+        *giver_amt -= (int16_t)amount;
+        int16_t* victim_amt = money_type_ptr(victim, money_type);
+        *victim_amt += (int16_t)amount;
 
-        sprintf(buf, "$n gives you %d %s.", amount, silver ? "silver" : "gold");
+        char amount_desc[64];
+        sprintf(amount_desc, "%d %s", amount, money_type_label(money_type, amount));
+
+        sprintf(buf, "$n gives you %s.", amount_desc);
         act(buf, ch, NULL, victim, TO_VICT);
-        act("$n gives $N some coins.", ch, NULL, victim, TO_NOTVICT);
-        sprintf(buf, "You give $N %d %s.", amount, silver ? "silver" : "gold");
+        sprintf(buf, "$n gives $N %s.", amount_desc);
+        act(buf, ch, NULL, victim, TO_NOTVICT);
+        sprintf(buf, "You give $N %s.", amount_desc);
         act(buf, ch, NULL, victim, TO_CHAR);
 
-        // Bribe trigger
-        if (IS_NPC(victim) && HAS_MPROG_TRIGGER(victim, TRIG_BRIBE))
-            mp_bribe_trigger(victim, ch, silver ? amount : amount * 100);
+        long copper_amount = (long)amount * money_type_value(money_type);
+        int silver_units = (int)UMIN(INT_MAX, copper_amount / COPPER_PER_SILVER);
 
-        if (IS_NPC(victim) && HAS_EVENT_TRIGGER(victim, TRIG_BRIBE))
-            raise_bribe_event(victim, ch, silver ? amount : amount * 100);
-
+        if (silver_units > 0 && IS_NPC(victim)) {
+            if (HAS_MPROG_TRIGGER(victim, TRIG_BRIBE))
+                mp_bribe_trigger(victim, ch, silver_units);
+            if (HAS_EVENT_TRIGGER(victim, TRIG_BRIBE))
+                raise_bribe_event(victim, ch, silver_units);
+        }
 
         if (IS_NPC(victim) && IS_SET(victim->act_flags, ACT_IS_CHANGER)) {
-            int change;
+            if (money_type == MONEY_TYPE_COPPER) {
+                act("$n tells you 'I only exchange silver and gold.'", victim, NULL, ch, TO_VICT);
+                ch->reply = victim;
+                *giver_amt += (int16_t)amount;
+                *victim_amt -= (int16_t)amount;
+                return;
+            }
 
-            change = (silver ? 95 * amount / 100 / 100 : 95 * amount);
+            long payout_copper = copper_amount * 95 / 100;
+            MoneyType target_type = money_type == MONEY_TYPE_SILVER
+                ? MONEY_TYPE_GOLD
+                : MONEY_TYPE_SILVER;
+            long minimum_unit = money_type_value(target_type);
 
-            if (!silver && change > victim->silver) 
-                victim->silver += (int16_t)change;
-
-            if (silver && change > victim->gold) 
-                victim->gold += (int16_t)change;
-
-            if (change < 1 && can_see(victim, ch)) {
-                act("$n tells you 'I'm sorry, you did not give me enough to "
-                    "change.'",
+            if (payout_copper < minimum_unit) {
+                act("$n tells you 'I'm sorry, you did not give me enough to change.'",
                     victim, NULL, ch, TO_VICT);
                 ch->reply = victim;
-                sprintf(buf, "%d %s %s", amount, silver ? "silver" : "gold",
-                        NAME_STR(ch));
-                do_function(victim, &do_give, buf);
+                *giver_amt += (int16_t)amount;
+                *victim_amt -= (int16_t)amount;
+                return;
             }
-            else if (can_see(victim, ch)) {
-                sprintf(buf, "%d %s %s", change, silver ? "gold" : "silver",
-                        NAME_STR(ch));
-                do_function(victim, &do_give, buf);
-                if (silver) {
-                    sprintf(buf, "%d silver %s",
-                            (95 * amount / 100 - change * 100), NAME_STR(ch));
-                    do_function(victim, &do_give, buf);
-                }
-                act("$n tells you 'Thank you, come again.'", victim, NULL, ch,
-                    TO_VICT);
-                ch->reply = victim;
-            }
+
+            long player_total = mobile_total_copper(ch);
+            mobile_set_money_from_copper(ch, player_total + payout_copper);
+
+            long victim_total = mobile_total_copper(victim);
+            if (victim_total < payout_copper)
+                victim_total = payout_copper;
+            mobile_set_money_from_copper(victim, victim_total - payout_copper);
+
+            int16_t pg, ps, pc;
+            convert_copper_to_money(payout_copper, &pg, &ps, &pc);
+            char payout_desc[64];
+            format_money_string(payout_desc, sizeof(payout_desc), pg, ps, pc, false);
+
+            act("$n tells you 'Thank you, come again.'", victim, NULL, ch, TO_VICT);
+            sprintf(buf, "$n gives you %s in change.", payout_desc);
+            act(buf, victim, NULL, ch, TO_VICT);
+            ch->reply = victim;
         }
+
         return;
     }
 
@@ -1550,12 +1641,8 @@ void do_sacrifice(Mobile* ch, char* argument)
     char arg[MAX_INPUT_LENGTH];
     char buf[MAX_STRING_LENGTH];
     Object* obj;
-    int16_t silver;
-
-    /* variables for AUTOSPLIT */
+    long reward_copper;
     Mobile* gch;
-    int members;
-    char buffer[100];
 
     one_argument(argument, arg);
 
@@ -1593,33 +1680,20 @@ void do_sacrifice(Mobile* ch, char* argument)
             }
     }
 
-    silver = UMAX(1, obj->level * 3);
+    reward_copper = UMAX(1, obj->level * 3);
 
     if (obj->item_type != ITEM_CORPSE_NPC && obj->item_type != ITEM_CORPSE_PC)
-        silver = UMIN(silver, (int16_t)obj->cost);
+        reward_copper = UMIN(reward_copper, obj->cost);
 
-    if (silver == 1)
-        send_to_char("Mota gives you one silver coin for your sacrifice.\n\r",
-                     ch);
-    else {
-        sprintf(buf, "Mota gives you %d silver coins for your sacrifice.\n\r",
-                silver);
-        send_to_char(buf, ch);
-    }
+    char reward_desc[64];
+    describe_money_amount(reward_copper, reward_desc, sizeof(reward_desc), false);
+    sprintf(buf, "Mota gives you %s for your sacrifice.\n\r", reward_desc);
+    send_to_char(buf, ch);
 
-    ch->silver += silver;
+    mobile_set_money_from_copper(ch, mobile_total_copper(ch) + reward_copper);
 
-    if (IS_SET(ch->act_flags, PLR_AUTOSPLIT)) { /* AUTOSPLIT code */
-        members = 0;
-        FOR_EACH_ROOM_MOB(gch, ch->in_room) {
-            if (is_same_group(gch, ch)) members++;
-        }
-
-        if (members > 1 && silver > 1) {
-            sprintf(buffer, "%d", silver);
-            do_function(ch, &do_split, buffer);
-        }
-    }
+    if (IS_SET(ch->act_flags, PLR_AUTOSPLIT) && reward_copper > 0)
+        split_money(ch, reward_copper, true);
 
     act("$n sacrifices $p to Mota.", ch, obj, NULL, TO_ROOM);
     wiznet("$N sends up $p as a burnt offering.", ch, obj, WIZ_SACCING, 0, 0);
@@ -1963,29 +2037,16 @@ void do_steal(Mobile* ch, char* argument)
 
     if (!str_cmp(arg1, "coin") || !str_cmp(arg1, "coins")
         || !str_cmp(arg1, "gold") || !str_cmp(arg1, "silver")) {
-        int16_t gold;
-        int16_t silver;
-
-        gold = (int16_t)(victim->gold * number_range(1, ch->level) / MAX_LEVEL);
-        silver = (int16_t)(victim->silver * number_range(1, ch->level) / MAX_LEVEL);
-        if (gold <= 0 && silver <= 0) {
+        long victim_copper = mobile_total_copper(victim);
+        long amount = victim_copper * number_range(1, ch->level) / MAX_LEVEL;
+        if (amount <= 0 && victim_copper > 0)
+            amount = 1;
+        if (amount <= 0) {
             send_to_char("You couldn't get any coins.\n\r", ch);
             return;
         }
 
-        ch->gold += gold;
-        ch->silver += silver;
-        victim->silver -= silver;
-        victim->gold -= gold;
-        if (silver <= 0)
-            sprintf(buf, "Bingo!  You got %d gold coins.\n\r", gold);
-        else if (gold <= 0)
-            sprintf(buf, "Bingo!  You got %d silver coins.\n\r", silver);
-        else
-            sprintf(buf, "Bingo!  You got %d silver and %d gold coins.\n\r",
-                    silver, gold);
-
-        send_to_char(buf, ch);
+        steal_coins_transfer(ch, victim, amount);
         check_improve(ch, gsn_steal, true, 2);
         return;
     }
@@ -2244,7 +2305,9 @@ void do_buy(Mobile* ch, char* argument)
 
         cost = 10 * pet->level * pet->level;
 
-        if ((ch->silver + 100 * ch->gold) < cost) {
+        long cost_copper = (long)cost * COPPER_PER_SILVER;
+
+        if (mobile_total_copper(ch) < cost_copper) {
             send_to_char("You can't afford it.\n\r", ch);
             return;
         }
@@ -2264,7 +2327,8 @@ void do_buy(Mobile* ch, char* argument)
             check_improve(ch, gsn_haggle, true, 4);
         }
 
-        deduct_cost(ch, cost);
+        cost_copper = (long)cost * COPPER_PER_SILVER;
+        deduct_cost(ch, cost_copper);
         pet = create_mobile(pet->prototype);
         SET_BIT(pet->act_flags, ACT_PET);
         SET_BIT(pet->affect_flags, AFF_CHARM);
@@ -2333,7 +2397,10 @@ void do_buy(Mobile* ch, char* argument)
             }
         }
 
-        if ((ch->silver + ch->gold * 100) < cost * number) {
+        long price_per_item = (long)cost * COPPER_PER_SILVER;
+        long total_price = price_per_item * number;
+
+        if (mobile_total_copper(ch) < total_price) {
             if (number > 1)
                 act("$n tells you 'You can't afford to buy that many.", keeper,
                     obj, ch, TO_VICT);
@@ -2370,31 +2437,40 @@ void do_buy(Mobile* ch, char* argument)
             check_improve(ch, gsn_haggle, true, 4);
         }
 
+        price_per_item = (long)cost * COPPER_PER_SILVER;
+        total_price = price_per_item * number;
+
         if (number > 1) {
             sprintf(buf, "$n buys $p[%d].", number);
             act(buf, ch, obj, NULL, TO_ROOM);
-            sprintf(buf, "You buy $p[%d] for %d silver.", number,
-                    cost * number);
+            char total_cost_buf[64];
+            describe_money_amount(total_price, total_cost_buf, sizeof(total_cost_buf), false);
+            sprintf(buf, "You buy $p[%d] for %s.", number, total_cost_buf);
             act(buf, ch, obj, NULL, TO_CHAR);
         }
         else {
             act("$n buys $p.", ch, obj, NULL, TO_ROOM);
-            sprintf(buf, "You buy $p for %d silver.", cost);
+            char single_cost_buf[64];
+            describe_money_amount(price_per_item, single_cost_buf, sizeof(single_cost_buf), false);
+            sprintf(buf, "You buy $p for %s.", single_cost_buf);
             act(buf, ch, obj, NULL, TO_CHAR);
         }
-        deduct_cost(ch, cost * number);
-        keeper->gold += (int16_t)(cost * number / 100);
-        keeper->silver += (int16_t)(cost * number - (cost * number / 100) * 100);
+        deduct_cost(ch, total_price);
+        mobile_set_money_from_copper(keeper, mobile_total_copper(keeper) + total_price);
 
         Node* obj_list_node = list_find(&keeper->objects, OBJ_VAL(obj));
+        Node* current_node = obj_list_node;
 
         for (count = 0; count < number; count++) {
             if (IS_SET(obj->extra_flags, ITEM_INVENTORY))
                 t_obj = create_object(obj->prototype, obj->level);
             else {
-                t_obj = obj;
-                obj_list_node = obj_list_node->next;
-                obj = AS_OBJECT(obj_list_node->value);
+                if (current_node == NULL) {
+                    bug("do_buy: ran out of objects while purchasing.", 0);
+                    break;
+                }
+                t_obj = AS_OBJECT(current_node->value);
+                current_node = current_node->next;
                 obj_from_char(t_obj);
             }
 
@@ -2462,11 +2538,14 @@ void do_list(Mobile* ch, char* argument)
                 && (arg[0] == '\0' || is_name(arg, NAME_STR(obj)))) {
                 if (!found) {
                     found = true;
-                    send_to_char("[Lv Price Qty] Item\n\r", ch);
+                    send_to_char("[Lv      Price Qty] Item\n\r", ch);
                 }
 
+                char price_buf[32];
+                describe_money_amount((long)cost * COPPER_PER_SILVER, price_buf, sizeof(price_buf), true);
+
                 if (IS_OBJ_STAT(obj, ITEM_INVENTORY))
-                    sprintf(buf, "[%2d %5d -- ] %s\n\r", obj->level, cost,
+                    sprintf(buf, "[%2d %10s -- ] %s\n\r", obj->level, price_buf,
                             obj->short_descr);
                 else {
                     count = 1;
@@ -2480,7 +2559,7 @@ void do_list(Mobile* ch, char* argument)
                         obj_loop.next = obj_loop.next->next;
                         count++;
                     }
-                    sprintf(buf, "[%2d %5d %2d ] %s\n\r", obj->level, cost,
+                    sprintf(buf, "[%2d %10s %2d ] %s\n\r", obj->level, price_buf,
                             count, obj->short_descr);
                 }
                 send_to_char(buf, ch);
@@ -2532,7 +2611,10 @@ void do_sell(Mobile* ch, char* argument)
         act("$n looks uninterested in $p.", keeper, obj, ch, TO_VICT);
         return;
     }
-    if (cost > (keeper->silver + 100 * keeper->gold)) {
+
+    long cost_copper = (long)cost * COPPER_PER_SILVER;
+    long keeper_funds = mobile_total_copper(keeper);
+    if (cost_copper > keeper_funds) {
         act("$n tells you 'I'm afraid I don't have enough wealth to buy $p.",
             keeper, obj, ch, TO_VICT);
         return;
@@ -2546,17 +2628,17 @@ void do_sell(Mobile* ch, char* argument)
         send_to_char("You haggle with the shopkeeper.\n\r", ch);
         cost += obj->cost / 2 * roll / 100;
         cost = UMIN(cost, 95 * get_cost(keeper, obj, true) / 100);
-        cost = UMIN(cost, (keeper->silver + 100 * keeper->gold));
+        int max_affordable = (int)(keeper_funds / COPPER_PER_SILVER);
+        cost = UMIN(cost, max_affordable);
         check_improve(ch, gsn_haggle, true, 4);
     }
-    sprintf(buf, "You sell $p for %d silver and %d gold piece%s.",
-            cost - (cost / 100) * 100, cost / 100, cost == 1 ? "" : "s");
+    cost_copper = (long)cost * COPPER_PER_SILVER;
+    char payout_buf[64];
+    describe_money_amount(cost_copper, payout_buf, sizeof(payout_buf), false);
+    sprintf(buf, "You sell $p for %s.", payout_buf);
     act(buf, ch, obj, NULL, TO_CHAR);
-    ch->gold += (int16_t)(cost / 100);
-    ch->silver += (int16_t)(cost - (cost / 100) * 100);
-    deduct_cost(keeper, cost);
-    if (keeper->gold < 0) keeper->gold = 0;
-    if (keeper->silver < 0) keeper->silver = 0;
+    mobile_set_money_from_copper(ch, mobile_total_copper(ch) + cost_copper);
+    deduct_cost(keeper, cost_copper);
 
     if (obj->item_type == ITEM_TRASH || IS_OBJ_STAT(obj, ITEM_SELL_EXTRACT)) {
         extract_obj(obj);
@@ -2612,9 +2694,9 @@ void do_value(Mobile* ch, char* argument)
         return;
     }
 
-    sprintf(buf,
-            "$n tells you 'I'll give you %d silver and %d gold coins for $p'.",
-            cost - (cost / 100) * 100, cost / 100);
+    char value_buf[64];
+    describe_money_amount((long)cost * COPPER_PER_SILVER, value_buf, sizeof(value_buf), false);
+    sprintf(buf, "$n tells you 'I'll give you %s for $p'.", value_buf);
     act(buf, keeper, obj, ch, TO_VICT);
     ch->reply = keeper;
 

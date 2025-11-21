@@ -159,6 +159,10 @@ typedef void SpellFunc(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget 
 #define INVALIDATE(data)     ((data)->valid = false)
 #define UMIN(a, b)           ((a) < (b) ? (a) : (b))
 #define UMAX(a, b)           ((a) > (b) ? (a) : (b))
+
+#define COPPER_PER_SILVER     100
+#define SILVER_PER_GOLD       100
+#define COPPER_PER_GOLD       (COPPER_PER_SILVER * SILVER_PER_GOLD)
 #define URANGE(a, b, c)      ((b) < (a) ? (a) : ((b) > (c) ? (c) : (b)))
 #define LOWER(c)             ((c) >= 'A' && (c) <= 'Z' ? (c) + 'a' - 'A' : (c))
 #define UPPER(c)             ((c) >= 'a' && (c) <= 'z' ? (c) + 'A' - 'a' : (c))

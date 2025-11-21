@@ -751,16 +751,16 @@ curse may not recall at all.
 ~
 
 -1 SPLIT~
-Syntax: SPLIT <silver> <gold>
+Syntax: SPLIT <amount> <cp|sp|gp> [<amount> <cp|sp|gp> ...]
 
-SPLIT splits some coins  between you and all the members of your
-group who are in the same room as you.  It's customary to SPLIT
-the loot after a kill.  The first argument is the amount of silver
-the split (0 is acceptable), and the second gold (optional).
+SPLIT divides specific coin amounts between you and all the members of your
+group who are in the same room as you. Provide one or several amount/type
+pairs, using either the full name or abbreviation (cp, sp, gp) for copper,
+silver, and gold. It's customary to SPLIT the loot after a kill.
 Examples:
-split 30 	--> split 30 silver
-split 20 50	--> split 20 silver, 50 gold
-split  0 10	--> split 10 gold
+split 30 silver	        --> split 30 silver
+split 20 silver 5 gold	--> split 20 silver, 5 gold
+split 12 cp 5 sp 1 gp	--> split 12 copper, 5 silver, 1 gold
 ~
 
 0 STEAL~
