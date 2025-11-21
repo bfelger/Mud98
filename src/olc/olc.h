@@ -398,6 +398,7 @@ void show_sizelist(Mobile* ch);
 
 void InitScreen(Descriptor*);
 char* fix_string(const char* str);
+char* fix_lox_script(const char* str);
 
 void olc_print_flags(Mobile* ch, const char* label, const struct flag_type* flag_table, FLAGS flags);
 void olc_print_num(Mobile* ch, const char* label, int num);

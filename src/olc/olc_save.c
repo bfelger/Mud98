@@ -34,6 +34,7 @@
 
 #include <entities/descriptor.h>
 #include <entities/event.h>
+#include <entities/faction.h>
 #include <entities/object.h>
 #include <entities/player_data.h>
 
@@ -83,6 +84,26 @@ char* fix_string(const char* str)
     }
     strfix[i] = '\0';
     return strfix;
+}
+
+char* fix_lox_script(const char* str)
+{
+    static char script_fix[MAX_STRING_LENGTH * 4];
+    size_t dst = 0;
+
+    if (str == NULL)
+        return "";
+
+    for (size_t src = 0; str[src] != '\0'; ++src) {
+        if (str[src] == '\r')
+            continue;
+        script_fix[dst++] = str[src];
+        if (dst >= sizeof(script_fix) - 1)
+            break;
+    }
+
+    script_fix[dst] = '\0';
+    return script_fix;
 }
 
 bool area_changed()
@@ -182,6 +203,61 @@ char* fwrite_flag(long flags, char buf[])
  Purpose:	Save one mobile to file, new format -- Hugin
  Called by:	save_mobiles (below).
  ****************************************************************************/
+
+static void save_faction_relations(FILE* fp, const char* keyword, ValueArray* relations)
+{
+    bool wrote = false;
+
+    if (relations == NULL || relations->count == 0)
+        return;
+
+    for (int i = 0; i < relations->count; ++i) {
+        Value entry = relations->values[i];
+        if (!IS_INT(entry))
+            continue;
+
+        VNUM rel_vnum = (VNUM)AS_INT(entry);
+        if (rel_vnum == 0)
+            continue;
+
+        if (!wrote) {
+            fprintf(fp, "%s", keyword);
+            wrote = true;
+        }
+
+        fprintf(fp, " %" PRVNUM, rel_vnum);
+    }
+
+    if (wrote)
+        fprintf(fp, " 0\n");
+}
+
+static void save_factions(FILE* fp, AreaData* area)
+{
+    fprintf(fp, "#FACTIONS\n");
+
+    if (faction_table.capacity > 0 && faction_table.entries != NULL) {
+        for (int idx = 0; idx < faction_table.capacity; ++idx) {
+            Entry* entry = &faction_table.entries[idx];
+            if (IS_NIL(entry->value) || !IS_FACTION(entry->value))
+                continue;
+
+            Faction* faction = AS_FACTION(entry->value);
+            if (faction->area != area)
+                continue;
+
+            fprintf(fp, "#%" PRVNUM "\n", VNUM_FIELD(faction));
+            fprintf(fp, "Name %s~\n", NAME_STR(faction));
+            fprintf(fp, "DefaultStanding %d\n", faction->default_standing);
+            save_faction_relations(fp, "Allies", &faction->allies);
+            save_faction_relations(fp, "Opposing", &faction->enemies);
+            fprintf(fp, "End\n");
+        }
+    }
+
+    fprintf(fp, "#0\n\n");
+}
+
 void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
 {
     int16_t race = p_mob_proto->race;
@@ -271,6 +347,9 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
     if ((temp = DIF(race_table[race].parts, p_mob_proto->parts)))
         fprintf(fp, "F par %s\n", fwrite_flag(temp, buf));
 
+    if (p_mob_proto->faction_vnum != 0)
+        fprintf(fp, "Faction %" PRVNUM "\n", p_mob_proto->faction_vnum);
+
     FOR_EACH(pMprog, p_mob_proto->mprogs) {
         fprintf(fp, "M '%s' %"PRVNUM" %s~\n",
             event_trigger_name(pMprog->trig_type), pMprog->vnum,
@@ -280,7 +359,7 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
     save_events(fp, &p_mob_proto->header);
 
     if (p_mob_proto->header.script != NULL) {
-        fprintf(fp, "L\n%s~\n", p_mob_proto->header.script->chars);
+        fprintf(fp, "L\n%s~\n", fix_lox_script(p_mob_proto->header.script->chars));
     }
 
     return;
@@ -508,7 +587,7 @@ void save_object(FILE* fp, ObjPrototype* obj_proto)
     save_events(fp, &obj_proto->header);
 
     if (obj_proto->header.script != NULL) {
-        fprintf(fp, "L\n%s~\n", obj_proto->header.script->chars);
+        fprintf(fp, "L\n%s~\n", fix_lox_script(obj_proto->header.script->chars));
     }
 
     return;
@@ -613,7 +692,7 @@ void save_rooms(FILE* fp, AreaData* area)
             save_events(fp, &pRoomIndex->header);
 
             if (pRoomIndex->header.script != NULL) {
-                fprintf(fp, "L\n%s~\n", pRoomIndex->header.script->chars);
+                fprintf(fp, "L\n%s~\n", fix_lox_script(pRoomIndex->header.script->chars));
             }
 
             if (pRoomIndex->owner && str_cmp(pRoomIndex->owner, ""))
@@ -974,8 +1053,9 @@ void save_area(AreaData* area)
     fprintf(fp, "Reset %d\n", area->reset_thresh);
     fprintf(fp, "AlwaysReset %d\n", (int)area->always_reset);
     fprintf(fp, "InstType %d\n", area->inst_type);
-    fprintf(fp, "End\n\n\n\n");
+    fprintf(fp, "End\n\n");
 
+    save_factions(fp, area);
     save_mobiles(fp, area);
     save_objects(fp, area);
     save_rooms(fp, area);
