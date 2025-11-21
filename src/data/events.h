@@ -29,9 +29,12 @@ typedef enum event_trigger_t {
     TRIG_DELAY      = BIT(15),          // O
     TRIG_SURR       = BIT(16),          // P
     TRIG_LOGIN      = BIT(17),          // Q
+    TRIG_GIVEN      = BIT(18),          // R
+    TRIG_TAKEN      = BIT(19),          // S
+    TRIG_DROPPED    = BIT(20),          // T
 } EventTrigger;
 
-#define TRIG_COUNT 18
+#define TRIG_COUNT 21
 
 typedef enum {
     ENT_AREA    = BIT(0),

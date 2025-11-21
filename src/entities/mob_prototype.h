@@ -48,6 +48,7 @@ typedef struct mob_prototype_t {
     int16_t mana[3];
     int16_t damage[3];
     int16_t ac[AC_COUNT];
+    VNUM faction_vnum;
     int16_t group;
     int16_t count;
     int16_t killed;

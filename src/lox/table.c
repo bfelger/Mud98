@@ -11,6 +11,7 @@
 #include "lox/object.h"
 #include "lox/table.h"
 #include "lox/value.h"
+#include "lox/vm.h"
 
 #define TABLE_MAX_LOAD 0.75
 
@@ -286,7 +287,7 @@ void table_remove_white(Table* table)
         Entry* entry = &table->entries[i];
         if (IS_STRING(entry->key)) {
             ObjString* str = AS_STRING(entry->key);
-            if (!str->obj.is_marked && !IS_PERM_STRING(str->chars)) {
+            if (str->obj.mark_id != vm.current_gc_mark && !IS_PERM_STRING(str->chars)) {
                 table_delete(table, AS_STRING(entry->key));
             }
         }

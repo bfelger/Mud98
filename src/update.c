@@ -1,6 +1,6 @@
-/***************************************************************************
+﻿/***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St�rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -46,6 +46,7 @@
 
 #include <entities/descriptor.h>
 #include <entities/event.h>
+#include <entities/faction.h>
 #include <entities/object.h>
 #include <entities/player_data.h>
 
@@ -62,12 +63,12 @@
 #include <time.h>
 
 // Local functions.
-int hit_gain args((Mobile * ch));
-int mana_gain args((Mobile * ch));
-int move_gain args((Mobile * ch));
-void mobile_update args((void));
-void char_update args((void));
-void obj_update args((void));
+int hit_gain(Mobile* ch);
+int mana_gain(Mobile* ch);
+int move_gain(Mobile* ch);
+void mobile_update();
+void char_update();
+void obj_update();
 void aggr_update();
 
 /* used for saving */
@@ -863,13 +864,27 @@ void aggr_update(void)
         Mobile* ch = NULL;
         FOR_EACH_ROOM_MOB(ch, wch->in_room) {
             int count;
+            // TODO: If the player is exalted with an NPC's faction, that NPC
+            // should agress the player's enemies.
+            Faction* faction = get_mob_faction(ch);
+            bool forced_hostile = false;
 
-            if (!IS_NPC(ch) || !IS_SET(ch->act_flags, ACT_AGGRESSIVE)
+            if (faction != NULL && !IS_NPC(wch)) {
+                int standing = faction_get_value(wch, faction, true);
+                if (faction_is_friendly_value(standing))
+                    continue;
+                forced_hostile = faction_is_hostile_value(standing);
+            }
+
+            bool is_aggressive = forced_hostile || IS_SET(ch->act_flags, ACT_AGGRESSIVE);
+
+            if (!IS_NPC(ch) || !is_aggressive
                 || IS_SET(ch->in_room->data->room_flags, ROOM_SAFE)
                 || IS_AFFECTED(ch, AFF_CALM) || ch->fighting != NULL
                 || IS_AFFECTED(ch, AFF_CHARM) || !IS_AWAKE(ch)
-                || (IS_SET(ch->act_flags, ACT_WIMPY) && IS_AWAKE(wch))
-                || !can_see(ch, wch) || number_bits(1) == 0)
+                || (!forced_hostile && IS_SET(ch->act_flags, ACT_WIMPY) && IS_AWAKE(wch))
+                || !can_see(ch, wch)
+                || (!forced_hostile && number_bits(1) == 0))
                 continue;
 
             /*

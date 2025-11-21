@@ -1,6 +1,6 @@
-/***************************************************************************
+﻿/***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St�rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -51,6 +51,7 @@
 
 #include <entities/area.h>
 #include <entities/event.h>
+#include <entities/faction.h>
 #include <entities/descriptor.h>
 #include <entities/room_exit.h>
 #include <entities/mob_prototype.h>
@@ -187,6 +188,7 @@ void boot_db()
     init_table(&global_rooms);
     init_table(&mob_protos);
     init_table(&obj_protos);
+    init_table(&faction_table);
     init_list(&mob_list);
     init_list(&mob_free);
     init_list(&obj_list);
@@ -272,6 +274,8 @@ void boot_db()
                     load_mobprogs(strArea);
                 else if (!str_cmp(word, "OBJECTS"))
                     load_objects(strArea);
+                else if (!str_cmp(word, "FACTIONS"))
+                    load_factions(strArea);
                 else if (!str_cmp(word, "RESETS"))
                     load_resets(strArea);
                 else if (!str_cmp(word, "ROOMS"))
@@ -1989,4 +1993,5 @@ String* lox_string(const char* str)
     gc_protect(OBJ_VAL(obj_str));
     return obj_str;
 }
+
 

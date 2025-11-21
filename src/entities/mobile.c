@@ -67,6 +67,7 @@ Mobile* new_mobile()
         mob->perm_stat[i] = 13;
         mob->mod_stat[i] = 0;
     }
+    mob->faction_vnum = 0;
 
     return mob;
 }
@@ -114,6 +115,7 @@ void clone_mobile(Mobile* parent, Mobile* clone)
     /* start fixing values */
     SET_NAME(clone, NAME_FIELD(parent));
     VNUM_FIELD(clone) = VNUM_FIELD(parent);
+    clone->faction_vnum = parent->faction_vnum;
 
     clone->version = parent->version;
     clone->short_descr = str_dup(parent->short_descr);
@@ -191,6 +193,7 @@ Mobile* create_mobile(MobPrototype* p_mob_proto)
     mob = new_mobile();
 
     mob->prototype = p_mob_proto;
+    mob->faction_vnum = p_mob_proto->faction_vnum;
 
     SET_NAME(mob, NAME_FIELD(p_mob_proto));
     VNUM_FIELD(mob) = VNUM_FIELD(p_mob_proto);
@@ -393,4 +396,5 @@ void clear_mob(Mobile* ch)
         ch->perm_stat[i] = 13;
         ch->mod_stat[i] = 0;
     }
+    ch->faction_vnum = 0;
 }

@@ -166,6 +166,7 @@ void send_to_desc(const char* txt, Descriptor* desc);
 
 extern bool test_output_enabled;
 extern bool test_act_output_enabled;
+extern bool test_socket_output_enabled;
 
 static int running_servers = 0;
 
@@ -1191,8 +1192,13 @@ bust_a_prompt_cleanup:
 // Append onto an output buffer.
 void write_to_buffer(Descriptor* d, const char* txt, size_t length)
 {
-    // Don't try to write to descriptors during unit tests.
-    if (test_output_enabled)
+    // Don't try to write to descriptors during unit tests; but allow for mock
+    // players to receive output.
+    if (test_socket_output_enabled) {
+        lox_printf("%s", txt);
+        return;
+    }
+    else if (test_output_enabled)
         return;
 
     // Find length in case caller didn't.

@@ -20,6 +20,7 @@
 #include <tables.h>
 
 #include <entities/event.h>
+#include <entities/faction.h>
 #include <entities/mob_prototype.h>
 
 #define MEDIT(fun) bool fun( Mobile *ch, char *argument )
@@ -40,6 +41,7 @@ const OlcCmdEntry mob_olc_comm_table[] = {
     { "level",	    U(&xMob.level),		    ed_number_level,    0		        },
     { "align",	    U(&xMob.alignment),	    ed_number_align,	0		        },
     { "group",	    U(&xMob.group),		    ed_olded,		    U(medit_group)	},
+    { "faction",    0,                      ed_olded,          U(medit_faction) },
     { "imm",	    U(&xMob.imm_flags),	    ed_flag_toggle,		U(imm_flag_table)	},
     { "res",	    U(&xMob.res_flags),	    ed_flag_toggle,		U(res_flag_table)	},
     { "vuln",	    U(&xMob.vuln_flags),	ed_flag_toggle,		U(vuln_flag_table)	},
@@ -212,6 +214,21 @@ MEDIT(medit_show)
         !pMob->area ? -1 : VNUM_FIELD(pMob->area),
         !pMob->area ? "No Area" : NAME_STR(pMob->area));
 
+    if (pMob->faction_vnum != 0) {
+        Faction* faction = get_faction(pMob->faction_vnum);
+        if (faction != NULL) {
+            addf_buf(buffer, "Faction:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%" PRVNUM COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "%s" COLOR_EOL,
+                VNUM_FIELD(faction), NAME_STR(faction));
+        }
+        else {
+            addf_buf(buffer, "Faction:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%" PRVNUM COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "Unknown" COLOR_CLEAR COLOR_EOL,
+                pMob->faction_vnum);
+        }
+    }
+    else {
+        add_buf(buffer, "Faction:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "(none)" COLOR_DECOR_1 "]" COLOR_CLEAR COLOR_EOL);
+    }
+
     addf_buf(buffer, "Level:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 "]" COLOR_CLEAR " Sex:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6s" COLOR_DECOR_1 "]" COLOR_CLEAR " Group:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_EOL
         "Align:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 "]" COLOR_CLEAR " Hitroll: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 "]" COLOR_CLEAR " Dam type: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL,
         pMob->level,
@@ -326,6 +343,47 @@ MEDIT(medit_show)
     free_buf(buffer);
 
     return false;
+}
+
+MEDIT(medit_faction)
+{
+    MobPrototype* pMob;
+    char arg[MIL];
+
+    EDIT_MOB(ch, pMob);
+
+    argument = one_argument(argument, arg);
+
+    if (IS_NULLSTR(arg)) {
+        send_to_char(COLOR_INFO "Syntax: faction <vnum|name|none>" COLOR_EOL, ch);
+        return false;
+    }
+
+    if (!str_cmp(arg, "none")) {
+        pMob->faction_vnum = 0;
+        if (pMob->area != NULL)
+            SET_BIT(pMob->area->area_flags, AREA_CHANGED);
+        send_to_char(COLOR_INFO "Faction cleared." COLOR_EOL, ch);
+        return true;
+    }
+
+    Faction* faction = NULL;
+    if (is_number(arg))
+        faction = get_faction((VNUM)atoi(arg));
+    else
+        faction = get_faction_by_name(arg);
+
+    if (faction == NULL) {
+        send_to_char(COLOR_INFO "That faction does not exist." COLOR_EOL, ch);
+        return false;
+    }
+
+    pMob->faction_vnum = VNUM_FIELD(faction);
+    if (pMob->area != NULL)
+        SET_BIT(pMob->area->area_flags, AREA_CHANGED);
+
+    send_to_char(COLOR_INFO "Faction updated." COLOR_EOL, ch);
+    return true;
 }
 
 MEDIT(medit_group)

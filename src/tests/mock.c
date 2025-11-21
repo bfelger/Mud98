@@ -192,8 +192,10 @@ Mobile* mock_player(const char* name)
     Mobile* m = mock_mob(name, 0, NULL);
     m->act_flags = 0;
     m->pcdata = new_player_data();
+    m->pcdata->ch = m;
     m->desc = mock_descriptor();
     m->desc->character = m;
+    REMOVE_BIT(m->act_flags, PLR_COLOUR);
     write_value_array(mocks(), OBJ_VAL(m->pcdata));
     return m;
 }

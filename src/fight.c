@@ -1,6 +1,6 @@
-/***************************************************************************
+﻿/***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St�rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -44,6 +44,7 @@
 
 #include <entities/descriptor.h>
 #include <entities/event.h>
+#include <entities/faction.h>
 #include <entities/object.h>
 #include <entities/player_data.h>
 
@@ -993,6 +994,9 @@ bool is_safe(Mobile* ch, Mobile* victim)
 
     if (IS_IMMORTAL(ch) && ch->level > LEVEL_IMMORTAL) return false;
 
+    if (faction_block_player_attack(ch, victim))
+        return true;
+
     /* killing mobiles */
     if (IS_NPC(victim)) {
         /* safe room? */
@@ -1082,6 +1086,11 @@ bool is_safe_spell(Mobile* ch, Mobile* victim, bool area)
     if (victim->fighting == ch || victim == ch) return false;
 
     if (IS_IMMORTAL(ch) && ch->level > LEVEL_IMMORTAL && !area) return false;
+
+    if (!IS_NPC(ch) && IS_NPC(victim)) {
+        if (faction_block_player_attack(ch, victim))
+            return true;
+    }
 
     /* killing mobiles */
     if (IS_NPC(victim)) {
@@ -1597,6 +1606,8 @@ void group_gain(Mobile* ch, Mobile* victim)
 
         if (!is_same_group(gch, ch) || IS_NPC(gch))
             continue;
+
+        faction_handle_kill(gch, victim);
 
         /*	Taken out, add it back if you want it
                 if ( gch->level - lch->level >= 5 )

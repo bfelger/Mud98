@@ -10,17 +10,27 @@
 
 #include "entity.h"
 
+typedef struct object_t Object;
+typedef struct obj_closure_t ObjClosure;
+
 #include <lox/object.h>
 
 #include <recycle.h>
 
-struct event_t {
+typedef struct event_t {
     Obj obj;
-    Event* next;
+    struct event_t* next;
     FLAGS trigger;
     Value criteria;
     ObjString* method_name;
-};
+} Event;
+
+// Used for delayed events
+typedef struct event_timer_t {
+    struct event_timer_t* next;
+    ObjClosure* closure;
+    int ticks;
+} EventTimer;
 
 Event* new_event();
 void free_event(Event* event);
@@ -42,6 +52,8 @@ extern int event_count;
 extern int event_perm_count;
 extern Event* event_free;
 
+extern EventTimer* event_timers;
+
 // EVENT TRIGGER ROUTINES //////////////////////////////////////////////////////
 
 /* TRIG_ACT     */  void raise_act_event(Entity* receiver, EventTrigger trig_type, Entity* actor, char* msg);
@@ -61,5 +73,8 @@ extern Event* event_free;
 /* TRIG_DELAY   */  // not implemented in Mud98 events; MobProgs only
 /* TRIG_SURR    */  bool raise_surrender_event(Mobile* ch, Mobile* mob, int pct_chance);
 /* TRIG_LOGIN   */  void raise_login_event(Mobile* ch);
+/* TRIG_GIVEN   */  void raise_object_given_event(Object* obj, Mobile* giver, Mobile* taker);
+/* TRIG_TAKEN   */  void raise_object_taken_event(Object* obj, Mobile* taker);
+/* TRIG_DROPPED */  void raise_object_dropped_event(Object* obj, Mobile* dropper);
 
 #endif // !MUD98__ENTITIES__EVENT_H

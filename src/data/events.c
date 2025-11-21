@@ -26,6 +26,9 @@ const EventTypeInfo event_type_info_table[TRIG_COUNT] = {
     { TRIG_DELAY,       "delay",    "on_delay",     ENT_MOB,    CRIT_INT,       "1"     },
     { TRIG_SURR,        "surr",     "on_surr",      ENT_MOB,    CRIT_INT,       "100"   },
     { TRIG_LOGIN,       "login",    "on_login",     ENT_ROOM,   CRIT_NONE,      0       },
+    { TRIG_GIVEN,       "given",    "on_given",     ENT_OBJ,    CRIT_NONE,      0       },
+    { TRIG_TAKEN,       "taken",    "on_taken",     ENT_OBJ,    CRIT_NONE,      0       },
+    { TRIG_DROPPED,     "dropped",  "on_dropped",   ENT_OBJ,    CRIT_NONE,      0       },
 };
 
 EventEnts get_entity_type(Entity* entity)

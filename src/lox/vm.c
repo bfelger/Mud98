@@ -156,6 +156,7 @@ void init_vm()
     vm.gray_count = 0;
     vm.gray_capacity = 0;
     vm.gray_stack = NULL;
+    vm.current_gc_mark = 0;
 
     init_table(&vm.globals);
     init_table(&vm.strings);
@@ -1251,6 +1252,8 @@ InterpretResult call_function(const char* fn_name, int count, ...)
         return INTERPRET_RUNTIME_ERROR;
     }
 
+    Value* saved_stack_top = vm.stack_top;
+
     push(OBJ_VAL(value));
     ObjClosure* closure = AS_CLOSURE(value);
 
@@ -1261,15 +1264,16 @@ InterpretResult call_function(const char* fn_name, int count, ...)
 
     va_end(args);
 
+    InterpretResult rc;
+
     if (!call_closure(closure, count)) {
+        vm.stack_top = saved_stack_top;
         return INTERPRET_RUNTIME_ERROR;
     }
 
-    InterpretResult rc = run();
+    rc = run();
 
-    // This is the top-level stack frame; the result and last operand have
-    // already been popped, and no return value is possible.
-    vm.stack_top -= count; 
+    vm.stack_top = saved_stack_top;
 
     return rc;
 }
@@ -1277,6 +1281,8 @@ InterpretResult call_function(const char* fn_name, int count, ...)
 InterpretResult invoke_closure(ObjClosure* closure, int count, ...)
 {
     va_list args;
+
+    Value* saved_stack_top = vm.stack_top;
 
     push(OBJ_VAL(closure));
 
@@ -1287,15 +1293,16 @@ InterpretResult invoke_closure(ObjClosure* closure, int count, ...)
 
     va_end(args);
 
+    InterpretResult rc;
+
     if (!call_closure(closure, count)) {
+        vm.stack_top = saved_stack_top;
         return INTERPRET_RUNTIME_ERROR;
     }
 
-    InterpretResult rc = run();
+    rc = run();
 
-    // This is the top-level stack frame; the result and last operand have
-    // already been popped, and no return value is possible.
-    vm.stack_top -= count;
+    vm.stack_top = saved_stack_top;
 
     return rc;
 }
@@ -1324,10 +1331,6 @@ void invoke_method_closure(Value receiver, ObjClosure* closure, int count, ...)
 
     if (rc != INTERPRET_OK)
         bugf("invoke_method_closure(): Error invoking method closure '%s'.\n", closure->function->name->chars);
-
-    // This is the top-level stack frame; the result and last operand have
-    // already been popped, and no return value is possible.
-    vm.stack_top -= count + 1;
 }
 
 // Called from entities

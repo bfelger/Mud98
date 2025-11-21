@@ -1,6 +1,6 @@
-/***************************************************************************
+﻿/***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik St�rfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -44,6 +44,7 @@
 
 #include <entities/descriptor.h>
 #include <entities/event.h>
+#include <entities/faction.h>
 #include <entities/object.h>
 #include <entities/player_data.h>
 
@@ -186,6 +187,7 @@ void get_obj(Mobile* ch, Object* obj, Object* container)
     }
     else {
         obj_to_char(obj, ch);
+        raise_object_taken_event(obj, ch);
     }
 
     return;
@@ -537,6 +539,7 @@ void do_drop(Mobile* ch, char* argument)
 
         obj_from_char(obj);
         obj_to_room(obj, ch->in_room);
+        raise_object_dropped_event(obj, ch);
         act("$n drops $p.", ch, obj, NULL, TO_ROOM);
         act("You drop $p.", ch, obj, NULL, TO_CHAR);
         if (IS_OBJ_STAT(obj, ITEM_MELT_DROP)) {
@@ -555,6 +558,7 @@ void do_drop(Mobile* ch, char* argument)
                 found = true;
                 obj_from_char(obj);
                 obj_to_room(obj, ch->in_room);
+                raise_object_dropped_event(obj, ch);
                 act("$n drops $p.", ch, obj, NULL, TO_ROOM);
                 act("You drop $p.", ch, obj, NULL, TO_CHAR);
                 if (IS_OBJ_STAT(obj, ITEM_MELT_DROP)) {
@@ -738,6 +742,8 @@ void do_give(Mobile* ch, char* argument)
     act("$n gives you $p.", ch, obj, victim, TO_VICT);
     act("You give $p to $N.", ch, obj, victim, TO_CHAR);
     events_enabled = true;
+
+    raise_object_given_event(obj, ch, victim);
 
     // Give trigger
     if (IS_NPC(victim) && HAS_MPROG_TRIGGER(victim, TRIG_GIVE))
@@ -2066,6 +2072,9 @@ Mobile* find_keeper(Mobile* ch)
         do_function(keeper, &do_say, "I don't trade with folks I can't see.");
         return NULL;
     }
+
+    if (faction_block_shopkeeper(keeper, ch))
+        return NULL;
 
     return keeper;
 }

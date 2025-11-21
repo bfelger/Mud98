@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
  *  Michael Seifert, Hans Henrik St�rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
@@ -43,6 +43,7 @@
 
 #include <entities/descriptor.h>
 #include <entities/object.h>
+#include <entities/faction.h>
 
 #include <data/mobile_data.h>
 #include <data/player.h>
@@ -269,6 +270,15 @@ void fwrite_char(Mobile* ch, FILE* fp)
 
             fprintf(fp, "Alias %s %s~\n", ch->pcdata->alias[pos],
                     ch->pcdata->alias_sub[pos]);
+        }
+
+        FactionReputationList* reps = &ch->pcdata->reputations;
+        if (reps->entries != NULL) {
+            for (size_t rep = 0; rep < reps->count; ++rep) {
+                FactionReputation* entry = &reps->entries[rep];
+                if (entry->vnum != 0)
+                    fprintf(fp, "Faction %" PRVNUM " %d\n", entry->vnum, entry->value);
+            }
         }
 
         for (sn = 0; sn < skill_count; sn++) {
@@ -933,6 +943,16 @@ void fread_char(Mobile* ch, FILE* fp)
                 return;
             }
             KEY("Exp", ch->exp, fread_number(fp));
+            break;
+
+        case 'F':
+            if (!str_cmp(word, "Faction")) {
+                VNUM faction_vnum = fread_number(fp);
+                int value = fread_number(fp);
+                faction_set(ch->pcdata, faction_vnum, value);
+                fMatch = true;
+                break;
+            }
             break;
 
         case 'G':

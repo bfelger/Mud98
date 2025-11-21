@@ -4,6 +4,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "event.h"
+#include "object.h"
 
 #include <comm.h>
 #include <db.h>
@@ -21,15 +22,6 @@
 int event_count = 0;
 int event_perm_count = 0;
 Event* event_free = NULL;
-
-typedef struct event_timer_t EventTimer;
-
-// Used for delayed events
-struct event_timer_t {
-    EventTimer* next;
-    ObjClosure* closure;
-    int ticks;
-};
 
 int event_timer_count;
 int event_timer_perm_count;
@@ -630,4 +622,62 @@ void raise_login_event(Mobile* ch)
 
     // Invoke the closure with the room and character as parameters
     invoke_method_closure(OBJ_VAL(ch->in_room), closure, 1, OBJ_VAL(ch));
+}
+
+void raise_object_given_event(Object* obj, Mobile* giver, Mobile* taker)
+{
+    if (obj == NULL || giver == NULL || taker == NULL)
+        return;
+
+    if (!HAS_EVENT_TRIGGER(obj, TRIG_GIVEN))
+        return;
+
+    Event* event = get_event_by_trigger((Entity*)obj, TRIG_GIVEN);
+    if (event == NULL)
+        return;
+
+    ObjClosure* closure = get_event_closure((Entity*)obj, event);
+    if (closure == NULL)
+        return;
+
+    invoke_method_closure(OBJ_VAL(obj), closure, 2, OBJ_VAL(giver),
+        OBJ_VAL(taker));
+}
+
+void raise_object_taken_event(Object* obj, Mobile* taker)
+{
+    if (obj == NULL || taker == NULL)
+        return;
+
+    if (!HAS_EVENT_TRIGGER(obj, TRIG_TAKEN))
+        return;
+
+    Event* event = get_event_by_trigger((Entity*)obj, TRIG_TAKEN);
+    if (event == NULL)
+        return;
+
+    ObjClosure* closure = get_event_closure((Entity*)obj, event);
+    if (closure == NULL)
+        return;
+
+    invoke_method_closure(OBJ_VAL(obj), closure, 1, OBJ_VAL(taker));
+}
+
+void raise_object_dropped_event(Object* obj, Mobile* dropper)
+{
+    if (obj == NULL || dropper == NULL)
+        return;
+
+    if (!HAS_EVENT_TRIGGER(obj, TRIG_DROPPED))
+        return;
+
+    Event* event = get_event_by_trigger((Entity*)obj, TRIG_DROPPED);
+    if (event == NULL)
+        return;
+
+    ObjClosure* closure = get_event_closure((Entity*)obj, event);
+    if (closure == NULL)
+        return;
+
+    invoke_method_closure(OBJ_VAL(obj), closure, 1, OBJ_VAL(dropper));
 }
