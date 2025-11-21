@@ -9,6 +9,7 @@
 #include <comm.h>
 
 #include <entities/area.h>
+#include <entities/faction.h>
 #include <entities/entity.h>
 #include <entities/mobile.h>
 #include <entities/object.h>
@@ -106,21 +107,26 @@ static Value echo_lox(Value receiver, int arg_count, Value* args)
 }
 
 const NativeMethodEntry native_method_entries[] = {
-    { "can_finish_quest",   can_finish_quest_lox},
-    { "can_quest",          can_quest_lox       },
-    { "echo",               echo_lox            },
-    { "finish_quest",       finish_quest_lox    },
-    { "grant_quest",        grant_quest_lox     },
-    { "has_quest",          has_quest_lox       },
-    { "is_area",            is_area_lox         },
-    { "is_area_data",       is_area_data_lox    },
-    { "is_mob",             is_mob_lox          },
-    { "is_mob_proto",       is_mob_proto_lox    },
-    { "is_obj",             is_obj_lox          },
-    { "is_obj_proto",       is_obj_proto_lox    },
-    { "is_room",            is_room_lox         },
-    { "is_room_data",       is_room_data_lox    },
-    { "send",               send_lox            },
-    { "say",                say_lox             },
-    { NULL,                 NULL                },
+    { "is_area",            is_area_lox                     },
+    { "is_area_data",       is_area_data_lox                },
+    { "is_mob",             is_mob_lox                      },
+    { "is_mob_proto",       is_mob_proto_lox                },
+    { "is_obj",             is_obj_lox                      },
+    { "is_obj_proto",       is_obj_proto_lox                },
+    { "is_room",            is_room_lox                     },
+    { "is_room_data",       is_room_data_lox                },
+    { "can_finish_quest",   can_finish_quest_lox            },
+    { "can_quest",          can_quest_lox                   },
+    { "finish_quest",       finish_quest_lox                },
+    { "grant_quest",        grant_quest_lox                 },
+    { "has_quest",          has_quest_lox                   },
+    { "echo",               echo_lox                        },
+    { "send",               send_lox                        },
+    { "say",                say_lox                         },
+    { "get_reputation",     faction_get_reputation_lox      },
+    { "adjust_reputation",  faction_adjust_reputation_lox   },
+    { "set_reputation",     faction_set_reputation_lox      },
+    { "is_enemy",           faction_is_enemy_lox            },
+    { "is_ally",            faction_is_ally_lox             },
+    { NULL,                 NULL                            },
 };

@@ -45,6 +45,8 @@ typedef enum faction_standing_t {
 
 extern Table faction_table;
 
+void init_faction_consts();
+
 Faction* faction_create(VNUM vnum);
 Faction* get_faction(VNUM vnum);
 Faction* get_faction_by_name(const char* name);
@@ -61,7 +63,7 @@ int faction_clamp_value(int value);
 bool faction_is_friendly_value(int value);
 bool faction_is_hostile_value(int value);
 
-int faction_get_value(Mobile* ch, Faction* faction, bool touch);
+int faction_get_standing(Mobile* ch, Faction* faction, bool touch);
 void faction_touch(Mobile* ch, Faction* faction);
 void faction_adjust(Mobile* ch, Faction* faction, int delta);
 void faction_set(PlayerData* pcdata, VNUM vnum, int value);
@@ -76,5 +78,11 @@ bool faction_remove_ally(Faction* faction, VNUM ally_vnum);
 bool faction_add_enemy(Faction* faction, VNUM enemy_vnum);
 bool faction_remove_enemy(Faction* faction, VNUM enemy_vnum);
 void faction_delete(Faction* faction);
+
+Value faction_get_reputation_lox(Value receiver, int arg_count, Value* args);
+Value faction_adjust_reputation_lox(Value receiver, int arg_count, Value* args);
+Value faction_set_reputation_lox(Value receiver, int arg_count, Value* args);
+Value faction_is_enemy_lox(Value receiver, int arg_count, Value* args);
+Value faction_is_ally_lox(Value receiver, int arg_count, Value* args);
 
 #endif // !MUD98__ENTITIES__FACTION_H

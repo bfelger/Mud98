@@ -870,7 +870,7 @@ void aggr_update(void)
             bool forced_hostile = false;
 
             if (faction != NULL && !IS_NPC(wch)) {
-                int standing = faction_get_value(wch, faction, true);
+                int standing = faction_get_standing(wch, faction, true);
                 if (faction_is_friendly_value(standing))
                     continue;
                 forced_hostile = faction_is_hostile_value(standing);

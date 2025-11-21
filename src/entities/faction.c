@@ -53,6 +53,39 @@ static FactionLevelInfo faction_levels[FACTION_STANDING_COUNT] = {
     { FACTION_STANDING_EXALTED,     42000,          FACTION_REP_MAX,"Exalted"   },
 };
 
+// Initialize faction-related constants in the Lox VM
+// Allows Lox scripts to refer to faction standings by name, but also allows for
+// easy catch-all comparisons using the integer values.
+// For example:
+//    if (player.get_reputation(faction) >= Reputation.Friendly) {
+void init_faction_consts()
+{
+    static char* rep_start =
+        "enum Reputation { ";
+
+    static char* rep_end =
+        "}";
+
+    INIT_BUF(src, MSL);
+
+    add_buf(src, rep_start);
+
+    for (int i = 0; i < FACTION_STANDING_COUNT; ++i) {
+        addf_buf(src, "       %s = %d,", pascal_case(faction_levels[i].name),
+            (faction_levels[i].standing >= FACTION_STANDING_NEUTRAL) 
+                ? faction_levels[i].min_value : faction_levels[i].max_value);
+    }
+
+    add_buf(src, rep_end);
+
+    InterpretResult result = interpret_code(src->string);
+
+    if (result == INTERPRET_COMPILE_ERROR) exit(65);
+    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+
+    free_buf(src);
+}
+
 static Faction* new_faction()
 {
     LIST_ALLOC_PERM(faction, Faction);
@@ -65,6 +98,10 @@ static Faction* new_faction()
     init_value_array(&faction->allies);
     init_value_array(&faction->enemies);
     faction->default_standing = 0;
+
+    SET_LOX_FIELD(&faction->header, faction->area, area);
+    SET_LOX_FIELD(&faction->header, &faction->allies, allies);
+    SET_LOX_FIELD(&faction->header, &faction->enemies, enemies);
 
     return faction;
 }
@@ -243,7 +280,7 @@ static int get_default_standing(Faction* faction)
     return clamp_value(faction->default_standing);
 }
 
-int faction_get_value(Mobile* ch, Faction* faction, bool touch)
+int faction_get_standing(Mobile* ch, Faction* faction, bool touch)
 {
     if (ch == NULL || IS_NPC(ch) || faction == NULL)
         return 0;
@@ -419,7 +456,7 @@ bool faction_block_player_attack(Mobile* ch, Mobile* victim)
     if (faction == NULL)
         return false;
 
-    int value = faction_get_value(ch, faction, true);
+    int value = faction_get_standing(ch, faction, true);
     if (!faction_is_friendly_value(value))
         return false;
 
@@ -449,7 +486,7 @@ bool faction_block_shopkeeper(Mobile* keeper, Mobile* ch)
     if (faction == NULL)
         return false;
 
-    int value = faction_get_value(ch, faction, true);
+    int value = faction_get_standing(ch, faction, true);
     if (value >= 0)
         return false;
 
@@ -599,4 +636,271 @@ void faction_delete(Faction* faction)
     free_list(&faction->header.events);
 
     LIST_FREE(faction);
+}
+
+// LOX IMPLEMENTATION///////////////////////////////////////////////////////////
+
+Value faction_get_reputation_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count != 1) {
+        runtime_error("get_reputation expects 1 argument (faction)");
+        return NIL_VAL;
+    }
+
+    if (!IS_MOBILE(receiver)) {
+        runtime_error("get_reputation can only be called on Mobile objects");
+        return NIL_VAL;
+    }
+
+    Mobile* ch = AS_MOBILE(receiver);
+    if (IS_NPC(ch)) {
+        runtime_error("get_reputation can only be called on player characters");
+        return NIL_VAL;
+    }
+
+    if (IS_STRING(args[0])) {
+        const char* faction_name = AS_STRING(args[0])->chars;
+        Faction* faction = get_faction_by_name(faction_name);
+        if (faction == NULL) {
+            runtime_error("No faction found with name '%s'", faction_name);
+            return NIL_VAL;
+        }
+        int value = faction_get_standing(ch, faction, true);
+        return INT_VAL(value);
+    }
+
+    if (IS_INT(args[0])) {
+        VNUM faction_vnum = (VNUM)AS_INT(args[0]);
+        Faction* faction = get_faction(faction_vnum);
+        if (faction == NULL) {
+            runtime_error("No faction found with vnum %" PRVNUM, faction_vnum);
+            return NIL_VAL;
+        }
+        int value = faction_get_standing(ch, faction, true);
+        return INT_VAL(value);
+    }
+
+    if (!IS_FACTION(args[0])) {
+        runtime_error("get_reputation expects a Faction as its argument");
+        return NIL_VAL;
+    }
+
+    Faction* faction = AS_FACTION(args[0]);
+    int value = faction_get_standing(ch, faction, true);
+    return INT_VAL(value);
+}
+
+Value faction_adjust_reputation_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count != 2) {
+        runtime_error("adjust_reputation expects 2 arguments (faction, delta)");
+        return NIL_VAL;
+    }
+
+    if (!IS_MOBILE(receiver)) {
+        runtime_error("adjust_reputation can only be called on Mobile objects");
+        return NIL_VAL;
+    }
+
+    Mobile* ch = AS_MOBILE(receiver);
+    if (IS_NPC(ch)) {
+        runtime_error("adjust_reputation can only be called on player characters");
+        return NIL_VAL;
+    }
+
+    Faction* faction = NULL;
+    if (IS_STRING(args[0])) {
+        const char* faction_name = AS_STRING(args[0])->chars;
+        faction = get_faction_by_name(faction_name);
+        if (faction == NULL) {
+            runtime_error("No faction found with name '%s'", faction_name);
+            return NIL_VAL;
+        }
+    }
+    else if (IS_INT(args[0])) {
+        VNUM faction_vnum = (VNUM)AS_INT(args[0]);
+        faction = get_faction(faction_vnum);
+        if (faction == NULL) {
+            runtime_error("No faction found with vnum %" PRVNUM, faction_vnum);
+            return NIL_VAL;
+        }
+    }
+    else if (IS_FACTION(args[0])) {
+        faction = AS_FACTION(args[0]);
+    }
+    else {
+        runtime_error("adjust_reputation expects a Faction as its first argument");
+        return NIL_VAL;
+    }
+
+    if (!IS_INT(args[1])) {
+        runtime_error("adjust_reputation expects an integer delta as its second argument");
+        return NIL_VAL;
+    }
+
+    int delta = AS_INT(args[1]);
+    faction_adjust(ch, faction, delta);
+    return NIL_VAL;
+}
+
+Value faction_set_reputation_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count != 2) {
+        runtime_error("set_reputation expects 2 arguments (faction, value)");
+        return NIL_VAL;
+    }
+
+    if (!IS_MOBILE(receiver)) {
+        runtime_error("set_reputation can only be called on Mobile objects");
+        return NIL_VAL;
+    }
+
+    Mobile* ch = AS_MOBILE(receiver);
+    if (IS_NPC(ch)) {
+        runtime_error("set_reputation can only be called on player characters");
+        return NIL_VAL;
+    }
+
+    Faction* faction = NULL;
+    if (IS_STRING(args[0])) {
+        const char* faction_name = AS_STRING(args[0])->chars;
+        faction = get_faction_by_name(faction_name);
+        if (faction == NULL) {
+            runtime_error("No faction found with name '%s'", faction_name);
+            return NIL_VAL;
+        }
+    }
+    else if (IS_INT(args[0])) {
+        VNUM faction_vnum = (VNUM)AS_INT(args[0]);
+        faction = get_faction(faction_vnum);
+        if (faction == NULL) {
+            runtime_error("No faction found with vnum %" PRVNUM, faction_vnum);
+            return NIL_VAL;
+        }
+    }
+    else if (IS_FACTION(args[0])) {
+        faction = AS_FACTION(args[0]);
+    }
+    else {
+        runtime_error("set_reputation expects a Faction as its first argument");
+        return NIL_VAL;
+    }
+
+    if (!IS_INT(args[1])) {
+        runtime_error("set_reputation expects an integer value as its second argument");
+        return NIL_VAL;
+    }
+
+    int value = AS_INT(args[1]);
+    faction_set(ch->pcdata, VNUM_FIELD(faction), value);
+    return NIL_VAL;
+}
+
+// Compare two NPC Mobiles or Factions to see if they are enemeies
+Value faction_is_enemy_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count != 1) {
+        runtime_error("is_enemy expects 1 argument (Faction or NPC Mobile)");
+        return NIL_VAL;
+    }
+
+    Faction* faction1 = NULL;
+    if (IS_MOBILE(receiver) && IS_NPC(AS_MOBILE(receiver))) {
+        Mobile* mob1 = AS_MOBILE(receiver);
+        faction1 = get_mob_faction(mob1);
+    }
+    else if (IS_FACTION(receiver)) {
+        faction1 = AS_FACTION(receiver);
+    }
+    else {
+        runtime_error("is_enemy can only be called on NPC Mobile or Faction objects");
+        return NIL_VAL;
+    }
+
+    Faction* faction2 = NULL;
+    if (IS_MOBILE(args[0]) && IS_NPC(AS_MOBILE(args[0]))) {
+        Mobile* mob2 = AS_MOBILE(args[0]);
+        faction2 = get_mob_faction(mob2);
+    }
+    else if (IS_FACTION(args[0])) {
+        faction2 = AS_FACTION(args[0]);
+    }
+    else {
+        runtime_error("is_enemy expects a NPC Mobile or Faction as its argument");
+        return NIL_VAL;
+    }
+
+    if (faction1 == NULL || faction2 == NULL) {
+        return BOOL_VAL(false);
+    }
+    // Check if faction1 considers faction2 an enemy
+    for (int i = 0; i < faction1->enemies.count; ++i) {
+        Value entry = faction1->enemies.values[i];
+        if (IS_INT(entry) && (VNUM)AS_INT(entry) == VNUM_FIELD(faction2)) {
+            return BOOL_VAL(true);
+        }
+    }
+    // Check if faction2 considers faction1 an enemy
+    for (int i = 0; i < faction2->enemies.count; ++i) {
+        Value entry = faction2->enemies.values[i];
+        if (IS_INT(entry) && (VNUM)AS_INT(entry) == VNUM_FIELD(faction1)) {
+            return BOOL_VAL(true);
+        }
+    }
+    return BOOL_VAL(false);
+}
+
+Value faction_is_ally_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count != 1) {
+        runtime_error("is_ally expects 1 argument (Faction or NPC Mobile)");
+        return NIL_VAL;
+    }
+
+    Faction* faction1 = NULL;
+    if (IS_MOBILE(receiver) && IS_NPC(AS_MOBILE(receiver))) {
+        Mobile* mob1 = AS_MOBILE(receiver);
+        faction1 = get_mob_faction(mob1);
+    }
+    else if (IS_FACTION(receiver)) {
+        faction1 = AS_FACTION(receiver);
+    }
+    else {
+        runtime_error("is_ally can only be called on NPC Mobile or Faction objects");
+        return NIL_VAL;
+    }
+
+    Faction* faction2 = NULL;
+    if (IS_MOBILE(args[0]) && IS_NPC(AS_MOBILE(args[0]))) {
+        Mobile* mob2 = AS_MOBILE(args[0]);
+        faction2 = get_mob_faction(mob2);
+    }
+    else if (IS_FACTION(args[0])) {
+        faction2 = AS_FACTION(args[0]);
+    }
+    else {
+        runtime_error("is_ally expects a NPC Mobile or Faction as its argument");
+        return NIL_VAL;
+    }
+    if (faction1 == NULL || faction2 == NULL) {
+        return BOOL_VAL(false);
+    }
+
+    // Check if faction1 considers faction2 an ally
+    for (int i = 0; i < faction1->allies.count; ++i) {
+        Value entry = faction1->allies.values[i];
+        if (IS_INT(entry) && (VNUM)AS_INT(entry) == VNUM_FIELD(faction2)) {
+            return BOOL_VAL(true);
+        }
+    }
+
+    // Check if faction2 considers faction1 an ally
+    for (int i = 0; i < faction2->allies.count; ++i) {
+        Value entry = faction2->allies.values[i];
+        if (IS_INT(entry) && (VNUM)AS_INT(entry) == VNUM_FIELD(faction1)) {
+            return BOOL_VAL(true);
+        }
+    }
+
+    return BOOL_VAL(false);
 }

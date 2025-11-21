@@ -11,6 +11,8 @@
 
 #include <data/damage.h>
 
+#include <entities/faction.h>
+
 #include <db.h>
 
 extern Table global_const_table;
@@ -72,6 +74,7 @@ void init_const_natives()
             native_method_entries[i].method);
 
     init_damage_consts();
+    init_faction_consts();
 }
 
 void init_world_natives()
