@@ -106,13 +106,15 @@ void fread_obj(Mobile* ch, FILE* fp);
 void fread_theme(Mobile* ch, FILE* fp);
 void fread_quests(Mobile* ch, FILE* fp);
 
+extern bool test_output_enabled;
+
 void save_char_obj(Mobile* ch)
 {
     char strsave[MAX_INPUT_LENGTH];
     char strsavetemp[MAX_INPUT_LENGTH];
     FILE* fp;
 
-    if (IS_NPC(ch)) 
+    if (IS_NPC(ch) || test_output_enabled)
         return;
 
     if (ch->desc != NULL && ch->desc->original != NULL) 

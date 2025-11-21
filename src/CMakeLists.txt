@@ -205,7 +205,7 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "tests/lox_tests.h" "tests/lox_tests.c" "tests/lox_ext_tests.c"
     "tests/entity_tests.c" "tests/container_tests.c" "tests/act_tests.c" 
     "tests/event_tests.c" "tests/faction_tests.c" "tests/money_tests.c"
-    "tests/fmt_tests.c" "tests/util_tests.c" 
+    "tests/quest_tests.c" "tests/fmt_tests.c" "tests/util_tests.c" 
 
     "benchmarks/benchmarks.h" "benchmarks/benchmarks.c" 
     "benchmarks/container_benchmarks.c" "benchmarks/format_benchmarks.c"
