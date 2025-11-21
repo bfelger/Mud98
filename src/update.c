@@ -428,13 +428,18 @@ void mobile_update()
 
         if (ch->prototype->pShop != NULL) { /* give him some coin */
             long current = mobile_total_copper(ch);
-            long target = (long)ch->prototype->wealth * COPPER_PER_SILVER;
+            long target = (long)ch->prototype->wealth;
             if (current < target) {
-                int16_t gold_gain = (int16_t)(ch->prototype->wealth * number_range(1, 20) / 5000000);
-                int16_t silver_gain = (int16_t)(ch->prototype->wealth * number_range(1, 20) / 50000);
+                long wealth_silver = ch->prototype->wealth / COPPER_PER_SILVER;
+                int16_t gold_gain = (int16_t)(wealth_silver * number_range(1, 20) / 5000000);
+                int16_t silver_gain = (int16_t)(wealth_silver * number_range(1, 20) / 50000);
                 long addition = convert_money_to_copper(gold_gain, silver_gain, 0);
-                if (addition > 0)
-                    mobile_set_money_from_copper(ch, current + addition);
+                if (addition <= 0)
+                    addition = 1;
+                long new_total = current + addition;
+                if (new_total > target)
+                    new_total = target;
+                mobile_set_money_from_copper(ch, new_total);
             }
         }
 

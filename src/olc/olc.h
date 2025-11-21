@@ -248,6 +248,7 @@ DECLARE_OLC_FUN(oedit_copy);
 DECLARE_OLC_FUN(medit_show);
 DECLARE_OLC_FUN(medit_group);
 DECLARE_OLC_FUN(medit_copy);
+DECLARE_OLC_FUN(medit_wealth);
 DECLARE_OLC_FUN(medit_faction);
 
 // Race editor.

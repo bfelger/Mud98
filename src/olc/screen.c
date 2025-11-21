@@ -38,6 +38,16 @@ char* clan2str(void* point)
     return clan_table[clan].name;
 }
 
+char* wealth2str(void* point)
+{
+    static char buf[64];
+    int wealth = *(int*)point;
+    int16_t gold = 0, silver = 0, copper = 0;
+    convert_copper_to_money(wealth, &gold, &silver, &copper);
+    format_money_string(buf, sizeof(buf), gold, silver, copper, true);
+    return buf;
+}
+
 char* extradescr2str(void* point)
 {
     static	char buf[MIL];
@@ -365,8 +375,8 @@ const struct olc_show_table_type medit_olc_show_table[] =
         27, 3, 10, 1, 1, 0
     },
     {
-        "wealth", U(&xMob.wealth), "$:", OLCS_INT,
-        43, 3, 6, 1, 1, 0
+        "wealth", U(&xMob.wealth), "$:", OLCS_STRFUNC,
+        43, 3, 12, 1, 1, U(wealth2str)
     },
     {
         "start_pos", U(&xMob.start_pos), "Pos start:", OLCS_STRFUNC,

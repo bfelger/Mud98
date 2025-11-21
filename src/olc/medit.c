@@ -4,6 +4,8 @@
 
 #include <merc.h>
 
+#include <limits.h>
+
 #include "bit.h"
 #include "event_edit.h"
 #include "lox_edit.h"
@@ -65,7 +67,7 @@ const OlcCmdEntry mob_olc_comm_table[] = {
     { "manadice",	U(&xMob.mana[0]),		ed_dice,		    0		        },
     { "damdice",	U(&xMob.damage[0]),	    ed_dice,		    0		        },
     { "hitroll",	U(&xMob.hitroll),		ed_number_s_pos,	0		        },
-    { "wealth",	    U(&xMob.wealth),		ed_number_l_pos,	0		        },
+    { "wealth",	    0,                      ed_olded,           U(medit_wealth)  },
     { "addprog",	U(&xMob.mprogs),		ed_addprog,		    0		        },
     { "delprog",	U(&xMob.mprogs),		ed_delprog,		    0		        },
     { "mshow",	    0,				        ed_olded,		    U(medit_show)	},
@@ -217,11 +219,11 @@ MEDIT(medit_show)
     if (pMob->faction_vnum != 0) {
         Faction* faction = get_faction(pMob->faction_vnum);
         if (faction != NULL) {
-            addf_buf(buffer, "Faction:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%" PRVNUM COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "%s" COLOR_EOL,
+            addf_buf(buffer, "Faction:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6" PRVNUM COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "%s" COLOR_EOL,
                 VNUM_FIELD(faction), NAME_STR(faction));
         }
         else {
-            addf_buf(buffer, "Faction:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%" PRVNUM COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "Unknown" COLOR_CLEAR COLOR_EOL,
+            addf_buf(buffer, "Faction:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6d" PRVNUM COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "Unknown" COLOR_CLEAR COLOR_EOL,
                 pMob->faction_vnum);
         }
     }
@@ -261,8 +263,14 @@ MEDIT(medit_show)
         position_table[pMob->start_pos].name,
         position_table[pMob->default_pos].name);
 
-    addf_buf(buffer, "Wealth:      " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_EOL,
-        pMob->wealth);
+    {
+        int16_t wealth_gold = 0, wealth_silver = 0, wealth_copper = 0;
+        convert_copper_to_money(pMob->wealth, &wealth_gold, &wealth_silver, &wealth_copper);
+        char wealth_desc[64];
+        format_money_string(wealth_desc, sizeof(wealth_desc), wealth_gold, wealth_silver, wealth_copper, false);
+        addf_buf(buffer, "Wealth:      " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%7d cp" COLOR_DECOR_1 "]" COLOR_CLEAR " " COLOR_ALT_TEXT_2 "%s" COLOR_EOL,
+            pMob->wealth, wealth_desc);
+    }
 
     addf_buf(buffer, "Armor:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_2 "pierce: " COLOR_ALT_TEXT_1 "%d" COLOR_ALT_TEXT_2 "  bash: " COLOR_ALT_TEXT_1 "%d" COLOR_ALT_TEXT_2 "  slash: " COLOR_ALT_TEXT_1 "%d" COLOR_ALT_TEXT_2 "  magic: " COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL,
         pMob->ac[AC_PIERCE], pMob->ac[AC_BASH],
@@ -337,12 +345,67 @@ MEDIT(medit_show)
     send_to_char(BUF(buffer), ch);
 
     Entity* entity = &pMob->header;
-    olc_display_events(ch, entity);
     olc_display_lox_info(ch, entity);
+    olc_display_events(ch, entity);
 
     free_buf(buffer);
 
     return false;
+}
+
+MEDIT(medit_wealth)
+{
+    MobPrototype* pMob;
+    char amount_arg[MIL];
+    char unit_arg[MIL];
+
+    EDIT_MOB(ch, pMob);
+
+    argument = one_argument(argument, amount_arg);
+    argument = one_argument(argument, unit_arg);
+
+    if (IS_NULLSTR(amount_arg)) {
+        send_to_char(COLOR_INFO "Syntax: wealth <amount> [cp|sp|gp]" COLOR_EOL, ch);
+        return false;
+    }
+
+    if (!is_number(amount_arg)) {
+        send_to_char(COLOR_INFO "ERROR: Amount must be numeric." COLOR_EOL, ch);
+        return false;
+    }
+
+    long amount = atol(amount_arg);
+    if (amount < 0) {
+        send_to_char(COLOR_INFO "ERROR: Amount must be non-negative." COLOR_EOL, ch);
+        return false;
+    }
+
+    long multiplier = 1;
+    if (!IS_NULLSTR(unit_arg)) {
+        MoneyType money_type;
+        if (!parse_money_type(unit_arg, &money_type)) {
+            send_to_char(COLOR_INFO "ERROR: Unit must be cp, sp, or gp." COLOR_EOL, ch);
+            return false;
+        }
+        multiplier = money_type_value(money_type);
+    }
+
+    long total = amount * multiplier;
+    if (total > INT_MAX) {
+        send_to_char(COLOR_INFO "ERROR: Amount is too large." COLOR_EOL, ch);
+        return false;
+    }
+
+    pMob->wealth = (int)total;
+
+    int16_t gold = 0, silver = 0, copper = 0;
+    convert_copper_to_money(pMob->wealth, &gold, &silver, &copper);
+    char wealth_desc[64];
+    format_money_string(wealth_desc, sizeof(wealth_desc), gold, silver, copper, false);
+    printf_to_char(ch, COLOR_INFO "Wealth set to " COLOR_ALT_TEXT_1 "%d cp" COLOR_INFO " (%s)." COLOR_EOL,
+        pMob->wealth, wealth_desc);
+
+    return true;
 }
 
 MEDIT(medit_faction)
