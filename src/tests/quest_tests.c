@@ -9,8 +9,14 @@
 #include <data/quest.h>
 
 #include <config.h>
+#include <db.h>
 #include <handler.h>
 
+#include <entities/faction.h>
+#include <entities/object.h>
+#include <entities/obj_prototype.h>
+
+#include <lox/list.h>
 #include <lox/value.h>
 
 static TestGroup quest_tests;
@@ -208,9 +214,74 @@ static int test_quest_clear_targs()
     return 0;
 }
 
+static int test_quest_reward_currency_and_items()
+{
+    Mobile* player = mock_player("Rewarded");
+    Quest* quest = make_quest(QUEST_KILL_MOB, 800180, 10650, 10651, 10750, 1);
+    quest->reward_gold = 3;
+    quest->reward_silver = 4;
+    quest->reward_copper = 5;
+
+    ObjPrototype* proto = mock_obj_proto(800181);
+    proto->short_descr = str_dup("Reward Token");
+    quest->reward_obj_vnum[0] = VNUM_FIELD(proto);
+    quest->reward_obj_count[0] = 2;
+
+    // We need to add the prototype to the global list so that finish_quest can 
+    // find it.
+    table_set_vnum(&obj_protos, VNUM_FIELD(proto), OBJ_VAL(proto));
+
+    add_quest_to_log(player->pcdata->quest_log, quest, QSTAT_ACCEPTED, quest->amount);
+    QuestStatus* status = get_quest_status(player, quest->vnum);
+    ASSERT(status != NULL);
+
+    finish_quest(player, quest, status);
+
+    ASSERT(player->gold == quest->reward_gold);
+    ASSERT(player->silver == quest->reward_silver);
+    ASSERT(player->copper == quest->reward_copper);
+    ASSERT(player->objects.count == quest->reward_obj_count[0]);
+
+    int seen = 0;
+    for (Node* node = player->objects.front; node != NULL; node = node->next) {
+        Object* obj = AS_OBJECT(node->value);
+        ASSERT(obj->prototype == proto);
+        seen++;
+    }
+    ASSERT(seen == quest->reward_obj_count[0]);
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_quest_reward_reputation()
+{
+    Mobile* player = mock_player("Diplomat");
+    Quest* quest = make_quest(QUEST_KILL_MOB, 800190, 10760, 10761, 10850, 1);
+
+    Faction* faction = faction_create(800191);
+    SET_NAME(faction, lox_string("Scholars"));
+    quest->reward_faction_vnum = VNUM_FIELD(faction);
+    quest->reward_reputation = 250;
+
+    add_quest_to_log(player->pcdata->quest_log, quest, QSTAT_ACCEPTED, quest->amount);
+    QuestStatus* status = get_quest_status(player, quest->vnum);
+    ASSERT(status != NULL);
+
+    finish_quest(player, quest, status);
+
+    ASSERT(faction_get_standing(player, faction, false) == quest->reward_reputation);
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 void register_quest_tests()
 {
 #define REGISTER(n, f)  register_test(&quest_tests, (n), (f))
+
+    cfg_set_player_dir("../temp/quest_tests/");
+    cfg_set_gods_dir("../temp/quest_tests/");
 
     init_test_group(&quest_tests, "Quest Tests");
     register_test_group(&quest_tests);
@@ -223,7 +294,8 @@ void register_quest_tests()
     REGISTER("Quest Completion: Visit", test_quest_complete_visit);
     REGISTER("Quest Completion: Kill", test_quest_complete_kill);
     REGISTER("Qeust Clear Targets", test_quest_clear_targs);
+    REGISTER("Quest Rewards Currency and Items", test_quest_reward_currency_and_items);
+    REGISTER("Quest Rewards Reputation", test_quest_reward_reputation);
 
 #undef REGISTER
 }
-

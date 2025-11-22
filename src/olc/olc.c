@@ -623,7 +623,7 @@ void olc_print_str_box(Mobile* ch, const char* label, const char* str,
 {
     printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s"
         COLOR_DECOR_1 " ] " COLOR_ALT_TEXT_2 "%s" COLOR_EOL, label,
-        str, opt_str);
+        str, opt_str ? opt_str : "");
 }
 
 void olc_print_yesno(Mobile* ch, const char* label, bool yesno)

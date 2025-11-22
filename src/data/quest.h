@@ -25,6 +25,8 @@ typedef enum quest_type_t {
     QUEST_GET_OBJ,
 } QuestType;
 
+#define QUEST_MAX_REWARD_ITEMS 3
+
 typedef struct quest_t {
     Quest* next;
     AreaData* area_data;
@@ -38,6 +40,13 @@ typedef struct quest_t {
     QuestType type;
     int16_t xp;
     int16_t amount;
+    VNUM reward_faction_vnum;
+    int16_t reward_reputation;
+    int16_t reward_gold;
+    int16_t reward_silver;
+    int16_t reward_copper;
+    VNUM reward_obj_vnum[3];
+    int16_t reward_obj_count[3];
 } Quest;
 
 typedef enum quest_state_t {

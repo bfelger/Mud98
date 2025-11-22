@@ -6,6 +6,7 @@
 
 #include "olc.h"
 
+#include <entities/faction.h>
 #include <entities/obj_prototype.h>
 #include <entities/player_data.h>
 
@@ -36,6 +37,12 @@ const OlcCmdEntry quest_olc_comm_table[] =
     { "upper",      U(&xQuest.target_upper),ed_olded,           U(qedit_upper)      },
     { "amount",     U(&xQuest.amount),      ed_number_s_pos,    0                   },
     { "end",        U(&xQuest.end),         ed_number_pos,      U(qedit_end)        },
+    { "faction",    0,                      ed_olded,           U(qedit_faction)    },
+    { "rewardrep",      0,                  ed_olded,           U(qedit_reward_reputation) },
+    { "rewardgold", U(&xQuest.reward_gold),   ed_number_s_pos,  0                   },
+    { "rewardsilver", U(&xQuest.reward_silver), ed_number_s_pos,0                   },
+    { "rewardcopper", U(&xQuest.reward_copper), ed_number_s_pos,0                   },
+    { "rewarditem",    0,                  ed_olded,           U(qedit_reward_item) },
     { "name",       U(&xQuest.name),        ed_line_string,     0                   },
     { "entry",      U(&xQuest.entry),       ed_desc,            0                   },
     { "show",       0,                      ed_olded,           U(qedit_show)       },
@@ -239,6 +246,56 @@ QEDIT(qedit_show)
     }
 
     olc_print_num(ch, "XP", quest->xp);
+
+    if (quest->reward_gold > 0 || quest->reward_silver > 0 || quest->reward_copper > 0) {
+        char buf[MAX_INPUT_LENGTH] = { 0 };
+        bool first = true;
+        if (quest->reward_gold > 0) {
+            sprintf(buf + strlen(buf), "%s%d gold", first ? "" : ", ", quest->reward_gold);
+            first = false;
+        }
+        if (quest->reward_silver > 0) {
+            sprintf(buf + strlen(buf), "%s%d silver", first ? "" : ", ", quest->reward_silver);
+            first = false;
+        }
+        if (quest->reward_copper > 0)
+            sprintf(buf + strlen(buf), "%s%d copper", first ? "" : ", ", quest->reward_copper);
+        olc_print_str(ch, "Currency", buf);
+    }
+    else {
+        olc_print_str(ch, "Currency", "(none)");
+    }
+
+    if (quest->reward_faction_vnum != 0) {
+        Faction* faction = get_faction(quest->reward_faction_vnum);
+        const char* faction_name = faction ? NAME_STR(faction) : "(invalid)";
+        olc_print_num_str(ch, "Faction", quest->reward_faction_vnum, faction_name);
+    }
+    else {
+        olc_print_str_box(ch, "Faction", "(none)", NULL);
+        olc_print_num(ch, "Reputation", quest->reward_reputation);
+    }
+
+
+    bool has_item_reward = false;
+    for (int i = 0; i < QUEST_MAX_REWARD_ITEMS; ++i) {
+        if (quest->reward_obj_vnum[i] <= 0 || quest->reward_obj_count[i] <= 0)
+            continue;
+
+        char label[32];
+        sprintf(label, "Reward Item %d", i + 1);
+
+        ObjPrototype* obj = get_object_prototype(quest->reward_obj_vnum[i]);
+        const char* obj_name = obj ? obj->short_descr : "(invalid)";
+        char line[MAX_INPUT_LENGTH];
+        sprintf(line, "%d x %s", quest->reward_obj_count[i], obj_name);
+
+        olc_print_num_str(ch, label, quest->reward_obj_vnum[i], line);
+        has_item_reward = true;
+    }
+    if (!has_item_reward)
+        olc_print_str_box(ch, "Reward Items", "(none)", NULL);
+
     olc_print_text(ch, "Entry", quest->entry);
 
     return false;
@@ -335,5 +392,111 @@ QEDIT(qedit_end)
 
     quest->end = VNUM_FIELD(mob);
 
+    return true;
+}
+
+QEDIT(qedit_faction)
+{
+    Quest* quest;
+    char arg[MAX_INPUT_LENGTH];
+
+    EDIT_QUEST(ch, quest);
+
+    READ_ARG(arg);
+    if (arg[0] == '\0' || !is_number(arg)) {
+        printf_to_char(ch, COLOR_INFO "Syntax: " COLOR_ALT_TEXT_1 "FACTION <vnum|0>" COLOR_EOL);
+        return false;
+    }
+
+    VNUM vnum = STRTOVNUM(arg);
+    if (vnum != 0 && get_faction(vnum) == NULL) {
+        send_to_char(COLOR_INFO "QEDIT: No faction has that VNUM." COLOR_EOL, ch);
+        return false;
+    }
+
+    quest->reward_faction_vnum = vnum;
+
+    return true;
+}
+
+QEDIT(qedit_reward_reputation)
+{
+    Quest* quest;
+    char arg[MAX_INPUT_LENGTH];
+
+    EDIT_QUEST(ch, quest);
+    READ_ARG(arg);
+
+    if (arg[0] == '\0' || !is_number(arg)) {
+        printf_to_char(ch, COLOR_INFO "Syntax: " COLOR_ALT_TEXT_1 "REWARDREP <value>" COLOR_EOL);
+        return false;
+    }
+
+    int value = atoi(arg);
+    if (value < -10000 || value > 10000) {
+        send_to_char(COLOR_INFO "Reputation reward must be between -10000 and 10000." COLOR_EOL, ch);
+        return false;
+    }
+
+    quest->reward_reputation = (int16_t)value;
+    return true;
+}
+
+QEDIT(qedit_reward_item)
+{
+    Quest* quest;
+    char arg_slot[MAX_INPUT_LENGTH];
+    char arg_vnum[MAX_INPUT_LENGTH];
+    char arg_count[MAX_INPUT_LENGTH];
+
+    EDIT_QUEST(ch, quest);
+
+    READ_ARG(arg_slot);
+    READ_ARG(arg_vnum);
+    READ_ARG(arg_count);
+
+    if (arg_slot[0] == '\0' || arg_vnum[0] == '\0'
+        || !is_number(arg_slot) || !is_number(arg_vnum)) {
+        printf_to_char(ch,
+            COLOR_INFO "Syntax: " COLOR_ALT_TEXT_1 "REWARDITEM <slot 1-%d> <vnum|0> [count]" COLOR_EOL,
+            QUEST_MAX_REWARD_ITEMS);
+        return false;
+    }
+
+    int slot = atoi(arg_slot);
+    if (slot < 1 || slot > QUEST_MAX_REWARD_ITEMS) {
+        printf_to_char(ch, COLOR_INFO "Slot must be between 1 and %d." COLOR_EOL,
+            QUEST_MAX_REWARD_ITEMS);
+        return false;
+    }
+
+    VNUM vnum = STRTOVNUM(arg_vnum);
+    int count = 1;
+    if (arg_count[0] != '\0') {
+        if (!is_number(arg_count)) {
+            send_to_char(COLOR_INFO "Count must be numeric." COLOR_EOL, ch);
+            return false;
+        }
+        count = atoi(arg_count);
+    }
+
+    if (vnum == 0) {
+        quest->reward_obj_vnum[slot - 1] = 0;
+        quest->reward_obj_count[slot - 1] = 0;
+        return true;
+    }
+
+    if (count <= 0 || count > 1000) {
+        send_to_char(COLOR_INFO "Count must be between 1 and 1000." COLOR_EOL, ch);
+        return false;
+    }
+
+    if (get_object_prototype(vnum) == NULL) {
+        send_to_char(COLOR_INFO "QEDIT: No object has that VNUM." COLOR_EOL, ch);
+        return false;
+    }
+
+    quest->reward_obj_vnum[slot - 1] = vnum;
+    quest->reward_obj_count[slot - 1] = (int16_t)count;
     return true;
 }

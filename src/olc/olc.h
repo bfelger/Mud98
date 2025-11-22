@@ -334,6 +334,9 @@ DECLARE_OLC_FUN(qedit_show);
 DECLARE_OLC_FUN(qedit_target);
 DECLARE_OLC_FUN(qedit_upper);
 DECLARE_OLC_FUN(qedit_end);
+DECLARE_OLC_FUN(qedit_faction);
+DECLARE_OLC_FUN(qedit_reward_reputation);
+DECLARE_OLC_FUN(qedit_reward_item);
 
 // Editors.
 DECLARE_ED_FUN(ed_line_string);
