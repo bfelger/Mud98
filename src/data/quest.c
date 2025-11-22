@@ -8,9 +8,16 @@
 
 #include <comm.h>
 #include <db.h>
+#include <handler.h>
 #include <save.h>
 #include <tables.h>
 #include <update.h>
+
+#include <string.h>
+
+#include <entities/faction.h>
+#include <entities/object.h>
+#include <entities/obj_prototype.h>
 
 int quest_count = 0;
 int quest_perm_count = 0;
@@ -41,6 +48,13 @@ const SaveTableEntry quest_save_table[] = {
     { "target",         FIELD_VNUM,             U(&tmp_quest.target),       0,                  0   },
     { "upper",          FIELD_VNUM,             U(&tmp_quest.target_upper), 0,                  0   },
     { "count",          FIELD_INT16,            U(&tmp_quest.amount),       0,                  0   },
+    { "reward_faction", FIELD_VNUM,             U(&tmp_quest.reward_faction_vnum), 0,           0   },
+    { "reward_reputation", FIELD_INT16,         U(&tmp_quest.reward_reputation),  0,           0   },
+    { "reward_gold",    FIELD_INT16,            U(&tmp_quest.reward_gold),  0,                  0   },
+    { "reward_silver",  FIELD_INT16,            U(&tmp_quest.reward_silver),0,                  0   },
+    { "reward_copper",  FIELD_INT16,            U(&tmp_quest.reward_copper),0,                  0   },
+    { "reward_objs",    FIELD_VNUM_ARRAY,       U(&tmp_quest.reward_obj_vnum),   U(QUEST_MAX_REWARD_ITEMS), 0 },
+    { "reward_counts",  FIELD_INT16_ARRAY,      U(&tmp_quest.reward_obj_count), U(QUEST_MAX_REWARD_ITEMS), 0 },
     { NULL,		        0,				        0,			                0,		            0   }
 };
 
@@ -248,6 +262,66 @@ void finish_quest(Mobile* ch, Quest* quest, QuestStatus* status)
         printf_to_char(ch, COLOR_INFO "You have been awarded " COLOR_ALT_TEXT_1 "%d" COLOR_INFO " xp." COLOR_EOL, xp);
         gain_exp(ch, xp);
     }
+
+    if (quest->reward_gold > 0 || quest->reward_silver > 0 || quest->reward_copper > 0) {
+        ch->gold += quest->reward_gold;
+        ch->silver += quest->reward_silver;
+        ch->copper += quest->reward_copper;
+
+        char reward_buf[MAX_INPUT_LENGTH] = { 0 };
+        bool first = true;
+        if (quest->reward_gold > 0) {
+            sprintf(reward_buf + strlen(reward_buf), "%s%d gold", first ? "" : ", ",
+                quest->reward_gold);
+            first = false;
+        }
+        if (quest->reward_silver > 0) {
+            sprintf(reward_buf + strlen(reward_buf), "%s%d silver", first ? "" : ", ",
+                quest->reward_silver);
+            first = false;
+        }
+        if (quest->reward_copper > 0) {
+            sprintf(reward_buf + strlen(reward_buf), "%s%d copper", first ? "" : ", ",
+                quest->reward_copper);
+        }
+
+        printf_to_char(ch, COLOR_INFO "You receive " COLOR_ALT_TEXT_1 "%s" COLOR_INFO "." COLOR_EOL,
+            reward_buf[0] ? reward_buf : "your coin reward");
+    }
+
+    if (quest->reward_faction_vnum != 0 && quest->reward_reputation != 0) {
+        Faction* faction = get_faction(quest->reward_faction_vnum);
+        if (faction != NULL)
+            faction_adjust(ch, faction, quest->reward_reputation);
+        else
+            bugf("finish_quest: missing faction %" PRVNUM " for quest %" PRVNUM,
+                quest->reward_faction_vnum, quest->vnum);
+    }
+
+    for (int i = 0; i < QUEST_MAX_REWARD_ITEMS; ++i) {
+        VNUM vnum = quest->reward_obj_vnum[i];
+        int count = quest->reward_obj_count[i];
+        if (vnum <= 0 || count <= 0)
+            continue;
+
+        ObjPrototype* proto = get_object_prototype(vnum);
+        if (proto == NULL) {
+            bugf("finish_quest: missing reward object %" PRVNUM " for quest %" PRVNUM,
+                vnum, quest->vnum);
+            continue;
+        }
+
+        for (int j = 0; j < count; ++j) {
+            Object* reward_obj = create_object(proto, proto->level);
+            obj_to_char(reward_obj, ch);
+        }
+
+        printf_to_char(ch,
+            COLOR_INFO "You receive " COLOR_ALT_TEXT_1 "%d" COLOR_INFO " x "
+            COLOR_ALT_TEXT_2 "%s" COLOR_INFO "." COLOR_EOL,
+            count, proto->short_descr);
+    }
+
     send_to_char("\n\r", ch);
 
     save_char_obj(ch);
