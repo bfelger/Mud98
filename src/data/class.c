@@ -53,7 +53,7 @@ void load_class_table()
     size_t new_size = sizeof(Class) * ((size_t)maxclass + 1);
     printf_log("Creating class of length %d, size %zu", maxclass + 1, new_size);
 
-    if ((class_table = calloc(sizeof(Class), (size_t)maxclass + 1)) == NULL) {
+    if ((class_table = calloc((size_t)maxclass + 1, sizeof(Class))) == NULL) {
         perror("load_class_table(): Could not allocate class_table!");
         exit(-1);
     }

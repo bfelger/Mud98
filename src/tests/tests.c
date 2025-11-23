@@ -173,3 +173,10 @@ void test_lox_int_eq(int expected, Value actual, const char* file, int line)
     }
 }
 
+static char safe_buf[MSL];
+char* safe_arg(char* arg)
+{
+    sprintf(safe_buf, "%s", arg != NULL ? arg : "NULL");
+    return safe_buf;
+}
+

@@ -33,6 +33,8 @@ typedef struct TestGroup {
     int asserts_failed;
 } TestGroup;
 
+char* safe_arg(char* arg);
+
 void init_test_group(TestGroup* group, const char* name);
 
 // All featured test groups

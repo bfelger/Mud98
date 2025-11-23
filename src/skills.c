@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -290,7 +290,7 @@ void do_spells(Mobile* ch, char* argument)
 
     int range = 1 + max_lev - min_lev;
     Buffer** spell_buf;
-    if ((spell_buf = calloc(sizeof(Buffer*), range)) == 0) {
+    if ((spell_buf = calloc((size_t)range, sizeof(Buffer*))) == 0) {
         send_to_char("Can't do that right now.\n\r", ch);
         perror("do_spells: Cannot allocate spell bufs!");
         return;
@@ -412,7 +412,7 @@ void do_skills(Mobile* ch, char* argument)
 
     int range = 1 + max_lev - min_lev;
     Buffer** skill_buf;
-    if ((skill_buf = calloc(sizeof(Buffer*), range)) == 0) {
+    if ((skill_buf = calloc((size_t)range, sizeof(Buffer*))) == 0) {
         send_to_char("Can't do that right now.\n\r", ch);
         perror("do_skills: Cannot allocate skill bufs!");
         return;

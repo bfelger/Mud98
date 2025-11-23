@@ -63,7 +63,7 @@ void load_race_table()
     size_t new_size = sizeof(Race) * ((size_t)maxrace + 1);
     printf_log("Creating race_table of length %d, size %zu", maxrace + 1, new_size);
 
-    if ((race_table = calloc(sizeof(Race), (size_t)maxrace + 1)) == NULL) {
+    if ((race_table = calloc((size_t)maxrace + 1, sizeof(Race))) == NULL) {
         perror("load_races_table(): Could not allocate race_table!");
         exit(-1);
     }

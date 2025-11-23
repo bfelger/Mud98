@@ -47,7 +47,7 @@ void load_social_table()
     printf_log("Creating social_table of length %d, size %zu", social_count + 1,
         sizeof(Social) * ((size_t)social_count + 1));
     /* IMPORTANT to use malloc so we can realloc later on */
-    if ((social_table = calloc(sizeof(Social), (size_t)social_count + 1)) == NULL) {
+    if ((social_table = calloc((size_t)social_count + 1, sizeof(Social))) == NULL) {
         bug("load_social_table: Could not allocate social_table!");
         return;
     }

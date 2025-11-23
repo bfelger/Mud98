@@ -83,7 +83,7 @@ static int test_give_copper_transfers_money()
     giver->copper = 10;
     receiver->copper = 0;
 
-    interpret(giver, "give 5 copper Receiver");
+    interpret(giver, safe_arg("give 5 copper Receiver"));
 
     ASSERT(giver->copper == 5);
     ASSERT(receiver->copper == 5);
@@ -101,7 +101,7 @@ static int test_drop_copper_creates_money_object()
     dropper->silver = 0;
     dropper->copper = 10;
 
-    interpret(dropper, "drop 5 copper");
+    interpret(dropper, safe_arg("drop 5 copper"));
 
     ASSERT(dropper->copper == 5);
 
@@ -137,7 +137,7 @@ static int test_split_divides_money_between_group()
     member->silver = 0;
     member->copper = 0;
 
-    interpret(leader, "split 1 gold 5 silver 10 copper");
+    interpret(leader, safe_arg("split 1 gold 5 silver 10 copper"));
 
     ASSERT(leader->gold == 0);
     ASSERT(leader->silver == 52);
@@ -172,7 +172,7 @@ static int test_buy_from_shop_updates_money()
     int expected_silver = sword->cost * shop->profit_buy / 100;
     long expected_copper = (long)expected_silver * COPPER_PER_SILVER;
 
-    do_buy(buyer, "practice");
+    do_buy(buyer, safe_arg("practice"));
 
     ASSERT(mobile_total_copper(buyer) == initial_player - expected_copper);
     ASSERT(mobile_total_copper(keeper) == initial_keeper + expected_copper);
@@ -201,7 +201,7 @@ static int test_buy_multiple_non_inventory_items()
 
     mobile_set_money_from_copper(buyer, convert_money_to_copper(0, 20, 0));
 
-    do_buy(buyer, "2 bulk");
+    do_buy(buyer, safe_arg("2 bulk"));
 
     int count = 0;
     Object* item;

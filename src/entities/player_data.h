@@ -8,6 +8,8 @@ typedef struct char_gen_data_t CharGenData;
 typedef struct player_data_t PlayerData;
 typedef struct faction_reputation_t FactionReputation;
 
+#include <stddef.h>
+
 typedef struct faction_reputation_list_t {
     FactionReputation* entries;
     size_t count;

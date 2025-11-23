@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -402,12 +402,8 @@ int number_argument(char* argument, char* arg)
     int number;
 
     for (pdot = argument; *pdot != '\0'; pdot++) {
-        //if (*pdot == '.') {
         if (*pdot == '.' || *pdot == '*' || *pdot == ' ') {
-            char sep = *pdot;
-            *pdot = '\0';
             number = atoi(argument);
-            *pdot = sep;
             strcpy(arg, pdot + 1);
             return number;
         }
@@ -427,12 +423,8 @@ int mult_argument(char* argument, char* arg)
     int number;
 
     for (pdot = argument; *pdot != '\0'; pdot++) {
-        //if (*pdot == '*') {
         if (*pdot == '*' || *pdot == '.' || *pdot == ' ') {
-            char sep = *pdot;
-            *pdot = '\0';
             number = atoi(argument);
-            *pdot = sep;
             strcpy(arg, pdot + 1);
             return number;
         } 

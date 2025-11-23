@@ -76,7 +76,7 @@ void load_skill_group_table()
 
     printf_log("Creating group table of length %d, size %zu",
         skill_group_count + 1, sizeof(SkillGroup) * ((size_t)skill_group_count + 1));
-    if ((skill_group_table = calloc(sizeof(SkillGroup), (size_t)skill_group_count + 1)) == NULL) {
+    if ((skill_group_table = calloc((size_t)skill_group_count + 1, sizeof(SkillGroup))) == NULL) {
         bug("load_groups_table(): Could not allocate skill_group_table!");
         exit(1);
     }
@@ -127,7 +127,7 @@ void load_skill_table()
 
     printf_log("Creating skill table of length %d, size %zu",
         skill_count + 1, sizeof(Skill) * ((size_t)skill_count + 1));
-    if ((skill_table = calloc(sizeof(Skill), (size_t)skill_count + 1)) == NULL) {
+    if ((skill_table = calloc((size_t)skill_count + 1, sizeof(Skill))) == NULL) {
         bug("load_skill_table(): Could not allocate skill_table!");
         exit(1);
     }

@@ -428,7 +428,7 @@ CMDEDIT(cmdedit_delete)
             edit_done(tch);
     }
 
-    if ((new_cmd_table = calloc(sizeof(CmdInfo), (size_t)max_cmd + 1)) == NULL) {
+    if ((new_cmd_table = calloc((size_t)max_cmd + 1, sizeof(CmdInfo))) == NULL) {
         perror("cmdedit_delete: Could not allocate new_cmd_table!");
         exit(-1);
     }

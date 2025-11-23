@@ -605,7 +605,7 @@ void load_command_table(void)
     printf_log("Creating cmd_table of length %d, size %zu", size + 1,
         sizeof(CmdInfo) * ((size_t)size + 1));
 
-    if ((cmd_table = calloc(sizeof(CmdInfo), (size_t)size + 1)) == NULL) {
+    if ((cmd_table = calloc((size_t)size + 1, sizeof(CmdInfo))) == NULL) {
         perror("load_command_table: Could not allocate cmd_table!");
         exit(-1);
     }
