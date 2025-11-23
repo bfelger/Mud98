@@ -11,6 +11,20 @@ set(MSVC_C_STD "/std:c17")
 
 project(Mud98)
 
+# Place built binaries under bin/<config> at the repo root so runtime files
+# (e.g., mud98.cfg) are easy to find when launching from the root.
+set(MUD98_RUNTIME_BASE "${CMAKE_SOURCE_DIR}/bin")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${MUD98_RUNTIME_BASE}")
+foreach(cfg Debug Release RelWithDebInfo MinSizeRel)
+    string(TOUPPER "${cfg}" cfg_upper)
+    set("CMAKE_RUNTIME_OUTPUT_DIRECTORY_${cfg_upper}" "${MUD98_RUNTIME_BASE}/${cfg}")
+endforeach()
+
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    # Default to repo-local installs to avoid touching system prefixes.
+    set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/bin" CACHE PATH "Install path prefix." FORCE)
+endif()
+
 set(Mud98_LIBS "")
 
 if (NOT MSVC)
@@ -123,6 +137,7 @@ if (NOT ZLIB_FOUND)
 endif()
 
 include_directories(${CMAKE_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h" 
     "act_enter.c" "act_info.h" "act_info.c" "act_move.h" "act_move.c" 

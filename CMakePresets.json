@@ -1,0 +1,93 @@
+{
+  "version": 2,
+  "configurePresets": [
+    {
+      "name": "ninja-multi",
+      "displayName": "Ninja Multi-Config (src/.build)",
+      "description": "Matches the ./config and ./compile scripts: builds from src/ into src/.build",
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "${sourceDir}/src/.build",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "ninja-multi-gcc",
+      "displayName": "Ninja Multi-Config (GCC)",
+      "description": "GCC toolchain in an isolated build tree",
+      "inherits": "ninja-multi",
+      "binaryDir": "${sourceDir}/src/.build-gcc",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    },
+    {
+      "name": "ninja-multi-clang",
+      "displayName": "Ninja Multi-Config (Clang)",
+      "description": "Clang toolchain in an isolated build tree",
+      "inherits": "ninja-multi",
+      "binaryDir": "${sourceDir}/src/.build-clang",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug",
+      "displayName": "Debug",
+      "configurePreset": "ninja-multi",
+      "configuration": "Debug"
+    },
+    {
+      "name": "release",
+      "displayName": "Release",
+      "configurePreset": "ninja-multi",
+      "configuration": "Release"
+    },
+    {
+      "name": "relwithdebinfo",
+      "displayName": "RelWithDebInfo",
+      "configurePreset": "ninja-multi",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "gcc-debug",
+      "displayName": "Debug (GCC)",
+      "configurePreset": "ninja-multi-gcc",
+      "configuration": "Debug"
+    },
+    {
+      "name": "gcc-release",
+      "displayName": "Release (GCC)",
+      "configurePreset": "ninja-multi-gcc",
+      "configuration": "Release"
+    },
+    {
+      "name": "gcc-relwithdebinfo",
+      "displayName": "RelWithDebInfo (GCC)",
+      "configurePreset": "ninja-multi-gcc",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "clang-debug",
+      "displayName": "Debug (Clang)",
+      "configurePreset": "ninja-multi-clang",
+      "configuration": "Debug"
+    },
+    {
+      "name": "clang-release",
+      "displayName": "Release (Clang)",
+      "configurePreset": "ninja-multi-clang",
+      "configuration": "Release"
+    },
+    {
+      "name": "clang-relwithdebinfo",
+      "displayName": "RelWithDebInfo (Clang)",
+      "configurePreset": "ninja-multi-clang",
+      "configuration": "RelWithDebInfo"
+    }
+  ]
+}

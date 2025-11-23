@@ -1,5 +1,6 @@
 #!/bin/bash
 
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 build_cfg="Debug"
 bench=""
 
@@ -26,5 +27,4 @@ if [[ ${arg,,} == "release" ]] || [[ ${arg,,} == "rel" ]]
     fi
 done
 
-./.build/$build_cfg/Mud98 --area-dir=../area --port=4000 $bench
-
+"${repo_root}/bin/${build_cfg}/Mud98" --area-dir="${repo_root}/area" --port=4000 $bench

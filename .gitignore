@@ -2,6 +2,8 @@
 .area*
 .vs*
 *.o
+build/*
+bin/*
 player/*
 src/rom*
 src/.build
