@@ -12,3 +12,11 @@ Mud98 isn't a MUD; it's a codebase. These docs outline how to take Mud98 and, wi
 2. [Part 2 &mdash; New Beginnings](wb-02-new-beginnings.md)
 
     Create your new world starting with the beginning: by crafting new starting zones by race or class, and build a narrative introductory experience or new players.
+
+## Engineering reference
+
+- [Project Map](project-map.md) — repo layout, build/run/test at a glance.
+- [Coding Guide](coding-guide.md) — house rules and conventions.
+- [Glossary](glossary.md) — common domain terms.
+- [Engineering Notes](engineering-notes.md) — tips for safe changes and AI usage.
+- [Unit Test Guide](unit-test-guide.md) — how to add tests consistent with `src/tests/`.

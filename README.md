@@ -120,6 +120,17 @@ In Mud98, you can designate whole areas as multiple-instance, which in the parla
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+## Documentation
+
+- [Mud98 docs index](doc/mud98/index.md)
+- [Project map](doc/mud98/project-map.md)
+- [Coding guide](doc/mud98/coding-guide.md)
+- [Glossary](doc/mud98/glossary.md)
+- [Engineering notes](doc/mud98/engineering-notes.md)
+- [Unit test guide](doc/mud98/unit-test-guide.md)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Getting Started
 
 You can build and run Mud98 on virtually any desktop or server platform.
