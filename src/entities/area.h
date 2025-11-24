@@ -104,6 +104,8 @@ void load_area(FILE* fp);
 extern int area_count;
 extern int area_perm_count;
 extern int area_data_perm_count;
+extern int area_data_count;
+extern AreaData* area_data_free;
 
 extern ValueArray global_areas;
 

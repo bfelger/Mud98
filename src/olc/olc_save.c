@@ -20,6 +20,11 @@
  */
 
 #include "olc.h"
+#include "olc_save.h"
+
+#include <persist/area_persist.h>
+#include <persist/persist_io_adapters.h>
+#include <persist/rom-olc/area_persist_rom_olc.h>
 
 #include <comm.h>
 #include <config.h>
@@ -232,7 +237,7 @@ static void save_faction_relations(FILE* fp, const char* keyword, ValueArray* re
         fprintf(fp, " 0\n");
 }
 
-static void save_factions(FILE* fp, AreaData* area)
+void save_factions(FILE* fp, AreaData* area)
 {
     fprintf(fp, "#FACTIONS\n");
 
@@ -908,7 +913,8 @@ void save_resets(FILE* fp, AreaData* area)
             fprintf(fp, "G 0 %d 0\n", reset->arg1);
             if (!pLastMob) {
                 sprintf(buf,
-                    "Save_resets: !NO_MOB! in [%s]", area->file_name);
+                    "Save_resets: !NO_MOB! in [%s] reset G arg1=%d arg2=%d arg3=%d arg4=%d",
+                    area->file_name, reset->arg1, reset->arg2, reset->arg3, reset->arg4);
                 bug(buf, 0);
             }
             break;
@@ -919,7 +925,8 @@ void save_resets(FILE* fp, AreaData* area)
                 reset->arg3);
             if (!pLastMob) {
                 sprintf(buf,
-                    "Save_resets: !NO_MOB! in [%s]", area->file_name);
+                    "Save_resets: !NO_MOB! in [%s] reset E arg1=%d arg2=%d arg3=%d arg4=%d",
+                    area->file_name, reset->arg1, reset->arg2, reset->arg3, reset->arg4);
                 bug(buf, 0);
             }
             break;
@@ -1040,38 +1047,21 @@ void save_area(AreaData* area)
 
     OPEN_OR_RETURN(fp = open_write_file(tmp));
 
-    fprintf(fp, "#AREADATA\n");
-    fprintf(fp, "Version %d\n", AREA_VERSION);
-    fprintf(fp, "Name %s~\n", NAME_STR(area));
-    fprintf(fp, "Builders %s~\n", fix_string(area->builders));
-    fprintf(fp, "VNUMs %"PRVNUM" %"PRVNUM"\n", area->min_vnum, area->max_vnum);
-    fprintf(fp, "Credits %s~\n", area->credits);
-    fprintf(fp, "Security %d\n", area->security);
-    fprintf(fp, "Sector %d\n", area->sector);
-    fprintf(fp, "Low %d\n", area->low_range);
-    fprintf(fp, "High %d\n", area->high_range);
-    fprintf(fp, "Reset %d\n", area->reset_thresh);
-    fprintf(fp, "AlwaysReset %d\n", (int)area->always_reset);
-    fprintf(fp, "InstType %d\n", area->inst_type);
-    fprintf(fp, "End\n\n");
+    PersistWriter writer = persist_writer_from_FILE(fp, tmp);
+    AreaPersistSaveParams params = {
+        .writer = &writer,
+        .area = area,
+        .file_name = area->file_name,
+    };
 
-    save_factions(fp, area);
-    save_mobiles(fp, area);
-    save_objects(fp, area);
-    save_rooms(fp, area);
-    save_specials(fp, area);
-    save_resets(fp, area);
-    save_shops(fp, area);
-    save_mobprogs(fp, area);
-    save_progs(area->min_vnum, area->max_vnum);
-    save_quests(fp, area);
-
-    if (area->helps && area->helps->first)
-        save_helps(fp, area->helps);
-
-    fprintf(fp, "#$\n");
+    PersistResult result = AREA_PERSIST_ROM_OLC.save(&params);
 
     close_file(fp);
+
+    if (!persist_succeeded(result)) {
+        bugf("save_area : persist save failed for %s (%s)", area->file_name, result.message ? result.message : "unknown error");
+        return;
+    }
 
 #ifdef _MSC_VER
     if (!MoveFileExA(tmp, area_file, MOVEFILE_REPLACE_EXISTING)) {

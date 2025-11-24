@@ -138,6 +138,7 @@ endif()
 
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/persist)
 
 add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h" 
     "act_enter.c" "act_info.h" "act_info.c" "act_move.h" "act_move.c" 
@@ -151,6 +152,10 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "save.c" "scan.c" "skills.h" "skills.c" "socket.h" "special.h" "special.c" 
     "spell_list.h" "tables.c" "tablesave.c" "update.h" "update.c" "weather.h" 
     "weather.c" "wizutil.v3.c"
+
+    "persist/persist_io.h" "persist/persist_io_adapters.h" "persist/persist_io_adapters.c"
+    "persist/persist_result.h" "persist/area_persist.h"
+    "persist/rom-olc/area_persist_rom_olc.h" "persist/rom-olc/area_persist_rom_olc.c"
 
     "olc/aedit.c" "olc/bit.h" "olc/bit.c" "olc/cedit.c" "olc/cmdedit.c" 
     "olc/event_edit.h" "olc/event_edit.c" "olc/gedit.c" "olc/hedit.c" 
@@ -218,6 +223,7 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "tests/all_tests.c" "tests/tests.h"
     "tests/mock.h" "tests/mock.c"
     "tests/lox_tests.h" "tests/lox_tests.c" "tests/lox_ext_tests.c"
+    "tests/persist_tests.c"
     "tests/entity_tests.c" "tests/container_tests.c" "tests/act_tests.c" 
     "tests/event_tests.c" "tests/faction_tests.c" "tests/money_tests.c"
     "tests/quest_tests.c" "tests/fmt_tests.c" "tests/util_tests.c" 

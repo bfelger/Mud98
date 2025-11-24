@@ -47,6 +47,11 @@
 #include "tables.h"
 #include "weather.h"
 
+#include <persist/rom-olc/loader_guard.h>
+#include <persist/rom-olc/area_persist_rom_olc.h>
+#include <persist/area_persist.h>
+#include <persist/persist_io_adapters.h>
+
 #include <olc/olc.h>
 
 #include <entities/area.h>
@@ -252,55 +257,22 @@ void boot_db()
             sprintf(area_file, "%s%s", cfg_get_area_dir(), fpArea);
             OPEN_OR_DIE(strArea = open_read_file(area_file));
 
-            for (;;) {
-                char* word;
+            PersistReader reader = persist_reader_from_FILE(strArea, fpArea);
+            AreaPersistLoadParams params = {
+                .reader = &reader,
+                .file_name = fpArea,
+                .create_single_instance = true,
+            };
 
-                if (fread_letter(strArea) != '#') {
-                    bug("Boot_db: # not found.", 0);
-                    exit(1);
-                }
-
-                word = fread_word(strArea);
-
-                if (word[0] == '$')
-                    break;
-                else if (!str_cmp(word, "AREADATA"))
-                    load_area(strArea);
-                else if (!str_cmp(word, "HELPS"))
-                    load_helps(strArea, fpArea);
-                else if (!str_cmp(word, "MOBILES"))
-                    load_mobiles(strArea);
-                else if (!str_cmp(word, "MOBPROGS"))
-                    load_mobprogs(strArea);
-                else if (!str_cmp(word, "OBJECTS"))
-                    load_objects(strArea);
-                else if (!str_cmp(word, "FACTIONS"))
-                    load_factions(strArea);
-                else if (!str_cmp(word, "RESETS"))
-                    load_resets(strArea);
-                else if (!str_cmp(word, "ROOMS"))
-                    load_rooms(strArea);
-                else if (!str_cmp(word, "SHOPS"))
-                    load_shops(strArea);
-                else if (!str_cmp(word, "SPECIALS"))
-                    load_specials(strArea);
-                else if (!str_cmp(word, "QUEST"))
-                    load_quest(strArea);
-                else {
-                    bug("Boot_db: bad section name.", 0);
-                    exit(1);
-                }
-
-                gc_protect_clear();
-            }
-
+            PersistResult load_result = AREA_PERSIST_ROM_OLC.load(&params);
             close_file(strArea);
             strArea = NULL;
-            // Only create single-instance areas.
-            // All others are created on-demand.
-            if (current_area_data 
-                && current_area_data->inst_type == AREA_INST_SINGLE)
-                create_area_instance(current_area_data, false);
+
+            if (!persist_succeeded(load_result)) {
+                bugf("Boot_db: failed to load area %s (%s)", fpArea, load_result.message ? load_result.message : "unknown error");
+                exit(1);
+            }
+
             gc_protect_clear();
         }
         close_file(fpList);
@@ -1972,6 +1944,10 @@ void bug(const char* fmt, ...)
     vsprintf(buf + strlen(buf), fmt, args);
     log_string(buf);
 
+    if (current_loader_guard) {
+        loader_longjmp(buf, 0);
+    }
+
     return;
 }
 
@@ -1993,5 +1969,3 @@ String* lox_string(const char* str)
     gc_protect(OBJ_VAL(obj_str));
     return obj_str;
 }
-
-

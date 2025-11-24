@@ -49,6 +49,7 @@ void register_event_tests();
 void register_faction_tests();
 void register_money_tests();
 void register_quest_tests();
+void register_persist_tests();
 
 void run_unit_tests();
 
