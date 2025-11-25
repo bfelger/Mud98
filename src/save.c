@@ -929,6 +929,7 @@ void fread_char(Mobile* ch, FILE* fp)
             KEY("Cla", ch->ch_class, (int16_t)fread_number(fp));
             KEY("Clan", ch->clan, (int16_t)clan_lookup(fread_string(fp)));
             KEY("Comm", ch->comm_flags, fread_flag(fp));
+            KEY("Copp", ch->copper, (int16_t)fread_number(fp));
 
             if (!str_cmp(word, "Condition") || !str_cmp(word, "Cond")) {
                 ch->pcdata->condition[0] = (int16_t)fread_number(fp);
@@ -1130,7 +1131,6 @@ void fread_char(Mobile* ch, FILE* fp)
             KEY("ShD", ch->short_descr, fread_string(fp));
             KEY("Sec", ch->pcdata->security, fread_number(fp));	// OLC
             KEY("Silv", ch->silver, (int16_t)fread_number(fp));
-            KEY("Copp", ch->copper, (int16_t)fread_number(fp));
 
             if (!str_cmp(word, "Skill") || !str_cmp(word, "Sk")) {
                 SKNUM sn;
