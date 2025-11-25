@@ -264,7 +264,10 @@ void fwrite_char(Mobile* ch, FILE* fp)
     }
     else {
         char digest_buf[256];
-        bin_to_hex(digest_buf, ch->pcdata->pwd_digest, ch->pcdata->pwd_digest_len);
+        if (ch->pcdata->pwd_digest_hex != NULL)
+            strcpy(digest_buf, ch->pcdata->pwd_digest_hex);
+        else
+            bin_to_hex(digest_buf, ch->pcdata->pwd_digest, ch->pcdata->pwd_digest_len);
         fprintf(fp, "PwdDigest %s~\n", digest_buf);
 
         if (ch->pcdata->bamfin[0] != '\0')

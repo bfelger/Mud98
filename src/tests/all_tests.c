@@ -33,6 +33,7 @@ void run_unit_tests()
     register_faction_tests();
     register_money_tests();
     register_quest_tests();
+    register_login_tests();
     register_persist_tests();
 
     test_output_enabled = true;

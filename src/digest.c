@@ -7,6 +7,7 @@
 #include "digest.h"
 
 #include "entities/player_data.h"
+#include "db.h"
 
 #include <string.h>
 
@@ -17,10 +18,10 @@
 
 void bin_to_hex(char* dest, const uint8_t* data, size_t size)
 {
-    for (int i = 0; i < (int)size; ++i) {
-        sprintf(dest, "%.2X", *data++);
-        dest += 2;
+    for (size_t i = 0; i < size; ++i) {
+        sprintf(dest + (i * 2), "%.2X", data[i]);
     }
+    dest[size * 2] = '\0';
 }
 
 bool create_digest(const char* message, size_t message_len, 
@@ -73,6 +74,8 @@ void decode_digest(PlayerData* pc, const char* hex_str)
 #ifndef NO_OPENSSL
     if (pc->pwd_digest != NULL)
         OPENSSL_free(pc->pwd_digest);
+    free_string(pc->pwd_digest_hex);
+    pc->pwd_digest_hex = str_dup(hex_str);
 
     pc->pwd_digest_len = EVP_MD_size(EVP_sha256());
     pc->pwd_digest = (unsigned char*)OPENSSL_malloc(pc->pwd_digest_len);
@@ -114,12 +117,14 @@ bool set_password(char* pwd, Mobile* ch)
     // If the operation fails, keep the old digest
     unsigned char* old_digest = ch->pcdata->pwd_digest;
     unsigned int old_digest_len = ch->pcdata->pwd_digest_len;
+    char* old_digest_hex = ch->pcdata->pwd_digest_hex;
 
     // So create_digest() has no way to free the the old digest, yet (it 
     // doesn't, but what if that changes in the future? I don't want to have to
     // worry about it.
     ch->pcdata->pwd_digest = NULL;
     ch->pcdata->pwd_digest_len = 0;
+    ch->pcdata->pwd_digest_hex = NULL;
 
     if (!create_digest(pwd, strlen(pwd), &ch->pcdata->pwd_digest,
             &ch->pcdata->pwd_digest_len)) {
@@ -127,28 +132,59 @@ bool set_password(char* pwd, Mobile* ch)
 
         ch->pcdata->pwd_digest = old_digest;
         ch->pcdata->pwd_digest_len = old_digest_len;
+        ch->pcdata->pwd_digest_hex = old_digest_hex;
         return false;
     }
+
+    char digest_buf[EVP_MAX_MD_SIZE * 2 + 1] = { 0 };
+    bin_to_hex(digest_buf, ch->pcdata->pwd_digest, ch->pcdata->pwd_digest_len);
+    ch->pcdata->pwd_digest_hex = str_dup(digest_buf);
 
     // Ok, NOW we can throw it away.
     if (old_digest != NULL)
         free_digest(old_digest);
+    free_string(old_digest_hex);
 
     return true;
 }
 
 bool validate_password(char* pwd, Mobile* ch)
 {
-    if (ch->pcdata->pwd_digest == NULL || ch->pcdata->pwd_digest_len == 0)
+    PlayerData* pc = ch->pcdata;
+    if (pc == NULL)
         return false;
+
+    if (pc->pwd_digest_hex == NULL || pc->pwd_digest_hex[0] == '\0')
+        return false;
+
+    size_t stored_len = strlen(pc->pwd_digest_hex) / 2;
+    unsigned char* stored_digest = (unsigned char*)malloc(stored_len);
+    if (!stored_digest)
+        return false;
+
+    hex_to_bin(stored_digest, pc->pwd_digest_hex, stored_len);
 
     unsigned char* new_digest;
     unsigned int new_digest_len;
     if (!create_digest(pwd, strlen(pwd), &new_digest, &new_digest_len)) {
         perror("validate_password: Could not get digest.");
+        free(stored_digest);
         return false;
     }
 
-    return ch->pcdata->pwd_digest_len == new_digest_len &&
-        !memcmp(new_digest, ch->pcdata->pwd_digest, new_digest_len);
+    bool match = stored_len == new_digest_len &&
+        !memcmp(new_digest, stored_digest, new_digest_len);
+
+    if (!match) {
+        char stored_hex[256] = { 0 };
+        char candidate_hex[256] = { 0 };
+        bin_to_hex(stored_hex, stored_digest, stored_len);
+        bin_to_hex(candidate_hex, new_digest, new_digest_len);
+        fprintf(stderr, "Password mismatch: stored(%u)=%s candidate(%u)=%s\n",
+            (unsigned int)stored_len, stored_hex, new_digest_len, candidate_hex);
+    }
+
+    free_digest(new_digest);
+    free(stored_digest);
+    return match;
 }

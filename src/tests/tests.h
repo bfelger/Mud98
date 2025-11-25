@@ -44,11 +44,12 @@ void register_entity_tests();
 void register_container_tests();
 void register_act_tests();
 void register_fmt_tests();
-void register_util_tests(); 
+void register_util_tests();
 void register_event_tests();
 void register_faction_tests();
 void register_money_tests();
 void register_quest_tests();
+void register_login_tests();
 void register_persist_tests();
 
 void run_unit_tests();

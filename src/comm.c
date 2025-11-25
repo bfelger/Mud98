@@ -2075,9 +2075,11 @@ bool write_to_descriptor(Descriptor* d, char* txt, size_t length)
                 fprintf(stderr, "Write_to_descriptor: [%d] ", wsa);
                 PrintLastWinSockError();
 #else
-            if ((i_bytes = write(d->client->fd, txt + start, block)) < 0) {
+            if ((i_bytes = send(d->client->fd, txt + start, block, MSG_NOSIGNAL)) < 0) {
                 if (errno == EAGAIN || errno == EWOULDBLOCK)
                     return true; // Non-fatal error; try again.
+                if (errno == EPIPE)
+                    return false; // Peer closed; drop the descriptor quietly.
                 perror("Write_to_descriptor");
 #endif
                 return false;
