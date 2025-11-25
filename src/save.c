@@ -60,9 +60,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <time.h>
 
+#ifdef _MSC_VER
+#include <direct.h>
+#endif
+
 extern int _filbuf args((FILE*));
+
+static bool ensure_dir_exists(const char* path)
+{
+#ifdef _MSC_VER
+    if (_mkdir(path) == 0 || errno == EEXIST)
+        return true;
+#else
+    if (mkdir(path, 0775) == 0 || errno == EEXIST)
+        return true;
+#endif
+
+    perror(path);
+    return false;
+}
 
 char* print_flags(FLAGS flag)
 {
@@ -113,6 +132,7 @@ void save_char_obj(Mobile* ch)
     char strsave[MAX_INPUT_LENGTH];
     char strsavetemp[MAX_INPUT_LENGTH];
     FILE* fp;
+    const char* player_dir = cfg_get_player_dir();
 
     if (IS_NPC(ch) || test_output_enabled)
         return;
@@ -120,17 +140,24 @@ void save_char_obj(Mobile* ch)
     if (ch->desc != NULL && ch->desc->original != NULL) 
         ch = ch->desc->original;
 
+    if (!ensure_dir_exists(player_dir))
+        return;
+
     /* create god log */
     if (IS_IMMORTAL(ch) || ch->level >= LEVEL_IMMORTAL) {
-        sprintf(strsave, "%s%s", cfg_get_gods_dir(), capitalize(NAME_STR(ch)));
+        const char* gods_dir = cfg_get_gods_dir();
+        if (!ensure_dir_exists(gods_dir))
+            return;
+
+        sprintf(strsave, "%s%s", gods_dir, capitalize(NAME_STR(ch)));
         OPEN_OR_RETURN(fp = open_write_file(strsave));
         fprintf(fp, "Lev %2d Trust %2d  %s%s\n", ch->level, get_trust(ch),
             NAME_STR(ch), ch->pcdata->title);
         close_file(fp);
     }
 
-    sprintf(strsave, "%s%s", cfg_get_player_dir(), capitalize(NAME_STR(ch)));
-    sprintf(strsavetemp, "%s%s.temp", cfg_get_player_dir(), capitalize(NAME_STR(ch)));
+    sprintf(strsave, "%s%s", player_dir, capitalize(NAME_STR(ch)));
+    sprintf(strsavetemp, "%s%s.temp", player_dir, capitalize(NAME_STR(ch)));
     OPEN_OR_RETURN(fp = open_write_file(strsavetemp));
 
     fwrite_char(ch, fp);
@@ -1774,4 +1801,3 @@ void fread_quests(Mobile* ch, FILE* fp)
         word = feof(fp) ? "End" : fread_word(fp);
     }
 }
-

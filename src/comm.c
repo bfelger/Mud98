@@ -743,11 +743,10 @@ bool read_from_descriptor(Descriptor* d)
 #ifndef NO_OPENSSL
         }
 #endif
-        if (errno == EWOULDBLOCK)
-            break;
-        else if (s_read > 0) {
+        if (s_read > 0) {
             start += translate_telopts(d, (unsigned char*)bufin, s_read, (unsigned char*)d->inbuf, start);
-            if (d->inbuf[start - 1] == '\n' || d->inbuf[start - 1] == '\r')
+            if (start > 0
+                && (d->inbuf[start - 1] == '\n' || d->inbuf[start - 1] == '\r'))
                 break;
         }
         else if (s_read == 0) {
