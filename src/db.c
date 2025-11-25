@@ -258,13 +258,14 @@ void boot_db()
             OPEN_OR_DIE(strArea = open_read_file(area_file));
 
             PersistReader reader = persist_reader_from_FILE(strArea, fpArea);
+            const AreaPersistFormat* fmt = area_persist_select_format(fpArea);
             AreaPersistLoadParams params = {
                 .reader = &reader,
                 .file_name = fpArea,
                 .create_single_instance = true,
             };
 
-            PersistResult load_result = AREA_PERSIST_ROM_OLC.load(&params);
+            PersistResult load_result = fmt->load(&params);
             close_file(strArea);
             strArea = NULL;
 

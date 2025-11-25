@@ -33,6 +33,19 @@ if (NOT MSVC)
     list(APPEND Mud98_LIBS Threads::Threads)
 endif()
 
+find_package(PkgConfig REQUIRED)
+
+# Optional JSON support for areas (jansson)
+pkg_check_modules(JANSSON jansson)
+option(ENABLE_JSON_AREAS "Enable JSON area persistence (jansson)" ${JANSSON_FOUND})
+if (ENABLE_JSON_AREAS)
+    if (NOT JANSSON_FOUND)
+        message(FATAL_ERROR "ENABLE_JSON_AREAS=ON but jansson not found")
+    endif()
+    include_directories(${JANSSON_INCLUDE_DIRS})
+    list(APPEND Mud98_LIBS ${JANSSON_LIBRARIES})
+endif()
+
 set (OPENSSL_USE_STATIC_LIBS true)
 find_package(OpenSSL)
 
@@ -154,8 +167,9 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "weather.c" "wizutil.v3.c"
 
     "persist/persist_io.h" "persist/persist_io_adapters.h" "persist/persist_io_adapters.c"
-    "persist/persist_result.h" "persist/area_persist.h"
+    "persist/persist_result.h" "persist/area_persist.h" "persist/area_persist.c"
     "persist/rom-olc/area_persist_rom_olc.h" "persist/rom-olc/area_persist_rom_olc.c"
+    "persist/json/area_persist_json.h" "persist/json/area_persist_json.c"
 
     "olc/aedit.c" "olc/bit.h" "olc/bit.c" "olc/cedit.c" "olc/cmdedit.c" 
     "olc/event_edit.h" "olc/event_edit.c" "olc/gedit.c" "olc/hedit.c" 
@@ -233,6 +247,10 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
 
     "snippets/lore.c" "snippets/merc.dual.v1.c"
 )
+
+if (ENABLE_JSON_AREAS)
+    target_compile_definitions(Mud98 PRIVATE HAVE_JSON_AREAS)
+endif()
 
 target_link_libraries(Mud98 PRIVATE ${Mud98_LIBS})
 

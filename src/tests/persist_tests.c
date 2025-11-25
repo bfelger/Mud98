@@ -9,6 +9,10 @@
 #include <persist/persist_io_adapters.h>
 #include <persist/persist_result.h>
 #include <persist/rom-olc/area_persist_rom_olc.h>
+#ifdef HAVE_JSON_AREAS
+#include <persist/json/area_persist_json.h>
+#include <jansson.h>
+#endif
 
 #include <db.h>
 #include <entities/area.h>
@@ -463,6 +467,384 @@ static int test_rom_olc_exhaustive_area_round_trip()
 }
 #endif
 
+#ifdef HAVE_JSON_AREAS
+#define PERSIST_JSON_EXHAUSTIVE_TEST
+#if defined(PERSIST_EXHAUSTIVE_PERSIST_TEST) && defined(PERSIST_JSON_EXHAUSTIVE_TEST)
+static int test_json_exhaustive_area_round_trip()
+{
+    const char* area_dir = cfg_get_area_dir();
+    const char* area_list = cfg_get_area_list();
+    char list_path[MIL];
+    sprintf(list_path, "%s%s", area_dir, area_list);
+
+    FILE* fpList = fopen(list_path, "r");
+    if (!fpList)
+        return 0; // quietly skip if areas unavailable
+
+    char fname[MIL];
+    while (fscanf(fpList, "%s", fname) == 1) {
+        if (fname[0] == '$')
+            break;
+
+        PersistStateSnapshot snap_save;
+        persist_state_begin(&snap_save);
+
+        char area_path[MIL];
+        sprintf(area_path, "%s%s", area_dir, fname);
+
+        FILE* load_fp = fopen(area_path, "r");
+        if (!load_fp) {
+            persist_state_end(&snap_save);
+            continue;
+        }
+
+        PersistReader reader = persist_reader_from_FILE(load_fp, fname);
+        AreaPersistLoadParams load_params = {
+            .reader = &reader,
+            .file_name = fname,
+            .create_single_instance = false,
+        };
+
+        PersistResult load_result = AREA_PERSIST_ROM_OLC.load(&load_params);
+        fclose(load_fp);
+        if (!persist_succeeded(load_result) || global_areas.count != 1) {
+            persist_state_end(&snap_save);
+            continue;
+        }
+
+        AreaData* area = LAST_AREA_DATA;
+        if (!area) {
+            persist_state_end(&snap_save);
+            continue;
+        }
+
+        PersistBufferWriter buf = { 0 };
+        PersistWriter writer = persist_writer_from_buffer(&buf, fname);
+        AreaPersistSaveParams save_params = {
+            .writer = &writer,
+            .area = area,
+            .file_name = fname,
+        };
+
+        PersistResult save_result = AREA_PERSIST_JSON.save(&save_params);
+        persist_state_end(&snap_save);
+
+        if (!persist_succeeded(save_result) || buf.data == NULL || buf.len == 0) {
+            free(buf.data);
+            continue;
+        }
+
+        // Load the JSON we just wrote in a fresh state to ensure it parses.
+        PersistStateSnapshot snap_load;
+        persist_state_begin(&snap_load);
+
+        PersistBufferReaderCtx ctx;
+        PersistReader json_reader = persist_reader_from_buffer(buf.data, buf.len, fname, &ctx);
+        AreaPersistLoadParams json_params = {
+            .reader = &json_reader,
+            .file_name = fname,
+            .create_single_instance = false,
+        };
+
+        PersistResult json_result = AREA_PERSIST_JSON.load(&json_params);
+        free(buf.data);
+        persist_state_end(&snap_load);
+
+        if (!persist_succeeded(json_result))
+            break;
+    }
+
+    fclose(fpList);
+    return 0;
+}
+#endif // PERSIST_EXHAUSTIVE_PERSIST_TEST && PERSIST_JSON_EXHAUSTIVE_TEST
+
+static const char* MIN_AREA_JSON =
+    "{\n"
+    "  \"formatVersion\": 1,\n"
+    "  \"areadata\": {\n"
+    "    \"version\": 2,\n"
+    "    \"name\": \"JSON Area\",\n"
+    "    \"builders\": \"Tester\",\n"
+    "    \"vnums\": [1, 1],\n"
+    "    \"credits\": \"None\",\n"
+    "    \"security\": 9,\n"
+    "    \"sector\": 0,\n"
+    "    \"low\": 1,\n"
+    "    \"high\": 10,\n"
+    "    \"reset\": 4,\n"
+    "    \"alwaysReset\": false,\n"
+    "    \"instType\": 0\n"
+    "  }\n"
+    "}\n";
+
+static int test_json_loads_areadata()
+{
+    PersistStateSnapshot snap;
+    persist_state_begin(&snap);
+
+    PersistBufferReaderCtx ctx;
+    PersistReader reader = persist_reader_from_buffer(MIN_AREA_JSON, strlen(MIN_AREA_JSON), "test.json", &ctx);
+    AreaPersistLoadParams params = {
+        .reader = &reader,
+        .file_name = "test.json",
+        .create_single_instance = false,
+    };
+
+    PersistResult res = AREA_PERSIST_JSON.load(&params);
+    ASSERT_OR_GOTO(persist_succeeded(res), cleanup);
+    ASSERT(global_areas.count == 1);
+
+    AreaData* area = LAST_AREA_DATA;
+    ASSERT(area != NULL);
+    ASSERT_STR_EQ("test.json", area->file_name);
+    ASSERT_STR_EQ("JSON Area", NAME_STR(area));
+    ASSERT(area->min_vnum == 1);
+    ASSERT(area->max_vnum == 1);
+
+cleanup:
+    persist_state_end(&snap);
+    return 0;
+}
+
+static bool json_array_contains(json_t* arr, const char* needle)
+{
+    if (!json_is_array(arr) || !needle)
+        return false;
+    size_t sz = json_array_size(arr);
+    for (size_t i = 0; i < sz; i++) {
+        const char* s = json_string_value(json_array_get(arr, i));
+        if (s && str_cmp(s, needle) == 0)
+            return true;
+    }
+    return false;
+}
+
+static int64_t json_int_or_default(json_t* obj, const char* key, int64_t def)
+{
+    json_t* val = json_object_get(obj, key);
+    if (json_is_integer(val))
+        return json_integer_value(val);
+    return def;
+}
+
+static json_t* find_object_entry(json_t* objs, VNUM vnum)
+{
+    if (!json_is_array(objs))
+        return NULL;
+    size_t count = json_array_size(objs);
+    for (size_t i = 0; i < count; i++) {
+        json_t* o = json_array_get(objs, i);
+        if (!json_is_object(o))
+            continue;
+        if ((VNUM)json_int_or_default(o, "vnum", 0) == vnum)
+            return o;
+    }
+    return NULL;
+}
+
+static int test_json_saves_typed_objects()
+{
+    PersistStateSnapshot snap;
+    persist_state_begin(&snap);
+
+    // Load a minimal area via ROM to seed the area structures.
+    FILE* load_fp = tmpfile();
+    ASSERT_OR_GOTO(load_fp != NULL, cleanup);
+    size_t written = fwrite(MIN_AREA_TEXT, 1, strlen(MIN_AREA_TEXT), load_fp);
+    ASSERT_OR_GOTO(written == strlen(MIN_AREA_TEXT), cleanup);
+    rewind(load_fp);
+
+    PersistReader reader = persist_reader_from_FILE(load_fp, "test.are");
+    AreaPersistLoadParams load_params = {
+        .reader = &reader,
+        .file_name = "test.are",
+        .create_single_instance = false,
+    };
+    PersistResult load_result = AREA_PERSIST_ROM_OLC.load(&load_params);
+    ASSERT_OR_GOTO(persist_succeeded(load_result), cleanup);
+
+    AreaData* area = LAST_AREA_DATA;
+    ASSERT_OR_GOTO(area != NULL, cleanup);
+    area->max_vnum = 10; // allow our test vnums to live inside the range
+
+    // Weapon prototype with typed data.
+    ObjPrototype* weapon = new_object_prototype();
+    VNUM_FIELD(weapon) = 1;
+    weapon->area = area;
+    SET_NAME(weapon, lox_string("test sword"));
+    weapon->short_descr = str_dup("a test sword");
+    weapon->description = str_dup("A shiny test sword lies here.");
+    weapon->material = str_dup("steel");
+    weapon->item_type = ITEM_WEAPON;
+    weapon->value[0] = WEAPON_SWORD;
+    weapon->value[1] = 2;
+    weapon->value[2] = 5;
+    weapon->value[3] = attack_lookup("slash");
+    weapon->value[4] = WEAPON_SHARP;
+    table_set_vnum(&obj_protos, VNUM_FIELD(weapon), OBJ_VAL(weapon));
+
+    // Container prototype with typed data.
+    ObjPrototype* container = new_object_prototype();
+    VNUM_FIELD(container) = 2;
+    container->area = area;
+    SET_NAME(container, lox_string("test chest"));
+    container->short_descr = str_dup("a test chest");
+    container->description = str_dup("A sturdy test chest is here.");
+    container->material = str_dup("oak");
+    container->item_type = ITEM_CONTAINER;
+    container->value[0] = 10; // capacity
+    container->value[1] = CONT_CLOSEABLE | CONT_LOCKED;
+    container->value[2] = 123; // key
+    container->value[3] = 50;  // max weight
+    container->value[4] = 3;   // weight multiplier
+    table_set_vnum(&obj_protos, VNUM_FIELD(container), OBJ_VAL(container));
+
+    // Light prototype with hours.
+    ObjPrototype* light = new_object_prototype();
+    VNUM_FIELD(light) = 3;
+    light->area = area;
+    SET_NAME(light, lox_string("test lantern"));
+    light->short_descr = str_dup("a test lantern");
+    light->description = str_dup("A test lantern sheds light here.");
+    light->material = str_dup("glass");
+    light->item_type = ITEM_LIGHT;
+    light->value[2] = 5; // hours
+    table_set_vnum(&obj_protos, VNUM_FIELD(light), OBJ_VAL(light));
+
+    top_vnum_obj = 3;
+
+    PersistBufferWriter buf = { 0 };
+    PersistWriter writer = persist_writer_from_buffer(&buf, "out.json");
+    AreaPersistSaveParams save_params = {
+        .writer = &writer,
+        .area = area,
+        .file_name = "out.json",
+    };
+    PersistResult save_result = AREA_PERSIST_JSON.save(&save_params);
+    ASSERT_OR_GOTO(persist_succeeded(save_result), cleanup);
+    ASSERT_OR_GOTO(buf.data != NULL && buf.len > 0, cleanup);
+
+    json_error_t jerr;
+    json_t* root = json_loadb((const char*)buf.data, buf.len, 0, &jerr);
+    ASSERT_OR_GOTO(root != NULL, cleanup);
+    json_t* objects = json_object_get(root, "objects");
+    ASSERT_OR_GOTO(json_is_array(objects), cleanup_root);
+
+    // Weapon typed block
+    json_t* wobj = find_object_entry(objects, 1);
+    ASSERT_OR_GOTO(wobj != NULL, cleanup_root);
+    json_t* weapon_block = json_object_get(wobj, "weapon");
+    ASSERT_OR_GOTO(json_is_object(weapon_block), cleanup_root);
+    ASSERT_STR_EQ("sword", json_string_value(json_object_get(weapon_block, "class")));
+    ASSERT_STR_EQ("slash", json_string_value(json_object_get(weapon_block, "damageType")));
+    json_t* wflags = json_object_get(weapon_block, "flags");
+    ASSERT(json_array_contains(wflags, "sharp"));
+
+    // Container typed block
+    json_t* cobj = find_object_entry(objects, 2);
+    ASSERT_OR_GOTO(cobj != NULL, cleanup_root);
+    json_t* container_block = json_object_get(cobj, "container");
+    ASSERT_OR_GOTO(json_is_object(container_block), cleanup_root);
+    ASSERT(json_int_or_default(container_block, "capacity", 0) == 10);
+    ASSERT(json_int_or_default(container_block, "keyVnum", 0) == 123);
+    ASSERT(json_int_or_default(container_block, "maxWeight", 0) == 50);
+    ASSERT(json_int_or_default(container_block, "weightMult", 0) == 3);
+
+    // Light typed block
+    json_t* lobj = find_object_entry(objects, 3);
+    ASSERT_OR_GOTO(lobj != NULL, cleanup_root);
+    json_t* light_block = json_object_get(lobj, "light");
+    ASSERT_OR_GOTO(json_is_object(light_block), cleanup_root);
+    ASSERT(json_int_or_default(light_block, "hours", 0) == 5);
+
+cleanup_root:
+    if (root)
+        json_decref(root);
+cleanup:
+    if (buf.data)
+        free(buf.data);
+    if (load_fp)
+        fclose(load_fp);
+    persist_state_end(&snap);
+    return 0;
+}
+
+static int test_json_to_rom_round_trip()
+{
+    PersistStateSnapshot snap;
+    persist_state_begin(&snap);
+
+    // 1) Load minimal area from ROM text.
+    FILE* load_fp = tmpfile();
+    ASSERT_OR_GOTO(load_fp != NULL, cleanup_all);
+    size_t written = fwrite(MIN_AREA_TEXT, 1, strlen(MIN_AREA_TEXT), load_fp);
+    ASSERT_OR_GOTO(written == strlen(MIN_AREA_TEXT), cleanup_all);
+    rewind(load_fp);
+
+    PersistReader reader = persist_reader_from_FILE(load_fp, "test.are");
+    AreaPersistLoadParams load_params = {
+        .reader = &reader,
+        .file_name = "test.are",
+        .create_single_instance = false,
+    };
+    PersistResult load_result = AREA_PERSIST_ROM_OLC.load(&load_params);
+    ASSERT_OR_GOTO(persist_succeeded(load_result), cleanup_all);
+    ASSERT_OR_GOTO(global_areas.count == 1, cleanup_all);
+    AreaData* area = LAST_AREA_DATA;
+    ASSERT_OR_GOTO(area != NULL, cleanup_all);
+
+    // 2) Save to JSON buffer.
+    PersistBufferWriter json_buf = { 0 };
+    PersistWriter json_writer = persist_writer_from_buffer(&json_buf, "test.json");
+    AreaPersistSaveParams json_save_params = {
+        .writer = &json_writer,
+        .area = area,
+        .file_name = "test.json",
+    };
+    PersistResult json_save = AREA_PERSIST_JSON.save(&json_save_params);
+    ASSERT_OR_GOTO(persist_succeeded(json_save), cleanup_all);
+    ASSERT_OR_GOTO(json_buf.data != NULL && json_buf.len > 0, cleanup_all);
+
+    // 3) Reset state and load from JSON buffer.
+    persist_state_end(&snap);
+    persist_state_begin(&snap);
+
+    PersistBufferReaderCtx json_ctx;
+    PersistReader json_reader = persist_reader_from_buffer(json_buf.data, json_buf.len, "test.json", &json_ctx);
+    AreaPersistLoadParams json_load_params = {
+        .reader = &json_reader,
+        .file_name = "test.json",
+        .create_single_instance = false,
+    };
+    PersistResult json_load = AREA_PERSIST_JSON.load(&json_load_params);
+    ASSERT_OR_GOTO(persist_succeeded(json_load), cleanup_all);
+    ASSERT_OR_GOTO(global_areas.count == 1, cleanup_all);
+    AreaData* area2 = LAST_AREA_DATA;
+    ASSERT_OR_GOTO(area2 != NULL, cleanup_all);
+
+    // 4) Save back to ROM text buffer and ensure it contains expected markers.
+    PersistBufferWriter rom_buf = { 0 };
+    PersistWriter rom_writer = persist_writer_from_buffer(&rom_buf, "out.are");
+    AreaPersistSaveParams rom_save_params = {
+        .writer = &rom_writer,
+        .area = area2,
+        .file_name = "out.are",
+    };
+    PersistResult rom_save = AREA_PERSIST_ROM_OLC.save(&rom_save_params);
+    ASSERT_OR_GOTO(persist_succeeded(rom_save), cleanup_all);
+    ASSERT_OR_GOTO(rom_buf.data != NULL && rom_buf.len > 0, cleanup_all);
+    ASSERT(strstr((const char*)rom_buf.data, "#AREADATA") != NULL);
+    ASSERT(strstr((const char*)rom_buf.data, "Name Test Area~") != NULL);
+
+cleanup_all:
+    if (load_fp)
+        fclose(load_fp);
+    persist_state_end(&snap);
+    return 0;
+}
+#endif // HAVE_JSON_AREAS
+
 static TestGroup persist_tests;
 
 void register_persist_tests()
@@ -478,6 +860,14 @@ void register_persist_tests()
     REGISTER("ROM OLC Rejects Bad Section", test_rom_olc_rejects_bad_section);
 #ifdef PERSIST_EXHAUSTIVE_PERSIST_TEST
     REGISTER("ROM OLC Exhaustive Area Round Trip", test_rom_olc_exhaustive_area_round_trip);
+#endif
+#ifdef HAVE_JSON_AREAS
+    REGISTER("JSON Loads Areadata", test_json_loads_areadata);
+    REGISTER("JSON Saves Typed Objects", test_json_saves_typed_objects);
+#if defined(PERSIST_EXHAUSTIVE_PERSIST_TEST) && defined(PERSIST_JSON_EXHAUSTIVE_TEST)
+    REGISTER("JSON Exhaustive Area Round Trip", test_json_exhaustive_area_round_trip);
+#endif
+    REGISTER("ROM->JSON->ROM Round Trip", test_json_to_rom_round_trip);
 #endif
 
 #undef REGISTER

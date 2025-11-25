@@ -37,4 +37,8 @@ static inline bool area_persist_succeeded(PersistResult result)
     return persist_succeeded(result);
 }
 
+// Format selection helper: returns a format based on filename/extension.
+// Always returns a non-NULL format (defaults to rom-olc).
+const AreaPersistFormat* area_persist_select_format(const char* file_name);
+
 #endif // !MUD98__PERSIST__AREA_PERSIST_H
