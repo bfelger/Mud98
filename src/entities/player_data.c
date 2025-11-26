@@ -37,6 +37,7 @@ PlayerData* new_player_data()
     player_data->reputations.entries = NULL;
     player_data->reputations.count = 0;
     player_data->reputations.capacity = 0;
+    player_data->pwd_digest_hex = str_dup("");
 
     player_data->recall = cfg_get_default_recall();
 

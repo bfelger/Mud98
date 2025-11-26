@@ -71,10 +71,10 @@ static int test_password_survives_save_and_load()
 
     Mobile* player = mock_player("FileUser");
     ASSERT(set_password("opensesame", player));
-    bool prev_output = test_output_enabled;
-    test_output_enabled = false;
+    //bool prev_output = test_output_enabled;
+    //test_output_enabled = false;
     save_char_obj(player);
-    test_output_enabled = prev_output;
+    //test_output_enabled = prev_output;
 
     Descriptor* d = mock_descriptor();
     ASSERT(load_char_obj(d, "FileUser"));

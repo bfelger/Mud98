@@ -179,8 +179,9 @@ static json_t* build_exit(const RoomExitData* ex)
     if (dir)
         json_object_set_new(obj, "dir", json_string(dir));
     json_object_set_new(obj, "toVnum", json_integer(ex->to_vnum));
-    json_object_set_new(obj, "key", json_integer(ex->key));
-    json_object_set_new(obj, "flags", flags_to_array(ex->exit_reset_flags, exit_flag_table));
+    if (ex->key != 0)
+        json_object_set_new(obj, "key", json_integer(ex->key));
+    json_set_flags_if(obj, "flags", ex->exit_reset_flags, exit_flag_table);
     if (ex->description && ex->description[0] != '\0')
         json_object_set_new(obj, "description", json_string(ex->description));
     if (ex->keyword && ex->keyword[0] != '\0')
@@ -211,8 +212,10 @@ static json_t* build_rooms(const AreaData* area)
         json_object_set_new(obj, "vnum", json_integer(VNUM_FIELD(room_data)));
         json_object_set_new(obj, "name", json_string(NAME_STR(room_data)));
         json_object_set_new(obj, "description", json_string(room_data->description ? room_data->description : ""));
-        json_object_set_new(obj, "roomFlags", flags_to_array(room_data->room_flags, room_flag_table));
-        json_object_set_new(obj, "sectorType", json_integer(room_data->sector_type));
+        json_set_flags_if(obj, "roomFlags", room_data->room_flags, room_flag_table);
+        const char* sector_name = flag_string(sector_flag_table, room_data->sector_type);
+        if (sector_name && sector_name[0] != '\0')
+            json_object_set_new(obj, "sectorType", json_string(sector_name));
         if (room_data->mana_rate != 100)
             json_object_set_new(obj, "manaRate", json_integer(room_data->mana_rate));
         if (room_data->heal_rate != 100)
@@ -227,7 +230,10 @@ static json_t* build_rooms(const AreaData* area)
             if (room_data->exit_data[i])
                 json_array_append_new(exits, build_exit(room_data->exit_data[i]));
         }
-        json_object_set_new(obj, "exits", exits);
+        if (json_array_size(exits) > 0)
+            json_object_set_new(obj, "exits", exits);
+        else
+            json_decref(exits);
 
         if (room_data->extra_desc)
             json_object_set_new(obj, "extraDescs", build_extra_descs(room_data->extra_desc));

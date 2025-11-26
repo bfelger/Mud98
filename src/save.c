@@ -203,8 +203,9 @@ void fwrite_char(Mobile* ch, FILE* fp)
     if (ch->short_descr[0] != '\0')fprintf(fp, "ShD  %s~\n", ch->short_descr);
     if (ch->long_descr[0] != '\0') fprintf(fp, "LnD  %s~\n", ch->long_descr);
     if (ch->description[0] != '\0') fprintf(fp, "Desc %s~\n", ch->description);
-    if (ch->prompt != NULL || !str_cmp(ch->prompt, "<%hhp %mm %vmv> ")
-        || !str_cmp(ch->prompt, "^p<%hhp %mm %vmv>" COLOR_CLEAR " "))
+    if (ch->prompt != NULL
+        && str_cmp(ch->prompt, "<%hhp %mm %vmv> ")
+        && str_cmp(ch->prompt, "^p<%hhp %mm %vmv>" COLOR_CLEAR " "))
         fprintf(fp, "Prom %s~\n", ch->prompt);
     fprintf(fp, "Race %s~\n", race_table[ch->race].name);
     if (ch->clan) fprintf(fp, "Clan %s~\n", clan_table[ch->clan].name);
@@ -270,11 +271,12 @@ void fwrite_char(Mobile* ch, FILE* fp)
             bin_to_hex(digest_buf, ch->pcdata->pwd_digest, ch->pcdata->pwd_digest_len);
         fprintf(fp, "PwdDigest %s~\n", digest_buf);
 
-        if (ch->pcdata->bamfin[0] != '\0')
+        if (ch->pcdata->bamfin != NULL && ch->pcdata->bamfin[0] != '\0')
             fprintf(fp, "Bin  %s~\n", ch->pcdata->bamfin);
-        if (ch->pcdata->bamfout[0] != '\0')
+        if (ch->pcdata->bamfout != NULL && ch->pcdata->bamfout[0] != '\0')
             fprintf(fp, "Bout %s~\n", ch->pcdata->bamfout);
-        fprintf(fp, "Titl %s~\n", ch->pcdata->title);
+        if (ch->pcdata->title != NULL)
+            fprintf(fp, "Titl %s~\n", ch->pcdata->title);
         fprintf(fp, "Pnts %d\n", ch->pcdata->points);
         fprintf(fp, "TSex %d\n", ch->pcdata->true_sex);
         fprintf(fp, "LLev %d\n", ch->pcdata->last_level);
@@ -792,8 +794,8 @@ void fread_char(Mobile* ch, FILE* fp)
     time_t lastlogoff = current_time;
     int16_t percent;
 
-    sprintf(buf, "Loading %s.", NAME_STR(ch));
-    log_string(buf);
+    if (!test_output_enabled)
+        printf_log("Loading %s.", NAME_STR(ch));
 
     for (;;) {
         word = feof(fp) ? "End" : fread_word(fp);

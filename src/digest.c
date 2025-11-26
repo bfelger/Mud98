@@ -175,15 +175,6 @@ bool validate_password(char* pwd, Mobile* ch)
     bool match = stored_len == new_digest_len &&
         !memcmp(new_digest, stored_digest, new_digest_len);
 
-    if (!match) {
-        char stored_hex[256] = { 0 };
-        char candidate_hex[256] = { 0 };
-        bin_to_hex(stored_hex, stored_digest, stored_len);
-        bin_to_hex(candidate_hex, new_digest, new_digest_len);
-        fprintf(stderr, "Password mismatch: stored(%u)=%s candidate(%u)=%s\n",
-            (unsigned int)stored_len, stored_hex, new_digest_len, candidate_hex);
-    }
-
     free_digest(new_digest);
     free(stored_digest);
     return match;

@@ -22,6 +22,11 @@ RoomExit* new_room_exit(RoomExitData* room_exit_data, Room* from)
 
     room_exit->data = room_exit_data;
     room_exit->exit_flags = room_exit_data->exit_reset_flags;
+
+    if (room_exit_data->to_room == NULL || room_exit_data->to_room->instances.front == NULL) {
+        room_exit->to_room = NULL;
+        return room_exit;
+    }
     
     if (from->area->data == room_exit_data->to_room->area_data) {
         room_exit->to_room = get_room(from->area, room_exit_data->to_vnum);
