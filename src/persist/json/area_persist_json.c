@@ -12,6 +12,7 @@
 #include <entities/room_exit.h>
 #include <entities/extra_desc.h>
 #include <entities/reset.h>
+#include <entities/event.h>
 #include <entities/faction.h>
 #include <entities/help_data.h>
 #include <entities/shop_data.h>
@@ -21,6 +22,7 @@
 #include <data/item.h>
 #include <data/race.h>
 #include <data/skill.h>
+#include <data/events.h>
 #include <lookup.h>
 #include <tables.h>
 #include <data/direction.h>
@@ -151,6 +153,97 @@ static int dir_enum_from_name(const char* name)
     return (int)get_direction(name);
 }
 
+static const EventTypeInfo* trigger_info_from_name(const char* name)
+{
+    if (!name)
+        return NULL;
+    for (int i = 0; i < TRIG_COUNT; i++) {
+        const EventTypeInfo* info = &event_type_info_table[i];
+        if (info->name && str_cmp(info->name, name) == 0)
+            return info;
+    }
+    return NULL;
+}
+
+static json_t* build_events(const Entity* ent)
+{
+    json_t* arr = json_array();
+    if (!ent || ent->events.count == 0)
+        return arr;
+
+    for (Node* node = ent->events.front; node != NULL; node = node->next) {
+        Event* ev = AS_EVENT(node->value);
+        if (!ev)
+            continue;
+        json_t* obj = json_object();
+        const char* trig_name = get_event_name((EventTrigger)ev->trigger);
+        if (trig_name && trig_name[0] != '\0')
+            json_object_set_new(obj, "trigger", json_string(trig_name));
+        else
+            json_object_set_new(obj, "triggerValue", json_integer(ev->trigger));
+        if (ev->method_name && ev->method_name->chars)
+            json_object_set_new(obj, "callback", json_string(ev->method_name->chars));
+        if (IS_INT(ev->criteria))
+            json_object_set_new(obj, "criteria", json_integer(AS_INT(ev->criteria)));
+        else if (IS_STRING(ev->criteria))
+            json_object_set_new(obj, "criteria", json_string(AS_STRING(ev->criteria)->chars));
+        if (json_object_size(obj) > 0)
+            json_array_append_new(arr, obj);
+        else
+            json_decref(obj);
+    }
+    return arr;
+}
+
+static void parse_events(json_t* arr, Entity* ent, EventEnts ent_type)
+{
+    if (!json_is_array(arr) || !ent)
+        return;
+
+    size_t count = json_array_size(arr);
+    for (size_t i = 0; i < count; i++) {
+        json_t* e = json_array_get(arr, i);
+        if (!json_is_object(e))
+            continue;
+
+        FLAGS trig = 0;
+        const EventTypeInfo* info = NULL;
+        const char* trig_name = json_string_value(json_object_get(e, "trigger"));
+        if (trig_name) {
+            info = trigger_info_from_name(trig_name);
+            if (info)
+                trig = info->trigger;
+        }
+        if (trig == 0 && json_is_integer(json_object_get(e, "triggerValue")))
+            trig = (FLAGS)json_integer_value(json_object_get(e, "triggerValue"));
+        if (trig == 0)
+            continue;
+
+        if (info == NULL)
+            info = get_event_type_info((EventTrigger)trig);
+        if (info && !(info->valid_ents & ent_type))
+            continue; // not valid for this entity type
+
+        const char* cb = json_string_value(json_object_get(e, "callback"));
+        if (!cb && info)
+            cb = info->default_callback;
+
+        Value criteria = NIL_VAL;
+        json_t* crit = json_object_get(e, "criteria");
+        if (json_is_integer(crit))
+            criteria = INT_VAL((int)json_integer_value(crit));
+        else if (json_is_string(crit))
+            criteria = OBJ_VAL(lox_string(json_string_value(crit)));
+
+        Event* ev = new_event();
+        ev->trigger = (EventTrigger)trig;
+        if (cb)
+            ev->method_name = lox_string(cb);
+        ev->criteria = criteria;
+        add_event(ent, ev);
+    }
+}
+
 static json_t* build_areadata(const AreaData* area)
 {
     json_t* obj = json_object();
@@ -241,6 +334,15 @@ static json_t* build_rooms(const AreaData* area)
         if (room_data->extra_desc)
             json_object_set_new(obj, "extraDescs", build_extra_descs(room_data->extra_desc));
 
+        Entity* ent = (Entity*)room_data;
+        if (ent->script && ent->script->chars && ent->script->length > 0)
+            json_object_set_new(obj, "loxScript", json_string(ent->script->chars));
+        json_t* ev = build_events(ent);
+        if (json_array_size(ev) > 0)
+            json_object_set_new(obj, "events", ev);
+        else
+            json_decref(ev);
+
         json_array_append_new(arr, obj);
     }
     return arr;
@@ -322,9 +424,6 @@ static PersistResult parse_areadata(json_t* root, const AreaPersistLoadParams* p
         LAST_AREA_DATA->next = area;
     area->next = NULL;
     current_area_data = area;
-
-    if (params->create_single_instance && area->inst_type == AREA_INST_SINGLE)
-        create_area_instance(area, false);
 
     return (PersistResult){ PERSIST_OK, NULL, -1 };
 }
@@ -416,6 +515,11 @@ static PersistResult parse_rooms(json_t* root, AreaData* area)
                 ADD_EXTRA_DESC(room, ed)
             }
         }
+
+        const char* script = json_string_value(json_object_get(r, "loxScript"));
+        if (script && script[0] != '\0')
+            ((Entity*)room)->script = lox_string(script);
+        parse_events(json_object_get(r, "events"), (Entity*)room, ENT_ROOM);
     }
 
     return (PersistResult){ PERSIST_OK, NULL, -1 };
@@ -440,6 +544,94 @@ static const char* sex_name(Sex sex)
     if (sex < 0 || sex >= SEX_COUNT)
         return sex_table[SEX_NEUTRAL].name;
     return sex_table[sex].name;
+}
+
+static json_t* build_affect(const Affect* af)
+{
+    json_t* obj = json_object();
+    if (af->type >= 0 && af->type < skill_count && skill_table[af->type].name)
+        json_object_set_new(obj, "type", json_string(skill_table[af->type].name));
+    else
+        json_object_set_new(obj, "type", json_integer(af->type));
+
+    const char* where_name = flag_string(apply_types, af->where);
+    if (where_name && where_name[0] != '\0')
+        json_object_set_new(obj, "where", json_string(where_name));
+    const char* loc_name = flag_string(apply_flag_table, af->location);
+    if (loc_name && loc_name[0] != '\0')
+        json_object_set_new(obj, "location", json_string(loc_name));
+    else
+        json_object_set_new(obj, "location", json_integer(af->location));
+
+    json_object_set_new(obj, "level", json_integer(af->level));
+    json_object_set_new(obj, "duration", json_integer(af->duration));
+    json_object_set_new(obj, "modifier", json_integer(af->modifier));
+
+    const struct bit_type* bv_type = &bitvector_type[af->where];
+    if (bv_type && bv_type->table)
+        json_set_flags_if(obj, "bitvector", af->bitvector, bv_type->table);
+    else if (af->bitvector != 0)
+        json_object_set_new(obj, "bitvectorValue", json_integer(af->bitvector));
+
+    return obj;
+}
+
+static json_t* build_affects(const Affect* list)
+{
+    json_t* arr = json_array();
+    for (const Affect* af = list; af != NULL; af = af->next)
+        json_array_append_new(arr, build_affect(af));
+    return arr;
+}
+
+static void parse_affects(json_t* arr, Affect** out_list)
+{
+    if (!json_is_array(arr) || !out_list)
+        return;
+
+    size_t count = json_array_size(arr);
+    for (size_t i = 0; i < count; i++) {
+        json_t* a = json_array_get(arr, i);
+        if (!json_is_object(a))
+            continue;
+        Affect* af = new_affect();
+        json_t* type = json_object_get(a, "type");
+        if (json_is_string(type)) {
+            SKNUM sn = skill_lookup(json_string_value(type));
+            af->type = sn >= 0 ? sn : -1;
+        }
+        else
+            af->type = (int16_t)json_int_or_default(a, "type", -1);
+
+        const char* where = json_string_value(json_object_get(a, "where"));
+        if (where) {
+            FLAGS w = flag_lookup(where, apply_types);
+            if (w != NO_FLAG)
+                af->where = (int16_t)w;
+        }
+        json_t* loc = json_object_get(a, "location");
+        if (json_is_string(loc)) {
+            FLAGS l = flag_lookup(json_string_value(loc), apply_flag_table);
+            if (l != NO_FLAG)
+                af->location = (int16_t)l;
+        }
+        else
+            af->location = (int16_t)json_int_or_default(a, "location", af->location);
+
+        af->level = (int16_t)json_int_or_default(a, "level", af->level);
+        af->duration = (int16_t)json_int_or_default(a, "duration", af->duration);
+        af->modifier = (int16_t)json_int_or_default(a, "modifier", af->modifier);
+
+        const struct bit_type* bv_type = &bitvector_type[af->where];
+        json_t* bv = json_object_get(a, "bitvector");
+        if (bv && bv_type && bv_type->table)
+            af->bitvector = (int16_t)flags_from_array(bv, bv_type->table);
+        else
+            af->bitvector = (int16_t)json_int_or_default(a, "bitvectorValue", af->bitvector);
+
+        af->next = *out_list;
+        *out_list = af;
+    }
 }
 
 static json_t* dice_to_json(const int16_t dice[3])
@@ -557,6 +749,15 @@ static json_t* build_mobiles(const AreaData* area)
         if (mob->faction_vnum != 0)
             json_object_set_new(obj, "factionVnum", json_integer(mob->faction_vnum));
 
+        Entity* ent = (Entity*)mob;
+        if (ent->script && ent->script->chars && ent->script->length > 0)
+            json_object_set_new(obj, "loxScript", json_string(ent->script->chars));
+        json_t* ev = build_events(ent);
+        if (json_array_size(ev) > 0)
+            json_object_set_new(obj, "events", ev);
+        else
+            json_decref(ev);
+
         json_array_append_new(arr, obj);
     }
 
@@ -662,6 +863,11 @@ static PersistResult parse_mobiles(json_t* root, AreaData* area)
         }
         mob->faction_vnum = (VNUM)json_int_or_default(m, "factionVnum", mob->faction_vnum);
 
+        const char* script = json_string_value(json_object_get(m, "loxScript"));
+        if (script && script[0] != '\0')
+            ((Entity*)mob)->script = lox_string(script);
+        parse_events(json_object_get(m, "events"), (Entity*)mob, ENT_MOB);
+
         VNUM vnum = (VNUM)json_int_or_default(m, "vnum", VNUM_NONE);
         VNUM_FIELD(mob) = vnum;
         table_set_vnum(&mob_protos, vnum, OBJ_VAL(mob));
@@ -719,6 +925,7 @@ static PersistResult parse_shops(json_t* root)
         if (!mob)
             continue;
         ShopData* shop = new_shop_data();
+        shop->keeper = (int16_t)keeper;
         for (int j = 0; j < MAX_TRADE; j++)
             shop->buy_type[j] = 0;
 
@@ -734,6 +941,12 @@ static PersistResult parse_shops(json_t* root)
         shop->close_hour = (int16_t)json_int_or_default(s, "closeHour", shop->close_hour);
 
         mob->pShop = shop;
+        if (shop_first == NULL)
+            shop_first = shop;
+        if (shop_last != NULL)
+            shop_last->next = shop;
+        shop_last = shop;
+        shop->next = NULL;
     }
 
     return (PersistResult){ PERSIST_OK, NULL, -1 };
@@ -1202,6 +1415,17 @@ static json_t* build_objects(const AreaData* area)
 
         if (obj->extra_desc)
             json_object_set_new(o, "extraDescs", build_extra_descs(obj->extra_desc));
+        if (obj->affected)
+            json_object_set_new(o, "affects", build_affects(obj->affected));
+
+        Entity* ent = (Entity*)obj;
+        if (ent->script && ent->script->chars && ent->script->length > 0)
+            json_object_set_new(o, "loxScript", json_string(ent->script->chars));
+        json_t* ev = build_events(ent);
+        if (json_array_size(ev) > 0)
+            json_object_set_new(o, "events", ev);
+        else
+            json_decref(ev);
 
         json_array_append_new(arr, o);
     }
@@ -1313,6 +1537,12 @@ static PersistResult parse_objects(json_t* root, AreaData* area)
                 ADD_EXTRA_DESC(obj, ed)
             }
         }
+        parse_affects(json_object_get(o, "affects"), &obj->affected);
+
+        const char* script = json_string_value(json_object_get(o, "loxScript"));
+        if (script && script[0] != '\0')
+            ((Entity*)obj)->script = lox_string(script);
+        parse_events(json_object_get(o, "events"), (Entity*)obj, ENT_OBJ);
 
         VNUM vnum = (VNUM)json_int_or_default(o, "vnum", VNUM_NONE);
         VNUM_FIELD(obj) = vnum;
@@ -1498,7 +1728,7 @@ static PersistResult parse_specials(json_t* root)
 
     return (PersistResult){ PERSIST_OK, NULL, -1 };
 }
-static json_t* build_reset(const Reset* reset)
+static json_t* build_reset(const Reset* reset, VNUM room_vnum)
 {
     json_t* obj = json_object();
     char cmd[2] = { reset->command, '\0' };
@@ -1524,6 +1754,8 @@ static json_t* build_reset(const Reset* reset)
         if (reset->arg2 != 0)
             json_object_set_new(obj, "count", json_integer(reset->arg2));
         json_object_set_new(obj, "containerVnum", json_integer(reset->arg3));
+        if (reset->arg4 != 0)
+            json_object_set_new(obj, "maxInContainer", json_integer(reset->arg4));
         break;
     case 'G':
         name = "giveObj";
@@ -1549,6 +1781,7 @@ static json_t* build_reset(const Reset* reset)
         break;
     }
 
+    json_object_set_new(obj, "roomVnum", json_integer(room_vnum));
     if (name)
         json_object_set_new(obj, "commandName", json_string(name));
     else {
@@ -1570,7 +1803,7 @@ static json_t* build_resets(const AreaData* area)
             continue;
         Reset* reset;
         FOR_EACH(reset, room->reset_first) {
-            json_array_append_new(arr, build_reset(reset));
+            json_array_append_new(arr, build_reset(reset, VNUM_FIELD(room)));
         }
     }
     return arr;
@@ -1592,6 +1825,7 @@ static PersistResult parse_resets(json_t* root)
     if (!json_is_array(resets))
         return (PersistResult){ PERSIST_OK, NULL, -1 };
 
+    VNUM last_room_vnum = VNUM_NONE;
     size_t count = json_array_size(resets);
     for (size_t i = 0; i < count; i++) {
         json_t* r = json_array_get(resets, i);
@@ -1623,15 +1857,20 @@ static PersistResult parse_resets(json_t* root)
             reset->arg2 = (int16_t)json_int_or_default(r, "maxInArea", 0);
             reset->arg3 = (int16_t)json_int_or_default(r, "roomVnum", 0);
             reset->arg4 = (int16_t)json_int_or_default(r, "maxInRoom", 0);
+            if (reset->arg3 != 0)
+                last_room_vnum = reset->arg3;
             break;
         case 'O':
             reset->arg1 = (int16_t)json_int_or_default(r, "objVnum", 0);
             reset->arg3 = (int16_t)json_int_or_default(r, "roomVnum", 0);
+            if (reset->arg3 != 0)
+                last_room_vnum = reset->arg3;
             break;
         case 'P':
             reset->arg1 = (int16_t)json_int_or_default(r, "objVnum", 0);
             reset->arg2 = (int16_t)json_int_or_default(r, "count", 0);
             reset->arg3 = (int16_t)json_int_or_default(r, "containerVnum", 0);
+            reset->arg4 = (int16_t)json_int_or_default(r, "maxInContainer", reset->arg4);
             break;
         case 'G':
             reset->arg1 = (int16_t)json_int_or_default(r, "objVnum", 0);
@@ -1660,6 +1899,8 @@ static PersistResult parse_resets(json_t* root)
         case 'R':
             reset->arg1 = (int16_t)json_int_or_default(r, "roomVnum", 0);
             reset->arg2 = (int16_t)json_int_or_default(r, "exits", 0);
+            if (reset->arg1 != 0)
+                last_room_vnum = reset->arg1;
             break;
         default:
             reset->arg1 = (int16_t)json_int_or_default(r, "arg1", 0);
@@ -1669,19 +1910,24 @@ static PersistResult parse_resets(json_t* root)
             break;
         }
 
-        // Associate with room based on arg3/arg1 depending on command.
-        VNUM vnum = VNUM_NONE;
-        switch (reset->command) {
-        case 'M':
-        case 'O':
-            vnum = reset->arg3;
-            break;
-        case 'D':
-        case 'R':
-            vnum = reset->arg1;
-            break;
-        default:
-            break;
+        VNUM room_vnum = (VNUM)json_int_or_default(r, "roomVnum", VNUM_NONE);
+        VNUM vnum = room_vnum;
+        if (vnum == VNUM_NONE) {
+            switch (reset->command) {
+            case 'M':
+            case 'O':
+                vnum = reset->arg3;
+                break;
+            case 'D':
+            case 'R':
+                vnum = reset->arg1;
+                break;
+            default:
+                break;
+            }
+        }
+        if (vnum == VNUM_NONE && last_room_vnum != VNUM_NONE) {
+            vnum = last_room_vnum;
         }
         RoomData* room = (vnum != VNUM_NONE) ? get_room_data(vnum) : NULL;
         if (room)
@@ -1727,7 +1973,7 @@ static void append_help(HelpArea* ha, HelpData* help)
 static PersistResult parse_helps(json_t* root, AreaData* area)
 {
     json_t* helps = json_object_get(root, "helps");
-    if (!json_is_array(helps))
+    if (!json_is_array(helps) || json_array_size(helps) == 0)
         return (PersistResult){ PERSIST_OK, NULL, -1 };
 
     ensure_help_area(area);
@@ -1847,6 +2093,12 @@ static PersistResult json_load(const AreaPersistLoadParams* params)
         res = parse_resets(root);
     if (area_persist_succeeded(res))
         res = parse_helps(root, current_area_data);
+    if (area_persist_succeeded(res)
+        && params->create_single_instance
+        && current_area_data
+        && current_area_data->inst_type == AREA_INST_SINGLE) {
+        create_area_instance(current_area_data, false);
+    }
     json_decref(root);
     return res;
 #else
@@ -1872,7 +2124,11 @@ static PersistResult json_save(const AreaPersistSaveParams* params)
     json_object_set_new(root, "mobprogs", build_mobprogs(params->area));
     json_object_set_new(root, "resets", build_resets(params->area));
     json_object_set_new(root, "factions", build_factions(params->area));
-    json_object_set_new(root, "helps", build_helps(params->area));
+    json_t* helps = build_helps(params->area);
+    if (json_array_size(helps) > 0)
+        json_object_set_new(root, "helps", helps);
+    else
+        json_decref(helps);
     json_object_set_new(root, "quests", build_quests(params->area));
 
     char* dump = json_dumps(root, JSON_INDENT(2));

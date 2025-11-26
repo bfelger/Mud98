@@ -436,14 +436,15 @@ void load_shops(FILE* fp)
         MobPrototype* mob_proto;
         int iTrade;
 
+        int16_t keeper = (int16_t)fread_number(fp);
+        if (keeper == 0)
+            break;
         if ((shop = new_shop_data()) == NULL) {
             bug("load_shops: Failed to create shops.");
             exit(1);
         }
 
-        shop->keeper = (int16_t)fread_number(fp);
-        if (shop->keeper == 0)
-            break;
+        shop->keeper = keeper;
         for (iTrade = 0; iTrade < MAX_TRADE; iTrade++)
             shop->buy_type[iTrade] = (int16_t)fread_number(fp);
         shop->profit_buy = (int16_t)fread_number(fp);

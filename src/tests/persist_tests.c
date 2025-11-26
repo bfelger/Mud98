@@ -557,6 +557,400 @@ static int test_json_exhaustive_area_round_trip()
     fclose(fpList);
     return 0;
 }
+
+static bool save_area_rom_to_buffer(AreaData* area, const char* fname, PersistBufferWriter* out_buf)
+{
+    PersistWriter writer = persist_writer_from_buffer(out_buf, fname);
+    AreaPersistSaveParams params = {
+        .writer = &writer,
+        .area = area,
+        .file_name = fname,
+    };
+    PersistResult res = AREA_PERSIST_ROM_OLC.save(&params);
+    return persist_succeeded(res) && out_buf->data != NULL && out_buf->len > 0;
+}
+
+// Some areas reference mob/obj prototypes outside their own vnum range (e.g., immort.are).
+// When we load a single area in isolation, those prototypes are absent and reset_area will bug().
+// Skip instance-count comparison for such areas to focus on JSON/ROM parity rather than cross-area deps.
+static bool resets_need_external_prototypes(const AreaData* area)
+{
+    RoomData* room;
+    FOR_EACH_GLOBAL_ROOM(room) {
+        if (room->area_data != area)
+            continue;
+        Reset* reset;
+        FOR_EACH(reset, room->reset_first) {
+            switch (reset->command) {
+            case 'M':
+                if (!get_mob_prototype(reset->arg1))
+                    return true;
+                break;
+            case 'O':
+            case 'P':
+            case 'G':
+            case 'E':
+                if (!get_object_prototype(reset->arg1))
+                    return true;
+                break;
+            default:
+                break;
+            }
+        }
+    }
+    return false;
+}
+
+static int test_json_canonical_rom_round_trip()
+{
+    const char* area_dir = cfg_get_area_dir();
+    const char* area_list = cfg_get_area_list();
+    char list_path[MIL];
+    sprintf(list_path, "%s%s", area_dir, area_list);
+
+    FILE* fpList = fopen(list_path, "r");
+    if (!fpList)
+        return 0; // quietly skip if areas unavailable
+
+    char fname[MIL];
+    while (fscanf(fpList, "%s", fname) == 1) {
+        if (fname[0] == '$')
+            break;
+
+        // Pass 1: load ROM, capture canonical ROM output, and JSON buffer.
+        PersistStateSnapshot snap1;
+        persist_state_begin(&snap1);
+
+        char area_path[MIL];
+        sprintf(area_path, "%s%s", area_dir, fname);
+
+        FILE* load_fp = fopen(area_path, "r");
+        if (!load_fp) {
+            persist_state_end(&snap1);
+            continue;
+        }
+
+        PersistReader reader = persist_reader_from_FILE(load_fp, fname);
+        AreaPersistLoadParams load_params = {
+            .reader = &reader,
+            .file_name = fname,
+            .create_single_instance = false,
+        };
+
+        PersistResult load_result = AREA_PERSIST_ROM_OLC.load(&load_params);
+        fclose(load_fp);
+        if (!persist_succeeded(load_result) || global_areas.count != 1) {
+            persist_state_end(&snap1);
+            continue;
+        }
+
+        AreaData* area = LAST_AREA_DATA;
+        if (!area) {
+            persist_state_end(&snap1);
+            continue;
+        }
+
+        PersistBufferWriter rom_orig = { 0 };
+        if (!save_area_rom_to_buffer(area, fname, &rom_orig)) {
+            free(rom_orig.data);
+            persist_state_end(&snap1);
+            continue;
+        }
+
+        PersistBufferWriter json_buf = { 0 };
+        PersistWriter json_writer = persist_writer_from_buffer(&json_buf, fname);
+        AreaPersistSaveParams json_params = {
+            .writer = &json_writer,
+            .area = area,
+            .file_name = fname,
+        };
+
+        PersistResult json_save = AREA_PERSIST_JSON.save(&json_params);
+        persist_state_end(&snap1);
+
+        if (!persist_succeeded(json_save) || json_buf.data == NULL || json_buf.len == 0) {
+            free(rom_orig.data);
+            free(json_buf.data);
+            continue;
+        }
+
+        // Pass 2: load JSON fresh and capture canonical ROM output.
+        PersistStateSnapshot snap2;
+        persist_state_begin(&snap2);
+
+        PersistBufferReaderCtx ctx;
+        PersistReader json_reader = persist_reader_from_buffer(json_buf.data, json_buf.len, fname, &ctx);
+        AreaPersistLoadParams json_load_params = {
+            .reader = &json_reader,
+            .file_name = fname,
+            .create_single_instance = false,
+        };
+
+        PersistResult json_load = AREA_PERSIST_JSON.load(&json_load_params);
+        if (!persist_succeeded(json_load) || global_areas.count != 1) {
+            persist_state_end(&snap2);
+            free(rom_orig.data);
+            free(json_buf.data);
+            continue;
+        }
+
+        AreaData* area_from_json = LAST_AREA_DATA;
+        PersistBufferWriter rom_from_json = { 0 };
+        bool rom_ok = area_from_json && save_area_rom_to_buffer(area_from_json, fname, &rom_from_json);
+        persist_state_end(&snap2);
+
+        bool match = rom_ok
+            && rom_orig.len == rom_from_json.len
+            && memcmp(rom_orig.data, rom_from_json.data, rom_orig.len) == 0;
+
+    free(rom_orig.data);
+    free(json_buf.data);
+    free(rom_from_json.data);
+
+    if (!match) {
+        fclose(fpList);
+        return 1; // fail fast on first discrepancy
+    }
+}
+
+fclose(fpList);
+return 0;
+}
+
+static int test_json_instance_counts_match_rom()
+{
+    const char* area_dir = cfg_get_area_dir();
+    const char* area_list = cfg_get_area_list();
+    char list_path[MIL];
+    sprintf(list_path, "%s%s", area_dir, area_list);
+
+    FILE* fpList = fopen(list_path, "r");
+    if (!fpList)
+        return 0; // quietly skip if areas unavailable
+
+    char fname[MIL];
+    while (fscanf(fpList, "%s", fname) == 1) {
+        if (fname[0] == '$')
+            break;
+
+        char area_path[MIL];
+        sprintf(area_path, "%s%s", area_dir, fname);
+
+        // Pass 1: ROM load -> instantiate -> reset -> count instances; also produce JSON buffer.
+        int rom_mob_count = 0;
+        int rom_obj_count = 0;
+        PersistBufferWriter json_buf = { 0 };
+        {
+            PersistStateSnapshot snap;
+            persist_state_begin(&snap);
+
+            FILE* load_fp = fopen(area_path, "r");
+            if (!load_fp) {
+                persist_state_end(&snap);
+                continue;
+            }
+
+            PersistReader reader = persist_reader_from_FILE(load_fp, fname);
+            AreaPersistLoadParams load_params = {
+                .reader = &reader,
+                .file_name = fname,
+                .create_single_instance = false,
+            };
+
+            PersistResult load_result = AREA_PERSIST_ROM_OLC.load(&load_params);
+            fclose(load_fp);
+            if (!persist_succeeded(load_result) || global_areas.count != 1) {
+                persist_state_end(&snap);
+                continue;
+            }
+
+            AreaData* area = LAST_AREA_DATA;
+            if (!area || resets_need_external_prototypes(area)) {
+                persist_state_end(&snap);
+                continue;
+            }
+            Area* inst = area ? create_area_instance(area, true) : NULL;
+            if (inst) {
+                reset_area(inst);
+                rom_mob_count = mob_list.count;
+                rom_obj_count = obj_list.count;
+            }
+
+            PersistWriter json_writer = persist_writer_from_buffer(&json_buf, fname);
+            AreaPersistSaveParams json_params = {
+                .writer = &json_writer,
+                .area = area,
+                .file_name = fname,
+            };
+            PersistResult json_save = AREA_PERSIST_JSON.save(&json_params);
+            if (!persist_succeeded(json_save) || json_buf.data == NULL || json_buf.len == 0) {
+                free(json_buf.data);
+                json_buf.data = NULL;
+                json_buf.len = 0;
+            }
+
+            persist_state_end(&snap);
+        }
+
+        if (!json_buf.data || json_buf.len == 0)
+            continue;
+
+        // Pass 2: JSON load -> instantiate -> reset -> count instances; compare to ROM counts.
+        int json_mob_count = 0;
+        int json_obj_count = 0;
+        {
+            PersistStateSnapshot snap;
+            persist_state_begin(&snap);
+
+            PersistBufferReaderCtx ctx;
+            PersistReader json_reader = persist_reader_from_buffer(json_buf.data, json_buf.len, fname, &ctx);
+            AreaPersistLoadParams json_load_params = {
+                .reader = &json_reader,
+                .file_name = fname,
+                .create_single_instance = false,
+            };
+
+            PersistResult json_load = AREA_PERSIST_JSON.load(&json_load_params);
+            if (persist_succeeded(json_load) && global_areas.count == 1) {
+                AreaData* area = LAST_AREA_DATA;
+                Area* inst = area ? create_area_instance(area, true) : NULL;
+                if (inst) {
+                    reset_area(inst);
+                    json_mob_count = mob_list.count;
+                    json_obj_count = obj_list.count;
+                }
+            }
+
+            persist_state_end(&snap);
+        }
+
+        free(json_buf.data);
+
+        if (rom_mob_count != json_mob_count || rom_obj_count != json_obj_count) {
+            fclose(fpList);
+            return 1; // mismatch found
+        }
+    }
+
+    fclose(fpList);
+    return 0;
+}
+#endif // PERSIST_EXHAUSTIVE_PERSIST_TEST && PERSIST_JSON_EXHAUSTIVE_TEST
+
+// -----------------------------------------------------------------------------
+// Instance reconciliation (shops, etc.)
+// -----------------------------------------------------------------------------
+
+#if defined(PERSIST_EXHAUSTIVE_PERSIST_TEST) && defined(PERSIST_JSON_EXHAUSTIVE_TEST)
+static int test_json_instance_shop_counts_match_rom()
+{
+    const char* area_dir = cfg_get_area_dir();
+    const char* area_list = cfg_get_area_list();
+    char list_path[MIL];
+    sprintf(list_path, "%s%s", area_dir, area_list);
+
+    FILE* fpList = fopen(list_path, "r");
+    if (!fpList)
+        return 0; // quietly skip if areas unavailable
+
+    char fname[MIL];
+    while (fscanf(fpList, "%s", fname) == 1) {
+        if (fname[0] == '$')
+            break;
+
+        char area_path[MIL];
+        sprintf(area_path, "%s%s", area_dir, fname);
+
+        // Pass 1: ROM load -> capture shop_count and JSON buffer.
+        int rom_shop_count = 0;
+        PersistBufferWriter json_buf = { 0 };
+        {
+            PersistStateSnapshot snap;
+            persist_state_begin(&snap);
+
+            FILE* load_fp = fopen(area_path, "r");
+            if (!load_fp) {
+                persist_state_end(&snap);
+                continue;
+            }
+
+            PersistReader reader = persist_reader_from_FILE(load_fp, fname);
+            AreaPersistLoadParams load_params = {
+                .reader = &reader,
+                .file_name = fname,
+                .create_single_instance = false,
+            };
+
+            PersistResult load_result = AREA_PERSIST_ROM_OLC.load(&load_params);
+            fclose(load_fp);
+            if (!persist_succeeded(load_result) || global_areas.count != 1) {
+                persist_state_end(&snap);
+                continue;
+            }
+
+            AreaData* area = LAST_AREA_DATA;
+            if (!area || resets_need_external_prototypes(area)) {
+                persist_state_end(&snap);
+                continue;
+            }
+
+            rom_shop_count = shop_count;
+
+            PersistWriter json_writer = persist_writer_from_buffer(&json_buf, fname);
+            AreaPersistSaveParams json_params = {
+                .writer = &json_writer,
+                .area = area,
+                .file_name = fname,
+            };
+            PersistResult json_save = AREA_PERSIST_JSON.save(&json_params);
+            if (!persist_succeeded(json_save) || json_buf.data == NULL || json_buf.len == 0) {
+                free(json_buf.data);
+                json_buf.data = NULL;
+                json_buf.len = 0;
+            }
+
+            persist_state_end(&snap);
+        }
+
+        if (!json_buf.data || json_buf.len == 0)
+            continue;
+
+        // Pass 2: JSON load -> capture shop_count; compare to ROM count.
+        int json_shop_count = 0;
+        {
+            PersistStateSnapshot snap;
+            persist_state_begin(&snap);
+
+            PersistBufferReaderCtx ctx;
+            PersistReader json_reader = persist_reader_from_buffer(json_buf.data, json_buf.len, fname, &ctx);
+            AreaPersistLoadParams json_load_params = {
+                .reader = &json_reader,
+                .file_name = fname,
+                .create_single_instance = false,
+            };
+
+            PersistResult json_load = AREA_PERSIST_JSON.load(&json_load_params);
+            if (persist_succeeded(json_load) && global_areas.count == 1) {
+                AreaData* area = LAST_AREA_DATA;
+                if (area && !resets_need_external_prototypes(area)) {
+                    json_shop_count = shop_count;
+                }
+            }
+
+            persist_state_end(&snap);
+        }
+
+        free(json_buf.data);
+
+        if (rom_shop_count != json_shop_count) {
+            fclose(fpList);
+            return 1; // mismatch found
+        }
+    }
+
+    fclose(fpList);
+    return 0;
+}
 #endif // PERSIST_EXHAUSTIVE_PERSIST_TEST && PERSIST_JSON_EXHAUSTIVE_TEST
 
 static const char* MIN_AREA_JSON =
@@ -866,6 +1260,9 @@ void register_persist_tests()
     REGISTER("JSON Saves Typed Objects", test_json_saves_typed_objects);
 #if defined(PERSIST_EXHAUSTIVE_PERSIST_TEST) && defined(PERSIST_JSON_EXHAUSTIVE_TEST)
     REGISTER("JSON Exhaustive Area Round Trip", test_json_exhaustive_area_round_trip);
+    REGISTER("JSON Canonical ROM Round Trip", test_json_canonical_rom_round_trip);
+    REGISTER("JSON Instance Counts Match ROM", test_json_instance_counts_match_rom);
+    REGISTER("JSON Shop Counts Match ROM", test_json_instance_shop_counts_match_rom);
 #endif
     REGISTER("ROM->JSON->ROM Round Trip", test_json_to_rom_round_trip);
 #endif
