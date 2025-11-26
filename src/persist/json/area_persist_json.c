@@ -160,15 +160,18 @@ static json_t* build_areadata(const AreaData* area)
     json_t* vnums = json_array();
     json_array_append_new(vnums, json_integer(area->min_vnum));
     json_array_append_new(vnums, json_integer(area->max_vnum));
-    json_object_set_new(obj, "vnums", vnums);
+    json_object_set_new(obj, "vnumRange", vnums);
     json_object_set_new(obj, "credits", json_string(area->credits ? area->credits : ""));
     json_object_set_new(obj, "security", json_integer(area->security));
-    json_object_set_new(obj, "sector", json_integer(area->sector));
-    json_object_set_new(obj, "low", json_integer(area->low_range));
-    json_object_set_new(obj, "high", json_integer(area->high_range));
+    const char* sector_name = flag_string(sector_flag_table, area->sector);
+    if (sector_name && sector_name[0] != '\0')
+        json_object_set_new(obj, "sector", json_string(sector_name));
+    json_object_set_new(obj, "lowLevel", json_integer(area->low_range));
+    json_object_set_new(obj, "highLevel", json_integer(area->high_range));
     json_object_set_new(obj, "reset", json_integer(area->reset_thresh));
     json_object_set_new(obj, "alwaysReset", json_boolean(area->always_reset));
-    json_object_set_new(obj, "instType", json_integer(area->inst_type));
+    if (area->inst_type == AREA_INST_MULTI)
+        json_object_set_new(obj, "instType", json_string("multi"));
     return obj;
 }
 
@@ -278,7 +281,7 @@ static PersistResult parse_areadata(json_t* root, const AreaPersistLoadParams* p
         area->builders = str_dup(builders);
     }
 
-    json_t* vnums = json_object_get(areadata, "vnums");
+    json_t* vnums = json_object_get(areadata, "vnumRange");
     if (json_is_array(vnums) && json_array_size(vnums) >= 2) {
         area->min_vnum = (VNUM)json_integer_value(json_array_get(vnums, 0));
         area->max_vnum = (VNUM)json_integer_value(json_array_get(vnums, 1));
@@ -291,12 +294,28 @@ static PersistResult parse_areadata(json_t* root, const AreaPersistLoadParams* p
     }
 
     area->security = (int)json_int_or_default(areadata, "security", area->security);
-    area->sector = (Sector)json_int_or_default(areadata, "sector", area->sector);
-    area->low_range = (LEVEL)json_int_or_default(areadata, "low", area->low_range);
-    area->high_range = (LEVEL)json_int_or_default(areadata, "high", area->high_range);
+    json_t* sector_val = json_object_get(areadata, "sector");
+    if (json_is_string(sector_val)) {
+        FLAGS s = flag_lookup(json_string_value(sector_val), sector_flag_table);
+        if (s != NO_FLAG)
+            area->sector = (Sector)s;
+    }
+    else
+        area->sector = (Sector)json_int_or_default(areadata, "sector", area->sector);
+    area->low_range = (LEVEL)json_int_or_default(areadata, "lowLevel", area->low_range);
+    area->high_range = (LEVEL)json_int_or_default(areadata, "highLevel", area->high_range);
     area->reset_thresh = (int16_t)json_int_or_default(areadata, "reset", area->reset_thresh);
     area->always_reset = json_bool_or_default(areadata, "alwaysReset", area->always_reset);
-    area->inst_type = (InstanceType)json_int_or_default(areadata, "instType", area->inst_type);
+    json_t* inst = json_object_get(areadata, "instType");
+    if (json_is_string(inst)) {
+        const char* istr = json_string_value(inst);
+        if (istr && !str_cmp(istr, "multi"))
+            area->inst_type = AREA_INST_MULTI;
+        else
+            area->inst_type = AREA_INST_SINGLE;
+    }
+    else
+        area->inst_type = (InstanceType)json_int_or_default(areadata, "instType", area->inst_type);
 
     write_value_array(&global_areas, OBJ_VAL(area));
     if (global_areas.count > 0)
@@ -423,22 +442,29 @@ static const char* sex_name(Sex sex)
     return sex_table[sex].name;
 }
 
-static json_t* dice_to_array(const int16_t dice[3])
+static json_t* dice_to_json(const int16_t dice[3])
 {
-    json_t* arr = json_array();
-    json_array_append_new(arr, json_integer(dice[DICE_NUMBER]));
-    json_array_append_new(arr, json_integer(dice[DICE_TYPE]));
-    json_array_append_new(arr, json_integer(dice[DICE_BONUS]));
-    return arr;
+    json_t* obj = json_object();
+    json_object_set_new(obj, "number", json_integer(dice[DICE_NUMBER]));
+    json_object_set_new(obj, "type", json_integer(dice[DICE_TYPE]));
+    if (dice[DICE_BONUS] != 0)
+        json_object_set_new(obj, "bonus", json_integer(dice[DICE_BONUS]));
+    return obj;
 }
 
-static void array_to_dice(json_t* arr, int16_t dice[3])
+static void json_to_dice(json_t* src, int16_t dice[3])
 {
-    if (!json_is_array(arr) || json_array_size(arr) < 3)
+    if (json_is_object(src)) {
+        dice[DICE_NUMBER] = (int16_t)json_int_or_default(src, "number", dice[DICE_NUMBER]);
+        dice[DICE_TYPE] = (int16_t)json_int_or_default(src, "type", dice[DICE_TYPE]);
+        dice[DICE_BONUS] = (int16_t)json_int_or_default(src, "bonus", dice[DICE_BONUS]);
         return;
-    dice[DICE_NUMBER] = (int16_t)json_integer_value(json_array_get(arr, 0));
-    dice[DICE_TYPE] = (int16_t)json_integer_value(json_array_get(arr, 1));
-    dice[DICE_BONUS] = (int16_t)json_integer_value(json_array_get(arr, 2));
+    }
+    if (json_is_array(src) && json_array_size(src) >= 3) {
+        dice[DICE_NUMBER] = (int16_t)json_integer_value(json_array_get(src, 0));
+        dice[DICE_TYPE] = (int16_t)json_integer_value(json_array_get(src, 1));
+        dice[DICE_BONUS] = (int16_t)json_integer_value(json_array_get(src, 2));
+    }
 }
 
 static const char* skill_name_from_sn(SKNUM sn)
@@ -497,29 +523,29 @@ static json_t* build_mobiles(const AreaData* area)
         json_object_set_new(obj, "description", json_string(mob->description ? mob->description : ""));
         json_object_set_new(obj, "race", json_string(race_table[mob->race].name));
 
-        json_object_set_new(obj, "actFlags", flags_to_array(mob->act_flags, act_flag_table));
-        json_object_set_new(obj, "affectFlags", flags_to_array(mob->affect_flags, affect_flag_table));
-        json_object_set_new(obj, "atkFlags", flags_to_array(mob->atk_flags, off_flag_table));
-        json_object_set_new(obj, "immFlags", flags_to_array(mob->imm_flags, imm_flag_table));
-        json_object_set_new(obj, "resFlags", flags_to_array(mob->res_flags, res_flag_table));
-        json_object_set_new(obj, "vulnFlags", flags_to_array(mob->vuln_flags, vuln_flag_table));
-        json_object_set_new(obj, "formFlags", flags_to_array(mob->form, form_flag_table));
-        json_object_set_new(obj, "partFlags", flags_to_array(mob->parts, part_flag_table));
+        json_set_flags_if(obj, "actFlags", mob->act_flags, act_flag_table);
+        json_set_flags_if(obj, "affectFlags", mob->affect_flags, affect_flag_table);
+        json_set_flags_if(obj, "atkFlags", mob->atk_flags, off_flag_table);
+        json_set_flags_if(obj, "immFlags", mob->imm_flags, imm_flag_table);
+        json_set_flags_if(obj, "resFlags", mob->res_flags, res_flag_table);
+        json_set_flags_if(obj, "vulnFlags", mob->vuln_flags, vuln_flag_table);
+        json_set_flags_if(obj, "formFlags", mob->form, form_flag_table);
+        json_set_flags_if(obj, "partFlags", mob->parts, part_flag_table);
 
         json_object_set_new(obj, "alignment", json_integer(mob->alignment));
         json_object_set_new(obj, "group", json_integer(mob->group));
         json_object_set_new(obj, "level", json_integer(mob->level));
         json_object_set_new(obj, "hitroll", json_integer(mob->hitroll));
-        json_object_set_new(obj, "hitDice", dice_to_array(mob->hit));
-        json_object_set_new(obj, "manaDice", dice_to_array(mob->mana));
-        json_object_set_new(obj, "damageDice", dice_to_array(mob->damage));
+        json_object_set_new(obj, "hitDice", dice_to_json(mob->hit));
+        json_object_set_new(obj, "manaDice", dice_to_json(mob->mana));
+        json_object_set_new(obj, "damageDice", dice_to_json(mob->damage));
         json_object_set_new(obj, "damType", json_string(attack_table[mob->dam_type].name));
 
-        json_t* ac = json_array();
-        json_array_append_new(ac, json_integer(mob->ac[AC_PIERCE] / 10));
-        json_array_append_new(ac, json_integer(mob->ac[AC_BASH] / 10));
-        json_array_append_new(ac, json_integer(mob->ac[AC_SLASH] / 10));
-        json_array_append_new(ac, json_integer(mob->ac[AC_EXOTIC] / 10));
+        json_t* ac = json_object();
+        json_object_set_new(ac, "pierce", json_integer(mob->ac[AC_PIERCE] / 10));
+        json_object_set_new(ac, "bash", json_integer(mob->ac[AC_BASH] / 10));
+        json_object_set_new(ac, "slash", json_integer(mob->ac[AC_SLASH] / 10));
+        json_object_set_new(ac, "exotic", json_integer(mob->ac[AC_EXOTIC] / 10));
         json_object_set_new(obj, "ac", ac);
 
         json_object_set_new(obj, "startPos", json_string(position_name(mob->start_pos)));
@@ -590,9 +616,9 @@ static PersistResult parse_mobiles(json_t* root, AreaData* area)
         mob->group = (int16_t)json_int_or_default(m, "group", mob->group);
         mob->level = (int16_t)json_int_or_default(m, "level", mob->level);
         mob->hitroll = (int16_t)json_int_or_default(m, "hitroll", mob->hitroll);
-        array_to_dice(json_object_get(m, "hitDice"), mob->hit);
-        array_to_dice(json_object_get(m, "manaDice"), mob->mana);
-        array_to_dice(json_object_get(m, "damageDice"), mob->damage);
+        json_to_dice(json_object_get(m, "hitDice"), mob->hit);
+        json_to_dice(json_object_get(m, "manaDice"), mob->mana);
+        json_to_dice(json_object_get(m, "damageDice"), mob->damage);
 
         const char* dam = json_string_value(json_object_get(m, "damType"));
         if (dam) {
@@ -602,7 +628,13 @@ static PersistResult parse_mobiles(json_t* root, AreaData* area)
         }
 
         json_t* ac = json_object_get(m, "ac");
-        if (json_is_array(ac) && json_array_size(ac) >= 4) {
+        if (json_is_object(ac)) {
+            mob->ac[AC_PIERCE] = (int16_t)json_int_or_default(ac, "pierce", mob->ac[AC_PIERCE] / 10) * 10;
+            mob->ac[AC_BASH] = (int16_t)json_int_or_default(ac, "bash", mob->ac[AC_BASH] / 10) * 10;
+            mob->ac[AC_SLASH] = (int16_t)json_int_or_default(ac, "slash", mob->ac[AC_SLASH] / 10) * 10;
+            mob->ac[AC_EXOTIC] = (int16_t)json_int_or_default(ac, "exotic", mob->ac[AC_EXOTIC] / 10) * 10;
+        }
+        else if (json_is_array(ac) && json_array_size(ac) >= 4) {
             mob->ac[AC_PIERCE] = (int16_t)json_integer_value(json_array_get(ac, 0)) * 10;
             mob->ac[AC_BASH] = (int16_t)json_integer_value(json_array_get(ac, 1)) * 10;
             mob->ac[AC_SLASH] = (int16_t)json_integer_value(json_array_get(ac, 2)) * 10;
@@ -1033,8 +1065,7 @@ static json_t* build_objects(const AreaData* area)
                 break;
             }
         }
-        if (has_value)
-            json_object_set_new(o, "values", build_object_values(obj));
+        bool typed_emitted = false;
         switch (obj->item_type) {
         case ITEM_WEAPON:
         {
@@ -1043,6 +1074,7 @@ static json_t* build_objects(const AreaData* area)
                 json_object_set_new(o, "weapon", w);
             else
                 json_decref(w);
+            typed_emitted = true;
             break;
         }
         case ITEM_CONTAINER:
@@ -1052,6 +1084,7 @@ static json_t* build_objects(const AreaData* area)
                 json_object_set_new(o, "container", c);
             else
                 json_decref(c);
+            typed_emitted = true;
             break;
         }
         case ITEM_LIGHT:
@@ -1061,6 +1094,7 @@ static json_t* build_objects(const AreaData* area)
                 json_object_set_new(o, "light", l);
             else
                 json_decref(l);
+            typed_emitted = true;
             break;
         }
         case ITEM_ARMOR:
@@ -1070,6 +1104,7 @@ static json_t* build_objects(const AreaData* area)
                 json_object_set_new(o, "armor", a);
             else
                 json_decref(a);
+            typed_emitted = true;
             break;
         }
         case ITEM_DRINK_CON:
@@ -1079,6 +1114,7 @@ static json_t* build_objects(const AreaData* area)
                 json_object_set_new(o, "drink", d);
             else
                 json_decref(d);
+            typed_emitted = true;
             break;
         }
         case ITEM_FOUNTAIN:
@@ -1088,6 +1124,7 @@ static json_t* build_objects(const AreaData* area)
                 json_object_set_new(o, "fountain", f);
             else
                 json_decref(f);
+            typed_emitted = true;
             break;
         }
         case ITEM_FOOD:
@@ -1097,6 +1134,7 @@ static json_t* build_objects(const AreaData* area)
                 json_object_set_new(o, "food", f);
             else
                 json_decref(f);
+            typed_emitted = true;
             break;
         }
         case ITEM_MONEY:
@@ -1106,6 +1144,7 @@ static json_t* build_objects(const AreaData* area)
                 json_object_set_new(o, "money", m);
             else
                 json_decref(m);
+            typed_emitted = true;
             break;
         }
         case ITEM_WAND:
@@ -1116,6 +1155,7 @@ static json_t* build_objects(const AreaData* area)
                 json_object_set_new(o, "wand", w);
             else
                 json_decref(w);
+            typed_emitted = true;
             break;
         }
         case ITEM_SCROLL:
@@ -1127,6 +1167,7 @@ static json_t* build_objects(const AreaData* area)
                 json_object_set_new(o, "spells", s);
             else
                 json_decref(s);
+            typed_emitted = true;
             break;
         }
         case ITEM_PORTAL:
@@ -1136,6 +1177,7 @@ static json_t* build_objects(const AreaData* area)
                 json_object_set_new(o, "portal", p);
             else
                 json_decref(p);
+            typed_emitted = true;
             break;
         }
         case ITEM_FURNITURE:
@@ -1145,11 +1187,14 @@ static json_t* build_objects(const AreaData* area)
                 json_object_set_new(o, "furniture", f);
             else
                 json_decref(f);
+            typed_emitted = true;
             break;
         }
         default:
             break;
         }
+        if (has_value && !typed_emitted)
+            json_object_set_new(o, "values", build_object_values(obj));
         json_set_int_if(o, "level", obj->level, 0);
         json_set_int_if(o, "weight", obj->weight, 0);
         json_set_int_if(o, "cost", obj->cost, 0);
@@ -1457,11 +1502,62 @@ static json_t* build_reset(const Reset* reset)
 {
     json_t* obj = json_object();
     char cmd[2] = { reset->command, '\0' };
-    json_object_set_new(obj, "command", json_string(cmd));
-    json_object_set_new(obj, "arg1", json_integer(reset->arg1));
-    json_object_set_new(obj, "arg2", json_integer(reset->arg2));
-    json_object_set_new(obj, "arg3", json_integer(reset->arg3));
-    json_object_set_new(obj, "arg4", json_integer(reset->arg4));
+
+    const char* name = NULL;
+    switch (reset->command) {
+    case 'M':
+        name = "loadMob";
+        json_object_set_new(obj, "mobVnum", json_integer(reset->arg1));
+        json_object_set_new(obj, "maxInArea", json_integer(reset->arg2));
+        json_object_set_new(obj, "roomVnum", json_integer(reset->arg3));
+        if (reset->arg4 != 0)
+            json_object_set_new(obj, "maxInRoom", json_integer(reset->arg4));
+        break;
+    case 'O':
+        name = "placeObj";
+        json_object_set_new(obj, "objVnum", json_integer(reset->arg1));
+        json_object_set_new(obj, "roomVnum", json_integer(reset->arg3));
+        break;
+    case 'P':
+        name = "putObj";
+        json_object_set_new(obj, "objVnum", json_integer(reset->arg1));
+        if (reset->arg2 != 0)
+            json_object_set_new(obj, "count", json_integer(reset->arg2));
+        json_object_set_new(obj, "containerVnum", json_integer(reset->arg3));
+        break;
+    case 'G':
+        name = "giveObj";
+        json_object_set_new(obj, "objVnum", json_integer(reset->arg1));
+        break;
+    case 'E':
+        name = "equipObj";
+        json_object_set_new(obj, "objVnum", json_integer(reset->arg1));
+        json_object_set_new(obj, "wearLoc", json_string(flag_string(wear_loc_strings, reset->arg3)));
+        break;
+    case 'D':
+        name = "setDoor";
+        json_object_set_new(obj, "roomVnum", json_integer(reset->arg1));
+        json_object_set_new(obj, "direction", json_string(dir_name_from_enum(reset->arg2)));
+        json_object_set_new(obj, "state", json_integer(reset->arg3));
+        break;
+    case 'R':
+        name = "randomizeExits";
+        json_object_set_new(obj, "roomVnum", json_integer(reset->arg1));
+        json_object_set_new(obj, "exits", json_integer(reset->arg2));
+        break;
+    default:
+        break;
+    }
+
+    if (name)
+        json_object_set_new(obj, "commandName", json_string(name));
+    else {
+        json_object_set_new(obj, "command", json_string(cmd));
+        json_object_set_new(obj, "arg1", json_integer(reset->arg1));
+        json_object_set_new(obj, "arg2", json_integer(reset->arg2));
+        json_object_set_new(obj, "arg3", json_integer(reset->arg3));
+        json_object_set_new(obj, "arg4", json_integer(reset->arg4));
+    }
     return obj;
 }
 
@@ -1502,14 +1598,76 @@ static PersistResult parse_resets(json_t* root)
         if (!json_is_object(r))
             continue;
         const char* cmd_str = json_string_value(json_object_get(r, "command"));
-        if (!cmd_str || strlen(cmd_str) != 1)
+        const char* cmd_name = json_string_value(json_object_get(r, "commandName"));
+        char cmd = 0;
+        if (cmd_str && strlen(cmd_str) == 1)
+            cmd = cmd_str[0];
+        else if (cmd_name) {
+            if (!str_cmp(cmd_name, "loadMob")) cmd = 'M';
+            else if (!str_cmp(cmd_name, "placeObj")) cmd = 'O';
+            else if (!str_cmp(cmd_name, "putObj")) cmd = 'P';
+            else if (!str_cmp(cmd_name, "giveObj")) cmd = 'G';
+            else if (!str_cmp(cmd_name, "equipObj")) cmd = 'E';
+            else if (!str_cmp(cmd_name, "setDoor")) cmd = 'D';
+            else if (!str_cmp(cmd_name, "randomizeExits")) cmd = 'R';
+        }
+        if (cmd == 0)
             continue;
+
         Reset* reset = new_reset();
-        reset->command = cmd_str[0];
-        reset->arg1 = (int16_t)json_int_or_default(r, "arg1", 0);
-        reset->arg2 = (int16_t)json_int_or_default(r, "arg2", 0);
-        reset->arg3 = (int16_t)json_int_or_default(r, "arg3", 0);
-        reset->arg4 = (int16_t)json_int_or_default(r, "arg4", 0);
+        reset->command = cmd;
+
+        switch (cmd) {
+        case 'M':
+            reset->arg1 = (int16_t)json_int_or_default(r, "mobVnum", 0);
+            reset->arg2 = (int16_t)json_int_or_default(r, "maxInArea", 0);
+            reset->arg3 = (int16_t)json_int_or_default(r, "roomVnum", 0);
+            reset->arg4 = (int16_t)json_int_or_default(r, "maxInRoom", 0);
+            break;
+        case 'O':
+            reset->arg1 = (int16_t)json_int_or_default(r, "objVnum", 0);
+            reset->arg3 = (int16_t)json_int_or_default(r, "roomVnum", 0);
+            break;
+        case 'P':
+            reset->arg1 = (int16_t)json_int_or_default(r, "objVnum", 0);
+            reset->arg2 = (int16_t)json_int_or_default(r, "count", 0);
+            reset->arg3 = (int16_t)json_int_or_default(r, "containerVnum", 0);
+            break;
+        case 'G':
+            reset->arg1 = (int16_t)json_int_or_default(r, "objVnum", 0);
+            break;
+        case 'E':
+            reset->arg1 = (int16_t)json_int_or_default(r, "objVnum", 0);
+            {
+                const char* wear = json_string_value(json_object_get(r, "wearLoc"));
+                if (wear) {
+                    FLAGS wl = flag_lookup(wear, wear_loc_strings);
+                    if (wl != NO_FLAG)
+                        reset->arg3 = (int16_t)wl;
+                }
+            }
+            break;
+        case 'D':
+            reset->arg1 = (int16_t)json_int_or_default(r, "roomVnum", 0);
+            {
+                const char* dir = json_string_value(json_object_get(r, "direction"));
+                int d = dir_enum_from_name(dir);
+                if (d >= 0)
+                    reset->arg2 = (int16_t)d;
+            }
+            reset->arg3 = (int16_t)json_int_or_default(r, "state", 0);
+            break;
+        case 'R':
+            reset->arg1 = (int16_t)json_int_or_default(r, "roomVnum", 0);
+            reset->arg2 = (int16_t)json_int_or_default(r, "exits", 0);
+            break;
+        default:
+            reset->arg1 = (int16_t)json_int_or_default(r, "arg1", 0);
+            reset->arg2 = (int16_t)json_int_or_default(r, "arg2", 0);
+            reset->arg3 = (int16_t)json_int_or_default(r, "arg3", 0);
+            reset->arg4 = (int16_t)json_int_or_default(r, "arg4", 0);
+            break;
+        }
 
         // Associate with room based on arg3/arg1 depending on command.
         VNUM vnum = VNUM_NONE;
