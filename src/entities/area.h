@@ -5,6 +5,8 @@
 
 typedef struct area_t Area;
 typedef struct area_data_t AreaData;
+typedef struct story_beat_t StoryBeat;
+typedef struct checklist_item_t ChecklistItem;
 
 #pragma once
 #ifndef MUD98__ENTITIES__AREA_H
@@ -40,6 +42,25 @@ typedef enum inst_type_t {
     //AREA_INST_WEEK  = 2,      // For future; weekly instance locks
 } InstanceType;
 
+typedef enum checklist_status_t {
+    CHECK_TODO = 0,
+    CHECK_IN_PROGRESS = 1,
+    CHECK_DONE = 2,
+} ChecklistStatus;
+
+struct story_beat_t {
+    StoryBeat* next;
+    char* title;
+    char* description;
+};
+
+struct checklist_item_t {
+    ChecklistItem* next;
+    char* title;
+    char* description;
+    ChecklistStatus status;
+};
+
 typedef struct area_t {
     Entity header;
     Area* next;
@@ -70,6 +91,8 @@ typedef struct area_data_t {
     int16_t reset_thresh;
     bool always_reset;
     InstanceType inst_type;
+    StoryBeat* story_beats;
+    ChecklistItem* checklist;
 } AreaData;
 
 #define FOR_EACH_AREA(area)                                                    \
@@ -100,6 +123,12 @@ void save_area(AreaData* area);
 Area* get_area_for_player(Mobile* ch, AreaData* area_data);
 
 void load_area(FILE* fp);
+void load_story_beats(FILE* fp);
+void load_checklist(FILE* fp);
+StoryBeat* add_story_beat(AreaData* area_data, const char* title, const char* description);
+ChecklistItem* add_checklist_item(AreaData* area_data, const char* title, const char* description, ChecklistStatus status);
+void free_story_beats(StoryBeat* head);
+void free_checklist(ChecklistItem* head);
 
 extern int area_count;
 extern int area_perm_count;

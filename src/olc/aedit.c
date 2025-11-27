@@ -41,6 +41,15 @@ static void aedit_show_faction_detail(Mobile* ch, Faction* faction);
 static void format_relation_list(Buffer* buffer, const char* label, ValueArray* relations);
 static void clear_mob_faction_references(VNUM vnum);
 static void aedit_send_faction_syntax(Mobile* ch);
+static void aedit_print_story_beats(Mobile* ch, AreaData* area);
+static void aedit_print_checklist(Mobile* ch, AreaData* area);
+static ChecklistStatus checklist_status_from_name(const char* name, ChecklistStatus def);
+static const char* checklist_status_name(ChecklistStatus status);
+static StoryBeat* story_beat_by_index(AreaData* area, int index, StoryBeat** out_prev);
+static ChecklistItem* checklist_by_index(AreaData* area, int index, ChecklistItem** out_prev);
+
+AEDIT(aedit_story);
+AEDIT(aedit_checklist);
 
 const OlcCmdEntry area_olc_comm_table[] = {
     { "name", 	        U(&xArea.header.name),  ed_line_lox_string, 0                   },
@@ -53,6 +62,8 @@ const OlcCmdEntry area_olc_comm_table[] = {
     { "credits", 	    U(&xArea.credits),      ed_line_string,     0                   },
     { "alwaysreset",    U(&xArea.always_reset), ed_bool,            0                   },
     { "instancetype",   U(&xArea.inst_type),    ed_flag_set_sh,     U(inst_type_table)  },
+    { "story",          0,                      ed_olded,           U(aedit_story)      },
+    { "checklist",      0,                      ed_olded,           U(aedit_checklist)  },
     { "faction",        0,                      ed_olded,           U(aedit_faction)    },
     { "builder", 	    0,                      ed_olded,           U(aedit_builder)	},
     { "commands", 	    0,                      ed_olded,           U(show_commands)	},
@@ -193,6 +204,89 @@ static void format_relation_list(Buffer* buffer, const char* label, ValueArray* 
     add_buf(buffer, COLOR_EOL);
 }
 
+static const char* checklist_status_name(ChecklistStatus status)
+{
+    switch (status) {
+    case CHECK_TODO: return "To-Do";
+    case CHECK_IN_PROGRESS: return "In Progress";
+    case CHECK_DONE: return "Done";
+    default: return "Unknown";
+    }
+}
+
+static ChecklistStatus checklist_status_from_name(const char* name, ChecklistStatus def)
+{
+    if (IS_NULLSTR(name))
+        return def;
+    if (!str_prefix(name, "todo"))
+        return CHECK_TODO;
+    if (!str_prefix(name, "inprogress") || !str_prefix(name, "progress"))
+        return CHECK_IN_PROGRESS;
+    if (!str_prefix(name, "done") || !str_prefix(name, "complete"))
+        return CHECK_DONE;
+    return def;
+}
+
+static StoryBeat* story_beat_by_index(AreaData* area, int index, StoryBeat** out_prev)
+{
+    StoryBeat* prev = NULL;
+    StoryBeat* beat = area->story_beats;
+    int i = 0;
+    while (beat && i < index) {
+        prev = beat;
+        beat = beat->next;
+        ++i;
+    }
+    if (out_prev)
+        *out_prev = prev;
+    return (i == index) ? beat : NULL;
+}
+
+static ChecklistItem* checklist_by_index(AreaData* area, int index, ChecklistItem** out_prev)
+{
+    ChecklistItem* prev = NULL;
+    ChecklistItem* item = area->checklist;
+    int i = 0;
+    while (item && i < index) {
+        prev = item;
+        item = item->next;
+        ++i;
+    }
+    if (out_prev)
+        *out_prev = prev;
+    return (i == index) ? item : NULL;
+}
+
+static void aedit_print_story_beats(Mobile* ch, AreaData* area)
+{
+    send_to_char(COLOR_INFO "Story Beats:" COLOR_CLEAR "\n\r", ch);
+    if (!area->story_beats) {
+        send_to_char("  (none)\n\r", ch);
+        return;
+    }
+    int idx = 0;
+    for (StoryBeat* beat = area->story_beats; beat; beat = beat->next, ++idx) {
+        printf_to_char(ch, "  %d) %s\n\r", idx, beat->title);
+        if (!IS_NULLSTR(beat->description))
+            printf_to_char(ch, "     %s\n\r", beat->description);
+    }
+}
+
+static void aedit_print_checklist(Mobile* ch, AreaData* area)
+{
+    send_to_char(COLOR_INFO "Checklist:" COLOR_CLEAR "\n\r", ch);
+    if (!area->checklist) {
+        send_to_char("  (none)\n\r", ch);
+        return;
+    }
+    int idx = 0;
+    for (ChecklistItem* item = area->checklist; item; item = item->next, ++idx) {
+        printf_to_char(ch, "  %d) [%s] %s\n\r", idx, checklist_status_name(item->status), item->title);
+        if (!IS_NULLSTR(item->description))
+            printf_to_char(ch, "     %s\n\r", item->description);
+    }
+}
+
 static void aedit_print_faction_summary(Mobile* ch, AreaData* area)
 {
     Buffer* buffer = new_buf();
@@ -329,6 +423,8 @@ AEDIT(aedit_show)
     olc_print_str(ch, "Credits", area->credits);
     olc_print_flags(ch, "Flags", area_flag_table, area->area_flags);
     aedit_print_faction_summary(ch, area);
+    aedit_print_story_beats(ch, area);
+    aedit_print_checklist(ch, area);
 
     return false;
 }
@@ -534,6 +630,209 @@ AEDIT(aedit_faction)
     }
 
     aedit_send_faction_syntax(ch);
+    return false;
+}
+
+AEDIT(aedit_story)
+{
+    AreaData* area;
+    char arg1[MIL];
+    char arg2[MIL];
+
+    EDIT_AREA(ch, area);
+
+    argument = one_argument(argument, arg1);
+    if (IS_NULLSTR(arg1)) {
+        send_to_char("Syntax: story list\n\r"
+            "        story add <title> [description]\n\r"
+            "        story title <index> <title>\n\r"
+            "        story desc <index> <description>\n\r"
+            "        story del <index>\n\r", ch);
+        return false;
+    }
+
+    if (!str_cmp(arg1, "list")) {
+        aedit_print_story_beats(ch, area);
+        return false;
+    }
+
+    if (!str_cmp(arg1, "add")) {
+        argument = one_argument(argument, arg2);
+        if (IS_NULLSTR(arg2)) {
+            send_to_char("Story add requires a title.\n\r", ch);
+            return false;
+        }
+        add_story_beat(area, arg2, argument);
+        SET_BIT(area->area_flags, AREA_CHANGED);
+        send_to_char("Story beat added.\n\r", ch);
+        return true;
+    }
+
+    if (!str_cmp(arg1, "title") || !str_cmp(arg1, "desc")) {
+        argument = one_argument(argument, arg2);
+        if (!is_number(arg2) || IS_NULLSTR(argument)) {
+            send_to_char("Syntax: story title|desc <index> <text>\n\r", ch);
+            return false;
+        }
+        int idx = atoi(arg2);
+        StoryBeat* beat = story_beat_by_index(area, idx, NULL);
+        if (!beat) {
+            send_to_char("No such story beat.\n\r", ch);
+            return false;
+        }
+        if (!str_cmp(arg1, "title")) {
+            free_string(beat->title);
+            beat->title = str_dup(argument);
+        }
+        else {
+            free_string(beat->description);
+            beat->description = str_dup(argument);
+        }
+        SET_BIT(area->area_flags, AREA_CHANGED);
+        send_to_char("Story beat updated.\n\r", ch);
+        return true;
+    }
+
+    if (!str_cmp(arg1, "del")) {
+        argument = one_argument(argument, arg2);
+        if (!is_number(arg2)) {
+            send_to_char("Syntax: story del <index>\n\r", ch);
+            return false;
+        }
+        int idx = atoi(arg2);
+        StoryBeat* prev = NULL;
+        StoryBeat* beat = story_beat_by_index(area, idx, &prev);
+        if (!beat) {
+            send_to_char("No such story beat.\n\r", ch);
+            return false;
+        }
+        if (prev)
+            prev->next = beat->next;
+        else
+            area->story_beats = beat->next;
+        free_string(beat->title);
+        free_string(beat->description);
+        free(beat);
+        SET_BIT(area->area_flags, AREA_CHANGED);
+        send_to_char("Story beat removed.\n\r", ch);
+        return true;
+    }
+
+    send_to_char("Unknown story command.\n\r", ch);
+    return false;
+}
+
+AEDIT(aedit_checklist)
+{
+    AreaData* area;
+    char arg1[MIL];
+    char arg2[MIL];
+
+    EDIT_AREA(ch, area);
+
+    argument = one_argument(argument, arg1);
+    if (IS_NULLSTR(arg1)) {
+        send_to_char("Syntax: checklist list\n\r"
+            "        checklist add [status] <title> [description]\n\r"
+            "        checklist title <index> <title>\n\r"
+            "        checklist desc <index> <description>\n\r"
+            "        checklist status <index> <todo|progress|done>\n\r"
+            "        checklist del <index>\n\r", ch);
+        return false;
+    }
+
+    if (!str_cmp(arg1, "list")) {
+        aedit_print_checklist(ch, area);
+        return false;
+    }
+
+    if (!str_cmp(arg1, "add")) {
+        argument = one_argument(argument, arg2);
+        ChecklistStatus status = checklist_status_from_name(arg2, CHECK_TODO);
+        const char* title = NULL;
+        if (status == CHECK_TODO) {
+            title = arg2;
+        }
+        else {
+            title = argument;
+        }
+
+        if (IS_NULLSTR(title)) {
+            send_to_char("Checklist add requires a title.\n\r", ch);
+            return false;
+        }
+
+        add_checklist_item(area, title, argument, status);
+        SET_BIT(area->area_flags, AREA_CHANGED);
+        send_to_char("Checklist item added.\n\r", ch);
+        return true;
+    }
+
+    if (!str_cmp(arg1, "title") || !str_cmp(arg1, "desc") || !str_cmp(arg1, "status")) {
+        argument = one_argument(argument, arg2);
+        if (!is_number(arg2)) {
+            send_to_char("Checklist requires a numeric index.\n\r", ch);
+            return false;
+        }
+        int idx = atoi(arg2);
+        ChecklistItem* item = checklist_by_index(area, idx, NULL);
+        if (!item) {
+            send_to_char("No such checklist item.\n\r", ch);
+            return false;
+        }
+
+        if (!str_cmp(arg1, "status")) {
+            ChecklistStatus status = checklist_status_from_name(argument, item->status);
+            item->status = status;
+            SET_BIT(area->area_flags, AREA_CHANGED);
+            send_to_char("Checklist status updated.\n\r", ch);
+            return true;
+        }
+
+        if (IS_NULLSTR(argument)) {
+            send_to_char("Checklist title/desc requires text.\n\r", ch);
+            return false;
+        }
+
+        if (!str_cmp(arg1, "title")) {
+            free_string(item->title);
+            item->title = str_dup(argument);
+        }
+        else {
+            free_string(item->description);
+            item->description = str_dup(argument);
+        }
+        SET_BIT(area->area_flags, AREA_CHANGED);
+        send_to_char("Checklist item updated.\n\r", ch);
+        return true;
+    }
+
+    if (!str_cmp(arg1, "del")) {
+        argument = one_argument(argument, arg2);
+        if (!is_number(arg2)) {
+            send_to_char("Syntax: checklist del <index>\n\r", ch);
+            return false;
+        }
+        int idx = atoi(arg2);
+        ChecklistItem* prev = NULL;
+        ChecklistItem* item = checklist_by_index(area, idx, &prev);
+        if (!item) {
+            send_to_char("No such checklist item.\n\r", ch);
+            return false;
+        }
+        if (prev)
+            prev->next = item->next;
+        else
+            area->checklist = item->next;
+        free_string(item->title);
+        free_string(item->description);
+        free(item);
+        SET_BIT(area->area_flags, AREA_CHANGED);
+        send_to_char("Checklist item removed.\n\r", ch);
+        return true;
+    }
+
+    send_to_char("Unknown checklist command.\n\r", ch);
     return false;
 }
 

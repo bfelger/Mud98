@@ -6,6 +6,7 @@ Top-level object
 - `formatVersion`: integer, currently `1`.
 - `areadata`: object (see below).
 - Sections as arrays (any may be absent/empty): `rooms`, `mobiles`, `objects`, `resets`, `shops`, `specials`, `mobprogs`, `quests`, `helps`, `factions`.
+- Builder metadata (optional): `storyBeats`, `checklist`.
 
 `areadata`
 - `version`: int (`AREA_VERSION`, typically 2).
@@ -18,6 +19,12 @@ Top-level object
 - `lowLevel` / `highLevel`: ints.
 - `reset`: int threshold; `alwaysReset`: bool.
 - `instType`: `"multi"` only when not single (single is implied).
+
+`storyBeats` (array, optional)
+- `{ title, description }` entries capturing narrative beats for builders/AI.
+
+`checklist` (array, optional)
+- `{ title, status, description? }` where `status` is `todo`, `inProgress`, or `done` (numeric fallback 0/1/2 accepted). Description is optional and usually omitted; titles act as the checklist line-items.
 
 `rooms` (array of objects)
 - Required: `vnum` int, `name` string, `description` string.

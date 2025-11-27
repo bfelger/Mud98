@@ -153,6 +153,40 @@ static int dir_enum_from_name(const char* name)
     return (int)get_direction(name);
 }
 
+static const char* checklist_status_name(ChecklistStatus status)
+{
+    switch (status) {
+    case CHECK_TODO: return "todo";
+    case CHECK_IN_PROGRESS: return "inProgress";
+    case CHECK_DONE: return "done";
+    default: return NULL;
+    }
+}
+
+static ChecklistStatus checklist_status_from_name(const char* name, ChecklistStatus def)
+{
+    if (!name)
+        return def;
+    if (!str_cmp(name, "todo"))
+        return CHECK_TODO;
+    if (!str_cmp(name, "inProgress") || !str_cmp(name, "in_progress"))
+        return CHECK_IN_PROGRESS;
+    if (!str_cmp(name, "done"))
+        return CHECK_DONE;
+    return def;
+}
+
+static void ensure_entity_class(Entity* ent, const char* prefix)
+{
+    if (!ent || !ent->script || ent->klass)
+        return;
+    char class_name[MIL];
+    snprintf(class_name, sizeof(class_name), "%s_%" PRVNUM, prefix, ent->vnum);
+    ObjClass* klass = create_entity_class(ent, class_name, ent->script->chars);
+    if (klass)
+        ent->klass = klass;
+}
+
 static const EventTypeInfo* trigger_info_from_name(const char* name)
 {
     if (!name)
@@ -268,6 +302,39 @@ static json_t* build_areadata(const AreaData* area)
     return obj;
 }
 
+static json_t* build_story_beats(const AreaData* area)
+{
+    json_t* arr = json_array();
+    for (StoryBeat* beat = area->story_beats; beat != NULL; beat = beat->next) {
+        json_t* obj = json_object();
+        if (beat->title)
+            json_object_set_new(obj, "title", json_string(beat->title));
+        if (beat->description)
+            json_object_set_new(obj, "description", json_string(beat->description));
+        json_array_append_new(arr, obj);
+    }
+    return arr;
+}
+
+static json_t* build_checklist(const AreaData* area)
+{
+    json_t* arr = json_array();
+    for (ChecklistItem* item = area->checklist; item != NULL; item = item->next) {
+        json_t* obj = json_object();
+        if (item->title)
+            json_object_set_new(obj, "title", json_string(item->title));
+        if (item->description && item->description[0] != '\0')
+            json_object_set_new(obj, "description", json_string(item->description));
+        const char* status = checklist_status_name(item->status);
+        if (status)
+            json_object_set_new(obj, "status", json_string(status));
+        else
+            json_object_set_new(obj, "statusValue", json_integer(item->status));
+        json_array_append_new(arr, obj);
+    }
+    return arr;
+}
+
 static json_t* build_exit(const RoomExitData* ex)
 {
     json_t* obj = json_object();
@@ -364,6 +431,42 @@ static bool json_bool_or_default(json_t* obj, const char* key, bool def)
     return def;
 }
 
+static void parse_story_beats(json_t* arr, AreaData* area)
+{
+    if (!json_is_array(arr) || !area)
+        return;
+    size_t count = json_array_size(arr);
+    for (size_t i = 0; i < count; i++) {
+        json_t* sb = json_array_get(arr, i);
+        if (!json_is_object(sb))
+            continue;
+        const char* title = json_string_value(json_object_get(sb, "title"));
+        const char* desc = json_string_value(json_object_get(sb, "description"));
+        add_story_beat(area, title ? title : "", desc ? desc : "");
+    }
+}
+
+static void parse_checklist(json_t* arr, AreaData* area)
+{
+    if (!json_is_array(arr) || !area)
+        return;
+    size_t count = json_array_size(arr);
+    for (size_t i = 0; i < count; i++) {
+        json_t* it = json_array_get(arr, i);
+        if (!json_is_object(it))
+            continue;
+        const char* title = json_string_value(json_object_get(it, "title"));
+        const char* desc = json_string_value(json_object_get(it, "description"));
+        const char* status_name = json_string_value(json_object_get(it, "status"));
+        ChecklistStatus status = checklist_status_from_name(status_name, CHECK_TODO);
+        if (status_name == NULL && json_is_integer(json_object_get(it, "statusValue")))
+            status = (ChecklistStatus)json_integer_value(json_object_get(it, "statusValue"));
+        if (status < CHECK_TODO || status > CHECK_DONE)
+            status = CHECK_TODO;
+        add_checklist_item(area, title ? title : "", desc ? desc : "", status);
+    }
+}
+
 static PersistResult parse_areadata(json_t* root, const AreaPersistLoadParams* params)
 {
     json_t* areadata = json_object_get(root, "areadata");
@@ -418,6 +521,9 @@ static PersistResult parse_areadata(json_t* root, const AreaPersistLoadParams* p
     }
     else
         area->inst_type = (InstanceType)json_int_or_default(areadata, "instType", area->inst_type);
+
+    parse_story_beats(json_object_get(root, "storyBeats"), area);
+    parse_checklist(json_object_get(root, "checklist"), area);
 
     write_value_array(&global_areas, OBJ_VAL(area));
     if (global_areas.count > 0)
@@ -520,6 +626,7 @@ static PersistResult parse_rooms(json_t* root, AreaData* area)
         if (script && script[0] != '\0')
             ((Entity*)room)->script = lox_string(script);
         parse_events(json_object_get(r, "events"), (Entity*)room, ENT_ROOM);
+        ensure_entity_class((Entity*)room, "room");
     }
 
     return (PersistResult){ PERSIST_OK, NULL, -1 };
@@ -867,6 +974,7 @@ static PersistResult parse_mobiles(json_t* root, AreaData* area)
         if (script && script[0] != '\0')
             ((Entity*)mob)->script = lox_string(script);
         parse_events(json_object_get(m, "events"), (Entity*)mob, ENT_MOB);
+        ensure_entity_class((Entity*)mob, "mob");
 
         VNUM vnum = (VNUM)json_int_or_default(m, "vnum", VNUM_NONE);
         VNUM_FIELD(mob) = vnum;
@@ -1543,6 +1651,7 @@ static PersistResult parse_objects(json_t* root, AreaData* area)
         if (script && script[0] != '\0')
             ((Entity*)obj)->script = lox_string(script);
         parse_events(json_object_get(o, "events"), (Entity*)obj, ENT_OBJ);
+        ensure_entity_class((Entity*)obj, "obj");
 
         VNUM vnum = (VNUM)json_int_or_default(o, "vnum", VNUM_NONE);
         VNUM_FIELD(obj) = vnum;
@@ -2030,6 +2139,50 @@ static json_t* build_factions(const AreaData* area)
     return arr;
 }
 
+static PersistResult parse_factions(json_t* root)
+{
+    json_t* factions = json_object_get(root, "factions");
+    if (!json_is_array(factions))
+        return (PersistResult){ PERSIST_OK, NULL, -1 };
+
+    size_t count = json_array_size(factions);
+    for (size_t i = 0; i < count; i++) {
+        json_t* f = json_array_get(factions, i);
+        if (!json_is_object(f))
+            continue;
+        VNUM vnum = (VNUM)json_int_or_default(f, "vnum", VNUM_NONE);
+        if (vnum == VNUM_NONE)
+            continue;
+        Faction* faction = faction_create(vnum);
+        if (!faction)
+            continue;
+
+        const char* name = json_string_value(json_object_get(f, "name"));
+        if (name)
+            SET_NAME(faction, lox_string(name));
+        faction->default_standing = (int)json_int_or_default(f, "defaultStanding", faction->default_standing);
+
+        json_t* allies = json_object_get(f, "allies");
+        if (json_is_array(allies)) {
+            size_t asz = json_array_size(allies);
+            for (size_t j = 0; j < asz; j++) {
+                if (json_is_integer(json_array_get(allies, j)))
+                    faction_add_ally(faction, (VNUM)json_integer_value(json_array_get(allies, j)));
+            }
+        }
+        json_t* enemies = json_object_get(f, "opposing");
+        if (json_is_array(enemies)) {
+            size_t esz = json_array_size(enemies);
+            for (size_t j = 0; j < esz; j++) {
+                if (json_is_integer(json_array_get(enemies, j)))
+                    faction_add_enemy(faction, (VNUM)json_integer_value(json_array_get(enemies, j)));
+            }
+        }
+    }
+
+    return (PersistResult){ PERSIST_OK, NULL, -1 };
+}
+
 static json_t* build_helps(const AreaData* area)
 {
     json_t* arr = json_array();
@@ -2076,6 +2229,8 @@ static PersistResult json_load(const AreaPersistLoadParams* params)
 
     PersistResult res = parse_areadata(root, params);
     if (area_persist_succeeded(res))
+        res = parse_factions(root);
+    if (area_persist_succeeded(res))
         res = parse_rooms(root, current_area_data);
     if (area_persist_succeeded(res))
         res = parse_mobiles(root, current_area_data);
@@ -2116,6 +2271,8 @@ static PersistResult json_save(const AreaPersistSaveParams* params)
     json_t* root = json_object();
     json_object_set_new(root, "formatVersion", json_integer(AREA_JSON_FORMAT_VERSION));
     json_object_set_new(root, "areadata", build_areadata(params->area));
+    json_object_set_new(root, "storyBeats", build_story_beats(params->area));
+    json_object_set_new(root, "checklist", build_checklist(params->area));
     json_object_set_new(root, "rooms", build_rooms(params->area));
     json_object_set_new(root, "mobiles", build_mobiles(params->area));
     json_object_set_new(root, "objects", build_objects(params->area));

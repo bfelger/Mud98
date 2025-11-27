@@ -144,6 +144,10 @@ static PersistResult rom_olc_load(const AreaPersistLoadParams* params)
             load_objects(fp);
         else if (!str_cmp(word, "FACTIONS"))
             load_factions(fp);
+        else if (!str_cmp(word, "STORYBEATS"))
+            load_story_beats(fp);
+        else if (!str_cmp(word, "CHECKLIST"))
+            load_checklist(fp);
         else if (!str_cmp(word, "RESETS"))
             load_resets(fp);
         else if (!str_cmp(word, "ROOMS"))
@@ -222,6 +226,8 @@ static PersistResult rom_olc_save(const AreaPersistSaveParams* params)
     fprintf(fp, "InstType %d\n", area->inst_type);
     fprintf(fp, "End\n\n");
 
+    save_story_beats(fp, (AreaData*)area);
+    save_checklist(fp, (AreaData*)area);
     save_factions(fp, (AreaData*)area);
     save_mobiles(fp, (AreaData*)area);
     save_objects(fp, (AreaData*)area);

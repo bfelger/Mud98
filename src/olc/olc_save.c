@@ -986,6 +986,30 @@ void save_shops(FILE* fp, AreaData* area)
     return;
 }
 
+void save_story_beats(FILE* fp, AreaData* area)
+{
+    fprintf(fp, "#STORYBEATS\n");
+    for (StoryBeat* beat = area->story_beats; beat != NULL; beat = beat->next) {
+        fprintf(fp, "B\n%s~\n%s~\n",
+            fix_string(beat->title),
+            fix_string(beat->description));
+    }
+    fprintf(fp, "S\n\n\n\n");
+}
+
+void save_checklist(FILE* fp, AreaData* area)
+{
+    fprintf(fp, "#CHECKLIST\n");
+    for (ChecklistItem* item = area->checklist; item != NULL; item = item->next) {
+        fprintf(fp, "C %d\n%s~\n",
+            (int)item->status,
+            fix_string(item->title));
+        // Description optional; keep empty line for backward compatibility.
+        fprintf(fp, "%s~\n", IS_NULLSTR(item->description) ? "" : fix_string(item->description));
+    }
+    fprintf(fp, "S\n\n\n\n");
+}
+
 void save_helps(FILE* fp, HelpArea* ha)
 {
     HelpData* help = ha->first;

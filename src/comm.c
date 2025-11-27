@@ -750,7 +750,7 @@ bool read_from_descriptor(Descriptor* d)
                 break;
         }
         else if (s_read == 0) {
-            log_string("EOF encountered on read.");
+            log_string("Client disconnected (EOF on read).");
             d->valid = false;
             return false;
         }

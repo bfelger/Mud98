@@ -141,6 +141,57 @@ static const char* MIN_AREA_TEXT =
     "#0\n"
     "#$\n";
 
+#ifdef HAVE_JSON_AREAS
+static const char* AREA_WITH_BEATS_TEXT =
+    "#AREADATA\n"
+    "Version 2\n"
+    "Name Story Area~\n"
+    "Builders Tester~\n"
+    "VNUMs 10 10\n"
+    "Credits None~\n"
+    "Security 9\n"
+    "Sector 0\n"
+    "Low 1\n"
+    "High 10\n"
+    "Reset 4\n"
+    "AlwaysReset 0\n"
+    "InstType 0\n"
+    "End\n"
+    "#STORYBEATS\n"
+    "B\n"
+    "Beat One~\n"
+    "First beat~\n"
+    "B\n"
+    "Beat Two~\n"
+    "Second beat~\n"
+    "S\n"
+    "#CHECKLIST\n"
+    "C 0\n"
+    "Task One~\n"
+    "Do the thing~\n"
+    "C 2\n"
+    "Task Two~\n"
+    "All done~\n"
+    "S\n"
+    "#MOBILES\n"
+    "#0\n"
+    "#OBJECTS\n"
+    "#0\n"
+    "#ROOMS\n"
+    "#0\n"
+    "#RESETS\n"
+    "S\n"
+    "#SHOPS\n"
+    "0\n"
+    "#SPECIALS\n"
+    "S\n"
+    "#MOBPROGS\n"
+    "#0\n"
+    "#HELPS\n"
+    "-1 $~\n"
+    "#$\n";
+#endif
+
 static int test_rom_olc_loads_minimal_area()
 {
     PersistStateSnapshot snap;
@@ -1164,6 +1215,87 @@ cleanup:
     return 0;
 }
 
+static void assert_story_checklist_state(AreaData* area)
+{
+    ASSERT(area != NULL);
+    StoryBeat* beat = area->story_beats;
+    ASSERT(beat != NULL);
+    ASSERT_STR_EQ("Beat One", beat->title);
+    ASSERT_STR_EQ("First beat", beat->description);
+    ASSERT(beat->next != NULL);
+    ASSERT_STR_EQ("Beat Two", beat->next->title);
+    ASSERT_STR_EQ("Second beat", beat->next->description);
+    ASSERT(beat->next->next == NULL);
+
+    ChecklistItem* item = area->checklist;
+    ASSERT(item != NULL);
+    ASSERT_STR_EQ("Task One", item->title);
+    ASSERT_STR_EQ("Do the thing", item->description);
+    ASSERT(item->status == CHECK_TODO);
+    ASSERT(item->next != NULL);
+    ASSERT_STR_EQ("Task Two", item->next->title);
+    ASSERT_STR_EQ("All done", item->next->description);
+    ASSERT(item->next->status == CHECK_DONE);
+    ASSERT(item->next->next == NULL);
+}
+
+static int test_story_checklist_round_trip()
+{
+    PersistStateSnapshot snap;
+    persist_state_begin(&snap);
+
+    FILE* load_fp = tmpfile();
+    ASSERT_OR_GOTO(load_fp != NULL, cleanup_all);
+    size_t written = fwrite(AREA_WITH_BEATS_TEXT, 1, strlen(AREA_WITH_BEATS_TEXT), load_fp);
+    ASSERT_OR_GOTO(written == strlen(AREA_WITH_BEATS_TEXT), cleanup_all);
+    rewind(load_fp);
+
+    PersistReader reader = persist_reader_from_FILE(load_fp, "beats.are");
+    AreaPersistLoadParams load_params = {
+        .reader = &reader,
+        .file_name = "beats.are",
+        .create_single_instance = false,
+    };
+    PersistResult load_res = AREA_PERSIST_ROM_OLC.load(&load_params);
+    ASSERT_OR_GOTO(persist_succeeded(load_res), cleanup_all);
+    ASSERT_OR_GOTO(global_areas.count == 1, cleanup_all);
+    assert_story_checklist_state(LAST_AREA_DATA);
+
+    PersistBufferWriter json_buf = { 0 };
+    PersistWriter json_writer = persist_writer_from_buffer(&json_buf, "beats.json");
+    AreaPersistSaveParams json_params = {
+        .writer = &json_writer,
+        .area = LAST_AREA_DATA,
+        .file_name = "beats.json",
+    };
+    PersistResult json_save = AREA_PERSIST_JSON.save(&json_params);
+    ASSERT_OR_GOTO(persist_succeeded(json_save), cleanup_all);
+    ASSERT_OR_GOTO(json_buf.data != NULL && json_buf.len > 0, cleanup_all);
+
+    PersistStateSnapshot snap2;
+    persist_state_begin(&snap2);
+
+    PersistBufferReaderCtx ctx;
+    PersistReader json_reader = persist_reader_from_buffer(json_buf.data, json_buf.len, "beats.json", &ctx);
+    AreaPersistLoadParams json_load_params = {
+        .reader = &json_reader,
+        .file_name = "beats.json",
+        .create_single_instance = false,
+    };
+    PersistResult json_load = AREA_PERSIST_JSON.load(&json_load_params);
+    ASSERT(persist_succeeded(json_load));
+    ASSERT(global_areas.count == 1);
+    assert_story_checklist_state(LAST_AREA_DATA);
+
+    persist_state_end(&snap2);
+
+cleanup_all:
+    if (load_fp)
+        fclose(load_fp);
+    persist_state_end(&snap);
+    return 0;
+}
+
 static int test_json_to_rom_round_trip()
 {
     PersistStateSnapshot snap;
@@ -1258,6 +1390,7 @@ void register_persist_tests()
 #ifdef HAVE_JSON_AREAS
     REGISTER("JSON Loads Areadata", test_json_loads_areadata);
     REGISTER("JSON Saves Typed Objects", test_json_saves_typed_objects);
+    REGISTER("JSON Story/Checklist Round Trip", test_story_checklist_round_trip);
 #if defined(PERSIST_EXHAUSTIVE_PERSIST_TEST) && defined(PERSIST_JSON_EXHAUSTIVE_TEST)
     REGISTER("JSON Exhaustive Area Round Trip", test_json_exhaustive_area_round_trip);
     REGISTER("JSON Canonical ROM Round Trip", test_json_canonical_rom_round_trip);

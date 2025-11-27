@@ -33,6 +33,8 @@ void save_mobprogs(FILE* fp, AreaData* area);
 void save_progs(VNUM minvnum, VNUM maxvnum);
 void save_quests(FILE* fp, AreaData* area);
 void save_helps(FILE* fp, HelpArea* ha);
+void save_story_beats(FILE* fp, AreaData* area);
+void save_checklist(FILE* fp, AreaData* area);
 
 // Helpers shared by persistence bridge.
 char* fix_string(const char* str);
