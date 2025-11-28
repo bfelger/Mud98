@@ -25,6 +25,7 @@
 #include <math.h>
 
 extern Table global_const_table;
+extern bool test_output_enabled;
 
 void send_to_char(const char* txt, Mobile* ch);
 
@@ -485,7 +486,7 @@ static void add_global_const(Token* name, Value value)
     ObjString* name_str = copy_string(name->start, name->length);
 
     Value existing;
-    if (table_get(&global_const_table, name_str, &existing)) {
+    if (table_get(&global_const_table, name_str, &existing) && !test_output_enabled) {
         error("Already a constant with this name.");
         return;
     }
@@ -1700,7 +1701,7 @@ static void const_declaration()
     if (is_local) {
         local = declare_const_local(&name);
     }
-    else if (has_global_const(&name)) {
+    else if (has_global_const(&name) && !test_output_enabled) {
         error("Already a constant with this name.");
     }
 

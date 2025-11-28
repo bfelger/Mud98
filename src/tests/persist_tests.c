@@ -9,6 +9,7 @@
 #include <persist/persist_io_adapters.h>
 #include <persist/persist_result.h>
 #include <persist/rom-olc/area_persist_rom_olc.h>
+#include <persist/race/race_persist.h>
 #ifdef HAVE_JSON_AREAS
 #include <persist/json/area_persist_json.h>
 #include <jansson.h>
@@ -20,6 +21,7 @@
 #include <entities/mob_prototype.h>
 #include <entities/obj_prototype.h>
 #include <entities/room.h>
+#include <data/race.h>
 
 #include <config.h>
 #include <lox/array.h>
@@ -1369,6 +1371,30 @@ cleanup_all:
     persist_state_end(&snap);
     return 0;
 }
+
+static int test_race_rom_json_round_trip()
+{
+    // 1) Load races via ROM backend (text)
+    PersistResult load_res = race_persist_load(cfg_get_races_file());
+    ASSERT(persist_succeeded(load_res));
+    ASSERT(race_table != NULL);
+    ASSERT(race_count > 0);
+
+    // 2) Save to JSON file path (temp name)
+    PersistResult save_res = race_persist_save("races.json");
+    ASSERT_OR_GOTO(persist_succeeded(save_res), cleanup);
+
+    // 3) Load JSON into fresh state and compare counts
+    int saved_count = race_count;
+
+    PersistResult json_load = race_persist_load("races.json");
+    ASSERT_OR_GOTO(persist_succeeded(json_load), cleanup);
+    ASSERT(race_table != NULL);
+    ASSERT(race_count == saved_count);
+
+cleanup:
+    return 0;
+}
 #endif // HAVE_JSON_AREAS
 
 static TestGroup persist_tests;
@@ -1399,6 +1425,7 @@ void register_persist_tests()
 #endif
     REGISTER("ROM->JSON->ROM Round Trip", test_json_to_rom_round_trip);
 #endif
+    REGISTER("Races ROM<->JSON Round Trip", test_race_rom_json_round_trip);
 
 #undef REGISTER
 }

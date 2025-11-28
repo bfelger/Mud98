@@ -72,8 +72,32 @@ void raedit(Mobile* ch, char* argument)
         return;
     }
 
-    if (!str_cmp(argument, "save")) {
+    if (!str_prefix("save", argument)) {
+        char arg1[MIL];
+        char arg2[MIL];
+        argument = one_argument(argument, arg1); // "save"
+        argument = one_argument(argument, arg2); // optional format
+        const char* requested_ext = NULL;
+        bool force_format = false;
+        if (!str_cmp(arg2, "json")) {
+            requested_ext = ".json";
+            force_format = true;
+        }
+        else if (!str_cmp(arg2, "olc")) {
+            requested_ext = ".are";
+            force_format = true;
+        }
+        if (force_format && requested_ext) {
+            const char* ext = strrchr(cfg_get_races_file(), '.');
+            char newname[MIL];
+            if (ext)
+                sprintf(newname, "%.*s%s", (int)(ext - cfg_get_races_file()), cfg_get_races_file(), requested_ext);
+            else
+                sprintf(newname, "%s%s", cfg_get_races_file(), requested_ext);
+            cfg_set_races_file(newname);
+        }
         save_race_table();
+        send_to_char("Races saved.\n\r", ch);
         return;
     }
 
@@ -159,7 +183,7 @@ RAEDIT(raedit_show)
     printf_to_char(ch, COLOR_TITLE "    Class      XPmult  XP/lvl(pts)   Start Loc" COLOR_EOL);
     for (i = 0; i < class_count; ++i) {
         VNUM vnum = GET_ELEM(&pRace->class_start, i);
-        
+
         if (vnum > 0)
             room = get_room_data(vnum);
         else
@@ -453,10 +477,11 @@ RAEDIT(raedit_skills)
 
 RAEDIT(raedit_start_loc)
 {
-    static const char* help = "Syntax : " COLOR_ALT_TEXT_1 "START_LOC <ROOM VNUM>" COLOR_CLEAR "\n\r\n\r";
+    static const char* help = "Syntax : " COLOR_ALT_TEXT_1 "START_LOC [CLASS NAME] <ROOM VNUM>" COLOR_CLEAR "\n\r\n\r";
     Race* race;
     char vnum_str[MIL];
     VNUM room_vnum = -1;
+    int class_ = -1;
 
     EDIT_RACE(ch, race);
 
@@ -468,8 +493,16 @@ RAEDIT(raedit_start_loc)
     READ_ARG(vnum_str);
 
     if (!is_number(vnum_str)) {
-        send_to_char(help, ch);
-        return false;
+        if ((class_ = class_lookup(vnum_str)) == -1) {
+            send_to_char(help, ch);
+            return false;
+        }
+
+        READ_ARG(vnum_str);
+        if (!is_number(vnum_str)) {
+            send_to_char(help, ch);
+            return false;
+        }
     }
 
     room_vnum = (VNUM)atoi(vnum_str);
@@ -478,7 +511,12 @@ RAEDIT(raedit_start_loc)
         send_to_char(COLOR_INFO "That is not a valid room VNUM.\n\r", ch);
     }
 
-    race->start_loc = room_vnum;
+    if (class_ != -1) {
+        SET_ELEM(race->class_start, class_, room_vnum); // ensure array is big enough
+    }
+    else {
+        race->start_loc = room_vnum;
+    }
     send_to_char("Ok.\n\r", ch);
     return true;
 }

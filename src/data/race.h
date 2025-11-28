@@ -50,6 +50,7 @@ typedef struct race_t {
 
 void load_race_table();
 void save_race_table();
+void init_race_table_lox();
 
 extern int race_count;
 extern Race* race_table;

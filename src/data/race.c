@@ -8,8 +8,11 @@
 #include <config.h>
 #include <db.h>
 #include <tablesave.h>
+#include <persist/race/race_persist.h>
 
 #include <lox/compiler.h>
+
+extern Table global_const_table;
 
 DEFINE_ARRAY(ClassMult, 100)
 
@@ -52,45 +55,11 @@ void init_race_table_lox();
 
 void load_race_table()
 {
-    FILE* fp;
-    char* word;
-    int i;
-
-    OPEN_OR_DIE(fp = open_read_races_file());
-
-    int maxrace = fread_number(fp);
-
-    size_t new_size = sizeof(Race) * ((size_t)maxrace + 1);
-    printf_log("Creating race_table of length %d, size %zu", maxrace + 1, new_size);
-
-    if ((race_table = calloc((size_t)maxrace + 1, sizeof(Race))) == NULL) {
-        perror("load_races_table(): Could not allocate race_table!");
-        exit(-1);
+    PersistResult res = race_persist_load(cfg_get_races_file());
+    if (!persist_succeeded(res)) {
+        bugf("load_race_table: failed to load races (%s)", res.message ? res.message : "unknown error");
+        exit(1);
     }
-
-    i = 0;
-
-    while (true) {
-        word = fread_word(fp);
-
-        if (str_cmp(word, "#race")) {
-            bugf("load_races_table : word %s", word);
-            close_file(fp);
-            return;
-        }
-
-        load_struct(fp, U(&tmp_race), race_save_table, U(&race_table[i++]));
-
-        if (i == maxrace) {
-            printf_log("Race table loaded.");
-            close_file(fp);
-            race_count = maxrace;
-            race_table[i].name = NULL;
-            break;
-        }
-    }
-
-    init_race_table_lox();
 }
 
 void init_race_table_lox()
@@ -101,13 +70,17 @@ void init_race_table_lox()
     static char* race_end =
         "}\n";
 
+    // Remove Race enum if it exists
+    table_delete(&global_const_table, copy_string("Race", 4));
+
     INIT_BUF(src, MSL);
 
     add_buf(src, race_start);
 
     for (int i = 0; i < race_count; ++i) {
-        if (strcmp(race_table[i].name, "unique") != 0)
+        if (strcmp(race_table[i].name, "unique") != 0) {
             addf_buf(src, "       %s = %d,", pascal_case(race_table[i].name), i);
+        }
     }
 
     add_buf(src, race_end);
@@ -122,42 +95,9 @@ void init_race_table_lox()
 
 void save_race_table()
 {
-    FILE* fp;
-    const Race* temp;
-    int cnt = 0;
-
-    char tempraces_file[256];
-    sprintf(tempraces_file, "%s%s", cfg_get_data_dir(), "tempraces");
-
-    OPEN_OR_RETURN(fp = open_write_file(tempraces_file));
-
-    for (temp = race_table; !IS_NULLSTR(temp->name); temp++)
-        cnt++;
-
-    fprintf(fp, "%d\n\n", cnt);
-
-    for (temp = race_table, cnt = 0; !IS_NULLSTR(temp->name); temp++) {
-        fprintf(fp, "#RACE\n");
-        save_struct(fp, U(&tmp_race), race_save_table, U(temp));
-        fprintf(fp, "#END\n\n");
-    }
-
-    close_file(fp);
-
-    char races_file[256];
-    sprintf(races_file, "%s%s", cfg_get_data_dir(), cfg_get_races_file());
-
-#ifdef _MSC_VER
-    if (!MoveFileExA(tempraces_file, races_file, MOVEFILE_REPLACE_EXISTING)) {
-        bugf("save_race : Could not rename %s to %s!", tempraces_file, races_file);
-        perror(races_file);
-    }
-#else
-    if (rename(tempraces_file, races_file) != 0) {
-        bugf("save_race : Could not rename %s to %s!", tempraces_file, races_file);
-        perror(races_file);
-    }
-#endif
+    PersistResult res = race_persist_save(cfg_get_races_file());
+    if (!persist_succeeded(res))
+        bugf("save_race_table: failed to save races (%s)", res.message ? res.message : "unknown error");
 }
 
 #undef U
