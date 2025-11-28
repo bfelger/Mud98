@@ -2,14 +2,16 @@
 // cedit.c
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "merc.h"
+#include <merc.h>
 
-#include "db.h"
-#include "comm.h"
-#include "handler.h"
 #include "olc.h"
 
-#include "data/class.h"
+#include <comm.h>
+#include <config.h>
+#include <db.h>
+#include <handler.h>
+
+#include <data/class.h>
 
 #define CEDIT(fun)      bool fun(Mobile *ch, char *argument)
 
@@ -69,7 +71,29 @@ void cedit(Mobile* ch, char* argument)
     }
 
     if (!str_cmp(command, "save")) {
+        char arg2[MIL];
+        argument = one_argument(argument, arg2); // optional format
+        const char* requested_ext = NULL;
+        bool force_format = false;
+        if (!str_cmp(arg2, "json")) {
+            requested_ext = ".json";
+            force_format = true;
+        }
+        else if (!str_cmp(arg2, "olc")) {
+            requested_ext = ".are";
+            force_format = true;
+        }
+        if (force_format && requested_ext) {
+            const char* ext = strrchr(cfg_get_classes_file(), '.');
+            char newname[MIL];
+            if (ext)
+                sprintf(newname, "%.*s%s", (int)(ext - cfg_get_classes_file()), cfg_get_classes_file(), requested_ext);
+            else
+                sprintf(newname, "%s%s", cfg_get_classes_file(), requested_ext);
+            cfg_set_classes_file(newname);
+        }
         save_class_table();
+        send_to_char("Classes saved.\n\r", ch);
         return;
     }
 
