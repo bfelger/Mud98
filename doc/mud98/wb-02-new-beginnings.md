@@ -1,9 +1,9 @@
-# Worldcrafting from Scratch Pt. 2 &mdash; New Beginnings (Legacy MobProgs)
+# Worldcrafting from Scratch Pt. 2 &mdash; New Beginnings
 
 Previous: [Worldcrafting from Scratch Pt. 1 &mdash; Getting Started](wb-01-getting-started)
 
 ### Table of Contents
-- [Worldcrafting from Scratch Pt. 2 — New Beginnings (Legacy MobProgs)](#worldcrafting-from-scratch-pt-2--new-beginnings-legacy-mobprogs)
+- [Worldcrafting from Scratch Pt. 2 — New Beginnings](#worldcrafting-from-scratch-pt-2--new-beginnings)
     - [Table of Contents](#table-of-contents)
   - [Choosing a VNUM block](#choosing-a-vnum-block)
   - [Creating a new area](#creating-a-new-area)
@@ -35,17 +35,17 @@ Previous: [Worldcrafting from Scratch Pt. 1 &mdash; Getting Started](wb-01-getti
 Let's start with a brand new area. This can be the seed of a brand new network
 of areas that will define _your_ MUD. For the purposes of this example, we'll make this a new starting area for one of the races.
 
-<div style="background-color: rgb(128,128,128,0.1);padding: 1em"><p style="margin: 0">Why? Because while MUDs began as heavily tilted toward hack n' slash, most players want some measure of narrative immersion that isn't possible in stock ROM. So, instead of dropping new players into "MUD School", it's better to drop them into an area that gradually introduces them to the world (and the game mechanics).</p></div><br>
+<div style="background-color: rgb(128,128,128,0.1);padding: 1em; margin-bottom: 1em;"><p style="margin: 0">Why? Because while MUDs began as heavily tilted toward hack n' slash, most players want some measure of narrative immersion that isn't possible in stock ROM. So, instead of dropping new players into "MUD School", it's better to drop them into an area that gradually introduces them to the world (and the game mechanics).</p></div>
 
 Before we create this new area, we need to find a block of VNUMs that are free to use. 
 
 ## Choosing a VNUM block
 
-What's a VNUM? A VNUM is just a number identifying each unique in-game entity definition. Rooms, objs, and mobs all have VNUMs. They can overlap _across_ entity type, but not _within_.
+What's a VNUM? A **VNUM** is just a number identifying each unique in-game entity definition. Rooms, objs, and mobs all have VNUMs. They can overlap _across_ entity type, but not _within_.
 
 That is to say, you can have a `RoomData` with VNUM `1000`, an `ObjectPrototype` with VNUM `1000`, and a `MobPrototype` with VNUM `1000`. But you _cannot_ have two `RoomData`'s with the same VNUM.
 
-Areas are defined by blocks of VNUMs that are guaranteed (by convention and bounds checking) to belong to a single area "file". For instnaces, "Limbo" is defined in `limbo.are` as covering VNUMs from `1` to `30`. Nothing in the game, whether a room, a mob, or even a mob prog, should exist with a VNUM in that space except insofar as it belongs to, and is defined by, `limbo.are`.
+Areas are defined by blocks of VNUMs that are guaranteed (by convention and bounds checking) to belong to a single area "file". For instance, "Limbo" is defined in `limbo.are` as covering VNUMs from `1` to `30`. Nothing in the game, whether a room, a mob, or even a mob prog, should exist with a VNUM in that space except insofar as it belongs to, and is defined by, `limbo.are`.
 
 The VNUM range is a _reservation_; by declaring it upon area creation, you guarantee that you have future expansion potential _at least_ up to that end VNUM for the area.
 
@@ -57,7 +57,7 @@ Enter this command:
 alist orderby vnum
 ```
 
-You should see a list that looks like this, showing VNUMs in order, and displaying any gaps inbetween:
+You should see a list that looks like this, showing VNUMs in order, and displaying any gaps in between:
 
 ```
 [Num] [Area Name                  ] (lvnum-uvnum) [Filename  ] Sec [Builders  ]
