@@ -10,6 +10,7 @@
 #include <config.h>
 #include <db.h>
 #include <handler.h>
+#include <unistd.h>
 
 #include <data/class.h>
 
@@ -80,16 +81,33 @@ void cedit(Mobile* ch, char* argument)
             force_format = true;
         }
         else if (!str_cmp(arg2, "olc")) {
-            requested_ext = ".are";
+            requested_ext = ".olc";
             force_format = true;
         }
-        if (force_format && requested_ext) {
-            const char* ext = strrchr(cfg_get_classes_file(), '.');
+        const char* classes_file = cfg_get_classes_file();
+        const char* ext = strrchr(classes_file, '.');
+        bool has_ext = (ext != NULL);
+
+        if (!force_format) {
+            if (has_ext) {
+                requested_ext = NULL; // respect existing extension
+            } else {
+                if (access(classes_file, F_OK) != 0) {
+                    const char* def = cfg_get_default_format();
+                    if (def && !str_cmp(def, "json"))
+                        requested_ext = ".json";
+                    else
+                        requested_ext = ".olc";
+                } else {
+                    requested_ext = NULL; // existing no-extension file stays ROM-OLC
+                }
+            }
+        }
+
+        if (requested_ext != NULL) {
+            size_t base_len = has_ext ? (size_t)(ext - classes_file) : strlen(classes_file);
             char newname[MIL];
-            if (ext)
-                sprintf(newname, "%.*s%s", (int)(ext - cfg_get_classes_file()), cfg_get_classes_file(), requested_ext);
-            else
-                sprintf(newname, "%s%s", cfg_get_classes_file(), requested_ext);
+            snprintf(newname, sizeof(newname), "%.*s%s", (int)base_len, classes_file, requested_ext);
             cfg_set_classes_file(newname);
         }
         save_class_table();

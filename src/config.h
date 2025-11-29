@@ -78,6 +78,7 @@ DECLARE_STR_CONFIG(status)
 DECLARE_STR_CONFIG(subgenre)
 
 // Path configs
+DECLARE_STR_CONFIG(default_format)
 DECLARE_STR_CONFIG(base_dir)
 DECLARE_STR_CONFIG(area_dir)
 DECLARE_STR_CONFIG(player_dir)

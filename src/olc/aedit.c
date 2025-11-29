@@ -7,6 +7,7 @@
 #include "array.h"
 #include "bit.h"
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "handler.h"
 #include "lookup.h"
@@ -909,7 +910,9 @@ AEDIT(aedit_file)
     }
 
     free_string(area->file_name);
-    strcat(file, ".are");
+    const char* def_fmt = cfg_get_default_format();
+    const char* ext = (def_fmt && !str_cmp(def_fmt, "json")) ? ".json" : ".are";
+    strcat(file, ext);
     area->file_name = str_dup(file);
 
     send_to_char("Filename set.\n\r", ch);

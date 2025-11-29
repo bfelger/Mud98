@@ -7,8 +7,10 @@
 #include "mock.h"
 
 #include <config.h>
+#include <db.h>
 #include <digest.h>
 #include <save.h>
+#include <stringutils.h>
 
 #include <sys/stat.h>
 #include <unistd.h>
@@ -59,6 +61,10 @@ static int test_password_hex_round_trip()
 static int test_password_survives_save_and_load()
 {
     const char* temp_dir = "temp/login_tests/";
+    const char* temp_dir_no_slash = "temp/login_tests";
+    char old_player_dir[MIL];
+    strncpy(old_player_dir, cfg_get_player_dir(), sizeof(old_player_dir) - 1);
+    old_player_dir[sizeof(old_player_dir) - 1] = '\0';
 #ifndef _MSC_VER
     mkdir("temp", 0775);
     mkdir(temp_dir, 0775);
@@ -71,10 +77,10 @@ static int test_password_survives_save_and_load()
 
     Mobile* player = mock_player("FileUser");
     ASSERT(set_password("opensesame", player));
-    //bool prev_output = test_output_enabled;
-    //test_output_enabled = false;
+    bool prev_output = test_output_enabled;
+    test_output_enabled = false;
     save_char_obj(player);
-    //test_output_enabled = prev_output;
+    test_output_enabled = prev_output;
 
     Descriptor* d = mock_descriptor();
     ASSERT(load_char_obj(d, "FileUser"));
@@ -82,6 +88,17 @@ static int test_password_survives_save_and_load()
     Mobile* loaded = d->character;
     ASSERT(validate_password("opensesame", loaded));
     ASSERT(!validate_password("wrong", loaded));
+
+    /* Cleanup: remove the saved file and restore config. */
+    char saved_path[MIL];
+    sprintf(saved_path, "%s%s", temp_dir, capitalize(NAME_STR(player)));
+    remove(saved_path);
+#ifndef _MSC_VER
+    rmdir(temp_dir_no_slash);
+#else
+    _rmdir(temp_dir_no_slash);
+#endif
+    cfg_set_player_dir(old_player_dir);
 
     return 0;
 }

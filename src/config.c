@@ -172,16 +172,17 @@
 #define DEFAULT_BAN_FILE            "ban.txt"
 
 // Data Files
+#define DEFAULT_DEFAULT_FORMAT      "olc"
 #define DEFAULT_DATA_DIR            "data/"
 #define DEFAULT_PROGS_DIR           "progs/"
 #define DEFAULT_SCRIPTS_DIR         "scripts/"
-#define DEFAULT_SOCIALS_FILE        "socials"
-#define DEFAULT_GROUPS_FILE         "groups"
-#define DEFAULT_SKILLS_FILE         "skills"
-#define DEFAULT_COMMANDS_FILE       "commands"
-#define DEFAULT_RACES_FILE          "races"
-#define DEFAULT_CLASSES_FILE        "classes"
-#define DEFAULT_TUTORIALS_FILE      "tutorials"
+#define DEFAULT_SOCIALS_FILE        "socials.olc"
+#define DEFAULT_GROUPS_FILE         "groups.olc"
+#define DEFAULT_SKILLS_FILE         "skills.olc"
+#define DEFAULT_COMMANDS_FILE       "commands.olc"
+#define DEFAULT_RACES_FILE          "races.olc"
+#define DEFAULT_CLASSES_FILE        "classes.olc"
+#define DEFAULT_TUTORIALS_FILE      "tutorials.olc"
 
 // Temp Files
 #define DEFAULT_TEMP_DIR            "temp/"
@@ -239,6 +240,7 @@ DEFINE_STR_CONFIG(status,           DEFAULT_STATUS)
 DEFINE_STR_CONFIG(subgenre,         DEFAULT_SUBGENRE)
 
 // Paths
+DEFINE_STR_CONFIG(default_format,   DEFAULT_DEFAULT_FORMAT)
 DEFINE_DIR_CONFIG(base_dir,         DEFAULT_BASE_DIR)
 DEFINE_STR_CONFIG(config_file,      DEFAULT_CONFIG_FILE)
 DEFINE_DIR_CONFIG(player_dir,       DEFAULT_PLAYER_DIR)
@@ -344,6 +346,7 @@ const ConfigEntry config_entries[] = {
     { "subgenre",           CFG_STR,    U(cfg_set_subgenre)             },
 
     // Filepaths
+    { "default_format",     CFG_STR,    U(cfg_set_default_format)       },
     { "area_dir",           CFG_DIR,    U(cfg_set_area_dir)             },
     { "area_list",          CFG_STR,    U(cfg_set_area_list)            },
     { "music_file",         CFG_STR,    U(cfg_set_music_file)           },

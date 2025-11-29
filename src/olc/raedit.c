@@ -21,6 +21,7 @@
 
 #include "data/mobile_data.h"
 #include "data/race.h"
+#include <unistd.h>
 
 #define RAEDIT( fun )		bool fun( Mobile *ch, char *argument )
 
@@ -84,16 +85,34 @@ void raedit(Mobile* ch, char* argument)
             force_format = true;
         }
         else if (!str_cmp(arg2, "olc")) {
-            requested_ext = ".are";
+            requested_ext = ".olc";
             force_format = true;
         }
-        if (force_format && requested_ext) {
-            const char* ext = strrchr(cfg_get_races_file(), '.');
+        const char* races_file = cfg_get_races_file();
+        const char* ext = strrchr(races_file, '.');
+        bool has_ext = (ext != NULL);
+
+        if (!force_format) {
+            if (has_ext) {
+                requested_ext = NULL; // respect existing extension
+            } else {
+                // Only apply default format when this looks like a new file
+                if (access(races_file, F_OK) != 0) {
+                    const char* def = cfg_get_default_format();
+                    if (def && !str_cmp(def, "json"))
+                        requested_ext = ".json";
+                    else
+                        requested_ext = ".olc";
+                } else {
+                    requested_ext = NULL; // existing no-extension file stays ROM-OLC
+                }
+            }
+        }
+
+        if (requested_ext != NULL) {
+            size_t base_len = has_ext ? (size_t)(ext - races_file) : strlen(races_file);
             char newname[MIL];
-            if (ext)
-                sprintf(newname, "%.*s%s", (int)(ext - cfg_get_races_file()), cfg_get_races_file(), requested_ext);
-            else
-                sprintf(newname, "%s%s", cfg_get_races_file(), requested_ext);
+            snprintf(newname, sizeof(newname), "%.*s%s", (int)base_len, races_file, requested_ext);
             cfg_set_races_file(newname);
         }
         save_race_table();
