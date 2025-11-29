@@ -1,4 +1,4 @@
-# Legacy rom-olc backend
+# Legacy ROM-OLC Backend
 
 - Implements the current text `.are` format using the `AreaPersistFormat` API (selected by default by `area_persist_select_format` unless a `.json` extension is seen and JSON is enabled).
 - Supports FILE-backed readers/writers (direct) and buffer-backed readers/writers (staged through tmpfile) via `persist_io_adapters`.

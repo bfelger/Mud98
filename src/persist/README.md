@@ -1,4 +1,4 @@
-# Persistence modules
+# Persistence Modules
 
 - `persist_io.h` / `persist_result.h` hold shared stream abstractions and status/result helpers usable across persisted domains (areas, classes, commands, etc.).
 - `persist_io_adapters.h/.c` provide common reader/writer adapters for FILE*, in-memory readers, and in-memory writers.

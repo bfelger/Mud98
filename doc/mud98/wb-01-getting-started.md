@@ -1,15 +1,28 @@
 # Worldcrafting from Scratch Pt. 1 &mdash; Getting Started
 
 ### Table of Contents
-1. [Building Mud98](#building-mud98)
+- [Worldcrafting from Scratch Pt. 1 — Getting Started](#worldcrafting-from-scratch-pt-1--getting-started)
+    - [Table of Contents](#table-of-contents)
+  - [Building Mud98](#building-mud98)
     - [Prerequisites](#prerequisites)
+      - [Compiler that supports at least C99](#compiler-that-supports-at-least-c99)
+      - [CMake 3.12 or higher](#cmake-312-or-higher)
+      - [Ninja Build](#ninja-build)
+      - [Pthreads library (Linux \& Cygwin only)](#pthreads-library-linux--cygwin-only)
+      - [OpenSSL 3.0 or higher](#openssl-30-or-higher)
+      - [ZLib (optional)](#zlib-optional)
+      - [Jansson JSON Library (optional)](#jansson-json-library-optional)
     - [Building on Linux and Cygwin](#building-on-linux-and-cygwin)
+      - [Configuration](#configuration)
+      - [Compilation](#compilation)
     - [Building on Windows](#building-on-windows)
-2. [Configuring Mud98](#configuring-mud98)
-    - [TLS certificates](#tls-certificates)
+      - [Using Visual Studio](#using-visual-studio)
+      - [Using Windows command line](#using-windows-command-line)
+  - [Configuring Mud98](#configuring-mud98)
+    - [SSL certificates](#ssl-certificates)
     - [Edit mud98.cfg](#edit-mud98cfg)
-3. [Booting Mud98](#booting-mud98)
-4. [Creating an implementor](#creating-an-implementor)
+  - [Booting Mud98](#booting-mud98)
+  - [Creating an implementor](#creating-an-implementor)
 
 <br />
 
@@ -17,13 +30,13 @@ Mud98 isn't a MUD; it's a MUD _codebase_. The task of crafting a MUD around it i
 
 This document aims to create a step-by-step how-to to take a brand-new, vanilla Mud98, and build a brand-new MUD around it that is 100% yours.
 
-Be before we can do any of that, we have to get the thing up and running. I have done my due diligence to make sure that no matter what environment you're on, whether it's Linux, Windows, or even Cygwin, Mud98 compiles and executes flawlessly.
+But before we can do any of that, we have to get the thing up and running. I have done my due diligence to make sure that no matter what environment you're on, whether it's Linux, Windows, or even Cygwin, Mud98 compiles and executes flawlessly.
 
 To give you some idea of where things have been with ROM since its last release, the code would not compile with out an unbelievable number of errors and warnings,and had to be compiled with some pretty old (and out-dated) legacy compatability settings.
 
 Now it compiles on all major C compilers without any of those problems so that you may not have to get a Computer Science degree just to learn how to build your own MUD.
 
-> I joke; I learned _way_ more from hacking on ROM than I ever did my Comp Sci degree.
+<div style="background-color: rgb(128,128,128,0.1);padding: 1em"><p style="margin: 0">I joke; I learned <i>way</i> more from hacking on ROM than I ever did my Comp Sci degree.</p></div>
 
 ## Building Mud98
 
@@ -45,7 +58,7 @@ The CMake scripts will actually try to use C23 (on Linux) or C17 (on Windows). E
 
 I have tested and verified that Mud98 builds without error and executes without problems on the following:
 
-- GCC 11.3 (Ubuntu)
+- GCC 14 (Ubuntu)
 - Clang 14 (Ubuntu)
 - MSVC 19.37 (Visual Studio 22)
 - GCC 11.4 (Cygwin)
@@ -55,6 +68,15 @@ I have not tested Mud98 under production load on Windows. Theoretically is _shou
 #### CMake 3.12 or higher
 
 I chose to leave behind the convenience and ease-of-use of conventional Makefiles because of the absolute ease of cross-platform configuration CMake brings. Writing CMake scripts isn't easy, at all; but hopefully I've done the hard work for you.
+
+#### Ninja Build
+
+Ninja makes multi-platform, multi-build configuration very easy.
+
+**On Ubuntu:**
+```
+sudo apt-get install ninja-build
+```
 
 #### Pthreads library (Linux & Cygwin only)
 
@@ -66,13 +88,34 @@ Strictly speaking, this is _optional_; but Mud98 will be so degraded in security
 
 In Mud98, OpenSSL provides secure TLS connection as well as SHA256 hashing for passwords.
 
-> A note about OpenSSL: there are _no official builds or downloads_. Essentially, the only OpenSSL binary  you can trust is the one you build, yourself. It isn't especially difficult, but it is _involved_. If you are not familiar with building complex packages from scratch, including modifying Perl scripts, it is advisable that you find an appropriate pre-build.
->
-> You aren't exactly going for FIPS compliance, here. And if that doesn't mean anything to you, then you _really_ don't need to go to the trouble.
+<div style="background-color: rgb(128,128,128,0.1);padding: 1em"><p>A note about OpenSSL: there are <i>no official builds or downloads</i>. Essentially, the only OpenSSL binary  you can trust is the one you build, yourself. It isn't especially difficult, but it is <i>involved</i>. If you are not familiar with building complex packages from scratch, including modifying Perl scripts, it is advisable that you find an appropriate pre-build.</p>
+<p style="margin: 0">You aren't exactly going for FIPS compliance, here. And if that doesn't mean anything to you, then you <i>really</i> don't need to go to the trouble.</p></div><br>
+
+**On Ubuntu:**
+```
+sudo apt-get install libssl-dev
+```
 
 #### ZLib (optional)
 
 If you have the ZLib development library, Mud98 will have MCCP (MUD Client Compression Protocol) enabled out-of-the-box. This will greatly reduce the amount of traffic needed between the client and server. Even having another package like Strawberry Perl (which I installed to build OpenSSL) is enough for CMake to find a useable copy of ZLib.
+
+**On Ubuntu:**
+```
+sudo apt install zlib1g-dev
+```
+
+#### Jansson JSON Library (optional)
+
+I debated long and hard about whether to make this a required dependency or not. When Jansson is present on the build system, you can switch almost all data files to use JSON instead of the old ROM-and-ROM-OLC-format files. These files are much, much easier to understand and edit outside of OLC.
+
+I _highly_ recommend it.
+
+**On Ubuntu:**
+```
+sudo apt install pkgconf
+pkg-config jansson
+```
 
 ### Building on Linux and Cygwin
 
@@ -98,7 +141,7 @@ $ ./config clang      # Force Clang
 
 This step will tell you missing any required or optional dependencies.
 
-> If downloading from GitHub, you may need to `chmod +x` these scripts before they will execute.
+<div style="background-color: rgb(128,128,128,0.1);padding: 1em"><p style="margin: 0">If downloading from GitHub, you may need to `chmod +x` these scripts before they will execute.</p></div>
 
 #### Compilation
 
@@ -122,7 +165,7 @@ The last option compiles the source with Release optimizations, but leaves sourc
 
 If you're an old hand at CMake and/or Powershell, you should have no problem porting the Bash scripts for Linux over to Batch or Powershell. For everyone else, I strongly recommend Visual Studio 19 or higher for its out-of-the-box CMake capability.
 
-> Mud98 has been tested with Visual Studio Community Edition, which is available for free.
+<div style="background-color: rgb(128,128,128,0.1);padding: 1em"><p style="margin: 0">Mud98 has been tested with Visual Studio Community Edition, which is available for free.</p></div>
 
 #### Using Visual Studio
 
