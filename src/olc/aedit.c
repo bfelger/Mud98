@@ -48,6 +48,7 @@ static ChecklistStatus checklist_status_from_name(const char* name, ChecklistSta
 static const char* checklist_status_name(ChecklistStatus status);
 static StoryBeat* story_beat_by_index(AreaData* area, int index, StoryBeat** out_prev);
 static ChecklistItem* checklist_by_index(AreaData* area, int index, ChecklistItem** out_prev);
+static void aedit_seed_default_checklist(AreaData* area);
 
 AEDIT(aedit_story);
 AEDIT(aedit_checklist);
@@ -267,7 +268,7 @@ static void aedit_print_story_beats(Mobile* ch, AreaData* area)
     }
     int idx = 0;
     for (StoryBeat* beat = area->story_beats; beat; beat = beat->next, ++idx) {
-        printf_to_char(ch, "  %d) %s\n\r", idx, beat->title);
+        printf_to_char(ch, "  %d) %s\n\r", idx + 1, beat->title);
         if (!IS_NULLSTR(beat->description))
             printf_to_char(ch, "     %s\n\r", beat->description);
     }
@@ -282,7 +283,7 @@ static void aedit_print_checklist(Mobile* ch, AreaData* area)
     }
     int idx = 0;
     for (ChecklistItem* item = area->checklist; item; item = item->next, ++idx) {
-        printf_to_char(ch, "  %d) [%s] %s\n\r", idx, checklist_status_name(item->status), item->title);
+        printf_to_char(ch, "  %d) [%s] %s\n\r", idx + 1, checklist_status_name(item->status), item->title);
         if (!IS_NULLSTR(item->description))
             printf_to_char(ch, "     %s\n\r", item->description);
     }
@@ -648,7 +649,8 @@ AEDIT(aedit_story)
             "        story add <title> [description]\n\r"
             "        story title <index> <title>\n\r"
             "        story desc <index> <description>\n\r"
-            "        story del <index>\n\r", ch);
+            "        story del <index>\n\r"
+            "        (indexes are 1-based)\n\r", ch);
         return false;
     }
 
@@ -658,7 +660,7 @@ AEDIT(aedit_story)
     }
 
     if (!str_cmp(arg1, "add")) {
-        argument = one_argument(argument, arg2);
+        argument = first_arg(argument, arg2, false); // preserve case for title
         if (IS_NULLSTR(arg2)) {
             send_to_char("Story add requires a title.\n\r", ch);
             return false;
@@ -675,7 +677,11 @@ AEDIT(aedit_story)
             send_to_char("Syntax: story title|desc <index> <text>\n\r", ch);
             return false;
         }
-        int idx = atoi(arg2);
+        int idx = atoi(arg2) - 1;
+        if (idx < 0) {
+            send_to_char("No such story beat.\n\r", ch);
+            return false;
+        }
         StoryBeat* beat = story_beat_by_index(area, idx, NULL);
         if (!beat) {
             send_to_char("No such story beat.\n\r", ch);
@@ -700,7 +706,11 @@ AEDIT(aedit_story)
             send_to_char("Syntax: story del <index>\n\r", ch);
             return false;
         }
-        int idx = atoi(arg2);
+        int idx = atoi(arg2) - 1;
+        if (idx < 0) {
+            send_to_char("No such story beat.\n\r", ch);
+            return false;
+        }
         StoryBeat* prev = NULL;
         StoryBeat* beat = story_beat_by_index(area, idx, &prev);
         if (!beat) {
@@ -738,7 +748,9 @@ AEDIT(aedit_checklist)
             "        checklist title <index> <title>\n\r"
             "        checklist desc <index> <description>\n\r"
             "        checklist status <index> <todo|progress|done>\n\r"
-            "        checklist del <index>\n\r", ch);
+            "        checklist del <index>\n\r"
+            "        checklist clear\n\r"
+            "        (indexes are 1-based)\n\r", ch);
         return false;
     }
 
@@ -769,13 +781,25 @@ AEDIT(aedit_checklist)
         return true;
     }
 
+    if (!str_cmp(arg1, "clear")) {
+        free_checklist(area->checklist);
+        area->checklist = NULL;
+        SET_BIT(area->area_flags, AREA_CHANGED);
+        send_to_char("Checklist cleared.\n\r", ch);
+        return true;
+    }
+
     if (!str_cmp(arg1, "title") || !str_cmp(arg1, "desc") || !str_cmp(arg1, "status")) {
         argument = one_argument(argument, arg2);
         if (!is_number(arg2)) {
             send_to_char("Checklist requires a numeric index.\n\r", ch);
             return false;
         }
-        int idx = atoi(arg2);
+        int idx = atoi(arg2) - 1;
+        if (idx < 0) {
+            send_to_char("No such checklist item.\n\r", ch);
+            return false;
+        }
         ChecklistItem* item = checklist_by_index(area, idx, NULL);
         if (!item) {
             send_to_char("No such checklist item.\n\r", ch);
@@ -814,7 +838,11 @@ AEDIT(aedit_checklist)
             send_to_char("Syntax: checklist del <index>\n\r", ch);
             return false;
         }
-        int idx = atoi(arg2);
+        int idx = atoi(arg2) - 1;
+        if (idx < 0) {
+            send_to_char("No such checklist item.\n\r", ch);
+            return false;
+        }
         ChecklistItem* prev = NULL;
         ChecklistItem* item = checklist_by_index(area, idx, &prev);
         if (!item) {
@@ -870,12 +898,29 @@ AEDIT(aedit_create)
     area_data->high_range = MAX_LEVEL;
     area_data->security = ch->pcdata->security;
     write_value_array(&global_areas, OBJ_VAL(area_data));
+    aedit_seed_default_checklist(area_data);
 
     set_editor(ch->desc, ED_AREA, U(area_data));
 
     SET_BIT(area_data->area_flags, AREA_ADDED);
     send_to_char("Area Created.\n\r", ch);
     return true;
+}
+
+static void aedit_seed_default_checklist(AreaData* area)
+{
+    static const char* default_checklist[] = {
+        "Write-up story beats",
+        "Sketch out rooms",
+        "Populate mobiles",
+        "Populate objects",
+        "Add descriptions",
+        "Wire-up events",
+    };
+
+    for (size_t i = 0; i < sizeof(default_checklist) / sizeof(default_checklist[0]); ++i) {
+        add_checklist_item(area, default_checklist[i], "", CHECK_TODO);
+    }
 }
 
 AEDIT(aedit_file)
