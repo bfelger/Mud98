@@ -35,7 +35,7 @@ Previous: [Worldcrafting from Scratch Pt. 1 &mdash; Getting Started](wb-01-getti
 Let's start with a brand new area. This can be the seed of a brand new network
 of areas that will define _your_ MUD. For the purposes of this example, we'll make this a new starting area for one of the races.
 
-<div style="background-color: rgb(128,128,128,0.1);padding: 1em; margin-bottom: 1em;"><p style="margin: 0">Why? Because while MUDs began as heavily tilted toward hack n' slash, most players want some measure of narrative immersion that isn't possible in stock ROM. So, instead of dropping new players into "MUD School", it's better to drop them into an area that gradually introduces them to the world (and the game mechanics).</p></div>
+<div style="background-color: rgb(32,64,255,0.1);border-radius:5px;padding: 1em; margin-bottom: 1em;"><p style="margin: 0">Why? Because while MUDs began as heavily tilted toward hack n' slash, most players want some measure of narrative immersion that isn't possible in stock ROM. So, instead of dropping new players into "MUD School", it's better to drop them into an area that gradually introduces them to the world (and the game mechanics).</p></div>
 
 Before we create this new area, we need to find a block of VNUMs that are free to use. 
 
@@ -59,20 +59,27 @@ alist orderby vnum
 
 You should see a list that looks like this, showing VNUMs in order, and displaying any gaps in between:
 
-```
-[Num] [Area Name                  ] (lvnum-uvnum) [Filename  ] Sec [Builders  ]
-[ 26] Limbo                         (1    -   30) limbo.are    [9] [None      ]
-[ 43] Smurfville                    (100  -  199) smurf.are    [9] [None      ]
-[  4] Plains                        (300  -  399) plains.are   [9] [None      ]
-[  1] New Ofcol                     (600  -  699) ofcol2.are   [9] [None      ]
-[ 37] Olympus                       (900  -  999) olympus.are  [9] [None      ]
-[  6] In the Air                    (1000 - 1099) air.are      [9] [None      ]
-[  2] Shire                         (1100 - 1199) shire.are    [9] [None      ]
-[  0] Valhalla                      (1200 - 1299) immort.are   [9] [None      ]
-[ 24] High Tower                    (1300 - 1499) hitower.are  [9] [None      ]
-[ 21] Gnome Village                 (1500 - 1599) gnome.are    [9] [None      ]
-...
-```
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(245,216,147);">Num</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(245,216,147);">Area Name             </span><span style="color: rgb(64,35,30);">] (</span><span style="color: rgb(245,216,147);"> lvnum</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(245,216,147);">uvnum </span><span style="color: rgb(64,35,30);">) [</span><span style="color: rgb(245,216,147);">Filename   </span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(245,216,147);">Sec </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(245,216,147);">Builders  </span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 26</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Limbo                    </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">     1</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">30    </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">limbo.are     </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 43</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Smurfville               </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">   100</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">199   </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">smurf.are     </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  4</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Plains                   </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">   300</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">399   </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">plains.are    </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  1</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> New Ofcol                </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">   600</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">699   </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">ofcol2.are    </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 37</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Olympus                  </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">   900</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">999   </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">olympus.are   </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  6</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> In the Air               </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  1000</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">1099  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">air.are       </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  2</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Shire                    </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  1100</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">1199  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">shire.are     </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  0</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Valhalla                 </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  1200</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">1299  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">immort.are    </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 24</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> High Tower               </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  1300</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">1499  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">hitower.are   </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 21</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Gnome Village            </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  1500</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">1599  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">gnome.are     </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 47</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Wyvern's Tower           </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  1600</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">1799  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">wyvern.are    </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 10</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Catacombs                </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  2000</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">2099  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">catacomb.are  </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 25</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Gangland                 </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  2100</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">2199  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">hood.are      </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 13</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Dragon Tower             </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  2200</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">2299  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">draconia.are  </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 27</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Mahn-Tor                 </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  2300</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">2399  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">mahntor.are   </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 45</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Troll Den                </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  2800</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">2899  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">trollden.are  </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
+ </div>
+
+ <div style="background-color: rgb(32,64,255,0.1);border-radius:5px;padding: 1em; margin-bottom: 1em;"><p style="margin: 0">This is the built-in color theme "Conestoga". It's selectable via the <code>THEME</code> command.</p></div>
 
 You can now pick a block of VNUMs that are not assigned to any existing area. Since your goal is to create a brand new collection of areas to define your MUD, you don't want to intermingle your VNUM block with the existing ones, if possible.
 
@@ -94,21 +101,31 @@ aedit create
 
 ...which will bring up this blank slate of information:
 
-```
-Name:           [48] New area
-File:           area48.are
-Vnums:          [0-0]
-Levels:         [1-60]
-Sector:         [inside]
-Reset:          [5] x 8 minutes
-Always Reset:   [NO]
-Instance Type   [single]
-Age:            [0]
-Security:       [9]
-Builders:       [Halivar]
-Credits :       [Halivar]
-Flags:          [added]
-```
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(237,230,203);">Area           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">        47</span><span style="color: rgb(64,35,30);"> ] </span><br>
+<span style="color: rgb(237,230,203);">File           : </span><span style="color: rgb(112,77,43);">area47.are</span><br>
+<span style="color: rgb(237,230,203);">Vnums          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       0-0</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Levels         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">      1-60</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Sector         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    inside</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Reset          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         6</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">x 48 minutes</span><br>
+<span style="color: rgb(237,230,203);">Always Reset   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">        </span><span style="color: rgb(64,35,30);">NO ]</span><br>
+<span style="color: rgb(237,230,203);">Instance Type  : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    single</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Security       : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         9</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Builders       : </span><span style="color: rgb(112,77,43);">Halivar</span><br>
+<span style="color: rgb(237,230,203);">Credits        : </span><span style="color: rgb(112,77,43);">Halivar</span><br>
+<span style="color: rgb(237,230,203);">Flags          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     added</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(245,216,147);">Factions</span><br>
+<span style="color: rgb(43,69,79);">  (none)</span><br>
+<span style="color: rgb(232,178,111);">Story Beats:</span><br>
+<span style="color: rgb(237,230,203);">  (none)</span><br>
+<span style="color: rgb(232,178,111);">Checklist:</span><br>
+<span style="color: rgb(237,230,203);">  1) [To-Do] Write-up story beats</span><br>
+<span style="color: rgb(237,230,203);">  2) [To-Do] Sketch out rooms</span><br>
+<span style="color: rgb(237,230,203);">  3) [To-Do] Populate mobiles</span><br>
+<span style="color: rgb(237,230,203);">  4) [To-Do] Populate objects</span><br>
+<span style="color: rgb(237,230,203);">  5) [To-Do] Add descriptions</span><br>
+<span style="color: rgb(237,230,203);">  6) [To-Do] Wire-up events</span><br>
+ </div>
 
 You're now in "edit mode" with OLC. All of `AEDIT`'s extended commands can be used from the prompt (including `COMMANDS`, which lists those extended commands).
 
@@ -126,7 +143,7 @@ Now, for the purposes of this example, I've decided to make a starting area just
 name Faladrin Forest
 file faladri
 sector forest
-vnums 12000 121000
+vnums 12000 12099
 levels 1 5
 reset 1
 instancetype multi
@@ -135,26 +152,140 @@ instancetype multi
 These settings are novel to Mud98:
 - `sector` sets a "default" sector value for the rooms in the area.
 - `reset` is the number of "area pulses" to use before the room resets. By setting it to `1`, we guarantee this starting area (including mobs and objs) resets ever 8 minutes.
-- `instancetype` is a novel setting for Mud98. There are two settings (at the time of this writing): `single` and `multi`. The former works like ROM always have: everyone plays in one big shared space. The `multi` option means "multiple-instanced"; each player (and their party mates) have their own sandbox in that area. If other folks enter the same area, they will have their _own_ instance, and the two shall never meet. This is just right for the newbie zone, which (IMXP) can suffer from too many folks competing for slaying the poor little moblets.
+- `instancetype` is a novel setting for Mud98. There are two settings (at the
+time of this writing): `single` and `multi`. The former works like ROM always
+has: everyone plays in one big shared space, and players must contend with
+constantly-depleted newbie areas. The `multi` option means "multiple-instanced";
+each player (and their party mates) have their own sandbox in that area. If 
+other folks enter the same area, they will have their _own_ instance, and the
+two shall never meet. This is just right for the newbie zone, which (IMXP) can
+suffer from too many folks competing for slaying the poor little moblets.
 
 Now my `SHOW` looks like this:
 
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(237,230,203);">Area           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">        47</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Faladrin Forest</span><br>
+<span style="color: rgb(237,230,203);">File           : </span><span style="color: rgb(112,77,43);">faladri.json</span><br>
+<span style="color: rgb(237,230,203);">Vnums          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">12000-12099</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Levels         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       1-5</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Sector         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    forest</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Reset          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         1</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">x 8 minutes</span><br>
+<span style="color: rgb(237,230,203);">Always Reset   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">        </span><span style="color: rgb(64,35,30);">NO ]</span><br>
+<span style="color: rgb(237,230,203);">Instance Type  : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     multi</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Security       : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         9</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Builders       : </span><span style="color: rgb(112,77,43);">Halivar</span><br>
+<span style="color: rgb(237,230,203);">Credits        : </span><span style="color: rgb(112,77,43);">Halivar</span><br>
+<span style="color: rgb(237,230,203);">Flags          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">changed added</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(245,216,147);">Factions</span><br>
+<span style="color: rgb(43,69,79);">  (none)</span><br>
+<span style="color: rgb(232,178,111);">Story Beats:</span><br>
+<span style="color: rgb(237,230,203);">  (none)</span><br>
+<span style="color: rgb(232,178,111);">Checklist:</span><br>
+<span style="color: rgb(237,230,203);">  1) [To-Do] Write-up story beats</span><br>
+<span style="color: rgb(237,230,203);">  2) [To-Do] Sketch out rooms</span><br>
+<span style="color: rgb(237,230,203);">  3) [To-Do] Populate mobiles</span><br>
+<span style="color: rgb(237,230,203);">  4) [To-Do] Populate objects</span><br>
+<span style="color: rgb(237,230,203);">  5) [To-Do] Add descriptions</span><br>
+<span style="color: rgb(237,230,203);">  6) [To-Do] Wire-up events</span><br>
+ </div>
+
+<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p style="margin: 0;">Note the file name; this guide assumes you are using JSON file formats for area and data files. If you chose not to use JSON, or chose ROM-OLC as the default in <code>mud98.cfg</code>, you would see <code>faladri.are</code> here, instead.</p>
+</div>
+
+`CREDITS` can be whatever I want (but should be my Imp name, or else it will mess with the formatting on the universal, non-OLC `AREAS` command) , but `SECURITY` and `BUILDERS` is special. When I created the area, they were set (by default) to my security level and player name, respectively. There are "permissions" for the area. To edit this area, my name must be in the `BUILDERS` list (as it can have more than one name) _or_ my security level must be higher than that of the area. Thus, an Imm who has higher security than you can edit your areas; but not lower unless they are listed as a builder in that area. As an Imp with max security, I can edit _any_ area.
+
+### New tools for Mud98
+
+If you've ever used OLC on a previous iteration of ROM (or other Diku derivative),
+you may have noticed a few more options that are unfamiliar. These are some tools
+I've put into Mud98 to help you craft a better, higher-quality, and more
+consistent world:
+
+**Factions** - NPCs in Mud98 can be assigned to factions; these are created
+ad-hoc by builders, and can be constructed into an intricate web of alliances
+and enemies. Players can gain (or lose) reputation with these factions by quests,
+attacking their enemies (or them), or by doing to same for related factions.
+
+**Story Beats** - This is a quick, at-a-glance list of the plots and places of 
+the area, as well as significant factions and NPCs. Use this as a "build guide"
+to establish themes and player-goals in areas where builders may collaborate on
+a shared world.
+
+**Checklist** - Building a quality area takes a long time; breaking down the work
+into discrete chunks helps keep things straight across many building sessions,
+as well as organize work across a team of builders. Pictured here is the "default"
+set of builder checklist items; but a builder can clear them and create their own.
+Or, an implementor can change the default list in code.
+
+<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><h3 style="margin-top: 0;">Building with generative AI</h3>
+<p>I am not a big fan of generative AI presented as polished human-written 
+prose, because there really is no comparison. Human prose, even (or perhaps especially) badly-written, has a charm all its own that generative AI can't replicate with its sterile perfection.</p><p>Nevertheless, there is no putting
+the genie back in the bottle, and I predict MUD operators in a greatly 
+diminished hobby will find it harder and harder to pass up the opportunity to
+instantly fill in areas; especially when standing up new MUDs <i>before</i> 
+they have attracted a cadre of competent builders.</p>
+<p>For these situations, <code>Factions</code>, <code>Story Beats</code>,
+and <code>Checklist</code> are tools that make it trivial for agentic LLMs to
+bang out some rooms, mobs, items, quests, and even Lox scripts.</p><p>But be
+forewarned: it won't be <i>good</i>, per se, and many players won't appreciate 
+it. Prospective builders may even be <i>insulted</i> by it.</p><p style="margin: 0;"><b>My recommendation:</b> Use generative AI on a builder-starved MUD for quick
+scaffolding; but put in the extra work to improve, rewrite, and fix issues
+before you present it to the public as "finished".</div>
+
+### Crafting a narrative
+
+I'll keep the default checklist (since I came up with them, in the first place)
+and move on the story beats:
+
 ```
-Name:           [49] Faladrin Forest
-File:           faladri.are
-Vnums:          [12000-12100]
-Levels:         [1-5]
-Sector:         [forest]
-Reset:          [1] x 8 minutes
-Always Reset:   [NO]
-Instance Type:  [multi]
-Security:       [9]
-Builders:       [Halivar]
-Credits :       [Halivar]
-Flags:          [changed added]
+story add "Elf starting area" On-board new elf PCs with a story-driven tutorial.
+story add "Cuivealda's shadow" The entire area is under the sprawling branches 
+of the elven tree home.
+story add "The Forestspeaker's plight" Findorian needs the player's help to 
+fight a blight consuming the forest.
 ```
 
-`CREDITS` can be whatever I want (but should be my Imp name, or else it will mess with the formatting on the universal, non-OLC `AREAS` command) , but `SECURITY` and `BUILDERS` is special. When I created the area, they were set (by default) to my security level and player name, respectively. There are "permissions" for the area. To edit this area, my name must be in the `BUILDERS` list (as it can have more than one name) _or_ my security level must be higher than that of the area. Thus, an Imm who has higer security than you can edit your areas; but not lower unless they are listed as a builder in that area. As an Imp with max security, I can edit _any_ area.
+If you hit "Enter" again (or type `SHOW`), you'll see our list of story beats
+have been added to the area.
+
+Now we can mark our first "to-do" item complete:
+
+```
+checklist status 1 done
+```
+
+Technically, we should have marked it "In progress" before starting. Just
+consider yourself lucky I didn't add a Jira ticketing process.
+
+One more thing to do on our way out the door: I want to go ahead and set our 
+initial faction:
+
+```
+faction create 12000 Cuivealda
+```
+
+Now we can take a look and see our progress (initial lines of `SHOW` omitted):
+
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(245,216,147);">Factions</span><br>
+<span style="color: rgb(64,35,30);">[12000] </span><span style="color: rgb(112,77,43);">Cuivealda           </span><span style="color: rgb(237,230,203);"> default: </span><span style="color: rgb(43,69,79);">     0</span><span style="color: rgb(237,230,203);"> allies: </span><span style="color: rgb(43,69,79);"> 0</span><span style="color: rgb(237,230,203);"> enemies: </span><span style="color: rgb(43,69,79);"> 0</span><br>
+<span style="color: rgb(232,178,111);">Story Beats:</span><br>
+<span style="color: rgb(237,230,203);">  1) Elf starting area</span><br>
+<span style="color: rgb(237,230,203);">     On-board new elf PCs with a story-driven tutorial.</span><br>
+<span style="color: rgb(237,230,203);">  2) Cuivealda's shadow</span><br>
+<span style="color: rgb(237,230,203);">     The entire area is under the sprawling branches of the elven tree home.</span><br>
+<span style="color: rgb(237,230,203);">  3) The Forestspeaker's plight</span><br>
+<span style="color: rgb(237,230,203);">     Findorian needs the player's help to fight a blight consuming the forest.</span><br>
+<span style="color: rgb(232,178,111);">Checklist:</span><br>
+<span style="color: rgb(237,230,203);">  1) [Done] Write-up story beats</span><br>
+<span style="color: rgb(237,230,203);">  2) [To-Do] Sketch out rooms</span><br>
+<span style="color: rgb(237,230,203);">  3) [To-Do] Populate mobiles</span><br>
+<span style="color: rgb(237,230,203);">  4) [To-Do] Populate objects</span><br>
+<span style="color: rgb(237,230,203);">  5) [To-Do] Add descriptions</span><br>
+<span style="color: rgb(237,230,203);">  6) [To-Do] Wire-up events</span><br>
+ </div>
+
+### Wrapping up
 
 Now it's time to set this area is stone by saving it:
 
@@ -165,10 +296,10 @@ asave changed
 
 We get this message:
 
-```
-Saved zones:
-         Faladrin Forest - 'faladri.are'
-```
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(237,230,203);">Saved zones:</span><br>
+<span style="color: rgb(237,230,203);">         Faladrin Forest - 'faladri.json'</span><br>
+ </div>
 
 If do a `git status` in my `area` folder, I see my changed files:
 
@@ -177,12 +308,12 @@ Changes not staged for commit:
         modified:   area/area.lst
 
 Untracked files:
-        area/faladri.are
+        area/faladri.json
 ```
 
 That's it! I now have my new starting area, and I'm read to start adding to rooms to it.
 
-<div style="background-color: rgb(128,128,128,0.1);padding: 1em"><p>You <i>are</i> using `git` to keep track of your changes, right?</p>
+<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p style="margin: 0;"><p>You <i>are</i> using <code>git</code> to keep track of your changes, right?</p>
 <p style="margin: 0">
 Right?</p>
 </div>
@@ -216,7 +347,7 @@ Be sure to check `COMMANDS` to see what options are available.
 
 The intention is for this to be the first room a player sees when they create an elf character. Therefore, we should think carefully about the naming and prose used in this room. For now, I will use placeholder text.
 
-<div style="background-color: rgb(128,128,128,0.1);padding: 1em"><p style="margin: 0">To be honest, I was never a good builder. In my Imp days of ages past, I was a <i>coding</i> Imp. I needed an army of builders and admins to do the other work for me (like, actually <i>running</i> and <i>creating</i> the MUD).</p></div><br>
+<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p style="margin: 0;">To be honest, I was never a good builder. In my Imp days of ages past, I was a <i>coding</i> Imp. I needed an army of builders and admins to do the other work for me (like, actually <i>running</i> and <i>creating</i> the MUD).</p></div>
 
 Note that, by creating the room, we actually teleported to it. This is useful so we can perform actions like `LOOK` and whatnot. OLC is very much "in-game".
 

@@ -69,7 +69,7 @@ AreaData* new_area_data()
     init_list(&area_data->instances);
     SET_LOX_FIELD(&area_data->header, &area_data->instances, instances);
 
-    VNUM_FIELD(area_data) = global_areas.count - 1;
+    VNUM_FIELD(area_data) = global_areas.count;
     const char* def_fmt = cfg_get_default_format();
     const char* ext = (def_fmt && !str_cmp(def_fmt, "json")) ? ".json" : ".are";
     sprintf(buf, "area%"PRVNUM"%s", VNUM_FIELD(area_data), ext);

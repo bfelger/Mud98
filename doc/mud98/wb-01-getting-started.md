@@ -116,6 +116,12 @@ I _highly_ recommend it.
 sudo apt-get install libjansson-dev
 ```
 
+**NOTE:** This _may_ not work, unfortunately; if CMake doesn't find Jansson after the above, try installing through `pkg-config`:
+```
+sudo apt-get install pkg-config
+pkg-config jansson
+```
+
 ### Building on Linux and Cygwin
 
 Building on both Linux and Cygwin is largely the same. In the `src` directory are scripts for both configuring CMake and compiling. 

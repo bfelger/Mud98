@@ -988,8 +988,8 @@ AEDIT(aedit_levels)
         return false;
     }
 
-    area->high_range = lower;
-    area->low_range = upper;
+    area->low_range = lower;
+    area->high_range = upper;
 
     printf_to_char(ch, "Level range set to %d-%d.\n\r", lower, upper);
 
@@ -1241,7 +1241,7 @@ void do_alist(Mobile* ch, char* argument)
     char arg[MIL];
     char sort[MIL];
 
-    addf_buf(result, COLOR_DECOR_1 "[" COLOR_TITLE "%3s" COLOR_DECOR_1 "] [" COLOR_TITLE "%-27s" COLOR_DECOR_1 "] (" COLOR_TITLE "%-5s" COLOR_DECOR_1 "-" COLOR_TITLE "%5s" COLOR_DECOR_1 ") " COLOR_DECOR_1 "[" COLOR_TITLE "%-10s" COLOR_DECOR_1 "] " COLOR_TITLE "%3s " COLOR_DECOR_1 "[" COLOR_TITLE "%-10s" COLOR_DECOR_1 "]" COLOR_EOL,
+    addf_buf(result, COLOR_DECOR_1 "[" COLOR_TITLE "%3s" COLOR_DECOR_1 "] [" COLOR_TITLE "%-22s" COLOR_DECOR_1 "] (" COLOR_TITLE "%6s" COLOR_DECOR_1 "-" COLOR_TITLE "%-6s" COLOR_DECOR_1 ") " COLOR_DECOR_1 "[" COLOR_TITLE "%-11s" COLOR_DECOR_1 "] " COLOR_TITLE "%3s " COLOR_DECOR_1 "[" COLOR_TITLE "%-10s" COLOR_DECOR_1 "]" COLOR_EOL,
         "Num", "Area Name", "lvnum", "uvnum", "Filename", "Sec", "Builders");
 
     size_t alist_size = sizeof(AreaData*) * global_areas.count;
@@ -1280,8 +1280,10 @@ void do_alist(Mobile* ch, char* argument)
     }
 
     AreaData* area;
-    FOR_EACH_AREA(area) {
-        addf_buf( result, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-29.29s " COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%-5d" COLOR_DECOR_1 "-" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 ") " COLOR_ALT_TEXT_2 "%-12.12s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "] [" COLOR_ALT_TEXT_1 "%-10.10s" COLOR_DECOR_1 "]" COLOR_EOL,
+    //FOR_EACH_AREA(area) {
+    for (int i = 0; i < global_areas.count; ++i) {
+        area = alist[i];
+        addf_buf( result, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-24.24s " COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 "-" COLOR_ALT_TEXT_1 "%-6d" COLOR_DECOR_1 ") " COLOR_ALT_TEXT_2 "%-13.13s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "] [" COLOR_ALT_TEXT_1 "%-10.10s" COLOR_DECOR_1 "]" COLOR_EOL,
             VNUM_FIELD(area),
             NAME_STR(area),
             area->min_vnum,

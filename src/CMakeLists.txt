@@ -2,7 +2,6 @@
 # Mud98 Game Executable
 #
 
-
 set(Mud98_LIBS "")
 
 if (NOT MSVC)
@@ -13,18 +12,19 @@ endif()
 
 # PkgConfig is typically not available on Windows/MSVC
 if (NOT MSVC)
-    find_package(PkgConfig QUIET)
+    find_package(PkgConfig)
     if (PKG_CONFIG_FOUND)
         pkg_check_modules(JANSSON jansson)
     endif()
 endif()
 
 if (NOT JANSSON_FOUND)
-    find_package(Jansson QUIET)
+    find_package(jansson)
 endif()
 
 if (NOT JANSSON_FOUND)
     message("Jansson library not found. JSON persistence will be disabled.")
+    message("Try installing pkg-config; then install jansson with 'pkg-config jansson'.")
 endif()
 
 option(ENABLE_JSON_AREAS "Enable JSON area persistence (jansson)" ${JANSSON_FOUND})
@@ -40,7 +40,7 @@ set (OPENSSL_USE_STATIC_LIBS true)
 find_package(OpenSSL)
 
 if (OPENSSL_FOUND)
-    message("OpenSSL version ${OPENSSL_VERSION} found at ${OPENSSL_INLCUDE_DIRS}.")
+    message("OpenSSL version ${OPENSSL_VERSION} found at ${OPENSSL_INCLUDE_DIRS}.")
 endif()
 
 if (NOT OPENSSL_FOUND OR OPENSSL_VERSION VERSION_LESS "3.0.0")
