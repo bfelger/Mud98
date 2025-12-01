@@ -4,12 +4,20 @@
 
 #include "class_persist_rom_olc.h"
 
+#include <persist/class/class_persist.h>
 #include <persist/persist_io_adapters.h>
 
 #include <data/class.h>
-#include <tablesave.h>
+
 #include <db.h>
 #include <comm.h>
+#include <tablesave.h>
+
+const ClassPersistFormat CLASS_PERSIST_ROM_OLC = { 
+    .name = "rom-olc", 
+    .load = class_persist_rom_olc_load, 
+    .save = class_persist_rom_olc_save 
+};
 
 #ifdef U
 #undef U
@@ -21,7 +29,7 @@ extern bool test_output_enabled;
 extern SaveTableEntry class_save_table[]; // from class.c
 extern Class tmp_class;
 
-PersistResult class_persist_rom_load(const PersistReader* reader, const char* filename)
+PersistResult class_persist_rom_olc_load(const PersistReader* reader, const char* filename)
 {
     if (!reader || reader->ops != &PERSIST_FILE_STREAM_OPS)
         return (PersistResult){ PERSIST_ERR_UNSUPPORTED, "class ROM load requires FILE reader", -1 };
@@ -65,7 +73,7 @@ PersistResult class_persist_rom_load(const PersistReader* reader, const char* fi
     }
 }
 
-PersistResult class_persist_rom_save(const PersistWriter* writer, const char* filename)
+PersistResult class_persist_rom_olc_save(const PersistWriter* writer, const char* filename)
 {
     if (!writer || writer->ops != &PERSIST_FILE_WRITER_OPS)
         return (PersistResult){ PERSIST_ERR_UNSUPPORTED, "class ROM save requires FILE writer", -1 };

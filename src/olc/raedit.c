@@ -21,7 +21,17 @@
 
 #include "data/mobile_data.h"
 #include "data/race.h"
+
+#ifdef _MSC_VER
+#include <io.h>
+#define access _access
+#else
 #include <unistd.h>
+#endif
+
+#ifndef F_OK
+#define F_OK 0
+#endif
 
 #define RAEDIT( fun )		bool fun( Mobile *ch, char *argument )
 

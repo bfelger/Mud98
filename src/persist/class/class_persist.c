@@ -6,16 +6,13 @@
 #include "class_persist.h"
 
 #include <persist/persist_io_adapters.h>
-#include <persist/rom-olc/class_persist_rom_olc.h>
-#include <persist/json/class_persist_json.h>
+#include <persist/class/rom-olc/class_persist_rom_olc.h>
+#include <persist/class/json/class_persist_json.h>
 
 #include <config.h>
 #include <db.h>
 #include <stdio.h>
 #include <string.h>
-
-const ClassPersistFormat CLASS_PERSIST_ROM = { "rom-olc", class_persist_rom_load, class_persist_rom_save };
-const ClassPersistFormat CLASS_PERSIST_JSON = { "json", class_persist_json_load, class_persist_json_save };
 
 static const ClassPersistFormat* class_format_from_name(const char* filename)
 {
@@ -24,7 +21,7 @@ static const ClassPersistFormat* class_format_from_name(const char* filename)
         if (ext && !str_cmp(ext, ".json"))
             return &CLASS_PERSIST_JSON;
     }
-    return &CLASS_PERSIST_ROM;
+    return &CLASS_PERSIST_ROM_OLC;
 }
 
 PersistResult class_persist_load(const char* filename)
@@ -34,7 +31,7 @@ PersistResult class_persist_load(const char* filename)
     FILE* fp = fopen(path, "r");
     if (!fp)
         return (PersistResult){ PERSIST_ERR_IO, "class load: could not open file", -1 };
-    PersistReader reader = persist_reader_from_FILE(fp, filename ? filename : path);
+    PersistReader reader = persist_reader_from_file(fp, filename ? filename : path);
     const ClassPersistFormat* fmt = class_format_from_name(filename ? filename : path);
     PersistResult res = fmt->load(&reader, filename ? filename : path);
     fclose(fp);
@@ -48,7 +45,7 @@ PersistResult class_persist_save(const char* filename)
     FILE* fp = fopen(path, "w");
     if (!fp)
         return (PersistResult){ PERSIST_ERR_IO, "class save: could not open file", -1 };
-    PersistWriter writer = persist_writer_from_FILE(fp, filename ? filename : path);
+    PersistWriter writer = persist_writer_from_file(fp, filename ? filename : path);
     const ClassPersistFormat* fmt = class_format_from_name(filename ? filename : path);
     PersistResult res = fmt->save(&writer, filename ? filename : path);
     fclose(fp);

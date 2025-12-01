@@ -10,7 +10,17 @@
 #include <config.h>
 #include <db.h>
 #include <handler.h>
+
+#ifdef _MSC_VER
+#include <io.h>
+#define access _access
+#else
 #include <unistd.h>
+#endif
+
+#ifndef F_OK
+#define F_OK 0
+#endif
 
 #include <data/class.h>
 

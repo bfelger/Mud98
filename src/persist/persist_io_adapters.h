@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // persist/persist_io_adapters.h
-// Common adapters for PersistReader/PersistWriter (FILE* and in-memory buffers).
+// Common adapters for PersistReader/PersistWriter (FILE* and in-memory buffers)
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -16,13 +16,13 @@
 extern const PersistStreamOps PERSIST_FILE_STREAM_OPS;
 extern const PersistWriterOps PERSIST_FILE_WRITER_OPS;
 
-static inline PersistReader persist_reader_from_FILE(FILE* fp, const char* name)
+static inline PersistReader persist_reader_from_file(FILE* fp, const char* name)
 {
     PersistReader reader = { &PERSIST_FILE_STREAM_OPS, fp, name };
     return reader;
 }
 
-static inline PersistWriter persist_writer_from_FILE(FILE* fp, const char* name)
+static inline PersistWriter persist_writer_from_file(FILE* fp, const char* name)
 {
     PersistWriter writer = { &PERSIST_FILE_WRITER_OPS, fp, name };
     return writer;

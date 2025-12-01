@@ -4,12 +4,20 @@
 
 #include "race_persist_rom_olc.h"
 
+#include <persist/race/race_persist.h>
 #include <persist/persist_io_adapters.h>
 
 #include <data/race.h>
-#include <tablesave.h>
+
 #include <db.h>
 #include <comm.h>
+#include <tablesave.h>
+
+const RacePersistFormat RACE_PERSIST_ROM_OLC = {
+    .name = "rom-olc",
+    .load = race_persist_rom_load,
+    .save = race_persist_rom_save
+};
 
 #ifdef U
 #undef U

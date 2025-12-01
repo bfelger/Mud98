@@ -5,6 +5,17 @@
 
 #include "area_persist_json.h"
 
+#include <persist/json/persist_json.h>
+
+#include <data/damage.h>
+#include <data/direction.h>
+#include <data/events.h>
+#include <data/item.h>
+#include <data/mobile_data.h>
+#include <data/quest.h>
+#include <data/race.h>
+#include <data/skill.h>
+
 #include <entities/area.h>
 #include <entities/mob_prototype.h>
 #include <entities/obj_prototype.h>
@@ -16,114 +27,31 @@
 #include <entities/faction.h>
 #include <entities/help_data.h>
 #include <entities/shop_data.h>
-#include <data/quest.h>
-#include <data/mobile_data.h>
-#include <data/damage.h>
-#include <data/item.h>
-#include <data/race.h>
-#include <data/skill.h>
-#include <data/events.h>
+
+#include <olc/bit.h>
+
 #include <lookup.h>
 #include <tables.h>
-#include <data/direction.h>
 #include <handler.h>
-#include <olc/bit.h>
-#include <jansson.h>
 #include <mob_prog.h>
 #include <db.h>
+
+#ifdef HAVE_JSON_AREAS
+#include <jansson.h>
+#endif
 
 #include <stdlib.h>
 #include <string.h>
 
 #define AREA_JSON_FORMAT_VERSION 1
 
-static PersistResult json_not_supported(const char* msg)
-{
-    PersistResult res = { PERSIST_ERR_UNSUPPORTED, msg, -1 };
-    return res;
-}
+const AreaPersistFormat AREA_PERSIST_JSON = {
+    .name = "json",
+    .load = json_load,
+    .save = json_save,
+};
 
 #ifdef HAVE_JSON_AREAS
-typedef struct reader_buffer_t {
-    char* data;
-    size_t len;
-    size_t cap;
-} ReaderBuffer;
-
-static bool reader_fill_buffer(const PersistReader* reader, ReaderBuffer* out)
-{
-    ReaderBuffer buf = { 0 };
-    buf.cap = 1024;
-    buf.data = malloc(buf.cap);
-    if (!buf.data)
-        return false;
-
-    for (;;) {
-        int ch = reader->ops->getc(reader->ctx);
-        if (ch == EOF)
-            break;
-        if (buf.len + 1 > buf.cap) {
-            size_t new_cap = buf.cap * 2;
-            char* tmp = realloc(buf.data, new_cap);
-            if (!tmp) {
-                free(buf.data);
-                return false;
-            }
-            buf.data = tmp;
-            buf.cap = new_cap;
-        }
-        buf.data[buf.len++] = (char)ch;
-    }
-
-    out->data = buf.data;
-    out->len = buf.len;
-    out->cap = buf.cap;
-    return true;
-}
-
-static bool writer_write_all(const PersistWriter* writer, const char* data, size_t len)
-{
-    if (writer->ops->write) {
-        return writer->ops->write(data, len, writer->ctx) == len;
-    }
-    // Fallback to putc loop.
-    for (size_t i = 0; i < len; i++) {
-        if (writer->ops->putc(data[i], writer->ctx) == EOF)
-            return false;
-    }
-    return true;
-}
-
-static json_t* flags_to_array(FLAGS flags, const struct flag_type* table)
-{
-    json_t* arr = json_array();
-    if (!table)
-        return arr;
-    for (int i = 0; table[i].name != NULL; i++) {
-        if (IS_SET(flags, table[i].bit)) {
-            json_array_append_new(arr, json_string(table[i].name));
-        }
-    }
-    return arr;
-}
-
-static FLAGS flags_from_array(json_t* arr, const struct flag_type* table)
-{
-    FLAGS flags = 0;
-    if (!json_is_array(arr) || !table)
-        return flags;
-    size_t size = json_array_size(arr);
-    for (size_t i = 0; i < size; i++) {
-        const char* name = json_string_value(json_array_get(arr, i));
-        if (!name)
-            continue;
-        FLAGS bit = flag_lookup(name, table);
-        if (bit != NO_FLAG)
-            SET_BIT(flags, bit);
-    }
-    return flags;
-}
-
 static void json_set_flags_if(json_t* obj, const char* key, FLAGS flags, const struct flag_type* table)
 {
     json_t* arr = flags_to_array(flags, table);
@@ -637,13 +565,6 @@ static const char* position_name(Position pos)
     if (pos < 0 || pos >= POS_MAX)
         return "standing";
     return position_table[pos].name;
-}
-
-static const char* size_name(MobSize size)
-{
-    if (size < 0 || size >= MOB_SIZE_COUNT)
-        return mob_size_table[SIZE_MEDIUM].name;
-    return mob_size_table[size].name;
 }
 
 static const char* sex_name(Sex sex)
@@ -2199,7 +2120,7 @@ static json_t* build_helps(const AreaData* area)
 }
 #endif
 
-static PersistResult json_load(const AreaPersistLoadParams* params)
+PersistResult json_load(const AreaPersistLoadParams* params)
 {
 #ifdef HAVE_JSON_AREAS
     if (!params || !params->reader)
@@ -2262,7 +2183,7 @@ static PersistResult json_load(const AreaPersistLoadParams* params)
 #endif
 }
 
-static PersistResult json_save(const AreaPersistSaveParams* params)
+PersistResult json_save(const AreaPersistSaveParams* params)
 {
 #ifdef HAVE_JSON_AREAS
     if (!params || !params->writer || !params->area)
@@ -2308,9 +2229,3 @@ static PersistResult json_save(const AreaPersistSaveParams* params)
     return json_not_supported("JSON support not built");
 #endif
 }
-
-const AreaPersistFormat AREA_PERSIST_JSON = {
-    .name = "json",
-    .load = json_load,
-    .save = json_save,
-};

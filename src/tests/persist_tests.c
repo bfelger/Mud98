@@ -5,14 +5,14 @@
 #include "tests.h"
 #include "test_registry.h"
 
-#include <persist/area_persist.h>
+#include <persist/area/area_persist.h>
 #include <persist/persist_io_adapters.h>
 #include <persist/persist_result.h>
-#include <persist/rom-olc/area_persist_rom_olc.h>
+#include <persist/area/rom-olc/area_persist_rom_olc.h>
 #include <persist/race/race_persist.h>
 #include <persist/class/class_persist.h>
+#include <persist/area/json/area_persist_json.h>
 #ifdef HAVE_JSON_AREAS
-#include <persist/json/area_persist_json.h>
 #include <jansson.h>
 #endif
 
@@ -207,7 +207,7 @@ static int test_rom_olc_loads_minimal_area()
     ASSERT_OR_GOTO(written == strlen(MIN_AREA_TEXT), cleanup);
     rewind(fp);
 
-    PersistReader reader = persist_reader_from_FILE(fp, "test.are");
+    PersistReader reader = persist_reader_from_file(fp, "test.are");
     AreaPersistLoadParams params = {
         .reader = &reader,
         .file_name = "test.are",
@@ -246,7 +246,7 @@ static int test_rom_olc_save_writes_sections()
     ASSERT_OR_GOTO(written == strlen(MIN_AREA_TEXT), cleanup);
     rewind(load_fp);
 
-    PersistReader reader = persist_reader_from_FILE(load_fp, "test.are");
+    PersistReader reader = persist_reader_from_file(load_fp, "test.are");
     AreaPersistLoadParams load_params = {
         .reader = &reader,
         .file_name = "test.are",
@@ -262,7 +262,7 @@ static int test_rom_olc_save_writes_sections()
 
     save_fp = tmpfile();
     ASSERT_OR_GOTO(save_fp != NULL, cleanup);
-    PersistWriter writer = persist_writer_from_FILE(save_fp, "out.are");
+    PersistWriter writer = persist_writer_from_file(save_fp, "out.are");
     AreaPersistSaveParams save_params = {
         .writer = &writer,
         .area = area,
@@ -312,7 +312,7 @@ static int test_rom_olc_round_trip_in_memory()
     ASSERT_OR_GOTO(written == strlen(MIN_AREA_TEXT), cleanup);
     rewind(load_fp);
 
-    PersistReader reader = persist_reader_from_FILE(load_fp, "test.are");
+    PersistReader reader = persist_reader_from_file(load_fp, "test.are");
     AreaPersistLoadParams load_params = {
         .reader = &reader,
         .file_name = "test.are",
@@ -336,7 +336,7 @@ static int test_rom_olc_round_trip_in_memory()
     };
 
     PersistResult save_result = AREA_PERSIST_ROM_OLC.save(&save_params);
-    ASSERT_OR_GOTO(persist_succeeded(save_result), cleanup);
+    ASSERT_OR_GOTO(persist_succeeded(save_result), cleanup_freebuf);
     ASSERT(buf.len > 0);
 
     // Reload from saved buffer into a fresh state using FILE-backed reader.
@@ -344,12 +344,12 @@ static int test_rom_olc_round_trip_in_memory()
     persist_state_begin(&snap);
 
     FILE* reload_fp = tmpfile();
-    ASSERT_OR_GOTO(reload_fp != NULL, cleanup);
+    ASSERT_OR_GOTO(reload_fp != NULL, cleanup_freebuf);
     size_t reload_written = fwrite(buf.data, 1, buf.len, reload_fp);
-    ASSERT_OR_GOTO(reload_written == buf.len, cleanup);
+    ASSERT_OR_GOTO(reload_written == buf.len, cleanup_freebuf);
     rewind(reload_fp);
 
-    PersistReader reload_reader = persist_reader_from_FILE(reload_fp, "out.are");
+    PersistReader reload_reader = persist_reader_from_file(reload_fp, "out.are");
     AreaPersistLoadParams reload_params = {
         .reader = &reload_reader,
         .file_name = "out.are",
@@ -357,7 +357,7 @@ static int test_rom_olc_round_trip_in_memory()
     };
 
     PersistResult reload_result = AREA_PERSIST_ROM_OLC.load(&reload_params);
-    ASSERT_OR_GOTO(persist_succeeded(reload_result), cleanup);
+    ASSERT_OR_GOTO(persist_succeeded(reload_result), cleanup_freebuf);
     ASSERT(global_areas.count == 1);
 
     AreaData* re_area = LAST_AREA_DATA;
@@ -365,8 +365,9 @@ static int test_rom_olc_round_trip_in_memory()
     ASSERT_STR_EQ("out.are", re_area->file_name);
     ASSERT_STR_EQ("Test Area", NAME_STR(re_area));
 
-cleanup:
+cleanup_freebuf:
     free(buf.data);
+cleanup:
     if (load_fp)
         fclose(load_fp);
     persist_state_end(&snap);
@@ -402,7 +403,7 @@ static int test_rom_olc_rejects_bad_section()
     ASSERT_OR_GOTO(written == strlen(bad_area), cleanup);
     rewind(fp);
 
-    PersistReader reader = persist_reader_from_FILE(fp, "bad.are");
+    PersistReader reader = persist_reader_from_file(fp, "bad.are");
     AreaPersistLoadParams params = {
         .reader = &reader,
         .file_name = "bad.are",
@@ -465,6 +466,8 @@ static int test_rom_olc_exhaustive_area_round_trip()
         if (fname[0] == '$')
             break;
 
+        PersistResult load_result = { PERSIST_ERR_INTERNAL, NULL, -1 };
+
         PersistStateSnapshot snap;
         persist_state_begin(&snap);
 
@@ -478,14 +481,14 @@ static int test_rom_olc_exhaustive_area_round_trip()
         FILE* load_fp = fopen(area_path, "r");
         ASSERT_OR_GOTO(load_fp != NULL, next_area);
 
-        PersistReader reader = persist_reader_from_FILE(load_fp, fname);
+        PersistReader reader = persist_reader_from_file(load_fp, fname);
         AreaPersistLoadParams load_params = {
             .reader = &reader,
             .file_name = fname,
             .create_single_instance = false,
         };
 
-        PersistResult load_result = AREA_PERSIST_ROM_OLC.load(&load_params);
+        load_result = AREA_PERSIST_ROM_OLC.load(&load_params);
         fclose(load_fp);
         if (!persist_succeeded(load_result) || global_areas.count != 1)
             goto next_area;
@@ -553,7 +556,7 @@ static int test_json_exhaustive_area_round_trip()
             continue;
         }
 
-        PersistReader reader = persist_reader_from_FILE(load_fp, fname);
+        PersistReader reader = persist_reader_from_file(load_fp, fname);
         AreaPersistLoadParams load_params = {
             .reader = &reader,
             .file_name = fname,
@@ -685,7 +688,7 @@ static int test_json_canonical_rom_round_trip()
             continue;
         }
 
-        PersistReader reader = persist_reader_from_FILE(load_fp, fname);
+        PersistReader reader = persist_reader_from_file(load_fp, fname);
         AreaPersistLoadParams load_params = {
             .reader = &reader,
             .file_name = fname,
@@ -805,7 +808,7 @@ static int test_json_instance_counts_match_rom()
                 continue;
             }
 
-            PersistReader reader = persist_reader_from_FILE(load_fp, fname);
+            PersistReader reader = persist_reader_from_file(load_fp, fname);
             AreaPersistLoadParams load_params = {
                 .reader = &reader,
                 .file_name = fname,
@@ -929,7 +932,7 @@ static int test_json_instance_shop_counts_match_rom()
                 continue;
             }
 
-            PersistReader reader = persist_reader_from_FILE(load_fp, fname);
+            PersistReader reader = persist_reader_from_file(load_fp, fname);
             AreaPersistLoadParams load_params = {
                 .reader = &reader,
                 .file_name = fname,
@@ -1104,7 +1107,7 @@ static int test_json_saves_typed_objects()
     ASSERT_OR_GOTO(written == strlen(MIN_AREA_TEXT), cleanup);
     rewind(load_fp);
 
-    PersistReader reader = persist_reader_from_FILE(load_fp, "test.are");
+    PersistReader reader = persist_reader_from_file(load_fp, "test.are");
     AreaPersistLoadParams load_params = {
         .reader = &reader,
         .file_name = "test.are",
@@ -1254,7 +1257,7 @@ static int test_story_checklist_round_trip()
     ASSERT_OR_GOTO(written == strlen(AREA_WITH_BEATS_TEXT), cleanup_all);
     rewind(load_fp);
 
-    PersistReader reader = persist_reader_from_FILE(load_fp, "beats.are");
+    PersistReader reader = persist_reader_from_file(load_fp, "beats.are");
     AreaPersistLoadParams load_params = {
         .reader = &reader,
         .file_name = "beats.are",
@@ -1312,7 +1315,7 @@ static int test_json_to_rom_round_trip()
     ASSERT_OR_GOTO(written == strlen(MIN_AREA_TEXT), cleanup_all);
     rewind(load_fp);
 
-    PersistReader reader = persist_reader_from_FILE(load_fp, "test.are");
+    PersistReader reader = persist_reader_from_file(load_fp, "test.are");
     AreaPersistLoadParams load_params = {
         .reader = &reader,
         .file_name = "test.are",
@@ -1444,9 +1447,9 @@ void register_persist_tests()
     REGISTER("JSON Shop Counts Match ROM", test_json_instance_shop_counts_match_rom);
 #endif
     REGISTER("ROM->JSON->ROM Round Trip", test_json_to_rom_round_trip);
-#endif
     REGISTER("Races ROM<->JSON Round Trip", test_race_rom_json_round_trip);
     REGISTER("Classes ROM<->JSON Round Trip", test_class_rom_json_round_trip);
+#endif
 
 #undef REGISTER
 }

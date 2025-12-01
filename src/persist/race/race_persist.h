@@ -19,8 +19,4 @@ typedef struct race_persist_format_t {
 PersistResult race_persist_load(const char* filename);
 PersistResult race_persist_save(const char* filename);
 
-// Backend formats (exposed for testing/selection)
-extern const RacePersistFormat RACE_PERSIST_ROM;
-extern const RacePersistFormat RACE_PERSIST_JSON;
-
 #endif // MUD98__PERSIST__RACE__RACE_PERSIST_H

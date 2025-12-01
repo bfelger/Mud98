@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// persist/area_persist.h
+// persist/area/area_persist.h
 // Area-specific persistence API built on generic persist primitives.
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -7,8 +7,8 @@
 #ifndef MUD98__PERSIST__AREA_PERSIST_H
 #define MUD98__PERSIST__AREA_PERSIST_H
 
-#include "persist_io.h"
-#include "persist_result.h"
+#include <persist/persist_io.h>
+#include <persist/persist_result.h>
 
 #include <stdbool.h>
 

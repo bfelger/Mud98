@@ -4,6 +4,8 @@
 
 #include "class_persist_json.h"
 
+#include <persist/class/class_persist.h>
+#include <persist/json/persist_json.h>
 #include <persist/persist_io_adapters.h>
 
 #include <merc.h>
@@ -13,55 +15,20 @@
 #include <data/class.h>
 #include <tables.h>
 
-#include <jansson.h>
 #include <string.h>
 #include <stdlib.h>
 
-typedef struct reader_buffer_t {
-    char* data;
-    size_t len;
-    size_t cap;
-} ReaderBuffer;
+#ifdef HAS_JSON_AREAS
+#include <jansson.h>
+#endif
 
-static bool reader_fill_buffer(const PersistReader* reader, ReaderBuffer* out)
-{
-    ReaderBuffer buf = { 0 };
-    buf.cap = 1024;
-    buf.data = malloc(buf.cap);
-    if (!buf.data)
-        return false;
+const ClassPersistFormat CLASS_PERSIST_JSON = { 
+    .name = "json", 
+    .load = class_persist_json_load, 
+    .save = class_persist_json_save 
+};
 
-    for (;;) {
-        int ch = reader->ops->getc(reader->ctx);
-        if (ch == EOF)
-            break;
-        if (buf.len + 1 > buf.cap) {
-            size_t new_cap = buf.cap * 2;
-            char* tmp = realloc(buf.data, new_cap);
-            if (!tmp) {
-                free(buf.data);
-                return false;
-            }
-            buf.data = tmp;
-            buf.cap = new_cap;
-        }
-        buf.data[buf.len++] = (char)ch;
-    }
-
-    out->data = buf.data;
-    out->len = buf.len;
-    out->cap = buf.cap;
-    return true;
-}
-
-static int64_t json_int_or_default(json_t* obj, const char* key, int64_t def)
-{
-    json_t* val = json_object_get(obj, key);
-    if (json_is_integer(val))
-        return json_integer_value(val);
-    return def;
-}
-
+#ifdef HAVE_JSON_AREAS
 static bool writer_write_all(const PersistWriter* writer, const char* data, size_t len)
 {
     if (writer->ops->write)
@@ -72,9 +39,11 @@ static bool writer_write_all(const PersistWriter* writer, const char* data, size
     }
     return true;
 }
+#endif 
 
 PersistResult class_persist_json_save(const PersistWriter* writer, const char* filename)
 {
+#ifdef HAVE_JSON_AREAS
     if (!writer)
         return (PersistResult){ PERSIST_ERR_UNSUPPORTED, "class JSON save: missing writer", -1 };
 
@@ -133,10 +102,16 @@ PersistResult class_persist_json_save(const PersistWriter* writer, const char* f
     if (writer->ops->flush)
         writer->ops->flush(writer->ctx);
     return (PersistResult){ PERSIST_OK, NULL, -1 };
+#else
+    (void)writer;
+    (void)filename;
+    return json_not_supported("JSON support not built");
+#endif
 }
 
 PersistResult class_persist_json_load(const PersistReader* reader, const char* filename)
 {
+#ifdef HAVE_JSON_AREAS
     if (!reader)
         return (PersistResult){ PERSIST_ERR_UNSUPPORTED, "class JSON load: missing reader", -1 };
 
@@ -231,4 +206,9 @@ PersistResult class_persist_json_load(const PersistReader* reader, const char* f
     class_table[count].name = NULL;
     json_decref(root);
     return (PersistResult){ PERSIST_OK, NULL, -1 };
+#else
+    (void)reader;
+    (void)filename;
+    return json_not_supported("JSON support not built");
+#endif
 }

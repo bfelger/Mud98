@@ -1,11 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
-// persist/area_persist.c
+// persist/area/area_persist.c
 // Shared helpers for area persistence formats.
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "area_persist.h"
 
 #include "rom-olc/area_persist_rom_olc.h"
+
 #ifdef HAVE_JSON_AREAS
 #include "json/area_persist_json.h"
 #endif

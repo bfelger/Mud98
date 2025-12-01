@@ -4,7 +4,9 @@
 
 #include "race_persist_json.h"
 
+#include <persist/json/persist_json.h>
 #include <persist/persist_io_adapters.h>
+#include <persist/race/race_persist.h>
 
 #include <merc.h>
 #include <comm.h>
@@ -15,85 +17,20 @@
 #include <data/class.h>
 #include <tables.h>
 
-#include <jansson.h>
 #include <string.h>
 #include <stdlib.h>
 
-typedef struct reader_buffer_t {
-    char* data;
-    size_t len;
-    size_t cap;
-} ReaderBuffer;
+#ifdef HAVE_JSON_AREAS
+#include <jansson.h>
+#endif
 
-static bool reader_fill_buffer(const PersistReader* reader, ReaderBuffer* out)
-{
-    ReaderBuffer buf = { 0 };
-    buf.cap = 1024;
-    buf.data = malloc(buf.cap);
-    if (!buf.data)
-        return false;
+const RacePersistFormat RACE_PERSIST_JSON = { 
+    .name = "json", 
+    .load = race_persist_json_load, 
+    .save = race_persist_json_save 
+};
 
-    for (;;) {
-        int ch = reader->ops->getc(reader->ctx);
-        if (ch == EOF)
-            break;
-        if (buf.len + 1 > buf.cap) {
-            size_t new_cap = buf.cap * 2;
-            char* tmp = realloc(buf.data, new_cap);
-            if (!tmp) {
-                free(buf.data);
-                return false;
-            }
-            buf.data = tmp;
-            buf.cap = new_cap;
-        }
-        buf.data[buf.len++] = (char)ch;
-    }
-
-    out->data = buf.data;
-    out->len = buf.len;
-    out->cap = buf.cap;
-    return true;
-}
-
-static json_t* flags_to_array(FLAGS flags, const struct flag_type* table)
-{
-    json_t* arr = json_array();
-    if (!table)
-        return arr;
-    for (int i = 0; table[i].name != NULL; i++) {
-        if (IS_SET(flags, table[i].bit)) {
-            json_array_append_new(arr, json_string(table[i].name));
-        }
-    }
-    return arr;
-}
-
-static FLAGS flags_from_array(json_t* arr, const struct flag_type* table)
-{
-    FLAGS flags = 0;
-    if (!json_is_array(arr) || !table)
-        return flags;
-    size_t size = json_array_size(arr);
-    for (size_t i = 0; i < size; i++) {
-        const char* name = json_string_value(json_array_get(arr, i));
-        if (!name)
-            continue;
-        FLAGS bit = flag_lookup(name, table);
-        if (bit != NO_FLAG)
-            SET_BIT(flags, bit);
-    }
-    return flags;
-}
-
-static int64_t json_int_or_default(json_t* obj, const char* key, int64_t def)
-{
-    json_t* val = json_object_get(obj, key);
-    if (json_is_integer(val))
-        return json_integer_value(val);
-    return def;
-}
-
+#ifdef HAVE_JSON_AREAS
 static json_t* build_class_mult(const Race* race)
 {
     json_t* obj = json_object();
@@ -161,13 +98,6 @@ static void apply_class_start(Race* race, json_t* arr)
     }
 }
 
-static const char* size_name(MobSize size)
-{
-    if (size < 0 || size >= MOB_SIZE_COUNT)
-        return mob_size_table[SIZE_MEDIUM].name;
-    return mob_size_table[size].name;
-}
-
 static bool writer_write_all(const PersistWriter* writer, const char* data, size_t len)
 {
     if (writer->ops->write)
@@ -178,9 +108,11 @@ static bool writer_write_all(const PersistWriter* writer, const char* data, size
     }
     return true;
 }
+#endif
 
 PersistResult race_persist_json_save(const PersistWriter* writer, const char* filename)
 {
+#ifdef HAVE_JSON_AREAS
     if (!writer)
         return (PersistResult){ PERSIST_ERR_UNSUPPORTED, "race JSON save: missing writer", -1 };
 
@@ -237,10 +169,16 @@ PersistResult race_persist_json_save(const PersistWriter* writer, const char* fi
     if (writer->ops->flush)
         writer->ops->flush(writer->ctx);
     return (PersistResult){ PERSIST_OK, NULL, -1 };
+#else
+    (void)writer;
+    (void)filename;
+    return json_not_supported("JSON support not built");
+#endif
 }
 
 PersistResult race_persist_json_load(const PersistReader* reader, const char* filename)
 {
+#ifdef HAVE_JSON_AREAS
     if (!reader)
         return (PersistResult){ PERSIST_ERR_UNSUPPORTED, "race JSON load: missing reader", -1 };
 
@@ -353,4 +291,9 @@ PersistResult race_persist_json_load(const PersistReader* reader, const char* fi
     init_race_table_lox();
     json_decref(root);
     return (PersistResult){ PERSIST_OK, NULL, -1 };
+#else
+    (void)reader;
+    (void)filename;
+    return json_not_supported("JSON support not built");
+#endif
 }

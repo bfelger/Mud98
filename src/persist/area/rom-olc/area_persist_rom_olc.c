@@ -5,26 +5,28 @@
 
 #include "area_persist_rom_olc.h"
 
-#include "../persist_io_adapters.h"
-#include "loader_guard.h"
+#include <persist/persist_io_adapters.h>
+#include <persist/rom-olc/loader_guard.h>
 
 #include <olc/olc.h>
 #include <olc/olc_save.h>
 
-#include <db.h>
 #include <entities/area.h>
 #include <entities/faction.h>
+#include <entities/help_data.h>
 #include <entities/mob_prototype.h>
 #include <entities/obj_prototype.h>
 #include <entities/reset.h>
 #include <entities/room.h>
+
 #include <data/quest.h>
+
 #include <lox/memory.h>
+
+#include <db.h>
 #include <mob_prog.h>
-#include <entities/help_data.h>
 
 #include <stdlib.h>
-
 #include <string.h>
 
 // Legacy loader prototypes not exposed via headers.
@@ -32,6 +34,12 @@ void load_helps(FILE* fp, char* fname);
 void load_shops(FILE* fp);
 void load_specials(FILE* fp);
 void load_mobprogs(FILE* fp);
+
+const AreaPersistFormat AREA_PERSIST_ROM_OLC = {
+    .name = "rom-olc",
+    .load = persist_area_rom_olc_load,
+    .save = persist_area_rom_olc_save,
+};
 
 static PersistResult rom_olc_not_implemented(const char* message)
 {
@@ -64,7 +72,7 @@ void loader_longjmp(const char* message, int line)
     exit(1);
 }
 
-static PersistResult rom_olc_load(const AreaPersistLoadParams* params)
+PersistResult persist_area_rom_olc_load(const AreaPersistLoadParams* params)
 {
     if (!params || !params->reader || !params->reader->ctx)
         return rom_olc_not_implemented("rom-olc load: missing reader");
@@ -187,7 +195,7 @@ static PersistResult rom_olc_load(const AreaPersistLoadParams* params)
     return result;
 }
 
-static PersistResult rom_olc_save(const AreaPersistSaveParams* params)
+PersistResult persist_area_rom_olc_save(const AreaPersistSaveParams* params)
 {
     if (!params || !params->writer || !params->area)
         return rom_olc_not_implemented("rom-olc save: missing writer or area");
@@ -282,8 +290,3 @@ static PersistResult rom_olc_save(const AreaPersistSaveParams* params)
     return (PersistResult){ PERSIST_OK, NULL, -1 };
 }
 
-const AreaPersistFormat AREA_PERSIST_ROM_OLC = {
-    .name = "rom-olc",
-    .load = rom_olc_load,
-    .save = rom_olc_save,
-};

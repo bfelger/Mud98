@@ -13,8 +13,14 @@
 #include <stringutils.h>
 
 #include <sys/stat.h>
-#include <unistd.h>
 #include <string.h>
+
+#ifdef _MSC_VER
+#include <direct.h>
+#define mkdir _mkdir
+#else
+#include <unistd.h>
+#endif
 
 static TestGroup login_tests;
 

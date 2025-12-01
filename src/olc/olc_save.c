@@ -22,9 +22,9 @@
 #include "olc.h"
 #include "olc_save.h"
 
-#include <persist/area_persist.h>
+#include <persist/area/area_persist.h>
 #include <persist/persist_io_adapters.h>
-#include <persist/rom-olc/area_persist_rom_olc.h>
+#include <persist/area/rom-olc/area_persist_rom_olc.h>
 
 #include <comm.h>
 #include <config.h>
@@ -1071,7 +1071,7 @@ void save_area(AreaData* area)
 
     OPEN_OR_RETURN(fp = open_write_file(tmp));
 
-    PersistWriter writer = persist_writer_from_FILE(fp, tmp);
+    PersistWriter writer = persist_writer_from_file(fp, tmp);
     const AreaPersistFormat* fmt = area_persist_select_format(area->file_name);
     AreaPersistSaveParams params = {
         .writer = &writer,

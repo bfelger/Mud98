@@ -1,29 +1,7 @@
 #
-# Mud98 CMakeLists.txt
+# Mud98 Game Executable
 #
-cmake_minimum_required (VERSION 3.12)
 
-# MSVC will ignore this
-set(CMAKE_C_STANDARD 23)
-
-# Most recent C standard MSVC will pretend to follow
-set(MSVC_C_STD "/std:c17")
-
-project(Mud98)
-
-# Place built binaries under bin/<config> at the repo root so runtime files
-# (e.g., mud98.cfg) are easy to find when launching from the root.
-set(MUD98_RUNTIME_BASE "${CMAKE_SOURCE_DIR}/bin")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${MUD98_RUNTIME_BASE}")
-foreach(cfg Debug Release RelWithDebInfo MinSizeRel)
-    string(TOUPPER "${cfg}" cfg_upper)
-    set("CMAKE_RUNTIME_OUTPUT_DIRECTORY_${cfg_upper}" "${MUD98_RUNTIME_BASE}/${cfg}")
-endforeach()
-
-if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    # Default to repo-local installs to avoid touching system prefixes.
-    set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/bin" CACHE PATH "Install path prefix." FORCE)
-endif()
 
 set(Mud98_LIBS "")
 
@@ -33,10 +11,23 @@ if (NOT MSVC)
     list(APPEND Mud98_LIBS Threads::Threads)
 endif()
 
-find_package(PkgConfig REQUIRED)
+# PkgConfig is typically not available on Windows/MSVC
+if (NOT MSVC)
+    find_package(PkgConfig)
+    if (PKG_CONFIG_FOUND)
+        pkg_check_modules(JANSSON jansson)
+    endif()
+    if (NOT JANSSON_FOUND)
+        find_package(Jansson QUIET) # Probably won't work, but try just in case
+    endif()
+else()
+    find_package(Jansson QUIET)
+endif()
 
-# Optional JSON support for areas (jansson)
-pkg_check_modules(JANSSON jansson)
+if (NOT JANSSON_FOUND)
+    message("Jansson library not found. JSON persistence will be disabled.")
+endif()
+
 option(ENABLE_JSON_AREAS "Enable JSON area persistence (jansson)" ${JANSSON_FOUND})
 if (ENABLE_JSON_AREAS)
     if (NOT JANSSON_FOUND)
@@ -164,18 +155,22 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "mob_prog.c" "music.c" "note.h" "note.c" "pcg_basic.c" "recycle.c" "save.h" 
     "save.c" "scan.c" "skills.h" "skills.c" "socket.h" "special.h" "special.c" 
     "spell_list.h" "tables.c" "tablesave.c" "update.h" "update.c" "weather.h" 
-    "weather.c" "wizutil.v3.c"
+    "weather.c"
 
-    "persist/persist_io.h" "persist/persist_io_adapters.h" "persist/persist_io_adapters.c"
-    "persist/persist_result.h" "persist/area_persist.h" "persist/area_persist.c"
-    "persist/rom-olc/area_persist_rom_olc.h" "persist/rom-olc/area_persist_rom_olc.c"
-    "persist/json/area_persist_json.h" "persist/json/area_persist_json.c"
-    "persist/race/race_persist.h" "persist/race/race_persist.c"
-    "persist/class/class_persist.h" "persist/class/class_persist.c"
-    "persist/rom-olc/class_persist_rom_olc.h" "persist/rom-olc/class_persist_rom_olc.c"
-    "persist/json/class_persist_json.h" "persist/json/class_persist_json.c"
-    "persist/rom-olc/race_persist_rom_olc.h" "persist/rom-olc/race_persist_rom_olc.c"
-    "persist/json/race_persist_json.h" "persist/json/race_persist_json.c"
+    "persist/persist_io.h" "persist/persist_io_adapters.h" 
+    "persist/persist_io_adapters.c" "persist/persist_result.h" 
+    "persist/area/area_persist.h" "persist/area/area_persist.c" 
+    "persist/json/persist_json.h" "persist/json/persist_json.c"
+    "persist/area/rom-olc/area_persist_rom_olc.h" 
+    "persist/area/rom-olc/area_persist_rom_olc.c" "persist/area/json/area_persist_json.h" 
+    "persist/area/json/area_persist_json.c" "persist/race/race_persist.h" 
+    "persist/race/race_persist.c" "persist/class/class_persist.h" 
+    "persist/class/class_persist.c" "persist/class/rom-olc/class_persist_rom_olc.h" 
+    "persist/class/rom-olc/class_persist_rom_olc.c" 
+    "persist/class/json/class_persist_json.h" "persist/class/json/class_persist_json.c" 
+    "persist/race/rom-olc/race_persist_rom_olc.h" 
+    "persist/race/rom-olc/race_persist_rom_olc.c" "persist/race/json/race_persist_json.h" 
+    "persist/race/json/race_persist_json.c"
 
     "olc/aedit.c" "olc/bit.h" "olc/bit.c" "olc/cedit.c" "olc/cmdedit.c" 
     "olc/event_edit.h" "olc/event_edit.c" "olc/gedit.c" "olc/hedit.c" 
@@ -252,7 +247,7 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "benchmarks/benchmarks.h" "benchmarks/benchmarks.c" 
     "benchmarks/container_benchmarks.c" "benchmarks/format_benchmarks.c"
 
-    "snippets/lore.c" "snippets/merc.dual.v1.c"
+    "snippets/lore.c" "snippets/merc.dual.v1.c" "snippets/wizutil.v3.c"
 )
 
 if (ENABLE_JSON_AREAS)
@@ -270,7 +265,7 @@ message("        Compiler ID:      ${CMAKE_C_COMPILER_ID}")
 message("        CMAKE_VERSION:    ${CMAKE_VERSION}")
 message("        CFLAGS:           ${CMAKE_C_FLAGS}")
 message("        CFLAGS_DEBUG:     ${CMAKE_C_FLAGS_DEBUG}")
-message("        CPPFLAGS:         ${CMAKE_CXX_FLAGS}")
+#message("        CPPFLAGS:         ${CMAKE_CXX_FLAGS}")
 message("        Linked Libs:      ${Mud98_LIBS}")
 message("        Include dirs:     ${CMAKE_INCLUDE_PATH}")
 message("        Build type:       ${CMAKE_BUILD_TYPE}")

@@ -48,8 +48,8 @@
 #include "weather.h"
 
 #include <persist/rom-olc/loader_guard.h>
-#include <persist/rom-olc/area_persist_rom_olc.h>
-#include <persist/area_persist.h>
+#include <persist/area/rom-olc/area_persist_rom_olc.h>
+#include <persist/area/area_persist.h>
 #include <persist/persist_io_adapters.h>
 
 #include <olc/olc.h>
@@ -257,7 +257,7 @@ void boot_db()
             sprintf(area_file, "%s%s", cfg_get_area_dir(), fpArea);
             OPEN_OR_DIE(strArea = open_read_file(area_file));
 
-            PersistReader reader = persist_reader_from_FILE(strArea, fpArea);
+            PersistReader reader = persist_reader_from_file(strArea, fpArea);
             const AreaPersistFormat* fmt = area_persist_select_format(fpArea);
             AreaPersistLoadParams params = {
                 .reader = &reader,
