@@ -102,7 +102,7 @@ If you have the ZLib development library, Mud98 will have MCCP (MUD Client Compr
 
 **On Ubuntu:**
 ```
-sudo apt install zlib1g-dev
+sudo apt-get install zlib1g-dev
 ```
 
 #### Jansson JSON Library (optional)
@@ -113,8 +113,7 @@ I _highly_ recommend it.
 
 **On Ubuntu:**
 ```
-sudo apt install pkgconf
-pkg-config jansson
+sudo apt-get install libjansson-dev
 ```
 
 ### Building on Linux and Cygwin

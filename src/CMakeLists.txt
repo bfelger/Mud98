@@ -13,14 +13,13 @@ endif()
 
 # PkgConfig is typically not available on Windows/MSVC
 if (NOT MSVC)
-    find_package(PkgConfig)
+    find_package(PkgConfig QUIET)
     if (PKG_CONFIG_FOUND)
         pkg_check_modules(JANSSON jansson)
     endif()
-    if (NOT JANSSON_FOUND)
-        find_package(Jansson QUIET) # Probably won't work, but try just in case
-    endif()
-else()
+endif()
+
+if (NOT JANSSON_FOUND)
     find_package(Jansson QUIET)
 endif()
 
