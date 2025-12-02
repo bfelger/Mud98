@@ -20,9 +20,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#ifdef HAVE_JSON_AREAS
 #include <jansson.h>
-#endif
 
 const RacePersistFormat RACE_PERSIST_JSON = { 
     .name = "json", 
@@ -30,7 +28,6 @@ const RacePersistFormat RACE_PERSIST_JSON = {
     .save = race_persist_json_save 
 };
 
-#ifdef HAVE_JSON_AREAS
 static json_t* build_class_mult(const Race* race)
 {
     json_t* obj = json_object();
@@ -98,21 +95,8 @@ static void apply_class_start(Race* race, json_t* arr)
     }
 }
 
-static bool writer_write_all(const PersistWriter* writer, const char* data, size_t len)
-{
-    if (writer->ops->write)
-        return writer->ops->write(data, len, writer->ctx) == len;
-    for (size_t i = 0; i < len; i++) {
-        if (writer->ops->putc(data[i], writer->ctx) == EOF)
-            return false;
-    }
-    return true;
-}
-#endif
-
 PersistResult race_persist_json_save(const PersistWriter* writer, const char* filename)
 {
-#ifdef HAVE_JSON_AREAS
     if (!writer)
         return (PersistResult){ PERSIST_ERR_UNSUPPORTED, "race JSON save: missing writer", -1 };
 
@@ -169,16 +153,10 @@ PersistResult race_persist_json_save(const PersistWriter* writer, const char* fi
     if (writer->ops->flush)
         writer->ops->flush(writer->ctx);
     return (PersistResult){ PERSIST_OK, NULL, -1 };
-#else
-    (void)writer;
-    (void)filename;
-    return json_not_supported("JSON support not built");
-#endif
 }
 
 PersistResult race_persist_json_load(const PersistReader* reader, const char* filename)
 {
-#ifdef HAVE_JSON_AREAS
     if (!reader)
         return (PersistResult){ PERSIST_ERR_UNSUPPORTED, "race JSON load: missing reader", -1 };
 
@@ -291,9 +269,4 @@ PersistResult race_persist_json_load(const PersistReader* reader, const char* fi
     init_race_table_lox();
     json_decref(root);
     return (PersistResult){ PERSIST_OK, NULL, -1 };
-#else
-    (void)reader;
-    (void)filename;
-    return json_not_supported("JSON support not built");
-#endif
 }

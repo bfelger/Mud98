@@ -172,7 +172,7 @@
 #define DEFAULT_BAN_FILE            "ban.txt"
 
 // Data Files
-#define DEFAULT_DEFAULT_FORMAT      "olc"
+#define DEFAULT_DEFAULT_FORMAT      "json"
 #define DEFAULT_DATA_DIR            "data/"
 #define DEFAULT_PROGS_DIR           "progs/"
 #define DEFAULT_SCRIPTS_DIR         "scripts/"

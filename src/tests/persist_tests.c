@@ -6,28 +6,30 @@
 #include "test_registry.h"
 
 #include <persist/area/area_persist.h>
+#include <persist/area/json/area_persist_json.h>
+#include <persist/area/rom-olc/area_persist_rom_olc.h>
+#include <persist/class/class_persist.h>
+#include <persist/json/persist_json.h>
 #include <persist/persist_io_adapters.h>
 #include <persist/persist_result.h>
-#include <persist/area/rom-olc/area_persist_rom_olc.h>
 #include <persist/race/race_persist.h>
-#include <persist/class/class_persist.h>
-#include <persist/area/json/area_persist_json.h>
-#ifdef HAVE_JSON_AREAS
-#include <jansson.h>
-#endif
 
-#include <db.h>
+#include <jansson/jansson.h>
+
+#include <data/class.h>
+#include <data/race.h>
+
 #include <entities/area.h>
 #include <entities/faction.h>
 #include <entities/mob_prototype.h>
 #include <entities/obj_prototype.h>
 #include <entities/room.h>
-#include <data/race.h>
-#include <data/class.h>
 
-#include <config.h>
 #include <lox/array.h>
 #include <lox/table.h>
+
+#include <config.h>
+#include <db.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -145,7 +147,6 @@ static const char* MIN_AREA_TEXT =
     "#0\n"
     "#$\n";
 
-#ifdef HAVE_JSON_AREAS
 static const char* AREA_WITH_BEATS_TEXT =
     "#AREADATA\n"
     "Version 2\n"
@@ -194,7 +195,6 @@ static const char* AREA_WITH_BEATS_TEXT =
     "#HELPS\n"
     "-1 $~\n"
     "#$\n";
-#endif
 
 static int test_rom_olc_loads_minimal_area()
 {
@@ -525,7 +525,6 @@ static int test_rom_olc_exhaustive_area_round_trip()
 }
 #endif
 
-#ifdef HAVE_JSON_AREAS
 #define PERSIST_JSON_EXHAUSTIVE_TEST
 #if defined(PERSIST_EXHAUSTIVE_PERSIST_TEST) && defined(PERSIST_JSON_EXHAUSTIVE_TEST)
 static int test_json_exhaustive_area_round_trip()
@@ -1072,14 +1071,6 @@ static bool json_array_contains(json_t* arr, const char* needle)
     return false;
 }
 
-static int64_t json_int_or_default(json_t* obj, const char* key, int64_t def)
-{
-    json_t* val = json_object_get(obj, key);
-    if (json_is_integer(val))
-        return json_integer_value(val);
-    return def;
-}
-
 static json_t* find_object_entry(json_t* objs, VNUM vnum)
 {
     if (!json_is_array(objs))
@@ -1418,7 +1409,6 @@ static int test_class_rom_json_round_trip()
     ASSERT(class_count == saved_count);
     return 0;
 }
-#endif // HAVE_JSON_AREAS
 
 static TestGroup persist_tests;
 
@@ -1436,7 +1426,6 @@ void register_persist_tests()
 #ifdef PERSIST_EXHAUSTIVE_PERSIST_TEST
     REGISTER("ROM OLC Exhaustive Area Round Trip", test_rom_olc_exhaustive_area_round_trip);
 #endif
-#ifdef HAVE_JSON_AREAS
     REGISTER("JSON Loads Areadata", test_json_loads_areadata);
     REGISTER("JSON Saves Typed Objects", test_json_saves_typed_objects);
     REGISTER("JSON Story/Checklist Round Trip", test_story_checklist_round_trip);
@@ -1449,7 +1438,6 @@ void register_persist_tests()
     REGISTER("ROM->JSON->ROM Round Trip", test_json_to_rom_round_trip);
     REGISTER("Races ROM<->JSON Round Trip", test_race_rom_json_round_trip);
     REGISTER("Classes ROM<->JSON Round Trip", test_class_rom_json_round_trip);
-#endif
 
 #undef REGISTER
 }

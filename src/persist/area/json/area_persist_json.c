@@ -36,9 +36,7 @@
 #include <mob_prog.h>
 #include <db.h>
 
-#ifdef HAVE_JSON_AREAS
 #include <jansson.h>
-#endif
 
 #include <stdlib.h>
 #include <string.h>
@@ -51,7 +49,6 @@ const AreaPersistFormat AREA_PERSIST_JSON = {
     .save = json_save,
 };
 
-#ifdef HAVE_JSON_AREAS
 static void json_set_flags_if(json_t* obj, const char* key, FLAGS flags, const struct flag_type* table)
 {
     json_t* arr = flags_to_array(flags, table);
@@ -343,15 +340,7 @@ static json_t* build_rooms(const AreaData* area)
     return arr;
 }
 
-static int64_t json_int_or_default(json_t* obj, const char* key, int64_t def)
-{
-    json_t* val = json_object_get(obj, key);
-    if (json_is_integer(val))
-        return json_integer_value(val);
-    return def;
-}
-
-static bool json_bool_or_default(json_t* obj, const char* key, bool def)
+bool json_bool_or_default(json_t* obj, const char* key, bool def)
 {
     json_t* val = json_object_get(obj, key);
     if (json_is_boolean(val))
@@ -2118,11 +2107,9 @@ static json_t* build_helps(const AreaData* area)
     }
     return arr;
 }
-#endif
 
 PersistResult json_load(const AreaPersistLoadParams* params)
 {
-#ifdef HAVE_JSON_AREAS
     if (!params || !params->reader)
         return json_not_supported("JSON area load: missing reader");
 
@@ -2177,15 +2164,10 @@ PersistResult json_load(const AreaPersistLoadParams* params)
     }
     json_decref(root);
     return res;
-#else
-    (void)params;
-    return json_not_supported("JSON support not built");
-#endif
 }
 
 PersistResult json_save(const AreaPersistSaveParams* params)
 {
-#ifdef HAVE_JSON_AREAS
     if (!params || !params->writer || !params->area)
         return json_not_supported("JSON area save: missing params");
 
@@ -2224,8 +2206,4 @@ PersistResult json_save(const AreaPersistSaveParams* params)
         params->writer->ops->flush(params->writer->ctx);
 
     return (PersistResult){ PERSIST_OK, NULL, -1 };
-#else
-    (void)params;
-    return json_not_supported("JSON support not built");
-#endif
 }

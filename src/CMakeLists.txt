@@ -10,31 +10,8 @@ if (NOT MSVC)
     list(APPEND Mud98_LIBS Threads::Threads)
 endif()
 
-# PkgConfig is typically not available on Windows/MSVC
-if (NOT MSVC)
-    find_package(PkgConfig)
-    if (PKG_CONFIG_FOUND)
-        pkg_check_modules(JANSSON jansson)
-    endif()
-endif()
-
-if (NOT JANSSON_FOUND)
-    find_package(jansson)
-endif()
-
-if (NOT JANSSON_FOUND)
-    message("Jansson library not found. JSON persistence will be disabled.")
-    message("Try installing pkg-config; then install jansson with 'pkg-config jansson'.")
-endif()
-
-option(ENABLE_JSON_AREAS "Enable JSON area persistence (jansson)" ${JANSSON_FOUND})
-if (ENABLE_JSON_AREAS)
-    if (NOT JANSSON_FOUND)
-        message(FATAL_ERROR "ENABLE_JSON_AREAS=ON but jansson not found")
-    endif()
-    include_directories(${JANSSON_INCLUDE_DIRS})
-    list(APPEND Mud98_LIBS ${JANSSON_LIBRARIES})
-endif()
+add_subdirectory(jansson)
+list(APPEND Mud98_LIBS jansson)
 
 set (OPENSSL_USE_STATIC_LIBS true)
 find_package(OpenSSL)
@@ -142,6 +119,7 @@ endif()
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/persist)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/jansson)
 
 add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h" 
     "act_enter.c" "act_info.h" "act_info.c" "act_move.h" "act_move.c" 
@@ -248,10 +226,6 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
 
     "snippets/lore.c" "snippets/merc.dual.v1.c" "snippets/wizutil.v3.c"
 )
-
-if (ENABLE_JSON_AREAS)
-    target_compile_definitions(Mud98 PRIVATE HAVE_JSON_AREAS)
-endif()
 
 target_link_libraries(Mud98 PRIVATE ${Mud98_LIBS})
 

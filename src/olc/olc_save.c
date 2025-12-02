@@ -1142,13 +1142,8 @@ void do_asave(Mobile* ch, char* argument)
     argument = one_argument(argument, arg2);
 
     if (!str_cmp(arg2, "json")) {
-#ifdef HAVE_JSON_AREAS
         requested_ext = ".json";
         force_format = true;
-#else
-        send_to_char("JSON persistence is not available in this build.\n\r", ch);
-        return;
-#endif
     }
     else if (!str_cmp(arg2, "olc")) {
         requested_ext = ".are";

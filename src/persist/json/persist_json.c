@@ -7,6 +7,7 @@
 #include <persist/persist_io.h>
 #include <persist/persist_result.h>
 
+#include <lookup.h>
 #include <merc.h>
 #include <tables.h>
 
@@ -18,7 +19,6 @@ PersistResult json_not_supported(const char* msg)
 
 bool reader_fill_buffer(const PersistReader* reader, ReaderBuffer* out)
 {
-#ifdef HAVE_JSON_AREAS
     ReaderBuffer buf = { 0 };
     buf.cap = 1024;
     buf.data = malloc(buf.cap);
@@ -46,9 +46,6 @@ bool reader_fill_buffer(const PersistReader* reader, ReaderBuffer* out)
     out->len = buf.len;
     out->cap = buf.cap;
     return true;
-#else
-    return false;
-#endif
 }
 
 bool writer_write_all(const PersistWriter* writer, const char* data, size_t len)
@@ -71,7 +68,6 @@ const char* size_name(MobSize size)
     return mob_size_table[size].name;
 }
 
-#ifdef HAVE_JSON_AREAS
 json_t* flags_to_array(FLAGS flags, const struct flag_type* table)
 {
     json_t* arr = json_array();
@@ -109,4 +105,3 @@ int64_t json_int_or_default(json_t* obj, const char* key, int64_t def)
         return json_integer_value(val);
     return def;
 }
-#endif

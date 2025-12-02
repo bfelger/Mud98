@@ -102,8 +102,8 @@ aedit create
 ...which will bring up this blank slate of information:
 
 <div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(237,230,203);">Area           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">        47</span><span style="color: rgb(64,35,30);"> ] </span><br>
-<span style="color: rgb(237,230,203);">File           : </span><span style="color: rgb(112,77,43);">area47.are</span><br>
+<span style="color: rgb(237,230,203);">Area           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">        48</span><span style="color: rgb(64,35,30);"> ] </span><br>
+<span style="color: rgb(237,230,203);">File           : </span><span style="color: rgb(112,77,43);">area48.json</span><br>
 <span style="color: rgb(237,230,203);">Vnums          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       0-0</span><span style="color: rgb(64,35,30);"> ]</span><br>
 <span style="color: rgb(237,230,203);">Levels         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">      1-60</span><span style="color: rgb(64,35,30);"> ]</span><br>
 <span style="color: rgb(237,230,203);">Sector         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    inside</span><span style="color: rgb(64,35,30);"> ]</span><br>
@@ -164,7 +164,7 @@ suffer from too many folks competing for slaying the poor little moblets.
 Now my `SHOW` looks like this:
 
 <div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(237,230,203);">Area           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">        47</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Faladrin Forest</span><br>
+<span style="color: rgb(237,230,203);">Area           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">        48</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Faladrin Forest</span><br>
 <span style="color: rgb(237,230,203);">File           : </span><span style="color: rgb(112,77,43);">faladri.json</span><br>
 <span style="color: rgb(237,230,203);">Vnums          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">12000-12099</span><span style="color: rgb(64,35,30);"> ]</span><br>
 <span style="color: rgb(237,230,203);">Levels         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       1-5</span><span style="color: rgb(64,35,30);"> ]</span><br>

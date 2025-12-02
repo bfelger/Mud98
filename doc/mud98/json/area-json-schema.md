@@ -1,6 +1,6 @@
 # Area JSON Schema (builder-friendly)
 
-This describes the JSON area format produced/consumed when `HAVE_JSON_AREAS` is enabled. Fields omitted when at default are treated as defaults on load.
+This describes the JSON area format. Fields omitted when at default are treated as defaults on load.
 
 Top-level object
 - `formatVersion`: integer, currently `1`.
