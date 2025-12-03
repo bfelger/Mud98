@@ -293,11 +293,11 @@ MEDIT(medit_show)
         addf_buf(buffer, "Spec fun:    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, spec_name(pMob->spec_fun));
     }
 
-    addf_buf(buffer, "Short descr: " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\rLong descr:\n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR ,
+    addf_buf(buffer, "Short descr: " COLOR_ALT_TEXT_2 "%s" COLOR_EOL "Long descr: " COLOR_ALT_TEXT_2 "%s" COLOR_EOL,
         pMob->short_descr,
         pMob->long_descr);
 
-    addf_buf(buffer, "Description:\n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR , pMob->description);
+    addf_buf(buffer, "Description:\n\r" COLOR_ALT_TEXT_2 "%s" COLOR_EOL , pMob->description);
 
     if (pMob->pShop) {
         ShopData* pShop;

@@ -328,20 +328,24 @@ redit create 12000
 
 ...which gives us this:
 
-```
-Room created.
-Description:
-Name:       []
-Area:       [   48] Faladrin Forest
-Vnum:       [12000]
-Sector:     [forest]
-Room flags: [none]
-Heal rec:   [100]
-Mana rec:   [100]
-Characters: [halivar]
-Objects:    [none]
-Exits:
-```
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(232,178,111);">Room created.</span><br>
+<span style="color: rgb(237,230,203);">Description    : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Room           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     12000</span><span style="color: rgb(64,35,30);"> ] </span><br>
+<span style="color: rgb(237,230,203);">Area           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">        48</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Faladrin Forest</span><br>
+<span style="color: rgb(237,230,203);">Sector         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    forest</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Room Flags     : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Heal Recover   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       100</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Mana Recover   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       100</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Characters     : </span><span style="color: rgb(112,77,43);">halivar </span><br>
+<span style="color: rgb(237,230,203);">Objects        : </span><span style="color: rgb(112,77,43);">(none)</span><br>
+<span style="color: rgb(237,230,203);">Lox Class      : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Type '</span><span style="color: rgb(232,178,111);">LOX</span><span style="color: rgb(43,69,79);">' to create one.</span><br>
+<span style="color: rgb(237,230,203);">Events         : </span><span style="color: rgb(112,77,43);">(none)</span><span style="color: rgb(43,69,79);"> Type '</span><span style="color: rgb(232,178,111);">EVENT</span><span style="color: rgb(43,69,79);">' to create one.</span><br>
+<br>
+<span style="color: rgb(237,230,203);">Exits:</span><br>
+<span style="color: rgb(245,216,147);">  Dir   To Vnum    Room Desc      Key     Reset Flags       Kwds</span><br>
+<span style="color: rgb(182,131,76);">======= ======= =============== ======= =============== ============</span><br>
+ </div>
 
 Be sure to check `COMMANDS` to see what options are available.
 
@@ -349,7 +353,7 @@ The intention is for this to be the first room a player sees when they create an
 
 <div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p style="margin: 0;">To be honest, I was never a good builder. In my Imp days of ages past, I was a <i>coding</i> Imp. I needed an army of builders and admins to do the other work for me (like, actually <i>running</i> and <i>creating</i> the MUD).</p></div>
 
-Note that, by creating the room, we actually teleported to it. This is useful so we can perform actions like `LOOK` and whatnot. OLC is very much "in-game".
+Note that, by creating the room, we actually teleported to it. This is useful so we can perform actions like `LOOK` and whatnot. OLC is very much "in-game". If you check the log, you'll see that a brand new instance of the area was spun up just for you. That's a function of it being "multi-instance"; new instances are created on demand as players enter them.
 
 I choose to give it a narrative title, rather than a descriptive one:
 
@@ -359,25 +363,25 @@ name The Awakening
 
 Even though this is a placeholder, I want to at least put _something_ for the description, using `DESC`:
 
-```                                    
-desc
--========- Entering EDIT Mode -=========-
-    Type .h on a new line for help
- Terminate with a @ on a blank line.
--=======================================-
-> 
-```
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(182,131,76);">-========- </span><span style="color: rgb(112,77,43);">Entering EDIT Mode </span><span style="color: rgb(182,131,76);">-=========-</span><br>
+<span style="color: rgb(43,69,79);">    Type .h on a new line for help</span><br>
+<span style="color: rgb(43,69,79);"> Terminate with a @ on a blank line.</span><br>
+<span style="color: rgb(182,131,76);">-=======================================-</span><br>
+<span style="color: rgb(237,230,203);">&gt; </span><br>
+<br>
+ </div>
 
 Typing `.h` for help yields a list of really helpul commands. In particular, `.f` is your friend.
 
 I will enter some nice, overwrought, pretentious prose:
 
 ```
-You stand next to the great old trunk of Cuivealda. The light is dim, as
-the dense, high canopy that forms Tauremar covers the sky. There is little
-ground cover, and the forest floor is a desolate place of perpetual
-twilight.
+    You stand next to the great old trunk of Cuivealda. The light is dim, as the dense, high canopy that forms Tauremar covers the sky. There is little ground cover, and the forest floor is a tranquil place of perpetual twilight.
 ```
+
+The initial four spaces tell the formatter that this is a "book style" paragraph,
+and the indentation should be preserved. There is no double-line gap between this and the preceding paragraph, either.
 
 Use `@` on a bare line to finish the description.
 
@@ -391,7 +395,12 @@ flags newbies_only no_recall
 
 The latter  is because I don't want people just recalling out of the start zone. There should be a narrative flow to the game, and skipping the starting area breaks that.
 
-Now I want to hook this room up as the starting area for elves.
+Now I want to hook this room up as the starting area for elves. I'll tie off this room for now with:
+
+```
+done
+asave changed
+```
 
 ## Setting racial starting location
 
@@ -405,34 +414,32 @@ raedit elf
 
 This gives us this:
 
-```
-Name        : [elf]
-PC race?    : [YES]
-Act         : [none]
-Aff         : [infrared]
-Off         : [none]
-Imm         : [none]
-Res         : [charm]
-Vuln        : [iron]
-Form        : [edible sentient biped mammal]
-Parts       : [head arms legs heart brains guts hands feet fingers ear eye]
-Points      : [5]
-Size        : [small]
-Start Loc   : [0]   (not used)
-    Class      XPmult  XP/lvl(pts)   Start Loc
-    Mage        100     1000( 40)    [    0]   (not used)
-    Cleric      125     1000( 40)    [    0]   (not used)
-    Thief       100     1000( 40)    [    0]   (not used)
-    Warrior     120     1000( 40)    [    0]   (not used)
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(237,230,203);">Name        : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">elf</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">PC race?    : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(49,78,63);">YES</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Act         : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">(none)</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Aff         : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">infrared</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Off         : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">(none)</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Imm         : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">(none)</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Res         : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">charm</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Vuln        : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">iron</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Form        : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">edible sentient biped mammal</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Parts       : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">head arms legs heart brains guts hands feet fingers ear eye</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Points      : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">5</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Size        : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">small</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Start Loc   : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">12000</span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(43,69,79);">The Awakening </span><br>
+<span style="color: rgb(245,216,147);">    Class      XPmult  XP/lvl(pts)   Start Loc</span><br>
+<span style="color: rgb(237,230,203);">    Mage        </span><span style="color: rgb(112,77,43);">100     1000</span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);"> 40</span><span style="color: rgb(64,35,30);">)</span><span style="color: rgb(237,230,203);">    </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    0</span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(43,69,79);"> </span><br>
+<span style="color: rgb(237,230,203);">    Cleric      </span><span style="color: rgb(112,77,43);">125     1000</span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);"> 40</span><span style="color: rgb(64,35,30);">)</span><span style="color: rgb(237,230,203);">    </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    0</span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(43,69,79);"> </span><br>
+<span style="color: rgb(237,230,203);">    Thief       </span><span style="color: rgb(112,77,43);">100     1000</span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);"> 40</span><span style="color: rgb(64,35,30);">)</span><span style="color: rgb(237,230,203);">    </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    0</span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(43,69,79);"> </span><br>
+<span style="color: rgb(237,230,203);">    Warrior     </span><span style="color: rgb(112,77,43);">120     1000</span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);"> 40</span><span style="color: rgb(64,35,30);">)</span><span style="color: rgb(237,230,203);">    </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    0</span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(43,69,79);"> </span><br>
+<br>
+<span style="color: rgb(237,230,203);">Str:</span><span style="color: rgb(112,77,43);">12</span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">16</span><span style="color: rgb(64,35,30);">)</span><span style="color: rgb(237,230,203);"> Int:</span><span style="color: rgb(112,77,43);">14</span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">20</span><span style="color: rgb(64,35,30);">)</span><span style="color: rgb(237,230,203);"> Wis:</span><span style="color: rgb(112,77,43);">13</span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">18</span><span style="color: rgb(64,35,30);">)</span><span style="color: rgb(237,230,203);"> Dex:</span><span style="color: rgb(112,77,43);">15</span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">21</span><span style="color: rgb(64,35,30);">)</span><span style="color: rgb(237,230,203);"> Con:</span><span style="color: rgb(112,77,43);">11</span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">15</span><span style="color: rgb(64,35,30);">)</span><span style="color: rgb(237,230,203);"> </span><br>
+<span style="color: rgb(237,230,203);"> 0. </span><span style="color: rgb(112,77,43);">sneak</span><br>
+<span style="color: rgb(237,230,203);"> 1. </span><span style="color: rgb(112,77,43);">hide</span><br>
+ </div>
 
-Str:12(16) Int:14(20) Wis:13(18) Dex:15(21) Con:11(15) 
- 0. sneak
- 1. hide
-```
-
-Notice under `Start Loc`, it says "(not used)". That means Mud98 isn't configured to use racial start locations. By default, all non-stock-ROM behavior is disabled to provide a more authentic, legacy ROM experience out-of-the-box.
-
-Open up `mud98.cfg` in the root directory and change this setting (uncommenting it, if needed):
+By default, Mud98 allows for starting race and class locations. Otherwise, under `Start Loc`, it would say "(not used)". If you see this message, however you can enable it by openning up `mud98.cfg` in the root directory and changing this setting (uncommenting it, if needed):
 
 ```
 start_loc_by_race = yes
@@ -440,7 +447,7 @@ start_loc_by_race = yes
 
 Note that this is a completely safe flag; it has no effect on races that don't have a start location set, yet.
 
-<div style="background-color: rgb(128,128,128,0.1);padding: 1em"><p style="margin: 0">You may have noticed that there is also a class <code>start_loc</code> and a per-race-class-combo <code>start_loc</code>. These can be used with each other freely. You can have a single spawn point for mages, a single spawn point for elves, and separate spawn points for all the other race/class combos. It's meant to give you maximum flexibility in world-building. To take advantage of this, you need to also enable <code>start_loc_by_class</code> in <code>mud98.cfg</code>.</p></div><br>
+<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p style="margin: 0;">You may have noticed that there is also a class <code>start_loc</code> and a per-race-class-combo <code>start_loc</code>. These can be used with each other freely. You can have a single spawn point for mages, a single spawn point for elves, and separate spawn points for all the other race/class combos. It's meant to give you maximum flexibility in world-building. To take advantage of this, you need to also enable <code>start_loc_by_class</code> in <code>mud98.cfg</code>.</p></div>
 
 Restart Mud98 and log back in with your Imp character. Then `raedit elf` again. Note that now `Start Loc` is `0`, but the warning that it won't be used is gone.
 
@@ -452,30 +459,9 @@ start_loc 12000
 
 Now `SHOW` has our new room as `Start Loc`:
 
-```
-Name        : [elf]
-PC race?    : [YES]
-Act         : [none]
-Aff         : [infrared]
-Off         : [none]
-Imm         : [none]
-Res         : [charm]
-Vuln        : [iron]
-Form        : [edible sentient biped mammal]
-Parts       : [head arms legs heart brains guts hands feet fingers ear eye]
-Points      : [5]
-Size        : [small]
-Start Loc   : [12000] The Awakening 
-    Class      XPmult  XP/lvl(pts)   Start Loc
-    Mage        100     1000( 40)    [    0]  (not used)
-    Cleric      125     1000( 40)    [    0]  (not used)
-    Thief       100     1000( 40)    [    0]  (not used)
-    Warrior     120     1000( 40)    [    0]  (not used)
-
-Str:12(16) Int:14(20) Wis:13(18) Dex:15(21) Con:11(15) 
- 0. sneak
- 1. hide
-```
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(237,230,203);">Start Loc   : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">12000</span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(43,69,79);">The Awakening </span><br>
+ </div>
 
 That looks correct. I commit my changes to disk:
 
@@ -501,298 +487,428 @@ sword
 
 Where do we end up?
 
-```
-The Awakening
-You stand next to the great old trunk of Cuivealda. The light is dim, as
-the dense, high canopy that forms Tauremar covers the sky. There is little
-ground cover, and the forest floor is a desolate place of perpetual
-twilight.
-Halivar the Keeper of Knowledge is here.
-You have no unread notes.
-```
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(0,128,128);">The Awakening</span><br>
+<span style="color: rgb(192,192,192);">    You stand next to the great old trunk of Cuivealda.  The light is</span><br>
+<span style="color: rgb(192,192,192);">dim, as the dense, high canopy that forms Tauremar covers the sky.  There is</span><br>
+<span style="color: rgb(192,192,192);">little ground cover, and the forest floor is a tranquil place of perpetual</span><br>
+<span style="color: rgb(192,192,192);">twilight.</span><br>
+<span style="color: rgb(192,192,192);">You have no unread notes.</span><br>
+<br>
+<span style="color: rgb(0,128,128);">&lt;20hp 100m 100mv&gt; </span><br></div>
 
-Oops. I forgot to log out of my Imp. But now we have a solid start on building out a newbie zone for elves.
+<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p style="margin: 0;">The difference in coloration is due to the fact that this character, being brand-new, is using the default, "Lope ColoUr" theme.</p></div>
+
+If you left your Imp character logged in at this room, the new character will not see him; a quick glance at the log will tell you that a brand new instance of "Faladrin Forest" was spun up for "Newelfguy", and ne'er the twain shall meet.
 
 ## Creating a greeting for new characters
 
-I want to display a banner for new characters when they enter the game, but I only want it to display once. Rather than trying to create a new field, I'm going to add a trigger to do it. Right now, the only way to add triggers is on mobs, so first I'll need to make a triggerbot.
+New characters all receive a generic banner that is defined in helps, but I also want a separate banner specifically for new characters who drop into the game in this room.
 
-### Making a triggerbot
+This brings us to two powerful new concepts novel to Mud98: **Lox scripting** and **events**.
 
-The command to create mobiles is `MEDIT`. I will create my triggerbot with this command:
+**Lox** is a flexible, _fast_, byte-code interpreted language grafted into Mud98. It's adapted from Robert Nystrum's book, "Crafting Interpreters" (it's seriously cool; [you can buy it or read it online here](https://craftinginterpreters.com/)). Lox is a first-class citizen in Mud98, and can be used far beyond just the event system, including writing new skills and spells via OLC.
 
-```
-medit create 12000
-```
+**Events** are the Mud98 replacement for MobProgs. For every MobProg trigger, there is an equivalent Mobile event trigger. Mud98 events, however, can also be attached to _Objects_ and _Rooms_, as well.
 
-<div style="background-color: rgb(128,128,128,0.1);padding: 1em;margin-bottom: 1em;"><p style="margin: 0">Note the re-use of the VNUM. VNUM's are only unique to a certain type of entity (<code>RoomData</code>, <code>MobPrototype</code>, <code>ObjPrototype</code>, etc), and can be shared <i>across</i> them. To have keep things less confusing, for any given VNUM <code>X</code>, I try to keep them all in one place: the <code>ObjPrototype</code> with VNUM <code>X</code> will be held by the <code>MobPrototype</code> with VNUM <code>X</code>, in the <code>RoomData</code> with VNUM <code>X</code>. Consider spacing out room VNUMs to accomodate.</p></div>
+To display the message we want, we will need to create a Lox script, and call it when a new character gets dumped into this room.
 
-Anyway, the command we entered creates a new `MobPrototype` (_not_ a `CharData`... not yet) and displays it as a blank slate:
+<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p style="margin: 0;">In the legacy version of this document, I used MobProgs on an invisible "triggerbot" to do this. My dissatisfaction with that solution is what prompted me to hide in whole for two years and create the current solution</p></div>
 
-```
-Name:        [no name]
-Vnum:        [ 12000]
-Area:        [    48] Faladrin Forest
-Level:       [     0] Sex:     [  none] Group:   [    0]
-Align:       [     0] Hitroll: [     0] Dam type: [none]
-Hit dice:    [  0d0  +   0] Damage dice:  [  0d0  +   0]
-Mana dice:   [  0d0  +   0] Material:     [     unknown]
-Race:        [       human] Size:         [      medium]
-Start pos.:  [    standing] Default pos.: [    standing]
-Wealth:      [    0]
-Armor:       [pierce: 0  bash: 0  slash: 0  magic: 0]
-Affected by: [none]
-Act:         [npc]
-Form:        [none]
-Parts:       [none]
-Imm:         [none]
-Res:         [none]
-Vuln:        [none]
-Off:         [none]
-Short descr: (no short description)
-Long descr:
-(no long description)
-Description:
-```
+### Creating a Lox script
 
-Because this is a triggerbot, I don't actually want much on this. I'll give it a name, make it `sentinal` so it doesn't wander, and make it invisible to players:
-
-```
-name triggerbot_12000
-act sentinel
-aff invis
-```
-
-That's it; that's all I care about. I'll save the bot with `done` and get cracking on making its Mob Prog.
-
-### Creating a Mob Prog
-
-The command to create Mob Progs is `MPEDIT`:
-
-```
-mpedit create 12000
-```
-
-Now we are in the context of editting the Mob Prog:
-
-```
-Vnum:       [12000]
-Code:
-```
-
-The editor is a line editor, much like room descriptions, using the `code` command. I will use this script:
-
-```
-mob echoat $n ^*You step off the end of an old rope ladder at the base of Cuivealda, the^/Tree of Awakening. Your years in the nurturing hands of the Tetyayath have^/come to an end.^/^/Now you must go out into the world and find your destiny...^/^x
-```
-
-The `mob echoat $n` command says that the mob executing the script will perform an "echo" (unquoted text) directly to the character that prompted the trigger. I added coloration to add some flair as a call-out. The `^/` color code is actually a new-line. When doing mobprogs like this, you will need to keep track of your own line endings.
-
-I now close off the code with `@`, and finish the MobProg with `done`.
-
-Now I have the Mob Prog that I want `triggerbot_12000` to perform, but now I need to add the trigger.
-
-### Making the triggerbot trigger
-
-I open up my triggerbot for editing again:
-
-```
-medit 12000
-```
-
-If I check `COMMANDS`, I see there is an `ADDPROG` command. A blind call yields this:
-
-```
-Syntax:   addprog [vnum] [trigger] [phrase]
-```
-
-Here's the command to add the trigger:
-
-```
-addprog 12000 act has entered the game
-```
-
-The first parameter is the VNUM of the Mob Prog (not the mob itself; we're already editing that), followed by the trigger, `act`. This means anything it can _see_. The rest of the command is an unquoted string (in this case, "has entered the game") that the triggerbot will look for in all "acts" (broadcasts to the room).
-
-As it just so happens, the first thing anyone sees of a new character in the start location is:
-
-```
-Bob has entered the game.
-```
-
-This trigger will activate _before_ the target receives the room description. This is very handy.
-
-Now we need to finish off `MEDIT` with `done`, and actually place the triggerbot in the room.
-
-### Adding triggerbot to the room
-
-Edit the room again:
+Let's get back into our room editor:
 
 ```
 redit 12000
 ```
 
-The command to load a mob into the room is `MRESET`.
+We should see this:
 
-A blind call yields the syntax:
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(237,230,203);">Description: </span><br>
+<span style="color: rgb(43,69,79);">    You stand next to the great old trunk of Cuivealda.  The light is</span><br>
+<span style="color: rgb(43,69,79);">dim, as the dense, high canopy that forms Tauremar covers the sky.  There is</span><br>
+<span style="color: rgb(43,69,79);">little ground cover, and the forest floor is a tranquil place of perpetual</span><br>
+<span style="color: rgb(43,69,79);">twilight.</span><br>
+<span style="color: rgb(237,230,203);">Room           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     12000</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(245,216,147);">The Awakening</span><br>
+<span style="color: rgb(237,230,203);">Area           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">        48</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Faladrin Forest</span><br>
+<span style="color: rgb(237,230,203);">Sector         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    inside</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Room Flags     : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">no_recall newbies_only</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Heal Recover   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       100</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Mana Recover   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       100</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Characters     : </span><span style="color: rgb(112,77,43);">halivar </span><br>
+<span style="color: rgb(237,230,203);">Objects        : </span><span style="color: rgb(112,77,43);">(none)</span><br>
+<span style="color: rgb(237,230,203);">Lox Class      : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Type '</span><span style="color: rgb(232,178,111);">LOX</span><span style="color: rgb(43,69,79);">' to create one.</span><br>
+<span style="color: rgb(237,230,203);">Events         : </span><span style="color: rgb(112,77,43);">(none)</span><span style="color: rgb(43,69,79);"> Type '</span><span style="color: rgb(232,178,111);">EVENT</span><span style="color: rgb(43,69,79);">' to create one.</span><br>
+<br>
+<span style="color: rgb(237,230,203);">Exits:</span><br>
+<span style="color: rgb(245,216,147);">  Dir   To Vnum    Room Desc      Key     Reset Flags       Kwds</span><br>
+<span style="color: rgb(182,131,76);">======= ======= =============== ======= =============== ============</span><br></div>
 
-```
-Syntax:  mreset <vnum> <world max> <room max>
-```
-
-I an unlimited number of these _world-wide_, as they have to be shared between multiple instances. That's what `-1` means. The third parameter means there is only ever one _in this room_.
-
-```
-mreset 12000 -1 1
-```
-
-Ok, so now it's added, which we verify with the `RESETS` command:
-
-```
-Resets: M = mobile, R = room, O = object, P = pet, S = shopkeeper
- No.  Loads    Description       Location         Vnum   Ar Rm Description
-==== ======== ============= =================== ======== ===== ===========
-[ 1] M[12000] (no short des                     R[12000] -1- 1 The Awakening  
-```
-
-It's in the room, but you won't see it, as it was marked invisible.
-
-### Testing the triggerbot
-
-Now all we need to do is log in with a new character and see if the new intro text works:
+The important fields for this task are `Lox Class` and `Events`. To start, let's create an `on_login` callback for the login event we will eventually create:
 
 ```
-Welcome to Mud98. Please do not feed the mobiles.
-
-You step off the end of an old rope ladder at the base of Cuivealda, the
-Tree of Awakening. Your years in the nurturing hands of the Tetyayath have
-come to an end.
-
-Now you must go out into the world and find your destiny...
-
-The Awakening
-  You stand next to the great old trunk of Cuivealda. The light is dim, as
-the dense, high canopy that forms Tauremar covers the sky. There is little
-ground cover, and the forest floor is a desolate place of perpetual
-twilight.
-You have no unread notes.
+lox
 ```
 
-The first thing an elf character sees on this MUD now is a narrative introduction, and a framing story to guide them through the rest of the "MUD School" replacement.
+You'll be thrown into a string editor that is pretty close to what we saw for the room description editor, but there are some key differences. If you type `.h`, you'll get this help:
 
-But there needs to be more. I need an "OOC" call-out telling them what to do next. 
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(232,178,111);">Lox Script help (commands on blank line):   </span><br>
+<span style="color: rgb(112,77,43);">.r 'old' 'new'   </span><span style="color: rgb(232,178,111);">- replace a substring </span><br>
+<span style="color: rgb(112,77,43);">                 </span><span style="color: rgb(232,178,111);">  (requires '', "") </span><br>
+<span style="color: rgb(112,77,43);">.h               </span><span style="color: rgb(232,178,111);">- get help (this info)</span><br>
+<span style="color: rgb(112,77,43);">.s               </span><span style="color: rgb(232,178,111);">- show script so far  </span><br>
+<span style="color: rgb(112,77,43);">.clear           </span><span style="color: rgb(232,178,111);">- clear script so far </span><br>
+<span style="color: rgb(112,77,43);">.v               </span><span style="color: rgb(232,178,111);">- validate byte-code compilation</span><br>
+<span style="color: rgb(112,77,43);">.ld &lt;num&gt;        </span><span style="color: rgb(232,178,111);">- delete line &lt;num&gt;</span><br>
+<span style="color: rgb(112,77,43);">.li &lt;num&gt; &lt;txt&gt;  </span><span style="color: rgb(232,178,111);">- insert &lt;txt&gt; on line &lt;num&gt;</span><br>
+<span style="color: rgb(112,77,43);">.lr &lt;num&gt; &lt;txt&gt;  </span><span style="color: rgb(232,178,111);">- replace line &lt;num&gt; with &lt;txt&gt;</span><br>
+<span style="color: rgb(112,77,43);">.x               </span><span style="color: rgb(232,178,111);">- cancel changes</span><br>
+<span style="color: rgb(112,77,43);">@                </span><span style="color: rgb(232,178,111);">- compile and save script</span><br></div>
 
-### Delayed MobProgs
+There's no formatter, at the moment, because my notions of code style are opinionated, and I don't want to force that on you. Here are some important new commands not present in the "string" editor:
 
-There is some text I would like to display just after the room description; but the `GREET` trigger won't be triggered because we didn't "move" into the room, and the `ACT` trigger is resolved _before_ the room is shown to the PC (which I have taken advantage of).
+* `.x` - **Cancel changes and exit the script editor.** This is important because it restores the original script (or lack thereof). Use this when your changes just aren't working out.
+* `.v` - **Validate byte-code compilation.** Use this to verify that your script compiles to byte-code without leaving the editor. This doesn't save the script to the Entity being edited, however, so it's safe to run. If there are any errors in your Lox script, they will display on your screen.
+* `@` - **Compile and save script.** Unlike `.v`, this command commits your changes to the prototype of the Entity being edited. New instances of that Entity will have the compiled byte-code of the script attached to them. If the script does not yet compile correctly, this will save the script to the Entity prototype and allow you to edit it later; however, no byte code will be attached to instances of the Entity, themselves.
 
-I will use a `DELAY` trigger.
-
-First, I need to modify the existing MobProg:
-
-```
-mpedit 12000
-code
-```
-
-...and append the following lines:
-
-```
-mob remember $n
-mob delay 1
-```
-
-`MOB REMEMBER` makes the mob stow away the trigger activator's name for later. Future triggers can pull it out and look for it.
-
-`MOB DELAY` creates a secondary trigger after the specified "mob pulses", which are approximately a fourth-of-a-second. I selected `1` (because `0` doesn't work) so that it occurs as soon after the prompt as possible.
-
-I will create a Mob Prog reset with the `DELAY` trigger; but first I need the Mob Prog itself:
+For now, let's go ahead and enter our script:
 
 ```
-mpedit create 12001
-code
+// This function gets called the first time a character logs in as an elf, 
+// after character creation.
+on_login(vch) {
+    // Only newly-created characters
+    if (vch.level > 1 or vch.race != Race.Elf)
+        return;
+        
+    vch.send(
+        "^*You step off the end of an old rope ladder at the base of "
+        "Cuivealda, the Tree of Awakening. Your years in the nurturing "
+        "hands of the Tetyayath have come to an end.^/^/"
+        "Now you must go out into the world and find your destiny...^/^x")
+}
 ```
 
-...and this is the code I enter:
+If you type `.s`, you will see that our built-in editor also has _syntax-highlighting_:
+
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(237,230,203);">Script so far:</span><br>
+<span style="color: rgb(112,77,43);"> 1</span><span style="color: rgb(237,230,203);">. </span><span style="color: rgb(79,93,66);">// This function gets called the first time a character logs in as an elf, </span><br>
+<span style="color: rgb(112,77,43);"> 2</span><span style="color: rgb(237,230,203);">. </span><span style="color: rgb(79,93,66);">// after character creation.</span><br>
+<span style="color: rgb(112,77,43);"> 3</span><span style="color: rgb(237,230,203);">. on_login</span><span style="color: rgb(112,77,43);">(</span><span style="color: rgb(237,230,203);">vch</span><span style="color: rgb(112,77,43);">) {</span><br>
+<span style="color: rgb(112,77,43);"> 4</span><span style="color: rgb(237,230,203);">.     </span><span style="color: rgb(79,93,66);">// Only newly-created characters</span><br>
+<span style="color: rgb(112,77,43);"> 5</span><span style="color: rgb(237,230,203);">.     </span><span style="color: rgb(43,69,79);">if </span><span style="color: rgb(112,77,43);">(</span><span style="color: rgb(237,230,203);">vch</span><span style="color: rgb(112,77,43);">.</span><span style="color: rgb(237,230,203);">level </span><span style="color: rgb(112,77,43);">&gt; </span><span style="color: rgb(62,112,142);">1 </span><span style="color: rgb(43,69,79);">or </span><span style="color: rgb(237,230,203);">vch</span><span style="color: rgb(112,77,43);">.</span><span style="color: rgb(237,230,203);">race </span><span style="color: rgb(112,77,43);">!= </span><span style="color: rgb(237,230,203);">Race</span><span style="color: rgb(112,77,43);">.</span><span style="color: rgb(237,230,203);">Elf</span><span style="color: rgb(112,77,43);">)</span><br>
+<span style="color: rgb(112,77,43);"> 6</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(43,69,79);">return</span><span style="color: rgb(112,77,43);">;</span><br>
+<span style="color: rgb(112,77,43);"> 7</span><span style="color: rgb(237,230,203);">.  </span><br>
+<span style="color: rgb(112,77,43);"> 8</span><span style="color: rgb(237,230,203);">.     vch</span><span style="color: rgb(112,77,43);">.</span><span style="color: rgb(237,230,203);">send</span><span style="color: rgb(112,77,43);">(</span><br>
+<span style="color: rgb(112,77,43);"> 9</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(245,216,147);">"^*You step off the end of an old rope ladder at the base of "</span><br>
+<span style="color: rgb(112,77,43);">10</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(245,216,147);">"Cuivealda, the Tree of Awakening. Your years in the nurturing "</span><br>
+<span style="color: rgb(112,77,43);">11</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(245,216,147);">"hands of the Tetyayath have come to an end.^/^/"</span><br>
+<span style="color: rgb(112,77,43);">12</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(245,216,147);">"Now you must go out into the world and find your destiny...^/^x"</span><span style="color: rgb(112,77,43);">)</span><br>
+<span style="color: rgb(112,77,43);">23</span><span style="color: rgb(237,230,203);">. </span><span style="color: rgb(112,77,43);">}</span><br>
+<span style="color: rgb(112,77,43);">24</span><span style="color: rgb(237,230,203);">. </span><br></div>
+
+Note that the colors used by the syntax highlighter can be set in your theme (via the `THEME` command).
+
+Let's validate our script using `.v`:
+
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(29,50,48);">***</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(232,178,111);">Class "room_12000" for room 12000 compiled successfully.</span><br></div>
+
+As the message indicates, what we're _really_ doing is specifying the contents of a class dedicated to Room VNUM 12000 called, appropriately enough, `room_12000`. That's why we don't declare `on_login` as a `func`: class methods in Lox don't use that keyword; just the method name and its arguments are sufficient.
+
+Since it completed successfully, we can call it done and attach it to the object with `@`:
+
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(29,50,48);">***</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(232,178,111);">Class "room_12000" for room 12000 compiled successfully and assigned.</span><br></div>
+
+I'll go over the script in a moment. First, let's protect what we've got so far:
 
 ```
-if hastarget $i
-    mob echoat $q ^_You have instructions to meet your old mentor in a clearing just to the east. There you^/will continue your training. Type '^*EXITS^_' to see what lies in that direction. Type '^*EAST^_'^/to go there.^x
-else
-    mob forget
-endif
-```
-
-Note that the `MOB ECHOAT` is one lone line. MobProgs are very rudimentary. I may address that in the future, but for now I will work with what I have.
-
-The first line demonstrates MobProgs simple `IF...Else...` logic. There is no "elif" logic. This version of MobProgs actually descends from a more capable, but much _buggier_ Mob Progs. This stripped down version is straightforward and fool-proof.
-
-<div style="background-color: rgb(128,128,128,0.1);padding: 1em;margin-bottom: 1em;"><p style="margin: 0">However, I now remember back in my Imp days, crafting many tiers of nested <code>IF</code>s with a final line of <code>ENDIF ENDIF ENDIF ENDIF ENDIF</code>. I think making a basic <code>ELIF</code> would be my first Mob Progs extension.</p></div>
-
-`HASTARGET $i` is a simple test that checks to see if the name stored in the mob's memory belongs to anyone it can see. If it does, it performs `MOB ECHOAT $q`. Last time, we used `$n` to mean the person that triggered the Mob Prog. But in this case, the trigger was a `DELAY` timer. `$q` uses the name "remembered" by the mob.
-
-And if there's no such person, the mob forgets them.
-
-Finally I add the Mob Prog as a new reset:
-
-```
-medit 12000
-addprog 12001 delay 100
-done
 asave changed
 ```
 
-Here are the MobProgs for the room, now:
+### Anatomy of an event callback
+
+Our script defines what's called a "callback", a function (or in this case, a class member) that is referred to by an outside actor when needed. To do that, we will need to register this callback by creating an event that references it. We will do that in the next step.
+
+First, we have a comment:
 
 ```
-MOBPrograms for [12000]:
- Number Vnum Trigger Phrase
- ------ ---- ------- ------
-[    0] 12001   DELAY 100
-[    1] 12000     ACT has entered the game
+// This function gets called the first time a character logs in as an elf, 
+// after character creation.
 ```
 
-And how does it work? I log in with a new elf character and test it:
+A **comment** is in-code documentation that is not compiled, and does not get translated to byte-code. Use comments to make clear what you are trying to do, and what the purpose of your code is. 
 
 ```
-Welcome to Mud98. Please do not feed the mobiles.
-
-You step off the end of an old rope ladder at the base of Cuivealda, the
-Tree of Awakening. Your years in the nurturing hands of the Tetyayath have
-come to an end.
-
-Now you must go out into the world and find your destiny...
-
-The Awakening
-  You stand next to the great old trunk of Cuivealda. The light is dim, as
-the dense, high canopy that forms Tauremar covers the sky. There is little
-ground cover, and the forest floor is a desolate place of perpetual
-twilight.
-You have no unread notes.
-
-<20hp 100m 100mv>
-You have instructions to meet your old mentor in a clearing just to the east. There you
-will continue your training. Type 'EXITS' to see what lies in that direction. Type 'EAST'
-to go there.
+on_login(vch) {
+}
 ```
 
-The intro text and the OOC quest text are distinctively colored and useful, and I didn't have to contrive adding them to room descriptions like MUD school did. 
+This is **class method**, named `on_login`. Class methods are normally defined in a `class {..}` block, but Entity-based Lox scripts are treated as class bodies with bespoke, predetermined names.
+
+The `on_login` method has a single argument, `vch`. If you are at all familiar with ROM code, you'll know that this is shorthand for "victim character", and tell us that the target of the callback is passed in as an argument. In this case, `vch` will be the character logging in.
+
+<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p style="margin: 0;">And what of the room, itself? Why is there no <code>room</code> argument? Because this method will already a reference to it's owning Entity. We'll see that in action when we add a Mobile-based event.</p></div>
+
+Now we check to see if it's appropriate to send a message to the character:
+
+```
+    // Only newly-created characters
+    if (vch.level > 1 or vch.race != Race.Elf)
+        return;
+```
+
+If the character is above level 1 (not a newbie) or not an elf (as this message is for starting elves), we bail. No message is sent to the player.
+
+<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p style="margin: 0;">Note the semicolon (<code>;</code>) after <code>return</code>. This is one of the few areas where I deviate from standard Lox, which has no EOL semicolons. In Mud98's incarnation of Lox, semicolons are optional <i>except</i> bare <code>return</code>s that don't actually return a value. In that case, they are required. This is a technical issue in Mud98's Lox compiler that I may (or may not) fix.</p></div>
+
+Next we send an actual message to the user:
+
+```
+    vch.send(
+        "^*You step off the end of an old rope ladder at the base of "
+        "Cuivealda, the Tree of Awakening. Your years in the nurturing "
+        "hands of the Tetyayath have come to an end.^/^/"
+        "Now you must go out into the world and find your destiny...^/^x")
+```
+
+So that's our first Lox script. Let's wire it up to a Login event and see how it does.
+
+### Wiring up the Login event
+
+While editing room 12000, let's look at what's available to us with events:
+
+```
+event
+```
+
+We'll get a syntax helper like so:
+
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(232,178,111);">Syntax: event set &lt;trigger&gt; [&lt;callback&gt; [&lt;criteria&gt;]]</span><br>
+<span style="color: rgb(232,178,111);">        event delete &lt;trigger&gt;</span><br></div>
+
+The only _required_ parameter is the trigger. Every trigger has a default callback, and _usually_ has a default criteria value if one is needed (which the Login event doesn't). Because I knew ahead of time what the default was, I don't need it:
+
+```
+event set login
+```
+
+You should get an "Event created" message, which means we're good to go. Verify it by pressing `Enter` while in `REDIT` mode:
+
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(237,230,203);">Description: </span><br>
+<span style="color: rgb(43,69,79);">    You stand next to the great old trunk of Cuivealda.  The light is</span><br>
+<span style="color: rgb(43,69,79);">dim, as the dense, high canopy that forms Tauremar covers the sky.  There is</span><br>
+<span style="color: rgb(43,69,79);">little ground cover, and the forest floor is a tranquil place of perpetual</span><br>
+<span style="color: rgb(43,69,79);">twilight.</span><br>
+<span style="color: rgb(237,230,203);">Room           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     12000</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(245,216,147);">The Awakening</span><br>
+<span style="color: rgb(237,230,203);">Area           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">        48</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Faladrin Forest</span><br>
+<span style="color: rgb(237,230,203);">Sector         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    inside</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Room Flags     : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">no_recall newbies_only</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Heal Recover   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       100</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Mana Recover   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       100</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Characters     : </span><span style="color: rgb(112,77,43);">halivar </span><br>
+<span style="color: rgb(237,230,203);">Objects        : </span><span style="color: rgb(112,77,43);">(none)</span><br>
+<span style="color: rgb(237,230,203);">Lox Class      : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">room_12000</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Type '</span><span style="color: rgb(232,178,111);">LOX</span><span style="color: rgb(43,69,79);">' to edit.</span><br>
+<br>
+<span style="color: rgb(237,230,203);">Events:</span><br>
+<span style="color: rgb(245,216,147);"> Trigger          Callback (Args)     Criteria</span><br>
+<span style="color: rgb(182,131,76);">========= ================ ========== ========</span><br>
+<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  Login</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(43,69,79);">         on_login (mob)      </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">      </span><span style="color: rgb(64,35,30);">]</span><br>
+<br>
+<span style="color: rgb(237,230,203);">Exits:</span><br>
+<span style="color: rgb(245,216,147);">  Dir   To Vnum    Room Desc      Key     Reset Flags       Kwds</span><br>
+<span style="color: rgb(182,131,76);">======= ======= =============== ======= =============== ============</span><br></div>
+
+Now you see "Events" populated with our trigger, as well as a reference to our callback. When you add an event, the "Args" column will tell you what the event trigger will attempt to pass as arguments to the trigger. If you don't follow that format, the event won't work.
+
+Before we test it out, let's save our work:
+
+```
+asave changed
+```
+
+Now create a new elf character, and you should see this upon being dumped in the starting room:
+
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(0,128,128);">You step off the end of an old rope ladder at the base of Cuivealda, the Tree of</span><br>
+<span style="color: rgb(0,128,128);">Awakening. Your years in the nurturing hands of the Tetyayath have come to an </span><br>
+<span style="color: rgb(0,128,128);">end.</span><br>
+<br>
+<span style="color: rgb(0,128,128);">Now you must go out into the world and find your destiny...</span><br>
+<br>
+<span style="color: rgb(0,128,128);">The Awakening</span><br>
+<span style="color: rgb(192,192,192);">    You stand next to the great old trunk of Cuivealda.  The light is</span><br>
+<span style="color: rgb(192,192,192);">dim, as the dense, high canopy that forms Tauremar covers the sky.  There is</span><br>
+<span style="color: rgb(192,192,192);">little ground cover, and the forest floor is a tranquil place of perpetual</span><br>
+<span style="color: rgb(192,192,192);">twilight.</span><br>
+<span style="color: rgb(192,192,192);">You have no unread notes.</span><br>
+<br>
+<span style="color: rgb(0,128,128);">&lt;20hp 100m 100mv&gt; </span><br>
+ </div>
+
+It works! You just wrote your first Lox script, and your first event. What's cool about the Login event is that it triggers _before_ you are dumped into the starting room, so it lets us write a neat little prologue to establish a narrative for the new character.
+
+But now I need to establish next steps for the character.
+
+### Delayed scripts
+
+I like for calls-to-action for the player to follow be the last thing they before the prompt (like how tutorials work [have you checked out `TUTORIAL`, yet?]). But everything we do inside the Login event happens before we even show them a room description.
+
+The answer is modify our Login event to kick off a delayed message. Just 1 tick is enough to guarantee is displays after the room description.
+
+First, let's edit our Lox script again:
+
+```
+redit 12000 (if you need to)
+lox
+```
+
+Now we need to insert some lines using the `.li` command:
+
+```
+.li 13
+.li 14    delay(1, () -> {
+.li 15        vch.send("^jYou have instructions to meet your old mentor in a "
+.li 16            "clearing just to the east. There you will continue your "
+.li 17            "training. Type '^*EXITS^j' to see what lies in that "
+.li 18            "direction. Type '^*EAST^j' to go there.^x")
+.li 19    })
+```
+
+The Lox function `delay` takes two parameters:
+1. The number to ticks to delay by; in this case, 1.
+2. An invokable function or method to call at the end of the delay.
+
+In this case, we pass what's called a _lamda_ as the callable. It's basically an ad hoc, unnamed function.
+
+<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p style="margin: 0;"> Lamdas can have arguments, but this one does not. Everything it needs is in its own scope. By simply mentioning <code>vch</code>, it "captures" that variable and keeps it from getting garbage-collected until it gets a chance to run.</p></div>
+
+After one tick, we send the given message to the player that triggered the event.
+
+When you're done, `.s` should look like this:
+
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(237,230,203);">Script so far:</span><br>
+<span style="color: rgb(112,77,43);"> 1</span><span style="color: rgb(237,230,203);">. </span><span style="color: rgb(79,93,66);">// This function gets called the first time a character logs in as an elf, </span><br>
+<span style="color: rgb(112,77,43);"> 2</span><span style="color: rgb(237,230,203);">. </span><span style="color: rgb(79,93,66);">// after character creation.</span><br>
+<span style="color: rgb(112,77,43);"> 3</span><span style="color: rgb(237,230,203);">. on_login</span><span style="color: rgb(112,77,43);">(</span><span style="color: rgb(237,230,203);">vch</span><span style="color: rgb(112,77,43);">) {</span><br>
+<span style="color: rgb(112,77,43);"> 4</span><span style="color: rgb(237,230,203);">.     </span><span style="color: rgb(79,93,66);">// Only newly-created characters</span><br>
+<span style="color: rgb(112,77,43);"> 5</span><span style="color: rgb(237,230,203);">.     </span><span style="color: rgb(43,69,79);">if </span><span style="color: rgb(112,77,43);">(</span><span style="color: rgb(237,230,203);">vch</span><span style="color: rgb(112,77,43);">.</span><span style="color: rgb(237,230,203);">level </span><span style="color: rgb(112,77,43);">&gt; </span><span style="color: rgb(62,112,142);">1 </span><span style="color: rgb(43,69,79);">or </span><span style="color: rgb(237,230,203);">vch</span><span style="color: rgb(112,77,43);">.</span><span style="color: rgb(237,230,203);">race </span><span style="color: rgb(112,77,43);">!= </span><span style="color: rgb(237,230,203);">Race</span><span style="color: rgb(112,77,43);">.</span><span style="color: rgb(237,230,203);">Elf</span><span style="color: rgb(112,77,43);">)</span><br>
+<span style="color: rgb(112,77,43);"> 6</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(43,69,79);">return</span><span style="color: rgb(112,77,43);">;</span><br>
+<span style="color: rgb(112,77,43);"> 7</span><span style="color: rgb(237,230,203);">.  </span><br>
+<span style="color: rgb(112,77,43);"> 8</span><span style="color: rgb(237,230,203);">.     vch</span><span style="color: rgb(112,77,43);">.</span><span style="color: rgb(237,230,203);">send</span><span style="color: rgb(112,77,43);">(</span><br>
+<span style="color: rgb(112,77,43);"> 9</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(245,216,147);">"^*You step off the end of an old rope ladder at the base of "</span><br>
+<span style="color: rgb(112,77,43);">10</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(245,216,147);">"Cuivealda, the Tree of Awakening. Your years in the nurturing "</span><br>
+<span style="color: rgb(112,77,43);">11</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(245,216,147);">"hands of the Tetyayath have come to an end.^/^/"</span><br>
+<span style="color: rgb(112,77,43);">12</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(245,216,147);">"Now you must go out into the world and find your destiny...^/^x"</span><span style="color: rgb(112,77,43);">)</span><br>
+<span style="color: rgb(112,77,43);">13</span><span style="color: rgb(237,230,203);">. </span><br>
+<span style="color: rgb(112,77,43);">14</span><span style="color: rgb(237,230,203);">.     delay</span><span style="color: rgb(112,77,43);">(</span><span style="color: rgb(62,112,142);">1</span><span style="color: rgb(112,77,43);">, () -&gt; {</span><br>
+<span style="color: rgb(112,77,43);">15</span><span style="color: rgb(237,230,203);">.         vch</span><span style="color: rgb(112,77,43);">.</span><span style="color: rgb(237,230,203);">send</span><span style="color: rgb(112,77,43);">(</span><span style="color: rgb(245,216,147);">"^jYou have instructions to meet your old mentor in a "</span><br>
+<span style="color: rgb(112,77,43);">16</span><span style="color: rgb(237,230,203);">.             </span><span style="color: rgb(245,216,147);">"clearing just to the east. There you will continue your "</span><br>
+<span style="color: rgb(112,77,43);">17</span><span style="color: rgb(237,230,203);">.             </span><span style="color: rgb(245,216,147);">"training. Type '^*EXITS^j' to see what lies in that "</span><br>
+<span style="color: rgb(112,77,43);">18</span><span style="color: rgb(237,230,203);">.             </span><span style="color: rgb(245,216,147);">"direction. Type '^*EAST^j' to go there.^x"</span><span style="color: rgb(112,77,43);">)</span><br>
+<span style="color: rgb(112,77,43);">19</span><span style="color: rgb(237,230,203);">.     </span><span style="color: rgb(112,77,43);">})</span><br>
+<span style="color: rgb(112,77,43);">20</span><span style="color: rgb(237,230,203);">. </span><span style="color: rgb(112,77,43);">}</span><br>
+<span style="color: rgb(112,77,43);">21</span><span style="color: rgb(237,230,203);">. </span><br></div>
+
+Now we tie a bow around it for testing:
+
+```
+@
+asave area
+```
+
+Then we test it again with a new character:
+
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(0,128,128);">You step off the end of an old rope ladder at the base of Cuivealda, the Tree of</span><br>
+<span style="color: rgb(0,128,128);">Awakening. Your years in the nurturing hands of the Tetyayath have come to an </span><br>
+<span style="color: rgb(0,128,128);">end.</span><br>
+<br>
+<span style="color: rgb(0,128,128);">Now you must go out into the world and find your destiny...</span><br>
+<br>
+<span style="color: rgb(0,128,128);">The Awakening</span><br>
+<span style="color: rgb(192,192,192);">    You stand next to the great old trunk of Cuivealda.  The light is</span><br>
+<span style="color: rgb(192,192,192);">dim, as the dense, high canopy that forms Tauremar covers the sky.  There is</span><br>
+<span style="color: rgb(192,192,192);">little ground cover, and the forest floor is a tranquil place of perpetual</span><br>
+<span style="color: rgb(192,192,192);">twilight.</span><br>
+<span style="color: rgb(192,192,192);">You have no unread notes.</span><br>
+<span style="color: rgb(128,128,0);">You have instructions to meet your old mentor in a clearing just to the east.</span><br>
+<span style="color: rgb(128,128,0);">There you will continue your training. Type '</span><span style="color: rgb(0,128,128);">EXITS</span><span style="color: rgb(128,128,0);">' to see what lies in that </span><br>
+<span style="color: rgb(128,128,0);">direction. Type '</span><span style="color: rgb(0,128,128);">EAST</span><span style="color: rgb(128,128,0);">' to go there.</span><br>
+<br>
+<span style="color: rgb(0,128,128);">&lt;20hp 100m 100mv&gt; </span><br></div>
+
+What's great about this is that it's not a part of the room description, which I want to always keep as IC ("in character in ye olde MUD speak) as possible.
+
+Now that we've told the player to go east, we probably need to start building our area out.
+
+## Room building
+
+In creating our first login event, I sort of put the cart before the horse. My first checklist item is actually to build out the area. Here is the map I came up with, with VNUMs listed for the rooms:
+
+```
+                +-------+   +-------+   +-------+
+                | 12013 |---| 12014 |---| 12015 |
+                +---+---+   +---+---+   +---+---+
+                    |           |           |    
+                +---+---+   +---+---+   +---+---+
+                | 12012 |---| 12018 |---| 12016 |
+                +-------+   +---+---+   +---+---+
+                    |           |           |   
+                +---+---+   +---+---+   +---+---+
+                | 12011 |---| 12010 |---| 12017 |
+                +-------+   +---+---+   +-------+
+      START                     |
+    +-------+   +-------+   +---+---+
+    | 12000 |---| 12002 |---| 12005 |
+    +-------+   +-------+   +-------+
+```
+
+<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p>IMXP, the best way to build an area is to sketch it out first, assigning VNUMs ahead of time. I space VNUM's by 5, but if rooms will be densely packed with mobs and objs, I space by 10. This lets me group obj and mob VNUMs by room in a way that is predictable and easy to manage.</p>
+<p style="margin: 0">Sketch out the area as uniform blocks. Even in my MUD days (late 90's) auto-mappers were ubiquitious, and players were more partial to area layouts that didn't muck with their maps.</p></div>
+
+To demonstrate the two different ways to establish room connections, I'm going to accidentally forget to create room 12002. To instantly buid out rooms, use `DIG` while editing room 12000:
+
+```
+east dig 12002
+```
+
+This created a room with VNUM 12002, and moved you to it. Furthermore, it put you into `REDIT` mode in this new room. Using this, you can chain your commands to quickly sketch out the area.
+
+I also make use of the `LINK` command to add two-way connections between existing rooms. This doesn't move you, however, so I do have one manual move (note that this, unlike traditional movement, cannot be abbreviated; to move west, you must type `west` and not `w`).
+
+```
+east dig 12005
+north dig 12010
+west dig 12011
+north dig 12012
+north dig 12013
+east dig 12014
+east dig 12015
+south dig 12016
+south dig 12017
+west link 12010
+west
+north dig 12018
+west link 12012
+north link 12014
+east link 12016
+asave changed
+```
+
+And with that, our rooms are built out and ready to go (albeit without any descriptions, or anything to even indicate that you have switched rooms).
 
 ## Quest-driven expansion
 
-I've already mentioned a clearing to the east. Now I need to make it. Here's a wonderful shorthand in OLC for building out areas:
-
-```
-redit 12000
-east dig 12005
-```
-
-This creates a new room (VNUM `12005`) and creates a two-way, east-west link between them. After "digging", you are now in the new room, editing it. 
-
-<div style="background-color: rgb(128,128,128,0.1);padding: 1em;margin-bottom: 1em;"><p>IMXP, the best way to build an area is to sketch it out first, assigning VNUMs ahead of time. I space VNUM's by 5, but if rooms will be dense, I space by 10. This lets me group obj and mob VNUMs by room in a way that is predictable and easy to manage.</p>
-<p style="margin: 0">Sketch out the area as uniform blocks. Even in my MUD days (late 90's) auto-mappers were ubiquitious, and players were more partial to area layouts that didn't muck with their maps.</p></div>
-
-Set the new room's attributes as we did before, keeping in mind this is a clearing and there will be a quest mob, here.
+Our little framing story tells the player to seek out an "old mentor" to the east. I need Room 12002 for another purpose, so I'll put him in Room 12005. If you'll recall, one of our story beats for this area is about "Findorian the Forest Speaker".
 
 ### Making the quest mob
 
@@ -806,13 +922,14 @@ race elf
 act sentinel
 off assist_race
 res weapon bash
+faction Cuivealda
 short Findorian, the Woodspeaker
 
 long Findorian, the Woodspeaker, kneels in the grassy clearing, gazing intently at
 the dark woods surrounding you.
 ```
 
-His stats are pretty bland. You can try to figure out what his hitroll and dice, and all that should be, or you can set them to sensible defaults with:
+His stats are pretty bland. You can try to figure out what his hitroll and dice, and all that extra stuff should be, or you can set them to sensible defaults with:
 
 ```
 recval
@@ -821,6 +938,36 @@ recval
 I don't know what that means. But it uses a lookup table in `tables.c` to set default values that the entire MUD, for the most part, adheres to. You can tweak to your preference.
 
 If you want to see these combat ratings on a sample of other mobs in the world, you can use the `MOBLIST` command (not to be confused with `MLIST`, which is only in OLC and is more bare-bones).
+
+Once all the above is done, he should look like this (hit `Enter` in `MEDIT`):
+
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(237,230,203);">Name:        </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">findorian forestspeaker</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Vnum:        </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 12005</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Area:        </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    48</span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(43,69,79);">Faladrin Forest</span><br>
+<span style="color: rgb(237,230,203);">Faction:     </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 12000</span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(43,69,79);">Cuivealda</span><br>
+<span style="color: rgb(237,230,203);">Level:       </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    20</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Sex:     </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  none</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Group:   </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    0</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Align:       </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">     0</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Hitroll: </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">     0</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Dam type: </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">none</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Hit dice:    </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  3d9  + 333</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Damage dice:  </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  2d8  +   5</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Mana dice:   </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 20d12 + 100</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Material:     </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">     unknown</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Race:        </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">         elf</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Size:         </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">      medium</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Start pos.:  </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    standing</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Default pos.: </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    standing</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Wealth:      </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">      0 cp</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> </span><span style="color: rgb(43,69,79);">no coins</span><br>
+<span style="color: rgb(237,230,203);">Armor:       </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(43,69,79);">pierce: </span><span style="color: rgb(112,77,43);">-40</span><span style="color: rgb(43,69,79);">  bash: </span><span style="color: rgb(112,77,43);">-40</span><span style="color: rgb(43,69,79);">  slash: </span><span style="color: rgb(112,77,43);">-40</span><span style="color: rgb(43,69,79);">  magic: </span><span style="color: rgb(112,77,43);">-30</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Affected by: </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">infrared</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">Act:         </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">npc sentinel</span><span style="color: rgb(64,35,30);">]</span><br>
+<span style="color: rgb(237,230,203);">       Form: </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">edible sentient biped mammal</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">      Parts: </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">head arms legs heart brains guts hands feet fingers ear eye</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">        Imm: </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">        Res: </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">charm weapon bash</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">       Vuln: </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">      iron</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">        Off: </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">assist_race</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Short descr: </span><span style="color: rgb(43,69,79);">Findorian, the Forestspeaker</span><br>
+<span style="color: rgb(237,230,203);">Long descr:</span>
+<span style="color: rgb(43,69,79);"> Findorian, the Forestspeaker, kneels in the grassy clearing, gazing intently</span><br>
+<span style="color: rgb(43,69,79);">at the dark woods surrounding you.</span><br><span style="color: rgb(237,230,203);">Description:</span><br>
+<span style="color: rgb(237,230,203);">Lox Class      : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Type '</span><span style="color: rgb(232,178,111);">LOX</span><span style="color: rgb(43,69,79);">' to create one.</span><br>
+<span style="color: rgb(237,230,203);">Events         : </span><span style="color: rgb(112,77,43);">(none)</span><span style="color: rgb(43,69,79);"> Type '</span><span style="color: rgb(232,178,111);">EVENT</span><span style="color: rgb(43,69,79);">' to create one.</span><br></div>
 
 Once you have the mob where you want him, you can set him in place:
 
@@ -832,11 +979,11 @@ done
 asave changed
 ```
 
-Always save your work.
+Note that an instance of Findorian is immediately created in the room with you.
 
 ### Creating the player's first quest
 
-The first quest the elf player will receive is to go see Findorian, who will dispense the next set of quests. Since our first triggerbot will initiate the first quest, I'll use that VNUM:
+The first quest the elf player will receive is to go see Findorian, who will dispense the next set of quests. Since our first room will initiate the first quest, I'll use that VNUM:
 
 ```
 qedit create 12000

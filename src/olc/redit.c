@@ -110,7 +110,8 @@ void do_redit(Mobile* ch, char* argument)
         if (redit_create(ch, argument)) {
             mob_from_room(ch);
             room_data = (RoomData*)ch->desc->pEdit;
-            mob_to_room(ch, AS_ROOM(room_data->instances.front->value));
+            Room* room = get_room_for_player(ch, VNUM_FIELD(room_data));
+            mob_to_room(ch, room);
             SET_BIT(room_data->area_data->area_flags, AREA_CHANGED);
         }
     }

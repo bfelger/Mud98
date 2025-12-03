@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -937,7 +937,10 @@ void do_look(Mobile* ch, char* argument)
         send_to_char(COLOR_EOL, ch);
 
         if (ch->in_room->data->description[0] && !IS_NPC(ch) && !IS_SET(ch->comm_flags, COMM_BRIEF)) {
-            sprintf(buf, COLOR_ROOM_TEXT "  %s" COLOR_CLEAR , ch->in_room->data->description);
+            if (ch->in_room->data->description[0] == ' ')
+                sprintf(buf, COLOR_ROOM_TEXT "%s" COLOR_CLEAR , ch->in_room->data->description);
+            else
+                sprintf(buf, COLOR_ROOM_TEXT "  %s\n\r" COLOR_CLEAR , ch->in_room->data->description);
             send_to_char(buf, ch);
         }
 

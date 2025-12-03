@@ -1337,7 +1337,7 @@ void free_mem(void* pMem, size_t sMem)
 
     //if (IS_OBJ((Value)magic))
     //        return;
-
+    
     if (*magic != MAGIC_NUM) {
         bug("Attempt to recycle invalid memory of size %zu.", sMem);
         bug((char*)mem_addr + sizeof(*magic), 0);

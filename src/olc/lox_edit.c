@@ -13,6 +13,7 @@
 #include <lox/vm.h>
 
 #include <comm.h>
+#include <stringutils.h>
 
 char* prettify_lox_script(char* string);
 
@@ -123,29 +124,27 @@ void lox_script_add(Mobile* ch, char* argument)
 
     if (*argument == '.') {
         char arg1[MAX_INPUT_LENGTH];
-        char arg2[MAX_INPUT_LENGTH];
-        char arg3[MAX_INPUT_LENGTH];
-        char tmparg3[MIL];
 
         READ_ARG(arg1);
-        argument = first_arg(argument, arg2, false);
-        strcpy(tmparg3, argument);
-        argument = first_arg(argument, arg3, false);
 
         if (!str_cmp(arg1, ".clear")) {
-            write_to_buffer(ch->desc, "Script cleared.\n\r", 0);
+            printf_to_char(ch, "Script cleared.\n\r");
             ch->desc->pLoxScript = lox_string("");
             return;
         }
         else if (!str_cmp(arg1, ".s")) {
-            write_to_buffer(ch->desc, "Script so far:\n\r", 0);
+            printf_to_char(ch, "Script so far:\n\r");
             send_to_char(prettify_lox_script(ch->desc->pLoxScript->chars), ch);
             return;
         }
         else if (!str_cmp(arg1, ".r")) {
+            char arg2[MAX_INPUT_LENGTH];
+            char arg3[MAX_INPUT_LENGTH];
+            argument = first_arg(argument, arg2, false);
+            argument = first_arg(argument, arg3, false);
+
             if (arg2[0] == '\0') {
-                write_to_buffer(ch->desc,
-                    "usage:  .r \"old script\" \"new script\"\n\r", 0);
+                printf_to_char(ch, "usage:  .r \"old script\" \"new script\"\n\r");
                 return;
             }
 
@@ -160,39 +159,51 @@ void lox_script_add(Mobile* ch, char* argument)
             //TODO: This is coming. But not quite yet.
             //*ch->desc->pLoxScript = format_string(*ch->desc->pLoxScript);
             //write_to_buffer(ch->desc, "Script formatted.\n\r", 0);
-            write_to_buffer(ch->desc, "Lox script formatting not yet supported."
-                "\n\r", 0);
+            printf_to_char(ch, "Lox script formatting not yet supported.\n\r");
             return;
         }
         else if (!str_cmp(arg1, ".ld")) {
+            char arg2[MAX_INPUT_LENGTH];
+            argument = first_arg(argument, arg2, false);
             char* str = linedel(ch->desc->pLoxScript->chars, atoi(arg2));
             ch->desc->pLoxScript = lox_string(str);
             free_string(str);
-            write_to_buffer(ch->desc, "Line deleted.\n\r", 0);
+            printf_to_char(ch, "Line deleted.\n\r");
             return;
         }
         else if (!str_cmp(arg1, ".li")) {
-            if (ch->desc->pLoxScript->length + strlen(tmparg3) >=
+            char arg2[MAX_INPUT_LENGTH];
+            argument = first_arg(argument, arg2, false);
+            int line_num = atoi(arg2);
+
+            // Rewind argument to capture the padding spaces (minus 1).
+            while (ISSPACE(*(argument-1)))
+                argument--;
+
+            if (ch->desc->pLoxScript->length + strlen(argument) >=
                 (MAX_STRING_LENGTH - 4)) {
-                write_to_buffer(
-                    ch->desc,
-                    "That would make the full text too long; delete a line first.\n\r",
-                    0);
+                printf_to_char(ch, "That would make the full text too long; delete a line first.\n\r");
                 return;
             }
 
-            char* str = lineadd(ch->desc->pLoxScript->chars, tmparg3, atoi(arg2));
+            char* str = lineadd(ch->desc->pLoxScript->chars, argument, line_num);
             ch->desc->pLoxScript = lox_string(str);
             free_string(str);
-            write_to_buffer(ch->desc, "Line inserted.\n\r", 0);
+            printf_to_char(ch, "Line inserted.\n\r");
             return;
         }
         else if (!str_cmp(arg1, ".lr")) {
+            
+            char arg2[MAX_INPUT_LENGTH];
+            char tmparg3[MIL];
+
+            argument = first_arg(argument, arg2, false);
+            strcpy(tmparg3, argument);
             char* str = str_dup(ch->desc->pLoxScript->chars);
             str = linedel(str, atoi(arg2));
             str = lineadd(str, tmparg3, atoi(arg2));
             ch->desc->pLoxScript = lox_string(str);
-            write_to_buffer(ch->desc, "Line replaced.\n\r", 0);
+            printf_to_char(ch, "Line replaced.\n\r");
             return;
         }
         else if (!str_cmp(arg1, ".v")) {
@@ -222,15 +233,13 @@ void lox_script_add(Mobile* ch, char* argument)
             return;
         }
 
-        write_to_buffer(ch->desc, "LoxEdit:  Invalid dot command.\n\r", 0);
+        printf_to_char(ch, "LoxEdit:  Invalid dot command.\n\r");
         return;
     }
     else if (*argument == '@') {
         if (ch->desc->showstr_head) {
-            write_to_buffer(ch->desc,
-                COLOR_INFO "[" COLOR_DECOR_1 "!!!" COLOR_INFO "] You received the following messages while you "
-                "were writing:" COLOR_EOL,
-                0);
+            printf_to_char(ch, COLOR_INFO "[" COLOR_DECOR_1 "!!!" COLOR_INFO "] You received the following messages while you "
+                "were writing:" COLOR_EOL);
             show_string(ch->desc, "");
         }
 
@@ -243,7 +252,7 @@ void lox_script_add(Mobile* ch, char* argument)
 
     // Truncate strings to MAX_STRING_LENGTH.
     if (strlen(buf) + strlen(argument) >= (MAX_STRING_LENGTH - 4)) {
-        write_to_buffer(ch->desc, "String too long, last line skipped.\n\r", 0);
+        printf_to_char(ch, "String too long, last line skipped.\n\r");
 
         /* Force character out of editing mode. */
         ch->desc->pLoxScript = NULL;

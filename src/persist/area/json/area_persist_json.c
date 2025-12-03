@@ -507,7 +507,14 @@ static PersistResult parse_rooms(json_t* root, AreaData* area)
         }
 
         room->room_flags = flags_from_array(json_object_get(r, "roomFlags"), room_flag_table);
-        room->sector_type = (Sector)json_int_or_default(r, "sectorType", room->sector_type);
+        json_t* sector_val = json_object_get(r, "sectorType");
+        if (json_is_string(sector_val)) {
+            FLAGS s = flag_lookup(json_string_value(sector_val), sector_flag_table);
+            if (s != NO_FLAG)
+                room->sector_type = (Sector)s;
+        }
+        else
+            room->sector_type = (Sector)json_int_or_default(r, "sectorType", room->sector_type);
         room->mana_rate = (int16_t)json_int_or_default(r, "manaRate", room->mana_rate);
         room->heal_rate = (int16_t)json_int_or_default(r, "healRate", room->heal_rate);
         room->clan = (int16_t)json_int_or_default(r, "clan", room->clan);
