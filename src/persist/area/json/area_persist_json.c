@@ -604,7 +604,7 @@ static json_t* build_affect(const Affect* af)
     json_t* obj = json_object();
     if (af->type >= 0 && af->type < skill_count && skill_table[af->type].name)
         json_object_set_new(obj, "type", json_string(skill_table[af->type].name));
-    else
+    else if (af->type != -1)
         json_object_set_new(obj, "type", json_integer(af->type));
 
     const char* where_name = flag_string(apply_types, af->where);

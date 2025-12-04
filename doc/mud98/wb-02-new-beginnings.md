@@ -1076,34 +1076,34 @@ Here are the new commands used in this script, and what they do:
 After compiling the script and trying it with a new characters, this is what the player sees:
 
 <div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(0,128,128); background: rgb(0,0,0); ">You step off the end of an old rope ladder at the base of Cuivealda, the Tree of</span><br>
-<span style="color: rgb(0,128,128); background: rgb(0,0,0); ">Awakening. Your years in the nurturing hands of the Tetyayath have come to an </span><br>
-<span style="color: rgb(0,128,128); background: rgb(0,0,0); ">end.</span><br>
+<span style="color: rgb(0,128,128);">You step off the end of an old rope ladder at the base of Cuivealda, the Tree of</span><br>
+<span style="color: rgb(0,128,128);">Awakening. Your years in the nurturing hands of the Tetyayath have come to an </span><br>
+<span style="color: rgb(0,128,128);">end.</span><br>
 <br>
-<span style="color: rgb(0,128,128); background: rgb(0,0,0); ">Now you must go out into the world and find your destiny...</span><br>
+<span style="color: rgb(0,128,128);">Now you must go out into the world and find your destiny...</span><br>
 <br>
-<span style="color: rgb(0,128,128); background: rgb(0,0,0); ">The Awakening</span><br>
-<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">    You stand next to the great old trunk of Cuivealda.  The light is</span><br>
-<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">dim, as the dense, high canopy that forms Tauremar covers the sky.  There is</span><br>
-<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">little ground cover, and the forest floor is a tranquil place of perpetual</span><br>
-<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">twilight.</span><br>
-<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">You have no unread notes.</span><br>
-<span style="color: rgb(128,128,0); background: rgb(0,0,0); ">You have instructions to meet your old mentor in a clearing just to the east.</span><br>
-<span style="color: rgb(128,128,0); background: rgb(0,0,0); ">There you will continue your training. Type '</span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">EXITS</span><span style="color: rgb(128,128,0); background: rgb(0,0,0); ">' to see what lies in that </span><br>
-<span style="color: rgb(128,128,0); background: rgb(0,0,0); ">direction. Type '</span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">EAST</span><span style="color: rgb(128,128,0); background: rgb(0,0,0); ">' to go there.</span><br>
+<span style="color: rgb(0,128,128);">The Awakening</span><br>
+<span style="color: rgb(192,192,192);">    You stand next to the great old trunk of Cuivealda.  The light is</span><br>
+<span style="color: rgb(192,192,192);">dim, as the dense, high canopy that forms Tauremar covers the sky.  There is</span><br>
+<span style="color: rgb(192,192,192);">little ground cover, and the forest floor is a tranquil place of perpetual</span><br>
+<span style="color: rgb(192,192,192);">twilight.</span><br>
+<span style="color: rgb(192,192,192);">You have no unread notes.</span><br>
+<span style="color: rgb(128,128,0);">You have instructions to meet your old mentor in a clearing just to the east.</span><br>
+<span style="color: rgb(128,128,0);">There you will continue your training. Type '</span><span style="color: rgb(0,128,128);">EXITS</span><span style="color: rgb(128,128,0);">' to see what lies in that </span><br>
+<span style="color: rgb(128,128,0);">direction. Type '</span><span style="color: rgb(0,128,128);">EAST</span><span style="color: rgb(128,128,0);">' to go there.</span><br>
 <br>
-<span style="color: rgb(128,128,0); background: rgb(0,0,0); ">You have started the quest, </span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">"An Old Friend</span><span style="color: rgb(128,128,0); background: rgb(0,0,0); ">".</span><br>
-<span style="color: rgb(128,128,0); background: rgb(0,0,0); ">Type '</span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">QUEST</span><span style="color: rgb(128,128,0); background: rgb(0,0,0); ">' to view your quest log.</span><br></div>
+<span style="color: rgb(128,128,0);">You have started the quest, </span><span style="color: rgb(0,128,128);">"An Old Friend</span><span style="color: rgb(128,128,0);">".</span><br>
+<span style="color: rgb(128,128,0);">Type '</span><span style="color: rgb(0,128,128);">QUEST</span><span style="color: rgb(128,128,0);">' to view your quest log.</span><br></div>
 
 Here is what they see when they type `QUEST`:
 
 <div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(0,128,128); background: rgb(0,0,0); ">Active Quests in Faladrin Forest:</span><br>
-<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">1. </span><span style="color: rgb(255,255,255); background: rgb(0,0,0); ">An Old Friend </span><span style="color: rgb(0,0,255); background: rgb(0,0,0); ">[</span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">Level 1</span><span style="color: rgb(0,0,255); background: rgb(0,0,0); ">] </span><br>
-<span style="color: rgb(128,128,128); background: rgb(0,0,0); ">Before you step out into the greater world, you must be trained.  To that</span><br>
-<span style="color: rgb(128,128,128); background: rgb(0,0,0); ">end, your old mentor Findorian has has taken the responsibility to ensure</span><br>
-<span style="color: rgb(128,128,128); background: rgb(0,0,0); ">you are properly made ready.  He waits for you just to the east of</span><br>
-<span style="color: rgb(128,128,128); background: rgb(0,0,0); ">Cuivealda.</span><br></div>
+<span style="color: rgb(0,128,128);">Active Quests in Faladrin Forest:</span><br>
+<span style="color: rgb(192,192,192);">1. </span><span style="color: rgb(255,255,255);">An Old Friend </span><span style="color: rgb(0,0,255);">[</span><span style="color: rgb(0,128,128);">Level 1</span><span style="color: rgb(0,0,255);">] </span><br>
+<span style="color: rgb(128,128,128);">Before you step out into the greater world, you must be trained.  To that</span><br>
+<span style="color: rgb(128,128,128);">end, your old mentor Findorian has has taken the responsibility to ensure</span><br>
+<span style="color: rgb(128,128,128);">you are properly made ready.  He waits for you just to the east of</span><br>
+<span style="color: rgb(128,128,128);">Cuivealda.</span><br></div>
 
 This list will obviously grow as the player progresses. World quests (those outside their immediate area) will be displayed as a collapsed list below. Completed quests are hidden.
 
@@ -1141,24 +1141,24 @@ asave changed
 So, how did we do? This is what a new character sees when they enter the room with Findorian:
 
 <div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(0,128,128); background: rgb(0,0,0); ">The Training Ground</span><br>
-<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">  Dappled sunlight breaks through the canopy in this clearing.  A patch of</span><br>
-<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">grass grows, green and vibrant, in the center.  Dark pathways through the</span><br>
-<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">trees go out in all directions.</span><br>
-<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">  </span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">[</span><span style="color: rgb(255,255,0); background: rgb(0,0,0); ">?</span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">]</span><span style="color: rgb(192,192,192); background: rgb(0,0,0); "> Findorian, the Forestspeaker, kneels in the grassy clearing, gazing</span><br>
-<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">intently at the dark woods surrounding you.</span><br><span style="color: rgb(0,128,0); background: rgb(0,0,0); ">Findorian, the Forestspeaker says </span>
-<span style="color: rgb(0,128,0); background: rgb(0,0,0); ">'</span><span style="color: rgb(0,255,0); background: rgb(0,0,0); ">There you are, Elithir; I'm glad to see you. I wish I could ease you into the </span><br>
-<span style="color: rgb(0,255,0); background: rgb(0,0,0); ">brutal World Below, but we have no such luck.</span><span style="color: rgb(0,128,0); background: rgb(0,0,0); ">'</span><br>
-<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">Findorian, the Forestspeaker sighs.</span><br>
-<span style="color: rgb(0,128,0); background: rgb(0,0,0); ">Findorian, the Forestspeaker says '</span><span style="color: rgb(0,255,0); background: rgb(0,0,0); ">I need your help with something, and it's not</span><br>
-<span style="color: rgb(0,255,0); background: rgb(0,0,0); ">going to be pleasant.</span><span style="color: rgb(0,128,0); background: rgb(0,0,0); ">'</span><br>
+<span style="color: rgb(0,128,128);">The Training Ground</span><br>
+<span style="color: rgb(192,192,192);">  Dappled sunlight breaks through the canopy in this clearing.  A patch of</span><br>
+<span style="color: rgb(192,192,192);">grass grows, green and vibrant, in the center.  Dark pathways through the</span><br>
+<span style="color: rgb(192,192,192);">trees go out in all directions.</span><br>
+<span style="color: rgb(192,192,192);">  </span><span style="color: rgb(0,128,128);">[</span><span style="color: rgb(255,255,0);">?</span><span style="color: rgb(0,128,128);">]</span><span style="color: rgb(192,192,192);"> Findorian, the Forestspeaker, kneels in the grassy clearing, gazing</span><br>
+<span style="color: rgb(192,192,192);">intently at the dark woods surrounding you.</span><br>
+<span style="color: rgb(0,128,0);">Findorian, the Forestspeaker says '</span><span style="color: rgb(0,255,0);">There you are, Elithir; I'm glad to see you.</span><br>
+<span style="color: rgb(0,255,0);">I wish I could ease you into the brutal World Below, but we have no such luck.</span><span style="color: rgb(0,128,0);">'</span><br>
+<span style="color: rgb(192,192,192);">Findorian, the Forestspeaker sighs.</span><br>
+<span style="color: rgb(0,128,0);">Findorian, the Forestspeaker says '</span><span style="color: rgb(0,255,0);">I need your help with something, and it's not</span><br>
+<span style="color: rgb(0,255,0);">going to be pleasant.</span><span style="color: rgb(0,128,0);">'</span><br>
 <br>
-<span style="color: rgb(128,128,0); background: rgb(0,0,0); ">You have completed the quest, "</span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">An Old Friend</span><span style="color: rgb(128,128,0); background: rgb(0,0,0); ">".</span><br>
-<span style="color: rgb(128,128,0); background: rgb(0,0,0); ">You have been awarded </span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">100</span><span style="color: rgb(128,128,0); background: rgb(0,0,0); "> xp.</span><br>
-<span style="color: rgb(128,128,0); background: rgb(0,0,0); ">You receive </span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">10 copper</span><span style="color: rgb(128,128,0); background: rgb(0,0,0); ">.</span><br>
-<span style="color: rgb(128,128,0); background: rgb(0,0,0); ">Your reputation with Tauremar increases (Neutral -&gt; Friendly).</span><br></div>
+<span style="color: rgb(128,128,0);">You have completed the quest, "</span><span style="color: rgb(0,128,128);">An Old Friend</span><span style="color: rgb(128,128,0);">".</span><br>
+<span style="color: rgb(128,128,0);">You have been awarded </span><span style="color: rgb(0,128,128);">100</span><span style="color: rgb(128,128,0);"> xp.</span><br>
+<span style="color: rgb(128,128,0);">You receive </span><span style="color: rgb(0,128,128);">10 copper</span><span style="color: rgb(128,128,0);">.</span><br>
+<span style="color: rgb(128,128,0);">Your reputation with Tauremar increases (Neutral -&gt; Friendly).</span><br></div>
 
-The player has now completed their first quest. I could have done a more "automated" way of handling quests that didn't involve events, but I believe this method requires builders to create a more customized and narrative experience around levelling.
+The player has now completed their first quest, and gotten rep with their starting faction. I could have done a more "automated" way of handling quests that didn't involve events, but I believe this method requires builders to create a more customized and narrative experience around levelling.
 
 The `[?]` symbol in front of Findorian's name is a short-hand from MMO's meaning "this person is ready to complete your quest." In this case, the process was automated. Other quests may require some interaction. It's up to you.
 
