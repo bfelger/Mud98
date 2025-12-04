@@ -32,6 +32,15 @@
         || (c >= 'A' && c <='F')            \
         || (c >= 'a' && c <= 'f'))
 
+#define DISPLAY_HELP()                      \
+    {                                       \
+        send_to_char(help, ch);             \
+        if (ch->pcdata->security >= 9)      \
+            send_to_char(sec_9_help, ch);   \
+        send_to_char(COLOR_EOL, ch);        \
+        return;                             \
+    }
+
 static const char* theme_change_warning = COLOR_INFO "You have have made changes to your "
     "active theme that must either be saved with " COLOR_ALT_TEXT_1 "THEME SAVE" COLOR_INFO " or discarded "
     "with " COLOR_ALT_TEXT_1 "THEME DISCARD" COLOR_CLEAR ".\n\r";
@@ -1114,11 +1123,37 @@ static void do_theme_set(Mobile* ch, char* argument)
         "USAGE: " COLOR_ALT_TEXT_1 "THEME SET NAME <name>\n\r"
         "       THEME SET BANNER <banner>\n\r"
         "       THEME SET PUBLIC\n\r"
-        "       THEME SET PRIVATE" COLOR_EOL
-        "\n\r";
+        "       THEME SET PRIVATE\n\r";
+    static const char* sec_9_help = 
+        "       THEME SET SYSTEM DEFAULT <system theme>\n\r";
 
     ColorTheme* theme = ch->pcdata->current_theme;
+    char opt[50] = { 0 };
 
+    READ_ARG(opt);
+
+    if (!str_prefix(opt, "system")) {
+        if (IS_NPC(ch) || ch->pcdata->security < 9) {
+            send_to_char(COLOR_INFO "You don't have permission to do that." COLOR_EOL, ch);
+            return;
+        }
+        char sub[MAX_INPUT_LENGTH] = { 0 };
+        READ_ARG(sub);
+        if (str_prefix(sub, "default") || !argument || !argument[0]) {
+            DISPLAY_HELP();
+            return;
+        }
+        if (!color_set_default_system_theme(argument)) {
+            printf_to_char(ch, COLOR_INFO "Could not find the system theme '%s'." COLOR_EOL, argument);
+            return;
+        }
+        const ColorTheme* def = get_default_system_color_theme();
+        if (def)
+            printf_to_char(ch, COLOR_INFO "System default theme is now '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "'. Use THEME SAVE SYSTEM to persist." COLOR_EOL, def->name);
+        else
+            send_to_char(COLOR_INFO "System default theme updated. Use THEME SAVE SYSTEM to persist." COLOR_EOL, ch);
+        return;
+    }
     if (theme == NULL) {
         send_to_char(COLOR_INFO "You do not have a color theme active. You can use "
             COLOR_ALT_TEXT_1 "THEME SELECT" COLOR_INFO " to choose one, or " COLOR_ALT_TEXT_1 "THEME CREATE" COLOR_INFO " to make a new "
@@ -1126,18 +1161,13 @@ static void do_theme_set(Mobile* ch, char* argument)
         return;
     }
 
-    char opt[50] = { 0 };
-
-    READ_ARG(opt);
-
     if (!opt[0] || !str_prefix(opt, "help")) {
-        send_to_char(help, ch);
+        DISPLAY_HELP();
         return;
     }
-
-    if (!str_prefix(opt, "name")) {
+    else if (!str_prefix(opt, "name")) {
         if (!argument || !argument[0]) {
-            send_to_char(help, ch);
+            DISPLAY_HELP();
             return;
         }
 
@@ -1154,7 +1184,7 @@ static void do_theme_set(Mobile* ch, char* argument)
     }
     else if (!str_prefix(opt, "banner")) {
         if (!argument || !argument[0]) {
-            send_to_char(help, ch);
+            DISPLAY_HELP();
             return;
         }
 
@@ -1175,7 +1205,7 @@ static void do_theme_set(Mobile* ch, char* argument)
         send_to_char(COLOR_INFO "This theme is now private." COLOR_EOL, ch);
     }
     else
-        send_to_char(help, ch);
+        DISPLAY_HELP();
 }
 
 static void do_theme_show(Mobile* ch, char* argument)
@@ -1742,7 +1772,8 @@ const ColorChannelEntry color_slot_entries[COLOR_SLOT_COUNT] = {
 // Theme Helpers
 ////////////////////////////////////////////////////////////////////////////////
 
-#define THEME_ENTRY_ANSI(l, c, s)       {                                      .mode = COLOR_MODE_16,                                                     .code = { l, c, 0 },                                                       .cache = s,                                                                .xterm = NULL                                                          }
+#define THEME_ENTRY_ANSI(l, c, s) \
+    { .mode = COLOR_MODE_16, .code = { l, c, 0 }, .cache = s, .xterm = NULL }
 
 #define ANSI_WHITE                  THEME_ENTRY_ANSI(NORMAL, WHITE,     "\033[37m")
 #define ANSI_BLACK                  THEME_ENTRY_ANSI(NORMAL, BLACK,     "\033[30m")
@@ -1821,7 +1852,40 @@ bool color_register_system_themes(ColorTheme** themes, int count)
     return true;
 }
 
-const ColorTheme* get_default_system_color_theme(void)
+bool color_set_default_system_theme(const char* name)
+{
+    if (!name || !name[0])
+        return false;
+
+    if (!system_color_themes || system_color_theme_count == 0)
+        load_system_color_themes();
+
+    if (!system_color_themes || system_color_theme_count == 0)
+        return false;
+
+    if (!loaded_system_color_themes)
+        return false;
+
+    int target = -1;
+    for (int i = 0; i < system_color_theme_count; ++i) {
+        if (system_color_themes[i] && !str_cmp(system_color_themes[i]->name, name)) {
+            target = i;
+            break;
+        }
+    }
+
+    if (target < 0)
+        return false;
+    if (target == 0)
+        return true;
+
+    ColorTheme* tmp = loaded_system_color_themes[0];
+    loaded_system_color_themes[0] = loaded_system_color_themes[target];
+    loaded_system_color_themes[target] = tmp;
+    return true;
+}
+
+const ColorTheme* get_default_system_color_theme()
 {
     if (!system_color_themes || system_color_theme_count == 0)
         load_system_color_themes();
@@ -1829,15 +1893,10 @@ const ColorTheme* get_default_system_color_theme(void)
     if (!system_color_themes || system_color_theme_count == 0)
         return NULL;
 
-    static const char* default_name = "Lope";
-    for (int i = 0; i < system_color_theme_count; ++i) {
-        if (system_color_themes[i] && !str_cmp(system_color_themes[i]->name, default_name))
-            return system_color_themes[i];
-    }
     return system_color_themes[0];
 }
 
-void load_system_color_themes(void)
+void load_system_color_themes()
 {
     PersistResult res = theme_persist_load(NULL);
     if (!persist_succeeded(res)) {

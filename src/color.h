@@ -242,9 +242,10 @@ void set_color_256(Color* color, uint8_t index);
 void set_color_palette_ref(Color* color, uint8_t index);
 void set_color_rgb(Color* color, uint8_t r, uint8_t g, uint8_t b);
 void set_default_colors(Mobile* ch);
-void load_system_color_themes(void);
+void load_system_color_themes();
 bool color_register_system_themes(ColorTheme** themes, int count);
-const ColorTheme* get_default_system_color_theme(void);
+const ColorTheme* get_default_system_color_theme();
+bool color_set_default_system_theme(const char* name);
 
 #define LOOKUP_COLOR_SLOT_CODE(s, c)                                        \
     for (int i_c = 0; i_c < COLOR_SLOT_COUNT; ++i_c)                        \
