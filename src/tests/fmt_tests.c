@@ -19,7 +19,7 @@ TestGroup fmt_tests = { 0 };
 static int test_lox_edit()
 {
     Mobile* pc = mock_player("Jim");
-    pc->pcdata->current_theme = dup_color_theme(system_color_themes[SYSTEM_COLOR_THEME_LOPE]);
+    pc->pcdata->current_theme = dup_color_theme(get_default_system_color_theme());
     SET_BIT(pc->act_flags, PLR_COLOUR);
 
     char* src =
@@ -71,7 +71,7 @@ static int test_lox_edit()
 static int test_lox_edit2()
 {
     Mobile* pc = mock_player("Jim");
-    pc->pcdata->current_theme = dup_color_theme(system_color_themes[SYSTEM_COLOR_THEME_LOPE]);
+    pc->pcdata->current_theme = dup_color_theme(get_default_system_color_theme());
     SET_BIT(pc->act_flags, PLR_COLOUR);
 
     char* src =

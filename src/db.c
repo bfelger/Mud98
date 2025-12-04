@@ -32,6 +32,7 @@
 #include "act_move.h"
 #include "act_wiz.h"
 #include "ban.h"
+#include "color.h"
 #include "comm.h"
 #include "config.h"
 #include "handler.h"
@@ -220,6 +221,7 @@ void boot_db()
 
     load_social_table();
     load_skill_group_table();
+    load_system_color_themes();
 
     // I uncomment these as I transmogrify file formats.
     //save_class_table();

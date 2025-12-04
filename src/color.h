@@ -214,16 +214,6 @@ typedef struct color_theme_t {
     Color channels[COLOR_SLOT_COUNT];
 } ColorTheme;
 
-typedef enum {
-    SYSTEM_COLOR_THEME_LOPE,
-    SYSTEM_COLOR_THEME_MONO,
-    SYSTEM_COLOR_THEME_COOL_CAT,
-    SYSTEM_COLOR_THEME_CITY,
-    SYSTEM_COLOR_THEME_POP,
-} SystemColorTheme;
-
-#define SYSTEM_COLOR_THEME_COUNT 5
-
 typedef struct ansi_palette_entry_t {
     const char* name;
     uint8_t bright;
@@ -232,8 +222,9 @@ typedef struct ansi_palette_entry_t {
 } AnsiPaletteEntry;
 
 extern const AnsiPaletteEntry ansi_palette[];
-extern const ColorTheme* system_color_themes[];
 extern const ColorChannelEntry color_slot_entries[];
+extern const ColorTheme** system_color_themes;
+extern int system_color_theme_count;
 
 char* bg_color_to_str(const ColorTheme* theme, const Color* color, bool xterm);
 char* color_to_str(ColorTheme* theme, Color* color, bool xterm);
@@ -251,6 +242,9 @@ void set_color_256(Color* color, uint8_t index);
 void set_color_palette_ref(Color* color, uint8_t index);
 void set_color_rgb(Color* color, uint8_t r, uint8_t g, uint8_t b);
 void set_default_colors(Mobile* ch);
+void load_system_color_themes(void);
+bool color_register_system_themes(ColorTheme** themes, int count);
+const ColorTheme* get_default_system_color_theme(void);
 
 #define LOOKUP_COLOR_SLOT_CODE(s, c)                                        \
     for (int i_c = 0; i_c < COLOR_SLOT_COUNT; ++i_c)                        \

@@ -179,6 +179,7 @@
 #define DEFAULT_SOCIALS_FILE        "socials.olc"
 #define DEFAULT_GROUPS_FILE         "groups.olc"
 #define DEFAULT_SKILLS_FILE         "skills.olc"
+#define DEFAULT_THEMES_FILE         "themes.olc"
 #define DEFAULT_COMMANDS_FILE       "commands.olc"
 #define DEFAULT_RACES_FILE          "races.olc"
 #define DEFAULT_CLASSES_FILE        "classes.olc"
@@ -263,6 +264,7 @@ DEFINE_DIR_CONFIG(scripts_dir,      DEFAULT_SCRIPTS_DIR)
 DEFINE_FILE_CONFIG(socials_file,    data_dir,   DEFAULT_SOCIALS_FILE)
 DEFINE_FILE_CONFIG(groups_file,     data_dir,   DEFAULT_GROUPS_FILE)
 DEFINE_FILE_CONFIG(skills_file,     data_dir,   DEFAULT_SKILLS_FILE)
+DEFINE_FILE_CONFIG(themes_file,     data_dir,   DEFAULT_THEMES_FILE)
 DEFINE_FILE_CONFIG(commands_file,   data_dir,   DEFAULT_COMMANDS_FILE)
 DEFINE_FILE_CONFIG(races_file,      data_dir,   DEFAULT_RACES_FILE)
 DEFINE_FILE_CONFIG(classes_file,    data_dir,   DEFAULT_CLASSES_FILE)
@@ -365,6 +367,7 @@ const ConfigEntry config_entries[] = {
     { "socials_file",       CFG_STR,    U(cfg_set_socials_file)         },
     { "groups_file",        CFG_STR,    U(cfg_set_groups_file)          },
     { "skills_file",        CFG_STR,    U(cfg_set_skills_file)          },
+    { "themes_file",        CFG_STR,    U(cfg_set_themes_file)          },
     { "commands_file",      CFG_STR,    U(cfg_set_commands_file)        },
     { "races_file",         CFG_STR,    U(cfg_set_races_file)           },
     { "classes_file",       CFG_STR,    U(cfg_set_classes_file)         },

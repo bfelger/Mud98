@@ -41,6 +41,8 @@
 #include "tables.h"
 #include "vt.h"
 
+#include <persist/theme/rom-olc/theme_rom_olc_io.h>
+
 #include <entities/descriptor.h>
 #include <entities/object.h>
 #include <entities/faction.h>
@@ -343,20 +345,6 @@ void fwrite_char(Mobile* ch, FILE* fp)
     return;
 }
 
-static void fwrite_palette(Color* color, int index, FILE* fp)
-{
-    // Extra reserved value for future use.
-    fprintf(fp, "Palette %d %u %u %u %u 0\n", index, color->mode, color->code[0], 
-        color->code[1], color->code[2]);
-}
-
-static void fwrite_channel(Color* color, const char* channel, FILE* fp)
-{
-    // Extra reserved value for future use.
-    fprintf(fp, "Channel %s %u %u %u %u 0\n", channel, color->mode, color->code[0],
-        color->code[1], color->code[2]);
-}
-
 void fwrite_themes(Mobile* ch, FILE* fp)
 {
     for (int i = 0; i < MAX_THEMES; ++i) {
@@ -364,19 +352,7 @@ void fwrite_themes(Mobile* ch, FILE* fp)
             continue;
 
         ColorTheme* theme = ch->pcdata->color_themes[i];
-        fprintf(fp, "#THEME\n");
-        fprintf(fp, "Name %s~\n", theme->name);
-        fprintf(fp, "Banner %s~\n", theme->banner);
-        fprintf(fp, "Info %d %d %d %d\n", theme->type, theme->mode, 
-            theme->palette_max, theme->is_public);
-        
-        for (int j = 0; j < theme->palette_max; ++j)
-            fwrite_palette(&theme->palette[j], j, fp);
-
-        for (int j = 0; j < COLOR_SLOT_COUNT; ++j)
-            fwrite_channel(&theme->channels[j], color_slot_entries[j].name, fp);
-
-        fprintf(fp, "End\n\n");
+        theme_rom_olc_write_theme(fp, theme, "End");
     }
 }
 
@@ -734,12 +710,17 @@ bool load_char_obj(Descriptor* d, char* name)
         ColorTheme* theme = lookup_color_theme(ch, theme_name);
         if (!theme) {
             free_string(theme_name);
-            theme = (ColorTheme*)system_color_themes[SYSTEM_COLOR_THEME_LOPE];
-            ch->pcdata->theme_config.current_theme_name = str_dup(theme->name);
+            theme = (ColorTheme*)get_default_system_color_theme();
+            if (theme)
+                ch->pcdata->theme_config.current_theme_name = str_dup(theme->name);
+            else
+                ch->pcdata->theme_config.current_theme_name = NULL;
         }
-        if (ch->pcdata->current_theme)
-            free_color_theme(ch->pcdata->current_theme);
-        ch->pcdata->current_theme = dup_color_theme(theme);
+        if (theme) {
+            if (ch->pcdata->current_theme)
+                free_color_theme(ch->pcdata->current_theme);
+            ch->pcdata->current_theme = dup_color_theme(theme);
+        }
         set_default_colors(ch);
     }
 
@@ -1695,98 +1676,19 @@ void fread_obj(Mobile* ch, FILE* fp)
 
 void fread_theme(Mobile* ch, FILE* fp)
 {
-    ColorTheme theme = { 0 };
-    bool fMatch;
-    char* word;
+    ColorTheme* theme = theme_rom_olc_read_theme(fp, "End", NAME_STR(ch));
+    if (!theme)
+        return;
 
-    for (;;) {
-        word = feof(fp) ? "End" : fread_word(fp);
-        fMatch = false;
-        switch (UPPER(word[0])) {
-        case 'B':
-            KEY("Banner", theme.banner, fread_string(fp));
-            break;
-        case 'C':
-            if (!str_cmp(word, "Channel")) {
-                char* chan = fread_word(fp);
-                int mode = fread_number(fp);
-                uint8_t code_0 = (uint8_t)fread_number(fp);
-                uint8_t code_1 = (uint8_t)fread_number(fp);
-                uint8_t code_2 = (uint8_t)fread_number(fp);
-                fread_number(fp); // reserved
-                int slot = -1;
-                LOOKUP_COLOR_SLOT_NAME(slot, chan);
-                if (slot < 0 || slot > COLOR_SLOT_COUNT) {
-                    bugf("fread_theme(%s): bad channel name '%s'.", 
-                        NAME_STR(ch), chan);
-                    break;
-                }
-                theme.channels[slot] = (Color){ 
-                    .mode = mode, 
-                    .code = { code_0, code_1, code_2 }, 
-                    .cache = NULL, 
-                    .xterm = NULL 
-                };
-                fMatch = true;
-                break;
-            }
-            break;
-        case 'E':
-            if (!str_cmp(word, "End")) {
-                for (int i = 0; i < MAX_THEMES; ++i) {
-                    if (!ch->pcdata->color_themes[i]) {
-                        ch->pcdata->color_themes[i] = new_color_theme();
-                        *ch->pcdata->color_themes[i] = theme;
-                        return;
-                    }
-                }
-                bugf("Could not find a free color theme slot for %s.",
-                    NAME_STR(ch));
-                return;
-            }
-            break;
-        case 'I':
-            if (!str_cmp(word, "Info")) {
-                theme.type = fread_number(fp);
-                theme.mode = fread_number(fp);
-                theme.palette_max = fread_number(fp);
-                theme.is_public = fread_number(fp);
-                fMatch = true;
-                break;
-            }
-            break;
-        case 'P':
-            if (!str_cmp(word, "Palette")) {
-                int idx = fread_number(fp);
-                int mode = fread_number(fp);
-                uint8_t code_0 = (uint8_t)fread_number(fp);
-                uint8_t code_1 = (uint8_t)fread_number(fp);
-                uint8_t code_2 = (uint8_t)fread_number(fp);
-                fread_number(fp); // reserved
-                theme.palette[idx] = (Color){
-                    .mode = mode,
-                    .code = { code_0, code_1, code_2 },
-                    .cache = NULL, 
-                    .xterm = NULL
-                };
-                fMatch = true;
-                break;
-            }
-            break;
-        case 'N':
-            KEY("Name", theme.name, fread_string(fp));
-            break;
-        default:
-            break;
-        }
-
-        if (!fMatch) {
-            bugf("Fread_theme: no match for '%'.", word);
-            fread_to_eol(fp);
+    for (int i = 0; i < MAX_THEMES; ++i) {
+        if (!ch->pcdata->color_themes[i]) {
+            ch->pcdata->color_themes[i] = theme;
+            return;
         }
     }
 
-    
+    bugf("Could not find a free color theme slot for %s.", NAME_STR(ch));
+    free_color_theme(theme);
 }
 
 void fread_quests(Mobile* ch, FILE* fp)

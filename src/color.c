@@ -6,11 +6,14 @@
 #include "color.h"
 
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "digest.h"
 #include "handler.h"
 #include "save.h"
 #include "vt.h"
+
+#include <persist/theme/theme_persist.h>
 
 #include "entities/descriptor.h"
 #include "entities/player_data.h"
@@ -19,6 +22,7 @@
 #include "data/player.h"
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define COLOR2STR(t, s, x)  color_to_str((ColorTheme*)t, (Color*)&t->channels[s], x)
@@ -552,7 +556,7 @@ static void do_theme_create(Mobile* ch, char* argument)
         return;
     }
 
-    for (int i = 0; i < SYSTEM_COLOR_THEME_COUNT; ++i) {
+    for (int i = 0; i < system_color_theme_count; ++i) {
         if (!str_cmp(argument, system_color_themes[i]->name)) {
             send_to_char(COLOR_INFO "You cannot use the name of an existing system or "
                 "personal theme." COLOR_EOL, ch);
@@ -708,7 +712,9 @@ static void do_theme_list(Mobile* ch, char* argument)
         send_to_char(COLOR_TITLE "System themes:\n\r", ch);
         send_to_char(COLOR_DECOR_2 "======================================================="
             "===============" COLOR_EOL, ch);
-        for (int i = 0; i < SYSTEM_COLOR_THEME_COUNT; ++i) {
+        for (int i = 0; i < system_color_theme_count; ++i) {
+            if (!system_color_themes[i])
+                continue;
             if ((hide_256 && system_color_themes[i]->mode == COLOR_MODE_256) ||
                 (hide_24bit && system_color_themes[i]->mode == COLOR_MODE_RGB))
                 continue;
@@ -987,6 +993,26 @@ static void do_theme_remove(Mobile* ch, char* argument)
 
 static void do_theme_save(Mobile* ch, char* argument)
 {
+    char arg[MAX_INPUT_LENGTH] = { 0 };
+    argument = one_argument(argument, arg);
+    if (arg[0] && !str_prefix(arg, "system")) {
+        if (IS_NPC(ch) || ch->pcdata->security < 9) {
+            send_to_char(COLOR_INFO "You don't have permission to do that." COLOR_EOL, ch);
+            return;
+        }
+
+        PersistResult res = theme_persist_save(NULL);
+        if (!persist_succeeded(res)) {
+            printf_to_char(ch, COLOR_INFO "Saving system themes failed (%s)." COLOR_EOL,
+                res.message ? res.message : "unknown error");
+            return;
+        }
+
+        printf_to_char(ch, COLOR_INFO "System themes saved to '%s'." COLOR_EOL,
+            cfg_get_themes_file());
+        return;
+    }
+
     char* theme_name = ch->pcdata->theme_config.current_theme_name;
     ColorTheme* theme = ch->pcdata->current_theme;
 
@@ -1331,7 +1357,7 @@ void do_theme(Mobile* ch, char* argument)
         "       THEME PALETTE/PAL <index> <color>\n\r"
         "       THEME PREVIEW (<name>)\n\r"
         "       THEME REMOVE <name>\n\r"
-        "       THEME SAVE\n\r"
+        "       THEME SAVE (SYSTEM)\n\r"
         "       THEME SELECT <name>\n\r"
         "       THEME SET <more options>\n\r"
         "       THEME SHOW (<name>)" COLOR_INFO "\n\r"
@@ -1474,7 +1500,9 @@ ColorTheme* lookup_system_color_theme(Mobile* ch, char* arg)
     bool show_256 = !ch->pcdata->theme_config.hide_256;
     bool show_24bit = !ch->pcdata->theme_config.hide_24bit;
 
-    for (int i = 0; i < SYSTEM_COLOR_THEME_COUNT; ++i) {
+    for (int i = 0; i < system_color_theme_count; ++i) {
+        if (!system_color_themes[i])
+            continue;
         if (!str_prefix(arg, system_color_themes[i]->name)
             && (show_256 || system_color_themes[i]->mode != COLOR_MODE_256)
             && (show_24bit || system_color_themes[i]->mode != COLOR_MODE_RGB))
@@ -1619,7 +1647,12 @@ void set_default_theme(Mobile* ch)
         free_color_theme(ch->pcdata->current_theme);
     }
 
-    ch->pcdata->current_theme = dup_color_theme(system_color_themes[SYSTEM_COLOR_THEME_LOPE]);
+    const ColorTheme* default_theme = get_default_system_color_theme();
+    if (!default_theme) {
+        bugf("set_default_theme: no system color themes are available.");
+        return;
+    }
+    ch->pcdata->current_theme = dup_color_theme(default_theme);
     free_string(ch->pcdata->theme_config.current_theme_name);
     ch->pcdata->theme_config.current_theme_name = str_dup(ch->pcdata->current_theme->name);
 
@@ -1706,48 +1739,10 @@ const ColorChannelEntry color_slot_entries[COLOR_SLOT_COUNT] = {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// Theme Definitions
+// Theme Helpers
 ////////////////////////////////////////////////////////////////////////////////
 
-// I can't use the colors as they are in color.h because the cast to Color 
-// messes with the C-struct literal initialization.
-
-#define SLOT_0                      THEME_PAL_REF(0)
-#define SLOT_1                      THEME_PAL_REF(1)
-#define SLOT_2                      THEME_PAL_REF(2)
-#define SLOT_3                      THEME_PAL_REF(3)
-#define SLOT_4                      THEME_PAL_REF(4)
-#define SLOT_5                      THEME_PAL_REF(5)
-#define SLOT_6                      THEME_PAL_REF(6)
-#define SLOT_7                      THEME_PAL_REF(7)
-#define SLOT_8                      THEME_PAL_REF(8)
-#define SLOT_9                      THEME_PAL_REF(9)
-#define SLOT_A                      THEME_PAL_REF(10)
-#define SLOT_B                      THEME_PAL_REF(11)
-#define SLOT_C                      THEME_PAL_REF(12)
-#define SLOT_D                      THEME_PAL_REF(13)
-#define SLOT_E                      THEME_PAL_REF(14)
-#define SLOT_F                      THEME_PAL_REF(15)
-
-#define VT_256_FG                   "\033[38;5;"
-#define VT_24B_FG                   "\033[38:2::"
-#define XTERM_24B_FG                "\033[38;2;"
-
-#define THEME_ENTRY_ANSI(l, c, s)       {.mode = COLOR_MODE_16, \
-    .code = { l, c, 0 }, .cache = s, .xterm = NULL }
-
-#define THEME_ENTRY_256(i, s)           {.mode = COLOR_MODE_256, \
-    .code = { i, 0, 0 }, .cache = s, .xterm = NULL }
-
-#define THEME_ENTRY_RGB(r, g, b, s, x)  {.mode = COLOR_MODE_RGB, \
-    .code = { r, g, b }, .cache = s, .xterm = x }
-
-#define THEME_PAL_REF(s)                {.mode = COLOR_MODE_PAL_IDX, \
-    .code = { s, 0, 0 }, .cache = NULL, .xterm = NULL }
-
-////////////////////////////////////////////////////////////////////////////////
-// Lope's OG ColoUr Code Theme; default for Mud98
-////////////////////////////////////////////////////////////////////////////////
+#define THEME_ENTRY_ANSI(l, c, s)       {                                      .mode = COLOR_MODE_16,                                                     .code = { l, c, 0 },                                                       .cache = s,                                                                .xterm = NULL                                                          }
 
 #define ANSI_WHITE                  THEME_ENTRY_ANSI(NORMAL, WHITE,     "\033[37m")
 #define ANSI_BLACK                  THEME_ENTRY_ANSI(NORMAL, BLACK,     "\033[30m")
@@ -1767,7 +1762,7 @@ const ColorChannelEntry color_slot_entries[COLOR_SLOT_COUNT] = {
 #define ANSI_B_WHITE                THEME_ENTRY_ANSI(BRIGHT, WHITE,     "\033[97m")
 #define ANSI_MAX                    15
 
-const AnsiPaletteEntry ansi_palette[15] = {
+const AnsiPaletteEntry ansi_palette[ANSI_MAX] = {
     { "red",        NORMAL, RED,        ANSI_RED        },
     { "hi-red",     BRIGHT, RED,        ANSI_B_RED      },
     { "green",      NORMAL, GREEN,      ANSI_GREEN      },
@@ -1785,476 +1780,77 @@ const AnsiPaletteEntry ansi_palette[15] = {
     { "gray",       BRIGHT, BLACK,      ANSI_D_GRAY     },
 };
 
-const ColorTheme theme_lope = {
-    .name = "Lope",
-    .type = COLOR_THEME_TYPE_SYSTEM,
-    .mode = COLOR_MODE_16,
-    .banner =
-        "Lope's ColoUr Code 2.0\n\r"
-        "ColoUr is brought to you by Lope, ant@solace.mh.se\n\r",
-    .palette = {
-        ANSI_WHITE,         // 0: default text color
-        ANSI_BLACK,         // 1: default background
-        ANSI_D_GRAY,        // 2: default alt-text #1
-        ANSI_B_WHITE,       // 3: default alt-text #3
-        ANSI_RED,           // 4
-        ANSI_B_RED,         // 5
-        ANSI_GREEN,         // 6
-        ANSI_B_GREEN,       // 7
-        ANSI_YELLOW,        // 8
-        ANSI_B_YELLOW,      // 9
-        ANSI_BLUE,          // A
-        ANSI_B_BLUE,        // B
-        ANSI_MAGENTA,       // C
-        ANSI_B_MAGENTA,     // D
-        ANSI_CYAN,          // E
-        ANSI_B_CYAN,        // F
-    },
-    .palette_max = ANSI_MAX,
-    .channels = {
-        SLOT_0,             // text
-        SLOT_1,             // background
-        SLOT_3,             // Title     
-        SLOT_E,             // Alt-Text 1
-        SLOT_2,             // Alt-Text 2
-        SLOT_B,             // Decor 1   
-        SLOT_9,             // Decor 2   
-        SLOT_E,             // Decor 3   
-        SLOT_9,             // auction
-        SLOT_3,             // auction_text
-        SLOT_C,             // gossip
-        SLOT_D,             // gossip_text
-        SLOT_4,             // music
-        SLOT_5,             // music_text
-        SLOT_9,             // question
-        SLOT_3,             // question_text
-        SLOT_9,             // answer
-        SLOT_3,             // answer_text
-        SLOT_6,             // quote
-        SLOT_7,             // quote_text
-        SLOT_E,             // immtalk_text
-        SLOT_8,             // immtalk_type
-        SLOT_8,             // info
-        SLOT_6,             // say
-        SLOT_7,             // say_text
-        SLOT_6,             // tell
-        SLOT_7,             // tell_text
-        SLOT_6,             // reply
-        SLOT_7,             // reply_text
-        SLOT_6,             // gtell_text
-        SLOT_4,             // gtell_type
-        SLOT_6,             // wiznet
-        SLOT_E,             // room_title
-        SLOT_0,             // room_text
-        SLOT_6,             // room_exits
-        SLOT_E,             // room_things
-        SLOT_E,             // prompt
-        SLOT_4,             // fight_death
-        SLOT_6,             // fight_yhit
-        SLOT_8,             // fight_ohit
-        SLOT_4,             // fight_thit
-        SLOT_0,             // fight_skill
-        SLOT_6,             // lox_comment
-        SLOT_9,             // lox_string
-        SLOT_2,             // lox_operator
-        SLOT_D,             // lox_literal
-        SLOT_A,             // lox_keyword
+const ColorTheme** system_color_themes = NULL;
+int system_color_theme_count = 0;
+
+static ColorTheme** loaded_system_color_themes = NULL;
+static int loaded_system_color_theme_count = 0;
+
+static void free_loaded_system_themes(void)
+{
+    if (!loaded_system_color_themes)
+        return;
+
+    for (int i = 0; i < loaded_system_color_theme_count; ++i) {
+        ColorTheme* theme = loaded_system_color_themes[i];
+        if (!theme)
+            continue;
+        clear_cached_codes(theme);
+        free_string(theme->name);
+        free_string(theme->banner);
+        free_mem(theme, sizeof(ColorTheme));
     }
-};
 
-////////////////////////////////////////////////////////////////////////////////
-// Monorail
-////////////////////////////////////////////////////////////////////////////////
+    free(loaded_system_color_themes);
+    loaded_system_color_themes = NULL;
+    loaded_system_color_theme_count = 0;
+    system_color_themes = NULL;
+    system_color_theme_count = 0;
+}
 
-#define MONO_0          THEME_ENTRY_256(15,    VT_256_FG "15m"     )
-#define MONO_1          THEME_ENTRY_256(0,     VT_256_FG "0m"      )
-#define MONO_2          THEME_ENTRY_256(244,   VT_256_FG "244m"    )
-#define MONO_3          THEME_ENTRY_256(242,   VT_256_FG "242m"    )
-#define MONO_4          THEME_ENTRY_256(246,   VT_256_FG "246m"    )
-#define MONO_5          THEME_ENTRY_256(240,   VT_256_FG "240m"    )
-#define MONO_6          THEME_ENTRY_256(248,   VT_256_FG "248m"    )
-#define MONO_7          THEME_ENTRY_256(238,   VT_256_FG "238m"    )
-#define MONO_8          THEME_ENTRY_256(250,   VT_256_FG "250m"    )
-#define MONO_9          THEME_ENTRY_256(236,   VT_256_FG "236m"    )
-#define MONO_A          THEME_ENTRY_256(252,   VT_256_FG "252m"    )
-#define MONO_B          THEME_ENTRY_256(234,   VT_256_FG "234m"    )
-#define MONO_C          THEME_ENTRY_256(254,   VT_256_FG "254m"    )
-#define MONO_D          THEME_ENTRY_256(233,   VT_256_FG "233m"    )
-#define MONO_E          THEME_ENTRY_256(255,   VT_256_FG "255m"    )
-#define MONO_F          THEME_ENTRY_256(232,   VT_256_FG "232m"    )
-#define MONO_MAX        16
+bool color_register_system_themes(ColorTheme** themes, int count)
+{
+    if (!themes || count <= 0)
+        return false;
 
-const ColorTheme theme_mono = {
-    .name = "Monorail",
-    .type = COLOR_THEME_TYPE_SYSTEM,
-    .mode = COLOR_MODE_256,
-    .banner = "",
-    .palette = {
-        MONO_0,             // 0: default text color
-        MONO_1,             // 1: default background
-        MONO_2,             // 2: default alt-text #1
-        MONO_3,             // 3: default alt-text #3
-        MONO_4,             // 4
-        MONO_5,             // 5
-        MONO_6,             // 6
-        MONO_7,             // 7
-        MONO_8,             // 8
-        MONO_9,             // 9
-        MONO_A,             // A
-        MONO_B,             // B
-        MONO_C,             // C
-        MONO_D,             // D
-        MONO_E,             // E
-        MONO_F,             // F
-    },
-    .palette_max = MONO_MAX,
-    .channels = {
-        SLOT_0,             // text
-        SLOT_1,             // background
-        SLOT_3,             // Title     
-        SLOT_E,             // Alt-Text 1
-        SLOT_2,             // Alt-Text 2
-        SLOT_B,             // Decor 1   
-        SLOT_9,             // Decor 2   
-        SLOT_E,             // Decor 3   
-        SLOT_9,             // auction
-        SLOT_3,             // auction_text
-        SLOT_C,             // gossip
-        SLOT_D,             // gossip_text
-        SLOT_4,             // music
-        SLOT_5,             // music_text
-        SLOT_9,             // question
-        SLOT_3,             // question_text
-        SLOT_9,             // answer
-        SLOT_3,             // answer_text
-        SLOT_6,             // quote
-        SLOT_7,             // quote_text
-        SLOT_E,             // immtalk_text
-        SLOT_8,             // immtalk_type
-        SLOT_8,             // info
-        SLOT_6,             // say
-        SLOT_7,             // say_text
-        SLOT_6,             // tell
-        SLOT_7,             // tell_text
-        SLOT_6,             // reply
-        SLOT_7,             // reply_text
-        SLOT_6,             // gtell_text
-        SLOT_4,             // gtell_type
-        SLOT_6,             // wiznet
-        SLOT_E,             // room_title
-        SLOT_0,             // room_text
-        SLOT_6,             // room_exits
-        SLOT_E,             // room_things
-        SLOT_E,             // prompt
-        SLOT_4,             // fight_death
-        SLOT_6,             // fight_yhit
-        SLOT_8,             // fight_ohit
-        SLOT_4,             // fight_thit
-        SLOT_0,             // fight_skill
-        SLOT_6,             // lox_comment
-        SLOT_9,             // lox_string
-        SLOT_2,             // lox_operator
-        SLOT_D,             // lox_literal
-        SLOT_A,             // lox_keyword
+    free_loaded_system_themes();
+    loaded_system_color_themes = themes;
+    loaded_system_color_theme_count = count;
+    system_color_themes = (const ColorTheme**)loaded_system_color_themes;
+    system_color_theme_count = count;
+    return true;
+}
+
+const ColorTheme* get_default_system_color_theme(void)
+{
+    if (!system_color_themes || system_color_theme_count == 0)
+        load_system_color_themes();
+
+    if (!system_color_themes || system_color_theme_count == 0)
+        return NULL;
+
+    static const char* default_name = "Lope";
+    for (int i = 0; i < system_color_theme_count; ++i) {
+        if (system_color_themes[i] && !str_cmp(system_color_themes[i]->name, default_name))
+            return system_color_themes[i];
     }
-};
+    return system_color_themes[0];
+}
 
-////////////////////////////////////////////////////////////////////////////////
-// Cool Cat Theme
-////////////////////////////////////////////////////////////////////////////////
-
-#define COOL_CAT_TEXT           THEME_ENTRY_RGB(0xF7u, 0xF7u, 0xF3u, VT_24B_FG "247:247:243m",  XTERM_24B_FG "247;247;243m"    )
-#define COOL_CAT_BG             THEME_ENTRY_RGB(0x28u, 0x29u, 0x21u, VT_24B_FG "40:41:33m",     XTERM_24B_FG "40;41;33m"       )
-#define COOL_CAT_ALT_TEXT       THEME_ENTRY_RGB(0x75u, 0x71u, 0x5Eu, VT_24B_FG "117:113:94m",   XTERM_24B_FG "117;113;94m"     )
-#define COOL_CAT_PINK           THEME_ENTRY_RGB(0xFAu, 0x25u, 0x73u, VT_24B_FG "250:37:115m",   XTERM_24B_FG "250;37;115m"     )
-#define COOL_CAT_L_PINK         THEME_ENTRY_RGB(0xFFu, 0x75u, 0xA3u, VT_24B_FG "255:117:163m",  XTERM_24B_FG "255;117;163m"    )
-#define COOL_CAT_ORANGE         THEME_ENTRY_RGB(0xFDu, 0x97u, 0x71u, VT_24B_FG "253:151:113m",  XTERM_24B_FG "253;151;113m"    )
-#define COOL_CAT_YELLOW         THEME_ENTRY_RGB(0xFFu, 0xD9u, 0x67u, VT_24B_FG "255:217:103m",  XTERM_24B_FG "255;217;103m"    )
-#define COOL_CAT_GREEN          THEME_ENTRY_RGB(0xA5u, 0xE3u, 0x2Fu, VT_24B_FG "165:227:47m",   XTERM_24B_FG "165;227;47m"     )
-#define COOL_CAT_L_GREEN        THEME_ENTRY_RGB(0xC5u, 0xFFu, 0x6Fu, VT_24B_FG "197:255:111m",  XTERM_24B_FG "197;255;111m"    )
-#define COOL_CAT_BLUE           THEME_ENTRY_RGB(0x65u, 0xD9u, 0xF0u, VT_24B_FG "101:217:240m",  XTERM_24B_FG "101;217;240m"    )
-#define COOL_CAT_L_BLUE         THEME_ENTRY_RGB(0x9Au, 0xF8u, 0xFFu, VT_24B_FG "154:248:255m",  XTERM_24B_FG "154;248;255m"    )
-#define COOL_CAT_PURPLE         THEME_ENTRY_RGB(0xA0u, 0x32u, 0xFFu, VT_24B_FG "154:50:255m",   XTERM_24B_FG "154;50;255m"     )
-#define COOL_CAT_L_PURPLE       THEME_ENTRY_RGB(0xAFu, 0x80u, 0xFFu, VT_24B_FG "175:128:255m",  XTERM_24B_FG "175;128;255m"    )
-#define COOL_CAT_MAX            15
-
-const ColorTheme theme_cool_cat = {
-    .name = "Cool Cat",
-    .type = COLOR_THEME_TYPE_SYSTEM,
-    .mode = COLOR_MODE_RGB,
-    .banner =
-        "If your MUD client/terminal does not support server-initiated changes "
-        "to background color, consider manually setting your backround to " 
-        "to #282921 for best results.\n\r",
-    .palette = {
-        COOL_CAT_TEXT,      // 0: default text color
-        COOL_CAT_BG,        // 1: default background
-        COOL_CAT_ALT_TEXT,  // 2: default alt-text #1
-        COOL_CAT_ALT_TEXT,  // 3: default alt-text #3
-        COOL_CAT_PINK,      // 4
-        COOL_CAT_L_PINK,    // 5
-        COOL_CAT_GREEN,     // 6
-        COOL_CAT_L_GREEN,   // 7
-        COOL_CAT_ORANGE,    // 8
-        COOL_CAT_YELLOW,    // 9
-        COOL_CAT_BLUE,      // A
-        COOL_CAT_L_BLUE,    // B
-        COOL_CAT_PURPLE,    // C
-        COOL_CAT_L_PURPLE,  // D
-        COOL_CAT_BLUE,      // E
-        COOL_CAT_L_BLUE,    // F
-    },
-    .palette_max = COOL_CAT_MAX,
-    .channels = {
-        SLOT_0,             // text
-        SLOT_1,             // background
-        SLOT_3,             // Title     
-        SLOT_E,             // Alt-Text 1
-        SLOT_2,             // Alt-Text 2
-        SLOT_B,             // Decor 1   
-        SLOT_9,             // Decor 2   
-        SLOT_E,             // Decor 3   
-        SLOT_9,             // auction
-        SLOT_3,             // auction_text
-        SLOT_C,             // gossip
-        SLOT_D,             // gossip_text
-        SLOT_4,             // music
-        SLOT_5,             // music_text
-        SLOT_9,             // question
-        SLOT_3,             // question_text
-        SLOT_9,             // answer
-        SLOT_3,             // answer_text
-        SLOT_6,             // quote
-        SLOT_7,             // quote_text
-        SLOT_E,             // immtalk_text
-        SLOT_8,             // immtalk_type
-        SLOT_8,             // info
-        SLOT_6,             // say
-        SLOT_7,             // say_text
-        SLOT_6,             // tell
-        SLOT_7,             // tell_text
-        SLOT_6,             // reply
-        SLOT_7,             // reply_text
-        SLOT_6,             // gtell_text
-        SLOT_4,             // gtell_type
-        SLOT_6,             // wiznet
-        SLOT_E,             // room_title
-        SLOT_0,             // room_text
-        SLOT_6,             // room_exits
-        SLOT_E,             // room_things
-        SLOT_E,             // prompt
-        SLOT_4,             // fight_death
-        SLOT_6,             // fight_yhit
-        SLOT_8,             // fight_ohit
-        SLOT_4,             // fight_thit
-        SLOT_0,             // fight_skill
-        SLOT_6,             // lox_comment
-        SLOT_9,             // lox_string
-        SLOT_2,             // lox_operator
-        SLOT_D,             // lox_literal
-        SLOT_A,             // lox_keyword
+void load_system_color_themes(void)
+{
+    PersistResult res = theme_persist_load(NULL);
+    if (!persist_succeeded(res)) {
+        const char* file = cfg_get_themes_file();
+        bugf("load_system_color_themes: failed to load %s (%s).",
+            file, res.message ? res.message : "unknown error");
+        exit(1);
     }
-};
 
-////////////////////////////////////////////////////////////////////////////////
-// Synthwave City
-////////////////////////////////////////////////////////////////////////////////
-
-#define CITY_WHITE          THEME_ENTRY_RGB(0xF6u, 0xEDu, 0xDBu, VT_24B_FG "246:237:219m",  XTERM_24B_FG "246;237;219m"    )
-#define CITY_BLACK          THEME_ENTRY_RGB(0x1Bu, 0x1Eu, 0x23u, VT_24B_FG "27:30:35m",     XTERM_24B_FG "27;30;35m"       )
-#define CITY_ORANGE         THEME_ENTRY_RGB(0xECu, 0x8Du, 0x75u, VT_24B_FG "236:141:117m",  XTERM_24B_FG "236;141;117m"    )
-#define CITY_RED            THEME_ENTRY_RGB(0xBDu, 0x4Bu, 0x64u, VT_24B_FG "189:75:100m",   XTERM_24B_FG "189;75;100m"     )
-#define CITY_PINK           THEME_ENTRY_RGB(0x9Eu, 0x22u, 0x81u, VT_24B_FG "158:34:129m",   XTERM_24B_FG "158;34;129m"     )
-#define CITY_PURPLE         THEME_ENTRY_RGB(0x40u, 0x26u, 0x5Cu, VT_24B_FG "64:38:92m",     XTERM_24B_FG "64;38;92m"       )
-#define CITY_BLUE           THEME_ENTRY_RGB(0x24u, 0x45u, 0x84u, VT_24B_FG "36:69:132m",    XTERM_24B_FG "36;69;132m"      )
-#define CITY_SKY            THEME_ENTRY_RGB(0x50u, 0xA9u, 0xCFu, VT_24B_FG "80:169:207m",   XTERM_24B_FG "80;169;207m"     )
-#define CITY_TEAL           THEME_ENTRY_RGB(0x96u, 0xE6u, 0xC2u, VT_24B_FG "150:230:194m",  XTERM_24B_FG "150;230;194m"    )
-#define CITY_MAX            15
-
-const ColorTheme theme_synthwave_city = {
-    .name = "Synthwave City",
-    .type = COLOR_THEME_TYPE_SYSTEM,
-    .mode = COLOR_MODE_RGB,
-    .banner =
-        "If your MUD client/terminal does not support server-initiated changes "
-        "to background color, consider manually setting your backround to "
-        "to #1B1E23 for best results.\n\r",
-    .palette = {
-        CITY_WHITE,         // 0
-        CITY_BLACK,         // 1
-        CITY_ORANGE,        // 2
-        CITY_SKY,           // 3
-        CITY_RED,           // 4
-        CITY_ORANGE,        // 5
-        CITY_SKY,           // 6
-        CITY_TEAL,          // 7
-        CITY_ORANGE,        // 8
-        CITY_WHITE,         // 9
-        CITY_PURPLE,        // A
-        CITY_BLUE,          // B
-        CITY_PURPLE,        // C
-        CITY_PINK,          // D
-        CITY_BLUE,          // E
-        CITY_TEAL,          // F
-    },
-    .palette_max = CITY_MAX,
-    .channels = {
-        SLOT_0,             // text
-        SLOT_1,             // background
-        SLOT_3,             // Title     
-        SLOT_E,             // Alt-Text 1
-        SLOT_2,             // Alt-Text 2
-        SLOT_2,             // Decor 1   
-        SLOT_3,             // Decor 2   
-        SLOT_4,             // Decor 3   
-        SLOT_9,             // auction
-        SLOT_3,             // auction_text
-        SLOT_C,             // gossip
-        SLOT_D,             // gossip_text
-        SLOT_4,             // music
-        SLOT_5,             // music_text
-        SLOT_9,             // question
-        SLOT_3,             // question_text
-        SLOT_9,             // answer
-        SLOT_3,             // answer_text
-        SLOT_6,             // quote
-        SLOT_7,             // quote_text
-        SLOT_E,             // immtalk_text
-        SLOT_8,             // immtalk_type
-        SLOT_8,             // info
-        SLOT_6,             // say
-        SLOT_7,             // say_text
-        SLOT_6,             // tell
-        SLOT_7,             // tell_text
-        SLOT_6,             // reply
-        SLOT_7,             // reply_text
-        SLOT_6,             // gtell_text
-        SLOT_4,             // gtell_type
-        SLOT_6,             // wiznet
-        SLOT_E,             // room_title
-        SLOT_0,             // room_text
-        SLOT_6,             // room_exits
-        SLOT_E,             // room_things
-        SLOT_E,             // prompt
-        SLOT_4,             // fight_death
-        SLOT_6,             // fight_yhit
-        SLOT_8,             // fight_ohit
-        SLOT_4,             // fight_thit
-        SLOT_0,             // fight_skill
-        SLOT_6,             // lox_comment
-        SLOT_9,             // lox_string
-        SLOT_2,             // lox_operator
-        SLOT_D,             // lox_literal
-        SLOT_A,             // lox_keyword
+    if (!system_color_themes || system_color_theme_count <= 0) {
+        bugf("load_system_color_themes: %s did not define any themes.", cfg_get_themes_file());
+        exit(1);
     }
-};
 
-////////////////////////////////////////////////////////////////////////////////
-// Glow Pop
-////////////////////////////////////////////////////////////////////////////////
-
-#define POP_WHITE           THEME_ENTRY_RGB(0xFAu, 0xFDu, 0xFFu, VT_24B_FG "250:253:255m",  XTERM_24B_FG "250;253;255m"    )   // #FAFDFF White
-#define POP_BLACK           THEME_ENTRY_RGB(0x16u, 0x17u, 0x1Au, VT_24B_FG "22:23:26m",     XTERM_24B_FG "22;23;26m"       )   // #16171A Black
-#define POP_SBLUE           THEME_ENTRY_RGB(0x23u, 0x49u, 0x75u, VT_24B_FG "35:73:117m",    XTERM_24B_FG "35;73;117m"      )   // #234975 Slate Blue
-#define POP_LSBLUE          THEME_ENTRY_RGB(0x00u, 0x78u, 0x99u, VT_24B_FG "0:120:153m",    XTERM_24B_FG "0;120;153m"      )   // #007899 L. Slate Blue
-#define POP_CRIMSON         THEME_ENTRY_RGB(0x7Fu, 0x06u, 0x22u, VT_24B_FG "127:6:34m",     XTERM_24B_FG "127;6;34m"       )   // #7F0622 D. Red
-#define POP_RED             THEME_ENTRY_RGB(0xD6u, 0x24u, 0x11u, VT_24B_FG "214:36:17m",    XTERM_24B_FG "214;36;17m"      )   // #D62411 Red
-#define POP_S_GREEN         THEME_ENTRY_RGB(0x10u, 0xD2u, 0x75u, VT_24B_FG "16:210:117m",   XTERM_24B_FG "16;210;117m"     )   // #10D275 Sea Green
-#define POP_L_GREEN         THEME_ENTRY_RGB(0xBFu, 0xFFu, 0x3Cu, VT_24B_FG "191:255:60m",   XTERM_24B_FG "191;255;60m"     )   // #BFFF3C Lime Green
-#define POP_ORANGE          THEME_ENTRY_RGB(0xFFu, 0x84u, 0x26u, VT_24B_FG "255:132:38m",   XTERM_24B_FG "255;132;38m"     )   // #FF8426 Orange
-#define POP_SUNFLOWER       THEME_ENTRY_RGB(0xFFu, 0xD1u, 0x00u, VT_24B_FG "255:209:0m",    XTERM_24B_FG "255;209;0m"      )   // #FFD100 Sunflower
-#define POP_BLUE            THEME_ENTRY_RGB(0x00u, 0x28u, 0x59u, VT_24B_FG "0:40:89m",      XTERM_24B_FG "0;40;89m"        )   // #002859 D. Blue
-#define POP_SKY_BLUE        THEME_ENTRY_RGB(0x68u, 0xAEu, 0xD4u, VT_24B_FG "104:174:212m",  XTERM_24B_FG "104;174;212m"    )   // #68AED4 Sky Blue
-#define POP_GRAPE           THEME_ENTRY_RGB(0x43u, 0x00u, 0x67u, VT_24B_FG "67:0:103m",     XTERM_24B_FG "67;0;103m"       )   // #430067 Violet
-#define POP_VIOLET          THEME_ENTRY_RGB(0x94u, 0x21u, 0x6Au, VT_24B_FG "148:33:106m",   XTERM_24B_FG "148;33;106m"     )   // #94216A Grape
-#define POP_H_PINK          THEME_ENTRY_RGB(0xFFu, 0x26u, 0x74u, VT_24B_FG "255:38:116m",   XTERM_24B_FG "255;38;116m"     )   // #FF2674 Hot Pink
-#define POP_L_PINK          THEME_ENTRY_RGB(0xFFu, 0x80u, 0xA4u, VT_24B_FG "255:128:164m",  XTERM_24B_FG "255;128;164m"    )   // #FF80A4 L. Pink
-#define POP_MAX             16
-
-const ColorTheme theme_glow_pop = {
-    .name = "Glow Pop",
-    .type = COLOR_THEME_TYPE_SYSTEM,
-    .mode = COLOR_MODE_RGB,
-    .banner =
-        "If your MUD client/terminal does not support server-initiated changes "
-        "to background color, consider manually setting your backround to "
-        "to #16171A for best results.\n\r",
-    .palette = {
-        POP_WHITE,          // 0
-        POP_BLACK,          // 1
-        POP_SBLUE,          // 2
-        POP_LSBLUE,         // 3
-        POP_CRIMSON,        // 4
-        POP_RED,            // 5
-        POP_S_GREEN,        // 6
-        POP_L_GREEN,        // 7
-        POP_ORANGE,         // 8
-        POP_SUNFLOWER,      // 9
-        POP_BLUE,           // A
-        POP_SKY_BLUE,       // B
-        POP_GRAPE,          // C
-        POP_VIOLET,         // D
-        POP_H_PINK,         // E
-        POP_L_PINK,         // F
-    },
-    .palette_max = POP_MAX,
-    .channels = {
-        SLOT_0,             // text
-        SLOT_1,             // background
-        SLOT_3,             // Title     
-        SLOT_E,             // Alt-Text 1
-        SLOT_2,             // Alt-Text 2
-        SLOT_B,             // Decor 1   
-        SLOT_9,             // Decor 2   
-        SLOT_E,             // Decor 3   
-        SLOT_9,             // auction
-        SLOT_3,             // auction_text
-        SLOT_C,             // gossip
-        SLOT_D,             // gossip_text
-        SLOT_4,             // music
-        SLOT_5,             // music_text
-        SLOT_9,             // question
-        SLOT_3,             // question_text
-        SLOT_9,             // answer
-        SLOT_3,             // answer_text
-        SLOT_6,             // quote
-        SLOT_7,             // quote_text
-        SLOT_E,             // immtalk_text
-        SLOT_8,             // immtalk_type
-        SLOT_8,             // info
-        SLOT_6,             // say
-        SLOT_7,             // say_text
-        SLOT_6,             // tell
-        SLOT_7,             // tell_text
-        SLOT_6,             // reply
-        SLOT_7,             // reply_text
-        SLOT_6,             // gtell_text
-        SLOT_4,             // gtell_type
-        SLOT_6,             // wiznet
-        SLOT_E,             // room_title
-        SLOT_0,             // room_text
-        SLOT_6,             // room_exits
-        SLOT_E,             // room_things
-        SLOT_E,             // prompt
-        SLOT_4,             // fight_death
-        SLOT_6,             // fight_yhit
-        SLOT_8,             // fight_ohit
-        SLOT_4,             // fight_thit
-        SLOT_0,             // fight_skill
-        SLOT_6,             // lox_comment
-        SLOT_9,             // lox_string
-        SLOT_2,             // lox_operator
-        SLOT_D,             // lox_literal
-        SLOT_A,             // lox_keyword
-    }
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-const ColorTheme* system_color_themes[SYSTEM_COLOR_THEME_COUNT] = {
-    &theme_lope,
-    &theme_mono,
-    &theme_cool_cat,
-    &theme_synthwave_city,
-    &theme_glow_pop,
-};
+    printf_log("System color themes loaded (%d themes).\n", system_color_theme_count);
+}
