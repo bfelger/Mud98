@@ -282,8 +282,8 @@ MEDIT(medit_show)
     addf_buf(buffer, "Act:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL,
         flag_string(act_flag_table, pMob->act_flags));
 
-    addf_buf(buffer, "%s\n\r", olc_show_flags("Form", form_flag_table, pMob->form));
-    addf_buf(buffer, "%s\n\r", olc_show_flags("Parts", part_flag_table, pMob->parts));
+    addf_buf(buffer, "%s\n\r", olc_show_flags_ex("Form", form_flag_table, form_defaults_flag_table, pMob->form));
+    addf_buf(buffer, "%s\n\r", olc_show_flags_ex("Parts", part_flag_table, part_defaults_flag_table, pMob->parts));
     addf_buf(buffer, "%s\n\r", olc_show_flags("Imm", imm_flag_table, pMob->imm_flags));
     addf_buf(buffer, "%s\n\r", olc_show_flags("Res", res_flag_table, pMob->res_flags));
     addf_buf(buffer, "%s\n\r", olc_show_flags("Vuln", vuln_flag_table, pMob->vuln_flags));

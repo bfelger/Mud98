@@ -647,17 +647,46 @@ void olc_print_text(Mobile* ch, const char* label, const char* text)
             "%10s" COLOR_DECOR_1 " ]" COLOR_EOL, label, "(none)");
 }
 
-const char* olc_show_flags(const char* label, const struct flag_type* flag_table, FLAGS flags)
+const char* olc_match_flag_default(FLAGS flags, const struct flag_type* defaults)
+{
+    if (!defaults)
+        return NULL;
+    for (int i = 0; defaults[i].name != NULL; ++i) {
+        FLAGS mask = defaults[i].bit;
+        if (mask != 0 && (flags & mask) == mask)
+            return defaults[i].name;
+    }
+    return NULL;
+}
+
+const char* olc_show_flags_ex(const char* label, const struct flag_type* flag_table, const struct flag_type* defaults, FLAGS flags)
 {
     char label_buf[MIL];
     static char buf[MSL];
 
     sprintf(label_buf, "%s:", label);
-    sprintf(buf, "%12s " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s" 
-        COLOR_DECOR_1 " ]" COLOR_CLEAR, label_buf, 
+    sprintf(buf, "%12s " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s"
+        COLOR_DECOR_1 " ]" COLOR_CLEAR, label_buf,
         flag_string(flag_table, flags));
 
+    const char* preset = olc_match_flag_default(flags, defaults);
+    if (preset) {
+        if (strlen(buf) > 70) {
+            // Too long, move preset to next line
+            strcat(buf, "\n\r            ");
+        }
+        strcat(buf, " " COLOR_ALT_TEXT_2 "(" COLOR_ALT_TEXT_1);
+        strcat(buf, preset);
+        strcat(buf, COLOR_ALT_TEXT_2 ")");
+        strcat(buf, COLOR_CLEAR);
+    }
+
     return buf;
+}
+
+const char* olc_show_flags(const char* label, const struct flag_type* flag_table, FLAGS flags)
+{
+    return olc_show_flags_ex(label, flag_table, NULL, flags);
 }
 
 #undef U

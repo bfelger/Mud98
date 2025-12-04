@@ -201,8 +201,21 @@ RAEDIT(raedit_show)
     printf_to_char(ch, "Imm         : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(imm_flag_table, pRace->imm));
     printf_to_char(ch, "Res         : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(res_flag_table, pRace->res));
     printf_to_char(ch, "Vuln        : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(vuln_flag_table, pRace->vuln));
-    printf_to_char(ch, "Form        : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(form_flag_table, pRace->form));
-    printf_to_char(ch, "Parts       : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(part_flag_table, pRace->parts));
+    const char* form_default = olc_match_flag_default(pRace->form, form_defaults_flag_table);
+    if (form_default)
+        printf_to_char(ch, "Form        : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_EOL,
+            flag_string(form_flag_table, pRace->form), form_default);
+    else
+        printf_to_char(ch, "Form        : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL,
+            flag_string(form_flag_table, pRace->form));
+
+    const char* part_default = olc_match_flag_default(pRace->parts, part_defaults_flag_table);
+    if (part_default)
+        printf_to_char(ch, "Parts       : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_EOL,
+            flag_string(part_flag_table, pRace->parts), part_default);
+    else
+        printf_to_char(ch, "Parts       : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL,
+            flag_string(part_flag_table, pRace->parts));
     printf_to_char(ch, "Points      : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL, pRace->points);
     printf_to_char(ch, "Size        : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, mob_size_table[pRace->size].name);
     printf_to_char(ch, "Start Loc   : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "%s %s" COLOR_EOL,

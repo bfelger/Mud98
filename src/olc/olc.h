@@ -415,6 +415,8 @@ void olc_print_str_box(Mobile* ch, const char* label, const char* str, const cha
 void olc_print_yesno(Mobile* ch, const char* label, bool yesno);
 void olc_print_text(Mobile* ch, const char* label, const char* text);
 
+const char* olc_match_flag_default(FLAGS flags, const struct flag_type* defaults);
+const char* olc_show_flags_ex(const char* label, const struct flag_type* flag_table, const struct flag_type* defaults, FLAGS flags);
 const char* olc_show_flags(const char* label, const struct flag_type* flag_table, FLAGS flags);
 
 #endif // !MUD98__OLC__OLC_H
