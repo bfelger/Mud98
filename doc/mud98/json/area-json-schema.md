@@ -21,14 +21,14 @@ Top-level object
 - `instType`: `"multi"` only when not single (single is implied).
 
 `storyBeats` (array, optional)
-- `{ title, description }` entries capturing narrative beats for builders/AI.
+- `{ title, description }` entries capturing narrative beats for consistency across area.
 
 `checklist` (array, optional)
 - `{ title, status, description? }` where `status` is `todo`, `inProgress`, or `done` (numeric fallback 0/1/2 accepted). Description is optional and usually omitted; titles act as the checklist line-items.
 
 `rooms` (array of objects)
 - Required: `vnum` int, `name` string, `description` string.
-- Optional: `roomFlags` [string flags], `sectorType` string, `manaRate` int (default 100), `healRate` int (100), `clan` int, `owner` string.
+- Optional: `roomFlags` [string flags] (defaults to none), `sector` string (defaults to `inside`), `manaRate` int (default `100`), `healRate` int (`100`), `clan` int (`0`), `owner` string (empty string by default).
 - `exits`: array of exit objects; omit if none.
 - `extraDescs`: array of `{ keyword, description }`; omit if none.
 
@@ -38,13 +38,14 @@ Exit object
 - Optional: `key` int (omit if 0), `flags` [string flags], `description` string, `keyword` string.
 
 `mobiles` (array)
-- Required text: `vnum`, `name`, `shortDescr`, `longDescr`, `description`.
-- Flags as string arrays: `actFlags`, `affectFlags`, `offFlags`, `immFlags`, `resFlags`, `vulnFlags`, `formFlags`, `partFlags`.
-- Stats: `alignment`, `group`, `level`, `hitroll`, `damType` string, `startPos` string, `defaultPos` string, `sex` string, `wealth`, `size` string, `material` string, `factionVnum` int.
-- Dice objects (omit defaults): `hitDice`, `manaDice`, `damageDice` each `{ number, type, bonus? }`.
-- `ac`: `{ pierce, bash, slash, exotic }` (values are tens, e.g., -20).
-- Attacks: `damageNoun` string, `offensiveSpell` string, `mprogFlags` flags array.
-- Affects on mob prototypes are not serialized (mob prototypes have no affect list).
+- Required text: `vnum`, `name`, `shortDescr`, `longDescr`, `description`, `race`.
+- Flags as string arrays (all optional, default to no bits set unless stated otherwise): `actFlags`, `affectFlags`, `offFlags`, `immFlags`, `resFlags`, `vulnFlags`. Use the names from the standard flag tables; omitted arrays imply `0`.
+- Body flags: `formFlags` / `partFlags` accept the standard names plus defaults such as `humanoidDefault` and `animalDefault`. Omit either array to inherit the selected race’s `form` / `parts` values.
+- Stats: `alignment`, `group`, `level`, `hitroll`, `damType` string (`attack_table` entry), `startPos` string, `defaultPos` string, `sex` string, `wealth`, `size` string, `material` string, `factionVnum` int. Any omitted scalar keeps the ROM default (typically `0`, `standing`, `neutral`, or `size medium`).
+- Dice objects (omit defaults): `hitDice`, `manaDice`, `damageDice` each `{ number, type, bonus? }`. Leaving them out keeps the zeroed dice; builders should explicitly set all three numbers for predictable combat.
+- `ac`: `{ pierce, bash, slash, exotic }` (values are tens, e.g., `-20`). Omit to keep the default armor array.
+- Attacks/spells: `damageNoun`, `offensiveSpell`, and `mprogFlags` (array) are optional; unspecified fields default to empty strings / zero.
+- Affects on mob prototypes are not serialized (mob prototypes have no persistent affect list).
 
 `objects` (array)
 - Required text: `vnum`, `name`, `shortDescr`, `description`, `material`, `itemType` string.

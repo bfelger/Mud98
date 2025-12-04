@@ -8,30 +8,32 @@ Top-level object
 
 Race object fields
 - `name`: string (required).
-- `whoName`: string (short race tag for who list).
-- `pc`: bool (true if selectable by players).
-- `points`: int (creation point cost).
-- `size`: string from mob size table (e.g., `tiny`, `small`, `medium`, `large`, `huge`, `giant`).
-- `stats`: object keyed by stat name (`str`, `int`, `wis`, `dex`, `con`) with int values (base stats). Array form is still accepted on load for backward compatibility.
-- `maxStats`: object keyed by stat name; array form accepted on load.
-- Flags as name arrays:
+- `whoName`: string (optional, defaults to empty string; elided when blank).
+- `pc`: bool (optional, defaults to `false`).
+- `points`: int (optional, defaults to `0`).
+- `size`: string from mob size table (defaults to `medium` when omitted or unknown).
+- `stats`: object keyed by stat name (`str`, `int`, `wis`, `dex`, `con`). Omit to keep all base stats at `0`. Loader also accepts legacy arrays of five integers.
+- `maxStats`: object keyed by stat name. Omit to keep all max stats at `0`. Array form accepted.
+- Flags as name arrays (all optional; omitted arrays default to zero bitfields):
   - `actFlags` (`act_flag_table`)
   - `affectFlags` (`affect_flag_table`)
   - `offFlags` (`off_flag_table`)
   - `immFlags` (`imm_flag_table`)
   - `resFlags` (`res_flag_table`)
   - `vulnFlags` (`vuln_flag_table`)
-  - `formFlags` (`form_flag_table`)
-  - `partFlags` (`part_flag_table`)
-- `classMult`: object keyed by class name with exp multiplier *100. Array form accepted on load (by class order).
-- `startLoc`: int VNUM for default start.
-- `classStart`: object keyed by class name with VNUMs for class-specific starts. Array form accepted on load.
-- `skills`: array of up to 5 skill names (strings).
+  - `formFlags` (`form_flag_table`, accepts named defaults such as `humanoidDefault`, `animalDefault`)
+  - `partFlags` (`part_flag_table`, accepts named defaults like `humanoidDefault`, `animalDefault`)
+- `classMult`: optional object keyed by class name with experience multiplier *100. Any omitted class uses the compiled default of `100`. Loader also accepts arrays ordered by class index.
+- `startLoc`: optional VNUM; defaults to `0`.
+- `classStart`: optional object keyed by class name with VNUMs for class-specific starts (defaults to `0` per class). Array form accepted.
+- `skills`: optional array of up to 5 skill names. Omit or specify fewer entries to leave the unused slots empty.
 
 Defaults/omissions
-- Missing flags imply zero.
-- Missing stats/maxStats leave defaults as in code.
-- `skills` can be omitted/empty; unused entries are ignored.
+- Missing flags imply zero; missing `formFlags` / `partFlags` do not automatically add defaults, so include `humanoidDefault`/`animalDefault` when you need them.
+- Omitted stats/maxStats keep the zero baseline that legacy ROM provided before racial adjustments.
+- `classMult` entries default to 100 (no multiplier). Negative / positive adjustments map directly to ROM’s `%` multipliers.
+- `classStart` defaults to 0 (use start rooms on the race object or class).
+- `skills` can be omitted/empty; undefined entries are ignored by the loader.
 - Unknown/omitted size falls back to `medium`.
 - `formatVersion` allows future additive changes; keep compatible when possible.
 

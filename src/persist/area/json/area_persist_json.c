@@ -803,6 +803,10 @@ static json_t* build_mobiles(const AreaData* area)
         json_object_set_new(obj, "description", json_string(mob->description ? mob->description : ""));
         json_object_set_new(obj, "race", json_string(race_table[mob->race].name));
 
+        const Race* mob_race = (mob->race >= 0 && mob->race < race_count) ? &race_table[mob->race] : NULL;
+        FLAGS race_form = mob_race ? mob_race->form : 0;
+        FLAGS race_parts = mob_race ? mob_race->parts : 0;
+
         FLAGS act_flags = mob->act_flags;
         json_set_flags_if(obj, "actFlags", act_flags, act_flag_table);
         FLAGS known_act_mask = 0;
@@ -815,8 +819,10 @@ static json_t* build_mobiles(const AreaData* area)
         json_set_flags_if(obj, "immFlags", mob->imm_flags, imm_flag_table);
         json_set_flags_if(obj, "resFlags", mob->res_flags, res_flag_table);
         json_set_flags_if(obj, "vulnFlags", mob->vuln_flags, vuln_flag_table);
-        json_set_flags_impl(obj, "formFlags", mob->form, form_flag_table, form_defaults_flag_table);
-        json_set_flags_impl(obj, "partFlags", mob->parts, part_flag_table, part_defaults_flag_table);
+        if (!mob_race || mob->form != race_form)
+            json_set_flags_impl(obj, "formFlags", mob->form, form_flag_table, form_defaults_flag_table);
+        if (!mob_race || mob->parts != race_parts)
+            json_set_flags_impl(obj, "partFlags", mob->parts, part_flag_table, part_defaults_flag_table);
 
         json_object_set_new(obj, "alignment", json_integer(mob->alignment));
         json_object_set_new(obj, "group", json_integer(mob->group));
@@ -905,8 +911,17 @@ static PersistResult parse_mobiles(json_t* root, AreaData* area)
         mob->imm_flags = flags_from_array(json_object_get(m, "immFlags"), imm_flag_table);
         mob->res_flags = flags_from_array(json_object_get(m, "resFlags"), res_flag_table);
         mob->vuln_flags = flags_from_array(json_object_get(m, "vulnFlags"), vuln_flag_table);
-        mob->form = flags_from_array_with_defaults(json_object_get(m, "formFlags"), form_defaults_flag_table, form_flag_table);
-        mob->parts = flags_from_array_with_defaults(json_object_get(m, "partFlags"), part_defaults_flag_table, part_flag_table);
+        const Race* mob_race = (mob->race >= 0 && mob->race < race_count) ? &race_table[mob->race] : NULL;
+        json_t* form_json = json_object_get(m, "formFlags");
+        if (json_is_array(form_json))
+            mob->form = flags_from_array_with_defaults(form_json, form_defaults_flag_table, form_flag_table);
+        else if (mob_race)
+            mob->form = mob_race->form;
+        json_t* parts_json = json_object_get(m, "partFlags");
+        if (json_is_array(parts_json))
+            mob->parts = flags_from_array_with_defaults(parts_json, part_defaults_flag_table, part_flag_table);
+        else if (mob_race)
+            mob->parts = mob_race->parts;
 
         mob->alignment = (int16_t)json_int_or_default(m, "alignment", mob->alignment);
         mob->group = (int16_t)json_int_or_default(m, "group", mob->group);
