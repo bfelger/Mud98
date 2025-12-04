@@ -44,6 +44,7 @@ void register_entity_tests();
 void register_container_tests();
 void register_act_tests();
 void register_fmt_tests();
+void register_theme_tests();
 void register_util_tests();
 void register_event_tests();
 void register_faction_tests();

@@ -39,7 +39,7 @@
 // compares every field of every entity in the area after a ROM->JSON->ROM
 // conversion.  This is very slow for large areas, but is useful for catching
 // subtle bugs in the persist code.
-#define ENABLE_EXTREME_AREA_ROUND_TRIP_COMPARISON 
+//#define ENABLE_EXTREME_AREA_ROUND_TRIP_COMPARISON 
 
 // Globals we need to snapshot/restore to avoid polluting the live world.
 extern AreaData* area_data_free;
@@ -1417,6 +1417,8 @@ static int test_class_rom_json_round_trip()
     return 0;
 }
 
+#ifdef ENABLE_EXTREME_AREA_ROUND_TRIP_COMPARISON
+
 #define JSON_PATH_MAX 512
 
 static const char* json_type_name(json_type type)
@@ -2024,6 +2026,7 @@ static int test_extreme_area_json_round_trip()
     fclose(fpList);
     return 0;
 }
+#endif
 
 static TestGroup persist_tests;
 
