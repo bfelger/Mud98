@@ -43,6 +43,7 @@
 #include <time.h>
 
 void UpdateOLCScreen(Descriptor*);
+extern const OlcCmd theme_edit_table[];
 
 #ifdef U
 #define OLD_U U
@@ -101,6 +102,9 @@ bool run_olc_editor(Descriptor* d, char* incomm)
     case ED_QUEST:
         qedit(d->character, incomm);
         break;
+    case ED_THEME:
+        theme_edit(d->character, incomm);
+        break;
     default:
         return false;
     }
@@ -151,6 +155,9 @@ char* olc_ed_name(Mobile* ch)
         break;
     case ED_QUEST:
         sprintf(buf, "QEdit");
+        break;
+    case ED_THEME:
+        sprintf(buf, "ThemeEd");
         break;
     default:
         sprintf(buf, " ");
@@ -266,6 +273,19 @@ void show_olc_cmds(Mobile* ch)
 
     buf1[0] = '\0';
     col = 0;
+
+    if (ch->desc->editor == ED_THEME) {
+        for (int cmd = 0; theme_edit_table[cmd].name != NULL; cmd++) {
+            sprintf(buf, "%-15.15s", theme_edit_table[cmd].name);
+            strcat(buf1, buf);
+            if (++col % 5 == 0)
+                strcat(buf1, "\n\r");
+        }
+        if (col % 5 != 0)
+            strcat(buf1, "\n\r");
+        send_to_char(buf1, ch);
+        return;
+    }
 
     //if (ch->desc->editor == ED_AREA) {
     //    // Areas have a cmd_type, not a comm_type

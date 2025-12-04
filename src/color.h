@@ -41,9 +41,9 @@ typedef struct color_t {
 } Color;
 
 typedef enum {
-    COLOR_THEME_TYPE_CUSTOM,
-    COLOR_THEME_TYPE_SYSTEM_COPY,
-    COLOR_THEME_TYPE_SYSTEM,
+    COLOR_THEME_TYPE_CUSTOM         = 0,
+    COLOR_THEME_TYPE_SYSTEM_COPY    = 1,
+    COLOR_THEME_TYPE_SYSTEM         = 2,
 } ColorThemeType;
 
 #define PAL_WHITE      0
@@ -246,6 +246,13 @@ void load_system_color_themes();
 bool color_register_system_themes(ColorTheme** themes, int count);
 const ColorTheme* get_default_system_color_theme();
 bool color_set_default_system_theme(const char* name);
+bool theme_save_personal(Mobile* ch);
+bool theme_discard_personal(Mobile* ch);
+void theme_show_theme(Mobile* ch, ColorTheme* theme);
+void theme_preview_theme(Mobile* ch, ColorTheme* theme);
+void send_ansi_color_list(Mobile* ch);
+void send_256_color_list(Mobile* ch);
+bool lookup_color(char* argument, Color* color, Mobile* ch);
 
 #define LOOKUP_COLOR_SLOT_CODE(s, c)                                        \
     for (int i_c = 0; i_c < COLOR_SLOT_COUNT; ++i_c)                        \
@@ -264,7 +271,7 @@ bool color_set_default_system_theme(const char* name);
 #define LOOKUP_PALETTE_CODE(pal, c)                                         \
 switch (type) {                                                             \
 case 'b': pal = PAL_BLUE; break;                                            \
-case 'c': pal = PAL_CYAN; break;                                           \
+case 'c': pal = PAL_CYAN; break;                                            \
 case 'g': pal = PAL_GREEN; break;                                           \
 case 'm': pal = PAL_MAGENTA; break;                                         \
 case 'r': pal = PAL_RED; break;                                             \

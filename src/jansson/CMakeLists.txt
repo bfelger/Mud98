@@ -39,4 +39,8 @@ if(JANSSON_MATH_LIBRARY)
     target_link_libraries(jansson PRIVATE ${JANSSON_MATH_LIBRARY})
 endif()
 
+
+if (CMAKE_C_COMPILER_ID MATCHES "GNU")
+    target_compile_options(jansson PRIVATE -Wno-format-truncation)
+endif()
 set_target_properties(jansson PROPERTIES POSITION_INDEPENDENT_CODE ON)

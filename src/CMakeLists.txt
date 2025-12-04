@@ -158,6 +158,7 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "olc/olc_save.c" "olc/pedit.c" "olc/qedit.c" "olc/raedit.c" "olc/redit.c" 
     "olc/screen.h" "olc/screen.c" "olc/sedit.c" "olc/skedit.c" 
     "olc/string_edit.h" "olc/string_edit.c"  "olc/lox_edit.h" "olc/lox_edit.c"
+    "olc/theme_edit.c"
 
     "mth/mth.h" "mth/msdp.c" "mth/mth.c" "mth/telopt.c"
     

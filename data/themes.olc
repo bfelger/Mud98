@@ -1,0 +1,422 @@
+6
+
+#THEME
+Name Lope~
+Banner Lope's ColoUr Code 2.0
+
+ColoUr is brought to you by Lope, ant@solace.mh.se
+
+~
+Info 2 0 15 1
+Palette 0 0 0 7 0 0
+Palette 1 0 0 0 0 0
+Palette 2 0 1 0 0 0
+Palette 3 0 1 7 0 0
+Palette 4 0 0 1 0 0
+Palette 5 0 1 1 0 0
+Palette 6 0 0 2 0 0
+Palette 7 0 1 2 0 0
+Palette 8 0 0 3 0 0
+Palette 9 0 1 3 0 0
+Palette 10 0 0 4 0 0
+Palette 11 0 1 4 0 0
+Palette 12 0 0 5 0 0
+Palette 13 0 1 5 0 0
+Palette 14 0 0 6 0 0
+Channel text 3 0 0 0 0
+Channel background 3 1 0 0 0
+Channel title 3 3 0 0 0
+Channel alt_text 3 14 0 0 0
+Channel alt_text2 3 2 0 0 0
+Channel decor1 3 11 0 0 0
+Channel decor2 3 9 0 0 0
+Channel decor3 3 14 0 0 0
+Channel auction 3 9 0 0 0
+Channel auction_text 3 3 0 0 0
+Channel gossip 3 12 0 0 0
+Channel gossip_text 3 13 0 0 0
+Channel music 3 4 0 0 0
+Channel music_text 3 5 0 0 0
+Channel question 3 9 0 0 0
+Channel question_text 3 3 0 0 0
+Channel answer 3 9 0 0 0
+Channel answer_text 3 3 0 0 0
+Channel quote 3 6 0 0 0
+Channel quote_text 3 7 0 0 0
+Channel immtalk_text 3 14 0 0 0
+Channel immtalk_type 3 8 0 0 0
+Channel info 3 8 0 0 0
+Channel say 3 6 0 0 0
+Channel say_text 3 7 0 0 0
+Channel tell 3 6 0 0 0
+Channel tell_text 3 7 0 0 0
+Channel reply 3 6 0 0 0
+Channel reply_text 3 7 0 0 0
+Channel gtell_text 3 6 0 0 0
+Channel gtell_type 3 4 0 0 0
+Channel wiznet 3 6 0 0 0
+Channel room_title 3 14 0 0 0
+Channel room_text 3 0 0 0 0
+Channel room_exits 3 6 0 0 0
+Channel room_things 3 14 0 0 0
+Channel prompt 3 14 0 0 0
+Channel fight_death 3 4 0 0 0
+Channel fight_yhit 3 6 0 0 0
+Channel fight_ohit 3 8 0 0 0
+Channel fight_thit 3 4 0 0 0
+Channel fight_skill 3 0 0 0 0
+Channel lox_comment 3 6 0 0 0
+Channel lox_string 3 9 0 0 0
+Channel lox_operator 3 2 0 0 0
+Channel lox_literal 3 13 0 0 0
+Channel lox_keyword 3 10 0 0 0
+#END
+
+#THEME
+Name Monorail~
+Banner ~
+Info 2 1 16 1
+Palette 0 1 15 0 0 0
+Palette 1 1 0 0 0 0
+Palette 2 1 244 0 0 0
+Palette 3 1 242 0 0 0
+Palette 4 1 246 0 0 0
+Palette 5 1 240 0 0 0
+Palette 6 1 248 0 0 0
+Palette 7 1 238 0 0 0
+Palette 8 1 250 0 0 0
+Palette 9 1 236 0 0 0
+Palette 10 1 252 0 0 0
+Palette 11 1 234 0 0 0
+Palette 12 1 254 0 0 0
+Palette 13 1 233 0 0 0
+Palette 14 1 255 0 0 0
+Palette 15 1 232 0 0 0
+Channel text 3 0 0 0 0
+Channel background 3 1 0 0 0
+Channel title 3 3 0 0 0
+Channel alt_text 3 14 0 0 0
+Channel alt_text2 3 2 0 0 0
+Channel decor1 3 11 0 0 0
+Channel decor2 3 9 0 0 0
+Channel decor3 3 14 0 0 0
+Channel auction 3 9 0 0 0
+Channel auction_text 3 3 0 0 0
+Channel gossip 3 12 0 0 0
+Channel gossip_text 3 13 0 0 0
+Channel music 3 4 0 0 0
+Channel music_text 3 5 0 0 0
+Channel question 3 9 0 0 0
+Channel question_text 3 3 0 0 0
+Channel answer 3 9 0 0 0
+Channel answer_text 3 3 0 0 0
+Channel quote 3 6 0 0 0
+Channel quote_text 3 7 0 0 0
+Channel immtalk_text 3 14 0 0 0
+Channel immtalk_type 3 8 0 0 0
+Channel info 3 8 0 0 0
+Channel say 3 6 0 0 0
+Channel say_text 3 7 0 0 0
+Channel tell 3 6 0 0 0
+Channel tell_text 3 7 0 0 0
+Channel reply 3 6 0 0 0
+Channel reply_text 3 7 0 0 0
+Channel gtell_text 3 6 0 0 0
+Channel gtell_type 3 4 0 0 0
+Channel wiznet 3 6 0 0 0
+Channel room_title 3 14 0 0 0
+Channel room_text 3 0 0 0 0
+Channel room_exits 3 6 0 0 0
+Channel room_things 3 14 0 0 0
+Channel prompt 3 14 0 0 0
+Channel fight_death 3 4 0 0 0
+Channel fight_yhit 3 6 0 0 0
+Channel fight_ohit 3 8 0 0 0
+Channel fight_thit 3 4 0 0 0
+Channel fight_skill 3 0 0 0 0
+Channel lox_comment 3 6 0 0 0
+Channel lox_string 3 9 0 0 0
+Channel lox_operator 3 2 0 0 0
+Channel lox_literal 3 13 0 0 0
+Channel lox_keyword 3 10 0 0 0
+#END
+
+#THEME
+Name Cool Cat~
+Banner If your MUD client/terminal does not support server-initiated changes to background color, consider manually setting your backround to to #282921 for best results.
+
+~
+Info 2 2 15 1
+Palette 0 2 247 247 243 0
+Palette 1 2 40 41 33 0
+Palette 2 2 117 113 94 0
+Palette 3 2 117 113 94 0
+Palette 4 2 250 37 115 0
+Palette 5 2 255 117 163 0
+Palette 6 2 165 227 47 0
+Palette 7 2 197 255 111 0
+Palette 8 2 253 151 113 0
+Palette 9 2 255 217 103 0
+Palette 10 2 101 217 240 0
+Palette 11 2 154 248 255 0
+Palette 12 2 160 50 255 0
+Palette 13 2 175 128 255 0
+Palette 14 2 101 217 240 0
+Channel text 3 0 0 0 0
+Channel background 3 1 0 0 0
+Channel title 3 3 0 0 0
+Channel alt_text 3 14 0 0 0
+Channel alt_text2 3 2 0 0 0
+Channel decor1 3 11 0 0 0
+Channel decor2 3 9 0 0 0
+Channel decor3 3 14 0 0 0
+Channel auction 3 9 0 0 0
+Channel auction_text 3 3 0 0 0
+Channel gossip 3 12 0 0 0
+Channel gossip_text 3 13 0 0 0
+Channel music 3 4 0 0 0
+Channel music_text 3 5 0 0 0
+Channel question 3 9 0 0 0
+Channel question_text 3 3 0 0 0
+Channel answer 3 9 0 0 0
+Channel answer_text 3 3 0 0 0
+Channel quote 3 6 0 0 0
+Channel quote_text 3 7 0 0 0
+Channel immtalk_text 3 14 0 0 0
+Channel immtalk_type 3 8 0 0 0
+Channel info 3 8 0 0 0
+Channel say 3 6 0 0 0
+Channel say_text 3 7 0 0 0
+Channel tell 3 6 0 0 0
+Channel tell_text 3 7 0 0 0
+Channel reply 3 6 0 0 0
+Channel reply_text 3 7 0 0 0
+Channel gtell_text 3 6 0 0 0
+Channel gtell_type 3 4 0 0 0
+Channel wiznet 3 6 0 0 0
+Channel room_title 3 14 0 0 0
+Channel room_text 3 0 0 0 0
+Channel room_exits 3 6 0 0 0
+Channel room_things 3 14 0 0 0
+Channel prompt 3 14 0 0 0
+Channel fight_death 3 4 0 0 0
+Channel fight_yhit 3 6 0 0 0
+Channel fight_ohit 3 8 0 0 0
+Channel fight_thit 3 4 0 0 0
+Channel fight_skill 3 0 0 0 0
+Channel lox_comment 3 6 0 0 0
+Channel lox_string 3 9 0 0 0
+Channel lox_operator 3 2 0 0 0
+Channel lox_literal 3 13 0 0 0
+Channel lox_keyword 3 10 0 0 0
+#END
+
+#THEME
+Name Glow Pop~
+Banner If your MUD client/terminal does not support server-initiated changes to background color, consider manually setting your backround to to #16171A for best results.
+
+~
+Info 2 2 16 1
+Palette 0 2 250 253 255 0
+Palette 1 2 22 23 26 0
+Palette 2 2 35 73 117 0
+Palette 3 2 0 120 153 0
+Palette 4 2 127 6 34 0
+Palette 5 2 214 36 17 0
+Palette 6 2 16 210 117 0
+Palette 7 2 191 255 60 0
+Palette 8 2 255 132 38 0
+Palette 9 2 255 209 0 0
+Palette 10 2 0 40 89 0
+Palette 11 2 104 174 212 0
+Palette 12 2 67 0 103 0
+Palette 13 2 148 33 106 0
+Palette 14 2 255 38 116 0
+Palette 15 2 255 128 164 0
+Channel text 3 0 0 0 0
+Channel background 3 1 0 0 0
+Channel title 3 3 0 0 0
+Channel alt_text 3 14 0 0 0
+Channel alt_text2 3 2 0 0 0
+Channel decor1 3 11 0 0 0
+Channel decor2 3 9 0 0 0
+Channel decor3 3 14 0 0 0
+Channel auction 3 9 0 0 0
+Channel auction_text 3 3 0 0 0
+Channel gossip 3 12 0 0 0
+Channel gossip_text 3 13 0 0 0
+Channel music 3 4 0 0 0
+Channel music_text 3 5 0 0 0
+Channel question 3 9 0 0 0
+Channel question_text 3 3 0 0 0
+Channel answer 3 9 0 0 0
+Channel answer_text 3 3 0 0 0
+Channel quote 3 6 0 0 0
+Channel quote_text 3 7 0 0 0
+Channel immtalk_text 3 14 0 0 0
+Channel immtalk_type 3 8 0 0 0
+Channel info 3 8 0 0 0
+Channel say 3 6 0 0 0
+Channel say_text 3 7 0 0 0
+Channel tell 3 6 0 0 0
+Channel tell_text 3 7 0 0 0
+Channel reply 3 6 0 0 0
+Channel reply_text 3 7 0 0 0
+Channel gtell_text 3 6 0 0 0
+Channel gtell_type 3 4 0 0 0
+Channel wiznet 3 6 0 0 0
+Channel room_title 3 14 0 0 0
+Channel room_text 3 0 0 0 0
+Channel room_exits 3 6 0 0 0
+Channel room_things 3 14 0 0 0
+Channel prompt 3 14 0 0 0
+Channel fight_death 3 4 0 0 0
+Channel fight_yhit 3 6 0 0 0
+Channel fight_ohit 3 8 0 0 0
+Channel fight_thit 3 4 0 0 0
+Channel fight_skill 3 0 0 0 0
+Channel lox_comment 3 6 0 0 0
+Channel lox_string 3 9 0 0 0
+Channel lox_operator 3 2 0 0 0
+Channel lox_literal 3 13 0 0 0
+Channel lox_keyword 3 10 0 0 0
+#END
+
+#THEME
+Name Synthwave City~
+Banner If your MUD client/terminal does not support server-initiated changes to background color, consider manually setting your backround to to #1B1E23 for best results.
+
+~
+Info 2 2 15 1
+Palette 0 2 246 237 219 0
+Palette 1 2 27 30 35 0
+Palette 2 2 236 141 117 0
+Palette 3 2 80 169 207 0
+Palette 4 2 189 75 100 0
+Palette 5 2 236 141 117 0
+Palette 6 2 80 169 207 0
+Palette 7 2 150 230 194 0
+Palette 8 2 236 141 117 0
+Palette 9 2 246 237 219 0
+Palette 10 2 64 38 92 0
+Palette 11 2 36 69 132 0
+Palette 12 2 64 38 92 0
+Palette 13 2 158 34 129 0
+Palette 14 2 36 69 132 0
+Channel text 3 0 0 0 0
+Channel background 3 1 0 0 0
+Channel title 3 3 0 0 0
+Channel alt_text 3 14 0 0 0
+Channel alt_text2 3 2 0 0 0
+Channel decor1 3 2 0 0 0
+Channel decor2 3 3 0 0 0
+Channel decor3 3 4 0 0 0
+Channel auction 3 9 0 0 0
+Channel auction_text 3 3 0 0 0
+Channel gossip 3 12 0 0 0
+Channel gossip_text 3 13 0 0 0
+Channel music 3 4 0 0 0
+Channel music_text 3 5 0 0 0
+Channel question 3 9 0 0 0
+Channel question_text 3 3 0 0 0
+Channel answer 3 9 0 0 0
+Channel answer_text 3 3 0 0 0
+Channel quote 3 6 0 0 0
+Channel quote_text 3 7 0 0 0
+Channel immtalk_text 3 14 0 0 0
+Channel immtalk_type 3 8 0 0 0
+Channel info 3 8 0 0 0
+Channel say 3 6 0 0 0
+Channel say_text 3 7 0 0 0
+Channel tell 3 6 0 0 0
+Channel tell_text 3 7 0 0 0
+Channel reply 3 6 0 0 0
+Channel reply_text 3 7 0 0 0
+Channel gtell_text 3 6 0 0 0
+Channel gtell_type 3 4 0 0 0
+Channel wiznet 3 6 0 0 0
+Channel room_title 3 14 0 0 0
+Channel room_text 3 0 0 0 0
+Channel room_exits 3 6 0 0 0
+Channel room_things 3 14 0 0 0
+Channel prompt 3 14 0 0 0
+Channel fight_death 3 4 0 0 0
+Channel fight_yhit 3 6 0 0 0
+Channel fight_ohit 3 8 0 0 0
+Channel fight_thit 3 4 0 0 0
+Channel fight_skill 3 0 0 0 0
+Channel lox_comment 3 6 0 0 0
+Channel lox_string 3 9 0 0 0
+Channel lox_operator 3 2 0 0 0
+Channel lox_literal 3 13 0 0 0
+Channel lox_keyword 3 10 0 0 0
+#END
+
+#THEME
+Name Conestoga~
+Banner ~
+Info 2 2 16 1
+Palette 0 2 237 230 203 0
+Palette 1 2 17 18 21 0
+Palette 2 2 232 178 111 0
+Palette 3 2 245 216 147 0
+Palette 4 2 64 35 30 0
+Palette 5 2 64 35 30 0
+Palette 6 2 29 50 48 0
+Palette 7 2 49 78 63 0
+Palette 8 2 112 77 43 0
+Palette 9 2 182 131 76 0
+Palette 10 2 62 112 142 0
+Palette 11 2 105 159 173 0
+Palette 12 2 79 93 66 0
+Palette 13 2 154 159 135 0
+Palette 14 2 43 69 79 0
+Palette 15 2 43 69 79 0
+Channel text 3 0 0 0 0
+Channel background 3 1 0 0 0
+Channel title 3 3 0 0 0
+Channel alt_text 3 8 0 0 0
+Channel alt_text2 3 14 0 0 0
+Channel decor1 3 4 0 0 0
+Channel decor2 3 9 0 0 0
+Channel decor3 3 13 0 0 0
+Channel auction 3 5 0 0 0
+Channel auction_text 3 4 0 0 0
+Channel gossip 3 3 0 0 0
+Channel gossip_text 3 2 0 0 0
+Channel music 3 0 0 0 0
+Channel music_text 3 0 0 0 0
+Channel question 3 14 0 0 0
+Channel question_text 3 15 0 0 0
+Channel answer 3 14 0 0 0
+Channel answer_text 3 15 0 0 0
+Channel quote 3 14 0 0 0
+Channel quote_text 3 14 0 0 0
+Channel immtalk_text 3 3 0 0 0
+Channel immtalk_type 3 4 0 0 0
+Channel info 3 2 0 0 0
+Channel say 3 14 0 0 0
+Channel say_text 3 15 0 0 0
+Channel tell 3 9 0 0 0
+Channel tell_text 3 8 0 0 0
+Channel reply 3 9 0 0 0
+Channel reply_text 3 8 0 0 0
+Channel gtell_text 3 0 0 0 0
+Channel gtell_type 3 2 0 0 0
+Channel wiznet 3 3 0 0 0
+Channel room_title 3 3 0 0 0
+Channel room_text 3 0 0 0 0
+Channel room_exits 3 0 0 0 0
+Channel room_things 3 0 0 0 0
+Channel prompt 3 10 0 0 0
+Channel fight_death 2 136 51 34 0
+Channel fight_yhit 3 4 0 0 0
+Channel fight_ohit 3 2 0 0 0
+Channel fight_thit 2 176 51 34 0
+Channel fight_skill 3 3 0 0 0
+Channel lox_comment 3 12 0 0 0
+Channel lox_string 3 3 0 0 0
+Channel lox_operator 3 8 0 0 0
+Channel lox_literal 3 10 0 0 0
+Channel lox_keyword 3 14 0 0 0
+#END
