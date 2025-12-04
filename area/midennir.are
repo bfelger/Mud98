@@ -171,7 +171,7 @@ a black horned helmet~
 A helmet with sharp black horns sits here.~
 iron~
 armor 0 AE
-3 5 4 0 1
+3 5 4 0 0
 5 30 490 A
 #3503
 cloak stained~
@@ -179,7 +179,7 @@ a stained travelling cloak~
 A worn and stained cloak is crumpled up on the floor.~
 cloth~
 armor 0 AC
-2 3 4 0 1
+2 3 4 0 0
 3 40 310 A
 #3504
 bracer leather enchanted~
@@ -230,11 +230,11 @@ enter the hills far away north.
 D0
 ~
 ~
-0 0 4000
+0 -1 4000
 D2
 ~
 ~
-0 0 3501
+0 -1 3501
 S
 #3501
 The Lane~
@@ -247,11 +247,11 @@ serenity. You can follow the road north or south.
 D0
 ~
 ~
-0 0 3500
+0 -1 3500
 D2
 ~
 ~
-0 0 3502
+0 -1 3502
 S
 #3502
 The Cross Roads~
@@ -267,22 +267,22 @@ D0
 An old road leads towards the abandoned mines of Moria and the Dwarven Kingom.
 ~
 ~
-0 0 3501
+0 -1 3501
 D1
 The road continues east, where you hear faint singing.
 ~
 ~
-0 0 3525
+0 -1 3525
 D2
 A once mighty road leads through the dwarf forest towards ruined Thalos.
 ~
 ~
-0 0 5261
+0 -1 5261
 D3
 The road leads west towards Midgaard.
 ~
 ~
-0 0 3503
+0 -1 3503
 S
 #3503
 City Entrance~
@@ -296,11 +296,11 @@ C 1
 D1
 ~
 ~
-0 0 3502
+0 -1 3502
 D3
 ~
 ~
-0 0 3053
+0 -1 3053
 S
 #3505
 The Trail to Miden'nir~
@@ -323,22 +323,22 @@ D0
 To the north, you see the southern gates of Midgaard.
 ~
 ~
-0 0 3256
+0 -1 3256
 D1
 More light forest.
 ~
 ~
-0 0 3506
+0 -1 3506
 D2
 This path cuts through the darkness of the Miden'nir.
 ~
 ~
-0 0 3507
+0 -1 3507
 D3
 The Woodsman's Inn.
 ~
 ~
-0 0 3570
+0 -1 3570
 S
 #3506
 The Miden'nir~
@@ -355,12 +355,12 @@ D2
 The forest is darker to the south.
 ~
 ~
-0 0 3509
+0 -1 3509
 D3
 The forest gets lighter as you go west.
 ~
 ~
-0 0 3505
+0 -1 3505
 S
 #3507
 The Miden'nir~
@@ -374,17 +374,17 @@ D0
 The forest is lighter in this direction.
 ~
 ~
-0 0 3505
+0 -1 3505
 D2
 More and darker woods.
 ~
 ~
-0 0 3510
+0 -1 3510
 D3
 There is a small path leading west.
 ~
 ~
-0 0 3508
+0 -1 3508
 S
 #3508
 On a Small Path~
@@ -397,12 +397,12 @@ D1
 Wind-swept forest.
 ~
 ~
-0 0 3507
+0 -1 3507
 D2
 To the south, the trail continues.
 ~
 ~
-0 0 3511
+0 -1 3511
 S
 #3509
 The Miden'nir~
@@ -416,17 +416,17 @@ D0
 The trees lighten up a bit this way.
 ~
 ~
-0 0 3506
+0 -1 3506
 D1
 Huge grey mountains lie in this direction.
 ~
 ~
-0 0 3512
+0 -1 3512
 D2
 The forest continues.
 ~
 ~
-0 0 3514
+0 -1 3514
 S
 #3510
 A Crossroads~
@@ -440,17 +440,17 @@ D0
 Trees as far as the eye can see.
 ~
 ~
-0 0 3507
+0 -1 3507
 D1
 There is an especially dark part of the forest this way.
 ~
 ~
-0 0 3514
+0 -1 3514
 D2
 There is an especially dark section of forest this way.
 ~
 ~
-0 0 3516
+0 -1 3516
 S
 #3511
 The Trail~
@@ -464,12 +464,12 @@ D0
 The trail bends to the north.
 ~
 ~
-0 0 3508
+0 -1 3508
 D2
 To the south, the path re-enters the forest.
 ~
 ~
-0 0 3515
+0 -1 3515
 S
 #3512
 The Miden'nir~
@@ -487,12 +487,12 @@ D2
 A light section of forest.
 ~
 ~
-0 0 3513
+0 -1 3513
 D3
 The forest continues here.
 ~
 ~
-0 0 3509
+0 -1 3509
 S
 #3513
 The Miden'nir~
@@ -506,12 +506,12 @@ D0
 There is a small clearing to the north.
 ~
 ~
-0 0 3512
+0 -1 3512
 D3
 It gets darker and thicker this way.
 ~
 ~
-0 0 3514
+0 -1 3514
 S
 #3514
 Deep Forest~
@@ -525,22 +525,22 @@ D0
 More forest.
 ~
 ~
-0 0 3509
+0 -1 3509
 D1
 Lighter forest and mountains in the distance.
 ~
 ~
-0 0 3513
+0 -1 3513
 D2
 More trees.
 ~
 ~
-0 0 3517
+0 -1 3517
 D3
 The forest continues.
 ~
 ~
-0 0 3510
+0 -1 3510
 S
 #3515
 Light Forest~
@@ -554,17 +554,17 @@ D0
 A trail leading north-south.
 ~
 ~
-0 0 3511
+0 -1 3511
 D1
 The trees get thicker as you go east.
 ~
 ~
-0 0 3516
+0 -1 3516
 D2
 More trees and some small hills.
 ~
 ~
-0 0 3518
+0 -1 3518
 S
 #3516
 Muddy Ground~
@@ -578,22 +578,22 @@ D0
 The Miden'nir continues.
 ~
 ~
-0 0 3510
+0 -1 3510
 D1
 More trees.
 ~
 ~
-0 0 3517
+0 -1 3517
 D2
 The trees get VERY thick to the south. You can barely see...
 ~
 ~
-0 0 3519
+0 -1 3519
 D3
 Some light trees and daylight.
 ~
 ~
-0 0 3515
+0 -1 3515
 S
 #3517
 Near the Mountains~
@@ -607,12 +607,12 @@ D0
 Many trees to the north.
 ~
 ~
-0 0 3514
+0 -1 3514
 D3
 There is a bit of a slope downward to the west.
 ~
 ~
-0 0 3516
+0 -1 3516
 S
 #3518
 The Fading Trail~
@@ -625,12 +625,12 @@ D0
 You can see a trail this way.
 ~
 ~
-0 0 3515
+0 -1 3515
 D2
 Dark forests.
 ~
 ~
-0 0 3522
+0 -1 3522
 S
 #3519
 The Dark Path~
@@ -644,17 +644,17 @@ D0
 The forest gets lighter this way.
 ~
 ~
-0 0 3516
+0 -1 3516
 D1
 The forest continues.
 ~
 ~
-0 0 3520
+0 -1 3520
 D2
 There is a strong stench coming from this direction.
 ~
 ~
-0 0 3521
+0 -1 3521
 S
 #3520
 The Dark Forest~
@@ -670,12 +670,12 @@ D2
 The thick forest continues.
 ~
 ~
-0 0 3523
+0 -1 3523
 D3
 The thick forest continues.
 ~
 ~
-0 0 3519
+0 -1 3519
 S
 #3521
 Carnage~
@@ -697,17 +697,17 @@ D0
 Darkness...
 ~
 ~
-0 0 3519
+0 -1 3519
 D1
 Your light does not extend that far.
 ~
 ~
-0 0 3523
+0 -1 3523
 D3
 More dark forest.
 ~
 ~
-0 0 3522
+0 -1 3522
 S
 #3522
 Deep in the Forest of Miden'nir~
@@ -721,12 +721,12 @@ D0
 You see daylight and a trail to follow.
 ~
 ~
-0 0 3518
+0 -1 3518
 D1
 The stench seems to becoming from this direction.
 ~
 ~
-0 0 3521
+0 -1 3521
 S
 #3523
 The Dark Forest~
@@ -741,7 +741,7 @@ D0
 It appears to get much darker that direction.
 ~
 ~
-0 0 3520
+0 -1 3520
 D1
 ~
 ~
@@ -750,7 +750,7 @@ D3
 The sky becomes lighter in this direction.
 ~
 ~
-0 0 3521
+0 -1 3521
 S
 #3525
 Along the Eastern Road~
@@ -1086,22 +1086,22 @@ D0
 You can go north around the inn.
 ~
 ~
-0 0 3571
+0 -1 3571
 D1
 Back through the trees to the Miden'nir.
 ~
 ~
-0 0 3505
+0 -1 3505
 D2
 You can go south around the inn.
 ~
 ~
-0 0 3572
+0 -1 3572
 D3
 The front door of the inn beckons.
 ~
 ~
-0 0 3574
+0 -1 3574
 S
 #3571
 North of the Inn~
@@ -1130,17 +1130,17 @@ D0
 This way leads to the front of the inn.
 ~
 ~
-0 0 3570
+0 -1 3570
 D2
 The trail heads south.
 ~
 ~
-0 0 3575
+0 -1 3575
 D3
 This way leads to the back of the inn.
 ~
 ~
-0 0 3573
+0 -1 3573
 S
 #3573
 Behind the Inn~
@@ -1156,12 +1156,12 @@ D1
 You can go around the inn this way.
 ~
 ~
-0 0 3572
+0 -1 3572
 D3
 Only rats and fool adventurers play in garbage.
 ~
 ~
-0 0 3578
+0 -1 3578
 S
 #3574
 The Woodsman Inn~
@@ -1177,21 +1177,21 @@ D0
 The bar is here, manned by the innkeeper.
 ~
 ~
-0 0 3576
+0 -1 3576
 D1
 You can leave now and return to fresher air.
 ~
 ~
-0 0 3570
+0 -1 3570
 D2
 An empty table is a rare commodity.
 ~
 ~
-0 0 3579
+0 -1 3579
 D3
 ~
 ~
-0 0 3577
+0 -1 3577
 S
 #3575
 The Ambush Point~
@@ -1206,12 +1206,12 @@ D0
 The inn lies to the north.
 ~
 ~
-0 0 3572
+0 -1 3572
 D3
 A trail thru the woods.
 ~
 ~
-0 0 3581
+0 -1 3581
 S
 #3576
 The Bar~
@@ -1226,7 +1226,7 @@ D2
 You may retreat south back to the common room.
 ~
 ~
-0 0 3574
+0 -1 3574
 S
 #3577
 The Bard's Table~
@@ -1240,7 +1240,7 @@ D1
 You see the main floor of the Inn to the east.
 ~
 ~
-0 0 3574
+0 -1 3574
 S
 #3578
 Garbage dump~
@@ -1253,7 +1253,7 @@ D1
 You can return to cleaner lands this way.
 ~
 ~
-0 0 3573
+0 -1 3573
 S
 #3579
 A Quieter Section of the Inn~
@@ -1266,7 +1266,7 @@ D0
 You see the common room.
 ~
 ~
-0 0 3574
+0 -1 3574
 S
 #3581
 On the Trail of the Horsemen~
@@ -1279,7 +1279,7 @@ D1
 Back to ambush point.
 ~
 ~
-0 0 3575
+0 -1 3575
 D3
 The trail continues.
 ~
@@ -1297,7 +1297,7 @@ D1
 The trail continues.
 ~
 ~
-0 0 3581
+0 -1 3581
 D2
 The tracks lead south.
 ~
@@ -1334,7 +1334,7 @@ D1
 Back to along the trail.
 ~
 ~
-0 0 3583
+0 -1 3583
 S
 #0
 

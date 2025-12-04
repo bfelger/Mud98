@@ -389,7 +389,7 @@ coal~
 a chunk of coal~
 There is a chunk of coal here.~
 oldstyle~
-trash T AO
+trash 0 AO
 0 0 0 0 0
 0 10 0 P
 #6518
@@ -957,7 +957,7 @@ A lighted area that looks like a well worn path.
 D5
 ~
 trapdoor~
-1 0 6527
+1 -1 6527
 S
 #6527
 Wine cellar~

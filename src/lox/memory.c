@@ -456,9 +456,9 @@ static void mark_roots()
     mark_array(&gc_protect_vals);
     mark_table(&faction_table);
     mark_array(&global_areas);
-    mark_table(&global_rooms);
-    mark_table(&mob_protos);
-    mark_table(&obj_protos);
+    mark_global_rooms();
+    mark_global_mob_protos();
+    mark_global_obj_protos();
 
     mark_list(&mob_free);
     mark_list(&mob_list);

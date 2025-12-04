@@ -12,6 +12,8 @@
 #include "lox/object.h"
 #include "lox/value.h"
 
+#include <stdbool.h>
+
 typedef struct {
     Value key;
     Value value;
@@ -22,11 +24,15 @@ typedef struct value_table_t {
     int count;
     int capacity;
     Entry* entries;
+    bool use_heap_allocator;
+    bool entries_from_heap;
 } Table;
 
 Table* new_table();
 void init_table(Table* table);
 void free_table(Table* table);
+void table_use_heap_allocator(Table* table);
+void table_reserve(Table* table, int min_capacity);
 bool table_get(Table* table, ObjString* key, Value* value);
 bool table_get_entry(Table* table, ObjString* key, Entry** out_entry);
 bool table_get_vnum(Table* table, int32_t key, Value* value);

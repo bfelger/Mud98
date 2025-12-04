@@ -255,7 +255,7 @@ void show_char_to_char_0(Mobile* victim, Mobile* ch)
     if (victim->position == victim->start_pos
         && victim->long_descr[0] != '\0') {
         strcat(buf, victim->long_descr);
-        send_to_char(buf, ch);
+        printf_to_char(ch, "%s" COLOR_CLEAR, buf);
         return;
     }
 

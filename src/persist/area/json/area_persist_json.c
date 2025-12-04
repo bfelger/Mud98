@@ -33,6 +33,7 @@
 #include <lookup.h>
 #include <tables.h>
 #include <handler.h>
+#include <comm.h>
 #include <mob_prog.h>
 #include <db.h>
 
@@ -40,6 +41,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #define AREA_JSON_FORMAT_VERSION 1
 
@@ -76,6 +78,11 @@ static int dir_enum_from_name(const char* name)
     if (!name)
         return -1;
     return (int)get_direction(name);
+}
+
+static bool sector_value_is_known(Sector value)
+{
+    return value >= SECT_INSIDE && value <= SECT_DESERT;
 }
 
 static const char* checklist_status_name(ChecklistStatus status)
@@ -267,7 +274,7 @@ static json_t* build_exit(const RoomExitData* ex)
     if (dir)
         json_object_set_new(obj, "dir", json_string(dir));
     json_object_set_new(obj, "toVnum", json_integer(ex->to_vnum));
-    if (ex->key != 0)
+    if (ex->key != -1)
         json_object_set_new(obj, "key", json_integer(ex->key));
     json_set_flags_if(obj, "flags", ex->exit_reset_flags, exit_flag_table);
     if (ex->description && ex->description[0] != '\0')
@@ -292,6 +299,10 @@ static json_t* build_extra_descs(ExtraDesc* ed_list)
 static json_t* build_rooms(const AreaData* area)
 {
     json_t* arr = json_array();
+    FLAGS known_room_mask = 0;
+    for (int i = 0; room_flag_table[i].name != NULL; ++i)
+        known_room_mask |= room_flag_table[i].bit;
+
     RoomData* room_data;
     FOR_EACH_GLOBAL_ROOM(room_data) {
         if (room_data->area_data != area)
@@ -300,8 +311,18 @@ static json_t* build_rooms(const AreaData* area)
         json_object_set_new(obj, "vnum", json_integer(VNUM_FIELD(room_data)));
         json_object_set_new(obj, "name", json_string(NAME_STR(room_data)));
         json_object_set_new(obj, "description", json_string(room_data->description ? room_data->description : ""));
-        json_set_flags_if(obj, "roomFlags", room_data->room_flags, room_flag_table);
+        FLAGS room_flags = room_data->room_flags;
+        json_set_flags_if(obj, "roomFlags", room_flags, room_flag_table);
+        FLAGS unknown_room_bits = room_flags & ~known_room_mask;
+        if (unknown_room_bits != 0)
+            json_object_set_new(obj, "roomFlagsValue", json_integer(room_flags));
         const char* sector_name = flag_string(sector_flag_table, room_data->sector_type);
+        if (!sector_value_is_known(room_data->sector_type)) {
+            fprintf(stderr, "json_save_area: room %"PRVNUM" in %s has unknown sector %d\n",
+                VNUM_FIELD(room_data),
+                area && area->file_name ? area->file_name : "<unknown>",
+                room_data->sector_type);
+        }
         if (sector_name && sector_name[0] != '\0')
             json_object_set_new(obj, "sectorType", json_string(sector_name));
         if (room_data->mana_rate != 100)
@@ -314,9 +335,9 @@ static json_t* build_rooms(const AreaData* area)
             json_object_set_new(obj, "owner", json_string(room_data->owner));
 
         json_t* exits = json_array();
-        for (int i = 0; i < DIR_MAX; i++) {
-            if (room_data->exit_data[i])
-                json_array_append_new(exits, build_exit(room_data->exit_data[i]));
+        for (int dir = 0; dir < DIR_MAX; dir++) {
+            if (room_data->exit_data[dir])
+                json_array_append_new(exits, build_exit(room_data->exit_data[dir]));
         }
         if (json_array_size(exits) > 0)
             json_object_set_new(obj, "exits", exits);
@@ -337,6 +358,7 @@ static json_t* build_rooms(const AreaData* area)
 
         json_array_append_new(arr, obj);
     }
+
     return arr;
 }
 
@@ -469,7 +491,13 @@ static PersistResult parse_exits(RoomData* room, json_t* exits)
         RoomExitData* ex_data = new_room_exit_data();
         ex_data->orig_dir = dir;
         ex_data->to_vnum = (VNUM)json_int_or_default(ex, "toVnum", 0);
-        ex_data->key = (int16_t)json_int_or_default(ex, "key", 0);
+        ex_data->key = (int16_t)json_int_or_default(ex, "key", -1);
+        if (ex_data->key == 0) {
+            fprintf(stderr, "json_load_area: room %"PRVNUM" exit %s in %s has key vnum 0; treating as -1\n",
+                VNUM_FIELD(room), dir_name ? dir_name : "?",
+                room->area_data && room->area_data->file_name ? room->area_data->file_name : "<unknown>");
+            ex_data->key = -1;
+        }
         ex_data->exit_reset_flags = flags_from_array(json_object_get(ex, "flags"), exit_flag_table);
 
         const char* desc = json_string_value(json_object_get(ex, "description"));
@@ -507,6 +535,7 @@ static PersistResult parse_rooms(json_t* root, AreaData* area)
         }
 
         room->room_flags = flags_from_array(json_object_get(r, "roomFlags"), room_flag_table);
+        room->room_flags = (FLAGS)json_int_or_default(r, "roomFlagsValue", room->room_flags);
         json_t* sector_val = json_object_get(r, "sectorType");
         if (json_is_string(sector_val)) {
             FLAGS s = flag_lookup(json_string_value(sector_val), sector_flag_table);
@@ -526,7 +555,7 @@ static PersistResult parse_rooms(json_t* root, AreaData* area)
 
         VNUM vnum = (VNUM)json_int_or_default(r, "vnum", VNUM_NONE);
         VNUM_FIELD(room) = vnum;
-        table_set_vnum(&global_rooms, vnum, OBJ_VAL(room));
+        global_room_set(room);
         top_vnum_room = top_vnum_room < vnum ? vnum : top_vnum_room;
         assign_area_vnum(vnum);
 
@@ -592,10 +621,25 @@ static json_t* build_affect(const Affect* af)
     json_object_set_new(obj, "modifier", json_integer(af->modifier));
 
     const struct bit_type* bv_type = &bitvector_type[af->where];
-    if (bv_type && bv_type->table)
-        json_set_flags_if(obj, "bitvector", af->bitvector, bv_type->table);
-    else if (af->bitvector != 0)
+    if (bv_type && bv_type->table) {
+        json_t* bits = json_array();
+        FLAGS value = af->bitvector;
+        for (int i = 0; bv_type->table[i].name != NULL; ++i) {
+            if (IS_SET(value, bv_type->table[i].bit)) {
+                json_array_append_new(bits, json_string(bv_type->table[i].name));
+                REMOVE_BIT(value, bv_type->table[i].bit);
+            }
+        }
+        if (json_array_size(bits) > 0)
+            json_object_set_new(obj, "bitvector", bits);
+        else
+            json_decref(bits);
+        if (value != 0)
+            json_object_set_new(obj, "bitvectorValue", json_integer(value));
+    }
+    else if (af->bitvector != 0) {
         json_object_set_new(obj, "bitvectorValue", json_integer(af->bitvector));
+    }
 
     return obj;
 }
@@ -612,6 +656,9 @@ static void parse_affects(json_t* arr, Affect** out_list)
 {
     if (!json_is_array(arr) || !out_list)
         return;
+
+    Affect* new_head = NULL;
+    Affect** new_tail = &new_head;
 
     size_t count = json_array_size(arr);
     for (size_t i = 0; i < count; i++) {
@@ -648,13 +695,27 @@ static void parse_affects(json_t* arr, Affect** out_list)
 
         const struct bit_type* bv_type = &bitvector_type[af->where];
         json_t* bv = json_object_get(a, "bitvector");
+        FLAGS bv_value = 0;
         if (bv && bv_type && bv_type->table)
-            af->bitvector = (int16_t)flags_from_array(bv, bv_type->table);
-        else
-            af->bitvector = (int16_t)json_int_or_default(a, "bitvectorValue", af->bitvector);
+            bv_value = flags_from_array(bv, bv_type->table);
+        FLAGS bv_extra = (FLAGS)json_int_or_default(a, "bitvectorValue", 0);
+        af->bitvector = (int)(bv_value | bv_extra);
 
-        af->next = *out_list;
-        *out_list = af;
+        af->next = NULL;
+        *new_tail = af;
+        new_tail = &af->next;
+    }
+
+    if (new_head == NULL)
+        return;
+
+    if (*out_list == NULL)
+        *out_list = new_head;
+    else {
+        Affect* tail = *out_list;
+        while (tail->next)
+            tail = tail->next;
+        tail->next = new_head;
     }
 }
 
@@ -685,7 +746,9 @@ static void json_to_dice(json_t* src, int16_t dice[3])
 
 static const char* skill_name_from_sn(SKNUM sn)
 {
-    if (sn >= 0 && sn < skill_count && skill_table[sn].name)
+    if (sn <= 0)
+        return NULL;
+    if (sn < skill_count && skill_table[sn].name && skill_table[sn].name[0] != '\0')
         return skill_table[sn].name;
     return NULL;
 }
@@ -720,14 +783,8 @@ static void apply_spell_array(json_t* arr, ObjPrototype* obj, int start, int cou
 static json_t* build_mobiles(const AreaData* area)
 {
     json_t* arr = json_array();
-    if (mob_protos.capacity == 0 || mob_protos.entries == NULL)
-        return arr;
-
-    for (int idx = 0; idx < mob_protos.capacity; ++idx) {
-        Entry* entry = &mob_protos.entries[idx];
-        if (IS_NIL(entry->value) || !IS_MOB_PROTO(entry->value))
-            continue;
-        MobPrototype* mob = AS_MOB_PROTO(entry->value);
+    MobPrototype* mob;
+    FOR_EACH_MOB_PROTO(mob) {
         if (mob->area != area)
             continue;
 
@@ -739,7 +796,13 @@ static json_t* build_mobiles(const AreaData* area)
         json_object_set_new(obj, "description", json_string(mob->description ? mob->description : ""));
         json_object_set_new(obj, "race", json_string(race_table[mob->race].name));
 
-        json_set_flags_if(obj, "actFlags", mob->act_flags, act_flag_table);
+        FLAGS act_flags = mob->act_flags;
+        json_set_flags_if(obj, "actFlags", act_flags, act_flag_table);
+        FLAGS known_act_mask = 0;
+        for (int i = 0; act_flag_table[i].name != NULL; ++i)
+            known_act_mask |= act_flag_table[i].bit;
+        if ((act_flags & ~known_act_mask) != 0)
+            json_object_set_new(obj, "actFlagsValue", json_integer(act_flags));
         json_set_flags_if(obj, "affectFlags", mob->affect_flags, affect_flag_table);
         json_set_flags_if(obj, "atkFlags", mob->atk_flags, off_flag_table);
         json_set_flags_if(obj, "immFlags", mob->imm_flags, imm_flag_table);
@@ -829,6 +892,7 @@ static PersistResult parse_mobiles(json_t* root, AreaData* area)
         }
 
         mob->act_flags = flags_from_array(json_object_get(m, "actFlags"), act_flag_table);
+        mob->act_flags = (FLAGS)json_int_or_default(m, "actFlagsValue", mob->act_flags);
         mob->affect_flags = flags_from_array(json_object_get(m, "affectFlags"), affect_flag_table);
         mob->atk_flags = flags_from_array(json_object_get(m, "atkFlags"), off_flag_table);
         mob->imm_flags = flags_from_array(json_object_get(m, "immFlags"), imm_flag_table);
@@ -895,7 +959,7 @@ static PersistResult parse_mobiles(json_t* root, AreaData* area)
 
         VNUM vnum = (VNUM)json_int_or_default(m, "vnum", VNUM_NONE);
         VNUM_FIELD(mob) = vnum;
-        table_set_vnum(&mob_protos, vnum, OBJ_VAL(mob));
+        global_mob_proto_set(mob);
         top_vnum_mob = top_vnum_mob < vnum ? vnum : top_vnum_mob;
         assign_area_vnum(vnum);
     }
@@ -906,14 +970,8 @@ static PersistResult parse_mobiles(json_t* root, AreaData* area)
 static json_t* build_shops(const AreaData* area)
 {
     json_t* arr = json_array();
-    if (mob_protos.capacity == 0 || mob_protos.entries == NULL)
-        return arr;
-
-    for (int idx = 0; idx < mob_protos.capacity; ++idx) {
-        Entry* entry = &mob_protos.entries[idx];
-        if (IS_NIL(entry->value) || !IS_MOB_PROTO(entry->value))
-            continue;
-        MobPrototype* mob = AS_MOB_PROTO(entry->value);
+    MobPrototype* mob;
+    FOR_EACH_MOB_PROTO(mob) {
         if (mob->area != area || mob->pShop == NULL)
             continue;
 
@@ -1132,16 +1190,16 @@ static json_t* build_scroll_potion_pill(const ObjPrototype* obj)
 {
     json_t* s = json_object();
     json_set_int_if(s, "level", obj->value[0], 0);
+    int slots = (obj->item_type == ITEM_SCROLL) ? 4 : 3;
     json_t* spells = json_array();
-    for (int i = 1; i <= 4; i++) {
+    for (int i = 1; i <= slots; i++) {
         const char* name = skill_name_from_sn(obj->value[i]);
         if (name)
             json_array_append_new(spells, json_string(name));
+        else
+            json_array_append_new(spells, json_string(""));
     }
-    if (json_array_size(spells) > 0)
-        json_object_set_new(s, "spells", spells);
-    else
-        json_decref(spells);
+    json_object_set_new(s, "spells", spells);
     return s;
 }
 
@@ -1187,13 +1245,13 @@ static void apply_drink(ObjPrototype* obj, json_t* drink)
 {
     if (!json_is_object(drink))
         return;
-    obj->value[0] = (int16_t)json_int_or_default(drink, "capacity", obj->value[0]);
-    obj->value[1] = (int16_t)json_int_or_default(drink, "remaining", obj->value[1]);
+    obj->value[0] = (int)json_int_or_default(drink, "capacity", obj->value[0]);
+    obj->value[1] = (int)json_int_or_default(drink, "remaining", obj->value[1]);
     const char* liquid = json_string_value(json_object_get(drink, "liquid"));
     if (liquid) {
         int l = liquid_lookup(liquid);
         if (l >= 0)
-            obj->value[2] = (int16_t)l;
+            obj->value[2] = l;
     }
     obj->value[3] = json_bool_or_default(drink, "poisoned", obj->value[3] != 0) ? 1 : 0;
 }
@@ -1202,13 +1260,13 @@ static void apply_fountain(ObjPrototype* obj, json_t* fountain)
 {
     if (!json_is_object(fountain))
         return;
-    obj->value[0] = (int16_t)json_int_or_default(fountain, "capacity", obj->value[0]);
-    obj->value[1] = (int16_t)json_int_or_default(fountain, "remaining", obj->value[1]);
+    obj->value[0] = (int)json_int_or_default(fountain, "capacity", obj->value[0]);
+    obj->value[1] = (int)json_int_or_default(fountain, "remaining", obj->value[1]);
     const char* liquid = json_string_value(json_object_get(fountain, "liquid"));
     if (liquid) {
         int l = liquid_lookup(liquid);
         if (l >= 0)
-            obj->value[2] = (int16_t)l;
+            obj->value[2] = l;
     }
 }
 
@@ -1225,8 +1283,8 @@ static void apply_money(ObjPrototype* obj, json_t* money)
 {
     if (!json_is_object(money))
         return;
-    obj->value[0] = (int16_t)json_int_or_default(money, "gold", obj->value[0]);
-    obj->value[1] = (int16_t)json_int_or_default(money, "silver", obj->value[1]);
+    obj->value[0] = (int)json_int_or_default(money, "gold", obj->value[0]);
+    obj->value[1] = (int)json_int_or_default(money, "silver", obj->value[1]);
 }
 
 static void apply_wandstaff(ObjPrototype* obj, json_t* wand)
@@ -1235,7 +1293,11 @@ static void apply_wandstaff(ObjPrototype* obj, json_t* wand)
         return;
     obj->value[0] = (int16_t)json_int_or_default(wand, "level", obj->value[0]);
     obj->value[1] = (int16_t)json_int_or_default(wand, "chargesTotal", obj->value[1]);
-    obj->value[2] = (int16_t)json_int_or_default(wand, "chargesRemaining", obj->value[2]);
+    json_t* rem = json_object_get(wand, "chargesRemaining");
+    if (json_is_integer(rem))
+        obj->value[2] = (int16_t)json_integer_value(rem);
+    else
+        obj->value[2] = obj->value[1];
     const char* spell = json_string_value(json_object_get(wand, "spell"));
     SKNUM sn = spell_lookup_name(spell);
     if (sn >= 0)
@@ -1247,7 +1309,8 @@ static void apply_scroll_potion_pill(ObjPrototype* obj, json_t* sp)
     if (!json_is_object(sp))
         return;
     obj->value[0] = (int16_t)json_int_or_default(sp, "level", obj->value[0]);
-    apply_spell_array(json_object_get(sp, "spells"), obj, 1, 4);
+    int slots = (obj->item_type == ITEM_SCROLL) ? 4 : 3;
+    apply_spell_array(json_object_get(sp, "spells"), obj, 1, slots);
 }
 
 static void apply_portal(ObjPrototype* obj, json_t* portal)
@@ -1272,19 +1335,45 @@ static void apply_furniture(ObjPrototype* obj, json_t* furniture)
 }
 
 
+static int compare_obj_proto(const void* lhs, const void* rhs)
+{
+    const ObjPrototype* a = *(const ObjPrototype* const*)lhs;
+    const ObjPrototype* b = *(const ObjPrototype* const*)rhs;
+    if (VNUM_FIELD(a) < VNUM_FIELD(b))
+        return -1;
+    if (VNUM_FIELD(a) > VNUM_FIELD(b))
+        return 1;
+    return 0;
+}
+
 static json_t* build_objects(const AreaData* area)
 {
     json_t* arr = json_array();
-    if (obj_protos.capacity == 0 || obj_protos.entries == NULL)
+    int total = global_obj_proto_count();
+    if (total <= 0)
         return arr;
 
-    for (int idx = 0; idx < obj_protos.capacity; ++idx) {
-        Entry* entry = &obj_protos.entries[idx];
-        if (IS_NIL(entry->value) || !IS_OBJ_PROTO(entry->value))
-            continue;
-        ObjPrototype* obj = AS_OBJ_PROTO(entry->value);
+    ObjPrototype** list = malloc((size_t)total * sizeof(*list));
+    if (!list)
+        return arr;
+
+    size_t count = 0;
+    ObjPrototype* obj;
+    FOR_EACH_OBJ_PROTO(obj) {
         if (obj->area != area)
             continue;
+        list[count++] = obj;
+    }
+
+    if (count == 0) {
+        free(list);
+        return arr;
+    }
+
+    qsort(list, count, sizeof(*list), compare_obj_proto);
+
+    for (size_t i = 0; i < count; ++i) {
+        ObjPrototype* obj = list[i];
 
         json_t* o = json_object();
         json_object_set_new(o, "vnum", json_integer(VNUM_FIELD(obj)));
@@ -1455,6 +1544,7 @@ static json_t* build_objects(const AreaData* area)
         json_array_append_new(arr, o);
     }
 
+    free(list);
     return arr;
 }
 
@@ -1572,10 +1662,14 @@ static PersistResult parse_objects(json_t* root, AreaData* area)
 
         VNUM vnum = (VNUM)json_int_or_default(o, "vnum", VNUM_NONE);
         VNUM_FIELD(obj) = vnum;
-        obj->material = obj->material ? obj->material : str_dup("unknown");
-        table_set_vnum(&obj_protos, vnum, OBJ_VAL(obj));
+        if (!obj->material || obj->material[0] == '\0') {
+            free_string(obj->material);
+            obj->material = str_dup("");
+        }
+        global_obj_proto_set(obj);
         top_vnum_obj = top_vnum_obj < vnum ? vnum : top_vnum_obj;
         assign_area_vnum(vnum);
+
     }
 
     return (PersistResult){ PERSIST_OK, NULL, -1 };

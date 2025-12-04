@@ -31,8 +31,15 @@
 #include <config.h>
 #include <db.h>
 
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+
+// Define this to enable an extremely thorough area round-trip test that
+// compares every field of every entity in the area after a ROM->JSON->ROM
+// conversion.  This is very slow for large areas, but is useful for catching
+// subtle bugs in the persist code.
+#define ENABLE_EXTREME_AREA_ROUND_TRIP_COMPARISON 
 
 // Globals we need to snapshot/restore to avoid polluting the live world.
 extern AreaData* area_data_free;
@@ -49,9 +56,9 @@ typedef struct persist_state_snapshot_t {
     int area_perm_count;
     int area_data_count;
     int area_data_perm_count;
-    Table global_rooms;
-    Table mob_protos;
-    Table obj_protos;
+    OrderedTable global_rooms;
+    OrderedTable mob_protos;
+    OrderedTable obj_protos;
     Table faction_table;
     VNUM top_vnum_room;
     VNUM top_vnum_mob;
@@ -67,9 +74,9 @@ static void persist_state_begin(PersistStateSnapshot* snap)
     snap->area_perm_count = area_perm_count;
     snap->area_data_count = area_data_count;
     snap->area_data_perm_count = area_data_perm_count;
-    snap->global_rooms = global_rooms;
-    snap->mob_protos = mob_protos;
-    snap->obj_protos = obj_protos;
+    snap->global_rooms = snapshot_global_rooms();
+    snap->mob_protos = snapshot_global_mob_protos();
+    snap->obj_protos = snapshot_global_obj_protos();
     snap->faction_table = faction_table;
     snap->top_vnum_room = top_vnum_room;
     snap->top_vnum_mob = top_vnum_mob;
@@ -83,9 +90,9 @@ static void persist_state_begin(PersistStateSnapshot* snap)
     area_perm_count = 0;
     area_data_count = 0;
     area_data_perm_count = 0;
-    init_table(&global_rooms);
-    init_table(&mob_protos);
-    init_table(&obj_protos);
+    init_global_rooms();
+    init_global_mob_protos();
+    init_global_obj_protos();
     init_table(&faction_table);
     top_vnum_room = 0;
     top_vnum_mob = 0;
@@ -94,9 +101,9 @@ static void persist_state_begin(PersistStateSnapshot* snap)
 
 static void persist_state_end(PersistStateSnapshot* snap)
 {
-    free_table(&global_rooms);
-    free_table(&mob_protos);
-    free_table(&obj_protos);
+    free_global_rooms();
+    free_global_mob_protos();
+    free_global_obj_protos();
     free_table(&faction_table);
     free_value_array(&global_areas);
     global_areas = snap->global_areas;
@@ -106,9 +113,9 @@ static void persist_state_end(PersistStateSnapshot* snap)
     area_perm_count = snap->area_perm_count;
     area_data_count = snap->area_data_count;
     area_data_perm_count = snap->area_data_perm_count;
-    global_rooms = snap->global_rooms;
-    mob_protos = snap->mob_protos;
-    obj_protos = snap->obj_protos;
+    restore_global_rooms(snap->global_rooms);
+    restore_global_mob_protos(snap->mob_protos);
+    restore_global_obj_protos(snap->obj_protos);
     faction_table = snap->faction_table;
     top_vnum_room = snap->top_vnum_room;
     top_vnum_mob = snap->top_vnum_mob;
@@ -1125,7 +1132,7 @@ static int test_json_saves_typed_objects()
     weapon->value[2] = 5;
     weapon->value[3] = attack_lookup("slash");
     weapon->value[4] = WEAPON_SHARP;
-    table_set_vnum(&obj_protos, VNUM_FIELD(weapon), OBJ_VAL(weapon));
+    global_obj_proto_set(weapon);
 
     // Container prototype with typed data.
     ObjPrototype* container = new_object_prototype();
@@ -1141,7 +1148,7 @@ static int test_json_saves_typed_objects()
     container->value[2] = 123; // key
     container->value[3] = 50;  // max weight
     container->value[4] = 3;   // weight multiplier
-    table_set_vnum(&obj_protos, VNUM_FIELD(container), OBJ_VAL(container));
+    global_obj_proto_set(container);
 
     // Light prototype with hours.
     ObjPrototype* light = new_object_prototype();
@@ -1153,7 +1160,7 @@ static int test_json_saves_typed_objects()
     light->material = str_dup("glass");
     light->item_type = ITEM_LIGHT;
     light->value[2] = 5; // hours
-    table_set_vnum(&obj_protos, VNUM_FIELD(light), OBJ_VAL(light));
+    global_obj_proto_set(light);
 
     top_vnum_obj = 3;
 
@@ -1294,7 +1301,7 @@ cleanup_all:
     return 0;
 }
 
-static int test_json_to_rom_round_trip()
+static int test_areas_json_to_rom_round_trip()
 {
     PersistStateSnapshot snap;
     persist_state_begin(&snap);
@@ -1410,6 +1417,614 @@ static int test_class_rom_json_round_trip()
     return 0;
 }
 
+#define JSON_PATH_MAX 512
+
+static const char* json_type_name(json_type type)
+{
+    switch (type) {
+    case JSON_OBJECT: return "object";
+    case JSON_ARRAY: return "array";
+    case JSON_STRING: return "string";
+    case JSON_INTEGER: return "integer";
+    case JSON_REAL: return "real";
+    case JSON_TRUE: return "true";
+    case JSON_FALSE: return "false";
+    case JSON_NULL: return "null";
+    default: return "unknown";
+    }
+}
+
+static void describe_char(int byte, char* out, size_t out_len)
+{
+    if (byte < 0) {
+        snprintf(out, out_len, "EOF");
+        return;
+    }
+
+    switch (byte) {
+    case '\n':
+        snprintf(out, out_len, "\\n (0x0A)");
+        return;
+    case '\r':
+        snprintf(out, out_len, "\\r (0x0D)");
+        return;
+    case '\t':
+        snprintf(out, out_len, "\\t (0x09)");
+        return;
+    default:
+        break;
+    }
+
+    if (isprint(byte))
+        snprintf(out, out_len, "'%c' (0x%02X)", byte, byte);
+    else
+        snprintf(out, out_len, "0x%02X", byte);
+}
+
+static void log_rom_text_diff(const char* fname,
+    const PersistBufferWriter* expected,
+    const PersistBufferWriter* actual)
+{
+    if (!expected || !actual || !expected->data || !actual->data) {
+        fprintf(stderr, "ROM mismatch for %s: missing buffer data\n", fname);
+        return;
+    }
+
+    const unsigned char* exp_data = expected->data;
+    const unsigned char* act_data = actual->data;
+    size_t exp_len = expected->len;
+    size_t act_len = actual->len;
+    size_t limit = exp_len < act_len ? exp_len : act_len;
+    size_t diff_idx = limit;
+    for (size_t i = 0; i < limit; ++i) {
+        if (exp_data[i] != act_data[i]) {
+            diff_idx = i;
+            break;
+        }
+    }
+
+    bool lengths_equal = exp_len == act_len;
+    if (diff_idx == limit && lengths_equal)
+        return; // identical
+
+    size_t line = 1;
+    size_t col = 1;
+    for (size_t i = 0; i < diff_idx && i < exp_len; ++i) {
+        if (exp_data[i] == '\n') {
+            ++line;
+            col = 1;
+        }
+        else {
+            ++col;
+        }
+    }
+
+    char exp_desc[32];
+    char act_desc[32];
+    describe_char(diff_idx < exp_len ? exp_data[diff_idx] : -1, exp_desc, sizeof exp_desc);
+    describe_char(diff_idx < act_len ? act_data[diff_idx] : -1, act_desc, sizeof act_desc);
+
+    fprintf(stderr,
+        "ROM mismatch for %s at byte %zu (line %zu, col %zu): expected %s, got %s. Original len=%zu, round len=%zu\n",
+        fname, diff_idx, line, col, exp_desc, act_desc, exp_len, act_len);
+}
+
+static bool json_path_push_key(char* path, size_t* path_len, const char* key)
+{
+    size_t key_len = strlen(key);
+    size_t needed = 1 + key_len;
+    if (*path_len + needed >= JSON_PATH_MAX)
+        return false;
+    path[(*path_len)++] = '.';
+    memcpy(path + *path_len, key, key_len);
+    *path_len += key_len;
+    path[*path_len] = '\0';
+    return true;
+}
+
+static bool json_path_push_index(char* path, size_t* path_len, size_t index)
+{
+    char buf[32];
+    int written = snprintf(buf, sizeof buf, "[%zu]", index);
+    if (written < 0)
+        return false;
+    if (*path_len + (size_t)written >= JSON_PATH_MAX)
+        return false;
+    memcpy(path + *path_len, buf, (size_t)written);
+    *path_len += (size_t)written;
+    path[*path_len] = '\0';
+    return true;
+}
+
+static void json_path_pop(char* path, size_t* path_len, size_t prev_len)
+{
+    *path_len = prev_len;
+    path[*path_len] = '\0';
+}
+
+static void format_json_value(const json_t* value, char* buf, size_t buf_len)
+{
+    if (!value) {
+        snprintf(buf, buf_len, "<null>");
+        return;
+    }
+
+    switch (json_typeof(value)) {
+    case JSON_STRING: {
+        const char* s = json_string_value(value);
+        size_t len = s ? strlen(s) : 0;
+        const size_t max = 40;
+        if (s && len > max)
+            snprintf(buf, buf_len, "\"%.*s...\" (%zu chars)", (int)max, s, len);
+        else if (s)
+            snprintf(buf, buf_len, "\"%s\"", s);
+        else
+            snprintf(buf, buf_len, "<null string>");
+        break;
+    }
+    case JSON_INTEGER:
+        snprintf(buf, buf_len, "%lld", (long long)json_integer_value(value));
+        break;
+    case JSON_REAL:
+        snprintf(buf, buf_len, "%.15g", json_real_value(value));
+        break;
+    case JSON_TRUE:
+    case JSON_FALSE:
+        snprintf(buf, buf_len, "%s", json_is_true(value) ? "true" : "false");
+        break;
+    case JSON_NULL:
+        snprintf(buf, buf_len, "null");
+        break;
+    case JSON_OBJECT:
+        snprintf(buf, buf_len, "<object with %zu keys>", json_object_size(value));
+        break;
+    case JSON_ARRAY:
+        snprintf(buf, buf_len, "<array[%zu]>", json_array_size(value));
+        break;
+    default:
+        snprintf(buf, buf_len, "<unknown>");
+        break;
+    }
+}
+
+static void log_json_mismatch(const char* fname, const char* path,
+    const char* reason, const json_t* expected, const json_t* actual)
+{
+    char exp_buf[128];
+    char act_buf[128];
+    format_json_value(expected, exp_buf, sizeof exp_buf);
+    format_json_value(actual, act_buf, sizeof act_buf);
+    fprintf(stderr,
+        "JSON mismatch for %s at %s: %s. Expected %s, got %s\n",
+        fname, path, reason, exp_buf, act_buf);
+}
+
+static bool json_values_equal_verbose(const char* fname, const json_t* expected,
+    const json_t* actual, char* path, size_t* path_len)
+{
+    if (expected == actual)
+        return true;
+    if (!expected || !actual) {
+        log_json_mismatch(fname, path, "one side missing", expected, actual);
+        return false;
+    }
+
+    json_type exp_type = json_typeof(expected);
+    json_type act_type = json_typeof(actual);
+    if (exp_type != act_type) {
+        char reason[96];
+        snprintf(reason, sizeof reason, "type mismatch (%s vs %s)",
+            json_type_name(exp_type), json_type_name(act_type));
+        log_json_mismatch(fname, path, reason, expected, actual);
+        return false;
+    }
+
+    switch (exp_type) {
+    case JSON_OBJECT: {
+        const char* key;
+        json_t* exp_val;
+        json_object_foreach((json_t*)expected, key, exp_val) {
+            size_t prev = *path_len;
+            if (!json_path_push_key(path, path_len, key)) {
+                fprintf(stderr, "JSON path exceeded %d characters while diffing %s\n",
+                    JSON_PATH_MAX, fname);
+                return false;
+            }
+            json_t* act_val = json_object_get(actual, key);
+            if (!act_val) {
+                log_json_mismatch(fname, path, "missing key", exp_val, NULL);
+                json_path_pop(path, path_len, prev);
+                return false;
+            }
+            if (!json_values_equal_verbose(fname, exp_val, act_val, path, path_len)) {
+                json_path_pop(path, path_len, prev);
+                return false;
+            }
+            json_path_pop(path, path_len, prev);
+        }
+
+        json_t* act_val;
+        json_object_foreach((json_t*)actual, key, act_val) {
+            if (!json_object_get(expected, key)) {
+                size_t prev = *path_len;
+                if (!json_path_push_key(path, path_len, key)) {
+                    fprintf(stderr, "JSON path exceeded %d characters while diffing %s\n",
+                        JSON_PATH_MAX, fname);
+                    return false;
+                }
+                log_json_mismatch(fname, path, "unexpected key", NULL, act_val);
+                json_path_pop(path, path_len, prev);
+                return false;
+            }
+        }
+        return true;
+    }
+    case JSON_ARRAY: {
+        size_t exp_len = json_array_size(expected);
+        size_t act_len = json_array_size(actual);
+        if (exp_len != act_len) {
+            char reason[96];
+            snprintf(reason, sizeof reason, "array length mismatch (%zu vs %zu)", exp_len, act_len);
+            log_json_mismatch(fname, path, reason, expected, actual);
+            return false;
+        }
+        for (size_t i = 0; i < exp_len; ++i) {
+            size_t prev = *path_len;
+            if (!json_path_push_index(path, path_len, i)) {
+                fprintf(stderr, "JSON path exceeded %d characters while diffing %s\n",
+                    JSON_PATH_MAX, fname);
+                return false;
+            }
+            json_t* exp_val = json_array_get(expected, i);
+            json_t* act_val = json_array_get(actual, i);
+            if (!json_values_equal_verbose(fname, exp_val, act_val, path, path_len)) {
+                json_path_pop(path, path_len, prev);
+                return false;
+            }
+            json_path_pop(path, path_len, prev);
+        }
+        return true;
+    }
+    case JSON_STRING: {
+        const char* exp_str = json_string_value(expected);
+        const char* act_str = json_string_value(actual);
+        if ((exp_str == NULL && act_str != NULL)
+            || (exp_str != NULL && act_str == NULL)
+            || (exp_str && act_str && strcmp(exp_str, act_str) != 0)) {
+            log_json_mismatch(fname, path, "string mismatch", expected, actual);
+            return false;
+        }
+        return true;
+    }
+    case JSON_INTEGER: {
+        json_int_t exp_val = json_integer_value(expected);
+        json_int_t act_val = json_integer_value(actual);
+        if (exp_val != act_val) {
+            log_json_mismatch(fname, path, "integer mismatch", expected, actual);
+            return false;
+        }
+        return true;
+    }
+    case JSON_REAL: {
+        double exp_val = json_real_value(expected);
+        double act_val = json_real_value(actual);
+        if (exp_val != act_val) {
+            log_json_mismatch(fname, path, "real mismatch", expected, actual);
+            return false;
+        }
+        return true;
+    }
+    case JSON_TRUE:
+    case JSON_FALSE: {
+        bool exp_bool = json_is_true(expected);
+        bool act_bool = json_is_true(actual);
+        if (exp_bool != act_bool) {
+            log_json_mismatch(fname, path, "boolean mismatch", expected, actual);
+            return false;
+        }
+        return true;
+    }
+    case JSON_NULL:
+        return true;
+    default:
+        log_json_mismatch(fname, path, "unsupported JSON type", expected, actual);
+        return false;
+    }
+}
+
+static json_t* parse_json_from_buffer(const PersistBufferWriter* buf, const char* label)
+{
+    if (!buf || !buf->data || buf->len == 0)
+        return NULL;
+
+    json_error_t error;
+    json_t* root = json_loadb((const char*)buf->data, buf->len, 0, &error);
+    if (!root) {
+        fprintf(stderr, "Failed to parse JSON for %s at line %d: %s\n",
+            label, error.line, error.text);
+    }
+    return root;
+}
+
+static void free_buffer_writer(PersistBufferWriter* buf)
+{
+    if (buf && buf->data) {
+        free(buf->data);
+        buf->data = NULL;
+    }
+    if (buf) {
+        buf->len = 0;
+        buf->cap = 0;
+    }
+}
+
+static bool capture_area_rom_and_json(const char* area_dir, const char* fname,
+    PersistBufferWriter* rom_buf, PersistBufferWriter* json_buf,
+    json_t** json_dom_out, bool* skipped_out)
+{
+    if (json_dom_out)
+        *json_dom_out = NULL;
+    if (skipped_out)
+        *skipped_out = false;
+
+    char area_path[MIL];
+    sprintf(area_path, "%s%s", area_dir, fname);
+
+    FILE* load_fp = fopen(area_path, "r");
+    if (!load_fp) {
+        if (skipped_out)
+            *skipped_out = true;
+        return true; // quietly skip missing areas
+    }
+
+    PersistStateSnapshot snap;
+    bool snap_active = false;
+    bool ok = false;
+
+    persist_state_begin(&snap);
+    snap_active = true;
+
+    PersistReader reader = persist_reader_from_file(load_fp, fname);
+    AreaPersistLoadParams load_params = {
+        .reader = &reader,
+        .file_name = fname,
+        .create_single_instance = false,
+    };
+
+    PersistResult load_res = AREA_PERSIST_ROM_OLC.load(&load_params);
+    fclose(load_fp);
+    load_fp = NULL;
+    if (!persist_succeeded(load_res) || global_areas.count != 1)
+        goto cleanup;
+
+    AreaData* area = LAST_AREA_DATA;
+    if (!area)
+        goto cleanup;
+
+    if (!save_area_rom_to_buffer(area, fname, rom_buf))
+        goto cleanup;
+
+    PersistWriter json_writer = persist_writer_from_buffer(json_buf, fname);
+    AreaPersistSaveParams json_params = {
+        .writer = &json_writer,
+        .area = area,
+        .file_name = fname,
+    };
+
+    PersistResult json_save = AREA_PERSIST_JSON.save(&json_params);
+    if (!persist_succeeded(json_save) || json_buf->data == NULL || json_buf->len == 0)
+        goto cleanup;
+
+    if (json_dom_out) {
+        *json_dom_out = parse_json_from_buffer(json_buf, fname);
+        if (!*json_dom_out)
+            goto cleanup;
+    }
+
+    ok = true;
+
+cleanup:
+    if (snap_active)
+        persist_state_end(&snap);
+    if (!ok) {
+        if (json_dom_out && *json_dom_out) {
+            json_decref(*json_dom_out);
+            *json_dom_out = NULL;
+        }
+        free_buffer_writer(rom_buf);
+        free_buffer_writer(json_buf);
+    }
+    return ok;
+}
+
+static bool validate_json_round_trip(const char* fname,
+    const PersistBufferWriter* rom_orig,
+    const PersistBufferWriter* json_orig,
+    const json_t* json_dom_orig)
+{
+    if (!rom_orig || !rom_orig->data || rom_orig->len == 0)
+        return false;
+    if (!json_orig || !json_orig->data || json_orig->len == 0)
+        return false;
+    if (!json_dom_orig)
+        return false;
+
+    PersistBufferWriter round_rom = { 0 };
+    PersistBufferWriter round_json = { 0 };
+    json_t* json_dom_round = NULL;
+    bool ok = false;
+
+    PersistStateSnapshot snap;
+    persist_state_begin(&snap);
+
+    PersistBufferReaderCtx ctx;
+    PersistReader json_reader = persist_reader_from_buffer(json_orig->data, json_orig->len, fname, &ctx);
+    AreaPersistLoadParams json_load_params = {
+        .reader = &json_reader,
+        .file_name = fname,
+        .create_single_instance = false,
+    };
+
+    PersistResult json_load = AREA_PERSIST_JSON.load(&json_load_params);
+    if (!persist_succeeded(json_load) || global_areas.count != 1)
+        goto cleanup_state;
+
+    AreaData* area = LAST_AREA_DATA;
+    if (area && area->file_name && strcmp(area->file_name, fname) != 0) {
+        // keep pointer
+    }
+    if (!area)
+        goto cleanup_state;
+
+
+    if (!save_area_rom_to_buffer(area, fname, &round_rom))
+        goto cleanup_state;
+
+    PersistWriter json_writer = persist_writer_from_buffer(&round_json, fname);
+    AreaPersistSaveParams json_save_params = {
+        .writer = &json_writer,
+        .area = area,
+        .file_name = fname,
+    };
+    PersistResult json_save = AREA_PERSIST_JSON.save(&json_save_params);
+    if (!persist_succeeded(json_save) || round_json.data == NULL || round_json.len == 0)
+        goto cleanup_state;
+
+    json_dom_round = parse_json_from_buffer(&round_json, fname);
+    if (!json_dom_round)
+        goto cleanup_state;
+
+    ok = true;
+
+cleanup_state:
+    persist_state_end(&snap);
+
+    if (!ok) {
+        if (json_dom_round)
+            json_decref(json_dom_round);
+        free_buffer_writer(&round_rom);
+        free_buffer_writer(&round_json);
+        return false;
+    }
+
+    bool rom_match = round_rom.len == rom_orig->len
+        && (round_rom.len == 0 || memcmp(round_rom.data, rom_orig->data, round_rom.len) == 0);
+    if (!rom_match)
+        log_rom_text_diff(fname, rom_orig, &round_rom);
+
+    char json_path[JSON_PATH_MAX];
+    json_path[0] = '$';
+    json_path[1] = '\0';
+    size_t path_len = 1;
+    bool json_match = json_values_equal_verbose(fname, json_dom_orig, json_dom_round, json_path, &path_len);
+
+    if (!(rom_match && json_match)) {
+        char name_buf[MIL];
+        snprintf(name_buf, sizeof(name_buf), "%s", fname);
+        for (char* c = name_buf; *c; ++c) {
+            if (*c == '/' || *c == '\\')
+                *c = '_';
+        }
+        char path_orig[2 * MIL];
+        char path_round[2 * MIL];
+        snprintf(path_orig, sizeof(path_orig), "temp/%s.orig.json", name_buf);
+        snprintf(path_round, sizeof(path_round), "temp/%s.round.json", name_buf);
+        json_dump_file(json_dom_orig, path_orig, JSON_INDENT(2));
+        json_dump_file(json_dom_round, path_round, JSON_INDENT(2));
+        fprintf(stderr, "Wrote JSON mismatch dumps to %s and %s\n", path_orig, path_round);
+
+        if (!rom_match) {
+            char rom_orig_path[2 * MIL];
+            char rom_round_path[2 * MIL];
+            snprintf(rom_orig_path, sizeof(rom_orig_path), "temp/%s.orig.are", name_buf);
+            snprintf(rom_round_path, sizeof(rom_round_path), "temp/%s.round.are", name_buf);
+            FILE* fp_orig = fopen(rom_orig_path, "wb");
+            if (fp_orig) {
+                fwrite(rom_orig->data, 1, rom_orig->len, fp_orig);
+                fclose(fp_orig);
+            }
+            else {
+                fprintf(stderr, "Failed to write %s\n", rom_orig_path);
+            }
+            FILE* fp_round = fopen(rom_round_path, "wb");
+            if (fp_round) {
+                fwrite(round_rom.data, 1, round_rom.len, fp_round);
+                fclose(fp_round);
+            }
+            else {
+                fprintf(stderr, "Failed to write %s\n", rom_round_path);
+            }
+            fprintf(stderr, "Wrote ROM mismatch dumps to %s and %s\n", rom_orig_path, rom_round_path);
+        }
+    }
+
+    json_decref(json_dom_round);
+    free_buffer_writer(&round_rom);
+    free_buffer_writer(&round_json);
+
+    return rom_match && json_match;
+}
+
+static bool extreme_round_trip_area(const char* area_dir, const char* fname)
+{
+    PersistBufferWriter rom_buf = { 0 };
+    PersistBufferWriter json_buf = { 0 };
+    json_t* json_dom = NULL;
+    bool skipped = false;
+
+    bool captured = capture_area_rom_and_json(area_dir, fname, &rom_buf, &json_buf, &json_dom, &skipped);
+    if (!captured)
+        return false;
+    if (skipped)
+        return true;
+
+    bool ok = validate_json_round_trip(fname, &rom_buf, &json_buf, json_dom);
+
+    json_decref(json_dom);
+    free_buffer_writer(&rom_buf);
+    free_buffer_writer(&json_buf);
+    return ok;
+}
+
+static bool exclude_from_test(const char* fname)
+{
+    return strcmp(fname, "group.are") == 0
+        || strcmp(fname, "rom.are") == 0
+        || strcmp(fname, "help.are") == 0
+        || strcmp(fname, "olc.hlp") == 0
+        || strcmp(fname, "faladri.json") == 0;
+}
+
+static int test_extreme_area_json_round_trip()
+{
+    const char* area_dir = cfg_get_area_dir();
+    const char* area_list = cfg_get_area_list();
+    char list_path[MIL];
+    sprintf(list_path, "%s%s", area_dir, area_list);
+
+    FILE* fpList = fopen(list_path, "r");
+    if (!fpList)
+        return 0; // quietly skip if lists unavailable
+
+    char fname[MIL];
+    while (fscanf(fpList, "%s", fname) == 1) {
+        if (fname[0] == '$')
+            break;
+        if (exclude_from_test(fname))
+            continue;
+
+        if (!extreme_round_trip_area(area_dir, fname)) {
+            fprintf(stderr, "Extreme area JSON round-trip failed for %s\n", fname);
+            fclose(fpList);
+            ASSERT(false);
+            return 1;
+        }
+    }
+
+    fclose(fpList);
+    return 0;
+}
+
 static TestGroup persist_tests;
 
 void register_persist_tests()
@@ -1435,9 +2050,12 @@ void register_persist_tests()
     REGISTER("JSON Instance Counts Match ROM", test_json_instance_counts_match_rom);
     REGISTER("JSON Shop Counts Match ROM", test_json_instance_shop_counts_match_rom);
 #endif
-    REGISTER("ROM->JSON->ROM Round Trip", test_json_to_rom_round_trip);
+    REGISTER("Areas ROM->JSON->ROM Round Trip", test_areas_json_to_rom_round_trip);
     REGISTER("Races ROM<->JSON Round Trip", test_race_rom_json_round_trip);
     REGISTER("Classes ROM<->JSON Round Trip", test_class_rom_json_round_trip);
+#ifdef ENABLE_EXTREME_AREA_ROUND_TRIP_COMPARISON
+    REGISTER("Extreme Area JSON Round Trip", test_extreme_area_json_round_trip);
+#endif
 
 #undef REGISTER
 }

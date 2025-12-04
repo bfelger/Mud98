@@ -23,13 +23,84 @@
 #include <entities/event.h>
 
 #include <lox/memory.h>
+#include <lox/ordered_table.h>
 
-Table mob_protos;
+static OrderedTable mob_protos;
 MobPrototype* mob_proto_free = NULL;
 
 int mob_proto_count;
 int mob_proto_perm_count;
 VNUM top_vnum_mob;
+
+void init_global_mob_protos(void)
+{
+    ordered_table_init(&mob_protos);
+}
+
+void free_global_mob_protos(void)
+{
+    ordered_table_free(&mob_protos);
+}
+
+MobPrototype* global_mob_proto_get(VNUM vnum)
+{
+    Value value = NIL_VAL;
+    if (ordered_table_get_vnum(&mob_protos, vnum, &value) && IS_MOB_PROTO(value))
+        return AS_MOB_PROTO(value);
+    return NULL;
+}
+
+bool global_mob_proto_set(MobPrototype* proto)
+{
+    if (proto == NULL)
+        return false;
+    return ordered_table_set_vnum(&mob_protos, VNUM_FIELD(proto), OBJ_VAL(proto));
+}
+
+bool global_mob_proto_remove(VNUM vnum)
+{
+    return ordered_table_delete_vnum(&mob_protos, (int32_t)vnum);
+}
+
+int global_mob_proto_count(void)
+{
+    return ordered_table_count(&mob_protos);
+}
+
+GlobalMobProtoIter make_global_mob_proto_iter(void)
+{
+    GlobalMobProtoIter iter = { ordered_table_iter(&mob_protos) };
+    return iter;
+}
+
+MobPrototype* global_mob_proto_iter_next(GlobalMobProtoIter* iter)
+{
+    if (iter == NULL)
+        return NULL;
+
+    Value value;
+    while (ordered_table_iter_next(&iter->iter, NULL, &value)) {
+        if (IS_MOB_PROTO(value))
+            return AS_MOB_PROTO(value);
+    }
+
+    return NULL;
+}
+
+OrderedTable snapshot_global_mob_protos(void)
+{
+    return mob_protos;
+}
+
+void restore_global_mob_protos(OrderedTable snapshot)
+{
+    mob_protos = snapshot;
+}
+
+void mark_global_mob_protos(void)
+{
+    mark_ordered_table(&mob_protos);
+}
 
 MobPrototype* new_mob_prototype()
 {
@@ -155,11 +226,9 @@ void free_mob_prototype(MobPrototype* mob_proto)
 // Hash table lookup.
 MobPrototype* get_mob_prototype(VNUM vnum)
 {
-    Value value = NIL_VAL;
-    if (table_get_vnum(&mob_protos, vnum, &value)) {
-        if (IS_MOB_PROTO(value))
-            return AS_MOB_PROTO(value);
-    }
+    MobPrototype* proto = global_mob_proto_get(vnum);
+    if (proto)
+        return proto;
 
     if (fBootDb) {
         bug("Get_mob_prototype: bad vnum %"PRVNUM".", vnum);
@@ -342,7 +411,7 @@ void load_mobiles(FILE* fp)
             }
         }
 
-        table_set_vnum(&mob_protos, vnum, OBJ_VAL(p_mob_proto));
+        global_mob_proto_set(p_mob_proto);
 
         top_vnum_mob = top_vnum_mob < vnum ? vnum : top_vnum_mob;
         assign_area_vnum(vnum);

@@ -420,6 +420,7 @@ const struct flag_type extra_flag_table[] = {
     { "rotdeath",       ITEM_ROT_DEATH,     true    },
     { "visdeath",       ITEM_VIS_DEATH,     true    },
     { "nonmetal",       ITEM_NONMETAL,      true    },
+    { "nolocate",       ITEM_NOLOCATE,      true    },
     { "meltdrop",       ITEM_MELT_DROP,     true    },
     { "hadtimer",       ITEM_HAD_TIMER,     true    },
     { "sellextract",    ITEM_SELL_EXTRACT,  true    },

@@ -1081,7 +1081,7 @@ a scale mail jacket~
 A scale mail jacket is lying on the ground.~
 steel~
 armor 0 AD
-3 4 4 0 2
+3 4 4 0 0
 5 160 850 G
 
 V0 is armor vs. pierce, v1 is armor vs. bash, v2 is armor vs. slash,

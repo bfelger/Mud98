@@ -59,6 +59,7 @@ RoomExitData* new_room_exit_data()
 
     room_exit_data->keyword = &str_empty[0];
     room_exit_data->description = &str_empty[0];
+    room_exit_data->key = -1;
 
     return room_exit_data;
 }

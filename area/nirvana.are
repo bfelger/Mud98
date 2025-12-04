@@ -507,7 +507,7 @@ D1
 A mighty door sits to the east
 ~
 door~
-1 0 9007
+1 -1 9007
 D2
 The plane continues to the south as far as the eye can see
 ~
@@ -747,7 +747,7 @@ D0
 you see a massive door
 ~
 door~
-1 0 9031
+1 -1 9031
 D1
 To the east, you spy a dark passage
 ~
@@ -842,7 +842,7 @@ D2
 A large door blocks the way to the south.
 ~
 door~
-1 0 9026
+1 -1 9026
 D3
 looking west, you see more of the passage.
 ~

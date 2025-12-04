@@ -7,6 +7,7 @@
 #include <persist/persist_io.h>
 #include <persist/persist_result.h>
 
+#include <db.h>
 #include <lookup.h>
 #include <merc.h>
 #include <tables.h>
@@ -91,7 +92,13 @@ FLAGS flags_from_array(json_t* arr, const struct flag_type* table)
         const char* name = json_string_value(json_array_get(arr, i));
         if (!name)
             continue;
-        FLAGS bit = flag_lookup(name, table);
+        FLAGS bit = NO_FLAG;
+        for (int t = 0; table[t].name != NULL; ++t) {
+            if (!str_cmp(name, table[t].name)) {
+                bit = table[t].bit;
+                break;
+            }
+        }
         if (bit != NO_FLAG)
             SET_BIT(flags, bit);
     }

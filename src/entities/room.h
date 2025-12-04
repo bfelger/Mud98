@@ -23,6 +23,7 @@ typedef struct room_data_t RoomData;
 
 #include <lox/lox.h>
 #include <lox/list.h>
+#include <lox/ordered_table.h>
 #include <lox/table.h>
 
 // Static room VNUMs
@@ -100,12 +101,8 @@ typedef struct room_data_t {
             if (inst != NULL)
 
 #define FOR_EACH_GLOBAL_ROOM(r) \
-    for (int r##_idx = 0, r##_l_count = 0; r##_l_count < global_rooms.count; ++r##_idx) \
-        if (!IS_NIL((&global_rooms.entries[r##_idx])->key) \
-            && !IS_NIL((&global_rooms.entries[r##_idx])->value) \
-            && IS_ROOM_DATA((&global_rooms.entries[r##_idx])->value) \
-            && (r = AS_ROOM_DATA(global_rooms.entries[r##_idx].value)) != NULL \
-            && ++r##_l_count)
+    for (GlobalRoomIter r##_iter = make_global_room_iter(); \
+        (r = global_room_iter_next(&r##_iter)) != NULL; )
 
 #define FOR_EACH_AREA_ROOM(r, a) \
     for (int r##_idx = 0, r##_l_count = 0; r##_l_count < a->rooms.count; ++r##_idx) \
@@ -162,7 +159,21 @@ extern int room_data_perm_count;
 extern Room* room_free;
 extern RoomData* room_data_free;
 
-extern Table global_rooms;
+typedef struct {
+    OrderedTableIter iter;
+} GlobalRoomIter;
+
+void init_global_rooms(void);
+void free_global_rooms(void);
+RoomData* global_room_get(VNUM vnum);
+bool global_room_set(RoomData* room_data);
+bool global_room_remove(VNUM vnum);
+int global_room_count(void);
+GlobalRoomIter make_global_room_iter(void);
+RoomData* global_room_iter_next(GlobalRoomIter* iter);
+OrderedTable snapshot_global_rooms(void);
+void restore_global_rooms(OrderedTable snapshot);
+void mark_global_rooms(void);
 
 extern VNUM top_vnum_room;
 

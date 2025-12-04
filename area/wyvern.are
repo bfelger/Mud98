@@ -639,12 +639,12 @@ D1
 The road heads into low hills this way.
 ~
 ~
-0 0 1602
+0 -1 1602
 D3
 The cross-roads and a trading post lie in this direction.
 ~
 ~
-0 0 1702
+0 -1 1702
 S
 #1602
 Rough Path Between the Hills~
@@ -658,12 +658,12 @@ D1
 You see a pair of tall towers in the distance.
 ~
 ~
-0 0 1603
+0 -1 1603
 D3
 The road continues.
 ~
 ~
-0 0 1601
+0 -1 1601
 S
 #1603
 Path through an Open Area~
@@ -677,12 +677,12 @@ D1
 Two fantastic towers surrounded by a moat rise before you.
 ~
 ~
-0 0 1604
+0 -1 1604
 D3
 The road continues.
 ~
 ~
-0 0 1602
+0 -1 1602
 S
 #1604
 West Side of Moat~
@@ -697,17 +697,17 @@ D0
 A worn path leads to a cluster of low buildings.
 ~
 ~
-0 0 1605
+0 -1 1605
 D1
 The Towers loom directly over you, just beyond the moat.
 ~
 ~
-0 0 1620
+0 -1 1620
 D3
 An old ill-kept roads leads away to the west.
 ~
 ~
-0 0 1603
+0 -1 1603
 S
 #1605
 Path North of Moat~
@@ -720,12 +720,12 @@ D0
 Several low buildings lie this way.
 ~
 ~
-0 0 1606
+0 -1 1606
 D2
 The path ends west of the moat.
 ~
 ~
-0 0 1604
+0 -1 1604
 S
 #1606
 Cluster of Buildings~
@@ -739,22 +739,22 @@ D0
 There is an entrance to a building.
 ~
 ~
-0 0 1609
+0 -1 1609
 D1
 A sign over the door reads 'House of Pancakes'.
 ~
 ~
-0 0 1607
+0 -1 1607
 D2
 A path heads south toward the west side of the towers.
 ~
 ~
-0 0 1605
+0 -1 1605
 D3
 There is an entrance to a building here.
 ~
 ~
-0 0 1608
+0 -1 1608
 S
 #1607
 House of Pancakes~
@@ -774,7 +774,7 @@ AD 0
 D1
 ~
 ~
-0 0 1606
+0 -1 1606
 S
 #1609
 Empty Room~
@@ -786,12 +786,12 @@ AD 0
 D2
 ~
 ~
-0 0 1606
+0 -1 1606
 D5
 You see a concealed opening leading down.
 ~
 ~
-0 0 1610
+0 -1 1610
 S
 #1610
 Minotaur's Room~
@@ -803,7 +803,7 @@ ACD 0
 D4
 ~
 ~
-0 0 1609
+0 -1 1609
 S
 #1620
 Western Moat~
@@ -816,19 +816,19 @@ water all around you.
 D0
 ~
 ~
-0 0 1621
+0 -1 1621
 D1
 ~
 ~
-0 0 1623
+0 -1 1623
 D2
 ~
 ~
-0 0 1622
+0 -1 1622
 D3
 ~
 ~
-0 0 1604
+0 -1 1604
 S
 #1621
 Northern Moat~
@@ -841,7 +841,7 @@ around you.
 D2
 ~
 ~
-0 0 1620
+0 -1 1620
 S
 #1622
 Southern Moat~
@@ -854,7 +854,7 @@ around you.
 D0
 ~
 ~
-0 0 1620
+0 -1 1620
 S
 #1623
 Tower Foyer~
@@ -867,11 +867,11 @@ AD 0
 D1
 ~
 ~
-0 0 1624
+0 -1 1624
 D3
 ~
 ~
-0 0 1620
+0 -1 1620
 S
 #1624
 The Grand Lobby~
@@ -886,11 +886,11 @@ AD 0
 D1
 ~
 ~
-0 0 1625
+0 -1 1625
 D3
 ~
 ~
-0 0 1623
+0 -1 1623
 S
 #1625
 Base of the Western Tower~
@@ -903,19 +903,19 @@ D 0
 D0
 ~
 ~
-0 0 1627
+0 -1 1627
 D1
 ~
 ~
-0 0 1626
+0 -1 1626
 D2
 ~
 ~
-0 0 1628
+0 -1 1628
 D3
 ~
 ~
-0 0 1624
+0 -1 1624
 S
 #1626
 The Musty Corridor~
@@ -927,19 +927,19 @@ AD 0
 D0
 ~
 ~
-0 0 1629
+0 -1 1629
 D1
 ~
 ~
-0 0 1631
+0 -1 1631
 D2
 ~
 ~
-0 0 1630
+0 -1 1630
 D3
 ~
 ~
-0 0 1625
+0 -1 1625
 S
 #1627
 Kitchen~
@@ -952,7 +952,7 @@ AD 0
 D2
 ~
 ~
-0 0 1625
+0 -1 1625
 S
 #1628
 Conservatory~
@@ -964,7 +964,7 @@ AD 0
 D0
 ~
 ~
-0 0 1625
+0 -1 1625
 S
 #1629
 The Dining Hall~
@@ -978,7 +978,7 @@ AD 0
 D2
 ~
 ~
-0 0 1626
+0 -1 1626
 S
 #1630
 Art Gallery~
@@ -990,7 +990,7 @@ AD 1
 D0
 ~
 ~
-0 0 1626
+0 -1 1626
 S
 #1631
 Base of the Eastern Tower~
@@ -1005,20 +1005,20 @@ D 1
 D0
 ~
 ~
-0 0 1632
+0 -1 1632
 D2
 ~
 ~
-0 0 1633
+0 -1 1633
 D3
 ~
 ~
-0 0 1626
+0 -1 1626
 D4
 You see a spiral staircase leading up.
 ~
 ~
-0 0 1635
+0 -1 1635
 S
 #1632
 The Common Room~
@@ -1031,7 +1031,7 @@ D 0
 D2
 ~
 ~
-0 0 1631
+0 -1 1631
 D5
 You notice a grate in the bottom of the fire pit.  Maybe it's an opening ...
 ~
@@ -1049,7 +1049,7 @@ AD 0
 D0
 ~
 ~
-0 0 1631
+0 -1 1631
 S
 #1634
 A Large Murky Cellar~
@@ -1074,11 +1074,11 @@ AD 2
 D4
 ~
 ~
-0 0 1636
+0 -1 1636
 D5
 ~
 ~
-0 0 1631
+0 -1 1631
 S
 #1636
 Second Level of the Eastern Tower~
@@ -1091,11 +1091,11 @@ AD 1
 D3
 ~
 ~
-0 0 1637
+0 -1 1637
 D5
 ~
 ~
-0 0 1635
+0 -1 1635
 S
 #1637
 The Elegant Hall~
@@ -1109,19 +1109,19 @@ AD 0
 D0
 ~
 ~
-0 0 1638
+0 -1 1638
 D1
 ~
 ~
-0 0 1636
+0 -1 1636
 D2
 ~
 ~
-0 0 1639
+0 -1 1639
 D3
 ~
 ~
-0 0 1640
+0 -1 1640
 S
 #1638
 The Shaman's Room~
@@ -1135,7 +1135,7 @@ D 0
 D2
 ~
 ~
-0 0 1637
+0 -1 1637
 S
 #1639
 The Library~
@@ -1147,7 +1147,7 @@ AD 0
 D0
 ~
 ~
-0 0 1637
+0 -1 1637
 S
 #1640
 Second Level of the Western Tower~
@@ -1161,16 +1161,16 @@ D 1
 D1
 ~
 ~
-0 0 1637
+0 -1 1637
 D3
 ~
 ~
-0 0 1641
+0 -1 1641
 D4
 You see the spiral staircase leading up.
 ~
 ~
-0 0 1642
+0 -1 1642
 S
 #1641
 On the Balcony~
@@ -1182,7 +1182,7 @@ D 2
 D1
 ~
 ~
-0 0 1640
+0 -1 1640
 S
 #1642
 The Spiral Stairs~
@@ -1194,11 +1194,11 @@ D 2
 D4
 ~
 ~
-0 0 1643
+0 -1 1643
 D5
 ~
 ~
-0 0 1640
+0 -1 1640
 S
 #1643
 Third Level of Western Tower~
@@ -1215,7 +1215,7 @@ D1
 D5
 ~
 ~
-0 0 1642
+0 -1 1642
 S
 #1644
 It's too dark to see anything!~
@@ -1299,7 +1299,7 @@ D3
 There is a small opening this way.
 ~
 ~
-0 0 1649
+0 -1 1649
 D5
 ~
 ~
@@ -1319,12 +1319,12 @@ leads into the western turret.
 D1
 ~
 ~
-0 0 1648
+0 -1 1648
 D3
 A mirror-like portal glimmers, allowing entry into the western turret.
 ~
 ~
-0 0 1650
+0 -1 1650
 S
 #1650
 Turret of the Western Tower~
@@ -1338,12 +1338,12 @@ AD 0
 D1
 ~
 ~
-0 0 1649
+0 -1 1649
 D3
 A mirror-like portal glimmers in this wall.
 ~
 ~
-0 0 1651
+0 -1 1651
 S
 #1651
 On the Other Side~
@@ -1358,11 +1358,11 @@ as the eye can see under the conditions.
 D1
 ~
 ~
-0 0 1650
+0 -1 1650
 D3
 ~
 ~
-0 0 1652
+0 -1 1652
 S
 #1652
 The Chamber~
@@ -1374,7 +1374,7 @@ chair facing a mirror on the wall.
 D1
 ~
 ~
-0 0 1651
+0 -1 1651
 S
 #1701
 Main Eastern Road~
@@ -1388,11 +1388,11 @@ D1
 You see a cross roads and an old building.
 ~
 ~
-0 0 1702
+0 -1 1702
 D3
 ~
 ~
-0 0 5267
+0 -1 5267
 S
 #1702
 Crossroads to the Wilderness~
@@ -1408,21 +1408,21 @@ D0
 You see a trail leading north.
 ~
 ~
-0 0 1704
+0 -1 1704
 D1
 The old Eastern road continues this way.
 ~
 ~
-0 0 1601
+0 -1 1601
 D2
 An old, ram-shackle building serves as a trading post here.
 ~
 ~
-0 0 1703
+0 -1 1703
 D3
 ~
 ~
-0 0 1701
+0 -1 1701
 S
 #1703
 Trading Post~
@@ -1436,7 +1436,7 @@ D0
 The door opens out on the crossroads.
 ~
 ~
-0 0 1702
+0 -1 1702
 S
 #1704
 Trail north of crossroads~
@@ -1450,12 +1450,12 @@ D0
 The trail continues toward a deep, dark, forest.
 ~
 ~
-0 0 1705
+0 -1 1705
 D2
 A major crossroads and a building lie in this direction.
 ~
 ~
-0 0 1702
+0 -1 1702
 S
 #1705
 Trail south of forest~
@@ -1468,12 +1468,12 @@ D0
 The trail enters a dark forest of thick oaks this way.
 ~
 ~
-0 0 1706
+0 -1 1706
 D2
 The trail continues.
 ~
 ~
-0 0 1704
+0 -1 1704
 S
 #1706
 Entrance to the forest~
@@ -1487,12 +1487,12 @@ D0
 You see the trail continuing into the forest.
 ~
 ~
-0 0 1707
+0 -1 1707
 D2
 You see the trail head back on south.
 ~
 ~
-0 0 1705
+0 -1 1705
 S
 #1707
 Trail in Dark Oak Forest~
@@ -1507,12 +1507,12 @@ D0
 You see the trail continue into thick, dark forest.
 ~
 ~
-0 0 1708
+0 -1 1708
 D2
 The edge of the forest is visible in this direction.
 ~
 ~
-0 0 1706
+0 -1 1706
 S
 #1708
 Junction in Dark Forest~
@@ -1525,17 +1525,17 @@ D1
 A path disappears into thick forest.
 ~
 ~
-0 0 1720
+0 -1 1720
 D2
 A path disappears into thick forest.
 ~
 ~
-0 0 1707
+0 -1 1707
 D3
 You see the path to the Centaur village.
 ~
 ~
-0 0 1709
+0 -1 1709
 S
 #1709
 Path to Centaur Village~
@@ -1549,12 +1549,12 @@ D1
 A path disappears into thick forest.
 ~
 ~
-0 0 1708
+0 -1 1708
 D3
 There is a small clearing in this direction.
 ~
 ~
-0 0 1710
+0 -1 1710
 S
 #1710
 The East side of the Centaur Clearing~
@@ -1569,22 +1569,22 @@ D0
 There is a hut here.
 ~
 ~
-0 0 1712
+0 -1 1712
 D1
 A path leads away through the forest.
 ~
 ~
-0 0 1709
+0 -1 1709
 D2
 There is a hut here.
 ~
 ~
-0 0 1713
+0 -1 1713
 D3
 You see the west side of the clearing.
 ~
 ~
-0 0 1711
+0 -1 1711
 S
 #1711
 West side of the Centaur Clearing~
@@ -1598,22 +1598,22 @@ D0
 There is a hut here.
 ~
 ~
-0 0 1714
+0 -1 1714
 D1
 You see the east side of the clearing.
 ~
 ~
-0 0 1710
+0 -1 1710
 D2
 There is a hut here.
 ~
 ~
-0 0 1715
+0 -1 1715
 D3
 There is a hut here.
 ~
 ~
-0 0 1716
+0 -1 1716
 S
 #1712
 A Centaur's Hut~
@@ -1626,7 +1626,7 @@ D2
 The opening leads out onto the clearing.
 ~
 ~
-0 0 1710
+0 -1 1710
 S
 #1713
 A Centaur's Hut~
@@ -1639,7 +1639,7 @@ D0
 The opening leads out onto the clearing.
 ~
 ~
-0 0 1710
+0 -1 1710
 S
 #1714
 A Centaur's Hut~
@@ -1652,7 +1652,7 @@ D2
 The opening leads out onto the clearing.
 ~
 ~
-0 0 1711
+0 -1 1711
 S
 #1715
 A Centaur's Hut~
@@ -1665,7 +1665,7 @@ D0
 The opening leads out onto the clearing.
 ~
 ~
-0 0 1711
+0 -1 1711
 S
 #1716
 Entrance to a Large Hut~
@@ -1679,12 +1679,12 @@ D1
 The opening leads out onto the clearing.
 ~
 ~
-0 0 1711
+0 -1 1711
 D3
 There is a curtain here separating this section from the next.
 ~
 ~
-0 0 1717
+0 -1 1717
 S
 #1717
 Back of a Large Hut~
@@ -1698,7 +1698,7 @@ D1
 There is a curtain here separating this room from the front of the hut.
 ~
 ~
-0 0 1716
+0 -1 1716
 S
 #1720
 Eastern Path in Dark Forest~
@@ -1712,7 +1712,7 @@ D3
 The path continues west through thick forest.
 ~
 ~
-0 0 1708
+0 -1 1708
 S
 #0
 

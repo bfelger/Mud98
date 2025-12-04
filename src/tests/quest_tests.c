@@ -229,7 +229,7 @@ static int test_quest_reward_currency_and_items()
 
     // We need to add the prototype to the global list so that finish_quest can 
     // find it.
-    table_set_vnum(&obj_protos, VNUM_FIELD(proto), OBJ_VAL(proto));
+    global_obj_proto_set(proto);
 
     add_quest_to_log(player->pcdata->quest_log, quest, QSTAT_ACCEPTED, quest->amount);
     QuestStatus* status = get_quest_status(player, quest->vnum);

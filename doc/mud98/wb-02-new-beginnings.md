@@ -261,14 +261,14 @@ One more thing to do on our way out the door: I want to go ahead and set our
 initial faction:
 
 ```
-faction create 12000 Cuivealda
+faction create 12000 Tauremar
 ```
 
 Now we can take a look and see our progress (initial lines of `SHOW` omitted):
 
 <div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
 <span style="color: rgb(245,216,147);">Factions</span><br>
-<span style="color: rgb(64,35,30);">[12000] </span><span style="color: rgb(112,77,43);">Cuivealda           </span><span style="color: rgb(237,230,203);"> default: </span><span style="color: rgb(43,69,79);">     0</span><span style="color: rgb(237,230,203);"> allies: </span><span style="color: rgb(43,69,79);"> 0</span><span style="color: rgb(237,230,203);"> enemies: </span><span style="color: rgb(43,69,79);"> 0</span><br>
+<span style="color: rgb(64,35,30);">[12000] </span><span style="color: rgb(112,77,43);">Tauremar            </span><span style="color: rgb(237,230,203);"> default: </span><span style="color: rgb(43,69,79);">     0</span><span style="color: rgb(237,230,203);"> allies: </span><span style="color: rgb(43,69,79);"> 0</span><span style="color: rgb(237,230,203);"> enemies: </span><span style="color: rgb(43,69,79);"> 0</span><br>
 <span style="color: rgb(232,178,111);">Story Beats:</span><br>
 <span style="color: rgb(237,230,203);">  1) Elf starting area</span><br>
 <span style="color: rgb(237,230,203);">     On-board new elf PCs with a story-driven tutorial.</span><br>
@@ -922,7 +922,7 @@ race elf
 act sentinel
 off assist_race
 res weapon bash
-faction Cuivealda
+faction Tauremar
 short Findorian, the Woodspeaker
 
 long Findorian, the Woodspeaker, kneels in the grassy clearing, gazing intently at
@@ -945,7 +945,7 @@ Once all the above is done, he should look like this (hit `Enter` in `MEDIT`):
 <span style="color: rgb(237,230,203);">Name:        </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">findorian forestspeaker</span><span style="color: rgb(64,35,30);">]</span><br>
 <span style="color: rgb(237,230,203);">Vnum:        </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 12005</span><span style="color: rgb(64,35,30);">]</span><br>
 <span style="color: rgb(237,230,203);">Area:        </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    48</span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(43,69,79);">Faladrin Forest</span><br>
-<span style="color: rgb(237,230,203);">Faction:     </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 12000</span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(43,69,79);">Cuivealda</span><br>
+<span style="color: rgb(237,230,203);">Faction:     </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 12000</span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(43,69,79);">Tauremar</span><br>
 <span style="color: rgb(237,230,203);">Level:       </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    20</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Sex:     </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  none</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Group:   </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    0</span><span style="color: rgb(64,35,30);">]</span><br>
 <span style="color: rgb(237,230,203);">Align:       </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">     0</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Hitroll: </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">     0</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Dam type: </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">none</span><span style="color: rgb(64,35,30);">]</span><br>
 <span style="color: rgb(237,230,203);">Hit dice:    </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  3d9  + 333</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Damage dice:  </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  2d8  +   5</span><span style="color: rgb(64,35,30);">]</span><br>
@@ -991,18 +991,20 @@ qedit create 12000
 
 This creates a blank slate of a quest:
 
-```
-New quest created.
-VNUM:       [12000]
-Name:       (none)
-Area:       Faladrin Forest
-Type:       [visit_mob]
-Level:      [0]
-End:        [0] (none)
-Target:     [0] (none)
-XP:         [0]
-Entry:      [none]
-```
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(232,178,111);">New quest created.</span><br>
+<span style="color: rgb(237,230,203);">Quest          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     12000</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">(none)</span><br>
+<span style="color: rgb(237,230,203);">Area           : </span><span style="color: rgb(112,77,43);">Faladrin Forest</span><br>
+<span style="color: rgb(237,230,203);">Type           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);"> visit_mob</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Level          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         1</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">End            : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         0</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">(none)</span><br>
+<span style="color: rgb(237,230,203);">Target         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         0</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">(none)</span><br>
+<span style="color: rgb(237,230,203);">XP             : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         0</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Currency       : </span><span style="color: rgb(112,77,43);">(none)</span><br>
+<span style="color: rgb(237,230,203);">Faction        : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ] </span><br>
+<span style="color: rgb(237,230,203);">Reputation     : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         0</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Reward Items   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ] </span><br>
+<span style="color: rgb(237,230,203);">Entry          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ]</span><br></div>
 
 I then fill in some information:
 
@@ -1012,115 +1014,151 @@ level 1
 end 12005
 target 12005
 xp 100
+faction 12000
+rewardrep 3000
+rewardcopper 10
 ```
 
 I also add text for the quest log entry with the `ENTRY` command. Here;s what it looks like when finished:
 
-```
-VNUM:       [12000]
-Name:       An Old Friend
-Area:       Faladrin Forest
-Type:       [visit_mob]
-Level:      [1]
-End:        [12005] Findorian, the Woodspeaker
-Target:     [12005] Findorian, the Woodspeaker
-XP:         [100]
-Entry:
-Before you step out into the greater world, you must be trained.  To that
-end, your old mentor Findorian has has taken the responsibility to ensure you
-are properly made ready.  He waits for you just to the east of Cuivealda.
-```
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(237,230,203);">Quest          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     12000</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">An Old Friend</span><br>
+<span style="color: rgb(237,230,203);">Area           : </span><span style="color: rgb(112,77,43);">Faladrin Forest</span><br>
+<span style="color: rgb(237,230,203);">Type           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);"> visit_mob</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Level          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         1</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">End            : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     12005</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Findorian, the Forestspeaker</span><br>
+<span style="color: rgb(237,230,203);">Target         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     12005</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Findorian, the Forestspeaker</span><br>
+<span style="color: rgb(237,230,203);">XP             : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       100</span><span style="color: rgb(64,35,30);"> ]</span><br>
+<span style="color: rgb(237,230,203);">Currency       : </span><span style="color: rgb(112,77,43);">10 copper</span><br>
+<span style="color: rgb(237,230,203);">Faction        : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     12000</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Tauremar</span><br>
+<span style="color: rgb(237,230,203);">Reward Items   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ] </span><br>
+<span style="color: rgb(237,230,203);">Entry: </span><br>
+<span style="color: rgb(43,69,79);">Before you step out into the greater world, you must be trained.  To that</span><br>
+<span style="color: rgb(43,69,79);">end, your old mentor Findorian has has taken the responsibility to ensure</span><br>
+<span style="color: rgb(43,69,79);">you are properly made ready.  He waits for you just to the east of</span><br>
+<span style="color: rgb(43,69,79);">Cuivealda.</span><br></div>
 
-The default type is `visit_mob`, which is just right for us right now. I need to go back and edit MobProg `12001` (the 1 pulse delayed action). This is the new, updated code:
+The default type is `visit_mob`, which is just right for us right now. I need to go back and edit the Login event on Room 12000. This is the new, updated code:
 
 ```
-if hastarget $i
-and canquest $q 12000
-    mob echoat $q ^jYou have instructions to meet your old mentor in a clearing just to the east. There you will continue your training. Type '^*EXITS^j' to see what lies in that direction. Type '^*EAST^j' to go there.^x
-    mob quest grant $q 12000
-    mob echoat $q ^jType '^*QUEST^j' to view your quest log.^x
-else
-    mob forget
-endif
+// This function gets called the first time a character logs in as an elf, 
+// after character creation.
+on_login(vch) {
+    // Only newly-created characters
+    if (vch.level > 1 or vch.race != Race.Elf)
+        return;
+        
+    vch.send(
+        "^*You step off the end of an old rope ladder at the base of "
+        "Cuivealda, the Tree of Awakening. Your years in the nurturing "
+        "hands of the Tetyayath have come to an end.^/^/"
+        "Now you must go out into the world and find your destiny...^/^x")
+
+    if (vch.can_quest(12000)) {
+        delay(1, () -> {
+            vch.send("^jYou have instructions to meet your old mentor in a "
+                "clearing just to the east. There you will continue your "
+                "training. Type '^*EXITS^j' to see what lies in that "
+                "direction. Type '^*EAST^j' to go there.^x")
+            vch.grant_quest(12000)
+            vch.send("^jType '^*QUEST^j' to view your quest log.^x")
+        })
+    }
+}
 ```
 
 The quest system in Mud98 is a novel addition of my own. There is an existing quest system for ROM that was fairly popular back in the day, but it relies on hard-coded quests and had no OLC support. Mud98's quest system is entirely OLC-driven.
 
-In this example, the `canquest` condition checks to see if the player is eligible for the quest (at the time of this writing, this check is a level limit and an "already-completed" check). If eligible, the player is "granted" the quest, and it is now active for them. 
+Here are the new commands used in this script, and what they do:
+- `vch.can_quest(quest_vnum)` returns `true` if the player (in `vch`) is eligible to receive the quest. If they already on the quest, or have completed it, it returns false. Effectively, this makes this text only display once.
+- `vch.grant_quest(quest_vnum)` adds the quest to their quest log.
 
-This is what the player sees:
+After compiling the script and trying it with a new characters, this is what the player sees:
 
-```
-You have instructions to meet your old mentor in a clearing just to the east.
-There you will continue your training. Type 'EXITS' to see what lies in that 
-direction. Type 'EAST' to go there.
-
-You have started the quest, "An Old Friend".
-
-Type 'QUEST' to view your quest log.
-```
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(0,128,128); background: rgb(0,0,0); ">You step off the end of an old rope ladder at the base of Cuivealda, the Tree of</span><br>
+<span style="color: rgb(0,128,128); background: rgb(0,0,0); ">Awakening. Your years in the nurturing hands of the Tetyayath have come to an </span><br>
+<span style="color: rgb(0,128,128); background: rgb(0,0,0); ">end.</span><br>
+<br>
+<span style="color: rgb(0,128,128); background: rgb(0,0,0); ">Now you must go out into the world and find your destiny...</span><br>
+<br>
+<span style="color: rgb(0,128,128); background: rgb(0,0,0); ">The Awakening</span><br>
+<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">    You stand next to the great old trunk of Cuivealda.  The light is</span><br>
+<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">dim, as the dense, high canopy that forms Tauremar covers the sky.  There is</span><br>
+<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">little ground cover, and the forest floor is a tranquil place of perpetual</span><br>
+<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">twilight.</span><br>
+<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">You have no unread notes.</span><br>
+<span style="color: rgb(128,128,0); background: rgb(0,0,0); ">You have instructions to meet your old mentor in a clearing just to the east.</span><br>
+<span style="color: rgb(128,128,0); background: rgb(0,0,0); ">There you will continue your training. Type '</span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">EXITS</span><span style="color: rgb(128,128,0); background: rgb(0,0,0); ">' to see what lies in that </span><br>
+<span style="color: rgb(128,128,0); background: rgb(0,0,0); ">direction. Type '</span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">EAST</span><span style="color: rgb(128,128,0); background: rgb(0,0,0); ">' to go there.</span><br>
+<br>
+<span style="color: rgb(128,128,0); background: rgb(0,0,0); ">You have started the quest, </span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">"An Old Friend</span><span style="color: rgb(128,128,0); background: rgb(0,0,0); ">".</span><br>
+<span style="color: rgb(128,128,0); background: rgb(0,0,0); ">Type '</span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">QUEST</span><span style="color: rgb(128,128,0); background: rgb(0,0,0); ">' to view your quest log.</span><br></div>
 
 Here is what they see when they type `QUEST`:
 
-```
-Active Quests in Faladrin Forest:
-
-1. An Old Friend [Level 1]
-Before you step out into the greater world, you must be trained.  To that
-end, your old mentor Findorian has has taken the responsibility to ensure you
-are properly made ready.  He waits for you just to the east of Cuivealda.
-```
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(0,128,128); background: rgb(0,0,0); ">Active Quests in Faladrin Forest:</span><br>
+<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">1. </span><span style="color: rgb(255,255,255); background: rgb(0,0,0); ">An Old Friend </span><span style="color: rgb(0,0,255); background: rgb(0,0,0); ">[</span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">Level 1</span><span style="color: rgb(0,0,255); background: rgb(0,0,0); ">] </span><br>
+<span style="color: rgb(128,128,128); background: rgb(0,0,0); ">Before you step out into the greater world, you must be trained.  To that</span><br>
+<span style="color: rgb(128,128,128); background: rgb(0,0,0); ">end, your old mentor Findorian has has taken the responsibility to ensure</span><br>
+<span style="color: rgb(128,128,128); background: rgb(0,0,0); ">you are properly made ready.  He waits for you just to the east of</span><br>
+<span style="color: rgb(128,128,128); background: rgb(0,0,0); ">Cuivealda.</span><br></div>
 
 This list will obviously grow as the player progresses. World quests (those outside their immediate area) will be displayed as a collapsed list below. Completed quests are hidden.
 
 ### Finishing the quest
 
-Findorian (mob VNUM `12005`) is our quest handler. We designated him both as the quest "target" and quest "end".  We need a new Mob Prog to receive and handle the quest:
-
-```
-mpedit create 12005
-code
-
-if canfinishquest $n 12000
-    say There you are, $n; I'm glad to see you. I wish I could ease you into the
-brutal World Below, but we have no such luck.
-    mob echo $I sighs.
-    say I need your help with something, and it's not going to be pleasant.
-    mob quest finish $n 12000
-endif
-@
-done
-```
-
-I then assign this Mob Prog with a `GREET` trigger:
+Findorian (mob VNUM `12005`) is our quest handler. We designated him both as the quest "target" and quest "end".  We need a new `on_greet` script to receive and handle the quest:
 
 ```
 medit 12005
-addprog 12005 greet 100
-done
+lox
+```
+
+Add this to his Lox script (to be compiled as class `mob_12005`):
+
+```
+on_greet(vch) {
+    if (vch.can_finish_quest(12000)) {
+        say("There you are, ${vch.name}; I'm glad to see you. I wish I could "
+            "ease you into the brutal World Below, but we have no such luck.")
+        echo("$n sighs.")
+        say("I need your help with something, and it's not going to be "
+            "pleasant.")
+        vch.finish_quest(12000)
+    }
+}
+```
+
+I then assign this to an event on Findorian with the `GREET` trigger:
+
+```
+event set greet
 asave changed
 ```
 
 So, how did we do? This is what a new character sees when they enter the room with Findorian:
 
-```
-The Training Ground
-  Dappled sunlight breaks through the canopy in this clearing.  A patch of
-grass grows, green and vibrant, in the center.  Dark pathways through to
-trees go out in all directions.  
-[?] Findorian, the Woodspeaker, kneels in the grassy clearing, gazing intently
-at the dark woods surrounding you.
-Findorian, the Woodspeaker says 'There you are, Elithir; I'm glad to see you. I
-wish I could ease you into the brutal World Below, but we have no such luck.'
-Findorian, the Woodspeaker sighs.
-Findorian, the Woodspeaker says 'I need your help with something, and it's not
-going to be pleasant.'
+<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
+<span style="color: rgb(0,128,128); background: rgb(0,0,0); ">The Training Ground</span><br>
+<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">  Dappled sunlight breaks through the canopy in this clearing.  A patch of</span><br>
+<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">grass grows, green and vibrant, in the center.  Dark pathways through the</span><br>
+<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">trees go out in all directions.</span><br>
+<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">  </span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">[</span><span style="color: rgb(255,255,0); background: rgb(0,0,0); ">?</span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">]</span><span style="color: rgb(192,192,192); background: rgb(0,0,0); "> Findorian, the Forestspeaker, kneels in the grassy clearing, gazing</span><br>
+<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">intently at the dark woods surrounding you.</span><br><span style="color: rgb(0,128,0); background: rgb(0,0,0); ">Findorian, the Forestspeaker says </span>
+<span style="color: rgb(0,128,0); background: rgb(0,0,0); ">'</span><span style="color: rgb(0,255,0); background: rgb(0,0,0); ">There you are, Elithir; I'm glad to see you. I wish I could ease you into the </span><br>
+<span style="color: rgb(0,255,0); background: rgb(0,0,0); ">brutal World Below, but we have no such luck.</span><span style="color: rgb(0,128,0); background: rgb(0,0,0); ">'</span><br>
+<span style="color: rgb(192,192,192); background: rgb(0,0,0); ">Findorian, the Forestspeaker sighs.</span><br>
+<span style="color: rgb(0,128,0); background: rgb(0,0,0); ">Findorian, the Forestspeaker says '</span><span style="color: rgb(0,255,0); background: rgb(0,0,0); ">I need your help with something, and it's not</span><br>
+<span style="color: rgb(0,255,0); background: rgb(0,0,0); ">going to be pleasant.</span><span style="color: rgb(0,128,0); background: rgb(0,0,0); ">'</span><br>
+<br>
+<span style="color: rgb(128,128,0); background: rgb(0,0,0); ">You have completed the quest, "</span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">An Old Friend</span><span style="color: rgb(128,128,0); background: rgb(0,0,0); ">".</span><br>
+<span style="color: rgb(128,128,0); background: rgb(0,0,0); ">You have been awarded </span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">100</span><span style="color: rgb(128,128,0); background: rgb(0,0,0); "> xp.</span><br>
+<span style="color: rgb(128,128,0); background: rgb(0,0,0); ">You receive </span><span style="color: rgb(0,128,128); background: rgb(0,0,0); ">10 copper</span><span style="color: rgb(128,128,0); background: rgb(0,0,0); ">.</span><br>
+<span style="color: rgb(128,128,0); background: rgb(0,0,0); ">Your reputation with Tauremar increases (Neutral -&gt; Friendly).</span><br></div>
 
-You have completed the quest, "An Old Friend".
-You have been awarded 100 xp.
-```
-
-The player has now completed their first quest. I could have done a more "automated" way of handling quests that didn't involve Mob Progs, but I believe this method lets forces builders to create a more customized and narrative experience around levelling.
+The player has now completed their first quest. I could have done a more "automated" way of handling quests that didn't involve events, but I believe this method requires builders to create a more customized and narrative experience around levelling.
 
 The `[?]` symbol in front of Findorian's name is a short-hand from MMO's meaning "this person is ready to complete your quest." In this case, the process was automated. Other quests may require some interaction. It's up to you.
 

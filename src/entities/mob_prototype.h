@@ -20,6 +20,7 @@ typedef struct mob_prototype_t MobPrototype;
 #include <data/mobile_data.h>
 
 #include <lox/lox.h>
+#include <lox/ordered_table.h>
 
 #include <stdbool.h>
 
@@ -73,12 +74,8 @@ typedef struct mob_prototype_t {
 #define GROUP_VNUM_OGRES        2101
 
 #define FOR_EACH_MOB_PROTO(m) \
-    for (int m##_idx = 0, m##_l_count = 0; m##_l_count < mob_protos.count; ++m##_idx) \
-        if (!IS_NIL((&mob_protos.entries[m##_idx])->key) \
-            && !IS_NIL((&mob_protos.entries[m##_idx])->value) \
-            && IS_MOB_PROTO((&mob_protos.entries[m##_idx])->value) \
-            && (m = AS_MOB_PROTO(mob_protos.entries[m##_idx].value)) != NULL \
-            && ++m##_l_count)
+    for (GlobalMobProtoIter m##_iter = make_global_mob_proto_iter(); \
+        (m = global_mob_proto_iter_next(&m##_iter)) != NULL; )
 
 MobPrototype* new_mob_prototype();
 void free_mob_prototype(MobPrototype* p_mob_proto);
@@ -86,7 +83,21 @@ MobPrototype* get_mob_prototype(VNUM vnum);
 void load_mobiles(FILE* fp);
 void recalc(MobPrototype* pMob);
 
-extern Table mob_protos;
+typedef struct {
+    OrderedTableIter iter;
+} GlobalMobProtoIter;
+
+void init_global_mob_protos(void);
+void free_global_mob_protos(void);
+MobPrototype* global_mob_proto_get(VNUM vnum);
+bool global_mob_proto_set(MobPrototype* proto);
+bool global_mob_proto_remove(VNUM vnum);
+int global_mob_proto_count(void);
+GlobalMobProtoIter make_global_mob_proto_iter(void);
+MobPrototype* global_mob_proto_iter_next(GlobalMobProtoIter* iter);
+OrderedTable snapshot_global_mob_protos(void);
+void restore_global_mob_protos(OrderedTable snapshot);
+void mark_global_mob_protos(void);
 extern MobPrototype* mob_prototype_free;
 
 extern int mob_proto_count;

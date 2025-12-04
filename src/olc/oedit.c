@@ -960,7 +960,7 @@ OEDIT(oedit_create)
     if (value > top_vnum_obj)
         top_vnum_obj = value;
 
-    table_set_vnum(&obj_protos, value, OBJ_VAL(pObj));
+    global_obj_proto_set(pObj);
 
     set_editor(ch->desc, ED_OBJECT, U(pObj));
 
@@ -1102,7 +1102,7 @@ ED_FUN_DEC(ed_new_obj)
     if (value > top_vnum_obj)
         top_vnum_obj = value;
 
-    table_set_vnum(&obj_protos, value, OBJ_VAL(pObj));
+    global_obj_proto_set(pObj);
 
     set_editor(ch->desc, ED_OBJECT, U(pObj));
 
@@ -1231,4 +1231,3 @@ OEDIT(oedit_copy)
     send_to_char("Ok.\n\r", ch);
     return true;
 }
-

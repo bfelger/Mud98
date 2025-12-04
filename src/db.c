@@ -190,9 +190,9 @@ void boot_db()
     init_vm();
 
     init_value_array(&global_areas);
-    init_table(&global_rooms);
-    init_table(&mob_protos);
-    init_table(&obj_protos);
+    init_global_rooms();
+    init_global_mob_protos();
+    init_global_obj_protos();
     init_table(&faction_table);
     init_list(&mob_list);
     init_list(&mob_free);

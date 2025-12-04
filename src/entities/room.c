@@ -11,6 +11,7 @@
 #include "reset.h"
 
 #include <lox/lox.h>
+#include <lox/ordered_table.h>
 #include <lox/table.h>
 #include <lox/function.h>
 #include <lox/memory.h>
@@ -29,9 +30,80 @@ int room_data_count;
 int room_data_perm_count;
 RoomData* room_data_free;
 
-Table global_rooms;
+static OrderedTable global_rooms;
 
 VNUM top_vnum_room;
+
+void init_global_rooms(void)
+{
+    ordered_table_init(&global_rooms);
+}
+
+void free_global_rooms(void)
+{
+    ordered_table_free(&global_rooms);
+}
+
+RoomData* global_room_get(VNUM vnum)
+{
+    Value val;
+    if (ordered_table_get_vnum(&global_rooms, vnum, &val) && IS_ROOM_DATA(val))
+        return AS_ROOM_DATA(val);
+    return NULL;
+}
+
+bool global_room_set(RoomData* room_data)
+{
+    if (room_data == NULL)
+        return false;
+    return ordered_table_set_vnum(&global_rooms, VNUM_FIELD(room_data), OBJ_VAL(room_data));
+}
+
+bool global_room_remove(VNUM vnum)
+{
+    return ordered_table_delete_vnum(&global_rooms, (int32_t)vnum);
+}
+
+int global_room_count(void)
+{
+    return ordered_table_count(&global_rooms);
+}
+
+GlobalRoomIter make_global_room_iter(void)
+{
+    GlobalRoomIter iter = { ordered_table_iter(&global_rooms) };
+    return iter;
+}
+
+RoomData* global_room_iter_next(GlobalRoomIter* iter)
+{
+    if (iter == NULL)
+        return NULL;
+
+    Value value;
+    int32_t key;
+    while (ordered_table_iter_next(&iter->iter, &key, &value)) {
+        if (IS_ROOM_DATA(value))
+            return AS_ROOM_DATA(value);
+    }
+
+    return NULL;
+}
+
+OrderedTable snapshot_global_rooms(void)
+{
+    return global_rooms;
+}
+
+void restore_global_rooms(OrderedTable snapshot)
+{
+    global_rooms = snapshot;
+}
+
+void mark_global_rooms(void)
+{
+    mark_ordered_table(&global_rooms);
+}
 
 Room* new_room(RoomData* room_data, Area* area)
 {
@@ -137,13 +209,7 @@ void free_room_data(RoomData* room_data)
  */
 RoomData* get_room_data(VNUM vnum)
 {
-    RoomData* room_data = NULL;
-
-    Value val;
-    if (table_get_vnum(&global_rooms, vnum, &val)) {
-        if (IS_ROOM_DATA(val))
-            room_data = AS_ROOM_DATA(val);
-    }
+    RoomData* room_data = global_room_get(vnum);
 
     if (!room_data && fBootDb) {
         bug("get_room_data: bad vnum %"PRVNUM".", vnum);
@@ -370,7 +436,7 @@ void load_rooms(FILE* fp)
             }
         }
 
-        table_set_vnum(&global_rooms, vnum, OBJ_VAL(room_data));
+        global_room_set(room_data);
         top_vnum_room = top_vnum_room < vnum ? vnum : top_vnum_room;
         assign_area_vnum(vnum);
     }

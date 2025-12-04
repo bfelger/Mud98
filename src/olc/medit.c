@@ -297,7 +297,10 @@ MEDIT(medit_show)
         pMob->short_descr,
         pMob->long_descr);
 
-    addf_buf(buffer, "Description:\n\r" COLOR_ALT_TEXT_2 "%s" COLOR_EOL , pMob->description);
+    if (!IS_NULLSTR(pMob->description))
+        addf_buf(buffer, "Description:\n\r" COLOR_ALT_TEXT_2 "%s" COLOR_EOL , pMob->description);
+    else 
+        add_buf(buffer, "Description: " COLOR_ALT_TEXT_2 "(none)" COLOR_EOL);
 
     if (pMob->pShop) {
         ShopData* pShop;
@@ -609,7 +612,7 @@ ED_FUN_DEC(ed_new_mob)
 
     SET_BIT(area->area_flags, AREA_CHANGED);
 
-    table_set_vnum(&mob_protos, value, OBJ_VAL(pMob));
+    global_mob_proto_set(pMob);
 
     set_editor(ch->desc, ED_MOBILE, U(pMob));
 /*    ch->desc->pEdit        = (void *)pMob; */

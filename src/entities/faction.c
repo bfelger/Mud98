@@ -556,7 +556,7 @@ void faction_show_reputations(Mobile* ch)
         Faction* faction = get_faction(rep->vnum);
         char name_buf[MAX_INPUT_LENGTH];
         if (faction != NULL)
-            strncpy(name_buf, NAME_STR(faction), sizeof(name_buf));
+            sprintf(name_buf, "%s", NAME_STR(faction));
         else
             sprintf(name_buf, "Unknown (%" PRVNUM ")", rep->vnum);
 

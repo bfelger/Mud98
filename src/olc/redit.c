@@ -751,7 +751,7 @@ REDIT(redit_create)
     if (value > top_vnum_room)
         top_vnum_room = value;
 
-    table_set_vnum(&global_rooms, value, OBJ_VAL(room_data));
+    global_room_set(room_data);
 
     Area* area;
     FOR_EACH_AREA_INST(area, area_data) {

@@ -43,7 +43,7 @@ RoomData* mock_room_data(VNUM vnum, AreaData* ad)
     write_value_array(mocks(), OBJ_VAL(rd));
     rd->area_data = ad;
     VNUM_FIELD(rd) = 51000;
-    table_set_vnum(&global_rooms, VNUM_FIELD(rd), OBJ_VAL(rd));
+    global_room_set(rd);
 
     return rd;
 }

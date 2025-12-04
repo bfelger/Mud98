@@ -931,7 +931,7 @@ You see the apex of the pyramid many yards above you.
 D5
 ~
 ~
-0 0 8708
+0 -1 8708
 S
 #8706
 The Apex of the Great Pyramid~
@@ -962,7 +962,7 @@ It looks really dangerous.  I wouldn't go that way.
 D1
 ~
 ~
-0 0 8707
+0 -1 8707
 D2
 The south side of the pyramid slopes down into the sands.
 It looks really dangerous.  I wouldn't go that way.
@@ -1007,7 +1007,7 @@ section up and get outside!
 D4
 ~
 ~
-0 0 8705
+0 -1 8705
 D5
 You see a small dusty chamber.
 ~
@@ -1224,11 +1224,11 @@ of adventurers, thieves, and creatures that did not survive the fall.
 D1
 ~
 ~
-0 0 8717
+0 -1 8717
 D3
 ~
 ~
-0 0 8717
+0 -1 8717
 S
 #8718
 Under the Hole~
