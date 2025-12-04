@@ -23,6 +23,7 @@
 #include <data/mobile_data.h>
 #include <data/player.h>
 
+#include <ctype.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -371,6 +372,23 @@ static void clear_cached_codes(ColorTheme* theme)
     }
 }
 
+static char* skip_spaces(char* str)
+{
+    if (!str)
+        return str;
+
+    while (*str && isspace((unsigned char)*str))
+        ++str;
+
+    return str;
+}
+
+static ColorTheme* color_find_system_theme(const char* name, bool allow_prefix);
+static int color_find_system_theme_index(const char* name, bool allow_prefix);
+static bool color_append_system_theme(ColorTheme* theme);
+static bool color_remove_system_theme(int index);
+static void destroy_system_theme(ColorTheme* theme);
+
 static void do_theme_config(Mobile* ch, char* argument)
 {
     static const char* help =
@@ -440,74 +458,16 @@ static void do_theme_config(Mobile* ch, char* argument)
     }
 }
 
-static void do_theme_create(Mobile* ch, char* argument)
+static ColorTheme* create_theme_template(const char* name, ColorMode mode)
 {
-    static const char* help =
-        COLOR_INFO
-        "USAGE: " COLOR_ALT_TEXT_1 "THEME CREATE (ANSI|256|RGB) <name>" COLOR_INFO "\n\r"
-        "\n\r"
-        "Creates a new theme of the requested type and sets it to the currently "
-        "active theme. The default is a solid black background and soft-white "
-        "foreground colors.\n\r"
-        "\n\r"
-        "All channel colors are assigned to the first palette index except "
-        "background, which is set to the second palette index (black by "
-        "default). These values can be changed." COLOR_EOL;
-
-    char mode_arg[MAX_INPUT_LENGTH];
-    ColorMode mode;
-
-    if (ch->pcdata->current_theme->is_changed) {
-        send_to_char(theme_change_warning, ch);
-        return;
-    }
-
-    READ_ARG(mode_arg);
-
-    if (!mode_arg[0] 
-        || (mode = lookup_color_mode(mode_arg)) < COLOR_MODE_16
-        || mode > COLOR_MODE_RGB
-        || !argument[0]) {
-        send_to_char(help, ch);
-        return;
-    }
-
-    size_t len = strlen(argument);
-    if (len < 2 || len > 12) {
-        send_to_char(COLOR_INFO "Color theme names must be between 2 and 12 characters long." COLOR_EOL, ch);
-        return;
-    }
-
-    for (int i = 0; i < system_color_theme_count; ++i) {
-        if (!str_cmp(argument, system_color_themes[i]->name)) {
-            send_to_char(COLOR_INFO "You cannot use the name of an existing system or "
-                "personal theme." COLOR_EOL, ch);
-            return;
-        }
-    }
-
-    int slot = -1;
-    for (int i = 0; i < MAX_THEMES; ++i) {
-        if (ch->pcdata->color_themes[i] == NULL) {
-            slot = i;
-            break;
-        }
-    }
-
-    if (slot < 0) {
-        send_to_char(COLOR_INFO "You already have the maximum number of personal color "
-            "themes. You must remove one with 'THEME REMOVE' first." COLOR_EOL, ch);
-        return;
-    }
-
     ColorTheme* theme = new_color_theme();
-    theme->name = str_dup(argument);
+    theme->name = str_dup(name);
     theme->mode = mode;
     theme->banner = str_dup("");
     theme->palette_max = 16;
-    theme->is_changed = true;
     theme->is_public = false;
-    
+    theme->is_changed = true;
+
     Color white;
     Color black;
 
@@ -541,6 +501,115 @@ static void do_theme_create(Mobile* ch, char* argument)
     for (int i = 0; i < COLOR_SLOT_COUNT; ++i)
         theme->channels[i] = fg_idx;
     theme->channels[SLOT_BACKGROUND] = bg_idx;
+
+    return theme;
+}
+
+static void do_theme_create(Mobile* ch, char* argument)
+{
+    static const char* help =
+        COLOR_INFO
+        "USAGE: " COLOR_ALT_TEXT_1 "THEME CREATE (ANSI|256|RGB) <name>" COLOR_INFO "\n\r"
+        "\n\r"
+        "Creates a new theme of the requested type and sets it to the currently "
+        "active theme. The default is a solid black background and soft-white "
+        "foreground colors.\n\r"
+        "\n\r"
+        "All channel colors are assigned to the first palette index except "
+        "background, which is set to the second palette index (black by "
+        "default). These values can be changed." COLOR_EOL;
+
+    char mode_arg[MAX_INPUT_LENGTH];
+    ColorMode mode;
+
+    READ_ARG(mode_arg);
+
+    argument = skip_spaces(argument);
+
+    if (!mode_arg[0]
+        || (mode = lookup_color_mode(mode_arg)) < COLOR_MODE_16
+        || mode > COLOR_MODE_RGB
+        || !argument[0]) {
+        send_to_char(help, ch);
+        return;
+    }
+    char first_word[MAX_INPUT_LENGTH] = { 0 };
+    size_t fw_len = 0;
+    while (argument[fw_len] && !isspace((unsigned char)argument[fw_len])
+        && fw_len < MAX_INPUT_LENGTH - 1) {
+        first_word[fw_len] = argument[fw_len];
+        ++fw_len;
+    }
+    first_word[fw_len] = '\0';
+
+    bool create_system = false;
+    const char* theme_name = argument;
+    if (first_word[0] && !str_cmp(first_word, "system")) {
+        create_system = true;
+        theme_name = skip_spaces(argument + fw_len);
+        if (!theme_name[0]) {
+            send_to_char(COLOR_INFO "You must supply the name of the system theme to create." COLOR_EOL, ch);
+            return;
+        }
+    }
+
+    if (!create_system && ch->pcdata->current_theme && ch->pcdata->current_theme->is_changed) {
+        send_to_char(theme_change_warning, ch);
+        return;
+    }
+
+    size_t len = strlen(theme_name);
+    if (len < 2 || len > 12) {
+        send_to_char(COLOR_INFO "Color theme names must be between 2 and 12 characters long." COLOR_EOL, ch);
+        return;
+    }
+
+    for (int i = 0; i < system_color_theme_count; ++i) {
+        if (!system_color_themes[i])
+            continue;
+        if (!str_cmp(theme_name, system_color_themes[i]->name)) {
+            send_to_char(COLOR_INFO "You cannot use the name of an existing system or "
+                "personal theme." COLOR_EOL, ch);
+            return;
+        }
+    }
+
+    ColorTheme* theme = create_theme_template(theme_name, mode);
+
+    if (create_system) {
+        if (IS_NPC(ch) || ch->pcdata->security < 9) {
+            send_to_char(COLOR_INFO "You don't have permission to create system themes." COLOR_EOL, ch);
+            free_color_theme(theme);
+            return;
+        }
+
+        if (!color_append_system_theme(theme)) {
+            free_color_theme(theme);
+            send_to_char(COLOR_INFO "Unable to create the system theme." COLOR_EOL, ch);
+            return;
+        }
+
+        theme->type = COLOR_THEME_TYPE_SYSTEM;
+        theme->is_changed = true;
+        printf_to_char(ch, COLOR_INFO "System theme '%s' created. Use THEME EDIT SYSTEM %s to modify it and THEME SAVE SYSTEM to persist." COLOR_EOL,
+            theme->name, theme->name);
+        return;
+    }
+
+    int slot = -1;
+    for (int i = 0; i < MAX_THEMES; ++i) {
+        if (ch->pcdata->color_themes[i] == NULL) {
+            slot = i;
+            break;
+        }
+    }
+
+    if (slot < 0) {
+        free_color_theme(theme);
+        send_to_char(COLOR_INFO "You already have the maximum number of personal color "
+            "themes. You must remove one with 'THEME REMOVE' first." COLOR_EOL, ch);
+        return;
+    }
 
     free_color_theme(ch->pcdata->current_theme);
     ch->pcdata->current_theme = theme;
@@ -853,9 +922,57 @@ static void do_theme_preview(Mobile* ch, char* argument)
 
 static void do_theme_remove(Mobile* ch, char* argument)
 {
+    argument = skip_spaces(argument);
     if (!argument || !argument[0]) {
         send_to_char(COLOR_INFO "You specify the name of a color theme to remove." COLOR_EOL,
             ch);
+        return;
+    }
+
+    char first_word[MAX_INPUT_LENGTH] = { 0 };
+    size_t fw_len = 0;
+    while (argument[fw_len] && !isspace((unsigned char)argument[fw_len])
+        && fw_len < MAX_INPUT_LENGTH - 1) {
+        first_word[fw_len] = argument[fw_len];
+        ++fw_len;
+    }
+    first_word[fw_len] = '\0';
+
+    if (first_word[0] && !str_cmp(first_word, "system")) {
+        const char* theme_name = skip_spaces(argument + fw_len);
+        if (!theme_name[0]) {
+            send_to_char(COLOR_INFO "You must provide the name of the system theme to remove." COLOR_EOL, ch);
+            return;
+        }
+
+        if (IS_NPC(ch) || ch->pcdata->security < 9) {
+            send_to_char(COLOR_INFO "You don't have permission to remove system themes." COLOR_EOL, ch);
+            return;
+        }
+
+        if (system_color_theme_count <= 1) {
+            send_to_char(COLOR_INFO "You must keep at least one system theme available." COLOR_EOL, ch);
+            return;
+        }
+
+        int index = color_find_system_theme_index(theme_name, false);
+        if (index < 0) {
+            printf_to_char(ch, COLOR_INFO "No system theme named '%s' could be found." COLOR_EOL,
+                theme_name);
+            return;
+        }
+
+        char removed_name[MAX_INPUT_LENGTH];
+        strncpy(removed_name, system_color_themes[index]->name, sizeof(removed_name));
+        removed_name[sizeof(removed_name) - 1] = '\0';
+
+        if (!color_remove_system_theme(index)) {
+            send_to_char(COLOR_INFO "Unable to remove that system theme." COLOR_EOL, ch);
+            return;
+        }
+
+        printf_to_char(ch, COLOR_INFO "System theme '%s' removed. Use THEME SAVE SYSTEM to persist." COLOR_EOL,
+            removed_name);
         return;
     }
 
@@ -1001,7 +1118,7 @@ static void do_theme_set(Mobile* ch, char* argument)
     }
 
     if (IS_NPC(ch) || ch->pcdata->security < 9) {
-        send_to_char(COLOR_INFO "Only Sec 9 immortals may change the default system theme." COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "You don't have permission to change the default system theme." COLOR_EOL, ch);
         return;
     }
 
@@ -1204,13 +1321,55 @@ static void do_theme_show(Mobile* ch, char* argument)
 
 static void do_theme_edit(Mobile* ch, char* argument)
 {
-    (void)argument;
+    static const char* usage = COLOR_INFO "USAGE: THEME EDIT or THEME EDIT SYSTEM <system theme>" COLOR_EOL;
 
     if (IS_NPC(ch))
         return;
 
     if (ch->desc == NULL) {
         send_to_char(COLOR_INFO "You cannot edit themes without an active descriptor." COLOR_EOL, ch);
+        return;
+    }
+
+    argument = skip_spaces(argument);
+
+    if (argument && argument[0]) {
+        char first_word[MAX_INPUT_LENGTH] = { 0 };
+        size_t fw_len = 0;
+        while (argument[fw_len] && !isspace((unsigned char)argument[fw_len])
+            && fw_len < MAX_INPUT_LENGTH - 1) {
+            first_word[fw_len] = argument[fw_len];
+            ++fw_len;
+        }
+        first_word[fw_len] = '\0';
+
+        if (!str_cmp(first_word, "system")) {
+            const char* name = skip_spaces(argument + fw_len);
+            if (!name[0]) {
+                send_to_char(usage, ch);
+                return;
+            }
+
+            if (IS_NPC(ch) || ch->pcdata->security < 9) {
+                send_to_char(COLOR_INFO "You don't have permission to edit system themes." COLOR_EOL, ch);
+                return;
+            }
+
+            ColorTheme* theme = color_find_system_theme(name, true);
+            if (!theme) {
+                printf_to_char(ch, COLOR_INFO "No system theme named '%s' could be found." COLOR_EOL,
+                    name);
+                return;
+            }
+
+            set_editor(ch->desc, ED_THEME, (uintptr_t)theme);
+            printf_to_char(ch, COLOR_INFO "Editing system theme '%s'. Use SAVE to write it to disk." COLOR_EOL,
+                theme->name);
+            theme_show_theme(ch, theme);
+            return;
+        }
+
+        send_to_char(usage, ch);
         return;
     }
 
@@ -1233,7 +1392,7 @@ void do_theme(Mobile* ch, char* argument)
         COLOR_INFO
         "USAGE: " COLOR_ALT_TEXT_1 "THEME CONFIG\n\r"
         "       THEME CREATE (ANSI|256|RGB) <name>\n\r"
-        "       THEME EDIT\n\r"
+        "       THEME EDIT (SYSTEM <name>)\n\r"
         "       THEME LIST (ALL|SYSTEM|PUBLIC|PRIVATE)\n\r"
         "       THEME PREVIEW (<name>)\n\r"
         "       THEME REMOVE <name>\n\r"
@@ -1243,7 +1402,9 @@ void do_theme(Mobile* ch, char* argument)
         "       THEME SHOW (<name>)" COLOR_INFO "\n\r"
         "\n\r"
         "Type '" COLOR_ALT_TEXT_1 "THEME <option>" COLOR_INFO "' for more information."
-        COLOR_EOL;
+        "\n\r"
+        COLOR_INFO "Sec 9 immortals can prefix theme names with 'system' in CREATE,"
+        " REMOVE, and EDIT to manage system themes." COLOR_EOL;
 
     char cmd[MAX_INPUT_LENGTH] = { 0 };
 
@@ -1661,19 +1822,117 @@ int system_color_theme_count = 0;
 static ColorTheme** loaded_system_color_themes = NULL;
 static int loaded_system_color_theme_count = 0;
 
+static void destroy_system_theme(ColorTheme* theme)
+{
+    if (!theme)
+        return;
+
+    clear_cached_codes(theme);
+    free_string(theme->name);
+    free_string(theme->banner);
+    free_mem(theme, sizeof(ColorTheme));
+}
+
+static bool ensure_system_theme_data(void)
+{
+    if (!system_color_themes || system_color_theme_count <= 0)
+        load_system_color_themes();
+    return system_color_themes && system_color_theme_count > 0;
+}
+
+static int color_find_system_theme_index(const char* name, bool allow_prefix)
+{
+    if (!name || !name[0])
+        return -1;
+
+    if (!ensure_system_theme_data())
+        return -1;
+
+    for (int i = 0; i < system_color_theme_count; ++i) {
+        const ColorTheme* theme = system_color_themes[i];
+        if (!theme)
+            continue;
+        if (allow_prefix) {
+            if (!str_prefix(name, theme->name))
+                return i;
+        }
+        else if (!str_cmp(name, theme->name))
+            return i;
+    }
+
+    return -1;
+}
+
+static ColorTheme* color_find_system_theme(const char* name, bool allow_prefix)
+{
+    int index = color_find_system_theme_index(name, allow_prefix);
+    if (index < 0)
+        return NULL;
+    return (ColorTheme*)system_color_themes[index];
+}
+
+static bool color_append_system_theme(ColorTheme* theme)
+{
+    if (!theme)
+        return false;
+
+    size_t new_count = (size_t)loaded_system_color_theme_count + 1;
+    ColorTheme** list = NULL;
+
+    if (!loaded_system_color_themes)
+        list = (ColorTheme**)calloc(new_count, sizeof(ColorTheme*));
+    else
+        list = (ColorTheme**)realloc(loaded_system_color_themes, new_count * sizeof(ColorTheme*));
+
+    if (!list)
+        return false;
+
+    loaded_system_color_themes = list;
+    loaded_system_color_themes[loaded_system_color_theme_count++] = theme;
+    system_color_themes = (const ColorTheme**)loaded_system_color_themes;
+    system_color_theme_count = loaded_system_color_theme_count;
+    return true;
+}
+
+static bool color_remove_system_theme(int index)
+{
+    if (index < 0 || index >= loaded_system_color_theme_count)
+        return false;
+    if (loaded_system_color_theme_count <= 1)
+        return false;
+
+    destroy_system_theme(loaded_system_color_themes[index]);
+
+    for (int i = index; i < loaded_system_color_theme_count - 1; ++i)
+        loaded_system_color_themes[i] = loaded_system_color_themes[i + 1];
+
+    --loaded_system_color_theme_count;
+
+    if (loaded_system_color_theme_count == 0) {
+        free(loaded_system_color_themes);
+        loaded_system_color_themes = NULL;
+        system_color_themes = NULL;
+        system_color_theme_count = 0;
+        return true;
+    }
+
+    ColorTheme** list = (ColorTheme**)realloc(loaded_system_color_themes,
+        sizeof(ColorTheme*) * (size_t)loaded_system_color_theme_count);
+    if (list)
+        loaded_system_color_themes = list;
+
+    system_color_themes = (const ColorTheme**)loaded_system_color_themes;
+    system_color_theme_count = loaded_system_color_theme_count;
+    return true;
+}
+
 static void free_loaded_system_themes(void)
 {
     if (!loaded_system_color_themes)
         return;
 
     for (int i = 0; i < loaded_system_color_theme_count; ++i) {
-        ColorTheme* theme = loaded_system_color_themes[i];
-        if (!theme)
-            continue;
-        clear_cached_codes(theme);
-        free_string(theme->name);
-        free_string(theme->banner);
-        free_mem(theme, sizeof(ColorTheme));
+        destroy_system_theme(loaded_system_color_themes[i]);
     }
 
     free(loaded_system_color_themes);

@@ -8,8 +8,10 @@
 
 #include <color.h>
 #include <comm.h>
+#include <config.h>
 #include <handler.h>
 #include <interp.h>
+#include <persist/theme/theme_persist.h>
 #include <save.h>
 
 #include <entities/player_data.h>
@@ -88,8 +90,13 @@ void theme_edit(Mobile* ch, char* argument)
 
     for (cmd = 0; theme_edit_table[cmd].name != NULL; ++cmd) {
         if (!str_prefix(command, theme_edit_table[cmd].name)) {
-            if ((*theme_edit_table[cmd].olc_fun)(ch, argument) && ch->pcdata->current_theme)
-                ch->pcdata->current_theme->is_changed = true;
+            if ((*theme_edit_table[cmd].olc_fun)(ch, argument)) {
+                ColorTheme* edited_theme = NULL;
+                if (ch->desc && ch->desc->editor == ED_THEME)
+                    EDIT_THEME(ch, edited_theme);
+                if (edited_theme)
+                    edited_theme->is_changed = true;
+            }
             return;
         }
     }
@@ -392,6 +399,29 @@ THEMEEDIT(theme_edit_preview_cmd)
 THEMEEDIT(theme_edit_save)
 {
     (void)argument;
+    ColorTheme* theme;
+    if (!theme_edit_check(ch, &theme))
+        return false;
+
+    if (theme->type == COLOR_THEME_TYPE_SYSTEM) {
+        if (IS_NPC(ch) || ch->pcdata->security < 9) {
+            send_to_char(COLOR_INFO "You don't have permission to save system themes." COLOR_EOL, ch);
+            return false;
+        }
+
+        PersistResult res = theme_persist_save(NULL);
+        if (!persist_succeeded(res)) {
+            printf_to_char(ch, COLOR_INFO "Saving system themes failed (%s)." COLOR_EOL,
+                res.message ? res.message : "unknown error");
+            return false;
+        }
+
+        printf_to_char(ch, COLOR_INFO "System themes saved to '%s'." COLOR_EOL,
+            cfg_get_themes_file());
+        theme->is_changed = false;
+        return false;
+    }
+
     if (!theme_save_personal(ch))
         return false;
 
@@ -401,6 +431,15 @@ THEMEEDIT(theme_edit_save)
 
 THEMEEDIT(theme_edit_discard)
 {
+    ColorTheme* theme;
+    if (!theme_edit_check(ch, &theme))
+        return false;
+
+    if (theme->type == COLOR_THEME_TYPE_SYSTEM) {
+        send_to_char(COLOR_INFO "System themes cannot be discarded from the editor. Reload them from disk to revert changes." COLOR_EOL, ch);
+        return false;
+    }
+
     (void)argument;
     if (!theme_discard_personal(ch))
         return false;

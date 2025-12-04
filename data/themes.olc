@@ -4,10 +4,10 @@
 Name Lope~
 Banner Lope's ColoUr Code 2.0
 
-ColoUr is brought to you by Lope, ant@solace.mh.se
+ColoUr is brought to you by Lope, ant@solace.mh.se
 
-~
-Info 2 0 15 1
+~
+Info 2 0 16 0
 Palette 0 0 0 7 0 0
 Palette 1 0 0 0 0 0
 Palette 2 0 1 0 0 0
@@ -23,6 +23,7 @@ Palette 11 0 1 4 0 0
 Palette 12 0 0 5 0 0
 Palette 13 0 1 5 0 0
 Palette 14 0 0 6 0 0
+Palette 15 0 1 6 0 0
 Channel text 3 0 0 0 0
 Channel background 3 1 0 0 0
 Channel title 3 3 0 0 0
@@ -75,7 +76,7 @@ Channel lox_keyword 3 10 0 0 0
 #THEME
 Name Monorail~
 Banner ~
-Info 2 1 16 1
+Info 2 1 16 0
 Palette 0 1 15 0 0 0
 Palette 1 1 0 0 0 0
 Palette 2 1 244 0 0 0
@@ -145,8 +146,8 @@ Channel lox_keyword 3 10 0 0 0
 Name Cool Cat~
 Banner If your MUD client/terminal does not support server-initiated changes to background color, consider manually setting your backround to to #282921 for best results.
 
-~
-Info 2 2 15 1
+~
+Info 2 2 16 0
 Palette 0 2 247 247 243 0
 Palette 1 2 40 41 33 0
 Palette 2 2 117 113 94 0
@@ -162,6 +163,7 @@ Palette 11 2 154 248 255 0
 Palette 12 2 160 50 255 0
 Palette 13 2 175 128 255 0
 Palette 14 2 101 217 240 0
+Palette 15 2 154 248 255 0
 Channel text 3 0 0 0 0
 Channel background 3 1 0 0 0
 Channel title 3 3 0 0 0
@@ -215,8 +217,8 @@ Channel lox_keyword 3 10 0 0 0
 Name Glow Pop~
 Banner If your MUD client/terminal does not support server-initiated changes to background color, consider manually setting your backround to to #16171A for best results.
 
-~
-Info 2 2 16 1
+~
+Info 2 2 16 0
 Palette 0 2 250 253 255 0
 Palette 1 2 22 23 26 0
 Palette 2 2 35 73 117 0
@@ -286,8 +288,8 @@ Channel lox_keyword 3 10 0 0 0
 Name Synthwave City~
 Banner If your MUD client/terminal does not support server-initiated changes to background color, consider manually setting your backround to to #1B1E23 for best results.
 
-~
-Info 2 2 15 1
+~
+Info 2 2 16 0
 Palette 0 2 246 237 219 0
 Palette 1 2 27 30 35 0
 Palette 2 2 236 141 117 0
@@ -303,6 +305,7 @@ Palette 11 2 36 69 132 0
 Palette 12 2 64 38 92 0
 Palette 13 2 158 34 129 0
 Palette 14 2 36 69 132 0
+Palette 15 2 150 230 194 0
 Channel text 3 0 0 0 0
 Channel background 3 1 0 0 0
 Channel title 3 3 0 0 0
@@ -355,7 +358,7 @@ Channel lox_keyword 3 10 0 0 0
 #THEME
 Name Conestoga~
 Banner ~
-Info 2 2 16 1
+Info 2 2 16 0
 Palette 0 2 237 230 203 0
 Palette 1 2 17 18 21 0
 Palette 2 2 232 178 111 0
@@ -420,3 +423,4 @@ Channel lox_operator 3 8 0 0 0
 Channel lox_literal 3 10 0 0 0
 Channel lox_keyword 3 14 0 0 0
 #END
+
