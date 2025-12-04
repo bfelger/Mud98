@@ -105,6 +105,57 @@ FLAGS flags_from_array(json_t* arr, const struct flag_type* table)
     return flags;
 }
 
+json_t* flags_to_array_with_defaults(FLAGS flags, const struct flag_type* defaults, const struct flag_type* table)
+{
+    if (!defaults)
+        return flags_to_array(flags, table);
+
+    json_t* arr = json_array();
+    FLAGS remaining = flags;
+    for (int i = 0; defaults && defaults[i].name != NULL; i++) {
+        FLAGS mask = defaults[i].bit;
+        if (mask != 0 && (remaining & mask) == mask) {
+            json_array_append_new(arr, json_string(defaults[i].name));
+            remaining &= ~mask;
+        }
+    }
+    if (table) {
+        for (int i = 0; table[i].name != NULL; i++) {
+            if (IS_SET(remaining, table[i].bit)) {
+                json_array_append_new(arr, json_string(table[i].name));
+                remaining &= ~table[i].bit;
+            }
+        }
+    }
+    return arr;
+}
+
+FLAGS flags_from_array_with_defaults(json_t* arr, const struct flag_type* defaults, const struct flag_type* table)
+{
+    if (!defaults)
+        return flags_from_array(arr, table);
+
+    FLAGS flags = 0;
+    if (!json_is_array(arr))
+        return flags;
+
+    size_t size = json_array_size(arr);
+    for (size_t i = 0; i < size; i++) {
+        const char* name = json_string_value(json_array_get(arr, i));
+        if (!name)
+            continue;
+        FLAGS mask = flag_lookup(name, defaults);
+        if (mask != NO_FLAG) {
+            flags |= mask;
+            continue;
+        }
+        mask = flag_lookup(name, table);
+        if (mask != NO_FLAG)
+            flags |= mask;
+    }
+    return flags;
+}
+
 int64_t json_int_or_default(json_t* obj, const char* key, int64_t def)
 {
     json_t* val = json_object_get(obj, key);

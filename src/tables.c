@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -216,6 +216,12 @@ const struct flag_type form_flag_table[] = {
     { NULL,             0,                  0       }
 };
 
+const struct flag_type form_defaults_flag_table[] = {
+    { "humanoidDefault",    FORM_DEFAULT_HUMANOID,      false   },
+    { "animalDefault",      FORM_DEFAULT_ANIMAL,        false   },
+    { NULL,                 0,                          0       }
+};
+
 const struct flag_type part_flag_table[] = {
     { "head",           PART_HEAD,          true    },
     { "arms",           PART_ARMS,          true    },
@@ -240,6 +246,12 @@ const struct flag_type part_flag_table[] = {
     { "scales",         PART_SCALES,        true    },
     { "tusks",          PART_TUSKS,         true    },
     { NULL,             0,                  0       }
+};
+
+const struct flag_type part_defaults_flag_table[] = {
+    { "humanoidDefault",    PART_DEFAULT_HUMANOID,      false   },
+    { "animalDefault",      PART_DEFAULT_ANIMAL,        false   },
+    { NULL,             0,              0       }
 };
 
 const struct flag_type comm_flag_table[] = {

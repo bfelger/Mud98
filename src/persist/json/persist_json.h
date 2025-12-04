@@ -33,6 +33,8 @@ const char* size_name(MobSize size);
 
 json_t* flags_to_array(FLAGS flags, const struct flag_type* table);
 FLAGS flags_from_array(json_t* arr, const struct flag_type* table);
+json_t* flags_to_array_with_defaults(FLAGS flags, const struct flag_type* defaults, const struct flag_type* table);
+FLAGS flags_from_array_with_defaults(json_t* arr, const struct flag_type* defaults, const struct flag_type* table);
 int64_t json_int_or_default(json_t* obj, const char* key, int64_t def);
 
 #endif // MUD98__PERSIST__JSON__PERSIST_JSON_H

@@ -51,13 +51,20 @@ const AreaPersistFormat AREA_PERSIST_JSON = {
     .save = json_save,
 };
 
-static void json_set_flags_if(json_t* obj, const char* key, FLAGS flags, const struct flag_type* table)
+static void json_set_flags_impl(json_t* obj, const char* key, FLAGS flags,
+    const struct flag_type* table, const struct flag_type* defaults)
 {
-    json_t* arr = flags_to_array(flags, table);
+    json_t* arr = defaults ? flags_to_array_with_defaults(flags, defaults, table)
+                           : flags_to_array(flags, table);
     if (arr && json_array_size(arr) > 0)
         json_object_set_new(obj, key, arr);
     else
         json_decref(arr);
+}
+
+static void json_set_flags_if(json_t* obj, const char* key, FLAGS flags, const struct flag_type* table)
+{
+    json_set_flags_impl(obj, key, flags, table, NULL);
 }
 
 static void json_set_int_if(json_t* obj, const char* key, int64_t value, int64_t def)
@@ -808,8 +815,8 @@ static json_t* build_mobiles(const AreaData* area)
         json_set_flags_if(obj, "immFlags", mob->imm_flags, imm_flag_table);
         json_set_flags_if(obj, "resFlags", mob->res_flags, res_flag_table);
         json_set_flags_if(obj, "vulnFlags", mob->vuln_flags, vuln_flag_table);
-        json_set_flags_if(obj, "formFlags", mob->form, form_flag_table);
-        json_set_flags_if(obj, "partFlags", mob->parts, part_flag_table);
+        json_set_flags_impl(obj, "formFlags", mob->form, form_flag_table, form_defaults_flag_table);
+        json_set_flags_impl(obj, "partFlags", mob->parts, part_flag_table, part_defaults_flag_table);
 
         json_object_set_new(obj, "alignment", json_integer(mob->alignment));
         json_object_set_new(obj, "group", json_integer(mob->group));
@@ -898,8 +905,8 @@ static PersistResult parse_mobiles(json_t* root, AreaData* area)
         mob->imm_flags = flags_from_array(json_object_get(m, "immFlags"), imm_flag_table);
         mob->res_flags = flags_from_array(json_object_get(m, "resFlags"), res_flag_table);
         mob->vuln_flags = flags_from_array(json_object_get(m, "vulnFlags"), vuln_flag_table);
-        mob->form = flags_from_array(json_object_get(m, "formFlags"), form_flag_table);
-        mob->parts = flags_from_array(json_object_get(m, "partFlags"), part_flag_table);
+        mob->form = flags_from_array_with_defaults(json_object_get(m, "formFlags"), form_defaults_flag_table, form_flag_table);
+        mob->parts = flags_from_array_with_defaults(json_object_get(m, "partFlags"), part_defaults_flag_table, part_flag_table);
 
         mob->alignment = (int16_t)json_int_or_default(m, "alignment", mob->alignment);
         mob->group = (int16_t)json_int_or_default(m, "group", mob->group);

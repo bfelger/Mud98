@@ -31,9 +31,16 @@ const RacePersistFormat RACE_PERSIST_JSON = {
 static json_t* build_class_mult(const Race* race)
 {
     json_t* obj = json_object();
+    bool has_value = false;
     for (int i = 0; i < class_count; i++) {
         int16_t mult = GET_ELEM(&race->class_mult, i);
+        if (mult != 0)
+            has_value = true;
         json_object_set_new(obj, class_table[i].name, json_integer(mult));
+    }
+    if (!has_value) {
+        json_decref(obj);
+        return NULL;
     }
     return obj;
 }
@@ -41,12 +48,49 @@ static json_t* build_class_mult(const Race* race)
 static json_t* build_class_start(const Race* race)
 {
     json_t* obj = json_object();
+    bool has_value = false;
     for (int i = 0; i < class_count; i++) {
         VNUM vnum = GET_ELEM(&race->class_start, i);
-        if (vnum != 0)
+        if (vnum != 0) {
+            has_value = true;
             json_object_set_new(obj, class_table[i].name, json_integer(vnum));
+        }
+    }
+    if (!has_value) {
+        json_decref(obj);
+        return NULL;
     }
     return obj;
+}
+
+static bool stats_have_values(const int16_t* stats)
+{
+    for (int i = 0; i < STAT_COUNT; i++) {
+        if (stats[i] != 0)
+            return true;
+    }
+    return false;
+}
+
+static void add_stats_if_needed(json_t* obj, const char* key, const int16_t* stats)
+{
+    if (!stats_have_values(stats))
+        return;
+    json_t* block = json_object();
+    for (int s = 0; stat_table[s].name != NULL; s++)
+        json_object_set_new(block, stat_table[s].name, json_integer(stats[s]));
+    json_object_set_new(obj, key, block);
+}
+
+static void set_flags_if_not_empty(json_t* obj, const char* key, FLAGS flags, const struct flag_type* table, const struct flag_type* defaults)
+{
+    json_t* arr = defaults ? flags_to_array_with_defaults(flags, defaults, table)
+                           : flags_to_array(flags, table);
+    if (json_array_size(arr) == 0) {
+        json_decref(arr);
+        return;
+    }
+    json_object_set_new(obj, key, arr);
 }
 
 static void apply_class_mult(Race* race, json_t* arr)
@@ -107,35 +151,40 @@ PersistResult race_persist_json_save(const PersistWriter* writer, const char* fi
         Race* race = &race_table[i];
         json_t* obj = json_object();
         json_object_set_new(obj, "name", json_string(race->name));
-        json_object_set_new(obj, "whoName", json_string(race->who_name ? race->who_name : ""));
-        json_object_set_new(obj, "pc", json_boolean(race->pc_race));
-        json_object_set_new(obj, "points", json_integer(race->points));
+        if (!IS_NULLSTR(race->who_name))
+            json_object_set_new(obj, "whoName", json_string(race->who_name));
+        if (race->pc_race)
+            json_object_set_new(obj, "pc", json_true());
+        if (race->points != 0)
+            json_object_set_new(obj, "points", json_integer(race->points));
         json_object_set_new(obj, "size", json_string(size_name(race->size)));
-        json_t* stats = json_object();
-        json_t* maxs = json_object();
-        for (int s = 0; stat_table[s].name != NULL; s++) {
-            json_object_set_new(stats, stat_table[s].name, json_integer(race->stats[s]));
-            json_object_set_new(maxs, stat_table[s].name, json_integer(race->max_stats[s]));
-        }
-        json_object_set_new(obj, "stats", stats);
-        json_object_set_new(obj, "maxStats", maxs);
-        json_object_set_new(obj, "actFlags", flags_to_array(race->act_flags, act_flag_table));
-        json_object_set_new(obj, "affectFlags", flags_to_array(race->aff, affect_flag_table));
-        json_object_set_new(obj, "offFlags", flags_to_array(race->off, off_flag_table));
-        json_object_set_new(obj, "immFlags", flags_to_array(race->imm, imm_flag_table));
-        json_object_set_new(obj, "resFlags", flags_to_array(race->res, res_flag_table));
-        json_object_set_new(obj, "vulnFlags", flags_to_array(race->vuln, vuln_flag_table));
-        json_object_set_new(obj, "formFlags", flags_to_array(race->form, form_flag_table));
-        json_object_set_new(obj, "partFlags", flags_to_array(race->parts, part_flag_table));
-        json_object_set_new(obj, "classMult", build_class_mult(race));
-        json_object_set_new(obj, "startLoc", json_integer(race->start_loc));
-        json_object_set_new(obj, "classStart", build_class_start(race));
+        add_stats_if_needed(obj, "stats", race->stats);
+        add_stats_if_needed(obj, "maxStats", race->max_stats);
+        set_flags_if_not_empty(obj, "actFlags", race->act_flags, act_flag_table, NULL);
+        set_flags_if_not_empty(obj, "affectFlags", race->aff, affect_flag_table, NULL);
+        set_flags_if_not_empty(obj, "offFlags", race->off, off_flag_table, NULL);
+        set_flags_if_not_empty(obj, "immFlags", race->imm, imm_flag_table, NULL);
+        set_flags_if_not_empty(obj, "resFlags", race->res, res_flag_table, NULL);
+        set_flags_if_not_empty(obj, "vulnFlags", race->vuln, vuln_flag_table, NULL);
+        set_flags_if_not_empty(obj, "formFlags", race->form, form_flag_table, form_defaults_flag_table);
+        set_flags_if_not_empty(obj, "partFlags", race->parts, part_flag_table, part_defaults_flag_table);
+        json_t* class_mult = build_class_mult(race);
+        if (class_mult)
+            json_object_set_new(obj, "classMult", class_mult);
+        if (race->start_loc != 0)
+            json_object_set_new(obj, "startLoc", json_integer(race->start_loc));
+        json_t* class_start = build_class_start(race);
+        if (class_start)
+            json_object_set_new(obj, "classStart", class_start);
         json_t* skills = json_array();
         for (int s = 0; s < RACE_NUM_SKILLS; s++) {
             if (race->skills[s] && race->skills[s][0] != '\0')
                 json_array_append_new(skills, json_string(race->skills[s]));
         }
-        json_object_set_new(obj, "skills", skills);
+        if (json_array_size(skills) > 0)
+            json_object_set_new(obj, "skills", skills);
+        else
+            json_decref(skills);
         json_array_append_new(races, obj);
     }
     json_object_set_new(root, "races", races);
@@ -248,8 +297,8 @@ PersistResult race_persist_json_load(const PersistReader* reader, const char* fi
         race->imm = flags_from_array(json_object_get(r, "immFlags"), imm_flag_table);
         race->res = flags_from_array(json_object_get(r, "resFlags"), res_flag_table);
         race->vuln = flags_from_array(json_object_get(r, "vulnFlags"), vuln_flag_table);
-        race->form = flags_from_array(json_object_get(r, "formFlags"), form_flag_table);
-        race->parts = flags_from_array(json_object_get(r, "partFlags"), part_flag_table);
+        race->form = flags_from_array_with_defaults(json_object_get(r, "formFlags"), form_defaults_flag_table, form_flag_table);
+        race->parts = flags_from_array_with_defaults(json_object_get(r, "partFlags"), part_defaults_flag_table, part_flag_table);
         apply_class_mult(race, json_object_get(r, "classMult"));
         race->start_loc = (VNUM)json_int_or_default(r, "startLoc", race->start_loc);
         apply_class_start(race, json_object_get(r, "classStart"));
