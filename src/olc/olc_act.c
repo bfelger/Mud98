@@ -824,10 +824,11 @@ ED_FUN_DEC(ed_int16lookup)
 
 ED_FUN_DEC(ed_dice)
 {
-    static char syntax[] = "Syntax:  " COLOR_ALT_TEXT_1 "hitdice <number> d <type> + <bonus>" COLOR_EOL;
-    char* numb_str; 
-    char* type_str; 
-    char* bonus_str;
+    static char syntax[] = "Arguments:  " COLOR_ALT_TEXT_1 "<number> d <type> + <bonus>\n\r" 
+                           "            (or just 0 for 0d0+0)" COLOR_EOL;
+    char* numb_str = NULL; 
+    char* type_str = NULL; 
+    char* bonus_str = NULL;
     int16_t numb;
     int16_t type;
     int16_t bonus;
@@ -843,6 +844,16 @@ ED_FUN_DEC(ed_dice)
 
     while (ISDIGIT(*cp))
         ++cp;
+
+    // Handle plain 0 case
+    if (*cp == '\0' && cp != numb_str && atoi(numb_str) == 0) {
+        array[DICE_NUMBER] = 0;
+        array[DICE_TYPE] = 0;
+        array[DICE_BONUS] = 0;
+        printf_to_char(ch, "%s set.\n\r", n_fun);
+        return true;
+    }
+
     while (*cp != '\0' && !ISDIGIT(*cp))
         *(cp++) = '\0';
 

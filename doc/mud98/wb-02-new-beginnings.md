@@ -35,7 +35,8 @@ Previous: [Worldcrafting from Scratch Pt. 1 &mdash; Getting Started](wb-01-getti
 Let's start with a brand new area. This can be the seed of a brand new network
 of areas that will define _your_ MUD. For the purposes of this example, we'll make this a new starting area for one of the races.
 
-<div style="background-color: rgb(32,64,255,0.1);border-radius:5px;padding: 1em; margin-bottom: 1em;"><p style="margin: 0">Why? Because while MUDs began as heavily tilted toward hack n' slash, most players want some measure of narrative immersion that isn't possible in stock ROM. So, instead of dropping new players into "MUD School", it's better to drop them into an area that gradually introduces them to the world (and the game mechanics).</p></div>
+> [!NOTE]
+> Why? Because while MUDs began as heavily tilted toward hack n' slash, most players want some measure of narrative immersion that isn't possible in stock ROM. So, instead of dropping new players into "MUD School", it's better to drop them into an area that gradually introduces them to the world (and the game mechanics).
 
 Before we create this new area, we need to find a block of VNUMs that are free to use. 
 
@@ -59,27 +60,25 @@ alist orderby vnum
 
 You should see a list that looks like this, showing VNUMs in order, and displaying any gaps in between:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(245,216,147);">Num</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(245,216,147);">Area Name             </span><span style="color: rgb(64,35,30);">] (</span><span style="color: rgb(245,216,147);"> lvnum</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(245,216,147);">uvnum </span><span style="color: rgb(64,35,30);">) [</span><span style="color: rgb(245,216,147);">Filename   </span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(245,216,147);">Sec </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(245,216,147);">Builders  </span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 26</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Limbo                    </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">     1</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">30    </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">limbo.are     </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 43</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Smurfville               </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">   100</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">199   </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">smurf.are     </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  4</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Plains                   </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">   300</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">399   </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">plains.are    </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  1</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> New Ofcol                </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">   600</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">699   </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">ofcol2.are    </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 37</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Olympus                  </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">   900</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">999   </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">olympus.are   </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  6</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> In the Air               </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  1000</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">1099  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">air.are       </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  2</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Shire                    </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  1100</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">1199  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">shire.are     </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  0</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Valhalla                 </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  1200</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">1299  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">immort.are    </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 24</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> High Tower               </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  1300</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">1499  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">hitower.are   </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 21</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Gnome Village            </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  1500</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">1599  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">gnome.are     </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 47</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Wyvern's Tower           </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  1600</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">1799  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">wyvern.are    </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 10</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Catacombs                </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  2000</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">2099  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">catacomb.are  </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 25</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Gangland                 </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  2100</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">2199  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">hood.are      </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 13</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Dragon Tower             </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  2200</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">2299  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">draconia.are  </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 27</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Mahn-Tor                 </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  2300</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">2399  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">mahntor.are   </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 45</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Troll Den                </span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">  2800</span><span style="color: rgb(64,35,30);">-</span><span style="color: rgb(112,77,43);">2899  </span><span style="color: rgb(64,35,30);">) </span><span style="color: rgb(43,69,79);">trollden.are  </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">9</span><span style="color: rgb(64,35,30);">] [</span><span style="color: rgb(112,77,43);">          </span><span style="color: rgb(64,35,30);">]</span><br>
- </div>
-
- <div style="background-color: rgb(32,64,255,0.1);border-radius:5px;padding: 1em; margin-bottom: 1em;"><p style="margin: 0">This is the built-in color theme "Conestoga". It's selectable via the <code>THEME</code> command.</p></div>
+```
+[Num] [Area Name             ] ( lvnum-uvnum ) [Filename   ] Sec [Builders  ]
+[ 26] Limbo                    (     1-30    ) limbo.are     [9] [          ]
+[ 43] Smurfville               (   100-199   ) smurf.are     [9] [          ]
+[  4] Plains                   (   300-399   ) plains.are    [9] [          ]
+[  1] New Ofcol                (   600-699   ) ofcol2.are    [9] [          ]
+[ 37] Olympus                  (   900-999   ) olympus.are   [9] [          ]
+[  6] In the Air               (  1000-1099  ) air.are       [9] [          ]
+[  2] Shire                    (  1100-1199  ) shire.are     [9] [          ]
+[  0] Valhalla                 (  1200-1299  ) immort.are    [9] [          ]
+[ 24] High Tower               (  1300-1499  ) hitower.are   [9] [          ]
+[ 21] Gnome Village            (  1500-1599  ) gnome.are     [9] [          ]
+[ 47] Wyvern's Tower           (  1600-1799  ) wyvern.are    [9] [          ]
+[ 10] Catacombs                (  2000-2099  ) catacomb.are  [9] [          ]
+[ 25] Gangland                 (  2100-2199  ) hood.are      [9] [          ]
+[ 13] Dragon Tower             (  2200-2299  ) draconia.are  [9] [          ]
+[ 27] Mahn-Tor                 (  2300-2399  ) mahntor.are   [9] [          ]
+[ 45] Troll Den                (  2800-2899  ) trollden.are  [9] [          ]
+```
 
 You can now pick a block of VNUMs that are not assigned to any existing area. Since your goal is to create a brand new collection of areas to define your MUD, you don't want to intermingle your VNUM block with the existing ones, if possible.
 
@@ -101,31 +100,31 @@ aedit create
 
 ...which will bring up this blank slate of information:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(237,230,203);">Area           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">        48</span><span style="color: rgb(64,35,30);"> ] </span><br>
-<span style="color: rgb(237,230,203);">File           : </span><span style="color: rgb(112,77,43);">area48.json</span><br>
-<span style="color: rgb(237,230,203);">Vnums          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       0-0</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Levels         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">      1-60</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Sector         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    inside</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Reset          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         6</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">x 48 minutes</span><br>
-<span style="color: rgb(237,230,203);">Always Reset   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">        </span><span style="color: rgb(64,35,30);">NO ]</span><br>
-<span style="color: rgb(237,230,203);">Instance Type  : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    single</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Security       : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         9</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Builders       : </span><span style="color: rgb(112,77,43);">Halivar</span><br>
-<span style="color: rgb(237,230,203);">Credits        : </span><span style="color: rgb(112,77,43);">Halivar</span><br>
-<span style="color: rgb(237,230,203);">Flags          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     added</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(245,216,147);">Factions</span><br>
-<span style="color: rgb(43,69,79);">  (none)</span><br>
-<span style="color: rgb(232,178,111);">Story Beats:</span><br>
-<span style="color: rgb(237,230,203);">  (none)</span><br>
-<span style="color: rgb(232,178,111);">Checklist:</span><br>
-<span style="color: rgb(237,230,203);">  1) [To-Do] Write-up story beats</span><br>
-<span style="color: rgb(237,230,203);">  2) [To-Do] Sketch out rooms</span><br>
-<span style="color: rgb(237,230,203);">  3) [To-Do] Populate mobiles</span><br>
-<span style="color: rgb(237,230,203);">  4) [To-Do] Populate objects</span><br>
-<span style="color: rgb(237,230,203);">  5) [To-Do] Add descriptions</span><br>
-<span style="color: rgb(237,230,203);">  6) [To-Do] Wire-up events</span><br>
- </div>
+```
+Area           : [         48 ] 
+File           : area48.json
+Vnums          : [        0-0 ]
+Levels         : [       1-60 ]
+Sector         : [     inside ]
+Reset          : [          6 ] x 48 minutes
+Always Reset   : [         NO ]
+Instance Type  : [     single ]
+Security       : [          9 ]
+Builders       : Halivar
+Credits        : Halivar
+Flags          : [      added ]
+Factions
+  (none)
+Story Beats:
+  (none)
+Checklist:
+  1) [To-Do] Write-up story beats
+  2) [To-Do] Sketch out rooms
+  3) [To-Do] Populate mobiles
+  4) [To-Do] Populate objects
+  5) [To-Do] Add descriptions
+  6) [To-Do] Wire-up events
+```
 
 You're now in "edit mode" with OLC. All of `AEDIT`'s extended commands can be used from the prompt (including `COMMANDS`, which lists those extended commands).
 
@@ -163,34 +162,34 @@ suffer from too many folks competing for slaying the poor little moblets.
 
 Now my `SHOW` looks like this:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(237,230,203);">Area           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">        48</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Faladrin Forest</span><br>
-<span style="color: rgb(237,230,203);">File           : </span><span style="color: rgb(112,77,43);">faladri.json</span><br>
-<span style="color: rgb(237,230,203);">Vnums          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">12000-12099</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Levels         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       1-5</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Sector         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    forest</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Reset          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         1</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">x 8 minutes</span><br>
-<span style="color: rgb(237,230,203);">Always Reset   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">        </span><span style="color: rgb(64,35,30);">NO ]</span><br>
-<span style="color: rgb(237,230,203);">Instance Type  : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     multi</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Security       : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         9</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Builders       : </span><span style="color: rgb(112,77,43);">Halivar</span><br>
-<span style="color: rgb(237,230,203);">Credits        : </span><span style="color: rgb(112,77,43);">Halivar</span><br>
-<span style="color: rgb(237,230,203);">Flags          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">changed added</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(245,216,147);">Factions</span><br>
-<span style="color: rgb(43,69,79);">  (none)</span><br>
-<span style="color: rgb(232,178,111);">Story Beats:</span><br>
-<span style="color: rgb(237,230,203);">  (none)</span><br>
-<span style="color: rgb(232,178,111);">Checklist:</span><br>
-<span style="color: rgb(237,230,203);">  1) [To-Do] Write-up story beats</span><br>
-<span style="color: rgb(237,230,203);">  2) [To-Do] Sketch out rooms</span><br>
-<span style="color: rgb(237,230,203);">  3) [To-Do] Populate mobiles</span><br>
-<span style="color: rgb(237,230,203);">  4) [To-Do] Populate objects</span><br>
-<span style="color: rgb(237,230,203);">  5) [To-Do] Add descriptions</span><br>
-<span style="color: rgb(237,230,203);">  6) [To-Do] Wire-up events</span><br>
- </div>
+```
+Area           : [         48 ] Faladrin Forest
+File           : faladri.json
+Vnums          : [ 12000-12099 ]
+Levels         : [        1-5 ]
+Sector         : [     forest ]
+Reset          : [          1 ] x 8 minutes
+Always Reset   : [         NO ]
+Instance Type  : [      multi ]
+Security       : [          9 ]
+Builders       : Halivar
+Credits        : Halivar
+Flags          : [ changed added ]
+Factions
+  (none)
+Story Beats:
+  (none)
+Checklist:
+  1) [To-Do] Write-up story beats
+  2) [To-Do] Sketch out rooms
+  3) [To-Do] Populate mobiles
+  4) [To-Do] Populate objects
+  5) [To-Do] Add descriptions
+  6) [To-Do] Wire-up events
+```
 
-<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p style="margin: 0;">Note the file name; this guide assumes you are using JSON file formats for area and data files. If you chose not to use JSON, or chose ROM-OLC as the default in <code>mud98.cfg</code>, you would see <code>faladri.are</code> here, instead.</p>
-</div>
+> [!NOTE]
+> Note the file name; this guide assumes you are using JSON file formats for area and data files. If you chose not to use JSON, or chose ROM-OLC as the default in `mud98.cfg`, you would see `faladri.are` here, instead.
 
 `CREDITS` can be whatever I want (but should be my Imp name, or else it will mess with the formatting on the universal, non-OLC `AREAS` command) , but `SECURITY` and `BUILDERS` is special. When I created the area, they were set (by default) to my security level and player name, respectively. There are "permissions" for the area. To edit this area, my name must be in the `BUILDERS` list (as it can have more than one name) _or_ my security level must be higher than that of the area. Thus, an Imm who has higher security than you can edit your areas; but not lower unless they are listed as a builder in that area. As an Imp with max security, I can edit _any_ area.
 
@@ -217,20 +216,20 @@ as well as organize work across a team of builders. Pictured here is the "defaul
 set of builder checklist items; but a builder can clear them and create their own.
 Or, an implementor can change the default list in code.
 
-<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><h3 style="margin-top: 0;">Building with generative AI</h3>
-<p>I am not a big fan of generative AI presented as polished human-written 
-prose, because there really is no comparison. Human prose, even (or perhaps especially) badly-written, has a charm all its own that generative AI can't replicate with its sterile perfection.</p><p>Nevertheless, there is no putting
-the genie back in the bottle, and I predict MUD operators in a greatly 
-diminished hobby will find it harder and harder to pass up the opportunity to
-instantly fill in areas; especially when standing up new MUDs <i>before</i> 
-they have attracted a cadre of competent builders.</p>
-<p>For these situations, <code>Factions</code>, <code>Story Beats</code>,
-and <code>Checklist</code> are tools that make it trivial for agentic LLMs to
-bang out some rooms, mobs, items, quests, and even Lox scripts.</p><p>But be
-forewarned: it won't be <i>good</i>, per se, and many players won't appreciate 
-it. Prospective builders may even be <i>insulted</i> by it.</p><p style="margin: 0;"><b>My recommendation:</b> Use generative AI on a builder-starved MUD for quick
+> [!TIP]
+> #### Building with generative AI
+>
+> I am not a big fan of generative AI presented as polished human-written prose, because there really is no comparison. Human prose, even (or perhaps especially) badly-written, has a charm all its own that generative AI can't replicate with its sterile perfection.
+>
+> Nevertheless, there is no putting the genie back in the bottle, and I predict MUD operators in a greatly diminished hobby will find it harder and harder to pass up the opportunity to instantly fill in areas; especially when standing up new MUDs _before_ they have attracted a cadre of competent builders.
+>
+> For these situations, `Factions`, `Story Beats`, and `Checklist` are tools that make it trivial for agentic LLMs to bang out some rooms, mobs, items, quests, and even Lox scripts.
+>
+> But be forewarned: it won't be _good_, per se, and many players won't appreciate it. Prospective builders may even be _insulted_ by it.
+>
+>**My recommendation:** Use generative AI on a builder-starved MUD for quick
 scaffolding; but put in the extra work to improve, rewrite, and fix issues
-before you present it to the public as "finished".</div>
+before you present it to the public as "finished".
 
 ### Crafting a narrative
 
@@ -266,24 +265,24 @@ faction create 12000 Tauremar
 
 Now we can take a look and see our progress (initial lines of `SHOW` omitted):
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(245,216,147);">Factions</span><br>
-<span style="color: rgb(64,35,30);">[12000] </span><span style="color: rgb(112,77,43);">Tauremar            </span><span style="color: rgb(237,230,203);"> default: </span><span style="color: rgb(43,69,79);">     0</span><span style="color: rgb(237,230,203);"> allies: </span><span style="color: rgb(43,69,79);"> 0</span><span style="color: rgb(237,230,203);"> enemies: </span><span style="color: rgb(43,69,79);"> 0</span><br>
-<span style="color: rgb(232,178,111);">Story Beats:</span><br>
-<span style="color: rgb(237,230,203);">  1) Elf starting area</span><br>
-<span style="color: rgb(237,230,203);">     On-board new elf PCs with a story-driven tutorial.</span><br>
-<span style="color: rgb(237,230,203);">  2) Cuivealda's shadow</span><br>
-<span style="color: rgb(237,230,203);">     The entire area is under the sprawling branches of the elven tree home.</span><br>
-<span style="color: rgb(237,230,203);">  3) The Forestspeaker's plight</span><br>
-<span style="color: rgb(237,230,203);">     Findorian needs the player's help to fight a blight consuming the forest.</span><br>
-<span style="color: rgb(232,178,111);">Checklist:</span><br>
-<span style="color: rgb(237,230,203);">  1) [Done] Write-up story beats</span><br>
-<span style="color: rgb(237,230,203);">  2) [To-Do] Sketch out rooms</span><br>
-<span style="color: rgb(237,230,203);">  3) [To-Do] Populate mobiles</span><br>
-<span style="color: rgb(237,230,203);">  4) [To-Do] Populate objects</span><br>
-<span style="color: rgb(237,230,203);">  5) [To-Do] Add descriptions</span><br>
-<span style="color: rgb(237,230,203);">  6) [To-Do] Wire-up events</span><br>
- </div>
+```
+Factions
+[12000] Tauremar             default:      0 allies:  0 enemies:  0
+Story Beats:
+  1) Elf starting area
+     On-board new elf PCs with a story-driven tutorial.
+  2) Cuivealda's shadow
+     The entire area is under the sprawling branches of the elven tree home.
+  3) The Forestspeaker's plight
+     Findorian needs the player's help to fight a blight consuming the forest.
+Checklist:
+  1) [Done] Write-up story beats
+  2) [To-Do] Sketch out rooms
+  3) [To-Do] Populate mobiles
+  4) [To-Do] Populate objects
+  5) [To-Do] Add descriptions
+  6) [To-Do] Wire-up events
+```
 
 ### Wrapping up
 
@@ -296,10 +295,10 @@ asave changed
 
 We get this message:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(237,230,203);">Saved zones:</span><br>
-<span style="color: rgb(237,230,203);">         Faladrin Forest - 'faladri.json'</span><br>
- </div>
+```
+Saved zones:
+         Faladrin Forest - 'faladri.json'
+```
 
 If do a `git status` in my `area` folder, I see my changed files:
 
@@ -313,10 +312,10 @@ Untracked files:
 
 That's it! I now have my new starting area, and I'm read to start adding to rooms to it.
 
-<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p style="margin: 0;"><p>You <i>are</i> using <code>git</code> to keep track of your changes, right?</p>
-<p style="margin: 0">
-Right?</p>
-</div>
+> [!IMPORTANT]
+> You _are_ using `git` to keep track of your changes, right?
+>
+> Right?
 
 ## Creating the starting room
 
@@ -328,30 +327,30 @@ redit create 12000
 
 ...which gives us this:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(232,178,111);">Room created.</span><br>
-<span style="color: rgb(237,230,203);">Description    : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Room           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     12000</span><span style="color: rgb(64,35,30);"> ] </span><br>
-<span style="color: rgb(237,230,203);">Area           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">        48</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Faladrin Forest</span><br>
-<span style="color: rgb(237,230,203);">Sector         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    forest</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Room Flags     : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Heal Recover   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       100</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Mana Recover   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       100</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Characters     : </span><span style="color: rgb(112,77,43);">halivar </span><br>
-<span style="color: rgb(237,230,203);">Objects        : </span><span style="color: rgb(112,77,43);">(none)</span><br>
-<span style="color: rgb(237,230,203);">Lox Class      : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Type '</span><span style="color: rgb(232,178,111);">LOX</span><span style="color: rgb(43,69,79);">' to create one.</span><br>
-<span style="color: rgb(237,230,203);">Events         : </span><span style="color: rgb(112,77,43);">(none)</span><span style="color: rgb(43,69,79);"> Type '</span><span style="color: rgb(232,178,111);">EVENT</span><span style="color: rgb(43,69,79);">' to create one.</span><br>
-<br>
-<span style="color: rgb(237,230,203);">Exits:</span><br>
-<span style="color: rgb(245,216,147);">  Dir   To Vnum    Room Desc      Key     Reset Flags       Kwds</span><br>
-<span style="color: rgb(182,131,76);">======= ======= =============== ======= =============== ============</span><br>
- </div>
+```
+Room created.
+Description    : [     (none) ]
+Room           : [      12000 ] 
+Area           : [         48 ] Faladrin Forest
+Sector         : [     forest ]
+Room Flags     : [     (none) ]
+Heal Recover   : [        100 ]
+Mana Recover   : [        100 ]
+Characters     : halivar 
+Objects        : (none)
+Lox Class      : [     (none) ] Type 'LOX' to create one.
+Events         : (none) Type 'EVENT' to create one.
+
+Exits:
+  Dir   To Vnum    Room Desc      Key     Reset Flags       Kwds
+======= ======= =============== ======= =============== ============
+```
 
 Be sure to check `COMMANDS` to see what options are available.
 
 The intention is for this to be the first room a player sees when they create an elf character. Therefore, we should think carefully about the naming and prose used in this room. For now, I will use placeholder text.
 
-<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p style="margin: 0;">To be honest, I was never a good builder. In my Imp days of ages past, I was a <i>coding</i> Imp. I needed an army of builders and admins to do the other work for me (like, actually <i>running</i> and <i>creating</i> the MUD).</p></div>
+> To be honest, I was never a good builder. In my Imp days of ages past, I was a _coding_ Imp. I needed an army of builders and admins to do the other work for me (like, actually _running_ and _creating_ the MUD).
 
 Note that, by creating the room, we actually teleported to it. This is useful so we can perform actions like `LOOK` and whatnot. OLC is very much "in-game". If you check the log, you'll see that a brand new instance of the area was spun up just for you. That's a function of it being "multi-instance"; new instances are created on demand as players enter them.
 
@@ -363,14 +362,13 @@ name The Awakening
 
 Even though this is a placeholder, I want to at least put _something_ for the description, using `DESC`:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(182,131,76);">-========- </span><span style="color: rgb(112,77,43);">Entering EDIT Mode </span><span style="color: rgb(182,131,76);">-=========-</span><br>
-<span style="color: rgb(43,69,79);">    Type .h on a new line for help</span><br>
-<span style="color: rgb(43,69,79);"> Terminate with a @ on a blank line.</span><br>
-<span style="color: rgb(182,131,76);">-=======================================-</span><br>
-<span style="color: rgb(237,230,203);">&gt; </span><br>
-<br>
- </div>
+```
+-========- Entering EDIT Mode -=========-
+    Type .h on a new line for help
+ Terminate with a @ on a blank line.
+-=======================================-
+> 
+```
 
 Typing `.h` for help yields a list of really helpul commands. In particular, `.f` is your friend.
 
@@ -414,30 +412,30 @@ raedit elf
 
 This gives us this:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(237,230,203);">Name        : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">elf</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">PC race?    : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(49,78,63);">YES</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Act         : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">(none)</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Aff         : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">infrared</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Off         : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">(none)</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Imm         : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">(none)</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Res         : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">charm</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Vuln        : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">iron</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Form        : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">edible sentient biped mammal</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Parts       : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">head arms legs heart brains guts hands feet fingers ear eye</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Points      : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">5</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Size        : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">small</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Start Loc   : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">12000</span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(43,69,79);">The Awakening </span><br>
-<span style="color: rgb(245,216,147);">    Class      XPmult  XP/lvl(pts)   Start Loc</span><br>
-<span style="color: rgb(237,230,203);">    Mage        </span><span style="color: rgb(112,77,43);">100     1000</span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);"> 40</span><span style="color: rgb(64,35,30);">)</span><span style="color: rgb(237,230,203);">    </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    0</span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(43,69,79);"> </span><br>
-<span style="color: rgb(237,230,203);">    Cleric      </span><span style="color: rgb(112,77,43);">125     1000</span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);"> 40</span><span style="color: rgb(64,35,30);">)</span><span style="color: rgb(237,230,203);">    </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    0</span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(43,69,79);"> </span><br>
-<span style="color: rgb(237,230,203);">    Thief       </span><span style="color: rgb(112,77,43);">100     1000</span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);"> 40</span><span style="color: rgb(64,35,30);">)</span><span style="color: rgb(237,230,203);">    </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    0</span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(43,69,79);"> </span><br>
-<span style="color: rgb(237,230,203);">    Warrior     </span><span style="color: rgb(112,77,43);">120     1000</span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);"> 40</span><span style="color: rgb(64,35,30);">)</span><span style="color: rgb(237,230,203);">    </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    0</span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(43,69,79);"> </span><br>
-<br>
-<span style="color: rgb(237,230,203);">Str:</span><span style="color: rgb(112,77,43);">12</span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">16</span><span style="color: rgb(64,35,30);">)</span><span style="color: rgb(237,230,203);"> Int:</span><span style="color: rgb(112,77,43);">14</span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">20</span><span style="color: rgb(64,35,30);">)</span><span style="color: rgb(237,230,203);"> Wis:</span><span style="color: rgb(112,77,43);">13</span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">18</span><span style="color: rgb(64,35,30);">)</span><span style="color: rgb(237,230,203);"> Dex:</span><span style="color: rgb(112,77,43);">15</span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">21</span><span style="color: rgb(64,35,30);">)</span><span style="color: rgb(237,230,203);"> Con:</span><span style="color: rgb(112,77,43);">11</span><span style="color: rgb(64,35,30);">(</span><span style="color: rgb(112,77,43);">15</span><span style="color: rgb(64,35,30);">)</span><span style="color: rgb(237,230,203);"> </span><br>
-<span style="color: rgb(237,230,203);"> 0. </span><span style="color: rgb(112,77,43);">sneak</span><br>
-<span style="color: rgb(237,230,203);"> 1. </span><span style="color: rgb(112,77,43);">hide</span><br>
- </div>
+```
+Name        : [elf]
+PC race?    : [YES]
+Act         : [(none)]
+Aff         : [infrared]
+Off         : [(none)]
+Imm         : [(none)]
+Res         : [charm]
+Vuln        : [iron]
+Form        : [edible sentient biped mammal]
+Parts       : [head arms legs heart brains guts hands feet fingers ear eye]
+Points      : [5]
+Size        : [small]
+Start Loc   : [12000] The Awakening 
+    Class      XPmult  XP/lvl(pts)   Start Loc
+    Mage        100     1000( 40)    [    0]  
+    Cleric      125     1000( 40)    [    0]  
+    Thief       100     1000( 40)    [    0]  
+    Warrior     120     1000( 40)    [    0]  
+
+Str:12(16) Int:14(20) Wis:13(18) Dex:15(21) Con:11(15) 
+ 0. sneak
+ 1. hide
+```
 
 By default, Mud98 allows for starting race and class locations. Otherwise, under `Start Loc`, it would say "(not used)". If you see this message, however you can enable it by openning up `mud98.cfg` in the root directory and changing this setting (uncommenting it, if needed):
 
@@ -447,7 +445,8 @@ start_loc_by_race = yes
 
 Note that this is a completely safe flag; it has no effect on races that don't have a start location set, yet.
 
-<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p style="margin: 0;">You may have noticed that there is also a class <code>start_loc</code> and a per-race-class-combo <code>start_loc</code>. These can be used with each other freely. You can have a single spawn point for mages, a single spawn point for elves, and separate spawn points for all the other race/class combos. It's meant to give you maximum flexibility in world-building. To take advantage of this, you need to also enable <code>start_loc_by_class</code> in <code>mud98.cfg</code>.</p></div>
+> [!NOTE]
+> You may have noticed that there is also a class `start_loc` and a per-race-class-combo `start_loc`. These can be used with each other freely. You can have a single spawn point for mages, a single spawn point for elves, and separate spawn points for all the other race/class combos. It's meant to give you maximum flexibility in world-building. To take advantage of this, you need to also enable `start_loc_by_class` in `mud98.cfg`.
 
 Restart Mud98 and log back in with your Imp character. Then `raedit elf` again. Note that now `Start Loc` is `0`, but the warning that it won't be used is gone.
 
@@ -459,9 +458,9 @@ start_loc 12000
 
 Now `SHOW` has our new room as `Start Loc`:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(237,230,203);">Start Loc   : </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">12000</span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(43,69,79);">The Awakening </span><br>
- </div>
+```
+Start Loc   : [12000] The Awakening 
+```
 
 That looks correct. I commit my changes to disk:
 
@@ -487,17 +486,16 @@ sword
 
 Where do we end up?
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(0,128,128);">The Awakening</span><br>
-<span style="color: rgb(192,192,192);">    You stand next to the great old trunk of Cuivealda.  The light is</span><br>
-<span style="color: rgb(192,192,192);">dim, as the dense, high canopy that forms Tauremar covers the sky.  There is</span><br>
-<span style="color: rgb(192,192,192);">little ground cover, and the forest floor is a tranquil place of perpetual</span><br>
-<span style="color: rgb(192,192,192);">twilight.</span><br>
-<span style="color: rgb(192,192,192);">You have no unread notes.</span><br>
-<br>
-<span style="color: rgb(0,128,128);">&lt;20hp 100m 100mv&gt; </span><br></div>
+```
+The Awakening
+    You stand next to the great old trunk of Cuivealda.  The light is
+dim, as the dense, high canopy that forms Tauremar covers the sky.  There is
+little ground cover, and the forest floor is a tranquil place of perpetual
+twilight.
+You have no unread notes.
 
-<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p style="margin: 0;">The difference in coloration is due to the fact that this character, being brand-new, is using the default, "Lope ColoUr" theme.</p></div>
+<20hp 100m 100mv> 
+```
 
 If you left your Imp character logged in at this room, the new character will not see him; a quick glance at the log will tell you that a brand new instance of "Faladrin Forest" was spun up for "Newelfguy", and ne'er the twain shall meet.
 
@@ -513,7 +511,7 @@ This brings us to two powerful new concepts novel to Mud98: **Lox scripting** an
 
 To display the message we want, we will need to create a Lox script, and call it when a new character gets dumped into this room.
 
-<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p style="margin: 0;">In the legacy version of this document, I used MobProgs on an invisible "triggerbot" to do this. My dissatisfaction with that solution is what prompted me to hide in whole for two years and create the current solution</p></div>
+> In the legacy version of this document, I used MobProgs on an invisible "triggerbot" to do this. My dissatisfaction with that solution is what prompted me to hide in a hole for two years and create the current solution.
 
 ### Creating a Lox script
 
@@ -525,26 +523,27 @@ redit 12000
 
 We should see this:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(237,230,203);">Description: </span><br>
-<span style="color: rgb(43,69,79);">    You stand next to the great old trunk of Cuivealda.  The light is</span><br>
-<span style="color: rgb(43,69,79);">dim, as the dense, high canopy that forms Tauremar covers the sky.  There is</span><br>
-<span style="color: rgb(43,69,79);">little ground cover, and the forest floor is a tranquil place of perpetual</span><br>
-<span style="color: rgb(43,69,79);">twilight.</span><br>
-<span style="color: rgb(237,230,203);">Room           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     12000</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(245,216,147);">The Awakening</span><br>
-<span style="color: rgb(237,230,203);">Area           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">        48</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Faladrin Forest</span><br>
-<span style="color: rgb(237,230,203);">Sector         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    inside</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Room Flags     : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">no_recall newbies_only</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Heal Recover   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       100</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Mana Recover   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       100</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Characters     : </span><span style="color: rgb(112,77,43);">halivar </span><br>
-<span style="color: rgb(237,230,203);">Objects        : </span><span style="color: rgb(112,77,43);">(none)</span><br>
-<span style="color: rgb(237,230,203);">Lox Class      : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Type '</span><span style="color: rgb(232,178,111);">LOX</span><span style="color: rgb(43,69,79);">' to create one.</span><br>
-<span style="color: rgb(237,230,203);">Events         : </span><span style="color: rgb(112,77,43);">(none)</span><span style="color: rgb(43,69,79);"> Type '</span><span style="color: rgb(232,178,111);">EVENT</span><span style="color: rgb(43,69,79);">' to create one.</span><br>
-<br>
-<span style="color: rgb(237,230,203);">Exits:</span><br>
-<span style="color: rgb(245,216,147);">  Dir   To Vnum    Room Desc      Key     Reset Flags       Kwds</span><br>
-<span style="color: rgb(182,131,76);">======= ======= =============== ======= =============== ============</span><br></div>
+```
+Description: 
+    You stand next to the great old trunk of Cuivealda.  The light is
+dim, as the dense, high canopy that forms Tauremar covers the sky.  There is
+little ground cover, and the forest floor is a tranquil place of perpetual
+twilight.
+Room           : [      12000 ] The Awakening
+Area           : [         48 ] Faladrin Forest
+Sector         : [     inside ]
+Room Flags     : [ no_recall newbies_only ]
+Heal Recover   : [        100 ]
+Mana Recover   : [        100 ]
+Characters     : halivar 
+Objects        : (none)
+Lox Class      : [     (none) ] Type 'LOX' to create one.
+Events         : (none) Type 'EVENT' to create one.
+
+Exits:
+  Dir   To Vnum    Room Desc      Key     Reset Flags       Kwds
+======= ======= =============== ======= =============== ============
+```
 
 The important fields for this task are `Lox Class` and `Events`. To start, let's create an `on_login` callback for the login event we will eventually create:
 
@@ -554,19 +553,20 @@ lox
 
 You'll be thrown into a string editor that is pretty close to what we saw for the room description editor, but there are some key differences. If you type `.h`, you'll get this help:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(232,178,111);">Lox Script help (commands on blank line):   </span><br>
-<span style="color: rgb(112,77,43);">.r 'old' 'new'   </span><span style="color: rgb(232,178,111);">- replace a substring </span><br>
-<span style="color: rgb(112,77,43);">                 </span><span style="color: rgb(232,178,111);">  (requires '', "") </span><br>
-<span style="color: rgb(112,77,43);">.h               </span><span style="color: rgb(232,178,111);">- get help (this info)</span><br>
-<span style="color: rgb(112,77,43);">.s               </span><span style="color: rgb(232,178,111);">- show script so far  </span><br>
-<span style="color: rgb(112,77,43);">.clear           </span><span style="color: rgb(232,178,111);">- clear script so far </span><br>
-<span style="color: rgb(112,77,43);">.v               </span><span style="color: rgb(232,178,111);">- validate byte-code compilation</span><br>
-<span style="color: rgb(112,77,43);">.ld &lt;num&gt;        </span><span style="color: rgb(232,178,111);">- delete line &lt;num&gt;</span><br>
-<span style="color: rgb(112,77,43);">.li &lt;num&gt; &lt;txt&gt;  </span><span style="color: rgb(232,178,111);">- insert &lt;txt&gt; on line &lt;num&gt;</span><br>
-<span style="color: rgb(112,77,43);">.lr &lt;num&gt; &lt;txt&gt;  </span><span style="color: rgb(232,178,111);">- replace line &lt;num&gt; with &lt;txt&gt;</span><br>
-<span style="color: rgb(112,77,43);">.x               </span><span style="color: rgb(232,178,111);">- cancel changes</span><br>
-<span style="color: rgb(112,77,43);">@                </span><span style="color: rgb(232,178,111);">- compile and save script</span><br></div>
+```
+Lox Script help (commands on blank line):   
+.r 'old' 'new'   - replace a substring 
+                   (requires '', "") 
+.h               - get help (this info)
+.s               - show script so far  
+.clear           - clear script so far 
+.v               - validate byte-code compilation
+.ld <num>        - delete line <num>
+.li <num> <txt>  - insert <txt> on line <num>
+.lr <num> <txt>  - replace line <num> with <txt>
+.x               - cancel changes
+@                - compile and save script
+```
 
 There's no formatter, at the moment, because my notions of code style are opinionated, and I don't want to force that on you. Here are some important new commands not present in the "string" editor:
 
@@ -592,38 +592,21 @@ on_login(vch) {
 }
 ```
 
-If you type `.s`, you will see that our built-in editor also has _syntax-highlighting_:
-
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(237,230,203);">Script so far:</span><br>
-<span style="color: rgb(112,77,43);"> 1</span><span style="color: rgb(237,230,203);">. </span><span style="color: rgb(79,93,66);">// This function gets called the first time a character logs in as an elf, </span><br>
-<span style="color: rgb(112,77,43);"> 2</span><span style="color: rgb(237,230,203);">. </span><span style="color: rgb(79,93,66);">// after character creation.</span><br>
-<span style="color: rgb(112,77,43);"> 3</span><span style="color: rgb(237,230,203);">. on_login</span><span style="color: rgb(112,77,43);">(</span><span style="color: rgb(237,230,203);">vch</span><span style="color: rgb(112,77,43);">) {</span><br>
-<span style="color: rgb(112,77,43);"> 4</span><span style="color: rgb(237,230,203);">.     </span><span style="color: rgb(79,93,66);">// Only newly-created characters</span><br>
-<span style="color: rgb(112,77,43);"> 5</span><span style="color: rgb(237,230,203);">.     </span><span style="color: rgb(43,69,79);">if </span><span style="color: rgb(112,77,43);">(</span><span style="color: rgb(237,230,203);">vch</span><span style="color: rgb(112,77,43);">.</span><span style="color: rgb(237,230,203);">level </span><span style="color: rgb(112,77,43);">&gt; </span><span style="color: rgb(62,112,142);">1 </span><span style="color: rgb(43,69,79);">or </span><span style="color: rgb(237,230,203);">vch</span><span style="color: rgb(112,77,43);">.</span><span style="color: rgb(237,230,203);">race </span><span style="color: rgb(112,77,43);">!= </span><span style="color: rgb(237,230,203);">Race</span><span style="color: rgb(112,77,43);">.</span><span style="color: rgb(237,230,203);">Elf</span><span style="color: rgb(112,77,43);">)</span><br>
-<span style="color: rgb(112,77,43);"> 6</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(43,69,79);">return</span><span style="color: rgb(112,77,43);">;</span><br>
-<span style="color: rgb(112,77,43);"> 7</span><span style="color: rgb(237,230,203);">.  </span><br>
-<span style="color: rgb(112,77,43);"> 8</span><span style="color: rgb(237,230,203);">.     vch</span><span style="color: rgb(112,77,43);">.</span><span style="color: rgb(237,230,203);">send</span><span style="color: rgb(112,77,43);">(</span><br>
-<span style="color: rgb(112,77,43);"> 9</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(245,216,147);">"^*You step off the end of an old rope ladder at the base of "</span><br>
-<span style="color: rgb(112,77,43);">10</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(245,216,147);">"Cuivealda, the Tree of Awakening. Your years in the nurturing "</span><br>
-<span style="color: rgb(112,77,43);">11</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(245,216,147);">"hands of the Tetyayath have come to an end.^/^/"</span><br>
-<span style="color: rgb(112,77,43);">12</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(245,216,147);">"Now you must go out into the world and find your destiny...^/^x"</span><span style="color: rgb(112,77,43);">)</span><br>
-<span style="color: rgb(112,77,43);">23</span><span style="color: rgb(237,230,203);">. </span><span style="color: rgb(112,77,43);">}</span><br>
-<span style="color: rgb(112,77,43);">24</span><span style="color: rgb(237,230,203);">. </span><br></div>
-
-Note that the colors used by the syntax highlighter can be set in your theme (via the `THEME` command).
+If you type `.s`, you will see that our built-in editor also has _syntax-highlighting_. I can't show you here (Github Markdown won't let me, _boooo_), but you the colors used by the syntax highlighter can be set in your theme (via the `THEME` command).
 
 Let's validate our script using `.v`:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(29,50,48);">***</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(232,178,111);">Class "room_12000" for room 12000 compiled successfully.</span><br></div>
+```
+[***]Class "room_12000" for room 12000 compiled successfully.
+```
 
 As the message indicates, what we're _really_ doing is specifying the contents of a class dedicated to Room VNUM 12000 called, appropriately enough, `room_12000`. That's why we don't declare `on_login` as a `func`: class methods in Lox don't use that keyword; just the method name and its arguments are sufficient.
 
 Since it completed successfully, we can call it done and attach it to the object with `@`:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(29,50,48);">***</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(232,178,111);">Class "room_12000" for room 12000 compiled successfully and assigned.</span><br></div>
+```
+[***]Class "room_12000" for room 12000 compiled successfully and assigned.
+```
 
 I'll go over the script in a moment. First, let's protect what we've got so far:
 
@@ -653,7 +636,8 @@ This is **class method**, named `on_login`. Class methods are normally defined i
 
 The `on_login` method has a single argument, `vch`. If you are at all familiar with ROM code, you'll know that this is shorthand for "victim character", and tell us that the target of the callback is passed in as an argument. In this case, `vch` will be the character logging in.
 
-<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p style="margin: 0;">And what of the room, itself? Why is there no <code>room</code> argument? Because this method will already a reference to it's owning Entity. We'll see that in action when we add a Mobile-based event.</p></div>
+> [!NOTE]
+> And what of the room, itself? Why is there no `room` argument? Because this method will already a reference to it's owning Entity. We'll see that in action when we add a Mobile-based event.
 
 Now we check to see if it's appropriate to send a message to the character:
 
@@ -665,7 +649,8 @@ Now we check to see if it's appropriate to send a message to the character:
 
 If the character is above level 1 (not a newbie) or not an elf (as this message is for starting elves), we bail. No message is sent to the player.
 
-<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p style="margin: 0;">Note the semicolon (<code>;</code>) after <code>return</code>. This is one of the few areas where I deviate from standard Lox, which has no EOL semicolons. In Mud98's incarnation of Lox, semicolons are optional <i>except</i> bare <code>return</code>s that don't actually return a value. In that case, they are required. This is a technical issue in Mud98's Lox compiler that I may (or may not) fix.</p></div>
+> [!NOTE]
+> Note the semicolon (`;`) after `return`. This is one of the few areas where I deviate from standard Lox, which has no EOL semicolons. In Mud98's incarnation of Lox, semicolons are optional _except_ bare `return`s that don't actually return a value. In that case, they are required. This is a technical issue in Mud98's Lox compiler that I may (or may not) fix.
 
 Next we send an actual message to the user:
 
@@ -689,9 +674,10 @@ event
 
 We'll get a syntax helper like so:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(232,178,111);">Syntax: event set &lt;trigger&gt; [&lt;callback&gt; [&lt;criteria&gt;]]</span><br>
-<span style="color: rgb(232,178,111);">        event delete &lt;trigger&gt;</span><br></div>
+```
+Syntax: event set <trigger> [<callback> [<criteria>]]
+        event delete <trigger>
+```
 
 The only _required_ parameter is the trigger. Every trigger has a default callback, and _usually_ has a default criteria value if one is needed (which the Login event doesn't). Because I knew ahead of time what the default was, I don't need it:
 
@@ -701,30 +687,31 @@ event set login
 
 You should get an "Event created" message, which means we're good to go. Verify it by pressing `Enter` while in `REDIT` mode:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(237,230,203);">Description: </span><br>
-<span style="color: rgb(43,69,79);">    You stand next to the great old trunk of Cuivealda.  The light is</span><br>
-<span style="color: rgb(43,69,79);">dim, as the dense, high canopy that forms Tauremar covers the sky.  There is</span><br>
-<span style="color: rgb(43,69,79);">little ground cover, and the forest floor is a tranquil place of perpetual</span><br>
-<span style="color: rgb(43,69,79);">twilight.</span><br>
-<span style="color: rgb(237,230,203);">Room           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     12000</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(245,216,147);">The Awakening</span><br>
-<span style="color: rgb(237,230,203);">Area           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">        48</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Faladrin Forest</span><br>
-<span style="color: rgb(237,230,203);">Sector         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    inside</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Room Flags     : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">no_recall newbies_only</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Heal Recover   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       100</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Mana Recover   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       100</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Characters     : </span><span style="color: rgb(112,77,43);">halivar </span><br>
-<span style="color: rgb(237,230,203);">Objects        : </span><span style="color: rgb(112,77,43);">(none)</span><br>
-<span style="color: rgb(237,230,203);">Lox Class      : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">room_12000</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Type '</span><span style="color: rgb(232,178,111);">LOX</span><span style="color: rgb(43,69,79);">' to edit.</span><br>
-<br>
-<span style="color: rgb(237,230,203);">Events:</span><br>
-<span style="color: rgb(245,216,147);"> Trigger          Callback (Args)     Criteria</span><br>
-<span style="color: rgb(182,131,76);">========= ================ ========== ========</span><br>
-<span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  Login</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(43,69,79);">         on_login (mob)      </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">      </span><span style="color: rgb(64,35,30);">]</span><br>
-<br>
-<span style="color: rgb(237,230,203);">Exits:</span><br>
-<span style="color: rgb(245,216,147);">  Dir   To Vnum    Room Desc      Key     Reset Flags       Kwds</span><br>
-<span style="color: rgb(182,131,76);">======= ======= =============== ======= =============== ============</span><br></div>
+```
+Description: 
+    You stand next to the great old trunk of Cuivealda.  The light is
+dim, as the dense, high canopy that forms Tauremar covers the sky.  There is
+little ground cover, and the forest floor is a tranquil place of perpetual
+twilight.
+Room           : [      12000 ] The Awakening
+Area           : [         48 ] Faladrin Forest
+Sector         : [     inside ]
+Room Flags     : [ no_recall newbies_only ]
+Heal Recover   : [        100 ]
+Mana Recover   : [        100 ]
+Characters     : halivar 
+Objects        : (none)
+Lox Class      : [ room_12000 ] Type 'LOX' to edit.
+
+Events:
+ Trigger          Callback (Args)     Criteria
+========= ================ ========== ========
+[  Login]         on_login (mob)      [      ]
+
+Exits:
+  Dir   To Vnum    Room Desc      Key     Reset Flags       Kwds
+======= ======= =============== ======= =============== ============
+```
 
 Now you see "Events" populated with our trigger, as well as a reference to our callback. When you add an event, the "Args" column will tell you what the event trigger will attempt to pass as arguments to the trigger. If you don't follow that format, the event won't work.
 
@@ -736,22 +723,22 @@ asave changed
 
 Now create a new elf character, and you should see this upon being dumped in the starting room:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(0,128,128);">You step off the end of an old rope ladder at the base of Cuivealda, the Tree of</span><br>
-<span style="color: rgb(0,128,128);">Awakening. Your years in the nurturing hands of the Tetyayath have come to an </span><br>
-<span style="color: rgb(0,128,128);">end.</span><br>
-<br>
-<span style="color: rgb(0,128,128);">Now you must go out into the world and find your destiny...</span><br>
-<br>
-<span style="color: rgb(0,128,128);">The Awakening</span><br>
-<span style="color: rgb(192,192,192);">    You stand next to the great old trunk of Cuivealda.  The light is</span><br>
-<span style="color: rgb(192,192,192);">dim, as the dense, high canopy that forms Tauremar covers the sky.  There is</span><br>
-<span style="color: rgb(192,192,192);">little ground cover, and the forest floor is a tranquil place of perpetual</span><br>
-<span style="color: rgb(192,192,192);">twilight.</span><br>
-<span style="color: rgb(192,192,192);">You have no unread notes.</span><br>
-<br>
-<span style="color: rgb(0,128,128);">&lt;20hp 100m 100mv&gt; </span><br>
- </div>
+```
+You step off the end of an old rope ladder at the base of Cuivealda, the Tree of
+Awakening. Your years in the nurturing hands of the Tetyayath have come to an 
+end.
+
+Now you must go out into the world and find your destiny...
+
+The Awakening
+    You stand next to the great old trunk of Cuivealda.  The light is
+dim, as the dense, high canopy that forms Tauremar covers the sky.  There is
+little ground cover, and the forest floor is a tranquil place of perpetual
+twilight.
+You have no unread notes.
+
+<20hp 100m 100mv> 
+```
 
 It works! You just wrote your first Lox script, and your first event. What's cool about the Login event is that it triggers _before_ you are dumped into the starting room, so it lets us write a neat little prologue to establish a narrative for the new character.
 
@@ -788,35 +775,37 @@ The Lox function `delay` takes two parameters:
 
 In this case, we pass what's called a _lamda_ as the callable. It's basically an ad hoc, unnamed function.
 
-<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p style="margin: 0;"> Lamdas can have arguments, but this one does not. Everything it needs is in its own scope. By simply mentioning <code>vch</code>, it "captures" that variable and keeps it from getting garbage-collected until it gets a chance to run.</p></div>
+> [!NOTE]
+> Lamdas can have arguments, but this one does not. Everything it needs is in its own scope. By simply mentioning `vch`, it "captures" that variable and keeps it from getting garbage-collected until it gets a chance to run.
 
 After one tick, we send the given message to the player that triggered the event.
 
 When you're done, `.s` should look like this:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(237,230,203);">Script so far:</span><br>
-<span style="color: rgb(112,77,43);"> 1</span><span style="color: rgb(237,230,203);">. </span><span style="color: rgb(79,93,66);">// This function gets called the first time a character logs in as an elf, </span><br>
-<span style="color: rgb(112,77,43);"> 2</span><span style="color: rgb(237,230,203);">. </span><span style="color: rgb(79,93,66);">// after character creation.</span><br>
-<span style="color: rgb(112,77,43);"> 3</span><span style="color: rgb(237,230,203);">. on_login</span><span style="color: rgb(112,77,43);">(</span><span style="color: rgb(237,230,203);">vch</span><span style="color: rgb(112,77,43);">) {</span><br>
-<span style="color: rgb(112,77,43);"> 4</span><span style="color: rgb(237,230,203);">.     </span><span style="color: rgb(79,93,66);">// Only newly-created characters</span><br>
-<span style="color: rgb(112,77,43);"> 5</span><span style="color: rgb(237,230,203);">.     </span><span style="color: rgb(43,69,79);">if </span><span style="color: rgb(112,77,43);">(</span><span style="color: rgb(237,230,203);">vch</span><span style="color: rgb(112,77,43);">.</span><span style="color: rgb(237,230,203);">level </span><span style="color: rgb(112,77,43);">&gt; </span><span style="color: rgb(62,112,142);">1 </span><span style="color: rgb(43,69,79);">or </span><span style="color: rgb(237,230,203);">vch</span><span style="color: rgb(112,77,43);">.</span><span style="color: rgb(237,230,203);">race </span><span style="color: rgb(112,77,43);">!= </span><span style="color: rgb(237,230,203);">Race</span><span style="color: rgb(112,77,43);">.</span><span style="color: rgb(237,230,203);">Elf</span><span style="color: rgb(112,77,43);">)</span><br>
-<span style="color: rgb(112,77,43);"> 6</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(43,69,79);">return</span><span style="color: rgb(112,77,43);">;</span><br>
-<span style="color: rgb(112,77,43);"> 7</span><span style="color: rgb(237,230,203);">.  </span><br>
-<span style="color: rgb(112,77,43);"> 8</span><span style="color: rgb(237,230,203);">.     vch</span><span style="color: rgb(112,77,43);">.</span><span style="color: rgb(237,230,203);">send</span><span style="color: rgb(112,77,43);">(</span><br>
-<span style="color: rgb(112,77,43);"> 9</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(245,216,147);">"^*You step off the end of an old rope ladder at the base of "</span><br>
-<span style="color: rgb(112,77,43);">10</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(245,216,147);">"Cuivealda, the Tree of Awakening. Your years in the nurturing "</span><br>
-<span style="color: rgb(112,77,43);">11</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(245,216,147);">"hands of the Tetyayath have come to an end.^/^/"</span><br>
-<span style="color: rgb(112,77,43);">12</span><span style="color: rgb(237,230,203);">.         </span><span style="color: rgb(245,216,147);">"Now you must go out into the world and find your destiny...^/^x"</span><span style="color: rgb(112,77,43);">)</span><br>
-<span style="color: rgb(112,77,43);">13</span><span style="color: rgb(237,230,203);">. </span><br>
-<span style="color: rgb(112,77,43);">14</span><span style="color: rgb(237,230,203);">.     delay</span><span style="color: rgb(112,77,43);">(</span><span style="color: rgb(62,112,142);">1</span><span style="color: rgb(112,77,43);">, () -&gt; {</span><br>
-<span style="color: rgb(112,77,43);">15</span><span style="color: rgb(237,230,203);">.         vch</span><span style="color: rgb(112,77,43);">.</span><span style="color: rgb(237,230,203);">send</span><span style="color: rgb(112,77,43);">(</span><span style="color: rgb(245,216,147);">"^jYou have instructions to meet your old mentor in a "</span><br>
-<span style="color: rgb(112,77,43);">16</span><span style="color: rgb(237,230,203);">.             </span><span style="color: rgb(245,216,147);">"clearing just to the east. There you will continue your "</span><br>
-<span style="color: rgb(112,77,43);">17</span><span style="color: rgb(237,230,203);">.             </span><span style="color: rgb(245,216,147);">"training. Type '^*EXITS^j' to see what lies in that "</span><br>
-<span style="color: rgb(112,77,43);">18</span><span style="color: rgb(237,230,203);">.             </span><span style="color: rgb(245,216,147);">"direction. Type '^*EAST^j' to go there.^x"</span><span style="color: rgb(112,77,43);">)</span><br>
-<span style="color: rgb(112,77,43);">19</span><span style="color: rgb(237,230,203);">.     </span><span style="color: rgb(112,77,43);">})</span><br>
-<span style="color: rgb(112,77,43);">20</span><span style="color: rgb(237,230,203);">. </span><span style="color: rgb(112,77,43);">}</span><br>
-<span style="color: rgb(112,77,43);">21</span><span style="color: rgb(237,230,203);">. </span><br></div>
+```
+Script so far:
+ 1. // This function gets called the first time a character logs in as an elf, 
+ 2. // after character creation.
+ 3. on_login(vch) {
+ 4.     // Only newly-created characters
+ 5.     if (vch.level > 1 or vch.race != Race.Elf)
+ 6.         return;
+ 7.  
+ 8.     vch.send(
+ 9.         "^*You step off the end of an old rope ladder at the base of "
+10.         "Cuivealda, the Tree of Awakening. Your years in the nurturing "
+11.         "hands of the Tetyayath have come to an end.^/^/"
+12.         "Now you must go out into the world and find your destiny...^/^x")
+13. 
+14.     delay(1, () -> {
+15.         vch.send("^jYou have instructions to meet your old mentor in a "
+16.             "clearing just to the east. There you will continue your "
+17.             "training. Type '^*EXITS^j' to see what lies in that "
+18.             "direction. Type '^*EAST^j' to go there.^x")
+19.     })
+20. }
+21. 
+```
 
 Now we tie a bow around it for testing:
 
@@ -827,24 +816,25 @@ asave area
 
 Then we test it again with a new character:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(0,128,128);">You step off the end of an old rope ladder at the base of Cuivealda, the Tree of</span><br>
-<span style="color: rgb(0,128,128);">Awakening. Your years in the nurturing hands of the Tetyayath have come to an </span><br>
-<span style="color: rgb(0,128,128);">end.</span><br>
-<br>
-<span style="color: rgb(0,128,128);">Now you must go out into the world and find your destiny...</span><br>
-<br>
-<span style="color: rgb(0,128,128);">The Awakening</span><br>
-<span style="color: rgb(192,192,192);">    You stand next to the great old trunk of Cuivealda.  The light is</span><br>
-<span style="color: rgb(192,192,192);">dim, as the dense, high canopy that forms Tauremar covers the sky.  There is</span><br>
-<span style="color: rgb(192,192,192);">little ground cover, and the forest floor is a tranquil place of perpetual</span><br>
-<span style="color: rgb(192,192,192);">twilight.</span><br>
-<span style="color: rgb(192,192,192);">You have no unread notes.</span><br>
-<span style="color: rgb(128,128,0);">You have instructions to meet your old mentor in a clearing just to the east.</span><br>
-<span style="color: rgb(128,128,0);">There you will continue your training. Type '</span><span style="color: rgb(0,128,128);">EXITS</span><span style="color: rgb(128,128,0);">' to see what lies in that </span><br>
-<span style="color: rgb(128,128,0);">direction. Type '</span><span style="color: rgb(0,128,128);">EAST</span><span style="color: rgb(128,128,0);">' to go there.</span><br>
-<br>
-<span style="color: rgb(0,128,128);">&lt;20hp 100m 100mv&gt; </span><br></div>
+```
+You step off the end of an old rope ladder at the base of Cuivealda, the Tree of
+Awakening. Your years in the nurturing hands of the Tetyayath have come to an 
+end.
+
+Now you must go out into the world and find your destiny...
+
+The Awakening
+    You stand next to the great old trunk of Cuivealda.  The light is
+dim, as the dense, high canopy that forms Tauremar covers the sky.  There is
+little ground cover, and the forest floor is a tranquil place of perpetual
+twilight.
+You have no unread notes.
+You have instructions to meet your old mentor in a clearing just to the east.
+There you will continue your training. Type 'EXITS' to see what lies in that 
+direction. Type 'EAST' to go there.
+
+<20hp 100m 100mv> 
+```
 
 What's great about this is that it's not a part of the room description, which I want to always keep as IC ("in character in ye olde MUD speak) as possible.
 
@@ -855,25 +845,26 @@ Now that we've told the player to go east, we probably need to start building ou
 In creating our first login event, I sort of put the cart before the horse. My first checklist item is actually to build out the area. Here is the map I came up with, with VNUMs listed for the rooms:
 
 ```
-                +-------+   +-------+   +-------+
-                | 12013 |---| 12014 |---| 12015 |
-                +---+---+   +---+---+   +---+---+
-                    |           |           |    
-                +---+---+   +---+---+   +---+---+
-                | 12012 |---| 12018 |---| 12016 |
-                +-------+   +---+---+   +---+---+
-                    |           |           |   
-                +---+---+   +---+---+   +---+---+
-                | 12011 |---| 12010 |---| 12017 |
-                +-------+   +---+---+   +-------+
-      START                     |
-    +-------+   +-------+   +---+---+
-    | 12000 |---| 12002 |---| 12005 |
-    +-------+   +-------+   +-------+
+                            +-------+   +-------+   +-------+
+                            | 12013 |---| 12014 |---| 12015 |
+                            +---+---+   +---+---+   +---+---+
+                                |           |           |    
+                            +---+---+   +---+---+   +---+---+
+                            | 12012 |---| 12018 |---| 12016 |
+                            +-------+   +---+---+   +---+---+
+                                |           |           |   
+                            +---+---+   +---+---+   +---+---+
+                            | 12011 |---| 12010 |---| 12017 |
+                            +-------+   +---+---+   +-------+
+      START                                 |
+    +-------+   +-------+   +-------+   +---+---+
+    | 12000 |---| 12002 |---| 12003 |---| 12005 |
+    +-------+   +-------+   +-------+   +-------+
 ```
 
-<div style="background-color: rgb(32,64,255,0.1);padding: 1em;border-radius:5px;margin-bottom:1em;"><p>IMXP, the best way to build an area is to sketch it out first, assigning VNUMs ahead of time. I space VNUM's by 5, but if rooms will be densely packed with mobs and objs, I space by 10. This lets me group obj and mob VNUMs by room in a way that is predictable and easy to manage.</p>
-<p style="margin: 0">Sketch out the area as uniform blocks. Even in my MUD days (late 90's) auto-mappers were ubiquitious, and players were more partial to area layouts that didn't muck with their maps.</p></div>
+> In my experience, the best way to build an area is to sketch it out first, assigning VNUMs ahead of time. I space VNUM's by 5, but if rooms will be densely packed with mobs and objs, I space by 10. This lets me group obj and mob VNUMs by room in a way that is predictable and easy to manage.
+>
+> Sketch out the area as uniform blocks. Even in my MUD days (late 90's) auto-mappers were ubiquitious, and players were more partial to area layouts that didn't muck with their maps.
 
 To demonstrate the two different ways to establish room connections, I'm going to accidentally forget to create room 12002. To instantly buid out rooms, use `DIG` while editing room 12000:
 
@@ -886,6 +877,7 @@ This created a room with VNUM 12002, and moved you to it. Furthermore, it put yo
 I also make use of the `LINK` command to add two-way connections between existing rooms. This doesn't move you, however, so I do have one manual move (note that this, unlike traditional movement, cannot be abbreviated; to move west, you must type `west` and not `w`).
 
 ```
+east dig 12003
 east dig 12005
 north dig 12010
 west dig 12011
@@ -916,16 +908,16 @@ Since the room is VNUM `12005`, I'll make the quest mob have the same VNUM:
 
 ```
 medit create 12005
-name findorian woodspeaker
+name findorian Forestspeaker
 level 20
 race elf
 act sentinel
 off assist_race
 res weapon bash
 faction Tauremar
-short Findorian, the Woodspeaker
+short Findorian, the Forestspeaker
 
-long Findorian, the Woodspeaker, kneels in the grassy clearing, gazing intently at
+long Findorian, the Forestspeaker, kneels in the grassy clearing, gazing intently at
 the dark woods surrounding you.
 ```
 
@@ -941,33 +933,34 @@ If you want to see these combat ratings on a sample of other mobs in the world, 
 
 Once all the above is done, he should look like this (hit `Enter` in `MEDIT`):
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(237,230,203);">Name:        </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">findorian forestspeaker</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Vnum:        </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 12005</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Area:        </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    48</span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(43,69,79);">Faladrin Forest</span><br>
-<span style="color: rgb(237,230,203);">Faction:     </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 12000</span><span style="color: rgb(64,35,30);">] </span><span style="color: rgb(43,69,79);">Tauremar</span><br>
-<span style="color: rgb(237,230,203);">Level:       </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    20</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Sex:     </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  none</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Group:   </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    0</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Align:       </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">     0</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Hitroll: </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">     0</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Dam type: </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">none</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Hit dice:    </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  3d9  + 333</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Damage dice:  </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">  2d8  +   5</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Mana dice:   </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);"> 20d12 + 100</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Material:     </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">     unknown</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Race:        </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">         elf</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Size:         </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">      medium</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Start pos.:  </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    standing</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> Default pos.: </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">    standing</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Wealth:      </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">      0 cp</span><span style="color: rgb(64,35,30);">]</span><span style="color: rgb(237,230,203);"> </span><span style="color: rgb(43,69,79);">no coins</span><br>
-<span style="color: rgb(237,230,203);">Armor:       </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(43,69,79);">pierce: </span><span style="color: rgb(112,77,43);">-40</span><span style="color: rgb(43,69,79);">  bash: </span><span style="color: rgb(112,77,43);">-40</span><span style="color: rgb(43,69,79);">  slash: </span><span style="color: rgb(112,77,43);">-40</span><span style="color: rgb(43,69,79);">  magic: </span><span style="color: rgb(112,77,43);">-30</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Affected by: </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">infrared</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">Act:         </span><span style="color: rgb(64,35,30);">[</span><span style="color: rgb(112,77,43);">npc sentinel</span><span style="color: rgb(64,35,30);">]</span><br>
-<span style="color: rgb(237,230,203);">       Form: </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">edible sentient biped mammal</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">      Parts: </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">head arms legs heart brains guts hands feet fingers ear eye</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">        Imm: </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">        Res: </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">charm weapon bash</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">       Vuln: </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">      iron</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">        Off: </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">assist_race</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Short descr: </span><span style="color: rgb(43,69,79);">Findorian, the Forestspeaker</span><br>
-<span style="color: rgb(237,230,203);">Long descr:</span>
-<span style="color: rgb(43,69,79);"> Findorian, the Forestspeaker, kneels in the grassy clearing, gazing intently</span><br>
-<span style="color: rgb(43,69,79);">at the dark woods surrounding you.</span><br><span style="color: rgb(237,230,203);">Description:</span><br>
-<span style="color: rgb(237,230,203);">Lox Class      : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Type '</span><span style="color: rgb(232,178,111);">LOX</span><span style="color: rgb(43,69,79);">' to create one.</span><br>
-<span style="color: rgb(237,230,203);">Events         : </span><span style="color: rgb(112,77,43);">(none)</span><span style="color: rgb(43,69,79);"> Type '</span><span style="color: rgb(232,178,111);">EVENT</span><span style="color: rgb(43,69,79);">' to create one.</span><br></div>
+```
+Name:        [findorian forestspeaker]
+Vnum:        [ 12005]
+Area:        [    48] Faladrin Forest
+Faction:     [ 12000] Tauremar
+Level:       [    20] Sex:     [  none] Group:   [    0]
+Align:       [     0] Hitroll: [     0] Dam type: [none]
+Hit dice:    [  3d9  + 333] Damage dice:  [  2d8  +   5]
+Mana dice:   [ 20d12 + 100] Material:     [     unknown]
+Race:        [         elf] Size:         [      medium]
+Start pos.:  [    standing] Default pos.: [    standing]
+Wealth:      [      0 cp] no coins
+Armor:       [pierce: -40  bash: -40  slash: -40  magic: -30]
+Affected by: [infrared]
+Act:         [npc sentinel]
+       Form: [ edible sentient biped mammal ]
+      Parts: [ head arms legs heart brains guts hands feet fingers ear eye ]
+        Imm: [     (none) ]
+        Res: [ charm weapon bash ]
+       Vuln: [       iron ]
+        Off: [ assist_race ]
+Short descr: Findorian, the Forestspeaker
+Long descr:  Findorian, the Forestspeaker, kneels in the grassy clearing, gazing intently
+at the dark woods surrounding you.
+Description:
+Lox Class      : [     (none) ] Type 'LOX' to create one.
+Events         : (none) Type 'EVENT' to create one.
+```
 
 Once you have the mob where you want him, you can set him in place:
 
@@ -991,20 +984,21 @@ qedit create 12000
 
 This creates a blank slate of a quest:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(232,178,111);">New quest created.</span><br>
-<span style="color: rgb(237,230,203);">Quest          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     12000</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">(none)</span><br>
-<span style="color: rgb(237,230,203);">Area           : </span><span style="color: rgb(112,77,43);">Faladrin Forest</span><br>
-<span style="color: rgb(237,230,203);">Type           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);"> visit_mob</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Level          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         1</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">End            : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         0</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">(none)</span><br>
-<span style="color: rgb(237,230,203);">Target         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         0</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">(none)</span><br>
-<span style="color: rgb(237,230,203);">XP             : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         0</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Currency       : </span><span style="color: rgb(112,77,43);">(none)</span><br>
-<span style="color: rgb(237,230,203);">Faction        : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ] </span><br>
-<span style="color: rgb(237,230,203);">Reputation     : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         0</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Reward Items   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ] </span><br>
-<span style="color: rgb(237,230,203);">Entry          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ]</span><br></div>
+```
+New quest created.
+Quest          : [      12000 ] (none)
+Area           : Faladrin Forest
+Type           : [  visit_mob ]
+Level          : [          1 ]
+End            : [          0 ] (none)
+Target         : [          0 ] (none)
+XP             : [          0 ]
+Currency       : (none)
+Faction        : [     (none) ] 
+Reputation     : [          0 ]
+Reward Items   : [     (none) ] 
+Entry          : [     (none) ]
+```
 
 I then fill in some information:
 
@@ -1021,22 +1015,23 @@ rewardcopper 10
 
 I also add text for the quest log entry with the `ENTRY` command. Here;s what it looks like when finished:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(17,18,21); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(237,230,203);">Quest          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     12000</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">An Old Friend</span><br>
-<span style="color: rgb(237,230,203);">Area           : </span><span style="color: rgb(112,77,43);">Faladrin Forest</span><br>
-<span style="color: rgb(237,230,203);">Type           : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);"> visit_mob</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Level          : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">         1</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">End            : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     12005</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Findorian, the Forestspeaker</span><br>
-<span style="color: rgb(237,230,203);">Target         : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     12005</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Findorian, the Forestspeaker</span><br>
-<span style="color: rgb(237,230,203);">XP             : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">       100</span><span style="color: rgb(64,35,30);"> ]</span><br>
-<span style="color: rgb(237,230,203);">Currency       : </span><span style="color: rgb(112,77,43);">10 copper</span><br>
-<span style="color: rgb(237,230,203);">Faction        : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">     12000</span><span style="color: rgb(64,35,30);"> ] </span><span style="color: rgb(43,69,79);">Tauremar</span><br>
-<span style="color: rgb(237,230,203);">Reward Items   : </span><span style="color: rgb(64,35,30);">[ </span><span style="color: rgb(112,77,43);">    (none)</span><span style="color: rgb(64,35,30);"> ] </span><br>
-<span style="color: rgb(237,230,203);">Entry: </span><br>
-<span style="color: rgb(43,69,79);">Before you step out into the greater world, you must be trained.  To that</span><br>
-<span style="color: rgb(43,69,79);">end, your old mentor Findorian has has taken the responsibility to ensure</span><br>
-<span style="color: rgb(43,69,79);">you are properly made ready.  He waits for you just to the east of</span><br>
-<span style="color: rgb(43,69,79);">Cuivealda.</span><br></div>
+```
+Quest          : [      12000 ] An Old Friend
+Area           : Faladrin Forest
+Type           : [  visit_mob ]
+Level          : [          1 ]
+End            : [      12005 ] Findorian, the Forestspeaker
+Target         : [      12005 ] Findorian, the Forestspeaker
+XP             : [        100 ]
+Currency       : 10 copper
+Faction        : [      12000 ] Tauremar
+Reward Items   : [     (none) ] 
+Entry: 
+Before you step out into the greater world, you must be trained.  To that
+end, your old mentor Findorian has has taken the responsibility to ensure
+you are properly made ready.  He waits for you just to the east of
+Cuivealda.
+```
 
 The default type is `visit_mob`, which is just right for us right now. I need to go back and edit the Login event on Room 12000. This is the new, updated code:
 
@@ -1067,6 +1062,9 @@ on_login(vch) {
 }
 ```
 
+> [!TIP]
+> Like in other C-like languages, two or more string literals in a row are implicitly treated as a single, uninterrupted string literal. This is important because I want scripts to be OLC-editable, and many clients only support 80-character lines. This is a tool to help you control how your script line-wraps on the screen.
+
 The quest system in Mud98 is a novel addition of my own. There is an existing quest system for ROM that was fairly popular back in the day, but it relies on hard-coded quests and had no OLC support. Mud98's quest system is entirely OLC-driven.
 
 Here are the new commands used in this script, and what they do:
@@ -1075,35 +1073,37 @@ Here are the new commands used in this script, and what they do:
 
 After compiling the script and trying it with a new characters, this is what the player sees:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(0,128,128);">You step off the end of an old rope ladder at the base of Cuivealda, the Tree of</span><br>
-<span style="color: rgb(0,128,128);">Awakening. Your years in the nurturing hands of the Tetyayath have come to an </span><br>
-<span style="color: rgb(0,128,128);">end.</span><br>
-<br>
-<span style="color: rgb(0,128,128);">Now you must go out into the world and find your destiny...</span><br>
-<br>
-<span style="color: rgb(0,128,128);">The Awakening</span><br>
-<span style="color: rgb(192,192,192);">    You stand next to the great old trunk of Cuivealda.  The light is</span><br>
-<span style="color: rgb(192,192,192);">dim, as the dense, high canopy that forms Tauremar covers the sky.  There is</span><br>
-<span style="color: rgb(192,192,192);">little ground cover, and the forest floor is a tranquil place of perpetual</span><br>
-<span style="color: rgb(192,192,192);">twilight.</span><br>
-<span style="color: rgb(192,192,192);">You have no unread notes.</span><br>
-<span style="color: rgb(128,128,0);">You have instructions to meet your old mentor in a clearing just to the east.</span><br>
-<span style="color: rgb(128,128,0);">There you will continue your training. Type '</span><span style="color: rgb(0,128,128);">EXITS</span><span style="color: rgb(128,128,0);">' to see what lies in that </span><br>
-<span style="color: rgb(128,128,0);">direction. Type '</span><span style="color: rgb(0,128,128);">EAST</span><span style="color: rgb(128,128,0);">' to go there.</span><br>
-<br>
-<span style="color: rgb(128,128,0);">You have started the quest, </span><span style="color: rgb(0,128,128);">"An Old Friend</span><span style="color: rgb(128,128,0);">".</span><br>
-<span style="color: rgb(128,128,0);">Type '</span><span style="color: rgb(0,128,128);">QUEST</span><span style="color: rgb(128,128,0);">' to view your quest log.</span><br></div>
+```
+You step off the end of an old rope ladder at the base of Cuivealda, the Tree of
+Awakening. Your years in the nurturing hands of the Tetyayath have come to an 
+end.
+
+Now you must go out into the world and find your destiny...
+
+The Awakening
+    You stand next to the great old trunk of Cuivealda.  The light is
+dim, as the dense, high canopy that forms Tauremar covers the sky.  There is
+little ground cover, and the forest floor is a tranquil place of perpetual
+twilight.
+You have no unread notes.
+You have instructions to meet your old mentor in a clearing just to the east.
+There you will continue your training. Type 'EXITS' to see what lies in that 
+direction. Type 'EAST' to go there.
+
+You have started the quest, "An Old Friend".
+Type 'QUEST' to view your quest log.
+```
 
 Here is what they see when they type `QUEST`:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(0,128,128);">Active Quests in Faladrin Forest:</span><br>
-<span style="color: rgb(192,192,192);">1. </span><span style="color: rgb(255,255,255);">An Old Friend </span><span style="color: rgb(0,0,255);">[</span><span style="color: rgb(0,128,128);">Level 1</span><span style="color: rgb(0,0,255);">] </span><br>
-<span style="color: rgb(128,128,128);">Before you step out into the greater world, you must be trained.  To that</span><br>
-<span style="color: rgb(128,128,128);">end, your old mentor Findorian has has taken the responsibility to ensure</span><br>
-<span style="color: rgb(128,128,128);">you are properly made ready.  He waits for you just to the east of</span><br>
-<span style="color: rgb(128,128,128);">Cuivealda.</span><br></div>
+```
+Active Quests in Faladrin Forest:
+1. An Old Friend [Level 1] 
+Before you step out into the greater world, you must be trained.  To that
+end, your old mentor Findorian has has taken the responsibility to ensure
+you are properly made ready.  He waits for you just to the east of
+Cuivealda.
+```
 
 This list will obviously grow as the player progresses. World quests (those outside their immediate area) will be displayed as a collapsed list below. Completed quests are hidden.
 
@@ -1140,23 +1140,24 @@ asave changed
 
 So, how did we do? This is what a new character sees when they enter the room with Findorian:
 
-<div style="font-family: 'Consolas', 'Courier New', 'Monospace', 'Courier'; font-size: 100%; line-height: 1.125em; white-space: nowrap; color:rgb(255,255,255); background-color:rgb(0,0,0); padding:1em;  margin-bottom:1em; border-radius: 5px;"><style type='text/css'><!-- span { white-space: pre-wrap; } --></style>
-<span style="color: rgb(0,128,128);">The Training Ground</span><br>
-<span style="color: rgb(192,192,192);">  Dappled sunlight breaks through the canopy in this clearing.  A patch of</span><br>
-<span style="color: rgb(192,192,192);">grass grows, green and vibrant, in the center.  Dark pathways through the</span><br>
-<span style="color: rgb(192,192,192);">trees go out in all directions.</span><br>
-<span style="color: rgb(192,192,192);">  </span><span style="color: rgb(0,128,128);">[</span><span style="color: rgb(255,255,0);">?</span><span style="color: rgb(0,128,128);">]</span><span style="color: rgb(192,192,192);"> Findorian, the Forestspeaker, kneels in the grassy clearing, gazing</span><br>
-<span style="color: rgb(192,192,192);">intently at the dark woods surrounding you.</span><br>
-<span style="color: rgb(0,128,0);">Findorian, the Forestspeaker says '</span><span style="color: rgb(0,255,0);">There you are, Elithir; I'm glad to see you.</span><br>
-<span style="color: rgb(0,255,0);">I wish I could ease you into the brutal World Below, but we have no such luck.</span><span style="color: rgb(0,128,0);">'</span><br>
-<span style="color: rgb(192,192,192);">Findorian, the Forestspeaker sighs.</span><br>
-<span style="color: rgb(0,128,0);">Findorian, the Forestspeaker says '</span><span style="color: rgb(0,255,0);">I need your help with something, and it's not</span><br>
-<span style="color: rgb(0,255,0);">going to be pleasant.</span><span style="color: rgb(0,128,0);">'</span><br>
-<br>
-<span style="color: rgb(128,128,0);">You have completed the quest, "</span><span style="color: rgb(0,128,128);">An Old Friend</span><span style="color: rgb(128,128,0);">".</span><br>
-<span style="color: rgb(128,128,0);">You have been awarded </span><span style="color: rgb(0,128,128);">100</span><span style="color: rgb(128,128,0);"> xp.</span><br>
-<span style="color: rgb(128,128,0);">You receive </span><span style="color: rgb(0,128,128);">10 copper</span><span style="color: rgb(128,128,0);">.</span><br>
-<span style="color: rgb(128,128,0);">Your reputation with Tauremar increases (Neutral -&gt; Friendly).</span><br></div>
+```
+The Training Ground
+  Dappled sunlight breaks through the canopy in this clearing.  A patch of
+grass grows, green and vibrant, in the center.  Dark pathways through the
+trees go out in all directions.
+  [?] Findorian, the Forestspeaker, kneels in the grassy clearing, gazing
+intently at the dark woods surrounding you.
+Findorian, the Forestspeaker says 'There you are, Elithir; I'm glad to see you.
+I wish I could ease you into the brutal World Below, but we have no such luck.'
+Findorian, the Forestspeaker sighs.
+Findorian, the Forestspeaker says 'I need your help with something, and it's not
+going to be pleasant.'
+
+You have completed the quest, "An Old Friend".
+You have been awarded 100 xp.
+You receive 10 copper.
+Your reputation with Tauremar increases (Neutral -> Friendly).
+```
 
 The player has now completed their first quest, and gotten rep with their starting faction. I could have done a more "automated" way of handling quests that didn't involve events, but I believe this method requires builders to create a more customized and narrative experience around levelling.
 
@@ -1164,7 +1165,7 @@ The `[?]` symbol in front of Findorian's name is a short-hand from MMO's meaning
 
 ## Newbie's first grind
 
-In "MUD School", a PC needed to go kill a bunch of goblins in a pen for XP. The goblins were weak and cowering, and it was very difficult for the PC to get injured (it could happen, it was just hard). The idea was that you had a safe way to practice initiating combat without the danger of dying at level 1. It was pretty contrived, but it served its purpose.
+In "MUD School", a new player needed to go kill a bunch of goblins in a pen for XP. The goblins were weak and cowering, and it was very difficult for the PC to get injured (it could happen, it was just hard). The idea was that you had a safe way to practice initiating combat without the danger of dying at level 1. It was pretty contrived, but it served its purpose.
 
 Since the intention of this brand-new newbie area is to perform the same role, but in a more narrative fashion, I need to come up with a story and a quest for it.
 
@@ -1172,57 +1173,7 @@ So here it is: something is poisoning the forest, and a number of animals are ge
 
 ### The quest area
 
-I'll start by making a 3x3 grid to the.... north? Sure. We'll say north. A darkened wood littered with sick animals.
-
-The task of crafting the 3x3 area is left as an exercise to the implementor. Since these rooms will share the same mob, I won't space out the VNUMs for them. I'll use VNUMs `12010`-`12019`. The shape and exist arrangements are unimportant, so long as we don't mess with players' automappers.
-
-Here's my dig commands:
-
-```
-redit 12005
-north dig 12010
-west dig 12011
-north dig 12012
-north dig 12013
-east dig 12014
-east dig 12015
-south dig 12016
-south dig 12017
-```
-
-To get back to the entrance, I use `LINK` instead of `DIG`:
-
-```
-west link 12010
-west
-redit 12010
-north dig 12018
-west link 12012
-north link 12014
-east link 12016
-```
-
-Hopefully at this point, it's pretty clear the advantage that comes with pre-mapping (in 1998 I used graph paper), especially for keeping room VNUM's straight.
-
-Here is the layout, so far:
-
-```
-    +-------+   +-------+   +-------+
-    | 12013 |---| 12014 |---| 12015 |
-    +---+---+   +---+---+   +---+---+
-        |           |           |    
-    +---+---+   +---+---+   +---+---+
-    | 12012 |---| 12018 |---| 12016 |
-    +-------+   +---+---+   +---+---+
-        |           |           |   
-    +---+---+   +---+---+   +---+---+
-    | 12011 |---| 12010 |---| 12017 |
-    +-------+   +---+---+   +-------+
-                    |
-    +-------+   +---+---+
-    | 12000 |---| 12005 |
-    +-------+   +-------+
-```
+The quest area will be VNUMs `12010` through `12018`, which we have already created to the north of `12005`.
 
 In the first room, I create this sickened creature:
 
@@ -1230,28 +1181,32 @@ In the first room, I create this sickened creature:
 Name:        [sick deer]
 Vnum:        [ 12010]
 Area:        [    48] Faladrin Forest
+Faction:     [(none)]
 Level:       [     1] Sex:     [  none] Group:   [    0]
 Align:       [     0] Hitroll: [     0] Dam type: [none]
 Hit dice:    [  1d1  +   7] Damage dice:  [  1d2  +   0]
 Mana dice:   [  1d10 + 100] Material:     [     unknown]
 Race:        [        fido] Size:         [      medium]
 Start pos.:  [    standing] Default pos.: [    standing]
-Wealth:      [    0]
+Wealth:      [      0 cp] no coins
 Armor:       [pierce: 100  bash: 100  slash: 100  magic: 100]
-Affected by: [none]
+Affected by: [(none)]
 Act:         [npc sentinel wimpy]
-Form:        [edible poison animal mammal]
-Parts:       [head legs heart brains guts ear eye tail horns]
-Imm:         [summon charm]
-Res:         [none]
-Vuln:        [magic]
-Off:         [none]
+       Form: [ edible poison animal mammal ] (animalDefault)
+      Parts: [ head legs heart brains guts feet ear eye tail horns ]
+             (animalDefault)
+        Imm: [ summon charm ]
+        Res: [     (none) ]
+       Vuln: [      magic ]
+        Off: [     (none) ]
 Short descr: A sick deer
 Long descr:
 A sick deer drags a limp leg along the ground.
 Description:
 This deer has been poisoned, and is near death.  Its eyes are bloodshot
-and crazed.  It eyes you warily. 
+and crazed.  It eyes you warily.  
+Lox Class      : [     (none) ] Type 'LOX' to create one.
+Events         : (none) Type 'EVENT' to create one.
 ```
 
 Then we add it to room `12010`'s resets:
@@ -1276,17 +1231,16 @@ Here's the results of `MOBLIST AREA` after adding the creatures:
 ```
 VNUM   Name       Lvl Hit Dice     Hit   Dam      Mana       Pie  Bas  Sla  Mag
 ===============================================================================
-12000  (no short  0   0d0+0        0     0d0+0    0d0+0        0    0    0    0
 12005  Findorian, 20  3d9+333      0     2d8+5    20d12+100  -40  -40  -40  -30
-12010  A sick dee 1   1d1+7        0     1d2+0    1d10+100   100  100  100  100
-12011  A blighted 1   1d1+7        0     1d2+0    1d10+100   100  100  100  100
-12012  A rabid bo 1   1d1+7        0     1d3+0    1d10+100   100  100  100  100
-12013  A crazed b 1   1d1+7        0     1d4+0    1d10+100   100  100  100  100
-12014  A wild wea 1   1d1+7        0     1d3+0    1d10+100   100  100  100  100
-12015  A mutant c 1   1d1+7        0     1d4+0    1d10+100   100  100  100  100
-12016  An angry b 1   1d1+7        0     1d3+0    1d10+100   100  100  100  100
-12017  A feral ra 1   1d1+7        0     1d2+0    1d10+100   100  100  100  100
-12018  An agonize 1   1d1+7        0     1d2+0    1d10+100   100  100  100  100
+12010  A sick dee 1   1d1+7        0     1d2+0    0d0+0      100  100  100  100
+12011  A blighted 1   1d1+7        0     1d2+0    0d0+0      100  100  100  100
+12012  A rabid bo 1   1d1+7        0     1d3+0    0d0+0      100  100  100  100
+12013  A crazed b 1   1d1+7        0     1d4+0    0d0+0      100  100  100  100
+12014  A wild wea 1   1d1+7        0     1d3+0    0d0+0      100  100  100  100
+12015  A mutant c 1   1d1+7        0     1d4+0    0d0+0      100  100  100  100
+12016  An angry b 1   1d1+7        0     1d3+0    0d0+0      100  100  100  100
+12017  A feral ra 1   1d1+7        0     1d2+0    0d0+0      100  100  100  100
+12018  An agonize 1   1d1+7        0     1d2+0    0d0+0      100  100  100  100
 ```
 
 These stats are in line with the traditional MUD school monsters.
@@ -1299,85 +1253,95 @@ Findorian will be dispensing this quest, so it will follow his VNUM list:
 qedit create 12006
 name A Preserver's Burden
 type kill_mob
-end 12005
-xp 200
 level 1
+end 12005
 target 12010
 amount 9
+xp 200
+faction 12000
+rewardrep 100
+rewardcopper 10
 ```
 
-This quest uses a couple values we didn't have, before, which means `target` has a very different meaning. Before, for `visit_mob`, Findorian was both the `end` and the `target`. Now he is the `end`, and the "sick deer" is the target. You can specify the number of times the quest conditions (as defined by the quest type) must be performed before the quest is "finished" and can be turned in. In this case, the number of times the "sick deer" must be killed.
+This quest uses a couple values we didn't have, before, which means `target` has a very different meaning. Before, for `visit_mob`, Findorian was both the `end` and the `target`. Now he is the `end` (the "turn-in"), and the "sick deer" is the target.
 
-Here is the quest as it stands, now:
-
-```
-VNUM:       [12006]
-Name:       A Preserver's Burden
-Area:       Faladrin Forest
-Type:       [kill_mob]
-Level:      [1]
-End:        [12005] Findorian, the Woodspeaker
-Target:     [12010] A sick deer (set UPPER to use a range of VNUMs)
-Amount:     [9]
-XP:         [200]
-Entry:      [none]
-```
-
-Now, we created nine unique monsters for this quest, and what we really want is for each of these mobs to be a possible fulfillment of the quest. As the suggestion text for `target` says above, we do so with `upper`:
+Setting `amount` specifies the number of times the quest conditions (as defined by the quest type) must be performed before the quest is "finished" and can be turned in. In this case, the number of times the "sick deer" must be killed. However, we created nine unique monsters for this quest, and what we really want is for each of these mobs to be a possible fulfillment of the quest. As the suggestion text for `target` says, we do so with `upper`:
 
 ```
 upper 12018
 ```
 
-This creates an upper-bound on a range of VNUMs that are now valid targets for this quest:
+This creates an upper-bound on a range of VNUMs that are now valid targets for this quest.
+
+Add an entry to show up in the quest log (using `entry`), and this is what you should see as the final result:
 
 ```
-VNUM:       [12006]
-Name:       A Preserver's Burden
-Area:       Faladrin Forest
-Type:       [kill_mob]
-Level:      [1]
-End:        [12005] Findorian, the Woodspeaker
-Target:     [12010] A sick deer
-            [12011] A blighted fox
-            [12012] A rabid bobcat
-            [12013] A crazed black bear
-            [12014] A wild weasel
-            [12015] A mutant coyote
-            [12016] An angry badger
-            [12017] A feral rabbit
-Upper:      [12018] An agonized boar
-Amount:     [9]
-XP:         [200]
-Entry:      [none]
+Quest          : [      12006 ] A Preserver's Burden
+Area           : Faladrin Forest
+Type           : [   kill_mob ]
+Level          : [          1 ]
+End            : [      12005 ] Findorian, the Forestspeaker
+Target         : [      12010 ] A sick deer
+               : [      12011 ] A blighted fox
+               : [      12012 ] A rabid bobcat
+               : [      12013 ] A crazed black bear
+               : [      12014 ] A wild weasel
+               : [      12015 ] A mutant coyote
+               : [      12016 ] An angry badger
+               : [      12017 ] A feral rabbit
+Upper          : [      12018 ] An agonized boar
+Amount         : [          9 ]
+XP             : [        200 ]
+Currency       : 10 copper
+Faction        : [      12000 ] Tauremar
+Reward Items   : [     (none) ] 
+Entry: 
+Findorian needs help culling the sick and ailing creatures in the poisoned woods
+of the Faladrin Forest.  The best thing you can do right now is to end their 
+suffering.  Be warned however; many of them are twisted and violent. 
 ```
 
-Add an entry to show up in the quest log, and save the changes.
+> [!IMPORTANT]
+> Obviously, this only works if the target mobs all have sequential VNUMs. Plan accordingly.
 
-Now I need to extend Findorian's existing Mob Prog #`12005`:
+Now I need to extend Findorian's Lox script (`MEDIT 12005`):
 
 ```
-if canfinishquest $n 12000
-    say There you are, $n; I'm glad to see you. I wish I could ease you into the brutal World Below, but we have no such luck.
-    mob echo $I sighs.
-    say I need your help with something, and it's not going to be pleasant.
-    mob quest finish $n 12000
-    say There is a blight in this region of the forest infecting flora and fauna alike. I want to get to the root of it, but for now there is great suffering that must be dealt with.
-    say This is the burden of a Forestspeaker; there is only one way to stop the spread of the disease and bring peace to the afflicted, and that is by death.
-    say The Tetyayath have taught you the Creeds, and you have spoken them. Now you must pay the terrible cost of adhering to them.
-    say Go north. Bring them mercy. They have suffered long enough.
-    mob quest grant $n 12006
-endif
-if canfinishquest $n 12006
-    say Bloody business, that. I'm sorry.
-    mob echo $I places his hand on $s shoulder.
-    say What you have done here important. Preservation is about protecting what we can, and mitigating when we can't.
-    say You have honored the Creeds. You have honored the Forest.
-    mob quest finish $n 12006
-endif
+on_greet(vch) {
+    if (vch.can_finish_quest(12000)) {
+        say("There you are, ${vch.name}; I'm glad to see you. I wish I could "
+            "ease you into the brutal World Below, but we have no such luck.")
+        echo("$n sighs.")
+        say("I need your help with something, and it's not going to be"
+            "pleasant.")
+        vch.finish_quest(12000)
+        say("There is a blight in this region of the forest infecting flora "
+            "and fauna alike. I want to get to the root of it, but for now "
+            "there is great suffering that must be dealt with.")
+        say("This is the burden of a Forestspeaker; there is only one way to "
+            "stop the spread of the disease and bring peace to the "
+            "afflicted, and that is by death.")
+        say("The Tetyayath have taught you the Creeds, and you have spoken "
+            "them. Now you must pay the terrible cost of following them.")
+        say("Go north. Bring those poor animals mercy. They have suffered "
+            "long enough.")
+        vch.grant_quest(12006)
+    }
+    else if (vch.can_finish_quest(12006)) {
+        say("Bloody business, that. I'm sorry.")
+        echo(vch, "$n places his hand on $S shoulder.")
+        say("What you have done here important. Preservation is about "
+            "protecting what we can, and mitigating when we can't.")
+        say("You have honored the Creeds. You have honored the Forest.")
+        vch.finish_quest(12006)
+    }
+}
 ```
 
-Notice that the same trigger is now driving two different quests. I write quests in such a way that multiple quests can be turned in at the same time. It would be strange to have to leave, and reenter the room to fulfill a second quest.
+There's a lot here but what it's actually doing is pretty simple. We amended the previous conditional block (turning in quest VNUM `12000`) to also grant a new quest (quest VNUM `12006`, which we just made). But we also made a new block for turning in that quest. Most of this text is our quest-giver mob blathering.
+
+> [!NOTE]
+> I have a lot of stacked `say` commands. Strictly speaking, I didn't have to do this; if you add additional strings to a single `say` call with comma separators, they will be treated as separate "speech bubbles". I did _not_ do this, here, because of how densely packed the text is.
 
 ### Testing
 
@@ -1386,29 +1350,32 @@ Here's how the first completion looks with the second quest appended:
 ```
 The Training Ground
   Dappled sunlight breaks through the canopy in this clearing.  A patch of
-grass grows, green and vibrant, in the center.  Dark pathways through to
+grass grows, green and vibrant, in the center.  Dark pathways through the
 trees go out in all directions.  
-  [?] Findorian, the Woodspeaker, kneels in the grassy clearing, gazing intently
-at the dark woods surrounding you.
-Findorian, the Woodspeaker says 'There you are, Elithir; I'm glad to see you. I
-wish I could ease you into the brutal World Below, but we have no such luck.'
-Findorian, the Woodspeaker sighs.
-Findorian, the Woodspeaker says 'I need your help with something, and it's not
+
+  [?] Findorian, the Forestspeaker, kneels in the grassy clearing, gazing
+intently at the dark woods surrounding you.
+Findorian, the Forestspeaker says 'There you are, Elithir; I'm glad to see you.
+I wish I could ease you into the brutal World Below, but we have no such luck.'
+Findorian, the Forestspeaker sighs.
+Findorian, the Forestspeaker says 'I need your help with something, and it's not
 going to be pleasant.'
 
 You have completed the quest, "An Old Friend".
 You have been awarded 100 xp.
+You receive 10 copper.
+Your reputation with Tauremar increases (Neutral -> Friendly).
 
-Findorian, the Woodspeaker says 'There is a blight in this region of the forest
-infecting flora and fauna alike. I want to get to the root of it, but for now 
-there is great suffering that must be dealt with.'
-Findorian, the Woodspeaker says 'This is the burden of a Forestspeaker; there is
-only one way to stop the spread of the disease and bring peace to the afflicted, 
-and that is by death.'
-Findorian, the Woodspeaker says 'The Tetyayath have taught you the Creeds, and
-you have spoken them. Now you must pay the terrible cost of adhering to them.'
-Findorian, the Woodspeaker says 'Go north. Bring them mercy. They have suffered
-long enough.'
+Findorian, the Forestspeaker says 'There is a blight in this region of the
+forest infecting flora and fauna alike. I want to get to the root of it, but for 
+now there is great suffering that must be dealt with.'
+Findorian, the Forestspeaker says 'This is the burden of a Forestspeaker; there
+is only one way to stop the spread of the disease and bring peace to the 
+afflicted, and that is by death.'
+Findorian, the Forestspeaker says 'The Tetyayath have taught you the Creeds, and
+you have spoken them. Now you must pay the terrible cost of following them.'
+Findorian, the Forestspeaker says 'Go north. Bring those poor animals mercy.
+They have suffered long enough.'
 
 You have started the quest, "A Preserver's Burden".
 ```
@@ -1440,29 +1407,13 @@ Wait, I messed up; back up
 
 That fight took _forever_. Why? Because my character had 1% in all skills and base ability scores. Also, no gear. That won't do.
 
-## Adding a tutorial 
+## Player Onboarding
 
-In MUD school, you `TRAIN` and `PRACTICE` before you fight. So I'm going to splice in some rooms between 12000 and 12005 to equip and train the player.
-
-Here's how I create the new layout:
-
-```
-redit 12000
-east delete
-east dig 12002
-east dig 12003
-east link 12005
-```
-
-The first `delete` breaks the link between rooms `12000` and `12005`. Then I dig two new rooms east of `12000`, and finally link it with `12005`.
-
-I started with 12002 because MobProg `12001` is already used by the triggerbot in room `12000`. As I said, I like to at least _try_ to keep my VNUMs in sync. The decision to start the second room at VNUM 12005 turns out to be wise, in retrospect, as (as I predicted) I might have needed to insert a room or two inbetween.
-
-We can successively dig serially like this because each `dig` moves us into the new room, and sets that as our edit point.
+In MUD school, you `TRAIN` and `PRACTICE` before you are sent off to fight. fight. So I'm going to task some rooms between 12000 and 12005 to equip and train the player.
 
 ### The training room
 
-The first room will serve two purposes: to teach the player how to `READ` notes, and how to `TRAIN` and `PRACTICE`.
+Let's start with the second room we created, right after "The Awakening": VNUM `12002`. This first room will serve two purposes: to teach the player how to `READ` notes, and how to `TRAIN` and `PRACTICE`.
 
 ```
 redit 12002
@@ -1485,36 +1436,27 @@ Be sure to ^*TRAIN^x your abilities and ^*PRACTICE^x your skills.
 Never be afraid to seek ^*HELP^x if you lack understanding.
  
 --F
-```
-
-Now, in my example, I have the config settings `train_anywhere` and `practice_anywhere` enabled. If you don't, you need to maybe need to move this part over to Findorian and add the `train` and `practice` flags to him, or add them to the triggerbot we're about to create.
-
-To let the player know to look at the note, I want to do an OOC announcement with a triggerbot. First, the Mob Prog:
-
-```
-mpedit create 12002
-code
-if hasquest $n 12000
-    mob echoat $n ^jTo read the note tacked to the tree, type any of the
-following:^j
-    mob echoat $n ^*READ NOTE^j, ^*LOOK NOTE^j, or ^*EXAMINE NOTE^j.
-endif
 @
-done
 ```
 
-Now I make a new triggerbot, attach a new mob prog to it, and load it:
+Now, in my example, I have the config settings `train_anywhere` and `practice_anywhere` enabled in `mud98.cfg`. If you don't, you maybe need to move this part over to Findorian and add the `train` and `practice` flags to him, or add them to a Mobile in this room.
+
+To let the player know to look at the note, I want to do an OOC announcement with a Lox script (again, using the `lox` command):
 
 ```
-medit create 12002
-copy 12000
-name triggerbot_12002
-addprog 12002 greet 100
-done
-redit 12002
-mreset 12002 1 1
-done
-asave changed
+on_greet(vch) {
+    if (vch.has_quest(12000)) {
+        vch.send("^jTo read the note tacked to the tree, type any of the "
+                 "following: ^*READ NOTE^j, ^*LOOK NOTE^j, or ^*EXAMINE "
+                 "NOTE^j.^x")
+    }
+}
+```
+
+We saw `on_greet` before, when we wired up Findorian's script. Note that the same Greet event can be applied to rooms, as well as Mobiles. We use the same syntax to add the event to the room:
+
+```
+event set greet
 ```
 
 And with that, the player is now empowered to train abilities and practice skills.
@@ -1562,9 +1504,9 @@ v1 1
 v2 1
 wear take body
 materal cloth
-name shirt linen cuivealda
-short a linen shirt of Cuivealda
-long A linen shirt of Cuivealda lays on the ground.
+name shirt linen tauremar
+short a linen shirt of Tauremar
+long A linen shirt of Tauremar lays on the ground.
 done
 ```
 
@@ -1574,9 +1516,9 @@ Most of these settings will be the same across items:
 oedit create 12001
 copy 12000
 wear body around
-name cloak linen cuivealda
-short a linen cloak of Cuivealda
-long A linen cloak of Cuivealda is discarded here.
+name cloak linen tauremar
+short a linen cloak of Tauremar
+long A linen cloak of Tauremar is discarded here.
 done
 ```
 
@@ -1585,17 +1527,20 @@ The second `wear` line needs some explaining: in Mud98, each word fed into the O
 I continue in this way until I have a complete replacement for all the starter gear, and my `OBJLIST AREA ARMOR` in Faladrin Forest looks like this:
 
 ```
-VNUM   Lvl Name                AC:  Pierce  Bash    Slash   Exotic        
+VNUM   Lvl Name                AC:  Pierce   Bash    Slash  Exotic
 ===========================================================================
-12000  0   a linen shirt of Cuivea  [    1] [    1] [    1] [    0] [    0] 
-12001  0   a linen cloak of Cuivea  [    1] [    1] [    1] [    0] [    0] 
-12002  0   a linen cap of Cuiveald  [    1] [    1] [    1] [    0] [    0] 
-12003  0   linen pants of Cuiveald  [    1] [    1] [    1] [    0] [    0] 
-12004  0   wooden clogs of Cuiveal  [    1] [    1] [    1] [    0] [    0] 
+12000  0   a linen shirt of Taurem  [    1] [    1] [    1] [    0] [    0] 
+12001  0   a linen cloak of Taurem  [    1] [    1] [    1] [    0] [    0] 
+12002  0   a linen cap of Tauremar  [    1] [    1] [    1] [    0] [    0] 
+12003  0   linen pants of Tauremar  [    1] [    1] [    1] [    0] [    0] 
+12004  0   leather shoes of Taurem  [    1] [    1] [    1] [    0] [    0] 
 12005  0   simple hide gloves       [    1] [    1] [    1] [    0] [    0] 
 12006  0   a belt of hemp rope      [    1] [    1] [    1] [    0] [    0] 
 12007  0   simple hemp wristbands   [    1] [    1] [    1] [    0] [    0] 
 ```
+
+> [!NOTE]
+> At the time of this writing, the fifth armor type is unused, and will stay `0`.
 
 Now I make a chest to put all this stuff in:
 
@@ -1607,9 +1552,9 @@ v0 100
 v1 closed closeable
 v3 8
 extra nopurge
-name chest oaken stout
-short a stout oaken chest
-long A stout oaken chest is nestled between the roots a great tree trunk.
+name chest oak stout
+short a stout oak chest
+long A stout oak chest is nestled between the roots a great tree trunk.
 ```
 
 And now I load up the trunk with the items:
@@ -1653,15 +1598,15 @@ Exits:
 Resets: M = mobile, R = room, O = object, P = pet, S = shopkeeper
  No.  Loads    Description       Location         Vnum   Ar Rm Description
 ==== ======== ============= =================== ======== ===== ===========
-[ 1] O[12008] a stout oaken                     R[12003]       A Dark Path Thr
-[ 2] O[12000] a linen shirt inside              O[12008]  0- 1 a stout oaken c
-[ 3] O[12001] a linen cloak inside              O[12008]  0- 1 a stout oaken c
-[ 4] O[12002] a linen cap o inside              O[12008]  0- 1 a stout oaken c
-[ 5] O[12003] linen pants o inside              O[12008]  0- 1 a stout oaken c
-[ 6] O[12004] wooden clogs  inside              O[12008]  0- 1 a stout oaken c
-[ 7] O[12005] simple hide g inside              O[12008]  0- 1 a stout oaken c
-[ 8] O[12006] a belt of hem inside              O[12008]  0- 1 a stout oaken c
-[ 9] O[12007] simple hemp w inside              O[12008]  0- 1 a stout oaken c
+[ 1] O[12008] a stout oak c                     R[12003]       A Dark Path Thr
+[ 2] O[12000] a linen shirt inside              O[12008]  0- 1 a stout oak che
+[ 3] O[12001] a linen cloak inside              O[12008]  0- 1 a stout oak che
+[ 4] O[12002] a linen cap o inside              O[12008]  0- 1 a stout oak che
+[ 5] O[12003] linen pants o inside              O[12008]  0- 1 a stout oak che
+[ 6] O[12004] leather shoes inside              O[12008]  0- 1 a stout oak che
+[ 7] O[12005] simple hide g inside              O[12008]  0- 1 a stout oak che
+[ 8] O[12006] a belt of hem inside              O[12008]  0- 1 a stout oak che
+[ 9] O[12007] simple hemp w inside              O[12008]  0- 1 a stout oak che
 ```
 
 Now if you log into the game with a newbie char, you can go up to the chest and perform the following commands:
@@ -1674,50 +1619,48 @@ look in chest
 Which produces the following:
 
 ```
-A stout oaken chest holds:
+A stout oak chest holds:
      simple hemp wristbands
      a belt of hemp rope
      simple hide gloves
-     wooden clogs of Cuivealda
-     linen pants of Cuivealda
-     a linen cap of Cuivealda
-     a linen cloak of Cuivealda
-     a linen shirt of Cuivealda
+     leather shoes of Tauremar
+     linen pants of Tauremar
+     a linen cap of Tauremar
+     a linen cloak of Tauremar
+     a linen shirt of Tauremar
 ```
 
 Because we enabled `alwaysreset` on the area, this chest will replenish its items every 8 minutes. 
 
-Now I want to make am Mob Prog and a triggerbot to let the player know what to do, here.
+Now I want to make a Greet event on room VNUM `12003` to let the player know what to do, here. Here's the Lox script:
 
 ```
-mpedit create 12003
-code
-if hasquest $n 12000
-    mob echoat $n ^jYour mentor has left you some gear to help you on your^x
-    mob echoat $n ^jjourney. It's inside a chest by the tree.^x
-    mob echoat $n ^jTry the following commands:^x
-    mob echoat $n ^j- ^*OPEN CHEST^x
-    mob echoat $n ^j- ^*LOOK IN CHEST^x
-    mob echoat $n ^j- ^*TAKE ALL FROM CHEST^x
-    mob echoat $n ^j- ^*EQUIP ALL^x
-    mob echoat $n ^jYou can also look at your inventory with:^x
-    mob echoat $n ^j- ^*EQ^j (short for ^*EQUIPMENT^j)^x
-    mob echoat $n ^j- ^*INV^j (short for ^*INVENTORY^j)^x
-    mob echoat $n ^jYou can see the effect of donning this gear by viewing your stats:^x
-    mob echoat $n ^j- ^*SCORE^j (which you can abbreviate to ^*SC^j)^x
-endif
-@
-done
-medit create 12003
-copy 12000
-name triggerbot_12003
-addprog 12003 greet 100
-done
-redit 12003
-mreset 12003 -1 1
-done
-asave changed
+on_greet(vch) {
+    if (vch.has_quest(12000)) {
+        vch.send(
+            "^jYour mentor has left you some gear to help you on your "
+                "journey. It's inside a chest by the tree.^x",
+            "^jTry the following commands:^x",
+            "^j- ^*OPEN CHEST^x",
+            "^j- ^*LOOK IN CHEST^x",
+            "^j- ^*TAKE ALL FROM CHEST^x",
+            "^j- ^*EQUIP ALL^x",
+            "^jYou can also look at your inventory with:^x",
+            "^j- ^*EQ^j (short for ^*EQUIPMENT^j)^x",
+            "^j- ^*INV^j (short for ^*INVENTORY^j)^x",
+            "^jYou can see the effect of donning this gear by viewing your "
+                "stats:^x",
+            "^j- ^*SCORE^j (which you can abbreviate to ^*SC^j)^x")
+    }
+}
 ```
+
+> [!TIP]
+> `mob.send` follows the same convention as `mob.say`: a comma-delimited list of strings is treated as multiple `send` operations. Each one will be presented on with it's own EOL sequence.
+>
+> So why clear the color formatting and start a new one? Because it's a good habit to get into. In the future, you may end up writing triggers that act on a `send` before the other `send`s take effect; in that situation you can't predict what order things will be in. And that would mess with color formatting if we don't self-contain each message.
+>
+> **Best practice:** Assume that any two messages could possibly have another message spliced between them. Format accordingly.
 
 Now if we load into a new character, we can see the triggerbots in action; prompting us and letting our newbie know how to proceed.
 
@@ -1746,15 +1689,17 @@ A mutant coyote hits the ground ... DEAD.
 We've hit 9 of the 9 alotted targets, and we will no longer accrue any more. We are ready to turn in the quest to Findorian:
 
 ```
-Findorian, the Woodspeaker says 'Bloody business, that. I'm sorry.'
-Findorian, the Woodspeaker places his hand on his shoulder.
-Findorian, the Woodspeaker says 'What you have done here important. Preservation
+Findorian, the Forestspeaker says 'Bloody business, that. I'm sorry.'
+Findorian, the Forestspeaker places his hand on his shoulder.
+Findorian, the Forestspeaker says 'What you have done here important. Preservation
 is about protecting what we can, and mitigating when we can't.'
-Findorian, the Woodspeaker says 'You have honored the Creeds. You have honored
+Findorian, the Forestspeaker says 'You have honored the Creeds. You have honored
 the Forest.'
 
 You have completed the quest, "A Preserver's Burden".
-You have been awarded 180 xp.
+You have been awarded 100 xp.
+You receive 10 copper.
+Your reputation with Tauremar increases (Friendly).
 ```
 
 With just those two quest types, we can do a lot of narrative world expansion. The task of completing this area, and of making other racial (or even class) starting areas is up to you.

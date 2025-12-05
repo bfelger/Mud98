@@ -33,10 +33,7 @@ void do_lore(Mobile* ch, char* argument)
 	char object_name[MAX_INPUT_LENGTH + 100];
 
 	Object* obj;
-
-	//char buf[MAX_STRING_LENGTH];  // Unreferenced
-	//Affect* paf;					// Unreferenced
-
+	
 	argument = one_argument(argument, object_name);
 	if (object_name[0] == '\0') {
 		send_to_char("You need to specify an item to study.\n\r", ch);

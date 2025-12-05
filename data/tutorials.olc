@@ -78,7 +78,7 @@ match theme edit~
 #STEP
 prompt 
 Are all of the colors in the palette to your liking? If not, you can easily
-change them using the ^PALETTE^~ command while THEME EDIT is active.
+change them using the PALETTE command while THEME EDIT is active.
 Choose a color swatch on the palette you want to change and refer to that
 swatch by its slot number (shown on THEME SHOW).
 
@@ -107,16 +107,15 @@ match discard~
 #STEP
 prompt
 Maybe you like a theme's colors, but not how it's using them. We can change
-what colors are applied to each channel with the ^TCHANNEL^~ command inside
+what colors are applied to each channel with the CHANNEL command inside
 THEME EDIT.
-
 
 Look at THEME SHOW and pick a channel you'd like to change (by name, so 
 like "say_text", for instance). Then choose a fresh color in "#RRGGBB;"
 format that fits your concept.
 
 Try assigning a new color to the channel: ^TCHANNEL <channel> <#xxxxxx;>~
-match channel $W+ #$X;~
+match channel $W #$X;~
 #ENDSTEP
 
 #STEP
