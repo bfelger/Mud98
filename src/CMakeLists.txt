@@ -150,6 +150,7 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "persist/race/json/race_persist_json.c"
     "persist/theme/theme_persist.h" "persist/theme/theme_persist.c"
     "persist/theme/rom-olc/theme_persist_rom_olc.h" "persist/theme/rom-olc/theme_persist_rom_olc.c"
+    "persist/theme/json/theme_persist_json.h" "persist/theme/json/theme_persist_json.c"
     "persist/theme/rom-olc/theme_rom_olc_io.h" "persist/theme/rom-olc/theme_rom_olc_io.c"
 
     "olc/aedit.c" "olc/bit.h" "olc/bit.c" "olc/cedit.c" "olc/cmdedit.c" 

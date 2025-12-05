@@ -1020,15 +1020,45 @@ static void do_theme_save(Mobile* ch, char* argument)
             return;
         }
 
-        PersistResult res = theme_persist_save(NULL);
+        char format_arg[MAX_INPUT_LENGTH] = { 0 };
+        argument = one_argument(argument, format_arg);
+
+        const char* format_hint = NULL;
+        const char* override_filename = NULL;
+        char filename_buf[MAX_INPUT_LENGTH] = { 0 };
+        if (format_arg[0]) {
+            if (!str_cmp(format_arg, "json"))
+                format_hint = "json";
+            else if (!str_cmp(format_arg, "olc"))
+                format_hint = "olc";
+            else {
+                send_to_char(COLOR_INFO "Specify 'json' or 'olc' when forcing a format." COLOR_EOL, ch);
+                return;
+            }
+
+            const char* desired_ext = !str_cmp(format_hint, "json") ? ".json" : ".olc";
+            const char* cfg_name = cfg_get_themes_file();
+            const char* current_ext = strrchr(cfg_name, '.');
+            if (!(current_ext && !str_cmp(current_ext, desired_ext))) {
+                size_t base_len = current_ext ? (size_t)(current_ext - cfg_name) : strlen(cfg_name);
+                size_t max_base = sizeof(filename_buf) - strlen(desired_ext) - 1;
+                if (base_len > max_base)
+                    base_len = max_base;
+                snprintf(filename_buf, sizeof(filename_buf), "%.*s%s", (int)base_len, cfg_name, desired_ext);
+                override_filename = filename_buf;
+            }
+        }
+
+        PersistResult res = theme_persist_save_with_format(override_filename, format_hint);
         if (!persist_succeeded(res)) {
             printf_to_char(ch, COLOR_INFO "Saving system themes failed (%s)." COLOR_EOL,
                 res.message ? res.message : "unknown error");
             return;
         }
 
+        const char* saved_name = override_filename ? override_filename : cfg_get_themes_file();
         printf_to_char(ch, COLOR_INFO "System themes saved to '%s'." COLOR_EOL,
-            cfg_get_themes_file());
+            saved_name);
         return;
     }
 

@@ -13,9 +13,12 @@
 #include <persist/persist_io_adapters.h>
 #include <persist/persist_result.h>
 #include <persist/race/race_persist.h>
+#include <persist/theme/json/theme_persist_json.h>
+#include <persist/theme/theme_persist.h>
 
 #include <jansson/jansson.h>
 
+#include <color.h>
 #include <data/class.h>
 #include <data/race.h>
 
@@ -120,6 +123,68 @@ static void persist_state_end(PersistStateSnapshot* snap)
     top_vnum_room = snap->top_vnum_room;
     top_vnum_mob = snap->top_vnum_mob;
     top_vnum_obj = snap->top_vnum_obj;
+}
+
+static Color make_ansi_color(uint8_t light, uint8_t index)
+{
+    Color color = { 0 };
+    color.mode = COLOR_MODE_16;
+    color.code[0] = light;
+    color.code[1] = index;
+    return color;
+}
+
+static Color make_palette_ref_color(uint8_t idx)
+{
+    Color color = { 0 };
+    color.mode = COLOR_MODE_PAL_IDX;
+    color.code[0] = idx;
+    return color;
+}
+
+static ColorTheme* make_test_theme(const char* name, ColorMode mode)
+{
+    ColorTheme* theme = new_color_theme();
+    theme->name = str_dup(name);
+    theme->banner = str_dup("");
+    theme->mode = mode;
+    theme->palette_max = 2;
+    theme->palette[0] = make_ansi_color(NORMAL, WHITE);
+    theme->palette[1] = make_ansi_color(NORMAL, BLACK);
+    for (int i = 0; i < COLOR_SLOT_COUNT; ++i)
+        theme->channels[i] = make_palette_ref_color(0);
+    theme->channels[SLOT_BACKGROUND] = make_palette_ref_color(1);
+    theme->type = COLOR_THEME_TYPE_SYSTEM;
+    theme->is_public = false;
+    theme->is_changed = false;
+    return theme;
+}
+
+static int test_theme_json_round_trip()
+{
+    ColorTheme** list = calloc(2, sizeof(ColorTheme*));
+    ASSERT(list != NULL);
+    list[0] = make_test_theme("Azure", COLOR_MODE_16);
+    list[1] = make_test_theme("Sunset", COLOR_MODE_RGB);
+    ASSERT(color_register_system_themes(list, 2));
+
+    PersistBufferWriter buf = { 0 };
+    PersistWriter writer = persist_writer_from_buffer(&buf, "theme_json");
+    PersistResult save_res = theme_persist_json_save(&writer, "theme_json");
+    ASSERT(persist_succeeded(save_res));
+    ASSERT(buf.len > 0);
+
+    PersistBufferReaderCtx ctx;
+    PersistReader reader = persist_reader_from_buffer(buf.data, buf.len, "theme_json", &ctx);
+    PersistResult load_res = theme_persist_json_load(&reader, "theme_json");
+    ASSERT(persist_succeeded(load_res));
+    ASSERT(system_color_theme_count == 2);
+    ASSERT_STR_EQ("Azure", system_color_themes[0]->name);
+    ASSERT_STR_EQ("Sunset", system_color_themes[1]->name);
+    ASSERT(system_color_themes[1]->mode == COLOR_MODE_RGB);
+
+    free(buf.data);
+    return 0;
 }
 
 static const char* MIN_AREA_TEXT =
@@ -1383,6 +1448,16 @@ static int test_race_rom_json_round_trip()
     ASSERT(race_table != NULL);
     ASSERT(race_count > 0);
 
+    char original_data_dir[MIL];
+    snprintf(original_data_dir, sizeof(original_data_dir), "%s", cfg_get_data_dir());
+    const char* temp_dir = cfg_get_temp_dir();
+    char temp_races_path[MIL];
+    snprintf(temp_races_path, sizeof(temp_races_path), "%s%s", temp_dir, "races.json");
+
+    bool data_dir_swapped = false;
+    cfg_set_data_dir(temp_dir);
+    data_dir_swapped = true;
+
     // 2) Save to JSON file path (temp name)
     PersistResult save_res = race_persist_save("races.json");
     ASSERT_OR_GOTO(persist_succeeded(save_res), cleanup);
@@ -1396,6 +1471,10 @@ static int test_race_rom_json_round_trip()
     ASSERT(race_count == saved_count);
 
 cleanup:
+    if (data_dir_swapped) {
+        remove(temp_races_path);
+        cfg_set_data_dir(original_data_dir);
+    }
     return 0;
 }
 
@@ -1406,14 +1485,30 @@ static int test_class_rom_json_round_trip()
     ASSERT(class_table != NULL);
     ASSERT(class_count > 0);
 
+    char original_data_dir[MIL];
+    snprintf(original_data_dir, sizeof(original_data_dir), "%s", cfg_get_data_dir());
+    const char* temp_dir = cfg_get_temp_dir();
+    char temp_classes_path[MIL];
+    snprintf(temp_classes_path, sizeof(temp_classes_path), "%s%s", temp_dir, "classes.json");
+
+    bool data_dir_swapped = false;
+    cfg_set_data_dir(temp_dir);
+    data_dir_swapped = true;
+
     PersistResult save_res = class_persist_save("classes.json");
-    ASSERT(persist_succeeded(save_res));
+    ASSERT_OR_GOTO(persist_succeeded(save_res), cleanup);
 
     int saved_count = class_count;
     PersistResult json_load = class_persist_load("classes.json");
-    ASSERT(persist_succeeded(json_load));
+    ASSERT_OR_GOTO(persist_succeeded(json_load), cleanup);
     ASSERT(class_table != NULL);
     ASSERT(class_count == saved_count);
+
+cleanup:
+    if (data_dir_swapped) {
+        remove(temp_classes_path);
+        cfg_set_data_dir(original_data_dir);
+    }
     return 0;
 }
 
@@ -2056,6 +2151,7 @@ void register_persist_tests()
     REGISTER("Areas ROM->JSON->ROM Round Trip", test_areas_json_to_rom_round_trip);
     REGISTER("Races ROM<->JSON Round Trip", test_race_rom_json_round_trip);
     REGISTER("Classes ROM<->JSON Round Trip", test_class_rom_json_round_trip);
+    REGISTER("Themes JSON Round Trip", test_theme_json_round_trip);
 #ifdef ENABLE_EXTREME_AREA_ROUND_TRIP_COMPARISON
     REGISTER("Extreme Area JSON Round Trip", test_extreme_area_json_round_trip);
 #endif

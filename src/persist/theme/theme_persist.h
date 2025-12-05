@@ -18,5 +18,6 @@ typedef struct theme_persist_format_t {
 
 PersistResult theme_persist_load(const char* filename);
 PersistResult theme_persist_save(const char* filename);
+PersistResult theme_persist_save_with_format(const char* filename, const char* format_hint);
 
 #endif // !MUD98__PERSIST__THEME__THEME_PERSIST_H
