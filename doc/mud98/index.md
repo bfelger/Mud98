@@ -12,7 +12,7 @@ Mud98 isn't a MUD; it's a codebase. These docs outline how to take Mud98 and, wi
 2. [Part 2 &mdash; New Beginnings](wb-02-new-beginnings.md)
 
     Create your new world starting with the beginning: by crafting new starting zones by race or class, and build a narrative introductory experience or new players. Wire up events with the Lox scripting language.
- - [Click here](wb-02-new-beginnings-old.md) for the "legacy" version, using MobProgs instead of Lox.
+   - [Click here](wb-02-new-beginnings-old.md) for the "legacy" version, using MobProgs instead of Lox. This version is still valid and working _(albeit a little complicated with all the invisible "triggerbots")_.
 
 ## Engineering reference
 
@@ -21,3 +21,5 @@ Mud98 isn't a MUD; it's a codebase. These docs outline how to take Mud98 and, wi
 - [Glossary](glossary.md) — common domain terms.
 - [Engineering Notes](engineering-notes.md) — tips for safe changes and AI usage.
 - [Unit Test Guide](unit-test-guide.md) — how to add tests consistent with `src/tests/`.
+- [JSON Schemas](json/index.md) - schema used when saving JSON files.
+- [Mud98 Lox](lox/index.md) - reference material for Mud98's flavor of the Lox scripting language.
