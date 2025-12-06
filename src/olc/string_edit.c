@@ -131,7 +131,7 @@ void string_add(Mobile* ch, char* argument)
         argument = first_arg(argument, arg3, false);
 
         if (!str_cmp(arg1, ".clear")) {
-            write_to_buffer(ch->desc, "String cleared.\n\r", 0);
+            printf_to_char(ch, "String cleared.\n\r");
             free_string(*ch->desc->pString);
             *ch->desc->pString = str_dup("");
             /*            **ch->desc->pString = '\0'; */
@@ -139,21 +139,23 @@ void string_add(Mobile* ch, char* argument)
         }
 
         if (!str_cmp(arg1, ".s")) {
-            write_to_buffer(ch->desc, "String so far:\n\r", 0);
-            write_to_buffer(ch->desc, numlineas(*ch->desc->pString), 0);
+            printf_to_char(ch, COLOR_INFO "String so far:" COLOR_EOL);
+            char** show = ch->desc->pString;
+            ch->desc->pString = NULL;
+            printf_to_char(ch, numlineas(*show));
+            ch->desc->pString = show;
             return;
         }
 
         if (!str_cmp(arg1, ".r")) {
             if (arg2[0] == '\0') {
-                write_to_buffer(ch->desc,
-                    "usage:  .r \"old string\" \"new string\"\n\r", 0);
+                printf_to_char(ch, "usage:  .r \"old string\" \"new string\"\n\r");
                 return;
             }
 
             *ch->desc->pString = string_replace(*ch->desc->pString, arg2, arg3);
             sprintf(buf, "'%s' replaced with '%s'.\n\r", arg2, arg3);
-            write_to_buffer(ch->desc, buf, 0);
+            printf_to_char(ch, buf);
             return;
         }
 
@@ -161,40 +163,37 @@ void string_add(Mobile* ch, char* argument)
             char* desc = format_string(*ch->desc->pString);
             free_string(*ch->desc->pString);
             *ch->desc->pString = desc;
-            write_to_buffer(ch->desc, "String formatted.\n\r", 0);
+            printf_to_char(ch, "String formatted.\n\r");
             return;
         }
 
         if (!str_cmp(arg1, ".ld")) {
             *ch->desc->pString = linedel(*ch->desc->pString, atoi(arg2));
-            write_to_buffer(ch->desc, "Line deleted.\n\r", 0);
+            printf_to_char(ch, "Line deleted.\n\r");
             return;
         }
 
         if (!str_cmp(arg1, ".li")) {
             if (strlen(*ch->desc->pString) + strlen(tmparg3) >=
                 (MAX_STRING_LENGTH - 4)) {
-                write_to_buffer(
-                    ch->desc,
-                    "That would make the full text too long; delete a line first.\n\r",
-                    0);
+                printf_to_char(ch, "That would make the full text too long; delete a line first.\n\r");
                 return;
             }
 
             *ch->desc->pString = lineadd(*ch->desc->pString, tmparg3, atoi(arg2));
-            write_to_buffer(ch->desc, "Line inserted.\n\r", 0);
+            printf_to_char(ch, "Line inserted.\n\r");
             return;
         }
 
         if (!str_cmp(arg1, ".lr")) {
             *ch->desc->pString = linedel(*ch->desc->pString, atoi(arg2));
             *ch->desc->pString = lineadd(*ch->desc->pString, tmparg3, atoi(arg2));
-            write_to_buffer(ch->desc, "Line replaced.\n\r", 0);
+            printf_to_char(ch, "Line replaced.\n\r");
             return;
         }
 
         if (!str_cmp(arg1, ".h")) {
-            write_to_buffer(ch->desc,
+            printf_to_char(ch,
                 "String help (commands on blank line):   \n\r"
                 ".r 'old' 'new'   - replace a substring \n\r"
                 "                   (requires '', \"\") \n\r"
@@ -205,12 +204,11 @@ void string_add(Mobile* ch, char* argument)
                 ".ld <num>        - delete line <num>\n\r"
                 ".li <num> <txt>  - insert <txt> on line <num>\n\r"
                 ".lr <num> <txt>  - replace line <num> with <txt>\n\r"
-                "@                - end string          \n\r",
-                0);
+                "@                - end string          \n\r");
             return;
         }
 
-        write_to_buffer(ch->desc, "SEdit:  Invalid dot command.\n\r", 0);
+        printf_to_char(ch, "SEdit:  Invalid dot command.\n\r");
         return;
     }
 
@@ -224,10 +222,9 @@ void string_add(Mobile* ch, char* argument)
         }
 
         if (ch->desc->showstr_head) {
-            write_to_buffer(ch->desc,
+            printf_to_char(ch,
                 COLOR_INFO "[" COLOR_DECOR_1 "!!!" COLOR_INFO "] You received the following messages while you "
-                "were writing:" COLOR_EOL,
-                0);
+                "were writing:" COLOR_EOL);
             show_string(ch->desc, "");
         }
 
@@ -253,7 +250,7 @@ void string_add(Mobile* ch, char* argument)
 
     // Truncate strings to MAX_STRING_LENGTH.
     if (strlen(buf) + strlen(argument) >= (MAX_STRING_LENGTH - 4)) {
-        write_to_buffer(ch->desc, "String too long, last line skipped.\n\r", 0);
+        printf_to_char(ch, "String too long, last line skipped.\n\r");
 
         /* Force character out of editing mode. */
         ch->desc->pString = NULL;

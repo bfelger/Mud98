@@ -396,7 +396,7 @@ a sub issue cloak~
 You see a sub issue cloak here.~
 cloth~
 armor U AC
-1 1 1 0 1
+1 1 1 0 0
 0 40 72 P
 E
 cloak~
@@ -661,7 +661,7 @@ D0
 You see the doorway into the Mud School Building.
 ~
 ~
-0 0 3757
+0 -1 3757
 D2
 You see the one way door into the Arena of Mud School.
 ~
@@ -671,7 +671,7 @@ D5
 You see the Temple of Midgaard.
 ~
 ~
-0 0 3001
+0 -1 3001
 S
 #3701
 A Room in Mud School~
@@ -740,32 +740,32 @@ D0
 You see the room north that will lead you to the next section.
 ~
 ~
-0 0 3703
+0 -1 3703
 D1
 You see a room.
 ~
 ~
-0 0 3701
+0 -1 3701
 D2
 You see a room.
 ~
 ~
-0 0 3705
+0 -1 3705
 D3
 You see a room.
 ~
 ~
-0 0 3704
+0 -1 3704
 D4
 You see a room.
 ~
 ~
-0 0 3708
+0 -1 3708
 D5
 You see a room.
 ~
 ~
-0 0 3707
+0 -1 3707
 S
 #3703
 A Room in Mud School~
@@ -790,7 +790,7 @@ D2
 You see the central room.
 ~
 ~
-0 0 3702
+0 -1 3702
 S
 #3704
 A Room in Mud School~
@@ -808,7 +808,7 @@ D1
 You see the central room.
 ~
 ~
-0 0 3702
+0 -1 3702
 S
 #3705
 A Room in Mud School~
@@ -826,7 +826,7 @@ D0
 You see the central room.
 ~
 ~
-0 0 3702
+0 -1 3702
 S
 #3707
 A Room in Mud School~
@@ -844,7 +844,7 @@ D4
 You see the central room.
 ~
 ~
-0 0 3702
+0 -1 3702
 S
 #3708
 A Room in Mud School~
@@ -862,7 +862,7 @@ D5
 You see the central room.
 ~
 ~
-0 0 3702
+0 -1 3702
 S
 #3709
 A Room in Mud School~
@@ -900,7 +900,7 @@ D5
 You see a cage.
 ~
 ~
-0 0 3710
+0 -1 3710
 S
 #3710
 The Blob Cage~
@@ -918,7 +918,7 @@ D4
 You see a safe room up.
 ~
 ~
-0 0 3709
+0 -1 3709
 S
 #3711
 A Room in Mud School~
@@ -938,12 +938,12 @@ D1
 You see the next station of Mud School.
 ~
 ~
-0 0 3709
+0 -1 3709
 D5
 You see the combat hall.
 ~
 ~
-0 0 3712
+0 -1 3712
 S
 #3712
 The Cage Room~
@@ -1098,7 +1098,7 @@ D2
 You see the Shop.
 ~
 ~
-0 0 3718
+0 -1 3718
 D4
 You see the Cage room.
 ~
@@ -1127,7 +1127,7 @@ D0
 You see the only exit out of here.
 ~
 ~
-0 0 3717
+0 -1 3717
 S
 #3719
 A Room in Mud School~
@@ -1150,7 +1150,7 @@ D0
 You see a darkened room inside.
 ~
 ~
-0 0 3720
+0 -1 3720
 D1
 You see the next station of Mud School.
 ~
@@ -1174,7 +1174,7 @@ D2
 You see the room that you have come from.
 ~
 ~
-0 0 3719
+0 -1 3719
 S
 #3721
 The End of Mud School!~
@@ -1218,20 +1218,20 @@ D 0
 D0
 ~
 ~
-0 0 3729
+0 -1 3729
 D1
 ~
 ~
-0 0 3725
+0 -1 3725
 D3
 ~
 ~
-0 0 3723
+0 -1 3723
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3723
 South Wall of Arena~
@@ -1244,20 +1244,20 @@ D 0
 D0
 ~
 ~
-0 0 3728
+0 -1 3728
 D1
 ~
 ~
-0 0 3722
+0 -1 3722
 D3
 ~
 ~
-0 0 3724
+0 -1 3724
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3724
 South West Corner of Arena~
@@ -1270,16 +1270,16 @@ D 0
 D0
 ~
 ~
-0 0 3727
+0 -1 3727
 D1
 ~
 ~
-0 0 3723
+0 -1 3723
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3725
 South Wall of Arena~
@@ -1292,20 +1292,20 @@ D 0
 D0
 ~
 ~
-0 0 3730
+0 -1 3730
 D1
 ~
 ~
-0 0 3726
+0 -1 3726
 D3
 ~
 ~
-0 0 3722
+0 -1 3722
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3726
 South East Corner of Arena~
@@ -1318,16 +1318,16 @@ D 0
 D0
 ~
 ~
-0 0 3731
+0 -1 3731
 D3
 ~
 ~
-0 0 3725
+0 -1 3725
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3727
 West Wall of Arena~
@@ -1340,20 +1340,20 @@ D 0
 D0
 ~
 ~
-0 0 3732
+0 -1 3732
 D1
 ~
 ~
-0 0 3728
+0 -1 3728
 D2
 ~
 ~
-0 0 3724
+0 -1 3724
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3728
 Arena~
@@ -1366,24 +1366,24 @@ D 0
 D0
 ~
 ~
-0 0 3733
+0 -1 3733
 D1
 ~
 ~
-0 0 3729
+0 -1 3729
 D2
 ~
 ~
-0 0 3723
+0 -1 3723
 D3
 ~
 ~
-0 0 3727
+0 -1 3727
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3729
 Arena~
@@ -1396,24 +1396,24 @@ D 0
 D0
 ~
 ~
-0 0 3734
+0 -1 3734
 D1
 ~
 ~
-0 0 3730
+0 -1 3730
 D2
 ~
 ~
-0 0 3722
+0 -1 3722
 D3
 ~
 ~
-0 0 3728
+0 -1 3728
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3730
 Arena~
@@ -1426,24 +1426,24 @@ D 0
 D0
 ~
 ~
-0 0 3735
+0 -1 3735
 D1
 ~
 ~
-0 0 3731
+0 -1 3731
 D2
 ~
 ~
-0 0 3725
+0 -1 3725
 D3
 ~
 ~
-0 0 3729
+0 -1 3729
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3731
 East Wall of Arena~
@@ -1456,20 +1456,20 @@ D 0
 D0
 ~
 ~
-0 0 3736
+0 -1 3736
 D2
 ~
 ~
-0 0 3726
+0 -1 3726
 D3
 ~
 ~
-0 0 3730
+0 -1 3730
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3732
 West Wall of Arena~
@@ -1482,20 +1482,20 @@ D 0
 D0
 ~
 ~
-0 0 3737
+0 -1 3737
 D1
 ~
 ~
-0 0 3733
+0 -1 3733
 D2
 ~
 ~
-0 0 3727
+0 -1 3727
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3733
 Arena~
@@ -1508,24 +1508,24 @@ D 0
 D0
 ~
 ~
-0 0 3738
+0 -1 3738
 D1
 ~
 ~
-0 0 3734
+0 -1 3734
 D2
 ~
 ~
-0 0 3728
+0 -1 3728
 D3
 ~
 ~
-0 0 3732
+0 -1 3732
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3734
 Center of Arena~
@@ -1544,24 +1544,24 @@ and there is no quick escape back out of here when you are in the dungeon.
 D0
 ~
 ~
-0 0 3739
+0 -1 3739
 D1
 ~
 ~
-0 0 3735
+0 -1 3735
 D2
 ~
 ~
-0 0 3729
+0 -1 3729
 D3
 ~
 ~
-0 0 3733
+0 -1 3733
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 D5
 You see a dark murky dungeon below.
 ~
@@ -1579,24 +1579,24 @@ D 0
 D0
 ~
 ~
-0 0 3740
+0 -1 3740
 D1
 ~
 ~
-0 0 3736
+0 -1 3736
 D2
 ~
 ~
-0 0 3730
+0 -1 3730
 D3
 ~
 ~
-0 0 3734
+0 -1 3734
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3736
 East Wall of Arena~
@@ -1609,20 +1609,20 @@ D 0
 D0
 ~
 ~
-0 0 3741
+0 -1 3741
 D2
 ~
 ~
-0 0 3731
+0 -1 3731
 D3
 ~
 ~
-0 0 3735
+0 -1 3735
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3737
 West Wall of Arena~
@@ -1635,20 +1635,20 @@ D 0
 D0
 ~
 ~
-0 0 3742
+0 -1 3742
 D1
 ~
 ~
-0 0 3738
+0 -1 3738
 D2
 ~
 ~
-0 0 3732
+0 -1 3732
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3738
 Arena~
@@ -1661,24 +1661,24 @@ D 0
 D0
 ~
 ~
-0 0 3743
+0 -1 3743
 D1
 ~
 ~
-0 0 3739
+0 -1 3739
 D2
 ~
 ~
-0 0 3733
+0 -1 3733
 D3
 ~
 ~
-0 0 3737
+0 -1 3737
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3739
 Arena~
@@ -1691,24 +1691,24 @@ D 0
 D0
 ~
 ~
-0 0 3744
+0 -1 3744
 D1
 ~
 ~
-0 0 3740
+0 -1 3740
 D2
 ~
 ~
-0 0 3734
+0 -1 3734
 D3
 ~
 ~
-0 0 3738
+0 -1 3738
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3740
 Arena~
@@ -1721,24 +1721,24 @@ D 0
 D0
 ~
 ~
-0 0 3745
+0 -1 3745
 D1
 ~
 ~
-0 0 3741
+0 -1 3741
 D2
 ~
 ~
-0 0 3735
+0 -1 3735
 D3
 ~
 ~
-0 0 3739
+0 -1 3739
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3741
 East Wall of Arena~
@@ -1751,20 +1751,20 @@ D 0
 D0
 ~
 ~
-0 0 3746
+0 -1 3746
 D2
 ~
 ~
-0 0 3736
+0 -1 3736
 D3
 ~
 ~
-0 0 3740
+0 -1 3740
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3742
 North West Corner of Arena~
@@ -1777,16 +1777,16 @@ D 0
 D1
 ~
 ~
-0 0 3743
+0 -1 3743
 D2
 ~
 ~
-0 0 3737
+0 -1 3737
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3743
 North Wall of Arena~
@@ -1799,20 +1799,20 @@ D 0
 D1
 ~
 ~
-0 0 3744
+0 -1 3744
 D2
 ~
 ~
-0 0 3738
+0 -1 3738
 D3
 ~
 ~
-0 0 3742
+0 -1 3742
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3744
 North Wall of Arena~
@@ -1825,20 +1825,20 @@ D 0
 D1
 ~
 ~
-0 0 3745
+0 -1 3745
 D2
 ~
 ~
-0 0 3739
+0 -1 3739
 D3
 ~
 ~
-0 0 3743
+0 -1 3743
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3745
 North Wall of Arena~
@@ -1851,20 +1851,20 @@ D 0
 D1
 ~
 ~
-0 0 3746
+0 -1 3746
 D2
 ~
 ~
-0 0 3740
+0 -1 3740
 D3
 ~
 ~
-0 0 3744
+0 -1 3744
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3746
 North East Corner of Arena~
@@ -1877,16 +1877,16 @@ D 0
 D2
 ~
 ~
-0 0 3741
+0 -1 3741
 D3
 ~
 ~
-0 0 3745
+0 -1 3745
 D4
 You see the EXIT.
 ~
 ~
-0 0 3760
+0 -1 3760
 S
 #3748
 The Center of the Dungeon~
@@ -1901,22 +1901,22 @@ D0
 You see the north wall.
 ~
 ~
-0 0 3750
+0 -1 3750
 D1
 You see the east wall.
 ~
 ~
-0 0 3753
+0 -1 3753
 D2
 You see the south wall.
 ~
 ~
-0 0 3755
+0 -1 3755
 D3
 You see the west wall.
 ~
 ~
-0 0 3752
+0 -1 3752
 D4
 You see safety!
 ~
@@ -1934,12 +1934,12 @@ D1
 You see the north wall.
 ~
 ~
-0 0 3750
+0 -1 3750
 D2
 You see the south wall.
 ~
 ~
-0 0 3752
+0 -1 3752
 S
 #3750
 The North Wall of the Dungeon~
@@ -1952,17 +1952,17 @@ D1
 You see the north east corner.
 ~
 ~
-0 0 3751
+0 -1 3751
 D2
 You see the center of the dungeon.
 ~
 ~
-0 0 3748
+0 -1 3748
 D3
 You see the north west corner.
 ~
 ~
-0 0 3749
+0 -1 3749
 S
 #3751
 The North East Corner of the Dungeon~
@@ -1975,12 +1975,12 @@ D2
 You see the east wall.
 ~
 ~
-0 0 3753
+0 -1 3753
 D3
 You see the north wall.
 ~
 ~
-0 0 3750
+0 -1 3750
 S
 #3752
 The West Wall of the Dungeon~
@@ -1993,17 +1993,17 @@ D0
 You see the north west corner.
 ~
 ~
-0 0 3749
+0 -1 3749
 D1
 You see the center of the dungeon.
 ~
 ~
-0 0 3748
+0 -1 3748
 D2
 You see the south west corner.
 ~
 ~
-0 0 3754
+0 -1 3754
 S
 #3753
 The East Wall of the Dungeon~
@@ -2016,17 +2016,17 @@ D0
 You see the north east corner.
 ~
 ~
-0 0 3751
+0 -1 3751
 D2
 You see the south east corner.
 ~
 ~
-0 0 3756
+0 -1 3756
 D3
 You see the center of the dungeon.
 ~
 ~
-0 0 3748
+0 -1 3748
 S
 #3754
 The South West Corner of the Dungeon~
@@ -2039,12 +2039,12 @@ D0
 You see the north wall.
 ~
 ~
-0 0 3752
+0 -1 3752
 D1
 You see the south wall.
 ~
 ~
-0 0 3755
+0 -1 3755
 S
 #3755
 The South Wall of the Dungeon~
@@ -2057,17 +2057,17 @@ D0
 You see the center of the dungeon.
 ~
 ~
-0 0 3748
+0 -1 3748
 D1
 You see the south east corner.
 ~
 ~
-0 0 3756
+0 -1 3756
 D3
 You see the south west corner.
 ~
 ~
-0 0 3754
+0 -1 3754
 S
 #3756
 The South East Corner of the Dungeon~
@@ -2080,12 +2080,12 @@ D0
 You see the east wall.
 ~
 ~
-0 0 3753
+0 -1 3753
 D3
 You see the south wall.
 ~
 ~
-0 0 3755
+0 -1 3755
 S
 #3757
 A Room in Mud School~
@@ -2110,22 +2110,22 @@ D0
 You see the next station of Mud School.
 ~
 ~
-0 0 3701
+0 -1 3701
 D1
 You see Zump's Guild Room.  Go there to practice your skills.
 ~
 ~
-0 0 3759
+0 -1 3759
 D2
 You see the entrance to Mud School.
 ~
 ~
-0 0 3700
+0 -1 3700
 D3
 You see Furey's Training Room.  Go there to train your attributes.
 ~
 ~
-0 0 3758
+0 -1 3758
 S
 #3758
 Furey's Training Room~
@@ -2147,7 +2147,7 @@ D1
 You see the room you came from, and the room you should go to.
 ~
 ~
-0 0 3757
+0 -1 3757
 S
 #3759
 Zump's Guild Room~
@@ -2170,7 +2170,7 @@ D3
 You see the room you came from and the room you should go to.
 ~
 ~
-0 0 3757
+0 -1 3757
 S
 #3760
 A Safe Room~
@@ -2183,7 +2183,7 @@ D4
 You see the Temple of Midgaard.
 ~
 ~
-0 0 3001
+0 -1 3001
 S
 #0
 

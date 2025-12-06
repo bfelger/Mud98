@@ -672,7 +672,7 @@ door~
 D5
 ~
 ~
-0 0 3450
+0 -1 3450
 S
 #3409
 The Acolyte's Bedroom~
@@ -701,11 +701,11 @@ ADN 0
 D1
 ~
 ~
-0 0 3415
+0 -1 3415
 D2
 ~
 ~
-0 0 3411
+0 -1 3411
 S
 #3411
 The Lower Chambers and Tombs of the Undead~
@@ -716,7 +716,7 @@ ADN 0
 D0
 ~
 ~
-0 0 3410
+0 -1 3410
 S
 #3412
 The Grand Hall of Kings~
@@ -738,7 +738,7 @@ to an ancient ruler named 'Shohan'.
 D1
 ~
 ~
-0 0 3417
+0 -1 3417
 D2
 A door to the south
 ~
@@ -783,11 +783,11 @@ slaughtered!'
 D0
 ~
 door north~
-1 0 3413
+1 -1 3413
 D1
 ~
 ~
-0 0 3419
+0 -1 3419
 S
 #3415
 The Lower Chambers and Tombs of the Undead~
@@ -798,15 +798,15 @@ ADN 0
 D1
 ~
 ~
-0 0 3420
+0 -1 3420
 D2
 ~
 ~
-0 0 3416
+0 -1 3416
 D3
 ~
 ~
-0 0 3410
+0 -1 3410
 S
 #3416
 Entrance to the Lower Chambers~
@@ -824,7 +824,7 @@ claw marks.
 D0
 ~
 ~
-0 0 3415
+0 -1 3415
 D4
 ~
 tunnel~
@@ -840,11 +840,11 @@ AD 0
 D1
 ~
 ~
-0 0 3422
+0 -1 3422
 D3
 ~
 ~
-0 0 3412
+0 -1 3412
 S
 #3418
 The Shrine of Cristis~
@@ -880,7 +880,7 @@ and grave.  He holds up a parchment for you to read:
 D2
 ~
 ~
-0 0 3419
+0 -1 3419
 D5
 ~
 staircase~
@@ -895,11 +895,11 @@ AD 0
 D0
 ~
 ~
-0 0 3418
+0 -1 3418
 D3
 ~
 ~
-0 0 3414
+0 -1 3414
 S
 #3420
 The Lower Chambers and Tombs of the Undead~
@@ -910,11 +910,11 @@ ADN 0
 D1
 ~
 ~
-0 0 3425
+0 -1 3425
 D3
 ~
 ~
-0 0 3415
+0 -1 3415
 S
 #3421
 Entrance Chamber to the Grand Hall of Kings~
@@ -987,7 +987,7 @@ oak~
 D1
 ~
 ~
-0 0 3427
+0 -1 3427
 D2
 The door has written above it: 'May all the lands thank Crotus the Victor.
 Without his guidance this kingdom would not have stood.'
@@ -997,7 +997,7 @@ door~
 D3
 ~
 ~
-0 0 3417
+0 -1 3417
 S
 #3423
 The Shrine of Crotus~
@@ -1016,7 +1016,7 @@ door~
 D2
 ~
 ~
-0 0 3424
+0 -1 3424
 S
 #3424
 The Tomb of Crotus~
@@ -1028,11 +1028,11 @@ AD 0
 D0
 ~
 ~
-0 0 3423
+0 -1 3423
 D1
 ~
 ~
-0 0 3429
+0 -1 3429
 S
 #3425
 The Lower Chambers and Tombs of the Undead~
@@ -1043,11 +1043,11 @@ ADN 0
 D2
 ~
 ~
-0 0 3426
+0 -1 3426
 D3
 ~
 ~
-0 0 3420
+0 -1 3420
 S
 #3426
 The Lower Chambers and Tombs of the Undead~
@@ -1058,11 +1058,11 @@ ADN 0
 D0
 ~
 ~
-0 0 3425
+0 -1 3425
 D1
 ~
 ~
-0 0 3430
+0 -1 3430
 S
 #3427
 The Grand Hall of Kings~
@@ -1074,7 +1074,7 @@ AD 0
 D1
 ~
 ~
-0 0 3432
+0 -1 3432
 D2
 ~
 door~
@@ -1082,7 +1082,7 @@ door~
 D3
 ~
 ~
-0 0 3422
+0 -1 3422
 S
 #3428
 The Shrine of Mitnar~
@@ -1100,11 +1100,11 @@ door~
 D1
 ~
 ~
-0 0 3433
+0 -1 3433
 D2
 ~
 ~
-0 0 3429
+0 -1 3429
 S
 #3429
 The Tomb of Mitnar~
@@ -1118,11 +1118,11 @@ AD 0
 D0
 ~
 ~
-0 0 3428
+0 -1 3428
 D3
 ~
 ~
-0 0 3424
+0 -1 3424
 S
 #3430
 The Lower Chambers and Tombs of the Undead~
@@ -1133,15 +1133,15 @@ ADN 0
 D1
 ~
 ~
-0 0 3435
+0 -1 3435
 D2
 ~
 ~
-0 0 3431
+0 -1 3431
 D3
 ~
 ~
-0 0 3426
+0 -1 3426
 S
 #3431
 The Lower Chambers and Tombs of the Undead~
@@ -1152,11 +1152,11 @@ ADN 0
 D0
 ~
 ~
-0 0 3430
+0 -1 3430
 D1
 ~
 ~
-0 0 3436
+0 -1 3436
 S
 #3432
 The Grand Hall of Kings~
@@ -1167,11 +1167,11 @@ AD 0
 D1
 ~
 ~
-0 0 3437
+0 -1 3437
 D3
 ~
 ~
-0 0 3427
+0 -1 3427
 S
 #3433
 The Shrine of Frath~
@@ -1184,11 +1184,11 @@ AD 0
 D1
 ~
 ~
-0 0 3438
+0 -1 3438
 D3
 ~
 ~
-0 0 3428
+0 -1 3428
 S
 #3434
 The Tomb of Frath~
@@ -1200,7 +1200,7 @@ AD 0
 D5
 ~
 ~
-0 0 3439
+0 -1 3439
 S
 #3435
 The Lower Chambers and Tombs of the Undead~
@@ -1211,15 +1211,15 @@ ADN 0
 D1
 ~
 ~
-0 0 3440
+0 -1 3440
 D2
 ~
 ~
-0 0 3436
+0 -1 3436
 D3
 ~
 ~
-0 0 3430
+0 -1 3430
 S
 #3436
 The Lower Chambers and Tombs of the Undead~
@@ -1230,15 +1230,15 @@ ADN 0
 D0
 ~
 ~
-0 0 3435
+0 -1 3435
 D1
 ~
 ~
-0 0 3441
+0 -1 3441
 D3
 ~
 ~
-0 0 3431
+0 -1 3431
 S
 #3437
 The Grand Hall of Kings~
@@ -1254,7 +1254,7 @@ door~
 D3
 ~
 ~
-0 0 3432
+0 -1 3432
 S
 #3438
 The Shrine of Jubal~
@@ -1267,11 +1267,11 @@ AD 0
 D2
 ~
 ~
-0 0 3439
+0 -1 3439
 D3
 ~
 ~
-0 0 3433
+0 -1 3433
 S
 #3439
 The Tomb of Jubal~
@@ -1284,11 +1284,11 @@ AD 0
 D0
 ~
 ~
-0 0 3438
+0 -1 3438
 D4
 ~
 ~
-0 0 3434
+0 -1 3434
 S
 #3440
 The Lower Chambers and Tombs of the Undead~
@@ -1299,15 +1299,15 @@ ADN 0
 D1
 ~
 ~
-0 0 3445
+0 -1 3445
 D2
 ~
 ~
-0 0 3441
+0 -1 3441
 D3
 ~
 ~
-0 0 3435
+0 -1 3435
 S
 #3441
 The Lower Chambers and Tombs of the Undead~
@@ -1318,15 +1318,15 @@ ADN 0
 D0
 ~
 ~
-0 0 3440
+0 -1 3440
 D1
 ~
 ~
-0 0 3446
+0 -1 3446
 D3
 ~
 ~
-0 0 3436
+0 -1 3436
 S
 #3442
 The Lower Chambers and Tombs of the Undead~
@@ -1337,11 +1337,11 @@ ADN 0
 D1
 ~
 ~
-0 0 3447
+0 -1 3447
 D2
 ~
 ~
-0 0 3443
+0 -1 3443
 S
 #3443
 The Lower Chambers and Tombs of the Undead~
@@ -1352,11 +1352,11 @@ ADN 0
 D0
 ~
 ~
-0 0 3442
+0 -1 3442
 D2
 ~
 ~
-0 0 3444
+0 -1 3444
 S
 #3444
 The Lower Chambers and Tombs of the Undead~
@@ -1367,11 +1367,11 @@ AD 0
 D0
 ~
 ~
-0 0 3443
+0 -1 3443
 D1
 ~
 ~
-0 0 3449
+0 -1 3449
 S
 #3445
 The Lower Chambers and Tombs of the Undead~
@@ -1382,11 +1382,11 @@ ADN 0
 D2
 ~
 ~
-0 0 3446
+0 -1 3446
 D3
 ~
 ~
-0 0 3440
+0 -1 3440
 S
 #3446
 The Lower Chambers and Tombs of the Undead~
@@ -1397,15 +1397,15 @@ ADN 0
 D0
 ~
 ~
-0 0 3445
+0 -1 3445
 D2
 ~
 ~
-0 0 3447
+0 -1 3447
 D3
 ~
 ~
-0 0 3441
+0 -1 3441
 S
 #3447
 The Lower Chambers and Tombs of the Undead~
@@ -1416,15 +1416,15 @@ ADN 0
 D0
 ~
 ~
-0 0 3446
+0 -1 3446
 D2
 ~
 ~
-0 0 3448
+0 -1 3448
 D3
 ~
 ~
-0 0 3442
+0 -1 3442
 S
 #3448
 The Lower Chambers and Tombs of the Undead~
@@ -1443,7 +1443,7 @@ reflected picture of the vault ... the word in tiny print is 'rathcor'.
 D0
 ~
 ~
-0 0 3447
+0 -1 3447
 S
 #3449
 The Lower Chambers and Tombs of the Undead~
@@ -1458,7 +1458,7 @@ door~
 D3
 ~
 ~
-0 0 3444
+0 -1 3444
 S
 #3450
 Entrance to the Forbidden Catacombs~
@@ -1520,7 +1520,7 @@ D0
 Too dark to tell.
 ~
 ~
-0 0 3461
+0 -1 3461
 D3
 Too dark to tell.
 ~
@@ -1566,7 +1566,7 @@ D3
 Too dark to tell.
 ~
 ~
-0 0 3451
+0 -1 3451
 S
 #3456
 The Catacombs~
@@ -1600,7 +1600,7 @@ D3
 Too dark to tell.
 ~
 ~
-0 0 3456
+0 -1 3456
 S
 #3458
 The Catacombs~
@@ -1611,12 +1611,12 @@ ADN 0
 D0
 ~
 ~
-0 0 3457
+0 -1 3457
 D1
 You see unfathomable blackness to the east...
 ~
 ~
-0 0 3472
+0 -1 3472
 D3
 Too dark to tell.
 ~
@@ -1669,12 +1669,12 @@ D1
 Too dark to tell.
 ~
 ~
-0 0 3462
+0 -1 3462
 D2
 Too dark to tell.
 ~
 ~
-0 0 3452
+0 -1 3452
 S
 #3462
 The Catacombs~
@@ -1686,12 +1686,12 @@ D2
 Too dark to tell.
 ~
 ~
-0 0 3463
+0 -1 3463
 D3
 Too dark too tell.
 ~
 ~
-0 0 3461
+0 -1 3461
 S
 #3463
 The Catacombs~
@@ -1703,12 +1703,12 @@ D0
 Too dark to tell.
 ~
 ~
-0 0 3462
+0 -1 3462
 D1
 Too dark to tell.
 ~
 ~
-0 0 3464
+0 -1 3464
 S
 #3464
 The Catacombs~
@@ -1724,12 +1724,12 @@ D2
 Too dark to tell.
 ~
 ~
-0 0 3465
+0 -1 3465
 D3
 Too dark to tell.
 ~
 ~
-0 0 3463
+0 -1 3463
 S
 #3465
 The Gilded Hallway~
@@ -1749,12 +1749,12 @@ D0
 The glow of your light reflects off the walls and you see the catacombs.
 ~
 ~
-0 0 3464
+0 -1 3464
 D2
 The glow of your light reflects off the walls ... the gilded hallway.
 ~
 ~
-0 0 3466
+0 -1 3466
 S
 #3466
 The Gilded Hallway~
@@ -1772,12 +1772,12 @@ D0
 Your light reveals more of the hallway.
 ~
 ~
-0 0 3465
+0 -1 3465
 D2
 Your light reveals more of the hallway.
 ~
 ~
-0 0 3467
+0 -1 3467
 S
 #3467
 The Gilded Hallway~
@@ -1795,12 +1795,12 @@ D0
 Your light reveals more of the hallway.
 ~
 ~
-0 0 3466
+0 -1 3466
 D2
 Your light reveals more of the hallway.
 ~
 ~
-0 0 3468
+0 -1 3468
 S
 #3468
 The Gilded Hallway~
@@ -1818,12 +1818,12 @@ D0
 Your light reveals more of the hallway.
 ~
 ~
-0 0 3467
+0 -1 3467
 D2
 Your light reveals more of the hallway.
 ~
 ~
-0 0 3469
+0 -1 3469
 S
 #3469
 The Gilded Hallway~
@@ -1841,7 +1841,7 @@ D0
 Your light reveals more of the hallway.
 ~
 ~
-0 0 3468
+0 -1 3468
 S
 #3470
 A Secret Passageway~
@@ -1857,7 +1857,7 @@ D2
 Too dark to tell.
 ~
 ~
-0 0 3471
+0 -1 3471
 S
 #3471
 A Secret Passageway~
@@ -1869,7 +1869,7 @@ D0
 Too dark to tell.
 ~
 ~
-0 0 3470
+0 -1 3470
 S
 #3472
 The Short Way to Hell ...~
@@ -1897,11 +1897,11 @@ D0
 The fires of hell grow hotter to the north...
 ~
 ~
-0 0 10401
+0 -1 10401
 D3
 ~
 ~
-0 0 3458
+0 -1 3458
 S
 #3475
 Inside the coffin~

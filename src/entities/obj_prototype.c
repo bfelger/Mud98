@@ -8,18 +8,88 @@
 #include <entities/event.h>
 
 #include <lox/memory.h>
+#include <lox/ordered_table.h>
 
 #include <db.h>
 #include <handler.h>
 #include <lookup.h>
 
 ObjPrototype* obj_proto_free = NULL;
-Table obj_protos;
+static OrderedTable obj_protos;
 
 int obj_proto_count;
 int obj_proto_perm_count;
 
 VNUM top_vnum_obj;
+
+void init_global_obj_protos(void)
+{
+    ordered_table_init(&obj_protos);
+}
+
+void free_global_obj_protos(void)
+{
+    ordered_table_free(&obj_protos);
+}
+
+ObjPrototype* global_obj_proto_get(VNUM vnum)
+{
+    Value value;
+    if (ordered_table_get_vnum(&obj_protos, vnum, &value) && IS_OBJ_PROTO(value))
+        return AS_OBJ_PROTO(value);
+    return NULL;
+}
+
+bool global_obj_proto_set(ObjPrototype* proto)
+{
+    if (proto == NULL)
+        return false;
+    return ordered_table_set_vnum(&obj_protos, VNUM_FIELD(proto), OBJ_VAL(proto));
+}
+
+bool global_obj_proto_remove(VNUM vnum)
+{
+    return ordered_table_delete_vnum(&obj_protos, (int32_t)vnum);
+}
+
+int global_obj_proto_count(void)
+{
+    return ordered_table_count(&obj_protos);
+}
+
+GlobalObjProtoIter make_global_obj_proto_iter(void)
+{
+    GlobalObjProtoIter iter = { ordered_table_iter(&obj_protos) };
+    return iter;
+}
+
+ObjPrototype* global_obj_proto_iter_next(GlobalObjProtoIter* iter)
+{
+    if (iter == NULL)
+        return NULL;
+
+    Value value;
+    while (ordered_table_iter_next(&iter->iter, NULL, &value)) {
+        if (IS_OBJ_PROTO(value))
+            return AS_OBJ_PROTO(value);
+    }
+    return NULL;
+}
+
+OrderedTable snapshot_global_obj_protos(void)
+{
+    return obj_protos;
+}
+
+void restore_global_obj_protos(OrderedTable snapshot)
+{
+    obj_protos = snapshot;
+}
+
+void mark_global_obj_protos(void)
+{
+    mark_ordered_table(&obj_protos);
+}
 
 ObjPrototype* new_object_prototype()
 {
@@ -65,12 +135,9 @@ void free_object_prototype(ObjPrototype* obj_proto)
 // Hash table lookup.
 ObjPrototype* get_object_prototype(VNUM vnum)
 {
-    Value value;
-    if (table_get_vnum(&obj_protos, vnum, &value)) {
-        if (IS_OBJ_PROTO(value)) {
-            return AS_OBJ_PROTO(value);
-        }
-    }
+    ObjPrototype* proto = global_obj_proto_get(vnum);
+    if (proto)
+        return proto;
 
     if (fBootDb) {
         bug("Get_object_prototype: bad vnum %"PRVNUM".", vnum);
@@ -280,10 +347,9 @@ void load_objects(FILE* fp)
             }
         }
 
-        table_set_vnum(&obj_protos, vnum, OBJ_VAL(obj_proto));
+        global_obj_proto_set(obj_proto);
 
         top_vnum_obj = top_vnum_obj < vnum ? vnum : top_vnum_obj;
         assign_area_vnum(vnum);
     }
 }
-

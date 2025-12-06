@@ -3,47 +3,50 @@
 Previous: [Worldcrafting from Scratch Pt. 1 &mdash; Getting Started](wb-01-getting-started)
 
 ### Table of Contents
-1. [Choosing a VNUM block](#choosing-a-vnum-block)
-1. [Creating a new area](#creating-a-new-area)
-1. [Creating the starting room](#creating-the-starting-room)
-1. [Setting racial starting location](#setting-racial-starting-location)
-1. [Creating a greeting for new characters](#creating-a-greeting-for-new-characters)
+- [Worldcrafting from Scratch Pt. 2 — New Beginnings](#worldcrafting-from-scratch-pt-2--new-beginnings)
+    - [Table of Contents](#table-of-contents)
+  - [Choosing a VNUM block](#choosing-a-vnum-block)
+  - [Creating a new area](#creating-a-new-area)
+  - [Creating the starting room](#creating-the-starting-room)
+  - [Setting racial starting location](#setting-racial-starting-location)
+  - [Creating a greeting for new characters](#creating-a-greeting-for-new-characters)
     - [Making a triggerbot](#making-a-triggerbot)
     - [Creating a Mob Prog](#creating-a-mob-prog)
     - [Making the triggerbot trigger](#making-the-triggerbot-trigger)
     - [Adding triggerbot to the room](#adding-triggerbot-to-the-room)
     - [Testing the triggerbot](#testing-the-triggerbot)
     - [Delayed MobProgs](#delayed-mobprogs)
-1. [Quest-driven expansion](#quest-driven-expansion)
+  - [Quest-driven expansion](#quest-driven-expansion)
     - [Making the quest mob](#making-the-quest-mob)
     - [Creating the player's first quest](#creating-the-players-first-quest)
     - [Finishing the quest](#finishing-the-quest)
-1. [Newbie's first grind](#newbies-first-grind)
+  - [Newbie's first grind](#newbies-first-grind)
     - [The quest area](#the-quest-area)
     - [Cloning mobs](#cloning-mobs)
     - [Creating a grind quest](#creating-a-grind-quest)
     - [Testing](#testing)
-1. [Adding a tutorial](#adding-a-tutorial)
+  - [Adding a tutorial](#adding-a-tutorial)
     - [The training room](#the-training-room)
     - [The equipping room](#the-equipping-room)
-1. [Completing newbie's first grind](#completing-newbies-first-grind)
+  - [Completing newbie's first grind](#completing-newbies-first-grind)
 
 <br />
 
 Let's start with a brand new area. This can be the seed of a brand new network
 of areas that will define _your_ MUD. For the purposes of this example, we'll make this a new starting area for one of the races.
 
+> [!NOTE]
 > Why? Because while MUDs began as heavily tilted toward hack n' slash, most players want some measure of narrative immersion that isn't possible in stock ROM. So, instead of dropping new players into "MUD School", it's better to drop them into an area that gradually introduces them to the world (and the game mechanics).
 
 Before we create this new area, we need to find a block of VNUMs that are free to use. 
 
 ## Choosing a VNUM block
 
-What's a VNUM? A VNUM is just a number identifying each unique in-game entity definition. Rooms, objs, and mobs all have VNUMs. They can overlap _across_ entity type, but not _within_.
+What's a VNUM? A **VNUM** is just a number identifying each unique in-game entity definition. Rooms, objs, and mobs all have VNUMs. They can overlap _across_ entity type, but not _within_.
 
 That is to say, you can have a `RoomData` with VNUM `1000`, an `ObjectPrototype` with VNUM `1000`, and a `MobPrototype` with VNUM `1000`. But you _cannot_ have two `RoomData`'s with the same VNUM.
 
-Areas are defined by blocks of VNUMs that are guaranteed (by convention and bounds checking) to belong to a single area "file". For instnaces, "Limbo" is defined in `limbo.are` as covering VNUMs from `1` to `30`. Nothing in the game, whether a room, a mob, or even a mob prog, should exist with a VNUM in that space except insofar as it belongs to, and is defined by, `limbo.are`.
+Areas are defined by blocks of VNUMs that are guaranteed (by convention and bounds checking) to belong to a single area "file". For instance, "Limbo" is defined in `limbo.are` as covering VNUMs from `1` to `30`. Nothing in the game, whether a room, a mob, or even a mob prog, should exist with a VNUM in that space except insofar as it belongs to, and is defined by, `limbo.are`.
 
 The VNUM range is a _reservation_; by declaring it upon area creation, you guarantee that you have future expansion potential _at least_ up to that end VNUM for the area.
 
@@ -55,21 +58,26 @@ Enter this command:
 alist orderby vnum
 ```
 
-You should see a list that looks like this, showing VNUMs in order, and displaying any gaps inbetween:
+You should see a list that looks like this, showing VNUMs in order, and displaying any gaps in between:
 
 ```
-[Num] [Area Name                  ] (lvnum-uvnum) [Filename  ] Sec [Builders  ]
-[ 26] Limbo                         (1    -   30) limbo.are    [9] [None      ]
-[ 43] Smurfville                    (100  -  199) smurf.are    [9] [None      ]
-[  4] Plains                        (300  -  399) plains.are   [9] [None      ]
-[  1] New Ofcol                     (600  -  699) ofcol2.are   [9] [None      ]
-[ 37] Olympus                       (900  -  999) olympus.are  [9] [None      ]
-[  6] In the Air                    (1000 - 1099) air.are      [9] [None      ]
-[  2] Shire                         (1100 - 1199) shire.are    [9] [None      ]
-[  0] Valhalla                      (1200 - 1299) immort.are   [9] [None      ]
-[ 24] High Tower                    (1300 - 1499) hitower.are  [9] [None      ]
-[ 21] Gnome Village                 (1500 - 1599) gnome.are    [9] [None      ]
-...
+[Num] [Area Name             ] ( lvnum-uvnum ) [Filename   ] Sec [Builders  ]
+[ 26] Limbo                    (     1-30    ) limbo.are     [9] [          ]
+[ 43] Smurfville               (   100-199   ) smurf.are     [9] [          ]
+[  4] Plains                   (   300-399   ) plains.are    [9] [          ]
+[  1] New Ofcol                (   600-699   ) ofcol2.are    [9] [          ]
+[ 37] Olympus                  (   900-999   ) olympus.are   [9] [          ]
+[  6] In the Air               (  1000-1099  ) air.are       [9] [          ]
+[  2] Shire                    (  1100-1199  ) shire.are     [9] [          ]
+[  0] Valhalla                 (  1200-1299  ) immort.are    [9] [          ]
+[ 24] High Tower               (  1300-1499  ) hitower.are   [9] [          ]
+[ 21] Gnome Village            (  1500-1599  ) gnome.are     [9] [          ]
+[ 47] Wyvern's Tower           (  1600-1799  ) wyvern.are    [9] [          ]
+[ 10] Catacombs                (  2000-2099  ) catacomb.are  [9] [          ]
+[ 25] Gangland                 (  2100-2199  ) hood.are      [9] [          ]
+[ 13] Dragon Tower             (  2200-2299  ) draconia.are  [9] [          ]
+[ 27] Mahn-Tor                 (  2300-2399  ) mahntor.are   [9] [          ]
+[ 45] Troll Den                (  2800-2899  ) trollden.are  [9] [          ]
 ```
 
 You can now pick a block of VNUMs that are not assigned to any existing area. Since your goal is to create a brand new collection of areas to define your MUD, you don't want to intermingle your VNUM block with the existing ones, if possible.
@@ -93,19 +101,29 @@ aedit create
 ...which will bring up this blank slate of information:
 
 ```
-Name:           [48] New area
-File:           area48.are
-Vnums:          [0-0]
-Levels:         [1-60]
-Sector:         [inside]
-Reset:          [5] x 8 minutes
-Always Reset:   [NO]
-Instance Type   [single]
-Age:            [0]
-Security:       [9]
-Builders:       [Halivar]
-Credits :       [Halivar]
-Flags:          [added]
+Area           : [         48 ] 
+File           : area48.json
+Vnums          : [        0-0 ]
+Levels         : [       1-60 ]
+Sector         : [     inside ]
+Reset          : [          6 ] x 48 minutes
+Always Reset   : [         NO ]
+Instance Type  : [     single ]
+Security       : [          9 ]
+Builders       : Halivar
+Credits        : Halivar
+Flags          : [      added ]
+Factions
+  (none)
+Story Beats:
+  (none)
+Checklist:
+  1) [To-Do] Write-up story beats
+  2) [To-Do] Sketch out rooms
+  3) [To-Do] Populate mobiles
+  4) [To-Do] Populate objects
+  5) [To-Do] Add descriptions
+  6) [To-Do] Wire-up events
 ```
 
 You're now in "edit mode" with OLC. All of `AEDIT`'s extended commands can be used from the prompt (including `COMMANDS`, which lists those extended commands).
@@ -124,7 +142,7 @@ Now, for the purposes of this example, I've decided to make a starting area just
 name Faladrin Forest
 file faladri
 sector forest
-vnums 12000 121000
+vnums 12000 12099
 levels 1 5
 reset 1
 instancetype multi
@@ -133,26 +151,140 @@ instancetype multi
 These settings are novel to Mud98:
 - `sector` sets a "default" sector value for the rooms in the area.
 - `reset` is the number of "area pulses" to use before the room resets. By setting it to `1`, we guarantee this starting area (including mobs and objs) resets ever 8 minutes.
-- `instancetype` is a novel setting for Mud98. There are two settings (at the time of this writing): `single` and `multi`. The former works like ROM always have: everyone plays in one big shared space. The `multi` option means "multiple-instanced"; each player (and their party mates) have their own sandbox in that area. If other folks enter the same area, they will have their _own_ instance, and the two shall never meet. This is just right for the newbie zone, which (IMXP) can suffer from too many folks competing for slaying the poor little moblets.
+- `instancetype` is a novel setting for Mud98. There are two settings (at the
+time of this writing): `single` and `multi`. The former works like ROM always
+has: everyone plays in one big shared space, and players must contend with
+constantly-depleted newbie areas. The `multi` option means "multiple-instanced";
+each player (and their party mates) have their own sandbox in that area. If 
+other folks enter the same area, they will have their _own_ instance, and the
+two shall never meet. This is just right for the newbie zone, which (IMXP) can
+suffer from too many folks competing for slaying the poor little moblets.
 
 Now my `SHOW` looks like this:
 
 ```
-Name:           [49] Faladrin Forest
-File:           faladri.are
-Vnums:          [12000-12100]
-Levels:         [1-5]
-Sector:         [forest]
-Reset:          [1] x 8 minutes
-Always Reset:   [NO]
-Instance Type:  [multi]
-Security:       [9]
-Builders:       [Halivar]
-Credits :       [Halivar]
-Flags:          [changed added]
+Area           : [         48 ] Faladrin Forest
+File           : faladri.json
+Vnums          : [ 12000-12099 ]
+Levels         : [        1-5 ]
+Sector         : [     forest ]
+Reset          : [          1 ] x 8 minutes
+Always Reset   : [         NO ]
+Instance Type  : [      multi ]
+Security       : [          9 ]
+Builders       : Halivar
+Credits        : Halivar
+Flags          : [ changed added ]
+Factions
+  (none)
+Story Beats:
+  (none)
+Checklist:
+  1) [To-Do] Write-up story beats
+  2) [To-Do] Sketch out rooms
+  3) [To-Do] Populate mobiles
+  4) [To-Do] Populate objects
+  5) [To-Do] Add descriptions
+  6) [To-Do] Wire-up events
 ```
 
-`CREDITS` can be whatever I want (but should be my Imp name, or else it will mess with the formatting on the universal, non-OLC `AREAS` command) , but `SECURITY` and `BUILDERS` is special. When I created the area, they were set (by default) to my security level and player name, respectively. There are "permissions" for the area. To edit this area, my name must be in the `BUILDERS` list (as it can have more than one name) _or_ my security level must be higher than that of the area. Thus, an Imm who has higer security than you can edit your areas; but not lower unless they are listed as a builder in that area. As an Imp with max security, I can edit _any_ area.
+> [!NOTE]
+> Note the file name; this guide assumes you are using JSON file formats for area and data files. If you chose not to use JSON, or chose ROM-OLC as the default in `mud98.cfg`, you would see `faladri.are` here, instead.
+
+`CREDITS` can be whatever I want (but should be my Imp name, or else it will mess with the formatting on the universal, non-OLC `AREAS` command) , but `SECURITY` and `BUILDERS` is special. When I created the area, they were set (by default) to my security level and player name, respectively. There are "permissions" for the area. To edit this area, my name must be in the `BUILDERS` list (as it can have more than one name) _or_ my security level must be higher than that of the area. Thus, an Imm who has higher security than you can edit your areas; but not lower unless they are listed as a builder in that area. As an Imp with max security, I can edit _any_ area.
+
+### New tools for Mud98
+
+If you've ever used OLC on a previous iteration of ROM (or other Diku derivative),
+you may have noticed a few more options that are unfamiliar. These are some tools
+I've put into Mud98 to help you craft a better, higher-quality, and more
+consistent world:
+
+**Factions** - NPCs in Mud98 can be assigned to factions; these are created
+ad-hoc by builders, and can be constructed into an intricate web of alliances
+and enemies. Players can gain (or lose) reputation with these factions by quests,
+attacking their enemies (or them), or by doing to same for related factions.
+
+**Story Beats** - This is a quick, at-a-glance list of the plots and places of 
+the area, as well as significant factions and NPCs. Use this as a "build guide"
+to establish themes and player-goals in areas where builders may collaborate on
+a shared world.
+
+**Checklist** - Building a quality area takes a long time; breaking down the work
+into discrete chunks helps keep things straight across many building sessions,
+as well as organize work across a team of builders. Pictured here is the "default"
+set of builder checklist items; but a builder can clear them and create their own.
+Or, an implementor can change the default list in code.
+
+> [!TIP]
+> #### Building with generative AI
+>
+> I am not a big fan of generative AI presented as polished human-written prose, because there really is no comparison. Human prose, even (or perhaps especially) badly-written, has a charm all its own that generative AI can't replicate with its sterile perfection.
+>
+> Nevertheless, there is no putting the genie back in the bottle, and I predict MUD operators in a greatly diminished hobby will find it harder and harder to pass up the opportunity to instantly fill in areas; especially when standing up new MUDs _before_ they have attracted a cadre of competent builders.
+>
+> For these situations, `Factions`, `Story Beats`, and `Checklist` are tools that make it trivial for agentic LLMs to bang out some rooms, mobs, items, quests, and even Lox scripts.
+>
+> But be forewarned: it won't be _good_, per se, and many players won't appreciate it. Prospective builders may even be _insulted_ by it.
+>
+>**My recommendation:** Use generative AI on a builder-starved MUD for quick
+scaffolding; but put in the extra work to improve, rewrite, and fix issues
+before you present it to the public as "finished".
+
+### Crafting a narrative
+
+I'll keep the default checklist (since I came up with them, in the first place)
+and move on the story beats:
+
+```
+story add "Elf starting area" On-board new elf PCs with a story-driven tutorial.
+story add "Cuivealda's shadow" The entire area is under the sprawling branches 
+of the elven tree home.
+story add "The Forestspeaker's plight" Findorian needs the player's help to 
+fight a blight consuming the forest.
+```
+
+If you hit "Enter" again (or type `SHOW`), you'll see our list of story beats
+have been added to the area.
+
+Now we can mark our first "to-do" item complete:
+
+```
+checklist status 1 done
+```
+
+Technically, we should have marked it "In progress" before starting. Just
+consider yourself lucky I didn't add a Jira ticketing process.
+
+One more thing to do on our way out the door: I want to go ahead and set our 
+initial faction:
+
+```
+faction create 12000 Tauremar
+```
+
+Now we can take a look and see our progress (initial lines of `SHOW` omitted):
+
+```
+Factions
+[12000] Tauremar             default:      0 allies:  0 enemies:  0
+Story Beats:
+  1) Elf starting area
+     On-board new elf PCs with a story-driven tutorial.
+  2) Cuivealda's shadow
+     The entire area is under the sprawling branches of the elven tree home.
+  3) The Forestspeaker's plight
+     Findorian needs the player's help to fight a blight consuming the forest.
+Checklist:
+  1) [Done] Write-up story beats
+  2) [To-Do] Sketch out rooms
+  3) [To-Do] Populate mobiles
+  4) [To-Do] Populate objects
+  5) [To-Do] Add descriptions
+  6) [To-Do] Wire-up events
+```
+
+### Wrapping up
 
 Now it's time to set this area is stone by saving it:
 
@@ -165,7 +297,7 @@ We get this message:
 
 ```
 Saved zones:
-         Faladrin Forest - 'faladri.are'
+         Faladrin Forest - 'faladri.json'
 ```
 
 If do a `git status` in my `area` folder, I see my changed files:
@@ -175,13 +307,14 @@ Changes not staged for commit:
         modified:   area/area.lst
 
 Untracked files:
-        area/faladri.are
+        area/faladri.json
 ```
 
 That's it! I now have my new starting area, and I'm read to start adding to rooms to it.
 
+> [!IMPORTANT]
 > You _are_ using `git` to keep track of your changes, right?
-> 
+>
 > Right?
 
 ## Creating the starting room
@@ -196,17 +329,21 @@ redit create 12000
 
 ```
 Room created.
-Description:
-Name:       []
-Area:       [   48] Faladrin Forest
-Vnum:       [12000]
-Sector:     [forest]
-Room flags: [none]
-Heal rec:   [100]
-Mana rec:   [100]
-Characters: [halivar]
-Objects:    [none]
+Description    : [     (none) ]
+Room           : [      12000 ] 
+Area           : [         48 ] Faladrin Forest
+Sector         : [     forest ]
+Room Flags     : [     (none) ]
+Heal Recover   : [        100 ]
+Mana Recover   : [        100 ]
+Characters     : halivar 
+Objects        : (none)
+Lox Class      : [     (none) ] Type 'LOX' to create one.
+Events         : (none) Type 'EVENT' to create one.
+
 Exits:
+  Dir   To Vnum    Room Desc      Key     Reset Flags       Kwds
+======= ======= =============== ======= =============== ============
 ```
 
 Be sure to check `COMMANDS` to see what options are available.
@@ -215,7 +352,7 @@ The intention is for this to be the first room a player sees when they create an
 
 > To be honest, I was never a good builder. In my Imp days of ages past, I was a _coding_ Imp. I needed an army of builders and admins to do the other work for me (like, actually _running_ and _creating_ the MUD).
 
-Note that, by creating the room, we actually teleported to it. This is useful so we can perform actions like `LOOK` and whatnot. OLC is very much "in-game".
+Note that, by creating the room, we actually teleported to it. This is useful so we can perform actions like `LOOK` and whatnot. OLC is very much "in-game". If you check the log, you'll see that a brand new instance of the area was spun up just for you. That's a function of it being "multi-instance"; new instances are created on demand as players enter them.
 
 I choose to give it a narrative title, rather than a descriptive one:
 
@@ -225,8 +362,7 @@ name The Awakening
 
 Even though this is a placeholder, I want to at least put _something_ for the description, using `DESC`:
 
-```                                    
-desc
+```
 -========- Entering EDIT Mode -=========-
     Type .h on a new line for help
  Terminate with a @ on a blank line.
@@ -239,11 +375,11 @@ Typing `.h` for help yields a list of really helpul commands. In particular, `.f
 I will enter some nice, overwrought, pretentious prose:
 
 ```
-You stand next to the great old trunk of Cuivealda. The light is dim, as
-the dense, high canopy that forms Tauremar covers the sky. There is little
-ground cover, and the forest floor is a desolate place of perpetual
-twilight.
+    You stand next to the great old trunk of Cuivealda. The light is dim, as the dense, high canopy that forms Tauremar covers the sky. There is little ground cover, and the forest floor is a tranquil place of perpetual twilight.
 ```
+
+The initial four spaces tell the formatter that this is a "book style" paragraph,
+and the indentation should be preserved. There is no double-line gap between this and the preceding paragraph, either.
 
 Use `@` on a bare line to finish the description.
 
@@ -257,7 +393,12 @@ flags newbies_only no_recall
 
 The latter  is because I don't want people just recalling out of the start zone. There should be a narrative flow to the game, and skipping the starting area breaks that.
 
-Now I want to hook this room up as the starting area for elves.
+Now I want to hook this room up as the starting area for elves. I'll tie off this room for now with:
+
+```
+done
+asave changed
+```
 
 ## Setting racial starting location
 
@@ -274,31 +415,29 @@ This gives us this:
 ```
 Name        : [elf]
 PC race?    : [YES]
-Act         : [none]
+Act         : [(none)]
 Aff         : [infrared]
-Off         : [none]
-Imm         : [none]
+Off         : [(none)]
+Imm         : [(none)]
 Res         : [charm]
 Vuln        : [iron]
 Form        : [edible sentient biped mammal]
 Parts       : [head arms legs heart brains guts hands feet fingers ear eye]
 Points      : [5]
 Size        : [small]
-Start Loc   : [0]   (not used)
+Start Loc   : [12000] The Awakening 
     Class      XPmult  XP/lvl(pts)   Start Loc
-    Mage        100     1000( 40)    [    0]   (not used)
-    Cleric      125     1000( 40)    [    0]   (not used)
-    Thief       100     1000( 40)    [    0]   (not used)
-    Warrior     120     1000( 40)    [    0]   (not used)
+    Mage        100     1000( 40)    [    0]  
+    Cleric      125     1000( 40)    [    0]  
+    Thief       100     1000( 40)    [    0]  
+    Warrior     120     1000( 40)    [    0]  
 
 Str:12(16) Int:14(20) Wis:13(18) Dex:15(21) Con:11(15) 
  0. sneak
  1. hide
 ```
 
-Notice under `Start Loc`, it says "(not used)". That means Mud98 isn't configured to use racial start locations. By default, all non-stock-ROM behavior is disabled to provide a more authentic, legacy ROM experience out-of-the-box.
-
-Open up `mud98.cfg` in the root directory and change this setting (uncommenting it, if needed):
+By default, Mud98 allows for starting race and class locations. Otherwise, under `Start Loc`, it would say "(not used)". If you see this message, however you can enable it by openning up `mud98.cfg` in the root directory and changing this setting (uncommenting it, if needed):
 
 ```
 start_loc_by_race = yes
@@ -306,6 +445,7 @@ start_loc_by_race = yes
 
 Note that this is a completely safe flag; it has no effect on races that don't have a start location set, yet.
 
+> [!NOTE]
 > You may have noticed that there is also a class `start_loc` and a per-race-class-combo `start_loc`. These can be used with each other freely. You can have a single spawn point for mages, a single spawn point for elves, and separate spawn points for all the other race/class combos. It's meant to give you maximum flexibility in world-building. To take advantage of this, you need to also enable `start_loc_by_class` in `mud98.cfg`.
 
 Restart Mud98 and log back in with your Imp character. Then `raedit elf` again. Note that now `Start Loc` is `0`, but the warning that it won't be used is gone.
@@ -319,28 +459,7 @@ start_loc 12000
 Now `SHOW` has our new room as `Start Loc`:
 
 ```
-Name        : [elf]
-PC race?    : [YES]
-Act         : [none]
-Aff         : [infrared]
-Off         : [none]
-Imm         : [none]
-Res         : [charm]
-Vuln        : [iron]
-Form        : [edible sentient biped mammal]
-Parts       : [head arms legs heart brains guts hands feet fingers ear eye]
-Points      : [5]
-Size        : [small]
 Start Loc   : [12000] The Awakening 
-    Class      XPmult  XP/lvl(pts)   Start Loc
-    Mage        100     1000( 40)    [    0]  (not used)
-    Cleric      125     1000( 40)    [    0]  (not used)
-    Thief       100     1000( 40)    [    0]  (not used)
-    Warrior     120     1000( 40)    [    0]  (not used)
-
-Str:12(16) Int:14(20) Wis:13(18) Dex:15(21) Con:11(15) 
- 0. sneak
- 1. hide
 ```
 
 That looks correct. I commit my changes to disk:
@@ -369,298 +488,419 @@ Where do we end up?
 
 ```
 The Awakening
-You stand next to the great old trunk of Cuivealda. The light is dim, as
-the dense, high canopy that forms Tauremar covers the sky. There is little
-ground cover, and the forest floor is a desolate place of perpetual
+    You stand next to the great old trunk of Cuivealda.  The light is
+dim, as the dense, high canopy that forms Tauremar covers the sky.  There is
+little ground cover, and the forest floor is a tranquil place of perpetual
 twilight.
-Halivar the Keeper of Knowledge is here.
 You have no unread notes.
+
+<20hp 100m 100mv> 
 ```
 
-Oops. I forgot to log out of my Imp. But now we have a solid start on building out a newbie zone for elves.
+If you left your Imp character logged in at this room, the new character will not see him; a quick glance at the log will tell you that a brand new instance of "Faladrin Forest" was spun up for "Newelfguy", and ne'er the twain shall meet.
 
 ## Creating a greeting for new characters
 
-I want to display a banner for new characters when they enter the game, but I only want it to display once. Rather than trying to create a new field, I'm going to add a trigger to do it. Right now, the only way to add triggers is on mobs, so first I'll need to make a triggerbot.
+New characters all receive a generic banner that is defined in helps, but I also want a separate banner specifically for new characters who drop into the game in this room.
 
-### Making a triggerbot
+This brings us to two powerful new concepts novel to Mud98: **Lox scripting** and **events**.
 
-The command to create mobiles is `MEDIT`. I will create my triggerbot with this command:
+**Lox** is a flexible, _fast_, byte-code interpreted language grafted into Mud98. It's adapted from Robert Nystrum's book, "Crafting Interpreters" (it's seriously cool; [you can buy it or read it online here](https://craftinginterpreters.com/)). Lox is a first-class citizen in Mud98, and can be used far beyond just the event system, including writing new skills and spells via OLC.
 
-```
-medit create 12000
-```
+**Events** are the Mud98 replacement for MobProgs. For every MobProg trigger, there is an equivalent Mobile event trigger. Mud98 events, however, can also be attached to _Objects_ and _Rooms_, as well.
 
-> Note the re-use of the VNUM. VNUM's are only unique to a certain type of entity (`RoomData`, `MobPrototype`, `ObjPrototype`, etc), and can be shared _across_ them. To have keep things less confusing, for any given VNUM `X`, I try to keep them all in one place: the `ObjPrototype` with VNUM `X` will be held by the `MobPrototype` with VNUM `X`, in the `RoomData` with VNUM `X`. Consider spacing out room VNUMs to accomodate.
+To display the message we want, we will need to create a Lox script, and call it when a new character gets dumped into this room.
 
-Anyway, the command we entered creates a new `MobPrototype` (_not_ a `CharData`... not yet) and displays it as a blank slate:
+> In the legacy version of this document, I used MobProgs on an invisible "triggerbot" to do this. My dissatisfaction with that solution is what prompted me to hide in a hole for two years and create the current solution.
 
-```
+### Creating a Lox script
 
-Name:        [no name]
-Vnum:        [ 12000]
-Area:        [    48] Faladrin Forest
-Level:       [     0] Sex:     [  none] Group:   [    0]
-Align:       [     0] Hitroll: [     0] Dam type: [none]
-Hit dice:    [  0d0  +   0] Damage dice:  [  0d0  +   0]
-Mana dice:   [  0d0  +   0] Material:     [     unknown]
-Race:        [       human] Size:         [      medium]
-Start pos.:  [    standing] Default pos.: [    standing]
-Wealth:      [    0]
-Armor:       [pierce: 0  bash: 0  slash: 0  magic: 0]
-Affected by: [none]
-Act:         [npc]
-Form:        [none]
-Parts:       [none]
-Imm:         [none]
-Res:         [none]
-Vuln:        [none]
-Off:         [none]
-Short descr: (no short description)
-Long descr:
-(no long description)
-Description:
-```
-
-Because this is a triggerbot, I don't actually want much on this. I'll give it a name, make it `sentinal` so it doesn't wander, and make it invisible to players:
-
-```
-name triggerbot_12000
-act sentinel
-aff invis
-```
-
-That's it; that's all I care about. I'll save the bot with `done` and get cracking on making its Mob Prog.
-
-### Creating a Mob Prog
-
-The command to create Mob Progs is `MPEDIT`:
-
-```
-mpedit create 12000
-```
-
-Now we are in the context of editting the Mob Prog:
-
-```
-Vnum:       [12000]
-Code:
-```
-
-The editor is a line editor, much like room descriptions, using the `code` command. I will use this script:
-
-```
-mob echoat $n {*You step off the end of an old rope ladder at the base of Cuivealda, the{/Tree of Awakening. Your years in the nurturing hands of the Tetyayath have{/come to an end.{/{/Now you must go out into the world and find your destiny...{/{x
-```
-
-The `mob echoat $n` command says that the mob executing the script will perform an "echo" (unquoted text) directly to the character that prompted the trigger. I added coloration to add some flair as a call-out. The `{/` color code is actually a new-line. When doing mobprogs like this, you will need to keep track of your own line endings.
-
-I now close off the code with `@`, and finish the MobProg with `done`.
-
-Now I have the Mob Prog that I want `triggerbot_12000` to perform, but now I need to add the trigger.
-
-### Making the triggerbot trigger
-
-I open up my triggerbot for editing again:
-
-```
-medit 12000
-```
-
-If I check `COMMANDS`, I see there is an `ADDPROG` command. A blind call yields this:
-
-```
-Syntax:   addprog [vnum] [trigger] [phrase]
-```
-
-Here's the command to add the trigger:
-
-```
-addprog 12000 act has entered the game
-```
-
-The first parameter is the VNUM of the Mob Prog (not the mob itself; we're already editing that), followed by the trigger, `act`. This means anything it can _see_. The rest of the command is an unquoted string (in this case, "has entered the game") that the triggerbot will look for in all "acts" (broadcasts to the room).
-
-As it just so happens, the first thing anyone sees of a new character in the start location is:
-
-```
-Bob has entered the game.
-```
-
-This trigger will activate _before_ the target receives the room description. This is very handy.
-
-Now we need to finish off `MEDIT` with `done`, and actually place the triggerbot in the room.
-
-### Adding triggerbot to the room
-
-Edit the room again:
+Let's get back into our room editor:
 
 ```
 redit 12000
 ```
 
-The command to load a mob into the room is `MRESET`.
-
-A blind call yields the syntax:
+We should see this:
 
 ```
-Syntax:  mreset <vnum> <world max> <room max>
-```
-
-I an unlimited number of these _world-wide_, as they have to be shared between multiple instances. That's what `-1` means. The third parameter means there is only ever one _in this room_.
-
-```
-mreset 12000 -1 1
-```
-
-Ok, so now it's added, which we verify with the `RESETS` command:
-
-```
-Resets: M = mobile, R = room, O = object, P = pet, S = shopkeeper
- No.  Loads    Description       Location         Vnum   Ar Rm Description
-==== ======== ============= =================== ======== ===== ===========
-[ 1] M[12000] (no short des                     R[12000] -1- 1 The Awakening  
-```
-
-It's in the room, but you won't see it, as it was marked invisible.
-
-### Testing the triggerbot
-
-Now all we need to do is log in with a new character and see if the new intro text works:
-
-```
-Welcome to Mud98. Please do not feed the mobiles.
-
-You step off the end of an old rope ladder at the base of Cuivealda, the
-Tree of Awakening. Your years in the nurturing hands of the Tetyayath have
-come to an end.
-
-Now you must go out into the world and find your destiny...
-
-The Awakening
-  You stand next to the great old trunk of Cuivealda. The light is dim, as
-the dense, high canopy that forms Tauremar covers the sky. There is little
-ground cover, and the forest floor is a desolate place of perpetual
+Description: 
+    You stand next to the great old trunk of Cuivealda.  The light is
+dim, as the dense, high canopy that forms Tauremar covers the sky.  There is
+little ground cover, and the forest floor is a tranquil place of perpetual
 twilight.
-You have no unread notes.
+Room           : [      12000 ] The Awakening
+Area           : [         48 ] Faladrin Forest
+Sector         : [     inside ]
+Room Flags     : [ no_recall newbies_only ]
+Heal Recover   : [        100 ]
+Mana Recover   : [        100 ]
+Characters     : halivar 
+Objects        : (none)
+Lox Class      : [     (none) ] Type 'LOX' to create one.
+Events         : (none) Type 'EVENT' to create one.
+
+Exits:
+  Dir   To Vnum    Room Desc      Key     Reset Flags       Kwds
+======= ======= =============== ======= =============== ============
 ```
 
-The first thing an elf character sees on this MUD now is a narrative introduction, and a framing story to guide them through the rest of the "MUD School" replacement.
-
-But there needs to be more. I need an "OOC" call-out telling them what to do next. 
-
-### Delayed MobProgs
-
-There is some text I would like to display just after the room description; but the `GREET` trigger won't be triggered because we didn't "move" into the room, and the `ACT` trigger is resolved _before_ the room is shown to the PC (which I have taken advantage of).
-
-I will use a `DELAY` trigger.
-
-First, I need to modify the existing MobProg:
+The important fields for this task are `Lox Class` and `Events`. To start, let's create an `on_login` callback for the login event we will eventually create:
 
 ```
-mpedit 12000
-code
+lox
 ```
 
-...and append the following lines:
+You'll be thrown into a string editor that is pretty close to what we saw for the room description editor, but there are some key differences. If you type `.h`, you'll get this help:
 
 ```
-mob remember $n
-mob delay 1
+Lox Script help (commands on blank line):   
+.r 'old' 'new'   - replace a substring 
+                   (requires '', "") 
+.h               - get help (this info)
+.s               - show script so far  
+.clear           - clear script so far 
+.v               - validate byte-code compilation
+.ld <num>        - delete line <num>
+.li <num> <txt>  - insert <txt> on line <num>
+.lr <num> <txt>  - replace line <num> with <txt>
+.x               - cancel changes
+@                - compile and save script
 ```
 
-`MOB REMEMBER` makes the mob stow away the trigger activator's name for later. Future triggers can pull it out and look for it.
+There's no formatter, at the moment, because my notions of code style are opinionated, and I don't want to force that on you. Here are some important new commands not present in the "string" editor:
 
-`MOB DELAY` creates a secondary trigger after the specified "mob pulses", which are approximately a fourth-of-a-second. I selected `1` (because `0` doesn't work) so that it occurs as soon after the prompt as possible.
+* `.x` - **Cancel changes and exit the script editor.** This is important because it restores the original script (or lack thereof). Use this when your changes just aren't working out.
+* `.v` - **Validate byte-code compilation.** Use this to verify that your script compiles to byte-code without leaving the editor. This doesn't save the script to the Entity being edited, however, so it's safe to run. If there are any errors in your Lox script, they will display on your screen.
+* `@` - **Compile and save script.** Unlike `.v`, this command commits your changes to the prototype of the Entity being edited. New instances of that Entity will have the compiled byte-code of the script attached to them. If the script does not yet compile correctly, this will save the script to the Entity prototype and allow you to edit it later; however, no byte code will be attached to instances of the Entity, themselves.
 
-I will create a Mob Prog reset with the `DELAY` trigger; but first I need the Mob Prog itself:
-
-```
-mpedit create 12001
-code
-```
-
-...and this is the code I enter:
+For now, let's go ahead and enter our script:
 
 ```
-if hastarget $i
-    mob echoat $q {_You have instructions to meet your old mentor in a clearing just to the east. There you{/will continue your training. Type '{*EXITS{_' to see what lies in that direction. Type '{*EAST{_'{/to go there.{x
-else
-    mob forget
-endif
+// This function gets called the first time a character logs in as an elf, 
+// after character creation.
+on_login(vch) {
+    // Only newly-created characters
+    if (vch.level > 1 or vch.race != Race.Elf)
+        return;
+        
+    vch.send(
+        "^*You step off the end of an old rope ladder at the base of "
+        "Cuivealda, the Tree of Awakening. Your years in the nurturing "
+        "hands of the Tetyayath have come to an end.^/^/"
+        "Now you must go out into the world and find your destiny...^/^x")
+}
 ```
 
-Note that the `MOB ECHOAT` is one lone line. MobProgs are very rudimentary. I may address that in the future, but for now I will work with what I have.
+If you type `.s`, you will see that our built-in editor also has _syntax-highlighting_. I can't show you here (Github Markdown won't let me, _boooo_), but you the colors used by the syntax highlighter can be set in your theme (via the `THEME` command).
 
-The first line demonstrates MobProgs simple `IF...Else...` logic. There is no "elif" logic. This version of MobProgs actually descends from a more capable, but much _buggier_ Mob Progs. This stripped down version is straightforward and fool-proof.
-
-> However, I now remember back in my Imp days, crafting many tiers of nested `IF`s with a final line of `ENDIF ENDIF ENDIF ENDIF ENDIF`. I think making a basic `ELIF` would be my first Mob Progs extension.
-
-`HASTARGET $i` is a simple test that checks to see if the name stored in the mob's memory belongs to anyone it can see. If it does, it performs `MOB ECHOAT $q`. Last time, we used `$n` to mean the person that triggered the Mob Prog. But in this case, the trigger was a `DELAY` timer. `$q` uses the name "remembered" by the mob.
-
-And if there's no such person, the mob forgets them.
-
-Finally I add the Mob Prog as a new reset:
+Let's validate our script using `.v`:
 
 ```
-medit 12000
-addprog 12001 delay 100
-done
+[***]Class "room_12000" for room 12000 compiled successfully.
+```
+
+As the message indicates, what we're _really_ doing is specifying the contents of a class dedicated to Room VNUM 12000 called, appropriately enough, `room_12000`. That's why we don't declare `on_login` as a `func`: class methods in Lox don't use that keyword; just the method name and its arguments are sufficient.
+
+Since it completed successfully, we can call it done and attach it to the object with `@`:
+
+```
+[***]Class "room_12000" for room 12000 compiled successfully and assigned.
+```
+
+I'll go over the script in a moment. First, let's protect what we've got so far:
+
+```
 asave changed
 ```
 
-Here are the MobProgs for the room, now:
+### Anatomy of an event callback
+
+Our script defines what's called a "callback", a function (or in this case, a class member) that is referred to by an outside actor when needed. To do that, we will need to register this callback by creating an event that references it. We will do that in the next step.
+
+First, we have a comment:
 
 ```
-MOBPrograms for [12000]:
- Number Vnum Trigger Phrase
- ------ ---- ------- ------
-[    0] 12001   DELAY 100
-[    1] 12000     ACT has entered the game
+// This function gets called the first time a character logs in as an elf, 
+// after character creation.
 ```
 
-And how does it work? I log in with a new elf character and test it:
+A **comment** is in-code documentation that is not compiled, and does not get translated to byte-code. Use comments to make clear what you are trying to do, and what the purpose of your code is. 
 
 ```
-Welcome to Mud98. Please do not feed the mobiles.
+on_login(vch) {
+}
+```
 
-You step off the end of an old rope ladder at the base of Cuivealda, the
-Tree of Awakening. Your years in the nurturing hands of the Tetyayath have
-come to an end.
+This is **class method**, named `on_login`. Class methods are normally defined in a `class {..}` block, but Entity-based Lox scripts are treated as class bodies with bespoke, predetermined names.
+
+The `on_login` method has a single argument, `vch`. If you are at all familiar with ROM code, you'll know that this is shorthand for "victim character", and tell us that the target of the callback is passed in as an argument. In this case, `vch` will be the character logging in.
+
+> [!NOTE]
+> And what of the room, itself? Why is there no `room` argument? Because this method will already a reference to it's owning Entity. We'll see that in action when we add a Mobile-based event.
+
+Now we check to see if it's appropriate to send a message to the character:
+
+```
+    // Only newly-created characters
+    if (vch.level > 1 or vch.race != Race.Elf)
+        return;
+```
+
+If the character is above level 1 (not a newbie) or not an elf (as this message is for starting elves), we bail. No message is sent to the player.
+
+> [!NOTE]
+> Note the semicolon (`;`) after `return`. This is one of the few areas where I deviate from standard Lox, which has no EOL semicolons. In Mud98's incarnation of Lox, semicolons are optional _except_ bare `return`s that don't actually return a value. In that case, they are required. This is a technical issue in Mud98's Lox compiler that I may (or may not) fix.
+
+Next we send an actual message to the user:
+
+```
+    vch.send(
+        "^*You step off the end of an old rope ladder at the base of "
+        "Cuivealda, the Tree of Awakening. Your years in the nurturing "
+        "hands of the Tetyayath have come to an end.^/^/"
+        "Now you must go out into the world and find your destiny...^/^x")
+```
+
+So that's our first Lox script. Let's wire it up to a Login event and see how it does.
+
+### Wiring up the Login event
+
+While editing room 12000, let's look at what's available to us with events:
+
+```
+event
+```
+
+We'll get a syntax helper like so:
+
+```
+Syntax: event set <trigger> [<callback> [<criteria>]]
+        event delete <trigger>
+```
+
+The only _required_ parameter is the trigger. Every trigger has a default callback, and _usually_ has a default criteria value if one is needed (which the Login event doesn't). Because I knew ahead of time what the default was, I don't need it:
+
+```
+event set login
+```
+
+You should get an "Event created" message, which means we're good to go. Verify it by pressing `Enter` while in `REDIT` mode:
+
+```
+Description: 
+    You stand next to the great old trunk of Cuivealda.  The light is
+dim, as the dense, high canopy that forms Tauremar covers the sky.  There is
+little ground cover, and the forest floor is a tranquil place of perpetual
+twilight.
+Room           : [      12000 ] The Awakening
+Area           : [         48 ] Faladrin Forest
+Sector         : [     inside ]
+Room Flags     : [ no_recall newbies_only ]
+Heal Recover   : [        100 ]
+Mana Recover   : [        100 ]
+Characters     : halivar 
+Objects        : (none)
+Lox Class      : [ room_12000 ] Type 'LOX' to edit.
+
+Events:
+ Trigger          Callback (Args)     Criteria
+========= ================ ========== ========
+[  Login]         on_login (mob)      [      ]
+
+Exits:
+  Dir   To Vnum    Room Desc      Key     Reset Flags       Kwds
+======= ======= =============== ======= =============== ============
+```
+
+Now you see "Events" populated with our trigger, as well as a reference to our callback. When you add an event, the "Args" column will tell you what the event trigger will attempt to pass as arguments to the trigger. If you don't follow that format, the event won't work.
+
+Before we test it out, let's save our work:
+
+```
+asave changed
+```
+
+Now create a new elf character, and you should see this upon being dumped in the starting room:
+
+```
+You step off the end of an old rope ladder at the base of Cuivealda, the Tree of
+Awakening. Your years in the nurturing hands of the Tetyayath have come to an 
+end.
 
 Now you must go out into the world and find your destiny...
 
 The Awakening
-  You stand next to the great old trunk of Cuivealda. The light is dim, as
-the dense, high canopy that forms Tauremar covers the sky. There is little
-ground cover, and the forest floor is a desolate place of perpetual
+    You stand next to the great old trunk of Cuivealda.  The light is
+dim, as the dense, high canopy that forms Tauremar covers the sky.  There is
+little ground cover, and the forest floor is a tranquil place of perpetual
 twilight.
 You have no unread notes.
 
-<20hp 100m 100mv>
-You have instructions to meet your old mentor in a clearing just to the east. There you
-will continue your training. Type 'EXITS' to see what lies in that direction. Type 'EAST'
-to go there.
+<20hp 100m 100mv> 
 ```
 
-The intro text and the OOC quest text are distinctively colored and useful, and I didn't have to contrive adding them to room descriptions like MUD school did. 
+It works! You just wrote your first Lox script, and your first event. What's cool about the Login event is that it triggers _before_ you are dumped into the starting room, so it lets us write a neat little prologue to establish a narrative for the new character.
 
-## Quest-driven expansion
+But now I need to establish next steps for the character.
 
-I've already mentioned a clearing to the east. Now I need to make it. Here's a wonderful shorthand in OLC for building out areas:
+### Delayed scripts
+
+I like for calls-to-action for the player to follow be the last thing they before the prompt (like how tutorials work [have you checked out `TUTORIAL`, yet?]). But everything we do inside the Login event happens before we even show them a room description.
+
+The answer is modify our Login event to kick off a delayed message. Just 1 tick is enough to guarantee is displays after the room description.
+
+First, let's edit our Lox script again:
 
 ```
-redit 12000
-east dig 12005
+redit 12000 (if you need to)
+lox
 ```
 
-This creates a new room (VNUM `12005`) and creates a two-way, east-west link between them. After "digging", you are now in the new room, editing it. 
+Now we need to insert some lines using the `.li` command:
 
-> IMXP, the best way to build an area is to sketch it out first, assigning VNUMs ahead of time. I space VNUM's by 5, but if rooms will be dense, I space by 10. This lets me group obj and mob VNUMs by room in a way that is predictable and easy to manage.
+```
+.li 13
+.li 14    delay(1, () -> {
+.li 15        vch.send("^jYou have instructions to meet your old mentor in a "
+.li 16            "clearing just to the east. There you will continue your "
+.li 17            "training. Type '^*EXITS^j' to see what lies in that "
+.li 18            "direction. Type '^*EAST^j' to go there.^x")
+.li 19    })
+```
+
+The Lox function `delay` takes two parameters:
+1. The number to ticks to delay by; in this case, 1.
+2. An invokable function or method to call at the end of the delay.
+
+In this case, we pass what's called a _lamda_ as the callable. It's basically an ad hoc, unnamed function.
+
+> [!NOTE]
+> Lamdas can have arguments, but this one does not. Everything it needs is in its own scope. By simply mentioning `vch`, it "captures" that variable and keeps it from getting garbage-collected until it gets a chance to run.
+
+After one tick, we send the given message to the player that triggered the event.
+
+When you're done, `.s` should look like this:
+
+```
+Script so far:
+ 1. // This function gets called the first time a character logs in as an elf, 
+ 2. // after character creation.
+ 3. on_login(vch) {
+ 4.     // Only newly-created characters
+ 5.     if (vch.level > 1 or vch.race != Race.Elf)
+ 6.         return;
+ 7.  
+ 8.     vch.send(
+ 9.         "^*You step off the end of an old rope ladder at the base of "
+10.         "Cuivealda, the Tree of Awakening. Your years in the nurturing "
+11.         "hands of the Tetyayath have come to an end.^/^/"
+12.         "Now you must go out into the world and find your destiny...^/^x")
+13. 
+14.     delay(1, () -> {
+15.         vch.send("^jYou have instructions to meet your old mentor in a "
+16.             "clearing just to the east. There you will continue your "
+17.             "training. Type '^*EXITS^j' to see what lies in that "
+18.             "direction. Type '^*EAST^j' to go there.^x")
+19.     })
+20. }
+21. 
+```
+
+Now we tie a bow around it for testing:
+
+```
+@
+asave area
+```
+
+Then we test it again with a new character:
+
+```
+You step off the end of an old rope ladder at the base of Cuivealda, the Tree of
+Awakening. Your years in the nurturing hands of the Tetyayath have come to an 
+end.
+
+Now you must go out into the world and find your destiny...
+
+The Awakening
+    You stand next to the great old trunk of Cuivealda.  The light is
+dim, as the dense, high canopy that forms Tauremar covers the sky.  There is
+little ground cover, and the forest floor is a tranquil place of perpetual
+twilight.
+You have no unread notes.
+You have instructions to meet your old mentor in a clearing just to the east.
+There you will continue your training. Type 'EXITS' to see what lies in that 
+direction. Type 'EAST' to go there.
+
+<20hp 100m 100mv> 
+```
+
+What's great about this is that it's not a part of the room description, which I want to always keep as IC ("in character in ye olde MUD speak) as possible.
+
+Now that we've told the player to go east, we probably need to start building our area out.
+
+## Room building
+
+In creating our first login event, I sort of put the cart before the horse. My first checklist item is actually to build out the area. Here is the map I came up with, with VNUMs listed for the rooms:
+
+```
+                            +-------+   +-------+   +-------+
+                            | 12013 |---| 12014 |---| 12015 |
+                            +---+---+   +---+---+   +---+---+
+                                |           |           |    
+                            +---+---+   +---+---+   +---+---+
+                            | 12012 |---| 12018 |---| 12016 |
+                            +-------+   +---+---+   +---+---+
+                                |           |           |   
+                            +---+---+   +---+---+   +---+---+
+                            | 12011 |---| 12010 |---| 12017 |
+                            +-------+   +---+---+   +-------+
+      START                                 |
+    +-------+   +-------+   +-------+   +---+---+
+    | 12000 |---| 12002 |---| 12003 |---| 12005 |
+    +-------+   +-------+   +-------+   +-------+
+```
+
+> In my experience, the best way to build an area is to sketch it out first, assigning VNUMs ahead of time. I space VNUM's by 5, but if rooms will be densely packed with mobs and objs, I space by 10. This lets me group obj and mob VNUMs by room in a way that is predictable and easy to manage.
 >
 > Sketch out the area as uniform blocks. Even in my MUD days (late 90's) auto-mappers were ubiquitious, and players were more partial to area layouts that didn't muck with their maps.
 
-Set the new room's attributes as we did before, keeping in mind this is a clearing and there will be a quest mob, here.
+To demonstrate the two different ways to establish room connections, I'm going to accidentally forget to create room 12002. To instantly buid out rooms, use `DIG` while editing room 12000:
+
+```
+east dig 12002
+```
+
+This created a room with VNUM 12002, and moved you to it. Furthermore, it put you into `REDIT` mode in this new room. Using this, you can chain your commands to quickly sketch out the area.
+
+I also make use of the `LINK` command to add two-way connections between existing rooms. This doesn't move you, however, so I do have one manual move (note that this, unlike traditional movement, cannot be abbreviated; to move west, you must type `west` and not `w`).
+
+```
+east dig 12003
+east dig 12005
+north dig 12010
+west dig 12011
+north dig 12012
+north dig 12013
+east dig 12014
+east dig 12015
+south dig 12016
+south dig 12017
+west link 12010
+west
+north dig 12018
+west link 12012
+north link 12014
+east link 12016
+asave changed
+```
+
+And with that, our rooms are built out and ready to go (albeit without any descriptions, or anything to even indicate that you have switched rooms).
+
+## Quest-driven expansion
+
+Our little framing story tells the player to seek out an "old mentor" to the east. I need Room 12002 for another purpose, so I'll put him in Room 12005. If you'll recall, one of our story beats for this area is about "Findorian the Forest Speaker".
 
 ### Making the quest mob
 
@@ -668,19 +908,20 @@ Since the room is VNUM `12005`, I'll make the quest mob have the same VNUM:
 
 ```
 medit create 12005
-name findorian woodspeaker
+name findorian Forestspeaker
 level 20
 race elf
 act sentinel
 off assist_race
 res weapon bash
-short Findorian, the Woodspeaker
+faction Tauremar
+short Findorian, the Forestspeaker
 
-long Findorian, the Woodspeaker, kneels in the grassy clearing, gazing intently at
+long Findorian, the Forestspeaker, kneels in the grassy clearing, gazing intently at
 the dark woods surrounding you.
 ```
 
-His stats are pretty bland. You can try to figure out what his hitroll and dice, and all that should be, or you can set them to sensible defaults with:
+His stats are pretty bland. You can try to figure out what his hitroll and dice, and all that extra stuff should be, or you can set them to sensible defaults with:
 
 ```
 recval
@@ -689,6 +930,37 @@ recval
 I don't know what that means. But it uses a lookup table in `tables.c` to set default values that the entire MUD, for the most part, adheres to. You can tweak to your preference.
 
 If you want to see these combat ratings on a sample of other mobs in the world, you can use the `MOBLIST` command (not to be confused with `MLIST`, which is only in OLC and is more bare-bones).
+
+Once all the above is done, he should look like this (hit `Enter` in `MEDIT`):
+
+```
+Name:        [findorian forestspeaker]
+Vnum:        [ 12005]
+Area:        [    48] Faladrin Forest
+Faction:     [ 12000] Tauremar
+Level:       [    20] Sex:     [  none] Group:   [    0]
+Align:       [     0] Hitroll: [     0] Dam type: [none]
+Hit dice:    [  3d9  + 333] Damage dice:  [  2d8  +   5]
+Mana dice:   [ 20d12 + 100] Material:     [     unknown]
+Race:        [         elf] Size:         [      medium]
+Start pos.:  [    standing] Default pos.: [    standing]
+Wealth:      [      0 cp] no coins
+Armor:       [pierce: -40  bash: -40  slash: -40  magic: -30]
+Affected by: [infrared]
+Act:         [npc sentinel]
+       Form: [ edible sentient biped mammal ]
+      Parts: [ head arms legs heart brains guts hands feet fingers ear eye ]
+        Imm: [     (none) ]
+        Res: [ charm weapon bash ]
+       Vuln: [       iron ]
+        Off: [ assist_race ]
+Short descr: Findorian, the Forestspeaker
+Long descr:  Findorian, the Forestspeaker, kneels in the grassy clearing, gazing intently
+at the dark woods surrounding you.
+Description:
+Lox Class      : [     (none) ] Type 'LOX' to create one.
+Events         : (none) Type 'EVENT' to create one.
+```
 
 Once you have the mob where you want him, you can set him in place:
 
@@ -700,11 +972,11 @@ done
 asave changed
 ```
 
-Always save your work.
+Note that an instance of Findorian is immediately created in the room with you.
 
 ### Creating the player's first quest
 
-The first quest the elf player will receive is to go see Findorian, who will dispense the next set of quests. Since our first triggerbot will initiate the first quest, I'll use that VNUM:
+The first quest the elf player will receive is to go see Findorian, who will dispense the next set of quests. Since our first room will initiate the first quest, I'll use that VNUM:
 
 ```
 qedit create 12000
@@ -714,15 +986,18 @@ This creates a blank slate of a quest:
 
 ```
 New quest created.
-VNUM:       [12000]
-Name:       (none)
-Area:       Faladrin Forest
-Type:       [visit_mob]
-Level:      [0]
-End:        [0] (none)
-Target:     [0] (none)
-XP:         [0]
-Entry:      [none]
+Quest          : [      12000 ] (none)
+Area           : Faladrin Forest
+Type           : [  visit_mob ]
+Level          : [          1 ]
+End            : [          0 ] (none)
+Target         : [          0 ] (none)
+XP             : [          0 ]
+Currency       : (none)
+Faction        : [     (none) ] 
+Reputation     : [          0 ]
+Reward Items   : [     (none) ] 
+Entry          : [     (none) ]
 ```
 
 I then fill in some information:
@@ -733,51 +1008,89 @@ level 1
 end 12005
 target 12005
 xp 100
+faction 12000
+rewardrep 3000
+rewardcopper 10
 ```
 
 I also add text for the quest log entry with the `ENTRY` command. Here;s what it looks like when finished:
 
 ```
-VNUM:       [12000]
-Name:       An Old Friend
-Area:       Faladrin Forest
-Type:       [visit_mob]
-Level:      [1]
-End:        [12005] Findorian, the Woodspeaker
-Target:     [12005] Findorian, the Woodspeaker
-XP:         [100]
-Entry:
+Quest          : [      12000 ] An Old Friend
+Area           : Faladrin Forest
+Type           : [  visit_mob ]
+Level          : [          1 ]
+End            : [      12005 ] Findorian, the Forestspeaker
+Target         : [      12005 ] Findorian, the Forestspeaker
+XP             : [        100 ]
+Currency       : 10 copper
+Faction        : [      12000 ] Tauremar
+Reward Items   : [     (none) ] 
+Entry: 
 Before you step out into the greater world, you must be trained.  To that
-end, your old mentor Findorian has has taken the responsibility to ensure you
-are properly made ready.  He waits for you just to the east of Cuivealda.
+end, your old mentor Findorian has has taken the responsibility to ensure
+you are properly made ready.  He waits for you just to the east of
+Cuivealda.
 ```
 
-The default type is `visit_mob`, which is just right for us right now. I need to go back and edit MobProg `12001` (the 1 pulse delayed action). This is the new, updated code:
+The default type is `visit_mob`, which is just right for us right now. I need to go back and edit the Login event on Room 12000. This is the new, updated code:
 
 ```
-if hastarget $i
-and canquest $q 12000
-    mob echoat $q {jYou have instructions to meet your old mentor in a clearing just to the east. There you will continue your training. Type '{*EXITS{j' to see what lies in that direction. Type '{*EAST{j' to go there.{x
-    mob quest grant $q 12000
-    mob echoat $q {jType '{*QUEST{j' to view your quest log.{x
-else
-    mob forget
-endif
+// This function gets called the first time a character logs in as an elf, 
+// after character creation.
+on_login(vch) {
+    // Only newly-created characters
+    if (vch.level > 1 or vch.race != Race.Elf)
+        return;
+        
+    vch.send(
+        "^*You step off the end of an old rope ladder at the base of "
+        "Cuivealda, the Tree of Awakening. Your years in the nurturing "
+        "hands of the Tetyayath have come to an end.^/^/"
+        "Now you must go out into the world and find your destiny...^/^x")
+
+    if (vch.can_quest(12000)) {
+        delay(1, () -> {
+            vch.send("^jYou have instructions to meet your old mentor in a "
+                "clearing just to the east. There you will continue your "
+                "training. Type '^*EXITS^j' to see what lies in that "
+                "direction. Type '^*EAST^j' to go there.^x")
+            vch.grant_quest(12000)
+            vch.send("^jType '^*QUEST^j' to view your quest log.^x")
+        })
+    }
+}
 ```
+
+> [!TIP]
+> Like in other C-like languages, two or more string literals in a row are implicitly treated as a single, uninterrupted string literal. This is important because I want scripts to be OLC-editable, and many clients only support 80-character lines. This is a tool to help you control how your script line-wraps on the screen.
 
 The quest system in Mud98 is a novel addition of my own. There is an existing quest system for ROM that was fairly popular back in the day, but it relies on hard-coded quests and had no OLC support. Mud98's quest system is entirely OLC-driven.
 
-In this example, the `canquest` condition checks to see if the player is eligible for the quest (at the time of this writing, this check is a level limit and an "already-completed" check). If eligible, the player is "granted" the quest, and it is now active for them. 
+Here are the new commands used in this script, and what they do:
+- `vch.can_quest(quest_vnum)` returns `true` if the player (in `vch`) is eligible to receive the quest. If they already on the quest, or have completed it, it returns false. Effectively, this makes this text only display once.
+- `vch.grant_quest(quest_vnum)` adds the quest to their quest log.
 
-This is what the player sees:
+After compiling the script and trying it with a new characters, this is what the player sees:
 
 ```
+You step off the end of an old rope ladder at the base of Cuivealda, the Tree of
+Awakening. Your years in the nurturing hands of the Tetyayath have come to an 
+end.
+
+Now you must go out into the world and find your destiny...
+
+The Awakening
+    You stand next to the great old trunk of Cuivealda.  The light is
+dim, as the dense, high canopy that forms Tauremar covers the sky.  There is
+little ground cover, and the forest floor is a tranquil place of perpetual
+twilight.
+You have no unread notes.
 You have instructions to meet your old mentor in a clearing just to the east.
 There you will continue your training. Type 'EXITS' to see what lies in that 
 direction. Type 'EAST' to go there.
 
 You have started the quest, "An Old Friend".
-
 Type 'QUEST' to view your quest log.
 ```
 
@@ -785,40 +1098,43 @@ Here is what they see when they type `QUEST`:
 
 ```
 Active Quests in Faladrin Forest:
-
-1. An Old Friend [Level 1]
+1. An Old Friend [Level 1] 
 Before you step out into the greater world, you must be trained.  To that
-end, your old mentor Findorian has has taken the responsibility to ensure you
-are properly made ready.  He waits for you just to the east of Cuivealda.
+end, your old mentor Findorian has has taken the responsibility to ensure
+you are properly made ready.  He waits for you just to the east of
+Cuivealda.
 ```
 
 This list will obviously grow as the player progresses. World quests (those outside their immediate area) will be displayed as a collapsed list below. Completed quests are hidden.
 
 ### Finishing the quest
 
-Findorian (mob VNUM `12005`) is our quest handler. We designated him both as the quest "target" and quest "end".  We need a new Mob Prog to receive and handle the quest:
-
-```
-mpedit create 12005
-code
-
-if canfinishquest $n 12000
-    say There you are, $n; I'm glad to see you. I wish I could ease you into the
-brutal World Below, but we have no such luck.
-    mob echo $I sighs.
-    say I need your help with something, and it's not going to be pleasant.
-    mob quest finish $n 12000
-endif
-@
-done
-```
-
-I then assign this Mob Prog with a `GREET` trigger:
+Findorian (mob VNUM `12005`) is our quest handler. We designated him both as the quest "target" and quest "end".  We need a new `on_greet` script to receive and handle the quest:
 
 ```
 medit 12005
-addprog 12005 greet 100
-done
+lox
+```
+
+Add this to his Lox script (to be compiled as class `mob_12005`):
+
+```
+on_greet(vch) {
+    if (vch.can_finish_quest(12000)) {
+        say("There you are, ${vch.name}; I'm glad to see you. I wish I could "
+            "ease you into the brutal World Below, but we have no such luck.")
+        echo("$n sighs.")
+        say("I need your help with something, and it's not going to be "
+            "pleasant.")
+        vch.finish_quest(12000)
+    }
+}
+```
+
+I then assign this to an event on Findorian with the `GREET` trigger:
+
+```
+event set greet
 asave changed
 ```
 
@@ -827,27 +1143,29 @@ So, how did we do? This is what a new character sees when they enter the room wi
 ```
 The Training Ground
   Dappled sunlight breaks through the canopy in this clearing.  A patch of
-grass grows, green and vibrant, in the center.  Dark pathways through to
-trees go out in all directions.  
-[?] Findorian, the Woodspeaker, kneels in the grassy clearing, gazing intently
-at the dark woods surrounding you.
-Findorian, the Woodspeaker says 'There you are, Elithir; I'm glad to see you. I
-wish I could ease you into the brutal World Below, but we have no such luck.'
-Findorian, the Woodspeaker sighs.
-Findorian, the Woodspeaker says 'I need your help with something, and it's not
+grass grows, green and vibrant, in the center.  Dark pathways through the
+trees go out in all directions.
+  [?] Findorian, the Forestspeaker, kneels in the grassy clearing, gazing
+intently at the dark woods surrounding you.
+Findorian, the Forestspeaker says 'There you are, Elithir; I'm glad to see you.
+I wish I could ease you into the brutal World Below, but we have no such luck.'
+Findorian, the Forestspeaker sighs.
+Findorian, the Forestspeaker says 'I need your help with something, and it's not
 going to be pleasant.'
 
 You have completed the quest, "An Old Friend".
 You have been awarded 100 xp.
+You receive 10 copper.
+Your reputation with Tauremar increases (Neutral -> Friendly).
 ```
 
-The player has now completed their first quest. I could have done a more "automated" way of handling quests that didn't involve Mob Progs, but I believe this method lets forces builders to create a more customized and narrative experience around levelling.
+The player has now completed their first quest, and gotten rep with their starting faction. I could have done a more "automated" way of handling quests that didn't involve events, but I believe this method requires builders to create a more customized and narrative experience around levelling.
 
 The `[?]` symbol in front of Findorian's name is a short-hand from MMO's meaning "this person is ready to complete your quest." In this case, the process was automated. Other quests may require some interaction. It's up to you.
 
 ## Newbie's first grind
 
-In "MUD School", a PC needed to go kill a bunch of goblins in a pen for XP. The goblins were weak and cowering, and it was very difficult for the PC to get injured (it could happen, it was just hard). The idea was that you had a safe way to practice initiating combat without the danger of dying at level 1. It was pretty contrived, but it served its purpose.
+In "MUD School", a new player needed to go kill a bunch of goblins in a pen for XP. The goblins were weak and cowering, and it was very difficult for the PC to get injured (it could happen, it was just hard). The idea was that you had a safe way to practice initiating combat without the danger of dying at level 1. It was pretty contrived, but it served its purpose.
 
 Since the intention of this brand-new newbie area is to perform the same role, but in a more narrative fashion, I need to come up with a story and a quest for it.
 
@@ -855,57 +1173,7 @@ So here it is: something is poisoning the forest, and a number of animals are ge
 
 ### The quest area
 
-I'll start by making a 3x3 grid to the.... north? Sure. We'll say north. A darkened wood littered with sick animals.
-
-The task of crafting the 3x3 area is left as an exercise to the implementor. Since these rooms will share the same mob, I won't space out the VNUMs for them. I'll use VNUMs `12010`-`12019`. The shape and exist arrangements are unimportant, so long as we don't mess with players' automappers.
-
-Here's my dig commands:
-
-```
-redit 12005
-north dig 12010
-west dig 12011
-north dig 12012
-north dig 12013
-east dig 12014
-east dig 12015
-south dig 12016
-south dig 12017
-```
-
-To get back to the entrance, I use `LINK` instead of `DIG`:
-
-```
-west link 12010
-west
-redit 12010
-north dig 12018
-west link 12012
-north link 12014
-east link 12016
-```
-
-Hopefully at this point, it's pretty clear the advantage that comes with pre-mapping (in 1998 I used graph paper), especially for keeping room VNUM's straight.
-
-Here is the layout, so far:
-
-```
-    +-------+   +-------+   +-------+
-    | 12013 |---| 12014 |---| 12015 |
-    +---+---+   +---+---+   +---+---+
-        |           |           |    
-    +---+---+   +---+---+   +---+---+
-    | 12012 |---| 12018 |---| 12016 |
-    +-------+   +---+---+   +---+---+
-        |           |           |   
-    +---+---+   +---+---+   +---+---+
-    | 12011 |---| 12010 |---| 12017 |
-    +-------+   +---+---+   +-------+
-                    |
-    +-------+   +---+---+
-    | 12000 |---| 12005 |
-    +-------+   +-------+
-```
+The quest area will be VNUMs `12010` through `12018`, which we have already created to the north of `12005`.
 
 In the first room, I create this sickened creature:
 
@@ -913,28 +1181,32 @@ In the first room, I create this sickened creature:
 Name:        [sick deer]
 Vnum:        [ 12010]
 Area:        [    48] Faladrin Forest
+Faction:     [(none)]
 Level:       [     1] Sex:     [  none] Group:   [    0]
 Align:       [     0] Hitroll: [     0] Dam type: [none]
 Hit dice:    [  1d1  +   7] Damage dice:  [  1d2  +   0]
 Mana dice:   [  1d10 + 100] Material:     [     unknown]
 Race:        [        fido] Size:         [      medium]
 Start pos.:  [    standing] Default pos.: [    standing]
-Wealth:      [    0]
+Wealth:      [      0 cp] no coins
 Armor:       [pierce: 100  bash: 100  slash: 100  magic: 100]
-Affected by: [none]
+Affected by: [(none)]
 Act:         [npc sentinel wimpy]
-Form:        [edible poison animal mammal]
-Parts:       [head legs heart brains guts ear eye tail horns]
-Imm:         [summon charm]
-Res:         [none]
-Vuln:        [magic]
-Off:         [none]
+       Form: [ edible poison animal mammal ] (animalDefault)
+      Parts: [ head legs heart brains guts feet ear eye tail horns ]
+             (animalDefault)
+        Imm: [ summon charm ]
+        Res: [     (none) ]
+       Vuln: [      magic ]
+        Off: [     (none) ]
 Short descr: A sick deer
 Long descr:
 A sick deer drags a limp leg along the ground.
 Description:
 This deer has been poisoned, and is near death.  Its eyes are bloodshot
-and crazed.  It eyes you warily. 
+and crazed.  It eyes you warily.  
+Lox Class      : [     (none) ] Type 'LOX' to create one.
+Events         : (none) Type 'EVENT' to create one.
 ```
 
 Then we add it to room `12010`'s resets:
@@ -959,17 +1231,16 @@ Here's the results of `MOBLIST AREA` after adding the creatures:
 ```
 VNUM   Name       Lvl Hit Dice     Hit   Dam      Mana       Pie  Bas  Sla  Mag
 ===============================================================================
-12000  (no short  0   0d0+0        0     0d0+0    0d0+0        0    0    0    0
 12005  Findorian, 20  3d9+333      0     2d8+5    20d12+100  -40  -40  -40  -30
-12010  A sick dee 1   1d1+7        0     1d2+0    1d10+100   100  100  100  100
-12011  A blighted 1   1d1+7        0     1d2+0    1d10+100   100  100  100  100
-12012  A rabid bo 1   1d1+7        0     1d3+0    1d10+100   100  100  100  100
-12013  A crazed b 1   1d1+7        0     1d4+0    1d10+100   100  100  100  100
-12014  A wild wea 1   1d1+7        0     1d3+0    1d10+100   100  100  100  100
-12015  A mutant c 1   1d1+7        0     1d4+0    1d10+100   100  100  100  100
-12016  An angry b 1   1d1+7        0     1d3+0    1d10+100   100  100  100  100
-12017  A feral ra 1   1d1+7        0     1d2+0    1d10+100   100  100  100  100
-12018  An agonize 1   1d1+7        0     1d2+0    1d10+100   100  100  100  100
+12010  A sick dee 1   1d1+7        0     1d2+0    0d0+0      100  100  100  100
+12011  A blighted 1   1d1+7        0     1d2+0    0d0+0      100  100  100  100
+12012  A rabid bo 1   1d1+7        0     1d3+0    0d0+0      100  100  100  100
+12013  A crazed b 1   1d1+7        0     1d4+0    0d0+0      100  100  100  100
+12014  A wild wea 1   1d1+7        0     1d3+0    0d0+0      100  100  100  100
+12015  A mutant c 1   1d1+7        0     1d4+0    0d0+0      100  100  100  100
+12016  An angry b 1   1d1+7        0     1d3+0    0d0+0      100  100  100  100
+12017  A feral ra 1   1d1+7        0     1d2+0    0d0+0      100  100  100  100
+12018  An agonize 1   1d1+7        0     1d2+0    0d0+0      100  100  100  100
 ```
 
 These stats are in line with the traditional MUD school monsters.
@@ -982,85 +1253,95 @@ Findorian will be dispensing this quest, so it will follow his VNUM list:
 qedit create 12006
 name A Preserver's Burden
 type kill_mob
-end 12005
-xp 200
 level 1
+end 12005
 target 12010
 amount 9
+xp 200
+faction 12000
+rewardrep 100
+rewardcopper 10
 ```
 
-This quest uses a couple values we didn't have, before, which means `target` has a very different meaning. Before, for `visit_mob`, Findorian was both the `end` and the `target`. Now he is the `end`, and the "sick deer" is the target. You can specify the number of times the quest conditions (as defined by the quest type) must be performed before the quest is "finished" and can be turned in. In this case, the number of times the "sick deer" must be killed.
+This quest uses a couple values we didn't have, before, which means `target` has a very different meaning. Before, for `visit_mob`, Findorian was both the `end` and the `target`. Now he is the `end` (the "turn-in"), and the "sick deer" is the target.
 
-Here is the quest as it stands, now:
-
-```
-VNUM:       [12006]
-Name:       A Preserver's Burden
-Area:       Faladrin Forest
-Type:       [kill_mob]
-Level:      [1]
-End:        [12005] Findorian, the Woodspeaker
-Target:     [12010] A sick deer (set UPPER to use a range of VNUMs)
-Amount:     [9]
-XP:         [200]
-Entry:      [none]
-```
-
-Now, we created nine unique monsters for this quest, and what we really want is for each of these mobs to be a possible fulfillment of the quest. As the suggestion text for `target` says above, we do so with `upper`:
+Setting `amount` specifies the number of times the quest conditions (as defined by the quest type) must be performed before the quest is "finished" and can be turned in. In this case, the number of times the "sick deer" must be killed. However, we created nine unique monsters for this quest, and what we really want is for each of these mobs to be a possible fulfillment of the quest. As the suggestion text for `target` says, we do so with `upper`:
 
 ```
 upper 12018
 ```
 
-This creates an upper-bound on a range of VNUMs that are now valid targets for this quest:
+This creates an upper-bound on a range of VNUMs that are now valid targets for this quest.
+
+Add an entry to show up in the quest log (using `entry`), and this is what you should see as the final result:
 
 ```
-VNUM:       [12006]
-Name:       A Preserver's Burden
-Area:       Faladrin Forest
-Type:       [kill_mob]
-Level:      [1]
-End:        [12005] Findorian, the Woodspeaker
-Target:     [12010] A sick deer
-            [12011] A blighted fox
-            [12012] A rabid bobcat
-            [12013] A crazed black bear
-            [12014] A wild weasel
-            [12015] A mutant coyote
-            [12016] An angry badger
-            [12017] A feral rabbit
-Upper:      [12018] An agonized boar
-Amount:     [9]
-XP:         [200]
-Entry:      [none]
+Quest          : [      12006 ] A Preserver's Burden
+Area           : Faladrin Forest
+Type           : [   kill_mob ]
+Level          : [          1 ]
+End            : [      12005 ] Findorian, the Forestspeaker
+Target         : [      12010 ] A sick deer
+               : [      12011 ] A blighted fox
+               : [      12012 ] A rabid bobcat
+               : [      12013 ] A crazed black bear
+               : [      12014 ] A wild weasel
+               : [      12015 ] A mutant coyote
+               : [      12016 ] An angry badger
+               : [      12017 ] A feral rabbit
+Upper          : [      12018 ] An agonized boar
+Amount         : [          9 ]
+XP             : [        200 ]
+Currency       : 10 copper
+Faction        : [      12000 ] Tauremar
+Reward Items   : [     (none) ] 
+Entry: 
+Findorian needs help culling the sick and ailing creatures in the poisoned woods
+of the Faladrin Forest.  The best thing you can do right now is to end their 
+suffering.  Be warned however; many of them are twisted and violent. 
 ```
 
-Add an entry to show up in the quest log, and save the changes.
+> [!IMPORTANT]
+> Obviously, this only works if the target mobs all have sequential VNUMs. Plan accordingly.
 
-Now I need to extend Findorian's existing Mob Prog #`12005`:
+Now I need to extend Findorian's Lox script (`MEDIT 12005`):
 
 ```
-if canfinishquest $n 12000
-    say There you are, $n; I'm glad to see you. I wish I could ease you into the brutal World Below, but we have no such luck.
-    mob echo $I sighs.
-    say I need your help with something, and it's not going to be pleasant.
-    mob quest finish $n 12000
-    say There is a blight in this region of the forest infecting flora and fauna alike. I want to get to the root of it, but for now there is great suffering that must be dealt with.
-    say This is the burden of a Forestspeaker; there is only one way to stop the spread of the disease and bring peace to the afflicted, and that is by death.
-    say The Tetyayath have taught you the Creeds, and you have spoken them. Now you must pay the terrible cost of adhering to them.
-    say Go north. Bring them mercy. They have suffered long enough.
-    mob quest grant $n 12006
-endif
-if canfinishquest $n 12006
-    say Bloody business, that. I'm sorry.
-    mob echo $I places his hand on $s shoulder.
-    say What you have done here important. Preservation is about protecting what we can, and mitigating when we can't.
-    say You have honored the Creeds. You have honored the Forest.
-    mob quest finish $n 12006
-endif
+on_greet(vch) {
+    if (vch.can_finish_quest(12000)) {
+        say("There you are, ${vch.name}; I'm glad to see you. I wish I could "
+            "ease you into the brutal World Below, but we have no such luck.")
+        echo("$n sighs.")
+        say("I need your help with something, and it's not going to be"
+            "pleasant.")
+        vch.finish_quest(12000)
+        say("There is a blight in this region of the forest infecting flora "
+            "and fauna alike. I want to get to the root of it, but for now "
+            "there is great suffering that must be dealt with.")
+        say("This is the burden of a Forestspeaker; there is only one way to "
+            "stop the spread of the disease and bring peace to the "
+            "afflicted, and that is by death.")
+        say("The Tetyayath have taught you the Creeds, and you have spoken "
+            "them. Now you must pay the terrible cost of following them.")
+        say("Go north. Bring those poor animals mercy. They have suffered "
+            "long enough.")
+        vch.grant_quest(12006)
+    }
+    else if (vch.can_finish_quest(12006)) {
+        say("Bloody business, that. I'm sorry.")
+        echo(vch, "$n places his hand on $S shoulder.")
+        say("What you have done here important. Preservation is about "
+            "protecting what we can, and mitigating when we can't.")
+        say("You have honored the Creeds. You have honored the Forest.")
+        vch.finish_quest(12006)
+    }
+}
 ```
 
-Notice that the same trigger is now driving two different quests. I write quests in such a way that multiple quests can be turned in at the same time. It would be strange to have to leave, and reenter the room to fulfill a second quest.
+There's a lot here but what it's actually doing is pretty simple. We amended the previous conditional block (turning in quest VNUM `12000`) to also grant a new quest (quest VNUM `12006`, which we just made). But we also made a new block for turning in that quest. Most of this text is our quest-giver mob blathering.
+
+> [!NOTE]
+> I have a lot of stacked `say` commands. Strictly speaking, I didn't have to do this; if you add additional strings to a single `say` call with comma separators, they will be treated as separate "speech bubbles". I did _not_ do this, here, because of how densely packed the text is.
 
 ### Testing
 
@@ -1069,29 +1350,32 @@ Here's how the first completion looks with the second quest appended:
 ```
 The Training Ground
   Dappled sunlight breaks through the canopy in this clearing.  A patch of
-grass grows, green and vibrant, in the center.  Dark pathways through to
+grass grows, green and vibrant, in the center.  Dark pathways through the
 trees go out in all directions.  
-  [?] Findorian, the Woodspeaker, kneels in the grassy clearing, gazing intently
-at the dark woods surrounding you.
-Findorian, the Woodspeaker says 'There you are, Elithir; I'm glad to see you. I
-wish I could ease you into the brutal World Below, but we have no such luck.'
-Findorian, the Woodspeaker sighs.
-Findorian, the Woodspeaker says 'I need your help with something, and it's not
+
+  [?] Findorian, the Forestspeaker, kneels in the grassy clearing, gazing
+intently at the dark woods surrounding you.
+Findorian, the Forestspeaker says 'There you are, Elithir; I'm glad to see you.
+I wish I could ease you into the brutal World Below, but we have no such luck.'
+Findorian, the Forestspeaker sighs.
+Findorian, the Forestspeaker says 'I need your help with something, and it's not
 going to be pleasant.'
 
 You have completed the quest, "An Old Friend".
 You have been awarded 100 xp.
+You receive 10 copper.
+Your reputation with Tauremar increases (Neutral -> Friendly).
 
-Findorian, the Woodspeaker says 'There is a blight in this region of the forest
-infecting flora and fauna alike. I want to get to the root of it, but for now 
-there is great suffering that must be dealt with.'
-Findorian, the Woodspeaker says 'This is the burden of a Forestspeaker; there is
-only one way to stop the spread of the disease and bring peace to the afflicted, 
-and that is by death.'
-Findorian, the Woodspeaker says 'The Tetyayath have taught you the Creeds, and
-you have spoken them. Now you must pay the terrible cost of adhering to them.'
-Findorian, the Woodspeaker says 'Go north. Bring them mercy. They have suffered
-long enough.'
+Findorian, the Forestspeaker says 'There is a blight in this region of the
+forest infecting flora and fauna alike. I want to get to the root of it, but for 
+now there is great suffering that must be dealt with.'
+Findorian, the Forestspeaker says 'This is the burden of a Forestspeaker; there
+is only one way to stop the spread of the disease and bring peace to the 
+afflicted, and that is by death.'
+Findorian, the Forestspeaker says 'The Tetyayath have taught you the Creeds, and
+you have spoken them. Now you must pay the terrible cost of following them.'
+Findorian, the Forestspeaker says 'Go north. Bring those poor animals mercy.
+They have suffered long enough.'
 
 You have started the quest, "A Preserver's Burden".
 ```
@@ -1123,29 +1407,13 @@ Wait, I messed up; back up
 
 That fight took _forever_. Why? Because my character had 1% in all skills and base ability scores. Also, no gear. That won't do.
 
-## Adding a tutorial 
+## Player Onboarding
 
-In MUD school, you `TRAIN` and `PRACTICE` before you fight. So I'm going to splice in some rooms between 12000 and 12005 to equip and train the player.
-
-Here's how I create the new layout:
-
-```
-redit 12000
-east delete
-east dig 12002
-east dig 12003
-east link 12005
-```
-
-The first `delete` breaks the link between rooms `12000` and `12005`. Then I dig two new rooms east of `12000`, and finally link it with `12005`.
-
-I started with 12002 because MobProg `12001` is already used by the triggerbot in room `12000`. As I said, I like to at least _try_ to keep my VNUMs in sync. The decision to start the second room at VNUM 12005 turns out to be wise, in retrospect, as (as I predicted) I might have needed to insert a room or two inbetween.
-
-We can successively dig serially like this because each `dig` moves us into the new room, and sets that as our edit point.
+In MUD school, you `TRAIN` and `PRACTICE` before you are sent off to fight. fight. So I'm going to task some rooms between 12000 and 12005 to equip and train the player.
 
 ### The training room
 
-The first room will serve two purposes: to teach the player how to `READ` notes, and how to `TRAIN` and `PRACTICE`.
+Let's start with the second room we created, right after "The Awakening": VNUM `12002`. This first room will serve two purposes: to teach the player how to `READ` notes, and how to `TRAIN` and `PRACTICE`.
 
 ```
 redit 12002
@@ -1164,40 +1432,31 @@ The note is a piece of scenery; the player can't take it with them. Rather, it's
 ```
 ed add note
 Before you come see me, take some time and center yourself.
-Be sure to {*TRAIN{x your abilities and {*PRACTICE{x your skills.
-Never be afraid to seek {*HELP{x if you lack understanding.
+Be sure to ^*TRAIN^x your abilities and ^*PRACTICE^x your skills.
+Never be afraid to seek ^*HELP^x if you lack understanding.
  
 --F
-```
-
-Now, in my example, I have the config settings `train_anywhere` and `practice_anywhere` enabled. If you don't, you need to maybe need to move this part over to Findorian and add the `train` and `practice` flags to him, or add them to the triggerbot we're about to create.
-
-To let the player know to look at the note, I want to do an OOC announcement with a triggerbot. First, the Mob Prog:
-
-```
-mpedit create 12002
-code
-if hasquest $n 12000
-    mob echoat $n {jTo read the note tacked to the tree, type any of the
-following:{j
-    mob echoat $n {*READ NOTE{j, {*LOOK NOTE{j, or {*EXAMINE NOTE{j.
-endif
 @
-done
 ```
 
-Now I make a new triggerbot, attach a new mob prog to it, and load it:
+Now, in my example, I have the config settings `train_anywhere` and `practice_anywhere` enabled in `mud98.cfg`. If you don't, you maybe need to move this part over to Findorian and add the `train` and `practice` flags to him, or add them to a Mobile in this room.
+
+To let the player know to look at the note, I want to do an OOC announcement with a Lox script (again, using the `lox` command):
 
 ```
-medit create 12002
-copy 12000
-name triggerbot_12002
-addprog 12002 greet 100
-done
-redit 12002
-mreset 12002 1 1
-done
-asave changed
+on_greet(vch) {
+    if (vch.has_quest(12000)) {
+        vch.send("^jTo read the note tacked to the tree, type any of the "
+                 "following: ^*READ NOTE^j, ^*LOOK NOTE^j, or ^*EXAMINE "
+                 "NOTE^j.^x")
+    }
+}
+```
+
+We saw `on_greet` before, when we wired up Findorian's script. Note that the same Greet event can be applied to rooms, as well as Mobiles. We use the same syntax to add the event to the room:
+
+```
+event set greet
 ```
 
 And with that, the player is now empowered to train abilities and practice skills.
@@ -1245,9 +1504,9 @@ v1 1
 v2 1
 wear take body
 materal cloth
-name shirt linen cuivealda
-short a linen shirt of Cuivealda
-long A linen shirt of Cuivealda lays on the ground.
+name shirt linen tauremar
+short a linen shirt of Tauremar
+long A linen shirt of Tauremar lays on the ground.
 done
 ```
 
@@ -1257,9 +1516,9 @@ Most of these settings will be the same across items:
 oedit create 12001
 copy 12000
 wear body around
-name cloak linen cuivealda
-short a linen cloak of Cuivealda
-long A linen cloak of Cuivealda is discarded here.
+name cloak linen tauremar
+short a linen cloak of Tauremar
+long A linen cloak of Tauremar is discarded here.
 done
 ```
 
@@ -1268,17 +1527,20 @@ The second `wear` line needs some explaining: in Mud98, each word fed into the O
 I continue in this way until I have a complete replacement for all the starter gear, and my `OBJLIST AREA ARMOR` in Faladrin Forest looks like this:
 
 ```
-VNUM   Lvl Name                AC:  Pierce  Bash    Slash   Exotic        
+VNUM   Lvl Name                AC:  Pierce   Bash    Slash  Exotic
 ===========================================================================
-12000  0   a linen shirt of Cuivea  [    1] [    1] [    1] [    0] [    0] 
-12001  0   a linen cloak of Cuivea  [    1] [    1] [    1] [    0] [    0] 
-12002  0   a linen cap of Cuiveald  [    1] [    1] [    1] [    0] [    0] 
-12003  0   linen pants of Cuiveald  [    1] [    1] [    1] [    0] [    0] 
-12004  0   wooden clogs of Cuiveal  [    1] [    1] [    1] [    0] [    0] 
+12000  0   a linen shirt of Taurem  [    1] [    1] [    1] [    0] [    0] 
+12001  0   a linen cloak of Taurem  [    1] [    1] [    1] [    0] [    0] 
+12002  0   a linen cap of Tauremar  [    1] [    1] [    1] [    0] [    0] 
+12003  0   linen pants of Tauremar  [    1] [    1] [    1] [    0] [    0] 
+12004  0   leather shoes of Taurem  [    1] [    1] [    1] [    0] [    0] 
 12005  0   simple hide gloves       [    1] [    1] [    1] [    0] [    0] 
 12006  0   a belt of hemp rope      [    1] [    1] [    1] [    0] [    0] 
-12007  0   simple hempen wristband  [    1] [    1] [    1] [    0] [    0] 
+12007  0   simple hemp wristbands   [    1] [    1] [    1] [    0] [    0] 
 ```
+
+> [!NOTE]
+> At the time of this writing, the fifth armor type is unused, and will stay `0`.
 
 Now I make a chest to put all this stuff in:
 
@@ -1290,9 +1552,9 @@ v0 100
 v1 closed closeable
 v3 8
 extra nopurge
-name chest oaken stout
-short a stout oaken chest
-long A stout oaken chest is nestled between the roots a great tree trunk.
+name chest oak stout
+short a stout oak chest
+long A stout oak chest is nestled between the roots a great tree trunk.
 ```
 
 And now I load up the trunk with the items:
@@ -1336,15 +1598,15 @@ Exits:
 Resets: M = mobile, R = room, O = object, P = pet, S = shopkeeper
  No.  Loads    Description       Location         Vnum   Ar Rm Description
 ==== ======== ============= =================== ======== ===== ===========
-[ 1] O[12008] a stout oaken                     R[12003]       A Dark Path Thr
-[ 2] O[12000] a linen shirt inside              O[12008]  0- 1 a stout oaken c
-[ 3] O[12001] a linen cloak inside              O[12008]  0- 1 a stout oaken c
-[ 4] O[12002] a linen cap o inside              O[12008]  0- 1 a stout oaken c
-[ 5] O[12003] linen pants o inside              O[12008]  0- 1 a stout oaken c
-[ 6] O[12004] wooden clogs  inside              O[12008]  0- 1 a stout oaken c
-[ 7] O[12005] simple hide g inside              O[12008]  0- 1 a stout oaken c
-[ 8] O[12006] a belt of hem inside              O[12008]  0- 1 a stout oaken c
-[ 9] O[12007] simple hempen inside              O[12008]  0- 1 a stout oaken c
+[ 1] O[12008] a stout oak c                     R[12003]       A Dark Path Thr
+[ 2] O[12000] a linen shirt inside              O[12008]  0- 1 a stout oak che
+[ 3] O[12001] a linen cloak inside              O[12008]  0- 1 a stout oak che
+[ 4] O[12002] a linen cap o inside              O[12008]  0- 1 a stout oak che
+[ 5] O[12003] linen pants o inside              O[12008]  0- 1 a stout oak che
+[ 6] O[12004] leather shoes inside              O[12008]  0- 1 a stout oak che
+[ 7] O[12005] simple hide g inside              O[12008]  0- 1 a stout oak che
+[ 8] O[12006] a belt of hem inside              O[12008]  0- 1 a stout oak che
+[ 9] O[12007] simple hemp w inside              O[12008]  0- 1 a stout oak che
 ```
 
 Now if you log into the game with a newbie char, you can go up to the chest and perform the following commands:
@@ -1357,50 +1619,48 @@ look in chest
 Which produces the following:
 
 ```
-A stout oaken chest holds:
-     simple hempen wristbands
+A stout oak chest holds:
+     simple hemp wristbands
      a belt of hemp rope
      simple hide gloves
-     wooden clogs of Cuivealda
-     linen pants of Cuivealda
-     a linen cap of Cuivealda
-     a linen cloak of Cuivealda
-     a linen shirt of Cuivealda
+     leather shoes of Tauremar
+     linen pants of Tauremar
+     a linen cap of Tauremar
+     a linen cloak of Tauremar
+     a linen shirt of Tauremar
 ```
 
 Because we enabled `alwaysreset` on the area, this chest will replenish its items every 8 minutes. 
 
-Now I want to make am Mob Prog and a triggerbot to let the player know what to do, here.
+Now I want to make a Greet event on room VNUM `12003` to let the player know what to do, here. Here's the Lox script:
 
 ```
-mpedit create 12003
-code
-if hasquest $n 12000
-    mob echoat $n {jYour mentor has left you some gear to help you on your{x
-    mob echoat $n {jjourney. It's inside a chest by the tree.{x
-    mob echoat $n {jTry the following commands:{x
-    mob echoat $n {j- {*OPEN CHEST{x
-    mob echoat $n {j- {*LOOK IN CHEST{x
-    mob echoat $n {j- {*TAKE ALL FROM CHEST{x
-    mob echoat $n {j- {*EQUIP ALL{x
-    mob echoat $n {jYou can also look at your inventory with:{x
-    mob echoat $n {j- {*EQ{j (short for {*EQUIPMENT{j){x
-    mob echoat $n {j- {*INV{j (short for {*INVENTORY{j){x
-    mob echoat $n {jYou can see the effect of donning this gear by viewing your stats:{x
-    mob echoat $n {j- {*SCORE{j (which you can abbreviate to {*SC{j){x
-endif
-@
-done
-medit create 12003
-copy 12000
-name triggerbot_12003
-addprog 12003 greet 100
-done
-redit 12003
-mreset 12003 -1 1
-done
-asave changed
+on_greet(vch) {
+    if (vch.has_quest(12000)) {
+        vch.send(
+            "^jYour mentor has left you some gear to help you on your "
+                "journey. It's inside a chest by the tree.^x",
+            "^jTry the following commands:^x",
+            "^j- ^*OPEN CHEST^x",
+            "^j- ^*LOOK IN CHEST^x",
+            "^j- ^*TAKE ALL FROM CHEST^x",
+            "^j- ^*EQUIP ALL^x",
+            "^jYou can also look at your inventory with:^x",
+            "^j- ^*EQ^j (short for ^*EQUIPMENT^j)^x",
+            "^j- ^*INV^j (short for ^*INVENTORY^j)^x",
+            "^jYou can see the effect of donning this gear by viewing your "
+                "stats:^x",
+            "^j- ^*SCORE^j (which you can abbreviate to ^*SC^j)^x")
+    }
+}
 ```
+
+> [!TIP]
+> `mob.send` follows the same convention as `mob.say`: a comma-delimited list of strings is treated as multiple `send` operations. Each one will be presented on with it's own EOL sequence.
+>
+> So why clear the color formatting and start a new one? Because it's a good habit to get into. In the future, you may end up writing triggers that act on a `send` before the other `send`s take effect; in that situation you can't predict what order things will be in. And that would mess with color formatting if we don't self-contain each message.
+>
+> **Best practice:** Assume that any two messages could possibly have another message spliced between them. Format accordingly.
 
 Now if we load into a new character, we can see the triggerbots in action; prompting us and letting our newbie know how to proceed.
 
@@ -1429,15 +1689,17 @@ A mutant coyote hits the ground ... DEAD.
 We've hit 9 of the 9 alotted targets, and we will no longer accrue any more. We are ready to turn in the quest to Findorian:
 
 ```
-Findorian, the Woodspeaker says 'Bloody business, that. I'm sorry.'
-Findorian, the Woodspeaker places his hand on his shoulder.
-Findorian, the Woodspeaker says 'What you have done here important. Preservation
+Findorian, the Forestspeaker says 'Bloody business, that. I'm sorry.'
+Findorian, the Forestspeaker places his hand on his shoulder.
+Findorian, the Forestspeaker says 'What you have done here important. Preservation
 is about protecting what we can, and mitigating when we can't.'
-Findorian, the Woodspeaker says 'You have honored the Creeds. You have honored
+Findorian, the Forestspeaker says 'You have honored the Creeds. You have honored
 the Forest.'
 
 You have completed the quest, "A Preserver's Burden".
-You have been awarded 180 xp.
+You have been awarded 100 xp.
+You receive 10 copper.
+Your reputation with Tauremar increases (Friendly).
 ```
 
 With just those two quest types, we can do a lot of narrative world expansion. The task of completing this area, and of making other racial (or even class) starting areas is up to you.

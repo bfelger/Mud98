@@ -6,20 +6,29 @@
 #include "color.h"
 
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "digest.h"
 #include "handler.h"
 #include "save.h"
 #include "vt.h"
 
-#include "entities/descriptor.h"
-#include "entities/player_data.h"
+#include <olc/olc.h>
 
-#include "data/mobile_data.h"
-#include "data/player.h"
+#include <persist/theme/theme_persist.h>
 
+#include <entities/descriptor.h>
+#include <entities/player_data.h>
+
+#include <data/mobile_data.h>
+#include <data/player.h>
+
+#include <ctype.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
+
+void set_default_theme(Mobile* ch);
 
 #define COLOR2STR(t, s, x)  color_to_str((ColorTheme*)t, (Color*)&t->channels[s], x)
 #define BGCOLOR2STR(t, x)   bg_color_to_str((ColorTheme*)t, (Color*)&t->channels[SLOT_BACKGROUND], x)
@@ -30,7 +39,7 @@
 
 static const char* theme_change_warning = COLOR_INFO "You have have made changes to your "
     "active theme that must either be saved with " COLOR_ALT_TEXT_1 "THEME SAVE" COLOR_INFO " or discarded "
-    "with " COLOR_ALT_TEXT_1 "THEME DISCARD" COLOR_CLEAR ".\n\r";
+    "from " COLOR_ALT_TEXT_1 "THEME EDIT" COLOR_INFO " using the " COLOR_ALT_TEXT_1 "DISCARD" COLOR_INFO " command." COLOR_CLEAR "\n\r";
 
 char* bg_color_to_str(const ColorTheme* theme, const Color* color, bool xterm)
 {
@@ -218,7 +227,7 @@ static void list_theme_entry(Mobile* ch, ColorTheme* theme, const char* owner, b
     free_buf(out);
 }
 
-static inline void send_256_color_list(Mobile* ch)
+void send_256_color_list(Mobile* ch)
 {
     int i;
     int text;
@@ -239,7 +248,7 @@ static inline void send_256_color_list(Mobile* ch)
     send_to_char("\n\r", ch);
 }
 
-static inline void send_ansi_color_list(Mobile* ch)
+void send_ansi_color_list(Mobile* ch)
 {
     send_to_char(COLOR_INFO "You can choose from the following:" COLOR_EOL, ch);
     for (int i = 0; i < 15; ++i) {
@@ -251,7 +260,7 @@ static inline void send_ansi_color_list(Mobile* ch)
     send_to_char("\n\r", ch);
 }
 
-static inline bool lookup_color(char* argument, Color* color, Mobile* ch)
+bool lookup_color(char* argument, Color* color, Mobile* ch)
 {
     if (argument == NULL || !argument[0]) {
         send_to_char(COLOR_INFO "You must choose a color." COLOR_EOL, ch);
@@ -346,88 +355,6 @@ static inline bool lookup_color(char* argument, Color* color, Mobile* ch)
     return true;
 }
 
-static void do_theme_channel(Mobile* ch, char* argument)
-{
-    static const char* help =
-        COLOR_INFO
-        "USAGE: " COLOR_ALT_TEXT_1 "THEME CHANNEL <channel> <color>" COLOR_CLEAR
-        "\n\r\n\r"
-        COLOR_ALT_TEXT_1 "index" COLOR_INFO " - Palette slot in the current theme to replace. Use THEME SHOW or \n\r"
-        "        THEME PREVIEW for a list of current palette assignments.\n\r\n\r"
-        COLOR_ALT_TEXT_1 "color" COLOR_INFO " - For ANSI color themes, " COLOR_ALT_TEXT_1 "<color>" COLOR_INFO " is a numeric value representing the \n\r"
-        "        standard ANSI color palette index, " COLOR_ALT_TEXT_2 "or" COLOR_INFO " an ANSI color name. For 256-color\n\r"
-        "        indexed themes, this is a numeric value from 0 to 256.\n\r\n\r"
-        "        RGB themes (24-bit) use colors in the form " COLOR_ALT_TEXT_1 "#RRGGBB;" COLOR_INFO ".\n\r\n\r"
-        "        You can also refer directly to a palette color with " COLOR_ALT_TEXT_1 "PALETTE <index>" COLOR_INFO "\n\r"
-        "        or " COLOR_ALT_TEXT_1 "PAL <index>" COLOR_INFO "." COLOR_EOL;
-
-    char chan_arg[MAX_INPUT_LENGTH];
-    int chan = -1;
-    ColorTheme* theme = ch->pcdata->current_theme;
-
-    READ_ARG(chan_arg);
-    if (!chan_arg[0]) {
-        send_to_char(help, ch);
-        return;
-    }
-
-    LOOKUP_COLOR_SLOT_NAME(chan, chan_arg);
-    if (chan < 0) {
-        printf_to_char(ch, COLOR_INFO "'%s' is not a valid channel name. Type '" 
-            COLOR_ALT_TEXT_1 "THEME SHOW" COLOR_INFO " for a list of color "
-            "channels." COLOR_EOL, chan_arg);
-        return;
-    }
-
-    bool color_is_num = is_number(argument);
-    int idx = -1;
-
-    if (color_is_num)
-        idx = atoi(argument);
-
-    Color color = { 0 };
-    if (theme->mode == COLOR_MODE_16) {
-        if (!color_is_num) {
-            if (!lookup_color(argument, &color, ch))
-                return;
-        }
-        else if (idx < 0 || idx > 16) {
-            printf_to_char(ch, COLOR_INFO "You much choose a color index from 0 to 15." COLOR_EOL);
-            return;
-        }
-        else
-            set_color_ansi(&color, (uint8_t)idx / 8, (uint8_t)idx % 8);
-    }
-    else if (theme->mode == COLOR_MODE_256) {
-        if (!color_is_num) {
-            if (!lookup_color(argument, &color, ch))
-                return;
-        }
-        else if (idx < 0 || idx > 255) {
-            printf_to_char(ch, COLOR_INFO "You much choose a color index from 0 to 255." COLOR_EOL);
-            send_256_color_list(ch);
-            return;
-        }
-        else
-            set_color_256(&color, (uint8_t)idx);
-    }
-    else if (theme->mode == COLOR_MODE_RGB) {
-        if (!lookup_color(argument, &color, ch))
-            return;
-    }
-    else {
-        printf_to_char(ch, COLOR_INFO "Theme palettes cannot refer to themselves. Choose a color." COLOR_CLEAR "\n\r.");
-    }
-
-    free_string(theme->channels[chan].cache);
-    theme->channels[chan].cache = NULL;
-    free_string(theme->channels[chan].xterm);
-    theme->channels[chan].xterm = NULL;
-
-    theme->channels[chan] = color;
-    theme->is_changed = true;
-}
-
 static void clear_cached_codes(ColorTheme* theme)
 {
     for (int i = 0; i < theme->palette_max; ++i) {
@@ -444,6 +371,23 @@ static void clear_cached_codes(ColorTheme* theme)
         theme->channels[i].xterm = NULL;
     }
 }
+
+static char* skip_spaces(char* str)
+{
+    if (!str)
+        return str;
+
+    while (*str && isspace((unsigned char)*str))
+        ++str;
+
+    return str;
+}
+
+static ColorTheme* color_find_system_theme(const char* name, bool allow_prefix);
+static int color_find_system_theme_index(const char* name, bool allow_prefix);
+static bool color_append_system_theme(ColorTheme* theme);
+static bool color_remove_system_theme(int index);
+static void destroy_system_theme(ColorTheme* theme);
 
 static void do_theme_config(Mobile* ch, char* argument)
 {
@@ -514,74 +458,16 @@ static void do_theme_config(Mobile* ch, char* argument)
     }
 }
 
-static void do_theme_create(Mobile* ch, char* argument)
+static ColorTheme* create_theme_template(const char* name, ColorMode mode)
 {
-    static const char* help =
-        COLOR_INFO
-        "USAGE: " COLOR_ALT_TEXT_1 "THEME CREATE (ANSI|256|RGB) <name>" COLOR_INFO "\n\r"
-        "\n\r"
-        "Creates a new theme of the requested type and sets it to the currently "
-        "active theme. The default is a solid black background and soft-white "
-        "foreground colors.\n\r"
-        "\n\r"
-        "All channel colors are assigned to the first palette index except "
-        "background, which is set to the second palette index (black by "
-        "default). These values can be changed." COLOR_EOL;
-
-    char mode_arg[MAX_INPUT_LENGTH];
-    ColorMode mode;
-
-    if (ch->pcdata->current_theme->is_changed) {
-        send_to_char(theme_change_warning, ch);
-        return;
-    }
-
-    READ_ARG(mode_arg);
-
-    if (!mode_arg[0] 
-        || (mode = lookup_color_mode(mode_arg)) < COLOR_MODE_16
-        || mode > COLOR_MODE_RGB
-        || !argument[0]) {
-        send_to_char(help, ch);
-        return;
-    }
-
-    size_t len = strlen(argument);
-    if (len < 2 || len > 12) {
-        send_to_char(COLOR_INFO "Color theme names must be between 2 and 12 characters long." COLOR_EOL, ch);
-        return;
-    }
-
-    for (int i = 0; i < SYSTEM_COLOR_THEME_COUNT; ++i) {
-        if (!str_cmp(argument, system_color_themes[i]->name)) {
-            send_to_char(COLOR_INFO "You cannot use the name of an existing system or "
-                "personal theme." COLOR_EOL, ch);
-            return;
-        }
-    }
-
-    int slot = -1;
-    for (int i = 0; i < MAX_THEMES; ++i) {
-        if (ch->pcdata->color_themes[i] == NULL) {
-            slot = i;
-            break;
-        }
-    }
-
-    if (slot < 0) {
-        send_to_char(COLOR_INFO "You already have the maximum number of personal color "
-            "themes. You must remove one with 'THEME REMOVE' first." COLOR_EOL, ch);
-        return;
-    }
-
     ColorTheme* theme = new_color_theme();
-    theme->name = str_dup(argument);
+    theme->name = str_dup(name);
     theme->mode = mode;
     theme->banner = str_dup("");
     theme->palette_max = 16;
-    theme->is_changed = true;
     theme->is_public = false;
-    
+    theme->is_changed = true;
+
     Color white;
     Color black;
 
@@ -616,6 +502,115 @@ static void do_theme_create(Mobile* ch, char* argument)
         theme->channels[i] = fg_idx;
     theme->channels[SLOT_BACKGROUND] = bg_idx;
 
+    return theme;
+}
+
+static void do_theme_create(Mobile* ch, char* argument)
+{
+    static const char* help =
+        COLOR_INFO
+        "USAGE: " COLOR_ALT_TEXT_1 "THEME CREATE (ANSI|256|RGB) <name>" COLOR_INFO "\n\r"
+        "\n\r"
+        "Creates a new theme of the requested type and sets it to the currently "
+        "active theme. The default is a solid black background and soft-white "
+        "foreground colors.\n\r"
+        "\n\r"
+        "All channel colors are assigned to the first palette index except "
+        "background, which is set to the second palette index (black by "
+        "default). These values can be changed." COLOR_EOL;
+
+    char mode_arg[MAX_INPUT_LENGTH];
+    ColorMode mode;
+
+    READ_ARG(mode_arg);
+
+    argument = skip_spaces(argument);
+
+    if (!mode_arg[0]
+        || (mode = lookup_color_mode(mode_arg)) < COLOR_MODE_16
+        || mode > COLOR_MODE_RGB
+        || !argument[0]) {
+        send_to_char(help, ch);
+        return;
+    }
+    char first_word[MAX_INPUT_LENGTH] = { 0 };
+    size_t fw_len = 0;
+    while (argument[fw_len] && !isspace((unsigned char)argument[fw_len])
+        && fw_len < MAX_INPUT_LENGTH - 1) {
+        first_word[fw_len] = argument[fw_len];
+        ++fw_len;
+    }
+    first_word[fw_len] = '\0';
+
+    bool create_system = false;
+    const char* theme_name = argument;
+    if (first_word[0] && !str_cmp(first_word, "system")) {
+        create_system = true;
+        theme_name = skip_spaces(argument + fw_len);
+        if (!theme_name[0]) {
+            send_to_char(COLOR_INFO "You must supply the name of the system theme to create." COLOR_EOL, ch);
+            return;
+        }
+    }
+
+    if (!create_system && ch->pcdata->current_theme && ch->pcdata->current_theme->is_changed) {
+        send_to_char(theme_change_warning, ch);
+        return;
+    }
+
+    size_t len = strlen(theme_name);
+    if (len < 2 || len > 12) {
+        send_to_char(COLOR_INFO "Color theme names must be between 2 and 12 characters long." COLOR_EOL, ch);
+        return;
+    }
+
+    for (int i = 0; i < system_color_theme_count; ++i) {
+        if (!system_color_themes[i])
+            continue;
+        if (!str_cmp(theme_name, system_color_themes[i]->name)) {
+            send_to_char(COLOR_INFO "You cannot use the name of an existing system or "
+                "personal theme." COLOR_EOL, ch);
+            return;
+        }
+    }
+
+    ColorTheme* theme = create_theme_template(theme_name, mode);
+
+    if (create_system) {
+        if (IS_NPC(ch) || ch->pcdata->security < 9) {
+            send_to_char(COLOR_INFO "You don't have permission to create system themes." COLOR_EOL, ch);
+            free_color_theme(theme);
+            return;
+        }
+
+        if (!color_append_system_theme(theme)) {
+            free_color_theme(theme);
+            send_to_char(COLOR_INFO "Unable to create the system theme." COLOR_EOL, ch);
+            return;
+        }
+
+        theme->type = COLOR_THEME_TYPE_SYSTEM;
+        theme->is_changed = true;
+        printf_to_char(ch, COLOR_INFO "System theme '%s' created. Use THEME EDIT SYSTEM %s to modify it and THEME SAVE SYSTEM to persist." COLOR_EOL,
+            theme->name, theme->name);
+        return;
+    }
+
+    int slot = -1;
+    for (int i = 0; i < MAX_THEMES; ++i) {
+        if (ch->pcdata->color_themes[i] == NULL) {
+            slot = i;
+            break;
+        }
+    }
+
+    if (slot < 0) {
+        free_color_theme(theme);
+        send_to_char(COLOR_INFO "You already have the maximum number of personal color "
+            "themes. You must remove one with 'THEME REMOVE' first." COLOR_EOL, ch);
+        return;
+    }
+
     free_color_theme(ch->pcdata->current_theme);
     ch->pcdata->current_theme = theme;
     ch->pcdata->color_themes[slot] = theme;
@@ -623,26 +618,73 @@ static void do_theme_create(Mobile* ch, char* argument)
     printf_to_char(ch, "New theme created: %s\n\r", theme->name);
 }
 
-static void do_theme_discard(Mobile* ch, char* argument)
+bool theme_discard_personal(Mobile* ch)
 {
     ColorTheme* current_theme = ch->pcdata->current_theme;
     char* theme_name = ch->pcdata->theme_config.current_theme_name;
 
-    if (!current_theme->is_changed && !str_cmp(current_theme->name, theme_name)) {
-        printf_to_char(ch, COLOR_INFO "Your current theme '%s' has no pending changes.\n\r", 
+    if (!current_theme) {
+        send_to_char(COLOR_INFO "You do not have a theme selected to discard." COLOR_EOL, ch);
+        return false;
+    }
+
+    if (!current_theme->is_changed && (!theme_name || !str_cmp(current_theme->name, theme_name))) {
+        printf_to_char(ch, COLOR_INFO "Your current theme '%s' has no pending changes.\n\r",
             current_theme->name);
-        return;
+        return false;
     }
 
     ColorTheme* theme = lookup_color_theme(ch, theme_name);
     if (!theme) {
         printf_to_char(ch, COLOR_INFO "Can no longer find a theme named '%s'.\n\r",
-            theme_name);
-        return;
+            theme_name ? theme_name : "(unknown)");
+        return false;
     }
 
     free_color_theme(current_theme);
     ch->pcdata->current_theme = dup_color_theme(theme);
+    if (ch->desc && ch->desc->editor == ED_THEME)
+        ch->desc->pEdit = (uintptr_t)ch->pcdata->current_theme;
+    return true;
+}
+
+bool theme_save_personal(Mobile* ch)
+{
+    ColorTheme* theme = ch->pcdata->current_theme;
+    char* theme_name = ch->pcdata->theme_config.current_theme_name;
+
+    if (!theme) {
+        send_to_char(COLOR_INFO "You do not have a theme selected to save." COLOR_EOL, ch);
+        return false;
+    }
+
+    for (int i = 0; i < MAX_THEMES; ++i) {
+        if (!ch->pcdata->color_themes[i])
+            continue;
+        if (!theme_name || !str_cmp(theme_name, ch->pcdata->color_themes[i]->name)) {
+            free_color_theme(ch->pcdata->color_themes[i]);
+            theme->is_changed = false;
+            ch->pcdata->color_themes[i] = dup_color_theme(theme);
+            free_string(ch->pcdata->theme_config.current_theme_name);
+            ch->pcdata->theme_config.current_theme_name = str_dup(theme->name);
+            save_char_obj(ch);
+            return true;
+        }
+    }
+
+    for (int i = 0; i < MAX_THEMES; ++i) {
+        if (!ch->pcdata->color_themes[i]) {
+            ch->pcdata->color_themes[i] = dup_color_theme(theme);
+            theme->is_changed = false;
+            free_string(theme_name);
+            ch->pcdata->theme_config.current_theme_name = str_dup(theme->name);
+            save_char_obj(ch);
+            return true;
+        }
+    }
+
+    send_to_char(COLOR_INFO "You have no free theme slots to save into." COLOR_EOL, ch);
+    return false;
 }
 
 static void do_theme_list(Mobile* ch, char* argument)
@@ -708,7 +750,9 @@ static void do_theme_list(Mobile* ch, char* argument)
         send_to_char(COLOR_TITLE "System themes:\n\r", ch);
         send_to_char(COLOR_DECOR_2 "======================================================="
             "===============" COLOR_EOL, ch);
-        for (int i = 0; i < SYSTEM_COLOR_THEME_COUNT; ++i) {
+        for (int i = 0; i < system_color_theme_count; ++i) {
+            if (!system_color_themes[i])
+                continue;
             if ((hide_256 && system_color_themes[i]->mode == COLOR_MODE_256) ||
                 (hide_24bit && system_color_themes[i]->mode == COLOR_MODE_RGB))
                 continue;
@@ -769,116 +813,15 @@ static void do_theme_list(Mobile* ch, char* argument)
     }
 }
 
-static void do_theme_palette(Mobile* ch, char* argument)
-{
-    static const char* help =
-        COLOR_INFO
-        "USAGE: " COLOR_ALT_TEXT_1 "THEME PALETTE <index> <color>" COLOR_INFO "\n\r"
-        "\n\r"
-        COLOR_ALT_TEXT_1 "index" COLOR_INFO " - Palette slot in the current theme to replace. Use THEME SHOW or \n\r"
-        "        THEME PREVIEW for a list of current palette assignments.\n\r\n\r"
-        COLOR_ALT_TEXT_1 "color" COLOR_INFO " - For ANSI color themes, " COLOR_ALT_TEXT_1 "<color>" COLOR_INFO " is a numeric value representing the \n\r"
-        "        standard ANSI color palette index, " COLOR_ALT_TEXT_2 "or" COLOR_INFO " an ANSI color name. For 256-color\n\r"
-        "        indexed themes, this is a numeric value from 0 to 256.\n\r\n\r"
-        "        RGB themes (24-bit) use colors in the form " COLOR_ALT_TEXT_1 "#RRGGBB;" COLOR_INFO "." COLOR_EOL;
-
-    if (!argument || !argument[0]) {
-        send_to_char(help, ch);
-        return;
-    }
-
-    ColorTheme* theme = ch->pcdata->current_theme;
-
-    char arg1[MAX_INPUT_LENGTH];
-    READ_ARG(arg1);
-
-    if (!is_number(arg1) && theme->mode == COLOR_MODE_256) {
-        send_to_char(COLOR_INFO "Palette index must be a number." COLOR_EOL, ch);
-        return;
-    }
-
-    int pal_idx = atoi(arg1);
-
-    if (pal_idx < 0 || pal_idx >= PALETTE_SIZE) {
-        printf_to_char(ch, COLOR_INFO "Palette index must be from 0 to %d." COLOR_EOL,
-            PALETTE_SIZE);
-        return;
-    }
-
-    bool color_is_num = is_number(argument);
-    int idx = -1;
-
-    if (color_is_num)
-        idx = atoi(argument);
-
-    Color color = { 0 };
-    if (theme->mode == COLOR_MODE_16) {
-        if (!color_is_num) {
-            if (!lookup_color(argument, &color, ch))
-                return;
-        }
-        else if (idx < 0 || idx > 16) {
-            printf_to_char(ch, COLOR_INFO "You much choose a color index from 0 to 15." COLOR_EOL);
-            send_ansi_color_list(ch);
-            return;
-        }
-        else
-            set_color_ansi(&color, (uint8_t)idx / 8, (uint8_t)idx % 8);
-    }
-    else if (theme->mode == COLOR_MODE_256) {
-        if (!color_is_num) {
-            if (!lookup_color(argument, &color, ch))
-                return;
-        }
-        else if (idx < 0 || idx > 255) {
-            printf_to_char(ch, COLOR_INFO "You much choose a color index from 0 to 255." COLOR_EOL);
-            send_256_color_list(ch);
-            return;
-        }
-        else
-            set_color_256(&color, (uint8_t)idx);
-    }
-    else if (theme->mode == COLOR_MODE_RGB) {
-        if (!lookup_color(argument, &color, ch))
-            return;
-    }
-    else {
-        printf_to_char(ch, COLOR_INFO "Theme palettes cannot refer to themselves. Choose a color." COLOR_CLEAR "\n\r.");
-    }
-
-    free_string(theme->palette[pal_idx].cache);
-    free_string(theme->palette[pal_idx].xterm);
-    theme->palette[pal_idx] = color;
-    theme->is_changed = true;
-}
-
-static void do_theme_preview(Mobile* ch, char* argument)
+void theme_preview_theme(Mobile* ch, ColorTheme* theme)
 {
 #define COL_FMT(slot)   COLOR2STR(theme, (slot), xterm)
-    bool xterm = ch->pcdata->theme_config.xterm;
-
-    static const char* help =
-        COLOR_INFO
-        "USAGE: " COLOR_ALT_TEXT_1 "THEME PREVIEW (<theme name>)" COLOR_INFO "\n\r"
-        "\n\r"
-        "For a list of themes to preview, type '" COLOR_ALT_TEXT_1 "THEME LIST" COLOR_INFO "'." COLOR_EOL;
-
-    ColorTheme* theme = ch->pcdata->current_theme;
-
-    if (argument && argument[0]) {
-        if (!str_cmp(argument, "help")) {
-            send_to_char(help, ch);
-            return;
-        }
-
-        theme = lookup_color_theme(ch, argument);
-
-        if (!theme) {
-            printf_to_char(ch, COLOR_INFO "No color theme named '%s' could be found." COLOR_EOL,
-                argument);
-            return;
-        }
+    if (!theme) {
+        send_to_char(COLOR_INFO "No color theme is available to preview." COLOR_EOL, ch);
+        return;
     }
+
+    bool xterm = ch->pcdata->theme_config.xterm;
 
     INIT_BUF(buf, MSL);
 
@@ -938,16 +881,98 @@ static void do_theme_preview(Mobile* ch, char* argument)
     addf_buf(buf, "%s\n\r" COLOR_EOL, bg);
 
     send_to_char(BUF(buf), ch);
-#undef COL_FMT
-
     free_buf(buf);
+#undef COL_FMT
+}
+
+static void do_theme_preview(Mobile* ch, char* argument)
+{
+    static const char* help =
+        COLOR_INFO
+        "USAGE: " COLOR_ALT_TEXT_1 "THEME PREVIEW (<theme name>)" COLOR_INFO "\n\r"
+        "\n\r"
+        "For a list of themes to preview, type '" COLOR_ALT_TEXT_1 "THEME LIST" COLOR_INFO "'." COLOR_EOL;
+
+    if (argument && argument[0] && !str_cmp(argument, "help")) {
+        send_to_char(help, ch);
+        return;
+    }
+
+    ColorTheme* theme = ch->pcdata->current_theme;
+
+    if (argument && argument[0]) {
+        theme = lookup_color_theme(ch, argument);
+
+        if (!theme) {
+            printf_to_char(ch, COLOR_INFO "No color theme named '%s' could be found." COLOR_EOL,
+                argument);
+            return;
+        }
+    }
+
+    if (!theme) {
+        send_to_char(COLOR_INFO "You do not have a color theme active. Use "
+            COLOR_ALT_TEXT_1 "THEME SELECT" COLOR_INFO " to choose one, or "
+            COLOR_ALT_TEXT_1 "THEME CREATE" COLOR_INFO " to make a new one." COLOR_EOL, ch);
+        return;
+    }
+
+    theme_preview_theme(ch, theme);
 }
 
 static void do_theme_remove(Mobile* ch, char* argument)
 {
+    argument = skip_spaces(argument);
     if (!argument || !argument[0]) {
         send_to_char(COLOR_INFO "You specify the name of a color theme to remove." COLOR_EOL,
             ch);
+        return;
+    }
+
+    char first_word[MAX_INPUT_LENGTH] = { 0 };
+    size_t fw_len = 0;
+    while (argument[fw_len] && !isspace((unsigned char)argument[fw_len])
+        && fw_len < MAX_INPUT_LENGTH - 1) {
+        first_word[fw_len] = argument[fw_len];
+        ++fw_len;
+    }
+    first_word[fw_len] = '\0';
+
+    if (first_word[0] && !str_cmp(first_word, "system")) {
+        const char* theme_name = skip_spaces(argument + fw_len);
+        if (!theme_name[0]) {
+            send_to_char(COLOR_INFO "You must provide the name of the system theme to remove." COLOR_EOL, ch);
+            return;
+        }
+
+        if (IS_NPC(ch) || ch->pcdata->security < 9) {
+            send_to_char(COLOR_INFO "You don't have permission to remove system themes." COLOR_EOL, ch);
+            return;
+        }
+
+        if (system_color_theme_count <= 1) {
+            send_to_char(COLOR_INFO "You must keep at least one system theme available." COLOR_EOL, ch);
+            return;
+        }
+
+        int index = color_find_system_theme_index(theme_name, false);
+        if (index < 0) {
+            printf_to_char(ch, COLOR_INFO "No system theme named '%s' could be found." COLOR_EOL,
+                theme_name);
+            return;
+        }
+
+        char removed_name[MAX_INPUT_LENGTH];
+        strncpy(removed_name, system_color_themes[index]->name, sizeof(removed_name));
+        removed_name[sizeof(removed_name) - 1] = '\0';
+
+        if (!color_remove_system_theme(index)) {
+            send_to_char(COLOR_INFO "Unable to remove that system theme." COLOR_EOL, ch);
+            return;
+        }
+
+        printf_to_char(ch, COLOR_INFO "System theme '%s' removed. Use THEME SAVE SYSTEM to persist." COLOR_EOL,
+            removed_name);
         return;
     }
 
@@ -987,33 +1012,57 @@ static void do_theme_remove(Mobile* ch, char* argument)
 
 static void do_theme_save(Mobile* ch, char* argument)
 {
-    char* theme_name = ch->pcdata->theme_config.current_theme_name;
-    ColorTheme* theme = ch->pcdata->current_theme;
-
-    for (int i = 0; i < MAX_THEMES; ++i) {
-        if (!ch->pcdata->color_themes[i])
-            continue;
-        if (!theme_name || !str_cmp(theme_name, ch->pcdata->color_themes[i]->name)) {
-            free_color_theme(ch->pcdata->color_themes[i]);
-            theme->is_changed = false;
-            ch->pcdata->color_themes[i] = dup_color_theme(theme);
-            free_string(ch->pcdata->theme_config.current_theme_name);
-            ch->pcdata->theme_config.current_theme_name = str_dup(theme->name);
-            save_char_obj(ch);
+    char arg[MAX_INPUT_LENGTH] = { 0 };
+    argument = one_argument(argument, arg);
+    if (arg[0] && !str_prefix(arg, "system")) {
+        if (IS_NPC(ch) || ch->pcdata->security < 9) {
+            send_to_char(COLOR_INFO "You don't have permission to do that." COLOR_EOL, ch);
             return;
         }
-    }
 
-    // It's new. Look for a new slot.
-    for (int i = 0; i < MAX_THEMES; ++i) {
-        if (!ch->pcdata->color_themes[i]) {
-            ch->pcdata->color_themes[i] = dup_color_theme(theme);
-            free_string(theme_name);
-            ch->pcdata->theme_config.current_theme_name = str_dup(theme->name);
-            save_char_obj(ch);
+        char format_arg[MAX_INPUT_LENGTH] = { 0 };
+        argument = one_argument(argument, format_arg);
+
+        const char* format_hint = NULL;
+        const char* override_filename = NULL;
+        char filename_buf[MAX_INPUT_LENGTH] = { 0 };
+        if (format_arg[0]) {
+            if (!str_cmp(format_arg, "json"))
+                format_hint = "json";
+            else if (!str_cmp(format_arg, "olc"))
+                format_hint = "olc";
+            else {
+                send_to_char(COLOR_INFO "Specify 'json' or 'olc' when forcing a format." COLOR_EOL, ch);
+                return;
+            }
+
+            const char* desired_ext = !str_cmp(format_hint, "json") ? ".json" : ".olc";
+            const char* cfg_name = cfg_get_themes_file();
+            const char* current_ext = strrchr(cfg_name, '.');
+            if (!(current_ext && !str_cmp(current_ext, desired_ext))) {
+                size_t base_len = current_ext ? (size_t)(current_ext - cfg_name) : strlen(cfg_name);
+                size_t max_base = sizeof(filename_buf) - strlen(desired_ext) - 1;
+                if (base_len > max_base)
+                    base_len = max_base;
+                snprintf(filename_buf, sizeof(filename_buf), "%.*s%s", (int)base_len, cfg_name, desired_ext);
+                override_filename = filename_buf;
+            }
+        }
+
+        PersistResult res = theme_persist_save_with_format(override_filename, format_hint);
+        if (!persist_succeeded(res)) {
+            printf_to_char(ch, COLOR_INFO "Saving system themes failed (%s)." COLOR_EOL,
+                res.message ? res.message : "unknown error");
             return;
         }
+
+        const char* saved_name = override_filename ? override_filename : cfg_get_themes_file();
+        printf_to_char(ch, COLOR_INFO "System themes saved to '%s'." COLOR_EOL,
+            saved_name);
+        return;
     }
+
+    theme_save_personal(ch);
 }
 
 static void do_theme_select(Mobile* ch, char* argument)
@@ -1083,78 +1132,45 @@ static void do_theme_select(Mobile* ch, char* argument)
 
 static void do_theme_set(Mobile* ch, char* argument)
 {
-    static const char* help =
-        COLOR_INFO
-        "USAGE: " COLOR_ALT_TEXT_1 "THEME SET NAME <name>\n\r"
-        "       THEME SET BANNER <banner>\n\r"
-        "       THEME SET PUBLIC\n\r"
-        "       THEME SET PRIVATE" COLOR_EOL
-        "\n\r";
-
-    ColorTheme* theme = ch->pcdata->current_theme;
-
-    if (theme == NULL) {
-        send_to_char(COLOR_INFO "You do not have a color theme active. You can use "
-            COLOR_ALT_TEXT_1 "THEME SELECT" COLOR_INFO " to choose one, or " COLOR_ALT_TEXT_1 "THEME CREATE" COLOR_INFO " to make a new "
-            "one." COLOR_EOL, ch);
-        return;
-    }
-
-    char opt[50] = { 0 };
-
+    char opt[MAX_INPUT_LENGTH] = { 0 };
     READ_ARG(opt);
 
-    if (!opt[0] || !str_prefix(opt, "help")) {
-        send_to_char(help, ch);
+    if (!opt[0] || str_cmp(opt, "system")) {
+        send_to_char(COLOR_INFO "USAGE: " COLOR_ALT_TEXT_1 "THEME SET SYSTEM DEFAULT <system theme>" COLOR_INFO COLOR_EOL, ch);
         return;
     }
 
-    if (!str_prefix(opt, "name")) {
-        if (!argument || !argument[0]) {
-            send_to_char(help, ch);
-            return;
-        }
+    char sub[MAX_INPUT_LENGTH] = { 0 };
+    READ_ARG(sub);
+    if (str_prefix(sub, "default") || !argument || !argument[0]) {
+        send_to_char(COLOR_INFO "USAGE: " COLOR_ALT_TEXT_1 "THEME SET SYSTEM DEFAULT <system theme>" COLOR_INFO COLOR_EOL, ch);
+        return;
+    }
 
-        size_t len = strlen(argument);
-        if (len < 2 || len > 12) {
-            send_to_char(COLOR_INFO "Theme names must be between 2 and 12 characters "
-                "long." COLOR_EOL, ch);
-            return;
-        }
+    if (IS_NPC(ch) || ch->pcdata->security < 9) {
+        send_to_char(COLOR_INFO "You don't have permission to change the default system theme." COLOR_EOL, ch);
+        return;
+    }
 
-        free_string(theme->name);
-        theme->name = str_dup(argument);
-        theme->is_changed = true;
+    if (!color_set_default_system_theme(argument)) {
+        printf_to_char(ch, COLOR_INFO "Could not find the system theme '%s'." COLOR_EOL, argument);
+        return;
     }
-    else if (!str_prefix(opt, "banner")) {
-        if (!argument || !argument[0]) {
-            send_to_char(help, ch);
-            return;
-        }
 
-        free_string(theme->banner);
-        theme->banner = str_dup(argument);
-        theme->is_changed = true;
-    }
-    else if (!str_prefix(opt, "public")) {
-        if (!theme->is_public)
-            theme->is_changed = true;
-        theme->is_public = true;
-        send_to_char(COLOR_INFO "This theme is now public." COLOR_EOL, ch);
-    }
-    else if (!str_prefix(opt, "private")) {
-        if (theme->is_public)
-            theme->is_changed = true;
-        theme->is_public = false;
-        send_to_char(COLOR_INFO "This theme is now private." COLOR_EOL, ch);
-    }
+    const ColorTheme* def = get_default_system_color_theme();
+    if (def)
+        printf_to_char(ch, COLOR_INFO "System default theme is now '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "'. Use THEME SAVE SYSTEM to persist." COLOR_EOL, def->name);
     else
-        send_to_char(help, ch);
+        send_to_char(COLOR_INFO "System default theme updated. Use THEME SAVE SYSTEM to persist." COLOR_EOL, ch);
 }
 
-static void do_theme_show(Mobile* ch, char* argument)
+void theme_show_theme(Mobile* ch, ColorTheme* theme)
 {
-    ColorTheme* theme = ch->pcdata->current_theme;
+    if (!theme) {
+        send_to_char(COLOR_INFO "No color theme is available to display." COLOR_EOL, ch);
+        return;
+    }
+
     bool xterm = ch->pcdata->theme_config.xterm;
 
     char out[MAX_STRING_LENGTH];
@@ -1163,22 +1179,6 @@ static void do_theme_show(Mobile* ch, char* argument)
     char bg_code[50];
     char color_ref[50];
     char mode[50] = { 0 };
-
-    if (argument[0]) {
-        theme = lookup_local_color_theme(ch, argument);
-
-        if (!theme)
-            theme = lookup_system_color_theme(ch, argument);
-
-        if (!theme)
-            theme = lookup_remote_color_theme(ch, argument);
-
-        if (!theme) {
-            printf_to_char(ch, COLOR_INFO "No color theme named '%s' could be found." COLOR_EOL,
-                argument);
-            return;
-        }
-    }
 
     switch (theme->mode) {
     case COLOR_MODE_16:
@@ -1231,7 +1231,7 @@ static void do_theme_show(Mobile* ch, char* argument)
     strcat(out, buf);
 
     int row = 0;
-    strcat(out, COLOR_TITLE "Palette Swatches:" COLOR_CLEAR " (change with " COLOR_ALT_TEXT_1 "THEME PALETTE" COLOR_CLEAR ")\n\r");
+    strcat(out, COLOR_TITLE "Palette Swatches:" COLOR_CLEAR " (edit with " COLOR_ALT_TEXT_1 "palette" COLOR_CLEAR " in THEME EDIT)\n\r");
     for (int i = 0; i < theme->palette_max; ++i) {
         Color* color = &theme->palette[i];
         switch (color->mode) {
@@ -1271,7 +1271,7 @@ static void do_theme_show(Mobile* ch, char* argument)
     strcat(out, "\n\r\n\r");
 
     row = 0;
-    strcat(out, COLOR_TITLE "Channel Assignments:" COLOR_CLEAR " (change with " COLOR_ALT_TEXT_1 "THEME CHANNEL" COLOR_CLEAR ")\n\r");
+    strcat(out, COLOR_TITLE "Channel Assignments:" COLOR_CLEAR " (edit with " COLOR_ALT_TEXT_1 "channel" COLOR_CLEAR " in THEME EDIT)\n\r");
     for (int i = 0; i < COLOR_SLOT_COUNT; ++i) {
         Color* color = &theme->channels[i];
         switch (color->mode) {
@@ -1319,25 +1319,122 @@ static void do_theme_show(Mobile* ch, char* argument)
     send_to_char(out, ch);
 }
 
+static void do_theme_show(Mobile* ch, char* argument)
+{
+    ColorTheme* theme = ch->pcdata->current_theme;
+
+    if (argument[0]) {
+        theme = lookup_local_color_theme(ch, argument);
+
+        if (!theme)
+            theme = lookup_system_color_theme(ch, argument);
+
+        if (!theme)
+            theme = lookup_remote_color_theme(ch, argument);
+
+        if (!theme) {
+            printf_to_char(ch, COLOR_INFO "No color theme named '%s' could be found." COLOR_EOL,
+                argument);
+            return;
+        }
+    }
+
+    if (!theme) {
+        send_to_char(COLOR_INFO "You do not have a color theme active. You can use "
+            COLOR_ALT_TEXT_1 "THEME SELECT" COLOR_INFO " to choose one, or " COLOR_ALT_TEXT_1 "THEME CREATE" COLOR_INFO " to make a new "
+            "one." COLOR_EOL, ch);
+        return;
+    }
+
+    theme_show_theme(ch, theme);
+}
+
+static void do_theme_edit(Mobile* ch, char* argument)
+{
+    static const char* usage = COLOR_INFO "USAGE: THEME EDIT or THEME EDIT SYSTEM <system theme>" COLOR_EOL;
+
+    if (IS_NPC(ch))
+        return;
+
+    if (ch->desc == NULL) {
+        send_to_char(COLOR_INFO "You cannot edit themes without an active descriptor." COLOR_EOL, ch);
+        return;
+    }
+
+    argument = skip_spaces(argument);
+
+    if (argument && argument[0]) {
+        char first_word[MAX_INPUT_LENGTH] = { 0 };
+        size_t fw_len = 0;
+        while (argument[fw_len] && !isspace((unsigned char)argument[fw_len])
+            && fw_len < MAX_INPUT_LENGTH - 1) {
+            first_word[fw_len] = argument[fw_len];
+            ++fw_len;
+        }
+        first_word[fw_len] = '\0';
+
+        if (!str_cmp(first_word, "system")) {
+            const char* name = skip_spaces(argument + fw_len);
+            if (!name[0]) {
+                send_to_char(usage, ch);
+                return;
+            }
+
+            if (IS_NPC(ch) || ch->pcdata->security < 9) {
+                send_to_char(COLOR_INFO "You don't have permission to edit system themes." COLOR_EOL, ch);
+                return;
+            }
+
+            ColorTheme* theme = color_find_system_theme(name, true);
+            if (!theme) {
+                printf_to_char(ch, COLOR_INFO "No system theme named '%s' could be found." COLOR_EOL,
+                    name);
+                return;
+            }
+
+            set_editor(ch->desc, ED_THEME, (uintptr_t)theme);
+            printf_to_char(ch, COLOR_INFO "Editing system theme '%s'. Use SAVE to write it to disk." COLOR_EOL,
+                theme->name);
+            theme_show_theme(ch, theme);
+            return;
+        }
+
+        send_to_char(usage, ch);
+        return;
+    }
+
+    if (ch->pcdata->current_theme == NULL)
+        set_default_theme(ch);
+
+    if (ch->pcdata->current_theme == NULL) {
+        send_to_char(COLOR_INFO "You do not have a color theme active to edit." COLOR_EOL, ch);
+        return;
+    }
+
+    set_editor(ch->desc, ED_THEME, (uintptr_t)ch->pcdata->current_theme);
+    send_to_char(COLOR_INFO "Theme editor activated. Type 'commands' for options." COLOR_EOL, ch);
+    theme_show_theme(ch, ch->pcdata->current_theme);
+}
+
 void do_theme(Mobile* ch, char* argument)
 {
     static const char* help =
         COLOR_INFO
         "USAGE: " COLOR_ALT_TEXT_1 "THEME CONFIG\n\r"
-        "       THEME CHANNEL/CHAN <channel> <color>\n\r"
         "       THEME CREATE (ANSI|256|RGB) <name>\n\r"
-        "       THEME DISCARD\n\r"
+        "       THEME EDIT (SYSTEM <name>)\n\r"
         "       THEME LIST (ALL|SYSTEM|PUBLIC|PRIVATE)\n\r"
-        "       THEME PALETTE/PAL <index> <color>\n\r"
         "       THEME PREVIEW (<name>)\n\r"
         "       THEME REMOVE <name>\n\r"
-        "       THEME SAVE\n\r"
+        "       THEME SAVE (SYSTEM)\n\r"
         "       THEME SELECT <name>\n\r"
-        "       THEME SET <more options>\n\r"
+        "       THEME SET SYSTEM DEFAULT <system theme>\n\r"
         "       THEME SHOW (<name>)" COLOR_INFO "\n\r"
         "\n\r"
         "Type '" COLOR_ALT_TEXT_1 "THEME <option>" COLOR_INFO "' for more information."
-        COLOR_EOL;
+        "\n\r"
+        COLOR_INFO "Sec 9 immortals can prefix theme names with 'system' in CREATE,"
+        " REMOVE, and EDIT to manage system themes." COLOR_EOL;
 
     char cmd[MAX_INPUT_LENGTH] = { 0 };
 
@@ -1356,23 +1453,17 @@ void do_theme(Mobile* ch, char* argument)
     if (!str_prefix(cmd, "help")) {
         send_to_char(help, ch);
     }
-    else if (!str_prefix(cmd, "channel")) {
-        do_theme_channel(ch, argument);
-    }
     else if (!str_prefix(cmd, "config")) {
         do_theme_config(ch, argument);
     }
     else if (!str_prefix(cmd, "create")) {
         do_theme_create(ch, argument);
     }
-    else if (!str_cmp(cmd, "discard")) {
-        do_theme_discard(ch, argument);
-    }
     else if (!str_prefix(cmd, "list")) {
         do_theme_list(ch, argument);
     }
-    else if (!str_prefix(cmd, "palette")) {
-        do_theme_palette(ch, argument);
+    else if (!str_prefix(cmd, "edit")) {
+        do_theme_edit(ch, argument);
     }
     else if (!str_prefix(cmd, "preview")) {
         do_theme_preview(ch, argument);
@@ -1474,7 +1565,9 @@ ColorTheme* lookup_system_color_theme(Mobile* ch, char* arg)
     bool show_256 = !ch->pcdata->theme_config.hide_256;
     bool show_24bit = !ch->pcdata->theme_config.hide_24bit;
 
-    for (int i = 0; i < SYSTEM_COLOR_THEME_COUNT; ++i) {
+    for (int i = 0; i < system_color_theme_count; ++i) {
+        if (!system_color_themes[i])
+            continue;
         if (!str_prefix(arg, system_color_themes[i]->name)
             && (show_256 || system_color_themes[i]->mode != COLOR_MODE_256)
             && (show_24bit || system_color_themes[i]->mode != COLOR_MODE_RGB))
@@ -1619,7 +1712,12 @@ void set_default_theme(Mobile* ch)
         free_color_theme(ch->pcdata->current_theme);
     }
 
-    ch->pcdata->current_theme = dup_color_theme(system_color_themes[SYSTEM_COLOR_THEME_LOPE]);
+    const ColorTheme* default_theme = get_default_system_color_theme();
+    if (!default_theme) {
+        bugf("set_default_theme: no system color themes are available.");
+        return;
+    }
+    ch->pcdata->current_theme = dup_color_theme(default_theme);
     free_string(ch->pcdata->theme_config.current_theme_name);
     ch->pcdata->theme_config.current_theme_name = str_dup(ch->pcdata->current_theme->name);
 
@@ -1706,48 +1804,11 @@ const ColorChannelEntry color_slot_entries[COLOR_SLOT_COUNT] = {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// Theme Definitions
+// Theme Helpers
 ////////////////////////////////////////////////////////////////////////////////
 
-// I can't use the colors as they are in color.h because the cast to Color 
-// messes with the C-struct literal initialization.
-
-#define SLOT_0                      THEME_PAL_REF(0)
-#define SLOT_1                      THEME_PAL_REF(1)
-#define SLOT_2                      THEME_PAL_REF(2)
-#define SLOT_3                      THEME_PAL_REF(3)
-#define SLOT_4                      THEME_PAL_REF(4)
-#define SLOT_5                      THEME_PAL_REF(5)
-#define SLOT_6                      THEME_PAL_REF(6)
-#define SLOT_7                      THEME_PAL_REF(7)
-#define SLOT_8                      THEME_PAL_REF(8)
-#define SLOT_9                      THEME_PAL_REF(9)
-#define SLOT_A                      THEME_PAL_REF(10)
-#define SLOT_B                      THEME_PAL_REF(11)
-#define SLOT_C                      THEME_PAL_REF(12)
-#define SLOT_D                      THEME_PAL_REF(13)
-#define SLOT_E                      THEME_PAL_REF(14)
-#define SLOT_F                      THEME_PAL_REF(15)
-
-#define VT_256_FG                   "\033[38;5;"
-#define VT_24B_FG                   "\033[38:2::"
-#define XTERM_24B_FG                "\033[38;2;"
-
-#define THEME_ENTRY_ANSI(l, c, s)       {.mode = COLOR_MODE_16, \
-    .code = { l, c, 0 }, .cache = s, .xterm = NULL }
-
-#define THEME_ENTRY_256(i, s)           {.mode = COLOR_MODE_256, \
-    .code = { i, 0, 0 }, .cache = s, .xterm = NULL }
-
-#define THEME_ENTRY_RGB(r, g, b, s, x)  {.mode = COLOR_MODE_RGB, \
-    .code = { r, g, b }, .cache = s, .xterm = x }
-
-#define THEME_PAL_REF(s)                {.mode = COLOR_MODE_PAL_IDX, \
-    .code = { s, 0, 0 }, .cache = NULL, .xterm = NULL }
-
-////////////////////////////////////////////////////////////////////////////////
-// Lope's OG ColoUr Code Theme; default for Mud98
-////////////////////////////////////////////////////////////////////////////////
+#define THEME_ENTRY_ANSI(l, c, s) \
+    { .mode = COLOR_MODE_16, .code = { l, c, 0 }, .cache = s, .xterm = NULL }
 
 #define ANSI_WHITE                  THEME_ENTRY_ANSI(NORMAL, WHITE,     "\033[37m")
 #define ANSI_BLACK                  THEME_ENTRY_ANSI(NORMAL, BLACK,     "\033[30m")
@@ -1767,7 +1828,7 @@ const ColorChannelEntry color_slot_entries[COLOR_SLOT_COUNT] = {
 #define ANSI_B_WHITE                THEME_ENTRY_ANSI(BRIGHT, WHITE,     "\033[97m")
 #define ANSI_MAX                    15
 
-const AnsiPaletteEntry ansi_palette[15] = {
+const AnsiPaletteEntry ansi_palette[ANSI_MAX] = {
     { "red",        NORMAL, RED,        ANSI_RED        },
     { "hi-red",     BRIGHT, RED,        ANSI_B_RED      },
     { "green",      NORMAL, GREEN,      ANSI_GREEN      },
@@ -1785,476 +1846,203 @@ const AnsiPaletteEntry ansi_palette[15] = {
     { "gray",       BRIGHT, BLACK,      ANSI_D_GRAY     },
 };
 
-const ColorTheme theme_lope = {
-    .name = "Lope",
-    .type = COLOR_THEME_TYPE_SYSTEM,
-    .mode = COLOR_MODE_16,
-    .banner =
-        "Lope's ColoUr Code 2.0\n\r"
-        "ColoUr is brought to you by Lope, ant@solace.mh.se\n\r",
-    .palette = {
-        ANSI_WHITE,         // 0: default text color
-        ANSI_BLACK,         // 1: default background
-        ANSI_D_GRAY,        // 2: default alt-text #1
-        ANSI_B_WHITE,       // 3: default alt-text #3
-        ANSI_RED,           // 4
-        ANSI_B_RED,         // 5
-        ANSI_GREEN,         // 6
-        ANSI_B_GREEN,       // 7
-        ANSI_YELLOW,        // 8
-        ANSI_B_YELLOW,      // 9
-        ANSI_BLUE,          // A
-        ANSI_B_BLUE,        // B
-        ANSI_MAGENTA,       // C
-        ANSI_B_MAGENTA,     // D
-        ANSI_CYAN,          // E
-        ANSI_B_CYAN,        // F
-    },
-    .palette_max = ANSI_MAX,
-    .channels = {
-        SLOT_0,             // text
-        SLOT_1,             // background
-        SLOT_3,             // Title     
-        SLOT_E,             // Alt-Text 1
-        SLOT_2,             // Alt-Text 2
-        SLOT_B,             // Decor 1   
-        SLOT_9,             // Decor 2   
-        SLOT_E,             // Decor 3   
-        SLOT_9,             // auction
-        SLOT_3,             // auction_text
-        SLOT_C,             // gossip
-        SLOT_D,             // gossip_text
-        SLOT_4,             // music
-        SLOT_5,             // music_text
-        SLOT_9,             // question
-        SLOT_3,             // question_text
-        SLOT_9,             // answer
-        SLOT_3,             // answer_text
-        SLOT_6,             // quote
-        SLOT_7,             // quote_text
-        SLOT_E,             // immtalk_text
-        SLOT_8,             // immtalk_type
-        SLOT_8,             // info
-        SLOT_6,             // say
-        SLOT_7,             // say_text
-        SLOT_6,             // tell
-        SLOT_7,             // tell_text
-        SLOT_6,             // reply
-        SLOT_7,             // reply_text
-        SLOT_6,             // gtell_text
-        SLOT_4,             // gtell_type
-        SLOT_6,             // wiznet
-        SLOT_E,             // room_title
-        SLOT_0,             // room_text
-        SLOT_6,             // room_exits
-        SLOT_E,             // room_things
-        SLOT_E,             // prompt
-        SLOT_4,             // fight_death
-        SLOT_6,             // fight_yhit
-        SLOT_8,             // fight_ohit
-        SLOT_4,             // fight_thit
-        SLOT_0,             // fight_skill
-        SLOT_6,             // lox_comment
-        SLOT_9,             // lox_string
-        SLOT_2,             // lox_operator
-        SLOT_D,             // lox_literal
-        SLOT_A,             // lox_keyword
+const ColorTheme** system_color_themes = NULL;
+int system_color_theme_count = 0;
+
+static ColorTheme** loaded_system_color_themes = NULL;
+static int loaded_system_color_theme_count = 0;
+
+static void destroy_system_theme(ColorTheme* theme)
+{
+    if (!theme)
+        return;
+
+    clear_cached_codes(theme);
+    free_string(theme->name);
+    free_string(theme->banner);
+    free_mem(theme, sizeof(ColorTheme));
+}
+
+static bool ensure_system_theme_data(void)
+{
+    if (!system_color_themes || system_color_theme_count <= 0)
+        load_system_color_themes();
+    return system_color_themes && system_color_theme_count > 0;
+}
+
+static int color_find_system_theme_index(const char* name, bool allow_prefix)
+{
+    if (!name || !name[0])
+        return -1;
+
+    if (!ensure_system_theme_data())
+        return -1;
+
+    for (int i = 0; i < system_color_theme_count; ++i) {
+        const ColorTheme* theme = system_color_themes[i];
+        if (!theme)
+            continue;
+        if (allow_prefix) {
+            if (!str_prefix(name, theme->name))
+                return i;
+        }
+        else if (!str_cmp(name, theme->name))
+            return i;
     }
-};
 
-////////////////////////////////////////////////////////////////////////////////
-// Monorail
-////////////////////////////////////////////////////////////////////////////////
+    return -1;
+}
 
-#define MONO_0          THEME_ENTRY_256(15,    VT_256_FG "15m"     )
-#define MONO_1          THEME_ENTRY_256(0,     VT_256_FG "0m"      )
-#define MONO_2          THEME_ENTRY_256(244,   VT_256_FG "244m"    )
-#define MONO_3          THEME_ENTRY_256(242,   VT_256_FG "242m"    )
-#define MONO_4          THEME_ENTRY_256(246,   VT_256_FG "246m"    )
-#define MONO_5          THEME_ENTRY_256(240,   VT_256_FG "240m"    )
-#define MONO_6          THEME_ENTRY_256(248,   VT_256_FG "248m"    )
-#define MONO_7          THEME_ENTRY_256(238,   VT_256_FG "238m"    )
-#define MONO_8          THEME_ENTRY_256(250,   VT_256_FG "250m"    )
-#define MONO_9          THEME_ENTRY_256(236,   VT_256_FG "236m"    )
-#define MONO_A          THEME_ENTRY_256(252,   VT_256_FG "252m"    )
-#define MONO_B          THEME_ENTRY_256(234,   VT_256_FG "234m"    )
-#define MONO_C          THEME_ENTRY_256(254,   VT_256_FG "254m"    )
-#define MONO_D          THEME_ENTRY_256(233,   VT_256_FG "233m"    )
-#define MONO_E          THEME_ENTRY_256(255,   VT_256_FG "255m"    )
-#define MONO_F          THEME_ENTRY_256(232,   VT_256_FG "232m"    )
-#define MONO_MAX        16
+static ColorTheme* color_find_system_theme(const char* name, bool allow_prefix)
+{
+    int index = color_find_system_theme_index(name, allow_prefix);
+    if (index < 0)
+        return NULL;
+    return (ColorTheme*)system_color_themes[index];
+}
 
-const ColorTheme theme_mono = {
-    .name = "Monorail",
-    .type = COLOR_THEME_TYPE_SYSTEM,
-    .mode = COLOR_MODE_256,
-    .banner = "",
-    .palette = {
-        MONO_0,             // 0: default text color
-        MONO_1,             // 1: default background
-        MONO_2,             // 2: default alt-text #1
-        MONO_3,             // 3: default alt-text #3
-        MONO_4,             // 4
-        MONO_5,             // 5
-        MONO_6,             // 6
-        MONO_7,             // 7
-        MONO_8,             // 8
-        MONO_9,             // 9
-        MONO_A,             // A
-        MONO_B,             // B
-        MONO_C,             // C
-        MONO_D,             // D
-        MONO_E,             // E
-        MONO_F,             // F
-    },
-    .palette_max = MONO_MAX,
-    .channels = {
-        SLOT_0,             // text
-        SLOT_1,             // background
-        SLOT_3,             // Title     
-        SLOT_E,             // Alt-Text 1
-        SLOT_2,             // Alt-Text 2
-        SLOT_B,             // Decor 1   
-        SLOT_9,             // Decor 2   
-        SLOT_E,             // Decor 3   
-        SLOT_9,             // auction
-        SLOT_3,             // auction_text
-        SLOT_C,             // gossip
-        SLOT_D,             // gossip_text
-        SLOT_4,             // music
-        SLOT_5,             // music_text
-        SLOT_9,             // question
-        SLOT_3,             // question_text
-        SLOT_9,             // answer
-        SLOT_3,             // answer_text
-        SLOT_6,             // quote
-        SLOT_7,             // quote_text
-        SLOT_E,             // immtalk_text
-        SLOT_8,             // immtalk_type
-        SLOT_8,             // info
-        SLOT_6,             // say
-        SLOT_7,             // say_text
-        SLOT_6,             // tell
-        SLOT_7,             // tell_text
-        SLOT_6,             // reply
-        SLOT_7,             // reply_text
-        SLOT_6,             // gtell_text
-        SLOT_4,             // gtell_type
-        SLOT_6,             // wiznet
-        SLOT_E,             // room_title
-        SLOT_0,             // room_text
-        SLOT_6,             // room_exits
-        SLOT_E,             // room_things
-        SLOT_E,             // prompt
-        SLOT_4,             // fight_death
-        SLOT_6,             // fight_yhit
-        SLOT_8,             // fight_ohit
-        SLOT_4,             // fight_thit
-        SLOT_0,             // fight_skill
-        SLOT_6,             // lox_comment
-        SLOT_9,             // lox_string
-        SLOT_2,             // lox_operator
-        SLOT_D,             // lox_literal
-        SLOT_A,             // lox_keyword
+static bool color_append_system_theme(ColorTheme* theme)
+{
+    if (!theme)
+        return false;
+
+    size_t new_count = (size_t)loaded_system_color_theme_count + 1;
+    ColorTheme** list = NULL;
+
+    if (!loaded_system_color_themes)
+        list = (ColorTheme**)calloc(new_count, sizeof(ColorTheme*));
+    else
+        list = (ColorTheme**)realloc(loaded_system_color_themes, new_count * sizeof(ColorTheme*));
+
+    if (!list)
+        return false;
+
+    loaded_system_color_themes = list;
+    loaded_system_color_themes[loaded_system_color_theme_count++] = theme;
+    system_color_themes = (const ColorTheme**)loaded_system_color_themes;
+    system_color_theme_count = loaded_system_color_theme_count;
+    return true;
+}
+
+static bool color_remove_system_theme(int index)
+{
+    if (index < 0 || index >= loaded_system_color_theme_count)
+        return false;
+    if (loaded_system_color_theme_count <= 1)
+        return false;
+
+    destroy_system_theme(loaded_system_color_themes[index]);
+
+    for (int i = index; i < loaded_system_color_theme_count - 1; ++i)
+        loaded_system_color_themes[i] = loaded_system_color_themes[i + 1];
+
+    --loaded_system_color_theme_count;
+
+    if (loaded_system_color_theme_count == 0) {
+        free(loaded_system_color_themes);
+        loaded_system_color_themes = NULL;
+        system_color_themes = NULL;
+        system_color_theme_count = 0;
+        return true;
     }
-};
 
-////////////////////////////////////////////////////////////////////////////////
-// Cool Cat Theme
-////////////////////////////////////////////////////////////////////////////////
+    ColorTheme** list = (ColorTheme**)realloc(loaded_system_color_themes,
+        sizeof(ColorTheme*) * (size_t)loaded_system_color_theme_count);
+    if (list)
+        loaded_system_color_themes = list;
 
-#define COOL_CAT_TEXT           THEME_ENTRY_RGB(0xF7u, 0xF7u, 0xF3u, VT_24B_FG "247:247:243m",  XTERM_24B_FG "247;247;243m"    )
-#define COOL_CAT_BG             THEME_ENTRY_RGB(0x28u, 0x29u, 0x21u, VT_24B_FG "40:41:33m",     XTERM_24B_FG "40;41;33m"       )
-#define COOL_CAT_ALT_TEXT       THEME_ENTRY_RGB(0x75u, 0x71u, 0x5Eu, VT_24B_FG "117:113:94m",   XTERM_24B_FG "117;113;94m"     )
-#define COOL_CAT_PINK           THEME_ENTRY_RGB(0xFAu, 0x25u, 0x73u, VT_24B_FG "250:37:115m",   XTERM_24B_FG "250;37;115m"     )
-#define COOL_CAT_L_PINK         THEME_ENTRY_RGB(0xFFu, 0x75u, 0xA3u, VT_24B_FG "255:117:163m",  XTERM_24B_FG "255;117;163m"    )
-#define COOL_CAT_ORANGE         THEME_ENTRY_RGB(0xFDu, 0x97u, 0x71u, VT_24B_FG "253:151:113m",  XTERM_24B_FG "253;151;113m"    )
-#define COOL_CAT_YELLOW         THEME_ENTRY_RGB(0xFFu, 0xD9u, 0x67u, VT_24B_FG "255:217:103m",  XTERM_24B_FG "255;217;103m"    )
-#define COOL_CAT_GREEN          THEME_ENTRY_RGB(0xA5u, 0xE3u, 0x2Fu, VT_24B_FG "165:227:47m",   XTERM_24B_FG "165;227;47m"     )
-#define COOL_CAT_L_GREEN        THEME_ENTRY_RGB(0xC5u, 0xFFu, 0x6Fu, VT_24B_FG "197:255:111m",  XTERM_24B_FG "197;255;111m"    )
-#define COOL_CAT_BLUE           THEME_ENTRY_RGB(0x65u, 0xD9u, 0xF0u, VT_24B_FG "101:217:240m",  XTERM_24B_FG "101;217;240m"    )
-#define COOL_CAT_L_BLUE         THEME_ENTRY_RGB(0x9Au, 0xF8u, 0xFFu, VT_24B_FG "154:248:255m",  XTERM_24B_FG "154;248;255m"    )
-#define COOL_CAT_PURPLE         THEME_ENTRY_RGB(0xA0u, 0x32u, 0xFFu, VT_24B_FG "154:50:255m",   XTERM_24B_FG "154;50;255m"     )
-#define COOL_CAT_L_PURPLE       THEME_ENTRY_RGB(0xAFu, 0x80u, 0xFFu, VT_24B_FG "175:128:255m",  XTERM_24B_FG "175;128;255m"    )
-#define COOL_CAT_MAX            15
+    system_color_themes = (const ColorTheme**)loaded_system_color_themes;
+    system_color_theme_count = loaded_system_color_theme_count;
+    return true;
+}
 
-const ColorTheme theme_cool_cat = {
-    .name = "Cool Cat",
-    .type = COLOR_THEME_TYPE_SYSTEM,
-    .mode = COLOR_MODE_RGB,
-    .banner =
-        "If your MUD client/terminal does not support server-initiated changes "
-        "to background color, consider manually setting your backround to " 
-        "to #282921 for best results.\n\r",
-    .palette = {
-        COOL_CAT_TEXT,      // 0: default text color
-        COOL_CAT_BG,        // 1: default background
-        COOL_CAT_ALT_TEXT,  // 2: default alt-text #1
-        COOL_CAT_ALT_TEXT,  // 3: default alt-text #3
-        COOL_CAT_PINK,      // 4
-        COOL_CAT_L_PINK,    // 5
-        COOL_CAT_GREEN,     // 6
-        COOL_CAT_L_GREEN,   // 7
-        COOL_CAT_ORANGE,    // 8
-        COOL_CAT_YELLOW,    // 9
-        COOL_CAT_BLUE,      // A
-        COOL_CAT_L_BLUE,    // B
-        COOL_CAT_PURPLE,    // C
-        COOL_CAT_L_PURPLE,  // D
-        COOL_CAT_BLUE,      // E
-        COOL_CAT_L_BLUE,    // F
-    },
-    .palette_max = COOL_CAT_MAX,
-    .channels = {
-        SLOT_0,             // text
-        SLOT_1,             // background
-        SLOT_3,             // Title     
-        SLOT_E,             // Alt-Text 1
-        SLOT_2,             // Alt-Text 2
-        SLOT_B,             // Decor 1   
-        SLOT_9,             // Decor 2   
-        SLOT_E,             // Decor 3   
-        SLOT_9,             // auction
-        SLOT_3,             // auction_text
-        SLOT_C,             // gossip
-        SLOT_D,             // gossip_text
-        SLOT_4,             // music
-        SLOT_5,             // music_text
-        SLOT_9,             // question
-        SLOT_3,             // question_text
-        SLOT_9,             // answer
-        SLOT_3,             // answer_text
-        SLOT_6,             // quote
-        SLOT_7,             // quote_text
-        SLOT_E,             // immtalk_text
-        SLOT_8,             // immtalk_type
-        SLOT_8,             // info
-        SLOT_6,             // say
-        SLOT_7,             // say_text
-        SLOT_6,             // tell
-        SLOT_7,             // tell_text
-        SLOT_6,             // reply
-        SLOT_7,             // reply_text
-        SLOT_6,             // gtell_text
-        SLOT_4,             // gtell_type
-        SLOT_6,             // wiznet
-        SLOT_E,             // room_title
-        SLOT_0,             // room_text
-        SLOT_6,             // room_exits
-        SLOT_E,             // room_things
-        SLOT_E,             // prompt
-        SLOT_4,             // fight_death
-        SLOT_6,             // fight_yhit
-        SLOT_8,             // fight_ohit
-        SLOT_4,             // fight_thit
-        SLOT_0,             // fight_skill
-        SLOT_6,             // lox_comment
-        SLOT_9,             // lox_string
-        SLOT_2,             // lox_operator
-        SLOT_D,             // lox_literal
-        SLOT_A,             // lox_keyword
+static void free_loaded_system_themes(void)
+{
+    if (!loaded_system_color_themes)
+        return;
+
+    for (int i = 0; i < loaded_system_color_theme_count; ++i) {
+        destroy_system_theme(loaded_system_color_themes[i]);
     }
-};
 
-////////////////////////////////////////////////////////////////////////////////
-// Synthwave City
-////////////////////////////////////////////////////////////////////////////////
+    free(loaded_system_color_themes);
+    loaded_system_color_themes = NULL;
+    loaded_system_color_theme_count = 0;
+    system_color_themes = NULL;
+    system_color_theme_count = 0;
+}
 
-#define CITY_WHITE          THEME_ENTRY_RGB(0xF6u, 0xEDu, 0xDBu, VT_24B_FG "246:237:219m",  XTERM_24B_FG "246;237;219m"    )
-#define CITY_BLACK          THEME_ENTRY_RGB(0x1Bu, 0x1Eu, 0x23u, VT_24B_FG "27:30:35m",     XTERM_24B_FG "27;30;35m"       )
-#define CITY_ORANGE         THEME_ENTRY_RGB(0xECu, 0x8Du, 0x75u, VT_24B_FG "236:141:117m",  XTERM_24B_FG "236;141;117m"    )
-#define CITY_RED            THEME_ENTRY_RGB(0xBDu, 0x4Bu, 0x64u, VT_24B_FG "189:75:100m",   XTERM_24B_FG "189;75;100m"     )
-#define CITY_PINK           THEME_ENTRY_RGB(0x9Eu, 0x22u, 0x81u, VT_24B_FG "158:34:129m",   XTERM_24B_FG "158;34;129m"     )
-#define CITY_PURPLE         THEME_ENTRY_RGB(0x40u, 0x26u, 0x5Cu, VT_24B_FG "64:38:92m",     XTERM_24B_FG "64;38;92m"       )
-#define CITY_BLUE           THEME_ENTRY_RGB(0x24u, 0x45u, 0x84u, VT_24B_FG "36:69:132m",    XTERM_24B_FG "36;69;132m"      )
-#define CITY_SKY            THEME_ENTRY_RGB(0x50u, 0xA9u, 0xCFu, VT_24B_FG "80:169:207m",   XTERM_24B_FG "80;169;207m"     )
-#define CITY_TEAL           THEME_ENTRY_RGB(0x96u, 0xE6u, 0xC2u, VT_24B_FG "150:230:194m",  XTERM_24B_FG "150;230;194m"    )
-#define CITY_MAX            15
+bool color_register_system_themes(ColorTheme** themes, int count)
+{
+    if (!themes || count <= 0)
+        return false;
 
-const ColorTheme theme_synthwave_city = {
-    .name = "Synthwave City",
-    .type = COLOR_THEME_TYPE_SYSTEM,
-    .mode = COLOR_MODE_RGB,
-    .banner =
-        "If your MUD client/terminal does not support server-initiated changes "
-        "to background color, consider manually setting your backround to "
-        "to #1B1E23 for best results.\n\r",
-    .palette = {
-        CITY_WHITE,         // 0
-        CITY_BLACK,         // 1
-        CITY_ORANGE,        // 2
-        CITY_SKY,           // 3
-        CITY_RED,           // 4
-        CITY_ORANGE,        // 5
-        CITY_SKY,           // 6
-        CITY_TEAL,          // 7
-        CITY_ORANGE,        // 8
-        CITY_WHITE,         // 9
-        CITY_PURPLE,        // A
-        CITY_BLUE,          // B
-        CITY_PURPLE,        // C
-        CITY_PINK,          // D
-        CITY_BLUE,          // E
-        CITY_TEAL,          // F
-    },
-    .palette_max = CITY_MAX,
-    .channels = {
-        SLOT_0,             // text
-        SLOT_1,             // background
-        SLOT_3,             // Title     
-        SLOT_E,             // Alt-Text 1
-        SLOT_2,             // Alt-Text 2
-        SLOT_2,             // Decor 1   
-        SLOT_3,             // Decor 2   
-        SLOT_4,             // Decor 3   
-        SLOT_9,             // auction
-        SLOT_3,             // auction_text
-        SLOT_C,             // gossip
-        SLOT_D,             // gossip_text
-        SLOT_4,             // music
-        SLOT_5,             // music_text
-        SLOT_9,             // question
-        SLOT_3,             // question_text
-        SLOT_9,             // answer
-        SLOT_3,             // answer_text
-        SLOT_6,             // quote
-        SLOT_7,             // quote_text
-        SLOT_E,             // immtalk_text
-        SLOT_8,             // immtalk_type
-        SLOT_8,             // info
-        SLOT_6,             // say
-        SLOT_7,             // say_text
-        SLOT_6,             // tell
-        SLOT_7,             // tell_text
-        SLOT_6,             // reply
-        SLOT_7,             // reply_text
-        SLOT_6,             // gtell_text
-        SLOT_4,             // gtell_type
-        SLOT_6,             // wiznet
-        SLOT_E,             // room_title
-        SLOT_0,             // room_text
-        SLOT_6,             // room_exits
-        SLOT_E,             // room_things
-        SLOT_E,             // prompt
-        SLOT_4,             // fight_death
-        SLOT_6,             // fight_yhit
-        SLOT_8,             // fight_ohit
-        SLOT_4,             // fight_thit
-        SLOT_0,             // fight_skill
-        SLOT_6,             // lox_comment
-        SLOT_9,             // lox_string
-        SLOT_2,             // lox_operator
-        SLOT_D,             // lox_literal
-        SLOT_A,             // lox_keyword
+    free_loaded_system_themes();
+    loaded_system_color_themes = themes;
+    loaded_system_color_theme_count = count;
+    system_color_themes = (const ColorTheme**)loaded_system_color_themes;
+    system_color_theme_count = count;
+    return true;
+}
+
+bool color_set_default_system_theme(const char* name)
+{
+    if (!name || !name[0])
+        return false;
+
+    if (!system_color_themes || system_color_theme_count == 0)
+        load_system_color_themes();
+
+    if (!system_color_themes || system_color_theme_count == 0)
+        return false;
+
+    if (!loaded_system_color_themes)
+        return false;
+
+    int target = -1;
+    for (int i = 0; i < system_color_theme_count; ++i) {
+        if (system_color_themes[i] && !str_cmp(system_color_themes[i]->name, name)) {
+            target = i;
+            break;
+        }
     }
-};
 
-////////////////////////////////////////////////////////////////////////////////
-// Glow Pop
-////////////////////////////////////////////////////////////////////////////////
+    if (target < 0)
+        return false;
+    if (target == 0)
+        return true;
 
-#define POP_WHITE           THEME_ENTRY_RGB(0xFAu, 0xFDu, 0xFFu, VT_24B_FG "250:253:255m",  XTERM_24B_FG "250;253;255m"    )   // #FAFDFF White
-#define POP_BLACK           THEME_ENTRY_RGB(0x16u, 0x17u, 0x1Au, VT_24B_FG "22:23:26m",     XTERM_24B_FG "22;23;26m"       )   // #16171A Black
-#define POP_SBLUE           THEME_ENTRY_RGB(0x23u, 0x49u, 0x75u, VT_24B_FG "35:73:117m",    XTERM_24B_FG "35;73;117m"      )   // #234975 Slate Blue
-#define POP_LSBLUE          THEME_ENTRY_RGB(0x00u, 0x78u, 0x99u, VT_24B_FG "0:120:153m",    XTERM_24B_FG "0;120;153m"      )   // #007899 L. Slate Blue
-#define POP_CRIMSON         THEME_ENTRY_RGB(0x7Fu, 0x06u, 0x22u, VT_24B_FG "127:6:34m",     XTERM_24B_FG "127;6;34m"       )   // #7F0622 D. Red
-#define POP_RED             THEME_ENTRY_RGB(0xD6u, 0x24u, 0x11u, VT_24B_FG "214:36:17m",    XTERM_24B_FG "214;36;17m"      )   // #D62411 Red
-#define POP_S_GREEN         THEME_ENTRY_RGB(0x10u, 0xD2u, 0x75u, VT_24B_FG "16:210:117m",   XTERM_24B_FG "16;210;117m"     )   // #10D275 Sea Green
-#define POP_L_GREEN         THEME_ENTRY_RGB(0xBFu, 0xFFu, 0x3Cu, VT_24B_FG "191:255:60m",   XTERM_24B_FG "191;255;60m"     )   // #BFFF3C Lime Green
-#define POP_ORANGE          THEME_ENTRY_RGB(0xFFu, 0x84u, 0x26u, VT_24B_FG "255:132:38m",   XTERM_24B_FG "255;132;38m"     )   // #FF8426 Orange
-#define POP_SUNFLOWER       THEME_ENTRY_RGB(0xFFu, 0xD1u, 0x00u, VT_24B_FG "255:209:0m",    XTERM_24B_FG "255;209;0m"      )   // #FFD100 Sunflower
-#define POP_BLUE            THEME_ENTRY_RGB(0x00u, 0x28u, 0x59u, VT_24B_FG "0:40:89m",      XTERM_24B_FG "0;40;89m"        )   // #002859 D. Blue
-#define POP_SKY_BLUE        THEME_ENTRY_RGB(0x68u, 0xAEu, 0xD4u, VT_24B_FG "104:174:212m",  XTERM_24B_FG "104;174;212m"    )   // #68AED4 Sky Blue
-#define POP_GRAPE           THEME_ENTRY_RGB(0x43u, 0x00u, 0x67u, VT_24B_FG "67:0:103m",     XTERM_24B_FG "67;0;103m"       )   // #430067 Violet
-#define POP_VIOLET          THEME_ENTRY_RGB(0x94u, 0x21u, 0x6Au, VT_24B_FG "148:33:106m",   XTERM_24B_FG "148;33;106m"     )   // #94216A Grape
-#define POP_H_PINK          THEME_ENTRY_RGB(0xFFu, 0x26u, 0x74u, VT_24B_FG "255:38:116m",   XTERM_24B_FG "255;38;116m"     )   // #FF2674 Hot Pink
-#define POP_L_PINK          THEME_ENTRY_RGB(0xFFu, 0x80u, 0xA4u, VT_24B_FG "255:128:164m",  XTERM_24B_FG "255;128;164m"    )   // #FF80A4 L. Pink
-#define POP_MAX             16
+    ColorTheme* tmp = loaded_system_color_themes[0];
+    loaded_system_color_themes[0] = loaded_system_color_themes[target];
+    loaded_system_color_themes[target] = tmp;
+    return true;
+}
 
-const ColorTheme theme_glow_pop = {
-    .name = "Glow Pop",
-    .type = COLOR_THEME_TYPE_SYSTEM,
-    .mode = COLOR_MODE_RGB,
-    .banner =
-        "If your MUD client/terminal does not support server-initiated changes "
-        "to background color, consider manually setting your backround to "
-        "to #16171A for best results.\n\r",
-    .palette = {
-        POP_WHITE,          // 0
-        POP_BLACK,          // 1
-        POP_SBLUE,          // 2
-        POP_LSBLUE,         // 3
-        POP_CRIMSON,        // 4
-        POP_RED,            // 5
-        POP_S_GREEN,        // 6
-        POP_L_GREEN,        // 7
-        POP_ORANGE,         // 8
-        POP_SUNFLOWER,      // 9
-        POP_BLUE,           // A
-        POP_SKY_BLUE,       // B
-        POP_GRAPE,          // C
-        POP_VIOLET,         // D
-        POP_H_PINK,         // E
-        POP_L_PINK,         // F
-    },
-    .palette_max = POP_MAX,
-    .channels = {
-        SLOT_0,             // text
-        SLOT_1,             // background
-        SLOT_3,             // Title     
-        SLOT_E,             // Alt-Text 1
-        SLOT_2,             // Alt-Text 2
-        SLOT_B,             // Decor 1   
-        SLOT_9,             // Decor 2   
-        SLOT_E,             // Decor 3   
-        SLOT_9,             // auction
-        SLOT_3,             // auction_text
-        SLOT_C,             // gossip
-        SLOT_D,             // gossip_text
-        SLOT_4,             // music
-        SLOT_5,             // music_text
-        SLOT_9,             // question
-        SLOT_3,             // question_text
-        SLOT_9,             // answer
-        SLOT_3,             // answer_text
-        SLOT_6,             // quote
-        SLOT_7,             // quote_text
-        SLOT_E,             // immtalk_text
-        SLOT_8,             // immtalk_type
-        SLOT_8,             // info
-        SLOT_6,             // say
-        SLOT_7,             // say_text
-        SLOT_6,             // tell
-        SLOT_7,             // tell_text
-        SLOT_6,             // reply
-        SLOT_7,             // reply_text
-        SLOT_6,             // gtell_text
-        SLOT_4,             // gtell_type
-        SLOT_6,             // wiznet
-        SLOT_E,             // room_title
-        SLOT_0,             // room_text
-        SLOT_6,             // room_exits
-        SLOT_E,             // room_things
-        SLOT_E,             // prompt
-        SLOT_4,             // fight_death
-        SLOT_6,             // fight_yhit
-        SLOT_8,             // fight_ohit
-        SLOT_4,             // fight_thit
-        SLOT_0,             // fight_skill
-        SLOT_6,             // lox_comment
-        SLOT_9,             // lox_string
-        SLOT_2,             // lox_operator
-        SLOT_D,             // lox_literal
-        SLOT_A,             // lox_keyword
+const ColorTheme* get_default_system_color_theme()
+{
+    if (!system_color_themes || system_color_theme_count == 0)
+        load_system_color_themes();
+
+    if (!system_color_themes || system_color_theme_count == 0)
+        return NULL;
+
+    return system_color_themes[0];
+}
+
+void load_system_color_themes()
+{
+    PersistResult res = theme_persist_load(NULL);
+    if (!persist_succeeded(res)) {
+        const char* file = cfg_get_themes_file();
+        bugf("load_system_color_themes: failed to load %s (%s).",
+            file, res.message ? res.message : "unknown error");
+        exit(1);
     }
-};
 
-////////////////////////////////////////////////////////////////////////////////
+    if (!system_color_themes || system_color_theme_count <= 0) {
+        bugf("load_system_color_themes: %s did not define any themes.", cfg_get_themes_file());
+        exit(1);
+    }
 
-const ColorTheme* system_color_themes[SYSTEM_COLOR_THEME_COUNT] = {
-    &theme_lope,
-    &theme_mono,
-    &theme_cool_cat,
-    &theme_synthwave_city,
-    &theme_glow_pop,
-};
+    printf_log("System color themes loaded (%d themes).\n", system_color_theme_count);
+}

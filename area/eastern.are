@@ -555,11 +555,11 @@ AD 7
 D1
 ~
 ~
-0 0 5002
+0 -1 5002
 D3
 ~
 ~
-0 0 3205
+0 -1 3205
 S
 #5002
 A long tunnel~
@@ -570,15 +570,15 @@ AD 7
 D0
 ~
 ~
-0 0 5008
+0 -1 5008
 D1
 ~
 ~
-0 0 5003
+0 -1 5003
 D3
 ~
 ~
-0 0 5001
+0 -1 5001
 S
 #5003
 A long tunnel~
@@ -589,15 +589,15 @@ AD 7
 D1
 ~
 ~
-0 0 5004
+0 -1 5004
 D2
 ~
 ~
-0 0 5017
+0 -1 5017
 D3
 ~
 ~
-0 0 5002
+0 -1 5002
 S
 #5004
 A long tunnel~
@@ -608,15 +608,15 @@ AD 7
 D1
 ~
 ~
-0 0 5005
+0 -1 5005
 D2
 ~
 ~
-0 0 5018
+0 -1 5018
 D3
 ~
 ~
-0 0 5003
+0 -1 5003
 S
 #5005
 An underground lake~
@@ -630,19 +630,19 @@ AD 7
 D0
 ~
 ~
-0 0 5016
+0 -1 5016
 D1
 ~
 ~
-0 0 5006
+0 -1 5006
 D2
 ~
 ~
-0 0 5023
+0 -1 5023
 D3
 ~
 ~
-0 0 5004
+0 -1 5004
 S
 #5006
 A long narrow tunnel~
@@ -653,11 +653,11 @@ AD 5
 D1
 ~
 ~
-0 0 5007
+0 -1 5007
 D3
 ~
 ~
-0 0 5005
+0 -1 5005
 S
 #5007
 A wide tunnel~
@@ -669,11 +669,11 @@ AD 5
 D1
 ~
 ~
-0 0 5027
+0 -1 5027
 D3
 ~
 ~
-0 0 5006
+0 -1 5006
 S
 #5008
 Cave-in~
@@ -685,11 +685,11 @@ AD 5
 D2
 ~
 ~
-0 0 5002
+0 -1 5002
 D5
 You can easily slide down the rocks without getting hurt.~
 ~
-0 0 5009
+0 -1 5009
 S
 #5009
 At the foot of the rubble~
@@ -701,15 +701,15 @@ AD 5
 D0
 ~
 ~
-0 0 5010
+0 -1 5010
 D1
 ~
 ~
-0 0 5012
+0 -1 5012
 D4
 ~
 ~
-0 0 5008
+0 -1 5008
 S
 #5010
 Cave entrance~
@@ -721,11 +721,11 @@ AD 5
 D2
 ~
 ~
-0 0 5009
+0 -1 5009
 D5
 You look down into the cave. Bones are strewn about everywhere.~
 ~
-0 0 5011
+0 -1 5011
 S
 #5011
 Giant cave~
@@ -737,7 +737,7 @@ AD 5
 D4
 ~
 ~
-0 0 5010
+0 -1 5010
 S
 #5012
 Narrow bend~
@@ -748,11 +748,11 @@ AD 5
 D2
 ~
 ~
-0 0 5013
+0 -1 5013
 D3
 ~
 ~
-0 0 5009
+0 -1 5009
 S
 #5013
 Large cave~
@@ -763,11 +763,11 @@ AD 5
 D0
 ~
 ~
-0 0 5012
+0 -1 5012
 D1
 ~
 ~
-0 0 5014
+0 -1 5014
 S
 #5014
 Damp hallway~
@@ -778,11 +778,11 @@ AD 5
 D1
 You hear drops of water.~
 ~
-0 0 5015
+0 -1 5015
 D3
 ~
 ~
-0 0 5013
+0 -1 5013
 S
 #5015
 Underground pool~
@@ -793,11 +793,11 @@ AD 6
 D2
 ~
 ~
-0 0 5016
+0 -1 5016
 D3
 ~
 ~
-0 0 5014
+0 -1 5014
 S
 #5016
 Damp hallway~
@@ -809,11 +809,11 @@ AD 5
 D0
 You hear drops of water.~
 ~
-0 0 5015
+0 -1 5015
 D2
 ~
 ~
-0 0 5005
+0 -1 5005
 S
 #5017
 Narrow crawlway~
@@ -825,15 +825,15 @@ AD 5
 D0
 ~
 ~
-0 0 5003
+0 -1 5003
 D1
 ~
 ~
-0 0 5018
+0 -1 5018
 D2
 You smell the fragrant odor of fungus.~
 ~
-0 0 5019
+0 -1 5019
 S
 #5018
 Large cavern~
@@ -845,11 +845,11 @@ AD 5
 D0
 ~
 ~
-0 0 5004
+0 -1 5004
 D3
 ~
 ~
-0 0 5017
+0 -1 5017
 S
 #5019
 Fungus patch~
@@ -861,11 +861,11 @@ AD 5
 D0
 ~
 ~
-0 0 5017
+0 -1 5017
 D1
 The fragrant smell of fungus spores continues to the east~
 ~
-0 0 5020
+0 -1 5020
 S
 #5020
 Fungus path~
@@ -877,11 +877,11 @@ AD 5
 D2
 A giant mushroom temple stands to the south.~
 ~
-0 0 5021
+0 -1 5021
 D3
 The fragrant smell of spores continues to the west.~
 ~
-0 0 5019
+0 -1 5019
 S
 #5021
 Fungus temple~
@@ -893,11 +893,11 @@ AD 5
 D0
 ~
 ~
-0 0 5020
+0 -1 5020
 D1
 ~
 ~
-0 0 5022
+0 -1 5022
 S
 #5022
 Sloping passage~
@@ -908,11 +908,11 @@ AD 5
 D3
 ~
 ~
-0 0 5021
+0 -1 5021
 D5
 ~
 ~
-0 0 5023
+0 -1 5023
 S
 #5023
 Sloping passage~
@@ -923,11 +923,11 @@ AD 5
 D0
 You hear sounds of trickling water.~
 ~
-0 0 5005
+0 -1 5005
 D4
 ~
 ~
-0 0 5022
+0 -1 5022
 S
 #5024
 The Sands of Sorrow~
@@ -940,22 +940,22 @@ D0
 Sand as far as the eye can see.
 ~
 ~
-0 0 5030
+0 -1 5030
 D1
 Sand as far as the eye can see.
 ~
 ~
-0 0 5025
+0 -1 5025
 D2
 Sand as far as the eye can see.
 ~
 ~
-0 0 5027
+0 -1 5027
 D3
 Sand as far as the eye can see.
 ~
 ~
-0 0 5026
+0 -1 5026
 S
 #5025
 The Sands of Sorrow~
@@ -968,22 +968,22 @@ D0
 You see a nomad camp by an oasis.
 ~
 ~
-0 0 5056
+0 -1 5056
 D1
 Sand as far as the eye can see.
 ~
 ~
-0 0 5026
+0 -1 5026
 D2
 Sand as far as the eye can see.
 ~
 ~
-0 0 5028
+0 -1 5028
 D3
 Sand as far as the eye can see.
 ~
 ~
-0 0 5024
+0 -1 5024
 S
 #5026
 The Sands of Sorrow~
@@ -996,22 +996,22 @@ D0
 Sand as far as the eye can see.
 ~
 ~
-0 0 5032
+0 -1 5032
 D1
 Sand as far as the eye can see.
 ~
 ~
-0 0 5024
+0 -1 5024
 D2
 Sand as far as the eye can see.
 ~
 ~
-0 0 5029
+0 -1 5029
 D3
 Sand as far as the eye can see.
 ~
 ~
-0 0 5025
+0 -1 5025
 S
 #5027
 The Sands of Sorrow~
@@ -1024,22 +1024,22 @@ D0
 Sand as far as the eye can see.
 ~
 ~
-0 0 5024
+0 -1 5024
 D1
 Sand as far as the eye can see.
 ~
 ~
-0 0 5028
+0 -1 5028
 D2
 Sand as far as the eye can see.
 ~
 ~
-0 0 5030
+0 -1 5030
 D3
 You see a river flowing into the mountain.
 ~
 ~
-0 0 5007
+0 -1 5007
 S
 #5028
 The Sands of Sorrow~
@@ -1052,22 +1052,22 @@ D0
 Sand as far as the eye can see.
 ~
 ~
-0 0 5025
+0 -1 5025
 D1
 Sand as far as the eye can see.
 ~
 ~
-0 0 5029
+0 -1 5029
 D2
 Sand as far as the eye can see.
 ~
 ~
-0 0 5031
+0 -1 5031
 D3
 Sand as far as the eye can see.
 ~
 ~
-0 0 5027
+0 -1 5027
 S
 #5029
 The Sands of Sorrow~
@@ -1080,22 +1080,22 @@ D0
 Sand as far as the eye can see.
 ~
 ~
-0 0 5026
+0 -1 5026
 D1
 The sand is glowing in this direction.
 ~
 ~
-0 0 5062
+0 -1 5062
 D2
 Sand as far as the eye can see.
 ~
 ~
-0 0 5032
+0 -1 5032
 D3
 Sand as far as the eye can see.
 ~
 ~
-0 0 5028
+0 -1 5028
 S
 #5030
 The Sands of Sorrow~
@@ -1108,22 +1108,22 @@ D0
 Sand as far as the eye can see.
 ~
 ~
-0 0 5027
+0 -1 5027
 D1
 Sand as far as the eye can see.
 ~
 ~
-0 0 5031
+0 -1 5031
 D2
 Sand as far as the eye can see.
 ~
 ~
-0 0 5024
+0 -1 5024
 D3
 Sand as far as the eye can see.
 ~
 ~
-0 0 5032
+0 -1 5032
 S
 #5031
 The Sands of Sorrow~
@@ -1136,22 +1136,22 @@ D0
 Sand as far as the eye can see.
 ~
 ~
-0 0 5028
+0 -1 5028
 D1
 Sand as far as the eye can see.
 ~
 ~
-0 0 5032
+0 -1 5032
 D2
 Sand as far as the eye can see.
 ~
 ~
-0 0 5063
+0 -1 5063
 D3
 Sand as far as the eye can see.
 ~
 ~
-0 0 5030
+0 -1 5030
 S
 #5032
 The Sands of Sorrow~
@@ -1164,22 +1164,22 @@ D0
 Sand as far as the eye can see.
 ~
 ~
-0 0 5029
+0 -1 5029
 D1
 Sand as far as the eye can see.
 ~
 ~
-0 0 5030
+0 -1 5030
 D2
 You see a tiny ledge.
 ~
 ~
-0 0 5026
+0 -1 5026
 D3
 Sand as far as the eye can see.
 ~
 ~
-0 0 5031
+0 -1 5031
 S
 #5056
 A nomad camp~
@@ -1194,17 +1194,17 @@ D0
 You see ill-tempered camels.
 ~
 ~
-0 0 5058
+0 -1 5058
 D1
 You see inside one of the tents a huddled mass of people, probably slaves.
 ~
 ~
-0 0 5057
+0 -1 5057
 D2
 Sand as far as the eye can see.
 ~
 ~
-0 0 5025
+0 -1 5025
 S
 #5057
 Inside a small tent~
@@ -1223,7 +1223,7 @@ D3
 You see the center of the nomad camp.
 ~
 ~
-0 0 5056
+0 -1 5056
 S
 #5058
 Beside the camels~
@@ -1237,17 +1237,17 @@ D0
 This tent seems to be the temporary abode of the nomad leader. You make a
 mental note to visit it before you leave.~
 ~
-0 0 5060
+0 -1 5060
 D1
 In this tent there are very large men, all carrying weapons.
 ~
 ~
-0 0 5059
+0 -1 5059
 D2
 You see the center of the nomad camp.
 ~
 ~
-0 0 5056
+0 -1 5056
 S
 #5059
 The warrior's tent.~
@@ -1260,7 +1260,7 @@ D3
 Outside you see some peaceful camels.
 ~
 ~
-0 0 5058
+0 -1 5058
 S
 #5060
 The main tent~
@@ -1273,12 +1273,12 @@ H 2
 D1
 ~
 ~
-0 0 5061
+0 -1 5061
 D2
 You see some peaceful camels.
 ~
 ~
-0 0 5058
+0 -1 5058
 S
 #5061
 The main tent~
@@ -1292,7 +1292,7 @@ D3
 You see the entrance to this tent.
 ~
 ~
-0 0 5060
+0 -1 5060
 S
 #5062
 Strange Glowing Sand~
@@ -1306,12 +1306,12 @@ D2
 You see a futuristic city.
 ~
 ~
-0 0 8001
+0 -1 8001
 D3
 Sand as far as the eye can see.
 ~
 ~
-0 0 5029
+0 -1 5029
 S
 #5063
 The wind-swept ledge~
@@ -1325,12 +1325,12 @@ D0
 Sand as far as the eye can see.
 ~
 ~
-0 0 5031
+0 -1 5031
 D3
 You see a dark cave.
 ~
 ~
-0 0 5064
+0 -1 5064
 S
 #5064
 The cave mouth~
@@ -1343,11 +1343,11 @@ AD 5
 D1
 Outside is lighter and very windy.~
 ~
-0 0 5063
+0 -1 5063
 D3
 ~
 ~
-0 0 5065
+0 -1 5065
 S
 #5065
 The mysterious lair.~
@@ -1361,7 +1361,7 @@ ADH 5
 D1
 ~
 ~
-0 0 5064
+0 -1 5064
 D3
 ~
 door~
@@ -1381,7 +1381,7 @@ door~
 D3
 ~
 ~
-0 0 5067
+0 -1 5067
 S
 #5067
 A narrower tunnel~
@@ -1393,11 +1393,11 @@ AD 5
 D1
 ~
 ~
-0 0 5066
+0 -1 5066
 D2
 ~
 ~
-0 0 5068
+0 -1 5068
 S
 #5068
 A narrow crack~
@@ -1409,11 +1409,11 @@ AD 5
 D0
 ~
 ~
-0 0 5067
+0 -1 5067
 D3
 ~
 ~
-0 0 5069
+0 -1 5069
 S
 #5069
 A small cavern.~
@@ -1425,11 +1425,11 @@ AD 5
 D0
 ~
 ~
-0 0 5070
+0 -1 5070
 D1
 ~
 ~
-0 0 5068
+0 -1 5068
 S
 #5070
 A small shaft~
@@ -1441,11 +1441,11 @@ AD 5
 D2
 ~
 ~
-0 0 5069
+0 -1 5069
 D4
 ~
 ~
-0 0 5009
+0 -1 5009
 S
 #0
 

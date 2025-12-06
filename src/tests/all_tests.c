@@ -8,6 +8,9 @@
 
 #include "lox_tests.h"
 
+#include <lox/vm.h>
+#include <lox/table.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,17 +25,23 @@ void run_all_tests();
 
 void run_unit_tests()
 {
+    table_use_heap_allocator(&vm.strings);
+    table_reserve(&vm.strings, 16384);
+
     register_lox_tests();
     register_lox_ext_tests();
     register_container_tests();
     register_entity_tests();
     register_act_tests();
     register_fmt_tests();
+    register_theme_tests();
     register_util_tests();
     register_event_tests();
     register_faction_tests();
     register_money_tests();
     register_quest_tests();
+    register_login_tests();
+    register_persist_tests();
 
     test_output_enabled = true;
     test_disassemble_on_error = true;

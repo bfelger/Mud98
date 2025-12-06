@@ -31,8 +31,8 @@ match theme show~
 #STEP
 prompt 
 Each theme is made up of a PALETTE and CHANNELS.
-    * A PALETTE is a set of 16 select colors that define the a curated set
-      of colors that match the theme's concept.
+    * A PALETTE is a set of 16 select colors that define a curated set of 
+      colors that match the theme's concept.
     * CHANNELS are the different kinds of information that can be sent to
       you, and can be themed using references to the palette, or with colors
       not already on the palette.
@@ -69,19 +69,27 @@ match theme show~
 
 #STEP
 prompt 
+Enter the theme editor so you can customize this palette. The editor lets
+you adjust colors, rename the theme, and save all your work without
+retyping THEME before every command. Type: ^TTHEME EDIT~
+match theme edit~
+#ENDSTEP
+
+#STEP
+prompt 
 Are all of the colors in the palette to your liking? If not, you can easily
-change them using the THEME PALETTE command. Choose a color swatch on the
-palette you want to change, and refer to that swatch by its slot number 
-(shown on THEME SHOW).
+change them using the PALETTE command while THEME EDIT is active.
+Choose a color swatch on the palette you want to change and refer to that
+swatch by its slot number (shown on THEME SHOW).
 
 Next, decide on a new color. In a 16-bit theme, this is a number 0-16. On
 a 256-color palette, its a number 0-256. Since we are working with a 24-bit
 theme, we can use numbers in "#RRGGBB;" hex format (remember the semicolon;
 it's required). For instance, Slate Blue is "#6A5ACD;".
 
-Try changing one of the channel colors with your chosen color: ^TTHEME
-PALETTE <swatch number> <#xxxxxx;>  ^*Ex: theme palette 8 #DB7E86;~
-match theme palette $N #$N;~
+Try changing one of the palette swatches with your chosen color: ^TPALETTE
+<swatch number> <#xxxxxx;>  ^*Ex: palette 8 #DB7E86;~
+match palette $N #$X;~
 #ENDSTEP
 
 #STEP
@@ -92,75 +100,65 @@ a matter of minutes, simply by switching out the swatches.
 
 Right now you're working with your own personal copy of the theme. Your
 changes only apply to you, and they aren't saved automatically. For now,
-try discarding your changes: ^TTHEME DISCARD~
-match theme discard~
+try discarding your changes: ^TDISCARD~
+match discard~
 #ENDSTEP
 
 #STEP
 prompt
 Maybe you like a theme's colors, but not how it's using them. We can change
-what colors are applied to each channel with the THEME CHANNEL command.
+what colors are applied to each channel with the CHANNEL command inside
+THEME EDIT.
 
 Look at THEME SHOW and pick a channel you'd like to change (by name, so 
-like "say_text", for instance). Then choose a palette swatch you'd like
-to change it to (by number).
+like "say_text", for instance). Then choose a fresh color in "#RRGGBB;"
+format that fits your concept.
 
-Note that most THEME commands accept PAL and CHAN as short-hands for CHANNEL
-and PALETTE, respectively. This tutorial will do so, going forward.
-
-Try assigning the new swatch the channel: ^TTHEME CHAN <channel> PAL <swatch>~
-match theme chan $N PAL N$~
+Try assigning a new color to the channel: ^TCHANNEL <channel> <#xxxxxx;>~
+match channel $W #$X;~
 #ENDSTEP
 
 #STEP
 prompt 
-You don't just have to stick to colors on the palette; you can apply any 
-color code to a channel. Pick another channel, and use THEME CHANNEL to give
-it an RGB color not on the palette: ^TTHEME CHAN <channel> <#xxxxxx;>~
-match theme chan $N #$N;~
-#ENDSTEP
-
-#STEP
-prompt 
-Now that you've customized your theme, you should use THEME SET to give it a
-new name: ^TTHEME SET NAME <name>~
-match theme set name $W+~
+Now that you've customized your theme, you should use the editor's NAME
+command to give it a new name: ^TNAME <name>~
+match name $W+~
 #ENDSTEP
 
 #STEP
 prompt 
 Your theme selections and changes only apply to your current session. You 
-have to change them to persist them with THEME SAVE. Save your changes to
-the theme (you can delete it later): ^TTHEME SAVE~
-match theme save~
+have to save them from inside the editor. Save your changes to the theme
+(you can delete it later): ^TSAVE~
+match save~
 #ENDSTEP
 
 #STEP
 prompt 
-Look at the list of themes available to you now and see that your customized
-theme is listed under your personal themes: ^TTHEME LIST~
-match theme list~
-#ENDSTEP
-
-#STEP
-prompt 
-Now that you have your theme saved, you can use THEME SET to make it visible
+Now that you have your theme saved, you can use the editor to make it visible
 and available to others while you are online (you can disable this later):
-^TTHEME SET PUBLIC~
-match theme set public~
+^TPUBLIC~
+match public~
 #ENDSTEP
 
 #STEP
 prompt 
 Other players won't see your theme until you save the settings change: 
-^TTHEME SAVE~
-match theme save~
+^TSAVE~
+match save~
 #ENDSTEP
 
 #STEP
 prompt 
-Now look at the list of themes and notice the "(public)" flag on your theme:
-^TTHEME LIST~
+When you're done editing, leave the theme editor so you can use the other
+THEME commands again: ^TDONE~
+match done~
+#ENDSTEP
+
+#STEP
+prompt 
+Look at the list of themes available to you now and see that your customized
+theme is listed (and marked public): ^TTHEME LIST~
 match theme list~
 #ENDSTEP
 

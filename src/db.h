@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Staerfeldt, Tom Madsen, and Katja Nyboe.  *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -93,6 +93,8 @@ void log_string(const char* str);
 String* fread_lox_string(FILE* fp);
 char* fread_lox_script(FILE* fp);
 String* lox_string(const char* str);
+// Allow persistence bridge to intercept fatal loader exits.
+void loader_longjmp(const char* message, int line);
 
 bool load_lox_class(FILE* fp, const char* entity_type_name, Entity* entity);
 

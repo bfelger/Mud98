@@ -1282,7 +1282,7 @@ D 2
 D0
 ~
 door north~
-1 0 6399
+1 -1 6399
 D2
 ~
 ~
@@ -1302,7 +1302,7 @@ to her beautiful silken body.
 D2
 ~
 door south~
-1 0 6392
+1 -1 6392
 S
 #0
 

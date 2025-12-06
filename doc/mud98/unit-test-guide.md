@@ -24,7 +24,7 @@ How to add and run tests that match the existing `src/tests/` style.
   void register_some_feature_tests() {
       init_test_group(&group, "Some Feature");
       register_test_group(&group);
-      register_test(&group, "does the thing", some_feature_test);
+      register_test(&group, "Does the thing", some_feature_test);
   }
   ```
 - Add the new `register_*_tests` declaration in `tests.h` and call it from `register_unit_tests` (see `tests.c`/`all_tests.c`).
@@ -46,6 +46,7 @@ How to add and run tests that match the existing `src/tests/` style.
 - Keep test-only headers local to `src/tests/` unless shared broadly.
 
 ## Tips
-- One behavior per test; name it clearly (`"parses quoted arg"`, `"fails on null input"`).
+- Familiarize yourself with existing unit tests and how they work; especially the mocking functions available in `tests/mock.h`.
+- One behavior per test; name it clearly (`"Parses quoted arg"`, `"Fails on NULL input"`).
 - Mirror existing patterns in the subsystem you’re testing (e.g., see `event_tests.c`, `entity_tests.c`).
 - If a test needs config, prefer in-memory setup over touching real files unless the feature is file-based.

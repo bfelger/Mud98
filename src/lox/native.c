@@ -80,9 +80,6 @@ void init_const_natives()
 void init_world_natives()
 {
     add_global("global_areas", OBJ_VAL(&global_areas));
-    add_global("global_rooms", OBJ_VAL(&global_rooms));
-    add_global("mob_protos", OBJ_VAL(&mob_protos));
-    add_global("obj_protos", OBJ_VAL(&obj_protos));
     add_global("global_objs", OBJ_VAL(&obj_list));
     add_global("global_mobs", OBJ_VAL(&mob_list));
 }

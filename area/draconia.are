@@ -712,7 +712,7 @@ D1
 The shadows cloud your vision.
 ~
 ~
-0 0 1304
+0 -1 1304
 S
 #2202
 The Foyer~
@@ -1078,7 +1078,7 @@ D2
 You the cave opening.
 ~
 ~
-0 0 2235
+0 -1 2235
 S
 #2221
 A Lair~
@@ -1091,7 +1091,7 @@ D0
 You the cave opening.
 ~
 ~
-0 0 2241
+0 -1 2241
 S
 #2222
 The Crypt Ends~
@@ -1112,7 +1112,7 @@ You see the Crypt.
 D3
 ~
 coffin~
-2 0 2232
+2 -1 2232
 S
 #2223
 Entrance to the Great Hall~
@@ -1276,11 +1276,11 @@ D 2
 D1
 The crypt~
 ~
-0 0 2222
+0 -1 2222
 D5
 A wine cellar~
 ~
-0 0 2233
+0 -1 2233
 S
 #2233
 Wine cellar~
@@ -1294,12 +1294,12 @@ D1
 A tunnel
 ~
 ~
-0 0 2234
+0 -1 2234
 D4
 The stairwell
 ~
 ~
-0 0 2232
+0 -1 2232
 S
 #2234
 Tunnel~
@@ -1314,17 +1314,17 @@ D0
 A cave opening
 ~
 ~
-0 0 2235
+0 -1 2235
 D1
 A tunnel
 ~
 ~
-0 0 2236
+0 -1 2236
 D3
 A tunnel
 ~
 ~
-0 0 2233
+0 -1 2233
 S
 #2235
 A cave opening~
@@ -1339,12 +1339,12 @@ D0
 The lair
 ~
 ~
-0 0 2220
+0 -1 2220
 D2
 The tunnel
 ~
 ~
-0 0 2234
+0 -1 2234
 S
 #2236
 The End of the tunnel~
@@ -1358,17 +1358,17 @@ D2
 bridge
 ~
 ~
-0 0 2237
+0 -1 2237
 D3
 The tunnel
 ~
 ~
-0 0 2234
+0 -1 2234
 D4
 trapdoor
 ~
 ~
-0 0 2202
+0 -1 2202
 S
 #2237
 The Bridge~
@@ -1382,12 +1382,12 @@ D0
 The tunnel end
 ~
 ~
-0 0 2236
+0 -1 2236
 D2
 A small opening
 ~
 ~
-0 0 2238
+0 -1 2238
 S
 #2238
 A small opening~
@@ -1401,12 +1401,12 @@ D0
 bridge
 ~
 ~
-0 0 2237
+0 -1 2237
 D2
 clearing
 ~
 ~
-0 0 2239
+0 -1 2239
 S
 #2239
 Clearing~
@@ -1433,17 +1433,17 @@ D0
 the small opening
 ~
 ~
-0 0 2238
+0 -1 2238
 D4
 A path
 ~
 ~
-0 0 2240
+0 -1 2240
 D5
 The well
 ~
 ~
-0 0 2244
+0 -1 2244
 S
 #2240
 A path~
@@ -1456,17 +1456,17 @@ D3
 cave opening
 ~
 ~
-0 0 2241
+0 -1 2241
 D4
 the path continues
 ~
 ~
-0 0 2242
+0 -1 2242
 D5
 clearing
 ~
 ~
-0 0 2239
+0 -1 2239
 S
 #2241
 A cave opening~
@@ -1480,12 +1480,12 @@ D1
 the path
 ~
 ~
-0 0 2240
+0 -1 2240
 D2
 A lair
 ~
 ~
-0 0 2221
+0 -1 2221
 S
 #2242
 The path continues~
@@ -1498,12 +1498,12 @@ D4
 top of the mountain
 ~
 ~
-0 0 2243
+0 -1 2243
 D5
 path
 ~
 ~
-0 0 2240
+0 -1 2240
 S
 #2243
 The top of the mountain~
@@ -1529,7 +1529,7 @@ D5
 The path continues
 ~
 ~
-0 0 2242
+0 -1 2242
 S
 #2244
 Well~

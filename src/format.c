@@ -157,8 +157,6 @@ static size_t normalize_text(const char* input, char* output, size_t capacity)
                 || output[out_len - 1] == INDENT_BREAK)
                 continue;
             output[out_len++] = ' ';
-
-            capitalize_next = true;
             continue;
         }
 

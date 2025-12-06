@@ -22,6 +22,17 @@
 #include "data/mobile_data.h"
 #include "data/race.h"
 
+#ifdef _MSC_VER
+#include <io.h>
+#define access _access
+#else
+#include <unistd.h>
+#endif
+
+#ifndef F_OK
+#define F_OK 0
+#endif
+
 #define RAEDIT( fun )		bool fun( Mobile *ch, char *argument )
 
 Race xRace;
@@ -72,8 +83,50 @@ void raedit(Mobile* ch, char* argument)
         return;
     }
 
-    if (!str_cmp(argument, "save")) {
+    if (!str_prefix("save", argument)) {
+        char arg1[MIL];
+        char arg2[MIL];
+        argument = one_argument(argument, arg1); // "save"
+        argument = one_argument(argument, arg2); // optional format
+        const char* requested_ext = NULL;
+        bool force_format = false;
+        if (!str_cmp(arg2, "json")) {
+            requested_ext = ".json";
+            force_format = true;
+        }
+        else if (!str_cmp(arg2, "olc")) {
+            requested_ext = ".olc";
+            force_format = true;
+        }
+        const char* races_file = cfg_get_races_file();
+        const char* ext = strrchr(races_file, '.');
+        bool has_ext = (ext != NULL);
+
+        if (!force_format) {
+            if (has_ext) {
+                requested_ext = NULL; // respect existing extension
+            } else {
+                // Only apply default format when this looks like a new file
+                if (access(races_file, F_OK) != 0) {
+                    const char* def = cfg_get_default_format();
+                    if (def && !str_cmp(def, "json"))
+                        requested_ext = ".json";
+                    else
+                        requested_ext = ".olc";
+                } else {
+                    requested_ext = NULL; // existing no-extension file stays ROM-OLC
+                }
+            }
+        }
+
+        if (requested_ext != NULL) {
+            size_t base_len = has_ext ? (size_t)(ext - races_file) : strlen(races_file);
+            char newname[MIL];
+            snprintf(newname, sizeof(newname), "%.*s%s", (int)base_len, races_file, requested_ext);
+            cfg_set_races_file(newname);
+        }
         save_race_table();
+        send_to_char("Races saved.\n\r", ch);
         return;
     }
 
@@ -148,8 +201,21 @@ RAEDIT(raedit_show)
     printf_to_char(ch, "Imm         : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(imm_flag_table, pRace->imm));
     printf_to_char(ch, "Res         : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(res_flag_table, pRace->res));
     printf_to_char(ch, "Vuln        : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(vuln_flag_table, pRace->vuln));
-    printf_to_char(ch, "Form        : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(form_flag_table, pRace->form));
-    printf_to_char(ch, "Parts       : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(part_flag_table, pRace->parts));
+    const char* form_default = olc_match_flag_default(pRace->form, form_defaults_flag_table);
+    if (form_default)
+        printf_to_char(ch, "Form        : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_EOL,
+            flag_string(form_flag_table, pRace->form), form_default);
+    else
+        printf_to_char(ch, "Form        : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL,
+            flag_string(form_flag_table, pRace->form));
+
+    const char* part_default = olc_match_flag_default(pRace->parts, part_defaults_flag_table);
+    if (part_default)
+        printf_to_char(ch, "Parts       : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_EOL,
+            flag_string(part_flag_table, pRace->parts), part_default);
+    else
+        printf_to_char(ch, "Parts       : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL,
+            flag_string(part_flag_table, pRace->parts));
     printf_to_char(ch, "Points      : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL, pRace->points);
     printf_to_char(ch, "Size        : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, mob_size_table[pRace->size].name);
     printf_to_char(ch, "Start Loc   : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "%s %s" COLOR_EOL,
@@ -159,7 +225,7 @@ RAEDIT(raedit_show)
     printf_to_char(ch, COLOR_TITLE "    Class      XPmult  XP/lvl(pts)   Start Loc" COLOR_EOL);
     for (i = 0; i < class_count; ++i) {
         VNUM vnum = GET_ELEM(&pRace->class_start, i);
-        
+
         if (vnum > 0)
             room = get_room_data(vnum);
         else
@@ -453,10 +519,11 @@ RAEDIT(raedit_skills)
 
 RAEDIT(raedit_start_loc)
 {
-    static const char* help = "Syntax : " COLOR_ALT_TEXT_1 "START_LOC <ROOM VNUM>" COLOR_CLEAR "\n\r\n\r";
+    static const char* help = "Syntax : " COLOR_ALT_TEXT_1 "START_LOC [CLASS NAME] <ROOM VNUM>" COLOR_CLEAR "\n\r\n\r";
     Race* race;
     char vnum_str[MIL];
     VNUM room_vnum = -1;
+    int class_ = -1;
 
     EDIT_RACE(ch, race);
 
@@ -468,8 +535,16 @@ RAEDIT(raedit_start_loc)
     READ_ARG(vnum_str);
 
     if (!is_number(vnum_str)) {
-        send_to_char(help, ch);
-        return false;
+        if ((class_ = class_lookup(vnum_str)) == -1) {
+            send_to_char(help, ch);
+            return false;
+        }
+
+        READ_ARG(vnum_str);
+        if (!is_number(vnum_str)) {
+            send_to_char(help, ch);
+            return false;
+        }
     }
 
     room_vnum = (VNUM)atoi(vnum_str);
@@ -478,7 +553,12 @@ RAEDIT(raedit_start_loc)
         send_to_char(COLOR_INFO "That is not a valid room VNUM.\n\r", ch);
     }
 
-    race->start_loc = room_vnum;
+    if (class_ != -1) {
+        SET_ELEM(race->class_start, class_, room_vnum); // ensure array is big enough
+    }
+    else {
+        race->start_loc = room_vnum;
+    }
     send_to_char("Ok.\n\r", ch);
     return true;
 }

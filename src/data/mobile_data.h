@@ -106,6 +106,12 @@ typedef enum form_flags_t {
     FORM_COLD_BLOOD         = BIT(28),
 } FormFlags;
 
+#define FORM_DEFAULT_ANIMAL \
+    (FORM_EDIBLE | FORM_ANIMAL)
+
+#define FORM_DEFAULT_HUMANOID \
+    (FORM_EDIBLE | FORM_BIPED | FORM_MAMMAL | FORM_SENTIENT)
+
 // body parts
 typedef enum part_flags_t {
     PART_HEAD               = BIT(0),
@@ -132,6 +138,14 @@ typedef enum part_flags_t {
     PART_SCALES             = BIT(23),
     PART_TUSKS              = BIT(24),
 } PartFlags;
+
+#define PART_DEFAULT_ANIMAL \
+    (PART_HEAD | PART_LEGS | PART_HEART | PART_BRAINS | PART_GUTS | PART_EAR | \
+        PART_EYE)
+
+#define PART_DEFAULT_HUMANOID \
+    (PART_DEFAULT_ANIMAL | PART_ARMS | PART_HANDS | PART_FEET | PART_FINGERS | \
+        PART_BRAINS)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Position

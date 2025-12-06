@@ -72,6 +72,7 @@ typedef struct player_data_t {
     char* bamfout;
     char* title;
     bool* group_known;
+    char* pwd_digest_hex;
     unsigned char* pwd_digest;
     time_t last_note;
     time_t last_idea;

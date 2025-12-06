@@ -26,6 +26,7 @@
 
 #include <entities/mob_prototype.h>
 
+#include <color.h>
 #include <data/class.h>
 #include <data/race.h>
 #include <data/skill.h>
@@ -90,6 +91,7 @@ typedef enum editor_t {
     ED_CLASS    = 12,
     ED_HELP     = 13,
     ED_QUEST    = 14,
+    ED_THEME    = 15,
 } EditorType;
 
 // Interpreter Prototypes
@@ -197,6 +199,7 @@ DECLARE_DO_FUN(do_raedit);
 DECLARE_DO_FUN(do_redit);
 DECLARE_DO_FUN(do_sedit);
 DECLARE_DO_FUN(do_skedit);
+void theme_edit(Mobile* ch, char* argument);
 
 // General Functions
 bool show_commands(Mobile* ch, char* argument);
@@ -395,6 +398,7 @@ DECLARE_ED_FUN(ed_objrecval);
 #define EDIT_SKILL(ch, skill)   ( skill = (Skill*)ch->desc->pEdit )
 #define EDIT_SOCIAL(ch, social)	( social = (Social*)ch->desc->pEdit )
 #define EDIT_ENTITY(ch, room)   ( entity = (Entity*)ch->desc->pEdit )
+#define EDIT_THEME(ch, theme)   ( theme = (ColorTheme*)ch->desc->pEdit )
 
 void show_liqlist(Mobile* ch);
 void show_poslist(Mobile* ch);
@@ -415,6 +419,8 @@ void olc_print_str_box(Mobile* ch, const char* label, const char* str, const cha
 void olc_print_yesno(Mobile* ch, const char* label, bool yesno);
 void olc_print_text(Mobile* ch, const char* label, const char* text);
 
+const char* olc_match_flag_default(FLAGS flags, const struct flag_type* defaults);
+const char* olc_show_flags_ex(const char* label, const struct flag_type* flag_table, const struct flag_type* defaults, FLAGS flags);
 const char* olc_show_flags(const char* label, const struct flag_type* flag_table, FLAGS flags);
 
 #endif // !MUD98__OLC__OLC_H

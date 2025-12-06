@@ -10,7 +10,7 @@
     <img src="doc/Mud98.png" alt="Logo" width="613" height="596">
   </a>
 
-  <h3 align="center">Mud98 v0.9</h3>
+  <h3 align="center">Mud98 v0.91</h3>
 
   <p align="center">
     A "new stock" for a classic MUD, updated for a new(ish) millennium
@@ -75,6 +75,10 @@ Other than the improvements listed above, Mud98 intends to be true to the spirit
 
 Here are some of the novel improvements to Mud98 over stock ROM:
 
+### Lox Scripting Language
+
+While Mud98 still supports legacy MobProgs, it has a much more powerful alternative: [the Lox scripting language](doc/mud98/lox/index.md). This fast bytecode-interpreted language supports both Object-Oriented and Functional Programming, and is a first-class citizen in Mud98, far beyond what MobProgs was capable of.
+
 ### TLS Secure Sockets
 
 OpenSSL provides secure sockets to Mud98. You can configure Mud98 to run TLS in tandem with clear-text telnet, or by itself.
@@ -87,16 +91,16 @@ Mud98 implements the MUD Client Compression Protocol (MCCP2 & MCCP3), the MUD Se
 
 Most settings in Mud98 can be configured in `mud98.cfg`, which resides in the root folder. This includes telnet/TLS settings, MTH/MCCP/MSDP/MSSP settings, file settings, and a growing list of gameplay customization options.
 
+### JSON File support
+
+You can toggle between legacy OLC-formatted area and data files, or JSON via the Jansson library. ([documentation](doc/mud98/json/index.md))
+
 ### Improved Code Quality
 
 Part of an on-going effort, Mud98 applies "modern" C best practices to ROM's legacy C code. This is a multi-prong effort:
 - Reorganization for smaller, focused code files with an eye toward Single Responsibility Principle.
 - Scrupulous application of more constistent (though admittedly opinionated) naming, syntax, and structure.
 - Removal of legacy code that is unlikely to ever see usage on modern systems.
-
-### OLC Expansion
-
-Mud98 adds a class editor (`cedit`) to OLC 2 for ROM. Future plans are to expand on this and add more features editable via OLC.
 
 ### 24-Bit Color Themes
 
@@ -117,6 +121,15 @@ Mud98 has a robust quest system that is tightly integrated with Mob Progs and OL
 ### Multiple-Instance Areas
 
 In Mud98, you can designate whole areas as multiple-instance, which in the parlance of MMORPGs means that players (and their parties) who enter the zone are playing in their own sandbox. This is useful for low-competition starting zones, chatty story-bound NPC's, and whole dungeons spun up just for the player and their friends.
+
+### OLC Expansion
+
+Mud98 adds OLC editors for the following:
+- Classes
+- Color themes
+- Quests
+
+...and more.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

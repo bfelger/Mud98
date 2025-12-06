@@ -1519,7 +1519,8 @@ black jumpsuit~
 a black jumpsuit~
 You see a black jumpsuit on the ground.~
 A
-oldstyle~
+
+oldstyle~
 armor A AD
 12 12 12 8 0
 45 40 13700 P
@@ -4395,7 +4396,7 @@ D2
 You see a hall of the Mall from Hell.
 ~
 ~
-0 0 10535
+0 -1 10535
 S
 #10526
 Inside Big Mouth's Stomach~
@@ -4596,7 +4597,7 @@ D0
 You see a hall of the Mall from Hell.
 ~
 ~
-0 0 10525
+0 -1 10525
 D3
 You see a hall of the Mall from Hell.
 ~

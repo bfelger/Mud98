@@ -10,6 +10,7 @@
 #include <config.h>
 #include <db.h>
 #include <tablesave.h>
+#include <persist/class/class_persist.h>
 
 Class* class_table = NULL;
 int class_count = 0;
@@ -42,80 +43,18 @@ const SaveTableEntry class_save_table[] = {
 
 void load_class_table()
 {
-    FILE* fp;
-    char* word;
-    int i;
-
-    OPEN_OR_DIE(fp = open_read_classes_file());
-
-    int maxclass = fread_number(fp);
-
-    size_t new_size = sizeof(Class) * ((size_t)maxclass + 1);
-    printf_log("Creating class of length %d, size %zu", maxclass + 1, new_size);
-
-    if ((class_table = calloc((size_t)maxclass + 1, sizeof(Class))) == NULL) {
-        perror("load_class_table(): Could not allocate class_table!");
-        exit(-1);
-    }
-
-    i = 0;
-
-    while (true) {
-        word = fread_word(fp);
-
-        if (str_cmp(word, "#CLASS")) {
-            bugf("load_class_table : word %s", word);
-            close_file(fp);
-            return;
-        }
-
-        load_struct(fp, U(&tmp_class), class_save_table, U(&class_table[i++]));
-
-        if (i == maxclass) {
-            printf_log("Class table loaded.");
-            close_file(fp);
-            class_count = maxclass;
-            class_table[i].name = NULL;
-            return;
-        }
+    PersistResult res = class_persist_load(cfg_get_classes_file());
+    if (!persist_succeeded(res)) {
+        bugf("load_class_table: failed to load classes (%s)", res.message ? res.message : "unknown error");
+        exit(1);
     }
 }
 
 void save_class_table()
 {
-    FILE* fp;
-    const Class* temp;
-
-    char tempclasses_file[256];
-    sprintf(tempclasses_file, "%s%s", cfg_get_data_dir(), "tempclasses");
-
-    OPEN_OR_RETURN(fp = open_write_file(tempclasses_file));
-
-    fprintf(fp, "%d\n\n", class_count);
-
-    int i;
-    for (temp = class_table, i = 0; i < class_count; ++i, ++temp) {
-        fprintf(fp, "#CLASS\n");
-        save_struct(fp, U(&tmp_class), class_save_table, U(temp));
-        fprintf(fp, "#END\n\n");
-    }
-
-    close_file(fp);
-
-    char classes_file[256];
-    sprintf(classes_file, "%s%s", cfg_get_data_dir(), cfg_get_classes_file());
-
-#ifdef _MSC_VER
-    if (!MoveFileExA(tempclasses_file, classes_file, MOVEFILE_REPLACE_EXISTING)) {
-        bugf("save_class : Could not rename %s to %s!", tempclasses_file, classes_file);
-        perror(classes_file);
-    }
-#else
-    if (rename(tempclasses_file, classes_file) != 0) {
-        bugf("save_class : Could not rename %s to %s!", tempclasses_file, classes_file);
-        perror(classes_file);
-    }
-#endif
+    PersistResult res = class_persist_save(cfg_get_classes_file());
+    if (!persist_succeeded(res))
+        bugf("save_class_table: failed to save classes (%s)", res.message ? res.message : "unknown error");
 }
 
 #undef U

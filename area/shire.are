@@ -913,7 +913,7 @@ D1
 A door offers passage to the office of the Thain.
 ~
 door~
-1 0 1111
+1 -1 1111
 D3
 To the west you can see Bywater Road.
 ~
@@ -933,7 +933,7 @@ D3
 A door offers passage to the Shiriff Post.
 ~
 door~
-1 0 1110
+1 -1 1110
 S
 #1112
 Bywater Road~
@@ -1197,7 +1197,7 @@ D2
 A wooden door leads to the rear of the watermill.
 ~
 door~
-1 0 1125
+1 -1 1125
 S
 #1125
 Rear of watermill~

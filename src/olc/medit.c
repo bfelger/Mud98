@@ -282,8 +282,8 @@ MEDIT(medit_show)
     addf_buf(buffer, "Act:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL,
         flag_string(act_flag_table, pMob->act_flags));
 
-    addf_buf(buffer, "%s\n\r", olc_show_flags("Form", form_flag_table, pMob->form));
-    addf_buf(buffer, "%s\n\r", olc_show_flags("Parts", part_flag_table, pMob->parts));
+    addf_buf(buffer, "%s\n\r", olc_show_flags_ex("Form", form_flag_table, form_defaults_flag_table, pMob->form));
+    addf_buf(buffer, "%s\n\r", olc_show_flags_ex("Parts", part_flag_table, part_defaults_flag_table, pMob->parts));
     addf_buf(buffer, "%s\n\r", olc_show_flags("Imm", imm_flag_table, pMob->imm_flags));
     addf_buf(buffer, "%s\n\r", olc_show_flags("Res", res_flag_table, pMob->res_flags));
     addf_buf(buffer, "%s\n\r", olc_show_flags("Vuln", vuln_flag_table, pMob->vuln_flags));
@@ -293,11 +293,14 @@ MEDIT(medit_show)
         addf_buf(buffer, "Spec fun:    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, spec_name(pMob->spec_fun));
     }
 
-    addf_buf(buffer, "Short descr: " COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR "\n\rLong descr:\n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR ,
+    addf_buf(buffer, "Short descr: " COLOR_ALT_TEXT_2 "%s" COLOR_EOL "Long descr:\n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR,
         pMob->short_descr,
         pMob->long_descr);
 
-    addf_buf(buffer, "Description:\n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR , pMob->description);
+    if (!IS_NULLSTR(pMob->description))
+        addf_buf(buffer, "Description:\n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR , pMob->description);
+    else 
+        add_buf(buffer, "Description: " COLOR_ALT_TEXT_2 "(none)" COLOR_EOL);
 
     if (pMob->pShop) {
         ShopData* pShop;
@@ -609,7 +612,7 @@ ED_FUN_DEC(ed_new_mob)
 
     SET_BIT(area->area_flags, AREA_CHANGED);
 
-    table_set_vnum(&mob_protos, value, OBJ_VAL(pMob));
+    global_mob_proto_set(pMob);
 
     set_editor(ch->desc, ED_MOBILE, U(pMob));
 /*    ch->desc->pEdit        = (void *)pMob; */

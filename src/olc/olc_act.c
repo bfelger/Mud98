@@ -628,9 +628,21 @@ ED_FUN_DEC(ed_skillgroup)
     return true;
 }
 
+static const struct flag_type* get_flag_defaults_for_command(const char* command)
+{
+    if (!command || command[0] == '\0')
+        return NULL;
+    if (!str_cmp(command, "form") || !str_cmp(command, "forms"))
+        return form_defaults_flag_table;
+    if (!str_cmp(command, "parts") || !str_cmp(command, "part"))
+        return part_defaults_flag_table;
+    return NULL;
+}
+
 ED_FUN_DEC(ed_flag_toggle)
 {
     FLAGS value;
+    const struct flag_type* defaults = get_flag_defaults_for_command(n_fun);
 
     if (!emptystring(argument)) {
         char flag_str[MIL];
@@ -642,6 +654,11 @@ ED_FUN_DEC(ed_flag_toggle)
                 printf_to_char(ch, "%c%s flag toggled.\n\r", toupper(n_fun[0]), &n_fun[1]);
                 found = true;
             }
+            else if (defaults && (value = flag_value((struct flag_type*)defaults, flag_str)) != NO_FLAG) {
+                *(FLAGS*)arg ^= value;
+                printf_to_char(ch, "%s preset toggled.\n\r", capitalize(flag_str));
+                found = true;
+            }
             else
                 printf_to_char(ch, "Unknown flag '%s'.\n\r", flag_str);
             READ_ARG(flag_str);
@@ -651,6 +668,9 @@ ED_FUN_DEC(ed_flag_toggle)
 
     INIT_BUF(set_out, MSL);
     INIT_BUF(unset_out, MSL);
+    Buffer* preset_out = NULL;
+    if (defaults)
+        preset_out = new_buf();
 
     printf_to_char(ch, "Syntax : " COLOR_ALT_TEXT_1 "%s [flags]" COLOR_EOL, n_fun);
     
@@ -671,10 +691,21 @@ ED_FUN_DEC(ed_flag_toggle)
         printf_to_char(ch, "\n\rAvailable Flags:\n\r%s", unset_out->string);
     }
 
+    if (preset_out) {
+        for (const struct flag_type* def = defaults; def && def->name != NULL; ++def) {
+            addf_buf(preset_out, "    " COLOR_ALT_TEXT_1 "%-20s" COLOR_ALT_TEXT_2 " (%s)" COLOR_EOL,
+                def->name, flag_string((const struct flag_type*)par, def->bit));
+        }
+        if (preset_out->size > 0)
+            printf_to_char(ch, "\n\rPresets:\n\r%s", preset_out->string);
+    }
+
     send_to_char("\n\r", ch);
 
     free_buf(set_out);
     free_buf(unset_out);
+    if (preset_out)
+        free_buf(preset_out);
     return false;
 }
 
@@ -793,10 +824,11 @@ ED_FUN_DEC(ed_int16lookup)
 
 ED_FUN_DEC(ed_dice)
 {
-    static char syntax[] = "Syntax:  " COLOR_ALT_TEXT_1 "hitdice <number> d <type> + <bonus>" COLOR_EOL;
-    char* numb_str; 
-    char* type_str; 
-    char* bonus_str;
+    static char syntax[] = "Arguments:  " COLOR_ALT_TEXT_1 "<number> d <type> + <bonus>\n\r" 
+                           "            (or just 0 for 0d0+0)" COLOR_EOL;
+    char* numb_str = NULL; 
+    char* type_str = NULL; 
+    char* bonus_str = NULL;
     int16_t numb;
     int16_t type;
     int16_t bonus;
@@ -812,6 +844,16 @@ ED_FUN_DEC(ed_dice)
 
     while (ISDIGIT(*cp))
         ++cp;
+
+    // Handle plain 0 case
+    if (*cp == '\0' && cp != numb_str && atoi(numb_str) == 0) {
+        array[DICE_NUMBER] = 0;
+        array[DICE_TYPE] = 0;
+        array[DICE_BONUS] = 0;
+        printf_to_char(ch, "%s set.\n\r", n_fun);
+        return true;
+    }
+
     while (*cp != '\0' && !ISDIGIT(*cp))
         *(cp++) = '\0';
 

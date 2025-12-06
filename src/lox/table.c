@@ -28,12 +28,30 @@ void init_table(Table* table)
     table->count = 0;
     table->capacity = 0;
     table->entries = NULL;
+    table->use_heap_allocator = false;
+    table->entries_from_heap = false;
 }
 
 void free_table(Table* table)
 {
-    FREE_ARRAY(Entry, table->entries, table->capacity);
+    if (table->entries_from_heap)
+        free(table->entries);
+    else
+        FREE_ARRAY(Entry, table->entries, table->capacity);
     init_table(table);
+}
+
+void table_use_heap_allocator(Table* table)
+{
+    table->use_heap_allocator = true;
+}
+
+static int next_capacity(int capacity)
+{
+    int cap = 8;
+    while (cap < capacity)
+        cap <<= 1;
+    return cap;
 }
 
 static Entry* find_entry(Entry* entries, int capacity, ObjString* key)
@@ -130,15 +148,27 @@ bool table_get_vnum(Table* table, int32_t key, Value* value)
 
 static void adjust_capacity(Table* table, int capacity)
 {
-    Entry* entries = ALLOCATE(Entry, capacity);
+    Entry* entries;
+    bool new_from_heap = false;
+    if (table->use_heap_allocator) {
+        entries = malloc(sizeof(Entry) * capacity);
+        new_from_heap = true;
+    }
+    else {
+        entries = ALLOCATE(Entry, capacity);
+    }
     for (int i = 0; i < capacity; i++) {
         entries[i].key = NIL_VAL;
         entries[i].value = NIL_VAL;
     }
 
+    Entry* old_entries = table->entries;
+    int old_capacity = table->capacity;
+    bool old_from_heap = table->entries_from_heap;
+
     table->count = 0;
-    for (int i = 0; i < table->capacity; i++) {
-        Entry* entry = &table->entries[i];
+    for (int i = 0; i < old_capacity; i++) {
+        Entry* entry = &old_entries[i];
         if (entry->key == NIL_VAL) 
             continue;
 
@@ -155,16 +185,30 @@ static void adjust_capacity(Table* table, int capacity)
         table->count++;
     }
 
-    FREE_ARRAY(Entry, table->entries, table->capacity);
+    if (old_entries) {
+        if (old_from_heap)
+            free(old_entries);
+        else
+            FREE_ARRAY(Entry, old_entries, old_capacity);
+    }
     table->entries = entries;
     table->capacity = capacity;
+    table->entries_from_heap = new_from_heap;
+}
+
+void table_reserve(Table* table, int min_capacity)
+{
+    int capacity = next_capacity(min_capacity);
+    if (table->capacity >= capacity)
+        return;
+    adjust_capacity(table, capacity);
 }
 
 bool table_set(Table* table, ObjString* key, Value value)
 {
     if (table->count + 1 > table->capacity * TABLE_MAX_LOAD) {
         // Because memory comes from Mud98's resource bucket, we need to enforce
-        // an early GC is the strings table gets too big.
+        // an early GC if the strings table gets too big.
         if (GROW_CAPACITY(table->capacity) * sizeof(Entry) > 65536 * 4)
             collect_garbage();
     }

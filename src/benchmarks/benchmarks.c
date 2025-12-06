@@ -95,6 +95,6 @@ void stop_timer(Timer* timer)
 
 void run_benchmarks()
 {
-    //benchmark_containers();
-    benchmark_formatting();
+    benchmark_containers();
+    //benchmark_formatting();
 }

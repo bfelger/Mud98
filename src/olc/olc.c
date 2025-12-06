@@ -43,6 +43,7 @@
 #include <time.h>
 
 void UpdateOLCScreen(Descriptor*);
+extern const OlcCmd theme_edit_table[];
 
 #ifdef U
 #define OLD_U U
@@ -101,6 +102,9 @@ bool run_olc_editor(Descriptor* d, char* incomm)
     case ED_QUEST:
         qedit(d->character, incomm);
         break;
+    case ED_THEME:
+        theme_edit(d->character, incomm);
+        break;
     default:
         return false;
     }
@@ -151,6 +155,9 @@ char* olc_ed_name(Mobile* ch)
         break;
     case ED_QUEST:
         sprintf(buf, "QEdit");
+        break;
+    case ED_THEME:
+        sprintf(buf, "ThemeEd");
         break;
     default:
         sprintf(buf, " ");
@@ -266,6 +273,19 @@ void show_olc_cmds(Mobile* ch)
 
     buf1[0] = '\0';
     col = 0;
+
+    if (ch->desc->editor == ED_THEME) {
+        for (int cmd = 0; theme_edit_table[cmd].name != NULL; cmd++) {
+            sprintf(buf, "%-15.15s", theme_edit_table[cmd].name);
+            strcat(buf1, buf);
+            if (++col % 5 == 0)
+                strcat(buf1, "\n\r");
+        }
+        if (col % 5 != 0)
+            strcat(buf1, "\n\r");
+        send_to_char(buf1, ch);
+        return;
+    }
 
     //if (ch->desc->editor == ED_AREA) {
     //    // Areas have a cmd_type, not a comm_type
@@ -647,17 +667,46 @@ void olc_print_text(Mobile* ch, const char* label, const char* text)
             "%10s" COLOR_DECOR_1 " ]" COLOR_EOL, label, "(none)");
 }
 
-const char* olc_show_flags(const char* label, const struct flag_type* flag_table, FLAGS flags)
+const char* olc_match_flag_default(FLAGS flags, const struct flag_type* defaults)
+{
+    if (!defaults)
+        return NULL;
+    for (int i = 0; defaults[i].name != NULL; ++i) {
+        FLAGS mask = defaults[i].bit;
+        if (mask != 0 && (flags & mask) == mask)
+            return defaults[i].name;
+    }
+    return NULL;
+}
+
+const char* olc_show_flags_ex(const char* label, const struct flag_type* flag_table, const struct flag_type* defaults, FLAGS flags)
 {
     char label_buf[MIL];
     static char buf[MSL];
 
     sprintf(label_buf, "%s:", label);
-    sprintf(buf, "%12s " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s" 
-        COLOR_DECOR_1 " ]" COLOR_CLEAR, label_buf, 
+    sprintf(buf, "%12s " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s"
+        COLOR_DECOR_1 " ]" COLOR_CLEAR, label_buf,
         flag_string(flag_table, flags));
 
+    const char* preset = olc_match_flag_default(flags, defaults);
+    if (preset) {
+        if (strlen(buf) > 70) {
+            // Too long, move preset to next line
+            strcat(buf, "\n\r            ");
+        }
+        strcat(buf, " " COLOR_ALT_TEXT_2 "(" COLOR_ALT_TEXT_1);
+        strcat(buf, preset);
+        strcat(buf, COLOR_ALT_TEXT_2 ")");
+        strcat(buf, COLOR_CLEAR);
+    }
+
     return buf;
+}
+
+const char* olc_show_flags(const char* label, const struct flag_type* flag_table, FLAGS flags)
+{
+    return olc_show_flags_ex(label, flag_table, NULL, flags);
 }
 
 #undef U

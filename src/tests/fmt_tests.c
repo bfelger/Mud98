@@ -19,7 +19,7 @@ TestGroup fmt_tests = { 0 };
 static int test_lox_edit()
 {
     Mobile* pc = mock_player("Jim");
-    pc->pcdata->current_theme = dup_color_theme(system_color_themes[SYSTEM_COLOR_THEME_LOPE]);
+    pc->pcdata->current_theme = dup_color_theme(get_default_system_color_theme());
     SET_BIT(pc->act_flags, PLR_COLOUR);
 
     char* src =
@@ -71,7 +71,7 @@ static int test_lox_edit()
 static int test_lox_edit2()
 {
     Mobile* pc = mock_player("Jim");
-    pc->pcdata->current_theme = dup_color_theme(system_color_themes[SYSTEM_COLOR_THEME_LOPE]);
+    pc->pcdata->current_theme = dup_color_theme(get_default_system_color_theme());
     SET_BIT(pc->act_flags, PLR_COLOUR);
 
     char* src =
@@ -195,14 +195,14 @@ static int test_string_format_large_text()
 static int test_string_format_bare_newlines()
 {
     const char* lorum_ipsum = "at vero eos et accusamus et iusto odio dignissimos "
-        "ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti "
+        "ducimus qui blanditiis praesentium\n\rvoluptatum deleniti atque corrupti "
         "quos dolores et quas molestias excepturi sint occaecati cupiditate non "
         "provident, similique sunt in culpa qui officia deserunt mollitia animi, "
         "id est laborum et dolorum fuga.\n\r\n\ret harum quidem rerum facilis est et "
         "expedita distinctio.\n\r\n\rNam libero tempore, cum soluta nobis est eligendi "
         "optio cumque nihil impedit quo minus id quod maxime placeat facere "
         "possimus, omnis voluptas assumenda est, omnis dolor repellendus.\n\r\n\r"
-        "temporibus autem quibusdam et aut officiis debitis aut rerum "
+        "temporibus autem\n\rquibusdam et aut officiis debitis aut rerum "
         "necessitatibus saepe eveniet ut et voluptates repudiandae sint et "
         "molestiae non recusandae.\n\r\n\ritaque earum rerum hic tenetur a sapiente "
         "delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut "

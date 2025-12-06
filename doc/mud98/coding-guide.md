@@ -5,8 +5,8 @@ Compact house rules to keep changes consistent. The codebase targets modern C (G
 - **Warnings & style**
   - Treat warnings as errors; keep code warning-free under GCC/Clang/MSVC.
   - Prefer small, focused functions; keep file-level `static` where possible.
-  - Use `const` for inputs, `bool` for flags, and size-appropriate unsigned types for counts/lengths.
-  - Include headers with project-relative paths: `#include "entities/mobile.h"`.
+  - Use `const` for inputs, `bool` for single-toggles, and size-appropriate unsigned types for counts/lengths.
+  - Include headers with project-relative paths: `#include <entities/mobile.h>`.
 - **Error handling**
   - Check allocation and file I/O results; return early on failure.
   - Use existing logging/notify patterns in the touched module; avoid `printf`-style debugging in committed code.

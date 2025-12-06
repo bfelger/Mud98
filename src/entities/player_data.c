@@ -37,6 +37,7 @@ PlayerData* new_player_data()
     player_data->reputations.entries = NULL;
     player_data->reputations.count = 0;
     player_data->reputations.capacity = 0;
+    player_data->pwd_digest_hex = str_dup("");
 
     player_data->recall = cfg_get_default_recall();
 
@@ -55,6 +56,7 @@ void free_player_data(PlayerData* player_data)
     free_learned(player_data->learned);
     free_boolarray(player_data->group_known);
     free_digest(player_data->pwd_digest);
+    free_string(player_data->pwd_digest_hex);
     free_color_theme(player_data->current_theme);
     for (int i = 0; i < MAX_THEMES; ++i)
         if (player_data->color_themes[i] != NULL)

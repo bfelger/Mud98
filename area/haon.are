@@ -617,7 +617,7 @@ D0
 You see a dimly lit path.
 ~
 ~
-0 0 1100
+0 -1 1100
 D1
 You see the West Gate of the City of Midgaard.
 ~
@@ -1451,7 +1451,7 @@ D0
 You see a dark trail north.
 ~
 ~
-0 0 6150
+0 -1 6150
 D1
 The narrow, dusty trail leads east through the forest.
 ~
@@ -2492,7 +2492,7 @@ D0
 You see a dark grove north.
 ~
 ~
-0 0 1300
+0 -1 1300
 D1
 The dusty trail leads east through the trees.
 ~
@@ -2605,8 +2605,6 @@ O 0 6104 0 6125
 M 0 6101 2 6127 2
 M 0 6101 2 6127 2
 M 0 6319 1 6134 1
-G 0 6308 0
-G 0 6309 0
 M 0 6318 3 6134 3
 M 0 6318 3 6134 3
 M 0 6318 3 6134 3

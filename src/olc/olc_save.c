@@ -20,6 +20,11 @@
  */
 
 #include "olc.h"
+#include "olc_save.h"
+
+#include <persist/area/area_persist.h>
+#include <persist/persist_io_adapters.h>
+#include <persist/area/rom-olc/area_persist_rom_olc.h>
 
 #include <comm.h>
 #include <config.h>
@@ -232,7 +237,7 @@ static void save_faction_relations(FILE* fp, const char* keyword, ValueArray* re
         fprintf(fp, " 0\n");
 }
 
-static void save_factions(FILE* fp, AreaData* area)
+void save_factions(FILE* fp, AreaData* area)
 {
     fprintf(fp, "#FACTIONS\n");
 
@@ -908,7 +913,8 @@ void save_resets(FILE* fp, AreaData* area)
             fprintf(fp, "G 0 %d 0\n", reset->arg1);
             if (!pLastMob) {
                 sprintf(buf,
-                    "Save_resets: !NO_MOB! in [%s]", area->file_name);
+                    "Save_resets: !NO_MOB! in [%s] reset G arg1=%d arg2=%d arg3=%d arg4=%d",
+                    area->file_name, reset->arg1, reset->arg2, reset->arg3, reset->arg4);
                 bug(buf, 0);
             }
             break;
@@ -919,7 +925,8 @@ void save_resets(FILE* fp, AreaData* area)
                 reset->arg3);
             if (!pLastMob) {
                 sprintf(buf,
-                    "Save_resets: !NO_MOB! in [%s]", area->file_name);
+                    "Save_resets: !NO_MOB! in [%s] reset E arg1=%d arg2=%d arg3=%d arg4=%d",
+                    area->file_name, reset->arg1, reset->arg2, reset->arg3, reset->arg4);
                 bug(buf, 0);
             }
             break;
@@ -977,6 +984,30 @@ void save_shops(FILE* fp, AreaData* area)
 
     fprintf(fp, "0\n\n\n\n");
     return;
+}
+
+void save_story_beats(FILE* fp, AreaData* area)
+{
+    fprintf(fp, "#STORYBEATS\n");
+    for (StoryBeat* beat = area->story_beats; beat != NULL; beat = beat->next) {
+        fprintf(fp, "B\n%s~\n%s~\n",
+            fix_string(beat->title),
+            fix_string(beat->description));
+    }
+    fprintf(fp, "S\n\n\n\n");
+}
+
+void save_checklist(FILE* fp, AreaData* area)
+{
+    fprintf(fp, "#CHECKLIST\n");
+    for (ChecklistItem* item = area->checklist; item != NULL; item = item->next) {
+        fprintf(fp, "C %d\n%s~\n",
+            (int)item->status,
+            fix_string(item->title));
+        // Description optional; keep empty line for backward compatibility.
+        fprintf(fp, "%s~\n", IS_NULLSTR(item->description) ? "" : fix_string(item->description));
+    }
+    fprintf(fp, "S\n\n\n\n");
 }
 
 void save_helps(FILE* fp, HelpArea* ha)
@@ -1040,38 +1071,22 @@ void save_area(AreaData* area)
 
     OPEN_OR_RETURN(fp = open_write_file(tmp));
 
-    fprintf(fp, "#AREADATA\n");
-    fprintf(fp, "Version %d\n", AREA_VERSION);
-    fprintf(fp, "Name %s~\n", NAME_STR(area));
-    fprintf(fp, "Builders %s~\n", fix_string(area->builders));
-    fprintf(fp, "VNUMs %"PRVNUM" %"PRVNUM"\n", area->min_vnum, area->max_vnum);
-    fprintf(fp, "Credits %s~\n", area->credits);
-    fprintf(fp, "Security %d\n", area->security);
-    fprintf(fp, "Sector %d\n", area->sector);
-    fprintf(fp, "Low %d\n", area->low_range);
-    fprintf(fp, "High %d\n", area->high_range);
-    fprintf(fp, "Reset %d\n", area->reset_thresh);
-    fprintf(fp, "AlwaysReset %d\n", (int)area->always_reset);
-    fprintf(fp, "InstType %d\n", area->inst_type);
-    fprintf(fp, "End\n\n");
+    PersistWriter writer = persist_writer_from_file(fp, tmp);
+    const AreaPersistFormat* fmt = area_persist_select_format(area->file_name);
+    AreaPersistSaveParams params = {
+        .writer = &writer,
+        .area = area,
+        .file_name = area->file_name,
+    };
 
-    save_factions(fp, area);
-    save_mobiles(fp, area);
-    save_objects(fp, area);
-    save_rooms(fp, area);
-    save_specials(fp, area);
-    save_resets(fp, area);
-    save_shops(fp, area);
-    save_mobprogs(fp, area);
-    save_progs(area->min_vnum, area->max_vnum);
-    save_quests(fp, area);
-
-    if (area->helps && area->helps->first)
-        save_helps(fp, area->helps);
-
-    fprintf(fp, "#$\n");
+    PersistResult result = fmt->save(&params);
 
     close_file(fp);
+
+    if (!persist_succeeded(result)) {
+        bugf("save_area : persist save failed for %s (%s)", area->file_name, result.message ? result.message : "unknown error");
+        return;
+    }
 
 #ifdef _MSC_VER
     if (!MoveFileExA(tmp, area_file, MOVEFILE_REPLACE_EXISTING)) {
@@ -1095,8 +1110,11 @@ void save_area(AreaData* area)
 void do_asave(Mobile* ch, char* argument)
 {
     char arg1[MAX_INPUT_LENGTH];
+    char arg2[MAX_INPUT_LENGTH];
     AreaData* area;
     VNUM value;
+    const char* requested_ext = NULL;
+    bool force_format = false;
 
     if (ch == NULL || ch->desc == NULL || IS_NPC(ch)) {
         return;
@@ -1120,14 +1138,25 @@ void do_asave(Mobile* ch, char* argument)
         return;
     }
 
-    strcpy(arg1, argument);
+    argument = one_argument(argument, arg1);
+    argument = one_argument(argument, arg2);
+
+    if (!str_cmp(arg2, "json")) {
+        requested_ext = ".json";
+        force_format = true;
+    }
+    else if (!str_cmp(arg2, "olc")) {
+        requested_ext = ".are";
+        force_format = true;
+    }
+
     if (arg1[0] == '\0') {
         send_to_char("Syntax:\n\r", ch);
-        send_to_char("  asave <vnum>   - saves a particular area\n\r", ch);
-        send_to_char("  asave list     - saves the area.lst file\n\r", ch);
-        send_to_char("  asave area     - saves the area being edited\n\r", ch);
-        send_to_char("  asave changed  - saves all changed zones\n\r", ch);
-        send_to_char("  asave world    - saves the world! (db dump)\n\r", ch);
+        send_to_char("  asave <vnum> [json|olc]  - saves a particular area\n\r", ch);
+        send_to_char("  asave list               - saves the area.lst file\n\r", ch);
+        send_to_char("  asave area [json|olc]    - saves the area being edited\n\r", ch);
+        send_to_char("  asave changed [json|olc] - saves all changed zones\n\r", ch);
+        send_to_char("  asave world [json|olc]   - saves the world! (db dump)\n\r", ch);
         send_to_char("\n\r", ch);
         return;
     }
@@ -1146,6 +1175,18 @@ void do_asave(Mobile* ch, char* argument)
             send_to_char("You are not a builder for this area.\n\r", ch);
             return;
         }
+
+        if (force_format && requested_ext) {
+            const char* ext = strrchr(area->file_name, '.');
+            char newname[MIL];
+            if (ext)
+                sprintf(newname, "%.*s%s", (int)(ext - area->file_name), area->file_name, requested_ext);
+            else
+                sprintf(newname, "%s%s", area->file_name, requested_ext);
+            free_string(area->file_name);
+            area->file_name = str_dup(newname);
+        }
+
         save_area_list();
         save_area(area);
         return;
@@ -1159,6 +1200,17 @@ void do_asave(Mobile* ch, char* argument)
             /* Builder must be assigned this area. */
             if (!IS_BUILDER(ch, area))
                 continue;
+
+            if (force_format && requested_ext) {
+                const char* ext = strrchr(area->file_name, '.');
+                char newname[MIL];
+                if (ext)
+                    sprintf(newname, "%.*s%s", (int)(ext - area->file_name), area->file_name, requested_ext);
+                else
+                    sprintf(newname, "%s%s", area->file_name, requested_ext);
+                free_string(area->file_name);
+                area->file_name = str_dup(newname);
+            }
 
             save_area(area);
             REMOVE_BIT(area->area_flags, AREA_CHANGED);
@@ -1189,6 +1241,17 @@ void do_asave(Mobile* ch, char* argument)
 
                 /* Save changed areas. */
             if (IS_SET(area->area_flags, AREA_CHANGED)) {
+                if (force_format && requested_ext) {
+                    const char* ext = strrchr(area->file_name, '.');
+                    char newname[MIL];
+                    if (ext)
+                        sprintf(newname, "%.*s%s", (int)(ext - area->file_name), area->file_name, requested_ext);
+                    else
+                        sprintf(newname, "%s%s", area->file_name, requested_ext);
+                    free_string(area->file_name);
+                    area->file_name = str_dup(newname);
+                }
+
                 save_area(area);
                 sprintf(buf, "%24s - '%s'\n\r", NAME_STR(area), area->file_name);
                 send_to_char(buf, ch);
@@ -1243,6 +1306,17 @@ void do_asave(Mobile* ch, char* argument)
         if (!IS_BUILDER(ch, area)) {
             send_to_char("You are not a builder for this area.\n\r", ch);
             return;
+        }
+
+        if (force_format && requested_ext) {
+            const char* ext = strrchr(area->file_name, '.');
+            char newname[MIL];
+            if (ext)
+                sprintf(newname, "%.*s%s", (int)(ext - area->file_name), area->file_name, requested_ext);
+            else
+                sprintf(newname, "%s%s", area->file_name, requested_ext);
+            free_string(area->file_name);
+            area->file_name = str_dup(newname);
         }
 
         save_area_list();

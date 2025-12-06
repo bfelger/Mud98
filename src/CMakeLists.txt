@@ -1,29 +1,6 @@
 #
-# Mud98 CMakeLists.txt
+# Mud98 Game Executable
 #
-cmake_minimum_required (VERSION 3.12)
-
-# MSVC will ignore this
-set(CMAKE_C_STANDARD 23)
-
-# Most recent C standard MSVC will pretend to follow
-set(MSVC_C_STD "/std:c17")
-
-project(Mud98)
-
-# Place built binaries under bin/<config> at the repo root so runtime files
-# (e.g., mud98.cfg) are easy to find when launching from the root.
-set(MUD98_RUNTIME_BASE "${CMAKE_SOURCE_DIR}/bin")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${MUD98_RUNTIME_BASE}")
-foreach(cfg Debug Release RelWithDebInfo MinSizeRel)
-    string(TOUPPER "${cfg}" cfg_upper)
-    set("CMAKE_RUNTIME_OUTPUT_DIRECTORY_${cfg_upper}" "${MUD98_RUNTIME_BASE}/${cfg}")
-endforeach()
-
-if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    # Default to repo-local installs to avoid touching system prefixes.
-    set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/bin" CACHE PATH "Install path prefix." FORCE)
-endif()
 
 set(Mud98_LIBS "")
 
@@ -33,11 +10,14 @@ if (NOT MSVC)
     list(APPEND Mud98_LIBS Threads::Threads)
 endif()
 
+add_subdirectory(jansson)
+list(APPEND Mud98_LIBS jansson)
+
 set (OPENSSL_USE_STATIC_LIBS true)
 find_package(OpenSSL)
 
 if (OPENSSL_FOUND)
-    message("OpenSSL version ${OPENSSL_VERSION} found at ${OPENSSL_INLCUDE_DIRS}.")
+    message("OpenSSL version ${OPENSSL_VERSION} found at ${OPENSSL_INCLUDE_DIRS}.")
 endif()
 
 if (NOT OPENSSL_FOUND OR OPENSSL_VERSION VERSION_LESS "3.0.0")
@@ -138,6 +118,8 @@ endif()
 
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/persist)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/jansson)
 
 add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h" 
     "act_enter.c" "act_info.h" "act_info.c" "act_move.h" "act_move.c" 
@@ -150,7 +132,26 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "mob_prog.c" "music.c" "note.h" "note.c" "pcg_basic.c" "recycle.c" "save.h" 
     "save.c" "scan.c" "skills.h" "skills.c" "socket.h" "special.h" "special.c" 
     "spell_list.h" "tables.c" "tablesave.c" "update.h" "update.c" "weather.h" 
-    "weather.c" "wizutil.v3.c"
+    "weather.c"
+
+    "persist/persist_io.h" "persist/persist_io_adapters.h" 
+    "persist/persist_io_adapters.c" "persist/persist_result.h" 
+    "persist/area/area_persist.h" "persist/area/area_persist.c" 
+    "persist/json/persist_json.h" "persist/json/persist_json.c"
+    "persist/area/rom-olc/area_persist_rom_olc.h" 
+    "persist/area/rom-olc/area_persist_rom_olc.c" "persist/area/json/area_persist_json.h" 
+    "persist/area/json/area_persist_json.c" "persist/race/race_persist.h" 
+    "persist/race/race_persist.c" "persist/class/class_persist.h" 
+    "persist/class/class_persist.c" "persist/class/rom-olc/class_persist_rom_olc.h" 
+    "persist/class/rom-olc/class_persist_rom_olc.c" 
+    "persist/class/json/class_persist_json.h" "persist/class/json/class_persist_json.c" 
+    "persist/race/rom-olc/race_persist_rom_olc.h" 
+    "persist/race/rom-olc/race_persist_rom_olc.c" "persist/race/json/race_persist_json.h" 
+    "persist/race/json/race_persist_json.c"
+    "persist/theme/theme_persist.h" "persist/theme/theme_persist.c"
+    "persist/theme/rom-olc/theme_persist_rom_olc.h" "persist/theme/rom-olc/theme_persist_rom_olc.c"
+    "persist/theme/json/theme_persist_json.h" "persist/theme/json/theme_persist_json.c"
+    "persist/theme/rom-olc/theme_rom_olc_io.h" "persist/theme/rom-olc/theme_rom_olc_io.c"
 
     "olc/aedit.c" "olc/bit.h" "olc/bit.c" "olc/cedit.c" "olc/cmdedit.c" 
     "olc/event_edit.h" "olc/event_edit.c" "olc/gedit.c" "olc/hedit.c" 
@@ -158,6 +159,7 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "olc/olc_save.c" "olc/pedit.c" "olc/qedit.c" "olc/raedit.c" "olc/redit.c" 
     "olc/screen.h" "olc/screen.c" "olc/sedit.c" "olc/skedit.c" 
     "olc/string_edit.h" "olc/string_edit.c"  "olc/lox_edit.h" "olc/lox_edit.c"
+    "olc/theme_edit.c"
 
     "mth/mth.h" "mth/msdp.c" "mth/mth.c" "mth/telopt.c"
     
@@ -205,6 +207,7 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "lox/native.h" "lox/native.c"
     "lox/native_funcs.c" "lox/native_methods.c" "lox/native_cmds.c"
     "lox/object.h" "lox/object.c"
+    "lox/ordered_table.h" "lox/ordered_table.c"
     "lox/scanner.h" "lox/scanner.c"
     "lox/table.h" "lox/table.c"
     "lox/value.h" "lox/value.c"
@@ -218,14 +221,16 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "tests/all_tests.c" "tests/tests.h"
     "tests/mock.h" "tests/mock.c"
     "tests/lox_tests.h" "tests/lox_tests.c" "tests/lox_ext_tests.c"
+    "tests/persist_tests.c"
     "tests/entity_tests.c" "tests/container_tests.c" "tests/act_tests.c" 
-    "tests/event_tests.c" "tests/faction_tests.c" "tests/money_tests.c"
-    "tests/quest_tests.c" "tests/fmt_tests.c" "tests/util_tests.c" 
+    "tests/event_tests.c" "tests/faction_tests.c" "tests/money_tests.c" 
+    "tests/login_tests.c" "tests/quest_tests.c" "tests/fmt_tests.c" 
+    "tests/theme_tests.c" "tests/util_tests.c" 
 
     "benchmarks/benchmarks.h" "benchmarks/benchmarks.c" 
     "benchmarks/container_benchmarks.c" "benchmarks/format_benchmarks.c"
 
-    "snippets/lore.c" "snippets/merc.dual.v1.c"
+    "snippets/lore.c" "snippets/merc.dual.v1.c" "snippets/wizutil.v3.c"
 )
 
 target_link_libraries(Mud98 PRIVATE ${Mud98_LIBS})
@@ -239,7 +244,7 @@ message("        Compiler ID:      ${CMAKE_C_COMPILER_ID}")
 message("        CMAKE_VERSION:    ${CMAKE_VERSION}")
 message("        CFLAGS:           ${CMAKE_C_FLAGS}")
 message("        CFLAGS_DEBUG:     ${CMAKE_C_FLAGS_DEBUG}")
-message("        CPPFLAGS:         ${CMAKE_CXX_FLAGS}")
+#message("        CPPFLAGS:         ${CMAKE_CXX_FLAGS}")
 message("        Linked Libs:      ${Mud98_LIBS}")
 message("        Include dirs:     ${CMAKE_INCLUDE_PATH}")
 message("        Build type:       ${CMAKE_BUILD_TYPE}")

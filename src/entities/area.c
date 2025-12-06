@@ -15,6 +15,7 @@
 #include <config.h>
 #include <db.h>
 #include <handler.h>
+#include <stdlib.h>
 
 int area_data_perm_count;
 ValueArray global_areas = { 0 };
@@ -68,8 +69,10 @@ AreaData* new_area_data()
     init_list(&area_data->instances);
     SET_LOX_FIELD(&area_data->header, &area_data->instances, instances);
 
-    VNUM_FIELD(area_data) = global_areas.count - 1;
-    sprintf(buf, "area%"PRVNUM".are", VNUM_FIELD(area_data));
+    VNUM_FIELD(area_data) = global_areas.count;
+    const char* def_fmt = cfg_get_default_format();
+    const char* ext = (def_fmt && !str_cmp(def_fmt, "json")) ? ".json" : ".are";
+    sprintf(buf, "area%"PRVNUM"%s", VNUM_FIELD(area_data), ext);
 
     area_data->area_flags = AREA_ADDED;
     area_data->security = 1;
@@ -77,6 +80,8 @@ AreaData* new_area_data()
     area_data->credits = str_empty;
     area_data->reset_thresh = 6;
     area_data->file_name = str_dup(buf);
+    area_data->story_beats = NULL;
+    area_data->checklist = NULL;
 
     return area_data;
 }
@@ -87,6 +92,8 @@ void free_area_data(AreaData* area_data)
     free_string(area_data->file_name);
     free_string(area_data->builders);
     free_string(area_data->credits);
+    free_story_beats(area_data->story_beats);
+    free_checklist(area_data->checklist);
 
     remove_array_value(&global_areas, OBJ_VAL(area_data));
 
@@ -187,6 +194,8 @@ void load_area(FILE* fp)
     area_data->reset_thresh = 6;
     area_data->file_name = str_dup(fpArea);
     area_data->security = 9;
+    area_data->story_beats = NULL;
+    area_data->checklist = NULL;
 
     for (; ; ) {
         word = feof(fp) ? "End" : fread_word(fp);
@@ -241,5 +250,116 @@ void load_area(FILE* fp)
             break;
         // End switch
         }
+    }
+}
+
+void load_story_beats(FILE* fp)
+{
+    if (current_area_data == NULL)
+        return;
+
+    for (;;) {
+        char letter = fread_letter(fp);
+        if (letter == 'S')
+            break;
+        if (letter != 'B') {
+            fread_to_eol(fp);
+            continue;
+        }
+        char* title = fread_string(fp);
+        char* desc = fread_string(fp);
+        add_story_beat(current_area_data, title, desc);
+        free_string(title);
+        free_string(desc);
+    }
+}
+
+void load_checklist(FILE* fp)
+{
+    if (current_area_data == NULL)
+        return;
+
+    for (;;) {
+        char letter = fread_letter(fp);
+        if (letter == 'S')
+            break;
+        if (letter != 'C') {
+            fread_to_eol(fp);
+            continue;
+        }
+        int status = fread_number(fp);
+        char* title = fread_string(fp);
+        char* desc = fread_string(fp);
+        ChecklistStatus st = (ChecklistStatus)status;
+        if (st < CHECK_TODO || st > CHECK_DONE)
+            st = CHECK_TODO;
+        add_checklist_item(current_area_data, title, desc, st);
+        free_string(title);
+        free_string(desc);
+    }
+}
+
+StoryBeat* add_story_beat(AreaData* area_data, const char* title, const char* description)
+{
+    StoryBeat* beat = malloc(sizeof(StoryBeat));
+    if (!beat)
+        return NULL;
+    beat->title = str_dup(title ? title : "");
+    beat->description = str_dup(description ? description : "");
+    beat->next = NULL;
+
+    if (!area_data->story_beats)
+        area_data->story_beats = beat;
+    else {
+        StoryBeat* tail = area_data->story_beats;
+        while (tail->next)
+            tail = tail->next;
+        tail->next = beat;
+    }
+    return beat;
+}
+
+ChecklistItem* add_checklist_item(AreaData* area_data, const char* title, const char* description, ChecklistStatus status)
+{
+    ChecklistItem* item = malloc(sizeof(ChecklistItem));
+    if (!item)
+        return NULL;
+    item->title = str_dup(title ? title : "");
+    item->description = str_dup(description ? description : "");
+    item->status = status;
+    item->next = NULL;
+
+    if (!area_data->checklist)
+        area_data->checklist = item;
+    else {
+        ChecklistItem* tail = area_data->checklist;
+        while (tail->next)
+            tail = tail->next;
+        tail->next = item;
+    }
+    return item;
+}
+
+void free_story_beats(StoryBeat* head)
+{
+    StoryBeat* beat = head;
+    while (beat) {
+        StoryBeat* next = beat->next;
+        free_string(beat->title);
+        free_string(beat->description);
+        free(beat);
+        beat = next;
+    }
+}
+
+void free_checklist(ChecklistItem* head)
+{
+    ChecklistItem* item = head;
+    while (item) {
+        ChecklistItem* next = item->next;
+        free_string(item->title);
+        free_string(item->description);
+        free(item);
+        item = next;
     }
 }

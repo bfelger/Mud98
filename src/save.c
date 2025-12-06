@@ -41,6 +41,8 @@
 #include "tables.h"
 #include "vt.h"
 
+#include <persist/theme/rom-olc/theme_rom_olc_io.h>
+
 #include <entities/descriptor.h>
 #include <entities/object.h>
 #include <entities/faction.h>
@@ -60,9 +62,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <time.h>
 
+#ifdef _MSC_VER
+#include <direct.h>
+#endif
+
 extern int _filbuf args((FILE*));
+
+static bool ensure_dir_exists(const char* path)
+{
+#ifdef _MSC_VER
+    if (_mkdir(path) == 0 || errno == EEXIST)
+        return true;
+#else
+    if (mkdir(path, 0775) == 0 || errno == EEXIST)
+        return true;
+#endif
+
+    perror(path);
+    return false;
+}
 
 char* print_flags(FLAGS flag)
 {
@@ -113,6 +134,7 @@ void save_char_obj(Mobile* ch)
     char strsave[MAX_INPUT_LENGTH];
     char strsavetemp[MAX_INPUT_LENGTH];
     FILE* fp;
+    const char* player_dir = cfg_get_player_dir();
 
     if (IS_NPC(ch) || test_output_enabled)
         return;
@@ -120,17 +142,24 @@ void save_char_obj(Mobile* ch)
     if (ch->desc != NULL && ch->desc->original != NULL) 
         ch = ch->desc->original;
 
+    if (!ensure_dir_exists(player_dir))
+        return;
+
     /* create god log */
     if (IS_IMMORTAL(ch) || ch->level >= LEVEL_IMMORTAL) {
-        sprintf(strsave, "%s%s", cfg_get_gods_dir(), capitalize(NAME_STR(ch)));
+        const char* gods_dir = cfg_get_gods_dir();
+        if (!ensure_dir_exists(gods_dir))
+            return;
+
+        sprintf(strsave, "%s%s", gods_dir, capitalize(NAME_STR(ch)));
         OPEN_OR_RETURN(fp = open_write_file(strsave));
         fprintf(fp, "Lev %2d Trust %2d  %s%s\n", ch->level, get_trust(ch),
             NAME_STR(ch), ch->pcdata->title);
         close_file(fp);
     }
 
-    sprintf(strsave, "%s%s", cfg_get_player_dir(), capitalize(NAME_STR(ch)));
-    sprintf(strsavetemp, "%s%s.temp", cfg_get_player_dir(), capitalize(NAME_STR(ch)));
+    sprintf(strsave, "%s%s", player_dir, capitalize(NAME_STR(ch)));
+    sprintf(strsavetemp, "%s%s.temp", player_dir, capitalize(NAME_STR(ch)));
     OPEN_OR_RETURN(fp = open_write_file(strsavetemp));
 
     fwrite_char(ch, fp);
@@ -176,8 +205,9 @@ void fwrite_char(Mobile* ch, FILE* fp)
     if (ch->short_descr[0] != '\0')fprintf(fp, "ShD  %s~\n", ch->short_descr);
     if (ch->long_descr[0] != '\0') fprintf(fp, "LnD  %s~\n", ch->long_descr);
     if (ch->description[0] != '\0') fprintf(fp, "Desc %s~\n", ch->description);
-    if (ch->prompt != NULL || !str_cmp(ch->prompt, "<%hhp %mm %vmv> ")
-        || !str_cmp(ch->prompt, "^p<%hhp %mm %vmv>" COLOR_CLEAR " "))
+    if (ch->prompt != NULL
+        && str_cmp(ch->prompt, "<%hhp %mm %vmv> ")
+        && str_cmp(ch->prompt, "^p<%hhp %mm %vmv>" COLOR_CLEAR " "))
         fprintf(fp, "Prom %s~\n", ch->prompt);
     fprintf(fp, "Race %s~\n", race_table[ch->race].name);
     if (ch->clan) fprintf(fp, "Clan %s~\n", clan_table[ch->clan].name);
@@ -237,14 +267,18 @@ void fwrite_char(Mobile* ch, FILE* fp)
     }
     else {
         char digest_buf[256];
-        bin_to_hex(digest_buf, ch->pcdata->pwd_digest, ch->pcdata->pwd_digest_len);
+        if (ch->pcdata->pwd_digest_hex != NULL)
+            strcpy(digest_buf, ch->pcdata->pwd_digest_hex);
+        else
+            bin_to_hex(digest_buf, ch->pcdata->pwd_digest, ch->pcdata->pwd_digest_len);
         fprintf(fp, "PwdDigest %s~\n", digest_buf);
 
-        if (ch->pcdata->bamfin[0] != '\0')
+        if (ch->pcdata->bamfin != NULL && ch->pcdata->bamfin[0] != '\0')
             fprintf(fp, "Bin  %s~\n", ch->pcdata->bamfin);
-        if (ch->pcdata->bamfout[0] != '\0')
+        if (ch->pcdata->bamfout != NULL && ch->pcdata->bamfout[0] != '\0')
             fprintf(fp, "Bout %s~\n", ch->pcdata->bamfout);
-        fprintf(fp, "Titl %s~\n", ch->pcdata->title);
+        if (ch->pcdata->title != NULL)
+            fprintf(fp, "Titl %s~\n", ch->pcdata->title);
         fprintf(fp, "Pnts %d\n", ch->pcdata->points);
         fprintf(fp, "TSex %d\n", ch->pcdata->true_sex);
         fprintf(fp, "LLev %d\n", ch->pcdata->last_level);
@@ -311,20 +345,6 @@ void fwrite_char(Mobile* ch, FILE* fp)
     return;
 }
 
-static void fwrite_palette(Color* color, int index, FILE* fp)
-{
-    // Extra reserved value for future use.
-    fprintf(fp, "Palette %d %u %u %u %u 0\n", index, color->mode, color->code[0], 
-        color->code[1], color->code[2]);
-}
-
-static void fwrite_channel(Color* color, const char* channel, FILE* fp)
-{
-    // Extra reserved value for future use.
-    fprintf(fp, "Channel %s %u %u %u %u 0\n", channel, color->mode, color->code[0],
-        color->code[1], color->code[2]);
-}
-
 void fwrite_themes(Mobile* ch, FILE* fp)
 {
     for (int i = 0; i < MAX_THEMES; ++i) {
@@ -332,19 +352,7 @@ void fwrite_themes(Mobile* ch, FILE* fp)
             continue;
 
         ColorTheme* theme = ch->pcdata->color_themes[i];
-        fprintf(fp, "#THEME\n");
-        fprintf(fp, "Name %s~\n", theme->name);
-        fprintf(fp, "Banner %s~\n", theme->banner);
-        fprintf(fp, "Info %d %d %d %d\n", theme->type, theme->mode, 
-            theme->palette_max, theme->is_public);
-        
-        for (int j = 0; j < theme->palette_max; ++j)
-            fwrite_palette(&theme->palette[j], j, fp);
-
-        for (int j = 0; j < COLOR_SLOT_COUNT; ++j)
-            fwrite_channel(&theme->channels[j], color_slot_entries[j].name, fp);
-
-        fprintf(fp, "End\n\n");
+        theme_rom_olc_write_theme(fp, theme, "End");
     }
 }
 
@@ -702,12 +710,17 @@ bool load_char_obj(Descriptor* d, char* name)
         ColorTheme* theme = lookup_color_theme(ch, theme_name);
         if (!theme) {
             free_string(theme_name);
-            theme = (ColorTheme*)system_color_themes[SYSTEM_COLOR_THEME_LOPE];
-            ch->pcdata->theme_config.current_theme_name = str_dup(theme->name);
+            theme = (ColorTheme*)get_default_system_color_theme();
+            if (theme)
+                ch->pcdata->theme_config.current_theme_name = str_dup(theme->name);
+            else
+                ch->pcdata->theme_config.current_theme_name = NULL;
         }
-        if (ch->pcdata->current_theme)
-            free_color_theme(ch->pcdata->current_theme);
-        ch->pcdata->current_theme = dup_color_theme(theme);
+        if (theme) {
+            if (ch->pcdata->current_theme)
+                free_color_theme(ch->pcdata->current_theme);
+            ch->pcdata->current_theme = dup_color_theme(theme);
+        }
         set_default_colors(ch);
     }
 
@@ -762,8 +775,8 @@ void fread_char(Mobile* ch, FILE* fp)
     time_t lastlogoff = current_time;
     int16_t percent;
 
-    sprintf(buf, "Loading %s.", NAME_STR(ch));
-    log_string(buf);
+    if (!test_output_enabled)
+        printf_log("Loading %s.", NAME_STR(ch));
 
     for (;;) {
         word = feof(fp) ? "End" : fread_word(fp);
@@ -902,6 +915,7 @@ void fread_char(Mobile* ch, FILE* fp)
             KEY("Cla", ch->ch_class, (int16_t)fread_number(fp));
             KEY("Clan", ch->clan, (int16_t)clan_lookup(fread_string(fp)));
             KEY("Comm", ch->comm_flags, fread_flag(fp));
+            KEY("Copp", ch->copper, (int16_t)fread_number(fp));
 
             if (!str_cmp(word, "Condition") || !str_cmp(word, "Cond")) {
                 ch->pcdata->condition[0] = (int16_t)fread_number(fp);
@@ -1103,7 +1117,6 @@ void fread_char(Mobile* ch, FILE* fp)
             KEY("ShD", ch->short_descr, fread_string(fp));
             KEY("Sec", ch->pcdata->security, fread_number(fp));	// OLC
             KEY("Silv", ch->silver, (int16_t)fread_number(fp));
-            KEY("Copp", ch->copper, (int16_t)fread_number(fp));
 
             if (!str_cmp(word, "Skill") || !str_cmp(word, "Sk")) {
                 SKNUM sn;
@@ -1663,98 +1676,19 @@ void fread_obj(Mobile* ch, FILE* fp)
 
 void fread_theme(Mobile* ch, FILE* fp)
 {
-    ColorTheme theme = { 0 };
-    bool fMatch;
-    char* word;
+    ColorTheme* theme = theme_rom_olc_read_theme(fp, "End", NAME_STR(ch));
+    if (!theme)
+        return;
 
-    for (;;) {
-        word = feof(fp) ? "End" : fread_word(fp);
-        fMatch = false;
-        switch (UPPER(word[0])) {
-        case 'B':
-            KEY("Banner", theme.banner, fread_string(fp));
-            break;
-        case 'C':
-            if (!str_cmp(word, "Channel")) {
-                char* chan = fread_word(fp);
-                int mode = fread_number(fp);
-                uint8_t code_0 = (uint8_t)fread_number(fp);
-                uint8_t code_1 = (uint8_t)fread_number(fp);
-                uint8_t code_2 = (uint8_t)fread_number(fp);
-                fread_number(fp); // reserved
-                int slot = -1;
-                LOOKUP_COLOR_SLOT_NAME(slot, chan);
-                if (slot < 0 || slot > COLOR_SLOT_COUNT) {
-                    bugf("fread_theme(%s): bad channel name '%s'.", 
-                        NAME_STR(ch), chan);
-                    break;
-                }
-                theme.channels[slot] = (Color){ 
-                    .mode = mode, 
-                    .code = { code_0, code_1, code_2 }, 
-                    .cache = NULL, 
-                    .xterm = NULL 
-                };
-                fMatch = true;
-                break;
-            }
-            break;
-        case 'E':
-            if (!str_cmp(word, "End")) {
-                for (int i = 0; i < MAX_THEMES; ++i) {
-                    if (!ch->pcdata->color_themes[i]) {
-                        ch->pcdata->color_themes[i] = new_color_theme();
-                        *ch->pcdata->color_themes[i] = theme;
-                        return;
-                    }
-                }
-                bugf("Could not find a free color theme slot for %s.",
-                    NAME_STR(ch));
-                return;
-            }
-            break;
-        case 'I':
-            if (!str_cmp(word, "Info")) {
-                theme.type = fread_number(fp);
-                theme.mode = fread_number(fp);
-                theme.palette_max = fread_number(fp);
-                theme.is_public = fread_number(fp);
-                fMatch = true;
-                break;
-            }
-            break;
-        case 'P':
-            if (!str_cmp(word, "Palette")) {
-                int idx = fread_number(fp);
-                int mode = fread_number(fp);
-                uint8_t code_0 = (uint8_t)fread_number(fp);
-                uint8_t code_1 = (uint8_t)fread_number(fp);
-                uint8_t code_2 = (uint8_t)fread_number(fp);
-                fread_number(fp); // reserved
-                theme.palette[idx] = (Color){
-                    .mode = mode,
-                    .code = { code_0, code_1, code_2 },
-                    .cache = NULL, 
-                    .xterm = NULL
-                };
-                fMatch = true;
-                break;
-            }
-            break;
-        case 'N':
-            KEY("Name", theme.name, fread_string(fp));
-            break;
-        default:
-            break;
-        }
-
-        if (!fMatch) {
-            bugf("Fread_theme: no match for '%'.", word);
-            fread_to_eol(fp);
+    for (int i = 0; i < MAX_THEMES; ++i) {
+        if (!ch->pcdata->color_themes[i]) {
+            ch->pcdata->color_themes[i] = theme;
+            return;
         }
     }
 
-    
+    bugf("Could not find a free color theme slot for %s.", NAME_STR(ch));
+    free_color_theme(theme);
 }
 
 void fread_quests(Mobile* ch, FILE* fp)
@@ -1774,4 +1708,3 @@ void fread_quests(Mobile* ch, FILE* fp)
         word = feof(fp) ? "End" : fread_word(fp);
     }
 }
-

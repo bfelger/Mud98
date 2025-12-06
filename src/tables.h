@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -95,7 +95,9 @@ extern const struct flag_type affect_flag_table[];
 extern const struct flag_type off_flag_table[];
 extern const struct flag_type imm_flag_table[];
 extern const struct flag_type form_flag_table[];
+extern const struct flag_type form_defaults_flag_table[];
 extern const struct flag_type part_flag_table[];
+extern const struct flag_type part_defaults_flag_table[];
 extern const struct flag_type comm_flag_table[];
 extern const struct flag_type extra_flag_table[];
 extern const struct flag_type wear_flag_table[];
